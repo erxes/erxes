@@ -1,6 +1,6 @@
 import { FormGroup } from 'erxes-ui';
 import Icon from 'modules/common/components/Icon';
-import { ILocationOption } from 'modules/settings/properties/types';
+import { ILocationOption } from 'modules/common/types';
 import { LinkButton } from 'modules/settings/team/styles';
 import React, { useEffect, useState } from 'react';
 import LocationOption from './LocationOption';
@@ -8,17 +8,18 @@ import LocationOption from './LocationOption';
 type Props = {
   onChange: (value: ILocationOption[]) => void;
   locationOptions: ILocationOption[];
+  currentLocation?: ILocationOption;
 };
 
 function LocationOptions(props: Props) {
-  const { locationOptions, onChange } = props;
+  const { locationOptions, currentLocation, onChange } = props;
 
   const [options, setOptions] = useState(
-    (locationOptions || []).map(({ description, lat, lng }) => {
+    (locationOptions || []).map(({ lat, lng, description }) => {
       return {
-        description,
         lat,
-        lng
+        lng,
+        description
       };
     })
   );
@@ -41,14 +42,13 @@ function LocationOptions(props: Props) {
   };
 
   const addOption = () => {
-    setOptions([
-      ...options,
-      {
-        lat: 0.0,
-        lng: 0.0,
-        description: ''
-      }
-    ]);
+    const option: any = currentLocation || {
+      lat: 0.0,
+      lng: 0.0,
+      description: ''
+    };
+
+    setOptions([...options, option]);
   };
 
   const removeOption = (index: number) => {

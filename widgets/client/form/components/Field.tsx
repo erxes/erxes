@@ -8,10 +8,9 @@ import {
 } from '../constants';
 import { FieldValue, IField, IFieldError, ILocationOption } from '../types';
 import MSFmultiSelect from '../multipleSelectScript';
-import { loadMapApi, __ } from '../../utils';
+import { __ } from '../../utils';
 import Map from './Map';
 import Marker from './Marker';
-import { connection } from '../connection';
 
 type Props = {
 	field: IField;
@@ -19,6 +18,7 @@ type Props = {
 	value?: FieldValue;
 	currentLocation?: ILocationOption;
 	color?: string;
+	mapScriptLoaded?: boolean;
 	onChange: (params: {
 		fieldId: string;
 		value: FieldValue;
@@ -32,10 +32,8 @@ type State = {
 	dateTimeValue: Date | string;
 	isAttachingFile?: boolean;
 	multipleSelectValues?: string[];
-	mapScriptLoaded: boolean;
 	isMapDraggable: boolean;
 	currentLocation: ILocationOption;
-	distanceInKm: number;
 };
 
 export default class Field extends React.Component<Props, State> {
@@ -144,23 +142,11 @@ export default class Field extends React.Component<Props, State> {
 			multipleSelectValues: [],
 			isMapDraggable,
 			currentLocation: props.currentLocation || { lat: 0.0, lng: 0.0 },
-			distanceInKm: -1,
-			mapScriptLoaded: false
 		};
 	}
 
 	componentDidMount() {
 		const { field } = this.props;
-
-		if (field.type === 'map') {
-			const googleMapScript = loadMapApi(
-				connection.data.integration.languageCode
-			);
-
-			googleMapScript.addEventListener('load', () => {
-				this.setState({ mapScriptLoaded: true });
-			});
-		}
 
 		if (field.type === 'multiSelect' || field.type === 'industry') {
 			const multiSelects = Array.from(
@@ -390,7 +376,7 @@ export default class Field extends React.Component<Props, State> {
 
 		return (
 			<div style={{ height: '250px', width: '100%' }}>
-				{this.state.mapScriptLoaded && (
+				{this.props.mapScriptLoaded && (
 					<Map
 						center={
 							new google.maps.LatLng(
@@ -398,8 +384,9 @@ export default class Field extends React.Component<Props, State> {
 								currentLocation.lng
 							)
 						}
+						controlSize={25}
 						streetViewControl={false}
-						zoom={8}
+						zoom={4}
 						style={{ width: '100%', height: '250px' }}
 					>
 						{locationOptions.length > 0 ? (

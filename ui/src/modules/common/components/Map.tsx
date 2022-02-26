@@ -20,7 +20,9 @@ type Props = {
   locationOptions: ILocationOption[];
   defaultZoom: number;
   mapControlOptions: IMapControlOptions;
+  isPreview?: boolean;
   onChangeMarker: (location: ILocationOption) => void;
+  onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
 };
 
 type State = {
@@ -49,6 +51,10 @@ export default class GenerateField extends React.Component<Props, State> {
     }
 
     if (nextProps.center !== this.props.center) {
+      if (nextProps.center.lat === 0 && nextProps.center.lng === 0) {
+        return;
+      }
+
       this.setState({ center: nextProps.center });
     }
   }
@@ -61,14 +67,19 @@ export default class GenerateField extends React.Component<Props, State> {
       mapStyle,
       mapSize
     } = this.state;
-    const { mapControlOptions, defaultZoom, onChangeMarker } = this.props;
+    const {
+      mapControlOptions,
+      defaultZoom,
+      onChangeMarker,
+      onChangeLocationOptions
+    } = this.props;
 
     const onMarkerInteraction = (
       childKey: any,
       _childProps: any,
       mouse: any
     ) => {
-      if (childKey !== 'current') {
+      if (!this.props.isPreview && childKey !== 'current') {
         return;
       }
 
@@ -83,15 +94,23 @@ export default class GenerateField extends React.Component<Props, State> {
       _childProps: any,
       mouse: any
     ) => {
-      if (childKey !== 'current') {
+      if (!this.props.isPreview && childKey !== 'current') {
         return;
       }
 
-      const centerLocation = { lat: mouse.lat, lng: mouse.lng };
+      const index = Number(childKey);
+
+      const option = locationOptions[index];
+      locationOptions[index] = { ...option, lat: mouse.lat, lng: mouse.lng };
+
+      if (onChangeLocationOptions) {
+        onChangeLocationOptions(locationOptions);
+      }
 
       this.setState({
         isMapDraggable: true,
-        center: centerLocation
+        center: { lat: mouse.lat, lng: mouse.lng },
+        locationOptions
       });
     };
 

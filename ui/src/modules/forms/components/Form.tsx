@@ -3,7 +3,6 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { FlexContent } from 'modules/layout/styles';
-import { IConfig } from 'modules/settings/general/types';
 import { IField } from 'modules/settings/properties/types';
 import { Description } from 'modules/settings/styles';
 import React from 'react';
@@ -26,7 +25,6 @@ type Props = {
   hideOptionalFields?: boolean;
   currentMode?: 'create' | 'update' | undefined;
   currentField?: IField;
-  configs: IConfig[];
   color?: string;
 };
 
@@ -40,6 +38,7 @@ type State = {
   buttonText: string;
   numberOfPages?: number;
   currentPage: number;
+  googleMapApiKey?: string;
 };
 
 class Form extends React.Component<Props, State> {
@@ -57,7 +56,8 @@ class Form extends React.Component<Props, State> {
       currentField: undefined,
       type: props.type || '',
       numberOfPages: form.numberOfPages || 1,
-      currentPage: 1
+      currentPage: 1,
+      googleMapApiKey: form.googleMapApiKey || ''
     };
   }
 
@@ -85,6 +85,43 @@ class Form extends React.Component<Props, State> {
       );
     }
   }
+
+  renderGoogleMapApiKey = () => {
+    const { fields, googleMapApiKey } = this.state;
+
+    if (fields.findIndex(field => field.type === 'map') === -1) {
+      return null;
+    }
+
+    const { onDocChange } = this.props;
+
+    const onChangeField = e => {
+      const name: keyof State = e.target.name;
+      const value = (e.currentTarget as HTMLInputElement).value;
+
+      this.setState({ [name]: value } as any, () => {
+        if (onDocChange) {
+          onDocChange(this.state);
+        }
+      });
+    };
+
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel required={true}>
+            {__('Google map api key')}
+          </ControlLabel>
+          <FormControl
+            required={true}
+            name="googleMapApiKey"
+            value={googleMapApiKey}
+            onChange={onChangeField}
+          />
+        </FormGroup>
+      </>
+    );
+  };
 
   renderOptionalFields = () => {
     if (this.props.hideOptionalFields) {
@@ -137,6 +174,8 @@ class Form extends React.Component<Props, State> {
             min={1}
           />
         </FormGroup>
+
+        {this.renderGoogleMapApiKey()}
 
         <FormGroup>
           <ControlLabel>{__('Form button text')}</ControlLabel>
@@ -217,7 +256,7 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    const { renderPreviewWrapper, configs } = this.props;
+    const { renderPreviewWrapper } = this.props;
     const {
       currentMode,
       currentField,
@@ -234,7 +273,6 @@ class Form extends React.Component<Props, State> {
           onFieldClick={this.onFieldClick}
           onChangeFieldsOrder={this.onChangeFieldsOrder}
           currentPage={this.state.currentPage}
-          configs={configs}
         />
       );
     };
@@ -254,7 +292,6 @@ class Form extends React.Component<Props, State> {
             mode={currentMode || 'create'}
             field={currentField}
             fields={fields}
-            configs={configs}
             numberOfPages={numberOfPages || 1}
             onSubmit={this.onFieldSubmit}
             onDelete={this.onFieldDelete}

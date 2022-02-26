@@ -26,13 +26,12 @@ app.use('/build', express.static(path.join(__dirname, '../static')));
 app.use('/static', express.static('public'));
 
 const getEnv = () => {
-  const { ROOT_URL, API_URL, API_SUBSCRIPTIONS_URL, GOOGLE_MAP_API_KEY } = process.env;
+  const { ROOT_URL, API_URL, API_SUBSCRIPTIONS_URL } = process.env;
 
   return JSON.stringify({
     ROOT_URL,
     API_URL,
-    API_SUBSCRIPTIONS_URL, 
-    GOOGLE_MAP_API_KEY
+    API_SUBSCRIPTIONS_URL
   });
 };
 

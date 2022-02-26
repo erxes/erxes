@@ -444,10 +444,12 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
   return false;
 }
 
-export const loadMapApi = (locale?: string) => {
-  const { GOOGLE_MAP_API_KEY } = getEnv();
- 
-  const mapsURL = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAP_API_KEY}&libraries=geometry,places&language=${locale || 'en'}&v=quarterly`;
+export const loadMapApi = (apiKey: string, locale?: string) => {
+  if (!apiKey) {
+    return "";
+  }
+
+  const mapsURL = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry,places&language=${locale || 'en'}&v=quarterly`;
   const scripts: any = document.getElementsByTagName('script');
   // Go through existing script tags, and return google maps api tag when found.
   for (const script of scripts) {

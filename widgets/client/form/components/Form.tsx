@@ -6,7 +6,8 @@ import {
   checkLogicFulfilled,
   fixErrorMessage,
   LogicParams,
-  readFile
+  readFile,
+  loadMapApi
 } from '../../utils';
 import { connection } from '../connection';
 import {
@@ -39,6 +40,7 @@ type State = {
   doc: IFormDoc;
   currentPage: number;
   currentLocation?: ILocationOption;
+  mapScriptLoaded?: boolean;
 };
 
 class Form extends React.Component<Props, State> {
@@ -58,21 +60,34 @@ class Form extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    if (this.props.setHeight) {
-      this.props.setHeight();
+    const {setHeight, form, integration} = this.props;
+
+    if (setHeight) {
+      setHeight();
     }
 
-    if (this.props.integration.leadData.css) {
+    if (integration.leadData.css) {
       const head = document.getElementsByTagName('head')[0];
       const style = document.createElement('style');
       style.setAttribute('type', 'text/css');
 
       style.appendChild(
-        document.createTextNode(this.props.integration.leadData.css)
+        document.createTextNode(integration.leadData.css)
       );
 
       head.appendChild(style);
     }
+
+    if (form.fields.findIndex(e => e.type === 'map') !== -1) {
+			const googleMapScript = loadMapApi(
+        form.googleMapApiKey || "",
+        integration.languageCode || 'en'
+			);
+
+			googleMapScript.addEventListener('load', () => {
+				this.setState({ mapScriptLoaded: true });
+			});
+		}
   }
 
   componentDidUpdate() {
@@ -331,6 +346,7 @@ class Form extends React.Component<Props, State> {
           value={this.state.doc[field._id].value || ''}
           currentLocation={this.state.currentLocation}
           color={this.props.color}
+          mapScriptLoaded={this.state.mapScriptLoaded}
         />
       );
     });

@@ -4,35 +4,31 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Uploader from 'modules/common/components/Uploader';
 import SelectCustomers from '../../../customers/containers/common/SelectCustomers';
-import { IAttachment } from 'modules/common/types';
+import { IAttachment, ILocationOption } from 'modules/common/types';
 import {
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES,
   COUNTRIES
 } from 'modules/companies/constants';
 import React from 'react';
-import {
-  LogicIndicator,
-  SelectInput,
-  ObjectList,
-  MapContainer
-} from '../styles';
-import { IField, ILocationOption } from '../types';
+import { LogicIndicator, SelectInput, ObjectList } from '../styles';
+import { IField } from '../types';
 import Select from 'react-select-plus';
 import { IOption } from 'erxes-ui/lib/types';
 import ModifiableList from 'modules/common/components/ModifiableList';
 import { __ } from 'erxes-ui/lib/utils/core';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
-import { IConfig } from 'modules/settings/general/types';
-import Map from './Map';
+import Map from '../../../common/components/Map';
+import { MapContainer } from 'modules/common/styles/main';
 
 type Props = {
   field: IField;
-  configs: IConfig[];
   currentLocation: ILocationOption;
-  onValueChange?: (data: { _id: string; value: any }) => void;
   defaultValue?: any;
   hasLogic?: boolean;
+  isPreview?: boolean;
+  onValueChange?: (data: { _id: string; value: any }) => void;
+  onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
 };
 
 type State = {
@@ -40,19 +36,15 @@ type State = {
   checkBoxValues: any[];
   errorCounter: number;
   currentLocation: ILocationOption;
-  googleMapApiKey: string;
 };
 
 export default class GenerateField extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const config = props.configs.find(e => e.code === 'GOOGLE_MAP_API_KEY');
-
     this.state = {
       errorCounter: 0,
       ...this.generateState(props),
-      googleMapApiKey: config ? config.value : '',
       currentLocation: props.currentLocation
     };
   }
@@ -353,7 +345,12 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderMap(attrs) {
-    const { field, onValueChange } = this.props;
+    const {
+      field,
+      isPreview,
+      onChangeLocationOptions,
+      onValueChange
+    } = this.props;
     const { locationOptions = [] } = field;
     const { value } = attrs;
 
@@ -373,7 +370,7 @@ export default class GenerateField extends React.Component<Props, State> {
       <MapContainer>
         <Map
           center={currentLocation}
-          googleMapApiKey={this.state.googleMapApiKey}
+          googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
           defaultZoom={7}
           locationOptions={locationOptions}
           mapControlOptions={{
@@ -383,9 +380,11 @@ export default class GenerateField extends React.Component<Props, State> {
             scaleControl: false,
             streetViewControl: false,
             rotateControl: false,
-            fullscreenControl: true
+            fullscreenControl: isPreview ? false : true
           }}
+          isPreview={isPreview}
           onChangeMarker={onChangeMarker}
+          onChangeLocationOptions={onChangeLocationOptions}
         />
       </MapContainer>
     );

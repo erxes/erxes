@@ -1,6 +1,6 @@
 import { Tip } from 'erxes-ui';
 import * as React from 'react';
-import { Pin } from '../styles';
+import { Pin } from '../styles/main';
 import { ILocationOption } from '../types';
 
 type Props = {

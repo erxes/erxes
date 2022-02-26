@@ -5,13 +5,18 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import ModifiableList from 'modules/common/components/ModifiableList';
-import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import LocationOptions from 'modules/forms/components/LocationOptions';
+import { MapContainer, ModalFooter } from 'modules/common/styles/main';
+import {
+  IButtonMutateProps,
+  IFormProps,
+  ILocationOption
+} from 'modules/common/types';
 import { Row } from 'modules/settings/integrations/styles';
 import React from 'react';
 import PropertyGroupForm from '../containers/PropertyGroupForm';
 import { IField, IFieldGroup } from '../types';
+import LocationOptions from './LocationOptions';
+import Map from 'modules/common/components/Map';
 
 type Props = {
   queryParams: any;
@@ -28,6 +33,7 @@ type State = {
   type: string;
   hasOptions: boolean;
   add: boolean;
+  currentLocation: ILocationOption;
 };
 
 class PropertyForm extends React.Component<Props, State> {
@@ -75,6 +81,7 @@ class PropertyForm extends React.Component<Props, State> {
 
     this.state = {
       ...doc,
+      currentLocation: { lat: 0, lng: 0 },
       add: false
     };
   }
@@ -152,12 +159,36 @@ class PropertyForm extends React.Component<Props, State> {
       return null;
     }
 
+    const { currentLocation, locationOptions = [] } = this.state;
+
     return (
       <FormGroup>
         <ControlLabel htmlFor="locationOptions">Options:</ControlLabel>
+        {locationOptions.length > 0 && (
+          <MapContainer>
+            <Map
+              center={currentLocation}
+              googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
+              defaultZoom={7}
+              locationOptions={locationOptions}
+              mapControlOptions={{
+                controlSize: 30,
+                zoomControl: true,
+                mapTypeControl: true,
+                scaleControl: false,
+                streetViewControl: false,
+                rotateControl: false,
+                fullscreenControl: true
+              }}
+              isPreview={true}
+              onChangeMarker={_location => {}}
+              onChangeLocationOptions={this.onChangeLocationOption}
+            />
+          </MapContainer>
+        )}
 
         <LocationOptions
-          locationOptions={this.state.locationOptions || []}
+          locationOptions={locationOptions}
           onChange={this.onChangeLocationOption}
         />
       </FormGroup>
