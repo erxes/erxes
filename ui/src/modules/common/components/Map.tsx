@@ -21,7 +21,7 @@ type Props = {
   defaultZoom: number;
   mapControlOptions: IMapControlOptions;
   isPreview?: boolean;
-  onChangeMarker: (location: ILocationOption) => void;
+  onChangeMarker?: (location: ILocationOption) => void;
   onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
 };
 

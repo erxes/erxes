@@ -181,7 +181,6 @@ class PropertyForm extends React.Component<Props, State> {
                 fullscreenControl: true
               }}
               isPreview={true}
-              onChangeMarker={_location => {}}
               onChangeLocationOptions={this.onChangeLocationOption}
             />
           </MapContainer>
