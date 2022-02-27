@@ -35,6 +35,8 @@ jobs:
         with:
           node-version: 12.20.x
 
+      - uses: actions/checkout@v2
+
       - name: Build
         run: |
           ls -la
