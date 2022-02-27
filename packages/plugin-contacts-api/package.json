@@ -1,10 +1,10 @@
 {
-  "name": "@erxes/plugin-contact-api",
+  "name": "@erxes/plugin-contacts-api",
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",
     "dev": "cd .erxes && DEBUG=erxes* yarn dev",
     "build": "cd .erxes && yarn build",
-    "start": "cd .erxes/dist/plugin-contact-api/.erxes && node src"
+    "start": "cd .erxes/dist/plugin-contacts-api/.erxes && node src"
   }
 }
