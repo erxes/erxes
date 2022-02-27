@@ -1,4 +1,3 @@
-
 const webpack = require("webpack");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const path = require("path");
@@ -35,6 +34,7 @@ for (const name of depNames) {
 module.exports = (env, args) => {
   return {
     output: {
+      uniqueName: configs.name,
       publicPath: args.mode === 'development' ? `http://localhost:${port}/` : undefined,
     },
 
@@ -67,6 +67,7 @@ module.exports = (env, args) => {
     resolve: {
       extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
       fallback: {
+        path: require.resolve("path-browserify"),
         timers: require.resolve("timers-browserify"),
       },
     },
@@ -108,6 +109,7 @@ module.exports = (env, args) => {
             path.resolve(__dirname, "../../ui-inbox/src"),
             path.resolve(__dirname, "../../ui-products/src"),
             path.resolve(__dirname, "../../ui-notifications/src"),
+            path.resolve(__dirname, '../../ui-engage/src'),
             path.resolve(__dirname, "plugin-src"),
           ],
           use: {
