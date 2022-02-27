@@ -22,6 +22,7 @@ jobs:
 
       - name: Build
         run: |
+          echo ${{ toJSON(github) }}
           echo ${{ toJSON(job) }}
           echo ${{ toJSON(runner) }}
           echo ${{ toJSON(steps) }}
