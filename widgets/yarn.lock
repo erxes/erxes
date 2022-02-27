@@ -40,6 +40,11 @@
   dependencies:
     tslib "^2.0.1"
 
+"@googlemaps/typescript-guards@^1.0.7":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@googlemaps/typescript-guards/-/typescript-guards-1.0.8.tgz#79ecbd737ebc98dc07b021550008d7d3e9eed6e7"
+  integrity sha512-5zDzyt/GaYyprwO9f7EQaTjmGSXJMYnxiBv86zWiFtGcPMaqCKdxNeB6QctmgyodBoSq4hgLQj+mtVnQEFANDw==
+
 "@mapbox/point-geometry@^0.1.0":
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/@mapbox/point-geometry/-/point-geometry-0.1.0.tgz#8a83f9335c7860effa2eeeca254332aa0aeed8f2"
@@ -116,12 +121,10 @@
     "@types/express-serve-static-core" "*"
     "@types/serve-static" "*"
 
-"@types/google-map-react@1.1.7":
-  version "1.1.7"
-  resolved "https://registry.yarnpkg.com/@types/google-map-react/-/google-map-react-1.1.7.tgz#f4a6589ed33a72ee0fa315ec8fa537855d533f6e"
-  integrity sha512-/hX+vtt/NAWmc7n5WLTTnxf0MzReAC4qXQdRw9OHmVdToNvQ1XWmmLMjXr0LfZYmaijMlVD3ox9VdtQMlof30g==
-  dependencies:
-    "@types/react" "*"
+"@types/google.maps@^3.47.4":
+  version "3.48.1"
+  resolved "https://registry.yarnpkg.com/@types/google.maps/-/google.maps-3.48.1.tgz#7f21554e75ac929e17896fc42d201b5f5e69837f"
+  integrity sha512-omUrHt83oSngRD0/pk3JW5dvTeSUVMmAFp6b2Btj5LFqPKc09f0OeHk2LIGPz12T3sRAtwkSvgmzwVMqPrIW9A==
 
 "@types/i18next@*":
   version "11.9.3"
