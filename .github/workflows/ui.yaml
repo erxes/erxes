@@ -37,6 +37,8 @@ jobs:
 
       - name: Build
         run: |
+          ls -la
+          ls -ls packages
           cd packages/core-ui
           yarn install --frozen-lockfile --production
           yarn build
