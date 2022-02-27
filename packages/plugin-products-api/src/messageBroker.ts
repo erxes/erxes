@@ -57,3 +57,7 @@ export const findTags = async (selector): Promise<any> => {
 export const findCompanies = async (selector): Promise<any> => {
   return client.sendRPCMessage('contacts:rpc_queue:findActiveCompanies', selector);
 };
+
+export default function() {
+  return client;
+}

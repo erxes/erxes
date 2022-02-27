@@ -258,6 +258,10 @@ export const initBroker = async (server?) => {
         data: collection ? await collection.find(query) : null
       }
     });
+
+    consumeRPCQueue('core:rpc_queue:findOneBrand', async query => ({
+      status: 'success', data: await Brands.findOne(query)
+    }));
   }
 
   return client;

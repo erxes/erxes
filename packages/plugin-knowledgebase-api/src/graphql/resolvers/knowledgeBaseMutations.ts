@@ -1,3 +1,6 @@
+import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { IContext } from '@erxes/api-utils/src';
+
 import {
   KnowledgeBaseArticles,
   KnowledgeBaseCategories,
@@ -5,10 +8,8 @@ import {
 } from '../../models';
 import { ITopic } from '../../models/definitions/knowledgebase';
 import { IArticleCreate, ICategoryCreate } from '../../models/KnowledgeBase';
-//import { MODULE_NAMES } from '@erxes/api-utils/src/constants';
-// import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
+import { MODULE_NAMES } from '../../constants';
 
 const knowledgeBaseMutations = {
   /**
@@ -24,18 +25,18 @@ const knowledgeBaseMutations = {
       user._id
     );
 
-    // await putCreateLog(
-    //   {
-    //     type: MODULE_NAMES.KB_TOPIC,
-    //     newData: {
-    //       ...doc,
-    //       createdBy: user._id,
-    //       createdDate: topic.createdDate,
-    //     },
-    //     object: topic,
-    //   },
-    //   user
-    // );
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.KB_TOPIC,
+        newData: {
+          ...doc,
+          createdBy: user._id,
+          createdDate: topic.createdDate,
+        },
+        object: topic,
+      },
+      user
+    );
 
     return topic;
   },
@@ -51,19 +52,19 @@ const knowledgeBaseMutations = {
     const topic = await KnowledgeBaseTopics.getTopic(_id);
     const updated = await KnowledgeBaseTopics.updateDoc(_id, doc, user._id);
 
-    // await putUpdateLog(
-    //   {
-    //     type: MODULE_NAMES.KB_TOPIC,
-    //     object: topic,
-    //     newData: {
-    //       ...doc,
-    //       modifiedBy: user._id,
-    //       modifiedDate: updated.modifiedDate,
-    //     },
-    //     updatedDocument: updated,
-    //   },
-    //   user
-    // );
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.KB_TOPIC,
+        object: topic,
+        newData: {
+          ...doc,
+          modifiedBy: user._id,
+          modifiedDate: updated.modifiedDate,
+        },
+        updatedDocument: updated,
+      },
+      user
+    );
 
     return updated;
   },
@@ -79,7 +80,7 @@ const knowledgeBaseMutations = {
     const topic = await KnowledgeBaseTopics.getTopic(_id);
     const removed = await KnowledgeBaseTopics.removeDoc(_id);
 
-    // await putDeleteLog({ type: MODULE_NAMES.KB_TOPIC, object: topic }, user);
+    await putDeleteLog({ type: MODULE_NAMES.KB_TOPIC, object: topic }, user);
 
     return removed;
   },
@@ -94,18 +95,18 @@ const knowledgeBaseMutations = {
   ) {
     const kbCategory = await KnowledgeBaseCategories.createDoc(doc, user._id);
 
-    // await putCreateLog(
-    //   {
-    //     type: MODULE_NAMES.KB_CATEGORY,
-    //     newData: {
-    //       ...doc,
-    //       createdBy: user._id,
-    //       createdDate: kbCategory.createdDate,
-    //     },
-    //     object: kbCategory,
-    //   },
-    //   user
-    // );
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.KB_CATEGORY,
+        newData: {
+          ...doc,
+          createdBy: user._id,
+          createdDate: kbCategory.createdDate,
+        },
+        object: kbCategory,
+      },
+      user
+    );
 
     return kbCategory;
   },
@@ -121,19 +122,19 @@ const knowledgeBaseMutations = {
     const kbCategory = await KnowledgeBaseCategories.getCategory(_id);
     const updated = await KnowledgeBaseCategories.updateDoc(_id, doc, user._id);
 
-    // await putUpdateLog(
-    //   {
-    //     type: MODULE_NAMES.KB_CATEGORY,
-    //     object: kbCategory,
-    //     newData: {
-    //       ...doc,
-    //       modifiedBy: user._id,
-    //       modifiedDate: updated.modifiedDate,
-    //     },
-    //     updatedDocument: updated,
-    //   },
-    //   user
-    // );
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.KB_CATEGORY,
+        object: kbCategory,
+        newData: {
+          ...doc,
+          modifiedBy: user._id,
+          modifiedDate: updated.modifiedDate,
+        },
+        updatedDocument: updated,
+      },
+      user
+    );
 
     return updated;
   },
@@ -150,10 +151,10 @@ const knowledgeBaseMutations = {
 
     const removed = await KnowledgeBaseCategories.removeDoc(_id);
 
-    // await putDeleteLog(
-    //   { type: MODULE_NAMES.KB_CATEGORY, object: kbCategory },
-    //   user
-    // );
+    await putDeleteLog(
+      { type: MODULE_NAMES.KB_CATEGORY, object: kbCategory },
+      user
+    );
 
     return removed;
   },
@@ -168,18 +169,18 @@ const knowledgeBaseMutations = {
   ) {
     const kbArticle = await KnowledgeBaseArticles.createDoc(doc, user._id);
 
-    // await putCreateLog(
-    //   {
-    //     type: MODULE_NAMES.KB_ARTICLE,
-    //     newData: {
-    //       ...doc,
-    //       createdBy: user._id,
-    //       createdDate: kbArticle.createdDate,
-    //     },
-    //     object: kbArticle,
-    //   },
-    //   user
-    // );
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.KB_ARTICLE,
+        newData: {
+          ...doc,
+          createdBy: user._id,
+          createdDate: kbArticle.createdDate,
+        },
+        object: kbArticle,
+      },
+      user
+    );
 
     return kbArticle;
   },
@@ -195,19 +196,19 @@ const knowledgeBaseMutations = {
     const kbArticle = await KnowledgeBaseArticles.getArticle(_id);
     const updated = await KnowledgeBaseArticles.updateDoc(_id, doc, user._id);
 
-    // await putUpdateLog(
-    //   {
-    //     type: MODULE_NAMES.KB_ARTICLE,
-    //     object: kbArticle,
-    //     newData: {
-    //       ...doc,
-    //       modifiedBy: user._id,
-    //       modifiedDate: updated.modifiedDate,
-    //     },
-    //     updatedDocument: updated,
-    //   },
-    //   user
-    // );
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.KB_ARTICLE,
+        object: kbArticle,
+        newData: {
+          ...doc,
+          modifiedBy: user._id,
+          modifiedDate: updated.modifiedDate,
+        },
+        updatedDocument: updated,
+      },
+      user
+    );
 
     return updated;
   },
@@ -223,10 +224,10 @@ const knowledgeBaseMutations = {
     const kbArticle = await KnowledgeBaseArticles.getArticle(_id);
     const removed = await KnowledgeBaseArticles.removeDoc(_id);
 
-    // await putDeleteLog(
-    //   { type: MODULE_NAMES.KB_ARTICLE, object: kbArticle },
-    //   user
-    // );
+    await putDeleteLog(
+      { type: MODULE_NAMES.KB_ARTICLE, object: kbArticle },
+      user
+    );
 
     return removed;
   },

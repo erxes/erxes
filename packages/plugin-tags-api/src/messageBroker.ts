@@ -56,3 +56,7 @@ export const initBroker = async cl => {
 export const sendRPCMessage = async (channel, message): Promise<any> => {
   return client.sendRPCMessage(channel, message);
 };
+
+export default function() {
+  return client;
+}

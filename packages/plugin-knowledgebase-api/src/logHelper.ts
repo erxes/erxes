@@ -1,10 +1,13 @@
-import { gatherNames, LogDesc } from '@erxes/api-utils/src/logDescHelper';
-import { Brands, Users } from './apiCollections';
+import { gatherNames, gatherUsernames, LogDesc, IDescriptions } from '@erxes/api-utils/src/logUtils';
 
 import { KnowledgeBaseArticles, KnowledgeBaseCategories } from "./models";
 import { ICategoryDocument, ITopicDocument } from "./models/definitions/knowledgebase";
+import messageBroker from './messageBroker';
+import { MODULE_NAMES } from './constants';
 
-const userFields = { collection: Users, nameFields: ['email', 'username'] };
+const findUser = async (ids: string[]) => {
+  return await messageBroker().sendRPCMessage('core:rpc_queue:findOneUser', { _id: { $in: ids } });
+};
 
 const gatherKbTopicFieldNames = async (
   doc: ITopicDocument,
@@ -16,27 +19,24 @@ const gatherKbTopicFieldNames = async (
     options = prevList;
   }
 
-  options = await gatherNames({
-    ...userFields,
-    idFields: [doc.createdBy],
+  options = await gatherUsernames({
     foreignKey: 'createdBy',
     prevList: options,
+    items: [await findUser([doc.createdBy])]
   });
 
-  options = await gatherNames({
-    ...userFields,
-    idFields: [doc.modifiedBy],
+  options = await gatherUsernames({
     foreignKey: 'modifiedBy',
     prevList: options,
+    items: [await findUser([doc.modifiedBy])]
   });
 
   if (doc.brandId) {
     options = await gatherNames({
-      collection: Brands,
-      idFields: [doc.brandId],
       foreignKey: 'brandId',
       prevList: options,
-      nameFields: ['name']
+      nameFields: ['name'],
+      items: [await messageBroker().sendRPCMessage('core:rpc_queue:findOneBrand', { _id: doc.brandId })]
     });
   }
 
@@ -73,18 +73,16 @@ const gatherKbCategoryFieldNames = async (
     { title: 1 }
   );
 
-  options = await gatherNames({
-    ...userFields,
-    idFields: [doc.createdBy],
+  options = await gatherUsernames({
     foreignKey: 'createdBy',
     prevList: options,
+    items: [await findUser([doc.createdBy])]
   });
 
-  options = await gatherNames({
-    ...userFields,
-    idFields: [doc.modifiedBy],
+  options = await gatherUsernames({
     foreignKey: 'modifiedBy',
     prevList: options,
+    items: [await findUser([doc.modifiedBy])]
   });
 
   if (articles.length > 0) {
@@ -96,66 +94,73 @@ const gatherKbCategoryFieldNames = async (
   return options;
 };
 
-export const gatherCategoryDescriptions = async (params: any) => {
+const gatherKbArticleFieldNames = async (params: any, prevList?: LogDesc[]) => {
   const { object, updatedDocument } = params;
-
-  const description = `"${object.title}" has been`;
-
-  let extraDesc = await gatherKbCategoryFieldNames(object);
-
-  if (updatedDocument) {
-    extraDesc = await gatherKbCategoryFieldNames(
-      updatedDocument,
-      extraDesc
-    );
-  }
-
-  return { extraDesc, description };
-};
-
-export const gatherTopicDescriptions = async (params: any) => {
-  const { object, updatedDocument } = params;
-
-  const description = `"${object.title}" has been`;
-
-  let extraDesc = await gatherKbTopicFieldNames(object);
-
-  if (updatedDocument) {
-    extraDesc = await gatherKbTopicFieldNames(updatedDocument, extraDesc);
-  }
-
-  return { extraDesc, description };
-}
-
-export const gatherArticleDescriptions = async (params: any) => {
-  const { object, updatedDocument } = params;
+  let options: LogDesc[] = [];
   
-  const description = `"${object.title}" has been`;
+  if (prevList) {
+    options = prevList;
+  }
 
-  let extraDesc = await gatherNames({
-    collection: Users,
-    idFields: [object.createdBy],
+  options = await gatherUsernames({
     foreignKey: 'createdBy',
-    nameFields: ['username', 'email']
+    prevList,
+    items: [await findUser([object.createdBy])]
   });
 
   if (object.modifiedBy) {
-    extraDesc = await gatherNames({
-      ...userFields,
-      idFields: [object.modifiedBy],
+    options = await gatherUsernames({
       foreignKey: 'modifiedBy',
-      prevList: extraDesc
+      prevList: options,
+      items: [await findUser([object.modifiedBy])]
     });
   }
 
   if (updatedDocument && updatedDocument.modifiedBy) {
-    extraDesc = await gatherNames({
-      ...userFields,
-      idFields: [updatedDocument.modifiedBy],
+    options = await gatherUsernames({
       foreignKey: 'modifiedBy',
-      prevList: extraDesc
+      prevList: options,
+      items: [await findUser([updatedDocument.modifiedBy])]
     });
   }
 
-  return { description, extraDesc };
+  return options;
 }
+
+export const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
+  const { action, type, object, updatedDocument } = params;
+
+  const description = `"${object.title}" has been ${action}d`;
+  let extraDesc: LogDesc[] = [];
+
+  switch (type) {
+    case MODULE_NAMES.KB_TOPIC:
+      extraDesc = await gatherKbTopicFieldNames(object);
+
+      if (updatedDocument) {
+        extraDesc = await gatherKbTopicFieldNames(updatedDocument, extraDesc);
+      }
+
+      break;
+    case MODULE_NAMES.KB_CATEGORY:
+      extraDesc = await gatherKbCategoryFieldNames(object);
+
+      if (updatedDocument) {
+        extraDesc = await gatherKbCategoryFieldNames(updatedDocument, extraDesc);
+      }
+
+      break;
+    case MODULE_NAMES.KB_ARTICLE:
+      extraDesc = await gatherKbArticleFieldNames(object);
+
+      if (updatedDocument) {
+        extraDesc = await gatherKbArticleFieldNames(updatedDocument, extraDesc);
+      }
+
+      break;
+    default:
+      break;
+  }
+
+  return { extraDesc, description };
+};
