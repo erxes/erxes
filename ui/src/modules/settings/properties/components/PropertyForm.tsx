@@ -5,12 +5,18 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import ModifiableList from 'modules/common/components/ModifiableList';
-import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { MapContainer, ModalFooter } from 'modules/common/styles/main';
+import {
+  IButtonMutateProps,
+  IFormProps,
+  ILocationOption
+} from 'modules/common/types';
 import { Row } from 'modules/settings/integrations/styles';
 import React from 'react';
 import PropertyGroupForm from '../containers/PropertyGroupForm';
 import { IField, IFieldGroup } from '../types';
+import LocationOptions from './LocationOptions';
+import Map from 'modules/common/components/Map';
 
 type Props = {
   queryParams: any;
@@ -23,9 +29,11 @@ type Props = {
 
 type State = {
   options: any[];
+  locationOptions: any[];
   type: string;
   hasOptions: boolean;
   add: boolean;
+  currentLocation: ILocationOption;
 };
 
 class PropertyForm extends React.Component<Props, State> {
@@ -35,11 +43,12 @@ class PropertyForm extends React.Component<Props, State> {
     let doc = {
       options: [],
       type: '',
+      locationOptions: [],
       hasOptions: false
     };
 
     if (props.field) {
-      const { type, options } = props.field;
+      const { type, options, locationOptions } = props.field;
 
       doc = {
         ...doc,
@@ -55,13 +64,24 @@ class PropertyForm extends React.Component<Props, State> {
         doc = {
           type,
           hasOptions: true,
-          options: Object.assign([], options || [])
+          options: Object.assign([], options || []),
+          locationOptions: []
+        };
+      }
+
+      if (type === 'map') {
+        doc = {
+          type,
+          hasOptions: false,
+          options: [],
+          locationOptions: Object.assign([], locationOptions || [])
         };
       }
     }
 
     this.state = {
       ...doc,
+      currentLocation: { lat: 0, lng: 0 },
       add: false
     };
   }
@@ -85,12 +105,17 @@ class PropertyForm extends React.Component<Props, State> {
       ...finalValues,
       type: this.state.type,
       options: this.state.options,
+      locationOptions: this.state.locationOptions,
       contentType: type
     };
   };
 
   onChangeOption = options => {
     this.setState({ options });
+  };
+
+  onChangeLocationOption = locationOptions => {
+    this.setState({ locationOptions });
   };
 
   onRemoveOption = options => {
@@ -126,6 +151,46 @@ class PropertyForm extends React.Component<Props, State> {
         options={this.state.options}
         onChangeOption={this.onChangeOption}
       />
+    );
+  };
+
+  renderLocationOptions = () => {
+    if (this.state.type !== 'map') {
+      return null;
+    }
+
+    const { currentLocation, locationOptions = [] } = this.state;
+
+    return (
+      <FormGroup>
+        <ControlLabel htmlFor="locationOptions">Options:</ControlLabel>
+        {locationOptions.length > 0 && (
+          <MapContainer>
+            <Map
+              center={currentLocation}
+              googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
+              defaultZoom={7}
+              locationOptions={locationOptions}
+              mapControlOptions={{
+                controlSize: 30,
+                zoomControl: true,
+                mapTypeControl: true,
+                scaleControl: false,
+                streetViewControl: false,
+                rotateControl: false,
+                fullscreenControl: true
+              }}
+              isPreview={true}
+              onChangeLocationOptions={this.onChangeLocationOption}
+            />
+          </MapContainer>
+        )}
+
+        <LocationOptions
+          locationOptions={locationOptions}
+          onChange={this.onChangeLocationOption}
+        />
+      </FormGroup>
     );
   };
 
@@ -223,6 +288,7 @@ class PropertyForm extends React.Component<Props, State> {
           </FormControl>
         </FormGroup>
         {this.renderOptions()}
+        {this.renderLocationOptions()}
 
         <FormGroup>
           <ControlLabel>Validation:</ControlLabel>

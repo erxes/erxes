@@ -29,14 +29,12 @@ import {
 } from './step';
 import { PreviewWrapper } from './step/style';
 import StyleSheetStep from './step/StyleSheetStep';
-import { IConfig } from 'modules/settings/general/types';
 
 type Props = {
   integration?: ILeadIntegration;
   loading?: boolean;
   isActionLoading: boolean;
   isReadyToSaveForm: boolean;
-  configs: IConfig[];
   emailTemplates?: IEmailTemplate[];
   afterFormDbSave: (formId: string) => void;
   save: (params: {
@@ -135,7 +133,8 @@ class Lead extends React.Component<Props, State> {
         buttonText: form.buttonText || 'Send',
         fields: [],
         type: form.type || '',
-        numberOfPages: form.numberOfPages || 1
+        numberOfPages: form.numberOfPages || 1,
+        googleMapApiKey: form.googleMapApiKey || ''
       },
       theme: leadData.themeColor || '#6569DF',
       isRequireOnce: leadData.isRequireOnce,
@@ -309,7 +308,7 @@ class Lead extends React.Component<Props, State> {
       successPreviewStyle
     } = this.state;
 
-    const { integration, emailTemplates, configs } = this.props;
+    const { integration, emailTemplates } = this.props;
     const leadData = integration && integration.leadData;
     const brand = integration && integration.brand;
     const breadcrumb = [{ title: __('Forms'), link: '/forms' }];
@@ -456,7 +455,6 @@ class Lead extends React.Component<Props, State> {
               calloutImgSize={calloutImgSize}
               successImgSize={successImageSize}
               successImage={successImage}
-              configs={configs}
             />
           </PreviewWrapper>
         </Content>

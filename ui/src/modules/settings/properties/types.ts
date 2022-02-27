@@ -1,5 +1,5 @@
 import { IUser } from 'modules/auth/types';
-import { QueryResponse } from 'modules/common/types';
+import { ILocationOption, QueryResponse } from 'modules/common/types';
 
 export interface IFieldLogic {
   fieldId?: string;
@@ -7,12 +7,6 @@ export interface IFieldLogic {
   logicOperator: string;
   logicValue: string;
   __typename?: string;
-}
-
-export interface ILocationOption {
-  lat: number;
-  lng: number;
-  description?: string;
 }
 
 export interface IField {

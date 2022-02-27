@@ -3,7 +3,8 @@ const commonParamsDef = `
   $description: String,
   $buttonText: String,
   $type: String!,
-  $numberOfPages: Int
+  $numberOfPages: Int,
+  $googleMapApiKey: String
 `;
 
 const commonParams = `
@@ -11,7 +12,8 @@ const commonParams = `
   description: $description,
   buttonText: $buttonText,
   type: $type,
-  numberOfPages: $numberOfPages
+  numberOfPages: $numberOfPages,
+  googleMapApiKey: $googleMapApiKey
 `;
 
 const addForm = `

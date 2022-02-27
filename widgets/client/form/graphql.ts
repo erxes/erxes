@@ -5,6 +5,7 @@ export const formDetailQuery = `
       description
       buttonText
       numberOfPages
+      googleMapApiKey
       code
 
       fields {

@@ -66,6 +66,7 @@ const commonVariables = `
   $text: String,
   $description: String,
   $options: [String],
+  $locationOptions: [LocationOptionInput]
   $isRequired: Boolean,
   $order: Int,
   $groupId: String,
@@ -78,6 +79,7 @@ const commonParams = `
   text: $text,
   description: $description,
   options: $options,
+  locationOptions: $locationOptions,
   isRequired: $isRequired,
   order: $order,
   groupId: $groupId,

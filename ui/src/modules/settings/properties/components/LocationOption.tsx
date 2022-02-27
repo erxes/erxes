@@ -4,11 +4,10 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components/form';
+import { ILocationOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { ILocationOption } from 'modules/settings/properties/types';
 import React from 'react';
-
-import { LogicItem, LogicRow, RowFill, RowSmall } from '../styles';
+import { LogicItem, LogicRow, RowFill, RowSmall } from '../../../forms/styles';
 
 type Props = {
   onChangeOption: (option: ILocationOption, index: number) => void;
@@ -49,6 +48,7 @@ function LocationOption(props: Props) {
               <ControlLabel htmlFor="lat">{__('Latitude')}:</ControlLabel>
               <FormControl
                 defaultValue={option.lat}
+                value={option.lat}
                 name="lat"
                 onChange={onChangeLat}
                 type="number"
@@ -58,6 +58,7 @@ function LocationOption(props: Props) {
               <ControlLabel htmlFor="lng">{__('Longitude')}:</ControlLabel>
               <FormControl
                 defaultValue={option.lng}
+                value={option.lng}
                 name="lng"
                 onChange={onChangeLng}
                 type="number"

@@ -3,11 +3,9 @@ import * as compose from 'lodash.flowright';
 import { IUser } from 'modules/auth/types';
 import Spinner from 'modules/common/components/Spinner';
 import Sidebar from 'modules/layout/components/Sidebar';
-import { ConfigsQueryResponse } from 'modules/settings/general/types';
 import GenerateCustomFields from 'modules/settings/properties/components/GenerateCustomFields';
 import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
-import { queries as settingsQueries } from 'modules/settings/general/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
@@ -23,21 +21,13 @@ type Props = {
 
 type FinalProps = {
   fieldsGroupsQuery: FieldsGroupsQueryResponse;
-  configsQuery: ConfigsQueryResponse;
 } & Props &
   EditMutationResponse;
 
 const CustomFieldsSection = (props: FinalProps) => {
-  const {
-    user,
-    usersEdit,
-    fieldsGroupsQuery,
-    loading,
-    isDetail,
-    configsQuery
-  } = props;
+  const { user, usersEdit, fieldsGroupsQuery, loading, isDetail } = props;
 
-  if (fieldsGroupsQuery.loading || configsQuery.loading) {
+  if (fieldsGroupsQuery.loading) {
     return (
       <Sidebar full={true}>
         <Spinner />
@@ -64,8 +54,7 @@ const CustomFieldsSection = (props: FinalProps) => {
     loading,
     customFieldsData: user.customFieldsData,
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || [],
-    isDetail,
-    configs: configsQuery.configs || []
+    isDetail
   };
 
   return <GenerateCustomFields {...updatedProps} />;
@@ -85,9 +74,6 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
-      name: 'configsQuery'
-    }),
 
     // mutations
     graphql<Props, EditMutationResponse, IUser>(gql(mutations.usersEdit), {

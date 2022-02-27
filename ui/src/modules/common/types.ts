@@ -114,3 +114,9 @@ export type QueryResponse = {
   refetch: () => Promise<any>;
   error?: string;
 };
+
+export interface ILocationOption {
+  lat: number;
+  lng: number;
+  description?: string;
+}

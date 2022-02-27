@@ -23,8 +23,7 @@ import {
 import FieldLogics from './FieldLogics';
 import FieldPreview from './FieldPreview';
 import Select from 'react-select-plus';
-import { IConfig } from 'modules/settings/general/types';
-import LocationOptions from './LocationOptions';
+import LocationOptions from 'modules/settings/properties/components/LocationOptions';
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -33,8 +32,8 @@ type Props = {
   mode: 'create' | 'update';
   field: IField;
   fields: IField[];
-  configs: IConfig[];
   numberOfPages: number;
+  googleMapApiKey?: string;
 };
 
 type State = {
@@ -92,6 +91,10 @@ class FieldForm extends React.Component<Props, State> {
     this.setState({
       group: (e.currentTarget as HTMLInputElement).value
     });
+  };
+
+  onChangeLocation = options => {
+    this.setFieldAttrChanges('locationOptions', options);
   };
 
   onPropertyChange = (selectedField: IField) => {
@@ -224,10 +227,9 @@ class FieldForm extends React.Component<Props, State> {
     return (
       <FormGroup>
         <ControlLabel htmlFor="locationOptions">Options:</ControlLabel>
-
         <LocationOptions
-          currentField={field}
-          onFieldChange={this.onFieldChange}
+          locationOptions={field.locationOptions || []}
+          onChange={this.onChangeLocation}
         />
       </FormGroup>
     );
@@ -459,7 +461,10 @@ class FieldForm extends React.Component<Props, State> {
 
         <PreviewSection>
           <Preview>
-            <FieldPreview field={field} configs={this.props.configs} />
+            <FieldPreview
+              field={field}
+              onChangeLocationOptions={this.onChangeLocation}
+            />
 
             <ShowPreview>
               <Icon icon="eye" /> {__('Field preview')}

@@ -26,13 +26,11 @@ import { IForm, IFormData } from 'modules/forms/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import { ILeadData } from 'modules/leads/types';
 import { IAttachment } from 'modules/common/types';
-import { IConfig } from 'modules/settings/general/types';
 
 type Props = {
   integration?: IBookingIntegration;
   queryParams?: any;
   history: any;
-  configs: IConfig[];
   save: (params: {
     name: string;
     brandId: string;
@@ -80,8 +78,7 @@ function Booking(props: Props) {
     afterFormDbSave,
     isReadyToSaveForm,
     emailTemplates,
-    productFields,
-    configs
+    productFields
   } = props;
 
   const integration = props.integration || ({} as IBookingIntegration);
@@ -385,7 +382,6 @@ function Booking(props: Props) {
             skip={true}
             carousel={state.carousel}
             formData={state.formData}
-            configs={configs}
             successImage={state.successImage}
             successImgSize={state.successImageSize}
           />
