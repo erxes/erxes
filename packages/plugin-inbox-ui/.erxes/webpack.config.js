@@ -32,10 +32,6 @@ for (const name of depNames) {
 }
 
 module.exports = {
-  output: {
-    publicPath: `http://localhost:${port}/`,
-  },
-
   optimization: {
     minimize: true,
     minimizer: [
@@ -134,7 +130,29 @@ module.exports = {
       name: configs.name,
       filename: "remoteEntry.js",
       remotes: {
-        coreui: "coreui@http://localhost:3000/remoteEntry.js",
+        coreui: `promise new Promise(resolve => {
+          const remoteUrl = window.location.origin + '/remoteEntry.js';
+          const script = document.createElement('script')
+          script.src = remoteUrl
+          script.onload = () => {
+            // the injected script has loaded and is available on window
+            // we can now resolve this Promise
+            const proxy = {
+              get: (request) => window.coreui.get(request),
+              init: (arg) => {
+                try {
+                  return window.coreui.init(arg)
+                } catch(e) {
+                  console.log('remote container already initialized')
+                }
+              }
+            }
+            resolve(proxy)
+          }
+          // inject this script with the src set to the versioned remoteEntry.js
+          document.head.appendChild(script);
+        })
+        `,
       },
       exposes,
       shared: {
