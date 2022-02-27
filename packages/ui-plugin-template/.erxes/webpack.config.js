@@ -1,3 +1,4 @@
+
 const webpack = require("webpack");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const path = require("path");
@@ -31,106 +32,111 @@ for (const name of depNames) {
   };
 }
 
-module.exports = {
-  optimization: {
-    minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        extractComments: false,
-        terserOptions: {
-          parse: {
-            ecma: 8,
-          },
-          compress: {
-            ecma: 5,
-            warnings: false,
-            comparisons: false,
-            inline: 2,
-          },
-          mangle: true,
-          output: {
-            ecma: 5,
-            comments: false,
-            ascii_only: true,
-          },
-        },
-      }),
-    ],
-  },
-
-  resolve: {
-    extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
-    fallback: {
-      timers: require.resolve("timers-browserify"),
+module.exports = (env, args) => {
+  return {
+    output: {
+      publicPath: args.mode === 'development' ? `http://localhost:${port}/` : undefined,
     },
-  },
 
-  devServer: {
-    port: port,
-    historyApiFallback: true,
-  },
+    optimization: {
+      minimize: true,
+      minimizer: [
+        new TerserPlugin({
+          extractComments: false,
+          terserOptions: {
+            parse: {
+              ecma: 8,
+            },
+            compress: {
+              ecma: 5,
+              warnings: false,
+              comparisons: false,
+              inline: 2,
+            },
+            mangle: true,
+            output: {
+              ecma: 5,
+              comments: false,
+              ascii_only: true,
+            },
+          },
+        }),
+      ],
+    },
 
-  module: {
-    rules: [
-      {
-        test: /\.m?js/,
-        type: "javascript/auto",
-        resolve: {
-          fullySpecified: false,
-        },
+    resolve: {
+      extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
+      fallback: {
+        timers: require.resolve("timers-browserify"),
       },
-      {
-        test: /\.(css|s[ac]ss)$/i,
-        use: ["style-loader", "css-loader", "postcss-loader"],
-      },
-      {
-        test: /\.json$/,
-        loader: "json-loader",
-      },
-      {
-        test: /\.(ts|tsx|js|jsx)$/,
-        exclude: /node_modules/,
-        include: [
-          path.resolve(__dirname, "src"),
-          path.resolve(__dirname, "../../erxes-ui/src"),
-          path.resolve(__dirname, "../../core-ui/src"),
-          path.resolve(__dirname, "../../ui-cards/src"),
-          path.resolve(__dirname, "../../ui-contacts/src"),
-          path.resolve(__dirname, "../../ui-forms/src"),
-          path.resolve(__dirname, "../../ui-settings/src"),
-          path.resolve(__dirname, "../../ui-segments/src"),
-          path.resolve(__dirname, "../../ui-inbox/src"),
-          path.resolve(__dirname, "../../ui-products/src"),
-          path.resolve(__dirname, "../../ui-notifications/src"),
-          path.resolve(__dirname, "plugin-src"),
-        ],
-        use: {
-          loader: "babel-loader",
-          options: {
-            presets: [
-              "@babel/preset-typescript",
-              "@babel/preset-react",
-              "@babel/preset-env",
-            ],
-            plugins: [["@babel/transform-runtime"]],
+    },
+
+    devServer: {
+      port: port,
+      historyApiFallback: true,
+    },
+
+    module: {
+      rules: [
+        {
+          test: /\.m?js/,
+          type: "javascript/auto",
+          resolve: {
+            fullySpecified: false,
           },
         },
-      },
-    ],
-  },
+        {
+          test: /\.(css|s[ac]ss)$/i,
+          use: ["style-loader", "css-loader", "postcss-loader"],
+        },
+        {
+          test: /\.json$/,
+          loader: "json-loader",
+        },
+        {
+          test: /\.(ts|tsx|js|jsx)$/,
+          exclude: /node_modules/,
+          include: [
+            path.resolve(__dirname, "src"),
+            path.resolve(__dirname, "../../erxes-ui/src"),
+            path.resolve(__dirname, "../../core-ui/src"),
+            path.resolve(__dirname, "../../ui-cards/src"),
+            path.resolve(__dirname, "../../ui-contacts/src"),
+            path.resolve(__dirname, "../../ui-forms/src"),
+            path.resolve(__dirname, "../../ui-settings/src"),
+            path.resolve(__dirname, "../../ui-segments/src"),
+            path.resolve(__dirname, "../../ui-inbox/src"),
+            path.resolve(__dirname, "../../ui-products/src"),
+            path.resolve(__dirname, "../../ui-notifications/src"),
+            path.resolve(__dirname, "plugin-src"),
+          ],
+          use: {
+            loader: "babel-loader",
+            options: {
+              presets: [
+                "@babel/preset-typescript",
+                "@babel/preset-react",
+                "@babel/preset-env",
+              ],
+              plugins: [["@babel/transform-runtime"]],
+            },
+          },
+        },
+      ],
+    },
 
-  plugins: [
-    new webpack.DefinePlugin({
-      "process.env": JSON.stringify(process.env),
-    }),
-    new InterpolateHtmlPlugin({
-      PUBLIC_URL: "public", // can modify `static` to another name or get it from `process`
-    }),
-    new ModuleFederationPlugin({
-      name: configs.name,
-      filename: "remoteEntry.js",
-      remotes: {
-        coreui: `promise new Promise(resolve => {
+    plugins: [
+      new webpack.DefinePlugin({
+        "process.env": JSON.stringify(process.env),
+      }),
+      new InterpolateHtmlPlugin({
+        PUBLIC_URL: "public", // can modify `static` to another name or get it from `process`
+      }),
+      new ModuleFederationPlugin({
+        name: configs.name,
+        filename: "remoteEntry.js",
+        remotes: {
+          coreui: `promise new Promise(resolve => {
           const remoteUrl = window.location.origin + '/remoteEntry.js';
           const script = document.createElement('script')
           script.src = remoteUrl
@@ -153,23 +159,24 @@ module.exports = {
           document.head.appendChild(script);
         })
         `,
-      },
-      exposes,
-      shared: {
-        ...shared,
-        "@erxes/ui": {
-          requiredVersion: "1.0.0",
-          singleton: true,
         },
-        dayjs: {
-          requiredVersion: deps["dayjs"],
-          singleton: true,
+        exposes,
+        shared: {
+          ...shared,
+          "@erxes/ui": {
+            requiredVersion: "1.0.0",
+            singleton: true,
+          },
+          dayjs: {
+            requiredVersion: deps["dayjs"],
+            singleton: true,
+          },
         },
-      },
-    }),
-    new HtmlWebPackPlugin({
-      template: "./src/index.html",
-    }),
-    // new BundleAnalyzerPlugin()
-  ],
+      }),
+      new HtmlWebPackPlugin({
+        template: "./src/index.html",
+      }),
+      // new BundleAnalyzerPlugin()
+    ],
+  };
 };
