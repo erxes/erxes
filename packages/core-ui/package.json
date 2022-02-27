@@ -46,7 +46,7 @@
     "watch-plugins": "node commands/watch-plugins.js",
     "start": "webpack serve --open --mode development",
     "generateVersion": "node commands/generateVersion.js",
-    "build": "webpack --mode production",
+    "build": "node commands/build.js",
     "compress": "gzip -5 --keep -r build/static/js",
     "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage",
     "open-cypress": "yarn run cypress open",
