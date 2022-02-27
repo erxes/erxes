@@ -3,14 +3,10 @@ const HtmlWebPackPlugin = require("html-webpack-plugin");
 const path = require("path");
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 
+const TerserPlugin = require("terser-webpack-plugin");
 const InterpolateHtmlPlugin = require("interpolate-html-plugin");
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
 //   .BundleAnalyzerPlugin;
-
-const TerserPlugin = require("terser-webpack-plugin");
-const LodashModuleReplacementPlugin = require("lodash-webpack-plugin");
-const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
-const smp = new SpeedMeasurePlugin();
 
 const configs = require("./plugin-src/configs");
 const { port = 3000 } = configs;
@@ -35,11 +31,9 @@ for (const name of depNames) {
   };
 }
 
-module.exports = smp.wrap({
+module.exports = {
   output: {
-    uniqueName: configs.name,
     publicPath: `http://localhost:${port}/`,
-    chunkFilename: "static/js/[name].[contenthash:8].chunk.js",
   },
 
   optimization: {
@@ -70,6 +64,9 @@ module.exports = smp.wrap({
 
   resolve: {
     extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
+    fallback: {
+      timers: require.resolve("timers-browserify"),
+    },
   },
 
   devServer: {
@@ -100,12 +97,16 @@ module.exports = smp.wrap({
         include: [
           path.resolve(__dirname, "src"),
           path.resolve(__dirname, "../../erxes-ui/src"),
-          path.resolve(__dirname, "plugin-src"),
+          path.resolve(__dirname, "../../core-ui/src"),
+          path.resolve(__dirname, "../../ui-cards/src"),
+          path.resolve(__dirname, "../../ui-contacts/src"),
+          path.resolve(__dirname, "../../ui-forms/src"),
           path.resolve(__dirname, "../../ui-settings/src"),
           path.resolve(__dirname, "../../ui-segments/src"),
-          path.resolve(__dirname, "../../ui-contacts/src"),
-          path.resolve(__dirname, "../../ui-engage/src"),
           path.resolve(__dirname, "../../ui-inbox/src"),
+          path.resolve(__dirname, "../../ui-products/src"),
+          path.resolve(__dirname, "../../ui-notifications/src"),
+          path.resolve(__dirname, "plugin-src"),
         ],
         use: {
           loader: "babel-loader",
@@ -115,7 +116,7 @@ module.exports = smp.wrap({
               "@babel/preset-react",
               "@babel/preset-env",
             ],
-            plugins: [["@babel/transform-runtime"], "lodash"],
+            plugins: [["@babel/transform-runtime"]],
           },
         },
       },
@@ -143,15 +144,14 @@ module.exports = smp.wrap({
           singleton: true,
         },
         dayjs: {
-          requiredVersion: deps['dayjs'],
-          singleton: true
+          requiredVersion: deps["dayjs"],
+          singleton: true,
         },
       },
     }),
     new HtmlWebPackPlugin({
       template: "./src/index.html",
     }),
-    // new BundleAnalyzerPlugin(),
-    new LodashModuleReplacementPlugin(),
+    // new BundleAnalyzerPlugin()
   ],
-});
+};

@@ -3,11 +3,13 @@ const HtmlWebPackPlugin = require("html-webpack-plugin");
 const path = require("path");
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 
-const InterpolateHtmlPlugin = require("interpolate-html-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
+const InterpolateHtmlPlugin = require("interpolate-html-plugin");
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+//   .BundleAnalyzerPlugin;
 
 const configs = require("./plugin-src/configs");
-const { port = 3009 } = configs;
+const { port = 3000 } = configs;
 
 const exposes = {};
 
@@ -32,7 +34,6 @@ for (const name of depNames) {
 module.exports = {
   output: {
     publicPath: `http://localhost:${port}/`,
-    filename: "[name].[contenthash].bundle.js",
   },
 
   optimization: {
@@ -64,7 +65,6 @@ module.exports = {
   resolve: {
     extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
     fallback: {
-      path: require.resolve("path-browserify"),
       timers: require.resolve("timers-browserify"),
     },
   },
@@ -97,14 +97,15 @@ module.exports = {
         include: [
           path.resolve(__dirname, "src"),
           path.resolve(__dirname, "../../erxes-ui/src"),
-          path.resolve(__dirname, "../../ui-contacts/src"),
-          path.resolve(__dirname, "../../ui-inbox/src"),
-          path.resolve(__dirname, "../../ui-settings/src"),
+          path.resolve(__dirname, "../../core-ui/src"),
           path.resolve(__dirname, "../../ui-cards/src"),
+          path.resolve(__dirname, "../../ui-contacts/src"),
           path.resolve(__dirname, "../../ui-forms/src"),
-          path.resolve(__dirname, "../../ui-leads/src"),
+          path.resolve(__dirname, "../../ui-settings/src"),
+          path.resolve(__dirname, "../../ui-segments/src"),
+          path.resolve(__dirname, "../../ui-inbox/src"),
           path.resolve(__dirname, "../../ui-products/src"),
-          path.resolve(__dirname, '../../ui-engage/src'),
+          path.resolve(__dirname, "../../ui-notifications/src"),
           path.resolve(__dirname, "plugin-src"),
         ],
         use: {
@@ -143,13 +144,14 @@ module.exports = {
           singleton: true,
         },
         dayjs: {
-          requiredVersion: deps['dayjs'],
-          singleton: true
-        }
+          requiredVersion: deps["dayjs"],
+          singleton: true,
+        },
       },
     }),
     new HtmlWebPackPlugin({
       template: "./src/index.html",
     }),
+    // new BundleAnalyzerPlugin()
   ],
 };

@@ -3,8 +3,10 @@ const HtmlWebPackPlugin = require("html-webpack-plugin");
 const path = require("path");
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 
-const InterpolateHtmlPlugin = require("interpolate-html-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
+const InterpolateHtmlPlugin = require("interpolate-html-plugin");
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+//   .BundleAnalyzerPlugin;
 
 const configs = require("./plugin-src/configs");
 const { port = 3000 } = configs;
@@ -22,6 +24,7 @@ const deps = require("./package.json").dependencies;
 const depNames = Object.keys(deps);
 
 const shared = {};
+
 for (const name of depNames) {
   shared[name] = {
     singleton: true,
@@ -30,7 +33,6 @@ for (const name of depNames) {
 
 module.exports = {
   output: {
-    uniqueName: configs.name,
     publicPath: `http://localhost:${port}/`,
   },
 
@@ -64,7 +66,6 @@ module.exports = {
     extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
     fallback: {
       timers: require.resolve("timers-browserify"),
-      path: false,
     },
   },
 
@@ -96,14 +97,15 @@ module.exports = {
         include: [
           path.resolve(__dirname, "src"),
           path.resolve(__dirname, "../../erxes-ui/src"),
-          path.resolve(__dirname, "../../ui-settings/src"),
+          path.resolve(__dirname, "../../core-ui/src"),
           path.resolve(__dirname, "../../ui-cards/src"),
-          path.resolve(__dirname, "../../ui-products/src"),
-          path.resolve(__dirname, "../../ui-segments/src"),
           path.resolve(__dirname, "../../ui-contacts/src"),
-          path.resolve(__dirname, "../../ui-team/src"),
+          path.resolve(__dirname, "../../ui-forms/src"),
+          path.resolve(__dirname, "../../ui-settings/src"),
+          path.resolve(__dirname, "../../ui-segments/src"),
           path.resolve(__dirname, "../../ui-inbox/src"),
-          path.resolve(__dirname, "../../ui-engage/src"),
+          path.resolve(__dirname, "../../ui-products/src"),
+          path.resolve(__dirname, "../../ui-notifications/src"),
           path.resolve(__dirname, "plugin-src"),
         ],
         use: {
@@ -132,7 +134,7 @@ module.exports = {
       name: configs.name,
       filename: "remoteEntry.js",
       remotes: {
-        coreui: "coreui@http://localhost:3000/remoteEntry.js"
+        coreui: "coreui@http://localhost:3000/remoteEntry.js",
       },
       exposes,
       shared: {
@@ -142,7 +144,7 @@ module.exports = {
           singleton: true,
         },
         dayjs: {
-          requiredVersion: "1.8.15",
+          requiredVersion: deps["dayjs"],
           singleton: true,
         },
       },
@@ -150,5 +152,6 @@ module.exports = {
     new HtmlWebPackPlugin({
       template: "./src/index.html",
     }),
+    // new BundleAnalyzerPlugin()
   ],
 };
