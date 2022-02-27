@@ -7,6 +7,7 @@
     "@babel/plugin-proposal-class-properties": "^7.12.1",
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.16.7",
     "@daily-co/daily-js": "^0.9.995",
+    "@datadog/browser-rum": "^2.3.1",
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
     "@nivo/line": "0.35.0",
     "@nivo/pie": "0.35.0",

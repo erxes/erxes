@@ -1,16 +1,5 @@
-import * as debug from 'debug';
 import * as requestify from 'requestify';
-
-export const debugBase = debug('erxes-email-verifier:base');
-export const debugCrons = debug('erxes-email-verifier:crons');
-export const debugError = debug('erxes-email-verifier:error');
-
-export const debugRequest = (debugInstance, req) =>
-  debugInstance(`
-        Receiving ${req.path} request from ${req.headers.origin}
-        body: ${JSON.stringify(req.body || {})}
-        queryParams: ${JSON.stringify(req.query)}
-    `);
+import { debugBase } from './debuggers';
 
 interface IRequestParams {
   url?: string;
