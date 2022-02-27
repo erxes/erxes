@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^3.0.5",
-    "@fortawesome/free-solid-svg-icons": "^6.0.0",
     "@googlemaps/typescript-guards": "^1.0.7",
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
     "@types/classnames": "^2.2.6",
