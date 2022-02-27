@@ -7,7 +7,7 @@ module.exports = {
   },
   routes: {
     url: "http://localhost:3003/remoteEntry.js",
-    scope: "deals1",
+    scope: "deals",
     module: "./routes",
   },
   menus: [
