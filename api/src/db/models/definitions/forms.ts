@@ -9,6 +9,7 @@ export interface IForm {
   description?: string;
   numberOfPages?: number;
   buttonText?: string;
+  googleMapApiKey?: string;
 }
 
 export interface IFormSubmissionFilter {
@@ -45,7 +46,9 @@ export const formSchema = schemaWrapper(
       type: Number,
       optional: true,
       min: 1
-    })
+    }),
+
+    googleMapApiKey: field({ type: String, optional: true })
   })
 );
 

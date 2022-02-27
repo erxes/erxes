@@ -1,13 +1,6 @@
-import widgetMutations from '../data/resolvers/mutations/widgets';
 import { graphqlRequest } from '../db/connection';
-import {
-  customerFactory,
-  fieldFactory,
-  formFactory,
-  integrationFactory,
-  tagsFactory
-} from '../db/factories';
-import { Fields, FieldsGroups, Integrations } from '../db/models';
+import { formFactory } from '../db/factories';
+import { Fields, FieldsGroups } from '../db/models';
 
 import './setup.ts';
 
@@ -69,7 +62,9 @@ describe('formQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'formDetail', { _id: form._id });
+    const response = await graphqlRequest(qry, 'formDetail', {
+      _id: form._id
+    });
     expect(response.title).toBe('title');
     expect(response.code).toBe('code');
   });

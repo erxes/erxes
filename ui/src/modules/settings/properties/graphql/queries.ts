@@ -15,6 +15,11 @@ const commonFields = `
   canHide
   validation
   options
+  locationOptions{
+    lat
+    lng
+    description
+  }
   groupId
 
   ${genericFields}
