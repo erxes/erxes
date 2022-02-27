@@ -111,29 +111,9 @@ const updateCustomFieldsCache = ({
   localStorage.setItem(storageKey, JSON.stringify(items));
 };
 
-const loadMapApi = (mapKey: string) => {
-  const mapsURL = `https://maps.googleapis.com/maps/api/js?key=${mapKey}&libraries=geometry,places&language=en&v=quarterly&callback=mapCallback`;
-  const scripts: any = document.getElementsByTagName('script');
-
-  for (const script of scripts) {
-    if (script.src.indexOf(mapsURL) === 0) {
-      return script;
-    }
-  }
-
-  const googleMapScript = document.createElement('script');
-  googleMapScript.src = mapsURL;
-  googleMapScript.async = true;
-  googleMapScript.defer = true;
-  window.document.body.appendChild(googleMapScript);
-
-  return googleMapScript;
-};
-
 export {
   customerBasicInfos,
   companyBasicInfos,
   productBasicInfos,
-  updateCustomFieldsCache,
-  loadMapApi
+  updateCustomFieldsCache
 };
