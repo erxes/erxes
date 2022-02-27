@@ -22,7 +22,7 @@ jobs:
 
       - name: Build
         run: |
-          echo ${{ github.event.push }}
+          echo ${{ github.event.json_var }}
           # yarn install --frozen-lockfile
           # cp -r packages/ui-plugin-template/.erxes packages/plugin-card-ui/.erxes
           # cd packages/plugin-card-ui
