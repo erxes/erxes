@@ -1,8 +1,13 @@
 import { IContext } from "@erxes/api-utils/src/types";
 import { Fields } from "../../apiCollections";
+import { ProductCategories, Products } from "../../models";
 import { IProductDocument } from "../../models/definitions/products";
 
 export default {
+  __resolveReference({ _id }) {
+    return Products.findOne({ _id });
+  },
+
   category(product: IProductDocument, _, { dataLoaders }: IContext) {
     return (
       (product.categoryId &&

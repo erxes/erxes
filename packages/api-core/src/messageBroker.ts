@@ -144,10 +144,10 @@ export const initBroker = async (server?) => {
       })
     );
 
-    consumeRPCQueue('rpc_queue:Fields.find', async ({ query, projection }) => {
+    consumeRPCQueue('rpc_queue:Fields.find', async ({ query, projection, sort }) => {
       return {
         status: 'success',
-        data: await Fields.find(query, projection).lean()
+        data: await Fields.find(query, projection).sort(sort).lean()
       };
     });
 
@@ -201,7 +201,7 @@ export const initBroker = async (server?) => {
         });
 
         if (user) {
-          return { type: 'user', content: user };
+          return { data: { type: 'user', content: user }, status: 'success' };
         }
 
         const integration = await sendRPCMessage(
@@ -212,10 +212,10 @@ export const initBroker = async (server?) => {
         if (integration) {
           const brand = await Brands.findOne({ _id: integration.brandId });
 
-          return { type: 'brand', content: brand };
+          return { data: { type: 'brand', content: brand }, status: 'success' };
         }
 
-        return null;
+        return { data: 'not found', status: 'error' };
       }
     );
 
@@ -258,6 +258,10 @@ export const initBroker = async (server?) => {
         data: collection ? await collection.find(query) : null
       }
     });
+
+    consumeRPCQueue('core:rpc_queue:findOneBrand', async query => ({
+      status: 'success', data: await Brands.findOne(query)
+    }));
   }
 
   return client;

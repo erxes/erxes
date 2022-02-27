@@ -70,20 +70,14 @@ export const generateFields = async args => {
 
 export const initBroker = (cl) => {
   client = cl;
-  
+
   const { consumeQueue, consumeRPCQueue } = client;
 
   consumeRPCQueue(
-    'rpc_queue:engagePluginApi_to_api',
-    async (
-      userId,
-      status,
-      customerId,
-      visitorId,
-      integrationId,
-      content,
-      engageData
-    ) => {
+    'inbox:rpc_queue:createConversationAndMessage',
+    async (doc) => {
+      const { userId, status, customerId, visitorId, integrationId, content, engageData } = doc;
+
       const data = await createConversationAndMessage(
         userId,
         status,
@@ -106,10 +100,7 @@ export const initBroker = (cl) => {
   consumeRPCQueue(
     'inbox:rpc_queue:findIntegrations',
     async ({ query, options }) => {
-      const integrations = await Integrations.findIntegrations(
-        query,
-        options
-      );
+      const integrations = await Integrations.findIntegrations(query, options);
 
       return { data: integrations, status: 'success' };
     }
@@ -158,19 +149,30 @@ export const initBroker = (cl) => {
       data: await Conversations.findOne({ _id: conversationId })
     })
   );
-  consumeRPCQueue('inbox:rpc_queue:getIntegration', async (data) => {
+  consumeRPCQueue('inbox:rpc_queue:getIntegration', async data => {
     const { _id } = data;
 
     return {
       status: 'success',
       data: await Integrations.findOne({ _id })
-    }
+    };
   });
 
-  consumeRPCQueue('inbox:rpc_queue:activityLog:collectItems', async (data) => ({
+  consumeRPCQueue('inbox:rpc_queue:activityLog:collectItems', async data => ({
     data: await collectConversations(data),
     status: 'success'
   }));
+
+  consumeRPCQueue('inbox:rpc_queue:updateConversationMessage', async (data) => {
+    const { filter, updateDoc } = data;
+
+    const updated = await ConversationMessages.updateOne(filter, { $set: updateDoc });
+
+    return {
+      data: updated,
+      status: 'success'
+    }
+  });
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {
@@ -213,21 +215,17 @@ export const sendProductCategoryRPCMessage = async (action, data): Promise<any> 
   return client.sendRPCMessage(`productCategories:rpc_queue:${action}`, data);
 };
 
-export const sendConfigRPCMessage = async (action, data): Promise<any> => {
-  return client.sendRPCMessage(`configs:rpc_queue:${action}`, data);
-};
-
 export const sendTagRPCMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`tags:rpc_queue:${action}`, data);
-}
+};
 
 export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
 
 export const fetchSegment = (segment, options?) =>
-  sendRPCMessage("rpc_queue:fetchSegment", {
+  sendRPCMessage('rpc_queue:fetchSegment', {
     segment,
-    options,
+    options
   });
 
 export const findMongoDocuments = async (serviceName: string, data: any) => {

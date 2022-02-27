@@ -2,13 +2,13 @@ import { IUserDocument } from "@packages/api-core/src/db/models/definitions/user
 import { paginate } from '@erxes/api-utils/src/core';
 import { IContext } from '@erxes/api-utils/src/types';
 import {
-  checkPermission,
+  // checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
 import { awsRequests } from '../../trackers/engageTracker';
 import { EngageMessages, Configs, DeliveryReports, Logs } from '../../models';
-import { Tags, Customers } from '../../apiCollections';
 import { prepareAvgStats } from '../../utils';
+import messageBroker from '../../messageBroker';
 
 interface IListArgs {
   kind?: string;
@@ -121,7 +121,7 @@ const countsByTag = async (
   if (status) {
     query = { ...query, ...statusQueryBuilder(status, user) };
   }
-  const tags = await Tags.find({ type: 'engageMessage' });
+  const tags = await messageBroker().sendRPCMessage('tags:rpc_queue:find', { type: 'engageMessage' });
 
   // const response: {[name: string]: number} = {};
   const response: ICountsByTag = {};
@@ -160,9 +160,10 @@ const listQuery = async (
 
   // filter by tag
   if (tag) {
-    const object = await Tags.findOne({ _id: tag });
+    const object = await messageBroker().sendRPCMessage('tags:rpc_queue:findOne', { _id: tag });
+    const relatedIds = object && object.relatedIds ? object.relatedIds : [];
 
-    query = { ...query, tagIds: { $in: [tag, ...(object?.relatedIds || [])] } };
+    query = { ...query, tagIds: { $in: [tag, ...relatedIds] } };
   }
 
   return query;
@@ -250,10 +251,15 @@ const engageQueries = {
       const modifiedItem = item;
 
       if (item.customerId) {
-        const customer = await Customers.findOne({ _id: item.customerId });
+        const customer = await messageBroker().sendRPCMessage(
+          'contacts:rpc_queue:findCustomer', { _id: item.customerId }
+        );
 
         if (customer) {
-          modifiedItem.customerName = Customers.getCustomerName(customer);
+          modifiedItem.customerName = await messageBroker().sendRPCMessage(
+            'contacts:rpc_queue:getCustomerName',
+            customer
+          );
         }
       }
 
@@ -304,6 +310,6 @@ requireLogin(engageQueries, 'engageMessageDetail');
 requireLogin(engageQueries, 'engageEmailPercentages');
 requireLogin(engageQueries, 'engageLogs');
 
-checkPermission(engageQueries, 'engageMessages', 'showEngagesMessages', []);
+// checkPermission(engageQueries, 'engageMessages', 'showEngagesMessages', []);
 
 export default engageQueries;

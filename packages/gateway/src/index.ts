@@ -125,7 +125,8 @@ const { MAIN_APP_DOMAIN, API_DOMAIN, PORT } = process.env;
         MAIN_APP_DOMAIN || 'http://localhost:3000',
         'http://localhost:3001',
         'https://studio.apollographql.com',
-        'http://localhost:3200'
+        'http://localhost:3200',
+        'http://localhost:3009', // inbox
       ]
     }
   });

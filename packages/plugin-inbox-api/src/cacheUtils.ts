@@ -53,7 +53,9 @@ export const getDocumentList = async (
       }
 
       case 'products': {
-        list = await sendProductRPCMessage('find', {});
+        list = await sendProductRPCMessage('find', {
+          query: {}
+        });
         break;
       }
       case 'tags': {

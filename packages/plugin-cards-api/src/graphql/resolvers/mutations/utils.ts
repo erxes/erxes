@@ -133,14 +133,14 @@ export const itemsAdd = async (
       contentType: type
     });
 
-    await putCreateLog(
-      {
-        type,
-        newData: extendedDoc,
-        object: item
-      },
-      user
-    );
+    // await putCreateLog(
+    //   {
+    //     type,
+    //     newData: extendedDoc,
+    //     object: item
+    //   },
+    //   user
+    // );
   }
 
   const stage = await Stages.getStage(item.stageId);
@@ -498,15 +498,15 @@ export const itemsChange = async (
     contentType: type
   });
 
-  await putUpdateLog(
-    {
-      type,
-      object: item,
-      newData: extendedDoc,
-      updatedDocument: updatedItem
-    },
-    user
-  );
+  // await putUpdateLog(
+  //   {
+  //     type,
+  //     object: item,
+  //     newData: extendedDoc,
+  //     updatedDocument: updatedItem
+  //   },
+  //   user
+  // );
 
   // order notification
   const stage = await Stages.getStage(item.stageId);

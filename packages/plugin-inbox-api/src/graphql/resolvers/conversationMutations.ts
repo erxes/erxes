@@ -21,9 +21,7 @@ import {
   sendMessage,
   sendRPCMessage,
   sendCardsRPCMessage,
-  sendContactRPCMessage,
-  sendProductRPCMessage,
-  sendConfigRPCMessage
+  sendContactRPCMessage
 } from '../../messageBroker';
 import { graphqlPubsub } from '../../configs';
 
@@ -246,7 +244,7 @@ const sendNotifications = async ({
         break;
     }
 
-    await sendMessage('notifications:send', doc)
+    await sendMessage('notifications:send', doc);
 
     if (mobile) {
       // send mobile notification ======
@@ -272,38 +270,6 @@ const getConversationById = async selector => {
     oldConversationById[conversation._id] = conversation;
   }
   return { oldConversationById, oldConversations };
-};
-
-// check booking convert
-const checkBookingConvert = async (productId: string) => {
-  const product = await sendProductRPCMessage('findOne', { _id: productId });
-
-  // let dealUOM = await Configs.find({ code: 'dealUOM' }).distinct('value');
-  let dealUOM = await sendConfigRPCMessage('getConfigs', {
-    code: 'dealUOM'
-  });
-
-  let dealCurrency = await sendConfigRPCMessage('getConfigs', {
-    code: 'dealCurrency'
-  });
-
-  if (dealUOM.length > 0) {
-    dealUOM = dealUOM[0];
-  } else {
-    throw new Error('Please choose UNIT OF MEASUREMENT from general settings!');
-  }
-
-  if (dealCurrency.length > 0) {
-    dealCurrency = dealCurrency[0];
-  } else {
-    throw new Error('Please choose currency from general settings!');
-  }
-
-  return {
-    product,
-    dealUOM,
-    dealCurrency
-  };
 };
 
 const conversationMutations = {
@@ -354,7 +320,7 @@ const conversationMutations = {
     const email = customer ? customer.primaryEmail : '';
 
     if (kind === KIND_CHOICES.LEAD && email) {
-      await sendRPCMessage('core:sendEmail', {
+      await sendMessage('core:sendEmail', {
         toEmails: [email],
         title: 'Reply',
         template: {
@@ -810,7 +776,6 @@ const conversationMutations = {
     const args = {
       ...params,
       conversation,
-      checkBookingConvert,
       user,
       docModifier
     };

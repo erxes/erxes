@@ -16,6 +16,7 @@ import Conversation from './conversation';
 import Channel from './channel';
 import Integration from './integration';
 import ConversationMessage from './conversationMessage';
+import BookingData from './bookingData';
 
 const resolvers: any = {
   ...customScalars,
@@ -23,6 +24,7 @@ const resolvers: any = {
   Channel,
   Integration,
   ConversationMessage,
+  BookingData,
   Mutation: {
     ...ConversationMutations,
     ...IntegrationMutations,

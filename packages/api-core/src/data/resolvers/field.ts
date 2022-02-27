@@ -6,6 +6,10 @@ import {
 import { getDocument } from './mutations/cacheUtils';
 
 export const field = {
+  __resolveReference({ _id }) {
+    return Fields.findOne({ _id });
+  },
+
   name(root: IFieldDocument) {
     return `erxes-form-field-${root._id}`;
   },

@@ -73,6 +73,14 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
   return client.sendRPCMessage(channel, message);
 };
 
+export const findCardItem = async (data) => {
+  if (!await serviceDiscovery.isAvailable('cards')) {
+    return null;
+  }
+
+  return client.sendRPCMessage('cards:rpc_queue:findCardItem', data);
+};
+
 export default function() {
   return client;
 }

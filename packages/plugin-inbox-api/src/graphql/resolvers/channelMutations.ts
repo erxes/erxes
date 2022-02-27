@@ -5,11 +5,6 @@ import {
   IChannelDocument
 } from '../../models/definitions/channels';
 
-// import {
-//   NOTIFICATION_CONTENT_TYPES,
-//   NOTIFICATION_TYPES
-// } from '../../../db/models/definitions/constants';
-
 // import { IUserDocument } from '../../../db/models/definitions/users';
 // import { MODULE_NAMES } from '../../constants';
 
@@ -42,20 +37,21 @@ export const sendChannelNotifications = async (
     action = `removed you from`;
   }
 
-//   return utils.sendNotification({
-//     contentType: NOTIFICATION_CONTENT_TYPES.CHANNEL,
-//     contentTypeId: channel._id,
-//     createdUser: user,
-//     notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
-//     title: `Channel updated`,
-//     action,
-//     content: `${channel.name} channel`,
-//     link: `/inbox/index?channelId=${channel._id}`,
+  return sendMessage('notifications:send', {
+    contentType: 'channel',
+    contentTypeId: channel._id,
+    createdUser: user,
+    notifType: 'channelMembersChange',
+    title: `Channel updated`,
+    action,
+    content: `${channel.name} channel`,
+    link: `/inbox/index?channelId=${channel._id}`,
 
-//     // exclude current user
-//     receivers:
-//       receivers || (channel.memberIds || []).filter(id => id !== channel.userId)
-//   });
+    // exclude current user
+    receivers:
+      receivers || (channel.memberIds || []).filter(id => id !== channel.userId)
+  })
+
 };
 
 const channelMutations = {

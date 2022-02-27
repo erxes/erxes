@@ -7,11 +7,11 @@ import { MESSAGE_TYPES } from '../../models/definitions/constants';
 
 export default {
   user(message: IMessageDocument) {
-    return message.userId && { __type: 'User', _id: message.userId }
+    return message.userId && { __typename: 'User', _id: message.userId }
   },
 
   customer(message: IMessageDocument) {
-    return message.customerId && { __type: 'Customer', _id: message.customerId }
+    return message.customerId && { __typename: 'Customer', _id: message.customerId }
   },
 
   async mailData(message: IMessageDocument, _args, { dataSources }: IContext) {

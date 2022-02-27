@@ -13,6 +13,11 @@ export const initBroker = async cl => {
     status: 'success',
   }));
 
+  consumeRPCQueue('tags:rpc_queue:findOne', async (selector) => ({
+    data: await models.Tags.findOne(selector).lean(),
+    status: 'success',
+  }));
+
   consumeRPCQueue('tags:rpc_queue:getActivityContent', async (data) => {
     const { action, content } = data;
 
@@ -51,3 +56,7 @@ export const initBroker = async cl => {
 export const sendRPCMessage = async (channel, message): Promise<any> => {
   return client.sendRPCMessage(channel, message);
 };
+
+export default function() {
+  return client;
+}

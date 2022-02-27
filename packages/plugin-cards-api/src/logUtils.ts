@@ -25,7 +25,7 @@ import {
 } from '@erxes/api-utils/src/logUtils';
 import { ITaskDocument } from './models/definitions/tasks';
 import { ITicketDocument } from './models/definitions/tickets';
-import messageBroker, { findMongoDocuments } from './messageBroker';
+import messageBroker, { findMongoDocuments, findProducts } from './messageBroker';
 import { MODULE_NAMES } from './constants';
 import { ACTIVITY_CONTENT_TYPES } from './models/definitions/constants';
 
@@ -175,15 +175,17 @@ const gatherDealFieldNames = async (
 
   options = await gatherBoardItemFieldNames(doc, options);
 
-  // if (doc.productsData && doc.productsData.length > 0) {
-  //   options = await gatherNames({
-  //     collection: Products,
-  //     idFields: doc.productsData.map(p => p.productId),
-  //     foreignKey: 'productId',
-  //     prevList: options,
-  //     nameFields: ['name']
-  //   });
-  // }
+  if (doc.productsData && doc.productsData.length > 0) {
+    options = await gatherNames({
+      foreignKey: 'productId',
+      prevList: options,
+      nameFields: ['name'],
+      items: await findProducts(
+        'find',
+        { _id: { $in: doc.productsData.map(p => p.productId) } }
+      )
+    });
+  }
 
   return options;
 };

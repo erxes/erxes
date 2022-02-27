@@ -10,8 +10,9 @@ import {
   Checklists,
   ChecklistItems
 } from './models';
-import { sendConformityMessage, sendInboxRPCMessage } from './messageBroker';
+import { sendConformityMessage } from './messageBroker';
 import { getCollection } from './models/utils';
+import { MODULE_NAMES } from './constants';
 
 export const configReplacer = (config) => {
   const now = new Date();
@@ -105,11 +106,11 @@ export const getContentItem = async (activityLog) => {
 };
 
 export const getContentTypeDetail = async (activityLog) => {
-  const { contentType, contentId, content } = activityLog;
+  const { contentType = '', contentId, content } = activityLog;
   let item = {};
 
   try {
-    switch (contentType) {
+    switch (contentType.split(':')[1]) {
       case "deal":
         item = await Deals.getDeal(contentId);
         break;
@@ -194,4 +195,28 @@ export const getCardContentIds = async ({ pipelineId, contentType }) => {
       .distinct('_id');
 
   return contentIds;
+};
+
+export const getCardItem = async ({ contentTypeId, contentType }) => {
+  const filter = { _id: contentTypeId };
+  let item;
+
+  switch (contentType) {
+    case MODULE_NAMES.DEAL:
+      item = await Deals.findOne(filter);
+      break;
+    case MODULE_NAMES.TASK:
+      item = await Tasks.findOne(filter);
+      break;
+    case MODULE_NAMES.TICKET:
+      item = await Tickets.findOne(filter);
+      break;
+    case MODULE_NAMES.GROWTH_HACK:
+      item = await GrowthHacks.findOne(filter);
+      break;
+    default:
+      break;
+  }
+
+  return item;
 };
