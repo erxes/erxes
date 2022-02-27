@@ -38,7 +38,7 @@ jobs:
         run: |
           cd packages/gateway
           yarn install
-          yarn build plugin gateway
+          yarn build gateway
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
