@@ -22,9 +22,8 @@ jobs:
 
       - name: Build
         run: |
-          # yarn install --frozen-lockfile
+          yarn install --frozen-lockfile
           # cp -r packages/ui-plugin-template/.erxes packages/plugin-cards-ui/.erxes
-          ls -la packages/plugin-cards-ui
           cd packages/plugin-cards-ui
           yarn install-deps
           yarn build
