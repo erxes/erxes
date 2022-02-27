@@ -1,5 +1,5 @@
 module.exports = {
-  name: "deals",
+  name: "cards",
   port: 3003,
   exposes: {
     "./routes": "./src/routes.tsx",
@@ -7,7 +7,7 @@ module.exports = {
   },
   routes: {
     url: "http://localhost:3003/remoteEntry.js",
-    scope: "deals",
+    scope: "cards",
     module: "./routes",
   },
   menus: [

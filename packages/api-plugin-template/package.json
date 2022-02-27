@@ -35,6 +35,7 @@
     "clerq": "0.5.0",
     "xlsx-populate": "^1.20.1",
     "strip": "^3.0.0",
+    "formidable": "^1.1.1",
     "xss": "^1.0.6"
   },
   "peerOptionalDependencies": {
