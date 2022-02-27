@@ -2,10 +2,9 @@ import * as csv from 'csv-writer';
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as request from 'request-promise';
-import { debugBase, debugError } from './debuggers';
 import { PHONE_VALIDATION_STATUSES, Phones } from './models';
 import { getArray, setArray } from './redisClient';
-import { getEnv, sendRequest } from './utils';
+import { debugBase, debugError, getEnv, sendRequest } from './utils';
 
 dotenv.config();
 

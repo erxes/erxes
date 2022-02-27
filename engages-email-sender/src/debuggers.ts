@@ -1,32 +1,10 @@
-import tracer from 'dd-trace';
-import * as formats from 'dd-trace/ext/formats';
+import * as debug from 'debug';
 
-export const ddLogger = (message, level) => {
-  const span = tracer.scope().active();
-  const time = new Date().toISOString();
-
-  const record = { time, level, message };
-
-  if (span) {
-    tracer.inject(span.context(), formats.LOG, record);
-  }
-
-  console.log(JSON.stringify(record));
-};
-
-export const ddInfo = message => {
-  return ddLogger(message, 'info');
-};
-
-export const ddError = message => {
-  return ddLogger(message, 'error');
-};
-
-export const debugInit = ddInfo;
-export const debugDb = ddInfo;
-export const debugBase = ddInfo;
-export const debugEngages = ddInfo;
-export const debugError = ddError;
+export const debugInit = debug('erxes-engages:init');
+export const debugDb = debug('erxes-engages:db');
+export const debugBase = debug('erxes-engages:base');
+export const debugEngages = debug('erxes-engages:engages');
+export const debugError = debug('erxes-engages:error');
 
 export const debugRequest = (debugInstance, req) =>
   debugInstance(`

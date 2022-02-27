@@ -936,7 +936,7 @@ connect().then(async () => {
       endRow = startRow;
     }
 
-    debugWorkers(`${startRow}, ${endRow}, ${e.message}, ${contentType}`);
+    debugWorkers(startRow, endRow, e.message, contentType);
 
     // modifier.$push = { errorMsgs: e.message };
     modifier.$inc.failed = bulkDoc.length;

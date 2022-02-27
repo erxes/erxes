@@ -6,8 +6,8 @@ import { bulk, single } from './api';
 import { validateBulkPhones, validateSinglePhone } from './apiPhoneVerifier';
 import { connect } from './connection';
 import './cronJobs/verifier';
-import { debugBase, debugCrons, debugError, debugRequest } from './debuggers';
 import { initRedis } from './redisClient';
+import { debugBase, debugCrons, debugRequest } from './utils';
 
 // load environment variables
 dotenv.config();
@@ -68,7 +68,7 @@ app.post('/verify-bulk', async (req, res, next) => {
 app.use((error, _req, res, _next) => {
   const msg = filterXSS(error.message);
 
-  debugError(`Error: ${msg}`);
+  debugBase(`Error: `, msg);
   res.status(500).send(msg);
 });
 
