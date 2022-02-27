@@ -37,6 +37,7 @@ jobs:
       - name: Build
         run: |
           cd packages/gateway
+          yarn install
           yarn build plugin cards
 
       - name: Build docker image

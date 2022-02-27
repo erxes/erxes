@@ -37,6 +37,7 @@ jobs:
       - name: Build
         run: |
           cd packages/gateway
+          yarn install
           yarn build plugin api-core
 
       - name: Build docker image
