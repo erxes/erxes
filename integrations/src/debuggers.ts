@@ -1,24 +1,44 @@
-import * as debug from 'debug';
+import tracer from 'dd-trace';
+import * as formats from 'dd-trace/ext/formats';
 
-export const debugInit = debug('erxes-integrations:init');
-export const debugDb = debug('erxes-integrations:db');
-export const debugCrons = debug('erxes-integrations-crons:');
-export const debugBase = debug('erxes-integrations:base');
-export const debugIntegrations = debug('erxes-integrations:integrations');
-export const debugFacebook = debug('erxes-integrations:facebook');
-export const debugTwitter = debug('erxes-integrations:twitter');
-export const debugGmail = debug('erxes-integrations:gmail');
-export const debugCallPro = debug('erxes-integrations:callpro');
-export const debugChatfuel = debug('erxes-integrations:chatfuel');
-export const debugNylas = debug('erxes-integrations:nylas');
-export const debugWhatsapp = debug('erxes-integrations:whatsapp');
-export const debugExternalRequests = debug(
-  'erxes-integrations:external-requests'
-);
-export const debugDaily = debug('erxes-integrations:daily');
-export const debugSmooch = debug('erxes-integrations:smooch');
-export const debugTelnyx = debug('erxes-integrations:telnyx');
-export const debugError = debug('erxes-integrations:error');
+export const ddLogger = (message, level) => {
+  const span = tracer.scope().active();
+  const time = new Date().toISOString();
+
+  const record = { time, level, message };
+
+  if (span) {
+    tracer.inject(span.context(), formats.LOG, record);
+  }
+
+  console.log(JSON.stringify(record));
+};
+
+export const ddInfo = message => {
+  return ddLogger(message, 'info');
+};
+
+export const ddError = message => {
+  return ddLogger(message, 'error');
+};
+
+export const debugInit = ddInfo;
+export const debugDb = ddInfo;
+export const debugCrons = ddInfo;
+export const debugBase = ddInfo;
+export const debugIntegrations = ddInfo;
+export const debugFacebook = ddInfo;
+export const debugTwitter = ddInfo;
+export const debugGmail = ddInfo;
+export const debugCallPro = ddInfo;
+export const debugChatfuel = ddInfo;
+export const debugNylas = ddInfo;
+export const debugWhatsapp = ddInfo;
+export const debugExternalRequests = ddInfo;
+export const debugDaily = ddInfo;
+export const debugSmooch = ddInfo;
+export const debugTelnyx = ddInfo;
+export const debugError = ddError;
 
 export const debugRequest = (debugInstance, req) =>
   debugInstance(`
