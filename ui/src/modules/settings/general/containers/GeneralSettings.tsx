@@ -35,6 +35,13 @@ class SettingsContainer extends React.Component<FinalProps> {
             localStorage.setItem('GOOGLE_MAP_API_KEY', map.GOOGLE_MAP_API_KEY);
           }
 
+          if (
+            localStorage.getItem('GOOGLE_MAP_API_KEY') &&
+            !map.GOOGLE_MAP_API_KEY
+          ) {
+            localStorage.removeItem('GOOGLE_MAP_API_KEY');
+          }
+
           Alert.success('You successfully updated general settings');
         })
         .catch(error => {
