@@ -36,9 +36,8 @@ jobs:
 
       - name: Build
         run: |
-          cd packages/api-core
-          yarn install --frozen-lockfile --production
-          yarn build
+          cd packages/gateway
+          yarn build plugin api-core
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
