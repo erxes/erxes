@@ -1,4 +1,4 @@
-name: plugin-cards-api CI
+name: Plugin cards api CI
 
 on:
   push:
