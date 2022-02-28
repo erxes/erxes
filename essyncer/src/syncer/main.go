@@ -130,37 +130,6 @@ func main() {
 		}
 	}
 
-	var itemTemplate = fmt.Sprintf(`{
-		"userId": {
-			"type": "keyword"
-		},
-		"stageId": {
-			"type": "keyword"
-		},
-		"modifiedBy": {
-			"type": "keyword"
-		},
-		"status": {
-			"type": "keyword"
-		},
-		"assignedUserIds": {
-			"type": "keyword"
-		},
-		"watchedUserIds": {
-			"type": "keyword"
-		},
-		"labelIds": {
-			"type": "keyword"
-		},
-		"customFieldsData": %s
-	}`, nested_type)
-
-	putTemplate("deals", itemTemplate)
-
-	putTemplate("tasks", itemTemplate)
-
-	putTemplate("tickets", itemTemplate)
-
 	f, _ := os.Create("mongo-elastic.toml")
 
 	var header = fmt.Sprintf(`
@@ -172,15 +141,10 @@ func main() {
 	f.WriteString(header)
 
 	var namespaces []string
-
-	namespaces = append(namespaces, fmt.Sprintf(`"erxes.deals"`))
-	namespaces = append(namespaces, fmt.Sprintf(`"erxes.tickets"`))
-	namespaces = append(namespaces, fmt.Sprintf(`"erxes.tasks"`))
-
-
 	var scripts []string
+
 	possible_dbs := []string{"erxes"}
-	possible_collections := []string{"deals","tasks","tickets"}
+	possible_collections := []string{"users","brands","segments","fields","fields_groups","form_submissions","conformities"}
 
 	for i := 0; i < len(plugins.Plugins); i++ {
 		var plugin = plugins.Plugins[i]
