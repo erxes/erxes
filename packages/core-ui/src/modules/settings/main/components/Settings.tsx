@@ -66,6 +66,29 @@ class Settings extends React.PureComponent {
     return this.renderBox(text, image, to, action, permissions, type);
   }
 
+  renderPluginSettings() {
+    const plugins = pluginsSettingsNavigations(this.renderBox);
+
+    if (plugins.length === 0) {
+      return null;
+    }
+    return (
+      <>
+        <Divider />
+        <Row>
+          <RowTitle>
+            {__("Plugin Settings")}
+            <span>{__("Set up your additional plugin settings")}</span>
+          </RowTitle>
+          <div id={"PluginSettings"}>
+            {plugins}
+            {pluginsOfSettings(this.renderBox)}
+          </div>
+        </Row>
+      </>
+    );
+  }
+
   render() {
     const content = (
       <MenusContainer id={"SettingsMain"}>
@@ -124,17 +147,7 @@ class Settings extends React.PureComponent {
             )}
           </div>
         </Row>
-        <Divider />
-        <Row>
-          <RowTitle>
-            {__("Plugin Settings")}
-            <span>{__("Set up your additional plugin settings")}</span>
-          </RowTitle>
-          <div id={"PluginSettings"}>
-            {pluginsSettingsNavigations(this.renderBox)}
-            {pluginsOfSettings(this.renderBox)}
-          </div>
-        </Row>
+        {this.renderPluginSettings()}
       </MenusContainer>
     );
 
