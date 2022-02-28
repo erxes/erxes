@@ -40,7 +40,7 @@ class Settings extends React.PureComponent {
   ) {
     const box = (
       <Box className={type && "hasBorder"}>
-        <Link to={to}>
+        <Link to={to || "#"}>
           {type && <em>{type}</em>}
           <img src={image} alt={name} />
           <BoxName>{__(name)}</BoxName>
@@ -136,9 +136,11 @@ class Settings extends React.PureComponent {
             <span>{__("Set up your additional plugin settings")}</span>
           </RowTitle>
           <div id={"PluginSettings"}>
-            {pluginsSettingsNavigations().map((menu) =>
-              this.renderSettingsofPlugins(menu)
-            )}
+            {pluginsSettingsNavigations().map((menu, index) => (
+              <React.Fragment key={index}>
+                {this.renderSettingsofPlugins(menu)}
+              </React.Fragment>
+            ))}
             {pluginsOfSettings(this.renderBox)}
           </div>
         </Row>
