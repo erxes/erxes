@@ -64,6 +64,7 @@ export const saveEvent = async (args: ISaveEventArgs) => {
           customerId,
           createdAt: new Date(),
           count: 1,
+          // TODO: RPC
           attributes: Fields.generateTypedListFromMap(attributes || {})
         }
       }
@@ -245,7 +246,7 @@ export const updateCustomerProperty = async ({
       const prev = {};
       (customer.trackedData || []).forEach(td => (prev[td.field] = td.value));
       prev[name] = value;
-
+      // TODO: RPC
       modifier = { trackedData: Fields.generateTypedListFromMap(prev) };
     }
   }

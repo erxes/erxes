@@ -44,6 +44,14 @@ export const initBroker = (cl) => {
   );
 
   consumeRPCQueue(
+    'contacts:Customers.findOne',
+    async ({ selector, fields }) => ({
+      status: 'success',
+      data: await Customers.findOne(selector, fields).lean(),
+    })
+  );
+
+  consumeRPCQueue(
     'contacts:rpc_queue:findActiveCompanies',
     async ({ selector, fields }) => ({
       status: 'success',

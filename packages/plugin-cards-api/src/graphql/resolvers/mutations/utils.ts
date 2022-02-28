@@ -278,7 +278,10 @@ export const itemsEdit = async (
         item: updatedItem,
         contentType: type,
         action: activityAction,
-        userId: user._id
+        userId: user._id,
+        createdBy: user._id,
+        contentId: updatedItem._id,
+        content: 'archived'
       }
     });
 
@@ -306,7 +309,9 @@ export const itemsEdit = async (
         contentId: _id,
         userId: user._id,
         contentType: type,
-        content: activityContent
+        content: activityContent,
+        action: 'assignee',
+        createdBy: user._id
       }
     });
 
@@ -435,7 +440,11 @@ const itemMover = async (
         contentType,
         userId,
         activityLogContent,
-        link
+        link,
+        action: 'moved',
+        contentId: item._id,
+        createdBy: userId,
+        content: activityLogContent
       }
     });
 
@@ -639,8 +648,11 @@ export const itemsArchive = async (
       data: {
         item,
         contentType: type,
-        action: 'archived',
-        userId: user._id
+        action: 'archive',
+        userId: user._id,
+        createdBy: user._id,
+        contentId: item._id,
+        content: 'archived'
       }
     });
 

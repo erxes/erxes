@@ -479,6 +479,7 @@ export const loadClass = () => {
       // });
       await removeCustomersConversations(customerIds);
       await removeCustomersEngages(customerIds);
+      // TODO: RPC
       await InternalNotes.removeInternalNotes(
         ACTIVITY_CONTENT_TYPES.CUSTOMER,
         customerIds
@@ -588,6 +589,7 @@ export const loadClass = () => {
 
       await changeCustomer(customer._id, customerIds);
       await engageChangeCustomer(customer._id, customerIds);
+      // TODO: RPC
       await InternalNotes.changeCustomer(customer._id, customerIds);
 
       return customer;
