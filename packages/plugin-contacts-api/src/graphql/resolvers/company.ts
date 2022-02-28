@@ -30,6 +30,10 @@ export default {
   },
 
   owner(company: ICompanyDocument) {
+    if(!company.ownerId) {
+      return
+    }
+
     return { __typename: "User", _id: company.ownerId };
   },
 

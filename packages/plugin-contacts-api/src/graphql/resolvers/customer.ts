@@ -81,6 +81,10 @@ export default {
   },
 
   async owner(customer: ICustomerDocument) {
-    return { __typename: "Customer", _id: customer.ownerId };
+    if(!customer.ownerId) {
+      return
+    }
+
+    return { __typename: 'User', _id: customer.ownerId };
   }
 };

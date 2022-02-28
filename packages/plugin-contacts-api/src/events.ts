@@ -4,7 +4,7 @@ import { debug } from './configs';
 import { es } from './configs';
 import { sendContactRPCMessage } from './messageBroker';
 import Customers from './models/Customers';
-
+import { client as msgBroker } from './messageBroker';
 interface ISaveEventArgs {
   type?: string;
   name?: string;
@@ -64,7 +64,7 @@ export const saveEvent = async (args: ISaveEventArgs) => {
           customerId,
           createdAt: new Date(),
           count: 1,
-          attributes: Fields.generateTypedListFromMap(attributes || {})
+          attributes: await msgBroker.sendRPCMessage('core:Fields.generateTypedListFromMap', attributes || {})
         }
       }
     });
@@ -245,8 +245,7 @@ export const updateCustomerProperty = async ({
       const prev = {};
       (customer.trackedData || []).forEach(td => (prev[td.field] = td.value));
       prev[name] = value;
-
-      modifier = { trackedData: Fields.generateTypedListFromMap(prev) };
+      modifier = { trackedData: await msgBroker.sendRPCMessage('core:Fields.generateTypedListFromMap', prev) };
     }
   }
 

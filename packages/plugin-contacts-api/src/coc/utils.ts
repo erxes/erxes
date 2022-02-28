@@ -81,7 +81,7 @@ export const countByTag = async (type: string, qb): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
   // Count customers by tag
-  const tags = await Tags.find({ type }).select('_id');
+  const tags = await Tags.find({ type }).toArray();
 
   for (const tag of tags) {
     await qb.buildAllQueries();

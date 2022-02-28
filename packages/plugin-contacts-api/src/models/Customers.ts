@@ -3,9 +3,6 @@ import { Model, model } from 'mongoose';
 // import { sendToWebhook } from '../../data/utils';
 import { validSearchText } from '@erxes/api-utils/src';
 import { validateSingle } from '../verifierUtils';
-import { InternalNotes } from '../apiCollections';
-// import { EngageMessages } from '@erxes/plugin-engages-api/src/models';
-// import { Conversations } from '@erxes/plugin-inbox-api/src/models';
 import { ICustomField } from '@erxes/api-utils/src/definitions/common';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import {
@@ -15,11 +12,13 @@ import {
 } from './definitions/customers';
 // import { IUserDocument } from '@erxes/common-types';
 import {
-  changeCustomer,
   engageChangeCustomer,
+  inboxChangeCustomer,
+  internalNotesBatchUpdate,
   prepareCustomFieldsData,
   removeCustomersConversations,
   removeCustomersEngages,
+  removeInternalNotes,
   sendConformityMessage,
   sendFieldRPCMessage
 } from '../messageBroker';
@@ -479,10 +478,7 @@ export const loadClass = () => {
       // });
       await removeCustomersConversations(customerIds);
       await removeCustomersEngages(customerIds);
-      await InternalNotes.removeInternalNotes(
-        ACTIVITY_CONTENT_TYPES.CUSTOMER,
-        customerIds
-      );
+      await removeInternalNotes(ACTIVITY_CONTENT_TYPES.CUSTOMER, customerIds);
       await sendConformityMessage('removeConformities', {
         mainType: 'customer',
         mainTypeIds: customerIds
@@ -586,9 +582,9 @@ export const loadClass = () => {
         oldTypeIds: customerIds
       });
 
-      await changeCustomer(customer._id, customerIds);
+      await inboxChangeCustomer(customer._id, customerIds);
       await engageChangeCustomer(customer._id, customerIds);
-      await InternalNotes.changeCustomer(customer._id, customerIds);
+      await internalNotesBatchUpdate(ACTIVITY_CONTENT_TYPES.CUSTOMER, customerIds, customer._id);
 
       return customer;
     }

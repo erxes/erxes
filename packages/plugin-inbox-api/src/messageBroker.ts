@@ -110,7 +110,7 @@ export const initBroker = (cl) => {
     await Conversations.removeCustomersConversations(customerIds);
   });
 
-  consumeQueue('inbox:changeCustomer', async (customerId, customerIds) => {
+  consumeQueue('inbox:changeCustomer', async ({customerId, customerIds}) => {
     await Conversations.changeCustomer(customerId, customerIds);
   });
 
@@ -121,19 +121,24 @@ export const initBroker = (cl) => {
 
   consumeRPCQueue('inbox:rpc_queue:tag', async args => {
     let data = {};
+    let model: any = Conversations
+
+    if(args.type === 'integration') {
+      model = Integrations
+    }
 
     if (args.action === 'count') {
-      data = await Conversations.countDocuments({ tagIds: { $in: args._ids } });
+      data = await model.countDocuments({ tagIds: { $in: args._ids } });
     }
 
     if (args.action === 'tagObject') {
-      await Conversations.updateMany(
+      await model.updateMany(
         { _id: { $in: args.targetIds } },
         { $set: { tagIds: args.tagIds } },
         { multi: true }
       );
 
-      data = await Conversations.find({ _id: { $in: args.targetIds } }).lean();
+      data = await model.find({ _id: { $in: args.targetIds } }).lean();
     }
 
     return {
@@ -172,6 +177,10 @@ export const initBroker = (cl) => {
       data: updated,
       status: 'success'
     }
+  });
+
+  consumeQueue('inbox:removeCustomersConversations', (customerIds) => {
+    return Conversations.removeCustomersConversations(customerIds);
   });
 };
 

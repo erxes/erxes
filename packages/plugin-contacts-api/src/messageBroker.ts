@@ -3,7 +3,7 @@ import Customers from './models/Customers';
 import { findCompany, findCustomer, generateFields, getContentItem, prepareEngageCustomers } from './utils';
 import { serviceDiscovery } from './configs';
 
-let client;
+export let client;
 
 export const initBroker = (cl) => {
   client = cl;
@@ -40,6 +40,14 @@ export const initBroker = (cl) => {
     async ({ selector, fields }) => ({
       status: 'success',
       data: await Customers.findActiveCustomers(selector, fields),
+    })
+  );
+
+  consumeRPCQueue(
+    'contacts:Customers.findOne',
+    async ({ selector, fields }) => ({
+      status: 'success',
+      data: await Customers.findOne(selector, fields).lean(),
     })
   );
 
@@ -182,6 +190,34 @@ export const initBroker = (cl) => {
       data: await prepareEngageCustomers(data)
     }
   });
+
+  consumeRPCQueue('contacts:rpc_queue:tag', async args => {
+    let data = {};
+    let model: any = Companies
+
+    if(args.type === 'customer') {
+      model = Customers
+    }
+
+    if (args.action === 'count') {
+      data = await model.countDocuments({ tagIds: { $in: args._ids } });
+    }
+
+    if (args.action === 'tagObject') {
+      await model.updateMany(
+        { _id: { $in: args.targetIds } },
+        { $set: { tagIds: args.tagIds } },
+        { multi: true }
+      );
+
+      data = await model.find({ _id: { $in: args.targetIds } }).lean();
+    }
+
+    return {
+      status: 'success',
+      data
+    }
+  });
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {
@@ -257,25 +293,26 @@ export const sendToLog = (channel: string, data) =>
 export const removeCustomersConversations = async (
   customerIds
 ): Promise<any> => {
-  await client.consumeQueue(
-    'contact:removeCustomersConversations',
+  await client.sendMessage(
+    'inbox:removeCustomersConversations',
     customerIds
   );
 };
 
 export const removeCustomersEngages = async (customerIds): Promise<any> => {
-  await client.consumeQueue('contact:removeCustomersEngages', customerIds);
-};
-
-export const changeCustomer = async (customerId, customerIds): Promise<any> => {
-  await client.consumeQueue('contact:changeCustomer', customerId, customerIds);
+  await client.sendMessage('engage:removeCustomersEngages', customerIds);
 };
 
 export const engageChangeCustomer = async (
   customerId,
   customerIds
 ): Promise<any> => {
-  await client.consumeQueue('engage:changeCustomer', customerId, customerIds);
+  if(!serviceDiscovery.isAvailable("engages")) return;
+  
+  return client.sendMessage("engage:changeCustomer", {
+    customerId,
+    customerIds,
+  });
 };
 
 export const fetchSegment = (segment, options?) =>
@@ -283,6 +320,31 @@ export const fetchSegment = (segment, options?) =>
     segment,
     options,
   });
+
+export const removeInternalNotes = (contentType: string, contentTypeIds: string[]) => {
+  if (!serviceDiscovery.isAvailable("internalnotes")) return;
+
+  return sendMessage("internalnotes:InternalNotes.removeInternalNotes", {
+    contentType,
+    contentTypeIds,
+  });
+};
+
+export const internalNotesBatchUpdate = (contentType: string, oldContentTypeIds: string[], newContentTypeId: string) => {
+  if (!serviceDiscovery.isAvailable("internalnotes")) return;
+
+  return sendMessage("internalNotes:batchUpdate", {
+    contentType,
+    oldContentTypeIds,
+    newContentTypeId,
+  });
+}
+
+export const inboxChangeCustomer = (customerId: string, customerIds: string[]) => {
+  if(!serviceDiscovery.isAvailable("inbox")) return;
+
+  return sendMessage("inbox:changeCustomer", { customerId , customerIds });
+}
 
 export default function() {
   return client;
