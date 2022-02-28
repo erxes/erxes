@@ -110,7 +110,7 @@ export const initBroker = (cl) => {
     await Conversations.removeCustomersConversations(customerIds);
   });
 
-  consumeQueue('inbox:changeCustomer', async (customerId, customerIds) => {
+  consumeQueue('inbox:changeCustomer', async ({customerId, customerIds}) => {
     await Conversations.changeCustomer(customerId, customerIds);
   });
 
@@ -177,6 +177,10 @@ export const initBroker = (cl) => {
       data: updated,
       status: 'success'
     }
+  });
+
+  consumeQueue('inbox:removeCustomersConversations', (customerIds) => {
+    return Conversations.removeCustomersConversations(customerIds);
   });
 };
 

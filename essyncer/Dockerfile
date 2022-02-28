@@ -1,9 +1,9 @@
 FROM golang:1.14.2
 
-WORKDIR /elkSyncer/
+WORKDIR /essyncer/
 
-ENV GOPATH=/elkSyncer
-ENV PATH="/elkSyncer/build/linux-amd64:$PATH"
+ENV GOPATH=/essyncer
+ENV PATH="/essyncer/build/linux-amd64:$PATH"
 
 # Update
 RUN apt-get update \
