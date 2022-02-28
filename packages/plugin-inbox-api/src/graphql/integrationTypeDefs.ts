@@ -1,4 +1,4 @@
-export const types = (isProductsAvailable) => `
+export const types = (isProductsAvailable, isTagsAvailable) => `
   extend type Form @key(fields: "_id") {
     _id: String! @external
   }
@@ -20,7 +20,11 @@ export const types = (isProductsAvailable) => `
     code: String
     formId: String
     tagIds: [String]
-    tags: [Tag]
+
+    ${
+      isTagsAvailable ? `tags: [Tag]` : '' 
+    }
+    
     leadData: JSON
     messengerData: JSON
     uiOptions: JSON
