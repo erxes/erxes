@@ -5,10 +5,9 @@ import {
   IChannelDocument
 } from '../../models/definitions/channels';
 
-// import { IUserDocument } from '../../../db/models/definitions/users';
-// import { MODULE_NAMES } from '../../constants';
+import { MODULE_NAMES } from '../../constants';
 
-// import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src';
@@ -63,14 +62,14 @@ const channelMutations = {
 
     await sendChannelNotifications(channel, 'invited', user);
 
-//     await putCreateLog(
-//       {
-//         type: MODULE_NAMES.CHANNEL,
-//         newData: { ...doc, userId: user._id },
-//         object: channel
-//       },
-//       user
-//     );
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.CHANNEL,
+        newData: { ...doc, userId: user._id },
+        object: channel
+      },
+      user
+    );
 
     return channel;
   },
@@ -95,15 +94,15 @@ const channelMutations = {
     await sendChannelNotifications(channel, 'invited', user, addedUserIds);
     await sendChannelNotifications(channel, 'removed', user, removedUserIds);
 
-//     await putUpdateLog(
-//       {
-//         type: MODULE_NAMES.CHANNEL,
-//         object: channel,
-//         newData: doc,
-//         updatedDocument: updated
-//       },
-//       user
-//     );
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.CHANNEL,
+        object: channel,
+        newData: doc,
+        updatedDocument: updated
+      },
+      user
+    );
 
     if (
       (channel.integrationIds || []).toString() !==
@@ -125,7 +124,7 @@ const channelMutations = {
 
     await sendChannelNotifications(channel, 'removed', user);
 
-//     await putDeleteLog({ type: MODULE_NAMES.CHANNEL, object: channel }, user);
+    await putDeleteLog({ type: MODULE_NAMES.CHANNEL, object: channel }, user);
 
     return true;
   }
