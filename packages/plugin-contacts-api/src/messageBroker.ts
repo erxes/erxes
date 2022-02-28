@@ -69,6 +69,14 @@ export const initBroker = (cl) => {
     })
   );
 
+  consumeRPCQueue(
+    'contacts:rpc_queue:updateCustomerCommon',
+    async ({ selector, modifier }) => ({
+      status: 'success',
+      data: await Customers.updateOne(selector, modifier),
+    })
+  );
+
   consumeQueue('contacts:removeCustomers', async (doc) => ({
     status: 'success',
     data: await Customers.removeCustomers(doc)
@@ -77,6 +85,11 @@ export const initBroker = (cl) => {
   consumeRPCQueue('contacts:rpc_queue:updateCompany', async ({ _id, doc }) => ({
     status: 'success',
     data: await Companies.updateCompany(_id, doc),
+  }));
+
+  consumeRPCQueue('contacts:rpc_queue:updateCompanyCommon', async ({ selector, modifier }) => ({
+    status: 'success',
+    data: await Companies.updateOne(selector, modifier),
   }));
 
   consumeRPCQueue('contacts:rpc_queue:getWidgetCustomer', async (data) => ({
