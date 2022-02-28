@@ -65,6 +65,14 @@ const main = async () => {
     })
   );
 
+  if (type === "plugin") {
+    await execute(() =>
+      fse.copy("../api-plugin-template.erxes", `../../dist/${folderName}/.erxes`, {
+        overwrite: true,
+      })
+    );
+  }
+
   console.log("Generating package.json ....");
   await execute(() =>
     fs.promises.writeFile(

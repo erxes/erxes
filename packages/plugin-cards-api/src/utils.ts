@@ -10,8 +10,9 @@ import {
   Checklists,
   ChecklistItems
 } from './models';
-import { sendConformityMessage, sendInboxRPCMessage } from './messageBroker';
+import { sendConformityMessage } from './messageBroker';
 import { getCollection } from './models/utils';
+import { MODULE_NAMES } from './constants';
 
 export const configReplacer = (config) => {
   const now = new Date();
@@ -194,4 +195,28 @@ export const getCardContentIds = async ({ pipelineId, contentType }) => {
       .distinct('_id');
 
   return contentIds;
+};
+
+export const getCardItem = async ({ contentTypeId, contentType }) => {
+  const filter = { _id: contentTypeId };
+  let item;
+
+  switch (contentType) {
+    case MODULE_NAMES.DEAL:
+      item = await Deals.findOne(filter);
+      break;
+    case MODULE_NAMES.TASK:
+      item = await Tasks.findOne(filter);
+      break;
+    case MODULE_NAMES.TICKET:
+      item = await Tickets.findOne(filter);
+      break;
+    case MODULE_NAMES.GROWTH_HACK:
+      item = await GrowthHacks.findOne(filter);
+      break;
+    default:
+      break;
+  }
+
+  return item;
 };

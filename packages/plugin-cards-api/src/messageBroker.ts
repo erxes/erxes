@@ -14,7 +14,8 @@ import {
   getContentItem,
   getContentTypeDetail,
   collectTasks,
-  getCardContentIds
+  getCardContentIds,
+  getCardItem
 } from './utils';
 
 import { LOG_MAPPINGS } from './constants';
@@ -182,6 +183,10 @@ export const initBroker = async cl => {
 
   consumeRPCQueue('cards:deals:generateProducts', async productsData => {
     return { data: await generateProducts(productsData), status: 'success' };
+  });
+
+  consumeRPCQueue('cards:rpc_queue:findCardItem', async data => {
+    return { data: await getCardItem(data), status: 'success' };
   });
 };
 

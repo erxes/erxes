@@ -92,6 +92,10 @@ export const findCompany = async doc => {
     company = await Companies.findOne({ code: doc.companyCode });
   }
 
+  if (!company && doc._id) {
+    company = await Companies.findOne({ _id: doc._id });
+  }
+
   return company;
 };
 

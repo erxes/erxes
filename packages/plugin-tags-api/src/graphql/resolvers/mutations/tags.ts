@@ -1,29 +1,25 @@
 import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src/types';
+
 import { Tags } from '../../../models';
 import { ITag } from '../../../models/definitions/tags';
 import { tagObject } from '../../../utils';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 
 interface ITagsEdit extends ITag {
   _id: string;
 }
 
+const TAG = 'tag';
+
 const tagMutations = {
   /**
    * Creates a new tag
    */
-  async tagsAdd(_root, doc: ITag, context: IContext) {
-    const tag = await Tags.createTag(context.docModifier(doc));
+  async tagsAdd(_root, doc: ITag, { docModifier, user }: IContext) {
+    const tag = await Tags.createTag(docModifier(doc));
 
-    // await putCreateLog(
-    //   {
-    //     type: MODULE_NAMES.TAG,
-    //     newData: tag,
-    //     object: tag,
-    //     description: `"${tag.name}" has been created`
-    //   },
-    //   user
-    // );
+    await putCreateLog({ type: TAG, newData: tag, object: tag }, user);
 
     return tag;
   },
@@ -35,15 +31,7 @@ const tagMutations = {
     const tag = await Tags.getTag(_id);
     const updated = await Tags.updateTag(_id, doc);
 
-    // await putUpdateLog(
-    //   {
-    //     type: MODULE_NAMES.TAG,
-    //     object: tag,
-    //     newData: doc,
-    //     description: `"${tag.name}" has been edited`
-    //   },
-    //   user
-    // );
+    await putUpdateLog({ type: TAG, object: tag, newData: doc }, user);
 
     return updated;
   },
@@ -55,14 +43,7 @@ const tagMutations = {
     const tag = await Tags.findOne({ _id });
     const removed = await Tags.removeTag(_id);
 
-    // await putDeleteLog(
-    //   {
-    //     type: MODULE_NAMES.TAG,
-    //     object: tag,
-    //     description: `"${tag && tag.name}" has been removed`
-    //   },
-    //   user
-    // );
+    await putDeleteLog({ type: TAG, object: tag }, user);
 
     return removed;
   },

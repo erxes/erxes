@@ -182,7 +182,9 @@ const gatherDealFieldNames = async (
       nameFields: ['name'],
       items: await findProducts(
         'find',
-        { _id: { $in: doc.productsData.map(p => p.productId) } }
+        { query: {
+          _id: { $in: doc.productsData.map(p => p.productId) } }
+        }
       )
     });
   }

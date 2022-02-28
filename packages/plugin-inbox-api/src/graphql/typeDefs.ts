@@ -38,15 +38,16 @@ import {
 
 const typeDefs = async (serviceDiscovery) => {
   const isProductsAvailable = await serviceDiscovery.isAvailable('products');
+  const isTagsAvailable = await serviceDiscovery.isAvailable('tags');
 
   return gql`
     scalar JSON
     scalar Date
 
-    ${ConversationTypes}
+    ${ConversationTypes(isTagsAvailable)}
     ${MessengerAppTypes}
     ${ChannelTypes}
-    ${integrationTypes(isProductsAvailable)}
+    ${integrationTypes(isProductsAvailable, isTagsAvailable)}
     ${ResponseTemplateTypes}
     ${widgetTypes(isProductsAvailable)}
     

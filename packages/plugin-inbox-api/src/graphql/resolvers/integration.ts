@@ -17,7 +17,7 @@ export default {
       return null;
     }
 
-    return { __type: 'Form', _id: integration.formId }
+    return { __typename: 'Form', _id: integration.formId }
   },
 
   channels(integration: IIntegrationDocument) {
@@ -27,7 +27,7 @@ export default {
   },
 
   async tags(integration: IIntegrationDocument) {
-    return (integration.tagIds || []).map((_id) => ({ __type: 'Tag', _id }));
+    return (integration.tagIds || []).map((_id) => ({ __typename: 'Tag', _id }));
   },
 
   websiteMessengerApps(integration: IIntegrationDocument) {

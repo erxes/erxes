@@ -29,7 +29,7 @@ export const tagSchema = schemaHooksWrapper(
     objectCount: field({ type: Number, label: 'Object count' }),
     order: field({ type: String, label: 'Order' }),
     parentId: field({ type: String, optional: true, label: 'Parent' }),
-    relatedIds: field({ type: [String], optional: true, label: 'Childrens' })
+    relatedIds: field({ type: [String], optional: true, label: 'Children tag ids' })
   }),
   'erxes_tags'
 );

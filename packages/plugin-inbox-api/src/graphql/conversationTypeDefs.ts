@@ -1,4 +1,4 @@
-export const types = `
+export const types = isTagsAvailable => `
   extend type Attachment @key(fields: "url") {
     url: String! @external
   }
@@ -14,8 +14,14 @@ export const types = `
     _id: String! @external
   }
 
-  extend type Tag @key(fields: "_id") {
-    _id: String! @external
+  ${
+    isTagsAvailable ? 
+    `
+      extend type Tag @key(fields: "_id") {
+        _id: String! @external
+      }
+    `
+    : ''
   }
 
   extend type User @key(fields: "_id") {
@@ -52,7 +58,9 @@ export const types = `
     messages: [ConversationMessage]
     facebookPost: FacebookPost
     callProAudio: String
-    tags: [Tag]
+    
+    ${isTagsAvailable ? `tags: [Tag]` : ''}
+
     customer: Customer
     integration: Integration
     user: User

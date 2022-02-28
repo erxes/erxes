@@ -45,8 +45,8 @@
   "scripts": {
     "watch-plugins": "node commands/watch-plugins.js",
     "start": "webpack serve --open --mode development",
-    "build": "yarn generateVersion && react-app-rewired build",
     "generateVersion": "node commands/generateVersion.js",
+    "build": "node commands/build.js",
     "compress": "gzip -5 --keep -r build/static/js",
     "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage",
     "open-cypress": "yarn run cypress open",

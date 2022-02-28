@@ -5,8 +5,8 @@ on:
     branches:
       - '**'
     paths:
-      - 'packages/plugin-card-ui/**'
-      - '.github/workflows/plugin-ui.yaml'
+      - 'packages/plugin-contacts-ui/**'
+      - '.github/workflows/plugin-contacts-ui.yaml'
 
 jobs:
   ui:
@@ -23,8 +23,8 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          cp -r packages/ui-plugin-template/.erxes packages/plugin-card-ui/.erxes
-          cd packages/plugin-card-ui
+          # cp -r packages/ui-plugin-template/.erxes packages/plugin-contacts-ui/.erxes
+          cd packages/plugin-contacts-ui
           yarn install-deps
           yarn build
 
@@ -37,4 +37,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-card-ui/.erxes/dist s3://plugin-uis/plugin-card-ui --delete 
+          aws s3 sync packages/plugin-contacts-ui/.erxes/dist s3://plugin-uis/plugin-contacts-ui --delete 
