@@ -37,7 +37,7 @@ const countByForm = async (qb: any, params: any): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
   // Count customers by submitted form
-  const forms = await Forms.find({});
+  const forms = await Forms.find({}).toArray();
 
   for (const form of forms) {
     await qb.buildAllQueries();

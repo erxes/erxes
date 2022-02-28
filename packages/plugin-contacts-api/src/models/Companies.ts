@@ -294,6 +294,7 @@ export const loadClass = () => {
       //   data: { type: ACTIVITY_CONTENT_TYPES.COMPANY, itemIds: companyIds }
       // });
 
+      // TODO: RPC
       await InternalNotes.removeInternalNotes(
         ACTIVITY_CONTENT_TYPES.COMPANY,
         companyIds
@@ -388,6 +389,7 @@ export const loadClass = () => {
       });
 
       // Removing modules associated with current companies
+      // TODO: RPC
       await InternalNotes.changeCompany(company._id, companyIds);
 
       return company;
