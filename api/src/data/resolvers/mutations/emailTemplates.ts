@@ -67,12 +67,8 @@ const emailTemplateMutations = {
   ) {
     const emailTemplate = await EmailTemplates.getEmailTemplate(_id);
 
-    console.log('before', emailTemplate);
-
     await EmailTemplates.updateOne({ _id }, { $set: { status } });
     const updated = await EmailTemplates.findOne({ _id });
-
-    console.log('after', updated);
 
     await putUpdateLog(
       {
