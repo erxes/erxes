@@ -105,6 +105,11 @@ export const initBroker = async (server?) => {
       data: await Conformities.addConformities(doc)
     }));
 
+    consumeQueue('conformities:relatedConformity', async doc => ({
+      status: 'success',
+      data: await Conformities.relatedConformity(doc)
+    }));
+
     consumeRPCQueue(
       'fields:rpc_queue:prepareCustomFieldsData',
       async ({ doc }) => ({
