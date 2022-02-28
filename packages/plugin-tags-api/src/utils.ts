@@ -1,9 +1,13 @@
 import { sendRPCMessage } from "./messageBroker";
 
-export const countDocuments = async (type: string, _ids: string[]) => {
-  const [serviceName, contentType ] = type.split(':');
+export const countDocuments = async (type: string, _ids: string[], serviceDiscovery) => {
+  const isServerAvailable = await serviceDiscovery.isAvailable(type);
 
-  return sendRPCMessage(`${serviceName}:rpc_queue:tag`, { action: 'count', type: contentType, _ids })
+  if(isServerAvailable) {
+    return sendRPCMessage(`${type}:rpc_queue:tag`, { action: 'count', type, _ids })
+  }
+
+  return 0;
 };
 
 export const tagObject = async (type: string, tagIds: string[], targetIds: string[]) => {

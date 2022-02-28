@@ -2,27 +2,30 @@ import { Tags } from '../../models';
 import { ITagDocument } from '../../models/definitions/tags';
 import { countDocuments } from '../../utils';
 
-const getCount = async (tag: ITagDocument) => {
+const getCount = async (tag: ITagDocument, serviceDiscovery) => {
   const { type, _id } = tag;
 
-  return countDocuments(type, [_id]);
+  return countDocuments(type, [_id], serviceDiscovery);
 };
 
-export default {
+const tags = (serviceDiscovery) => ({
   __resolveReference({ _id }) {
     return Tags.findOne({ _id });
   },
+
   
   async totalObjectCount(tag: ITagDocument) {
     if (tag.relatedIds && tag.relatedIds.length > 0) {
       const tagIds = tag.relatedIds.concat(tag._id);
 
-      return countDocuments(tag.type, tagIds);
+      return countDocuments(tag.type, tagIds, serviceDiscovery);
 
     }
   },
 
   async objectCount(tag: ITagDocument) {
-    return getCount(tag);
+    return getCount(tag, serviceDiscovery);
   }
-};
+});
+
+export default tags;
