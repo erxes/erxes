@@ -42,6 +42,8 @@ type State = {
 };
 
 class Navigation extends React.Component<IProps, State> {
+  private node;
+
   constructor(props) {
     super(props);
 
@@ -50,6 +52,8 @@ class Navigation extends React.Component<IProps, State> {
       moreMenus: pluginNavigations().slice(4) || [],
       searchText: "",
     };
+
+    this.node = React.createRef();
   }
 
   componentWillReceiveProps = (nextProps) => {
@@ -97,6 +101,20 @@ class Navigation extends React.Component<IProps, State> {
     });
   };
 
+  handleClick = () => {
+    if (!this.state.showMenu) {
+      document.addEventListener("click", this.handleOutsideClick, true);
+    } else {
+      document.removeEventListener("click", this.handleOutsideClick, true);
+    }
+
+    this.setState({ showMenu: !this.state.showMenu });
+  };
+
+  handleOutsideClick = (e) => {
+    if (!this.node.contains(e.target)) this.handleClick();
+  };
+
   renderSubNavItem = (child, index: number) => {
     return (
       <WithPermission key={index} action={child.permission}>
@@ -127,7 +145,12 @@ class Navigation extends React.Component<IProps, State> {
 
     return (
       <NavMenuItem>
-        <NavLink to={this.getLink(url)}>
+        <NavLink
+          to={this.getLink(url)}
+          onClick={() => {
+            this.setState({ showMenu: false });
+          }}
+        >
           <NavIcon className={icon} />
           <label>{__(text)}</label>
           {label}
@@ -196,23 +219,27 @@ class Navigation extends React.Component<IProps, State> {
   };
 
   renderMore = () => {
-    const { showMenu } = this.state;
-
     if (pluginNavigations().length <= 4) {
       return null;
     }
 
     return (
-      <NavItem>
-        <NavMenuItem>
-          <a onClick={() => this.setState({ showMenu: !showMenu })}>
-            <NavIcon className="icon-ellipsis-h" />
-            <label>{__("More")}</label>
-          </a>
-        </NavMenuItem>
+      <div
+        ref={(node) => {
+          this.node = node;
+        }}
+      >
+        <NavItem>
+          <NavMenuItem>
+            <a onClick={() => this.handleClick()}>
+              <NavIcon className="icon-ellipsis-h" />
+              <label>{__("More")}</label>
+            </a>
+          </NavMenuItem>
 
-        {this.renderMorePlugins()}
-      </NavItem>
+          {this.renderMorePlugins()}
+        </NavItem>
+      </div>
     );
   };
 

@@ -3,7 +3,6 @@ import { Route } from "react-router-dom";
 import BrandsRoutes from "./brands/routes";
 import General from "./general/routes";
 import ImportHistory from "./importHistory/routes";
-import LogRoutes from "./logs/routes";
 import MainRoutes from "./main/routes";
 import PermissionRoutes from "./permissions/routes";
 import ProfileRoutes from "./profile/routes";
@@ -22,7 +21,6 @@ const routes = () => (
     <ImportHistory key="ImportHistory" />
     <StatusRoutes key="StatusRoutes" />
     <PermissionRoutes key="PermissionRoutes" />
-    <LogRoutes key="LogRoutes" />
   </React.Fragment>
 );
 
