@@ -9,15 +9,17 @@ import {
   Tags as TagQueries,
 } from './queries';
 
-const resolvers: any = {
+const resolvers: any = async (serviceDiscovery) => (
+  
+  {
   ...customScalars,
-  Tag,
+  Tag: Tag(serviceDiscovery),
   Mutation: {
-    ...TagMutations,
+    ...TagMutations(serviceDiscovery),
   },
   Query: {
     ...TagQueries,
   }
-};
+});
 
 export default resolvers;

@@ -4,7 +4,7 @@ import { withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import SegmentStep from '../components/step/SegmentStep';
-import { queries } from '../graphql';
+import { queries } from '@erxes/ui-engage/src/graphql';
 import { sumCounts } from '@erxes/ui-engage/src/utils';
 import {
   HeadSegmentsQueryResponse,

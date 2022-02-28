@@ -125,3 +125,11 @@ export const USER_PROPERTIES_INFO = {
     { field: 'username', label: 'User name' }
   ]
 };
+
+export const MODULE_NAMES = {
+  BRAND: 'brand',
+  PERMISSION: 'permission',
+  USER: 'user',
+  USER_GROUP: 'userGroup',
+  SEGMENT: 'segment'
+};

@@ -3,12 +3,12 @@ import { Route } from 'react-router-dom';
 import BrandsRoutes from './brands/routes';
 import General from './general/routes';
 import ImportHistory from './importExport/routes';
-import LogRoutes from './logs/routes';
 import MainRoutes from './main/routes';
 import PermissionRoutes from './permissions/routes';
 import ProfileRoutes from './profile/routes';
 import PropertiesRoutes from './properties/routes';
 import StatusRoutes from './status/routes';
+import TeamRoutes from './team/routes';
 
 const routes = () => (
   <React.Fragment>
@@ -17,10 +17,10 @@ const routes = () => (
     <ProfileRoutes key="profile" />
     <General key="General" />
     <PropertiesRoutes key="PropertiesRoutes" />
+    <TeamRoutes key="team" />
     <ImportHistory key="ImportHistory" />
     <StatusRoutes key="StatusRoutes" />
     <PermissionRoutes key="PermissionRoutes" />
-    <LogRoutes key="LogRoutes" />
   </React.Fragment>
 );
 

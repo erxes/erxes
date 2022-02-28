@@ -121,7 +121,7 @@ export class Builder extends CommonBuilder<IListArgs> {
     startDate?: string,
     endDate?: string
   ): Promise<void> {
-    const submissions = await FormSubmissions.find({ formId });
+    const submissions = await FormSubmissions.find({ formId }).toArray();
     const ids: string[] = [];
 
     for (const submission of submissions) {

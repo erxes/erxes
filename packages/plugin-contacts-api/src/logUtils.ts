@@ -21,7 +21,10 @@ export const LOG_ACTIONS = {
 };
 
 const findUsers = async (ids: string[]) => {
-  return await messageBroker().sendRPCMessage('api-core', { query: { _id: { $in: ids } }, name: 'Users' })
+  return await messageBroker().sendRPCMessage(
+    'core:rpc_queue:findMongoDocuments',
+    { query: { _id: { $in: ids } }, name: 'Users' }
+  ) || [];
 };
 
 const gatherCompanyFieldNames = async (

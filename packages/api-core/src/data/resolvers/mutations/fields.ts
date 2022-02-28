@@ -40,16 +40,6 @@ const fieldMutations = {
       lastUpdatedUserId: user._id
     });
 
-    // await putCreateLog(
-    //   {
-    //     type: MODULE_NAMES.FIELD,
-    //     newData: args,
-    //     object: field,
-    //     description: `Field "${args.text}" has been created`
-    //   },
-    //   user
-    // );
-
     return field;
   },
 
@@ -185,16 +175,6 @@ const fieldsGroupsMutations = {
     const fieldGroup = await FieldsGroups.createGroup(
       docModifier({ ...doc, lastUpdatedUserId: user._id })
     );
-
-    // await putCreateLog(
-    //   {
-    //     type: MODULE_NAMES.FIELD_GROUP,
-    //     newData: doc,
-    //     object: fieldGroup,
-    //     description: `Field group "${doc.name}" has been created`
-    //   },
-    //   user
-    // );
 
     return fieldGroup;
   },

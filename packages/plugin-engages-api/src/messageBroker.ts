@@ -8,13 +8,13 @@ export let client;
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeQueue } = client;
+  const { consumeQueue, consumeRPCQueue } = client;
 
   consumeQueue('engage:removeCustomersEngages', async customerIds => {
     await EngageMessages.removeCustomersEngages(customerIds);
   });
 
-  consumeQueue('engage:changeCustomer', async (customerId, customerIds) => {
+  consumeQueue('engage:changeCustomer', async ({customerId, customerIds}) => {
     await EngageMessages.changeCustomer(customerId, customerIds);
   });
 
@@ -34,6 +34,30 @@ export const initBroker = async cl => {
       await sendBulkSms(data);
     }
   });
+
+  consumeRPCQueue('engage:rpc_queue:tag', async args => {
+    let data = {};
+
+    if (args.action === 'count') {
+      data = await EngageMessages.countDocuments({ tagIds: { $in: args._ids } });
+    }
+
+    if (args.action === 'tagObject') {
+      await EngageMessages.updateMany(
+        { _id: { $in: args.targetIds } },
+        { $set: { tagIds: args.tagIds } },
+        { multi: true }
+      );
+
+      data = await EngageMessages.find({ _id: { $in: args.targetIds } }).lean();
+    }
+
+    return {
+      status: 'success',
+      data
+    }
+  });
+
 };
 
 export const sendRPCMessage = async (message): Promise<any> => {
@@ -79,6 +103,13 @@ export const updateConversationMessage = async (data: any) => {
 
 export const removeEngageConversations = async (_id): Promise<any> => {
   return client.consumeQueue('removeEngageConversations', _id);
+};
+
+export const fetchSegment = async (segment, options) => 
+  client.sendRPCMessage('rpc_queue:fetchSegment', { segment, options });
+
+export const getCampaignCustomerInfo = async (data) => {
+  return client.sendRPCMessage('contacts:rpc_queue:prepareEngageCustomers', data);
 };
 
 export default function() {

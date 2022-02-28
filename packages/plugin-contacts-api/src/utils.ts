@@ -1,18 +1,25 @@
+import { Transform } from 'stream';
+
+import { chunkArray } from '@erxes/api-utils/src/core';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
+import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 
 import { debug } from './configs';
 import Customers from './models/Customers';
 import Companies from './models/Companies';
+import { ICustomerDocument } from './models/definitions/customers';
+import messageBroker from './messageBroker';
+import { getService, getServices } from './inmemoryStorage';
 
-export const findCustomer = async doc => {
+export const findCustomer = async (doc) => {
   let customer;
 
   if (doc.customerPrimaryEmail) {
     customer = await Customers.findOne({
       $or: [
         { emails: { $in: [doc.customerPrimaryEmail] } },
-        { primaryEmail: doc.customerPrimaryEmail }
-      ]
+        { primaryEmail: doc.customerPrimaryEmail },
+      ],
     });
   }
 
@@ -20,8 +27,8 @@ export const findCustomer = async doc => {
     customer = await Customers.findOne({
       $or: [
         { phones: { $in: [doc.customerPrimaryPhone] } },
-        { primaryPhone: doc.customerPrimaryPhone }
-      ]
+        { primaryPhone: doc.customerPrimaryPhone },
+      ],
     });
   }
 
@@ -40,33 +47,33 @@ export const findCustomer = async doc => {
   return customer;
 };
 
-export const findCompany = async doc => {
+export const findCompany = async (doc) => {
   let company;
 
   if (doc.companyPrimaryName) {
     company = await Companies.findOne({
       $or: [
         { names: { $in: [doc.companyPrimaryName] } },
-        { primaryName: doc.companyPrimaryName }
-      ]
+        { primaryName: doc.companyPrimaryName },
+      ],
     });
   }
 
   if (!company && doc.name) {
     company = await Companies.findOne({
-      $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }]
+      $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }],
     });
   }
 
   if (!company && doc.email) {
     company = await Companies.findOne({
-      $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
+      $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }],
     });
   }
 
   if (!company && doc.phone) {
     company = await Companies.findOne({
-      $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
+      $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }],
     });
   }
 
@@ -74,8 +81,8 @@ export const findCompany = async doc => {
     company = await Companies.findOne({
       $or: [
         { emails: { $in: [doc.companyPrimaryEmail] } },
-        { primaryEmail: doc.companyPrimaryEmail }
-      ]
+        { primaryEmail: doc.companyPrimaryEmail },
+      ],
     });
   }
 
@@ -83,8 +90,8 @@ export const findCompany = async doc => {
     company = await Companies.findOne({
       $or: [
         { phones: { $in: [doc.companyPrimaryPhone] } },
-        { primaryPhone: doc.companyPrimaryPhone }
-      ]
+        { primaryPhone: doc.companyPrimaryPhone },
+      ],
     });
   }
 
@@ -99,7 +106,7 @@ export const findCompany = async doc => {
   return company;
 };
 
-export const generateFields = async args => {
+export const generateFields = async (args) => {
   const { contentType } = args;
 
   let schema: any;
@@ -135,7 +142,7 @@ export const generateFields = async args => {
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
         ];
       }
     }
@@ -146,7 +153,7 @@ export const generateFields = async args => {
 
 export const getEnv = ({
   name,
-  defaultValue
+  defaultValue,
 }: {
   name: string;
   defaultValue?: string;
@@ -185,4 +192,138 @@ export const getContentItem = async (activityLog) => {
   }
 
   return null;
+};
+
+export const getEditorAttributeUtil = async () => {
+  const apiCore = await getService('api-core');
+  const services = await getServices();
+  const editor = await new EditorAttributeUtil(
+    messageBroker(),
+    apiCore.address,
+    services
+  );
+
+  return editor;
+};
+
+export const prepareEngageCustomers = async ({
+  engageMessage,
+  customersSelector,
+  action,
+  user
+}): Promise<any> => {
+  const customerInfos: Array<{
+    _id: string;
+    primaryEmail?: string;
+    emailValidationStatus?: string;
+    phoneValidationStatus?: string;
+    primaryPhone?: string;
+    replacers: Array<{ key: string; value: string }>;
+  }> = [];
+
+  const emailConf = engageMessage.email ? engageMessage.email : { content: '' };
+  const emailContent = emailConf.content || '';
+
+  const editorAttributeUtil = await getEditorAttributeUtil();
+  const customerFields = await editorAttributeUtil.getCustomerFields(
+    emailContent
+  );
+
+  const customersItemsMapping = JSON.parse('{}');
+
+  const customerTransformerStream = new Transform({
+    objectMode: true,
+
+    async transform(customer: ICustomerDocument, _encoding, callback) {
+      const itemsMapping = customersItemsMapping[customer._id] || [null];
+
+      for (const item of itemsMapping) {
+        const replacers = await editorAttributeUtil.generateReplacers({
+          content: emailContent,
+          customer,
+          item,
+          customerFields,
+        });
+
+        customerInfos.push({
+          _id: customer._id,
+          primaryEmail: customer.primaryEmail,
+          emailValidationStatus: customer.emailValidationStatus,
+          phoneValidationStatus: customer.phoneValidationStatus,
+          primaryPhone: customer.primaryPhone,
+          replacers,
+        });
+      }
+
+      // signal upstream that we are ready to take more data
+      callback();
+    },
+  });
+
+  // generate fields option =======
+  const fieldsOption = {
+    primaryEmail: 1,
+    emailValidationStatus: 1,
+    phoneValidationStatus: 1,
+    primaryPhone: 1,
+  };
+
+  for (const field of customerFields || []) {
+    fieldsOption[field] = 1;
+  }
+
+  const customersStream = (Customers.find(
+    customersSelector,
+    fieldsOption
+  ) as any).stream();
+
+  return new Promise((resolve, reject) => {
+    const pipe = customersStream.pipe(customerTransformerStream);
+
+    pipe.on('finish', async () => {
+      try {
+        if (customerInfos.length > 0) {
+          const data: any = {
+            customers: [],
+            fromEmail: user.email,
+            engageMessageId: engageMessage._id,
+            shortMessage: engageMessage.shortMessage || {},
+            createdBy: engageMessage.createdBy,
+            title: engageMessage.title,
+            kind: engageMessage.kind,
+          };
+
+          if (engageMessage.method === 'email' && engageMessage.email) {
+            const replacedContent = await editorAttributeUtil.replaceAttributes(
+              {
+                customerFields,
+                content: emailContent,
+                user,
+              }
+            );
+
+            engageMessage.email.content = replacedContent;
+
+            data.email = engageMessage.email;
+          }
+
+          const chunks = chunkArray(customerInfos, 3000);
+
+          for (const chunk of chunks) {
+            data.customers = chunk;
+
+            if (action === 'sendEngage') {
+              data.email = engageMessage.email;
+            }
+
+            await messageBroker().sendMessage('erxes-api:engages-notification', { action, data });
+          }
+        }
+      } catch (e) {
+        return reject(e);
+      }
+
+      resolve({ status: 'done', customerInfos });
+    });
+  });
 };

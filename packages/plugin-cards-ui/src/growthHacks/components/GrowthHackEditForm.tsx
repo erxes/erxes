@@ -1,21 +1,21 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import DueDateChanger from '@erxes/ui-cards/src/boards/components/DueDateChanger';
-import EditForm from '@erxes/ui-cards/src/boards/components/editForm/EditForm';
-import { Flex } from '@erxes/ui/src/styles/main';
+import { IUser } from "@erxes/ui/src/auth/types";
+import DueDateChanger from "@erxes/ui-cards/src/boards/components/DueDateChanger";
+import EditForm from "@erxes/ui-cards/src/boards/components/editForm/EditForm";
+import { Flex } from "@erxes/ui/src/styles/main";
 import {
   HeaderContentSmall,
-  LeftContainer
-} from '@erxes/ui-cards/src/boards/styles/item';
-import { IEditFormContent, IOptions } from '@erxes/ui-cards/src/boards/types';
-import { ControlLabel } from '@erxes/ui/src/components/form';
-import { IFormSubmission } from '@erxes/ui-forms/src/forms/types';
-import React from 'react';
-import { GrowthHackFieldName, IGrowthHack, IGrowthHackParams } from '../types';
-import { Left, StageForm, Top } from './editForm/';
-import Actions from './editForm/Actions';
-import Score from './Score';
+  LeftContainer,
+} from "@erxes/ui-cards/src/boards/styles/item";
+import { IEditFormContent, IOptions } from "@erxes/ui-cards/src/boards/types";
+import { ControlLabel } from "@erxes/ui/src/components/form";
+import { IFormSubmission } from "@erxes/ui-forms/src/forms/types";
+import React from "react";
+import { GrowthHackFieldName, IGrowthHack, IGrowthHackParams } from "../types";
+import { Left, StageForm, Top } from "./editForm";
+import Actions from "./editForm/Actions";
+import Score from "./Score";
 
-const reactiveFields = ['priority', 'hackStages', 'labels'];
+const reactiveFields = ["priority", "hackStages", "labels"];
 
 type Props = {
   options: IOptions;
@@ -40,7 +40,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      refresh: false
+      refresh: false,
     };
   }
 
@@ -49,7 +49,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     value: IGrowthHack[GrowthHackFieldName]
   ) => {
     if (reactiveFields.includes(name)) {
-      this.props.saveItem({ [name]: value }, updatedItem => {
+      this.props.saveItem({ [name]: value }, (updatedItem) => {
         this.props.onUpdate(updatedItem);
       });
     }
@@ -57,7 +57,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
 
   onChangeRefresh = () => {
     this.setState({
-      refresh: !this.state.refresh
+      refresh: !this.state.refresh,
     });
   };
 
@@ -78,14 +78,14 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
   renderScore = () => {
     const { saveItem, item } = this.props;
 
-    const onChange = e => {
+    const onChange = (e) => {
       const value = Number((e.target as HTMLInputElement).value);
 
       const confirmedValue = value > 10 ? 10 : value;
 
       const changedValue = { [e.target.name]: confirmedValue };
 
-      saveItem(changedValue, updatedItem => {
+      saveItem(changedValue, (updatedItem) => {
         this.props.onUpdate(updatedItem);
       });
     };
@@ -97,7 +97,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
         confidence={item.confidence || 0}
         ease={item.ease || 0}
         onChange={onChange}
-        scoringType={item.scoringType || 'ice'}
+        scoringType={item.scoringType || "ice"}
       />
     );
   };
@@ -123,7 +123,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     copy,
     remove,
     saveItem,
-    onChangeStage
+    onChangeStage,
   }: IEditFormContent) => {
     const {
       item,
@@ -131,10 +131,10 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
       saveFormSubmission,
       onUpdate,
       addItem,
-      sendToBoard
+      sendToBoard,
     } = this.props;
 
-    const dateOnChange = date => saveItem({ closeDate: date });
+    const dateOnChange = (date) => saveItem({ closeDate: date });
 
     return (
       <>
@@ -187,7 +187,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
       ...this.props,
       formContent: this.renderFormContent,
       extraFields: this.state,
-      refresh: this.state.refresh
+      refresh: this.state.refresh,
     };
 
     return <EditForm {...extendedProps} />;

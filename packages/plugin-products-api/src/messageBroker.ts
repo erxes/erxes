@@ -1,4 +1,7 @@
+import { getSchemaLabels } from "@erxes/api-utils/src/logUtils";
+
 import { ProductCategories, Products } from "./models";
+import { productSchema, productCategorySchema } from './models/definitions/products';
 
 let client;
 
@@ -14,14 +17,14 @@ export const initBroker = async cl => {
 
   consumeRPCQueue(
     'productCategories:rpc_queue:find',
-    async ({ query, sort, reg }) => ({
-      data: reg
-        ? await ProductCategories.find({
-            order: { $regex: new RegExp(reg.value) }
-          }).sort(sort)
-        : await ProductCategories.find(query),
-      status: 'success'
-    })
+    async ({ query, sort, regData }) => ({
+        data: regData
+          ? await ProductCategories.find({
+              order: { $regex: new RegExp(regData) }
+            }).sort(sort)
+          : await ProductCategories.find(query),
+        status: 'success'
+      })
   );
 
   consumeRPCQueue('productCategories:rpc_queue:findOne', async (selector) => ({
@@ -37,6 +40,37 @@ export const initBroker = async cl => {
   consumeRPCQueue('products:rpc_queue:update', async ({ selector, modifier }) => ({
     data: await Products.updateMany(selector, modifier),
     status: 'success',
+  }));
+
+  consumeRPCQueue('products:rpc_queue:tag', async args => {
+    let data = {};
+
+    if (args.action === 'count') {
+      data = await Products.countDocuments({ tagIds: { $in: args._ids } });
+    }
+
+    if (args.action === 'tagObject') {
+      await Products.updateMany(
+        { _id: { $in: args.targetIds } },
+        { $set: { tagIds: args.tagIds } },
+        { multi: true }
+      );
+
+      data = await Products.find({ _id: { $in: args.targetIds } }).lean();
+    }
+
+    return {
+      status: 'success',
+      data
+    }
+  });
+
+  consumeRPCQueue('products:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
+    status: 'success',
+    data: getSchemaLabels(
+      type,
+      [{ name: 'product', schemas: [productSchema] }, { name: 'productCategory', schemas: [productCategorySchema] }]
+    )
   }));
 };
 

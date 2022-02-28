@@ -1,8 +1,10 @@
+import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 import { generateFieldsFromSchema } from "@erxes/api-utils/src";
 
 import { ConversationMessages, Conversations, Integrations } from "./models";
 import { receiveRpcMessage, collectConversations } from "./receiveMessage";
 import { serviceDiscovery } from './configs';
+import { LOG_MAPPINGS } from './constants';
 
 export let client;
 
@@ -110,7 +112,7 @@ export const initBroker = (cl) => {
     await Conversations.removeCustomersConversations(customerIds);
   });
 
-  consumeQueue('inbox:changeCustomer', async (customerId, customerIds) => {
+  consumeQueue('inbox:changeCustomer', async ({customerId, customerIds}) => {
     await Conversations.changeCustomer(customerId, customerIds);
   });
 
@@ -121,19 +123,24 @@ export const initBroker = (cl) => {
 
   consumeRPCQueue('inbox:rpc_queue:tag', async args => {
     let data = {};
+    let model: any = Conversations
+
+    if(args.type === 'integration') {
+      model = Integrations
+    }
 
     if (args.action === 'count') {
-      data = await Conversations.countDocuments({ tagIds: { $in: args._ids } });
+      data = await model.countDocuments({ tagIds: { $in: args._ids } });
     }
 
     if (args.action === 'tagObject') {
-      await Conversations.updateMany(
+      await model.updateMany(
         { _id: { $in: args.targetIds } },
         { $set: { tagIds: args.tagIds } },
         { multi: true }
       );
 
-      data = await Conversations.find({ _id: { $in: args.targetIds } }).lean();
+      data = await model.find({ _id: { $in: args.targetIds } }).lean();
     }
 
     return {
@@ -173,6 +180,15 @@ export const initBroker = (cl) => {
       status: 'success'
     }
   });
+
+  consumeQueue('inbox:removeCustomersConversations', (customerIds) => {
+    return Conversations.removeCustomersConversations(customerIds);
+  });
+
+  consumeRPCQueue('inbox:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
+    status: 'success',
+    data: getSchemaLabels(type, LOG_MAPPINGS)
+  }));
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {

@@ -1,8 +1,8 @@
 import Customers from '../../models/Customers';
 import { ICustomer } from '../../models/definitions/customers';
 import messageBroker from '../../messageBroker';
-// import { MODULE_NAMES } from '../../constants';
-// import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src';
 import { validateBulk } from '../../verifierUtils';
@@ -21,14 +21,14 @@ const customerMutations = {
 
     const customer = await Customers.createCustomer(modifiedDoc, user);
 
-    // await putCreateLog(
-    //   {
-    //     type: MODULE_NAMES.CUSTOMER,
-    //     newData: modifiedDoc,
-    //     object: customer
-    //   },
-    //   user
-    // );
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.CUSTOMER,
+        newData: modifiedDoc,
+        object: customer
+      },
+      user
+    );
 
     sendMessage('registerOnboardHistory', {
       type: `${customer.state}Create`,
@@ -49,15 +49,15 @@ const customerMutations = {
     const customer = await Customers.getCustomer(_id);
     const updated = await Customers.updateCustomer(_id, doc);
 
-    // await putUpdateLog(
-    //   {
-    //     type: MODULE_NAMES.CUSTOMER,
-    //     object: customer,
-    //     newData: doc,
-    //     updatedDocument: updated
-    //   },
-    //   user
-    // );
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.CUSTOMER,
+        object: customer,
+        newData: doc,
+        updatedDocument: updated
+      },
+      user
+    );
 
     return updated;
   },
@@ -103,10 +103,10 @@ const customerMutations = {
     });
 
     for (const customer of customers) {
-      // await putDeleteLog(
-      //   { type: MODULE_NAMES.CUSTOMER, object: customer },
-      //   user
-      // );
+      await putDeleteLog(
+        { type: MODULE_NAMES.CUSTOMER, object: customer },
+        user
+      );
 
       if (customer.mergedIds) {
         await messageBroker().sendMessage(
