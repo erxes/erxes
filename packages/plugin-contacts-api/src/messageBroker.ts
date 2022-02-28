@@ -300,7 +300,7 @@ export const removeCustomersConversations = async (
 };
 
 export const removeCustomersEngages = async (customerIds): Promise<any> => {
-  await client.sendMessage('engages:removeCustomersEngages', customerIds);
+  await client.sendMessage('engage:removeCustomersEngages', customerIds);
 };
 
 export const changeCustomer = async (customerId, customerIds): Promise<any> => {
