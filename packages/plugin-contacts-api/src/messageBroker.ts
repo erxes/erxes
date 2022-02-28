@@ -1,6 +1,6 @@
 import Companies from './models/Companies';
 import Customers from './models/Customers';
-import { findCompany, findCustomer, generateFields, getContentItem } from './utils';
+import { findCompany, findCustomer, generateFields, getContentItem, prepareEngageCustomers } from './utils';
 import { serviceDiscovery } from './configs';
 
 let client;
@@ -173,6 +173,13 @@ export const initBroker = (cl) => {
     return {
       status: 'success',
       data: await getContentItem(data)
+    }
+  });
+
+  consumeRPCQueue('contacts:rpc_queue:prepareEngageCustomers', async (data) => {
+    return {
+      status: 'success',
+      data: await prepareEngageCustomers(data)
     }
   });
 };

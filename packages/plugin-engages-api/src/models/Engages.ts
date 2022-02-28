@@ -2,7 +2,7 @@ import { Model, model } from 'mongoose';
 
 import { IBrowserInfo } from "@packages/api-utils/src/definitions/common";
 import { IUserDocument } from "@packages/api-core/src/db/models/definitions/users";
-import { ICustomerDocument } from "@packages/plugin-contact-api/src/models/definitions/customers";
+import { ICustomerDocument } from "@packages/plugin-contacts-api/src/models/definitions/customers";
 import { findUser } from '../engageUtils';
 import messageBroker, {
   removeEngageConversations,
