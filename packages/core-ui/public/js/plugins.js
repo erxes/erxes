@@ -229,13 +229,10 @@ window.plugins = [
   {
     name: "campaigns",
     port: 3001,
-    exposes: {
-      "./routes": "./src/routes.tsx",
-      "./settings": "./src/Settings.tsx",
-    },
+    exposes: { "./routes": "./src/routes.tsx" },
     routes: {
       url: "http://localhost:3001/remoteEntry.js",
-      scope: "engages",
+      scope: "campaigns",
       module: "./routes",
     },
     menus: [
@@ -249,12 +246,11 @@ window.plugins = [
       {
         text: "Campaigns settings",
         to: "#",
-        imagen: "/images/icons/erxes-31.png",
+        image: "/images/icons/erxes-31.png",
         location: "settings",
         scope: "campaigns",
         action: "",
         permissions: [],
-        component: "./settings",
       },
     ],
   },
