@@ -1,3 +1,6 @@
+import { companySchema } from "./models/definitions/companies";
+import { customerSchema, locationSchema, visitorContactSchema } from "./models/definitions/customers";
+
 export const MODULE_NAMES = {
   COMPANY: 'company',
   CUSTOMER: 'customer',
@@ -25,4 +28,15 @@ export const COC_LIFECYCLE_STATE_TYPES = [
   'customer',
   'evangelist',
   'other'
+];
+
+export const LOG_MAPPINGS = [
+  {
+    name: MODULE_NAMES.COMPANY,
+    schemas: [companySchema]
+  },
+  {
+    name: MODULE_NAMES.CUSTOMER,
+    schemas: [customerSchema, locationSchema, visitorContactSchema]
+  }
 ];

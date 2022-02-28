@@ -1,7 +1,10 @@
+import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
+
 import Companies from './models/Companies';
 import Customers from './models/Customers';
 import { findCompany, findCustomer, generateFields, getContentItem, prepareEngageCustomers } from './utils';
 import { serviceDiscovery } from './configs';
+import { LOG_MAPPINGS } from './constants';
 
 export let client;
 
@@ -218,6 +221,11 @@ export const initBroker = (cl) => {
       data
     }
   });
+
+  consumeRPCQueue('contacts:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
+    status: 'success',
+    data: getSchemaLabels(type, LOG_MAPPINGS)
+  }));
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {
@@ -307,7 +315,7 @@ export const engageChangeCustomer = async (
   customerId,
   customerIds
 ): Promise<any> => {
-  if(!serviceDiscovery.isAvailable("engages")) return;
+  if(!serviceDiscovery.isAvailable("engages")) { return; }
   
   return client.sendMessage("engage:changeCustomer", {
     customerId,
@@ -322,7 +330,7 @@ export const fetchSegment = (segment, options?) =>
   });
 
 export const removeInternalNotes = (contentType: string, contentTypeIds: string[]) => {
-  if (!serviceDiscovery.isAvailable("internalnotes")) return;
+  if (!serviceDiscovery.isAvailable("internalnotes")) { return; }
 
   return sendMessage("internalnotes:InternalNotes.removeInternalNotes", {
     contentType,
@@ -331,7 +339,7 @@ export const removeInternalNotes = (contentType: string, contentTypeIds: string[
 };
 
 export const internalNotesBatchUpdate = (contentType: string, oldContentTypeIds: string[], newContentTypeId: string) => {
-  if (!serviceDiscovery.isAvailable("internalnotes")) return;
+  if (!serviceDiscovery.isAvailable("internalnotes")) { return; }
 
   return sendMessage("internalNotes:batchUpdate", {
     contentType,
@@ -341,7 +349,7 @@ export const internalNotesBatchUpdate = (contentType: string, oldContentTypeIds:
 }
 
 export const inboxChangeCustomer = (customerId: string, customerIds: string[]) => {
-  if(!serviceDiscovery.isAvailable("inbox")) return;
+  if(!serviceDiscovery.isAvailable("inbox")) { return; }
 
   return sendMessage("inbox:changeCustomer", { customerId , customerIds });
 }
