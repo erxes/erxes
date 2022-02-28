@@ -1,20 +1,22 @@
 module.exports = {
   name: "products",
-  port: 3002,
+  port: 3022,
   exposes: {
     "./routes": "./src/routes.tsx",
   },
   routes: {
-    url: "http://localhost:3002/remoteEntry.js",
+    url: "http://localhost:3022/remoteEntry.js",
     scope: "products",
     module: "./routes",
   },
   menus: [
     {
       text: "Product and services",
-      url: "/settings/product-service/",
-      icon: "icon-book-open",
-      location: "mainNavigation",
+      to: "/settings/product-service/",
+      image: "/images/icons/erxes-31.png",
+      location: "settings",
+      scope: "products",
+      permissions: ["showProducts", "manageProducts"],
     },
   ],
 };

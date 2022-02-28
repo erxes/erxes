@@ -35,8 +35,7 @@ module.exports = (env, args) => {
   return {
     output: {
       uniqueName: configs.name,
-      publicPath:
-        args.mode === "development" ? `http://localhost:${port}/` : undefined,
+      publicPath: args.mode === 'development' ? `http://localhost:${port}/` : undefined,
     },
 
     optimization: {
@@ -111,7 +110,7 @@ module.exports = (env, args) => {
             path.resolve(__dirname, "../../ui-inbox/src"),
             path.resolve(__dirname, "../../ui-products/src"),
             path.resolve(__dirname, "../../ui-notifications/src"),
-            path.resolve(__dirname, "../../ui-engage/src"),
+            path.resolve(__dirname, '../../ui-engage/src'),
             path.resolve(__dirname, "plugin-src"),
           ],
           use: {
