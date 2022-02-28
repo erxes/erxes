@@ -82,13 +82,11 @@ class Row extends React.Component<Props> {
 
   renderEditAction = props => {
     const trigger = (
-      // <WithPermission action="integrationsArchive">
       <Button btnStyle="link">
         <Tip text={__('Edit')} placement="top">
           <Icon icon="edit-3" />
         </Tip>
       </Button>
-      // </WithPermission>
     );
 
     return this.renderFormTrigger(trigger, props);

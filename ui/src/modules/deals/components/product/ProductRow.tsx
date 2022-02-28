@@ -1,12 +1,7 @@
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import {
-  NameWrapper,
-  RemoveRow,
-  TypeBox
-  // ,TemplateBox
-} from 'modules/deals/styles';
+import { NameWrapper, RemoveRow, TypeBox } from 'modules/deals/styles';
 import { IProductData } from 'modules/deals/types';
 import React from 'react';
 
