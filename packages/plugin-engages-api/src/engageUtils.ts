@@ -1,18 +1,13 @@
-import { Transform } from 'stream';
 import { CAMPAIGN_KINDS, CAMPAIGN_METHODS } from './constants';
 // import { fetchElk } from '../../../elasticsearch';
 // import { get, removeKey, set } from '../../../inmemoryStorage';
-// import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { IUserDocument } from "@packages/api-core/src/db/models/definitions/users";
-import { ICustomerDocument } from "@packages/plugin-contact-api/src/models/definitions/customers";
-import { chunkArray } from '@erxes/api-utils/src/core';
 // import { CONTENT_TYPES } from '@erxes/api-utils/src/constants';
 import { IEngageMessage, IEngageMessageDocument } from './models/definitions/engages';
-import { EngageMessages } from './models';
-import { Users, Customers, Segments } from './apiCollections';
+import { EngageMessages, Logs } from './models';
+// import { Users, Customers, Segments } from './apiCollections';
 import { isUsingElk } from './utils';
-import messageBroker, { findIntegrations } from './messageBroker';
-// import EditorAttributeUtil from './editorAttributeUtils';
+import messageBroker, { findIntegrations, fetchSegment, getCampaignCustomerInfo } from './messageBroker';
 
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
@@ -35,7 +30,7 @@ export const generateCustomerSelector = async ({
 }): Promise<any> => {
   // find matched customers
   let customerQuery: any = {};
-  // let customersItemsMapping: { [key: string]: any } = {};
+  const customersItemsMapping: { [key: string]: any } = {};
 
   if (customerIds && customerIds.length > 0) {
     customerQuery = { _id: { $in: customerIds } };
@@ -58,16 +53,17 @@ export const generateCustomerSelector = async ({
   }
 
   if (segmentIds.length > 0) {
-    // const segments = await Segments.find({ _id: { $in: segmentIds } });
-    const segments = await Segments.find({ _id: { $in: segmentIds } }).toArray();
+    const segments = messageBroker().sendRPCMessage(
+      'core:rpc_queue:findMongoDocuments',
+      { name: 'Segments', query: { _id: { $in: segmentIds } } }
+    );
 
     let customerIdsBySegments: string[] = [];
 
     for (const segment of segments) {
-      // const cIds = await fetchSegment(segment, {
-      //   associatedCustomers: true
-      // });
-      const cIds = [];
+      const cIds = await fetchSegment(segment, {
+        associatedCustomers: true
+      });
 
       if (
         engageId &&
@@ -86,34 +82,34 @@ export const generateCustomerSelector = async ({
           returnFields.push('productsData');
         }
 
-        // const items = await fetchSegment(segment, {
-        //   returnFields
-        // });
+        const items = await fetchSegment(segment, {
+          returnFields
+        });
 
-        // for (const item of items) {
-        //   const cusIds = await Conformities.savedConformity({
-        //     mainType: segment.contentType,
-        //     mainTypeId: item._id,
-        //     relTypes: ['customer']
-        //   });
+        for (const item of items) {
+          const cusIds = await messageBroker().sendRPCMessage('conformities:savedConformity', {
+            mainType: segment.contentType,
+            mainTypeId: item._id,
+            relTypes: ['customer']
+          });
 
-        //   for (const customerId of cusIds) {
-        //     if (!customersItemsMapping[customerId]) {
-        //       customersItemsMapping[customerId] = [];
-        //     }
+          for (const customerId of cusIds) {
+            if (!customersItemsMapping[customerId]) {
+              customersItemsMapping[customerId] = [];
+            }
 
-        //     customersItemsMapping[customerId].push({
-        //       contentType: segment.contentType,
-        //       name: item.name,
-        //       description: item.description,
-        //       closeDate: item.closeDate,
-        //       createdAt: item.createdAt,
-        //       modifiedAt: item.modifiedAt,
-        //       customFieldsData: item.customFieldsData,
-        //       productsData: item.productsData
-        //     });
-        //   }
-        // } // end items loop
+            customersItemsMapping[customerId].push({
+              contentType: segment.contentType,
+              name: item.name,
+              description: item.description,
+              closeDate: item.closeDate,
+              createdAt: item.createdAt,
+              modifiedAt: item.modifiedAt,
+              customFieldsData: item.customFieldsData,
+              productsData: item.productsData
+            });
+          }
+        } // end items loop
       }
 
       customerIdsBySegments = [...customerIdsBySegments, ...cIds];
@@ -135,10 +131,6 @@ export const generateCustomerSelector = async ({
   };
 };
 
-const sendQueueMessage = (args: any) => {
-  return messageBroker().sendMessage('erxes-api:engages-notification', args);
-};
-
 export const send = async (engageMessage: IEngageMessageDocument) => {
   const {
     customerIds,
@@ -156,19 +148,13 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
     const now = new Date();
 
     if (dateTime.getTime() > now.getTime()) {
-      await sendQueueMessage({
-        action: 'writeLog',
-        data: {
-          engageMessageId: _id,
-          msg: `Campaign will run at "${dateTime.toLocaleString()}"`
-        }
-      });
+      await Logs.createLog(_id, 'regular', `Campaign will run at "${dateTime.toLocaleString()}"`);
 
       return;
     }
   }
 
-  const user = await Users.findOne({ _id: fromUserId });
+  const user = messageBroker().sendRPCMessage('core:rpc_queue:findOneUser', { _id: fromUserId });
 
   if (!user) {
     throw new Error('User not found');
@@ -212,175 +198,45 @@ const sendEmailOrSms = async (
     engageMessage.scheduleDate && engageMessage.scheduleDate.type === 'minute';
 
   if (!(engageMessage.kind === CAMPAIGN_KINDS.AUTO && MINUTELY)) {
-    await sendQueueMessage({
-      action: 'writeLog',
-      data: {
-        engageMessageId,
-        msg: `Run at ${new Date()}`
-      }
-    });
+    await Logs.createLog(engageMessageId, 'regular', `Run at ${new Date()}`);
   }
 
-  const customerInfos: Array<{
-    _id: string;
-    primaryEmail?: string;
-    emailValidationStatus?: string;
-    phoneValidationStatus?: string;
-    primaryPhone?: string;
-    replacers: Array<{ key: string; value: string }>;
-  }> = [];
-  // const emailConf = engageMessage.email ? engageMessage.email : { content: '' };
-  // const emailContent = emailConf.content || '';
+  const { customerInfos } = await getCampaignCustomerInfo({ engageMessage, customersSelector, action, user });
 
-  // const editorAttributeUtil = new EditorAttributeUtil();
-  // const customerFields = await editorAttributeUtil.getCustomerFields(
-  //   emailContent
-  // );
+  if (
+    engageMessage.kind === CAMPAIGN_KINDS.MANUAL &&
+    customerInfos.length === 0
+  ) {
+    await EngageMessages.deleteOne({ _id: engageMessage._id });
+    throw new Error('No customers found');
+  }
 
-  const onFinishPiping = async () => {
-    if (
-      engageMessage.kind === CAMPAIGN_KINDS.MANUAL &&
+  if (
+    !(
+      engageMessage.kind === CAMPAIGN_KINDS.AUTO &&
+      MINUTELY &&
       customerInfos.length === 0
-    ) {
-      await EngageMessages.deleteOne({ _id: engageMessage._id });
-      throw new Error('No customers found');
-    }
+    )
+  ) {
+    await Logs.createLog(engageMessageId, 'regular', `Matched ${customerInfos.length} customers`);
+  }
 
-    if (
-      !(
-        engageMessage.kind === CAMPAIGN_KINDS.AUTO &&
-        MINUTELY &&
-        customerInfos.length === 0
-      )
-    ) {
-      await sendQueueMessage({
-        action: 'writeLog',
-        data: {
-          engageMessageId,
-          msg: `Matched ${customerInfos.length} customers`
-        }
-      });
-    }
+  if (
+    engageMessage.scheduleDate &&
+    engageMessage.scheduleDate.type === 'pre'
+  ) {
+    await EngageMessages.updateOne(
+      { _id: engageMessage._id },
+      { $set: { 'scheduleDate.type': 'sent' } }
+    );
+  }
 
-    if (
-      engageMessage.scheduleDate &&
-      engageMessage.scheduleDate.type === 'pre'
-    ) {
-      await EngageMessages.updateOne(
-        { _id: engageMessage._id },
-        { $set: { 'scheduleDate.type': 'sent' } }
-      );
-    }
-
-    if (customerInfos.length > 0) {
-      await EngageMessages.updateOne(
-        { _id: engageMessageId },
-        { $set: { totalCustomersCount: customerInfos.length } }
-      );
-
-      const data: any = {
-        customers: [],
-        fromEmail: user.email,
-        engageMessageId,
-        shortMessage: engageMessage.shortMessage || {},
-        createdBy: engageMessage.createdBy,
-        title: engageMessage.title,
-        kind: engageMessage.kind
-      };
-
-      // if (engageMessage.method === CAMPAIGN_METHODS.EMAIL && engageMessage.email) {
-      //   const replacedContent = await editorAttributeUtil.replaceAttributes({
-      //     customerFields,
-      //     content: emailContent,
-      //     user
-      //   });
-
-      //   engageMessage.email.content = replacedContent;
-
-      //   data.email = engageMessage.email;
-      // }
-
-      const chunks = chunkArray(customerInfos, 3000);
-
-      for (const chunk of chunks) {
-        data.customers = chunk;
-
-        if (action === 'sendEngage') {
-          data.email = engageMessage.email;
-        }
-
-        await sendQueueMessage({ action, data });
-      }
-    }
-
-    // await removeKey(`${engageMessage._id}_customers_items_mapping`);
-  };
-
-  // const customersItemsMapping = JSON.parse(
-  //   (await get(`${engageMessage._id}_customers_items_mapping`)) || '{}'
-  // );
-  const customersItemsMapping = JSON.parse('{}');
-
-  const customerTransformerStream = new Transform({
-    objectMode: true,
-
-    async transform(customer: ICustomerDocument, _encoding, callback) {
-      const itemsMapping = customersItemsMapping[customer._id] || [null];
-
-      for (const item of itemsMapping) {
-        // const replacers = await editorAttributeUtil.generateReplacers({
-        //   content: emailContent,
-        //   customer,
-        //   item,
-        //   customerFields
-        // });
-        const replacers = [item];
-
-        customerInfos.push({
-          _id: customer._id,
-          primaryEmail: customer.primaryEmail,
-          emailValidationStatus: customer.emailValidationStatus,
-          phoneValidationStatus: customer.phoneValidationStatus,
-          primaryPhone: customer.primaryPhone,
-          replacers
-        });
-      }
-
-      // signal upstream that we are ready to take more data
-      callback();
-    }
-  });
-
-  // generate fields option =======
-  const fieldsOption = {
-    primaryEmail: 1,
-    emailValidationStatus: 1,
-    phoneValidationStatus: 1,
-    primaryPhone: 1
-  };
-
-  // for (const field of customerFields || []) {
-  //   fieldsOption[field] = 1;
-  // }
-
-  const customersStream = (Customers.find(
-    customersSelector,
-    fieldsOption
-  ) as any).stream();
-
-  return new Promise((resolve, reject) => {
-    const pipe = customersStream.pipe(customerTransformerStream);
-
-    pipe.on('finish', async () => {
-      try {
-        await onFinishPiping();
-      } catch (e) {
-        return reject(e);
-      }
-
-      resolve('done');
-    });
-  });
+  if (customerInfos.length > 0) {
+    await EngageMessages.updateOne(
+      { _id: engageMessage._id },
+      { $set: { totalCustomersCount: customerInfos.length } }
+    );
+  }
 };
 
 // check & validate campaign doc
@@ -437,7 +293,7 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
 // find user from elastic or mongo
 export const findUser = async (userId: string) => {
   if (!isUsingElk()) {
-    return await Users.findOne({ _id: userId });
+    return await messageBroker().sendRPCMessage('core:rpc_queue:findOneUser', { _id: userId });
   }
 
   // const users = await findElk('users', {
@@ -449,6 +305,8 @@ export const findUser = async (userId: string) => {
   // if (users.length > 0) {
   //   return users[0];
   // }
+
+  return null;
 };
 
 // check customer exists from elastic or mongo
