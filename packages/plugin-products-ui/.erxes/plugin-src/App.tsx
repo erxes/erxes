@@ -4,7 +4,6 @@ import { PluginLayout } from "@erxes/ui/src/styles/main";
 import { AppProvider } from "coreui/appContext";
 
 const App = () => {
-  console.log("hii");
   return (
     <AppProvider>
       <PluginLayout>

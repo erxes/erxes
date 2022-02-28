@@ -1,12 +1,11 @@
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
-import AutomationsRoutes from "./routes";
-
+import ProductsRoutes from "./routes";
 
 const Routes = () => (
-    <Router>
-      <AutomationsRoutes />
-    </Router>
+  <Router>
+    <ProductsRoutes />
+  </Router>
 );
 
 export default Routes;
