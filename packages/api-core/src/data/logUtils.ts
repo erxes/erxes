@@ -3,7 +3,7 @@ import {
   putDeleteLog as commonPutDeleteLog,
   putUpdateLog as commonPutUpdateLog
 } from '@erxes/api-utils/src/logUtils';
-import { Users } from 'src/db/models';
+import { Users } from '../db/models/index';
 import * as _ from 'underscore';
 
 import { IUserDocument } from '../db/models/definitions/users';
