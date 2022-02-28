@@ -16,6 +16,7 @@ module.exports = {
       image: "/images/icons/erxes-31.png",
       location: "settings",
       scope: "products",
+      action: "productsAll",
       permissions: ["showProducts", "manageProducts"],
     },
   ],

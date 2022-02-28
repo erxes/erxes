@@ -60,9 +60,9 @@ class Settings extends React.PureComponent {
   }
 
   renderSettingsofPlugins(menu) {
-    const { to, type, text, image } = menu.props;
+    const { to, type, text, image, action, permissions } = menu.props;
 
-    return this.renderBox(text, image, to, "", [], type);
+    return this.renderBox(text, image, to, action, permissions, type);
   }
 
   render() {
