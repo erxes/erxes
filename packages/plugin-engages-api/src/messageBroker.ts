@@ -81,6 +81,13 @@ export const removeEngageConversations = async (_id): Promise<any> => {
   return client.consumeQueue('removeEngageConversations', _id);
 };
 
+export const fetchSegment = async (segment, options) => 
+  client.sendRPCMessage('rpc_queue:fetchSegment', { segment, options });
+
+export const getCampaignCustomerInfo = async (data) => {
+  return client.sendRPCMessage('contacts:rpc_queue:prepareEngageCustomers', data);
+};
+
 export default function() {
   return client;
 }
