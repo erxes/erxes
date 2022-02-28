@@ -8,7 +8,7 @@ export const initBroker = async cl => {
 
   const { consumeQueue, consumeRPCQueue } = cl;
 
-  consumeQueue('internalNotes:batchUpdate', async (contentType, oldContentTypeIds, newContentTypeId) => {
+  consumeQueue('internalNotes:batchUpdate', async ({contentType, oldContentTypeIds, newContentTypeId}) => {
     // Updating every internal notes of company
     await InternalNotes.updateMany(
       {
@@ -49,6 +49,10 @@ export const initBroker = async cl => {
       .limit(perPageForAction);
 
     return { internalNotes, totalCount: await InternalNotes.countDocuments(filter) };
+  });
+
+  consumeQueue('internalnotes:InternalNotes.removeInternalNotes', ({ contentType, contentTypeIds }) => {
+    InternalNotes.removeInternalNotes(contentType, contentTypeIds);
   });
 };
 

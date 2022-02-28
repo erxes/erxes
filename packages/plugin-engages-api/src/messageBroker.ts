@@ -14,7 +14,7 @@ export const initBroker = async cl => {
     await EngageMessages.removeCustomersEngages(customerIds);
   });
 
-  consumeQueue('engage:changeCustomer', async (customerId, customerIds) => {
+  consumeQueue('engage:changeCustomer', async ({customerId, customerIds}) => {
     await EngageMessages.changeCustomer(customerId, customerIds);
   });
 
