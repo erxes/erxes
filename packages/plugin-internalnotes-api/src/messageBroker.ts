@@ -1,5 +1,8 @@
+import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
+
 import { InternalNotes } from "./models";
 import { serviceDiscovery } from './configs';
+import { internalNoteSchema } from './models/definitions/internalNotes'
 
 let client;
 
@@ -50,6 +53,11 @@ export const initBroker = async cl => {
 
     return { internalNotes, totalCount: await InternalNotes.countDocuments(filter) };
   });
+
+  consumeRPCQueue('internalnotes:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
+    status: 'success',
+    data: getSchemaLabels(type, [{ name: 'internalNote', schemas: [internalNoteSchema] }])
+  }));
 
   consumeQueue('internalnotes:InternalNotes.removeInternalNotes', ({ contentType, contentTypeIds }) => {
     InternalNotes.removeInternalNotes(contentType, contentTypeIds);

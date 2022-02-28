@@ -4,7 +4,6 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import { bustIframe } from 'modules/common/utils';
 import { NotifProvider } from '@erxes/ui-notifications/src/context';
 import Robot from 'modules/robot/containers/Robot';
-import ImportIndicator from 'modules/settings/importHistory/containers/ImportIndicator';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import Navigation from '../containers/Navigation';
@@ -62,18 +61,6 @@ class MainLayout extends React.Component<IProps> {
     return localStorage.getItem('erxes_import_data') || '';
   };
 
-  renderBackgroundProccess = () => {
-    const { isShownIndicator, closeLoadingBar } = this.props;
-
-    if (isShownIndicator) {
-      return (
-        <ImportIndicator id={this.getLastImport()} close={closeLoadingBar} />
-      );
-    }
-
-    return null;
-  };
-
   render() {
     const { currentUser, children, isShownIndicator, history } = this.props;
 
@@ -84,13 +71,8 @@ class MainLayout extends React.Component<IProps> {
     return (
       <>
         <div id="anti-clickjack" style={{ display: 'none' }} />
-        {this.renderBackgroundProccess()}
         <Layout isSqueezed={isShownIndicator}>
-          {currentUser && (
-            <Navigation
-              currentUser={currentUser}
-            />
-          )}
+          {currentUser && <Navigation currentUser={currentUser} />}
 
           <MainWrapper>
             <NotifProvider currentUser={currentUser}>

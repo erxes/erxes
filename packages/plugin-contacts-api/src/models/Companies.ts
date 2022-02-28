@@ -8,7 +8,13 @@ import {
   ICompanyDocument
 } from './definitions/companies';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
-import { internalNotesBatchUpdate, prepareCustomFieldsData, removeInternalNotes, sendConformityMessage } from '../messageBroker';
+import {
+  prepareCustomFieldsData,
+  sendConformityMessage,
+  removeInternalNotes,
+  internalNotesBatchUpdate
+} from '../messageBroker';
+
 // import { IUserDocument } from '@erxes/common-types';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
@@ -383,7 +389,11 @@ export const loadClass = () => {
       });
 
       // Removing modules associated with current companies
-      await internalNotesBatchUpdate(ACTIVITY_CONTENT_TYPES.COMPANY, companyIds, company._id);
+      await internalNotesBatchUpdate(
+        ACTIVITY_CONTENT_TYPES.COMPANY,
+        companyIds,
+        company._id
+      );
       return company;
     }
   }

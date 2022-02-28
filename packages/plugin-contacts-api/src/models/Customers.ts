@@ -726,7 +726,10 @@ export const loadClass = () => {
       const {
         customFieldsData,
         trackedData
-      } = await sendFieldRPCMessage('generateCustomFieldsData', { customData, contentType: 'customer' });
+      } = await sendFieldRPCMessage('generateCustomFieldsData', {
+        customData,
+        contentType: 'customer'
+      });
 
       return this.createCustomer({
         ...doc,
@@ -753,7 +756,10 @@ export const loadClass = () => {
       const {
         customFieldsData,
         trackedData
-      } = await sendFieldRPCMessage('generateCustomFieldsData', { customData, contentType: 'customer' });
+      } = await sendFieldRPCMessage('generateCustomFieldsData', {
+        customData,
+        contentType: 'customer'
+      });
 
       const modifier = {
         ...doc,

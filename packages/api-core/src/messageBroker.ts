@@ -260,7 +260,7 @@ export const initBroker = async (server?) => {
 
       return {
         status: 'success',
-        data: collection ? await collection.find(query) : null
+        data: collection ? await collection.find(query) : []
       }
     });
 
