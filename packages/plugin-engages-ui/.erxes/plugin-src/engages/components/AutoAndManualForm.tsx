@@ -17,7 +17,7 @@ import { IConfig } from '@erxes/ui-settings/src/general/types';
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { METHODS } from '../constants';
+import { METHODS } from '@erxes/ui-engage/src/constants';
 import {
   IEngageEmail,
   IEngageMessage,

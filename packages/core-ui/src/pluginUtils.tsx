@@ -13,6 +13,7 @@ import { Route } from "react-router-dom";
 import pluginModules from "./plugins";
 import { ISubNav } from "modules/layout/components/Navigation";
 import { AppConsumer } from "appContext";
+import { generateRandomColor } from "utils";
 
 export const pluginsOfRoutes = (currentUser: IUser) => {
   const plugins: any = [];
@@ -178,7 +179,7 @@ const System = (props) => {
   );
 };
 
-class SettingsBox extends React.Component<any, any> {
+class SettingsCustomBox extends React.Component<any, any> {
   constructor(props) {
     super(props);
 
@@ -206,31 +207,59 @@ class SettingsBox extends React.Component<any, any> {
   };
 
   render() {
+    const { renderBox, settingsNav, color } = this.props;
+
+    const box = renderBox(
+      settingsNav.text,
+      settingsNav.image,
+      settingsNav.to,
+      settingsNav.action,
+      settingsNav.permissions,
+      settingsNav.scope,
+      color
+    );
+
+    if (!settingsNav.component) {
+      return box;
+    }
+
     return (
       <div onClick={this.load}>
         {this.renderComponent()}
-        {this.props.to}
-        {this.props.text}
+        {box}
       </div>
     );
   }
 }
 
-export const pluginsSettingsNavigations = () => {
+export const pluginsSettingsNavigations = (
+  renderBox: (
+    name: string,
+    image: string,
+    to: string,
+    action: string,
+    permissions?: string[],
+    type?: string
+  ) => React.ReactNode
+) => {
   const plugins: any[] = (window as any).plugins || [];
   const navigationMenus: any[] = [];
 
   for (const plugin of plugins) {
+    for (var i = 0; i < plugins.length; i++) {
+      plugin["color"] = generateRandomColor();
+    }
+
     for (const menu of plugin.menus || []) {
       if (menu.location === "settings") {
         navigationMenus.push(
-          <SettingsBox
-            scope={menu.scope}
-            component={menu.component}
-            text={menu.text}
-            to={menu.to}
-            image={menu.image}
-          />
+          <React.Fragment key={menu.text}>
+            <SettingsCustomBox
+              settingsNav={menu}
+              color={plugin.color}
+              renderBox={renderBox}
+            />
+          </React.Fragment>
         );
       }
     }

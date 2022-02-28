@@ -9,7 +9,7 @@ import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import BrandStep from '../components/step/BrandStep';
-import { queries } from '../graphql';
+import { queries } from '@erxes/ui-engage/src/graphql';
 import { sumCounts } from '@erxes/ui-engage/src/utils';
 
 type Props = {

@@ -6,7 +6,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import MessageListRow from '../components/MessageListRow';
-import { mutations, queries } from '../graphql';
+import { mutations, queries } from '@erxes/ui-engage/src/graphql';
 import {
   CopyMutationResponse,
   IEngageMessage,

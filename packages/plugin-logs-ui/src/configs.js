@@ -15,7 +15,8 @@ module.exports = {
       location: "settings",
       scope: "logs",
       component: "./settings",
-      permissions: "viewLogs",
+      action: "",
+      permissions: [],
     },
   ],
 };

@@ -6,7 +6,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import EngageStats from '../components/EngageStats';
-import { queries } from '../graphql';
+import { queries } from '@erxes/ui-engage/src/graphql';
 import { EngageMessageDetailQueryResponse } from '@erxes/ui-engage/src/types';
 
 type Props = {
