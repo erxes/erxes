@@ -303,15 +303,16 @@ export const removeCustomersEngages = async (customerIds): Promise<any> => {
   await client.sendMessage('engage:removeCustomersEngages', customerIds);
 };
 
-export const changeCustomer = async (customerId, customerIds): Promise<any> => {
-  await client.sendMessage('contact:changeCustomer', customerId, customerIds);
-};
-
 export const engageChangeCustomer = async (
   customerId,
   customerIds
 ): Promise<any> => {
-  await client.consumeQueue('engage:changeCustomer', {customerId, customerIds});
+  if(!serviceDiscovery.isAvailable("engages")) return;
+  
+  return client.sendMessage("engage:changeCustomer", {
+    customerId,
+    customerIds,
+  });
 };
 
 export const fetchSegment = (segment, options?) =>
@@ -319,6 +320,31 @@ export const fetchSegment = (segment, options?) =>
     segment,
     options,
   });
+
+export const removeInternalNotes = (contentType: string, contentTypeIds: string[]) => {
+  if (!serviceDiscovery.isAvailable("internalnotes")) return;
+
+  return sendMessage("internalnotes:InternalNotes.removeInternalNotes", {
+    contentType,
+    contentTypeIds,
+  });
+};
+
+export const internalNotesBatchUpdate = (contentType: string, oldContentTypeIds: string[], newContentTypeId: string) => {
+  if (!serviceDiscovery.isAvailable("internalnotes")) return;
+
+  return sendMessage("internalNotes:batchUpdate", {
+    contentType,
+    oldContentTypeIds,
+    newContentTypeId,
+  });
+}
+
+export const inboxChangeCustomer = (customerId: string, customerIds: string[]) => {
+  if(!serviceDiscovery.isAvailable("inbox")) return;
+
+  return sendMessage("inbox:changeCustomer", { customerId , customerIds });
+}
 
 export default function() {
   return client;
