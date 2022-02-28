@@ -12,17 +12,15 @@ describe('pipelineTemplateQueries', () => {
   });
 
   test('Pipeline templates', async () => {
-    const args = {
-      type: BOARD_TYPES.GROWTH_HACK
-    };
+    const required = { type: BOARD_TYPES.GROWTH_HACK };
 
     await pipelineTemplateFactory();
     await pipelineTemplateFactory();
     await pipelineTemplateFactory();
 
     const qry = `
-      query pipelineTemplates($type: String!) {
-        pipelineTemplates(type: $type) {
+      query pipelineTemplates($type: String! $searchValue: String $status: String) {
+        pipelineTemplates(type: $type searchValue: $searchValue status: $status) {
           _id
           name
           description
@@ -30,9 +28,23 @@ describe('pipelineTemplateQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'pipelineTemplates', args);
+    const response = await graphqlRequest(qry, 'pipelineTemplates', required);
 
     expect(response.length).toBe(3);
+
+    const responseSearchValue = await graphqlRequest(qry, 'pipelineTemplates', {
+      ...required,
+      searchValue: 'fake value'
+    });
+
+    expect(responseSearchValue.length).toBe(0);
+
+    const responseStatus = await graphqlRequest(qry, 'pipelineTemplates', {
+      ...required,
+      status: 'active'
+    });
+
+    expect(responseStatus.length).toBe(3);
   });
 
   test('Pipeline template detail', async () => {

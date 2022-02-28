@@ -1,11 +1,11 @@
 const pipelineTemplates = `
-  query pipelineTemplates($type: String!) {
-    pipelineTemplates(type: $type) {
+  query pipelineTemplates($type: String!, $searchValue: String, $status: String) {
+    pipelineTemplates(type: $type, searchValue: $searchValue, status: $status) {
       _id
       name
       description
+      status
       stages {
-        _id
         name
         formId
       }

@@ -1,3 +1,14 @@
+export const PIPELINE_TEMPLATE_TIPTEXT = {
+  ACTIVE: 'Active',
+  ARCHIVED: 'Archive'
+};
+
+export const PIPELINE_TEMPLATE_STATUSES = {
+  ACTIVE: 'active',
+  ARCHIVED: 'archived',
+  ALL: ['active', 'archived']
+};
+
 export const metricOptions = [
   {
     label: 'GROWTHHACKERS RECOMMENDED',

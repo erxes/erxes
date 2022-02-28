@@ -19,13 +19,15 @@ export const TAG_TYPES = {
   COMPANY: 'company',
   INTEGRATION: 'integration',
   PRODUCT: 'product',
+  PRODUCT_TEMPLATE: 'productTemplate',
   ALL: [
     'conversation',
     'customer',
     'engageMessage',
     'company',
     'integration',
-    'product'
+    'product',
+    'productTemplate'
   ]
 };
 
@@ -254,6 +256,11 @@ export const PRODUCT_STATUSES = {
   ALL: ['active', 'deleted']
 };
 
+export const PRODUCT_TEMPLATE_STATUSES = {
+  ACTIVE: 'active',
+  ARCHIVED: 'archived',
+  ALL: ['active', 'archived']
+}
 export const PRODUCT_CATEGORY_STATUSES = {
   ACTIVE: 'active',
   DISABLED: 'disabled',

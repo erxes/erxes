@@ -2,6 +2,7 @@ import { shallow } from 'enzyme';
 import ProductSection from 'modules/deals/components/ProductSection';
 import { IPaymentsData, IProductData } from 'modules/deals/types';
 import { IProduct } from 'modules/settings/productService/types';
+import { IProductTemplate } from 'modules/settings/templates/types';
 import React from 'react';
 
 describe('ProductSection component', () => {
@@ -78,10 +79,33 @@ describe('ProductSection component', () => {
     cash: { amount: 1000, currency: 'MNT' }
   };
 
+  const testProductTemplates: IProductTemplate = {
+    _id: 'testProductTemplate20220214-1',
+    type: 'productService',
+    title: 'Test product',
+    discount: 0,
+    totalAmount: 1000,
+    description: 'Test product description',
+    templateItems: [
+      {
+        _id: '0.754788211430234dfds20877',
+        categoryId: 'KvWTpxtxJoevd8zML',
+        itemId: 'oAxSXqNThskJQgL2Z',
+        unitPrice: 554247,
+        quantity: 1,
+        discount: 0
+      }
+    ],
+    templateItemsProduct: [],
+    status: 'active',
+    tags: []
+  };
+
   const defaultProps = {
     productsData: testProductDatas,
     products: testProducts,
     paymentsData: testPaymentsData,
+    productTemplates: [testProductTemplates],
     onChangeProductsData: (productsData: IProductData[]) => null,
     onChangePaymentsData: (paymentsData: IPaymentsData) => null,
     onChangeProducts: (prs: IProduct[]) => null,

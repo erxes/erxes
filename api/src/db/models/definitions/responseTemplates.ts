@@ -6,6 +6,7 @@ export interface IResponseTemplate {
   content?: string;
   brandId?: string;
   files?: string[];
+  status: string;
 }
 
 export interface IResponseTemplateDocument extends IResponseTemplate, Document {
@@ -18,6 +19,7 @@ export const responseTemplateSchema = schemaWrapper(
     name: field({ type: String, label: 'Name' }),
     content: field({ type: String, label: 'Content' }),
     brandId: field({ type: String, label: 'Brand' }),
+    status: field({ type: String, label: 'Status' }),
     files: field({ type: Array, label: 'Files' })
   })
 );

@@ -9,12 +9,14 @@ const List = asyncComponent(() =>
   )
 );
 
-const emailTemplates = ({ location }) => {
-  return <List queryParams={queryString.parse(location.search)} />;
+const emailTemplates = ({ location, history }) => {
+  return (
+    <List queryParams={queryString.parse(location.search)} history={history} />
+  );
 };
 
 const routes = () => (
-  <Route path="/settings/email-templates/" component={emailTemplates} />
+  <Route path="/settings/email_templates/" component={emailTemplates} />
 );
 
 export default routes;

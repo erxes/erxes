@@ -1,16 +1,17 @@
 import { ResponseTemplates } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-
+import { escapeRegExp } from '../../utils';
 interface IListParams {
   page: number;
   perPage: number;
   brandId: string;
   searchValue: string;
+  status: string;
 }
 
 const generateFilter = (commonSelector, args: IListParams) => {
-  const { brandId, searchValue } = args;
+  const { brandId, searchValue, status } = args;
 
   const filter: any = commonSelector;
 
@@ -23,6 +24,14 @@ const generateFilter = (commonSelector, args: IListParams) => {
       { name: new RegExp(`.*${searchValue}.*`, 'i') },
       { content: new RegExp(`.*${searchValue}.*`, 'i') }
     ];
+  }
+
+  if (status) {
+    const elseActive = status === 'active' ? [null, undefined] : [];
+
+    filter.status = {
+      $in: [...elseActive, new RegExp(`.*${escapeRegExp(status)}.*`, 'i')]
+    };
   }
 
   return filter;

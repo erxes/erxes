@@ -1,6 +1,5 @@
 import { FormControl } from 'modules/common/components/form';
 import ControlLabel from 'modules/common/components/form/Label';
-import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Table from 'modules/common/components/table';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
@@ -13,9 +12,17 @@ import List from '../../common/components/List';
 import RowActions from '../../common/components/RowActions';
 import { ICommonListProps } from '../../common/types';
 import Form from '../components/Form';
+import CategoryList from 'modules/settings/templates/containers/productCategory/CategoryList';
+import {
+  RESPONSE_TEMPLATE_STATUSES,
+  RESPONSE_TEMPLATE_TIPTEXT
+} from '../constants';
+import Tip from 'modules/common/components/Tip';
+import Icon from 'modules/common/components/Icon';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  changeStatus: (_id: string, status: string) => void;
   queryParams: any;
   history: any;
 } & ICommonListProps;
@@ -30,12 +37,13 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
   constructor(props) {
     super(props);
 
-    const {
-      queryParams: { searchValue }
-    } = props;
+    const { queryParams } = props;
+
+    const searchValue =
+      queryParams && queryParams.searchValue ? queryParams.searchValue : '';
 
     this.state = {
-      searchValue: searchValue || ''
+      searchValue
     };
   }
 
@@ -47,6 +55,37 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
 
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
+  };
+
+  renderDisableAction = object => {
+    const { changeStatus } = this.props;
+    const _id = object._id;
+    const isActive =
+      object.status === null ||
+      object.status === RESPONSE_TEMPLATE_STATUSES.ACTIVE;
+    const icon = isActive ? 'archive-alt' : 'redo';
+
+    const status = isActive
+      ? RESPONSE_TEMPLATE_STATUSES.ARCHIVED
+      : RESPONSE_TEMPLATE_STATUSES.ACTIVE;
+
+    const text = isActive
+      ? RESPONSE_TEMPLATE_TIPTEXT.ARCHIVED
+      : RESPONSE_TEMPLATE_TIPTEXT.ACTIVE;
+
+    if (!changeStatus) {
+      return null;
+    }
+
+    const onClick = () => changeStatus(_id, status);
+
+    return (
+      <Tip text={__(text)}>
+        <div onClick={onClick}>
+          <Icon icon={icon} />
+        </div>
+      </Tip>
+    );
   };
 
   renderRows = ({ objects }) => {
@@ -62,6 +101,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
             object={object}
             size="lg"
             renderForm={this.renderForm}
+            additionalActions={this.renderDisableAction}
           />
         </tr>
       );
@@ -81,7 +121,10 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
   };
 
   renderFilter = () => {
-    const { brandId } = this.props.queryParams;
+    const brandId =
+      this.props.queryParams && this.props.queryParams.brandId
+        ? this.props.queryParams
+        : '';
 
     return (
       <FilterContainer>
@@ -137,21 +180,11 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
           { title: __('Response templates') }
         ]}
         title={__('Response templates')}
-        mainHead={
-          <HeaderDescription
-            icon="/images/actions/24.svg"
-            title="Response templates"
-            description={`${__(
-              'Make things easy for your team members and add in ready made response templates'
-            )}.${__(
-              'Manage and edit your response templates according to each situation and respond in a timely manner and without the hassle'
-            )}`}
-          />
-        }
         renderFilter={this.renderFilter}
         renderForm={this.renderForm}
         renderContent={this.renderContent}
-        center={true}
+        rightActionBar={true}
+        leftSidebar={<CategoryList queryParams={this.props.queryParams} />}
         size="lg"
         {...this.props}
       />

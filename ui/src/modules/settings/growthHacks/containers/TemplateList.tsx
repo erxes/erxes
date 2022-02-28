@@ -1,7 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { IButtonMutateProps } from 'modules/common/types';
-import { Alert } from 'modules/common/utils';
+import { Alert, confirm } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import {
   ICommonFormProps,
@@ -13,6 +13,7 @@ import { commonListComposer } from '../../utils';
 import TemplateList from '../components/TemplateList';
 import { mutations, queries } from '../graphql';
 import { IPipelineTemplate } from '../types';
+import { PIPELINE_TEMPLATE_STATUSES } from '../constants';
 
 export type PipelineTemplatesQueryResponse = {
   pipelineTemplates: IPipelineTemplate[];
@@ -23,7 +24,9 @@ export type PipelineTemplatesQueryResponse = {
 type Props = ICommonListProps &
   ICommonFormProps & {
     queryParams: any;
+    history: any;
     renderButton: (props: IButtonMutateProps) => JSX.Element;
+    listQuery: any;
   };
 
 class TemplateListContainer extends React.Component<Props> {
@@ -35,16 +38,52 @@ class TemplateListContainer extends React.Component<Props> {
       })
       .then(() => {
         Alert.success('Successfully duplicated a template');
-
-        this.props.refetch();
+        this.props.listQuery.refetch();
       })
       .catch(e => {
         Alert.error(e.message);
       });
   };
 
+  changeStatus = (_id: string, status: string) => {
+    const isActive =
+      status === null || status === PIPELINE_TEMPLATE_STATUSES.ACTIVE;
+    const message = isActive
+      ? 'You are going to archive this pipeline template. Are you sure?'
+      : 'You are going to active this pipeline template. Are you sure?';
+
+    const statusAction = isActive
+      ? PIPELINE_TEMPLATE_STATUSES.ACTIVE
+      : PIPELINE_TEMPLATE_STATUSES.ARCHIVED;
+
+    confirm(message).then(() => {
+      client
+        .mutate({
+          mutation: gql(mutations.pipelineTemplatesChangeStatus),
+          variables: { _id, status }
+        })
+        .then(({ data }) => {
+          const template = data.pipelineTemplatesChangeStatus;
+
+          if (template && template._id) {
+            Alert.success(`Pipeline template has been ${statusAction}.`);
+            this.props.listQuery.refetch();
+          }
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    });
+  };
+
   render() {
-    return <TemplateList {...this.props} duplicate={this.duplicate} />;
+    return (
+      <TemplateList
+        {...this.props}
+        duplicate={this.duplicate}
+        changeStatus={this.changeStatus}
+      />
+    );
   }
 }
 
@@ -60,8 +99,10 @@ export default commonListComposer<Props>({
       return {
         notifyOnNetworkStatusChange: true,
         variables: {
-          ...generatePaginationParams(queryParams),
-          type: 'growthHack'
+          searchValue: queryParams.searchValue,
+          status: queryParams.status,
+          type: 'growthHack',
+          ...generatePaginationParams(queryParams)
         }
       };
     }

@@ -24,6 +24,7 @@ export interface IOptions {
     detailQuery: string;
     archivedItemsQuery: string;
     archivedItemsCountQuery: string;
+    productTemplatesQuery: string;
   };
   mutationsName: {
     addMutation: string;
@@ -40,6 +41,7 @@ export interface IOptions {
     detailQuery: string;
     archivedItemsQuery: string;
     archivedItemsCountQuery: string;
+    productTemplatesQuery: string;
   };
   mutations: {
     addMutation: string;

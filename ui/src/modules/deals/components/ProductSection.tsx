@@ -10,11 +10,13 @@ import React from 'react';
 import ProductForm from '../containers/product/ProductForm';
 import { CustomField, ProductName } from '../styles';
 import { IPaymentsData, IProductData } from '../types';
+import { IProductTemplate } from '../../settings/templates/types';
 
 type Props = {
   productsData: IProductData[];
   products: IProduct[];
   paymentsData: IPaymentsData;
+  productTemplates: IProductTemplate[];
   onChangeProductsData: (productsData: IProductData[]) => void;
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
   onChangeProducts: (prs: IProduct[]) => void;
@@ -27,7 +29,8 @@ function ProductSection({
   paymentsData,
   onChangeProductsData,
   onChangePaymentsData,
-  saveProductsData
+  saveProductsData,
+  productTemplates
 }: Props) {
   const contentWithId = (productId?: string) => {
     const content = props => (
@@ -40,6 +43,7 @@ function ProductSection({
         products={products}
         paymentsData={paymentsData}
         saveProductsData={saveProductsData}
+        productTemplates={productTemplates}
       />
     );
 

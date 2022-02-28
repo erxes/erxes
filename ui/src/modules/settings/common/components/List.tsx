@@ -7,6 +7,8 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { IBreadCrumbItem } from '../../../common/types';
 import { ICommonListProps } from '../types';
+import ActionBarDropDown from 'modules/settings/templates/containers/actionBar/ActionBar';
+import { BarItems } from 'erxes-ui';
 
 type Props = {
   title: string;
@@ -21,6 +23,11 @@ type Props = {
   renderFilter?: () => any;
   additionalButton?: React.ReactNode;
   emptyContent?: React.ReactNode;
+  leftSidebar?: any;
+  queryParams?: any;
+  searchValue?: string;
+  history?: any;
+  rightActionBar?: any;
 };
 
 class List extends React.Component<Props & ICommonListProps, {}> {
@@ -43,7 +50,11 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       center,
       remove,
       additionalButton,
-      emptyContent
+      emptyContent,
+      leftSidebar,
+      rightActionBar,
+      queryParams,
+      history
     } = this.props;
 
     const trigger = (
@@ -56,7 +67,12 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       return renderForm({ ...props, save });
     };
 
-    const actionBarRight = (
+    const actionBarRight = rightActionBar ? (
+      <BarItems>
+        {additionalButton}
+        <ActionBarDropDown queryParams={queryParams} history={history} />
+      </BarItems>
+    ) : (
       <>
         {additionalButton}
         <ModalTrigger
@@ -84,6 +100,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
         mainHead={mainHead}
         footer={<Pagination count={totalCount} />}
         center={center}
+        leftSidebar={leftSidebar}
         content={
           <DataWithLoader
             data={renderContent({ objects, save, refetch, remove })}

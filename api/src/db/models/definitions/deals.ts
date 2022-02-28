@@ -72,6 +72,7 @@ export interface IProductData extends Document {
   amount?: number;
   tickUsed?: boolean;
   assignUserId?: string;
+  templateId?: string;
 }
 
 interface IPaymentsData {
@@ -198,7 +199,8 @@ export const productDataSchema = new Schema(
     discount: field({ type: Number, label: 'Discount' }), // Discount
     amount: field({ type: Number, label: 'Amount' }), // Amount
     tickUsed: field({ type: Boolean, label: 'Tick used' }), // TickUsed
-    assignUserId: field({ type: String, optional: true, esType: 'keyword' }) // AssignUserId
+    assignUserId: field({ type: String, optional: true, esType: 'keyword' }), // AssignUserId
+    templateId: field({ type: String, optional: true, esType: 'TemplateId' }) // TemplateId
   },
   { _id: false }
 );
