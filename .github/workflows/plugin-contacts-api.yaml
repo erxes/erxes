@@ -1,4 +1,4 @@
-name: Plugin contacts Api CI
+name: Plugin contacts api CI
 
 on:
   push:

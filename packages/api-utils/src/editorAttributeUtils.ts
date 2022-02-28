@@ -1,7 +1,3 @@
-import { IBrandDocument } from "../../api-core/src/db/models/definitions/brands";
-import { IUser } from "../../api-core/src/db/models/definitions/users";
-// import { ICustomer } from "../../plugin-contact-api/src/models/definitions/customers";
-
 import * as _ from "lodash";
 import { URL } from "url";
 
@@ -13,10 +9,10 @@ export interface IReplacer {
 export interface IArgs {
   content: string;
   customer?: any | null;
-  user?: IUser | null;
+  user?;
   customerFields?: string[];
   item?: any;
-  brand?: IBrandDocument;
+  brand?;
 }
 
 export interface ICustomerField {
