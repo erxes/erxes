@@ -14,6 +14,7 @@ import pluginModules from "./plugins";
 import { ISubNav } from "modules/layout/components/Navigation";
 import { AppConsumer } from "appContext";
 import { generateRandomColor } from "utils";
+import { NavItem } from "modules/layout/components/QuickNavigation";
 
 export const pluginsOfRoutes = (currentUser: IUser) => {
   const plugins: any = [];
@@ -191,9 +192,9 @@ class SettingsCustomBox extends React.Component<any, any> {
       return null;
     }
 
-    const Component = React.lazy(
-      loadComponent(this.props.scope, this.props.component)
-    );
+    const { scope, component } = this.props.settingsNav;
+
+    const Component = React.lazy(loadComponent(scope, component));
 
     return (
       <React.Suspense fallback="">
@@ -208,18 +209,19 @@ class SettingsCustomBox extends React.Component<any, any> {
 
   render() {
     const { renderBox, settingsNav, color } = this.props;
+    const {
+      text,
+      image,
+      to,
+      action,
+      permissions,
+      scope,
+      component,
+    } = settingsNav;
 
-    const box = renderBox(
-      settingsNav.text,
-      settingsNav.image,
-      settingsNav.to,
-      settingsNav.action,
-      settingsNav.permissions,
-      settingsNav.scope,
-      color
-    );
+    const box = renderBox(text, image, to, action, permissions, scope, color);
 
-    if (!settingsNav.component) {
+    if (!component) {
       return box;
     }
 
@@ -266,6 +268,65 @@ export const pluginsSettingsNavigations = (
   }
 
   return navigationMenus;
+};
+
+class TopNavigation extends React.Component<any, any> {
+  constructor(props) {
+    super(props);
+
+    this.state = { showComponent: false };
+  }
+
+  renderComponent = () => {
+    if (!this.state.showComponent) {
+      return null;
+    }
+
+    const { settingsNav } = this.props;
+
+    const Component = React.lazy(
+      loadComponent(settingsNav.scope, settingsNav.component)
+    );
+
+    return (
+      <React.Suspense fallback="">
+        <Component />
+      </React.Suspense>
+    );
+  };
+
+  load = () => {
+    this.setState({ showComponent: true });
+  };
+
+  render() {
+    const { settingsNav } = this.props;
+    console.log(settingsNav.component);
+    return <NavItem onClick={this.load}>{this.renderComponent()}</NavItem>;
+  }
+}
+
+export const pluginsOfTopNavigations = () => {
+  const plugins: any[] = (window as any).plugins || [];
+  const topNavigationMenus: any[] = [];
+
+  for (const plugin of plugins) {
+    for (const menu of plugin.menus || []) {
+      if (menu.location === "topNavigation") {
+        topNavigationMenus.push(
+          <React.Fragment key={menu.text}>
+            <TopNavigation
+              settingsNav={menu}
+              color={plugin.color}
+              // renderBox={<NavItem>hi</NavItem>}
+            />
+          </React.Fragment>
+        );
+      }
+    }
+  }
+
+  return topNavigationMenus;
 };
 
 export const pluginRouters = () => {
