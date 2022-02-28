@@ -1,7 +1,7 @@
 import React from "react";
 
 const Settings = () => {
-  return <div>Ooooy Campaign settings</div>;
+  return <div style={{ color: "red" }}>zass</div>;
 };
 
 export default Settings;

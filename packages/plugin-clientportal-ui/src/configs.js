@@ -18,7 +18,6 @@ module.exports = {
       scope: "clientPortal",
       action: "",
       permissions: [],
-      type: "New",
     },
   ],
 };

@@ -1,7 +1,8 @@
-import { colors, dimensions, typography } from '@erxes/ui/src/styles';
-import { darken } from '@erxes/ui/src/styles/ecolor';
-import { BoxRoot } from '@erxes/ui/src/styles/main';
-import styled from 'styled-components';
+import { colors, dimensions, typography } from "@erxes/ui/src/styles";
+import { darken } from "@erxes/ui/src/styles/ecolor";
+import { BoxRoot } from "@erxes/ui/src/styles/main";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const columnTitleSize = 300;
 const boxSize = 150;
@@ -46,7 +47,7 @@ const RowTitle = styled.h3`
   }
 `;
 
-const Box = styled(BoxRoot)`
+const Box = styledTS<{ color?: string }>(styled(BoxRoot))`
   width: ${boxSize + dimensions.coreSpacing}px;
   height: ${boxSize}px;
   border-color: transparent;
@@ -65,10 +66,11 @@ const Box = styled(BoxRoot)`
     height: 100%;
 
     > em {
-      background: ${colors.colorCoreGreen};
+      background: ${(props) =>
+        props.color ? props.color : colors.colorCoreGreen};
       border-radius: 3px;
       color: #fff;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
       padding: 0 ${dimensions.unitSpacing - 5}px;
       position: absolute;
@@ -83,8 +85,8 @@ const Box = styled(BoxRoot)`
   }
 
   &.hasBorder {
-    border-bottom: ${dimensions.unitSpacing - 7}px solid
-      ${colors.colorCoreGreen};
+    border-bottom: ${dimensions.unitSpacing - 7}px solid ${(props) =>
+  props.color ? props.color : colors.colorCoreGreen}};
   }
 `;
 

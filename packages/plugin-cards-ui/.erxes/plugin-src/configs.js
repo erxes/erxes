@@ -44,7 +44,7 @@ module.exports = {
       to: "/settings/boards/deal",
       image: "/images/icons/erxes-25.png",
       location: "settings",
-      scope: "deals",
+      scope: "cards",
       action: "dealsAll",
       permissions: [
         "dealBoardsAdd",
@@ -67,7 +67,7 @@ module.exports = {
       to: "/settings/boards/task",
       image: "/images/icons/erxes-13.svg",
       location: "settings",
-      scope: "deals",
+      scope: "cards",
       action: "tasksAll",
       permissions: [
         "taskBoardsAdd",
@@ -91,7 +91,7 @@ module.exports = {
       to: "/settings/boards/ticket",
       image: "/images/icons/erxes-19.svg",
       location: "settings",
-      scope: "deals",
+      scope: "cards",
       action: "ticketsAll",
       permissions: [
         "ticketBoardsAdd",
@@ -114,7 +114,7 @@ module.exports = {
       to: "/settings/boards/growthHack",
       image: "/images/icons/erxes-12.svg",
       location: "settings",
-      scope: "deals",
+      scope: "cards",
       action: "growthHacksAll",
       permissions: [
         "growthHackTemplatesAdd",
