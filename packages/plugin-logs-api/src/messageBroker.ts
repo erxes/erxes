@@ -1,5 +1,5 @@
 import { debug } from "./configs";
-import ActivityLogs, { IActivityLogDocument } from "./models/ActivityLogs";
+import ActivityLogs, { IActivityLogDocument, IActivityLogInput } from "./models/ActivityLogs";
 import Logs from "./models/Logs";
 import Visitors from "./models/Visitors";
 import { receivePutLogCommand, sendToApi } from "./utils";
@@ -58,28 +58,9 @@ export const initBroker = async (cl) => {
     const { data, action } = parsedObject;
 
     switch (action) {
-      case 'add':
-        return ActivityLogs.addActivityLog(data);
-      case 'createBoardItem':
-        return ActivityLogs.createBoardItemLog(data);
-      case 'createBoardItemMovementLog': {
-        const { item, contentType, userId, activityLogContent } = data;
-
-        return ActivityLogs.createBoardItemMovementLog(
-          item,
-          contentType,
-          userId,
-          activityLogContent
-        );
+      case 'createChecklistLog': {
+        return ActivityLogs.createChecklistLog(data);
       }
-      case 'createArchiveLog':
-        return ActivityLogs.createArchiveLog(data);
-      case 'createAssigneLog':
-        return ActivityLogs.createAssigneLog(data);
-      case 'createTagLog':
-        return ActivityLogs.createTagLog(data);
-      case 'createBoardItems':
-        return ActivityLogs.createBoardItemsLog(data);
       case 'removeActivityLogs': {
         const { type, itemIds } = data;
 
@@ -90,32 +71,16 @@ export const initBroker = async (cl) => {
 
         return ActivityLogs.removeActivityLog(contentTypeId);
       }
-      case 'createChecklistLog': {
-        return ActivityLogs.createChecklistLog(data);
-      }
-      case 'createCocLog': {
-        return ActivityLogs.createCocLog(data);
-      }
-      case 'createCocLogs': {
-        return ActivityLogs.createCocLogs(data);
-      }
       case 'createSegmentLog': {
         const { segment, contentIds, type } = data;
 
         return ActivityLogs.createSegmentLog(segment, contentIds, type);
       }
-      case 'sendEmailCampaign':
-      case 'sendSmsCampaign':
-        const { contentId, createdBy, content } = data;
-
-        return ActivityLogs.addActivityLog({
-          action: 'send',
-          contentType: data.contentType,
-          contentId,
-          createdBy,
-          content
-        });
       default:
+        if (action) {
+          return ActivityLogs.addActivityLog(data);
+        }
+
         break;
     }
   });

@@ -1,13 +1,13 @@
-import { QueryResponse } from '@erxes/ui/src/types';
+import { QueryResponse } from "@erxes/ui/src/types";
 import {
   ILeadData,
   ILeadIntegration,
-  IWebhookData
-} from '@erxes/ui-leads/src/types';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { IForm } from '@erxes/ui-forms/src/forms/types';
-import { IChannel } from '../channels/types';
-import { IProductCategory } from '../productService/types';
+  IWebhookData,
+} from "@erxes/ui-leads/src/types";
+import { IBrand } from "@erxes/ui/src/brands/types";
+import { IForm } from "@erxes/ui-forms/src/forms/types";
+import { IChannel } from "../channels/types";
+import { IProductCategory } from "@erxes/ui-products/src/types";
 
 export interface IMessengerApp {
   _id: string;
@@ -212,7 +212,7 @@ export type LeadIntegrationDetailQueryResponse = {
 } & QueryResponse;
 
 export type SendSmsMutationResponse = ({
-  variables: SendSmsMutationVariables
+  variables: SendSmsMutationVariables,
 }) => Promise<any>;
 
 type By = { [key: string]: number };

@@ -11,7 +11,7 @@ export default {
   graphql: async (sd) => {
     return {
       typeDefs: await typeDefs(sd),
-      resolvers
+      resolvers: await resolvers(sd)
     }
   },
   apolloServerContext: context => {

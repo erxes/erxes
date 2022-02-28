@@ -1,12 +1,12 @@
-import Box from '@erxes/ui/src/components/Box';
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { Alert } from '@erxes/ui/src/utils';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import React from 'react';
-import { SidebarContent } from '../styles';
-import { IFieldGroup } from '../types';
-import GenerateField from './GenerateField';
+import Box from "@erxes/ui/src/components/Box";
+import Button from "@erxes/ui/src/components/Button";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { Alert } from "@erxes/ui/src/utils";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import React from "react";
+import { SidebarContent } from "../styles";
+import { IFieldGroup } from "../types";
+import GenerateField from "./GenerateField";
 
 type Props = {
   isDetail: boolean;
@@ -27,7 +27,7 @@ class GenerateGroup extends React.Component<Props, State> {
 
     this.state = {
       editing: false,
-      data: props.data
+      data: props.data,
     };
   }
 
@@ -41,20 +41,20 @@ class GenerateGroup extends React.Component<Props, State> {
     const { data } = this.state;
     const { save } = this.props;
 
-    save(data, error => {
+    save(data, (error) => {
       if (error) {
         return Alert.error(error.message);
       }
 
       this.cancelEditing();
 
-      return Alert.success('Success');
+      return Alert.success("Success");
     });
   };
 
   cancelEditing = () => {
     this.setState({
-      editing: false
+      editing: false,
     });
   };
 
@@ -90,7 +90,7 @@ class GenerateGroup extends React.Component<Props, State> {
     const { data } = this.state;
     const { fields } = fieldGroup;
 
-    const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
+    const isVisibleKey = isDetail ? "isVisibleInDetail" : "isVisible";
 
     if (fields.length === 0) {
       return null;
@@ -98,7 +98,7 @@ class GenerateGroup extends React.Component<Props, State> {
 
     if (
       fields.length !== 0 &&
-      fields.filter(e => e[isVisibleKey]).length === 0
+      fields.filter((e) => e[isVisibleKey]).length === 0
     ) {
       return (
         <EmptyState
@@ -121,7 +121,7 @@ class GenerateGroup extends React.Component<Props, State> {
               field={field}
               key={index}
               onValueChange={this.onChange}
-              defaultValue={data[field._id] || ''}
+              defaultValue={data[field._id] || ""}
             />
           );
         })}
@@ -131,7 +131,7 @@ class GenerateGroup extends React.Component<Props, State> {
 
   render() {
     const { fieldGroup, isDetail } = this.props;
-    const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
+    const isVisibleKey = isDetail ? "isVisibleInDetail" : "isVisible";
 
     if (!fieldGroup[isVisibleKey]) {
       return null;
@@ -159,19 +159,19 @@ class GenerateGroups extends React.Component<GroupsProps> {
     const { customFieldsData, save } = this.props;
 
     const prevData = {};
-    (customFieldsData || []).forEach(cd => (prevData[cd.field] = cd.value));
+    (customFieldsData || []).forEach((cd) => (prevData[cd.field] = cd.value));
 
     const updatedData = {
       ...prevData,
-      ...(groupData || {})
+      ...(groupData || {}),
     };
 
     save(
       {
-        customFieldsData: Object.keys(updatedData).map(key => ({
+        customFieldsData: Object.keys(updatedData).map((key) => ({
           field: key,
-          value: updatedData[key]
-        }))
+          value: updatedData[key],
+        })),
       },
       callback
     );
@@ -184,7 +184,7 @@ class GenerateGroups extends React.Component<GroupsProps> {
       return null;
     }
 
-    return fieldsGroups.map(fieldGroup => {
+    return fieldsGroups.map((fieldGroup) => {
       const data = {};
 
       for (const customFieldData of customFieldsData || []) {

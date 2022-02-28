@@ -416,10 +416,18 @@ export const createBoardItem = async (doc: IItemCommonFields, type: string) => {
     );
   }
 
+  let action = 'create';
+  let content = '';
+
+  if (doc.sourceConversationIds && doc.sourceConversationIds.length > 0) {
+    action = 'convert';
+    content = item.sourceIds.slice(-1)[0];
+  }
+
   // create log
   await putActivityLog({
     action: 'createBoardItem',
-    data: { item, contentType: type }
+    data: { item, contentType: type, action, content, createdBy: item.userId || '' }
   });
 
   return item;

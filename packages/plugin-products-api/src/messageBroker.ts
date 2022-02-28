@@ -38,6 +38,29 @@ export const initBroker = async cl => {
     data: await Products.updateMany(selector, modifier),
     status: 'success',
   }));
+
+  consumeRPCQueue('products:rpc_queue:tag', async args => {
+    let data = {};
+
+    if (args.action === 'count') {
+      data = await Products.countDocuments({ tagIds: { $in: args._ids } });
+    }
+
+    if (args.action === 'tagObject') {
+      await Products.updateMany(
+        { _id: { $in: args.targetIds } },
+        { $set: { tagIds: args.tagIds } },
+        { multi: true }
+      );
+
+      data = await Products.find({ _id: { $in: args.targetIds } }).lean();
+    }
+
+    return {
+      status: 'success',
+      data
+    }
+  });
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {
