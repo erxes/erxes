@@ -13,11 +13,12 @@ const execute = async (func) => {
 const execCommand = (command) => {
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
+      console.log(stdout)
+
       if (error !== null) {
         return reject(error);
       }
 
-      console.log(stdout);
       console.log(stderr);
 
       return resolve("done");

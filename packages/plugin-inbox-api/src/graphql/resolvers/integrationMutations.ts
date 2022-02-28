@@ -42,7 +42,7 @@ import { checkPermission } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '@erxes/api-utils/src';
 
-import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
+// import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 import { client as msgBrokerClient } from '../../messageBroker';
 import { getService, getServices } from '../../redis';
 
@@ -441,17 +441,17 @@ const integrationMutations = {
 
     const apiService = await getService('api');
 
-    const replacedContent = await new EditorAttributeUtil(
-      msgBrokerClient,
-      apiService.address,
-      await getServices()
-    ).replaceAttributes({
-      content: body,
-      user,
-      customer: customer || undefined
-    });
+    // const replacedContent = await new EditorAttributeUtil(
+    //   msgBrokerClient,
+    //   apiService.address,
+    //   await getServices()
+    // ).replaceAttributes({
+    //   content: body,
+    //   user,
+    //   customer: customer || undefined
+    // });
 
-    doc.body = replacedContent || '';
+    // doc.body = replacedContent || '';
 
     try {
       await dataSources.IntegrationsAPI.sendEmail(kind, {

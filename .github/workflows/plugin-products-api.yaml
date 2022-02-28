@@ -1,4 +1,4 @@
-name: Plugin products api CI
+name: Plugin products Api CI
 
 on:
   push:
