@@ -9,7 +9,7 @@ import {
   ICompanyDocument
 } from './definitions/companies';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
-import { prepareCustomFieldsData, sendConformityMessage } from '../messageBroker';
+import { client as msgBroker, prepareCustomFieldsData, sendConformityMessage } from '../messageBroker';
 // import { IUserDocument } from '@erxes/common-types';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
@@ -294,11 +294,10 @@ export const loadClass = () => {
       //   data: { type: ACTIVITY_CONTENT_TYPES.COMPANY, itemIds: companyIds }
       // });
 
-      // TODO: RPC
-      await InternalNotes.removeInternalNotes(
-        ACTIVITY_CONTENT_TYPES.COMPANY,
-        companyIds
-      );
+      await msgBroker.sendMessage("internalnotes:InternalNotes.removeInternalNotes", {
+        contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
+        contentTypeIds: companyIds,
+      });
 
       await sendConformityMessage('removeConformities', {
         mainType: 'company',
@@ -389,8 +388,11 @@ export const loadClass = () => {
       });
 
       // Removing modules associated with current companies
-      // TODO: RPC
-      await InternalNotes.changeCompany(company._id, companyIds);
+      await msgBroker.sendMessage("internalNotes:batchUpdate", {
+        contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
+        oldContentTypeIds: companyIds,
+        newContentTypeId: company._id,
+      });
 
       return company;
     }
