@@ -1,4 +1,4 @@
-import { fetchElk } from 'src/elasticsearch';
+import { fetchElk } from '../../elasticsearch';
 
 export const findElkFields = async query => {
   const response = await fetchElk({

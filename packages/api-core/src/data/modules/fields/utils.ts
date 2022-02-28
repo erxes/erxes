@@ -1,4 +1,4 @@
-import { findElkFields } from 'src/db/models/fieldUtils';
+import { findElkFields } from '../../../db/models/fieldUtils';
 import { Fields, FieldsGroups } from '../../../db/models';
 import { fetchElk } from '../../../elasticsearch';
 import messageBroker from '../../../messageBroker';
