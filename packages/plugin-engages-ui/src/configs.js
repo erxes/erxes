@@ -1,12 +1,12 @@
 module.exports = {
-  name: "campaigns",
+  name: "engages",
   port: 3001,
   exposes: {
     "./routes": "./src/routes.tsx",
   },
   routes: {
     url: "http://localhost:3001/remoteEntry.js",
-    scope: "campaigns",
+    scope: "engages",
     module: "./routes",
   },
   menus: [
@@ -22,7 +22,7 @@ module.exports = {
       to: "#",
       image: "/images/icons/erxes-31.png",
       location: "settings",
-      scope: "campaigns",
+      scope: "engages",
       action: "",
       permissions: [],
     },
