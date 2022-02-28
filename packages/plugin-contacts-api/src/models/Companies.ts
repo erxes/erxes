@@ -9,7 +9,10 @@ import {
   ICompanyDocument
 } from './definitions/companies';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
-import { prepareCustomFieldsData, sendConformityMessage } from '../messageBroker';
+import {
+  prepareCustomFieldsData,
+  sendConformityMessage
+} from '../messageBroker';
 // import { IUserDocument } from '@erxes/common-types';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {

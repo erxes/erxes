@@ -1,39 +1,33 @@
+import { findElkFields } from 'src/db/models/fieldUtils';
 import { Fields, FieldsGroups } from '../../../db/models';
-// import { IFieldGroup } from '../../../db/models/definitions/fields';
 import { fetchElk } from '../../../elasticsearch';
 import messageBroker from '../../../messageBroker';
-// import { findElk } from '../../resolvers/mutations/engageUtils';
 import { isUsingElk } from '../../utils';
 
 export const getCustomFields = async (contentType: string) => {
-  return Fields.find({
-    contentType,
-    isDefinedByErxes: false
+  if (!isUsingElk()) {
+    return Fields.find({
+      contentType,
+      isDefinedByErxes: false
+    });
+  }
+
+  return findElkFields({
+    bool: {
+      must: [
+        {
+          match: {
+            contentType
+          }
+        },
+        {
+          match: {
+            isDefinedByErxes: false
+          }
+        }
+      ]
+    }
   });
-
-  // if (!isUsingElk()) {
-  //   return Fields.find({
-  //     contentType,
-  //     isDefinedByErxes: false
-  //   });
-  // }
-
-  // return findElk('fields', {
-  //   bool: {
-  //     must: [
-  //       {
-  //         match: {
-  //           contentType
-  //         }
-  //       },
-  //       {
-  //         match: {
-  //           isDefinedByErxes: false
-  //         }
-  //       }
-  //     ]
-  //   }
-  // });
 };
 
 const getFieldGroup = async (_id: string) => {
@@ -50,48 +44,6 @@ const getFieldGroup = async (_id: string) => {
 
   return response && { _id: response._id, ...response._source };
 };
-
-export const getFormFields = async (formId: string) => {
-  return Fields.find({
-    contentType: 'form',
-    isDefinedByErxes: false,
-    contentTypeId: formId
-  });
-
-  // if (!isUsingElk()) {
-  //   return Fields.find({
-  //     contentType: 'form',
-  //     isDefinedByErxes: false,
-  //     contentTypeId: formId
-  //   });
-  // }
-
-  // return findElk('fields', {
-  //   bool: {
-  //     must: [
-  //       {
-  //         match: {
-  //           contentType: 'form'
-  //         }
-  //       },
-  //       {
-  //         match: {
-  //           isDefinedByErxes: false
-  //         }
-  //       },
-  //       {
-  //         match: {
-  //           contentTypeId: formId
-  //         }
-  //       }
-  //     ]
-  //   }
-  // });
-};
-
-/*
- * Generates fields using given schema
- */
 
 /**
  * Generates all field choices base on given kind.
@@ -126,7 +78,6 @@ export const fieldsCombinedByContentType = async ({
   }> = [];
 
   if (serviceType) {
-    console.log(messageBroker());
     fields = await messageBroker().sendRPCMessage(
       `${serviceType}:rpc_queue:getFields`,
       {
@@ -165,24 +116,3 @@ export const fieldsCombinedByContentType = async ({
 
   return fields.filter(field => !(excludedNames || []).includes(field.name));
 };
-
-// export const getBoardsAndPipelines = (doc: IFieldGroup) => {
-//   const boardIds: string[] = [];
-//   const pipelineIds: string[] = [];
-
-//   const boardsPipelines = doc.boardsPipelines || [];
-
-//   for (const item of boardsPipelines) {
-//     boardIds.push(item.boardId || '');
-
-//     const pipelines = item.pipelineIds || [];
-
-//     for (const pipelineId of pipelines) {
-//       pipelineIds.push(pipelineId);
-//     }
-//   }
-//   doc.boardIds = boardIds;
-//   doc.pipelineIds = pipelineIds;
-
-//   return doc;
-// };

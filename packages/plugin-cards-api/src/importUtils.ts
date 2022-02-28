@@ -1,4 +1,28 @@
-import { Boards, Pipelines, Stages } from './models';
+import { Boards, Deals, Pipelines, Stages, Tasks, Tickets } from './models';
+
+export const insertImportItems = async args => {
+  const { docs, contentType } = args;
+
+  try {
+    let objects;
+    let model;
+
+    switch (contentType) {
+      case 'deal':
+        model = Deals;
+        break;
+      case 'task':
+        model = Tasks;
+      case 'ticket':
+        model = Tickets;
+    }
+
+    objects = await model.insertMany(docs);
+    return { objects, updated: 0 };
+  } catch (e) {
+    return { error: e.message };
+  }
+};
 
 export const prepareImportDocs = async args => {
   const { result, properties, contentType, user } = args;
@@ -32,6 +56,16 @@ export const prepareImportDocs = async args => {
         case 'stageName':
           stageName = value;
           break;
+
+        case 'basic':
+          {
+            doc[property.name] = value;
+
+            if (property.name === 'isComplete') {
+              doc.isComplete = Boolean(value);
+            }
+          }
+          break;
       }
 
       colIndex++;
@@ -53,7 +87,7 @@ export const prepareImportDocs = async args => {
         name: stageName
       });
 
-      doc.stageId = stage && stage._id;
+      doc.stageId = stage ? stage._id : '123';
     }
 
     bulkDoc.push(doc);

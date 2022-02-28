@@ -12,7 +12,7 @@ dotenv.config();
 
 let client;
 
-export const initBroker = async server => {
+export const initBroker = async (server?) => {
   client = await messageBroker({
     name: 'workers',
     server,

@@ -2,7 +2,7 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import BrandsRoutes from './brands/routes';
 import General from './general/routes';
-import ImportHistory from './importHistory/routes';
+import ImportHistory from './importExport/routes';
 import LogRoutes from './logs/routes';
 import MainRoutes from './main/routes';
 import PermissionRoutes from './permissions/routes';

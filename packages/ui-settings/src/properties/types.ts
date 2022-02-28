@@ -20,6 +20,7 @@ export type FieldsCombinedByType = {
   group?: string;
   options?: string[];
   title?: string;
+  value?: string;
 };
 
 export type FieldsCombinedByTypeQueryResponse = {

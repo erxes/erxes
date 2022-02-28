@@ -4,8 +4,7 @@ import { IUserDocument } from '../db/models/definitions/users';
 import { debugWorkers } from '../debuggers';
 import { connect } from './utils';
 import * as _ from 'underscore';
-import { MongoClient } from 'mongodb';
-import { getService } from '../inmemoryStorage';
+
 import messageBroker from './messageBroker';
 
 // tslint:disable-next-line
@@ -22,21 +21,36 @@ parentPort.once('message', message => {
 
 const create = async ({
   docs,
-  db,
-  service
+  user,
+  contentType,
+  useElkSyncer,
+  serviceType
 }: {
   docs: any;
-  db: any;
-  service: any;
+  user: any;
+  contentType: any;
+  useElkSyncer: any;
+  serviceType: any;
 }) => {
-  let objects;
-  const updated = 0;
-
   debugWorkers('Importing  data');
 
-  const result = await db.collection(service.collection).insertMany(docs);
+  const result = await await messageBroker().sendRPCMessage(
+    `${serviceType}:rpc_queue:insertImportItems`,
+    {
+      docs,
+      user,
+      contentType,
+      useElkSyncer
+    }
+  );
 
-  objects = result.ops;
+  console.log(result);
+
+  const { objects, updated, error } = result;
+
+  if (error) {
+    throw new Error(error);
+  }
 
   return { objects, updated };
 };
@@ -72,40 +86,19 @@ connect().then(async () => {
     rowIndex?: number;
   } = workerData;
 
-  let bulkDoc: any = [];
+  // tslint:disable-next-line:no-eval
 
-  let db: any;
-  let client: any;
-
-  const service = await getService(serviceType, true);
-
-  if (service) {
-    try {
-      const dbUrl = service.meta.dbConnectionString;
-      client = new MongoClient(dbUrl);
-      await client.connect();
-      db = client.db();
-
-      // tslint:disable-next-line:no-eval
-    } catch (e) {
-      debugWorkers('aaa', e);
+  const bulkDoc = await messageBroker().sendRPCMessage(
+    `${serviceType}:rpc_queue:prepareImportDocs`,
+    {
+      result,
+      properties,
+      contentType,
+      user,
+      scopeBrandIds,
+      useElkSyncer
     }
-
-    const broker = await messageBroker();
-    console.log(broker);
-
-    bulkDoc = await messageBroker().sendRPCMessage(
-      `cards:rpc_queue:getFields`,
-      {
-        result,
-        properties,
-        contentType,
-        user,
-        scopeBrandIds,
-        useElkSyncer
-      }
-    );
-  }
+  );
 
   const modifier: { $inc?; $push? } = {
     $inc: { percentage }
@@ -114,8 +107,10 @@ connect().then(async () => {
   try {
     const { updated, objects } = await create({
       docs: bulkDoc,
-      db,
-      service
+      user,
+      contentType,
+      useElkSyncer,
+      serviceType
     });
 
     const cocIds = objects.map(obj => obj._id).filter(obj => obj);
@@ -153,10 +148,6 @@ connect().then(async () => {
   await ImportHistory.updateOne({ _id: importHistoryId }, modifier);
 
   mongoose.connection.close();
-
-  if (client) {
-    await client.close();
-  }
 
   debugWorkers(`Worker done`);
 
