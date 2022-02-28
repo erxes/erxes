@@ -6,8 +6,6 @@ import {
 
 import {
   Brands,
-  Companies,
-  Customers,
   Fields,
   FieldsGroups
 } from "./apiCollections";
@@ -36,7 +34,7 @@ export const getOrCreateEngageMessage = async (
   let customer;
 
   if (customerId) {
-    customer = await Customers.getCustomer(customerId);
+    customer = await sendContactRPCMessage('findCustomer', {_id: customerId});
   }
 
   if (!customer && !visitorId) {
@@ -75,7 +73,10 @@ export const receiveVisitorDetail = async (visitor) => {
   delete visitor.visitorId;
   delete visitor._id;
 
-  const customer = await Customers.update({ visitorId }, { $set: visitor });
+  const customer = await sendContactRPCMessage('updateCustomerCommon',{
+    selector: { visitorId },
+    modifier: { $set: visitor }
+  })
 
   const index = `${es.getIndexPrefix()}events`;
 
@@ -485,10 +486,10 @@ export const solveSubmissions = async (args: {
     if (
       company.scopeBrandIds.findIndex((e) => e === integration.brandId) === -1
     ) {
-      await Companies.update(
-        { _id: company._id },
-        { $push: { scopeBrandIds: integration.brandId } }
-      );
+      await sendContactRPCMessage('updateCompanyCommon', {
+        selector: { _id: company._id },
+        modifier: { $push: { scopeBrandIds: integration.brandId } }
+      })
     }
 
     conformityIds[groupId] = {
