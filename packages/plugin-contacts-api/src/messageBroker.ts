@@ -3,7 +3,7 @@ import Customers from './models/Customers';
 import { findCompany, findCustomer, generateFields, getContentItem, prepareEngageCustomers } from './utils';
 import { serviceDiscovery } from './configs';
 
-let client;
+export let client;
 
 export const initBroker = (cl) => {
   client = cl;
@@ -293,25 +293,25 @@ export const sendToLog = (channel: string, data) =>
 export const removeCustomersConversations = async (
   customerIds
 ): Promise<any> => {
-  await client.consumeQueue(
-    'contact:removeCustomersConversations',
+  await client.sendMessage(
+    'inbox:removeCustomersConversations',
     customerIds
   );
 };
 
 export const removeCustomersEngages = async (customerIds): Promise<any> => {
-  await client.consumeQueue('contact:removeCustomersEngages', customerIds);
+  await client.sendMessage('engages:removeCustomersEngages', customerIds);
 };
 
 export const changeCustomer = async (customerId, customerIds): Promise<any> => {
-  await client.consumeQueue('contact:changeCustomer', customerId, customerIds);
+  await client.sendMessage('contact:changeCustomer', customerId, customerIds);
 };
 
 export const engageChangeCustomer = async (
   customerId,
   customerIds
 ): Promise<any> => {
-  await client.consumeQueue('engage:changeCustomer', customerId, customerIds);
+  await client.consumeQueue('engage:changeCustomer', {customerId, customerIds});
 };
 
 export const fetchSegment = (segment, options?) =>

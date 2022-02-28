@@ -267,6 +267,11 @@ export const initBroker = async (server?) => {
     consumeRPCQueue('core:rpc_queue:findOneBrand', async query => ({
       status: 'success', data: await Brands.findOne(query)
     }));
+
+    consumeRPCQueue("core:Fields.generateTypedListFromMap", data => ({
+      status: "success",
+      data: Fields.generateTypedListFromMap(data),
+    }));
   }
 
   return client;

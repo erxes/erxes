@@ -19,6 +19,11 @@ export interface IInternalNoteModel extends Model<IInternalNoteDocument> {
   ): Promise<IInternalNoteDocument>;
 
   removeInternalNote(_id: string): void;
+  
+  changeCustomer(
+    newCustomerId: string,
+    customerIds: string[]
+  ): Promise<IInternalNoteDocument[]>;
 
   removeInternalNotes(
     contentType: string,

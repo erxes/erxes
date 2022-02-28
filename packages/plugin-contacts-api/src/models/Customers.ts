@@ -15,8 +15,7 @@ import {
 } from './definitions/customers';
 // import { IUserDocument } from '@erxes/common-types';
 import {
-  changeCustomer,
-  engageChangeCustomer,
+  client as msgBroker,
   prepareCustomFieldsData,
   removeCustomersConversations,
   removeCustomersEngages,
@@ -479,11 +478,10 @@ export const loadClass = () => {
       // });
       await removeCustomersConversations(customerIds);
       await removeCustomersEngages(customerIds);
-      // TODO: RPC
-      await InternalNotes.removeInternalNotes(
-        ACTIVITY_CONTENT_TYPES.CUSTOMER,
-        customerIds
-      );
+      await msgBroker.sendMessage("internalnotes:InternalNotes.removeInternalNotes", {
+        contentTypes: ACTIVITY_CONTENT_TYPES.CUSTOMER,
+        contentTypeId: customerIds
+      });
       await sendConformityMessage('removeConformities', {
         mainType: 'customer',
         mainTypeIds: customerIds
@@ -587,10 +585,13 @@ export const loadClass = () => {
         oldTypeIds: customerIds
       });
 
-      await changeCustomer(customer._id, customerIds);
-      await engageChangeCustomer(customer._id, customerIds);
-      // TODO: RPC
-      await InternalNotes.changeCustomer(customer._id, customerIds);
+      await msgBroker.sendMessage("inbox:changeCustomer", { customerId: customer._id, customerIds });
+      await msgBroker.sendMessage("engage:changeCustomer", { customerId: customer._id, customerIds });
+      await msgBroker.sendMessage("internalNotes:batchUpdate", {
+        contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
+        oldContentTypeIds: customerIds,
+        newContentTypeId: customer._id,
+      });
 
       return customer;
     }
