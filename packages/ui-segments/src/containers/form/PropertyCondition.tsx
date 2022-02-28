@@ -14,6 +14,7 @@ import { ISegmentCondition, ISegmentMap } from '../../types';
 type Props = {
   segment: ISegmentMap;
   contentType: string;
+  serviceType: string;
   addCondition: (
     condition: ISegmentCondition,
     segmentKey: string,

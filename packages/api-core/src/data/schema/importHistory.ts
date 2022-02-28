@@ -4,7 +4,7 @@ export const types = `
     success: String!
     failed: String
     total: String
-    contentTypes: [String]
+    contentTypes: JSON
     errorMsgs: [String]
     status: String
     percentage: Float
@@ -31,7 +31,7 @@ export const queries = `
   importHistoryPreviewExportCount(segmentId: String, contentType: String!): Int
   importHistoryGetColumns(attachmentName: String): JSON
   importHistoryGetDuplicatedHeaders(attachmentNames: [String]): JSON
-  importHistoryGetExportablePlugins: JSON
+  importHistoryGetExportableServices: JSON
 `;
 
 export const mutations = `

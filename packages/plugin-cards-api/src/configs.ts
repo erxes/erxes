@@ -5,7 +5,7 @@ import apiConnect, { Segments } from './apiCollections';
 import { initBroker } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initMemoryStorage } from './inmemoryStorage';
-import { IMPORT_TYPES } from './constants';
+import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
 import permissions from './permissions';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { buildFile } from './exporter';
@@ -47,6 +47,7 @@ export default {
   },
   hasSubscriptions: true,
   importTypes: IMPORT_TYPES,
+  exportTypes: EXPORT_TYPES,
   meta: {
     logs: { providesActivityLog: true }
   },

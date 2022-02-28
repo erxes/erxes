@@ -1,8 +1,10 @@
+import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 import { generateFieldsFromSchema } from "@erxes/api-utils/src";
 
 import { ConversationMessages, Conversations, Integrations } from "./models";
 import { receiveRpcMessage, collectConversations } from "./receiveMessage";
 import { serviceDiscovery } from './configs';
+import { LOG_MAPPINGS } from './constants';
 
 export let client;
 
@@ -182,6 +184,11 @@ export const initBroker = (cl) => {
   consumeQueue('inbox:removeCustomersConversations', (customerIds) => {
     return Conversations.removeCustomersConversations(customerIds);
   });
+
+  consumeRPCQueue('inbox:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
+    status: 'success',
+    data: getSchemaLabels(type, LOG_MAPPINGS)
+  }));
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {

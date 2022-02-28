@@ -1,5 +1,5 @@
 import { debug } from "./configs";
-import ActivityLogs, { IActivityLogDocument, IActivityLogInput } from "./models/ActivityLogs";
+import ActivityLogs, { IActivityLogDocument } from "./models/ActivityLogs";
 import Logs from "./models/Logs";
 import Visitors from "./models/Visitors";
 import { receivePutLogCommand, sendToApi } from "./utils";
