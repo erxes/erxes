@@ -56,7 +56,7 @@ import {
   client as msgBrokerClient
 } from '../../messageBroker';
 import { trackViewPageEvent } from '../../events';
-import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
+// import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 import { getService, getServices } from '../../redis';
 
 // import { IFormDocument } from '../../../db/models/definitions/forms';
@@ -854,17 +854,18 @@ const widgetMutations = {
     if (customer && form) {
       const apiService = await getService('api');
 
-      const replacedContent = await new EditorAttributeUtil(
-        msgBrokerClient,
-        apiService.address,
-        await getServices()
-      ).replaceAttributes({
-        content,
-        customer,
-        user: await Users.getUser(form.createdUserId)
-      });
+      // const replacedContent = await new EditorAttributeUtil(
+      //   msgBrokerClient,
+      //   apiService.address,
+      //   await getServices()
+      // ).replaceAttributes({
+      //   content,
+      //   customer,
+      //   user: await Users.getUser(form.createdUserId)
+      // });
 
-      finalContent = replacedContent || '';
+      // finalContent = replacedContent || '';
+      finalContent = '';
     }
 
     let mailAttachment: any = [];
