@@ -1,26 +1,23 @@
-import React from 'react';
 import Button from 'erxes-ui/lib/components/Button';
-import FormControl from 'erxes-ui/lib/components/form/Control';
 import CommonForm from 'erxes-ui/lib/components/form/Form';
-import FormGroup from 'erxes-ui/lib/components/form/Group';
 import ControlLabel from 'erxes-ui/lib/components/form/Label';
-import { ModalFooter } from 'erxes-ui/lib/styles/main';
+import FormControl from 'erxes-ui/lib/components/form/Control';
+import FormGroup from 'erxes-ui/lib/components/form/Group';
+import React from 'react';
+import Stages from './Stages';
+import { ExpandWrapper } from 'modules/settings/styles';
+import { FlexContent } from 'modules/boards/styles/item';
 import { IButtonMutateProps, IFormProps } from 'erxes-ui/lib/types';
 import { IProductTemplate, IProductTemplateItem } from '../../types';
-import { FlexContent } from 'modules/boards/styles/item';
-import { ExpandWrapper } from 'modules/settings/styles';
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper
 } from 'erxes-ui';
+import { ModalFooter } from 'erxes-ui/lib/styles/main';
 import { TYPE_CHOICES } from '../../constants';
-
-import Stages from './Stages';
-import { IProduct } from 'modules/settings/productService/types';
 
 type Props = {
   productTemplate?: IProductTemplate;
-  products: IProduct[];
   items?: IProductTemplate;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
@@ -41,7 +38,7 @@ class Form extends React.Component<Props, State> {
     const { discount, totalAmount, templateItems } = productTemplate;
 
     this.state = {
-      items: templateItems ? templateItems : [],
+      items: templateItems || [],
       discount: discount ? discount : 0,
       totalAmount: totalAmount ? totalAmount : 0
     };
@@ -169,7 +166,9 @@ class Form extends React.Component<Props, State> {
               type="productTemplate"
               items={this.state.items}
               onChangeItems={this.onChangeItems}
-              products={this.props.products}
+              products={
+                productTemplate ? productTemplate.templateItemsProduct : []
+              }
             />
           </div>
         </FormGroup>

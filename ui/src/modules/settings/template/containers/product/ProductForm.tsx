@@ -1,18 +1,16 @@
-import React from 'react';
-import ButtonMutate from 'erxes-ui/lib/components/ButtonMutate';
-import { IButtonMutateProps } from 'erxes-ui/lib/types';
-import From from '../../components/product/ProductForm';
-import { mutations } from '../../graphql';
-import { IProductTemplate } from '../../types';
 import * as compose from 'lodash.flowright';
-import { withProps } from 'erxes-ui/lib/utils/core';
-import { graphql } from '@apollo/react-hoc';
+import ButtonMutate from 'erxes-ui/lib/components/ButtonMutate';
+import From from '../../components/product/ProductForm';
 import gql from 'graphql-tag';
-import { ProductTemplatesQueryResponse } from '../../types';
-
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { IButtonMutateProps } from 'erxes-ui/lib/types';
+import { IProductTemplate } from '../../types';
+import { mutations } from '../../graphql';
 import { ProductsQueryResponse } from 'modules/settings/productService/types';
-
+import { ProductTemplateDetailQueryResponse } from '../../types';
 import { queries } from '../../graphql';
+import { withProps } from 'erxes-ui/lib/utils/core';
 
 type Props = {
   productTemplate?: IProductTemplate;
@@ -23,18 +21,20 @@ type Props = {
 
 type FinalProps = {
   productsQuery: ProductsQueryResponse;
-} & Props &
-  ProductTemplatesQueryResponse;
+  productTemplateDetailQuery: ProductTemplateDetailQueryResponse;
+} & Props;
 
 class ProductFormContainer extends React.Component<FinalProps> {
   render() {
-    const { productsQuery } = this.props;
+    const { productTemplateDetailQuery } = this.props;
 
-    if (productsQuery.loading) {
+    if (productTemplateDetailQuery.loading) {
       return null;
     }
 
-    const products = productsQuery.products || [];
+    const productTemplate =
+      productTemplateDetailQuery.productTemplateDetail ||
+      this.props.productTemplate;
 
     const renderButton = ({
       name,
@@ -69,7 +69,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      products,
+      productTemplate,
       renderButton
     };
 
@@ -83,18 +83,16 @@ const getRefetchQueries = () => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ProductsQueryResponse>(gql(queries.products), {
-      name: 'productsQuery'
-    }),
-    graphql<
-      Props,
-      ProductTemplatesQueryResponse,
-      { page: number; perPage: number }
-    >(gql(queries.productTemplates), {
-      name: 'productTemplatesQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    })
+    graphql<Props, ProductTemplateDetailQueryResponse, {}>(
+      gql(queries.productTemplateDetail),
+      {
+        name: 'productTemplateDetailQuery',
+        skip: productTemplate => !productTemplate,
+        options: ({ productTemplate }) => ({
+          variables: { _id: productTemplate ? productTemplate._id : '' },
+          fetchPolicy: 'network-only'
+        })
+      }
+    )
   )(ProductFormContainer)
 );
