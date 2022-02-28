@@ -131,4 +131,5 @@ export const MODULE_NAMES = {
   PERMISSION: 'permission',
   USER: 'user',
   USER_GROUP: 'userGroup',
+  SEGMENT: 'segment'
 };
