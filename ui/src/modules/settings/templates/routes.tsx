@@ -9,18 +9,6 @@ const ProductList = asyncComponent(() =>
   )
 );
 
-const ProductDeatils = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings List - ProductService" */ './containers/product/detail/ProductDetails'
-  )
-);
-
-const details = ({ match }) => {
-  const id = match.params.id;
-
-  return <ProductDeatils id={id} />;
-};
-
 const productService = ({ location, history }) => {
   return (
     <ProductList
@@ -33,16 +21,9 @@ const productService = ({ location, history }) => {
 const routes = () => (
   <React.Fragment>
     <Route
-      path="/settings/product-service/details/:id"
+      path="/settings/templates/"
       exact={true}
-      key="/settings/product-service/details/:id"
-      component={details}
-    />
-
-    <Route
-      path="/settings/template/"
-      exact={true}
-      key="/settings/template/"
+      key="/settings/templates/"
       component={productService}
     />
   </React.Fragment>

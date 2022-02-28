@@ -23,7 +23,7 @@ import StatusRoutes from './status/routes';
 import TeamRoutes from './team/routes';
 import WebhookRoutes from './webhook/routes';
 import SmsDeliveryRoutes from './smsDeliveries/routes';
-import Template from './template/routes';
+import Template from './templates/routes';
 
 const routes = () => (
   <React.Fragment>

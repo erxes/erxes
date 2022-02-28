@@ -16,7 +16,7 @@ import {
   SidebarFlexRow,
   SidebarList
 } from 'modules/layout/styles';
-import ProductForm from 'modules/settings/template/containers/product/ProductForm';
+import ProductForm from 'modules/settings/templates/containers/product/ProductForm';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
@@ -101,7 +101,9 @@ class BasicInfo extends React.Component<Props> {
   renderInfo() {
     const { productTemplate } = this.props;
 
-    const content = props => <ProductForm {...props} productTemplate={productTemplate} />;
+    const content = props => (
+      <ProductForm {...props} productTemplate={productTemplate} />
+    );
 
     return (
       <Sidebar.Section>

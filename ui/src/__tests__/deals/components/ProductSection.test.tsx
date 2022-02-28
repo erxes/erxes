@@ -2,7 +2,7 @@ import { shallow } from 'enzyme';
 import ProductSection from 'modules/deals/components/ProductSection';
 import { IPaymentsData, IProductData } from 'modules/deals/types';
 import { IProduct } from 'modules/settings/productService/types';
-import { IProductTemplate } from 'modules/settings/template/types';
+import { IProductTemplate } from 'modules/settings/templates/types';
 import React from 'react';
 
 describe('ProductSection component', () => {

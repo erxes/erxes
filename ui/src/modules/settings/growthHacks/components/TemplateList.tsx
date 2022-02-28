@@ -12,7 +12,7 @@ import List from '../../common/components/List';
 import { ICommonListProps } from '../../common/types';
 import { Actions, Bottom, BoxItem, Created } from '../styles';
 import TemplateForm from './TemplateForm';
-import CategoryList from 'modules/settings/template/containers/productCategory/CategoryList';
+import CategoryList from 'modules/settings/templates/containers/productCategory/CategoryList';
 import {
   PIPELINE_TEMPLATE_STATUSES,
   PIPELINE_TEMPLATE_TIPTEXT

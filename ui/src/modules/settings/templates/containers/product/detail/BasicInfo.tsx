@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
-import BasicInfo from 'modules/settings/template/components/product/detail/BasicInfo';
+import BasicInfo from 'modules/settings/templates/components/product/detail/BasicInfo';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
@@ -9,7 +9,10 @@ import { IUser } from '../../../../../auth/types';
 import { IRouterProps } from '../../../../../common/types';
 
 import { mutations } from '../../../graphql';
-import { ProductTemplatesRemoveMutationResponse, IProductTemplate } from '../../../types';
+import {
+  ProductTemplatesRemoveMutationResponse,
+  IProductTemplate
+} from '../../../types';
 
 type Props = {
   productTemplate: IProductTemplate;

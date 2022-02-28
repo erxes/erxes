@@ -12,7 +12,7 @@ import PortableTickets from 'modules/tickets/components/PortableTickets';
 import { pluginsOfItemSidebar } from 'pluginUtils';
 import React from 'react';
 import { IDeal, IDealParams, IPaymentsData } from '../types';
-import { IProductTemplate } from '../../settings/template/types';
+import { IProductTemplate } from '../../settings/templates/types';
 
 type Props = {
   options: IOptions;

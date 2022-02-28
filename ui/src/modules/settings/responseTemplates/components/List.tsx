@@ -12,7 +12,7 @@ import List from '../../common/components/List';
 import RowActions from '../../common/components/RowActions';
 import { ICommonListProps } from '../../common/types';
 import Form from '../components/Form';
-import CategoryList from 'modules/settings/template/containers/productCategory/CategoryList';
+import CategoryList from 'modules/settings/templates/containers/productCategory/CategoryList';
 import {
   RESPONSE_TEMPLATE_STATUSES,
   RESPONSE_TEMPLATE_TIPTEXT

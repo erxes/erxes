@@ -4,7 +4,7 @@ import { __ } from 'modules/common/utils';
 import React from 'react';
 import List from '../../common/components/List';
 import { ICommonListProps } from '../../common/types';
-import CategoryList from 'modules/settings/template/containers/productCategory/CategoryList';
+import CategoryList from 'modules/settings/templates/containers/productCategory/CategoryList';
 import {
   Actions,
   IframePreview,

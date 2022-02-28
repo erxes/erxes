@@ -1,3 +1,6 @@
+import client from 'apolloClient';
+import gql from 'graphql-tag';
+import { queries } from 'modules/settings/templates/graphql';
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
@@ -18,9 +21,9 @@ import { IPaymentsData, IProductData } from '../../types';
 import PaymentForm from './PaymentForm';
 import ProductItem from './ProductItem';
 import ProductTotal from './ProductTotal';
-import { IProductTemplate } from '../../../settings/template/types';
+import { IProductTemplate } from '../../../settings/templates/types';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
-import TemplateForm from 'modules/settings/template/containers/product/ProductForm';
+import TemplateForm from 'modules/settings/templates/containers/product/ProductForm';
 import {
   FormControl,
   MainStyleFormColumn as FormColumn,
@@ -78,6 +81,21 @@ class ProductForm extends React.Component<Props, State> {
   componentDidMount() {
     this.updateTotal();
   }
+
+  getProductTemplateDetail = async (templateId: string) => {
+    let response;
+    await client
+      .query({
+        query: gql(queries.productTemplateDetail),
+        fetchPolicy: 'network-only',
+        variables: { _id: templateId }
+      })
+      .then(details => {
+        response = details.data.productTemplateDetail;
+      });
+
+    return response;
+  };
 
   addProductItem = () => {
     const { productsData, onChangeProductsData, currencies } = this.props;
@@ -149,7 +167,8 @@ class ProductForm extends React.Component<Props, State> {
         currency: data.currency,
         tickUsed: data.tickUsed,
         product: data.product,
-        templateId: data.templateId
+        templateId: data.templateId,
+        uom: data.uom
       }));
 
       const other = productsData.filter(
@@ -189,33 +208,36 @@ class ProductForm extends React.Component<Props, State> {
     }
   };
 
-  addProductTemplate = id => {
+  addProductTemplate = async id => {
     const templateId = id;
+    const productTemplateDetail = await this.getProductTemplateDetail(
+      templateId
+    );
+    const templateItemProducts = productTemplateDetail.templateItemsProduct;
+    const templateItems = productTemplateDetail.templateItems;
 
-    const productTemplates = this.props.productTemplates || [];
-    const template = productTemplates.filter(p => p._id === templateId);
-    const templateItems =
-      template.length > 0 ? template[0].templateItemsProduct : [];
-
-    templateItems.map(templateItem => {
+    templateItemProducts.map(templateItemProduct => {
       const oldTemplateData = this.props.productsData.filter(
         p =>
           p.templateId === templateId &&
-          (p.productId === templateItem.product._id ||
-            p.product === templateItem.product)
+          (p.productId === templateItemProduct._id ||
+            p.product === templateItemProduct)
+      );
+      const templateItem = templateItems.find(
+        item => item.itemId === templateItemProduct._id
       );
 
       if (oldTemplateData.length === 0) {
         return this.addProductTemplateItem(
           templateId,
-          templateItem.product,
+          templateItemProduct,
           templateItem.discount,
           templateItem.quantity
         );
       } else {
         return this.addProductTemplateItem(
           templateId,
-          templateItem.product,
+          templateItemProduct,
           templateItem.discount,
           templateItem.quantity,
           oldTemplateData

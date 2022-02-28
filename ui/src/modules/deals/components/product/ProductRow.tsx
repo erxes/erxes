@@ -4,8 +4,8 @@ import { __ } from 'modules/common/utils';
 import {
   NameWrapper,
   RemoveRow,
-  TypeBox,
-  TemplateBox
+  TypeBox
+  // ,TemplateBox
 } from 'modules/deals/styles';
 import { IProductData } from 'modules/deals/types';
 import React from 'react';
@@ -44,46 +44,34 @@ function ProductRow(props: Props) {
       );
     }
 
-    if (type === 'noTemplate') {
-      return '';
+    let space;
+
+    if (type.includes('templateItem')) {
+      space = <>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</>;
     }
 
-    if (type === 'templateItem') {
+    if (type.includes('product')) {
       return (
-        <Tip text={__('Product')} placement="left">
-          <TemplateBox>
-            <Icon icon="box" />
-          </TemplateBox>
-        </Tip>
-      );
-    }
-
-    if (type === 'product') {
-      return (
-        <Tip text={__('Product')} placement="left">
-          <TypeBox color="#3B85F4">
-            <Icon icon="box" />
-          </TypeBox>
-        </Tip>
-      );
-    }
-
-    if (type === 'template') {
-      return (
-        <Tip text={__('ProductTemplate')} placement="left">
-          <TypeBox color="#3B85F4">
-            <Icon icon="box" />
-          </TypeBox>
-        </Tip>
+        <>
+          {space}
+          <Tip text={__('Product')} placement="left">
+            <TypeBox color="#3B85F4">
+              <Icon icon="box" />
+            </TypeBox>
+          </Tip>
+        </>
       );
     }
 
     return (
-      <Tip text={__('Service')} placement="left">
-        <TypeBox color="#EA475D">
-          <Icon icon="invoice" />
-        </TypeBox>
-      </Tip>
+      <>
+        {space}
+        <Tip text={__('Service')} placement="left">
+          <TypeBox color="#EA475D">
+            <Icon icon="invoice" />
+          </TypeBox>
+        </Tip>
+      </>
     );
   };
 
@@ -93,7 +81,7 @@ function ProductRow(props: Props) {
         <tr>
           <td colSpan={6}>
             <NameWrapper>
-              {renderType(templateInfo ? 'template' : 'noTemplate')}{' '}
+              {/* {renderType(templateInfo ? '' : '')}{' '} */}
               {templateInfo}
             </NameWrapper>
           </td>
@@ -135,7 +123,7 @@ function ProductRow(props: Props) {
           <NameWrapper>
             {renderType(
               templateId && product
-                ? 'templateItem'
+                ? product.type + '_templateItem'
                 : product
                 ? product.type
                 : ''

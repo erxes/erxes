@@ -3,7 +3,7 @@ import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
 import ProductForm from '../../components/product/ProductForm';
 import { IPaymentsData, IProductData } from '../../types';
-import { IProductTemplate } from '../../../settings/template/types';
+import { IProductTemplate } from '../../../settings/templates/types';
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;

@@ -28,9 +28,12 @@ const TagFilterContainer = (props: {
 };
 
 export default compose(
-  graphql<{}, CountByTagsQueryResponse, {}>(gql(queries.productTemplateCountByTags), {
-    name: 'countByTagsQuery'
-  }),
+  graphql<{}, CountByTagsQueryResponse, {}>(
+    gql(queries.productTemplateCountByTags),
+    {
+      name: 'countByTagsQuery'
+    }
+  ),
   graphql<{}, TagsQueryResponse, { type: string }>(gql(tagQueries.tags), {
     name: 'tagsQuery',
     options: () => ({

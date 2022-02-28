@@ -7,7 +7,7 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { IBreadCrumbItem } from '../../../common/types';
 import { ICommonListProps } from '../types';
-import ActionBarDropDown from 'modules/settings/template/containers/actionBar/ActionBar';
+import ActionBarDropDown from 'modules/settings/templates/containers/actionBar/ActionBar';
 import { BarItems } from 'erxes-ui';
 
 type Props = {

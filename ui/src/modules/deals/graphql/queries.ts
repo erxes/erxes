@@ -11,7 +11,7 @@ import {
   productTemplateFields,
   productTemplateParamsDef,
   productTemplateParams
-} from '../../settings/template/graphql/queries';
+} from '../../settings/templates/graphql/queries';
 
 const commonParams = `
   $companyIds: [String],

@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { TaggerSection } from 'modules/customers/components/common';
 import Sidebar from 'modules/layout/components/Sidebar';
-import BasicInfo from 'modules/settings/template/containers/product/detail/BasicInfo';
+import BasicInfo from '../../../containers/product/detail/BasicInfo';
 import { IProductTemplate } from '../../../types';
 import React from 'react';
 import { queries } from '../../../graphql';

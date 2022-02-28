@@ -1,6 +1,6 @@
 import * as compose from 'lodash.flowright';
 import ButtonMutate from 'erxes-ui/lib/components/ButtonMutate';
-import From from '../../components/product/ProductForm';
+import Form from '../../components/product/ProductForm';
 import gql from 'graphql-tag';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -73,7 +73,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
       renderButton
     };
 
-    return <From {...updatedProps} />;
+    return <Form {...updatedProps} />;
   }
 }
 

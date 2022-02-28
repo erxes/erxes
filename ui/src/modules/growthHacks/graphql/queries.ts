@@ -1,4 +1,8 @@
-import { productTemplateFields , productTemplateParamsDef , productTemplateParams } from '../../settings/template/graphql/queries'
+import {
+  productTemplateFields,
+  productTemplateParamsDef,
+  productTemplateParams
+} from '../../settings/templates/graphql/queries';
 
 const commonParams = `
   $pipelineId: String,

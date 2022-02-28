@@ -10,7 +10,7 @@ import React from 'react';
 import ProductForm from '../containers/product/ProductForm';
 import { CustomField, ProductName } from '../styles';
 import { IPaymentsData, IProductData } from '../types';
-import { IProductTemplate } from '../../settings/template/types';
+import { IProductTemplate } from '../../settings/templates/types';
 
 type Props = {
   productsData: IProductData[];

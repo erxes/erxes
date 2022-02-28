@@ -295,7 +295,7 @@ class Settings extends React.PureComponent {
             {this.renderBox(
               'Template',
               '/images/icons/erxes-09.svg',
-              '/settings/template',
+              '/settings/templates',
               '',
               templatePermissions
             )}
