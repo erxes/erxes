@@ -20,16 +20,11 @@ export default {
     const allCategories = await sendProductCategoryRPCMessage('find', {
       query: {
       },
-      bookingData: {
-        order: mainCategory.order,
-      },
+      regData: mainCategory.order,
       sort: {
         name: 1
       }
     })
-
-    console.log(allCategories)
-
 
     const allProducts = await sendProductRPCMessage('find', {
       query: {
