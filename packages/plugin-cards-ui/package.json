@@ -1,5 +1,5 @@
 {
-  "name": "@erxes/plugin-card-ui",
+  "name": "@erxes/plugin-cards-ui",
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",
