@@ -53,6 +53,7 @@ export interface IForm {
   createdUserId: string;
   fields: IField[];
   numberOfPages?: number;
+  googleMapApiKey?: string;
 }
 
 interface IAttachment {

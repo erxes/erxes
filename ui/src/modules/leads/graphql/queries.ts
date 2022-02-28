@@ -29,6 +29,7 @@ export const commonFields = `
     type
     buttonText
     numberOfPages
+    googleMapApiKey
     createdDate
     createdUserId
     createdUser {

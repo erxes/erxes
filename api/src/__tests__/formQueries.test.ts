@@ -62,7 +62,9 @@ describe('formQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'formDetail', { _id: form._id });
+    const response = await graphqlRequest(qry, 'formDetail', {
+      _id: form._id
+    });
     expect(response.title).toBe('title');
     expect(response.code).toBe('code');
   });
