@@ -3,6 +3,7 @@ import { IBrand } from '../../../db/models/definitions/brands';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
+import { MODULE_NAMES } from '../../constants';
 
 interface IBrandsEdit extends IBrand {
   _id: string;
@@ -17,7 +18,7 @@ const brandMutations = {
 
     await putCreateLog(
       {
-        type: 'brand',
+        type: MODULE_NAMES.BRAND,
         newData: { ...doc, userId: user._id },
         object: brand
       },
@@ -35,7 +36,7 @@ const brandMutations = {
 
     await putUpdateLog(
       {
-        type: 'brand',
+        type: MODULE_NAMES.BRAND,
         object: updated,
         newData: fields
       },
@@ -52,7 +53,7 @@ const brandMutations = {
     const brand = await Brands.getBrand({ _id });
     const removed = await Brands.removeBrand(_id);
 
-    await putDeleteLog({ type: 'brand', object: brand }, user);
+    await putDeleteLog({ type: MODULE_NAMES.BRAND, object: brand }, user);
 
     return removed;
   }
