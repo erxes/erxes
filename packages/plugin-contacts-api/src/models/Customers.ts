@@ -3,9 +3,6 @@ import { Model, model } from 'mongoose';
 // import { sendToWebhook } from '../../data/utils';
 import { validSearchText } from '@erxes/api-utils/src';
 import { validateSingle } from '../verifierUtils';
-import { InternalNotes } from '../apiCollections';
-// import { EngageMessages } from '@erxes/plugin-engages-api/src/models';
-// import { Conversations } from '@erxes/plugin-inbox-api/src/models';
 import { ICustomField } from '@erxes/api-utils/src/definitions/common';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import {
