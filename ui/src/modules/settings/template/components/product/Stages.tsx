@@ -11,7 +11,7 @@ type Props = {
   onChangeItems: (items: IProductTemplateItem[]) => void;
   items: any;
   type?: string;
-  products: IProduct[];
+  products?: IProduct[];
 };
 
 class Stages extends React.Component<Props, {}> {
@@ -62,7 +62,7 @@ class Stages extends React.Component<Props, {}> {
         type={type}
         onChange={this.onChange}
         remove={this.remove}
-        products={this.props.products}
+        products={this.props.products || []}
       />
     );
 

@@ -1,20 +1,19 @@
 import { queries as productQueries } from 'erxes-ui/lib/products/graphql';
 
 export const productTemplateFields = `
-    _id    
+    _id
     title
     discount
     totalAmount
     description
-    templateItems 
-    templateItemsProduct
+    templateItems
     status
     tags {
       _id
       name
       colorCode
-    }    
-`
+    }
+`;
 
 export const productTemplateParamsDef = `
   $searchValue: String,
@@ -47,9 +46,10 @@ const productTemplateTotalCount = `
 `;
 
 const productTemplateDetail = `
-  query productTemplateDetail($_id: String) { 
+  query productTemplateDetail($_id: String) {
     productTemplateDetail(_id: $_id) {
-      ${productTemplateFields}      
+      ${productTemplateFields}
+      templateItemsProduct
     }
   }
 `;
