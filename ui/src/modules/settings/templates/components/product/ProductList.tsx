@@ -5,17 +5,17 @@ import { FormControl } from 'modules/common/components/form';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { Count } from 'modules/common/styles/main';
-import { Alert, confirm } from 'modules/common/utils';
-import { __, router } from 'modules/common/utils';
+import { __, Alert, confirm, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
+import { ICommonListProps } from 'modules/settings/common/types';
 import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
-import CategoryList from '../../containers/productCategory/CategoryList';
-import Row from './ProductRow';
-import { IProductTemplate } from '../../types';
-import { ICommonListProps } from 'modules/settings/common/types';
+
 import ActionBarDropDown from '../../containers/actionBar/ActionBar';
+import CategoryList from '../../containers/productCategory/CategoryList';
+import { IProductTemplate } from '../../types';
+import Row from './ProductRow';
 
 type Props = {
   history: any;

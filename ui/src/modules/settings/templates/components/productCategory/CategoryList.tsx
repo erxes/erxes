@@ -2,13 +2,14 @@ import { TopHeader } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { SidebarList, SidebarCounter } from 'modules/layout/styles';
+import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import SidebarHeader from 'modules/settings/common/components/SidebarHeader';
 import { SidebarListItem } from 'modules/settings/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
+
 import TagFilter from '../../containers/TagFilter';
 import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
-import SidebarHeader from 'modules/settings/common/components/SidebarHeader';
 
 const TEMPLATE_TYPES = {
   email_templates: 'Emails',

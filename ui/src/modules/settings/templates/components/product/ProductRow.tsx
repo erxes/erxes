@@ -1,15 +1,16 @@
-import { FormControl } from 'modules/common/components/form';
-import Tags from 'modules/common/components/Tags';
-import React from 'react';
-import { IProductTemplate } from '../../types';
-import WithPermission from 'modules/common/components/WithPermission';
-import Tip from 'modules/common/components/Tip';
 import Button from 'modules/common/components/Button';
-import { __ } from 'modules/common/utils';
+import { FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
-import { PRODUCT_TEMPLATE_STATUSES } from '../../constants';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tags from 'modules/common/components/Tags';
+import Tip from 'modules/common/components/Tip';
+import WithPermission from 'modules/common/components/WithPermission';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+
+import { PRODUCT_TEMPLATE_STATUSES } from '../../constants';
 import Form from '../../containers/product/ProductForm';
+import { IProductTemplate } from '../../types';
 
 type Props = {
   productTemplate: IProductTemplate;

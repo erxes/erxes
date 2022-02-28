@@ -1,20 +1,21 @@
-import Button from 'erxes-ui/lib/components/Button';
-import CommonForm from 'erxes-ui/lib/components/form/Form';
-import ControlLabel from 'erxes-ui/lib/components/form/Label';
-import FormControl from 'erxes-ui/lib/components/form/Control';
-import FormGroup from 'erxes-ui/lib/components/form/Group';
-import React from 'react';
-import Stages from './Stages';
-import { ExpandWrapper } from 'modules/settings/styles';
-import { FlexContent } from 'modules/boards/styles/item';
-import { IButtonMutateProps, IFormProps } from 'erxes-ui/lib/types';
-import { IProductTemplate, IProductTemplateItem } from '../../types';
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper
 } from 'erxes-ui';
+import Button from 'erxes-ui/lib/components/Button';
+import FormControl from 'erxes-ui/lib/components/form/Control';
+import CommonForm from 'erxes-ui/lib/components/form/Form';
+import FormGroup from 'erxes-ui/lib/components/form/Group';
+import ControlLabel from 'erxes-ui/lib/components/form/Label';
 import { ModalFooter } from 'erxes-ui/lib/styles/main';
+import { IButtonMutateProps, IFormProps } from 'erxes-ui/lib/types';
+import { FlexContent } from 'modules/boards/styles/item';
+import { ExpandWrapper } from 'modules/settings/styles';
+import React from 'react';
+
 import { TYPE_CHOICES } from '../../constants';
+import { IProductTemplate, IProductTemplateItem } from '../../types';
+import Stages from './Stages';
 
 type Props = {
   productTemplate?: IProductTemplate;

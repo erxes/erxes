@@ -1,11 +1,12 @@
-import { IProductTemplateItem } from '../../types';
 import Icon from 'modules/common/components/Icon';
 import SortableList from 'modules/common/components/SortableList';
 import { __ } from 'modules/common/utils';
+import { IProduct } from 'modules/settings/productService/types';
 import { LinkButton } from 'modules/settings/team/styles';
 import React from 'react';
+
+import { IProductTemplateItem } from '../../types';
 import StageItem from './StageItem';
-import { IProduct } from 'modules/settings/productService/types';
 
 type Props = {
   onChangeItems: (items: IProductTemplateItem[]) => void;

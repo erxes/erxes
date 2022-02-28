@@ -5,6 +5,7 @@ import { TAG_TYPES } from 'modules/tags/constants';
 import { queries as tagQueries } from 'modules/tags/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
+
 import { TagsQueryResponse } from '../../../tags/types';
 import { queries } from '../graphql';
 import { CountByTagsQueryResponse } from '../types';

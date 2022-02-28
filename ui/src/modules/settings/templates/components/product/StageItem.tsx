@@ -1,16 +1,17 @@
+import FormGroup from 'erxes-ui/lib/components/form/Group';
 import Button from 'modules/common/components/Button';
 import { ControlLabel } from 'modules/common/components/form';
 import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'erxes-ui/lib/components/form/Group';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import { __ } from 'modules/common/utils';
+import ProductChooser from 'modules/deals/containers/product/ProductChooser';
+import { ContentColumn, ItemText, ProductButton } from 'modules/deals/styles';
+import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
+
 import { StageItemContainer } from '../../styles';
 import { IProductTemplateItem } from '../../types';
-import { IProduct } from 'modules/settings/productService/types';
-import Icon from 'modules/common/components/Icon';
-import { ProductButton, ContentColumn, ItemText } from 'modules/deals/styles';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import ProductChooser from 'modules/deals/containers/product/ProductChooser';
-import { __ } from 'modules/common/utils';
 
 type Props = {
   item: IProductTemplateItem;

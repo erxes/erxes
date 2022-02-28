@@ -5,17 +5,17 @@ import { Alert, confirm, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
+
 import List from '../../components/product/ProductList';
-import { queries, mutations } from '../../graphql';
+import { PRODUCT_TEMPLATE_STATUSES } from '../../constants';
+import { mutations, queries } from '../../graphql';
 import {
-  ProductTemplateTotalCountQueryResponse,
-  ProductTemplatesQueryResponse,
   ProductTemplatesChangeStatusMutionResponse,
   ProductTemplatesDuplicateMutionResponse,
-  ProductTemplatesRemoveMutationResponse
+  ProductTemplatesQueryResponse,
+  ProductTemplatesRemoveMutationResponse,
+  ProductTemplateTotalCountQueryResponse
 } from '../../types';
-
-import { PRODUCT_TEMPLATE_STATUSES } from '../../constants';
 
 type Props = {
   queryParams: any;

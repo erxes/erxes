@@ -1,9 +1,10 @@
-import React from 'react';
 import ButtonMutate from 'erxes-ui/lib/components/ButtonMutate';
 import { IButtonMutateProps } from 'erxes-ui/lib/types';
 import { mutations } from 'modules/settings/emailTemplates/graphql';
-import { mutations as mutationsResponseTemplate } from 'modules/settings/responseTemplates/graphql';
 import { mutations as mutationsGrowthHackTemplate } from 'modules/settings/growthHacks/graphql';
+import { mutations as mutationsResponseTemplate } from 'modules/settings/responseTemplates/graphql';
+import React from 'react';
+
 import Form from '../../components/actionBar/ActionBar';
 
 type Props = {

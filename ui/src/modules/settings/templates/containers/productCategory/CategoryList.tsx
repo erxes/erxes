@@ -1,19 +1,20 @@
-import React from 'react';
-import List from '../../components/productCategory/CategoryList';
-import { queries } from '../../graphql';
-import { queries as emailQueries } from 'modules/settings/emailTemplates/graphql';
-import { queries as responseQueries } from 'modules/settings/responseTemplates/graphql';
-import { queries as growthQueries } from 'modules/settings/growthHacks/graphql';
-import { withProps } from 'modules/common/utils';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
-import {
-  ProductTemplateTotalCountQueryResponse,
-  EmailTemplateTotalCountQueryResponse,
-  GrowthHacksTemplateTotalCountQueryResponse
-} from '../../types';
+import { withProps } from 'modules/common/utils';
+import { queries as emailQueries } from 'modules/settings/emailTemplates/graphql';
+import { queries as growthQueries } from 'modules/settings/growthHacks/graphql';
+import { queries as responseQueries } from 'modules/settings/responseTemplates/graphql';
 import { ResponseTemplatesTotalCountQueryResponse } from 'modules/settings/responseTemplates/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
+
+import List from '../../components/productCategory/CategoryList';
+import { queries } from '../../graphql';
+import {
+  EmailTemplateTotalCountQueryResponse,
+  GrowthHacksTemplateTotalCountQueryResponse,
+  ProductTemplateTotalCountQueryResponse
+} from '../../types';
 
 type Props = { history?: any; queryParams: any };
 

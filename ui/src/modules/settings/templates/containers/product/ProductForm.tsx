@@ -1,16 +1,18 @@
-import * as compose from 'lodash.flowright';
 import ButtonMutate from 'erxes-ui/lib/components/ButtonMutate';
-import Form from '../../components/product/ProductForm';
+import { IButtonMutateProps } from 'erxes-ui/lib/types';
+import { withProps } from 'erxes-ui/lib/utils/core';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { ProductsQueryResponse } from 'modules/settings/productService/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { IButtonMutateProps } from 'erxes-ui/lib/types';
-import { IProductTemplate } from '../../types';
-import { mutations } from '../../graphql';
-import { ProductsQueryResponse } from 'modules/settings/productService/types';
-import { ProductTemplateDetailQueryResponse } from '../../types';
-import { queries } from '../../graphql';
-import { withProps } from 'erxes-ui/lib/utils/core';
+
+import Form from '../../components/product/ProductForm';
+import { mutations, queries } from '../../graphql';
+import {
+  IProductTemplate,
+  ProductTemplateDetailQueryResponse
+} from '../../types';
 
 type Props = {
   productTemplate?: IProductTemplate;
