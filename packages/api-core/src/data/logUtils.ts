@@ -1,8 +1,9 @@
 import {
-  putCreateLog as putCreateLogC,
-  putDeleteLog as putDeleteLogC,
-  putUpdateLog as putUpdateLogC
-} from 'erxes-api-utils';
+  putCreateLog as commonPutCreateLog,
+  putDeleteLog as commonPutDeleteLog,
+  putUpdateLog as commonPutUpdateLog
+} from '@erxes/api-utils/src/logUtils';
+import { Users } from 'src/db/models';
 import * as _ from 'underscore';
 
 import { IUserDocument } from '../db/models/definitions/users';
@@ -47,10 +48,20 @@ interface IDescriptionParams {
   updatedDocument?: any;
 }
 
-const gatherDescriptions = async (
-  _params: IDescriptionParams
-): Promise<IDescriptions> => {
-  return { extraDesc: [], description: '' };
+const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescriptions> => {
+  const { obj, action } = params;
+
+  const extraDesc: LogDesc[] = [];
+
+  if (obj.userId) {
+    const user = await Users.findOne({ _id: obj.userId });
+
+    if (user) {
+      extraDesc.push({ userId: obj.userId, name: user.username || user.email })
+    }
+  }
+
+  return { extraDesc, description: `"${obj.name}" has been ${action}d` };
 };
 
 /**
@@ -71,7 +82,13 @@ export const putCreateLog = async (
     targets: [params.object]
   });
 
-  return putCreateLogC(messageBroker, gatherDescriptions, params, user);
+  const { extraDesc, description } = await gatherDescriptions({ ...params, obj: params.object, action: 'create' });
+
+  return commonPutCreateLog(
+    messageBroker(),
+    { ...params, extraDesc, description, type: `api-core:${params.type}` },
+    user
+  );
 };
 
 /**
@@ -90,7 +107,13 @@ export const putUpdateLog = async (
     targets: [params.updatedDocument]
   });
 
-  return putUpdateLogC(messageBroker, gatherDescriptions, params, user);
+  const { extraDesc, description } = await gatherDescriptions({ ...params, obj: params.object, action: 'update' });
+
+  return commonPutUpdateLog(
+    messageBroker(),
+    { ...params, type: `api-core:${params.type}`, extraDesc, description },
+    user
+  );
 };
 
 /**
@@ -109,7 +132,13 @@ export const putDeleteLog = async (
     targets: [params.object]
   });
 
-  return putDeleteLogC(messageBroker, gatherDescriptions, params, user);
+  const { extraDesc, description } = await gatherDescriptions({ ...params, obj: params.object, action: 'delete' });
+
+  return commonPutDeleteLog(
+    messageBroker(),
+    { ...params, type: `api-core:${params.type}`, description, extraDesc },
+    user
+  );
 };
 
 export const sendToLog = (channel: string, data) =>
