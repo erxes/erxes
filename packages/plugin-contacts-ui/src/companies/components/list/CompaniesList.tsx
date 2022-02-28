@@ -11,7 +11,7 @@ import Table from '@erxes/ui/src/components/table';
 import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 import { __, Alert, confirm, router } from 'coreui/utils';
 import { menuContacts } from '@erxes/ui/src/utils/menus';
-import { queries } from '@erxes/ui/src/companies/graphql';
+import { queries } from '../../graphql';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import ManageColumns from '@erxes/ui-settings/src/properties/containers/ManageColumns';
@@ -202,7 +202,7 @@ class CompaniesList extends React.Component<IProps, State> {
           });
 
       const refetchQuery = {
-        query: gql((queries || {} as any).companyCounts),
+        query: gql(queries.companyCounts),
         variables: { only: 'byTag' }
       };
 
