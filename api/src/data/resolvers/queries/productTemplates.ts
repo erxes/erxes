@@ -60,7 +60,6 @@ const productTemplateQueries = {
    * Get all product templates count.
    */
   productTemplateTotalCount(_root) {
-    // const filter = {status : { $in: PRODUCT_TEMPLATE_STATUSES.ACTIVE } };
     return ProductTemplates.find().countDocuments();
   },
 

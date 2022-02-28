@@ -2,7 +2,6 @@ import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
 import { productTemplateFactory } from '../db/factories';
 import { Forms, ProductTemplates } from '../db/models';
-// import { getUniqueValue } from '../db/factories';
 
 import './setup.ts';
 
