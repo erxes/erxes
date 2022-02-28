@@ -14,7 +14,6 @@ const logList = ({ location, history }) => {
 };
 
 const routes = () => {
-  console.log("hahahha");
   return <Route exact={true} path="/settings/logs/" component={logList} />;
 };
 
