@@ -182,6 +182,34 @@ export const initBroker = (cl) => {
       data: await prepareEngageCustomers(data)
     }
   });
+
+  consumeRPCQueue('contacts:rpc_queue:tag', async args => {
+    let data = {};
+    let model: any = Companies
+
+    if(args.type === 'customer') {
+      model = Customers
+    }
+
+    if (args.action === 'count') {
+      data = await model.countDocuments({ tagIds: { $in: args._ids } });
+    }
+
+    if (args.action === 'tagObject') {
+      await model.updateMany(
+        { _id: { $in: args.targetIds } },
+        { $set: { tagIds: args.tagIds } },
+        { multi: true }
+      );
+
+      data = await model.find({ _id: { $in: args.targetIds } }).lean();
+    }
+
+    return {
+      status: 'success',
+      data
+    }
+  });
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {
