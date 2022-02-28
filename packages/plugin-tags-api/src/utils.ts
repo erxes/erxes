@@ -10,8 +10,25 @@ export const countDocuments = async (type: string, _ids: string[], serviceDiscov
   return 0;
 };
 
-export const tagObject = async (type: string, tagIds: string[], targetIds: string[]) => {
-  const [serviceName, contentType ] = type.split(':');
+export const tagObject = async (
+  type: string,
+  tagIds: string[],
+  targetIds: string[],
+  serviceDiscovery
+) => {
+  const isServerAvailable = await serviceDiscovery.isAvailable('contacts');
 
-  return sendRPCMessage(`${serviceName}:rpc_queue:tag`, { action: 'tagObject', type: contentType, tagIds, targetIds })
+  if (isServerAvailable) {
+    
+    const [serviceName, contentType] = type.split(':');
+
+    return sendRPCMessage(`${serviceName}:rpc_queue:tag`, {
+      action: 'tagObject',
+      type: contentType,
+      tagIds,
+      targetIds
+    });
+  }
+
+  return [];
 };

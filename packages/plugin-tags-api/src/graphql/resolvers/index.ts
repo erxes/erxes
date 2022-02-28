@@ -15,7 +15,7 @@ const resolvers: any = async (serviceDiscovery) => (
   ...customScalars,
   Tag: Tag(serviceDiscovery),
   Mutation: {
-    ...TagMutations,
+    ...TagMutations(serviceDiscovery),
   },
   Query: {
     ...TagQueries,

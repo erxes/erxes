@@ -12,7 +12,7 @@ interface ITagsEdit extends ITag {
 
 const TAG = 'tag';
 
-const tagMutations = {
+const tagMutations = (serviceDiscovery) => ({
   /**
    * Creates a new tag
    */
@@ -73,7 +73,7 @@ const tagMutations = {
         throw new Error('Tag not found.');
       }
 
-      const targets = await tagObject(type, tagIds, targetIds);
+      const targets = await tagObject(type, tagIds, targetIds, serviceDiscovery);
 
       for (const target of targets) {
         // await putActivityLog({
@@ -92,7 +92,7 @@ const tagMutations = {
   tagsMerge(_root, { sourceId, destId }: { sourceId: string; destId: string }) {
     return Tags.merge(sourceId, destId);
   }
-};
+});
 
 requireLogin(tagMutations, 'tagsTag');
 
