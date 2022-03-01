@@ -553,7 +553,6 @@ export const putChecklistActivityLog = async (params) => {
     action: 'createChecklistLog',
     data: {
       ...params,
-      contentType: `cards:${params.contentType}`,
       contentId: item.contentTypeId || item.checklistId,
       content: { _id: item._id, name: item.title || item.content },
       createdBy: item.createdUserId || ''
