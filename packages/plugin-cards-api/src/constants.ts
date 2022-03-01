@@ -2,22 +2,17 @@ import {
   attachmentSchema,
   boardSchema,
   pipelineSchema,
-  stageSchema as boardStageSchema,
+  stageSchema as boardStageSchema
 } from './models/definitions/boards';
 import {
   checklistSchema,
-  checklistItemSchema,
+  checklistItemSchema
 } from './models/definitions/checklists';
-import {
-  dealSchema,
-  productDataSchema,
-} from './models/definitions/deals';
-import {
-  growthHackSchema,
-} from './models/definitions/growthHacks';
+import { dealSchema, productDataSchema } from './models/definitions/deals';
+import { growthHackSchema } from './models/definitions/growthHacks';
 import {
   pipelineTemplateSchema,
-  stageSchema,
+  stageSchema
 } from './models/definitions/pipelineTemplates';
 import { pipelineLabelSchema } from './models/definitions/pipelineLabels';
 import { taskSchema } from './models/definitions/tasks';
@@ -33,13 +28,13 @@ export const IMPORT_TYPES = [
   {
     text: 'Task',
     contentType: 'task',
-    icon: 'signal-alt-3',
+    icon: 'laptop',
     serviceType: 'cards'
   },
   {
     text: 'Ticket',
     contentType: 'ticket',
-    icon: 'signal-alt-3',
+    icon: 'ticket',
     serviceType: 'cards'
   }
 ];
@@ -54,13 +49,13 @@ export const EXPORT_TYPES = [
   {
     text: 'Task',
     contentType: 'task',
-    icon: 'signal-alt-3',
+    icon: 'laptop',
     serviceType: 'cards'
   },
   {
     text: 'Ticket',
     contentType: 'ticket',
-    icon: 'signal-alt-3',
+    icon: 'ticket',
     serviceType: 'cards'
   }
 ];
@@ -189,74 +184,74 @@ interface ISchemaMap {
 export const LOG_MAPPINGS: ISchemaMap[] = [
   {
     name: MODULE_NAMES.BOARD_DEAL,
-    schemas: [attachmentSchema, boardSchema],
+    schemas: [attachmentSchema, boardSchema]
   },
   {
     name: MODULE_NAMES.BOARD_TASK,
-    schemas: [attachmentSchema, boardSchema],
+    schemas: [attachmentSchema, boardSchema]
   },
   {
     name: MODULE_NAMES.BOARD_TICKET,
-    schemas: [attachmentSchema, boardSchema],
+    schemas: [attachmentSchema, boardSchema]
   },
   {
     name: MODULE_NAMES.PIPELINE_DEAL,
-    schemas: [pipelineSchema],
+    schemas: [pipelineSchema]
   },
   {
     name: MODULE_NAMES.PIPELINE_TASK,
-    schemas: [pipelineSchema],
+    schemas: [pipelineSchema]
   },
   {
     name: MODULE_NAMES.PIPELINE_TICKET,
-    schemas: [pipelineSchema],
+    schemas: [pipelineSchema]
   },
   {
     name: MODULE_NAMES.CHECKLIST,
-    schemas: [checklistSchema],
+    schemas: [checklistSchema]
   },
   {
     name: MODULE_NAMES.CHECKLIST_ITEM,
-    schemas: [checklistItemSchema],
+    schemas: [checklistItemSchema]
   },
   {
     name: MODULE_NAMES.DEAL,
-    schemas: [dealSchema, productDataSchema],
+    schemas: [dealSchema, productDataSchema]
   },
   {
     name: MODULE_NAMES.PIPELINE_LABEL,
-    schemas: [pipelineLabelSchema],
+    schemas: [pipelineLabelSchema]
   },
   {
     name: MODULE_NAMES.PIPELINE_TEMPLATE,
-    schemas: [pipelineTemplateSchema, stageSchema],
+    schemas: [pipelineTemplateSchema, stageSchema]
   },
   {
     name: MODULE_NAMES.TASK,
-    schemas: [taskSchema, attachmentSchema],
+    schemas: [taskSchema, attachmentSchema]
   },
   {
     name: MODULE_NAMES.GROWTH_HACK,
-    schemas: [growthHackSchema, attachmentSchema],
+    schemas: [growthHackSchema, attachmentSchema]
   },
   {
     name: MODULE_NAMES.TICKET,
-    schemas: [ticketSchema, attachmentSchema],
+    schemas: [ticketSchema, attachmentSchema]
   },
   {
     name: MODULE_NAMES.STAGE_DEAL,
-    schemas: [boardStageSchema],
+    schemas: [boardStageSchema]
   },
   {
     name: MODULE_NAMES.STAGE_TASK,
-    schemas: [boardStageSchema],
+    schemas: [boardStageSchema]
   },
   {
     name: MODULE_NAMES.STAGE_TICKET,
-    schemas: [boardStageSchema],
+    schemas: [boardStageSchema]
   },
   {
     name: MODULE_NAMES.STAGE_GH,
-    schemas: [boardStageSchema],
-  },
+    schemas: [boardStageSchema]
+  }
 ];

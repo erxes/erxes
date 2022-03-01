@@ -17,10 +17,12 @@ import Channel from './channel';
 import Integration from './integration';
 import ConversationMessage from './conversationMessage';
 import BookingData from './bookingData';
+import Customer from './customer';
 
 const resolvers: any = {
   ...customScalars,
   Conversation,
+  Customer,
   Channel,
   Integration,
   ConversationMessage,

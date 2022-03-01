@@ -3,7 +3,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import CURRENCIES from '@erxes/ui/src/constants/currencies';
 import { __ } from '@erxes/ui/src/utils';
 import { selectConfigOptions } from '../../utils';
-import { pluginsOfPaymentForm } from '@erxes/ui/src/pluginUtils';
+// import { pluginsOfPaymentForm } from '@erxes/ui/src/pluginUtils';
 import React from 'react';
 import Select from 'react-select-plus';
 import { PAYMENT_TYPES } from '../../constants';
@@ -185,7 +185,7 @@ class PaymentForm extends React.Component<Props, State> {
         <Divider />
 
         {this.renderPayments()}
-        {pluginsOfPaymentForm(type => this.renderPaymentsByType(type))}
+        {/* {pluginsOfPaymentForm(type => this.renderPaymentsByType(type))} */}
       </>
     );
   }

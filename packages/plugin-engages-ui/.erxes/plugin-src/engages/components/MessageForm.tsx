@@ -1,4 +1,4 @@
-import { MESSAGE_KINDS } from '../constants';
+import { MESSAGE_KINDS } from '@erxes/ui-engage/src/constants';
 import React from 'react';
 import AutoAndManualForm from '../containers/AutoAndManualForm';
 import VisitorForm from '../containers/VisitorForm';

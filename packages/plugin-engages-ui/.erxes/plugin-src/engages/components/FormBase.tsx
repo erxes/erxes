@@ -1,7 +1,7 @@
 import { IBreadCrumbItem } from '@erxes/ui/src/types';
 import { __, Alert } from 'coreui/utils';
 import React from 'react';
-import { MESSAGE_KINDS, METHODS } from '../constants';
+import { MESSAGE_KINDS, METHODS } from '@erxes/ui-engage/src/constants';
 import { IEngageMessageDoc } from '@erxes/ui-engage/src/types';
 
 type Props = {

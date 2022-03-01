@@ -1,11 +1,9 @@
 import { Model, model } from 'mongoose';
-// import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
+
+import { putActivityLog, prepareCocLogData } from '../logUtils';
 // import { sendToWebhook } from '../../data/utils';
 import { validSearchText } from '@erxes/api-utils/src';
 import { validateSingle } from '../verifierUtils';
-import { InternalNotes } from '../apiCollections';
-// import { EngageMessages } from '@erxes/plugin-engages-api/src/models';
-// import { Conversations } from '@erxes/plugin-inbox-api/src/models';
 import { ICustomField } from '@erxes/api-utils/src/definitions/common';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import {
@@ -15,11 +13,13 @@ import {
 } from './definitions/customers';
 // import { IUserDocument } from '@erxes/common-types';
 import {
-  changeCustomer,
   engageChangeCustomer,
+  inboxChangeCustomer,
+  internalNotesBatchUpdate,
   prepareCustomFieldsData,
   removeCustomersConversations,
   removeCustomersEngages,
+  removeInternalNotes,
   sendConformityMessage,
   sendFieldRPCMessage
 } from '../messageBroker';
@@ -252,10 +252,10 @@ export const loadClass = () => {
         modifiedAt: new Date()
       });
 
-      // await putActivityLog({
-      //   action: ACTIVITY_LOG_ACTIONS.CREATE_COC_LOG,
-      //   data: { coc: customer, contentType: 'customer' }
-      // });
+      await putActivityLog({
+        action: 'createCocLog',
+        data: { coc: customer, contentType: 'customer', ...prepareCocLogData(customer) }
+      });
 
       return customer._id;
     }
@@ -319,10 +319,14 @@ export const loadClass = () => {
         validateSingle({ phone: doc.primaryPhone });
       }
 
-      // await putActivityLog({
-      //   action: ACTIVITY_LOG_ACTIONS.CREATE_COC_LOG,
-      //   data: { coc: customer, contentType: 'customer' }
-      // });
+      await putActivityLog({
+        action: 'createCocLog',
+        data: {
+          coc: customer,
+          contentType: 'customer',
+          ...prepareCocLogData(customer)
+        }
+      });
 
       return Customers.getCustomer(customer._id);
     }
@@ -473,16 +477,13 @@ export const loadClass = () => {
      */
     public static async removeCustomers(customerIds: string[]) {
       // Removing every modules that associated with customer
-      // await putActivityLog({
-      //   action: ACTIVITY_LOG_ACTIONS.REMOVE_ACTIVITY_LOGS,
-      //   data: { type: ACTIVITY_CONTENT_TYPES.CUSTOMER, itemIds: customerIds }
-      // });
+      await putActivityLog({
+        action: 'removeActivityLogs',
+        data: { type: ACTIVITY_CONTENT_TYPES.CUSTOMER, itemIds: customerIds }
+      });
       await removeCustomersConversations(customerIds);
       await removeCustomersEngages(customerIds);
-      await InternalNotes.removeInternalNotes(
-        ACTIVITY_CONTENT_TYPES.CUSTOMER,
-        customerIds
-      );
+      await removeInternalNotes(ACTIVITY_CONTENT_TYPES.CUSTOMER, customerIds);
       await sendConformityMessage('removeConformities', {
         mainType: 'customer',
         mainTypeIds: customerIds
@@ -586,9 +587,9 @@ export const loadClass = () => {
         oldTypeIds: customerIds
       });
 
-      await changeCustomer(customer._id, customerIds);
+      await inboxChangeCustomer(customer._id, customerIds);
       await engageChangeCustomer(customer._id, customerIds);
-      await InternalNotes.changeCustomer(customer._id, customerIds);
+      await internalNotesBatchUpdate(ACTIVITY_CONTENT_TYPES.CUSTOMER, customerIds, customer._id);
 
       return customer;
     }
@@ -730,7 +731,10 @@ export const loadClass = () => {
       const {
         customFieldsData,
         trackedData
-      } = await sendFieldRPCMessage('generateCustomFieldsData', { customData, contentType: 'customer' });
+      } = await sendFieldRPCMessage('generateCustomFieldsData', {
+        customData,
+        contentType: 'customer'
+      });
 
       return this.createCustomer({
         ...doc,
@@ -757,7 +761,10 @@ export const loadClass = () => {
       const {
         customFieldsData,
         trackedData
-      } = await sendFieldRPCMessage('generateCustomFieldsData', { customData, contentType: 'customer' });
+      } = await sendFieldRPCMessage('generateCustomFieldsData', {
+        customData,
+        contentType: 'customer'
+      });
 
       const modifier = {
         ...doc,

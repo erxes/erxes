@@ -7,12 +7,18 @@ import { IItem } from "@erxes/ui-cards/src/boards/types";
 import { __ } from "modules/common/utils";
 import { ICompany } from "@erxes/ui/src/companies/types";
 import { ICustomer } from "@erxes/ui/src/customers/types";
-import { Divider, Row, RowTitle } from "@erxes/ui-settings/src/main/styles";
+import {
+  Divider,
+  PluginSettings,
+  Row,
+  RowTitle,
+} from "@erxes/ui-settings/src/main/styles";
 import React from "react";
 import { Route } from "react-router-dom";
 import pluginModules from "./plugins";
 import { ISubNav } from "modules/layout/components/Navigation";
 import { AppConsumer } from "appContext";
+import { generateRandomColor } from "utils";
 
 export const pluginsOfRoutes = (currentUser: IUser) => {
   const plugins: any = [];
@@ -178,7 +184,7 @@ const System = (props) => {
   );
 };
 
-class SettingsBox extends React.Component<any, any> {
+class SettingsCustomBox extends React.Component<any, any> {
   constructor(props) {
     super(props);
 
@@ -206,31 +212,62 @@ class SettingsBox extends React.Component<any, any> {
   };
 
   render() {
-    return (
-      <div onClick={this.load}>
-        {this.renderComponent()}
-        {this.props.to}
-        {this.props.text}
-      </div>
+    const { renderBox, settingsNav, color, hasComponent } = this.props;
+
+    const box = renderBox(
+      settingsNav.text,
+      settingsNav.image,
+      settingsNav.to,
+      settingsNav.action,
+      settingsNav.permissions,
+      settingsNav.scope,
+      color
     );
+
+    if (settingsNav.component && hasComponent) {
+      return (
+        <div onClick={this.load}>
+          {this.renderComponent()}
+          {box}
+        </div>
+      );
+    }
+
+    return box;
   }
 }
 
-export const pluginsSettingsNavigations = () => {
+export const pluginsSettingsNavigations = (
+  renderBox: (
+    name: string,
+    image: string,
+    to: string,
+    action: string,
+    permissions?: string[],
+    type?: string
+  ) => React.ReactNode
+) => {
   const plugins: any[] = (window as any).plugins || [];
   const navigationMenus: any[] = [];
 
   for (const plugin of plugins) {
+    for (var i = 0; i < plugins.length; i++) {
+      plugin["color"] = generateRandomColor();
+    }
+
+    const hasComponent = Object.keys(plugin.exposes).includes("./settings");
+
     for (const menu of plugin.menus || []) {
       if (menu.location === "settings") {
         navigationMenus.push(
-          <SettingsBox
-            scope={menu.scope}
-            component={menu.component}
-            text={menu.text}
-            to={menu.to}
-            image={menu.image}
-          />
+          <React.Fragment key={menu.text}>
+            <SettingsCustomBox
+              settingsNav={menu}
+              color={plugin.color}
+              renderBox={renderBox}
+              hasComponent={hasComponent}
+            />
+          </React.Fragment>
         );
       }
     }
@@ -341,7 +378,7 @@ const renderSettings = (
       <Divider />
       <Row>
         <RowTitle>{__("Plugins Settings")}</RowTitle>
-        <div id={"PluginsSettings"}>{pluginsBoxs}</div>
+        <PluginSettings id={"PluginsSettings"}>{pluginsBoxs}</PluginSettings>
       </Row>
     </>
   );

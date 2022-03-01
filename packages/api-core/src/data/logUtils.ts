@@ -1,13 +1,16 @@
-import {
-  putCreateLog as putCreateLogC,
-  putDeleteLog as putDeleteLogC,
-  putUpdateLog as putUpdateLogC
-} from 'erxes-api-utils';
 import * as _ from 'underscore';
+import {
+  putCreateLog as commonPutCreateLog,
+  putDeleteLog as commonPutDeleteLog,
+  putUpdateLog as commonPutUpdateLog,
+  gatherUsernames,
+  gatherNames
+} from '@erxes/api-utils/src/logUtils';
 
+import { Segments, Users, UsersGroups } from '../db/models/index';
 import { IUserDocument } from '../db/models/definitions/users';
 import messageBroker from '../messageBroker';
-import { RABBITMQ_QUEUES } from './constants';
+import { RABBITMQ_QUEUES, MODULE_NAMES } from './constants';
 
 import { registerOnboardHistory } from './utils';
 
@@ -47,10 +50,113 @@ interface IDescriptionParams {
   updatedDocument?: any;
 }
 
+const gatherUserFieldNames = async (
+  doc: IUserDocument,
+  prevList?: LogDesc[]
+): Promise<LogDesc[]> => {
+  let options: LogDesc[] = [];
+
+  if (prevList) {
+    options = prevList;
+  }
+
+  // show only user group names of users for now
+  options = await gatherUsernames({
+    foreignKey: 'groupIds',
+    prevList: options,
+    items: await UsersGroups.find({ _id: { $in: doc.groupIds } }).lean(),
+  });
+
+  return options;
+};
+
 const gatherDescriptions = async (
-  _params: IDescriptionParams
+  params: IDescriptionParams
 ): Promise<IDescriptions> => {
-  return { extraDesc: [], description: '' };
+  const { obj, action, type, updatedDocument } = params;
+
+  let extraDesc: LogDesc[] = [];
+  let description = '';
+
+  switch (type) {
+    case MODULE_NAMES.BRAND:
+      {
+        description = `"${obj.name}" has been ${action}d`;
+
+        if (obj.userId) {
+          const user = await Users.findOne({ _id: obj.userId });
+
+          if (user) {
+            extraDesc.push({
+              userId: obj.userId,
+              name: user.username || user.email,
+            });
+          }
+        }
+      }
+      break;
+    case MODULE_NAMES.PERMISSION:
+      description = `Permission of module "${obj.module}", action "${obj.action}" assigned to `;
+
+      if (obj.groupId) {
+        const group = await UsersGroups.getGroup(obj.groupId);
+
+        description = `${description} user group "${group.name}" `;
+
+        extraDesc.push({ groupId: obj.groupId, name: group.name });
+      }
+
+      if (obj.userId) {
+        const permUser = await Users.getUser(obj.userId);
+
+        description = `${description} user "${permUser.email}" has been ${action}d`;
+
+        extraDesc.push({
+          userId: obj.userId,
+          name: permUser.username || permUser.email,
+        });
+      }
+
+      break;
+    case MODULE_NAMES.USER:
+      description = `"${obj.username || obj.email}" has been ${action}d`;
+
+      extraDesc = await gatherUserFieldNames(obj);
+
+      if (updatedDocument) {
+        extraDesc = await gatherUserFieldNames(updatedDocument, extraDesc);
+      }
+
+      break;
+    case MODULE_NAMES.SEGMENT:
+      const parents: string[] = [];
+
+      if (obj.subOf) {
+        parents.push(obj.subOf);
+      }
+
+      if (
+        updatedDocument &&
+        updatedDocument.subOf &&
+        updatedDocument.subOf !== obj.subOf
+      ) {
+        parents.push(updatedDocument.subOf);
+      }
+
+      if (parents.length > 0) {
+        extraDesc = await gatherNames({
+          foreignKey: 'subOf',
+          nameFields: ['name'],
+          items: await Segments.find({ _id: { $in: parents } }).lean()
+        });
+      }
+
+      break;
+    default:
+      break;
+  }
+
+  return { extraDesc, description };
 };
 
 /**
@@ -68,10 +174,20 @@ export const putCreateLog = async (
 
   messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
     type: `${params.type}`,
-    targets: [params.object]
+    targets: [params.object],
   });
 
-  return putCreateLogC(messageBroker, gatherDescriptions, params, user);
+  const { extraDesc, description } = await gatherDescriptions({
+    ...params,
+    obj: params.object,
+    action: 'create',
+  });
+
+  return commonPutCreateLog(
+    messageBroker(),
+    { ...params, extraDesc, description, type: `api-core:${params.type}` },
+    user
+  );
 };
 
 /**
@@ -87,10 +203,20 @@ export const putUpdateLog = async (
 
   messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
     type: `${params.type}`,
-    targets: [params.updatedDocument]
+    targets: [params.updatedDocument],
   });
 
-  return putUpdateLogC(messageBroker, gatherDescriptions, params, user);
+  const { extraDesc, description } = await gatherDescriptions({
+    ...params,
+    obj: params.object,
+    action: 'update',
+  });
+
+  return commonPutUpdateLog(
+    messageBroker(),
+    { ...params, type: `api-core:${params.type}`, extraDesc, description },
+    user
+  );
 };
 
 /**
@@ -106,10 +232,20 @@ export const putDeleteLog = async (
 
   messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
     type: `${params.type}`,
-    targets: [params.object]
+    targets: [params.object],
   });
 
-  return putDeleteLogC(messageBroker, gatherDescriptions, params, user);
+  const { extraDesc, description } = await gatherDescriptions({
+    ...params,
+    obj: params.object,
+    action: 'delete',
+  });
+
+  return commonPutDeleteLog(
+    messageBroker(),
+    { ...params, type: `api-core:${params.type}`, description, extraDesc },
+    user
+  );
 };
 
 export const sendToLog = (channel: string, data) =>
@@ -127,7 +263,7 @@ export const putActivityLog = async (params: IActivityLogParams) => {
     if (data.target) {
       messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
         type: `${data.contentType}`,
-        targets: [data.target]
+        targets: [data.target],
       });
     }
 

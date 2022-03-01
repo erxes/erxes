@@ -1,4 +1,4 @@
-import { can, IColumnLabel } from '@erxes/api-utils/src';
+import { IColumnLabel } from '@erxes/api-utils/src';
 import {
   createXlsFile,
   findSchemaLabels,
@@ -162,26 +162,14 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
 
   switch (type) {
     case MODULE_NAMES.DEAL:
-      if (!(await can('exportDeals', user))) {
-        throw new Error('Permission denied');
-      }
-
       data = await Deals.find(boardItemsFilter);
 
       break;
     case MODULE_NAMES.TASK:
-      if (!(await can('exportTasks', user))) {
-        throw new Error('Permission denied');
-      }
-
       data = await Tasks.find(boardItemsFilter);
 
       break;
     case MODULE_NAMES.TICKET:
-      if (!(await can('exportTickets', user))) {
-        throw new Error('Permission denied');
-      }
-
       data = await Tickets.find(boardItemsFilter);
       break;
   }

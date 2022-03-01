@@ -2,6 +2,7 @@ import {
   putCreateLog as commonPutCreateLog,
   putUpdateLog as commonPutUpdateLog,
   putDeleteLog as commonPutDeleteLog,
+  putActivityLog as commonPutActivityLog,
   LogDesc,
   gatherNames,
   gatherUsernames,
@@ -21,7 +22,10 @@ export const LOG_ACTIONS = {
 };
 
 const findUsers = async (ids: string[]) => {
-  return await messageBroker().sendRPCMessage('api-core', { query: { _id: { $in: ids } }, name: 'Users' })
+  return await messageBroker().sendRPCMessage(
+    'core:rpc_queue:findMongoDocuments',
+    { query: { _id: { $in: ids } }, name: 'Users' }
+  ) || [];
 };
 
 const gatherCompanyFieldNames = async (
@@ -189,4 +193,30 @@ export const putCreateLog = async (logDoc, user) => {
     { ...logDoc, description, extraDesc, type: `contacts:${logDoc.type}` },
     user
   );
+};
+
+export const putActivityLog = async (params: { action: string; data: any }) => {
+  const { data } = params;
+
+  const updatedParams = { ...params, data: { ...data, contentType: `contacts:${data.contentType}` } };
+
+  return commonPutActivityLog({ messageBroker: messageBroker(), ...updatedParams });
+};
+
+export const prepareCocLogData = (coc) => {
+  // condition logic was in ActivityLogs model before
+  let action = 'create';
+  let content: string[] = [];
+
+  if (coc.mergedIds && coc.mergedIds.length > 0) {
+    action = 'merge';
+    content = coc.mergedIds;
+  }
+
+  return {
+    createdBy: coc.ownerId || coc.integrationId,
+    action,
+    content,
+    contentId: coc._id,
+  };
 };

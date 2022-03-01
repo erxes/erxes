@@ -1,7 +1,6 @@
 import { Model, model } from 'mongoose';
-// import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
+import { putActivityLog, prepareCocLogData } from '../logUtils'
 import { validSearchText } from '@erxes/api-utils/src';
-import { InternalNotes } from '../apiCollections';
 import { ICustomField } from '@erxes/api-utils/src/definitions/common';
 import {
   companySchema,
@@ -9,7 +8,13 @@ import {
   ICompanyDocument
 } from './definitions/companies';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
-import { prepareCustomFieldsData, sendConformityMessage } from '../messageBroker';
+import {
+  prepareCustomFieldsData,
+  sendConformityMessage,
+  removeInternalNotes,
+  internalNotesBatchUpdate
+} from '../messageBroker';
+
 // import { IUserDocument } from '@erxes/common-types';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
@@ -246,10 +251,10 @@ export const loadClass = () => {
       });
 
       // create log
-      // await putActivityLog({
-      //   action: ACTIVITY_LOG_ACTIONS.CREATE_COC_LOG,
-      //   data: { coc: company, contentType: 'company' }
-      // });
+      await putActivityLog({
+        action: 'createCocLog',
+        data: { coc: company, contentType: 'company', ...prepareCocLogData(company) }
+      });
 
       return company;
     }
@@ -289,16 +294,12 @@ export const loadClass = () => {
      */
     public static async removeCompanies(companyIds: string[]) {
       // Removing modules associated with company
-      // await putActivityLog({
-      //   action: ACTIVITY_LOG_ACTIONS.REMOVE_ACTIVITY_LOGS,
-      //   data: { type: ACTIVITY_CONTENT_TYPES.COMPANY, itemIds: companyIds }
-      // });
+      await putActivityLog({
+        action: 'removeActivityLogs',
+        data: { type: ACTIVITY_CONTENT_TYPES.COMPANY, itemIds: companyIds }
+      });
 
-      await InternalNotes.removeInternalNotes(
-        ACTIVITY_CONTENT_TYPES.COMPANY,
-        companyIds
-      );
-
+      await removeInternalNotes(ACTIVITY_CONTENT_TYPES.COMPANY, companyIds);
       await sendConformityMessage('removeConformities', {
         mainType: 'company',
         mainTypeIds: companyIds
@@ -388,8 +389,11 @@ export const loadClass = () => {
       });
 
       // Removing modules associated with current companies
-      await InternalNotes.changeCompany(company._id, companyIds);
-
+      await internalNotesBatchUpdate(
+        ACTIVITY_CONTENT_TYPES.COMPANY,
+        companyIds,
+        company._id
+      );
       return company;
     }
   }

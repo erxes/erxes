@@ -8,7 +8,7 @@ import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __, Alert } from 'coreui/utils';
-import { MESSAGE_KIND_FILTERS, MESSAGE_KINDS, METHODS } from '../constants';
+import { MESSAGE_KIND_FILTERS, MESSAGE_KINDS, METHODS } from '@erxes/ui-engage/src/constants';
 import React from 'react';
 import s from 'underscore.string';
 import {

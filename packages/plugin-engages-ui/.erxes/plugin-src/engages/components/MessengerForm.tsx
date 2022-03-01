@@ -3,7 +3,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
 import { __, Alert } from 'coreui/utils';
-import { MESSENGER_KINDS, SENT_AS_CHOICES } from '../constants';
+import { MESSENGER_KINDS, SENT_AS_CHOICES } from '@erxes/ui-engage/src/constants';
 import React from 'react';
 import EditorCK from '../containers/EditorCK';
 import MessengerPreview from '../containers/MessengerPreview';

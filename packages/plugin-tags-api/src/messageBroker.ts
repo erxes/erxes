@@ -1,5 +1,7 @@
+import { getSchemaLabels } from "@erxes/api-utils/src/logUtils";
+
 import * as models from "./models";
-import { ITagDocument } from "./models/definitions/tags";
+import { ITagDocument, tagSchema } from "./models/definitions/tags";
 
 let client;
 
@@ -41,16 +43,21 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('core:rpc_queue:findMongoDocuments', async (data) => {
+  consumeRPCQueue('tags:rpc_queue:findMongoDocuments', async (data) => {
     const { query, name } = data;
 
     const collection = models[name];
 
     return {
       status: 'success',
-      data: collection ? await collection.find(query) : null
+      data: collection ? await collection.find(query) : []
     }
   });
+
+  consumeRPCQueue('tags:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
+    status: 'success',
+    data: getSchemaLabels(type, [{ name: 'product', schemas: [tagSchema] }])
+  }));
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {

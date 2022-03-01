@@ -1,5 +1,6 @@
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { ITag } from '@erxes/ui/src/tags/types';
+import { ICompany } from "@erxes/ui/src/companies/types";
+import { ITag } from "@erxes/ui/src/tags/types";
+import { QueryResponse } from "@erxes/ui/src/types";
 
 export interface IProductDoc {
   _id?: string;
@@ -57,3 +58,7 @@ export type ProductsQueryResponse = {
 export type ProductAddMutationResponse = {
   productAdd: (params: { variables: IProductDoc }) => Promise<void>;
 };
+
+export type ProductCategoriesQueryResponse = {
+  productCategories: IProductCategory[];
+} & QueryResponse;

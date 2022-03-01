@@ -2,6 +2,7 @@ import {
   putCreateLog as commonPutCreateLog,
   putUpdateLog as commonPutUpdateLog,
   putDeleteLog as commonPutDeleteLog,
+  putActivityLog as commonPutActivityLog,
   LogDesc,
   IDescriptions,
 } from '@erxes/api-utils/src/logUtils';
@@ -86,4 +87,12 @@ export const putCreateLog = async (logDoc, user) => {
     { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
     user
   );
+};
+
+export const putActivityLog = async (params: { action: string; data: any }) => {
+  const { data } = params;
+
+  const updatedParams = { ...params, data: { ...data, contentType: `tags:${data.contentType}` } };
+
+  return commonPutActivityLog({ messageBroker: messageBroker(), ...updatedParams });
 };

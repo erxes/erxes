@@ -105,6 +105,11 @@ export const initBroker = async (server?) => {
       data: await Conformities.addConformities(doc)
     }));
 
+    consumeQueue('conformities:relatedConformity', async doc => ({
+      status: 'success',
+      data: await Conformities.relatedConformity(doc)
+    }));
+
     consumeRPCQueue(
       'fields:rpc_queue:prepareCustomFieldsData',
       async ({ doc }) => ({
@@ -124,6 +129,19 @@ export const initBroker = async (server?) => {
     consumeRPCQueue('rpc_queue:fetchSegment', async ({ segment, options }) => {
       const data = await fetchSegment(segment, options);
       return { data, status: 'success' };
+    });
+
+    consumeRPCQueue('users:rpc_queue:generateInteralNoteNotif', async args => {
+      const { contentTypeId, notifDoc } = args;
+
+      const usr = await Users.getUser(contentTypeId);
+
+      notifDoc.content = `${usr.username || usr.email}`;
+
+      return {
+        status: 'success',
+        data: notifDoc
+      }
     });
 
     // graphql subscriptions call =========
@@ -255,12 +273,17 @@ export const initBroker = async (server?) => {
 
       return {
         status: 'success',
-        data: collection ? await collection.find(query) : null
+        data: collection ? await collection.find(query) : []
       }
     });
 
     consumeRPCQueue('core:rpc_queue:findOneBrand', async query => ({
       status: 'success', data: await Brands.findOne(query)
+    }));
+
+    consumeRPCQueue("core:Fields.generateTypedListFromMap", data => ({
+      status: "success",
+      data: Fields.generateTypedListFromMap(data),
     }));
   }
 
