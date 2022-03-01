@@ -15,6 +15,11 @@ const commonFields = `
   canHide
   validation
   options
+  locationOptions{
+    lat
+    lng
+    description
+  }
   groupId
 
   ${genericFields}
@@ -105,10 +110,21 @@ const fieldsItemTyped = `
   }
 `;
 
+const configs = `
+  query configs {
+    configs {
+      _id
+      code
+      value
+    }
+  }
+`;
+
 export default {
   fieldsGroups,
   fields,
   getSystemFieldsGroup,
   inboxFields,
-  fieldsItemTyped
+  fieldsItemTyped,
+  configs
 };
