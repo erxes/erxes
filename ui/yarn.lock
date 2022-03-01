@@ -1491,6 +1491,30 @@
     fast-equals "^1.6.3"
     lodash "^4.17.15"
 
+"@datadog/browser-core@2.3.1":
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-2.3.1.tgz#37b88c8c88303666b36531bfe74fe12a79a457a1"
+  integrity sha512-Ds3XRHY9PN7Vnp4R6WQ0ansQOnBeHzYNmQh1EEXqGuNZcK2oqpKagFkzIdixFnogFhWDWE9YheXQoS9XTiqvMw==
+  dependencies:
+    tslib "^1.10.0"
+
+"@datadog/browser-rum-core@2.3.1":
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-2.3.1.tgz#d62ee48e13c27570ade0a00674e17ed9c9cf6c65"
+  integrity sha512-XUccq2hUQ/zQEXl7esh7BC5+G1zDLygIuNKugsjNjrgcRdLS15l/qxIf5W6t1jwnY7JRm/snfoRU6OXAA8T7xg==
+  dependencies:
+    "@datadog/browser-core" "2.3.1"
+    tslib "^1.10.0"
+
+"@datadog/browser-rum@^2.3.1":
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-2.3.1.tgz#2840d3fa2353b30b6f7e02b16d2b68c21238aa47"
+  integrity sha512-ZYlQB5EW24nIAEJUT4VWWCSiiMgSwLgPyb+iwed8VDi9FolWLEVjTfMLezYflxFKuLuWcbsLVJq/rbdz2KnhxA==
+  dependencies:
+    "@datadog/browser-core" "2.3.1"
+    "@datadog/browser-rum-core" "2.3.1"
+    tslib "^1.10.0"
+
 "@hapi/address@2.x.x":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@hapi/address/-/address-2.0.0.tgz#9f05469c88cb2fd3dcd624776b54ee95c312126a"
@@ -2086,10 +2110,10 @@
     "@types/cheerio" "*"
     "@types/react" "*"
 
-"@types/google.maps@^3.47.4":
-  version "3.47.4"
-  resolved "https://registry.yarnpkg.com/@types/google.maps/-/google.maps-3.47.4.tgz#3316cdf048706f03838431e7c394eecc02de2157"
-  integrity sha512-wgNs0Cb0SpWMBmD5WV560bQ++sdtAOqR6V6qQIA5jZFORLsxat4kVkXOOg7KDFqHwNgYpg36Vai2zXUCTmbtnQ==
+"@types/geojson@*":
+  version "7946.0.8"
+  resolved "https://registry.yarnpkg.com/@types/geojson/-/geojson-7946.0.8.tgz#30744afdb385e2945e22f3b033f897f76b1f12ca"
+  integrity sha512-1rkryxURpr6aWP7R786/UQOkJ3PcpQiWkAXBmdWc7ryFWqN6a4xfK7BtjXvFBKO9LjQ+MWQSWxYeZX1OApnArA==
 
 "@types/graceful-fs@^4.1.2":
   version "4.1.5"
@@ -2130,6 +2154,13 @@
   dependencies:
     jest-diff "^25.2.1"
     pretty-format "^25.2.1"
+
+"@types/leaflet@^1.7.8":
+  version "1.7.8"
+  resolved "https://registry.yarnpkg.com/@types/leaflet/-/leaflet-1.7.8.tgz#fbae5a3a3d22780632715287764352f80bbe3d4a"
+  integrity sha512-prZwhmUznkwTYCTZVGTR4U1GzgPP3PAWYYQ3wDgVkIoiuQTheWoycsXx4Rz9ARYhlDTl0Ycd8lvhH2/rNSkqIg==
+  dependencies:
+    "@types/geojson" "*"
 
 "@types/node@*", "@types/node@^10.9.4":
   version "10.12.10"
@@ -8719,6 +8750,11 @@ lcid@^2.0.0:
   dependencies:
     invert-kv "^2.0.0"
 
+leaflet@^1.7.1:
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/leaflet/-/leaflet-1.7.1.tgz#10d684916edfe1bf41d688a3b97127c0322a2a19"
+  integrity sha512-/xwPEBidtg69Q3HlqPdU3DnrXQOvQU/CCHA1tcDQVzOwm91YMYaILjNp7L4Eaw5Z4sOYdbBz6koWyibppd8Zqw==
+
 left-pad@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/left-pad/-/left-pad-1.3.0.tgz#5b8a3a7765dfe001261dde915589e782f8c94d1e"
@@ -13821,10 +13857,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@3.4.1:
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.4.1.tgz#b6691be11a881ffa9a05765a205cb7383f3b63c6"
-  integrity sha512-3NSMb2VzDQm8oBTLH6Nj55VVtUEpe/rgkIzMir0qVoLyjDZlnMBva0U6vDiV3IH+sl/Yu6oP5QwsAQtHPmDd2Q==
+typescript@3.8.2:
+  version "3.8.2"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.8.2.tgz#91d6868aaead7da74f493c553aeff76c0c0b1d5a"
+  integrity sha512-EgOVgL/4xfVrCMbhYKUQTdF37SQn4Iw73H5BgCrF1Abdun7Kwy/QZsE/ssAy0y4LxBbvua3PIbFsbRczWWnDdQ==
 
 ua-parser-js@^0.7.17, ua-parser-js@^0.7.18:
   version "0.7.19"
