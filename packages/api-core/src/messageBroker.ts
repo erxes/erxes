@@ -233,7 +233,7 @@ export const initBroker = async (server?) => {
           return { data: { type: 'brand', content: brand }, status: 'success' };
         }
 
-        return { data: 'not found', status: 'error' };
+        return { data: {}, status: 'success' };
       }
     );
 
