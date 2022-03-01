@@ -45,19 +45,17 @@ const exmMutations = [
       const userCount = await models.Users.countDocuments({ email: mail });
 
       if (userCount > 0) {
-        return "you already registered";
+        throw new Error("You have already registered");
       }
-      if (!doc.password) return "Password can not be empty";
 
       try {
-        await models.Users.createUser({
+        return await models.Users.createUser({
           isActive: false,
           email: mail,
           password: doc.password,
         });
-        return "success";
       } catch (e) {
-        return "Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters";
+        throw e;
       }
     },
   },
