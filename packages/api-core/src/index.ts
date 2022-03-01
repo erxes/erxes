@@ -26,7 +26,7 @@ import { debugBase, debugError, debugInit } from './debuggers';
 import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
 import { uploader } from './middlewares/fileMiddleware';
-import { join, leave, refreshEnabledServices } from './serviceDiscovery';
+import { join, leave, refreshEnabledServicesCache } from './serviceDiscovery';
 
 import init from './startup';
 
@@ -293,4 +293,4 @@ async function closeHttpServer() {
   });
 });
 
-refreshEnabledServices();
+refreshEnabledServicesCache();
