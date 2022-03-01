@@ -10,7 +10,7 @@ import ProductSection from "./ProductSection";
 import { IProduct } from "@erxes/ui-products/src/types";
 import PortableTasks from "../../tasks/components/PortableTasks";
 import PortableTickets from "../../tickets/components/PortableTickets";
-import { pluginsOfItemSidebar } from "@erxes/ui/src/pluginUtils";
+// import { pluginsOfItemSidebar } from "@erxes/ui/src/pluginUtils";
 import React from "react";
 import { IDeal, IDealParams, IPaymentsData } from "../types";
 
@@ -177,7 +177,7 @@ export default class DealEditForm extends React.Component<Props, State> {
       <>
         <PortableTickets mainType="deal" mainTypeId={item._id} />
         <PortableTasks mainType="deal" mainTypeId={item._id} />
-        {pluginsOfItemSidebar(item, "deal")}
+        {/* {pluginsOfItemSidebar(item, "deal")} */}
       </>
     );
   };
