@@ -60,16 +60,20 @@ const channelMutations = {
   async channelsAdd(_root, doc: IChannel, { user }: IContext) {
     const channel = await Channels.createChannel(doc, user._id);
 
-    await sendChannelNotifications(channel, 'invited', user);
+    // await sendChannelNotifications(channel, 'invited', user);
 
-    await putCreateLog(
-      {
-        type: MODULE_NAMES.CHANNEL,
-        newData: { ...doc, userId: user._id },
-        object: channel
-      },
-      user
-    );
+    try {
+      await putCreateLog(
+        {
+          type: MODULE_NAMES.CHANNEL,
+          newData: { ...doc, userId: user._id },
+          object: channel
+        },
+        user
+      );
+    } catch (e) {
+      console.log(e, 'eee')
+    }
 
     return channel;
   },

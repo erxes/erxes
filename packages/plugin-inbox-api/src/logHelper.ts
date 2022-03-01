@@ -2,11 +2,11 @@ import { gatherNames, LogDesc } from "@erxes/api-utils/src/logUtils";
 import { Integrations } from "./models";
 import { IChannelDocument } from "./models/definitions/channels";
 import { IIntegrationDocument } from "./models/definitions/integrations";
-import { findMongoDocuments } from "./messageBroker";
+import messageBroker, { findMongoDocuments } from "./messageBroker";
 
 export const findFromCore = async (ids: string[], collectionName: string) => {
-  return await findMongoDocuments(
-    'api-core',
+  return messageBroker().sendRPCMessage(
+    'core:rpc_queue:findMongoDocuments',
     { query: { _id: { $in: ids } }, name: collectionName }
   ) || [];
 };
