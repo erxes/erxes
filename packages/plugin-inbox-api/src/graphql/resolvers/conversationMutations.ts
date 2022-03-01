@@ -25,11 +25,7 @@ import {
 } from '../../messageBroker';
 import { graphqlPubsub } from '../../configs';
 
-// import {
-//   ACTIVITY_LOG_ACTIONS,
-//   putactivitylog,
-//   putUpdateLog
-// } from '../../logUtils';
+import { putUpdateLog } from '../../logUtils';
 
 import {
   checkPermission,
@@ -517,18 +513,18 @@ const conversationMutations = {
       type: 'conversationAssigneeChange'
     });
 
-    // for (const conversation of conversations) {
-    //   await putUpdateLog(
-    //     {
-    //       type: 'conversation',
-    //       description: 'assignee Changed',
-    //       object: oldConversationById[conversation._id],
-    //       newData: { assignedUserId },
-    //       updatedDocument: conversation
-    //     },
-    //     user
-    //   );
-    // }
+    for (const conversation of conversations) {
+      await putUpdateLog(
+        {
+          type: 'conversation',
+          description: 'assignee Changed',
+          object: oldConversationById[conversation._id],
+          newData: { assignedUserId },
+          updatedDocument: conversation
+        },
+        user
+      );
+    }
 
     return conversations;
   },
@@ -558,18 +554,18 @@ const conversationMutations = {
     // notify graphl subscription
     publishConversationsChanged(_ids, 'assigneeChanged');
 
-    // for (const conversation of updatedConversations) {
-    //   await putUpdateLog(
-    //     {
-    //       type: 'conversation',
-    //       description: 'unassignee',
-    //       object: oldConversationById[conversation._id],
-    //       newData: { assignedUserId: '' },
-    //       updatedDocument: conversation
-    //     },
-    //     user
-    //   );
-    // }
+    for (const conversation of updatedConversations) {
+      await putUpdateLog(
+        {
+          type: 'conversation',
+          description: 'unassignee',
+          object: oldConversationById[conversation._id],
+          newData: { assignedUserId: '' },
+          updatedDocument: conversation
+        },
+        user
+      );
+    }
 
     return updatedConversations;
   },
@@ -601,18 +597,18 @@ const conversationMutations = {
       type: 'conversationStateChange'
     });
 
-    // for (const conversation of updatedConversations) {
-    //   await putUpdateLog(
-    //     {
-    //       type: 'conversation',
-    //       description: 'change status',
-    //       object: oldConversationById[conversation._id],
-    //       newData: { status },
-    //       updatedDocument: conversation
-    //     },
-    //     user
-    //   );
-    // }
+    for (const conversation of updatedConversations) {
+      await putUpdateLog(
+        {
+          type: 'conversation',
+          description: 'change status',
+          object: oldConversationById[conversation._id],
+          newData: { status },
+          updatedDocument: conversation
+        },
+        user
+      );
+    }
 
     return updatedConversations;
   },
@@ -640,18 +636,18 @@ const conversationMutations = {
       _id: { $in: Object.keys(oldConversationById) }
     }).lean();
 
-    // for (const conversation of updatedConversations) {
-    //   await putUpdateLog(
-    //     {
-    //       type: 'conversation',
-    //       description: 'resolve all',
-    //       object: oldConversationById[conversation._id],
-    //       newData: param,
-    //       updatedDocument: conversation
-    //     },
-    //     user
-    //   );
-    // }
+    for (const conversation of updatedConversations) {
+      await putUpdateLog(
+        {
+          type: 'conversation',
+          description: 'resolve all',
+          object: oldConversationById[conversation._id],
+          newData: param,
+          updatedDocument: conversation
+        },
+        user
+      );
+    }
 
     return updated.nModified || 0;
   },
