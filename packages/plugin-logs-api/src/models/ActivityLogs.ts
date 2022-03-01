@@ -46,13 +46,6 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
     contentType: string,
     contentIds: string[]
   ): Promise<{ n: number; ok: number }>;
-
-  createSegmentLog(
-    segment: any,
-    contentIds: string[],
-    type: string,
-    maxBulk?: number
-  );
 }
 
 export const loadClass = () => {
@@ -81,69 +74,6 @@ export const loadClass = () => {
         contentType,
         contentId: { $in: contentIds }
       });
-    }
-
-    /**
-     * Create a customer or company segment logs
-     */
-    public static async createSegmentLog(
-      segment: any,
-      contentIds: string[] = [],
-      type: string,
-      maxBulk: number = 10000
-    ) {
-      const foundSegments = await ActivityLogs.find(
-        {
-          contentType: type,
-          action: 'segment',
-          contentId: { $in: contentIds },
-          'content.id': segment._id
-        },
-        { contentId: 1 }
-      );
-
-      const foundContentIds = foundSegments.map(s => s.contentId);
-
-      const diffContentIds = contentIds.filter(
-        x => !foundContentIds.includes(x)
-      );
-
-      let bulkOpt: Array<{
-        contentType: string;
-        contentId: string;
-        action: string;
-        content: {};
-      }> = [];
-
-      let bulkCounter = 0;
-
-      for (const contentId of diffContentIds) {
-        bulkCounter = bulkCounter + 1;
-
-        const doc = {
-          contentType: type,
-          contentId,
-          action: 'segment',
-          content: {
-            id: segment._id,
-            content: segment.name
-          }
-        };
-
-        bulkOpt.push(doc);
-
-        if (bulkCounter === maxBulk) {
-          await ActivityLogs.insertMany(bulkOpt);
-          bulkOpt = [];
-          bulkCounter = 0;
-        }
-      }
-
-      if (bulkOpt.length === 0) {
-        return;
-      }
-
-      return ActivityLogs.insertMany(bulkOpt);
     }
   }
 

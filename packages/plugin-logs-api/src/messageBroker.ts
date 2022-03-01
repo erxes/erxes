@@ -68,11 +68,6 @@ export const initBroker = async (cl) => {
 
         return ActivityLogs.removeActivityLog(contentTypeId);
       }
-      case 'createSegmentLog': {
-        const { segment, contentIds, type } = data;
-
-        return ActivityLogs.createSegmentLog(segment, contentIds, type);
-      }
       default:
         if (action) {
           return ActivityLogs.addActivityLog(data);
