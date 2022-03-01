@@ -17,6 +17,7 @@ export interface IField {
   type: string;
   validation?: string;
   text?: string;
+  code?: string;
   content?: string;
   description?: string;
   options?: string[];
