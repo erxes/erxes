@@ -359,7 +359,7 @@ export const engageChangeCustomer = async (
   customerId,
   customerIds
 ): Promise<any> => {
-  if(!serviceDiscovery.isEnabled("engages")) return;
+  if(!(await serviceDiscovery.isEnabled("engages"))) return;
   
   return client.sendMessage("engage:changeCustomer", {
     customerId,
@@ -373,8 +373,8 @@ export const fetchSegment = (segment, options?) =>
     options
   });
 
-export const removeInternalNotes = (contentType: string, contentTypeIds: string[]) => {
-  if (!serviceDiscovery.isEnabled("internalnotes")) return;
+export const removeInternalNotes = async (contentType: string, contentTypeIds: string[]) => {
+  if (!(await serviceDiscovery.isEnabled("internalnotes"))) return;
 
   return sendMessage('internalnotes:InternalNotes.removeInternalNotes', {
     contentType,
@@ -382,8 +382,8 @@ export const removeInternalNotes = (contentType: string, contentTypeIds: string[
   });
 };
 
-export const internalNotesBatchUpdate = (contentType: string, oldContentTypeIds: string[], newContentTypeId: string) => {
-  if (!serviceDiscovery.isEnabled("internalnotes")) return;
+export const internalNotesBatchUpdate = async (contentType: string, oldContentTypeIds: string[], newContentTypeId: string) => {
+  if (!(await serviceDiscovery.isEnabled("internalnotes"))) return;
 
   return sendMessage('internalNotes:batchUpdate', {
     contentType,
@@ -392,8 +392,8 @@ export const internalNotesBatchUpdate = (contentType: string, oldContentTypeIds:
   });
 };
 
-export const inboxChangeCustomer = (customerId: string, customerIds: string[]) => {
-  if(!serviceDiscovery.isEnabled("inbox")) return;
+export const inboxChangeCustomer = async (customerId: string, customerIds: string[]) => {
+  if(!(await serviceDiscovery.isEnabled("inbox"))) return;
 
   return sendMessage('inbox:changeCustomer', { customerId, customerIds });
 };

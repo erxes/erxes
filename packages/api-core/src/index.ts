@@ -26,7 +26,7 @@ import { debugBase, debugError, debugInit } from './debuggers';
 import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
 import { uploader } from './middlewares/fileMiddleware';
-import { join, leave } from './serviceDiscovery';
+import { join, leave, refreshEnabledServices } from './serviceDiscovery';
 
 import init from './startup';
 
@@ -281,6 +281,8 @@ async function closeHttpServer() {
   }
 }
 
+
+
 // If the Node process ends, close the http-server and mongoose.connection and leave service discovery.
 (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
   process.on(sig, async () => {
@@ -290,3 +292,5 @@ async function closeHttpServer() {
     process.exit(0);
   });
 });
+
+refreshEnabledServices();

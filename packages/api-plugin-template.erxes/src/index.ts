@@ -20,11 +20,9 @@ import * as elasticsearch from './elasticsearch';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
-import { getService, getServices, join, leave } from './serviceDiscovery';
+import { getService, getServices, join, leave, redis } from './serviceDiscovery';
 
 const configs = require('../../src/configs').default;
-
-const enabledServices = require("../../../enabled-services");
 
 const { MONGO_URL, PORT } = process.env;
 
@@ -157,8 +155,8 @@ async function startServer() {
       const serviceNames = await getServices();
       return serviceNames.includes(name);
     },
-    isEnabled: name => {
-      return enabledServices[name];
+    isEnabled: async name => {
+      return !!(await redis.sismember("erxes:plugins:enabled",name));
     }
   };
 

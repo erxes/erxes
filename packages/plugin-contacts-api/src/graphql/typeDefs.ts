@@ -13,8 +13,8 @@ import {
 } from './company';
 
 const typeDefs = async (serviceDiscovery) =>  {
-  const tagsEnabled = serviceDiscovery.isEnabled('tags');
-  const inboxEnabled = serviceDiscovery.isEnabled('inbox');
+  const tagsEnabled = await serviceDiscovery.isEnabled('tags');
+  const inboxEnabled = await serviceDiscovery.isEnabled('inbox');
 
   console.log({ tagsEnabled, inboxEnabled });
 

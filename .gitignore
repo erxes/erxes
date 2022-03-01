@@ -31,4 +31,4 @@ tsconfig.tsbuildinfo
 packages/plugin*api/.erxes
 /api/src/__tests__/coverage
 
-/packages/enabled-services.js
+/packages/api-core/enabled-services.js
