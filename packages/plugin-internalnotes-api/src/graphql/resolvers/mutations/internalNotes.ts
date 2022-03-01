@@ -10,12 +10,12 @@ interface IInternalNotesEdit extends IInternalNote {
   _id: string;
 }
 
-const internalNoteMutations = {
+const internalNoteMutations = (serviceDiscovery) => ({
   /**
    * Adds internalNote object and also adds an activity log
    */
   async internalNotesAdd(_root, args: IInternalNote, { user }: IContext) {
-    const { contentType, contentTypeId } = args;
+  let { contentType, contentTypeId } = args;
     const mentionedUserIds = args.mentionedUserIds || [];
 
     let notifDoc = {
@@ -30,19 +30,48 @@ const internalNoteMutations = {
       contentTypeId: ''
     };
 
-    const [serviceName, type] = contentType.split(':');
+    // contentType = 'cards:task'
+     contentType = 'contacts:company'
 
-    const updatedNotifDoc = await sendRPCMessage(`${serviceName}:generateInteralNoteNotif`, {
+    // *  [cards, deal]
+    const [serviceName, type] = contentType.split(':');
+    const isServiceAvailable = await serviceDiscovery.isAvailable(serviceName)
+
+    if(!isServiceAvailable) {
+      return null;
+    }
+
+    // working fine in card
+
+    const updatedNotifDoc = await sendRPCMessage(`${serviceName}:rpc_queue:generateInteralNoteNotif`, {
       type,
-      contentTypeId
+      contentTypeId,
+      notifDoc
     });
 
-    if (updatedNotifDoc) {
-      notifDoc = { ...notifDoc, ...updatedNotifDoc };
 
-      await sendNotificationMessage('send', notifDoc);
+    if(updatedNotifDoc.notifOfItems) {
+      // * deal, task, ticket orj irne
+      // await sendNotificationOfItems(task, notifDoc, contentType, [
+      //   ...mentionedUserIds,
+      //   user._id
+      // ]);
+
+      await sendNotificationMessage('send', updatedNotifDoc);
 
       graphqlPubsub.publish('activityLogsChanged', {});
+
+    }
+
+    // if (updatedNotifDoc.notifOfItems) {
+    //   await sendNotificationMessage('send', updatedNotifDoc);
+
+    //   graphqlPubsub.publish('activityLogsChanged', {});
+    // }
+
+
+    if (updatedNotifDoc.contentType) {
+      await sendNotificationMessage('send', updatedNotifDoc);
     }
 
     const internalNote = await InternalNotes.createInternalNote(args, user);
@@ -109,7 +138,7 @@ const internalNoteMutations = {
 
     return removed;
   }
-};
+});
 
 moduleRequireLogin(internalNoteMutations);
 

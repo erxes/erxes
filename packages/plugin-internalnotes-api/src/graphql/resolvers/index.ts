@@ -9,15 +9,15 @@ import {
   InternalNotes as Queries,
 } from './queries';
 
-const resolvers: any = {
+const resolvers = (serviceDiscovery) => ({
   ...customScalars,
   InternalNote,
   Mutation: {
-    ...Mutations,
+    ...Mutations(serviceDiscovery),
   },
   Query: {
     ...Queries,
   }
-};
+});
 
 export default resolvers;
