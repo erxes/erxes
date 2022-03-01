@@ -18,6 +18,18 @@ const commonTypes = `
   boardsPipelines: $boardsPipelines
 `;
 
+const updateVisibleFields = `
+  $_id: String!, 
+  $isVisible: Boolean,
+  $isVisibleInDetail: Boolean
+`;
+
+const updateVisibleTypes = `
+  _id: $_id,
+  isVisible: $isVisible,
+  isVisibleInDetail: $isVisibleInDetail
+`;
+
 const fieldsGroupsAdd = `
   mutation fieldsGroupsAdd(${commonFields}) {
     fieldsGroupsAdd(${commonTypes}) {
@@ -40,12 +52,21 @@ const fieldsGroupsRemove = `
   }
 `;
 
+const fieldsGroupsUpdateVisible = `
+  mutation fieldsGroupsUpdateVisible(${updateVisibleFields}) {
+    fieldsGroupsUpdateVisible(${updateVisibleTypes}) {
+      _id
+    }
+  }
+`;
+
 const commonVariables = `
   $type: String,
   $validation: String,
   $text: String,
   $description: String,
   $options: [String],
+  $locationOptions: [LocationOptionInput]
   $isRequired: Boolean,
   $order: Int,
   $groupId: String,
@@ -58,6 +79,7 @@ const commonParams = `
   text: $text,
   description: $description,
   options: $options,
+  locationOptions: $locationOptions,
   isRequired: $isRequired,
   order: $order,
   groupId: $groupId,
@@ -88,10 +110,47 @@ const fieldsEdit = `
   }
 `;
 
+const fieldsRemove = `
+  mutation fieldsRemove($_id: String!) {
+    fieldsRemove(_id: $_id) {
+      _id
+    }
+  }
+`;
+
+const fieldsUpdateVisible = `
+  mutation fieldsUpdateVisible(${updateVisibleFields}) {
+    fieldsUpdateVisible(${updateVisibleTypes}) {
+      _id
+    }
+  }
+`;
+
+const fieldsUpdateOrder = `
+  mutation fieldsUpdateOrder($orders: [OrderItem]) {
+    fieldsUpdateOrder(orders: $orders) {
+      _id
+    }
+  }
+`;
+
+const groupsUpdateOrder = `
+  mutation fieldsGroupsUpdateOrder($orders: [OrderItem]) {
+    fieldsGroupsUpdateOrder(orders: $orders) {
+      _id
+    }
+  }
+`;
+
 export default {
   fieldsGroupsAdd,
   fieldsGroupsEdit,
   fieldsGroupsRemove,
+  fieldsGroupsUpdateVisible,
   fieldsAdd,
-  fieldsEdit
+  fieldsEdit,
+  fieldsRemove,
+  fieldsUpdateVisible,
+  fieldsUpdateOrder,
+  groupsUpdateOrder
 };
