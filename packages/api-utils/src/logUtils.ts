@@ -75,7 +75,7 @@ interface ISchemaMap {
 export const gatherUsernames = async (
   params: ILogNameParams
 ): Promise<LogDesc[]> => {
-  const { foreignKey, prevList, items } = params;
+  const { foreignKey, prevList, items = [] } = params;
 
   return gatherNames({
     foreignKey,

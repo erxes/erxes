@@ -6,7 +6,7 @@ import {
   generateAmounts,
   generateProducts
 } from './graphql/resolvers/customResolvers/deal';
-import { prepareImportDocs } from './importUtils';
+import { insertImportItems, prepareImportDocs } from './importUtils';
 import { Checklists, Deals, GrowthHacks, Pipelines, Stages, Tasks, Tickets } from './models';
 import { conversationConvertToCard } from './models/utils';
 import {
@@ -75,6 +75,11 @@ export const initBroker = async cl => {
   consumeRPCQueue('cards:rpc_queue:prepareImportDocs', async args => ({
     status: 'success',
     data: await prepareImportDocs(args)
+  }));
+
+  consumeRPCQueue('cards:rpc_queue:insertImportItems', async args => ({
+    status: 'success',
+    data: await insertImportItems(args)
   }));
 
   // listen for rpc queue =========
@@ -344,7 +349,10 @@ export const findMongoDocuments = async (serviceName: string, data: any) => {
     return [];
   }
 
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:findMongoDocuments`, data);
+  return client.sendRPCMessage(
+    `${serviceName}:rpc_queue:findMongoDocuments`,
+    data
+  );
 };
 
 export default function() {

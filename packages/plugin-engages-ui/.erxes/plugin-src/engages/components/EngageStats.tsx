@@ -7,7 +7,7 @@ import {
   AWS_EMAIL_DELIVERY_STATUSES,
   METHODS,
   SMS_DELIVERY_STATUSES,
-} from "../constants";
+} from "@erxes/ui-engage/src/constants";
 import {
   FlexContainer,
   InfoWrapper,

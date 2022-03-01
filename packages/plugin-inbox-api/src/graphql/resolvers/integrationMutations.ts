@@ -1,5 +1,7 @@
 import * as telemetry from 'erxes-telemetry';
+
 import { getUniqueValue } from '@erxes/api-utils/src/core';
+import { putActivityLog } from '@erxes/api-utils/src/logUtils';
 
 import { Channels, Integrations } from '../../models';
 
@@ -27,16 +29,14 @@ import {
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
 import { debug } from '../../configs';
-import { sendMessage, sendContactRPCMessage } from '../../messageBroker';
+import messageBroker, { sendMessage, sendContactRPCMessage } from '../../messageBroker';
 
-// import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
-// import {
-//   ACTIVITY_LOG_ACTIONS,
-//   putActivityLog,
-//   putCreateLog,
-//   putDeleteLog,
-//   putUpdateLog
-// } from '../../logUtils';
+import { MODULE_NAMES } from '../../constants';
+import {
+  putCreateLog,
+  putDeleteLog,
+  putUpdateLog
+} from '../../logUtils';
 
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 
@@ -75,14 +75,14 @@ const createIntegration = async (
     );
   }
 
-  //   await putCreateLog(
-  //     {
-  //       type: MODULE_NAMES.INTEGRATION,
-  //       newData: { ...doc, createdUserId: user._id, isActive: true },
-  //       object: integration
-  //     },
-  //     user
-  //   );
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.INTEGRATION,
+        newData: { ...doc, createdUserId: user._id, isActive: true },
+        object: integration
+      },
+      user
+    );
 
   telemetry.trackCli('integration_created', { type });
 
@@ -113,15 +113,15 @@ const editIntegration = async (
     );
   }
 
-  //   await putUpdateLog(
-  //     {
-  //       type: MODULE_NAMES.INTEGRATION,
-  //       object: integration,
-  //       newData: fields,
-  //       updatedDocument: updated
-  //     },
-  //     user
-  //   );
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.INTEGRATION,
+        object: integration,
+        newData: fields,
+        updatedDocument: updated
+      },
+      user
+    );
 
   return updated;
 };
@@ -271,14 +271,14 @@ const integrationMutations = {
 
       telemetry.trackCli('integration_created', { type: doc.kind });
 
-      //       await putCreateLog(
-      //         {
-      //           type: MODULE_NAMES.INTEGRATION,
-      //           newData: { ...doc, createdUserId: user._id, isActive: true },
-      //           object: integration
-      //         },
-      //         user
-      //       );
+      await putCreateLog(
+        {
+          type: MODULE_NAMES.INTEGRATION,
+          newData: { ...doc, createdUserId: user._id, isActive: true },
+          object: integration
+        },
+        user
+      );
     } catch (e) {
       await Integrations.deleteOne({ _id: integration._id });
       throw new Error(e);
@@ -320,15 +320,15 @@ const integrationMutations = {
       );
     }
 
-    //     await putUpdateLog(
-    //       {
-    //         type: MODULE_NAMES.INTEGRATION,
-    //         object: { name: integration.name, brandId: integration.brandId },
-    //         newData: { name, brandId },
-    //         updatedDocument: updated
-    //       },
-    //       user
-    //     );
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.INTEGRATION,
+        object: { name: integration.name, brandId: integration.brandId },
+        newData: { name, brandId },
+        updatedDocument: updated
+      },
+      user
+    );
 
     return updated;
   },
@@ -372,10 +372,10 @@ const integrationMutations = {
         });
       }
 
-      //       await putDeleteLog(
-      //         { type: MODULE_NAMES.INTEGRATION, object: integration },
-      //         user
-      //       );
+      await putDeleteLog(
+        { type: MODULE_NAMES.INTEGRATION, object: integration },
+        user
+      );
 
       return Integrations.removeIntegration(_id);
     } catch (e) {
@@ -487,18 +487,18 @@ const integrationMutations = {
 
     const updated = await Integrations.findOne({ _id });
 
-    //     await putUpdateLog(
-    //       {
-    //         type: MODULE_NAMES.INTEGRATION,
-    //         object: integration,
-    //         newData: { isActive: !status },
-    //         description: `"${integration.name}" has been ${
-    //           status === true ? 'archived' : 'unarchived'
-    //         }.`,
-    //         updatedDocument: updated
-    //       },
-    //       user
-    //     );
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.INTEGRATION,
+        object: integration,
+        newData: { isActive: !status },
+        description: `"${integration.name}" has been ${
+          status === true ? 'archived' : 'unarchived'
+        }.`,
+        updatedDocument: updated
+      },
+      user
+    );
 
     return updated;
   },
@@ -543,16 +543,17 @@ const integrationMutations = {
       const response = await dataSources.IntegrationsAPI.sendSms(args);
 
       if (response && response.status === 'ok') {
-        // await putActivityLog({
-        //   action: ACTIVITY_LOG_ACTIONS.ADD,
-        //   data: {
-        //     action: ACTIVITY_ACTIONS.SEND,
-        //     contentType: ACTIVITY_CONTENT_TYPES.SMS,
-        //     createdBy: user._id,
-        //     contentId: customer._id,
-        //     content: { to: args.to, text: args.content }
-        //   }
-        // });
+        await putActivityLog({
+          messageBroker: messageBroker(),
+          action: 'add',
+          data: {
+            action: 'send',
+            contentType: 'sms',
+            createdBy: user._id,
+            contentId: customer._id,
+            content: { to: args.to, text: args.content }
+          }
+        });
       }
 
       return response;
@@ -622,14 +623,14 @@ const integrationMutations = {
 
     await Fields.insertMany(fields);
 
-    //     await putCreateLog(
-    //       {
-    //         type: MODULE_NAMES.INTEGRATION,
-    //         newData: { ...doc, createdUserId: user._id, isActive: true },
-    //         object: copiedIntegration
-    //       },
-    //       user
-    //     );
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.INTEGRATION,
+        newData: { ...doc, createdUserId: user._id, isActive: true },
+        object: copiedIntegration
+      },
+      user
+    );
 
     telemetry.trackCli('integration_created', { type: 'lead' });
 

@@ -17,6 +17,7 @@ import CustomWorker from './workerUtil';
 import * as streamify from 'stream-array';
 import * as os from 'os';
 import { graphqlPubsub } from '../pubsub';
+import { initBroker } from './messageBroker';
 
 const { MONGO_URL = '', ELK_SYNCER } = process.env;
 
@@ -100,8 +101,10 @@ const checkFieldNames = async (fields: string[], columnConfig?: object) => {
   return properties;
 };
 
-export const connect = () =>
+export const connect = () => {
   mongoose.connect(MONGO_URL, { useNewUrlParser: true, useCreateIndex: true });
+  return initBroker();
+};
 
 dotenv.config();
 

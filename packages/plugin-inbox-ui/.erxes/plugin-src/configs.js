@@ -37,7 +37,7 @@ module.exports = {
       image: "/images/icons/erxes-29.png",
       location: "settings",
       scope: "inbox",
-      component: "./settings",
+      action: "skillTypesAll",
       permissions: [
         "getSkillTypes",
         "getSkill",
@@ -52,7 +52,7 @@ module.exports = {
       image: "/images/icons/erxes-05.svg",
       location: "settings",
       scope: "inbox",
-      component: "./settings",
+      action: "channelsAll",
       permissions: ["showChannels", "manageChannels"],
     },
     {
@@ -61,7 +61,7 @@ module.exports = {
       image: "/images/icons/erxes-04.svg",
       location: "settings",
       scope: "inbox",
-      component: "./settings",
+      action: "integrationsAll",
       permissions: [
         "showIntegrations",
         "integrationsCreateMessengerIntegration",
@@ -81,7 +81,7 @@ module.exports = {
       image: "/images/icons/erxes-10.svg",
       location: "settings",
       scope: "inbox",
-      component: "./settings",
+      action: "responseTemplatesAll",
       permissions: ["manageResponseTemplate", "showResponseTemplates"],
     },
   ],

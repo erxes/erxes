@@ -1,14 +1,14 @@
-import React from "react";
-import { Route } from "react-router-dom";
-import BrandsRoutes from "./brands/routes";
-import General from "./general/routes";
-import ImportHistory from "./importHistory/routes";
-import MainRoutes from "./main/routes";
-import PermissionRoutes from "./permissions/routes";
-import ProfileRoutes from "./profile/routes";
-import PropertiesRoutes from "./properties/routes";
-import StatusRoutes from "./status/routes";
-import TeamRoutes from "./team/routes";
+import React from 'react';
+import { Route } from 'react-router-dom';
+import BrandsRoutes from './brands/routes';
+import General from './general/routes';
+import ImportHistory from './importExport/routes';
+import MainRoutes from './main/routes';
+import PermissionRoutes from './permissions/routes';
+import ProfileRoutes from './profile/routes';
+import PropertiesRoutes from './properties/routes';
+import StatusRoutes from './status/routes';
+import TeamRoutes from './team/routes';
 
 const routes = () => (
   <React.Fragment>

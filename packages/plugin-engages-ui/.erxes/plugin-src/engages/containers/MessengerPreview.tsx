@@ -4,7 +4,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import MessengerPreview from '../components/MessengerPreview';
-import { queries } from '../graphql';
+import { queries } from '@erxes/ui-engage/src/graphql';
 import { UserDetailQueryResponse } from '@erxes/ui/src/auth/types';
 
 type Props = {

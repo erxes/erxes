@@ -8,7 +8,13 @@ import {
   ICompanyDocument
 } from './definitions/companies';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
-import { client as msgBroker, prepareCustomFieldsData, sendConformityMessage } from '../messageBroker';
+import {
+  prepareCustomFieldsData,
+  sendConformityMessage,
+  removeInternalNotes,
+  internalNotesBatchUpdate
+} from '../messageBroker';
+
 // import { IUserDocument } from '@erxes/common-types';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
@@ -293,11 +299,7 @@ export const loadClass = () => {
       //   data: { type: ACTIVITY_CONTENT_TYPES.COMPANY, itemIds: companyIds }
       // });
 
-      await msgBroker.sendMessage("internalnotes:InternalNotes.removeInternalNotes", {
-        contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
-        contentTypeIds: companyIds,
-      });
-
+      await removeInternalNotes(ACTIVITY_CONTENT_TYPES.COMPANY, companyIds);
       await sendConformityMessage('removeConformities', {
         mainType: 'company',
         mainTypeIds: companyIds
@@ -387,12 +389,11 @@ export const loadClass = () => {
       });
 
       // Removing modules associated with current companies
-      await msgBroker.sendMessage("internalNotes:batchUpdate", {
-        contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
-        oldContentTypeIds: companyIds,
-        newContentTypeId: company._id,
-      });
-
+      await internalNotesBatchUpdate(
+        ACTIVITY_CONTENT_TYPES.COMPANY,
+        companyIds,
+        company._id
+      );
       return company;
     }
   }

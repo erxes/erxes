@@ -8,7 +8,7 @@ import {
 } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MESSAGE_KIND_FILTERS, statusFilters } from '../constants';
+import { MESSAGE_KIND_FILTERS, statusFilters } from '@erxes/ui-engage/src/constants';
 import { ITag } from '@erxes/ui/src/tags/types';
 
 const { Section } = Wrapper.Sidebar;
