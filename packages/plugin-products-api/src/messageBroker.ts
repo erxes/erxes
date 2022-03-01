@@ -65,6 +65,19 @@ export const initBroker = async cl => {
     }
   });
 
+  consumeRPCQueue('products:rpc_queue:generateInteralNoteNotif', async args => {
+    const { contentTypeId, notifDoc } = args;
+
+    const product = await Products.getProduct({ _id: contentTypeId });
+
+    notifDoc.content = product.name;
+
+    return {
+      status: 'success',
+      data: notifDoc
+    }
+  });
+
   consumeRPCQueue('products:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
     status: 'success',
     data: getSchemaLabels(

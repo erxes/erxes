@@ -16,8 +16,11 @@ module.exports = {
       url: "/notifications",
       icon: "icon-book-open",
       location: "topNavigation",
+<<<<<<< HEAD
       scope: "notifications",
       component: "./settings",
+=======
+>>>>>>> cc476736c0b3ebfa7b1690b6135320204f61ed73
     },
   ],
 };

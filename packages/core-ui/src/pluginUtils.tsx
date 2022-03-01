@@ -7,7 +7,12 @@ import { IItem } from "@erxes/ui-cards/src/boards/types";
 import { __ } from "modules/common/utils";
 import { ICompany } from "@erxes/ui/src/companies/types";
 import { ICustomer } from "@erxes/ui/src/customers/types";
-import { Divider, Row, RowTitle } from "@erxes/ui-settings/src/main/styles";
+import {
+  Divider,
+  PluginSettings,
+  Row,
+  RowTitle,
+} from "@erxes/ui-settings/src/main/styles";
 import React from "react";
 import { Route } from "react-router-dom";
 import pluginModules from "./plugins";
@@ -208,6 +213,7 @@ class SettingsCustomBox extends React.Component<any, any> {
   };
 
   render() {
+<<<<<<< HEAD
     const { renderBox, settingsNav, color } = this.props;
     const {
       text,
@@ -223,14 +229,30 @@ class SettingsCustomBox extends React.Component<any, any> {
 
     if (!component) {
       return box;
+=======
+    const { renderBox, settingsNav, color, hasComponent } = this.props;
+
+    const box = renderBox(
+      settingsNav.text,
+      settingsNav.image,
+      settingsNav.to,
+      settingsNav.action,
+      settingsNav.permissions,
+      settingsNav.scope,
+      color
+    );
+
+    if (settingsNav.component && hasComponent) {
+      return (
+        <div onClick={this.load}>
+          {this.renderComponent()}
+          {box}
+        </div>
+      );
+>>>>>>> cc476736c0b3ebfa7b1690b6135320204f61ed73
     }
 
-    return (
-      <div onClick={this.load}>
-        {this.renderComponent()}
-        {box}
-      </div>
-    );
+    return box;
   }
 }
 
@@ -252,6 +274,8 @@ export const pluginsSettingsNavigations = (
       plugin["color"] = generateRandomColor();
     }
 
+    const hasComponent = Object.keys(plugin.exposes).includes("./settings");
+
     for (const menu of plugin.menus || []) {
       if (menu.location === "settings") {
         navigationMenus.push(
@@ -260,6 +284,7 @@ export const pluginsSettingsNavigations = (
               settingsNav={menu}
               color={plugin.color}
               renderBox={renderBox}
+              hasComponent={hasComponent}
             />
           </React.Fragment>
         );
@@ -431,7 +456,7 @@ const renderSettings = (
       <Divider />
       <Row>
         <RowTitle>{__("Plugins Settings")}</RowTitle>
-        <div id={"PluginsSettings"}>{pluginsBoxs}</div>
+        <PluginSettings id={"PluginsSettings"}>{pluginsBoxs}</PluginSettings>
       </Row>
     </>
   );
