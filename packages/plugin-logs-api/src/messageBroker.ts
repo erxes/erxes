@@ -58,9 +58,6 @@ export const initBroker = async (cl) => {
     const { data, action } = parsedObject;
 
     switch (action) {
-      case 'createChecklistLog': {
-        return ActivityLogs.createChecklistLog(data);
-      }
       case 'removeActivityLogs': {
         const { type, itemIds } = data;
 
@@ -82,6 +79,12 @@ export const initBroker = async (cl) => {
         }
 
         break;
+    }
+  });
+
+  consumeQueue('logs:activityLogs:updateMany', async ({ query, modifier }) => {
+    if (query && modifier) {
+      await ActivityLogs.updateMany(query, modifier);
     }
   });
 

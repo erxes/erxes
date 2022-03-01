@@ -152,6 +152,7 @@ export const initBroker = async cl => {
     data: await conversationConvertToCard(args)
   }));
 
+  // necessary for logs service starting from here
   consumeRPCQueue('cards:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
     status: 'success',
     data: getSchemaLabels(type, LOG_MAPPINGS)

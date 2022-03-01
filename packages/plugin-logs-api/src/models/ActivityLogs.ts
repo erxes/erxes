@@ -38,12 +38,6 @@ export const activityLogSchema = new Schema({
   })
 });
 
-interface IChecklistParams {
-  item: any;
-  contentType: string;
-  action: string;
-}
-
 export interface IActivityLogModel extends Model<IActivityLogDocument> {
   addActivityLog(doc: IActivityLogInput): Promise<IActivityLogDocument>;
   addActivityLogs(docs: IActivityLogInput[]): Promise<IActivityLogDocument[]>;
@@ -59,8 +53,6 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
     type: string,
     maxBulk?: number
   );
-
-  createChecklistLog(params: IChecklistParams): Promise<IActivityLogDocument>;
 }
 
 export const loadClass = () => {
@@ -152,30 +144,6 @@ export const loadClass = () => {
       }
 
       return ActivityLogs.insertMany(bulkOpt);
-    }
-
-    public static async createChecklistLog({
-      item,
-      contentType,
-      action
-    }: IChecklistParams) {
-      if (action === 'delete') {
-        await ActivityLogs.updateMany(
-          { 'content._id': item._id },
-          { $set: { 'content.name': item.title || item.content } }
-        );
-      }
-
-      return ActivityLogs.addActivityLog({
-        contentType,
-        contentId: item.contentTypeId || item.checklistId,
-        action,
-        content: {
-          _id: item._id,
-          name: item.title || item.content
-        },
-        createdBy: item.createdUserId || ''
-      });
     }
   }
 

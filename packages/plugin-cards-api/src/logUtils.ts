@@ -25,7 +25,7 @@ import {
 } from '@erxes/api-utils/src/logUtils';
 import { ITaskDocument } from './models/definitions/tasks';
 import { ITicketDocument } from './models/definitions/tickets';
-import messageBroker, { findMongoDocuments, findProducts } from './messageBroker';
+import messageBroker, { findMongoDocuments, findProducts, sendMessage } from './messageBroker';
 import { MODULE_NAMES } from './constants';
 import { ACTIVITY_CONTENT_TYPES } from './models/definitions/constants';
 
@@ -544,4 +544,31 @@ export const putActivityLog = async (params: { action: string; data: any }) => {
   const updatedParams = { ...params, data: { ...data, contentType: `cards:${data.contentType}` } };
 
   return commonPutActivityLog({ messageBroker: messageBroker(), ...updatedParams });
+};
+
+export const putChecklistActivityLog = async (params) => {
+  const { action, item } = params;
+
+  const updatedParams = {
+    action: 'createChecklistLog',
+    data: {
+      ...params,
+      contentType: `cards:${params.contentType}`,
+      contentId: item.contentTypeId || item.checklistId,
+      content: { _id: item._id, name: item.title || item.content },
+      createdBy: item.createdUserId || ''
+    }
+  };
+
+  if (action === 'delete') {
+    sendMessage(
+      'logs:activityLogs:updateMany',
+      {
+        query: { 'content._id': item._id },
+        modifier: { $set: { 'content.name': item.title || item.content } }
+      }
+    );
+  }
+
+  return putActivityLog(updatedParams);
 };
