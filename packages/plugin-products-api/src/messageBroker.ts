@@ -61,6 +61,21 @@ export const initBroker = async cl => {
       data
     }
   });
+
+  consumeRPCQueue('products:rpc_queue:generateInteralNoteNotif', async args => {
+    const { contentTypeId, notifDoc } = args;
+
+    const product = await Products.getProduct({ _id: contentTypeId });
+
+    notifDoc.content = product.name;
+
+    return {
+      status: 'success',
+      data: notifDoc
+    }
+  });
+
+
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {

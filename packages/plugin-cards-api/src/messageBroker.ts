@@ -7,7 +7,7 @@ import {
   generateProducts
 } from './graphql/resolvers/customResolvers/deal';
 import { prepareImportDocs } from './importUtils';
-import { Checklists, Stages, Tasks, Tickets } from './models';
+import { Checklists, Deals, GrowthHacks, Pipelines, Stages, Tasks, Tickets } from './models';
 import { conversationConvertToCard } from './models/utils';
 import {
   generateConditionStageIds,
@@ -188,6 +188,52 @@ export const initBroker = async cl => {
   consumeRPCQueue('cards:rpc_queue:findCardItem', async data => {
     return { data: await getCardItem(data), status: 'success' };
   });
+
+  consumeRPCQueue('cards:rpc_queue:generateInteralNoteNotif', async args => {
+    let model: any = GrowthHacks;
+
+    const { contentTypeId, notifDoc, type } = args;
+
+    if (type === 'growthHack') {
+      const hack = await model.getGrowthHack(contentTypeId);
+
+      notifDoc.content = `${hack.name}`;
+
+      return notifDoc;
+    }
+
+    switch(type) {
+      case 'deal': 
+        model = Deals;
+        break;
+      case 'task':
+        model = Tasks;
+        break;
+      default: 
+        model = Tickets;
+        break;
+    }
+
+     const card = await model.findOne({_id: contentTypeId });
+     const stage = await Stages.getStage(card.stageId);
+     const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+
+     notifDoc.notifType = `${type}Delete`;
+     notifDoc.content = `"${card.name}"`;
+     notifDoc.link = `/${type}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${card._id}`;
+     notifDoc.contentTypeId = card._id;
+     notifDoc.contentType = `${type}`;
+     
+     // sendNotificationOfItems on ticket, task and deal
+     notifDoc.notifOfItems = true;
+
+    return {
+      status: 'success',
+      data: notifDoc
+    }
+
+  });
+
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {

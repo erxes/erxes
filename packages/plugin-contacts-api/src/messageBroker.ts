@@ -218,6 +218,37 @@ export const initBroker = (cl) => {
       data
     }
   });
+
+  consumeRPCQueue('contacts:rpc_queue:generateInteralNoteNotif', async args => {
+    const { contentTypeId, notifDoc, type } = args;
+
+    let model: any = Customers;
+    let link = `/contacts/details/`;
+
+    if (type === 'company') {
+      model = Companies;
+      link = `/companies/details/`;
+    }
+
+    const response = await model.findOne({ _id: contentTypeId });
+
+    const name =
+      type === 'customer'
+        ? await Customers.getCustomerName(response)
+        : await Companies.getCompanyName(response);
+
+    notifDoc.notifType = `${type}Mention`;
+    notifDoc.content = name;
+    notifDoc.link = link + response._id;
+    notifDoc.contentTypeId = response._id;
+    notifDoc.contentType = `${type}`;
+
+    return {
+      status: 'success',
+      data: notifDoc
+    };
+  });
+
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {

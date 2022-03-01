@@ -131,6 +131,19 @@ export const initBroker = async (server?) => {
       return { data, status: 'success' };
     });
 
+    consumeRPCQueue('users:rpc_queue:generateInteralNoteNotif', async args => {
+      const { contentTypeId, notifDoc } = args;
+
+      const usr = await Users.getUser(contentTypeId);
+
+      notifDoc.content = `${usr.username || usr.email}`;
+
+      return {
+        status: 'success',
+        data: notifDoc
+      }
+    });
+
     // graphql subscriptions call =========
     consumeQueue('callPublish', params => {
       graphqlPubsub.publish(params.name, params.data);
