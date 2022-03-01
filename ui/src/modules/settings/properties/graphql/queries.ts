@@ -21,6 +21,7 @@ const commonFields = `
     description
   }
   groupId
+  code
 
   ${genericFields}
 
