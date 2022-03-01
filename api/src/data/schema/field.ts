@@ -38,6 +38,7 @@ export const fieldsTypes = `
     contentType: String!
     contentTypeId: String
     name: String
+    code: String
     isVisible: Boolean
     isVisibleInDetail: Boolean
     canHide: Boolean
@@ -97,6 +98,7 @@ const fieldsCommonFields = `
   validation: String
   text: String
   description: String
+  code: String
   options: [String]
   locationOptions: [LocationOptionInput]
   isRequired: Boolean

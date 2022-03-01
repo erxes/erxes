@@ -55,6 +55,7 @@ describe('Fields mutations', () => {
     $validation: String
     $text: String
     $description: String
+    $code: String
     $options: [String]
     $isRequired: Boolean
     $order: Int
@@ -68,6 +69,7 @@ describe('Fields mutations', () => {
     text: $text
     description: $description
     options: $options
+    code: $code
     isRequired: $isRequired
     order: $order
     groupId: $groupId
@@ -132,6 +134,7 @@ describe('Fields mutations', () => {
           order
           groupId
           isVisible
+          code
         }
       }
     `;
@@ -153,6 +156,28 @@ describe('Fields mutations', () => {
     expect(field.order).toBe(fieldArgs.order);
     expect(field.groupId).toBe(fieldArgs.groupId);
     expect(field.isVisible).toBe(fieldArgs.isVisible);
+
+    const code = '123';
+
+    const fieldWithCode = await graphqlRequest(
+      mutation,
+      'fieldsAdd',
+      { ...fieldArgs, code },
+      context
+    );
+
+    expect(fieldWithCode.code).toBe(code);
+
+    try {
+      await graphqlRequest(
+        mutation,
+        'fieldsAdd',
+        { ...fieldArgs, code },
+        context
+      );
+    } catch (e) {
+      expect(e[0].message).toBe('Code must be unique');
+    }
   });
 
   test('Edit field', async () => {
@@ -173,6 +198,7 @@ describe('Fields mutations', () => {
           isRequired
           order
           groupId
+          code
           isVisible
         }
       }
@@ -194,6 +220,17 @@ describe('Fields mutations', () => {
     expect(field.order).toBe(fieldArgs.order);
     expect(field.groupId).toBe(fieldArgs.groupId);
     expect(field.isVisible).toBe(fieldArgs.isVisible);
+
+    const code = '123';
+
+    const fieldWithCode = await graphqlRequest(
+      mutation,
+      'fieldsEdit',
+      { _id: _field._id, ...fieldArgs, code },
+      context
+    );
+
+    expect(fieldWithCode.code).toBe(code);
   });
 
   test('Remove field', async () => {

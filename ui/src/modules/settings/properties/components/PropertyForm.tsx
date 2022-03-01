@@ -239,6 +239,15 @@ class PropertyForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
+          <ControlLabel>Code:</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="code"
+            defaultValue={object.code || ''}
+          />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel required={true}>Group:</ControlLabel>
           <Row>
             <FormControl

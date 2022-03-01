@@ -67,6 +67,7 @@ const commonVariables = `
   $validation: String,
   $text: String,
   $description: String,
+  $code: String,
   $options: [String],
   $locationOptions: [LocationOptionInput]
   $isRequired: Boolean,
@@ -80,6 +81,7 @@ const commonParams = `
   validation: $validation,
   text: $text,
   description: $description,
+  code: $code,
   options: $options,
   locationOptions: $locationOptions,
   isRequired: $isRequired,

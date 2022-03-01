@@ -68,6 +68,7 @@ export interface IField extends IVisibility {
   canHide?: boolean;
   lastUpdatedUserId?: string;
   associatedFieldId?: string;
+  code?: string;
 
   logics?: ILogic[];
   logicAction?: string;
@@ -126,6 +127,11 @@ export const fieldSchema = schemaWrapper(
       type: String,
       optional: true,
       label: 'Description'
+    }),
+    code: field({
+      type: String,
+      optional: true,
+      label: 'Unique code'
     }),
     options: field({
       type: [String],
