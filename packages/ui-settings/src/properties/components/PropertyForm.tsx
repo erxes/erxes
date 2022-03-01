@@ -1,17 +1,23 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import ModifiableList from '@erxes/ui/src/components/ModifiableList';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { Row } from '../../integrations/styles';
-import React from 'react';
-import PropertyGroupForm from '../containers/PropertyGroupForm';
-import { IField } from '@erxes/ui/src/types';
-import { IFieldGroup } from '../types';
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import ModifiableList from "@erxes/ui/src/components/ModifiableList";
+import { ModalFooter, MapContainer } from "@erxes/ui/src/styles/main";
+import {
+  IButtonMutateProps,
+  IFormProps,
+  ILocationOption,
+} from "@erxes/ui/src/types";
+import { Row } from "../../integrations/styles";
+import React from "react";
+import PropertyGroupForm from "../containers/PropertyGroupForm";
+import { IField } from "@erxes/ui/src/types";
+import { IFieldGroup } from "../types";
+import LocationOptions from './LocationOptions';
+import Map from '@erxes/ui/src/components/Map';
 
 type Props = {
   queryParams: any;
@@ -24,9 +30,11 @@ type Props = {
 
 type State = {
   options: any[];
+  locationOptions: any[];
   type: string;
   hasOptions: boolean;
   add: boolean;
+  currentLocation: ILocationOption;
 };
 
 class PropertyForm extends React.Component<Props, State> {
@@ -35,35 +43,47 @@ class PropertyForm extends React.Component<Props, State> {
 
     let doc = {
       options: [],
-      type: '',
-      hasOptions: false
+      type: "",
+      locationOptions: [],
+      hasOptions: false,
     };
 
     if (props.field) {
-      const { type, options } = props.field;
+      const { type, options, locationOptions } = props.field;
 
       doc = {
         ...doc,
-        type
+        type,
       };
 
       if (
-        type === 'select' ||
-        type === 'multiSelect' ||
-        type === 'radio' ||
-        type === 'check'
+        type === "select" ||
+        type === "multiSelect" ||
+        type === "radio" ||
+        type === "check"
       ) {
         doc = {
           type,
           hasOptions: true,
-          options: Object.assign([], options || [])
+          options: Object.assign([], options || []),
+          locationOptions: [],
+        };
+      }
+
+      if (type === "map") {
+        doc = {
+          type,
+          hasOptions: false,
+          options: [],
+          locationOptions: Object.assign([], locationOptions || []),
         };
       }
     }
 
     this.state = {
       ...doc,
-      add: false
+      currentLocation: { lat: 0, lng: 0 },
+      add: false,
     };
   }
 
@@ -86,30 +106,35 @@ class PropertyForm extends React.Component<Props, State> {
       ...finalValues,
       type: this.state.type,
       options: this.state.options,
-      contentType: type
+      locationOptions: this.state.locationOptions,
+      contentType: type,
     };
   };
 
-  onChangeOption = options => {
+  onChangeOption = (options) => {
     this.setState({ options });
   };
 
-  onRemoveOption = options => {
+  onChangeLocationOption = (locationOptions) => {
+    this.setState({ locationOptions });
+  };
+
+  onRemoveOption = (options) => {
     this.setState({ options });
   };
 
-  onTypeChange = e => {
+  onTypeChange = (e) => {
     const value = e.target.value;
     let doc: { hasOptions: boolean; options: any[] } = {
       hasOptions: false,
-      options: []
+      options: [],
     };
 
     if (
-      value === 'select' ||
-      value === 'multiSelect' ||
-      value === 'check' ||
-      value === 'radio'
+      value === "select" ||
+      value === "multiSelect" ||
+      value === "check" ||
+      value === "radio"
     ) {
       doc = { hasOptions: true, options: this.state.options };
     }
@@ -130,16 +155,56 @@ class PropertyForm extends React.Component<Props, State> {
     );
   };
 
+  renderLocationOptions = () => {
+    if (this.state.type !== "map") {
+      return null;
+    }
+
+    const { currentLocation, locationOptions = [] } = this.state;
+
+    return (
+      <FormGroup>
+        <ControlLabel htmlFor="locationOptions">Options:</ControlLabel>
+        {locationOptions.length > 0 && (
+          <MapContainer>
+            <Map
+              center={currentLocation}
+              googleMapApiKey={localStorage.getItem("GOOGLE_MAP_API_KEY") || ""}
+              defaultZoom={7}
+              locationOptions={locationOptions}
+              mapControlOptions={{
+                controlSize: 30,
+                zoomControl: true,
+                mapTypeControl: true,
+                scaleControl: false,
+                streetViewControl: false,
+                rotateControl: false,
+                fullscreenControl: true,
+              }}
+              isPreview={true}
+              onChangeLocationOptions={this.onChangeLocationOption}
+            />
+          </MapContainer>
+        )}
+
+        <LocationOptions
+          locationOptions={locationOptions}
+          onChange={this.onChangeLocationOption}
+        />
+      </FormGroup>
+    );
+  };
+
   renderAddGroup = () => {
     const { queryParams } = this.props;
 
     const trigger = <Button>Create group</Button>;
-    const content = props => (
+    const content = (props) => (
       <PropertyGroupForm {...props} queryParams={queryParams} />
     );
 
     return (
-      <ModalTrigger title='Create group' trigger={trigger} content={content} />
+      <ModalTrigger title="Create group" trigger={trigger} content={content} />
     );
   };
 
@@ -157,8 +222,8 @@ class PropertyForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Name:</ControlLabel>
           <FormControl
             {...formProps}
-            name='text'
-            defaultValue={object.text || ''}
+            name="text"
+            defaultValue={object.text || ""}
             required={true}
             autoFocus={true}
           />
@@ -168,9 +233,9 @@ class PropertyForm extends React.Component<Props, State> {
           <ControlLabel>Description:</ControlLabel>
           <FormControl
             {...formProps}
-            name='description'
-            componentClass='textarea'
-            defaultValue={object.description || ''}
+            name="description"
+            componentClass="textarea"
+            defaultValue={object.description || ""}
           />
         </FormGroup>
 
@@ -179,14 +244,14 @@ class PropertyForm extends React.Component<Props, State> {
           <Row>
             <FormControl
               {...formProps}
-              name='groupId'
-              componentClass='select'
-              defaultValue={object.groupId || ''}
+              name="groupId"
+              componentClass="select"
+              defaultValue={object.groupId || ""}
               required={true}
             >
               {groups
-                .filter(e => !e.isDefinedByErxes)
-                .map(group => {
+                .filter((e) => !e.isDefinedByErxes)
+                .map((group) => {
                   return (
                     <option key={group._id} value={group._id}>
                       {group.name}
@@ -203,54 +268,56 @@ class PropertyForm extends React.Component<Props, State> {
 
           <FormControl
             {...formProps}
-            name='type'
-            componentClass='select'
+            name="type"
+            componentClass="select"
             value={type}
             onChange={this.onTypeChange}
             required={true}
           >
             <option />
-            <option value='input'>Input</option>
-            <option value='list'>String List</option>
-            <option value='objectList'>Object List</option>
-            <option value='textarea'>Text area</option>
-            <option value='select'>Select</option>
-            <option value='multiSelect'>Multiple select</option>
-            <option value='check'>Checkbox</option>
-            <option value='radio'>Radio button</option>
-            <option value='file'>File</option>
-            <option value='customer'>Customer</option>
+            <option value="input">Input</option>
+            <option value="list">String List</option>
+            <option value="objectList">Object List</option>
+            <option value="textarea">Text area</option>
+            <option value="select">Select</option>
+            <option value="multiSelect">Multiple select</option>
+            <option value="check">Checkbox</option>
+            <option value="radio">Radio button</option>
+            <option value="file">File</option>
+            <option value="customer">Customer</option>
+            <option value="map">Location/Map</option>
           </FormControl>
         </FormGroup>
         {this.renderOptions()}
+        {this.renderLocationOptions()}
 
         <FormGroup>
           <ControlLabel>Validation:</ControlLabel>
 
           <FormControl
             {...formProps}
-            componentClass='select'
-            name='validation'
-            defaultValue={object.validation || ''}
+            componentClass="select"
+            name="validation"
+            defaultValue={object.validation || ""}
           >
             <option />
-            <option value='email'>Email</option>
-            <option value='number'>Number</option>
-            <option value='date'>Date</option>
+            <option value="email">Email</option>
+            <option value="number">Number</option>
+            <option value="date">Date</option>
           </FormControl>
         </FormGroup>
 
         <ModalFooter>
-          <Button btnStyle='simple' onClick={closeModal} icon='times-circle'>
+          <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Close
           </Button>
 
           {renderButton({
-            name: 'property',
+            name: "property",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: field
+            object: field,
           })}
         </ModalFooter>
       </>

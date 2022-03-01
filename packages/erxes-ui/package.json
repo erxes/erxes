@@ -24,6 +24,7 @@
     "draft-js-plugins-editor": "^2.0.3",
     "draft-js-static-toolbar-plugin": "^3.0.0",
     "erxes-icon": "^1.2.1",
+    "google-map-react": "1.1.7",
     "graphql-tag": "2.6.1",
     "i18n-react": "^0.6.4",
     "lodash": "^4.17.15",

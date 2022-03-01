@@ -516,10 +516,10 @@ export const conversationConvertToCard = async args => {
 
     item.userId = user._id;
 
-    // await putActivityLog({
-    //   action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
-    //   data: { item, contentType: type }
-    // });
+    await putActivityLog({
+      action: 'createBoardItem',
+      data: { item, contentType: type }
+    });
 
     const relTypeIds: string[] = [];
 

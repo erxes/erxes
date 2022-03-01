@@ -4,7 +4,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import SelectCustomers from '@erxes/ui/src/customers/containers/SelectCustomers';
-import { IAttachment } from '@erxes/ui/src/types';
+import { IAttachment, ILocationOption, IField } from '@erxes/ui/src/types';
 import {
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES,
@@ -12,77 +12,40 @@ import {
 } from '@erxes/ui/src/companies/constants';
 import React from 'react';
 import { LogicIndicator, SelectInput, ObjectList } from '../styles';
-import { IField, ILocationOption } from '@erxes/ui/src/types';
 import Select from 'react-select-plus';
 import { IOption } from '@erxes/ui/src/types';
 import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import { __ } from '@erxes/ui/src/utils/core';
 import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
-import { MapContainer, Marker, CircleMarker, Popup } from 'react-leaflet';
-import ReactLeafletGoogleLayer from 'react-leaflet-google-layer';
-import { FullscreenControl } from 'react-leaflet-fullscreen';
-import 'react-leaflet-fullscreen/dist/styles.css';
-import { IConfig } from '@erxes/ui-settings/src/general/types';
-import { Alert } from '@erxes/ui/src/utils';
+import Map from '@erxes/ui/src/components/Map';
+import { MapContainer } from 'react-leaflet';
 
 type Props = {
   field: IField;
-  configs: IConfig[];
-  onValueChange?: (data: { _id: string; value: any }) => void;
+  currentLocation: ILocationOption;
   defaultValue?: any;
   hasLogic?: boolean;
+  isPreview?: boolean;
+  onValueChange?: (data: { _id: string; value: any }) => void;
+  onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
 };
 
 type State = {
   value?: any;
   checkBoxValues: any[];
   errorCounter: number;
-  currentLocation?: ILocationOption;
-  googleMapApiKey: string;
+  currentLocation: ILocationOption;
 };
 
 export default class GenerateField extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const config = props.configs.find(e => e.code === 'GOOGLE_MAP_API_KEY');
-
     this.state = {
       errorCounter: 0,
       ...this.generateState(props),
-      googleMapApiKey: config ? config.value : ''
+      currentLocation: props.currentLocation
     };
-  }
-
-  componentDidMount() {
-    const onSuccess = (position: { coords: any }) => {
-      const coordinates = position.coords;
-
-      this.setState({
-        currentLocation: {
-          lat: coordinates.latitude,
-          lng: coordinates.longitude
-        }
-      });
-    };
-
-    const onError = (err: { code: any; message: any }) => {
-      return Alert.error(`${err.code}): ${err.message}`);
-    };
-
-    if (navigator.geolocation) {
-      navigator.permissions.query({ name: 'geolocation' }).then(result => {
-        if (result.state === 'granted') {
-          navigator.geolocation.getCurrentPosition(onSuccess);
-        } else if (result.state === 'prompt') {
-          navigator.geolocation.getCurrentPosition(onSuccess, onError, {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-          });
-        }
-      });
-    }
   }
 
   generateState = props => {
@@ -101,11 +64,18 @@ export default class GenerateField extends React.Component<Props, State> {
     if (nextProps.defaultValue !== this.props.defaultValue) {
       this.setState(this.generateState(nextProps));
     }
+
+    if (nextProps.currentLocation !== this.props.currentLocation) {
+      this.setState({ currentLocation: nextProps.currentLocation });
+    }
   }
 
   renderSelect(options: string[] = [], attrs = {}) {
     return (
-      <FormControl componentClass='select' {...attrs}>
+      <FormControl componentClass="select" {...attrs}>
+        <option key={''} value="">
+          Choose option
+        </option>
         {options.map((option, index) => (
           <option key={index} value={option}>
             {option}
@@ -196,8 +166,8 @@ export default class GenerateField extends React.Component<Props, State> {
         <Datetime
           {...attrs}
           value={value}
-          dateFormat='YYYY/MM/DD'
-          timeFormat='HH:mm'
+          dateFormat="YYYY/MM/DD"
+          timeFormat="HH:mm"
           closeOnSelect={true}
         />
       );
@@ -216,7 +186,7 @@ export default class GenerateField extends React.Component<Props, State> {
         <Datetime
           {...attrs}
           value={value}
-          dateFormat='YYYY/MM/DD'
+          dateFormat="YYYY/MM/DD"
           timeFormat={false}
           closeOnSelect={true}
         />
@@ -237,7 +207,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderTextarea(attrs) {
-    return <FormControl componentClass='textarea' {...attrs} />;
+    return <FormControl componentClass="textarea" {...attrs} />;
   }
 
   renderRadioOrCheckInputs(options, attrs, hasError?: boolean) {
@@ -268,8 +238,8 @@ export default class GenerateField extends React.Component<Props, State> {
       <Uploader
         defaultFileList={value || []}
         onChange={onChangeFile}
-        multiple={false}
-        single={true}
+        multiple={true}
+        single={false}
       />
     );
   }
@@ -287,8 +257,8 @@ export default class GenerateField extends React.Component<Props, State> {
 
     return (
       <SelectCustomers
-        label='Filter by customers'
-        name='customerIds'
+        label="Filter by customers"
+        name="customerIds"
         multi={false}
         initialValue={value}
         onSelect={onSelect}
@@ -339,7 +309,7 @@ export default class GenerateField extends React.Component<Props, State> {
     const entries = Object.entries(object);
 
     return (
-      <SidebarList className='no-hover' key={index}>
+      <SidebarList className="no-hover" key={index}>
         {entries.map(e => {
           const key = e[0];
           const value: any = e[1] || '';
@@ -374,60 +344,46 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderMap(attrs) {
-    const { field, onValueChange } = this.props;
-
-    const { currentLocation, googleMapApiKey } = this.state;
-
+    const {
+      field,
+      isPreview,
+      onChangeLocationOptions,
+      onValueChange
+    } = this.props;
     const { locationOptions = [] } = field;
+    const { value } = attrs;
 
-    const dragend = e => {
-      const location = e.target.getLatLng();
+    let { currentLocation } = this.state;
+
+    const onChangeMarker = e => {
       if (onValueChange) {
-        onValueChange({ _id: field._id, value: location });
+        onValueChange({ _id: field._id, value: e });
       }
     };
 
-    const { value } = attrs;
-    let centerCoordinates: [number, number] = [0, 0];
-
-    if (currentLocation) {
-      centerCoordinates = [currentLocation.lat, currentLocation.lng];
-    }
-
     if (value && value.length !== 0) {
-      centerCoordinates = value;
-    }
-
-    let zoom = 10;
-
-    if (centerCoordinates[0] === 0 && centerCoordinates[1] === 0) {
-      zoom = 2;
+      currentLocation = value;
     }
 
     return (
-      <MapContainer
-        style={{ width: '100%', aspectRatio: '1/1' }}
-        zoom={zoom}
-        center={centerCoordinates}
-      >
-        <ReactLeafletGoogleLayer
-          apiKey={googleMapApiKey}
-          useGoogMapsLoader={true}
-        />
-        <FullscreenControl />
-
-        {locationOptions.map((option, index) => (
-          <div key={index}>
-            <CircleMarker key={index} center={[option.lat, option.lng]}>
-              <Popup>{option.description}</Popup>
-            </CircleMarker>
-          </div>
-        ))}
-
-        <Marker
-          draggable={true}
-          position={centerCoordinates}
-          eventHandlers={{ dragend }}
+      <MapContainer>
+        <Map
+          center={currentLocation}
+          googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
+          defaultZoom={7}
+          locationOptions={locationOptions}
+          mapControlOptions={{
+            controlSize: 30,
+            zoomControl: true,
+            mapTypeControl: true,
+            scaleControl: false,
+            streetViewControl: false,
+            rotateControl: false,
+            fullscreenControl: isPreview ? false : true
+          }}
+          isPreview={isPreview}
+          onChangeMarker={onChangeMarker}
+          onChangeLocationOptions={onChangeLocationOptions}
         />
       </MapContainer>
     );
