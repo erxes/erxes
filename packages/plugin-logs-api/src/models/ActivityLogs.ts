@@ -3,30 +3,6 @@ import { Document, Model, model, Schema } from 'mongoose';
 
 import { field } from './Logs';
 
-const ACTIVITY_ACTIONS = {
-  CREATE: 'create',
-  UPDATE: 'update',
-  DELETE: 'delete',
-  MERGE: 'merge',
-  SEND: 'send',
-  MOVED: 'moved',
-  CONVERT: 'convert',
-  ASSIGNEE: 'assignee',
-  TAGGED: 'tagged',
-
-  ALL: [
-    'create',
-    'update',
-    'delete',
-    'merge',
-    'send',
-    'moved',
-    'convert',
-    'assignee',
-    'tagged'
-  ]
-};
-
 export interface IActivityLogInput {
   action: string;
   content?: any;
