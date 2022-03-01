@@ -19,6 +19,7 @@ import {
 } from './utils';
 
 import { LOG_MAPPINGS } from './constants';
+import { notifiedUserIds } from './graphql/utils';
 
 let client;
 
@@ -228,6 +229,7 @@ export const initBroker = async cl => {
      notifDoc.link = `/${type}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${card._id}`;
      notifDoc.contentTypeId = card._id;
      notifDoc.contentType = `${type}`;
+     notifDoc.item = card;
      
      // sendNotificationOfItems on ticket, task and deal
      notifDoc.notifOfItems = true;
@@ -239,6 +241,12 @@ export const initBroker = async cl => {
 
   });
 
+  consumeRPCQueue('cards:rpc_queue:notifiedUserIds', async args => {
+    return { 
+      status: 'success',
+      data: await notifiedUserIds(args),
+    };
+  });
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {

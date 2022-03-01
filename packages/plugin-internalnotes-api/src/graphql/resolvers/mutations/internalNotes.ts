@@ -10,6 +10,28 @@ interface IInternalNotesEdit extends IInternalNote {
   _id: string;
 }
 
+const sendNotificationOfItems = async (
+  serviceName: any,
+  item: any,
+  doc: any,
+  contentType: string,
+  excludeUserIds: string[]
+) => {
+  const notifDocItems = { ...doc };
+  const relatedReceivers = await sendRPCMessage(`${serviceName}:rpc_queue:notifiedUserIds`, item);
+
+  notifDocItems.action = `added note in ${contentType}`;
+
+  notifDocItems.receivers = relatedReceivers.filter(id => {
+    return excludeUserIds.indexOf(id) < 0;
+  });
+
+ sendNotificationMessage('send', notifDocItems);
+
+  graphqlPubsub.publish('activityLogsChanged', {});
+};
+
+
 const internalNoteMutations = (serviceDiscovery) => ({
   /**
    * Adds internalNote object and also adds an activity log
@@ -29,11 +51,7 @@ const internalNoteMutations = (serviceDiscovery) => ({
       contentType: '',
       contentTypeId: ''
     };
-
-    // contentType = 'cards:task'
-     contentType = 'contacts:company'
-
-    // *  [cards, deal]
+    
     const [serviceName, type] = contentType.split(':');
     const isServiceAvailable = await serviceDiscovery.isAvailable(serviceName)
 
@@ -41,34 +59,20 @@ const internalNoteMutations = (serviceDiscovery) => ({
       return null;
     }
 
-    // working fine in card
-
     const updatedNotifDoc = await sendRPCMessage(`${serviceName}:rpc_queue:generateInteralNoteNotif`, {
       type,
       contentTypeId,
       notifDoc
     });
 
-
     if(updatedNotifDoc.notifOfItems) {
-      // * deal, task, ticket orj irne
-      // await sendNotificationOfItems(task, notifDoc, contentType, [
-      //   ...mentionedUserIds,
-      //   user._id
-      // ]);
+      const { item } = updatedNotifDoc;
 
-      await sendNotificationMessage('send', updatedNotifDoc);
-
-      graphqlPubsub.publish('activityLogsChanged', {});
-
+      await sendNotificationOfItems(serviceName, item, notifDoc, contentType, [
+        ...mentionedUserIds,
+        user._id
+      ]);
     }
-
-    // if (updatedNotifDoc.notifOfItems) {
-    //   await sendNotificationMessage('send', updatedNotifDoc);
-
-    //   graphqlPubsub.publish('activityLogsChanged', {});
-    // }
-
 
     if (updatedNotifDoc.contentType) {
       await sendNotificationMessage('send', updatedNotifDoc);
