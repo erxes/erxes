@@ -37,10 +37,9 @@ const internalNoteMutations = (serviceDiscovery) => ({
    * Adds internalNote object and also adds an activity log
    */
   async internalNotesAdd(_root, args: IInternalNote, { user }: IContext) {
-  let { contentType, contentTypeId } = args;
-    const mentionedUserIds = args.mentionedUserIds || [];
+    const { contentType, contentTypeId, mentionedUserIds = [] } = args;
 
-    let notifDoc = {
+    const notifDoc = {
       title: `${contentType.toUpperCase()} updated`,
       createdUser: user,
       action: `mentioned you in ${contentType}`,
