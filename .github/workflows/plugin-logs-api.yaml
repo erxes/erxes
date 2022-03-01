@@ -1,4 +1,4 @@
-name: Plugin logs api CI
+name: Plugin logs Api CI
 
 on:
   push:
