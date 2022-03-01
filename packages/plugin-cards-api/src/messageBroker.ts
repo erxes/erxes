@@ -262,8 +262,12 @@ export const sendContactMessage = async (action, data): Promise<any> => {
 };
 
 export const sendContactRPCMessage = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isAvailable('contacts'))) {
+  if (!(await serviceDiscovery.isEnabled('contacts'))) {
     return [];
+  }
+
+  if (!(await serviceDiscovery.isAvailable('contacts'))) {
+    throw new Error("Contacts service is not available");
   }
 
   return client.sendRPCMessage(`contacts:rpc_queue:${action}`, data);
@@ -302,8 +306,12 @@ export const sendInboxRPCMessage = async (action, data): Promise<any> => {
 };
 
 export const findProducts = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isAvailable('products'))) {
+  if (!(await serviceDiscovery.isEnabled('products'))) {
     return [];
+  }
+
+  if (!(await serviceDiscovery.isAvailable('products'))) {
+    throw new Error("Products service is not available");
   }
 
   return client.sendRPCMessage(`products:rpc_queue:${action}`, data);
@@ -330,11 +338,14 @@ export const sendNotificationMessage = async (
   isRPC?: boolean,
   defaultValue?
 ): Promise<any> => {
+  if (!(await serviceDiscovery.isEnabled('notifications'))) {
+    return defaultValue;
+  }
+  
   if (isRPC) {
     if (!(await serviceDiscovery.isAvailable('notifications'))) {
-      return defaultValue;
+      throw new Error("Notifications service is not available");
     }
-
     return client.sendRPCMessage(`notifications:rpc_queue:${action}`, data);
   }
 
@@ -351,16 +362,15 @@ export const fetchSegment = (segment, options?) =>
   });
 
 export const findMongoDocuments = async (serviceName: string, data: any) => {
-  const available = await serviceDiscovery.isAvailable(serviceName);
-
-  if (!available) {
+  if(!(await serviceDiscovery.isEnabled(serviceName))) {
     return [];
   }
 
-  return client.sendRPCMessage(
-    `${serviceName}:rpc_queue:findMongoDocuments`,
-    data
-  );
+  if(!(await serviceDiscovery.isAvailable(serviceName))) {
+    throw new Error(`${serviceName} is not available`);
+  }
+
+  return client.sendRPCMessage(`${serviceName}:rpc_queue:findMongoDocuments`, data);
 };
 
 export default function() {

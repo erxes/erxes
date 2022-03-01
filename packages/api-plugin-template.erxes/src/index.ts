@@ -24,6 +24,8 @@ import { getService, getServices, join, leave } from './serviceDiscovery';
 
 const configs = require('../../src/configs').default;
 
+const enabledServices = require("../../../enabled-services");
+
 const { MONGO_URL, PORT } = process.env;
 
 export const app = express();
@@ -153,8 +155,10 @@ async function startServer() {
     getService,
     isAvailable: async name => {
       const serviceNames = await getServices();
-
       return serviceNames.includes(name);
+    },
+    isEnabled: name => {
+      return enabledServices[name];
     }
   };
 

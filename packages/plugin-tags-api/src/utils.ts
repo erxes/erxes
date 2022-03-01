@@ -7,7 +7,7 @@ export const countDocuments = async (
 ) => {
   const [serviceName, contentType] = type.split(':');
 
-  const isServerAvailable = await serviceDiscovery.isAvailable(serviceName);
+  const isServerAvailable = await serviceDiscovery.isEnabled(serviceName);
 
   if (isServerAvailable) {
     return sendRPCMessage(`${serviceName}:rpc_queue:tag`, {
@@ -28,7 +28,7 @@ export const tagObject = async (
 ) => {
   const [serviceName, contentType] = type.split(':');
 
-  const isServerAvailable = await serviceDiscovery.isAvailable(serviceName);
+  const isServerAvailable = await serviceDiscovery.isEnabled(serviceName);
 
   if (isServerAvailable) {
     return sendRPCMessage(`${serviceName}:rpc_queue:tag`, {

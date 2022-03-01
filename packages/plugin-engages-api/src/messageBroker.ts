@@ -72,30 +72,36 @@ export const findIntegrations = async (query, options?): Promise<any> => {
 };
 
 export const findMongoDocuments = async (serviceName: string, data: any) => {
-  const available = await serviceDiscovery.isAvailable(serviceName);
-
-  if (!available) {
+  if(!(await serviceDiscovery.isEnabled(serviceName))) {
     return [];
+  }
+  
+  if(!(await serviceDiscovery.isAvailable(serviceName))) {
+    throw new Error(`${serviceName} service is not available`);
   }
 
   return client.sendRPCMessage(`${serviceName}:rpc_queue:findMongoDocuments`, data);
 };
 
 export const createConversationAndMessage = async (doc): Promise<any> => {
-  const available = await serviceDiscovery.isAvailable('inbox');
-
-  if (!available) {
+  if(!(await serviceDiscovery.isEnabled('inbox'))) {
     return null;
+  }
+
+  if(!(await serviceDiscovery.isAvailable("inbox"))) {
+    throw new Error(`Inbox service is not available`);
   }
 
   return client.sendRPCMessage('inbox:rpc_queue:createConversationAndMessage', doc);
 };
 
 export const updateConversationMessage = async (data: any) => {
-  const available = await serviceDiscovery.isAvailable('inbox');
-
-  if (!available) {
+  if(!(await serviceDiscovery.isEnabled('inbox'))) {
     return null;
+  }
+
+  if(!(await serviceDiscovery.isAvailable("inbox"))) {
+    throw new Error(`Inbox service is not available`);
   }
 
   return client.sendRPCMessage('inbox:rpc_queue:updateConversationMessage', data);

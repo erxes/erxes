@@ -1,16 +1,7 @@
-import { Conversations, Integrations } from "../../models";
-import { client as msgBroker } from "../../messageBroker";
+import { Conversations } from "../../models";
 
 export default {
-  async integration(customerRef: { __typename: string; _id: string }) {
-    const customer: any = await msgBroker.sendRPCMessage(
-      "contacts:Customers.findOne",
-      { selector: { _id: customerRef._id }, fields: { integrationId: 1 } }
-    );
-    return Integrations.findOne({ _id: customer.integrationId });
-  },
-
-  conversations(customerRef: { __typename: string; _id: string }) {
-    return Conversations.find({ customerId: customerRef._id }).lean();
+  conversations(customer: { __typename: string; _id: string }) {
+    return Conversations.find({ customerId: customer._id }).lean();
   },
 };

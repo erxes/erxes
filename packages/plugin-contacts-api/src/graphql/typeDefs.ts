@@ -13,7 +13,10 @@ import {
 } from './company';
 
 const typeDefs = async (serviceDiscovery) =>  {
-  const tagsAvailable = await serviceDiscovery.isAvailable('tags');
+  const tagsEnabled = serviceDiscovery.isEnabled('tags');
+  const inboxEnabled = serviceDiscovery.isEnabled('inbox');
+
+  console.log({ tagsEnabled, inboxEnabled });
 
   return gql`
     scalar JSON
@@ -24,7 +27,7 @@ const typeDefs = async (serviceDiscovery) =>  {
     }
   
     ${
-      tagsAvailable ? 
+      tagsEnabled ? 
       `
         extend type Tag @key(fields: "_id") {
           _id: String! @external
@@ -32,9 +35,18 @@ const typeDefs = async (serviceDiscovery) =>  {
       ` : ''
     }
 
+    ${
+      inboxEnabled ? 
+      `
+        extend type Integration @key(fields: "_id") {
+          _id: String! @external
+        }
+      ` : ''
+    }
 
-    ${customerTypes(tagsAvailable)}
-    ${companyTypes(tagsAvailable)}
+
+    ${customerTypes(tagsEnabled, inboxEnabled)}
+    ${companyTypes(tagsEnabled)}
     
     extend type Query {
       ${CustomerQueries}

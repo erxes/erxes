@@ -9,7 +9,7 @@ let client;
 
 const checkAvailability = async (activityLog: IActivityLogDocument) => {
   const [serviceName] = activityLog.contentType.split(':');
-  const available = await serviceDiscovery.isAvailable(serviceName);
+  const available = await serviceDiscovery.isEnabled(serviceName);
 
   if (!available) {
     return null;
@@ -100,7 +100,7 @@ export const initBroker = async (cl) => {
 };
 
 export const getDbSchemaLabels = async (serviceName: string, type: string) => {
-  const available = await serviceDiscovery.isAvailable(serviceName);
+  const available = await serviceDiscovery.isEnabled(serviceName);
 
   if (!available) {
     return [];
@@ -123,7 +123,7 @@ export const getContentTypeDetail = async (activityLog: IActivityLogDocument) =>
 
 export const collectServiceItems = async (contentType, data) => {
   const [serviceName] = contentType.split(':');
-  const available = await serviceDiscovery.isAvailable(serviceName);
+  const available = await serviceDiscovery.isEnabled(serviceName);
 
   if (!available) {
     return [];
