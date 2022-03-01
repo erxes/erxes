@@ -79,4 +79,5 @@ export const mutations = `
   exmsAdd(${commonParams}): Exm
   exmsEdit(_id: String, ${commonParams}): Exm
   exmsRemove(_id: String!): JSON
+  userRegistrationCreate(email:String, password:String):String
 `;

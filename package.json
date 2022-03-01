@@ -48,6 +48,8 @@
   },
   "dependencies": {
     "@sentry/react": "^5.29.2",
-    "fs-extra": "^9.0.1"
+    "bcryptjs": "^2.4.3",
+    "fs-extra": "^9.0.1",
+    "sha256": "^0.2.0"
   }
 }
