@@ -183,6 +183,11 @@ class PropertyGroupForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>Code</ControlLabel>
+          <FormControl {...formProps} name="code" defaultValue={object.code} />
+        </FormGroup>
+
         {this.renderFieldVisible()}
 
         {['visitor', 'lead', 'customer'].includes(object.contentType) ? (

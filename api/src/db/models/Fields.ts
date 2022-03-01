@@ -1,7 +1,6 @@
 /*
  * Extra fields for form, customer, company
  */
-
 import { Model, model } from 'mongoose';
 import * as validator from 'validator';
 import { Customers, Forms } from '.';
@@ -538,6 +537,7 @@ export const loadFieldClass = () => {
 };
 
 export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
+  checkCodeDuplication(code: string): string;
   checkIsDefinedByErxes(_id: string): never;
   createGroup(doc: IFieldGroup): Promise<IFieldGroupDocument>;
   updateGroup(_id: string, doc: IFieldGroup): Promise<IFieldGroupDocument>;
@@ -554,6 +554,15 @@ export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
 
 export const loadGroupClass = () => {
   class FieldGroup {
+    static async checkCodeDuplication(code: string) {
+      const group = await FieldsGroups.findOne({
+        code
+      });
+
+      if (group) {
+        throw new Error('Code must be unique');
+      }
+    }
     /*
      * Check if Group is defined by erxes by default
      */
@@ -570,6 +579,10 @@ export const loadGroupClass = () => {
      * Create new field group
      */
     public static async createGroup(doc: IFieldGroup) {
+      if (doc.code) {
+        await this.checkCodeDuplication(doc.code || '');
+      }
+
       // Newly created group must be visible
       const isVisible = true;
 
@@ -598,6 +611,11 @@ export const loadGroupClass = () => {
      * Update field group
      */
     public static async updateGroup(_id: string, doc: IFieldGroup) {
+      const group = await FieldsGroups.findOne({ _id });
+
+      if (doc.code && group && group.code !== doc.code) {
+        await this.checkCodeDuplication(doc.code);
+      }
       // Can not edit group that is defined by erxes
       await this.checkIsDefinedByErxes(_id);
 

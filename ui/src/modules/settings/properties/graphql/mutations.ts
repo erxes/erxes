@@ -3,6 +3,7 @@ const commonFields = `
   $contentType: String,
   $order: Int,
   $description: String,
+  $code: String,
   $isVisible: Boolean,
   $isVisibleInDetail: Boolean,
   $boardsPipelines: [BoardsPipelinesInput],
@@ -13,6 +14,7 @@ const commonTypes = `
   contentType: $contentType,
   order: $order,
   description: $description,
+  code: $code,
   isVisible: $isVisible,
   isVisibleInDetail: $isVisibleInDetail,
   boardsPipelines: $boardsPipelines

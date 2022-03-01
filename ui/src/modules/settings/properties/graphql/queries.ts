@@ -37,6 +37,7 @@ const commonFieldsGroups = `
     boardId
     pipelineIds
   }
+  code
   ${genericFields}
 
   lastUpdatedUser {

@@ -55,6 +55,7 @@ export interface IFieldGroup {
   contentType: string;
   order: React.ReactNode;
   description: string;
+  code: string;
   isVisible: boolean;
   isVisibleInDetail: boolean;
   isDefinedByErxes: boolean;
