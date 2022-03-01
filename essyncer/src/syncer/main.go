@@ -119,6 +119,37 @@ func main() {
 		}
 	}`
 
+	putTemplate("conformities", fmt.Sprintf(`{
+		"mainType": {
+			"type": "keyword"
+		},
+		"mainTypeId": {
+			"type": "keyword"
+		},
+		"relType": {
+			"type": "keyword"
+		},
+		"relTypeId": {
+			"type": "keyword"
+		}
+	}`))
+
+	putTemplate("events", fmt.Sprintf(`{
+		"organizationId": {
+			"type": "keyword"
+		},
+		"type": {
+			"type": "keyword"
+		},
+		"name": {
+			"type": "keyword"
+		},
+		"customerId": {
+			"type": "keyword"
+		},
+    	"attributes" : %s
+	}`, nested_type))
+
 	for i := 0; i < len(plugins.Plugins); i++ {
 		var collections = plugins.Plugins[i].Collections
 
