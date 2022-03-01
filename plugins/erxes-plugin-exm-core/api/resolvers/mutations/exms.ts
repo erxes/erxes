@@ -50,11 +50,10 @@ const exmMutations = [
       if (!doc.password) return "Password can not be empty";
 
       try {
-        const result = await models.Users.createUser({
+        await models.Users.createUser({
           isActive: false,
           email: mail,
-          code: models,
-          password: await doc.password,
+          password: doc.password,
         });
         return "success";
       } catch (e) {
