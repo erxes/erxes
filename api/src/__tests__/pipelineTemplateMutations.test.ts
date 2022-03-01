@@ -31,6 +31,7 @@ describe('PipelineTemplates mutations', () => {
     name
     description
     type
+    status
     stages {
       name
       formId
@@ -122,6 +123,25 @@ describe('PipelineTemplates mutations', () => {
     expect(
       await PipelineTemplates.find({ _id: { $in: [pipelineTemplate._id] } })
     ).toEqual([]);
+  });
+
+  test('Change status pipelineTemplate', async () => {
+    const mutation = `
+    mutation pipelineTemplatesChangeStatus($_id: String!, $status: String) {
+      pipelineTemplatesChangeStatus(_id: $_id, status: $status) {
+        _id
+          ${commonReturn}
+      }
+    }
+    `;
+
+    const changed = await graphqlRequest(
+      mutation,
+      'pipelineTemplatesChangeStatus',
+      { _id: pipelineTemplate._id, status: 'new status' }
+    );
+
+    expect(changed.status).toBe('new status');
   });
 
   test('Duplicate pipelineTemplate', async () => {

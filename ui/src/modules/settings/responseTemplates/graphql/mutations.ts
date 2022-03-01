@@ -32,8 +32,17 @@ const responseTemplatesRemove = `
   }
 `;
 
+const responseTemplatesChangeStatus = `
+  mutation responseTemplatesChangeStatus($_id: String!, $status: String) {
+    responseTemplatesChangeStatus(_id: $_id, status: $status) {
+      _id
+    }
+  }
+`;
+
 export default {
   responseTemplatesAdd,
   responseTemplatesEdit,
-  responseTemplatesRemove
+  responseTemplatesRemove,
+  responseTemplatesChangeStatus
 };

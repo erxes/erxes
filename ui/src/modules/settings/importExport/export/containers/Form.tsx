@@ -81,8 +81,6 @@ class FormContainer extends React.Component<
       };
     }) as IConfigColumn[];
 
-    console.log(columns);
-
     return (
       <Form
         {...this.props}

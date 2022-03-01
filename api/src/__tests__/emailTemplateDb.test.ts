@@ -41,7 +41,8 @@ describe('Email template db', () => {
   test('Update email template', async () => {
     const doc = {
       name: _emailTemplate.name,
-      content: _emailTemplate.content
+      content: _emailTemplate.content,
+      status: _emailTemplate.status
     };
 
     const emailTemplateObj = await EmailTemplates.updateEmailTemplate(

@@ -30,9 +30,11 @@ type Props = {
   productsData?: IProductData[];
   productData: IProductData;
   removeProductItem?: (productId: string) => void;
+  removeTemplateItems?: (templateId: string) => void;
   onChangeProductsData?: (productsData: IProductData[]) => void;
   updateTotal?: () => void;
   currentProduct?: string;
+  templateInfo: any;
 };
 
 type State = {
@@ -209,6 +211,14 @@ class ProductItem extends React.Component<Props, State> {
     const { productData, removeProductItem } = this.props;
 
     return removeProductItem && removeProductItem(productData._id);
+  };
+
+  onClickTemplate = () => {
+    const { productData, removeTemplateItems } = this.props;
+
+    return (
+      removeTemplateItems && removeTemplateItems(productData.templateId || '')
+    );
   };
 
   onTickUse = e => {
@@ -415,8 +425,10 @@ class ProductItem extends React.Component<Props, State> {
 
     return (
       <ProductRow
+        templateInfo={this.props.templateInfo}
         key={productData._id}
         onRemove={this.onClick}
+        onRemoveTemplate={this.onClickTemplate}
         activeProduct={this.state.currentProduct}
         productData={productData}
         changeCurrentProduct={this.changeCurrentProduct}

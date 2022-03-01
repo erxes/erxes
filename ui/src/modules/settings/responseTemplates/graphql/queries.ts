@@ -5,8 +5,8 @@ const responseTemplatesTotalCount = `
 `;
 
 const responseTemplates = `
-  query responseTemplates($page: Int, $perPage: Int, $brandId: String, $searchValue: String) {
-    responseTemplates(page: $page, perPage: $perPage, brandId: $brandId, searchValue: $searchValue) {
+  query responseTemplates($page: Int, $perPage: Int, $brandId: String, $searchValue: String, $status: String) {
+    responseTemplates(page: $page, perPage: $perPage, brandId: $brandId, searchValue: $searchValue, status: $status) {
       _id
       name
       brandId
@@ -15,6 +15,7 @@ const responseTemplates = `
         name
       }
       content
+      status
     }
   }
 `;

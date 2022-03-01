@@ -32,6 +32,7 @@ import { Permissions, UsersGroups } from './Permissions';
 import PipelineLabels from './PipelineLabels';
 import PipelineTemplates from './PipelineTemplates';
 import { ProductCategories, Products } from './Products';
+import { ProductTemplates } from './ProductTemplates';
 import ResponseTemplates from './ResponseTemplates';
 import { OnboardingHistories, RobotEntries } from './Robot';
 import Scripts from './Scripts';
@@ -80,6 +81,7 @@ export {
   DashboardItems,
   Products,
   ProductCategories,
+  ProductTemplates,
   Configs,
   ClientPortals,
   FieldsGroups,

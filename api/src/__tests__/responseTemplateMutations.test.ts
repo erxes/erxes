@@ -110,6 +110,29 @@ describe('Response template mutations', () => {
     expect(responseTemplate.files).toEqual(expect.arrayContaining(args.files));
   });
 
+  test('Change status responseTemplate', async () => {
+    const mutation = `
+    mutation responseTemplatesChangeStatus($_id: String!, $status: String) {
+      responseTemplatesChangeStatus(_id: $_id, status: $status) {
+        _id
+          brandId
+          name
+          content
+          files
+          status
+      }
+    }
+    `;
+
+    const changed = await graphqlRequest(
+      mutation,
+      'responseTemplatesChangeStatus',
+      { _id: _responseTemplate._id, status: 'new status' }
+    );
+
+    expect(changed.status).toBe('new status');
+  });
+
   test('Remove response template', async () => {
     const mutation = `
       mutation responseTemplatesRemove($_id: String!) {

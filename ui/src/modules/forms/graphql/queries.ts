@@ -89,6 +89,7 @@ const formFields = `
     description
     buttonText
     numberOfPages
+    googleMapApiKey
     createdDate
     createdUserId
 `;

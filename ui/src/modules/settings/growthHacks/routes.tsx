@@ -20,8 +20,13 @@ const TemplateList = asyncComponent(() =>
   )
 );
 
-const pipelineTemplates = ({ location }) => {
-  return <TemplateList queryParams={queryString.parse(location.search)} />;
+const pipelineTemplates = ({ location, history }) => {
+  return (
+    <TemplateList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
 };
 
 const routes = () => (

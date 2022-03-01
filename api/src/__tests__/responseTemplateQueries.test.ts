@@ -28,8 +28,8 @@ describe('responseTemplateQueries', () => {
 
   test('Response templates', async () => {
     const qry = `
-      query responseTemplates($page: Int, $perPage: Int, $searchValue: String, $brandId: String) {
-        responseTemplates(page: $page, perPage: $perPage, searchValue: $searchValue, brandId: $brandId) {
+      query responseTemplates($page: Int, $perPage: Int, $searchValue: String, $brandId: String $status: String) {
+        responseTemplates(page: $page, perPage: $perPage, searchValue: $searchValue, brandId: $brandId status: $status) {
           _id
           brand { _id }
         }
@@ -47,6 +47,12 @@ describe('responseTemplateQueries', () => {
     });
 
     expect(response[0]._id).toBe(firstResponseTemplate._id);
+
+    response = await graphqlRequest(qry, 'responseTemplates', {
+      status: 'active'
+    });
+
+    expect(response.length).toBe(3);
   });
 
   test('Get total count of response template', async () => {

@@ -10,4 +10,5 @@ export interface IPipelineTemplate {
   description: string;
   type: string;
   stages: IPipelineTemplateStage[];
+  status: string;
 }

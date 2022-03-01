@@ -4,15 +4,13 @@ import uploadHandler from '../../uploadHandler';
 import {
   COMPANY_BUSINESS_TYPES,
   DEFAULT_COMPANY_INDUSTRY_TYPES,
-  COUNTRIES
+  COUNTRIES,
 } from '../constants';
 import { FieldValue, IField, IFieldError, ILocationOption } from '../types';
-import MSFmultiSelect from '../multipleSelectScript';
-import GoogleMapReact from 'google-map-react';
-import { getEnv, __ } from '../../utils';
+import MSFmultiSelect from "../multipleSelectScript";
+import { __ } from '../../utils';
+import Map from './Map';
 import Marker from './Marker';
-
-const { GOOGLE_MAP_API_KEY } = getEnv();
 
 type Props = {
   field: IField;
@@ -20,6 +18,7 @@ type Props = {
   value?: FieldValue;
   currentLocation?: ILocationOption;
   color?: string;
+  mapScriptLoaded?: boolean;
   onChange: (params: {
     fieldId: string;
     value: FieldValue;
@@ -181,7 +180,7 @@ export default class Field extends React.Component<Props, State> {
           selectAll: true,
           searchBox: true,
           onChange,
-          afterSelectAll
+          afterSelectAll,
         });
 
         const options =
@@ -243,7 +242,7 @@ export default class Field extends React.Component<Props, State> {
           onError: message => {
             alert(message);
             self.setState({ isAttachingFile: false });
-          }
+          },
         });
       }
     }
@@ -296,8 +295,8 @@ export default class Field extends React.Component<Props, State> {
     const { multipleSelectValues } = this.state;
     if (multipleSelectValues) {
       if (
-        multipleSelectValues.filter(value => value === selectedValue).length ===
-        0
+        multipleSelectValues.filter((value) => value === selectedValue)
+          .length === 0
       ) {
         multipleSelectValues.push(selectedValue);
       }
@@ -364,89 +363,59 @@ export default class Field extends React.Component<Props, State> {
 
   renderMap(field: IField, selectedValue?: FieldValue) {
     const locationOptions: ILocationOption[] = field.locationOptions || [];
-    const { currentLocation } = this.state;
-    let center = currentLocation;
+    let { currentLocation } = this.state;
+
+    let selectedOption: ILocationOption = { lat: 0, lng: 0 };
 
     if (selectedValue) {
-      const locationOption = selectedValue as ILocationOption;
-
-      center = { lat: locationOption.lat, lng: locationOption.lng };
+      selectedOption = selectedValue as ILocationOption;
+      currentLocation = { lat: selectedOption.lat, lng: selectedOption.lng };
     }
 
-    const onMarkerInteraction = (
-      _childKey: any,
-      _childProps: any,
-      mouse: any
-    ) => {
-      this.setState({
-        isMapDraggable: false,
-        currentLocation: { lat: mouse.lat, lng: mouse.lng }
-      });
-    };
-
-    const onMarkerInteractionMouseUp = (
-      _childKey: any,
-      _childProps: any,
-      mouse: any
-    ) => {
-      const location = { lat: mouse.lat, lng: mouse.lng };
-
-      this.setState({
-        currentLocation: location,
-        isMapDraggable: true
-      });
-
-      this.onLocationChange(location);
-    };
-
     return (
-      <div style={{ height: '250px', width: '100%' }}>
-        <GoogleMapReact
-          bootstrapURLKeys={{ key: GOOGLE_MAP_API_KEY }}
-          draggable={this.state.isMapDraggable}
-          center={{
-            lat: center.lat,
-            lng: center.lng
-          }}
-          defaultZoom={8}
-          options={{
-            controlSize: 30,
-            zoomControl: true,
-            mapTypeControl: true,
-            scaleControl: true,
-            streetViewControl: false,
-            rotateControl: true,
-            fullscreenControl: true,
-            fullscreenControlOptions: {
-              position: 1
+      <div style={{ height: "250px", width: "100%" }}>
+        {this.props.mapScriptLoaded && (
+          <Map
+            center={
+              new google.maps.LatLng(currentLocation.lat, currentLocation.lng)
             }
-          }}
-          onChildMouseDown={onMarkerInteraction}
-          onChildMouseUp={onMarkerInteractionMouseUp}
-          onChildMouseMove={onMarkerInteraction}
-          yesIWantToUseGoogleMapApiInternals={true}
-        >
-          {locationOptions.length > 0 ? (
-            locationOptions.map((option, index) => (
+            controlSize={25}
+            streetViewControl={false}
+            zoom={4}
+            style={{ width: "100%", height: "250px" }}
+          >
+            {locationOptions.length > 0 ? (
+              locationOptions.map((option, index) => (
+                <Marker
+                  color={
+                    option.lat === selectedOption.lat &&
+                    option.lng === selectedOption.lng
+                      ? "red"
+                      : this.props.color
+                  }
+                  key={index}
+                  position={new google.maps.LatLng(option.lat, option.lng)}
+                  content={option.description}
+                  draggable={false}
+                  onChange={this.onLocationChange}
+                />
+              ))
+            ) : (
               <Marker
                 color={this.props.color}
-                key={index}
-                lat={option.lat}
-                lng={option.lng}
-                description={option.description || ''}
+                position={
+                  new google.maps.LatLng(
+                    currentLocation.lat,
+                    currentLocation.lng
+                  )
+                }
+                content={__('Select your location')}
+                draggable={true}
                 onChange={this.onLocationChange}
-                selectedOption={selectedValue as ILocationOption}
               />
-            ))
-          ) : (
-            <Marker
-              color={this.props.color}
-              lat={center.lat}
-              lng={center.lng}
-              description={__('Select your location')}
-            />
-          )}
-        </GoogleMapReact>
+            )}
+          </Map>
+        )}
       </div>
     );
   }
@@ -469,7 +438,7 @@ export default class Field extends React.Component<Props, State> {
         return Field.renderSelect(options, {
           onChange: this.onSelectChange,
           id: field._id,
-          value: String(value)
+          value: String(value),
         });
 
       case 'multiSelect':
@@ -477,28 +446,28 @@ export default class Field extends React.Component<Props, State> {
           value: this.state.multipleSelectValues,
           onChange: this.onMultpleSelectChange,
           id: field._id,
-          multiple: true
+          multiple: true,
         });
 
       case 'pronoun':
         return Field.renderSelect(['Male', 'Female', 'Not applicable'], {
           onChange: this.onSelectChange,
           id: field._id,
-          value: String(value)
+          value: String(value),
         });
 
       case 'businessType':
         return Field.renderSelect(COMPANY_BUSINESS_TYPES, {
           onChange: this.onSelectChange,
           id: field._id,
-          value: String(value)
+          value: String(value),
         });
 
       case 'location':
         return Field.renderSelect(COUNTRIES, {
           onChange: this.onSelectChange,
           id: field._id,
-          value: String(value)
+          value: String(value),
         });
 
       case 'industry':
@@ -506,7 +475,7 @@ export default class Field extends React.Component<Props, State> {
           value: this.state.multipleSelectValues,
           onChange: this.onMultpleSelectChange,
           id: field._id,
-          multiple: true
+          multiple: true,
         });
 
       case 'check':
@@ -561,49 +530,49 @@ export default class Field extends React.Component<Props, State> {
           onChange: this.handleFileInput,
           type: 'file',
           id: field._id,
-          multiple: true
+          multiple: true,
         });
 
       case 'avatar':
         return Field.renderInput({
           onChange: this.handleFileInput,
           type: 'file',
-          id: field._id
+          id: field._id,
         });
 
       case 'company_avatar':
         return Field.renderInput({
           onChange: this.handleFileInput,
           type: 'file',
-          id: field._id
+          id: field._id,
         });
 
       case 'textarea':
         return Field.renderTextarea({
           onChange: this.onTextAreaChange,
           id: field._id,
-          value
+          value,
         });
 
       case 'description':
         return Field.renderTextarea({
           onChange: this.onTextAreaChange,
           id: field._id,
-          value
+          value,
         });
 
       case 'company_description':
         return Field.renderTextarea({
           onChange: this.onTextAreaChange,
           id: field._id,
-          value
+          value,
         });
 
       case 'birthDate':
         return this.renderDatepicker(field._id);
 
       case 'html':
-        return this.renderHtml(field.content || '', field._id);
+        return this.renderHtml(field.content || "", field._id);
 
       case 'map':
         return this.renderMap(field, value);
@@ -626,7 +595,7 @@ export default class Field extends React.Component<Props, State> {
       if (field.column) {
         return {
           width: `${100 / field.column}%`,
-          display: 'inline-block'
+          display: "inline-block"
         };
       }
     };

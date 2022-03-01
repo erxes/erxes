@@ -3,6 +3,7 @@ const commonFields = `
   $contentType: String,
   $order: Int,
   $description: String,
+  $code: String,
   $isVisible: Boolean,
   $isVisibleInDetail: Boolean,
   $boardsPipelines: [BoardsPipelinesInput],
@@ -13,6 +14,7 @@ const commonTypes = `
   contentType: $contentType,
   order: $order,
   description: $description,
+  code: $code,
   isVisible: $isVisible,
   isVisibleInDetail: $isVisibleInDetail,
   boardsPipelines: $boardsPipelines
@@ -66,6 +68,7 @@ const commonVariables = `
   $text: String,
   $description: String,
   $options: [String],
+  $locationOptions: [LocationOptionInput]
   $isRequired: Boolean,
   $order: Int,
   $groupId: String,
@@ -78,6 +81,7 @@ const commonParams = `
   text: $text,
   description: $description,
   options: $options,
+  locationOptions: $locationOptions,
   isRequired: $isRequired,
   order: $order,
   groupId: $groupId,

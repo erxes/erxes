@@ -33,6 +33,7 @@ import {
 import pipelineLabels from './pipelineLabels';
 import pipelineTemplates from './pipelineTemplates';
 import products from './products';
+import productTemplates from './productTemplates';
 import responseTemplates from './responseTemplates';
 import robot from './robot';
 import scripts from './scripts';
@@ -68,6 +69,7 @@ export default {
   ...deals,
   ...boards,
   ...products,
+  ...productTemplates,
   ...configs,
   ...conformity,
   ...fieldsgroups,

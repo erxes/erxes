@@ -56,6 +56,33 @@ const emailTemplateMutations = {
   },
 
   /**
+   * Changes a status
+   * @param {string} param2._id EmailTemplate id
+   * @param {string} param2.status EmailTemplate status
+   */
+  async emailTemplatesChangeStatus(
+    _root,
+    { _id, status }: IEmailTemplatesEdit,
+    { user }: IContext
+  ) {
+    const emailTemplate = await EmailTemplates.getEmailTemplate(_id);
+
+    await EmailTemplates.updateOne({ _id }, { $set: { status } });
+    const updated = await EmailTemplates.findOne({ _id });
+
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.PIPELINE_TEMPLATE,
+        object: emailTemplate,
+        newData: { status },
+        updatedDocument: updated
+      },
+      user
+    );
+
+    return updated;
+  },
+  /**
    * Delete email template
    */
   async emailTemplatesRemove(

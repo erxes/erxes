@@ -8,6 +8,7 @@ interface IFormCommonFIelds {
   buttonText?: string;
   type?: string;
   numberOfPages?: number;
+  googleMapApiKey?: string;
 }
 export interface IForm extends IFormCommonFIelds {
   _id: string;
@@ -35,6 +36,7 @@ export type AddFormMutationVariables = {
   buttonText?: string;
   type: string;
   numberOfPages?: number;
+  googleMapApiKey?: string;
 };
 
 export type AddFormMutationResponse = {
@@ -50,6 +52,7 @@ export type EditFormMutationVariables = {
   buttonText?: string;
   type: string;
   numberOfPages?: number;
+  googleMapApiKey?: string;
 };
 
 export type EditFormMutationResponse = {

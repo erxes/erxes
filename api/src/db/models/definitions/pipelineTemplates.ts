@@ -11,6 +11,7 @@ export interface IPipelineTemplate {
   name: string;
   description?: string;
   type: string;
+  status: string;
   isDefinedByErxes: boolean;
   stages: IPipelineTemplateStage[];
   createdBy?: string;
@@ -35,6 +36,7 @@ export const pipelineTemplateSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
   type: field({ type: String, label: 'Type' }),
+  status: field({ type: String, label: 'Status' }),
   description: field({ type: String, optional: true, label: 'Description' }),
   stages: field({ type: [stageSchema], default: [], label: 'Stages' }),
   isDefinedByErxes: field({

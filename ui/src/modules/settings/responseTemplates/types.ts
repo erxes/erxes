@@ -8,6 +8,7 @@ export interface IResponseTemplate {
   brandId: string;
   brand: IBrand;
   files: any;
+  status: string;
 }
 
 export type ResponseTemplatesQueryResponse = {

@@ -6,7 +6,8 @@ import {
   Customers,
   EngageMessages,
   Integrations,
-  Products
+  Products,
+  ProductTemplates
 } from '.';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import { escapeRegExp } from '../../data/utils';
@@ -94,6 +95,9 @@ export const getCollection = type => {
       break;
     case 'product':
       collection = Products;
+      break;
+    case 'productTemplate':
+      collection = ProductTemplates;
       break;
   }
 

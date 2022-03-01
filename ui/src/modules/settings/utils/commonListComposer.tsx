@@ -47,6 +47,7 @@ function commonListComposer<ComponentProps>(options) {
       variables: ICopyMutationVariables;
     }) => Promise<any>;
     copy: boolean;
+    queryParams?: any;
   };
 
   const ListContainer = (props: Props) => {
@@ -55,7 +56,8 @@ function commonListComposer<ComponentProps>(options) {
       listQuery,
       totalCountQuery,
       removeMutation,
-      history
+      history,
+      queryParams
     } = props;
 
     const totalCount = totalCountQuery[`${label}TotalCount`] || 0;
@@ -148,15 +150,15 @@ function commonListComposer<ComponentProps>(options) {
     };
 
     const updatedProps = {
-      ...props,
-      refetch: listQuery.refetch,
       objects,
       totalCount,
       remove,
       history,
       renderButton,
       loading: listQuery.loading,
-      copyItem
+      copyItem,
+      listQuery,
+      queryParams
     };
 
     return <ListComponent {...updatedProps} />;

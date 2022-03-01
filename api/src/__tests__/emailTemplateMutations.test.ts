@@ -106,4 +106,25 @@ describe('Email template mutations', () => {
       null
     );
   });
+
+  test('Change status emailTemplate', async () => {
+    const mutation = `
+    mutation emailTemplatesChangeStatus($_id: String!, $status: String) {
+      emailTemplatesChangeStatus(_id: $_id, status: $status) {
+        _id
+          name
+          content
+          status
+      }
+    }
+    `;
+
+    const changed = await graphqlRequest(
+      mutation,
+      'emailTemplatesChangeStatus',
+      { _id: _emailTemplate._id, status: 'new status' }
+    );
+
+    expect(changed.status).toBe('new status');
+  });
 });

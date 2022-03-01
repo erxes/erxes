@@ -74,6 +74,7 @@ const dealPermissions = [
   'dealStagesRemove'
 ];
 const productPermissions = ['showProducts', 'manageProducts'];
+const templatePermissions = ['showTemplates', 'manageTemplates'];
 const growthHackPermissions = [
   'growthHackBoardsAdd',
   'growthHackBoardsEdit',
@@ -88,13 +89,6 @@ const growthHackPermissions = [
   'growthHackStagesEdit',
   'growthHackStagesUpdateOrder',
   'growthHackStagesRemove'
-];
-const growthHackTemplatePermissions = [
-  'growthHackTemplatesAdd',
-  'growthHackTemplatesEdit',
-  'growthHackTemplatesRemove',
-  'growthHackTemplatesDuplicate',
-  'showGrowthHackTemplates'
 ];
 const teamPermissions = [
   'showUsers',
@@ -293,31 +287,17 @@ class Settings extends React.PureComponent {
               productPermissions
             )}
             {this.renderBox(
-              'Growth Hacking Templates',
-              '/images/icons/erxes-12.svg',
-              '/settings/boards/growthHackTemplate',
-              'growthHacksAll',
-              growthHackTemplatePermissions
-            )}
-            {this.renderBox(
-              'Response Template',
-              '/images/icons/erxes-10.svg',
-              '/settings/response-templates',
-              'responseTemplatesAll',
-              ['manageResponseTemplate', 'showResponseTemplates']
-            )}
-            {this.renderBox(
-              'Email Template',
-              '/images/icons/erxes-09.svg',
-              '/settings/email-templates',
-              'emailTemplateAll',
-              ['showEmailTemplates', 'manageEmailTemplate']
-            )}
-            {this.renderBox(
               'Outgoing webhooks',
               '/images/icons/erxes-11.svg',
               '/settings/webhooks',
               ''
+            )}
+            {this.renderBox(
+              'Template',
+              '/images/icons/erxes-09.svg',
+              '/settings/templates',
+              '',
+              templatePermissions
             )}
           </div>
         </Row>

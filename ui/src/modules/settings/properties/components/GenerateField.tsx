@@ -4,7 +4,7 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Uploader from 'modules/common/components/Uploader';
 import SelectCustomers from '../../../customers/containers/common/SelectCustomers';
-import { IAttachment } from 'modules/common/types';
+import { IAttachment, ILocationOption } from 'modules/common/types';
 import {
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES,
@@ -12,77 +12,41 @@ import {
 } from 'modules/companies/constants';
 import React from 'react';
 import { LogicIndicator, SelectInput, ObjectList } from '../styles';
-import { IField, ILocationOption } from '../types';
+import { IField } from '../types';
 import Select from 'react-select-plus';
 import { IOption } from 'erxes-ui/lib/types';
 import ModifiableList from 'modules/common/components/ModifiableList';
 import { __ } from 'erxes-ui/lib/utils/core';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
-import { MapContainer, Marker, CircleMarker, Popup } from 'react-leaflet';
-import ReactLeafletGoogleLayer from 'react-leaflet-google-layer';
-import { FullscreenControl } from 'react-leaflet-fullscreen';
-import 'react-leaflet-fullscreen/dist/styles.css';
-import { IConfig } from 'modules/settings/general/types';
-import { Alert } from 'erxes-ui';
+import Map from '../../../common/components/Map';
+import { MapContainer } from 'modules/common/styles/main';
 
 type Props = {
   field: IField;
-  configs: IConfig[];
-  onValueChange?: (data: { _id: string; value: any }) => void;
+  currentLocation: ILocationOption;
   defaultValue?: any;
   hasLogic?: boolean;
+  isPreview?: boolean;
+  onValueChange?: (data: { _id: string; value: any }) => void;
+  onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
 };
 
 type State = {
   value?: any;
   checkBoxValues: any[];
   errorCounter: number;
-  currentLocation?: ILocationOption;
-  googleMapApiKey: string;
+  currentLocation: ILocationOption;
 };
 
 export default class GenerateField extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const config = props.configs.find(e => e.code === 'GOOGLE_MAP_API_KEY');
-
     this.state = {
       errorCounter: 0,
       ...this.generateState(props),
-      googleMapApiKey: config ? config.value : ''
+      currentLocation: props.currentLocation
     };
-  }
-
-  componentDidMount() {
-    const onSuccess = (position: { coords: any }) => {
-      const coordinates = position.coords;
-
-      this.setState({
-        currentLocation: {
-          lat: coordinates.latitude,
-          lng: coordinates.longitude
-        }
-      });
-    };
-
-    const onError = (err: { code: any; message: any }) => {
-      return Alert.error(`${err.code}): ${err.message}`);
-    };
-
-    if (navigator.geolocation) {
-      navigator.permissions.query({ name: 'geolocation' }).then(result => {
-        if (result.state === 'granted') {
-          navigator.geolocation.getCurrentPosition(onSuccess);
-        } else if (result.state === 'prompt') {
-          navigator.geolocation.getCurrentPosition(onSuccess, onError, {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-          });
-        }
-      });
-    }
   }
 
   generateState = props => {
@@ -100,6 +64,10 @@ export default class GenerateField extends React.Component<Props, State> {
   componentWillReceiveProps(nextProps) {
     if (nextProps.defaultValue !== this.props.defaultValue) {
       this.setState(this.generateState(nextProps));
+    }
+
+    if (nextProps.currentLocation !== this.props.currentLocation) {
+      this.setState({ currentLocation: nextProps.currentLocation });
     }
   }
 
@@ -377,60 +345,46 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderMap(attrs) {
-    const { field, onValueChange } = this.props;
-
-    const { currentLocation, googleMapApiKey } = this.state;
-
+    const {
+      field,
+      isPreview,
+      onChangeLocationOptions,
+      onValueChange
+    } = this.props;
     const { locationOptions = [] } = field;
+    const { value } = attrs;
 
-    const dragend = e => {
-      const location = e.target.getLatLng();
+    let { currentLocation } = this.state;
+
+    const onChangeMarker = e => {
       if (onValueChange) {
-        onValueChange({ _id: field._id, value: location });
+        onValueChange({ _id: field._id, value: e });
       }
     };
 
-    const { value } = attrs;
-    let centerCoordinates: [number, number] = [0, 0];
-
-    if (currentLocation) {
-      centerCoordinates = [currentLocation.lat, currentLocation.lng];
-    }
-
     if (value && value.length !== 0) {
-      centerCoordinates = value;
-    }
-
-    let zoom = 10;
-
-    if (centerCoordinates[0] === 0 && centerCoordinates[1] === 0) {
-      zoom = 2;
+      currentLocation = value;
     }
 
     return (
-      <MapContainer
-        style={{ width: '100%', aspectRatio: '1/1' }}
-        zoom={zoom}
-        center={centerCoordinates}
-      >
-        <ReactLeafletGoogleLayer
-          apiKey={googleMapApiKey}
-          useGoogMapsLoader={true}
-        />
-        <FullscreenControl />
-
-        {locationOptions.map((option, index) => (
-          <div key={index}>
-            <CircleMarker key={index} center={[option.lat, option.lng]}>
-              <Popup>{option.description}</Popup>
-            </CircleMarker>
-          </div>
-        ))}
-
-        <Marker
-          draggable={true}
-          position={centerCoordinates}
-          eventHandlers={{ dragend }}
+      <MapContainer>
+        <Map
+          center={currentLocation}
+          googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
+          defaultZoom={7}
+          locationOptions={locationOptions}
+          mapControlOptions={{
+            controlSize: 30,
+            zoomControl: true,
+            mapTypeControl: true,
+            scaleControl: false,
+            streetViewControl: false,
+            rotateControl: false,
+            fullscreenControl: isPreview ? false : true
+          }}
+          isPreview={isPreview}
+          onChangeMarker={onChangeMarker}
+          onChangeLocationOptions={onChangeLocationOptions}
         />
       </MapContainer>
     );
