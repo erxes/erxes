@@ -4,6 +4,16 @@ import { InternalNotes } from "./models";
 import { serviceDiscovery } from './configs';
 import { internalNoteSchema } from './models/definitions/internalNotes'
 
+const checkService = async (serviceName: string, needsList?: boolean) => {
+  const enabled = await serviceDiscovery.isEnabled(serviceName);
+
+  if (!enabled) {
+    return needsList ? [] : null;
+  }
+
+  return;
+};
+
 let client;
 
 export const initBroker = async cl => {
@@ -91,6 +101,14 @@ export const findCardItem = async (data) => {
   }
 
   return client.sendRPCMessage('cards:rpc_queue:findCardItem', data);
+};
+
+export const getContentIds = async (data) => {
+  const [serviceName] = data.contentType.split(':');
+  
+  await checkService(serviceName, true);
+
+  return client.sendRPCMessage(`${serviceName}:rpc_queue:getContentIds`, data);
 };
 
 export default function() {
