@@ -1,4 +1,4 @@
-name: Plugin engages api CI
+name: Plugin engages Api CI
 
 on:
   push:

@@ -9,12 +9,9 @@ export default {
     return Customers.findOne({ _id });
   },
 
-  integration(customer: ICustomerDocument, _, { dataLoaders }: IContext) {
-    return (
-      (customer.integrationId &&
-        dataLoaders.integration.load(customer.integrationId)) ||
-      null
-    );
+  integration(customer: ICustomerDocument) {
+    if(!customer.integrationId) return null;
+    return { __typename: "Integration", _id: customer.integrationId}
   },
 
   async getTags(customer: ICustomerDocument, _, { dataLoaders }: IContext) {

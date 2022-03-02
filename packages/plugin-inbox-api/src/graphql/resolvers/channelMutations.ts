@@ -62,14 +62,18 @@ const channelMutations = {
 
     await sendChannelNotifications(channel, 'invited', user);
 
-    await putCreateLog(
-      {
-        type: MODULE_NAMES.CHANNEL,
-        newData: { ...doc, userId: user._id },
-        object: channel
-      },
-      user
-    );
+    try {
+      await putCreateLog(
+        {
+          type: MODULE_NAMES.CHANNEL,
+          newData: { ...doc, userId: user._id },
+          object: channel
+        },
+        user
+      );
+    } catch (e) {
+      console.log(e, 'eee')
+    }
 
     return channel;
   },

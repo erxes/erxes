@@ -317,10 +317,13 @@ export const sendFieldRPCMessage = async (action, data): Promise<any> => {
 };
 
 export const findIntegrations = async (query, options?): Promise<any> => {
-  const isAvailable = await serviceDiscovery.isAvailable('inbox');
-
-  if (!isAvailable) {
+  if(!(await serviceDiscovery.isEnabled('inbox'))) {
     return [];
+  }
+
+
+  if(!(await serviceDiscovery.isAvailable('inbox'))) {
+    throw new Error('Inbox service is not available.');
   }
 
   return client.sendRPCMessage('inbox:rpc_queue:findIntegrations', {
@@ -330,7 +333,7 @@ export const findIntegrations = async (query, options?): Promise<any> => {
 };
 
 export const findTags = async (query): Promise<any> => {
-  const isAvailable = await serviceDiscovery.isAvailable('tags');
+  const isAvailable = await serviceDiscovery.isEnabled('tags');
 
   if (!isAvailable) {
     return [];
@@ -356,11 +359,9 @@ export const engageChangeCustomer = async (
   customerId,
   customerIds
 ): Promise<any> => {
-  if (!serviceDiscovery.isAvailable('engages')) {
-    return;
-  }
-
-  return client.sendMessage('engage:changeCustomer', {
+  if(!(await serviceDiscovery.isEnabled("engages"))) return;
+  
+  return client.sendMessage("engage:changeCustomer", {
     customerId,
     customerIds
   });
@@ -372,13 +373,8 @@ export const fetchSegment = (segment, options?) =>
     options
   });
 
-export const removeInternalNotes = (
-  contentType: string,
-  contentTypeIds: string[]
-) => {
-  if (!serviceDiscovery.isAvailable('internalnotes')) {
-    return;
-  }
+export const removeInternalNotes = async (contentType: string, contentTypeIds: string[]) => {
+  if (!(await serviceDiscovery.isEnabled("internalnotes"))) return;
 
   return sendMessage('internalnotes:InternalNotes.removeInternalNotes', {
     contentType,
@@ -386,14 +382,8 @@ export const removeInternalNotes = (
   });
 };
 
-export const internalNotesBatchUpdate = (
-  contentType: string,
-  oldContentTypeIds: string[],
-  newContentTypeId: string
-) => {
-  if (!serviceDiscovery.isAvailable('internalnotes')) {
-    return;
-  }
+export const internalNotesBatchUpdate = async (contentType: string, oldContentTypeIds: string[], newContentTypeId: string) => {
+  if (!(await serviceDiscovery.isEnabled("internalnotes"))) return;
 
   return sendMessage('internalNotes:batchUpdate', {
     contentType,
@@ -402,13 +392,8 @@ export const internalNotesBatchUpdate = (
   });
 };
 
-export const inboxChangeCustomer = (
-  customerId: string,
-  customerIds: string[]
-) => {
-  if (!serviceDiscovery.isAvailable('inbox')) {
-    return;
-  }
+export const inboxChangeCustomer = async (customerId: string, customerIds: string[]) => {
+  if(!(await serviceDiscovery.isEnabled("inbox"))) return;
 
   return sendMessage('inbox:changeCustomer', { customerId, customerIds });
 };

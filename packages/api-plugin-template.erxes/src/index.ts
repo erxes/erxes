@@ -20,7 +20,7 @@ import * as elasticsearch from './elasticsearch';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
-import { getService, getServices, join, leave } from './serviceDiscovery';
+import { getService, getServices, join, leave, redis } from './serviceDiscovery';
 
 const configs = require('../../src/configs').default;
 
@@ -153,8 +153,10 @@ async function startServer() {
     getService,
     isAvailable: async name => {
       const serviceNames = await getServices();
-
       return serviceNames.includes(name);
+    },
+    isEnabled: async name => {
+      return !!(await redis.sismember("erxes:plugins:enabled",name));
     }
   };
 

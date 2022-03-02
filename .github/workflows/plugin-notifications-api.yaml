@@ -1,4 +1,4 @@
-name: Plugin notifications api CI
+name: Plugin notifications Api CI
 
 on:
   push:

@@ -5,8 +5,6 @@ export const types = isTagsAvailable => `
 
   extend type Customer @key(fields: "_id") {
     _id: String! @external
-
-    integration: Integration
     conversations: [Conversation]
   }
 

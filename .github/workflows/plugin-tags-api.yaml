@@ -1,4 +1,4 @@
-name: Plugin tags api CI
+name: Plugin tags Api CI
 
 on:
   push:

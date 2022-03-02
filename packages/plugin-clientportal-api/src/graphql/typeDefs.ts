@@ -7,8 +7,8 @@ import {
 } from './clientPortalTypeDefs';
 
 const typeDefs = async (serviceDiscovery) => {
-  const contactAvialable = await serviceDiscovery.isAvailable('contacts');
-  const cardAvailable = await serviceDiscovery.isAvailable('cards');
+  const contactAvialable = await serviceDiscovery.isEnabled('contacts');
+  const cardAvailable = await serviceDiscovery.isEnabled('cards');
   return gql`
     scalar JSON
     scalar Date

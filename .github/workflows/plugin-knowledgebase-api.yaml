@@ -1,4 +1,4 @@
-name: Plugin knowledgebase api CI
+name: Plugin knowledgebase Api CI
 
 on:
   push:

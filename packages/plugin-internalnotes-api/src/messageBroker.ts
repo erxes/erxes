@@ -71,7 +71,7 @@ export const sendNotificationMessage = async (
   defaultValue?
 ): Promise<any> => {
   if (isRPC) {
-    if (!await serviceDiscovery.isAvailable('notifications')) {
+    if (!await serviceDiscovery.isEnabled('notifications')) {
       return defaultValue;
     }
 
@@ -86,7 +86,7 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
 };
 
 export const findCardItem = async (data) => {
-  if (!await serviceDiscovery.isAvailable('cards')) {
+  if (!await serviceDiscovery.isEnabled('cards')) {
     return null;
   }
 

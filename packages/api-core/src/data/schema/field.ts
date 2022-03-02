@@ -21,6 +21,17 @@ export const fieldsTypes = `
     logicValue: JSON
   }
 
+  type LocationOption {
+    lat: Float
+    lng: Float
+    description: String
+  }
+  input LocationOptionInput {
+    lat: Float
+    lng: Float
+    description: String
+  }
+
   type Field @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     contentType: String!
@@ -35,6 +46,7 @@ export const fieldsTypes = `
     lastUpdatedUserId: String
     associatedField: Field
     logics: [Logic]
+    locationOptions: [LocationOption]
 
     ${fieldCommonFields}
   }
