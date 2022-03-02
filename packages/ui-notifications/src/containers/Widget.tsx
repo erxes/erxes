@@ -1,6 +1,6 @@
-import React from 'react';
-import Widget from '../components/Widget';
-import { NotifConsumer } from '../context';
+import React from "react";
+import Widget from "../components/Widget";
+import { NotifConsumer } from "../context";
 
 const WidgetContainer = () => (
   <NotifConsumer>
@@ -10,15 +10,16 @@ const WidgetContainer = () => (
       isLoading,
       showNotifications,
       markAsRead,
-      currentUser
+      currentUser,
     }) => {
+      console.log("fake", currentUser, notifications, showNotifications);
       const updatedProps = {
         unreadCount,
         notifications,
         isLoading,
         showNotifications,
         markAsRead,
-        currentUser
+        currentUser,
       };
       return <Widget {...updatedProps} />;
     }}

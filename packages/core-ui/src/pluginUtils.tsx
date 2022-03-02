@@ -19,6 +19,7 @@ import pluginModules from "./plugins";
 import { ISubNav } from "modules/layout/components/Navigation";
 import { AppConsumer } from "appContext";
 import { generateRandomColor } from "utils";
+import { NavItem } from "modules/layout/components/QuickNavigation";
 
 export const pluginsOfRoutes = (currentUser: IUser) => {
   const plugins: any = [];
@@ -135,9 +136,11 @@ const loadComponent = (scope, module) => {
     await __webpack_init_sharing__("default");
 
     const container = window[scope]; // or get the container somewhere else
+
     // Initialize the container, it may provide shared modules
     await container.init(__webpack_share_scopes__.default);
     const factory = await window[scope].get(module);
+
     const Module = factory();
     return Module;
   };
@@ -196,9 +199,9 @@ class SettingsCustomBox extends React.Component<any, any> {
       return null;
     }
 
-    const Component = React.lazy(
-      loadComponent(this.props.scope, this.props.component)
-    );
+    const { scope, component } = this.props.settingsNav;
+
+    const Component = React.lazy(loadComponent(scope, component));
 
     return (
       <React.Suspense fallback="">
@@ -274,6 +277,63 @@ export const pluginsSettingsNavigations = (
   }
 
   return navigationMenus;
+};
+
+class TopNavigation extends React.Component<any, any> {
+  constructor(props) {
+    super(props);
+
+    this.state = { showComponent: false };
+  }
+
+  componentDidMount() {
+    var interval = setInterval(() => {
+      if (window[this.props.topNav.scope]) {
+        window.clearInterval(interval);
+
+        this.setState({ showComponent: true });
+      }
+    }, 500);
+  }
+
+  renderComponent = () => {
+    if (!this.state.showComponent) {
+      return null;
+    }
+
+    const { topNav } = this.props;
+
+    const Component = React.lazy(loadComponent(topNav.scope, topNav.component));
+
+    return (
+      <React.Suspense fallback="">
+        <Component />
+      </React.Suspense>
+    );
+  };
+
+  render() {
+    return <NavItem>{this.renderComponent()}</NavItem>;
+  }
+}
+
+export const pluginsOfTopNavigations = () => {
+  const plugins: any[] = (window as any).plugins || [];
+  const topNavigationMenus: any[] = [];
+
+  for (const plugin of plugins) {
+    for (const menu of plugin.menus || []) {
+      if (menu.location === "topNavigation") {
+        topNavigationMenus.push(
+          <React.Fragment key={menu.text}>
+            <TopNavigation topNav={menu} />
+          </React.Fragment>
+        );
+      }
+    }
+  }
+
+  return topNavigationMenus;
 };
 
 export const pluginRouters = () => {
