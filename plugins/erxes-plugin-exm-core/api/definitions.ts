@@ -44,8 +44,3 @@ export const exmSchema = {
   createdBy: { type: String, label: "Created by" },
   createdAt: { type: Date, label: "Created at" },
 };
-
-export const UserRegisterationSchema = {
-  email: { type: String },
-  password: { type: String },
-};
