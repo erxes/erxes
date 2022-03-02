@@ -355,6 +355,26 @@ export const findTags = async (query): Promise<any> => {
   return client.sendRPCMessage('tags:rpc_queue:find', query);
 };
 
+export const findOneTag = async (query): Promise<any> => {
+  if(!(await serviceDiscovery.isEnabled('tags'))) return null;
+
+  if(!(await serviceDiscovery.isAvailable('tags'))) {
+    throw new Error("Tags service is not available");
+  }
+
+  return client.sendRPCMessage('tags:rpc_queue:findOne', query);
+};
+
+export const createTag =  async (doc) => {
+  if(!(await serviceDiscovery.isEnabled('tags'))) return null;
+
+  if(!(await serviceDiscovery.isAvailable('tags'))) {
+    throw new Error("Tags service is not available");
+  }
+
+  return client.sendRPCMessage('tags:createTag', doc);
+}
+
 export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
 
