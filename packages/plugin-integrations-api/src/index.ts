@@ -1,218 +1,208 @@
-import * as cors from 'cors';
-import * as dotenv from 'dotenv';
-
-// load environment variables
-dotenv.config({ path: '../.env' });
-
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
-import { filterXSS } from 'xss';
-import { buildSubgraphSchema } from '@apollo/federation';
-import { ApolloServer } from 'apollo-server-express';
-import * as cookieParser from 'cookie-parser';
 
-import * as http from 'http';
-
-import { connect } from './connection';
-import { debugInfo, debugError } from './debuggers';
+import initCallPro from './callpro/controller';
+import initChatfuel from './chatfuel/controller';
+import { connect, mongoStatus } from './connection';
+import {
+  debugError,
+  debugInit,
+  debugIntegrations,
+  debugRequest,
+  debugResponse
+} from './debuggers';
+import initFacebook from './facebook/controller';
+import initGmail from './gmail/controller';
+import {
+  removeIntegration,
+  routeErrorHandling,
+  updateIntegrationConfigs
+} from './helpers';
+import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
-import * as elasticsearch from './elasticsearch';
-import pubsub from './pubsub';
-import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
-import * as path from 'path';
-import { getService, getServices, join, leave, redis } from './serviceDiscovery';
+import { Accounts, Configs, Integrations } from './models/index';
+import { initNylas } from './nylas/controller';
+import initSmooch from './smooch/controller';
+import { init } from './startup';
+import systemStatus from './systemStatus';
+import initTelnyx from './telnyx/controller';
+import initTwitter from './twitter/controller';
+import userMiddleware from './userMiddleware';
+import initDaily from './videoCall/controller';
+import initWhatsapp from './whatsapp/controller';
 
-const configs = require('../../src/configs').default;
+const app = express();
 
-const { MONGO_URL, PORT } = process.env;
+const rawBodySaver = (req, _res, buf, encoding) => {
+  if (buf && buf.length) {
+    req.rawBody = buf.toString(encoding || 'utf8');
 
-export const app = express();
+    if (req.headers.fromcore === 'true') {
+      req.rawBody = req.rawBody.replace(/\//g, '\\/');
+    }
+  }
+};
 
-app.disable('x-powered-by');
+app.use(
+  bodyParser.urlencoded({ limit: '10mb', verify: rawBodySaver, extended: true })
+);
+app.use(bodyParser.json({ limit: '10mb', verify: rawBodySaver }));
 
-app.use(cors());
+app.use(userMiddleware);
 
-app.use(cookieParser());
+// Intentionally placing this route above raw bodyParser
+// File upload in nylas controller is not working with rawParser
+initNylas(app);
 
-// for health checking
-app.get('/health', async (_req, res) => {
-  res.end('ok');
-});
+app.use(bodyParser.raw({ limit: '10mb', verify: rawBodySaver, type: '*/*' }));
 
-if (configs.hasSubscriptions) {
-  app.get('/subscriptionPlugin.js', async (req, res) => {
-    res.sendFile(
-      path.join(__dirname, '../../src/graphql/subscriptionPlugin.js')
-    );
-  });
-}
-
-app.use((req: any, _res, next) => {
-  req.rawBody = '';
-
-  req.on('data', chunk => {
-    req.rawBody += chunk.toString();
-  });
+app.use((req, _res, next) => {
+  debugRequest(debugIntegrations, req);
 
   next();
 });
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// for health check
+app.get('/health', async (_req, res, next) => {
+  try {
+    await mongoStatus();
+  } catch (e) {
+    debugError('MongoDB is not running');
+    return next(e);
+  }
+  res.end('ok');
+});
+
+app.get('/system-status', async (_req, res) => {
+  return res.json(await systemStatus());
+});
+
+app.post(
+  '/update-configs',
+  routeErrorHandling(async (req, res) => {
+    const { configsMap } = req.body;
+
+    await updateIntegrationConfigs(configsMap);
+
+    debugResponse(debugIntegrations, req);
+
+    return res.json({ status: 'ok' });
+  })
+);
+
+app.get('/configs', async (req, res) => {
+  const configs = await Configs.find({});
+
+  debugResponse(debugIntegrations, req, JSON.stringify(configs));
+
+  return res.json(configs);
+});
+
+app.post(
+  '/integrations/remove',
+  routeErrorHandling(
+    async (req, res) => {
+      const { integrationId } = req.body;
+
+      await removeIntegration(integrationId);
+
+      debugResponse(debugIntegrations, req);
+
+      return res.json({ status: 'ok' });
+    },
+    (res, e) => res.json({ status: e.message })
+  )
+);
+
+app.get('/accounts', async (req, res) => {
+  let { kind } = req.query;
+
+  if (kind.includes('nylas')) {
+    kind = kind.split('-')[1];
+  }
+
+  const selector = { kind };
+
+  const accounts = await Accounts.find(selector);
+
+  debugResponse(debugIntegrations, req, JSON.stringify(accounts));
+
+  return res.json(accounts);
+});
+
+app.get('/integrations', async (req, res) => {
+  const { kind } = req.query;
+
+  const integrations = await Integrations.find({ kind });
+
+  debugResponse(debugIntegrations, req, JSON.stringify(integrations));
+
+  return res.json(integrations);
+});
+
+app.get('/integrationDetail', async (req, res) => {
+  const { erxesApiId } = req.query;
+
+  // do not expose fields below
+  const integration = await Integrations.findOne(
+    { erxesApiId },
+    {
+      nylasToken: 0,
+      nylasAccountId: 0,
+      nylasBillingState: 0,
+      googleAccessToken: 0
+    }
+  );
+
+  debugResponse(debugIntegrations, req, JSON.stringify(integration));
+
+  return res.json(integration);
+});
+
+// init bots
+initFacebook(app);
+
+// init gmail
+initGmail(app);
+
+// init callpro
+initCallPro(app);
+
+// init twitter
+initTwitter(app);
+
+// init chatfuel
+initChatfuel(app);
+
+// init whatsapp
+initWhatsapp(app);
+
+// init chatfuel
+initDaily(app);
+
+// init smooch
+initSmooch(app);
+
+// init telnyx
+initTelnyx(app);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
-  const msg = filterXSS(error.message);
-
-  debugError(`Error: ${msg}`);
-
-  res.status(500).send(msg);
+  console.error(error.stack);
+  res.status(500).send(error.message);
 });
 
-const httpServer = http.createServer(app);
+const { PORT } = process.env;
 
-// GRACEFULL SHUTDOWN
-process.stdin.resume(); // so the program will not close instantly
+app.listen(PORT, () => {
+  connect().then(async () => {
+    await initBroker(app);
 
-async function closeHttpServer() {
-  try {
-    await new Promise<void>((resolve, reject) => {
-      // Stops the server from accepting new connections and finishes existing connections.
-      httpServer.close((error: Error | undefined) => {
-        if (error) {
-          return reject(error);
-        }
-        resolve();
-      });
-    });
-  } catch (e) {
-    console.error(e);
-  }
-}
+    initMemoryStorage();
 
-async function leaveServiceDiscovery() {
-  try {
-    await leave(configs.name, PORT || '');
-    console.log(`Left service discovery. name=${configs.name} port=${PORT}`);
-  } catch (e) {
-    console.error(e);
-  }
-}
-
-// If the Node process ends, close the Mongoose connection
-(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
-  process.on(sig, async () => {
-    await closeHttpServer();
-    await leaveServiceDiscovery();
-    process.exit(0);
+    // Initialize startup
+    init();
   });
+
+  debugInit(`Integrations server is running on port ${PORT}`);
 });
-
-const generateApolloServer = async serviceDiscovery => {
-  const { typeDefs, resolvers } = await configs.graphql(serviceDiscovery);
-
-  return new ApolloServer({
-    schema: buildSubgraphSchema([
-      {
-        typeDefs,
-        resolvers
-      }
-    ]),
-
-    // for graceful shutdown
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-    context: ({ req }) => {
-      let user: any = null;
-
-      if (req.headers.user) {
-        if (Array.isArray(req.headers.user)) {
-          throw new Error(`Multiple user headers`);
-        }
-        const userJson = Buffer.from(req.headers.user, 'base64').toString(
-          'utf-8'
-        );
-        user = JSON.parse(userJson);
-      }
-
-      const context = {
-        user,
-        docModifier: doc => doc,
-        commonQuerySelector: {}
-      };
-
-      configs.apolloServerContext(context);
-
-      return context;
-    }
-  });
-};
-
-async function startServer() {
-  const serviceDiscovery = {
-    getServices,
-    getService,
-    isAvailable: async name => {
-      const serviceNames = await getServices();
-      return serviceNames.includes(name);
-    },
-    isEnabled: async name => {
-      return !!(await redis.sismember("erxes:plugins:enabled",name));
-    }
-  };
-
-  const apolloServer = await generateApolloServer(serviceDiscovery);
-  await apolloServer.start();
-
-  apolloServer.applyMiddleware({ app, path: '/graphql' });
-
-  await new Promise<void>(resolve =>
-    httpServer.listen({ port: PORT }, resolve)
-  );
-
-  console.log(
-    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}${apolloServer.graphqlPath}`
-  );
-
-  const mongoUrl = MONGO_URL || '';
-
-  try {
-    // connect to mongo database
-    await connect(mongoUrl);
-    const messageBrokerClient = await initBroker(configs.name, app);
-
-    configs.onServerInit({
-      app,
-      pubsubClient: pubsub,
-      elasticsearch,
-      messageBrokerClient,
-      debug: {
-        info: debugInfo,
-        error: debugError
-      }
-    });
-
-    await join({
-      name: configs.name,
-      port: PORT || '',
-      dbConnectionString: mongoUrl,
-      segment: configs.segment,
-      hasSubscriptions: configs.hasSubscriptions,
-      importTypes: configs.importTypes,
-      exportTypes: configs.exportTypes,
-      meta: configs.meta
-    });
-
-    if (configs.permissions) {
-      await messageBrokerClient.sendMessage(
-        'registerPermissions',
-        configs.permissions
-      );
-    }
-
-    debugInfo(`${configs.name} server is running on port ${PORT}`);
-  } catch (e) {
-    debugError(`Error during startup ${e.message}`);
-  }
-}
-
-startServer();

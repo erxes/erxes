@@ -1,26 +1,40 @@
 module.exports = {
   roots: ['<rootDir>/src/__tests__'],
-  preset: 'ts-jest',
   transform: {
-    '^.+\\.ts?$': 'ts-jest',
+    '^.+\\.ts$': 'ts-jest'
   },
   testRegex: '/__tests__/.*\\.(ts|js)$',
+  testEnvironment: 'node',
+  moduleFileExtensions: ['ts', 'js', 'json', 'node'],
+  modulePathIgnorePatterns: ['setup.ts', 'coverage/'],
+  coverageDirectory: 'src/__tests__/coverage/',
+  collectCoverage: true,
+  collectCoverageFrom: [
+    'src/nylas/**',
+    'src/gmail/**',
+    'src/facebook/**',
+    'src/twitter/**',
+    'src/whatsapp/**',
+    'src/smooch/**',
+    '!src/nylas/api.ts',
+    '!src/nylas/controller.ts',
+    '!src/gmail/api.ts',
+    '!src/gmail/controller.ts',
+    '!src/twitter/api.ts',
+    '!src/facebook/store.ts',
+    '!src/facebook/utils.ts',
+    '!src/facebook/handleFacebookMessage.ts'
+  ],
   globals: {
     'ts-jest': {
-      tsConfig: 'tsconfig.json',
-    },
+      tsConfigFile: 'tsconfig.json'
+    }
   },
-  testEnvironment: 'node',
-  testPathIgnorePatterns: ['setup.ts', 'factories.ts', 'coverage/'],
-  moduleFileExtensions: ['ts', 'js', 'json', 'node'],
-  collectCoverage: true,
-  coverageDirectory: 'src/__tests__/coverage/',
-  collectCoverageFrom: ['src/**', '!**/node_modules/**', '!src/__tests__/**'],
   coverageThreshold: {
     global: {
       functions: 100,
       lines: 100,
-      statements: 100,
-    },
+      statements: 100
+    }
   }
 };
