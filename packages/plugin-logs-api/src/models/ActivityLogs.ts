@@ -62,9 +62,6 @@ export const loadClass = () => {
       await ActivityLogs.deleteMany({ contentId });
     }
 
-    /**
-     * Remove internal notes
-     */
     public static async removeActivityLogs(
       contentType: string,
       contentIds: string[]
