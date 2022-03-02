@@ -8,7 +8,7 @@ import {
   IChecklistItem,
   IChecklistItemDocument,
 } from './definitions/checklists';
-import { putActivityLog } from '../logUtils';
+import { putChecklistActivityLog } from '../logUtils';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 
 export interface IChecklistModel extends Model<IChecklistDocument> {
@@ -88,13 +88,10 @@ export const loadClass = () => {
         ...fields,
       });
 
-      putActivityLog({
-        action: 'createChecklistLog',
-        data: {
-          item: checklist,
-          contentType: 'checklist',
-          action: 'create',
-        },
+      putChecklistActivityLog({
+        item: checklist,
+        contentType: 'checklist',
+        action: 'create',
       });
 
       return checklist;
@@ -123,13 +120,10 @@ export const loadClass = () => {
         checklistId: checklistObj._id,
       });
 
-      await putActivityLog({
-        action: 'createChecklistLog',
-        data: {
-          item: checklistObj,
-          contentType: 'checklist',
-          action: 'delete',
-        },
+      await putChecklistActivityLog({
+        item: checklistObj,
+        contentType: 'checklist',
+        action: 'delete',
       });
 
       return checklistObj.remove();
@@ -170,13 +164,10 @@ export const loadItemClass = () => {
         ...fields,
       });
 
-      await putActivityLog({
-        action: 'createChecklistLog',
-        data: {
-          item: checklistItem,
-          contentType: 'checklistItem',
-          action: 'create',
-        },
+      await putChecklistActivityLog({
+        item: checklistItem,
+        contentType: 'checklistItem',
+        action: 'create',
       });
 
       return checklistItem;
@@ -191,13 +182,10 @@ export const loadItemClass = () => {
       const checklistItem = await ChecklistItems.findOne({ _id });
       const activityAction = doc.isChecked ? 'checked' : 'unChecked';
 
-      await putActivityLog({
-        action: 'createChecklistLog',
-        data: {
-          item: checklistItem,
-          contentType: 'checklistItem',
-          action: activityAction,
-        },
+      await putChecklistActivityLog({
+        item: checklistItem,
+        contentType: 'checklistItem',
+        action: activityAction,
       });
 
       return checklistItem;
@@ -213,13 +201,10 @@ export const loadItemClass = () => {
         throw new Error(`Checklist's item not found with id ${_id}`);
       }
 
-      await putActivityLog({
-        action: 'createChecklistLog',
-        data: {
-          item: checklistItem,
-          contentType: 'checklistItem',
-          action: 'delete',
-        },
+      await putChecklistActivityLog({
+        item: checklistItem,
+        contentType: 'checklistItem',
+        action: 'delete'
       });
 
       return checklistItem.remove();
