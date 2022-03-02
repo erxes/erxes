@@ -1,7 +1,7 @@
 import * as _ from 'underscore';
-import { Fields, Tags, Users } from './apiCollections';
+import { Users } from './apiCollections';
 import { es } from './configs';
-import { prepareCustomFieldsData } from './messageBroker';
+import { createTag, findOneTag, prepareCustomFieldsData } from './messageBroker';
 import Companies from './models/Companies';
 import Customers from './models/Customers';
 import { CUSTOMER_SELECT_OPTIONS } from './models/definitions/constants';
@@ -393,14 +393,14 @@ export const prepareImportDocs = async args => {
           {
             const tagName = value;
 
-            let tag = await Tags.findOne({
+            let tag = await findOneTag({
               name: new RegExp(`.*${tagName}.*`, 'i')
-            }).lean();
+            });
 
             if (!tag) {
               const type = contentType === 'lead' ? 'customer' : contentType;
 
-              tag = await Tags.createTag({ name: tagName, type });
+              tag = await createTag({ name: tagName, type });
             }
 
             doc[property.name] = tag ? [tag._id] : [];

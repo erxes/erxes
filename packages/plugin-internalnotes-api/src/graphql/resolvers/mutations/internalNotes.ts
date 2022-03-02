@@ -58,7 +58,7 @@ const internalNoteMutations = (serviceDiscovery) => ({
       return null;
     }
 
-    const updatedNotifDoc = await sendRPCMessage(`${serviceName}:rpc_queue:generateInteralNoteNotif`, {
+    const updatedNotifDoc = await sendRPCMessage(`${serviceName}:rpc_queue:generateInternalNoteNotif`, {
       type,
       contentTypeId,
       notifDoc
