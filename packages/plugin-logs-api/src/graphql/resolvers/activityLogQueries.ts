@@ -4,7 +4,7 @@ import { IContext } from '@erxes/api-utils/src/types';
 import { IActivityLogDocument } from '../../models/ActivityLogs';
 import { collectPluginContent } from '../../pluginUtils';
 import { fetchActivityLogs, fetchLogs, findActivityLogs } from '../../utils';
-import { getCardContentIds } from '../../messageBroker';
+import { getContentIds } from '../../messageBroker';
 
 export interface IListArgs {
   contentType: string;
@@ -86,7 +86,7 @@ const activityLogQueries = {
 
     const perPageForAction = perPage / actionArr.length;
 
-    const contentIds = await getCardContentIds({ pipelineId, contentType });
+    const contentIds = await getContentIds({ pipelineId, contentType });
 
     actionArr = actionArr.filter(a => a !== 'delete');
 

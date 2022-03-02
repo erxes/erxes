@@ -179,7 +179,7 @@ export const initBroker = async cl => {
     data: await collectTasks(data)
   }));
 
-  consumeRPCQueue('cards:rpc_queue:getCardContentIds', async data => ({
+  consumeRPCQueue('cards:rpc_queue:getContentIds', async data => ({
     status: 'success',
     data: await getCardContentIds(data)
   }));

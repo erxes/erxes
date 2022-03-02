@@ -7,15 +7,14 @@ import { serviceDiscovery } from './configs';
 
 let client;
 
-const checkAvailability = async (activityLog: IActivityLogDocument) => {
-  const [serviceName] = activityLog.contentType.split(':');
-  const available = await serviceDiscovery.isEnabled(serviceName);
+const checkService = async (serviceName: string, needsList?: boolean) => {
+  const enabled = await serviceDiscovery.isEnabled(serviceName);
 
-  if (!available) {
-    return null;
+  if (!enabled) {
+    return needsList ? [] : null;
   }
 
-  return serviceName;
+  return;
 };
 
 export const initBroker = async (cl) => {
@@ -98,44 +97,41 @@ export const initBroker = async (cl) => {
 };
 
 export const getDbSchemaLabels = async (serviceName: string, type: string) => {
-  const available = await serviceDiscovery.isEnabled(serviceName);
-
-  if (!available) {
-    return [];
-  }
+  await checkService(serviceName, true);
 
   return client.sendRPCMessage(`${serviceName}:rpc_queue:logs:getSchemaLabels`, { type })
 };
 
 export const getActivityContentItem = async (activityLog: IActivityLogDocument) => {
-  const serviceName = await checkAvailability(activityLog);
+  const [serviceName] = activityLog.contentType.split(':');
+
+  await checkService(serviceName, false);
 
   return serviceName && client.sendRPCMessage(`${serviceName}:rpc_queue:getActivityContent`, { activityLog })
 };
 
 export const getContentTypeDetail = async (activityLog: IActivityLogDocument) => {
-  await checkAvailability(activityLog);
+  const [serviceName] = activityLog.contentType.split(':');
 
-  return client.sendRPCMessage('cards:rpc_queue:getContentTypeDetail', { activityLog });
+  await checkService(serviceName, false);
+
+  return client.sendRPCMessage(`${serviceName}:rpc_queue:getContentTypeDetail`, { activityLog });
 };
 
-export const collectServiceItems = async (contentType, data) => {
+export const collectServiceItems = async (contentType: string, data) => {
   const [serviceName] = contentType.split(':');
-  const available = await serviceDiscovery.isEnabled(serviceName);
 
-  if (!available) {
-    return [];
-  }
+  await checkService(serviceName, true);
 
   return client.sendRPCMessage(`${serviceName}:rpc_queue:activityLog:collectItems`, data);
 };
 
-export const getCardContentIds = async (data) => {
-  return client.sendRPCMessage('cards:rpc_queue:getCardContentIds', data);
-};
+export const getContentIds = async (data) => {
+  const [serviceName] = data.contentType.split(':');
+  
+  await checkService(serviceName, true);
 
-export const getInternalNotes = async (data) => {
-  return client.sendRPCMessage('internalnotes:rpc_queue:getInternalNotes', data);
+  return client.sendRPCMessage(`${serviceName}:rpc_queue:getContentIds`, data);
 };
 
 export default function() {
