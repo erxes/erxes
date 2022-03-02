@@ -259,6 +259,10 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
 };
 
 export const sendContactMessage = async (action, data): Promise<any> => {
+  if (!(await serviceDiscovery.isEnabled('contacts'))) {
+    return;
+  }
+
   return client.sendMessage(`contacts:${action}`, data);
 };
 
@@ -283,10 +287,18 @@ export const sendFormMessage = async (action, data): Promise<any> => {
 };
 
 export const sendInternalNoteMessage = async (action, data): Promise<any> => {
+  if (!(await serviceDiscovery.isEnabled('internalnotes'))) {
+    return [];
+  }
+
+  if (!(await serviceDiscovery.isAvailable('internalnotes'))) {
+    throw new Error("Internal-notes service is not available");
+  }
   return client.sendMessage(`internalNotes:${action}`, data);
 };
 
 export const sendConformityMessage = async (action, data): Promise<any> => {
+  
   return client.sendRPCMessage(`conformities:${action}`, data);
 };
 
@@ -295,6 +307,14 @@ export const sendFieldsGroupMessage = async (action, data): Promise<any> => {
 };
 
 export const sendEngageRPCMessage = async (action, data): Promise<any> => {
+  if (!(await serviceDiscovery.isEnabled('engages'))) {
+    return [];
+  }
+
+  if (!(await serviceDiscovery.isAvailable('engages'))) {
+    throw new Error("Inbox service is not available");
+  }
+
   return client.sendRPCMessage(`engages:rpc_queue:${action}`, data);
 };
 
@@ -303,6 +323,14 @@ export const sendFieldRPCMessage = async (action, data): Promise<any> => {
 };
 
 export const sendInboxRPCMessage = async (action, data): Promise<any> => {
+  if (!(await serviceDiscovery.isEnabled('inbox'))) {
+    return;
+  }
+
+  if (!(await serviceDiscovery.isAvailable('inbox'))) {
+    throw new Error("Inbox service is not available");
+  }
+
   return client.sendRPCMessage(`inbox:rpc_queue:${action}`, data);
 };
 
@@ -319,6 +347,14 @@ export const findProducts = async (action, data): Promise<any> => {
 };
 
 export const updateProducts = async (selector, modifier): Promise<any> => {
+  if (!(await serviceDiscovery.isEnabled('products'))) {
+    return [];
+  }
+
+  if (!(await serviceDiscovery.isAvailable('products'))) {
+    throw new Error("Products service is not available");
+  }
+
   return client.sendRPCMessage(`products:rpc_queue:update`, {
     selector,
     modifier
@@ -326,6 +362,14 @@ export const updateProducts = async (selector, modifier): Promise<any> => {
 };
 
 export const sendProductRPCMessage = async (action, data): Promise<any> => {
+  if (!(await serviceDiscovery.isEnabled('products'))) {
+    return [];
+  }
+
+  if (!(await serviceDiscovery.isAvailable('products'))) {
+    throw new Error("Products service is not available");
+  }
+
   return client.sendRPCMessage(`products:rpc_queue:${action}`, data);
 };
 

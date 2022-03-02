@@ -281,6 +281,10 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
 };
 
 export const sendContactMessage = async (action, data): Promise<any> => {
+  if(!(await serviceDiscovery.isEnabled('contacts'))) {
+    return;
+  }
+
   return client.sendMessage(`contacts:${action}`, data);
 };
 
@@ -297,6 +301,15 @@ export const sendConformityMessage = async (action, data): Promise<any> => {
 };
 
 export const sendEngageMessage = async (action, data): Promise<any> => {
+  if(!(await serviceDiscovery.isEnabled('engages'))) {
+    return null;
+  }
+
+
+  if(!(await serviceDiscovery.isAvailable('engages'))) {
+    throw new Error('Engages service is not available.');
+  }
+
   return client.sendRPCMessage(`engages:rpc_queue:${action}`, data);
 };
 
@@ -333,14 +346,34 @@ export const findIntegrations = async (query, options?): Promise<any> => {
 };
 
 export const findTags = async (query): Promise<any> => {
-  const isAvailable = await serviceDiscovery.isEnabled('tags');
+  if(!(await serviceDiscovery.isEnabled('tags'))) return [];
 
-  if (!isAvailable) {
-    return [];
+  if(!(await serviceDiscovery.isAvailable('tags'))) {
+    throw new Error("Tags service is not available");
   }
 
   return client.sendRPCMessage('tags:rpc_queue:find', query);
 };
+
+export const findOneTag = async (query): Promise<any> => {
+  if(!(await serviceDiscovery.isEnabled('tags'))) return null;
+
+  if(!(await serviceDiscovery.isAvailable('tags'))) {
+    throw new Error("Tags service is not available");
+  }
+
+  return client.sendRPCMessage('tags:rpc_queue:findOne', query);
+};
+
+export const createTag =  async (doc) => {
+  if(!(await serviceDiscovery.isEnabled('tags'))) return null;
+
+  if(!(await serviceDiscovery.isAvailable('tags'))) {
+    throw new Error("Tags service is not available");
+  }
+
+  return client.sendRPCMessage('tags:createTag', doc);
+}
 
 export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
@@ -348,10 +381,14 @@ export const sendToLog = (channel: string, data) =>
 export const removeCustomersConversations = async (
   customerIds
 ): Promise<any> => {
+  if(!(await serviceDiscovery.isEnabled("inbox"))) return;
+
   await client.sendMessage('inbox:removeCustomersConversations', customerIds);
 };
 
 export const removeCustomersEngages = async (customerIds): Promise<any> => {
+  if(!(await serviceDiscovery.isEnabled("engages"))) return;
+
   await client.sendMessage('engage:removeCustomersEngages', customerIds);
 };
 

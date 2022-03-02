@@ -7,7 +7,7 @@ import {
   getCustomFieldsData
 } from '@erxes/api-utils/src/exporter';
 import { IColumnLabel, IUserDocument } from '@erxes/api-utils/src/types';
-import { Fields, Segments, Tags, Users } from './apiCollections';
+import { Fields, Segments, Users } from './apiCollections';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 import {
   COMPANY_BASIC_INFOS,
@@ -24,7 +24,7 @@ import {
 } from './models/definitions/customers';
 import Companies from './models/Companies';
 import Customers from './models/Customers';
-import { fetchSegment } from './messageBroker';
+import { fetchSegment, findTags } from './messageBroker';
 import { can } from '@erxes/api-utils/src';
 
 import {
@@ -138,7 +138,7 @@ export const fillCellValue = async (
       break;
 
     case 'tag':
-      const tags = await Tags.find({
+      const tags = await findTags({
         _id: { $in: item.tagIds }
       });
 
