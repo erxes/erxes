@@ -150,6 +150,8 @@ function commonListComposer<ComponentProps>(options) {
     };
 
     const updatedProps = {
+      ...props,
+      refetch: listQuery.refetch,
       objects,
       totalCount,
       remove,
