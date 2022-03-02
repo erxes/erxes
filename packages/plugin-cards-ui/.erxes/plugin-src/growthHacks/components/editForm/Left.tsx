@@ -135,7 +135,7 @@ class Left extends React.Component<Props> {
 
         <ActivityInputs
           contentTypeId={item._id}
-          contentType={type}
+          contentType={`cards:${type}`}
           showEmail={false}
         />
 
