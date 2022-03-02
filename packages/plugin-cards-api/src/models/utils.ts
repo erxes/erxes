@@ -235,6 +235,8 @@ export const getCollection = (type: string) => {
       remove = Tickets.removeTickets;
       break;
     }
+    default:
+      break;
   }
 
   return { collection, create, update, remove };
