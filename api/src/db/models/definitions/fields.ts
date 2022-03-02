@@ -68,6 +68,7 @@ export interface IField extends IVisibility {
   canHide?: boolean;
   lastUpdatedUserId?: string;
   associatedFieldId?: string;
+  code?: string;
 
   logics?: ILogic[];
   logicAction?: string;
@@ -92,6 +93,7 @@ export interface IFieldGroup extends IVisibility {
   order?: number;
   isDefinedByErxes?: boolean;
   description?: string;
+  code?: string;
   lastUpdatedUserId?: string;
   boardsPipelines?: IBoardsPipelines[];
   boardIds?: string[];
@@ -125,6 +127,11 @@ export const fieldSchema = schemaWrapper(
       type: String,
       optional: true,
       label: 'Description'
+    }),
+    code: field({
+      type: String,
+      optional: true,
+      label: 'Unique code'
     }),
     options: field({
       type: [String],
@@ -194,6 +201,11 @@ export const fieldGroupSchema = schemaWrapper(
       label: 'Is defined by erxes'
     }),
     description: field({ type: String, label: 'Description' }),
+    code: field({
+      type: String,
+      optional: true,
+      label: 'Unique code'
+    }),
     // Id of user who updated the group
     lastUpdatedUserId: field({ type: String, label: 'Last updated by' }),
     isVisible: field({ type: Boolean, default: true, label: 'Is visible' }),

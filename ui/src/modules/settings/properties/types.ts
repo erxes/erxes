@@ -17,6 +17,7 @@ export interface IField {
   type: string;
   validation?: string;
   text?: string;
+  code?: string;
   content?: string;
   description?: string;
   options?: string[];
@@ -55,6 +56,7 @@ export interface IFieldGroup {
   contentType: string;
   order: React.ReactNode;
   description: string;
+  code: string;
   isVisible: boolean;
   isVisibleInDetail: boolean;
   isDefinedByErxes: boolean;

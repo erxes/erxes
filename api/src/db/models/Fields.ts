@@ -1,7 +1,6 @@
 /*
  * Extra fields for form, customer, company
  */
-
 import { Model, model } from 'mongoose';
 import * as validator from 'validator';
 import { Customers, Forms } from '.';
@@ -56,6 +55,7 @@ export const isValidDate = value => {
 };
 
 export interface IFieldModel extends Model<IFieldDocument> {
+  checkCodeDuplication(code: string): string;
   checkIsDefinedByErxes(_id: string): never;
   createField(doc: IField): Promise<IFieldDocument>;
   updateField(_id: string, doc: IField): Promise<IFieldDocument>;
@@ -93,6 +93,15 @@ export interface IFieldModel extends Model<IFieldDocument> {
 
 export const loadFieldClass = () => {
   class Field {
+    static async checkCodeDuplication(code: string) {
+      const group = await Fields.findOne({
+        code
+      });
+
+      if (group) {
+        throw new Error('Code must be unique');
+      }
+    }
     /*
      * Check if Group is defined by erxes by default
      */
@@ -124,6 +133,10 @@ export const loadFieldClass = () => {
       groupName,
       ...fields
     }: IField) {
+      if (fields.code) {
+        await this.checkCodeDuplication(fields.code || '');
+      }
+
       const query: { [key: string]: any } = { contentType };
 
       if (groupId) {
@@ -199,6 +212,12 @@ export const loadFieldClass = () => {
         }
 
         doc.groupId = group._id;
+      }
+
+      const field = await Fields.findOne({ _id });
+
+      if (doc.code && field && field.code !== doc.code) {
+        await this.checkCodeDuplication(doc.code);
       }
 
       await Fields.updateOne({ _id }, { $set: doc });
@@ -538,6 +557,7 @@ export const loadFieldClass = () => {
 };
 
 export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
+  checkCodeDuplication(code: string): string;
   checkIsDefinedByErxes(_id: string): never;
   createGroup(doc: IFieldGroup): Promise<IFieldGroupDocument>;
   updateGroup(_id: string, doc: IFieldGroup): Promise<IFieldGroupDocument>;
@@ -554,6 +574,15 @@ export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
 
 export const loadGroupClass = () => {
   class FieldGroup {
+    static async checkCodeDuplication(code: string) {
+      const group = await FieldsGroups.findOne({
+        code
+      });
+
+      if (group) {
+        throw new Error('Code must be unique');
+      }
+    }
     /*
      * Check if Group is defined by erxes by default
      */
@@ -570,6 +599,10 @@ export const loadGroupClass = () => {
      * Create new field group
      */
     public static async createGroup(doc: IFieldGroup) {
+      if (doc.code) {
+        await this.checkCodeDuplication(doc.code || '');
+      }
+
       // Newly created group must be visible
       const isVisible = true;
 
@@ -598,6 +631,11 @@ export const loadGroupClass = () => {
      * Update field group
      */
     public static async updateGroup(_id: string, doc: IFieldGroup) {
+      const group = await FieldsGroups.findOne({ _id });
+
+      if (doc.code && group && group.code !== doc.code) {
+        await this.checkCodeDuplication(doc.code);
+      }
       // Can not edit group that is defined by erxes
       await this.checkIsDefinedByErxes(_id);
 

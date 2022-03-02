@@ -75,10 +75,7 @@ function ProductRow(props: Props) {
       return (
         <tr>
           <td colSpan={6}>
-            <NameWrapper>
-              {/* {renderType(templateInfo ? '' : '')}{' '} */}
-              {templateInfo}
-            </NameWrapper>
+            <NameWrapper>{templateInfo}</NameWrapper>
           </td>
           <td>
             <RemoveRow>
@@ -89,7 +86,7 @@ function ProductRow(props: Props) {
       );
     }
 
-    return '';
+    return null;
   };
 
   const {

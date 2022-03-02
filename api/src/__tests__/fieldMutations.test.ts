@@ -55,6 +55,7 @@ describe('Fields mutations', () => {
     $validation: String
     $text: String
     $description: String
+    $code: String
     $options: [String]
     $isRequired: Boolean
     $order: Int
@@ -68,6 +69,7 @@ describe('Fields mutations', () => {
     text: $text
     description: $description
     options: $options
+    code: $code
     isRequired: $isRequired
     order: $order
     groupId: $groupId
@@ -77,6 +79,7 @@ describe('Fields mutations', () => {
   const fieldsGroupsCommonParamDefs = `
     $name: String
     $contentType: String
+    $code: String
     $order: Int
     $description: String
     $isVisible: Boolean
@@ -87,6 +90,7 @@ describe('Fields mutations', () => {
     name: $name
     contentType: $contentType
     order: $order
+    code: $code
     description: $description
     isVisible: $isVisible
     boardsPipelines: $boardsPipelines
@@ -130,6 +134,7 @@ describe('Fields mutations', () => {
           order
           groupId
           isVisible
+          code
         }
       }
     `;
@@ -151,6 +156,28 @@ describe('Fields mutations', () => {
     expect(field.order).toBe(fieldArgs.order);
     expect(field.groupId).toBe(fieldArgs.groupId);
     expect(field.isVisible).toBe(fieldArgs.isVisible);
+
+    const code = '123';
+
+    const fieldWithCode = await graphqlRequest(
+      mutation,
+      'fieldsAdd',
+      { ...fieldArgs, code },
+      context
+    );
+
+    expect(fieldWithCode.code).toBe(code);
+
+    try {
+      await graphqlRequest(
+        mutation,
+        'fieldsAdd',
+        { ...fieldArgs, code },
+        context
+      );
+    } catch (e) {
+      expect(e[0].message).toBe('Code must be unique');
+    }
   });
 
   test('Edit field', async () => {
@@ -171,6 +198,7 @@ describe('Fields mutations', () => {
           isRequired
           order
           groupId
+          code
           isVisible
         }
       }
@@ -192,6 +220,17 @@ describe('Fields mutations', () => {
     expect(field.order).toBe(fieldArgs.order);
     expect(field.groupId).toBe(fieldArgs.groupId);
     expect(field.isVisible).toBe(fieldArgs.isVisible);
+
+    const code = '123';
+
+    const fieldWithCode = await graphqlRequest(
+      mutation,
+      'fieldsEdit',
+      { _id: _field._id, ...fieldArgs, code },
+      context
+    );
+
+    expect(fieldWithCode.code).toBe(code);
   });
 
   test('Remove field', async () => {
@@ -386,6 +425,7 @@ describe('Fields mutations', () => {
           order
           description
           isVisible
+          code
           boardsPipelines {
             boardId
             pipelineIds
@@ -401,6 +441,30 @@ describe('Fields mutations', () => {
 
       expect(fieldGroup.order).toBe(1);
       checkFieldGroupMutationResults(fieldGroup, fieldGroupArgs);
+
+      const code = '123';
+
+      const fieldGroupWithCode = await graphqlRequest(
+        mutation,
+        'fieldsGroupsAdd',
+        {
+          ...fieldGroupArgs,
+          code,
+          boardsPipelines: [{ boardId: board._id, pipelineIds: [pipeline._id] }]
+        }
+      );
+
+      expect(fieldGroupWithCode.code).toBe(code);
+
+      try {
+        await graphqlRequest(mutation, 'fieldsGroupsAdd', {
+          ...fieldGroupArgs,
+          code,
+          boardsPipelines: [{ boardId: board._id, pipelineIds: [pipeline._id] }]
+        });
+      } catch (e) {
+        expect(e[0].message).toBe('Code must be unique');
+      }
     });
 
   test('Edit group field', async () => {
@@ -416,6 +480,7 @@ describe('Fields mutations', () => {
           order
           description
           isVisible
+          code
           boardsPipelines {
             boardId
             pipelineIds
@@ -438,6 +503,22 @@ describe('Fields mutations', () => {
     expect(fieldGroup._id).toBe(_fieldGroup._id);
     expect(fieldGroup.order).toBe(fieldGroupArgs.order);
     checkFieldGroupMutationResults(fieldGroup, fieldGroupArgs);
+
+    const code = '123';
+
+    const fieldGroupWithCode = await graphqlRequest(
+      mutation,
+      'fieldsGroupsEdit',
+      {
+        _id: _fieldGroup._id,
+        ...fieldGroupArgs,
+        code,
+        boardsPipelines: [{ boardId: board._id, pipelineIds: [pipeline._id] }]
+      },
+      context
+    );
+
+    expect(fieldGroupWithCode.code).toBe(code);
   });
 
   test('Remove group field', async () => {

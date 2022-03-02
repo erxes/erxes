@@ -162,6 +162,7 @@ export const loadClass = () => {
       details,
       links,
       groupIds,
+      isActive,
       isOwner = false
     }: IUser) {
       // empty string password validation
@@ -181,7 +182,7 @@ export const loadClass = () => {
         details,
         links,
         groupIds,
-        isActive: true,
+        isActive: isActive !== undefined ? isActive : true,
         // hash password
         password: await this.generatePassword(password),
         code: await this.generateUserCode()
