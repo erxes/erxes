@@ -144,6 +144,11 @@ export const initBroker = async (server?) => {
           data: notifDoc
         }
       }
+
+      return {
+        status: 'success',
+        data: {}
+      }
     });
 
     // graphql subscriptions call =========
