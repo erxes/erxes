@@ -1,3 +1,3 @@
-import WidgetContainer from "@erxes/ui-notifications/src/containers/Widget";
+import Widget from "@erxes/ui-notifications/src/containers/Widget";
 
-export default WidgetContainer;
+export default Widget;

@@ -7,7 +7,6 @@ import NameCard from "modules/common/components/nameCard/NameCard";
 import Tip from "modules/common/components/Tip";
 import { colors } from "modules/common/styles";
 import { __ } from "modules/common/utils";
-import Widget from "@erxes/ui-notifications/src/containers/Widget";
 import NotificationSettings from "modules/settings/profile/containers/NotificationSettings";
 import Version from "modules/settings/status/containers/Version";
 import React from "react";
@@ -127,9 +126,6 @@ const QuickNavigation = ({
         </Tip>
       </NavItem>
       {pluginsOfTopNavigations()}
-      <NavItem>
-        <Widget />
-      </NavItem>
       <NavItem>
         <Dropdown alignRight={true}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-user">

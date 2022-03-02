@@ -136,9 +136,11 @@ const loadComponent = (scope, module) => {
     await __webpack_init_sharing__("default");
 
     const container = window[scope]; // or get the container somewhere else
+
     // Initialize the container, it may provide shared modules
     await container.init(__webpack_share_scopes__.default);
     const factory = await window[scope].get(module);
+
     const Module = factory();
     return Module;
   };
@@ -213,23 +215,6 @@ class SettingsCustomBox extends React.Component<any, any> {
   };
 
   render() {
-<<<<<<< HEAD
-    const { renderBox, settingsNav, color } = this.props;
-    const {
-      text,
-      image,
-      to,
-      action,
-      permissions,
-      scope,
-      component,
-    } = settingsNav;
-
-    const box = renderBox(text, image, to, action, permissions, scope, color);
-
-    if (!component) {
-      return box;
-=======
     const { renderBox, settingsNav, color, hasComponent } = this.props;
 
     const box = renderBox(
@@ -249,7 +234,6 @@ class SettingsCustomBox extends React.Component<any, any> {
           {box}
         </div>
       );
->>>>>>> cc476736c0b3ebfa7b1690b6135320204f61ed73
     }
 
     return box;
@@ -302,16 +286,24 @@ class TopNavigation extends React.Component<any, any> {
     this.state = { showComponent: false };
   }
 
+  componentDidMount() {
+    var interval = setInterval(() => {
+      if (window[this.props.topNav.scope]) {
+        window.clearInterval(interval);
+
+        this.setState({ showComponent: true });
+      }
+    }, 500);
+  }
+
   renderComponent = () => {
     if (!this.state.showComponent) {
       return null;
     }
 
-    const { settingsNav } = this.props;
+    const { topNav } = this.props;
 
-    const Component = React.lazy(
-      loadComponent(settingsNav.scope, settingsNav.component)
-    );
+    const Component = React.lazy(loadComponent(topNav.scope, topNav.component));
 
     return (
       <React.Suspense fallback="">
@@ -320,14 +312,8 @@ class TopNavigation extends React.Component<any, any> {
     );
   };
 
-  load = () => {
-    this.setState({ showComponent: true });
-  };
-
   render() {
-    const { settingsNav } = this.props;
-    console.log(settingsNav.component);
-    return <NavItem onClick={this.load}>{this.renderComponent()}</NavItem>;
+    return <NavItem>{this.renderComponent()}</NavItem>;
   }
 }
 
@@ -340,11 +326,7 @@ export const pluginsOfTopNavigations = () => {
       if (menu.location === "topNavigation") {
         topNavigationMenus.push(
           <React.Fragment key={menu.text}>
-            <TopNavigation
-              settingsNav={menu}
-              color={plugin.color}
-              // renderBox={<NavItem>hi</NavItem>}
-            />
+            <TopNavigation topNav={menu} />
           </React.Fragment>
         );
       }
