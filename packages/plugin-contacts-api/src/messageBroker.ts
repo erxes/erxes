@@ -233,7 +233,7 @@ export const initBroker = cl => {
     };
   });
 
-  consumeRPCQueue('contacts:rpc_queue:generateInteralNoteNotif', async args => {
+  consumeRPCQueue('contacts:rpc_queue:generateInternalNoteNotif', async args => {
     const { contentTypeId, notifDoc, type } = args;
 
     let model: any = Customers;

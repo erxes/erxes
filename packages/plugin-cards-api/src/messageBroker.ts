@@ -196,7 +196,7 @@ export const initBroker = async cl => {
     return { data: await getCardItem(data), status: 'success' };
   });
 
-  consumeRPCQueue('cards:rpc_queue:generateInteralNoteNotif', async args => {
+  consumeRPCQueue('cards:rpc_queue:generateInternalNoteNotif', async args => {
     let model: any = GrowthHacks;
 
     const { contentTypeId, notifDoc, type } = args;

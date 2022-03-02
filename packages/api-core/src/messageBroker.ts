@@ -131,7 +131,7 @@ export const initBroker = async (server?) => {
       return { data, status: 'success' };
     });
 
-    consumeRPCQueue('api-core:rpc_queue:generateInteralNoteNotif', async args => {
+    consumeRPCQueue('api-core:rpc_queue:generateInternalNoteNotif', async args => {
       if(args.type === 'user') {
         const { contentTypeId, notifDoc } = args;
 
