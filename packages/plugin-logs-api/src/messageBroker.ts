@@ -20,7 +20,7 @@ const checkService = async (serviceName: string, needsList?: boolean) => {
 export const initBroker = async (cl) => {
   client = cl;
 
-  const { consumeQueue } = client;
+  const { consumeQueue, consumeRPCQueue } = client;
 
   consumeQueue('putLog', async data => {
     try {
@@ -94,6 +94,14 @@ export const initBroker = async (cl) => {
       }
     });
   });
+
+  consumeRPCQueue('logs:activityLogs:findMany', async ({ query, options }) => ({
+    data: await ActivityLogs.find(query, options).lean(), status: 'success'
+  }));
+
+  consumeRPCQueue('logs:activityLogs:insertMany', async ({ rows }) => ({
+    data: await ActivityLogs.insertMany(rows), status: 'success'
+  }));
 };
 
 export const getDbSchemaLabels = async (serviceName: string, type: string) => {
