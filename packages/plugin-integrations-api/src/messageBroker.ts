@@ -26,7 +26,7 @@ export const initBroker = async server => {
   consumeRPCQueue('rpc_queue:api_to_integrations', async parsedObject => {
     const { action, data, type } = parsedObject;
 
-    let response = null;
+    let response: any = null;
 
     try {
       if (action === 'remove-account') {
