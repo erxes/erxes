@@ -131,16 +131,23 @@ export const initBroker = async (server?) => {
       return { data, status: 'success' };
     });
 
-    consumeRPCQueue('users:rpc_queue:generateInteralNoteNotif', async args => {
-      const { contentTypeId, notifDoc } = args;
+    consumeRPCQueue('api-core:rpc_queue:generateInternalNoteNotif', async args => {
+      if(args.type === 'user') {
+        const { contentTypeId, notifDoc } = args;
 
-      const usr = await Users.getUser(contentTypeId);
+        const usr = await Users.getUser(contentTypeId);
 
-      notifDoc.content = `${usr.username || usr.email}`;
+        notifDoc.content = `${usr.username || usr.email}`;
+
+        return {
+          status: 'success',
+          data: notifDoc
+        }
+      }
 
       return {
         status: 'success',
-        data: notifDoc
+        data: {}
       }
     });
 

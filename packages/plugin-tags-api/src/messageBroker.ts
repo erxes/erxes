@@ -58,6 +58,11 @@ export const initBroker = async cl => {
     status: 'success',
     data: getSchemaLabels(type, [{ name: 'product', schemas: [tagSchema] }])
   }));
+
+  consumeRPCQueue('tags:createTag', async (doc) => ({
+    status: 'success',
+    data: await models.Tags.createTag(doc)
+  }));
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {
