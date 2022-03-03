@@ -247,23 +247,34 @@ const itemsCountByAssignedUser = `
   } 
 `;
 
+const commonLogParamDefs = `
+  $contentType: String,
+  $pipelineId: String,
+  $perPage: Int,
+  $page: Int,
+`;
+
+const commonLogParams = `
+  contentType: $contentType,
+  pipelineId: $pipelineId,
+  perPage: $perPage,
+  page: $page,
+`;
+
+const commonLogFields = `
+  _id
+  action
+  content
+  createdAt
+  contentType
+  contentTypeDetail
+`;
+
 const activityLogsByAction = `
-  query activityLogsByAction(
-    $contentType: String,
-    $action: String,
-    $pipelineId: String
-    $perPage: Int,
-    $page: Int
-  ) {
-    activityLogsByAction(
-      contentType: $contentType,
-      action: $action,
-      pipelineId: $pipelineId,
-      perPage: $perPage,
-      page: $page,
+  query activityLogsByAction($action: String, ${commonLogParamDefs}) {
+    activityLogsByAction(action: $action, ${commonLogParams}
     ) {
       activityLogs {
-        _id
         createdUser {
           _id
           username
@@ -274,13 +285,20 @@ const activityLogsByAction = `
           }
         }
 
-        action
-        content
-        createdAt
-        contentType
-        contentTypeDetail
+        ${commonLogFields}
       }
 
+      totalCount
+    }
+  }
+`;
+
+const internalNotesByAction = `
+  query internalNotesByAction(${commonLogParamDefs}) {
+    internalNotesByAction(${commonLogParams}) {
+      list {
+        ${commonLogFields}
+      }
       totalCount
     }
   }
@@ -324,5 +342,6 @@ export default {
   itemsCountByAssignedUser,
   pipelineAssignedUsers,
   activityLogsByAction,
-  conversionStages
+  conversionStages,
+  internalNotesByAction
 };

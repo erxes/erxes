@@ -414,6 +414,10 @@ export type ActivityLogsByActionQueryResponse = {
   totalCount: number;
 } & QueryResponse;
 
+export type InternalNotesByActionQueryResponse = {
+  internalNotesByAction: { list: IActivityLog[]; totalCount: number };
+} & QueryResponse;
+
 export type Item = {
   name: string;
   color: string;

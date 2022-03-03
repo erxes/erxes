@@ -192,7 +192,7 @@ export const initBroker = async cl => {
     return { data: await generateProducts(productsData), status: 'success' };
   });
 
-  consumeRPCQueue('cards:rpc_queue:findCardItem', async data => {
+  consumeRPCQueue('cards:rpc_queue:findItem', async data => {
     return { data: await getCardItem(data), status: 'success' };
   });
 

@@ -1,10 +1,13 @@
-import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
-import { IContext } from "@erxes/api-utils/src/types";
-import { graphqlPubsub } from "../../../configs";
-import { putCreateLog, putDeleteLog, putUpdateLog } from "../../../logUtils";
-import { sendNotificationMessage, sendRPCMessage } from "../../../messageBroker";
-import { InternalNotes } from "../../../models";
-import { IInternalNote } from "../../../models/definitions/internalNotes";
+import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import { IContext } from '@erxes/api-utils/src/types';
+import { graphqlPubsub } from '../../../configs';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
+import {
+  sendNotificationMessage,
+  sendRPCMessage,
+} from '../../../messageBroker';
+import { InternalNotes } from '../../../models';
+import { IInternalNote } from '../../../models/definitions/internalNotes';
 
 interface IInternalNotesEdit extends IInternalNote {
   _id: string;
@@ -18,19 +21,21 @@ const sendNotificationOfItems = async (
   excludeUserIds: string[]
 ) => {
   const notifDocItems = { ...doc };
-  const relatedReceivers = await sendRPCMessage(`${serviceName}:rpc_queue:notifiedUserIds`, item);
+  const relatedReceivers = await sendRPCMessage(
+    `${serviceName}:rpc_queue:notifiedUserIds`,
+    item
+  );
 
   notifDocItems.action = `added note in ${contentType}`;
 
-  notifDocItems.receivers = relatedReceivers.filter(id => {
+  notifDocItems.receivers = relatedReceivers.filter((id) => {
     return excludeUserIds.indexOf(id) < 0;
   });
 
- sendNotificationMessage('send', notifDocItems);
+  sendNotificationMessage('send', notifDocItems);
 
   graphqlPubsub.publish('activityLogsChanged', {});
 };
-
 
 const internalNoteMutations = (serviceDiscovery) => ({
   /**
@@ -41,9 +46,9 @@ const internalNoteMutations = (serviceDiscovery) => ({
 
     const [serviceName, type] = contentType.split(':');
 
-    const isServiceAvailable = await serviceDiscovery.isAvailable(serviceName)
+    const isServiceAvailable = await serviceDiscovery.isAvailable(serviceName);
 
-    if(!isServiceAvailable) {
+    if (!isServiceAvailable) {
       return null;
     }
 
@@ -56,21 +61,24 @@ const internalNoteMutations = (serviceDiscovery) => ({
       link: '',
       notifType: '',
       contentType: '',
-      contentTypeId: ''
+      contentTypeId: '',
     };
 
-    const updatedNotifDoc = await sendRPCMessage(`${serviceName}:rpc_queue:generateInternalNoteNotif`, {
-      type,
-      contentTypeId,
-      notifDoc
-    });
+    const updatedNotifDoc = await sendRPCMessage(
+      `${serviceName}:rpc_queue:generateInternalNoteNotif`,
+      {
+        type,
+        contentTypeId,
+        notifDoc,
+      }
+    );
 
-    if(updatedNotifDoc.notifOfItems) {
+    if (updatedNotifDoc.notifOfItems) {
       const { item } = updatedNotifDoc;
 
       await sendNotificationOfItems(serviceName, item, notifDoc, type, [
         ...mentionedUserIds,
-        user._id
+        user._id,
       ]);
     }
 
@@ -86,10 +94,10 @@ const internalNoteMutations = (serviceDiscovery) => ({
         newData: {
           ...args,
           createdUserId: user._id,
-          createdAt: internalNote.createdAt
+          createdAt: internalNote.createdAt,
         },
         object: internalNote,
-        description: `A note for ${internalNote.contentType} "${notifDoc.content}" has been created`
+        description: `A note for ${internalNote.contentType} "${updatedNotifDoc.content}" has been created`,
       },
       user
     );
@@ -112,7 +120,7 @@ const internalNoteMutations = (serviceDiscovery) => ({
       {
         type: 'internalNote',
         object: internalNote,
-        newData: doc
+        newData: doc,
       },
       user
     );
@@ -133,15 +141,12 @@ const internalNoteMutations = (serviceDiscovery) => ({
     const internalNote = await InternalNotes.getInternalNote(_id);
     const removed = await InternalNotes.removeInternalNote(_id);
 
-    await putDeleteLog(
-      { type: 'internalNote', object: internalNote },
-      user
-    );
+    await putDeleteLog({ type: 'internalNote', object: internalNote }, user);
 
     graphqlPubsub.publish('activityLogsChanged', {});
 
     return removed;
-  }
+  },
 });
 
 moduleRequireLogin(internalNoteMutations);

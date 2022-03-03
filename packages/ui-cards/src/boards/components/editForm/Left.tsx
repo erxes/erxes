@@ -223,7 +223,7 @@ const Left = (props: Props) => {
 
       <ActivityInputs
         contentTypeId={item._id}
-        contentType={`cards:${options.type}`}
+        contentType={options.type}
         showEmail={false}
       />
 
