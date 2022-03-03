@@ -4,7 +4,8 @@ import React from 'react';
 import {
   IPipeline,
   ActivityLogsByActionQueryResponse,
-  IOptions
+  IOptions,
+  InternalNotesByActionQueryResponse
 } from '../types';
 import gql from 'graphql-tag';
 import { withProps } from '@erxes/ui/src/utils';
@@ -21,20 +22,48 @@ type Props = {
 
 type WithStagesProps = {
   activityLogsByActionQuery: ActivityLogsByActionQueryResponse;
+  internalNotesByActionQuery: InternalNotesByActionQueryResponse;
 } & Props;
 
-const ActivityLits = (props: WithStagesProps) => {
+const buildListAndCount = (props: WithStagesProps) => {
+  const { queryParams, activityLogsByActionQuery, internalNotesByActionQuery } = props;
+  const { action = '' } = queryParams;
+
+  const { activityLogsByAction } = activityLogsByActionQuery;
+
+  if (activityLogsByActionQuery.loading || internalNotesByActionQuery.loading) {
+    return { list: [], totalCount: 0 };
+  }
+
+  let list = activityLogsByAction.activityLogs || [];
+  let totalCount = activityLogsByAction.totalCount || 0;
+  const actionList = action.split(',');
+
+  if (actionList.includes('addNote')) {
+    list = list.concat(internalNotesByActionQuery.internalNotesByAction.list);
+    totalCount += internalNotesByActionQuery.internalNotesByAction.totalCount;
+  }
+
+  list.sort((a, b) => {
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+
+  return { list, totalCount };
+}
+
+const ActivityList = (props: WithStagesProps) => {
   const { queryParams, activityLogsByActionQuery } = props;
 
-  const { error, activityLogsByAction, loading } = activityLogsByActionQuery;
+  const { error, loading } = activityLogsByActionQuery;
+
+  const { list, totalCount } = buildListAndCount(props);
 
   const updatedProps = {
     ...props,
     isLoading: loading,
     refetchQueries: commonOptions(queryParams),
-    activityLogsByAction:
-      loading || error ? [] : activityLogsByAction.activityLogs,
-    count: loading || error ? 0 : activityLogsByAction.totalCount,
+    activityLogsByAction: list,
+    count: totalCount,
     errorMessage: error || ''
   };
 
@@ -51,6 +80,13 @@ const commonOptions = queryParams => {
   return [{ query: gql(queries.activityLogsByAction), variables }];
 };
 
+const commonParams = (queryParams, options) => ({
+  contentType: options.type,
+  pipelineId: queryParams.pipelineId,
+  page: parseInt(queryParams.page || '1', 10),
+  perPage: parseInt(queryParams.perPage || '10', 10)
+});
+
 export default withProps<Props>(
   compose(
     graphql<Props, ActivityLogsByActionQueryResponse>(
@@ -59,14 +95,19 @@ export default withProps<Props>(
         name: 'activityLogsByActionQuery',
         options: ({ queryParams, options }) => ({
           variables: {
+            ...commonParams(queryParams, options),
             action: queryParams.action,
-            contentType: options.type,
-            pipelineId: queryParams.pipelineId,
-            page: parseInt(queryParams.page || '1', 10),
-            perPage: parseInt(queryParams.perPage || '10', 10)
           }
         })
       }
-    )
-  )(ActivityLits)
+    ),
+    graphql<Props>(gql(queries.internalNotesByAction), {
+      name: 'internalNotesByActionQuery',
+      options: ({ queryParams, options }) => ({
+        variables: {
+          ...commonParams(queryParams, options)
+        }
+      })
+    })
+  )(ActivityList)
 );
