@@ -17,6 +17,7 @@ import Sidebar from "../containers/Sidebar";
 import { ChooseBox, FlexContainer } from "@erxes/ui-engage/src/styles";
 import { IEngageMessage } from "@erxes/ui-engage/src/types";
 import PercentItem, { ItemWrapper } from "./PercentItem";
+import { TAG_TYPES } from "@erxes/ui/src/tags/constants";
 
 type Props = {
   messages: IEngageMessage[];
@@ -54,7 +55,7 @@ class List extends React.Component<Props> {
 
     return (
       <TaggerPopover
-        type="engageMessage"
+        type={TAG_TYPES.ENGAGE_MESSAGE}
         targets={bulk}
         trigger={tagButton}
         successCallback={emptyBulk}

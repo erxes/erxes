@@ -39,8 +39,16 @@ const internalNoteMutations = (serviceDiscovery) => ({
   async internalNotesAdd(_root, args: IInternalNote, { user }: IContext) {
     const { contentType, contentTypeId, mentionedUserIds = [] } = args;
 
+    const [serviceName, type] = contentType.split(':');
+
+    const isServiceAvailable = await serviceDiscovery.isAvailable(serviceName)
+
+    if(!isServiceAvailable) {
+      return null;
+    }
+
     const notifDoc = {
-      title: `${contentType.toUpperCase()} updated`,
+      title: `${type.toUpperCase()} updated`,
       createdUser: user,
       action: `mentioned you in ${contentType}`,
       receivers: mentionedUserIds,
@@ -50,13 +58,6 @@ const internalNoteMutations = (serviceDiscovery) => ({
       contentType: '',
       contentTypeId: ''
     };
-    
-    const [serviceName, type] = contentType.split(':');
-    const isServiceAvailable = await serviceDiscovery.isAvailable(serviceName)
-
-    if(!isServiceAvailable) {
-      return null;
-    }
 
     const updatedNotifDoc = await sendRPCMessage(`${serviceName}:rpc_queue:generateInternalNoteNotif`, {
       type,
@@ -67,7 +68,7 @@ const internalNoteMutations = (serviceDiscovery) => ({
     if(updatedNotifDoc.notifOfItems) {
       const { item } = updatedNotifDoc;
 
-      await sendNotificationOfItems(serviceName, item, notifDoc, contentType, [
+      await sendNotificationOfItems(serviceName, item, notifDoc, type, [
         ...mentionedUserIds,
         user._id
       ]);

@@ -34,7 +34,7 @@ class CompanyDetails extends React.Component<Props> {
       <>
         <ActivityInputs
           contentTypeId={company._id}
-          contentType="company"
+          contentType="contacts:company"
           toEmails={company.emails}
           showEmail={false}
         />

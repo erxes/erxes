@@ -1,12 +1,12 @@
 import { __ } from '../utils';
 
 export const TAG_TYPES = {
-  CONVERSATION: __('conversation'),
-  CUSTOMER: __('customer'),
-  ENGAGE_MESSAGE: __('engageMessage'),
-  COMPANY: __('company'),
-  INTEGRATION: __('integration'),
-  PRODUCT: __('product'),
+  CONVERSATION: __('inbox:conversation'),
+  CUSTOMER: __('contacts:customer'),
+  ENGAGE_MESSAGE: __('engages:engageMessage'),
+  COMPANY: __('contacts:company'),
+  INTEGRATION: __('inbox:integration'),
+  PRODUCT: __('products:product'),
   ALL_LIST: [
     'conversation',
     'customer',

@@ -13,32 +13,32 @@ function TagsSidebar() {
       </LeftSidebar.Header>
       <SidebarList id={'TagsSidebar'}>
         <li>
-          <NavLink activeClassName="active" to="/tags/engageMessage">
+          <NavLink activeClassName="active" to="/tags/engages:engageMessage">
             {__('Campaign')}
           </NavLink>
         </li>
         <li>
-          <NavLink activeClassName="active" to="/tags/conversation">
+          <NavLink activeClassName="active" to="/tags/inbox:conversation">
             {__('Conversation')}
           </NavLink>
         </li>
         <li>
-          <NavLink activeClassName="active" to="/tags/customer">
+          <NavLink activeClassName="active" to="/tags/contacts:customer">
             {__('Customer')}
           </NavLink>
         </li>
         <li>
-          <NavLink activeClassName="active" to="/tags/company">
+          <NavLink activeClassName="active" to="/tags/contacts:company">
             {__('Company')}
           </NavLink>
         </li>
         <li>
-          <NavLink activeClassName="active" to="/tags/integration">
+          <NavLink activeClassName="active" to="/tags/inbox:integration">
             {__('Integration')}
           </NavLink>
         </li>
         <li>
-          <NavLink activeClassName="active" to="/tags/product">
+          <NavLink activeClassName="active" to="/tags/products:product">
             {__('Product & Service')}
           </NavLink>
         </li>

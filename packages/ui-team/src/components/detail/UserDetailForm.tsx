@@ -64,7 +64,7 @@ function UserDetails({
     <>
       <ActivityInputs
         contentTypeId={user._id}
-        contentType="user"
+        contentType="api-core:user"
         showEmail={false}
       />
 
