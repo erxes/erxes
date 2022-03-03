@@ -1,12 +1,11 @@
 import * as _ from 'underscore';
-import { Segments, Tags } from '../apiCollections';
+import { Brands, Segments } from '../apiCollections';
 import { companySchema } from '../models/definitions/companies';
 import { KIND_CHOICES } from '../models/definitions/constants';
 import { customerSchema } from '../models/definitions/customers';
 import { debug, es } from '../configs';
 import { COC_LEAD_STATUS_TYPES } from '../constants';
-import { getDocumentList } from '../cacheUtils';
-import { fetchSegment, sendConformityMessage } from '../messageBroker';
+import { fetchSegment, findOneTag, findTags, sendConformityMessage } from '../messageBroker';
 // import { ISegmentDocument } from '../../../db/models/definitions/segments';
 
 export interface ICountBy {
@@ -65,7 +64,7 @@ export const countByBrand = async (qb): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
   // Count customers by brand
-  const brands = await getDocumentList('brands', {});
+  const brands = await Brands.find().toArray();
 
   for (const brand of brands) {
     await qb.buildAllQueries();
@@ -81,7 +80,7 @@ export const countByTag = async (type: string, qb): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
   // Count customers by tag
-  const tags = await Tags.find({ type }).toArray();
+  const tags = await findTags({ type});
 
   for (const tag of tags) {
     await qb.buildAllQueries();
@@ -195,7 +194,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     let tagIds: string[] = [tagId];
 
     if (withRelated) {
-      const tag = await Tags.findOne({ _id: tagId });
+      const tag = await findOneTag({ _id: tagId });
 
       tagIds = [tagId, ...(tag?.relatedIds || [])];
     }

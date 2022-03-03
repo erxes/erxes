@@ -1,4 +1,7 @@
+import { getSchemaLabels } from "@erxes/api-utils/src/logUtils";
+
 import { ProductCategories, Products } from "./models";
+import { productSchema, productCategorySchema } from './models/definitions/products';
 
 let client;
 
@@ -61,6 +64,27 @@ export const initBroker = async cl => {
       data
     }
   });
+
+  consumeRPCQueue('products:rpc_queue:generateInternalNoteNotif', async args => {
+    const { contentTypeId, notifDoc } = args;
+
+    const product = await Products.getProduct({ _id: contentTypeId });
+
+    notifDoc.content = product.name;
+
+    return {
+      status: 'success',
+      data: notifDoc
+    }
+  });
+
+  consumeRPCQueue('products:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
+    status: 'success',
+    data: getSchemaLabels(
+      type,
+      [{ name: 'product', schemas: [productSchema] }, { name: 'productCategory', schemas: [productCategorySchema] }]
+    )
+  }));
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {

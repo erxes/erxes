@@ -10,16 +10,45 @@ interface IInternalNotesEdit extends IInternalNote {
   _id: string;
 }
 
-const internalNoteMutations = {
+const sendNotificationOfItems = async (
+  serviceName: any,
+  item: any,
+  doc: any,
+  contentType: string,
+  excludeUserIds: string[]
+) => {
+  const notifDocItems = { ...doc };
+  const relatedReceivers = await sendRPCMessage(`${serviceName}:rpc_queue:notifiedUserIds`, item);
+
+  notifDocItems.action = `added note in ${contentType}`;
+
+  notifDocItems.receivers = relatedReceivers.filter(id => {
+    return excludeUserIds.indexOf(id) < 0;
+  });
+
+ sendNotificationMessage('send', notifDocItems);
+
+  graphqlPubsub.publish('activityLogsChanged', {});
+};
+
+
+const internalNoteMutations = (serviceDiscovery) => ({
   /**
    * Adds internalNote object and also adds an activity log
    */
   async internalNotesAdd(_root, args: IInternalNote, { user }: IContext) {
-    const { contentType, contentTypeId } = args;
-    const mentionedUserIds = args.mentionedUserIds || [];
+    const { contentType, contentTypeId, mentionedUserIds = [] } = args;
 
-    let notifDoc = {
-      title: `${contentType.toUpperCase()} updated`,
+    const [serviceName, type] = contentType.split(':');
+
+    const isServiceAvailable = await serviceDiscovery.isAvailable(serviceName)
+
+    if(!isServiceAvailable) {
+      return null;
+    }
+
+    const notifDoc = {
+      title: `${type.toUpperCase()} updated`,
       createdUser: user,
       action: `mentioned you in ${contentType}`,
       receivers: mentionedUserIds,
@@ -30,19 +59,23 @@ const internalNoteMutations = {
       contentTypeId: ''
     };
 
-    const [serviceName, type] = contentType.split(':');
-
-    const updatedNotifDoc = await sendRPCMessage(`${serviceName}:generateInteralNoteNotif`, {
+    const updatedNotifDoc = await sendRPCMessage(`${serviceName}:rpc_queue:generateInternalNoteNotif`, {
       type,
-      contentTypeId
+      contentTypeId,
+      notifDoc
     });
 
-    if (updatedNotifDoc) {
-      notifDoc = { ...notifDoc, ...updatedNotifDoc };
+    if(updatedNotifDoc.notifOfItems) {
+      const { item } = updatedNotifDoc;
 
-      await sendNotificationMessage('send', notifDoc);
+      await sendNotificationOfItems(serviceName, item, notifDoc, type, [
+        ...mentionedUserIds,
+        user._id
+      ]);
+    }
 
-      graphqlPubsub.publish('activityLogsChanged', {});
+    if (updatedNotifDoc.contentType) {
+      await sendNotificationMessage('send', updatedNotifDoc);
     }
 
     const internalNote = await InternalNotes.createInternalNote(args, user);
@@ -109,7 +142,7 @@ const internalNoteMutations = {
 
     return removed;
   }
-};
+});
 
 moduleRequireLogin(internalNoteMutations);
 

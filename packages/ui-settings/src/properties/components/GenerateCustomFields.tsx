@@ -1,12 +1,15 @@
-import Box from "@erxes/ui/src/components/Box";
-import Button from "@erxes/ui/src/components/Button";
-import EmptyState from "@erxes/ui/src/components/EmptyState";
-import { Alert } from "@erxes/ui/src/utils";
-import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
-import React from "react";
-import { SidebarContent } from "../styles";
-import { IFieldGroup } from "../types";
-import GenerateField from "./GenerateField";
+import Box from '@erxes/ui/src/components/Box';
+import Button from '@erxes/ui/src/components/Button';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { ILocationOption } from '@erxes/ui/src/types';
+import { Alert } from '@erxes/ui/src/utils';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import React from 'react';
+import { SidebarContent } from '../styles';
+import { IFieldGroup } from '../types';
+import GenerateField from './GenerateField';
+
+declare const navigator: any;
 
 type Props = {
   isDetail: boolean;
@@ -19,6 +22,7 @@ type Props = {
 type State = {
   editing: boolean;
   data: any;
+  currentLocation: ILocationOption;
 };
 
 class GenerateGroup extends React.Component<Props, State> {
@@ -28,7 +32,42 @@ class GenerateGroup extends React.Component<Props, State> {
     this.state = {
       editing: false,
       data: props.data,
+      currentLocation: { lat: 0, lng: 0 }
     };
+  }
+
+  async componentDidMount() {
+    if (this.props.fieldGroup.fields.findIndex(e => e.type === 'map') === -1) {
+      return;
+    }
+
+    const onSuccess = (position: { coords: any }) => {
+      const coordinates = position.coords;
+      this.setState({
+        currentLocation: {
+          lat: coordinates.latitude,
+          lng: coordinates.longitude
+        }
+      });
+    };
+
+    const onError = (err: { code: any; message: any }) => {
+      return Alert.error(`${err.code}): ${err.message}`);
+    };
+
+    if (navigator.geolocation) {
+      navigator.permissions.query({ name: 'geolocation' }).then(result => {
+        if (result.state === 'granted') {
+          navigator.geolocation.getCurrentPosition(onSuccess);
+        } else if (result.state === 'prompt') {
+          navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          });
+        }
+      });
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -121,7 +160,8 @@ class GenerateGroup extends React.Component<Props, State> {
               field={field}
               key={index}
               onValueChange={this.onChange}
-              defaultValue={data[field._id] || ""}
+              defaultValue={data[field._id] || ''}
+              currentLocation={this.state.currentLocation}
             />
           );
         })}

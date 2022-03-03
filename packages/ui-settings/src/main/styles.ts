@@ -47,6 +47,12 @@ const RowTitle = styled.h3`
   }
 `;
 
+const PluginSettings = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  flex: 1;
+`;
+
 const Box = styledTS<{ color?: string }>(styled(BoxRoot))`
   width: ${boxSize + dimensions.coreSpacing}px;
   height: ${boxSize}px;
@@ -106,4 +112,4 @@ const BoxName = styled.span`
   margin: 0 !important;
 `;
 
-export { Row, RowTitle, Box, Divider, BoxName, MenusContainer };
+export { Row, RowTitle, Box, Divider, BoxName, MenusContainer, PluginSettings };

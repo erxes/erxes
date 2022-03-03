@@ -48,12 +48,4 @@ const InviteOption = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
 `;
 
-const LinkButton = styled.a`
-  cursor: pointer;
-
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-export { FlexRow, ButtonContainer, LinkButton, RemoveRow, InviteOption };
+export { FlexRow, ButtonContainer, RemoveRow, InviteOption };

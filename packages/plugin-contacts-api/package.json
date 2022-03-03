@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",
-    "dev": "cd .erxes && DEBUG=erxes* yarn dev",
+    "dev": "cd .erxes && yarn dev",
     "build": "cd .erxes && yarn build",
     "start": "cd .erxes/dist/plugin-contacts-api/.erxes && node src"
   }

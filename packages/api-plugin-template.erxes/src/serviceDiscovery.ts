@@ -6,7 +6,7 @@ dotenv.config();
 const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, NODE_ENV } = process.env;
 const isDev = NODE_ENV === 'development';
 
-const redis = new Redis({
+export const redis = new Redis({
   host: REDIS_HOST,
   port: parseInt(REDIS_PORT || '6379', 10),
   password: REDIS_PASSWORD
@@ -18,13 +18,13 @@ const generateKey = name => `service:config:${name}`;
 
 export const getServices = () => {
   return registry.services();
-}
+};
 
 export const getService = async (name: string, config?: boolean) => {
   const result = {
     address: await registry.get(name),
     config: {}
-  }
+  };
 
   if (config) {
     const value = await redis.get(`service:config:${name}`);
@@ -32,7 +32,7 @@ export const getService = async (name: string, config?: boolean) => {
   }
 
   return result;
-}
+};
 
 export const join = ({
   name,
@@ -41,7 +41,8 @@ export const join = ({
   segment,
   hasSubscriptions = false,
   importTypes,
-  meta,
+  exportTypes,
+  meta
 }: {
   name: string;
   port: string;
@@ -49,7 +50,8 @@ export const join = ({
   segment?: any;
   hasSubscriptions?: boolean;
   importTypes?: any;
-  meta?: any
+  exportTypes?: any;
+  meta?: any;
 }) => {
   redis.set(
     generateKey(name),
@@ -59,15 +61,22 @@ export const join = ({
       segment,
       hasSubscriptions,
       importTypes,
+      exportTypes,
       meta
     })
   );
 
-  return registry.up(name, `http://${isDev ? 'localhost': `plugin-${name}-api`}:${port}`);
+  return registry.up(
+    name,
+    `http://${isDev ? 'localhost' : `plugin-${name}-api`}:${port}`
+  );
 };
 
 export const leave = async (name, port) => {
-  await registry.down(name, `http://${isDev ? 'localhost': `plugin-${name}-api`}:${port}`);
+  await registry.down(
+    name,
+    `http://${isDev ? 'localhost' : `plugin-${name}-api`}:${port}`
+  );
 
   return redis.del(generateKey(name));
 };

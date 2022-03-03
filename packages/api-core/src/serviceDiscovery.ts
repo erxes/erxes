@@ -1,5 +1,6 @@
 import * as Redis from 'ioredis';
 import * as ServiceRegistry from 'clerq';
+const enabledServices = require("../enabled-services");
 
 const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, NODE_ENV } = process.env;
 const isDev = NODE_ENV === 'development';
@@ -69,3 +70,17 @@ export const leave = async (name, port) => {
 
   return redis.del(generateKey(name));
 };
+
+export async function refreshEnabledServicesCache() {
+  await redis.del("erxes:plugins:enabled");
+
+  for(const serviceName in enabledServices) {
+    if(!enabledServices[serviceName]) {
+      continue;
+    }
+    await redis.sadd("erxes:plugins:enabled", serviceName);
+  }
+
+  const members = await redis.smembers("erxes:plugins:enabled");
+  console.log(`Enabled plugins: ${members}`);
+}

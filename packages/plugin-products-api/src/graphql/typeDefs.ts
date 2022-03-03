@@ -7,8 +7,8 @@ import {
 } from './schema/product';
 
 const typeDefs = async (serviceDiscovery) => {
-  const tagsAvailable = await serviceDiscovery.isAvailable('tags');
-  const contactsAvailable = await serviceDiscovery.isAvailable('contacts');
+  const tagsAvailable = await serviceDiscovery.isEnabled('tags');
+  const contactsAvailable = await serviceDiscovery.isEnabled('contacts');
 
   return gql`
     scalar JSON

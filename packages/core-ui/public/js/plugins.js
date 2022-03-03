@@ -227,12 +227,12 @@ window.plugins = [
     ],
   },
   {
-    name: "campaigns",
+    name: "engages",
     port: 3001,
     exposes: { "./routes": "./src/routes.tsx" },
     routes: {
       url: "http://localhost:3001/remoteEntry.js",
-      scope: "campaigns",
+      scope: "engages",
       module: "./routes",
     },
     menus: [
@@ -248,7 +248,7 @@ window.plugins = [
         to: "#",
         image: "/images/icons/erxes-31.png",
         location: "settings",
-        scope: "campaigns",
+        scope: "engages",
         action: "",
         permissions: [],
       },
@@ -384,7 +384,10 @@ window.plugins = [
   {
     name: "notifications",
     port: 3014,
-    exposes: { "./routes": "./src/routes.tsx" },
+    exposes: {
+      "./routes": "./src/routes.tsx",
+      "./settings": "./src/containers/Widget.tsx",
+    },
     routes: {
       url: "http://localhost:3014/remoteEntry.js",
       scope: "notifications",
@@ -396,6 +399,8 @@ window.plugins = [
         url: "/notifications",
         icon: "icon-book-open",
         location: "topNavigation",
+        scope: "notifications",
+        component: "./settings",
       },
     ],
   },

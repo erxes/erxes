@@ -1,4 +1,4 @@
-name: Api core1 CI
+name: Api core CI
 
 on:
   push:

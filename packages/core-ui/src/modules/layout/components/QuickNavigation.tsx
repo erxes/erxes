@@ -1,32 +1,32 @@
-import { IUser } from 'modules/auth/types';
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import Tip from 'modules/common/components/Tip';
-import { colors } from 'modules/common/styles';
-import { __ } from 'modules/common/utils';
-import Widget from '@erxes/ui-notifications/src/containers/Widget';
-import NotificationSettings from 'modules/settings/profile/containers/NotificationSettings';
-import Version from 'modules/settings/status/containers/Version';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
-import Search from '../containers/Search';
-import { UserHelper, DropNav } from '../styles';
-import BrandChooser from './BrandChooser';
+import { IUser } from "modules/auth/types";
+import asyncComponent from "modules/common/components/AsyncComponent";
+import DropdownToggle from "modules/common/components/DropdownToggle";
+import Icon from "modules/common/components/Icon";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import NameCard from "modules/common/components/nameCard/NameCard";
+import Tip from "modules/common/components/Tip";
+import { colors } from "modules/common/styles";
+import { __ } from "modules/common/utils";
+import NotificationSettings from "modules/settings/profile/containers/NotificationSettings";
+import Version from "modules/settings/status/containers/Version";
+import React from "react";
+import Dropdown from "react-bootstrap/Dropdown";
+import { Link } from "react-router-dom";
+import styled from "styled-components";
+import Search from "../containers/Search";
+import { UserHelper, DropNav } from "../styles";
+import BrandChooser from "./BrandChooser";
+import { pluginsOfTopNavigations } from "pluginUtils";
 
 const Signature = asyncComponent(() =>
   import(
-    /* webpackChunkName:"Signature" */ '@erxes/ui-settings/src/email/containers/Signature'
+    /* webpackChunkName:"Signature" */ "@erxes/ui-settings/src/email/containers/Signature"
   )
 );
 
 const ChangePassword = asyncComponent(() =>
   import(
-    /* webpackChunkName:"ChangePassword" */ 'modules/settings/profile/containers/ChangePassword'
+    /* webpackChunkName:"ChangePassword" */ "modules/settings/profile/containers/ChangePassword"
   )
 );
 
@@ -49,7 +49,7 @@ const NameCardWrapper = styled.div`
   padding: 10px 20px;
 `;
 
-const NavItem = styled.div`
+export const NavItem = styled.div`
   padding-left: 18px;
   display: table-cell;
   vertical-align: middle;
@@ -74,7 +74,7 @@ const QuickNavigation = ({
   currentUser,
   showBrands,
   selectedBrands,
-  onChangeBrands
+  onChangeBrands,
 }: {
   logout: () => void;
   currentUser: IUser;
@@ -82,18 +82,18 @@ const QuickNavigation = ({
   selectedBrands: string[];
   onChangeBrands: (value: string) => void;
 }) => {
-  const passContent = props => <ChangePassword {...props} />;
-  const signatureContent = props => <Signature {...props} />;
+  const passContent = (props) => <ChangePassword {...props} />;
+  const signatureContent = (props) => <Signature {...props} />;
 
-  const notificationContent = props => (
+  const notificationContent = (props) => (
     <NotificationSettings currentUser={currentUser} {...props} />
   );
 
   const brands = currentUser.brands || [];
 
-  const brandOptions = brands.map(brand => ({
+  const brandOptions = brands.map((brand) => ({
     value: brand._id,
-    label: brand.name || ''
+    label: brand.name || "",
   }));
 
   let brandsCombo;
@@ -111,7 +111,7 @@ const QuickNavigation = ({
   }
 
   return (
-    <nav id={'SettingsNav'}>
+    <nav id={"SettingsNav"}>
       {brandsCombo}
 
       <NavItem>
@@ -119,21 +119,13 @@ const QuickNavigation = ({
       </NavItem>
 
       <NavItem>
-        <Tip text={__('Tutorial')} placement="bottom">
+        <Tip text={__("Tutorial")} placement="bottom">
           <Link to="/tutorial#defaultStage">
             <Icon icon="question-circle" size={21} />
           </Link>
         </Tip>
       </NavItem>
-
-      <NavItem>
-        <Widget />
-      </NavItem>
-      <NavItem>
-        <Link id="Settings" to="/settings">
-          <Icon icon="cog" size={20} />
-        </Link>
-      </NavItem>
+      {pluginsOfTopNavigations()}
       <NavItem>
         <Dropdown alignRight={true}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-user">
@@ -151,19 +143,19 @@ const QuickNavigation = ({
             <Dropdown.Divider />
 
             <li>
-              <Link to="/profile">{__('My Profile')}</Link>
+              <Link to="/profile">{__("My Profile")}</Link>
             </li>
 
             <li>
               <DropNav>
-                {__('Account Settings')}
+                {__("Account Settings")}
                 <Icon icon="angle-right" />
                 <ul>
                   <ModalTrigger
                     title="Change Password"
                     trigger={
                       <li>
-                        <a href="#change-password">{__('Change password')}</a>
+                        <a href="#change-password">{__("Change password")}</a>
                       </li>
                     }
                     content={passContent}
@@ -174,7 +166,7 @@ const QuickNavigation = ({
                     enforceFocus={false}
                     trigger={
                       <li>
-                        <a href="#email">{__('Email signatures')}</a>
+                        <a href="#email">{__("Email signatures")}</a>
                       </li>
                     }
                     content={signatureContent}
@@ -184,7 +176,7 @@ const QuickNavigation = ({
                     title="Notification settings"
                     trigger={
                       <li>
-                        <a href="#notif">{__('Notification settings')}</a>
+                        <a href="#notif">{__("Notification settings")}</a>
                       </li>
                     }
                     content={notificationContent}
@@ -194,7 +186,7 @@ const QuickNavigation = ({
             </li>
 
             <Dropdown.Divider />
-            <Dropdown.Item onClick={logout}>{__('Sign out')}</Dropdown.Item>
+            <Dropdown.Item onClick={logout}>{__("Sign out")}</Dropdown.Item>
             <Version kind="plain" />
           </Dropdown.Menu>
         </Dropdown>

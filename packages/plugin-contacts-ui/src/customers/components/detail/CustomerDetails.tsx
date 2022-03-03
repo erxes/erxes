@@ -92,7 +92,7 @@ class CustomerDetails extends React.Component<Props> {
       <>
         <ActivityInputs
           contentTypeId={customer._id}
-          contentType="customer"
+          contentType="contacts:customer"
           toEmail={customer.primaryEmail}
           showEmail={false}
           extraTabs={this.renderExtraTabs()}

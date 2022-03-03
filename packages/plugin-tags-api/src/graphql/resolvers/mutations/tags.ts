@@ -1,10 +1,13 @@
-import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
+import {
+  checkPermission,
+  requireLogin,
+} from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src/types';
 
 import { Tags } from '../../../models';
 import { ITag } from '../../../models/definitions/tags';
 import { tagObject } from '../../../utils';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
+import { putCreateLog, putDeleteLog, putUpdateLog, putActivityLog } from '../../../logUtils';
 
 interface ITagsEdit extends ITag {
   _id: string;
@@ -56,7 +59,7 @@ const tagMutations = (serviceDiscovery) => ({
     {
       type,
       targetIds,
-      tagIds
+      tagIds,
     }: { type: string; targetIds: string[]; tagIds: string[] },
     { user }: IContext
   ) {
@@ -64,34 +67,36 @@ const tagMutations = (serviceDiscovery) => ({
     //   publishConversationsChanged(targetIds, MODULE_NAMES.TAG);
     // }
 
-      const prevTagsCount = await Tags.find({
-        _id: { $in: tagIds },
-        type
-      }).countDocuments();
+    const prevTagsCount = await Tags.find({
+      _id: { $in: tagIds },
+      type,
+    }).countDocuments();
 
-      if (prevTagsCount !== tagIds.length) {
-        throw new Error('Tag not found.');
-      }
+    if (prevTagsCount !== tagIds.length) {
+      throw new Error('Tag not found.');
+    }
 
-      const targets = await tagObject(type, tagIds, targetIds, serviceDiscovery);
+    const targets = await tagObject(type, tagIds, targetIds, serviceDiscovery);
 
-      for (const target of targets) {
-        // await putActivityLog({
-        //   action: ACTIVITY_LOG_ACTIONS.CREATE_TAG_LOG,
-        //   data: {
-        //     contentId: target._id,
-        //     userId: user ? user._id : '',
-        //     contentType: type,
-        //     target,
-        //     content: { tagIds: tagIds || [] }
-        //   }
-        // });
-      }
+    for (const target of targets) {
+      await putActivityLog({
+        action: 'createTagLog',
+        data: {
+          contentId: target._id,
+          userId: user ? user._id : '',
+          contentType: type,
+          target,
+          content: { tagIds: tagIds || [] },
+          createdBy: user._id,
+          action: 'tagged'
+        },
+      });
+    }
   },
 
   tagsMerge(_root, { sourceId, destId }: { sourceId: string; destId: string }) {
     return Tags.merge(sourceId, destId);
-  }
+  },
 });
 
 requireLogin(tagMutations, 'tagsTag');

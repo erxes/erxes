@@ -42,7 +42,7 @@ import {
 import { types as CommonTypes } from './schema/common';
 
 const typeDefs = async (serviceDiscovery) => {
-  const contactsAvailable = await serviceDiscovery.isAvailable('contacts');
+  const contactsEnabled = await serviceDiscovery.isEnabled('contacts');
 
   return gql`
     scalar JSON
@@ -53,7 +53,7 @@ const typeDefs = async (serviceDiscovery) => {
     }
   
     ${
-      contactsAvailable ?
+      contactsEnabled ?
       `
         extend type Company @key(fields: "_id") {
           _id: String! @external
@@ -66,10 +66,10 @@ const typeDefs = async (serviceDiscovery) => {
       : ''
     }
     
-    ${boardTypes(contactsAvailable)}
-    ${dealTypes(contactsAvailable)}
-    ${taskTypes(contactsAvailable)}
-    ${ticketTypes(contactsAvailable)}
+    ${boardTypes(contactsEnabled)}
+    ${dealTypes(contactsEnabled)}
+    ${taskTypes(contactsEnabled)}
+    ${ticketTypes(contactsEnabled)}
     ${growthHackTypes}
     ${plTypes}
     ${ptTypes}

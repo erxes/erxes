@@ -4,7 +4,7 @@ import { IContext } from '@erxes/api-utils/src/types';
 import { IActivityLogDocument } from '../../models/ActivityLogs';
 import { collectPluginContent } from '../../pluginUtils';
 import { fetchActivityLogs, fetchLogs, findActivityLogs } from '../../utils';
-import { getCardContentIds, getInternalNotes } from '../../messageBroker';
+import { getContentIds } from '../../messageBroker';
 
 export interface IListArgs {
   contentType: string;
@@ -86,9 +86,9 @@ const activityLogQueries = {
 
     const perPageForAction = perPage / actionArr.length;
 
-    const contentIds = await getCardContentIds({ pipelineId, contentType });
+    const contentIds = await getContentIds({ pipelineId, contentType });
 
-    actionArr = actionArr.filter(a => a !== 'delete' && a !== 'addNote');
+    actionArr = actionArr.filter(a => a !== 'delete');
 
     if (actionArr.length > 0) {
       const { activityLogs, totalCount } = await fetchActivityLogs(
@@ -135,25 +135,6 @@ const activityLogQueries = {
           createdAt: log.createdAt,
           createdBy: log.createdBy,
           content: log.description
-        });
-      }
-
-      allTotalCount += totalCount;
-    }
-
-    if (action.includes('addNote')) {
-      const { internalNotes, totalCount } =
-        await getInternalNotes({ contentTypeIds: contentIds, page, perPageForAction });
-
-      for (const note of internalNotes) {
-        allActivityLogs.push({
-          _id: note._id,
-          action: 'addNote',
-          contentType: note.contentType,
-          contentId: note.contentTypeId,
-          createdAt: note.createdAt,
-          createdBy: note.createdUserId,
-          content: note.content
         });
       }
 

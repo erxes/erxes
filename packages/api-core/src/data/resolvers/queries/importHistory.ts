@@ -14,7 +14,9 @@ const importHistoryQueries = {
     for (const serviceName of services) {
       const service = await getService(serviceName, true);
 
-      servicesImportTypes.push(...service.meta.importTypes);
+      if (service.meta && service.meta.importTypes) {
+        servicesImportTypes.push(...service.meta.importTypes);
+      }
     }
 
     return servicesImportTypes;
@@ -23,17 +25,19 @@ const importHistoryQueries = {
   /**
    * Import history list
    */
-  importHistories(
+  async importHistories(
     _root,
     { type, ...args }: { page: number; perPage: number; type: string }
   ) {
     const filter: { [key: string]: any } = {};
 
     if (type) {
-      filter.contentTypes = type;
+      filter['contentTypes.contentType'] = type;
     }
 
-    const list = paginate(ImportHistory.find(filter), args).sort({ date: -1 });
+    const list = await paginate(ImportHistory.find(filter), args).sort({
+      date: -1
+    });
 
     const count = ImportHistory.find(filter).countDocuments();
 
@@ -90,7 +94,6 @@ const importHistoryQueries = {
 
   async importHistoryPreviewExportCount(
     _root,
-    // { segmentId, contentType }: { segmentId: string; contentType: string }
     { segmentId }: { segmentId: string; contentType: string }
   ) {
     if (segmentId) {
@@ -100,32 +103,9 @@ const importHistoryQueries = {
 
       return fetchSegment(segment, { returnCount: true });
     }
-
-    // switch (contentType) {
-    //   case 'customer':
-    //     return Customers.countDocuments({ state: 'customer' });
-
-    //   case 'lead':
-    //     return Customers.countDocuments({ state: 'lead' });
-
-    //   case 'visitor':
-    //     return Customers.countDocuments({ state: 'visitor' });
-
-    //   case 'deal':
-    //     return Deals.countDocuments({});
-
-    //   case 'task':
-    //     return Tasks.countDocuments({});
-
-    //   case 'company':
-    //     return Companies.countDocuments({});
-
-    //   case 'ticket':
-    //     return Tasks.countDocuments({});
-    // }
   },
 
-  async importHistoryGetExportablePlugins() {
+  async importHistoryGetExportableServices() {
     const services = await getServices();
 
     const servicesExportTypes: any = [];
@@ -133,18 +113,15 @@ const importHistoryQueries = {
     for (const serviceName of services) {
       const service = await getService(serviceName, true);
 
-      servicesExportTypes.push(...service.meta.exportTypes);
+      if (service.meta.exportTypes) {
+        servicesExportTypes.push(...service.meta.exportTypes);
+      }
     }
 
     return servicesExportTypes;
   }
 };
 
-checkPermission(
-  importHistoryQueries,
-  'importHistories',
-  'importHistoryDetail',
-  []
-);
+checkPermission(importHistoryQueries, 'importHistories', 'importHistories', []);
 
 export default importHistoryQueries;

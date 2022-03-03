@@ -28,7 +28,7 @@ class CompanyDetails extends React.Component<Props> {
       <>
         <ActivityInputs
           contentTypeId={product._id}
-          contentType='product'
+          contentType='products:product'
           showEmail={false}
         />
         <ActivityLogs

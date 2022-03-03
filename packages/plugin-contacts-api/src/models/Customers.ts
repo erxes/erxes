@@ -1,5 +1,6 @@
 import { Model, model } from 'mongoose';
-// import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
+
+import { putActivityLog, prepareCocLogData } from '../logUtils';
 // import { sendToWebhook } from '../../data/utils';
 import { validSearchText } from '@erxes/api-utils/src';
 import { validateSingle } from '../verifierUtils';
@@ -251,10 +252,10 @@ export const loadClass = () => {
         modifiedAt: new Date()
       });
 
-      // await putActivityLog({
-      //   action: ACTIVITY_LOG_ACTIONS.CREATE_COC_LOG,
-      //   data: { coc: customer, contentType: 'customer' }
-      // });
+      await putActivityLog({
+        action: 'createCocLog',
+        data: { coc: customer, contentType: 'customer', ...prepareCocLogData(customer) }
+      });
 
       return customer._id;
     }
@@ -318,10 +319,14 @@ export const loadClass = () => {
         validateSingle({ phone: doc.primaryPhone });
       }
 
-      // await putActivityLog({
-      //   action: ACTIVITY_LOG_ACTIONS.CREATE_COC_LOG,
-      //   data: { coc: customer, contentType: 'customer' }
-      // });
+      await putActivityLog({
+        action: 'createCocLog',
+        data: {
+          coc: customer,
+          contentType: 'customer',
+          ...prepareCocLogData(customer)
+        }
+      });
 
       return Customers.getCustomer(customer._id);
     }
@@ -472,10 +477,10 @@ export const loadClass = () => {
      */
     public static async removeCustomers(customerIds: string[]) {
       // Removing every modules that associated with customer
-      // await putActivityLog({
-      //   action: ACTIVITY_LOG_ACTIONS.REMOVE_ACTIVITY_LOGS,
-      //   data: { type: ACTIVITY_CONTENT_TYPES.CUSTOMER, itemIds: customerIds }
-      // });
+      await putActivityLog({
+        action: 'removeActivityLogs',
+        data: { type: ACTIVITY_CONTENT_TYPES.CUSTOMER, itemIds: customerIds }
+      });
       await removeCustomersConversations(customerIds);
       await removeCustomersEngages(customerIds);
       await removeInternalNotes(ACTIVITY_CONTENT_TYPES.CUSTOMER, customerIds);
@@ -726,7 +731,10 @@ export const loadClass = () => {
       const {
         customFieldsData,
         trackedData
-      } = await sendFieldRPCMessage('generateCustomFieldsData', { customData, contentType: 'customer' });
+      } = await sendFieldRPCMessage('generateCustomFieldsData', {
+        customData,
+        contentType: 'customer'
+      });
 
       return this.createCustomer({
         ...doc,
@@ -753,7 +761,10 @@ export const loadClass = () => {
       const {
         customFieldsData,
         trackedData
-      } = await sendFieldRPCMessage('generateCustomFieldsData', { customData, contentType: 'customer' });
+      } = await sendFieldRPCMessage('generateCustomFieldsData', {
+        customData,
+        contentType: 'customer'
+      });
 
       const modifier = {
         ...doc,

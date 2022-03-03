@@ -1,4 +1,4 @@
-import { colors } from '../styles/index';
+import { colors } from '@erxes/ui/src';
 import GoogleMapReact from 'google-map-react';
 import React from 'react';
 import { ILocationOption } from '../types';

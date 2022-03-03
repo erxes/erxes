@@ -7,13 +7,19 @@ import { IItem } from "@erxes/ui-cards/src/boards/types";
 import { __ } from "modules/common/utils";
 import { ICompany } from "@erxes/ui/src/companies/types";
 import { ICustomer } from "@erxes/ui/src/customers/types";
-import { Divider, Row, RowTitle } from "@erxes/ui-settings/src/main/styles";
+import {
+  Divider,
+  PluginSettings,
+  Row,
+  RowTitle,
+} from "@erxes/ui-settings/src/main/styles";
 import React from "react";
 import { Route } from "react-router-dom";
 import pluginModules from "./plugins";
 import { ISubNav } from "modules/layout/components/Navigation";
 import { AppConsumer } from "appContext";
 import { generateRandomColor } from "utils";
+import { NavItem } from "modules/layout/components/QuickNavigation";
 
 export const pluginsOfRoutes = (currentUser: IUser) => {
   const plugins: any = [];
@@ -130,9 +136,11 @@ const loadComponent = (scope, module) => {
     await __webpack_init_sharing__("default");
 
     const container = window[scope]; // or get the container somewhere else
+
     // Initialize the container, it may provide shared modules
     await container.init(__webpack_share_scopes__.default);
     const factory = await window[scope].get(module);
+
     const Module = factory();
     return Module;
   };
@@ -191,9 +199,9 @@ class SettingsCustomBox extends React.Component<any, any> {
       return null;
     }
 
-    const Component = React.lazy(
-      loadComponent(this.props.scope, this.props.component)
-    );
+    const { scope, component } = this.props.settingsNav;
+
+    const Component = React.lazy(loadComponent(scope, component));
 
     return (
       <React.Suspense fallback="">
@@ -207,7 +215,7 @@ class SettingsCustomBox extends React.Component<any, any> {
   };
 
   render() {
-    const { renderBox, settingsNav, color } = this.props;
+    const { renderBox, settingsNav, color, hasComponent } = this.props;
 
     const box = renderBox(
       settingsNav.text,
@@ -219,16 +227,16 @@ class SettingsCustomBox extends React.Component<any, any> {
       color
     );
 
-    if (!settingsNav.component) {
-      return box;
+    if (settingsNav.component && hasComponent) {
+      return (
+        <div onClick={this.load}>
+          {this.renderComponent()}
+          {box}
+        </div>
+      );
     }
 
-    return (
-      <div onClick={this.load}>
-        {this.renderComponent()}
-        {box}
-      </div>
-    );
+    return box;
   }
 }
 
@@ -250,6 +258,8 @@ export const pluginsSettingsNavigations = (
       plugin["color"] = generateRandomColor();
     }
 
+    const hasComponent = Object.keys(plugin.exposes).includes("./settings");
+
     for (const menu of plugin.menus || []) {
       if (menu.location === "settings") {
         navigationMenus.push(
@@ -258,6 +268,7 @@ export const pluginsSettingsNavigations = (
               settingsNav={menu}
               color={plugin.color}
               renderBox={renderBox}
+              hasComponent={hasComponent}
             />
           </React.Fragment>
         );
@@ -266,6 +277,63 @@ export const pluginsSettingsNavigations = (
   }
 
   return navigationMenus;
+};
+
+class TopNavigation extends React.Component<any, any> {
+  constructor(props) {
+    super(props);
+
+    this.state = { showComponent: false };
+  }
+
+  componentDidMount() {
+    var interval = setInterval(() => {
+      if (window[this.props.topNav.scope]) {
+        window.clearInterval(interval);
+
+        this.setState({ showComponent: true });
+      }
+    }, 500);
+  }
+
+  renderComponent = () => {
+    if (!this.state.showComponent) {
+      return null;
+    }
+
+    const { topNav } = this.props;
+
+    const Component = React.lazy(loadComponent(topNav.scope, topNav.component));
+
+    return (
+      <React.Suspense fallback="">
+        <Component />
+      </React.Suspense>
+    );
+  };
+
+  render() {
+    return <NavItem>{this.renderComponent()}</NavItem>;
+  }
+}
+
+export const pluginsOfTopNavigations = () => {
+  const plugins: any[] = (window as any).plugins || [];
+  const topNavigationMenus: any[] = [];
+
+  for (const plugin of plugins) {
+    for (const menu of plugin.menus || []) {
+      if (menu.location === "topNavigation") {
+        topNavigationMenus.push(
+          <React.Fragment key={menu.text}>
+            <TopNavigation topNav={menu} />
+          </React.Fragment>
+        );
+      }
+    }
+  }
+
+  return topNavigationMenus;
 };
 
 export const pluginRouters = () => {
@@ -370,7 +438,7 @@ const renderSettings = (
       <Divider />
       <Row>
         <RowTitle>{__("Plugins Settings")}</RowTitle>
-        <div id={"PluginsSettings"}>{pluginsBoxs}</div>
+        <PluginSettings id={"PluginsSettings"}>{pluginsBoxs}</PluginSettings>
       </Row>
     </>
   );

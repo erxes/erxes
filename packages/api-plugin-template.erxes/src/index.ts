@@ -20,7 +20,7 @@ import * as elasticsearch from './elasticsearch';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
-import { getService, getServices, join, leave } from './serviceDiscovery';
+import { getService, getServices, join, leave, redis } from './serviceDiscovery';
 
 const configs = require('../../src/configs').default;
 
@@ -84,7 +84,7 @@ async function closeHttpServer() {
         }
         resolve();
       });
-    })
+    });
   } catch (e) {
     console.error(e);
   }
@@ -108,7 +108,7 @@ async function leaveServiceDiscovery() {
   });
 });
 
-const generateApolloServer = async (serviceDiscovery) => {
+const generateApolloServer = async serviceDiscovery => {
   const { typeDefs, resolvers } = await configs.graphql(serviceDiscovery);
 
   return new ApolloServer({
@@ -134,25 +134,31 @@ const generateApolloServer = async (serviceDiscovery) => {
         user = JSON.parse(userJson);
       }
 
-      const context = { user, docModifier: doc => doc, commonQuerySelector: {} };
+      const context = {
+        user,
+        docModifier: doc => doc,
+        commonQuerySelector: {}
+      };
 
       configs.apolloServerContext(context);
 
       return context;
     }
   });
-}
+};
 
 async function startServer() {
   const serviceDiscovery = {
     getServices,
     getService,
-    isAvailable: async (name) => {
+    isAvailable: async name => {
       const serviceNames = await getServices();
-
       return serviceNames.includes(name);
+    },
+    isEnabled: async name => {
+      return !!(await redis.sismember("erxes:plugins:enabled",name));
     }
-  }
+  };
 
   const apolloServer = await generateApolloServer(serviceDiscovery);
   await apolloServer.start();
@@ -192,11 +198,15 @@ async function startServer() {
       segment: configs.segment,
       hasSubscriptions: configs.hasSubscriptions,
       importTypes: configs.importTypes,
+      exportTypes: configs.exportTypes,
       meta: configs.meta
     });
 
     if (configs.permissions) {
-      await messageBrokerClient.sendMessage('registerPermissions', configs.permissions);
+      await messageBrokerClient.sendMessage(
+        'registerPermissions',
+        configs.permissions
+      );
     }
 
     debugInfo(`${configs.name} server is running on port ${PORT}`);

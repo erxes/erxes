@@ -2,16 +2,16 @@ import { gatherNames, LogDesc } from "@erxes/api-utils/src/logUtils";
 import { Integrations } from "./models";
 import { IChannelDocument } from "./models/definitions/channels";
 import { IIntegrationDocument } from "./models/definitions/integrations";
-import { findMongoDocuments } from "./messageBroker";
+import messageBroker, { findMongoDocuments } from "./messageBroker";
 
-const findFromCore = async (ids: string[], collectionName: string) => {
-  return await findMongoDocuments(
-    'api-core',
+export const findFromCore = async (ids: string[], collectionName: string) => {
+  return messageBroker().sendRPCMessage(
+    'core:rpc_queue:findMongoDocuments',
     { query: { _id: { $in: ids } }, name: collectionName }
-  );
-}
+  ) || [];
+};
 
-const gatherIntegrationFieldNames = async (
+export const gatherIntegrationFieldNames = async (
   doc: IIntegrationDocument,
   prevList?: LogDesc[]
 ) => {
@@ -101,33 +101,3 @@ export const gatherChannelFieldNames = async (
 
   return options;
 };
-
-export const gatherIntegrationDescriptions = async (params: any) => {
-  const { object, updatedDocument } = params;
-
-  const description = `"${object.name}" has been`;
-
-  let extraDesc = await gatherIntegrationFieldNames(object);
-
-  if (updatedDocument) {
-    extraDesc = await gatherIntegrationFieldNames(
-      updatedDocument,
-      extraDesc
-    );
-  }
-
-  return { description, extraDesc };
-}
-
-export const gatherChannelDescriptions = async (params: any) => {
-  const { object, updatedDocument } = params;
-
-  const description = `"${object.name}" has been`;
-  let extraDesc = await gatherChannelFieldNames(object);
-
-  if (updatedDocument) {
-    extraDesc = await gatherChannelFieldNames(updatedDocument, extraDesc);
-  }
-
-  return { description, extraDesc };
-}

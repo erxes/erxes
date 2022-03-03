@@ -1,4 +1,4 @@
-import Tip from './Tip';
+import { Tip } from '@erxes/ui/src';
 import * as React from 'react';
 import { Pin } from '../styles/main';
 import { ILocationOption } from '../types';

@@ -13,18 +13,33 @@ import {
 } from './company';
 
 const typeDefs = async (serviceDiscovery) =>  {
-  const tagsAvailable = await serviceDiscovery.isAvailable('tags');
+  const tagsEnabled = await serviceDiscovery.isEnabled('tags');
+  const inboxEnabled = await serviceDiscovery.isEnabled('inbox');
+
+  console.log({ tagsEnabled, inboxEnabled });
 
   return gql`
     scalar JSON
     scalar Date
+
+    enum CacheControlScope {
+      PUBLIC
+      PRIVATE
+    }
+    
+    directive @cacheControl(
+      maxAge: Int
+      scope: CacheControlScope
+      inheritMaxAge: Boolean
+    ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+    
       
     extend type User @key(fields: "_id") {
       _id: String! @external
     }
   
     ${
-      tagsAvailable ? 
+      tagsEnabled ? 
       `
         extend type Tag @key(fields: "_id") {
           _id: String! @external
@@ -32,9 +47,18 @@ const typeDefs = async (serviceDiscovery) =>  {
       ` : ''
     }
 
+    ${
+      inboxEnabled ? 
+      `
+        extend type Integration @key(fields: "_id") {
+          _id: String! @external
+        }
+      ` : ''
+    }
 
-    ${customerTypes(tagsAvailable)}
-    ${companyTypes(tagsAvailable)}
+
+    ${customerTypes(tagsEnabled, inboxEnabled)}
+    ${companyTypes(tagsEnabled)}
     
     extend type Query {
       ${CustomerQueries}

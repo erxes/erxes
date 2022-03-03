@@ -1,6 +1,6 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import apiConnect from './apiCollections';
+import apiConnect, { Segments } from './apiCollections';
 
 import { generateAllDataLoaders } from './dataLoaders';
 import { initBroker } from './messageBroker';
@@ -12,6 +12,8 @@ import {
   trackViewPageEvent,
   updateCustomerProperty
 } from './events';
+import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
+import { buildFile } from './exporter';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -131,7 +133,8 @@ export default {
       resolvers
     };
   },
-  importTypes: [],
+  importTypes: IMPORT_TYPES,
+  exportTypes: EXPORT_TYPES,
   hasSubscriptions: true,
   segment: {
     indexesTypeContentType: {
@@ -150,6 +153,28 @@ export default {
     await apiConnect();
 
     const app = options.app;
+
+    app.get(
+      '/file-export',
+      routeErrorHandling(async (req: any, res) => {
+        const { query, user } = req;
+        const { segment } = query;
+
+        const result = await buildFile(query, user);
+
+        res.attachment(`${result.name}.xlsx`);
+
+        if (segment) {
+          try {
+            Segments.removeSegment(segment);
+          } catch (e) {
+            console.log((e as Error).message);
+          }
+        }
+
+        return res.send(result.response);
+      })
+    );
 
     // events
     app.post(

@@ -1,5 +1,18 @@
+import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
+
 import { InternalNotes } from "./models";
 import { serviceDiscovery } from './configs';
+import { internalNoteSchema } from './models/definitions/internalNotes'
+
+const checkService = async (serviceName: string, needsList?: boolean) => {
+  const enabled = await serviceDiscovery.isEnabled(serviceName);
+
+  if (!enabled) {
+    return needsList ? [] : null;
+  }
+
+  return;
+};
 
 let client;
 
@@ -51,6 +64,11 @@ export const initBroker = async cl => {
     return { internalNotes, totalCount: await InternalNotes.countDocuments(filter) };
   });
 
+  consumeRPCQueue('internalnotes:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
+    status: 'success',
+    data: getSchemaLabels(type, [{ name: 'internalNote', schemas: [internalNoteSchema] }])
+  }));
+
   consumeQueue('internalnotes:InternalNotes.removeInternalNotes', ({ contentType, contentTypeIds }) => {
     InternalNotes.removeInternalNotes(contentType, contentTypeIds);
   });
@@ -63,7 +81,7 @@ export const sendNotificationMessage = async (
   defaultValue?
 ): Promise<any> => {
   if (isRPC) {
-    if (!await serviceDiscovery.isAvailable('notifications')) {
+    if (!await serviceDiscovery.isEnabled('notifications')) {
       return defaultValue;
     }
 
@@ -78,11 +96,19 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
 };
 
 export const findCardItem = async (data) => {
-  if (!await serviceDiscovery.isAvailable('cards')) {
+  if (!await serviceDiscovery.isEnabled('cards')) {
     return null;
   }
 
   return client.sendRPCMessage('cards:rpc_queue:findCardItem', data);
+};
+
+export const getContentIds = async (data) => {
+  const [serviceName] = data.contentType.split(':');
+  
+  await checkService(serviceName, true);
+
+  return client.sendRPCMessage(`${serviceName}:rpc_queue:getContentIds`, data);
 };
 
 export default function() {

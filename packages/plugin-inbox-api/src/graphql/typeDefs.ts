@@ -37,19 +37,19 @@ import {
 } from './widgetTypeDefs';
 
 const typeDefs = async (serviceDiscovery) => {
-  const isProductsAvailable = await serviceDiscovery.isAvailable('products');
-  const isTagsAvailable = await serviceDiscovery.isAvailable('tags');
+  const isProductsEnabled = await serviceDiscovery.isEnabled('products');
+  const isTagsEnabled = await serviceDiscovery.isEnabled('tags');
 
   return gql`
     scalar JSON
     scalar Date
 
-    ${ConversationTypes(isTagsAvailable)}
+    ${ConversationTypes(isTagsEnabled)}
     ${MessengerAppTypes}
     ${ChannelTypes}
-    ${integrationTypes(isProductsAvailable, isTagsAvailable)}
+    ${integrationTypes(isProductsEnabled, isTagsEnabled)}
     ${ResponseTemplateTypes}
-    ${widgetTypes(isProductsAvailable)}
+    ${widgetTypes(isProductsEnabled)}
     
     
     extend type Query {
@@ -58,7 +58,7 @@ const typeDefs = async (serviceDiscovery) => {
       ${ChannelQueries}
       ${IntegrationQueries}
       ${ResponseTemplateQueries}
-      ${widgetQueries(isProductsAvailable)}
+      ${widgetQueries(isProductsEnabled)}
     }
 
     extend type Mutation {

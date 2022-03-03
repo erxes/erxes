@@ -461,6 +461,11 @@ const Pin = styled.div`
   }
 `;
 
+const MapContainer = styled.div`
+  width: 100%;
+  height: 250px;
+`;
+
 export {
   Actions,
   PopoverButton,
@@ -500,5 +505,6 @@ export {
   PluginLayout,
   Column,
   Wrapper,
-  Pin
+  Pin,
+  MapContainer
 };
