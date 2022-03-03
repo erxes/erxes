@@ -14,6 +14,8 @@ function Sidebar({
   loadingMainQuery: boolean;
   type: string;
 }) {
+  console.log({ type });
+  
   return (
     <Wrapper.Sidebar>
       <SegmentFilter type={type} loadingMainQuery={loadingMainQuery} />

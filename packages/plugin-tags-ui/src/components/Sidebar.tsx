@@ -23,12 +23,12 @@ function TagsSidebar() {
           </NavLink>
         </li>
         <li>
-          <NavLink activeClassName="active" to="/tags/customer">
+          <NavLink activeClassName="active" to="/tags/contacts:customer">
             {__('Customer')}
           </NavLink>
         </li>
         <li>
-          <NavLink activeClassName="active" to="/tags/company">
+          <NavLink activeClassName="active" to="/tags/contacts:company">
             {__('Company')}
           </NavLink>
         </li>
