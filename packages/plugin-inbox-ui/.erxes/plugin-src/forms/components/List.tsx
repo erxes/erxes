@@ -16,6 +16,7 @@ import { ITag } from '@erxes/ui/src/tags/types';
 import { ILeadIntegration, IntegrationsCount } from '@erxes/ui-leads/src/types';
 import Row from './Row';
 import Sidebar from './Sidebar';
+import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
 
 type Props = {
   integrations: ILeadIntegration[];
@@ -92,7 +93,7 @@ class List extends React.Component<Props, {}> {
       actionBarLeft = (
         <BarItems>
           <TaggerPopover
-            type='integration'
+            type={TAG_TYPES.INTEGRATION}
             successCallback={emptyBulk}
             targets={bulk}
             trigger={tagButton}

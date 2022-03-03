@@ -42,7 +42,7 @@ export default class LeftSidebar extends React.Component<Props> {
         <WebsiteActivity urlVisits={customer.urlVisits || []} />
         <TaggerSection
           data={customer}
-          type="customer"
+          type="contacts:customer"
           refetchQueries={taggerRefetchQueries}
         />
       </Sidebar>
