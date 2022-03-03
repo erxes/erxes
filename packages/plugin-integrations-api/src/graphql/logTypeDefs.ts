@@ -21,11 +21,6 @@ export const types = `
     logs: [Log]
     totalCount: Int
   }
-
-  type SchemaField {
-    name: String
-    label: String
-  }
 `;
 
 export const queries = `
@@ -38,6 +33,4 @@ export const queries = `
     perPage: Int,
     type: String
   ): LogList
-
-  getDbSchemaLabels(type: String): [SchemaField]
 `;

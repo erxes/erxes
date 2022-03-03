@@ -1,7 +1,3 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-// import { getDbSchemaLabels } from '../../messageBroker';
-// import { fetchLogs } from '../../utils';
-
 interface ICommonParams {
   action?: string | { $in: string[] };
   type?: string | { $in: string[] };
@@ -25,14 +21,9 @@ export interface IFilter extends ICommonParams {
 }
 
 const logQueries = {
-  logs(_root, params: ILogQueryParams) {
-    return null;
-  },
-  async getDbSchemaLabels(_root, params: { type: string }) {
+  logs(_root, _params: ILogQueryParams) {
     return null;
   },
 };
-
-checkPermission(logQueries, 'logs', 'viewLogs');
 
 export default logQueries;
