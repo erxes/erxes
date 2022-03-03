@@ -1,29 +1,36 @@
 import React from "react";
 import Widget from "../components/Widget";
-import { NotifConsumer } from "../context";
+import { NotifConsumer, NotifProvider } from "../context";
+import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
+import { IUser } from "@erxes/ui/src/auth/types";
 
-const WidgetContainer = () => (
-  <NotifConsumer>
-    {({
-      unreadCount,
-      notifications,
-      isLoading,
-      showNotifications,
-      markAsRead,
-      currentUser,
-    }) => {
-      console.log("fake", currentUser, notifications, showNotifications);
-      const updatedProps = {
+type Props = {
+  currentUser: IUser;
+};
+
+const WidgetContainer = (props: Props) => (
+  <NotifProvider currentUser={props.currentUser}>
+    <NotifConsumer>
+      {({
         unreadCount,
         notifications,
         isLoading,
         showNotifications,
         markAsRead,
         currentUser,
-      };
-      return <Widget {...updatedProps} />;
-    }}
-  </NotifConsumer>
+      }) => {
+        const updatedProps = {
+          unreadCount,
+          notifications,
+          isLoading,
+          showNotifications,
+          markAsRead,
+          currentUser,
+        };
+        return <Widget {...updatedProps} />;
+      }}
+    </NotifConsumer>
+  </NotifProvider>
 );
 
-export default WidgetContainer;
+export default withCurrentUser(WidgetContainer);
