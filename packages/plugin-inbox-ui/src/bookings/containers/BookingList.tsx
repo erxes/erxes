@@ -9,9 +9,9 @@ import { mutations, queries } from '../graphql';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import {
   BookingIntegrationsQueryResponse,
-  RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationResponse
 } from '../types';
+import { MutationVariables as RemoveMutationVariables } from '@erxes/ui/src/types'
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import { ArchiveIntegrationResponse } from '@erxes/ui-settings/src/integrations/types';
 import { CountQueryResponse } from '@erxes/ui-leads/src/types';
