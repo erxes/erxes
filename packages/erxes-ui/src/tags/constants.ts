@@ -2,9 +2,9 @@ import { __ } from '../utils';
 
 export const TAG_TYPES = {
   CONVERSATION: __('conversation'),
-  CUSTOMER: __('customer'),
+  CUSTOMER: __('contacts:customer'),
   ENGAGE_MESSAGE: __('engageMessage'),
-  COMPANY: __('company'),
+  COMPANY: __('contacts:company'),
   INTEGRATION: __('integration'),
   PRODUCT: __('product'),
   PRODUCT_TEMPLATE: __('productTemplate'),
