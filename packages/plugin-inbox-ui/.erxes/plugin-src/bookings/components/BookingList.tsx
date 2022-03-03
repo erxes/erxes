@@ -15,6 +15,7 @@ import { Link } from 'react-router-dom';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
 import { IntegrationsCount } from '@erxes/ui-leads/src/types';
+import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
 
 type Props = {
   queryParams: any;
@@ -79,7 +80,7 @@ function BookingList(props: Props) {
     actionBarLeft = (
       <BarItems>
         <TaggerPopover
-          type='integration'
+          type={TAG_TYPES.INTEGRATION}
           successCallback={emptyBulk}
           targets={bulk}
           trigger={tagButton}
