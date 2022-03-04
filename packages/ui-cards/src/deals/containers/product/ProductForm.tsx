@@ -20,7 +20,6 @@ export default class ProductFormContainer extends React.Component<Props> {
     return (
       <AppConsumer>
         {({ currentUser }) => {
-          console.log(currentUser, "aaaaaa");
           if (!currentUser) {
             return;
           }
