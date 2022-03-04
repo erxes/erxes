@@ -94,6 +94,11 @@ const resolvers = [
     fieldname: 'details.fullName'
   },
   {
+    name: 'Deals.label',
+    indexname: `${tableSchema()}__pipelines_labels`,
+    fieldname: 'name'
+  },
+  {
     name: 'Tasks.stageName',
     indexname: `${tableSchema()}__stages`,
     fieldname: 'name'
