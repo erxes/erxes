@@ -1,16 +1,19 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { router as routerUtils, withProps } from 'modules/common/utils';
-import { IntegrationsCountQueryResponse } from '@erxes/ui-settings/src/integrations/types';
-import queryString from 'query-string';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import DumbBrands from '../components/Brands';
-import Empty from '../components/Empty';
-import { queries } from '../graphql';
-import { BrandDetailQueryResponse, BrandsGetLastQueryResponse } from '@erxes/ui/src/brands/types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { router as routerUtils, withProps } from "modules/common/utils";
+import { IntegrationsCountQueryResponse } from "@erxes/ui-settings/src/integrations/types";
+import queryString from "query-string";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withRouter } from "react-router-dom";
+import { IRouterProps } from "@erxes/ui/src/types";
+import DumbBrands from "../components/Brands";
+import Empty from "../components/Empty";
+import { queries } from "../graphql";
+import {
+  BrandDetailQueryResponse,
+  BrandsGetLastQueryResponse,
+} from "@erxes/ui/src/brands/types";
 
 type Props = {
   currentBrandId: string;
@@ -28,7 +31,7 @@ class Brands extends React.Component<FinalProps> {
       brandDetailQuery,
       location,
       integrationsCountQuery,
-      currentBrandId
+      currentBrandId,
     } = this.props;
 
     let integrationsCount = 0;
@@ -43,7 +46,7 @@ class Brands extends React.Component<FinalProps> {
       queryParams: queryString.parse(location.search),
       currentBrand: brandDetailQuery.brandDetail || {},
       loading: brandDetailQuery.loading,
-      integrationsCount
+      integrationsCount,
     };
 
     return <DumbBrands {...extendedProps} />;
@@ -55,20 +58,20 @@ const BrandsContainer = withProps<Props>(
     graphql<Props, BrandDetailQueryResponse, { _id: string }>(
       gql(queries.brandDetail),
       {
-        name: 'brandDetailQuery',
+        name: "brandDetailQuery",
         options: ({ currentBrandId }: { currentBrandId: string }) => ({
           variables: { _id: currentBrandId },
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: "network-only",
+        }),
       }
     ),
     graphql<Props, IntegrationsCountQueryResponse, { brandId: string }>(
       gql(queries.integrationsCount),
       {
-        name: 'integrationsCountQuery',
+        name: "integrationsCountQuery",
         options: ({ currentBrandId }: { currentBrandId: string }) => ({
-          variables: { brandId: currentBrandId }
-        })
+          variables: { brandId: currentBrandId },
+        }),
       }
     )
   )(Brands)
@@ -89,7 +92,7 @@ class WithCurrentId extends React.Component<WithCurrentIdFinalProps> {
     const {
       lastBrandQuery,
       history,
-      queryParams: { _id }
+      queryParams: { _id },
     } = nextProps;
 
     if (
@@ -109,7 +112,7 @@ class WithCurrentId extends React.Component<WithCurrentIdFinalProps> {
 
   render() {
     const {
-      queryParams: { _id }
+      queryParams: { _id },
     } = this.props;
 
     if (!_id) {
@@ -118,7 +121,7 @@ class WithCurrentId extends React.Component<WithCurrentIdFinalProps> {
 
     const updatedProps = {
       ...this.props,
-      currentBrandId: _id
+      currentBrandId: _id,
     };
 
     return <BrandsContainer {...updatedProps} />;
@@ -130,12 +133,12 @@ const WithLastBrand = withProps<WithCurrentIdProps>(
     graphql<WithCurrentIdProps, BrandsGetLastQueryResponse, { _id: string }>(
       gql(queries.brandsGetLast),
       {
-        name: 'lastBrandQuery',
+        name: "lastBrandQuery",
         skip: ({ queryParams }: { queryParams: any }) => queryParams._id,
         options: ({ queryParams }: { queryParams: any }) => ({
           variables: { _id: queryParams._id },
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: "network-only",
+        }),
       }
     )
   )(WithCurrentId)

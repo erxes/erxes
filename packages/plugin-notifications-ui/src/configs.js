@@ -19,5 +19,14 @@ module.exports = {
       scope: "notifications",
       component: "./settings",
     },
+    {
+      text: "Notification settings",
+      to: "/settings/notifications",
+      image: "/images/icons/erxes-11.svg",
+      location: "settings",
+      scope: "notifications",
+      action: "notificationsAll",
+      permissions: [],
+    },
   ],
 };

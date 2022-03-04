@@ -7,7 +7,6 @@ import NameCard from "modules/common/components/nameCard/NameCard";
 import Tip from "modules/common/components/Tip";
 import { colors } from "modules/common/styles";
 import { __ } from "modules/common/utils";
-import NotificationSettings from "modules/settings/profile/containers/NotificationSettings";
 import Version from "modules/settings/status/containers/Version";
 import React from "react";
 import Dropdown from "react-bootstrap/Dropdown";
@@ -84,10 +83,6 @@ const QuickNavigation = ({
 }) => {
   const passContent = (props) => <ChangePassword {...props} />;
   const signatureContent = (props) => <Signature {...props} />;
-
-  const notificationContent = (props) => (
-    <NotificationSettings currentUser={currentUser} {...props} />
-  );
 
   const brands = currentUser.brands || [];
 
@@ -170,16 +165,6 @@ const QuickNavigation = ({
                       </li>
                     }
                     content={signatureContent}
-                  />
-
-                  <ModalTrigger
-                    title="Notification settings"
-                    trigger={
-                      <li>
-                        <a href="#notif">{__("Notification settings")}</a>
-                      </li>
-                    }
-                    content={notificationContent}
                   />
                 </ul>
               </DropNav>
