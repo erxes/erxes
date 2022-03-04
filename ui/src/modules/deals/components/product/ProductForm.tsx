@@ -171,9 +171,7 @@ class ProductForm extends React.Component<Props, State> {
         uom: data.uom
       }));
 
-      const other = productsData.filter(
-        p => p.product !== product && p.productId !== product._id
-      );
+      const other = productsData.filter(p => p._id !== updated[0]._id);
 
       productsData.splice(0, productsData.length);
       const updatedProductsData = [...updated, ...other];
