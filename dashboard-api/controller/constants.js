@@ -95,7 +95,7 @@ const resolvers = [
   },
   {
     name: 'Deals.label',
-    indexname: `${tableSchema()}__pipelines_labels`,
+    indexname: `${tableSchema()}__pipeline_labels`,
     fieldname: 'name'
   },
   {
