@@ -296,6 +296,7 @@ func main() {
 		namespaces = append(namespaces, fmt.Sprintf(`"%s.conversation_messages"`, dbName))
 		namespaces = append(namespaces, fmt.Sprintf(`"%s.engage_messages"`, dbName))
 		namespaces = append(namespaces, fmt.Sprintf(`"%s.tags"`, dbName))
+		namespaces = append(namespaces, fmt.Sprintf(`"%s.pipelines_labels"`, dbName))
 		namespaces = append(namespaces, fmt.Sprintf(`"%s.fields"`, dbName))
 		namespaces = append(namespaces, fmt.Sprintf(`"%s.fields_groups"`, dbName))
 		namespaces = append(namespaces, fmt.Sprintf(`"%s.form_submissions"`, dbName))
@@ -313,7 +314,7 @@ func main() {
 	f.WriteString(fmt.Sprintf("direct-read-namespaces=[%s]", strings.Join(namespaces, ",")))
 
 	f.WriteString(fmt.Sprintf(`
-		namespace-regex = "^%s.(customers|companies|conversations|conversation_messages|integrations|deals|tasks|tickets|brands|users|channels|stages|pipelines|segments|engage_messages|tags|fields|fields_groups|conformities)$"
+		namespace-regex = "^%s.(customers|companies|conversations|conversation_messages|integrations|deals|tasks|tickets|brands|users|channels|stages|pipelines|pipelines_labels|segments|engage_messages|tags|fields|fields_groups|conformities)$"
 		routing-namespaces = [ "" ]
 		delete-index-pattern = "%s*"
 
