@@ -1,10 +1,12 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
-import LogQueries from './logQueries';
+import IntegrationQueries from './integrationQueries';
+import IntegrationMutations from './integrationMutations';
 
 const resolvers: any = {
   ...customScalars,
   Query: {
-    ...LogQueries,
+    ...IntegrationQueries,
+    ...IntegrationMutations
   },
 };
 
