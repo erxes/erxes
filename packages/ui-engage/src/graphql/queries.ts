@@ -37,7 +37,9 @@ const commonFields = `
   messenger
   email
 
-  createdUser
+  createdUser {
+    _id
+  }
 
   brand {
     _id
