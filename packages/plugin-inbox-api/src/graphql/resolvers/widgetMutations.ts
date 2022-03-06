@@ -518,6 +518,7 @@ const widgetMutations = {
         let integrationConfigs: Array<{ code: string; value?: string }> = [];
 
         try {
+          // ! msg broker
           integrationConfigs = await dataSources.IntegrationsAPI.fetchApi(
             '/configs'
           );

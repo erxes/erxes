@@ -121,6 +121,7 @@ const conversationQueries = {
     },
     { dataSources }: IContext
   ) {
+    // ! move
     return dataSources.IntegrationsAPI.fetchApi("/facebook/get-comments", {
       postId,
       isResolved,
@@ -135,6 +136,7 @@ const conversationQueries = {
     { postId, isResolved }: { postId: string; isResolved: string },
     { dataSources }: IContext
   ) {
+    // ! move
     return dataSources.IntegrationsAPI.fetchApi(
       "/facebook/get-comments-count",
       {

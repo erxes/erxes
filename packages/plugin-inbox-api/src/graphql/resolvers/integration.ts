@@ -67,6 +67,7 @@ export default {
   ) {
     if (integration.kind.includes('facebook')) {
       try {
+        // ! msg broker
         return dataSources.IntegrationsAPI.fetchApi('/facebook/get-status', {
           integrationId: integration._id
         });
