@@ -104,20 +104,6 @@ const conversationQueries = {
     return ConversationMessages.countDocuments({ conversationId });
   },
 
-  async converstationFacebookCommentsCount(
-    _root,
-    { postId, isResolved }: { postId: string; isResolved: string },
-    { dataSources }: IContext
-  ) {
-    // ! move
-    return dataSources.IntegrationsAPI.fetchApi(
-      "/facebook/get-comments-count",
-      {
-        postId,
-        isResolved,
-      }
-    );
-  },
   /**
    * Group conversation counts by brands, channels, integrations, status
    */

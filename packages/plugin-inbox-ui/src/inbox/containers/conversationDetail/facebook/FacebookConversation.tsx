@@ -148,7 +148,7 @@ class FacebookPostContainer extends React.Component<FinalProps> {
     const post = conversation.facebookPost || ({} as IFacebookPost);
     const comments = commentsQuery.integrationsConversationFbComments || [];
     const commentCounts =
-      commentsCountQuery.converstationFacebookCommentsCount || {};
+      commentsCountQuery.integrationsConversationFbCommentsCount || {};
 
     const hasMore = commentCounts.commentCountWithoutReplies > comments.length;
     const commentCount = commentCounts.commentCount;
@@ -196,7 +196,7 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
       Props,
       FacebookCommentsCountQueryResponse,
       { postId: string; isResolved: boolean }
-    >(gql(queries.converstationFacebookCommentsCount), {
+    >(gql(queries.integrationsConversationFbCommentsCount), {
       name: 'commentsCountQuery',
       options: ({
         conversation,

@@ -242,11 +242,6 @@ export const queries = `
     getFirst: Boolean
   ): [ConversationMessage]
 
-  converstationFacebookCommentsCount(
-    postId: String!
-    isResolved: Boolean
-  ): JSON
-
   conversationMessagesTotalCount(conversationId: String!): Int
   conversationCounts(${filterParams}, only: String): JSON
   conversationsTotalCount(${filterParams}): Int

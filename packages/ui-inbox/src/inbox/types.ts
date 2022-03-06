@@ -312,7 +312,7 @@ export type FacebookCommentsQueryResponse = {
 } & QueryResponse;
 
 export type FacebookCommentsCountQueryResponse = {
-  converstationFacebookCommentsCount: any;
+  integrationsConversationFbCommentsCount: any;
   fetchMore: (variables) => void;
 } & QueryResponse;
 

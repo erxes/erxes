@@ -140,6 +140,29 @@ const integrationQueries = {
     ]);
 
     return result.reverse();
+  },
+
+  async integrationsConversationFbCommentsCount(_root, args) {
+    debugFacebook(`Request to get post data with: ${JSON.stringify(args)}`);
+
+    const { postId, isResolved = false } = args;
+
+    const post = await Posts.getPost({ erxesApiId: postId }, true);
+
+    const commentCount = await Comments.countDocuments({
+      postId: post.postId,
+      isResolved
+    });
+    const commentCountWithoutReplies = await Comments.countDocuments({
+      postId: post.postId,
+      isResolved,
+      parentId: null
+    });
+
+    return {
+      commentCount,
+      commentCountWithoutReplies
+    };
   }
 };
 

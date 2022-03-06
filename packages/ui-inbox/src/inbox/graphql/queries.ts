@@ -127,12 +127,6 @@ const conversationMessages = `
   }
 `;
 
-const converstationFacebookCommentsCount = `
-  query converstationFacebookCommentsCount($postId: String!, $isResolved: Boolean) {
-    converstationFacebookCommentsCount(postId: $postId, isResolved:$isResolved) 
-  }
-`;
-
 const conversationMessagesTotalCount = `
   query conversationMessagesTotalCount($conversationId: String!) {
     conversationMessagesTotalCount(conversationId: $conversationId)
@@ -390,6 +384,11 @@ const integrationsConversationFbComments = `
   }
 `;
 
+const integrationsConversationFbCommentsCount = `
+  query integrationsConversationFbCommentsCount($postId: String!, $isResolved: Boolean) {
+    integrationsConversationFbCommentsCount(postId: $postId, isResolved:$isResolved) 
+  }
+`;
 
 export default {
   conversationList,
@@ -397,7 +396,6 @@ export default {
   conversationDetail,
   conversationDetailMarkAsRead,
   conversationMessages,
-  converstationFacebookCommentsCount,
   conversationMessagesTotalCount,
   userList,
   channelList,
@@ -414,5 +412,6 @@ export default {
   channelsByMembers,
   generateCustomerDetailQuery,
   convertToInfo,
-  integrationsConversationFbComments
+  integrationsConversationFbComments,
+  integrationsConversationFbCommentsCount
 };

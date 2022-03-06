@@ -37,6 +37,8 @@ export const queries = `
     skip: Int
     limit: Int
   ): [FacebookComment]
+
+  integrationsConversationFbCommentsCount(postId: String! isResolved: Boolean): JSON
 `;
 
 export const mutations = `
