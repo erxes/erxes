@@ -48,9 +48,9 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
     integrationsQuery
   } = props;
 
-  const configs = integrationsConfigsQuery.integrationsFetchApi || [];
+  const configs = integrationsConfigsQuery.integrationsGetConfigs || [];
   const externalIntegrations =
-    externalIntegrationsQuery.integrationsFetchApi || [];
+    externalIntegrationsQuery.integrationsGetIntegrations || [];
   const integrations = integrationsQuery.integrations || [];
 
   const mappedIntegrations: IIntegrationWithPhone[] = [];
@@ -104,13 +104,13 @@ export default withProps<Props>(
     graphql(gql(queries.totalCount), {
       name: 'totalCountQuery'
     }),
-    graphql(gql(integrationQueries.integrationsGetAccounts), {
+    graphql(gql(integrationQueries.integrationsGetConfigs), {
       name: 'integrationsConfigsQuery',
     }),
-    graphql(gql(integrationQueries.fetchApi), {
+    graphql(gql(integrationQueries.integrationsGetIntegrations), {
       name: 'externalIntegrationsQuery',
       options: () => ({
-        variables: { path: '/integrations', params: { kind: 'telnyx' } },
+        variables: { kind: 'telnyx' },
         fetchPolicy: 'network-only'
       })
     }),

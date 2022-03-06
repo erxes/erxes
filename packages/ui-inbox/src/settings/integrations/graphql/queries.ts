@@ -146,7 +146,13 @@ const integrationsGetConfigs = `
   query integrationsGetConfigs {
     integrationsGetConfigs
   }
-`
+`;
+
+const integrationsGetIntegrationDetail = `
+  query integrationsGetIntegrationDetail($erxesApiId: String) {
+    integrationsGetIntegrationDetail(erxesApiId: $erxesApiId)
+  }
+`;
 
 export default {
   fetchApi,
@@ -157,5 +163,6 @@ export default {
   integrationTotalCount,
   integrations,
   integrationGetLineWebhookUrl,
-  integrationsGetConfigs
+  integrationsGetConfigs,
+  integrationsGetIntegrationDetail
 };

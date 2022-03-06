@@ -148,6 +148,18 @@ const integrationsGetAccounts = `
   }
 `
 
+const integrationsGetIntegrations = `
+  query integrationsGetIntegrations($kind: String) {
+    integrationsGetIntegrations(kind: $kind)
+  }
+`;
+
+const integrationsGetConfigs = `
+  query integrationsGetConfigs {
+    integrationsGetConfigs
+  }
+`;
+
 export default {
   fetchApi,
   integrations,
@@ -157,5 +169,7 @@ export default {
   brands,
   messengerApps,
   integrationGetLineWebhookUrl,
-  integrationsGetAccounts
+  integrationsGetAccounts,
+  integrationsGetIntegrations,
+  integrationsGetConfigs
 };
