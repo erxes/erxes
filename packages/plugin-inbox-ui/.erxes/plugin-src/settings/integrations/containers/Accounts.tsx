@@ -27,7 +27,7 @@ type Props = {
 };
 
 type FinalProps = {
-  fetchApiQuery: AccountsQueryResponse;
+  integrationsAccountsQuery: AccountsQueryResponse;
 } & Props &
   RemoveAccountMutationResponse;
 
@@ -66,17 +66,17 @@ class AccountContainer extends React.Component<FinalProps, {}> {
   };
 
   render() {
-    const { kind, renderForm, fetchApiQuery, onSelect, formProps } = this.props;
+    const { kind, renderForm, integrationsAccountsQuery, onSelect, formProps } = this.props;
 
-    if (fetchApiQuery.loading) {
+    if (integrationsAccountsQuery.loading) {
       return <Spinner objective={true} />;
     }
 
-    if (fetchApiQuery.error) {
-      return <Info>{fetchApiQuery.error.message}</Info>;
+    if (integrationsAccountsQuery.error) {
+      return <Info>{integrationsAccountsQuery.error.message}</Info>;
     }
 
-    const accounts = fetchApiQuery.integrationsFetchApi || [];
+    const accounts = integrationsAccountsQuery.integrationsGetAccounts || [];
 
     return (
       <Accounts
@@ -103,12 +103,11 @@ export default withProps<Props>(
         }
       }
     ),
-    graphql<Props, AccountsQueryResponse>(gql(queries.fetchApi), {
-      name: 'fetchApiQuery',
+    graphql<Props, AccountsQueryResponse>(gql(queries.integrationsGetAccounts), {
+      name: 'integrationsAccountsQuery',
       options: ({ kind }) => ({
         variables: {
-          path: '/accounts',
-          params: { kind }
+          kind
         }
       })
     })
