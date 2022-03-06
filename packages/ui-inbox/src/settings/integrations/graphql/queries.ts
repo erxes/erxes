@@ -142,6 +142,18 @@ const messengerApps = `
   }
 `;
 
+const integrationsGetConfigs = `
+  query integrationsGetConfigs {
+    integrationsGetConfigs
+  }
+`;
+
+const integrationsGetIntegrationDetail = `
+  query integrationsGetIntegrationDetail($erxesApiId: String) {
+    integrationsGetIntegrationDetail(erxesApiId: $erxesApiId)
+  }
+`;
+
 export default {
   fetchApi,
   users,
@@ -150,5 +162,7 @@ export default {
   integrationDetail,
   integrationTotalCount,
   integrations,
-  integrationGetLineWebhookUrl
+  integrationGetLineWebhookUrl,
+  integrationsGetConfigs,
+  integrationsGetIntegrationDetail
 };

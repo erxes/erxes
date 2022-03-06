@@ -76,6 +76,7 @@ export default withProps<Props>(
   compose(
     graphql<Props, any>(gql(queries.fetchApi), {
       name: 'fetchApiQuery',
+      // ! nylas controller
       options: ({ accountId }) => {
         return {
           variables: {

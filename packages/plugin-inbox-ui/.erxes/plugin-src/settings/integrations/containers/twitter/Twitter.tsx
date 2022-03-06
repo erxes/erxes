@@ -38,6 +38,7 @@ class TwitterContainer extends React.Component<FinalProps, State> {
 
     client
       .query({
+        // ! twitter controller
         query: gql(queries.fetchApi),
         variables: {
           path: '/twitter/get-account',

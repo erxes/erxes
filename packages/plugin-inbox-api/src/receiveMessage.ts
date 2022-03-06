@@ -191,6 +191,7 @@ export const collectConversations = async ({ contentId, contentType }) => {
   // let conversationIds;
 
   // try {
+    // ! msg broker
   //   conversationIds = await dataSources.IntegrationsAPI.fetchApi(
   //     '/facebook/get-customer-posts',
   //     {

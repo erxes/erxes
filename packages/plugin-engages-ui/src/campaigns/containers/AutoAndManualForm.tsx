@@ -30,7 +30,7 @@ type Props = {
 
 type FinalProps = {
   emailTemplatesQuery: EmailTemplatesQueryResponse;
-  integrationConfigsQuery: any;
+  integrationsConfigsQuery: any;
   externalIntegrationsQuery: any;
   integrationsQuery: any;
   users: IUser[];
@@ -43,14 +43,14 @@ type FinalProps = {
 const AutoAndManualFormContainer = (props: FinalProps) => {
   const {
     emailTemplatesQuery,
-    integrationConfigsQuery,
+    integrationsConfigsQuery,
     externalIntegrationsQuery,
     integrationsQuery
   } = props;
 
-  const configs = integrationConfigsQuery.integrationsFetchApi || [];
+  const configs = integrationsConfigsQuery.integrationsGetConfigs || [];
   const externalIntegrations =
-    externalIntegrationsQuery.integrationsFetchApi || [];
+    externalIntegrationsQuery.integrationsGetIntegrations || [];
   const integrations = integrationsQuery.integrations || [];
 
   const mappedIntegrations: IIntegrationWithPhone[] = [];
@@ -104,19 +104,13 @@ export default withProps<Props>(
     graphql(gql(queries.totalCount), {
       name: 'totalCountQuery'
     }),
-    graphql(gql(integrationQueries.fetchApi), {
-      name: 'integrationConfigsQuery',
-      options: () => ({
-        variables: {
-          path: '/configs',
-          params: {}
-        }
-      })
+    graphql(gql(integrationQueries.integrationsGetConfigs), {
+      name: 'integrationsConfigsQuery',
     }),
-    graphql(gql(integrationQueries.fetchApi), {
+    graphql(gql(integrationQueries.integrationsGetIntegrations), {
       name: 'externalIntegrationsQuery',
       options: () => ({
-        variables: { path: '/integrations', params: { kind: 'telnyx' } },
+        variables: { kind: 'telnyx' },
         fetchPolicy: 'network-only'
       })
     }),

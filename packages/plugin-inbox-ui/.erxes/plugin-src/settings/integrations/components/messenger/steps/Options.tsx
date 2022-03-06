@@ -95,6 +95,7 @@ class Options extends React.Component<Props, State> {
       if (checked) {
         client
           .query({
+            // ! videoCall controller
             query: gql(queries.fetchApi),
             variables: { path: '/videoCall/usageStatus', params: {} },
             fetchPolicy: 'network-only'

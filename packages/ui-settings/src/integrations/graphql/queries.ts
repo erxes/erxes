@@ -142,6 +142,24 @@ const integrationGetLineWebhookUrl = `
   }
 `;
 
+const integrationsGetAccounts = `
+  query integrationsGetAccounts($kind: String) {
+    integrationsGetAccounts(kind: $kind)
+  }
+`
+
+const integrationsGetIntegrations = `
+  query integrationsGetIntegrations($kind: String) {
+    integrationsGetIntegrations(kind: $kind)
+  }
+`;
+
+const integrationsGetConfigs = `
+  query integrationsGetConfigs {
+    integrationsGetConfigs
+  }
+`;
+
 export default {
   fetchApi,
   integrations,
@@ -150,5 +168,8 @@ export default {
   integrationTotalCount,
   brands,
   messengerApps,
-  integrationGetLineWebhookUrl
+  integrationGetLineWebhookUrl,
+  integrationsGetAccounts,
+  integrationsGetIntegrations,
+  integrationsGetConfigs
 };

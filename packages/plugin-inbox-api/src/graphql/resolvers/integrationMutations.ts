@@ -515,14 +515,6 @@ const integrationMutations = {
     return 'success';
   },
 
-  async integrationsUpdateConfigs(
-    _root,
-    { configsMap },
-    { dataSources }: IContext
-  ) {
-    return dataSources.IntegrationsAPI.updateConfigs(configsMap);
-  },
-
   async integrationsSendSms(
     _root,
     args: ISmsParams,
@@ -711,11 +703,6 @@ checkPermission(
 checkPermission(
   integrationMutations,
   'integrationsEditCommonFields',
-  'integrationsEdit'
-);
-checkPermission(
-  integrationMutations,
-  'integrationsUpdateConfigs',
   'integrationsEdit'
 );
 checkPermission(
