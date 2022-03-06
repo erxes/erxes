@@ -66,6 +66,7 @@ const getRefetchQueries = (accountId: string) => {
   return [
     {
       query: gql(integrationQueries.fetchApi),
+      // ! nylas controller
       variables: {
         path: '/nylas/get-schedule-pages',
         params: { accountId }
@@ -77,6 +78,7 @@ const getRefetchQueries = (accountId: string) => {
 export default withProps<Props>(
   compose(
     graphql<Props, any>(gql(queries.fetchApi), {
+      // ! nylas controller
       name: 'fetchApiQuery',
       options: ({ accountId }) => {
         return {

@@ -102,6 +102,7 @@ export default withProps<Props>(
   compose(
     graphql<Props, any>(gql(queries.fetchApi), {
       name: 'fetchApiQuery',
+      // ! nylas controller
       options: ({ startTime, endTime, calendarIds }) => {
         return {
           variables: {

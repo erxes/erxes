@@ -45,6 +45,7 @@ class FacebookContainer extends React.Component<FinalProps, State> {
 
     client
       .query({
+        // ! fb controller
         query: gql(queries.fetchApi),
         variables: {
           path: '/facebook/get-pages',

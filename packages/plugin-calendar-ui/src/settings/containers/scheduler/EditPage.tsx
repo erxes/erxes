@@ -75,6 +75,7 @@ class EditPageContainer extends React.Component<FinalProps, {}> {
 export default withProps<Props>(
   compose(
     graphql<Props, any>(gql(integrationQueries.fetchApi), {
+      // ! nylas controller
       name: 'fetchPageQuery',
       options: ({ pageId }) => {
         return {
@@ -88,6 +89,7 @@ export default withProps<Props>(
       }
     }),
     graphql<Props, any>(gql(queries.fetchApi), {
+      // ! nylas controller
       name: 'fetchCalendarQuery',
       options: ({ accountId }) => {
         return {
