@@ -142,6 +142,12 @@ const messengerApps = `
   }
 `;
 
+const integrationsGetConfigs = `
+  query integrationsGetConfigs {
+    integrationsGetConfigs
+  }
+`
+
 export default {
   fetchApi,
   users,
@@ -150,5 +156,6 @@ export default {
   integrationDetail,
   integrationTotalCount,
   integrations,
-  integrationGetLineWebhookUrl
+  integrationGetLineWebhookUrl,
+  integrationsGetConfigs
 };

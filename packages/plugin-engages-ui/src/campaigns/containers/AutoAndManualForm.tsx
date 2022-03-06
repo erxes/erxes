@@ -30,7 +30,7 @@ type Props = {
 
 type FinalProps = {
   emailTemplatesQuery: EmailTemplatesQueryResponse;
-  integrationConfigsQuery: any;
+  integrationsConfigsQuery: any;
   externalIntegrationsQuery: any;
   integrationsQuery: any;
   users: IUser[];
@@ -43,12 +43,12 @@ type FinalProps = {
 const AutoAndManualFormContainer = (props: FinalProps) => {
   const {
     emailTemplatesQuery,
-    integrationConfigsQuery,
+    integrationsConfigsQuery,
     externalIntegrationsQuery,
     integrationsQuery
   } = props;
 
-  const configs = integrationConfigsQuery.integrationsFetchApi || [];
+  const configs = integrationsConfigsQuery.integrationsFetchApi || [];
   const externalIntegrations =
     externalIntegrationsQuery.integrationsFetchApi || [];
   const integrations = integrationsQuery.integrations || [];
@@ -104,14 +104,8 @@ export default withProps<Props>(
     graphql(gql(queries.totalCount), {
       name: 'totalCountQuery'
     }),
-    graphql(gql(integrationQueries.fetchApi), {
-      name: 'integrationConfigsQuery',
-      options: () => ({
-        variables: {
-          path: '/configs',
-          params: {}
-        }
-      })
+    graphql(gql(integrationQueries.integrationsGetAccounts), {
+      name: 'integrationsConfigsQuery',
     }),
     graphql(gql(integrationQueries.fetchApi), {
       name: 'externalIntegrationsQuery',
