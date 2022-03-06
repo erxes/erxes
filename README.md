@@ -23,7 +23,7 @@
 
 ## Features
 
-With erxes, achieving growth and unity within your company is possible. We designed erxes to help you eliminate fragmented business processes by bringing all of your messaging and collaboration into one tool. As a result, you will be able to double your output and treat all of your customers as close friends. Optimize your growth operation and scale-up better and faster, but most importantly, correctly.
+With erxes, achieving growth and unity within your company is possible. We have designed erxes to help you eliminate fragmented business processes by bringing all of your messaging and collaboration into one tool. As a result, you will be able to double your output and treat all of your customers as close friends. Optimize your growth operation and scale-up better and faster, but most importantly, correctly.
 
 <img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">
 
@@ -85,12 +85,12 @@ Technically, no. The <a href="https://commonsclause.com/">Commons Clause</a> tha
 erxes' source code is open, and everyone (individuals and companies) can **use it for free privately**. But if you want to commercialize it, restrictions may apply in the form of prior permissions and official agreements.
 
 ## Can I use erxes to manage my clients and make revenue?
-Yes, you can offer consulting and support services without prior permission as long as it is less than 30,000 USD ($30k) per year. If your revenue from services based on erxes is more than this threshold, we invite you to become a partner agency and apply for a license. If you have any questions about this, feel free to reach out to us at info@erxes.io.
+Yes, you can offer consulting and support services without prior permission as long as it is less than 30,000 USD ($30k) per year. If your revenue from services based on erxes is more than this threshold, we invite you to become a partner agency and apply for a license. If you have any questions about this, feel free to contact us at info@erxes.io.
 
 ## Can hosting companies use erxes?
 
-You need to request permission to host erxes under the <a href="https://commonsclause.com/">Commons Clause</a>. Please reach out to us at info@erxes.io.
+You need to request permission to host erxes under the <a href="https://commonsclause.com/">Commons Clause</a>. Please contact us at info@erxes.io.
 
 ## Why is erxes not open-source but fair-code licensed instead?
 
-We love open-source and the idea everybody can freely use and extend what we wrote. Our community is at the heart of everything we do. We understand that people who contribute to a project are the main drivers who push a project forward. To ensure that the project continues to evolve in the longer run, we decided to attach the Commons Clause. Any entities can not make money directly with erxes **without fairly compensating the project**.  Especially, if it competes with how we plan to finance our further developments. It does not affect the majority of the people who use erxes. At the same time, it protects the project. As erxes itself depends on and uses many other open-source projects, it is only fair that we support them back. That is why we have planned to contribute a certain percentage of our revenue every month to these projects.
+We love open-source and the idea everybody can freely use and extend what we wrote. Our community is at the heart of everything we do. We understand that people who contribute to a project are the main drivers who push that project forward. To ensure that the project continues to evolve in the longer run, we have decided to attach the Commons Clause. Any entities can not make money directly with erxes **without fairly compensating the project**.  Especially, if it competes with how we plan to finance our further developments. It does not affect the majority of the people who use erxes. At the same time, it protects the project. As erxes itself depends on and uses many other open-source projects, it is only fair that we support them back. That is why we have planned to contribute a certain percentage of our revenue every month to these projects.
