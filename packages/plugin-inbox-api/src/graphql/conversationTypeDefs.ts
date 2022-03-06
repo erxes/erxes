@@ -242,15 +242,6 @@ export const queries = `
     getFirst: Boolean
   ): [ConversationMessage]
 
-  converstationFacebookComments(
-    postId: String!
-    isResolved: Boolean
-    commentId: String
-    senderId: String
-    skip: Int
-    limit: Int
-  ): [FacebookComment]
-
   converstationFacebookCommentsCount(
     postId: String!
     isResolved: Boolean

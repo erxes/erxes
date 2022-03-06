@@ -104,33 +104,6 @@ const conversationQueries = {
     return ConversationMessages.countDocuments({ conversationId });
   },
 
-  async converstationFacebookComments(
-    _root,
-    {
-      postId,
-      isResolved,
-      commentId,
-      limit,
-      senderId,
-    }: {
-      commentId: string;
-      isResolved: string;
-      postId: string;
-      senderId: string;
-      limit: number;
-    },
-    { dataSources }: IContext
-  ) {
-    // ! move
-    return dataSources.IntegrationsAPI.fetchApi("/facebook/get-comments", {
-      postId,
-      isResolved,
-      commentId,
-      senderId,
-      limit: limit || 10,
-    });
-  },
-
   async converstationFacebookCommentsCount(
     _root,
     { postId, isResolved }: { postId: string; isResolved: string },
