@@ -307,7 +307,7 @@ export type UnreadConversationsTotalCountQueryResponse = {
 } & QueryResponse;
 
 export type FacebookCommentsQueryResponse = {
-  converstationFacebookComments: IFacebookComment[];
+  integrationsConversationFbComments: IFacebookComment[];
   fetchMore: (variables) => void;
 } & QueryResponse;
 

@@ -127,34 +127,6 @@ const conversationMessages = `
   }
 `;
 
-const converstationFacebookComments = `
-  query converstationFacebookComments($postId: String!,$isResolved: Boolean, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
-    converstationFacebookComments(postId: $postId,isResolved:$isResolved, limit: $limit, commentId: $commentId, senderId: $senderId, skip: $skip) {
-      conversationId
-      commentId
-      postId
-      recipientId
-      senderId
-      attachments
-      content
-      erxesApiId
-      timestamp
-      parentId
-      commentCount
-      isResolved
-      permalink_url
-      customer {
-        _id
-        visitorContactInfo
-        avatar
-        firstName
-        lastName
-        middleName
-      }
-    }
-  }
-`;
-
 const converstationFacebookCommentsCount = `
   query converstationFacebookCommentsCount($postId: String!, $isResolved: Boolean) {
     converstationFacebookCommentsCount(postId: $postId, isResolved:$isResolved) 
@@ -390,13 +362,41 @@ const generateCustomerDetailQuery = params => {
   `;
 };
 
+const integrationsConversationFbComments = `
+  query integrationsConversationFbComments($postId: String!,$isResolved: Boolean, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
+    integrationsConversationFbComments(postId: $postId,isResolved:$isResolved, limit: $limit, commentId: $commentId, senderId: $senderId, skip: $skip) {
+      conversationId
+      commentId
+      postId
+      recipientId
+      senderId
+      attachments
+      content
+      erxesApiId
+      timestamp
+      parentId
+      commentCount
+      isResolved
+      permalink_url
+      customer {
+        _id
+        visitorContactInfo
+        avatar
+        firstName
+        lastName
+        middleName
+      }
+    }
+  }
+`;
+
+
 export default {
   conversationList,
   sidebarConversations,
   conversationDetail,
   conversationDetailMarkAsRead,
   conversationMessages,
-  converstationFacebookComments,
   converstationFacebookCommentsCount,
   conversationMessagesTotalCount,
   userList,
@@ -413,5 +413,6 @@ export default {
   lastConversation,
   channelsByMembers,
   generateCustomerDetailQuery,
-  convertToInfo
+  convertToInfo,
+  integrationsConversationFbComments
 };

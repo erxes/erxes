@@ -57,7 +57,7 @@ class FacebookPostContainer extends React.Component<FinalProps> {
           subscriptions.conversationExternalIntegrationMessageInserted
         ),
         updateQuery: () => {
-          const comments = commentsQuery.converstationFacebookComments || [];
+          const comments = commentsQuery.integrationsConversationFbComments || [];
           const limit = comments.length + 10;
 
           this.fetchMoreComments({ limit }, { isSubscriptions: true });
@@ -76,14 +76,14 @@ class FacebookPostContainer extends React.Component<FinalProps> {
           return prev;
         }
 
-        const prevComments = prev.converstationFacebookComments || [];
+        const prevComments = prev.integrationsConversationFbComments || [];
 
         const prevCommentIds = prevComments.map(
           (comment: IFacebookComment) => comment.commentId
         );
 
         const fetchedComments: IFacebookComment[] = [];
-        for (const comment of fetchMoreResult.converstationFacebookComments) {
+        for (const comment of fetchMoreResult.integrationsConversationFbComments) {
           if (!prevCommentIds.includes(comment.commentId)) {
             fetchedComments.push(comment);
           }
@@ -92,13 +92,13 @@ class FacebookPostContainer extends React.Component<FinalProps> {
         if (isSubscriptions) {
           return {
             ...prev,
-            converstationFacebookComments: [...prevComments, ...fetchedComments]
+            integrationsConversationFbComments: [...prevComments, ...fetchedComments]
           };
         }
 
         return {
           ...prev,
-          converstationFacebookComments: [...fetchedComments, ...prevComments]
+          integrationsConversationFbComments: [...fetchedComments, ...prevComments]
         };
       }
     });
@@ -146,7 +146,7 @@ class FacebookPostContainer extends React.Component<FinalProps> {
     }
 
     const post = conversation.facebookPost || ({} as IFacebookPost);
-    const comments = commentsQuery.converstationFacebookComments || [];
+    const comments = commentsQuery.integrationsConversationFbComments || [];
     const commentCounts =
       commentsCountQuery.converstationFacebookCommentsCount || {};
 
@@ -174,7 +174,7 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
       Props,
       FacebookCommentsQueryResponse,
       { postId: string; isResolved: boolean }
-    >(gql(queries.converstationFacebookComments), {
+    >(gql(queries.integrationsConversationFbComments), {
       name: 'commentsQuery',
       options: ({
         conversation,
