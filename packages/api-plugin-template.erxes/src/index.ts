@@ -177,10 +177,11 @@ async function startServer() {
 
   try {
     // connect to mongo database
-    await connect(mongoUrl);
+    const db = await connect(mongoUrl);
     const messageBrokerClient = await initBroker(configs.name, app);
 
     configs.onServerInit({
+      db,
       app,
       pubsubClient: pubsub,
       elasticsearch,

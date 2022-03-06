@@ -1,4 +1,5 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
+import { IModels } from '../connectionResolver';
 import {
   articleSchema,
   categorySchema,
@@ -33,10 +34,10 @@ export interface IArticleModel extends Model<IArticleDocument> {
   ): void;
 }
 
-export const loadArticleClass = () => {
+export const loadArticleClass = (models: IModels) => {
   class Article {
     public static async getArticle(_id: string) {
-      const article = await KnowledgeBaseArticles.findOne({ _id });
+      const article = await models.KnowledgeBaseArticles.findOne({ _id });
 
       if (!article) {
         throw new Error('Knowledge base article not found');
@@ -53,7 +54,7 @@ export const loadArticleClass = () => {
         throw new Error('userId must be supplied');
       }
 
-      const article = await KnowledgeBaseArticles.create({
+      const article = await models.KnowledgeBaseArticles.create({
         ...docFields,
         createdDate: new Date(),
         createdBy: userId,
@@ -75,7 +76,7 @@ export const loadArticleClass = () => {
         throw new Error('userId must be supplied');
       }
 
-      await KnowledgeBaseArticles.updateOne(
+      await models.KnowledgeBaseArticles.updateOne(
         { _id },
         {
           $set: {
@@ -86,7 +87,7 @@ export const loadArticleClass = () => {
         }
       );
 
-      const article = await KnowledgeBaseArticles.getArticle(_id);
+      const article = await models.KnowledgeBaseArticles.getArticle(_id);
 
       return article;
     }
@@ -95,7 +96,7 @@ export const loadArticleClass = () => {
      * Removes KnowledgeBaseArticle document
      */
     public static removeDoc(_id: string) {
-      return KnowledgeBaseArticles.deleteOne({ _id });
+      return models.KnowledgeBaseArticles.deleteOne({ _id });
     }
 
     /*
@@ -106,14 +107,14 @@ export const loadArticleClass = () => {
       reactionChoice: string,
       modifyType: 'inc' | 'dec'
     ) {
-      const article = await KnowledgeBaseArticles.getArticle(articleId);
+      const article = await models.KnowledgeBaseArticles.getArticle(articleId);
 
       const reactionCounts = article.reactionCounts || {};
 
       reactionCounts[reactionChoice] =
         (reactionCounts[reactionChoice] || 0) + (modifyType === 'inc' ? 1 : -1);
 
-      await KnowledgeBaseArticles.updateOne(
+      await models.KnowledgeBaseArticles.updateOne(
         { _id: articleId },
         { $set: { reactionCounts } }
       );
@@ -143,10 +144,10 @@ export interface ICategoryModel extends Model<ICategoryDocument> {
   removeDoc(categoryId: string): void;
 }
 
-export const loadCategoryClass = () => {
+export const loadCategoryClass = (models: IModels) => {
   class Category {
     public static async getCategory(_id: string) {
-      const category = await KnowledgeBaseCategories.findOne({ _id });
+      const category = await models.KnowledgeBaseCategories.findOne({ _id });
 
       if (!category) {
         throw new Error('Knowledge base category not found');
@@ -163,7 +164,7 @@ export const loadCategoryClass = () => {
         throw new Error('userId must be supplied');
       }
 
-      const category = await KnowledgeBaseCategories.create({
+      const category = await models.KnowledgeBaseCategories.create({
         ...docFields,
         createdDate: new Date(),
         createdBy: userId,
@@ -192,7 +193,7 @@ export const loadCategoryClass = () => {
           throw new Error('Cannot change category');
         }
 
-        const childrenCounts = await KnowledgeBaseCategories.countDocuments({
+        const childrenCounts = await models.KnowledgeBaseCategories.countDocuments({
           parentCategoryId: _id
         });
 
@@ -201,7 +202,7 @@ export const loadCategoryClass = () => {
         }
       }
 
-      await KnowledgeBaseCategories.updateOne(
+      await models.KnowledgeBaseCategories.updateOne(
         { _id },
         {
           $set: {
@@ -212,7 +213,7 @@ export const loadCategoryClass = () => {
         }
       );
 
-      const category = await KnowledgeBaseCategories.getCategory(_id);
+      const category = await models.KnowledgeBaseCategories.getCategory(_id);
 
       return category;
     }
@@ -221,17 +222,17 @@ export const loadCategoryClass = () => {
      * Removes KnowledgeBaseCategory document and it's children articles
      */
     public static async removeDoc(_id: string) {
-      const category = await KnowledgeBaseCategories.findOne({ _id });
+      const category = await models.KnowledgeBaseCategories.findOne({ _id });
 
       if (!category) {
         throw new Error('Category not found');
       }
 
-      await KnowledgeBaseArticles.deleteMany({
+      await models.KnowledgeBaseArticles.deleteMany({
         categoryId: _id
       });
 
-      return KnowledgeBaseCategories.deleteOne({ _id });
+      return models.KnowledgeBaseCategories.deleteOne({ _id });
     }
   }
 
@@ -251,10 +252,10 @@ export interface ITopicModel extends Model<ITopicDocument> {
   removeDoc(_id: string): void;
 }
 
-export const loadTopicClass = () => {
+export const loadTopicClass = (models: IModels) => {
   class Topic {
     public static async getTopic(_id: string) {
-      const topic = await KnowledgeBaseTopics.findOne({ _id });
+      const topic = await models.KnowledgeBaseTopics.findOne({ _id });
 
       if (!topic) {
         throw new Error('Knowledge base topic not found');
@@ -270,7 +271,7 @@ export const loadTopicClass = () => {
         throw new Error('userId must be supplied');
       }
 
-      return KnowledgeBaseTopics.create({
+      return models.KnowledgeBaseTopics.create({
         ...docFields,
         createdDate: new Date(),
         createdBy: userId,
@@ -290,7 +291,7 @@ export const loadTopicClass = () => {
         throw new Error('userId must be supplied');
       }
 
-      await KnowledgeBaseTopics.updateOne(
+      await models.KnowledgeBaseTopics.updateOne(
         { _id },
         {
           $set: {
@@ -301,29 +302,29 @@ export const loadTopicClass = () => {
         }
       );
 
-      return KnowledgeBaseTopics.findOne({ _id });
+      return models.KnowledgeBaseTopics.findOne({ _id });
     }
 
     /**
      * Removes KnowledgeBaseTopic document and it's children categories
      */
     public static async removeDoc(_id: string) {
-      const topic = await KnowledgeBaseTopics.findOne({ _id });
+      const topic = await models.KnowledgeBaseTopics.findOne({ _id });
 
       if (!topic) {
         throw new Error('Topic not found');
       }
 
       // remove child items ===========
-      const categories = await KnowledgeBaseCategories.find({
+      const categories = await models.KnowledgeBaseCategories.find({
         topicId: _id
       });
 
       for (const category of categories) {
-        await KnowledgeBaseCategories.removeDoc(category._id);
+        await models.KnowledgeBaseCategories.removeDoc(category._id);
       }
 
-      return KnowledgeBaseTopics.deleteOne({ _id });
+      return models.KnowledgeBaseTopics.deleteOne({ _id });
     }
   }
 
@@ -331,25 +332,3 @@ export const loadTopicClass = () => {
 
   return topicSchema;
 };
-
-loadArticleClass();
-loadCategoryClass();
-loadTopicClass();
-
-// tslint:disable-next-line
-export const KnowledgeBaseArticles = model<IArticleDocument, IArticleModel>(
-  'knowledgebase_articles',
-  articleSchema
-);
-
-// tslint:disable-next-line
-export const KnowledgeBaseCategories = model<ICategoryDocument, ICategoryModel>(
-  'knowledgebase_categories',
-  categorySchema
-);
-
-// tslint:disable-next-line
-export const KnowledgeBaseTopics = model<ITopicDocument, ITopicModel>(
-  'knowledgebase_topics',
-  topicSchema
-);

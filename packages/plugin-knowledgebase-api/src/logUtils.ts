@@ -13,8 +13,8 @@ export const LOG_ACTIONS = {
   DELETE: 'delete',
 };
 
-export const putDeleteLog = async (logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions({
+export const putDeleteLog = async (models, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(models, {
     ...logDoc,
     action: LOG_ACTIONS.DELETE,
   });
@@ -26,8 +26,8 @@ export const putDeleteLog = async (logDoc, user) => {
   );
 };
 
-export const putUpdateLog = async (logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions({
+export const putUpdateLog = async (models, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(models, {
     ...logDoc,
     action: LOG_ACTIONS.UPDATE,
   });
@@ -39,8 +39,8 @@ export const putUpdateLog = async (logDoc, user) => {
   );
 };
 
-export const putCreateLog = async (logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions({
+export const putCreateLog = async (models, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(models, {
     ...logDoc,
     action: LOG_ACTIONS.CREATE,
   });

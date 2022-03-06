@@ -1,15 +1,16 @@
 import { gatherNames, gatherUsernames, LogDesc, IDescriptions } from '@erxes/api-utils/src/logUtils';
 
-import { KnowledgeBaseArticles, KnowledgeBaseCategories } from "./models";
 import { ICategoryDocument, ITopicDocument } from "./models/definitions/knowledgebase";
 import messageBroker from './messageBroker';
 import { MODULE_NAMES } from './constants';
+import { IModels } from './connectionResolver';
 
 const findUser = async (ids: string[]) => {
   return await messageBroker().sendRPCMessage('core:rpc_queue:findOneUser', { _id: { $in: ids } });
 };
 
 const gatherKbTopicFieldNames = async (
+  models: IModels,
   doc: ITopicDocument,
   prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
@@ -42,7 +43,7 @@ const gatherKbTopicFieldNames = async (
 
   if (doc.categoryIds && doc.categoryIds.length > 0) {
     // categories are removed alongside
-    const categories = await KnowledgeBaseCategories.find(
+    const categories = await models.KnowledgeBaseCategories.find(
       { _id: { $in: doc.categoryIds } },
       { title: 1 }
     );
@@ -59,6 +60,7 @@ const gatherKbTopicFieldNames = async (
 };
 
 const gatherKbCategoryFieldNames = async (
+  models: IModels,
   doc: ICategoryDocument,
   prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
@@ -68,7 +70,7 @@ const gatherKbCategoryFieldNames = async (
     options = prevList;
   }
 
-  const articles = await KnowledgeBaseArticles.find(
+  const articles = await models.KnowledgeBaseArticles.find(
     { _id: { $in: doc.articleIds } },
     { title: 1 }
   );
@@ -127,7 +129,7 @@ const gatherKbArticleFieldNames = async (params: any, prevList?: LogDesc[]) => {
   return options;
 }
 
-export const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
+export const gatherDescriptions = async (models: IModels, params: any): Promise<IDescriptions> => {
   const { action, type, object, updatedDocument } = params;
 
   const description = `"${object.title}" has been ${action}d`;
@@ -135,18 +137,18 @@ export const gatherDescriptions = async (params: any): Promise<IDescriptions> =>
 
   switch (type) {
     case MODULE_NAMES.KB_TOPIC:
-      extraDesc = await gatherKbTopicFieldNames(object);
+      extraDesc = await gatherKbTopicFieldNames(models, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherKbTopicFieldNames(updatedDocument, extraDesc);
+        extraDesc = await gatherKbTopicFieldNames(models, updatedDocument, extraDesc);
       }
 
       break;
     case MODULE_NAMES.KB_CATEGORY:
-      extraDesc = await gatherKbCategoryFieldNames(object);
+      extraDesc = await gatherKbCategoryFieldNames(models, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherKbCategoryFieldNames(updatedDocument, extraDesc);
+        extraDesc = await gatherKbCategoryFieldNames(models, updatedDocument, extraDesc);
       }
 
       break;

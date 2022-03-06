@@ -1,20 +1,20 @@
-import { KnowledgeBaseCategories } from '../../models';
 import { ITopicDocument } from '../../models/definitions/knowledgebase';
 import { getDocument } from '../../cacheUtils';
+import { IContext } from '../../connectionResolver';
 
 export default {
-  brand(topic: ITopicDocument) {
-    return getDocument('brands', { _id: topic.brandId });
+  brand(topic: ITopicDocument, _args, { coreModels }: IContext) {
+    return getDocument(coreModels, 'brands', { _id: topic.brandId });
   },
 
-  categories(topic: ITopicDocument) {
-    return KnowledgeBaseCategories.find({ topicId: topic._id }).sort({
+  categories(topic: ITopicDocument, _args, { models }: IContext) {
+    return models.KnowledgeBaseCategories.find({ topicId: topic._id }).sort({
       title: 1,
     });
   },
 
-  async parentCategories(topic: ITopicDocument) {
-    return KnowledgeBaseCategories.find({
+  async parentCategories(topic: ITopicDocument, _args, { models }: IContext) {
+    return models.KnowledgeBaseCategories.find({
       topicId: topic._id,
       $or: [
         { parentCategoryId: null },
