@@ -6,8 +6,10 @@ const resolvers: any = {
   ...customScalars,
   Query: {
     ...IntegrationQueries,
-    ...IntegrationMutations
   },
+  Mutation: {
+    ...IntegrationMutations
+  }
 };
 
 export default resolvers;

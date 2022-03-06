@@ -3,6 +3,7 @@ import { gql } from 'apollo-server-express';
 import {
   types as IntegrationTypes,
   queries as IntegrationQueries,
+  mutations as IntegrationMutations,
 } from './integrationTypeDefs';
 
 const typeDefs = async(_serviceDiscovery) => {
@@ -14,6 +15,10 @@ const typeDefs = async(_serviceDiscovery) => {
 
     extend type Query {
       ${IntegrationQueries}
+    }
+
+    extend type Mutation {
+      ${IntegrationMutations}
     }
   `;
 }
