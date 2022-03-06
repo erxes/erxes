@@ -32,7 +32,8 @@ export const generateModels = async (
   }
 
   coreModels = await connectCore();
-  models = loadClasses(mainDb);
+
+  loadClasses(mainDb);
 
   return models;
 };
@@ -59,15 +60,19 @@ const connectCore = async () => {
 }
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
-  return {
-    KnowledgeBaseArticles: db.model<IArticleDocument, IArticleModel>('knowledgebase_articles', loadArticleClass(models)),
-    KnowledgeBaseCategories: db.model<ICategoryDocument, ICategoryModel>(
+  models = {} as IModels;
+
+  models.KnowledgeBaseArticles = db.model<IArticleDocument, IArticleModel>('knowledgebase_articles', loadArticleClass(models));
+
+  models.KnowledgeBaseCategories = db.model<ICategoryDocument, ICategoryModel>(
       'knowledgebase_categories',
       loadCategoryClass(models)
-    ),
-    KnowledgeBaseTopics: db.model<ITopicDocument, ITopicModel>(
+    );
+
+  models.KnowledgeBaseTopics = db.model<ITopicDocument, ITopicModel>(
       'knowledgebase_topics',
       loadTopicClass(models)
     )
-  }
+
+  return models;
 };
