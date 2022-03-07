@@ -1,4 +1,3 @@
-import { debugFacebook, debugTwitter } from '../../debuggers';
 import { Comments, Customers, Posts } from '../../facebook/models';
 import { getPageList } from '../../facebook/utils';
 import { Accounts, Configs, Integrations } from '../../models';
@@ -60,8 +59,6 @@ const integrationQueries = {
   async integrationsConversationFbComments(_root, args) {
     const { postId, isResolved, commentId, senderId } = args;
     let { limit = 10 } = args;
-
-    debugFacebook(`Request to get comments with: ${JSON.stringify(args)}`);
 
     const post = await Posts.getPost({ erxesApiId: postId });
 
@@ -146,8 +143,6 @@ const integrationQueries = {
   },
   // app.get('/facebook/get-comments-count', async (req, res) => {
   async integrationsConversationFbCommentsCount(_root, args) {
-    debugFacebook(`Request to get post data with: ${JSON.stringify(args)}`);
-
     const { postId, isResolved = false } = args;
 
     const post = await Posts.getPost({ erxesApiId: postId }, true);
@@ -178,10 +173,6 @@ const integrationQueries = {
     const account = await Accounts.findOne({ _id: accountId });
 
     if (!account) {
-      debugTwitter(
-        `Error Twitter: Account not found with ${accountId}`
-      );
-
       throw new Error('Account not found');
     }
 
