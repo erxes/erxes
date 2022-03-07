@@ -3,7 +3,7 @@ import { routeErrorHandling } from '../helpers';
 import { getConfig, getRecordings, sendRequest } from '../utils';
 import { CallRecords, ICallRecord } from './models';
 
-const VIDEO_CALL_STATUS = {
+export const VIDEO_CALL_STATUS = {
   ONGOING: 'ongoing',
   END: 'end',
   ALL: ['ongoing', 'end']

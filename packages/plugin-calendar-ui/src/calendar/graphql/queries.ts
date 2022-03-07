@@ -21,12 +21,6 @@ const calendars = `
   }
 `;
 
-const fetchApi = `
-  query integrationsFetchApi($path: String!, $params: JSON!) {
-    integrationsFetchApi(path: $path, params: $params)
-  }
-`;
-
 const boardFields = `
   _id
   name
@@ -64,7 +58,6 @@ const boardDetail = `
 
 export default {
   calendars,
-  fetchApi,
   boardGetLast,
   boards,
   boardDetail
