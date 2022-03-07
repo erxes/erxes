@@ -1,6 +1,6 @@
 import { gatherNames, gatherUsernames, LogDesc, IDescriptions } from '@erxes/api-utils/src/logUtils';
 
-import { ICategoryDocument, ITopicDocument } from "./models/definitions/knowledgebase";
+import { IArticleDocument, ICategoryDocument, ITopicDocument } from "./models/definitions/knowledgebase";
 import messageBroker from './messageBroker';
 import { MODULE_NAMES } from './constants';
 import { IModels } from './connectionResolver';
@@ -26,11 +26,13 @@ const gatherKbTopicFieldNames = async (
     items: [await findUser([doc.createdBy])]
   });
 
-  options = await gatherUsernames({
-    foreignKey: 'modifiedBy',
-    prevList: options,
-    items: [await findUser([doc.modifiedBy])]
-  });
+  if (doc.modifiedBy) {
+    options = await gatherUsernames({
+      foreignKey: 'modifiedBy',
+      prevList: options,
+      items: [await findUser([doc.modifiedBy])]
+    });
+  }
 
   if (doc.brandId) {
     options = await gatherNames({
@@ -81,11 +83,13 @@ const gatherKbCategoryFieldNames = async (
     items: [await findUser([doc.createdBy])]
   });
 
-  options = await gatherUsernames({
-    foreignKey: 'modifiedBy',
-    prevList: options,
-    items: [await findUser([doc.modifiedBy])]
-  });
+  if (doc.modifiedBy) {
+    options = await gatherUsernames({
+      foreignKey: 'modifiedBy',
+      prevList: options,
+      items: [await findUser([doc.modifiedBy])]
+    });
+  }
 
   if (articles.length > 0) {
     for (const article of articles) {
@@ -93,37 +97,54 @@ const gatherKbCategoryFieldNames = async (
     }
   }
 
+  if (doc.topicId) {
+    const topic = await models.KnowledgeBaseTopics.findOne({ _id: doc.topicId });
+
+    if (topic) {
+      options.push({ topicId: doc.topicId, name: topic.title });
+    }
+  }
+
   return options;
 };
 
-const gatherKbArticleFieldNames = async (params: any, prevList?: LogDesc[]) => {
-  const { object, updatedDocument } = params;
+const gatherKbArticleFieldNames = async (models: IModels, doc: IArticleDocument, prevList?: LogDesc[]) => {
   let options: LogDesc[] = [];
   
   if (prevList) {
     options = prevList;
   }
 
-  options = await gatherUsernames({
-    foreignKey: 'createdBy',
-    prevList,
-    items: [await findUser([object.createdBy])]
-  });
-
-  if (object.modifiedBy) {
+  if (doc.createdBy) {
     options = await gatherUsernames({
-      foreignKey: 'modifiedBy',
-      prevList: options,
-      items: [await findUser([object.modifiedBy])]
+      foreignKey: 'createdBy',
+      prevList,
+      items: [await findUser([doc.createdBy])]
     });
   }
 
-  if (updatedDocument && updatedDocument.modifiedBy) {
+  if (doc.modifiedBy) {
     options = await gatherUsernames({
       foreignKey: 'modifiedBy',
       prevList: options,
-      items: [await findUser([updatedDocument.modifiedBy])]
+      items: [await findUser([doc.modifiedBy])]
     });
+  }
+
+  if (doc.topicId) {
+    const topic = await models.KnowledgeBaseTopics.findOne({ _id: doc.topicId });
+
+    if (topic) {
+      options.push({ topicId: topic._id, name: topic.title });
+    }
+  }
+
+  if (doc.categoryId) {
+    const category = await models.KnowledgeBaseCategories.findOne({ _id: doc.categoryId });
+
+    if (category) {
+      options.push({ categoryId: doc.categoryId, name: category.title });
+    }
   }
 
   return options;
@@ -153,10 +174,10 @@ export const gatherDescriptions = async (models: IModels, params: any): Promise<
 
       break;
     case MODULE_NAMES.KB_ARTICLE:
-      extraDesc = await gatherKbArticleFieldNames(object);
+      extraDesc = await gatherKbArticleFieldNames(models, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherKbArticleFieldNames(updatedDocument, extraDesc);
+        extraDesc = await gatherKbArticleFieldNames(models, updatedDocument, extraDesc);
       }
 
       break;
