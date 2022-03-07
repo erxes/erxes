@@ -14,8 +14,8 @@ const createVideoChatRoom = `
 `;
 
 const saveVideoRecordingInfo = `
-  mutation conversationsSaveVideoRecordingInfo($conversationId: String!, $recordingId: String!) {
-    conversationsSaveVideoRecordingInfo(conversationId: $conversationId, recordingId: $recordingId)
+  mutation integrationsSaveVideoRecordingInfo($conversationId: String!, $recordingId: String!) {
+    integrationsSaveVideoRecordingInfo(conversationId: $conversationId, recordingId: $recordingId)
   }
 `;
 
