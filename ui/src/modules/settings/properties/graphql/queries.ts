@@ -40,7 +40,9 @@ const commonFieldsGroups = `
   }
   code
   ${genericFields}
-
+  
+  visibility
+  memberIds
   lastUpdatedUser {
     details {
       fullName

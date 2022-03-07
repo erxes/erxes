@@ -188,7 +188,7 @@ const fieldsGroupQueries = {
       boardId: string;
       pipelineId: string;
     },
-    { commonQuerySelector }: IContext
+    { commonQuerySelector, user }: IContext
   ) {
     let query: any = commonQuerySelector;
 
@@ -230,6 +230,30 @@ const fieldsGroupQueries = {
     if (isDefinedByErxes !== undefined) {
       query.isDefinedByErxes = isDefinedByErxes;
     }
+
+    const userFilter = user.isOwner
+      ? {}
+      : {
+          $or: [
+            { visibility: { $exists: null } },
+            { visibility: 'public' },
+            {
+              $and: [
+                { visibility: 'private' },
+                {
+                  $or: [
+                    { memberIds: { $in: [user._id] } },
+                    { userId: user._id }
+                  ]
+                }
+              ]
+            }
+          ]
+        };
+
+    query = { ...query, ...userFilter };
+
+    console.log(' ================================ ', JSON.stringify(query));
 
     const groups = await FieldsGroups.find(query);
 
