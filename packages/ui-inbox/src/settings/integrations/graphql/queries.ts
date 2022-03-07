@@ -112,12 +112,6 @@ const integrations = `
   }
 `;
 
-const fetchApi = `
-  query integrationsFetchApi($path: String!, $params: JSON!) {
-    integrationsFetchApi(path: $path, params: $params)
-  }
-`;
-
 const integrationGetLineWebhookUrl = `
   query integrationGetLineWebhookUrl($id: String!) {
     integrationGetLineWebhookUrl(_id: $id)
@@ -155,7 +149,6 @@ const integrationsGetIntegrationDetail = `
 `;
 
 export default {
-  fetchApi,
   users,
   brands,
   messengerApps,
