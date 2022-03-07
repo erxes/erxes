@@ -7,7 +7,7 @@ import {
 } from '@erxes/api-utils/src/exporter';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import * as moment from 'moment';
-import { Fields, Segments, Users } from './apiCollections';
+import { Fields, Users } from './apiCollections';
 import { BOARD_BASIC_INFOS, MODULE_NAMES } from './constants';
 import { fetchSegment } from './messageBroker';
 import { Deals, PipelineLabels, Stages, Tasks, Tickets } from './models';
@@ -152,10 +152,8 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
 
   const boardItemsFilter: any = {};
 
-  const segmentObj = await Segments.findOne({ _id: segment });
-
   if (segment) {
-    const itemIds = await fetchSegment(segmentObj);
+    const itemIds = await fetchSegment(segment);
 
     boardItemsFilter._id = { $in: itemIds };
   }

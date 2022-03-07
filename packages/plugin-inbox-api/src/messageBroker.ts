@@ -239,10 +239,19 @@ export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
 
 export const fetchSegment = (segment, options?) =>
-  sendRPCMessage('rpc_queue:fetchSegment', {
-    segment,
-    options
-  });
+  sendSegmentMessage('fetchSegment', { segment, options }, true)
+
+export const sendSegmentMessage = async (action, data, isRPC?: boolean) => {
+  if (!isRPC) {
+    return sendMessage(`segments:${action}`, data);
+  }
+
+  if(!(await serviceDiscovery.isAvailable('segments'))) {
+    throw new Error("Segments service is not available");
+  }
+
+  sendMessage(`segments:rpc_queue:${action}`, data);
+}
 
 export const findMongoDocuments = async (serviceName: string, data: any) => {
   if(!(await serviceDiscovery.isEnabled(serviceName))) {

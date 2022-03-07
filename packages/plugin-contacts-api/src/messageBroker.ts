@@ -346,7 +346,7 @@ export const findIntegrations = async (query, options?): Promise<any> => {
 };
 
 export const findTags = async (query): Promise<any> => {
-  if(!(await serviceDiscovery.isEnabled('tags'))) return [];
+  if(!(await serviceDiscovery.isEnabled('tags'))) { return []; }
 
   if(!(await serviceDiscovery.isAvailable('tags'))) {
     throw new Error("Tags service is not available");
@@ -356,7 +356,7 @@ export const findTags = async (query): Promise<any> => {
 };
 
 export const findOneTag = async (query): Promise<any> => {
-  if(!(await serviceDiscovery.isEnabled('tags'))) return null;
+  if(!(await serviceDiscovery.isEnabled('tags'))) { return null; }
 
   if(!(await serviceDiscovery.isAvailable('tags'))) {
     throw new Error("Tags service is not available");
@@ -366,7 +366,7 @@ export const findOneTag = async (query): Promise<any> => {
 };
 
 export const createTag =  async (doc) => {
-  if(!(await serviceDiscovery.isEnabled('tags'))) return null;
+  if(!(await serviceDiscovery.isEnabled('tags'))) { return null; }
 
   if(!(await serviceDiscovery.isAvailable('tags'))) {
     throw new Error("Tags service is not available");
@@ -381,13 +381,13 @@ export const sendToLog = (channel: string, data) =>
 export const removeCustomersConversations = async (
   customerIds
 ): Promise<any> => {
-  if(!(await serviceDiscovery.isEnabled("inbox"))) return;
+  if(!(await serviceDiscovery.isEnabled("inbox"))) { return; }
 
   await client.sendMessage('inbox:removeCustomersConversations', customerIds);
 };
 
 export const removeCustomersEngages = async (customerIds): Promise<any> => {
-  if(!(await serviceDiscovery.isEnabled("engages"))) return;
+  if(!(await serviceDiscovery.isEnabled("engages"))) { return; }
 
   await client.sendMessage('engage:removeCustomersEngages', customerIds);
 };
@@ -396,7 +396,7 @@ export const engageChangeCustomer = async (
   customerId,
   customerIds
 ): Promise<any> => {
-  if(!(await serviceDiscovery.isEnabled("engages"))) return;
+  if(!(await serviceDiscovery.isEnabled("engages"))) { return; }
   
   return client.sendMessage("engage:changeCustomer", {
     customerId,
@@ -405,13 +405,22 @@ export const engageChangeCustomer = async (
 };
 
 export const fetchSegment = (segment, options?) =>
-  sendRPCMessage('rpc_queue:fetchSegment', {
-    segment,
-    options
-  });
+  sendSegmentMessage('fetchSegment', { segment, options }, true)
+
+export const sendSegmentMessage = async (action, data, isRPC?: boolean) => {
+  if (!isRPC) {
+    return sendMessage(`segments:${action}`, data);
+  }
+
+  if(!(await serviceDiscovery.isAvailable('segments'))) {
+    throw new Error("Segments service is not available");
+  }
+
+  sendMessage(`segments:rpc_queue:${action}`, data);
+}
 
 export const removeInternalNotes = async (contentType: string, contentTypeIds: string[]) => {
-  if (!(await serviceDiscovery.isEnabled("internalnotes"))) return;
+  if (!(await serviceDiscovery.isEnabled("internalnotes"))) { return; }
 
   return sendMessage('internalnotes:InternalNotes.removeInternalNotes', {
     contentType,
@@ -420,7 +429,7 @@ export const removeInternalNotes = async (contentType: string, contentTypeIds: s
 };
 
 export const internalNotesBatchUpdate = async (contentType: string, oldContentTypeIds: string[], newContentTypeId: string) => {
-  if (!(await serviceDiscovery.isEnabled("internalnotes"))) return;
+  if (!(await serviceDiscovery.isEnabled("internalnotes"))) { return; }
 
   return sendMessage('internalNotes:batchUpdate', {
     contentType,
@@ -430,7 +439,7 @@ export const internalNotesBatchUpdate = async (contentType: string, oldContentTy
 };
 
 export const inboxChangeCustomer = async (customerId: string, customerIds: string[]) => {
-  if(!(await serviceDiscovery.isEnabled("inbox"))) return;
+  if(!(await serviceDiscovery.isEnabled("inbox"))) { return; }
 
   return sendMessage('inbox:changeCustomer', { customerId, customerIds });
 };

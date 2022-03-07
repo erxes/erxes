@@ -1,17 +1,16 @@
-import { Segments } from '../../../db/models';
-import { fetchElk } from '../../../elasticsearch';
-import { getService, getServices } from '../../../inmemoryStorage';
-import { fetchSegment } from '../../modules/segments/queryBuilder';
-import { checkPermission, requireLogin } from '../../permissions/wrappers';
-import { IContext } from '../../types';
+import { checkPermission, requireLogin } from "@erxes/api-utils/src/permissions";
+import { IContext } from "@erxes/api-utils/src/types";
+import { Segments } from "../../../models";
+import { es, serviceDiscovery } from '../../../configs';
+import { fetchSegment } from "./queryBuilder";
 
 const segmentQueries = {
   async segmentsGetTypes() {
-    const serviceNames = await getServices();
+    const serviceNames = await serviceDiscovery.getServices();
     let types: Array<{ name: string; description: string }> = [];
 
     for (const serviceName of serviceNames) {
-      const service = await getService(serviceName, true);
+      const service = await serviceDiscovery.getService(serviceName, true);
 
       if (service.meta.segment) {
         const schemas = service.meta.segment.schemas;
@@ -100,7 +99,7 @@ const segmentQueries = {
       }
     };
 
-    const aggreEvents = await fetchElk({
+    const aggreEvents = await es.fetchElk({
       action: 'search',
       index: 'events',
       body: {

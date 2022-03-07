@@ -1,7 +1,6 @@
-import { ImportHistory, Segments } from '../../../db/models';
-import { ISegment } from '../../../db/models/definitions/segments';
+import { fetchSegment } from '../../../messageBroker';
+import { ImportHistory } from '../../../db/models';
 import { getService, getServices } from '../../../inmemoryStorage';
-import { fetchSegment } from '../../modules/segments/queryBuilder';
 import { checkPermission } from '../../permissions/wrappers';
 import utils, { paginate } from '../../utils';
 
@@ -97,11 +96,7 @@ const importHistoryQueries = {
     { segmentId }: { segmentId: string; contentType: string }
   ) {
     if (segmentId) {
-      const segment = (await Segments.findOne({
-        _id: segmentId
-      })) as ISegment;
-
-      return fetchSegment(segment, { returnCount: true });
+      return fetchSegment(segmentId, { returnCount: true });
     }
   },
 

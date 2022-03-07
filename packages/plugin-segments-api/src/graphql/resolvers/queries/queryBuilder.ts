@@ -1,16 +1,9 @@
 import * as _ from 'underscore';
-
-import { Conformities, Segments } from '../../../db/models';
-
-import {
-  SEGMENT_DATE_OPERATORS,
-  SEGMENT_NUMBER_OPERATORS
-} from '../../../db/models/definitions/constants';
-
-import { ICondition, ISegment } from '../../../db/models/definitions/segments';
-import { fetchElk } from '../../../elasticsearch';
-import { getService, getServices } from '../../../inmemoryStorage';
-import { sendRPCMessage } from '../../../messageBroker';
+import { SEGMENT_DATE_OPERATORS, SEGMENT_NUMBER_OPERATORS } from '../../../constants';
+import { sendConformityMessage, sendRPCMessage } from '../../../messageBroker';
+import { Segments } from '../../../models';
+import { ICondition, ISegment } from '../../../models/definitions/segments';
+import { es, serviceDiscovery } from '../../../configs';
 
 type IOptions = {
   returnAssociated?: { contentType: string; relType: string };
@@ -51,11 +44,11 @@ export const fetchSegment = async (
 ): Promise<any> => {
   const { contentType } = segment;
 
-  const serviceNames = await getServices();
+  const serviceNames = await serviceDiscovery.getServices();
   const serviceConfigs: any = [];
 
   for (const serviceName of serviceNames) {
-    const service = await getService(serviceName, true);
+    const service = await serviceDiscovery.getService(serviceName, true);
     const segmentMeta = service.meta.segment;
 
     if (segmentMeta) {
@@ -79,7 +72,7 @@ export const fetchSegment = async (
   if (returnAssociated && contentType !== returnAssociated.contentType) {
     index = returnAssociated.contentType;
 
-    const itemsResponse = await fetchElk({
+    const itemsResponse = await es.fetchElk({
       action: 'search',
       index: await getIndexByContentType(serviceConfigs, contentType),
       body: {
@@ -92,7 +85,7 @@ export const fetchSegment = async (
     const items = itemsResponse.hits.hits;
     const itemIds = items.map(i => i._id);
 
-    const associationIds = await Conformities.filterConformity({
+    const associationIds = await sendConformityMessage('filterConformity', {
       mainType: segment.contentType,
       mainTypeIds: itemIds,
       relType: returnAssociated.relType
@@ -117,7 +110,7 @@ export const fetchSegment = async (
 
   // count entries
   if (options.returnCount) {
-    const countResponse = await fetchElk({
+    const countResponse = await es.fetchElk({
       action: 'count',
       index,
       body: {
@@ -155,7 +148,7 @@ export const fetchSegment = async (
     };
   }
 
-  const response = await fetchElk({
+  const response = await es.fetchElk({
     action: 'search',
     index,
     body: {
@@ -720,7 +713,7 @@ const fetchByQuery = async ({
   positiveQuery: any;
   negativeQuery: any;
 }) => {
-  const response = await fetchElk({
+  const response = await es.fetchElk({
     action: 'search',
     index,
     body: {
@@ -776,7 +769,7 @@ const associationPropertyFilter = async ({
       negativeQuery
     });
 
-    return Conformities.filterConformity({
+    return sendConformityMessage('filterConformity', {
       mainType: propertyType,
       mainTypeIds,
       relType: mainType === 'lead' ? 'customer' : mainType

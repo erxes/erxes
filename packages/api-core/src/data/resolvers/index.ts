@@ -7,7 +7,6 @@ import ImportHistory from './importHistory';
 import Mutation from './mutations';
 import Permission from './permission';
 import Query from './queries';
-import Segment from './segment';
 import Subscription from './subscriptions';
 import User from './user';
 import UsersGroup from './usersGroup';
@@ -22,7 +21,6 @@ const resolvers: any = {
   ...permissionActions,
 
   Brand,
-  Segment,
 
   Mutation,
   Query,

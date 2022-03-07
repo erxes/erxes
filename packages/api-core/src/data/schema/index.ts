@@ -42,11 +42,6 @@ import {
   types as RobotTypes
 } from './robot';
 import {
-  mutations as SegmentMutations,
-  queries as SegmentQueries,
-  types as SegmentTypes
-} from './segment';
-import {
   mutations as UserMutations,
   queries as UserQueries,
   types as UserTypes
@@ -78,7 +73,6 @@ export let types = `
   ${FieldTypes}
   ${FormTypes}
   ${ConformityTypes}
-  ${SegmentTypes}
   ${ConfigTypes}
   ${FieldGroupTypes}
   ${ImportHistoryTypes}
@@ -92,7 +86,6 @@ export let queries = `
   ${BrandQueries}
   ${FieldQueries}
   ${FormQueries}
-  ${SegmentQueries}
   
   ${ConfigQueries}
   ${FieldGroupQueries}
@@ -105,7 +98,6 @@ export let queries = `
 export let mutations = `
   ${UserMutations}
   ${BrandMutations}
-  ${SegmentMutations}
   ${FieldMutations}
   ${FormMutatons}
   ${ConfigMutations}

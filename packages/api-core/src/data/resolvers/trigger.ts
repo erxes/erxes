@@ -1,13 +1,11 @@
-import { Segments } from '../../db/models';
-import { fetchSegment } from '../modules/segments/queryBuilder';
+import { fetchSegment } from "../../messageBroker";
 
 export default {
   async count(trigger) {
     const contentId = trigger.config.contentId;
 
     try {
-      const segment = await Segments.getSegment(contentId);
-      const result = await fetchSegment(segment, { returnCount: true });
+      const result = await fetchSegment(contentId, { returnCount: true });
       return result;
     } catch {
       return 0;
