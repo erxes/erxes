@@ -736,30 +736,6 @@ const conversationMutations = {
     return Conversations.updateOne({ _id }, { $set: { operatorStatus } });
   },
 
-  async conversationsSaveVideoRecordingInfo(
-    _root,
-    {
-      conversationId,
-      recordingId
-    }: { conversationId: string; recordingId: string },
-    { dataSources }: IContext
-  ) {
-    try {
-      const response = await dataSources.IntegrationsAPI.saveDailyRecordingInfo(
-        {
-          erxesApiConversationId: conversationId,
-          recordingId
-        }
-      );
-
-      return response.status;
-    } catch (e) {
-      debug.error(e);
-
-      throw new Error(e.message);
-    }
-  },
-
   async conversationConvertToCard(
     _root,
     params: IConversationConvert,
@@ -791,7 +767,6 @@ const conversationMutations = {
 requireLogin(conversationMutations, 'conversationMarkAsRead');
 requireLogin(conversationMutations, 'conversationDeleteVideoChatRoom');
 requireLogin(conversationMutations, 'conversationCreateVideoChatRoom');
-requireLogin(conversationMutations, 'conversationsSaveVideoRecordingInfo');
 requireLogin(conversationMutations, 'conversationConvertToCard');
 
 checkPermission(
