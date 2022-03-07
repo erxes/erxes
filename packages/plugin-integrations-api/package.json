@@ -30,7 +30,6 @@
     "gmail-api-parse-message": "^2.1.2",
     "meteor-random": "^0.0.3",
     "migrate": "^1.6.2",
-    "mongodb-memory-server": "^6.6.0",
     "mongoose": "5.7.5",
     "nylas": "^4.7.0",
     "redis": "^2.8.0",
