@@ -8,19 +8,17 @@ import { Integrations } from './models';
 import { getLineWebhookUrl } from './smooch/api';
 import { sendSms } from './telnyx/api';
 import { userIds } from './userMiddleware';
-import { getConfig, getConfigs, getRecordings } from './utils';
-import { CallRecords } from './videoCall/models';
-import { createDailyRoom, sendDailyRequest, VIDEO_CALL_STATUS } from './videoCall/controller';
-import { debugCallPro, debugGmail, debugNylas } from './debuggers';
-import { Conversations as ConversationsCallPro } from './callpro/models';
-import { Comments, Customers as CustomersFb, Posts } from './facebook/models';
+import { getConfig } from './utils';
+import { createDailyRoom, getDailyActiveRoom, getDailyRoom } from './videoCall/controller';
+import { debugGmail, debugNylas } from './debuggers';
+import { Posts } from './facebook/models';
 import { getMessage as nylasGetMessage, nylasSendEmail } from './nylas/handleController';
 import { getMessage as gmailGetMessage, sendEmail } from './gmail/handleController';
-import { facebookCreateIntegration } from './facebook/controller';
+import { facebookCreateIntegration, facebookGetCustomerPosts } from './facebook/controller';
 import { twitterCreateIntegration } from './twitter/controller';
 import { smoochCreateIntegration } from './smooch/controller';
 import { nylasCreateIntegration } from './nylas/controller';
-import { callproCreateIntegration } from './callpro/controller';
+import { callproCreateIntegration, callproGetAudio } from './callpro/controller';
 import { chatfuelCreateIntegration } from './chatfuel/controller';
 import { gmailCreateIntegration } from './gmail/controller';
 import { telnyxCreateIntegration } from './telnyx/controller';
@@ -147,33 +145,9 @@ export const initBroker = async server => {
   // '/daily/room', get
   consumeRPCQueue(
     'integrations:rpc_queue:getDailyRoom',
-    async ({ erxesApiMessageId }) => {
-      const { DAILY_END_POINT } = await getConfigs();
-
-      const callRecord = await CallRecords.findOne({ erxesApiMessageId });
-
-      const response: {
-        url?: string;
-        status?: string;
-        recordingLinks?: string[];
-      } = { url: '', status: VIDEO_CALL_STATUS.END, recordingLinks: [] };
-
-      if (callRecord) {
-        response.url = `${DAILY_END_POINT}/${callRecord.roomName}?t=${callRecord.token}`;
-        response.status = callRecord.status;
-
-        const updatedRecordins = await getRecordings(
-          callRecord.recordings || []
-        );
-
-        callRecord.recordings = updatedRecordins;
-        await callRecord.save();
-
-        response.recordingLinks = updatedRecordins.map(r => r.url);
-      }
-
+    async (doc) => {
       return {
-        data: response,
+        data: await getDailyRoom(doc),
         status: 'success'
       };
     }
@@ -193,37 +167,9 @@ export const initBroker = async server => {
   // '/daily/get-active-room',
   consumeRPCQueue(
     'integrations:rpc_queue:getDailyActiveRoom',
-    async ({ erxesApiConversationId }) => {
-      const { DAILY_END_POINT } = await getConfigs();
-
-      const callRecord = await CallRecords.findOne({
-        erxesApiConversationId,
-        status: VIDEO_CALL_STATUS.ONGOING
-      });
-
-      const response: {
-        url?: string;
-        name?: string;
-        recordingLinks?: string[];
-      } = {
-        recordingLinks: []
-      };
-
-      if (callRecord) {
-        const ownerTokenResponse = await sendDailyRequest(
-          '/api/v1/meeting-tokens/',
-          'POST',
-          {
-            properties: { room_name: callRecord.roomName }
-          }
-        );
-
-        response.url = `${DAILY_END_POINT}/${callRecord.roomName}?t=${ownerTokenResponse.token}`;
-        response.name = callRecord.roomName;
-      }
-
+    async (doc) => {
       return {
-        data: response,
+        data: await getDailyActiveRoom(doc),
         status: 'success'
       };
     }
@@ -232,38 +178,9 @@ export const initBroker = async server => {
   // '/callpro/get-audio',
   consumeRPCQueue(
     'integrations:rpc_queue:getCallproAudio',
-    async ({ erxesApiId, integrationId }) => {
-      const integration = await Integrations.findOne({
-        erxesApiId: integrationId
-      });
-
-      if (!integration) {
-        const message = 'Integration not found';
-        debugCallPro(`Failed to get callprop audio: ${message}`);
-
-        throw new Error(message);
-      }
-
-      const conversation = await ConversationsCallPro.findOne({ erxesApiId });
-
-      if (!conversation) {
-        const message = 'Conversation not found';
-
-        debugCallPro(`Failed to get callprop audio: ${message}`);
-        throw new Error(message);
-      }
-
-      const { recordUrl } = integration;
-      const { callId } = conversation;
-
-      let audioSrc = '';
-
-      if (recordUrl) {
-        audioSrc = `${recordUrl}&id=${callId}`;
-      }
-
+    async (doc) => {
       return {
-        data: audioSrc,
+        data: await callproGetAudio(doc),
         status: 'success'
       };
     }
@@ -285,43 +202,9 @@ export const initBroker = async server => {
   // app.get('/facebook/get-customer-posts'
   consumeRPCQueue(
     'integrations:rpc_queue:getFbCustomerPosts',
-    async ({ customerId }) => {
-      const customer = await CustomersFb.findOne({ erxesApiId: customerId });
-
-      if (!customer) {
-        return null;
-      }
-
-      const result = await Comments.aggregate([
-        { $match: { senderId: customer.userId } },
-        {
-          $lookup: {
-            from: 'posts_facebooks',
-            localField: 'postId',
-            foreignField: 'postId',
-            as: 'post'
-          }
-        },
-        {
-          $unwind: {
-            path: '$post',
-            preserveNullAndEmptyArrays: true
-          }
-        },
-        {
-          $addFields: {
-            conversationId: '$post.erxesApiId'
-          }
-        },
-        {
-          $project: { _id: 0, conversationId: 1 }
-        }
-      ]);
-
-      const conversationIds = result.map(conv => conv.conversationId);
-
+    async (doc) => {
       return {
-        data: conversationIds,
+        data: await facebookGetCustomerPosts(doc),
         status: 'success'
       };
     }
