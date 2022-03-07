@@ -663,20 +663,6 @@ const conversationMutations = {
     return Conversations.markAsReadConversation(_id, user._id);
   },
 
-  async conversationDeleteVideoChatRoom(
-    _root,
-    { name },
-    { dataSources }: IContext
-  ) {
-    try {
-      return await dataSources.IntegrationsAPI.deleteDailyVideoChatRoom(name);
-    } catch (e) {
-      debug.error(e.message);
-
-      throw new Error(e.message);
-    }
-  },
-
   async conversationCreateVideoChatRoom(
     _root,
     { _id },
@@ -765,7 +751,6 @@ const conversationMutations = {
 };
 
 requireLogin(conversationMutations, 'conversationMarkAsRead');
-requireLogin(conversationMutations, 'conversationDeleteVideoChatRoom');
 requireLogin(conversationMutations, 'conversationCreateVideoChatRoom');
 requireLogin(conversationMutations, 'conversationConvertToCard');
 
