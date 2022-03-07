@@ -7,8 +7,8 @@ import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Event from '../components/Event';
-import { queries } from '../graphql';
 import { mutations, subscriptions } from '../graphql';
+import {queries as integrationsQueries} from '@erxes/ui-settings/src/integrations/graphql'
 
 type Props = {
   type: string;
@@ -21,7 +21,7 @@ type Props = {
 };
 
 type FinalProps = {
-  fetchApiQuery: any;
+  integrationsGetNylasEventsQuery: any;
   removeEventMutation: any;
 } & Props;
 
@@ -29,18 +29,18 @@ class EventContainer extends React.Component<FinalProps, {}> {
   private unsubscribe;
 
   componentDidMount() {
-    const { fetchApiQuery } = this.props;
+    const { integrationsGetNylasEventsQuery } = this.props;
 
-    this.unsubscribe = fetchApiQuery.subscribeToMore({
+    this.unsubscribe = integrationsGetNylasEventsQuery.subscribeToMore({
       document: gql(subscriptions.calendarEventUpdated),
       updateQuery: () => {
-        this.props.fetchApiQuery.refetch();
+        this.props.integrationsGetNylasEventsQuery.refetch();
       }
     });
   }
 
   componentWillReceiveProps(nextProps) {
-    this.props.fetchApiQuery.refetch();
+    this.props.integrationsGetNylasEventsQuery.refetch();
   }
 
   componentWillUnmount() {
@@ -49,19 +49,19 @@ class EventContainer extends React.Component<FinalProps, {}> {
 
   render() {
     const {
-      fetchApiQuery,
+      integrationsGetNylasEventsQuery,
       removeEventMutation,
       startTime,
       endTime,
       queryParams
     } = this.props;
 
-    if (fetchApiQuery.loading) {
+    if (integrationsGetNylasEventsQuery.loading) {
       return <Spinner objective={true} />;
     }
 
-    if (fetchApiQuery.error) {
-      return <Info>{fetchApiQuery.error.message}</Info>;
+    if (integrationsGetNylasEventsQuery.error) {
+      return <Info>{integrationsGetNylasEventsQuery.error.message}</Info>;
     }
 
     // remove action
@@ -75,7 +75,7 @@ class EventContainer extends React.Component<FinalProps, {}> {
             }
           })
             .then(() => {
-              fetchApiQuery.refetch({ startTime, endTime, queryParams });
+              integrationsGetNylasEventsQuery.refetch({ startTime, endTime, queryParams });
 
               const msg = `${__(`You successfully deleted a`)} ${__('event')}.`;
 
@@ -91,7 +91,7 @@ class EventContainer extends React.Component<FinalProps, {}> {
     const updatedProps = {
       ...this.props,
       remove,
-      events: fetchApiQuery.integrationsFetchApi || []
+      events: integrationsGetNylasEventsQuery.integrationsGetNylasEvents || []
     };
 
     return <Event {...updatedProps} />;
@@ -100,18 +100,14 @@ class EventContainer extends React.Component<FinalProps, {}> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, any>(gql(queries.fetchApi), {
-      name: 'fetchApiQuery',
-      // ! nylas controller
+    graphql<Props, any>(gql(integrationsQueries.integrationsGetNylasEvents), {
+      name: 'integrationsGetNylasEventsQuery',
       options: ({ startTime, endTime, calendarIds }) => {
         return {
           variables: {
-            path: '/nylas/get-events',
-            params: {
-              calendarIds,
-              startTime,
-              endTime
-            }
+            calendarIds,
+            startTime,
+            endTime
           }
         };
       }

@@ -39,6 +39,8 @@ export const queries = `
   ): [FacebookComment]
 
   integrationsConversationFbCommentsCount(postId: String! isResolved: Boolean): JSON
+  integrationsGetNylasEvents(calendarIds: [String] startTime: Date endTime: Date): JSON
+
 `;
 
 export const mutations = `

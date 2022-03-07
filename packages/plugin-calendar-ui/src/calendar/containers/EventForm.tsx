@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { queries } from '../graphql';
+import { queries as integrationQueries } from '@erxes/ui-settings/src/integrations/graphql';
 import queryString from 'query-string';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
@@ -27,11 +27,11 @@ class FormContainer extends React.Component<Props> {
     const refetchQuery =
       startTime && endTime
         ? {
-            query: gql(queries.fetchApi),
-            // ! nylas controller
+            query: gql(integrationQueries.integrationsGetNylasEvents),
             variables: {
-              path: '/nylas/get-events',
-              params: { ...queryParams, startTime, endTime }
+              ...queryParams,
+              startTime,
+              endTime 
             }
           }
         : {};

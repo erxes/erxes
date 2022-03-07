@@ -1,6 +1,7 @@
 import { debugFacebook } from '../../debuggers';
 import { Comments, Customers, Posts } from '../../facebook/models';
 import { Accounts, Configs, Integrations } from '../../models';
+import { nylasGetEvents } from '../../nylas/handleController';
 
 const integrationQueries = {
   // app.get('/accounts', async (req, res) => {
@@ -163,6 +164,10 @@ const integrationQueries = {
       commentCount,
       commentCountWithoutReplies
     };
+  },
+
+  async integrationsGetNylasEvents(_root, { calendarIds, startTime, endTime }) {
+    return nylasGetEvents({ calendarIds, startTime, endTime });
   }
 };
 
