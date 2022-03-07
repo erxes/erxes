@@ -1,5 +1,5 @@
 import { repairIntegrations, updateIntegrationConfigs } from '../../helpers';
-import { VIDEO_CALL_STATUS } from '../../videoCall/controller';
+import { sendDailyRequest, VIDEO_CALL_STATUS } from '../../videoCall/controller';
 import { CallRecords } from '../../videoCall/models';
 
 const integrationMutations = {
@@ -25,7 +25,31 @@ const integrationMutations = {
     } catch (e) {
       throw new Error(e.message);
     }
+  },
+  // '/daily/rooms/:roomName',
+  async integrationsDeleteVideoChatRoom(_root, { roomName } ) {
+      const callRecord = await CallRecords.findOne({
+        roomName,
+        status: VIDEO_CALL_STATUS.ONGOING
+      });
+
+      if (callRecord) {
+        const response = await sendDailyRequest(
+          `/api/v1/rooms/${callRecord.roomName}`,
+          'DELETE'
+        );
+
+        await CallRecords.updateOne(
+          { _id: callRecord._id },
+          { $set: { status: VIDEO_CALL_STATUS.END } }
+        );
+
+        return response.deleted;
+      }
+
+      return {};
   }
+
 };
 
 export default integrationMutations;
