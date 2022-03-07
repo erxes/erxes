@@ -666,7 +666,7 @@ const conversationMutations = {
   async conversationCreateVideoChatRoom(
     _root,
     { _id },
-    { dataSources, user }: IContext
+    { user }: IContext
   ) {
     let message;
 
@@ -679,7 +679,7 @@ const conversationMutations = {
 
       message = await ConversationMessages.addMessage(doc, user._id);
 
-      const videoCallData = await dataSources.IntegrationsAPI.createDailyVideoChatRoom(
+      const videoCallData = await sendRPCMessage('integrations:rpc_queue:createDailyRoom',
         {
           erxesApiConversationId: _id,
           erxesApiMessageId: message._id

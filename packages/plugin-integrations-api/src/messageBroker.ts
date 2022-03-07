@@ -10,7 +10,7 @@ import { sendSms } from './telnyx/api';
 import { userIds } from './userMiddleware';
 import { getConfig, getConfigs, getRecordings } from './utils';
 import { CallRecords } from './videoCall/models';
-import { sendDailyRequest, VIDEO_CALL_STATUS } from './videoCall/controller';
+import { createDailyRoom, sendDailyRequest, VIDEO_CALL_STATUS } from './videoCall/controller';
 import { debugCallPro, debugGmail, debugNylas } from './debuggers';
 import { Conversations as ConversationsCallPro } from './callpro/models';
 import { Comments, Customers as CustomersFb, Posts } from './facebook/models';
@@ -144,7 +144,7 @@ export const initBroker = async server => {
     }
   );
 
-  // '/daily/room',
+  // '/daily/room', get
   consumeRPCQueue(
     'integrations:rpc_queue:getDailyRoom',
     async ({ erxesApiMessageId }) => {
@@ -176,6 +176,17 @@ export const initBroker = async server => {
         data: response,
         status: 'success'
       };
+    }
+  );
+
+  // '/daily/room', post create daily room
+  consumeRPCQueue(
+    'integrations:rpc_queue:createDailyRoom',
+    async (doc) => {
+      return {
+        data: await createDailyRoom(doc),
+        status: 'success' 
+      }
     }
   );
 

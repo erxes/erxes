@@ -36,6 +36,49 @@ export const sendDailyRequest = async (
   });
 };
 
+export const createDailyRoom = async ({ erxesApiMessageId, erxesApiConversationId }) => {
+    const { DAILY_END_POINT } = await getConfigs();
+
+    const privacy = 'private';
+
+    const response = await sendDailyRequest(`/api/v1/rooms`, 'POST', {
+      privacy
+    });
+
+    const tokenResponse = await sendDailyRequest(
+      `/api/v1/meeting-tokens/`,
+      'POST',
+      {
+        properties: { room_name: response.name }
+      }
+    );
+
+    const doc: ICallRecord = {
+      erxesApiConversationId,
+      erxesApiMessageId,
+      roomName: response.name,
+      kind: 'daily',
+      privacy,
+      token: tokenResponse.token
+    };
+
+    const callRecord = await CallRecords.createCallRecord(doc);
+
+    const ownerTokenResponse = await sendDailyRequest(
+      `/api/v1/meeting-tokens/`,
+      'POST',
+      {
+        properties: { room_name: response.name, enable_recording: 'cloud' }
+      }
+    );
+
+    return {
+      url: `${DAILY_END_POINT}/${callRecord.roomName}?t=${ownerTokenResponse.token}`,
+      name: callRecord.roomName,
+      status: VIDEO_CALL_STATUS.ONGOING
+    };
+}
+
 const init = async app => {
   app.get(
     '/videoCall/usageStatus',
