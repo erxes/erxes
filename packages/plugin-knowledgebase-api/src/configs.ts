@@ -1,10 +1,11 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import apiConnect from './apiCollections';
 import { initBroker } from './messageBroker';
 
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
+import { coreModels, generateModels, models } from './connectionResolver';
 
+export let mainDb;
 export let graphqlPubsub;
 export let serviceDiscovery;
 
@@ -30,9 +31,14 @@ export default {
   hasSubscriptions: false,
   segment: {},
 
-  apolloServerContext: (context) => {},
+  apolloServerContext: (context) => {
+    context.models = models;
+    context.coreModels = coreModels;
+  },
   onServerInit: async (options) => {
-    await apiConnect();
+    mainDb = options.db;
+
+    await generateModels('os');
 
     initBroker(options.messageBrokerClient);
 

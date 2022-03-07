@@ -29,7 +29,7 @@ import {
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
 import { debug } from '../../configs';
-import messageBroker, { sendMessage, sendContactRPCMessage } from '../../messageBroker';
+import messageBroker, { sendMessage, sendContactRPCMessage, sendRPCMessage } from '../../messageBroker';
 
 import { MODULE_NAMES } from '../../constants';
 import {
@@ -389,15 +389,13 @@ const integrationMutations = {
    */
   async integrationsRemoveAccount(_root, { _id }: { _id: string }) {
     try {
-      //       const { erxesApiIds } = await messageBroker().sendRPCMessage(
-      //         RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS,
-      //         {
-      //           action: 'remove-account',
-      //           data: { _id }
-      //         }
-      //       );
-
-      const { erxesApiIds } = { erxesApiIds: [] };
+      const { erxesApiIds } = await sendRPCMessage(
+        'rpc_queue:api_to_integrations',
+        {
+          action: 'remove-account',
+          data: { _id }
+        }
+      );
 
       for (const id of erxesApiIds) {
         await Integrations.removeIntegration(id);
@@ -502,27 +500,7 @@ const integrationMutations = {
 
     return updated;
   },
-
-  async integrationsRepair(_root, { _id }: { _id: string }) {
-    //     await messageBroker().sendRPCMessage(
-    //       RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS,
-    //       {
-    //         action: 'repair-integrations',
-    //         data: { _id }
-    //       }
-    //     );
-
-    return 'success';
-  },
-
-  async integrationsUpdateConfigs(
-    _root,
-    { configsMap },
-    { dataSources }: IContext
-  ) {
-    return dataSources.IntegrationsAPI.updateConfigs(configsMap);
-  },
-
+  
   async integrationsSendSms(
     _root,
     args: ISmsParams,
@@ -711,11 +689,6 @@ checkPermission(
 checkPermission(
   integrationMutations,
   'integrationsEditCommonFields',
-  'integrationsEdit'
-);
-checkPermission(
-  integrationMutations,
-  'integrationsUpdateConfigs',
   'integrationsEdit'
 );
 checkPermission(

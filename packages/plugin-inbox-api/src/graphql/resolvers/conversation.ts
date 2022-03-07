@@ -4,6 +4,7 @@ import { IConversationDocument } from '../../models/definitions/conversations';
 import { IContext } from '@erxes/api-utils/src';
 import { ConversationMessages } from '../../models';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
+import { sendRPCMessage } from '../../messageBroker';
 
 export default {
   /**
@@ -61,13 +62,9 @@ export default {
     }
 
     try {
-      const response = await dataSources.IntegrationsAPI.fetchApi(
-        '/facebook/get-post',
-        {
+      const response = await sendRPCMessage('integrations:rpc_queue:getFacebookPost', {
           erxesApiId: conv._id,
-          integrationId: integration._id
-        }
-      );
+      })
 
       return response;
     } catch (e) {
@@ -92,13 +89,10 @@ export default {
 
     if (user.isOwner || user._id === conv.assignedUserId) {
       try {
-        const response = await dataSources.IntegrationsAPI.fetchApi(
-          '/callpro/get-audio',
-          {
-            erxesApiId: conv._id,
-            integrationId: integration._id
-          }
-        );
+        const response = await sendRPCMessage('integrations:rpc_queue:getCallproAudio', {
+          erxesApiId: conv._id,
+          integrationId: integration._id
+        })
 
         return response ? response.audioSrc : '';
       } catch (e) {
@@ -129,12 +123,9 @@ export default {
     }
 
     try {
-      const response = await dataSources.IntegrationsAPI.fetchApi(
-        '/daily/get-active-room',
-        {
-          erxesApiConversationId: conversation._id
-        }
-      );
+      const response = await sendRPCMessage('integrations:rpc_queue:getDailyActiveRoom', {
+        erxesApiConversationId: conversation._id
+      })
 
       return response;
     } catch (e) {

@@ -1,5 +1,4 @@
 import { Document, Schema } from 'mongoose';
-//import { attachmentSchema } from './boards';
 import { PUBLISH_STATUSES } from './constants';
 import { field, schemaWrapper } from './utils';
 

@@ -112,12 +112,6 @@ const integrations = `
   }
 `;
 
-const fetchApi = `
-  query integrationsFetchApi($path: String!, $params: JSON!) {
-    integrationsFetchApi(path: $path, params: $params)
-  }
-`;
-
 const integrationGetLineWebhookUrl = `
   query integrationGetLineWebhookUrl($id: String!) {
     integrationGetLineWebhookUrl(_id: $id)
@@ -142,13 +136,26 @@ const messengerApps = `
   }
 `;
 
+const integrationsGetConfigs = `
+  query integrationsGetConfigs {
+    integrationsGetConfigs
+  }
+`;
+
+const integrationsGetIntegrationDetail = `
+  query integrationsGetIntegrationDetail($erxesApiId: String) {
+    integrationsGetIntegrationDetail(erxesApiId: $erxesApiId)
+  }
+`;
+
 export default {
-  fetchApi,
   users,
   brands,
   messengerApps,
   integrationDetail,
   integrationTotalCount,
   integrations,
-  integrationGetLineWebhookUrl
+  integrationGetLineWebhookUrl,
+  integrationsGetConfigs,
+  integrationsGetIntegrationDetail
 };

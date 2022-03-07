@@ -53,7 +53,8 @@ import {
   sendMessage,
   sendProductRPCMessage,
   sendToLog,
-  client as msgBrokerClient
+  client as msgBrokerClient,
+  sendRPCMessage
 } from '../../messageBroker';
 import { trackViewPageEvent } from '../../events';
 // import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
@@ -489,8 +490,7 @@ const widgetMutations = {
       skillId?: string;
       attachments?: any[];
       contentType: string;
-    },
-    { dataSources }: IContext
+    }
   ) {
     const {
       integrationId,
@@ -518,9 +518,10 @@ const widgetMutations = {
         let integrationConfigs: Array<{ code: string; value?: string }> = [];
 
         try {
-          integrationConfigs = await dataSources.IntegrationsAPI.fetchApi(
-            '/configs'
-          );
+          integrationConfigs = await sendRPCMessage('rpc_queue:api_to_integrations', {
+            action: 'getConfigs'
+          });
+
         } catch (e) {
           debug.error(e);
         }

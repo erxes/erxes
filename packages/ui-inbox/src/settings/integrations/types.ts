@@ -69,7 +69,7 @@ export type MessengerAppsQueryResponse = {
 } & QueryResponse;
 
 export type AccountsQueryResponse = {
-  integrationsFetchApi: IAccount[];
+  integrationsGetAccounts: IAccount[];
   error?: Error;
 } & QueryResponse;
 

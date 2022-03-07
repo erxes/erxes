@@ -34,7 +34,7 @@ class CompanyDetails extends React.Component<Props> {
         <ActivityLogs
           target={product.name || ''}
           contentId={product._id}
-          contentType='product'
+          contentType='products:product'
           extraTabs={[]}
         />
       </>
