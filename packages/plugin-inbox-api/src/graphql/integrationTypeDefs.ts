@@ -254,7 +254,6 @@ export const mutations = `
   integrationsRemoveAccount(_id: String!): JSON
 
   integrationsArchive(_id: String!, status: Boolean!): Integration
-  integrationsRepair(_id: String!): JSON
 
   integrationSendMail(
     erxesApiId: String!
