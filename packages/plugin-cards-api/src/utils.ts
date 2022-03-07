@@ -139,30 +139,24 @@ export const getContentTypeDetail = async (activityLog) => {
   return item;
 };
 
-export const collectTasks = async ({ contentType, contentId }) => {
-  const relatedTaskIds = await sendConformityMessage('savedConformity', {
+export const collectItems = async ({ contentType, contentId }) => {
+  const type = contentType.indexOf(':') !== -1 ? contentType.split(':')[1] : contentType;
+  const { collection } = getCollection(type);
+
+  const relatedItemIds = await sendConformityMessage('savedConformity', {
     mainType: contentType,
     mainTypeId: contentId,
-    relTypes: ['task']
+    relTypes: ['deal', 'ticket', 'task']
   });
 
-  let items: any[] = [];
+  const items = await collection.find({
+    $and: [
+      { _id: { $in: [...relatedItemIds, contentId] } },
+      { status: { $ne: 'archived' } }
+    ]
+  }).lean().sort({ closeDate: 1 })
 
-  if (contentType !== 'task') {
-    items = await Tasks.find({
-      $and: [
-        { _id: { $in: relatedTaskIds } },
-        { status: { $ne: 'archived' } }
-      ]
-    }).sort({ closeDate: 1 })
-
-    items = items.map(i => {
-      i.contentType = 'taskDetail';
-      i.createdAt = i.closeDate || i.createdAt;
-
-      return i;
-    });
-  }
+  console.log(items, 'sisisisisisi')
 
   // const contentIds = items
   //   .filter(activity => activity.action === 'convert')
