@@ -18,6 +18,12 @@ const processHookData = async req => {
   await relayIncomingMessage(data);
 };
 
+export const telnyxCreateIntegration = async (doc) => {
+  await createIntegration(doc);
+
+  return { status: 'ok' };
+} 
+
 const init = async app => {
   app.post(
     '/telnyx/create-integration',

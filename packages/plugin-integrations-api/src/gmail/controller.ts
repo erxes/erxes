@@ -10,6 +10,16 @@ import {
 } from './handleController';
 import loginMiddleware from './loginMiddleware';
 
+export const gmailCreateIntegration = async ({ accountId, integrationId, data }) => {
+  const { email } = JSON.parse(data);
+
+  await createIntegration(accountId, email, integrationId);
+
+  debugGmail(`Successfully created the gmail integration`);
+
+  return { status: 'ok' };
+}
+
 const init = async app => {
   app.get('/gmail/login', loginMiddleware);
 

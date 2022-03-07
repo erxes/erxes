@@ -23,6 +23,113 @@ import {
   subscribePage
 } from './utils';
 
+
+export const facebookCreateIntegration = async ({ accountId, integrationId, data, kind }) => {
+    const facebookPageIds = JSON.parse(data).pageIds;
+
+    const account = await Accounts.getAccount({ _id: accountId });
+
+    const integration = await Integrations.create({
+      kind,
+      accountId,
+      erxesApiId: integrationId,
+      facebookPageIds
+    });
+
+    const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
+    const DOMAIN = getEnv({ name: 'DOMAIN' });
+
+    if (ENDPOINT_URL) {
+      // send domain to core endpoints
+      try {
+        await sendRequest({
+          url: `${ENDPOINT_URL}/register-endpoint`,
+          method: 'POST',
+          body: {
+            domain: DOMAIN,
+            facebookPageIds,
+            fbPageIds: facebookPageIds
+          }
+        });
+      } catch (e) {
+        await Integrations.deleteOne({ _id: integration._id });
+        throw e;
+      }
+    }
+
+    const facebookPageTokensMap: { [key: string]: string } = {};
+
+    for (const pageId of facebookPageIds) {
+      try {
+        const pageAccessToken = await getPageAccessToken(pageId, account.token);
+
+        facebookPageTokensMap[pageId] = pageAccessToken;
+
+        try {
+          await subscribePage(pageId, pageAccessToken);
+          debugFacebook(`Successfully subscribed page ${pageId}`);
+        } catch (e) {
+          debugError(
+            `Error ocurred while trying to subscribe page ${e.message || e}`
+          );
+          throw e;
+        }
+      } catch (e) {
+        debugError(
+          `Error ocurred while trying to get page access token with ${e.message ||
+            e}`
+        );
+
+        throw e
+      }
+    }
+
+    integration.facebookPageTokensMap = facebookPageTokensMap;
+
+    await integration.save();
+
+    return { status: 'ok ' };
+};
+
+export const facebookGetCustomerPosts = async ({ customerId }) => {
+  const customer = await Customers.findOne({ erxesApiId: customerId });
+
+  if (!customer) {
+    return null;
+  }
+
+  const result = await Comments.aggregate([
+    { $match: { senderId: customer.userId } },
+    {
+      $lookup: {
+        from: 'posts_facebooks',
+        localField: 'postId',
+        foreignField: 'postId',
+        as: 'post'
+      }
+    },
+    {
+      $unwind: {
+        path: '$post',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $addFields: {
+        conversationId: '$post.erxesApiId'
+      }
+    },
+    {
+      $project: { _id: 0, conversationId: 1 }
+    }
+  ]);
+
+  const conversationIds = result.map(conv => conv.conversationId);
+
+  return conversationIds;
+}
+
+
 const init = async app => {
   app.get('/fblogin', loginMiddleware);
 

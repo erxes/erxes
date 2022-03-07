@@ -37,6 +37,16 @@ import {
 // load config
 dotenv.config();
 
+export const nylasCreateIntegration = async ({integrationId, data, kind}) => {
+    const args = JSON.parse(data);
+
+    kind = kind.split('-')[1];
+
+    await createNylasIntegration(kind, integrationId, args);
+
+    return { status: 'ok' };
+}
+
 export const initNylas = async app => {
   app.get('/nylas/oauth2/callback', loginMiddleware);
 

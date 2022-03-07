@@ -4,6 +4,66 @@ import { sendRPCMessage } from '../messageBroker';
 import { Integrations, Logs } from '../models';
 import { Conversations, Customers } from './models';
 
+export const callproCreateIntegration = async ({ integrationId, data }) => {
+    const { phoneNumber, recordUrl } = JSON.parse(data || '{}');
+
+    // Check existing Integration
+    const integration = await Integrations.findOne({
+      kind: 'callpro',
+      phoneNumber
+    }).lean();
+
+    if (integration) {
+      const message = `Integration already exists with this phone number: ${phoneNumber}`;
+
+      debugCallPro(message);
+      throw new Error(message);
+    }
+
+    await Integrations.create({
+      kind: 'callpro',
+      erxesApiId: integrationId,
+      phoneNumber,
+      recordUrl
+    });
+
+    return { status: 'ok' };
+};
+
+export const callproGetAudio = async ({ erxesApiId, integrationId }) => {
+
+  const integration = await Integrations.findOne({
+    erxesApiId: integrationId
+  });
+
+  if (!integration) {
+    const message = 'Integration not found';
+    debugCallPro(`Failed to get callprop audio: ${message}`);
+
+    throw new Error(message);
+  }
+
+  const conversation = await Conversations.findOne({ erxesApiId });
+
+  if (!conversation) {
+    const message = 'Conversation not found';
+
+    debugCallPro(`Failed to get callprop audio: ${message}`);
+    throw new Error(message);
+  }
+
+  const { recordUrl } = integration;
+  const { callId } = conversation;
+
+  let audioSrc = '';
+
+  if (recordUrl) {
+    audioSrc = `${recordUrl}&id=${callId}`;
+  }
+
+  return { audioSrc };
+}
+
 const init = async app => {
   app.post(
     '/callpro/create-integration',

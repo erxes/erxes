@@ -5,6 +5,14 @@ import * as whatsappUtils from './api';
 import { ConversationMessages, Conversations } from './models';
 import receiveMessage from './receiveMessage';
 
+export const whatsappCreateIntegration = async ({ integrationId, data }) => {
+  const { instanceId, token } = JSON.parse(data);
+
+  await whatsappUtils.saveInstance(integrationId, instanceId, token);
+
+  return { status: 'ok' };
+}
+
 const init = async app => {
   app.post(
     '/whatsapp/webhook',
