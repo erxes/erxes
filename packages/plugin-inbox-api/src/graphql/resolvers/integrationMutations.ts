@@ -342,7 +342,7 @@ const integrationMutations = {
   async integrationsRemove(
     _root,
     { _id }: { _id: string },
-    { user, dataSources }: IContext
+    { user }: IContext
   ) {
     const integration = await Integrations.getIntegration({ _id });
 
@@ -370,9 +370,9 @@ const integrationMutations = {
           'webhook'
         ].includes(integration.kind)
       ) {
-        await dataSources.IntegrationsAPI.removeIntegration({
-          integrationId: _id
-        });
+        await sendRPCMessage('integrations:rcp_queue:removeIntegrations', {
+          integrationid: _id
+        })
       }
 
       await putDeleteLog(
@@ -455,10 +455,13 @@ const integrationMutations = {
     // doc.body = replacedContent || '';
 
     try {
-      await dataSources.IntegrationsAPI.sendEmail(kind, {
-        erxesApiId,
-        data: JSON.stringify(doc)
-      });
+      await sendRPCMessage('integrations:rcp_queue:sendEmail', {
+        kind,
+        doc: {
+          erxesApiId,
+          data: JSON.stringify(doc)
+        }
+      })
     } catch (e) {
       debug.error(e);
       throw e;
@@ -507,7 +510,7 @@ const integrationMutations = {
   async integrationsSendSms(
     _root,
     args: ISmsParams,
-    { dataSources, user }: IContext
+    { user }: IContext
   ) {
     const customer = await sendContactRPCMessage('findCustomer', {
       primaryPhone: args.to
@@ -521,7 +524,7 @@ const integrationMutations = {
     }
 
     try {
-      const response = await dataSources.IntegrationsAPI.sendSms(args);
+      const response = await sendRPCMessage('integrations:rpc_queue:sendSms', args)
 
       if (response && response.status === 'ok') {
         await putActivityLog({
