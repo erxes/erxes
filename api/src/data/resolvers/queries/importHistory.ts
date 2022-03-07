@@ -117,11 +117,6 @@ const importHistoryQueries = {
   }
 };
 
-checkPermission(
-  importHistoryQueries,
-  'importHistories',
-  'importHistoryDetail',
-  []
-);
+checkPermission(importHistoryQueries, 'importHistories', 'importHistories', []);
 
 export default importHistoryQueries;

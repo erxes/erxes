@@ -367,9 +367,15 @@ export const receiveImportCreate = async (content: any) => {
   const getAssociatedField = contentType => {
     const properties = config[contentType].properties;
 
-    const property = properties.find(
-      value => value.fieldName === associatedField
-    );
+    let property;
+
+    for (const value of properties) {
+      if (value.fieldName.trim() === associatedField.trim()) {
+        property = value;
+
+        break;
+      }
+    }
 
     return property.name;
   };
