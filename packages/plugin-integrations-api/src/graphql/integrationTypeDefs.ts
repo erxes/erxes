@@ -50,6 +50,5 @@ export const queries = `
 `;
 
 export const mutations = `
-  integrationsAdd: JSON
   integrationsUpdateConfigs(configsMap: JSON!): JSON
 `;
