@@ -261,12 +261,15 @@ const integrationMutations = {
 
     try {
       if (KIND_CHOICES.WEBHOOK !== kind) {
-        await dataSources.IntegrationsAPI.createIntegration(kind, {
-          accountId: doc.accountId,
-          kind: doc.kind,
-          integrationId: integration._id,
-          data: data ? JSON.stringify(data) : ''
-        });
+        await sendRPCMessage('integrations:rpc_queue:createIntegration', {
+          kind,
+          doc: {
+            accountId: doc.accountId,
+            kind: doc.kind,
+            integrationId: integration._id,
+            data: data ? JSON.stringify(data) : ''
+          }
+        })
       }
 
       telemetry.trackCli('integration_created', { type: doc.kind });
