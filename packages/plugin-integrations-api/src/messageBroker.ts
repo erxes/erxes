@@ -12,8 +12,10 @@ import { getConfig, getConfigs, getRecordings } from './utils';
 import { CallRecords } from './videoCall/models';
 import { sendDailyRequest, VIDEO_CALL_STATUS } from './videoCall/controller';
 import { debugCallPro } from './debuggers';
-import { Conversations } from './callpro/models';
-import { Comments, Customers, Posts } from './facebook/models';
+import { Conversations as ConversationsCallPro } from './callpro/models';
+import { Comments, Customers as CustomersFb, Posts } from './facebook/models';
+import { getMessage as nylasGetMessage } from './nylas/handleController';
+import { getMessage as gmailGetMessage } from './gmail/handleController';
 
 dotenv.config();
 
@@ -26,7 +28,7 @@ export const initBroker = async server => {
     envs: process.env
   });
 
-  const {consumeRPCQueue, consumeQueue } = client;
+  const { consumeRPCQueue, consumeQueue } = client;
 
   consumeRPCQueue('integrations:getAccounts', async ({ kind }) => {
     if (kind.includes('nylas')) {
@@ -38,9 +40,8 @@ export const initBroker = async server => {
     return {
       data: await Accounts.find(selector),
       status: 'success'
-    }
-  })
-
+    };
+  });
 
   // listen for rpc queue =========
   consumeRPCQueue('rpc_queue:api_to_integrations', async parsedObject => {
@@ -75,7 +76,26 @@ export const initBroker = async server => {
       }
 
       if (action === 'getConfigs') {
-        response = { data: await Configs.find({}) }
+        response = { data: await Configs.find({}) };
+      }
+
+      if (action === 'getMessage') {
+        const { path, erxesApiMessageId, integrationId } = data;
+
+        if (!erxesApiMessageId) {
+          throw new Error('erxesApiMessageId is not provided!');
+        }
+
+        switch (path) {
+          case '/nylas/get-message':
+            response = await nylasGetMessage(erxesApiMessageId, integrationId);
+            break;
+          case '/gmail/get-message':
+            response = await gmailGetMessage(erxesApiMessageId, integrationId);
+            break;
+          default:
+            break;
+        }
       }
 
       response.status = 'success';
@@ -88,32 +108,37 @@ export const initBroker = async server => {
 
     return response;
   });
-  
+
   // /facebook/get-status'
-  consumeRPCQueue('integrations:rpc_queue:getFacebookStatus', async ({ integrationId }) => {
-    const integration = await Integrations.findOne({
-      erxesApiId: integrationId
-    });
+  consumeRPCQueue(
+    'integrations:rpc_queue:getFacebookStatus',
+    async ({ integrationId }) => {
+      const integration = await Integrations.findOne({
+        erxesApiId: integrationId
+      });
 
-    let result = {
-      status: 'healthy'
-    } as any;
+      let result = {
+        status: 'healthy'
+      } as any;
 
-    if (integration) {
-      result = {
-        status: integration.healthStatus || 'healthy',
-        error: integration.error
+      if (integration) {
+        result = {
+          status: integration.healthStatus || 'healthy',
+          error: integration.error
+        };
+      }
+
+      return {
+        data: result,
+        status: 'success'
       };
     }
-
-    return {
-      data: result,
-      status: 'success'
-    } 
-  })
+  );
 
   // '/daily/room',
-  consumeRPCQueue('integrations:rpc_queue:getDailyRoom', async ({ erxesApiMessageId }) => {
+  consumeRPCQueue(
+    'integrations:rpc_queue:getDailyRoom',
+    async ({ erxesApiMessageId }) => {
       const { DAILY_END_POINT } = await getConfigs();
 
       const callRecord = await CallRecords.findOne({ erxesApiMessageId });
@@ -142,10 +167,13 @@ export const initBroker = async server => {
         data: response,
         status: 'success'
       };
-  })
+    }
+  );
 
   // '/daily/get-active-room',
-  consumeRPCQueue('integrations:rpc_queue:getDailyActiveRoom', async ({ erxesApiConversationId }) => {
+  consumeRPCQueue(
+    'integrations:rpc_queue:getDailyActiveRoom',
+    async ({ erxesApiConversationId }) => {
       const { DAILY_END_POINT } = await getConfigs();
 
       const callRecord = await CallRecords.findOne({
@@ -177,11 +205,14 @@ export const initBroker = async server => {
       return {
         data: response,
         status: 'success'
-      } 
-  })
+      };
+    }
+  );
 
   // '/callpro/get-audio',
-  consumeRPCQueue('integrations:rpc_queue:getCallproAudio', async ({ erxesApiId, integrationId }) => {
+  consumeRPCQueue(
+    'integrations:rpc_queue:getCallproAudio',
+    async ({ erxesApiId, integrationId }) => {
       const integration = await Integrations.findOne({
         erxesApiId: integrationId
       });
@@ -193,7 +224,7 @@ export const initBroker = async server => {
         throw new Error(message);
       }
 
-      const conversation = await Conversations.findOne({ erxesApiId });
+      const conversation = await ConversationsCallPro.findOne({ erxesApiId });
 
       if (!conversation) {
         const message = 'Conversation not found';
@@ -211,63 +242,70 @@ export const initBroker = async server => {
         audioSrc = `${recordUrl}&id=${callId}`;
       }
 
-      return { 
+      return {
         data: audioSrc,
         status: 'success'
       };
-  })
+    }
+  );
 
   // /facebook/get-post
-  consumeRPCQueue('integrations:rpc_queue:getFacebookPost', async ({ erxesApiId }) => {
-    const post = await Posts.getPost({ erxesApiId }, true);
+  consumeRPCQueue(
+    'integrations:rpc_queue:getFacebookPost',
+    async ({ erxesApiId }) => {
+      const post = await Posts.getPost({ erxesApiId }, true);
 
-    return {
-     data: post,
-     status: 'success'
-    };
-  })
+      return {
+        data: post,
+        status: 'success'
+      };
+    }
+  );
 
   // app.get('/facebook/get-customer-posts'
-  consumeRPCQueue('integrations:rpc_queue:getFbCustomerPosts', async ({ customerId }) => {
-    const customer = await Customers.findOne({ erxesApiId: customerId });
+  consumeRPCQueue(
+    'integrations:rpc_queue:getFbCustomerPosts',
+    async ({ customerId }) => {
+      const customer = await CustomersFb.findOne({ erxesApiId: customerId });
 
-    if (!customer) {
-      return null;
-    }
-
-    const result = await Comments.aggregate([
-      { $match: { senderId: customer.userId } },
-      {
-        $lookup: {
-          from: 'posts_facebooks',
-          localField: 'postId',
-          foreignField: 'postId',
-          as: 'post'
-        }
-      },
-      {
-        $unwind: {
-          path: '$post',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $addFields: {
-          conversationId: '$post.erxesApiId'
-        }
-      },
-      {
-        $project: { _id: 0, conversationId: 1 }
+      if (!customer) {
+        return null;
       }
-    ]);
 
-    const conversationIds = result.map(conv => conv.conversationId);
+      const result = await Comments.aggregate([
+        { $match: { senderId: customer.userId } },
+        {
+          $lookup: {
+            from: 'posts_facebooks',
+            localField: 'postId',
+            foreignField: 'postId',
+            as: 'post'
+          }
+        },
+        {
+          $unwind: {
+            path: '$post',
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $addFields: {
+            conversationId: '$post.erxesApiId'
+          }
+        },
+        {
+          $project: { _id: 0, conversationId: 1 }
+        }
+      ]);
 
-    return {
-      data: conversationIds,
-      status: 'success'
+      const conversationIds = result.map(conv => conv.conversationId);
+
+      return {
+        data: conversationIds,
+        status: 'success'
+      };
     }
-  })
+  );
 
   consumeQueue('erxes-api:integrations-notification', async content => {
     const { action, payload, type } = content;
