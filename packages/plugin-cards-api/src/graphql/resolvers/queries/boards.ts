@@ -15,8 +15,8 @@ import { IStageDocument } from '../../../models/definitions/boards';
 import { CLOSE_DATE_TYPES, PRIORITIES } from '../../../constants';
 import { IPipelineLabelDocument } from '../../../models/definitions/pipelineLabels';
 import { getCloseDateByType } from './utils';
-import { Segments, Users } from '../../../apiCollections';
-import { fetchSegment } from '../../../messageBroker';
+import { Users } from '../../../apiCollections';
+import { fetchSegment, sendSegmentMessage } from '../../../messageBroker';
 
 export interface IDate {
   month: number;
@@ -557,13 +557,11 @@ const boardQueries = {
     }:
     { type: string; boardId: string; pipelineId: string }
   ) {
-    const segments = await Segments
-      .find({
+    const segments = await sendSegmentMessage('find', {
         contentType: type,
         boardId,
         pipelineId
-      })
-      .toArray();
+    }, true)
 
     const counts = {};
 

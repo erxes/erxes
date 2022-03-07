@@ -1,9 +1,9 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import apiConnect, { Segments } from './apiCollections';
+import apiConnect from './apiCollections';
 
 import { generateAllDataLoaders } from './dataLoaders';
-import { initBroker } from './messageBroker';
+import { initBroker, sendSegmentMessage } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import {
@@ -14,6 +14,7 @@ import {
 } from './events';
 import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
 import { buildFile } from './exporter';
+import segments from './segments';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -136,15 +137,8 @@ export default {
   importTypes: IMPORT_TYPES,
   exportTypes: EXPORT_TYPES,
   hasSubscriptions: true,
-  segment: {
-    indexesTypeContentType: {
-      customer: 'customers',
-      company: 'companies'
-    },
-    contentTypes: ['customer', 'company'],
-    esTypesMapQueue: 'contacts:segments:esTypesMap',
-    initialSelectorQueue: 'contacts:segments:initialSelector',
-    associationTypesQueue: 'contacts:segments:associationTypes'
+  meta: {
+    segments
   },
   apolloServerContext: context => {
     context.dataLoaders = generateAllDataLoaders();
@@ -166,7 +160,7 @@ export default {
 
         if (segment) {
           try {
-            Segments.removeSegment(segment);
+            sendSegmentMessage('removeSegment', { segmentId: segment });
           } catch (e) {
             console.log((e as Error).message);
           }

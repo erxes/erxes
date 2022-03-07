@@ -27,7 +27,7 @@ export const getService = async (name: string, config?: boolean) => {
   };
 
   if (config) {
-    const value = await redis.get(`service:config:${name}`);
+    const value = await redis.get(generateKey(name));
     result.config = JSON.parse(value || '{}');
   }
 
@@ -38,7 +38,6 @@ export const join = ({
   name,
   port,
   dbConnectionString,
-  segment,
   hasSubscriptions = false,
   importTypes,
   exportTypes,
@@ -47,7 +46,6 @@ export const join = ({
   name: string;
   port: string;
   dbConnectionString: string;
-  segment?: any;
   hasSubscriptions?: boolean;
   importTypes?: any;
   exportTypes?: any;
@@ -58,7 +56,6 @@ export const join = ({
 
     JSON.stringify({
       dbConnectionString,
-      segment,
       hasSubscriptions,
       importTypes,
       exportTypes,

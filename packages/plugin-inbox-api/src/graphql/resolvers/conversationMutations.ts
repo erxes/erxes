@@ -663,24 +663,10 @@ const conversationMutations = {
     return Conversations.markAsReadConversation(_id, user._id);
   },
 
-  async conversationDeleteVideoChatRoom(
-    _root,
-    { name },
-    { dataSources }: IContext
-  ) {
-    try {
-      return await dataSources.IntegrationsAPI.deleteDailyVideoChatRoom(name);
-    } catch (e) {
-      debug.error(e.message);
-
-      throw new Error(e.message);
-    }
-  },
-
   async conversationCreateVideoChatRoom(
     _root,
     { _id },
-    { dataSources, user }: IContext
+    { user }: IContext
   ) {
     let message;
 
@@ -693,7 +679,7 @@ const conversationMutations = {
 
       message = await ConversationMessages.addMessage(doc, user._id);
 
-      const videoCallData = await dataSources.IntegrationsAPI.createDailyVideoChatRoom(
+      const videoCallData = await sendRPCMessage('integrations:rpc_queue:createDailyRoom',
         {
           erxesApiConversationId: _id,
           erxesApiMessageId: message._id
@@ -736,30 +722,6 @@ const conversationMutations = {
     return Conversations.updateOne({ _id }, { $set: { operatorStatus } });
   },
 
-  async conversationsSaveVideoRecordingInfo(
-    _root,
-    {
-      conversationId,
-      recordingId
-    }: { conversationId: string; recordingId: string },
-    { dataSources }: IContext
-  ) {
-    try {
-      const response = await dataSources.IntegrationsAPI.saveDailyRecordingInfo(
-        {
-          erxesApiConversationId: conversationId,
-          recordingId
-        }
-      );
-
-      return response.status;
-    } catch (e) {
-      debug.error(e);
-
-      throw new Error(e.message);
-    }
-  },
-
   async conversationConvertToCard(
     _root,
     params: IConversationConvert,
@@ -789,9 +751,7 @@ const conversationMutations = {
 };
 
 requireLogin(conversationMutations, 'conversationMarkAsRead');
-requireLogin(conversationMutations, 'conversationDeleteVideoChatRoom');
 requireLogin(conversationMutations, 'conversationCreateVideoChatRoom');
-requireLogin(conversationMutations, 'conversationsSaveVideoRecordingInfo');
 requireLogin(conversationMutations, 'conversationConvertToCard');
 
 checkPermission(

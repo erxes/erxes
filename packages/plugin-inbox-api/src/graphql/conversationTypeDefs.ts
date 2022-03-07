@@ -266,11 +266,9 @@ export const mutations = `
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
   conversationMarkAsRead(_id: String): Conversation
-  conversationDeleteVideoChatRoom(name: String!): Boolean
   conversationCreateVideoChatRoom(_id: String!): VideoCallData
   changeConversationOperator(_id: String! operatorStatus: String!): JSON
   conversationResolveAll(${mutationFilterParams}): Int
-  conversationsSaveVideoRecordingInfo(conversationId: String!, recordingId: String): String
   conversationConvertToCard(_id: String!, type: String!, itemId: String, itemName: String, stageId: String, bookingProductId: String): String
   conversationEditCustomFields(_id: String!, customFieldsData: JSON): Conversation
 `;

@@ -1,10 +1,8 @@
-import { Segments } from '../../../db/models';
-import { ISegment } from '../../../db/models/definitions/segments';
-import { moduleCheckPermission } from '../../permissions/wrappers';
-import { IContext } from '../../types';
-import { registerOnboardHistory } from '../../utils';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
-import { MODULE_NAMES } from '../../constants';
+import { moduleCheckPermission } from "@erxes/api-utils/src/permissions";
+import { IContext } from "@erxes/api-utils/src/types";
+import { putUpdateLog, putCreateLog, putDeleteLog } from "../../../logUtils";
+import { Segments } from "../../../models";
+import { ISegment } from "../../../models/definitions/segments";
 
 interface ISegmentsEdit extends ISegment {
   _id: string;
@@ -25,13 +23,13 @@ const segmentMutations = {
       conditionSegments
     );
 
-    if (doc.subOf) {
-      registerOnboardHistory({ type: `subSegmentCreate`, user });
-    }
+    // if (doc.subOf) {
+    //   registerOnboardHistory({ type: `subSegmentCreate`, user });
+    // }
 
     await putCreateLog(
       {
-        type: MODULE_NAMES.SEGMENT,
+        type: 'segment',
         newData: doc,
         object: segment
       },
@@ -57,7 +55,7 @@ const segmentMutations = {
 
     await putUpdateLog(
       {
-        type: MODULE_NAMES.SEGMENT,
+        type: 'segment',
         object: segment,
         newData: doc,
         updatedDocument: updated
@@ -75,7 +73,7 @@ const segmentMutations = {
     const segment = await Segments.getSegment(_id);
     const removed = await Segments.removeSegment(_id);
 
-    await putDeleteLog({ type: MODULE_NAMES.SEGMENT, object: segment }, user);
+    await putDeleteLog({ type: 'segment', object: segment }, user);
 
     return removed;
   }

@@ -1,10 +1,9 @@
 import * as _ from 'underscore';
 import { Channels, Integrations } from './models';
-import { Segments } from './apiCollections';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { fixDate } from '@erxes/api-utils/src/core';
 import { getDocumentList } from './cacheUtils';
-import { fetchSegment, sendTagRPCMessage } from './messageBroker';
+import { fetchSegment, sendSegmentMessage, sendTagRPCMessage } from './messageBroker';
 
 interface IIn {
   $in: string[];
@@ -78,7 +77,7 @@ export default class Builder {
 
   // filter by segment
   public async segmentFilter(segmentId: string): Promise<{ _id: IIn }> {
-    const segment = await Segments.findOne({ _id: segmentId });
+    const segment = await sendSegmentMessage('findOne', { _id: segmentId }, true );
 
     const selector = await fetchSegment(segment, {
       returnFields: ['_id'],

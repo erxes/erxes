@@ -1,15 +1,14 @@
 import * as dotenv from 'dotenv';
 import * as schedule from 'node-schedule';
-import { ISegmentDocument } from 'src/db/models/definitions/segments';
-import { fetchSegment } from '../data/modules/segments/queryBuilder';
-import { connect } from '../db/connection';
-import { Segments } from '../db/models';
-import messageBroker from '../messageBroker';
+import { fetchSegment } from './graphql/resolvers/queries/queryBuilder';
+import { sendRPCMessage } from './messageBroker';
+import { Segments } from './models';
+import { ISegmentDocument } from './models/definitions/segments';
 
 const putSegmentLogs = async (segment: ISegmentDocument, contentIds: string[]) => {
   const maxBulk: number = 10000;
 
-  const activityLogs = await messageBroker().sendRPCMessage(
+  const activityLogs = await sendRPCMessage(
     'logs:activityLogs:findMany',
     {
       query: {
@@ -53,7 +52,7 @@ const putSegmentLogs = async (segment: ISegmentDocument, contentIds: string[]) =
     bulkOpt.push(doc);
 
     if (bulkCounter === maxBulk) {
-      await messageBroker().sendRPCMessage('logs:activityLogs:insertMany', { rows: bulkOpt });
+      await sendRPCMessage('logs:activityLogs:insertMany', { rows: bulkOpt });
 
       bulkOpt = [];
       bulkCounter = 0;
@@ -64,7 +63,7 @@ const putSegmentLogs = async (segment: ISegmentDocument, contentIds: string[]) =
     return;
   }
 
-  return messageBroker().sendRPCMessage('logs:activityLogs:insertMany', { rows: bulkOpt });
+  return sendRPCMessage('logs:activityLogs:insertMany', { rows: bulkOpt });
 };
 
 /**
@@ -73,8 +72,6 @@ const putSegmentLogs = async (segment: ISegmentDocument, contentIds: string[]) =
 dotenv.config();
 
 export const createActivityLogsFromSegments = async () => {
-  await connect();
-
   const segments = await Segments.find({ name: { exists: true } });
 
   for (const segment of segments) {

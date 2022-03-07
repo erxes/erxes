@@ -83,69 +83,6 @@ export const initBroker = async cl => {
     data: await insertImportItems(args)
   }));
 
-  // listen for rpc queue =========
-  consumeRPCQueue(
-    'cards:segments:propertyConditionExtender',
-    async ({ condition }) => {
-      let positive;
-
-      const stageIds = await generateConditionStageIds({
-        boardId: condition.boardId,
-        pipelineId: condition.pipelineId
-      });
-
-      if (stageIds.length > 0) {
-        positive = {
-          terms: {
-            stageId: stageIds
-          }
-        };
-      }
-
-      return { data: { positive }, status: 'success' };
-    }
-  );
-
-  consumeRPCQueue('cards:segments:associationTypes', async ({ mainType }) => {
-    let types: string[] = [];
-
-    if (mainType === 'deal') {
-      types = ['customer', 'company', 'ticket', 'task'];
-    }
-
-    if (mainType === 'task') {
-      types = ['customer', 'company', 'ticket', 'deal'];
-    }
-
-    if (mainType === 'ticket') {
-      types = ['customer', 'company', 'deal', 'task'];
-    }
-
-    return { data: { types }, status: 'success' };
-  });
-
-  consumeRPCQueue('cards:segments:esTypesMap', async () => {
-    return { data: { typesMap: {} }, status: 'success' };
-  });
-
-  consumeRPCQueue(
-    'cards:segments:initialSelector',
-    async ({ segment, options }) => {
-      let positive;
-
-      const stageIds = await generateConditionStageIds({
-        boardId: segment.boardId,
-        pipelineId: segment.pipelineId,
-        options
-      });
-
-      if (stageIds.length > 0) {
-        positive = { terms: { stageId: stageIds } };
-      }
-
-      return { data: { positive }, status: 'success' };
-    }
-  );
 
   consumeRPCQueue('cards:rpc_queue:conversationConvert', async args => ({
     status: 'success',
@@ -401,10 +338,19 @@ export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
 
 export const fetchSegment = (segment, options?) =>
-  sendRPCMessage('rpc_queue:fetchSegment', {
-    segment,
-    options
-  });
+  sendSegmentMessage('fetchSegment', { segment, options }, true)
+
+export const sendSegmentMessage = async (action, data, isRPC?: boolean) => {
+  if (!isRPC) {
+    return sendMessage(`segments:${action}`, data);
+  }
+
+  if(!(await serviceDiscovery.isAvailable('segments'))) {
+    throw new Error("Segments service is not available");
+  }
+
+  sendMessage(`segments:rpc_queue:${action}`, data);
+}
 
 export const findMongoDocuments = async (serviceName: string, data: any) => {
   if(!(await serviceDiscovery.isEnabled(serviceName))) {

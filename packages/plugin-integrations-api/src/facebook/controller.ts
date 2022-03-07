@@ -89,7 +89,46 @@ export const facebookCreateIntegration = async ({ accountId, integrationId, data
     await integration.save();
 
     return { status: 'ok ' };
+};
+
+export const facebookGetCustomerPosts = async ({ customerId }) => {
+  const customer = await Customers.findOne({ erxesApiId: customerId });
+
+  if (!customer) {
+    return null;
+  }
+
+  const result = await Comments.aggregate([
+    { $match: { senderId: customer.userId } },
+    {
+      $lookup: {
+        from: 'posts_facebooks',
+        localField: 'postId',
+        foreignField: 'postId',
+        as: 'post'
+      }
+    },
+    {
+      $unwind: {
+        path: '$post',
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $addFields: {
+        conversationId: '$post.erxesApiId'
+      }
+    },
+    {
+      $project: { _id: 0, conversationId: 1 }
+    }
+  ]);
+
+  const conversationIds = result.map(conv => conv.conversationId);
+
+  return conversationIds;
 }
+
 
 const init = async app => {
   app.get('/fblogin', loginMiddleware);

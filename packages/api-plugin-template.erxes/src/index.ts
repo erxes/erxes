@@ -196,7 +196,6 @@ async function startServer() {
       name: configs.name,
       port: PORT || '',
       dbConnectionString: mongoUrl,
-      segment: configs.segment,
       hasSubscriptions: configs.hasSubscriptions,
       importTypes: configs.importTypes,
       exportTypes: configs.exportTypes,
@@ -208,6 +207,30 @@ async function startServer() {
         'registerPermissions',
         configs.permissions
       );
+    }
+
+    if (configs.meta) {
+      const segments = configs.meta.segments;
+
+      if (segments) {
+        const { consumeRPCQueue } = messageBrokerClient;
+
+        if (segments.propertyConditionExtender) {
+          consumeRPCQueue(`${configs.name}:segments:propertyConditionExtender`, segments.propertyConditionExtender);
+        }
+
+        if (segments.associationTypes) {
+          consumeRPCQueue(`${configs.name}:segments:associationTypes`, segments.associationTypes)
+        }
+
+        if (segments.esTypesMap) {
+          consumeRPCQueue(`${configs.name}:segments:esTypesMap`, segments.esTypesMap);
+        }
+
+        if (segments.initialSelector) {
+          consumeRPCQueue(`${configs.name}:segments:initialSelector`, segments.initialSelector);
+        }
+      }
     }
 
     debugInfo(`${configs.name} server is running on port ${PORT}`);
