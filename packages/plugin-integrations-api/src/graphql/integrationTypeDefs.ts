@@ -52,4 +52,5 @@ export const queries = `
 export const mutations = `
   integrationsUpdateConfigs(configsMap: JSON!): JSON
   integrationsRepair(_id: String!): JSON
+  integrationsSaveVideoRecordingInfo(conversationId: String!, recordingId: String): String
 `;

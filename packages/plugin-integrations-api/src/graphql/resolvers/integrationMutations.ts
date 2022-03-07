@@ -1,4 +1,6 @@
 import { repairIntegrations, updateIntegrationConfigs } from '../../helpers';
+import { VIDEO_CALL_STATUS } from '../../videoCall/controller';
+import { CallRecords } from '../../videoCall/models';
 
 const integrationMutations = {
   async integrationsUpdateConfigs(_root, { configsMap }) {
@@ -11,6 +13,19 @@ const integrationMutations = {
 
     return 'success';
   },
+    // '/daily/saveRecordingInfo',
+  async integrationsSaveVideoRecordingInfo(_root, { conversationId, recordingId }) {
+    try {
+      await CallRecords.updateOne(
+        { erxesApiConversationId: conversationId, status: VIDEO_CALL_STATUS.ONGOING },
+        { $push: { recordings: { id: recordingId } } }
+      );
+      
+      return 'ok';
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  }
 };
 
 export default integrationMutations;
