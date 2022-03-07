@@ -127,40 +127,6 @@ const conversationMessages = `
   }
 `;
 
-const converstationFacebookComments = `
-  query converstationFacebookComments($postId: String!,$isResolved: Boolean, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
-    converstationFacebookComments(postId: $postId,isResolved:$isResolved, limit: $limit, commentId: $commentId, senderId: $senderId, skip: $skip) {
-      conversationId
-      commentId
-      postId
-      recipientId
-      senderId
-      attachments
-      content
-      erxesApiId
-      timestamp
-      parentId
-      commentCount
-      isResolved
-      permalink_url
-      customer {
-        _id
-        visitorContactInfo
-        avatar
-        firstName
-        lastName
-        middleName
-      }
-    }
-  }
-`;
-
-const converstationFacebookCommentsCount = `
-  query converstationFacebookCommentsCount($postId: String!, $isResolved: Boolean) {
-    converstationFacebookCommentsCount(postId: $postId, isResolved:$isResolved) 
-  }
-`;
-
 const conversationMessagesTotalCount = `
   query conversationMessagesTotalCount($conversationId: String!) {
     conversationMessagesTotalCount(conversationId: $conversationId)
@@ -390,14 +356,46 @@ const generateCustomerDetailQuery = params => {
   `;
 };
 
+const integrationsConversationFbComments = `
+  query integrationsConversationFbComments($postId: String!,$isResolved: Boolean, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
+    integrationsConversationFbComments(postId: $postId,isResolved:$isResolved, limit: $limit, commentId: $commentId, senderId: $senderId, skip: $skip) {
+      conversationId
+      commentId
+      postId
+      recipientId
+      senderId
+      attachments
+      content
+      erxesApiId
+      timestamp
+      parentId
+      commentCount
+      isResolved
+      permalink_url
+      customer {
+        _id
+        visitorContactInfo
+        avatar
+        firstName
+        lastName
+        middleName
+      }
+    }
+  }
+`;
+
+const integrationsConversationFbCommentsCount = `
+  query integrationsConversationFbCommentsCount($postId: String!, $isResolved: Boolean) {
+    integrationsConversationFbCommentsCount(postId: $postId, isResolved:$isResolved) 
+  }
+`;
+
 export default {
   conversationList,
   sidebarConversations,
   conversationDetail,
   conversationDetailMarkAsRead,
   conversationMessages,
-  converstationFacebookComments,
-  converstationFacebookCommentsCount,
   conversationMessagesTotalCount,
   userList,
   channelList,
@@ -413,5 +411,7 @@ export default {
   lastConversation,
   channelsByMembers,
   generateCustomerDetailQuery,
-  convertToInfo
+  convertToInfo,
+  integrationsConversationFbComments,
+  integrationsConversationFbCommentsCount
 };

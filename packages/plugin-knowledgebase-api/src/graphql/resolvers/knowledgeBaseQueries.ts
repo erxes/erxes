@@ -1,15 +1,10 @@
 import {
-  KnowledgeBaseArticles,
-  KnowledgeBaseCategories,
-  KnowledgeBaseTopics,
-} from '../../models';
-
-import {
   checkPermission,
   requireLogin,
-  IContext,
   paginate,
 } from '@erxes/api-utils/src';
+
+import { IContext } from '../../connectionResolver';
 
 const knowledgeBaseQueries = {
   /**
@@ -26,7 +21,8 @@ const knowledgeBaseQueries = {
       perPage: number;
       searchValue?: string;
       categoryIds: string[];
-    }
+    },
+    { models }: IContext
   ) {
     const selector: any = {};
 
@@ -42,7 +38,7 @@ const knowledgeBaseQueries = {
       selector.categoryId = { $in: categoryIds };
     }
 
-    const articles = KnowledgeBaseArticles.find(selector).sort({
+    const articles = models.KnowledgeBaseArticles.find(selector).sort({
       createdDate: -1,
     });
 
@@ -52,15 +48,15 @@ const knowledgeBaseQueries = {
   /**
    * Article detail
    */
-  knowledgeBaseArticleDetail(_root, { _id }: { _id: string }) {
-    return KnowledgeBaseArticles.findOne({ _id });
+  knowledgeBaseArticleDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.KnowledgeBaseArticles.findOne({ _id });
   },
 
   /**
    * Article detail anc increase a view count
    */
-  knowledgeBaseArticleDetailAndIncViewCount(_root, { _id }: { _id: string }) {
-    return KnowledgeBaseArticles.findOneAndUpdate(
+  knowledgeBaseArticleDetailAndIncViewCount(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.KnowledgeBaseArticles.findOneAndUpdate(
       { _id },
       { $inc: { viewCount: 1 } },
       { new: true }
@@ -72,9 +68,9 @@ const knowledgeBaseQueries = {
    */
   async knowledgeBaseArticlesTotalCount(
     _root,
-    args: { categoryIds: string[] }
+    args: { categoryIds: string[] }, { models }: IContext
   ) {
-    return KnowledgeBaseArticles.find({
+    return models.KnowledgeBaseArticles.find({
       categoryId: { $in: args.categoryIds },
     }).countDocuments();
   },
@@ -88,9 +84,9 @@ const knowledgeBaseQueries = {
       page,
       perPage,
       topicIds,
-    }: { page: number; perPage: number; topicIds: string[] }
+    }: { page: number; perPage: number; topicIds: string[] }, { models }: IContext
   ) {
-    const categories = KnowledgeBaseCategories.find({
+    const categories = models.KnowledgeBaseCategories.find({
       topicId: { $in: topicIds },
     }).sort({
       title: 1,
@@ -106,8 +102,8 @@ const knowledgeBaseQueries = {
   /**
    * Category detail
    */
-  knowledgeBaseCategoryDetail(_root, { _id }: { _id: string }) {
-    return KnowledgeBaseCategories.findOne({ _id }).then((category) => {
+  knowledgeBaseCategoryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.KnowledgeBaseCategories.findOne({ _id }).then((category) => {
       return category;
     });
   },
@@ -115,8 +111,8 @@ const knowledgeBaseQueries = {
   /**
    * Category total count
    */
-  async knowledgeBaseCategoriesTotalCount(_root, args: { topicIds: string[] }) {
-    return KnowledgeBaseCategories.find({
+  async knowledgeBaseCategoriesTotalCount(_root, args: { topicIds: string[] }, { models }: IContext) {
+    return models.KnowledgeBaseCategories.find({
       topicId: { $in: args.topicIds },
     }).countDocuments();
   },
@@ -127,9 +123,9 @@ const knowledgeBaseQueries = {
   knowledgeBaseCategoriesGetLast(
     _root,
     _args,
-    { commonQuerySelector }: IContext
+    { commonQuerySelector, models }: IContext
   ) {
-    return KnowledgeBaseCategories.findOne(commonQuerySelector).sort({
+    return models.KnowledgeBaseCategories.findOne(commonQuerySelector).sort({
       createdDate: -1,
     });
   },
@@ -140,9 +136,9 @@ const knowledgeBaseQueries = {
   knowledgeBaseTopics(
     _root,
     args: { page: number; perPage: number; brandId: string },
-    { commonQuerySelector }: IContext
+    { commonQuerySelector, models }: IContext
   ) {
-    const topics = KnowledgeBaseTopics.find({
+    const topics = models.KnowledgeBaseTopics.find({
       ...(args.brandId ? { brandId: args.brandId } : {}),
       ...commonQuerySelector,
     }).sort({ modifiedDate: -1 });
@@ -153,8 +149,8 @@ const knowledgeBaseQueries = {
   /**
    * Topic detail
    */
-  knowledgeBaseTopicDetail(_root, { _id }: { _id: string }) {
-    return KnowledgeBaseTopics.findOne({ _id });
+  knowledgeBaseTopicDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.KnowledgeBaseTopics.findOne({ _id });
   },
 
   /**
@@ -163,9 +159,9 @@ const knowledgeBaseQueries = {
   knowledgeBaseTopicsTotalCount(
     _root,
     _args,
-    { commonQuerySelector }: IContext
+    { commonQuerySelector, models }: IContext
   ) {
-    return KnowledgeBaseTopics.find(commonQuerySelector).countDocuments();
+    return models.KnowledgeBaseTopics.find(commonQuerySelector).countDocuments();
   },
 };
 

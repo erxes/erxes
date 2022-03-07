@@ -244,7 +244,7 @@ export default class DealEditForm extends React.Component<Props, State> {
       beforePopupClose: this.beforePopupClose,
       refresh: this.state.refresh,
     };
-    console.log("hii");
+
     return <EditForm {...extendedProps} />;
   }
 }

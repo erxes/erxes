@@ -2,7 +2,8 @@ import { graphqlPubsub } from './configs';
 import { ConversationMessages, Conversations, Integrations } from './models';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { Users } from './apiCollections';
-import { sendContactRPCMessage } from './messageBroker';
+import { sendContactRPCMessage, sendRPCMessage } from './messageBroker';
+import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
 
 const sendError = message => ({
   status: 'error',
@@ -187,24 +188,28 @@ export const collectConversations = async ({ contentId, contentType }) => {
     });
   }
 
-  // if (contentType === 'customer') {
-  // let conversationIds;
+  if (contentType === 'customer') {
+  let conversationIds;
 
-  // try {
-  //   conversationIds = await dataSources.IntegrationsAPI.fetchApi(
-  //     '/facebook/get-customer-posts',
-  //     {
-  //       customerId: contentId
-  //     }
-  //   );
-  //   collectItems(
-  //     await Conversations.find({ _id: { $in: conversationIds } }).toArray(),
-  //     'comment'
-  //   );
-  // } catch (e) {
-  //   debugExternalApi(e);
-  // }
-  // }
+  try {
+    conversationIds = await sendRPCMessage('integrations:rpc_queue:getFbCustomerPosts', {
+      customerId: contentId
+    })
+    
+    const cons = await Conversations.find({ _id: { $in: conversationIds } }).lean();
+
+    for (const c of cons) {
+      results.push({
+        _id: c._id,
+        contentType: 'comment',
+        contentId,
+        createdAt: c.createdAt
+      });
+  }
+  } catch (e) {
+    debugExternalApi(e);
+  }
+  }
 
   return results;
 };

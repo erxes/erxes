@@ -3,6 +3,7 @@ import { KIND_CHOICES } from '../../models/definitions/constants';
 import { IIntegrationDocument } from '../../models/definitions/integrations';
 import { IContext } from '@erxes/api-utils/src';
 import { getDocument, getDocumentList } from '../../cacheUtils';
+import { sendRPCMessage } from '../../messageBroker';
 
 export default {
   __resolveReference({_id}) {
@@ -67,9 +68,9 @@ export default {
   ) {
     if (integration.kind.includes('facebook')) {
       try {
-        return dataSources.IntegrationsAPI.fetchApi('/facebook/get-status', {
+        return sendRPCMessage('integrations:rpc_queue:getFacebookStatus', {
           integrationId: integration._id
-        });
+        })
       } catch (e) {
         return { status: 'healthy' };
       }

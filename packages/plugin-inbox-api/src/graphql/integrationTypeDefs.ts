@@ -197,7 +197,6 @@ export const queries = `
   integrationGetLineWebhookUrl(_id: String!): String
   integrationDetail(_id: String!): Integration
   integrationsTotalCount(kind: String, brandId: String, tag: String, channelId: String, status: String, formLoadType: String): integrationsTotalCount
-  integrationsFetchApi(path: String!, params: JSON!): JSON
 `;
 
 export const mutations = `
@@ -255,7 +254,6 @@ export const mutations = `
   integrationsRemoveAccount(_id: String!): JSON
 
   integrationsArchive(_id: String!, status: Boolean!): Integration
-  integrationsRepair(_id: String!): JSON
 
   integrationSendMail(
     erxesApiId: String!
@@ -277,8 +275,6 @@ export const mutations = `
     attachments: [JSON]
     customerId: String
   ): JSON
-
-  integrationsUpdateConfigs(configsMap: JSON!): JSON
 
   integrationsSendSms(integrationId: String!, content: String!, to: String!): JSON
 

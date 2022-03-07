@@ -1,9 +1,9 @@
 import { debug } from '../../configs';
 import { getDocument } from '../../cacheUtils';
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
-import { IContext } from '@erxes/api-utils/src';
 import { Conversations } from '../../models';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
+import { sendRPCMessage } from '../../messageBroker';
 
 export default {
   user(message: IMessageDocument) {
@@ -14,7 +14,7 @@ export default {
     return message.customerId && { __typename: 'Customer', _id: message.customerId }
   },
 
-  async mailData(message: IMessageDocument, _args, { dataSources }: IContext) {
+  async mailData(message: IMessageDocument, _args ) {
     const conversation = await Conversations.findOne({
       _id: message.conversationId
     }).lean();
@@ -42,16 +42,19 @@ export default {
       ? `/nylas/get-message`
       : `/${kind}/get-message`;
 
-    return dataSources.IntegrationsAPI.fetchApi(path, {
-      erxesApiMessageId: message._id,
-      integrationId: integration._id
-    });
+    return sendRPCMessage('rpc_queue:api_to_integrations', {
+      action: 'getMessage',
+      data: {
+        erxesApiMessageId: message._id,
+        integrationId: integration._id,
+        path
+      }
+    })
   },
 
   async videoCallData(
     message: IMessageDocument,
     _args,
-    { dataSources }: IContext
   ) {
     const conversation = await Conversations.findOne({
       _id: message.conversationId
@@ -66,10 +69,10 @@ export default {
     }
 
     try {
-      const response = await dataSources.IntegrationsAPI.fetchApi(
-        '/daily/room',
-        { erxesApiMessageId: message._id }
-      );
+      const response = await sendRPCMessage('integrations:rpc_queue:getDailyRoom', {
+        erxesApiMessageId: message._id
+      })
+
       return response;
     } catch (e) {
       debug.error(e);

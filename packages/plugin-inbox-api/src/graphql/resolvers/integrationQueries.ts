@@ -253,17 +253,6 @@ const integrationQueries = {
     return counts;
   },
 
-  /**
-   * Fetch integrations api
-   */
-  integrationsFetchApi(
-    _root,
-    { path, params }: { path: string; params: { [key: string]: string } },
-    { dataSources }: IContext
-  ) {
-    return dataSources.IntegrationsAPI.fetchApi(path, params);
-  },
-
   async integrationGetLineWebhookUrl(_root, { _id }: { _id: string }) {
     return sendRPCMessage(
       'rpc_queue:api_to_integrations',

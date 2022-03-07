@@ -1,20 +1,11 @@
 {
-  "name": "erxes-integrations",
-  "keywords": [
-    "node",
-    "express",
-    "graphql",
-    "apollo"
-  ],
-  "private": true,
+  "name": "@erxes/plugin-integrations-api",
+  "version": "1.0.0",
   "scripts": {
-    "start": "node dist",
+    "install-deps": "cd .erxes && yarn install",
     "dev": "cd .erxes && yarn dev",
-    "test": "NODE_ENV=test node --expose-gc --max_old_space_size=4000 ./node_modules/.bin/jest --runInBand --forceExit --silent --logHeapUsage",
-    "build": "tsc -p tsconfig.prod.json && cp gmail-setup.sh dist",
-    "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
-    "customCommand": "ts-node ./src/commands/customCommand.ts",
-    "resetMigrations": "ts-node ./src/commands/resetMigrations.ts"
+    "build": "cd .erxes && yarn build",
+    "start": "cd .erxes/dist/plugin-inbox-api/.erxes && node src"
   },
   "dependencies": {
     "@google-cloud/pubsub": "^1.1.5",
@@ -39,7 +30,6 @@
     "gmail-api-parse-message": "^2.1.2",
     "meteor-random": "^0.0.3",
     "migrate": "^1.6.2",
-    "mongodb-memory-server": "^6.6.0",
     "mongoose": "5.7.5",
     "nylas": "^4.7.0",
     "redis": "^2.8.0",
@@ -53,16 +43,9 @@
     "underscore": "^1.10.2",
     "uuid": "^3.3.3"
   },
-  "peerOptionalDependencies": {
-    "kerberos": "^1.0.0"
-  },
   "devDependencies": {
     "jest": "22.0.4",
     "ts-jest": "22.0.4",
-    "ts-node-dev": "^1.0.0-pre.32",
-    "typescript": "^3.7.2"
-  },
-  "engines": {
-    "node": ">=10.x.x"
+    "ts-node-dev": "^1.0.0-pre.32"
   }
 }
