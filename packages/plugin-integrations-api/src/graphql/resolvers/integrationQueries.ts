@@ -1,7 +1,9 @@
-import { debugFacebook } from '../../debuggers';
+import { debugFacebook, debugTwitter } from '../../debuggers';
 import { Comments, Customers, Posts } from '../../facebook/models';
+import { getPageList } from '../../facebook/utils';
 import { Accounts, Configs, Integrations } from '../../models';
-import { nylasGetEvents } from '../../nylas/handleController';
+import { nylasGetAccountCalendars, nylasGetEvents, nylasGetSchedulePage, nylasGetSchedulePages } from '../../nylas/handleController';
+import { getConfig, getConfigs } from '../../utils';
 
 const integrationQueries = {
   // app.get('/accounts', async (req, res) => {
@@ -142,7 +144,7 @@ const integrationQueries = {
 
     return result.reverse();
   },
-
+  // app.get('/facebook/get-comments-count', async (req, res) => {
   async integrationsConversationFbCommentsCount(_root, args) {
     debugFacebook(`Request to get post data with: ${JSON.stringify(args)}`);
 
@@ -166,9 +168,87 @@ const integrationQueries = {
     };
   },
 
+    // app.get('/nylas/get-events',
   async integrationsGetNylasEvents(_root, { calendarIds, startTime, endTime }) {
     return nylasGetEvents({ calendarIds, startTime, endTime });
-  }
+  },
+
+  // app.get('/twitter/get-account', async (req, res, next) => {
+  async integrationsGetTwitterAccount(_root, { accountId }: {accountId: string}) {
+    const account = await Accounts.findOne({ _id: accountId });
+
+    if (!account) {
+      debugTwitter(
+        `Error Twitter: Account not found with ${accountId}`
+      );
+
+      throw new Error('Account not found');
+    }
+
+    return account.uid;
+    
+  },
+
+  // app.get('/facebook/get-pages', async (req, res, next) => {
+  async integrationsGetFbPages(_root, args) {
+    const { kind, accountId } = args;
+
+    const account = await Accounts.getAccount({ _id: accountId });
+
+    const accessToken = account.token;
+
+    let pages = [];
+
+    try {
+      pages = await getPageList(accessToken, kind);
+    } catch (e) {
+      if (!e.message.includes('Application request limit reached')) {
+        await Integrations.updateOne(
+          { accountId },
+          { $set: { healthStatus: 'account-token', error: `${e.message}` } }
+        );
+      }
+    }
+
+    return pages;
+  },
+
+  // app.get('/videoCall/usageStatus',
+  async integrationsVideoCallUsageStatus(_root) {
+    const videoCallType = await getConfig('VIDEO_CALL_TYPE');
+
+    switch (videoCallType) {
+      case 'daily': {
+        const { DAILY_API_KEY, DAILY_END_POINT } = await getConfigs();
+
+        return Boolean(DAILY_API_KEY && DAILY_END_POINT);
+      }
+
+      default: {
+        return false;
+      }
+    }
+  },
+
+  // app.get('/nylas/get-calendars',
+  async integrationsNylasGetCalendars(_root, args) {
+    const { accountId, show } = args;
+
+    const calendars = await nylasGetAccountCalendars(accountId, show);
+
+    return calendars;
+  },
+
+  // app.get('/nylas/get-schedule-page',
+  async integrationsNylasGetSchedulePage(_root, { pageId }: { pageId: string }) {
+    return nylasGetSchedulePage(pageId);
+  },
+
+  // app.get('/nylas/get-schedule-pages',
+   async integrationsNylasGetSchedulePages(_root, { accountId }: { accountId: string }) {
+    return nylasGetSchedulePages(accountId);
+  },
+
 };
 
 export default integrationQueries;
