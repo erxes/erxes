@@ -99,7 +99,7 @@ export default withProps<Props>(
       {
         name: 'removeAccount',
         options: {
-          refetchQueries: ['integrationsFetchApi']
+          refetchQueries: ['integrationsGetAccounts']
         }
       }
     ),

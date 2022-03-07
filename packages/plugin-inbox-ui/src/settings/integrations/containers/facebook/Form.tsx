@@ -45,17 +45,16 @@ class FacebookContainer extends React.Component<FinalProps, State> {
 
     client
       .query({
-        // ! fb controller
-        query: gql(queries.fetchApi),
+        query: gql(queries.integrationsGetFbPages),
         variables: {
-          path: '/facebook/get-pages',
-          params: { accountId, kind }
+          accountId,
+          kind
         }
       })
       .then(({ data, loading }: any) => {
         if (!loading) {
           this.setState({
-            pages: data.integrationsFetchApi,
+            pages: data.integrationsGetFbPages,
             accountId,
             loadingPages: false
           });

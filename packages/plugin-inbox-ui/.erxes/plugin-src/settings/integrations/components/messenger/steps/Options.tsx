@@ -95,13 +95,11 @@ class Options extends React.Component<Props, State> {
       if (checked) {
         client
           .query({
-            // ! videoCall controller
-            query: gql(queries.fetchApi),
-            variables: { path: '/videoCall/usageStatus', params: {} },
+            query: gql(queries.integrationsVideoCallUsageStatus),
             fetchPolicy: 'network-only'
           })
-          .then(({ data: { integrationsFetchApi } }) => {
-            if (integrationsFetchApi) {
+          .then(({ data: { integrationsVideoCallUsageStatus } }) => {
+            if (integrationsVideoCallUsageStatus) {
               this.onChangeFunction('showVideoCallRequest', true);
             } else {
               Alert.error('Please configure a video call settings');
