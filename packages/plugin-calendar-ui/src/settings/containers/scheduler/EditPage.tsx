@@ -64,8 +64,8 @@ class EditPageContainer extends React.Component<FinalProps, {}> {
     const updatedProps = {
       save,
       accountId,
-      calendars: fetchCalendarQuery.integrationsFetchApi || [],
-      page: fetchPageQuery.integrationsFetchApi
+      calendars: fetchCalendarQuery.integrationsNylasGetCalendars || [],
+      page: fetchPageQuery.integrationsNylasGetSchedulePage
     };
 
     return <PageForm {...updatedProps} />;
@@ -74,30 +74,22 @@ class EditPageContainer extends React.Component<FinalProps, {}> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, any>(gql(integrationQueries.fetchApi), {
-      // ! nylas controller
+    graphql<Props, any>(gql(integrationQueries.integrationsNylasGetSchedulePage), {
       name: 'fetchPageQuery',
       options: ({ pageId }) => {
         return {
           variables: {
-            path: '/nylas/get-schedule-page',
-            params: {
-              pageId
-            }
+            pageId
           }
         };
       }
     }),
-    graphql<Props, any>(gql(queries.fetchApi), {
-      // ! nylas controller
+    graphql<Props, any>(gql(queries.integrationsNylasGetCalendars), {
       name: 'fetchCalendarQuery',
       options: ({ accountId }) => {
         return {
           variables: {
-            path: '/nylas/get-calendars',
-            params: {
-              accountId
-            }
+            accountId
           }
         };
       }

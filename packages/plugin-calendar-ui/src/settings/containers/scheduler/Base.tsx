@@ -22,13 +22,13 @@ type Props = {
 
 type FinalProps = {
   calendarsQuery: CalendarsQueryResponse;
-  fetchApiQuery: any;
+  fetchPagesQuery: any;
 } & Props &
   RemoveSchedulePageMutationResponse;
 class BaseContainer extends React.Component<FinalProps> {
   render() {
     const {
-      fetchApiQuery,
+      fetchPagesQuery,
       queryParams,
       history,
       calendarsQuery,
@@ -36,13 +36,13 @@ class BaseContainer extends React.Component<FinalProps> {
     } = this.props;
 
     if (
-      (fetchApiQuery && fetchApiQuery.loading) ||
+      (fetchPagesQuery && fetchPagesQuery.loading) ||
       (calendarsQuery && calendarsQuery.loading)
     ) {
       return <Spinner objective={true} />;
     }
 
-    if (fetchApiQuery && fetchApiQuery.error) {
+    if (fetchPagesQuery && fetchPagesQuery.error) {
       return (
         <span style={{ color: 'red' }}>Integrations api is not running</span>
       );
@@ -54,7 +54,7 @@ class BaseContainer extends React.Component<FinalProps> {
           variables: { pageId: _id }
         })
           .then(() => {
-            fetchApiQuery.refetch();
+            fetchPagesQuery.refetch();
 
             Alert.success('You successfully deleted a page');
           })
@@ -64,7 +64,7 @@ class BaseContainer extends React.Component<FinalProps> {
       });
     };
 
-    const pages = (fetchApiQuery && fetchApiQuery.integrationsFetchApi) || [];
+    const pages = (fetchPagesQuery && fetchPagesQuery.integrationsNylasGetSchedulePages) || [];
 
     const updatedProps = {
       calendars: (calendarsQuery && calendarsQuery.calendars) || [],
@@ -80,17 +80,13 @@ class BaseContainer extends React.Component<FinalProps> {
 
 const WithProps = withProps<Props>(
   compose(
-    graphql<Props, any>(gql(integrationQueries.fetchApi), {
-      // ! nylas controller
-      name: 'fetchApiQuery',
+    graphql<Props, any>(gql(integrationQueries.integrationsNylasGetSchedulePages), {
+      name: 'fetchPagesQuery',
       skip: props => !props.queryParams.accountId,
       options: ({ queryParams }) => {
         return {
           variables: {
-            path: '/nylas/get-schedule-pages',
-            params: {
-              accountId: queryParams.accountId
-            }
+            accountId: queryParams.accountId
           }
         };
       }
