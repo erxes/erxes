@@ -1,6 +1,6 @@
 const deleteVideoChatRoom = `
-  mutation conversationDeleteVideoChatRoom($name: String!) {
-    conversationDeleteVideoChatRoom(name: $name)
+  mutation integrationsDeleteVideoChatRoom($name: String!) {
+    integrationsDeleteVideoChatRoom(name: $name)
   }
 `;
 
