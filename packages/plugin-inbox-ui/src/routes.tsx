@@ -6,6 +6,7 @@ import ResponseTemplates from "./settings/responseTemplates/routes";
 import SkillSettings from "./settings/skills/routes";
 import BookingSettings from "./bookings/routes";
 import FormsSettings from "./forms/routes";
+import IntegrationConfigs from "./settings/integrationsConfig/routes";
 import VideoCallRoutes from "./videoCall/routes";
 
 const routes = () => {
@@ -14,6 +15,7 @@ const routes = () => {
       <InboxRoutes />
       <ChannelSettings />
       <IntegrationSettings />
+      <IntegrationConfigs />
       <ResponseTemplates />
       <SkillSettings />
       <BookingSettings />
