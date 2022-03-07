@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { removeAccount, removeCustomers, repairIntegrations } from './helpers';
+import { removeAccount, removeCustomers, removeIntegration, repairIntegrations } from './helpers';
 
 import messageBroker from 'erxes-message-broker';
 import { Accounts, Configs } from './models';
@@ -11,11 +11,11 @@ import { userIds } from './userMiddleware';
 import { getConfig, getConfigs, getRecordings } from './utils';
 import { CallRecords } from './videoCall/models';
 import { sendDailyRequest, VIDEO_CALL_STATUS } from './videoCall/controller';
-import { debugCallPro } from './debuggers';
+import { debugCallPro, debugGmail, debugNylas } from './debuggers';
 import { Conversations as ConversationsCallPro } from './callpro/models';
 import { Comments, Customers as CustomersFb, Posts } from './facebook/models';
-import { getMessage as nylasGetMessage } from './nylas/handleController';
-import { getMessage as gmailGetMessage } from './gmail/handleController';
+import { getMessage as nylasGetMessage, nylasSendEmail } from './nylas/handleController';
+import { getMessage as gmailGetMessage, sendEmail } from './gmail/handleController';
 import { facebookCreateIntegration } from './facebook/controller';
 import { twitterCreateIntegration } from './twitter/controller';
 import { smoochCreateIntegration } from './smooch/controller';
@@ -347,7 +347,50 @@ export const initBroker = async server => {
         whatsappCreateIntegration(doc);
         break;
     }
-})
+});
+
+  // '/integrations/remove',
+  consumeRPCQueue('integrations:rcp_queue:removeIntegrations', async ({ integrationId }) => {
+    await removeIntegration(integrationId);
+
+    return { status: 'ok' };
+  });
+
+  //  '/nylas/send', /gmail/send
+  consumeRPCQueue('integrations:rcp_queue:sendEmail', async ({kind, doc}) => {
+    const { data, erxesApiId } = doc;
+
+    if(kind === 'nylas') {
+      debugNylas('Sending message...');
+
+      const params = JSON.parse(data);
+
+      await nylasSendEmail(erxesApiId, params);
+
+      return { status: 'ok' };
+    }
+
+    if(kind === 'gmail') {
+      debugGmail(`Sending gmail ===`);
+
+      const mailParams = JSON.parse(data);
+
+      await sendEmail(erxesApiId, mailParams);
+
+      return { status: 200, statusText: 'success' };
+    }
+  })
+
+  // /telnyx/send-sms
+  consumeRPCQueue('integrations:rpc_queue:sendSms', async (args) => {
+    const { integrationId, content, to } = args;
+
+    const result = await sendSms(
+      JSON.stringify({ integrationId, content, toPhone: to })
+    );
+
+    return result;
+  })
 
   consumeQueue('erxes-api:integrations-notification', async content => {
     const { action, payload, type } = content;
