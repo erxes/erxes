@@ -1,21 +1,23 @@
 module.exports = {
-  name: 'tags',
+  name: "tags",
   port: 3012,
   exposes: {
-    './routes': './src/routes.tsx'
+    "./routes": "./src/routes.tsx",
   },
   routes: {
-    url: 'http://localhost:3012/remoteEntry.js',
-    scope: 'tags',
-    module: './routes'
+    url: "http://localhost:3012/remoteEntry.js",
+    scope: "tags",
+    module: "./routes",
   },
   menus: [
     {
-      text: 'Tags',
-      url: '/tags/conversation',
-      icon: 'icon-tag-alt',
-      location: 'mainNavigation',
-      permission: 'showTags',
-    }
-  ]
+      text: "Tags",
+      to: "/tags/conversation",
+      image: "/images/icons/erxes-18.svg",
+      location: "settings",
+      scope: "tags",
+      action: "tagsAll",
+      permissions: ["showTags", "manageTags"],
+    },
+  ],
 };

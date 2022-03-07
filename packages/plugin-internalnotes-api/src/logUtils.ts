@@ -1,4 +1,4 @@
-import { gatherNames, LogDesc } from '@erxes/api-utils/src/logUtils';
+import { gatherNames, LogDesc, ILogDataParams } from '@erxes/api-utils/src/logUtils';
 
 import {
   putCreateLog as commonPutCreateLog,
@@ -6,7 +6,7 @@ import {
   putDeleteLog as commonPutDeleteLog,
 } from '@erxes/api-utils/src/logUtils';
 
-import messageBroker, { findCardItem } from './messageBroker';
+import messageBroker, { findItem } from './messageBroker';
 import { IInternalNoteDocument } from './models/definitions/internalNotes';
 
 const MODULE_NAMES = {
@@ -26,15 +26,16 @@ const findContentItemName = async (
   contentTypeId: string
 ): Promise<string> => {
   let name: string = '';
+  const type = contentType.indexOf(':') !== -1 ? contentType.split(':')[1] : contentType;
 
   const isCardItem =
-    contentType === MODULE_NAMES.DEAL ||
-    contentType === MODULE_NAMES.TASK ||
-    contentType === MODULE_NAMES.TICKET ||
-    contentType === MODULE_NAMES.GROWTH_HACK;
+    type === MODULE_NAMES.DEAL ||
+    type === MODULE_NAMES.TASK ||
+    type === MODULE_NAMES.TICKET ||
+    type === MODULE_NAMES.GROWTH_HACK;
 
   if (isCardItem) {
-    const cardItem = await findCardItem({ _id: contentTypeId, contentType });
+    const cardItem = await findItem({ _id: contentTypeId, contentType });
 
     if (cardItem && cardItem.name) {
       name = cardItem.name;
@@ -96,26 +97,26 @@ const gatherDescriptions = async (obj: IInternalNoteDocument) => {
   return extraDesc;
 };
 
-export const putDeleteLog = async (logDoc, user) => {
+export const putDeleteLog = async (logDoc: ILogDataParams, user) => {
   await commonPutDeleteLog(
     messageBroker(),
-    { ...logDoc, extraDesc: await gatherDescriptions(logDoc) },
+    { ...logDoc, extraDesc: await gatherDescriptions(logDoc.object), type: `internalnotes:${logDoc.type}` },
     user
   );
 };
 
-export const putUpdateLog = async (logDoc, user) => {
+export const putUpdateLog = async (logDoc: ILogDataParams, user) => {
   await commonPutUpdateLog(
     messageBroker(),
-    { ...logDoc, extraDesc: await gatherDescriptions(logDoc) },
+    { ...logDoc, extraDesc: await gatherDescriptions(logDoc.object), type: `internalnotes:${logDoc.type}` },
     user
   );
 };
 
-export const putCreateLog = async (logDoc, user) => {
+export const putCreateLog = async (logDoc: ILogDataParams, user) => {
   await commonPutCreateLog(
     messageBroker(),
-    { ...logDoc, extraDesc: await gatherDescriptions(logDoc) },
+    { ...logDoc, extraDesc: await gatherDescriptions(logDoc.object), type: `internalnotes:${logDoc.type}` },
     user
   );
 };

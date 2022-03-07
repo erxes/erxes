@@ -42,6 +42,7 @@ export default {
       ? `/nylas/get-message`
       : `/${kind}/get-message`;
 
+      // ! msg broker
     return dataSources.IntegrationsAPI.fetchApi(path, {
       erxesApiMessageId: message._id,
       integrationId: integration._id
@@ -66,6 +67,7 @@ export default {
     }
 
     try {
+      // ! msg broker
       const response = await dataSources.IntegrationsAPI.fetchApi(
         '/daily/room',
         { erxesApiMessageId: message._id }

@@ -3,6 +3,7 @@ import * as compose from 'lodash.flowright';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { mutations, queries } from '../../graphql';
+import { queries as integrationQueries } from '@erxes/ui-settings/src/integrations/graphql';
 import {
   IntegrationsQueryResponse,
   SendSmsMutationResponse
@@ -18,25 +19,25 @@ type Props = {
 
 type FinalProps = {
   sendSmsMutation: SendSmsMutationResponse;
-  integrationsFetchApiQuery: any;
+  integrationsGetIntegrationsQuery: any;
   integrationsQuery: IntegrationsQueryResponse;
 } & Props;
 
 const SmsFormContainer = (props: FinalProps) => {
   const {
     integrationsQuery,
-    integrationsFetchApiQuery,
+    integrationsGetIntegrationsQuery,
     closeModal,
     sendSmsMutation
   } = props;
 
-  if (integrationsFetchApiQuery.loading || integrationsQuery.loading) {
+  if (integrationsGetIntegrationsQuery.loading || integrationsQuery.loading) {
     return <Spinner objective={true} />;
   }
 
   const integrations = integrationsQuery.integrations || [];
   const externalIntegrations =
-    integrationsFetchApiQuery.integrationsFetchApi || [];
+    integrationsGetIntegrationsQuery.integrationsGetIntegrations || [];
 
   const mappedIntegrations: any[] = [];
 
@@ -95,10 +96,10 @@ const SmsFormContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql(gql(queries.fetchApi), {
-      name: 'integrationsFetchApiQuery',
+    graphql(gql(integrationQueries.integrationsGetIntegrations), {
+      name: 'integrationsGetIntegrationsQuery',
       options: () => ({
-        variables: { path: '/integrations', params: { kind: 'telnyx' } },
+        variables: { kind: 'telnyx' },
         fetchPolicy: 'network-only'
       })
     }),

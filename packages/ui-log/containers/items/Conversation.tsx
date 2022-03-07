@@ -39,7 +39,7 @@ class ConversationContainer extends React.Component<FinalProps> {
     const conversation = conversationDetailQuery.conversationDetail;
     const messages = messagesQuery.conversationMessages || [];
     const comments =
-      (commentsQuery && commentsQuery.converstationFacebookComments) || [];
+      (commentsQuery && commentsQuery.integrationsConversationFbComments) || [];
 
     const updatedProps = {
       ...this.props,
@@ -76,7 +76,7 @@ export default withProps<Props>(
       })
     }),
     graphql<Props, FacebookCommentsQueryResponse>(
-      gql(queries.converstationFacebookComments),
+      gql(queries.integrationsConversationFbComments),
       {
         name: 'commentsQuery',
         skip: ({ activity }) => activity.contentType !== 'comment',

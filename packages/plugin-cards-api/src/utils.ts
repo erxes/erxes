@@ -187,14 +187,13 @@ export const collectTasks = async ({ contentType, contentId }) => {
   return items;
 }
 
+// contentType should come with "cards:deal|task|ticket|growthHack" format
 export const getCardContentIds = async ({ pipelineId, contentType }) => {
+  const type = contentType.indexOf(':') !== -1 ? contentType.split(':')[1] : contentType;
   const stageIds = await Stages.find({ pipelineId }).distinct('_id');
-  const { collection } = getCollection(contentType);
-  const contentIds = await collection
-      .find({ stageId: { $in: stageIds } })
-      .distinct('_id');
+  const { collection } = getCollection(type);
 
-  return contentIds;
+  return collection.find({ stageId: { $in: stageIds } }).distinct('_id');
 };
 
 export const getCardItem = async ({ contentTypeId, contentType }) => {

@@ -1,5 +1,5 @@
 import WithPermission from "modules/common/components/WithPermission";
-import { __, setBadge, readFile } from "modules/common/utils";
+import { __, readFile } from "modules/common/utils";
 import { pluginNavigations, pluginsOfNavigations } from "pluginUtils";
 import React from "react";
 import { NavLink } from "react-router-dom";
@@ -31,17 +31,13 @@ export interface ISubNav {
   additional?: boolean;
 }
 
-type IProps = {
-  unreadConversationsCount?: number;
-};
-
 type State = {
   showMenu: boolean;
   moreMenus: any[];
   searchText: string;
 };
 
-class Navigation extends React.Component<IProps, State> {
+class Navigation extends React.Component<{}, State> {
   private node;
 
   constructor(props) {
@@ -55,14 +51,6 @@ class Navigation extends React.Component<IProps, State> {
 
     this.node = React.createRef();
   }
-
-  componentWillReceiveProps = (nextProps) => {
-    const unreadCount = nextProps.unreadConversationsCount;
-
-    if (unreadCount !== this.props.unreadConversationsCount) {
-      setBadge(unreadCount, __("Team Inbox").toString());
-    }
-  };
 
   getLink = (url) => {
     const storageValue = window.localStorage.getItem("pagination:perPage");

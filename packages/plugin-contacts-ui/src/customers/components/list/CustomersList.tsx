@@ -36,6 +36,7 @@ import { ICustomer } from '../../types';
 import CustomersMerge from '@erxes/ui-contacts/src/customers/components/detail/CustomersMerge';
 import CustomerRow from './CustomerRow';
 import Sidebar from './Sidebar';
+import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
 
 interface IProps extends IRouterProps {
   type: string;
@@ -440,7 +441,7 @@ class CustomersList extends React.Component<IProps, State> {
           <Widget customers={bulk} emptyBulk={emptyBulk} />
 
           <TaggerPopover
-            type="customer"
+            type={TAG_TYPES.CUSTOMER}
             successCallback={this.afterTag}
             targets={bulk}
             trigger={tagButton}

@@ -12,15 +12,15 @@ import IntegrationsConfig from '../components/IntegrationConfigs';
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 
 type FinalProps = {
-  fetchApiQuery;
+  integrationsConfigsQuery;
   updateConfigs: (configsMap: IConfigsMap) => Promise<void>;
 };
 
 class ConfigContainer extends React.Component<FinalProps> {
   render() {
-    const { updateConfigs, fetchApiQuery } = this.props;
+    const { updateConfigs, integrationsConfigsQuery } = this.props;
 
-    if (fetchApiQuery.loading) {
+    if (integrationsConfigsQuery.loading) {
       return <Spinner objective={true} />;
     }
 
@@ -30,7 +30,7 @@ class ConfigContainer extends React.Component<FinalProps> {
         variables: { configsMap: map }
       })
         .then(() => {
-          fetchApiQuery.refetch();
+          integrationsConfigsQuery.refetch();
 
           Alert.success('You successfully updated general settings');
         })
@@ -39,7 +39,7 @@ class ConfigContainer extends React.Component<FinalProps> {
         });
     };
 
-    const configs = fetchApiQuery.integrationsFetchApi || [];
+    const configs = integrationsConfigsQuery.integrationsGetConfigs || [];
 
     const configsMap = {};
 
@@ -55,14 +55,8 @@ class ConfigContainer extends React.Component<FinalProps> {
 
 export default withProps<{}>(
   compose(
-    graphql<{}>(gql(queries.fetchApi), {
-      name: 'fetchApiQuery',
-      options: () => ({
-        variables: {
-          path: '/configs',
-          params: {}
-        }
-      })
+    graphql<{}>(gql(queries.integrationsGetConfigs), {
+      name: 'integrationsConfigsQuery',
     }),
     graphql<{}>(gql(mutations.integrationsUpdateConfigs), {
       name: 'updateConfigs'

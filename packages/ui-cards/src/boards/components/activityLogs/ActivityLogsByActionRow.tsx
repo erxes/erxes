@@ -34,6 +34,10 @@ class ActivityLogsByActionRow extends React.Component<Props> {
 
     const { contentTypeDetail, contentType } = activityLog;
 
+    if (!contentTypeDetail) {
+      return null;
+    }
+
     return (
       <Link
         to={`/${contentType}/board?_id=${activityLog._id}&itemId=${contentTypeDetail._id}`}
@@ -47,6 +51,10 @@ class ActivityLogsByActionRow extends React.Component<Props> {
   renderCreatedUser() {
     const { activityLog } = this.props;
     const { createdUser } = activityLog;
+
+    if (!createdUser) {
+      return null;
+    }
 
     return (
       <Link

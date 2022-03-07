@@ -24,6 +24,7 @@ export const types = `
     contentId: String
     action: String
     content: String
+    contentTypeDetail: JSON
   }
 
   type InternalNotesByAction {
@@ -35,7 +36,7 @@ export const types = `
 export const queries = `
   internalNoteDetail(_id: String!): InternalNote
   internalNotes(contentType: String!, contentTypeId: String): [InternalNote]
-  internalNotesByAction(contentType: String!, pipelineId: String, page: Int, perPage: Int): InternalNotesByAction
+  internalNotesByAction(contentType: String, pipelineId: String, page: Int, perPage: Int): InternalNotesByAction
 `;
 
 export const mutations = `

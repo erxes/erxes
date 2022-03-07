@@ -14,7 +14,6 @@ function Sidebar({
   loadingMainQuery: boolean;
   type: string;
 }) {
-  console.log({ type });
   
   return (
     <Wrapper.Sidebar>

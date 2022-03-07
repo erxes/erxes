@@ -38,7 +38,7 @@ class LeftSidebar extends React.Component<Props> {
         {this.renderTrackedData()}
         <TaggerSection
           data={company}
-          type="company"
+          type="contacts:company"
           refetchQueries={taggerRefetchQueries}
         />
       </Sidebar>

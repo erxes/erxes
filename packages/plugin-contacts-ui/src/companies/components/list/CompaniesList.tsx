@@ -27,6 +27,7 @@ import { ICompany } from '../../types';
 import CompaniesMerge from '@erxes/ui-contacts/src/companies/components/detail/CompaniesMerge';
 import CompanyRow from './CompanyRow';
 import Sidebar from './Sidebar';
+import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
 
 interface IProps extends IRouterProps {
   companies: ICompany[];
@@ -209,7 +210,7 @@ class CompaniesList extends React.Component<IProps, State> {
       actionBarLeft = (
         <BarItems>
           <TaggerPopover
-            type="company"
+            type={TAG_TYPES.COMPANY}
             successCallback={this.afterTag}
             targets={bulk}
             trigger={tagButton}

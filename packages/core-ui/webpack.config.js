@@ -114,6 +114,9 @@ module.exports = {
       timers: require.resolve("timers-browserify"),
       util: require.resolve("util/"),
     },
+    alias: {
+      "coreui/apolloClient": path.resolve(__dirname, "./src/apolloClient.ts")
+    },
     extensions: ["*", ".js", ".jsx", ".ts", ".tsx"],
   },
 
@@ -132,6 +135,7 @@ module.exports = {
       filename: "remoteEntry.js",
       exposes: {
         "./appContext": "./src/appContext",
+        "./apolloClient": "./src/apolloClient",
         "./utils": "./src/modules/common/utils",
       },
       shared: {
@@ -150,6 +154,7 @@ module.exports = {
           eager: true,
         },
         "./src/appContext": {},
+        "./src/apolloClient": {},
         "./src/modules/common/utils": {},
       },
     }),

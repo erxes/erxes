@@ -37,16 +37,15 @@ class GmailContainer extends React.Component<FinalProps, State> {
 
     client
       .query({
-        query: gql(queries.fetchApi),
+        query: gql(queries.integrationsGetGmailEmail),
         variables: {
-          path: '/gmail/get-email',
-          params: { accountId }
+          accountId 
         }
       })
       .then(({ data, loading }: any) => {
         if (!loading) {
           this.setState({
-            email: data.integrationsFetchApi,
+            email: data.integrationsGetGmailEmail,
             accountId
           });
         }

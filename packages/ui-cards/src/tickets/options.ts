@@ -6,7 +6,7 @@ import { mutations, queries } from './graphql';
 const options = {
   EditForm: TicketEditForm,
   Item: TicketItem,
-  type: 'ticket',
+  type: 'cards:ticket',
   title: 'Ticket',
   queriesName: {
     itemsQuery: 'tickets',

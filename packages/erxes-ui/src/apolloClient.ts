@@ -4,9 +4,9 @@ import { split } from 'apollo-link';
 import { setContext } from 'apollo-link-context';
 import { onError } from 'apollo-link-error';
 import { createHttpLink } from 'apollo-link-http';
-import { WebSocketLink } from 'apollo-link-ws';
 import { getMainDefinition } from 'apollo-utilities';
 import { __, getEnv } from './utils/core';
+import WebSocketLink from './WebSocketLink';
 
 const { REACT_APP_API_URL, REACT_APP_API_SUBSCRIPTION_URL } = getEnv();
 
@@ -41,16 +41,12 @@ const httpLinkWithMiddleware = errorLink.concat(authLink).concat(httpLink);
 
 // Subscription config
 export const wsLink: any = new WebSocketLink({
-  uri: REACT_APP_API_SUBSCRIPTION_URL || 'ws://localhost',
-  options: {
-    lazy: true,
-    reconnect: true,
-    timeout: 30000
+  url: REACT_APP_API_SUBSCRIPTION_URL || 'ws://localhost:4000/graphql',
+  retryAttempts: 1000,
+  retryWait: async () => {
+    await new Promise(resolve => setTimeout(resolve, 5000));
   }
 });
-
-wsLink.subscriptionClient.maxConnectTimeGenerator.duration = () =>
-  wsLink.subscriptionClient.maxConnectTimeGenerator.max;
 
 type Definintion = {
   kind: string;

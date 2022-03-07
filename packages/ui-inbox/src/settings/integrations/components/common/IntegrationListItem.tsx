@@ -317,14 +317,13 @@ class IntegrationListItem extends React.Component<Props, State> {
     const onClick = () => {
       client
         .query({
-          query: gql(queries.fetchApi),
+          query: gql(queries.integrationsGetIntegrationDetail),
           variables: {
-            path: '/integrationDetail',
-            params: { erxesApiId: integration._id }
+            erxesApiId: integration._id 
           }
         })
         .then(({ data }) => {
-          this.setState({ externalData: data.integrationsFetchApi });
+          this.setState({ externalData: data.integrationsGetIntegrationDetail });
           this.props.showExternalInfoColumn();
         })
         .catch(e => {

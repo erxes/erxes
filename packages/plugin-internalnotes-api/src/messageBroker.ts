@@ -95,17 +95,17 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
   return client.sendRPCMessage(channel, message);
 };
 
-export const findCardItem = async (data) => {
-  if (!await serviceDiscovery.isEnabled('cards')) {
-    return null;
-  }
+export const findItem = async (data) => {
+  const [serviceName] = data.contentType.split(':');
 
-  return client.sendRPCMessage('cards:rpc_queue:findCardItem', data);
+  await checkService(serviceName, false);
+
+  return client.sendRPCMessage(`${serviceName}:rpc_queue:findItem`, data);
 };
 
 export const getContentIds = async (data) => {
   const [serviceName] = data.contentType.split(':');
-  
+
   await checkService(serviceName, true);
 
   return client.sendRPCMessage(`${serviceName}:rpc_queue:getContentIds`, data);
