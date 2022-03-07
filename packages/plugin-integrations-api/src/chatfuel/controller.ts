@@ -6,6 +6,41 @@ import { Integrations } from '../models';
 import { sendRequest } from '../utils';
 import { ConversationMessages, Conversations, Customers } from './models';
 
+
+export const chatfuelCreateIntegration = async ({ integrationId, data }) => {
+    const { code, broadcastToken, botId, blockName } = JSON.parse(
+      data || '{}'
+    );
+
+    // Check existing Integration
+    const integration = await Integrations.findOne({
+      kind: 'chatfuel',
+      'chatfuelConfigs.code': code
+    }).lean();
+
+    if (integration) {
+      throw new Error(`Integration already exists with this code: ${code}`);
+    }
+
+    try {
+      await Integrations.create({
+        kind: 'chatfuel',
+        erxesApiId: integrationId,
+        chatfuelConfigs: {
+          code,
+          broadcastToken,
+          botId,
+          blockName
+        }
+      });
+    } catch (e) {
+      debugError(`Failed to create integration: ${e}`);
+      throw new Error(e);
+    }
+
+    return { status: 'ok' };
+}
+
 const init = async app => {
   app.post(
     '/chatfuel/create-integration',

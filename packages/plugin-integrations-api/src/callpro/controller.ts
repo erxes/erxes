@@ -4,6 +4,32 @@ import { sendRPCMessage } from '../messageBroker';
 import { Integrations, Logs } from '../models';
 import { Conversations, Customers } from './models';
 
+export const callproCreateIntegration = async ({ integrationId, data }) => {
+    const { phoneNumber, recordUrl } = JSON.parse(data || '{}');
+
+    // Check existing Integration
+    const integration = await Integrations.findOne({
+      kind: 'callpro',
+      phoneNumber
+    }).lean();
+
+    if (integration) {
+      const message = `Integration already exists with this phone number: ${phoneNumber}`;
+
+      debugCallPro(message);
+      throw new Error(message);
+    }
+
+    await Integrations.create({
+      kind: 'callpro',
+      erxesApiId: integrationId,
+      phoneNumber,
+      recordUrl
+    });
+
+    return { status: 'ok' };
+}
+
 const init = async app => {
   app.post(
     '/callpro/create-integration',

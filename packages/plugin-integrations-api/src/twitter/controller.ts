@@ -5,6 +5,39 @@ import * as twitterUtils from './api';
 import { ConversationMessages, Conversations } from './models';
 import receiveDms from './receiveDms';
 
+export const twitterCreateIntegration = async ({ accountId, integrationId, data, kind }) => {
+    const prevEntry = await Integrations.findOne({
+      accountId
+    });
+
+    if (prevEntry) {
+      throw new Error(`You already have integration on this account`)
+    }
+
+    const account = await Accounts.getAccount({ _id: accountId });
+
+    await Integrations.create({
+      kind,
+      accountId,
+      erxesApiId: integrationId,
+      twitterAccountId: data.twitterAccountId
+    });
+
+    try {
+      await twitterUtils.subscribeToWebhook(account);
+    } catch (e) {
+      // deleting previous subscription
+      if (e.message.includes('already exists')) {
+        await twitterUtils.removeFromWebhook(account);
+
+        // adding new subscription
+        await twitterUtils.subscribeToWebhook(account);
+      }
+    }
+
+    return { status: 'ok ' };
+}
+
 const init = async app => {
   app.get('/twitter/login', async (_req, res) => {
     const { twitterAuthUrl } = await twitterUtils.getTwitterAuthUrl();

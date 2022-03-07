@@ -4,6 +4,12 @@ import { createIntegration, reply } from './api';
 
 import receiveMessage from './receiveMessage';
 
+export const smoochCreateIntegration = async (doc) => {
+  await createIntegration(doc);
+
+  return { status: 'ok' };
+}
+
 const init = async app => {
   app.post(
     '/smooch/webhook',
