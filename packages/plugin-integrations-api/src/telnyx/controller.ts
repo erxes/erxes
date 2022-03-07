@@ -3,7 +3,6 @@ import { routeErrorHandling } from '../helpers';
 import {
   createIntegration,
   getSmsDeliveries,
-  sendSms,
   updateMessageDelivery
 } from './api';
 import { relayIncomingMessage } from './store';
@@ -25,17 +24,6 @@ export const telnyxCreateIntegration = async (doc) => {
 } 
 
 const init = async app => {
-  app.post(
-    '/telnyx/create-integration',
-    routeErrorHandling(async (req, res) => {
-      debugRequest(debugTelnyx, req);
-
-      await createIntegration(req.body);
-
-      return res.json({ status: 'ok' });
-    })
-  );
-
   // receive sms hook
   app.post(
     '/telnyx/webhook',
@@ -52,21 +40,6 @@ const init = async app => {
       await processHookData(req);
 
       return res.json({ status: 'ok' });
-    })
-  );
-
-  app.post(
-    '/telnyx/send-sms',
-    routeErrorHandling(async (req, res) => {
-      debugRequest(debugTelnyx, req);
-
-      const { integrationId, content, to } = req.body;
-
-      const result = await sendSms(
-        JSON.stringify({ integrationId, content, toPhone: to })
-      );
-
-      return res.json(result);
     })
   );
 
