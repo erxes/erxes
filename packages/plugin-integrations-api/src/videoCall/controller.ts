@@ -77,6 +77,66 @@ export const createDailyRoom = async ({ erxesApiMessageId, erxesApiConversationI
       name: callRecord.roomName,
       status: VIDEO_CALL_STATUS.ONGOING
     };
+};
+
+export const getDailyRoom = async ({ erxesApiMessageId }) => {
+  const { DAILY_END_POINT } = await getConfigs();
+
+  const callRecord = await CallRecords.findOne({ erxesApiMessageId });
+
+  const response: {
+    url?: string;
+    status?: string;
+    recordingLinks?: string[];
+  } = { url: '', status: VIDEO_CALL_STATUS.END, recordingLinks: [] };
+
+  if (callRecord) {
+    response.url = `${DAILY_END_POINT}/${callRecord.roomName}?t=${callRecord.token}`;
+    response.status = callRecord.status;
+
+    const updatedRecordins = await getRecordings(
+      callRecord.recordings || []
+    );
+
+    callRecord.recordings = updatedRecordins;
+    await callRecord.save();
+
+    response.recordingLinks = updatedRecordins.map(r => r.url);
+  }
+
+  return response;
+}
+
+export const getDailyActiveRoom = async ({ erxesApiConversationId }) => {
+  const { DAILY_END_POINT } = await getConfigs();
+
+  const callRecord = await CallRecords.findOne({
+    erxesApiConversationId,
+    status: VIDEO_CALL_STATUS.ONGOING
+  });
+
+  const response: {
+    url?: string;
+    name?: string;
+    recordingLinks?: string[];
+  } = {
+    recordingLinks: []
+  };
+
+  if (callRecord) {
+    const ownerTokenResponse = await sendDailyRequest(
+      '/api/v1/meeting-tokens/',
+      'POST',
+      {
+        properties: { room_name: callRecord.roomName }
+      }
+    );
+
+    response.url = `${DAILY_END_POINT}/${callRecord.roomName}?t=${ownerTokenResponse.token}`;
+    response.name = callRecord.roomName;
+  }
+
+  return response;
 }
 
 const init = async app => {
