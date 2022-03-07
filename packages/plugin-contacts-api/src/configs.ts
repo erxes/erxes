@@ -14,6 +14,7 @@ import {
 } from './events';
 import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
 import { buildFile } from './exporter';
+import segments from './segments';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -136,15 +137,8 @@ export default {
   importTypes: IMPORT_TYPES,
   exportTypes: EXPORT_TYPES,
   hasSubscriptions: true,
-  segment: {
-    indexesTypeContentType: {
-      customer: 'customers',
-      company: 'companies'
-    },
-    contentTypes: ['customer', 'company'],
-    esTypesMapQueue: 'contacts:segments:esTypesMap',
-    initialSelectorQueue: 'contacts:segments:initialSelector',
-    associationTypesQueue: 'contacts:segments:associationTypes'
+  meta: {
+    segments
   },
   apolloServerContext: context => {
     context.dataLoaders = generateAllDataLoaders();

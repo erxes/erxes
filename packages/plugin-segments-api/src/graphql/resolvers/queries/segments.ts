@@ -3,27 +3,45 @@ import { IContext } from "@erxes/api-utils/src/types";
 import { Segments } from "../../../models";
 import { es, serviceDiscovery } from '../../../configs';
 import { fetchSegment } from "./queryBuilder";
+import { sendRPCMessage } from "../../../messageBroker";
 
 const segmentQueries = {
   async segmentsGetTypes() {
     const serviceNames = await serviceDiscovery.getServices();
+
     let types: Array<{ name: string; description: string }> = [];
 
     for (const serviceName of serviceNames) {
       const service = await serviceDiscovery.getService(serviceName, true);
+      const meta = service.config.meta || {};
 
-      if (service.meta.segment) {
-        const schemas = service.meta.segment.schemas;
-        const schemasMetas = schemas.map(schema => ({
-          name: schema.name,
-          description: schema.description
+      if (meta.segments) {
+        const descriptionMap = meta.segments.descriptionMap;
+        const serviceTypes = meta.segments.contentTypes.map(contentType => ({
+          contentType: `${serviceName}:${contentType}`,
+          description: descriptionMap[contentType]
         }));
 
-        types = [...types, ...schemasMetas];
+        types = [...types, ...serviceTypes];
       }
     }
 
     return types;
+  },
+
+  async segmentsGetAssociationTypes(_root, { contentType }) {
+    const [serviceName, type] = contentType.split(':');
+    const service = await serviceDiscovery.getService(serviceName, true);
+    const meta = service.config.meta || {};
+
+    if (!meta.segments) {
+      return [];
+    }
+
+    const descriptionMap = meta.segments.descriptionMap;
+    const types = await sendRPCMessage(`${serviceName}:segments:associationTypes`, { mainType: type })
+
+    return types.map(atype => ({ value: atype, description: descriptionMap[atype] }));
   },
 
   /**

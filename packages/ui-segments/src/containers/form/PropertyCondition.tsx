@@ -1,15 +1,16 @@
-import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import client from "@erxes/ui/src/apolloClient";
+import gql from "graphql-tag";
 
-import { queries as boardQueries } from '@erxes/ui-cards/src/boards/graphql';
-import { queries as integrationQueries } from '@erxes/ui-settings/src/integrations/graphql';
+import { queries } from "../../graphql";
+import { queries as boardQueries } from "@erxes/ui-cards/src/boards/graphql";
+import { queries as integrationQueries } from "@erxes/ui-settings/src/integrations/graphql";
 
-import { isBoardKind } from '../../utils';
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import React from 'react';
-import PropertyCondition from '../../components/form/PropertyCondition';
+import { isBoardKind } from "../../utils";
+import { INTEGRATION_KINDS } from "@erxes/ui/src/constants/integrations";
+import React from "react";
+import PropertyCondition from "../../components/form/PropertyCondition";
 
-import { ISegmentCondition, ISegmentMap } from '../../types';
+import { ISegmentCondition, ISegmentMap } from "../../types";
 
 type Props = {
   segment: ISegmentMap;
@@ -35,14 +36,15 @@ type Props = {
 
 export default class PropertyConditionContainer extends React.Component<
   Props,
-  { boards: any[]; forms: any[] }
+  { boards: any[]; forms: any[]; associationTypes: any[] }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
+      associationTypes: [],
       boards: [],
-      forms: []
+      forms: [],
     };
   }
 
@@ -50,7 +52,23 @@ export default class PropertyConditionContainer extends React.Component<
     const { contentType } = this.props;
 
     this.fetchFields(contentType);
+    this.getAssociationTypes(contentType);
   }
+
+  getAssociationTypes = (type: string) => {
+    client
+      .query({
+        query: gql(queries.getAssociationTypes),
+        variables: {
+          contentType: type,
+        },
+      })
+      .then(({ data }) => {
+        this.setState({
+          associationTypes: data.segmentsGetAssociationTypes,
+        });
+      });
+  };
 
   fetchFields = (type: string) => {
     if (isBoardKind(type)) {
@@ -58,27 +76,27 @@ export default class PropertyConditionContainer extends React.Component<
         .query({
           query: gql(boardQueries.boards),
           variables: {
-            type
-          }
+            type,
+          },
         })
         .then(({ data }) => {
           this.setState({
-            boards: data.boards
+            boards: data.boards,
           });
         });
     }
 
-    if (type === 'form_submission') {
+    if (type === "form_submission") {
       client
         .query({
           query: gql(integrationQueries.integrations),
           variables: {
-            kind: INTEGRATION_KINDS.FORMS
-          }
+            kind: INTEGRATION_KINDS.FORMS,
+          },
         })
         .then(({ data }) => {
           this.setState({
-            forms: data.integrations
+            forms: data.integrations,
           });
         });
     } else {
@@ -87,13 +105,14 @@ export default class PropertyConditionContainer extends React.Component<
   };
 
   render() {
-    const { boards, forms } = this.state;
+    const { associationTypes, boards, forms } = this.state;
 
     const updatedProps = {
       ...this.props,
       fetchFields: this.fetchFields,
+      associationTypes,
       boards,
-      forms
+      forms,
     };
 
     return <PropertyCondition {...updatedProps} />;

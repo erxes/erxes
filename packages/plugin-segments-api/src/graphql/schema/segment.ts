@@ -59,6 +59,7 @@ export const types = `
 
 export const queries = `
   segmentsGetTypes: [JSON]
+  segmentsGetAssociationTypes(contentType: String!): [JSON]
   segments(contentTypes: [String]!, boardId: String, pipelineId: String): [Segment]
   segmentDetail(_id: String): Segment
   segmentsGetHeads: [Segment]

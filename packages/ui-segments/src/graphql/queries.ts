@@ -13,6 +13,18 @@ const segmentFields = `
   pipelineId
 `;
 
+const getTypes = `
+  query segmentsGetTypes {
+    segmentsGetTypes
+  }
+`;
+
+const getAssociationTypes = `
+  query segmentsGetAssociationTypes($contentType: String!) {
+    segmentsGetAssociationTypes(contentType: $contentType)
+  }
+`;
+
 const segments = `
   query segments($contentTypes: [String]!, $boardId: String, $pipelineId: String) {
     segments(contentTypes: $contentTypes, boardId: $boardId, pipelineId: $pipelineId) {
@@ -69,6 +81,8 @@ const combinedFields = `
 `;
 
 export default {
+  getTypes,
+  getAssociationTypes,
   segments,
   segmentDetail,
   headSegments,

@@ -156,37 +156,6 @@ export const initBroker = cl => {
     data: await insertImportItems(args)
   }));
 
-  consumeRPCQueue(
-    'contacts:segments:associationTypes',
-    async ({ mainType }) => {
-      let types: string[] = [];
-
-      if (['customer', 'lead'].includes(mainType)) {
-        types = ['company', 'deal', 'ticket', 'task'];
-      }
-
-      if (mainType === 'company') {
-        types = ['customer', 'deal', 'ticket', 'task'];
-      }
-
-      return { data: { types }, status: 'success' };
-    }
-  );
-
-  consumeRPCQueue('contacts:segments:esTypesMap', async () => {
-    return { data: { typesMap: {} }, status: 'success' };
-  });
-
-  consumeRPCQueue('contacts:segments:initialSelector', async () => {
-    const negative = {
-      term: {
-        status: 'deleted'
-      }
-    };
-
-    return { data: { negative }, status: 'success' };
-  });
-
   consumeRPCQueue('contacts:getCustomerName', async customer => {
     return { data: Customers.getCustomerName(customer), status: 'success' };
   });

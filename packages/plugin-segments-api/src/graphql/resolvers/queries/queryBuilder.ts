@@ -49,7 +49,7 @@ export const fetchSegment = async (
 
   for (const serviceName of serviceNames) {
     const service = await serviceDiscovery.getService(serviceName, true);
-    const segmentMeta = service.meta.segment;
+    const segmentMeta = (service.config.meta || {}).segments;
 
     if (segmentMeta) {
       serviceConfigs.push(segmentMeta);
