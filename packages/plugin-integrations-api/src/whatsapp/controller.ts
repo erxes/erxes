@@ -1,4 +1,4 @@
-import { debugRequest, debugResponse, debugWhatsapp } from '../debuggers';
+import { debugResponse, debugWhatsapp } from '../debuggers';
 import { routeErrorHandling } from '../helpers';
 import { Integrations } from '../models';
 import * as whatsappUtils from './api';
@@ -20,20 +20,6 @@ const init = async app => {
       await receiveMessage(req.body);
 
       res.sendStatus(200);
-    })
-  );
-
-  app.post(
-    '/whatsapp/create-integration',
-    routeErrorHandling(async (req, res) => {
-      debugRequest(debugWhatsapp, req);
-
-      const { integrationId, data } = req.body;
-      const { instanceId, token } = JSON.parse(data);
-
-      await whatsappUtils.saveInstance(integrationId, instanceId, token);
-
-      return res.json({ status: 'ok' });
     })
   );
 

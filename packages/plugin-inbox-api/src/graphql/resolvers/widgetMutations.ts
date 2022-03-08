@@ -1,6 +1,5 @@
 import * as strip from 'strip';
 import {
-  Channels,
   ConversationMessages,
   Conversations,
   Integrations
@@ -39,7 +38,7 @@ import {
   BOT_MESSAGE_TYPES
 } from '../../models/definitions/constants';
 
-import { IContext, sendRequest } from '@erxes/api-utils/src';
+import { sendRequest } from '@erxes/api-utils/src';
 
 import { solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from '../../cacheUtils';
@@ -59,6 +58,7 @@ import {
 import { trackViewPageEvent } from '../../events';
 // import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 import { getService, getServices } from '../../redis';
+import { IContext, IModels } from '../../connectionResolver';
 
 // import { IFormDocument } from '../../../db/models/definitions/forms';
 
@@ -72,7 +72,7 @@ interface IWidgetEmailParams {
   attachments?: IAttachment[];
 }
 
-const pConversationClientMessageInserted = async message => {
+const pConversationClientMessageInserted = async (message, models) => {
   const conversation = await Conversations.findOne(
     {
       _id: message.conversationId
@@ -94,7 +94,7 @@ const pConversationClientMessageInserted = async message => {
   let channelMemberIds: string[] = [];
 
   if (integration) {
-    const channels = await Channels.find(
+    const channels = await models.Channels.find(
       {
         integrationIds: { $in: [integration._id] }
       },
@@ -180,7 +180,8 @@ const createFormConversation = async (
     conversation?: any;
     message: any;
   },
-  type?: string
+  type?: string,
+  models?: IModels
 ) => {
   const { integrationId, formId, submissions } = args;
 
@@ -218,7 +219,7 @@ const createFormConversation = async (
     ...conversationData.message
   });
 
-  await pConversationClientMessageInserted(message);
+  await pConversationClientMessageInserted(message, models);
 
   graphqlPubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: message
@@ -308,7 +309,8 @@ const widgetMutations = {
       browserInfo: any;
       cachedCustomerId?: string;
       userId?: string;
-    }
+    },
+    { models }: IContext
   ) {
     const { submissions } = args;
 
@@ -324,7 +326,8 @@ const widgetMutations = {
           }
         };
       },
-      'lead'
+      'lead',
+      models
     );
   },
 
@@ -490,7 +493,8 @@ const widgetMutations = {
       skillId?: string;
       attachments?: any[];
       contentType: string;
-    }
+    },
+    { models }: IContext
   ) {
     const {
       integrationId,
@@ -636,7 +640,7 @@ const widgetMutations = {
       customerId: conversation.customerId
     });
 
-    await pConversationClientMessageInserted(msg);
+    await pConversationClientMessageInserted(msg, models);
 
     graphqlPubsub.publish('conversationMessageInserted', {
       conversationMessageInserted: msg
@@ -1060,7 +1064,8 @@ const widgetMutations = {
       browserInfo: any;
       cachedCustomerId?: string;
       productId: string;
-    }
+    },
+    { models }: IContext
   ) {
     const { submissions, productId } = args;
 
@@ -1085,7 +1090,8 @@ const widgetMutations = {
           }
         };
       },
-      'booking'
+      'booking',
+      models
     );
   }
 };

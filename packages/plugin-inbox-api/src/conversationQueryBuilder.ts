@@ -1,9 +1,10 @@
 import * as _ from 'underscore';
-import { Channels, Integrations } from './models';
+import { Integrations } from './models';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { fixDate } from '@erxes/api-utils/src/core';
 import { getDocumentList } from './cacheUtils';
 import { fetchSegment, sendSegmentMessage, sendTagRPCMessage } from './messageBroker';
+import { models } from './connectionResolver';
 
 interface IIn {
   $in: string[];
@@ -195,7 +196,7 @@ export default class Builder {
   public async channelFilter(
     channelId: string
   ): Promise<{ integrationId: IIn }> {
-    const channel = await Channels.getChannel(channelId);
+    const channel = await models.Channels.getChannel(channelId);
     const memberIds = channel.memberIds || [];
 
     if (!memberIds.includes(this.user._id)) {

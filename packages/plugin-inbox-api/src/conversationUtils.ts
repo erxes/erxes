@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { Channels, Integrations } from './models';
+import { Integrations } from './models';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { KIND_CHOICES } from './models/definitions/constants';
 
@@ -13,6 +13,7 @@ import { fixDate } from '@erxes/api-utils/src';
 
 import { debug } from './configs';
 import { fetchSegment, sendSegmentMessage, sendTagRPCMessage } from './messageBroker';
+import { models } from './connectionResolver';
 
 export interface ICountBy {
   [index: string]: number;
@@ -228,7 +229,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
   // filter by channel
   public async channelFilter(channelId: string): Promise<void> {
-    const channel = await Channels.getChannel(channelId);
+    const channel = await models.Channels.getChannel(channelId);
     const memberIds = channel.memberIds || [];
 
     if (!memberIds.includes(this.user._id)) {

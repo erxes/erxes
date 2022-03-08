@@ -43,46 +43,6 @@ export const chatfuelCreateIntegration = async ({ integrationId, data }) => {
 
 const init = async app => {
   app.post(
-    '/chatfuel/create-integration',
-    routeErrorHandling(async (req, res) => {
-      debugRequest(debugChatfuel, req);
-
-      const { integrationId, data } = req.body;
-      const { code, broadcastToken, botId, blockName } = JSON.parse(
-        data || '{}'
-      );
-
-      // Check existing Integration
-      const integration = await Integrations.findOne({
-        kind: 'chatfuel',
-        'chatfuelConfigs.code': code
-      }).lean();
-
-      if (integration) {
-        throw new Error(`Integration already exists with this code: ${code}`);
-      }
-
-      try {
-        await Integrations.create({
-          kind: 'chatfuel',
-          erxesApiId: integrationId,
-          chatfuelConfigs: {
-            code,
-            broadcastToken,
-            botId,
-            blockName
-          }
-        });
-      } catch (e) {
-        debugError(`Failed to create integration: ${e}`);
-        throw new Error(e);
-      }
-
-      return res.json({ status: 'ok' });
-    })
-  );
-
-  app.post(
     '/chatfuel-broadcast',
     routeErrorHandling(async (req, res) => {
       debugRequest(debugChatfuel, req);
