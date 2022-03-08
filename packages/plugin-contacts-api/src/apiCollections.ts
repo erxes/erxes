@@ -8,7 +8,6 @@ let db;
 export let Configs;
 export let Brands;
 export let Users;
-export let Segments;
 export let Fields;
 export let FieldsGroups;
 export let Forms;
@@ -26,7 +25,6 @@ const main = async () => {
   Configs = await db.collection('configs');
   Brands = await db.collection('brands');
   Users = await db.collection('users');
-  Segments = await db.collection('segments');
   Fields = await db.collection('form_fields');
   FieldsGroups = await db.collection('form_field_groups');
   Forms = await db.collection('forms');

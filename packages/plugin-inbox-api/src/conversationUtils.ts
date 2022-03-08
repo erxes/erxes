@@ -1,6 +1,5 @@
 import * as _ from 'underscore';
-import { Channels, Integrations } from './models';
-import { Segments } from './apiCollections';
+import { Integrations } from './models';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { KIND_CHOICES } from './models/definitions/constants';
 
@@ -13,7 +12,8 @@ import { fixDate } from '@erxes/api-utils/src';
 // import { ISegmentDocument } from '../../../db/models/definitions/segments';
 
 import { debug } from './configs';
-import { fetchSegment, sendTagRPCMessage } from './messageBroker';
+import { fetchSegment, sendSegmentMessage, sendTagRPCMessage } from './messageBroker';
+import { models } from './connectionResolver';
 
 export interface ICountBy {
   [index: string]: number;
@@ -90,10 +90,9 @@ export const countBySegment = async (
   counts: ICountBy
 ): Promise<ICountBy> => {
   // Count cocs by segments
-//   let segments: ISegmentDocument[] = [];
   let segments: any[] = [];
 
-  segments = await Segments.find({ contentType: 'conversation' }).toArray();
+  segments = await sendSegmentMessage('find', { contentType: 'conversation' }, true);
 
   // Count cocs by segment
   for (const s of segments) {
@@ -167,7 +166,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
   // filter by segment
   public async segmentFilter(segmentId: string) {
-    const segment = await Segments.findOne({ _id: segmentId });
+    const segment = await sendSegmentMessage('findOne', { _id: segmentId }, true);
 
     const selector = await fetchSegment(segment, { returnSelector: true });
 
@@ -230,7 +229,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
   // filter by channel
   public async channelFilter(channelId: string): Promise<void> {
-    const channel = await Channels.getChannel(channelId);
+    const channel = await models.Channels.getChannel(channelId);
     const memberIds = channel.memberIds || [];
 
     if (!memberIds.includes(this.user._id)) {

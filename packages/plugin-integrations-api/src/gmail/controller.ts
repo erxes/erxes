@@ -1,4 +1,4 @@
-import { debugError, debugGmail, debugRequest } from '../debuggers';
+import { debugError, debugGmail } from '../debuggers';
 import { routeErrorHandling } from '../helpers';
 import { Accounts } from '../models';
 import {
@@ -6,9 +6,18 @@ import {
   getGmailAttachment,
   getMessage,
   handleMessage,
-  sendEmail
 } from './handleController';
 import loginMiddleware from './loginMiddleware';
+
+export const gmailCreateIntegration = async ({ accountId, integrationId, data }) => {
+  const { email } = JSON.parse(data);
+
+  await createIntegration(accountId, email, integrationId);
+
+  debugGmail(`Successfully created the gmail integration`);
+
+  return { status: 'ok' };
+}
 
 const init = async app => {
   app.get('/gmail/login', loginMiddleware);
@@ -34,21 +43,6 @@ const init = async app => {
     }
   });
 
-  app.post(
-    '/gmail/create-integration',
-    routeErrorHandling(async (req, res) => {
-      debugRequest(debugGmail, req);
-
-      const { accountId, integrationId, data } = req.body;
-      const { email } = JSON.parse(data);
-
-      await createIntegration(accountId, email, integrationId);
-
-      debugGmail(`Successfully created the gmail integration`);
-
-      return res.json({ status: 'ok' });
-    })
-  );
 
   app.get(
     '/gmail/get-email',
@@ -62,22 +56,6 @@ const init = async app => {
       return res.json(account.email);
     })
   );
-
-  app.post(
-    '/gmail/send',
-    routeErrorHandling(async (req, res) => {
-      debugRequest(debugGmail, req);
-      debugGmail(`Sending gmail ===`);
-
-      const { data, erxesApiId } = req.body;
-      const mailParams = JSON.parse(data);
-
-      await sendEmail(erxesApiId, mailParams);
-
-      return res.json({ status: 200, statusText: 'success' });
-    })
-  );
-
   app.get(
     '/gmail/get-message',
     routeErrorHandling(async (req, res) => {

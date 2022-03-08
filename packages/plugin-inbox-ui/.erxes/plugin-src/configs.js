@@ -76,6 +76,15 @@ module.exports = {
       ],
     },
     {
+      text: "Integrations config",
+      to: "/settings/integrations-config",
+      image: "/images/icons/erxes-24.svg",
+      location: "settings",
+      scope: "inbox",
+      action: "generalSettingsAll",
+      permissions: ["manageGeneralSettings", "showGeneralSettings"],
+    },
+    {
       text: "Responses",
       to: "/settings/response-templates",
       image: "/images/icons/erxes-10.svg",

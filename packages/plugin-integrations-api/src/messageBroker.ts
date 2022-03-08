@@ -1,13 +1,28 @@
 import * as dotenv from 'dotenv';
-import { removeAccount, removeCustomers, repairIntegrations } from './helpers';
+import { removeAccount, removeCustomers, removeIntegration, repairIntegrations } from './helpers';
 
 import messageBroker from 'erxes-message-broker';
+import { Accounts, Configs } from './models';
 import { handleFacebookMessage } from './facebook/handleFacebookMessage';
 import { Integrations } from './models';
 import { getLineWebhookUrl } from './smooch/api';
 import { sendSms } from './telnyx/api';
 import { userIds } from './userMiddleware';
 import { getConfig } from './utils';
+import { createDailyRoom, getDailyActiveRoom, getDailyRoom } from './videoCall/controller';
+import { debugGmail, debugNylas } from './debuggers';
+import { Posts } from './facebook/models';
+import { getMessage as nylasGetMessage, nylasSendEmail } from './nylas/handleController';
+import { getMessage as gmailGetMessage, sendEmail } from './gmail/handleController';
+import { facebookCreateIntegration, facebookGetCustomerPosts } from './facebook/controller';
+import { twitterCreateIntegration } from './twitter/controller';
+import { smoochCreateIntegration } from './smooch/controller';
+import { nylasCreateIntegration } from './nylas/controller';
+import { callproCreateIntegration, callproGetAudio } from './callpro/controller';
+import { chatfuelCreateIntegration } from './chatfuel/controller';
+import { gmailCreateIntegration } from './gmail/controller';
+import { telnyxCreateIntegration } from './telnyx/controller';
+import { whatsappCreateIntegration } from './whatsapp/controller';
 
 dotenv.config();
 
@@ -20,7 +35,20 @@ export const initBroker = async server => {
     envs: process.env
   });
 
-  const { consumeQueue, consumeRPCQueue } = client;
+  const { consumeRPCQueue, consumeQueue } = client;
+
+  consumeRPCQueue('integrations:getAccounts', async ({ kind }) => {
+    if (kind.includes('nylas')) {
+      kind = kind.split('-')[1];
+    }
+
+    const selector = { kind };
+
+    return {
+      data: await Accounts.find(selector),
+      status: 'success'
+    };
+  });
 
   // listen for rpc queue =========
   consumeRPCQueue('rpc_queue:api_to_integrations', async parsedObject => {
@@ -54,6 +82,29 @@ export const initBroker = async server => {
         response = { data: await handleFacebookMessage(parsedObject) };
       }
 
+      if (action === 'getConfigs') {
+        response = { data: await Configs.find({}) };
+      }
+
+      if (action === 'getMessage') {
+        const { path, erxesApiMessageId, integrationId } = data;
+
+        if (!erxesApiMessageId) {
+          throw new Error('erxesApiMessageId is not provided!');
+        }
+
+        switch (path) {
+          case '/nylas/get-message':
+            response = await nylasGetMessage(erxesApiMessageId, integrationId);
+            break;
+          case '/gmail/get-message':
+            response = await gmailGetMessage(erxesApiMessageId, integrationId);
+            break;
+          default:
+            break;
+        }
+      }
+
       response.status = 'success';
     } catch (e) {
       response = {
@@ -64,6 +115,176 @@ export const initBroker = async server => {
 
     return response;
   });
+
+  // /facebook/get-status'
+  consumeRPCQueue(
+    'integrations:rpc_queue:getFacebookStatus',
+    async ({ integrationId }) => {
+      const integration = await Integrations.findOne({
+        erxesApiId: integrationId
+      });
+
+      let result = {
+        status: 'healthy'
+      } as any;
+
+      if (integration) {
+        result = {
+          status: integration.healthStatus || 'healthy',
+          error: integration.error
+        };
+      }
+
+      return {
+        data: result,
+        status: 'success'
+      };
+    }
+  );
+
+  // '/daily/room', get
+  consumeRPCQueue(
+    'integrations:rpc_queue:getDailyRoom',
+    async (doc) => {
+      return {
+        data: await getDailyRoom(doc),
+        status: 'success'
+      };
+    }
+  );
+
+  // '/daily/room', post create daily room
+  consumeRPCQueue(
+    'integrations:rpc_queue:createDailyRoom',
+    async (doc) => {
+      return {
+        data: await createDailyRoom(doc),
+        status: 'success' 
+      }
+    }
+  );
+
+  // '/daily/get-active-room',
+  consumeRPCQueue(
+    'integrations:rpc_queue:getDailyActiveRoom',
+    async (doc) => {
+      return {
+        data: await getDailyActiveRoom(doc),
+        status: 'success'
+      };
+    }
+  );
+
+  // '/callpro/get-audio',
+  consumeRPCQueue(
+    'integrations:rpc_queue:getCallproAudio',
+    async (doc) => {
+      return {
+        data: await callproGetAudio(doc),
+        status: 'success'
+      };
+    }
+  );
+
+  // /facebook/get-post
+  consumeRPCQueue(
+    'integrations:rpc_queue:getFacebookPost',
+    async ({ erxesApiId }) => {
+      const post = await Posts.getPost({ erxesApiId }, true);
+
+      return {
+        data: post,
+        status: 'success'
+      };
+    }
+  );
+
+  // app.get('/facebook/get-customer-posts'
+  consumeRPCQueue(
+    'integrations:rpc_queue:getFbCustomerPosts',
+    async (doc) => {
+      return {
+        data: await facebookGetCustomerPosts(doc),
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue('integrations:rpc_queue:createIntegration', async ({doc, kind}) => {
+    switch(kind) {
+      case 'nylas': 
+        await nylasCreateIntegration(doc);
+        break;
+      case 'facebook':
+        await facebookCreateIntegration(doc);
+        break;
+      case 'twitter':
+        await twitterCreateIntegration(doc);
+        break;
+      case 'smooch':
+        await smoochCreateIntegration(doc);
+      break;
+      case 'callpro':
+        await callproCreateIntegration(doc);
+        break;
+      case 'chatfuel':
+        await chatfuelCreateIntegration(doc);
+        break;
+      case 'gmail':
+        await gmailCreateIntegration(doc);
+        break;
+      case 'telnyx':
+        await telnyxCreateIntegration(doc);
+        break;
+      default: 
+      // whatsapp
+        whatsappCreateIntegration(doc);
+        break;
+    }
+});
+
+  // '/integrations/remove',
+  consumeRPCQueue('integrations:rcp_queue:removeIntegrations', async ({ integrationId }) => {
+    await removeIntegration(integrationId);
+
+    return { status: 'ok' };
+  });
+
+  //  '/nylas/send', /gmail/send
+  consumeRPCQueue('integrations:rcp_queue:sendEmail', async ({kind, doc}) => {
+    const { data, erxesApiId } = doc;
+
+    if(kind === 'nylas') {
+      debugNylas('Sending message...');
+
+      const params = JSON.parse(data);
+
+      await nylasSendEmail(erxesApiId, params);
+
+      return { status: 'ok' };
+    }
+
+    if(kind === 'gmail') {
+      debugGmail(`Sending gmail ===`);
+
+      const mailParams = JSON.parse(data);
+
+      await sendEmail(erxesApiId, mailParams);
+
+      return { status: 200, statusText: 'success' };
+    }
+  })
+
+  // /telnyx/send-sms
+  consumeRPCQueue('integrations:rpc_queue:sendSms', async (args) => {
+    const { integrationId, content, to } = args;
+
+    const result = await sendSms(
+      JSON.stringify({ integrationId, content, toPhone: to })
+    );
+
+    return result;
+  })
 
   consumeQueue('erxes-api:integrations-notification', async content => {
     const { action, payload, type } = content;

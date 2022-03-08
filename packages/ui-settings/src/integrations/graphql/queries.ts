@@ -81,12 +81,6 @@ const integrations = `
   }
 `;
 
-const fetchApi = `
-  query integrationsFetchApi($path: String!, $params: JSON!) {
-    integrationsFetchApi(path: $path, params: $params)
-  }
-`;
-
 const integrationDetail = `
   query integrationDetail($_id: String!) {
     integrationDetail(_id: $_id) {
@@ -160,8 +154,57 @@ const integrationsGetConfigs = `
   }
 `;
 
+const integrationsGetNylasEvents = `
+  query integrationsGetNylasEvents($calendarIds: [String] $startTime: Date $endTime: Date) {
+    integrationsGetNylasEvents(calendarIds: $calendarIds startTime: $startTime endTime: $endTime)
+  }
+`;
+
+const integrationsGetTwitterAccount = `
+  query integrationsGetTwitterAccount($accountId: String!) {
+    integrationsGetTwitterAccount(accountId: $accountId)
+  }
+`;
+
+const integrationsGetGmailEmail = `
+  query integrationsGetGmailEmail($accountId: String!) {
+    integrationsGetGmailEmail(accountId: $accountId)
+  }
+`;
+
+const integrationsGetFbPages = `
+  query integrationsGetFbPages($accountId: String!, $kind: String!) {
+    integrationsGetFbPages(accountId: $accountId, kind: $kind)
+  }
+`;
+
+const integrationsVideoCallUsageStatus = `
+  query integrationsVideoCallUsageStatus {
+    integrationsVideoCallUsageStatus
+  }
+`;
+
+const integrationsNylasGetCalendars = `
+  query integrationsNylasGetCalendars($accountId: String!, $show: Boolean) {
+    integrationsNylasGetCalendars(accountId: $accountId, show: $show)
+  }
+`;
+
+const integrationsNylasGetSchedulePage = `
+  query integrationsNylasGetSchedulePage($pageId: String!) {
+    integrationsNylasGetSchedulePage(pageId: $pageId)
+  }
+`;
+
+const integrationsNylasGetSchedulePages = `
+  query integrationsNylasGetSchedulePages($accountId: String!) {
+    integrationsNylasGetSchedulePages(accountId: $accountId)
+  }
+`;
+
+
+
 export default {
-  fetchApi,
   integrations,
   users,
   integrationDetail,
@@ -171,5 +214,13 @@ export default {
   integrationGetLineWebhookUrl,
   integrationsGetAccounts,
   integrationsGetIntegrations,
-  integrationsGetConfigs
+  integrationsGetConfigs,
+  integrationsGetNylasEvents,
+  integrationsGetTwitterAccount,
+  integrationsGetGmailEmail,
+  integrationsGetFbPages,
+  integrationsVideoCallUsageStatus,
+  integrationsNylasGetCalendars,
+  integrationsNylasGetSchedulePage,
+  integrationsNylasGetSchedulePages
 };

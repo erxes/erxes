@@ -38,17 +38,15 @@ class TwitterContainer extends React.Component<FinalProps, State> {
 
     client
       .query({
-        // ! twitter controller
-        query: gql(queries.fetchApi),
+        query: gql(queries.integrationsGetTwitterAccount),
         variables: {
-          path: '/twitter/get-account',
-          params: { accountId }
+          accountId 
         }
       })
       .then(({ data, loading }: any) => {
         if (!loading) {
           this.setState({
-            twitterAccountId: data.integrationsFetchApi,
+            twitterAccountId: data.integrationsGetTwitterAccount,
             accountId
           });
         }

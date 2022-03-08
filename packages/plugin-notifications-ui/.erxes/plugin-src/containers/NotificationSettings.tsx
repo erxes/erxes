@@ -12,17 +12,25 @@ import {
 } from "@erxes/ui-notifications/src/types";
 import NotificationSettings from "../components/NotificationSettings";
 import { IUser } from "@erxes/ui/src/auth/types";
+import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
 import { currentUser } from "@erxes/ui/src/auth/graphql";
 import { Alert, withProps } from "@erxes/ui/src/utils";
+import { IQueryParams } from "@erxes/ui/src/types";
 
 type Props = {
+  queryParams: IQueryParams;
+  history: any;
+};
+
+type FinalProps = {
   notificationModulesQuery: NotificationModulesQueryResponse;
   notificationConfigurationsQuery: NotificationConfigsQueryResponse;
   currentUser: IUser;
-} & GetNotificationByEmailMutationResponse &
+} & Props &
+  GetNotificationByEmailMutationResponse &
   SaveNotificationConfigMutationResponse;
 
-const NotificationSettingsContainer = (props: Props) => {
+const NotificationSettingsContainer = (props: FinalProps) => {
   const {
     notificationModulesQuery,
     notificationConfigurationsQuery,
@@ -56,10 +64,10 @@ const NotificationSettingsContainer = (props: Props) => {
 
   const configs =
     notificationConfigurationsQuery.notificationsGetConfigurations || [];
+  console.log(currentUser);
 
   // default value is checked
   let getNotificationByEmail = currentUser.getNotificationByEmail;
-
   if (getNotificationByEmail === undefined || getNotificationByEmail === null) {
     getNotificationByEmail = false;
   }
@@ -148,5 +156,5 @@ export default withProps<{}>(
         name: "saveNotificationConfigurationsMutation",
       }
     )
-  )(NotificationSettingsContainer)
+  )(withCurrentUser(NotificationSettingsContainer))
 );

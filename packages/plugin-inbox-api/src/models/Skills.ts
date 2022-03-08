@@ -1,4 +1,5 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
+import { IModels } from '../connectionResolver';
 import {
   ISkillDocument,
   ISkillTypeDocument,
@@ -13,14 +14,14 @@ export interface ISkillTypeModel extends Model<ISkillTypeDocument> {
   removeSkillType(_id: string): Promise<void>;
 }
 
-export const loadSkillTypeClass = () => {
+export const loadSkillTypeClass = (models: IModels) => {
   class SkillType {
     public static async createSkillType(name: string) {
-      return SkillTypes.create({ name });
+      return models.SkillTypes.create({ name });
     }
 
     public static async updateSkillType(_id: string, name: string) {
-      return SkillTypes.updateOne({ _id }, { $set: { name } });
+      return models.SkillTypes.updateOne({ _id }, { $set: { name } });
     }
 
     public static async removeSkillType(_id: string) {
@@ -33,8 +34,8 @@ export const loadSkillTypeClass = () => {
         { $unset: { 'messengerData.skillData': '' } }
       );
 
-      await Skills.deleteMany({ typeId: _id });
-      return SkillTypes.deleteOne({ _id });
+      await models.Skills.deleteMany({ typeId: _id });
+      return models.SkillTypes.deleteOne({ _id });
     }
   }
 
@@ -65,14 +66,14 @@ export interface ISkillModel extends Model<ISkillDocument> {
   removeSkill(_id: string): Promise<void>;
 }
 
-export const loadSkillClass = () => {
+export const loadSkillClass = (models: IModels) => {
   class Skill {
     public static async createSkill(doc: ISkillParams) {
-      return Skills.create(doc);
+      return models.Skills.create(doc);
     }
 
     public static async excludeUserSkill(_id: string, memberIds: string[]) {
-      return Skills.updateOne(
+      return models.Skills.updateOne(
         { _id },
         { $pull: { memberIds: { $in: memberIds } } }
       );
@@ -84,7 +85,7 @@ export const loadSkillClass = () => {
       typeId,
       name
     }: ISkillUpdateParam) {
-      return Skills.updateOne({ _id }, { $set: { typeId, memberIds, name } });
+      return models.Skills.updateOne({ _id }, { $set: { typeId, memberIds, name } });
     }
 
     public static async removeSkill(_id: string) {
@@ -99,7 +100,7 @@ export const loadSkillClass = () => {
         { $pull: { 'messengerData.skillData.options': { skillId: _id } } }
       );
 
-      await Skills.deleteOne({ _id });
+      await models.Skills.deleteOne({ _id });
 
       return _id;
     }
@@ -109,15 +110,3 @@ export const loadSkillClass = () => {
 
   return skillSchema;
 };
-
-loadSkillClass();
-loadSkillTypeClass();
-
-// tslint:disable-next-line
-const SkillTypes = model<ISkillTypeDocument, ISkillTypeModel>(
-  'skill_types',
-  skillTypeSchema
-);
-const Skills = model<ISkillDocument, ISkillModel>('skills', skillSchema);
-
-export { SkillTypes, Skills };

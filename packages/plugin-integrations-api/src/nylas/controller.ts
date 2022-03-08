@@ -14,14 +14,9 @@ import {
   nylasDeleteCalendarEvent,
   nylasDeleteSchedulePage,
   nylasFileUpload,
-  nylasGetAccountCalendars,
   nylasGetAttachment,
   nylasGetCalendarOrEvent,
-  nylasGetEvents,
-  nylasGetSchedulePage,
-  nylasGetSchedulePages,
   nylasRemoveCalendars,
-  nylasSendEmail,
   nylasUpdateEvent,
   nylasUpdateSchedulePage,
   updateCalendar
@@ -36,6 +31,16 @@ import {
 
 // load config
 dotenv.config();
+
+export const nylasCreateIntegration = async ({integrationId, data, kind}) => {
+    const args = JSON.parse(data);
+
+    kind = kind.split('-')[1];
+
+    await createNylasIntegration(kind, integrationId, args);
+
+    return { status: 'ok' };
+}
 
 export const initNylas = async app => {
   app.get('/nylas/oauth2/callback', loginMiddleware);
@@ -85,27 +90,6 @@ export const initNylas = async app => {
       }
 
       return res.status(200).send('success');
-    })
-  );
-
-  app.post(
-    '/nylas/create-integration',
-    routeErrorHandling(async (req, res) => {
-      debugRequest(debugNylas, req);
-
-      const { integrationId, data } = req.body;
-
-      const args = JSON.parse(data);
-
-      let { kind } = req.body;
-
-      kind = kind.split('-')[1];
-
-      await createNylasIntegration(kind, integrationId, args);
-
-      debugNylas(`Successfully created the integration and connected to nylas`);
-
-      return res.json({ status: 'ok' });
     })
   );
 
@@ -171,21 +155,6 @@ export const initNylas = async app => {
   );
 
   app.post(
-    '/nylas/send',
-    routeErrorHandling(async (req, res) => {
-      debugRequest(debugNylas, req);
-      debugNylas('Sending message...');
-
-      const { data, erxesApiId } = req.body;
-      const params = JSON.parse(data);
-
-      await nylasSendEmail(erxesApiId, params);
-
-      return res.json({ status: 'ok' });
-    })
-  );
-
-  app.post(
     '/nylas/connect-calendars',
     routeErrorHandling(async (req, res) => {
       debugRequest(debugNylas, req);
@@ -209,28 +178,6 @@ export const initNylas = async app => {
       await nylasRemoveCalendars(accountId);
 
       return res.json({ status: 'ok' });
-    })
-  );
-
-  app.get(
-    '/nylas/get-calendars',
-    routeErrorHandling(async (req, res) => {
-      const { accountId, show } = req.query;
-
-      const calendars = await nylasGetAccountCalendars(accountId, show);
-
-      return res.json(calendars);
-    })
-  );
-
-  app.get(
-    '/nylas/get-events',
-    routeErrorHandling(async (req, res) => {
-      const { calendarIds, startTime, endTime } = req.query;
-
-      const events = await nylasGetEvents({ calendarIds, startTime, endTime });
-
-      return res.json(events);
     })
   );
 
@@ -308,32 +255,6 @@ export const initNylas = async app => {
         accountId,
         eventId: _id
       });
-
-      return res.json(response);
-    })
-  );
-
-  app.get(
-    '/nylas/get-schedule-pages',
-    routeErrorHandling(async (req, res) => {
-      debugRequest(debugNylas, req);
-
-      const { accountId } = req.query;
-
-      const response = await nylasGetSchedulePages(accountId);
-
-      return res.json(response);
-    })
-  );
-
-  app.get(
-    '/nylas/get-schedule-page',
-    routeErrorHandling(async (req, res) => {
-      debugRequest(debugNylas, req);
-
-      const { pageId } = req.query;
-
-      const response = await nylasGetSchedulePage(pageId);
 
       return res.json(response);
     })

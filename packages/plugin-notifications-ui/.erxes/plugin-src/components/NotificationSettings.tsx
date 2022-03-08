@@ -1,12 +1,13 @@
 import Toggle from "@erxes/ui/src/components/Toggle";
-import { ScrollWrapper } from "@erxes/ui/src/styles/main";
 import { __ } from "@erxes/ui/src/utils";
+import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import React from "react";
 import {
   NotificationConfig,
   NotificationModule,
 } from "@erxes/ui-notifications/src/types";
-import { InlineItems, ModuleBox } from "./styles";
+import { Box, InlineItems, ModuleBox } from "./styles";
 import {
   Description,
   SubHeading,
@@ -84,7 +85,7 @@ class NotificationSettings extends React.Component<Props> {
 
   render() {
     const content = (
-      <React.Fragment>
+      <Box>
         <SubHeading>
           {__("Notifications")}
           <span>
@@ -107,17 +108,43 @@ class NotificationSettings extends React.Component<Props> {
             "If your team hasn't received messages that you sent on the site, we can send it to them via email"
           )}
         </Description>
-        <ScrollWrapper calcHeight="365">
-          <ModuleBox>
-            {this.props.modules.map((module, index) =>
-              this.renderModule(module, index)
-            )}
-          </ModuleBox>
-        </ScrollWrapper>
-      </React.Fragment>
+        <ModuleBox>
+          {this.props.modules.map((module, index) =>
+            this.renderModule(module, index)
+          )}
+        </ModuleBox>
+      </Box>
     );
 
-    return content;
+    const breadcrumb = [
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Notification settings") },
+    ];
+
+    const headerDescription = (
+      <HeaderDescription
+        icon="/images/actions/28.svg"
+        title="Notification settings"
+        description={`${__(
+          `This allows you to see erxes's real-time notification on all system`
+        )}`}
+      />
+    );
+
+    return (
+      <Wrapper
+        header={
+          <Wrapper.Header
+            title={__("Notification settings")}
+            breadcrumb={breadcrumb}
+          />
+        }
+        mainHead={headerDescription}
+        content={content}
+        transparent={true}
+        center={true}
+      />
+    );
   }
 }
 

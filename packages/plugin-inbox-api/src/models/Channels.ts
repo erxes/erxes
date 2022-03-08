@@ -1,4 +1,5 @@
 import { Model, model } from 'mongoose';
+import { IModels } from '../connectionResolver';
 import {
   channelSchema,
   IChannel,
@@ -13,13 +14,13 @@ export interface IChannelModel extends Model<IChannelDocument> {
   removeChannel(_id: string): void;
 }
 
-export const loadClass = () => {
+export const loadClass = (models: IModels) => {
   class Channel {
     /*
      * Get a Channel
      */
     public static async getChannel(_id: string) {
-      const channel = await Channels.findOne({ _id });
+      const channel = await models.Channels.findOne({ _id });
 
       if (!channel) {
         throw new Error('Channel not found');
@@ -33,7 +34,7 @@ export const loadClass = () => {
         throw new Error('userId must be supplied');
       }
 
-      return Channels.create({
+      return models.Channels.create({
         ...doc,
         createdAt: new Date(),
         userId
@@ -41,9 +42,9 @@ export const loadClass = () => {
     }
 
     public static async updateChannel(_id: string, doc: IChannel) {
-      await Channels.updateOne({ _id }, { $set: doc }, { runValidators: true });
+      await models.Channels.updateOne({ _id }, { $set: doc }, { runValidators: true });
 
-      return Channels.findOne({ _id });
+      return models.Channels.findOne({ _id });
     }
 
     public static async updateUserChannels(
@@ -51,24 +52,24 @@ export const loadClass = () => {
       userId: string
     ) {
       // remove from previous channels
-      await Channels.updateMany(
+      await models.Channels.updateMany(
         { memberIds: { $in: [userId] } },
         { $pull: { memberIds: userId } },
         { multi: true }
       );
 
       // add to given channels
-      await Channels.updateMany(
+      await models.Channels.updateMany(
         { _id: { $in: channelIds } },
         { $push: { memberIds: userId } },
         { multi: true }
       );
 
-      return Channels.find({ _id: { $in: channelIds } });
+      return models.Channels.find({ _id: { $in: channelIds } });
     }
 
     public static removeChannel(_id: string) {
-      return Channels.deleteOne({ _id });
+      return models.Channels.deleteOne({ _id });
     }
   }
 
@@ -76,13 +77,3 @@ export const loadClass = () => {
 
   return channelSchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const Channels = model<IChannelDocument, IChannelModel>(
-  'channels',
-  channelSchema
-);
-
-export default Channels;

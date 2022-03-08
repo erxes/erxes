@@ -5,8 +5,6 @@ import {
   Integrations
 } from '../../models';
 
-import { Fields, Users } from '../../apiCollections';
-
 import { IIntegrationDocument } from '../../models/definitions/integrations';
 
 import { getOrCreateEngageMessage } from '../../widgetUtils';

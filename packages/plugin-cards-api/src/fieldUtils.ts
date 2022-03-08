@@ -1,6 +1,6 @@
-import { Segments } from './apiCollections';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import { BOARD_ITEM_EXTENDED_FIELDS } from './constants';
+import { sendSegmentMessage } from './messageBroker';
 import { Deals, PipelineLabels, Stages, Tasks, Tickets } from './models';
 
 const getStageOptions = async pipelineId => {
@@ -94,7 +94,7 @@ export const generateFields = async args => {
   }
 
   if (segmentId || pipelineId) {
-    const segment = segmentId ? await Segments.findOne(segmentId) : null;
+    const segment = segmentId ? await sendSegmentMessage('findOne', { _id: segmentId }, true) : null;
 
     const labelOptions = await getPipelineLabelOptions(
       pipelineId || (segment ? segment.pipelineId : null)

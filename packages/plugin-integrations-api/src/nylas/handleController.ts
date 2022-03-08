@@ -112,7 +112,7 @@ export const getMessage = async (
   return message;
 };
 
-export const nylasFileUpload = async (erxesApiId: string, response: any) => {
+export const nylasFileUpload = async (erxesApiId: string | string[], response: any) => {
   const integration = await Integrations.findOne({ erxesApiId }).lean();
 
   if (!integration) {

@@ -2,10 +2,11 @@ import sift from 'sift';
 
 import { Brands, Users } from './apiCollections';
 
-import { Channels, Integrations, MessengerApps } from './models';
+import { Integrations, MessengerApps } from './models';
 
 import { get, set } from './inmemoryStorage';
 import { sendProductRPCMessage, sendTagRPCMessage } from './messageBroker';
+import { models } from './connectionResolver';
 
 export const getDocument = async (
   type: 'users' | 'integrations' | 'brands' | 'channels',
@@ -38,7 +39,7 @@ export const getDocumentList = async (
       }
 
       case 'channels': {
-        list = await Channels.find().lean();
+        list = await models.Channels.find().lean();
         break;
       }
 

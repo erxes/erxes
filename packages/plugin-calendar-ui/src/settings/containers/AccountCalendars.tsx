@@ -20,20 +20,20 @@ type Props = {
 };
 
 type FinalProps = {
-  fetchApiQuery: any;
+  fetchCalendarQuery: any;
 } & Props &
   EditAccountCalendarMutationResponse;
 
 class EventContainer extends React.Component<FinalProps, {}> {
   render() {
-    const { fetchApiQuery, editMutation, groupId } = this.props;
+    const { fetchCalendarQuery, editMutation, groupId } = this.props;
 
-    if (fetchApiQuery.loading) {
+    if (fetchCalendarQuery.loading) {
       return <Spinner objective={true} />;
     }
 
-    if (fetchApiQuery.error) {
-      return <Info>{fetchApiQuery.error.message}</Info>;
+    if (fetchCalendarQuery.error) {
+      return <Info>{fetchCalendarQuery.error.message}</Info>;
     }
 
     // edit action
@@ -43,7 +43,7 @@ class EventContainer extends React.Component<FinalProps, {}> {
         refetchQueries: getRefetchQueries(groupId)
       })
         .then(() => {
-          fetchApiQuery.refetch();
+          fetchCalendarQuery.refetch();
 
           const msg = `${__(`You successfully edited a`)} ${__('calendar')}.`;
 
@@ -55,7 +55,7 @@ class EventContainer extends React.Component<FinalProps, {}> {
     };
 
     const updatedProps = {
-      calendars: fetchApiQuery.integrationsFetchApi || [],
+      calendars: fetchCalendarQuery.integrationsNylasGetCalendars || [],
       editCalendar
     };
 
@@ -74,16 +74,12 @@ const getRefetchQueries = (groupId: string) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, any>(gql(queries.fetchApi), {
-      name: 'fetchApiQuery',
-      // ! nylas controller
+    graphql<Props, any>(gql(queries.integrationsNylasGetCalendars), {
+      name: 'fetchCalendarQuery',
       options: ({ accountId }) => {
         return {
           variables: {
-            path: '/nylas/get-calendars',
-            params: {
-              accountId
-            }
+            accountId
           }
         };
       }

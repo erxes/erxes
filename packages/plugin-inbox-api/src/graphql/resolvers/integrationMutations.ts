@@ -3,7 +3,7 @@ import * as telemetry from 'erxes-telemetry';
 import { getUniqueValue } from '@erxes/api-utils/src/core';
 import { putActivityLog } from '@erxes/api-utils/src/logUtils';
 
-import { Channels, Integrations } from '../../models';
+import { Integrations } from '../../models';
 
 import {
   EmailDeliveries,
@@ -29,7 +29,7 @@ import {
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
 import { debug } from '../../configs';
-import messageBroker, { sendMessage, sendContactRPCMessage } from '../../messageBroker';
+import messageBroker, { sendMessage, sendContactRPCMessage, sendRPCMessage } from '../../messageBroker';
 
 import { MODULE_NAMES } from '../../constants';
 import {
@@ -45,6 +45,7 @@ import { IContext } from '@erxes/api-utils/src';
 // import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 import { client as msgBrokerClient } from '../../messageBroker';
 import { getService, getServices } from '../../redis';
+import { models } from '../../connectionResolver';
 
 interface IEditIntegration extends IIntegration {
   _id: string;
@@ -69,7 +70,7 @@ const createIntegration = async (
   type: string
 ) => {
   if (doc.channelIds) {
-    await Channels.updateMany(
+    await models.Channels.updateMany(
       { _id: { $in: doc.channelIds } },
       { $push: { integrationIds: integration._id } }
     );
@@ -101,13 +102,13 @@ const editIntegration = async (
   user,
   updated: IIntegrationDocument
 ) => {
-  await Channels.updateMany(
+  await models.Channels.updateMany(
     { integrationIds: integration._id },
     { $pull: { integrationIds: integration._id } }
   );
 
   if (fields.channelIds) {
-    await Channels.updateMany(
+    await models.Channels.updateMany(
       { _id: { $in: fields.channelIds } },
       { $push: { integrationIds: integration._id } }
     );
@@ -235,7 +236,7 @@ const integrationMutations = {
     );
 
     if (doc.channelIds) {
-      await Channels.updateMany(
+      await models.Channels.updateMany(
         { _id: { $in: doc.channelIds } },
         { $push: { integrationIds: integration._id } }
       );
@@ -261,12 +262,15 @@ const integrationMutations = {
 
     try {
       if (KIND_CHOICES.WEBHOOK !== kind) {
-        await dataSources.IntegrationsAPI.createIntegration(kind, {
-          accountId: doc.accountId,
-          kind: doc.kind,
-          integrationId: integration._id,
-          data: data ? JSON.stringify(data) : ''
-        });
+        await sendRPCMessage('integrations:rpc_queue:createIntegration', {
+          kind,
+          doc: {
+            accountId: doc.accountId,
+            kind: doc.kind,
+            integrationId: integration._id,
+            data: data ? JSON.stringify(data) : ''
+          }
+        })
       }
 
       telemetry.trackCli('integration_created', { type: doc.kind });
@@ -308,13 +312,13 @@ const integrationMutations = {
 
     const updated = await Integrations.getIntegration({ _id });
 
-    await Channels.updateMany(
+    await models.Channels.updateMany(
       { integrationIds: integration._id },
       { $pull: { integrationIds: integration._id } }
     );
 
     if (channelIds) {
-      await Channels.updateMany(
+      await models.Channels.updateMany(
         { _id: { $in: channelIds } },
         { $push: { integrationIds: integration._id } }
       );
@@ -339,7 +343,7 @@ const integrationMutations = {
   async integrationsRemove(
     _root,
     { _id }: { _id: string },
-    { user, dataSources }: IContext
+    { user }: IContext
   ) {
     const integration = await Integrations.getIntegration({ _id });
 
@@ -367,9 +371,9 @@ const integrationMutations = {
           'webhook'
         ].includes(integration.kind)
       ) {
-        await dataSources.IntegrationsAPI.removeIntegration({
-          integrationId: _id
-        });
+        await sendRPCMessage('integrations:rcp_queue:removeIntegrations', {
+          integrationid: _id
+        })
       }
 
       await putDeleteLog(
@@ -389,15 +393,13 @@ const integrationMutations = {
    */
   async integrationsRemoveAccount(_root, { _id }: { _id: string }) {
     try {
-      //       const { erxesApiIds } = await messageBroker().sendRPCMessage(
-      //         RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS,
-      //         {
-      //           action: 'remove-account',
-      //           data: { _id }
-      //         }
-      //       );
-
-      const { erxesApiIds } = { erxesApiIds: [] };
+      const { erxesApiIds } = await sendRPCMessage(
+        'rpc_queue:api_to_integrations',
+        {
+          action: 'remove-account',
+          data: { _id }
+        }
+      );
 
       for (const id of erxesApiIds) {
         await Integrations.removeIntegration(id);
@@ -454,10 +456,13 @@ const integrationMutations = {
     // doc.body = replacedContent || '';
 
     try {
-      await dataSources.IntegrationsAPI.sendEmail(kind, {
-        erxesApiId,
-        data: JSON.stringify(doc)
-      });
+      await sendRPCMessage('integrations:rcp_queue:sendEmail', {
+        kind,
+        doc: {
+          erxesApiId,
+          data: JSON.stringify(doc)
+        }
+      })
     } catch (e) {
       debug.error(e);
       throw e;
@@ -502,23 +507,11 @@ const integrationMutations = {
 
     return updated;
   },
-
-  async integrationsRepair(_root, { _id }: { _id: string }) {
-    //     await messageBroker().sendRPCMessage(
-    //       RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS,
-    //       {
-    //         action: 'repair-integrations',
-    //         data: { _id }
-    //       }
-    //     );
-
-    return 'success';
-  },
-
+  
   async integrationsSendSms(
     _root,
     args: ISmsParams,
-    { dataSources, user }: IContext
+    { user }: IContext
   ) {
     const customer = await sendContactRPCMessage('findCustomer', {
       primaryPhone: args.to
@@ -532,7 +525,7 @@ const integrationMutations = {
     }
 
     try {
-      const response = await dataSources.IntegrationsAPI.sendSms(args);
+      const response = await sendRPCMessage('integrations:rpc_queue:sendSms', args)
 
       if (response && response.status === 'ok') {
         await putActivityLog({

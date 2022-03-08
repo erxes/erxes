@@ -7,7 +7,9 @@ import { initBroker } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
+import { generateModels, models, coreModels } from './connectionResolver';
 
+export let mainDb;
 export let graphqlPubsub;
 export let serviceDiscovery;
 
@@ -32,22 +34,27 @@ export default {
   },
   hasSubscriptions: true,
   meta: {
+    segments: {
+      indexesTypeContentType: {
+        conversation: 'conversations',
+      },
+      contentTypes: ['conversation'],
+    },
     tagTypes: ['conversation'],
     logs: { providesActivityLog: true }
   },
-  segment: {
-    indexesTypeContentType: {
-      conversation: 'conversations',
-    },
-    contentTypes: ['conversation'],
-  },
   apolloServerContext: (context) => {
     context.dataLoaders = generateAllDataLoaders();
+    context.models = models;
+    context.coreModels = coreModels;
   },
   onServerInit: async (options) => {
     await apiConnect();
 
     const app = options.app;
+    mainDb = options.db;
+
+    await generateModels('os');
 
     // events
     app.post(

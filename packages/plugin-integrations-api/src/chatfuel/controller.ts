@@ -6,47 +6,42 @@ import { Integrations } from '../models';
 import { sendRequest } from '../utils';
 import { ConversationMessages, Conversations, Customers } from './models';
 
-const init = async app => {
-  app.post(
-    '/chatfuel/create-integration',
-    routeErrorHandling(async (req, res) => {
-      debugRequest(debugChatfuel, req);
 
-      const { integrationId, data } = req.body;
-      const { code, broadcastToken, botId, blockName } = JSON.parse(
-        data || '{}'
-      );
+export const chatfuelCreateIntegration = async ({ integrationId, data }) => {
+    const { code, broadcastToken, botId, blockName } = JSON.parse(
+      data || '{}'
+    );
 
-      // Check existing Integration
-      const integration = await Integrations.findOne({
+    // Check existing Integration
+    const integration = await Integrations.findOne({
+      kind: 'chatfuel',
+      'chatfuelConfigs.code': code
+    }).lean();
+
+    if (integration) {
+      throw new Error(`Integration already exists with this code: ${code}`);
+    }
+
+    try {
+      await Integrations.create({
         kind: 'chatfuel',
-        'chatfuelConfigs.code': code
-      }).lean();
+        erxesApiId: integrationId,
+        chatfuelConfigs: {
+          code,
+          broadcastToken,
+          botId,
+          blockName
+        }
+      });
+    } catch (e) {
+      debugError(`Failed to create integration: ${e}`);
+      throw new Error(e);
+    }
 
-      if (integration) {
-        throw new Error(`Integration already exists with this code: ${code}`);
-      }
+    return { status: 'ok' };
+}
 
-      try {
-        await Integrations.create({
-          kind: 'chatfuel',
-          erxesApiId: integrationId,
-          chatfuelConfigs: {
-            code,
-            broadcastToken,
-            botId,
-            blockName
-          }
-        });
-      } catch (e) {
-        debugError(`Failed to create integration: ${e}`);
-        throw new Error(e);
-      }
-
-      return res.json({ status: 'ok' });
-    })
-  );
-
+const init = async app => {
   app.post(
     '/chatfuel-broadcast',
     routeErrorHandling(async (req, res) => {

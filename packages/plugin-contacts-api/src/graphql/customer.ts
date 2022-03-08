@@ -31,7 +31,6 @@ export const types = (tagsEnabled, inboxEnabled) => `
     phone: String
     tagIds: [String]
     remoteAddress: String
-    internalNotes: JSON
     location: JSON
     visitorContactInfo: JSON
     customFieldsData: JSON

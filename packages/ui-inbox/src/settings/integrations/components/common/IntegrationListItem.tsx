@@ -323,7 +323,7 @@ class IntegrationListItem extends React.Component<Props, State> {
           }
         })
         .then(({ data }) => {
-          this.setState({ externalData: data.integrationsFetchApi });
+          this.setState({ externalData: data.integrationsGetIntegrationDetail });
           this.props.showExternalInfoColumn();
         })
         .catch(e => {

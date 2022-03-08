@@ -1,40 +1,43 @@
-import { Skills, SkillTypes } from '../../models';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { IContext } from '../../connectionResolver';
 
 const skillTypesMutations = {
-  async createSkillType(_root, { name }: { name: string }) {
-    return SkillTypes.createSkillType(name);
+  async createSkillType(_root, { name }: { name: string }, { models }: IContext) {
+    return models.SkillTypes.createSkillType(name);
   },
 
-  async updateSkillType(_root, { _id, name }: { _id; name: string }) {
-    return SkillTypes.updateSkillType(_id, name);
+  async updateSkillType(_root, { _id, name }: { _id; name: string }, { models }: IContext) {
+    return models.SkillTypes.updateSkillType(_id, name);
   },
 
-  async removeSkillType(_root, { _id }: { _id: string }) {
-    return SkillTypes.removeSkillType(_id);
+  async removeSkillType(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.SkillTypes.removeSkillType(_id);
   }
 };
 
 const skillsMutations = {
   async createSkill(
     _root,
-    doc: { name: string; typeId: string; memberIds: string[] }
+    doc: { name: string; typeId: string; memberIds: string[] },
+    { models }: IContext
   ) {
-    return Skills.createSkill(doc);
+    return models.Skills.createSkill(doc);
   },
 
   async updateSkill(
     _root,
-    doc: { _id: string; name: string; typeId: string; memberIds: string[] }
+    doc: { _id: string; name: string; typeId: string; memberIds: string[] },
+    { models }: IContext
   ) {
-    return Skills.updateSkill(doc);
+    return models.Skills.updateSkill(doc);
   },
 
   async addUserSkills(
     _root,
-    { memberId, skillIds }: { memberId: string; skillIds: string[] }
+    { memberId, skillIds }: { memberId: string; skillIds: string[] },
+    { models }: IContext
   ) {
-    return Skills.updateMany(
+    return models.Skills.updateMany(
       { _id: { $in: skillIds } },
       { $push: { memberIds: memberId } }
     );
@@ -42,13 +45,14 @@ const skillsMutations = {
 
   async excludeUserSkill(
     _root,
-    { _id, memberIds }: { _id: string; memberIds: string[] }
+    { _id, memberIds }: { _id: string; memberIds: string[] },
+    { models }: IContext
   ) {
-    return Skills.excludeUserSkill(_id, memberIds);
+    return models.Skills.excludeUserSkill(_id, memberIds);
   },
 
-  async removeSkill(_root, { _id }: { _id: string }) {
-    return Skills.removeSkill(_id);
+  async removeSkill(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Skills.removeSkill(_id);
   }
 };
 

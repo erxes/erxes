@@ -97,20 +97,8 @@ export const CUSTOMER_SELECT_OPTIONS = {
 };
 
 export const TAG_TYPES = {
-  CONVERSATION: 'conversation',
-  CUSTOMER: 'customer',
-  ENGAGE_MESSAGE: 'engageMessage',
-  COMPANY: 'company',
-  INTEGRATION: 'integration',
-  PRODUCT: 'product',
-  ALL: [
-    'conversation',
-    'customer',
-    'engageMessage',
-    'company',
-    'integration',
-    'product'
-  ]
+  CUSTOMER: 'contacts:customer',
+  COMPANY: 'contacts:company'
 };
 
 export const KIND_CHOICES = {

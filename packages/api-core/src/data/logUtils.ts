@@ -4,10 +4,9 @@ import {
   putDeleteLog as commonPutDeleteLog,
   putUpdateLog as commonPutUpdateLog,
   gatherUsernames,
-  gatherNames
 } from '@erxes/api-utils/src/logUtils';
 
-import { Segments, Users, UsersGroups } from '../db/models/index';
+import { Users, UsersGroups } from '../db/models/index';
 import { IUserDocument } from '../db/models/definitions/users';
 import messageBroker from '../messageBroker';
 import { RABBITMQ_QUEUES, MODULE_NAMES } from './constants';
@@ -125,30 +124,6 @@ const gatherDescriptions = async (
 
       if (updatedDocument) {
         extraDesc = await gatherUserFieldNames(updatedDocument, extraDesc);
-      }
-
-      break;
-    case MODULE_NAMES.SEGMENT:
-      const parents: string[] = [];
-
-      if (obj.subOf) {
-        parents.push(obj.subOf);
-      }
-
-      if (
-        updatedDocument &&
-        updatedDocument.subOf &&
-        updatedDocument.subOf !== obj.subOf
-      ) {
-        parents.push(updatedDocument.subOf);
-      }
-
-      if (parents.length > 0) {
-        extraDesc = await gatherNames({
-          foreignKey: 'subOf',
-          nameFields: ['name'],
-          items: await Segments.find({ _id: { $in: parents } }).lean()
-        });
       }
 
       break;
