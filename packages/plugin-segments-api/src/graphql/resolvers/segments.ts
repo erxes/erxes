@@ -1,7 +1,7 @@
-import { Segments } from '../../db/models';
-import { ISegmentDocument } from '../../db/models/definitions/segments';
-import { fetchSegment } from '../modules/segments/queryBuilder';
-import { IContext } from '../types';
+import { IContext } from "@erxes/api-utils/src/types";
+import { Segments } from "../../models";
+import { ISegmentDocument } from "../../models/definitions/segments";
+import { fetchSegment } from "./queries/queryBuilder";
 
 export default {
   __resolveReference({ _id }) {
@@ -9,11 +9,10 @@ export default {
   },
   async getSubSegments(
     segment: ISegmentDocument,
-    _,
-    { dataLoaders }: IContext
   ) {
-    const subSegments = await dataLoaders.segmentsBySubOf.load(segment._id);
-    return subSegments.filter(subSegment => subSegment);
+    return Segments.find({
+      subOf: { $in: [segment._id] }
+    }).lean();
   },
 
   async count(segment: ISegmentDocument) {

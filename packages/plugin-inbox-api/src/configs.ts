@@ -32,14 +32,14 @@ export default {
   },
   hasSubscriptions: true,
   meta: {
+    segments: {
+      indexesTypeContentType: {
+        conversation: 'conversations',
+      },
+      contentTypes: ['conversation'],
+    },
     tagTypes: ['conversation'],
     logs: { providesActivityLog: true }
-  },
-  segment: {
-    indexesTypeContentType: {
-      conversation: 'conversations',
-    },
-    contentTypes: ['conversation'],
   },
   apolloServerContext: (context) => {
     context.dataLoaders = generateAllDataLoaders();

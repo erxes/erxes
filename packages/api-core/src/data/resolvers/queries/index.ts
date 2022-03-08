@@ -11,7 +11,6 @@ import {
   usersGroupQueries as usersGroups
 } from './permissions';
 import robot from './robot';
-import segments from './segments';
 import users from './users';
 import structures from './structures';
 
@@ -20,7 +19,6 @@ export default {
   ...brands,
   ...fields,
   ...forms,
-  ...segments,
   ...configs,
   ...fieldsgroups,
   ...importHistory,

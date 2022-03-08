@@ -7,7 +7,7 @@ import {
   getCustomFieldsData
 } from '@erxes/api-utils/src/exporter';
 import { IColumnLabel, IUserDocument } from '@erxes/api-utils/src/types';
-import { Fields, Segments, Users } from './apiCollections';
+import { Fields, Users } from './apiCollections';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 import {
   COMPANY_BASIC_INFOS,
@@ -25,7 +25,6 @@ import {
 import Companies from './models/Companies';
 import Customers from './models/Customers';
 import { fetchSegment, findTags } from './messageBroker';
-import { can } from '@erxes/api-utils/src';
 
 import {
   Builder as CompanyBuildQuery,
@@ -176,10 +175,8 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
 
   const boardItemsFilter: any = {};
 
-  const segmentObj = await Segments.findOne({ _id: segment });
-
   if (segment) {
-    const itemIds = await fetchSegment(segmentObj);
+    const itemIds = await fetchSegment(segment);
 
     boardItemsFilter._id = { $in: itemIds };
   }

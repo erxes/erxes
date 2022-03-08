@@ -13,7 +13,6 @@ import {
   Brands,
   EmailDeliveries
 } from './db/models';
-import { fetchSegment } from './data/modules/segments/queryBuilder';
 import { registerModule } from './data/permissions/utils';
 import { sendEmail, sendMobileNotification } from './data/utils';
 import { fieldsCombinedByContentType } from './data/modules/fields/utils';
@@ -125,11 +124,6 @@ export const initBroker = async (server?) => {
         data: await Fields.generateCustomFieldsData(customData, contentType)
       })
     );
-
-    consumeRPCQueue('rpc_queue:fetchSegment', async ({ segment, options }) => {
-      const data = await fetchSegment(segment, options);
-      return { data, status: 'success' };
-    });
 
     consumeRPCQueue('api-core:rpc_queue:generateInternalNoteNotif', async args => {
       if(args.type === 'user') {
@@ -300,6 +294,12 @@ export const initBroker = async (server?) => {
 export const sendRPCMessage = async (channel, message): Promise<any> => {
   return client.sendRPCMessage(channel, message);
 };
+
+export const fetchSegment = (segmentId, options?) =>
+  sendRPCMessage('segments:rpc_queue:fetchSegment', {
+    segmentId,
+    options
+  });
 
 export default function() {
   return client;

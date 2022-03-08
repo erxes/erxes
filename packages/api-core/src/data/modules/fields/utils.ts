@@ -1,8 +1,8 @@
 import { findElkFields } from '../../../db/models/fieldUtils';
 import { Fields, FieldsGroups } from '../../../db/models';
 import { fetchElk } from '../../../elasticsearch';
-import messageBroker from '../../../messageBroker';
 import { isUsingElk } from '../../utils';
+import { sendRPCMessage } from '../../../messageBroker';
 
 export const getCustomFields = async (contentType: string) => {
   if (!isUsingElk()) {
@@ -76,9 +76,8 @@ export const fieldsCombinedByContentType = async ({
     options?: string[];
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
-
   if (serviceType) {
-    fields = await messageBroker().sendRPCMessage(
+    fields = await sendRPCMessage(
       `${serviceType}:rpc_queue:getFields`,
       {
         contentType,

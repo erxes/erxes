@@ -6,7 +6,6 @@ import { Forms, FormSubmissions } from './Forms';
 import ImportHistory from './ImportHistory';
 import { Permissions, UsersGroups } from './Permissions';
 import { OnboardingHistories, RobotEntries } from './Robot';
-import Segments from './Segments';
 import Users from './Users';
 import EmailDeliveries from './EmailDeliveries';
 import { Structures, Departments, Units, Branches } from './Structure';
@@ -17,7 +16,6 @@ export {
   Forms,
   FormSubmissions,
   Fields,
-  Segments,
   Conformities,
   Configs,
   FieldsGroups,

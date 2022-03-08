@@ -1,12 +1,11 @@
 import * as _ from 'underscore';
-import { Brands, Segments } from '../apiCollections';
+import { Brands } from '../apiCollections';
 import { companySchema } from '../models/definitions/companies';
 import { KIND_CHOICES } from '../models/definitions/constants';
 import { customerSchema } from '../models/definitions/customers';
 import { debug, es } from '../configs';
 import { COC_LEAD_STATUS_TYPES } from '../constants';
-import { fetchSegment, findOneTag, findTags, sendConformityMessage } from '../messageBroker';
-// import { ISegmentDocument } from '../../../db/models/definitions/segments';
+import { fetchSegment, findOneTag, findTags, sendConformityMessage, sendSegmentMessage } from '../messageBroker';
 
 export interface ICountBy {
   [index: string]: number;
@@ -40,9 +39,9 @@ export const countBySegment = async (
 
   // show all contact related engages when engage
   if (source === 'engages') {
-    segments = await Segments.find({}).toArray();
+    segments = await sendSegmentMessage('find', {}, true);
   } else {
-    segments = await Segments.find({ contentType }).toArray();
+    segments = await sendSegmentMessage('find', { contentType }, true);
   }
 
   // Count cocs by segment
@@ -177,7 +176,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
   // filter by segment
   public async segmentFilter(segmentId: string, source?: string) {
-    const segment = await Segments.findOne({ _id: segmentId });
+    const segment = await sendSegmentMessage('findOne', { _id: segmentId }, true);
 
     const selector = await fetchSegment(
       segment,

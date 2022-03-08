@@ -12,14 +12,12 @@ import {
   usersGroupMutations as usersGroups
 } from './permissions';
 import robot from './robot';
-import segments from './segments';
 import users from './users';
 import structures from './structures';
 
 export default {
   ...users,
   ...brands,
-  ...segments,
   ...fields,
   ...forms,
   ...configs,
