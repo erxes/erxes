@@ -3,7 +3,7 @@ import * as telemetry from 'erxes-telemetry';
 import { getUniqueValue } from '@erxes/api-utils/src/core';
 import { putActivityLog } from '@erxes/api-utils/src/logUtils';
 
-import { Channels, Integrations } from '../../models';
+import { Integrations } from '../../models';
 
 import {
   EmailDeliveries,
@@ -45,6 +45,7 @@ import { IContext } from '@erxes/api-utils/src';
 // import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 import { client as msgBrokerClient } from '../../messageBroker';
 import { getService, getServices } from '../../redis';
+import { models } from '../../connectionResolver';
 
 interface IEditIntegration extends IIntegration {
   _id: string;
@@ -69,7 +70,7 @@ const createIntegration = async (
   type: string
 ) => {
   if (doc.channelIds) {
-    await Channels.updateMany(
+    await models.Channels.updateMany(
       { _id: { $in: doc.channelIds } },
       { $push: { integrationIds: integration._id } }
     );
@@ -101,13 +102,13 @@ const editIntegration = async (
   user,
   updated: IIntegrationDocument
 ) => {
-  await Channels.updateMany(
+  await models.Channels.updateMany(
     { integrationIds: integration._id },
     { $pull: { integrationIds: integration._id } }
   );
 
   if (fields.channelIds) {
-    await Channels.updateMany(
+    await models.Channels.updateMany(
       { _id: { $in: fields.channelIds } },
       { $push: { integrationIds: integration._id } }
     );
@@ -235,7 +236,7 @@ const integrationMutations = {
     );
 
     if (doc.channelIds) {
-      await Channels.updateMany(
+      await models.Channels.updateMany(
         { _id: { $in: doc.channelIds } },
         { $push: { integrationIds: integration._id } }
       );
@@ -311,13 +312,13 @@ const integrationMutations = {
 
     const updated = await Integrations.getIntegration({ _id });
 
-    await Channels.updateMany(
+    await models.Channels.updateMany(
       { integrationIds: integration._id },
       { $pull: { integrationIds: integration._id } }
     );
 
     if (channelIds) {
-      await Channels.updateMany(
+      await models.Channels.updateMany(
         { _id: { $in: channelIds } },
         { $push: { integrationIds: integration._id } }
       );

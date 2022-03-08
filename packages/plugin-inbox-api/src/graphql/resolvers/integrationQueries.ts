@@ -1,4 +1,4 @@
-import { Channels, Integrations } from '../../models';
+import { Integrations } from '../../models';
 import {
   INTEGRATION_NAMES_MAP,
   KIND_CHOICES
@@ -10,9 +10,9 @@ import {
 } from '@erxes/api-utils/src/permissions';
 
 import { sendTagRPCMessage, sendRPCMessage } from '../../messageBroker';
-import { IContext } from '@erxes/api-utils/src';
 import { paginate } from '@erxes/api-utils/src';
 import { getDocumentList } from '../../cacheUtils';
+import { IContext } from '../../connectionResolver';
 /**
  * Common helper for integrations & integrationsTotalCount
  */
@@ -24,7 +24,7 @@ const generateFilterQuery = async ({
   tag,
   status,
   formLoadType
-}) => {
+}, models) => {
   const query: any = {};
 
   if (kind) {
@@ -47,7 +47,7 @@ const generateFilterQuery = async ({
 
   // filter integrations by channel
   if (channelId) {
-    const channel = await Channels.getChannel(channelId);
+    const channel = await models.Channels.getChannel(channelId);
     query._id = { $in: channel.integrationIds || [] };
   }
 
@@ -98,11 +98,11 @@ const integrationQueries = {
       sortField: string;
       sortDirection: number;
     },
-    { singleBrandIdSelector }: IContext
+    { singleBrandIdSelector, models }: IContext
   ) {
     const query = {
       ...singleBrandIdSelector,
-      ...(await generateFilterQuery(args))
+      ...(await generateFilterQuery(args, models))
     };
 
     if (args.kind === 'lead') {
@@ -166,7 +166,8 @@ const integrationQueries = {
       searchValue: string;
       status: string;
       formLoadType: string;
-    }
+    },
+  { models }: IContext
   ) {
     const counts = {
       total: 0,
@@ -178,7 +179,7 @@ const integrationQueries = {
     };
 
     const qry = {
-      ...(await generateFilterQuery(args))
+      ...(await generateFilterQuery(args, models))
     };
 
     const count = async query => {
