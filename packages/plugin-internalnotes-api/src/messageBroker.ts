@@ -1,8 +1,7 @@
 import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
-
-import { InternalNotes } from "./models";
 import { serviceDiscovery } from './configs';
-import { internalNoteSchema } from './models/definitions/internalNotes'
+import { models } from './connectionResolver';
+import { internalNoteSchema } from './models/definitions/internalNotes';
 
 const checkService = async (serviceName: string, needsList?: boolean) => {
   const enabled = await serviceDiscovery.isEnabled(serviceName);
@@ -16,62 +15,84 @@ const checkService = async (serviceName: string, needsList?: boolean) => {
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = cl;
 
-  consumeQueue('internalNotes:batchUpdate', async ({contentType, oldContentTypeIds, newContentTypeId}) => {
-    // Updating every internal notes of company
-    await InternalNotes.updateMany(
-      {
-        contentType,
-        contentTypeId: { $in: oldContentTypeIds || [] }
-      },
-      { contentTypeId: newContentTypeId }
-    );
-  });
-
-  consumeRPCQueue('internalnotes:rpc_queue:activityLog:collectItems', async ({ contentId }) => {
-    const notes = await InternalNotes.find({ contentTypeId: contentId }).sort({ createdAt: -1 });
-    const results: any[] = [];
-
-    for (const note of notes) {
-      results.push({
-        _id: note._id,
-        contentType: 'note',
-        contentId,
-        createdAt: note.createdAt,
-      });
+  consumeQueue(
+    'internalNotes:batchUpdate',
+    async ({ contentType, oldContentTypeIds, newContentTypeId }) => {
+      // Updating every internal notes of company
+      await models.InternalNotes.updateMany(
+        {
+          contentType,
+          contentTypeId: { $in: oldContentTypeIds || [] },
+        },
+        { contentTypeId: newContentTypeId }
+      );
     }
+  );
 
-    return {
+  consumeRPCQueue(
+    'internalnotes:rpc_queue:activityLog:collectItems',
+    async ({ contentId }) => {
+      const notes = await models.InternalNotes.find({
+        contentTypeId: contentId,
+      }).sort({ createdAt: -1 });
+      const results: any[] = [];
+
+      for (const note of notes) {
+        results.push({
+          _id: note._id,
+          contentType: 'note',
+          contentId,
+          createdAt: note.createdAt,
+        });
+      }
+
+      return {
+        status: 'success',
+        data: results,
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'internalnotes:rpc_queue:getInternalNotes',
+    async ({ contentTypeIds, perPageForAction, page }) => {
+      const filter = { contentTypeId: { $in: contentTypeIds } };
+
+      const internalNotes = await models.InternalNotes.find(filter)
+        .sort({
+          createdAt: -1,
+        })
+        .skip(perPageForAction * (page - 1))
+        .limit(perPageForAction);
+
+      return {
+        internalNotes,
+        totalCount: await models.InternalNotes.countDocuments(filter),
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'internalnotes:rpc_queue:logs:getSchemaLabels',
+    async ({ type }) => ({
       status: 'success',
-      data: results
-    };
-  });
+      data: getSchemaLabels(type, [
+        { name: 'internalNote', schemas: [internalNoteSchema] },
+      ]),
+    })
+  );
 
-  consumeRPCQueue('internalnotes:rpc_queue:getInternalNotes', async ({ contentTypeIds, perPageForAction, page }) => {
-    const filter = { contentTypeId: { $in: contentTypeIds } };
-
-    const internalNotes = await InternalNotes.find(filter)
-      .sort({
-        createdAt: -1
-      })
-      .skip(perPageForAction * (page - 1))
-      .limit(perPageForAction);
-
-    return { internalNotes, totalCount: await InternalNotes.countDocuments(filter) };
-  });
-
-  consumeRPCQueue('internalnotes:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
-    status: 'success',
-    data: getSchemaLabels(type, [{ name: 'internalNote', schemas: [internalNoteSchema] }])
-  }));
-
-  consumeQueue('internalnotes:InternalNotes.removeInternalNotes', ({ contentType, contentTypeIds }) => {
-    InternalNotes.removeInternalNotes(contentType, contentTypeIds);
-  });
+  consumeQueue(
+    'internalnotes:InternalNotes.removeInternalNotes',
+    ({ contentType, contentTypeIds }) => {
+      models.InternalNotes.removeInternalNotes(contentType, contentTypeIds);
+    }
+  );
 };
 
 export const sendNotificationMessage = async (
@@ -81,7 +102,7 @@ export const sendNotificationMessage = async (
   defaultValue?
 ): Promise<any> => {
   if (isRPC) {
-    if (!await serviceDiscovery.isEnabled('notifications')) {
+    if (!(await serviceDiscovery.isEnabled('notifications'))) {
       return defaultValue;
     }
 
