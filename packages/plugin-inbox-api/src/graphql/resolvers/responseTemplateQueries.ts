@@ -1,6 +1,5 @@
-import { ResponseTemplates } from '../../models';
 import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src/index';
+import { IContext } from '../../connectionResolver';
 
 interface IListParams {
   page: number;
@@ -35,11 +34,11 @@ const responseTemplateQueries = {
   responseTemplates(
     _root,
     args: IListParams,
-    { commonQuerySelector }: IContext
+    { commonQuerySelector, models }: IContext
   ) {
     const filter = generateFilter(commonQuerySelector, args);
 
-    return ResponseTemplates.find(filter);
+    return models.ResponseTemplates.find(filter);
   },
 
   /**
@@ -48,11 +47,11 @@ const responseTemplateQueries = {
   responseTemplatesTotalCount(
     _root,
     args: IListParams,
-    { commonQuerySelector }: IContext
+    { commonQuerySelector, models }: IContext
   ) {
     const filter = generateFilter(commonQuerySelector, args);
 
-    return ResponseTemplates.find(filter).countDocuments();
+    return models.ResponseTemplates.find(filter).countDocuments();
   }
 };
 

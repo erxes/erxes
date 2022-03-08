@@ -1,11 +1,10 @@
-import { ResponseTemplates } from '../../models';
 import { IResponseTemplate } from '../../models/definitions/responseTemplates';
 
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src';
+import { IContext } from '../../connectionResolver';
 
 interface IResponseTemplatesEdit extends IResponseTemplate {
   _id: string;
@@ -18,9 +17,9 @@ const responseTemplateMutations = {
   async responseTemplatesAdd(
     _root,
     doc: IResponseTemplate,
-    { user, docModifier }: IContext
+    { user, docModifier, models }: IContext
   ) {
-    const template = await ResponseTemplates.create(docModifier(doc));
+    const template = await models.ResponseTemplates.create(docModifier(doc));
 
     await putCreateLog(
       {
@@ -40,10 +39,10 @@ const responseTemplateMutations = {
   async responseTemplatesEdit(
     _root,
     { _id, ...fields }: IResponseTemplatesEdit,
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    const template = await ResponseTemplates.getResponseTemplate(_id);
-    const updated = await ResponseTemplates.updateResponseTemplate(_id, fields);
+    const template = await models.ResponseTemplates.getResponseTemplate(_id);
+    const updated = await models.ResponseTemplates.updateResponseTemplate(_id, fields);
 
     await putUpdateLog(
       {
@@ -64,10 +63,10 @@ const responseTemplateMutations = {
   async responseTemplatesRemove(
     _root,
     { _id }: { _id: string },
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    const template = await ResponseTemplates.getResponseTemplate(_id);
-    const removed = await ResponseTemplates.removeResponseTemplate(_id);
+    const template = await models.ResponseTemplates.getResponseTemplate(_id);
+    const removed = await models.ResponseTemplates.removeResponseTemplate(_id);
 
     await putDeleteLog(
       { type: MODULE_NAMES.RESPONSE_TEMPLATE, object: template },
