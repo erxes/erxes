@@ -57,7 +57,7 @@ const activityLogQueries = {
       const relatedItems = await collectServiceItems(contentType, doc) || [];
       const relatedItemIds = relatedItems.map(r => r._id);
 
-      activities = await ActivityLogs.find({ _id: { $in: [...relatedItemIds, contentId] } }).lean();
+      activities = await ActivityLogs.find({ contentId: { $in: [...relatedItemIds, contentId] } }).lean();
 
     } else {
       activities = await ActivityLogs.find({ contentId, contentType: activityType }).lean();
