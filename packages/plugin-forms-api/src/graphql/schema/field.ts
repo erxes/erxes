@@ -154,7 +154,7 @@ const fieldsGroupsCommonFields = `
 `;
 
 export const fieldsGroupsQueries = `
-  fieldsGroups(contentType: String, isDefinedByErxes: Boolean): [FieldsGroup]
+  fieldsGroups(contentType: String, isDefinedByErxes: Boolean, config: JSON): [FieldsGroup]
   getSystemFieldsGroup(contentType: String): FieldsGroup
 `;
 

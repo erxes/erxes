@@ -35,6 +35,7 @@ import { Link } from 'react-router-dom';
 import { isBoardKind } from '../../utils';
 import PropertyForm from './PropertyForm';
 import EventForm from './EventForm';
+import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   serviceType: string;
@@ -82,6 +83,7 @@ type State = {
   chosenProperty?: IField;
   chosenCondition?: ISegmentCondition;
   chosenSegmentKey?: string;
+  config: any;
 };
 
 class SegmentFormAutomations extends React.Component<Props, State> {
@@ -105,7 +107,8 @@ class SegmentFormAutomations extends React.Component<Props, State> {
           contentType: props.contentType || 'customer',
           conditionsConjunction: 'and'
         }
-      ]
+      ],
+      config: {}
     };
 
     if (
@@ -209,6 +212,30 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       value: p._id,
       label: p.name
     }));
+  };
+
+  renderExtraContent = () => {
+    const { contentType } = this.props;
+    const { config } = this.state;
+
+    const plugins: any[] = (window as any).plugins || [];
+
+    for (const plugin of plugins) {
+      if (contentType.includes(`${plugin.name}:`) && plugin.segmentForm) {
+        return (
+          <RenderDynamicComponent
+            scope={plugin.scope}
+            component={plugin.segmentForm}
+            injectedProps={{
+              config,
+              type: contentType
+            }}
+          />
+        );
+      }
+    }
+
+    return null;
   };
 
   renderDetailForm = (formProps: IFormProps) => {
@@ -318,6 +345,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
             </FormControl>
           </FlexItem>
         </FlexContent>
+        {this.renderExtraContent()}
         {isBoardKind(contentType) ? (
           <>
             <FlexContent>

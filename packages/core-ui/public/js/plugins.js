@@ -7,7 +7,8 @@ window.plugins = [
     exposes: {
       './routes': './src/routes.tsx',
       './settings': './src/Settings.tsx',
-      './propertyGroupForm': './src/propertyGroupForm.tsx'
+      './propertyGroupForm': './src/propertyGroupForm.tsx',
+      './segmentForm': './src/segmentForm.tsx'
     },
     routes: {
       url: 'http://localhost:3003/remoteEntry.js',
@@ -15,6 +16,8 @@ window.plugins = [
       module: './routes'
     },
     propertyGroupForm: './propertyGroupForm',
+    segmentForm: './segmentForm',
+
     menus: [
       {
         text: 'Sales Pipeline',

@@ -10,11 +10,11 @@ export default {
   contentTypes: ['deal', 'ticket', 'task'],
 
   descriptionMap: {
-    deal: 'Deal',
-    ticket: 'Ticket',
-    task: 'Task',
-    customer: 'Customer',
-    company: 'Company'
+    'cards:deal': 'Deal',
+    'cards:ticket': 'Ticket',
+    'cards:task': 'Task',
+    'contacts:customer': 'Customer',
+    'contacts:company': 'Company'
   },
 
   propertyConditionExtender: async ({ condition }) => {

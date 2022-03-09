@@ -1,4 +1,4 @@
-import { getFieldsFromService } from './messageBroker';
+import { fetchService } from './messageBroker';
 import { Fields, FieldsGroups } from './models';
 
 export const getCustomFields = async (contentType: string) => {
@@ -40,16 +40,18 @@ export const fieldsCombinedByContentType = async ({
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 
-  const [serviceName, type] = contentType.split(':');
+  fields = await fetchService(
+    contentType,
+    'getList',
+    {
+      segmentId,
+      usageType,
+      formId
+    },
+    []
+  );
 
-  console.log(serviceName, type);
-
-  fields = await getFieldsFromService(serviceName, {
-    type,
-    segmentId,
-    usageType,
-    formId
-  });
+  console.log(fields);
 
   const customFields = await getCustomFields(contentType);
 

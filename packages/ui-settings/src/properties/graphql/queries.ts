@@ -54,8 +54,8 @@ const fieldsGetTypes = `
 `;
 
 const fieldsGroups = `
-  query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean) {
-    fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes) {
+  query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $config: JSON) {
+    fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, config: $config) {
       ${commonFieldsGroups}
   }
 `;

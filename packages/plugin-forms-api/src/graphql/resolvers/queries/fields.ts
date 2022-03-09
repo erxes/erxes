@@ -3,6 +3,7 @@ import { Fields, FieldsGroups } from "../../../models";
 import { fieldsCombinedByContentType } from "../../../utils";
 import { serviceDiscovery } from "../../../configs";
 import { IContext } from "@erxes/api-utils/src/types";
+import { fetchService } from "../../../messageBroker";
 
 // import { IFieldDocument } from "../../../models/definitions/fields";
 
@@ -198,52 +199,22 @@ const fieldsGroupQueries = {
     {
       contentType,
       isDefinedByErxes,
-      // boardId,
-      // pipelineId
+      config
     }: {
       contentType: string;
       isDefinedByErxes: boolean;
-      // boardId: string;
-      // pipelineId: string;
+      config
     },
     { commonQuerySelector }: IContext
   ) {
-    const query: any = commonQuerySelector;
+    let query: any = commonQuerySelector;
 
     // querying by content type
     query.contentType = contentType;
 
-    // if (boardId && pipelineId) {
-    //   query = {
-    //     contentType,
-    //     $and: [
-    //       {
-    //         $or: [
-    //           {
-    //             boardIds: boardId
-    //           },
-    //           {
-    //             boardIds: {
-    //               $size: 0
-    //             }
-    //           }
-    //         ]
-    //       },
-    //       {
-    //         $or: [
-    //           {
-    //             pipelineIds: pipelineId
-    //           },
-    //           {
-    //             pipelineIds: {
-    //               $size: 0
-    //             }
-    //           }
-    //         ]
-    //       }
-    //     ]
-    //   };
-    // }
+    if (config) {
+      query = await fetchService(contentType, 'groupsFilter', { config, contentType }, query)
+    }
 
     if (isDefinedByErxes !== undefined) {
       query.isDefinedByErxes = isDefinedByErxes;
