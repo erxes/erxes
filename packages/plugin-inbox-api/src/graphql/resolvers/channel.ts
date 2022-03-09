@@ -9,8 +9,8 @@ export default {
     });
   },
 
-  members(channel: IChannelDocument) {
-    return getDocumentList('users', {
+  members(channel: IChannelDocument, _args, { models }: IContext) {
+    return getDocumentList(models, 'users', {
       _id: { $in: channel.memberIds },
       isActive: { $ne: false }
     });

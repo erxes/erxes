@@ -209,7 +209,7 @@ const integrationQueries = {
     }
 
     // Counting integrations by channel
-    const channels = await getDocumentList('channels', {});
+    const channels = await getDocumentList(models, 'channels', {});
 
     for (const channel of channels) {
       const countQueryResult = await count({
@@ -225,7 +225,7 @@ const integrationQueries = {
     }
 
     // Counting integrations by brand
-    const brands = await getDocumentList('brands', {});
+    const brands = await getDocumentList(models, 'brands', {});
 
     for (const brand of brands) {
       const countQueryResult = await count({ brandId: brand._id, ...qry });

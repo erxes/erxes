@@ -9,6 +9,7 @@ import {
 import messageBroker from './messageBroker';
 import { MODULE_NAMES } from './constants';
 import { gatherChannelFieldNames, gatherIntegrationFieldNames, findFromCore } from './logHelper';
+import { IModels } from './connectionResolver';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
@@ -16,7 +17,7 @@ export const LOG_ACTIONS = {
   DELETE: 'delete',
 };
 
-const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
+const gatherDescriptions = async (models: IModels, params: any): Promise<IDescriptions> => {
   const { action, type, object, updatedDocument } = params;
 
   let extraDesc: LogDesc[] = [];
@@ -24,10 +25,10 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
 
   switch (type) {
     case MODULE_NAMES.CHANNEL:
-      extraDesc = await gatherChannelFieldNames(object);
+      extraDesc = await gatherChannelFieldNames(models, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherChannelFieldNames(updatedDocument, extraDesc);
+        extraDesc = await gatherChannelFieldNames(models, updatedDocument, extraDesc);
       }
 
       break;
@@ -70,8 +71,8 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
   return { extraDesc, description };
 };
 
-export const putDeleteLog = async (logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions({
+export const putDeleteLog = async (models: IModels, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(models, {
     ...logDoc,
     action: LOG_ACTIONS.DELETE,
   });
@@ -83,8 +84,8 @@ export const putDeleteLog = async (logDoc, user) => {
   );
 };
 
-export const putUpdateLog = async (logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions({
+export const putUpdateLog = async (models: IModels, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(models, {
     ...logDoc,
     action: LOG_ACTIONS.UPDATE,
   });
@@ -96,8 +97,8 @@ export const putUpdateLog = async (logDoc, user) => {
   );
 };
 
-export const putCreateLog = async (logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions({
+export const putCreateLog = async (models: IModels, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(models, {
     ...logDoc,
     action: LOG_ACTIONS.CREATE,
   });

@@ -1,16 +1,16 @@
 import { MessengerApps } from '../../models';
 import { KIND_CHOICES } from '../../models/definitions/constants';
 import { IIntegrationDocument } from '../../models/definitions/integrations';
-import { IContext } from '@erxes/api-utils/src';
 import { getDocument, getDocumentList } from '../../cacheUtils';
 import { sendRPCMessage } from '../../messageBroker';
+import { IContext } from '../../connectionResolver';
 
 export default {
   __resolveReference(models, {_id}) {
     return models.Integrations.findOne({ _id })
   },
-  brand(integration: IIntegrationDocument) {
-    return getDocument('brands', { _id: integration.brandId });
+    brand(integration: IIntegrationDocument, _args, { models }: IContext) {
+      return getDocument(models, 'brands', { _id: integration.brandId });
   },
 
   async form(integration: IIntegrationDocument) {
@@ -21,8 +21,8 @@ export default {
     return { __typename: 'Form', _id: integration.formId }
   },
 
-  channels(integration: IIntegrationDocument) {
-    return getDocumentList('channels', {
+  channels(integration: IIntegrationDocument, _args, { models }: IContext) {
+    return getDocumentList(models, 'channels', {
       integrationIds: { $in: [integration._id] }
     });
   },

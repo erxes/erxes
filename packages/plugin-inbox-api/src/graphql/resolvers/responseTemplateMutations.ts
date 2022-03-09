@@ -22,6 +22,7 @@ const responseTemplateMutations = {
     const template = await models.ResponseTemplates.create(docModifier(doc));
 
     await putCreateLog(
+      models,
       {
         type: MODULE_NAMES.RESPONSE_TEMPLATE,
         newData: doc,
@@ -45,6 +46,7 @@ const responseTemplateMutations = {
     const updated = await models.ResponseTemplates.updateResponseTemplate(_id, fields);
 
     await putUpdateLog(
+      models,
       {
         type: MODULE_NAMES.RESPONSE_TEMPLATE,
         object: template,
@@ -69,6 +71,7 @@ const responseTemplateMutations = {
     const removed = await models.ResponseTemplates.removeResponseTemplate(_id);
 
     await putDeleteLog(
+      models,
       { type: MODULE_NAMES.RESPONSE_TEMPLATE, object: template },
       user
     );

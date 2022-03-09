@@ -15,6 +15,7 @@ import {
   IConversation,
   IConversationDocument
 } from './definitions/conversations';
+import { models } from '../connectionResolver';
 // import { Skills } from './Skills';
 
 export interface IConversationModel extends Model<IConversationDocument> {
@@ -180,7 +181,7 @@ export const loadClass = () => {
     ) {
       await this.checkExistanceConversations(conversationIds);
 
-      if (!(await getDocument('users', { _id: assignedUserId }))) {
+      if (!(await getDocument(models, 'users', { _id: assignedUserId }))) {
         throw new Error(`User not found with id ${assignedUserId}`);
       }
 

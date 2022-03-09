@@ -1,10 +1,9 @@
 import * as _ from 'underscore';
-import { Integrations } from './models';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { fixDate } from '@erxes/api-utils/src/core';
 import { getDocumentList } from './cacheUtils';
 import { fetchSegment, sendSegmentMessage, sendTagRPCMessage } from './messageBroker';
-import { models } from './connectionResolver';
+import { IModels } from './connectionResolver';
 
 interface IIn {
   $in: string[];
@@ -65,13 +64,15 @@ interface IDate {
 }
 
 export default class Builder {
+  public models: IModels;
   public params: IListArgs;
   public user: IUserArgs;
   public queries: any;
   public unassignedQuery?: IUnassignedFilter;
   public activeIntegrationIds: string[] = [];
 
-  constructor(params: IListArgs, user: IUserArgs) {
+  constructor(models, params: IListArgs, user: IUserArgs) {
+    this.models = models;
     this.params = params;
     this.user = user;
   }
@@ -103,7 +104,7 @@ export default class Builder {
   }
 
   public async defaultFilters(): Promise<any> {
-    const activeIntegrations = await getDocumentList('integrations', {
+    const activeIntegrations = await getDocumentList(this.models, 'integrations', {
       isActive: { $ne: false }
     });
 
@@ -151,7 +152,7 @@ export default class Builder {
     // find all posssible integrations
     let availIntegrationIds: string[] = [];
 
-    const channels = await getDocumentList('channels', {
+    const channels = await getDocumentList(this.models, 'channels', {
       memberIds: this.user._id
     });
 
@@ -196,7 +197,7 @@ export default class Builder {
   public async channelFilter(
     channelId: string
   ): Promise<{ integrationId: IIn }> {
-    const channel = await models.Channels.getChannel(channelId);
+    const channel = await this.models.Channels.getChannel(channelId);
     const memberIds = channel.memberIds || [];
 
     if (!memberIds.includes(this.user._id)) {
@@ -220,7 +221,7 @@ export default class Builder {
   public async brandFilter(
     brandId: string
   ): Promise<{ integrationId: IIn } | undefined> {
-    const integrations = await Integrations.findIntegrations({ brandId });
+    const integrations = await this.models.Integrations.findIntegrations({ brandId });
 
     if (integrations.length === 0) {
       return;
@@ -278,7 +279,7 @@ export default class Builder {
   public async integrationTypeFilter(
     integrationType: string
   ): Promise<IIntersectIntegrationIds[]> {
-    const integrations = await Integrations.findIntegrations({
+    const integrations = await this.models.Integrations.findIntegrations({
       kind: integrationType
     });
 
