@@ -1,7 +1,8 @@
 import { checkPermission, requireLogin } from "@erxes/api-utils/src/permissions";
-import { IContext } from "@erxes/api-utils/src/types";
 import { Fields, FieldsGroups } from "../../../models";
 import { fieldsCombinedByContentType } from "../../../utils";
+import { serviceDiscovery } from "../../../configs";
+import { IContext } from "@erxes/api-utils/src/types";
 
 // import { IFieldDocument } from "../../../models/definitions/fields";
 
@@ -17,6 +18,26 @@ export interface IFieldsQuery {
 }
 
 const fieldQueries = {
+  async fieldsGetTypes() {
+    const services = await serviceDiscovery.getServices();
+    const fieldTypes: Array<{ description: string, contentType: string }> = [];
+
+    for (const serviceName of services) {
+      const service = await serviceDiscovery.getService(serviceName, true);
+      const meta = service.config.meta || {};
+
+      if (meta && meta.forms) {
+        const types = meta.forms.types || [];
+
+        for (const type of types) {
+          fieldTypes.push({ description: type.description, contentType: `${serviceName}:${type.type}` });
+        }
+      }
+    }
+
+    return fieldTypes;
+  },
+
   /**
    * Fields list
    */
@@ -172,79 +193,78 @@ const fieldsGroupQueries = {
   /**
    * Fields group list
    */
-  // async fieldsGroups(
-  //   _root,
-  //   {
-  //     contentType,
-  //     isDefinedByErxes,
-  //     boardId,
-  //     pipelineId
-  //   }: {
-  //     contentType: string;
-  //     isDefinedByErxes: boolean;
-  //     boardId: string;
-  //     pipelineId: string;
-  //   },
-  //   { commonQuerySelector }: IContext
-  // ) {
-  //   let query: any = commonQuerySelector;
+  async fieldsGroups(
+    _root,
+    {
+      contentType,
+      isDefinedByErxes,
+      // boardId,
+      // pipelineId
+    }: {
+      contentType: string;
+      isDefinedByErxes: boolean;
+      // boardId: string;
+      // pipelineId: string;
+    },
+    { commonQuerySelector }: IContext
+  ) {
+    const query: any = commonQuerySelector;
 
-  //   // querying by content type
-  //   query.contentType = contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER;
-  //   query.contentType = contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER;
+    // querying by content type
+    query.contentType = contentType;
 
-  //   if (boardId && pipelineId) {
-  //     query = {
-  //       contentType,
-  //       $and: [
-  //         {
-  //           $or: [
-  //             {
-  //               boardIds: boardId
-  //             },
-  //             {
-  //               boardIds: {
-  //                 $size: 0
-  //               }
-  //             }
-  //           ]
-  //         },
-  //         {
-  //           $or: [
-  //             {
-  //               pipelineIds: pipelineId
-  //             },
-  //             {
-  //               pipelineIds: {
-  //                 $size: 0
-  //               }
-  //             }
-  //           ]
-  //         }
-  //       ]
-  //     };
-  //   }
+    // if (boardId && pipelineId) {
+    //   query = {
+    //     contentType,
+    //     $and: [
+    //       {
+    //         $or: [
+    //           {
+    //             boardIds: boardId
+    //           },
+    //           {
+    //             boardIds: {
+    //               $size: 0
+    //             }
+    //           }
+    //         ]
+    //       },
+    //       {
+    //         $or: [
+    //           {
+    //             pipelineIds: pipelineId
+    //           },
+    //           {
+    //             pipelineIds: {
+    //               $size: 0
+    //             }
+    //           }
+    //         ]
+    //       }
+    //     ]
+    //   };
+    // }
 
-  //   if (isDefinedByErxes !== undefined) {
-  //     query.isDefinedByErxes = isDefinedByErxes;
-  //   }
+    if (isDefinedByErxes !== undefined) {
+      query.isDefinedByErxes = isDefinedByErxes;
+    }
 
-  //   const groups = await FieldsGroups.find(query);
+    const groups = await FieldsGroups.find(query);
 
-  //   return groups
-  //     .map(group => {
-  //       if (group.isDefinedByErxes) {
-  //         group.order = -1;
-  //       }
-  //       return group;
-  //     })
-  //     .sort((a, b) => {
-  //       if (a.order && b.order) {
-  //         return a.order - b.order;
-  //       }
-  //       return -1;
-  //     });
-  // },
+    return groups
+      .map(group => {
+        if (group.isDefinedByErxes) {
+          group.order = -1;
+        }
+        return group;
+      })
+      .sort((a, b) => {
+        if (a.order && b.order) {
+          return a.order - b.order;
+        }
+        return -1;
+      });
+  },
 
   // getSystemFieldsGroup(_root, { contentType }: { contentType: string }) {
   //   const query: any = {};

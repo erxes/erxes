@@ -90,6 +90,7 @@ export const fieldsTypes = `
 `;
 
 export const fieldsQueries = `
+  fieldsGetTypes: [JSON]
   fields(contentType: String!, contentTypeId: String, isVisible: Boolean): [Field]
   fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, pipelineId: String, formId: String): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]

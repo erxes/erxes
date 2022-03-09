@@ -39,6 +39,22 @@ export default {
   exportTypes: EXPORT_TYPES,
   meta: {
     logs: { providesActivityLog: true },
+    forms: {
+      types: [
+        {
+          description: 'Tickets',
+          type: 'ticket'
+        },
+        {
+          description: 'Tasks',
+          type: 'task'
+        },
+        {
+          description: 'Sales pipelines',
+          type: 'deal'
+        }
+      ]
+    },
     segments
   },
   apolloServerContext: context => {

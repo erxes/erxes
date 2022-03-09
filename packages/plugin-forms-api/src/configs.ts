@@ -5,10 +5,13 @@ import { initBroker } from './messageBroker';
 import apiConnect from  './apiCollections';
 
 export let debug;
+export let serviceDiscovery;
 
 export default {
   name: 'forms',
   graphql: async (sd) => {
+    serviceDiscovery = sd;
+
     return {
       typeDefs: await typeDefs(sd),
       resolvers: await resolvers(sd)

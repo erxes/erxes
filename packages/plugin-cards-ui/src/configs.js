@@ -4,12 +4,14 @@ module.exports = {
   exposes: {
     "./routes": "./src/routes.tsx",
     "./settings": "./src/Settings.tsx",
+    "./segmentForm": "./src/segmentForm.tsx",
   },
   routes: {
     url: "http://localhost:3003/remoteEntry.js",
     scope: "cards",
     module: "./routes",
   },
+  segmentForm: './segmentForm',
   menus: [
     {
       text: "Sales Pipeline",

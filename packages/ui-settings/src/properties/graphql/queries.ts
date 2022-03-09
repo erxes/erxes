@@ -50,6 +50,12 @@ const commonFieldsGroups = `
 }
 `;
 
+const fieldsGetTypes = `
+  query fieldsGetTypes {
+    fieldsGetTypes
+  }
+`;
+
 const fieldsGroups = `
   query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $boardId: String, $pipelineId: String) {
     fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, boardId: $boardId, pipelineId: $pipelineId) {
@@ -122,6 +128,7 @@ const configs = `
 
 export default {
   fieldsGroups,
+  fieldsGetTypes,
   fields,
   getSystemFieldsGroup,
   inboxFields,

@@ -1,3 +1,7 @@
+declare var __webpack_init_sharing__;
+declare var __webpack_share_scopes__;
+declare var window;
+
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
@@ -21,8 +25,61 @@ type State = {
   isVisible: boolean;
   isVisibleInDetail: boolean;
   selectedItems: IBoardSelectItem[];
+  config: any;
 };
 
+const loadComponent = (scope, module) => {
+  return async () => {
+    // Initializes the share scope. This fills it with known provided modules from this build and all remotes
+    await __webpack_init_sharing__("default");
+
+    const container = window[scope]; // or get the container somewhere else
+
+    // Initialize the container, it may provide shared modules
+    await container.init(__webpack_share_scopes__.default);
+    const factory = await window[scope].get(module);
+
+    const Module = factory();
+    return Module;
+  };
+};
+class ExtraForm extends React.Component<any, any> {
+  constructor(props) {
+    super(props);
+
+    this.state = { showComponent: false };
+  }
+
+  componentDidMount() {
+    const interval = setInterval(() => {
+      if (window[this.props.scope]) {
+        window.clearInterval(interval);
+
+        this.setState({ showComponent: true });
+      }
+    }, 500);
+  }
+
+  renderComponent = () => {
+    if (!this.state.showComponent) {
+      return null;
+    }
+
+    const { type, scope, component, onChangeConfig } = this.props;
+
+    const Component = React.lazy(loadComponent(scope, component));
+
+    return (
+      <React.Suspense fallback="">
+        <Component type={type} onChangeConfig={onChangeConfig} />
+      </React.Suspense>
+    );
+  };
+
+  render() {
+    return this.renderComponent();
+  }
+}
 class PropertyGroupForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -38,6 +95,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
     }
 
     this.state = {
+      config: {},
       isVisible,
       isVisibleInDetail,
       selectedItems
@@ -139,19 +197,30 @@ class PropertyGroupForm extends React.Component<Props, State> {
     );
   }
 
-  renderBoardSelect() {
-    if (!['task', 'deal', 'ticket'].includes(this.props.type)) {
-      return null;
+  onChangeConfig = (config) => {
+    console.log('mmmmm', config);
+
+    this.setState({ config });
+  }
+
+  renderExtraContent() {
+    const { type } = this.props;
+    const plugins: any[] = (window as any).plugins || [];
+
+    for (const plugin of plugins) {
+      if (type.includes(`${plugin.name}:`) && plugin.segmentForm) {
+        return (
+            <ExtraForm
+              scope="cards"
+              type={this.props.type}
+              component={plugin.segmentForm}
+              onChangeConfig={this.onChangeConfig}
+            />
+        );
+      }
     }
 
-    return (
-      <SelectBoards
-        isRequired={false}
-        onChangeItems={this.itemsChange}
-        type={this.props.type}
-        selectedItems={this.state.selectedItems}
-      />
-    );
+    return null;
   }
 
   renderContent = (formProps: IFormProps) => {
@@ -184,14 +253,13 @@ class PropertyGroupForm extends React.Component<Props, State> {
         </FormGroup>
 
         {this.renderFieldVisible()}
+        {this.renderExtraContent()}
 
         {['visitor', 'lead', 'customer'].includes(object.contentType) ? (
           this.renderFieldVisibleInDetail()
         ) : (
           <></>
         )}
-
-        {this.renderBoardSelect()}
 
         <ModalFooter>
           <Button btnStyle='simple' onClick={closeModal} icon='times-circle'>
