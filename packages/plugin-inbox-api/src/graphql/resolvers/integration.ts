@@ -1,4 +1,3 @@
-import { MessengerApps } from '../../models';
 import { KIND_CHOICES } from '../../models/definitions/constants';
 import { IIntegrationDocument } from '../../models/definitions/integrations';
 import { getDocument, getDocumentList } from '../../cacheUtils';
@@ -31,9 +30,9 @@ export default {
     return (integration.tagIds || []).map((_id) => ({ __typename: 'Tag', _id }));
   },
 
-  websiteMessengerApps(integration: IIntegrationDocument) {
+  websiteMessengerApps(integration: IIntegrationDocument, _args, { models }: IContext) {
     if (integration.kind === KIND_CHOICES.MESSENGER) {
-      return MessengerApps.find({
+      return models.MessengerApps.find({
         kind: 'website',
         'credentials.integrationId': integration._id
       });
@@ -41,9 +40,9 @@ export default {
     return [];
   },
 
-  knowledgeBaseMessengerApps(integration: IIntegrationDocument) {
+  knowledgeBaseMessengerApps(integration: IIntegrationDocument, _args, { models }: IContext) {
     if (integration.kind === KIND_CHOICES.MESSENGER) {
-      return MessengerApps.find({
+      return models.MessengerApps.find({
         kind: 'knowledgebase',
         'credentials.integrationId': integration._id
       });
@@ -51,9 +50,9 @@ export default {
     return [];
   },
 
-  leadMessengerApps(integration: IIntegrationDocument) {
+  leadMessengerApps(integration: IIntegrationDocument, _args, { models }: IContext) {
     if (integration.kind === KIND_CHOICES.MESSENGER) {
-      return MessengerApps.find({
+      return models.MessengerApps.find({
         kind: 'lead',
         'credentials.integrationId': integration._id
       });

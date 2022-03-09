@@ -1,6 +1,5 @@
-import { MessengerApps } from '../../models';
 import { requireLogin } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src';
+import { IContext } from '../../connectionResolver';
 
 const messengerAppMutations = {
   async messengerAppSave(
@@ -9,9 +8,9 @@ const messengerAppMutations = {
       integrationId,
       messengerApps
     }: { integrationId: string; messengerApps: any },
-    { docModifier }: IContext
+    { docModifier, models }: IContext
   ) {
-    await MessengerApps.deleteMany({
+    await models.MessengerApps.deleteMany({
       'credentials.integrationId': integrationId
     });
 
@@ -27,7 +26,7 @@ const messengerAppMutations = {
           }
         };
 
-        await MessengerApps.createApp(docModifier(doc));
+        await models.MessengerApps.createApp(docModifier(doc));
       }
     }
 
@@ -41,7 +40,7 @@ const messengerAppMutations = {
           }
         };
 
-        await MessengerApps.createApp(docModifier(doc));
+        await models.MessengerApps.createApp(docModifier(doc));
       }
     }
 
@@ -55,7 +54,7 @@ const messengerAppMutations = {
           }
         };
 
-        await MessengerApps.createApp(docModifier(doc));
+        await models.MessengerApps.createApp(docModifier(doc));
       }
     }
 

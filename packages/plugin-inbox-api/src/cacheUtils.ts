@@ -2,8 +2,6 @@ import sift from 'sift';
 
 import { Brands, Users } from './apiCollections';
 
-import { MessengerApps } from './models';
-
 import { get, set } from './inmemoryStorage';
 import { sendProductRPCMessage, sendTagRPCMessage } from './messageBroker';
 import { IModels } from './connectionResolver';
@@ -75,6 +73,7 @@ export const getDocumentList = async (
 
 // doing this until sift dot path support
 export const getMessengerApps = async (
+  models: IModels,
   kind: string,
   integrationId: string,
   findOne = true
@@ -87,7 +86,7 @@ export const getMessengerApps = async (
   if (cacheValue) {
     parsedValue = JSON.parse(cacheValue);
   } else {
-    parsedValue = await MessengerApps.find().lean();
+    parsedValue = await models.MessengerApps.find().lean();
     set(key, JSON.stringify(parsedValue));
   }
 

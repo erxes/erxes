@@ -10,6 +10,8 @@ import { loadClass as loadResponseTemplateClass, IResponseTemplateModel } from '
 import { IResponseTemplateDocument } from './models/definitions/responseTemplates';
 import { IIntegrationModel, loadClass as loadIntegrationClass } from './models/Integrations';
 import { IIntegrationDocument } from './models/definitions/integrations';
+import { IMessengerAppModel, loadClass as loadMessengerAppClass } from './models/MessengerApps';
+import { IMessengerAppDocument } from './models/definitions/messengerApps';
 
 export interface ICoreIModels {
   Brands;
@@ -25,6 +27,7 @@ export interface IModels {
   SkillTypes: ISkillTypeModel;
   ResponseTemplates: IResponseTemplateModel;
   Integrations: IIntegrationModel;
+  MessengerApps: IMessengerAppModel
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -82,7 +85,8 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.SkillTypes = db.model<ISkillTypeDocument, ISkillTypeModel>('skill_types', loadSkillTypeClass(models))
 
   models.ResponseTemplates = db.model<IResponseTemplateDocument, IResponseTemplateModel>('response_templates', loadResponseTemplateClass(models))
-  models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>('integrations', loadIntegrationClass(models) )
+  models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>('integrations', loadIntegrationClass(models))
+  models.MessengerApps = db.model<IMessengerAppDocument, IMessengerAppModel>('messenger_apps', loadMessengerAppClass(models))
 
   return models;
 };

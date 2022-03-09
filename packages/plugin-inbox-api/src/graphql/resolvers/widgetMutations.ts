@@ -113,7 +113,7 @@ const pConversationClientMessageInserted = async (models, message) => {
   });
 };
 
-export const getMessengerData = async (integration: IIntegrationDocument) => {
+export const getMessengerData = async (models: IModels, integration: IIntegrationDocument) => {
   let messagesByLanguage: IMessengerDataMessagesItem | null = null;
   let messengerData = integration.messengerData;
 
@@ -131,12 +131,12 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
   }
 
   // knowledgebase app =======
-  const kbApp = await getMessengerApps('knowledgebase', integration._id);
+  const kbApp = await getMessengerApps(models, 'knowledgebase', integration._id);
 
   const topicId = kbApp && kbApp.credentials ? kbApp.credentials.topicId : null;
 
   // lead app ==========
-  const leadApps = await getMessengerApps('lead', integration._id, false);
+  const leadApps = await getMessengerApps(models, 'lead', integration._id, false);
 
   const formCodes = [] as string[];
 
@@ -147,7 +147,7 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
   }
 
   // website app ============
-  const websiteApps = await getMessengerApps('website', integration._id, false);
+  const websiteApps = await getMessengerApps(models, 'website', integration._id, false);
 
   return {
     ...(messengerData || {}),
@@ -474,7 +474,7 @@ const widgetMutations = {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
-      messengerData: await getMessengerData(integration),
+      messengerData: await getMessengerData(models, integration),
       customerId: customer && customer._id,
       visitorId: customer ? null : visitorId,
       brand
