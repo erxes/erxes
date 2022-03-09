@@ -1,6 +1,6 @@
 import * as _ from 'underscore';
+import { IContext } from '../connectionResolver';
 
-import Companies from '../models/Companies';
 import { IConformityQueryParams } from './customers';
 import { CommonBuilder } from './utils';
 
@@ -30,7 +30,7 @@ export interface IListArgs extends IConformityQueryParams {
 }
 
 export class Builder extends CommonBuilder<IListArgs> {
-  constructor(params: IListArgs, context) {
+  constructor(params: IListArgs, context: IContext) {
     super('companies', params, context);
   }
 
@@ -40,11 +40,11 @@ export class Builder extends CommonBuilder<IListArgs> {
       status: { $ne: 'deleted' }
     };
 
-    const companies = await Companies.find(selector)
+    const companies = await this.context.models.Companies.find(selector)
       .sort({ createdAt: -1 })
       .limit(limit);
 
-    const count = await Companies.find(selector).countDocuments();
+    const count = await this.context.models.Companies.find(selector).countDocuments();
 
     return {
       list: companies,

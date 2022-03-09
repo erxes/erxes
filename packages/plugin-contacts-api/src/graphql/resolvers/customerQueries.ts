@@ -54,12 +54,9 @@ const customerQueries = {
   async customers(
     _root,
     params: IListArgs,
-    { commonQuerySelector, commonQuerySelectorElk }: IContext
+    context: IContext
   ) {
-    const qb = new BuildQuery(params, {
-      commonQuerySelector,
-      commonQuerySelectorElk
-    });
+    const qb = new BuildQuery(params, context);
 
     await qb.buildAllQueries();
 
@@ -74,12 +71,9 @@ const customerQueries = {
   async customersMain(
     _root,
     params: IListArgs,
-    { commonQuerySelector, commonQuerySelectorElk }: IContext
+    context: IContext
   ) {
-    const qb = new BuildQuery(params, {
-      commonQuerySelector,
-      commonQuerySelectorElk
-    });
+    const qb = new BuildQuery(params, context);
 
     await qb.buildAllQueries();
 
@@ -94,7 +88,7 @@ const customerQueries = {
   async customerCounts(
     _root,
     params: ICountParams,
-    { commonQuerySelector, commonQuerySelectorElk }: IContext
+    context: IContext
   ) {
     const { only, type, source } = params;
 
@@ -107,10 +101,7 @@ const customerQueries = {
       byLeadStatus: {}
     };
 
-    const qb = new BuildQuery(params, {
-      commonQuerySelector,
-      commonQuerySelectorElk
-    });
+    const qb = new BuildQuery(params, context);
 
     switch (only) {
       case 'bySegment':

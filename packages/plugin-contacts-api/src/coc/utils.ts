@@ -6,6 +6,7 @@ import { customerSchema } from '../models/definitions/customers';
 import { debug, es } from '../configs';
 import { COC_LEAD_STATUS_TYPES } from '../constants';
 import { fetchSegment, findOneTag, findTags, sendConformityMessage, sendSegmentMessage } from '../messageBroker';
+import { IContext } from '../connectionResolver';
 
 export interface ICountBy {
   [index: string]: number;
@@ -140,7 +141,7 @@ interface ICommonListArgs {
 
 export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public params: IListArgs;
-  public context;
+  public context: IContext;
   public positiveList: any[];
   public negativeList: any[];
 
@@ -149,7 +150,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   constructor(
     contentType: 'customers' | 'companies',
     params: IListArgs,
-    context
+    context: IContext
   ) {
     this.contentType = contentType;
     this.context = context;
