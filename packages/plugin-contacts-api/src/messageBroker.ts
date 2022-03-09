@@ -282,10 +282,8 @@ export const sendEngageMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`engages:rpc_queue:${action}`, data);
 };
 
-export const prepareCustomFieldsData = async (doc): Promise<any> => {
-  return client.sendRPCMessage('fields:rpc_queue:prepareCustomFieldsData', {
-    doc
-  });
+export const prepareCustomFieldsData = async (data): Promise<any> => {
+  return client.sendRPCMessage('forms:rpc_queue:prepareCustomFieldsData', data);
 };
 
 export const generateCustomFieldsData = async (doc): Promise<any> => {
