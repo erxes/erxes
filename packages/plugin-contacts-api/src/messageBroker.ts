@@ -352,7 +352,7 @@ export const removeCustomersConversations = async (
 ): Promise<any> => {
   if(!(await serviceDiscovery.isEnabled("inbox"))) { return; }
 
-  await client.sendMessage('inbox:removeCustomersConversations', customerIds);
+  await client.sendMessage('inbox:removeCustomersConversations', { customerIds });
 };
 
 export const removeCustomersEngages = async (customerIds): Promise<any> => {

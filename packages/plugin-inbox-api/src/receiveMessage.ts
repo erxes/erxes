@@ -25,7 +25,7 @@ export const receiveRpcMessage = async msg => {
     Integrations,
     ConversationMessages,
     Conversations
-  } = await generateModels(subdomain);
+  } = await generateModels(subdomain || "os");
   
   const doc = JSON.parse(payload || '{}');
 
@@ -181,7 +181,7 @@ export const removeEngageConversations = async (models, _id) => {
 };
 
 export const collectConversations = async ({ contentId, contentType, subdomain }) => {
-  const models = await generateModels(subdomain);
+  const models = await generateModels(subdomain || "os");
   const results: any[] = [];
   const conversations = await models.Conversations.find({
     $or: [{ customerId: contentId }, { participatedUserIds: contentId }]
