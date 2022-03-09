@@ -1,6 +1,6 @@
-import { serviceDiscovery } from "./configs";
-import { Fields, FieldsGroups, Forms } from "./models";
-import { fieldsCombinedByContentType } from "./utils";
+import { serviceDiscovery } from './configs';
+import { Fields, FieldsGroups, Forms } from './models';
+import { fieldsCombinedByContentType } from './utils';
 
 let client;
 
@@ -43,20 +43,22 @@ export const initBroker = async cl => {
     })
   );
 
-  consumeQueue(
-    'forms:updateGroup',
-    async ({ groupId, fieldsGroup }) => ({
-      status: 'success',
-      data: await FieldsGroups.updateGroup(groupId, fieldsGroup)
-    })
-  );
+  consumeQueue('forms:updateGroup', async ({ groupId, fieldsGroup }) => ({
+    status: 'success',
+    data: await FieldsGroups.updateGroup(groupId, fieldsGroup)
+  }));
 
-  consumeRPCQueue('forms:rpc_queue:findFields', async ({ query, projection, sort }) => {
-    return {
-      status: 'success',
-      data: await Fields.find(query, projection).sort(sort).lean()
-    };
-  });
+  consumeRPCQueue(
+    'forms:rpc_queue:findFields',
+    async ({ query, projection, sort }) => {
+      return {
+        status: 'success',
+        data: await Fields.find(query, projection)
+          .sort(sort)
+          .lean()
+      };
+    }
+  );
 
   consumeRPCQueue('forms:rpc_queue:fieldsCombinedByContentType', async arg => {
     return {
@@ -68,12 +70,15 @@ export const initBroker = async cl => {
 
 export const getFieldsFromService = async (serviceName: string, data) => {
   if (!(await serviceDiscovery.isEnabled(serviceName))) {
+    console.log('a');
     return [];
   }
-  
-  if(!(await serviceDiscovery.isAvailable(serviceName))) {
+
+  if (!(await serviceDiscovery.isAvailable(serviceName))) {
     throw new Error(`${serviceName} service is not available.`);
   }
+
+  console.log(serviceName);
 
   return client.sendRPCMessage(`${serviceName}:rpc_queue:getFields`, data);
 };
