@@ -119,6 +119,10 @@ export default class GenerateField extends React.Component<Props, State> {
         return;
       }
 
+      if (onChangeMarker) {
+        onChangeMarker(e);
+      }
+
       this.setState({ center: e });
     };
 
