@@ -1,6 +1,5 @@
 import {
   Conversations,
-  ConversationMessages
 } from "./models";
 
 import {
@@ -65,7 +64,7 @@ export const getOrCreateEngageMessage = async (
 
   const convs = await Conversations.find(query);
 
-  return ConversationMessages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
+  return models.ConversationMessages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
 };
 
 export const receiveVisitorDetail = async (visitor) => {

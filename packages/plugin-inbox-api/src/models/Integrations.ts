@@ -1,7 +1,7 @@
 import * as momentTz from 'moment-timezone';
 import { Model, Query } from 'mongoose';
 
-import { ConversationMessages, Conversations } from '.';
+import { Conversations } from '.';
 
 import { Brands, Forms } from '../apiCollections';
 import { IModels } from '../connectionResolver';
@@ -390,7 +390,7 @@ export const loadClass = (models: IModels) => {
       );
       const conversationIds = conversations.map(conv => conv._id);
 
-      await ConversationMessages.deleteMany({
+      await models.ConversationMessages.deleteMany({
         conversationId: { $in: conversationIds }
       });
 

@@ -1,15 +1,16 @@
 import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 import { generateFieldsFromSchema } from "@erxes/api-utils/src";
 
-import { ConversationMessages, Conversations } from "./models";
+import { Conversations } from "./models";
 import { receiveRpcMessage, collectConversations } from "./receiveMessage";
 import { serviceDiscovery } from './configs';
 import { LOG_MAPPINGS } from './constants';
-import { generateModels } from './connectionResolver';
+import { generateModels, IModels } from './connectionResolver';
 
 export let client;
 
 const createConversationAndMessage = async (
+  models: IModels,
   userId,
   status,
   customerId,
@@ -29,7 +30,7 @@ const createConversationAndMessage = async (
   });
 
   // create message
-  return ConversationMessages.createMessage({
+  return models.ConversationMessages.createMessage({
     engageData,
     conversationId: conversation._id,
     userId,
@@ -79,9 +80,11 @@ export const initBroker = (cl) => {
   consumeRPCQueue(
     'inbox:rpc_queue:createConversationAndMessage',
     async (doc) => {
-      const { userId, status, customerId, visitorId, integrationId, content, engageData } = doc;
+      const { subdomain, userId, status, customerId, visitorId, integrationId, content, engageData } = doc;
+      const models = await generateModels(subdomain); 
 
       const data = await createConversationAndMessage(
+        models,
         userId,
         status,
         customerId,
@@ -179,9 +182,10 @@ export const initBroker = (cl) => {
   }));
 
   consumeRPCQueue('inbox:rpc_queue:updateConversationMessage', async (data) => {
-    const { filter, updateDoc } = data;
+    const { filter, updateDoc, subdomain } = data;
+    const models = await generateModels(subdomain);
 
-    const updated = await ConversationMessages.updateOne(filter, { $set: updateDoc });
+    const updated = await models.ConversationMessages.updateOne(filter, { $set: updateDoc });
 
     return {
       data: updated,

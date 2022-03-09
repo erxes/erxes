@@ -1,6 +1,5 @@
 import { Model, model } from 'mongoose';
 // import { ConversationMessages, Fields, Users } from '.';
-import { ConversationMessages } from '.';
 import { stream } from '@erxes/api-utils/src/bulkUtils';
 import { cleanHtml } from '@erxes/api-utils/src/core';
 import { getDocument } from '../cacheUtils';
@@ -229,7 +228,7 @@ export const loadClass = () => {
 
       for (const conversationObj of customerConversations) {
         promises.push(
-          ConversationMessages.addMessage({
+          models.ConversationMessages.addMessage({
             conversationId: conversationObj._id,
             content: `Customer has ${status}`,
             fromBot: true
@@ -336,7 +335,7 @@ export const loadClass = () => {
       customerIds: string
     ) {
       // Updating every conversation and conversation messages of new customer
-      await ConversationMessages.updateMany(
+      await models.ConversationMessages.updateMany(
         { customerId: { $in: customerIds } },
         { $set: { customerId: newCustomerId } }
       );
@@ -362,7 +361,7 @@ export const loadClass = () => {
       // Removing conversations and conversation messages
       const conversationIds = conversations.map(conv => conv._id);
 
-      await ConversationMessages.deleteMany({
+      await models.ConversationMessages.deleteMany({
         conversationId: { $in: conversationIds }
       });
 
@@ -375,7 +374,7 @@ export const loadClass = () => {
     public static async removeEngageConversations(engageMessageId: string) {
       await stream(
         async chunk => {
-          await ConversationMessages.deleteMany({
+          await models.ConversationMessages.deleteMany({
             conversationId: { $in: chunk }
           });
           await Conversations.deleteMany({ _id: { $in: chunk } });
@@ -388,7 +387,7 @@ export const loadClass = () => {
           variables.parentIds = parentIds;
         },
         () => {
-          return ConversationMessages.find(
+          return models.ConversationMessages.find(
             {
               engageData: { $exists: true, $ne: null },
               'engageData.messageId': engageMessageId

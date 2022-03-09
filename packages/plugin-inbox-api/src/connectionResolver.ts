@@ -12,6 +12,8 @@ import { IIntegrationModel, loadClass as loadIntegrationClass } from './models/I
 import { IIntegrationDocument } from './models/definitions/integrations';
 import { IMessengerAppModel, loadClass as loadMessengerAppClass } from './models/MessengerApps';
 import { IMessengerAppDocument } from './models/definitions/messengerApps';
+import { IMessageModel, loadClass as loadMessageClass } from './models/ConversationMessages';
+import { IMessageDocument } from './models/definitions/conversationMessages';
 
 export interface ICoreIModels {
   Brands;
@@ -28,6 +30,7 @@ export interface IModels {
   ResponseTemplates: IResponseTemplateModel;
   Integrations: IIntegrationModel;
   MessengerApps: IMessengerAppModel
+  ConversationMessages: IMessageModel
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -87,6 +90,8 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.ResponseTemplates = db.model<IResponseTemplateDocument, IResponseTemplateModel>('response_templates', loadResponseTemplateClass(models))
   models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>('integrations', loadIntegrationClass(models))
   models.MessengerApps = db.model<IMessengerAppDocument, IMessengerAppModel>('messenger_apps', loadMessengerAppClass(models))
+
+  models.ConversationMessages = db.model<IMessageDocument, IMessageModel>('conversation_messages', loadMessageClass(models))
 
   return models;
 };

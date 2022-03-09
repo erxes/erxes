@@ -1,6 +1,5 @@
 import * as momentTz from 'moment-timezone';
 import {
-  ConversationMessages,
   Conversations,
 } from '../../models';
 
@@ -49,8 +48,8 @@ const messengerSupporters = async (models: IModels, integration: IIntegrationDoc
   return getDocumentList(models, 'users', { _id: { $in: messengerData.supporterIds } });
 };
 
-const getWidgetMessages = (conversationId: string) => {
-  return ConversationMessages.find({
+const getWidgetMessages = (models: IModels,conversationId: string) => {
+  return models.ConversationMessages.find({
     conversationId,
     internal: false,
     fromBot: { $exists: false }
@@ -59,8 +58,8 @@ const getWidgetMessages = (conversationId: string) => {
   });
 };
 
-const getExportMessages = (conversationId: string) => {
-  return ConversationMessages.aggregate([
+const getExportMessages = (models: IModels, conversationId: string) => {
+  return models.ConversationMessages.aggregate([
     {
       $match: {
         conversationId,
@@ -143,7 +142,7 @@ export default {
     }
 
     // aggregating conversation message with user, customer collections.
-    const messages = await getExportMessages(conversation._id);
+    const messages = await getExportMessages(models, conversation._id);
 
     const fileName = `EXPORTED_CONVERSATIONS.txt`;
     const newPath = `${fileName}`;
@@ -216,7 +215,7 @@ export default {
 
     return {
       _id,
-      messages: await getWidgetMessages(conversation._id),
+      messages: await getWidgetMessages(models, conversation._id),
       isOnline: await isMessengerOnline(models, integration),
       operatorStatus: conversation.operatorStatus,
       participatedUsers: await getDocumentList(models, 'users', {
@@ -226,21 +225,22 @@ export default {
     };
   },
 
-  widgetsMessages(_root, args: { conversationId: string }) {
+  widgetsMessages(_root, args: { conversationId: string }, { models }: IContext) {
     const { conversationId } = args;
 
-    return getWidgetMessages(conversationId);
+    return getWidgetMessages(models, conversationId);
   },
 
-  widgetsUnreadCount(_root, args: { conversationId: string }) {
+  widgetsUnreadCount(_root, args: { conversationId: string }, { models }: IContext) {
     const { conversationId } = args;
 
-    return ConversationMessages.widgetsGetUnreadMessagesCount(conversationId);
+    return models.ConversationMessages.widgetsGetUnreadMessagesCount(conversationId);
   },
 
   async widgetsTotalUnreadCount(
     _root,
-    args: { integrationId: string; customerId?: string }
+    args: { integrationId: string; customerId?: string },
+    { models }: IContext
   ) {
     const { integrationId, customerId } = args;
 
@@ -251,7 +251,7 @@ export default {
     const convs = await Conversations.find({ integrationId, customerId });
 
     // find read messages count
-    return ConversationMessages.countDocuments(
+    return models.ConversationMessages.countDocuments(
       Conversations.widgetsUnreadMessagesQuery(convs)
     );
   },

@@ -1,6 +1,5 @@
 import * as strip from 'strip';
 import {
-  ConversationMessages,
   Conversations,
 } from '../../models';
 
@@ -211,7 +210,7 @@ const createFormConversation = async (
   });
 
   // create message
-  const message = await ConversationMessages.createMessage({
+  const message = await models.ConversationMessages.createMessage({
     conversationId: conversation._id,
     customerId: cachedCustomer._id,
     content,
@@ -508,7 +507,7 @@ const widgetMutations = {
     } = args;
 
     if (contentType === MESSAGE_TYPES.VIDEO_CALL_REQUEST) {
-      const videoCallRequestMessage = await ConversationMessages.findOne(
+      const videoCallRequestMessage = await models.ConversationMessages.findOne(
         { conversationId, contentType },
         { createdAt: 1 }
       ).sort({ createdAt: -1 });
@@ -607,7 +606,7 @@ const widgetMutations = {
 
     // create message
 
-    const msg = await ConversationMessages.createMessage({
+    const msg = await models.ConversationMessages.createMessage({
       conversationId: conversation._id,
       customerId,
       attachments,
@@ -682,7 +681,7 @@ const widgetMutations = {
                 }
               ];
 
-        const botMessage = await ConversationMessages.createMessage({
+        const botMessage = await models.ConversationMessages.createMessage({
           conversationId: conversation._id,
           customerId,
           contentType,
@@ -758,9 +757,10 @@ const widgetMutations = {
    */
   async widgetsReadConversationMessages(
     _root,
-    args: { conversationId: string }
+    args: { conversationId: string },
+    { models }: IContext
   ) {
-    await ConversationMessages.updateMany(
+    await models.ConversationMessages.updateMany(
       {
         conversationId: args.conversationId,
         userId: { $exists: true },
@@ -773,14 +773,14 @@ const widgetMutations = {
     return args.conversationId;
   },
 
-  async widgetsSaveCustomerGetNotified(_root, args) {
+  async widgetsSaveCustomerGetNotified(_root, args, { models }: IContext) {
     const { visitorId, customerId } = args;
 
     if (visitorId && !customerId) {
       const customer = await createVisitor(visitorId);
       args.customerId = customer._id;
 
-      await ConversationMessages.updateVisitorEngageMessages(
+      await models.ConversationMessages.updateVisitorEngageMessages(
         visitorId,
         customer._id
       );
@@ -945,7 +945,7 @@ const widgetMutations = {
         `bot_initial_message_${integrationId}`
       );
 
-      await ConversationMessages.createMessage({
+      await models.ConversationMessages.createMessage({
         conversationId: conversation._id,
         customerId,
         botData: JSON.parse(initialMessageBotData || '{}')
@@ -953,7 +953,7 @@ const widgetMutations = {
     }
 
     // create customer message
-    const msg = await ConversationMessages.createMessage({
+    const msg = await models.ConversationMessages.createMessage({
       conversationId,
       customerId,
       content: message
@@ -997,7 +997,7 @@ const widgetMutations = {
     }
 
     // create bot message
-    botMessage = await ConversationMessages.createMessage({
+    botMessage = await models.ConversationMessages.createMessage({
       conversationId,
       customerId,
       botData

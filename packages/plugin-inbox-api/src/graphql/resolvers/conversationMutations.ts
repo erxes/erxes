@@ -1,11 +1,8 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
 import {
-  ConversationMessages,
   Conversations,
 } from '../../models';
-
-import Messages from '../../models/ConversationMessages';
 
 import {
   KIND_CHOICES,
@@ -35,7 +32,7 @@ import { splitStr } from '@erxes/api-utils/src/core';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { IContext } from '../../connectionResolver';
+import { IContext, IModels } from '../../connectionResolver';
 
 export interface IConversationMessageAdd {
   conversationId: string;
@@ -169,6 +166,7 @@ export const publishConversationsChanged = (
  * Publish admin's message
  */
 export const publishMessage = async (
+  models: IModels,
   message: IMessageDocument,
   customerId?: string
 ) => {
@@ -179,7 +177,7 @@ export const publishMessage = async (
   // widget is listening for this subscription to show notification
   // customerId available means trying to notify to client
   if (customerId) {
-    const unreadCount = await Messages.widgetsGetUnreadMessagesCount(
+    const unreadCount = await models.ConversationMessages.widgetsGetUnreadMessagesCount(
       message.conversationId
     );
 
@@ -258,7 +256,7 @@ const sendNotifications = async ({
   }
 };
 
-const getConversationById = async selector => {
+const getConversationById = async (models: IModels, selector) => {
   const oldConversations = await Conversations.find(selector).lean();
   const oldConversationById = {};
   for (const conversation of oldConversations) {
@@ -293,10 +291,10 @@ const conversationMutations = {
 
     // do not send internal message to third service integrations
     if (doc.internal) {
-      const messageObj = await ConversationMessages.addMessage(doc, user._id);
+      const messageObj = await models.ConversationMessages.addMessage(doc, user._id);
 
       // publish new message to conversation detail
-      publishMessage(messageObj);
+      publishMessage(models, messageObj);
 
       return messageObj;
     }
@@ -343,7 +341,7 @@ const conversationMutations = {
       );
     }
 
-    const message = await ConversationMessages.addMessage(doc, user._id);
+    const message = await models.ConversationMessages.addMessage(doc, user._id);
 
     /**
      * Send SMS only when:
@@ -414,12 +412,12 @@ const conversationMutations = {
       facebookMessageTag
     );
 
-    const dbMessage = await ConversationMessages.getMessage(message._id);
+    const dbMessage = await models.ConversationMessages.getMessage(message._id);
 
     // await utils.sendToWebhook('create', 'userMessages', dbMessage);
 
     // Publishing both admin & client
-    publishMessage(dbMessage, conversation.customerId);
+    publishMessage(models, dbMessage, conversation.customerId);
 
     return dbMessage;
   },
@@ -494,7 +492,7 @@ const conversationMutations = {
     }: { conversationIds: string[]; assignedUserId: string },
     { user, models }: IContext
   ) {
-    const { oldConversationById } = await getConversationById({
+    const { oldConversationById } = await getConversationById(models, {
       _id: { $in: conversationIds }
     });
 
@@ -540,7 +538,7 @@ const conversationMutations = {
     const {
       oldConversations,
       oldConversationById
-    } = await getConversationById({ _id: { $in: _ids } });
+    } = await getConversationById(models, { _id: { $in: _ids } });
     const updatedConversations = await Conversations.unassignUserConversation(
       _ids
     );
@@ -579,7 +577,7 @@ const conversationMutations = {
     { _ids, status }: { _ids: string[]; status: string },
     { user, models }: IContext
   ) {
-    const { oldConversationById } = await getConversationById({
+    const { oldConversationById } = await getConversationById(models, {
       _id: { $in: _ids }
     });
 
@@ -625,7 +623,7 @@ const conversationMutations = {
     await qb.buildAllQueries();
     const query = qb.mainQuery();
 
-    const { oldConversationById } = await getConversationById(query);
+    const { oldConversationById } = await getConversationById(models, query);
     const param = {
       status: CONVERSATION_STATUSES.CLOSED,
       closedUserId: user._id,
@@ -669,7 +667,7 @@ const conversationMutations = {
   async conversationCreateVideoChatRoom(
     _root,
     { _id },
-    { user }: IContext
+    { user, models }: IContext
   ) {
     let message;
 
@@ -680,7 +678,7 @@ const conversationMutations = {
         contentType: MESSAGE_TYPES.VIDEO_CALL
       };
 
-      message = await ConversationMessages.addMessage(doc, user._id);
+      message = await models.ConversationMessages.addMessage(doc, user._id);
 
       const videoCallData = await sendRPCMessage('integrations:rpc_queue:createDailyRoom',
         {
@@ -692,13 +690,13 @@ const conversationMutations = {
       const updatedMessage = { ...message._doc, videoCallData };
 
       // publish new message to conversation detail
-      publishMessage(updatedMessage);
+      publishMessage(models, updatedMessage);
 
       return videoCallData;
     } catch (e) {
       debug.error(e.message);
 
-      await ConversationMessages.deleteOne({ _id: message._id });
+      await models.ConversationMessages.deleteOne({ _id: message._id });
 
       throw new Error(e.message);
     }
@@ -706,9 +704,10 @@ const conversationMutations = {
 
   async changeConversationOperator(
     _root,
-    { _id, operatorStatus }: { _id: string; operatorStatus: string }
+    { _id, operatorStatus }: { _id: string; operatorStatus: string },
+    { models }: IContext
   ) {
-    const message = await Messages.createMessage({
+    const message = await models.ConversationMessages.createMessage({
       conversationId: _id,
       botData: [
         {

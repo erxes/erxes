@@ -1,4 +1,4 @@
-import { ConversationMessages, Conversations } from "../../models";
+import { Conversations } from "../../models";
 import { CONVERSATION_STATUSES } from "../../models/definitions/constants";
 import { IMessageDocument } from "../../models/definitions/conversationMessages";
 import { countByConversations } from "../../conversationUtils";
@@ -27,8 +27,8 @@ const count = async (query: any): Promise<number> => {
 };
 
 const conversationQueries = {
-  conversationMessage(_, { _id }) {
-    return ConversationMessages.findOne({ _id });
+  conversationMessage(_, { _id }, { models }: IContext) {
+    return models.ConversationMessages.findOne({ _id });
   },
   /**
    * Conversations list
@@ -70,7 +70,8 @@ const conversationQueries = {
       skip: number;
       limit: number;
       getFirst: boolean;
-    }
+    },
+    { models }: IContext
   ) {
     const query = { conversationId };
 
@@ -79,7 +80,7 @@ const conversationQueries = {
     if (limit) {
       const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
 
-      messages = await ConversationMessages.find(query)
+      messages = await models.ConversationMessages.find(query)
         .sort(sort)
         .skip(skip || 0)
         .limit(limit);
@@ -87,7 +88,7 @@ const conversationQueries = {
       return getFirst ? messages : messages.reverse();
     }
 
-    messages = await ConversationMessages.find(query)
+    messages = await models.ConversationMessages.find(query)
       .sort({ createdAt: -1 })
       .limit(50);
 
@@ -99,9 +100,10 @@ const conversationQueries = {
    */
   async conversationMessagesTotalCount(
     _root,
-    { conversationId }: { conversationId: string }
+    { conversationId }: { conversationId: string },
+    { models }: IContext
   ) {
-    return ConversationMessages.countDocuments({ conversationId });
+    return models.ConversationMessages.countDocuments({ conversationId });
   },
 
   /**

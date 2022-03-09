@@ -1,7 +1,6 @@
 import { debug } from '../../configs';
 import { getDocument } from '../../cacheUtils';
 import { IConversationDocument } from '../../models/definitions/conversations';
-import { ConversationMessages } from '../../models';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
 import { sendRPCMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
@@ -111,9 +110,9 @@ export default {
   async videoCallData(
     conversation: IConversationDocument,
     _args,
-    { dataSources }: IContext
+    { models }: IContext
   ) {
-    const message = await ConversationMessages.findOne({
+    const message = await models.ConversationMessages.findOne({
       conversationId: conversation._id,
       contentType: MESSAGE_TYPES.VIDEO_CALL
     }).lean();
@@ -144,7 +143,7 @@ export default {
       return false;
     }
 
-    const message = await ConversationMessages.find({
+    const message = await models.ConversationMessages.find({
       conversationId: conversation._id,
       customerId: { $exists: true },
       createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }

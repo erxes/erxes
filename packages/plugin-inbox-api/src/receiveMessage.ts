@@ -1,5 +1,5 @@
 import { graphqlPubsub } from './configs';
-import { ConversationMessages, Conversations } from './models';
+import { Conversations } from './models';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { Users } from './apiCollections';
 import { sendContactRPCMessage, sendRPCMessage } from './messageBroker';
@@ -24,6 +24,7 @@ export const receiveRpcMessage = async msg => {
   
   const {
     Integrations,
+    ConversationMessages
   } = await generateModels(subdomain);
   
   const doc = JSON.parse(payload || '{}');
