@@ -23,10 +23,7 @@ export interface ICondition {
   subSegmentId?: string;
   subSegmentForPreview?: ISegment;
 
-  pipelineId?: string;
-  boardId?: string;
-
-  formId?: string;
+  config?: any;
 }
 
 export interface IConditionDocument extends ICondition, Document {}
@@ -45,8 +42,7 @@ export interface ISegment {
 
   scopeBrandIds?: string[];
 
-  boardId?: string;
-  pipelineId?: string;
+  config?: any;
 }
 
 export interface ISegmentDocument extends ISegment, Document {
@@ -106,18 +102,8 @@ export const conditionSchema = new Schema(
 
     subSegmentId: field({ type: String, optional: true }),
 
-    pipelineId: field({
-      type: String,
-      optional: true
-    }),
-
-    boardId: field({
-      type: String,
-      optional: true
-    }),
-
-    formId: field({
-      type: String,
+    config: field({
+      type: Object,
       optional: true
     })
   },
@@ -151,7 +137,9 @@ export const segmentSchema = schemaWrapper(
 
     conditions: field({ type: [conditionSchema] }),
 
-    boardId: field({ type: String, optional: true }),
-    pipelineId: field({ type: String, optional: true })
+    config: field({
+      type: Object,
+      optional: true
+    })
   })
 );

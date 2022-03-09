@@ -28,10 +28,7 @@ export interface ISegmentCondition {
 
   subSegmentId?: string;
 
-  boardId?: string;
-  pipelineId?: string;
-
-  formId?: string;
+  config?: any;
 }
 
 export interface ISegmentMap {

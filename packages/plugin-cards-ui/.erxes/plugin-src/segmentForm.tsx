@@ -14,33 +14,14 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   type: string;
-  config: string;
+  config: any;
   onChangeConfig?: (value) => void;
 };
 
-type FinalProps = {
-  boardsQuery: BoardsQueryResponse;
-} & Props;
-
-type State = {
-  boardId: string;
-  pipelineId: string;
-};
-
 class Form extends React.Component<any, any, any> {
-  constructor(props: FinalProps) {
-    super(props);
-
-    const { config } = this.props;
-
-    this.state = {
-      boardId: config ? config.boardId : '',
-      pipelineId: config ? config.pipelineId : ''
-    };
-  }
-
   generatePipelineOptions = () => {
-    const { boardId } = this.state;
+    const { config } = this.props;
+    const { boardId } = config;
 
     const board = (this.props.boards || []).find(b => b._id === boardId);
 
@@ -54,15 +35,49 @@ class Form extends React.Component<any, any, any> {
     }));
   };
 
+  onChangePipeLine = (_key, e) => {
+    const { config } = this.props;
+    const boarId = config.boardId;
+    const pipelineId = e ? e.value : '';
+
+    const result = { boarId, pipelineId };
+
+    this.props.onChangeConfig(result);
+  };
+
+  onChangeBoard = (_key, e) => {
+    const { config } = this.props;
+    const boarId = e ? e.value : '';
+
+    const pipelineId = config.pipelineId;
+
+    const result = { boarId, pipelineId };
+
+    this.props.onChangeConfig(result);
+  };
+
   render() {
-    const { boardsQuery } = this.props;
-    const { boardId, pipelineId } = this.state;
+    const {
+      boardsQuery,
+      config,
+      hideDetailForm,
+      propertyType,
+      type
+    } = this.props;
 
     if (boardsQuery.loading) {
       return <Spinner />;
     }
 
     const boards = boardsQuery.boards || [];
+
+    if (propertyType && !['deal', 'ticket', 'task'].includes(propertyType)) {
+      return null;
+    }
+
+    if (!hideDetailForm && ['deal', 'ticket', 'task'].includes(type)) {
+      return null;
+    }
 
     return (
       <>
@@ -71,20 +86,20 @@ class Form extends React.Component<any, any, any> {
             <FormGroup>
               <ControlLabel>Board</ControlLabel>
               <Select
-                value={boardId}
+                value={config.boardId}
                 options={boards.map(b => ({
                   value: b._id,
                   label: b.name
                 }))}
-                // onChange={onChangeBoardItem.bind(this, 'boardId')}
+                onChange={this.onChangeBoard.bind(this, 'boardId')}
               />
             </FormGroup>
             <FormGroup>
               <ControlLabel>Pipeline</ControlLabel>
 
               <Select
-                value={pipelineId}
-                // onChange={onChangeBoardItem.bind(this, 'pipelineId')}
+                value={config.boardId}
+                onChange={this.onChangePipeLine.bind(this, 'pipelineId')}
                 options={this.generatePipelineOptions()}
               />
             </FormGroup>

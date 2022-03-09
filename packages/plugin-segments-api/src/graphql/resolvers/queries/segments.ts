@@ -60,9 +60,7 @@ const segmentQueries = {
   segments(
     _root,
     {
-      contentTypes,
-      boardId,
-      pipelineId
+      contentTypes
     }: { contentTypes: string[]; boardId?: string; pipelineId?: string },
     { commonQuerySelector }: IContext
   ) {
@@ -72,13 +70,13 @@ const segmentQueries = {
       name: { $exists: true }
     };
 
-    if (boardId) {
-      selector.boardId = boardId;
-    }
+    // if (boardId) {
+    //   selector.boardId = boardId;
+    // }
 
-    if (pipelineId) {
-      selector.pipelineId = pipelineId;
-    }
+    // if (pipelineId) {
+    //   selector.pipelineId = pipelineId;
+    // }
 
     return Segments.find(selector).sort({ name: 1 });
   },

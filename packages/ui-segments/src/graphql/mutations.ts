@@ -5,8 +5,7 @@ const paramDefs = `
   $color: String,
   $conditions: [SegmentCondition],
   $conditionSegments: [SubSegment]
-  $boardId: String,
-  $pipelineId: String,
+  $config: JSON,
   $conditionsConjunction: String
   $shouldWriteActivityLog: Boolean!
 `;
@@ -17,8 +16,7 @@ const params = `
   subOf: $subOf,
   color: $color,
   conditions: $conditions,
-  boardId: $boardId,
-  pipelineId: $pipelineId,
+  config: $config,
   conditionsConjunction: $conditionsConjunction
   conditionSegments: $conditionSegments
   shouldWriteActivityLog: $shouldWriteActivityLog

@@ -10,12 +10,11 @@ import PropertyForm from './PropertyForm';
 import { SegmentBackIcon } from '../styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import PropertyList from '../../containers/form/PropertyList';
-import { isBoardKind } from '../../utils';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
+import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   contentType: string;
-  serviceType: string;
   boards?: IBoard[];
   associationTypes: any[];
   forms?: IIntegration[];
@@ -23,9 +22,7 @@ type Props = {
   addCondition: (
     condition: ISegmentCondition,
     segmentKey: string,
-    boardId?: string,
-    pipelineId?: string,
-    formId?: string
+    config: any
   ) => void;
   onClickBackToList: () => void;
   hideBackButton: boolean;
@@ -34,32 +31,27 @@ type Props = {
     segmentKey: string,
     conjunction: string
   ) => void;
-  fetchFields: (type: string) => void;
-  boardId: string;
-  pipelineId: string;
+  config?: any;
 };
 
 type State = {
   propertyType: string;
   chosenProperty?: IField;
   searchValue: string;
-  boardId: string;
-  pipelineId: string;
-  formId: string;
+
+  config: any;
 };
 
 class PropertyCondition extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { boardId = '', contentType, pipelineId = '', forms = [] } = props;
+    const { contentType, forms = [], config = {} } = props;
 
     this.state = {
       propertyType: contentType,
       searchValue: '',
-      boardId,
-      pipelineId,
-      formId: forms[0] ? forms[0].formId : ''
+      config
     };
   }
 
@@ -77,112 +69,49 @@ class PropertyCondition extends React.Component<Props, State> {
     this.setState({ searchValue: value });
   };
 
-  generatePipelineOptions = () => {
-    const { boardId } = this.state;
-
-    const board = (this.props.boards || []).find(b => b._id === boardId);
-
-    if (!board) {
-      return [];
-    }
-
-    return (board.pipelines || []).map(p => ({
-      value: p._id,
-      label: p.name
-    }));
-  };
-
   onChangeBoardItem = (key, e) => {
     const value = e ? e.value : '';
 
     this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
   };
 
-  renderBoardFields = () => {
-    const { boards = [], hideDetailForm, contentType } = this.props;
-    const { boardId, pipelineId, propertyType } = this.state;
+  renderExtraContent = () => {
+    const { contentType } = this.props;
+    const { config, propertyType } = this.state;
 
-    if (!isBoardKind(propertyType)) {
-      return null;
-    }
+    const plugins: any[] = (window as any).plugins || [];
 
-    if (!hideDetailForm && isBoardKind(contentType)) {
-      return null;
-    }
-
-    return (
-      <>
-        <FormGroup>
-          <ControlLabel>Board</ControlLabel>
-          <Select
-            value={boardId}
-            options={boards.map(b => ({ value: b._id, label: b.name }))}
-            onChange={this.onChangeBoardItem.bind(this, 'boardId')}
+    for (const plugin of plugins) {
+      if (contentType.includes(`${plugin.name}:`) && plugin.segmentForm) {
+        return (
+          <RenderDynamicComponent
+            scope={plugin.scope}
+            component={plugin.segmentForm}
+            injectedProps={{
+              config,
+              type: contentType,
+              propertyType
+            }}
           />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Pipeline</ControlLabel>
-
-          <Select
-            value={pipelineId}
-            onChange={this.onChangeBoardItem.bind(this, 'pipelineId')}
-            options={this.generatePipelineOptions()}
-          />
-        </FormGroup>
-      </>
-    );
-  };
-
-  renderFormFields = () => {
-    const { forms = [] } = this.props;
-    const { formId, propertyType } = this.state;
-
-    if (propertyType !== 'form_submission') {
-      return null;
+        );
+      }
     }
 
-    if (forms[0] && formId === '') {
-      this.setState({ formId: forms[0].formId });
-    }
-
-    return (
-      <>
-        <FormGroup>
-          <ControlLabel>Form</ControlLabel>
-          <Select
-            value={formId}
-            options={forms.map(b => ({ value: b.formId, label: b.name }))}
-            onChange={this.onChangeBoardItem.bind(this, 'formId')}
-          />
-        </FormGroup>
-      </>
-    );
+    return null;
   };
 
   render() {
     const {
-      contentType,
       associationTypes,
       onClickBackToList,
       hideBackButton,
-      fetchFields,
-      serviceType
+      config
     } = this.props;
 
-    const {
-      chosenProperty,
-      propertyType,
-      searchValue,
-      pipelineId,
-      boardId,
-      formId
-    } = this.state;
+    const { chosenProperty, propertyType, searchValue } = this.state;
 
     const onChange = e => {
       const value = e.value;
-
-      fetchFields(value);
 
       this.setState({ propertyType: value, chosenProperty: undefined });
     };
@@ -216,8 +145,7 @@ class PropertyCondition extends React.Component<Props, State> {
             <ControlLabel>Property type</ControlLabel>
             {generateSelect()}
           </FormGroup>
-          {this.renderBoardFields()}
-          {this.renderFormFields()}
+          {this.renderExtraContent()}
           <FormGroup>
             <ControlLabel>Properties</ControlLabel>
             <FormControl
@@ -227,9 +155,7 @@ class PropertyCondition extends React.Component<Props, State> {
             />
           </FormGroup>
           <PropertyList
-            serviceType={serviceType}
-            formId={formId}
-            pipelineId={pipelineId}
+            config={config}
             onClickProperty={this.onClickProperty}
             contentType={propertyType}
             searchValue={searchValue}
@@ -248,9 +174,7 @@ class PropertyCondition extends React.Component<Props, State> {
           segmentKey={this.props.segment.key}
           propertyType={propertyType}
           field={chosenProperty}
-          boardId={boardId}
-          pipelineId={pipelineId}
-          formId={formId}
+          config={config}
         />
       </>
     );

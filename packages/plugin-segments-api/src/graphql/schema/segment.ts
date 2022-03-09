@@ -11,8 +11,7 @@ export const types = `
     conditions: JSON
     conditionsConjunction: String
 
-    boardId: String
-    pipelineId: String
+    config: JSON
   }
 
   input SegmentCondition {
@@ -30,10 +29,7 @@ export const types = `
 
     subSegmentId: String
 
-    boardId: String
-    pipelineId: String
-
-    formId: String
+    config: JSON
   }
 
   type Segment @key(fields: "_id") {
@@ -60,7 +56,7 @@ export const types = `
 export const queries = `
   segmentsGetTypes: [JSON]
   segmentsGetAssociationTypes(contentType: String!): [JSON]
-  segments(contentTypes: [String]!, boardId: String, pipelineId: String): [Segment]
+  segments(contentTypes: [String]!, config: JSON): [Segment]
   segmentDetail(_id: String): Segment
   segmentsGetHeads: [Segment]
   segmentsEvents(contentType: String!): [JSON]
@@ -73,8 +69,7 @@ const commonFields = `
   subOf: String,
   color: String,
   conditions: [SegmentCondition],
-  boardId: String,
-  pipelineId: String,
+  config: JSON
   conditionsConjunction: String
   conditionSegments: [SubSegment]
   shouldWriteActivityLog: Boolean!
