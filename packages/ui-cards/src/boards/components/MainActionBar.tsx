@@ -27,6 +27,7 @@ import {
   groupByGantt,
 } from "../constants";
 import SelectType from "./SelectType";
+import { detachType } from "../utils";
 
 type Props = {
   onSearch: (search: string) => void;
@@ -227,10 +228,12 @@ class MainActionBar extends React.Component<Props> {
 
     const onFilterClick = (type: string) => {
       if (currentBoard && currentPipeline) {
-        return `/${options.type}/${type}?id=${currentBoard._id}&pipelineId=${currentPipeline._id}`;
+        return `/${detachType(options.type)}/${type}?id=${
+          currentBoard._id
+        }&pipelineId=${currentPipeline._id}`;
       }
 
-      return `/${options.type}/${type}`;
+      return `/${detachType(options.type)}/${type}`;
     };
 
     return (
@@ -259,7 +262,7 @@ class MainActionBar extends React.Component<Props> {
                 {__("Calendar")}
               </Link>
             </li>
-            {options.type === "deal" && (
+            {detachType(options.type) === "deal" && (
               <li key="conversion">
                 <Link
                   to={onFilterClick("conversion")}
@@ -318,7 +321,7 @@ class MainActionBar extends React.Component<Props> {
       pipelineText,
     } = this.props;
 
-    const type = options.type;
+    const type = detachType(options.type);
 
     const actionBarLeft = (
       <BarItems>
