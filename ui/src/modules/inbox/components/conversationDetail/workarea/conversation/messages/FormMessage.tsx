@@ -57,8 +57,12 @@ export default class FormMessage extends React.Component<Props, {}> {
     if (['file', 'avatar', 'company_avatar'].includes(data.type)) {
       let fileUrl = data.value || '';
 
-      if (Array.isArray(data.value) && data.value.length > 0) {
-        fileUrl = data.value[0].url;
+      if (Array.isArray(data.value)) {
+        if (data.value.length > 0) {
+          fileUrl = data.value[0].url;
+        } else {
+          fileUrl = '';
+        }
       }
 
       return (

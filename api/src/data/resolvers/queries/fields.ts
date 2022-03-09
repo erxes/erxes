@@ -2,7 +2,13 @@ import {
   FIELD_CONTENT_TYPES,
   FIELDS_GROUPS_CONTENT_TYPES
 } from '../../../data/constants';
-import { Boards, Fields, FieldsGroups, Pipelines } from '../../../db/models';
+import {
+  Boards,
+  Departments,
+  Fields,
+  FieldsGroups,
+  Pipelines
+} from '../../../db/models';
 import { IFieldDocument } from '../../../db/models/definitions/fields';
 import { fieldsCombinedByContentType } from '../../modules/fields/utils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
@@ -188,7 +194,7 @@ const fieldsGroupQueries = {
       boardId: string;
       pipelineId: string;
     },
-    { commonQuerySelector }: IContext
+    { commonQuerySelector, user }: IContext
   ) {
     let query: any = commonQuerySelector;
 
@@ -230,6 +236,33 @@ const fieldsGroupQueries = {
     if (isDefinedByErxes !== undefined) {
       query.isDefinedByErxes = isDefinedByErxes;
     }
+
+    const departmentIds = await Departments.find({
+      userIds: user._id
+    }).distinct('_id');
+
+    const userFilter = user.isOwner
+      ? {}
+      : {
+          $or: [
+            { visibility: { $exists: null } },
+            { visibility: 'public' },
+            {
+              $and: [
+                { visibility: 'private' },
+                {
+                  $or: [
+                    { memberIds: { $in: [user._id] } },
+                    { userId: user._id },
+                    { departmentIds: { $in: departmentIds } }
+                  ]
+                }
+              ]
+            }
+          ]
+        };
+
+    query = { ...query, ...userFilter };
 
     const groups = await FieldsGroups.find(query);
 
