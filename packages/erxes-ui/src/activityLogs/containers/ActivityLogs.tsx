@@ -92,7 +92,7 @@ class Container extends React.Component<FinalProps, {}> {
           <ActivityLogs
             {...props}
             currentUser={currentUser || ({} as IUser)}
-            activityRenderItem={this.props.activityRenderItem}
+            activityRenderItem={activityRenderItem}
           />
         )}
       </AppConsumer>

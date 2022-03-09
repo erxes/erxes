@@ -4,17 +4,31 @@ import Logs from "./models/Logs";
 import Visitors from "./models/Visitors";
 import { receivePutLogCommand, sendToApi } from "./utils";
 import { serviceDiscovery } from './configs';
+import { getService } from './inmemoryStorage';
 
 let client;
 
-const checkService = async (serviceName: string, needsList?: boolean) => {
-  const enabled = await serviceDiscovery.isEnabled(serviceName);
+const hasMetaLogs = async (serviceName: string) => {
+  const service = await getService(serviceName, true);
 
-  if (!enabled) {
-    return needsList ? [] : null;
+  if (!service) {
+    return false;
   }
 
-  return;
+  const { meta = {} } = service;
+
+  if (!(meta.logs && meta.logs.providesActivityLog === true)) {
+    return false;
+  }
+
+  return true;
+}
+
+const isServiceEnabled = async (serviceName: string): Promise<boolean> => {
+  const enabled = await serviceDiscovery.isEnabled(serviceName);
+  const hasMeta = await hasMetaLogs(serviceName);
+
+  return enabled && hasMeta;
 };
 
 export const initBroker = async (cl) => {
@@ -105,41 +119,41 @@ export const initBroker = async (cl) => {
 };
 
 export const getDbSchemaLabels = async (serviceName: string, type: string) => {
-  await checkService(serviceName, true);
+  const enabled = await serviceDiscovery.isEnabled(serviceName);
 
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:logs:getSchemaLabels`, { type })
+  return enabled ? client.sendRPCMessage(`${serviceName}:rpc_queue:logs:getSchemaLabels`, { type }) : [];
 };
 
 export const getActivityContentItem = async (activityLog: IActivityLogDocument) => {
   const [serviceName] = activityLog.contentType.split(':');
 
-  await checkService(serviceName, false);
+  const enabled = await isServiceEnabled(serviceName);
 
-  return serviceName && client.sendRPCMessage(`${serviceName}:rpc_queue:getActivityContent`, { activityLog })
+  return enabled ? client.sendRPCMessage(`${serviceName}:rpc_queue:getActivityContent`, { activityLog }) : null;
 };
 
 export const getContentTypeDetail = async (activityLog: IActivityLogDocument) => {
   const [serviceName] = activityLog.contentType.split(':');
 
-  await checkService(serviceName, false);
+  const enabled = await isServiceEnabled(serviceName);
 
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:getContentTypeDetail`, { activityLog });
+  return enabled ? client.sendRPCMessage(`${serviceName}:rpc_queue:getContentTypeDetail`, { activityLog }) : null;
 };
 
 export const collectServiceItems = async (contentType: string, data) => {
   const [serviceName] = contentType.split(':');
 
-  await checkService(serviceName, true);
+  const enabled = await isServiceEnabled(serviceName);
 
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:activityLog:collectItems`, data);
+  return enabled ? client.sendRPCMessage(`${serviceName}:rpc_queue:activityLog:collectItems`, data) : [];
 };
 
 export const getContentIds = async (data) => {
   const [serviceName] = data.contentType.split(':');
   
-  await checkService(serviceName, true);
+  const enabled = await isServiceEnabled(serviceName);
 
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:getContentIds`, data);
+  return enabled ? client.sendRPCMessage(`${serviceName}:rpc_queue:getContentIds`, data) : [];
 };
 
 export default function() {
