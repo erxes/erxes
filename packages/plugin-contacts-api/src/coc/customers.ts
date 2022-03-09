@@ -1,9 +1,8 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
 import { FormSubmissions } from '../apiCollections';
+import { IModels } from '../connectionResolver';
 import { findIntegrations } from '../messageBroker';
-import Customers from '../models/Customers';
-// import { IConformityQueryParams } from '../../resolvers/queries/types';
 import { CommonBuilder } from './utils';
 
 interface ISortParams {
@@ -50,8 +49,8 @@ export interface IListArgs extends IConformityQueryParams {
 }
 
 export class Builder extends CommonBuilder<IListArgs> {
-  constructor(params: IListArgs, context) {
-    super('customers', params, context);
+  constructor(models:IModels, params: IListArgs, context) {
+    super(models, 'customers', params, context);
 
     this.addStateFilter();
   }
@@ -170,11 +169,11 @@ export class Builder extends CommonBuilder<IListArgs> {
       ]
     };
 
-    const customers = await Customers.find(selector)
+    const customers = await this.models.Customers.find(selector)
       .sort({ createdAt: -1 })
       .limit(limit);
 
-    const count = await Customers.find(selector).countDocuments();
+    const count = await this.models.Customers.find(selector).countDocuments();
 
     return {
       list: customers,

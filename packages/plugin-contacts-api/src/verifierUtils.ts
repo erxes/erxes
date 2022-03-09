@@ -1,5 +1,4 @@
 import { Transform } from 'stream';
-import Customers from './models/Customers';
 import {
   IValidationResponse,
   IVisitorContact
@@ -8,6 +7,7 @@ import { debug } from './configs';
 import { get } from './inmemoryStorage';
 import { getEnv } from './utils';
 import { sendRequest } from '@erxes/api-utils/src';
+import { IModels } from './connectionResolver';
 
 export const validateSingle = async (contact: IVisitorContact) => {
   const EMAIL_VERIFIER_ENDPOINT = getEnv({
@@ -42,6 +42,7 @@ export const validateSingle = async (contact: IVisitorContact) => {
 };
 
 export const updateContactValidationStatus = async (
+  { Customers }: IModels,
   data: IValidationResponse
 ) => {
   const { email, phone, status } = data;
@@ -61,7 +62,7 @@ export const updateContactValidationStatus = async (
   }
 };
 
-export const validateBulk = async (verificationType: string) => {
+export const validateBulk = async (models: IModels ,verificationType: string) => {
   const EMAIL_VERIFIER_ENDPOINT = getEnv({
     name: 'EMAIL_VERIFIER_ENDPOINT',
     defaultValue: ''
@@ -82,7 +83,7 @@ export const validateBulk = async (verificationType: string) => {
       }
     });
 
-    const customersEmailStream = (Customers.find(
+    const customersEmailStream = (models.Customers.find(
       {
         primaryEmail: { $exists: true, $ne: null },
         $or: [
@@ -132,7 +133,7 @@ export const validateBulk = async (verificationType: string) => {
     }
   });
 
-  const customersStream = (Customers.find(
+  const customersStream = (models.Customers.find(
     {
       primaryPhone: { $exists: true, $ne: null },
       $or: [
@@ -171,6 +172,7 @@ export const validateBulk = async (verificationType: string) => {
 };
 
 export const updateContactsValidationStatus = async (
+  models: IModels,
   type: string,
   data: []
 ) => {
@@ -190,7 +192,7 @@ export const updateContactsValidationStatus = async (
         }
       });
     }
-    await Customers.bulkWrite(bulkOps);
+    await models.Customers.bulkWrite(bulkOps);
   }
 
   const phoneBulkOps: Array<{
@@ -208,5 +210,5 @@ export const updateContactsValidationStatus = async (
       }
     });
   }
-  await Customers.bulkWrite(phoneBulkOps);
+  await models.Customers.bulkWrite(phoneBulkOps);
 };
