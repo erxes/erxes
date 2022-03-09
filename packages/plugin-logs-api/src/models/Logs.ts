@@ -1,6 +1,7 @@
 import { Document, model, Model, Schema } from 'mongoose';
 import { debug } from '../configs';
-import { compareObjects, field } from '../utils';
+import { compareObjects } from '../utils';
+import { field } from './utils';
 
 export interface ILogDoc {
   createdAt: Date;
