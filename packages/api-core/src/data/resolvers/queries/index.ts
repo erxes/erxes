@@ -1,10 +1,5 @@
 import brands from './brands';
 import configs from './configs';
-import {
-  fieldQueries as fields,
-  fieldsGroupQueries as fieldsgroups
-} from './fields';
-import forms from './forms';
 import importHistory from './importHistory';
 import {
   permissionQueries as permissions,
@@ -17,10 +12,7 @@ import structures from './structures';
 export default {
   ...users,
   ...brands,
-  ...fields,
-  ...forms,
   ...configs,
-  ...fieldsgroups,
   ...importHistory,
   ...permissions,
   ...usersGroups,

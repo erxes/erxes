@@ -1,7 +1,7 @@
-import { Fields, Forms, FormSubmissions } from '../../../db/models';
-import { IForm } from '../../../db/models/definitions/forms';
-import { moduleCheckPermission } from '../../permissions/wrappers';
-import { IContext } from '../../types';
+import { moduleCheckPermission } from "@erxes/api-utils/src/permissions";
+import { IContext } from "@erxes/api-utils/src/types";
+import { Fields, Forms, FormSubmissions } from "../../../models";
+import { IForm } from "../../../models/definitions/forms";
 
 interface IFormsEdit extends IForm {
   _id: string;

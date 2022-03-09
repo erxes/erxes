@@ -1,7 +1,6 @@
 import * as Random from 'meteor-random';
 import { Model, model } from 'mongoose';
 import * as validator from 'validator';
-import { FIELD_CONTENT_TYPES } from '../../data/constants';
 import { Fields } from './';
 import {
   formSchema,
@@ -116,7 +115,7 @@ export const loadFormClass = () => {
 
       for (const field of fields) {
         await Fields.createField({
-          contentType: FIELD_CONTENT_TYPES.FORM,
+          contentType: 'form',
           contentTypeId: newForm._id,
           type: field.type,
           validation: field.validation,
@@ -195,7 +194,6 @@ export const loadFormClass = () => {
           }
 
           // date
-
           if (validation === 'date' && !validator.isISO8601(value)) {
             errors.push({
               fieldId: field._id,

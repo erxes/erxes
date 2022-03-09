@@ -22,29 +22,6 @@ export const moduleObjects = {
       }
     ]
   },
-  channels: {
-    name: 'channels',
-    description: 'Channels',
-    actions: [
-      {
-        name: 'channelsAll',
-        description: 'All',
-        use: ['showChannels', 'manageChannels', 'exportChannels']
-      },
-      {
-        name: 'manageChannels',
-        description: 'Manage channels'
-      },
-      {
-        name: 'showChannels',
-        description: 'Show channel'
-      },
-      {
-        name: 'exportChannels',
-        description: 'Export channels'
-      }
-    ]
-  },
   permissions: {
     name: 'permissions',
     description: 'Permissions config',
@@ -158,25 +135,6 @@ export const moduleObjects = {
       {
         name: 'importHistories',
         description: 'Show import histories'
-      }
-    ]
-  },
-  forms: {
-    name: 'forms',
-    description: 'Form',
-    actions: [
-      {
-        name: 'formsAll',
-        description: 'All',
-        use: ['showForms', 'manageForms']
-      },
-      {
-        name: 'manageForms',
-        description: 'Manage forms'
-      },
-      {
-        name: 'showForms',
-        description: 'Show forms'
       }
     ]
   },

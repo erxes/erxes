@@ -4,42 +4,6 @@ export const EMAIL_DELIVERY_STATUS = {
   ALL: ['pending', 'received'],
 };
 
-export const FIELDS_GROUPS_CONTENT_TYPES = {
-  CUSTOMER: 'customer',
-  COMPANY: 'company',
-  CONVERSATION: 'conversation',
-  DEVICE: 'device',
-  PRODUCT: 'product',
-  TICKET: 'ticket',
-  TASK: 'task',
-  DEAL: 'deal',
-  VISITOR: 'visitor',
-  LEAD: 'lead',
-  FORM: 'form',
-  USER: 'user',
-  ALL: [
-    'customer',
-    'company',
-    'conversation',
-    'device',
-    'product',
-    'ticket',
-    'task',
-    'deal',
-    'visitor',
-    'lead',
-    'form',
-    'user'
-  ]
-};
-
-export const FORM_TYPES = {
-  LEAD: 'lead',
-  GROWTH_HACK: 'growthHack',
-  BOOKING: 'booking',
-  ALL: ['lead', 'growthHack', 'booking']
-};
-
 export const DEFAULT_SOCIAL_LINKS = [
   { label: 'Facebook', value: 'facebook' },
   { label: 'Twitter', value: 'twitter' },

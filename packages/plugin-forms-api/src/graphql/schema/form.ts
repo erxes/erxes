@@ -7,7 +7,7 @@ export const types = `
     skip: Boolean
   }
 
-  type Form @key(fields: "_id") @cacheControl(maxAge: 3) {
+  type Form {
     _id: String!
     title: String
     code: String
@@ -19,6 +19,7 @@ export const types = `
     createdDate: Date
     numberOfPages: Int
 
+    googleMapApiKey: String
     fields: [Field]
   }
 `;
@@ -28,7 +29,8 @@ const commonFields = `
   description: String,
   buttonText: String,
   type: String!,
-  numberOfPages: Int
+  numberOfPages: Int,
+  googleMapApiKey: String
 `;
 
 const commonFormSubmissionFields = `

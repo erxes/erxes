@@ -1,6 +1,6 @@
-import { Forms } from '../../../db/models';
-import { checkPermission } from '../../permissions/wrappers';
-import { IContext } from '../../types';
+import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { IContext } from "@erxes/api-utils/src/types";
+import { Forms } from "../../../models";
 
 const formQueries = {
   /**

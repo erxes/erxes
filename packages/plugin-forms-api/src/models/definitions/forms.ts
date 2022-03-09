@@ -1,5 +1,4 @@
 import { Document, Schema } from 'mongoose';
-import { FORM_TYPES } from './constants';
 import { field, schemaWrapper } from './utils';
 
 export interface IForm {
@@ -22,7 +21,7 @@ export const formSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     title: field({ type: String, optional: true }),
-    type: field({ type: String, enum: FORM_TYPES.ALL, required: true }),
+    type: field({ type: String, required: true }),
     description: field({
       type: String,
       optional: true
