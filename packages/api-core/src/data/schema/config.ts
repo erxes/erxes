@@ -1,4 +1,5 @@
 export const types = `
+
   type Config {
     _id: String!
     code: String!
@@ -54,6 +55,7 @@ export const queries = `
   configsCheckActivateInstallation(hostname: String!): JSON
   configsCheckPremiumService(type: String!): Boolean
   configsGetEmailTemplate(name: String): String
+  enabledServices: JSON
 `;
 
 export const mutations = `
