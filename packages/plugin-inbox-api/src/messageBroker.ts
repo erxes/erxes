@@ -1,10 +1,11 @@
 import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 import { generateFieldsFromSchema } from "@erxes/api-utils/src";
 
-import { ConversationMessages, Conversations, Integrations } from "./models";
+import { ConversationMessages, Conversations } from "./models";
 import { receiveRpcMessage, collectConversations } from "./receiveMessage";
 import { serviceDiscovery } from './configs';
 import { LOG_MAPPINGS } from './constants';
+import { generateModels } from './connectionResolver';
 
 export let client;
 
@@ -101,8 +102,10 @@ export const initBroker = (cl) => {
 
   consumeRPCQueue(
     'inbox:rpc_queue:findIntegrations',
-    async ({ query, options }) => {
-      const integrations = await Integrations.findIntegrations(query, options);
+    async ({ subdomain, query, options }) => {
+      const models = await generateModels(subdomain);
+
+      const integrations = await models.Integrations.findIntegrations(query, options);
 
       return { data: integrations, status: 'success' };
     }
@@ -122,11 +125,14 @@ export const initBroker = (cl) => {
   }));
 
   consumeRPCQueue('inbox:rpc_queue:tag', async args => {
+    const { subdomain } = args;
+    const models = await generateModels(subdomain)
+
     let data = {};
     let model: any = Conversations
 
     if(args.type === 'integration') {
-      model = Integrations
+      model = models.Integrations
     }
 
     if (args.action === 'count') {
@@ -157,11 +163,13 @@ export const initBroker = (cl) => {
     })
   );
   consumeRPCQueue('inbox:rpc_queue:getIntegration', async data => {
-    const { _id } = data;
+    const { _id, subdomain } = data;
+
+    const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await Integrations.findOne({ _id })
+      data: await models.Integrations.findOne({ _id })
     };
   });
 

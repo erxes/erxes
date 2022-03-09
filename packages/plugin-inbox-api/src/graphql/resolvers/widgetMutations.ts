@@ -2,7 +2,6 @@ import * as strip from 'strip';
 import {
   ConversationMessages,
   Conversations,
-  Integrations
 } from '../../models';
 
 import { Fields, Forms, Users } from '../../apiCollections';
@@ -72,7 +71,7 @@ interface IWidgetEmailParams {
   attachments?: IAttachment[];
 }
 
-const pConversationClientMessageInserted = async (message, models) => {
+const pConversationClientMessageInserted = async (models, message) => {
   const conversation = await Conversations.findOne(
     {
       _id: message.conversationId
@@ -83,7 +82,7 @@ const pConversationClientMessageInserted = async (message, models) => {
   let integration;
 
   if (conversation) {
-    integration = await Integrations.findOne(
+    integration = await models.Integrations.findOne(
       {
         _id: conversation.integrationId
       },
@@ -114,7 +113,7 @@ const pConversationClientMessageInserted = async (message, models) => {
   });
 };
 
-export const getMessengerData = async (integration: IIntegrationDocument) => {
+export const getMessengerData = async (models: IModels, integration: IIntegrationDocument) => {
   let messagesByLanguage: IMessengerDataMessagesItem | null = null;
   let messengerData = integration.messengerData;
 
@@ -132,12 +131,12 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
   }
 
   // knowledgebase app =======
-  const kbApp = await getMessengerApps('knowledgebase', integration._id);
+  const kbApp = await getMessengerApps(models, 'knowledgebase', integration._id);
 
   const topicId = kbApp && kbApp.credentials ? kbApp.credentials.topicId : null;
 
   // lead app ==========
-  const leadApps = await getMessengerApps('lead', integration._id, false);
+  const leadApps = await getMessengerApps(models, 'lead', integration._id, false);
 
   const formCodes = [] as string[];
 
@@ -148,7 +147,7 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
   }
 
   // website app ============
-  const websiteApps = await getMessengerApps('website', integration._id, false);
+  const websiteApps = await getMessengerApps(models, 'website', integration._id, false);
 
   return {
     ...(messengerData || {}),
@@ -166,6 +165,7 @@ const createVisitor = async (visitorId: string) =>
   });
 
 const createFormConversation = async (
+  models: IModels,
   args: {
     integrationId: string;
     formId: string;
@@ -181,7 +181,6 @@ const createFormConversation = async (
     message: any;
   },
   type?: string,
-  models?: IModels
 ) => {
   const { integrationId, formId, submissions } = args;
 
@@ -199,7 +198,7 @@ const createFormConversation = async (
 
   const content = await generateContent(form);
 
-  const cachedCustomer = await solveSubmissions(args);
+  const cachedCustomer = await solveSubmissions(models, args);
 
   const conversationData = await generateConvData();
 
@@ -219,7 +218,7 @@ const createFormConversation = async (
     ...conversationData.message
   });
 
-  await pConversationClientMessageInserted(message, models);
+  await pConversationClientMessageInserted(models, message);
 
   graphqlPubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: message
@@ -227,7 +226,7 @@ const createFormConversation = async (
 
   if (type === 'lead') {
     // increasing form submitted count
-    await Integrations.increaseContactsGathered(formId);
+    await models.Integrations.increaseContactsGathered(formId);
 
     const formData = {
       formId: args.formId,
@@ -251,9 +250,10 @@ const widgetMutations = {
   // Find integrationId by brandCode
   async widgetsLeadConnect(
     _root,
-    args: { brandCode: string; formCode: string; cachedCustomerId?: string }
+    args: { brandCode: string; formCode: string; cachedCustomerId?: string },
+    { models }: IContext
   ) {
-    const brand = await getDocument('brands', { code: args.brandCode });
+    const brand = await getDocument(models, 'brands', { code: args.brandCode });
 
     const form = await Forms.findOne({ code: args.formCode });
 
@@ -262,14 +262,14 @@ const widgetMutations = {
     }
 
     // find integration by brandId & formId
-    const integ = await Integrations.getIntegration({
+    const integ = await models.Integrations.getIntegration({
       brandId: brand._id,
       formId: form._id,
       isActive: true
     });
 
     if (integ.leadData && integ.leadData.loadType === 'embedded') {
-      await Integrations.increaseViewCount(form._id);
+      await models.Integrations.increaseViewCount(form._id);
     }
 
     if (integ.createdUserId) {
@@ -315,6 +315,7 @@ const widgetMutations = {
     const { submissions } = args;
 
     return createFormConversation(
+      models,
       args,
       form => {
         return form.title;
@@ -327,12 +328,11 @@ const widgetMutations = {
         };
       },
       'lead',
-      models
     );
   },
 
-  widgetsLeadIncreaseViewCount(_root, { formId }: { formId: string }) {
-    return Integrations.increaseViewCount(formId);
+  widgetsLeadIncreaseViewCount(_root, { formId }: { formId: string }, { models }: IContext) {
+    return models.Integrations.increaseViewCount(formId);
   },
 
   /*
@@ -352,7 +352,8 @@ const widgetMutations = {
       cachedCustomerId?: string;
       deviceToken?: string;
       visitorId?: string;
-    }
+    },
+    { models }: IContext
   ) {
     const {
       brandCode,
@@ -371,14 +372,14 @@ const widgetMutations = {
     const customData = data;
 
     // find brand
-    const brand = await getDocument('brands', { code: brandCode });
+    const brand = await getDocument(models, 'brands', { code: brandCode });
 
     if (!brand) {
       throw new Error('Invalid configuration');
     }
 
     // find integration
-    const integration = await getDocument('integrations', {
+    const integration = await getDocument(models, 'integrations', {
       brandId: brand._id,
       kind: KIND_CHOICES.MESSENGER
     });
@@ -473,7 +474,7 @@ const widgetMutations = {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
-      messengerData: await getMessengerData(integration),
+      messengerData: await getMessengerData(models, integration),
       customerId: customer && customer._id,
       visitorId: customer ? null : visitorId,
       brand
@@ -564,7 +565,7 @@ const widgetMutations = {
     let conversation;
 
     const integration =
-      (await getDocument('integrations', {
+      (await getDocument(models, 'integrations', {
         _id: integrationId
       })) || {};
 
@@ -640,7 +641,7 @@ const widgetMutations = {
       customerId: conversation.customerId
     });
 
-    await pConversationClientMessageInserted(msg, models);
+    await pConversationClientMessageInserted(models, msg);
 
     graphqlPubsub.publish('conversationMessageInserted', {
       conversationMessageInserted: msg
@@ -911,10 +912,11 @@ const widgetMutations = {
       message: string;
       payload: string;
       type: string;
-    }
+    },
+    { models }: IContext
   ) {
     const integration =
-      (await getDocument('integrations', {
+      (await getDocument(models, 'integrations', {
         _id: integrationId
       })) || {};
 
@@ -1010,7 +1012,8 @@ const widgetMutations = {
 
   async widgetGetBotInitialMessage(
     _root,
-    { integrationId }: { integrationId: string }
+    { integrationId }: { integrationId: string },
+    { models }: IContext
   ) {
     const sessionId = `_${Math.random()
       .toString(36)
@@ -1019,7 +1022,7 @@ const widgetMutations = {
     await set(`bot_initial_message_session_id_${integrationId}`, sessionId);
 
     const integration =
-      (await getDocument('integrations', {
+      (await getDocument(models, 'integrations', {
         _id: integrationId
       })) || {};
 
@@ -1042,13 +1045,13 @@ const widgetMutations = {
     return { botData: botRequest.responses };
   },
   // Find integration
-  async widgetsBookingConnect(_root, { _id }: { _id: string }) {
-    const integration = await Integrations.getIntegration({
+  async widgetsBookingConnect(_root, { _id }: { _id: string }, { models }: IContext) {
+    const integration = await models.Integrations.getIntegration({
       _id,
       isActive: true
     });
 
-    await Integrations.increaseBookingViewCount(_id);
+    await models.Integrations.increaseBookingViewCount(_id);
 
     return integration;
   },
@@ -1072,6 +1075,7 @@ const widgetMutations = {
     const product = await sendProductRPCMessage('findOne', { _id: productId });
 
     return createFormConversation(
+      models,
       args,
       () => {
         return `<p>submitted a new booking for <strong><a href="/settings/product-service/details/${productId}">${product?.name}</a> ${product?.code}</strong></p>`;
@@ -1091,7 +1095,6 @@ const widgetMutations = {
         };
       },
       'booking',
-      models
     );
   }
 };

@@ -2,17 +2,16 @@ import sift from 'sift';
 
 import { Brands, Users } from './apiCollections';
 
-import { Integrations, MessengerApps } from './models';
-
 import { get, set } from './inmemoryStorage';
 import { sendProductRPCMessage, sendTagRPCMessage } from './messageBroker';
-import { models } from './connectionResolver';
+import { IModels } from './connectionResolver';
 
 export const getDocument = async (
+  models: IModels,
   type: 'users' | 'integrations' | 'brands' | 'channels',
   selector: { [key: string]: any }
 ) => {
-  const list = await getDocumentList(type, selector);
+  const list = await getDocumentList(models, type, selector);
 
   if (list.length > 0) {
     return list[0];
@@ -22,6 +21,7 @@ export const getDocument = async (
 };
 
 export const getDocumentList = async (
+  models: IModels,
   type: 'users' | 'integrations' | 'brands' | 'channels' | 'tags' | 'products',
   selector: { [key: string]: any }
 ) => {
@@ -44,7 +44,7 @@ export const getDocumentList = async (
       }
 
       case 'integrations': {
-        list = await Integrations.find().lean();
+        list = await models.Integrations.find().lean();
         break;
       }
 
@@ -73,6 +73,7 @@ export const getDocumentList = async (
 
 // doing this until sift dot path support
 export const getMessengerApps = async (
+  models: IModels,
   kind: string,
   integrationId: string,
   findOne = true
@@ -85,7 +86,7 @@ export const getMessengerApps = async (
   if (cacheValue) {
     parsedValue = JSON.parse(cacheValue);
   } else {
-    parsedValue = await MessengerApps.find().lean();
+    parsedValue = await models.MessengerApps.find().lean();
     set(key, JSON.stringify(parsedValue));
   }
 

@@ -1,4 +1,3 @@
-import { Integrations } from '../../models';
 import {
   INTEGRATION_NAMES_MAP,
   KIND_CHOICES
@@ -106,11 +105,11 @@ const integrationQueries = {
     };
 
     if (args.kind === 'lead') {
-      return Integrations.findLeadIntegrations(query, args);
+      return models.Integrations.findLeadIntegrations(query, args);
     }
 
     const integrations = paginate(
-      Integrations.findAllIntegrations(query),
+      models.Integrations.findAllIntegrations(query),
       args
     );
 
@@ -120,24 +119,24 @@ const integrationQueries = {
   /**
    * Get lead all integration list
    */
-  async allLeadIntegrations(_root, _args, { singleBrandIdSelector }: IContext) {
+  async allLeadIntegrations(_root, _args, { singleBrandIdSelector, models }: IContext) {
     const query = {
       ...singleBrandIdSelector,
       kind: 'lead'
     };
 
-    return Integrations.findAllIntegrations(query).sort({ name: 1 });
+    return models.Integrations.findAllIntegrations(query).sort({ name: 1 });
   },
 
   /**
    * Get used integration types
    */
-  async integrationsGetUsedTypes(_root, {}) {
+  async integrationsGetUsedTypes(_root, {}, { models }: IContext) {
     const usedTypes: Array<{ _id: string; name: string }> = [];
 
     for (const kind of KIND_CHOICES.ALL) {
       if (
-        (await Integrations.findIntegrations({ kind }).countDocuments()) > 0
+        (await models.Integrations.findIntegrations({ kind }).countDocuments()) > 0
       ) {
         usedTypes.push({ _id: kind, name: INTEGRATION_NAMES_MAP[kind] });
       }
@@ -149,8 +148,8 @@ const integrationQueries = {
   /**
    * Get one integration
    */
-  integrationDetail(_root, { _id }: { _id: string }) {
-    return Integrations.findOne({ _id });
+  integrationDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Integrations.findOne({ _id });
   },
 
   /**
@@ -183,7 +182,7 @@ const integrationQueries = {
     };
 
     const count = async query => {
-      return Integrations.findAllIntegrations(query).countDocuments();
+      return models.Integrations.findAllIntegrations(query).countDocuments();
     };
 
     // Counting integrations by tag
@@ -210,7 +209,7 @@ const integrationQueries = {
     }
 
     // Counting integrations by channel
-    const channels = await getDocumentList('channels', {});
+    const channels = await getDocumentList(models, 'channels', {});
 
     for (const channel of channels) {
       const countQueryResult = await count({
@@ -226,7 +225,7 @@ const integrationQueries = {
     }
 
     // Counting integrations by brand
-    const brands = await getDocumentList('brands', {});
+    const brands = await getDocumentList(models, 'brands', {});
 
     for (const brand of brands) {
       const countQueryResult = await count({ brandId: brand._id, ...qry });

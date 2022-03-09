@@ -8,8 +8,8 @@ import {
   moduleRequireLogin,
 } from "@erxes/api-utils/src/permissions";
 
-import { IContext } from "@erxes/api-utils/src";
 import QueryBuilder, { IListArgs } from "../../conversationQueryBuilder";
+import { IContext } from "../../connectionResolver";
 
 interface ICountBy {
   [index: string]: number;
@@ -33,7 +33,7 @@ const conversationQueries = {
   /**
    * Conversations list
    */
-  async conversations(_root, params: IListArgs, { user }: IContext) {
+  async conversations(_root, params: IListArgs, { user, models }: IContext) {
     // filter by ids of conversations
     if (params && params.ids) {
       return Conversations.find({ _id: { $in: params.ids } }).sort({
@@ -42,7 +42,7 @@ const conversationQueries = {
     }
 
     // initiate query builder
-    const qb = new QueryBuilder(params, {
+    const qb = new QueryBuilder(models, params, {
       _id: user._id,
       code: user.code,
       starredConversationIds: user.starredConversationIds,
@@ -107,7 +107,7 @@ const conversationQueries = {
   /**
    * Group conversation counts by brands, channels, integrations, status
    */
-  async conversationCounts(_root, params: IListArgs, { user }: IContext) {
+  async conversationCounts(_root, params: IListArgs, { user, models }: IContext) {
     const { only } = params;
 
     const response: IConversationRes = {};
@@ -117,7 +117,7 @@ const conversationQueries = {
       starredConversationIds: user.starredConversationIds,
     };
 
-    const qb = new QueryBuilder(params, _user);
+    const qb = new QueryBuilder(models, params, _user);
 
     await qb.buildAllQueries();
 
@@ -126,6 +126,7 @@ const conversationQueries = {
 
     if (only) {
       response[only] = await countByConversations(
+        models,
         params,
         integrationIds,
         _user,
@@ -182,9 +183,9 @@ const conversationQueries = {
   /**
    * Get all conversations count. We will use it in pager
    */
-  async conversationsTotalCount(_root, params: IListArgs, { user }: IContext) {
+  async conversationsTotalCount(_root, params: IListArgs, { user, models }: IContext) {
     // initiate query builder
-    const qb = new QueryBuilder(params, {
+    const qb = new QueryBuilder(models, params, {
       _id: user._id,
       code: user.code,
       starredConversationIds: user.starredConversationIds,
@@ -198,9 +199,9 @@ const conversationQueries = {
   /**
    * Get last conversation
    */
-  async conversationsGetLast(_root, params: IListArgs, { user }: IContext) {
+  async conversationsGetLast(_root, params: IListArgs, { user, models }: IContext) {
     // initiate query builder
-    const qb = new QueryBuilder(params, {
+    const qb = new QueryBuilder(models, params, {
       _id: user._id,
       code: user.code,
       starredConversationIds: user.starredConversationIds,
@@ -216,9 +217,9 @@ const conversationQueries = {
   /**
    * Get all unread conversations for logged in user
    */
-  async conversationsTotalUnreadCount(_root, _args, { user }: IContext) {
+  async conversationsTotalUnreadCount(_root, _args, { user, models }: IContext) {
     // initiate query builder
-    const qb = new QueryBuilder({}, { _id: user._id, code: user.code });
+    const qb = new QueryBuilder(models, {}, { _id: user._id, code: user.code });
 
     await qb.buildAllQueries();
 
@@ -234,8 +235,8 @@ const conversationQueries = {
   },
 };
 
-// moduleRequireLogin(conversationQueries);
+moduleRequireLogin(conversationQueries);
 
-// checkPermission(conversationQueries, 'conversations', 'showConversations', []);
+checkPermission(conversationQueries, 'conversations', 'showConversations', []);
 
 export default conversationQueries;

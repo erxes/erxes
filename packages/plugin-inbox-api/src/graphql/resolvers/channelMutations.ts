@@ -63,6 +63,7 @@ const channelMutations = {
 
     try {
       await putCreateLog(
+        models,
         {
           type: MODULE_NAMES.CHANNEL,
           newData: { ...doc, userId: user._id },
@@ -98,6 +99,7 @@ const channelMutations = {
     await sendChannelNotifications(channel, 'removed', user, removedUserIds);
 
     await putUpdateLog(
+      models,
       {
         type: MODULE_NAMES.CHANNEL,
         object: channel,
@@ -127,7 +129,7 @@ const channelMutations = {
 
     await sendChannelNotifications(channel, 'removed', user);
 
-    await putDeleteLog({ type: MODULE_NAMES.CHANNEL, object: channel }, user);
+    await putDeleteLog(models, { type: MODULE_NAMES.CHANNEL, object: channel }, user);
 
     return true;
   }

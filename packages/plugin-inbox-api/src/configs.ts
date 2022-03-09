@@ -44,9 +44,9 @@ export default {
     logs: { providesActivityLog: true }
   },
   apolloServerContext: (context) => {
-    context.dataLoaders = generateAllDataLoaders();
     context.models = models;
     context.coreModels = coreModels;
+    context.dataLoaders = generateAllDataLoaders(models);
   },
   onServerInit: async (options) => {
     await apiConnect();

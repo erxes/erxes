@@ -4,6 +4,7 @@ import { IMessageDocument } from '../../models/definitions/conversationMessages'
 import { Conversations } from '../../models';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
 import { sendRPCMessage } from '../../messageBroker';
+import { IContext } from '../../connectionResolver';
 
 export default {
   user(message: IMessageDocument) {
@@ -14,7 +15,7 @@ export default {
     return message.customerId && { __typename: 'Customer', _id: message.customerId }
   },
 
-  async mailData(message: IMessageDocument, _args ) {
+  async mailData(message: IMessageDocument, _args, { models }: IContext ) {
     const conversation = await Conversations.findOne({
       _id: message.conversationId
     }).lean();
@@ -23,7 +24,7 @@ export default {
       return null;
     }
 
-    const integration = await getDocument('integrations', {
+    const integration = await getDocument(models, 'integrations', {
       _id: conversation.integrationId
     });
 
