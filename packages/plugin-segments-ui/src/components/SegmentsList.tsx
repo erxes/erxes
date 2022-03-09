@@ -16,6 +16,7 @@ import Sidebar from './Sidebar';
 
 type Props = {
   contentType?: string;
+  types: Array<{contentType: string, description: string}>;
   segments: ISegment[];
   loading: boolean;
   removeSegment: (segmentId: string) => void;
@@ -73,7 +74,7 @@ class SegmentsList extends React.Component<Props> {
   }
 
   render() {
-    const { contentType, loading, segments } = this.props;
+    const { types, contentType, loading, segments } = this.props;
     const parentSegments: ISegment[] = [];
 
     segments.forEach(segment => {
@@ -122,7 +123,7 @@ class SegmentsList extends React.Component<Props> {
             }
           />
         }
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar types={types} />}
       />
     );
   }

@@ -12,12 +12,12 @@ import { BOARD_STATUSES } from '../../../models/definitions/constants';
 import { CLOSE_DATE_TYPES } from '../../../constants';
 import { getNextMonth, getToday, regexSearchText } from '@erxes/api-utils/src';
 import { IListParams } from './boards';
-import { Segments } from '../../../apiCollections';
 import {
   fetchSegment,
   sendContactRPCMessage,
   sendConformityMessage,
-  sendNotificationMessage
+  sendNotificationMessage,
+  sendSegmentMessage
 } from '../../../messageBroker';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 
@@ -295,7 +295,7 @@ export const generateCommonFilters = async (
   }
 
   if (segment) {
-    const segmentObj = await Segments.findOne({ _id: segment });
+    const segmentObj = await sendSegmentMessage('findOne', { _id: segment }, true);
     const itemIds = await fetchSegment(segmentObj);
 
     filter._id = { $in: itemIds };

@@ -4,6 +4,7 @@ import apiConnect from './apiCollections';
 
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
+import init from '.'
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -32,6 +33,10 @@ export default {
   apolloServerContext: (context) => {},
   onServerInit: async (options) => {
     await apiConnect();
+
+    const app = options.app;
+
+    init(app)
 
     initBroker(options.messageBrokerClient);
 

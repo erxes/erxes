@@ -6,7 +6,6 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import { __ } from '@erxes/ui/src/utils';
 import { IField, ISegmentCondition, ISegmentMap } from '../../types';
 import React from 'react';
-import { PROPERTY_TYPES } from '../constants';
 import PropertyForm from './PropertyForm';
 import { SegmentBackIcon } from '../styles';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -18,6 +17,7 @@ type Props = {
   contentType: string;
   serviceType: string;
   boards?: IBoard[];
+  associationTypes: any[];
   forms?: IIntegration[];
   segment: ISegmentMap;
   addCondition: (
@@ -163,11 +163,13 @@ class PropertyCondition extends React.Component<Props, State> {
   render() {
     const {
       contentType,
+      associationTypes,
       onClickBackToList,
       hideBackButton,
       fetchFields,
       serviceType
     } = this.props;
+
     const {
       chosenProperty,
       propertyType,
@@ -176,8 +178,6 @@ class PropertyCondition extends React.Component<Props, State> {
       boardId,
       formId
     } = this.state;
-
-    const options = PROPERTY_TYPES[contentType];
 
     const onChange = e => {
       const value = e.value;
@@ -192,9 +192,9 @@ class PropertyCondition extends React.Component<Props, State> {
         <Select
           clearable={false}
           value={propertyType}
-          options={options.map(option => ({
+          options={associationTypes.map(option => ({
             value: option.value,
-            label: option.label
+            label: option.description
           }))}
           onChange={onChange}
         />

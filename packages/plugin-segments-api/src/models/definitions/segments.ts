@@ -1,30 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaWrapper } from './utils';
 
-export const CONTENT_TYPES = {
-  CUSTOMER: 'customer',
-  LEAD: 'lead',
-  VISITOR: 'visitor',
-  COMPANY: 'company',
-  DEAL: 'deal',
-  TASK: 'task',
-  TICKET: 'ticket',
-  CONVERSATION: 'conversation',
-  USER: 'user',
-
-  ALL: [
-    'customer',
-    'lead',
-    'visitor',
-    'company',
-    'deal',
-    'task',
-    'ticket',
-    'conversation',
-    'user'
-  ]
-};
-
 export interface IAttributeFilter {
   name: string;
   operator: string;
@@ -34,16 +10,7 @@ export interface IAttributeFilter {
 export interface ICondition {
   type: 'property' | 'event' | 'subSegment';
 
-  propertyType?:
-    | 'customer'
-    | 'company'
-    | 'deal'
-    | 'task'
-    | 'task'
-    | 'ticket'
-    | 'form_submission'
-    | 'conversation'
-    | 'user';
+  propertyType?: string;
   propertyName?: string;
   propertyOperator?: string;
   propertyValue?: string;
@@ -162,7 +129,6 @@ export const segmentSchema = schemaWrapper(
     _id: field({ pkey: true }),
     contentType: field({
       type: String,
-      enum: CONTENT_TYPES.ALL,
       label: 'Content type',
       index: true
     }),

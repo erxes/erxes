@@ -1,4 +1,5 @@
 import { Model, model } from 'mongoose';
+import { IModels } from '../connectionResolver';
 import {
   IMessengerApp,
   IMessengerAppDocument,
@@ -11,10 +12,10 @@ export interface IMessengerAppModel extends Model<IMessengerAppDocument> {
   updateApp(_id: string, doc: IMessengerApp): Promise<IMessengerAppDocument>;
 }
 
-export const loadClass = () => {
+export const loadClass = (models: IModels) => {
   class MessengerApp {
     public static async getApp(_id: string) {
-      const messengerApp = await MessengerApps.findOne({ _id });
+      const messengerApp = await models.MessengerApps.findOne({ _id });
 
       if (!messengerApp) {
         throw new Error('Messenger app not found');
@@ -24,17 +25,17 @@ export const loadClass = () => {
     }
 
     public static async createApp(doc: IMessengerApp) {
-      return MessengerApps.create(doc);
+      return models.MessengerApps.create(doc);
     }
 
     public static async updateApp(_id: string, doc: IMessengerApp) {
-      await MessengerApps.updateOne(
+      await models.MessengerApps.updateOne(
         { _id },
         { $set: doc },
         { runValidators: true }
       );
 
-      return MessengerApps.findOne({ _id });
+      return models.MessengerApps.findOne({ _id });
     }
   }
 
@@ -42,13 +43,3 @@ export const loadClass = () => {
 
   return messengerAppSchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const MessengerApps = model<IMessengerAppDocument, IMessengerAppModel>(
-  'messenger_apps',
-  messengerAppSchema
-);
-
-export default MessengerApps;

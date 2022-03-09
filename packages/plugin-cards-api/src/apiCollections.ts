@@ -10,7 +10,6 @@ export let Forms: any;
 export let FormSubmissions: any;
 export let Fields: any;
 export let FieldsGroups: any;
-export let Segments: any;
 export let Users: any;
 export let InternalNotes: any;
 
@@ -22,7 +21,6 @@ export default async function connect() {
   Forms = await db.collection('forms');
   FormSubmissions = await db.collection('form_submissions');
   FieldsGroups = await db.collection('form_field_groups');
-  Segments = await db.collection('segments');
   Users = await db.collection('users');
   InternalNotes = await db.collection('internal_notes');
 }

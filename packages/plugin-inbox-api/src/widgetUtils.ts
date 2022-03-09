@@ -1,6 +1,5 @@
 import {
   Conversations,
-  Integrations,
   ConversationMessages
 } from "./models";
 
@@ -24,8 +23,10 @@ import { debug } from "./configs";
 import { getDocument } from "./cacheUtils";
 import { es } from "./configs";
 import { sendConformityMessage, sendContactRPCMessage, sendEngageMessage, sendToLog } from "./messageBroker";
+import { IModels } from "./connectionResolver";
 
 export const getOrCreateEngageMessage = async (
+  models: IModels,
   integrationId: string,
   browserInfo: IBrowserInfo,
   visitorId?: string,
@@ -41,7 +42,7 @@ export const getOrCreateEngageMessage = async (
     return null;
   }
 
-  const integration = await Integrations.getIntegration({
+  const integration = await models.Integrations.getIntegration({
     _id: integrationId,
     kind: KIND_CHOICES.MESSENGER,
   });
@@ -234,7 +235,7 @@ const groupSubmissions = (submissions: any[]) => {
   return submissionsGrouped;
 };
 
-export const solveSubmissions = async (args: {
+export const solveSubmissions = async (models: IModels, args: {
   integrationId: string;
   formId: string;
 //   submissions: ISubmission[];
@@ -244,7 +245,7 @@ export const solveSubmissions = async (args: {
 }) => {
   let { cachedCustomerId } = args;
   const { integrationId, browserInfo, formId } = args;
-  const integration = await getDocument("integrations", { _id: integrationId });
+  const integration = await getDocument(models, "integrations", { _id: integrationId });
 
   const submissionsGrouped = groupSubmissions(args.submissions);
 

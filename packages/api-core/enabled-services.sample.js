@@ -11,5 +11,6 @@ module.exports = {
     logs : false,
     notifications : false,
     products : false,
+    segments : false,
     tags : false
 }

@@ -1,8 +1,8 @@
 import { gatherNames, LogDesc } from "@erxes/api-utils/src/logUtils";
-import { Integrations } from "./models";
 import { IChannelDocument } from "./models/definitions/channels";
 import { IIntegrationDocument } from "./models/definitions/integrations";
 import messageBroker, { findMongoDocuments } from "./messageBroker";
+import { IModels } from "./connectionResolver";
 
 export const findFromCore = async (ids: string[], collectionName: string) => {
   return messageBroker().sendRPCMessage(
@@ -63,6 +63,7 @@ export const gatherIntegrationFieldNames = async (
 };
 
 export const gatherChannelFieldNames = async (
+  models: IModels,
   doc: IChannelDocument,
   prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
@@ -95,7 +96,7 @@ export const gatherChannelFieldNames = async (
       foreignKey: 'integrationIds',
       prevList: options,
       nameFields: ['name'],
-      items: await Integrations.findIntegrations({ _id: { $in: doc.integrationIds } })
+      items: await models.Integrations.findIntegrations({ _id: { $in: doc.integrationIds } })
     });
   }
 

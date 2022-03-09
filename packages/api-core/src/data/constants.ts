@@ -130,6 +130,5 @@ export const MODULE_NAMES = {
   BRAND: 'brand',
   PERMISSION: 'permission',
   USER: 'user',
-  USER_GROUP: 'userGroup',
-  SEGMENT: 'segment'
+  USER_GROUP: 'userGroup'
 };

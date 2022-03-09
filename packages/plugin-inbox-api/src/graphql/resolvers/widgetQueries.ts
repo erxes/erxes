@@ -2,10 +2,7 @@ import * as momentTz from 'moment-timezone';
 import {
   ConversationMessages,
   Conversations,
-  Integrations
 } from '../../models';
-
-import { Fields, Users } from '../../apiCollections';
 
 import { IIntegrationDocument } from '../../models/definitions/integrations';
 
@@ -17,11 +14,11 @@ import * as moment from 'moment';
 
 // import { uploadFile, frontendEnv, getSubServiceDomain } from '@erxes/api-utils';
 
-import { IContext } from '@erxes/api-utils/src';
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
 import { sendRPCMessage } from '../../messageBroker';
+import { IContext, IModels } from '../../connectionResolver';
 
-export const isMessengerOnline = async (integration: IIntegrationDocument) => {
+export const isMessengerOnline = async (models: IModels, integration: IIntegrationDocument) => {
   if (!integration.messengerData) {
     return false;
   }
@@ -43,13 +40,13 @@ export const isMessengerOnline = async (integration: IIntegrationDocument) => {
     }
   };
 
-  return Integrations.isOnline(modifiedIntegration);
+  return models.Integrations.isOnline(modifiedIntegration);
 };
 
-const messengerSupporters = async (integration: IIntegrationDocument) => {
+const messengerSupporters = async (models: IModels, integration: IIntegrationDocument) => {
   const messengerData = integration.messengerData || { supporterIds: [] };
 
-  return getDocumentList('users', { _id: { $in: messengerData.supporterIds } });
+  return getDocumentList(models, 'users', { _id: { $in: messengerData.supporterIds } });
 };
 
 const getWidgetMessages = (conversationId: string) => {
@@ -129,7 +126,7 @@ export default {
   async widgetExportMessengerData(
     _root,
     args: { _id: string; integrationId: string },
-    { requestInfo }: IContext
+    { requestInfo, models }: IContext
   ) {
     const { _id, integrationId } = args;
 
@@ -137,7 +134,7 @@ export default {
       _id,
       integrationId
     }).lean();
-    const integration = await Integrations.findOne({
+    const integration = await models.Integrations.findOne({
       _id: integrationId
     }).lean();
 
@@ -176,8 +173,8 @@ export default {
     }
   },
 
-  widgetsGetMessengerIntegration(_root, args: { brandCode: string }) {
-    return Integrations.getWidgetIntegration(args.brandCode, 'messenger');
+  widgetsGetMessengerIntegration(_root, args: { brandCode: string }, { models }: IContext) {
+    return models.Integrations.getWidgetIntegration(args.brandCode, 'messenger');
   },
 
   widgetsConversations(
@@ -195,12 +192,13 @@ export default {
 
   async widgetsConversationDetail(
     _root,
-    args: { _id: string; integrationId: string }
+    args: { _id: string; integrationId: string },
+    { models }: IContext
   ) {
     const { _id, integrationId } = args;
 
     const conversation = await Conversations.findOne({ _id, integrationId });
-    const integration = await Integrations.findOne({
+    const integration = await models.Integrations.findOne({
       _id: integrationId
     });
 
@@ -208,7 +206,7 @@ export default {
     if (!conversation && integration) {
       return {
         messages: [],
-        isOnline: await isMessengerOnline(integration)
+        isOnline: await isMessengerOnline(models, integration)
       };
     }
 
@@ -219,12 +217,12 @@ export default {
     return {
       _id,
       messages: await getWidgetMessages(conversation._id),
-      isOnline: await isMessengerOnline(integration),
+      isOnline: await isMessengerOnline(models, integration),
       operatorStatus: conversation.operatorStatus,
-      participatedUsers: await getDocumentList('users', {
+      participatedUsers: await getDocumentList(models, 'users', {
         _id: { $in: conversation.participatedUserIds }
       }),
-      supporters: await messengerSupporters(integration)
+      supporters: await messengerSupporters(models, integration)
     };
   },
 
@@ -260,9 +258,10 @@ export default {
 
   async widgetsMessengerSupporters(
     _root,
-    { integrationId }: { integrationId: string }
+    { integrationId }: { integrationId: string },
+    { models }: IContext
   ) {
-    const integration = await getDocument('integrations', {
+    const integration = await getDocument(models, 'integrations', {
       _id: integrationId
     });
     let timezone = '';
@@ -282,10 +281,10 @@ export default {
     }
 
     return {
-      supporters: await getDocumentList('users', {
+      supporters: await getDocumentList(models, 'users', {
         _id: { $in: messengerData.supporterIds || [] }
       }),
-      isOnline: await isMessengerOnline(integration),
+      isOnline: await isMessengerOnline(models, integration),
       serverTime: momentTz().tz(timezone)
     };
   },
@@ -302,9 +301,11 @@ export default {
       customerId?: string;
       visitorId?: string;
       browserInfo: IBrowserInfo;
-    }
+    },
+    { models }: IContext
   ) {
     return getOrCreateEngageMessage(
+      models,
       integrationId,
       browserInfo,
       visitorId,

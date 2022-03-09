@@ -1,9 +1,10 @@
 import * as momentTz from 'moment-timezone';
-import { Model, model, Query } from 'mongoose';
+import { Model, Query } from 'mongoose';
 
 import { ConversationMessages, Conversations } from '.';
 
 import { Brands, Forms } from '../apiCollections';
+import { IModels } from '../connectionResolver';
 import { sendContactMessage, sendContactRPCMessage } from '../messageBroker';
 
 import { KIND_CHOICES } from './definitions/constants';
@@ -147,13 +148,13 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   increaseBookingViewCount(_id: string): Promise<IIntegrationDocument>;
 }
 
-export const loadClass = () => {
+export const loadClass = (models: IModels) => {
   class Integration {
     /**
      * Retreives integration
      */
     public static async getIntegration(doc: any) {
-      const integration = await Integrations.findOne(doc);
+      const integration = await models.Integrations.findOne(doc);
 
       if (!integration) {
         throw new Error('Integration not found');
@@ -166,11 +167,11 @@ export const loadClass = () => {
      * Find integrations
      */
     public static findIntegrations(query, options) {
-      return Integrations.find({ ...query, isActive: { $ne: false } }, options);
+      return models.Integrations.find({ ...query, isActive: { $ne: false } }, options);
     }
 
     public static findAllIntegrations(query: any, options: any) {
-      return Integrations.find({ ...query }, options);
+      return models.Integrations.find({ ...query }, options);
     }
 
     /**
@@ -184,7 +185,7 @@ export const loadClass = () => {
         perPage = 20
       } = args;
 
-      return Integrations.aggregate([
+      return models.Integrations.aggregate([
         { $match: query },
         {
           $lookup: {
@@ -239,7 +240,7 @@ export const loadClass = () => {
      * Create an integration, intended as a private method
      */
     public static createIntegration(doc: IIntegration, userId: string) {
-      return Integrations.create({
+      return models.Integrations.create({
         ...doc,
         isActive: true,
         createdUserId: userId
@@ -253,7 +254,7 @@ export const loadClass = () => {
       doc: IMessengerIntegration,
       userId: string
     ) {
-      const integration = await Integrations.findOne({
+      const integration = await models.Integrations.findOne({
         kind: KIND_CHOICES.MESSENGER,
         brandId: doc.brandId
       });
@@ -275,7 +276,7 @@ export const loadClass = () => {
       _id: string,
       doc: IMessengerIntegration
     ) {
-      const integration = await Integrations.findOne({
+      const integration = await models.Integrations.findOne({
         _id: { $ne: _id },
         kind: KIND_CHOICES.MESSENGER,
         brandId: doc.brandId
@@ -285,13 +286,13 @@ export const loadClass = () => {
         throw new Error('Duplicated messenger for single brand');
       }
 
-      await Integrations.updateOne(
+      await models.Integrations.updateOne(
         { _id },
         { $set: doc },
         { runValidators: true }
       );
 
-      return Integrations.findOne({ _id });
+      return models.Integrations.findOne({ _id });
     }
 
     /**
@@ -301,13 +302,13 @@ export const loadClass = () => {
       _id: string,
       { color, wallpaper, logo, textColor }: IUiOptions
     ) {
-      await Integrations.updateOne(
+      await models.Integrations.updateOne(
         { _id },
         { $set: { uiOptions: { color, wallpaper, logo, textColor } } },
         { runValdatiors: true }
       );
 
-      return Integrations.findOne({ _id });
+      return models.Integrations.findOne({ _id });
     }
 
     /**
@@ -317,8 +318,8 @@ export const loadClass = () => {
       _id: string,
       messengerData: IMessengerData
     ) {
-      await Integrations.updateOne({ _id }, { $set: { messengerData } });
-      return Integrations.findOne({ _id });
+      await models.Integrations.updateOne({ _id }, { $set: { messengerData } });
+      return models.Integrations.findOne({ _id });
     }
 
     /**
@@ -334,7 +335,7 @@ export const loadClass = () => {
         throw new Error('leadData must be supplied');
       }
 
-      return Integrations.createIntegration(doc, userId);
+      return models.Integrations.createIntegration(doc, userId);
     }
 
     /**
@@ -344,7 +345,7 @@ export const loadClass = () => {
       doc: IExternalIntegrationParams,
       userId: string
     ): Promise<IIntegrationDocument> {
-      return Integrations.createIntegration(doc, userId);
+      return models.Integrations.createIntegration(doc, userId);
     }
 
     /**
@@ -354,7 +355,7 @@ export const loadClass = () => {
       _id: string,
       { leadData = {}, ...mainDoc }: IIntegration
     ) {
-      const prevEntry = await Integrations.getIntegration({ _id });
+      const prevEntry = await models.Integrations.getIntegration({ _id });
       const prevLeadData: ILeadData = prevEntry.leadData || {};
 
       const doc = {
@@ -367,20 +368,20 @@ export const loadClass = () => {
         }
       };
 
-      await Integrations.updateOne(
+      await models.Integrations.updateOne(
         { _id },
         { $set: doc },
         { runValidators: true }
       );
 
-      return Integrations.findOne({ _id });
+      return models.Integrations.findOne({ _id });
     }
 
     /**
      * Remove integration in addition with its messages, conversations, customers
      */
     public static async removeIntegration(_id: string) {
-      const integration = await Integrations.getIntegration({ _id });
+      const integration = await models.Integrations.getIntegration({ _id });
 
       // remove conversations =================
       const conversations = await Conversations.find(
@@ -409,16 +410,16 @@ export const loadClass = () => {
         await Forms.removeForm(integration.formId);
       }
 
-      return Integrations.deleteMany({ _id });
+      return models.Integrations.deleteMany({ _id });
     }
 
     public static async updateBasicInfo(
       _id: string,
       doc: IIntegrationBasicInfo
     ) {
-      await Integrations.updateOne({ _id }, { $set: doc });
+      await models.Integrations.updateOne({ _id }, { $set: doc });
 
-      return Integrations.findOne({ _id });
+      return models.Integrations.findOne({ _id });
     }
 
     public static async getWidgetIntegration(
@@ -428,7 +429,7 @@ export const loadClass = () => {
     ) {
       const brand = await Brands.getBrand({ code: brandCode });
 
-      const integration = await Integrations.getIntegration({
+      const integration = await models.Integrations.getIntegration({
         brandId: brand._id,
         kind
       });
@@ -441,22 +442,22 @@ export const loadClass = () => {
     }
 
     public static async increaseViewCount(formId: string, get = false) {
-      const response = await Integrations.updateOne(
+      const response = await models.Integrations.updateOne(
         { formId, leadData: { $exists: true } },
         { $inc: { 'leadData.viewCount': 1 } }
       );
-      return get ? Integrations.findOne({ formId }) : response;
+      return get ? models.Integrations.findOne({ formId }) : response;
     }
 
     /*
      * Increase form submitted count
      */
     public static async increaseContactsGathered(formId: string, get = false) {
-      const response = await Integrations.updateOne(
+      const response = await models.Integrations.updateOne(
         { formId, leadData: { $exists: true } },
         { $inc: { 'leadData.contactsGathered': 1 } }
       );
-      return get ? Integrations.findOne({ formId }) : response;
+      return get ? models.Integrations.findOne({ formId }) : response;
     }
 
     public static isOnline(
@@ -566,7 +567,7 @@ export const loadClass = () => {
       userId: string
     ) {
       // check duplication
-      const isDuplicated = await Integrations.findOne({
+      const isDuplicated = await models.Integrations.findOne({
         'bookingData.productCategoryId': bookingData.productCategoryId
       });
 
@@ -580,7 +581,7 @@ export const loadClass = () => {
         throw new Error('bookingData must be supplied');
       }
 
-      return Integrations.createIntegration(doc, userId);
+      return models.Integrations.createIntegration(doc, userId);
     }
 
     /**
@@ -590,11 +591,11 @@ export const loadClass = () => {
       _id: string,
       { bookingData = {}, ...mainDoc }: IIntegration
     ) {
-      const prevEntry = await Integrations.getIntegration({ _id });
+      const prevEntry = await models.Integrations.getIntegration({ _id });
       const prevBookingData: IBookingData = prevEntry.bookingData || {};
 
       // check duplication
-      const isDuplicated = await Integrations.findOne({
+      const isDuplicated = await models.Integrations.findOne({
         'bookingData.productCategoryId': bookingData.productCategoryId,
         _id: { $ne: prevEntry._id }
       });
@@ -612,13 +613,13 @@ export const loadClass = () => {
         }
       };
 
-      await Integrations.updateOne(
+      await models.Integrations.updateOne(
         { _id },
         { $set: doc },
         { runValidators: true }
       );
 
-      return Integrations.findOne({ _id });
+      return models.Integrations.findOne({ _id });
     }
 
     /**
@@ -626,12 +627,12 @@ export const loadClass = () => {
      */
 
     public static async increaseBookingViewCount(_id: string) {
-      await Integrations.updateOne(
+      await models.Integrations.updateOne(
         { _id, bookingData: { $exists: true } },
         { $inc: { 'bookingData.viewCount': 1 } }
       );
 
-      return Integrations.findOne({ _id });
+      return models.Integrations.findOne({ _id });
     }
   }
 
@@ -639,13 +640,3 @@ export const loadClass = () => {
 
   return integrationSchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const Integrations = model<IIntegrationDocument, IIntegrationModel>(
-  'integrations',
-  integrationSchema
-);
-
-export default Integrations;

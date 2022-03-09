@@ -1,26 +1,13 @@
 import * as bodyParser from 'body-parser';
-// import * as express from 'express';
 
 import initCallPro from './callpro/controller';
 import initChatfuel from './chatfuel/controller';
-import { mongoStatus } from './connection';
 import {
-  debugError,
-  // debugInit,
   debugIntegrations,
   debugRequest,
-  debugResponse
 } from './debuggers';
 import initFacebook from './facebook/controller';
 import initGmail from './gmail/controller';
-import {
-  removeIntegration,
-  routeErrorHandling,
-  updateIntegrationConfigs
-} from './helpers';
-// import { initMemoryStorage } from './inmemoryStorage';
-// import { initBroker } from './messageBroker';
-import { Accounts, Configs, Integrations } from './models/index';
 import { initNylas } from './nylas/controller';
 import initSmooch from './smooch/controller';
 // import { init } from './startup';
@@ -30,8 +17,6 @@ import initTwitter from './twitter/controller';
 import userMiddleware from './userMiddleware';
 import initDaily from './videoCall/controller';
 import initWhatsapp from './whatsapp/controller';
-
-// const app = express();
 
 const rawBodySaver = (req, _res, buf, encoding) => {
   if (buf && buf.length) {
@@ -43,9 +28,7 @@ const rawBodySaver = (req, _res, buf, encoding) => {
   }
 };
 
-
-const haha = (app) => {
-
+const init = async (app) => {
   app.use(
     bodyParser.urlencoded({ limit: '10mb', verify: rawBodySaver, extended: true })
   );
@@ -64,104 +47,12 @@ const haha = (app) => {
 
     next();
   });
-
-  // for health check
-  app.get('/health', async (_req, res, next) => {
-    try {
-      await mongoStatus();
-    } catch (e) {
-      debugError('MongoDB is not running');
-      return next(e);
-    }
-    res.end('ok');
-  });
-
+  
   app.get('/system-status', async (_req, res) => {
+    console.log('system status.........')
     return res.json(await systemStatus());
   });
-
-  app.post(
-    '/update-configs',
-    routeErrorHandling(async (req, res) => {
-      const { configsMap } = req.body;
-
-      await updateIntegrationConfigs(configsMap);
-
-      debugResponse(debugIntegrations, req);
-
-      return res.json({ status: 'ok' });
-    })
-  );
-
-  app.get('/configs', async (req, res) => {
-    const configs = await Configs.find({});
-
-    debugResponse(debugIntegrations, req, JSON.stringify(configs));
-
-    return res.json(configs);
-  });
-
-  app.post(
-    '/integrations/remove',
-    routeErrorHandling(
-      async (req, res) => {
-        const { integrationId } = req.body;
-
-        await removeIntegration(integrationId);
-
-        debugResponse(debugIntegrations, req);
-
-        return res.json({ status: 'ok' });
-      },
-      (res, e) => res.json({ status: e.message })
-    )
-  );
-
-  app.get('/accounts', async (req, res) => {
-    let { kind } = req.query;
-
-    if (kind.includes('nylas')) {
-      kind = kind.split('-')[1];
-    }
-
-    const selector = { kind };
-
-    const accounts = await Accounts.find(selector);
-
-    debugResponse(debugIntegrations, req, JSON.stringify(accounts));
-
-    return res.json(accounts);
-  });
-
-  app.get('/integrations', async (req, res) => {
-    const { kind } = req.query;
-
-    const integrations = await Integrations.find({ kind });
-
-    debugResponse(debugIntegrations, req, JSON.stringify(integrations));
-
-    return res.json(integrations);
-  });
-
-  app.get('/integrationDetail', async (req, res) => {
-    const { erxesApiId } = req.query;
-
-    // do not expose fields below
-    const integration = await Integrations.findOne(
-      { erxesApiId },
-      {
-        nylasToken: 0,
-        nylasAccountId: 0,
-        nylasBillingState: 0,
-        googleAccessToken: 0
-      }
-    );
-
-    debugResponse(debugIntegrations, req, JSON.stringify(integration));
-
-    return res.json(integration);
-  });
-
+  
   // init bots
   initFacebook(app);
 
@@ -194,22 +85,6 @@ const haha = (app) => {
     console.error(error.stack);
     res.status(500).send(error.message);
   });
+}
 
-  } 
-
-export default haha;
-
-// const { PORT } = process.env;
-
-// app.listen(PORT, () => {
-//   connect().then(async () => {
-//     await initBroker(app);
-
-//     initMemoryStorage();
-
-//     // Initialize startup
-//     init();
-//   });
-
-//   debugInit(`Integrations server is running on port ${PORT}`);
-// });
+export default init;
