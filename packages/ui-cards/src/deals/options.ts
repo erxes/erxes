@@ -1,36 +1,36 @@
-import { toArray } from '../boards/utils';
-import DealEditForm from './components/DealEditForm';
-import DealItem from './components/DealItem';
-import { mutations, queries } from './graphql';
+import { toArray } from "../boards/utils";
+import DealEditForm from "./components/DealEditForm";
+import DealItem from "./components/DealItem";
+import { mutations, queries } from "./graphql";
 
 const options = {
   EditForm: DealEditForm,
   Item: DealItem,
-  type: 'cards:deal',
-  title: 'Deal',
+  type: "deal",
+  title: "Deal",
   queriesName: {
-    itemsQuery: 'deals',
-    itemsTotalCountQuery: 'dealsTotalCount',
-    detailQuery: 'dealDetail',
-    archivedItemsQuery: 'archivedDeals',
-    archivedItemsCountQuery: 'archivedDealsCount'
+    itemsQuery: "deals",
+    itemsTotalCountQuery: "dealsTotalCount",
+    detailQuery: "dealDetail",
+    archivedItemsQuery: "archivedDeals",
+    archivedItemsCountQuery: "archivedDealsCount",
   },
   mutationsName: {
-    addMutation: 'dealsAdd',
-    editMutation: 'dealsEdit',
-    removeMutation: 'dealsRemove',
-    changeMutation: 'dealsChange',
-    watchMutation: 'dealsWatch',
-    archiveMutation: 'dealsArchive',
-    copyMutation: 'dealsCopy',
-    updateTimeTrackMutation: 'updateTimeTrack'
+    addMutation: "dealsAdd",
+    editMutation: "dealsEdit",
+    removeMutation: "dealsRemove",
+    changeMutation: "dealsChange",
+    watchMutation: "dealsWatch",
+    archiveMutation: "dealsArchive",
+    copyMutation: "dealsCopy",
+    updateTimeTrackMutation: "updateTimeTrack",
   },
   queries: {
     itemsQuery: queries.deals,
     itemsTotalCountQuery: queries.dealsTotalCount,
     detailQuery: queries.dealDetail,
     archivedItemsQuery: queries.archivedDeals,
-    archivedItemsCountQuery: queries.archivedDealsCount
+    archivedItemsCountQuery: queries.archivedDealsCount,
   },
   mutations: {
     addMutation: mutations.dealsAdd,
@@ -40,14 +40,14 @@ const options = {
     watchMutation: mutations.dealsWatch,
     archiveMutation: mutations.dealsArchive,
     copyMutation: mutations.dealsCopy,
-    updateTimeTrackMutation: ``
+    updateTimeTrackMutation: ``,
   },
   texts: {
-    addText: 'Add a deal',
-    updateSuccessText: 'You successfully updated a deal',
-    deleteSuccessText: 'You successfully deleted a deal',
-    changeSuccessText: 'You successfully changed a deal',
-    copySuccessText: 'You successfully copied a deal'
+    addText: "Add a deal",
+    updateSuccessText: "You successfully updated a deal",
+    deleteSuccessText: "You successfully deleted a deal",
+    changeSuccessText: "You successfully changed a deal",
+    copySuccessText: "You successfully copied a deal",
   },
   isMove: true,
   getExtraParams: (queryParams: any) => {
@@ -75,7 +75,7 @@ const options = {
     }
 
     return extraParams;
-  }
+  },
 };
 
 export default options;

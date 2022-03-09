@@ -1,7 +1,7 @@
 import * as Random from 'meteor-random';
 import { Document, Model, model, Schema } from 'mongoose';
 
-import { field } from './Logs';
+import { field } from '../utils';
 
 export interface IActivityLogInput {
   action: string;
