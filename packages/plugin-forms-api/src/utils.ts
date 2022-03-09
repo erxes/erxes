@@ -1,4 +1,4 @@
-import { sendRPCMessage } from "./messageBroker";
+import { getFieldsFromService } from "./messageBroker";
 import { Fields, FieldsGroups } from "./models";
 
 export const getCustomFields = async (contentType: string) => {
@@ -19,19 +19,15 @@ export const fieldsCombinedByContentType = async ({
   contentType,
   usageType,
   excludedNames,
-  pipelineId,
   segmentId,
   formId,
-  serviceType,
 }: {
   contentType: string;
   usageType?: string;
   excludedNames?: string[];
   boardId?: string;
   segmentId?: string;
-  pipelineId?: string;
   formId?: string;
-  serviceType?: string;
 }) => {
   let fields: Array<{
     _id: number;
@@ -43,15 +39,15 @@ export const fieldsCombinedByContentType = async ({
     options?: string[];
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
-  if (serviceType) {
-    fields = await sendRPCMessage(`${serviceType}:rpc_queue:getFields`, {
-      contentType,
-      segmentId,
-      pipelineId,
-      usageType,
-      formId,
-    });
-  }
+
+  const [serviceName, type ] = contentType.split(':');
+
+  fields = await getFieldsFromService(serviceName, {
+    type,
+    segmentId,
+    usageType,
+    formId,
+  });
 
   const customFields = await getCustomFields(contentType);
 

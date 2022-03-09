@@ -1,3 +1,4 @@
+import { serviceDiscovery } from "./configs";
 import { Fields, FieldsGroups, Forms } from "./models";
 import { fieldsCombinedByContentType } from "./utils";
 
@@ -65,8 +66,16 @@ export const initBroker = async cl => {
   });
 };
 
-export const sendRPCMessage = async (channel, message): Promise<any> => {
-  return client.sendRPCMessage(channel, message);
+export const getFieldsFromService = async (serviceName: string, data) => {
+  if (!(await serviceDiscovery.isEnabled(serviceName))) {
+    return [];
+  }
+  
+  if(!(await serviceDiscovery.isAvailable(serviceName))) {
+    throw new Error(`${serviceName} service is not available.`);
+  }
+
+  return client.sendRPCMessage(`${serviceName}:rpc_queue:getFields`, data);
 };
 
 export default function() {
