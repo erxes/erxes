@@ -47,7 +47,6 @@ type Props = {
   hideDetailForm: boolean;
   boardId: string;
   pipelineId: string;
-  serviceType: string;
 };
 
 type State = {};
@@ -161,7 +160,7 @@ class ConditionsList extends React.Component<Props, State> {
   };
 
   renderCondition(condition: ISegmentCondition) {
-    const { segment, serviceType } = this.props;
+    const { segment } = this.props;
     const { conditions } = segment;
 
     let useMargin = true;
@@ -175,7 +174,6 @@ class ConditionsList extends React.Component<Props, State> {
         <ConditionItem useMargin={useMargin} key={Math.random()}>
           <FilterRow>
             <PropertyDetail
-              serviceType={serviceType}
               onClickProperty={this.props.onClickProperty}
               condition={condition}
               pipelineId={segment.pipelineId}

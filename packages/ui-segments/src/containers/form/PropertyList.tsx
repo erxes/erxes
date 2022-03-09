@@ -11,7 +11,6 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 
 type Props = {
-  serviceType: string;
   contentType: string;
   searchValue: string;
   pipelineId: string;
@@ -63,14 +62,13 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
       name: 'fieldsQuery',
-      options: ({ contentType, pipelineId, formId, serviceType }) => ({
+      options: ({ contentType, pipelineId, formId }) => ({
         variables: {
           contentType: ['visitor', 'lead', 'customer'].includes(contentType)
             ? 'customer'
             : contentType,
           pipelineId,
-          formId,
-          serviceType
+          formId
         }
       })
     })

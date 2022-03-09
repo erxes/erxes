@@ -16,7 +16,6 @@ import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 
 type Props = {
   contentType: string;
-  serviceType: string;
   boards?: IBoard[];
   forms?: IIntegration[];
   segment: ISegmentMap;
@@ -165,8 +164,7 @@ class PropertyCondition extends React.Component<Props, State> {
       contentType,
       onClickBackToList,
       hideBackButton,
-      fetchFields,
-      serviceType
+      fetchFields
     } = this.props;
     const {
       chosenProperty,
@@ -227,7 +225,6 @@ class PropertyCondition extends React.Component<Props, State> {
             />
           </FormGroup>
           <PropertyList
-            serviceType={serviceType}
             formId={formId}
             pipelineId={pipelineId}
             onClickProperty={this.onClickProperty}

@@ -103,8 +103,6 @@ const MessageRowContainer = (props: FinalProps) => {
     copy
   };
 
-  console.log(updatedProps, 'uuuu')
-
   return <MessageListRow {...updatedProps} />;
 };
 

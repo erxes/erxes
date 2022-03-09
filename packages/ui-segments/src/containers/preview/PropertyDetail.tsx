@@ -14,7 +14,6 @@ type Props = {
   pipelineId?: string;
   segmentId?: string;
   segmentKey: string;
-  serviceType: string;
   onClickProperty: (field: IField, condition, segmentKey: string) => void;
 };
 
@@ -60,7 +59,7 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
       name: 'fieldsQuery',
-      options: ({ condition, segmentId, serviceType }) => ({
+      options: ({ condition, segmentId }) => ({
         variables: {
           contentType: ['visitor', 'lead', 'customer'].includes(
             condition.propertyType || ''
@@ -69,8 +68,7 @@ export default withProps<Props>(
             : condition.propertyType,
           pipelineId: condition.pipelineId,
           formId: condition.formId,
-          segmentId,
-          serviceType
+          segmentId
         }
       })
     })

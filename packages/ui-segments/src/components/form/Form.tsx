@@ -37,7 +37,6 @@ import PropertyForm from './PropertyForm';
 import EventForm from './EventForm';
 
 type Props = {
-  serviceType: string;
   contentType: string;
   fields: IField[];
   events: IEvent[];
@@ -487,7 +486,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   };
 
   renderConditionsList = () => {
-    const { contentType, hideDetailForm, events, serviceType } = this.props;
+    const { contentType, hideDetailForm, events } = this.props;
     const {
       segments,
       state,
@@ -540,7 +539,6 @@ class SegmentFormAutomations extends React.Component<Props, State> {
             hideDetailForm={hideDetailForm || false}
             boardId={boardId}
             pipelineId={pipelineId}
-            serviceType={serviceType}
           />
         );
       });
@@ -550,7 +548,6 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       return (
         <PropertyCondition
           key={Math.random()}
-          serviceType={serviceType}
           hideBackButton={false}
           onClickBackToList={this.onClickBackToList}
           contentType={contentType}
