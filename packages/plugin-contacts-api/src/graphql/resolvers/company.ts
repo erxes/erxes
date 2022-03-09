@@ -1,37 +1,33 @@
-import { ICompanyDocument } from '../../models/definitions/companies';
-import { IContext } from '@erxes/api-utils/src';
-import Companies from '../../models/Companies';
-import { sendConformityMessage } from '../../messageBroker';
+import { ICompanyDocument } from "../../models/definitions/companies";
+import { sendConformityMessage } from "../../messageBroker";
+import { IContext } from "../../connectionResolver";
 
 export default {
-  __resolveReference({ _id }) {
+  __resolveReference({ _id }, _params, { models: { Companies } }: IContext) {
     return Companies.findOne({ _id });
   },
 
   async customers(
     company: ICompanyDocument,
     _,
-    { dataLoaders: { customer } }: IContext
+    { models: { Customers } }: IContext
   ) {
-    const customerIds = await sendConformityMessage('savedConformity', {
-      mainType: 'company',
+    const customerIds = await sendConformityMessage("savedConformity", {
+      mainType: "company",
       mainTypeId: company._id,
-      relTypes: ['customer']
+      relTypes: ["customer"],
     });
 
-    const customers = await customer.loadMany(customerIds || []);
-    return customers.filter(c => c);
+    return Customers.find({ _id: { $in: customerIds || [] } });
   },
 
-  async getTags(
-    company: ICompanyDocument
-  ) {
-    return (company.tagIds || []).map(_id => ({ __typename: "Tag", _id }));
+  async getTags(company: ICompanyDocument) {
+    return (company.tagIds || []).map((_id) => ({ __typename: "Tag", _id }));
   },
 
   owner(company: ICompanyDocument) {
-    if(!company.ownerId) {
-      return
+    if (!company.ownerId) {
+      return;
     }
 
     return { __typename: "User", _id: company.ownerId };
@@ -40,8 +36,8 @@ export default {
   parentCompany(
     { parentCompanyId }: ICompanyDocument,
     _,
-    { dataLoaders: { company } }: IContext
+    { models: { Companies } }: IContext
   ) {
-    return (parentCompanyId && company.load(parentCompanyId)) || null;
-  }
+    return Companies.findOne({ _id: parentCompanyId });
+  },
 };

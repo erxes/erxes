@@ -1,4 +1,3 @@
-import Companies from '../../models/Companies';
 import { TAG_TYPES } from '../../models/definitions/constants';
 import { Builder, IListArgs } from '../../coc/companies';
 import { countBySegment, countByTag } from '../../coc/utils';
@@ -6,8 +5,7 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src';
-
+import { IContext } from '../../connectionResolver';
 interface ICountArgs extends IListArgs {
   only?: string;
 }
@@ -91,7 +89,7 @@ const companyQueries = {
   /**
    * Get one company
    */
-  companyDetail(_root, { _id }: { _id: string }) {
+  companyDetail(_root, { _id }: { _id: string }, { models: { Companies } }: IContext) {
     return Companies.findOne({ _id });
   }
 };

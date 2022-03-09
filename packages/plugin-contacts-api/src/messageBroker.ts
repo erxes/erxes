@@ -1,7 +1,5 @@
 import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 
-import Companies from './models/Companies';
-import Customers from './models/Customers';
 import {
   findCompany,
   findCustomer,
@@ -12,10 +10,11 @@ import {
 import { serviceDiscovery } from './configs';
 import { LOG_MAPPINGS } from './constants';
 import { insertImportItems, prepareImportDocs } from './importUtils';
+import { ICoreIModels, IModels } from './connectionResolver';
 
 export let client;
 
-export const initBroker = cl => {
+export const initBroker = (cl, { Customers, Companies }: IModels, _coreModels: ICoreIModels) => {
   client = cl;
 
   const { consumeRPCQueue, consumeQueue } = client;

@@ -5,8 +5,6 @@ import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 
 import { debug } from './configs';
-import Customers from './models/Customers';
-import Companies from './models/Companies';
 import { ICustomerDocument } from './models/definitions/customers';
 import messageBroker from './messageBroker';
 import { getService, getServices } from './inmemoryStorage';

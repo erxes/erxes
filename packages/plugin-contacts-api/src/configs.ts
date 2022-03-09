@@ -2,7 +2,6 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import apiConnect from './apiCollections';
 
-import { generateAllDataLoaders } from './dataLoaders';
 import { initBroker, sendSegmentMessage } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
@@ -15,7 +14,9 @@ import {
 import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
 import { buildFile } from './exporter';
 import segments from './segments';
+import { coreModels, generateModels, models } from './connectionResolver';
 
+export let mainDb;
 export let graphqlPubsub;
 export let serviceDiscovery;
 
@@ -141,12 +142,16 @@ export default {
     segments
   },
   apolloServerContext: context => {
-    context.dataLoaders = generateAllDataLoaders();
+    context.models = models;
+    context.coreModels = coreModels;
   },
   onServerInit: async options => {
     await apiConnect();
 
     const app = options.app;
+    mainDb = options.db;
+
+    await generateModels('os');
 
     app.get(
       '/file-export',
@@ -212,7 +217,7 @@ export default {
       )
     );
 
-    initBroker(options.messageBrokerClient);
+    initBroker(options.messageBrokerClient, models, coreModels);
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
