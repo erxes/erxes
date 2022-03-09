@@ -1,7 +1,7 @@
 import * as getUuid from 'uuid-by-string';
-import { Fields } from './apiCollections';
 import { debug } from './configs';
 import { es } from './configs';
+import { ICoreIModels } from './connectionResolver';
 import { sendContactRPCMessage } from './messageBroker';
 
 interface ISaveEventArgs {
@@ -20,7 +20,7 @@ interface ICustomerIdentifyParams {
   integrationId?: string;
 }
 
-export const saveEvent = async (args: ISaveEventArgs) => {
+export const saveEvent = async (coreModels: ICoreIModels, args: ISaveEventArgs) => {
   const { type, name, attributes, additionalQuery } = args;
 
   if (!type) {
@@ -63,7 +63,7 @@ export const saveEvent = async (args: ISaveEventArgs) => {
           customerId,
           createdAt: new Date(),
           count: 1,
-          attributes: Fields.generateTypedListFromMap(attributes || {})
+          attributes: coreModels.Fields.generateTypedListFromMap(attributes || {})
         }
       }
     });
@@ -140,14 +140,14 @@ export const getNumberOfVisits = async (params: {
   }
 };
 
-export const trackViewPageEvent = (args: {
+export const trackViewPageEvent = (coreModels: ICoreIModels, args: {
   customerId?: string;
   visitorId?: string;
   attributes: any;
 }) => {
   const { attributes, customerId, visitorId } = args;
 
-  return saveEvent({
+  return saveEvent(coreModels, {
     type: 'lifeCycle',
     name: 'viewPage',
     customerId,
@@ -183,13 +183,13 @@ export const trackViewPageEvent = (args: {
   });
 };
 
-export const trackCustomEvent = (args: {
+export const trackCustomEvent = (coreModels: ICoreIModels, args: {
   name: string;
   customerId?: string;
   visitorId?: string;
   attributes: any;
 }) => {
-  return saveEvent({
+  return saveEvent(coreModels, {
     type: 'custom',
     name: args.name,
     customerId: args.customerId,
@@ -213,7 +213,7 @@ export const identifyCustomer = async (args: ICustomerIdentifyParams = {}) => {
   return { customerId: customer._id };
 };
 
-export const updateCustomerProperty = async ({
+export const updateCustomerProperty = async (coreModels: ICoreIModels, {
   customerId,
   name,
   value
@@ -247,7 +247,7 @@ export const updateCustomerProperty = async ({
       (customer.trackedData || []).forEach(td => (prev[td.field] = td.value));
       prev[name] = value;
 
-      modifier = { trackedData: Fields.generateTypedListFromMap(prev) };
+      modifier = { trackedData: coreModels.Fields.generateTypedListFromMap(prev) };
     }
   }
 

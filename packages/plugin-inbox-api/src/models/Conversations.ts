@@ -14,7 +14,7 @@ import {
   IConversation,
   IConversationDocument
 } from './definitions/conversations';
-import { IModels } from '../connectionResolver';
+import { ICoreIModels, IModels } from '../connectionResolver';
 // import { Skills } from './Skills';
 
 export interface IConversationModel extends Model<IConversationDocument> {
@@ -81,7 +81,7 @@ export interface IConversationModel extends Model<IConversationDocument> {
   ): Promise<{ n: number; nModified: number; ok: number }>;
 }
 
-export const loadClass = (models: IModels) => {
+export const loadClass = (models: IModels, coreModels: ICoreIModels) => {
   class Conversation {
     /**
      * Retreives conversation
@@ -180,7 +180,7 @@ export const loadClass = (models: IModels) => {
     ) {
       await this.checkExistanceConversations(conversationIds);
 
-      if (!(await getDocument(models, 'users', { _id: assignedUserId }))) {
+      if (!(await getDocument(models, coreModels, 'users', { _id: assignedUserId }))) {
         throw new Error(`User not found with id ${assignedUserId}`);
       }
 

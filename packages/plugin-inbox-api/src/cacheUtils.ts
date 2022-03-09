@@ -1,17 +1,16 @@
 import sift from 'sift';
 
-import { Brands, Users } from './apiCollections';
-
 import { get, set } from './inmemoryStorage';
 import { sendProductRPCMessage, sendTagRPCMessage } from './messageBroker';
-import { IModels } from './connectionResolver';
+import { ICoreIModels, IModels } from './connectionResolver';
 
 export const getDocument = async (
   models: IModels,
+  coreModels: ICoreIModels,
   type: 'users' | 'integrations' | 'brands' | 'channels',
   selector: { [key: string]: any }
 ) => {
-  const list = await getDocumentList(models, type, selector);
+  const list = await getDocumentList(models, coreModels, type, selector);
 
   if (list.length > 0) {
     return list[0];
@@ -22,6 +21,7 @@ export const getDocument = async (
 
 export const getDocumentList = async (
   models: IModels,
+  coreModels: ICoreIModels,
   type: 'users' | 'integrations' | 'brands' | 'channels' | 'tags' | 'products',
   selector: { [key: string]: any }
 ) => {
@@ -34,7 +34,7 @@ export const getDocumentList = async (
   } else {
     switch (type) {
       case 'users': {
-        list = await Users.find().toArray();
+        list = await coreModels.Users.find().toArray();
         break;
       }
 
@@ -49,7 +49,7 @@ export const getDocumentList = async (
       }
 
       case 'brands': {
-        list = await Brands.find().toArray();
+        list = await coreModels.Brands.find().toArray();
         break;
       }
 

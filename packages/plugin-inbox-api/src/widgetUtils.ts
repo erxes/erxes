@@ -1,9 +1,3 @@
-import {
-  Brands,
-  Fields,
-  FieldsGroups
-} from "./apiCollections";
-
 import { IBrowserInfo, ICustomField, ILink } from "@erxes/api-utils/src/definitions/common";
 import { KIND_CHOICES } from "./models/definitions/constants";
 
@@ -18,10 +12,11 @@ import { debug } from "./configs";
 import { getDocument } from "./cacheUtils";
 import { es } from "./configs";
 import { sendConformityMessage, sendContactRPCMessage, sendEngageMessage, sendToLog } from "./messageBroker";
-import { IModels } from "./connectionResolver";
+import { ICoreIModels, IModels } from "./connectionResolver";
 
 export const getOrCreateEngageMessage = async (
   models: IModels,
+  coreModels: ICoreIModels,
   integrationId: string,
   browserInfo: IBrowserInfo,
   visitorId?: string,
@@ -42,7 +37,7 @@ export const getOrCreateEngageMessage = async (
     kind: KIND_CHOICES.MESSENGER,
   });
 
-  const brand = await Brands.getBrand({ _id: integration.brandId || "" });
+  const brand = await coreModels.Brands.getBrand({ _id: integration.brandId || "" });
 
   // try to create engage chat auto messages
   await sendEngageMessage('createVisitorOrCustomerMessages', {
@@ -230,7 +225,7 @@ const groupSubmissions = (submissions: any[]) => {
   return submissionsGrouped;
 };
 
-export const solveSubmissions = async (models: IModels, args: {
+export const solveSubmissions = async (models: IModels, coreModels: ICoreIModels, args: {
   integrationId: string;
   formId: string;
 //   submissions: ISubmission[];
@@ -240,7 +235,7 @@ export const solveSubmissions = async (models: IModels, args: {
 }) => {
   let { cachedCustomerId } = args;
   const { integrationId, browserInfo, formId } = args;
-  const integration = await getDocument(models, "integrations", { _id: integrationId });
+  const integration = await getDocument(models, coreModels, "integrations", { _id: integrationId });
 
   const submissionsGrouped = groupSubmissions(args.submissions);
 
@@ -345,12 +340,12 @@ export const solveSubmissions = async (models: IModels, args: {
           "check",
         ].includes(submissionType)
       ) {
-        const field = await Fields.findById(submission.associatedFieldId);
+        const field = await coreModels.Fields.findById(submission.associatedFieldId);
         if (!field) {
           continue;
         }
 
-        const fieldGroup = await FieldsGroups.findById(field.groupId);
+        const fieldGroup = await coreModels.FieldsGroups.findById(field.groupId);
 
         if (fieldGroup && fieldGroup.contentType === "company") {
           companyCustomData.push({

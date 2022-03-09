@@ -613,9 +613,9 @@ const conversationMutations = {
   /**
    * Resolve all conversations
    */
-  async conversationResolveAll(_root, params: IListArgs, { user, models }: IContext) {
+  async conversationResolveAll(_root, params: IListArgs, { user, models, coreModels }: IContext) {
     // initiate query builder
-    const qb = new QueryBuilder(models, params, { _id: user._id });
+    const qb = new QueryBuilder(models, coreModels, params, { _id: user._id });
 
     await qb.buildAllQueries();
     const query = qb.mainQuery();

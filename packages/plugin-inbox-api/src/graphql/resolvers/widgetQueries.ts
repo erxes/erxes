@@ -12,7 +12,7 @@ import * as moment from 'moment';
 
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
 import { sendRPCMessage } from '../../messageBroker';
-import { IContext, IModels } from '../../connectionResolver';
+import { IContext, ICoreIModels, IModels } from '../../connectionResolver';
 
 export const isMessengerOnline = async (models: IModels, integration: IIntegrationDocument) => {
   if (!integration.messengerData) {
@@ -39,10 +39,10 @@ export const isMessengerOnline = async (models: IModels, integration: IIntegrati
   return models.Integrations.isOnline(modifiedIntegration);
 };
 
-const messengerSupporters = async (models: IModels, integration: IIntegrationDocument) => {
+const messengerSupporters = async (models: IModels, coreModels: ICoreIModels, integration: IIntegrationDocument) => {
   const messengerData = integration.messengerData || { supporterIds: [] };
 
-  return getDocumentList(models, 'users', { _id: { $in: messengerData.supporterIds } });
+  return getDocumentList(models, coreModels, 'users', { _id: { $in: messengerData.supporterIds } });
 };
 
 const getWidgetMessages = (models: IModels,conversationId: string) => {
@@ -190,7 +190,7 @@ export default {
   async widgetsConversationDetail(
     _root,
     args: { _id: string; integrationId: string },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
     const { _id, integrationId } = args;
 
@@ -216,10 +216,10 @@ export default {
       messages: await getWidgetMessages(models, conversation._id),
       isOnline: await isMessengerOnline(models, integration),
       operatorStatus: conversation.operatorStatus,
-      participatedUsers: await getDocumentList(models, 'users', {
+      participatedUsers: await getDocumentList(models, coreModels, 'users', {
         _id: { $in: conversation.participatedUserIds }
       }),
-      supporters: await messengerSupporters(models, integration)
+      supporters: await messengerSupporters(models, coreModels, integration)
     };
   },
 
@@ -257,9 +257,9 @@ export default {
   async widgetsMessengerSupporters(
     _root,
     { integrationId }: { integrationId: string },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
-    const integration = await getDocument(models, 'integrations', {
+    const integration = await getDocument(models, coreModels, 'integrations', {
       _id: integrationId
     });
     let timezone = '';
@@ -279,7 +279,7 @@ export default {
     }
 
     return {
-      supporters: await getDocumentList(models, 'users', {
+      supporters: await getDocumentList(models, coreModels, 'users', {
         _id: { $in: messengerData.supporterIds || [] }
       }),
       isOnline: await isMessengerOnline(models, integration),
@@ -300,10 +300,11 @@ export default {
       visitorId?: string;
       browserInfo: IBrowserInfo;
     },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
     return getOrCreateEngageMessage(
       models,
+      coreModels,
       integrationId,
       browserInfo,
       visitorId,

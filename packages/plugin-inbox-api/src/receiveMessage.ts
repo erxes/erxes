@@ -1,9 +1,8 @@
 import { graphqlPubsub } from './configs';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
-import { Users } from './apiCollections';
 import { sendContactRPCMessage, sendRPCMessage } from './messageBroker';
 import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
-import { generateModels } from './connectionResolver';
+import { generateCoreModels, generateModels } from './connectionResolver';
 
 const sendError = message => ({
   status: 'error',
@@ -25,7 +24,11 @@ export const receiveRpcMessage = async msg => {
     Integrations,
     ConversationMessages,
     Conversations
-  } = await generateModels(subdomain || "os");
+  } = await generateModels(subdomain);
+
+  const {
+    Users
+  } = await generateCoreModels(subdomain);
   
   const doc = JSON.parse(payload || '{}');
 
@@ -181,7 +184,7 @@ export const removeEngageConversations = async (models, _id) => {
 };
 
 export const collectConversations = async ({ contentId, contentType, subdomain }) => {
-  const models = await generateModels(subdomain || "os");
+  const models = await generateModels(subdomain);
   const results: any[] = [];
   const conversations = await models.Conversations.find({
     $or: [{ customerId: contentId }, { participatedUserIds: contentId }]

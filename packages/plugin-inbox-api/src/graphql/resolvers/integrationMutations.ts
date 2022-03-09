@@ -4,12 +4,6 @@ import { getUniqueValue } from '@erxes/api-utils/src/core';
 import { putActivityLog } from '@erxes/api-utils/src/logUtils';
 
 import {
-  EmailDeliveries,
-  Fields,
-  Forms
-} from '../../apiCollections';
-
-import {
   //   ACTIVITY_ACTIONS,
   //   ACTIVITY_CONTENT_TYPES,
   KIND_CHOICES
@@ -420,7 +414,7 @@ const integrationMutations = {
   /**
    * Send mail
    */
-  async integrationSendMail(_root, args: any, { dataSources, user }: IContext) {
+  async integrationSendMail(_root, args: any, { user, coreModels }: IContext) {
     const { erxesApiId, body, customerId, ...doc } = args;
 
     let kind = doc.kind;
@@ -480,7 +474,7 @@ const integrationMutations = {
     doc.userId = user._id;
 
     for (const cusId of customerIds) {
-      await EmailDeliveries.createEmailDelivery({ ...doc, customerId: cusId });
+      await coreModels.EmailDeliveries.createEmailDelivery({ ...doc, customerId: cusId });
     }
 
     return;
@@ -556,7 +550,7 @@ const integrationMutations = {
   async integrationsCopyLeadIntegration(
     _root,
     { _id }: { _id },
-    { docModifier, user, models }: IContext
+    { docModifier, user, models, coreModels }: IContext
   ) {
     const sourceIntegration = await models.Integrations.getIntegration({ _id });
 
@@ -564,9 +558,9 @@ const integrationMutations = {
       throw new Error('Integration kind is not form');
     }
 
-    const sourceForm = await Forms.getForm(sourceIntegration.formId);
+    const sourceForm = await coreModels.Forms.getForm(sourceIntegration.formId);
 
-    const sourceFields = await Fields.find({ contentTypeId: sourceForm._id });
+    const sourceFields = await coreModels.Fields.find({ contentTypeId: sourceForm._id });
 
     const formDoc = docModifier({
       ...sourceForm.toObject(),
@@ -576,7 +570,7 @@ const integrationMutations = {
     delete formDoc._id;
     delete formDoc.code;
 
-    const copiedForm = await Forms.createForm(formDoc, user._id);
+    const copiedForm = await coreModels.Forms.createForm(formDoc, user._id);
 
     const leadData = sourceIntegration.leadData;
 
@@ -612,7 +606,7 @@ const integrationMutations = {
       associatedFieldId: e.associatedFieldId
     }));
 
-    await Fields.insertMany(fields);
+    await coreModels.Fields.insertMany(fields);
 
     await putCreateLog(
       models,

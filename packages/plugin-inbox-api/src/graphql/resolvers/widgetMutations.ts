@@ -1,7 +1,5 @@
 import * as strip from 'strip';
 
-import { Fields, Forms, Users } from '../../apiCollections';
-
 // import {
 //   IVisitorContactInfoParams
 // } from '../../../db/models/Customers';
@@ -53,7 +51,7 @@ import {
 import { trackViewPageEvent } from '../../events';
 // import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 import { getService, getServices } from '../../redis';
-import { IContext, IModels } from '../../connectionResolver';
+import { IContext, ICoreIModels, IModels } from '../../connectionResolver';
 
 // import { IFormDocument } from '../../../db/models/definitions/forms';
 
@@ -162,6 +160,7 @@ const createVisitor = async (visitorId: string) =>
 
 const createFormConversation = async (
   models: IModels,
+  coreModels: ICoreIModels,
   args: {
     integrationId: string;
     formId: string;
@@ -180,7 +179,7 @@ const createFormConversation = async (
 ) => {
   const { integrationId, formId, submissions } = args;
 
-  const form = await Forms.findOne({ _id: formId });
+  const form = await coreModels.Forms.findOne({ _id: formId });
 
   if (!form) {
     throw new Error('Form not found');
@@ -194,7 +193,7 @@ const createFormConversation = async (
 
   const content = await generateContent(form);
 
-  const cachedCustomer = await solveSubmissions(models, args);
+  const cachedCustomer = await solveSubmissions(models, coreModels, args);
 
   const conversationData = await generateConvData();
 
@@ -247,11 +246,11 @@ const widgetMutations = {
   async widgetsLeadConnect(
     _root,
     args: { brandCode: string; formCode: string; cachedCustomerId?: string },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
-    const brand = await getDocument(models, 'brands', { code: args.brandCode });
+    const brand = await getDocument(models, coreModels, 'brands', { code: args.brandCode });
 
-    const form = await Forms.findOne({ code: args.formCode });
+    const form = await coreModels.Forms.findOne({ code: args.formCode });
 
     if (!brand || !form) {
       throw new Error('Invalid configuration');
@@ -269,7 +268,7 @@ const widgetMutations = {
     }
 
     if (integ.createdUserId) {
-      const user = await Users.findOne({ _id: integ.createdUserId });
+      const user = await coreModels.Users.findOne({ _id: integ.createdUserId });
 
       sendMessage('registerOnboardHistory', {
         type: 'leadIntegrationInstalled',
@@ -306,12 +305,13 @@ const widgetMutations = {
       cachedCustomerId?: string;
       userId?: string;
     },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
     const { submissions } = args;
 
     return createFormConversation(
       models,
+      coreModels,
       args,
       form => {
         return form.title;
@@ -349,7 +349,7 @@ const widgetMutations = {
       deviceToken?: string;
       visitorId?: string;
     },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
     const {
       brandCode,
@@ -368,14 +368,14 @@ const widgetMutations = {
     const customData = data;
 
     // find brand
-    const brand = await getDocument(models, 'brands', { code: brandCode });
+    const brand = await getDocument(models, coreModels, 'brands', { code: brandCode });
 
     if (!brand) {
       throw new Error('Invalid configuration');
     }
 
     // find integration
-    const integration = await getDocument(models, 'integrations', {
+    const integration = await getDocument(models, coreModels, 'integrations', {
       brandId: brand._id,
       kind: KIND_CHOICES.MESSENGER
     });
@@ -432,7 +432,7 @@ const widgetMutations = {
       const {
         customFieldsData,
         trackedData
-      } = await Fields.generateCustomFieldsData(companyData, 'company');
+      } = await coreModels.Fields.generateCustomFieldsData(companyData, 'company');
 
       companyData.customFieldsData = customFieldsData;
       companyData.trackedData = trackedData;
@@ -491,7 +491,7 @@ const widgetMutations = {
       attachments?: any[];
       contentType: string;
     },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
     const {
       integrationId,
@@ -561,7 +561,7 @@ const widgetMutations = {
     let conversation;
 
     const integration =
-      (await getDocument(models, 'integrations', {
+      (await getDocument(models, coreModels, 'integrations', {
         _id: integrationId
       })) || {};
 
@@ -801,7 +801,8 @@ const widgetMutations = {
       visitorId,
       customerId,
       browserInfo
-    }: { visitorId?: string; customerId?: string; browserInfo: IBrowserInfo }
+    }: { visitorId?: string; customerId?: string; browserInfo: IBrowserInfo },
+    { coreModels }: IContext
   ) {
     // update location
 
@@ -815,7 +816,7 @@ const widgetMutations = {
     }
 
     try {
-      await trackViewPageEvent({
+      await trackViewPageEvent(coreModels, {
         visitorId,
         customerId,
         attributes: { url: browserInfo.url }
@@ -841,7 +842,7 @@ const widgetMutations = {
     return 'ok';
   },
 
-  async widgetsSendEmail(_root, args: IWidgetEmailParams) {
+  async widgetsSendEmail(_root, args: IWidgetEmailParams, { coreModels }: IContext) {
     const { toEmails, fromEmail, title, content, customerId, formId } = args;
 
     const attachments = args.attachments || [];
@@ -850,7 +851,7 @@ const widgetMutations = {
     const customer = await sendContactRPCMessage('findCustomer', {
       _id: customerId
     });
-    const form = await Forms.getForm(formId || '');
+    const form = await coreModels.Forms.getForm(formId || '');
 
     let finalContent = content;
 
@@ -910,10 +911,10 @@ const widgetMutations = {
       payload: string;
       type: string;
     },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
     const integration =
-      (await getDocument(models, 'integrations', {
+      (await getDocument(models, coreModels, 'integrations', {
         _id: integrationId
       })) || {};
 
@@ -1010,7 +1011,7 @@ const widgetMutations = {
   async widgetGetBotInitialMessage(
     _root,
     { integrationId }: { integrationId: string },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
     const sessionId = `_${Math.random()
       .toString(36)
@@ -1019,7 +1020,7 @@ const widgetMutations = {
     await set(`bot_initial_message_session_id_${integrationId}`, sessionId);
 
     const integration =
-      (await getDocument(models, 'integrations', {
+      (await getDocument(models, coreModels, 'integrations', {
         _id: integrationId
       })) || {};
 
@@ -1065,7 +1066,7 @@ const widgetMutations = {
       cachedCustomerId?: string;
       productId: string;
     },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
     const { submissions, productId } = args;
 
@@ -1073,6 +1074,7 @@ const widgetMutations = {
 
     return createFormConversation(
       models,
+      coreModels,
       args,
       () => {
         return `<p>submitted a new booking for <strong><a href="/settings/product-service/details/${productId}">${product?.name}</a> ${product?.code}</strong></p>`;

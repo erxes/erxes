@@ -58,8 +58,14 @@ export const generateModels = async (
   return models;
 };
 
+export const generateCoreModels = async (
+  _hostnameOrSubdomain: string
+): Promise<ICoreIModels> => {
+    return coreModels;
+};
+
 const connectCore = async () => {
-  const url = process.env.API_MONGO_URL || '';
+  const url = process.env.API_MONGO_URL || 'mongodb://localhost/erxes';
   const client = new MongoClient(url);
 
   const dbName = 'erxes';
@@ -91,11 +97,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.SkillTypes = db.model<ISkillTypeDocument, ISkillTypeModel>('skill_types', loadSkillTypeClass(models))
 
   models.ResponseTemplates = db.model<IResponseTemplateDocument, IResponseTemplateModel>('response_templates', loadResponseTemplateClass(models))
-  models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>('integrations', loadIntegrationClass(models))
+  models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>('integrations', loadIntegrationClass(models, coreModels))
   models.MessengerApps = db.model<IMessengerAppDocument, IMessengerAppModel>('messenger_apps', loadMessengerAppClass(models))
 
   models.ConversationMessages = db.model<IMessageDocument, IMessageModel>('conversation_messages', loadMessageClass(models))
-  models.Conversations = db.model<IConversationDocument, IConversationModel>('conversations', loadConversationClass(models))
+  models.Conversations = db.model<IConversationDocument, IConversationModel>('conversations', loadConversationClass(models, coreModels))
 
   return models;
 };

@@ -14,7 +14,7 @@ export default {
     return message.customerId && { __typename: 'Customer', _id: message.customerId }
   },
 
-  async mailData(message: IMessageDocument, _args, { models }: IContext ) {
+  async mailData(message: IMessageDocument, _args, { models, coreModels }: IContext ) {
     const conversation = await models.Conversations.findOne({
       _id: message.conversationId
     }).lean();
@@ -23,7 +23,7 @@ export default {
       return null;
     }
 
-    const integration = await getDocument(models, 'integrations', {
+    const integration = await getDocument(models, coreModels, 'integrations', {
       _id: conversation.integrationId
     });
 
