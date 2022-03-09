@@ -22,8 +22,6 @@ import {
   customerSchema,
   ICustomerDocument
 } from './models/definitions/customers';
-import Companies from './models/Companies';
-import Customers from './models/Customers';
 import { fetchSegment, findTags } from './messageBroker';
 
 import {
@@ -34,6 +32,7 @@ import {
   Builder as CustomerBuildQuery,
   IListArgs as ICustomerListArgs
 } from './coc/customers';
+import { IModels } from './connectionResolver';
 
 export const fillHeaders = (itemType: string): IColumnLabel[] => {
   let columnNames: IColumnLabel[] = [];
@@ -79,6 +78,7 @@ const getCellValue = (item, colName) => {
  * in distinctly defined static variables.
  */
 export const fillCellValue = async (
+  { Customers, Companies }: IModels,
   colName: string,
   item: any
 ): Promise<string> => {
@@ -168,7 +168,7 @@ export const fillCellValue = async (
 };
 
 // Prepares data depending on module type
-const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
+const prepareData = async (models: IModels, query: any, user: IUserDocument): Promise<any[]> => {
   const { type, unlimited = false, segment } = query;
 
   let data: any[] = [];
@@ -185,7 +185,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
     case MODULE_NAMES.COMPANY:
       const companyParams: ICompanyListArgs = query;
 
-      const companyQb = new CompanyBuildQuery(companyParams, {});
+      const companyQb = new CompanyBuildQuery(models, companyParams, {});
       await companyQb.buildAllQueries();
 
       const companyResponse = await companyQb.runQueries('search', unlimited);
@@ -196,7 +196,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
 
     case 'lead':
       const leadParams: ICustomerListArgs = query;
-      const leadQp = new CustomerBuildQuery(leadParams, {});
+      const leadQp = new CustomerBuildQuery(models, leadParams, {});
       await leadQp.buildAllQueries();
 
       const leadResponse = await leadQp.runQueries('search', unlimited);
@@ -206,7 +206,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
 
     case 'visitor':
       const visitorParams: ICustomerListArgs = query;
-      const visitorQp = new CustomerBuildQuery(visitorParams, {});
+      const visitorQp = new CustomerBuildQuery(models, visitorParams, {});
       await visitorQp.buildAllQueries();
 
       const visitorResponse = await visitorQp.runQueries('search', unlimited);
@@ -217,7 +217,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
     case MODULE_NAMES.CUSTOMER:
       const customerParams: ICustomerListArgs = query;
 
-      const qb = new CustomerBuildQuery(customerParams, {});
+      const qb = new CustomerBuildQuery(models, customerParams, {});
       await qb.buildAllQueries();
 
       const customerResponse = await qb.runQueries('search', unlimited);
@@ -332,13 +332,14 @@ const filterHeaders = headers => {
 };
 
 export const buildFile = async (
+  models: IModels,
   query: any,
   user: IUserDocument
 ): Promise<{ name: string; response: string }> => {
   const { configs } = query;
   let type = query.type;
 
-  const data = await prepareData(query, user);
+  const data = await prepareData(models, query, user);
 
   // Reads default template
   const { workbook, sheet } = await createXlsFile();
@@ -379,7 +380,7 @@ export const buildFile = async (
             );
           }
         } else {
-          const cellValue = await fillCellValue(column.name, item);
+          const cellValue = await fillCellValue(models, column.name, item);
 
           addCell(column, cellValue, sheet, columnNames, rowIndex);
         }

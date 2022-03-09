@@ -54,9 +54,9 @@ const customerQueries = {
   async customers(
     _root,
     params: IListArgs,
-    { commonQuerySelector, commonQuerySelectorElk }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models }: IContext
   ) {
-    const qb = new BuildQuery(params, {
+    const qb = new BuildQuery(models, params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
@@ -74,9 +74,9 @@ const customerQueries = {
   async customersMain(
     _root,
     params: IListArgs,
-    { commonQuerySelector, commonQuerySelectorElk }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models }: IContext
   ) {
-    const qb = new BuildQuery(params, {
+    const qb = new BuildQuery(models, params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
@@ -94,7 +94,7 @@ const customerQueries = {
   async customerCounts(
     _root,
     params: ICountParams,
-    { commonQuerySelector, commonQuerySelectorElk }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models }: IContext
   ) {
     const { only, type, source } = params;
 
@@ -107,7 +107,7 @@ const customerQueries = {
       byLeadStatus: {}
     };
 
-    const qb = new BuildQuery(params, {
+    const qb = new BuildQuery(models, params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });

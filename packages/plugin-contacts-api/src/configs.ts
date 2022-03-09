@@ -159,7 +159,7 @@ export default {
         const { query, user } = req;
         const { segment } = query;
 
-        const result = await buildFile(query, user);
+        const result = await buildFile(models, query, user);
 
         res.attachment(`${result.name}.xlsx`);
 
@@ -210,7 +210,7 @@ export default {
       '/events-update-customer-property',
       routeErrorHandling(
         async (req, res) => {
-          const response = await updateCustomerProperty(req.body);
+          const response = await updateCustomerProperty(models, req.body);
           return res.json(response);
         },
         res => res.json({})
