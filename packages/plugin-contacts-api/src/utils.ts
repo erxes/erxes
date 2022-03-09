@@ -8,8 +8,9 @@ import { debug } from './configs';
 import { ICustomerDocument } from './models/definitions/customers';
 import messageBroker from './messageBroker';
 import { getService, getServices } from './inmemoryStorage';
+import { IModels } from './connectionResolver';
 
-export const findCustomer = async (doc) => {
+export const findCustomer = async ({ Customers }: IModels, doc) => {
   let customer;
 
   if (doc.customerPrimaryEmail) {
@@ -45,7 +46,7 @@ export const findCustomer = async (doc) => {
   return customer;
 };
 
-export const findCompany = async (doc) => {
+export const findCompany = async ({ Companies }: IModels, doc) => {
   let company;
 
   if (doc.companyPrimaryName) {
@@ -104,7 +105,7 @@ export const findCompany = async (doc) => {
   return company;
 };
 
-export const generateFields = async (args) => {
+export const generateFields = async ({ Customers, Companies }: IModels, args) => {
   const { contentType } = args;
 
   let schema: any;
@@ -169,7 +170,7 @@ export const getEnv = ({
   return value || '';
 };
 
-export const getContentItem = async (activityLog) => {
+export const getContentItem = async ({ Customers, Companies }: IModels, activityLog) => {
   const { action, contentType, content } = activityLog;
 
   if (action === 'merge') {
@@ -204,7 +205,7 @@ export const getEditorAttributeUtil = async () => {
   return editor;
 };
 
-export const prepareEngageCustomers = async ({
+export const prepareEngageCustomers = async ({ Customers, Companies }: IModels, {
   engageMessage,
   customersSelector,
   action,

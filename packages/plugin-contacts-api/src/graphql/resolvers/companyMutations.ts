@@ -12,10 +12,11 @@ const companyMutations = {
   /**
    * Creates a new company
    */
-  async companiesAdd(_root, doc: ICompany, { user, docModifier, models: { Companies } }: IContext) {
-    const company = await Companies.createCompany(docModifier(doc), user);
+  async companiesAdd(_root, doc: ICompany, { user, docModifier, models }: IContext) {
+    const company = await models.Companies.createCompany(docModifier(doc), user);
 
     await putCreateLog(
+      models,
       {
         type: MODULE_NAMES.COMPANY,
         newData: doc,
@@ -33,12 +34,13 @@ const companyMutations = {
   async companiesEdit(
     _root,
     { _id, ...doc }: ICompaniesEdit,
-    { user, models: { Companies } }: IContext
+    { user, models }: IContext
   ) {
-    const company = await Companies.getCompany(_id);
-    const updated = await Companies.updateCompany(_id, doc);
+    const company = await models.Companies.getCompany(_id);
+    const updated = await models.Companies.updateCompany(_id, doc);
 
     await putUpdateLog(
+      models,
       {
         type: MODULE_NAMES.COMPANY,
         object: company,
@@ -57,14 +59,14 @@ const companyMutations = {
   async companiesRemove(
     _root,
     { companyIds }: { companyIds: string[] },
-    { user, models: { Companies } }: IContext
+    { user, models }: IContext
   ) {
-    const companies = await Companies.find({ _id: { $in: companyIds } }).lean();
+    const companies = await models.Companies.find({ _id: { $in: companyIds } }).lean();
 
-    await Companies.removeCompanies(companyIds);
+    await models.Companies.removeCompanies(companyIds);
 
     for (const company of companies) {
-      await putDeleteLog({ type: MODULE_NAMES.COMPANY, object: company }, user);
+      await putDeleteLog(models, { type: MODULE_NAMES.COMPANY, object: company }, user);
     }
 
     return companyIds;

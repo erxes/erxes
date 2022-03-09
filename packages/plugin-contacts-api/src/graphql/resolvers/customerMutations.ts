@@ -18,13 +18,14 @@ const customerMutations = {
   async customersAdd(
     _root,
     doc: ICustomer,
-    { user, docModifier, models: { Customers } }: IContext
+    { user, docModifier, models }: IContext
   ) {
     const modifiedDoc = docModifier(doc);
 
-    const customer = await Customers.createCustomer(modifiedDoc, user);
+    const customer = await models.Customers.createCustomer(modifiedDoc, user);
 
     await putCreateLog(
+      models,
       {
         type: MODULE_NAMES.CUSTOMER,
         newData: modifiedDoc,
@@ -47,12 +48,13 @@ const customerMutations = {
   async customersEdit(
     _root,
     { _id, ...doc }: ICustomersEdit,
-    { user, models: { Customers } }: IContext
+    { user, models }: IContext
   ) {
-    const customer = await Customers.getCustomer(_id);
-    const updated = await Customers.updateCustomer(_id, doc);
+    const customer = await models.Customers.getCustomer(_id);
+    const updated = await models.Customers.updateCustomer(_id, doc);
 
     await putUpdateLog(
+      models,
       {
         type: MODULE_NAMES.CUSTOMER,
         object: customer,
@@ -96,13 +98,13 @@ const customerMutations = {
   async customersRemove(
     _root,
     { customerIds }: { customerIds: string[] },
-    { user, models: { Customers } }: IContext
+    { user, models }: IContext
   ) {
-    const customers = await Customers.find({
+    const customers = await models.Customers.find({
       _id: { $in: customerIds },
     }).lean();
 
-    await Customers.removeCustomers(customerIds);
+    await models.Customers.removeCustomers(customerIds);
 
     await messageBroker().sendMessage("erxes-api:integrations-notification", {
       type: "removeCustomers",
@@ -111,6 +113,7 @@ const customerMutations = {
 
     for (const customer of customers) {
       await putDeleteLog(
+        models,
         { type: MODULE_NAMES.CUSTOMER, object: customer },
         user
       );
@@ -131,9 +134,10 @@ const customerMutations = {
 
   async customersVerify(
     _root,
-    { verificationType }: { verificationType: string }
+    { verificationType }: { verificationType: string },
+    { models }: IContext
   ) {
-    await validateBulk(verificationType);
+    await validateBulk(models, verificationType);
   },
 
   async customersChangeVerificationStatus(
