@@ -1,6 +1,6 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 
-import { field as Field, fieldsGroup as FieldGroup } from './field'
+import { field as Field, fieldsGroup as FieldsGroup } from './field'
 import Form from './forms';
 import { fieldQueries, fieldsGroupQueries } from './queries/fields';
 import { fieldMutations, fieldsGroupsMutations } from './mutations/fields';
@@ -10,7 +10,7 @@ import formMutations from './mutations/forms';
 const resolvers = (_serviceDiscovery) => ({
   ...customScalars,
   Field,
-  FieldGroup,
+  FieldsGroup,
   Form,
   Mutation: {
     ...fieldMutations,

@@ -75,8 +75,8 @@ const events = `
 `;
 
 const combinedFields = `
-  query fieldsCombinedByContentType($contentType: String!, $serviceType: String) {
-    fieldsCombinedByContentType(contentType: $contentType, serviceType: $serviceType)
+  query fieldsCombinedByContentType($contentType: String!) {
+    fieldsCombinedByContentType(contentType: $contentType)
   }
 `;
 
