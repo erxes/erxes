@@ -1,7 +1,4 @@
-declare var __webpack_init_sharing__;
-declare var __webpack_share_scopes__;
-declare var window;
-
+import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
 import Button from "@erxes/ui/src/components/Button";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import Form from "@erxes/ui/src/components/form/Form";
@@ -26,59 +23,6 @@ type State = {
   selectedItems: IBoardSelectItem[];
   config: any;
 };
-
-const loadComponent = (scope, module) => {
-  return async () => {
-    // Initializes the share scope. This fills it with known provided modules from this build and all remotes
-    await __webpack_init_sharing__("default");
-
-    const container = window[scope]; // or get the container somewhere else
-
-    // Initialize the container, it may provide shared modules
-    await container.init(__webpack_share_scopes__.default);
-    const factory = await window[scope].get(module);
-
-    const Module = factory();
-    return Module;
-  };
-};
-class ExtraForm extends React.Component<any, any> {
-  constructor(props) {
-    super(props);
-
-    this.state = { showComponent: false };
-  }
-
-  componentDidMount() {
-    const interval = setInterval(() => {
-      if (window[this.props.scope]) {
-        window.clearInterval(interval);
-
-        this.setState({ showComponent: true });
-      }
-    }, 500);
-  }
-
-  renderComponent = () => {
-    if (!this.state.showComponent) {
-      return null;
-    }
-
-    const { type, scope, component, onChangeConfig } = this.props;
-
-    const Component = React.lazy(loadComponent(scope, component));
-
-    return (
-      <React.Suspense fallback="">
-        <Component type={type} onChangeConfig={onChangeConfig} />
-      </React.Suspense>
-    );
-  };
-
-  render() {
-    return this.renderComponent();
-  }
-}
 class PropertyGroupForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -209,11 +153,13 @@ class PropertyGroupForm extends React.Component<Props, State> {
     for (const plugin of plugins) {
       if (type.includes(`${plugin.name}:`) && plugin.propertyGroupForm) {
         return (
-          <ExtraForm
+          <RenderDynamicComponent
             scope={plugin.scope}
-            type={this.props.type}
             component={plugin.propertyGroupForm}
-            onChangeConfig={this.onChangeConfig}
+            injectedProps={{
+              type: this.props.type,
+              onChangeConfig: this.onChangeConfig
+            }}
           />
         );
       }
