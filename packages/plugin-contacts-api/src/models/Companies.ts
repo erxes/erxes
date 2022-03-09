@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { putActivityLog, prepareCocLogData } from '../logUtils'
 import { validSearchText } from '@erxes/api-utils/src';
 import { ICustomField } from '@erxes/api-utils/src/definitions/common';
@@ -14,6 +14,7 @@ import {
   removeInternalNotes,
   internalNotesBatchUpdate
 } from '../messageBroker';
+import { IModels } from '../connectionResolver';
 
 // import { IUserDocument } from '@erxes/common-types';
 
@@ -58,7 +59,7 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
   ): Promise<string[]>;
 }
 
-export const loadClass = () => {
+export const loadCompanyClass = (models: IModels) => {
   class Company {
     /**
      * Checking if company has duplicated unique properties
@@ -82,7 +83,7 @@ export const loadClass = () => {
 
       if (companyFields.primaryName) {
         // check duplication from primaryName
-        previousEntry = await Companies.find({
+        previousEntry = await models.Companies.find({
           ...query,
           primaryName: companyFields.primaryName
         });
@@ -94,7 +95,7 @@ export const loadClass = () => {
 
       if (companyFields.code) {
         // check duplication from code
-        previousEntry = await Companies.find({
+        previousEntry = await models.Companies.find({
           ...query,
           code: companyFields.code
         });
@@ -205,7 +206,7 @@ export const loadClass = () => {
     }
 
     public static async findActiveCompanies(selector, fields) {
-      return Companies.find(
+      return models.Companies.find(
         { ...selector, status: { $ne: 'deleted' } },
         fields
       );
@@ -215,7 +216,7 @@ export const loadClass = () => {
      * Retreives company
      */
     public static async getCompany(_id: string) {
-      const company = await Companies.findOne({ _id });
+      const company = await models.Companies.findOne({ _id });
 
       if (!company) {
         throw new Error('Company not found');
@@ -230,7 +231,7 @@ export const loadClass = () => {
     // public static async createCompany(doc: ICompany, user: IUserDocument) {
     public static async createCompany(doc: ICompany, user: any) {
       // Checking duplicated fields of company
-      await Companies.checkDuplication(doc);
+      await models.Companies.checkDuplication(doc);
 
       if (!doc.ownerId && user) {
         doc.ownerId = user._id;
@@ -243,11 +244,11 @@ export const loadClass = () => {
         doc.customFieldsData
       );
 
-      const company = await Companies.create({
+      const company = await models.Companies.create({
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
-        searchText: Companies.fillSearchText(doc)
+        searchText: models.Companies.fillSearchText(doc)
       });
 
       // create log
@@ -264,9 +265,9 @@ export const loadClass = () => {
      */
     public static async updateCompany(_id: string, doc: ICompany) {
       // Checking duplicated fields of company
-      await Companies.checkDuplication(doc, [_id]);
+      await models.Companies.checkDuplication(doc, [_id]);
 
-      const company = await Companies.getCompany(_id);
+      const company = await models.Companies.getCompany(_id);
 
       this.fixListFields(doc, doc.trackedData, company);
 
@@ -277,16 +278,16 @@ export const loadClass = () => {
         );
       }
 
-      const searchText = Companies.fillSearchText(
-        Object.assign(await Companies.getCompany(_id), doc) as ICompany
+      const searchText = models.Companies.fillSearchText(
+        Object.assign(await models.Companies.getCompany(_id), doc) as ICompany
       );
 
-      await Companies.updateOne(
+      await models.Companies.updateOne(
         { _id },
         { $set: { ...doc, searchText, modifiedAt: new Date() } }
       );
 
-      return Companies.findOne({ _id });
+      return models.Companies.findOne({ _id });
     }
 
     /**
@@ -305,7 +306,7 @@ export const loadClass = () => {
         mainTypeIds: companyIds
       });
 
-      return Companies.deleteMany({ _id: { $in: companyIds } });
+      return models.Companies.deleteMany({ _id: { $in: companyIds } });
     }
 
     /**
@@ -327,7 +328,7 @@ export const loadClass = () => {
 
       // Merging company tags
       for (const companyId of companyIds) {
-        const companyObj = await Companies.getCompany(companyId);
+        const companyObj = await models.Companies.getCompany(companyId);
 
         const companyTags = companyObj.tagIds || [];
         const companyNames = companyObj.names || [];
@@ -358,7 +359,7 @@ export const loadClass = () => {
 
         companyObj.status = 'deleted';
 
-        await Companies.findByIdAndUpdate(companyId, {
+        await models.Companies.findByIdAndUpdate(companyId, {
           $set: { status: 'deleted' }
         });
       }
@@ -370,7 +371,7 @@ export const loadClass = () => {
       phones = Array.from(new Set(phones));
 
       // Creating company with properties
-      const company = await Companies.createCompany({
+      const company = await models.Companies.createCompany({
         ...companyFields,
         scopeBrandIds,
         customFieldsData,
@@ -402,13 +403,3 @@ export const loadClass = () => {
 
   return companySchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const Companies = model<ICompanyDocument, ICompanyModel>(
-  'companies',
-  companySchema
-);
-
-export default Companies;

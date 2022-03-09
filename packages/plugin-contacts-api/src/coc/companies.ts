@@ -1,6 +1,6 @@
 import * as _ from 'underscore';
+import { IModels } from '../connectionResolver';
 
-import Companies from '../models/Companies';
 import { IConformityQueryParams } from './customers';
 import { CommonBuilder } from './utils';
 
@@ -30,8 +30,8 @@ export interface IListArgs extends IConformityQueryParams {
 }
 
 export class Builder extends CommonBuilder<IListArgs> {
-  constructor(params: IListArgs, context) {
-    super('companies', params, context);
+  constructor(models: IModels, params: IListArgs, context) {
+    super(models, 'companies', params, context);
   }
 
   public async findAllMongo(limit: number) {
@@ -40,11 +40,11 @@ export class Builder extends CommonBuilder<IListArgs> {
       status: { $ne: 'deleted' }
     };
 
-    const companies = await Companies.find(selector)
+    const companies = await this.models.Companies.find(selector)
       .sort({ createdAt: -1 })
       .limit(limit);
 
-    const count = await Companies.find(selector).countDocuments();
+    const count = await this.models.Companies.find(selector).countDocuments();
 
     return {
       list: companies,
