@@ -45,7 +45,29 @@ const emailDeliveryDetail = `
   }
 `;
 
+// response comes as [JSON]
+const tasksAsLogs = `
+  query tasksAsLogs($contentType: String!, $contentId: String!, $limit: Int) {
+    tasksAsLogs(contentType: $contentType, contentId: $contentId, limit: $limit)
+  }
+`;
+
+const internalNotesAsLogs = `
+  query internalNotesAsLogs($contentTypeId: String!) {
+    internalNotesAsLogs(contentTypeId: $contentTypeId)
+  }
+`;
+
+const emailDeliveriesAsLogs = `
+  query emailDeliveriesAsLogs($contentId: String!) {
+    emailDeliveriesAsLogs(contentId: $contentId)
+  }
+`;
+
 export default {
   activityLogs,
-  emailDeliveryDetail
+  emailDeliveryDetail,
+  tasksAsLogs,
+  internalNotesAsLogs,
+  emailDeliveriesAsLogs
 };

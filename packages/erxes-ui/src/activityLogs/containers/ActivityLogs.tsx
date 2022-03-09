@@ -22,6 +22,9 @@ export type ActivityLogsProps = {
 
 type FinalProps = {
   activityLogQuery: ActivityLogQueryResponse;
+  emailDeliveriesQuery: any;
+  notesQuery: any;
+  tasksQuery: any;
 } & WithDataProps;
 
 class Container extends React.Component<FinalProps, {}> {
@@ -101,7 +104,25 @@ const WithData = withProps<WithDataProps>(
           };
         }
       }
-    )
+    ),
+    graphql<WithDataProps>(gql(queries.emailDeliveriesAsLogs), {
+      name: 'emailDeliveriesQuery',
+      options: ({ contentId }: WithDataProps) => ({
+        variables: { contentId }
+      })
+    }),
+    graphql<WithDataProps>(gql(queries.tasksAsLogs), {
+      name: 'tasksQuery',
+      options: ({ contentId, contentType }: WithDataProps) => ({
+        variables: { contentId, contentType }
+      })
+    }),
+    graphql<WithDataProps>(gql(queries.internalNotesAsLogs), {
+      name: 'notesQuery',
+      options: ({ contentId }: WithDataProps) => ({
+        variables: { contentTypeId: contentId }
+      })
+    }),
   )(Container)
 );
 

@@ -197,6 +197,11 @@ export const initBroker = (cl) => {
     status: 'success',
     data: getSchemaLabels(type, LOG_MAPPINGS)
   }));
+
+  consumeRPCQueue('inbox:rpc_queue:logs:getConversations', async ({ query }) => ({
+    status: 'success',
+    data: await Conversations.find(query).lean()
+  }))
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {

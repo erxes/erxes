@@ -13,7 +13,7 @@ import {
   generateConditionStageIds,
   getContentItem,
   getContentTypeDetail,
-  collectTasks,
+  collectItems,
   getCardContentIds,
   getCardItem
 } from './utils';
@@ -113,7 +113,7 @@ export const initBroker = async cl => {
 
   consumeRPCQueue(`cards:rpc_queue:activityLog:collectItems`, async data => ({
     status: 'success',
-    data: await collectTasks(data)
+    data: await collectItems(data)
   }));
 
   consumeRPCQueue('cards:rpc_queue:getContentIds', async data => ({

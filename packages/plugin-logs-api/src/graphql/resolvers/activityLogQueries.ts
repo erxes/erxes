@@ -1,10 +1,10 @@
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '@erxes/api-utils/src/types';
 
-import { IActivityLogDocument } from '../../models/ActivityLogs';
+import ActivityLogs, { IActivityLogDocument } from '../../models/ActivityLogs';
 import { collectPluginContent } from '../../pluginUtils';
-import { fetchActivityLogs, fetchLogs, findActivityLogs } from '../../utils';
-import { getContentIds } from '../../messageBroker';
+import { fetchActivityLogs, fetchLogs } from '../../utils';
+import { collectServiceItems, getContentIds } from '../../messageBroker';
 
 export interface IListArgs {
   contentType: string;
@@ -51,13 +51,17 @@ const activityLogQueries = {
       if (pluginResponse) {
         activities = activities.concat(pluginResponse);
       }
-    } else {
-      collectItems(await findActivityLogs({ contentId, contentType }));
     }
 
-    activities.sort((a, b) => {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
+    if (activityType === 'activity') {
+      const relatedItems = await collectServiceItems(contentType, doc) || [];
+      const relatedItemIds = relatedItems.map(r => r._id);
+
+      activities = await ActivityLogs.find({ _id: { $in: [...relatedItemIds, contentId] } }).lean();
+
+    } else {
+      activities = await ActivityLogs.find({ contentId, contentType: activityType }).lean();
+    }
 
     return activities;
   },

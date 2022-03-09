@@ -39,6 +39,8 @@ import {
   types as StructureTypes
 } from './structure';
 
+import { types as EmailDeliveryTypes, queries as EmailDeliveryQueries } from './emailDelivery';
+
 export let types = `
   scalar JSON
   scalar Date
@@ -63,6 +65,7 @@ export let types = `
   ${PermissionTypes}
   ${RobotTypes}
   ${StructureTypes}
+  ${EmailDeliveryTypes}
 `;
 
 export let queries = `
@@ -74,6 +77,7 @@ export let queries = `
   ${PermissionQueries}
   ${RobotQueries}
   ${StructureQueries}
+  ${EmailDeliveryQueries}
 `;
 
 export let mutations = `

@@ -75,6 +75,7 @@ export const queries = `
   archivedTasksCount(
     ${archivedTasksParams}
   ): Int
+  tasksAsLogs(contentType: String!, contentId: String!, limit: Int): [JSON]
 `;
 
 export const mutations = `
