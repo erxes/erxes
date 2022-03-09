@@ -427,28 +427,27 @@ export const loadClass = (models: IModels, coreModels: ICoreIModels) => {
     }
 
     public static async getUserRelevance(args: { skillId?: string }) {
-      return null;
-      // const skill = await Skills.findOne({ _id: args.skillId }).lean();
+      const skill = await models.Skills.findOne({ _id: args.skillId }).lean();
 
-      // if (!skill) {
-      //   return;
-      // }
+      if (!skill) {
+        return;
+      }
 
-      // const users =
-      //   (await Users.find({ _id: { $in: skill.memberIds || [] } }).sort({
-      //     createdAt: 1
-      //   })) || [];
+      const users =
+        (await coreModels.Users.find({ _id: { $in: skill.memberIds || [] } }).sort({
+          createdAt: 1
+        })) || [];
 
-      // if (users.length === 0) {
-      //   return;
-      // }
+      if (users.length === 0) {
+        return;
+      }
 
-      // const type = args.skillId ? 'SS' : '';
+      const type = args.skillId ? 'SS' : '';
 
-      // return users
-      //   .map(user => user.code + type)
-      //   .filter(code => code !== '' && code !== undefined)
-      //   .join('|');
+      return users
+        .map(user => user.code + type)
+        .filter(code => code !== '' && code !== undefined)
+        .join('|');
     }
   }
 
