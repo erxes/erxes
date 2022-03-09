@@ -6,9 +6,10 @@ import { ISkillDocument, ISkillTypeDocument } from './models/definitions/skills'
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { IChannelModel, loadClass as loadChannelClass } from './models/Channels';
 import { ISkillModel, ISkillTypeModel, loadSkillClass, loadSkillTypeClass } from './models/Skills';
-import {loadClass as loadResponseTemplateClass} from './models/ResponseTemplates'
-import { IResponseTemplateModel } from './models/ResponseTemplates';
+import { loadClass as loadResponseTemplateClass, IResponseTemplateModel } from './models/ResponseTemplates'
 import { IResponseTemplateDocument } from './models/definitions/responseTemplates';
+import { IIntegrationModel, loadClass as loadIntegrationClass } from './models/Integrations';
+import { IIntegrationDocument } from './models/definitions/integrations';
 
 export interface ICoreIModels {
   Brands;
@@ -22,7 +23,8 @@ export interface IModels {
   Channels: IChannelModel;
   Skills: ISkillModel;
   SkillTypes: ISkillTypeModel;
-  ResponseTemplates: IResponseTemplateModel
+  ResponseTemplates: IResponseTemplateModel;
+  Integrations: IIntegrationModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -80,6 +82,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.SkillTypes = db.model<ISkillTypeDocument, ISkillTypeModel>('skill_types', loadSkillTypeClass(models))
 
   models.ResponseTemplates = db.model<IResponseTemplateDocument, IResponseTemplateModel>('response_templates', loadResponseTemplateClass(models))
+  models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>('integrations', loadIntegrationClass(models) )
 
   return models;
 };

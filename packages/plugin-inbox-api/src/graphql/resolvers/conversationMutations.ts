@@ -3,7 +3,6 @@ import * as _ from 'underscore';
 import {
   ConversationMessages,
   Conversations,
-  Integrations
 } from '../../models';
 
 import Messages from '../../models/ConversationMessages';
@@ -31,12 +30,12 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src';
 import { splitStr } from '@erxes/api-utils/src/core';
 // import utils from '../../utils';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
 import { IUserDocument } from '@erxes/api-utils/src/types';
+import { IContext } from '../../connectionResolver';
 
 export interface IConversationMessageAdd {
   conversationId: string;
@@ -275,12 +274,12 @@ const conversationMutations = {
   async conversationMessageAdd(
     _root,
     doc: IConversationMessageAdd,
-    { user, dataSources }: IContext
+    { user, dataSources, models }: IContext
   ) {
     const conversation = await Conversations.getConversation(
       doc.conversationId
     );
-    const integration = await Integrations.getIntegration({
+    const integration = await models.Integrations.getIntegration({
       _id: conversation.integrationId
     });
 
@@ -428,12 +427,12 @@ const conversationMutations = {
   async conversationsReplyFacebookComment(
     _root,
     doc: IReplyFacebookComment,
-    { user, dataSources }: IContext
+    { user, dataSources, models }: IContext
   ) {
     const conversation = await Conversations.getConversation(
       doc.conversationId
     );
-    const integration = await Integrations.getIntegration({
+    const integration = await models.Integrations.getIntegration({
       _id: conversation.integrationId
     });
 
@@ -493,7 +492,7 @@ const conversationMutations = {
       conversationIds,
       assignedUserId
     }: { conversationIds: string[]; assignedUserId: string },
-    { user }: IContext
+    { user, models }: IContext
   ) {
     const { oldConversationById } = await getConversationById({
       _id: { $in: conversationIds }
@@ -515,6 +514,7 @@ const conversationMutations = {
 
     for (const conversation of conversations) {
       await putUpdateLog(
+        models,
         {
           type: 'conversation',
           description: 'assignee Changed',
@@ -535,7 +535,7 @@ const conversationMutations = {
   async conversationsUnassign(
     _root,
     { _ids }: { _ids: string[] },
-    { user }: IContext
+    { user, models }: IContext
   ) {
     const {
       oldConversations,
@@ -556,6 +556,7 @@ const conversationMutations = {
 
     for (const conversation of updatedConversations) {
       await putUpdateLog(
+        models,
         {
           type: 'conversation',
           description: 'unassignee',
@@ -576,7 +577,7 @@ const conversationMutations = {
   async conversationsChangeStatus(
     _root,
     { _ids, status }: { _ids: string[]; status: string },
-    { user }: IContext
+    { user, models }: IContext
   ) {
     const { oldConversationById } = await getConversationById({
       _id: { $in: _ids }
@@ -599,6 +600,7 @@ const conversationMutations = {
 
     for (const conversation of updatedConversations) {
       await putUpdateLog(
+        models,
         {
           type: 'conversation',
           description: 'change status',
@@ -616,9 +618,9 @@ const conversationMutations = {
   /**
    * Resolve all conversations
    */
-  async conversationResolveAll(_root, params: IListArgs, { user }: IContext) {
+  async conversationResolveAll(_root, params: IListArgs, { user, models }: IContext) {
     // initiate query builder
-    const qb = new QueryBuilder(params, { _id: user._id });
+    const qb = new QueryBuilder(models, params, { _id: user._id });
 
     await qb.buildAllQueries();
     const query = qb.mainQuery();
@@ -638,6 +640,7 @@ const conversationMutations = {
 
     for (const conversation of updatedConversations) {
       await putUpdateLog(
+        models,
         {
           type: 'conversation',
           description: 'resolve all',

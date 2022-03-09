@@ -6,7 +6,6 @@ import {
   skillSchema,
   skillTypeSchema
 } from './definitions/skills';
-import Integrations from './Integrations';
 
 export interface ISkillTypeModel extends Model<ISkillTypeDocument> {
   createSkillType(name: string): Promise<ISkillTypeDocument>;
@@ -25,11 +24,11 @@ export const loadSkillTypeClass = (models: IModels) => {
     }
 
     public static async removeSkillType(_id: string) {
-      const integrationIds = await Integrations.find({
+      const integrationIds = await models.Integrations.find({
         'messengerData.skillData.typeId': _id
       }).distinct('_id');
 
-      await Integrations.updateMany(
+      await models.Integrations.updateMany(
         { _id: { $in: integrationIds } },
         { $unset: { 'messengerData.skillData': '' } }
       );
@@ -89,13 +88,13 @@ export const loadSkillClass = (models: IModels) => {
     }
 
     public static async removeSkill(_id: string) {
-      const integrationIds = await Integrations.find({
+      const integrationIds = await models.Integrations.find({
         'messengerData.skillData.options': {
           $elemMatch: { skillId: _id }
         }
       }).distinct('_id');
 
-      await Integrations.updateMany(
+      await models.Integrations.updateMany(
         { _id: { $in: integrationIds } },
         { $pull: { 'messengerData.skillData.options': { skillId: _id } } }
       );

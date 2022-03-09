@@ -1,10 +1,10 @@
-import { Integrations } from '../../models';
 import { IChannelDocument } from '../../models/definitions/channels';
 import { getDocumentList } from '../../cacheUtils';
+import { IContext } from '../../connectionResolver';
 
 export default {
-  integrations(channel: IChannelDocument) {
-    return Integrations.findIntegrations({
+  integrations(channel: IChannelDocument, _args, { models }: IContext) {
+    return models.Integrations.findIntegrations({
       _id: { $in: channel.integrationIds }
     });
   },
