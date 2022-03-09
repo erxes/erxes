@@ -1,6 +1,6 @@
 import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 import { serviceDiscovery } from './configs';
-import { models } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import { internalNoteSchema } from './models/definitions/internalNotes';
 
 const checkService = async (serviceName: string, needsList?: boolean) => {
@@ -22,7 +22,8 @@ export const initBroker = async (cl) => {
 
   consumeQueue(
     'internalNotes:batchUpdate',
-    async ({ contentType, oldContentTypeIds, newContentTypeId }) => {
+    async ({ subdomain, contentType, oldContentTypeIds, newContentTypeId }) => {
+      const models = await generateModels(subdomain);
       // Updating every internal notes of company
       await models.InternalNotes.updateMany(
         {
@@ -36,7 +37,8 @@ export const initBroker = async (cl) => {
 
   consumeRPCQueue(
     'internalnotes:rpc_queue:activityLog:collectItems',
-    async ({ contentId }) => {
+    async ({ subdomain, contentId }) => {
+      const models = await generateModels(subdomain);
       const notes = await models.InternalNotes.find({
         contentTypeId: contentId,
       }).sort({ createdAt: -1 });
@@ -60,9 +62,9 @@ export const initBroker = async (cl) => {
 
   consumeRPCQueue(
     'internalnotes:rpc_queue:getInternalNotes',
-    async ({ contentTypeIds, perPageForAction, page }) => {
+    async ({ subdomain, contentTypeIds, perPageForAction, page }) => {
       const filter = { contentTypeId: { $in: contentTypeIds } };
-
+      const models = await generateModels(subdomain);
       const internalNotes = await models.InternalNotes.find(filter)
         .sort({
           createdAt: -1,
@@ -89,7 +91,8 @@ export const initBroker = async (cl) => {
 
   consumeQueue(
     'internalnotes:InternalNotes.removeInternalNotes',
-    ({ contentType, contentTypeIds }) => {
+    async ({ subdomain, contentType, contentTypeIds }) => {
+      const models = await generateModels(subdomain);
       models.InternalNotes.removeInternalNotes(contentType, contentTypeIds);
     }
   );
