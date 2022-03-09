@@ -1,6 +1,6 @@
+import { IContext } from '../../../connectionResolver';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 
-import { InternalNotes } from '../../../models';
 import { getContentIds } from '../../../messageBroker';
 
 interface IParams {
@@ -15,8 +15,12 @@ interface INoteAsLogParams {
 }
 
 const internalNoteQueries = {
-  async internalNoteDetail(_root, { _id }: { _id: string }) {
-    return InternalNotes.findOne({ _id });
+  async internalNoteDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    return models.InternalNotes.findOne({ _id });
   },
   /**
    * InternalNotes list
@@ -26,15 +30,17 @@ const internalNoteQueries = {
     {
       contentType,
       contentTypeId,
-    }: { contentType: string; contentTypeId: string }
+    }: { contentType: string; contentTypeId: string },
+    { models }: IContext
   ) {
-    return InternalNotes.find({ contentType, contentTypeId }).sort({
+    return models.InternalNotes.find({ contentType, contentTypeId }).sort({
       createdDate: 1,
     });
   },
   async internalNotesByAction(
     _root,
-    { contentType, pipelineId, page = 1, perPage = 10 }: IParams
+    { contentType, pipelineId, page = 1, perPage = 10 }: IParams,
+    { models }: IContext
   ) {
     const contentIds = await getContentIds({ pipelineId, contentType });
 
@@ -42,7 +48,7 @@ const internalNoteQueries = {
     const filter = { contentTypeId: { $in: contentIds } };
     const list: any[] = [];
 
-    const internalNotes = await InternalNotes.find(filter)
+    const internalNotes = await models.InternalNotes.find(filter)
       .sort({
         createdAt: -1,
       })
@@ -61,7 +67,7 @@ const internalNoteQueries = {
       });
     }
 
-    totalCount = await InternalNotes.countDocuments(filter);
+    totalCount = await models.InternalNotes.countDocuments(filter);
 
     return { list, totalCount };
   },
