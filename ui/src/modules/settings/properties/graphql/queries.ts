@@ -43,6 +43,7 @@ const commonFieldsGroups = `
   
   visibility
   memberIds
+  departmentIds
   lastUpdatedUser {
     details {
       fullName

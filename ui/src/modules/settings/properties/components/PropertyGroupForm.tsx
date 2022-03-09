@@ -12,6 +12,7 @@ import { ExpandWrapper } from 'modules/settings/styles';
 import React from 'react';
 import SelectBoards from '../containers/SelectBoardPipeline';
 import { IBoardSelectItem, IFieldGroup } from '../types';
+import SelectDepartments from 'modules/settings/team/containers/department/SelectDepartments';
 
 type Props = {
   group?: IFieldGroup;
@@ -26,6 +27,7 @@ type State = {
   selectedItems: IBoardSelectItem[];
   visibility: string;
   memberIds: string[];
+  departmentIds: string[];
 };
 
 class PropertyGroupForm extends React.Component<Props, State> {
@@ -38,6 +40,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
     let selectedItems = [];
     let visibility = 'public';
     let memberIds = [];
+    let departmentIds = [];
 
     if (group) {
       isVisible = group.isVisible;
@@ -45,6 +48,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
       selectedItems = group.boardsPipelines || [];
       visibility = group.visibility;
       memberIds = group.memberIds || [];
+      departmentIds = group.departmentIds || [];
     }
 
     this.state = {
@@ -52,7 +56,8 @@ class PropertyGroupForm extends React.Component<Props, State> {
       isVisibleInDetail,
       selectedItems,
       visibility,
-      memberIds
+      memberIds,
+      departmentIds
     };
   }
 
@@ -62,8 +67,15 @@ class PropertyGroupForm extends React.Component<Props, State> {
     description: string;
   }) => {
     const { group, type } = this.props;
+    const {
+      isVisible,
+      isVisibleInDetail,
+      selectedItems,
+      visibility,
+      memberIds,
+      departmentIds
+    } = this.state;
     const finalValues = values;
-    const selectedItems = this.state.selectedItems;
 
     if (group) {
       finalValues._id = group._id;
@@ -83,11 +95,12 @@ class PropertyGroupForm extends React.Component<Props, State> {
     return {
       ...finalValues,
       contentType: type,
-      isVisible: this.state.isVisible,
-      isVisibleInDetail: this.state.isVisibleInDetail,
+      isVisible,
+      isVisibleInDetail,
       boardsPipelines,
-      visibility: this.state.visibility,
-      memberIds: this.state.memberIds
+      visibility,
+      memberIds,
+      departmentIds
     };
   };
 
@@ -118,6 +131,10 @@ class PropertyGroupForm extends React.Component<Props, State> {
 
   onChangeMembers = items => {
     this.setState({ memberIds: items });
+  };
+
+  onChangeDepartments = items => {
+    this.setState({ departmentIds: items });
   };
 
   renderFieldVisible() {
@@ -189,18 +206,27 @@ class PropertyGroupForm extends React.Component<Props, State> {
     }
 
     return (
-      <FormGroup>
-        <SelectMemberStyled zIndex={2002}>
-          <ControlLabel>Members</ControlLabel>
+      <>
+        <FormGroup>
+          <SelectMemberStyled zIndex={2002}>
+            <ControlLabel>Members</ControlLabel>
+            <SelectTeamMembers
+              label="Choose members"
+              name="selectedMemberIds"
+              initialValue={memberIds}
+              onSelect={this.onChangeMembers}
+            />
+          </SelectMemberStyled>
+        </FormGroup>
 
-          <SelectTeamMembers
-            label="Choose members"
-            name="selectedMemberIds"
-            initialValue={memberIds}
-            onSelect={this.onChangeMembers}
+        <FormGroup>
+          <SelectDepartments
+            defaultValue={this.state.departmentIds}
+            isRequired={false}
+            onChange={this.onChangeDepartments}
           />
-        </SelectMemberStyled>
-      </FormGroup>
+        </FormGroup>
+      </>
     );
   }
 

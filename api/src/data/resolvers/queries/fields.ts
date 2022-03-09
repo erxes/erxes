@@ -2,7 +2,13 @@ import {
   FIELD_CONTENT_TYPES,
   FIELDS_GROUPS_CONTENT_TYPES
 } from '../../../data/constants';
-import { Boards, Fields, FieldsGroups, Pipelines } from '../../../db/models';
+import {
+  Boards,
+  Departments,
+  Fields,
+  FieldsGroups,
+  Pipelines
+} from '../../../db/models';
 import { IFieldDocument } from '../../../db/models/definitions/fields';
 import { fieldsCombinedByContentType } from '../../modules/fields/utils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
@@ -231,6 +237,10 @@ const fieldsGroupQueries = {
       query.isDefinedByErxes = isDefinedByErxes;
     }
 
+    const departmentIds = await Departments.find({
+      userIds: user._id
+    }).distinct('_id');
+
     const userFilter = user.isOwner
       ? {}
       : {
@@ -243,7 +253,8 @@ const fieldsGroupQueries = {
                 {
                   $or: [
                     { memberIds: { $in: [user._id] } },
-                    { userId: user._id }
+                    { userId: user._id },
+                    { departmentIds: { $in: departmentIds } }
                   ]
                 }
               ]
@@ -252,8 +263,6 @@ const fieldsGroupQueries = {
         };
 
     query = { ...query, ...userFilter };
-
-    console.log(' ================================ ', JSON.stringify(query));
 
     const groups = await FieldsGroups.find(query);
 

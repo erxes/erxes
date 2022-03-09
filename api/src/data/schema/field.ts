@@ -144,6 +144,7 @@ export const fieldsGroupsTypes = `
     isVisibleInDetail: Boolean
     visibility: String
     memberIds: [String]
+    departmentIds: [String]
     isDefinedByErxes: Boolean
     fields: [Field]
     lastUpdatedUserId: String
@@ -163,6 +164,7 @@ const fieldsGroupsCommonFields = `
   boardsPipelines: [BoardsPipelinesInput]
   visibility: String
   memberIds: [String]
+  departmentIds: [String]
 `;
 
 export const fieldsGroupsQueries = `
