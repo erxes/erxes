@@ -210,11 +210,10 @@ async function startServer() {
     }
 
     if (configs.meta) {
-      const segments = configs.meta.segments;
+      const { segments, forms } = configs.meta;
+      const { consumeRPCQueue } = messageBrokerClient;
 
       if (segments) {
-        const { consumeRPCQueue } = messageBrokerClient;
-
         if (segments.propertyConditionExtender) {
           consumeRPCQueue(`${configs.name}:segments:propertyConditionExtender`, segments.propertyConditionExtender);
         }
@@ -229,6 +228,22 @@ async function startServer() {
 
         if (segments.initialSelector) {
           consumeRPCQueue(`${configs.name}:segments:initialSelector`, segments.initialSelector);
+        }
+      }
+
+      if (forms) {
+        if (forms.fields) {
+          consumeRPCQueue(`${configs.name}:rpc_queue:fields:getList`, async (args) => ({
+            status: "success",
+            data: await forms.fields(args),
+          }));
+        }
+
+        if (forms.groupsFilter) {
+          consumeRPCQueue(`${configs.name}:rpc_queue:fields:groupsFilter`, async (args) => ({
+            status: "success",
+            data: await forms.groupsFilter(args),
+          }));
         }
       }
     }

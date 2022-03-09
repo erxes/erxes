@@ -66,16 +66,18 @@ export const initBroker = async cl => {
   });
 };
 
-export const getFieldsFromService = async (serviceName: string, data) => {
+export const fetchService = async (contentType: string, action: string, data, defaultValue) => {
+  const [serviceName, type ] = contentType.split(':');
+
   if (!(await serviceDiscovery.isEnabled(serviceName))) {
-    return [];
+    return defaultValue;
   }
   
   if(!(await serviceDiscovery.isAvailable(serviceName))) {
     throw new Error(`${serviceName} service is not available.`);
   }
 
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:getFields`, data);
+  return client.sendRPCMessage(`${serviceName}:rpc_queue:fields:${action}`, { ...data, type });
 };
 
 export default function() {
