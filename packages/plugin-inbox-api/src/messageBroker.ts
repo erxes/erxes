@@ -116,12 +116,6 @@ export const initBroker = (cl) => {
     }
   );
 
-  consumeQueue('inbox:removeCustomersConversations', async (subdomain, customerIds) => {
-    const models = await generateModels(subdomain);
-
-    await models.Conversations.removeCustomersConversations(customerIds);
-  });
-
   consumeQueue('inbox:changeCustomer', async ({subdomain, customerId, customerIds}) => {
     const models = await generateModels(subdomain);
 
