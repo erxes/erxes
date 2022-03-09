@@ -1,5 +1,4 @@
 import { graphqlPubsub } from './configs';
-import { Conversations } from './models';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { Users } from './apiCollections';
 import { sendContactRPCMessage, sendRPCMessage } from './messageBroker';
@@ -24,7 +23,8 @@ export const receiveRpcMessage = async msg => {
   
   const {
     Integrations,
-    ConversationMessages
+    ConversationMessages,
+    Conversations
   } = await generateModels(subdomain);
   
   const doc = JSON.parse(payload || '{}');
@@ -176,13 +176,14 @@ export const receiveIntegrationsNotification = async msg => {
 /**
  * Remove engage conversations
  */
-export const removeEngageConversations = async _id => {
-  await Conversations.removeEngageConversations(_id);
+export const removeEngageConversations = async (models, _id) => {
+  await models.Conversations.removeEngageConversations(_id);
 };
 
-export const collectConversations = async ({ contentId, contentType }) => {
+export const collectConversations = async ({ contentId, contentType, subdomain }) => {
+  const models = await generateModels(subdomain);
   const results: any[] = [];
-  const conversations = await Conversations.find({
+  const conversations = await models.Conversations.find({
     $or: [{ customerId: contentId }, { participatedUserIds: contentId }]
   }).lean();
 
@@ -203,7 +204,7 @@ export const collectConversations = async ({ contentId, contentType }) => {
       customerId: contentId
     })
     
-    const cons = await Conversations.find({ _id: { $in: conversationIds } }).lean();
+    const cons = await models.Conversations.find({ _id: { $in: conversationIds } }).lean();
 
     for (const c of cons) {
       results.push({

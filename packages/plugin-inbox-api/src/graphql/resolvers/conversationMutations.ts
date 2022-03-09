@@ -1,8 +1,5 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
-import {
-  Conversations,
-} from '../../models';
 
 import {
   KIND_CHOICES,
@@ -257,7 +254,7 @@ const sendNotifications = async ({
 };
 
 const getConversationById = async (models: IModels, selector) => {
-  const oldConversations = await Conversations.find(selector).lean();
+  const oldConversations = await models.Conversations.find(selector).lean();
   const oldConversationById = {};
   for (const conversation of oldConversations) {
     oldConversationById[conversation._id] = conversation;
@@ -274,7 +271,7 @@ const conversationMutations = {
     doc: IConversationMessageAdd,
     { user, dataSources, models }: IContext
   ) {
-    const conversation = await Conversations.getConversation(
+    const conversation = await models.Conversations.getConversation(
       doc.conversationId
     );
     const integration = await models.Integrations.getIntegration({
@@ -427,7 +424,7 @@ const conversationMutations = {
     doc: IReplyFacebookComment,
     { user, dataSources, models }: IContext
   ) {
-    const conversation = await Conversations.getConversation(
+    const conversation = await models.Conversations.getConversation(
       doc.conversationId
     );
     const integration = await models.Integrations.getIntegration({
@@ -496,7 +493,7 @@ const conversationMutations = {
       _id: { $in: conversationIds }
     });
 
-    const conversations: IConversationDocument[] = await Conversations.assignUserConversation(
+    const conversations: IConversationDocument[] = await models.Conversations.assignUserConversation(
       conversationIds,
       assignedUserId
     );
@@ -539,7 +536,7 @@ const conversationMutations = {
       oldConversations,
       oldConversationById
     } = await getConversationById(models, { _id: { $in: _ids } });
-    const updatedConversations = await Conversations.unassignUserConversation(
+    const updatedConversations = await models.Conversations.unassignUserConversation(
       _ids
     );
 
@@ -581,12 +578,12 @@ const conversationMutations = {
       _id: { $in: _ids }
     });
 
-    await Conversations.changeStatusConversation(_ids, status, user._id);
+    await models.Conversations.changeStatusConversation(_ids, status, user._id);
 
     // notify graphl subscription
     publishConversationsChanged(_ids, status);
 
-    const updatedConversations = await Conversations.find({
+    const updatedConversations = await models.Conversations.find({
       _id: { $in: _ids }
     });
 
@@ -630,9 +627,9 @@ const conversationMutations = {
       closedAt: new Date()
     };
 
-    const updated = await Conversations.resolveAllConversation(query, param);
+    const updated = await models.Conversations.resolveAllConversation(query, param);
 
-    const updatedConversations = await Conversations.find({
+    const updatedConversations = await models.Conversations.find({
       _id: { $in: Object.keys(oldConversationById) }
     }).lean();
 
@@ -659,9 +656,9 @@ const conversationMutations = {
   async conversationMarkAsRead(
     _root,
     { _id }: { _id: string },
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    return Conversations.markAsReadConversation(_id, user._id);
+    return models.Conversations.markAsReadConversation(_id, user._id);
   },
 
   async conversationCreateVideoChatRoom(
@@ -721,17 +718,17 @@ const conversationMutations = {
       conversationMessageInserted: message
     });
 
-    return Conversations.updateOne({ _id }, { $set: { operatorStatus } });
+    return models.Conversations.updateOne({ _id }, { $set: { operatorStatus } });
   },
 
   async conversationConvertToCard(
     _root,
     params: IConversationConvert,
-    { user, docModifier }: IContext
+    { user, docModifier, models }: IContext
   ) {
     const { _id } = params;
 
-    const conversation = await Conversations.getConversation(_id);
+    const conversation = await models.Conversations.getConversation(_id);
 
     const args = {
       ...params,
@@ -745,10 +742,11 @@ const conversationMutations = {
 
   async conversationEditCustomFields(
     _root,
-    { _id, customFieldsData }: { _id: string; customFieldsData: any }
+    { _id, customFieldsData }: { _id: string; customFieldsData: any },
+    { models }: IContext
   ) {
-    await Conversations.updateConversation(_id, { customFieldsData });
-    return Conversations.getConversation(_id);
+    await models.Conversations.updateConversation(_id, { customFieldsData });
+    return models.Conversations.getConversation(_id);
   }
 };
 

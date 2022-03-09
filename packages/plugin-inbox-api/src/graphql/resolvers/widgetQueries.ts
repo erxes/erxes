@@ -1,7 +1,4 @@
 import * as momentTz from 'moment-timezone';
-import {
-  Conversations,
-} from '../../models';
 
 import { IIntegrationDocument } from '../../models/definitions/integrations';
 
@@ -129,7 +126,7 @@ export default {
   ) {
     const { _id, integrationId } = args;
 
-    const conversation = await Conversations.findOne({
+    const conversation = await models.Conversations.findOne({
       _id,
       integrationId
     }).lean();
@@ -178,7 +175,8 @@ export default {
 
   widgetsConversations(
     _root,
-    args: { integrationId: string; customerId?: string; visitorId?: string }
+    args: { integrationId: string; customerId?: string; visitorId?: string },
+    { models }: IContext
   ) {
     const { integrationId, customerId, visitorId } = args;
 
@@ -186,7 +184,7 @@ export default {
       ? { integrationId, customerId }
       : { integrationId, visitorId };
 
-    return Conversations.find(query).sort({ updatedAt: -1 });
+    return models.Conversations.find(query).sort({ updatedAt: -1 });
   },
 
   async widgetsConversationDetail(
@@ -196,7 +194,7 @@ export default {
   ) {
     const { _id, integrationId } = args;
 
-    const conversation = await Conversations.findOne({ _id, integrationId });
+    const conversation = await models.Conversations.findOne({ _id, integrationId });
     const integration = await models.Integrations.findOne({
       _id: integrationId
     });
@@ -248,11 +246,11 @@ export default {
       return 0;
     }
     // find conversations
-    const convs = await Conversations.find({ integrationId, customerId });
+    const convs = await models.Conversations.find({ integrationId, customerId });
 
     // find read messages count
     return models.ConversationMessages.countDocuments(
-      Conversations.widgetsUnreadMessagesQuery(convs)
+      models.Conversations.widgetsUnreadMessagesQuery(convs)
     );
   },
 

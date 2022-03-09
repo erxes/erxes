@@ -1,4 +1,3 @@
-import { Conversations } from "../../models";
 import { CONVERSATION_STATUSES } from "../../models/definitions/constants";
 import { IMessageDocument } from "../../models/definitions/conversationMessages";
 import { countByConversations } from "../../conversationUtils";
@@ -9,7 +8,7 @@ import {
 } from "@erxes/api-utils/src/permissions";
 
 import QueryBuilder, { IListArgs } from "../../conversationQueryBuilder";
-import { IContext } from "../../connectionResolver";
+import { IContext, IModels } from "../../connectionResolver";
 
 interface ICountBy {
   [index: string]: number;
@@ -20,8 +19,8 @@ interface IConversationRes {
 }
 
 // count helper
-const count = async (query: any): Promise<number> => {
-  const result = await Conversations.find(query).countDocuments();
+const count = async (models: IModels, query: any): Promise<number> => {
+  const result = await models.Conversations.find(query).countDocuments();
 
   return Number(result);
 };
@@ -36,7 +35,7 @@ const conversationQueries = {
   async conversations(_root, params: IListArgs, { user, models }: IContext) {
     // filter by ids of conversations
     if (params && params.ids) {
-      return Conversations.find({ _id: { $in: params.ids } }).sort({
+      return models.Conversations.find({ _id: { $in: params.ids } }).sort({
         updatedAt: -1,
       });
     }
@@ -50,7 +49,7 @@ const conversationQueries = {
 
     await qb.buildAllQueries();
 
-    return Conversations.find(qb.mainQuery())
+    return models.Conversations.find(qb.mainQuery())
       .sort({ updatedAt: -1 })
       .limit(params.limit || 0);
   },
@@ -143,31 +142,31 @@ const conversationQueries = {
     };
 
     // unassigned count
-    response.unassigned = await count({
+    response.unassigned = await count(models, {
       ...mainQuery,
       ...qb.unassignedFilter(),
     });
 
     // participating count
-    response.participating = await count({
+    response.participating = await count(models, {
       ...mainQuery,
       ...qb.participatingFilter(),
     });
 
     // starred count
-    response.starred = await count({
+    response.starred = await count(models, {
       ...mainQuery,
       ...qb.starredFilter(),
     });
 
     // resolved count
-    response.resolved = await count({
+    response.resolved = await count(models, {
       ...mainQuery,
       ...qb.statusFilter(["closed"]),
     });
 
     // awaiting response count
-    response.awaitingResponse = await count({
+    response.awaitingResponse = await count(models, {
       ...mainQuery,
       ...qb.awaitingResponse(),
     });
@@ -178,8 +177,8 @@ const conversationQueries = {
   /**
    * Get one conversation
    */
-  conversationDetail(_root, { _id }: { _id: string }) {
-    return Conversations.findOne({ _id });
+  conversationDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Conversations.findOne({ _id });
   },
 
   /**
@@ -195,7 +194,7 @@ const conversationQueries = {
 
     await qb.buildAllQueries();
 
-    return Conversations.find(qb.mainQuery()).countDocuments();
+    return models.Conversations.find(qb.mainQuery()).countDocuments();
   },
 
   /**
@@ -211,7 +210,7 @@ const conversationQueries = {
 
     await qb.buildAllQueries();
 
-    return Conversations.findOne(qb.mainQuery())
+    return models.Conversations.findOne(qb.mainQuery())
       .sort({ updatedAt: -1 })
       .lean();
   },
@@ -228,7 +227,7 @@ const conversationQueries = {
     // get all possible integration ids
     const integrationsFilter = await qb.integrationsFilter();
 
-    return Conversations.find({
+    return models.Conversations.find({
       ...integrationsFilter,
       status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] },
       readUserIds: { $ne: user._id },

@@ -1,8 +1,6 @@
 import * as momentTz from 'moment-timezone';
 import { Model, Query } from 'mongoose';
 
-import { Conversations } from '.';
-
 import { Brands, Forms } from '../apiCollections';
 import { IModels } from '../connectionResolver';
 import { sendContactMessage, sendContactRPCMessage } from '../messageBroker';
@@ -384,7 +382,7 @@ export const loadClass = (models: IModels) => {
       const integration = await models.Integrations.getIntegration({ _id });
 
       // remove conversations =================
-      const conversations = await Conversations.find(
+      const conversations = await models.Conversations.find(
         { integrationId: _id },
         { _id: true }
       );
@@ -394,7 +392,7 @@ export const loadClass = (models: IModels) => {
         conversationId: { $in: conversationIds }
       });
 
-      await Conversations.deleteMany({ integrationId: _id });
+      await models.Conversations.deleteMany({ integrationId: _id });
 
       // Remove customers ==================
       const customers = await sendContactRPCMessage('getCustomers', {

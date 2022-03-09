@@ -1,7 +1,6 @@
 import { debug } from '../../configs';
 import { getDocument } from '../../cacheUtils';
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
-import { Conversations } from '../../models';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
 import { sendRPCMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
@@ -16,7 +15,7 @@ export default {
   },
 
   async mailData(message: IMessageDocument, _args, { models }: IContext ) {
-    const conversation = await Conversations.findOne({
+    const conversation = await models.Conversations.findOne({
       _id: message.conversationId
     }).lean();
 
@@ -56,8 +55,9 @@ export default {
   async videoCallData(
     message: IMessageDocument,
     _args,
+    { models }: IContext
   ) {
-    const conversation = await Conversations.findOne({
+    const conversation = await models.Conversations.findOne({
       _id: message.conversationId
     }).lean();
 

@@ -1,7 +1,4 @@
 import * as strip from 'strip';
-import {
-  Conversations,
-} from '../../models';
 
 import { Fields, Forms, Users } from '../../apiCollections';
 
@@ -71,7 +68,7 @@ interface IWidgetEmailParams {
 }
 
 const pConversationClientMessageInserted = async (models, message) => {
-  const conversation = await Conversations.findOne(
+  const conversation = await models.Conversations.findOne(
     {
       _id: message.conversationId
     },
@@ -202,7 +199,7 @@ const createFormConversation = async (
   const conversationData = await generateConvData();
 
   // create conversation
-  const conversation = await Conversations.createConversation({
+  const conversation = await models.Conversations.createConversation({
     integrationId,
     customerId: cachedCustomer._id,
     content,
@@ -281,7 +278,7 @@ const widgetMutations = {
     }
 
     if (integ.leadData?.isRequireOnce && args.cachedCustomerId) {
-      const conversation = await Conversations.findOne({
+      const conversation = await models.Conversations.findOne({
         customerId: args.cachedCustomerId,
         integrationId: integ._id
       });
@@ -575,11 +572,11 @@ const widgetMutations = {
     const HAS_BOTENDPOINT_URL = (botEndpointUrl || '').length > 0;
 
     if (conversationId) {
-      conversation = await Conversations.findOne({
+      conversation = await models.Conversations.findOne({
         _id: conversationId
       }).lean();
 
-      conversation = await Conversations.findByIdAndUpdate(
+      conversation = await models.Conversations.findByIdAndUpdate(
         conversationId,
         {
           // mark this conversation as unread
@@ -592,7 +589,7 @@ const widgetMutations = {
       );
       // create conversation
     } else {
-      conversation = await Conversations.createConversation({
+      conversation = await models.Conversations.createConversation({
         customerId,
         integrationId,
         operatorStatus: HAS_BOTENDPOINT_URL
@@ -614,7 +611,7 @@ const widgetMutations = {
       content: message
     });
 
-    await Conversations.updateOne(
+    await models.Conversations.updateOne(
       { _id: msg.conversationId },
       {
         $set: {
@@ -712,7 +709,7 @@ const widgetMutations = {
       set(`customer_last_status_${customerId}`, 'joined');
 
       // customer has joined + time
-      const conversationMessages = await Conversations.changeCustomerStatus(
+      const conversationMessages = await models.Conversations.changeCustomerStatus(
         'joined',
         customerId,
         conversation.integrationId
@@ -784,7 +781,7 @@ const widgetMutations = {
         visitorId,
         customer._id
       );
-      await Conversations.updateMany(
+      await models.Conversations.updateMany(
         {
           visitorId
         },
@@ -932,7 +929,7 @@ const widgetMutations = {
     if (!conversationId) {
       sessionId = await get(`bot_initial_message_session_id_${integrationId}`);
 
-      const conversation = await Conversations.createConversation({
+      const conversation = await models.Conversations.createConversation({
         customerId,
         integrationId,
         operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT,

@@ -1,8 +1,4 @@
 import {
-  Conversations,
-} from "./models";
-
-import {
   Brands,
   Fields,
   FieldsGroups
@@ -62,9 +58,9 @@ export const getOrCreateEngageMessage = async (
     ? { integrationId, customerId }
     : { integrationId, visitorId };
 
-  const convs = await Conversations.find(query);
+  const convs = await models.Conversations.find(query);
 
-  return models.ConversationMessages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
+  return models.ConversationMessages.findOne(models.Conversations.widgetsUnreadMessagesQuery(convs));
 };
 
 export const receiveVisitorDetail = async (visitor) => {

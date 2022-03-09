@@ -1,6 +1,5 @@
 import { Model, model } from 'mongoose';
 import * as strip from 'strip';
-import { Conversations } from '.';
 import { IModels } from '../connectionResolver';
 import { MESSAGE_TYPES } from './definitions/constants';
 import {
@@ -65,21 +64,21 @@ export const loadClass = (models: IModels) => {
         convDocModifier.isCustomerRespondedLast = doc.customerId ? true : false;
       }
 
-      await Conversations.updateConversation(
+      await models.Conversations.updateConversation(
         message.conversationId,
         convDocModifier
       );
 
       if (message.userId) {
         // add created user to participators
-        await Conversations.addParticipatedUsers(
+        await models.Conversations.addParticipatedUsers(
           message.conversationId,
           message.userId
         );
       }
 
       // add mentioned users to participators
-      await Conversations.addManyParticipatedUsers(
+      await models.Conversations.addManyParticipatedUsers(
         message.conversationId,
         message.mentionedUserIds || []
       );
@@ -91,7 +90,7 @@ export const loadClass = (models: IModels) => {
      * Create a conversation message
      */
     public static async addMessage(doc: IMessage, userId?: string) {
-      const conversation = await Conversations.findOne({
+      const conversation = await models.Conversations.findOne({
         _id: doc.conversationId
       });
 
@@ -135,7 +134,7 @@ export const loadClass = (models: IModels) => {
         modifier.firstRespondedDate = new Date();
       }
 
-      await Conversations.updateConversation(doc.conversationId, modifier);
+      await models.Conversations.updateConversation(doc.conversationId, modifier);
 
       return this.createMessage({ ...doc, userId });
     }
