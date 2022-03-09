@@ -1,9 +1,8 @@
-import configs, { debug } from './configs';
+import { debug } from './configs';
 import Logs from './models/Logs';
 import ActivityLogs, { IActivityLogDocument } from './models/ActivityLogs';
-import messageBroker, { collectServiceItems } from './messageBroker';
+import messageBroker from './messageBroker';
 import { IFilter } from './graphql/resolvers/logQueries';
-import { getService } from './inmemoryStorage';
 
 export const sendToApi = (channel: string, data) =>
   messageBroker().sendMessage(channel, data);
@@ -352,18 +351,16 @@ export const fetchLogs = async (params) => {
   return { logs, totalCount: logsCount };
 };
 
-export const findActivityLogs = async (params) => {
-  const { contentType } = params;
-  const serviceName = contentType.split(':')[0];
+/**
+ * Mongoose field options wrapper
+ * @param {Object} options Mongoose schema options
+ */
+ export const field = options => {
+  const { type, optional } = options;
 
-  const { meta = {} } = await getService(serviceName, true);
-
-  const activityLogs = await fetchActivityLogs(params);
-  let list: any[] = activityLogs.activityLogs || [];
-
-  if (meta.logs && meta.logs.providesActivityLog === true) {
-    list = list.concat(await collectServiceItems(contentType, params));
+  if (type === String && !optional) {
+    options.validate = /\S+/;
   }
 
-  return list;
+  return options;
 };

@@ -1,20 +1,6 @@
 import { Document, model, Model, Schema } from 'mongoose';
 import { debug } from '../configs';
-import { compareObjects } from '../utils';
-
-/**
- * Mongoose field options wrapper
- * @param {Object} options Mongoose schema options
- */
-export const field = options => {
-  const { type, optional } = options;
-
-  if (type === String && !optional) {
-    options.validate = /\S+/;
-  }
-
-  return options;
-};
+import { compareObjects, field } from '../utils';
 
 export interface ILogDoc {
   createdAt: Date;

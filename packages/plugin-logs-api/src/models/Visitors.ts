@@ -1,5 +1,5 @@
 import { Document, model, Model, Schema } from 'mongoose';
-import { field } from './Logs';
+import { field } from '../utils';
 import { debug } from '../configs';
 
 
