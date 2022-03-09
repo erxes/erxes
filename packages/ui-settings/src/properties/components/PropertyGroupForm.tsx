@@ -2,17 +2,16 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import SelectBoards from '../containers/SelectBoardPipeline';
-import { IBoardSelectItem, IFieldGroup } from '../types';
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React from "react";
+import { IBoardSelectItem, IFieldGroup } from "../types";
 
 type Props = {
   group?: IFieldGroup;
@@ -98,7 +97,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
       config: {},
       isVisible,
       isVisibleInDetail,
-      selectedItems
+      selectedItems,
     };
   }
 
@@ -117,10 +116,10 @@ class PropertyGroupForm extends React.Component<Props, State> {
 
     const boardsPipelines =
       selectedItems &&
-      selectedItems.map(e => {
+      selectedItems.map((e) => {
         const boardsPipeline = {
           boardId: e.boardId,
-          pipelineIds: e.pipelineIds
+          pipelineIds: e.pipelineIds,
         };
 
         return boardsPipeline;
@@ -131,12 +130,12 @@ class PropertyGroupForm extends React.Component<Props, State> {
       contentType: type,
       isVisible: this.state.isVisible,
       isVisibleInDetail: this.state.isVisibleInDetail,
-      boardsPipelines
+      boardsPipelines,
     };
   };
 
-  visibleHandler = e => {
-    if (e.target.id === 'visible') {
+  visibleHandler = (e) => {
+    if (e.target.id === "visible") {
       const isVisible = e.target.checked;
 
       return this.setState({ isVisible });
@@ -164,7 +163,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
         <ControlLabel>Visible</ControlLabel>
         <div>
           <Toggle
-            id='visible'
+            id="visible"
             checked={this.state.isVisible}
             onChange={this.visibleHandler}
             icons={{ checked: <Checked />, unchecked: <UnChecked /> }}
@@ -184,12 +183,12 @@ class PropertyGroupForm extends React.Component<Props, State> {
         <ControlLabel>Visible in detail</ControlLabel>
         <div>
           <Toggle
-            id='visibleDetail'
+            id="visibleDetail"
             checked={this.state.isVisibleInDetail}
             onChange={this.visibleHandler}
             icons={{
               checked: <span>Yes</span>,
-              unchecked: <span>No</span>
+              unchecked: <span>No</span>,
             }}
           />
         </div>
@@ -198,24 +197,24 @@ class PropertyGroupForm extends React.Component<Props, State> {
   }
 
   onChangeConfig = (config) => {
-    console.log('mmmmm', config);
+    console.log("mmmmm", config);
 
     this.setState({ config });
-  }
+  };
 
   renderExtraContent() {
     const { type } = this.props;
     const plugins: any[] = (window as any).plugins || [];
 
     for (const plugin of plugins) {
-      if (type.includes(`${plugin.name}:`) && plugin.segmentForm) {
+      if (type.includes(`${plugin.name}:`) && plugin.propertyGroupForm) {
         return (
-            <ExtraForm
-              scope="cards"
-              type={this.props.type}
-              component={plugin.segmentForm}
-              onChangeConfig={this.onChangeConfig}
-            />
+          <ExtraForm
+            scope={plugin.scope}
+            type={this.props.type}
+            component={plugin.propertyGroupForm}
+            onChangeConfig={this.onChangeConfig}
+          />
         );
       }
     }
@@ -235,7 +234,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
             {...formProps}
-            name='name'
+            name="name"
             autoFocus={true}
             required={true}
             defaultValue={object.name}
@@ -246,7 +245,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Description</ControlLabel>
           <FormControl
             {...formProps}
-            name='description'
+            name="description"
             required={true}
             defaultValue={object.description}
           />
@@ -255,23 +254,23 @@ class PropertyGroupForm extends React.Component<Props, State> {
         {this.renderFieldVisible()}
         {this.renderExtraContent()}
 
-        {['visitor', 'lead', 'customer'].includes(object.contentType) ? (
+        {["visitor", "lead", "customer"].includes(object.contentType) ? (
           this.renderFieldVisibleInDetail()
         ) : (
           <></>
         )}
 
         <ModalFooter>
-          <Button btnStyle='simple' onClick={closeModal} icon='times-circle'>
+          <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Close
           </Button>
 
           {renderButton({
-            name: 'property group',
+            name: "property group",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: group
+            object: group,
           })}
         </ModalFooter>
       </>

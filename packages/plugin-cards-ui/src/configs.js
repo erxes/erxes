@@ -1,17 +1,19 @@
 module.exports = {
   name: "cards",
   port: 3003,
+  scope: "cards",
+  url: "http://localhost:3003/remoteEntry.js",
   exposes: {
     "./routes": "./src/routes.tsx",
     "./settings": "./src/Settings.tsx",
-    "./segmentForm": "./src/segmentForm.tsx",
+    "./propertyGroupForm": "./src/propertyGroupForm.tsx",
   },
   routes: {
     url: "http://localhost:3003/remoteEntry.js",
     scope: "cards",
     module: "./routes",
   },
-  segmentForm: './segmentForm',
+  propertyGroupForm: './propertyGroupForm',
   menus: [
     {
       text: "Sales Pipeline",
