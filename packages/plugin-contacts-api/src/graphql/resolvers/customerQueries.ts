@@ -12,9 +12,7 @@ import {
   checkPermission,
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src';
-import Customers from '../../models/Customers';
-
+import { IContext } from '../../connectionResolver';
 interface ICountParams extends IListArgs {
   only: string;
   source: string;
@@ -56,9 +54,9 @@ const customerQueries = {
   async customers(
     _root,
     params: IListArgs,
-    { commonQuerySelector, commonQuerySelectorElk }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models }: IContext
   ) {
-    const qb = new BuildQuery(params, {
+    const qb = new BuildQuery(models, params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
@@ -76,9 +74,9 @@ const customerQueries = {
   async customersMain(
     _root,
     params: IListArgs,
-    { commonQuerySelector, commonQuerySelectorElk }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models }: IContext
   ) {
-    const qb = new BuildQuery(params, {
+    const qb = new BuildQuery(models, params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
@@ -96,7 +94,7 @@ const customerQueries = {
   async customerCounts(
     _root,
     params: ICountParams,
-    { commonQuerySelector, commonQuerySelectorElk }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models }: IContext
   ) {
     const { only, type, source } = params;
 
@@ -109,7 +107,7 @@ const customerQueries = {
       byLeadStatus: {}
     };
 
-    const qb = new BuildQuery(params, {
+    const qb = new BuildQuery(models, params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
@@ -146,7 +144,7 @@ const customerQueries = {
   /**
    * Get one customer
    */
-  customerDetail(_root, { _id }: { _id: string }) {
+  customerDetail(_root, { _id }: { _id: string }, { models : { Customers }}: IContext) {
     return Customers.findOne({ _id });
   }
 };

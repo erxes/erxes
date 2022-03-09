@@ -1,15 +1,16 @@
 import * as _ from 'underscore';
 import { Users } from './apiCollections';
 import { es } from './configs';
+import { IModels } from './connectionResolver';
 import { createTag, findOneTag, prepareCustomFieldsData } from './messageBroker';
-import Companies from './models/Companies';
-import Customers from './models/Customers';
 import { CUSTOMER_SELECT_OPTIONS } from './models/definitions/constants';
 
 // tslint:disable-next-line
 
-export const insertImportItems = async args => {
+export const insertImportItems = async (models: IModels, args) => {
   const { docs, user, contentType, useElkSyncer } = args;
+
+  const { Customers, Companies } = models;
 
   try {
     let objects;

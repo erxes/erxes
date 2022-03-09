@@ -1,10 +1,9 @@
-import * as getUuid from 'uuid-by-string';
-import { Fields } from './apiCollections';
-import { debug } from './configs';
-import { es } from './configs';
-import { sendContactRPCMessage } from './messageBroker';
-import Customers from './models/Customers';
-import { client as msgBroker } from './messageBroker';
+import * as getUuid from "uuid-by-string";
+import { debug } from "./configs";
+import { es } from "./configs";
+import { IModels } from "./connectionResolver";
+import { sendContactRPCMessage } from "./messageBroker";
+import { client as msgBroker } from "./messageBroker";
 interface ISaveEventArgs {
   type?: string;
   name?: string;
@@ -25,11 +24,11 @@ export const saveEvent = async (args: ISaveEventArgs) => {
   const { type, name, attributes, additionalQuery } = args;
 
   if (!type) {
-    throw new Error('Type is required');
+    throw new Error("Type is required");
   }
 
   if (!name) {
-    throw new Error('Name is required');
+    throw new Error("Name is required");
   }
 
   let visitorId = args.visitorId;
@@ -39,9 +38,9 @@ export const saveEvent = async (args: ISaveEventArgs) => {
     bool: {
       must: [
         { term: { name } },
-        { term: customerId ? { customerId } : { visitorId } }
-      ]
-    }
+        { term: customerId ? { customerId } : { visitorId } },
+      ],
+    },
   };
 
   if (additionalQuery) {
@@ -56,7 +55,7 @@ export const saveEvent = async (args: ISaveEventArgs) => {
       // generate unique id based on searchQuery
       id: getUuid(JSON.stringify(searchQuery)),
       body: {
-        script: { source: 'ctx._source["count"] += 1', lang: 'painless' },
+        script: { source: 'ctx._source["count"] += 1', lang: "painless" },
         upsert: {
           type,
           name,
@@ -64,9 +63,12 @@ export const saveEvent = async (args: ISaveEventArgs) => {
           customerId,
           createdAt: new Date(),
           count: 1,
-          attributes: await msgBroker.sendRPCMessage('core:Fields.generateTypedListFromMap', attributes || {})
-        }
-      }
+          attributes: await msgBroker.sendRPCMessage(
+            "core:Fields.generateTypedListFromMap",
+            attributes || {}
+          ),
+        },
+      },
     });
 
     debug.info(`Response ${JSON.stringify(response)}`);
@@ -91,39 +93,39 @@ export const getNumberOfVisits = async (params: {
 
   try {
     const response = await es.fetchElk({
-      action: 'search',
-      index: 'events',
+      action: "search",
+      index: "events",
       body: {
         query: {
           bool: {
             must: [
-              { term: { name: 'viewPage' } },
+              { term: { name: "viewPage" } },
               { term: searchId },
               {
                 nested: {
-                  path: 'attributes',
+                  path: "attributes",
                   query: {
                     bool: {
                       must: [
                         {
                           term: {
-                            'attributes.field': 'url'
-                          }
+                            "attributes.field": "url",
+                          },
                         },
                         {
                           match: {
-                            'attributes.value': params.url
-                          }
-                        }
-                      ]
-                    }
-                  }
-                }
-              }
-            ]
-          }
-        }
-      }
+                            "attributes.value": params.url,
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
     });
 
     const hits = response.hits.hits;
@@ -149,8 +151,8 @@ export const trackViewPageEvent = (args: {
   const { attributes, customerId, visitorId } = args;
 
   return saveEvent({
-    type: 'lifeCycle',
-    name: 'viewPage',
+    type: "lifeCycle",
+    name: "viewPage",
     customerId,
     visitorId,
     attributes,
@@ -159,28 +161,28 @@ export const trackViewPageEvent = (args: {
         must: [
           {
             nested: {
-              path: 'attributes',
+              path: "attributes",
               query: {
                 bool: {
                   must: [
                     {
                       term: {
-                        'attributes.field': 'url'
-                      }
+                        "attributes.field": "url",
+                      },
                     },
                     {
                       match: {
-                        'attributes.value': attributes.url
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        ]
-      }
-    }
+                        "attributes.value": attributes.url,
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      },
+    },
   });
 };
 
@@ -191,65 +193,76 @@ export const trackCustomEvent = (args: {
   attributes: any;
 }) => {
   return saveEvent({
-    type: 'custom',
+    type: "custom",
     name: args.name,
     customerId: args.customerId,
     visitorId: args.visitorId,
-    attributes: args.attributes
+    attributes: args.attributes,
   });
 };
 
-export const identifyCustomer = async (args: ICustomerIdentifyParams = {}) => {
+export const identifyCustomer = async (
+  { Customers }: IModels,
+  args: ICustomerIdentifyParams = {}
+) => {
   // get or create customer
-  let customer = await sendContactRPCMessage('getWidgetCustomer', args);
+  let customer = await sendContactRPCMessage("getWidgetCustomer", args);
 
   if (!customer) {
     customer = await Customers.createCustomer({
       primaryEmail: args.email,
       code: args.code,
-      primaryPhone: args.phone
+      primaryPhone: args.phone,
     });
   }
 
   return { customerId: customer._id };
 };
 
-export const updateCustomerProperty = async ({
-  customerId,
-  name,
-  value
-}: {
-  customerId: string;
-  name: string;
-  value: any;
-}) => {
+export const updateCustomerProperty = async (
+  { Customers }: IModels,
+  {
+    customerId,
+    name,
+    value,
+  }: {
+    customerId: string;
+    name: string;
+    value: any;
+  }
+) => {
   if (!customerId) {
-    throw new Error('Customer id is required');
+    throw new Error("Customer id is required");
   }
 
   let modifier: any = { [name]: value };
 
   if (
     ![
-      'firstName',
-      'lastName',
-      'middleName',
-      'primaryPhone',
-      'primaryEmail',
-      'code'
+      "firstName",
+      "lastName",
+      "middleName",
+      "primaryPhone",
+      "primaryEmail",
+      "code",
     ].includes(name)
   ) {
     const customer = await Customers.findOne({ _id: customerId });
 
     if (customer) {
       const prev = {};
-      (customer.trackedData || []).forEach(td => (prev[td.field] = td.value));
+      (customer.trackedData || []).forEach((td) => (prev[td.field] = td.value));
       prev[name] = value;
-      modifier = { trackedData: await msgBroker.sendRPCMessage('core:Fields.generateTypedListFromMap', prev) };
+      modifier = {
+        trackedData: await msgBroker.sendRPCMessage(
+          "core:Fields.generateTypedListFromMap",
+          prev
+        ),
+      };
     }
   }
 
   await Customers.updateOne({ _id: customerId }, { $set: modifier });
 
-  return { status: 'ok' };
+  return { status: "ok" };
 };

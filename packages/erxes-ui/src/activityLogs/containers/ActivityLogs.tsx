@@ -57,13 +57,30 @@ class Container extends React.Component<FinalProps, {}> {
       activityLogQuery,
       extraTabs,
       onChangeActivityTab,
-      activityRenderItem
+      activityRenderItem,
+      emailDeliveriesQuery,
+      notesQuery,
+      tasksQuery,
+      activityType
     } = this.props;
+
+    const getList = (type: string) => {
+      switch (type) {
+        case 'internal_note':
+          return notesQuery.internalNotesAsLogs || [];
+        case 'task':
+          return tasksQuery.tasksAsLogs || [];
+        case 'email':
+          return emailDeliveriesQuery.emailDeliveries || [];
+        default:
+          return activityLogQuery.activityLogs || [];
+      }
+    }
 
     const props = {
       target,
       loadingLogs: activityLogQuery.loading,
-      activityLogs: activityLogQuery.activityLogs || [],
+      activityLogs: getList(activityType),
       onTabClick: onChangeActivityTab,
       extraTabs,
       activityRenderItem
@@ -134,7 +151,7 @@ export default class Wrapper extends React.Component<
     super(props);
 
     this.state = {
-      activityType: ''
+      activityType: 'activity'
     };
   }
 

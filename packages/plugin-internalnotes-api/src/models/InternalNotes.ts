@@ -2,15 +2,16 @@ import { Model, model } from 'mongoose';
 import {
   IInternalNote,
   IInternalNoteDocument,
-  internalNoteSchema
+  internalNoteSchema,
 } from './definitions/internalNotes';
+import { IModels } from '../connectionResolver';
 
 export interface IInternalNoteModel extends Model<IInternalNoteDocument> {
   getInternalNote(_id: string): Promise<IInternalNoteDocument>;
 
   createInternalNote(
     { contentType, contentTypeId, ...fields }: IInternalNote,
-    user 
+    user
   ): Promise<IInternalNoteDocument>;
 
   updateInternalNote(
@@ -19,7 +20,7 @@ export interface IInternalNoteModel extends Model<IInternalNoteDocument> {
   ): Promise<IInternalNoteDocument>;
 
   removeInternalNote(_id: string): void;
-  
+
   changeCustomer(
     newCustomerId: string,
     customerIds: string[]
@@ -31,10 +32,10 @@ export interface IInternalNoteModel extends Model<IInternalNoteDocument> {
   ): Promise<{ n: number; ok: number }>;
 }
 
-export const loadClass = () => {
+export const loadInternalNoteClass = (models: IModels) => {
   class InternalNote {
     public static async getInternalNote(_id: string) {
-      const internalNote = await InternalNotes.findOne({ _id });
+      const internalNote = await models.InternalNotes.findOne({ _id });
 
       if (!internalNote) {
         throw new Error('Internal note not found');
@@ -50,12 +51,12 @@ export const loadClass = () => {
       { contentType, contentTypeId, ...fields }: IInternalNote,
       user
     ) {
-      const internalNote = await InternalNotes.create({
+      const internalNote = await models.InternalNotes.create({
         contentType,
         contentTypeId,
         createdUserId: user._id,
         createdAt: Date.now(),
-        ...fields
+        ...fields,
       });
 
       return internalNote;
@@ -65,16 +66,16 @@ export const loadClass = () => {
      * Update internalNote
      */
     public static async updateInternalNote(_id: string, doc: IInternalNote) {
-      await InternalNotes.updateOne({ _id }, { $set: doc });
+      await models.InternalNotes.updateOne({ _id }, { $set: doc });
 
-      return InternalNotes.findOne({ _id });
+      return models.InternalNotes.findOne({ _id });
     }
 
     /*
      * Remove internalNote
      */
     public static async removeInternalNote(_id: string) {
-      const internalNoteObj = await InternalNotes.findOne({ _id });
+      const internalNoteObj = await models.InternalNotes.findOne({ _id });
 
       if (!internalNoteObj) {
         throw new Error(`InternalNote not found with id ${_id}`);
@@ -91,9 +92,9 @@ export const loadClass = () => {
       contentTypeIds: string[]
     ) {
       // Removing every internal notes of contentType
-      return InternalNotes.deleteMany({
+      return models.InternalNotes.deleteMany({
         contentType,
-        contentTypeId: { $in: contentTypeIds }
+        contentTypeId: { $in: contentTypeIds },
       });
     }
   }
@@ -102,13 +103,3 @@ export const loadClass = () => {
 
   return internalNoteSchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const InternalNotes = model<IInternalNoteDocument, IInternalNoteModel>(
-  'internal_notes',
-  internalNoteSchema
-);
-
-export default InternalNotes;

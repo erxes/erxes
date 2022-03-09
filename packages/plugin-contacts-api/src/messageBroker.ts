@@ -1,7 +1,5 @@
 import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 
-import Companies from './models/Companies';
-import Customers from './models/Customers';
 import {
   findCompany,
   findCustomer,
@@ -12,11 +10,14 @@ import {
 import { serviceDiscovery } from './configs';
 import { LOG_MAPPINGS } from './constants';
 import { insertImportItems, prepareImportDocs } from './importUtils';
+import { ICoreIModels, IModels } from './connectionResolver';
 
 export let client;
 
-export const initBroker = cl => {
+export const initBroker = (cl, models: IModels, _coreModels: ICoreIModels) => {
   client = cl;
+
+  const { Customers, Companies } = models;
 
   const { consumeRPCQueue, consumeQueue } = client;
 
@@ -27,12 +28,12 @@ export const initBroker = cl => {
 
   consumeRPCQueue('contacts:rpc_queue:findCustomer', async doc => ({
     status: 'success',
-    data: await findCustomer(doc)
+    data: await findCustomer(models, doc)
   }));
 
   consumeRPCQueue('contacts:rpc_queue:findCompany', async doc => ({
     status: 'success',
-    data: await findCompany(doc)
+    data: await findCompany(models, doc)
   }));
 
   consumeRPCQueue('contacts:rpc_queue:getCustomers', async doc => ({
@@ -143,7 +144,7 @@ export const initBroker = cl => {
 
   consumeRPCQueue('contacts:rpc_queue:getFields', async args => ({
     status: 'success',
-    data: await generateFields(args)
+    data: await generateFields(models, args)
   }));
 
   consumeRPCQueue('contacts:rpc_queue:prepareImportDocs', async args => ({
@@ -153,7 +154,7 @@ export const initBroker = cl => {
 
   consumeRPCQueue('contacts:rpc_queue:insertImportItems', async args => ({
     status: 'success',
-    data: await insertImportItems(args)
+    data: await insertImportItems(models, args)
   }));
 
   consumeRPCQueue('contacts:getCustomerName', async customer => {
@@ -163,14 +164,14 @@ export const initBroker = cl => {
   consumeRPCQueue('contacts:rpc_queue:getContentItem', async data => {
     return {
       status: 'success',
-      data: await getContentItem(data)
+      data: await getContentItem(models, data)
     };
   });
 
   consumeRPCQueue('contacts:rpc_queue:prepareEngageCustomers', async data => {
     return {
       status: 'success',
-      data: await prepareEngageCustomers(data)
+      data: await prepareEngageCustomers(models, data)
     };
   });
 
