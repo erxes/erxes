@@ -1,28 +1,30 @@
 import React from 'react';
 import SelectBoards from '@erxes/ui-settings/src/properties/containers/SelectBoardPipeline';
-import { IBoardSelectItem } from '@erxes/ui-settings/src/properties/types';
-
 class Form extends React.Component<any, any> {
   constructor(props) {
     super(props);
 
-    let selectedItems = [];
-
-    if (props.group) {
-      selectedItems = props.group.boardsPipelines || [];
-    }
-
     this.state = {
-      selectedItems
+      selectedItems: props.config
     };
   }
 
-  onClick = () => {
-    this.props.onChangeConfig('changed');
-  }
+  itemsChange = (items) => {
+    this.setState({ selectedItems: items }, () => {
 
-  itemsChange = (items: IBoardSelectItem[]) => {
-    this.setState({ selectedItems: items });
+      const boardsPipelines =
+        items &&
+        items.map((e) => {
+          const boardsPipeline = {
+            boardId: e.boardId,
+            pipelineIds: e.pipelineIds,
+          };
+
+          return boardsPipeline;
+        });
+
+      this.props.onChangeConfig(boardsPipelines);
+    });
   };
 
   render() {

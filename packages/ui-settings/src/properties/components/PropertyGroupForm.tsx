@@ -8,7 +8,7 @@ import Toggle from "@erxes/ui/src/components/Toggle";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import React from "react";
-import { IBoardSelectItem, IFieldGroup } from "../types";
+import { IFieldGroup } from "../types";
 
 type Props = {
   group?: IFieldGroup;
@@ -20,7 +20,6 @@ type Props = {
 type State = {
   isVisible: boolean;
   isVisibleInDetail: boolean;
-  selectedItems: IBoardSelectItem[];
   config: any;
 };
 class PropertyGroupForm extends React.Component<Props, State> {
@@ -29,19 +28,18 @@ class PropertyGroupForm extends React.Component<Props, State> {
 
     let isVisible = true;
     let isVisibleInDetail = true;
-    let selectedItems = [];
+    let config = {};
 
     if (props.group) {
       isVisible = props.group.isVisible;
       isVisibleInDetail = props.group.isVisibleInDetail;
-      selectedItems = props.group.boardsPipelines || [];
+      config = props.group.config;
     }
 
     this.state = {
-      config: {},
+      config,
       isVisible,
       isVisibleInDetail,
-      selectedItems,
     };
   }
 
@@ -52,29 +50,18 @@ class PropertyGroupForm extends React.Component<Props, State> {
   }) => {
     const { group, type } = this.props;
     const finalValues = values;
-    const selectedItems = this.state.selectedItems;
+    const config = this.state.config;
 
     if (group) {
       finalValues._id = group._id;
     }
-
-    const boardsPipelines =
-      selectedItems &&
-      selectedItems.map((e) => {
-        const boardsPipeline = {
-          boardId: e.boardId,
-          pipelineIds: e.pipelineIds,
-        };
-
-        return boardsPipeline;
-      });
 
     return {
       ...finalValues,
       contentType: type,
       isVisible: this.state.isVisible,
       isVisibleInDetail: this.state.isVisibleInDetail,
-      boardsPipelines,
+      config,
     };
   };
 
@@ -88,10 +75,6 @@ class PropertyGroupForm extends React.Component<Props, State> {
     const isVisibleInDetail = e.target.checked;
 
     return this.setState({ isVisibleInDetail });
-  };
-
-  itemsChange = (items: IBoardSelectItem[]) => {
-    this.setState({ selectedItems: items });
   };
 
   renderFieldVisible() {
@@ -141,13 +124,13 @@ class PropertyGroupForm extends React.Component<Props, State> {
   }
 
   onChangeConfig = (config) => {
-    console.log("mmmmm", config);
-
     this.setState({ config });
   };
 
   renderExtraContent() {
     const { type } = this.props;
+    const { config } = this.state;
+
     const plugins: any[] = (window as any).plugins || [];
 
     for (const plugin of plugins) {
@@ -157,7 +140,8 @@ class PropertyGroupForm extends React.Component<Props, State> {
             scope={plugin.scope}
             component={plugin.propertyGroupForm}
             injectedProps={{
-              type: this.props.type,
+              config,
+              type,
               onChangeConfig: this.onChangeConfig
             }}
           />
