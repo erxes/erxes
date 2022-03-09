@@ -22,9 +22,6 @@ export type ActivityLogsProps = {
 
 type FinalProps = {
   activityLogQuery: ActivityLogQueryResponse;
-  emailDeliveriesQuery: any;
-  notesQuery: any;
-  tasksQuery: any;
 } & WithDataProps;
 
 class Container extends React.Component<FinalProps, {}> {
@@ -56,34 +53,19 @@ class Container extends React.Component<FinalProps, {}> {
       target,
       activityLogQuery,
       extraTabs,
-      onChangeActivityTab,
       activityRenderItem,
-      emailDeliveriesQuery,
-      notesQuery,
-      tasksQuery,
-      activityType
+      contentId,
+      contentType
     } = this.props;
-
-    const getList = (type: string) => {
-      switch (type) {
-        case 'internal_note':
-          return notesQuery.internalNotesAsLogs || [];
-        case 'task':
-          return tasksQuery.tasksAsLogs || [];
-        case 'email':
-          return emailDeliveriesQuery.emailDeliveries || [];
-        default:
-          return activityLogQuery.activityLogs || [];
-      }
-    }
 
     const props = {
       target,
       loadingLogs: activityLogQuery.loading,
-      activityLogs: getList(activityType),
-      onTabClick: onChangeActivityTab,
+      activityLogs: activityLogQuery.activityLogs || [],
       extraTabs,
-      activityRenderItem
+      activityRenderItem,
+      contentId,
+      contentType
     };
 
     return (
@@ -101,7 +83,6 @@ class Container extends React.Component<FinalProps, {}> {
 }
 
 type WithDataProps = ActivityLogsProps & {
-  onChangeActivityTab: (currentTab: string) => void;
   activityType: string;
 };
 
@@ -111,35 +92,11 @@ const WithData = withProps<WithDataProps>(
       gql(queries.activityLogs),
       {
         name: 'activityLogQuery',
-        options: ({ contentId, contentType, activityType }: WithDataProps) => {
-          return {
-            variables: {
-              contentId,
-              contentType,
-              activityType
-            }
-          };
-        }
+        options: ({ contentId, contentType, activityType }: WithDataProps) => ({
+          variables: { contentId, contentType, activityType }
+        })
       }
     ),
-    graphql<WithDataProps>(gql(queries.emailDeliveriesAsLogs), {
-      name: 'emailDeliveriesQuery',
-      options: ({ contentId }: WithDataProps) => ({
-        variables: { contentId }
-      })
-    }),
-    graphql<WithDataProps>(gql(queries.tasksAsLogs), {
-      name: 'tasksQuery',
-      options: ({ contentId, contentType }: WithDataProps) => ({
-        variables: { contentId, contentType }
-      })
-    }),
-    graphql<WithDataProps>(gql(queries.internalNotesAsLogs), {
-      name: 'notesQuery',
-      options: ({ contentId }: WithDataProps) => ({
-        variables: { contentTypeId: contentId }
-      })
-    }),
   )(Container)
 );
 
@@ -154,10 +111,6 @@ export default class Wrapper extends React.Component<
       activityType: 'activity'
     };
   }
-
-  onChangeActivityTab = (currentTab: string) => {
-    this.setState({ activityType: currentTab });
-  };
 
   render() {
     const {
@@ -177,7 +130,6 @@ export default class Wrapper extends React.Component<
         extraTabs={extraTabs}
         activityType={activityType}
         activityRenderItem={activityRenderItem}
-        onChangeActivityTab={this.onChangeActivityTab}
       />
     );
   }
