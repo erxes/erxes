@@ -10,6 +10,10 @@ interface IParams {
   page?: number;
 }
 
+interface INoteAsLogParams {
+  contentTypeId: string;
+}
+
 const internalNoteQueries = {
   async internalNoteDetail(_root, { _id }: { _id: string }) {
     return InternalNotes.findOne({ _id });
@@ -61,6 +65,16 @@ const internalNoteQueries = {
 
     return { list, totalCount };
   },
+  async internalNotesAsLogs(_root, { contentTypeId }: INoteAsLogParams) {
+    const notes = await InternalNotes.find({ contentTypeId }).sort({ createdAt: -1 }).lean();
+
+    // convert to activityLog schema
+    return notes.map(n => ({
+      ...n,
+      contentId: contentTypeId,
+      contentType: 'note'
+    }));
+  }
 };
 
 moduleRequireLogin(internalNoteQueries);

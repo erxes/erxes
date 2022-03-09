@@ -146,7 +146,7 @@ export const collectItems = async ({ contentType, contentId }) => {
   const relatedItemIds = await sendConformityMessage('savedConformity', {
     mainType: contentType,
     mainTypeId: contentId,
-    relTypes: ['deal', 'ticket', 'task']
+    relTypes: type === 'task' ? ['deal', 'ticket', 'task'] : ['deal', 'ticket']
   });
 
   const items = await collection.find({
@@ -155,8 +155,6 @@ export const collectItems = async ({ contentType, contentId }) => {
       { status: { $ne: 'archived' } }
     ]
   }).lean().sort({ closeDate: 1 })
-
-  console.log(items, 'sisisisisisi')
 
   // const contentIds = items
   //   .filter(activity => activity.action === 'convert')

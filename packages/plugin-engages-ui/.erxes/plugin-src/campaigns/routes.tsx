@@ -32,7 +32,6 @@ const EngageConfigs = asyncComponent(() =>
 );
 
 const engageList = history => {
-  console.log('lilili')
   return <MessageList history={history} />;
 };
 

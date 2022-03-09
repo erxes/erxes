@@ -37,6 +37,7 @@ export const queries = `
   internalNoteDetail(_id: String!): InternalNote
   internalNotes(contentType: String!, contentTypeId: String): [InternalNote]
   internalNotesByAction(contentType: String, pipelineId: String, page: Int, perPage: Int): InternalNotesByAction
+  internalNotesAsLogs(contentTypeId: String!): [JSON]
 `;
 
 export const mutations = `

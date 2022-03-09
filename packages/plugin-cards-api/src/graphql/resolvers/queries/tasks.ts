@@ -13,6 +13,13 @@ import {
   getItemList,
   IArchiveArgs
 } from './utils';
+import { sendConformityMessage, sendInboxRPCMessage } from '../../../messageBroker';
+
+interface ITasksAsLogsParams {
+  contentId: string;
+  contentType: string;
+  limit?: number;
+}
 
 const taskQueries = {
   /**
@@ -62,6 +69,46 @@ const taskQueries = {
     const task = await Tasks.getTask(_id);
 
     return checkItemPermByUser(user._id, task);
+  },
+  async tasksAsLogs(_root, { contentId, contentType }: ITasksAsLogsParams) {
+    let tasks: any[] = [];
+
+    const relatedTaskIds = await sendConformityMessage('savedConformity', {
+      mainType: contentType,
+      mainTypeId: contentId,
+      relTypes: ['task']
+    });
+
+    if (contentType !== 'cards:task') {
+      tasks = await Tasks.find({
+        $and: [
+          { _id: { $in: relatedTaskIds } },
+          { status: { $ne: 'archived' } }
+        ]
+      }).sort({ closeDate: 1 }).lean()
+    }
+
+    const contentIds = tasks
+      .filter(activity => activity.action === 'convert')
+      .map(activity => activity.content);
+
+    if (Array.isArray(contentIds)) {
+      const conversations = await sendInboxRPCMessage(
+        'logs:getConversations',
+        { query: { _id: { $in: contentIds } } }
+      ) || [];
+
+      for (const conv of conversations) {
+        tasks.push({
+          _id: conv._id,
+          contentType: 'inbox:conversation',
+          contentId,
+          createdAt: conv.createdAt
+        });
+      }
+    }
+
+    return tasks
   }
 };
 
