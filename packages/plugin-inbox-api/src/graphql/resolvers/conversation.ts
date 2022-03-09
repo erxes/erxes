@@ -1,10 +1,10 @@
 import { debug } from '../../configs';
 import { getDocument } from '../../cacheUtils';
 import { IConversationDocument } from '../../models/definitions/conversations';
-import { IContext } from '@erxes/api-utils/src';
 import { ConversationMessages } from '../../models';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
 import { sendRPCMessage } from '../../messageBroker';
+import { IContext } from '../../connectionResolver';
 
 export default {
   /**
@@ -20,8 +20,8 @@ export default {
     return conversation.customerId && { __typename: 'Customer', _id: conversation.customerId }
   },
 
-  integration(conversation: IConversationDocument) {
-    return getDocument('integrations', { _id: conversation.integrationId });
+  integration(conversation: IConversationDocument, _args, { models }: IContext) {
+    return getDocument(models, 'integrations', { _id: conversation.integrationId });
   },
 
   user(conversation: IConversationDocument) {
@@ -50,10 +50,10 @@ export default {
   async facebookPost(
     conv: IConversationDocument,
     _args,
-    { dataSources }: IContext
+    { dataSources, models }: IContext
   ) {
     const integration =
-      (await getDocument('integrations', {
+      (await getDocument(models, 'integrations', {
         _id: conv.integrationId
       })) || {};
 
@@ -76,10 +76,10 @@ export default {
   async callProAudio(
     conv: IConversationDocument,
     _args,
-    { dataSources, user }: IContext
+    { dataSources, user, models }: IContext
   ) {
     const integration =
-      (await getDocument('integrations', {
+      (await getDocument(models, 'integrations', {
         _id: conv.integrationId
       })) || {};
 
@@ -134,9 +134,9 @@ export default {
     }
   },
 
-  async isFacebookTaggedMessage(conversation: IConversationDocument) {
+  async isFacebookTaggedMessage(conversation: IConversationDocument, _args, { models }: IContext) {
     const integration =
-      (await getDocument('integrations', {
+      (await getDocument(models, 'integrations', {
         _id: conversation.integrationId
       })) || {};
 

@@ -1,6 +1,6 @@
-import { Channels } from '../../models';
 import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
 import { getDocumentList } from '../../cacheUtils';
+import { IContext } from '../../connectionResolver';
 
 interface IIn {
   $in: string[];
@@ -14,14 +14,14 @@ const channelQueries = {
   /**
    * Channels list
    */
-  channelsByMembers(_root, { memberIds }: { memberIds: string[] }) {
-    return getDocumentList('channels', { memberIds: { $in: memberIds } });
+  channelsByMembers(_root, { memberIds }: { memberIds: string[] }, { models }: IContext) {
+    return getDocumentList(models, 'channels', { memberIds: { $in: memberIds } });
   },
 
   /**
    * Channels list
    */
-  channels(_root, { memberIds }: { memberIds: string[] }) {
+  channels(_root, { memberIds }: { memberIds: string[] }, { models }: IContext) {
     const query: IChannelQuery = {};
     const sort = { createdAt: -1 };
 
@@ -29,28 +29,28 @@ const channelQueries = {
       query.memberIds = { $in: memberIds };
     }
 
-    return Channels.find(query).sort(sort);
+    return models.Channels.find(query).sort(sort);
   },
 
   /**
    * Get one channel
    */
-  channelDetail(_root, { _id }: { _id: string }) {
-    return Channels.findOne({ _id });
+  channelDetail(_root, { _id }: { _id: string }, { models }: IContext ) {
+    return models.Channels.findOne({ _id });
   },
 
   /**
    * Get all channels count. We will use it in pager
    */
-  channelsTotalCount() {
-    return Channels.find({}).countDocuments();
+  channelsTotalCount(_root, _params, { models }: IContext) {
+    return models.Channels.find({}).countDocuments();
   },
 
   /**
    * Get last channel
    */
-  channelsGetLast() {
-    return Channels.findOne({}).sort({ createdAt: -1 });
+  channelsGetLast(_root, _params, { models }: IContext) {
+    return models.Channels.findOne({}).sort({ createdAt: -1 });
   }
 };
 

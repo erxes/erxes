@@ -1,4 +1,5 @@
 import { Model, model } from 'mongoose';
+import { IModels } from '../connectionResolver';
 import {
   IResponseTemplate,
   IResponseTemplateDocument,
@@ -15,13 +16,13 @@ export interface IResponseTemplateModel
   removeResponseTemplate(_id: string): void;
 }
 
-export const loadClass = () => {
+export const loadClass = (models: IModels) => {
   class ResponseTemplate {
     /*
      * Get a Pipeline template
      */
     public static async getResponseTemplate(_id: string) {
-      const responseTemplate = await ResponseTemplates.findOne({ _id });
+      const responseTemplate = await models.ResponseTemplates.findOne({ _id });
 
       if (!responseTemplate) {
         throw new Error('Response template not found');
@@ -36,16 +37,16 @@ export const loadClass = () => {
       _id: string,
       fields: IResponseTemplate
     ) {
-      await ResponseTemplates.updateOne({ _id }, { $set: { ...fields } });
+      await models.ResponseTemplates.updateOne({ _id }, { $set: { ...fields } });
 
-      return ResponseTemplates.findOne({ _id });
+      return models.ResponseTemplates.findOne({ _id });
     }
 
     /**
      * Delete response template
      */
     public static async removeResponseTemplate(_id: string) {
-      const responseTemplateObj = await ResponseTemplates.findOne({ _id });
+      const responseTemplateObj = await models.ResponseTemplates.findOne({ _id });
 
       if (!responseTemplateObj) {
         throw new Error(`Response template not found with id ${_id}`);
@@ -59,13 +60,3 @@ export const loadClass = () => {
 
   return responseTemplateSchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const ResponseTemplates = model<
-  IResponseTemplateDocument,
-  IResponseTemplateModel
->('response_templates', responseTemplateSchema);
-
-export default ResponseTemplates;

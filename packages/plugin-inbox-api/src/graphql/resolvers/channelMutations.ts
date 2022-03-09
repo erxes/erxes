@@ -1,5 +1,4 @@
 import * as _ from 'underscore';
-import { Channels } from '../../models';
 import {
   IChannel,
   IChannelDocument
@@ -10,11 +9,11 @@ import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src';
 
 // import utils, { checkUserIds } from '../../utils';
 import { checkUserIds } from '@erxes/api-utils/src';
 import { sendMessage } from '../../messageBroker';
+import { IContext } from '../../connectionResolver';
 
 interface IChannelsEdit extends IChannel {
   _id: string;
@@ -57,13 +56,14 @@ const channelMutations = {
   /**
    * Create a new channel and send notifications to its members bar the creator
    */
-  async channelsAdd(_root, doc: IChannel, { user }: IContext) {
-    const channel = await Channels.createChannel(doc, user._id);
+  async channelsAdd(_root, doc: IChannel, { user, models }: IContext) {
+    const channel = await models.Channels.createChannel(doc, user._id);
 
     await sendChannelNotifications(channel, 'invited', user);
 
     try {
       await putCreateLog(
+        models,
         {
           type: MODULE_NAMES.CHANNEL,
           newData: { ...doc, userId: user._id },
@@ -84,21 +84,22 @@ const channelMutations = {
   async channelsEdit(
     _root,
     { _id, ...doc }: IChannelsEdit,
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    const channel = await Channels.getChannel(_id);
+    const channel = await models.Channels.getChannel(_id);
 
     const { addedUserIds, removedUserIds } = checkUserIds(
       channel.memberIds || [],
       doc.memberIds || []
     );
 
-    const updated = await Channels.updateChannel(_id, doc);
+    const updated = await models.Channels.updateChannel(_id, doc);
 
     await sendChannelNotifications(channel, 'invited', user, addedUserIds);
     await sendChannelNotifications(channel, 'removed', user, removedUserIds);
 
     await putUpdateLog(
+      models,
       {
         type: MODULE_NAMES.CHANNEL,
         object: channel,
@@ -121,14 +122,14 @@ const channelMutations = {
   /**
    * Remove a channel
    */
-  async channelsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const channel = await Channels.getChannel(_id);
+  async channelsRemove(_root, { _id }: { _id: string }, { user, models }: IContext) {
+    const channel = await models.Channels.getChannel(_id);
 
-    await Channels.removeChannel(_id);
+    await models.Channels.removeChannel(_id);
 
     await sendChannelNotifications(channel, 'removed', user);
 
-    await putDeleteLog({ type: MODULE_NAMES.CHANNEL, object: channel }, user);
+    await putDeleteLog(models, { type: MODULE_NAMES.CHANNEL, object: channel }, user);
 
     return true;
   }

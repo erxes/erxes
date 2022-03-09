@@ -2,10 +2,11 @@ import * as _ from 'underscore';
 import integration from './integration';
 import conversationMessagesByConversationId from './conversationMessagesByConversationId';
 import conversationsByCustomerId from './conversationsByCustomerId';
+import { IModels } from '../connectionResolver';
 
-export function generateAllDataLoaders() {
+export function generateAllDataLoaders(models: IModels) {
   return {
-    integration: integration(),
+    integration: integration(models),
     conversationMessagesByConversationId: conversationMessagesByConversationId(),
     conversationsByCustomerId: conversationsByCustomerId()
   };

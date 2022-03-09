@@ -1,9 +1,10 @@
 import { graphqlPubsub } from './configs';
-import { ConversationMessages, Conversations, Integrations } from './models';
+import { ConversationMessages, Conversations } from './models';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { Users } from './apiCollections';
 import { sendContactRPCMessage, sendRPCMessage } from './messageBroker';
 import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
+import { generateModels } from './connectionResolver';
 
 const sendError = message => ({
   status: 'error',
@@ -19,7 +20,12 @@ const sendSuccess = data => ({
  * Handle requests from integrations api
  */
 export const receiveRpcMessage = async msg => {
-  const { action, metaInfo, payload } = msg;
+  const { action, metaInfo, payload, subdomain } = msg;
+  
+  const {
+    Integrations,
+  } = await generateModels(subdomain);
+  
   const doc = JSON.parse(payload || '{}');
 
   if (action === 'get-create-update-customer') {

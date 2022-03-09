@@ -1,5 +1,4 @@
 import * as _ from 'underscore';
-import { Channels, Integrations } from './models';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { KIND_CHOICES } from './models/definitions/constants';
 
@@ -13,6 +12,7 @@ import { fixDate } from '@erxes/api-utils/src';
 
 import { debug } from './configs';
 import { fetchSegment, sendSegmentMessage, sendTagRPCMessage } from './messageBroker';
+import { IModels } from './connectionResolver';
 
 export interface ICountBy {
   [index: string]: number;
@@ -26,10 +26,11 @@ interface IUserArgs {
 
 // Count conversatio  by channel
 const countByChannels = async (
+  models: IModels,
   qb: any,
   counts: ICountBy
 ): Promise<ICountBy> => {
-  const channels = await getDocumentList('channels', {});
+  const channels = await getDocumentList(models, 'channels', {});
 
   for (const channel of channels) {
     await qb.buildAllQueries();
@@ -42,8 +43,8 @@ const countByChannels = async (
 };
 
 // Count conversation by brand
-const countByBrands = async (qb: any, counts: ICountBy): Promise<ICountBy> => {
-  const brands = await getDocumentList('brands', {});
+const countByBrands = async (models: IModels, qb: any, counts: ICountBy): Promise<ICountBy> => {
+  const brands = await getDocumentList(models, 'brands', {});
 
   for (const brand of brands) {
     await qb.buildAllQueries();
@@ -109,6 +110,7 @@ export const countBySegment = async (
 };
 
 export const countByConversations = async (
+  models: IModels,
   params: IListArgs,
   integrationIds: string[],
   user: IUserArgs,
@@ -116,11 +118,11 @@ export const countByConversations = async (
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
-  const qb = new CommonBuilder(params, integrationIds, user);
+  const qb = new CommonBuilder(models, params, integrationIds, user);
 
   switch (only) {
     case 'byChannels':
-      await countByChannels(qb, counts);
+      await countByChannels(models, qb, counts);
       break;
 
     case 'byIntegrationTypes':
@@ -128,7 +130,7 @@ export const countByConversations = async (
       break;
 
     case 'byBrands':
-      await countByBrands(qb, counts);
+      await countByBrands(models ,qb, counts);
       break;
 
     case 'byTags':
@@ -144,6 +146,7 @@ export const countByConversations = async (
 };
 
 export class CommonBuilder<IArgs extends IListArgs> {
+  public models: IModels;
   public params: IArgs;
   public user: IUserArgs;
   public integrationIds: string[];
@@ -151,7 +154,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public filterList: any[];
   public activeIntegrationIds: string[] = [];
 
-  constructor(params: IArgs, integrationIds: string[], user: IUserArgs) {
+  constructor(models: IModels, params: IArgs, integrationIds: string[], user: IUserArgs) {
+    this.models = models;
     this.params = params;
     this.user = user;
     this.integrationIds = integrationIds;
@@ -218,7 +222,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
       await this.integrationTypeFilter(this.params.integrationType);
     }
 
-    const activeIntegrations = await Integrations.findIntegrations(
+    const activeIntegrations = await this.models.Integrations.findIntegrations(
       {},
       { _id: 1 }
     );
@@ -228,7 +232,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
   // filter by channel
   public async channelFilter(channelId: string): Promise<void> {
-    const channel = await Channels.getChannel(channelId);
+    const channel = await this.models.Channels.getChannel(channelId);
     const memberIds = channel.memberIds || [];
 
     if (!memberIds.includes(this.user._id)) {
@@ -254,7 +258,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
   // filter by brand
   public async brandFilter(brandId: string) {
-    const integrations = await Integrations.findIntegrations({
+    const integrations = await this.models.Integrations.findIntegrations({
       brandId
     }).select('_id');
 
@@ -374,7 +378,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
   // filter by integration type
   public async integrationTypeFilter(integrationType: string) {
-    const integrations = await Integrations.findIntegrations({
+    const integrations = await this.models.Integrations.findIntegrations({
       kind: integrationType
     });
 

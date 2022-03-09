@@ -1,4 +1,3 @@
-import { Channels, Integrations } from '../../models';
 import {
   INTEGRATION_NAMES_MAP,
   KIND_CHOICES
@@ -10,9 +9,9 @@ import {
 } from '@erxes/api-utils/src/permissions';
 
 import { sendTagRPCMessage, sendRPCMessage } from '../../messageBroker';
-import { IContext } from '@erxes/api-utils/src';
 import { paginate } from '@erxes/api-utils/src';
 import { getDocumentList } from '../../cacheUtils';
+import { IContext } from '../../connectionResolver';
 /**
  * Common helper for integrations & integrationsTotalCount
  */
@@ -24,7 +23,7 @@ const generateFilterQuery = async ({
   tag,
   status,
   formLoadType
-}) => {
+}, models) => {
   const query: any = {};
 
   if (kind) {
@@ -47,7 +46,7 @@ const generateFilterQuery = async ({
 
   // filter integrations by channel
   if (channelId) {
-    const channel = await Channels.getChannel(channelId);
+    const channel = await models.Channels.getChannel(channelId);
     query._id = { $in: channel.integrationIds || [] };
   }
 
@@ -98,19 +97,19 @@ const integrationQueries = {
       sortField: string;
       sortDirection: number;
     },
-    { singleBrandIdSelector }: IContext
+    { singleBrandIdSelector, models }: IContext
   ) {
     const query = {
       ...singleBrandIdSelector,
-      ...(await generateFilterQuery(args))
+      ...(await generateFilterQuery(args, models))
     };
 
     if (args.kind === 'lead') {
-      return Integrations.findLeadIntegrations(query, args);
+      return models.Integrations.findLeadIntegrations(query, args);
     }
 
     const integrations = paginate(
-      Integrations.findAllIntegrations(query),
+      models.Integrations.findAllIntegrations(query),
       args
     );
 
@@ -120,24 +119,24 @@ const integrationQueries = {
   /**
    * Get lead all integration list
    */
-  async allLeadIntegrations(_root, _args, { singleBrandIdSelector }: IContext) {
+  async allLeadIntegrations(_root, _args, { singleBrandIdSelector, models }: IContext) {
     const query = {
       ...singleBrandIdSelector,
       kind: 'lead'
     };
 
-    return Integrations.findAllIntegrations(query).sort({ name: 1 });
+    return models.Integrations.findAllIntegrations(query).sort({ name: 1 });
   },
 
   /**
    * Get used integration types
    */
-  async integrationsGetUsedTypes(_root, {}) {
+  async integrationsGetUsedTypes(_root, {}, { models }: IContext) {
     const usedTypes: Array<{ _id: string; name: string }> = [];
 
     for (const kind of KIND_CHOICES.ALL) {
       if (
-        (await Integrations.findIntegrations({ kind }).countDocuments()) > 0
+        (await models.Integrations.findIntegrations({ kind }).countDocuments()) > 0
       ) {
         usedTypes.push({ _id: kind, name: INTEGRATION_NAMES_MAP[kind] });
       }
@@ -149,8 +148,8 @@ const integrationQueries = {
   /**
    * Get one integration
    */
-  integrationDetail(_root, { _id }: { _id: string }) {
-    return Integrations.findOne({ _id });
+  integrationDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Integrations.findOne({ _id });
   },
 
   /**
@@ -166,7 +165,8 @@ const integrationQueries = {
       searchValue: string;
       status: string;
       formLoadType: string;
-    }
+    },
+  { models }: IContext
   ) {
     const counts = {
       total: 0,
@@ -178,11 +178,11 @@ const integrationQueries = {
     };
 
     const qry = {
-      ...(await generateFilterQuery(args))
+      ...(await generateFilterQuery(args, models))
     };
 
     const count = async query => {
-      return Integrations.findAllIntegrations(query).countDocuments();
+      return models.Integrations.findAllIntegrations(query).countDocuments();
     };
 
     // Counting integrations by tag
@@ -209,7 +209,7 @@ const integrationQueries = {
     }
 
     // Counting integrations by channel
-    const channels = await getDocumentList('channels', {});
+    const channels = await getDocumentList(models, 'channels', {});
 
     for (const channel of channels) {
       const countQueryResult = await count({
@@ -225,7 +225,7 @@ const integrationQueries = {
     }
 
     // Counting integrations by brand
-    const brands = await getDocumentList('brands', {});
+    const brands = await getDocumentList(models, 'brands', {});
 
     for (const brand of brands) {
       const countQueryResult = await count({ brandId: brand._id, ...qry });

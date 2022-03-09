@@ -3,8 +3,6 @@ import * as telemetry from 'erxes-telemetry';
 import { getUniqueValue } from '@erxes/api-utils/src/core';
 import { putActivityLog } from '@erxes/api-utils/src/logUtils';
 
-import { Channels, Integrations } from '../../models';
-
 import {
   EmailDeliveries,
   Fields,
@@ -40,11 +38,10 @@ import {
 
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 
-import { IContext } from '@erxes/api-utils/src';
-
 // import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 import { client as msgBrokerClient } from '../../messageBroker';
 import { getService, getServices } from '../../redis';
+import { IContext, IModels } from '../../connectionResolver';
 
 interface IEditIntegration extends IIntegration {
   _id: string;
@@ -66,16 +63,18 @@ const createIntegration = async (
   integration: IIntegrationDocument,
   //   user: IUserDocument,
   user,
-  type: string
+  type: string,
+  models: IModels
 ) => {
   if (doc.channelIds) {
-    await Channels.updateMany(
+    await models.Channels.updateMany(
       { _id: { $in: doc.channelIds } },
       { $push: { integrationIds: integration._id } }
     );
   }
 
     await putCreateLog(
+      models,
       {
         type: MODULE_NAMES.INTEGRATION,
         newData: { ...doc, createdUserId: user._id, isActive: true },
@@ -99,21 +98,23 @@ const editIntegration = async (
   integration: IIntegrationDocument,
   //   user: IUserDocument,
   user,
-  updated: IIntegrationDocument
+  updated: IIntegrationDocument,
+  models: IModels
 ) => {
-  await Channels.updateMany(
+  await models.Channels.updateMany(
     { integrationIds: integration._id },
     { $pull: { integrationIds: integration._id } }
   );
 
   if (fields.channelIds) {
-    await Channels.updateMany(
+    await models.Channels.updateMany(
       { _id: { $in: fields.channelIds } },
       { $push: { integrationIds: integration._id } }
     );
   }
 
     await putUpdateLog(
+      models,
       {
         type: MODULE_NAMES.INTEGRATION,
         object: integration,
@@ -133,14 +134,14 @@ const integrationMutations = {
   async integrationsCreateMessengerIntegration(
     _root,
     doc: IIntegration,
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    const integration = await Integrations.createMessengerIntegration(
+    const integration = await models.Integrations.createMessengerIntegration(
       doc,
       user._id
     );
 
-    return createIntegration(doc, integration, user, 'messenger');
+    return createIntegration(doc, integration, user, 'messenger', models);
   },
 
   /**
@@ -149,12 +150,12 @@ const integrationMutations = {
   async integrationsEditMessengerIntegration(
     _root,
     { _id, ...fields }: IEditIntegration,
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    const integration = await Integrations.getIntegration({ _id });
-    const updated = await Integrations.updateMessengerIntegration(_id, fields);
+    const integration = await models.Integrations.getIntegration({ _id });
+    const updated = await models.Integrations.updateMessengerIntegration(_id, fields);
 
-    return editIntegration(fields, integration, user, updated);
+    return editIntegration(fields, integration, user, updated, models);
   },
 
   /**
@@ -162,9 +163,10 @@ const integrationMutations = {
    */
   async integrationsSaveMessengerAppearanceData(
     _root,
-    { _id, uiOptions }: { _id: string; uiOptions: IUiOptions }
+    { _id, uiOptions }: { _id: string; uiOptions: IUiOptions },
+    { models }: IContext
   ) {
-    return Integrations.saveMessengerAppearanceData(_id, uiOptions);
+    return models.Integrations.saveMessengerAppearanceData(_id, uiOptions);
   },
 
   /**
@@ -172,9 +174,10 @@ const integrationMutations = {
    */
   async integrationsSaveMessengerConfigs(
     _root,
-    { _id, messengerData }: { _id: string; messengerData: IMessengerData }
+    { _id, messengerData }: { _id: string; messengerData: IMessengerData },
+    { models }: IContext
   ) {
-    return Integrations.saveMessengerConfigs(_id, messengerData);
+    return models.Integrations.saveMessengerConfigs(_id, messengerData);
   },
 
   /**
@@ -183,11 +186,11 @@ const integrationMutations = {
   async integrationsCreateLeadIntegration(
     _root,
     doc: IIntegration,
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    const integration = await Integrations.createLeadIntegration(doc, user._id);
+    const integration = await models.Integrations.createLeadIntegration(doc, user._id);
 
-    return createIntegration(doc, integration, user, 'lead');
+    return createIntegration(doc, integration, user, 'lead', models);
   },
 
   /**
@@ -196,13 +199,13 @@ const integrationMutations = {
   async integrationsEditLeadIntegration(
     _root,
     { _id, ...doc }: IEditIntegration,
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    const integration = await Integrations.getIntegration({ _id });
+    const integration = await models.Integrations.getIntegration({ _id });
 
-    const updated = await Integrations.updateLeadIntegration(_id, doc);
+    const updated = await models.Integrations.updateLeadIntegration(_id, doc);
 
-    return editIntegration(doc, integration, user, updated);
+    return editIntegration(doc, integration, user, updated, models);
   },
 
   /**
@@ -211,7 +214,7 @@ const integrationMutations = {
   async integrationsCreateExternalIntegration(
     _root,
     { data, ...doc }: IExternalIntegrationParams & { data: object },
-    { user, dataSources }: IContext
+    { user, models }: IContext
   ) {
     const modifiedDoc: any = { ...doc };
 
@@ -223,19 +226,19 @@ const integrationMutations = {
         modifiedDoc.webhookData.token === ''
       ) {
         modifiedDoc.webhookData.token = await getUniqueValue(
-          Integrations,
+          models.Integrations,
           'token'
         );
       }
     }
 
-    const integration = await Integrations.createExternalIntegration(
+    const integration = await models.Integrations.createExternalIntegration(
       modifiedDoc,
       user._id
     );
 
     if (doc.channelIds) {
-      await Channels.updateMany(
+      await models.Channels.updateMany(
         { _id: { $in: doc.channelIds } },
         { $push: { integrationIds: integration._id } }
       );
@@ -275,6 +278,7 @@ const integrationMutations = {
       telemetry.trackCli('integration_created', { type: doc.kind });
 
       await putCreateLog(
+        models,
         {
           type: MODULE_NAMES.INTEGRATION,
           newData: { ...doc, createdUserId: user._id, isActive: true },
@@ -283,7 +287,7 @@ const integrationMutations = {
         user
       );
     } catch (e) {
-      await Integrations.deleteOne({ _id: integration._id });
+      await models.Integrations.deleteOne({ _id: integration._id });
       throw new Error(e);
     }
 
@@ -293,9 +297,9 @@ const integrationMutations = {
   async integrationsEditCommonFields(
     _root,
     { _id, name, brandId, channelIds, data },
-    { user }
+    { user, models }: IContext
   ) {
-    const integration = await Integrations.getIntegration({ _id });
+    const integration = await models.Integrations.getIntegration({ _id });
 
     const doc: any = { name, brandId, data };
 
@@ -307,23 +311,24 @@ const integrationMutations = {
       }
     }
 
-    await Integrations.updateOne({ _id }, { $set: doc });
+    await models.Integrations.updateOne({ _id }, { $set: doc });
 
-    const updated = await Integrations.getIntegration({ _id });
+    const updated = await models.Integrations.getIntegration({ _id });
 
-    await Channels.updateMany(
+    await models.Channels.updateMany(
       { integrationIds: integration._id },
       { $pull: { integrationIds: integration._id } }
     );
 
     if (channelIds) {
-      await Channels.updateMany(
+      await models.Channels.updateMany(
         { _id: { $in: channelIds } },
         { $push: { integrationIds: integration._id } }
       );
     }
 
     await putUpdateLog(
+      models,
       {
         type: MODULE_NAMES.INTEGRATION,
         object: { name: integration.name, brandId: integration.brandId },
@@ -342,9 +347,9 @@ const integrationMutations = {
   async integrationsRemove(
     _root,
     { _id }: { _id: string },
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    const integration = await Integrations.getIntegration({ _id });
+    const integration = await models.Integrations.getIntegration({ _id });
 
     try {
       if (
@@ -376,11 +381,12 @@ const integrationMutations = {
       }
 
       await putDeleteLog(
+        models,
         { type: MODULE_NAMES.INTEGRATION, object: integration },
         user
       );
 
-      return Integrations.removeIntegration(_id);
+      return models.Integrations.removeIntegration(_id);
     } catch (e) {
       debug.error(e);
       throw e;
@@ -390,7 +396,7 @@ const integrationMutations = {
   /**
    * Delete an account
    */
-  async integrationsRemoveAccount(_root, { _id }: { _id: string }) {
+  async integrationsRemoveAccount(_root, { _id }: { _id: string }, { models }: IContext) {
     try {
       const { erxesApiIds } = await sendRPCMessage(
         'rpc_queue:api_to_integrations',
@@ -401,7 +407,7 @@ const integrationMutations = {
       );
 
       for (const id of erxesApiIds) {
-        await Integrations.removeIntegration(id);
+        await models.Integrations.removeIntegration(id);
       }
 
       return 'success';
@@ -483,15 +489,16 @@ const integrationMutations = {
   async integrationsArchive(
     _root,
     { _id, status }: IArchiveParams,
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    const integration = await Integrations.getIntegration({ _id });
+    const integration = await models.Integrations.getIntegration({ _id });
 
-    await Integrations.updateOne({ _id }, { $set: { isActive: !status } });
+    await models.Integrations.updateOne({ _id }, { $set: { isActive: !status } });
 
-    const updated = await Integrations.findOne({ _id });
+    const updated = await models.Integrations.findOne({ _id });
 
     await putUpdateLog(
+      models,
       {
         type: MODULE_NAMES.INTEGRATION,
         object: integration,
@@ -549,9 +556,9 @@ const integrationMutations = {
   async integrationsCopyLeadIntegration(
     _root,
     { _id }: { _id },
-    { docModifier, user }: IContext
+    { docModifier, user, models }: IContext
   ) {
-    const sourceIntegration = await Integrations.getIntegration({ _id });
+    const sourceIntegration = await models.Integrations.getIntegration({ _id });
 
     if (!sourceIntegration.formId) {
       throw new Error('Integration kind is not form');
@@ -586,7 +593,7 @@ const integrationMutations = {
 
     delete doc._id;
 
-    const copiedIntegration = await Integrations.createLeadIntegration(
+    const copiedIntegration = await models.Integrations.createLeadIntegration(
       doc,
       user._id
     );
@@ -608,6 +615,7 @@ const integrationMutations = {
     await Fields.insertMany(fields);
 
     await putCreateLog(
+      models,
       {
         type: MODULE_NAMES.INTEGRATION,
         newData: { ...doc, createdUserId: user._id, isActive: true },
@@ -631,14 +639,14 @@ const integrationMutations = {
   async integrationsCreateBookingIntegration(
     _root,
     doc: IIntegration,
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    const integration = await Integrations.createBookingIntegration(
+    const integration = await models.Integrations.createBookingIntegration(
       doc,
       user._id
     );
 
-    return createIntegration(doc, integration, user, 'booking');
+    return createIntegration(doc, integration, user, 'booking', models);
   },
 
   /**
@@ -647,13 +655,13 @@ const integrationMutations = {
   async integrationsEditBookingIntegration(
     _root,
     { _id, ...doc }: IEditIntegration,
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    const integration = await Integrations.getIntegration({ _id });
+    const integration = await models.Integrations.getIntegration({ _id });
 
-    const updated = await Integrations.updateBookingIntegration(_id, doc);
+    const updated = await models.Integrations.updateBookingIntegration(_id, doc);
 
-    return editIntegration(doc, integration, user, updated);
+    return editIntegration(doc, integration, user, updated, models);
   }
 };
 

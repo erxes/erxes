@@ -1,4 +1,4 @@
-import { MessengerApps } from '../../models';
+import { IContext } from "../../connectionResolver";
 
 interface IWebsite {
   description?: string;
@@ -18,8 +18,8 @@ const messengerAppsQueries = {
   /**
    * MessengerApps list
    */
-  async messengerApps(_root, { integrationId }: { integrationId: string }) {
-    const apps = await MessengerApps.find({
+  async messengerApps(_root, { integrationId }: { integrationId: string }, { models }: IContext) {
+    const apps = await models.MessengerApps.find({
       'credentials.integrationId': integrationId
     });
 

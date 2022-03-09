@@ -36,6 +36,12 @@ import {
   mutations as WidgetMutations
 } from './widgetTypeDefs';
 
+import {
+  types as SkillTypes,
+  queries as SkillQueries,
+  mutations as SkillMutations,
+} from './skillTypeDefs';
+
 const typeDefs = async (serviceDiscovery) => {
   const isProductsEnabled = await serviceDiscovery.isEnabled('products');
   const isTagsEnabled = await serviceDiscovery.isEnabled('tags');
@@ -50,6 +56,7 @@ const typeDefs = async (serviceDiscovery) => {
     ${integrationTypes(isProductsEnabled, isTagsEnabled)}
     ${ResponseTemplateTypes}
     ${widgetTypes(isProductsEnabled)}
+    ${SkillTypes}
     
     
     extend type Query {
@@ -59,6 +66,7 @@ const typeDefs = async (serviceDiscovery) => {
       ${IntegrationQueries}
       ${ResponseTemplateQueries}
       ${widgetQueries(isProductsEnabled)}
+      ${SkillQueries}
     }
 
     extend type Mutation {
@@ -68,6 +76,7 @@ const typeDefs = async (serviceDiscovery) => {
       ${IntegrationMutations}
       ${ResponseTemplateMutations}
       ${WidgetMutations}
+      ${SkillMutations}
     }
   `
 };

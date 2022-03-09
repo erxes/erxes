@@ -4,9 +4,10 @@ import ConversationQueries from './conversationQueries';
 import ChannelQueries from './channelQueries';
 import IntegrationQueries from './integrationQueries';
 import MessengerAppQueries from './messengerAppQueries';
+import ResponseTemplateQueries from './responseTemplateQueries'
 import ChannelMutations from './channelMutations';
 import IntegrationMutations from './integrationMutations';
-import ResponseTempateMutations from './responseTempateMutations';
+import ResponseTemplateMutations from './responseTemplateMutations';
 import MessengerAppMutations from './messengerAppMutations';
 import WidgetMutations from './widgetMutations';
 import { skillTypesMutations, skillsMutations } from './skillMutations';
@@ -31,7 +32,7 @@ const resolvers: any = {
     ...ConversationMutations,
     ...IntegrationMutations,
     ...ChannelMutations,
-    ...ResponseTempateMutations,
+    ...ResponseTemplateMutations,
     ...skillTypesMutations,
     ...skillsMutations,
     ...WidgetMutations,
@@ -43,6 +44,7 @@ const resolvers: any = {
     ...IntegrationQueries,
     ...skillTypesQueries,
     ...skillQueries,
+    ...ResponseTemplateQueries,
     ...WidgetQueries,
     ...ConversationQueries
   }

@@ -7,7 +7,9 @@ import { initBroker } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
+import { generateModels, models, coreModels } from './connectionResolver';
 
+export let mainDb;
 export let graphqlPubsub;
 export let serviceDiscovery;
 
@@ -42,12 +44,17 @@ export default {
     logs: { providesActivityLog: true }
   },
   apolloServerContext: (context) => {
-    context.dataLoaders = generateAllDataLoaders();
+    context.models = models;
+    context.coreModels = coreModels;
+    context.dataLoaders = generateAllDataLoaders(models);
   },
   onServerInit: async (options) => {
     await apiConnect();
 
     const app = options.app;
+    mainDb = options.db;
+
+    await generateModels('os');
 
     // events
     app.post(

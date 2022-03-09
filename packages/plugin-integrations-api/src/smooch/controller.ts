@@ -1,4 +1,4 @@
-import { debugRequest, debugResponse, debugSmooch } from '../debuggers';
+import { debugResponse, debugSmooch } from '../debuggers';
 import { routeErrorHandling } from '../helpers';
 import { createIntegration, reply } from './api';
 
@@ -19,17 +19,6 @@ const init = async app => {
       await receiveMessage(req.body);
 
       return res.status(200).send('success');
-    })
-  );
-
-  app.post(
-    '/smooch/create-integration',
-    routeErrorHandling(async (req, res) => {
-      debugRequest(debugSmooch, req);
-
-      await createIntegration(req.body);
-
-      return res.json({ status: 'ok' });
     })
   );
 
