@@ -1,6 +1,5 @@
 import { IContext } from '../../../connectionResolver';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
-
 import { getContentIds } from '../../../messageBroker';
 
 interface IParams {
@@ -71,8 +70,8 @@ const internalNoteQueries = {
 
     return { list, totalCount };
   },
-  async internalNotesAsLogs(_root, { contentTypeId }: INoteAsLogParams) {
-    const notes = await InternalNotes.find({ contentTypeId }).sort({ createdAt: -1 }).lean();
+  async internalNotesAsLogs(_root, { contentTypeId }: INoteAsLogParams, { models }: IContext) {
+    const notes = await models.InternalNotes.find({ contentTypeId }).sort({ createdAt: -1 }).lean();
 
     // convert to activityLog schema
     return notes.map(n => ({
