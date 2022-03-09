@@ -5,7 +5,7 @@ import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import apiConnect from './apiCollections';
-import { coreModels, generateModels, models } from './connectionResolver';
+import { generateModels, models } from './connectionResolver';
 
 export let mainDb;
 export let debug;
@@ -31,7 +31,6 @@ export default {
   },
   apolloServerContext: (context) => {
     context.models = models;
-    context.coreModels = coreModels;
   },
   onServerInit: async (options) => {
     mainDb = options.db;

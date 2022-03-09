@@ -20,11 +20,9 @@ export interface IModels {
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
-  coreModels: ICoreIModels;
 }
 
 export let models: IModels;
-export let coreModels: ICoreIModels;
 
 export const generateModels = async (
   _hostnameOrSubdomain: string
@@ -32,8 +30,6 @@ export const generateModels = async (
   if (models) {
     return models;
   }
-
-  coreModels = await connectCore();
 
   loadClasses(mainDb);
 
