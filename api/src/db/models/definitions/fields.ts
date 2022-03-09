@@ -98,6 +98,9 @@ export interface IFieldGroup extends IVisibility {
   boardsPipelines?: IBoardsPipelines[];
   boardIds?: string[];
   pipelineIds?: string[];
+  visibility?: string;
+  memberIds?: string[];
+  departmentIds?: string[];
 }
 
 export interface IFieldGroupDocument extends IFieldGroup, Document {
@@ -223,6 +226,9 @@ export const fieldGroupSchema = schemaWrapper(
       type: [String],
       label: 'pipeline ids',
       optional: true
-    })
+    }),
+    visibility: field({ type: String, optional: true }),
+    memberIds: field({ type: [String], label: 'Members' }),
+    departmentIds: field({ type: [String], label: 'Departments' })
   })
 );
