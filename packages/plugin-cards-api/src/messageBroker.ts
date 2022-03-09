@@ -254,7 +254,7 @@ export const sendEngageRPCMessage = async (action, data): Promise<any> => {
 };
 
 export const sendFieldRPCMessage = async (action, data): Promise<any> => {
-  return client.sendRPCMessage(`fields:rpc_queue:${action}`, data);
+  return client.sendRPCMessage(`forms:rpc_queue:${action}`, data);
 };
 
 export const sendInboxRPCMessage = async (action, data): Promise<any> => {

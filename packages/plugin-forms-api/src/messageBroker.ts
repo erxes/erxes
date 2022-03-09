@@ -29,9 +29,9 @@ export const initBroker = async cl => {
 
   consumeRPCQueue(
     'forms:rpc_queue:prepareCustomFieldsData',
-    async ({ doc }) => ({
+    async (data) => ({
       status: 'success',
-      data: await Fields.prepareCustomFieldsData(doc)
+      data: await Fields.prepareCustomFieldsData(data)
     })
   );
 

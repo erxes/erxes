@@ -91,10 +91,8 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
   return client.sendRPCMessage(channel, message);
 };
 
-export const prepareCustomFieldsData = async (doc): Promise<any> => {
-  return client.sendRPCMessage('fields:rpc_queue:prepareCustomFieldsData', {
-    doc,
-  });
+export const prepareCustomFieldsData = async (data): Promise<any> => {
+  return client.sendRPCMessage('forms:rpc_queue:prepareCustomFieldsData', data);
 };
 
 export const findTags = async (selector): Promise<any> => {

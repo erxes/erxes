@@ -11,6 +11,7 @@ import {
   readFile,
   sendRequest
 } from '../../utils';
+import enabledServices = require('../../../../enabled-services');
 
 const doSearch = async (index, value, fields) => {
   const highlightFields = {};
@@ -259,9 +260,15 @@ const configQueries = {
     ];
 
     return results;
-  }
+  },
+
 };
 
 moduleRequireLogin(configQueries);
+
+// @ts-ignore
+configQueries.enabledServices = () => {
+  return enabledServices;
+}
 
 export default configQueries;
