@@ -4,12 +4,9 @@ import { fieldsCombinedByContentType } from "../../../utils";
 import { serviceDiscovery } from "../../../configs";
 import { IContext } from "@erxes/api-utils/src/types";
 import { fetchService } from "../../../messageBroker";
-
-// import { IFieldDocument } from "../../../models/definitions/fields";
-
-// interface IFieldsDefaultColmns {
-//   [index: number]: { name: string; label: string; order: number } | {};
-// }
+interface IFieldsDefaultColmns {
+  [index: number]: { name: string; label: string; order: number } | {};
+}
 
 export interface IFieldsQuery {
   contentType: string;
@@ -73,44 +70,25 @@ const fieldQueries = {
   /**
    * Default list columns config
    */
-  // fieldsDefaultColumnsConfig(
-  //   _root,
-  //   { contentType }: { contentType: string }
-  // ): IFieldsDefaultColmns {
-  //   if (contentType === FIELD_CONTENT_TYPES.COMPANY) {
-  //     return [
-  //       { name: 'primaryName', label: 'Primary Name', order: 1 },
-  //       { name: 'size', label: 'Size', order: 2 },
-  //       { name: 'links.website', label: 'Website', order: 3 },
-  //       { name: 'industry', label: 'Industries', order: 4 },
-  //       { name: 'plan', label: 'Plan', order: 5 },
-  //       { name: 'lastSeenAt', label: 'Last seen at', order: 6 },
-  //       { name: 'sessionCount', label: 'Session count', order: 7 },
-  //       { name: 'score', label: 'Score', order: 8 }
-  //     ];
-  //   }
+  async fieldsDefaultColumnsConfig(
+    _root,
+    { contentType }: { contentType: string }
+  ): Promise<IFieldsDefaultColmns> {
+    const [serviceName, type] = contentType.split(':');
+    const service = await serviceDiscovery.getService(serviceName, true);
 
-  //   if (contentType === FIELD_CONTENT_TYPES.PRODUCT) {
-  //     return [
-  //       { name: 'categoryCode', label: 'Category Code', order: 0 },
-  //       { name: 'code', label: 'Code', order: 1 },
-  //       { name: 'name', label: 'Name', order: 1 },
-  //       { name: 'vendorCode', label: 'Vendor Code', order: 2 }
-  //     ];
-  //   }
+    if (!service) {
+      return [];
+    }
 
-  //   return [
-  //     { name: 'location.country', label: 'Country', order: 0 },
-  //     { name: 'firstName', label: 'First name', order: 1 },
-  //     { name: 'lastName', label: 'Last name', order: 2 },
-  //     { name: 'primaryEmail', label: 'Primary email', order: 3 },
-  //     { name: 'lastSeenAt', label: 'Last seen at', order: 4 },
-  //     { name: 'sessionCount', label: 'Session count', order: 5 },
-  //     { name: 'profileScore', label: 'Profile score', order: 6 },
-  //     { name: 'middleName', label: 'Middle name', order: 7 },
-  //     { name: 'score', label: 'Score', order: 8 }
-  //   ];
-  // },
+    const meta = service.config.meta || {};
+
+    if (meta.forms && meta.forms.defaultColumnsConfig) {
+      return meta.forms.defaultColumnsConfig[type] || [];
+    }
+
+    return [];
+  },
 
   // async fieldsInbox(_root) {
   //   const response: {

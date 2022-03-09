@@ -5,7 +5,6 @@ import Customers from './models/Customers';
 import {
   findCompany,
   findCustomer,
-  generateFields,
   getContentItem,
   prepareEngageCustomers
 } from './utils';
@@ -140,11 +139,6 @@ export const initBroker = cl => {
   consumeQueue('contacts:updateSession', ({ customerId }) =>
     Customers.updateSession(customerId)
   );
-
-  consumeRPCQueue('contacts:rpc_queue:getFields', async args => ({
-    status: 'success',
-    data: await generateFields(args)
-  }));
 
   consumeRPCQueue('contacts:rpc_queue:prepareImportDocs', async args => ({
     status: 'success',

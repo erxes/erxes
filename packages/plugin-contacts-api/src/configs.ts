@@ -15,6 +15,7 @@ import {
 import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
 import { buildFile } from './exporter';
 import segments from './segments';
+import forms from './forms';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -138,7 +139,8 @@ export default {
   exportTypes: EXPORT_TYPES,
   hasSubscriptions: true,
   meta: {
-    segments
+    segments,
+    forms,
   },
   apolloServerContext: context => {
     context.dataLoaders = generateAllDataLoaders();

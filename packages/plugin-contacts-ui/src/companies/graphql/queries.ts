@@ -54,7 +54,7 @@ const tags = `
 
 export const companiesListConfig = `
   query {
-    fieldsDefaultColumnsConfig(contentType: "company") {
+    fieldsDefaultColumnsConfig(contentType: "contacts:company") {
       name
       label
       order
