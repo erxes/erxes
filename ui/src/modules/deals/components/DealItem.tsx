@@ -11,14 +11,12 @@ import { IOptions } from 'modules/boards/types';
 import { renderAmount, renderPriority } from 'modules/boards/utils';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
-import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import { IDeal } from '../types';
 
 type Props = {
   stageId?: string;
   item: IDeal;
-  fields?: IField[];
   beforePopupClose?: () => void;
   onClick?: () => void;
   options?: IOptions;
@@ -73,7 +71,7 @@ class DealItem extends React.PureComponent<Props> {
   }
 
   renderContent() {
-    const { item, fields = [] } = this.props;
+    const { item } = this.props;
 
     const products = (item.products || [])
       .filter(p => p.tickUsed)
@@ -88,20 +86,20 @@ class DealItem extends React.PureComponent<Props> {
       companies,
       closeDate,
       isComplete,
-      customFieldsData = []
+      customFieldsData
     } = item;
 
-    const customData: { name: string }[] = [];
+    console.log('customFieldsData: ', customFieldsData);
 
-    if (customFieldsData.length > 0 && fields.length > 0) {
-      customFieldsData.forEach(e => {
-        const found = fields.find(f => f._id === e.field);
+    // if (customFieldsData.length > 0 && fields.length > 0) {
+    //   customFieldsData.forEach(e => {
+    //     const found = fields.find(f => f._id === e.field);
 
-        if (found) {
-          customData.push({ name: `${found.text} - ${e.value}` });
-        }
-      });
-    }
+    //     if (found) {
+    //       customData.push({ name: `${found.text} - ${e.value}` });
+    //     }
+    //   });
+    // }
 
     return (
       <>
@@ -114,7 +112,10 @@ class DealItem extends React.PureComponent<Props> {
         <Details color="#b49cf1" items={exProducts} />
         <Details color="#F7CE53" items={customers || []} />
         <Details color="#EA475D" items={companies || []} />
-        <Details color={colors.colorCoreOrange} items={customData || []} />
+        {/* <Details
+          color={colors.colorCoreOrange}
+          items={customFieldsData || []}
+        /> */}
 
         <PriceContainer>
           {renderAmount(item.amount)}
