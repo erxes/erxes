@@ -1,15 +1,8 @@
-import { Fields, FieldsGroups } from '../../db/models';
-import {
-  IFieldDocument,
-  IFieldGroupDocument
-} from '../../db/models/definitions/fields';
-import { getDocument } from './mutations/cacheUtils';
+import { Users } from "../../apiCollections";
+import { Fields, FieldsGroups } from "../../models";
+import { IFieldDocument, IFieldGroupDocument } from "../../models/definitions/fields";
 
 export const field = {
-  __resolveReference({ _id }) {
-    return Fields.findOne({ _id });
-  },
-
   name(root: IFieldDocument) {
     return `erxes-form-field-${root._id}`;
   },
@@ -17,8 +10,7 @@ export const field = {
   lastUpdatedUser(root: IFieldDocument) {
     const { lastUpdatedUserId } = root;
 
-    // Returning user who updated the field last
-    return getDocument('users', { _id: lastUpdatedUserId });
+    return Users.findOne({ _id: lastUpdatedUserId });
   },
 
   associatedField(root: IFieldDocument) {
@@ -45,7 +37,6 @@ export const fieldsGroup = {
   lastUpdatedUser(fieldGroup: IFieldGroupDocument) {
     const { lastUpdatedUserId } = fieldGroup;
 
-    // Returning user who updated the group last
-    return getDocument('users', { _id: lastUpdatedUserId });
+    return Users.findOne({ _id: lastUpdatedUserId });
   }
 };

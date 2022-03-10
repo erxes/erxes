@@ -4,14 +4,7 @@
 
 import { Model, model } from 'mongoose';
 import * as validator from 'validator';
-import { Forms } from '.';
-import {
-  FIELD_CONTENT_TYPES,
-  PROPERTY_GROUPS,
-  USER_PROPERTIES_INFO
-} from '../../data/constants';
 // import { updateOrder } from './boardUtils';
-import { FIELDS_GROUPS_CONTENT_TYPES } from './definitions/constants';
 import {
   fieldGroupSchema,
   fieldSchema,
@@ -127,30 +120,18 @@ export const loadFieldClass = () => {
         query.contentTypeId = contentTypeId;
       }
 
-      // form checks
-      if (contentType === FIELD_CONTENT_TYPES.FORM) {
-        if (!contentTypeId) {
-          throw new Error('Content type id is required');
+      if (groupName) {
+        let group = await FieldsGroups.findOne({ name: groupName });
+
+        if (!group) {
+          group = await FieldsGroups.createGroup({
+            name: groupName,
+            contentType,
+            isDefinedByErxes: false
+          });
         }
 
-        const form = await Forms.findOne({ _id: contentTypeId });
-
-        if (!form) {
-          throw new Error(`Form not found with _id of ${contentTypeId}`);
-        }
-
-        if (groupName) {
-          let group = await FieldsGroups.findOne({ name: groupName });
-
-          if (!group) {
-            group = await FieldsGroups.createGroup({
-              name: groupName,
-              contentType: 'form',
-              isDefinedByErxes: false
-            });
-          }
-          groupId = group._id;
-        }
+        groupId = group._id;
       }
 
       // Generate order
@@ -454,16 +435,16 @@ export const loadFieldClass = () => {
         //   }));
         //   await Fields.insertMany(deviceFields);
         //   break;
-        case FIELDS_GROUPS_CONTENT_TYPES.USER:
-          const userFields = USER_PROPERTIES_INFO.ALL.map(e => ({
-            text: e.label,
-            type: e.field,
-            groupId,
-            contentType,
-            isDefinedByErxes: true
-          }));
-          await Fields.insertMany(userFields);
-          break;
+        // case FIELDS_GROUPS_CONTENT_TYPES.USER:
+        //   const userFields = USER_PROPERTIES_INFO.ALL.map(e => ({
+        //     text: e.label,
+        //     type: e.field,
+        //     groupId,
+        //     contentType,
+        //     isDefinedByErxes: true
+        //   }));
+        //   await Fields.insertMany(userFields);
+        //   break;
       }
     }
 
@@ -631,43 +612,43 @@ export const loadGroupClass = () => {
      * Create system fields & groups
      */
     public static async createSystemGroupsFields() {
-      for (const group of PROPERTY_GROUPS) {
-        if (['ticket', 'task', 'lead', 'visitor'].includes(group.value)) {
-          continue;
-        }
+      // for (const group of PROPERTY_GROUPS) {
+      //   if (['ticket', 'task', 'lead', 'visitor'].includes(group.value)) {
+      //     continue;
+      //   }
 
-        for (const subType of group.types) {
-          if (subType.value === 'deal') {
-            continue;
-          }
+      //   for (const subType of group.types) {
+      //     if (subType.value === 'deal') {
+      //       continue;
+      //     }
 
-          const doc = {
-            name: 'Basic information',
-            contentType: subType.value,
-            order: 0,
-            isDefinedByErxes: true,
-            description: `Basic information of a ${subType.value}`,
-            isVisible: true
-          };
+      //     const doc = {
+      //       name: 'Basic information',
+      //       contentType: subType.value,
+      //       order: 0,
+      //       isDefinedByErxes: true,
+      //       description: `Basic information of a ${subType.value}`,
+      //       isVisible: true
+      //     };
 
-          const existingGroup = await FieldsGroups.findOne({
-            contentType: doc.contentType,
-            isDefinedByErxes: true
-          });
+      //     const existingGroup = await FieldsGroups.findOne({
+      //       contentType: doc.contentType,
+      //       isDefinedByErxes: true
+      //     });
 
-          if (existingGroup) {
-            continue;
-          }
+      //     if (existingGroup) {
+      //       continue;
+      //     }
 
-          if (['ticket', 'task', 'lead', 'visitor'].includes(doc.contentType)) {
-            continue;
-          }
+      //     if (['ticket', 'task', 'lead', 'visitor'].includes(doc.contentType)) {
+      //       continue;
+      //     }
 
-          const fieldGroup = await FieldsGroups.create(doc);
+      //     const fieldGroup = await FieldsGroups.create(doc);
 
-          await Fields.createSystemFields(fieldGroup._id, subType.value);
-        }
-      }
+      //     await Fields.createSystemFields(fieldGroup._id, subType.value);
+      //   }
+      // }
     }
 
     /*

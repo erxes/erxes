@@ -1,48 +1,15 @@
-import { findElkFields } from '../../../db/models/fieldUtils';
-import { Fields, FieldsGroups } from '../../../db/models';
-import { fetchElk } from '../../../elasticsearch';
-import { isUsingElk } from '../../utils';
-import { sendRPCMessage } from '../../../messageBroker';
+import { fetchService } from './messageBroker';
+import { Fields, FieldsGroups } from './models';
 
 export const getCustomFields = async (contentType: string) => {
-  if (!isUsingElk()) {
-    return Fields.find({
-      contentType,
-      isDefinedByErxes: false
-    });
-  }
-
-  return findElkFields({
-    bool: {
-      must: [
-        {
-          match: {
-            contentType
-          }
-        },
-        {
-          match: {
-            isDefinedByErxes: false
-          }
-        }
-      ]
-    }
+  return Fields.find({
+    contentType,
+    isDefinedByErxes: false
   });
 };
 
 const getFieldGroup = async (_id: string) => {
-  if (!isUsingElk()) {
-    return FieldsGroups.findOne({ _id });
-  }
-  const response = await fetchElk({
-    action: 'get',
-    index: 'fields_groups',
-    body: null,
-    _id,
-    defaultValue: null
-  });
-
-  return response && { _id: response._id, ...response._source };
+  return FieldsGroups.findOne({ _id });
 };
 
 /**
@@ -52,19 +19,15 @@ export const fieldsCombinedByContentType = async ({
   contentType,
   usageType,
   excludedNames,
-  pipelineId,
   segmentId,
-  formId,
-  serviceType
+  config
 }: {
   contentType: string;
   usageType?: string;
   excludedNames?: string[];
   boardId?: string;
   segmentId?: string;
-  pipelineId?: string;
-  formId?: string;
-  serviceType?: string;
+  config?: any;
 }) => {
   let fields: Array<{
     _id: number;
@@ -76,18 +39,17 @@ export const fieldsCombinedByContentType = async ({
     options?: string[];
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
-  if (serviceType) {
-    fields = await sendRPCMessage(
-      `${serviceType}:rpc_queue:getFields`,
-      {
-        contentType,
-        segmentId,
-        pipelineId,
-        usageType,
-        formId
-      }
-    );
-  }
+
+  fields = await fetchService(
+    contentType,
+    'getList',
+    {
+      segmentId,
+      usageType,
+      config
+    },
+    []
+  );
 
   const customFields = await getCustomFields(contentType);
 

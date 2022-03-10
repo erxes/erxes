@@ -1,17 +1,22 @@
 import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 
 import { serviceDiscovery } from './configs';
-import { generateFields } from './fieldUtils';
 import {
   generateAmounts,
   generateProducts
 } from './graphql/resolvers/customResolvers/deal';
 import { insertImportItems, prepareImportDocs } from './importUtils';
-import { Checklists, Deals, GrowthHacks, Pipelines, Stages, Tasks, Tickets } from './models';
-import { conversationConvertToCard } from './models/utils';
 import {
-  getCardItem
-} from './utils';
+  Checklists,
+  Deals,
+  GrowthHacks,
+  Pipelines,
+  Stages,
+  Tasks,
+  Tickets
+} from './models';
+import { conversationConvertToCard } from './models/utils';
+import { getCardItem } from './utils';
 
 import { LOG_MAPPINGS } from './constants';
 import { notifiedUserIds } from './graphql/utils';
@@ -63,11 +68,6 @@ export const initBroker = async cl => {
     data: await Checklists.removeChecklists(type, itemIds)
   }));
 
-  consumeRPCQueue('cards:rpc_queue:getFields', async args => ({
-    status: 'success',
-    data: await generateFields(args)
-  }));
-
   consumeRPCQueue('cards:rpc_queue:prepareImportDocs', async args => ({
     status: 'success',
     data: await prepareImportDocs(args)
@@ -77,7 +77,6 @@ export const initBroker = async cl => {
     status: 'success',
     data: await insertImportItems(args)
   }));
-
 
   consumeRPCQueue('cards:rpc_queue:conversationConvert', async args => ({
     status: 'success',
@@ -109,43 +108,42 @@ export const initBroker = async cl => {
       return notifDoc;
     }
 
-    switch(type) {
-      case 'deal': 
+    switch (type) {
+      case 'deal':
         model = Deals;
         break;
       case 'task':
         model = Tasks;
         break;
-      default: 
+      default:
         model = Tickets;
         break;
     }
 
-     const card = await model.findOne({_id: contentTypeId });
-     const stage = await Stages.getStage(card.stageId);
-     const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+    const card = await model.findOne({ _id: contentTypeId });
+    const stage = await Stages.getStage(card.stageId);
+    const pipeline = await Pipelines.getPipeline(stage.pipelineId);
 
-     notifDoc.notifType = `${type}Delete`;
-     notifDoc.content = `"${card.name}"`;
-     notifDoc.link = `/${type}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${card._id}`;
-     notifDoc.contentTypeId = card._id;
-     notifDoc.contentType = `${type}`;
-     notifDoc.item = card;
-     
-     // sendNotificationOfItems on ticket, task and deal
-     notifDoc.notifOfItems = true;
+    notifDoc.notifType = `${type}Delete`;
+    notifDoc.content = `"${card.name}"`;
+    notifDoc.link = `/${type}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${card._id}`;
+    notifDoc.contentTypeId = card._id;
+    notifDoc.contentType = `${type}`;
+    notifDoc.item = card;
+
+    // sendNotificationOfItems on ticket, task and deal
+    notifDoc.notifOfItems = true;
 
     return {
       status: 'success',
       data: notifDoc
-    }
-
+    };
   });
 
   consumeRPCQueue('cards:rpc_queue:notifiedUserIds', async args => {
-    return { 
+    return {
       status: 'success',
-      data: await notifiedUserIds(args),
+      data: await notifiedUserIds(args)
     };
   });
 };
@@ -172,7 +170,7 @@ export const sendContactRPCMessage = async (action, data): Promise<any> => {
   }
 
   if (!(await serviceDiscovery.isAvailable('contacts'))) {
-    throw new Error("Contacts service is not available");
+    throw new Error('Contacts service is not available');
   }
 
   return client.sendRPCMessage(`contacts:rpc_queue:${action}`, data);
@@ -192,13 +190,12 @@ export const sendInternalNoteMessage = async (action, data): Promise<any> => {
   }
 
   if (!(await serviceDiscovery.isAvailable('internalnotes'))) {
-    throw new Error("Internal-notes service is not available");
+    throw new Error('Internal-notes service is not available');
   }
   return client.sendMessage(`internalNotes:${action}`, data);
 };
 
 export const sendConformityMessage = async (action, data): Promise<any> => {
-  
   return client.sendRPCMessage(`conformities:${action}`, data);
 };
 
@@ -212,14 +209,14 @@ export const sendEngageRPCMessage = async (action, data): Promise<any> => {
   }
 
   if (!(await serviceDiscovery.isAvailable('engages'))) {
-    throw new Error("Inbox service is not available");
+    throw new Error('Inbox service is not available');
   }
 
   return client.sendRPCMessage(`engages:rpc_queue:${action}`, data);
 };
 
 export const sendFieldRPCMessage = async (action, data): Promise<any> => {
-  return client.sendRPCMessage(`fields:rpc_queue:${action}`, data);
+  return client.sendRPCMessage(`forms:rpc_queue:${action}`, data);
 };
 
 export const sendInboxRPCMessage = async (action, data): Promise<any> => {
@@ -228,7 +225,7 @@ export const sendInboxRPCMessage = async (action, data): Promise<any> => {
   }
 
   if (!(await serviceDiscovery.isAvailable('inbox'))) {
-    throw new Error("Inbox service is not available");
+    throw new Error('Inbox service is not available');
   }
 
   return client.sendRPCMessage(`inbox:rpc_queue:${action}`, data);
@@ -240,7 +237,7 @@ export const findProducts = async (action, data): Promise<any> => {
   }
 
   if (!(await serviceDiscovery.isAvailable('products'))) {
-    throw new Error("Products service is not available");
+    throw new Error('Products service is not available');
   }
 
   return client.sendRPCMessage(`products:rpc_queue:${action}`, data);
@@ -252,7 +249,7 @@ export const updateProducts = async (selector, modifier): Promise<any> => {
   }
 
   if (!(await serviceDiscovery.isAvailable('products'))) {
-    throw new Error("Products service is not available");
+    throw new Error('Products service is not available');
   }
 
   return client.sendRPCMessage(`products:rpc_queue:update`, {
@@ -267,7 +264,7 @@ export const sendProductRPCMessage = async (action, data): Promise<any> => {
   }
 
   if (!(await serviceDiscovery.isAvailable('products'))) {
-    throw new Error("Products service is not available");
+    throw new Error('Products service is not available');
   }
 
   return client.sendRPCMessage(`products:rpc_queue:${action}`, data);
@@ -286,10 +283,10 @@ export const sendNotificationMessage = async (
   if (!(await serviceDiscovery.isEnabled('notifications'))) {
     return defaultValue;
   }
-  
+
   if (isRPC) {
     if (!(await serviceDiscovery.isAvailable('notifications'))) {
-      throw new Error("Notifications service is not available");
+      throw new Error('Notifications service is not available');
     }
     return client.sendRPCMessage(`notifications:rpc_queue:${action}`, data);
   }
@@ -301,30 +298,33 @@ export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
 
 export const fetchSegment = (segment, options?) =>
-  sendSegmentMessage('fetchSegment', { segment, options }, true)
+  sendSegmentMessage('fetchSegment', { segment, options }, true);
 
 export const sendSegmentMessage = async (action, data, isRPC?: boolean) => {
   if (!isRPC) {
     return sendMessage(`segments:${action}`, data);
   }
 
-  if(!(await serviceDiscovery.isAvailable('segments'))) {
-    throw new Error("Segments service is not available");
+  if (!(await serviceDiscovery.isAvailable('segments'))) {
+    throw new Error('Segments service is not available');
   }
 
   sendMessage(`segments:rpc_queue:${action}`, data);
-}
+};
 
 export const findMongoDocuments = async (serviceName: string, data: any) => {
-  if(!(await serviceDiscovery.isEnabled(serviceName))) {
+  if (!(await serviceDiscovery.isEnabled(serviceName))) {
     return [];
   }
 
-  if(!(await serviceDiscovery.isAvailable(serviceName))) {
+  if (!(await serviceDiscovery.isAvailable(serviceName))) {
     throw new Error(`${serviceName} is not available`);
   }
 
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:findMongoDocuments`, data);
+  return client.sendRPCMessage(
+    `${serviceName}:rpc_queue:findMongoDocuments`,
+    data
+  );
 };
 
 export default function() {

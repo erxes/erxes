@@ -3,6 +3,10 @@ const boards = `
     boards(type: $type) {
       _id
       name
+      pipelines {
+        _id
+        name
+      }
     }
   }
 `;

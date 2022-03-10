@@ -1,13 +1,9 @@
-import { Fields, FieldsGroups } from '../../../db/models';
-import {
-  IField,
-  IFieldDocument,
-  IFieldGroup
-} from '../../../db/models/definitions/fields';
-import { IOrderInput } from '../../../db/models/Fields';
-// import { getBoardsAndPipelines } from '../../modules/fields/utils';
-import { moduleCheckPermission } from '../../permissions/wrappers';
-import { IContext } from '../../types';
+import { moduleCheckPermission } from "@erxes/api-utils/src/permissions";
+import { IContext } from "@erxes/api-utils/src/types";
+import { putCreateLog } from "../../../logUtils";
+import { Fields, FieldsGroups } from "../../../models";
+import { IField, IFieldDocument, IFieldGroup } from "../../../models/definitions/fields";
+import { IOrderInput } from "../../../models/Fields";
 
 interface IFieldsEdit extends IField {
   _id: string;
@@ -39,6 +35,16 @@ const fieldMutations = {
       ...args,
       lastUpdatedUserId: user._id
     });
+
+    await putCreateLog(
+      {
+        type: 'field',
+        newData: args,
+        object: field,
+        description: `Field "${args.text}" has been created`
+      },
+      user
+    );
 
     return field;
   },
@@ -174,6 +180,16 @@ const fieldsGroupsMutations = {
 
     const fieldGroup = await FieldsGroups.createGroup(
       docModifier({ ...doc, lastUpdatedUserId: user._id })
+    );
+
+    await putCreateLog(
+      {
+        type: 'field_group',
+        newData: doc,
+        object: fieldGroup,
+        description: `Field group "${doc.name}" has been created`
+      },
+      user
     );
 
     return fieldGroup;

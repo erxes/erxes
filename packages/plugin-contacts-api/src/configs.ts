@@ -13,6 +13,7 @@ import {
 import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
 import { buildFile } from './exporter';
 import segments from './segments';
+import forms from './forms';
 import { coreModels, generateModels, models } from './connectionResolver';
 
 export let mainDb;
@@ -139,7 +140,7 @@ export default {
   hasSubscriptions: true,
   meta: {
     segments,
-    logs: { providesActivityLog: false },
+    forms,
   },
   apolloServerContext: context => {
     context.models = models;

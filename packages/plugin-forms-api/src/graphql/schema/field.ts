@@ -15,6 +15,10 @@ const fieldCommonFields = `
 `;
 
 export const fieldsTypes = `
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type Logic {
     fieldId: String!
     logicOperator: String
@@ -26,17 +30,19 @@ export const fieldsTypes = `
     lng: Float
     description: String
   }
+
   input LocationOptionInput {
     lat: Float
     lng: Float
     description: String
   }
 
-  type Field @key(fields: "_id") @cacheControl(maxAge: 3) {
+  type Field @key(fields: "_id") {
     _id: String!
     contentType: String!
     contentTypeId: String
     name: String
+    code: String
     isVisible: Boolean
     isVisibleInDetail: Boolean
     canHide: Boolean
@@ -47,7 +53,6 @@ export const fieldsTypes = `
     associatedField: Field
     logics: [Logic]
     locationOptions: [LocationOption]
-
     ${fieldCommonFields}
   }
 
@@ -67,7 +72,7 @@ export const fieldsTypes = `
     _id: String
     tempFieldId: String
     logics: [LogicInput]
-
+    locationOptions: [LocationOptionInput]
     ${fieldCommonFields}
   }
 
@@ -85,8 +90,9 @@ export const fieldsTypes = `
 `;
 
 export const fieldsQueries = `
+  fieldsGetTypes: [JSON]
   fields(contentType: String!, contentTypeId: String, isVisible: Boolean): [Field]
-  fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, pipelineId: String, formId: String, serviceType: String): JSON
+  fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, config: JSON): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
   fieldsInbox: FieldsInbox
   fieldsItemTyped: JSON
@@ -97,7 +103,9 @@ const fieldsCommonFields = `
   validation: String
   text: String
   description: String
+  code: String
   options: [String]
+  locationOptions: [LocationOptionInput]
   isRequired: Boolean
   order: Int
   groupId: String
@@ -116,25 +124,13 @@ export const fieldsMutations = `
   fieldsUpdateVisible(_id: String!, isVisible: Boolean, isVisibleInDetail: Boolean) : Field
 `;
 
-const BoardsPipelinesFields = `
-  boardId: String
-  pipelineIds : [String]
-`;
-
 export const fieldsGroupsTypes = `
-  type BoardsPipelines {
-    ${BoardsPipelinesFields}
-  }
-
-  input BoardsPipelinesInput {
-    ${BoardsPipelinesFields}
-  }
-
   type FieldsGroup {
     _id: String!
     name: String
     contentType: String
     order: Int
+    code: String
     description: String
     isVisible: Boolean
     isVisibleInDetail: Boolean
@@ -142,7 +138,7 @@ export const fieldsGroupsTypes = `
     fields: [Field]
     lastUpdatedUserId: String
     lastUpdatedUser: User
-    boardsPipelines: [BoardsPipelines]
+    config: JSON
   }
 `;
 
@@ -151,13 +147,14 @@ const fieldsGroupsCommonFields = `
   contentType: String
   order: Int
   description: String
+  code: String
   isVisible: Boolean
   isVisibleInDetail: Boolean
-  boardsPipelines: [BoardsPipelinesInput]
+  config: JSON
 `;
 
 export const fieldsGroupsQueries = `
-  fieldsGroups(contentType: String, isDefinedByErxes: Boolean, boardId: String, pipelineId: String): [FieldsGroup]
+  fieldsGroups(contentType: String, isDefinedByErxes: Boolean, config: JSON): [FieldsGroup]
   getSystemFieldsGroup(contentType: String): FieldsGroup
 `;
 

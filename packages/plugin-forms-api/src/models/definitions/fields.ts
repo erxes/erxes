@@ -11,6 +11,7 @@ export interface ISubmission {
   groupId?: string;
   column?: number;
 }
+
 export interface ILogic {
   fieldId: string;
   tempFieldId?: string;
@@ -27,17 +28,6 @@ export const logicSchema = new Schema(
     }),
     logicValue: field({
       type: Schema.Types.Mixed,
-      optional: true
-    })
-  },
-  { _id: false }
-);
-
-export const boardsPipelinesSchema = new Schema(
-  {
-    boardId: field({ type: String, optional: true }),
-    pipelineIds: field({
-      type: [String],
       optional: true
     })
   },
@@ -78,11 +68,6 @@ export interface IFieldDocument extends IField, Document {
   _id: string;
 }
 
-interface IBoardsPipelines {
-  boardId?: string;
-  pipelineIds?: string[];
-}
-
 export interface IFieldGroup extends IVisibility {
   name?: string;
   contentType?: string;
@@ -90,9 +75,7 @@ export interface IFieldGroup extends IVisibility {
   isDefinedByErxes?: boolean;
   description?: string;
   lastUpdatedUserId?: string;
-  boardsPipelines?: IBoardsPipelines[];
-  boardIds?: string[];
-  pipelineIds?: string[];
+  config?: any;
 }
 
 export interface IFieldGroupDocument extends IFieldGroup, Document {
@@ -194,15 +177,6 @@ export const fieldGroupSchema = schemaWrapper(
       default: true,
       label: 'Is group visible in detail'
     }),
-    boardsPipelines: field({
-      type: [boardsPipelinesSchema],
-      optional: true
-    }),
-    boardIds: field({ type: [String], label: 'board ids', optional: true }),
-    pipelineIds: field({
-      type: [String],
-      label: 'pipeline ids',
-      optional: true
-    })
+    config: { type: Object }
   })
 );

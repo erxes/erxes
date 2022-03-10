@@ -4,7 +4,6 @@ import {
   Branches,
   Configs,
   Departments,
-  FieldsGroups,
   Units,
   Users
 } from '../../../db/models';
@@ -136,8 +135,6 @@ const userMutations = {
       code: 'UPLOAD_SERVICE_TYPE',
       value: 'local'
     });
-
-    await FieldsGroups.createSystemGroupsFields();
 
     await messageBroker().sendMessage('erxes-api:integrations-notification', {
       type: 'addUserId',
