@@ -25,7 +25,7 @@ import {
   requireLogin
 } from '@erxes/api-utils/src/permissions';
 import { splitStr } from '@erxes/api-utils/src/core';
-// import utils from '../../utils';
+// ? import utils from '../../utils';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
 import { IUserDocument } from '@erxes/api-utils/src/types';
@@ -409,7 +409,7 @@ const conversationMutations = {
 
     const dbMessage = await models.ConversationMessages.getMessage(message._id);
 
-    // await utils.sendToWebhook('create', 'userMessages', dbMessage);
+    // ? await utils.sendToWebhook('create', 'userMessages', dbMessage);
 
     // Publishing both admin & client
     publishMessage(models, dbMessage, conversation.customerId);

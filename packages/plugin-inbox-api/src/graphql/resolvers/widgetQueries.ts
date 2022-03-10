@@ -8,7 +8,7 @@ import { getDocument, getDocumentList } from '../../cacheUtils';
 import * as fs from 'fs';
 import * as moment from 'moment';
 
-// import { uploadFile, frontendEnv, getSubServiceDomain } from '@erxes/api-utils';
+// ? import { uploadFile, frontendEnv, getSubServiceDomain } from '@erxes/api-utils';
 
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
 import { sendRPCMessage } from '../../messageBroker';
@@ -147,8 +147,8 @@ export default {
     // writing data to text file.
     await writeMessagesToFile(conversation.createdAt, messages, fileName);
 
-    // const API_URL = frontendEnv({ name: 'API_URL', requestInfo });
-    // const API_DOMAIN = API_URL || getSubServiceDomain({ name: 'API_DOMAIN' });
+    // ? const API_URL = frontendEnv({ name: 'API_URL', requestInfo });
+    // ? const API_DOMAIN = API_URL || getSubServiceDomain({ name: 'API_DOMAIN' });
 
     // uploading a file to the server (aws, gcs, local).
     try {
@@ -157,7 +157,7 @@ export default {
         path: newPath,
         type: 'text/plain'
       };
-      // const result = await uploadFile(API_DOMAIN, file, false);
+      // ? const result = await uploadFile(API_DOMAIN, file, false);
       const result = '';
 
       // removing temporary written file.

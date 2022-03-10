@@ -1,6 +1,6 @@
 import * as strip from 'strip';
 
-// import {
+// ? import {
 //   IVisitorContactInfoParams
 // } from '../../../db/models/Customers';
 
@@ -11,7 +11,7 @@ import {
   MESSAGE_TYPES
 } from '../../models/definitions/constants';
 
-// import { ISubmission } from '../../../db/models/definitions/fields';
+// ? import { ISubmission } from '../../../db/models/definitions/fields';
 
 import {
   IAttachment,
@@ -21,7 +21,7 @@ import {
 
 import { debug } from '../../configs';
 
-// import { trackViewPageEvent } from '../../../events';
+// ? import { trackViewPageEvent } from '../../../events';
 
 import { get, set } from '../../inmemoryStorage';
 import { graphqlPubsub } from '../../configs';
@@ -49,11 +49,11 @@ import {
   sendRPCMessage
 } from '../../messageBroker';
 import { trackViewPageEvent } from '../../events';
-// import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
+import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 import { getService, getServices } from '../../redis';
 import { IContext, ICoreIModels, IModels } from '../../connectionResolver';
 
-// import { IFormDocument } from '../../../db/models/definitions/forms';
+// ? import { IFormDocument } from '../../../db/models/definitions/forms';
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -164,12 +164,10 @@ const createFormConversation = async (
   args: {
     integrationId: string;
     formId: string;
-    //     submissions: ISubmission[];
     submissions: any[];
     browserInfo: any;
     cachedCustomerId?: string;
   },
-  //   generateContent: (form: IFormDocument) => string,
   generateContent: (form) => string,
   generateConvData: () => {
     conversation?: any;
@@ -231,7 +229,7 @@ const createFormConversation = async (
       conversationId: conversation._id
     };
 
-    //     await sendToWebhook('create', 'popupSubmitted', formData);
+    // ?    await sendToWebhook('create', 'popupSubmitted', formData);
   }
 
   return {
@@ -299,7 +297,6 @@ const widgetMutations = {
     args: {
       integrationId: string;
       formId: string;
-      //       submissions: ISubmission[];
       submissions: any[];
       browserInfo: any;
       cachedCustomerId?: string;
@@ -744,7 +741,7 @@ const widgetMutations = {
       }
     }
 
-    // await sendToWebhook('create', 'customerMessages', msg);
+    // ? await sendToWebhook('create', 'customerMessages', msg);
 
     return msg;
   },
@@ -858,18 +855,17 @@ const widgetMutations = {
     if (customer && form) {
       const apiService = await getService('api');
 
-      // const replacedContent = await new EditorAttributeUtil(
-      //   msgBrokerClient,
-      //   apiService.address,
-      //   await getServices()
-      // ).replaceAttributes({
-      //   content,
-      //   customer,
-      //   user: await Users.getUser(form.createdUserId)
-      // });
+      const replacedContent = await new EditorAttributeUtil(
+        msgBrokerClient,
+        apiService.address,
+        await getServices()
+      ).replaceAttributes({
+        content,
+        customer,
+        user: await coreModels.Users.getUser(form.createdUserId)
+      });
 
-      // finalContent = replacedContent || '';
-      finalContent = '';
+      finalContent = replacedContent || '';
     }
 
     let mailAttachment: any = [];

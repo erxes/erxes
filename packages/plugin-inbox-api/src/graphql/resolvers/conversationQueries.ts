@@ -8,7 +8,7 @@ import {
 } from "@erxes/api-utils/src/permissions";
 
 import QueryBuilder, { IListArgs } from "../../conversationQueryBuilder";
-import { coreModels, IContext, IModels } from "../../connectionResolver";
+import { IContext, IModels } from "../../connectionResolver";
 
 interface ICountBy {
   [index: string]: number;

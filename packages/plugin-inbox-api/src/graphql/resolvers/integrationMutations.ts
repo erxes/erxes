@@ -4,8 +4,8 @@ import { getUniqueValue } from '@erxes/api-utils/src/core';
 import { putActivityLog } from '@erxes/api-utils/src/logUtils';
 
 import {
-  //   ACTIVITY_ACTIONS,
-  //   ACTIVITY_CONTENT_TYPES,
+  // ?  ACTIVITY_ACTIONS,
+  // ? ACTIVITY_CONTENT_TYPES,
   KIND_CHOICES
 } from '../../models/definitions/constants';
 
@@ -16,7 +16,7 @@ import {
   IUiOptions
 } from '../../models/definitions/integrations';
 
-// import { IUserDocument } from '../../../db/models/definitions/users';
+// ? import { IUserDocument } from '../../../db/models/definitions/users';
 
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
@@ -32,7 +32,7 @@ import {
 
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 
-// import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
+import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 import { client as msgBrokerClient } from '../../messageBroker';
 import { getService, getServices } from '../../redis';
 import { IContext, IModels } from '../../connectionResolver';
@@ -55,8 +55,7 @@ interface ISmsParams {
 const createIntegration = async (
   doc: IIntegration,
   integration: IIntegrationDocument,
-  //   user: IUserDocument,
-  user,
+  user: any,
   type: string,
   models: IModels
 ) => {
@@ -442,17 +441,17 @@ const integrationMutations = {
 
     const apiService = await getService('api');
 
-    // const replacedContent = await new EditorAttributeUtil(
-    //   msgBrokerClient,
-    //   apiService.address,
-    //   await getServices()
-    // ).replaceAttributes({
-    //   content: body,
-    //   user,
-    //   customer: customer || undefined
-    // });
+    const replacedContent = await new EditorAttributeUtil(
+      msgBrokerClient,
+      apiService.address,
+      await getServices()
+    ).replaceAttributes({
+      content: body,
+      user,
+      customer: customer || undefined
+    });
 
-    // doc.body = replacedContent || '';
+    doc.body = replacedContent || '';
 
     try {
       await sendRPCMessage('integrations:rcp_queue:sendEmail', {
