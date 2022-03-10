@@ -2,11 +2,12 @@ import { renderFullName } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
 import { IProduct } from 'modules/settings/productService/types';
+import { ICustomData } from 'modules/settings/properties/types';
 import React from 'react';
 import { ItemIndicator } from '../styles/stage';
 
 type Props = {
-  items: ICompany[] | ICustomer[] | IProduct[] | { name: string }[];
+  items: ICompany[] | ICustomer[] | IProduct[] | ICustomData[];
   color: string;
 };
 
