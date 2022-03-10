@@ -109,4 +109,5 @@ export const commonListTypes = `
   hasNotified: Boolean
   score: Float
   number: String
+  customFieldsData: JSON
 `;

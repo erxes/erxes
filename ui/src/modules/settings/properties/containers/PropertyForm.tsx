@@ -69,12 +69,15 @@ const PropertyFormContainer = (props: FinalProps) => {
     };
   }
 
+  console.log('type: ', type);
+
   const updatedProps = {
     ...props,
     type,
     renderButton,
     groups: fieldsGroupsQuery.fieldsGroups,
-    refetchQueries: getRefetchQueries(queryParams)
+    refetchQueries: getRefetchQueries(queryParams),
+    contentType: ''
   };
 
   return <PropertyForm {...updatedProps} />;

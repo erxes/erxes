@@ -42,6 +42,7 @@ export interface IField {
   logicAction?: string;
   groupName?: string;
   pageNumber?: number;
+  showInCard?: boolean;
 }
 
 export interface IBoardSelectItem {

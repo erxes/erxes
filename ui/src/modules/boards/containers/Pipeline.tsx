@@ -21,6 +21,7 @@ import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 import { queries } from '../graphql';
 import Stage from './Stage';
+import { IField } from 'modules/settings/properties/types';
 
 const Container = styled.div`
   height: 100%;
@@ -33,6 +34,7 @@ type Props = {
   stageMap?: IStageMap;
   queryParams: any;
   options: IOptions;
+  fields: IField[];
 };
 
 class WithStages extends Component<WithStagesQueryProps> {
@@ -68,7 +70,8 @@ class WithStages extends Component<WithStagesQueryProps> {
       stageMap,
       options,
       queryParams,
-      stagesQuery
+      stagesQuery,
+      fields
     } = this.props;
 
     const stagesCount = this.countStages(stageMap);
@@ -139,6 +142,7 @@ class WithStages extends Component<WithStagesQueryProps> {
                           onLoad={onLoadStage}
                           onAddItem={onAddItem}
                           onRemoveItem={onRemoveItem}
+                          fields={fields}
                         />
                       );
                     })}

@@ -17,12 +17,14 @@ import PropertyGroupForm from '../containers/PropertyGroupForm';
 import { IField, IFieldGroup } from '../types';
 import LocationOptions from './LocationOptions';
 import Map from 'modules/common/components/Map';
+import { Toggle } from 'erxes-ui';
 
 type Props = {
   queryParams: any;
   field?: IField;
   groups: IFieldGroup[];
   type: string;
+  contentType: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -34,25 +36,35 @@ type State = {
   hasOptions: boolean;
   add: boolean;
   currentLocation: ILocationOption;
+  showInCard: boolean;
 };
 
 class PropertyForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    console.log('props', props);
+
     let doc = {
       options: [],
       type: '',
       locationOptions: [],
-      hasOptions: false
+      hasOptions: false,
+      showInCard: false
     };
 
     if (props.field) {
-      const { type, options, locationOptions } = props.field;
+      const {
+        type,
+        options,
+        locationOptions,
+        showInCard = false
+      } = props.field;
 
       doc = {
         ...doc,
-        type
+        type,
+        showInCard
       };
 
       if (
@@ -65,7 +77,8 @@ class PropertyForm extends React.Component<Props, State> {
           type,
           hasOptions: true,
           options: Object.assign([], options || []),
-          locationOptions: []
+          locationOptions: [],
+          showInCard: false
         };
       }
 
@@ -74,7 +87,8 @@ class PropertyForm extends React.Component<Props, State> {
           type,
           hasOptions: false,
           options: [],
-          locationOptions: Object.assign([], locationOptions || [])
+          locationOptions: Object.assign([], locationOptions || []),
+          showInCard: false
         };
       }
     }
@@ -94,6 +108,7 @@ class PropertyForm extends React.Component<Props, State> {
     description: string;
   }) => {
     const { field, type } = this.props;
+    const { showInCard } = this.state;
 
     const finalValues = values;
 
@@ -106,7 +121,8 @@ class PropertyForm extends React.Component<Props, State> {
       type: this.state.type,
       options: this.state.options,
       locationOptions: this.state.locationOptions,
-      contentType: type
+      contentType: type,
+      showInCard
     };
   };
 
@@ -139,6 +155,10 @@ class PropertyForm extends React.Component<Props, State> {
     }
 
     this.setState({ type: value, ...doc });
+  };
+
+  onSwitchChange = e => {
+    this.setState({ showInCard: e.target.checked });
   };
 
   renderOptions = () => {
@@ -194,6 +214,29 @@ class PropertyForm extends React.Component<Props, State> {
     );
   };
 
+  renderShowInCard = () => {
+    const { type } = this.props;
+    const { showInCard } = this.state;
+
+    if (!['deal', 'ticket', 'task'].includes(type)) {
+      return null;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel>Show in card</ControlLabel>
+        <Toggle
+          checked={showInCard}
+          onChange={this.onSwitchChange}
+          icons={{
+            checked: <span>Yes</span>,
+            unchecked: <span>No</span>
+          }}
+        />
+      </FormGroup>
+    );
+  };
+
   renderAddGroup = () => {
     const { queryParams } = this.props;
 
@@ -213,6 +256,7 @@ class PropertyForm extends React.Component<Props, State> {
     const object = field || ({} as IField);
 
     const { values, isSubmitted } = formProps;
+    console.log('values', values);
     const { type } = this.state;
 
     return (
@@ -298,6 +342,7 @@ class PropertyForm extends React.Component<Props, State> {
         </FormGroup>
         {this.renderOptions()}
         {this.renderLocationOptions()}
+        {this.renderShowInCard()}
 
         <FormGroup>
           <ControlLabel>Validation:</ControlLabel>

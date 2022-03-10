@@ -68,6 +68,7 @@ export const commonListFields = `
   hasNotified
   score
   number
+  customFieldsData
 `;
 
 export const commonFields = `

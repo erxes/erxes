@@ -644,6 +644,7 @@ export const getItemList = async (
         priority: 1,
         number: 1,
         watchedUserIds: 1,
+        customFieldsData: 1,
         ...(extraFields || {})
       }
     }

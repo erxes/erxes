@@ -6,7 +6,7 @@ import React from 'react';
 import { ItemIndicator } from '../styles/stage';
 
 type Props = {
-  items: ICompany[] | ICustomer[] | IProduct[];
+  items: ICompany[] | ICustomer[] | IProduct[] | { name: string }[];
   color: string;
 };
 

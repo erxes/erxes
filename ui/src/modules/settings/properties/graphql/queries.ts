@@ -22,6 +22,7 @@ const commonFields = `
   }
   groupId
   code
+  showInCard
 
   ${genericFields}
 

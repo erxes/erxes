@@ -24,6 +24,7 @@ import { IItem, IOptions, IStage } from '../../types';
 import { renderAmount } from '../../utils';
 import ItemList from '../stage/ItemList';
 import { OverlayTrigger, Popover, Dropdown } from 'react-bootstrap';
+import { IField } from 'modules/settings/properties/types';
 
 type Props = {
   loadingItems: () => boolean;
@@ -32,6 +33,7 @@ type Props = {
   stage: IStage;
   length: number;
   items: IItem[];
+  fields: IField[];
   onAddItem: (stageId: string, item: IItem) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
   loadMore: () => void;
@@ -310,7 +312,14 @@ export default class Stage extends React.Component<Props, State> {
   }
 
   renderItemList() {
-    const { stage, items, loadingItems, options, onRemoveItem } = this.props;
+    const {
+      stage,
+      items,
+      loadingItems,
+      options,
+      onRemoveItem,
+      fields
+    } = this.props;
 
     if (loadingItems()) {
       return (
@@ -326,6 +335,7 @@ export default class Stage extends React.Component<Props, State> {
         stageId={stage._id}
         items={items}
         options={options}
+        fields={fields}
         onRemoveItem={onRemoveItem}
       />
     );

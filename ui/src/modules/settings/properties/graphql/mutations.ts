@@ -80,6 +80,7 @@ const commonVariables = `
   $order: Int,
   $groupId: String,
   $isVisible: Boolean,
+  $showInCard: Boolean,
 `;
 
 const commonParams = `
@@ -94,6 +95,7 @@ const commonParams = `
   order: $order,
   groupId: $groupId,
   isVisible: $isVisible,
+  showInCard: $showInCard
 `;
 
 const fieldsAdd = `

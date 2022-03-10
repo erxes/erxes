@@ -5,6 +5,7 @@ import Icon from 'modules/common/components/Icon';
 import { IRouterProps } from 'modules/common/types';
 import routerUtils from 'modules/common/utils/router';
 import { mutations as notificationMutations } from 'modules/notifications/graphql';
+import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { withRouter } from 'react-router-dom';
@@ -22,6 +23,7 @@ type Props = {
   listId: string;
   stageId: string;
   items: IItem[];
+  fields: IField[];
   internalScroll?: boolean;
   style?: any;
   // may not be provided - and might be null
@@ -35,6 +37,7 @@ type DraggableContainerProps = {
   item: IItem;
   index: number;
   options: IOptions;
+  fields: IField[];
   onRemoveItem: (itemId: string, stageId: string) => void;
 } & IRouterProps;
 
@@ -94,7 +97,7 @@ class DraggableContainer extends React.Component<
   }
 
   render() {
-    const { stageId, item, index, options } = this.props;
+    const { stageId, item, index, fields, options } = this.props;
     const { isDragDisabled } = this.state;
 
     return (
@@ -119,6 +122,7 @@ class DraggableContainer extends React.Component<
               onClick={this.onClick}
               beforePopupClose={this.beforePopupClose}
               options={options}
+              fields={fields}
             />
           </ItemContainer>
         )}
@@ -135,10 +139,11 @@ class InnerItemList extends React.PureComponent<{
   stageId: string;
   items: IItem[];
   options: IOptions;
+  fields: IField[];
   onRemoveItem: (itemId: string, stageId: string) => void;
 }> {
   render() {
-    const { stageId, items, options, onRemoveItem } = this.props;
+    const { stageId, fields, items, options, onRemoveItem } = this.props;
 
     return items.map((item, index: number) => (
       <DraggableContainerWithRouter
@@ -147,6 +152,7 @@ class InnerItemList extends React.PureComponent<{
         item={item}
         index={index}
         options={options}
+        fields={fields}
         onRemoveItem={onRemoveItem}
       />
     ));
@@ -158,12 +164,20 @@ type InnerListProps = {
   stageId: string;
   items: IItem[];
   options: IOptions;
+  fields: IField[];
   onRemoveItem: (itemId: string, stageId: string) => void;
 };
 
 class InnerList extends React.PureComponent<InnerListProps> {
   render() {
-    const { stageId, items, dropProvided, options, onRemoveItem } = this.props;
+    const {
+      stageId,
+      items,
+      fields,
+      dropProvided,
+      options,
+      onRemoveItem
+    } = this.props;
 
     if (items.length === 0) {
       return (
@@ -180,6 +194,7 @@ class InnerList extends React.PureComponent<InnerListProps> {
           stageId={stageId}
           items={items}
           options={options}
+          fields={fields}
         />
         {dropProvided.placeholder}
       </DropZone>
@@ -200,6 +215,7 @@ export default class ItemList extends React.Component<Props> {
       stageId,
       items,
       options,
+      fields,
       onRemoveItem
     } = this.props;
 
@@ -220,6 +236,7 @@ export default class ItemList extends React.Component<Props> {
               items={items}
               dropProvided={dropProvided}
               options={options}
+              fields={fields}
             />
             {dropProvided.placeholder}
           </Wrapper>
