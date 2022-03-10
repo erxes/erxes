@@ -1,6 +1,5 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import apiConnect from './apiCollections';
 
 import { initBroker, sendSegmentMessage } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
@@ -147,8 +146,6 @@ export default {
     context.coreModels = coreModels;
   },
   onServerInit: async options => {
-    await apiConnect();
-
     const app = options.app;
     mainDb = options.db;
 
@@ -160,7 +157,7 @@ export default {
         const { query, user } = req;
         const { segment } = query;
 
-        const result = await buildFile(models, query, user);
+        const result = await buildFile(models, coreModels, query, user);
 
         res.attachment(`${result.name}.xlsx`);
 
@@ -218,7 +215,7 @@ export default {
       )
     );
 
-    initBroker(options.messageBrokerClient, models, coreModels);
+    initBroker(options.messageBrokerClient);
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
