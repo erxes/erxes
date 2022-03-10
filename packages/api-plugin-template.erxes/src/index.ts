@@ -251,6 +251,37 @@ async function startServer() {
         }
       }
 
+      // logs message consumers
+      if (logs) {
+        if (logs.getActivityContent) {
+          consumeRPCQueue(
+            `${configs.name}:logs:getActivityContent`,
+            logs.getActivityContent
+          );
+        }
+        if (logs.getContentTypeDetail) {
+          consumeRPCQueue(
+            `${configs.name}:logs:getContentTypeDetail`,
+            logs.getContentTypeDetail
+          );
+        }
+        if (logs.collectItems) {
+          consumeRPCQueue(
+            `${configs.name}:logs:collectItems`,
+            logs.collectItems
+          );
+        }
+        if (logs.getContentIds) {
+          consumeRPCQueue(
+            `${configs.name}:logs:getContentIds`,
+            logs.getContentIds
+          );
+        }
+        if (logs.getSchemaLabels) {
+          consumeRPCQueue(`${configs.name}:logs:getSchemaLabels`, logs.getSchemaLabels);
+        }
+      } // end logs if()
+
       if (forms) {
         if (forms.fields) {
           consumeRPCQueue(
@@ -270,36 +301,6 @@ async function startServer() {
               data: await forms.groupsFilter(args)
             })
           );
-        }
-        // logs message consumers
-        if (logs) {
-          if (logs.getActivityContent) {
-            consumeRPCQueue(
-              `${configs.name}:logs:getActivityContent`,
-              logs.getActivityContent
-            );
-          }
-          if (logs.getContentTypeDetail) {
-            consumeRPCQueue(
-              `${configs.name}:logs:getContentTypeDetail`,
-              logs.getContentTypeDetail
-            );
-          }
-          if (logs.collectItems) {
-            consumeRPCQueue(
-              `${configs.name}:logs:collectItems`,
-              logs.collectItems
-            );
-          }
-          if (logs.getContentIds) {
-            consumeRPCQueue(
-              `${configs.name}:logs:getContentIds`,
-              logs.getContentIds
-            );
-          }
-        }
-        if (logs.getSchemaLabels) {
-          consumeRPCQueue(`${configs.name}:logs:getSchemaLabels`, logs.getSchemaLabels);
         }
       }
 
