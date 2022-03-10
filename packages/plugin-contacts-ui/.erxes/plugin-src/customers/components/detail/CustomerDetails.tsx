@@ -100,7 +100,7 @@ class CustomerDetails extends React.Component<Props> {
         <ActivityLogs
           target={customer.firstName}
           contentId={customer._id}
-          contentType="contacts:customer"
+          contentType="customer"
           extraTabs={[
             { name: 'conversation', label: 'Conversation' },
             { name: 'email', label: 'Email' },
