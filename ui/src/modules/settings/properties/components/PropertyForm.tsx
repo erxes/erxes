@@ -43,8 +43,6 @@ class PropertyForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    console.log('props', props);
-
     let doc = {
       options: [],
       type: '',
