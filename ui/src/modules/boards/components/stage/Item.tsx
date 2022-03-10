@@ -2,7 +2,6 @@ import { IItem, IOptions } from 'modules/boards/types';
 import { IRouterProps } from 'modules/common/types';
 import routerUtils from 'modules/common/utils/router';
 import { IDeal } from 'modules/deals/types';
-import { IField } from 'modules/settings/properties/types';
 import { ITicket } from 'modules/tickets/types';
 import queryString from 'query-string';
 import React from 'react';
@@ -17,7 +16,6 @@ type Props = {
   itemRowComponent?: any;
   groupType?: string;
   groupObj?: any;
-  fields?: IField[];
 } & IRouterProps;
 
 class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
