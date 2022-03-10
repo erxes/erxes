@@ -132,7 +132,7 @@ export const getContentIds = async (data) => {
 
   await checkService(serviceName, true);
 
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:getContentIds`, data);
+  return client.sendRPCMessage(`${serviceName}:logs:getContentIds`, data);
 };
 
 export default function() {

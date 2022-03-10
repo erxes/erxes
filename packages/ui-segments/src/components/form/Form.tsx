@@ -13,7 +13,6 @@ import { __, generateRandomColorCode } from '@erxes/ui/src/utils';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
-import Select from 'react-select-plus';
 import {
   IConditionsForPreview,
   IEvent,
@@ -32,7 +31,6 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { FilterBox, SegmentBackIcon, SegmentWrapper, Count } from '../styles';
 import PropertyCondition from '../../containers/form/PropertyCondition';
 import { Link } from 'react-router-dom';
-import { isBoardKind } from '../../utils';
 import PropertyForm from './PropertyForm';
 import EventForm from './EventForm';
 import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
@@ -458,7 +456,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   };
 
   renderConditionsList = () => {
-    const { contentType, hideDetailForm, events, serviceType } = this.props;
+    const { contentType, hideDetailForm, events } = this.props;
     const {
       segments,
       state,

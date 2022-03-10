@@ -11,6 +11,7 @@ import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { buildFile } from './exporter';
 import segments from './segments';
 import forms from './forms';
+import logsConsumers from './logsConsumers';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -39,8 +40,8 @@ export default {
   importTypes: IMPORT_TYPES,
   exportTypes: EXPORT_TYPES,
   meta: {
-    logs: { providesActivityLog: true },
     forms,
+    logs: { providesActivityLog: true, consumers: logsConsumers },
     segments
   },
   apolloServerContext: context => {

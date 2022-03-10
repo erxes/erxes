@@ -42,7 +42,7 @@ class PropertyCondition extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { contentType, forms = [], config = {} } = props;
+    const { contentType, config = {} } = props;
 
     this.state = {
       propertyType: contentType,
@@ -65,10 +65,9 @@ class PropertyCondition extends React.Component<Props, State> {
     this.setState({ searchValue: value });
   };
 
-  onChangeBoardItem = (key, e) => {
-    const value = e ? e.value : '';
-
-    this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
+  onChangeConfig = config => {
+    console.log(config);
+    this.setState({ config });
   };
 
   renderExtraContent = () => {
@@ -78,7 +77,7 @@ class PropertyCondition extends React.Component<Props, State> {
     const plugins: any[] = (window as any).plugins || [];
 
     for (const plugin of plugins) {
-      if (contentType.includes(`${plugin.name}:`) && plugin.segmentForm) {
+      if (propertyType.includes(`${plugin.name}:`) && plugin.segmentForm) {
         return (
           <RenderDynamicComponent
             scope={plugin.scope}
@@ -86,7 +85,8 @@ class PropertyCondition extends React.Component<Props, State> {
             injectedProps={{
               config,
               type: contentType,
-              propertyType
+              propertyType,
+              onChangeConfig: this.onChangeConfig
             }}
           />
         );
@@ -97,14 +97,9 @@ class PropertyCondition extends React.Component<Props, State> {
   };
 
   render() {
-    const {
-      associationTypes,
-      onClickBackToList,
-      hideBackButton,
-      config
-    } = this.props;
+    const { associationTypes, onClickBackToList, hideBackButton } = this.props;
 
-    const { chosenProperty, propertyType, searchValue } = this.state;
+    const { chosenProperty, propertyType, searchValue, config } = this.state;
 
     const onChange = e => {
       const value = e.value;

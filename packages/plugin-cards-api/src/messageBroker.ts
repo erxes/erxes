@@ -1,11 +1,11 @@
-import { getSchemaLabels } from "@erxes/api-utils/src/logUtils";
+import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 
-import { serviceDiscovery } from "./configs";
+import { serviceDiscovery } from './configs';
 import {
   generateAmounts,
-  generateProducts,
-} from "./graphql/resolvers/customResolvers/deal";
-import { insertImportItems, prepareImportDocs } from "./importUtils";
+  generateProducts
+} from './graphql/resolvers/customResolvers/deal';
+import { insertImportItems, prepareImportDocs } from './importUtils';
 import {
   Checklists,
   Deals,
@@ -13,132 +13,95 @@ import {
   Pipelines,
   Stages,
   Tasks,
-  Tickets,
-} from "./models";
-import { conversationConvertToCard } from "./models/utils";
-import {
-  getContentItem,
-  getContentTypeDetail,
-  collectItems,
-  getCardContentIds,
-  getCardItem,
-} from "./utils";
+  Tickets
+} from './models';
+import { conversationConvertToCard } from './models/utils';
+import { getCardItem } from './utils';
 
-import { LOG_MAPPINGS } from "./constants";
-import { notifiedUserIds } from "./graphql/utils";
+import { LOG_MAPPINGS } from './constants';
+import { notifiedUserIds } from './graphql/utils';
 
 let client;
 
-export const initBroker = async (cl) => {
+export const initBroker = async cl => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeRPCQueue("cards:rpc_queue:createTickets", async (args) => ({
-    status: "success",
-    data: await Tickets.create(args),
+  consumeRPCQueue('cards:rpc_queue:createTickets', async args => ({
+    status: 'success',
+    data: await Tickets.create(args)
   }));
 
-  consumeRPCQueue("cards:rpc_queue:createTasks", async (args) => ({
-    status: "success",
-    data: await Tasks.create(args),
+  consumeRPCQueue('cards:rpc_queue:createTasks', async args => ({
+    status: 'success',
+    data: await Tasks.create(args)
   }));
 
-  consumeRPCQueue("cards:rpc_queue:findTickets", async (args) => ({
-    status: "success",
-    data: await Tickets.find(args),
+  consumeRPCQueue('cards:rpc_queue:findTickets', async args => ({
+    status: 'success',
+    data: await Tickets.find(args)
   }));
 
-  consumeRPCQueue("cards:rpc_queue:findOneTickets", async (args) => ({
-    status: "success",
-    data: await Tickets.findOne(args),
+  consumeRPCQueue('cards:rpc_queue:findOneTickets', async args => ({
+    status: 'success',
+    data: await Tickets.findOne(args)
   }));
 
-  consumeRPCQueue("cards:rpc_queue:findStages", async (args) => ({
-    status: "success",
-    data: await Stages.find(args),
+  consumeRPCQueue('cards:rpc_queue:findStages', async args => ({
+    status: 'success',
+    data: await Stages.find(args)
   }));
 
-  consumeRPCQueue("cards:rpc_queue:findTasks", async (args) => ({
-    status: "success",
-    data: await Tasks.find(args),
+  consumeRPCQueue('cards:rpc_queue:findTasks', async args => ({
+    status: 'success',
+    data: await Tasks.find(args)
   }));
 
-  consumeRPCQueue("cards:rpc_queue:findOneTasks", async (args) => ({
-    status: "success",
-    data: await Tasks.findOne(args),
+  consumeRPCQueue('cards:rpc_queue:findOneTasks', async args => ({
+    status: 'success',
+    data: await Tasks.findOne(args)
   }));
 
-  consumeQueue("checklists:removeChecklists", async ({ type, itemIds }) => ({
-    status: "success",
-    data: await Checklists.removeChecklists(type, itemIds),
+  consumeQueue('checklists:removeChecklists', async ({ type, itemIds }) => ({
+    status: 'success',
+    data: await Checklists.removeChecklists(type, itemIds)
   }));
 
-  consumeRPCQueue("cards:rpc_queue:prepareImportDocs", async (args) => ({
-    status: "success",
-    data: await prepareImportDocs(args),
+  consumeRPCQueue('cards:rpc_queue:prepareImportDocs', async args => ({
+    status: 'success',
+    data: await prepareImportDocs(args)
   }));
 
-  consumeRPCQueue("cards:rpc_queue:insertImportItems", async (args) => ({
-    status: "success",
-    data: await insertImportItems(args),
+  consumeRPCQueue('cards:rpc_queue:insertImportItems', async args => ({
+    status: 'success',
+    data: await insertImportItems(args)
   }));
 
-  consumeRPCQueue("cards:rpc_queue:conversationConvert", async (args) => ({
-    status: "success",
-    data: await conversationConvertToCard(args),
+  consumeRPCQueue('cards:rpc_queue:conversationConvert', async args => ({
+    status: 'success',
+    data: await conversationConvertToCard(args)
   }));
 
   // necessary for logs service starting from here
-  consumeRPCQueue("cards:rpc_queue:logs:getSchemaLabels", async ({ type }) => ({
-    status: "success",
-    data: getSchemaLabels(type, LOG_MAPPINGS),
-  }));
-
-  consumeRPCQueue("cards:rpc_queue:getActivityContent", async (data) => {
-    return {
-      status: "success",
-      data: await getContentItem(data),
-    };
+  consumeRPCQueue('cards:deals:generateAmounts', async productsData => {
+    return { data: generateAmounts(productsData), status: 'success' };
   });
 
-  consumeRPCQueue("cards:rpc_queue:getContentTypeDetail", async (data) => {
-    const { activityLog = {} } = data;
-
-    return {
-      status: "success",
-      data: await getContentTypeDetail(activityLog),
-    };
+  consumeRPCQueue('cards:deals:generateProducts', async productsData => {
+    return { data: await generateProducts(productsData), status: 'success' };
   });
 
-  consumeRPCQueue(`cards:rpc_queue:activityLog:collectItems`, async (data) => ({
-    status: "success",
-    data: await collectItems(data),
-  }));
-
-  consumeRPCQueue("cards:rpc_queue:getContentIds", async (data) => ({
-    status: "success",
-    data: await getCardContentIds(data),
-  }));
-
-  consumeRPCQueue("cards:deals:generateAmounts", async (productsData) => {
-    return { data: generateAmounts(productsData), status: "success" };
+  consumeRPCQueue('cards:rpc_queue:findItem', async data => {
+    return { data: await getCardItem(data), status: 'success' };
   });
 
-  consumeRPCQueue("cards:deals:generateProducts", async (productsData) => {
-    return { data: await generateProducts(productsData), status: "success" };
-  });
-
-  consumeRPCQueue("cards:rpc_queue:findItem", async (data) => {
-    return { data: await getCardItem(data), status: "success" };
-  });
-
-  consumeRPCQueue("cards:rpc_queue:generateInternalNoteNotif", async (args) => {
+  consumeRPCQueue('cards:rpc_queue:generateInternalNoteNotif', async args => {
     let model: any = GrowthHacks;
 
     const { contentTypeId, notifDoc, type } = args;
 
-    if (type === "growthHack") {
+    if (type === 'growthHack') {
       const hack = await model.getGrowthHack(contentTypeId);
 
       notifDoc.content = `${hack.name}`;
@@ -147,10 +110,10 @@ export const initBroker = async (cl) => {
     }
 
     switch (type) {
-      case "deal":
+      case 'deal':
         model = Deals;
         break;
-      case "task":
+      case 'task':
         model = Tasks;
         break;
       default:
@@ -173,15 +136,15 @@ export const initBroker = async (cl) => {
     notifDoc.notifOfItems = true;
 
     return {
-      status: "success",
-      data: notifDoc,
+      status: 'success',
+      data: notifDoc
     };
   });
 
-  consumeRPCQueue("cards:rpc_queue:notifiedUserIds", async (args) => {
+  consumeRPCQueue('cards:rpc_queue:notifiedUserIds', async args => {
     return {
-      status: "success",
-      data: await notifiedUserIds(args),
+      status: 'success',
+      data: await notifiedUserIds(args)
     };
   });
 };
@@ -195,7 +158,7 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
 };
 
 export const sendContactMessage = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled("contacts"))) {
+  if (!(await serviceDiscovery.isEnabled('contacts'))) {
     return;
   }
 
@@ -203,12 +166,12 @@ export const sendContactMessage = async (action, data): Promise<any> => {
 };
 
 export const sendContactRPCMessage = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled("contacts"))) {
+  if (!(await serviceDiscovery.isEnabled('contacts'))) {
     return [];
   }
 
-  if (!(await serviceDiscovery.isAvailable("contacts"))) {
-    throw new Error("Contacts service is not available");
+  if (!(await serviceDiscovery.isAvailable('contacts'))) {
+    throw new Error('Contacts service is not available');
   }
 
   return client.sendRPCMessage(`contacts:rpc_queue:${action}`, data);
@@ -223,12 +186,12 @@ export const sendFormMessage = async (action, data): Promise<any> => {
 };
 
 export const sendInternalNoteMessage = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled("internalnotes"))) {
+  if (!(await serviceDiscovery.isEnabled('internalnotes'))) {
     return [];
   }
 
-  if (!(await serviceDiscovery.isAvailable("internalnotes"))) {
-    throw new Error("Internal-notes service is not available");
+  if (!(await serviceDiscovery.isAvailable('internalnotes'))) {
+    throw new Error('Internal-notes service is not available');
   }
   return client.sendMessage(`internalNotes:${action}`, data);
 };
@@ -242,12 +205,12 @@ export const sendFieldsGroupMessage = async (action, data): Promise<any> => {
 };
 
 export const sendEngageRPCMessage = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled("engages"))) {
+  if (!(await serviceDiscovery.isEnabled('engages'))) {
     return [];
   }
 
-  if (!(await serviceDiscovery.isAvailable("engages"))) {
-    throw new Error("Inbox service is not available");
+  if (!(await serviceDiscovery.isAvailable('engages'))) {
+    throw new Error('Inbox service is not available');
   }
 
   return client.sendRPCMessage(`engages:rpc_queue:${action}`, data);
@@ -258,51 +221,51 @@ export const sendFieldRPCMessage = async (action, data): Promise<any> => {
 };
 
 export const sendInboxRPCMessage = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled("inbox"))) {
+  if (!(await serviceDiscovery.isEnabled('inbox'))) {
     return;
   }
 
-  if (!(await serviceDiscovery.isAvailable("inbox"))) {
-    throw new Error("Inbox service is not available");
+  if (!(await serviceDiscovery.isAvailable('inbox'))) {
+    throw new Error('Inbox service is not available');
   }
 
   return client.sendRPCMessage(`inbox:rpc_queue:${action}`, data);
 };
 
 export const findProducts = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled("products"))) {
+  if (!(await serviceDiscovery.isEnabled('products'))) {
     return [];
   }
 
-  if (!(await serviceDiscovery.isAvailable("products"))) {
-    throw new Error("Products service is not available");
+  if (!(await serviceDiscovery.isAvailable('products'))) {
+    throw new Error('Products service is not available');
   }
 
   return client.sendRPCMessage(`products:rpc_queue:${action}`, data);
 };
 
 export const updateProducts = async (selector, modifier): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled("products"))) {
+  if (!(await serviceDiscovery.isEnabled('products'))) {
     return [];
   }
 
-  if (!(await serviceDiscovery.isAvailable("products"))) {
-    throw new Error("Products service is not available");
+  if (!(await serviceDiscovery.isAvailable('products'))) {
+    throw new Error('Products service is not available');
   }
 
   return client.sendRPCMessage(`products:rpc_queue:update`, {
     selector,
-    modifier,
+    modifier
   });
 };
 
 export const sendProductRPCMessage = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled("products"))) {
+  if (!(await serviceDiscovery.isEnabled('products'))) {
     return [];
   }
 
-  if (!(await serviceDiscovery.isAvailable("products"))) {
-    throw new Error("Products service is not available");
+  if (!(await serviceDiscovery.isAvailable('products'))) {
+    throw new Error('Products service is not available');
   }
 
   return client.sendRPCMessage(`products:rpc_queue:${action}`, data);
@@ -318,13 +281,13 @@ export const sendNotificationMessage = async (
   isRPC?: boolean,
   defaultValue?
 ): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled("notifications"))) {
+  if (!(await serviceDiscovery.isEnabled('notifications'))) {
     return defaultValue;
   }
 
   if (isRPC) {
-    if (!(await serviceDiscovery.isAvailable("notifications"))) {
-      throw new Error("Notifications service is not available");
+    if (!(await serviceDiscovery.isAvailable('notifications'))) {
+      throw new Error('Notifications service is not available');
     }
     return client.sendRPCMessage(`notifications:rpc_queue:${action}`, data);
   }
@@ -336,15 +299,15 @@ export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
 
 export const fetchSegment = (segment, options?) =>
-  sendSegmentMessage("fetchSegment", { segment, options }, true);
+  sendSegmentMessage('fetchSegment', { segment, options }, true);
 
 export const sendSegmentMessage = async (action, data, isRPC?: boolean) => {
   if (!isRPC) {
     return sendMessage(`segments:${action}`, data);
   }
 
-  if (!(await serviceDiscovery.isAvailable("segments"))) {
-    throw new Error("Segments service is not available");
+  if (!(await serviceDiscovery.isAvailable('segments'))) {
+    throw new Error('Segments service is not available');
   }
 
   sendMessage(`segments:rpc_queue:${action}`, data);

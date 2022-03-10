@@ -129,7 +129,7 @@ export const getActivityContentItem = async (activityLog: IActivityLogDocument) 
 
   const enabled = await isServiceEnabled(serviceName);
 
-  return enabled ? client.sendRPCMessage(`${serviceName}:rpc_queue:getActivityContent`, { activityLog }) : null;
+  return enabled ? client.sendRPCMessage(`${serviceName}:logs:getActivityContent`, { activityLog }) : null;
 };
 
 export const getContentTypeDetail = async (activityLog: IActivityLogDocument) => {
@@ -137,7 +137,7 @@ export const getContentTypeDetail = async (activityLog: IActivityLogDocument) =>
 
   const enabled = await isServiceEnabled(serviceName);
 
-  return enabled ? client.sendRPCMessage(`${serviceName}:rpc_queue:getContentTypeDetail`, { activityLog }) : null;
+  return enabled ? client.sendRPCMessage(`${serviceName}:logs:getContentTypeDetail`, { activityLog }) : null;
 };
 
 export const collectServiceItems = async (contentType: string, data) => {
@@ -145,7 +145,7 @@ export const collectServiceItems = async (contentType: string, data) => {
 
   const enabled = await isServiceEnabled(serviceName);
 
-  return enabled ? client.sendRPCMessage(`${serviceName}:rpc_queue:activityLog:collectItems`, data) : [];
+  return enabled ? client.sendRPCMessage(`${serviceName}:logs:collectItems`, data) : [];
 };
 
 export const getContentIds = async (data) => {
@@ -153,7 +153,7 @@ export const getContentIds = async (data) => {
   
   const enabled = await isServiceEnabled(serviceName);
 
-  return enabled ? client.sendRPCMessage(`${serviceName}:rpc_queue:getContentIds`, data) : [];
+  return enabled ? client.sendRPCMessage(`${serviceName}:logs:getContentIds`, data) : [];
 };
 
 export default function() {

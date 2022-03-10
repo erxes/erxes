@@ -14,6 +14,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   type: string;
+  propertyType?: string;
   config: any;
   onChangeConfig?: (value) => void;
 };
@@ -41,6 +42,8 @@ class Form extends React.Component<any, any, any> {
     const pipelineId = e ? e.value : '';
 
     const result = { boardId, pipelineId };
+
+    console.log(result);
 
     this.props.onChangeConfig(result);
   };
@@ -71,11 +74,17 @@ class Form extends React.Component<any, any, any> {
 
     const boards = boardsQuery.boards || [];
 
-    if (propertyType && !['deal', 'ticket', 'task'].includes(propertyType)) {
+    if (
+      propertyType &&
+      !['cards:deal', 'cards:ticket', 'cards:task'].includes(propertyType)
+    ) {
       return null;
     }
 
-    if (!hideDetailForm && ['deal', 'ticket', 'task'].includes(type)) {
+    if (
+      !hideDetailForm &&
+      ['cards:deal', 'cards:ticket', 'cards:task'].includes(type)
+    ) {
       return null;
     }
 
@@ -110,12 +119,20 @@ class Form extends React.Component<any, any, any> {
   }
 }
 
+const generateVariable = (type, propertyType) => {
+  if (['cards:deal', 'cards:ticket', 'cards:task'].includes(type)) {
+    return type.split(':')[1];
+  }
+
+  return { type: propertyType.split(':')[1] };
+};
+
 export default withProps<Props>(
   compose(
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
       name: 'boardsQuery',
-      options: ({ type }) => ({
-        variables: { type: type.split(':')[1] }
+      options: ({ type, propertyType }) => ({
+        variables: generateVariable(type, propertyType)
       })
     })
   )(Form)
