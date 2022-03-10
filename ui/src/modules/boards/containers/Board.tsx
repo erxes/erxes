@@ -16,34 +16,17 @@ import Pipeline from './Pipeline';
 import PipelineActivity from './PipelineActivity';
 import ViewGroupBy from './ViewGroupBy';
 import ChartStack from './chart/ChartRenderer';
-import { queries as fieldQueries } from 'modules/settings/properties/graphql';
-import {
-  FieldsGroupsQueryResponse,
-  IField
-} from 'modules/settings/properties/types';
 
 type Props = {
   pipelineDetailQuery: PipelineDetailQueryResponse;
-  fieldsGroupsQuery: FieldsGroupsQueryResponse;
 } & WrapperProps &
   IRouterProps;
 
 class Board extends React.Component<Props> {
   render() {
-    const {
-      pipelineDetailQuery,
-      fieldsGroupsQuery,
-      queryParams,
-      options,
-      viewType
-    } = this.props;
+    const { pipelineDetailQuery, queryParams, options, viewType } = this.props;
 
-    if (
-      pipelineDetailQuery &&
-      pipelineDetailQuery.loading &&
-      fieldsGroupsQuery &&
-      fieldsGroupsQuery.loading
-    ) {
+    if (pipelineDetailQuery && pipelineDetailQuery.loading) {
       return <Spinner />;
     }
 
@@ -70,13 +53,6 @@ class Board extends React.Component<Props> {
     }
 
     const pipeline = pipelineDetailQuery.pipelineDetail;
-    const fields: IField[] = [];
-
-    (fieldsGroupsQuery.fieldsGroups || []).forEach(fg =>
-      fg.fields.forEach(f => {
-        f.showInCard && fields.push(f);
-      })
-    );
 
     if (viewType === 'activity') {
       return (
@@ -134,7 +110,6 @@ class Board extends React.Component<Props> {
             options={options}
             pipeline={pipeline}
             queryParams={queryParams}
-            fields={fields}
           />
         </ScrolledContent>
       </RootBack>
@@ -157,19 +132,6 @@ export default withProps<WrapperProps>(
         skip: ({ queryParams }) => !queryParams.pipelineId,
         options: ({ queryParams }) => ({
           variables: { _id: queryParams && queryParams.pipelineId }
-        })
-      }
-    ),
-    graphql<WrapperProps, FieldsGroupsQueryResponse>(
-      gql(fieldQueries.fieldsGroups),
-      {
-        name: 'fieldsGroupsQuery',
-        options: ({ options, queryParams }) => ({
-          variables: {
-            contentType: options.type,
-            boardId: queryParams.id || '',
-            pipelineId: queryParams.pipelineId || ''
-          }
         })
       }
     )

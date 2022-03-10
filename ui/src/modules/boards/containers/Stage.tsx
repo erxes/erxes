@@ -3,7 +3,6 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { queries } from 'modules/boards/graphql';
 import { __, Alert, confirm, withProps } from 'modules/common/utils';
-import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Stage from '../components/stage/Stage';
@@ -24,7 +23,6 @@ type StageProps = {
   index: number;
   loadingState: 'readyToLoad' | 'loaded';
   items: IItem[];
-  fields: IField[];
   length: number;
   queryParams: IFilterParams;
   options: IOptions;
@@ -200,8 +198,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       options,
       onAddItem,
       onRemoveItem,
-      loadingState,
-      fields
+      loadingState
     } = this.props;
 
     const loadingItems = () => {
@@ -219,7 +216,6 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         index={index}
         length={length}
         items={items}
-        fields={fields}
         archiveItems={this.archiveItems}
         sortItems={this.sortItems}
         archiveList={this.archiveList}
