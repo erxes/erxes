@@ -181,7 +181,7 @@ export const initBroker = (cl) => {
     };
   });
 
-  consumeRPCQueue('inbox:rpc_queue:activityLog:collectItems', async data => ({
+  consumeRPCQueue('inbox:logs:collectItems', async data => ({
     data: await collectConversations(data),
     status: 'success'
   }));

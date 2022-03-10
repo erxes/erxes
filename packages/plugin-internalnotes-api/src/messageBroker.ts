@@ -36,7 +36,7 @@ export const initBroker = async (cl) => {
   );
 
   consumeRPCQueue(
-    'internalnotes:rpc_queue:activityLog:collectItems',
+    'internalnotes:logs:collectItems',
     async ({ subdomain, contentId }) => {
       const models = await generateModels(subdomain);
       const notes = await models.InternalNotes.find({

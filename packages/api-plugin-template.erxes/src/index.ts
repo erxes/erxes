@@ -246,6 +246,9 @@ async function startServer() {
         if (logs.getContentIds) {
           consumeRPCQueue(`${configs.name}:logs:getContentIds`, logs.getContentIds);
         }
+        if (logs.getSchemaLabels) {
+          consumeRPCQueue(`${configs.name}:logs:getSchemaLabels`, logs.getSchemaLabels);
+        }
       }
     }
 

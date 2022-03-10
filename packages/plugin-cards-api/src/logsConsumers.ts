@@ -1,3 +1,6 @@
+import { getSchemaLabels } from "@erxes/api-utils/src/logUtils";
+
+import { LOG_MAPPINGS } from "./constants";
 import { collectItems, getCardContentIds, getContentItem, getContentTypeDetail } from "./utils";
 
 export default {
@@ -24,5 +27,9 @@ export default {
   getContentIds: async (data) => ({
     status: 'success',
     data: await getCardContentIds(data)
+  }),
+  getSchemaLabels: ({ type }) => ({
+    status: 'success',
+    data: getSchemaLabels(type, LOG_MAPPINGS)
   })
 };

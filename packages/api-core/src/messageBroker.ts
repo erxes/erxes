@@ -239,7 +239,7 @@ export const initBroker = async (server?) => {
     );
 
     consumeRPCQueue(
-      'api-core:rpc_queue:activityLog:collectItems',
+      'api-core:logs:collectItems',
       async ({ contentId }) => {
         const deliveries = await EmailDeliveries.find({
           customerId: contentId
