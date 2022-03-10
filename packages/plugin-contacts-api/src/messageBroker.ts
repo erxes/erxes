@@ -14,7 +14,7 @@ import { ICoreIModels, IModels } from './connectionResolver';
 
 export let client;
 
-export const initBroker = (cl, models: IModels, _coreModels: ICoreIModels) => {
+export const initBroker = (cl, models: IModels, coreModels: ICoreIModels) => {
   client = cl;
 
   const { Customers, Companies } = models;
@@ -149,7 +149,7 @@ export const initBroker = (cl, models: IModels, _coreModels: ICoreIModels) => {
 
   consumeRPCQueue('contacts:rpc_queue:prepareImportDocs', async args => ({
     status: 'success',
-    data: await prepareImportDocs(args)
+    data: await prepareImportDocs(coreModels, args)
   }));
 
   consumeRPCQueue('contacts:rpc_queue:insertImportItems', async args => ({

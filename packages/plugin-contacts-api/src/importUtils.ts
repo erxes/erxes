@@ -1,7 +1,6 @@
 import * as _ from 'underscore';
-import { Users } from './apiCollections';
 import { es } from './configs';
-import { IModels } from './connectionResolver';
+import { ICoreIModels, IModels } from './connectionResolver';
 import { createTag, findOneTag, prepareCustomFieldsData } from './messageBroker';
 import { CUSTOMER_SELECT_OPTIONS } from './models/definitions/constants';
 
@@ -319,7 +318,7 @@ export const insertImportItems = async (models: IModels, args) => {
   }
 };
 
-export const prepareImportDocs = async args => {
+export const prepareImportDocs = async ({ Users }: ICoreIModels, args) => {
   const { scopeBrandIds, result, contentType, properties } = args;
 
   const bulkDoc: any = [];
