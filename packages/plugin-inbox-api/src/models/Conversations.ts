@@ -1,6 +1,5 @@
 import { Model, model } from 'mongoose';
 // import { ConversationMessages, Fields, Users } from '.';
-import { ConversationMessages } from '.';
 import { stream } from '@erxes/api-utils/src/bulkUtils';
 import { cleanHtml } from '@erxes/api-utils/src/core';
 import { getDocument } from '../cacheUtils';
@@ -15,7 +14,7 @@ import {
   IConversation,
   IConversationDocument
 } from './definitions/conversations';
-import { models } from '../connectionResolver';
+import { ICoreIModels, IModels } from '../connectionResolver';
 // import { Skills } from './Skills';
 
 export interface IConversationModel extends Model<IConversationDocument> {
@@ -82,13 +81,13 @@ export interface IConversationModel extends Model<IConversationDocument> {
   ): Promise<{ n: number; nModified: number; ok: number }>;
 }
 
-export const loadClass = () => {
+export const loadClass = (models: IModels, coreModels: ICoreIModels) => {
   class Conversation {
     /**
      * Retreives conversation
      */
     public static async getConversation(_id: string) {
-      const conversation = await Conversations.findOne({ _id });
+      const conversation = await models.Conversations.findOne({ _id });
 
       if (!conversation) {
         throw new Error('Conversation not found');
@@ -102,7 +101,7 @@ export const loadClass = () => {
      */
     public static async checkExistanceConversations(_ids: string[]) {
       const selector = { _id: { $in: _ids } };
-      const conversations = await Conversations.find(selector);
+      const conversations = await models.Conversations.find(selector);
 
       if (conversations.length !== _ids.length) {
         throw new Error('Conversation not found.');
@@ -120,13 +119,13 @@ export const loadClass = () => {
         skillId: doc.skillId
       });
 
-      const result = await Conversations.create({
+      const result = await models.Conversations.create({
         status: CONVERSATION_STATUSES.NEW,
         ...doc,
         content: cleanHtml(doc.content),
         createdAt: doc.createdAt || now,
         updatedAt: doc.createdAt || now,
-        number: (await Conversations.find().countDocuments()) + 1,
+        number: (await models.Conversations.find().countDocuments()) + 1,
         messageCount: 0,
         ...(userRelevance ? { userRelevance } : {})
       });
@@ -151,14 +150,14 @@ export const loadClass = () => {
       //   );
       // }
 
-      return Conversations.updateOne({ _id }, { $set: doc });
+      return models.Conversations.updateOne({ _id }, { $set: doc });
     }
 
     /*
      * Reopens conversation
      */
     public static async reopen(_id: string) {
-      await Conversations.updateConversation(_id, {
+      await models.Conversations.updateConversation(_id, {
         // reset read state
         readUserIds: [],
 
@@ -169,7 +168,7 @@ export const loadClass = () => {
         closedUserId: null
       });
 
-      return Conversations.findOne({ _id });
+      return models.Conversations.findOne({ _id });
     }
 
     /**
@@ -181,17 +180,17 @@ export const loadClass = () => {
     ) {
       await this.checkExistanceConversations(conversationIds);
 
-      if (!(await getDocument(models, 'users', { _id: assignedUserId }))) {
+      if (!(await getDocument(models, coreModels, 'users', { _id: assignedUserId }))) {
         throw new Error(`User not found with id ${assignedUserId}`);
       }
 
-      await Conversations.updateMany(
+      await models.Conversations.updateMany(
         { _id: { $in: conversationIds } },
         { $set: { assignedUserId } },
         { multi: true }
       );
 
-      return Conversations.find({ _id: { $in: conversationIds } });
+      return models.Conversations.find({ _id: { $in: conversationIds } });
     }
 
     /**
@@ -200,13 +199,13 @@ export const loadClass = () => {
     public static async unassignUserConversation(conversationIds: string[]) {
       await this.checkExistanceConversations(conversationIds);
 
-      await Conversations.updateMany(
+      await models.Conversations.updateMany(
         { _id: { $in: conversationIds } },
         { $unset: { assignedUserId: 1 } },
         { multi: true }
       );
 
-      return Conversations.find({ _id: { $in: conversationIds } });
+      return models.Conversations.find({ _id: { $in: conversationIds } });
     }
     /**
      * Change customer status
@@ -219,7 +218,7 @@ export const loadClass = () => {
       customerId: string,
       integrationId: string
     ) {
-      const customerConversations = await Conversations.find({
+      const customerConversations = await models.Conversations.find({
         customerId,
         integrationId,
         status: 'open'
@@ -229,7 +228,7 @@ export const loadClass = () => {
 
       for (const conversationObj of customerConversations) {
         promises.push(
-          ConversationMessages.addMessage({
+          models.ConversationMessages.addMessage({
             conversationId: conversationObj._id,
             content: `Customer has ${status}`,
             fromBot: true
@@ -255,7 +254,7 @@ export const loadClass = () => {
         closedUserId = userId;
       }
 
-      return Conversations.updateMany(
+      return models.Conversations.updateMany(
         { _id: { $in: conversationIds } },
         { $set: { status, closedAt, closedUserId } },
         { multi: true }
@@ -266,7 +265,7 @@ export const loadClass = () => {
      * Mark as read conversation
      */
     public static async markAsReadConversation(_id: string, userId: string) {
-      const conversation = await Conversations.findOne({ _id });
+      const conversation = await models.Conversations.findOne({ _id });
 
       if (!conversation) {
         throw new Error(`Conversation not found with id ${_id}`);
@@ -276,23 +275,23 @@ export const loadClass = () => {
 
       // if current user is first one
       if (!readUserIds || readUserIds.length === 0) {
-        await Conversations.updateConversation(_id, { readUserIds: [userId] });
+        await models.Conversations.updateConversation(_id, { readUserIds: [userId] });
       }
 
       // if current user is not in read users list then add it
       if (!readUserIds.includes(userId)) {
         readUserIds.push(userId);
-        await Conversations.updateConversation(_id, { readUserIds });
+        await models.Conversations.updateConversation(_id, { readUserIds });
       }
 
-      return Conversations.findOne({ _id });
+      return models.Conversations.findOne({ _id });
     }
 
     /**
      * Get new or open conversation
      */
     public static async newOrOpenConversation() {
-      return Conversations.find({
+      return models.Conversations.find({
         status: {
           $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN]
         },
@@ -309,7 +308,7 @@ export const loadClass = () => {
       conversationId: string,
       userIds: string[]
     ) {
-      return Conversations.updateOne(
+      return models.Conversations.updateOne(
         { _id: conversationId },
         {
           $addToSet: { participatedUserIds: { $each: userIds } }
@@ -320,7 +319,7 @@ export const loadClass = () => {
      * Add participated user
      */
     public static addParticipatedUsers(conversationId: string, userId: string) {
-      return Conversations.updateOne(
+      return models.Conversations.updateOne(
         { _id: conversationId },
         {
           $addToSet: { participatedUserIds: userId }
@@ -336,18 +335,18 @@ export const loadClass = () => {
       customerIds: string
     ) {
       // Updating every conversation and conversation messages of new customer
-      await ConversationMessages.updateMany(
+      await models.ConversationMessages.updateMany(
         { customerId: { $in: customerIds } },
         { $set: { customerId: newCustomerId } }
       );
 
-      await Conversations.updateMany(
+      await models.Conversations.updateMany(
         { customerId: { $in: customerIds } },
         { $set: { customerId: newCustomerId } }
       );
 
       // Returning updated list of conversation of new customer
-      return Conversations.find({ customerId: newCustomerId });
+      return models.Conversations.find({ customerId: newCustomerId });
     }
 
     /**
@@ -355,18 +354,18 @@ export const loadClass = () => {
      */
     public static async removeCustomersConversations(customerIds: string[]) {
       // Finding every conversation of customer
-      const conversations = await Conversations.find({
+      const conversations = await models.Conversations.find({
         customerId: { $in: customerIds }
       });
 
       // Removing conversations and conversation messages
       const conversationIds = conversations.map(conv => conv._id);
 
-      await ConversationMessages.deleteMany({
+      await models.ConversationMessages.deleteMany({
         conversationId: { $in: conversationIds }
       });
 
-      await Conversations.deleteMany({ _id: { $in: conversationIds } });
+      await models.Conversations.deleteMany({ _id: { $in: conversationIds } });
     }
 
     /**
@@ -375,10 +374,10 @@ export const loadClass = () => {
     public static async removeEngageConversations(engageMessageId: string) {
       await stream(
         async chunk => {
-          await ConversationMessages.deleteMany({
+          await models.ConversationMessages.deleteMany({
             conversationId: { $in: chunk }
           });
-          await Conversations.deleteMany({ _id: { $in: chunk } });
+          await models.Conversations.deleteMany({ _id: { $in: chunk } });
         },
         (variables, root) => {
           const parentIds = variables.parentIds || [];
@@ -388,7 +387,7 @@ export const loadClass = () => {
           variables.parentIds = parentIds;
         },
         () => {
-          return ConversationMessages.find(
+          return models.ConversationMessages.find(
             {
               engageData: { $exists: true, $ne: null },
               'engageData.messageId': engageMessageId
@@ -424,32 +423,31 @@ export const loadClass = () => {
       query: any,
       param: IResolveAllConversationParam
     ) {
-      return Conversations.updateMany(query, { $set: param }, { multi: true });
+      return models.Conversations.updateMany(query, { $set: param }, { multi: true });
     }
 
     public static async getUserRelevance(args: { skillId?: string }) {
-      return null;
-      // const skill = await Skills.findOne({ _id: args.skillId }).lean();
+      const skill = await models.Skills.findOne({ _id: args.skillId }).lean();
 
-      // if (!skill) {
-      //   return;
-      // }
+      if (!skill) {
+        return;
+      }
 
-      // const users =
-      //   (await Users.find({ _id: { $in: skill.memberIds || [] } }).sort({
-      //     createdAt: 1
-      //   })) || [];
+      const users =
+        (await coreModels.Users.find({ _id: { $in: skill.memberIds || [] } }).sort({
+          createdAt: 1
+        })).toArray() || [];
 
-      // if (users.length === 0) {
-      //   return;
-      // }
+      if (users.length === 0) {
+        return;
+      }
 
-      // const type = args.skillId ? 'SS' : '';
+      const type = args.skillId ? 'SS' : '';
 
-      // return users
-      //   .map(user => user.code + type)
-      //   .filter(code => code !== '' && code !== undefined)
-      //   .join('|');
+      return users
+        .map(user => user.code + type)
+        .filter(code => code !== '' && code !== undefined)
+        .join('|');
     }
   }
 
@@ -457,13 +455,3 @@ export const loadClass = () => {
 
   return conversationSchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const Conversations = model<IConversationDocument, IConversationModel>(
-  'conversations',
-  conversationSchema
-);
-
-export default Conversations;

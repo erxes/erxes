@@ -71,7 +71,7 @@ function UserDetails({
       <ActivityLogs
         target={user.details && user.details.fullName}
         contentId={user._id}
-        contentType="user"
+        contentType="api-core:user"
         extraTabs={[{ name: 'conversation', label: 'Conversations' }]}
       />
     </>

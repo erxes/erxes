@@ -1,12 +1,11 @@
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src/types';
+import { IContext } from '../../../connectionResolver';
 import { graphqlPubsub } from '../../../configs';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 import {
   sendNotificationMessage,
   sendRPCMessage,
 } from '../../../messageBroker';
-import { InternalNotes } from '../../../models';
 import { IInternalNote } from '../../../models/definitions/internalNotes';
 
 interface IInternalNotesEdit extends IInternalNote {
@@ -41,7 +40,11 @@ const internalNoteMutations = (serviceDiscovery) => ({
   /**
    * Adds internalNote object and also adds an activity log
    */
-  async internalNotesAdd(_root, args: IInternalNote, { user }: IContext) {
+  async internalNotesAdd(
+    _root,
+    args: IInternalNote,
+    { user, models }: IContext
+  ) {
     const { contentType, contentTypeId, mentionedUserIds = [] } = args;
 
     const [serviceName, type] = contentType.split(':');
@@ -86,7 +89,10 @@ const internalNoteMutations = (serviceDiscovery) => ({
       await sendNotificationMessage('send', updatedNotifDoc);
     }
 
-    const internalNote = await InternalNotes.createInternalNote(args, user);
+    const internalNote = await models.InternalNotes.createInternalNote(
+      args,
+      user
+    );
 
     await putCreateLog(
       {
@@ -111,10 +117,10 @@ const internalNoteMutations = (serviceDiscovery) => ({
   async internalNotesEdit(
     _root,
     { _id, ...doc }: IInternalNotesEdit,
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    const internalNote = await InternalNotes.getInternalNote(_id);
-    const updated = await InternalNotes.updateInternalNote(_id, doc);
+    const internalNote = await models.InternalNotes.getInternalNote(_id);
+    const updated = await models.InternalNotes.updateInternalNote(_id, doc);
 
     await putUpdateLog(
       {
@@ -136,10 +142,10 @@ const internalNoteMutations = (serviceDiscovery) => ({
   async internalNotesRemove(
     _root,
     { _id }: { _id: string },
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    const internalNote = await InternalNotes.getInternalNote(_id);
-    const removed = await InternalNotes.removeInternalNote(_id);
+    const internalNote = await models.InternalNotes.getInternalNote(_id);
+    const removed = await models.InternalNotes.removeInternalNote(_id);
 
     await putDeleteLog({ type: 'internalNote', object: internalNote }, user);
 

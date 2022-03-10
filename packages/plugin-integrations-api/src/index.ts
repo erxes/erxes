@@ -2,10 +2,7 @@ import * as bodyParser from 'body-parser';
 
 import initCallPro from './callpro/controller';
 import initChatfuel from './chatfuel/controller';
-import {
-  debugIntegrations,
-  debugRequest,
-} from './debuggers';
+import { debugIntegrations, debugRequest } from './debuggers';
 import initFacebook from './facebook/controller';
 import initGmail from './gmail/controller';
 import { initNylas } from './nylas/controller';
@@ -28,9 +25,13 @@ const rawBodySaver = (req, _res, buf, encoding) => {
   }
 };
 
-const init = async (app) => {
+const init = async app => {
   app.use(
-    bodyParser.urlencoded({ limit: '10mb', verify: rawBodySaver, extended: true })
+    bodyParser.urlencoded({
+      limit: '10mb',
+      verify: rawBodySaver,
+      extended: true
+    })
   );
   app.use(bodyParser.json({ limit: '10mb', verify: rawBodySaver }));
 
@@ -47,9 +48,8 @@ const init = async (app) => {
 
     next();
   });
-  
+
   app.get('/system-status', async (_req, res) => {
-    console.log('system status.........')
     return res.json(await systemStatus());
   });
   
@@ -85,6 +85,7 @@ const init = async (app) => {
     console.error(error.stack);
     res.status(500).send(error.message);
   });
-}
+
+};
 
 export default init;

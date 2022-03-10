@@ -1,12 +1,6 @@
 import * as strip from 'strip';
-import {
-  ConversationMessages,
-  Conversations,
-} from '../../models';
 
-import { Fields, Forms, Users } from '../../apiCollections';
-
-// import {
+// ? import {
 //   IVisitorContactInfoParams
 // } from '../../../db/models/Customers';
 
@@ -17,7 +11,7 @@ import {
   MESSAGE_TYPES
 } from '../../models/definitions/constants';
 
-// import { ISubmission } from '../../../db/models/definitions/fields';
+// ? import { ISubmission } from '../../../db/models/definitions/fields';
 
 import {
   IAttachment,
@@ -27,7 +21,7 @@ import {
 
 import { debug } from '../../configs';
 
-// import { trackViewPageEvent } from '../../../events';
+// ? import { trackViewPageEvent } from '../../../events';
 
 import { get, set } from '../../inmemoryStorage';
 import { graphqlPubsub } from '../../configs';
@@ -55,11 +49,11 @@ import {
   sendRPCMessage
 } from '../../messageBroker';
 import { trackViewPageEvent } from '../../events';
-// import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
+import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 import { getService, getServices } from '../../redis';
-import { IContext, IModels } from '../../connectionResolver';
+import { IContext, ICoreIModels, IModels } from '../../connectionResolver';
 
-// import { IFormDocument } from '../../../db/models/definitions/forms';
+// ? import { IFormDocument } from '../../../db/models/definitions/forms';
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -72,7 +66,7 @@ interface IWidgetEmailParams {
 }
 
 const pConversationClientMessageInserted = async (models, message) => {
-  const conversation = await Conversations.findOne(
+  const conversation = await models.Conversations.findOne(
     {
       _id: message.conversationId
     },
@@ -166,15 +160,14 @@ const createVisitor = async (visitorId: string) =>
 
 const createFormConversation = async (
   models: IModels,
+  coreModels: ICoreIModels,
   args: {
     integrationId: string;
     formId: string;
-    //     submissions: ISubmission[];
     submissions: any[];
     browserInfo: any;
     cachedCustomerId?: string;
   },
-  //   generateContent: (form: IFormDocument) => string,
   generateContent: (form) => string,
   generateConvData: () => {
     conversation?: any;
@@ -184,7 +177,7 @@ const createFormConversation = async (
 ) => {
   const { integrationId, formId, submissions } = args;
 
-  const form = await Forms.findOne({ _id: formId });
+  const form = await coreModels.Forms.findOne({ _id: formId });
 
   if (!form) {
     throw new Error('Form not found');
@@ -198,12 +191,12 @@ const createFormConversation = async (
 
   const content = await generateContent(form);
 
-  const cachedCustomer = await solveSubmissions(models, args);
+  const cachedCustomer = await solveSubmissions(models, coreModels, args);
 
   const conversationData = await generateConvData();
 
   // create conversation
-  const conversation = await Conversations.createConversation({
+  const conversation = await models.Conversations.createConversation({
     integrationId,
     customerId: cachedCustomer._id,
     content,
@@ -211,7 +204,7 @@ const createFormConversation = async (
   });
 
   // create message
-  const message = await ConversationMessages.createMessage({
+  const message = await models.ConversationMessages.createMessage({
     conversationId: conversation._id,
     customerId: cachedCustomer._id,
     content,
@@ -236,7 +229,7 @@ const createFormConversation = async (
       conversationId: conversation._id
     };
 
-    //     await sendToWebhook('create', 'popupSubmitted', formData);
+    // ?    await sendToWebhook('create', 'popupSubmitted', formData);
   }
 
   return {
@@ -251,11 +244,11 @@ const widgetMutations = {
   async widgetsLeadConnect(
     _root,
     args: { brandCode: string; formCode: string; cachedCustomerId?: string },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
-    const brand = await getDocument(models, 'brands', { code: args.brandCode });
+    const brand = await getDocument(models, coreModels, 'brands', { code: args.brandCode });
 
-    const form = await Forms.findOne({ code: args.formCode });
+    const form = await coreModels.Forms.findOne({ code: args.formCode });
 
     if (!brand || !form) {
       throw new Error('Invalid configuration');
@@ -273,7 +266,7 @@ const widgetMutations = {
     }
 
     if (integ.createdUserId) {
-      const user = await Users.findOne({ _id: integ.createdUserId });
+      const user = await coreModels.Users.findOne({ _id: integ.createdUserId });
 
       sendMessage('registerOnboardHistory', {
         type: 'leadIntegrationInstalled',
@@ -282,7 +275,7 @@ const widgetMutations = {
     }
 
     if (integ.leadData?.isRequireOnce && args.cachedCustomerId) {
-      const conversation = await Conversations.findOne({
+      const conversation = await models.Conversations.findOne({
         customerId: args.cachedCustomerId,
         integrationId: integ._id
       });
@@ -304,18 +297,18 @@ const widgetMutations = {
     args: {
       integrationId: string;
       formId: string;
-      //       submissions: ISubmission[];
       submissions: any[];
       browserInfo: any;
       cachedCustomerId?: string;
       userId?: string;
     },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
     const { submissions } = args;
 
     return createFormConversation(
       models,
+      coreModels,
       args,
       form => {
         return form.title;
@@ -353,7 +346,7 @@ const widgetMutations = {
       deviceToken?: string;
       visitorId?: string;
     },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
     const {
       brandCode,
@@ -372,14 +365,14 @@ const widgetMutations = {
     const customData = data;
 
     // find brand
-    const brand = await getDocument(models, 'brands', { code: brandCode });
+    const brand = await getDocument(models, coreModels, 'brands', { code: brandCode });
 
     if (!brand) {
       throw new Error('Invalid configuration');
     }
 
     // find integration
-    const integration = await getDocument(models, 'integrations', {
+    const integration = await getDocument(models, coreModels, 'integrations', {
       brandId: brand._id,
       kind: KIND_CHOICES.MESSENGER
     });
@@ -436,7 +429,7 @@ const widgetMutations = {
       const {
         customFieldsData,
         trackedData
-      } = await Fields.generateCustomFieldsData(companyData, 'company');
+      } = await coreModels.Fields.generateCustomFieldsData(companyData, 'company');
 
       companyData.customFieldsData = customFieldsData;
       companyData.trackedData = trackedData;
@@ -495,7 +488,7 @@ const widgetMutations = {
       attachments?: any[];
       contentType: string;
     },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
     const {
       integrationId,
@@ -508,7 +501,7 @@ const widgetMutations = {
     } = args;
 
     if (contentType === MESSAGE_TYPES.VIDEO_CALL_REQUEST) {
-      const videoCallRequestMessage = await ConversationMessages.findOne(
+      const videoCallRequestMessage = await models.ConversationMessages.findOne(
         { conversationId, contentType },
         { createdAt: 1 }
       ).sort({ createdAt: -1 });
@@ -565,7 +558,7 @@ const widgetMutations = {
     let conversation;
 
     const integration =
-      (await getDocument(models, 'integrations', {
+      (await getDocument(models, coreModels, 'integrations', {
         _id: integrationId
       })) || {};
 
@@ -576,11 +569,11 @@ const widgetMutations = {
     const HAS_BOTENDPOINT_URL = (botEndpointUrl || '').length > 0;
 
     if (conversationId) {
-      conversation = await Conversations.findOne({
+      conversation = await models.Conversations.findOne({
         _id: conversationId
       }).lean();
 
-      conversation = await Conversations.findByIdAndUpdate(
+      conversation = await models.Conversations.findByIdAndUpdate(
         conversationId,
         {
           // mark this conversation as unread
@@ -593,7 +586,7 @@ const widgetMutations = {
       );
       // create conversation
     } else {
-      conversation = await Conversations.createConversation({
+      conversation = await models.Conversations.createConversation({
         customerId,
         integrationId,
         operatorStatus: HAS_BOTENDPOINT_URL
@@ -607,7 +600,7 @@ const widgetMutations = {
 
     // create message
 
-    const msg = await ConversationMessages.createMessage({
+    const msg = await models.ConversationMessages.createMessage({
       conversationId: conversation._id,
       customerId,
       attachments,
@@ -615,7 +608,7 @@ const widgetMutations = {
       content: message
     });
 
-    await Conversations.updateOne(
+    await models.Conversations.updateOne(
       { _id: msg.conversationId },
       {
         $set: {
@@ -682,7 +675,7 @@ const widgetMutations = {
                 }
               ];
 
-        const botMessage = await ConversationMessages.createMessage({
+        const botMessage = await models.ConversationMessages.createMessage({
           conversationId: conversation._id,
           customerId,
           contentType,
@@ -713,7 +706,7 @@ const widgetMutations = {
       set(`customer_last_status_${customerId}`, 'joined');
 
       // customer has joined + time
-      const conversationMessages = await Conversations.changeCustomerStatus(
+      const conversationMessages = await models.Conversations.changeCustomerStatus(
         'joined',
         customerId,
         conversation.integrationId
@@ -748,7 +741,7 @@ const widgetMutations = {
       }
     }
 
-    // await sendToWebhook('create', 'customerMessages', msg);
+    // ? await sendToWebhook('create', 'customerMessages', msg);
 
     return msg;
   },
@@ -758,9 +751,10 @@ const widgetMutations = {
    */
   async widgetsReadConversationMessages(
     _root,
-    args: { conversationId: string }
+    args: { conversationId: string },
+    { models }: IContext
   ) {
-    await ConversationMessages.updateMany(
+    await models.ConversationMessages.updateMany(
       {
         conversationId: args.conversationId,
         userId: { $exists: true },
@@ -773,18 +767,18 @@ const widgetMutations = {
     return args.conversationId;
   },
 
-  async widgetsSaveCustomerGetNotified(_root, args) {
+  async widgetsSaveCustomerGetNotified(_root, args, { models }: IContext) {
     const { visitorId, customerId } = args;
 
     if (visitorId && !customerId) {
       const customer = await createVisitor(visitorId);
       args.customerId = customer._id;
 
-      await ConversationMessages.updateVisitorEngageMessages(
+      await models.ConversationMessages.updateVisitorEngageMessages(
         visitorId,
         customer._id
       );
-      await Conversations.updateMany(
+      await models.Conversations.updateMany(
         {
           visitorId
         },
@@ -804,7 +798,8 @@ const widgetMutations = {
       visitorId,
       customerId,
       browserInfo
-    }: { visitorId?: string; customerId?: string; browserInfo: IBrowserInfo }
+    }: { visitorId?: string; customerId?: string; browserInfo: IBrowserInfo },
+    { coreModels }: IContext
   ) {
     // update location
 
@@ -818,7 +813,7 @@ const widgetMutations = {
     }
 
     try {
-      await trackViewPageEvent({
+      await trackViewPageEvent(coreModels, {
         visitorId,
         customerId,
         attributes: { url: browserInfo.url }
@@ -844,7 +839,7 @@ const widgetMutations = {
     return 'ok';
   },
 
-  async widgetsSendEmail(_root, args: IWidgetEmailParams) {
+  async widgetsSendEmail(_root, args: IWidgetEmailParams, { coreModels }: IContext) {
     const { toEmails, fromEmail, title, content, customerId, formId } = args;
 
     const attachments = args.attachments || [];
@@ -853,25 +848,24 @@ const widgetMutations = {
     const customer = await sendContactRPCMessage('findCustomer', {
       _id: customerId
     });
-    const form = await Forms.getForm(formId || '');
+    const form = await coreModels.Forms.getForm(formId || '');
 
     let finalContent = content;
 
     if (customer && form) {
       const apiService = await getService('api');
 
-      // const replacedContent = await new EditorAttributeUtil(
-      //   msgBrokerClient,
-      //   apiService.address,
-      //   await getServices()
-      // ).replaceAttributes({
-      //   content,
-      //   customer,
-      //   user: await Users.getUser(form.createdUserId)
-      // });
+      const replacedContent = await new EditorAttributeUtil(
+        msgBrokerClient,
+        apiService.address,
+        await getServices()
+      ).replaceAttributes({
+        content,
+        customer,
+        user: await coreModels.Users.getUser(form.createdUserId)
+      });
 
-      // finalContent = replacedContent || '';
-      finalContent = '';
+      finalContent = replacedContent || '';
     }
 
     let mailAttachment: any = [];
@@ -913,10 +907,10 @@ const widgetMutations = {
       payload: string;
       type: string;
     },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
     const integration =
-      (await getDocument(models, 'integrations', {
+      (await getDocument(models, coreModels, 'integrations', {
         _id: integrationId
       })) || {};
 
@@ -932,7 +926,7 @@ const widgetMutations = {
     if (!conversationId) {
       sessionId = await get(`bot_initial_message_session_id_${integrationId}`);
 
-      const conversation = await Conversations.createConversation({
+      const conversation = await models.Conversations.createConversation({
         customerId,
         integrationId,
         operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT,
@@ -945,7 +939,7 @@ const widgetMutations = {
         `bot_initial_message_${integrationId}`
       );
 
-      await ConversationMessages.createMessage({
+      await models.ConversationMessages.createMessage({
         conversationId: conversation._id,
         customerId,
         botData: JSON.parse(initialMessageBotData || '{}')
@@ -953,7 +947,7 @@ const widgetMutations = {
     }
 
     // create customer message
-    const msg = await ConversationMessages.createMessage({
+    const msg = await models.ConversationMessages.createMessage({
       conversationId,
       customerId,
       content: message
@@ -997,7 +991,7 @@ const widgetMutations = {
     }
 
     // create bot message
-    botMessage = await ConversationMessages.createMessage({
+    botMessage = await models.ConversationMessages.createMessage({
       conversationId,
       customerId,
       botData
@@ -1013,7 +1007,7 @@ const widgetMutations = {
   async widgetGetBotInitialMessage(
     _root,
     { integrationId }: { integrationId: string },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
     const sessionId = `_${Math.random()
       .toString(36)
@@ -1022,7 +1016,7 @@ const widgetMutations = {
     await set(`bot_initial_message_session_id_${integrationId}`, sessionId);
 
     const integration =
-      (await getDocument(models, 'integrations', {
+      (await getDocument(models, coreModels, 'integrations', {
         _id: integrationId
       })) || {};
 
@@ -1068,7 +1062,7 @@ const widgetMutations = {
       cachedCustomerId?: string;
       productId: string;
     },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
     const { submissions, productId } = args;
 
@@ -1076,6 +1070,7 @@ const widgetMutations = {
 
     return createFormConversation(
       models,
+      coreModels,
       args,
       () => {
         return `<p>submitted a new booking for <strong><a href="/settings/product-service/details/${productId}">${product?.name}</a> ${product?.code}</strong></p>`;

@@ -429,7 +429,7 @@ export const createBoardItem = async (doc: IItemCommonFields, type: string) => {
   // create log
   await putActivityLog({
     action: 'createBoardItem',
-    data: { item, contentType: type, action, content, createdBy: item.userId || '' }
+    data: { item, contentType: type, action, content, createdBy: item.userId || '', contentId: item._id }
   });
 
   return item;
@@ -520,7 +520,7 @@ export const conversationConvertToCard = async args => {
 
     await putActivityLog({
       action: 'createBoardItem',
-      data: { item, contentType: type }
+      data: { item, contentType: type, contentId: item._id }
     });
 
     const relTypeIds: string[] = [];

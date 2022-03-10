@@ -1,10 +1,8 @@
 import { graphqlPubsub } from './configs';
-import { ConversationMessages, Conversations } from './models';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
-import { Users } from './apiCollections';
 import { sendContactRPCMessage, sendRPCMessage } from './messageBroker';
 import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
-import { generateModels } from './connectionResolver';
+import { generateCoreModels, generateModels } from './connectionResolver';
 
 const sendError = message => ({
   status: 'error',
@@ -24,7 +22,13 @@ export const receiveRpcMessage = async msg => {
   
   const {
     Integrations,
+    ConversationMessages,
+    Conversations
   } = await generateModels(subdomain);
+
+  const {
+    Users
+  } = await generateCoreModels(subdomain);
   
   const doc = JSON.parse(payload || '{}');
 
@@ -142,13 +146,13 @@ export const receiveRpcMessage = async msg => {
     return sendSuccess({ _id: message._id });
   }
 
-  // if (action === 'get-configs') {
+  // ? if (action === 'get-configs') {
   //   const configs = await getConfigs({ Configs }, inmemoryStorage);
   //   return sendSuccess({ configs });
   // }
 
   if (action === 'getUserIds') {
-    const users = await Users.find({}, { _id: 1 });
+    const users = await Users.find({}, { _id: 1 }).toArray();
     return sendSuccess({ userIds: users.map(user => user._id) });
   }
 };
@@ -175,13 +179,14 @@ export const receiveIntegrationsNotification = async msg => {
 /**
  * Remove engage conversations
  */
-export const removeEngageConversations = async _id => {
-  await Conversations.removeEngageConversations(_id);
+export const removeEngageConversations = async (models, _id) => {
+  await models.Conversations.removeEngageConversations(_id);
 };
 
-export const collectConversations = async ({ contentId, contentType }) => {
+export const collectConversations = async ({ contentId, contentType, subdomain }) => {
+  const models = await generateModels(subdomain);
   const results: any[] = [];
-  const conversations = await Conversations.find({
+  const conversations = await models.Conversations.find({
     $or: [{ customerId: contentId }, { participatedUserIds: contentId }]
   }).lean();
 
@@ -202,7 +207,7 @@ export const collectConversations = async ({ contentId, contentType }) => {
       customerId: contentId
     })
     
-    const cons = await Conversations.find({ _id: { $in: conversationIds } }).lean();
+    const cons = await models.Conversations.find({ _id: { $in: conversationIds } }).lean();
 
     for (const c of cons) {
       results.push({

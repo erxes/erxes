@@ -1,11 +1,5 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
-import {
-  ConversationMessages,
-  Conversations,
-} from '../../models';
-
-import Messages from '../../models/ConversationMessages';
 
 import {
   KIND_CHOICES,
@@ -31,11 +25,11 @@ import {
   requireLogin
 } from '@erxes/api-utils/src/permissions';
 import { splitStr } from '@erxes/api-utils/src/core';
-// import utils from '../../utils';
+// ? import utils from '../../utils';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { IContext } from '../../connectionResolver';
+import { IContext, IModels } from '../../connectionResolver';
 
 export interface IConversationMessageAdd {
   conversationId: string;
@@ -71,7 +65,6 @@ const sendConversationToIntegrations = async (
   conversationId: string,
   requestName: string,
   doc: IConversationMessageAdd,
-  dataSources: any,
   action?: string,
   facebookMessageTag?: string
 ) => {
@@ -107,12 +100,13 @@ const sendConversationToIntegrations = async (
     }
   }
 
-  if (dataSources && dataSources.IntegrationsAPI && requestName) {
-    return dataSources.IntegrationsAPI[requestName]({
+  if (requestName) {
+    return sendRPCMessage('integrations:rpc_queue:reply', {
       conversationId,
       integrationId,
       content: strip(doc.content),
-      attachments: doc.attachments || []
+      attachments: doc.attachments || [],
+      requestName
     });
   }
 };
@@ -169,6 +163,7 @@ export const publishConversationsChanged = (
  * Publish admin's message
  */
 export const publishMessage = async (
+  models: IModels,
   message: IMessageDocument,
   customerId?: string
 ) => {
@@ -179,7 +174,7 @@ export const publishMessage = async (
   // widget is listening for this subscription to show notification
   // customerId available means trying to notify to client
   if (customerId) {
-    const unreadCount = await Messages.widgetsGetUnreadMessagesCount(
+    const unreadCount = await models.ConversationMessages.widgetsGetUnreadMessagesCount(
       message.conversationId
     );
 
@@ -258,8 +253,8 @@ const sendNotifications = async ({
   }
 };
 
-const getConversationById = async selector => {
-  const oldConversations = await Conversations.find(selector).lean();
+const getConversationById = async (models: IModels, selector) => {
+  const oldConversations = await models.Conversations.find(selector).lean();
   const oldConversationById = {};
   for (const conversation of oldConversations) {
     oldConversationById[conversation._id] = conversation;
@@ -274,9 +269,9 @@ const conversationMutations = {
   async conversationMessageAdd(
     _root,
     doc: IConversationMessageAdd,
-    { user, dataSources, models }: IContext
+    { user, models }: IContext
   ) {
-    const conversation = await Conversations.getConversation(
+    const conversation = await models.Conversations.getConversation(
       doc.conversationId
     );
     const integration = await models.Integrations.getIntegration({
@@ -293,10 +288,10 @@ const conversationMutations = {
 
     // do not send internal message to third service integrations
     if (doc.internal) {
-      const messageObj = await ConversationMessages.addMessage(doc, user._id);
+      const messageObj = await models.ConversationMessages.addMessage(doc, user._id);
 
       // publish new message to conversation detail
-      publishMessage(messageObj);
+      publishMessage(models, messageObj);
 
       return messageObj;
     }
@@ -338,12 +333,11 @@ const conversationMutations = {
         conversationId,
         requestName,
         doc,
-        dataSources,
         action
       );
     }
 
-    const message = await ConversationMessages.addMessage(doc, user._id);
+    const message = await models.ConversationMessages.addMessage(doc, user._id);
 
     /**
      * Send SMS only when:
@@ -409,17 +403,16 @@ const conversationMutations = {
       conversationId,
       requestName,
       doc,
-      dataSources,
       action,
       facebookMessageTag
     );
 
-    const dbMessage = await ConversationMessages.getMessage(message._id);
+    const dbMessage = await models.ConversationMessages.getMessage(message._id);
 
-    // await utils.sendToWebhook('create', 'userMessages', dbMessage);
+    // ? await utils.sendToWebhook('create', 'userMessages', dbMessage);
 
     // Publishing both admin & client
-    publishMessage(dbMessage, conversation.customerId);
+    publishMessage(models, dbMessage, conversation.customerId);
 
     return dbMessage;
   },
@@ -427,9 +420,9 @@ const conversationMutations = {
   async conversationsReplyFacebookComment(
     _root,
     doc: IReplyFacebookComment,
-    { user, dataSources, models }: IContext
+    { user, models }: IContext
   ) {
-    const conversation = await Conversations.getConversation(
+    const conversation = await models.Conversations.getConversation(
       doc.conversationId
     );
     const integration = await models.Integrations.getIntegration({
@@ -456,7 +449,6 @@ const conversationMutations = {
       conversationId,
       requestName,
       doc,
-      dataSources,
       action
     );
   },
@@ -464,7 +456,6 @@ const conversationMutations = {
   async conversationsChangeStatusFacebookComment(
     _root,
     doc: IReplyFacebookComment,
-    { dataSources }: IContext
   ) {
     const requestName = 'replyFacebookPost';
     const type = 'facebook';
@@ -478,7 +469,6 @@ const conversationMutations = {
       conversationId,
       requestName,
       doc,
-      dataSources,
       action
     );
   },
@@ -494,11 +484,11 @@ const conversationMutations = {
     }: { conversationIds: string[]; assignedUserId: string },
     { user, models }: IContext
   ) {
-    const { oldConversationById } = await getConversationById({
+    const { oldConversationById } = await getConversationById(models, {
       _id: { $in: conversationIds }
     });
 
-    const conversations: IConversationDocument[] = await Conversations.assignUserConversation(
+    const conversations: IConversationDocument[] = await models.Conversations.assignUserConversation(
       conversationIds,
       assignedUserId
     );
@@ -540,8 +530,8 @@ const conversationMutations = {
     const {
       oldConversations,
       oldConversationById
-    } = await getConversationById({ _id: { $in: _ids } });
-    const updatedConversations = await Conversations.unassignUserConversation(
+    } = await getConversationById(models, { _id: { $in: _ids } });
+    const updatedConversations = await models.Conversations.unassignUserConversation(
       _ids
     );
 
@@ -579,16 +569,16 @@ const conversationMutations = {
     { _ids, status }: { _ids: string[]; status: string },
     { user, models }: IContext
   ) {
-    const { oldConversationById } = await getConversationById({
+    const { oldConversationById } = await getConversationById(models, {
       _id: { $in: _ids }
     });
 
-    await Conversations.changeStatusConversation(_ids, status, user._id);
+    await models.Conversations.changeStatusConversation(_ids, status, user._id);
 
     // notify graphl subscription
     publishConversationsChanged(_ids, status);
 
-    const updatedConversations = await Conversations.find({
+    const updatedConversations = await models.Conversations.find({
       _id: { $in: _ids }
     });
 
@@ -618,23 +608,23 @@ const conversationMutations = {
   /**
    * Resolve all conversations
    */
-  async conversationResolveAll(_root, params: IListArgs, { user, models }: IContext) {
+  async conversationResolveAll(_root, params: IListArgs, { user, models, coreModels }: IContext) {
     // initiate query builder
-    const qb = new QueryBuilder(models, params, { _id: user._id });
+    const qb = new QueryBuilder(models, coreModels, params, { _id: user._id });
 
     await qb.buildAllQueries();
     const query = qb.mainQuery();
 
-    const { oldConversationById } = await getConversationById(query);
+    const { oldConversationById } = await getConversationById(models, query);
     const param = {
       status: CONVERSATION_STATUSES.CLOSED,
       closedUserId: user._id,
       closedAt: new Date()
     };
 
-    const updated = await Conversations.resolveAllConversation(query, param);
+    const updated = await models.Conversations.resolveAllConversation(query, param);
 
-    const updatedConversations = await Conversations.find({
+    const updatedConversations = await models.Conversations.find({
       _id: { $in: Object.keys(oldConversationById) }
     }).lean();
 
@@ -661,15 +651,15 @@ const conversationMutations = {
   async conversationMarkAsRead(
     _root,
     { _id }: { _id: string },
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    return Conversations.markAsReadConversation(_id, user._id);
+    return models.Conversations.markAsReadConversation(_id, user._id);
   },
 
   async conversationCreateVideoChatRoom(
     _root,
     { _id },
-    { user }: IContext
+    { user, models }: IContext
   ) {
     let message;
 
@@ -680,7 +670,7 @@ const conversationMutations = {
         contentType: MESSAGE_TYPES.VIDEO_CALL
       };
 
-      message = await ConversationMessages.addMessage(doc, user._id);
+      message = await models.ConversationMessages.addMessage(doc, user._id);
 
       const videoCallData = await sendRPCMessage('integrations:rpc_queue:createDailyRoom',
         {
@@ -692,13 +682,13 @@ const conversationMutations = {
       const updatedMessage = { ...message._doc, videoCallData };
 
       // publish new message to conversation detail
-      publishMessage(updatedMessage);
+      publishMessage(models, updatedMessage);
 
       return videoCallData;
     } catch (e) {
       debug.error(e.message);
 
-      await ConversationMessages.deleteOne({ _id: message._id });
+      await models.ConversationMessages.deleteOne({ _id: message._id });
 
       throw new Error(e.message);
     }
@@ -706,9 +696,10 @@ const conversationMutations = {
 
   async changeConversationOperator(
     _root,
-    { _id, operatorStatus }: { _id: string; operatorStatus: string }
+    { _id, operatorStatus }: { _id: string; operatorStatus: string },
+    { models }: IContext
   ) {
-    const message = await Messages.createMessage({
+    const message = await models.ConversationMessages.createMessage({
       conversationId: _id,
       botData: [
         {
@@ -722,17 +713,17 @@ const conversationMutations = {
       conversationMessageInserted: message
     });
 
-    return Conversations.updateOne({ _id }, { $set: { operatorStatus } });
+    return models.Conversations.updateOne({ _id }, { $set: { operatorStatus } });
   },
 
   async conversationConvertToCard(
     _root,
     params: IConversationConvert,
-    { user, docModifier }: IContext
+    { user, docModifier, models }: IContext
   ) {
     const { _id } = params;
 
-    const conversation = await Conversations.getConversation(_id);
+    const conversation = await models.Conversations.getConversation(_id);
 
     const args = {
       ...params,
@@ -746,10 +737,11 @@ const conversationMutations = {
 
   async conversationEditCustomFields(
     _root,
-    { _id, customFieldsData }: { _id: string; customFieldsData: any }
+    { _id, customFieldsData }: { _id: string; customFieldsData: any },
+    { models }: IContext
   ) {
-    await Conversations.updateConversation(_id, { customFieldsData });
-    return Conversations.getConversation(_id);
+    await models.Conversations.updateConversation(_id, { customFieldsData });
+    return models.Conversations.getConversation(_id);
   }
 };
 

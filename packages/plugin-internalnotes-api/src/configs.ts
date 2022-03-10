@@ -1,13 +1,23 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
+import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import apiConnect from './apiCollections';
+import { generateModels, models } from './connectionResolver';
 
+export let mainDb;
 export let debug;
 export let graphqlPubsub;
 export let serviceDiscovery;
+
+export let es: {
+  client;
+  fetchElk(args: IFetchElkArgs): Promise<any>;
+  getMappings(index: string): Promise<any>;
+  getIndexPrefix(): string;
+};
 
 export default {
   name: 'internalnotes',
@@ -16,13 +26,17 @@ export default {
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
-    }
+      resolvers: await resolvers(sd),
+    };
   },
-  apolloServerContext: context => {
-    return context;
+  apolloServerContext: (context) => {
+    context.models = models;
   },
-  onServerInit: async options => {
+  onServerInit: async (options) => {
+    mainDb = options.db;
+
+    await generateModels('os');
+
     await apiConnect();
 
     initBroker(options.messageBrokerClient);
@@ -30,10 +44,10 @@ export default {
     initMemoryStorage();
 
     graphqlPubsub = options.pubsubClient;
-
     debug = options.debug;
+    es = options.elasticsearch;
   },
   meta: {
-    logs: { providesActivityLog: true }
-  }
+    logs: { providesActivityLog: true },
+  },
 };

@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 import * as strip from 'strip';
-import { Conversations } from '.';
+import { IModels } from '../connectionResolver';
 import { MESSAGE_TYPES } from './definitions/constants';
 import {
   IMessage,
@@ -22,13 +22,13 @@ export interface IMessageModel extends Model<IMessageDocument> {
   updateVisitorEngageMessages(visitorId: string, customerId: string);
 }
 
-export const loadClass = () => {
+export const loadClass = (models: IModels) => {
   class Message {
     /**
      * Retreives message
      */
     public static async getMessage(_id: string) {
-      const message = await Messages.findOne({ _id });
+      const message = await models.ConversationMessages.findOne({ _id });
 
       if (!message) {
         throw new Error('Conversation message not found');
@@ -40,13 +40,13 @@ export const loadClass = () => {
      * Create a message
      */
     public static async createMessage(doc: IMessage) {
-      const message = await Messages.create({
+      const message = await models.ConversationMessages.create({
         internal: false,
         ...doc,
         createdAt: doc.createdAt || new Date()
       });
 
-      const messageCount = await Messages.find({
+      const messageCount = await models.ConversationMessages.find({
         conversationId: message.conversationId
       }).countDocuments();
 
@@ -64,21 +64,21 @@ export const loadClass = () => {
         convDocModifier.isCustomerRespondedLast = doc.customerId ? true : false;
       }
 
-      await Conversations.updateConversation(
+      await models.Conversations.updateConversation(
         message.conversationId,
         convDocModifier
       );
 
       if (message.userId) {
         // add created user to participators
-        await Conversations.addParticipatedUsers(
+        await models.Conversations.addParticipatedUsers(
           message.conversationId,
           message.userId
         );
       }
 
       // add mentioned users to participators
-      await Conversations.addManyParticipatedUsers(
+      await models.Conversations.addManyParticipatedUsers(
         message.conversationId,
         message.mentionedUserIds || []
       );
@@ -90,7 +90,7 @@ export const loadClass = () => {
      * Create a conversation message
      */
     public static async addMessage(doc: IMessage, userId?: string) {
-      const conversation = await Conversations.findOne({
+      const conversation = await models.Conversations.findOne({
         _id: doc.conversationId
       });
 
@@ -134,7 +134,7 @@ export const loadClass = () => {
         modifier.firstRespondedDate = new Date();
       }
 
-      await Conversations.updateConversation(doc.conversationId, modifier);
+      await models.Conversations.updateConversation(doc.conversationId, modifier);
 
       return this.createMessage({ ...doc, userId });
     }
@@ -143,7 +143,7 @@ export const loadClass = () => {
      * User's last non answered question
      */
     public static getNonAsnweredMessage(conversationId: string) {
-      return Messages.findOne({
+      return models.ConversationMessages.findOne({
         conversationId,
         customerId: { $exists: true }
       }).sort({ createdAt: -1 });
@@ -153,7 +153,7 @@ export const loadClass = () => {
      * Get admin messages
      */
     public static getAdminMessages(conversationId: string) {
-      return Messages.find({
+      return models.ConversationMessages.find({
         conversationId,
         userId: { $exists: true },
         isCustomerRead: { $ne: true },
@@ -164,7 +164,7 @@ export const loadClass = () => {
     }
 
     public static widgetsGetUnreadMessagesCount(conversationId: string) {
-      return Messages.countDocuments({
+      return models.ConversationMessages.countDocuments({
         conversationId,
         userId: { $exists: true },
         internal: false,
@@ -176,7 +176,7 @@ export const loadClass = () => {
      * Mark sent messages as read
      */
     public static markSentAsReadMessages(conversationId: string) {
-      return Messages.updateMany(
+      return models.ConversationMessages.updateMany(
         {
           conversationId,
           userId: { $exists: true },
@@ -191,7 +191,7 @@ export const loadClass = () => {
      * Force read previous unread engage messages ============
      */
     public static forceReadCustomerPreviousEngageMessages(customerId: string) {
-      return Messages.updateMany(
+      return models.ConversationMessages.updateMany(
         {
           customerId,
           engageData: { $exists: true },
@@ -206,7 +206,7 @@ export const loadClass = () => {
       visitorId: string,
       customerId: string
     ) {
-      return Messages.updateMany(
+      return models.ConversationMessages.updateMany(
         {
           visitorId,
           engageData: { $exists: true }
@@ -220,13 +220,3 @@ export const loadClass = () => {
 
   return messageSchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const Messages = model<IMessageDocument, IMessageModel>(
-  'conversation_messages',
-  messageSchema
-);
-
-export default Messages;

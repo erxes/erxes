@@ -1,148 +1,177 @@
 const externalId = '_id: String! @external';
 const keyFields = '@key(fields: "_id")';
 
-export const types = `
-  extend type User ${keyFields} {
-    ${externalId}
-  }
+export const types = async (serviceDiscovery) => {
+  const enabledTags = await serviceDiscovery.isEnabled('tags');
+  const enabledContacts = await serviceDiscovery.isEnabled('contacts');
+  const enabledSegments = await serviceDiscovery.isEnabled('segments');
 
-  extend type Brand ${keyFields} {
-    ${externalId}
-  }
+  return `
+    extend type User ${keyFields} {
+      ${externalId}
+    }
 
-  extend type Segment ${keyFields} {
-    ${externalId}
-  }
+    extend type Brand ${keyFields} {
+      ${externalId}
+    }
 
-  extend type Tag ${keyFields} {
-    ${externalId}
-  }
+    ${
+      enabledSegments
+        ? `
+          extend type Segment ${keyFields} {
+            ${externalId}
+          }
+        `
+        : ''
+    }
 
-  extend type Customer ${keyFields} {
-    ${externalId}
-  }
+    ${
+      enabledTags
+        ? `extend type Tag ${keyFields} {
+      ${externalId}
+    }`
+        : ''
+    }
 
-  type EngageMessage ${keyFields} {
-    _id: String!
-    kind: String
-    tagIds: [String]
-    customerTagIds: [String]
-    segmentIds: [String]
-    brandIds: [String]
-    customerIds: [String]
-    title: String
-    fromUserId: String
-    method: String
-    isDraft: Boolean
-    isLive: Boolean
-    stopDate: Date
-    createdAt: Date
-    type: String
-    messengerReceivedCustomerIds: [String]
-    totalCustomersCount: Int
-    validCustomersCount: Int
-    runCount: Int
-    lastRunAt: Date
+    ${
+      enabledContacts
+        ? `
+        extend type Customer ${keyFields} {
+          ${externalId}
+        }
+      `
+        : ''
+    }
 
-    brand: Brand
+    type EngageMessage ${keyFields} {
+      _id: String!
+      kind: String
+      tagIds: [String]
+      customerTagIds: [String]
+      segmentIds: [String]
+      brandIds: [String]
+      customerIds: [String]
+      title: String
+      fromUserId: String
+      method: String
+      isDraft: Boolean
+      isLive: Boolean
+      stopDate: Date
+      createdAt: Date
+      type: String
+      messengerReceivedCustomerIds: [String]
+      totalCustomersCount: Int
+      validCustomersCount: Int
+      runCount: Int
+      lastRunAt: Date
 
-    email: JSON
-    messenger: JSON
-    shortMessage: EngageMessageSms
-    createdBy: String
+      brand: Brand
 
-    scheduleDate: EngageScheduleDate
-    segments: [Segment]
-    customerTags: [Tag]
-    brands: [Brand]
-    fromUser: User
-    getTags: [Tag]
-    fromIntegration: JSON
-    createdUser: User
+      email: JSON
+      messenger: JSON
+      shortMessage: EngageMessageSms
+      createdBy: String
 
-    stats: JSON
-    smsStats: JSON
-    logs: [EngageLog]
-  }
+      scheduleDate: EngageScheduleDate
 
-  type EngageScheduleDate {
-    type: String,
-    month: String,
-    day: String,
-    dateTime: Date,
-  }
+      ${enabledSegments ? 'segments: [Segment]' : ''}
+      ${
+        enabledTags
+          ? `
+        customerTags: [Tag]
+        getTags: [Tag]
+        `
+          : ''
+      }
+      brands: [Brand]
+      fromUser: User
+      fromIntegration: JSON
+      createdUser: User
 
-  type DeliveryReport ${keyFields} {
-    _id: String!,
-    customerId: String,
-    mailId: String,
-    status: String,
-    engage: EngageMessage,
-    createdAt: Date,
-    customerName: String
-  }
+      stats: JSON
+      smsStats: JSON
+      logs: [EngageLog]
+    }
 
-  type EngageDeliveryReport {
-    list: [DeliveryReport]
-    totalCount: Int
-  }
+    type EngageScheduleDate {
+      type: String,
+      month: String,
+      day: String,
+      dateTime: Date,
+    }
 
-  type AvgEmailStats {
-    avgBouncePercent: Float,
-    avgClickPercent: Float,
-    avgComplaintPercent: Float,
-    avgDeliveryPercent: Float,
-    avgOpenPercent: Float,
-    avgRejectPercent: Float,
-    avgRenderingFailurePercent: Float,
-    avgSendPercent: Float,
-    total: Float
-  }
+    type DeliveryReport ${keyFields} {
+      _id: String!,
+      customerId: String,
+      mailId: String,
+      status: String,
+      engage: EngageMessage,
+      createdAt: Date,
+      customerName: String
+    }
 
-  input EngageScheduleDateInput {
-    type: String,
-    month: String,
-    day: String,
-    dateTime: Date,
-  }
+    type EngageDeliveryReport {
+      list: [DeliveryReport]
+      totalCount: Int
+    }
 
-  input EngageMessageEmail {
-    content: String,
-    subject: String!,
-    replyTo: String,
-    sender: String,
-    attachments: [JSON]
-    templateId: String
-  }
+    type AvgEmailStats {
+      avgBouncePercent: Float,
+      avgClickPercent: Float,
+      avgComplaintPercent: Float,
+      avgDeliveryPercent: Float,
+      avgOpenPercent: Float,
+      avgRejectPercent: Float,
+      avgRenderingFailurePercent: Float,
+      avgSendPercent: Float,
+      total: Float
+    }
 
-  type EngageMessageSms {
-    from: String,
-    content: String!
-    fromIntegrationId: String
-  }
+    input EngageScheduleDateInput {
+      type: String,
+      month: String,
+      day: String,
+      dateTime: Date,
+    }
 
-  input InputRule {
-    _id : String!,
-    kind: String!,
-    text: String!,
-    condition: String!,
-    value: String,
-  }
+    input EngageMessageEmail {
+      content: String,
+      subject: String!,
+      replyTo: String,
+      sender: String,
+      attachments: [JSON]
+      templateId: String
+    }
 
-  input EngageMessageMessenger {
-    brandId: String!,
-    kind: String,
-    sentAs: String,
-    content: String,
-    rules: [InputRule],
-  }
+    type EngageMessageSms {
+      from: String,
+      content: String!
+      fromIntegrationId: String
+    }
 
-  input EngageMessageSmsInput {
-    from: String,
-    content: String!
-    fromIntegrationId: String!
-  }
-`;
+    input InputRule {
+      _id : String!,
+      kind: String!,
+      text: String!,
+      condition: String!,
+      value: String,
+    }
+
+    input EngageMessageMessenger {
+      brandId: String!,
+      kind: String,
+      sentAs: String,
+      content: String,
+      rules: [InputRule],
+    }
+
+    input EngageMessageSmsInput {
+      from: String,
+      content: String!
+      fromIntegrationId: String!
+    }
+  `;
+};
 
 const listParams = `
   kind: String
@@ -163,7 +192,6 @@ export const queries = `
   engageReportsList(page: Int, perPage: Int, customerId: String, status: String): EngageDeliveryReport
   engageEmailPercentages: AvgEmailStats
 `;
-
 
 const commonParams = `
   title: String!,
