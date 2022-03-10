@@ -1,9 +1,7 @@
-import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 import { generateFieldsFromSchema } from "@erxes/api-utils/src";
 
-import { receiveRpcMessage, collectConversations } from "./receiveMessage";
+import { receiveRpcMessage } from "./receiveMessage";
 import { serviceDiscovery } from './configs';
-import { LOG_MAPPINGS } from './constants';
 import { generateModels, IModels } from './connectionResolver';
 
 export let client;
@@ -181,11 +179,6 @@ export const initBroker = (cl) => {
     };
   });
 
-  consumeRPCQueue('inbox:logs:collectItems', async data => ({
-    data: await collectConversations(data),
-    status: 'success'
-  }));
-
   consumeRPCQueue('inbox:rpc_queue:updateConversationMessage', async (data) => {
     const { filter, updateDoc, subdomain } = data;
     const models = await generateModels(subdomain);
@@ -203,11 +196,6 @@ export const initBroker = (cl) => {
 
     return models.Conversations.removeCustomersConversations(customerIds);
   });
-
-  consumeRPCQueue('inbox:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
-    status: 'success',
-    data: getSchemaLabels(type, LOG_MAPPINGS)
-  }));
 
   consumeRPCQueue('inbox:rpc_queue:logs:getConversations', async ({ subdomain, query }) => {
     const models = await generateModels(subdomain);

@@ -7,6 +7,7 @@ import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
 import { generateModels, models, coreModels } from './connectionResolver';
+import logConsumers from './logConsumers';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -40,7 +41,7 @@ export default {
       contentTypes: ['conversation'],
     },
     tagTypes: ['conversation'],
-    logs: { providesActivityLog: true }
+    logs: { providesActivityLog: true, consumers: logConsumers }
   },
   apolloServerContext: (context) => {
     context.models = models;
