@@ -66,12 +66,11 @@ class PropertyCondition extends React.Component<Props, State> {
   };
 
   onChangeConfig = config => {
-    console.log(config);
     this.setState({ config });
   };
 
   renderExtraContent = () => {
-    const { contentType } = this.props;
+    const { contentType, hideDetailForm } = this.props;
     const { config, propertyType } = this.state;
 
     const plugins: any[] = (window as any).plugins || [];
@@ -86,7 +85,9 @@ class PropertyCondition extends React.Component<Props, State> {
               config,
               type: contentType,
               propertyType,
-              onChangeConfig: this.onChangeConfig
+              onChangeConfig: this.onChangeConfig,
+              hideDetailForm,
+              from: 'filter'
             }}
           />
         );

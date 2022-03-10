@@ -43,8 +43,6 @@ class Form extends React.Component<any, any, any> {
 
     const result = { boardId, pipelineId };
 
-    console.log(result);
-
     this.props.onChangeConfig(result);
   };
 
@@ -74,10 +72,13 @@ class Form extends React.Component<any, any, any> {
 
     const boards = boardsQuery.boards || [];
 
+    console.log(propertyType);
+
     if (
       propertyType &&
       !['cards:deal', 'cards:ticket', 'cards:task'].includes(propertyType)
     ) {
+      console.log(1);
       return null;
     }
 
@@ -85,6 +86,7 @@ class Form extends React.Component<any, any, any> {
       !hideDetailForm &&
       ['cards:deal', 'cards:ticket', 'cards:task'].includes(type)
     ) {
+      console.log(2, hideDetailForm, type);
       return null;
     }
 

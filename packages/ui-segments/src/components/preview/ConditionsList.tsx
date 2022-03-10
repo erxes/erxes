@@ -154,7 +154,7 @@ class ConditionsList extends React.Component<Props, State> {
   };
 
   renderCondition(condition: ISegmentCondition) {
-    const { segment, config } = this.props;
+    const { segment } = this.props;
     const { conditions } = segment;
 
     let useMargin = true;
@@ -170,7 +170,7 @@ class ConditionsList extends React.Component<Props, State> {
             <PropertyDetail
               onClickProperty={this.props.onClickProperty}
               condition={condition}
-              config={config}
+              config={condition.config}
               segmentId={segment._id}
               segmentKey={segment.key}
             />

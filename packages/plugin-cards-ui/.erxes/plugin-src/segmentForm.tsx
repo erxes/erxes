@@ -43,8 +43,6 @@ class Form extends React.Component<any, any, any> {
 
     const result = { boardId, pipelineId };
 
-    console.log(result);
-
     this.props.onChangeConfig(result);
   };
 
@@ -65,7 +63,8 @@ class Form extends React.Component<any, any, any> {
       config,
       hideDetailForm,
       propertyType,
-      type
+      type,
+      from
     } = this.props;
 
     if (boardsQuery.loading) {
@@ -74,21 +73,7 @@ class Form extends React.Component<any, any, any> {
 
     const boards = boardsQuery.boards || [];
 
-    if (
-      propertyType &&
-      !['cards:deal', 'cards:ticket', 'cards:task'].includes(propertyType)
-    ) {
-      return null;
-    }
-
-    if (
-      !hideDetailForm &&
-      ['cards:deal', 'cards:ticket', 'cards:task'].includes(type)
-    ) {
-      return null;
-    }
-
-    return (
+    const content = (
       <>
         <FlexContent>
           <FlexItem>
@@ -116,12 +101,61 @@ class Form extends React.Component<any, any, any> {
         </FlexContent>
       </>
     );
+
+    if (from === 'filter') {
+      if (
+        propertyType &&
+        !['cards:deal', 'cards:ticket', 'cards:task'].includes(propertyType)
+      ) {
+        return null;
+      }
+
+      if (
+        !hideDetailForm &&
+        ['cards:deal', 'cards:ticket', 'cards:task'].includes(type)
+      ) {
+        return null;
+      }
+
+      return content;
+    } else if (['cards:deal', 'cards:ticket', 'cards:task'].includes(type)) {
+      return (
+        <>
+          <FlexContent>
+            <FlexItem>
+              <FormGroup>
+                <ControlLabel>Board</ControlLabel>
+                <Select
+                  value={config.boardId}
+                  options={boards.map(b => ({
+                    value: b._id,
+                    label: b.name
+                  }))}
+                  onChange={this.onChangeBoard.bind(this, 'boardId')}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Pipeline</ControlLabel>
+
+                <Select
+                  value={config.pipelineId}
+                  onChange={this.onChangePipeLine.bind(this, 'pipelineId')}
+                  options={this.generatePipelineOptions(boards)}
+                />
+              </FormGroup>
+            </FlexItem>
+          </FlexContent>
+        </>
+      );
+    }
+
+    return null;
   }
 }
 
 const generateVariable = (type, propertyType) => {
   if (['cards:deal', 'cards:ticket', 'cards:task'].includes(type)) {
-    return type.split(':')[1];
+    return { type: type.split(':')[1] };
   }
 
   return { type: propertyType.split(':')[1] };

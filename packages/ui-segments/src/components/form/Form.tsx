@@ -198,7 +198,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   };
 
   renderExtraContent = () => {
-    const { contentType } = this.props;
+    const { contentType, hideDetailForm } = this.props;
     const { config } = this.state;
 
     const plugins: any[] = (window as any).plugins || [];
@@ -212,7 +212,9 @@ class SegmentFormAutomations extends React.Component<Props, State> {
             injectedProps={{
               config,
               type: contentType,
-              onChangeConfig: this.onChangeConfig
+              onChangeConfig: this.onChangeConfig,
+              hideDetailForm,
+              from: 'form'
             }}
           />
         );

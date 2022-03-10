@@ -39,8 +39,6 @@ class PropertyDetail extends React.Component<Props, {}> {
     const { selectOptions = [], choiceOptions = [], type } = field;
     const { propertyValue } = condition;
 
-    console.log(condition, field, propertyValue);
-
     let text = propertyValue;
 
     if (selectOptions.length > 0) {

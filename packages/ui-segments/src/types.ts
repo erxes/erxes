@@ -35,7 +35,7 @@ export interface ISegmentMap {
   _id?: string;
   key: string;
   contentType: string;
-  pipelineId?: string;
+  config?: any;
   conditions: ISegmentCondition[];
   conditionsConjunction: string;
 }
@@ -67,8 +67,7 @@ export interface ISegmentDoc {
   subOf: string;
   subSegments?: ISubSegment[];
   conditionsConjunction: string;
-  boardId: string;
-  pipelineId: string;
+  config: any;
   shouldWriteActivityLog: boolean;
 }
 
