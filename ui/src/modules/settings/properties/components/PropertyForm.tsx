@@ -256,7 +256,7 @@ class PropertyForm extends React.Component<Props, State> {
     const object = field || ({} as IField);
 
     const { values, isSubmitted } = formProps;
-    console.log('values', values);
+
     const { type } = this.state;
 
     return (
