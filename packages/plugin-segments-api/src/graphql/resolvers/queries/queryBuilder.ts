@@ -1,5 +1,8 @@
 import * as _ from 'underscore';
-import { SEGMENT_DATE_OPERATORS, SEGMENT_NUMBER_OPERATORS } from '../../../constants';
+import {
+  SEGMENT_DATE_OPERATORS,
+  SEGMENT_NUMBER_OPERATORS
+} from '../../../constants';
 import { sendConformityMessage, sendRPCMessage } from '../../../messageBroker';
 import { Segments } from '../../../models';
 import { ICondition, ISegment } from '../../../models/definitions/segments';

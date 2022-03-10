@@ -1,9 +1,12 @@
-import { checkPermission, requireLogin } from "@erxes/api-utils/src/permissions";
-import { IContext } from "@erxes/api-utils/src/types";
-import { Segments } from "../../../models";
+import {
+  checkPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
+import { IContext } from '@erxes/api-utils/src/types';
+import { Segments } from '../../../models';
 import { es, serviceDiscovery } from '../../../configs';
-import { fetchSegment } from "./queryBuilder";
-import { sendRPCMessage } from "../../../messageBroker";
+import { fetchSegment } from './queryBuilder';
+import { sendRPCMessage } from '../../../messageBroker';
 
 const segmentQueries = {
   async segmentsGetTypes() {
@@ -39,9 +42,16 @@ const segmentQueries = {
     }
 
     const descriptionMap = meta.segments.descriptionMap;
-    const types = await sendRPCMessage(`${serviceName}:segments:associationTypes`, { mainType: type })
 
-    return types.map(atype => ({ value: atype, description: descriptionMap[atype] }));
+    const types = await sendRPCMessage(
+      `${serviceName}:segments:associationTypes`,
+      { mainType: type }
+    );
+
+    return types.map(atype => ({
+      value: atype,
+      description: descriptionMap[atype]
+    }));
   },
 
   /**
@@ -50,9 +60,7 @@ const segmentQueries = {
   segments(
     _root,
     {
-      contentTypes,
-      boardId,
-      pipelineId
+      contentTypes
     }: { contentTypes: string[]; boardId?: string; pipelineId?: string },
     { commonQuerySelector }: IContext
   ) {
@@ -62,13 +70,13 @@ const segmentQueries = {
       name: { $exists: true }
     };
 
-    if (boardId) {
-      selector.boardId = boardId;
-    }
+    // if (boardId) {
+    //   selector.boardId = boardId;
+    // }
 
-    if (pipelineId) {
-      selector.pipelineId = pipelineId;
-    }
+    // if (pipelineId) {
+    //   selector.pipelineId = pipelineId;
+    // }
 
     return Segments.find(selector).sort({ name: 1 });
   },

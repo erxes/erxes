@@ -1,6 +1,6 @@
-import { serviceDiscovery } from "./configs";
-import { Fields, FieldsGroups, Forms } from "./models";
-import { fieldsCombinedByContentType } from "./utils";
+import { serviceDiscovery } from './configs';
+import { Fields, FieldsGroups, Forms } from './models';
+import { fieldsCombinedByContentType } from './utils';
 
 let client;
 
@@ -43,20 +43,22 @@ export const initBroker = async cl => {
     })
   );
 
-  consumeQueue(
-    'forms:updateGroup',
-    async ({ groupId, fieldsGroup }) => ({
-      status: 'success',
-      data: await FieldsGroups.updateGroup(groupId, fieldsGroup)
-    })
-  );
+  consumeQueue('forms:updateGroup', async ({ groupId, fieldsGroup }) => ({
+    status: 'success',
+    data: await FieldsGroups.updateGroup(groupId, fieldsGroup)
+  }));
 
-  consumeRPCQueue('forms:rpc_queue:findFields', async ({ query, projection, sort }) => {
-    return {
-      status: 'success',
-      data: await Fields.find(query, projection).sort(sort).lean()
-    };
-  });
+  consumeRPCQueue(
+    'forms:rpc_queue:findFields',
+    async ({ query, projection, sort }) => {
+      return {
+        status: 'success',
+        data: await Fields.find(query, projection)
+          .sort(sort)
+          .lean()
+      };
+    }
+  );
 
   consumeRPCQueue('forms:rpc_queue:fieldsCombinedByContentType', async arg => {
     return {
@@ -66,18 +68,28 @@ export const initBroker = async cl => {
   });
 };
 
-export const fetchService = async (contentType: string, action: string, data, defaultValue) => {
-  const [serviceName, type ] = contentType.split(':');
+export const fetchService = async (
+  contentType: string,
+  action: string,
+  data,
+  defaultValue
+) => {
+  const [serviceName, type] = contentType.split(':');
 
   if (!(await serviceDiscovery.isEnabled(serviceName))) {
     return defaultValue;
   }
-  
-  if(!(await serviceDiscovery.isAvailable(serviceName))) {
+
+  if (!(await serviceDiscovery.isAvailable(serviceName))) {
     throw new Error(`${serviceName} service is not available.`);
   }
 
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:fields:${action}`, { ...data, type });
+  console.log('dada', serviceName);
+
+  return client.sendRPCMessage(`${serviceName}:rpc_queue:fields:${action}`, {
+    ...data,
+    type
+  });
 };
 
 export default function() {

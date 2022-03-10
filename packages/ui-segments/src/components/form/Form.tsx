@@ -35,6 +35,7 @@ import { Link } from 'react-router-dom';
 import { isBoardKind } from '../../utils';
 import PropertyForm from './PropertyForm';
 import EventForm from './EventForm';
+import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   serviceType: string;
@@ -70,8 +71,6 @@ type State = {
   subOf: string;
   color: string;
   conditionsConjunction: string;
-  boardId: string;
-  pipelineId: string;
   shouldWriteActivityLog: boolean;
 
   segments: ISegmentMap[];
@@ -82,6 +81,7 @@ type State = {
   chosenProperty?: IField;
   chosenCondition?: ISegmentCondition;
   chosenSegmentKey?: string;
+  config: any;
 };
 
 class SegmentFormAutomations extends React.Component<Props, State> {
@@ -97,15 +97,14 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       subOf: '',
       color: generateRandomColorCode(),
       conditionsConjunction: 'and',
-      boardId: '',
-      pipelineId: '',
       shouldWriteActivityLog: false,
       subSegmentConditions: [
         {
           contentType: props.contentType || 'customer',
           conditionsConjunction: 'and'
         }
-      ]
+      ],
+      config: {}
     };
 
     if (
@@ -196,41 +195,42 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 
-  generatePipelineOptions = () => {
-    const { boardId } = this.state;
+  onChangeConfig = config => {
+    this.setState({ config });
+  };
 
-    const board = (this.props.boards || []).find(b => b._id === boardId);
+  renderExtraContent = () => {
+    const { contentType } = this.props;
+    const { config } = this.state;
 
-    if (!board) {
-      return [];
+    const plugins: any[] = (window as any).plugins || [];
+
+    for (const plugin of plugins) {
+      if (contentType.includes(`${plugin.name}:`) && plugin.segmentForm) {
+        return (
+          <RenderDynamicComponent
+            scope={plugin.scope}
+            component={plugin.segmentForm}
+            injectedProps={{
+              config,
+              type: contentType,
+              onChangeConfig: this.onChangeConfig
+            }}
+          />
+        );
+      }
     }
 
-    return (board.pipelines || []).map(p => ({
-      value: p._id,
-      label: p.name
-    }));
+    return null;
   };
 
   renderDetailForm = (formProps: IFormProps) => {
-    const { hideDetailForm, contentType, boards = [] } = this.props;
-    const {
-      name,
-      description,
-      color,
-      boardId,
-      pipelineId,
-      shouldWriteActivityLog
-    } = this.state;
+    const { hideDetailForm } = this.props;
+    const { name, description, color, shouldWriteActivityLog } = this.state;
 
     if (hideDetailForm) {
       return;
     }
-
-    const onChangeBoardItem = (key, e) => {
-      const value = e ? e.value : '';
-
-      this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
-    };
 
     const nameOnChange = (e: React.FormEvent) =>
       this.handleChange('name', (e.currentTarget as HTMLInputElement).value);
@@ -318,36 +318,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
             </FormControl>
           </FlexItem>
         </FlexContent>
-        {isBoardKind(contentType) ? (
-          <>
-            <FlexContent>
-              <FlexItem>
-                <FormGroup>
-                  <ControlLabel>Board</ControlLabel>
-                  <Select
-                    value={boardId}
-                    options={boards.map(b => ({
-                      value: b._id,
-                      label: b.name
-                    }))}
-                    onChange={onChangeBoardItem.bind(this, 'boardId')}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <ControlLabel>Pipeline</ControlLabel>
-
-                  <Select
-                    value={pipelineId}
-                    onChange={onChangeBoardItem.bind(this, 'pipelineId')}
-                    options={this.generatePipelineOptions()}
-                  />
-                </FormGroup>
-              </FlexItem>
-            </FlexContent>
-          </>
-        ) : (
-          <></>
-        )}
+        {this.renderExtraContent()}
       </>
     );
   };
@@ -495,9 +466,8 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       conditionsConjunction,
       chosenProperty,
       chosenCondition,
-      boardId,
-      pipelineId,
-      chosenSegmentKey
+      chosenSegmentKey,
+      config
     } = this.state;
 
     if (chosenProperty && chosenCondition && chosenSegmentKey) {
@@ -538,9 +508,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
             chosenProperty={chosenProperty}
             chosenCondition={chosenCondition}
             hideDetailForm={hideDetailForm || false}
-            boardId={boardId}
-            pipelineId={pipelineId}
-            serviceType={serviceType}
+            config={config}
           />
         );
       });
@@ -550,7 +518,6 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       return (
         <PropertyCondition
           key={Math.random()}
-          serviceType={serviceType}
           hideBackButton={false}
           onClickBackToList={this.onClickBackToList}
           contentType={contentType}
@@ -558,8 +525,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
           addCondition={this.addCondition}
           hideDetailForm={hideDetailForm || false}
           changeSubSegmentConjunction={this.changeSubSegmentConjunction}
-          boardId={boardId}
-          pipelineId={pipelineId}
+          config={config}
         />
       );
     }
@@ -645,8 +611,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       segments,
       conditionsConjunction,
       color,
-      boardId,
-      pipelineId,
+      config,
       shouldWriteActivityLog
     } = this.state;
     const finalValues = values;
@@ -669,8 +634,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       conditionsConjunction,
       contentType,
       conditionSegments,
-      boardId,
-      pipelineId,
+      config,
       shouldWriteActivityLog
     };
   };

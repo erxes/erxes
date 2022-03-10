@@ -1,10 +1,10 @@
-import { fetchService } from "./messageBroker";
-import { Fields, FieldsGroups } from "./models";
+import { fetchService } from './messageBroker';
+import { Fields, FieldsGroups } from './models';
 
 export const getCustomFields = async (contentType: string) => {
   return Fields.find({
     contentType,
-    isDefinedByErxes: false,
+    isDefinedByErxes: false
   });
 };
 
@@ -20,7 +20,7 @@ export const fieldsCombinedByContentType = async ({
   usageType,
   excludedNames,
   segmentId,
-  formId,
+  formId
 }: {
   contentType: string;
   usageType?: string;
@@ -40,17 +40,24 @@ export const fieldsCombinedByContentType = async ({
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 
-  fields = await fetchService(contentType, 'getList', {
-    segmentId,
-    usageType,
-    formId,
-  }, []);
+  fields = await fetchService(
+    contentType,
+    'getList',
+    {
+      segmentId,
+      usageType,
+      formId
+    },
+    []
+  );
+
+  console.log(fields);
 
   const customFields = await getCustomFields(contentType);
 
   // extend fields list using custom fields data
   for (const customField of customFields) {
-    const group = await getFieldGroup(customField.groupId || "");
+    const group = await getFieldGroup(customField.groupId || '');
 
     if (
       group &&
@@ -63,12 +70,12 @@ export const fieldsCombinedByContentType = async ({
         label: customField.text,
         options: customField.options,
         validation: customField.validation,
-        type: customField.type,
+        type: customField.type
       });
     }
   }
 
   fields = [...fields];
 
-  return fields.filter((field) => !(excludedNames || []).includes(field.name));
+  return fields.filter(field => !(excludedNames || []).includes(field.name));
 };

@@ -28,8 +28,7 @@ type Props = {
   addCondition: (
     condition: ISegmentCondition,
     segmentKey: string,
-    boardId?: string,
-    pipelineId?: string
+    config?: any
   ) => void;
   addNewProperty: (segmentKey: string) => void;
   addNewEvent: (segmentKey: string) => void;
@@ -45,9 +44,7 @@ type Props = {
   chosenProperty?: IField;
   chosenCondition?: ISegmentCondition;
   hideDetailForm: boolean;
-  boardId: string;
-  pipelineId: string;
-  serviceType: string;
+  config?: any;
 };
 
 type State = {};
@@ -161,7 +158,7 @@ class ConditionsList extends React.Component<Props, State> {
   };
 
   renderCondition(condition: ISegmentCondition) {
-    const { segment, serviceType } = this.props;
+    const { segment, config } = this.props;
     const { conditions } = segment;
 
     let useMargin = true;
@@ -175,10 +172,9 @@ class ConditionsList extends React.Component<Props, State> {
         <ConditionItem useMargin={useMargin} key={Math.random()}>
           <FilterRow>
             <PropertyDetail
-              serviceType={serviceType}
               onClickProperty={this.props.onClickProperty}
               condition={condition}
-              pipelineId={segment.pipelineId}
+              config={config}
               segmentId={segment._id}
               segmentKey={segment.key}
             />

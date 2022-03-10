@@ -44,7 +44,7 @@ const getPipelineLabelOptions = async pipelineId => {
 };
 
 export const generateFields = async args => {
-  const { contentType, pipelineId, segmentId, usageType } = args;
+  const { type, pipelineId, segmentId, usageType } = args;
 
   let schema: any;
   let fields: Array<{
@@ -58,7 +58,7 @@ export const generateFields = async args => {
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 
-  switch (contentType) {
+  switch (type) {
     case 'deal':
       schema = Deals.schema;
       break;
@@ -94,7 +94,9 @@ export const generateFields = async args => {
   }
 
   if (segmentId || pipelineId) {
-    const segment = segmentId ? await sendSegmentMessage('findOne', { _id: segmentId }, true) : null;
+    const segment = segmentId
+      ? await sendSegmentMessage('findOne', { _id: segmentId }, true)
+      : null;
 
     const labelOptions = await getPipelineLabelOptions(
       pipelineId || (segment ? segment.pipelineId : null)
