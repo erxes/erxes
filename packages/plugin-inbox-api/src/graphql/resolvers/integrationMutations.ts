@@ -559,7 +559,7 @@ const integrationMutations = {
 
     const sourceForm = await coreModels.Forms.getForm(sourceIntegration.formId);
 
-    const sourceFields = await coreModels.Fields.find({ contentTypeId: sourceForm._id });
+    const sourceFields = await coreModels.Fields.find({ contentTypeId: sourceForm._id }).toArray();
 
     const formDoc = docModifier({
       ...sourceForm.toObject(),
