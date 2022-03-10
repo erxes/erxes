@@ -63,7 +63,6 @@ export default {
   async healthStatus(
     integration: IIntegrationDocument,
     _args,
-    { dataSources }: IContext
   ) {
     if (integration.kind.includes('facebook')) {
       try {

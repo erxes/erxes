@@ -269,7 +269,7 @@ const conversationMutations = {
   async conversationMessageAdd(
     _root,
     doc: IConversationMessageAdd,
-    { user, dataSources, models }: IContext
+    { user, models }: IContext
   ) {
     const conversation = await models.Conversations.getConversation(
       doc.conversationId
@@ -456,7 +456,6 @@ const conversationMutations = {
   async conversationsChangeStatusFacebookComment(
     _root,
     doc: IReplyFacebookComment,
-    { dataSources }: IContext
   ) {
     const requestName = 'replyFacebookPost';
     const type = 'facebook';
