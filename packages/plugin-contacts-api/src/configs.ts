@@ -215,7 +215,7 @@ export default {
       )
     );
 
-    initBroker(options.messageBrokerClient, models, coreModels);
+    initBroker(options.messageBrokerClient);
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
