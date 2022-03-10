@@ -146,13 +146,13 @@ export const receiveRpcMessage = async msg => {
     return sendSuccess({ _id: message._id });
   }
 
-  // if (action === 'get-configs') {
+  // ? if (action === 'get-configs') {
   //   const configs = await getConfigs({ Configs }, inmemoryStorage);
   //   return sendSuccess({ configs });
   // }
 
   if (action === 'getUserIds') {
-    const users = await Users.find({}, { _id: 1 });
+    const users = await Users.find({}, { _id: 1 }).toArray();
     return sendSuccess({ userIds: users.map(user => user._id) });
   }
 };
