@@ -10,11 +10,6 @@ import { insertImportItems, prepareImportDocs } from './importUtils';
 import { Checklists, Deals, GrowthHacks, Pipelines, Stages, Tasks, Tickets } from './models';
 import { conversationConvertToCard } from './models/utils';
 import {
-  generateConditionStageIds,
-  getContentItem,
-  getContentTypeDetail,
-  collectItems,
-  getCardContentIds,
   getCardItem
 } from './utils';
 
@@ -93,32 +88,6 @@ export const initBroker = async cl => {
   consumeRPCQueue('cards:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
     status: 'success',
     data: getSchemaLabels(type, LOG_MAPPINGS)
-  }));
-
-  consumeRPCQueue('cards:rpc_queue:getActivityContent', async data => {
-    return {
-      status: 'success',
-      data: await getContentItem(data)
-    };
-  });
-
-  consumeRPCQueue('cards:rpc_queue:getContentTypeDetail', async data => {
-    const { activityLog = {} } = data;
-
-    return {
-      status: 'success',
-      data: await getContentTypeDetail(activityLog)
-    };
-  });
-
-  consumeRPCQueue(`cards:rpc_queue:activityLog:collectItems`, async data => ({
-    status: 'success',
-    data: await collectItems(data)
-  }));
-
-  consumeRPCQueue('cards:rpc_queue:getContentIds', async data => ({
-    status: 'success',
-    data: await getCardContentIds(data)
   }));
 
   consumeRPCQueue('cards:deals:generateAmounts', async productsData => {

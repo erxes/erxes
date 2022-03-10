@@ -211,10 +211,11 @@ async function startServer() {
 
     if (configs.meta) {
       const segments = configs.meta.segments;
+      const logs = configs.meta.logs && configs.meta.logs.consumers;
+
+      const { consumeRPCQueue } = messageBrokerClient;
 
       if (segments) {
-        const { consumeRPCQueue } = messageBrokerClient;
-
         if (segments.propertyConditionExtender) {
           consumeRPCQueue(`${configs.name}:segments:propertyConditionExtender`, segments.propertyConditionExtender);
         }
@@ -229,6 +230,21 @@ async function startServer() {
 
         if (segments.initialSelector) {
           consumeRPCQueue(`${configs.name}:segments:initialSelector`, segments.initialSelector);
+        }
+      }
+      // logs message consumers
+      if (logs) {
+        if (logs.getActivityContent) {
+          consumeRPCQueue(`${configs.name}:logs:getActivityContent`, logs.getActivityContent);
+        }
+        if (logs.getContentTypeDetail) {
+          consumeRPCQueue(`${configs.name}:logs:getContentTypeDetail`, logs.getContentTypeDetail);
+        }
+        if (logs.collectItems) {
+          consumeRPCQueue(`${configs.name}:logs:collectItems`, logs.collectItems);
+        }
+        if (logs.getContentIds) {
+          consumeRPCQueue(`${configs.name}:logs:getContentIds`, logs.getContentIds);
         }
       }
     }
