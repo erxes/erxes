@@ -6,6 +6,35 @@ import { Integrations } from '../models';
 import { sendRequest } from '../utils';
 import { ConversationMessages, Conversations, Customers } from './models';
 
+export const chatfuelReply = async (doc) => {
+  const { content, attachments, conversationId } = doc;
+
+  const conversation = await Conversations.findOne({
+    erxesApiId: conversationId
+  });
+
+  if (!conversation) {
+    throw new Error(`Conversation not found with id ${conversationId}`);
+  }
+
+  const integration = await Integrations.getIntegration({
+    _id: conversation.integrationId
+  });
+  const configs = integration.chatfuelConfigs || {};
+
+  await sendRequest({
+    url: `https://api.chatfuel.com/bots/${configs.botId}/users/${
+      conversation.chatfuelUserId
+    }/send?chatfuel_token=${
+      configs.broadcastToken
+    }&chatfuel_message_tag=NON_PROMOTIONAL_SUBSCRIPTION&chatfuel_block_name=${
+      configs.blockName
+    }&content=${content}&attachments=${JSON.stringify(attachments)}`,
+    method: 'POST'
+  });
+
+  return 'success';
+}
 
 export const chatfuelCreateIntegration = async ({ integrationId, data }) => {
     const { code, broadcastToken, botId, blockName } = JSON.parse(
@@ -202,41 +231,6 @@ const init = async app => {
       }
 
       res.send({ status: 'success' });
-    })
-  );
-
-  app.post(
-    '/chatfuel/reply',
-    routeErrorHandling(async (req, res) => {
-      debugRequest(debugChatfuel, req);
-
-      const { content, attachments, conversationId } = req.body;
-
-      const conversation = await Conversations.findOne({
-        erxesApiId: conversationId
-      });
-
-      if (!conversation) {
-        throw new Error(`Conversation not found with id ${conversationId}`);
-      }
-
-      const integration = await Integrations.getIntegration({
-        _id: conversation.integrationId
-      });
-      const configs = integration.chatfuelConfigs || {};
-
-      await sendRequest({
-        url: `https://api.chatfuel.com/bots/${configs.botId}/users/${
-          conversation.chatfuelUserId
-        }/send?chatfuel_token=${
-          configs.broadcastToken
-        }&chatfuel_message_tag=NON_PROMOTIONAL_SUBSCRIPTION&chatfuel_block_name=${
-          configs.blockName
-        }&content=${content}&attachments=${JSON.stringify(attachments)}`,
-        method: 'POST'
-      });
-
-      res.send('success');
     })
   );
 };
