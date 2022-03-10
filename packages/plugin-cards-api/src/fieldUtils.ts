@@ -44,7 +44,8 @@ const getPipelineLabelOptions = async pipelineId => {
 };
 
 export const generateFields = async args => {
-  const { type, pipelineId, segmentId, usageType } = args;
+  const { type, config = {}, segmentId, usageType } = args;
+  const { pipelineId } = config;
 
   let schema: any;
   let fields: Array<{

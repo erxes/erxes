@@ -61,9 +61,10 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
       name: 'fieldsQuery',
-      options: ({ contentType }) => ({
+      options: ({ contentType, config }) => ({
         variables: {
-          contentType
+          contentType,
+          config
         }
       })
     })

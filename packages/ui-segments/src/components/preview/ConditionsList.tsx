@@ -25,11 +25,7 @@ type Props = {
   conditionsConjunction: string;
   index: number;
   changeConditionsConjunction: (value: string) => void;
-  addCondition: (
-    condition: ISegmentCondition,
-    segmentKey: string,
-    config?: any
-  ) => void;
+  addCondition: (condition: ISegmentCondition, segmentKey: string) => void;
   addNewProperty: (segmentKey: string) => void;
   addNewEvent: (segmentKey: string) => void;
   removeCondition: (key: string, segmentKey?: string) => void;

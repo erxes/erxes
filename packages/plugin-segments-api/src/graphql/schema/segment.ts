@@ -45,9 +45,8 @@ export const types = `
 
     getSubSegments: [Segment]
     subSegmentConditions: [Segment]
-
-    boardId: String
-    pipelineId: String
+    
+    config: JSON
 
     count: Int
   }

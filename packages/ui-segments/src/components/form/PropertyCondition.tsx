@@ -19,11 +19,7 @@ type Props = {
   associationTypes: any[];
   forms?: IIntegration[];
   segment: ISegmentMap;
-  addCondition: (
-    condition: ISegmentCondition,
-    segmentKey: string,
-    config: any
-  ) => void;
+  addCondition: (condition: ISegmentCondition, segmentKey: string) => void;
   onClickBackToList: () => void;
   hideBackButton: boolean;
   hideDetailForm: boolean;

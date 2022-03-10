@@ -19,11 +19,11 @@ type Props = {
 };
 
 class Form extends React.Component<any, any, any> {
-  generatePipelineOptions = () => {
+  generatePipelineOptions = boards => {
     const { config } = this.props;
     const { boardId } = config;
 
-    const board = (this.props.boards || []).find(b => b._id === boardId);
+    const board = (boards || []).find(b => b._id === boardId);
 
     if (!board) {
       return [];
@@ -37,21 +37,21 @@ class Form extends React.Component<any, any, any> {
 
   onChangePipeLine = (_key, e) => {
     const { config } = this.props;
-    const boarId = config.boardId;
+    const boardId = config.boardId;
     const pipelineId = e ? e.value : '';
 
-    const result = { boarId, pipelineId };
+    const result = { boardId, pipelineId };
 
     this.props.onChangeConfig(result);
   };
 
   onChangeBoard = (_key, e) => {
     const { config } = this.props;
-    const boarId = e ? e.value : '';
+    const boardId = e ? e.value : '';
 
     const pipelineId = config.pipelineId;
 
-    const result = { boarId, pipelineId };
+    const result = { boardId, pipelineId };
 
     this.props.onChangeConfig(result);
   };
@@ -98,9 +98,9 @@ class Form extends React.Component<any, any, any> {
               <ControlLabel>Pipeline</ControlLabel>
 
               <Select
-                value={config.boardId}
+                value={config.pipelineId}
                 onChange={this.onChangePipeLine.bind(this, 'pipelineId')}
-                options={this.generatePipelineOptions()}
+                options={this.generatePipelineOptions(boards)}
               />
             </FormGroup>
           </FlexItem>

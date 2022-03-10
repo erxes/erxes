@@ -12,11 +12,7 @@ import Button from '@erxes/ui/src/components/Button';
 type Props = {
   field: IField;
   segmentKey: string;
-  addCondition: (
-    condition: ISegmentCondition,
-    segmentKey: string,
-    config?: any
-  ) => void;
+  addCondition: (condition: ISegmentCondition, segmentKey: string) => void;
   propertyType?: string;
   config?: any;
   condition?: ISegmentCondition;
@@ -184,7 +180,6 @@ class PropertyForm extends React.Component<Props, State> {
         propertyValue: currentValue,
         config
       },
-      config,
       segmentKey
     );
   };

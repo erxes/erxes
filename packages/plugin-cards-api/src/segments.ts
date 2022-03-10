@@ -2,19 +2,19 @@ import { generateConditionStageIds } from './utils';
 
 export default {
   indexesTypeContentType: {
-    deal: 'deals',
-    ticket: 'tickets',
-    task: 'tasks'
+    'cards:deal': 'deals',
+    'cards:ticket': 'tickets',
+    'cards: task': 'tasks'
   },
 
   contentTypes: ['deal', 'ticket', 'task'],
 
   descriptionMap: {
-    'cards:deal': 'Deal',
-    'cards:ticket': 'Ticket',
-    'cards:task': 'Task',
-    'contacts:customer': 'Customer',
-    'contacts:company': 'Company'
+    deal: 'Deal',
+    ticket: 'Ticket',
+    task: 'Task',
+    customer: 'Customer',
+    company: 'Company'
   },
 
   propertyConditionExtender: async ({ condition }) => {
@@ -37,34 +37,13 @@ export default {
   },
 
   associationTypes: async ({ mainType }) => {
-    let types: string[] = [];
-
-    if (mainType === 'deal') {
-      types = [
-        'contacts:customer',
-        'contacts:company',
-        'cards:ticket',
-        'cards:task'
-      ];
-    }
-
-    if (mainType === 'task') {
-      types = [
-        'contacts:customer',
-        'contacts:company',
-        'cards:ticket',
-        'cards:deal'
-      ];
-    }
-
-    if (mainType === 'ticket') {
-      types = [
-        'contacts:customer',
-        'contacts:company',
-        'cards:deal',
-        'cards:task'
-      ];
-    }
+    const types: string[] = [
+      'cards:deal',
+      'contacts:customer',
+      'contacts:company',
+      'cards:ticket',
+      'cards:task'
+    ];
 
     return { data: types, status: 'success' };
   },

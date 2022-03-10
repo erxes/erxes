@@ -27,13 +27,10 @@ export const initBroker = async cl => {
     data: await Forms.removeForm(formId)
   }));
 
-  consumeRPCQueue(
-    'forms:rpc_queue:prepareCustomFieldsData',
-    async (data) => ({
-      status: 'success',
-      data: await Fields.prepareCustomFieldsData(data)
-    })
-  );
+  consumeRPCQueue('forms:rpc_queue:prepareCustomFieldsData', async data => ({
+    status: 'success',
+    data: await Fields.prepareCustomFieldsData(data)
+  }));
 
   consumeRPCQueue(
     'forms:rpc_queue:generateCustomFieldsData',
@@ -76,15 +73,17 @@ export const fetchService = async (
 ) => {
   const [serviceName, type] = contentType.split(':');
 
-  if (!(await serviceDiscovery.isEnabled(serviceName))) {
-    return defaultValue;
-  }
+  // const xxa = await serviceDiscovery.isEnabled(serviceName);
 
-  if (!(await serviceDiscovery.isAvailable(serviceName))) {
-    throw new Error(`${serviceName} service is not available.`);
-  }
+  // console.log(serviceName, xxa);
 
-  console.log('dada', serviceName);
+  // if (!(await serviceDiscovery.isEnabled(serviceName))) {
+  //   return defaultValue;
+  // }
+
+  // if (!(await serviceDiscovery.isAvailable(serviceName))) {
+  //   throw new Error(`${serviceName} service is not available.`);
+  // }
 
   return client.sendRPCMessage(`${serviceName}:rpc_queue:fields:${action}`, {
     ...data,

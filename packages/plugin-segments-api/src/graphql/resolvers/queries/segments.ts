@@ -20,6 +20,7 @@ const segmentQueries = {
 
       if (meta.segments) {
         const descriptionMap = meta.segments.descriptionMap;
+
         const serviceTypes = meta.segments.contentTypes.map(contentType => ({
           contentType: `${serviceName}:${contentType}`,
           description: descriptionMap[contentType]
@@ -50,7 +51,7 @@ const segmentQueries = {
 
     return types.map(atype => ({
       value: atype,
-      description: descriptionMap[atype]
+      description: descriptionMap[atype.split(':')[1]]
     }));
   },
 

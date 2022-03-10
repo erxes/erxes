@@ -20,14 +20,14 @@ export const fieldsCombinedByContentType = async ({
   usageType,
   excludedNames,
   segmentId,
-  formId
+  config
 }: {
   contentType: string;
   usageType?: string;
   excludedNames?: string[];
   boardId?: string;
   segmentId?: string;
-  formId?: string;
+  config?: any;
 }) => {
   let fields: Array<{
     _id: number;
@@ -46,12 +46,10 @@ export const fieldsCombinedByContentType = async ({
     {
       segmentId,
       usageType,
-      formId
+      config
     },
     []
   );
-
-  console.log(fields);
 
   const customFields = await getCustomFields(contentType);
 

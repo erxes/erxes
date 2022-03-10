@@ -37,13 +37,7 @@ type Props = {
 
 const SegmentsForm = (props: Props) => {
   const renderHelpText = () => {
-    let text = 'User(s) found';
-
-    if (!['customer', 'lead', 'visitor'].includes(contentType)) {
-      text = `${contentType}(s) found.`;
-    }
-
-    return text;
+    return `${contentType}(s) found.`;
   };
 
   const {
