@@ -8,6 +8,7 @@ import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
 import SettingsRoutes from './modules/settings/routes';
 import TutorialRoutes from './modules/tutorial/routes';
+import StoreRoutes from './modules/store/routes';
 
 const MainLayout = asyncComponent(() =>
   import(
@@ -74,6 +75,7 @@ const renderRoutes = currentUser => {
         <MainLayout currentUser={currentUser} plugins={plugins}>
           <SettingsRoutes />
           <TutorialRoutes />
+          <StoreRoutes />
 
           {specialPluginRoutes}
           {pluginRoutes}
