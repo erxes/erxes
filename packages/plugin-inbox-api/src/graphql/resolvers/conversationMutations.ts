@@ -65,7 +65,6 @@ const sendConversationToIntegrations = async (
   conversationId: string,
   requestName: string,
   doc: IConversationMessageAdd,
-  dataSources: any,
   action?: string,
   facebookMessageTag?: string
 ) => {
@@ -101,12 +100,13 @@ const sendConversationToIntegrations = async (
     }
   }
 
-  if (dataSources && dataSources.IntegrationsAPI && requestName) {
-    return dataSources.IntegrationsAPI[requestName]({
+  if (requestName) {
+    return sendRPCMessage('integrations:rpc_queue:reply', {
       conversationId,
       integrationId,
       content: strip(doc.content),
-      attachments: doc.attachments || []
+      attachments: doc.attachments || [],
+      requestName
     });
   }
 };
@@ -333,7 +333,6 @@ const conversationMutations = {
         conversationId,
         requestName,
         doc,
-        dataSources,
         action
       );
     }
@@ -404,7 +403,6 @@ const conversationMutations = {
       conversationId,
       requestName,
       doc,
-      dataSources,
       action,
       facebookMessageTag
     );
@@ -422,7 +420,7 @@ const conversationMutations = {
   async conversationsReplyFacebookComment(
     _root,
     doc: IReplyFacebookComment,
-    { user, dataSources, models }: IContext
+    { user, models }: IContext
   ) {
     const conversation = await models.Conversations.getConversation(
       doc.conversationId
@@ -451,7 +449,6 @@ const conversationMutations = {
       conversationId,
       requestName,
       doc,
-      dataSources,
       action
     );
   },
@@ -473,7 +470,6 @@ const conversationMutations = {
       conversationId,
       requestName,
       doc,
-      dataSources,
       action
     );
   },
