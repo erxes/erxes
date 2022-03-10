@@ -18,7 +18,6 @@ import { __ } from 'modules/common/utils';
 import React from 'react';
 import PriorityIndicator from '../editForm/PriorityIndicator';
 import { IDeal } from 'modules/deals/types';
-import { IField } from 'modules/settings/properties/types';
 
 type Props = {
   stageId?: string;
@@ -27,7 +26,6 @@ type Props = {
   isFormVisible?: boolean;
   options: IOptions;
   groupType?: string;
-  fields?: IField[];
 };
 
 class ListItemRow extends React.PureComponent<Props> {
@@ -108,8 +106,7 @@ class ListItemRow extends React.PureComponent<Props> {
   };
 
   render() {
-    const { item, onClick, groupType, options, fields } = this.props;
-    console.log('----------------------------------- ', fields);
+    const { item, onClick, groupType, options } = this.props;
     const {
       customers,
       companies,
