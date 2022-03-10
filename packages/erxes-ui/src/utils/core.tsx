@@ -149,6 +149,14 @@ export const __ = (key: string, options?: any) => {
   return translation.toString();
 };
 
+export const isEnabled = (service: string) => {
+  const enabledServices = JSON.parse(
+    localStorage.getItem("enabledServices") || "{}"
+  );
+
+  return enabledServices[service];
+};
+
 /**
  * Request to get file's URL for view and download
  * @param {String} - value
