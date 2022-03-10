@@ -121,7 +121,7 @@ export const initBroker = async (cl) => {
 export const getDbSchemaLabels = async (serviceName: string, type: string) => {
   const enabled = await serviceDiscovery.isEnabled(serviceName);
 
-  return enabled ? client.sendRPCMessage(`${serviceName}:rpc_queue:logs:getSchemaLabels`, { type }) : [];
+  return enabled ? client.sendRPCMessage(`${serviceName}:logs:getSchemaLabels`, { type }) : [];
 };
 
 export const getActivityContentItem = async (activityLog: IActivityLogDocument) => {

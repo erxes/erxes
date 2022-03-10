@@ -78,7 +78,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('products:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
+  consumeRPCQueue('products:logs:getSchemaLabels', async ({ type }) => ({
     status: 'success',
     data: getSchemaLabels(
       type,
