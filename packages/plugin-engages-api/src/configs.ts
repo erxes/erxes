@@ -30,7 +30,7 @@ export default {
     serviceDiscovery = sd;
 
     return {
-      typeDefs,
+      typeDefs: await typeDefs(sd),
       resolvers,
     }
   },

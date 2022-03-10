@@ -3,7 +3,7 @@ import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { fixDate } from '@erxes/api-utils/src/core';
 import { getDocumentList } from './cacheUtils';
 import { fetchSegment, sendSegmentMessage, sendTagRPCMessage } from './messageBroker';
-import { IModels } from './connectionResolver';
+import { ICoreIModels, IModels } from './connectionResolver';
 
 interface IIn {
   $in: string[];
@@ -65,14 +65,16 @@ interface IDate {
 
 export default class Builder {
   public models: IModels;
+  public coreModels: ICoreIModels;
   public params: IListArgs;
   public user: IUserArgs;
   public queries: any;
   public unassignedQuery?: IUnassignedFilter;
   public activeIntegrationIds: string[] = [];
 
-  constructor(models, params: IListArgs, user: IUserArgs) {
+  constructor(models: IModels, coreModels: ICoreIModels, params: IListArgs, user: IUserArgs) {
     this.models = models;
+    this.coreModels = coreModels;
     this.params = params;
     this.user = user;
   }
@@ -104,7 +106,7 @@ export default class Builder {
   }
 
   public async defaultFilters(): Promise<any> {
-    const activeIntegrations = await getDocumentList(this.models, 'integrations', {
+    const activeIntegrations = await getDocumentList(this.models, this.coreModels, 'integrations', {
       isActive: { $ne: false }
     });
 
@@ -152,7 +154,7 @@ export default class Builder {
     // find all posssible integrations
     let availIntegrationIds: string[] = [];
 
-    const channels = await getDocumentList(this.models, 'channels', {
+    const channels = await getDocumentList(this.models, this.coreModels, 'channels', {
       memberIds: this.user._id
     });
 

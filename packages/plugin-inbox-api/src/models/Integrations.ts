@@ -1,10 +1,7 @@
 import * as momentTz from 'moment-timezone';
 import { Model, Query } from 'mongoose';
 
-import { ConversationMessages, Conversations } from '.';
-
-import { Brands, Forms } from '../apiCollections';
-import { IModels } from '../connectionResolver';
+import { ICoreIModels, IModels } from '../connectionResolver';
 import { sendContactMessage, sendContactRPCMessage } from '../messageBroker';
 
 import { KIND_CHOICES } from './definitions/constants';
@@ -148,7 +145,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   increaseBookingViewCount(_id: string): Promise<IIntegrationDocument>;
 }
 
-export const loadClass = (models: IModels) => {
+export const loadClass = (models: IModels, coreModels: ICoreIModels) => {
   class Integration {
     /**
      * Retreives integration
@@ -384,17 +381,17 @@ export const loadClass = (models: IModels) => {
       const integration = await models.Integrations.getIntegration({ _id });
 
       // remove conversations =================
-      const conversations = await Conversations.find(
+      const conversations = await models.Conversations.find(
         { integrationId: _id },
         { _id: true }
       );
       const conversationIds = conversations.map(conv => conv._id);
 
-      await ConversationMessages.deleteMany({
+      await models.ConversationMessages.deleteMany({
         conversationId: { $in: conversationIds }
       });
 
-      await Conversations.deleteMany({ integrationId: _id });
+      await models.Conversations.deleteMany({ integrationId: _id });
 
       // Remove customers ==================
       const customers = await sendContactRPCMessage('getCustomers', {
@@ -407,7 +404,7 @@ export const loadClass = (models: IModels) => {
 
       // Remove form
       if (integration.formId) {
-        await Forms.removeForm(integration.formId);
+        await coreModels.Forms.removeForm(integration.formId);
       }
 
       return models.Integrations.deleteMany({ _id });
@@ -427,7 +424,7 @@ export const loadClass = (models: IModels) => {
       kind: string,
       brandObject = false
     ) {
-      const brand = await Brands.getBrand({ code: brandCode });
+      const brand = await coreModels.Brands.getBrand({ code: brandCode });
 
       const integration = await models.Integrations.getIntegration({
         brandId: brand._id,

@@ -2,7 +2,6 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import apiConnect from './apiCollections';
 
-import { generateAllDataLoaders } from './dataLoaders';
 import { initBroker, sendSegmentMessage } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
@@ -16,7 +15,9 @@ import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
 import { buildFile } from './exporter';
 import segments from './segments';
 import forms from './forms';
+import { coreModels, generateModels, models } from './connectionResolver';
 
+export let mainDb;
 export let graphqlPubsub;
 export let serviceDiscovery;
 
@@ -143,12 +144,16 @@ export default {
     forms,
   },
   apolloServerContext: context => {
-    context.dataLoaders = generateAllDataLoaders();
+    context.models = models;
+    context.coreModels = coreModels;
   },
   onServerInit: async options => {
     await apiConnect();
 
     const app = options.app;
+    mainDb = options.db;
+
+    await generateModels('os');
 
     app.get(
       '/file-export',
@@ -156,7 +161,7 @@ export default {
         const { query, user } = req;
         const { segment } = query;
 
-        const result = await buildFile(query, user);
+        const result = await buildFile(models, query, user);
 
         res.attachment(`${result.name}.xlsx`);
 
@@ -207,14 +212,14 @@ export default {
       '/events-update-customer-property',
       routeErrorHandling(
         async (req, res) => {
-          const response = await updateCustomerProperty(req.body);
+          const response = await updateCustomerProperty(models, req.body);
           return res.json(response);
         },
         res => res.json({})
       )
     );
 
-    initBroker(options.messageBrokerClient);
+    initBroker(options.messageBrokerClient, models, coreModels);
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;

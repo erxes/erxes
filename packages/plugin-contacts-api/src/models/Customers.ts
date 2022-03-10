@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 
 import { putActivityLog, prepareCocLogData } from '../logUtils';
 // import { sendToWebhook } from '../../data/utils';
@@ -23,6 +23,7 @@ import {
   sendConformityMessage,
   sendFieldRPCMessage
 } from '../messageBroker';
+import { IModels } from '../connectionResolver';
 
 interface IGetCustomerParams {
   email?: string;
@@ -145,7 +146,7 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   ): Promise<ICustomerDocument>;
 }
 
-export const loadClass = () => {
+export const loadCustomerClass = (models: IModels) => {
   class Customer {
     /**
      * Checking if customer has duplicated unique properties
@@ -169,7 +170,7 @@ export const loadClass = () => {
 
       if (customerFields.primaryEmail) {
         // check duplication from primaryEmail
-        previousEntry = await Customers.find({
+        previousEntry = await models.Customers.find({
           ...query,
           primaryEmail: customerFields.primaryEmail
         });
@@ -181,7 +182,7 @@ export const loadClass = () => {
 
       if (customerFields.primaryPhone) {
         // check duplication from primaryPhone
-        previousEntry = await Customers.find({
+        previousEntry = await models.Customers.find({
           ...query,
           primaryPhone: customerFields.primaryPhone
         });
@@ -193,7 +194,7 @@ export const loadClass = () => {
 
       if (customerFields.code) {
         // check duplication from code
-        previousEntry = await Customers.find({
+        previousEntry = await models.Customers.find({
           ...query,
           code: customerFields.code
         });
@@ -223,7 +224,7 @@ export const loadClass = () => {
     }
 
     public static async findActiveCustomers(selector, fields) {
-      return Customers.find(
+      return models.Customers.find(
         { ...selector, status: { $ne: 'deleted' } },
         fields
       );
@@ -233,7 +234,7 @@ export const loadClass = () => {
      * Retreives customer
      */
     public static async getCustomer(_id: string) {
-      const customer = await Customers.findOne({ _id });
+      const customer = await models.Customers.findOne({ _id });
 
       if (!customer) {
         throw new Error('Customer not found');
@@ -246,7 +247,7 @@ export const loadClass = () => {
      * Create a visitor
      */
     public static async createVisitor(): Promise<string> {
-      const customer = await Customers.create({
+      const customer = await models.Customers.create({
         state: 'visitor',
         createdAt: new Date(),
         modifiedAt: new Date()
@@ -270,7 +271,7 @@ export const loadClass = () => {
     ): Promise<ICustomerDocument> {
       // Checking duplicated fields of customer
       try {
-        await Customers.checkDuplication(doc);
+        await models.Customers.checkDuplication(doc);
       } catch (e) {
         throw new Error(e.message);
       }
@@ -296,9 +297,9 @@ export const loadClass = () => {
         doc.relatedIntegrationIds = [doc.integrationId];
       }
 
-      const pssDoc = await Customers.calcPSS(doc);
+      const pssDoc = await models.Customers.calcPSS(doc);
 
-      const customer = await Customers.create({
+      const customer = await models.Customers.create({
         createdAt: new Date(),
         modifiedAt: new Date(),
         ...doc,
@@ -328,7 +329,7 @@ export const loadClass = () => {
         }
       });
 
-      return Customers.getCustomer(customer._id);
+      return models.Customers.getCustomer(customer._id);
     }
 
     /*
@@ -337,12 +338,12 @@ export const loadClass = () => {
     public static async updateCustomer(_id: string, doc: ICustomer) {
       // Checking duplicated fields of customer
       try {
-        await Customers.checkDuplication(doc, _id);
+        await models.Customers.checkDuplication(doc, _id);
       } catch (e) {
         throw new Error(e.message);
       }
 
-      const oldCustomer = await Customers.getCustomer(_id);
+      const oldCustomer = await models.Customers.getCustomer(_id);
 
       if (doc.customFieldsData) {
         // clean custom field values
@@ -367,36 +368,36 @@ export const loadClass = () => {
         }
       }
 
-      const pssDoc = await Customers.calcPSS({
+      const pssDoc = await models.Customers.calcPSS({
         ...oldCustomer.toObject(),
         ...doc
       });
 
-      await Customers.updateOne(
+      await models.Customers.updateOne(
         { _id },
         { $set: { ...doc, ...pssDoc, modifiedAt: new Date() } }
       );
 
-      return Customers.findOne({ _id });
+      return models.Customers.findOne({ _id });
     }
 
     /**
      * Mark customer as active
      */
     public static async markCustomerAsActive(customerId: string) {
-      await Customers.updateOne(
+      await models.Customers.updateOne(
         { _id: customerId },
         { $set: { isOnline: true } }
       );
 
-      return Customers.findOne({ _id: customerId });
+      return models.Customers.findOne({ _id: customerId });
     }
 
     /**
      * Mark customer as inactive
      */
     public static async markCustomerAsNotActive(_id: string) {
-      await Customers.findByIdAndUpdate(
+      await models.Customers.findByIdAndUpdate(
         _id,
         {
           $set: {
@@ -407,7 +408,7 @@ export const loadClass = () => {
         { new: true }
       );
 
-      return Customers.findOne({ _id });
+      return models.Customers.findOne({ _id });
     }
 
     /**
@@ -489,7 +490,7 @@ export const loadClass = () => {
         mainTypeIds: customerIds
       });
 
-      return Customers.deleteMany({ _id: { $in: customerIds } });
+      return models.Customers.deleteMany({ _id: { $in: customerIds } });
     }
 
     /**
@@ -502,7 +503,7 @@ export const loadClass = () => {
       user?: any
     ) {
       // Checking duplicated fields of customer
-      await Customers.checkDuplication(customerFields, customerIds);
+      await models.Customers.checkDuplication(customerFields, customerIds);
 
       let scopeBrandIds: string[] = [];
       let tagIds: string[] = [];
@@ -521,7 +522,7 @@ export const loadClass = () => {
       }
 
       for (const customerId of customerIds) {
-        const customerObj = await Customers.findOne({ _id: customerId });
+        const customerObj = await models.Customers.findOne({ _id: customerId });
 
         if (customerObj) {
           // get last customer's integrationId
@@ -551,7 +552,7 @@ export const loadClass = () => {
           // Merging customer`s state for new customer
           state = customerObj.state;
 
-          await Customers.findByIdAndUpdate(customerId, {
+          await models.Customers.findByIdAndUpdate(customerId, {
             $set: { status: 'deleted' }
           });
         }
@@ -607,23 +608,23 @@ export const loadClass = () => {
       let customer: ICustomerDocument | null = null;
 
       if (email) {
-        customer = await Customers.findOne({
+        customer = await models.Customers.findOne({
           $or: [{ emails: { $in: [email] } }, { primaryEmail: email }]
         });
       }
 
       if (!customer && phone) {
-        customer = await Customers.findOne({
+        customer = await models.Customers.findOne({
           $or: [{ phones: { $in: [phone] } }, { primaryPhone: phone }]
         });
       }
 
       if (!customer && code) {
-        customer = await Customers.findOne({ code });
+        customer = await models.Customers.findOne({ code });
       }
 
       if (!customer && cachedCustomerId) {
-        customer = await Customers.findOne({ _id: cachedCustomerId });
+        customer = await models.Customers.findOne({ _id: cachedCustomerId });
       }
 
       if (customer) {
@@ -631,11 +632,11 @@ export const loadClass = () => {
 
         if (integrationId && ids && !ids.includes(integrationId)) {
           ids.push(integrationId);
-          await Customers.updateOne(
+          await models.Customers.updateOne(
             { _id: customer._id },
             { $set: { relatedIntegrationIds: ids } }
           );
-          customer = await Customers.findOne({ _id: customer._id });
+          customer = await models.Customers.findOne({ _id: customer._id });
         }
       }
 
@@ -754,7 +755,7 @@ export const loadClass = () => {
       doc,
       customData
     }: IUpdateMessengerCustomerParams) {
-      const customer = await Customers.getCustomer(_id);
+      const customer = await models.Customers.getCustomer(_id);
 
       this.fixListFields(doc, customData, customer);
 
@@ -774,15 +775,15 @@ export const loadClass = () => {
         modifiedAt: new Date()
       };
 
-      await Customers.updateOne({ _id }, { $set: modifier });
+      await models.Customers.updateOne({ _id }, { $set: modifier });
 
-      const updateCustomer = await Customers.getCustomer(_id);
+      const updateCustomer = await models.Customers.getCustomer(_id);
 
-      const pssDoc = await Customers.calcPSS(updateCustomer);
+      const pssDoc = await models.Customers.calcPSS(updateCustomer);
 
-      await Customers.updateOne({ _id }, { $set: pssDoc });
+      await models.Customers.updateOne({ _id }, { $set: pssDoc });
 
-      return Customers.findOne({ _id });
+      return models.Customers.findOne({ _id });
     }
 
     /*
@@ -790,7 +791,7 @@ export const loadClass = () => {
      */
     public static async updateSession(_id: string) {
       const now = new Date();
-      const customer = await Customers.getCustomer(_id);
+      const customer = await models.Customers.getCustomer(_id);
 
       const query: any = {
         $set: {
@@ -811,38 +812,38 @@ export const loadClass = () => {
       }
 
       // update
-      await Customers.findByIdAndUpdate(_id, query);
+      await models.Customers.findByIdAndUpdate(_id, query);
 
       // updated customer
-      return Customers.findOne({ _id });
+      return models.Customers.findOne({ _id });
     }
 
     /*
      * Change state
      */
     public static async changeState(_id: string, value: string) {
-      await Customers.findByIdAndUpdate(
+      await models.Customers.findByIdAndUpdate(
         { _id },
         {
           $set: { state: value }
         }
       );
 
-      return Customers.findOne({ _id });
+      return models.Customers.findOne({ _id });
     }
 
     /*
      * Update customer's location info
      */
     public static async updateLocation(_id: string, browserInfo: IBrowserInfo) {
-      await Customers.findByIdAndUpdate(
+      await models.Customers.findByIdAndUpdate(
         { _id },
         {
           $set: { location: browserInfo }
         }
       );
 
-      return Customers.findOne({ _id });
+      return models.Customers.findOne({ _id });
     }
 
     /*
@@ -856,13 +857,13 @@ export const loadClass = () => {
 
       const webhookData: any = {};
 
-      let customer = await Customers.getCustomer(customerId);
+      let customer = await models.Customers.getCustomer(customerId);
 
       webhookData.type = 'customer';
       webhookData.object = customer;
 
       if (type === 'email') {
-        await Customers.updateOne(
+        await models.Customers.updateOne(
           { _id: customerId },
           {
             $set: { 'visitorContactInfo.email': value },
@@ -874,7 +875,7 @@ export const loadClass = () => {
       }
 
       if (type === 'phone') {
-        await Customers.updateOne(
+        await models.Customers.updateOne(
           { _id: customerId },
           {
             $set: { 'visitorContactInfo.phone': value },
@@ -885,17 +886,17 @@ export const loadClass = () => {
         webhookData.newData = { phone: value };
       }
 
-      customer = await Customers.getCustomer(customerId);
+      customer = await models.Customers.getCustomer(customerId);
 
       webhookData.updatedDocument = customer;
 
       // await sendToWebhook('update', 'customer', webhookData);
 
-      const pssDoc = await Customers.calcPSS(customer);
+      const pssDoc = await models.Customers.calcPSS(customer);
 
-      await Customers.updateOne({ _id: customerId }, { $set: pssDoc });
+      await models.Customers.updateOne({ _id: customerId }, { $set: pssDoc });
 
-      return Customers.getCustomer(customerId);
+      return models.Customers.getCustomer(customerId);
     }
 
     public static async updateVerificationStatus(
@@ -908,9 +909,9 @@ export const loadClass = () => {
           ? { phoneValidationStatus: status }
           : { emailValidationStatus: status };
 
-      await Customers.updateMany({ _id: { $in: customerIds } }, { $set: set });
+      await models.Customers.updateMany({ _id: { $in: customerIds } }, { $set: set });
 
-      return Customers.find({ _id: { $in: customerIds } });
+      return models.Customers.find({ _id: { $in: customerIds } });
     }
   }
 
@@ -918,13 +919,3 @@ export const loadClass = () => {
 
   return customerSchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const Customers = model<ICustomerDocument, ICustomerModel>(
-  'customers',
-  customerSchema
-);
-
-export default Customers;

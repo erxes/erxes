@@ -12,7 +12,7 @@ import { fixDate } from '@erxes/api-utils/src';
 
 import { debug } from './configs';
 import { fetchSegment, sendSegmentMessage, sendTagRPCMessage } from './messageBroker';
-import { IModels } from './connectionResolver';
+import { ICoreIModels, IModels } from './connectionResolver';
 
 export interface ICountBy {
   [index: string]: number;
@@ -27,10 +27,11 @@ interface IUserArgs {
 // Count conversatio  by channel
 const countByChannels = async (
   models: IModels,
+  coreModels: ICoreIModels,
   qb: any,
   counts: ICountBy
 ): Promise<ICountBy> => {
-  const channels = await getDocumentList(models, 'channels', {});
+  const channels = await getDocumentList(models, coreModels, 'channels', {});
 
   for (const channel of channels) {
     await qb.buildAllQueries();
@@ -43,8 +44,8 @@ const countByChannels = async (
 };
 
 // Count conversation by brand
-const countByBrands = async (models: IModels, qb: any, counts: ICountBy): Promise<ICountBy> => {
-  const brands = await getDocumentList(models, 'brands', {});
+const countByBrands = async (models: IModels, coreModels: ICoreIModels, qb: any, counts: ICountBy): Promise<ICountBy> => {
+  const brands = await getDocumentList(models, coreModels, 'brands', {});
 
   for (const brand of brands) {
     await qb.buildAllQueries();
@@ -111,6 +112,7 @@ export const countBySegment = async (
 
 export const countByConversations = async (
   models: IModels,
+  coreModels: ICoreIModels,
   params: IListArgs,
   integrationIds: string[],
   user: IUserArgs,
@@ -118,11 +120,11 @@ export const countByConversations = async (
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
-  const qb = new CommonBuilder(models, params, integrationIds, user);
+  const qb = new CommonBuilder(models, coreModels, params, integrationIds, user);
 
   switch (only) {
     case 'byChannels':
-      await countByChannels(models, qb, counts);
+      await countByChannels(models, coreModels, qb, counts);
       break;
 
     case 'byIntegrationTypes':
@@ -130,7 +132,7 @@ export const countByConversations = async (
       break;
 
     case 'byBrands':
-      await countByBrands(models ,qb, counts);
+      await countByBrands(models, coreModels ,qb, counts);
       break;
 
     case 'byTags':
@@ -147,6 +149,7 @@ export const countByConversations = async (
 
 export class CommonBuilder<IArgs extends IListArgs> {
   public models: IModels;
+  public coreModels: ICoreIModels;
   public params: IArgs;
   public user: IUserArgs;
   public integrationIds: string[];
@@ -154,8 +157,9 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public filterList: any[];
   public activeIntegrationIds: string[] = [];
 
-  constructor(models: IModels, params: IArgs, integrationIds: string[], user: IUserArgs) {
+  constructor(models: IModels, coreModels: ICoreIModels, params: IArgs, integrationIds: string[], user: IUserArgs) {
     this.models = models;
+    this.coreModels = coreModels;
     this.params = params;
     this.user = user;
     this.integrationIds = integrationIds;

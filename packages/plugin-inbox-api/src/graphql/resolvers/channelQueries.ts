@@ -14,8 +14,8 @@ const channelQueries = {
   /**
    * Channels list
    */
-  channelsByMembers(_root, { memberIds }: { memberIds: string[] }, { models }: IContext) {
-    return getDocumentList(models, 'channels', { memberIds: { $in: memberIds } });
+  channelsByMembers(_root, { memberIds }: { memberIds: string[] }, { models, coreModels }: IContext) {
+    return getDocumentList(models, coreModels, 'channels', { memberIds: { $in: memberIds } });
   },
 
   /**

@@ -15,14 +15,14 @@ import { Posts } from './facebook/models';
 import { getMessage as nylasGetMessage, nylasSendEmail } from './nylas/handleController';
 import { getMessage as gmailGetMessage, sendEmail } from './gmail/handleController';
 import { facebookCreateIntegration, facebookGetCustomerPosts } from './facebook/controller';
-import { twitterCreateIntegration } from './twitter/controller';
-import { smoochCreateIntegration } from './smooch/controller';
+import { twitterCreateIntegration, twitterReply } from './twitter/controller';
+import { smoochCreateIntegration, smoothReply } from './smooch/controller';
 import { nylasCreateIntegration } from './nylas/controller';
 import { callproCreateIntegration, callproGetAudio } from './callpro/controller';
-import { chatfuelCreateIntegration } from './chatfuel/controller';
+import { chatfuelCreateIntegration, chatfuelReply } from './chatfuel/controller';
 import { gmailCreateIntegration } from './gmail/controller';
 import { telnyxCreateIntegration } from './telnyx/controller';
-import { whatsappCreateIntegration } from './whatsapp/controller';
+import { whatsappCreateIntegration, whatsappReply } from './whatsapp/controller';
 
 dotenv.config();
 
@@ -284,6 +284,25 @@ export const initBroker = async server => {
     );
 
     return result;
+  })
+
+  consumeRPCQueue('integrations:rpc_queue:reply', async (doc) => {
+    switch(doc.requestName) {
+      case "replyChatfuel":
+        await chatfuelReply(doc);
+        break;
+      case 'replyTwitterDm':
+        await twitterReply(doc);
+        break;
+      case 'replySmooch':
+        await smoothReply(doc)
+        break;
+      case 'replyWhatsApp':
+        await whatsappReply(doc)
+        break;
+      default:
+        break;
+    }
   })
 
   consumeQueue('erxes-api:integrations-notification', async content => {

@@ -1,15 +1,15 @@
 import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 import { generateFieldsFromSchema } from "@erxes/api-utils/src";
 
-import { ConversationMessages, Conversations } from "./models";
 import { receiveRpcMessage, collectConversations } from "./receiveMessage";
 import { serviceDiscovery } from './configs';
 import { LOG_MAPPINGS } from './constants';
-import { generateModels } from './connectionResolver';
+import { generateModels, IModels } from './connectionResolver';
 
 export let client;
 
 const createConversationAndMessage = async (
+  models: IModels,
   userId,
   status,
   customerId,
@@ -19,7 +19,7 @@ const createConversationAndMessage = async (
   engageData
 ) => {
   // create conversation
-  const conversation = await Conversations.createConversation({
+  const conversation = await models.Conversations.createConversation({
     userId,
     status,
     customerId,
@@ -29,7 +29,7 @@ const createConversationAndMessage = async (
   });
 
   // create message
-  return ConversationMessages.createMessage({
+  return models.ConversationMessages.createMessage({
     engageData,
     conversationId: conversation._id,
     userId,
@@ -39,8 +39,11 @@ const createConversationAndMessage = async (
   });
 };
 
-export const generateFields = async args => {
-  const schema: any = Conversations.schema;
+export const generateFields = async (args) => {
+  const { subdomain } = args;
+  const models = await generateModels(subdomain);
+  
+  const schema: any = models.Conversations.schema;
 
   let fields: Array<{
     _id: number;
@@ -79,9 +82,11 @@ export const initBroker = (cl) => {
   consumeRPCQueue(
     'inbox:rpc_queue:createConversationAndMessage',
     async (doc) => {
-      const { userId, status, customerId, visitorId, integrationId, content, engageData } = doc;
+      const { subdomain, userId, status, customerId, visitorId, integrationId, content, engageData } = doc;
+      const models = await generateModels(subdomain); 
 
       const data = await createConversationAndMessage(
+        models,
         userId,
         status,
         customerId,
@@ -111,12 +116,10 @@ export const initBroker = (cl) => {
     }
   );
 
-  consumeQueue('inbox:removeCustomersConversations', async customerIds => {
-    await Conversations.removeCustomersConversations(customerIds);
-  });
+  consumeQueue('inbox:changeCustomer', async ({subdomain, customerId, customerIds}) => {
+    const models = await generateModels(subdomain);
 
-  consumeQueue('inbox:changeCustomer', async ({customerId, customerIds}) => {
-    await Conversations.changeCustomer(customerId, customerIds);
+    await models.Conversations.changeCustomer(customerId, customerIds);
   });
 
   consumeRPCQueue('inbox:rpc_queue:getFields', async args => ({
@@ -129,7 +132,7 @@ export const initBroker = (cl) => {
     const models = await generateModels(subdomain)
 
     let data = {};
-    let model: any = Conversations
+    let model: any = models.Conversations
 
     if(args.type === 'integration') {
       model = models.Integrations
@@ -157,10 +160,15 @@ export const initBroker = (cl) => {
 
   consumeRPCQueue(
     'inbox:rpc_queue:getConversation',
-    async ({ conversationId }) => ({
-      status: 'success',
-      data: await Conversations.findOne({ _id: conversationId })
-    })
+    async ({ subdomain, conversationId }) => {
+      const models = await generateModels(subdomain)
+
+      return {
+        status: 'success',
+        data: await models.Conversations.findOne({ _id: conversationId })
+
+      }
+    }
   );
   consumeRPCQueue('inbox:rpc_queue:getIntegration', async data => {
     const { _id, subdomain } = data;
@@ -179,9 +187,10 @@ export const initBroker = (cl) => {
   }));
 
   consumeRPCQueue('inbox:rpc_queue:updateConversationMessage', async (data) => {
-    const { filter, updateDoc } = data;
+    const { filter, updateDoc, subdomain } = data;
+    const models = await generateModels(subdomain);
 
-    const updated = await ConversationMessages.updateOne(filter, { $set: updateDoc });
+    const updated = await models.ConversationMessages.updateOne(filter, { $set: updateDoc });
 
     return {
       data: updated,
@@ -189,8 +198,10 @@ export const initBroker = (cl) => {
     }
   });
 
-  consumeQueue('inbox:removeCustomersConversations', (customerIds) => {
-    return Conversations.removeCustomersConversations(customerIds);
+  consumeQueue('inbox:removeCustomersConversations', async ({ customerIds, subdomain }) => {
+    const models = await generateModels(subdomain);
+
+    return models.Conversations.removeCustomersConversations(customerIds);
   });
 
   consumeRPCQueue('inbox:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
@@ -198,10 +209,14 @@ export const initBroker = (cl) => {
     data: getSchemaLabels(type, LOG_MAPPINGS)
   }));
 
-  consumeRPCQueue('inbox:rpc_queue:logs:getConversations', async ({ query }) => ({
-    status: 'success',
-    data: await Conversations.find(query).lean()
-  }))
+  consumeRPCQueue('inbox:rpc_queue:logs:getConversations', async ({ subdomain, query }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Conversations.find(query).lean()
+    }
+  })
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {

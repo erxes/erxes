@@ -5,11 +5,11 @@ import { sendRPCMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
 export default {
-  __resolveReference(models, {_id}) {
+  __resolveReference({_id}, _params, { models }: IContext) {
     return models.Integrations.findOne({ _id })
   },
-    brand(integration: IIntegrationDocument, _args, { models }: IContext) {
-      return getDocument(models, 'brands', { _id: integration.brandId });
+    brand(integration: IIntegrationDocument, _args, { models, coreModels }: IContext) {
+      return getDocument(models, coreModels, 'brands', { _id: integration.brandId });
   },
 
   async form(integration: IIntegrationDocument) {
@@ -20,8 +20,8 @@ export default {
     return { __typename: 'Form', _id: integration.formId }
   },
 
-  channels(integration: IIntegrationDocument, _args, { models }: IContext) {
-    return getDocumentList(models, 'channels', {
+  channels(integration: IIntegrationDocument, _args, { models, coreModels }: IContext) {
+    return getDocumentList(models, coreModels, 'channels', {
       integrationIds: { $in: [integration._id] }
     });
   },
@@ -63,7 +63,6 @@ export default {
   async healthStatus(
     integration: IIntegrationDocument,
     _args,
-    { dataSources }: IContext
   ) {
     if (integration.kind.includes('facebook')) {
       try {

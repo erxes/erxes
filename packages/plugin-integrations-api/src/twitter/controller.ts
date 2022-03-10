@@ -5,6 +5,63 @@ import * as twitterUtils from './api';
 import { ConversationMessages, Conversations } from './models';
 import receiveDms from './receiveDms';
 
+
+export const twitterReply = async (doc) => {
+  const { attachments, conversationId, content, integrationId } = doc;
+
+  if (attachments.length > 1) {
+    throw new Error('You can only attach one file');
+  }
+
+  const attachment = {
+    media: {
+      id: null
+    },
+    type: 'media'
+  };
+
+  for (const attach of attachments) {
+    const base64 = await downloadAttachment(attach.url);
+    attachment.media.id = attach.url;
+
+    const response: any = await twitterUtils.upload(base64);
+    attachment.media.id = JSON.parse(response).media_id_string;
+  }
+
+  const conversation = await Conversations.getConversation({
+    erxesApiId: conversationId
+  });
+
+  const integration = await Integrations.findOne({
+    erxesApiId: integrationId
+  });
+
+  const account = await Accounts.findOne({ _id: integration.accountId });
+
+  const recipientId = conversation.senderId;
+
+  const message = await twitterUtils.reply(
+    recipientId,
+    content,
+    attachment,
+    account
+  );
+
+  const { event } = message;
+  const { id, created_timestamp, message_create } = event;
+  const { message_data } = message_create;
+
+  // save on integrations db
+  await ConversationMessages.create({
+    conversationId: conversation._id,
+    messageId: id,
+    timestamp: created_timestamp,
+    content: message_data.text
+  });
+
+  return 'success';
+}
+
 export const twitterCreateIntegration = async ({ accountId, integrationId, data, kind }) => {
     const prevEntry = await Integrations.findOne({
       accountId
@@ -95,64 +152,6 @@ const init = async app => {
     } catch (e) {
       return next(new Error(e));
     }
-
-    res.sendStatus(200);
-  });
-
-  app.post('/twitter/reply', async (req, res, next) => {
-    const { attachments, conversationId, content, integrationId } = req.body;
-
-    if (attachments.length > 1) {
-      return next(new Error('You can only attach one file'));
-    }
-
-    const attachment = {
-      media: {
-        id: null
-      },
-      type: 'media'
-    };
-
-    for (const attach of attachments) {
-      const base64 = await downloadAttachment(attach.url);
-      attachment.media.id = attach.url;
-
-      const response: any = await twitterUtils.upload(base64);
-      attachment.media.id = JSON.parse(response).media_id_string;
-    }
-
-    const conversation = await Conversations.getConversation({
-      erxesApiId: conversationId
-    });
-
-    const integration = await Integrations.findOne({
-      erxesApiId: integrationId
-    });
-
-    const account = await Accounts.findOne({ _id: integration.accountId });
-
-    const recipientId = conversation.senderId;
-
-    const message = await twitterUtils.reply(
-      recipientId,
-      content,
-      attachment,
-      account
-    );
-
-    const { event } = message;
-    const { id, created_timestamp, message_create } = event;
-    const { message_data } = message_create;
-
-    // save on integrations db
-    await ConversationMessages.create({
-      conversationId: conversation._id,
-      messageId: id,
-      timestamp: created_timestamp,
-      content: message_data.text
-    });
-
-    debugResponse(debugTwitter, req);
 
     res.sendStatus(200);
   });

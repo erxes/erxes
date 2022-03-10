@@ -1,4 +1,3 @@
-import { ConversationMessages, Conversations } from "../../models";
 import { CONVERSATION_STATUSES } from "../../models/definitions/constants";
 import { IMessageDocument } from "../../models/definitions/conversationMessages";
 import { countByConversations } from "../../conversationUtils";
@@ -9,7 +8,7 @@ import {
 } from "@erxes/api-utils/src/permissions";
 
 import QueryBuilder, { IListArgs } from "../../conversationQueryBuilder";
-import { IContext } from "../../connectionResolver";
+import { IContext, IModels } from "../../connectionResolver";
 
 interface ICountBy {
   [index: string]: number;
@@ -20,29 +19,29 @@ interface IConversationRes {
 }
 
 // count helper
-const count = async (query: any): Promise<number> => {
-  const result = await Conversations.find(query).countDocuments();
+const count = async (models: IModels, query: any): Promise<number> => {
+  const result = await models.Conversations.find(query).countDocuments();
 
   return Number(result);
 };
 
 const conversationQueries = {
-  conversationMessage(_, { _id }) {
-    return ConversationMessages.findOne({ _id });
+  conversationMessage(_, { _id }, { models }: IContext) {
+    return models.ConversationMessages.findOne({ _id });
   },
   /**
    * Conversations list
    */
-  async conversations(_root, params: IListArgs, { user, models }: IContext) {
+  async conversations(_root, params: IListArgs, { user, models, coreModels }: IContext) {
     // filter by ids of conversations
     if (params && params.ids) {
-      return Conversations.find({ _id: { $in: params.ids } }).sort({
+      return models.Conversations.find({ _id: { $in: params.ids } }).sort({
         updatedAt: -1,
       });
     }
 
     // initiate query builder
-    const qb = new QueryBuilder(models, params, {
+    const qb = new QueryBuilder(models, coreModels, params, {
       _id: user._id,
       code: user.code,
       starredConversationIds: user.starredConversationIds,
@@ -50,7 +49,7 @@ const conversationQueries = {
 
     await qb.buildAllQueries();
 
-    return Conversations.find(qb.mainQuery())
+    return models.Conversations.find(qb.mainQuery())
       .sort({ updatedAt: -1 })
       .limit(params.limit || 0);
   },
@@ -70,7 +69,8 @@ const conversationQueries = {
       skip: number;
       limit: number;
       getFirst: boolean;
-    }
+    },
+    { models }: IContext
   ) {
     const query = { conversationId };
 
@@ -79,7 +79,7 @@ const conversationQueries = {
     if (limit) {
       const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
 
-      messages = await ConversationMessages.find(query)
+      messages = await models.ConversationMessages.find(query)
         .sort(sort)
         .skip(skip || 0)
         .limit(limit);
@@ -87,7 +87,7 @@ const conversationQueries = {
       return getFirst ? messages : messages.reverse();
     }
 
-    messages = await ConversationMessages.find(query)
+    messages = await models.ConversationMessages.find(query)
       .sort({ createdAt: -1 })
       .limit(50);
 
@@ -99,15 +99,16 @@ const conversationQueries = {
    */
   async conversationMessagesTotalCount(
     _root,
-    { conversationId }: { conversationId: string }
+    { conversationId }: { conversationId: string },
+    { models }: IContext
   ) {
-    return ConversationMessages.countDocuments({ conversationId });
+    return models.ConversationMessages.countDocuments({ conversationId });
   },
 
   /**
    * Group conversation counts by brands, channels, integrations, status
    */
-  async conversationCounts(_root, params: IListArgs, { user, models }: IContext) {
+  async conversationCounts(_root, params: IListArgs, { user, models, coreModels }: IContext) {
     const { only } = params;
 
     const response: IConversationRes = {};
@@ -117,7 +118,7 @@ const conversationQueries = {
       starredConversationIds: user.starredConversationIds,
     };
 
-    const qb = new QueryBuilder(models, params, _user);
+    const qb = new QueryBuilder(models, coreModels, params, _user);
 
     await qb.buildAllQueries();
 
@@ -127,6 +128,7 @@ const conversationQueries = {
     if (only) {
       response[only] = await countByConversations(
         models,
+        coreModels,
         params,
         integrationIds,
         _user,
@@ -141,31 +143,31 @@ const conversationQueries = {
     };
 
     // unassigned count
-    response.unassigned = await count({
+    response.unassigned = await count(models, {
       ...mainQuery,
       ...qb.unassignedFilter(),
     });
 
     // participating count
-    response.participating = await count({
+    response.participating = await count(models, {
       ...mainQuery,
       ...qb.participatingFilter(),
     });
 
     // starred count
-    response.starred = await count({
+    response.starred = await count(models, {
       ...mainQuery,
       ...qb.starredFilter(),
     });
 
     // resolved count
-    response.resolved = await count({
+    response.resolved = await count(models, {
       ...mainQuery,
       ...qb.statusFilter(["closed"]),
     });
 
     // awaiting response count
-    response.awaitingResponse = await count({
+    response.awaitingResponse = await count(models, {
       ...mainQuery,
       ...qb.awaitingResponse(),
     });
@@ -176,16 +178,16 @@ const conversationQueries = {
   /**
    * Get one conversation
    */
-  conversationDetail(_root, { _id }: { _id: string }) {
-    return Conversations.findOne({ _id });
+  conversationDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Conversations.findOne({ _id });
   },
 
   /**
    * Get all conversations count. We will use it in pager
    */
-  async conversationsTotalCount(_root, params: IListArgs, { user, models }: IContext) {
+  async conversationsTotalCount(_root, params: IListArgs, { user, models, coreModels }: IContext) {
     // initiate query builder
-    const qb = new QueryBuilder(models, params, {
+    const qb = new QueryBuilder(models, coreModels, params, {
       _id: user._id,
       code: user.code,
       starredConversationIds: user.starredConversationIds,
@@ -193,15 +195,15 @@ const conversationQueries = {
 
     await qb.buildAllQueries();
 
-    return Conversations.find(qb.mainQuery()).countDocuments();
+    return models.Conversations.find(qb.mainQuery()).countDocuments();
   },
 
   /**
    * Get last conversation
    */
-  async conversationsGetLast(_root, params: IListArgs, { user, models }: IContext) {
+  async conversationsGetLast(_root, params: IListArgs, { user, models, coreModels }: IContext) {
     // initiate query builder
-    const qb = new QueryBuilder(models, params, {
+    const qb = new QueryBuilder(models, coreModels, params, {
       _id: user._id,
       code: user.code,
       starredConversationIds: user.starredConversationIds,
@@ -209,7 +211,7 @@ const conversationQueries = {
 
     await qb.buildAllQueries();
 
-    return Conversations.findOne(qb.mainQuery())
+    return models.Conversations.findOne(qb.mainQuery())
       .sort({ updatedAt: -1 })
       .lean();
   },
@@ -217,16 +219,16 @@ const conversationQueries = {
   /**
    * Get all unread conversations for logged in user
    */
-  async conversationsTotalUnreadCount(_root, _args, { user, models }: IContext) {
+  async conversationsTotalUnreadCount(_root, _args, { user, models, coreModels }: IContext) {
     // initiate query builder
-    const qb = new QueryBuilder(models, {}, { _id: user._id, code: user.code });
+    const qb = new QueryBuilder(models, coreModels, {}, { _id: user._id, code: user.code });
 
     await qb.buildAllQueries();
 
     // get all possible integration ids
     const integrationsFilter = await qb.integrationsFilter();
 
-    return Conversations.find({
+    return models.Conversations.find({
       ...integrationsFilter,
       status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] },
       readUserIds: { $ne: user._id },

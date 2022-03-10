@@ -166,7 +166,7 @@ const integrationQueries = {
       status: string;
       formLoadType: string;
     },
-  { models }: IContext
+  { models, coreModels }: IContext
   ) {
     const counts = {
       total: 0,
@@ -209,7 +209,7 @@ const integrationQueries = {
     }
 
     // Counting integrations by channel
-    const channels = await getDocumentList(models, 'channels', {});
+    const channels = await getDocumentList(models, coreModels, 'channels', {});
 
     for (const channel of channels) {
       const countQueryResult = await count({
@@ -225,7 +225,7 @@ const integrationQueries = {
     }
 
     // Counting integrations by brand
-    const brands = await getDocumentList(models, 'brands', {});
+    const brands = await getDocumentList(models, coreModels, 'brands', {});
 
     for (const brand of brands) {
       const countQueryResult = await count({ brandId: brand._id, ...qry });

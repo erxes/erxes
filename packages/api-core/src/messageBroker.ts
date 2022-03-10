@@ -163,23 +163,23 @@ export const initBroker = async (server?) => {
           return { data: { type: 'user', content: user }, status: 'success' };
         }
 
-        const integration = await sendRPCMessage(
-          'inbox:rpc_queue:getIntegration',
-          { _id: activityLog.createdBy }
-        );
+        // const integration = await sendRPCMessage(
+        //   'inbox:rpc_queue:getIntegration',
+        //   { _id: activityLog.createdBy }
+        // );
 
-        if (integration) {
-          const brand = await Brands.findOne({ _id: integration.brandId });
+        // if (integration) {
+        //   const brand = await Brands.findOne({ _id: integration.brandId });
 
-          return { data: { type: 'brand', content: brand }, status: 'success' };
-        }
+        //   return { data: { type: 'brand', content: brand }, status: 'success' };
+        // }
 
         return { data: {}, status: 'success' };
       }
     );
 
     consumeRPCQueue(
-      'core:rpc_queue:activityLog:collectItems',
+      'api-core:rpc_queue:activityLog:collectItems',
       async ({ contentId }) => {
         const deliveries = await EmailDeliveries.find({
           customerId: contentId

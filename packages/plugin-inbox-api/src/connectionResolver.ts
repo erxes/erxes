@@ -12,6 +12,10 @@ import { IIntegrationModel, loadClass as loadIntegrationClass } from './models/I
 import { IIntegrationDocument } from './models/definitions/integrations';
 import { IMessengerAppModel, loadClass as loadMessengerAppClass } from './models/MessengerApps';
 import { IMessengerAppDocument } from './models/definitions/messengerApps';
+import { IMessageModel, loadClass as loadMessageClass } from './models/ConversationMessages';
+import { IMessageDocument } from './models/definitions/conversationMessages';
+import { IConversationModel, loadClass as loadConversationClass } from './models/Conversations';
+import { IConversationDocument } from './models/definitions/conversations';
 
 export interface ICoreIModels {
   Brands;
@@ -27,7 +31,9 @@ export interface IModels {
   SkillTypes: ISkillTypeModel;
   ResponseTemplates: IResponseTemplateModel;
   Integrations: IIntegrationModel;
-  MessengerApps: IMessengerAppModel
+  MessengerApps: IMessengerAppModel;
+  ConversationMessages: IMessageModel;
+  Conversations: IConversationModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -52,8 +58,14 @@ export const generateModels = async (
   return models;
 };
 
+export const generateCoreModels = async (
+  _hostnameOrSubdomain: string
+): Promise<ICoreIModels> => {
+    return coreModels;
+};
+
 const connectCore = async () => {
-  const url = process.env.API_MONGO_URL || '';
+  const url = process.env.API_MONGO_URL || 'mongodb://localhost/erxes';
   const client = new MongoClient(url);
 
   const dbName = 'erxes';
@@ -85,8 +97,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.SkillTypes = db.model<ISkillTypeDocument, ISkillTypeModel>('skill_types', loadSkillTypeClass(models))
 
   models.ResponseTemplates = db.model<IResponseTemplateDocument, IResponseTemplateModel>('response_templates', loadResponseTemplateClass(models))
-  models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>('integrations', loadIntegrationClass(models))
+  models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>('integrations', loadIntegrationClass(models, coreModels))
   models.MessengerApps = db.model<IMessengerAppDocument, IMessengerAppModel>('messenger_apps', loadMessengerAppClass(models))
+
+  models.ConversationMessages = db.model<IMessageDocument, IMessageModel>('conversation_messages', loadMessageClass(models))
+  models.Conversations = db.model<IConversationDocument, IConversationModel>('conversations', loadConversationClass(models, coreModels))
 
   return models;
 };

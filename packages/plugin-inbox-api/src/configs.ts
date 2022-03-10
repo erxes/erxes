@@ -1,6 +1,5 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import apiConnect from  './apiCollections';
 
 import { generateAllDataLoaders } from './dataLoaders';
 import { initBroker } from './messageBroker';
@@ -49,10 +48,8 @@ export default {
     context.dataLoaders = generateAllDataLoaders(models);
   },
   onServerInit: async (options) => {
-    await apiConnect();
-
-    const app = options.app;
     mainDb = options.db;
+    const app = options.app;
 
     await generateModels('os');
 
@@ -65,8 +62,8 @@ export default {
 
           const response =
             name === 'pageView'
-              ? await trackViewPageEvent({ customerId, attributes })
-              : await trackCustomEvent({ name, customerId, attributes });
+              ? await trackViewPageEvent(coreModels, { customerId, attributes })
+              : await trackCustomEvent(coreModels, { name, customerId, attributes });
 
           return res.json(response);
         },
@@ -91,7 +88,7 @@ export default {
       '/events-update-customer-property',
       routeErrorHandling(
         async (req, res) => {
-          const response = await updateCustomerProperty(req.body);
+          const response = await updateCustomerProperty(coreModels, req.body);
           return res.json(response);
         },
         res => res.json({})

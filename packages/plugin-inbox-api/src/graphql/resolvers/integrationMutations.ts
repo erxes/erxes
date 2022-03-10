@@ -4,14 +4,8 @@ import { getUniqueValue } from '@erxes/api-utils/src/core';
 import { putActivityLog } from '@erxes/api-utils/src/logUtils';
 
 import {
-  EmailDeliveries,
-  Fields,
-  Forms
-} from '../../apiCollections';
-
-import {
-  //   ACTIVITY_ACTIONS,
-  //   ACTIVITY_CONTENT_TYPES,
+  // ?  ACTIVITY_ACTIONS,
+  // ? ACTIVITY_CONTENT_TYPES,
   KIND_CHOICES
 } from '../../models/definitions/constants';
 
@@ -22,7 +16,7 @@ import {
   IUiOptions
 } from '../../models/definitions/integrations';
 
-// import { IUserDocument } from '../../../db/models/definitions/users';
+// ? import { IUserDocument } from '../../../db/models/definitions/users';
 
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
@@ -38,7 +32,7 @@ import {
 
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 
-// import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
+import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 import { client as msgBrokerClient } from '../../messageBroker';
 import { getService, getServices } from '../../redis';
 import { IContext, IModels } from '../../connectionResolver';
@@ -61,8 +55,7 @@ interface ISmsParams {
 const createIntegration = async (
   doc: IIntegration,
   integration: IIntegrationDocument,
-  //   user: IUserDocument,
-  user,
+  user: any,
   type: string,
   models: IModels
 ) => {
@@ -420,7 +413,7 @@ const integrationMutations = {
   /**
    * Send mail
    */
-  async integrationSendMail(_root, args: any, { dataSources, user }: IContext) {
+  async integrationSendMail(_root, args: any, { user, coreModels }: IContext) {
     const { erxesApiId, body, customerId, ...doc } = args;
 
     let kind = doc.kind;
@@ -448,17 +441,17 @@ const integrationMutations = {
 
     const apiService = await getService('api');
 
-    // const replacedContent = await new EditorAttributeUtil(
-    //   msgBrokerClient,
-    //   apiService.address,
-    //   await getServices()
-    // ).replaceAttributes({
-    //   content: body,
-    //   user,
-    //   customer: customer || undefined
-    // });
+    const replacedContent = await new EditorAttributeUtil(
+      msgBrokerClient,
+      apiService.address,
+      await getServices()
+    ).replaceAttributes({
+      content: body,
+      user,
+      customer: customer || undefined
+    });
 
-    // doc.body = replacedContent || '';
+    doc.body = replacedContent || '';
 
     try {
       await sendRPCMessage('integrations:rcp_queue:sendEmail', {
@@ -480,7 +473,7 @@ const integrationMutations = {
     doc.userId = user._id;
 
     for (const cusId of customerIds) {
-      await EmailDeliveries.createEmailDelivery({ ...doc, customerId: cusId });
+      await coreModels.EmailDeliveries.createEmailDelivery({ ...doc, customerId: cusId });
     }
 
     return;
@@ -556,7 +549,7 @@ const integrationMutations = {
   async integrationsCopyLeadIntegration(
     _root,
     { _id }: { _id },
-    { docModifier, user, models }: IContext
+    { docModifier, user, models, coreModels }: IContext
   ) {
     const sourceIntegration = await models.Integrations.getIntegration({ _id });
 
@@ -564,9 +557,9 @@ const integrationMutations = {
       throw new Error('Integration kind is not form');
     }
 
-    const sourceForm = await Forms.getForm(sourceIntegration.formId);
+    const sourceForm = await coreModels.Forms.getForm(sourceIntegration.formId);
 
-    const sourceFields = await Fields.find({ contentTypeId: sourceForm._id });
+    const sourceFields = await coreModels.Fields.find({ contentTypeId: sourceForm._id }).toArray();
 
     const formDoc = docModifier({
       ...sourceForm.toObject(),
@@ -576,7 +569,7 @@ const integrationMutations = {
     delete formDoc._id;
     delete formDoc.code;
 
-    const copiedForm = await Forms.createForm(formDoc, user._id);
+    const copiedForm = await coreModels.Forms.createForm(formDoc, user._id);
 
     const leadData = sourceIntegration.leadData;
 
@@ -612,7 +605,7 @@ const integrationMutations = {
       associatedFieldId: e.associatedFieldId
     }));
 
-    await Fields.insertMany(fields);
+    await coreModels.Fields.insertMany(fields);
 
     await putCreateLog(
       models,

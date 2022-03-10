@@ -1,11 +1,11 @@
 import * as DataLoader from 'dataloader';
 import * as _ from 'underscore';
-import { ConversationMessages } from '../models';
+import { IModels } from '../connectionResolver';
 
-export default function generateDataLoaderMessage() {
+export default function generateDataLoaderMessage(models: IModels) {
   return new DataLoader<string, any[]>(
     async (conversationIds: readonly string[]) => {
-      const result: any[] = await ConversationMessages.find({
+      const result: any[] = await models.ConversationMessages.find({
         conversationId: { $in: conversationIds }
       })
         .sort({

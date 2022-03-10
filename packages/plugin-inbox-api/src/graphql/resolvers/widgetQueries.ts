@@ -1,8 +1,4 @@
 import * as momentTz from 'moment-timezone';
-import {
-  ConversationMessages,
-  Conversations,
-} from '../../models';
 
 import { IIntegrationDocument } from '../../models/definitions/integrations';
 
@@ -12,11 +8,11 @@ import { getDocument, getDocumentList } from '../../cacheUtils';
 import * as fs from 'fs';
 import * as moment from 'moment';
 
-// import { uploadFile, frontendEnv, getSubServiceDomain } from '@erxes/api-utils';
+// ? import { uploadFile, frontendEnv, getSubServiceDomain } from '@erxes/api-utils';
 
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
 import { sendRPCMessage } from '../../messageBroker';
-import { IContext, IModels } from '../../connectionResolver';
+import { IContext, ICoreIModels, IModels } from '../../connectionResolver';
 
 export const isMessengerOnline = async (models: IModels, integration: IIntegrationDocument) => {
   if (!integration.messengerData) {
@@ -43,14 +39,14 @@ export const isMessengerOnline = async (models: IModels, integration: IIntegrati
   return models.Integrations.isOnline(modifiedIntegration);
 };
 
-const messengerSupporters = async (models: IModels, integration: IIntegrationDocument) => {
+const messengerSupporters = async (models: IModels, coreModels: ICoreIModels, integration: IIntegrationDocument) => {
   const messengerData = integration.messengerData || { supporterIds: [] };
 
-  return getDocumentList(models, 'users', { _id: { $in: messengerData.supporterIds } });
+  return getDocumentList(models, coreModels, 'users', { _id: { $in: messengerData.supporterIds } });
 };
 
-const getWidgetMessages = (conversationId: string) => {
-  return ConversationMessages.find({
+const getWidgetMessages = (models: IModels,conversationId: string) => {
+  return models.ConversationMessages.find({
     conversationId,
     internal: false,
     fromBot: { $exists: false }
@@ -59,8 +55,8 @@ const getWidgetMessages = (conversationId: string) => {
   });
 };
 
-const getExportMessages = (conversationId: string) => {
-  return ConversationMessages.aggregate([
+const getExportMessages = (models: IModels, conversationId: string) => {
+  return models.ConversationMessages.aggregate([
     {
       $match: {
         conversationId,
@@ -130,7 +126,7 @@ export default {
   ) {
     const { _id, integrationId } = args;
 
-    const conversation = await Conversations.findOne({
+    const conversation = await models.Conversations.findOne({
       _id,
       integrationId
     }).lean();
@@ -143,7 +139,7 @@ export default {
     }
 
     // aggregating conversation message with user, customer collections.
-    const messages = await getExportMessages(conversation._id);
+    const messages = await getExportMessages(models, conversation._id);
 
     const fileName = `EXPORTED_CONVERSATIONS.txt`;
     const newPath = `${fileName}`;
@@ -151,8 +147,8 @@ export default {
     // writing data to text file.
     await writeMessagesToFile(conversation.createdAt, messages, fileName);
 
-    // const API_URL = frontendEnv({ name: 'API_URL', requestInfo });
-    // const API_DOMAIN = API_URL || getSubServiceDomain({ name: 'API_DOMAIN' });
+    // ? const API_URL = frontendEnv({ name: 'API_URL', requestInfo });
+    // ? const API_DOMAIN = API_URL || getSubServiceDomain({ name: 'API_DOMAIN' });
 
     // uploading a file to the server (aws, gcs, local).
     try {
@@ -161,7 +157,7 @@ export default {
         path: newPath,
         type: 'text/plain'
       };
-      // const result = await uploadFile(API_DOMAIN, file, false);
+      // ? const result = await uploadFile(API_DOMAIN, file, false);
       const result = '';
 
       // removing temporary written file.
@@ -179,7 +175,8 @@ export default {
 
   widgetsConversations(
     _root,
-    args: { integrationId: string; customerId?: string; visitorId?: string }
+    args: { integrationId: string; customerId?: string; visitorId?: string },
+    { models }: IContext
   ) {
     const { integrationId, customerId, visitorId } = args;
 
@@ -187,17 +184,17 @@ export default {
       ? { integrationId, customerId }
       : { integrationId, visitorId };
 
-    return Conversations.find(query).sort({ updatedAt: -1 });
+    return models.Conversations.find(query).sort({ updatedAt: -1 });
   },
 
   async widgetsConversationDetail(
     _root,
     args: { _id: string; integrationId: string },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
     const { _id, integrationId } = args;
 
-    const conversation = await Conversations.findOne({ _id, integrationId });
+    const conversation = await models.Conversations.findOne({ _id, integrationId });
     const integration = await models.Integrations.findOne({
       _id: integrationId
     });
@@ -216,31 +213,32 @@ export default {
 
     return {
       _id,
-      messages: await getWidgetMessages(conversation._id),
+      messages: await getWidgetMessages(models, conversation._id),
       isOnline: await isMessengerOnline(models, integration),
       operatorStatus: conversation.operatorStatus,
-      participatedUsers: await getDocumentList(models, 'users', {
+      participatedUsers: await getDocumentList(models, coreModels, 'users', {
         _id: { $in: conversation.participatedUserIds }
       }),
-      supporters: await messengerSupporters(models, integration)
+      supporters: await messengerSupporters(models, coreModels, integration)
     };
   },
 
-  widgetsMessages(_root, args: { conversationId: string }) {
+  widgetsMessages(_root, args: { conversationId: string }, { models }: IContext) {
     const { conversationId } = args;
 
-    return getWidgetMessages(conversationId);
+    return getWidgetMessages(models, conversationId);
   },
 
-  widgetsUnreadCount(_root, args: { conversationId: string }) {
+  widgetsUnreadCount(_root, args: { conversationId: string }, { models }: IContext) {
     const { conversationId } = args;
 
-    return ConversationMessages.widgetsGetUnreadMessagesCount(conversationId);
+    return models.ConversationMessages.widgetsGetUnreadMessagesCount(conversationId);
   },
 
   async widgetsTotalUnreadCount(
     _root,
-    args: { integrationId: string; customerId?: string }
+    args: { integrationId: string; customerId?: string },
+    { models }: IContext
   ) {
     const { integrationId, customerId } = args;
 
@@ -248,20 +246,20 @@ export default {
       return 0;
     }
     // find conversations
-    const convs = await Conversations.find({ integrationId, customerId });
+    const convs = await models.Conversations.find({ integrationId, customerId });
 
     // find read messages count
-    return ConversationMessages.countDocuments(
-      Conversations.widgetsUnreadMessagesQuery(convs)
+    return models.ConversationMessages.countDocuments(
+      models.Conversations.widgetsUnreadMessagesQuery(convs)
     );
   },
 
   async widgetsMessengerSupporters(
     _root,
     { integrationId }: { integrationId: string },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
-    const integration = await getDocument(models, 'integrations', {
+    const integration = await getDocument(models, coreModels, 'integrations', {
       _id: integrationId
     });
     let timezone = '';
@@ -281,7 +279,7 @@ export default {
     }
 
     return {
-      supporters: await getDocumentList(models, 'users', {
+      supporters: await getDocumentList(models, coreModels, 'users', {
         _id: { $in: messengerData.supporterIds || [] }
       }),
       isOnline: await isMessengerOnline(models, integration),
@@ -302,10 +300,11 @@ export default {
       visitorId?: string;
       browserInfo: IBrowserInfo;
     },
-    { models }: IContext
+    { models, coreModels }: IContext
   ) {
     return getOrCreateEngageMessage(
       models,
+      coreModels,
       integrationId,
       browserInfo,
       visitorId,
