@@ -4,7 +4,6 @@
 
 import { Model, model } from 'mongoose';
 import * as validator from 'validator';
-// import { Forms } from '.';
 // import { updateOrder } from './boardUtils';
 import {
   fieldGroupSchema,
@@ -121,31 +120,19 @@ export const loadFieldClass = () => {
         query.contentTypeId = contentTypeId;
       }
 
-      // form checks
-      // if (contentType === FIELD_CONTENT_TYPES.FORM) {
-      //   if (!contentTypeId) {
-      //     throw new Error('Content type id is required');
-      //   }
+      if (groupName) {
+        let group = await FieldsGroups.findOne({ name: groupName });
 
-      //   const form = await Forms.findOne({ _id: contentTypeId });
+        if (!group) {
+          group = await FieldsGroups.createGroup({
+            name: groupName,
+            contentType,
+            isDefinedByErxes: false
+          });
+        }
 
-      //   if (!form) {
-      //     throw new Error(`Form not found with _id of ${contentTypeId}`);
-      //   }
-
-      //   if (groupName) {
-      //     let group = await FieldsGroups.findOne({ name: groupName });
-
-      //     if (!group) {
-      //       group = await FieldsGroups.createGroup({
-      //         name: groupName,
-      //         contentType: 'form',
-      //         isDefinedByErxes: false
-      //       });
-      //     }
-      //     groupId = group._id;
-      //   }
-      // }
+        groupId = group._id;
+      }
 
       // Generate order
       // if there is no field then start with 0

@@ -215,15 +215,15 @@ const fieldsGroupQueries = {
       });
   },
 
-  // getSystemFieldsGroup(_root, { contentType }: { contentType: string }) {
-  //   const query: any = {};
+  getSystemFieldsGroup(_root, { contentType }: { contentType: string }) {
+    const query: any = {};
 
-  //   // querying by content type
-  //   query.contentType = contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER;
-  //   query.isDefinedByErxes = true;
+    // querying by content type
+    query.contentType = contentType;
+    query.isDefinedByErxes = true;
 
-  //   return FieldsGroups.findOne(query);
-  // }
+    return FieldsGroups.findOne(query);
+  }
 };
 
 checkPermission(fieldsGroupQueries, 'fieldsGroups', 'showForms', []);
