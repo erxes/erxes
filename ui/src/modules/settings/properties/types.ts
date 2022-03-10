@@ -9,6 +9,10 @@ export interface IFieldLogic {
   __typename?: string;
 }
 
+export interface ICustomData {
+  [key: string]: any;
+}
+
 export interface IField {
   _id: string;
   key?: string;
