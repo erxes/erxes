@@ -15,6 +15,7 @@ import { buildFile } from './exporter';
 import segments from './segments';
 import forms from './forms';
 import { coreModels, generateModels, models } from './connectionResolver';
+import logConsumers from './logConsumers';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -141,6 +142,7 @@ export default {
   meta: {
     segments,
     forms,
+    logs: { consumers: logConsumers }
   },
   apolloServerContext: context => {
     context.models = models;

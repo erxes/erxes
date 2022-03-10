@@ -1,5 +1,3 @@
-import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
-
 import { serviceDiscovery } from './configs';
 import {
   generateAmounts,
@@ -17,8 +15,6 @@ import {
 } from './models';
 import { conversationConvertToCard } from './models/utils';
 import { getCardItem } from './utils';
-
-import { LOG_MAPPINGS } from './constants';
 import { notifiedUserIds } from './graphql/utils';
 
 let client;

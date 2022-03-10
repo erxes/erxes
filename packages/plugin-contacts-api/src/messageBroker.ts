@@ -1,5 +1,3 @@
-import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
-
 import {
   findCompany,
   findCustomer,
@@ -8,7 +6,6 @@ import {
   prepareEngageCustomers
 } from './utils';
 import { serviceDiscovery } from './configs';
-import { LOG_MAPPINGS } from './constants';
 import { insertImportItems, prepareImportDocs } from './importUtils';
 import { generateModels, connectCore } from './connectionResolver';
 
@@ -307,14 +304,6 @@ export const initBroker = cl => {
         data: notifDoc
       };
     }
-  );
-
-  consumeRPCQueue(
-    'contacts:rpc_queue:logs:getSchemaLabels',
-    async ({ type }) => ({
-      status: 'success',
-      data: getSchemaLabels(type, LOG_MAPPINGS)
-    })
   );
 };
 
