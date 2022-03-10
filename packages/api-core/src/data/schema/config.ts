@@ -1,5 +1,22 @@
 export const types = `
 
+  type EnabledServices {
+    automations: Boolean!
+    calendar: Boolean!
+    cards: Boolean!
+    clientportal: Boolean!
+    contacts: Boolean!
+    engages: Boolean!
+    inbox: Boolean!
+    internalnotes: Boolean!
+    knowledgebase: Boolean!
+    logs: Boolean!
+    notifications: Boolean!
+    products: Boolean!
+    segments: Boolean!
+    tags: Boolean!
+  }
+
   type Config {
     _id: String!
     code: String!
@@ -55,7 +72,7 @@ export const queries = `
   configsCheckActivateInstallation(hostname: String!): JSON
   configsCheckPremiumService(type: String!): Boolean
   configsGetEmailTemplate(name: String): String
-  enabledServices: JSON
+  enabledServices: EnabledServices
 `;
 
 export const mutations = `
