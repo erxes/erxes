@@ -139,7 +139,8 @@ export default {
   exportTypes: EXPORT_TYPES,
   hasSubscriptions: true,
   meta: {
-    segments
+    segments,
+    logs: { providesActivityLog: false },
   },
   apolloServerContext: context => {
     context.models = models;
