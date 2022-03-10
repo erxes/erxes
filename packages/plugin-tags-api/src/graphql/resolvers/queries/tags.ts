@@ -1,6 +1,8 @@
-import { checkPermission, requireLogin } from "@erxes/api-utils/src/permissions";
-import { IContext } from "@erxes/api-utils/src/types";
-import { Tags } from "../../../models";
+import {
+  checkPermission,
+  requireLogin,
+} from '@erxes/api-utils/src/permissions';
+import { IContext } from '../../../connectionResolver';
 
 const tagQueries = {
   /**
@@ -9,7 +11,7 @@ const tagQueries = {
   tags(
     _root,
     { type, searchValue }: { type: string; searchValue?: string },
-    { commonQuerySelector }: IContext
+    { commonQuerySelector, models }: IContext
   ) {
     const selector: any = { ...commonQuerySelector, type };
 
@@ -17,18 +19,18 @@ const tagQueries = {
       selector.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
 
-    return Tags.find(selector).sort({
+    return models.Tags.find(selector).sort({
       order: 1,
-      name: 1
+      name: 1,
     });
   },
 
   /**
    * Get one tag
    */
-  tagDetail(_root, { _id }: { _id: string }) {
-    return Tags.findOne({ _id });
-  }
+  tagDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Tags.findOne({ _id });
+  },
 };
 
 requireLogin(tagQueries, 'tagDetail');

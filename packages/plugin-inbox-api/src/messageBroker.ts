@@ -1,8 +1,8 @@
 import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
-import { generateFieldsFromSchema } from "@erxes/api-utils/src";
+import { generateFieldsFromSchema } from '@erxes/api-utils/src';
 
-import { ConversationMessages, Conversations } from "./models";
-import { receiveRpcMessage, collectConversations } from "./receiveMessage";
+import { ConversationMessages, Conversations } from './models';
+import { receiveRpcMessage, collectConversations } from './receiveMessage';
 import { serviceDiscovery } from './configs';
 import { LOG_MAPPINGS } from './constants';
 import { generateModels } from './connectionResolver';
@@ -25,7 +25,7 @@ const createConversationAndMessage = async (
     customerId,
     visitorId,
     integrationId,
-    content
+    content,
   });
 
   // create message
@@ -35,11 +35,11 @@ const createConversationAndMessage = async (
     userId,
     customerId,
     visitorId,
-    content
+    content,
   });
 };
 
-export const generateFields = async args => {
+export const generateFields = async (args) => {
   const schema: any = Conversations.schema;
 
   let fields: Array<{
@@ -63,7 +63,7 @@ export const generateFields = async args => {
     if (path.schema) {
       fields = [
         ...fields,
-        ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+        ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
       ];
     }
   }
@@ -79,7 +79,15 @@ export const initBroker = (cl) => {
   consumeRPCQueue(
     'inbox:rpc_queue:createConversationAndMessage',
     async (doc) => {
-      const { userId, status, customerId, visitorId, integrationId, content, engageData } = doc;
+      const {
+        userId,
+        status,
+        customerId,
+        visitorId,
+        integrationId,
+        content,
+        engageData,
+      } = doc;
 
       const data = await createConversationAndMessage(
         userId,
@@ -97,7 +105,7 @@ export const initBroker = (cl) => {
 
   consumeRPCQueue(
     'rpc_queue:integrations_to_api',
-    async data => await receiveRpcMessage(data)
+    async (data) => await receiveRpcMessage(data)
   );
 
   consumeRPCQueue(
@@ -105,34 +113,37 @@ export const initBroker = (cl) => {
     async ({ subdomain, query, options }) => {
       const models = await generateModels(subdomain);
 
-      const integrations = await models.Integrations.findIntegrations(query, options);
+      const integrations = await models.Integrations.findIntegrations(
+        query,
+        options
+      );
 
       return { data: integrations, status: 'success' };
     }
   );
 
-  consumeQueue('inbox:removeCustomersConversations', async customerIds => {
+  consumeQueue('inbox:removeCustomersConversations', async (customerIds) => {
     await Conversations.removeCustomersConversations(customerIds);
   });
 
-  consumeQueue('inbox:changeCustomer', async ({customerId, customerIds}) => {
+  consumeQueue('inbox:changeCustomer', async ({ customerId, customerIds }) => {
     await Conversations.changeCustomer(customerId, customerIds);
   });
 
-  consumeRPCQueue('inbox:rpc_queue:getFields', async args => ({
+  consumeRPCQueue('inbox:rpc_queue:getFields', async (args) => ({
     status: 'success',
-    data: await generateFields(args)
+    data: await generateFields(args),
   }));
 
-  consumeRPCQueue('inbox:rpc_queue:tag', async args => {
+  consumeRPCQueue('inbox:rpc_queue:tag', async (args) => {
     const { subdomain } = args;
-    const models = await generateModels(subdomain)
+    const models = await generateModels(subdomain);
 
     let data = {};
-    let model: any = Conversations
+    let model: any = Conversations;
 
-    if(args.type === 'integration') {
-      model = models.Integrations
+    if (args.type === 'integration') {
+      model = models.Integrations;
     }
 
     if (args.action === 'count') {
@@ -151,42 +162,44 @@ export const initBroker = (cl) => {
 
     return {
       status: 'success',
-      data
-    }
+      data,
+    };
   });
 
   consumeRPCQueue(
     'inbox:rpc_queue:getConversation',
     async ({ conversationId }) => ({
       status: 'success',
-      data: await Conversations.findOne({ _id: conversationId })
+      data: await Conversations.findOne({ _id: conversationId }),
     })
   );
-  consumeRPCQueue('inbox:rpc_queue:getIntegration', async data => {
+  consumeRPCQueue('inbox:rpc_queue:getIntegration', async (data) => {
     const { _id, subdomain } = data;
 
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await models.Integrations.findOne({ _id })
+      data: await models.Integrations.findOne({ _id }),
     };
   });
 
-  consumeRPCQueue('inbox:rpc_queue:activityLog:collectItems', async data => ({
+  consumeRPCQueue('inbox:rpc_queue:activityLog:collectItems', async (data) => ({
     data: await collectConversations(data),
-    status: 'success'
+    status: 'success',
   }));
 
   consumeRPCQueue('inbox:rpc_queue:updateConversationMessage', async (data) => {
     const { filter, updateDoc } = data;
 
-    const updated = await ConversationMessages.updateOne(filter, { $set: updateDoc });
+    const updated = await ConversationMessages.updateOne(filter, {
+      $set: updateDoc,
+    });
 
     return {
       data: updated,
-      status: 'success'
-    }
+      status: 'success',
+    };
   });
 
   consumeQueue('inbox:removeCustomersConversations', (customerIds) => {
@@ -195,13 +208,16 @@ export const initBroker = (cl) => {
 
   consumeRPCQueue('inbox:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
     status: 'success',
-    data: getSchemaLabels(type, LOG_MAPPINGS)
+    data: getSchemaLabels(type, LOG_MAPPINGS),
   }));
 
-  consumeRPCQueue('inbox:rpc_queue:logs:getConversations', async ({ query }) => ({
-    status: 'success',
-    data: await Conversations.find(query).lean()
-  }))
+  consumeRPCQueue(
+    'inbox:rpc_queue:logs:getConversations',
+    async ({ query }) => ({
+      status: 'success',
+      data: await Conversations.find(query).lean(),
+    })
+  );
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {
@@ -240,42 +256,48 @@ export const sendProductRPCMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`products:rpc_queue:${action}`, data);
 };
 
-export const sendProductCategoryRPCMessage = async (action, data): Promise<any> => {
+export const sendProductCategoryRPCMessage = async (
+  action,
+  data
+): Promise<any> => {
   return client.sendRPCMessage(`productCategories:rpc_queue:${action}`, data);
 };
 
 export const sendTagRPCMessage = async (action, data): Promise<any> => {
-  return client.sendRPCMessage(`tags:rpc_queue:${action}`, data);
+  return client.sendRPCMessage(`tags:rpc_queue:${action}`, { data });
 };
 
 export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
 
 export const fetchSegment = (segment, options?) =>
-  sendSegmentMessage('fetchSegment', { segment, options }, true)
+  sendSegmentMessage('fetchSegment', { segment, options }, true);
 
 export const sendSegmentMessage = async (action, data, isRPC?: boolean) => {
   if (!isRPC) {
     return sendMessage(`segments:${action}`, data);
   }
 
-  if(!(await serviceDiscovery.isAvailable('segments'))) {
-    throw new Error("Segments service is not available");
+  if (!(await serviceDiscovery.isAvailable('segments'))) {
+    throw new Error('Segments service is not available');
   }
 
   sendMessage(`segments:rpc_queue:${action}`, data);
-}
+};
 
 export const findMongoDocuments = async (serviceName: string, data: any) => {
-  if(!(await serviceDiscovery.isEnabled(serviceName))) {
+  if (!(await serviceDiscovery.isEnabled(serviceName))) {
     return [];
   }
-  
-  if(!(await serviceDiscovery.isAvailable(serviceName))) {
+
+  if (!(await serviceDiscovery.isAvailable(serviceName))) {
     throw new Error(`${serviceName} service is not available.`);
   }
 
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:findMongoDocuments`, data);
+  return client.sendRPCMessage(
+    `${serviceName}:rpc_queue:findMongoDocuments`,
+    data
+  );
 };
 
 export default function() {

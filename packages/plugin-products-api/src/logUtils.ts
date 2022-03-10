@@ -37,7 +37,9 @@ const gatherProductFieldNames = async (
       foreignKey: 'tagIds',
       prevList: options,
       nameFields: ['name'],
-      items: await messageBroker().sendRPCMessage('tags:rpc_queue:find', { _id: { $in: doc.tagIds } })
+      items: await messageBroker().sendRPCMessage('tags:rpc_queue:find', {
+        selector: { _id: { $in: doc.tagIds } },
+      }),
     });
   }
 
@@ -46,7 +48,9 @@ const gatherProductFieldNames = async (
       foreignKey: 'categoryId',
       prevList: options,
       nameFields: ['name'],
-      items: await ProductCategories.find({ _id: { $in: [doc.categoryId] } }).lean()
+      items: await ProductCategories.find({
+        _id: { $in: [doc.categoryId] },
+      }).lean(),
     });
   }
 
@@ -83,7 +87,9 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
         extraDesc = await gatherNames({
           foreignKey: 'parentId',
           nameFields: ['name'],
-          items: await ProductCategories.find({ _id: { $in: parentIds } }).lean()
+          items: await ProductCategories.find({
+            _id: { $in: parentIds },
+          }).lean(),
         });
       }
 

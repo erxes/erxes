@@ -1,11 +1,14 @@
-import { getSchemaLabels } from "@erxes/api-utils/src/logUtils";
+import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 
-import { ProductCategories, Products } from "./models";
-import { productSchema, productCategorySchema } from './models/definitions/products';
+import { ProductCategories, Products } from './models';
+import {
+  productSchema,
+  productCategorySchema,
+} from './models/definitions/products';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeRPCQueue } = client;
@@ -18,13 +21,13 @@ export const initBroker = async cl => {
   consumeRPCQueue(
     'productCategories:rpc_queue:find',
     async ({ query, sort, regData }) => ({
-        data: regData
-          ? await ProductCategories.find({
-              order: { $regex: new RegExp(regData) }
-            }).sort(sort)
-          : await ProductCategories.find(query),
-        status: 'success'
-      })
+      data: regData
+        ? await ProductCategories.find({
+            order: { $regex: new RegExp(regData) },
+          }).sort(sort)
+        : await ProductCategories.find(query),
+      status: 'success',
+    })
   );
 
   consumeRPCQueue('productCategories:rpc_queue:findOne', async (selector) => ({
@@ -37,12 +40,15 @@ export const initBroker = async cl => {
     status: 'success',
   }));
 
-  consumeRPCQueue('products:rpc_queue:update', async ({ selector, modifier }) => ({
-    data: await Products.updateMany(selector, modifier),
-    status: 'success',
-  }));
+  consumeRPCQueue(
+    'products:rpc_queue:update',
+    async ({ selector, modifier }) => ({
+      data: await Products.updateMany(selector, modifier),
+      status: 'success',
+    })
+  );
 
-  consumeRPCQueue('products:rpc_queue:tag', async args => {
+  consumeRPCQueue('products:rpc_queue:tag', async (args) => {
     let data = {};
 
     if (args.action === 'count') {
@@ -61,30 +67,36 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data
-    }
+      data,
+    };
   });
 
-  consumeRPCQueue('products:rpc_queue:generateInternalNoteNotif', async args => {
-    const { contentTypeId, notifDoc } = args;
+  consumeRPCQueue(
+    'products:rpc_queue:generateInternalNoteNotif',
+    async (args) => {
+      const { contentTypeId, notifDoc } = args;
 
-    const product = await Products.getProduct({ _id: contentTypeId });
+      const product = await Products.getProduct({ _id: contentTypeId });
 
-    notifDoc.content = product.name;
+      notifDoc.content = product.name;
 
-    return {
+      return {
+        status: 'success',
+        data: notifDoc,
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'products:rpc_queue:logs:getSchemaLabels',
+    async ({ type }) => ({
       status: 'success',
-      data: notifDoc
-    }
-  });
-
-  consumeRPCQueue('products:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
-    status: 'success',
-    data: getSchemaLabels(
-      type,
-      [{ name: 'product', schemas: [productSchema] }, { name: 'productCategory', schemas: [productCategorySchema] }]
-    )
-  }));
+      data: getSchemaLabels(type, [
+        { name: 'product', schemas: [productSchema] },
+        { name: 'productCategory', schemas: [productCategorySchema] },
+      ]),
+    })
+  );
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {
@@ -98,11 +110,14 @@ export const prepareCustomFieldsData = async (doc): Promise<any> => {
 };
 
 export const findTags = async (selector): Promise<any> => {
-  return client.sendRPCMessage('tags:rpc_queue:find', selector);
+  return client.sendRPCMessage('tags:rpc_queue:find', { selector });
 };
 
 export const findCompanies = async (selector): Promise<any> => {
-  return client.sendRPCMessage('contacts:rpc_queue:findActiveCompanies', selector);
+  return client.sendRPCMessage(
+    'contacts:rpc_queue:findActiveCompanies',
+    selector
+  );
 };
 
 export default function() {

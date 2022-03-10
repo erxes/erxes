@@ -1,12 +1,13 @@
 import { escapeRegExp } from '@erxes/api-utils/src/core';
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as _ from 'underscore';
+import { IModels } from '../connectionResolver';
 import { ITag, ITagDocument, tagSchema } from './definitions/tags';
 
 // set related tags
-const setRelatedIds = async (tag: ITagDocument) => {
+const setRelatedIds = async (models: IModels, tag: ITagDocument) => {
   if (tag.parentId) {
-    const parentTag = await Tags.findOne({ _id: tag.parentId });
+    const parentTag = await models.Tags.findOne({ _id: tag.parentId });
 
     if (parentTag) {
       let relatedIds: string[];
@@ -16,20 +17,23 @@ const setRelatedIds = async (tag: ITagDocument) => {
 
       relatedIds = _.union(relatedIds, parentTag.relatedIds || []);
 
-      await Tags.updateOne({ _id: parentTag._id }, { $set: { relatedIds } });
+      await models.Tags.updateOne(
+        { _id: parentTag._id },
+        { $set: { relatedIds } }
+      );
 
-      const updated = await Tags.findOne({ _id: tag.parentId });
+      const updated = await models.Tags.findOne({ _id: tag.parentId });
 
       if (updated) {
-        await setRelatedIds(updated);
+        await setRelatedIds(models, updated);
       }
     }
   }
 };
 
 // remove related tags
-const removeRelatedIds = async (tag: ITagDocument) => {
-  const tags = await Tags.find({ relatedIds: { $in: tag._id } });
+const removeRelatedIds = async (models: IModels, tag: ITagDocument) => {
+  const tags = await models.Tags.find({ relatedIds: { $in: tag._id } });
 
   if (tags.length === 0) {
     return;
@@ -46,18 +50,18 @@ const removeRelatedIds = async (tag: ITagDocument) => {
     };
   }> = [];
 
-  tags.forEach(async t => {
-    const ids = (t.relatedIds || []).filter(id => !relatedIds.includes(id));
+  tags.forEach(async (t) => {
+    const ids = (t.relatedIds || []).filter((id) => !relatedIds.includes(id));
 
     doc.push({
       updateOne: {
         filter: { _id: t._id },
-        update: { $set: { relatedIds: ids } }
-      }
+        update: { $set: { relatedIds: ids } },
+      },
     });
   });
 
-  await Tags.bulkWrite(doc);
+  await models.Tags.bulkWrite(doc);
 };
 
 export interface ITagModel extends Model<ITagDocument> {
@@ -73,13 +77,13 @@ export interface ITagModel extends Model<ITagDocument> {
   ): Promise<boolean>;
 }
 
-export const loadClass = () => {
+export const loadTagClass = (models) => {
   class Tag {
     /*
      * Get a tag
      */
     public static async getTag(_id: string) {
-      const tag = await Tags.findOne({ _id });
+      const tag = await models.Tags.findOne({ _id });
 
       if (!tag) {
         throw new Error('Tag not found');
@@ -101,13 +105,13 @@ export const loadClass = () => {
       }
 
       // can't update name & type same time more than one tags.
-      const count = await Tags.find(selector).countDocuments();
+      const count = await models.Tags.find(selector).countDocuments();
 
       if (selector && count > 1) {
         return false;
       }
 
-      const obj = selector && (await Tags.findOne(selector));
+      const obj = selector && (await models.Tags.findOne(selector));
 
       const filter: any = { name, type };
 
@@ -115,7 +119,7 @@ export const loadClass = () => {
         filter._id = { $ne: obj._id };
       }
 
-      const existing = await Tags.findOne(filter);
+      const existing = await models.Tags.findOne(filter);
 
       if (existing) {
         return false;
@@ -128,8 +132,8 @@ export const loadClass = () => {
      * Get a parent tag
      */
     static async getParentTag(doc: ITag) {
-      return Tags.findOne({
-        _id: doc.parentId
+      return models.Tags.findOne({
+        _id: doc.parentId,
       }).lean();
     }
 
@@ -137,7 +141,11 @@ export const loadClass = () => {
      * Create a tag
      */
     public static async createTag(doc: ITag) {
-      const isUnique = await Tags.validateUniqueness(null, doc.name, doc.type);
+      const isUnique = await models.Tags.validateUniqueness(
+        null,
+        doc.name,
+        doc.type
+      );
 
       if (!isUnique) {
         throw new Error('Tag duplicated');
@@ -148,13 +156,13 @@ export const loadClass = () => {
       // Generatingg order
       const order = await this.generateOrder(parentTag, doc);
 
-      const tag = await Tags.create({
+      const tag = await models.Tags.create({
         ...doc,
         order,
-        createdAt: new Date()
+        createdAt: new Date(),
       });
 
-      await setRelatedIds(tag);
+      await setRelatedIds(models, tag);
 
       return tag;
     }
@@ -163,7 +171,7 @@ export const loadClass = () => {
      * Update Tag
      */
     public static async updateTag(_id: string, doc: ITag) {
-      const isUnique = await Tags.validateUniqueness(
+      const isUnique = await models.Tags.validateUniqueness(
         { _id },
         doc.name,
         doc.type
@@ -182,16 +190,16 @@ export const loadClass = () => {
       // Generatingg  order
       const order = await this.generateOrder(parentTag, doc);
 
-      const tag = await Tags.findOne({
-        _id
+      const tag = await models.Tags.findOne({
+        _id,
       });
 
       if (tag && tag.order) {
-        const childTags = await Tags.find({
+        const childTags = await models.Tags.find({
           $and: [
             { order: { $regex: new RegExp(escapeRegExp(tag.order), 'i') } },
-            { _id: { $ne: _id } }
-          ]
+            { _id: { $ne: _id } },
+          ],
         });
 
         if (childTags.length > 0) {
@@ -203,7 +211,7 @@ export const loadClass = () => {
           }> = [];
 
           // updating child categories order
-          childTags.forEach(async childTag => {
+          childTags.forEach(async (childTag) => {
             let childOrder = childTag.order;
 
             if (tag.order && childOrder) {
@@ -212,24 +220,24 @@ export const loadClass = () => {
               bulkDoc.push({
                 updateOne: {
                   filter: { _id: childTag._id },
-                  update: { $set: { order: childOrder } }
-                }
+                  update: { $set: { order: childOrder } },
+                },
               });
             }
           });
 
-          await Tags.bulkWrite(bulkDoc);
+          await models.Tags.bulkWrite(bulkDoc);
 
-          await removeRelatedIds(tag);
+          await removeRelatedIds(models, tag);
         }
       }
 
-      await Tags.updateOne({ _id }, { $set: { ...doc, order } });
+      await models.Tags.updateOne({ _id }, { $set: { ...doc, order } });
 
-      const updated = await Tags.findOne({ _id });
+      const updated = await models.Tags.findOne({ _id });
 
       if (updated) {
-        await setRelatedIds(updated);
+        await setRelatedIds(models, updated);
       }
 
       return updated;
@@ -239,24 +247,24 @@ export const loadClass = () => {
      * Remove Tag
      */
     public static async removeTag(_id: string) {
-      const tag = await Tags.getTag(_id);
+      const tag = await models.Tags.getTag(_id);
 
-//       const collection = getCollection(tag.type);
+      //       const collection = getCollection(tag.type);
 
-      const childCount = await Tags.countDocuments({ parentId: _id });
+      const childCount = await models.Tags.countDocuments({ parentId: _id });
 
       if (childCount > 0) {
         throw new Error('Please remove child tags first');
       }
 
-//       await collection.updateMany(
-//         { tagIds: { $in: [_id] } },
-//         { $pull: { tagIds: { $in: [_id] } } }
-//       );
+      //       await collection.updateMany(
+      //         { tagIds: { $in: [_id] } },
+      //         { $pull: { tagIds: { $in: [_id] } } }
+      //       );
 
-      await removeRelatedIds(tag);
+      await removeRelatedIds(models, tag);
 
-      return Tags.deleteOne({ _id });
+      return models.Tags.deleteOne({ _id });
     }
 
     /**
@@ -277,9 +285,9 @@ export const loadClass = () => {
       if (!parentOrder) {
         parentOrder = `${parentTag.name}${parentTag.type}`;
 
-        await Tags.updateOne(
+        await models.Tags.updateOne(
           {
-            _id: parentTag._id
+            _id: parentTag._id,
           },
           { $set: { order: parentOrder } }
         );
@@ -292,27 +300,27 @@ export const loadClass = () => {
       sourceId: string,
       destId: string
     ): Promise<ITagDocument> {
-      const source = await Tags.getTag(sourceId);
+      const source = await models.Tags.getTag(sourceId);
 
-//       const collection = await getCollection(source.type);
+      //       const collection = await getCollection(source.type);
 
-//       const items = await collection.find(
-//         { tagIds: { $in: [sourceId] } },
-//         { _id: 1 }
-//       );
+      //       const items = await collection.find(
+      //         { tagIds: { $in: [sourceId] } },
+      //         { _id: 1 }
+      //       );
 
-//       const itemIds = items.map(i => i._id);
+      //       const itemIds = items.map(i => i._id);
 
-//       // add to new destination
-//       await collection.updateMany(
-//         { _id: { $in: itemIds } },
-//         { $push: { tagIds: [destId] } }
-//       );
+      //       // add to new destination
+      //       await collection.updateMany(
+      //         { _id: { $in: itemIds } },
+      //         { $push: { tagIds: [destId] } }
+      //       );
 
       // remove old tag
-      await Tags.removeTag(sourceId);
+      await models.Tags.removeTag(sourceId);
 
-      return Tags.getTag(destId);
+      return models.Tags.getTag(destId);
     }
   }
 
@@ -320,10 +328,3 @@ export const loadClass = () => {
 
   return tagSchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const Tags = model<ITagDocument, ITagModel>('tags', tagSchema);
-
-export default Tags;

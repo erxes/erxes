@@ -1,9 +1,9 @@
-import { IUserDocument } from "@packages/api-core/src/db/models/definitions/users";
+import { IUserDocument } from '@packages/api-core/src/db/models/definitions/users';
 import { paginate } from '@erxes/api-utils/src/core';
 import { IContext } from '@erxes/api-utils/src/types';
 import {
   // checkPermission,
-  requireLogin
+  requireLogin,
 } from '@erxes/api-utils/src/permissions';
 import { awsRequests } from '../../trackers/engageTracker';
 import { EngageMessages, Configs, DeliveryReports, Logs } from '../../models';
@@ -73,11 +73,11 @@ const statusQueryBuilder = (
 };
 
 // count for each kind
-const countsByKind = async commonSelector => ({
+const countsByKind = async (commonSelector) => ({
   all: await count(commonSelector),
   auto: await count({ ...commonSelector, kind: 'auto' }),
   visitorAuto: await count({ ...commonSelector, kind: 'visitorAuto' }),
-  manual: await count({ ...commonSelector, kind: 'manual' })
+  manual: await count({ ...commonSelector, kind: 'manual' }),
 });
 
 // count for each status type
@@ -95,7 +95,7 @@ const countsByStatus = async (
     live: await count({ ...query, ...statusQueryBuilder('live') }),
     draft: await count({ ...query, ...statusQueryBuilder('draft') }),
     paused: await count({ ...query, ...statusQueryBuilder('paused') }),
-    yours: await count({ ...query, ...statusQueryBuilder('yours', user) })
+    yours: await count({ ...query, ...statusQueryBuilder('yours', user) }),
   };
 };
 
@@ -105,7 +105,7 @@ const countsByTag = async (
   {
     kind,
     status,
-    user
+    user,
   }: {
     kind: string;
     status: string;
@@ -121,7 +121,9 @@ const countsByTag = async (
   if (status) {
     query = { ...query, ...statusQueryBuilder(status, user) };
   }
-  const tags = await messageBroker().sendRPCMessage('tags:rpc_queue:find', { type: 'engageMessage' });
+  const tags = await messageBroker().sendRPCMessage('tags:rpc_queue:find', {
+    selector: { type: 'engageMessage' },
+  });
 
   // const response: {[name: string]: number} = {};
   const response: ICountsByTag = {};
@@ -160,7 +162,10 @@ const listQuery = async (
 
   // filter by tag
   if (tag) {
-    const object = await messageBroker().sendRPCMessage('tags:rpc_queue:findOne', { _id: tag });
+    const object = await messageBroker().sendRPCMessage(
+      'tags:rpc_queue:findOne',
+      { selector: { _id: tag } }
+    );
     const relatedIds = object && object.relatedIds ? object.relatedIds : [];
 
     query = { ...query, tagIds: { $in: [tag, ...relatedIds] } };
@@ -201,7 +206,7 @@ const engageQueries = {
 
     return paginate(
       EngageMessages.find(query).sort({
-        createdAt: -1
+        createdAt: -1,
       }),
       { ...args, ids: args.ids ? args.ids.split(',') : [] }
     );
@@ -252,7 +257,8 @@ const engageQueries = {
 
       if (item.customerId) {
         const customer = await messageBroker().sendRPCMessage(
-          'contacts:rpc_queue:findCustomer', { _id: item.customerId }
+          'contacts:rpc_queue:findCustomer',
+          { _id: item.customerId }
         );
 
         if (customer) {
@@ -297,11 +303,11 @@ const engageQueries = {
   engageLogs(_root, args) {
     return paginate(
       Logs.find({ engageMessageId: args.engageMessageId }).sort({
-        createdAt: -1
+        createdAt: -1,
       }),
       { ...args }
     );
-  }
+  },
 };
 
 requireLogin(engageQueries, 'engageMessagesTotalCount');
