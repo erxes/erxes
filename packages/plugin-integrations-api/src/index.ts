@@ -25,7 +25,7 @@ const rawBodySaver = (req, _res, buf, encoding) => {
   }
 };
 
-const init = async app => {
+const initApp = async app => {
   app.use(
     bodyParser.urlencoded({
       limit: '10mb',
@@ -88,4 +88,4 @@ const init = async app => {
 
 };
 
-export default init;
+export default initApp;
