@@ -232,7 +232,7 @@ const init = async app => {
 
             await Accounts.getAccount({ _id: integration.accountId });
 
-            const { facebookPageTokensMap } = integration;
+            const { facebookPageTokensMap = {} } = integration;
 
             try {
               accessTokensByPageId[pageId] = getPageAccessTokenFromMap(

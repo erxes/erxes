@@ -55,9 +55,11 @@ const connectProviderToNylas = async ({
   } else {
     const account = await Accounts.findOne({ email, kind });
 
-    if (account) {
-      return { account, isAlreadyExists: true };
+    if(!account) {
+      throw new Error('Account not found');
     }
+
+    return { account, isAlreadyExists: true };
   }
 
   const settings = await getProviderSettings(kind, refreshToken);
@@ -96,6 +98,8 @@ const connectProviderToNylas = async ({
         status,
         googleAccessToken
       });
+      
+      return { account: {} as any };
     } else {
       const newAccount = await Accounts.create({
         name,
@@ -124,7 +128,7 @@ const connectYahooAndOutlookToNylas = async (
   integrationId: string,
   data: INylasIntegrationData
 ) => {
-  const { email, password } = data;
+  const { email = "", password } = data;
 
   try {
     const {
@@ -200,7 +204,7 @@ const connectImapToNylas = async (
     throw new Error('Missing imap config');
   }
 
-  const { email, password } = data;
+  const { email = "", password } = data;
 
   try {
     const {

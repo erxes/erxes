@@ -86,7 +86,7 @@ export const getDailyRoom = async ({ erxesApiMessageId }) => {
   const response: {
     url?: string;
     status?: string;
-    recordingLinks?: string[];
+    recordingLinks?: Array<string | undefined>;
   } = { url: '', status: VIDEO_CALL_STATUS.END, recordingLinks: [] };
 
   if (callRecord) {

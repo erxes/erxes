@@ -19,7 +19,11 @@ export const whatsappReply = async (doc) => {
     erxesApiId: integrationId
   });
 
-  const token = integration.whatsappToken;
+  if(!integration) {
+    throw new Error('Integration not found');
+  }
+
+  const token = integration.whatsappToken || '';
 
   if (attachments.length !== 0) {
     for (const attachment of attachments) {
