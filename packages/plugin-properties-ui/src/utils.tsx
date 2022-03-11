@@ -1,4 +1,4 @@
-import { __ } from "modules/common/utils";
+import { __ } from "@erxes/ui/src/utils";
 import { COMPANY_INFO } from "@erxes/ui/src/companies/constants";
 import { CUSTOMER_BASIC_INFO } from "@erxes/ui-contacts/src/customers/constants";
 import { PRODUCT_INFO } from "@erxes/ui-products/src/constants";

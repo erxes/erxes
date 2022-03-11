@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { Alert, withProps } from 'modules/common/utils';
-import { router } from 'modules/common/utils';
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import { router } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
@@ -20,7 +20,7 @@ import {
 } from '../types';
 import { FieldsGroupsQueryResponse } from '@erxes/ui-settings/src/properties/types';
 import { updateCustomFieldsCache } from '@erxes/ui-settings/src/properties/utils';
-import Spinner from 'modules/common/components/Spinner';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   queryParams: any;

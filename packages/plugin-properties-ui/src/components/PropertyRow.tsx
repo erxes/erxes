@@ -1,14 +1,14 @@
-import ActionButtons from 'modules/common/components/ActionButtons';
-import Button from 'modules/common/components/Button';
-import EmptyState from 'modules/common/components/EmptyState';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Toggle from 'modules/common/components/Toggle';
-import { __, Alert, confirm } from 'modules/common/utils';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Button from '@erxes/ui/src/components/Button';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { __, Alert, confirm } from '@erxes/ui/src/utils';
 import React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import PropertyForm from '@erxes/ui-settings/src/properties/containers/PropertyForm';
 import PropertyGroupForm from '@erxes/ui-settings/src/properties/containers/PropertyGroupForm';
-import ControlLabel from 'modules/common/components/form/Label';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import {
   CollapseRow,
   DropIcon,
@@ -20,7 +20,7 @@ import {
 } from '@erxes/ui-settings/src/properties/styles';
 import { IFieldGroup } from '@erxes/ui-settings/src/properties/types';
 import { IField } from '@erxes/ui/src/types';
-import SortableList from 'modules/common/components/SortableList';
+import SortableList from '@erxes/ui/src/components/SortableList';
 
 type Props = {
   group: IFieldGroup;

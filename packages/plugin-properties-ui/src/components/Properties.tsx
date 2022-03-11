@@ -1,12 +1,12 @@
-import Button from 'modules/common/components/Button';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import EmptyState from 'modules/common/components/EmptyState';
-import HeaderDescription from 'modules/common/components/HeaderDescription';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { Title } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
+import Button from '@erxes/ui/src/components/Button';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { Title } from '@erxes/ui/src/styles/main';
+import { __ } from '@erxes/ui/src/utils';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import PropertyForm from '@erxes/ui-settings/src/properties/containers/PropertyForm';
@@ -16,7 +16,7 @@ import { IFieldGroup } from '@erxes/ui-settings/src/properties/types';
 import { IField } from '@erxes/ui/src/types';
 import PropertyRow from './PropertyRow';
 import Sidebar from './Sidebar';
-import SortableList from 'modules/common/components/SortableList';
+import SortableList from '@erxes/ui/src/components/SortableList';
 
 type Props = {
   queryParams: any;

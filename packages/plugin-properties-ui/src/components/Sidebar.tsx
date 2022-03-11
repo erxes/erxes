@@ -1,6 +1,6 @@
-import { __ } from 'modules/common/utils';
-import LeftSidebar from 'modules/layout/components/Sidebar';
-import { SidebarList as List } from 'modules/layout/styles';
+import { __ } from '@erxes/ui/src/utils';
+import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { SidebarList as List } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { getPropertiesGroups } from '../constants';
