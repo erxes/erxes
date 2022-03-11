@@ -201,14 +201,15 @@ export const trackCustomEvent = (args: {
 };
 
 export const identifyCustomer = async (
-  { Customers }: IModels,
+  models: IModels,
+  subdomain: string,
   args: ICustomerIdentifyParams = {}
 ) => {
   // get or create customer
-  let customer = await sendContactsMessage("customers:getWidgetCustomer", args);
+  let customer = await sendContactsMessage({ subdomain, action: 'customers:getWidgetCustomer', data: args });
 
   if (!customer) {
-    customer = await Customers.createCustomer({
+    customer = await models.Customers.createCustomer({
       primaryEmail: args.email,
       code: args.code,
       primaryPhone: args.phone,

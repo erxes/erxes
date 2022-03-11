@@ -60,13 +60,13 @@ export default {
   async companies(
     customer: ICustomerDocument,
     _params,
-    { models: { Companies } }: IContext
+    { models: { Companies }, subdomain }: IContext
   ) {
-    const companyIds = await sendCoreMessage("savedConformity", {
+    const companyIds = await sendCoreMessage({ subdomain, action: "savedConformity", data: {
       mainType: "customer",
       mainTypeId: customer._id,
       relTypes: ["company"],
-    }, true, []);
+    }, isRPC: true, defaultValue: [] });
 
     const companies = await Companies.find({
       _id: { $in: (companyIds || []).filter((id) => id) },

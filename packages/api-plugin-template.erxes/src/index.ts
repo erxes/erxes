@@ -127,7 +127,7 @@ const generateApolloServer = async serviceDiscovery => {
 
     // for graceful shutdown
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-    context: ({ req }) => {
+    context: async ({ req }) => {
       let user: any = null;
 
       if (req.headers.user) {
@@ -146,7 +146,7 @@ const generateApolloServer = async serviceDiscovery => {
         commonQuerySelector: {}
       };
 
-      configs.apolloServerContext(context);
+      await configs.apolloServerContext(context);
 
       return context;
     }
