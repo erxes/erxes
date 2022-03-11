@@ -13,7 +13,7 @@ interface IDoc {
   type: string;
 }
 
-export const getDuplicatedStages = async (models: IModels, {
+export const getDuplicatedStages = async (models: IModels, subdomain: string, {
   templateId,
   pipelineId,
   type
@@ -27,7 +27,7 @@ export const getDuplicatedStages = async (models: IModels, {
   const stages: any[] = [];
 
   for (const stage of template.stages) {
-    const duplicated = await sendFormsMessage('duplicate', stage.formId, true);
+    const duplicated = await sendFormsMessage({ subdomain, action: 'duplicate', data: stage.formId, isRPC: true });
 
     stages.push({
       _id: Math.random().toString(),
@@ -57,7 +57,7 @@ export interface IPipelineTemplateModel
   duplicatePipelineTemplate(_id: string): Promise<IPipelineTemplateDocument>;
 }
 
-export const loadPipelineTemplateClass = (models: IModels) => {
+export const loadPipelineTemplateClass = (models: IModels, subdomain: string) => {
   class PipelineTemplate {
     /*
      * Get a pipeline template
@@ -118,7 +118,7 @@ export const loadPipelineTemplateClass = (models: IModels) => {
         type: pipelineTemplate.type
       };
 
-      const stages: any[] = await getDuplicatedStages(models, {
+      const stages: any[] = await getDuplicatedStages(models, subdomain, {
         templateId: pipelineTemplate._id
       });
 
@@ -136,7 +136,7 @@ export const loadPipelineTemplateClass = (models: IModels) => {
       }
 
       for (const stage of pipelineTemplate.stages) {
-        sendFormsMessage('removeForm', stage.formId);
+        sendFormsMessage({ subdomain, action: 'removeForm', data: stage.formId });
       }
 
       return models.PipelineTemplates.deleteOne({ _id });

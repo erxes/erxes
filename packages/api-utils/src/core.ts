@@ -212,7 +212,17 @@ export const escapeRegExp = (str: string) => {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
 
-export const sendMessage = async (client, serviceDiscovery, serviceName: string, action, data, isRPC=false, defaultValue?): Promise<any> => {
+export interface ISendMessageArgs {
+  subdomain: string,
+  action: string,
+  data,
+  isRPC?: boolean,
+  defaultValue?
+}
+
+export const sendMessage = async (args: { client: any, serviceDiscovery: any, serviceName: string } & ISendMessageArgs): Promise<any> => {
+  const { client, serviceDiscovery, serviceName, subdomain, action, data, defaultValue, isRPC } = args;
+
   if (!(await serviceDiscovery.isEnabled(serviceName))) {
     return defaultValue;
   }
@@ -221,5 +231,5 @@ export const sendMessage = async (client, serviceDiscovery, serviceName: string,
     throw new Error(`${serviceName} service is not available`);
   }
 
-  return client.sendMessage(`${serviceName}:${action}`, { data });
+  return client.sendMessage(`${serviceName}:${action}`, { subdomain, data });
 };

@@ -26,7 +26,7 @@ export default {
   collectItems: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    return collectItems(models, data);
+    return collectItems(models, subdomain, data);
   },
 
   getContentIds: async ({ subdomain, data }) => {

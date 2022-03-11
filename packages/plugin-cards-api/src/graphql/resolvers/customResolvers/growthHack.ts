@@ -1,20 +1,30 @@
-import { IGrowthHackDocument } from '../../../models/definitions/growthHacks';
-import { boardId } from '../../utils';
-import { IContext } from '../../../connectionResolver';
-import { sendFormsMessage } from '../../../messageBroker';
+import { IGrowthHackDocument } from "../../../models/definitions/growthHacks";
+import { boardId } from "../../utils";
+import { IContext } from "../../../connectionResolver";
+import { sendFormsMessage } from "../../../messageBroker";
 
 export default {
-  async formSubmissions(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
+  async formSubmissions(
+    growthHack: IGrowthHackDocument,
+    _args,
+    { subdomain, models }: IContext
+  ) {
     const stage = await models.Stages.getStage(growthHack.stageId);
 
     const result = {};
 
     if (stage.formId) {
-      const submissions = await sendFormsMessage('submissions:find', {
-        contentTypeId: growthHack._id,
-        contentType: 'growthHack',
-        formId: stage.formId
-      }, true, []);
+      const submissions = await sendFormsMessage({
+        subdomain,
+        action: "submissions:find",
+        data: {
+          contentTypeId: growthHack._id,
+          contentType: "growthHack",
+          formId: stage.formId,
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
 
       for (const submission of submissions) {
         if (submission.formFieldId) {
@@ -26,24 +36,40 @@ export default {
     return result;
   },
 
-  async formFields(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
+  async formFields(
+    growthHack: IGrowthHackDocument,
+    _args,
+    { models, subdomain }: IContext
+  ) {
     const stage = await models.Stages.getStage(growthHack.stageId);
 
-    const query: any = { contentType: 'form' };
+    const query: any = { contentType: "form" };
 
     if (stage.formId) {
       query.contentTypeId = stage.formId;
     }
 
-    return sendFormsMessage('fields:find', { query, order: 1 }, true, []);
+    return sendFormsMessage({
+      subdomain,
+      action: "fields:find",
+      data: { query, order: 1 },
+      isRPC: true,
+      defaultValue: [],
+    });
   },
 
   assignedUsers(growthHack: IGrowthHackDocument) {
-    return (growthHack.assignedUserIds || []).map(_id => ({ __typename: "User", _id }));
+    return (growthHack.assignedUserIds || []).map((_id) => ({
+      __typename: "User",
+      _id,
+    }));
   },
 
   votedUsers(growthHack: IGrowthHackDocument) {
-    return (growthHack.votedUserIds || []).map(votedUserId => ({ __typename: "User", _id: votedUserId }));
+    return (growthHack.votedUserIds || []).map((votedUserId) => ({
+      __typename: "User",
+      _id: votedUserId,
+    }));
   },
 
   isVoted(growthHack: IGrowthHackDocument, _args, { user }: IContext) {
@@ -68,7 +94,11 @@ export default {
     return stage.formId;
   },
 
-  async scoringType(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
+  async scoringType(
+    growthHack: IGrowthHackDocument,
+    _args,
+    { models }: IContext
+  ) {
     const stage = await models.Stages.getStage(growthHack.stageId);
     const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
@@ -90,10 +120,12 @@ export default {
   },
 
   labels(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
-    return models.PipelineLabels.find({ _id: { $in: growthHack.labelIds || [] } });
+    return models.PipelineLabels.find({
+      _id: { $in: growthHack.labelIds || [] },
+    });
   },
 
   createdUser(growthHack: IGrowthHackDocument) {
     return { __typename: "User", _id: growthHack.userId };
-  }
+  },
 };

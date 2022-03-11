@@ -8,6 +8,7 @@ import {
 import { IItemCommonFields as ITask } from './definitions/boards';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import { ITaskDocument, taskSchema } from './definitions/tasks';
+import { IModels } from '../connectionResolver';
 
 export interface ITaskModel extends Model<ITaskDocument> {
   createTask(doc: ITask): Promise<ITaskDocument>;
@@ -17,7 +18,7 @@ export interface ITaskModel extends Model<ITaskDocument> {
   removeTasks(_ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
-export const loadTaskClass = (models) => {
+export const loadTaskClass = (models: IModels, subdomain: string) => {
   class Task {
     /**
      * Retreives Task
@@ -70,7 +71,7 @@ export const loadTaskClass = (models) => {
     public static async removeTasks(_ids: string[]) {
       // completely remove all related things
       for (const _id of _ids) {
-        await destroyBoardItemRelations(models, _id, ACTIVITY_CONTENT_TYPES.TASK);
+        await destroyBoardItemRelations(models, subdomain, _id, ACTIVITY_CONTENT_TYPES.TASK);
       }
 
       return models.Tasks.deleteMany({ _id: { $in: _ids } });

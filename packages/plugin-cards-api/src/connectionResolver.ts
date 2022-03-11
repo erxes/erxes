@@ -59,7 +59,7 @@ export const generateCoreModels = async (
 
 
 export const generateModels = async (
-  _hostnameOrSubdomain: string
+  hostnameOrSubdomain: string
 ): Promise<IModels> => {
   if (models) {
     return models;
@@ -67,7 +67,7 @@ export const generateModels = async (
 
   coreModels = await connectCore();
 
-  loadClasses(mainDb);
+  loadClasses(mainDb, hostnameOrSubdomain);
 
   return models;
 };
@@ -93,20 +93,20 @@ export const connectCore = async () => {
   return coreModels;
 }
 
-export const loadClasses = (db: mongoose.Connection): IModels => {
+export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels => {
   models = {} as IModels;
   
-  models.Boards = db.model<IBoardDocument, IBoardModel>('boards', loadBoardClass(models));  
-  models.Pipelines = db.model<IPipelineDocument, IPipelineModel>('pipelines', loadPipelineClass(models));
-  models.Stages = db.model<IStageDocument, IStageModel>('stages', loadStageClass(models));
-  models.Deals = db.model<IDealDocument, IDealModel>('deals', loadDealClass(models));
-  models.Tasks = db.model<ITaskDocument, ITaskModel>('tasks', loadTaskClass(models));
-  models.Tickets = db.model<ITicketDocument, ITicketModel>('tickets', loadTicketClass(models));
+  models.Boards = db.model<IBoardDocument, IBoardModel>('boards', loadBoardClass(models, subdomain));  
+  models.Pipelines = db.model<IPipelineDocument, IPipelineModel>('pipelines', loadPipelineClass(models, subdomain));
+  models.Stages = db.model<IStageDocument, IStageModel>('stages', loadStageClass(models, subdomain));
+  models.Deals = db.model<IDealDocument, IDealModel>('deals', loadDealClass(models, subdomain));
+  models.Tasks = db.model<ITaskDocument, ITaskModel>('tasks', loadTaskClass(models, subdomain));
+  models.Tickets = db.model<ITicketDocument, ITicketModel>('tickets', loadTicketClass(models, subdomain));
   models.GrowthHacks = db.model<IGrowthHackDocument, IGrowthHackModel>('growth_hacks', loadGrowthHackClass(models));
-  models.Checklists = db.model<IChecklistDocument, IChecklistModel>('checklists', loadChecklistClass(models));
-  models.ChecklistItems = db.model<IChecklistItemDocument, IChecklistItemModel>('checklist_items', loadItemClass(models));
+  models.Checklists = db.model<IChecklistDocument, IChecklistModel>('checklists', loadChecklistClass(models, subdomain));
+  models.ChecklistItems = db.model<IChecklistItemDocument, IChecklistItemModel>('checklist_items', loadItemClass(models, subdomain));
   models.PipelineLabels = db.model<IPipelineLabelDocument, IPipelineLabelModel>('pipeline_labels', loadPipelineLabelClass(models));
-  models.PipelineTemplates = db.model<IPipelineTemplateDocument, IPipelineTemplateModel>('pipeline_templates', loadPipelineTemplateClass(models));
+  models.PipelineTemplates = db.model<IPipelineTemplateDocument, IPipelineTemplateModel>('pipeline_templates', loadPipelineTemplateClass(models, subdomain));
 
   return models;
 };

@@ -20,24 +20,24 @@ const ticketQueries = {
   async tickets(
     _root,
     args: IListParams,
-    { user, commonQuerySelector, models }: IContext
+    { user, commonQuerySelector, models, subdomain }: IContext
   ) {
     const filter = {
       ...commonQuerySelector,
-      ...(await generateTicketCommonFilters(models, user._id, args))
+      ...(await generateTicketCommonFilters(models, subdomain, user._id, args))
     };
 
-    return await getItemList(models, filter, args, user, 'ticket');
+    return await getItemList(models, subdomain, filter, args, user, 'ticket');
   },
 
   async ticketsTotalCount(
     _root,
     args: IListParams,
-    { user, commonQuerySelector, models }: IContext
+    { user, commonQuerySelector, models, subdomain }: IContext
   ) {
     const filter = {
       ...commonQuerySelector,
-      ...(await generateTicketCommonFilters(models, user._id, args))
+      ...(await generateTicketCommonFilters(models, subdomain, user._id, args))
     };
 
     return models.Tickets.find(filter).countDocuments();

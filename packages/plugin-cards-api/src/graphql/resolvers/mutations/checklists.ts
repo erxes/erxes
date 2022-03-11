@@ -37,11 +37,12 @@ const checklistMutations = {
   /**
    * Adds checklist object and also adds an activity log
    */
-  async checklistsAdd(_root, args: IChecklist, { models, user }: IContext) {
+  async checklistsAdd(_root, args: IChecklist, { models, user, subdomain }: IContext) {
     const checklist = await models.Checklists.createChecklist(args, user);
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: 'checklist',
         newData: args,
@@ -61,13 +62,14 @@ const checklistMutations = {
   async checklistsEdit(
     _root,
     { _id, ...doc }: IChecklistsEdit,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const checklist = await models.Checklists.getChecklist(_id);
     const updated = await models.Checklists.updateChecklist(_id, doc);
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: 'checklist',
         object: checklist,
@@ -85,12 +87,13 @@ const checklistMutations = {
   /**
    * Removes a checklist
    */
-  async checklistsRemove(_root, { _id }: { _id: string }, { user, models }: IContext) {
+  async checklistsRemove(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
     const checklist = await models.Checklists.getChecklist(_id);
     const removed = await models.Checklists.removeChecklist(_id);
 
     await putDeleteLog(
       models,
+      subdomain,
       { type: 'checklist', object: checklist },
       user
     );
@@ -103,11 +106,12 @@ const checklistMutations = {
   /**
    * Adds a checklist item and also adds an activity log
    */
-  async checklistItemsAdd(_root, args: IChecklistItem, { user, models }: IContext) {
+  async checklistItemsAdd(_root, args: IChecklistItem, { user, models, subdomain }: IContext) {
     const checklistItem = await models.ChecklistItems.createChecklistItem(args, user);
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: 'checkListItem',
         newData: args,
@@ -127,13 +131,14 @@ const checklistMutations = {
   async checklistItemsEdit(
     _root,
     { _id, ...doc }: IChecklistItemsEdit,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const checklistItem = await models.ChecklistItems.getChecklistItem(_id);
     const updated = await models.ChecklistItems.updateChecklistItem(_id, doc);
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: 'checkListItem',
         object: checklistItem,
@@ -154,13 +159,14 @@ const checklistMutations = {
   async checklistItemsRemove(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const checklistItem = await models.ChecklistItems.getChecklistItem(_id);
     const removed = await models.ChecklistItems.removeChecklistItem(_id);
 
     await putDeleteLog(
       models,
+      subdomain,
       { type: 'checkListItem', object: checklistItem },
       user
     );

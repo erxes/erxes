@@ -7,6 +7,7 @@ import {
 } from './utils';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import { dealSchema, IDeal, IDealDocument } from './definitions/deals';
+import { IModels } from '../connectionResolver';
 
 export interface IDealModel extends Model<IDealDocument> {
   getDeal(_id: string): Promise<IDealDocument>;
@@ -16,7 +17,7 @@ export interface IDealModel extends Model<IDealDocument> {
   removeDeals(_ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
-export const loadDealClass = (models) => {
+export const loadDealClass = (models: IModels, subdomain: string) => {
   class Deal {
     public static async getDeal(_id: string) {
       const deal = await models.Deals.findOne({ _id });
@@ -66,7 +67,7 @@ export const loadDealClass = (models) => {
     public static async removeDeals(_ids: string[]) {
       // completely remove all related things
       for (const _id of _ids) {
-        await destroyBoardItemRelations(models, _id, ACTIVITY_CONTENT_TYPES.DEAL);
+        await destroyBoardItemRelations(models, subdomain, _id, ACTIVITY_CONTENT_TYPES.DEAL);
       }
 
       return models.Deals.deleteMany({ _id: { $in: _ids } });

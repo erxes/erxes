@@ -124,6 +124,7 @@ export const generateExtraFilters = async (filter, extraParams) => {
 
 export const generateCommonFilters = async (
   models: IModels,
+  subdomain: string,
   currentUserId: string,
   args: any
 ) => {
@@ -167,21 +168,33 @@ export const generateCommonFilters = async (
   }
 
   if (customerIds && type) {
-    const relIds = await sendCoreMessage('filterConformity', {
-      mainType: 'customer',
-      mainTypeIds: customerIds,
-      relType: type
-    }, true, []);
+    const relIds = await sendCoreMessage({
+      subdomain,
+      action: 'filterConformity',
+      data: {
+        mainType: 'customer',
+        mainTypeIds: customerIds,
+        relType: type
+      },
+      isRPC: true,
+      defaultValue: []
+    });
 
     filterIds = relIds;
   }
 
   if (companyIds && type) {
-    const relIds = await sendCoreMessage('filterConformity', {
-      mainType: 'company',
-      mainTypeIds: companyIds,
-      relType: type
-    }, true, []);
+    const relIds = await sendCoreMessage({
+      subdomain,
+      action: 'filterConformity',
+      data: {
+        mainType: 'company',
+        mainTypeIds: companyIds,
+        relType: type
+      },
+      isRPC: true,
+      defaultValue: []
+    });
 
     filterIds = filterIds.length
       ? filterIds.filter(id => relIds.includes(id))
@@ -194,21 +207,33 @@ export const generateCommonFilters = async (
 
   if (conformityMainType && conformityMainTypeId) {
     if (conformityIsSaved) {
-      const relIds = await sendCoreMessage('savedConformity', {
-        mainType: conformityMainType,
-        mainTypeId: conformityMainTypeId,
-        relTypes: [type]
-      }, true, []);
+      const relIds = await sendCoreMessage({
+        subdomain,
+        action: "savedConformity",
+        data: {
+          mainType: conformityMainType,
+          mainTypeId: conformityMainTypeId,
+          relTypes: [type],
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
 
       filter._id = contains(relIds || []);
     }
 
     if (conformityIsRelated) {
-      const relIds = await sendCoreMessage('relatedConformity', {
-        mainType: conformityMainType,
-        mainTypeId: conformityMainTypeId,
-        relType: type
-      }, true, []);
+      const relIds = await sendCoreMessage({
+        subdomain,
+        action: "relatedConformity",
+        data: {
+          mainType: conformityMainType,
+          mainTypeId: conformityMainTypeId,
+          relType: type,
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
 
       filter._id = contains(relIds);
     }
@@ -289,8 +314,8 @@ export const generateCommonFilters = async (
   }
 
   if (segment) {
-    const segmentObj = await sendSegmentsMessage('findOne', { _id: segment }, true);
-    const itemIds = await fetchSegment(segmentObj);
+    const segmentObj = await sendSegmentsMessage({ subdomain, action: 'findOne', data: { _id: segment }, isRPC: true });
+    const itemIds = await fetchSegment(subdomain, segmentObj);
 
     filter._id = { $in: itemIds };
   }
@@ -318,6 +343,7 @@ export const calendarFilters = async (models: IModels, filter, args) => {
 
 export const generateDealCommonFilters = async (
   models: IModels,
+  subdomain,
   currentUserId: string,
   args: any,
   extraParams?: any
@@ -325,7 +351,7 @@ export const generateDealCommonFilters = async (
   args.type = 'deal';
   const { productIds } = extraParams || args;
 
-  let filter = await generateCommonFilters(models, currentUserId, args);
+  let filter = await generateCommonFilters(models, subdomain, currentUserId, args);
 
   if (extraParams) {
     filter = await generateExtraFilters(filter, extraParams);
@@ -343,13 +369,14 @@ export const generateDealCommonFilters = async (
 
 export const generateTicketCommonFilters = async (
   models: IModels,
+  subdomain: string,
   currentUserId: string,
   args: any,
   extraParams?: any
 ) => {
   args.type = 'ticket';
 
-  let filter = await generateCommonFilters(models, currentUserId, args);
+  let filter = await generateCommonFilters(models, subdomain, currentUserId, args);
 
   if (extraParams) {
     filter = await generateExtraFilters(filter, extraParams);
@@ -363,13 +390,14 @@ export const generateTicketCommonFilters = async (
 
 export const generateTaskCommonFilters = async (
   models: IModels,
+  subdomain: string,
   currentUserId: string,
   args: any,
   extraParams?: any
 ) => {
   args.type = 'task';
 
-  let filter = await generateCommonFilters(models, currentUserId, args);
+  let filter = await generateCommonFilters(models, subdomain, currentUserId, args);
 
   if (extraParams) {
     filter = await generateExtraFilters(filter, extraParams);
@@ -395,6 +423,7 @@ export const generateSort = (args: IListParams) => {
 
 export const generateGrowthHackCommonFilters = async (
   models: IModels,
+  subdomain: string,
   currentUserId: string,
   args: any,
   extraParams?: any
@@ -403,7 +432,7 @@ export const generateGrowthHackCommonFilters = async (
 
   const { hackStage, pipelineId, stageId } = extraParams || args;
 
-  let filter = await generateCommonFilters(models, currentUserId, args);
+  let filter = await generateCommonFilters(models, subdomain, currentUserId, args);
 
   if (extraParams) {
     filter = await generateExtraFilters(filter, extraParams);
@@ -587,6 +616,7 @@ const generateArhivedItemsFilter = (
 
 export const getItemList = async (
   models: IModels,
+  subdomain: string,
   filter: any,
   args: IListParams,
   user: IUserDocument,
@@ -659,11 +689,11 @@ export const getItemList = async (
 
   const ids = list.map(item => item._id);
 
-  const conformities = await sendCoreMessage('getConformities', {
+  const conformities = await sendCoreMessage({ subdomain, action: 'getConformities', data: {
     mainType: type,
     mainTypeIds: ids,
     relTypes: ['company', 'customer']
-  }, true, []);
+  }, isRPC: true, defaultValue: []});
 
   const companyIds: string[] = [];
   const customerIds: string[] = [];
@@ -729,7 +759,7 @@ export const getItemList = async (
     }
   }
 
-  const companies = await sendContactsMessage('findActiveCompanies', {
+  const companies = await sendContactsMessage({ subdomain, action: 'findActiveCompanies', data: {
     selector: {
       _id: { $in: [...new Set(companyIds)] }
     },
@@ -741,9 +771,9 @@ export const getItemList = async (
       emails: 1,
       phones: 1
     }
-  }, true);
+  }, isRPC: true });
 
-  const customers = await sendContactsMessage('findActiveCustomers', {
+  const customers = await sendContactsMessage({ subdomain, action: 'findActiveCustomers', data: {
     selector: {
       _id: { $in: [...new Set(customerIds)] }
     },
@@ -757,7 +787,7 @@ export const getItemList = async (
       emails: 1,
       phones: 1
     }
-  }, true);
+  }, isRPC: true });
 
   const getCocsByItemId = (
     itemId: string,
@@ -775,9 +805,10 @@ export const getItemList = async (
 
   const updatedList: any[] = [];
 
-  const notifications = await sendNotificationsMessage(
-    "find",
-    {
+  const notifications = await sendNotificationsMessage({
+    subdomain,
+    action: 'find',
+    data: {
       selector: {
         contentTypeId: { $in: ids },
         isRead: false,
@@ -785,9 +816,9 @@ export const getItemList = async (
       },
       fields: { contentTypeId: 1 },
     },
-    true,
-    []
-  );
+    isRPC: true,
+    defaultValue: []
+  });
 
   for (const item of list) {
     const notification = notifications.find(n => n.contentTypeId === item._id);

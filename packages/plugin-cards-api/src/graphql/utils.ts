@@ -20,8 +20,8 @@ export interface IConformityAdd {
 /**
  * Send a notification
  */
-export const sendNotification = (doc) => {
-  return sendNotificationsMessage('send', doc);
+export const sendNotification = (subdomain: string, data) => {
+  return sendNotificationsMessage({ subdomain, action: 'send', data });
 };
 
 export const notifiedUserIds = async (models: IModels, item: any) => {
@@ -53,7 +53,7 @@ export interface IBoardNotificationParams {
 /**
  * Send notification to all members of this content except the sender
  */
-export const sendNotifications = async (models: IModels, {
+export const sendNotifications = async (models: IModels, subdomain: string, {
   item,
   user,
   type,
@@ -95,7 +95,7 @@ export const sendNotifications = async (models: IModels, {
   };
 
   if (removedUsers && removedUsers.length > 0) {
-    sendNotification({
+    sendNotification(subdomain, {
       ...notificationDoc,
       notifType:
         NOTIFICATION_TYPES[`${contentType.toUpperCase()}_REMOVE_ASSIGN`],
@@ -106,7 +106,7 @@ export const sendNotifications = async (models: IModels, {
   }
 
   if (invitedUsers && invitedUsers.length > 0) {
-    sendNotification({
+    sendNotification(subdomain, {
       ...notificationDoc,
       notifType: NOTIFICATION_TYPES[`${contentType.toUpperCase()}_ADD`],
       action: `invited you to the ${contentType}: `,
@@ -115,7 +115,7 @@ export const sendNotifications = async (models: IModels, {
     });
   }
 
-  sendNotification({
+  sendNotification(subdomain, {
     ...notificationDoc
   });
 };
@@ -217,7 +217,7 @@ export const checkPermission = async (
   return;
 };
 
-export const createConformity = async ({
+export const createConformity = async (subdomain: string, {
   companyIds,
   customerIds,
   mainType,
@@ -248,7 +248,7 @@ export const createConformity = async ({
 
   const allConformities = companyConformities.concat(customerConformities);
 
-  sendCoreMessage('addConformities', allConformities);
+  sendCoreMessage({ subdomain, action: 'addConformities', data: allConformities });
 };
 
 interface ILabelParams {

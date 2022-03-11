@@ -7,7 +7,7 @@ import { conversationConvertToCard } from './models/utils';
 import { getCardItem } from './utils';
 import { notifiedUserIds } from './graphql/utils';
 import { generateModels } from './connectionResolver';
-import { sendMessage } from '@erxes/api-utils/src/core';
+import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
 let client;
 
@@ -93,7 +93,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await conversationConvertToCard(models, data)
+      data: await conversationConvertToCard(models, subdomain, data)
     }
   });
 
@@ -101,8 +101,8 @@ export const initBroker = async cl => {
     return { data: generateAmounts(productsData), status: 'success' };
   });
 
-  consumeRPCQueue('cards:deals:generateProducts', async productsData => {
-    return { data: await generateProducts(productsData), status: 'success' };
+  consumeRPCQueue('cards:deals:generateProducts', async ({ subdomain, data }) => {
+    return { data: await generateProducts(subdomain, data), status: 'success' };
   });
 
   consumeRPCQueue('cards:findItem', async ({ subdomain, data }) => {
@@ -184,47 +184,47 @@ export const initBroker = async cl => {
   });
 };
 
-export const sendContactsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'contacts', action, data, isRPC, defaultValue);
+export const sendContactsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'contacts', ...args });
 };
 
-export const sendInternalNotesMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'internalNotes', action, data, isRPC, defaultValue);
+export const sendInternalNotesMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'internalNotes', ...args });
 };
 
-export const sendCoreMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'core', action, data, isRPC, defaultValue);
+export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'core', ...args });
 };
 
-export const sendFormsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'forms', action, data, isRPC, defaultValue);
+export const sendFormsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'forms', ...args });
 };
 
-export const sendEngagesMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'engages', action, data, isRPC, defaultValue);
+export const sendEngagesMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'engages', ...args });
 };
 
-export const sendInboxMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'inbox', action, data, isRPC, defaultValue);
+export const sendInboxMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'inbox', ...args });
 };
 
-export const sendProductsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'products', action, data, isRPC, defaultValue);
+export const sendProductsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'products', ...args });
 };
 
-export const sendNotificationsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'notifications', action, data, isRPC, defaultValue);
+export const sendNotificationsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'notifications', ...args });
 };
 
-export const sendLogsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'logs', action, data, isRPC, defaultValue);
+export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'logs', ...args });
 };
 
-export const sendSegmentsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'segments', action, data, isRPC, defaultValue);
+export const sendSegmentsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'segments', ...args });
 };
 
-export const fetchSegment = (segment, options?) => sendSegmentsMessage('fetchSegment', { segment, options }, true);
+export const fetchSegment = (subdomain: string, segment, options?) => sendSegmentsMessage({ subdomain, action: 'fetchSegment', data: { segment, options }, isRPC: true });
 
 export default function() {
   return client;

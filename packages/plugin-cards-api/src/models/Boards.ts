@@ -48,7 +48,7 @@ const removeStageWithItems = async (
   return models.Stages.deleteMany(selector);
 };
 
-const removeItems = async (models: IModels, type: string, stageIds: string[]) => {
+const removeItems = async (models: IModels, subdomain: string, type: string, stageIds: string[]) => {
   const { collection } = getCollection(models, type);
 
   const items = await collection.find(
@@ -65,30 +65,31 @@ const removeItems = async (models: IModels, type: string, stageIds: string[]) =>
 
   await models.Checklists.removeChecklists(type, itemIds);
 
-  sendCoreMessage('removeConformities', {
+  sendCoreMessage({subdomain, action: 'removeConformities', data: {
     mainType: type,
     mainTypeIds: itemIds
-  });
+  }});
 
-  sendInternalNotesMessage('remove', itemIds);
+  sendInternalNotesMessage({ subdomain, action: 'remove', data: itemIds });
 
   await collection.deleteMany({ stageId: { $in: stageIds } });
 };
 
 const removePipelineStagesWithItems = async (
   models: IModels,
+  subdomain: string,
   type: string,
   pipelineId: string
 ) => {
   const stageIds = await models.Stages.find({ pipelineId }).distinct('_id');
 
-  await removeItems(models, type, stageIds);
+  await removeItems(models, subdomain, type, stageIds);
 
   return models.Stages.deleteMany({ pipelineId });
 };
 
-const removeStageItems = async (models: IModels, type: string, stageId: string) => {
-  await removeItems(models, type, [stageId]);
+const removeStageItems = async (models: IModels, subdomain: string, type: string, stageId: string) => {
+  await removeItems(models, subdomain, type, [stageId]);
 };
 
 const createOrUpdatePipelineStages = async (
@@ -202,7 +203,7 @@ export interface IBoardModel extends Model<IBoardDocument> {
   ): Promise<any>;
 }
 
-export const loadBoardClass = (models: IModels) => {
+export const loadBoardClass = (models: IModels, subdomain: string) => {
   class Board {
     /*
      * Get a Board
@@ -246,7 +247,7 @@ export const loadBoardClass = (models: IModels) => {
       const pipelines = await models.Pipelines.find({ boardId: _id });
 
       for (const pipeline of pipelines) {
-        await removePipelineStagesWithItems(models, pipeline.type, pipeline._id);
+        await removePipelineStagesWithItems(models, subdomain, pipeline.type, pipeline._id);
       }
 
       for (const pipeline of pipelines) {
@@ -302,7 +303,7 @@ export interface IPipelineModel extends Model<IPipelineDocument> {
   archivePipeline(_id: string, status?: string): object;
 }
 
-export const loadPipelineClass = (models: IModels) => {
+export const loadPipelineClass = (models: IModels, subdomain: string) => {
   class Pipeline {
     /*
      * Get a pipeline
@@ -331,7 +332,7 @@ export const loadPipelineClass = (models: IModels) => {
       const pipeline = await models.Pipelines.create(doc);
 
       if (doc.templateId) {
-        const duplicatedStages = await getDuplicatedStages(models, {
+        const duplicatedStages = await getDuplicatedStages(models, subdomain, {
           templateId: doc.templateId,
           pipelineId: pipeline._id,
           type: doc.type
@@ -362,7 +363,7 @@ export const loadPipelineClass = (models: IModels) => {
         const pipeline = await models.Pipelines.getPipeline(_id);
 
         if (doc.templateId !== pipeline.templateId) {
-          const duplicatedStages = await getDuplicatedStages(models, {
+          const duplicatedStages = await getDuplicatedStages(models, subdomain, {
             templateId: doc.templateId,
             pipelineId: _id,
             type: doc.type
@@ -401,7 +402,7 @@ export const loadPipelineClass = (models: IModels) => {
       const pipeline = await models.Pipelines.getPipeline(_id);
 
       if (!checked) {
-        await removePipelineStagesWithItems(models, pipeline.type, pipeline._id);
+        await removePipelineStagesWithItems(models, subdomain, pipeline.type, pipeline._id);
       }
 
       const stages = await models.Stages.find({ pipelineId: pipeline._id });
@@ -444,7 +445,7 @@ export interface IStageModel extends Model<IStageDocument> {
   updateOrder(orders: IOrderInput[]): Promise<IStageDocument[]>;
 }
 
-export const loadStageClass = (models: IModels) => {
+export const loadStageClass = (models: IModels, subdomain: string) => {
   class Stage {
     /*
      * Get a stage
@@ -486,7 +487,7 @@ export const loadStageClass = (models: IModels) => {
       const stage = await models.Stages.getStage(_id);
       const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
-      await removeStageItems(models, pipeline.type, _id);
+      await removeStageItems(models, subdomain, pipeline.type, _id);
 
       if (stage.formId) {
         // await Forms.removeForm(stage.formId);

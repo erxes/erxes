@@ -25,10 +25,11 @@ const dealMutations = {
   async dealsAdd(
     _root,
     doc: IDeal & { proccessId: string; aboveItemId: string },
-    { user, docModifier, models }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
     return itemsAdd(
       models,
+      subdomain,
       doc,
       "deal",
       models.Deals.createDeal,
@@ -43,7 +44,7 @@ const dealMutations = {
   async dealsEdit(
     _root,
     { _id, proccessId, ...doc }: IDealsEdit & { proccessId: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const oldDeal = await models.Deals.getDeal(_id);
 
@@ -93,6 +94,7 @@ const dealMutations = {
 
     return itemsEdit(
       models,
+      subdomain,
       _id,
       "deal",
       oldDeal,
@@ -109,7 +111,7 @@ const dealMutations = {
   async dealsChange(
     _root,
     doc: IItemDragCommonFields,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const deal = await models.Deals.getDeal(doc.itemId);
 
@@ -121,38 +123,41 @@ const dealMutations = {
 
       const productIds = productsData.map((p) => p.productId);
 
-      const products = await sendProductsMessage(
-        "find",
-        {
+      const products = await sendProductsMessage({
+        subdomain,
+        action: "find",
+        data: {
           _id: { $in: productIds },
           supply: { $ne: "unlimited" },
         },
-        true,
-        []
-      );
+        isRPC: true,
+        defaultValue: []
+      });
 
       if (stage.probability === "Won") {
-        await sendProductsMessage(
-          "update",
-          {
+        await sendProductsMessage({
+          subdomain,
+          action: "update",
+          data: {
             selector: { _id: { $in: products.map((p) => p._id) } },
             modifier: { $inc: { productCount: -1 } },
           },
-          true
-        );
+          isRPC: true
+        });
       } else if (prevStage.probability === "Won") {
-        await sendProductsMessage(
-          "update",
-          {
+        await sendProductsMessage({
+          subdomain,
+          action: "update",
+          data: {
             selector: { _id: { $in: products.map((p) => p._id) } },
             modifier: { $inc: { productCount: 1 } },
           },
-          true
-        );
+          isRPC: true
+        });
       }
     }
 
-    return itemsChange(models, doc, "deal", user, models.Deals.updateDeal);
+    return itemsChange(models, subdomain, doc, "deal", user, models.Deals.updateDeal);
   },
 
   /**
@@ -161,9 +166,9 @@ const dealMutations = {
   async dealsRemove(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    return itemsRemove(models, _id, "deal", user);
+    return itemsRemove(models, subdomain, _id, "deal", user);
   },
 
   /**
@@ -180,10 +185,11 @@ const dealMutations = {
   async dealsCopy(
     _root,
     { _id, proccessId }: { _id: string; proccessId: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     return itemsCopy(
       models,
+      subdomain,
       _id,
       proccessId,
       "deal",

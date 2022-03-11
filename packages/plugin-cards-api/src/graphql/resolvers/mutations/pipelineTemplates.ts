@@ -20,7 +20,7 @@ const pipelineTemplateMutations = {
   async pipelineTemplatesAdd(
     _root,
     { stages, ...doc }: IPipelineTemplate,
-    { user, docModifier, models }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
     await checkPermission(doc.type, user, 'templatesAdd');
 
@@ -31,6 +31,7 @@ const pipelineTemplateMutations = {
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: 'pipelineTemplate',
         newData: { ...doc, stages: pipelineTemplate.stages },
@@ -48,7 +49,7 @@ const pipelineTemplateMutations = {
   async pipelineTemplatesEdit(
     _root,
     { _id, stages, ...doc }: IPipelineTemplatesEdit,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     await checkPermission(doc.type, user, 'templatesEdit');
 
@@ -61,6 +62,7 @@ const pipelineTemplateMutations = {
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: 'pipelineTemplate',
         newData: { ...doc, stages: updated.stages },
@@ -99,7 +101,7 @@ const pipelineTemplateMutations = {
   async pipelineTemplatesRemove(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const pipelineTemplate = await models.PipelineTemplates.getPipelineTemplate(_id);
 
@@ -109,6 +111,7 @@ const pipelineTemplateMutations = {
 
     await putDeleteLog(
       models,
+      subdomain,
       { type: 'pipelineTemplate', object: pipelineTemplate },
       user
     );

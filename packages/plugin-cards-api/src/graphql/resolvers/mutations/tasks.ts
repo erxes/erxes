@@ -25,9 +25,9 @@ const taskMutations = {
   async tasksAdd(
     _root,
     doc: ITask & { proccessId: string; aboveItemId: string },
-    { user, docModifier, models }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
-    return itemsAdd(models, doc, 'task', models.Tasks.createTask, user, docModifier);
+    return itemsAdd(models, subdomain, doc, 'task', models.Tasks.createTask, user, docModifier);
   },
 
   /**
@@ -36,12 +36,13 @@ const taskMutations = {
   async tasksEdit(
     _root,
     { _id, proccessId, ...doc }: ITasksEdit & { proccessId: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const oldTask = await models.Tasks.getTask(_id);
 
     const updatedTask = await itemsEdit(
       models,
+      subdomain,
       _id,
       'task',
       oldTask,
@@ -61,15 +62,15 @@ const taskMutations = {
   /**
    * Change task
    */
-  async tasksChange(_root, doc: IItemDragCommonFields, { user, models }: IContext) {
-    return itemsChange(models, doc, 'task', user, models.Tasks.updateTask);
+  async tasksChange(_root, doc: IItemDragCommonFields, { user, models, subdomain }: IContext) {
+    return itemsChange(models, subdomain, doc, 'task', user, models.Tasks.updateTask);
   },
 
   /**
    * Remove task
    */
-  async tasksRemove(_root, { _id }: { _id: string }, { user, models }: IContext) {
-    return itemsRemove(models, _id, 'task', user);
+  async tasksRemove(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
+    return itemsRemove(models, subdomain, _id, 'task', user);
   },
 
   /**
@@ -86,9 +87,9 @@ const taskMutations = {
   async tasksCopy(
     _root,
     { _id, proccessId }: { _id: string; proccessId: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    return itemsCopy(models, _id, proccessId, 'task', user, [], models.Tasks.createTask);
+    return itemsCopy(models, subdomain, _id, proccessId, 'task', user, [], models.Tasks.createTask);
   },
 
   async tasksArchive(

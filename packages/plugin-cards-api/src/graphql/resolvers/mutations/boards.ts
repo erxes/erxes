@@ -56,7 +56,7 @@ const boardMutations = {
   /**
    * Create new board
    */
-  async boardsAdd(_root, doc: IBoard, { user, models }: IContext) {
+  async boardsAdd(_root, doc: IBoard, { user, models, subdomain }: IContext) {
     await checkPermission(doc.type, user, 'boardsAdd');
 
     const extendedDoc = { userId: user._id, ...doc };
@@ -65,6 +65,7 @@ const boardMutations = {
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: `${doc.type}Boards`,
         newData: extendedDoc,
@@ -79,7 +80,7 @@ const boardMutations = {
   /**
    * Edit board
    */
-  async boardsEdit(_root, { _id, ...doc }: IBoardsEdit, { user, models }: IContext) {
+  async boardsEdit(_root, { _id, ...doc }: IBoardsEdit, { user, models, subdomain }: IContext) {
     await checkPermission(doc.type, user, 'boardsEdit');
 
     const board = await models.Boards.getBoard(_id);
@@ -87,6 +88,7 @@ const boardMutations = {
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: `${doc.type}Boards`,
         newData: doc,
@@ -102,24 +104,28 @@ const boardMutations = {
   /**
    * Remove board
    */
-  async boardsRemove(_root, { _id }: { _id: string }, { models, user }: IContext) {
+  async boardsRemove(_root, { _id }: { _id: string }, { models, subdomain, user }: IContext) {
     const board = await models.Boards.getBoard(_id);
 
     await checkPermission(board.type, user, 'boardsRemove');
 
     const removed = await models.Boards.removeBoard(_id);
 
-    const relatedFieldsGroups = await sendFormsMessage('groups:find', { boardIds: board._id }, true, []);
+    const relatedFieldsGroups = await sendFormsMessage({
+      subdomain,
+      action: 'groups:find',  data: { boardIds: board._id }, isRPC: true, defaultValue: []
+    });
 
     for (const fieldGroup of relatedFieldsGroups) {
       const boardIds = fieldGroup.boardIds || [];
       fieldGroup.boardIds = boardIds.filter(e => e !== board._id);
 
-      await sendFormsMessage('groups:update', { groupId: fieldGroup._id, fieldGroup }, true);
+      await sendFormsMessage({ subdomain, action: 'groups:update', data: { groupId: fieldGroup._id, fieldGroup }, isRPC: true });
     }
 
     await putDeleteLog(
       models,
+      subdomain,
       { type: `${board.type}Boards`, object: board },
       user
     );
@@ -133,7 +139,7 @@ const boardMutations = {
   async pipelinesAdd(
     _root,
     { stages, ...doc }: IPipelinesAdd,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     await checkPermission(doc.type, user, 'pipelinesAdd');
 
@@ -148,6 +154,7 @@ const boardMutations = {
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: `${doc.type}Pipelines`,
         newData: doc,
@@ -165,7 +172,7 @@ const boardMutations = {
   async pipelinesEdit(
     _root,
     { _id, stages, ...doc }: IPipelinesEdit,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     await checkPermission(doc.type, user, 'pipelinesEdit');
 
@@ -179,6 +186,7 @@ const boardMutations = {
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: `${doc.type}Pipelines`,
         newData: doc,
@@ -214,29 +222,35 @@ const boardMutations = {
   /**
    * Remove pipeline
    */
-  async pipelinesRemove(_root, { _id }: { _id: string }, { user, models }: IContext) {
+  async pipelinesRemove(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
     const pipeline = await models.Pipelines.getPipeline(_id);
 
     await checkPermission(pipeline.type, user, 'pipelinesRemove');
 
     const removed = await models.Pipelines.removePipeline(_id);
 
-    const relatedFieldsGroups = await sendFormsMessage('groups:find', {
+    const relatedFieldsGroups = await sendFormsMessage({
+      subdomain,
+      action: 'groups:find', data: {
       pipelineIds: pipeline._id
-    }, true, []);
+    }, isRPC: true, defaultValue: [] });
 
     for (const fieldGroup of relatedFieldsGroups) {
       const pipelineIds = fieldGroup.pipelineIds || [];
       fieldGroup.pipelineIds = pipelineIds.filter(e => e !== pipeline._id);
 
-      await sendFormsMessage('groups:update', {
+      await sendFormsMessage({
+        subdomain,
+        action: 'groups:update', data: {
         groupId: fieldGroup._id,
         fieldGroup
-      }, true);
+      }, isRPC: true
+    });
     }
 
     await putDeleteLog(
       models,
+      subdomain,
       { type: `${pipeline.type}Pipelines`, object: pipeline },
       user
     );
@@ -250,7 +264,7 @@ const boardMutations = {
   async pipelinesArchive(
     _root,
     { _id, status }: { _id; status: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const pipeline = await models.Pipelines.getPipeline(_id);
 
@@ -262,6 +276,7 @@ const boardMutations = {
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: `${pipeline.type}Pipelines`,
         object: pipeline,
@@ -280,7 +295,7 @@ const boardMutations = {
   /**
    * Duplicate pipeline
    */
-  async pipelinesCopied(_root, { _id }: { _id: string }, { user, models }: IContext) {
+  async pipelinesCopied(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
     const sourcePipeline = await models.Pipelines.getPipeline(_id);
     const sourceStages = await models.Stages.find({ pipelineId: _id }).lean();
 
@@ -307,6 +322,7 @@ const boardMutations = {
 
     await putUpdateLog(
       models,
+      subdomain,
       { type: `${sourcePipeline.type}Pipelines`, object: copied },
       user
     );
@@ -324,7 +340,7 @@ const boardMutations = {
   /**
    * Edit stage
    */
-  async stagesEdit(_root, { _id, ...doc }: IStageEdit, { user, models }: IContext) {
+  async stagesEdit(_root, { _id, ...doc }: IStageEdit, { user, models, subdomain }: IContext) {
     await checkPermission(doc.type, user, 'stagesEdit');
 
     const stage = await models.Stages.getStage(_id);
@@ -332,6 +348,7 @@ const boardMutations = {
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: `${doc.type}Stages`,
         newData: doc,
@@ -347,7 +364,7 @@ const boardMutations = {
   /**
    * Remove stage
    */
-  async stagesRemove(_root, { _id }: { _id: string }, { user, models }: IContext) {
+  async stagesRemove(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
     const stage = await models.Stages.getStage(_id);
 
     await checkPermission(stage.type, user, 'stagesRemove');
@@ -356,6 +373,7 @@ const boardMutations = {
 
     await putDeleteLog(
       models,
+      subdomain,
       { type: `${stage.type}Stages`, object: stage },
       user
     );

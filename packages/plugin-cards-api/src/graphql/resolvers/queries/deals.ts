@@ -26,11 +26,11 @@ const dealQueries = {
   async deals(
     _root,
     args: IDealListParams,
-    { user, commonQuerySelector, models }: IContext
+    { user, commonQuerySelector, models, subdomain }: IContext
   ) {
     const filter = {
       ...commonQuerySelector,
-      ...(await generateDealCommonFilters(models, user._id, args)),
+      ...(await generateDealCommonFilters(models, subdomain, user._id, args)),
     };
 
     const getExtraFields = async (item: any) => ({
@@ -39,6 +39,7 @@ const dealQueries = {
 
     const deals = await getItemList(
       models,
+      subdomain,
       filter,
       args,
       user,
@@ -56,14 +57,15 @@ const dealQueries = {
       return [];
     });
 
-    const products = await sendProductsMessage(
-      "find",
-      {
+    const products = await sendProductsMessage({
+      subdomain,
+      action: "find",
+      data: {
         _id: { $in: [...new Set(dealProductIds)] },
       },
-      true,
-      []
-    );
+      isRPC: true,
+      defaultValue: []
+    });
 
     for (const deal of deals) {
       if (
@@ -93,9 +95,9 @@ const dealQueries = {
   async dealsTotalCount(
     _root,
     args: IDealListParams,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    const filter = await generateDealCommonFilters(models, user._id, args);
+    const filter = await generateDealCommonFilters(models, subdomain, user._id, args);
 
     return models.Deals.find(filter).countDocuments();
   },
@@ -117,9 +119,9 @@ const dealQueries = {
   async dealsTotalAmounts(
     _root,
     args: IDealListParams,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    const filter = await generateDealCommonFilters(models, user._id, args);
+    const filter = await generateDealCommonFilters(models, subdomain, user._id, args);
 
     const amountList = await models.Deals.aggregate([
       {
