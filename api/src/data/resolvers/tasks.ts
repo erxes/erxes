@@ -83,7 +83,7 @@ export default {
     }).lean();
 
     const { customFieldsData = [] } = item;
-    const customPropertyTexts: { name: string }[] = [];
+    const customPropertyTexts: any[] = [];
 
     if (customFieldsData.length > 0 && fields.length > 0) {
       fields.forEach(field => {
