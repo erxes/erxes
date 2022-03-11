@@ -1,6 +1,7 @@
-import { queries as customerQueries } from '@erxes/ui/src/customers/graphql';
-import conversationFields from './conversationFields';
-import messageFields from './messageFields';
+import { queries as customerQueries } from "@erxes/ui/src/customers/graphql";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import conversationFields from "./conversationFields";
+import messageFields from "./messageFields";
 
 export const paramsDef = `
   $channelId: String
@@ -265,14 +266,14 @@ const convertToInfo = `
   }
 `;
 
-const generateCustomerDetailQuery = params => {
+const generateCustomerDetailQuery = (params) => {
   const {
     showDeviceProperties = false,
     showTrackedData = false,
     showCustomFields = false,
     showCompanies = false,
     showTags = false,
-    showSegments = false
+    showSegments = false,
   } = params || {};
 
   let fields = `
@@ -308,19 +309,20 @@ const generateCustomerDetailQuery = params => {
   if (showCompanies) {
     fields = `
       ${fields}
-      companies {
-        _id
-        primaryName
-        website
-        customers {
+      ${isEnabled("contacts") &&
+        `companies {
           _id
-          avatar
-          firstName
-          middleName
-          lastName
-          primaryEmail
-        }
-      }
+          primaryName
+          website
+          customers {
+            _id
+            avatar
+            firstName
+            middleName
+            lastName
+            primaryEmail
+          }
+        }`}
     `;
   }
 
@@ -413,5 +415,5 @@ export default {
   generateCustomerDetailQuery,
   convertToInfo,
   integrationsConversationFbComments,
-  integrationsConversationFbCommentsCount
+  integrationsConversationFbCommentsCount,
 };

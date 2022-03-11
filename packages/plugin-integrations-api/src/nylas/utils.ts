@@ -208,7 +208,7 @@ export const getNylasConfig = async () => {
  */
 const buildEmailAddress = (emailStr: string[]) => {
   if (!emailStr || emailStr.length === 0) {
-    return;
+    return {};
   }
 
   return emailStr
@@ -237,6 +237,8 @@ export const getClientConfig = async (kind: string): Promise<string[]> => {
     case 'office365': {
       return [MICROSOFT_CLIENT_ID, MICROSOFT_CLIENT_SECRET];
     }
+    default: 
+      return [] 
   }
 };
 
@@ -262,6 +264,8 @@ export const getProviderSettings = async (
         microsoft_refresh_token: refreshToken,
         redirect_uri: `${DOMAIN}/nylas/oauth2/callback`
       };
+    default: 
+      return {}
   }
 };
 
@@ -299,6 +303,8 @@ const getProviderConfigs = (kind: string, type?: string) => {
         }
       };
     }
+    default: 
+      return {} as any
   }
 };
 
@@ -321,7 +327,7 @@ export const encryptToken = text => {
 
   const cipher = crypto.createCipheriv(
     'aes-256-cbc',
-    Buffer.from(process.env.NYLAS_ENCRYPTION_KEY),
+    Buffer.from(process.env.NYLAS_ENCRYPTION_KEY || ''),
     iv
   );
 
@@ -339,7 +345,7 @@ export const decryptToken = text => {
 
   const decipher = crypto.createDecipheriv(
     'aes-256-cbc',
-    Buffer.from(process.env.NYLAS_ENCRYPTION_KEY),
+    Buffer.from(process.env.NYLAS_ENCRYPTION_KEY || ''),
     iv
   );
 

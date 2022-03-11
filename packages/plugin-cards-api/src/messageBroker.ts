@@ -3,7 +3,6 @@ import {
   generateAmounts,
   generateProducts
 } from './graphql/resolvers/customResolvers/deal';
-import { insertImportItems, prepareImportDocs } from './importUtils';
 import {
   Checklists,
   Deals,
@@ -64,16 +63,6 @@ export const initBroker = async cl => {
     data: await Checklists.removeChecklists(type, itemIds)
   }));
 
-  consumeRPCQueue('cards:rpc_queue:prepareImportDocs', async args => ({
-    status: 'success',
-    data: await prepareImportDocs(args)
-  }));
-
-  consumeRPCQueue('cards:rpc_queue:insertImportItems', async args => ({
-    status: 'success',
-    data: await insertImportItems(args)
-  }));
-
   consumeRPCQueue('cards:rpc_queue:conversationConvert', async args => ({
     status: 'success',
     data: await conversationConvertToCard(args)
@@ -90,6 +79,24 @@ export const initBroker = async cl => {
   consumeRPCQueue('cards:rpc_queue:findItem', async data => {
     return { data: await getCardItem(data), status: 'success' };
   });
+
+  consumeRPCQueue('cards:rpc_queue:findDealProductIds', async ({ _ids }) => {
+    const dealProductIds = await await Deals.find({
+      'productsData.productId': { $in: _ids }
+    }).distinct('productsData.productId');
+
+    return { data: dealProductIds, status: 'success' };
+  });
+
+  consumeRPCQueue(
+    'cards:rpc_queue:updateDeals',
+    async ({ selector, modifier }) => {
+      return {
+        data: await Deals.updateMany(selector, modifier),
+        status: 'success'
+      };
+    }
+  );
 
   consumeRPCQueue('cards:rpc_queue:generateInternalNoteNotif', async args => {
     let model: any = GrowthHacks;

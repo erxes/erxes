@@ -69,7 +69,7 @@ const NYLAS_MODELS = {
 };
 
 const storeCalendars = async (calendars: ICalendar[]) => {
-  const doc = [];
+  const doc: any[] = [];
 
   for (const calendar of calendars) {
     if (!calendar.read_only) {
@@ -96,8 +96,8 @@ const updateCalendar = async (calendar: ICalendar) => {
     throw new Error(`Calendar not found to be updated ${calendar.id}`);
   }
 
-  prevCalendar.name = calendar.name;
-  prevCalendar.description = calendar.description;
+  prevCalendar.name = calendar.name || "";
+  prevCalendar.description = calendar.description || "";
   prevCalendar.readOnly = calendar.read_only;
 
   return prevCalendar.save();
@@ -112,10 +112,10 @@ const updateEvent = async (event: IEvent) => {
 
   prevEvent.providerEventId = event.id;
   prevEvent.providerCalendarId = event.calendar_id;
-  prevEvent.messageId = event.message_id;
-  prevEvent.title = event.title;
+  prevEvent.messageId = event.message_id || "";
+  prevEvent.title = event.title || "";
   prevEvent.accountUid = event.account_id;
-  prevEvent.description = event.description;
+  prevEvent.description = event.description || "";
   prevEvent.owner = event.owner;
   prevEvent.participants = event.participants;
   prevEvent.readOnly = event.read_only;
@@ -129,7 +129,7 @@ const updateEvent = async (event: IEvent) => {
 };
 
 const storeEvents = async (events: IEvent[], eventIds?: string[]) => {
-  const doc = [];
+  const doc: any[] = [];
 
   for (const event of events) {
     if (!eventIds || !eventIds.includes(event.id)) {
@@ -155,7 +155,7 @@ const storeEvents = async (events: IEvent[], eventIds?: string[]) => {
 };
 
 const storePages = async (pages: IPage[], accountId: string) => {
-  const doc = [];
+  const doc: any[] = [];
 
   for (const page of pages) {
     const config = page.config;

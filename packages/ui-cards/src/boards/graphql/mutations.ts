@@ -1,3 +1,5 @@
+import { isEnabled } from "@erxes/ui/src/utils/core";
+
 const createTicketComment = `
   mutation createTicketComment(
     $ticketId: String!
@@ -67,8 +69,8 @@ export const commonDragParams = `
 export const commonListFields = `
   _id
   name
-  companies
-  customers
+  ${isEnabled("contacts") ? `companies` : ``}
+  ${isEnabled("contacts") ? `customers` : ``}
   assignedUsers
   labels
   stage
@@ -94,19 +96,31 @@ export const commonFields = `
     name
   }
   boardId
-  companies {
-    _id
-    primaryName
-    links
+  ${
+    isEnabled("contacts")
+      ? `
+    companies {
+      _id
+      primaryName
+      links
+    }
+  `
+      : ``
   }
-  customers {
-    _id
-    firstName
-    middleName
-    lastName
-    primaryEmail
-    primaryPhone
-    visitorContactInfo
+  ${
+    isEnabled("contacts")
+      ? `
+    customers {
+      _id
+      firstName
+      middleName
+      lastName
+      primaryEmail
+      primaryPhone
+      visitorContactInfo
+    }
+  `
+      : ``
   }
   startDate
   closeDate

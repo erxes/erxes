@@ -28,7 +28,11 @@ export const subscribeUser = async (email: string) => {
       );
     }
 
-    const { token } = await Accounts.findOne({ email });
+    const account = await Accounts.findOne({ email });
+
+    if(!account) {
+      throw new Error("Account not found!")
+    }
 
     const response = await sendRequest({
       url: `${BASE_URL}/me/watch`,
@@ -38,7 +42,7 @@ export const subscribeUser = async (email: string) => {
         labelFilterAction: 'include',
         topicName: `projects/${GOOGLE_PROJECT_ID}/topics/${GOOGLE_GMAIL_TOPIC}`
       },
-      headerParams: { Authorization: `Bearer ${token}` }
+      headerParams: { Authorization: `Bearer ${account.token}` }
     });
 
     return response;
@@ -132,7 +136,7 @@ export const collectMessagesIds = async ({
       );
     }
 
-    const messageIds = [];
+    const messageIds: string[] = [];
 
     for (const history of histories) {
       const messagesAdded = history.messagesAdded || [];
@@ -161,7 +165,7 @@ export const getMessageById = async (
   const mails: any = [];
 
   try {
-    for (const messageId of messageIds) {
+    for (const messageId of messageIds || []) {
       const response = await gmailRequest({
         method: 'GET',
         email,

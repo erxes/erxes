@@ -113,15 +113,21 @@ export const removeIntegration = async (
   // Remove endpoint
   let integrationRemoveBy;
 
-  const { _id, kind, accountId, erxesApiId } = integration;
+  const { _id, kind, accountId, erxesApiId, nylasAccountId = "", smoochIntegrationId = "" } = integration;
 
   const account = await Accounts.findOne({ _id: accountId });
+
+  if(!account)  {
+    throw new Error("Account not found");
+    
+  }
+  
   const selector = { integrationId: _id };
 
   if (kind.includes('facebook')) {
     debugFacebook('Removing  entries');
 
-    for (const pageId of integration.facebookPageIds) {
+    for (const pageId of integration.facebookPageIds || []) {
       let pageTokenResponse;
 
       try {
@@ -188,7 +194,7 @@ export const removeIntegration = async (
       debugError('Failed to unsubscribe gmail account');
 
       if (e.message.includes('Token has been expired or revoked')) {
-        return;
+        return ""
       }
 
       throw e;
@@ -208,7 +214,7 @@ export const removeIntegration = async (
       conversationId: { $in: conversationIds }
     });
 
-    const { email, nylasAccountId, googleAccessToken } = integration;
+    const { email, googleAccessToken } = integration;
 
     try {
       // Cancel nylas subscription
@@ -308,7 +314,7 @@ export const removeIntegration = async (
 
     try {
       // Cancel nylas subscription
-      await enableOrDisableAccount(integration.nylasAccountId, false);
+      await enableOrDisableAccount(nylasAccountId, false);
     } catch (e) {
       debugError('Failed to cancel subscription of nylas-imap account');
       throw e;
@@ -330,7 +336,7 @@ export const removeIntegration = async (
 
     try {
       // Cancel nylas subscription
-      await enableOrDisableAccount(integration.nylasAccountId, false);
+      await enableOrDisableAccount(nylasAccountId, false);
     } catch (e) {
       debugError('Failed to subscription nylas-office365 account');
       throw e;
@@ -352,7 +358,7 @@ export const removeIntegration = async (
 
     try {
       // Cancel nylas subscription
-      await enableOrDisableAccount(integration.nylasAccountId, false);
+      await enableOrDisableAccount(nylasAccountId, false);
     } catch (e) {
       debugError('Failed to subscription nylas-outlook account');
       throw e;
@@ -374,7 +380,7 @@ export const removeIntegration = async (
 
     try {
       // Cancel nylas subscription
-      await enableOrDisableAccount(integration.nylasAccountId, false);
+      await enableOrDisableAccount(nylasAccountId, false);
     } catch (e) {
       debugError('Failed to subscription nylas-exchange account');
       throw e;
@@ -396,7 +402,7 @@ export const removeIntegration = async (
 
     try {
       // Cancel nylas subscription
-      await enableOrDisableAccount(integration.nylasAccountId, false);
+      await enableOrDisableAccount(nylasAccountId, false);
     } catch (e) {
       debugError('Failed to subscription nylas-yahoo account');
       throw e;
@@ -423,7 +429,7 @@ export const removeIntegration = async (
       selector
     ).distinct('_id');
     try {
-      await smoochApi.removeIntegration(integration.smoochIntegrationId);
+      await smoochApi.removeIntegration(smoochIntegrationId);
     } catch (e) {
       throw e;
     }
@@ -442,7 +448,7 @@ export const removeIntegration = async (
     ).distinct('_id');
 
     try {
-      await smoochApi.removeIntegration(integration.smoochIntegrationId);
+      await smoochApi.removeIntegration(smoochIntegrationId);
     } catch (e) {
       throw e;
     }
@@ -461,7 +467,7 @@ export const removeIntegration = async (
     ).distinct('_id');
 
     try {
-      await smoochApi.removeIntegration(integration.smoochIntegrationId);
+      await smoochApi.removeIntegration(smoochIntegrationId);
     } catch (e) {
       throw e;
     }
@@ -480,7 +486,7 @@ export const removeIntegration = async (
     ).distinct('_id');
 
     try {
-      await smoochApi.removeIntegration(integration.smoochIntegrationId);
+      await smoochApi.removeIntegration(smoochIntegrationId);
     } catch (e) {
       throw e;
     }
@@ -524,7 +530,7 @@ export const removeAccount = async (
     return new Error(`Account not found: ${_id}`);
   }
 
-  const erxesApiIds = [];
+  const erxesApiIds: string[] = [];
 
   const integrations = await Integrations.find({ accountId: account._id });
 
@@ -549,7 +555,11 @@ export const repairIntegrations = async (
 ): Promise<true | Error> => {
   const integration = await Integrations.findOne({ erxesApiId: integrationId });
 
-  for (const pageId of integration.facebookPageIds) {
+  if(!integration) {
+    throw new Error('Integration not found')
+  }
+
+  for (const pageId of integration.facebookPageIds || []) {
     const pageTokens = await refreshPageAccesToken(pageId, integration);
 
     await subscribePage(pageId, pageTokens[pageId]);

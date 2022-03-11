@@ -42,7 +42,7 @@ const loginMiddleware = async (req, res) => {
   const credentials = await getAccessToken(req.query.code);
 
   // get email address connected with
-  const { emailAddress } = await getUserInfo(credentials.access_token);
+  const { emailAddress } = await getUserInfo(credentials.access_token || "");
 
   const account = await Accounts.findOne({ uid: emailAddress });
   const { access_token } = credentials;

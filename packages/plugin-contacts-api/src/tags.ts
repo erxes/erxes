@@ -1,215 +1,150 @@
+import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
+
 import {
   findCompany,
   findCustomer,
-  generateFields,
   getContentItem,
   prepareEngageCustomers
 } from './utils';
 import { serviceDiscovery } from './configs';
-import { generateModels, connectCore } from './connectionResolver';
+import { LOG_MAPPINGS } from './constants';
+import { ICoreIModels, IModels } from './connectionResolver';
 
 export let client;
 
-export const initBroker = cl => {
+export const initBroker = (cl, models: IModels, _coreModels: ICoreIModels) => {
   client = cl;
+
+  const { Customers, Companies } = models;
 
   const { consumeRPCQueue, consumeQueue } = client;
 
-  consumeRPCQueue('contacts:rpc_queue:getCustomerName', async customer => {
-    const { Customers } = await generateModels('os');
-    return {
-      data: await Customers.getCustomerName(customer),
-      status: 'success'
-    };
-  });
+  consumeRPCQueue('contacts:rpc_queue:getCustomerName', async customer => ({
+    data: await Customers.getCustomerName(customer),
+    status: 'success'
+  }));
 
-  consumeRPCQueue('contacts:rpc_queue:findCustomer', async doc => {
-    const models = await generateModels('os');
-    return {
-      status: 'success',
-      data: await findCustomer(models, doc)
-    };
-  });
+  consumeRPCQueue('contacts:rpc_queue:findCustomer', async doc => ({
+    status: 'success',
+    data: await findCustomer(models, doc)
+  }));
 
-  consumeRPCQueue('contacts:rpc_queue:findCompany', async doc => {
-    const models = await generateModels('os');
-    return {
-      status: 'success',
-      data: await findCompany(models, doc)
-    };
-  });
+  consumeRPCQueue('contacts:rpc_queue:findCompany', async doc => ({
+    status: 'success',
+    data: await findCompany(models, doc)
+  }));
 
-  consumeRPCQueue('contacts:rpc_queue:getCustomers', async doc => {
-    const { Customers } = await generateModels('os');
-    return {
-      status: 'success',
-      data: await Customers.find(doc)
-    };
-  });
+  consumeRPCQueue('contacts:rpc_queue:getCustomers', async doc => ({
+    status: 'success',
+    data: await Customers.find(doc)
+  }));
 
-  consumeRPCQueue('contacts:rpc_queue:getCustomerIds', async selector => {
-    const { Customers } = await generateModels('os');
-    return {
-      status: 'success',
-      data: await Customers.find(selector).distinct('_id')
-    };
-  });
+  consumeRPCQueue('contacts:rpc_queue:getCustomerIds', async selector => ({
+    status: 'success',
+    data: await Customers.find(selector).distinct('_id')
+  }));
 
   consumeRPCQueue(
     'contacts:rpc_queue:findActiveCustomers',
-    async ({ selector, fields }) => {
-      const { Customers } = await generateModels('os');
-      return {
-        status: 'success',
-        data: await Customers.findActiveCustomers(selector, fields)
-      };
-    }
+    async ({ selector, fields }) => ({
+      status: 'success',
+      data: await Customers.findActiveCustomers(selector, fields)
+    })
   );
 
   consumeRPCQueue(
     'contacts:Customers.findOne',
-    async ({ selector, fields }) => {
-      const { Customers } = await generateModels('os');
-      return {
-        status: 'success',
-        data: await Customers.findOne(selector, fields).lean()
-      };
-    }
+    async ({ selector, fields }) => ({
+      status: 'success',
+      data: await Customers.findOne(selector, fields).lean()
+    })
   );
 
   consumeRPCQueue(
     'contacts:rpc_queue:findActiveCompanies',
-    async ({ selector, fields }) => {
-      const { Companies } = await generateModels('os');
-      return {
-        status: 'success',
-        data: await Companies.findActiveCompanies(selector, fields)
-      };
-    }
+    async ({ selector, fields }) => ({
+      status: 'success',
+      data: await Companies.findActiveCompanies(selector, fields)
+    })
   );
 
-  consumeRPCQueue('contacts:rpc_queue:create_customer', async data => {
-    const { Customers } = await generateModels('os');
-    return {
-      status: 'success',
-      data: await Customers.createCustomer(data)
-    };
-  });
+  consumeRPCQueue('contacts:rpc_queue:create_customer', async data => ({
+    status: 'success',
+    data: await Customers.createCustomer(data)
+  }));
 
-  consumeRPCQueue('contacts:rpc_queue:createCompany', async data => {
-    const { Companies } = await generateModels('os');
-    return {
-      status: 'success',
-      data: await Companies.createCompany(data)
-    };
-  });
+  consumeRPCQueue('contacts:rpc_queue:createCompany', async data => ({
+    status: 'success',
+    data: await Companies.createCompany(data)
+  }));
 
-  consumeRPCQueue('contacts:rpc_queue:updateCustomer', async ({ _id, doc }) => {
-    const { Customers } = await generateModels('os');
-    return {
+  consumeRPCQueue(
+    'contacts:rpc_queue:updateCustomer',
+    async ({ _id, doc }) => ({
       status: 'success',
       data: await Customers.updateCustomer(_id, doc)
-    };
-  });
+    })
+  );
 
   consumeRPCQueue(
     'contacts:rpc_queue:updateCustomerCommon',
-    async ({ selector, modifier }) => {
-      const { Customers } = await generateModels('os');
-      return {
-        status: 'success',
-        data: await Customers.updateOne(selector, modifier)
-      };
-    }
+    async ({ selector, modifier }) => ({
+      status: 'success',
+      data: await Customers.updateOne(selector, modifier)
+    })
   );
 
-  consumeQueue('contacts:removeCustomers', async doc => {
-    const { Customers } = await generateModels('os');
-    return {
-      status: 'success',
-      data: await Customers.removeCustomers(doc)
-    };
-  });
+  consumeQueue('contacts:removeCustomers', async doc => ({
+    status: 'success',
+    data: await Customers.removeCustomers(doc)
+  }));
 
-  consumeRPCQueue('contacts:rpc_queue:updateCompany', async ({ _id, doc }) => {
-    const { Companies } = await generateModels('os');
-    return {
-      status: 'success',
-      data: await Companies.updateCompany(_id, doc)
-    };
-  });
+  consumeRPCQueue('contacts:rpc_queue:updateCompany', async ({ _id, doc }) => ({
+    status: 'success',
+    data: await Companies.updateCompany(_id, doc)
+  }));
 
   consumeRPCQueue(
     'contacts:rpc_queue:updateCompanyCommon',
-    async ({ selector, modifier }) => {
-      const { Companies } = await generateModels('os');
-      return {
-        status: 'success',
-        data: await Companies.updateOne(selector, modifier)
-      };
-    }
+    async ({ selector, modifier }) => ({
+      status: 'success',
+      data: await Companies.updateOne(selector, modifier)
+    })
   );
 
-  consumeRPCQueue('contacts:rpc_queue:getWidgetCustomer', async data => {
-    const { Customers } = await generateModels('os');
-    return {
-      status: 'success',
-      data: await Customers.getWidgetCustomer(data)
-    };
-  });
+  consumeRPCQueue('contacts:rpc_queue:getWidgetCustomer', async data => ({
+    status: 'success',
+    data: await Customers.getWidgetCustomer(data)
+  }));
 
-  consumeRPCQueue('contacts:rpc_queue:updateMessengerCustomer', async data => {
-    const { Customers } = await generateModels('os');
-    return {
-      status: 'success',
-      data: await Customers.updateMessengerCustomer(data)
-    };
-  });
+  consumeRPCQueue('contacts:rpc_queue:updateMessengerCustomer', async data => ({
+    status: 'success',
+    data: await Customers.updateMessengerCustomer(data)
+  }));
 
-  consumeRPCQueue('contacts:rpc_queue:createMessengerCustomer', async data => {
-    const { Customers } = await generateModels('os');
-    return {
-      status: 'success',
-      data: await Customers.createMessengerCustomer(data)
-    };
-  });
+  consumeRPCQueue('contacts:rpc_queue:createMessengerCustomer', async data => ({
+    status: 'success',
+    data: await Customers.createMessengerCustomer(data)
+  }));
 
-  consumeRPCQueue('contacts:rpc_queue:saveVisitorContactInfo', async data => {
-    const { Customers } = await generateModels('os');
-    return {
-      status: 'success',
-      data: await Customers.saveVisitorContactInfo(data)
-    };
-  });
+  consumeRPCQueue('contacts:rpc_queue:saveVisitorContactInfo', async data => ({
+    status: 'success',
+    data: await Customers.saveVisitorContactInfo(data)
+  }));
 
-  consumeQueue(
-    'contacts:updateLocation',
-    async ({ customerId, browserInfo }) => {
-      const { Customers } = await generateModels('os');
-      Customers.updateLocation(customerId, browserInfo);
-    }
+  consumeQueue('contacts:updateLocation', ({ customerId, browserInfo }) =>
+    Customers.updateLocation(customerId, browserInfo)
   );
 
-  consumeQueue('contacts:updateSession', async ({ customerId }) => {
-    const { Customers } = await generateModels('os');
-    Customers.updateSession(customerId);
-  });
-
-  consumeRPCQueue('contacts:rpc_queue:getFields', async args => {
-    const models = await generateModels('os');
-    return {
-      status: 'success',
-      data: await generateFields(models, args)
-    };
-  });
+  consumeQueue('contacts:updateSession', ({ customerId }) =>
+    Customers.updateSession(customerId)
+  );
 
   consumeRPCQueue('contacts:getCustomerName', async customer => {
-    const { Customers } = await generateModels('os');
     return { data: Customers.getCustomerName(customer), status: 'success' };
   });
 
   consumeRPCQueue('contacts:rpc_queue:getContentItem', async data => {
-    const models = await generateModels('os');
     return {
       status: 'success',
       data: await getContentItem(models, data)
@@ -217,7 +152,6 @@ export const initBroker = cl => {
   });
 
   consumeRPCQueue('contacts:rpc_queue:prepareEngageCustomers', async data => {
-    const models = await generateModels('os');
     return {
       status: 'success',
       data: await prepareEngageCustomers(models, data)
@@ -225,8 +159,6 @@ export const initBroker = cl => {
   });
 
   consumeRPCQueue('contacts:rpc_queue:tag', async args => {
-    const { Companies, Customers } = await generateModels('os');
-
     let data = {};
     let model: any = Companies;
 
@@ -259,8 +191,6 @@ export const initBroker = cl => {
     async args => {
       const { contentTypeId, notifDoc, type } = args;
 
-      const { Customers, Companies } = await generateModels('os');
-
       let model: any = Customers;
       let link = `/contacts/details/`;
 
@@ -287,6 +217,14 @@ export const initBroker = cl => {
         data: notifDoc
       };
     }
+  );
+
+  consumeRPCQueue(
+    'contacts:rpc_queue:logs:getSchemaLabels',
+    async ({ type }) => ({
+      status: 'success',
+      data: getSchemaLabels(type, LOG_MAPPINGS)
+    })
   );
 };
 
@@ -330,10 +268,8 @@ export const sendEngageMessage = async (action, data): Promise<any> => {
   return client.sendRPCMessage(`engages:rpc_queue:${action}`, data);
 };
 
-export const prepareCustomFieldsData = async (doc): Promise<any> => {
-  return client.sendRPCMessage('fields:rpc_queue:prepareCustomFieldsData', {
-    doc
-  });
+export const prepareCustomFieldsData = async (data): Promise<any> => {
+  return client.sendRPCMessage('forms:rpc_queue:prepareCustomFieldsData', data);
 };
 
 export const generateCustomFieldsData = async (doc): Promise<any> => {

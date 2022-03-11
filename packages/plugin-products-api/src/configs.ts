@@ -3,10 +3,11 @@ import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
-import apiConnect from './apiCollections';
 import { generateAllDataLoaders } from './dataloaders';
+import { coreModels, generateModels, models } from './connectionResolver';
 
 export let debug;
+export let mainDb;
 
 export default {
   name: 'products',
@@ -17,11 +18,16 @@ export default {
     }
   },
   apolloServerContext: context => {
-    context.dataLoaders = generateAllDataLoaders();
+    context.models = models;
+    context.coreModels = coreModels;
+    context.dataLoaders = generateAllDataLoaders(models);
+
     return context;
   },
   onServerInit: async options => {
-    await apiConnect();
+    mainDb = options.db;
+
+    await generateModels('os')
 
     initBroker(options.messageBrokerClient);
 

@@ -45,7 +45,7 @@ export const generateModels = async (
 };
 
 export const connectCore = async () => {
-  if(coreModels) return coreModels;
+  if(coreModels) { return coreModels; }
 
   const url = process.env.API_MONGO_URL || 'mongodb://localhost/erxes';
   const client = new MongoClient(url);
