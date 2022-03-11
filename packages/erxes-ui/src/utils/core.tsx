@@ -153,7 +153,8 @@ export const isEnabled = (service: string) => {
   const enabledServices = JSON.parse(
     localStorage.getItem("enabledServices") || "{}"
   );
-
+  
+    console.log(localStorage.getItem("enabledServices"))
   return enabledServices[service];
 };
 

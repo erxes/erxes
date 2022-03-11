@@ -32,6 +32,7 @@ import {
   MailSubject
 } from './styles';
 import TypingIndicator from './TypingIndicator';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const Participators = asyncComponent(
   () => import(/* webpackChunkName:"Inbox-Participators" */ '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators'),
@@ -205,7 +206,9 @@ export default class WorkArea extends React.Component<Props, State> {
 
     const actionBarRight = (
       <BarItems>
-        <Tagger targets={[currentConversation]} trigger={tagTrigger} />
+        {isEnabled("tags") &&
+          <Tagger targets={[currentConversation]} trigger={tagTrigger} />
+        }
 
         <ConvertTo
           conversation={currentConversation}

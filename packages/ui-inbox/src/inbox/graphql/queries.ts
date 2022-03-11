@@ -1,6 +1,7 @@
 import { queries as customerQueries } from '@erxes/ui/src/customers/graphql';
 import conversationFields from './conversationFields';
 import messageFields from './messageFields';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 export const paramsDef = `
   $channelId: String
@@ -80,6 +81,9 @@ const sidebarConversations = `
           name
         }
       }
+      ${
+        isEnabled("contacts")
+          ? `
       customer {
         _id
         firstName
@@ -91,11 +95,20 @@ const sidebarConversations = `
         avatar
         visitorContactInfo
       }
+      `
+          : ``
+      }
       tagIds
+      ${
+        isEnabled("tags")
+          ? `
       tags {
         _id
         name
         colorCode
+      }
+      `
+          : ``
       }
       readUserIds
     }
@@ -308,6 +321,9 @@ const generateCustomerDetailQuery = params => {
   if (showCompanies) {
     fields = `
       ${fields}
+      ${
+        isEnabled("contacts")
+          ? `
       companies {
         _id
         primaryName
@@ -320,6 +336,9 @@ const generateCustomerDetailQuery = params => {
           lastName
           primaryEmail
         }
+      }
+      `
+          : ``
       }
     `;
   }
@@ -372,6 +391,9 @@ const integrationsConversationFbComments = `
       commentCount
       isResolved
       permalink_url
+      ${
+        isEnabled("contacts")
+          ? `
       customer {
         _id
         visitorContactInfo
@@ -379,6 +401,8 @@ const integrationsConversationFbComments = `
         firstName
         lastName
         middleName
+      }`
+          : ``
       }
     }
   }
