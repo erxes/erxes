@@ -4,7 +4,7 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
-import { coreModels, generateModels, models } from './connectionResolver';
+import { generateModels, models } from './connectionResolver';
 
 export let debug;
 export let mainDb;
@@ -26,7 +26,6 @@ export default {
   },
   apolloServerContext: (context) => {
     context.models = models;
-    context.coreModels = coreModels;
   },
   onServerInit: async (options) => {
     mainDb = options.db;
