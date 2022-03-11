@@ -5,7 +5,7 @@ import TagFilter from "../../containers/filters/TagFilter";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 
 function Sidebar({ loadingMainQuery }: { loadingMainQuery: boolean }) {
-  if (isEnabled("segments") || isEnabled("tags")) {
+  if (isEnabled("segments" || "tags")) {
     return (
       <Wrapper.Sidebar>
         {isEnabled("segments") && (
