@@ -9,7 +9,7 @@ export default {
   },
 
   integration(customer: ICustomerDocument) {
-    if (!customer.integrationId) return null;
+    if (!customer.integrationId) { return null; }
     return { __typename: "Integration", _id: customer.integrationId };
   },
 
