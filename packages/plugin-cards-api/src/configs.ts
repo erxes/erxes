@@ -12,6 +12,7 @@ import { buildFile } from './exporter';
 import segments from './segments';
 import forms from './forms';
 import logsConsumers from './logsConsumers';
+import imports from './imports';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -37,13 +38,14 @@ export default {
     };
   },
   hasSubscriptions: true,
-  importTypes: IMPORT_TYPES,
-  exportTypes: EXPORT_TYPES,
+
   meta: {
     forms,
     logs: { providesActivityLog: true, consumers: logsConsumers },
-    segments
+    segments,
+    imports
   },
+
   apolloServerContext: context => {
     return context;
   },
