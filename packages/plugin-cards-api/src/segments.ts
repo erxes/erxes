@@ -1,3 +1,4 @@
+import { generateModels } from './connectionResolver';
 import { generateConditionStageIds } from './utils';
 
 export default {
@@ -17,10 +18,12 @@ export default {
     company: 'Company'
   },
 
-  propertyConditionExtender: async ({ condition }) => {
+  propertyConditionExtender: async ({ subdomain, data: { condition } }) => {
+    const models = await generateModels(subdomain);
+
     let positive;
 
-    const stageIds = await generateConditionStageIds({
+    const stageIds = await generateConditionStageIds(models, {
       boardId: condition.boardId,
       pipelineId: condition.pipelineId
     });
@@ -52,10 +55,12 @@ export default {
     return { data: { typesMap: {} }, status: 'success' };
   },
 
-  initialSelector: async ({ segment, options }) => {
+  initialSelector: async ({ subdomain, data: { segment, options } }) => {
+    const models = await generateModels(subdomain);
+
     let positive;
 
-    const stageIds = await generateConditionStageIds({
+    const stageIds = await generateConditionStageIds(models, {
       boardId: segment.boardId,
       pipelineId: segment.pipelineId,
       options

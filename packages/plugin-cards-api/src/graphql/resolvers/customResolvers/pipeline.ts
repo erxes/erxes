@@ -1,10 +1,9 @@
-import { Deals, GrowthHacks, Tasks, Tickets } from '../../../models';
+import { IContext } from '../../../connectionResolver';
 import { IPipelineDocument } from '../../../models/definitions/boards';
 import {
   BOARD_TYPES,
   PIPELINE_VISIBLITIES
 } from '../../../models/definitions/constants';
-import { IContext } from '@erxes/api-utils/src';
 import {
   generateDealCommonFilters,
   generateGrowthHackCommonFilters,
@@ -57,36 +56,36 @@ export default {
   async itemsTotalCount(
     pipeline: IPipelineDocument,
     _args,
-    { user }: IContext
+    { user, models }: IContext
   ) {
     switch (pipeline.type) {
       case BOARD_TYPES.DEAL: {
-        const filter = await generateDealCommonFilters(user._id, {
+        const filter = await generateDealCommonFilters(models, user._id, {
           pipelineId: pipeline._id
         });
 
-        return Deals.find(filter).countDocuments();
+        return models.Deals.find(filter).countDocuments();
       }
       case BOARD_TYPES.TICKET: {
-        const filter = await generateTicketCommonFilters(user._id, {
+        const filter = await generateTicketCommonFilters(models, user._id, {
           pipelineId: pipeline._id
         });
 
-        return Tickets.find(filter).countDocuments();
+        return models.Tickets.find(filter).countDocuments();
       }
       case BOARD_TYPES.TASK: {
-        const filter = await generateTaskCommonFilters(user._id, {
+        const filter = await generateTaskCommonFilters(models, user._id, {
           pipelineId: pipeline._id
         });
 
-        return Tasks.find(filter).countDocuments();
+        return models.Tasks.find(filter).countDocuments();
       }
       case BOARD_TYPES.GROWTH_HACK: {
-        const filter = await generateGrowthHackCommonFilters(user._id, {
+        const filter = await generateGrowthHackCommonFilters(models, user._id, {
           pipelineId: pipeline._id
         });
 
-        return GrowthHacks.find(filter).countDocuments();
+        return models.GrowthHacks.find(filter).countDocuments();
       }
     }
   }

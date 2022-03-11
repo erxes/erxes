@@ -1,38 +1,31 @@
-import {
-  sendConformityMessage,
-  sendContactRPCMessage,
-  sendNotificationMessage,
-} from '../../../messageBroker';
-import { PipelineLabels, Pipelines, Stages } from '../../../models';
+import { IContext } from '../../../connectionResolver';
+import { sendContactsMessage, sendCoreMessage, sendNotificationsMessage } from '../../../messageBroker';
 import { ITicketDocument } from '../../../models/definitions/tickets';
-import { IContext } from '@erxes/api-utils/src';
 import { boardId } from '../../utils';
 
 export default {
   async companies(ticket: ITicketDocument) {
-    const companyIds = await sendConformityMessage('savedConformity', {
+    const companyIds = await sendCoreMessage('savedConformity', {
       mainType: 'ticket',
       mainTypeId: ticket._id,
       relTypes: ['company']
-    });
+    }, true, []);
 
-    const companies = await sendContactRPCMessage('findActiveCompanies', {
-      selector: { _id: { $in: companyIds } }
-    });
+    const companies = await sendCoreMessage('findActiveCompanies', { _id: { $in: companyIds } }, true, []);
 
     return (companies || []).map(({ _id }) => ({ __typename: "Company", _id }));
   },
 
   async customers(ticket: ITicketDocument) {
-    const customerIds = await sendConformityMessage('savedConformity', {
+    const customerIds = await sendCoreMessage('savedConformity', {
       mainType: 'ticket',
       mainTypeId: ticket._id,
       relTypes: ['customer']
-    });
+    }, true, []);
 
-    const customers = await sendContactRPCMessage('findActiveCustomers', {
-      selector: { _id: { $in: customerIds } }
-    });
+    const customers = await sendContactsMessage('findActiveCustomers', {
+      _id: { $in: customerIds }
+    }, true, []);
 
     return (customers || []).map(({ _id }) => ({ __typename: "Customer", _id }));
   },
@@ -41,17 +34,17 @@ export default {
     return (ticket.assignedUserIds || []).map(_id => ({ __typename: "User", _id }));
   },
 
-  async pipeline(ticket: ITicketDocument) {
+  async pipeline(ticket: ITicketDocument, _args, { models: { Stages, Pipelines } }: IContext) {
     const stage = await Stages.getStage(ticket.stageId);
 
     return Pipelines.findOne({ _id: stage.pipelineId });
   },
 
-  boardId(ticket: ITicketDocument) {
-    return boardId(ticket);
+  boardId(ticket: ITicketDocument, { models }: IContext) {
+    return boardId(models, ticket);
   },
 
-  stage(ticket: ITicketDocument) {
+  stage(ticket: ITicketDocument, _args, { models: { Stages } }: IContext) {
     return Stages.getStage(ticket.stageId);
   },
 
@@ -66,13 +59,13 @@ export default {
   },
 
   hasNotified(ticket: ITicketDocument, _args, { user }: IContext) {
-    return sendNotificationMessage('checkIfRead', {
+    return sendNotificationsMessage('checkIfRead', {
       userId: user._id,
       itemId: ticket._id
     }, true, true);
   },
 
-  labels(ticket: ITicketDocument) {
+  labels(ticket: ITicketDocument, _args, { models: { PipelineLabels } }: IContext) {
     return PipelineLabels.find({ _id: { $in: ticket.labelIds || [] } });
   },
 

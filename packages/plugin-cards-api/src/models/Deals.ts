@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import {
   destroyBoardItemRelations,
   fillSearchTextItem,
@@ -16,10 +16,10 @@ export interface IDealModel extends Model<IDealDocument> {
   removeDeals(_ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
-export const loadDealClass = () => {
+export const loadDealClass = (models) => {
   class Deal {
     public static async getDeal(_id: string) {
-      const deal = await Deals.findOne({ _id });
+      const deal = await models.Deals.findOne({ _id });
 
       if (!deal) {
         throw new Error('Deal not found');
@@ -33,7 +33,7 @@ export const loadDealClass = () => {
      */
     public static async createDeal(doc: IDeal) {
       if (doc.sourceConversationIds) {
-        const convertedDeal = await Deals.findOne({
+        const convertedDeal = await models.Deals.findOne({
           sourceConversationIds: { $in: doc.sourceConversationIds }
         });
 
@@ -42,34 +42,34 @@ export const loadDealClass = () => {
         }
       }
 
-      return createBoardItem(doc, 'deal');
+      return createBoardItem(models, doc, 'deal');
     }
 
     /**
      * Update Deal
      */
     public static async updateDeal(_id: string, doc: IDeal) {
-      const searchText = fillSearchTextItem(doc, await Deals.getDeal(_id));
+      const searchText = fillSearchTextItem(doc, await models.Deals.getDeal(_id));
 
-      await Deals.updateOne({ _id }, { $set: doc, searchText });
+      await models.Deals.updateOne({ _id }, { $set: doc, searchText });
 
-      return Deals.findOne({ _id });
+      return models.Deals.findOne({ _id });
     }
 
     /**
      * Watch deal
      */
     public static watchDeal(_id: string, isAdd: boolean, userId: string) {
-      return watchItem(Deals, _id, isAdd, userId);
+      return watchItem(models.Deals, _id, isAdd, userId);
     }
 
     public static async removeDeals(_ids: string[]) {
       // completely remove all related things
       for (const _id of _ids) {
-        await destroyBoardItemRelations(_id, ACTIVITY_CONTENT_TYPES.DEAL);
+        await destroyBoardItemRelations(models, _id, ACTIVITY_CONTENT_TYPES.DEAL);
       }
 
-      return Deals.deleteMany({ _id: { $in: _ids } });
+      return models.Deals.deleteMany({ _id: { $in: _ids } });
     }
   } // end Deal class
 
@@ -77,10 +77,3 @@ export const loadDealClass = () => {
 
   return dealSchema;
 };
-
-loadDealClass();
-
-// tslint:disable-next-line
-const Deals = model<IDealDocument, IDealModel>('deals', dealSchema);
-
-export default Deals;

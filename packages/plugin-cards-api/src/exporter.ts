@@ -7,10 +7,9 @@ import {
 } from '@erxes/api-utils/src/exporter';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import * as moment from 'moment';
-import { Fields, Users } from './apiCollections';
+import { ICoreIModels, IModels } from './connectionResolver';
 import { BOARD_BASIC_INFOS, MODULE_NAMES } from './constants';
-import { fetchSegment } from './messageBroker';
-import { Deals, PipelineLabels, Stages, Tasks, Tickets } from './models';
+import { fetchSegment, sendFormsMessage } from './messageBroker';
 import {
   commonItemFieldsSchema,
   IStageDocument
@@ -52,7 +51,7 @@ const getCellValue = (item, colName) => {
   }
 };
 
-const fillCellValue = async (colName: string, item: any): Promise<string> => {
+const fillCellValue = async (models: IModels, coreModels: ICoreIModels, colName: string, item: any): Promise<string> => {
   const emptyMsg = '-';
 
   if (!item) {
@@ -73,7 +72,7 @@ const fillCellValue = async (colName: string, item: any): Promise<string> => {
 
       break;
     case 'userId':
-      const createdUser: IUserDocument | null = await Users.findOne({
+      const createdUser: IUserDocument | null = await coreModels.Users.findOne({
         _id: item.userId
       });
 
@@ -82,7 +81,7 @@ const fillCellValue = async (colName: string, item: any): Promise<string> => {
       break;
     // deal, task, ticket fields
     case 'assignedUserIds':
-      const assignedUsers: IUserDocument[] = await Users.find({
+      const assignedUsers: IUserDocument[] = await coreModels.Users.find({
         _id: { $in: item.assignedUserIds }
       });
 
@@ -93,7 +92,7 @@ const fillCellValue = async (colName: string, item: any): Promise<string> => {
       break;
 
     case 'watchedUserIds':
-      const watchedUsers: IUserDocument[] = await Users.find({
+      const watchedUsers: IUserDocument[] = await coreModels.Users.find({
         _id: { $in: item.watchedUserIds }
       });
 
@@ -104,7 +103,7 @@ const fillCellValue = async (colName: string, item: any): Promise<string> => {
       break;
 
     case 'labelIds':
-      const labels: IPipelineLabelDocument[] = await PipelineLabels.find({
+      const labels: IPipelineLabelDocument[] = await models.PipelineLabels.find({
         _id: { $in: item.labelIds }
       });
 
@@ -112,7 +111,7 @@ const fillCellValue = async (colName: string, item: any): Promise<string> => {
 
       break;
     case 'stageId':
-      const stage: IStageDocument | null = await Stages.findOne({
+      const stage: IStageDocument | null = await models.Stages.findOne({
         _id: item.stageId
       });
 
@@ -121,7 +120,7 @@ const fillCellValue = async (colName: string, item: any): Promise<string> => {
       break;
 
     case 'initialStageId':
-      const initialStage: IStageDocument | null = await Stages.findOne({
+      const initialStage: IStageDocument | null = await models.Stages.findOne({
         _id: item.initialStageId
       });
 
@@ -130,7 +129,7 @@ const fillCellValue = async (colName: string, item: any): Promise<string> => {
       break;
 
     case 'modifiedBy':
-      const modifiedBy: IUserDocument | null = await Users.findOne({
+      const modifiedBy: IUserDocument | null = await coreModels.Users.findOne({
         _id: item.modifiedBy
       });
 
@@ -145,7 +144,7 @@ const fillCellValue = async (colName: string, item: any): Promise<string> => {
   return cellValue || emptyMsg;
 };
 
-const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
+const prepareData = async (models: IModels, query: any, user: IUserDocument): Promise<any[]> => {
   const { type, segment } = query;
 
   let data: any[] = [];
@@ -160,15 +159,15 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
 
   switch (type) {
     case MODULE_NAMES.DEAL:
-      data = await Deals.find(boardItemsFilter);
+      data = await models.Deals.find(boardItemsFilter);
 
       break;
     case MODULE_NAMES.TASK:
-      data = await Tasks.find(boardItemsFilter);
+      data = await models.Tasks.find(boardItemsFilter);
 
       break;
     case MODULE_NAMES.TICKET:
-      data = await Tickets.find(boardItemsFilter);
+      data = await models.Tickets.find(boardItemsFilter);
       break;
   }
 
@@ -197,13 +196,15 @@ const addCell = (
 };
 
 export const buildFile = async (
+  models: IModels,
+  coreModels: ICoreIModels,
   query: any,
   user: IUserDocument
 ): Promise<{ name: string; response: string }> => {
   const { configs } = query;
   const type = query.type;
 
-  const data = await prepareData(query, user);
+  const data = await prepareData(models, query, user);
 
   // Reads default template
   const { workbook, sheet } = await createXlsFile();
@@ -223,7 +224,7 @@ export const buildFile = async (
     for (const column of headers) {
       if (column.name.startsWith('customFieldsData')) {
         const { field, value } = await getCustomFieldsData(
-          Fields,
+          (selector) => sendFormsMessage('fields:findOne', selector, true),
           item,
           column,
           type
@@ -239,7 +240,7 @@ export const buildFile = async (
           );
         }
       } else {
-        const cellValue = await fillCellValue(column.name, item);
+        const cellValue = await fillCellValue(models, coreModels, column.name, item);
 
         addCell(column, cellValue, sheet, columnNames, rowIndex);
       }

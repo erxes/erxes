@@ -1,10 +1,11 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { fillSearchTextItem, createBoardItem, watchItem } from './utils';
 import {
   growthHackSchema,
   IGrowthHack,
   IGrowthHackDocument
 } from './definitions/growthHacks';
+import { IModels } from '../connectionResolver';
 
 export interface IGrowthHackModel extends Model<IGrowthHackDocument> {
   getGrowthHack(_id: string): Promise<IGrowthHackDocument>;
@@ -18,10 +19,10 @@ export interface IGrowthHackModel extends Model<IGrowthHackDocument> {
   ): Promise<IGrowthHackDocument>;
 }
 
-export const loadGrowthHackClass = () => {
+export const loadGrowthHackClass = (models: IModels) => {
   class GrowthHack {
     public static async getGrowthHack(_id: string) {
-      const growthHack = await GrowthHacks.findOne({ _id });
+      const growthHack = await models.GrowthHacks.findOne({ _id });
 
       if (!growthHack) {
         throw new Error('Growth hack not found');
@@ -34,7 +35,7 @@ export const loadGrowthHackClass = () => {
      * Create a growth hack
      */
     public static async createGrowthHack(doc: IGrowthHack) {
-      return createBoardItem(doc, 'growthHack');
+      return createBoardItem(models, doc, 'growthHack');
     }
 
     /**
@@ -43,19 +44,19 @@ export const loadGrowthHackClass = () => {
     public static async updateGrowthHack(_id: string, doc: IGrowthHack) {
       const searchText = fillSearchTextItem(
         doc,
-        await GrowthHacks.getGrowthHack(_id)
+        await models.GrowthHacks.getGrowthHack(_id)
       );
 
-      await GrowthHacks.updateOne({ _id }, { $set: doc, searchText });
+      await models.GrowthHacks.updateOne({ _id }, { $set: doc, searchText });
 
-      return GrowthHacks.findOne({ _id });
+      return models.GrowthHacks.findOne({ _id });
     }
 
     /**
      * Watch growth hack
      */
     public static watchGrowthHack(_id: string, isAdd: boolean, userId: string) {
-      return watchItem(GrowthHacks, _id, isAdd, userId);
+      return watchItem(models.GrowthHacks, _id, isAdd, userId);
     }
 
     /**
@@ -83,9 +84,9 @@ export const loadGrowthHackClass = () => {
 
       const doc = { votedUserIds, voteCount };
 
-      await GrowthHacks.updateOne({ _id }, { $set: doc });
+      await models.GrowthHacks.updateOne({ _id }, { $set: doc });
 
-      return GrowthHacks.findOne({ _id });
+      return models.GrowthHacks.findOne({ _id });
     }
   }
 
@@ -93,13 +94,3 @@ export const loadGrowthHackClass = () => {
 
   return growthHackSchema;
 };
-
-loadGrowthHackClass();
-
-// tslint:disable-next-line
-const GrowthHacks = model<IGrowthHackDocument, IGrowthHackModel>(
-  'growth_hacks',
-  growthHackSchema
-);
-
-export default GrowthHacks;

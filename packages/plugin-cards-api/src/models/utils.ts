@@ -1,27 +1,12 @@
-import {
-  Boards,
-  Checklists,
-  Deals,
-  GrowthHacks,
-  Pipelines,
-  Stages,
-  Tasks,
-  Tickets
-} from '.';
 import { validSearchText } from '@erxes/api-utils/src';
 import { IItemCommonFields, IOrderInput } from './definitions/boards';
 import { BOARD_STATUSES, BOARD_TYPES } from './definitions/constants';
 
-import { InternalNotes } from '../apiCollections';
-import {
-  sendConformityMessage,
-  sendInboxRPCMessage,
-  sendProductRPCMessage,
-  sendConfigRPCMessage
-} from '../messageBroker';
 import { configReplacer } from '../utils';
 import { putActivityLog } from '../logUtils';
 import { itemsAdd } from '../graphql/resolvers/mutations/utils';
+import { IModels } from '../connectionResolver';
+import { sendCoreMessage, sendInboxMessage, sendInternalNotesMessage, sendProductsMessage } from '../messageBroker';
 
 interface ISetOrderParam {
   collection: any;
@@ -201,11 +186,13 @@ export const fillSearchTextItem = (
   return validSearchText([document.name || '', document.description || '']);
 };
 
-export const getCollection = (type: string) => {
+export const getCollection = (models: IModels, type: string) => {
   let collection;
   let create;
   let update;
   let remove;
+
+  const { Deals, GrowthHacks, Tasks, Tickets } = models;
 
   switch (type) {
     case BOARD_TYPES.DEAL: {
@@ -242,8 +229,8 @@ export const getCollection = (type: string) => {
   return { collection, create, update, remove };
 };
 
-export const getItem = async (type: string, doc: any) => {
-  const item = await getCollection(type).collection.findOne({ ...doc });
+export const getItem = async (models: IModels, type: string, doc: any) => {
+  const item = await getCollection(models, type).collection.findOne({ ...doc });
 
   if (!item) {
     throw new Error(`${type} not found`);
@@ -256,11 +243,11 @@ export const getCompanyIds = async (
   mainType: string,
   mainTypeId: string
 ): Promise<string[]> => {
-  const conformities = await sendConformityMessage('find', {
+  const conformities = await sendCoreMessage('findConformities', {
     mainType,
     mainTypeId,
     relType: 'company'
-  });
+  }, true, []);
 
   return conformities.map(c => c.relTypeId);
 };
@@ -269,17 +256,18 @@ export const getCustomerIds = async (
   mainType: string,
   mainTypeId: string
 ): Promise<string[]> => {
-  const conformities = await sendConformityMessage('find', {
+  const conformities = await sendCoreMessage('findConformities', {
     mainType,
     mainTypeId,
     relType: 'customer'
-  });
+  }, true, []);
 
   return conformities.map(c => c.relTypeId);
 };
 
 // Removes all board item related things
 export const destroyBoardItemRelations = async (
+  models: IModels,
   contentTypeId: string,
   contentType: string
 ) => {
@@ -288,21 +276,21 @@ export const destroyBoardItemRelations = async (
     data: { contentTypeId }
   });
 
-  await Checklists.removeChecklists(contentType, [contentTypeId]);
+  await models.Checklists.removeChecklists(contentType, [contentTypeId]);
 
-  sendConformityMessage('removeConformity', {
+  sendCoreMessage('removeConformity', {
     mainType: contentType,
     mainTypeId: contentTypeId
   });
 
-  await InternalNotes.deleteMany({ contentType, contentTypeId });
+  return sendInternalNotesMessage('deleteMany', { contentType, contentTypeId });
 };
 
 // Get board item link
-export const getBoardItemLink = async (stageId: string, itemId: string) => {
-  const stage = await Stages.getStage(stageId);
-  const pipeline = await Pipelines.getPipeline(stage.pipelineId);
-  const board = await Boards.getBoard(pipeline.boardId);
+export const getBoardItemLink = async (models: IModels, stageId: string, itemId: string) => {
+  const stage = await models.Stages.getStage(stageId);
+  const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+  const board = await models.Boards.getBoard(pipeline.boardId);
 
   return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${itemId}`;
 };
@@ -327,6 +315,7 @@ const numberCalculator = (size: number, num?: any, skip?: boolean) => {
 };
 
 export const boardNumberGenerator = async (
+  models: IModels,
   config: string,
   size: string,
   skip: boolean,
@@ -338,7 +327,7 @@ export const boardNumberGenerator = async (
   let number;
 
   if (!skip) {
-    const pipeline = await Pipelines.findOne({
+    const pipeline = await models.Pipelines.findOne({
       lastNum: new RegExp(re),
       type
     });
@@ -362,14 +351,15 @@ export const boardNumberGenerator = async (
   return number;
 };
 
-export const generateBoardNumber = async (doc: IItemCommonFields) => {
-  const stage = await Stages.getStage(doc.stageId);
-  const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+export const generateBoardNumber = async (models: IModels, doc: IItemCommonFields) => {
+  const stage = await models.Stages.getStage(doc.stageId);
+  const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
   if (pipeline.numberSize) {
     const { numberSize, numberConfig = '' } = pipeline;
 
     const number = await boardNumberGenerator(
+      models,
       numberConfig,
       numberSize,
       false,
@@ -382,10 +372,10 @@ export const generateBoardNumber = async (doc: IItemCommonFields) => {
   return { updatedDoc: doc, pipeline };
 };
 
-export const createBoardItem = async (doc: IItemCommonFields, type: string) => {
-  const { collection } = await getCollection(type);
+export const createBoardItem = async (models: IModels, doc: IItemCommonFields, type: string) => {
+  const { collection } = await getCollection(models, type);
 
-  const response = await generateBoardNumber(doc);
+  const response = await generateBoardNumber(models, doc);
 
   const { pipeline, updatedDoc } = response;
 
@@ -403,13 +393,13 @@ export const createBoardItem = async (doc: IItemCommonFields, type: string) => {
     if (
       e.message === `E11000 duplicate key error dup key: { : "${doc.number}" }`
     ) {
-      await createBoardItem(doc, type);
+      await createBoardItem(models, doc, type);
     }
   }
 
   // update numberConfig of the same configed pipelines
   if (doc.number) {
-    await Pipelines.updateMany(
+    await models.Pipelines.updateMany(
       {
         numberConfig: pipeline.numberConfig,
         type: pipeline.type
@@ -437,16 +427,16 @@ export const createBoardItem = async (doc: IItemCommonFields, type: string) => {
 
 // check booking convert
 const checkBookingConvert = async (productId: string) => {
-  const product = await sendProductRPCMessage('findOne', { _id: productId });
+  const product = await sendProductsMessage('findOne', { _id: productId }, true);
 
   // let dealUOM = await Configs.find({ code: 'dealUOM' }).distinct('value');
-  let dealUOM = await sendConfigRPCMessage('getConfigs', {
+  let dealUOM = await sendCoreMessage('getConfigs', {
     code: 'dealUOM'
-  });
+  }, true);
 
-  let dealCurrency = await sendConfigRPCMessage('getConfigs', {
+  let dealCurrency = await sendCoreMessage('getConfigs', {
     code: 'dealCurrency'
-  });
+  }, true);
 
   if (dealUOM.length > 0) {
     dealUOM = dealUOM[0];
@@ -467,7 +457,7 @@ const checkBookingConvert = async (productId: string) => {
   };
 };
 
-export const conversationConvertToCard = async args => {
+export const conversationConvertToCard = async (models: IModels, args) => {
   const {
     _id,
     type,
@@ -480,7 +470,7 @@ export const conversationConvertToCard = async args => {
     docModifier
   } = args;
 
-  const { collection, create, update } = getCollection(type);
+  const { collection, create, update } = getCollection(models, type);
 
   if (itemId) {
     const oldItem = await collection.findOne({ _id: itemId }).lean();
@@ -526,9 +516,9 @@ export const conversationConvertToCard = async args => {
     const relTypeIds: string[] = [];
 
     sourceConversationIds.forEach(async conversationId => {
-      const con = await sendInboxRPCMessage('getConversation', {
+      const con = await sendInboxMessage('getConversation', {
         conversationId
-      });
+      }, true);
 
       if (con.customerId) {
         relTypeIds.push(con.customerId);
@@ -536,12 +526,12 @@ export const conversationConvertToCard = async args => {
     });
 
     if (conversation.customerId) {
-      await sendConformityMessage('addConformity', {
+      await sendCoreMessage('addConformity', {
         mainType: type,
         mainTypeId: item._id,
         relType: 'customer',
         relTypeId: conversation.customerId
-      });
+      }, true);
     }
 
     return item._id;

@@ -34,7 +34,6 @@ export const countBySegment = async (
   const counts: ICountBy = {};
 
   // Count cocs by segments
-  // let segments: ISegmentDocument[] = [];
   let segments: any[] = [];
 
   // show all contact related engages when engage
@@ -96,6 +95,7 @@ export const countByLeadStatus = async (qb): Promise<ICountBy> => {
 
   for (const type of COC_LEAD_STATUS_TYPES) {
     await qb.buildAllQueries();
+
     qb.leadStatusFilter(type);
 
     counts[type] = await qb.runQueries('count');

@@ -1,24 +1,17 @@
-import {
-  sendConformityMessage,
-  sendContactRPCMessage,
-  sendNotificationMessage,
-} from '../../../messageBroker';
-import { PipelineLabels, Pipelines, Stages } from '../../../models';
+import { IContext } from '../../../connectionResolver';
+import { sendContactsMessage, sendCoreMessage, sendNotificationsMessage } from '../../../messageBroker';
 import { ITaskDocument } from '../../../models/definitions/tasks';
-import { IContext } from '@erxes/api-utils/src';
 import { boardId } from '../../utils';
 
 export default {
   async companies(task: ITaskDocument) {
-    const companyIds = await sendConformityMessage('savedConformity', {
+    const companyIds = await sendCoreMessage('savedConformity', {
       mainType: 'task',
       mainTypeId: task._id,
       relTypes: ['company']
-    });
+    }, true, []);
 
-    const activeCompanies = await sendContactRPCMessage('findActiveCompanies', {
-      selector: { _id: { $in: companyIds } }
-    });
+    const activeCompanies = await sendContactsMessage('findActiveCompanies', { _id: { $in: companyIds } }, true, []);
 
     return (activeCompanies || []).map(({_id }) => ({ __typename: "Company", _id }));
   },
@@ -28,15 +21,15 @@ export default {
   },
 
   async customers(task: ITaskDocument) {
-    const customerIds = await sendConformityMessage('savedConformity', {
+    const customerIds = await sendCoreMessage('savedConformity', {
       mainType: 'task',
       mainTypeId: task._id,
       relTypes: ['customer']
-    });
+    }, true, []);
 
-    const customers =  await sendContactRPCMessage('findActiveCustomers', {
-      selector: { _id: { $in: customerIds } }
-    });
+    const customers =  await sendCoreMessage('findActiveCustomers', {
+      _id: { $in: customerIds }
+    }, true, []);
 
     return (customers || []).map(({ _id }) => ({ __typename: "Customer", _id }))
   },
@@ -45,17 +38,17 @@ export default {
     return (task.assignedUserIds || []).map(_id => ({ __typename: "User", _id }));
   },
 
-  async pipeline(task: ITaskDocument) {
+  async pipeline(task: ITaskDocument, _args, { models: { Stages, Pipelines } }: IContext) {
     const stage = await Stages.getStage(task.stageId);
 
     return Pipelines.findOne({ _id: stage.pipelineId });
   },
 
-  boardId(task: ITaskDocument) {
-    return boardId(task);
+  boardId(task: ITaskDocument, _args, { models }: IContext) {
+    return boardId(models, task);
   },
 
-  stage(task: ITaskDocument) {
+  stage(task: ITaskDocument, _args, { models: { Stages } }: IContext) {
     return Stages.getStage(task.stageId);
   },
 
@@ -70,13 +63,13 @@ export default {
   },
 
   hasNotified(task: ITaskDocument, _args, { user }: IContext) {
-    return sendNotificationMessage('checkIfRead', {
+    return sendNotificationsMessage('checkIfRead', {
       userId: user._id,
       itemId: task._id
     }, true, true);
   },
 
-  labels(task: ITaskDocument) {
+  labels(task: ITaskDocument, _args, { models: { PipelineLabels } }: IContext) {
     return PipelineLabels.find({ _id: { $in: task.labelIds || [] } });
   }
 };

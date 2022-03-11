@@ -1,8 +1,4 @@
 import * as moment from 'moment';
-import {
-  Pipelines,
-  Stages
-} from '../../../models';
 import { getCollection } from '../../../models/utils';
 import {
   IItemCommonFields,
@@ -13,13 +9,10 @@ import { CLOSE_DATE_TYPES } from '../../../constants';
 import { getNextMonth, getToday, regexSearchText } from '@erxes/api-utils/src';
 import { IListParams } from './boards';
 import {
-  fetchSegment,
-  sendContactRPCMessage,
-  sendConformityMessage,
-  sendNotificationMessage,
-  sendSegmentMessage
+  fetchSegment, sendContactsMessage, sendCoreMessage, sendNotificationsMessage, sendSegmentsMessage,
 } from '../../../messageBroker';
 import { IUserDocument } from '@erxes/api-utils/src/types';
+import { IModels } from '../../../connectionResolver';
 
 export interface IArchiveArgs {
   pipelineId: string;
@@ -130,6 +123,7 @@ export const generateExtraFilters = async (filter, extraParams) => {
 };
 
 export const generateCommonFilters = async (
+  models: IModels,
   currentUserId: string,
   args: any
 ) => {
@@ -173,21 +167,21 @@ export const generateCommonFilters = async (
   }
 
   if (customerIds && type) {
-    const relIds = await sendConformityMessage('filterConformity', {
+    const relIds = await sendCoreMessage('filterConformity', {
       mainType: 'customer',
       mainTypeIds: customerIds,
       relType: type
-    });
+    }, true, []);
 
     filterIds = relIds;
   }
 
   if (companyIds && type) {
-    const relIds = await sendConformityMessage('filterConformity', {
+    const relIds = await sendCoreMessage('filterConformity', {
       mainType: 'company',
       mainTypeIds: companyIds,
       relType: type
-    });
+    }, true, []);
 
     filterIds = filterIds.length
       ? filterIds.filter(id => relIds.includes(id))
@@ -200,21 +194,21 @@ export const generateCommonFilters = async (
 
   if (conformityMainType && conformityMainTypeId) {
     if (conformityIsSaved) {
-      const relIds = await sendConformityMessage('savedConformity', {
+      const relIds = await sendCoreMessage('savedConformity', {
         mainType: conformityMainType,
         mainTypeId: conformityMainTypeId,
         relTypes: [type]
-      });
+      }, true, []);
 
       filter._id = contains(relIds || []);
     }
 
     if (conformityIsRelated) {
-      const relIds = await sendConformityMessage('relatedConformity', {
+      const relIds = await sendCoreMessage('relatedConformity', {
         mainType: conformityMainType,
         mainTypeId: conformityMainTypeId,
         relType: type
-      });
+      }, true, []);
 
       filter._id = contains(relIds);
     }
@@ -251,7 +245,7 @@ export const generateCommonFilters = async (
   if (stageId) {
     filter.stageId = stageId;
   } else if (pipelineId) {
-    const stageIds = await Stages.find({
+    const stageIds = await models.Stages.find({
       pipelineId,
       status: { $ne: BOARD_STATUSES.ARCHIVED }
     }).distinct('_id');
@@ -270,7 +264,7 @@ export const generateCommonFilters = async (
   }
 
   if (pipelineId) {
-    const pipeline = await Pipelines.getPipeline(pipelineId);
+    const pipeline = await models.Pipelines.getPipeline(pipelineId);
     if (
       pipeline.isCheckUser &&
       !(pipeline.excludeCheckUserIds || []).includes(currentUserId)
@@ -295,7 +289,7 @@ export const generateCommonFilters = async (
   }
 
   if (segment) {
-    const segmentObj = await sendSegmentMessage('findOne', { _id: segment }, true);
+    const segmentObj = await sendSegmentsMessage('findOne', { _id: segment }, true);
     const itemIds = await fetchSegment(segmentObj);
 
     filter._id = { $in: itemIds };
@@ -309,11 +303,11 @@ export const generateCommonFilters = async (
   return filter;
 };
 
-export const calendarFilters = async (filter, args) => {
+export const calendarFilters = async (models: IModels, filter, args) => {
   const { date, pipelineId } = args;
 
   if (date) {
-    const stageIds = await Stages.find({ pipelineId }).distinct('_id');
+    const stageIds = await models.Stages.find({ pipelineId }).distinct('_id');
 
     filter.closeDate = dateSelector(date);
     filter.stageId = { $in: stageIds };
@@ -323,6 +317,7 @@ export const calendarFilters = async (filter, args) => {
 };
 
 export const generateDealCommonFilters = async (
+  models: IModels,
   currentUserId: string,
   args: any,
   extraParams?: any
@@ -330,7 +325,7 @@ export const generateDealCommonFilters = async (
   args.type = 'deal';
   const { productIds } = extraParams || args;
 
-  let filter = await generateCommonFilters(currentUserId, args);
+  let filter = await generateCommonFilters(models, currentUserId, args);
 
   if (extraParams) {
     filter = await generateExtraFilters(filter, extraParams);
@@ -341,45 +336,47 @@ export const generateDealCommonFilters = async (
   }
 
   // Calendar monthly date
-  await calendarFilters(filter, args);
+  await calendarFilters(models, filter, args);
 
   return filter;
 };
 
 export const generateTicketCommonFilters = async (
+  models: IModels,
   currentUserId: string,
   args: any,
   extraParams?: any
 ) => {
   args.type = 'ticket';
 
-  let filter = await generateCommonFilters(currentUserId, args);
+  let filter = await generateCommonFilters(models, currentUserId, args);
 
   if (extraParams) {
     filter = await generateExtraFilters(filter, extraParams);
   }
 
   // Calendar monthly date
-  await calendarFilters(filter, args);
+  await calendarFilters(models, filter, args);
 
   return filter;
 };
 
 export const generateTaskCommonFilters = async (
+  models: IModels,
   currentUserId: string,
   args: any,
   extraParams?: any
 ) => {
   args.type = 'task';
 
-  let filter = await generateCommonFilters(currentUserId, args);
+  let filter = await generateCommonFilters(models, currentUserId, args);
 
   if (extraParams) {
     filter = await generateExtraFilters(filter, extraParams);
   }
 
   // Calendar monthly date
-  await calendarFilters(filter, args);
+  await calendarFilters(models, filter, args);
 
   return filter;
 };
@@ -397,6 +394,7 @@ export const generateSort = (args: IListParams) => {
 };
 
 export const generateGrowthHackCommonFilters = async (
+  models: IModels,
   currentUserId: string,
   args: any,
   extraParams?: any
@@ -405,7 +403,7 @@ export const generateGrowthHackCommonFilters = async (
 
   const { hackStage, pipelineId, stageId } = extraParams || args;
 
-  let filter = await generateCommonFilters(currentUserId, args);
+  let filter = await generateCommonFilters(models, currentUserId, args);
 
   if (extraParams) {
     filter = await generateExtraFilters(filter, extraParams);
@@ -416,7 +414,7 @@ export const generateGrowthHackCommonFilters = async (
   }
 
   if (!stageId && pipelineId) {
-    const stageIds = await Stages.find({ pipelineId }).distinct('_id');
+    const stageIds = await models.Stages.find({ pipelineId }).distinct('_id');
 
     filter.stageId = { $in: stageIds };
   }
@@ -442,12 +440,13 @@ const dateSelector = (date: IDate) => {
 };
 
 export const checkItemPermByUser = async (
+  models: IModels,
   currentUserId: string,
   item: IItemCommonFields
 ) => {
-  const stage = await Stages.getStage(item.stageId);
+  const stage = await models.Stages.getStage(item.stageId);
 
-  const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+  const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
   if (
     pipeline.visibility === 'private' &&
@@ -473,12 +472,12 @@ export const checkItemPermByUser = async (
   return item;
 };
 
-export const archivedItems = async (params: IArchiveArgs, collection: any) => {
+export const archivedItems = async (models: IModels, params: IArchiveArgs, collection: any) => {
   const { pipelineId, ...listArgs } = params;
 
   const { page = 0, perPage = 0 } = listArgs;
 
-  const stages = await Stages.find({ pipelineId }).lean();
+  const stages = await models.Stages.find({ pipelineId }).lean();
 
   if (stages.length > 0) {
     const filter = generateArhivedItemsFilter(params, stages);
@@ -497,12 +496,13 @@ export const archivedItems = async (params: IArchiveArgs, collection: any) => {
 };
 
 export const archivedItemsCount = async (
+  models: IModels,
   params: IArchiveArgs,
   collection: any
 ) => {
   const { pipelineId } = params;
 
-  const stages = await Stages.find({ pipelineId });
+  const stages = await models.Stages.find({ pipelineId });
 
   if (stages.length > 0) {
     const filter = generateArhivedItemsFilter(params, stages);
@@ -586,6 +586,7 @@ const generateArhivedItemsFilter = (
 };
 
 export const getItemList = async (
+  models: IModels,
   filter: any,
   args: IListParams,
   user: IUserDocument,
@@ -593,7 +594,7 @@ export const getItemList = async (
   extraFields?: { [key: string]: number },
   getExtraFields?: (item: any) => { [key: string]: any }
 ) => {
-  const { collection } = getCollection(type);
+  const { collection } = getCollection(models, type);
   const sort = generateSort(args);
   const limit = args.limit !== undefined ? args.limit : 10;
 
@@ -658,11 +659,11 @@ export const getItemList = async (
 
   const ids = list.map(item => item._id);
 
-  const conformities = await sendConformityMessage('getConformities', {
+  const conformities = await sendCoreMessage('getConformities', {
     mainType: type,
     mainTypeIds: ids,
     relTypes: ['company', 'customer']
-  });
+  }, true, []);
 
   const companyIds: string[] = [];
   const customerIds: string[] = [];
@@ -728,10 +729,11 @@ export const getItemList = async (
     }
   }
 
-  const companies = await sendContactRPCMessage('findActiveCompanies', {
+  const companies = await sendContactsMessage('findActiveCompanies', {
     selector: {
       _id: { $in: [...new Set(companyIds)] }
     },
+
     fields: {
       primaryName: 1,
       primaryEmail: 1,
@@ -739,9 +741,9 @@ export const getItemList = async (
       emails: 1,
       phones: 1
     }
-  });
+  }, true);
 
-  const customers = await sendContactRPCMessage('findActiveCustomers', {
+  const customers = await sendContactsMessage('findActiveCustomers', {
     selector: {
       _id: { $in: [...new Set(customerIds)] }
     },
@@ -755,7 +757,7 @@ export const getItemList = async (
       emails: 1,
       phones: 1
     }
-  });
+  }, true);
 
   const getCocsByItemId = (
     itemId: string,
@@ -773,7 +775,7 @@ export const getItemList = async (
 
   const updatedList: any[] = [];
 
-  const notifications = await sendNotificationMessage(
+  const notifications = await sendNotificationsMessage(
     "find",
     {
       selector: {

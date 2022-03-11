@@ -1,6 +1,5 @@
-import { PipelineTemplates } from '../../../models';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src';
+import { IContext } from '../../../connectionResolver';
 import { checkPermission } from '../../utils';
 
 const pipelineTemplateQueries = {
@@ -10,7 +9,7 @@ const pipelineTemplateQueries = {
   async pipelineTemplates(
     _root,
     { type }: { type: string },
-    { user }: IContext
+    { user, models: { PipelineTemplates } }: IContext
   ) {
     await checkPermission(type, user, 'showTemplates');
 
@@ -23,7 +22,7 @@ const pipelineTemplateQueries = {
   async pipelineTemplateDetail(
     _root,
     { _id }: { _id: string },
-    { user }: IContext
+    { user, models: { PipelineTemplates } }: IContext
   ) {
     const pipelineTemplate = await PipelineTemplates.getPipelineTemplate(_id);
 
@@ -35,7 +34,7 @@ const pipelineTemplateQueries = {
   /**
    *  Pipeline template total count
    */
-  pipelineTemplatesTotalCount() {
+  pipelineTemplatesTotalCount(_root, _args, { models: { PipelineTemplates } }: IContext) {
     return PipelineTemplates.find().countDocuments();
   }
 };

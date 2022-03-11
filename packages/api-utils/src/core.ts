@@ -211,3 +211,15 @@ export const getUniqueValue = async (
 export const escapeRegExp = (str: string) => {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
+
+export const sendMessage = async (client, serviceDiscovery, serviceName: string, action, data, isRPC=false, defaultValue?): Promise<any> => {
+  if (!(await serviceDiscovery.isEnabled(serviceName))) {
+    return defaultValue;
+  }
+
+  if (isRPC && !(await serviceDiscovery.isAvailable(serviceName))) {
+    throw new Error(`${serviceName} service is not available`);
+  }
+
+  return client.sendMessage(`${serviceName}:${isRPC ? 'rpc_queue:': ''}${action}`, data);
+};

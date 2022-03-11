@@ -1,21 +1,20 @@
-import { PipelineLabels, Pipelines, Stages } from '../../../models';
 import { IGrowthHackDocument } from '../../../models/definitions/growthHacks';
 import { boardId } from '../../utils';
-import { IContext } from '@erxes/api-utils/src';
-import { Fields, FormSubmissions } from '../../../apiCollections';
+import { IContext } from '../../../connectionResolver';
+import { sendFormsMessage } from '../../../messageBroker';
 
 export default {
-  async formSubmissions(growthHack: IGrowthHackDocument) {
-    const stage = await Stages.getStage(growthHack.stageId);
+  async formSubmissions(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
+    const stage = await models.Stages.getStage(growthHack.stageId);
 
     const result = {};
 
     if (stage.formId) {
-      const submissions = await FormSubmissions.find({
+      const submissions = await sendFormsMessage('submissions:find', {
         contentTypeId: growthHack._id,
         contentType: 'growthHack',
         formId: stage.formId
-      });
+      }, true, []);
 
       for (const submission of submissions) {
         if (submission.formFieldId) {
@@ -27,8 +26,8 @@ export default {
     return result;
   },
 
-  async formFields(growthHack: IGrowthHackDocument) {
-    const stage = await Stages.getStage(growthHack.stageId);
+  async formFields(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
+    const stage = await models.Stages.getStage(growthHack.stageId);
 
     const query: any = { contentType: 'form' };
 
@@ -36,7 +35,7 @@ export default {
       query.contentTypeId = stage.formId;
     }
 
-    return Fields.find(query).sort({ order: 1 });
+    return sendFormsMessage('fields:find', { query, order: 1 }, true, []);
   },
 
   assignedUsers(growthHack: IGrowthHackDocument) {
@@ -53,31 +52,31 @@ export default {
       : false;
   },
 
-  async pipeline(growthHack: IGrowthHackDocument) {
-    const stage = await Stages.getStage(growthHack.stageId);
+  async pipeline(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
+    const stage = await models.Stages.getStage(growthHack.stageId);
 
-    return Pipelines.findOne({ _id: stage.pipelineId });
+    return models.Pipelines.findOne({ _id: stage.pipelineId });
   },
 
-  boardId(growthHack: IGrowthHackDocument) {
-    return boardId(growthHack);
+  boardId(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
+    return boardId(models, growthHack);
   },
 
-  async formId(growthHack: IGrowthHackDocument) {
-    const stage = await Stages.getStage(growthHack.stageId);
+  async formId(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
+    const stage = await models.Stages.getStage(growthHack.stageId);
 
     return stage.formId;
   },
 
-  async scoringType(growthHack: IGrowthHackDocument) {
-    const stage = await Stages.getStage(growthHack.stageId);
-    const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+  async scoringType(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
+    const stage = await models.Stages.getStage(growthHack.stageId);
+    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
     return pipeline.hackScoringType;
   },
 
-  stage(growthHack: IGrowthHackDocument) {
-    return Stages.getStage(growthHack.stageId);
+  stage(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
+    return models.Stages.getStage(growthHack.stageId);
   },
 
   isWatched(growthHack: IGrowthHackDocument, _args, { user }: IContext) {
@@ -90,8 +89,8 @@ export default {
     return false;
   },
 
-  labels(growthHack: IGrowthHackDocument) {
-    return PipelineLabels.find({ _id: { $in: growthHack.labelIds || [] } });
+  labels(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
+    return models.PipelineLabels.find({ _id: { $in: growthHack.labelIds || [] } });
   },
 
   createdUser(growthHack: IGrowthHackDocument) {
