@@ -168,6 +168,7 @@ describe('ticketQueries', () => {
       query tickets($stageId: String!) {
         tickets(stageId: $stageId) {
           _id
+          customPropertyTexts
         }
       }
     `;

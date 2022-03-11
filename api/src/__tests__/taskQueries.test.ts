@@ -160,6 +160,7 @@ describe('taskQueries', () => {
       query tasks($stageId: String!) {
         tasks(stageId: $stageId) {
           _id
+          customPropertyTexts
         }
       }
     `;

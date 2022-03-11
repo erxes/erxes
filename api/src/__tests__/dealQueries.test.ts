@@ -516,11 +516,20 @@ describe('dealQueries', () => {
     const pipeline = await pipelineFactory({ boardId: board._id });
     const stage = await stageFactory({ pipelineId: pipeline._id });
     const currentUser = await userFactory({});
+    const field = await fieldFactory({
+      showInCard: true,
+      contentType: 'deal'
+    });
 
     const args = { stageId: stage._id };
     const deal = await dealFactory({ ...args, name: 'b' });
     await dealFactory({ ...args, name: 'c' });
     await dealFactory({ ...args, name: 'a' });
+    await dealFactory({
+      ...args,
+      name: 'd',
+      customFieldsData: [{ field: field._id, value: 'test' }]
+    });
 
     Object.assign(args, { pipelineId: stage.pipelineId });
     const qry = `
@@ -528,6 +537,7 @@ describe('dealQueries', () => {
         deals(stageId: $stageId, pipelineId: $pipelineId, sortField: $sortField, sortDirection: $sortDirection) {
           _id
           name
+          customPropertyTexts
         }
       }
     `;
