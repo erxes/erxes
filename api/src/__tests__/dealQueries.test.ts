@@ -546,7 +546,7 @@ describe('dealQueries', () => {
       user: currentUser
     });
 
-    expect(response.length).toBe(3);
+    expect(response.length).toBe(4);
 
     response = await graphqlRequest(qry, 'deals', {
       ...args,
