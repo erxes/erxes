@@ -20,7 +20,7 @@ function Sidebar({
     <Wrapper.Sidebar>
       {isEnabled("segments") && <SegmentFilter type={type} loadingMainQuery={loadingMainQuery} />}
       {isEnabled("tags") && <TagFilter type={type} loadingMainQuery={loadingMainQuery} />}
-      {isEnabled("integrations") && <IntegrationFilter type={type} loadingMainQuery={loadingMainQuery} />}
+      {isEnabled("inbox") && <IntegrationFilter type={type} loadingMainQuery={loadingMainQuery} />}
       <BrandFilter type={type} loadingMainQuery={loadingMainQuery} />
       {isEnabled("inbox") && <LeadFilter type={type} loadingMainQuery={loadingMainQuery} />}
       {type === 'lead' && (
