@@ -4,8 +4,8 @@ import { client, sendConformityMessage } from "../../messageBroker";
 import { IContext } from "../../connectionResolver";
 
 export default {
-  __resolveReference({ _id }, _params, { models: { Customers } }: IContext) {
-    return Customers.findOne({ _id });
+  __resolveReference({ _id }, { models }: IContext) {
+    return models.Customers.findOne({ _id });
   },
 
   integration(customer: ICustomerDocument) {

@@ -3,7 +3,7 @@ import { sendConformityMessage } from "../../messageBroker";
 import { IContext } from "../../connectionResolver";
 
 export default {
-  __resolveReference({ _id }, _params, { models: { Companies } }: IContext) {
+  __resolveReference({ _id }, { models: { Companies } }: IContext) {
     return Companies.findOne({ _id });
   },
 
