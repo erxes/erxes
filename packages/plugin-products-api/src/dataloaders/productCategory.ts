@@ -1,10 +1,10 @@
 import * as DataLoader from 'dataloader';
 import * as _ from 'underscore';
-import { ProductCategories } from '../models';
+import { IModels } from '../connectionResolver';
 
-export default function generateDataLoaderProductCategory() {
+export default function generateDataLoaderProductCategory(models: IModels) {
   return new DataLoader<string, any>(async (ids: readonly string[]) => {
-    const result: any[] = await ProductCategories.find({
+    const result: any[] = await models.ProductCategories.find({
       _id: { $in: ids }
     }).lean();
     const resultById = _.indexBy(result, '_id');

@@ -1,11 +1,9 @@
-import { IContext } from "@erxes/api-utils/src/types";
-import { Fields } from "../../apiCollections";
-import { ProductCategories, Products } from "../../models";
+import { IContext } from "../../connectionResolver";
 import { IProductDocument } from "../../models/definitions/products";
 
 export default {
-  __resolveReference({ _id }) {
-    return Products.findOne({ _id });
+  __resolveReference({ _id }, _params, { models }: IContext) {
+    return models.Products.findOne({ _id });
   },
 
   category(product: IProductDocument, _, { dataLoaders }: IContext) {
@@ -27,7 +25,7 @@ export default {
     );
   },
 
-  async customFieldsDataWithText(product: IProductDocument) {
+  async customFieldsDataWithText(product: IProductDocument, _params, { coreModels }: IContext) {
     let customFieldsData = product.customFieldsData || [];
     customFieldsData = customFieldsData.filter(el => el.value);
 
@@ -37,7 +35,7 @@ export default {
     }> = [];
 
     for (const el of customFieldsData) {
-      const field = await Fields.aggregate([
+      const field = await coreModels.Fields.aggregate([
         { $match: { _id: el.field } },
         { $project: { text: '$text' } }
       ]);
