@@ -202,11 +202,11 @@ describe('ticketQueries', () => {
   test('Ticket detail', async () => {
     const field1 = await fieldFactory({
       showInCard: true,
-      contentType: 'deal'
+      contentType: 'ticket'
     });
     const field2 = await fieldFactory({
       showInCard: false,
-      contentType: 'deal'
+      contentType: 'ticket'
     });
 
     const ticket = await ticketFactory({
