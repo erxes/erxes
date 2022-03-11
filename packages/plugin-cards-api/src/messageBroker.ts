@@ -91,6 +91,18 @@ export const initBroker = async cl => {
     return { data: await getCardItem(data), status: 'success' };
   });
 
+  consumeRPCQueue('cards:rpc_queue:findDealProductIds', async ({ _ids }) => {
+    const dealProductIds = await await Deals.find({
+      'productsData.productId': { $in: _ids }
+    }).distinct('productsData.productId');
+
+    return { data: dealProductIds, status: 'success' };
+  });
+
+  consumeRPCQueue('cards:rpc_queue:updateDeals', async ({ selector, modifier }) => {
+    return { data: await Deals.updateMany(selector, modifier), status: 'success' };
+  });
+
   consumeRPCQueue('cards:rpc_queue:generateInternalNoteNotif', async args => {
     let model: any = GrowthHacks;
 

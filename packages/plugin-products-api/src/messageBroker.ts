@@ -129,6 +129,18 @@ export const findCompanies = async (selector): Promise<any> => {
   return client.sendRPCMessage('contacts:rpc_queue:findActiveCompanies', selector);
 };
 
+export const findDealProductIds = async (selector): Promise<any> => {
+  return client.sendRPCMessage('cards:rpc_queue:findDealProductIds', selector);
+};
+
+export const updateDeals = async (selector, modifier): Promise<any> => {
+  return client.sendRPCMessage('cards:rpc_queue:updateDeals', ({ selector, modifier}));
+};
+
+export const findCompany = async (selector): Promise<any> => {
+  return client.sendRPCMessage('contacts:rpc_queue:findCompany', selector);
+};
+
 export default function() {
   return client;
 }

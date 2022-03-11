@@ -1,7 +1,7 @@
 import { ICustomField, IUserDocument } from '@erxes/api-utils/src/types';
 import { Model, model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { prepareCustomFieldsData } from '../messageBroker';
+import { findCompany, findDealProductIds, prepareCustomFieldsData, updateDeals } from '../messageBroker';
 import { IProduct, IProductCategory, IProductCategoryDocument, IProductDocument, productCategorySchema, productSchema, PRODUCT_STATUSES } from './definitions/products';
 
 export interface IProductModel extends Model<IProductDocument> {
@@ -61,19 +61,20 @@ export const loadProductClass = (models: IModels) => {
         doc.categoryId = category._id;
       }
 
-      // if (doc.vendorCode) {
-      //   const vendor = await Companies.findOne({
-      //     $or: [
-      //       { code: doc.vendorCode },
-      //       { primaryEmail: doc.vendorCode },
-      //       { primaryPhone: doc.vendorCode },
-      //       { primaryName: doc.vendorCode }
-      //     ]
-      //   });
+      if (doc.vendorCode) {
+        const vendor = await findCompany({
+          $or: [
+            { code: doc.vendorCode },
+            { primaryEmail: doc.vendorCode },
+            { primaryPhone: doc.vendorCode },
+            { primaryName: doc.vendorCode }
+          ]
+        });
 
-      //   doc.vendorId = vendor?._id;
-      // }
+        doc.vendorId = vendor?._id;
+      }
 
+      // ! will fix
       // doc.customFieldsData = await prepareCustomFieldsData(
       //   doc.customFieldsData
       // );
@@ -107,21 +108,19 @@ export const loadProductClass = (models: IModels) => {
      * Remove products
      */
     public static async removeProducts(_ids: string[]) {
-      // const dealProductIds = await Deals.find({
-      //   'productsData.productId': { $in: _ids }
-      // }).distinct('productsData.productId');
+      const dealProductIds = await findDealProductIds({ _ids });
 
       const usedIds: string[] = [];
       const unUsedIds: string[] = [];
       let response = 'deleted';
 
-      // for (const id of _ids) {
-      //   if (!dealProductIds.includes(id)) {
-      //     unUsedIds.push(id);
-      //   } else {
-      //     usedIds.push(id);
-      //   }
-      // }
+      for (const id of _ids) {
+        if (!dealProductIds.includes(id)) {
+          unUsedIds.push(id);
+        } else {
+          usedIds.push(id);
+        }
+      }
 
       if (usedIds.length > 0) {
         await models.Products.updateMany(
@@ -205,20 +204,18 @@ export const loadProductClass = (models: IModels) => {
         vendorId
       });
 
-      // const dealProductIds = await Deals.find({
-      //   'productsData.productId': { $in: productIds }
-      // }).distinct('productsData.productId');
+      const dealProductIds = await findDealProductIds({ _ids: productIds });
 
-      // for (const deal of dealProductIds) {
-      //   if (productIds.includes(deal)) {
-      //     usedIds.push(deal);
-      //   }
-      // }
+      for (const deal of dealProductIds) {
+        if (productIds.includes(deal)) {
+          usedIds.push(deal);
+        }
+      }
 
-      // await Deals.updateMany(
-      //   { 'productsData.productId': { $in: usedIds } },
-      //   { $set: { 'productsData.$.productId': product._id } }
-      // );
+      await updateDeals(
+        { 'productsData.productId': { $in: usedIds } },
+        { $set: { 'productsData.$.productId': product._id } }
+      );
 
       return product;
     }

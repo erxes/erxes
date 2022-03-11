@@ -102,6 +102,10 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
     company = await Companies.findOne({ _id: doc._id });
   }
 
+  if (!company) {
+    company = await Companies.findOne(doc);
+  }
+
   return company;
 };
 
