@@ -1,8 +1,6 @@
-import { GrowthHacks } from '../../../models';
 import { IItemDragCommonFields } from '../../../models/definitions/boards';
 import { IGrowthHack } from '../../../models/definitions/growthHacks';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src';
 import {
   itemsAdd,
   itemsArchive,
@@ -11,6 +9,7 @@ import {
   itemsEdit,
   itemsRemove
 } from './utils';
+import { IContext } from '../../../connectionResolver';
 
 interface IGrowthHacksEdit extends IGrowthHack {
   _id: string;
@@ -23,12 +22,13 @@ const growthHackMutations = {
   async growthHacksAdd(
     _root,
     doc: IGrowthHack & { proccessId: string; aboveItemId: string },
-    { user, docModifier }: IContext
+    { user, docModifier, models }: IContext
   ) {
     return itemsAdd(
+      models,
       doc,
       'growthHack',
-      GrowthHacks.createGrowthHack,
+      models.GrowthHacks.createGrowthHack,
       user,
       docModifier
     );
@@ -40,18 +40,19 @@ const growthHackMutations = {
   async growthHacksEdit(
     _root,
     { _id, proccessId, ...doc }: IGrowthHacksEdit & { proccessId: string },
-    { user }
+    { user, models }
   ) {
-    const oldGrowthHack = await GrowthHacks.getGrowthHack(_id);
+    const oldGrowthHack = await models.GrowthHacks.getGrowthHack(_id);
 
     return itemsEdit(
+      models,
       _id,
       'growthHack',
       oldGrowthHack,
       doc,
       proccessId,
       user,
-      GrowthHacks.updateGrowthHack
+      models.GrowthHacks.updateGrowthHack
     );
   },
 
@@ -61,16 +62,16 @@ const growthHackMutations = {
   async growthHacksChange(
     _root,
     doc: IItemDragCommonFields,
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    return itemsChange(doc, 'growthHack', user, GrowthHacks.updateGrowthHack);
+    return itemsChange(models, doc, 'growthHack', user, models.GrowthHacks.updateGrowthHack);
   },
 
   /**
    * Remove a growth hack
    */
-  async growthHacksRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    return itemsRemove(_id, 'growthHack', user);
+  async growthHacksRemove(_root, { _id }: { _id: string }, { user, models }: IContext) {
+    return itemsRemove(models, _id, 'growthHack', user);
   },
 
   /**
@@ -79,9 +80,9 @@ const growthHackMutations = {
   growthHacksWatch(
     _root,
     { _id, isAdd }: { _id: string; isAdd: boolean },
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    return GrowthHacks.watchGrowthHack(_id, isAdd, user._id);
+    return models.GrowthHacks.watchGrowthHack(_id, isAdd, user._id);
   },
 
   /**
@@ -90,15 +91,15 @@ const growthHackMutations = {
   growthHacksVote(
     _root,
     { _id, isVote }: { _id: string; isVote: boolean },
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    return GrowthHacks.voteGrowthHack(_id, isVote, user._id);
+    return models.GrowthHacks.voteGrowthHack(_id, isVote, user._id);
   },
 
   async growthHacksCopy(
     _root,
     { _id, proccessId }: { _id: string; proccessId: string },
-    { user }: IContext
+    { user, models }: IContext
   ) {
     const extraDocs = [
       'votedUserIds',
@@ -111,21 +112,22 @@ const growthHackMutations = {
     ];
 
     return itemsCopy(
+      models,
       _id,
       proccessId,
       'growthHack',
       user,
       extraDocs,
-      GrowthHacks.createGrowthHack
+      models.GrowthHacks.createGrowthHack
     );
   },
 
   async growthHacksArchive(
     _root,
     { stageId, proccessId }: { stageId: string; proccessId: string },
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    return itemsArchive(stageId, 'growthHack', proccessId, user);
+    return itemsArchive(models, stageId, 'growthHack', proccessId, user);
   }
 };
 

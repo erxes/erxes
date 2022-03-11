@@ -1,14 +1,3 @@
-import {
-  Boards,
-  PipelineLabels,
-  Pipelines,
-  Stages,
-  Deals,
-  Tasks,
-  Tickets,
-  Checklists,
-  GrowthHacks,
-} from './models';
 import { IPipelineDocument, IStageDocument } from './models/definitions/boards';
 import { IDealDocument } from './models/definitions/deals';
 import { IGrowthHackDocument } from './models/definitions/growthHacks';
@@ -25,9 +14,10 @@ import {
 } from '@erxes/api-utils/src/logUtils';
 import { ITaskDocument } from './models/definitions/tasks';
 import { ITicketDocument } from './models/definitions/tickets';
-import messageBroker, { findMongoDocuments, findProducts, sendMessage } from './messageBroker';
 import { MODULE_NAMES } from './constants';
 import { ACTIVITY_CONTENT_TYPES } from './models/definitions/constants';
+import messageBroker, { sendCoreMessage, sendFormsMessage, sendLogsMessage, sendProductsMessage } from './messageBroker';
+import { IModels } from './connectionResolver';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
@@ -38,10 +28,11 @@ export const LOG_ACTIONS = {
 type BoardItemDocument = IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument;
 
 const findUsers = async (ids: string[]) => {
-  return await findMongoDocuments('api-core', { query: { _id: { $in: ids } }, name: 'Users' })
+  return sendCoreMessage('findUsers', { query: { _id: { $in: ids } } }, true)
 };
 
 const gatherPipelineFieldNames = async (
+  models: IModels,
   doc: IPipelineDocument,
   prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
@@ -50,6 +41,8 @@ const gatherPipelineFieldNames = async (
   if (prevList) {
     options = prevList;
   }
+
+  const { Boards } = models;
 
   options = await gatherNames({
     foreignKey: 'boardId',
@@ -94,6 +87,7 @@ const gatherPipelineFieldNames = async (
 };
 
 const gatherBoardItemFieldNames = async (
+  models: IModels,
   doc: BoardItemDocument,
   prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
@@ -102,6 +96,8 @@ const gatherBoardItemFieldNames = async (
   if (prevList) {
     options = prevList;
   }
+
+  const {  PipelineLabels, Stages } = models;
 
   if (doc.userId) {
     options = await gatherUsernames({
@@ -164,6 +160,7 @@ const gatherBoardItemFieldNames = async (
 };
 
 const gatherDealFieldNames = async (
+  models: IModels,
   doc: IDealDocument,
   prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
@@ -173,18 +170,18 @@ const gatherDealFieldNames = async (
     options = prevList;
   }
 
-  options = await gatherBoardItemFieldNames(doc, options);
+  options = await gatherBoardItemFieldNames(models, doc, options);
 
   if (doc.productsData && doc.productsData.length > 0) {
     options = await gatherNames({
       foreignKey: 'productId',
       prevList: options,
       nameFields: ['name'],
-      items: await findProducts(
+      items: await sendProductsMessage(
         'find',
         { query: {
           _id: { $in: doc.productsData.map(p => p.productId) } }
-        }
+        }, true, []
       )
     });
   }
@@ -193,6 +190,7 @@ const gatherDealFieldNames = async (
 };
 
 const gatherGHFieldNames = async (
+  models: IModels,
   doc: IGrowthHackDocument,
   prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
@@ -202,7 +200,7 @@ const gatherGHFieldNames = async (
     options = prevList;
   }
 
-  options = await gatherBoardItemFieldNames(doc, options);
+  options = await gatherBoardItemFieldNames(models, doc, options);
 
   if (doc.votedUserIds && doc.votedUserIds.length > 0) {
     options = await gatherUsernames({
@@ -236,10 +234,7 @@ const gatherPipelineTemplateFieldNames = async (
       foreignKey: 'formId',
       prevList: options,
       nameFields: ['title'],
-      items: await findMongoDocuments(
-        'api-core',
-        { query: { _id: { $in: doc.stages.map((s) => s.formId) } }, name: 'Forms' }
-      )
+      items: await sendFormsMessage('find', { _id: { $in: doc.stages.map((s) => s.formId) } } , true, [])
     });
   }
 
@@ -247,6 +242,7 @@ const gatherPipelineTemplateFieldNames = async (
 };
 
 const gatherStageFieldNames = async (
+  models: IModels,
   doc: IStageDocument,
   prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
@@ -268,7 +264,7 @@ const gatherStageFieldNames = async (
       foreignKey: 'pipelineId',
       prevList: options,
       nameFields: ['name'],
-      items: await Pipelines.find({ _id: doc.pipelineId })
+      items: await models.Pipelines.find({ _id: doc.pipelineId })
     });
   }
   if (doc.formId) {
@@ -276,9 +272,10 @@ const gatherStageFieldNames = async (
       foreignKey: 'formId',
       prevList: options,
       nameFields: ['title'],
-      items: await findMongoDocuments(
-        'api-core',
-        { query: { _id: { $in: [doc.formId] } }, name: 'Forms' }
+      items: await sendFormsMessage(
+        'find',
+        { _id: { $in: [doc.formId] } },
+        true
       )
     });
   }
@@ -291,10 +288,12 @@ interface IContentTypeParams {
   contentTypeId: string;
 }
 
-const findItemName = async ({
+const findItemName = async (models: IModels, {
   contentType,
   contentTypeId,
 }: IContentTypeParams): Promise<string> => {
+  const { Deals, Tickets, Tasks, GrowthHacks } = models;
+
   let item: any;
   let name: string = '';
 
@@ -321,7 +320,7 @@ const findItemName = async ({
   return name;
 };
 
-const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
+const gatherDescriptions = async (models: IModels, params: any): Promise<IDescriptions> => {
   const { action, type, object, updatedDocument } = params;
 
   let extraDesc: LogDesc[] = [];
@@ -346,10 +345,10 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
     case MODULE_NAMES.PIPELINE_GH:
     case MODULE_NAMES.PIPELINE_TASK:
     case MODULE_NAMES.PIPELINE_TICKET:
-      extraDesc = await gatherPipelineFieldNames(object);
+      extraDesc = await gatherPipelineFieldNames(models, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherPipelineFieldNames(updatedDocument, extraDesc);
+        extraDesc = await gatherPipelineFieldNames(models, updatedDocument, extraDesc);
       }
 
       description = `"${object.name}" has been ${action}d`;
@@ -357,27 +356,27 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
       break;
     case MODULE_NAMES.DEAL:
       description = `"${object.name}" has been ${action}d`;
-      extraDesc = await gatherDealFieldNames(object);
+      extraDesc = await gatherDealFieldNames(models, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherDealFieldNames(updatedDocument, extraDesc);
+        extraDesc = await gatherDealFieldNames(models, updatedDocument, extraDesc);
       }
 
       break;
     case MODULE_NAMES.GROWTH_HACK:
       description = `"${object.name}" has been ${action}d`;
 
-      extraDesc = await gatherGHFieldNames(object);
+      extraDesc = await gatherGHFieldNames(models, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherGHFieldNames(updatedDocument, extraDesc);
+        extraDesc = await gatherGHFieldNames(models, updatedDocument, extraDesc);
       }
 
       break;
     case MODULE_NAMES.PIPELINE_LABEL:
       description = `"${object.name}" has been ${action}d`;
 
-      const pipeline = await Pipelines.findOne({ _id: object.pipelineId });
+      const pipeline = await models.Pipelines.findOne({ _id: object.pipelineId });
 
       extraDesc = await gatherUsernames({
         foreignKey: 'createdBy',
@@ -405,20 +404,20 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
     case MODULE_NAMES.TASK:
       description = `"${object.name}" has been ${action}d`;
 
-      extraDesc = await gatherBoardItemFieldNames(object);
+      extraDesc = await gatherBoardItemFieldNames(models, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherBoardItemFieldNames(updatedDocument, extraDesc);
+        extraDesc = await gatherBoardItemFieldNames(models, updatedDocument, extraDesc);
       }
 
       break;
     case MODULE_NAMES.TICKET:
       description = `"${object.name}" has been ${action}d`;
 
-      extraDesc = await gatherBoardItemFieldNames(object);
+      extraDesc = await gatherBoardItemFieldNames(models, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherBoardItemFieldNames(updatedDocument, extraDesc);
+        extraDesc = await gatherBoardItemFieldNames(models, updatedDocument, extraDesc);
       }
 
       break;
@@ -428,16 +427,16 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
     case MODULE_NAMES.STAGE_GH:
       description = `"${object.name}" has been ${action}d`;
 
-      extraDesc = await gatherStageFieldNames(object, extraDesc);
+      extraDesc = await gatherStageFieldNames(models, object, extraDesc);
 
       if (updatedDocument) {
-        extraDesc = await gatherStageFieldNames(updatedDocument, extraDesc);
+        extraDesc = await gatherStageFieldNames(models, updatedDocument, extraDesc);
       }
 
       break;
 
     case MODULE_NAMES.CHECKLIST:
-      const itemName = await findItemName({
+      const itemName = await findItemName(models, {
         contentType: object.contentType,
         contentTypeId: object.contentTypeId,
       });
@@ -467,7 +466,7 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
 
       break;
     case MODULE_NAMES.CHECKLIST_ITEM:
-      const checklist = await Checklists.getChecklist(object.checklistId);
+      const checklist = await models.Checklists.getChecklist(object.checklistId);
 
       extraDesc = await gatherUsernames({
         foreignKey: 'createdUserid',
@@ -495,8 +494,8 @@ const gatherDescriptions = async (params: any): Promise<IDescriptions> => {
   return { extraDesc, description };
 };
 
-export const putDeleteLog = async (logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions({
+export const putDeleteLog = async (models: IModels, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(models, {
     ...logDoc,
     action: LOG_ACTIONS.DELETE,
   });
@@ -508,8 +507,8 @@ export const putDeleteLog = async (logDoc, user) => {
   );
 };
 
-export const putUpdateLog = async (logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions({
+export const putUpdateLog = async (models: IModels, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(models, {
     ...logDoc,
     action: LOG_ACTIONS.UPDATE,
   });
@@ -521,8 +520,8 @@ export const putUpdateLog = async (logDoc, user) => {
   );
 };
 
-export const putCreateLog = async (logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions({
+export const putCreateLog = async (models: IModels, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(models, {
     ...logDoc,
     action: LOG_ACTIONS.CREATE,
   });
@@ -560,8 +559,8 @@ export const putChecklistActivityLog = async (params) => {
   };
 
   if (action === 'delete') {
-    sendMessage(
-      'logs:activityLogs:updateMany',
+    sendLogsMessage(
+      'activityLogs:updateMany',
       {
         query: { 'content._id': item._id },
         modifier: { $set: { 'content.name': item.title || item.content } }

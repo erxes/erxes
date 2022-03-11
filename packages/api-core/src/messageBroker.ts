@@ -5,9 +5,6 @@ import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
 import {
   Conformities,
-  Forms,
-  FieldsGroups,
-  Fields,
   Configs,
   Users,
   Brands,
@@ -15,7 +12,6 @@ import {
 } from './db/models';
 import { registerModule } from './data/permissions/utils';
 import { sendEmail, sendMobileNotification } from './data/utils';
-import { fieldsCombinedByContentType } from './data/modules/fields/utils';
 import { IUserDocument } from './db/models/definitions/users';
 import * as models from './db/models/index';
 
@@ -50,24 +46,6 @@ export const initBroker = async (server?) => {
     consumeQueue('core:sendEmail', async doc => {
       await sendEmail(doc);
     });
-
-    consumeRPCQueue(
-      'forms:rpc_queue:validate',
-      async ({ formId, submissions }) => ({
-        status: 'success',
-        data: await Forms.validate(formId, submissions)
-      })
-    );
-
-    consumeRPCQueue('forms:rpc_queue:duplicate', async ({ formId }) => ({
-      status: 'success',
-      data: await Forms.duplicate(formId)
-    }));
-
-    consumeQueue('forms:removeForm', async ({ formId }) => ({
-      status: 'success',
-      data: await Forms.removeForm(formId)
-    }));
 
     consumeRPCQueue('conformities:addConformity', async doc => ({
       status: 'success',
@@ -109,22 +87,6 @@ export const initBroker = async (server?) => {
       data: await Conformities.relatedConformity(doc)
     }));
 
-    consumeRPCQueue(
-      'fields:rpc_queue:prepareCustomFieldsData',
-      async ({ doc }) => ({
-        status: 'success',
-        data: await Fields.prepareCustomFieldsData(doc)
-      })
-    );
-
-    consumeRPCQueue(
-      'fields:rpc_queue:generateCustomFieldsData',
-      async ({ customData, contentType }) => ({
-        status: 'success',
-        data: await Fields.generateCustomFieldsData(customData, contentType)
-      })
-    );
-
     consumeRPCQueue('api-core:rpc_queue:generateInternalNoteNotif', async args => {
       if(args.type === 'user') {
         const { contentTypeId, notifDoc } = args;
@@ -153,28 +115,6 @@ export const initBroker = async (server?) => {
     // listen for rpc queue =========
     consumeQueue('registerOnboardHistory', async ({ type, user }) => {
       await registerOnboardHistory(type, user);
-    });
-
-    consumeQueue(
-      'fieldsGroups:updateGroup',
-      async ({ groupId, fieldsGroup }) => ({
-        status: 'success',
-        data: await FieldsGroups.updateGroup(groupId, fieldsGroup)
-      })
-    );
-
-    consumeRPCQueue('rpc_queue:Fields.find', async ({ query, projection, sort }) => {
-      return {
-        status: 'success',
-        data: await Fields.find(query, projection).sort(sort).lean()
-      };
-    });
-
-    consumeRPCQueue('rpc_queue:fieldsCombinedByContentType', async arg => {
-      return {
-        status: 'success',
-        data: await fieldsCombinedByContentType(arg)
-      };
     });
 
     consumeRPCQueue('configs:rpc_queue:getConfigs', async args => ({
@@ -239,7 +179,7 @@ export const initBroker = async (server?) => {
     );
 
     consumeRPCQueue(
-      'api-core:rpc_queue:activityLog:collectItems',
+      'api-core:logs:collectItems',
       async ({ contentId }) => {
         const deliveries = await EmailDeliveries.find({
           customerId: contentId
@@ -280,11 +220,6 @@ export const initBroker = async (server?) => {
 
     consumeRPCQueue('core:rpc_queue:findOneBrand', async query => ({
       status: 'success', data: await Brands.findOne(query)
-    }));
-
-    consumeRPCQueue("core:Fields.generateTypedListFromMap", data => ({
-      status: "success",
-      data: Fields.generateTypedListFromMap(data),
     }));
   }
 

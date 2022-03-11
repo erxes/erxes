@@ -1,22 +1,13 @@
-import {
-  Boards,
-  Deals,
-  Pipelines,
-  Stages,
-  Tasks,
-  Tickets,
-  PipelineLabels
-} from '../../../models';
 import { BOARD_STATUSES } from '../../../models/definitions/constants';
-import { IContext, paginate, regexSearchText } from '@erxes/api-utils/src';
+import { paginate, regexSearchText } from '@erxes/api-utils/src';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { getCollection } from '../../../models/utils';
 import { IStageDocument } from '../../../models/definitions/boards';
 import { CLOSE_DATE_TYPES, PRIORITIES } from '../../../constants';
 import { IPipelineLabelDocument } from '../../../models/definitions/pipelineLabels';
 import { getCloseDateByType } from './utils';
-import { Users } from '../../../apiCollections';
-import { fetchSegment, sendSegmentMessage } from '../../../messageBroker';
+import { fetchSegment, sendSegmentsMessage } from '../../../messageBroker';
+import { IContext } from '../../../connectionResolver';
 
 export interface IDate {
   month: number;
@@ -54,7 +45,7 @@ const boardQueries = {
   async boards(
     _root,
     { type }: { type: string },
-    { user, commonQuerySelector }: IContext
+    { user, commonQuerySelector, models: { Boards } }: IContext
   ) {
     const pipelineFilter = user.isOwner
       ? {}
@@ -106,7 +97,7 @@ const boardQueries = {
   async boardCounts(
     _root,
     { type }: { type: string },
-    { commonQuerySelector }: IContext
+    { commonQuerySelector, models: { Boards, Pipelines } }: IContext
   ) {
     const boards = await Boards.find({ ...commonQuerySelector, type })
       .sort({
@@ -143,7 +134,7 @@ const boardQueries = {
   boardDetail(
     _root,
     { _id }: { _id: string },
-    { commonQuerySelector }: IContext
+    { commonQuerySelector, models: { Boards } }: IContext
   ) {
     return Boards.findOne({ ...commonQuerySelector, _id }).lean();
   },
@@ -154,7 +145,7 @@ const boardQueries = {
   boardGetLast(
     _root,
     { type }: { type: string },
-    { commonQuerySelector }: IContext
+    { commonQuerySelector, models: { Boards } }: IContext
   ) {
     return Boards.findOne({ ...commonQuerySelector, type })
       .sort({
@@ -180,7 +171,7 @@ const boardQueries = {
       page: number;
       perPage: number;
     },
-    { user }
+    { user, models: { Pipelines } }: IContext
   ) {
     const query: any =
       user.isOwner || isAll
@@ -227,7 +218,8 @@ const boardQueries = {
 
   async pipelineStateCount(
     _root,
-    { boardId, type }: { boardId: string; type: string }
+    { boardId, type }: { boardId: string; type: string },
+    { models: { Pipelines } }: IContext
   ) {
     const query: any = {};
 
@@ -284,20 +276,20 @@ const boardQueries = {
   /**
    *  Pipeline detail
    */
-  pipelineDetail(_root, { _id }: { _id: string }) {
+  pipelineDetail(_root, { _id }: { _id: string }, { models: { Pipelines } }: IContext) {
     return Pipelines.findOne({ _id }).lean();
   },
 
   /**
    *  Pipeline related assigned users
    */
-  async pipelineAssignedUsers(_root, { _id }: { _id: string }) {
-    const pipeline = await Pipelines.getPipeline(_id);
-    const stageIds = await Stages.find({ pipelineId: pipeline._id }).distinct(
+  async pipelineAssignedUsers(_root, { _id }: { _id: string }, { models }: IContext) {
+    const pipeline = await models.Pipelines.getPipeline(_id);
+    const stageIds = await models.Stages.find({ pipelineId: pipeline._id }).distinct(
       '_id'
     );
 
-    const { collection } = getCollection(pipeline.type);
+    const { collection } = getCollection(models, pipeline.type);
 
     const assignedUserIds = await collection
       .find({ stageId: { $in: stageIds } })
@@ -315,7 +307,7 @@ const boardQueries = {
       pipelineId,
       isNotLost,
       isAll
-    }: { pipelineId: string; isNotLost: boolean; isAll: boolean }
+    }: { pipelineId: string; isNotLost: boolean; isAll: boolean }, { models: { Stages } }: IContext
   ) {
     const filter: any = {};
 
@@ -340,8 +332,10 @@ const boardQueries = {
       pipelineId,
       type,
       stackBy
-    }: { pipelineId: string; type: string; stackBy: string }
+    }: { pipelineId: string; type: string; stackBy: string }, { models, coreModels }: IContext
   ) {
+    const { Stages, PipelineLabels } = models;
+
     let groups;
     let detailFilter;
 
@@ -412,7 +406,7 @@ const boardQueries = {
       }
     }
 
-    const { collection } = getCollection(type);
+    const { collection } = getCollection(models, type);
 
     const assignedUserIds = await collection
       .find(filter)
@@ -422,7 +416,7 @@ const boardQueries = {
       return {};
     }
 
-    const users = await Users.find({ _id: { $in: assignedUserIds } });
+    const users = await coreModels.Users.find({ _id: { $in: assignedUserIds } });
 
     const usersWithInfo: Array<{ name: string }> = [];
     const countsByGroup = {};
@@ -465,7 +459,7 @@ const boardQueries = {
   /**
    *  Stage detail
    */
-  stageDetail(_root, { _id }: { _id: string }) {
+  stageDetail(_root, { _id }: { _id: string }, { models: { Stages } }: IContext) {
     return Stages.findOne({ _id }).lean();
   },
 
@@ -479,7 +473,8 @@ const boardQueries = {
       pipelineId,
       search,
       ...listArgs
-    }: { pipelineId: string; search?: string; page?: number; perPage?: number }
+    }: { pipelineId: string; search?: string; page?: number; perPage?: number },
+    { models: { Stages } }: IContext
   ) {
     const filter: any = { pipelineId, status: BOARD_STATUSES.ARCHIVED };
 
@@ -492,7 +487,8 @@ const boardQueries = {
 
   archivedStagesCount(
     _root,
-    { pipelineId, search }: { pipelineId: string; search?: string }
+    { pipelineId, search }: { pipelineId: string; search?: string },
+    { models: { Stages }}: IContext
   ) {
     const filter: any = { pipelineId, status: BOARD_STATUSES.ARCHIVED };
 
@@ -506,7 +502,7 @@ const boardQueries = {
   /**
    *  ConvertTo info
    */
-  async convertToInfo(_root, { conversationId }: { conversationId: string }) {
+  async convertToInfo(_root, { conversationId }: { conversationId: string }, { models: { Deals, Stages, Pipelines, Boards, Tasks, Tickets} }: IContext) {
     const filter = { sourceConversationIds: { $in: [conversationId] } };
     let dealUrl = '';
     let ticketUrl = '';
@@ -557,11 +553,11 @@ const boardQueries = {
     }:
     { type: string; boardId: string; pipelineId: string }
   ) {
-    const segments = await sendSegmentMessage('find', {
+    const segments = await sendSegmentsMessage('find', {
         contentType: type,
         boardId,
         pipelineId
-    }, true)
+    }, true, [])
 
     const counts = {};
 

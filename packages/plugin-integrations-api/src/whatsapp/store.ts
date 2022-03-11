@@ -134,7 +134,7 @@ export const createMessage = async (message, conversationIds) => {
     content: message.body
   });
 
-  let attachments = [];
+  let attachments: any[] = [];
 
   if (message.type !== 'chat') {
     attachments = [{ type: message.type, url: message.body }];

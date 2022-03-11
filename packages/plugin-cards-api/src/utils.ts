@@ -1,18 +1,8 @@
 import { debug } from './configs';
-import {
-  Boards,
-  Pipelines,
-  Stages,
-  Deals,
-  Tasks,
-  Tickets,
-  GrowthHacks,
-  Checklists,
-  ChecklistItems
-} from './models';
-import { sendConformityMessage } from './messageBroker';
 import { getCollection } from './models/utils';
 import { MODULE_NAMES } from './constants';
+import { IModels } from './connectionResolver';
+import { sendCoreMessage } from './messageBroker';
 
 export const configReplacer = (config) => {
   const now = new Date();
@@ -24,7 +14,7 @@ export const configReplacer = (config) => {
     .replace(/\{day}/g, now.getDate().toString());
 };
 
-export const generateConditionStageIds = async ({
+export const generateConditionStageIds = async (models: IModels, {
   boardId,
   pipelineId,
   options,
@@ -40,9 +30,9 @@ export const generateConditionStageIds = async ({
   }
 
   if (boardId && (!options || !options.pipelineId)) {
-    const board = await Boards.getBoard(boardId);
+    const board = await models.Boards.getBoard(boardId);
 
-    const pipelines = await Pipelines.find(
+    const pipelines = await models.Pipelines.find(
       {
         _id: {
           $in: pipelineId ? [pipelineId] : board.pipelines || [],
@@ -54,12 +44,13 @@ export const generateConditionStageIds = async ({
     pipelineIds = pipelines.map((p) => p._id);
   }
 
-  const stages = await Stages.find({ pipelineId: pipelineIds }, { _id: 1 });
+  const stages = await models.Stages.find({ pipelineId: pipelineIds }, { _id: 1 });
 
   return stages.map((s) => s._id);
 };
 
-export const getContentItem = async (activityLog) => {
+export const getContentItem = async (models: IModels, activityLog) => {
+  const { Deals, Tasks, Tickets, GrowthHacks, Stages } = models;
   const { action, content, contentType, contentId } = activityLog;
 
   const type = contentType && typeof contentType === 'string' ? contentType.split(':')[1] : '';
@@ -105,8 +96,10 @@ export const getContentItem = async (activityLog) => {
   }
 };
 
-export const getContentTypeDetail = async (activityLog) => {
+export const getContentTypeDetail = async (models: IModels, activityLog) => {
+  const { Deals, Tickets, Tasks, GrowthHacks, ChecklistItems, Checklists } = models;
   const { contentType = '', contentId, content } = activityLog;
+
   let item = {};
 
   try {
@@ -139,15 +132,15 @@ export const getContentTypeDetail = async (activityLog) => {
   return item;
 };
 
-export const collectItems = async ({ contentType, contentId }) => {
+export const collectItems = async (models: IModels, { contentType, contentId }) => {
   const type = contentType.indexOf(':') !== -1 ? contentType.split(':')[1] : contentType;
-  const { collection } = getCollection(type);
+  const { collection } = getCollection(models, type);
 
-  const relatedItemIds = await sendConformityMessage('savedConformity', {
+  const relatedItemIds = await sendCoreMessage('savedConformity', {
     mainType: contentType,
     mainTypeId: contentId,
     relTypes: type === 'task' ? ['deal', 'ticket', 'task'] : ['deal', 'ticket']
-  });
+  }, true, []);
 
   const items = await collection.find({
     $and: [
@@ -180,16 +173,18 @@ export const collectItems = async ({ contentType, contentId }) => {
 }
 
 // contentType should come with "cards:deal|task|ticket|growthHack" format
-export const getCardContentIds = async ({ pipelineId, contentType }) => {
+export const getCardContentIds = async (models: IModels, { pipelineId, contentType }) => {
   const type = contentType.indexOf(':') !== -1 ? contentType.split(':')[1] : contentType;
-  const stageIds = await Stages.find({ pipelineId }).distinct('_id');
-  const { collection } = getCollection(type);
+  const stageIds = await models.Stages.find({ pipelineId }).distinct('_id');
+  const { collection } = getCollection(models, type);
 
   return collection.find({ stageId: { $in: stageIds } }).distinct('_id');
 };
 
-export const getCardItem = async ({ contentTypeId, contentType }) => {
+export const getCardItem = async (models: IModels, { contentTypeId, contentType }) => {
+  const { Deals, Tasks, Tickets, GrowthHacks } = models;
   const filter = { _id: contentTypeId };
+
   let item;
 
   switch (contentType) {

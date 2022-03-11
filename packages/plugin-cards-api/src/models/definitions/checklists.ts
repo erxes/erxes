@@ -33,7 +33,6 @@ export const checklistSchema = new Schema({
   _id: field({ pkey: true }),
   contentType: field({
     type: String,
-    enum: ACTIVITY_CONTENT_TYPES.ALL,
     label: 'Content type',
     index: true,
   }),

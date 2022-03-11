@@ -71,14 +71,16 @@ export default (props: Props) => {
       graphql<
         Props,
         FieldsGroupsQueryResponse,
-        { contentType: string; boardId: string }
+        { contentType: string; config: { boardId: string } }
       >(gql(fieldQueries.fieldsGroups), {
         name: 'fieldsGroupsQuery',
         options: () => ({
           variables: {
             contentType: options.type,
-            boardId: item.boardId || '',
-            pipelineId: item.pipeline._id || ''
+            config: {
+              boardId: item.boardId || '',
+              pipelineId: item.pipeline._id || ''
+            }
           }
         })
       }),

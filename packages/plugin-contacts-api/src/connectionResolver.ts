@@ -44,8 +44,10 @@ export const generateModels = async (
   return models;
 };
 
-const connectCore = async () => {
-  const url = process.env.API_MONGO_URL || '';
+export const connectCore = async () => {
+  if(coreModels) { return coreModels; }
+
+  const url = process.env.API_MONGO_URL || 'mongodb://localhost/erxes';
   const client = new MongoClient(url);
 
   let db;
@@ -56,7 +58,7 @@ const connectCore = async () => {
 
   db = client.db();
 
-  return {
+  coreModels =  {
     Configs: await db.collection('configs'),
     Brands: await db.collection('brands'),
     Users: await db.collection('users'),
@@ -66,6 +68,8 @@ const connectCore = async () => {
     EmailDeliveries: await db.collection('email_deliveries'),
     FormSubmissions: await db.collection('form_submissions'),
   }
+
+  return coreModels;
 }
 
 export const loadClasses = (db: mongoose.Connection): IModels => {

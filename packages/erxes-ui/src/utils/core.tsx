@@ -1,3 +1,7 @@
+declare var __webpack_init_sharing__;
+declare var __webpack_share_scopes__;
+declare var window;
+
 import dayjs from "dayjs";
 import T from "i18n-react";
 import React from "react";
@@ -9,6 +13,60 @@ import * as router from "./router";
 import urlParser from "./urlParser";
 
 export { urlParser, router };
+
+export const loadComponent = (scope, module) => {
+  return async () => {
+    // Initializes the share scope. This fills it with known provided modules from this build and all remotes
+    await __webpack_init_sharing__("default");
+
+    const container = window[scope]; // or get the container somewhere else
+
+    // Initialize the container, it may provide shared modules
+    await container.init(__webpack_share_scopes__.default);
+    const factory = await window[scope].get(module);
+
+    const Module = factory();
+    return Module;
+  };
+};
+
+export class RenderDynamicComponent extends React.Component<{ scope: string, component: any, injectedProps: any }, { showComponent: boolean }> {
+  constructor(props) {
+    super(props);
+
+    this.state = { showComponent: false };
+  }
+
+  componentDidMount() {
+    const interval = setInterval(() => {
+      if (window[this.props.scope]) {
+        window.clearInterval(interval);
+
+        this.setState({ showComponent: true });
+      }
+    }, 500);
+  }
+
+  renderComponent = () => {
+    if (!this.state.showComponent) {
+      return null;
+    }
+
+    const { scope, component, injectedProps } = this.props;
+
+    const Component = React.lazy(loadComponent(scope, component));
+
+    return (
+      <React.Suspense fallback="">
+        <Component {...injectedProps} />
+      </React.Suspense>
+    );
+  };
+
+  render() {
+    return this.renderComponent();
+  }
+}
 
 export const renderFullName = (data) => {
   if (data.firstName || data.lastName || data.middleName) {

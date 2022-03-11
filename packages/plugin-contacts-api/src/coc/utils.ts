@@ -1,12 +1,11 @@
 import * as _ from 'underscore';
-import { Brands } from '../apiCollections';
 import { companySchema } from '../models/definitions/companies';
 import { KIND_CHOICES } from '../models/definitions/constants';
 import { customerSchema } from '../models/definitions/customers';
 import { debug, es } from '../configs';
 import { COC_LEAD_STATUS_TYPES } from '../constants';
 import { fetchSegment, findOneTag, findTags, sendConformityMessage, sendSegmentMessage } from '../messageBroker';
-import { IModels } from '../connectionResolver';
+import { ICoreIModels, IModels } from '../connectionResolver';
 
 export interface ICountBy {
   [index: string]: number;
@@ -35,7 +34,6 @@ export const countBySegment = async (
   const counts: ICountBy = {};
 
   // Count cocs by segments
-  // let segments: ISegmentDocument[] = [];
   let segments: any[] = [];
 
   // show all contact related engages when engage
@@ -60,7 +58,7 @@ export const countBySegment = async (
   return counts;
 };
 
-export const countByBrand = async (qb): Promise<ICountBy> => {
+export const countByBrand = async ({ Brands }: ICoreIModels,qb): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
   // Count customers by brand
@@ -97,6 +95,7 @@ export const countByLeadStatus = async (qb): Promise<ICountBy> => {
 
   for (const type of COC_LEAD_STATUS_TYPES) {
     await qb.buildAllQueries();
+
     qb.leadStatusFilter(type);
 
     counts[type] = await qb.runQueries('count');
@@ -145,11 +144,13 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public positiveList: any[];
   public negativeList: any[];
   public models: IModels;
+  public coreModels: ICoreIModels;
 
   private contentType: 'customers' | 'companies';
 
   constructor(
     models: IModels,
+    coreModels: ICoreIModels,
     contentType: 'customers' | 'companies',
     params: IListArgs,
     context
@@ -158,6 +159,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     this.context = context;
     this.params = params;
     this.models = models;
+    this.coreModels = coreModels;
 
     this.positiveList = [];
     this.negativeList = [];

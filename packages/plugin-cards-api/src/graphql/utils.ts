@@ -1,4 +1,3 @@
-import { Boards, Checklists, PipelineLabels, Pipelines, Stages } from '../models';
 import { getNewOrder } from '../models/utils';
 import { NOTIFICATION_TYPES } from '../models/definitions/constants';
 import { IDealDocument } from '../models/definitions/deals';
@@ -7,11 +6,9 @@ import { ITaskDocument } from '../models/definitions/tasks';
 import { ITicketDocument } from '../models/definitions/tickets';
 import { can, checkLogin } from '@erxes/api-utils/src';
 import * as _ from 'underscore';
-import {
-  sendConformityMessage,
-  sendNotificationMessage,
-} from '../messageBroker';
 import { IUserDocument } from '@erxes/api-utils/src/types';
+import { sendCoreMessage, sendNotificationsMessage } from '../messageBroker';
+import { IModels } from '../connectionResolver';
 
 export interface IConformityAdd {
   mainType: string;
@@ -24,18 +21,18 @@ export interface IConformityAdd {
  * Send a notification
  */
 export const sendNotification = (doc) => {
-  return sendNotificationMessage('send', doc);
+  return sendNotificationsMessage('send', doc);
 };
 
-export const notifiedUserIds = async (item: any) => {
+export const notifiedUserIds = async (models: IModels, item: any) => {
   let userIds: string[] = [];
 
   userIds = userIds.concat(item.assignedUserIds || []);
 
   userIds = userIds.concat(item.watchedUserIds || []);
 
-  const stage = await Stages.getStage(item.stageId);
-  const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+  const stage = await models.Stages.getStage(item.stageId);
+  const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
   userIds = userIds.concat(pipeline.watchedUserIds || []);
 
@@ -56,7 +53,7 @@ export interface IBoardNotificationParams {
 /**
  * Send notification to all members of this content except the sender
  */
-export const sendNotifications = async ({
+export const sendNotifications = async (models: IModels, {
   item,
   user,
   type,
@@ -66,9 +63,8 @@ export const sendNotifications = async ({
   invitedUsers,
   removedUsers
 }: IBoardNotificationParams) => {
-  const stage = await Stages.getStage(item.stageId);
-
-  const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+  const stage = await models.Stages.getStage(item.stageId);
+  const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
   const title = `${contentType} updated`;
 
@@ -93,7 +89,7 @@ export const sendNotifications = async ({
     link: `/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
 
     // exclude current user, invited user and removed users
-    receivers: (await notifiedUserIds(item)).filter(id => {
+    receivers: (await notifiedUserIds(models, item)).filter(id => {
       return usersToExclude.indexOf(id) < 0;
     })
   };
@@ -124,10 +120,10 @@ export const sendNotifications = async ({
   });
 };
 
-export const boardId = async (item: any) => {
-  const stage = await Stages.getStage(item.stageId);
-  const pipeline = await Pipelines.getPipeline(stage.pipelineId);
-  const board = await Boards.getBoard(pipeline.boardId);
+export const boardId = async (models: IModels, item: any) => {
+  const stage = await models.Stages.getStage(item.stageId);
+  const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+  const board = await models.Boards.getBoard(pipeline.boardId);
 
   return board._id;
 };
@@ -240,6 +236,7 @@ export const createConformity = async ({
       relTypeId: companyId
     })
   );
+
   const customerConformities: IConformityAdd[] = (customerIds || []).map(
     customerId => ({
       mainType,
@@ -248,9 +245,10 @@ export const createConformity = async ({
       relTypeId: customerId
     })
   );
+
   const allConformities = companyConformities.concat(customerConformities);
 
-  sendConformityMessage('addConformities', allConformities);
+  sendCoreMessage('addConformities', allConformities);
 };
 
 interface ILabelParams {
@@ -262,11 +260,11 @@ interface ILabelParams {
 /**
  * Copies pipeline labels alongside deal/task/tickets when they are moved between different pipelines.
  */
-export const copyPipelineLabels = async (params: ILabelParams) => {
+export const copyPipelineLabels = async (models: IModels, params: ILabelParams) => {
   const { item, doc, user } = params;
 
-  const oldStage = await Stages.findOne({ _id: item.stageId }).lean();
-  const newStage = await Stages.findOne({ _id: doc.stageId }).lean();
+  const oldStage = await models.Stages.findOne({ _id: item.stageId }).lean();
+  const newStage = await models.Stages.findOne({ _id: doc.stageId }).lean();
 
   if (!(oldStage && newStage)) {
     throw new Error('Stage not found');
@@ -276,12 +274,13 @@ export const copyPipelineLabels = async (params: ILabelParams) => {
     return;
   }
 
-  const oldLabels = await PipelineLabels.find({
+  const oldLabels = await models.PipelineLabels.find({
     _id: { $in: item.labelIds }
   }).lean();
+
   const updatedLabelIds: string[] = [];
 
-  const existingLabels = await PipelineLabels.find({
+  const existingLabels = await models.PipelineLabels.find({
     name: { $in: oldLabels.map(o => o.name) },
     colorCode: { $in: oldLabels.map(o => o.colorCode) },
     pipelineId: newStage.pipelineId
@@ -315,7 +314,7 @@ export const copyPipelineLabels = async (params: ILabelParams) => {
   } // end label loop
 
   // Insert labels that don't already exist on the new stage's pipeline
-  const newLabels = await PipelineLabels.insertMany(notExistingLabels, {
+  const newLabels = await models.PipelineLabels.insertMany(notExistingLabels, {
     ordered: false
   });
 
@@ -323,7 +322,7 @@ export const copyPipelineLabels = async (params: ILabelParams) => {
     updatedLabelIds.push(newLabel._id);
   }
 
-  await PipelineLabels.labelsLabel(
+  await models.PipelineLabels.labelsLabel(
     newStage.pipelineId,
     item._id,
     updatedLabelIds
@@ -340,15 +339,15 @@ interface IChecklistParams {
 /**
  * Copies checklists of board item
  */
-export const copyChecklists = async (params: IChecklistParams) => {
+export const copyChecklists = async (models: IModels, params: IChecklistParams) => {
   const { contentType, contentTypeId, targetContentId, user } = params;
 
-  const originalChecklists = await Checklists.find({
+  const originalChecklists = await models.Checklists.find({
     contentType,
     contentTypeId
   }).lean();
 
-  const clonedChecklists = await Checklists.insertMany(
+  const clonedChecklists = await models.Checklists.insertMany(
     originalChecklists.map(originalChecklist => ({
       contentType,
       contentTypeId: targetContentId,
@@ -368,11 +367,11 @@ export const copyChecklists = async (params: IChecklistParams) => {
     );
   }
 
-  const originalChecklistItems = await Checklists.find({
+  const originalChecklistItems = await models.Checklists.find({
     checklistId: { $in: originalChecklists.map(x => x._id) }
   }).lean();
 
-  await Checklists.insertMany(
+  await models.Checklists.insertMany(
     originalChecklistItems.map(({ content, order, checklistId }) => ({
       checklistId: originalChecklistIdToClonedId.get(checklistId),
       isChecked: false,

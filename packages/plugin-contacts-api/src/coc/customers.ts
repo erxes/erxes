@@ -1,7 +1,6 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
-import { FormSubmissions } from '../apiCollections';
-import { IModels } from '../connectionResolver';
+import { ICoreIModels, IModels } from '../connectionResolver';
 import { findIntegrations } from '../messageBroker';
 import { CommonBuilder } from './utils';
 
@@ -49,8 +48,8 @@ export interface IListArgs extends IConformityQueryParams {
 }
 
 export class Builder extends CommonBuilder<IListArgs> {
-  constructor(models:IModels, params: IListArgs, context) {
-    super(models, 'customers', params, context);
+  constructor(models:IModels, coreModels: ICoreIModels, params: IListArgs, context) {
+    super(models, coreModels, 'customers', params, context);
 
     this.addStateFilter();
   }
@@ -120,7 +119,7 @@ export class Builder extends CommonBuilder<IListArgs> {
     startDate?: string,
     endDate?: string
   ): Promise<void> {
-    const submissions = await FormSubmissions.find({ formId }).toArray();
+    const submissions = await this.coreModels.FormSubmissions.find({ formId }).toArray();
     const ids: string[] = [];
 
     for (const submission of submissions) {

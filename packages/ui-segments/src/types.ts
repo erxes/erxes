@@ -28,17 +28,14 @@ export interface ISegmentCondition {
 
   subSegmentId?: string;
 
-  boardId?: string;
-  pipelineId?: string;
-
-  formId?: string;
+  config?: any;
 }
 
 export interface ISegmentMap {
   _id?: string;
   key: string;
   contentType: string;
-  pipelineId?: string;
+  config?: any;
   conditions: ISegmentCondition[];
   conditionsConjunction: string;
 }
@@ -70,8 +67,7 @@ export interface ISegmentDoc {
   subOf: string;
   subSegments?: ISubSegment[];
   conditionsConjunction: string;
-  boardId: string;
-  pipelineId: string;
+  config: any;
   shouldWriteActivityLog: boolean;
 }
 
@@ -82,6 +78,7 @@ export interface ISegment extends ISegmentDoc {
   getSubSegments: ISegment[];
   subSegmentConditions: ISegment[];
   getParentSegment: ISegment;
+  config: any;
 }
 
 export type SegmentsQueryResponse = {
@@ -115,7 +112,9 @@ export type IField = {
 };
 
 export type AddMutationResponse = {
-  segmentsAdd: (params: { variables: ISegmentWithConditionDoc }) => Promise<any>;
+  segmentsAdd: (params: {
+    variables: ISegmentWithConditionDoc;
+  }) => Promise<any>;
 };
 
 export type EditMutationResponse = {

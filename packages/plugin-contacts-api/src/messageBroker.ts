@@ -1,5 +1,3 @@
-import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
-
 import {
   findCompany,
   findCustomer,
@@ -8,160 +6,210 @@ import {
   prepareEngageCustomers
 } from './utils';
 import { serviceDiscovery } from './configs';
-import { LOG_MAPPINGS } from './constants';
-import { insertImportItems, prepareImportDocs } from './importUtils';
-import { ICoreIModels, IModels } from './connectionResolver';
+import { generateModels, connectCore } from './connectionResolver';
 
 export let client;
 
-export const initBroker = (cl, models: IModels, _coreModels: ICoreIModels) => {
+export const initBroker = cl => {
   client = cl;
-
-  const { Customers, Companies } = models;
 
   const { consumeRPCQueue, consumeQueue } = client;
 
-  consumeRPCQueue('contacts:rpc_queue:getCustomerName', async customer => ({
-    data: await Customers.getCustomerName(customer),
-    status: 'success'
-  }));
+  consumeRPCQueue('contacts:rpc_queue:getCustomerName', async customer => {
+    const { Customers } = await generateModels('os');
+    return {
+      data: await Customers.getCustomerName(customer),
+      status: 'success'
+    };
+  });
 
-  consumeRPCQueue('contacts:rpc_queue:findCustomer', async doc => ({
-    status: 'success',
-    data: await findCustomer(models, doc)
-  }));
+  consumeRPCQueue('contacts:rpc_queue:findCustomer', async doc => {
+    const models = await generateModels('os');
+    return {
+      status: 'success',
+      data: await findCustomer(models, doc)
+    };
+  });
 
-  consumeRPCQueue('contacts:rpc_queue:findCompany', async doc => ({
-    status: 'success',
-    data: await findCompany(models, doc)
-  }));
+  consumeRPCQueue('contacts:rpc_queue:findCompany', async doc => {
+    const models = await generateModels('os');
+    return {
+      status: 'success',
+      data: await findCompany(models, doc)
+    };
+  });
 
-  consumeRPCQueue('contacts:rpc_queue:getCustomers', async doc => ({
-    status: 'success',
-    data: await Customers.find(doc)
-  }));
+  consumeRPCQueue('contacts:rpc_queue:getCustomers', async doc => {
+    const { Customers } = await generateModels('os');
+    return {
+      status: 'success',
+      data: await Customers.find(doc)
+    };
+  });
 
-  consumeRPCQueue('contacts:rpc_queue:getCustomerIds', async selector => ({
-    status: 'success',
-    data: await Customers.find(selector).distinct('_id')
-  }));
+  consumeRPCQueue('contacts:rpc_queue:getCustomerIds', async selector => {
+    const { Customers } = await generateModels('os');
+    return {
+      status: 'success',
+      data: await Customers.find(selector).distinct('_id')
+    };
+  });
 
   consumeRPCQueue(
     'contacts:rpc_queue:findActiveCustomers',
-    async ({ selector, fields }) => ({
-      status: 'success',
-      data: await Customers.findActiveCustomers(selector, fields)
-    })
+    async ({ selector, fields }) => {
+      const { Customers } = await generateModels('os');
+      return {
+        status: 'success',
+        data: await Customers.findActiveCustomers(selector, fields)
+      };
+    }
   );
 
   consumeRPCQueue(
     'contacts:Customers.findOne',
-    async ({ selector, fields }) => ({
-      status: 'success',
-      data: await Customers.findOne(selector, fields).lean()
-    })
+    async ({ selector, fields }) => {
+      const { Customers } = await generateModels('os');
+      return {
+        status: 'success',
+        data: await Customers.findOne(selector, fields).lean()
+      };
+    }
   );
 
   consumeRPCQueue(
     'contacts:rpc_queue:findActiveCompanies',
-    async ({ selector, fields }) => ({
-      status: 'success',
-      data: await Companies.findActiveCompanies(selector, fields)
-    })
+    async ({ selector, fields }) => {
+      const { Companies } = await generateModels('os');
+      return {
+        status: 'success',
+        data: await Companies.findActiveCompanies(selector, fields)
+      };
+    }
   );
 
-  consumeRPCQueue('contacts:rpc_queue:create_customer', async data => ({
-    status: 'success',
-    data: await Customers.createCustomer(data)
-  }));
+  consumeRPCQueue('contacts:rpc_queue:create_customer', async data => {
+    const { Customers } = await generateModels('os');
+    return {
+      status: 'success',
+      data: await Customers.createCustomer(data)
+    };
+  });
 
-  consumeRPCQueue('contacts:rpc_queue:createCompany', async data => ({
-    status: 'success',
-    data: await Companies.createCompany(data)
-  }));
+  consumeRPCQueue('contacts:rpc_queue:createCompany', async data => {
+    const { Companies } = await generateModels('os');
+    return {
+      status: 'success',
+      data: await Companies.createCompany(data)
+    };
+  });
 
-  consumeRPCQueue(
-    'contacts:rpc_queue:updateCustomer',
-    async ({ _id, doc }) => ({
+  consumeRPCQueue('contacts:rpc_queue:updateCustomer', async ({ _id, doc }) => {
+    const { Customers } = await generateModels('os');
+    return {
       status: 'success',
       data: await Customers.updateCustomer(_id, doc)
-    })
-  );
+    };
+  });
 
   consumeRPCQueue(
     'contacts:rpc_queue:updateCustomerCommon',
-    async ({ selector, modifier }) => ({
-      status: 'success',
-      data: await Customers.updateOne(selector, modifier)
-    })
+    async ({ selector, modifier }) => {
+      const { Customers } = await generateModels('os');
+      return {
+        status: 'success',
+        data: await Customers.updateOne(selector, modifier)
+      };
+    }
   );
 
-  consumeQueue('contacts:removeCustomers', async doc => ({
-    status: 'success',
-    data: await Customers.removeCustomers(doc)
-  }));
+  consumeQueue('contacts:removeCustomers', async doc => {
+    const { Customers } = await generateModels('os');
+    return {
+      status: 'success',
+      data: await Customers.removeCustomers(doc)
+    };
+  });
 
-  consumeRPCQueue('contacts:rpc_queue:updateCompany', async ({ _id, doc }) => ({
-    status: 'success',
-    data: await Companies.updateCompany(_id, doc)
-  }));
+  consumeRPCQueue('contacts:rpc_queue:updateCompany', async ({ _id, doc }) => {
+    const { Companies } = await generateModels('os');
+    return {
+      status: 'success',
+      data: await Companies.updateCompany(_id, doc)
+    };
+  });
 
   consumeRPCQueue(
     'contacts:rpc_queue:updateCompanyCommon',
-    async ({ selector, modifier }) => ({
+    async ({ selector, modifier }) => {
+      const { Companies } = await generateModels('os');
+      return {
+        status: 'success',
+        data: await Companies.updateOne(selector, modifier)
+      };
+    }
+  );
+
+  consumeRPCQueue('contacts:rpc_queue:getWidgetCustomer', async data => {
+    const { Customers } = await generateModels('os');
+    return {
       status: 'success',
-      data: await Companies.updateOne(selector, modifier)
-    })
+      data: await Customers.getWidgetCustomer(data)
+    };
+  });
+
+  consumeRPCQueue('contacts:rpc_queue:updateMessengerCustomer', async data => {
+    const { Customers } = await generateModels('os');
+    return {
+      status: 'success',
+      data: await Customers.updateMessengerCustomer(data)
+    };
+  });
+
+  consumeRPCQueue('contacts:rpc_queue:createMessengerCustomer', async data => {
+    const { Customers } = await generateModels('os');
+    return {
+      status: 'success',
+      data: await Customers.createMessengerCustomer(data)
+    };
+  });
+
+  consumeRPCQueue('contacts:rpc_queue:saveVisitorContactInfo', async data => {
+    const { Customers } = await generateModels('os');
+    return {
+      status: 'success',
+      data: await Customers.saveVisitorContactInfo(data)
+    };
+  });
+
+  consumeQueue(
+    'contacts:updateLocation',
+    async ({ customerId, browserInfo }) => {
+      const { Customers } = await generateModels('os');
+      Customers.updateLocation(customerId, browserInfo);
+    }
   );
 
-  consumeRPCQueue('contacts:rpc_queue:getWidgetCustomer', async data => ({
-    status: 'success',
-    data: await Customers.getWidgetCustomer(data)
-  }));
+  consumeQueue('contacts:updateSession', async ({ customerId }) => {
+    const { Customers } = await generateModels('os');
+    Customers.updateSession(customerId);
+  });
 
-  consumeRPCQueue('contacts:rpc_queue:updateMessengerCustomer', async data => ({
-    status: 'success',
-    data: await Customers.updateMessengerCustomer(data)
-  }));
-
-  consumeRPCQueue('contacts:rpc_queue:createMessengerCustomer', async data => ({
-    status: 'success',
-    data: await Customers.createMessengerCustomer(data)
-  }));
-
-  consumeRPCQueue('contacts:rpc_queue:saveVisitorContactInfo', async data => ({
-    status: 'success',
-    data: await Customers.saveVisitorContactInfo(data)
-  }));
-
-  consumeQueue('contacts:updateLocation', ({ customerId, browserInfo }) =>
-    Customers.updateLocation(customerId, browserInfo)
-  );
-
-  consumeQueue('contacts:updateSession', ({ customerId }) =>
-    Customers.updateSession(customerId)
-  );
-
-  consumeRPCQueue('contacts:rpc_queue:getFields', async args => ({
-    status: 'success',
-    data: await generateFields(models, args)
-  }));
-
-  consumeRPCQueue('contacts:rpc_queue:prepareImportDocs', async args => ({
-    status: 'success',
-    data: await prepareImportDocs(args)
-  }));
-
-  consumeRPCQueue('contacts:rpc_queue:insertImportItems', async args => ({
-    status: 'success',
-    data: await insertImportItems(models, args)
-  }));
+  consumeRPCQueue('contacts:rpc_queue:getFields', async args => {
+    const models = await generateModels('os');
+    return {
+      status: 'success',
+      data: await generateFields(models, args)
+    };
+  });
 
   consumeRPCQueue('contacts:getCustomerName', async customer => {
+    const { Customers } = await generateModels('os');
     return { data: Customers.getCustomerName(customer), status: 'success' };
   });
 
   consumeRPCQueue('contacts:rpc_queue:getContentItem', async data => {
+    const models = await generateModels('os');
     return {
       status: 'success',
       data: await getContentItem(models, data)
@@ -169,6 +217,7 @@ export const initBroker = (cl, models: IModels, _coreModels: ICoreIModels) => {
   });
 
   consumeRPCQueue('contacts:rpc_queue:prepareEngageCustomers', async data => {
+    const models = await generateModels('os');
     return {
       status: 'success',
       data: await prepareEngageCustomers(models, data)
@@ -176,6 +225,8 @@ export const initBroker = (cl, models: IModels, _coreModels: ICoreIModels) => {
   });
 
   consumeRPCQueue('contacts:rpc_queue:tag', async args => {
+    const { Companies, Customers } = await generateModels('os');
+
     let data = {};
     let model: any = Companies;
 
@@ -203,42 +254,39 @@ export const initBroker = (cl, models: IModels, _coreModels: ICoreIModels) => {
     };
   });
 
-  consumeRPCQueue('contacts:rpc_queue:generateInternalNoteNotif', async args => {
-    const { contentTypeId, notifDoc, type } = args;
-
-    let model: any = Customers;
-    let link = `/contacts/details/`;
-
-    if (type === 'company') {
-      model = Companies;
-      link = `/companies/details/`;
-    }
-
-    const response = await model.findOne({ _id: contentTypeId });
-
-    const name =
-      type === 'customer'
-        ? await Customers.getCustomerName(response)
-        : await Companies.getCompanyName(response);
-
-    notifDoc.notifType = `${type}Mention`;
-    notifDoc.content = name;
-    notifDoc.link = link + response._id;
-    notifDoc.contentTypeId = response._id;
-    notifDoc.contentType = `${type}`;
-
-    return {
-      status: 'success',
-      data: notifDoc
-    };
-  });
-
   consumeRPCQueue(
-    'contacts:rpc_queue:logs:getSchemaLabels',
-    async ({ type }) => ({
-      status: 'success',
-      data: getSchemaLabels(type, LOG_MAPPINGS)
-    })
+    'contacts:rpc_queue:generateInternalNoteNotif',
+    async args => {
+      const { contentTypeId, notifDoc, type } = args;
+
+      const { Customers, Companies } = await generateModels('os');
+
+      let model: any = Customers;
+      let link = `/contacts/details/`;
+
+      if (type === 'company') {
+        model = Companies;
+        link = `/companies/details/`;
+      }
+
+      const response = await model.findOne({ _id: contentTypeId });
+
+      const name =
+        type === 'customer'
+          ? await Customers.getCustomerName(response)
+          : await Companies.getCompanyName(response);
+
+      notifDoc.notifType = `${type}Mention`;
+      notifDoc.content = name;
+      notifDoc.link = link + response._id;
+      notifDoc.contentTypeId = response._id;
+      notifDoc.contentType = `${type}`;
+
+      return {
+        status: 'success',
+        data: notifDoc
+      };
+    }
   );
 };
 
@@ -251,7 +299,7 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
 };
 
 export const sendContactMessage = async (action, data): Promise<any> => {
-  if(!(await serviceDiscovery.isEnabled('contacts'))) {
+  if (!(await serviceDiscovery.isEnabled('contacts'))) {
     return;
   }
 
@@ -271,12 +319,11 @@ export const sendConformityMessage = async (action, data): Promise<any> => {
 };
 
 export const sendEngageMessage = async (action, data): Promise<any> => {
-  if(!(await serviceDiscovery.isEnabled('engages'))) {
+  if (!(await serviceDiscovery.isEnabled('engages'))) {
     return null;
   }
 
-
-  if(!(await serviceDiscovery.isAvailable('engages'))) {
+  if (!(await serviceDiscovery.isAvailable('engages'))) {
     throw new Error('Engages service is not available.');
   }
 
@@ -300,12 +347,11 @@ export const sendFieldRPCMessage = async (action, data): Promise<any> => {
 };
 
 export const findIntegrations = async (query, options?): Promise<any> => {
-  if(!(await serviceDiscovery.isEnabled('inbox'))) {
+  if (!(await serviceDiscovery.isEnabled('inbox'))) {
     return [];
   }
 
-
-  if(!(await serviceDiscovery.isAvailable('inbox'))) {
+  if (!(await serviceDiscovery.isAvailable('inbox'))) {
     throw new Error('Inbox service is not available.');
   }
 
@@ -316,34 +362,40 @@ export const findIntegrations = async (query, options?): Promise<any> => {
 };
 
 export const findTags = async (query): Promise<any> => {
-  if(!(await serviceDiscovery.isEnabled('tags'))) { return []; }
+  if (!(await serviceDiscovery.isEnabled('tags'))) {
+    return [];
+  }
 
-  if(!(await serviceDiscovery.isAvailable('tags'))) {
-    throw new Error("Tags service is not available");
+  if (!(await serviceDiscovery.isAvailable('tags'))) {
+    throw new Error('Tags service is not available');
   }
 
   return client.sendRPCMessage('tags:rpc_queue:find', query);
 };
 
 export const findOneTag = async (query): Promise<any> => {
-  if(!(await serviceDiscovery.isEnabled('tags'))) { return null; }
+  if (!(await serviceDiscovery.isEnabled('tags'))) {
+    return null;
+  }
 
-  if(!(await serviceDiscovery.isAvailable('tags'))) {
-    throw new Error("Tags service is not available");
+  if (!(await serviceDiscovery.isAvailable('tags'))) {
+    throw new Error('Tags service is not available');
   }
 
   return client.sendRPCMessage('tags:rpc_queue:findOne', query);
 };
 
-export const createTag =  async (doc) => {
-  if(!(await serviceDiscovery.isEnabled('tags'))) { return null; }
+export const createTag = async doc => {
+  if (!(await serviceDiscovery.isEnabled('tags'))) {
+    return null;
+  }
 
-  if(!(await serviceDiscovery.isAvailable('tags'))) {
-    throw new Error("Tags service is not available");
+  if (!(await serviceDiscovery.isAvailable('tags'))) {
+    throw new Error('Tags service is not available');
   }
 
   return client.sendRPCMessage('tags:createTag', doc);
-}
+};
 
 export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
@@ -351,13 +403,19 @@ export const sendToLog = (channel: string, data) =>
 export const removeCustomersConversations = async (
   customerIds
 ): Promise<any> => {
-  if(!(await serviceDiscovery.isEnabled("inbox"))) { return; }
+  if (!(await serviceDiscovery.isEnabled('inbox'))) {
+    return;
+  }
 
-  await client.sendMessage('inbox:removeCustomersConversations', { customerIds });
+  await client.sendMessage('inbox:removeCustomersConversations', {
+    customerIds
+  });
 };
 
 export const removeCustomersEngages = async (customerIds): Promise<any> => {
-  if(!(await serviceDiscovery.isEnabled("engages"))) { return; }
+  if (!(await serviceDiscovery.isEnabled('engages'))) {
+    return;
+  }
 
   await client.sendMessage('engage:removeCustomersEngages', customerIds);
 };
@@ -366,31 +424,38 @@ export const engageChangeCustomer = async (
   customerId,
   customerIds
 ): Promise<any> => {
-  if(!(await serviceDiscovery.isEnabled("engages"))) { return; }
-  
-  return client.sendMessage("engage:changeCustomer", {
+  if (!(await serviceDiscovery.isEnabled('engages'))) {
+    return;
+  }
+
+  return client.sendMessage('engage:changeCustomer', {
     customerId,
     customerIds
   });
 };
 
 export const fetchSegment = (segment, options?) =>
-  sendSegmentMessage('fetchSegment', { segment, options }, true)
+  sendSegmentMessage('fetchSegment', { segment, options }, true);
 
 export const sendSegmentMessage = async (action, data, isRPC?: boolean) => {
   if (!isRPC) {
     return sendMessage(`segments:${action}`, data);
   }
 
-  if(!(await serviceDiscovery.isAvailable('segments'))) {
-    throw new Error("Segments service is not available");
+  if (!(await serviceDiscovery.isAvailable('segments'))) {
+    throw new Error('Segments service is not available');
   }
 
   sendMessage(`segments:rpc_queue:${action}`, data);
-}
+};
 
-export const removeInternalNotes = async (contentType: string, contentTypeIds: string[]) => {
-  if (!(await serviceDiscovery.isEnabled("internalnotes"))) { return; }
+export const removeInternalNotes = async (
+  contentType: string,
+  contentTypeIds: string[]
+) => {
+  if (!(await serviceDiscovery.isEnabled('internalnotes'))) {
+    return;
+  }
 
   return sendMessage('internalnotes:InternalNotes.removeInternalNotes', {
     contentType,
@@ -398,8 +463,14 @@ export const removeInternalNotes = async (contentType: string, contentTypeIds: s
   });
 };
 
-export const internalNotesBatchUpdate = async (contentType: string, oldContentTypeIds: string[], newContentTypeId: string) => {
-  if (!(await serviceDiscovery.isEnabled("internalnotes"))) { return; }
+export const internalNotesBatchUpdate = async (
+  contentType: string,
+  oldContentTypeIds: string[],
+  newContentTypeId: string
+) => {
+  if (!(await serviceDiscovery.isEnabled('internalnotes'))) {
+    return;
+  }
 
   return sendMessage('internalNotes:batchUpdate', {
     contentType,
@@ -408,8 +479,13 @@ export const internalNotesBatchUpdate = async (contentType: string, oldContentTy
   });
 };
 
-export const inboxChangeCustomer = async (customerId: string, customerIds: string[]) => {
-  if(!(await serviceDiscovery.isEnabled("inbox"))) { return; }
+export const inboxChangeCustomer = async (
+  customerId: string,
+  customerIds: string[]
+) => {
+  if (!(await serviceDiscovery.isEnabled('inbox'))) {
+    return;
+  }
 
   return sendMessage('inbox:changeCustomer', { customerId, customerIds });
 };

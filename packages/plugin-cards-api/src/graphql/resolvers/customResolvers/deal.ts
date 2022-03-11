@@ -1,14 +1,7 @@
-import { PipelineLabels, Pipelines, Stages } from '../../../models';
 import { IDealDocument } from '../../../models/definitions/deals';
-import { IContext } from '@erxes/api-utils/src';
 import { boardId } from '../../utils';
-import { Fields } from '../../../apiCollections';
-import {
-  findProducts,
-  sendConformityMessage,
-  sendContactRPCMessage,
-  sendNotificationMessage,
-} from '../../../messageBroker';
+import { IContext } from '../../../connectionResolver';
+import { sendContactsMessage, sendCoreMessage, sendFormsMessage, sendNotificationsMessage, sendProductsMessage } from '../../../messageBroker';
 
 export const generateProducts = async productsData => {
   const products: any = [];
@@ -18,14 +11,14 @@ export const generateProducts = async productsData => {
       continue;
     }
 
-    const product = await findProducts('findOne', { _id: data.productId });
+    const product = await sendProductsMessage('findOne', { _id: data.productId }, true);
 
     const { customFieldsData } = product;
 
     const customFields: any[] = [];
 
     for (const customFieldData of customFieldsData || []) {
-      const field = await Fields.findOne({ _id: customFieldData.field }).lean();
+      const field = await sendFormsMessage('fields:findOne', { _id: customFieldData.field }, true);
 
       if (field) {
         customFields[customFieldData.field] = {
@@ -71,29 +64,29 @@ export const generateAmounts = productsData => {
 
 export default {
   async companies(deal: IDealDocument) {
-    const companyIds = await sendConformityMessage('savedConformity', {
+    const companyIds = await sendCoreMessage('savedConformity', {
       mainType: 'deal',
       mainTypeId: deal._id,
       relTypes: ['company']
-    });
+    }, true);
 
-    const activeCompanies = await sendContactRPCMessage('findActiveCompanies', {
+    const activeCompanies = await sendContactsMessage('findActiveCompanies', {
       selector: { _id: { $in: companyIds } }
-    });
+    }, true, []);
 
     return (activeCompanies || []).map(c => ({ __typename: "Company", _id: c._id }));
   },
 
   async customers(deal: IDealDocument) {
-    const customerIds = await sendConformityMessage('savedConformity', {
+    const customerIds = await sendCoreMessage('savedConformity', {
       mainType: 'deal',
       mainTypeId: deal._id,
       relTypes: ['customer']
-    });
+    }, true, []);
 
-    const activeCustomers = await sendContactRPCMessage('findActiveCustomers', {
+    const activeCustomers = await sendContactsMessage('findActiveCustomers', {
       selector: { _id: { $in: customerIds } }
-    });
+    }, true, []);
 
     return (activeCustomers || []).map(c => ({ __typename: "Customer", _id: c._id }));
   },
@@ -110,18 +103,18 @@ export default {
     return (deal.assignedUserIds || []).map( _id => ({ __typename: "User", _id }));
   },
 
-  async pipeline(deal: IDealDocument) {
-    const stage = await Stages.getStage(deal.stageId);
+  async pipeline(deal: IDealDocument, _args, { models }: IContext) {
+    const stage = await models.Stages.getStage(deal.stageId);
 
-    return Pipelines.findOne({ _id: stage.pipelineId }).lean();
+    return models.Pipelines.findOne({ _id: stage.pipelineId }).lean();
   },
 
-  boardId(deal: IDealDocument) {
-    return boardId(deal);
+  boardId(deal: IDealDocument, _args, { models }: IContext) {
+    return boardId(models, deal);
   },
 
-  stage(deal: IDealDocument) {
-    return Stages.getStage(deal.stageId);
+  stage(deal: IDealDocument, _args, { models }: IContext) {
+    return models.Stages.getStage(deal.stageId);
   },
 
   isWatched(deal: IDealDocument, _args, { user }: IContext) {
@@ -135,14 +128,14 @@ export default {
   },
 
   hasNotified(deal: IDealDocument, _args, { user }: IContext) {
-    return sendNotificationMessage('checkIfRead', {
+    return sendNotificationsMessage('checkIfRead', {
       userId: user._id,
       itemId: deal._id
     }, true, true);
   },
 
-  labels(deal: IDealDocument) {
-    return PipelineLabels.find({ _id: { $in: deal.labelIds || [] } }).lean();
+  labels(deal: IDealDocument, _args, { models }: IContext) {
+    return models.PipelineLabels.find({ _id: { $in: deal.labelIds || [] } }).lean();
   },
 
   createdUser(deal: IDealDocument) {

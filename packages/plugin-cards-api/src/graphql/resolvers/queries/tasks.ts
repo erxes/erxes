@@ -1,9 +1,7 @@
-import { Tasks } from '../../../models';
 import {
   checkPermission,
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src';
 import { IListParams } from './boards';
 import {
   archivedItems,
@@ -13,7 +11,8 @@ import {
   getItemList,
   IArchiveArgs
 } from './utils';
-import { sendConformityMessage, sendInboxRPCMessage } from '../../../messageBroker';
+import { IContext } from '../../../connectionResolver';
+import { sendCoreMessage, sendInboxMessage } from '../../../messageBroker';
 
 interface ITasksAsLogsParams {
   contentId: string;
@@ -28,56 +27,57 @@ const taskQueries = {
   async tasks(
     _root,
     args: IListParams,
-    { user, commonQuerySelector }: IContext
+    { user, commonQuerySelector, models }: IContext
   ) {
     const filter = {
       ...commonQuerySelector,
-      ...(await generateTaskCommonFilters(user._id, args))
+      ...(await generateTaskCommonFilters(models, user._id, args))
     };
 
-    return await getItemList(filter, args, user, 'task');
+    return await getItemList(models, filter, args, user, 'task');
   },
 
   async tasksTotalCount(
     _root,
     args: IListParams,
-    { user, commonQuerySelector }: IContext
+    { user, commonQuerySelector, models }: IContext
   ) {
     const filter = {
       ...commonQuerySelector,
-      ...(await generateTaskCommonFilters(user._id, args))
+      ...(await generateTaskCommonFilters(models, user._id, args))
     };
 
-    return Tasks.find(filter).countDocuments();
+    return models.Tasks.find(filter).countDocuments();
   },
 
   /**
    * Archived list
    */
-  archivedTasks(_root, args: IArchiveArgs) {
-    return archivedItems(args, Tasks);
+  archivedTasks(_root, args: IArchiveArgs, { models }: IContext) {
+    return archivedItems(models, args, models.Tasks);
   },
 
-  archivedTasksCount(_root, args: IArchiveArgs) {
-    return archivedItemsCount(args, Tasks);
+  archivedTasksCount(_root, args: IArchiveArgs, { models }: IContext) {
+    return archivedItemsCount(models, args, models.Tasks);
   },
 
   /**
    * Tasks detail
    */
-  async taskDetail(_root, { _id }: { _id: string }, { user }: IContext) {
-    const task = await Tasks.getTask(_id);
+  async taskDetail(_root, { _id }: { _id: string }, { user, models }: IContext) {
+    const task = await models.Tasks.getTask(_id);
 
-    return checkItemPermByUser(user._id, task);
+    return checkItemPermByUser(models, user._id, task);
   },
-  async tasksAsLogs(_root, { contentId, contentType }: ITasksAsLogsParams) {
+
+  async tasksAsLogs(_root, { contentId, contentType }: ITasksAsLogsParams, { models: { Tasks } }: IContext) {
     let tasks: any[] = [];
 
-    const relatedTaskIds = await sendConformityMessage('savedConformity', {
+    const relatedTaskIds = await sendCoreMessage('savedConformity', {
       mainType: contentType,
       mainTypeId: contentId,
       relTypes: ['task']
-    });
+    }, true, []);
 
     if (contentType !== 'cards:task') {
       tasks = await Tasks.find({
@@ -93,9 +93,9 @@ const taskQueries = {
       .map(activity => activity.content);
 
     if (Array.isArray(contentIds)) {
-      const conversations = await sendInboxRPCMessage(
-        'logs:getConversations',
-        { query: { _id: { $in: contentIds } } }
+      const conversations = await sendInboxMessage(
+        'getConversations',
+        { _id: { $in: contentIds } }
       ) || [];
 
       for (const conv of conversations) {

@@ -17,9 +17,9 @@ const companyQueries = {
   async companies(
     _root,
     params: IListArgs,
-    { commonQuerySelector, commonQuerySelectorElk, models, }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models, coreModels }: IContext
   ) {
-    const qb = new Builder(models, params, {
+    const qb = new Builder(models, coreModels, params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
@@ -37,9 +37,9 @@ const companyQueries = {
   async companiesMain(
     _root,
     params: IListArgs,
-    { commonQuerySelector, commonQuerySelectorElk, models }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models, coreModels }: IContext
   ) {
-    const qb = new Builder(models, params, {
+    const qb = new Builder(models, coreModels , params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
@@ -57,7 +57,7 @@ const companyQueries = {
   async companyCounts(
     _root,
     args: ICountArgs,
-    { commonQuerySelector, commonQuerySelectorElk, models }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models, coreModels }: IContext
   ) {
 
     const counts = {
@@ -69,7 +69,7 @@ const companyQueries = {
 
     const { only } = args;
 
-    const qb = new Builder(models, args, {
+    const qb = new Builder(models, coreModels, args, {
       commonQuerySelector,
       commonQuerySelectorElk
     });

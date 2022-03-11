@@ -7,7 +7,6 @@ import {
   getCustomFieldsData
 } from '@erxes/api-utils/src/exporter';
 import { IColumnLabel, IUserDocument } from '@erxes/api-utils/src/types';
-import { Fields, Users } from './apiCollections';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 import {
   COMPANY_BASIC_INFOS,
@@ -32,7 +31,7 @@ import {
   Builder as CustomerBuildQuery,
   IListArgs as ICustomerListArgs
 } from './coc/customers';
-import { IModels } from './connectionResolver';
+import { ICoreIModels, IModels } from './connectionResolver';
 
 export const fillHeaders = (itemType: string): IColumnLabel[] => {
   let columnNames: IColumnLabel[] = [];
@@ -79,6 +78,7 @@ const getCellValue = (item, colName) => {
  */
 export const fillCellValue = async (
   { Customers, Companies }: IModels,
+  { Users }: ICoreIModels,
   colName: string,
   item: any
 ): Promise<string> => {
@@ -168,7 +168,7 @@ export const fillCellValue = async (
 };
 
 // Prepares data depending on module type
-const prepareData = async (models: IModels, query: any, user: IUserDocument): Promise<any[]> => {
+const prepareData = async (models: IModels, coreModels: ICoreIModels, query: any, user: IUserDocument): Promise<any[]> => {
   const { type, unlimited = false, segment } = query;
 
   let data: any[] = [];
@@ -185,7 +185,7 @@ const prepareData = async (models: IModels, query: any, user: IUserDocument): Pr
     case MODULE_NAMES.COMPANY:
       const companyParams: ICompanyListArgs = query;
 
-      const companyQb = new CompanyBuildQuery(models, companyParams, {});
+      const companyQb = new CompanyBuildQuery(models, coreModels, companyParams, {});
       await companyQb.buildAllQueries();
 
       const companyResponse = await companyQb.runQueries('search', unlimited);
@@ -196,7 +196,7 @@ const prepareData = async (models: IModels, query: any, user: IUserDocument): Pr
 
     case 'lead':
       const leadParams: ICustomerListArgs = query;
-      const leadQp = new CustomerBuildQuery(models, leadParams, {});
+      const leadQp = new CustomerBuildQuery(models, coreModels, leadParams, {});
       await leadQp.buildAllQueries();
 
       const leadResponse = await leadQp.runQueries('search', unlimited);
@@ -206,7 +206,7 @@ const prepareData = async (models: IModels, query: any, user: IUserDocument): Pr
 
     case 'visitor':
       const visitorParams: ICustomerListArgs = query;
-      const visitorQp = new CustomerBuildQuery(models, visitorParams, {});
+      const visitorQp = new CustomerBuildQuery(models, coreModels, visitorParams, {});
       await visitorQp.buildAllQueries();
 
       const visitorResponse = await visitorQp.runQueries('search', unlimited);
@@ -217,7 +217,7 @@ const prepareData = async (models: IModels, query: any, user: IUserDocument): Pr
     case MODULE_NAMES.CUSTOMER:
       const customerParams: ICustomerListArgs = query;
 
-      const qb = new CustomerBuildQuery(models, customerParams, {});
+      const qb = new CustomerBuildQuery(models, coreModels, customerParams, {});
       await qb.buildAllQueries();
 
       const customerResponse = await qb.runQueries('search', unlimited);
@@ -254,7 +254,7 @@ const addCell = (
   }
 };
 
-const fillLeadHeaders = async (formId: string) => {
+const fillLeadHeaders = async ({ Fields }: ICoreIModels, formId: string) => {
   const headers: IColumnLabel[] = [];
 
   const fields = await Fields.find({
@@ -272,6 +272,7 @@ const fillLeadHeaders = async (formId: string) => {
 };
 
 const buildLeadFile = async (
+  coreModels:ICoreIModels,
   datas: any,
   formId: string,
   sheet: any,
@@ -280,7 +281,7 @@ const buildLeadFile = async (
 ) => {
   debugBase(`Start building an excel file for popups export`);
 
-  const headers: IColumnLabel[] = await fillLeadHeaders(formId);
+  const headers: IColumnLabel[] = await fillLeadHeaders(coreModels, formId);
 
   const displayValue = item => {
     if (!item) {
@@ -333,13 +334,14 @@ const filterHeaders = headers => {
 
 export const buildFile = async (
   models: IModels,
+  coreModels: ICoreIModels,
   query: any,
   user: IUserDocument
 ): Promise<{ name: string; response: string }> => {
   const { configs } = query;
   let type = query.type;
 
-  const data = await prepareData(models, query, user);
+  const data = await prepareData(models, coreModels, query, user);
 
   // Reads default template
   const { workbook, sheet } = await createXlsFile();
@@ -348,7 +350,7 @@ export const buildFile = async (
   let rowIndex: number = 1;
 
   if (type === MODULE_NAMES.CUSTOMER && query.form && query.popupData) {
-    await buildLeadFile(data, query.form, sheet, columnNames, rowIndex);
+    await buildLeadFile(coreModels, data, query.form, sheet, columnNames, rowIndex);
 
     type = 'Forms';
   } else {
@@ -364,7 +366,7 @@ export const buildFile = async (
       for (const column of headers) {
         if (column.name.startsWith('customFieldsData')) {
           const { field, value } = await getCustomFieldsData(
-            Fields,
+            coreModels.Fields,
             item,
             column,
             type
@@ -380,7 +382,7 @@ export const buildFile = async (
             );
           }
         } else {
-          const cellValue = await fillCellValue(models, column.name, item);
+          const cellValue = await fillCellValue(models, coreModels, column.name, item);
 
           addCell(column, cellValue, sheet, columnNames, rowIndex);
         }

@@ -5,7 +5,7 @@ import { sendRPCMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
 export default {
-  __resolveReference({_id}, _params, { models }: IContext) {
+  __resolveReference({_id}, { models }: IContext) {
     return models.Integrations.findOne({ _id })
   },
     brand(integration: IIntegrationDocument, _args, { models, coreModels }: IContext) {

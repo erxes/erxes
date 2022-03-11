@@ -20,7 +20,13 @@ import * as elasticsearch from './elasticsearch';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
-import { getService, getServices, join, leave, redis } from './serviceDiscovery';
+import {
+  getService,
+  getServices,
+  join,
+  leave,
+  redis
+} from './serviceDiscovery';
 
 const configs = require('../../src/configs').default;
 
@@ -156,7 +162,7 @@ async function startServer() {
       return serviceNames.includes(name);
     },
     isEnabled: async name => {
-      return !!(await redis.sismember("erxes:plugins:enabled",name));
+      return !!(await redis.sismember('erxes:plugins:enabled', name));
     }
   };
 
@@ -210,30 +216,148 @@ async function startServer() {
     }
 
     if (configs.meta) {
-      const segments = configs.meta.segments;
+      const { segments, forms, tags, imports } = configs.meta;
+      const { consumeRPCQueue } = messageBrokerClient;
+
+      const logs = configs.meta.logs && configs.meta.logs.consumers;
 
       if (segments) {
-        const { consumeRPCQueue } = messageBrokerClient;
-
         if (segments.propertyConditionExtender) {
-          consumeRPCQueue(`${configs.name}:segments:propertyConditionExtender`, segments.propertyConditionExtender);
+          consumeRPCQueue(
+            `${configs.name}:segments:propertyConditionExtender`,
+            segments.propertyConditionExtender
+          );
         }
 
         if (segments.associationTypes) {
-          consumeRPCQueue(`${configs.name}:segments:associationTypes`, segments.associationTypes)
+          consumeRPCQueue(
+            `${configs.name}:segments:associationTypes`,
+            segments.associationTypes
+          );
         }
 
         if (segments.esTypesMap) {
-          consumeRPCQueue(`${configs.name}:segments:esTypesMap`, segments.esTypesMap);
+          consumeRPCQueue(
+            `${configs.name}:segments:esTypesMap`,
+            segments.esTypesMap
+          );
         }
 
         if (segments.initialSelector) {
-          consumeRPCQueue(`${configs.name}:segments:initialSelector`, segments.initialSelector);
+          consumeRPCQueue(
+            `${configs.name}:segments:initialSelector`,
+            segments.initialSelector
+          );
         }
       }
-    }
 
-    debugInfo(`${configs.name} server is running on port ${PORT}`);
+      // logs message consumers
+      if (logs) {
+        if (logs.getActivityContent) {
+          consumeRPCQueue(
+            `${configs.name}:logs:getActivityContent`,
+            async args => ({
+              status: 'success',
+              data: await logs.getActivityContent(args)
+            })
+          );
+        }
+
+        if (logs.getContentTypeDetail) {
+          consumeRPCQueue(
+            `${configs.name}:logs:getContentTypeDetail`,
+            async args => ({
+              status: 'success',
+              data: await logs.getContentTypeDetail(args)
+            })
+          );
+        }
+
+        if (logs.collectItems) {
+          consumeRPCQueue(
+            `${configs.name}:logs:collectItems`,
+            async args => ({
+              status: 'success',
+              data: await logs.collectItems(args)
+            })
+          );
+        }
+
+        if (logs.getContentIds) {
+          consumeRPCQueue(
+            `${configs.name}:logs:getContentIds`,
+            async args => ({
+              status: 'success',
+              data: await logs.getContentIds(args)
+            })
+          );
+        }
+
+        if (logs.getSchemaLabels) {
+          consumeRPCQueue(`${configs.name}:logs:getSchemaLabels`,
+            async args => ({
+              status: 'success',
+              data: await logs.getSchemaLabels(args)
+            })
+          );
+        }
+      } // end logs if()
+
+      if (forms) {
+        if (forms.fields) {
+          consumeRPCQueue(
+            `${configs.name}:rpc_queue:fields:getList`,
+            async args => ({
+              status: 'success',
+              data: await forms.fields(args)
+            })
+          );
+        }
+
+        if (forms.groupsFilter) {
+          consumeRPCQueue(
+            `${configs.name}:rpc_queue:fields:groupsFilter`,
+            async args => ({
+              status: 'success',
+              data: await forms.groupsFilter(args)
+            })
+          );
+        }
+      }
+
+      if (tags) {
+        if (tags.tag) {
+          consumeRPCQueue(`${configs.name}:rpc_queue:tag`, async args => ({
+            status: 'success',
+            data: await tags.tag(args)
+          }));
+        }
+      }
+
+      if (imports) {
+        if (imports.prepareImportDocs) {
+          consumeRPCQueue(
+            `${configs.name}:imports:prepareImportDocs`,
+            async args => ({
+              status: 'success',
+              data: await imports.prepareImportDocs(args)
+            })
+          );
+        }
+
+        if (imports.insertImportItems) {
+          consumeRPCQueue(
+            `${configs.name}:imports:insertImportItems`,
+            async args => ({
+              status: 'success',
+              data: await imports.insertImportItems(args)
+            })
+          );
+        }
+      }
+
+      debugInfo(`${configs.name} server is running on port ${PORT}`);
+    }
   } catch (e) {
     debugError(`Error during startup ${e.message}`);
   }

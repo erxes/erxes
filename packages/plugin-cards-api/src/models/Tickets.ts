@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import {
   destroyBoardItemRelations,
   fillSearchTextItem,
@@ -7,6 +7,7 @@ import {
 } from './utils';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import { ITicket, ITicketDocument, ticketSchema } from './definitions/tickets';
+import { IModels } from '../connectionResolver';
 
 export interface ITicketModel extends Model<ITicketDocument> {
   createTicket(doc: ITicket): Promise<ITicketDocument>;
@@ -16,13 +17,13 @@ export interface ITicketModel extends Model<ITicketDocument> {
   removeTickets(_ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
-export const loadTicketClass = () => {
+export const loadTicketClass = (models: IModels) => {
   class Ticket {
     /**
      * Retreives Ticket
      */
     public static async getTicket(_id: string) {
-      const ticket = await Tickets.findOne({ _id });
+      const ticket = await models.Tickets.findOne({ _id });
 
       if (!ticket) {
         throw new Error('Ticket not found');
@@ -36,7 +37,7 @@ export const loadTicketClass = () => {
      */
     public static async createTicket(doc: ITicket) {
       if (doc.sourceConversationIds) {
-        const convertedTicket = await Tickets.findOne({
+        const convertedTicket = await models.Tickets.findOne({
           sourceConversationIds: { $in: doc.sourceConversationIds }
         });
 
@@ -45,18 +46,18 @@ export const loadTicketClass = () => {
         }
       }
 
-      return createBoardItem(doc, 'ticket');
+      return createBoardItem(models, doc, 'ticket');
     }
 
     /**
      * Update Ticket
      */
     public static async updateTicket(_id: string, doc: ITicket) {
-      const searchText = fillSearchTextItem(doc, await Tickets.getTicket(_id));
+      const searchText = fillSearchTextItem(doc, await models.Tickets.getTicket(_id));
 
-      await Tickets.updateOne({ _id }, { $set: doc, searchText });
+      await models.Tickets.updateOne({ _id }, { $set: doc, searchText });
 
-      return Tickets.findOne({ _id });
+      return models.Tickets.findOne({ _id });
     }
 
     /**
@@ -67,16 +68,16 @@ export const loadTicketClass = () => {
       isAdd: boolean,
       userId: string
     ) {
-      return watchItem(Tickets, _id, isAdd, userId);
+      return watchItem(models.Tickets, _id, isAdd, userId);
     }
 
     public static async removeTickets(_ids: string[]) {
       // completely remove all related things
       for (const _id of _ids) {
-        await destroyBoardItemRelations(_id, ACTIVITY_CONTENT_TYPES.TICKET);
+        await destroyBoardItemRelations(models, _id, ACTIVITY_CONTENT_TYPES.TICKET);
       }
 
-      return Tickets.deleteMany({ _id: { $in: _ids } });
+      return models.Tickets.deleteMany({ _id: { $in: _ids } });
     }
   }
 
@@ -84,10 +85,3 @@ export const loadTicketClass = () => {
 
   return ticketSchema;
 };
-
-loadTicketClass();
-
-// tslint:disable-next-line
-const Tickets = model<ITicketDocument, ITicketModel>('tickets', ticketSchema);
-
-export default Tickets;

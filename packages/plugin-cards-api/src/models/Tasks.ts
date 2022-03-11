@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import {
   createBoardItem,
   destroyBoardItemRelations,
@@ -17,13 +17,13 @@ export interface ITaskModel extends Model<ITaskDocument> {
   removeTasks(_ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
-export const loadTaskClass = () => {
+export const loadTaskClass = (models) => {
   class Task {
     /**
      * Retreives Task
      */
     public static async getTask(_id: string) {
-      const task = await Tasks.findOne({ _id });
+      const task = await models.Tasks.findOne({ _id });
 
       if (!task) {
         throw new Error('Task not found');
@@ -37,7 +37,7 @@ export const loadTaskClass = () => {
      */
     public static async createTask(doc: ITask) {
       if (doc.sourceConversationIds) {
-        const convertedTask = await Tasks.findOne({
+        const convertedTask = await models.Tasks.findOne({
           sourceConversationIds: { $in: doc.sourceConversationIds }
         });
 
@@ -46,34 +46,34 @@ export const loadTaskClass = () => {
         }
       }
 
-      return createBoardItem(doc, 'task');
+      return createBoardItem(models, doc, 'task');
     }
 
     /**
      * Update Task
      */
     public static async updateTask(_id: string, doc: ITask) {
-      const searchText = fillSearchTextItem(doc, await Tasks.getTask(_id));
+      const searchText = fillSearchTextItem(doc, await models.Tasks.getTask(_id));
 
-      await Tasks.updateOne({ _id }, { $set: doc, searchText });
+      await models.Tasks.updateOne({ _id }, { $set: doc, searchText });
 
-      return Tasks.findOne({ _id });
+      return models.Tasks.findOne({ _id });
     }
 
     /**
      * Watch task
      */
     public static async watchTask(_id: string, isAdd: boolean, userId: string) {
-      return watchItem(Tasks, _id, isAdd, userId);
+      return watchItem(models.Tasks, _id, isAdd, userId);
     }
 
     public static async removeTasks(_ids: string[]) {
       // completely remove all related things
       for (const _id of _ids) {
-        await destroyBoardItemRelations(_id, ACTIVITY_CONTENT_TYPES.TASK);
+        await destroyBoardItemRelations(models, _id, ACTIVITY_CONTENT_TYPES.TASK);
       }
 
-      return Tasks.deleteMany({ _id: { $in: _ids } });
+      return models.Tasks.deleteMany({ _id: { $in: _ids } });
     }
   }
 
@@ -81,10 +81,3 @@ export const loadTaskClass = () => {
 
   return taskSchema;
 };
-
-loadTaskClass();
-
-// tslint:disable-next-line
-const Tasks = model<ITaskDocument, ITaskModel>('tasks', taskSchema);
-
-export default Tasks;

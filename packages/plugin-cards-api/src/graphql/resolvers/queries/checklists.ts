@@ -1,5 +1,5 @@
-import { Checklists } from '../../../models';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import { IContext } from '../../../connectionResolver';
 
 const checklistQueries = {
   /**
@@ -10,7 +10,8 @@ const checklistQueries = {
     {
       contentType,
       contentTypeId,
-    }: { contentType: string; contentTypeId: string }
+    }: { contentType: string; contentTypeId: string },
+    { models: { Checklists } }: IContext
   ) {
     return Checklists.find({ contentType, contentTypeId }).sort({
       createdDate: 1,
@@ -21,7 +22,7 @@ const checklistQueries = {
   /**
    * Checklist
    */
-  async checklistDetail(_root, { _id }: { _id: string }) {
+  async checklistDetail(_root, { _id }: { _id: string }, { models: { Checklists } }: IContext) {
     return Checklists.findOne({ _id }).sort({ order: 1 });
   },
 };

@@ -1,25 +1,13 @@
-import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
-
 import { serviceDiscovery } from './configs';
-import { generateFields } from './fieldUtils';
 import {
   generateAmounts,
   generateProducts
 } from './graphql/resolvers/customResolvers/deal';
-import { insertImportItems, prepareImportDocs } from './importUtils';
-import { Checklists, Deals, GrowthHacks, Pipelines, Stages, Tasks, Tickets } from './models';
 import { conversationConvertToCard } from './models/utils';
-import {
-  generateConditionStageIds,
-  getContentItem,
-  getContentTypeDetail,
-  collectItems,
-  getCardContentIds,
-  getCardItem
-} from './utils';
-
-import { LOG_MAPPINGS } from './constants';
+import { getCardItem } from './utils';
 import { notifiedUserIds } from './graphql/utils';
+import { generateModels } from './connectionResolver';
+import { sendMessage } from '@erxes/api-utils/src/core';
 
 let client;
 
@@ -28,98 +16,86 @@ export const initBroker = async cl => {
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeRPCQueue('cards:rpc_queue:createTickets', async args => ({
-    status: 'success',
-    data: await Tickets.create(args)
-  }));
-
-  consumeRPCQueue('cards:rpc_queue:createTasks', async args => ({
-    status: 'success',
-    data: await Tasks.create(args)
-  }));
-
-  consumeRPCQueue('cards:rpc_queue:findTickets', async args => ({
-    status: 'success',
-    data: await Tickets.find(args)
-  }));
-
-  consumeRPCQueue('cards:rpc_queue:findOneTickets', async args => ({
-    status: 'success',
-    data: await Tickets.findOne(args)
-  }));
-
-  consumeRPCQueue('cards:rpc_queue:findStages', async args => ({
-    status: 'success',
-    data: await Stages.find(args)
-  }));
-
-  consumeRPCQueue('cards:rpc_queue:findTasks', async args => ({
-    status: 'success',
-    data: await Tasks.find(args)
-  }));
-
-  consumeRPCQueue('cards:rpc_queue:findOneTasks', async args => ({
-    status: 'success',
-    data: await Tasks.findOne(args)
-  }));
-
-  consumeQueue('checklists:removeChecklists', async ({ type, itemIds }) => ({
-    status: 'success',
-    data: await Checklists.removeChecklists(type, itemIds)
-  }));
-
-  consumeRPCQueue('cards:rpc_queue:getFields', async args => ({
-    status: 'success',
-    data: await generateFields(args)
-  }));
-
-  consumeRPCQueue('cards:rpc_queue:prepareImportDocs', async args => ({
-    status: 'success',
-    data: await prepareImportDocs(args)
-  }));
-
-  consumeRPCQueue('cards:rpc_queue:insertImportItems', async args => ({
-    status: 'success',
-    data: await insertImportItems(args)
-  }));
-
-
-  consumeRPCQueue('cards:rpc_queue:conversationConvert', async args => ({
-    status: 'success',
-    data: await conversationConvertToCard(args)
-  }));
-
-  // necessary for logs service starting from here
-  consumeRPCQueue('cards:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
-    status: 'success',
-    data: getSchemaLabels(type, LOG_MAPPINGS)
-  }));
-
-  consumeRPCQueue('cards:rpc_queue:getActivityContent', async data => {
-    return {
-      status: 'success',
-      data: await getContentItem(data)
-    };
-  });
-
-  consumeRPCQueue('cards:rpc_queue:getContentTypeDetail', async data => {
-    const { activityLog = {} } = data;
+  consumeRPCQueue('cards:rpc_queue:createTickets', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await getContentTypeDetail(activityLog)
-    };
+      data: await models.Tickets.create(data)
+    }
   });
 
-  consumeRPCQueue(`cards:rpc_queue:activityLog:collectItems`, async data => ({
-    status: 'success',
-    data: await collectItems(data)
-  }));
+  consumeRPCQueue('cards:rpc_queue:createTasks', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
 
-  consumeRPCQueue('cards:rpc_queue:getContentIds', async data => ({
-    status: 'success',
-    data: await getCardContentIds(data)
-  }));
+    return {
+      status: 'success',
+      data: await models.Tasks.create(data)
+    }
+  });
+
+  consumeRPCQueue('cards:rpc_queue:findTickets', async ({ subdomain, data })=> {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Tickets.find(data)
+    }
+  });
+
+  consumeRPCQueue('cards:rpc_queue:findOneTickets', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Tickets.findOne(data)
+    }
+  });
+
+  consumeRPCQueue('cards:rpc_queue:findStages', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Stages.find(data)
+    }
+  });
+
+  consumeRPCQueue('cards:rpc_queue:findTasks', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Tasks.find(data)
+    }
+  });
+
+  consumeRPCQueue('cards:rpc_queue:findOneTasks', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Tasks.findOne(data)
+    }
+  });
+
+  consumeQueue('checklists:removeChecklists', async ({ subdomain, data: { type, itemIds } }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Checklists.removeChecklists(type, itemIds)
+    }
+  });
+
+  consumeRPCQueue('cards:rpc_queue:conversationConvert', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await conversationConvertToCard(models, data)
+    }
+  });
 
   consumeRPCQueue('cards:deals:generateAmounts', async productsData => {
     return { data: generateAmounts(productsData), status: 'success' };
@@ -129,14 +105,34 @@ export const initBroker = async cl => {
     return { data: await generateProducts(productsData), status: 'success' };
   });
 
-  consumeRPCQueue('cards:rpc_queue:findItem', async data => {
-    return { data: await getCardItem(data), status: 'success' };
+  consumeRPCQueue('cards:rpc_queue:findItem', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return { data: await getCardItem(models, data), status: 'success' };
   });
 
-  consumeRPCQueue('cards:rpc_queue:generateInternalNoteNotif', async args => {
-    let model: any = GrowthHacks;
+  consumeRPCQueue('cards:rpc_queue:findDealProductIds', async ({ subdomain, data: { _ids } }) => {
+    const models = await generateModels(subdomain);
 
-    const { contentTypeId, notifDoc, type } = args;
+    const dealProductIds = await await models.Deals.find({
+      'productsData.productId': { $in: _ids }
+    }).distinct('productsData.productId');
+
+    return { data: dealProductIds, status: 'success' };
+  });
+
+  consumeRPCQueue('cards:rpc_queue:updateDeals', async ({ subdomain, data: { selector, modifier } }) => {
+    const models = await generateModels(subdomain);
+
+    return { data: await models.Deals.updateMany(selector, modifier), status: 'success' };
+  });
+
+  consumeRPCQueue('cards:rpc_queue:generateInternalNoteNotif', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    let model: any = models.GrowthHacks;
+
+    const { contentTypeId, notifDoc, type } = data;
 
     if (type === 'growthHack') {
       const hack = await model.getGrowthHack(contentTypeId);
@@ -146,223 +142,89 @@ export const initBroker = async cl => {
       return notifDoc;
     }
 
-    switch(type) {
-      case 'deal': 
-        model = Deals;
+    switch (type) {
+      case 'deal':
+        model = models.Deals;
         break;
       case 'task':
-        model = Tasks;
+        model = models.Tasks;
         break;
-      default: 
-        model = Tickets;
+      default:
+        model = models.Tickets;
         break;
     }
 
-     const card = await model.findOne({_id: contentTypeId });
-     const stage = await Stages.getStage(card.stageId);
-     const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+    const card = await model.findOne({ _id: contentTypeId });
+    const stage = await models.Stages.getStage(card.stageId);
+    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
-     notifDoc.notifType = `${type}Delete`;
-     notifDoc.content = `"${card.name}"`;
-     notifDoc.link = `/${type}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${card._id}`;
-     notifDoc.contentTypeId = card._id;
-     notifDoc.contentType = `${type}`;
-     notifDoc.item = card;
-     
-     // sendNotificationOfItems on ticket, task and deal
-     notifDoc.notifOfItems = true;
+    notifDoc.notifType = `${type}Delete`;
+    notifDoc.content = `"${card.name}"`;
+    notifDoc.link = `/${type}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${card._id}`;
+    notifDoc.contentTypeId = card._id;
+    notifDoc.contentType = `${type}`;
+    notifDoc.item = card;
+
+    // sendNotificationOfItems on ticket, task and deal
+    notifDoc.notifOfItems = true;
 
     return {
       status: 'success',
       data: notifDoc
-    }
-
+    };
   });
 
-  consumeRPCQueue('cards:rpc_queue:notifiedUserIds', async args => {
-    return { 
+  consumeRPCQueue('cards:rpc_queue:notifiedUserIds', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
       status: 'success',
-      data: await notifiedUserIds(args),
+      data: await notifiedUserIds(models, data)
     };
   });
 };
 
-export const sendMessage = async (channel, message): Promise<any> => {
-  return client.sendMessage(channel, message);
+export const sendContactsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
+  return sendMessage(client, serviceDiscovery, 'contacts', action, data, isRPC, defaultValue);
 };
 
-export const sendRPCMessage = async (channel, message): Promise<any> => {
-  return client.sendRPCMessage(channel, message);
+export const sendInternalNotesMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
+  return sendMessage(client, serviceDiscovery, 'internalNotes', action, data, isRPC, defaultValue);
 };
 
-export const sendContactMessage = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled('contacts'))) {
-    return;
-  }
-
-  return client.sendMessage(`contacts:${action}`, data);
+export const sendCoreMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
+  return sendMessage(client, serviceDiscovery, 'core', action, data, isRPC, defaultValue);
 };
 
-export const sendContactRPCMessage = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled('contacts'))) {
-    return [];
-  }
-
-  if (!(await serviceDiscovery.isAvailable('contacts'))) {
-    throw new Error("Contacts service is not available");
-  }
-
-  return client.sendRPCMessage(`contacts:rpc_queue:${action}`, data);
+export const sendFormsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
+  return sendMessage(client, serviceDiscovery, 'forms', action, data, isRPC, defaultValue);
 };
 
-export const sendFormRPCMessage = async (action, data): Promise<any> => {
-  return client.sendRPCMessage(`forms:rpc_queue:${action}`, data);
+export const sendEngagesMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
+  return sendMessage(client, serviceDiscovery, 'engages', action, data, isRPC, defaultValue);
 };
 
-export const sendFormMessage = async (action, data): Promise<any> => {
-  return client.sendMessage(`forms:${action}`, data);
+export const sendInboxMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
+  return sendMessage(client, serviceDiscovery, 'inbox', action, data, isRPC, defaultValue);
 };
 
-export const sendInternalNoteMessage = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled('internalnotes'))) {
-    return [];
-  }
-
-  if (!(await serviceDiscovery.isAvailable('internalnotes'))) {
-    throw new Error("Internal-notes service is not available");
-  }
-  return client.sendMessage(`internalNotes:${action}`, data);
+export const sendProductsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
+  return sendMessage(client, serviceDiscovery, 'products', action, data, isRPC, defaultValue);
 };
 
-export const sendConformityMessage = async (action, data): Promise<any> => {
-  
-  return client.sendRPCMessage(`conformities:${action}`, data);
+export const sendNotificationsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
+  return sendMessage(client, serviceDiscovery, 'notifications', action, data, isRPC, defaultValue);
 };
 
-export const sendFieldsGroupMessage = async (action, data): Promise<any> => {
-  return client.sendMessage(`fieldsGroups:${action}`, data);
+export const sendLogsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
+  return sendMessage(client, serviceDiscovery, 'logs', action, data, isRPC, defaultValue);
 };
 
-export const sendEngageRPCMessage = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled('engages'))) {
-    return [];
-  }
-
-  if (!(await serviceDiscovery.isAvailable('engages'))) {
-    throw new Error("Inbox service is not available");
-  }
-
-  return client.sendRPCMessage(`engages:rpc_queue:${action}`, data);
+export const sendSegmentsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
+  return sendMessage(client, serviceDiscovery, 'segments', action, data, isRPC, defaultValue);
 };
 
-export const sendFieldRPCMessage = async (action, data): Promise<any> => {
-  return client.sendRPCMessage(`fields:rpc_queue:${action}`, data);
-};
-
-export const sendInboxRPCMessage = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled('inbox'))) {
-    return;
-  }
-
-  if (!(await serviceDiscovery.isAvailable('inbox'))) {
-    throw new Error("Inbox service is not available");
-  }
-
-  return client.sendRPCMessage(`inbox:rpc_queue:${action}`, data);
-};
-
-export const findProducts = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled('products'))) {
-    return [];
-  }
-
-  if (!(await serviceDiscovery.isAvailable('products'))) {
-    throw new Error("Products service is not available");
-  }
-
-  return client.sendRPCMessage(`products:rpc_queue:${action}`, data);
-};
-
-export const updateProducts = async (selector, modifier): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled('products'))) {
-    return [];
-  }
-
-  if (!(await serviceDiscovery.isAvailable('products'))) {
-    throw new Error("Products service is not available");
-  }
-
-  return client.sendRPCMessage(`products:rpc_queue:update`, {
-    selector,
-    modifier
-  });
-};
-
-export const sendProductRPCMessage = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled('products'))) {
-    return [];
-  }
-
-  if (!(await serviceDiscovery.isAvailable('products'))) {
-    throw new Error("Products service is not available");
-  }
-
-  return client.sendRPCMessage(`products:rpc_queue:${action}`, data);
-};
-
-export const sendConfigRPCMessage = async (action, data): Promise<any> => {
-  return client.sendRPCMessage(`configs:rpc_queue:${action}`, data);
-};
-
-export const sendNotificationMessage = async (
-  action,
-  data,
-  isRPC?: boolean,
-  defaultValue?
-): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled('notifications'))) {
-    return defaultValue;
-  }
-  
-  if (isRPC) {
-    if (!(await serviceDiscovery.isAvailable('notifications'))) {
-      throw new Error("Notifications service is not available");
-    }
-    return client.sendRPCMessage(`notifications:rpc_queue:${action}`, data);
-  }
-
-  return client.sendMessage(`notifications:${action}`, data);
-};
-
-export const sendToLog = (channel: string, data) =>
-  client.sendMessage(channel, data);
-
-export const fetchSegment = (segment, options?) =>
-  sendSegmentMessage('fetchSegment', { segment, options }, true)
-
-export const sendSegmentMessage = async (action, data, isRPC?: boolean) => {
-  if (!isRPC) {
-    return sendMessage(`segments:${action}`, data);
-  }
-
-  if(!(await serviceDiscovery.isAvailable('segments'))) {
-    throw new Error("Segments service is not available");
-  }
-
-  sendMessage(`segments:rpc_queue:${action}`, data);
-}
-
-export const findMongoDocuments = async (serviceName: string, data: any) => {
-  if(!(await serviceDiscovery.isEnabled(serviceName))) {
-    return [];
-  }
-
-  if(!(await serviceDiscovery.isAvailable(serviceName))) {
-    throw new Error(`${serviceName} is not available`);
-  }
-
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:findMongoDocuments`, data);
-};
+export const fetchSegment = (segment, options?) => sendSegmentsMessage('fetchSegment', { segment, options }, true);
 
 export default function() {
   return client;

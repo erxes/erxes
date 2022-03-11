@@ -20,7 +20,7 @@ export const initBroker = async cl => {
     status: 'success',
   }));
 
-  consumeRPCQueue('tags:rpc_queue:getActivityContent', async (data) => {
+  consumeRPCQueue('tags:logs:getActivityContent', async (data) => {
     const { action, content } = data;
 
     if (action === 'tagged') {
@@ -54,7 +54,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('tags:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
+  consumeRPCQueue('tags:logs:getSchemaLabels', async ({ type }) => ({
     status: 'success',
     data: getSchemaLabels(type, [{ name: 'product', schemas: [tagSchema] }])
   }));

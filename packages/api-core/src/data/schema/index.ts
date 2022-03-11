@@ -14,19 +14,6 @@ import {
   types as ConformityTypes
 } from './conformity';
 import {
-  fieldsGroupsMutations as FieldGroupMutations,
-  fieldsGroupsQueries as FieldGroupQueries,
-  fieldsGroupsTypes as FieldGroupTypes,
-  fieldsMutations as FieldMutations,
-  fieldsQueries as FieldQueries,
-  fieldsTypes as FieldTypes
-} from './field';
-import {
-  mutations as FormMutatons,
-  queries as FormQueries,
-  types as FormTypes
-} from './form';
-import {
   mutations as ImportHistoryMutations,
   queries as ImportHistoryQueries,
   types as ImportHistoryTypes
@@ -72,11 +59,8 @@ export let types = `
   ${CommonTypes}
   ${UserTypes}
   ${BrandTypes}
-  ${FieldTypes}
-  ${FormTypes}
   ${ConformityTypes}
   ${ConfigTypes}
-  ${FieldGroupTypes}
   ${ImportHistoryTypes}
   ${PermissionTypes}
   ${RobotTypes}
@@ -87,11 +71,8 @@ export let types = `
 export let queries = `
   ${UserQueries}
   ${BrandQueries}
-  ${FieldQueries}
-  ${FormQueries}
   
   ${ConfigQueries}
-  ${FieldGroupQueries}
   ${ImportHistoryQueries}
   ${PermissionQueries}
   ${RobotQueries}
@@ -102,10 +83,7 @@ export let queries = `
 export let mutations = `
   ${UserMutations}
   ${BrandMutations}
-  ${FieldMutations}
-  ${FormMutatons}
   ${ConfigMutations}
-  ${FieldGroupMutations}
   ${ImportHistoryMutations}
   ${PermissionMutations}
   ${ConformityMutations}

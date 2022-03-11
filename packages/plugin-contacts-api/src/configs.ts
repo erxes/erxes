@@ -1,6 +1,5 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import apiConnect from './apiCollections';
 
 import { initBroker, sendSegmentMessage } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
@@ -14,7 +13,9 @@ import {
 import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
 import { buildFile } from './exporter';
 import segments from './segments';
+import forms from './forms';
 import { coreModels, generateModels, models } from './connectionResolver';
+import logConsumers from './logConsumers';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -140,15 +141,14 @@ export default {
   hasSubscriptions: true,
   meta: {
     segments,
-    logs: { providesActivityLog: false },
+    forms,
+    logs: { consumers: logConsumers }
   },
   apolloServerContext: context => {
     context.models = models;
     context.coreModels = coreModels;
   },
   onServerInit: async options => {
-    await apiConnect();
-
     const app = options.app;
     mainDb = options.db;
 
@@ -160,7 +160,7 @@ export default {
         const { query, user } = req;
         const { segment } = query;
 
-        const result = await buildFile(models, query, user);
+        const result = await buildFile(models, coreModels, query, user);
 
         res.attachment(`${result.name}.xlsx`);
 
@@ -218,7 +218,7 @@ export default {
       )
     );
 
-    initBroker(options.messageBrokerClient, models, coreModels);
+    initBroker(options.messageBrokerClient);
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;

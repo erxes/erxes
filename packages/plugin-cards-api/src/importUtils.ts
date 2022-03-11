@@ -1,6 +1,6 @@
-import { Boards, Deals, Pipelines, Stages, Tasks, Tickets } from './models';
+import { IModels } from "./connectionResolver";
 
-export const insertImportItems = async args => {
+export const insertImportItems = async (models: IModels, args) => {
   const { docs, contentType } = args;
 
   try {
@@ -9,12 +9,12 @@ export const insertImportItems = async args => {
 
     switch (contentType) {
       case 'deal':
-        model = Deals;
+        model = models.Deals;
         break;
       case 'task':
-        model = Tasks;
+        model = models.Tasks;
       case 'ticket':
-        model = Tickets;
+        model = models.Tickets;
     }
 
     objects = await model.insertMany(docs);
@@ -24,7 +24,7 @@ export const insertImportItems = async args => {
   }
 };
 
-export const prepareImportDocs = async args => {
+export const prepareImportDocs = async (models: IModels, args) => {
   const { result, properties, contentType, user } = args;
 
   const bulkDoc: any = [];
@@ -74,15 +74,17 @@ export const prepareImportDocs = async args => {
     if (boardName && pipelineName && stageName) {
       doc.userId = user._id;
 
-      const board = await Boards.findOne({
+      const board = await models.Boards.findOne({
         name: boardName,
         type: contentType
       });
-      const pipeline = await Pipelines.findOne({
+
+      const pipeline = await models.Pipelines.findOne({
         boardId: board && board._id,
         name: pipelineName
       });
-      const stage = await Stages.findOne({
+
+      const stage = await models.Stages.findOne({
         pipelineId: pipeline && pipeline._id,
         name: stageName
       });
