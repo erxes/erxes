@@ -142,5 +142,29 @@ export default {
 
   createdUser(deal: IDealDocument) {
     return getDocument('users', { _id: deal.userId });
+  },
+
+  async customPropertyTexts(item: IDealDocument) {
+    const fields = await Fields.find({
+      showInCard: true,
+      contentType: 'deal'
+    }).lean();
+
+    const { customFieldsData = [] } = item;
+    const customPropertyTexts: { name: string }[] = [];
+
+    if (customFieldsData.length > 0 && fields.length > 0) {
+      fields.forEach(field => {
+        const fieldData = customFieldsData.find(f => f.field === field._id);
+
+        if (fieldData) {
+          customPropertyTexts.push({
+            name: `${field.text} - ${fieldData.value}`
+          });
+        }
+      });
+    }
+
+    return customPropertyTexts;
   }
 };

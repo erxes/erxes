@@ -86,20 +86,8 @@ class DealItem extends React.PureComponent<Props> {
       companies,
       closeDate,
       isComplete,
-      customFieldsData
+      customPropertyTexts
     } = item;
-
-    console.log('customFieldsData: ', customFieldsData);
-
-    // if (customFieldsData.length > 0 && fields.length > 0) {
-    //   customFieldsData.forEach(e => {
-    //     const found = fields.find(f => f._id === e.field);
-
-    //     if (found) {
-    //       customData.push({ name: `${found.text} - ${e.value}` });
-    //     }
-    //   });
-    // }
 
     return (
       <>
@@ -112,10 +100,10 @@ class DealItem extends React.PureComponent<Props> {
         <Details color="#b49cf1" items={exProducts} />
         <Details color="#F7CE53" items={customers || []} />
         <Details color="#EA475D" items={companies || []} />
-        {/* <Details
+        <Details
           color={colors.colorCoreOrange}
-          items={customFieldsData || []}
-        /> */}
+          items={customPropertyTexts || []}
+        />
 
         <PriceContainer>
           {renderAmount(item.amount)}
@@ -134,6 +122,7 @@ class DealItem extends React.PureComponent<Props> {
 
   render() {
     const { item, portable, onClick } = this.props;
+    console.log('render:', item);
 
     if (portable) {
       return (

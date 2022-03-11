@@ -3,6 +3,7 @@ import {
   Companies,
   Conformities,
   Customers,
+  Fields,
   Notifications,
   Pipelines,
   Segments,
@@ -772,7 +773,32 @@ export const getItemList = async (
     { contentTypeId: 1 }
   );
 
+  const fields = await Fields.find({
+    showInCard: true,
+    contentType: type
+  }).lean();
+
   for (const item of list) {
+    if (
+      item.customFieldsData &&
+      item.customFieldsData.length > 0 &&
+      fields.length > 0
+    ) {
+      item.customPropertyTexts = [];
+
+      fields.forEach(field => {
+        const fieldData = item.customFieldsData.find(
+          f => f.field === field._id
+        );
+
+        if (fieldData) {
+          item.customPropertyTexts.push({
+            name: `${field.text} - ${fieldData.value}`
+          });
+        }
+      });
+    }
+
     const notification = notifications.find(n => n.contentTypeId === item._id);
 
     updatedList.push({

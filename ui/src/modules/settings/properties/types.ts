@@ -9,8 +9,8 @@ export interface IFieldLogic {
   __typename?: string;
 }
 
-export interface ICustomData {
-  [key: string]: any;
+export interface ICustomPropertyText {
+  name: string;
 }
 
 export interface IField {

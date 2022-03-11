@@ -21,6 +21,7 @@ import {
 } from '../../types';
 import { invalidateCache } from '../../utils';
 import { PipelineConsumer } from '../PipelineContext';
+import { ICustomPropertyText } from 'modules/settings/properties/types';
 
 type WrapperProps = {
   itemId: string;
@@ -32,6 +33,7 @@ type WrapperProps = {
   onRemove?: (itemId: string, stageId: string) => void;
   onUpdate?: (item: IItem, prevStageId: string) => void;
   hideHeader?: boolean;
+  customPropertyTexts?: ICustomPropertyText[];
 };
 
 type ContainerProps = {

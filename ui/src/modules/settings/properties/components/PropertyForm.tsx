@@ -24,7 +24,6 @@ type Props = {
   field?: IField;
   groups: IFieldGroup[];
   type: string;
-  contentType: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -76,7 +75,7 @@ class PropertyForm extends React.Component<Props, State> {
           hasOptions: true,
           options: Object.assign([], options || []),
           locationOptions: [],
-          showInCard: false
+          showInCard
         };
       }
 

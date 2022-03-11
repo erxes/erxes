@@ -61,6 +61,7 @@ export const commonTypes = `
   score: Float
   timeTrack: TimeTrack
   number: String
+  customPropertyTexts: JSON
 `;
 
 export const commonMutationParams = `
@@ -109,5 +110,5 @@ export const commonListTypes = `
   hasNotified: Boolean
   score: Float
   number: String
-  customFieldsData: JSON
+  customPropertyTexts: JSON
 `;
