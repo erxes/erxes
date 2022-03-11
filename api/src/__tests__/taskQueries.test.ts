@@ -39,6 +39,7 @@ describe('taskQueries', () => {
     boardId
     stage { _id }
     createdUser { _id }
+    customPropertyTexts
   `;
 
   const qryTaskFilter = `

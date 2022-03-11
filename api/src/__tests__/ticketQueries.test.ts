@@ -35,6 +35,7 @@ describe('ticketQueries', () => {
     hasNotified
     labels { _id }
     createdUser { _id }
+    customPropertyTexts
   `;
 
   const qryTicketFilter = `

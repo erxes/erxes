@@ -726,6 +726,7 @@ interface IFieldFactoryInput {
   canHide?: boolean;
   options?: string[];
   associatedFieldId?: string;
+  showInCard?: boolean;
 }
 
 export const fieldFactory = async (params: IFieldFactoryInput) => {
@@ -762,7 +763,8 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
     isDefinedByErxes:
       params.isDefinedByErxes === undefined || params.isDefinedByErxes === null
         ? false
-        : params.isDefinedByErxes
+        : params.isDefinedByErxes,
+    showInCard: params.showInCard || false
   });
 };
 
@@ -1221,6 +1223,7 @@ interface IDealFactoryInput {
   customerIds?: string[];
   priority?: string;
   startDate?: Date;
+  customFieldsData?: any;
 }
 
 const createConformities = async (mainType, object, params) => {
@@ -1298,7 +1301,8 @@ export const dealFactory = async (
     searchText: params.searchText,
     sourceConversationIds: params.sourceConversationIds,
     priority: params.priority,
-    createdAt: new Date()
+    createdAt: new Date(),
+    customFieldsData: params.customFieldsData
   };
 
   const deal = new Deals(dealDoc);
