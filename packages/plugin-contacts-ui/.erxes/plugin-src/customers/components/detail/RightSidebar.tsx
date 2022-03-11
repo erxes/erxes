@@ -11,6 +11,7 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import PortableDeals from '@erxes/ui-cards/src/deals/components/PortableDeals';
 import PortableTasks from '@erxes/ui-cards/src/tasks/components/PortableTasks';
 import PortableTickets from '@erxes/ui-cards/src/tickets/components/PortableTickets';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 import { pluginsOfCustomerSidebar } from '@erxes/ui/src/pluginUtils';
 import React from 'react';
@@ -78,9 +79,9 @@ export default class RightSidebar extends React.Component<Props> {
     return (
       <Sidebar>
         <CompanySection mainType="customer" mainTypeId={customer._id} />
-        <PortableDeals mainType="customer" mainTypeId={customer._id} />
+        {isEnabled("cards") && <><PortableDeals mainType="customer" mainTypeId={customer._id} />
         <PortableTickets mainType="customer" mainTypeId={customer._id} />
-        <PortableTasks mainType="customer" mainTypeId={customer._id} />
+        <PortableTasks mainType="customer" mainTypeId={customer._id} /></>}
         {this.renderOther()}
       </Sidebar>
     );

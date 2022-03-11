@@ -10,6 +10,7 @@ import PortableTickets from '@erxes/ui-cards/src/tickets/components/PortableTick
 // import { pluginsOfCompanySidebar } from '@erxes/ui/src/pluginUtils';
 import React from 'react';
 import { List } from '../../styles';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   company: ICompany;
@@ -35,9 +36,9 @@ export default class RightSidebar extends React.Component<Props> {
     return (
       <Sidebar>
         <CustomerSection mainType="company" mainTypeId={company._id} />
-        <PortableDeals mainType="company" mainTypeId={company._id} />
+        {isEnabled("cards") && <><PortableDeals mainType="company" mainTypeId={company._id} />
         <PortableTickets mainType="company" mainTypeId={company._id} />
-        <PortableTasks mainType="company" mainTypeId={company._id} />
+        <PortableTasks mainType="company" mainTypeId={company._id} /></>}
         {/* {pluginsOfCompanySidebar(company)} */}
         <Box title={__('Other')} name="showOthers">
           <List>
