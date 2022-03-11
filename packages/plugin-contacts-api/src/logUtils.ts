@@ -9,7 +9,7 @@ import {
   IDescriptions,
 } from '@erxes/api-utils/src/logUtils';
 import { ICompanyDocument } from './models/definitions/companies';
-import messageBroker, { findIntegrations, findTags } from './messageBroker';
+import messageBroker, { sendInboxMessage, sendTagsMessage } from './messageBroker';
 import { MODULE_NAMES } from './constants';
 import { ICustomerDocument } from './models/definitions/customers';
 import { IModels } from './connectionResolver';
@@ -69,7 +69,7 @@ const gatherCompanyFieldNames = async (
       foreignKey: 'tagIds',
       prevList: options,
       nameFields: ['name'],
-      items: await findTags({ _id: { $in: doc.tagIds } })
+      items: await sendTagsMessage('find', { _id: { $in: doc.tagIds } }, true)
     });
   }
 
@@ -100,7 +100,7 @@ const gatherCustomerFieldNames = async (
       foreignKey: 'integrationId',
       prevList: options,
       nameFields: ['name'],
-      items: await findIntegrations({ _id: { $in: [doc.integrationId] } }),
+      items: await sendInboxMessage('integrations:find', { _id: { $in: [doc.integrationId] } }, true),
     });
   }
 
@@ -109,7 +109,7 @@ const gatherCustomerFieldNames = async (
       foreignKey: 'tagIds',
       prevList: options,
       nameFields: ['name'],
-      items: await findTags({ _id: { $in: doc.tagIds } })
+      items: await sendTagsMessage('find', { _id: { $in: doc.tagIds } })
     });
   }
 

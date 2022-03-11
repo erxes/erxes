@@ -1,27 +1,17 @@
-import {
-  Boards,
-  Checklists,
-  Deals,
-  GrowthHacks,
-  Pipelines,
-  Stages,
-  Tasks,
-  Tickets
-} from '.';
-import { validSearchText } from '@erxes/api-utils/src';
-import { IItemCommonFields, IOrderInput } from './definitions/boards';
-import { BOARD_STATUSES, BOARD_TYPES } from './definitions/constants';
+import { validSearchText } from "@erxes/api-utils/src";
+import { IItemCommonFields, IOrderInput } from "./definitions/boards";
+import { BOARD_STATUSES, BOARD_TYPES } from "./definitions/constants";
 
-import { InternalNotes } from '../apiCollections';
+import { configReplacer } from "../utils";
+import { putActivityLog } from "../logUtils";
+import { itemsAdd } from "../graphql/resolvers/mutations/utils";
+import { IModels } from "../connectionResolver";
 import {
-  sendConformityMessage,
-  sendInboxRPCMessage,
-  sendProductRPCMessage,
-  sendConfigRPCMessage
-} from '../messageBroker';
-import { configReplacer } from '../utils';
-import { putActivityLog } from '../logUtils';
-import { itemsAdd } from '../graphql/resolvers/mutations/utils';
+  sendCoreMessage,
+  sendInboxMessage,
+  sendInternalNotesMessage,
+  sendProductsMessage,
+} from "../messageBroker";
 
 interface ISetOrderParam {
   collection: any;
@@ -34,7 +24,7 @@ export const bulkUpdateOrders = async ({
   stageId,
   sort = { order: 1 },
   additionFilter = {},
-  startOrder = 100
+  startOrder = 100,
 }: {
   collection: any;
   stageId: string;
@@ -56,7 +46,7 @@ export const bulkUpdateOrders = async ({
       {
         stageId,
         status: { $ne: BOARD_STATUSES.ARCHIVED },
-        ...additionFilter
+        ...additionFilter,
       },
       { _id: 1, order: 1 }
     )
@@ -66,19 +56,19 @@ export const bulkUpdateOrders = async ({
     bulkOps.push({
       updateOne: {
         filter: { _id: item._id },
-        update: { order: ord }
-      }
+        update: { order: ord },
+      },
     });
 
     ord = ord + 10;
   }
 
   if (!bulkOps.length) {
-    return '';
+    return "";
   }
 
   await collection.bulkWrite(bulkOps);
-  return 'ok';
+  return "ok";
 };
 
 const randomBetween = (min: number, max: number) => {
@@ -108,7 +98,7 @@ const orderHeler = (aboveOrder, belowOrder) => {
 export const getNewOrder = async ({
   collection,
   stageId,
-  aboveItemId
+  aboveItemId,
 }: ISetOrderParam) => {
   const aboveItem = await collection.findOne({ _id: aboveItemId });
 
@@ -118,7 +108,7 @@ export const getNewOrder = async ({
     .find({
       stageId,
       order: { $gt: aboveOrder },
-      status: { $ne: BOARD_STATUSES.ARCHIVED }
+      status: { $ne: BOARD_STATUSES.ARCHIVED },
     })
     .sort({ order: 1 })
     .limit(1);
@@ -158,8 +148,8 @@ export const updateOrder = async (collection: any, orders: IOrderInput[]) => {
     bulkOps.push({
       updateOne: {
         filter: { _id },
-        update: selector
-      }
+        update: selector,
+      },
     });
   }
 
@@ -195,17 +185,19 @@ export const fillSearchTextItem = (
   doc: IItemCommonFields,
   item?: IItemCommonFields
 ) => {
-  const document = item || { name: '', description: '' };
+  const document = item || { name: "", description: "" };
   Object.assign(document, doc);
 
-  return validSearchText([document.name || '', document.description || '']);
+  return validSearchText([document.name || "", document.description || ""]);
 };
 
-export const getCollection = (type: string) => {
+export const getCollection = (models: IModels, type: string) => {
   let collection;
   let create;
   let update;
   let remove;
+
+  const { Deals, GrowthHacks, Tasks, Tickets } = models;
 
   switch (type) {
     case BOARD_TYPES.DEAL: {
@@ -242,8 +234,8 @@ export const getCollection = (type: string) => {
   return { collection, create, update, remove };
 };
 
-export const getItem = async (type: string, doc: any) => {
-  const item = await getCollection(type).collection.findOne({ ...doc });
+export const getItem = async (models: IModels, type: string, doc: any) => {
+  const item = await getCollection(models, type).collection.findOne({ ...doc });
 
   if (!item) {
     throw new Error(`${type} not found`);
@@ -253,56 +245,84 @@ export const getItem = async (type: string, doc: any) => {
 };
 
 export const getCompanyIds = async (
+  subdomain: string,
   mainType: string,
   mainTypeId: string
 ): Promise<string[]> => {
-  const conformities = await sendConformityMessage('find', {
-    mainType,
-    mainTypeId,
-    relType: 'company'
+  const conformities = await sendCoreMessage({
+    subdomain,
+    action: "findConformities",
+    data: {
+      mainType,
+      mainTypeId,
+      relType: "company",
+    },
+    isRPC: true,
+    defaultValue: [],
   });
 
-  return conformities.map(c => c.relTypeId);
+  return conformities.map((c) => c.relTypeId);
 };
 
 export const getCustomerIds = async (
+  subdomain: string,
   mainType: string,
   mainTypeId: string
 ): Promise<string[]> => {
-  const conformities = await sendConformityMessage('find', {
-    mainType,
-    mainTypeId,
-    relType: 'customer'
+  const conformities = await sendCoreMessage({
+    subdomain,
+    action: "findConformities",
+    data: {
+      mainType,
+      mainTypeId,
+      relType: "customer",
+    },
+    isRPC: true,
+    defaultValue: [],
   });
 
-  return conformities.map(c => c.relTypeId);
+  return conformities.map((c) => c.relTypeId);
 };
 
 // Removes all board item related things
 export const destroyBoardItemRelations = async (
+  models: IModels,
+  subdomain: string,
   contentTypeId: string,
   contentType: string
 ) => {
   await putActivityLog({
-    action: 'removeActivityLog',
-    data: { contentTypeId }
+    action: "removeActivityLog",
+    data: { contentTypeId },
   });
 
-  await Checklists.removeChecklists(contentType, [contentTypeId]);
+  await models.Checklists.removeChecklists(contentType, [contentTypeId]);
 
-  sendConformityMessage('removeConformity', {
-    mainType: contentType,
-    mainTypeId: contentTypeId
+  sendCoreMessage({
+    subdomain,
+    action: "removeConformity",
+    data: {
+      mainType: contentType,
+      mainTypeId: contentTypeId,
+    },
   });
 
-  await InternalNotes.deleteMany({ contentType, contentTypeId });
+  return sendInternalNotesMessage({
+    subdomain,
+    action: "deleteMany",
+    data: { contentType, contentTypeId },
+  });
 };
 
 // Get board item link
-export const getBoardItemLink = async (stageId: string, itemId: string) => {
-  const stage = await Stages.getStage(stageId);
-  const pipeline = await Pipelines.getPipeline(stage.pipelineId);
-  const board = await Boards.getBoard(pipeline.boardId);
+export const getBoardItemLink = async (
+  models: IModels,
+  stageId: string,
+  itemId: string
+) => {
+  const stage = await models.Stages.getStage(stageId);
+  const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+  const board = await models.Boards.getBoard(pipeline.boardId);
 
   return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${itemId}`;
 };
@@ -320,27 +340,28 @@ const numberCalculator = (size: number, num?: any, skip?: boolean) => {
   num = num.toString();
 
   while (num.length < size) {
-    num = '0' + num;
+    num = "0" + num;
   }
 
   return num;
 };
 
 export const boardNumberGenerator = async (
+  models: IModels,
   config: string,
   size: string,
   skip: boolean,
   type?: string
 ) => {
   const replacedConfig = await configReplacer(config);
-  const re = replacedConfig + '[0-9]+$';
+  const re = replacedConfig + "[0-9]+$";
 
   let number;
 
   if (!skip) {
-    const pipeline = await Pipelines.findOne({
+    const pipeline = await models.Pipelines.findOne({
       lastNum: new RegExp(re),
-      type
+      type,
     });
 
     if (pipeline?.lastNum) {
@@ -357,19 +378,23 @@ export const boardNumberGenerator = async (
   }
 
   number =
-    replacedConfig + (await numberCalculator(parseInt(size, 10), '', skip));
+    replacedConfig + (await numberCalculator(parseInt(size, 10), "", skip));
 
   return number;
 };
 
-export const generateBoardNumber = async (doc: IItemCommonFields) => {
-  const stage = await Stages.getStage(doc.stageId);
-  const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+export const generateBoardNumber = async (
+  models: IModels,
+  doc: IItemCommonFields
+) => {
+  const stage = await models.Stages.getStage(doc.stageId);
+  const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
   if (pipeline.numberSize) {
-    const { numberSize, numberConfig = '' } = pipeline;
+    const { numberSize, numberConfig = "" } = pipeline;
 
     const number = await boardNumberGenerator(
+      models,
       numberConfig,
       numberSize,
       false,
@@ -382,10 +407,14 @@ export const generateBoardNumber = async (doc: IItemCommonFields) => {
   return { updatedDoc: doc, pipeline };
 };
 
-export const createBoardItem = async (doc: IItemCommonFields, type: string) => {
-  const { collection } = await getCollection(type);
+export const createBoardItem = async (
+  models: IModels,
+  doc: IItemCommonFields,
+  type: string
+) => {
+  const { collection } = await getCollection(models, type);
 
-  const response = await generateBoardNumber(doc);
+  const response = await generateBoardNumber(models, doc);
 
   const { pipeline, updatedDoc } = response;
 
@@ -397,77 +426,103 @@ export const createBoardItem = async (doc: IItemCommonFields, type: string) => {
       createdAt: new Date(),
       modifiedAt: new Date(),
       stageChangedDate: new Date(),
-      searchText: fillSearchTextItem(doc)
+      searchText: fillSearchTextItem(doc),
     });
   } catch (e) {
     if (
       e.message === `E11000 duplicate key error dup key: { : "${doc.number}" }`
     ) {
-      await createBoardItem(doc, type);
+      await createBoardItem(models, doc, type);
     }
   }
 
   // update numberConfig of the same configed pipelines
   if (doc.number) {
-    await Pipelines.updateMany(
+    await models.Pipelines.updateMany(
       {
         numberConfig: pipeline.numberConfig,
-        type: pipeline.type
+        type: pipeline.type,
       },
       { $set: { lastNum: doc.number } }
     );
   }
 
-  let action = 'create';
-  let content = '';
+  let action = "create";
+  let content = "";
 
   if (doc.sourceConversationIds && doc.sourceConversationIds.length > 0) {
-    action = 'convert';
+    action = "convert";
     content = item.sourceIds.slice(-1)[0];
   }
 
   // create log
   await putActivityLog({
-    action: 'createBoardItem',
-    data: { item, contentType: type, action, content, createdBy: item.userId || '', contentId: item._id }
+    action: "createBoardItem",
+    data: {
+      item,
+      contentType: type,
+      action,
+      content,
+      createdBy: item.userId || "",
+      contentId: item._id,
+    },
   });
 
   return item;
 };
 
 // check booking convert
-const checkBookingConvert = async (productId: string) => {
-  const product = await sendProductRPCMessage('findOne', { _id: productId });
-
-  // let dealUOM = await Configs.find({ code: 'dealUOM' }).distinct('value');
-  let dealUOM = await sendConfigRPCMessage('getConfigs', {
-    code: 'dealUOM'
+const checkBookingConvert = async (subdomain: string, productId: string) => {
+  const product = await sendProductsMessage({
+    subdomain,
+    action: "findOne",
+    data: { _id: productId },
+    isRPC: true,
   });
 
-  let dealCurrency = await sendConfigRPCMessage('getConfigs', {
-    code: 'dealCurrency'
+  // let dealUOM = await Configs.find({ code: 'dealUOM' }).distinct('value');
+  let dealUOM = await sendCoreMessage({
+    subdomain,
+    action: "getConfigs",
+    data: {
+      code: "dealUOM",
+    },
+    isRPC: true,
+  });
+
+  let dealCurrency = await sendCoreMessage({
+    subdomain,
+    action: "getConfigs",
+    data: {
+      code: "dealCurrency",
+    },
+    isRPC: true,
   });
 
   if (dealUOM.length > 0) {
     dealUOM = dealUOM[0];
   } else {
-    throw new Error('Please choose UNIT OF MEASUREMENT from general settings!');
+    throw new Error("Please choose UNIT OF MEASUREMENT from general settings!");
   }
 
   if (dealCurrency.length > 0) {
     dealCurrency = dealCurrency[0];
   } else {
-    throw new Error('Please choose currency from general settings!');
+    throw new Error("Please choose currency from general settings!");
   }
 
   return {
     product,
     dealUOM,
-    dealCurrency
+    dealCurrency,
   };
 };
 
-export const conversationConvertToCard = async args => {
+export const conversationConvertToCard = async (
+  models: IModels,
+  subdomain: string,
+  args
+) => {
   const {
     _id,
     type,
@@ -477,16 +532,17 @@ export const conversationConvertToCard = async args => {
     bookingProductId,
     conversation,
     user,
-    docModifier
+    docModifier,
   } = args;
 
-  const { collection, create, update } = getCollection(type);
+  const { collection, create, update } = getCollection(models, type);
 
   if (itemId) {
     const oldItem = await collection.findOne({ _id: itemId }).lean();
 
     if (bookingProductId) {
       const { product, dealUOM, dealCurrency } = await checkBookingConvert(
+        subdomain,
         bookingProductId
       );
 
@@ -495,7 +551,7 @@ export const conversationConvertToCard = async args => {
         unitPrice: product.unitPrice,
         uom: dealUOM,
         currency: dealCurrency,
-        quantity: product.productCount
+        quantity: product.productCount,
       });
     }
 
@@ -519,15 +575,20 @@ export const conversationConvertToCard = async args => {
     item.userId = user._id;
 
     await putActivityLog({
-      action: 'createBoardItem',
-      data: { item, contentType: type, contentId: item._id }
+      action: "createBoardItem",
+      data: { item, contentType: type, contentId: item._id },
     });
 
     const relTypeIds: string[] = [];
 
-    sourceConversationIds.forEach(async conversationId => {
-      const con = await sendInboxRPCMessage('getConversation', {
-        conversationId
+    sourceConversationIds.forEach(async (conversationId) => {
+      const con = await sendInboxMessage({
+        subdomain,
+        action: "getConversation",
+        data: {
+          conversationId,
+        },
+        isRPC: true,
       });
 
       if (con.customerId) {
@@ -536,11 +597,16 @@ export const conversationConvertToCard = async args => {
     });
 
     if (conversation.customerId) {
-      await sendConformityMessage('addConformity', {
-        mainType: type,
-        mainTypeId: item._id,
-        relType: 'customer',
-        relTypeId: conversation.customerId
+      await sendCoreMessage({
+        subdomain,
+        action: "addConformity",
+        data: {
+          mainType: type,
+          mainTypeId: item._id,
+          relType: "customer",
+          relTypeId: conversation.customerId,
+        },
+        isRPC: true,
       });
     }
 
@@ -556,6 +622,7 @@ export const conversationConvertToCard = async args => {
 
     if (bookingProductId) {
       const { product, dealUOM, dealCurrency } = await checkBookingConvert(
+        subdomain,
         bookingProductId
       );
 
@@ -565,8 +632,8 @@ export const conversationConvertToCard = async args => {
           unitPrice: product.unitPrice,
           uom: dealUOM,
           currency: dealCurrency,
-          quantity: product.productCount
-        }
+          quantity: product.productCount,
+        },
       ];
     }
 

@@ -1,6 +1,6 @@
 import { ICustomerDocument } from "../../models/definitions/customers";
 import { es } from "../../configs";
-import { client, sendConformityMessage } from "../../messageBroker";
+import { client, sendCoreMessage } from "../../messageBroker";
 import { IContext } from "../../connectionResolver";
 
 export default {
@@ -62,11 +62,11 @@ export default {
     _params,
     { models: { Companies } }: IContext
   ) {
-    const companyIds = await sendConformityMessage("savedConformity", {
+    const companyIds = await sendCoreMessage("savedConformity", {
       mainType: "customer",
       mainTypeId: customer._id,
       relTypes: ["company"],
-    });
+    }, true, []);
 
     const companies = await Companies.find({
       _id: { $in: (companyIds || []).filter((id) => id) },

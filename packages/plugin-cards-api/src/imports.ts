@@ -1,11 +1,13 @@
+import { generateModels } from './connectionResolver';
 import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
-import { Boards, Deals, Pipelines, Stages, Tasks, Tickets } from './models';
 
 export default {
   importTypes: IMPORT_TYPES,
   exportTypes: EXPORT_TYPES,
-  insertImportItems: async args => {
-    const { docs, contentType } = args;
+  insertImportItems: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { docs, contentType } = data;
 
     try {
       let objects;
@@ -13,12 +15,12 @@ export default {
 
       switch (contentType) {
         case 'deal':
-          model = Deals;
+          model = models.Deals;
           break;
         case 'task':
-          model = Tasks;
+          model = models.Tasks;
         case 'ticket':
-          model = Tickets;
+          model = models.Tickets;
       }
 
       objects = await model.insertMany(docs);
@@ -28,8 +30,9 @@ export default {
     }
   },
 
-  prepareImportDocs: async args => {
-    const { result, properties, contentType, user } = args;
+  prepareImportDocs: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { result, properties, contentType, user } = data;
 
     const bulkDoc: any = [];
 
@@ -78,15 +81,17 @@ export default {
       if (boardName && pipelineName && stageName) {
         doc.userId = user._id;
 
-        const board = await Boards.findOne({
+        const board = await models.Boards.findOne({
           name: boardName,
           type: contentType
         });
-        const pipeline = await Pipelines.findOne({
+
+        const pipeline = await models.Pipelines.findOne({
           boardId: board && board._id,
           name: pipelineName
         });
-        const stage = await Stages.findOne({
+
+        const stage = await models.Stages.findOne({
           pipelineId: pipeline && pipeline._id,
           name: stageName
         });

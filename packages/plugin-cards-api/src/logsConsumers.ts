@@ -1,35 +1,41 @@
 import { getSchemaLabels } from "@erxes/api-utils/src/logUtils";
+import { generateModels } from "./connectionResolver";
 
 import { LOG_MAPPINGS } from "./constants";
-import { collectItems, getCardContentIds, getContentItem, getContentTypeDetail } from "./utils";
+import {
+  collectItems,
+  getCardContentIds,
+  getContentItem,
+  getContentTypeDetail,
+} from "./utils";
 
 export default {
-  getActivityContent: async (data) => {
-    return {
-      status: 'success',
-      data: await getContentItem(data)
-    };
+  getActivityContent: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return getContentItem(models, data);
   },
-  getContentTypeDetail: async (data) => {
+
+  getContentTypeDetail: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
     const { activityLog = {} } = data;
 
-    return {
-      status: 'success',
-      data: await getContentTypeDetail(activityLog)
-    };
+    return getContentTypeDetail(models, activityLog);
   },
-  collectItems: async (data) => {
-    return {
-      status: 'success',
-      data: await collectItems(data)
-    }
+
+  collectItems: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return collectItems(models, subdomain, data);
   },
-  getContentIds: async (data) => ({
-    status: 'success',
-    data: await getCardContentIds(data)
-  }),
-  getSchemaLabels: ({ type }) => ({
-    status: 'success',
-    data: getSchemaLabels(type, LOG_MAPPINGS)
-  })
+
+  getContentIds: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return getCardContentIds(models, data);
+  },
+
+  getSchemaLabels: async ({ data: { type } }) => {
+    return getSchemaLabels(type, LOG_MAPPINGS);
+  },
 };

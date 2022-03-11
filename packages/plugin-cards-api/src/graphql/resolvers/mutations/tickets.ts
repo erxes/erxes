@@ -1,8 +1,6 @@
-import { Tickets } from '../../../models';
 import { IItemDragCommonFields } from '../../../models/definitions/boards';
 import { ITicket } from '../../../models/definitions/tickets';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src';
 import {
   itemsAdd,
   itemsArchive,
@@ -11,6 +9,7 @@ import {
   itemsEdit,
   itemsRemove
 } from './utils';
+import { IContext } from '../../../connectionResolver';
 
 interface ITicketsEdit extends ITicket {
   _id: string;
@@ -23,9 +22,9 @@ const ticketMutations = {
   async ticketsAdd(
     _root,
     doc: ITicket & { proccessId: string; aboveItemId: string },
-    { user, docModifier }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
-    return itemsAdd(doc, 'ticket', Tickets.createTicket, user, docModifier);
+    return itemsAdd(models, subdomain, doc, 'ticket', models.Tickets.createTicket, user, docModifier);
   },
 
   /**
@@ -34,33 +33,35 @@ const ticketMutations = {
   async ticketsEdit(
     _root,
     { _id, proccessId, ...doc }: ITicketsEdit & { proccessId: string },
-    { user }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    const oldTicket = await Tickets.getTicket(_id);
+    const oldTicket = await models.Tickets.getTicket(_id);
 
     return itemsEdit(
+      models,
+      subdomain,
       _id,
       'ticket',
       oldTicket,
       doc,
       proccessId,
       user,
-      Tickets.updateTicket
+      models.Tickets.updateTicket
     );
   },
 
   /**
    * Change ticket
    */
-  async ticketsChange(_root, doc: IItemDragCommonFields, { user }: IContext) {
-    return itemsChange(doc, 'ticket', user, Tickets.updateTicket);
+  async ticketsChange(_root, doc: IItemDragCommonFields, { user, models, subdomain }: IContext) {
+    return itemsChange(models, subdomain, doc, 'ticket', user, models.Tickets.updateTicket);
   },
 
   /**
    * Remove ticket
    */
-  async ticketsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    return itemsRemove(_id, 'ticket', user);
+  async ticketsRemove(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
+    return itemsRemove(models, subdomain, _id, 'ticket', user);
   },
 
   /**
@@ -69,32 +70,34 @@ const ticketMutations = {
   async ticketsWatch(
     _root,
     { _id, isAdd }: { _id: string; isAdd: boolean },
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    return Tickets.watchTicket(_id, isAdd, user._id);
+    return models.Tickets.watchTicket(_id, isAdd, user._id);
   },
 
   async ticketsCopy(
     _root,
     { _id, proccessId }: { _id: string; proccessId: string },
-    { user }: IContext
+    { user, models, subdomain }: IContext
   ) {
     return itemsCopy(
+      models,
+      subdomain,
       _id,
       proccessId,
       'ticket',
       user,
       ['source'],
-      Tickets.createTicket
+      models.Tickets.createTicket
     );
   },
 
   async ticketsArchive(
     _root,
     { stageId, proccessId }: { stageId: string; proccessId: string },
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    return itemsArchive(stageId, 'ticket', proccessId, user);
+    return itemsArchive(models, stageId, 'ticket', proccessId, user);
   }
 };
 

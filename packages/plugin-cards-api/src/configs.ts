@@ -1,8 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import apiConnect from './apiCollections';
 
-import { initBroker, sendSegmentMessage } from './messageBroker';
+import { initBroker, sendSegmentsMessage } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initMemoryStorage } from './inmemoryStorage';
 import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
@@ -12,8 +11,10 @@ import { buildFile } from './exporter';
 import segments from './segments';
 import forms from './forms';
 import logsConsumers from './logsConsumers';
+import { generateCoreModels, generateModels, getSubdomain } from './connectionResolver';
 import imports from './imports';
 
+export let mainDb;
 export let graphqlPubsub;
 export let serviceDiscovery;
 
@@ -50,7 +51,7 @@ export default {
     return context;
   },
   onServerInit: async options => {
-    await apiConnect();
+    mainDb = options.db;
 
     const app = options.app;
 
@@ -60,13 +61,17 @@ export default {
         const { query, user } = req;
         const { segment } = query;
 
-        const result = await buildFile(query, user);
+        const subdomain = getSubdomain(req.hostname);
+        const models = await generateModels(subdomain);
+        const coreModels = await generateCoreModels(subdomain);
+
+        const result = await buildFile(models, coreModels, subdomain, query, user);
 
         res.attachment(`${result.name}.xlsx`);
 
         if (segment) {
           try {
-            sendSegmentMessage('removeSegment', { segmentId: segment });
+            sendSegmentsMessage({ subdomain, action: 'removeSegment', data: { segmentId: segment } });
           } catch (e) {
             console.log((e as Error).message);
           }

@@ -1,12 +1,14 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
 import { ICoreIModels, IModels } from '../connectionResolver';
-import { findIntegrations } from '../messageBroker';
+import { sendInboxMessage } from '../messageBroker';
 import { CommonBuilder } from './utils';
 
 interface ISortParams {
   [index: string]: number;
 }
+
+const findIntegrations = (query, options?) => sendInboxMessage('integrations:find', { query, options });
 
 export interface IConformityQueryParams {
   conformityMainType?: string;

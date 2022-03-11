@@ -1,7 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker, sendSegmentMessage } from './messageBroker';
+import { initBroker, sendSegmentsMessage } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import {
@@ -166,7 +166,7 @@ export default {
 
         if (segment) {
           try {
-            sendSegmentMessage('removeSegment', { segmentId: segment });
+            sendSegmentsMessage('removeSegment', { segmentId: segment });
           } catch (e) {
             console.log((e as Error).message);
           }

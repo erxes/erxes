@@ -1,10 +1,9 @@
 import { ICustomer } from "../../models/definitions/customers";
-import messageBroker from "../../messageBroker";
+import messageBroker, { sendCoreMessage } from "../../messageBroker";
 import { MODULE_NAMES } from "../../constants";
 import { putCreateLog, putDeleteLog, putUpdateLog } from "../../logUtils";
 import { checkPermission } from "@erxes/api-utils/src/permissions";
 import { validateBulk } from "../../verifierUtils";
-import { sendMessage } from "../../messageBroker";
 import { IContext } from "../../connectionResolver";
 
 interface ICustomersEdit extends ICustomer {
@@ -34,7 +33,7 @@ const customerMutations = {
       user
     );
 
-    sendMessage("registerOnboardHistory", {
+    sendCoreMessage("registerOnboardHistory", {
       type: `${customer.state}Create`,
       user,
     });

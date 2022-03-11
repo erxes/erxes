@@ -1,10 +1,11 @@
-import { sendFormMessage, sendFormRPCMessage } from '../messageBroker';
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import {
   IPipelineTemplateDocument,
   IPipelineTemplateStage,
   pipelineTemplateSchema
 } from './definitions/pipelineTemplates';
+import { IModels } from '../connectionResolver';
+import { sendFormsMessage } from '../messageBroker';
 
 interface IDoc {
   name: string;
@@ -12,7 +13,7 @@ interface IDoc {
   type: string;
 }
 
-export const getDuplicatedStages = async ({
+export const getDuplicatedStages = async (models: IModels, subdomain: string, {
   templateId,
   pipelineId,
   type
@@ -21,12 +22,12 @@ export const getDuplicatedStages = async ({
   pipelineId?: string;
   type?: string;
 }) => {
-  const template = await PipelineTemplates.getPipelineTemplate(templateId);
+  const template = await models.PipelineTemplates.getPipelineTemplate(templateId);
 
   const stages: any[] = [];
 
   for (const stage of template.stages) {
-    const duplicated = await sendFormRPCMessage('duplicate', stage.formId);
+    const duplicated = await sendFormsMessage({ subdomain, action: 'duplicate', data: stage.formId, isRPC: true });
 
     stages.push({
       _id: Math.random().toString(),
@@ -56,13 +57,13 @@ export interface IPipelineTemplateModel
   duplicatePipelineTemplate(_id: string): Promise<IPipelineTemplateDocument>;
 }
 
-export const loadPipelineTemplateClass = () => {
+export const loadPipelineTemplateClass = (models: IModels, subdomain: string) => {
   class PipelineTemplate {
     /*
      * Get a pipeline template
      */
     public static async getPipelineTemplate(_id: string) {
-      const pipelineTemplate = await PipelineTemplates.findOne({ _id });
+      const pipelineTemplate = await models.PipelineTemplates.findOne({ _id });
 
       if (!pipelineTemplate) {
         throw new Error('Pipeline template not found');
@@ -80,7 +81,7 @@ export const loadPipelineTemplateClass = () => {
     ) {
       const orderedStages = stages.map((stage, index) => ({ ...stage, index }));
 
-      return PipelineTemplates.create({ ...doc, stages: orderedStages });
+      return models.PipelineTemplates.create({ ...doc, stages: orderedStages });
     }
 
     /**
@@ -93,19 +94,19 @@ export const loadPipelineTemplateClass = () => {
     ) {
       const orderedStages = stages.map((stage, index) => ({ ...stage, index }));
 
-      await PipelineTemplates.updateOne(
+      await models.PipelineTemplates.updateOne(
         { _id },
         { $set: { ...doc, stages: orderedStages } }
       );
 
-      return PipelineTemplates.findOne({ _id });
+      return models.PipelineTemplates.findOne({ _id });
     }
 
     /**
      * Duplicate pipeline template
      */
     public static async duplicatePipelineTemplate(_id: string) {
-      const pipelineTemplate = await PipelineTemplates.findOne({ _id }).lean();
+      const pipelineTemplate = await models.PipelineTemplates.findOne({ _id }).lean();
 
       if (!pipelineTemplate) {
         throw new Error('Pipeline template not found');
@@ -117,28 +118,28 @@ export const loadPipelineTemplateClass = () => {
         type: pipelineTemplate.type
       };
 
-      const stages: any[] = await getDuplicatedStages({
+      const stages: any[] = await getDuplicatedStages(models, subdomain, {
         templateId: pipelineTemplate._id
       });
 
-      return PipelineTemplates.createPipelineTemplate(duplicated, stages);
+      return models.PipelineTemplates.createPipelineTemplate(duplicated, stages);
     }
 
     /**
      * Remove pipeline template
      */
     public static async removePipelineTemplate(_id: string) {
-      const pipelineTemplate = await PipelineTemplates.findOne({ _id });
+      const pipelineTemplate = await models.PipelineTemplates.findOne({ _id });
 
       if (!pipelineTemplate) {
         throw new Error('Pipeline template not found');
       }
 
       for (const stage of pipelineTemplate.stages) {
-        sendFormMessage('removeForm', stage.formId);
+        sendFormsMessage({ subdomain, action: 'removeForm', data: stage.formId });
       }
 
-      return PipelineTemplates.deleteOne({ _id });
+      return models.PipelineTemplates.deleteOne({ _id });
     }
   }
 
@@ -146,13 +147,3 @@ export const loadPipelineTemplateClass = () => {
 
   return pipelineTemplateSchema;
 };
-
-loadPipelineTemplateClass();
-
-// tslint:disable-next-line
-const PipelineTemplates = model<
-  IPipelineTemplateDocument,
-  IPipelineTemplateModel
->('pipeline_templates', pipelineTemplateSchema);
-
-export default PipelineTemplates;

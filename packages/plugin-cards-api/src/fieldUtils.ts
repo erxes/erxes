@@ -1,10 +1,10 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
+import { IModels } from './connectionResolver';
 import { BOARD_ITEM_EXTENDED_FIELDS } from './constants';
-import { sendSegmentMessage } from './messageBroker';
-import { Deals, PipelineLabels, Stages, Tasks, Tickets } from './models';
+import { sendSegmentsMessage } from './messageBroker';
 
-const getStageOptions = async pipelineId => {
-  const stages = await Stages.find({ pipelineId });
+const getStageOptions = async (models: IModels, pipelineId) => {
+  const stages = await models.Stages.find({ pipelineId });
   const options: Array<{ label: string; value: any }> = [];
 
   for (const stage of stages) {
@@ -23,8 +23,8 @@ const getStageOptions = async pipelineId => {
   };
 };
 
-const getPipelineLabelOptions = async pipelineId => {
-  const labels = await PipelineLabels.find({ pipelineId });
+const getPipelineLabelOptions = async (models: IModels, pipelineId) => {
+  const labels = await models.PipelineLabels.find({ pipelineId });
   const options: Array<{ label: string; value: any }> = [];
 
   for (const label of labels) {
@@ -43,7 +43,7 @@ const getPipelineLabelOptions = async pipelineId => {
   };
 };
 
-export const generateFields = async args => {
+export const generateFields = async (models: IModels, subdomain: string, args) => {
   const { type, config = {}, segmentId, usageType } = args;
   const { pipelineId } = config;
 
@@ -61,15 +61,15 @@ export const generateFields = async args => {
 
   switch (type) {
     case 'deal':
-      schema = Deals.schema;
+      schema = models.Deals.schema;
       break;
 
     case 'task':
-      schema = Tasks.schema;
+      schema = models.Tasks.schema;
       break;
 
     case 'ticket':
-      schema = Tickets.schema;
+      schema = models.Tickets.schema;
       break;
   }
 
@@ -96,14 +96,16 @@ export const generateFields = async args => {
 
   if (segmentId || pipelineId) {
     const segment = segmentId
-      ? await sendSegmentMessage('findOne', { _id: segmentId }, true)
+      ? await sendSegmentsMessage({ subdomain, action: 'findOne', data: { _id: segmentId }, isRPC: true })
       : null;
 
     const labelOptions = await getPipelineLabelOptions(
+      models,
       pipelineId || (segment ? segment.pipelineId : null)
     );
 
     const stageOptions = await getStageOptions(
+      models,
       pipelineId || (segment ? segment.pipelineId : null)
     );
 

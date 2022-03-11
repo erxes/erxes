@@ -1,5 +1,4 @@
 import resolvers from '..';
-import { Boards, Pipelines, Stages } from '../../../models';
 import {
   destroyBoardItemRelations,
   getCollection,
@@ -40,8 +39,9 @@ import {
   prepareBoardItemDoc,
   sendNotifications
 } from '../../utils';
-import { sendFieldRPCMessage, sendNotificationMessage } from '../../../messageBroker';
 import { IUserDocument } from '@erxes/api-utils/src/types';
+import { IModels } from '../../../connectionResolver';
+import { sendFormsMessage, sendNotificationsMessage } from '../../../messageBroker';
 
 export const itemResolver = async (type: string, item: IItemCommonFields) => {
   let resolverType = '';
@@ -79,6 +79,8 @@ export const itemResolver = async (type: string, item: IItemCommonFields) => {
 };
 
 export const itemsAdd = async (
+  models: IModels,
+  subdomain: string,
   doc: (IDeal | IItemCommonFields | ITicket | IGrowthHack) & {
     proccessId: string;
     aboveItemId: string;
@@ -88,7 +90,7 @@ export const itemsAdd = async (
   user?: IUserDocument,
   docModifier?: any
 ) => {
-  const { collection } = getCollection(type);
+  const { collection } = getCollection(models, type);
 
   doc.initialStageId = doc.stageId;
   doc.watchedUserIds = user && [user._id];
@@ -108,15 +110,17 @@ export const itemsAdd = async (
 
   if (extendedDoc.customFieldsData) {
     // clean custom field values
-    extendedDoc.customFieldsData = await sendFieldRPCMessage(
-      'prepareCustomFieldsData',
-      extendedDoc.customFieldsData
-    );
+    extendedDoc.customFieldsData = await sendFormsMessage({
+      subdomain,
+      action: 'prepareCustomFieldsData',
+      data: extendedDoc.customFieldsData,
+      isRPC: true
+    });
   }
 
   const item = await createModel(extendedDoc);
 
-  await createConformity({
+  await createConformity(subdomain, {
     mainType: type,
     mainTypeId: item._id,
     companyIds: doc.companyIds,
@@ -124,7 +128,7 @@ export const itemsAdd = async (
   });
 
   if (user) {
-    sendNotifications({
+    sendNotifications(models, subdomain, {
       item,
       user,
       type: NOTIFICATION_TYPES.DEAL_ADD,
@@ -134,6 +138,8 @@ export const itemsAdd = async (
     });
 
     await putCreateLog(
+      models,
+      subdomain,
       {
         type,
         newData: extendedDoc,
@@ -143,7 +149,7 @@ export const itemsAdd = async (
     );
   }
 
-  const stage = await Stages.getStage(item.stageId);
+  const stage = await models.Stages.getStage(item.stageId);
 
   graphqlPubsub.publish('pipelinesChanged', {
     pipelinesChanged: {
@@ -161,7 +167,7 @@ export const itemsAdd = async (
   return item;
 };
 
-export const changeItemStatus = async ({
+export const changeItemStatus = async (models: IModels, {
   type,
   item,
   status,
@@ -190,7 +196,7 @@ export const changeItemStatus = async ({
     return;
   }
 
-  const { collection } = getCollection(type);
+  const { collection } = getCollection(models, type);
 
   const aboveItems = await collection
     .find({
@@ -232,6 +238,8 @@ export const changeItemStatus = async ({
 };
 
 export const itemsEdit = async (
+  models: IModels,
+  subdomain: string,
   _id: string,
   type: string,
   oldItem: any,
@@ -248,16 +256,18 @@ export const itemsEdit = async (
 
   if (extendedDoc.customFieldsData) {
     // clean custom field values
-    extendedDoc.customFieldsData = await sendFieldRPCMessage(
-      'prepareCustomFieldsData',
-      extendedDoc.customFieldsData
-    );
+    extendedDoc.customFieldsData = await sendFormsMessage({
+      subdomain,
+      action: 'prepareCustomFieldsData',
+      data: extendedDoc.customFieldsData,
+      isRPC: true
+    });
   }
 
   const updatedItem = await modelUpate(_id, extendedDoc);
   // labels should be copied to newly moved pipeline
   if (doc.stageId) {
-    await copyPipelineLabels({ item: oldItem, doc, user });
+    await copyPipelineLabels(models, { item: oldItem, doc, user });
   }
 
   const notificationDoc: IBoardNotificationParams = {
@@ -267,7 +277,7 @@ export const itemsEdit = async (
     contentType: type
   };
 
-  const stage = await Stages.getStage(updatedItem.stageId);
+  const stage = await models.Stages.getStage(updatedItem.stageId);
 
   if (doc.status && oldItem.status && oldItem.status !== doc.status) {
     const activityAction = doc.status === 'active' ? 'activated' : 'archived';
@@ -286,7 +296,7 @@ export const itemsEdit = async (
     });
 
     // order notification
-    await changeItemStatus({
+    await changeItemStatus(models, {
       type,
       item: updatedItem,
       status: activityAction,
@@ -319,9 +329,11 @@ export const itemsEdit = async (
     notificationDoc.removedUsers = removedUserIds;
   }
 
-  await sendNotifications(notificationDoc);
+  await sendNotifications(models, subdomain, notificationDoc);
 
   putUpdateLog(
+    models,
+    subdomain,
     {
       type,
       object: oldItem,
@@ -331,7 +343,7 @@ export const itemsEdit = async (
     user
   );
 
-  const oldStage = await Stages.getStage(oldItem.stageId);
+  const oldStage = await models.Stages.getStage(oldItem.stageId);
 
   if (oldStage.pipelineId !== stage.pipelineId) {
     graphqlPubsub.publish('pipelinesChanged', {
@@ -382,13 +394,15 @@ export const itemsEdit = async (
 
   // if task moves between stages
   const { content, action } = await itemMover(
+    models,
+    subdomain,
     user._id,
     oldItem,
     type,
     updatedItem.stageId
   );
 
-  await sendNotifications({
+  await sendNotifications(models, subdomain, {
     item: updatedItem,
     user,
     type: NOTIFICATION_TYPES.TASK_CHANGE,
@@ -401,6 +415,8 @@ export const itemsEdit = async (
 };
 
 const itemMover = async (
+  models: IModels,
+  subdomain: string,
   userId: string,
   item: IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument,
   contentType: string,
@@ -412,14 +428,14 @@ const itemMover = async (
   let content = `'${item.name}'`;
 
   if (oldStageId !== destinationStageId) {
-    const stage = await Stages.getStage(destinationStageId);
-    const oldStage = await Stages.getStage(oldStageId);
+    const stage = await models.Stages.getStage(destinationStageId);
+    const oldStage = await models.Stages.getStage(oldStageId);
 
-    const pipeline = await Pipelines.getPipeline(stage.pipelineId);
-    const oldPipeline = await Pipelines.getPipeline(oldStage.pipelineId);
+    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+    const oldPipeline = await models.Pipelines.getPipeline(oldStage.pipelineId);
 
-    const board = await Boards.getBoard(pipeline.boardId);
-    const oldBoard = await Boards.getBoard(oldPipeline.boardId);
+    const board = await models.Boards.getBoard(pipeline.boardId);
+    const oldBoard = await models.Boards.getBoard(oldPipeline.boardId);
 
     action = `moved '${item.name}' from ${oldBoard.name}-${oldPipeline.name}-${oldStage.name} to `;
 
@@ -448,22 +464,25 @@ const itemMover = async (
       }
     });
 
-    sendNotificationMessage('batchUpdate', {
+    sendNotificationsMessage({ subdomain,
+      action: 'batchUpdate', data: {
       selector: { contentType, contentTypeId: item._id },
       modifier: { $set: { link } }
-    })
+    }})
   }
 
   return { content, action };
 };
 
 export const itemsChange = async (
+  models: IModels,
+  subdomain: string,
   doc: IItemDragCommonFields,
   type: string,
   user: IUserDocument,
   modelUpdate: any
 ) => {
-  const { collection } = getCollection(type);
+  const { collection } = getCollection(models ,type);
   const {
     proccessId,
     itemId,
@@ -472,7 +491,7 @@ export const itemsChange = async (
     sourceStageId
   } = doc;
 
-  const item = await getItem(type, { _id: itemId });
+  const item = await getItem(models ,type, { _id: itemId });
 
   const extendedDoc: IItemCommonFields = {
     modifiedAt: new Date(),
@@ -492,13 +511,15 @@ export const itemsChange = async (
   const updatedItem = await modelUpdate(itemId, extendedDoc);
 
   const { content, action } = await itemMover(
+    models,
+    subdomain,
     user._id,
     item,
     type,
     destinationStageId
   );
 
-  await sendNotifications({
+  await sendNotifications(models, subdomain, {
     item,
     user,
     type: NOTIFICATION_TYPES.DEAL_CHANGE,
@@ -508,6 +529,8 @@ export const itemsChange = async (
   });
 
   await putUpdateLog(
+    models,
+    subdomain,
     {
       type,
       object: item,
@@ -518,7 +541,7 @@ export const itemsChange = async (
   );
 
   // order notification
-  const stage = await Stages.getStage(item.stageId);
+  const stage = await models.Stages.getStage(item.stageId);
 
   graphqlPubsub.publish('pipelinesChanged', {
     pipelinesChanged: {
@@ -538,13 +561,15 @@ export const itemsChange = async (
 };
 
 export const itemsRemove = async (
+  models: IModels,
+  subdomain: string,
   _id: string,
   type: string,
   user: IUserDocument
 ) => {
-  const item = await getItem(type, { _id });
+  const item = await getItem(models, type, { _id });
 
-  await sendNotifications({
+  await sendNotifications(models, subdomain, {
     item,
     user,
     type: `${type}Delete`,
@@ -553,16 +578,18 @@ export const itemsRemove = async (
     contentType: type
   });
 
-  await destroyBoardItemRelations(item._id, type);
+  await destroyBoardItemRelations(models, subdomain, item._id, type);
 
   const removed = await item.remove();
 
-  await putDeleteLog({ type, object: item }, user);
+  await putDeleteLog(models, subdomain, { type, object: item }, user);
 
   return removed;
 };
 
 export const itemsCopy = async (
+  models: IModels,
+  subdomain: string,
   _id: string,
   proccessId: string,
   type: string,
@@ -570,7 +597,7 @@ export const itemsCopy = async (
   extraDocParam: string[],
   modelCreate: any
 ) => {
-  const { collection } = getCollection(type);
+  const { collection } = getCollection(models, type);
   const item = await collection.findOne({ _id }).lean();
 
   const doc = await prepareBoardItemDoc(item, collection, user._id);
@@ -581,17 +608,17 @@ export const itemsCopy = async (
 
   const clone = await modelCreate(doc);
 
-  const companyIds = await getCompanyIds(type, _id);
-  const customerIds = await getCustomerIds(type, _id);
+  const companyIds = await getCompanyIds(subdomain, type, _id);
+  const customerIds = await getCustomerIds(subdomain, type, _id);
 
-  await createConformity({
+  await createConformity(subdomain, {
     mainType: type,
     mainTypeId: clone._id,
     customerIds,
     companyIds
   });
 
-  await copyChecklists({
+  await copyChecklists(models, {
     contentType: type,
     contentTypeId: item._id,
     targetContentId: clone._id,
@@ -599,7 +626,7 @@ export const itemsCopy = async (
   });
 
   // order notification
-  const stage = await Stages.getStage(clone.stageId);
+  const stage = await models.Stages.getStage(clone.stageId);
 
   graphqlPubsub.publish('pipelinesChanged', {
     pipelinesChanged: {
@@ -620,12 +647,13 @@ export const itemsCopy = async (
 };
 
 export const itemsArchive = async (
+  models: IModels,
   stageId: string,
   type: string,
   proccessId: string,
   user: IUserDocument
 ) => {
-  const { collection } = getCollection(type);
+  const { collection } = getCollection(models, type);
 
   const items = await collection
     .find({
@@ -640,7 +668,7 @@ export const itemsArchive = async (
   );
 
   // order notification
-  const stage = await Stages.getStage(stageId);
+  const stage = await models.Stages.getStage(stageId);
 
   for (const item of items) {
     await putActivityLog({

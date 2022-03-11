@@ -1,11 +1,11 @@
-import { Model, model } from 'mongoose';
-import { Pipelines } from '.';
+import { Model } from 'mongoose';
 import { getCollection } from './utils';
 import {
   IPipelineLabel,
   IPipelineLabelDocument,
   pipelineLabelSchema
 } from './definitions/pipelineLabels';
+import { IModels } from '../connectionResolver';
 
 interface IFilter extends IPipelineLabel {
   _id?: any;
@@ -30,10 +30,10 @@ export interface IPipelineLabelModel extends Model<IPipelineLabelDocument> {
   labelObject(params: ILabelObjectParams): void;
 }
 
-export const loadPipelineLabelClass = () => {
+export const loadPipelineLabelClass = (models: IModels) => {
   class PipelineLabel {
     public static async getPipelineLabel(_id: string) {
-      const pipelineLabel = await PipelineLabels.findOne({ _id });
+      const pipelineLabel = await models.PipelineLabels.findOne({ _id });
 
       if (!pipelineLabel) {
         throw new Error('Label not found');
@@ -52,7 +52,7 @@ export const loadPipelineLabelClass = () => {
         filter._id = { $ne: _id };
       }
 
-      if (await PipelineLabels.findOne(filter)) {
+      if (await models.PipelineLabels.findOne(filter)) {
         return false;
       }
 
@@ -68,7 +68,7 @@ export const loadPipelineLabelClass = () => {
       targetId,
       collection
     }: ILabelObjectParams) {
-      const prevLabelsCount = await PipelineLabels.find({
+      const prevLabelsCount = await models.PipelineLabels.find({
         _id: { $in: labelIds }
       }).countDocuments();
 
@@ -93,43 +93,43 @@ export const loadPipelineLabelClass = () => {
         colorCode: doc.colorCode
       };
 
-      const isUnique = await PipelineLabels.validateUniqueness(filter);
+      const isUnique = await models.PipelineLabels.validateUniqueness(filter);
 
       if (!isUnique) {
         throw new Error('Label duplicated');
       }
 
-      return PipelineLabels.create(doc);
+      return models.PipelineLabels.create(doc);
     }
 
     /**
      * Update pipeline label
      */
     public static async updatePipelineLabel(_id: string, doc: IPipelineLabel) {
-      const isUnique = await PipelineLabels.validateUniqueness({ ...doc }, _id);
+      const isUnique = await models.PipelineLabels.validateUniqueness({ ...doc }, _id);
 
       if (!isUnique) {
         throw new Error('Label duplicated');
       }
 
-      await PipelineLabels.updateOne({ _id }, { $set: doc });
+      await models.PipelineLabels.updateOne({ _id }, { $set: doc });
 
-      return PipelineLabels.findOne({ _id });
+      return models.PipelineLabels.findOne({ _id });
     }
 
     /**
      * Remove pipeline label
      */
     public static async removePipelineLabel(_id: string) {
-      const pipelineLabel = await PipelineLabels.findOne({ _id });
+      const pipelineLabel = await models.PipelineLabels.findOne({ _id });
 
       if (!pipelineLabel) {
         throw new Error('Label not found');
       }
 
-      const pipeline = await Pipelines.getPipeline(pipelineLabel.pipelineId);
+      const pipeline = await models.Pipelines.getPipeline(pipelineLabel.pipelineId);
 
-      const { collection } = getCollection(pipeline.type);
+      const { collection } = getCollection(models, pipeline.type);
 
       // delete labelId from collection that used labelId
       await collection.updateMany(
@@ -137,7 +137,7 @@ export const loadPipelineLabelClass = () => {
         { $pull: { labelIds: pipelineLabel._id } }
       );
 
-      return PipelineLabels.deleteOne({ _id });
+      return models.PipelineLabels.deleteOne({ _id });
     }
 
     /**
@@ -148,11 +148,11 @@ export const loadPipelineLabelClass = () => {
       targetId: string,
       labelIds: string[]
     ) {
-      const pipeline = await Pipelines.getPipeline(pipelineId);
+      const pipeline = await models.Pipelines.getPipeline(pipelineId);
 
-      const { collection } = getCollection(pipeline.type);
+      const { collection } = getCollection(models, pipeline.type);
 
-      await PipelineLabels.labelObject({
+      await models.PipelineLabels.labelObject({
         labelIds,
         targetId,
         collection
@@ -164,13 +164,3 @@ export const loadPipelineLabelClass = () => {
 
   return pipelineLabelSchema;
 };
-
-loadPipelineLabelClass();
-
-// tslint:disable-next-line
-const PipelineLabels = model<IPipelineLabelDocument, IPipelineLabelModel>(
-  'pipeline_labels',
-  pipelineLabelSchema
-);
-
-export default PipelineLabels;

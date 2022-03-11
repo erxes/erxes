@@ -1,61 +1,95 @@
+import { IContext } from "../../../connectionResolver";
 import {
-  sendConformityMessage,
-  sendContactRPCMessage,
-  sendNotificationMessage,
-} from '../../../messageBroker';
-import { PipelineLabels, Pipelines, Stages } from '../../../models';
-import { ITaskDocument } from '../../../models/definitions/tasks';
-import { IContext } from '@erxes/api-utils/src';
-import { boardId } from '../../utils';
+  sendContactsMessage,
+  sendCoreMessage,
+  sendNotificationsMessage,
+} from "../../../messageBroker";
+import { ITaskDocument } from "../../../models/definitions/tasks";
+import { boardId } from "../../utils";
 
 export default {
-  async companies(task: ITaskDocument) {
-    const companyIds = await sendConformityMessage('savedConformity', {
-      mainType: 'task',
-      mainTypeId: task._id,
-      relTypes: ['company']
+  async companies(task: ITaskDocument, _args, { subdomain }: IContext) {
+    const companyIds = await sendCoreMessage({
+      subdomain,
+      action: "savedConformity",
+      data: {
+        mainType: "task",
+        mainTypeId: task._id,
+        relTypes: ["company"],
+      },
+      isRPC: true,
+      defaultValue: [],
     });
 
-    const activeCompanies = await sendContactRPCMessage('findActiveCompanies', {
-      selector: { _id: { $in: companyIds } }
+    const activeCompanies = await sendContactsMessage({
+      subdomain,
+      action: "findActiveCompanies",
+      data: { _id: { $in: companyIds } },
+      isRPC: true,
+      defaultValue: [],
     });
 
-    return (activeCompanies || []).map(({_id }) => ({ __typename: "Company", _id }));
+    return (activeCompanies || []).map(({ _id }) => ({
+      __typename: "Company",
+      _id,
+    }));
   },
 
   createdUser(task: ITaskDocument) {
     return { __typename: "User", _id: task.userId };
   },
 
-  async customers(task: ITaskDocument) {
-    const customerIds = await sendConformityMessage('savedConformity', {
-      mainType: 'task',
-      mainTypeId: task._id,
-      relTypes: ['customer']
+  async customers(task: ITaskDocument, _args, { subdomain }: IContext) {
+    const customerIds = await sendCoreMessage({
+      subdomain,
+      action: "savedConformity",
+      data: {
+        mainType: "task",
+        mainTypeId: task._id,
+        relTypes: ["customer"],
+      },
+      isRPC: true,
+      defaultValue: [],
     });
 
-    const customers =  await sendContactRPCMessage('findActiveCustomers', {
-      selector: { _id: { $in: customerIds } }
+    const customers = await sendCoreMessage({
+      subdomain,
+      action: "findActiveCustomers",
+      data: {
+        _id: { $in: customerIds },
+      },
+      isRPC: true,
+      defaultValue: [],
     });
 
-    return (customers || []).map(({ _id }) => ({ __typename: "Customer", _id }))
+    return (customers || []).map(({ _id }) => ({
+      __typename: "Customer",
+      _id,
+    }));
   },
 
   assignedUsers(task: ITaskDocument) {
-    return (task.assignedUserIds || []).map(_id => ({ __typename: "User", _id }));
+    return (task.assignedUserIds || []).map((_id) => ({
+      __typename: "User",
+      _id,
+    }));
   },
 
-  async pipeline(task: ITaskDocument) {
+  async pipeline(
+    task: ITaskDocument,
+    _args,
+    { models: { Stages, Pipelines } }: IContext
+  ) {
     const stage = await Stages.getStage(task.stageId);
 
     return Pipelines.findOne({ _id: stage.pipelineId });
   },
 
-  boardId(task: ITaskDocument) {
-    return boardId(task);
+  boardId(task: ITaskDocument, _args, { models }: IContext) {
+    return boardId(models, task);
   },
 
-  stage(task: ITaskDocument) {
+  stage(task: ITaskDocument, _args, { models: { Stages } }: IContext) {
     return Stages.getStage(task.stageId);
   },
 
@@ -69,14 +103,20 @@ export default {
     return false;
   },
 
-  hasNotified(task: ITaskDocument, _args, { user }: IContext) {
-    return sendNotificationMessage('checkIfRead', {
-      userId: user._id,
-      itemId: task._id
-    }, true, true);
+  hasNotified(task: ITaskDocument, _args, { user, subdomain }: IContext) {
+    return sendNotificationsMessage({
+      subdomain,
+      action: "checkIfRead",
+      data: {
+        userId: user._id,
+        itemId: task._id,
+      },
+      isRPC: true,
+      defaultValue: true,
+    });
   },
 
-  labels(task: ITaskDocument) {
+  labels(task: ITaskDocument, _args, { models: { PipelineLabels } }: IContext) {
     return PipelineLabels.find({ _id: { $in: task.labelIds || [] } });
-  }
+  },
 };

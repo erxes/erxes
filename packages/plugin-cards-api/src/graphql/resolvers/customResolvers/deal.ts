@@ -1,16 +1,15 @@
-import { PipelineLabels, Pipelines, Stages } from '../../../models';
-import { IDealDocument } from '../../../models/definitions/deals';
-import { IContext } from '@erxes/api-utils/src';
-import { boardId } from '../../utils';
-import { Fields } from '../../../apiCollections';
+import { IDealDocument } from "../../../models/definitions/deals";
+import { boardId } from "../../utils";
+import { IContext } from "../../../connectionResolver";
 import {
-  findProducts,
-  sendConformityMessage,
-  sendContactRPCMessage,
-  sendNotificationMessage,
-} from '../../../messageBroker';
+  sendContactsMessage,
+  sendCoreMessage,
+  sendFormsMessage,
+  sendNotificationsMessage,
+  sendProductsMessage,
+} from "../../../messageBroker";
 
-export const generateProducts = async productsData => {
+export const generateProducts = async (subdomain: string, productsData) => {
   const products: any = [];
 
   for (const data of productsData || []) {
@@ -18,19 +17,29 @@ export const generateProducts = async productsData => {
       continue;
     }
 
-    const product = await findProducts('findOne', { _id: data.productId });
+    const product = await sendProductsMessage({
+      subdomain,
+      action: "findOne",
+      data: { _id: data.productId },
+      isRPC: true,
+    });
 
     const { customFieldsData } = product;
 
     const customFields: any[] = [];
 
     for (const customFieldData of customFieldsData || []) {
-      const field = await Fields.findOne({ _id: customFieldData.field }).lean();
+      const field = await sendFormsMessage({
+        subdomain,
+        action: "fields:findOne",
+        data: { _id: customFieldData.field },
+        isRPC: true,
+      });
 
       if (field) {
         customFields[customFieldData.field] = {
           text: field.text,
-          data: customFieldData.value
+          data: customFieldData.value,
         };
       }
     }
@@ -38,18 +47,18 @@ export const generateProducts = async productsData => {
     product.customFieldsData = customFields;
 
     products.push({
-      ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
-      product
+      ...(typeof data.toJSON === "function" ? data.toJSON() : data),
+      product,
     });
   }
 
   return products;
 };
 
-export const generateAmounts = productsData => {
+export const generateAmounts = (productsData) => {
   const amountsMap = {};
 
-  (productsData || []).forEach(product => {
+  (productsData || []).forEach((product) => {
     // Tick paid or used is false then exclude
     if (!product.tickUsed) {
       return;
@@ -70,36 +79,65 @@ export const generateAmounts = productsData => {
 };
 
 export default {
-  async companies(deal: IDealDocument) {
-    const companyIds = await sendConformityMessage('savedConformity', {
-      mainType: 'deal',
-      mainTypeId: deal._id,
-      relTypes: ['company']
+  async companies(deal: IDealDocument, _args, { subdomain }: IContext) {
+    const companyIds = await sendCoreMessage({
+      subdomain,
+      action: "savedConformity",
+      data: {
+        mainType: "deal",
+        mainTypeId: deal._id,
+        relTypes: ["company"],
+      },
+      isRPC: true,
     });
 
-    const activeCompanies = await sendContactRPCMessage('findActiveCompanies', {
-      selector: { _id: { $in: companyIds } }
+    const activeCompanies = await sendContactsMessage({
+      subdomain,
+      action: "findActiveCompanies",
+      data: {
+        selector: { _id: { $in: companyIds } },
+      },
+      isRPC: true,
+      defaultValue: [],
     });
 
-    return (activeCompanies || []).map(c => ({ __typename: "Company", _id: c._id }));
+    return (activeCompanies || []).map((c) => ({
+      __typename: "Company",
+      _id: c._id,
+    }));
   },
 
-  async customers(deal: IDealDocument) {
-    const customerIds = await sendConformityMessage('savedConformity', {
-      mainType: 'deal',
-      mainTypeId: deal._id,
-      relTypes: ['customer']
+  async customers(deal: IDealDocument, _args, { subdomain }: IContext) {
+    const customerIds = await sendCoreMessage({
+      subdomain,
+      action: "savedConformity",
+      data: {
+        mainType: "deal",
+        mainTypeId: deal._id,
+        relTypes: ["customer"],
+      },
+      isRPC: true,
+      defaultValue: [],
     });
 
-    const activeCustomers = await sendContactRPCMessage('findActiveCustomers', {
-      selector: { _id: { $in: customerIds } }
+    const activeCustomers = await sendContactsMessage({
+      subdomain,
+      action: "findActiveCustomers",
+      data: {
+        selector: { _id: { $in: customerIds } },
+      },
+      isRPC: true,
+      defaultValue: [],
     });
 
-    return (activeCustomers || []).map(c => ({ __typename: "Customer", _id: c._id }));
+    return (activeCustomers || []).map((c) => ({
+      __typename: "Customer",
+      _id: c._id,
+    }));
   },
 
-  async products(deal: IDealDocument) {
-    return generateProducts(deal.productsData);
+  async products(deal: IDealDocument, _args, { subdomain }: IContext) {
+    return generateProducts(subdomain, deal.productsData);
   },
 
   amount(deal: IDealDocument) {
@@ -107,21 +145,24 @@ export default {
   },
 
   assignedUsers(deal: IDealDocument) {
-    return (deal.assignedUserIds || []).map( _id => ({ __typename: "User", _id }));
+    return (deal.assignedUserIds || []).map((_id) => ({
+      __typename: "User",
+      _id,
+    }));
   },
 
-  async pipeline(deal: IDealDocument) {
-    const stage = await Stages.getStage(deal.stageId);
+  async pipeline(deal: IDealDocument, _args, { models }: IContext) {
+    const stage = await models.Stages.getStage(deal.stageId);
 
-    return Pipelines.findOne({ _id: stage.pipelineId }).lean();
+    return models.Pipelines.findOne({ _id: stage.pipelineId }).lean();
   },
 
-  boardId(deal: IDealDocument) {
-    return boardId(deal);
+  boardId(deal: IDealDocument, _args, { models }: IContext) {
+    return boardId(models, deal);
   },
 
-  stage(deal: IDealDocument) {
-    return Stages.getStage(deal.stageId);
+  stage(deal: IDealDocument, _args, { models }: IContext) {
+    return models.Stages.getStage(deal.stageId);
   },
 
   isWatched(deal: IDealDocument, _args, { user }: IContext) {
@@ -134,18 +175,26 @@ export default {
     return false;
   },
 
-  hasNotified(deal: IDealDocument, _args, { user }: IContext) {
-    return sendNotificationMessage('checkIfRead', {
-      userId: user._id,
-      itemId: deal._id
-    }, true, true);
+  hasNotified(deal: IDealDocument, _args, { user, subdomain }: IContext) {
+    return sendNotificationsMessage({
+      subdomain,
+      action: "checkIfRead",
+      data: {
+        userId: user._id,
+        itemId: deal._id,
+      },
+      isRPC: true,
+      defaultValue: true,
+    });
   },
 
-  labels(deal: IDealDocument) {
-    return PipelineLabels.find({ _id: { $in: deal.labelIds || [] } }).lean();
+  labels(deal: IDealDocument, _args, { models }: IContext) {
+    return models.PipelineLabels.find({
+      _id: { $in: deal.labelIds || [] },
+    }).lean();
   },
 
   createdUser(deal: IDealDocument) {
     return { __typename: "User", _id: deal.userId };
-  }
+  },
 };

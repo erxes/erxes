@@ -256,31 +256,49 @@ async function startServer() {
         if (logs.getActivityContent) {
           consumeRPCQueue(
             `${configs.name}:logs:getActivityContent`,
-            logs.getActivityContent
+            async args => ({
+              status: 'success',
+              data: await logs.getActivityContent(args)
+            })
           );
         }
+
         if (logs.getContentTypeDetail) {
           consumeRPCQueue(
             `${configs.name}:logs:getContentTypeDetail`,
-            logs.getContentTypeDetail
+            async args => ({
+              status: 'success',
+              data: await logs.getContentTypeDetail(args)
+            })
           );
         }
+
         if (logs.collectItems) {
           consumeRPCQueue(
             `${configs.name}:logs:collectItems`,
-            logs.collectItems
+            async args => ({
+              status: 'success',
+              data: await logs.collectItems(args)
+            })
           );
         }
+
         if (logs.getContentIds) {
           consumeRPCQueue(
             `${configs.name}:logs:getContentIds`,
-            logs.getContentIds
+            async args => ({
+              status: 'success',
+              data: await logs.getContentIds(args)
+            })
           );
         }
+
         if (logs.getSchemaLabels) {
-          consumeRPCQueue(
-            `${configs.name}:logs:getSchemaLabels`,
-            logs.getSchemaLabels
+          consumeRPCQueue(`${configs.name}:logs:getSchemaLabels`,
+            async args => ({
+              status: 'success',
+              data: await logs.getSchemaLabels(args)
+            })
           );
         }
       } // end logs if()

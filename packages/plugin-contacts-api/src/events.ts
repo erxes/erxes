@@ -2,8 +2,7 @@ import * as getUuid from "uuid-by-string";
 import { debug } from "./configs";
 import { es } from "./configs";
 import { IModels } from "./connectionResolver";
-import { sendContactRPCMessage } from "./messageBroker";
-import { client as msgBroker } from "./messageBroker";
+import { client as msgBroker, sendContactsMessage } from "./messageBroker";
 interface ISaveEventArgs {
   type?: string;
   name?: string;
@@ -206,7 +205,7 @@ export const identifyCustomer = async (
   args: ICustomerIdentifyParams = {}
 ) => {
   // get or create customer
-  let customer = await sendContactRPCMessage("getWidgetCustomer", args);
+  let customer = await sendContactsMessage("customers:getWidgetCustomer", args);
 
   if (!customer) {
     customer = await Customers.createCustomer({
