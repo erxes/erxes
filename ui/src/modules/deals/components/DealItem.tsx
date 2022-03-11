@@ -122,7 +122,6 @@ class DealItem extends React.PureComponent<Props> {
 
   render() {
     const { item, portable, onClick } = this.props;
-    console.log('render:', item);
 
     if (portable) {
       return (
