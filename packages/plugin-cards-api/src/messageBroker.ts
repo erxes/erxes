@@ -16,7 +16,7 @@ export const initBroker = async cl => {
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeRPCQueue('cards:rpc_queue:createTickets', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:createTickets', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -25,7 +25,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('cards:rpc_queue:createTasks', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:createTasks', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -34,7 +34,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('cards:rpc_queue:findTickets', async ({ subdomain, data })=> {
+  consumeRPCQueue('cards:findTickets', async ({ subdomain, data })=> {
     const models = await generateModels(subdomain);
 
     return {
@@ -43,7 +43,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('cards:rpc_queue:findOneTickets', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:findOneTickets', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -52,7 +52,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('cards:rpc_queue:findStages', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:findStages', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -61,7 +61,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('cards:rpc_queue:findTasks', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:findTasks', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -70,7 +70,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('cards:rpc_queue:findOneTasks', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:findOneTasks', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -88,7 +88,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('cards:rpc_queue:conversationConvert', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:conversationConvert', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -105,13 +105,13 @@ export const initBroker = async cl => {
     return { data: await generateProducts(productsData), status: 'success' };
   });
 
-  consumeRPCQueue('cards:rpc_queue:findItem', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:findItem', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return { data: await getCardItem(models, data), status: 'success' };
   });
 
-  consumeRPCQueue('cards:rpc_queue:findDealProductIds', async ({ subdomain, data: { _ids } }) => {
+  consumeRPCQueue('cards:findDealProductIds', async ({ subdomain, data: { _ids } }) => {
     const models = await generateModels(subdomain);
 
     const dealProductIds = await await models.Deals.find({
@@ -121,13 +121,13 @@ export const initBroker = async cl => {
     return { data: dealProductIds, status: 'success' };
   });
 
-  consumeRPCQueue('cards:rpc_queue:updateDeals', async ({ subdomain, data: { selector, modifier } }) => {
+  consumeRPCQueue('cards:updateDeals', async ({ subdomain, data: { selector, modifier } }) => {
     const models = await generateModels(subdomain);
 
     return { data: await models.Deals.updateMany(selector, modifier), status: 'success' };
   });
 
-  consumeRPCQueue('cards:rpc_queue:generateInternalNoteNotif', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:generateInternalNoteNotif', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     let model: any = models.GrowthHacks;
@@ -174,7 +174,7 @@ export const initBroker = async cl => {
     };
   });
 
-  consumeRPCQueue('cards:rpc_queue:notifiedUserIds', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:notifiedUserIds', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {

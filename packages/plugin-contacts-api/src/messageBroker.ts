@@ -1,12 +1,12 @@
 import {
   findCompany,
   findCustomer,
-  generateFields,
   getContentItem,
   prepareEngageCustomers
 } from './utils';
 import { serviceDiscovery } from './configs';
-import { generateModels, connectCore } from './connectionResolver';
+import { generateModels } from './connectionResolver';
+import { sendMessage } from '@erxes/api-utils/src/core';
 
 export let client;
 
@@ -15,124 +15,138 @@ export const initBroker = cl => {
 
   const { consumeRPCQueue, consumeQueue } = client;
 
-  consumeRPCQueue('contacts:rpc_queue:getCustomerName', async customer => {
-    const { Customers } = await generateModels('os');
+  consumeRPCQueue('contacts:getCustomerName', async ({ subdomain, data: { customer } }) => {
+    const models = await generateModels(subdomain);
+
     return {
-      data: await Customers.getCustomerName(customer),
+      data: await models.Customers.getCustomerName(customer),
       status: 'success'
     };
   });
 
-  consumeRPCQueue('contacts:rpc_queue:findCustomer', async doc => {
-    const models = await generateModels('os');
+  consumeRPCQueue('contacts:findCustomer', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
     return {
       status: 'success',
-      data: await findCustomer(models, doc)
+      data: await findCustomer(models, data)
     };
   });
 
-  consumeRPCQueue('contacts:rpc_queue:findCompany', async doc => {
-    const models = await generateModels('os');
+  consumeRPCQueue('contacts:findCompany', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
     return {
       status: 'success',
-      data: await findCompany(models, doc)
+      data: await findCompany(models, data)
     };
   });
 
-  consumeRPCQueue('contacts:rpc_queue:getCustomers', async doc => {
-    const { Customers } = await generateModels('os');
+  consumeRPCQueue('contacts:getCustomers', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
     return {
       status: 'success',
-      data: await Customers.find(doc)
+      data: await models.Customers.find(data)
     };
   });
 
-  consumeRPCQueue('contacts:rpc_queue:getCustomerIds', async selector => {
-    const { Customers } = await generateModels('os');
+  consumeRPCQueue('contacts:getCustomerIds', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
     return {
       status: 'success',
-      data: await Customers.find(selector).distinct('_id')
+      data: await models.Customers.find(data).distinct('_id')
     };
   });
 
   consumeRPCQueue(
-    'contacts:rpc_queue:findActiveCustomers',
-    async ({ selector, fields }) => {
-      const { Customers } = await generateModels('os');
+    'contacts:findActiveCustomers',
+    async ({ subdomain, data: { selector, fields } }) => {
+      const models = await generateModels(subdomain);
+
       return {
         status: 'success',
-        data: await Customers.findActiveCustomers(selector, fields)
+        data: await models.Customers.findActiveCustomers(selector, fields)
       };
     }
   );
 
   consumeRPCQueue(
-    'contacts:Customers.findOne',
-    async ({ selector, fields }) => {
-      const { Customers } = await generateModels('os');
+    'contacts:customers:findOne',
+    async ({ subdomain, data: { selector, fields } }) => {
+      const models = await generateModels(subdomain);
+
       return {
         status: 'success',
-        data: await Customers.findOne(selector, fields).lean()
+        data: await models.Customers.findOne(selector, fields).lean()
       };
     }
   );
 
   consumeRPCQueue(
-    'contacts:rpc_queue:findActiveCompanies',
-    async ({ selector, fields }) => {
-      const { Companies } = await generateModels('os');
+    'contacts:findActiveCompanies',
+    async ({ subdomain,  data: { selector, fields } }) => {
+      const models = await generateModels(subdomain);
+
       return {
         status: 'success',
-        data: await Companies.findActiveCompanies(selector, fields)
+        data: await models.Companies.findActiveCompanies(selector, fields)
       };
     }
   );
 
-  consumeRPCQueue('contacts:rpc_queue:create_customer', async data => {
-    const { Customers } = await generateModels('os');
+  consumeRPCQueue('contacts:createCustomer', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
     return {
       status: 'success',
-      data: await Customers.createCustomer(data)
+      data: await models.Customers.createCustomer(data)
     };
   });
 
-  consumeRPCQueue('contacts:rpc_queue:createCompany', async data => {
-    const { Companies } = await generateModels('os');
+  consumeRPCQueue('contacts:createCompany', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
     return {
       status: 'success',
-      data: await Companies.createCompany(data)
+      data: await models.Companies.createCompany(data)
     };
   });
 
-  consumeRPCQueue('contacts:rpc_queue:updateCustomer', async ({ _id, doc }) => {
-    const { Customers } = await generateModels('os');
+  consumeRPCQueue('contacts:customers:update', async ({ subdomain, data: { _id, doc  } }) => {
+    const models = await generateModels(subdomain);
+
     return {
       status: 'success',
-      data: await Customers.updateCustomer(_id, doc)
+      data: await models.Customers.updateCustomer(_id, doc)
     };
   });
 
   consumeRPCQueue(
-    'contacts:rpc_queue:updateCustomerCommon',
-    async ({ selector, modifier }) => {
-      const { Customers } = await generateModels('os');
+    'contacts:customers:updateOne',
+    async ({ subdomain, data: { selector, modifier } }) => {
+      const models = await generateModels(subdomain);
+
       return {
         status: 'success',
-        data: await Customers.updateOne(selector, modifier)
+        data: await models.Customers.updateOne(selector, modifier)
       };
     }
   );
 
-  consumeQueue('contacts:removeCustomers', async doc => {
-    const { Customers } = await generateModels('os');
+  consumeQueue('contacts:customers:remove', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
     return {
       status: 'success',
-      data: await Customers.removeCustomers(doc)
+      data: await models.Customers.removeCustomers(data)
     };
   });
 
-  consumeRPCQueue('contacts:rpc_queue:updateCompany', async ({ _id, doc }) => {
-    const { Companies } = await generateModels('os');
+  consumeRPCQueue('contacts:companies:update', async ({ subdomain, data: { _id, doc } }) => {
+    const { Companies } = await generateModels(subdomain);
+
     return {
       status: 'success',
       data: await Companies.updateCompany(_id, doc)
@@ -140,9 +154,10 @@ export const initBroker = cl => {
   });
 
   consumeRPCQueue(
-    'contacts:rpc_queue:updateCompanyCommon',
-    async ({ selector, modifier }) => {
-      const { Companies } = await generateModels('os');
+    'contacts:companies:updateCommon',
+    async ({ subdomain, data: { selector, modifier } }) => {
+      const { Companies } = await generateModels(subdomain);
+
       return {
         status: 'success',
         data: await Companies.updateOne(selector, modifier)
@@ -150,62 +165,61 @@ export const initBroker = cl => {
     }
   );
 
-  consumeRPCQueue('contacts:rpc_queue:getWidgetCustomer', async data => {
-    const { Customers } = await generateModels('os');
+  consumeRPCQueue('contacts:customers:getWidgetCustomer', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
     return {
       status: 'success',
-      data: await Customers.getWidgetCustomer(data)
+      data: await models.Customers.getWidgetCustomer(data)
     };
   });
 
-  consumeRPCQueue('contacts:rpc_queue:updateMessengerCustomer', async data => {
-    const { Customers } = await generateModels('os');
+  consumeRPCQueue('contacts:customers:updateMessengerCustomer', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
     return {
       status: 'success',
-      data: await Customers.updateMessengerCustomer(data)
+      data: await models.Customers.updateMessengerCustomer(data)
     };
   });
 
-  consumeRPCQueue('contacts:rpc_queue:createMessengerCustomer', async data => {
-    const { Customers } = await generateModels('os');
+  consumeRPCQueue('contacts:customers:createMessengerCustomer', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
     return {
       status: 'success',
-      data: await Customers.createMessengerCustomer(data)
+      data: await models.Customers.createMessengerCustomer(data)
     };
   });
 
-  consumeRPCQueue('contacts:rpc_queue:saveVisitorContactInfo', async data => {
-    const { Customers } = await generateModels('os');
+  consumeRPCQueue('contacts:customers:saveVisitorContactInfo', async ({ subdomain, data }) => {
+    const models  = await generateModels(subdomain);
+
     return {
       status: 'success',
-      data: await Customers.saveVisitorContactInfo(data)
+      data: await models.Customers.saveVisitorContactInfo(data)
     };
   });
 
   consumeQueue(
-    'contacts:updateLocation',
-    async ({ customerId, browserInfo }) => {
-      const { Customers } = await generateModels('os');
-      Customers.updateLocation(customerId, browserInfo);
+    'contacts:customers:updateLocation',
+    async ({ subdomain, data: { customerId, browserInfo } }) => {
+      const models = await generateModels(subdomain);
+
+      await models.Customers.updateLocation(customerId, browserInfo);
     }
   );
 
-  consumeQueue('contacts:updateSession', async ({ customerId }) => {
-    const { Customers } = await generateModels('os');
-    Customers.updateSession(customerId);
+  consumeQueue('contacts:customers:updateSession', async ({ subdomain, data: { customerId } }) => {
+    const models = await generateModels(subdomain);
+
+    await models.Customers.updateSession(customerId);
   });
 
-  consumeRPCQueue('contacts:rpc_queue:getFields', async args => {
-    const models = await generateModels('os');
-    return {
-      status: 'success',
-      data: await generateFields(models, args)
-    };
-  });
+  consumeRPCQueue('contacts:customers:getCustomerName', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
 
-  consumeRPCQueue('contacts:getCustomerName', async customer => {
-    const { Customers } = await generateModels('os');
-    return { data: Customers.getCustomerName(customer), status: 'success' };
+    return { data: models.Customers.getCustomerName(data), status: 'success' };
   });
 
   consumeRPCQueue('contacts:rpc_queue:getContentItem', async data => {
@@ -216,50 +230,21 @@ export const initBroker = cl => {
     };
   });
 
-  consumeRPCQueue('contacts:rpc_queue:prepareEngageCustomers', async data => {
-    const models = await generateModels('os');
+  consumeRPCQueue('contacts:customers:prepareEngageCustomers', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
     return {
       status: 'success',
       data: await prepareEngageCustomers(models, data)
     };
   });
 
-  consumeRPCQueue('contacts:rpc_queue:tag', async args => {
-    const { Companies, Customers } = await generateModels('os');
-
-    let data = {};
-    let model: any = Companies;
-
-    if (args.type === 'customer') {
-      model = Customers;
-    }
-
-    if (args.action === 'count') {
-      data = await model.countDocuments({ tagIds: { $in: args._ids } });
-    }
-
-    if (args.action === 'tagObject') {
-      await model.updateMany(
-        { _id: { $in: args.targetIds } },
-        { $set: { tagIds: args.tagIds } },
-        { multi: true }
-      );
-
-      data = await model.find({ _id: { $in: args.targetIds } }).lean();
-    }
-
-    return {
-      status: 'success',
-      data
-    };
-  });
-
   consumeRPCQueue(
-    'contacts:rpc_queue:generateInternalNoteNotif',
-    async args => {
-      const { contentTypeId, notifDoc, type } = args;
+    'contacts:generateInternalNoteNotif',
+    async ({ subdomain, data }) => {
+      const { contentTypeId, notifDoc, type } = data;
 
-      const { Customers, Companies } = await generateModels('os');
+      const { Customers, Companies } = await generateModels(subdomain);
 
       let model: any = Customers;
       let link = `/contacts/details/`;
@@ -290,205 +275,40 @@ export const initBroker = cl => {
   );
 };
 
-export const sendMessage = async (channel, message): Promise<any> => {
-  return client.sendMessage(channel, message);
+export const sendSegmentsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
+  return sendMessage(client, serviceDiscovery, 'segments', action, data, isRPC, defaultValue);
 };
 
-export const sendRPCMessage = async (channel, message): Promise<any> => {
-  return client.sendRPCMessage(channel, message);
+export const sendCoreMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
+  return sendMessage(client, serviceDiscovery, 'core', action, data, isRPC, defaultValue);
 };
 
-export const sendContactMessage = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled('contacts'))) {
-    return;
-  }
-
-  return client.sendMessage(`contacts:${action}`, data);
+export const sendFormsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
+  return sendMessage(client, serviceDiscovery, 'forms', action, data, isRPC, defaultValue);
 };
 
-export const sendContactRPCMessage = async (action, data): Promise<any> => {
-  return client.sendRPCMessage(`contacts:rpc_queue:${action}`, data);
+export const sendInboxMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
+  return sendMessage(client, serviceDiscovery, 'inbox', action, data, isRPC, defaultValue);
 };
 
-export const sendFormRPCMessage = async (action, data): Promise<any> => {
-  return client.sendRPCMessage(`forms:rpc_queue:${action}`, data);
+export const sendEngagesMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
+  return sendMessage(client, serviceDiscovery, 'engages', action, data, isRPC, defaultValue);
 };
 
-export const sendConformityMessage = async (action, data): Promise<any> => {
-  return client.sendRPCMessage(`conformities:${action}`, data);
+export const sendInternalNotesMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
+  return sendMessage(client, serviceDiscovery, 'internalNotes', action, data, isRPC, defaultValue);
 };
 
-export const sendEngageMessage = async (action, data): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled('engages'))) {
-    return null;
-  }
-
-  if (!(await serviceDiscovery.isAvailable('engages'))) {
-    throw new Error('Engages service is not available.');
-  }
-
-  return client.sendRPCMessage(`engages:rpc_queue:${action}`, data);
+export const sendTagsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
+  return sendMessage(client, serviceDiscovery, 'tags', action, data, isRPC, defaultValue);
 };
 
-export const prepareCustomFieldsData = async (doc): Promise<any> => {
-  return client.sendRPCMessage('fields:rpc_queue:prepareCustomFieldsData', {
-    doc
-  });
-};
-
-export const generateCustomFieldsData = async (doc): Promise<any> => {
-  return client.sendRPCMessage('fields:rpc_queue:generateCustomFieldsData', {
-    doc
-  });
-};
-
-export const sendFieldRPCMessage = async (action, data): Promise<any> => {
-  return client.sendRPCMessage(`fields:rpc_queue:${action}`, data);
-};
-
-export const findIntegrations = async (query, options?): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled('inbox'))) {
-    return [];
-  }
-
-  if (!(await serviceDiscovery.isAvailable('inbox'))) {
-    throw new Error('Inbox service is not available.');
-  }
-
-  return client.sendRPCMessage('inbox:rpc_queue:findIntegrations', {
-    query,
-    options
-  });
-};
-
-export const findTags = async (query): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled('tags'))) {
-    return [];
-  }
-
-  if (!(await serviceDiscovery.isAvailable('tags'))) {
-    throw new Error('Tags service is not available');
-  }
-
-  return client.sendRPCMessage('tags:rpc_queue:find', query);
-};
-
-export const findOneTag = async (query): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled('tags'))) {
-    return null;
-  }
-
-  if (!(await serviceDiscovery.isAvailable('tags'))) {
-    throw new Error('Tags service is not available');
-  }
-
-  return client.sendRPCMessage('tags:rpc_queue:findOne', query);
-};
-
-export const createTag = async doc => {
-  if (!(await serviceDiscovery.isEnabled('tags'))) {
-    return null;
-  }
-
-  if (!(await serviceDiscovery.isAvailable('tags'))) {
-    throw new Error('Tags service is not available');
-  }
-
-  return client.sendRPCMessage('tags:createTag', doc);
-};
-
-export const sendToLog = (channel: string, data) =>
-  client.sendMessage(channel, data);
-
-export const removeCustomersConversations = async (
-  customerIds
-): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled('inbox'))) {
-    return;
-  }
-
-  await client.sendMessage('inbox:removeCustomersConversations', {
-    customerIds
-  });
-};
-
-export const removeCustomersEngages = async (customerIds): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled('engages'))) {
-    return;
-  }
-
-  await client.sendMessage('engage:removeCustomersEngages', customerIds);
-};
-
-export const engageChangeCustomer = async (
-  customerId,
-  customerIds
-): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled('engages'))) {
-    return;
-  }
-
-  return client.sendMessage('engage:changeCustomer', {
-    customerId,
-    customerIds
-  });
+export const sendContactsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
+  return sendMessage(client, serviceDiscovery, 'contacts', action, data, isRPC, defaultValue);
 };
 
 export const fetchSegment = (segment, options?) =>
-  sendSegmentMessage('fetchSegment', { segment, options }, true);
-
-export const sendSegmentMessage = async (action, data, isRPC?: boolean) => {
-  if (!isRPC) {
-    return sendMessage(`segments:${action}`, data);
-  }
-
-  if (!(await serviceDiscovery.isAvailable('segments'))) {
-    throw new Error('Segments service is not available');
-  }
-
-  sendMessage(`segments:rpc_queue:${action}`, data);
-};
-
-export const removeInternalNotes = async (
-  contentType: string,
-  contentTypeIds: string[]
-) => {
-  if (!(await serviceDiscovery.isEnabled('internalnotes'))) {
-    return;
-  }
-
-  return sendMessage('internalnotes:InternalNotes.removeInternalNotes', {
-    contentType,
-    contentTypeIds
-  });
-};
-
-export const internalNotesBatchUpdate = async (
-  contentType: string,
-  oldContentTypeIds: string[],
-  newContentTypeId: string
-) => {
-  if (!(await serviceDiscovery.isEnabled('internalnotes'))) {
-    return;
-  }
-
-  return sendMessage('internalNotes:batchUpdate', {
-    contentType,
-    oldContentTypeIds,
-    newContentTypeId
-  });
-};
-
-export const inboxChangeCustomer = async (
-  customerId: string,
-  customerIds: string[]
-) => {
-  if (!(await serviceDiscovery.isEnabled('inbox'))) {
-    return;
-  }
-
-  return sendMessage('inbox:changeCustomer', { customerId, customerIds });
-};
+  sendSegmentsMessage('fetchSegment', { segment, options }, true);
 
 export default function() {
   return client;

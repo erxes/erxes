@@ -4,8 +4,8 @@ import { KIND_CHOICES } from '../models/definitions/constants';
 import { customerSchema } from '../models/definitions/customers';
 import { debug, es } from '../configs';
 import { COC_LEAD_STATUS_TYPES } from '../constants';
-import { fetchSegment, findOneTag, findTags, sendConformityMessage, sendSegmentMessage } from '../messageBroker';
 import { ICoreIModels, IModels } from '../connectionResolver';
+import { fetchSegment, sendCoreMessage, sendSegmentsMessage, sendTagsMessage } from '../messageBroker';
 
 export interface ICountBy {
   [index: string]: number;
@@ -38,9 +38,9 @@ export const countBySegment = async (
 
   // show all contact related engages when engage
   if (source === 'engages') {
-    segments = await sendSegmentMessage('find', {}, true);
+    segments = await sendSegmentsMessage('find', {}, true, []);
   } else {
-    segments = await sendSegmentMessage('find', { contentType }, true);
+    segments = await sendSegmentsMessage('find', { contentType }, true, []);
   }
 
   // Count cocs by segment
@@ -78,7 +78,7 @@ export const countByTag = async (type: string, qb): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
   // Count customers by tag
-  const tags = await findTags({ type});
+  const tags = await sendTagsMessage('find', { type }, true, []);
 
   for (const tag of tags) {
     await qb.buildAllQueries();
@@ -182,7 +182,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
   // filter by segment
   public async segmentFilter(segmentId: string, source?: string) {
-    const segment = await sendSegmentMessage('findOne', { _id: segmentId }, true);
+    const segment = await sendSegmentsMessage('findOne', { _id: segmentId }, true);
 
     const selector = await fetchSegment(
       segment,
@@ -199,7 +199,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     let tagIds: string[] = [tagId];
 
     if (withRelated) {
-      const tag = await findOneTag({ _id: tagId });
+      const tag = await sendTagsMessage('find', { _id: tagId });
 
       tagIds = [tagId, ...(tag?.relatedIds || [])];
     }
@@ -285,11 +285,11 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     const relType = this.contentType === 'customers' ? 'customer' : 'company';
 
     if (conformityIsRelated) {
-      const relTypeIds = await sendConformityMessage('relatedConformity', {
+      const relTypeIds = await sendCoreMessage('relatedConformity', {
         mainType: conformityMainType || '',
         mainTypeId: conformityMainTypeId || '',
         relType
-      });
+      }, true, []);
 
       this.positiveList.push({
         terms: {
@@ -299,11 +299,11 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     }
 
     if (conformityIsSaved) {
-      const relTypeIds = await sendConformityMessage('savedConformity', {
+      const relTypeIds = await sendCoreMessage('savedConformity', {
         mainType: conformityMainType || '',
         mainTypeId: conformityMainTypeId || '',
         relTypes: [relType]
-      });
+      }, true, []);
 
       this.positiveList.push({
         terms: {

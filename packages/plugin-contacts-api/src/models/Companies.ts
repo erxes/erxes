@@ -8,15 +8,8 @@ import {
   ICompanyDocument
 } from './definitions/companies';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
-import {
-  prepareCustomFieldsData,
-  sendConformityMessage,
-  removeInternalNotes,
-  internalNotesBatchUpdate
-} from '../messageBroker';
 import { IModels } from '../connectionResolver';
-
-// import { IUserDocument } from '@erxes/common-types';
+import { sendCoreMessage, sendFormsMessage, sendInternalNotesMessage } from '../messageBroker';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
   getCompanyName(company: ICompany): string;
@@ -240,9 +233,7 @@ export const loadCompanyClass = (models: IModels) => {
       this.fixListFields(doc, doc.trackedData);
 
       // clean custom field values
-      doc.customFieldsData = await prepareCustomFieldsData(
-        doc.customFieldsData
-      );
+      doc.customFieldsData = await sendFormsMessage('prepareCustomFieldsData', doc.customFieldsData, true);
 
       const company = await models.Companies.create({
         ...doc,
@@ -273,9 +264,7 @@ export const loadCompanyClass = (models: IModels) => {
 
       // clean custom field values
       if (doc.customFieldsData) {
-        doc.customFieldsData = await prepareCustomFieldsData(
-          doc.customFieldsData
-        );
+        doc.customFieldsData = await sendFormsMessage('prepareCustomFieldsData', doc.customFieldsData, true);
       }
 
       const searchText = models.Companies.fillSearchText(
@@ -300,11 +289,8 @@ export const loadCompanyClass = (models: IModels) => {
         data: { type: ACTIVITY_CONTENT_TYPES.COMPANY, itemIds: companyIds }
       });
 
-      await removeInternalNotes(ACTIVITY_CONTENT_TYPES.COMPANY, companyIds);
-      await sendConformityMessage('removeConformities', {
-        mainType: 'company',
-        mainTypeIds: companyIds
-      });
+      await sendInternalNotesMessage('removeInternalNotes', { contentType: ACTIVITY_CONTENT_TYPES.COMPANY, contentTypeIds: companyIds });
+      await sendCoreMessage('removeConformities', { mainType: 'company', mainTypeIds: companyIds });
 
       return models.Companies.deleteMany({ _id: { $in: companyIds } });
     }
@@ -383,18 +369,19 @@ export const loadCompanyClass = (models: IModels) => {
       });
 
       // Updating customer companies, deals, tasks, tickets
-      await sendConformityMessage('changeConformity', {
+      await sendCoreMessage('changeConformity', {
         type: 'company',
         newTypeId: company._id,
         oldTypeIds: companyIds
       });
 
       // Removing modules associated with current companies
-      await internalNotesBatchUpdate(
-        ACTIVITY_CONTENT_TYPES.COMPANY,
-        companyIds,
-        company._id
-      );
+      await sendInternalNotesMessage('batchUpdate', {
+        contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
+        newContentTypeId: company._id,
+        oldContentTypeIds: companyIds
+      });
+
       return company;
     }
   }

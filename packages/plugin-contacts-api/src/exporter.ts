@@ -21,7 +21,7 @@ import {
   customerSchema,
   ICustomerDocument
 } from './models/definitions/customers';
-import { fetchSegment, findTags } from './messageBroker';
+import { fetchSegment, sendTagsMessage } from './messageBroker';
 
 import {
   Builder as CompanyBuildQuery,
@@ -137,9 +137,9 @@ export const fillCellValue = async (
       break;
 
     case 'tag':
-      const tags = await findTags({
+      const tags = await sendTagsMessage('find', {
         _id: { $in: item.tagIds }
-      });
+      }, true, []);
 
       let tagNames = '';
 

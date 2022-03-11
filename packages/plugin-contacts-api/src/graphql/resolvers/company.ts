@@ -1,6 +1,6 @@
 import { ICompanyDocument } from "../../models/definitions/companies";
-import { sendConformityMessage } from "../../messageBroker";
 import { IContext } from "../../connectionResolver";
+import { sendCoreMessage } from "../../messageBroker";
 
 export default {
   __resolveReference({ _id }, { models: { Companies } }: IContext) {
@@ -12,11 +12,11 @@ export default {
     _,
     { models: { Customers } }: IContext
   ) {
-    const customerIds = await sendConformityMessage("savedConformity", {
+    const customerIds = await sendCoreMessage("savedConformity", {
       mainType: "company",
       mainTypeId: company._id,
       relTypes: ["customer"],
-    });
+    }, true, []);
 
     return Customers.find({ _id: { $in: customerIds || [] } });
   },

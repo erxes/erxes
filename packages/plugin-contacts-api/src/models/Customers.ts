@@ -11,19 +11,8 @@ import {
   ICustomer,
   ICustomerDocument
 } from './definitions/customers';
-// import { IUserDocument } from '@erxes/common-types';
-import {
-  engageChangeCustomer,
-  inboxChangeCustomer,
-  internalNotesBatchUpdate,
-  prepareCustomFieldsData,
-  removeCustomersConversations,
-  removeCustomersEngages,
-  removeInternalNotes,
-  sendConformityMessage,
-  sendFieldRPCMessage
-} from '../messageBroker';
 import { IModels } from '../connectionResolver';
+import { sendCoreMessage, sendEngagesMessage, sendFormsMessage, sendInboxMessage, sendInternalNotesMessage } from '../messageBroker';
 
 interface IGetCustomerParams {
   email?: string;
@@ -289,9 +278,7 @@ export const loadCustomerClass = (models: IModels) => {
       }
 
       // clean custom field values
-      doc.customFieldsData = await prepareCustomFieldsData(
-        doc.customFieldsData
-      );
+      doc.customFieldsData = await sendFormsMessage('prepareCustomFieldsData', doc.customFieldsData, true);
 
       if (doc.integrationId) {
         doc.relatedIntegrationIds = [doc.integrationId];
@@ -347,9 +334,7 @@ export const loadCustomerClass = (models: IModels) => {
 
       if (doc.customFieldsData) {
         // clean custom field values
-        doc.customFieldsData = await prepareCustomFieldsData(
-          doc.customFieldsData
-        );
+        doc.customFieldsData = await sendFormsMessage('prepareCustomFieldsData', doc.customFieldsData, true);
       }
 
       if (doc.primaryEmail) {
@@ -482,13 +467,11 @@ export const loadCustomerClass = (models: IModels) => {
         action: 'removeActivityLogs',
         data: { type: ACTIVITY_CONTENT_TYPES.CUSTOMER, itemIds: customerIds }
       });
-      await removeCustomersConversations(customerIds);
-      await removeCustomersEngages(customerIds);
-      await removeInternalNotes(ACTIVITY_CONTENT_TYPES.CUSTOMER, customerIds);
-      await sendConformityMessage('removeConformities', {
-        mainType: 'customer',
-        mainTypeIds: customerIds
-      });
+
+      await sendInboxMessage('removeCustomersConversations', { customerIds });
+      await sendEngagesMessage('removeCustomersEngages', { customerIds });
+      await sendInternalNotesMessage('removeInternalNotes', { contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER, contentTypeIds: customerIds });
+      await sendCoreMessage('removeConformities', { mainType: 'customer', mainTypeIds: customerIds });
 
       return models.Customers.deleteMany({ _id: { $in: customerIds } });
     }
@@ -582,15 +565,19 @@ export const loadCustomerClass = (models: IModels) => {
       );
 
       // Updating every modules associated with customers
-      await sendConformityMessage('changeConformity', {
+      await sendCoreMessage('changeConformity', {
         type: 'customer',
         newTypeId: customer._id,
         oldTypeIds: customerIds
-      });
+      }, true);
 
-      await inboxChangeCustomer(customer._id, customerIds);
-      await engageChangeCustomer(customer._id, customerIds);
-      await internalNotesBatchUpdate(ACTIVITY_CONTENT_TYPES.CUSTOMER, customerIds, customer._id);
+      await sendInboxMessage('changeCustomer', { customerId: customer._id, customerIds });
+      await sendEngagesMessage('changeCustomer', { customerId: customer._id, customerIds });
+      await sendInternalNotesMessage('batchUpdate', {
+        contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
+        oldContentTypeIds: customerIds,
+        newContentTypeId: customer._id
+      })
 
       return customer;
     }
@@ -732,10 +719,10 @@ export const loadCustomerClass = (models: IModels) => {
       const {
         customFieldsData,
         trackedData
-      } = await sendFieldRPCMessage('generateCustomFieldsData', {
+      } = await sendFormsMessage('generateCustomFieldsData', {
         customData,
         contentType: 'customer'
-      });
+      }, true);
 
       return this.createCustomer({
         ...doc,
@@ -762,7 +749,7 @@ export const loadCustomerClass = (models: IModels) => {
       const {
         customFieldsData,
         trackedData
-      } = await sendFieldRPCMessage('generateCustomFieldsData', {
+      } = await sendFormsMessage('generateCustomFieldsData', {
         customData,
         contentType: 'customer'
       });
