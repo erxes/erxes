@@ -8,6 +8,7 @@ import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
 import { generateModels, models, coreModels } from './connectionResolver';
 import logConsumers from './logConsumers';
+import tags from '../tags';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -40,7 +41,7 @@ export default {
       },
       contentTypes: ['conversation'],
     },
-    tagTypes: ['conversation'],
+    tags,
     logs: { providesActivityLog: true, consumers: logConsumers }
   },
   apolloServerContext: (context) => {

@@ -1,5 +1,3 @@
-import { generateFieldsFromSchema } from "@erxes/api-utils/src";
-
 import { receiveRpcMessage } from "./receiveMessage";
 import { serviceDiscovery } from './configs';
 import { generateModels, IModels } from './connectionResolver';
@@ -35,41 +33,6 @@ const createConversationAndMessage = async (
     visitorId,
     content
   });
-};
-
-export const generateFields = async (args) => {
-  const { subdomain } = args;
-  const models = await generateModels(subdomain);
-  
-  const schema: any = models.Conversations.schema;
-
-  let fields: Array<{
-    _id: number;
-    name: string;
-    group?: string;
-    label?: string;
-    type?: string;
-    validation?: string;
-    options?: string[];
-    selectOptions?: Array<{ label: string; value: string }>;
-  }> = [];
-
-  // generate list using customer or company schema
-  fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
-
-  for (const name of Object.keys(schema.paths)) {
-    const path = schema.paths[name];
-
-    // extend fields list using sub schema fields
-    if (path.schema) {
-      fields = [
-        ...fields,
-        ...(await generateFieldsFromSchema(path.schema, `${name}.`))
-      ];
-    }
-  }
-
-  return fields;
 };
 
 export const initBroker = (cl) => {
@@ -120,42 +83,6 @@ export const initBroker = (cl) => {
     await models.Conversations.changeCustomer(customerId, customerIds);
   });
 
-  consumeRPCQueue('inbox:rpc_queue:getFields', async args => ({
-    status: 'success',
-    data: await generateFields(args)
-  }));
-
-  consumeRPCQueue('inbox:rpc_queue:tag', async args => {
-    const { subdomain } = args;
-    const models = await generateModels(subdomain)
-
-    let data = {};
-    let model: any = models.Conversations
-
-    if(args.type === 'integration') {
-      model = models.Integrations
-    }
-
-    if (args.action === 'count') {
-      data = await model.countDocuments({ tagIds: { $in: args._ids } });
-    }
-
-    if (args.action === 'tagObject') {
-      await model.updateMany(
-        { _id: { $in: args.targetIds } },
-        { $set: { tagIds: args.tagIds } },
-        { multi: true }
-      );
-
-      data = await model.find({ _id: { $in: args.targetIds } }).lean();
-    }
-
-    return {
-      status: 'success',
-      data
-    }
-  });
-
   consumeRPCQueue(
     'inbox:rpc_queue:getConversation',
     async ({ subdomain, conversationId }) => {
@@ -168,6 +95,7 @@ export const initBroker = (cl) => {
       }
     }
   );
+
   consumeRPCQueue('inbox:rpc_queue:getIntegration', async data => {
     const { _id, subdomain } = data;
 
