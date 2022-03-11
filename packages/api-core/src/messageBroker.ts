@@ -13,14 +13,8 @@ import {
 import { registerModule } from './data/permissions/utils';
 import { sendEmail, sendMobileNotification } from './data/utils';
 import { IUserDocument } from './db/models/definitions/users';
-import * as models from './db/models/index';
 
 dotenv.config();
-
-interface IMongoFindParams {
-  query: any;
-  name: string;
-}
 
 let client;
 
@@ -47,47 +41,47 @@ export const initBroker = async (server?) => {
       await sendEmail(doc);
     });
 
-    consumeRPCQueue('conformities:addConformity', async doc => ({
+    consumeRPCQueue('core:conformities:addConformity', async doc => ({
       status: 'success',
       data: await Conformities.addConformity(doc)
     }));
 
-    consumeRPCQueue('conformities:savedConformity', async doc => ({
+    consumeRPCQueue('core:conformities:savedConformity', async doc => ({
       status: 'success',
       data: await Conformities.savedConformity(doc)
     }));
 
-    consumeQueue('conformities:create', async doc => ({
+    consumeQueue('core:conformities:create', async doc => ({
       status: 'success',
       data: await Conformities.create(doc)
     }));
 
-    consumeQueue('conformities:removeConformities', async doc => ({
+    consumeQueue('core:conformities:removeConformities', async doc => ({
       status: 'success',
       data: await Conformities.removeConformities(doc)
     }));
 
-    consumeQueue('conformities:removeConformity', async doc => ({
+    consumeQueue('core:conformities:removeConformity', async doc => ({
       status: 'success',
       data: await Conformities.removeConformity(doc)
     }));
 
-    consumeRPCQueue('conformities:getConformities', async doc => ({
+    consumeRPCQueue('core:conformities:getConformities', async doc => ({
       status: 'success',
       data: await Conformities.getConformities(doc)
     }));
 
-    consumeQueue('conformities:addConformities', async doc => ({
+    consumeQueue('core:conformities:addConformities', async doc => ({
       status: 'success',
       data: await Conformities.addConformities(doc)
     }));
 
-    consumeQueue('conformities:relatedConformity', async doc => ({
+    consumeQueue('core:conformities:relatedConformity', async doc => ({
       status: 'success',
       data: await Conformities.relatedConformity(doc)
     }));
 
-    consumeRPCQueue('api-core:rpc_queue:generateInternalNoteNotif', async args => {
+    consumeRPCQueue('core:generateInternalNoteNotif', async args => {
       if(args.type === 'user') {
         const { contentTypeId, notifDoc } = args;
 
@@ -113,16 +107,16 @@ export const initBroker = async (server?) => {
     });
 
     // listen for rpc queue =========
-    consumeQueue('registerOnboardHistory', async ({ type, user }) => {
+    consumeQueue('core:registerOnboardHistory', async ({ type, user }) => {
       await registerOnboardHistory(type, user);
     });
 
-    consumeRPCQueue('configs:rpc_queue:getConfigs', async args => ({
+    consumeRPCQueue('core:configs:find', async args => ({
       status: 'success',
       data: await Configs.find(args).distinct('value')
     }));
 
-    consumeRPCQueue('core:rpc_queue:getActivityContent', async data => {
+    consumeRPCQueue('core:getActivityContent', async data => {
       const { action, content } = data;
 
       if (action === 'assignee') {
@@ -153,7 +147,7 @@ export const initBroker = async (server?) => {
     });
 
     consumeRPCQueue(
-      'core:rpc_queue:activityLog:createdByDetail',
+      'core:activityLog:createdByDetail',
       async ({ activityLog }) => {
         const user = await Users.findOne({
           _id: activityLog && activityLog.createdBy
@@ -179,7 +173,7 @@ export const initBroker = async (server?) => {
     );
 
     consumeRPCQueue(
-      'api-core:logs:collectItems',
+      'core:logs:collectItems',
       async ({ contentId }) => {
         const deliveries = await EmailDeliveries.find({
           customerId: contentId
@@ -202,23 +196,21 @@ export const initBroker = async (server?) => {
       }
     );
 
-    consumeRPCQueue('core:rpc_queue:findOneUser', async query => ({
+    consumeRPCQueue('core:users:findOne', async query => ({
       status: 'success',
       data: await Users.findOne(query)
     }));
 
-    consumeRPCQueue('core:rpc_queue:findMongoDocuments', async (data: IMongoFindParams) => {
-      const { query, name } = data;
-
-      const collection = models[name];
+    consumeRPCQueue('core:users:find', async (data) => {
+      const { query } = data;
 
       return {
         status: 'success',
-        data: collection ? await collection.find(query) : []
+        data: await Users.find(query)
       }
     });
 
-    consumeRPCQueue('core:rpc_queue:findOneBrand', async query => ({
+    consumeRPCQueue('core:brands:findOne', async query => ({
       status: 'success', data: await Brands.findOne(query)
     }));
   }

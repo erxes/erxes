@@ -251,7 +251,7 @@ export const getCompanyIds = async (
 ): Promise<string[]> => {
   const conformities = await sendCoreMessage({
     subdomain,
-    action: "findConformities",
+    action: "conformities:findConformities",
     data: {
       mainType,
       mainTypeId,
@@ -271,7 +271,7 @@ export const getCustomerIds = async (
 ): Promise<string[]> => {
   const conformities = await sendCoreMessage({
     subdomain,
-    action: "findConformities",
+    action: "conformities:findConformities",
     data: {
       mainType,
       mainTypeId,
@@ -300,7 +300,7 @@ export const destroyBoardItemRelations = async (
 
   sendCoreMessage({
     subdomain,
-    action: "removeConformity",
+    action: "conformities:removeConformity",
     data: {
       mainType: contentType,
       mainTypeId: contentTypeId,
@@ -483,7 +483,7 @@ const checkBookingConvert = async (subdomain: string, productId: string) => {
   // let dealUOM = await Configs.find({ code: 'dealUOM' }).distinct('value');
   let dealUOM = await sendCoreMessage({
     subdomain,
-    action: "getConfigs",
+    action: "configs:find",
     data: {
       code: "dealUOM",
     },
@@ -492,7 +492,7 @@ const checkBookingConvert = async (subdomain: string, productId: string) => {
 
   let dealCurrency = await sendCoreMessage({
     subdomain,
-    action: "getConfigs",
+    action: "configs:find",
     data: {
       code: "dealCurrency",
     },
@@ -599,7 +599,7 @@ export const conversationConvertToCard = async (
     if (conversation.customerId) {
       await sendCoreMessage({
         subdomain,
-        action: "addConformity",
+        action: "conformities:addConformity",
         data: {
           mainType: type,
           mainTypeId: item._id,

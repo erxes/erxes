@@ -279,7 +279,7 @@ export const initBroker = (cl) => {
 
       return {
         status: "success",
-        data: await prepareEngageCustomers(models, data),
+        data: await prepareEngageCustomers(models, subdomain, data),
       };
     }
   );

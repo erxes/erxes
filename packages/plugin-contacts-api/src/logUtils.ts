@@ -9,7 +9,7 @@ import {
   IDescriptions,
 } from '@erxes/api-utils/src/logUtils';
 import { ICompanyDocument } from './models/definitions/companies';
-import messageBroker, { sendInboxMessage, sendTagsMessage } from './messageBroker';
+import messageBroker, { sendCoreMessage, sendInboxMessage, sendTagsMessage } from './messageBroker';
 import { MODULE_NAMES } from './constants';
 import { ICustomerDocument } from './models/definitions/customers';
 import { IModels } from './connectionResolver';
@@ -20,11 +20,14 @@ export const LOG_ACTIONS = {
   DELETE: 'delete',
 };
 
-const findUsers = async (ids: string[]) => {
-  return await messageBroker().sendRPCMessage(
-    'core:rpc_queue:findMongoDocuments',
-    { query: { _id: { $in: ids } }, name: 'Users' }
-  ) || [];
+const findUsers = async (subdomain, ids: string[]) => {
+  return sendCoreMessage({
+    subdomain,
+    action: 'users:find',
+    data: { _id: { $in: ids } },
+    isRPC: true,
+    defaultValue: []
+  }) || [];
 };
 
 const gatherCompanyFieldNames = async (
@@ -52,7 +55,7 @@ const gatherCompanyFieldNames = async (
     options = await gatherUsernames({
       foreignKey: 'ownerId',
       prevList: options,
-      items: await findUsers([doc.ownerId])
+      items: await findUsers(subdomain, [doc.ownerId])
     });
   }
 
@@ -93,7 +96,7 @@ const gatherCustomerFieldNames = async (
     options = await gatherUsernames({
       foreignKey: 'ownerId',
       prevList: options,
-      items: await findUsers([doc.ownerId])
+      items: await findUsers(subdomain, [doc.ownerId])
     });
   }
 

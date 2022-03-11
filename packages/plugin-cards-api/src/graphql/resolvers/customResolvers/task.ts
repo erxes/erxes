@@ -11,7 +11,7 @@ export default {
   async companies(task: ITaskDocument, _args, { subdomain }: IContext) {
     const companyIds = await sendCoreMessage({
       subdomain,
-      action: "savedConformity",
+      action: "conformities:savedConformity",
       data: {
         mainType: "task",
         mainTypeId: task._id,
@@ -42,7 +42,7 @@ export default {
   async customers(task: ITaskDocument, _args, { subdomain }: IContext) {
     const customerIds = await sendCoreMessage({
       subdomain,
-      action: "savedConformity",
+      action: "conformities:savedConformity",
       data: {
         mainType: "task",
         mainTypeId: task._id,
@@ -52,9 +52,9 @@ export default {
       defaultValue: [],
     });
 
-    const customers = await sendCoreMessage({
+    const customers = await sendContactsMessage({
       subdomain,
-      action: "findActiveCustomers",
+      action: "customers:findActiveCustomers",
       data: {
         _id: { $in: customerIds },
       },

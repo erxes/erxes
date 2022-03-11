@@ -170,7 +170,7 @@ export const generateCommonFilters = async (
   if (customerIds && type) {
     const relIds = await sendCoreMessage({
       subdomain,
-      action: 'filterConformity',
+      action: 'conformities:filterConformity',
       data: {
         mainType: 'customer',
         mainTypeIds: customerIds,
@@ -186,7 +186,7 @@ export const generateCommonFilters = async (
   if (companyIds && type) {
     const relIds = await sendCoreMessage({
       subdomain,
-      action: 'filterConformity',
+      action: 'conformities:filterConformity',
       data: {
         mainType: 'company',
         mainTypeIds: companyIds,
@@ -209,7 +209,7 @@ export const generateCommonFilters = async (
     if (conformityIsSaved) {
       const relIds = await sendCoreMessage({
         subdomain,
-        action: "savedConformity",
+        action: "conformities:savedConformity",
         data: {
           mainType: conformityMainType,
           mainTypeId: conformityMainTypeId,
@@ -225,7 +225,7 @@ export const generateCommonFilters = async (
     if (conformityIsRelated) {
       const relIds = await sendCoreMessage({
         subdomain,
-        action: "relatedConformity",
+        action: "conformities:relatedConformity",
         data: {
           mainType: conformityMainType,
           mainTypeId: conformityMainTypeId,
@@ -689,7 +689,7 @@ export const getItemList = async (
 
   const ids = list.map(item => item._id);
 
-  const conformities = await sendCoreMessage({ subdomain, action: 'getConformities', data: {
+  const conformities = await sendCoreMessage({ subdomain, action: 'conformities:getConformities', data: {
     mainType: type,
     mainTypeIds: ids,
     relTypes: ['company', 'customer']

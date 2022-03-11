@@ -6,7 +6,7 @@ import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 
 import { debug } from './configs';
 import { ICustomerDocument } from './models/definitions/customers';
-import messageBroker from './messageBroker';
+import messageBroker, { sendEngagesMessage } from './messageBroker';
 import { getService, getServices } from './inmemoryStorage';
 import { IModels } from './connectionResolver';
 
@@ -209,7 +209,7 @@ export const getEditorAttributeUtil = async () => {
   return editor;
 };
 
-export const prepareEngageCustomers = async ({ Customers, Companies }: IModels, {
+export const prepareEngageCustomers = async ({ Customers }: IModels, subdomain: string, {
   engageMessage,
   customersSelector,
   action,
@@ -319,7 +319,7 @@ export const prepareEngageCustomers = async ({ Customers, Companies }: IModels, 
               data.email = engageMessage.email;
             }
 
-            await messageBroker().sendMessage('erxes-api:engages-notification', { action, data });
+            await sendEngagesMessage({ subdomain, action: 'notification', data: { action, data } });
           }
         }
       } catch (e) {

@@ -291,7 +291,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     if (conformityIsRelated) {
       const relTypeIds = await sendCoreMessage({
         subdomain: this.subdomain,
-        action: 'relatedConformity',
+        action: 'conformities:relatedConformity',
         data: {
         mainType: conformityMainType || '',
         mainTypeId: conformityMainTypeId || '',
@@ -309,7 +309,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     if (conformityIsSaved) {
       const relTypeIds = await sendCoreMessage({
         subdomain: this.subdomain,
-        action: 'savedConformity',
+        action: 'conformities:savedConformity',
         data: {
         mainType: conformityMainType || '',
         mainTypeId: conformityMainTypeId || '',

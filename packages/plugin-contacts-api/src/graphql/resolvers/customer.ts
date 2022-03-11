@@ -1,6 +1,6 @@
 import { ICustomerDocument } from "../../models/definitions/customers";
 import { es } from "../../configs";
-import { client, sendCoreMessage } from "../../messageBroker";
+import { sendCoreMessage, sendInboxMessage } from "../../messageBroker";
 import { IContext } from "../../connectionResolver";
 
 export default {
@@ -9,7 +9,9 @@ export default {
   },
 
   integration(customer: ICustomerDocument) {
-    if (!customer.integrationId) { return null; }
+    if (!customer.integrationId) {
+      return null;
+    }
     return { __typename: "Integration", _id: customer.integrationId };
   },
 
@@ -51,9 +53,17 @@ export default {
     });
   },
 
-  async conversations(customer: ICustomerDocument) {
-    return client.sendRPCMessage("inbox:rpc_queue:logs:getConversations", {
-      query: { customerId: customer._id },
+  async conversations(
+    customer: ICustomerDocument,
+    _args,
+    { subdomain }: IContext
+  ) {
+    return sendInboxMessage({
+      subdomain,
+      action: "getConversations",
+      data: { customerId: customer._id },
+      isRPC: true,
+      defaultValue: [],
     });
   },
 
@@ -62,11 +72,17 @@ export default {
     _params,
     { models: { Companies }, subdomain }: IContext
   ) {
-    const companyIds = await sendCoreMessage({ subdomain, action: "savedConformity", data: {
-      mainType: "customer",
-      mainTypeId: customer._id,
-      relTypes: ["company"],
-    }, isRPC: true, defaultValue: [] });
+    const companyIds = await sendCoreMessage({
+      subdomain,
+      action: "savedConformity",
+      data: {
+        mainType: "customer",
+        mainTypeId: customer._id,
+        relTypes: ["company"],
+      },
+      isRPC: true,
+      defaultValue: [],
+    });
 
     const companies = await Companies.find({
       _id: { $in: (companyIds || []).filter((id) => id) },

@@ -508,7 +508,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       });
       await sendCoreMessage({
         subdomain,
-        action: "removeConformities",
+        action: "conformities:removeConformities",
         data: { mainType: "customer", mainTypeIds: customerIds },
       });
 
@@ -606,7 +606,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       // Updating every modules associated with customers
       await sendCoreMessage({
         subdomain,
-        action: "changeConformity",
+        action: "conformities:changeConformity",
         data: {
           type: "customer",
           newTypeId: customer._id,
