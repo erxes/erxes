@@ -3,7 +3,6 @@ import {
   generateAmounts,
   generateProducts
 } from './graphql/resolvers/customResolvers/deal';
-import { insertImportItems, prepareImportDocs } from './importUtils';
 import { conversationConvertToCard } from './models/utils';
 import { getCardItem } from './utils';
 import { notifiedUserIds } from './graphql/utils';
@@ -88,16 +87,6 @@ export const initBroker = async cl => {
       data: await models.Checklists.removeChecklists(type, itemIds)
     }
   });
-
-  // consumeRPCQueue('cards:rpc_queue:prepareImportDocs', async ({ subdomain, data }) => ({
-  //   status: 'success',
-  //   data: await prepareImportDocs(args)
-  // }));
-
-  // consumeRPCQueue('cards:rpc_queue:insertImportItems', async args => ({
-  //   status: 'success',
-  //   data: await insertImportItems(args)
-  // }));
 
   consumeRPCQueue('cards:rpc_queue:conversationConvert', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);

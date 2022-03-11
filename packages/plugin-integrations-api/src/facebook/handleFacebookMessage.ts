@@ -13,6 +13,10 @@ export const handleFacebookMessage = async msg => {
 
     const comment = await Comments.findOne({ commentId: conversationId });
 
+    if(!comment) {
+      throw new Error("Comment not found")
+    }
+
     return Comments.updateOne(
       { commentId: conversationId },
       { $set: { isResolved: comment.isResolved ? false : true } }
@@ -30,6 +34,10 @@ export const handleFacebookMessage = async msg => {
         { postId: comment ? comment.postId : '' }
       ]
     });
+
+    if(!post) {
+      throw new Error("Post not found")
+    }
 
     const { recipientId } = post;
 

@@ -33,9 +33,15 @@ const receiveMessage = async requestBody => {
   ) {
     const { file_id } = client.raw.profile_photos.photos[0][0];
 
-    const { telegramBotToken } = await Integrations.findOne({
+    const integration = await Integrations.findOne({
       smoochIntegrationId
     });
+
+    if(!integration) {
+      throw new Error('Integration not found');
+    }
+
+    const telegramBotToken = integration.telegramBotToken || ""
 
     customer.avatarUrl = await getTelegramFile(telegramBotToken, file_id);
   } else if (client.platform === 'line' && client.raw.pictureUrl) {
@@ -58,7 +64,7 @@ const receiveMessage = async requestBody => {
       received
     );
 
-    let attachment: IAttachment;
+    let attachment: IAttachment = {};
 
     if (message.type !== 'text') {
       attachment = { type: message.mediaType, url: message.mediaUrl };

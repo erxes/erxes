@@ -216,7 +216,7 @@ async function startServer() {
     }
 
     if (configs.meta) {
-      const { segments, forms, tags } = configs.meta;
+      const { segments, forms, tags, imports } = configs.meta;
       const { consumeRPCQueue } = messageBrokerClient;
 
       const logs = configs.meta.logs && configs.meta.logs.consumers;
@@ -327,10 +327,32 @@ async function startServer() {
 
       if (tags) {
         if (tags.tag) {
-          consumeRPCQueue(`${configs.name}:rpc_queue:tag`, async (args) => ({
-            status: "success",
-            data: await tags.tag(args),
+          consumeRPCQueue(`${configs.name}:rpc_queue:tag`, async args => ({
+            status: 'success',
+            data: await tags.tag(args)
           }));
+        }
+      }
+
+      if (imports) {
+        if (imports.prepareImportDocs) {
+          consumeRPCQueue(
+            `${configs.name}:imports:prepareImportDocs`,
+            async args => ({
+              status: 'success',
+              data: await imports.prepareImportDocs(args)
+            })
+          );
+        }
+
+        if (imports.insertImportItems) {
+          consumeRPCQueue(
+            `${configs.name}:imports:insertImportItems`,
+            async args => ({
+              status: 'success',
+              data: await imports.insertImportItems(args)
+            })
+          );
         }
       }
 

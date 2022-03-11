@@ -12,6 +12,7 @@ import segments from './segments';
 import forms from './forms';
 import logsConsumers from './logsConsumers';
 import { generateCoreModels, generateModels, getSubdomain } from './connectionResolver';
+import imports from './imports';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -38,13 +39,14 @@ export default {
     };
   },
   hasSubscriptions: true,
-  importTypes: IMPORT_TYPES,
-  exportTypes: EXPORT_TYPES,
+
   meta: {
     forms,
     logs: { providesActivityLog: true, consumers: logsConsumers },
-    segments
+    segments,
+    imports
   },
+
   apolloServerContext: context => {
     return context;
   },

@@ -17,7 +17,7 @@ const receivePost = async (params: IPostParams, pageId: string) => {
 
   const customer = await getOrCreateCustomer(pageId, userId, kind);
 
-  await getOrCreatePost(params, pageId, userId, customer.erxesApiId);
+  await getOrCreatePost(params, pageId, userId, customer.erxesApiId || '');
 };
 
 export default receivePost;

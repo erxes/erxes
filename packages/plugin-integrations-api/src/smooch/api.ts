@@ -221,6 +221,10 @@ const getLineWebhookUrl = async (erxesApiId: string) => {
   }
   const integration = await Integrations.findOne({ erxesApiId });
 
+  if(!integration) {
+    throw new Error('Integration not found!');
+  }
+
   return `https://app.smooch.io:443/api/line/webhooks/${appid}/${integration.smoochIntegrationId}`;
 };
 
@@ -234,6 +238,10 @@ const reply = async requestBody => {
   }
 
   const integration = await Integrations.findOne({ erxesApiId: integrationId });
+
+  if(!integration) {
+    throw new Error('Integration not found!');
+  }
 
   const conversationModel = SMOOCH_MODELS[integration.kind].conversations;
 

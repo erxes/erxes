@@ -6,7 +6,6 @@ import {
   prepareEngageCustomers
 } from './utils';
 import { serviceDiscovery } from './configs';
-import { insertImportItems, prepareImportDocs } from './importUtils';
 import { generateModels, connectCore } from './connectionResolver';
 
 export let client;
@@ -201,22 +200,6 @@ export const initBroker = cl => {
     return {
       status: 'success',
       data: await generateFields(models, args)
-    };
-  });
-
-  consumeRPCQueue('contacts:rpc_queue:prepareImportDocs', async args => {
-    const coreModels = await connectCore();
-    return {
-      status: 'success',
-      data: await prepareImportDocs(coreModels, args)
-    };
-  });
-
-  consumeRPCQueue('contacts:rpc_queue:insertImportItems', async args => {
-    const models = await generateModels('os');
-    return {
-      status: 'success',
-      data: await insertImportItems(models, args)
     };
   });
 

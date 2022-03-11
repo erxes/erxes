@@ -326,7 +326,7 @@ const getCalendarList = async (accessToken: string) => {
 
 const getEventList = async (
   accessToken: string,
-  filter?: {
+  filter: {
     show_cancelled?: boolean;
     event_id?: string;
     calendar_id?: string;
@@ -507,14 +507,14 @@ const updateEvent = async (
         notify_participants: doc.notifyParticipants
       },
       body: {
-        title: doc.title,
-        location: doc.location,
+        title: doc.title || '',
+        location: doc.location || '',
         calendar_id: doc.calendarId,
-        status: doc.status,
-        busy: doc.busy,
+        status: doc.status || '',
+        busy: doc.busy || false,
         read_only: doc.readonly,
         participants: doc.participants,
-        description: doc.description,
+        description: doc.description || '',
         when: params.when || doc.when,
         start: params.start,
         end: params.end
@@ -591,8 +591,8 @@ const generatePageBody = async (
     'NYLAS_WEBHOOK_CALLBACK_URL'
   );
 
-  const appearance = doc.appearance;
-  const booking = doc.booking;
+  const appearance = doc.appearance || {} as any;
+  const booking = doc.booking || {} as any;
 
   return {
     access_tokens: [decryptToken(accessToken)],

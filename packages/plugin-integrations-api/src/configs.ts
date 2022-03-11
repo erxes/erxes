@@ -4,7 +4,7 @@ import apiConnect from './apiCollections';
 
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
-import init from '.'
+import initApp from '.'
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -36,7 +36,7 @@ export default {
 
     const app = options.app;
 
-    init(app)
+    initApp(app)
 
     initBroker(options.messageBrokerClient);
 
