@@ -194,11 +194,11 @@ describe('taskQueries', () => {
   test('Task detail', async () => {
     const field1 = await fieldFactory({
       showInCard: true,
-      contentType: 'deal'
+      contentType: 'task'
     });
     const field2 = await fieldFactory({
       showInCard: false,
-      contentType: 'deal'
+      contentType: 'task'
     });
 
     const task = await taskFactory({
