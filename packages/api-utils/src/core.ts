@@ -221,5 +221,5 @@ export const sendMessage = async (client, serviceDiscovery, serviceName: string,
     throw new Error(`${serviceName} service is not available`);
   }
 
-  return client.sendMessage(`${serviceName}:${isRPC ? 'rpc_queue:': ''}${action}`, data);
+  return client.sendMessage(`${serviceName}:${isRPC ? 'rpc_queue:': ''}${action}`, { data });
 };
