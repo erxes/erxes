@@ -6,6 +6,7 @@ import LeadFilter from '../../containers/filters/LeadFilter';
 import LeadStatusFilter from '../../containers/filters/LeadStatusFilter';
 import SegmentFilter from '../../containers/filters/SegmentFilter';
 import TagFilter from '../../containers/filters/TagFilter';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 function Sidebar({
   loadingMainQuery,
@@ -17,11 +18,11 @@ function Sidebar({
   
   return (
     <Wrapper.Sidebar>
-      <SegmentFilter type={type} loadingMainQuery={loadingMainQuery} />
-      <TagFilter type={type} loadingMainQuery={loadingMainQuery} />
-      <IntegrationFilter type={type} loadingMainQuery={loadingMainQuery} />
+      {isEnabled("segments") && <SegmentFilter type={type} loadingMainQuery={loadingMainQuery} />}
+      {isEnabled("tags") && <TagFilter type={type} loadingMainQuery={loadingMainQuery} />}
+      {isEnabled("integrations") && <IntegrationFilter type={type} loadingMainQuery={loadingMainQuery} />}
       <BrandFilter type={type} loadingMainQuery={loadingMainQuery} />
-      <LeadFilter type={type} loadingMainQuery={loadingMainQuery} />
+      {isEnabled("inbox") && <LeadFilter type={type} loadingMainQuery={loadingMainQuery} />}
       {type === 'lead' && (
         <LeadStatusFilter type={type} loadingMainQuery={loadingMainQuery} />
       )}

@@ -6,6 +6,7 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import BasicInfoSection from '../common/BasicInfoSection';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   company: ICompany;
@@ -36,11 +37,11 @@ class LeftSidebar extends React.Component<Props> {
         <BasicInfoSection company={company} fields={fields} />
         <CustomFieldsSection company={company} />
         {this.renderTrackedData()}
-        <TaggerSection
+        {isEnabled("tags") && <TaggerSection
           data={company}
           type="contacts:company"
           refetchQueries={taggerRefetchQueries}
-        />
+        />}
       </Sidebar>
     );
   }
