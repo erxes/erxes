@@ -26,7 +26,7 @@ const gatherEngageFieldNames = async (
       foreignKey: 'segmentIds',
       prevList: options,
       nameFields: ['name'],
-      items: await findMongoDocuments('api-core', generateOptions(doc.segmentIds, 'Segments'))
+      items: await findMongoDocuments('core', generateOptions(doc.segmentIds, 'Segments'))
     });
   }
 
@@ -35,7 +35,7 @@ const gatherEngageFieldNames = async (
       foreignKey: 'brandIds',
       prevList: options,
       nameFields: ['name'],
-      items: await findMongoDocuments('api-core', generateOptions(doc.brandIds, 'Brands'))
+      items: await findMongoDocuments('core', generateOptions(doc.brandIds, 'Brands'))
     });
   }
 
@@ -53,7 +53,7 @@ const gatherEngageFieldNames = async (
       foreignKey: 'fromUserId',
       prevList: options,
       nameFields: ['email', 'username'],
-      items: await findMongoDocuments('api-core', generateOptions([doc.fromUserId], 'Users'))
+      items: await findMongoDocuments('core', generateOptions([doc.fromUserId], 'Users'))
     });
   }
 
@@ -62,7 +62,7 @@ const gatherEngageFieldNames = async (
       foreignKey: 'brandId',
       prevList: options,
       nameFields: ['name'],
-      items: await findMongoDocuments('api-core', generateOptions([doc.messenger.brandId], 'Brands'))
+      items: await findMongoDocuments('core', generateOptions([doc.messenger.brandId], 'Brands'))
     });
   }
 
@@ -71,7 +71,7 @@ const gatherEngageFieldNames = async (
       foreignKey: 'createdBy',
       prevList: options,
       nameFields: ['email', 'username'],
-      items: await findMongoDocuments('api-core', generateOptions([doc.createdBy], 'Users'))
+      items: await findMongoDocuments('core', generateOptions([doc.createdBy], 'Users'))
     });
   }
 

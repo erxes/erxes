@@ -170,7 +170,7 @@ export const generateCommonFilters = async (
   if (customerIds && type) {
     const relIds = await sendCoreMessage({
       subdomain,
-      action: 'conformities:filterConformity',
+      action: 'conformities.filterConformity',
       data: {
         mainType: 'customer',
         mainTypeIds: customerIds,
@@ -186,7 +186,7 @@ export const generateCommonFilters = async (
   if (companyIds && type) {
     const relIds = await sendCoreMessage({
       subdomain,
-      action: 'conformities:filterConformity',
+      action: 'conformities.filterConformity',
       data: {
         mainType: 'company',
         mainTypeIds: companyIds,
@@ -209,7 +209,7 @@ export const generateCommonFilters = async (
     if (conformityIsSaved) {
       const relIds = await sendCoreMessage({
         subdomain,
-        action: "conformities:savedConformity",
+        action: "conformities.savedConformity",
         data: {
           mainType: conformityMainType,
           mainTypeId: conformityMainTypeId,
@@ -225,7 +225,7 @@ export const generateCommonFilters = async (
     if (conformityIsRelated) {
       const relIds = await sendCoreMessage({
         subdomain,
-        action: "conformities:relatedConformity",
+        action: "conformities.relatedConformity",
         data: {
           mainType: conformityMainType,
           mainTypeId: conformityMainTypeId,
@@ -689,7 +689,7 @@ export const getItemList = async (
 
   const ids = list.map(item => item._id);
 
-  const conformities = await sendCoreMessage({ subdomain, action: 'conformities:getConformities', data: {
+  const conformities = await sendCoreMessage({ subdomain, action: 'conformities.getConformities', data: {
     mainType: type,
     mainTypeIds: ids,
     relTypes: ['company', 'customer']
@@ -759,7 +759,7 @@ export const getItemList = async (
     }
   }
 
-  const companies = await sendContactsMessage({ subdomain, action: 'findActiveCompanies', data: {
+  const companies = await sendContactsMessage({ subdomain, action: 'companies.findActiveCompanies', data: {
     selector: {
       _id: { $in: [...new Set(companyIds)] }
     },
@@ -773,7 +773,7 @@ export const getItemList = async (
     }
   }, isRPC: true });
 
-  const customers = await sendContactsMessage({ subdomain, action: 'findActiveCustomers', data: {
+  const customers = await sendContactsMessage({ subdomain, action: 'customers.findActiveCustomers', data: {
     selector: {
       _id: { $in: [...new Set(customerIds)] }
     },

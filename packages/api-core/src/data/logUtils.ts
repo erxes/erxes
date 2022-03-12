@@ -160,7 +160,7 @@ export const putCreateLog = async (
 
   return commonPutCreateLog(
     messageBroker(),
-    { ...params, extraDesc, description, type: `api-core:${params.type}` },
+    { ...params, extraDesc, description, type: `core:${params.type}` },
     user
   );
 };
@@ -189,7 +189,7 @@ export const putUpdateLog = async (
 
   return commonPutUpdateLog(
     messageBroker(),
-    { ...params, type: `api-core:${params.type}`, extraDesc, description },
+    { ...params, type: `core:${params.type}`, extraDesc, description },
     user
   );
 };
@@ -218,7 +218,7 @@ export const putDeleteLog = async (
 
   return commonPutDeleteLog(
     messageBroker(),
-    { ...params, type: `api-core:${params.type}`, description, extraDesc },
+    { ...params, type: `core:${params.type}`, description, extraDesc },
     user
   );
 };
