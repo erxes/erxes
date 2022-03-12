@@ -2,6 +2,7 @@ import {
   Companies,
   Conformities,
   Customers,
+  Fields,
   Notifications,
   PipelineLabels,
   Pipelines,
@@ -73,5 +74,29 @@ export default {
 
   createdUser(ticket: ITicketDocument) {
     return getDocument('users', { _id: ticket.userId });
+  },
+
+  async customPropertyTexts(item: ITicketDocument) {
+    const fields = await Fields.find({
+      showInCard: true,
+      contentType: 'ticket'
+    }).lean();
+
+    const { customFieldsData = [] } = item;
+    const customPropertyTexts: any[] = [];
+
+    if (customFieldsData.length > 0 && fields.length > 0) {
+      fields.forEach(field => {
+        const fieldData = customFieldsData.find(f => f.field === field._id);
+
+        if (fieldData) {
+          customPropertyTexts.push({
+            name: `${field.text} - ${fieldData.value}`
+          });
+        }
+      });
+    }
+
+    return customPropertyTexts;
   }
 };
