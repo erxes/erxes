@@ -26,7 +26,7 @@ import { debugBase, debugError, debugInit } from './debuggers';
 import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
 import { uploader } from './middlewares/fileMiddleware';
-import { join, leave, refreshEnabledServicesCache } from './serviceDiscovery';
+import { join, leave, redis, refreshEnabledServicesCache } from './serviceDiscovery';
 
 import init from './startup';
 
@@ -198,6 +198,8 @@ const httpServer = createServer(app);
 
 const PORT = getEnv({ name: 'PORT' });
 const MONGO_URL = getEnv({ name: 'MONGO_URL' });
+const RABBITMQ_HOST = getEnv({ name: 'RABBITMQ_HOST' });
+const MESSAGE_BROKER_PREFIX = getEnv({ name: 'MESSAGE_BROKER_PREFIX' });
 const TEST_MONGO_URL = getEnv({ name: 'TEST_MONGO_URL' });
 
 httpServer.listen(PORT, () => {
@@ -213,7 +215,7 @@ httpServer.listen(PORT, () => {
 
   // connect to mongo database
   connect(mongoUrl).then(async () => {
-    initBroker(app)
+    initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis })
       .catch(e => {
         debugError(`Error ocurred during message broker init ${e.message}`);
       })

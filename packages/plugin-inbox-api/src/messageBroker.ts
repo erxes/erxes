@@ -156,7 +156,7 @@ export const sendFormRPCMessage = async (action, data): Promise<any> => {
 };
 
 export const sendConformityMessage = async (action, data): Promise<any> => {
-  return client.sendRPCMessage(`conformities:${action}`, data);
+  return client.sendRPCMessage(`conformities.${action}`, data);
 };
 
 export const sendEngageMessage = async (action, data): Promise<any> => {

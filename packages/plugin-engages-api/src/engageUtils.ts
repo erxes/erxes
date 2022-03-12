@@ -86,7 +86,7 @@ export const generateCustomerSelector = async ({
         });
 
         for (const item of items) {
-          const cusIds = await messageBroker().sendRPCMessage('conformities:savedConformity', {
+          const cusIds = await messageBroker().sendRPCMessage('conformities.savedConformity', {
             mainType: segment.contentType,
             mainTypeId: item._id,
             relTypes: ['customer']

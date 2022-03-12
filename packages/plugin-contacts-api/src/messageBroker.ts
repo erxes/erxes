@@ -16,7 +16,7 @@ export const initBroker = (cl) => {
   const { consumeRPCQueue, consumeQueue } = client;
 
   consumeRPCQueue(
-    "contacts:customers:getCustomerName",
+    "contacts:customers.getCustomerName",
     async ({ subdomain, data: { customer } }) => {
       const models = await generateModels(subdomain);
 
@@ -27,7 +27,7 @@ export const initBroker = (cl) => {
     }
   );
 
-  consumeRPCQueue("contacts:customers:find", async ({ subdomain, data }) => {
+  consumeRPCQueue("contacts:customers.find", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -36,7 +36,7 @@ export const initBroker = (cl) => {
     };
   });
 
-  consumeRPCQueue("contacts:companies:find", async ({ subdomain, data }) => {
+  consumeRPCQueue("contacts:companies.find", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -45,7 +45,7 @@ export const initBroker = (cl) => {
     };
   });
 
-  consumeRPCQueue("contacts:customers:find", async ({ subdomain, data }) => {
+  consumeRPCQueue("contacts:customers.find", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -55,7 +55,7 @@ export const initBroker = (cl) => {
   });
 
   consumeRPCQueue(
-    "contacts:customers:getCustomerIds",
+    "contacts:customers.getCustomerIds",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -67,7 +67,7 @@ export const initBroker = (cl) => {
   );
 
   consumeRPCQueue(
-    "contacts:customers:findActiveCustomers",
+    "contacts:customers.findActiveCustomers",
     async ({ subdomain, data: { selector, fields } }) => {
       const models = await generateModels(subdomain);
 
@@ -79,7 +79,7 @@ export const initBroker = (cl) => {
   );
 
   consumeRPCQueue(
-    "contacts:customers:findOne",
+    "contacts:customers.findOne",
     async ({ subdomain, data: { selector, fields } }) => {
       const models = await generateModels(subdomain);
 
@@ -91,7 +91,7 @@ export const initBroker = (cl) => {
   );
 
   consumeRPCQueue(
-    "contacts:companies:findActiveCompanies",
+    "contacts:companies.findActiveCompanies",
     async ({ subdomain, data: { selector, fields } }) => {
       const models = await generateModels(subdomain);
 
@@ -103,7 +103,7 @@ export const initBroker = (cl) => {
   );
 
   consumeRPCQueue(
-    "contacts:customers:createCustomer",
+    "contacts:customers.createCustomer",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -115,7 +115,7 @@ export const initBroker = (cl) => {
   );
 
   consumeRPCQueue(
-    "contacts:companies:createCompany",
+    "contacts:companies.createCompany",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -127,7 +127,7 @@ export const initBroker = (cl) => {
   );
 
   consumeRPCQueue(
-    "contacts:customers:updateCustomer",
+    "contacts:customers.updateCustomer",
     async ({ subdomain, data: { _id, doc } }) => {
       const models = await generateModels(subdomain);
 
@@ -139,7 +139,7 @@ export const initBroker = (cl) => {
   );
 
   consumeRPCQueue(
-    "contacts:customers:updateOne",
+    "contacts:customers.updateOne",
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
 
@@ -151,7 +151,7 @@ export const initBroker = (cl) => {
   );
 
   consumeQueue(
-    "contacts:customers:removeCustomers",
+    "contacts:customers.removeCustomers",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -163,7 +163,7 @@ export const initBroker = (cl) => {
   );
 
   consumeRPCQueue(
-    "contacts:companies:updateCompany",
+    "contacts:companies.updateCompany",
     async ({ subdomain, data: { _id, doc } }) => {
       const { Companies } = await generateModels(subdomain);
 
@@ -175,7 +175,7 @@ export const initBroker = (cl) => {
   );
 
   consumeRPCQueue(
-    "contacts:companies:updateCommon",
+    "contacts:companies.updateCommon",
     async ({ subdomain, data: { selector, modifier } }) => {
       const { Companies } = await generateModels(subdomain);
 
@@ -187,7 +187,7 @@ export const initBroker = (cl) => {
   );
 
   consumeRPCQueue(
-    "contacts:customers:getWidgetCustomer",
+    "contacts:customers.getWidgetCustomer",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -199,7 +199,7 @@ export const initBroker = (cl) => {
   );
 
   consumeRPCQueue(
-    "contacts:customers:updateMessengerCustomer",
+    "contacts:customers.updateMessengerCustomer",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -211,7 +211,7 @@ export const initBroker = (cl) => {
   );
 
   consumeRPCQueue(
-    "contacts:customers:createMessengerCustomer",
+    "contacts:customers.createMessengerCustomer",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -223,7 +223,7 @@ export const initBroker = (cl) => {
   );
 
   consumeRPCQueue(
-    "contacts:customers:saveVisitorContactInfo",
+    "contacts:customers.saveVisitorContactInfo",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -235,7 +235,7 @@ export const initBroker = (cl) => {
   );
 
   consumeQueue(
-    "contacts:customers:updateLocation",
+    "contacts:customers.updateLocation",
     async ({ subdomain, data: { customerId, browserInfo } }) => {
       const models = await generateModels(subdomain);
 
@@ -244,7 +244,7 @@ export const initBroker = (cl) => {
   );
 
   consumeQueue(
-    "contacts:customers:updateSession",
+    "contacts:customers.updateSession",
     async ({ subdomain, data: { customerId } }) => {
       const models = await generateModels(subdomain);
 
@@ -253,7 +253,7 @@ export const initBroker = (cl) => {
   );
 
   consumeRPCQueue(
-    "contacts:customers:getCustomerName",
+    "contacts:customers.getCustomerName",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -264,7 +264,7 @@ export const initBroker = (cl) => {
     }
   );
 
-  consumeRPCQueue("contacts:getContentItem", async (data) => {
+  consumeRPCQueue("contacts.getContentItem", async (data) => {
     const models = await generateModels("os");
     return {
       status: "success",
@@ -273,7 +273,7 @@ export const initBroker = (cl) => {
   });
 
   consumeRPCQueue(
-    "contacts:customers:prepareEngageCustomers",
+    "contacts:customers.prepareEngageCustomers",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 

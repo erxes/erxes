@@ -23,7 +23,7 @@ export const LOG_ACTIONS = {
 const findUsers = async (subdomain, ids: string[]) => {
   return sendCoreMessage({
     subdomain,
-    action: 'users:find',
+    action: 'users.find',
     data: { _id: { $in: ids } },
     isRPC: true,
     defaultValue: []

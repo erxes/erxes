@@ -1,5 +1,4 @@
-import * as dotenv from 'dotenv';
-import messageBroker from 'erxes-message-broker';
+import { init as initBrokerCore } from '@erxes/api-utils/src/messageBroker';
 
 import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
@@ -14,16 +13,10 @@ import { registerModule } from './data/permissions/utils';
 import { sendEmail, sendMobileNotification } from './data/utils';
 import { IUserDocument } from './db/models/definitions/users';
 
-dotenv.config();
-
 let client;
 
-export const initBroker = async (server?) => {
-  client = await messageBroker({
-    name: 'api',
-    server,
-    envs: process.env
-  });
+export const initBroker = async (options) => {
+  client = await initBrokerCore(options);
 
   // do not receive messages in crons worker
   if (!['crons', 'workers'].includes(process.env.PROCESS_NAME || '')) {
@@ -41,42 +34,42 @@ export const initBroker = async (server?) => {
       await sendEmail(data);
     });
 
-    consumeRPCQueue('core:conformities:addConformity', async ({ data }) => ({
+    consumeRPCQueue('core:conformities.addConformity', async ({ data }) => ({
       status: 'success',
       data: await Conformities.addConformity(data)
     }));
 
-    consumeRPCQueue('core:conformities:savedConformity', async ({ data }) => ({
+    consumeRPCQueue('core:conformities.savedConformity', async ({ data }) => ({
       status: 'success',
       data: await Conformities.savedConformity(data)
     }));
 
-    consumeQueue('core:conformities:create', async ({ data }) => ({
+    consumeQueue('core:conformities.create', async ({ data }) => ({
       status: 'success',
       data: await Conformities.create(data)
     }));
 
-    consumeQueue('core:conformities:removeConformities', async ({ data }) => ({
+    consumeQueue('core:conformities.removeConformities', async ({ data }) => ({
       status: 'success',
       data: await Conformities.removeConformities(data)
     }));
 
-    consumeQueue('core:conformities:removeConformity', async ({ data }) => ({
+    consumeQueue('core:conformities.removeConformity', async ({ data }) => ({
       status: 'success',
       data: await Conformities.removeConformity(data)
     }));
 
-    consumeRPCQueue('core:conformities:getConformities', async ({ data }) => ({
+    consumeRPCQueue('core:conformities.getConformities', async ({ data }) => ({
       status: 'success',
       data: await Conformities.getConformities(data)
     }));
 
-    consumeQueue('core:conformities:addConformities', async ({ data }) => ({
+    consumeQueue('core:conformities.addConformities', async ({ data }) => ({
       status: 'success',
       data: await Conformities.addConformities(data)
     }));
 
-    consumeQueue('core:conformities:relatedConformity', async ({ data }) => ({
+    consumeQueue('core:conformities.relatedConformity', async ({ data }) => ({
       status: 'success',
       data: await Conformities.relatedConformity(data)
     }));
@@ -111,7 +104,7 @@ export const initBroker = async (server?) => {
       await registerOnboardHistory(type, user);
     });
 
-    consumeRPCQueue('core:configs:find', async args => ({
+    consumeRPCQueue('core:configs.find', async args => ({
       status: 'success',
       data: await Configs.find(args).distinct('value')
     }));
@@ -196,12 +189,12 @@ export const initBroker = async (server?) => {
       }
     );
 
-    consumeRPCQueue('core:users:findOne', async query => ({
+    consumeRPCQueue('core:users.findOne', async query => ({
       status: 'success',
       data: await Users.findOne(query)
     }));
 
-    consumeRPCQueue('core:users:find', async (data) => {
+    consumeRPCQueue('core:users.find', async (data) => {
       const { query } = data;
 
       return {
@@ -210,7 +203,7 @@ export const initBroker = async (server?) => {
       }
     });
 
-    consumeRPCQueue('core:brands:findOne', async query => ({
+    consumeRPCQueue('core:brands.findOne', async query => ({
       status: 'success', data: await Brands.findOne(query)
     }));
   }

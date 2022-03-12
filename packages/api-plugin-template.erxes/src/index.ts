@@ -15,7 +15,7 @@ import * as http from 'http';
 
 import { connect } from './connection';
 import { debugInfo, debugError } from './debuggers';
-import { initBroker } from './messageBroker';
+import { init as initBroker } from '@erxes/api-utils/src/messageBroker';
 import * as elasticsearch from './elasticsearch';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
@@ -30,7 +30,7 @@ import {
 
 const configs = require('../../src/configs').default;
 
-const { MONGO_URL, PORT } = process.env;
+const { MONGO_URL, RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, PORT } = process.env;
 
 export const app = express();
 
@@ -184,7 +184,7 @@ async function startServer() {
   try {
     // connect to mongo database
     const db = await connect(mongoUrl);
-    const messageBrokerClient = await initBroker(configs.name, app);
+    const messageBrokerClient = await initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis });
 
     configs.onServerInit({
       db,
