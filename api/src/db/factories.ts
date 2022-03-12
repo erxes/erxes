@@ -864,6 +864,8 @@ interface IIntegrationFactoryInput {
   messengerData?: any;
   languageCode?: string;
   bookingData?: any;
+  visibility?: string;
+  departmentIds?: string[];
 }
 
 export const integrationFactory = async (
@@ -891,7 +893,9 @@ export const integrationFactory = async (
       : {
           name: 'Booking Data',
           description: 'Booking description'
-        }
+        },
+    visibility: params.visibility || 'public',
+    departmentIds: params.departmentIds || []
   };
 
   if (params.messengerData && !params.messengerData.timezone) {
