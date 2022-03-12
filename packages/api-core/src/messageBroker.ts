@@ -33,57 +33,57 @@ export const initBroker = async (server?) => {
       await registerModule(permissions);
     });
 
-    consumeQueue('core:sendMobileNotification', async doc => {
-      await sendMobileNotification(doc);
+    consumeQueue('core:sendMobileNotification', async ({ data }) => {
+      await sendMobileNotification(data);
     });
 
-    consumeQueue('core:sendEmail', async doc => {
-      await sendEmail(doc);
+    consumeQueue('core:sendEmail', async ({ data }) => {
+      await sendEmail(data);
     });
 
-    consumeRPCQueue('core:conformities:addConformity', async doc => ({
+    consumeRPCQueue('core:conformities:addConformity', async ({ data }) => ({
       status: 'success',
-      data: await Conformities.addConformity(doc)
+      data: await Conformities.addConformity(data)
     }));
 
-    consumeRPCQueue('core:conformities:savedConformity', async doc => ({
+    consumeRPCQueue('core:conformities:savedConformity', async ({ data }) => ({
       status: 'success',
-      data: await Conformities.savedConformity(doc)
+      data: await Conformities.savedConformity(data)
     }));
 
-    consumeQueue('core:conformities:create', async doc => ({
+    consumeQueue('core:conformities:create', async ({ data }) => ({
       status: 'success',
-      data: await Conformities.create(doc)
+      data: await Conformities.create(data)
     }));
 
-    consumeQueue('core:conformities:removeConformities', async doc => ({
+    consumeQueue('core:conformities:removeConformities', async ({ data }) => ({
       status: 'success',
-      data: await Conformities.removeConformities(doc)
+      data: await Conformities.removeConformities(data)
     }));
 
-    consumeQueue('core:conformities:removeConformity', async doc => ({
+    consumeQueue('core:conformities:removeConformity', async ({ data }) => ({
       status: 'success',
-      data: await Conformities.removeConformity(doc)
+      data: await Conformities.removeConformity(data)
     }));
 
-    consumeRPCQueue('core:conformities:getConformities', async doc => ({
+    consumeRPCQueue('core:conformities:getConformities', async ({ data }) => ({
       status: 'success',
-      data: await Conformities.getConformities(doc)
+      data: await Conformities.getConformities(data)
     }));
 
-    consumeQueue('core:conformities:addConformities', async doc => ({
+    consumeQueue('core:conformities:addConformities', async ({ data }) => ({
       status: 'success',
-      data: await Conformities.addConformities(doc)
+      data: await Conformities.addConformities(data)
     }));
 
-    consumeQueue('core:conformities:relatedConformity', async doc => ({
+    consumeQueue('core:conformities:relatedConformity', async ({ data }) => ({
       status: 'success',
-      data: await Conformities.relatedConformity(doc)
+      data: await Conformities.relatedConformity(data)
     }));
 
-    consumeRPCQueue('core:generateInternalNoteNotif', async args => {
-      if(args.type === 'user') {
-        const { contentTypeId, notifDoc } = args;
+    consumeRPCQueue('core:generateInternalNoteNotif', async ({ data }) => {
+      if(data.type === 'user') {
+        const { contentTypeId, notifDoc } = data;
 
         const usr = await Users.getUser(contentTypeId);
 
