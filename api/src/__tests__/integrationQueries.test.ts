@@ -7,11 +7,14 @@ import messageBroker from '../messageBroker';
 import {
   brandFactory,
   channelFactory,
+  departmentFactory,
   formFactory,
   integrationFactory,
+  permissionFactory,
   productCategoryFactory,
   productFactory,
-  tagsFactory
+  tagsFactory,
+  userFactory
 } from '../db/factories';
 import { Brands, Channels, Integrations, Tags } from '../db/models';
 
@@ -208,6 +211,47 @@ describe('integrationQueries', () => {
 
     // leads =========================
     const responses = await graphqlRequest(qry, 'allLeadIntegrations', {});
+
+    expect(responses).toHaveLength(1);
+  });
+
+  test('integrations queries with department', async () => {
+    const form1 = await formFactory();
+    const form2 = await formFactory();
+    const user = await userFactory({ isOwner: false });
+    await permissionFactory({
+      module: 'integrations',
+      action: 'integrationsAll',
+      allowed: true,
+      userId: user._id,
+      requiredActions: ['showIntegrations']
+    });
+
+    const department1 = await departmentFactory({ userIds: [user._id] });
+    const department2 = await departmentFactory({});
+
+    await integrationFactory({
+      kind: 'lead',
+      departmentIds: [department1._id],
+      visibility: 'private',
+      formId: form1._id
+    });
+
+    await integrationFactory({
+      kind: 'lead',
+      departmentIds: [department2._id],
+      visibility: 'private',
+      formId: form2._id
+    });
+
+    const responses = await graphqlRequest(
+      qryIntegrations,
+      'integrations',
+      {
+        kind: 'lead'
+      },
+      { user }
+    );
 
     expect(responses).toHaveLength(1);
   });
