@@ -759,7 +759,7 @@ export const getItemList = async (
     }
   }
 
-  const companies = await sendContactsMessage({ subdomain, action: 'findActiveCompanies', data: {
+  const companies = await sendContactsMessage({ subdomain, action: 'companies:findActiveCompanies', data: {
     selector: {
       _id: { $in: [...new Set(companyIds)] }
     },
@@ -773,7 +773,7 @@ export const getItemList = async (
     }
   }, isRPC: true });
 
-  const customers = await sendContactsMessage({ subdomain, action: 'findActiveCustomers', data: {
+  const customers = await sendContactsMessage({ subdomain, action: 'customers:findActiveCustomers', data: {
     selector: {
       _id: { $in: [...new Set(customerIds)] }
     },

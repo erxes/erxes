@@ -23,7 +23,7 @@ export default {
 
     const companies = await sendContactsMessage({
       subdomain,
-      action: "findActiveCompanies",
+      action: "companies:findActiveCompanies",
       data: { _id: { $in: companyIds } },
       isRPC: true,
       defaultValue: [],
@@ -47,7 +47,7 @@ export default {
 
     const customers = await sendContactsMessage({
       subdomain,
-      action: "findActiveCustomers",
+      action: "customers:findActiveCustomers",
       data: {
         _id: { $in: customerIds },
       },

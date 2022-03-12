@@ -23,7 +23,7 @@ export default {
 
     const activeCompanies = await sendContactsMessage({
       subdomain,
-      action: "findActiveCompanies",
+      action: "companies:findActiveCompanies",
       data: { _id: { $in: companyIds } },
       isRPC: true,
       defaultValue: [],

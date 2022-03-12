@@ -126,7 +126,7 @@ export const findTags = async (selector): Promise<any> => {
 };
 
 export const findCompanies = async (selector): Promise<any> => {
-  return client.sendRPCMessage('contacts:rpc_queue:findActiveCompanies', selector);
+  return client.sendRPCMessage('contacts:companies::findActiveCompanies', selector);
 };
 
 export const findDealProductIds = async (selector): Promise<any> => {
