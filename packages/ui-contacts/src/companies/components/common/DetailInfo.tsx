@@ -16,7 +16,7 @@ type Props = {
 
 class DetailInfo extends React.Component<Props> {
   renderRow = (field, value) => {
-    const { fields } = this.props;
+    const { fields = [] } = this.props;
 
     const property = fields.find(e => e.type === field);
 
@@ -45,7 +45,7 @@ class DetailInfo extends React.Component<Props> {
   }
 
   renderDescription(description?: string) {
-    const { fields } = this.props;
+    const { fields = [] } = this.props;
 
     const descriptionField = fields.find(e => e.type === 'description');
 
