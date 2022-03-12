@@ -42,6 +42,8 @@ export const commonFields = `
     }
   }
   isActive
+  visibility
+  departmentIds
 `;
 
 const integrations = `
