@@ -4,7 +4,9 @@ import apiConnect from './apiCollections';
 
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
+import { generateModels, models } from './connectionResolver';
 
+export let mainDb;
 export let graphqlPubsub;
 
 export let es: {
@@ -24,9 +26,17 @@ export default {
   }),
   hasSubscriptions: true,
   segment: {},
-  apolloServerContext: (context) => {},
+  apolloServerContext: (context) => {
+    context.models = models;
+  },
   onServerInit: async (options) => {
     await apiConnect();
+
+    initBroker(options.messageBrokerClient);
+
+    mainDb = options.db;
+
+    await generateModels('os');
 
     initBroker(options.messageBrokerClient);
 

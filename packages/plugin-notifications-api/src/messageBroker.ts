@@ -1,8 +1,8 @@
-import { getUserDetail } from "@erxes/api-utils/src";
-import { Users } from "./apiCollections";
-import { graphqlPubsub } from "./configs";
-import { Notifications } from "./models";
-
+import { getUserDetail } from '@erxes/api-utils/src';
+import { Users } from './apiCollections';
+import { graphqlPubsub } from './configs';
+import { IModels } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 let client;
 
 interface ISendNotification {
@@ -17,7 +17,7 @@ interface ISendNotification {
   contentTypeId: string;
 }
 
-const sendNotification = async (doc: ISendNotification) => {
+const sendNotification = async (models: IModels, doc: ISendNotification) => {
   const {
     createdUser,
     receivers,
@@ -53,7 +53,7 @@ const sendNotification = async (doc: ISendNotification) => {
   for (const receiverId of receiverIds) {
     try {
       // send web and mobile notification
-      const notification = await Notifications.createNotification(
+      const notification = await models.Notifications.createNotification(
         {
           link,
           title,
@@ -67,7 +67,7 @@ const sendNotification = async (doc: ISendNotification) => {
         createdUser._id
       );
 
-      graphqlPubsub.publish("notificationInserted", {
+      graphqlPubsub.publish('notificationInserted', {
         notificationInserted: {
           _id: notification._id,
           userId: receiverId,
@@ -77,7 +77,7 @@ const sendNotification = async (doc: ISendNotification) => {
       });
     } catch (e) {
       // Any other error is serious
-      if (e.message !== "Configuration does not exist") {
+      if (e.message !== 'Configuration does not exist') {
         throw e;
       }
     }
@@ -92,12 +92,12 @@ const sendNotification = async (doc: ISendNotification) => {
     }
   };
 
-  sendMessage("core:sendEmail", {
+  sendMessage('core:sendEmail', {
     doc: {
       toEmails,
-      title: "Notification",
+      title: 'Notification',
       template: {
-        name: "notification",
+        name: 'notification',
         data: {
           notification: { ...doc, link },
           action,
@@ -114,33 +114,40 @@ export const initBroker = async (cl) => {
 
   const { consumeRPCQueue, consumeQueue } = cl;
 
-  consumeQueue("notifications:send", async (doc) => {
-    await sendNotification(doc);
+  consumeQueue('notifications:send', async ({ subdomain, doc }) => {
+    const models = await generateModels(subdomain);
+    await sendNotification(models, doc);
   });
 
-  consumeQueue("notifications:batchUpdate", async (selector, modifier) => {
-    await Notifications.update(
-      selector,
-      modifier,
-      { multi: true }
-    );
-  });
+  consumeQueue(
+    'notifications:batchUpdate',
+    async ({ subdomain, selector, modifier }) => {
+      const models = await generateModels(subdomain);
+      await models.Notifications.update(selector, modifier, { multi: true });
+    }
+  );
 
-  consumeRPCQueue('notifications:rpc_queue:checkIfRead', async ({ userId, itemId }) => ({
-    status: 'success',
-    data: await Notifications.checkIfRead(
-      userId,
-      itemId
-    ),
-  }));
+  consumeRPCQueue(
+    'notifications:rpc_queue:checkIfRead',
+    async ({ subdomain, userId, itemId }) => {
+      const models = await generateModels(subdomain);
+      return {
+        status: 'success',
+        data: await models.Notifications.checkIfRead(userId, itemId),
+      };
+    }
+  );
 
-  consumeRPCQueue('notifications:rpc_queue:find', async (selector, fields) => ({
-    status: 'success',
-    data: await Notifications.find(
-      selector,
-      fields
-    ),
-  }));
+  consumeRPCQueue(
+    'notifications:rpc_queue:find',
+    async (subdomain, selector, fields) => {
+      const models = await generateModels(subdomain);
+      return {
+        status: 'success',
+        data: await models.Notifications.find(selector, fields),
+      };
+    }
+  );
 };
 
 export const sendMessage = async (channel, message): Promise<any> => {
