@@ -161,6 +161,8 @@ export interface IIntegration {
   websiteMessengerApps?: IWebsiteMessengerApp[];
   knowledgeBaseMessengerApps?: ITopicMessengerApp[];
   bookingData?: IBookingData;
+  visibility?: string;
+  departmentIds?: string[];
 }
 
 export interface IAccount {
@@ -333,6 +335,8 @@ export type IntegrationMutationVariables = {
   name: string;
   channelIds?: string[];
   data?: any;
+  visibility?: string;
+  departmentIds?: string[];
 };
 
 export type AddIntegrationMutationVariables = {
