@@ -10,8 +10,8 @@ export const initBroker = async cl => {
   const { consumeRPCQueue, consumeQueue } = client;
 
   consumeRPCQueue(
-    'forms:rpc_queue:validate',
-    async ({ formId, submissions }) => ({
+    'forms:validate',
+    async ({ subdomain, data: { formId, submissions } }) => ({
       status: 'success',
       data: await Forms.validate(formId, submissions)
     })

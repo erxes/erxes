@@ -488,7 +488,7 @@ const widgetMutations = {
       // let company = await sendContactRPCMessage('findCompany', companyData);
       let company = await sendContactsMessage({
         subdomain,
-        action: "companies.find",
+        action: "companies.findOne",
         data: companyData,
         isRPC: true
       });
