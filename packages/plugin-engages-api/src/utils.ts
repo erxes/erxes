@@ -313,7 +313,7 @@ export const setCampaignCount = async (campaign: ICampaign) => {
 };
 
 export const getEditorAttributeUtil = async () => {
-  const apiCore = await getService('api-core');
+  const core = await getService('core');
   const services = await getServices();
   const editor = await new EditorAttributeUtil(messageBroker(), apiCore.address, services);
 

@@ -1,7 +1,6 @@
 import { CAMPAIGN_KINDS, CAMPAIGN_METHODS } from './constants';
 // import { fetchElk } from '../../../elasticsearch';
 // import { get, removeKey, set } from '../../../inmemoryStorage';
-import { IUserDocument } from "@packages/api-core/src/db/models/definitions/users";
 // import { CONTENT_TYPES } from '@erxes/api-utils/src/constants';
 import { IEngageMessage, IEngageMessageDocument } from './models/definitions/engages';
 import { EngageMessages, Logs } from './models';
@@ -12,7 +11,7 @@ import messageBroker, { findIntegrations, fetchSegment, getCampaignCustomerInfo 
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
   customersSelector: any;
-  user: IUserDocument;
+  user
 }
 
 export const generateCustomerSelector = async ({
