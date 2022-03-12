@@ -21,7 +21,7 @@ import {
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
 import { debug } from '../../configs';
-import messageBroker, { sendMessage, sendContactRPCMessage, sendRPCMessage } from '../../messageBroker';
+import messageBroker, { sendMessage, sendRPCMessage, sendContactsMessage } from '../../messageBroker';
 
 import { MODULE_NAMES } from '../../constants';
 import {
@@ -413,7 +413,7 @@ const integrationMutations = {
   /**
    * Send mail
    */
-  async integrationSendMail(_root, args: any, { user, coreModels }: IContext) {
+  async integrationSendMail(_root, args: any, { user, coreModels, subdomain }: IContext) {
     const { erxesApiId, body, customerId, ...doc } = args;
 
     let kind = doc.kind;
@@ -428,14 +428,33 @@ const integrationMutations = {
       ? { _id: customerId }
       : { status: { $ne: 'deleted' }, emails: { $in: doc.to } };
 
-    customer = await sendContactRPCMessage('findCustomer', selector);
+    // ! below msg converted
+    // customer = await sendContactRPCMessage('findCustomer', selector);
+
+    customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: selector,
+      isRPC: true
+    })
 
     if (!customer) {
       const [primaryEmail] = doc.to;
 
-      customer = await sendContactRPCMessage('create_customer', {
-        state: 'lead',
-        primaryEmail
+      // ! below msg converted
+      // customer = await sendContactRPCMessage('create_customer', {
+      //   state: 'lead',
+      //   primaryEmail
+      // });
+
+      customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.createCustomer',
+        data: {
+          state: 'lead',
+          primaryEmail
+        },
+        isRPC: true
       });
     }
 
@@ -466,8 +485,18 @@ const integrationMutations = {
       throw e;
     }
 
-    const customerIds = await sendContactRPCMessage("getCustomerIds", {
-      primaryEmail: { $in: doc.to }
+    // ! below msg converted
+    // const customerIds = await sendContactRPCMessage("getCustomerIds", {
+    //   primaryEmail: { $in: doc.to }
+    // })
+
+    const customerIds = await sendContactsMessage({
+      subdomain,
+      action: "customers.getCustomerIds",
+      data: {
+        primaryEmail: { $in: doc.to }
+      },
+      isRPC: true
     })
 
     doc.userId = user._id;
@@ -510,10 +539,20 @@ const integrationMutations = {
   async integrationsSendSms(
     _root,
     args: ISmsParams,
-    { user }: IContext
+    { user, subdomain }: IContext
   ) {
-    const customer = await sendContactRPCMessage('findCustomer', {
-      primaryPhone: args.to
+    // ! below msg converted
+    // const customer = await sendContactRPCMessage('findCustomer', {
+    //   primaryPhone: args.to
+    // });
+
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        primaryPhone: args.to
+      },
+      isRPC: true
     });
 
     if (!customer) {

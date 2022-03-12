@@ -8,14 +8,14 @@ import {
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
 
-import { sendTagRPCMessage, sendRPCMessage } from '../../messageBroker';
+import { sendRPCMessage, sendTagsMessage } from '../../messageBroker';
 import { paginate } from '@erxes/api-utils/src';
 import { getDocumentList } from '../../cacheUtils';
 import { IContext } from '../../connectionResolver';
 /**
  * Common helper for integrations & integrationsTotalCount
  */
-const generateFilterQuery = async ({
+const generateFilterQuery = async (subdomain, {
   kind,
   channelId,
   brandId,
@@ -61,7 +61,16 @@ const generateFilterQuery = async ({
 
   // filtering integrations by tag
   if (tag) {
-    const object = await sendTagRPCMessage('findOne', { _id: tag });
+    // ! below msg converted
+    // const object = await sendTagRPCMessage('findOne', { _id: tag });
+    const object = await sendTagsMessage({
+      subdomain,
+      action: 'findOne',
+      data: {
+        _id: tag
+      },
+      isRPC: true
+    });
 
     query.tagIds = { $in: [tag, ...(object?.relatedIds || [])] };
   }
@@ -97,11 +106,11 @@ const integrationQueries = {
       sortField: string;
       sortDirection: number;
     },
-    { singleBrandIdSelector, models }: IContext
+    { singleBrandIdSelector, models, subdomain }: IContext
   ) {
     const query = {
       ...singleBrandIdSelector,
-      ...(await generateFilterQuery(args, models))
+      ...(await generateFilterQuery(subdomain, args, models))
     };
 
     if (args.kind === 'lead') {
@@ -166,7 +175,7 @@ const integrationQueries = {
       status: string;
       formLoadType: string;
     },
-  { models, coreModels }: IContext
+  { models, coreModels, subdomain }: IContext
   ) {
     const counts = {
       total: 0,
@@ -178,7 +187,7 @@ const integrationQueries = {
     };
 
     const qry = {
-      ...(await generateFilterQuery(args, models))
+      ...(await generateFilterQuery(subdomain, args, models))
     };
 
     const count = async query => {
@@ -186,7 +195,16 @@ const integrationQueries = {
     };
 
     // Counting integrations by tag
-    const tags = await sendTagRPCMessage('find', { type: 'integration' });
+    // ! below msg converted
+    // const tags = await sendTagRPCMessage('find', { type: 'integration' });
+    const tags = await sendTagsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        type: 'integration'
+      },
+      isRPC: true
+    });
 
     for (const tag of tags) {
       const countQueryResult = await count({ tagIds: tag._id, ...qry });
@@ -209,7 +227,7 @@ const integrationQueries = {
     }
 
     // Counting integrations by channel
-    const channels = await getDocumentList(models, coreModels, 'channels', {});
+    const channels = await getDocumentList(models, coreModels, subdomain, 'channels', {});
 
     for (const channel of channels) {
       const countQueryResult = await count({
@@ -225,7 +243,7 @@ const integrationQueries = {
     }
 
     // Counting integrations by brand
-    const brands = await getDocumentList(models, coreModels, 'brands', {});
+    const brands = await getDocumentList(models, coreModels, subdomain, 'brands', {});
 
     for (const brand of brands) {
       const countQueryResult = await count({ brandId: brand._id, ...qry });

@@ -19,8 +19,8 @@ export default {
     return conversation.customerId && { __typename: 'Customer', _id: conversation.customerId }
   },
 
-  integration(conversation: IConversationDocument, _args, { models, coreModels }: IContext) {
-    return getDocument(models, coreModels, 'integrations', { _id: conversation.integrationId });
+  integration(conversation: IConversationDocument, _args, { models, coreModels, subdomain }: IContext) {
+    return getDocument(models, coreModels, subdomain, 'integrations', { _id: conversation.integrationId });
   },
 
   user(conversation: IConversationDocument) {
@@ -49,10 +49,10 @@ export default {
   async facebookPost(
     conv: IConversationDocument,
     _args,
-    {  models, coreModels }: IContext
+    {  models, coreModels, subdomain }: IContext
   ) {
     const integration =
-      (await getDocument(models, coreModels, 'integrations', {
+      (await getDocument(models, coreModels, subdomain, 'integrations', {
         _id: conv.integrationId
       })) || {};
 
@@ -75,10 +75,10 @@ export default {
   async callProAudio(
     conv: IConversationDocument,
     _args,
-    { user, models, coreModels }: IContext
+    { user, models, coreModels, subdomain }: IContext
   ) {
     const integration =
-      (await getDocument(models, coreModels, 'integrations', {
+      (await getDocument(models, coreModels, subdomain, 'integrations', {
         _id: conv.integrationId
       })) || {};
 
@@ -133,9 +133,9 @@ export default {
     }
   },
 
-  async isFacebookTaggedMessage(conversation: IConversationDocument, _args, { models, coreModels }: IContext) {
+  async isFacebookTaggedMessage(conversation: IConversationDocument, _args, { models, coreModels, subdomain }: IContext) {
     const integration =
-      (await getDocument(models, coreModels, 'integrations', {
+      (await getDocument(models, coreModels, subdomain, 'integrations', {
         _id: conversation.integrationId
       })) || {};
 

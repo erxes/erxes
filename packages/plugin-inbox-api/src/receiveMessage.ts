@@ -1,6 +1,6 @@
 import { graphqlPubsub } from './configs';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
-import { sendContactRPCMessage, sendRPCMessage } from './messageBroker';
+import { sendContactsMessage, sendRPCMessage } from './messageBroker';
 import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
 import { generateCoreModels, generateModels } from './connectionResolver';
 
@@ -17,8 +17,8 @@ const sendSuccess = data => ({
 /*
  * Handle requests from integrations api
  */
-export const receiveRpcMessage = async msg => {
-  const { action, metaInfo, payload, subdomain } = msg;
+export const receiveRpcMessage = async (subdomain, data) => {
+  const { action, metaInfo, payload } = data;
   
   const {
     Integrations,
@@ -45,17 +45,36 @@ export const receiveRpcMessage = async msg => {
 
     let customer;
 
-    const getCustomer = async selector =>
-      sendContactRPCMessage('findCustomer', selector);
+    const getCustomer = async (selector) =>
+      // ! below msg converted
+      // sendContactRPCMessage('findCustomer', selector);
+      
+      sendContactsMessage({
+        subdomain,
+        action: 'customers.findOne',
+        data: selector,
+        isRPC: true
+      });
 
     if (primaryPhone) {
       customer = await getCustomer({ primaryPhone });
 
       if (customer) {
-        await sendContactRPCMessage('updateCustomer', {
-          _id: customer._id,
-          doc
+        // ! below msg converted
+        // await sendContactRPCMessage('updateCustomer', {
+        //   _id: customer._id,
+        //   doc
+        // });
+        await sendContactsMessage({
+          subdomain,
+          action: 'customers.updateCustomer',
+          data: {
+            _id: customer._id,
+            doc
+          },
+          isRPC: true
         });
+
         return sendSuccess({ _id: customer._id });
       }
     }
@@ -67,9 +86,20 @@ export const receiveRpcMessage = async msg => {
     if (customer) {
       return sendSuccess({ _id: customer._id });
     } else {
-      customer = await sendContactRPCMessage('create_customer', {
-        ...doc,
-        scopeBrandIds: integration.brandId
+      // ! below msg converted
+      // customer = await sendContactRPCMessage('create_customer', {
+      //   ...doc,
+      //   scopeBrandIds: integration.brandId
+      // });
+
+      customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.createCustomer',
+        data: {
+          ...doc,
+          scopeBrandIds: integration.brandId
+        },
+        isRPC: true
       });
     }
 

@@ -1,16 +1,17 @@
 import sift from 'sift';
 
 import { get, set } from './inmemoryStorage';
-import { sendProductRPCMessage, sendTagRPCMessage } from './messageBroker';
+import { sendProductsMessage, sendTagsMessage } from './messageBroker';
 import { ICoreIModels, IModels } from './connectionResolver';
 
 export const getDocument = async (
   models: IModels,
   coreModels: ICoreIModels,
+  subdomain: string,
   type: 'users' | 'integrations' | 'brands' | 'channels',
   selector: { [key: string]: any }
 ) => {
-  const list = await getDocumentList(models, coreModels, type, selector);
+  const list = await getDocumentList(models, coreModels, subdomain, type, selector);
 
   if (list.length > 0) {
     return list[0];
@@ -22,6 +23,7 @@ export const getDocument = async (
 export const getDocumentList = async (
   models: IModels,
   coreModels: ICoreIModels,
+  subdomain: string,
   type: 'users' | 'integrations' | 'brands' | 'channels' | 'tags' | 'products',
   selector: { [key: string]: any }
 ) => {
@@ -54,13 +56,29 @@ export const getDocumentList = async (
       }
 
       case 'products': {
-        list = await sendProductRPCMessage('find', {
-          query: {}
+        // ! below msg converted
+        // list = await sendProductRPCMessage('find', {
+        //   query: {}
+        // });
+        list = await sendProductsMessage({
+          subdomain,
+          action: 'find',
+          data: {
+            query: {}
+          },
+          isRPC: true
         });
         break;
       }
       case 'tags': {
-        list = await sendTagRPCMessage('find', {});
+        // ! below msg converted
+        // list = await sendTagRPCMessage('find', {});
+        list = await sendTagsMessage({
+          subdomain,
+          action: "find",
+          data: {},
+          isRPC: true
+        })
         break;
       }
     }

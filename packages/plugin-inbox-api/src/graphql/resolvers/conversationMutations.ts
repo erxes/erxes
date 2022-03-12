@@ -13,8 +13,8 @@ import { debug } from '../../configs';
 import {
   sendMessage,
   sendRPCMessage,
-  sendCardsRPCMessage,
-  sendContactRPCMessage
+  sendContactsMessage,
+  sendCardsMessage
 } from '../../messageBroker';
 import { graphqlPubsub } from '../../configs';
 
@@ -269,7 +269,7 @@ const conversationMutations = {
   async conversationMessageAdd(
     _root,
     doc: IConversationMessageAdd,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const conversation = await models.Conversations.getConversation(
       doc.conversationId
@@ -301,8 +301,18 @@ const conversationMutations = {
     const conversationId = conversation.id;
     const facebookMessageTag = doc.facebookMessageTag;
 
-    const customer = await sendContactRPCMessage('findCustomer', {
-      _id: conversation.customerId
+    // ! below msg converted
+    // const customer = await sendContactRPCMessage('findCustomer', {
+    //   _id: conversation.customerId
+    // });
+
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        _id: conversation.customerId
+      },
+      isRPC: true
     });
 
     // if conversation's integration kind is form then send reply to
@@ -608,9 +618,9 @@ const conversationMutations = {
   /**
    * Resolve all conversations
    */
-  async conversationResolveAll(_root, params: IListArgs, { user, models, coreModels }: IContext) {
+  async conversationResolveAll(_root, params: IListArgs, { user, models, coreModels, subdomain }: IContext) {
     // initiate query builder
-    const qb = new QueryBuilder(models, coreModels, params, { _id: user._id });
+    const qb = new QueryBuilder(models, coreModels, subdomain, params, { _id: user._id });
 
     await qb.buildAllQueries();
     const query = qb.mainQuery();
@@ -719,7 +729,7 @@ const conversationMutations = {
   async conversationConvertToCard(
     _root,
     params: IConversationConvert,
-    { user, docModifier, models }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
     const { _id } = params;
 
@@ -732,7 +742,15 @@ const conversationMutations = {
       docModifier
     };
 
-    return sendCardsRPCMessage('conversationConvert', args);
+    // ! below msg converted
+    // return sendCardsRPCMessage('conversationConvert', args);
+
+    return sendCardsMessage({
+      subdomain,
+      action: "conversationConvert",
+      data: args,
+      isRPC: true
+    })
   },
 
   async conversationEditCustomFields(
