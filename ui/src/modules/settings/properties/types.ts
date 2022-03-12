@@ -9,6 +9,10 @@ export interface IFieldLogic {
   __typename?: string;
 }
 
+export interface ICustomPropertyText {
+  name: string;
+}
+
 export interface IField {
   _id: string;
   key?: string;
@@ -42,6 +46,7 @@ export interface IField {
   logicAction?: string;
   groupName?: string;
   pageNumber?: number;
+  showInCard?: boolean;
 }
 
 export interface IBoardSelectItem {

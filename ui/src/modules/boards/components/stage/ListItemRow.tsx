@@ -107,7 +107,6 @@ class ListItemRow extends React.PureComponent<Props> {
 
   render() {
     const { item, onClick, groupType, options } = this.props;
-
     const {
       customers,
       companies,

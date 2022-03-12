@@ -76,6 +76,7 @@ export interface IField extends IVisibility {
   column?: number;
   groupName?: string;
   pageNumber?: number;
+  showInCard?: boolean;
 }
 
 export interface IFieldDocument extends IField, Document {
@@ -184,6 +185,12 @@ export const fieldSchema = schemaWrapper(
       optional: true,
       label: 'Number of page',
       min: 1
+    }),
+    showInCard: field({
+      type: Boolean,
+      default: false,
+      optional: true,
+      label: 'Show in card'
     })
   })
 );

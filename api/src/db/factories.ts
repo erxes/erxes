@@ -726,6 +726,7 @@ interface IFieldFactoryInput {
   canHide?: boolean;
   options?: string[];
   associatedFieldId?: string;
+  showInCard?: boolean;
 }
 
 export const fieldFactory = async (params: IFieldFactoryInput) => {
@@ -762,7 +763,8 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
     isDefinedByErxes:
       params.isDefinedByErxes === undefined || params.isDefinedByErxes === null
         ? false
-        : params.isDefinedByErxes
+        : params.isDefinedByErxes,
+    showInCard: params.showInCard || false
   });
 };
 
@@ -1221,6 +1223,7 @@ interface IDealFactoryInput {
   customerIds?: string[];
   priority?: string;
   startDate?: Date;
+  customFieldsData?: any;
 }
 
 const createConformities = async (mainType, object, params) => {
@@ -1298,7 +1301,8 @@ export const dealFactory = async (
     searchText: params.searchText,
     sourceConversationIds: params.sourceConversationIds,
     priority: params.priority,
-    createdAt: new Date()
+    createdAt: new Date(),
+    customFieldsData: params.customFieldsData
   };
 
   const deal = new Deals(dealDoc);
@@ -1332,6 +1336,7 @@ interface ITaskFactoryInput {
   initialStageId?: string;
   companyIds?: string[];
   customerIds?: string[];
+  customFieldsData?: any;
 }
 
 export const attachmentFactory = () => ({
@@ -1368,7 +1373,8 @@ export const taskFactory = async (
     watchedUserIds: params.watchedUserIds,
     labelIds: params.labelIds || [],
     sourceConversationIds: params.sourceConversationIds,
-    attachments: [attachmentFactory(), attachmentFactory()]
+    attachments: [attachmentFactory(), attachmentFactory()],
+    customFieldsData: params.customFieldsData
   };
 
   const task = new Tasks(taskDoc);
@@ -1402,6 +1408,7 @@ interface ITicketFactoryInput {
   sourceConversationIds?: string[];
   companyIds?: string[];
   customerIds?: string[];
+  customFieldsData?: any;
 }
 
 export const ticketFactory = async (
@@ -1432,7 +1439,8 @@ export const ticketFactory = async (
     source: params.source,
     watchedUserIds: params.watchedUserIds,
     labelIds: params.labelIds || [],
-    sourceConversationIds: params.sourceConversationIds
+    sourceConversationIds: params.sourceConversationIds,
+    customFieldsData: params.customFieldsData
   };
 
   const ticket = new Tickets(ticketDoc);

@@ -49,6 +49,7 @@ export const fieldsTypes = `
     associatedField: Field
     logics: [Logic]
     locationOptions: [LocationOption]
+    showInCard: Boolean
     ${fieldCommonFields}
   }
 
@@ -108,6 +109,7 @@ const fieldsCommonFields = `
   canHide: Boolean
   associatedFieldId: String
   logic: LogicInput
+  showInCard: Boolean
 `;
 
 export const fieldsMutations = `

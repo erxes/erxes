@@ -4,6 +4,7 @@ import {
   companyFactory,
   conformityFactory,
   customerFactory,
+  fieldFactory,
   pipelineFactory,
   stageFactory,
   ticketFactory,
@@ -35,6 +36,7 @@ describe('ticketQueries', () => {
     hasNotified
     labels { _id }
     createdUser { _id }
+    customPropertyTexts
   `;
 
   const qryTicketFilter = `
@@ -166,6 +168,7 @@ describe('ticketQueries', () => {
       query tickets($stageId: String!) {
         tickets(stageId: $stageId) {
           _id
+          customPropertyTexts
         }
       }
     `;
@@ -198,12 +201,27 @@ describe('ticketQueries', () => {
   });
 
   test('Ticket detail', async () => {
-    const ticket = await ticketFactory();
+    const field1 = await fieldFactory({
+      showInCard: true,
+      contentType: 'ticket'
+    });
+    const field2 = await fieldFactory({
+      showInCard: false,
+      contentType: 'ticket'
+    });
+
+    const ticket = await ticketFactory({
+      customFieldsData: [
+        { field: field1._id, value: 'test1' },
+        { field: field2._id, value: 'test2' }
+      ]
+    });
 
     const args = { _id: ticket._id };
 
     const response = await graphqlRequest(qryDetail, 'ticketDetail', args);
 
+    expect(response.customPropertyTexts.length).toBe(1);
     expect(response._id).toBe(ticket._id);
   });
 
