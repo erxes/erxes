@@ -68,6 +68,7 @@ export const commonListFields = `
   hasNotified
   score
   number
+  customPropertyTexts
 `;
 
 export const commonFields = `
@@ -136,6 +137,7 @@ export const commonFields = `
     startDate
   }
   number
+  customPropertyTexts
 `;
 
 const stagesUpdateOrder = `
