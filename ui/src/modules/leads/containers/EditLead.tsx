@@ -33,6 +33,8 @@ type State = {
   doc?: {
     brandId: string;
     channelIds?: string[];
+    visibility?: string;
+    departmentIds?: string[];
     name: string;
     languageCode: string;
     lead: any;
@@ -79,7 +81,9 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
           brandId,
           name,
           languageCode,
-          channelIds
+          channelIds,
+          visibility,
+          departmentIds
         } = this.state.doc;
 
         editIntegrationMutation({
@@ -90,7 +94,9 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
             brandId,
             name,
             languageCode,
-            channelIds
+            channelIds,
+            visibility,
+            departmentIds
           }
         })
           .then(() => {
