@@ -843,12 +843,24 @@ const widgetMutations = {
 
     if (!HAS_BOTENDPOINT_URL && customerId) {
       try {
-        await sendMessage('core:sendMobileNotification', {
-          title: 'You have a new message',
-          body: conversationContent,
-          customerId,
-          conversationId: conversation._id,
-          receivers: conversationNotifReceivers(conversation, customerId)
+        // ! below msg converted
+        // await sendMessage('core:sendMobileNotification', {
+        //   title: 'You have a new message',
+        //   body: conversationContent,
+        //   customerId,
+        //   conversationId: conversation._id,
+        //   receivers: conversationNotifReceivers(conversation, customerId)
+        // });
+        await sendCoreMessage({
+          subdomain,
+          action: 'sendMobileNotification',
+          data: {
+            title: 'You have a new message',
+            body: conversationContent,
+            customerId,
+            conversationId: conversation._id,
+            receivers: conversationNotifReceivers(conversation, customerId)
+          }
         });
       } catch (e) {
         debug.error(`Failed to send mobile notification: ${e.message}`);
@@ -1029,12 +1041,25 @@ const widgetMutations = {
       });
     }
 
-    await sendMessage('core:sendEmail', {
-      toEmails,
-      fromEmail,
-      title,
-      template: { data: { content: finalContent } },
-      attachments: mailAttachment
+    // ! below msg converted
+    // await sendMessage('core:sendEmail', {
+    //   toEmails,
+    //   fromEmail,
+    //   title,
+    //   template: { data: { content: finalContent } },
+    //   attachments: mailAttachment
+    // });
+
+    await sendCoreMessage({
+      subdomain,
+      action: 'sendEmail',
+      data: {
+        toEmails,
+        fromEmail,
+        title,
+        template: { data: { content: finalContent } },
+        attachments: mailAttachment
+      }
     });
   },
 

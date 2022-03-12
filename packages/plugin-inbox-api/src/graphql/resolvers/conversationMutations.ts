@@ -14,7 +14,8 @@ import {
   sendMessage,
   sendRPCMessage,
   sendContactsMessage,
-  sendCardsMessage
+  sendCardsMessage,
+  sendCoreMessage
 } from '../../messageBroker';
 import { graphqlPubsub } from '../../configs';
 
@@ -187,7 +188,7 @@ export const publishMessage = async (
   }
 };
 
-const sendNotifications = async ({
+const sendNotifications = async (subdomain: string, {
   user,
   conversations,
   type,
@@ -239,12 +240,29 @@ const sendNotifications = async ({
     if (mobile) {
       // send mobile notification ======
       try {
-        await sendMessage('core:sendMobileNotification', {
-          title: doc.title,
-          body: strip(doc.content),
-          receivers: conversationNotifReceivers(conversation, user._id, false),
-          customerId: conversation.customerId,
-          conversationId: conversation._id
+        // ! below msg converted
+        // await sendMessage('core:sendMobileNotification', {
+        //   title: doc.title,
+        //   body: strip(doc.content),
+        //   receivers: conversationNotifReceivers(conversation, user._id, false),
+        //   customerId: conversation.customerId,
+        //   conversationId: conversation._id
+        // });
+
+        await sendCoreMessage({
+          subdomain,
+          action: 'sendMobileNotification',
+          data: {
+            title: doc.title,
+            body: strip(doc.content),
+            receivers: conversationNotifReceivers(
+              conversation,
+              user._id,
+              false
+            ),
+            customerId: conversation.customerId,
+            conversationId: conversation._id
+          }
         });
       } catch (e) {
         debug.error(`Failed to send mobile notification: ${e.message}`);
@@ -278,7 +296,7 @@ const conversationMutations = {
       _id: conversation.integrationId
     });
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations: [conversation],
       type: 'conversationAddMessage',
@@ -320,11 +338,24 @@ const conversationMutations = {
     const email = customer ? customer.primaryEmail : '';
 
     if (kind === KIND_CHOICES.LEAD && email) {
-      await sendMessage('core:sendEmail', {
-        toEmails: [email],
-        title: 'Reply',
-        template: {
-          data: doc.content
+      // ! below msg converted
+      // await sendMessage('core:sendEmail', {
+      //   toEmails: [email],
+      //   title: 'Reply',
+      //   template: {
+      //     data: doc.content
+      //   }
+      // });
+
+      await sendCoreMessage({
+        subdomain,
+        action: 'sendEmail',
+        data: {
+          toEmails: [email],
+          title: 'Reply',
+          template: {
+            data: doc.content
+          }
         }
       });
     }
@@ -430,7 +461,7 @@ const conversationMutations = {
   async conversationsReplyFacebookComment(
     _root,
     doc: IReplyFacebookComment,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const conversation = await models.Conversations.getConversation(
       doc.conversationId
@@ -439,7 +470,7 @@ const conversationMutations = {
       _id: conversation.integrationId
     });
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations: [conversation],
       type: 'conversationStateChange',
@@ -492,7 +523,7 @@ const conversationMutations = {
       conversationIds,
       assignedUserId
     }: { conversationIds: string[]; assignedUserId: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const { oldConversationById } = await getConversationById(models, {
       _id: { $in: conversationIds }
@@ -506,7 +537,7 @@ const conversationMutations = {
     // notify graphl subscription
     publishConversationsChanged(conversationIds, 'assigneeChanged');
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations,
       type: 'conversationAssigneeChange'
@@ -535,7 +566,7 @@ const conversationMutations = {
   async conversationsUnassign(
     _root,
     { _ids }: { _ids: string[] },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const {
       oldConversations,
@@ -545,7 +576,7 @@ const conversationMutations = {
       _ids
     );
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations: oldConversations,
       type: 'unassign'
@@ -577,7 +608,7 @@ const conversationMutations = {
   async conversationsChangeStatus(
     _root,
     { _ids, status }: { _ids: string[]; status: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const { oldConversationById } = await getConversationById(models, {
       _id: { $in: _ids }
@@ -592,7 +623,7 @@ const conversationMutations = {
       _id: { $in: _ids }
     });
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations: updatedConversations,
       type: 'conversationStateChange'
