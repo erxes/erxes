@@ -253,10 +253,10 @@ export const sendMessage = async (channel, message): Promise<any> => {
   return client.sendMessage(channel, message);
 };
 
-// ! logHelper, conversation resolver, conversationMessage resolver, conversationMutations, integration resolver, integration mutations, integrationQueries, widgetMutations, widgetQueries,  
-export const sendRPCMessage = async (channel, message): Promise<any> => {
-  return client.sendRPCMessage(channel, message);
-};
+// // ! logHelper, conversation resolver, conversationMessage resolver, conversationMutations, integration resolver, integration mutations, integrationQueries, widgetMutations, widgetQueries,  
+// export const sendRPCMessage = async (channel, message): Promise<any> => {
+//   return client.sendRPCMessage(channel, message);
+// };
 
 // // ! widgetMutations and integrations model
 // export const sendContactMessage = async (action, data): Promise<any> => {
