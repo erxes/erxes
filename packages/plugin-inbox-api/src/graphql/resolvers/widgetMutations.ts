@@ -38,7 +38,6 @@ import { getDocument, getMessengerApps } from '../../cacheUtils';
 import { conversationNotifReceivers } from './conversationMutations';
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
 import {
-  sendMessage,
   sendToLog,
   client as msgBrokerClient,
   sendContactsMessage,
@@ -290,10 +289,21 @@ const widgetMutations = {
     if (integ.createdUserId) {
       const user = await coreModels.Users.findOne({ _id: integ.createdUserId });
 
-      sendMessage('registerOnboardHistory', {
-        type: 'leadIntegrationInstalled',
-        user
+      // ! below msg converted
+      // sendMessage('registerOnboardHistory', {
+      //   type: 'leadIntegrationInstalled',
+      //   user
+      // });
+
+      await sendCoreMessage({
+        subdomain,
+        action: 'registerOnboardHistory',
+        data: {
+          type: 'leadIntegrationInstalled',
+          user
+        }
       });
+
     }
 
     if (integ.leadData?.isRequireOnce && args.cachedCustomerId) {
@@ -874,6 +884,7 @@ const widgetMutations = {
         //   conversationId: conversation._id,
         //   receivers: conversationNotifReceivers(conversation, customerId)
         // });
+        
         await sendCoreMessage({
           subdomain,
           action: 'sendMobileNotification',

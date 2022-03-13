@@ -12,7 +12,7 @@ import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 
 // import utils, { checkUserIds } from '../../utils';
 import { checkUserIds } from '@erxes/api-utils/src';
-import { sendMessage, sendNotificationsMessage } from '../../messageBroker';
+import { sendCoreMessage, sendNotificationsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
 interface IChannelsEdit extends IChannel {
@@ -134,7 +134,16 @@ const channelMutations = {
       (channel.integrationIds || []).toString() !==
       (updated.integrationIds || []).toString()
     ) {
-      sendMessage('registerOnboardHistory', { type: 'connectIntegrationsToChannel', user });
+      // ! below msg converted
+      // sendMessage('registerOnboardHistory', { type: 'connectIntegrationsToChannel', user });
+      sendCoreMessage({
+        subdomain,
+        action: 'registerOnboardHistory',
+        data: {
+          type: 'connectIntegrationsToChannel',
+          user
+        }
+      });
     }
 
     return updated;
