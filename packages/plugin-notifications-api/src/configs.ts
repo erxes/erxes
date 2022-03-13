@@ -8,7 +8,7 @@ import { generateModels, models } from './connectionResolver';
 
 export let mainDb;
 export let graphqlPubsub;
-
+export let serviceDiscovery;
 export let es: {
   client;
   fetchElk(args: IFetchElkArgs): Promise<any>;
@@ -20,10 +20,13 @@ export let debug;
 
 export default {
   name: 'notifications',
-  graphql: () => ({
-    typeDefs,
-    resolvers,
-  }),
+  graphql: (sd) => {
+    serviceDiscovery = sd;
+    return {
+      typeDefs,
+      resolvers,
+    };
+  },
   hasSubscriptions: true,
   segment: {},
   apolloServerContext: (context) => {

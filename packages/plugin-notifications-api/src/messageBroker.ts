@@ -3,6 +3,8 @@ import { Users } from './apiCollections';
 import { graphqlPubsub } from './configs';
 import { IModels } from './connectionResolver';
 import { generateModels } from './connectionResolver';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import { serviceDiscovery } from './configs';
 let client;
 
 interface ISendNotification {
@@ -17,7 +19,11 @@ interface ISendNotification {
   contentTypeId: string;
 }
 
-const sendNotification = async (models: IModels, doc: ISendNotification) => {
+const sendNotification = async (
+  models: IModels,
+  subdomain: string,
+  doc: ISendNotification
+) => {
   const {
     createdUser,
     receivers,
@@ -92,20 +98,27 @@ const sendNotification = async (models: IModels, doc: ISendNotification) => {
     }
   };
 
-  sendMessage('core:sendEmail', {
-    doc: {
-      toEmails,
-      title: 'Notification',
-      template: {
-        name: 'notification',
-        data: {
-          notification: { ...doc, link },
-          action,
-          userName: getUserDetail(createdUser),
+  sendCoreMessage({
+    subdomain,
+    serviceDiscovery,
+    serviceName: '',
+    client,
+    action: 'core:sendEmail',
+    data: {
+      doc: {
+        toEmails,
+        title: 'Notification',
+        template: {
+          name: 'notification',
+          data: {
+            notification: { ...doc, link },
+            action,
+            userName: getUserDetail(createdUser),
+          },
         },
       },
+      modifier,
     },
-    modifier,
   });
 };
 
@@ -116,7 +129,7 @@ export const initBroker = async (cl) => {
 
   consumeQueue('notifications:send', async ({ subdomain, doc }) => {
     const models = await generateModels(subdomain);
-    await sendNotification(models, doc);
+    await sendNotification(models, subdomain, doc);
   });
 
   consumeQueue(
@@ -128,7 +141,7 @@ export const initBroker = async (cl) => {
   );
 
   consumeRPCQueue(
-    'notifications:rpc_queue:checkIfRead',
+    'notifications:checkIfRead',
     async ({ subdomain, userId, itemId }) => {
       const models = await generateModels(subdomain);
       return {
@@ -138,22 +151,29 @@ export const initBroker = async (cl) => {
     }
   );
 
-  consumeRPCQueue(
-    'notifications:rpc_queue:find',
-    async (subdomain, selector, fields) => {
-      const models = await generateModels(subdomain);
-      return {
-        status: 'success',
-        data: await models.Notifications.find(selector, fields),
-      };
-    }
-  );
+  consumeRPCQueue('notifications:find', async (subdomain, selector, fields) => {
+    const models = await generateModels(subdomain);
+    return {
+      status: 'success',
+      data: await models.Notifications.find(selector, fields),
+    };
+  });
 };
 
-export const sendMessage = async (channel, message): Promise<any> => {
-  return client.sendMessage(channel, message);
-};
-
-export const sendRPCMessage = async (channel, message): Promise<any> => {
-  return client.sendRPCMessage(channel, message);
+export const sendCoreMessage = async ({
+  client,
+  serviceDiscovery,
+  serviceName,
+  action,
+  subdomain,
+  data,
+}): Promise<any> => {
+  return sendMessage({
+    subdomain,
+    client,
+    serviceDiscovery,
+    serviceName,
+    action,
+    data,
+  });
 };
