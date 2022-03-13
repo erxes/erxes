@@ -9,6 +9,7 @@ import { initMemoryStorage } from './inmemoryStorage';
 export let debug;
 export let graphqlPubsub;
 export let mainDb;
+export let serviceDiscovery;
 
 export let es: {
   client;
@@ -20,6 +21,7 @@ export let es: {
 export default {
   name: 'tags',
   graphql: async (sd) => {
+    serviceDiscovery = sd;
     return {
       typeDefs: await typeDefs(sd),
       resolvers: await resolvers(sd),
