@@ -8,7 +8,7 @@ import {
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
 
-import { sendRPCMessage, sendTagsMessage } from '../../messageBroker';
+import { sendIntegrationsMessage, sendTagsMessage } from '../../messageBroker';
 import { paginate } from '@erxes/api-utils/src';
 import { getDocumentList } from '../../cacheUtils';
 import { IContext } from '../../connectionResolver';
@@ -271,14 +271,25 @@ const integrationQueries = {
     return counts;
   },
 
-  async integrationGetLineWebhookUrl(_root, { _id }: { _id: string }) {
-    return sendRPCMessage(
-      'rpc_queue:api_to_integrations',
-      {
+  async integrationGetLineWebhookUrl(_root, { _id }: { _id: string }, { subdomain }: IContext) {
+    // ! below msg converted
+    // return sendRPCMessage(
+    //   'rpc_queue:api_to_integrations',
+    //   {
+    //     action: 'line-webhook',
+    //     data: { _id }
+    //   }
+    // );
+
+    return sendIntegrationsMessage({
+      subdomain,
+      action: 'api_to_integrations',
+      data: {
         action: 'line-webhook',
-        data: { _id }
-      }
-    );
+        _id
+      },
+      isRPC: true
+    });
   }
 };
 

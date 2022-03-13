@@ -12,10 +12,10 @@ import { AUTO_BOT_MESSAGES } from '../../models/definitions/constants';
 import { debug } from '../../configs';
 import {
   sendMessage,
-  sendRPCMessage,
   sendContactsMessage,
   sendCardsMessage,
-  sendCoreMessage
+  sendCoreMessage,
+  sendIntegrationsMessage
 } from '../../messageBroker';
 import { graphqlPubsub } from '../../configs';
 
@@ -61,6 +61,7 @@ interface IConversationConvert {
  */
 
 const sendConversationToIntegrations = async (
+  subdomain: string,
   type: string,
   integrationId: string,
   conversationId: string,
@@ -83,16 +84,34 @@ const sendConversationToIntegrations = async (
     const content = strip(doc.content);
 
     try {
-      await sendRPCMessage('rpc_queue:api_to_integrations', {
-        action,
-        type,
-        payload: JSON.stringify({
-          integrationId,
-          conversationId,
-          content: content.replace(/&amp;/g, '&'),
-          attachments: doc.attachments || [],
-          tag: facebookMessageTag
-        })
+      // ! below msg converted
+      // await sendRPCMessage('rpc_queue:api_to_integrations', {
+      //   action,
+      //   type,
+      //   payload: JSON.stringify({
+      //     integrationId,
+      //     conversationId,
+      //     content: content.replace(/&amp;/g, '&'),
+      //     attachments: doc.attachments || [],
+      //     tag: facebookMessageTag
+      //   })
+      // });
+
+      await sendIntegrationsMessage({
+        subdomain,
+        action: 'api_to_integrations',
+        data: {
+          action,
+          type,
+          payload: JSON.stringify({
+            integrationId,
+            conversationId,
+            content: content.replace(/&amp;/g, '&'),
+            attachments: doc.attachments || [],
+            tag: facebookMessageTag
+          })
+        },
+        isRPC: true
       });
     } catch (e) {
       throw new Error(
@@ -102,12 +121,26 @@ const sendConversationToIntegrations = async (
   }
 
   if (requestName) {
-    return sendRPCMessage('integrations:rpc_queue:reply', {
-      conversationId,
-      integrationId,
-      content: strip(doc.content),
-      attachments: doc.attachments || [],
-      requestName
+    // ! below msg converted
+    // return sendRPCMessage('integrations:rpc_queue:reply', {
+    //   conversationId,
+    //   integrationId,
+    //   content: strip(doc.content),
+    //   attachments: doc.attachments || [],
+    //   requestName
+    // });
+
+    return sendIntegrationsMessage({
+      subdomain,
+      action: 'reply',
+      data: {
+        conversationId,
+        integrationId,
+        content: strip(doc.content),
+        attachments: doc.attachments || [],
+        requestName
+      },
+      isRPC: true
     });
   }
 };
@@ -369,6 +402,7 @@ const conversationMutations = {
       action = 'reply-post';
 
       return sendConversationToIntegrations(
+        subdomain,
         type,
         integrationId,
         conversationId,
@@ -439,6 +473,7 @@ const conversationMutations = {
     }
 
     await sendConversationToIntegrations(
+      subdomain,
       type,
       integrationId,
       conversationId,
@@ -485,6 +520,7 @@ const conversationMutations = {
     const action = 'reply-post';
 
     await sendConversationToIntegrations(
+      subdomain,
       type,
       integrationId,
       conversationId,
@@ -497,6 +533,7 @@ const conversationMutations = {
   async conversationsChangeStatusFacebookComment(
     _root,
     doc: IReplyFacebookComment,
+    { subdomain }: IContext
   ) {
     const requestName = 'replyFacebookPost';
     const type = 'facebook';
@@ -505,6 +542,7 @@ const conversationMutations = {
     doc.content = '';
 
     return sendConversationToIntegrations(
+      subdomain,
       type,
       '',
       conversationId,
@@ -700,7 +738,7 @@ const conversationMutations = {
   async conversationCreateVideoChatRoom(
     _root,
     { _id },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     let message;
 
@@ -713,12 +751,23 @@ const conversationMutations = {
 
       message = await models.ConversationMessages.addMessage(doc, user._id);
 
-      const videoCallData = await sendRPCMessage('integrations:rpc_queue:createDailyRoom',
-        {
+      // ! below msg converted
+      // const videoCallData = await sendRPCMessage('integrations:rpc_queue:createDailyRoom',
+      //   {
+      //     erxesApiConversationId: _id,
+      //     erxesApiMessageId: message._id
+      //   }
+      // );
+
+      const videoCallData = await sendIntegrationsMessage({
+        subdomain,
+        action: 'createDailyRoom',
+        data: {
           erxesApiConversationId: _id,
           erxesApiMessageId: message._id
-        }
-      );
+        },
+        isRPC: true
+      });
 
       const updatedMessage = { ...message._doc, videoCallData };
 

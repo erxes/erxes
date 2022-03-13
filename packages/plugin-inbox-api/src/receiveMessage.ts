@@ -1,6 +1,6 @@
 import { graphqlPubsub } from './configs';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
-import { sendContactsMessage, sendRPCMessage } from './messageBroker';
+import { sendContactsMessage, sendIntegrationsMessage } from './messageBroker';
 import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
 import { generateCoreModels, generateModels } from './connectionResolver';
 
@@ -233,8 +233,17 @@ export const collectConversations = async ({ contentId, contentType, subdomain }
   let conversationIds;
 
   try {
-    conversationIds = await sendRPCMessage('integrations:rpc_queue:getFbCustomerPosts', {
-      customerId: contentId
+    // ! below msg converted
+    // conversationIds = await sendRPCMessage('integrations:rpc_queue:getFbCustomerPosts', {
+    //   customerId: contentId
+    // })
+    conversationIds = await sendIntegrationsMessage({
+      subdomain,
+      action: "getFbCustomerPosts",
+      data: {
+        customerId: contentId
+      },
+      isRPC: true
     })
     
     const cons = await models.Conversations.find({ _id: { $in: conversationIds } }).lean();

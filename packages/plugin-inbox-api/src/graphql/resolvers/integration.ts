@@ -1,7 +1,7 @@
 import { KIND_CHOICES } from '../../models/definitions/constants';
 import { IIntegrationDocument } from '../../models/definitions/integrations';
 import { getDocument, getDocumentList } from '../../cacheUtils';
-import { sendRPCMessage } from '../../messageBroker';
+import { sendIntegrationsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
 export default {
@@ -63,12 +63,23 @@ export default {
   async healthStatus(
     integration: IIntegrationDocument,
     _args,
+    { subdomain }: IContext
   ) {
     if (integration.kind.includes('facebook')) {
       try {
-        return sendRPCMessage('integrations:rpc_queue:getFacebookStatus', {
-          integrationId: integration._id
-        })
+        // ! below msg converted
+        // return sendRPCMessage('integrations:rpc_queue:getFacebookStatus', {
+        //   integrationId: integration._id
+        // })
+
+        return sendIntegrationsMessage({
+          subdomain,
+          action: 'getFacebookStatus',
+          data: {
+            integrationId: integration._id
+          },
+          isRPC: true
+        });
       } catch (e) {
         return { status: 'healthy' };
       }

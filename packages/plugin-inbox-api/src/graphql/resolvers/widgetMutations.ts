@@ -41,11 +41,11 @@ import {
   sendMessage,
   sendToLog,
   client as msgBrokerClient,
-  sendRPCMessage,
   sendContactsMessage,
   sendProductsMessage,
   sendFormsMessage,
-  sendCoreMessage
+  sendCoreMessage,
+  sendIntegrationsMessage
 } from '../../messageBroker';
 import { trackViewPageEvent } from '../../events';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
@@ -632,8 +632,17 @@ const widgetMutations = {
         let integrationConfigs: Array<{ code: string; value?: string }> = [];
 
         try {
-          integrationConfigs = await sendRPCMessage('rpc_queue:api_to_integrations', {
-            action: 'getConfigs'
+          // ! below msg converted
+          // integrationConfigs = await sendRPCMessage('rpc_queue:api_to_integrations', {
+          //   action: 'getConfigs'
+          // });
+          integrationConfigs = await sendIntegrationsMessage({
+            subdomain,
+            action: 'api_to_integrations',
+            data: {
+              action: 'getConfigs'
+            },
+            isRPC: true
           });
 
         } catch (e) {

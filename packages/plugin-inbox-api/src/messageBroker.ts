@@ -338,6 +338,11 @@ export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessageCore({ client, serviceDiscovery, serviceName: 'tags', ...args });
 }
 
+// ? added new integraiontsMsg
+export const sendIntegrationsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessageCore({ client, serviceDiscovery, serviceName: 'integratons', ...args })
+}
+
 // ! widgetUtils, widgetMutations
 export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
