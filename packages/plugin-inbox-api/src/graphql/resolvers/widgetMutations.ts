@@ -493,10 +493,24 @@ const widgetMutations = {
         isRPC: true
       });
 
+      // ! below msg converted
+      // const {
+      //   customFieldsData,
+      //   trackedData
+      // } = await coreModels.Fields.generateCustomFieldsData(companyData, 'company');
+
       const {
         customFieldsData,
         trackedData
-      } = await coreModels.Fields.generateCustomFieldsData(companyData, 'company');
+      } = await sendFormsMessage({
+        subdomain,
+        action: "fields.generateCustomFieldsData",
+        data: {
+          customData: companyData,
+          contentType: 'company'
+        },
+        isRPC: true
+      })
 
       companyData.customFieldsData = customFieldsData;
       companyData.trackedData = trackedData;
@@ -952,7 +966,7 @@ const widgetMutations = {
 
       sendContactsMessage({
         subdomain,
-        action: 'customers:updateSession',
+        action: 'customers.updateSession',
         data: {
           customerId,
         }

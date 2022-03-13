@@ -11,7 +11,7 @@ import * as moment from 'moment';
 // ? import { uploadFile, frontendEnv, getSubServiceDomain } from '@erxes/api-utils';
 
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
-import { sendRPCMessage } from '../../messageBroker';
+import { sendFormsMessage } from '../../messageBroker';
 import { IContext, ICoreIModels, IModels } from '../../connectionResolver';
 
 export const isMessengerOnline = async (models: IModels, integration: IIntegrationDocument) => {
@@ -332,14 +332,29 @@ export default {
     };
   },
 
-  async widgetsBookingProductWithFields(_root, { _id }: { _id: string }) {
-    const fields = await sendRPCMessage('rpc_queue:Fields.find', {
-      query: {
-        contentType: 'product'
+  async widgetsBookingProductWithFields(_root, { _id }: { _id: string }, { subdomain }: IContext) {
+    // ! below msg converted
+    // const fields = await sendRPCMessage('rpc_queue:Fields.find', {
+    //   query: {
+    //     contentType: 'product'
+    //   },
+    //   sort: {
+    //     order: 1
+    //   }
+    // });
+
+    const fields = await sendFormsMessage({
+      subdomain,
+      action: 'fields.find',
+      data: {
+        query: {
+          contentType: 'product'
+        },
+        sort: {
+          order: 1
+        }
       },
-      sort: {
-        order: 1
-      }
+      isRPC: true
     });
 
     return {
