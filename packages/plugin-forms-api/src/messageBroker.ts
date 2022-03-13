@@ -27,17 +27,19 @@ export const initBroker = async cl => {
     data: await Forms.removeForm(formId)
   }));
 
-  consumeRPCQueue('forms:rpc_queue:prepareCustomFieldsData', async data => ({
+  consumeRPCQueue('forms:prepareCustomFieldsData', async ({ data }) => ({
     status: 'success',
     data: await Fields.prepareCustomFieldsData(data)
   }));
 
   consumeRPCQueue(
-    'forms:rpc_queue:generateCustomFieldsData',
-    async ({ customData, contentType }) => ({
-      status: 'success',
-      data: await Fields.generateCustomFieldsData(customData, contentType)
-    })
+    'forms:fields.generateCustomFieldsData',
+    async ({ data: { customData, contentType }}) => {
+      return {
+        status: 'success',
+        data: await Fields.generateCustomFieldsData(customData, contentType)
+      };
+  }
   );
 
   consumeQueue('forms:updateGroup', async ({ groupId, fieldsGroup }) => ({
@@ -46,8 +48,8 @@ export const initBroker = async cl => {
   }));
 
   consumeRPCQueue(
-    'forms:rpc_queue:findFields',
-    async ({ query, projection, sort }) => {
+    'forms:fields.find',
+    async ({ data: { query, projection, sort }}) => {
       return {
         status: 'success',
         data: await Fields.find(query, projection)
