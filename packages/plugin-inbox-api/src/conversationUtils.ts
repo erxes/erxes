@@ -60,9 +60,6 @@ const countByBrands = async (models: IModels, coreModels: ICoreIModels, subdomai
 
 // Count converstaion by tag
 const countByTags = async (subdomain: string, qb: any, counts: ICountBy): Promise<ICountBy> => {
-  // ! below msg converted
-  // const tags = await sendTagRPCMessage('find', { type: 'conversation' })
-
   const tags = await sendTagsMessage({
     subdomain,
     action: 'find',
@@ -104,9 +101,6 @@ export const countBySegment = async (
 ): Promise<ICountBy> => {
   // Count cocs by segments
   let segments: any[] = [];
-
-  // ! below msg converted
-  // segments = await sendSegmentMessage('find', { contentType: 'conversation' }, true);
 
   segments = await sendSegmentsMessage({
     subdomain,
@@ -198,9 +192,6 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
   // filter by segment
   public async segmentFilter(segmentId: string) {
-    // ! below msg converted
-    // const segment = await sendSegmentMessage('findOne', { _id: segmentId }, true);
-
     const segment = await sendSegmentsMessage({
       subdomain: this.subdomain,
       action: 'findOne',
@@ -209,9 +200,6 @@ export class CommonBuilder<IArgs extends IListArgs> {
       },
       isRPC: true
     });
-
-    // ! below msg converted
-    // const selector = await fetchSegment(segment, { returnSelector: true });
 
     const selector = await sendSegmentsMessage({
       subdomain: this.subdomain,

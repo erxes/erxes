@@ -10,7 +10,7 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 
-// import utils, { checkUserIds } from '../../utils';
+// ? import utils, { checkUserIds } from '../../utils';
 import { checkUserIds } from '@erxes/api-utils/src';
 import { sendCoreMessage, sendNotificationsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
@@ -34,22 +34,6 @@ export const sendChannelNotifications = async (
   if (type === 'removed') {
     action = `removed you from`;
   }
-
-  // ! below msg converted
-  // return sendMessage('notifications:send', {
-  //   contentType: 'channel',
-  //   contentTypeId: channel._id,
-  //   createdUser: user,
-  //   notifType: 'channelMembersChange',
-  //   title: `Channel updated`,
-  //   action,
-  //   content: `${channel.name} channel`,
-  //   link: `/inbox/index?channelId=${channel._id}`,
-
-  //   // exclude current user
-  //   receivers:
-  //     receivers || (channel.memberIds || []).filter(id => id !== channel.userId)
-  // })
 
   return sendNotificationsMessage({
     subdomain,
@@ -134,8 +118,6 @@ const channelMutations = {
       (channel.integrationIds || []).toString() !==
       (updated.integrationIds || []).toString()
     ) {
-      // ! below msg converted
-      // sendMessage('registerOnboardHistory', { type: 'connectIntegrationsToChannel', user });
       sendCoreMessage({
         subdomain,
         action: 'registerOnboardHistory',

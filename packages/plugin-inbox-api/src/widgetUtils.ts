@@ -26,8 +26,6 @@ export const getOrCreateEngageMessage = async (
   let customer;
 
   if (customerId) {
-    // ! below msg converted
-    // customer = await sendContactRPCMessage('findCustomer', {_id: customerId});
     customer = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
@@ -50,15 +48,6 @@ export const getOrCreateEngageMessage = async (
   const brand = await coreModels.Brands.getBrand({ _id: integration.brandId || "" });
 
   // try to create engage chat auto messages
-  // ! below msg converted
-  // await sendEngageMessage('createVisitorOrCustomerMessages', {
-  //   brandId: brand._id,
-  //   integrationId: integration._id,
-  //   customer,
-  //   visitorId,
-  //   browserInfo,
-  // });
-
   await sendEngagesMessage({
     subdomain,
     action: 'createVisitorOrCustomerMessages',
@@ -87,12 +76,6 @@ export const receiveVisitorDetail = async (subdomain: string, visitor) => {
 
   delete visitor.visitorId;
   delete visitor._id;
-
-  // ! below msg converted
-  // const customer = await sendContactRPCMessage('updateCustomerCommon',{
-  //   selector: { visitorId },
-  //   modifier: { $set: visitor }
-  // })
 
   const customer = await sendContactsMessage({
     subdomain,
@@ -146,17 +129,6 @@ const createCustomer = async (
   customerDoc: any,
   brandId?: string
 ) => {
-  // ! below msg converted
-  // return sendContactRPCMessage('create_customer', {
-  //   integrationId,
-  //   primaryEmail: customerDoc.email || "",
-  //   emails: [customerDoc.email || ""],
-  //   firstName: customerDoc.firstName || "",
-  //   lastName: customerDoc.lastName || "",
-  //   middleName: customerDoc.middleName || "",
-  //   primaryPhone: customerDoc.phone || "",
-  //   scopeBrandIds: [brandId || ""],
-  // });
 
   return sendContactsMessage({
     subdomain,
@@ -252,9 +224,6 @@ export const updateCustomerFromForm = async (
     }
     customerDoc.links = links;
   }
-
-  // ! below msg converted
-  // await sendContactRPCMessage('updateCustomer', { _id: customer._id, doc: customerDoc });
 
   await sendContactsMessage({
     subdomain,
@@ -428,13 +397,6 @@ export const solveSubmissions = async (models: IModels, coreModels: ICoreIModels
     }
 
     if (groupId === "default") {
-      // ! below msg converted
-      // cachedCustomer = await sendContactRPCMessage('getWidgetCustomer', {
-      //   integrationId,
-      //   cachedCustomerId,
-      //   email: customerDoc.email || "",
-      //   phone: customerDoc.phone || "",
-      // });
 
       cachedCustomer = await sendContactsMessage({
         subdomain,
@@ -476,11 +438,6 @@ export const solveSubmissions = async (models: IModels, coreModels: ICoreIModels
         companyId: "",
       };
     } else {
-      // ! below msg converted
-      // let customer = await sendContactRPCMessage('findCustomer', {
-      //   customerPrimaryEmail: customerDoc.email || "",
-      //   customerPrimaryPhone: customerDoc.phone || "",
-      // });
 
       let customer = await sendContactsMessage({
         subdomain,
@@ -526,13 +483,6 @@ export const solveSubmissions = async (models: IModels, coreModels: ICoreIModels
       continue;
     }
 
-    // ! below msg converted
-    // let company = await sendContactRPCMessage('findCompany', {
-    //   companyPrimaryName: companyDoc.primaryName || "",
-    //   companyPrimaryEmail: companyDoc.primaryEmail || "",
-    //   companyPrimaryPhone: companyDoc.primaryPhone || "",
-    // });
-
     let company = await sendContactsMessage({
       subdomain,
       action: 'companies.findOne',
@@ -547,8 +497,6 @@ export const solveSubmissions = async (models: IModels, coreModels: ICoreIModels
     companyDoc.scopeBrandIds = [integration.brandId || ""];
 
     if (!company) {
-      // ! below msg converted
-      // company = await sendContactRPCMessage('createCompany', companyDoc);
       company = await sendContactsMessage({
         subdomain,
         action: "companies.createCompany",
@@ -582,8 +530,6 @@ export const solveSubmissions = async (models: IModels, coreModels: ICoreIModels
       );
     }
 
-    // ! below msg converted
-    // company = await sendContactRPCMessage('updateCompany', { _id: company._id, doc: companyDoc });
     company = await sendContactsMessage({
       subdomain,
       action: 'companies.updateCompany',
@@ -598,11 +544,6 @@ export const solveSubmissions = async (models: IModels, coreModels: ICoreIModels
     if (
       company.scopeBrandIds.findIndex((e) => e === integration.brandId) === -1
     ) {
-      // ! below msg converted
-      // await sendContactRPCMessage('updateCompanyCommon', {
-      //   selector: { _id: company._id },
-      //   modifier: { $push: { scopeBrandIds: integration.brandId } }
-      // })
       await sendContactsMessage({
         subdomain,
         action: 'companies.updateCommon',
@@ -631,16 +572,6 @@ export const solveSubmissions = async (models: IModels, coreModels: ICoreIModels
       relTypeIds.push(customerId);
     }
 
-    // ! below msg converted
-    // if (key !== "default" && companyId && customerId) {
-    //   sendConformityMessage('addConformity', {
-    //     mainType: "company",
-    //     mainTypeId: companyId,
-    //     relType: "customer",
-    //     relTypeId: customerId,
-    //   })
-    // }
-
     if (key !== "default" && companyId && customerId) {
       await sendCoreMessage({
         subdomain,
@@ -662,14 +593,6 @@ export const solveSubmissions = async (models: IModels, coreModels: ICoreIModels
 
   if (mainCompanyId !== "" && relTypeIds.length > 0) {
     for (const relTypeId of relTypeIds) {
-      // ! below msg converted
-      // sendConformityMessage('addConformity', {
-      //   mainType: "company",
-      //   mainTypeId: mainCompanyId,
-      //   relType: "customer",
-      //   relTypeId,
-      // })
-
       await sendCoreMessage({
         subdomain,
         action: 'conformities.addConformity',

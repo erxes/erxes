@@ -67,11 +67,6 @@ export default {
   ) {
     if (integration.kind.includes('facebook')) {
       try {
-        // ! below msg converted
-        // return sendRPCMessage('integrations:rpc_queue:getFacebookStatus', {
-        //   integrationId: integration._id
-        // })
-
         return sendIntegrationsMessage({
           subdomain,
           action: 'getFacebookStatus',

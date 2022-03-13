@@ -79,12 +79,6 @@ const createIntegration = async (
 
   telemetry.trackCli('integration_created', { type });
 
-  // ! below msg converted
-  // sendMessage('registerOnboardHistory', {
-  //   type: `${type}IntegrationCreated`,
-  //   user
-  // });
-
   await sendCoreMessage({
     subdomain,
     action: 'registerOnboardHistory',
@@ -268,17 +262,6 @@ const integrationMutations = {
 
     try {
       if (KIND_CHOICES.WEBHOOK !== kind) {
-        // ! below msg converted
-        // await sendRPCMessage('integrations:rpc_queue:createIntegration', {
-        //   kind,
-        //   doc: {
-        //     accountId: doc.accountId,
-        //     kind: doc.kind,
-        //     integrationId: integration._id,
-        //     data: data ? JSON.stringify(data) : ''
-        //   }
-        // })
-
         await sendIntegrationsMessage({
           subdomain,
           action: 'createIntegration',
@@ -396,11 +379,6 @@ const integrationMutations = {
           'webhook'
         ].includes(integration.kind)
       ) {
-        // ! below msg converted
-        // await sendRPCMessage('integrations:rcp_queue:removeIntegrations', {
-        //   integrationid: _id
-        // })
-        
         await sendIntegrationsMessage({
           subdomain,
           action: 'removeIntegrations',
@@ -429,15 +407,6 @@ const integrationMutations = {
    */
   async integrationsRemoveAccount(_root, { _id }: { _id: string }, { models, subdomain }: IContext) {
     try {
-      // ! below msg converted
-      // const { erxesApiIds } = await sendRPCMessage(
-      //   'rpc_queue:api_to_integrations',
-      //   {
-      //     action: 'remove-account',
-      //     data: { _id }
-      //   }
-      // );
-
       const { erxesApiIds } = await sendIntegrationsMessage({
         subdomain,
         action: "api_to_integrations",
@@ -477,9 +446,6 @@ const integrationMutations = {
       ? { _id: customerId }
       : { status: { $ne: 'deleted' }, emails: { $in: doc.to } };
 
-    // ! below msg converted
-    // customer = await sendContactRPCMessage('findCustomer', selector);
-
     customer = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
@@ -489,12 +455,6 @@ const integrationMutations = {
 
     if (!customer) {
       const [primaryEmail] = doc.to;
-
-      // ! below msg converted
-      // customer = await sendContactRPCMessage('create_customer', {
-      //   state: 'lead',
-      //   primaryEmail
-      // });
 
       customer = await sendContactsMessage({
         subdomain,
@@ -522,15 +482,6 @@ const integrationMutations = {
     doc.body = replacedContent || '';
 
     try {
-      // ! below msg converted
-      // await sendRPCMessage('integrations:rcp_queue:sendEmail', {
-      //   kind,
-      //   doc: {
-      //     erxesApiId,
-      //     data: JSON.stringify(doc)
-      //   }
-      // })
-
       await sendIntegrationsMessage({
         subdomain,
         action: 'sendEmail',
@@ -548,11 +499,6 @@ const integrationMutations = {
       debug.error(e);
       throw e;
     }
-
-    // ! below msg converted
-    // const customerIds = await sendContactRPCMessage("getCustomerIds", {
-    //   primaryEmail: { $in: doc.to }
-    // })
 
     const customerIds = await sendContactsMessage({
       subdomain,
@@ -605,11 +551,6 @@ const integrationMutations = {
     args: ISmsParams,
     { user, subdomain }: IContext
   ) {
-    // ! below msg converted
-    // const customer = await sendContactRPCMessage('findCustomer', {
-    //   primaryPhone: args.to
-    // });
-
     const customer = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
@@ -627,9 +568,6 @@ const integrationMutations = {
     }
 
     try {
-      // ! below msg converted
-      // const response = await sendRPCMessage('integrations:rpc_queue:sendSms', args)
-
       const response = await sendIntegrationsMessage({
         subdomain,
         action: "sendSms",
@@ -730,12 +668,6 @@ const integrationMutations = {
 
     telemetry.trackCli('integration_created', { type: 'lead' });
 
-    // ! below msg converted
-    // sendMessage('registerOnboardHistory', {
-    //   type: 'leadIntegrationCreate',
-    //   user
-    // });
-    
     await sendCoreMessage({
       subdomain,
       action: 'registerOnboardHistory',

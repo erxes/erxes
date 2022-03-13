@@ -14,11 +14,6 @@ export default {
       count?: number;
     }> = [];
 
-    // ! below msg converted
-    // const mainCategory = await sendProductCategoryRPCMessage('findOne', {
-    //   _id: booking.productCategoryId
-    // })
-
     const mainCategory = await sendProductsMessage({
       subdomain,
       action: "categories.findOne",
@@ -27,16 +22,6 @@ export default {
       },
       isRPC: true
     })
-
-    // ! below msg converted
-    // const allCategories = await sendProductCategoryRPCMessage('find', {
-    //   query: {
-    //   },
-    //   regData: mainCategory.order,
-    //   sort: {
-    //     name: 1
-    //   }
-    // })
 
     const allCategories = await sendProductsMessage({
       subdomain,
@@ -50,15 +35,6 @@ export default {
       },
       isRPC: true
     });
-
-    // ! below msg converted
-    // const allProducts = await sendProductRPCMessage('find', {
-    //   query: {
-    //     categoryId: { $in: allCategories.map(cat => cat._id) },
-    //     status: { $ne: 'deleted' },
-    //   },
-    //   sort: { name: 1 }
-    // })
 
     const allProducts = await sendProductsMessage({
       subdomain,

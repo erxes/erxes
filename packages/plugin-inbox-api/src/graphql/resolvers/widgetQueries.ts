@@ -333,16 +333,6 @@ export default {
   },
 
   async widgetsBookingProductWithFields(_root, { _id }: { _id: string }, { subdomain }: IContext) {
-    // ! below msg converted
-    // const fields = await sendRPCMessage('rpc_queue:Fields.find', {
-    //   query: {
-    //     contentType: 'product'
-    //   },
-    //   sort: {
-    //     order: 1
-    //   }
-    // });
-
     const fields = await sendFormsMessage({
       subdomain,
       action: 'fields.find',

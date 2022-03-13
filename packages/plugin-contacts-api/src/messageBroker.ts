@@ -164,12 +164,12 @@ export const initBroker = (cl) => {
 
   consumeQueue(
     "contacts:customers.removeCustomers",
-    async ({ subdomain, data }) => {
+    async ({ subdomain, data: { customerIds } }) => {
       const models = await generateModels(subdomain);
 
       return {
         status: "success",
-        data: await models.Customers.removeCustomers(data),
+        data: await models.Customers.removeCustomers(customerIds),
       };
     }
   );

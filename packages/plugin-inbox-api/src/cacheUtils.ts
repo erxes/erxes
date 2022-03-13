@@ -56,10 +56,6 @@ export const getDocumentList = async (
       }
 
       case 'products': {
-        // ! below msg converted
-        // list = await sendProductRPCMessage('find', {
-        //   query: {}
-        // });
         list = await sendProductsMessage({
           subdomain,
           action: 'find',
@@ -71,8 +67,6 @@ export const getDocumentList = async (
         break;
       }
       case 'tags': {
-        // ! below msg converted
-        // list = await sendTagRPCMessage('find', {});
         list = await sendTagsMessage({
           subdomain,
           action: "find",

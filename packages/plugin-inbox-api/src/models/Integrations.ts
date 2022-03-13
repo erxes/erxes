@@ -394,11 +394,6 @@ export const loadClass = (models: IModels, coreModels: ICoreIModels, subdomain: 
       await models.Conversations.deleteMany({ integrationId: _id });
 
       // Remove customers ==================
-      // ! below msg converted
-      // const customers = await sendContactRPCMessage('getCustomers', {
-      //   integrationId: _id
-      // });
-
       const customers = await sendContactsMessage({
         subdomain,
         action: "customers.find", 
@@ -410,12 +405,9 @@ export const loadClass = (models: IModels, coreModels: ICoreIModels, subdomain: 
 
       const customerIds = customers.map(cus => cus._id);
 
-      // ! below function converted
-      // await sendContactMessage('removeCustomers', customerIds);
-      
       await sendContactsMessage({
         subdomain,
-        action: "customers:removeCustomers",
+        action: "customers.removeCustomers",
         data: { customerIds },
       });
 

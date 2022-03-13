@@ -61,11 +61,6 @@ export default {
     }
 
     try {
-      // ! below msg converted
-      // const response = await sendRPCMessage('integrations:rpc_queue:getFacebookPost', {
-      //     erxesApiId: conv._id,
-      // })
-
       const response = await sendIntegrationsMessage({
         subdomain,
         action: 'getFacebookPost',
@@ -98,12 +93,6 @@ export default {
 
     if (user.isOwner || user._id === conv.assignedUserId) {
       try {
-        // ! below msg converted
-        // const response = await sendRPCMessage('integrations:rpc_queue:getCallproAudio', {
-        //   erxesApiId: conv._id,
-        //   integrationId: integration._id
-        // })
-
         const response = await sendIntegrationsMessage({
           subdomain,
           action: "getCallproAudio",
@@ -143,11 +132,6 @@ export default {
     }
 
     try {
-      // ! below msg converted
-      // const response = await sendRPCMessage('integrations:rpc_queue:getDailyActiveRoom', {
-      //   erxesApiConversationId: conversation._id
-      // })
-
       const response = await sendIntegrationsMessage({
         subdomain,
         action: "getDailyActiveRoom",
