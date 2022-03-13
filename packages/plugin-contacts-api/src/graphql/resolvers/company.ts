@@ -12,7 +12,7 @@ export default {
     _,
     { models: { Customers }, subdomain }: IContext
   ) {
-    const customerIds = await sendCoreMessage({subdomain, action: "conformities:savedConformity", data: {
+    const customerIds = await sendCoreMessage({subdomain, action: "conformities.savedConformity", data: {
       mainType: "company",
       mainTypeId: company._id,
       relTypes: ["customer"],

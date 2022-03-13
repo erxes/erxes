@@ -65,7 +65,7 @@ const removeItems = async (models: IModels, subdomain: string, type: string, sta
 
   await models.Checklists.removeChecklists(type, itemIds);
 
-  sendCoreMessage({subdomain, action: 'conformities:removeConformities', data: {
+  sendCoreMessage({subdomain, action: 'conformities.removeConformities', data: {
     mainType: type,
     mainTypeIds: itemIds
   }});

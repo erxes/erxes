@@ -251,7 +251,7 @@ export const getCompanyIds = async (
 ): Promise<string[]> => {
   const conformities = await sendCoreMessage({
     subdomain,
-    action: "conformities:findConformities",
+    action: "conformities.findConformities",
     data: {
       mainType,
       mainTypeId,
@@ -271,7 +271,7 @@ export const getCustomerIds = async (
 ): Promise<string[]> => {
   const conformities = await sendCoreMessage({
     subdomain,
-    action: "conformities:findConformities",
+    action: "conformities.findConformities",
     data: {
       mainType,
       mainTypeId,
@@ -300,7 +300,7 @@ export const destroyBoardItemRelations = async (
 
   sendCoreMessage({
     subdomain,
-    action: "conformities:removeConformity",
+    action: "conformities.removeConformity",
     data: {
       mainType: contentType,
       mainTypeId: contentTypeId,
@@ -599,7 +599,7 @@ export const conversationConvertToCard = async (
     if (conversation.customerId) {
       await sendCoreMessage({
         subdomain,
-        action: "conformities:addConformity",
+        action: "conformities.addConformity",
         data: {
           mainType: type,
           mainTypeId: item._id,

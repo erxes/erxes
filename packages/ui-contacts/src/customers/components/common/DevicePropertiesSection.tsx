@@ -36,7 +36,7 @@ class DevicePropertiesSection extends React.Component<Props> {
     secondValue?: string,
     nowrap?: boolean
   ) => {
-    const { fields, isDetail } = this.props;
+    const { fields = [], isDetail } = this.props;
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
 
     const property = fields.find(e => e.type === field);

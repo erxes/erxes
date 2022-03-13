@@ -317,7 +317,7 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
       });
       await sendCoreMessage({
         subdomain,
-        action: "conformities:removeConformities",
+        action: "conformities.removeConformities",
         data: { mainType: "company", mainTypeIds: companyIds },
       });
 
@@ -400,7 +400,7 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
       // Updating customer companies, deals, tasks, tickets
       await sendCoreMessage({
         subdomain,
-        action: "conformities:changeConformity",
+        action: "conformities.changeConformity",
         data: {
           type: "company",
           newTypeId: company._id,

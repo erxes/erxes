@@ -2,6 +2,9 @@ import tracer from 'dd-trace';
 import * as formats from 'dd-trace/ext/formats';
 import debug from 'debug';
 
+export const debugInfo = debug(`erxes:info`);
+export const debugError = debug(`erxes:error`);
+
 export const ddLogger = (message) => {
   const span = tracer.scope().active();
   const time = new Date().toISOString();

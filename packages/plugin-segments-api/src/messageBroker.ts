@@ -38,7 +38,7 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
 };
 
 export const sendConformityMessage = async (action, data): Promise<any> => {
-  return client.sendRPCMessage(`conformities:${action}`, data);
+  return client.sendRPCMessage(`conformities.${action}`, data);
 };
 
 export default function() {

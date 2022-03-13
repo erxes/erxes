@@ -248,7 +248,7 @@ export const createConformity = async (subdomain: string, {
 
   const allConformities = companyConformities.concat(customerConformities);
 
-  sendCoreMessage({ subdomain, action: 'conformities:addConformities', data: allConformities });
+  sendCoreMessage({ subdomain, action: 'conformities.addConformities', data: allConformities });
 };
 
 interface ILabelParams {
