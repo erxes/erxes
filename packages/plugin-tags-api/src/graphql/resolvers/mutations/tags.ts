@@ -2,12 +2,16 @@ import {
   checkPermission,
   requireLogin,
 } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src/types';
+import { IContext } from '../../../connectionResolver';
 
-import { Tags } from '../../../models';
 import { ITag } from '../../../models/definitions/tags';
 import { tagObject } from '../../../utils';
-import { putCreateLog, putDeleteLog, putUpdateLog, putActivityLog } from '../../../logUtils';
+import {
+  putCreateLog,
+  putDeleteLog,
+  putUpdateLog,
+  putActivityLog,
+} from '../../../logUtils';
 
 interface ITagsEdit extends ITag {
   _id: string;
@@ -19,10 +23,10 @@ const tagMutations = (serviceDiscovery) => ({
   /**
    * Creates a new tag
    */
-  async tagsAdd(_root, doc: ITag, { docModifier, user }: IContext) {
-    const tag = await Tags.createTag(docModifier(doc));
+  async tagsAdd(_root, doc: ITag, { docModifier, models, user }: IContext) {
+    const tag = await models.Tags.createTag(docModifier(doc));
 
-    await putCreateLog({ type: TAG, newData: tag, object: tag }, user);
+    await putCreateLog({ type: TAG, newData: tag, object: tag }, user, models);
 
     return tag;
   },
@@ -30,11 +34,15 @@ const tagMutations = (serviceDiscovery) => ({
   /**
    * Edits a tag
    */
-  async tagsEdit(_root, { _id, ...doc }: ITagsEdit, { user }: IContext) {
-    const tag = await Tags.getTag(_id);
-    const updated = await Tags.updateTag(_id, doc);
+  async tagsEdit(
+    _root,
+    { _id, ...doc }: ITagsEdit,
+    { models, user }: IContext
+  ) {
+    const tag = await models.Tags.getTag(_id);
+    const updated = await models.Tags.updateTag(_id, doc);
 
-    await putUpdateLog({ type: TAG, object: tag, newData: doc }, user);
+    await putUpdateLog({ type: TAG, object: tag, newData: doc }, user, models);
 
     return updated;
   },
@@ -42,11 +50,15 @@ const tagMutations = (serviceDiscovery) => ({
   /**
    * Removes a tag
    */
-  async tagsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const tag = await Tags.findOne({ _id });
-    const removed = await Tags.removeTag(_id);
+  async tagsRemove(
+    _root,
+    { _id }: { _id: string },
+    { models, user }: IContext
+  ) {
+    const tag = await models.Tags.findOne({ _id });
+    const removed = await models.Tags.removeTag(_id);
 
-    await putDeleteLog({ type: TAG, object: tag }, user);
+    await putDeleteLog({ type: TAG, object: tag }, models, user);
 
     return removed;
   },
@@ -61,13 +73,13 @@ const tagMutations = (serviceDiscovery) => ({
       targetIds,
       tagIds,
     }: { type: string; targetIds: string[]; tagIds: string[] },
-    { user }: IContext
+    { models, user }: IContext
   ) {
     // if (type === 'conversation') {
     //   publishConversationsChanged(targetIds, MODULE_NAMES.TAG);
     // }
 
-    const prevTagsCount = await Tags.find({
+    const prevTagsCount = await models.Tags.find({
       _id: { $in: tagIds },
       type,
     }).countDocuments();
@@ -88,14 +100,18 @@ const tagMutations = (serviceDiscovery) => ({
           target,
           content: { tagIds: tagIds || [] },
           createdBy: user._id,
-          action: 'tagged'
+          action: 'tagged',
         },
       });
     }
   },
 
-  tagsMerge(_root, { sourceId, destId }: { sourceId: string; destId: string }) {
-    return Tags.merge(sourceId, destId);
+  tagsMerge(
+    _root,
+    { sourceId, destId }: { sourceId: string; destId: string },
+    { models }: IContext
+  ) {
+    return models.Tags.merge(sourceId, destId);
   },
 });
 
