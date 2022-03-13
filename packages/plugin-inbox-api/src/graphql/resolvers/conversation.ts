@@ -2,7 +2,7 @@ import { debug } from '../../configs';
 import { getDocument } from '../../cacheUtils';
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
-import { sendRPCMessage } from '../../messageBroker';
+import { sendIntegrationsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
 export default {
@@ -19,8 +19,8 @@ export default {
     return conversation.customerId && { __typename: 'Customer', _id: conversation.customerId }
   },
 
-  integration(conversation: IConversationDocument, _args, { models, coreModels }: IContext) {
-    return getDocument(models, coreModels, 'integrations', { _id: conversation.integrationId });
+  integration(conversation: IConversationDocument, _args, { models, coreModels, subdomain }: IContext) {
+    return getDocument(models, coreModels, subdomain, 'integrations', { _id: conversation.integrationId });
   },
 
   user(conversation: IConversationDocument) {
@@ -49,10 +49,10 @@ export default {
   async facebookPost(
     conv: IConversationDocument,
     _args,
-    {  models, coreModels }: IContext
+    {  models, coreModels, subdomain }: IContext
   ) {
     const integration =
-      (await getDocument(models, coreModels, 'integrations', {
+      (await getDocument(models, coreModels, subdomain, 'integrations', {
         _id: conv.integrationId
       })) || {};
 
@@ -61,9 +61,19 @@ export default {
     }
 
     try {
-      const response = await sendRPCMessage('integrations:rpc_queue:getFacebookPost', {
-          erxesApiId: conv._id,
-      })
+      // ! below msg converted
+      // const response = await sendRPCMessage('integrations:rpc_queue:getFacebookPost', {
+      //     erxesApiId: conv._id,
+      // })
+
+      const response = await sendIntegrationsMessage({
+        subdomain,
+        action: 'getFacebookPost',
+        data: {
+          erxesApiId: conv._id
+        },
+        isRPC: true
+      });
 
       return response;
     } catch (e) {
@@ -75,10 +85,10 @@ export default {
   async callProAudio(
     conv: IConversationDocument,
     _args,
-    { user, models, coreModels }: IContext
+    { user, models, coreModels, subdomain }: IContext
   ) {
     const integration =
-      (await getDocument(models, coreModels, 'integrations', {
+      (await getDocument(models, coreModels, subdomain, 'integrations', {
         _id: conv.integrationId
       })) || {};
 
@@ -88,9 +98,20 @@ export default {
 
     if (user.isOwner || user._id === conv.assignedUserId) {
       try {
-        const response = await sendRPCMessage('integrations:rpc_queue:getCallproAudio', {
-          erxesApiId: conv._id,
-          integrationId: integration._id
+        // ! below msg converted
+        // const response = await sendRPCMessage('integrations:rpc_queue:getCallproAudio', {
+        //   erxesApiId: conv._id,
+        //   integrationId: integration._id
+        // })
+
+        const response = await sendIntegrationsMessage({
+          subdomain,
+          action: "getCallproAudio",
+          data: {
+            erxesApiId: conv._id,
+            integrationId: integration._id
+          },
+          isRPC: true
         })
 
         return response ? response.audioSrc : '';
@@ -110,7 +131,7 @@ export default {
   async videoCallData(
     conversation: IConversationDocument,
     _args,
-    { models }: IContext
+    { models, subdomain }: IContext
   ) {
     const message = await models.ConversationMessages.findOne({
       conversationId: conversation._id,
@@ -122,8 +143,18 @@ export default {
     }
 
     try {
-      const response = await sendRPCMessage('integrations:rpc_queue:getDailyActiveRoom', {
-        erxesApiConversationId: conversation._id
+      // ! below msg converted
+      // const response = await sendRPCMessage('integrations:rpc_queue:getDailyActiveRoom', {
+      //   erxesApiConversationId: conversation._id
+      // })
+
+      const response = await sendIntegrationsMessage({
+        subdomain,
+        action: "getDailyActiveRoom",
+        data: {
+          erxesApiConversationId: conversation._id
+        },
+        isRPC: true
       })
 
       return response;
@@ -133,9 +164,9 @@ export default {
     }
   },
 
-  async isFacebookTaggedMessage(conversation: IConversationDocument, _args, { models, coreModels }: IContext) {
+  async isFacebookTaggedMessage(conversation: IConversationDocument, _args, { models, coreModels, subdomain }: IContext) {
     const integration =
-      (await getDocument(models, coreModels, 'integrations', {
+      (await getDocument(models, coreModels, subdomain, 'integrations', {
         _id: conversation.integrationId
       })) || {};
 

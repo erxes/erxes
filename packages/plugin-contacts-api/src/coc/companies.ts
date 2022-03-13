@@ -30,8 +30,8 @@ export interface IListArgs extends IConformityQueryParams {
 }
 
 export class Builder extends CommonBuilder<IListArgs> {
-  constructor(models: IModels, coreModels: ICoreIModels, params: IListArgs, context) {
-    super(models, coreModels, 'companies', params, context);
+  constructor(models: IModels, coreModels: ICoreIModels, subdomain: string, params: IListArgs, context) {
+    super(models, coreModels, subdomain, 'companies', params, context);
   }
 
   public async findAllMongo(limit: number) {

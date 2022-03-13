@@ -2,7 +2,7 @@ import { debug } from '../../configs';
 import { getDocument } from '../../cacheUtils';
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
-import { sendRPCMessage } from '../../messageBroker';
+import { sendIntegrationsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
 export default {
@@ -14,7 +14,7 @@ export default {
     return message.customerId && { __typename: 'Customer', _id: message.customerId }
   },
 
-  async mailData(message: IMessageDocument, _args, { models, coreModels }: IContext ) {
+  async mailData(message: IMessageDocument, _args, { models, coreModels, subdomain }: IContext ) {
     const conversation = await models.Conversations.findOne({
       _id: message.conversationId
     }).lean();
@@ -23,7 +23,7 @@ export default {
       return null;
     }
 
-    const integration = await getDocument(models, coreModels, 'integrations', {
+    const integration = await getDocument(models, coreModels, subdomain, 'integrations', {
       _id: conversation.integrationId
     });
 
@@ -42,20 +42,32 @@ export default {
       ? `/nylas/get-message`
       : `/${kind}/get-message`;
 
-    return sendRPCMessage('rpc_queue:api_to_integrations', {
-      action: 'getMessage',
+    // ! below msg converted
+    // return sendRPCMessage('rpc_queue:api_to_integrations', {
+    //   action: 'getMessage',
+    //   data: {
+    //     erxesApiMessageId: message._id,
+    //     integrationId: integration._id,
+    //     path
+    //   }
+    // })
+    return sendIntegrationsMessage({
+      subdomain,
+      action: 'api_to_integrations',
       data: {
+        action: 'getMessage',
         erxesApiMessageId: message._id,
         integrationId: integration._id,
         path
-      }
-    })
+      },
+      isRPC: true
+    });
   },
 
   async videoCallData(
     message: IMessageDocument,
     _args,
-    { models }: IContext
+    { models, subdomain }: IContext
   ) {
     const conversation = await models.Conversations.findOne({
       _id: message.conversationId
@@ -70,8 +82,18 @@ export default {
     }
 
     try {
-      const response = await sendRPCMessage('integrations:rpc_queue:getDailyRoom', {
-        erxesApiMessageId: message._id
+      // ! below msg converted
+      // const response = await sendRPCMessage('integrations:rpc_queue:getDailyRoom', {
+      //   erxesApiMessageId: message._id
+      // })
+
+      const response = await sendIntegrationsMessage({
+        subdomain,
+        action: "getDailyRoom",
+        data: {
+          erxesApiMessageId: message._id
+        },
+        isRPC: true
       })
 
       return response;

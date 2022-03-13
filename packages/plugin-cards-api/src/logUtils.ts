@@ -39,8 +39,8 @@ type BoardItemDocument =
 const findUsers = async (subdomain: string, ids: string[]) => {
   return sendCoreMessage({
     subdomain,
-    action: "findUsers",
-    data: { query: { _id: { $in: ids } } },
+    action: "users.find",
+    data: { _id: { $in: ids } },
     isRPC: true,
   });
 };

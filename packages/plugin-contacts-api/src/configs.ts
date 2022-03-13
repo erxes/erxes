@@ -14,7 +14,7 @@ import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
 import { buildFile } from './exporter';
 import segments from './segments';
 import forms from './forms';
-import { coreModels, generateModels, models } from './connectionResolver';
+import { coreModels, generateCoreModels, generateModels, getSubdomain } from './connectionResolver';
 import logConsumers from './logConsumers';
 
 export let mainDb;
@@ -144,9 +144,12 @@ export default {
     forms,
     logs: { consumers: logConsumers }
   },
-  apolloServerContext: context => {
-    context.models = models;
-    context.coreModels = coreModels;
+  apolloServerContext: async (context) => {
+    const subdomain = 'os';
+
+    context.models = await generateModels(subdomain);
+    context.coreModels = await generateCoreModels(subdomain);
+    context.subdomain = subdomain;
   },
   onServerInit: async options => {
     const app = options.app;
@@ -159,14 +162,16 @@ export default {
       routeErrorHandling(async (req: any, res) => {
         const { query, user } = req;
         const { segment } = query;
+        const subdomain = getSubdomain(req.hostname);
+        const models = await generateModels(subdomain);
 
-        const result = await buildFile(models, coreModels, query, user);
+        const result = await buildFile(models, coreModels, subdomain, query, user);
 
         res.attachment(`${result.name}.xlsx`);
 
         if (segment) {
           try {
-            sendSegmentsMessage('removeSegment', { segmentId: segment });
+            sendSegmentsMessage({ subdomain, action: 'removeSegment', data: { segmentId: segment } });
           } catch (e) {
             console.log((e as Error).message);
           }
@@ -199,8 +204,10 @@ export default {
       routeErrorHandling(
         async (req, res) => {
           const { args } = req.body;
+          const subdomain = getSubdomain(req.hostname);
+          const models = await generateModels(subdomain);
 
-          const response = await identifyCustomer(args);
+          const response = await identifyCustomer(models, subdomain, args);
           return res.json(response);
         },
         res => res.json({})
@@ -211,6 +218,9 @@ export default {
       '/events-update-customer-property',
       routeErrorHandling(
         async (req, res) => {
+          const subdomain = getSubdomain(req.hostname);
+          const models = await generateModels(subdomain);
+
           const response = await updateCustomerProperty(models, req.body);
           return res.json(response);
         },

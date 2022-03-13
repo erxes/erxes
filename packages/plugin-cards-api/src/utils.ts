@@ -159,7 +159,7 @@ export const collectItems = async (
 
   const relatedItemIds = await sendCoreMessage({
     subdomain,
-    action: "savedConformity",
+    action: "conformities.savedConformity",
     data: {
       mainType: contentType,
       mainTypeId: contentId,

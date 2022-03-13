@@ -1,7 +1,6 @@
 import { Model, model } from 'mongoose';
 
 import { IBrowserInfo } from "@packages/api-utils/src/definitions/common";
-import { IUserDocument } from "@packages/api-core/src/db/models/definitions/users";
 import { ICustomerDocument } from "@packages/plugin-contacts-api/src/models/definitions/customers";
 import { findUser } from '../engageUtils';
 import messageBroker, {
@@ -73,7 +72,7 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
     customerId?: string;
     visitorId?: string;
     integrationId: string;
-    user: IUserDocument;
+    user;
     engageData: IEngageData;
     replacedContent: string;
   }): Promise<IMessageDocument | null>;
@@ -401,7 +400,7 @@ export const loadClass = () => {
       customerId?: string;
       visitorId?: string;
       integrationId: string;
-      user: IUserDocument;
+      user;
       engageData: IEngageData;
       replacedContent: string;
     }) {

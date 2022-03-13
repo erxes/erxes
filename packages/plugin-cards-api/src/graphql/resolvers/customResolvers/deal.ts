@@ -82,7 +82,7 @@ export default {
   async companies(deal: IDealDocument, _args, { subdomain }: IContext) {
     const companyIds = await sendCoreMessage({
       subdomain,
-      action: "savedConformity",
+      action: "conformities.savedConformity",
       data: {
         mainType: "deal",
         mainTypeId: deal._id,
@@ -93,10 +93,8 @@ export default {
 
     const activeCompanies = await sendContactsMessage({
       subdomain,
-      action: "findActiveCompanies",
-      data: {
-        selector: { _id: { $in: companyIds } },
-      },
+      action: "companies.findActiveCompanies",
+      data: { _id: { $in: companyIds } },
       isRPC: true,
       defaultValue: [],
     });
@@ -110,7 +108,7 @@ export default {
   async customers(deal: IDealDocument, _args, { subdomain }: IContext) {
     const customerIds = await sendCoreMessage({
       subdomain,
-      action: "savedConformity",
+      action: "conformities.savedConformity",
       data: {
         mainType: "deal",
         mainTypeId: deal._id,
@@ -122,10 +120,8 @@ export default {
 
     const activeCustomers = await sendContactsMessage({
       subdomain,
-      action: "findActiveCustomers",
-      data: {
-        selector: { _id: { $in: customerIds } },
-      },
+      action: "customers.findActiveCustomers",
+      data: { _id: { $in: customerIds } },
       isRPC: true,
       defaultValue: [],
     });

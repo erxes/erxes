@@ -114,11 +114,11 @@ export const initBroker = async (cl) => {
 
   const { consumeRPCQueue, consumeQueue } = cl;
 
-  consumeQueue("notifications:send", async (doc) => {
-    await sendNotification(doc);
+  consumeQueue("notifications:send", async ({ data }) => {
+    await sendNotification(data);
   });
 
-  consumeQueue("notifications:batchUpdate", async (selector, modifier) => {
+  consumeQueue("notifications:batchUpdate", async ({ data: { selector, modifier} }) => {
     await Notifications.update(
       selector,
       modifier,
@@ -126,7 +126,7 @@ export const initBroker = async (cl) => {
     );
   });
 
-  consumeRPCQueue('notifications:rpc_queue:checkIfRead', async ({ userId, itemId }) => ({
+  consumeRPCQueue('notifications:checkIfRead', async ({ data: { userId, itemId }}) => ({
     status: 'success',
     data: await Notifications.checkIfRead(
       userId,
@@ -134,7 +134,7 @@ export const initBroker = async (cl) => {
     ),
   }));
 
-  consumeRPCQueue('notifications:rpc_queue:find', async (selector, fields) => ({
+  consumeRPCQueue('notifications:find', async ({ data: { selector, fields }}) => ({
     status: 'success',
     data: await Notifications.find(
       selector,

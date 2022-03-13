@@ -83,7 +83,7 @@ const taskQueries = {
 
     const relatedTaskIds = await sendCoreMessage({
       subdomain,
-      action: "savedConformity",
+      action: "conformities.savedConformity",
       data: {
         mainType: contentType,
         mainTypeId: contentId,

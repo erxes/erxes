@@ -30,8 +30,14 @@ export interface IContext extends IMainContext {
 export let models: IModels;
 export let coreModels: ICoreIModels;
 
-export const generateModels = async (
+export const generateCoreModels = async (
   _hostnameOrSubdomain: string
+): Promise<ICoreIModels> => {
+  return coreModels;
+};
+
+export const generateModels = async (
+  hostnameOrSubdomain: string
 ): Promise<IModels> => {
   if (models) {
     return models;
@@ -39,9 +45,13 @@ export const generateModels = async (
 
   coreModels = await connectCore();
 
-  loadClasses(mainDb);
+  loadClasses(mainDb, hostnameOrSubdomain);
 
   return models;
+};
+
+export const getSubdomain = (hostname: string): string => {
+  return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
 };
 
 export const connectCore = async () => {
@@ -72,12 +82,12 @@ export const connectCore = async () => {
   return coreModels;
 }
 
-export const loadClasses = (db: mongoose.Connection): IModels => {
+export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels => {
   models = {} as IModels;
   
-  models.Customers = db.model<ICustomerDocument, ICustomerModel>('customers', loadCustomerClass(models));  
+  models.Customers = db.model<ICustomerDocument, ICustomerModel>('customers', loadCustomerClass(models, subdomain));  
   
-  models.Companies = db.model<ICompanyDocument, ICompanyModel>('companies', loadCompanyClass(models));
+  models.Companies = db.model<ICompanyDocument, ICompanyModel>('companies', loadCompanyClass(models, subdomain));
 
   return models;
 };

@@ -231,5 +231,5 @@ export const sendMessage = async (args: { client: any, serviceDiscovery: any, se
     throw new Error(`${serviceName} service is not available`);
   }
 
-  return client.sendMessage(`${serviceName}:${action}`, { subdomain, data });
+  return client[isRPC ? 'sendRPCMessage' : 'sendMessage'](`${serviceName}:${action}`, { subdomain, data });
 };

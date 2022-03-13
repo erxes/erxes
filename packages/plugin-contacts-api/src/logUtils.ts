@@ -9,7 +9,7 @@ import {
   IDescriptions,
 } from '@erxes/api-utils/src/logUtils';
 import { ICompanyDocument } from './models/definitions/companies';
-import messageBroker, { sendInboxMessage, sendTagsMessage } from './messageBroker';
+import messageBroker, { sendCoreMessage, sendInboxMessage, sendTagsMessage } from './messageBroker';
 import { MODULE_NAMES } from './constants';
 import { ICustomerDocument } from './models/definitions/customers';
 import { IModels } from './connectionResolver';
@@ -20,15 +20,19 @@ export const LOG_ACTIONS = {
   DELETE: 'delete',
 };
 
-const findUsers = async (ids: string[]) => {
-  return await messageBroker().sendRPCMessage(
-    'core:rpc_queue:findMongoDocuments',
-    { query: { _id: { $in: ids } }, name: 'Users' }
-  ) || [];
+const findUsers = async (subdomain, ids: string[]) => {
+  return sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: { _id: { $in: ids } },
+    isRPC: true,
+    defaultValue: []
+  }) || [];
 };
 
 const gatherCompanyFieldNames = async (
-  { Companies }: IModels,
+  models: IModels,
+  subdomain: string,
   doc: ICompanyDocument,
   prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
@@ -43,7 +47,7 @@ const gatherCompanyFieldNames = async (
       foreignKey: 'parentCompanyId',
       prevList: options,
       nameFields: ['primaryName'],
-      items: await Companies.find({ _id: { $in: [doc.parentCompanyId] } }).lean()
+      items: await models.Companies.find({ _id: { $in: [doc.parentCompanyId] } }).lean()
     });
   }
 
@@ -51,7 +55,7 @@ const gatherCompanyFieldNames = async (
     options = await gatherUsernames({
       foreignKey: 'ownerId',
       prevList: options,
-      items: await findUsers([doc.ownerId])
+      items: await findUsers(subdomain, [doc.ownerId])
     });
   }
 
@@ -60,7 +64,7 @@ const gatherCompanyFieldNames = async (
       foreignKey: 'mergedIds',
       prevList: options,
       nameFields: ['primaryName'],
-      items: await Companies.find({ _id: { $in: doc.mergedIds} }).lean()
+      items: await models.Companies.find({ _id: { $in: doc.mergedIds} }).lean()
     });
   }
 
@@ -69,7 +73,7 @@ const gatherCompanyFieldNames = async (
       foreignKey: 'tagIds',
       prevList: options,
       nameFields: ['name'],
-      items: await sendTagsMessage('find', { _id: { $in: doc.tagIds } }, true)
+      items: await sendTagsMessage({ subdomain, action: 'find', data: { _id: { $in: doc.tagIds } }, isRPC: true })
     });
   }
 
@@ -77,7 +81,8 @@ const gatherCompanyFieldNames = async (
 };
 
 const gatherCustomerFieldNames = async (
-  { Customers }: IModels,
+  models: IModels,
+  subdomain: string,
   doc: ICustomerDocument,
   prevList?: LogDesc[],  
 ): Promise<LogDesc[]> => {
@@ -91,7 +96,7 @@ const gatherCustomerFieldNames = async (
     options = await gatherUsernames({
       foreignKey: 'ownerId',
       prevList: options,
-      items: await findUsers([doc.ownerId])
+      items: await findUsers(subdomain, [doc.ownerId])
     });
   }
 
@@ -100,7 +105,7 @@ const gatherCustomerFieldNames = async (
       foreignKey: 'integrationId',
       prevList: options,
       nameFields: ['name'],
-      items: await sendInboxMessage('integrations:find', { _id: { $in: [doc.integrationId] } }, true),
+      items: await sendInboxMessage({ subdomain, action: 'integrations:find', data: { _id: { $in: [doc.integrationId] } }, isRPC: true }),
     });
   }
 
@@ -109,7 +114,7 @@ const gatherCustomerFieldNames = async (
       foreignKey: 'tagIds',
       prevList: options,
       nameFields: ['name'],
-      items: await sendTagsMessage('find', { _id: { $in: doc.tagIds } })
+      items: await sendTagsMessage({ subdomain, action: 'find', data: { _id: { $in: doc.tagIds } } })
     });
   }
 
@@ -118,14 +123,14 @@ const gatherCustomerFieldNames = async (
       foreignKey: 'mergedIds',
       prevList: options,
       nameFields: ['firstName'],
-      items: await Customers.find({ _id: { $in: doc.mergedIds } }).lean()
+      items: await models.Customers.find({ _id: { $in: doc.mergedIds } }).lean()
     });
   }
 
   return options;
 };
 
-const gatherDescriptions = async (models: IModels, params: any): Promise<IDescriptions> => {
+const gatherDescriptions = async (models: IModels, subdomain: string, params: any): Promise<IDescriptions> => {
   const { action, type, object, updatedDocument } = params;
 
   let extraDesc: LogDesc[] = [];
@@ -133,19 +138,19 @@ const gatherDescriptions = async (models: IModels, params: any): Promise<IDescri
 
   switch (type) {
     case MODULE_NAMES.COMPANY:
-      extraDesc = await gatherCompanyFieldNames(models, object);
+      extraDesc = await gatherCompanyFieldNames(models, subdomain, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherCompanyFieldNames(models, updatedDocument, extraDesc);
+        extraDesc = await gatherCompanyFieldNames(models, subdomain, updatedDocument, extraDesc);
       }
 
       description = `"${object.primaryName}" has been ${action}d`;
       break;
     case MODULE_NAMES.CUSTOMER:
-      extraDesc = await gatherCustomerFieldNames(models, object);
+      extraDesc = await gatherCustomerFieldNames(models, subdomain, object);
      
       if (updatedDocument) {
-        extraDesc = await gatherCustomerFieldNames(models, updatedDocument, extraDesc);
+        extraDesc = await gatherCustomerFieldNames(models, subdomain, updatedDocument, extraDesc);
       }
 
       description = `"${object.firstName || object.lastName || object.middleName}" has been ${action}d`;
@@ -157,8 +162,8 @@ const gatherDescriptions = async (models: IModels, params: any): Promise<IDescri
   return { extraDesc, description };
 };
 
-export const putDeleteLog = async (models: IModels, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, {
+export const putDeleteLog = async (models: IModels, subdomain: string, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(models, subdomain, {
     ...logDoc,
     action: LOG_ACTIONS.DELETE,
   });
@@ -170,8 +175,8 @@ export const putDeleteLog = async (models: IModels, logDoc, user) => {
   );
 };
 
-export const putUpdateLog = async (models: IModels, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, {
+export const putUpdateLog = async (models: IModels, subdomain: string, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(models, subdomain, {
     ...logDoc,
     action: LOG_ACTIONS.UPDATE,
   });
@@ -183,8 +188,8 @@ export const putUpdateLog = async (models: IModels, logDoc, user) => {
   );
 };
 
-export const putCreateLog = async (models: IModels, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, {
+export const putCreateLog = async (models: IModels, subdomain: string, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(models, subdomain, {
     ...logDoc,
     action: LOG_ACTIONS.CREATE,
   });

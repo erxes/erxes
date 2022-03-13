@@ -21,7 +21,7 @@ import {
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
 import { debug } from '../../configs';
-import messageBroker, { sendMessage, sendContactRPCMessage, sendRPCMessage } from '../../messageBroker';
+import messageBroker, { sendMessage, sendContactsMessage, sendIntegrationsMessage } from '../../messageBroker';
 
 import { MODULE_NAMES } from '../../constants';
 import {
@@ -207,7 +207,7 @@ const integrationMutations = {
   async integrationsCreateExternalIntegration(
     _root,
     { data, ...doc }: IExternalIntegrationParams & { data: object },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const modifiedDoc: any = { ...doc };
 
@@ -257,15 +257,32 @@ const integrationMutations = {
 
     try {
       if (KIND_CHOICES.WEBHOOK !== kind) {
-        await sendRPCMessage('integrations:rpc_queue:createIntegration', {
-          kind,
-          doc: {
-            accountId: doc.accountId,
-            kind: doc.kind,
-            integrationId: integration._id,
-            data: data ? JSON.stringify(data) : ''
-          }
-        })
+        // ! below msg converted
+        // await sendRPCMessage('integrations:rpc_queue:createIntegration', {
+        //   kind,
+        //   doc: {
+        //     accountId: doc.accountId,
+        //     kind: doc.kind,
+        //     integrationId: integration._id,
+        //     data: data ? JSON.stringify(data) : ''
+        //   }
+        // })
+
+        await sendIntegrationsMessage({
+          subdomain,
+          action: 'createIntegration',
+          data: {
+            kind,
+            doc: {
+              accountId: doc.accountId,
+              kind: doc.kind,
+              integrationId: integration._id,
+              data: data ? JSON.stringify(data) : ''
+            }
+          },
+          isRPC: true
+        });
+
       }
 
       telemetry.trackCli('integration_created', { type: doc.kind });
@@ -340,7 +357,7 @@ const integrationMutations = {
   async integrationsRemove(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
 
@@ -368,9 +385,19 @@ const integrationMutations = {
           'webhook'
         ].includes(integration.kind)
       ) {
-        await sendRPCMessage('integrations:rcp_queue:removeIntegrations', {
-          integrationid: _id
-        })
+        // ! below msg converted
+        // await sendRPCMessage('integrations:rcp_queue:removeIntegrations', {
+        //   integrationid: _id
+        // })
+        
+        await sendIntegrationsMessage({
+          subdomain,
+          action: 'removeIntegrations',
+          data: {
+            integrationid: _id
+          },
+          isRPC: true
+        });      
       }
 
       await putDeleteLog(
@@ -389,15 +416,26 @@ const integrationMutations = {
   /**
    * Delete an account
    */
-  async integrationsRemoveAccount(_root, { _id }: { _id: string }, { models }: IContext) {
+  async integrationsRemoveAccount(_root, { _id }: { _id: string }, { models, subdomain }: IContext) {
     try {
-      const { erxesApiIds } = await sendRPCMessage(
-        'rpc_queue:api_to_integrations',
-        {
-          action: 'remove-account',
-          data: { _id }
-        }
-      );
+      // ! below msg converted
+      // const { erxesApiIds } = await sendRPCMessage(
+      //   'rpc_queue:api_to_integrations',
+      //   {
+      //     action: 'remove-account',
+      //     data: { _id }
+      //   }
+      // );
+
+      const { erxesApiIds } = await sendIntegrationsMessage({
+        subdomain,
+        action: "api_to_integrations",
+        data: {
+          action: "remove-account",
+          _id
+        },
+        isRPC: true
+      })
 
       for (const id of erxesApiIds) {
         await models.Integrations.removeIntegration(id);
@@ -413,7 +451,7 @@ const integrationMutations = {
   /**
    * Send mail
    */
-  async integrationSendMail(_root, args: any, { user, coreModels }: IContext) {
+  async integrationSendMail(_root, args: any, { user, coreModels, subdomain }: IContext) {
     const { erxesApiId, body, customerId, ...doc } = args;
 
     let kind = doc.kind;
@@ -428,14 +466,33 @@ const integrationMutations = {
       ? { _id: customerId }
       : { status: { $ne: 'deleted' }, emails: { $in: doc.to } };
 
-    customer = await sendContactRPCMessage('findCustomer', selector);
+    // ! below msg converted
+    // customer = await sendContactRPCMessage('findCustomer', selector);
+
+    customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: selector,
+      isRPC: true
+    })
 
     if (!customer) {
       const [primaryEmail] = doc.to;
 
-      customer = await sendContactRPCMessage('create_customer', {
-        state: 'lead',
-        primaryEmail
+      // ! below msg converted
+      // customer = await sendContactRPCMessage('create_customer', {
+      //   state: 'lead',
+      //   primaryEmail
+      // });
+
+      customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.createCustomer',
+        data: {
+          state: 'lead',
+          primaryEmail
+        },
+        isRPC: true
       });
     }
 
@@ -454,20 +511,45 @@ const integrationMutations = {
     doc.body = replacedContent || '';
 
     try {
-      await sendRPCMessage('integrations:rcp_queue:sendEmail', {
-        kind,
-        doc: {
-          erxesApiId,
-          data: JSON.stringify(doc)
-        }
-      })
+      // ! below msg converted
+      // await sendRPCMessage('integrations:rcp_queue:sendEmail', {
+      //   kind,
+      //   doc: {
+      //     erxesApiId,
+      //     data: JSON.stringify(doc)
+      //   }
+      // })
+
+      await sendIntegrationsMessage({
+        subdomain,
+        action: 'sendEmail',
+        data: {
+          kind,
+          doc: {
+            erxesApiId,
+            data: JSON.stringify(doc)
+          }
+        },
+        isRPC: true
+      });
+    
     } catch (e) {
       debug.error(e);
       throw e;
     }
 
-    const customerIds = await sendContactRPCMessage("getCustomerIds", {
-      primaryEmail: { $in: doc.to }
+    // ! below msg converted
+    // const customerIds = await sendContactRPCMessage("getCustomerIds", {
+    //   primaryEmail: { $in: doc.to }
+    // })
+
+    const customerIds = await sendContactsMessage({
+      subdomain,
+      action: "customers.getCustomerIds",
+      data: {
+        primaryEmail: { $in: doc.to }
+      },
+      isRPC: true
     })
 
     doc.userId = user._id;
@@ -510,10 +592,20 @@ const integrationMutations = {
   async integrationsSendSms(
     _root,
     args: ISmsParams,
-    { user }: IContext
+    { user, subdomain }: IContext
   ) {
-    const customer = await sendContactRPCMessage('findCustomer', {
-      primaryPhone: args.to
+    // ! below msg converted
+    // const customer = await sendContactRPCMessage('findCustomer', {
+    //   primaryPhone: args.to
+    // });
+
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        primaryPhone: args.to
+      },
+      isRPC: true
     });
 
     if (!customer) {
@@ -524,7 +616,15 @@ const integrationMutations = {
     }
 
     try {
-      const response = await sendRPCMessage('integrations:rpc_queue:sendSms', args)
+      // ! below msg converted
+      // const response = await sendRPCMessage('integrations:rpc_queue:sendSms', args)
+
+      const response = await sendIntegrationsMessage({
+        subdomain,
+        action: "sendSms",
+        data: args,
+        isRPC: true
+      })
 
       if (response && response.status === 'ok') {
         await putActivityLog({

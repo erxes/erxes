@@ -71,6 +71,7 @@ export const types = ({ products, forms }) => `
     products ?
     `
       type BookingProduct {
+        product: Product
         ${
 
           forms ?

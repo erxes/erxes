@@ -11,7 +11,7 @@ export default {
   async companies(ticket: ITicketDocument, _args, { subdomain }: IContext) {
     const companyIds = await sendCoreMessage({
       subdomain,
-      action: "savedConformity",
+      action: "conformities.savedConformity",
       data: {
         mainType: "ticket",
         mainTypeId: ticket._id,
@@ -21,9 +21,9 @@ export default {
       defaultValue: [],
     });
 
-    const companies = await sendCoreMessage({
+    const companies = await sendContactsMessage({
       subdomain,
-      action: "findActiveCompanies",
+      action: "companies.findActiveCompanies",
       data: { _id: { $in: companyIds } },
       isRPC: true,
       defaultValue: [],
@@ -35,7 +35,7 @@ export default {
   async customers(ticket: ITicketDocument, _args, { subdomain }: IContext) {
     const customerIds = await sendCoreMessage({
       subdomain,
-      action: "savedConformity",
+      action: "conformities.savedConformity",
       data: {
         mainType: "ticket",
         mainTypeId: ticket._id,
@@ -47,7 +47,7 @@ export default {
 
     const customers = await sendContactsMessage({
       subdomain,
-      action: "findActiveCustomers",
+      action: "customers.findActiveCustomers",
       data: {
         _id: { $in: customerIds },
       },

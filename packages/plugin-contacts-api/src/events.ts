@@ -2,7 +2,7 @@ import * as getUuid from "uuid-by-string";
 import { debug } from "./configs";
 import { es } from "./configs";
 import { IModels } from "./connectionResolver";
-import { client as msgBroker, sendContactsMessage } from "./messageBroker";
+import { sendContactsMessage, sendCoreMessage } from "./messageBroker";
 interface ISaveEventArgs {
   type?: string;
   name?: string;
@@ -62,10 +62,11 @@ export const saveEvent = async (args: ISaveEventArgs) => {
           customerId,
           createdAt: new Date(),
           count: 1,
-          attributes: await msgBroker.sendRPCMessage(
-            "core:Fields.generateTypedListFromMap",
-            attributes || {}
-          ),
+          attributes: await sendCoreMessage({
+            subdomain: 'os',
+            action: 'fields:generateTypedListFromMap',
+            data: attributes || {}
+          }),
         },
       },
     });
@@ -201,14 +202,15 @@ export const trackCustomEvent = (args: {
 };
 
 export const identifyCustomer = async (
-  { Customers }: IModels,
+  models: IModels,
+  subdomain: string,
   args: ICustomerIdentifyParams = {}
 ) => {
   // get or create customer
-  let customer = await sendContactsMessage("customers:getWidgetCustomer", args);
+  let customer = await sendContactsMessage({ subdomain, action: 'customers:getWidgetCustomer', data: args });
 
   if (!customer) {
-    customer = await Customers.createCustomer({
+    customer = await models.Customers.createCustomer({
       primaryEmail: args.email,
       code: args.code,
       primaryPhone: args.phone,
@@ -253,10 +255,11 @@ export const updateCustomerProperty = async (
       (customer.trackedData || []).forEach((td) => (prev[td.field] = td.value));
       prev[name] = value;
       modifier = {
-        trackedData: await msgBroker.sendRPCMessage(
-          "core:Fields.generateTypedListFromMap",
-          prev
-        ),
+        trackedData: await sendCoreMessage({
+          subdomain: 'os',
+          action: 'fields:generateTypedListFromMap',
+          data: prev
+        }),
       };
     }
   }

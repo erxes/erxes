@@ -58,6 +58,13 @@ export const initBroker = async cl => {
     }
   });
 
+  consumeRPCQueue('engages:createVisitorOrCustomerMessages', async ({ subdomain, data }) => {
+    return {
+      status: 'success',
+      data: await EngageMessages.createVisitorOrCustomerMessages(data)
+    }
+  });
+
 };
 
 export const sendRPCMessage = async (message): Promise<any> => {

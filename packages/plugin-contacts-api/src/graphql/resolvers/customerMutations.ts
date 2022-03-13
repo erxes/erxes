@@ -17,7 +17,7 @@ const customerMutations = {
   async customersAdd(
     _root,
     doc: ICustomer,
-    { user, docModifier, models }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
     const modifiedDoc = docModifier(doc);
 
@@ -25,6 +25,7 @@ const customerMutations = {
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.CUSTOMER,
         newData: modifiedDoc,
@@ -33,10 +34,10 @@ const customerMutations = {
       user
     );
 
-    sendCoreMessage("registerOnboardHistory", {
+    sendCoreMessage({ subdomain, action: "registerOnboardHistory", data: {
       type: `${customer.state}Create`,
       user,
-    });
+    } });
 
     return customer;
   },
@@ -47,13 +48,14 @@ const customerMutations = {
   async customersEdit(
     _root,
     { _id, ...doc }: ICustomersEdit,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const customer = await models.Customers.getCustomer(_id);
     const updated = await models.Customers.updateCustomer(_id, doc);
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.CUSTOMER,
         object: customer,
@@ -97,7 +99,7 @@ const customerMutations = {
   async customersRemove(
     _root,
     { customerIds }: { customerIds: string[] },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const customers = await models.Customers.find({
       _id: { $in: customerIds },
@@ -113,6 +115,7 @@ const customerMutations = {
     for (const customer of customers) {
       await putDeleteLog(
         models,
+        subdomain,
         { type: MODULE_NAMES.CUSTOMER, object: customer },
         user
       );

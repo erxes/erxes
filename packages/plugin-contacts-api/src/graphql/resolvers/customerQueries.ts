@@ -53,9 +53,9 @@ const customerQueries = {
   async customers(
     _root,
     params: IListArgs,
-    { commonQuerySelector, commonQuerySelectorElk, models, coreModels }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models, coreModels, subdomain }: IContext
   ) {
-    const qb = new BuildQuery(models, coreModels, params, {
+    const qb = new BuildQuery(models, coreModels, subdomain, params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
@@ -73,9 +73,9 @@ const customerQueries = {
   async customersMain(
     _root,
     params: IListArgs,
-    { commonQuerySelector, commonQuerySelectorElk, models, coreModels }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models, coreModels, subdomain }: IContext
   ) {
-    const qb = new BuildQuery(models, coreModels, params, {
+    const qb = new BuildQuery(models, coreModels, subdomain, params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
@@ -93,7 +93,7 @@ const customerQueries = {
   async customerCounts(
     _root,
     params: ICountParams,
-    { commonQuerySelector, commonQuerySelectorElk, models, coreModels }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models, coreModels, subdomain }: IContext
   ) {
     const { only, type, source } = params;
 
@@ -106,14 +106,14 @@ const customerQueries = {
       byLeadStatus: {}
     };
 
-    const qb = new BuildQuery(models, coreModels, params, {
+    const qb = new BuildQuery(models, coreModels, subdomain, params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
 
     switch (only) {
       case 'bySegment':
-        counts.bySegment = await countBySegment(type || 'customer', qb, source);
+        counts.bySegment = await countBySegment(subdomain, type || 'customer', qb, source);
         break;
 
       case 'byBrand':
@@ -121,7 +121,7 @@ const customerQueries = {
         break;
 
       case 'byTag':
-        counts.byTag = await countByTag(TAG_TYPES.CUSTOMER, qb);
+        counts.byTag = await countByTag(subdomain, TAG_TYPES.CUSTOMER, qb);
         break;
 
       case 'byForm':

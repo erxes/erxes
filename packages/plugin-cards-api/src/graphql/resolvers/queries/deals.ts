@@ -59,9 +59,11 @@ const dealQueries = {
 
     const products = await sendProductsMessage({
       subdomain,
-      action: "find",
+      action: 'find',
       data: {
-        _id: { $in: [...new Set(dealProductIds)] },
+        query: {
+          _id: { $in: [...new Set(dealProductIds)] }
+        }
       },
       isRPC: true,
       defaultValue: []
