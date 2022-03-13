@@ -15,7 +15,8 @@ import {
   sendContactsMessage,
   sendCardsMessage,
   sendCoreMessage,
-  sendIntegrationsMessage
+  sendIntegrationsMessage,
+  sendNotificationsMessage
 } from '../../messageBroker';
 import { graphqlPubsub } from '../../configs';
 
@@ -268,7 +269,14 @@ const sendNotifications = async (subdomain: string, {
         break;
     }
 
-    await sendMessage('notifications:send', doc);
+    // ! below msg converted
+    // await sendMessage('notifications:send', doc);
+
+    await sendNotificationsMessage({
+      subdomain,
+      action: "send",
+      data: doc,
+    })
 
     if (mobile) {
       // send mobile notification ======
@@ -435,6 +443,7 @@ const conversationMutations = {
         doc.content.length > 160 ? splitStr(doc.content, 160) : [doc.content];
 
       for (let i = 0; i < chunks.length; i++) {
+        // ! will refactor
         await sendMessage('erxes-api:integrations-notification', {
           action: 'sendConversationSms',
           payload: JSON.stringify({

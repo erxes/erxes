@@ -12,7 +12,7 @@ import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 
 // import utils, { checkUserIds } from '../../utils';
 import { checkUserIds } from '@erxes/api-utils/src';
-import { sendMessage } from '../../messageBroker';
+import { sendMessage, sendNotificationsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
 interface IChannelsEdit extends IChannel {
@@ -23,9 +23,9 @@ interface IChannelsEdit extends IChannel {
  * Send notification to all members of this channel except the sender
  */
 export const sendChannelNotifications = async (
+  subdomain: string,
   channel: IChannelDocument,
   type: 'invited' | 'removed',
-//   user: IUserDocument,
   user: any,
   receivers?: string[]
 ) => {
@@ -35,20 +35,41 @@ export const sendChannelNotifications = async (
     action = `removed you from`;
   }
 
-  return sendMessage('notifications:send', {
-    contentType: 'channel',
-    contentTypeId: channel._id,
-    createdUser: user,
-    notifType: 'channelMembersChange',
-    title: `Channel updated`,
-    action,
-    content: `${channel.name} channel`,
-    link: `/inbox/index?channelId=${channel._id}`,
+  // ! below msg converted
+  // return sendMessage('notifications:send', {
+  //   contentType: 'channel',
+  //   contentTypeId: channel._id,
+  //   createdUser: user,
+  //   notifType: 'channelMembersChange',
+  //   title: `Channel updated`,
+  //   action,
+  //   content: `${channel.name} channel`,
+  //   link: `/inbox/index?channelId=${channel._id}`,
 
-    // exclude current user
-    receivers:
-      receivers || (channel.memberIds || []).filter(id => id !== channel.userId)
-  })
+  //   // exclude current user
+  //   receivers:
+  //     receivers || (channel.memberIds || []).filter(id => id !== channel.userId)
+  // })
+
+  return sendNotificationsMessage({
+    subdomain,
+    action: 'send',
+    data: {
+      contentType: 'channel',
+      contentTypeId: channel._id,
+      createdUser: user,
+      notifType: 'channelMembersChange',
+      title: `Channel updated`,
+      action,
+      content: `${channel.name} channel`,
+      link: `/inbox/index?channelId=${channel._id}`,
+
+      // exclude current user
+      receivers:
+        receivers ||
+        (channel.memberIds || []).filter(id => id !== channel.userId)
+    }
+  });
 
 };
 
@@ -56,10 +77,10 @@ const channelMutations = {
   /**
    * Create a new channel and send notifications to its members bar the creator
    */
-  async channelsAdd(_root, doc: IChannel, { user, models }: IContext) {
+  async channelsAdd(_root, doc: IChannel, { user, models, subdomain }: IContext) {
     const channel = await models.Channels.createChannel(doc, user._id);
 
-    await sendChannelNotifications(channel, 'invited', user);
+    await sendChannelNotifications(subdomain, channel, 'invited', user);
 
     try {
       await putCreateLog(
@@ -84,7 +105,7 @@ const channelMutations = {
   async channelsEdit(
     _root,
     { _id, ...doc }: IChannelsEdit,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const channel = await models.Channels.getChannel(_id);
 
@@ -95,8 +116,8 @@ const channelMutations = {
 
     const updated = await models.Channels.updateChannel(_id, doc);
 
-    await sendChannelNotifications(channel, 'invited', user, addedUserIds);
-    await sendChannelNotifications(channel, 'removed', user, removedUserIds);
+    await sendChannelNotifications(subdomain, channel, 'invited', user, addedUserIds);
+    await sendChannelNotifications(subdomain, channel, 'removed', user, removedUserIds);
 
     await putUpdateLog(
       models,
@@ -122,12 +143,12 @@ const channelMutations = {
   /**
    * Remove a channel
    */
-  async channelsRemove(_root, { _id }: { _id: string }, { user, models }: IContext) {
+  async channelsRemove(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
     const channel = await models.Channels.getChannel(_id);
 
     await models.Channels.removeChannel(_id);
 
-    await sendChannelNotifications(channel, 'removed', user);
+    await sendChannelNotifications(subdomain, channel, 'removed', user);
 
     await putDeleteLog(models, { type: MODULE_NAMES.CHANNEL, object: channel }, user);
 

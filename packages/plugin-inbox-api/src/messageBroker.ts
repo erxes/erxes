@@ -369,6 +369,11 @@ export const sendSegmentsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessageCore({ client, serviceDiscovery, serviceName: 'segments', ...args });
 }
 
+// ? added new
+export const sendNotificationsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessageCore({ client, serviceDiscovery, serviceName: 'notifications', ...args });
+}
+
 // ! log helper
 export const findMongoDocuments = async (serviceName: string, data: any) => {
   if(!(await serviceDiscovery.isEnabled(serviceName))) {
