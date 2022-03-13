@@ -61,8 +61,6 @@ const generateFilterQuery = async (subdomain, {
 
   // filtering integrations by tag
   if (tag) {
-    // ! below msg converted
-    // const object = await sendTagRPCMessage('findOne', { _id: tag });
     const object = await sendTagsMessage({
       subdomain,
       action: 'findOne',
@@ -195,8 +193,6 @@ const integrationQueries = {
     };
 
     // Counting integrations by tag
-    // ! below msg converted
-    // const tags = await sendTagRPCMessage('find', { type: 'integration' });
     const tags = await sendTagsMessage({
       subdomain,
       action: 'find',
@@ -272,15 +268,6 @@ const integrationQueries = {
   },
 
   async integrationGetLineWebhookUrl(_root, { _id }: { _id: string }, { subdomain }: IContext) {
-    // ! below msg converted
-    // return sendRPCMessage(
-    //   'rpc_queue:api_to_integrations',
-    //   {
-    //     action: 'line-webhook',
-    //     data: { _id }
-    //   }
-    // );
-
     return sendIntegrationsMessage({
       subdomain,
       action: 'api_to_integrations',

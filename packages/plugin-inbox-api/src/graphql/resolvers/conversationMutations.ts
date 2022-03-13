@@ -85,19 +85,6 @@ const sendConversationToIntegrations = async (
     const content = strip(doc.content);
 
     try {
-      // ! below msg converted
-      // await sendRPCMessage('rpc_queue:api_to_integrations', {
-      //   action,
-      //   type,
-      //   payload: JSON.stringify({
-      //     integrationId,
-      //     conversationId,
-      //     content: content.replace(/&amp;/g, '&'),
-      //     attachments: doc.attachments || [],
-      //     tag: facebookMessageTag
-      //   })
-      // });
-
       await sendIntegrationsMessage({
         subdomain,
         action: 'api_to_integrations',
@@ -122,15 +109,6 @@ const sendConversationToIntegrations = async (
   }
 
   if (requestName) {
-    // ! below msg converted
-    // return sendRPCMessage('integrations:rpc_queue:reply', {
-    //   conversationId,
-    //   integrationId,
-    //   content: strip(doc.content),
-    //   attachments: doc.attachments || [],
-    //   requestName
-    // });
-
     return sendIntegrationsMessage({
       subdomain,
       action: 'reply',
@@ -269,9 +247,6 @@ const sendNotifications = async (subdomain: string, {
         break;
     }
 
-    // ! below msg converted
-    // await sendMessage('notifications:send', doc);
-
     await sendNotificationsMessage({
       subdomain,
       action: "send",
@@ -281,15 +256,6 @@ const sendNotifications = async (subdomain: string, {
     if (mobile) {
       // send mobile notification ======
       try {
-        // ! below msg converted
-        // await sendMessage('core:sendMobileNotification', {
-        //   title: doc.title,
-        //   body: strip(doc.content),
-        //   receivers: conversationNotifReceivers(conversation, user._id, false),
-        //   customerId: conversation.customerId,
-        //   conversationId: conversation._id
-        // });
-
         await sendCoreMessage({
           subdomain,
           action: 'sendMobileNotification',
@@ -360,11 +326,6 @@ const conversationMutations = {
     const conversationId = conversation.id;
     const facebookMessageTag = doc.facebookMessageTag;
 
-    // ! below msg converted
-    // const customer = await sendContactRPCMessage('findCustomer', {
-    //   _id: conversation.customerId
-    // });
-
     const customer = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
@@ -379,15 +340,6 @@ const conversationMutations = {
     const email = customer ? customer.primaryEmail : '';
 
     if (kind === KIND_CHOICES.LEAD && email) {
-      // ! below msg converted
-      // await sendMessage('core:sendEmail', {
-      //   toEmails: [email],
-      //   title: 'Reply',
-      //   template: {
-      //     data: doc.content
-      //   }
-      // });
-
       await sendCoreMessage({
         subdomain,
         action: 'sendEmail',
@@ -760,14 +712,6 @@ const conversationMutations = {
 
       message = await models.ConversationMessages.addMessage(doc, user._id);
 
-      // ! below msg converted
-      // const videoCallData = await sendRPCMessage('integrations:rpc_queue:createDailyRoom',
-      //   {
-      //     erxesApiConversationId: _id,
-      //     erxesApiMessageId: message._id
-      //   }
-      // );
-
       const videoCallData = await sendIntegrationsMessage({
         subdomain,
         action: 'createDailyRoom',
@@ -830,9 +774,6 @@ const conversationMutations = {
       user,
       docModifier
     };
-
-    // ! below msg converted
-    // return sendCardsRPCMessage('conversationConvert', args);
 
     return sendCardsMessage({
       subdomain,

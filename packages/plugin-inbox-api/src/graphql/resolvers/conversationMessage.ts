@@ -42,15 +42,6 @@ export default {
       ? `/nylas/get-message`
       : `/${kind}/get-message`;
 
-    // ! below msg converted
-    // return sendRPCMessage('rpc_queue:api_to_integrations', {
-    //   action: 'getMessage',
-    //   data: {
-    //     erxesApiMessageId: message._id,
-    //     integrationId: integration._id,
-    //     path
-    //   }
-    // })
     return sendIntegrationsMessage({
       subdomain,
       action: 'api_to_integrations',
@@ -82,11 +73,6 @@ export default {
     }
 
     try {
-      // ! below msg converted
-      // const response = await sendRPCMessage('integrations:rpc_queue:getDailyRoom', {
-      //   erxesApiMessageId: message._id
-      // })
-
       const response = await sendIntegrationsMessage({
         subdomain,
         action: "getDailyRoom",

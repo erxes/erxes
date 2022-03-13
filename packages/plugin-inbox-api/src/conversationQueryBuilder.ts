@@ -83,8 +83,6 @@ export default class Builder {
 
   // filter by segment
   public async segmentFilter(segmentId: string): Promise<{ _id: IIn }> {
-    // ! below msg converted
-    // const segment = await sendSegmentMessage('findOne', { _id: segmentId }, true );
     const segment = await sendSegmentsMessage({
       subdomain: this.subdomain,
       action: "findOne",
@@ -93,15 +91,6 @@ export default class Builder {
       },
       isRPC: true
     })
-
-    // ! below msg converted
-    // const selector = await fetchSegment(segment, {
-    //   returnFields: ['_id'],
-    //   page: 1,
-    //   perPage: this.params.limit ? this.params.limit + 1 : 11,
-    //   sortField: 'updatedAt',
-    //   sortDirection: -1
-    // });
 
     const selector = await sendSegmentsMessage({
       subdomain: this.subdomain,
@@ -336,8 +325,6 @@ export default class Builder {
   public async tagFilter(tagIds: string[]): Promise<{ tagIds: IIn }> {
     let ids: string[] = [];
 
-    // ! below msg converted
-    // const tags = await sendTagRPCMessage('find', { _id: { $in: tagIds } });
     const tags = await sendTagsMessage({
       subdomain: this.subdomain,
       action: 'find',

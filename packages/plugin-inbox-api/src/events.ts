@@ -200,9 +200,6 @@ export const trackCustomEvent = (coreModels: ICoreIModels, args: {
 
 export const identifyCustomer = async (subdomain: string, args: ICustomerIdentifyParams = {}) => {
   // get or create customer
-  // ! below msg converted
-  // let customer = await sendContactRPCMessage('getWidgetCustomer', args);
-
   let customer = await sendContactsMessage({
     subdomain,
     action: "customers.getWidgetCustomer",
@@ -211,13 +208,6 @@ export const identifyCustomer = async (subdomain: string, args: ICustomerIdentif
   })
 
   if (!customer) {
-    // ! below function converted
-    // customer = await sendContactRPCMessage('create_customer', {
-    //   primaryEmail: args.email,
-    //   code: args.code,
-    //   primaryPhone: args.phone
-    // });
-
     customer = await sendContactsMessage({
       subdomain,
       action: "customers.createCustomer",
@@ -262,11 +252,6 @@ export const updateCustomerProperty = async (
       'code'
     ].includes(name)
   ) {
-    // ! below msg converted
-    // const customer = await sendContactRPCMessage('findCustomer', {
-    //   _id: customerId
-    // });
-
     const customer = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
@@ -286,12 +271,6 @@ export const updateCustomerProperty = async (
       };
     }
   }
-
-  // ! below msg converted
-  // await await sendContactRPCMessage('updateCustomer', {
-  //   _id: customerId,
-  //   doc: modifier
-  // });
 
   await await sendContactsMessage({
     subdomain,

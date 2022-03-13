@@ -94,7 +94,7 @@ export const initBroker = (cl) => {
 
   // ? added new
   consumeRPCQueue(
-    'integration:integrations_to_api',
+    'inbox:integrations_to_api',
     async ({ subdomain, data }) => await receiveRpcMessage(subdomain, data)
   );
 
@@ -253,85 +253,35 @@ export const sendMessage = async (channel, message): Promise<any> => {
   return client.sendMessage(channel, message);
 };
 
-// // ! logHelper, conversation resolver, conversationMessage resolver, conversationMutations, integration resolver, integration mutations, integrationQueries, widgetMutations, widgetQueries,  
-// export const sendRPCMessage = async (channel, message): Promise<any> => {
-//   return client.sendRPCMessage(channel, message);
-// };
-
-// // ! widgetMutations and integrations model
-// export const sendContactMessage = async (action, data): Promise<any> => {
-//   return client.sendMessage(`contacts:${action}`, data);
-// };
-
 // ? added new
 export const sendContactsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessageCore({ client, serviceDiscovery, serviceName: 'contacts', ...args });
 };
-
-// // ! events, receive msg, widgetUtils, conversationMutations, integrationMutations, widgetMutations Integrations model
-// export const sendContactRPCMessage = async (action, data): Promise<any> => {
-//   return client.sendRPCMessage(`contacts:rpc_queue:${action}`, data);
-// };
-
-// // ! widgetMutations
-// export const sendFormRPCMessage = async (action, data): Promise<any> => {
-//   return client.sendRPCMessage(`forms:rpc_queue:${action}`, data);
-// };
 
 // ? added new
 export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessageCore({ client, serviceDiscovery, serviceName: "forms", ...args });
 }
 
-// // ! widgetUtils, widgetMutations
-// export const sendConformityMessage = async (action, data): Promise<any> => {
-//   return client.sendRPCMessage(`conformities:${action}`, data);
-// };
-
 // ? added new
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessageCore({ client, serviceDiscovery, serviceName: "core", ...args })
 }
-
-// // ! widgetUtils
-// export const sendEngageMessage = async (action, data): Promise<any> => {
-//   return client.sendRPCMessage(`engages:rpc_queue:${action}`, data);
-// };
 
 // ? added new
 export const sendEngagesMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessageCore({ client, serviceDiscovery, serviceName: "engages", ...args })
 }
 
-// // ! conversationMutations
-// export const sendCardsRPCMessage = async (action, data): Promise<any> => {
-//   return client.sendRPCMessage(`cards:rpc_queue:${action}`, data);
-// };
-
 // ? added new
 export const sendCardsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessageCore({ client, serviceDiscovery, serviceName: 'cards', ...args })
 }
 
-// // ! cacheUtils, bookingData, widgetMutations
-// export const sendProductRPCMessage = async (action, data): Promise<any> => {
-//   return client.sendRPCMessage(`products:rpc_queue:${action}`, data);
-// };
-
 // ? added new
 export const sendProductsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessageCore({ client, serviceDiscovery, serviceName: "products", ...args});
 }
-
-// // ! bookingData
-// export const sendProductCategoryRPCMessage = async (action, data): Promise<any> => {
-//   return client.sendRPCMessage(`productCategories:rpc_queue:${action}`, data);
-// };
-
-// // ! cacheUtils, conversationQueryBuilder, conversationUtils, integrationQueries
-// export const sendTagRPCMessage = async (action, data): Promise<any> => {
-//   return client.sendRPCMessage(`tags:rpc_queue:${action}`, data);
-// };
 
 // ? added new
 export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
@@ -346,23 +296,6 @@ export const sendIntegrationsMessage = (args: ISendMessageArgs): Promise<any> =>
 // ! widgetUtils, widgetMutations
 export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
-
-// // ! conversationQueryBuilder, conversationUtils 
-// export const fetchSegment = (segment, options?) =>
-//   sendSegmentMessage('fetchSegment', { segment, options }, true)
-
-// // ! conversationQueryBuilder, conversationUtils and above 
-// export const sendSegmentMessage = async (action, data, isRPC?: boolean) => {
-//   if (!isRPC) {
-//     return client.sendMessage(`segments:${action}`, data);
-//   }
-
-//   if(!(await serviceDiscovery.isAvailable('segments'))) {
-//     throw new Error("Segments service is not available");
-//   }
-
-//   client.sendMessage(`segments:rpc_queue:${action}`, data);
-// }
 
 // ? added new
 export const sendSegmentsMessage = (args: ISendMessageArgs): Promise<any> => {

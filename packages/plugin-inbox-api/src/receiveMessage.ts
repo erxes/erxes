@@ -46,9 +46,6 @@ export const receiveRpcMessage = async (subdomain, data) => {
     let customer;
 
     const getCustomer = async (selector) =>
-      // ! below msg converted
-      // sendContactRPCMessage('findCustomer', selector);
-      
       sendContactsMessage({
         subdomain,
         action: 'customers.findOne',
@@ -60,11 +57,6 @@ export const receiveRpcMessage = async (subdomain, data) => {
       customer = await getCustomer({ primaryPhone });
 
       if (customer) {
-        // ! below msg converted
-        // await sendContactRPCMessage('updateCustomer', {
-        //   _id: customer._id,
-        //   doc
-        // });
         await sendContactsMessage({
           subdomain,
           action: 'customers.updateCustomer',
@@ -86,12 +78,7 @@ export const receiveRpcMessage = async (subdomain, data) => {
     if (customer) {
       return sendSuccess({ _id: customer._id });
     } else {
-      // ! below msg converted
-      // customer = await sendContactRPCMessage('create_customer', {
-      //   ...doc,
-      //   scopeBrandIds: integration.brandId
-      // });
-
+      
       customer = await sendContactsMessage({
         subdomain,
         action: 'customers.createCustomer',
@@ -233,10 +220,7 @@ export const collectConversations = async ({ contentId, contentType, subdomain }
   let conversationIds;
 
   try {
-    // ! below msg converted
-    // conversationIds = await sendRPCMessage('integrations:rpc_queue:getFbCustomerPosts', {
-    //   customerId: contentId
-    // })
+    
     conversationIds = await sendIntegrationsMessage({
       subdomain,
       action: "getFbCustomerPosts",
