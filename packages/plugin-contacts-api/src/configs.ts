@@ -10,12 +10,17 @@ import {
   trackViewPageEvent,
   updateCustomerProperty
 } from './events';
-import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
 import { buildFile } from './exporter';
 import segments from './segments';
 import forms from './forms';
-import { coreModels, generateCoreModels, generateModels, getSubdomain } from './connectionResolver';
+import {
+  coreModels,
+  generateCoreModels,
+  generateModels,
+  getSubdomain
+} from './connectionResolver';
 import logConsumers from './logConsumers';
+import imports from './imports';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -136,15 +141,15 @@ export default {
       resolvers
     };
   },
-  importTypes: IMPORT_TYPES,
-  exportTypes: EXPORT_TYPES,
+
   hasSubscriptions: true,
   meta: {
+    imports,
     segments,
     forms,
     logs: { consumers: logConsumers }
   },
-  apolloServerContext: async (context) => {
+  apolloServerContext: async context => {
     const subdomain = 'os';
 
     context.models = await generateModels(subdomain);
@@ -165,13 +170,23 @@ export default {
         const subdomain = getSubdomain(req.hostname);
         const models = await generateModels(subdomain);
 
-        const result = await buildFile(models, coreModels, subdomain, query, user);
+        const result = await buildFile(
+          models,
+          coreModels,
+          subdomain,
+          query,
+          user
+        );
 
         res.attachment(`${result.name}.xlsx`);
 
         if (segment) {
           try {
-            sendSegmentsMessage({ subdomain, action: 'removeSegment', data: { segmentId: segment } });
+            sendSegmentsMessage({
+              subdomain,
+              action: 'removeSegment',
+              data: { segmentId: segment }
+            });
           } catch (e) {
             console.log((e as Error).message);
           }

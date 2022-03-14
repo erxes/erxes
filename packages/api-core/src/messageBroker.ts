@@ -10,12 +10,13 @@ import {
   EmailDeliveries
 } from './db/models';
 import { registerModule } from './data/permissions/utils';
-import { sendEmail, sendMobileNotification } from './data/utils';
+import { getAwsConfigs, sendEmail, sendMobileNotification } from './data/utils';
 import { IUserDocument } from './db/models/definitions/users';
+import ImportHistories from './db/models/ImportHistory';
 
 let client;
 
-export const initBroker = async (options) => {
+export const initBroker = async options => {
   client = await initBrokerCore(options);
 
   // do not receive messages in crons worker
@@ -75,7 +76,7 @@ export const initBroker = async (options) => {
     }));
 
     consumeRPCQueue('core:generateInternalNoteNotif', async ({ data }) => {
-      if(data.type === 'user') {
+      if (data.type === 'user') {
         const { contentTypeId, notifDoc } = data;
 
         const usr = await Users.getUser(contentTypeId);
@@ -85,13 +86,13 @@ export const initBroker = async (options) => {
         return {
           status: 'success',
           data: notifDoc
-        }
+        };
       }
 
       return {
         status: 'success',
         data: {}
-      }
+      };
     });
 
     // graphql subscriptions call =========
@@ -100,9 +101,12 @@ export const initBroker = async (options) => {
     });
 
     // listen for rpc queue =========
-    consumeQueue('core:registerOnboardHistory', async ({ data: { type, user } }) => {
-      await registerOnboardHistory(type, user);
-    });
+    consumeQueue(
+      'core:registerOnboardHistory',
+      async ({ data: { type, user } }) => {
+        await registerOnboardHistory(type, user);
+      }
+    );
 
     consumeRPCQueue('core:configs.find', async args => ({
       status: 'success',
@@ -165,46 +169,62 @@ export const initBroker = async (options) => {
       }
     );
 
-    consumeRPCQueue(
-      'core:logs:collectItems',
-      async ({ contentId }) => {
-        const deliveries = await EmailDeliveries.find({
-          customerId: contentId
-        }).lean();
-        const results: any[] = [];
+    consumeRPCQueue('core:logs:collectItems', async ({ contentId }) => {
+      const deliveries = await EmailDeliveries.find({
+        customerId: contentId
+      }).lean();
+      const results: any[] = [];
 
-        for (const d of deliveries) {
-          results.push({
-            _id: d._id,
-            contentType: 'email',
-            contentId,
-            createdAt: d.createdAt
-          });
-        }
-
-        return {
-          status: 'success',
-          data: results
-        };
+      for (const d of deliveries) {
+        results.push({
+          _id: d._id,
+          contentType: 'email',
+          contentId,
+          createdAt: d.createdAt
+        });
       }
-    );
+
+      return {
+        status: 'success',
+        data: results
+      };
+    });
 
     consumeRPCQueue('core:users.findOne', async query => ({
       status: 'success',
       data: await Users.findOne(query)
     }));
 
-    consumeRPCQueue('core:users.find', async (data) => {
+    consumeRPCQueue('core:users.find', async data => {
       const { query } = data;
 
       return {
         status: 'success',
         data: await Users.find(query)
-      }
+      };
     });
 
     consumeRPCQueue('core:brands.findOne', async query => ({
-      status: 'success', data: await Brands.findOne(query)
+      status: 'success',
+      data: await Brands.findOne(query)
+    }));
+
+    consumeRPCQueue(
+      'core:importHistory.updateOne',
+      async (condition, modifier) => ({
+        status: 'success',
+        data: await ImportHistories.updateOne(condition, modifier)
+      })
+    );
+
+    consumeRPCQueue('core:importHistory.findOne', async query => ({
+      status: 'success',
+      data: await ImportHistories.findOne(query)
+    }));
+
+    consumeRPCQueue('core:getAwsConfigs', async () => ({
+      status: 'success',
+      data: await getAwsConfigs()
     }));
   }
 

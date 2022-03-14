@@ -12,7 +12,12 @@ import { graphqlPubsub } from '../pubsub';
 import csvParser = require('csv-parser');
 import * as readline from 'readline';
 import * as _ from 'underscore';
-import { Configs, EmailDeliveries, OnboardingHistories, Users } from '../db/models';
+import {
+  Configs,
+  EmailDeliveries,
+  OnboardingHistories,
+  Users
+} from '../db/models';
 import * as Handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
 import { EMAIL_DELIVERY_STATUS } from '../db/models/definitions/constants';
@@ -57,9 +62,7 @@ const applyTemplate = async (data: any, templateName: string) => {
   return template(data);
 };
 
-export const sendEmail = async (
-  params: IEmailParams
-) => {
+export const sendEmail = async (params: IEmailParams) => {
   const {
     toEmails = [],
     fromEmail,
@@ -68,32 +71,16 @@ export const sendEmail = async (
     customHtmlData,
     template = {},
     modifier,
-    attachments,
+    attachments
   } = params;
 
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-  const DEFAULT_EMAIL_SERVICE = await getConfig(
-    'DEFAULT_EMAIL_SERVICE',
-    'SES'
-  );
-  const defaultTemplate = await getConfig(
-    'COMPANY_EMAIL_TEMPLATE'
-  );
-  const defaultTemplateType = await getConfig(
-    'COMPANY_EMAIL_TEMPLATE_TYPE'
-  );
-  const COMPANY_EMAIL_FROM = await getConfig(
-    'COMPANY_EMAIL_FROM',
-    ''
-  );
-  const AWS_SES_CONFIG_SET = await getConfig(
-    'AWS_SES_CONFIG_SET',
-    ''
-  );
-  const AWS_SES_ACCESS_KEY_ID = await getConfig(
-    'AWS_SES_ACCESS_KEY_ID',
-    ''
-  );
+  const DEFAULT_EMAIL_SERVICE = await getConfig('DEFAULT_EMAIL_SERVICE', 'SES');
+  const defaultTemplate = await getConfig('COMPANY_EMAIL_TEMPLATE');
+  const defaultTemplateType = await getConfig('COMPANY_EMAIL_TEMPLATE_TYPE');
+  const COMPANY_EMAIL_FROM = await getConfig('COMPANY_EMAIL_FROM', '');
+  const AWS_SES_CONFIG_SET = await getConfig('AWS_SES_CONFIG_SET', '');
+  const AWS_SES_ACCESS_KEY_ID = await getConfig('AWS_SES_ACCESS_KEY_ID', '');
   const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
     'AWS_SES_SECRET_ACCESS_KEY',
     ''
@@ -110,7 +97,7 @@ export const sendEmail = async (
 
   try {
     transporter = await createTransporter({
-      ses: DEFAULT_EMAIL_SERVICE === 'SES',
+      ses: DEFAULT_EMAIL_SERVICE === 'SES'
     });
   } catch (e) {
     return debugError(e.message);
@@ -150,7 +137,7 @@ export const sendEmail = async (
       to: toEmail,
       subject: title,
       html,
-      attachments,
+      attachments
     };
 
     if (!mailOptions.from) {
@@ -169,12 +156,12 @@ export const sendEmail = async (
         from: mailOptions.from,
         subject: title,
         body: html,
-        status: EMAIL_DELIVERY_STATUS.PENDING,
+        status: EMAIL_DELIVERY_STATUS.PENDING
       });
 
       headers = {
         'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET || 'erxes',
-        EmailDeliveryId: emailDelivery._id,
+        EmailDeliveryId: emailDelivery._id
       };
     } else {
       headers['X-SES-CONFIGURATION-SET'] = 'erxes';
@@ -194,9 +181,7 @@ export const sendEmail = async (
  */
 export const createTransporter = async ({ ses }) => {
   if (ses) {
-    const AWS_SES_ACCESS_KEY_ID = await getConfig(
-      'AWS_SES_ACCESS_KEY_ID'
-    );
+    const AWS_SES_ACCESS_KEY_ID = await getConfig('AWS_SES_ACCESS_KEY_ID');
     const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
       'AWS_SES_SECRET_ACCESS_KEY'
     );
@@ -205,11 +190,11 @@ export const createTransporter = async ({ ses }) => {
     AWS.config.update({
       region: AWS_REGION,
       accessKeyId: AWS_SES_ACCESS_KEY_ID,
-      secretAccessKey: AWS_SES_SECRET_ACCESS_KEY,
+      secretAccessKey: AWS_SES_SECRET_ACCESS_KEY
     });
 
     return nodemailer.createTransport({
-      SES: new AWS.SES({ apiVersion: '2010-12-01' }),
+      SES: new AWS.SES({ apiVersion: '2010-12-01' })
     });
   }
 
@@ -224,7 +209,7 @@ export const createTransporter = async ({ ses }) => {
   if (MAIL_USER && MAIL_PASS) {
     auth = {
       user: MAIL_USER,
-      pass: MAIL_PASS,
+      pass: MAIL_PASS
     };
   }
 
@@ -232,7 +217,7 @@ export const createTransporter = async ({ ses }) => {
     service: MAIL_SERVICE,
     host: MAIL_HOST,
     port: MAIL_PORT,
-    auth,
+    auth
   });
 };
 
@@ -921,10 +906,7 @@ export const handleUnsubscription = async (query: {
   // }
 
   if (uid) {
-    await Users.updateOne(
-      { _id: uid },
-      { $set: { isSubscribed: 'No' } }
-    );
+    await Users.updateOne({ _id: uid }, { $set: { isSubscribed: 'No' } });
   }
 };
 
@@ -981,7 +963,6 @@ export const frontendEnv = ({
 
   return envs[name];
 };
-
 
 export const getSubServiceDomain = ({ name }: { name: string }): string => {
   const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
@@ -1108,19 +1089,17 @@ export const configReplacer = config => {
  * @param {string} - customerId
  * @param {array} - receivers
  */
-export const sendMobileNotification = async (
-  {
-    receivers,
-    title,
-    body,
-    data
-  }: {
-    receivers: string[];
-    title: string;
-    body: string;
-    data?: any;
-  }
-): Promise<void> => {
+export const sendMobileNotification = async ({
+  receivers,
+  title,
+  body,
+  data
+}: {
+  receivers: string[];
+  title: string;
+  body: string;
+  data?: any;
+}): Promise<void> => {
   if (!admin.apps.length) {
     await initFirebase();
   }
@@ -1136,13 +1115,13 @@ export const sendMobileNotification = async (
     );
   }
 
-//   if (customerId) {
-//     tokens.push(
-//       ...(await Customers.findOne({ _id: customerId }).distinct(
-//         'deviceTokens'
-//       ))
-//     );
-//   }
+  //   if (customerId) {
+  //     tokens.push(
+  //       ...(await Customers.findOne({ _id: customerId }).distinct(
+  //         'deviceTokens'
+  //       ))
+  //     );
+  //   }
 
   if (tokens.length > 0) {
     // send notification
@@ -1158,6 +1137,24 @@ export const sendMobileNotification = async (
       }
     }
   }
+};
+
+export const getAwsConfigs = async () => {
+  const AWS_ACCESS_KEY_ID = await getConfig('AWS_ACCESS_KEY_ID');
+  const AWS_SECRET_ACCESS_KEY = await getConfig('AWS_SECRET_ACCESS_KEY');
+  const AWS_BUCKET = await getConfig('AWS_BUCKET');
+  const AWS_COMPATIBLE_SERVICE_ENDPOINT = await getConfig(
+    'AWS_COMPATIBLE_SERVICE_ENDPOINT'
+  );
+  const AWS_FORCE_PATH_STYLE = await getConfig('AWS_FORCE_PATH_STYLE');
+
+  return {
+    AWS_FORCE_PATH_STYLE,
+    AWS_COMPATIBLE_SERVICE_ENDPOINT,
+    AWS_BUCKET,
+    AWS_SECRET_ACCESS_KEY,
+    AWS_ACCESS_KEY_ID
+  };
 };
 
 export const getEnv = utils.getEnv;

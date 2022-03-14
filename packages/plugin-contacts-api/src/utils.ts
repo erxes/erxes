@@ -8,7 +8,7 @@ import { debug } from './configs';
 import { ICustomerDocument } from './models/definitions/customers';
 import messageBroker, { sendEngagesMessage } from './messageBroker';
 import { getService, getServices } from './inmemoryStorage';
-import { IModels } from './connectionResolver';
+import { generateModels, IModels } from './connectionResolver';
 
 export const findCustomer = async ({ Customers }: IModels, doc) => {
   let customer;
@@ -17,8 +17,8 @@ export const findCustomer = async ({ Customers }: IModels, doc) => {
     customer = await Customers.findOne({
       $or: [
         { emails: { $in: [doc.customerPrimaryEmail] } },
-        { primaryEmail: doc.customerPrimaryEmail },
-      ],
+        { primaryEmail: doc.customerPrimaryEmail }
+      ]
     });
   }
 
@@ -26,8 +26,8 @@ export const findCustomer = async ({ Customers }: IModels, doc) => {
     customer = await Customers.findOne({
       $or: [
         { phones: { $in: [doc.customerPrimaryPhone] } },
-        { primaryPhone: doc.customerPrimaryPhone },
-      ],
+        { primaryPhone: doc.customerPrimaryPhone }
+      ]
     });
   }
 
@@ -53,26 +53,26 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
     company = await Companies.findOne({
       $or: [
         { names: { $in: [doc.companyPrimaryName] } },
-        { primaryName: doc.companyPrimaryName },
-      ],
+        { primaryName: doc.companyPrimaryName }
+      ]
     });
   }
 
   if (!company && doc.name) {
     company = await Companies.findOne({
-      $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }],
+      $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }]
     });
   }
 
   if (!company && doc.email) {
     company = await Companies.findOne({
-      $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }],
+      $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
     });
   }
 
   if (!company && doc.phone) {
     company = await Companies.findOne({
-      $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }],
+      $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
     });
   }
 
@@ -80,8 +80,8 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
     company = await Companies.findOne({
       $or: [
         { emails: { $in: [doc.companyPrimaryEmail] } },
-        { primaryEmail: doc.companyPrimaryEmail },
-      ],
+        { primaryEmail: doc.companyPrimaryEmail }
+      ]
     });
   }
 
@@ -89,8 +89,8 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
     company = await Companies.findOne({
       $or: [
         { phones: { $in: [doc.companyPrimaryPhone] } },
-        { primaryPhone: doc.companyPrimaryPhone },
-      ],
+        { primaryPhone: doc.companyPrimaryPhone }
+      ]
     });
   }
 
@@ -109,8 +109,12 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
   return company;
 };
 
-export const generateFields = async ({ Customers, Companies }: IModels, args) => {
-  const { contentType } = args;
+export const generateFields = async args => {
+  const { type } = args;
+
+  const models = await generateModels('os');
+
+  const { Customers, Companies } = models;
 
   let schema: any;
   let fields: Array<{
@@ -124,7 +128,7 @@ export const generateFields = async ({ Customers, Companies }: IModels, args) =>
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 
-  switch (contentType) {
+  switch (type) {
     case 'customer':
       schema = Customers.schema;
       break;
@@ -145,7 +149,7 @@ export const generateFields = async ({ Customers, Companies }: IModels, args) =>
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
         ];
       }
     }
@@ -156,7 +160,7 @@ export const generateFields = async ({ Customers, Companies }: IModels, args) =>
 
 export const getEnv = ({
   name,
-  defaultValue,
+  defaultValue
 }: {
   name: string;
   defaultValue?: string;
@@ -174,7 +178,10 @@ export const getEnv = ({
   return value || '';
 };
 
-export const getContentItem = async ({ Customers, Companies }: IModels, activityLog) => {
+export const getContentItem = async (
+  { Customers, Companies }: IModels,
+  activityLog
+) => {
   const { action, contentType, content } = activityLog;
 
   if (action === 'merge') {
@@ -209,12 +216,11 @@ export const getEditorAttributeUtil = async () => {
   return editor;
 };
 
-export const prepareEngageCustomers = async ({ Customers }: IModels, subdomain: string, {
-  engageMessage,
-  customersSelector,
-  action,
-  user
-}): Promise<any> => {
+export const prepareEngageCustomers = async (
+  { Customers }: IModels,
+  subdomain: string,
+  { engageMessage, customersSelector, action, user }
+): Promise<any> => {
   const customerInfos: Array<{
     _id: string;
     primaryEmail?: string;
@@ -245,7 +251,7 @@ export const prepareEngageCustomers = async ({ Customers }: IModels, subdomain: 
           content: emailContent,
           customer,
           item,
-          customerFields,
+          customerFields
         });
 
         customerInfos.push({
@@ -254,13 +260,13 @@ export const prepareEngageCustomers = async ({ Customers }: IModels, subdomain: 
           emailValidationStatus: customer.emailValidationStatus,
           phoneValidationStatus: customer.phoneValidationStatus,
           primaryPhone: customer.primaryPhone,
-          replacers,
+          replacers
         });
       }
 
       // signal upstream that we are ready to take more data
       callback();
-    },
+    }
   });
 
   // generate fields option =======
@@ -268,7 +274,7 @@ export const prepareEngageCustomers = async ({ Customers }: IModels, subdomain: 
     primaryEmail: 1,
     emailValidationStatus: 1,
     phoneValidationStatus: 1,
-    primaryPhone: 1,
+    primaryPhone: 1
   };
 
   for (const field of customerFields || []) {
@@ -293,7 +299,7 @@ export const prepareEngageCustomers = async ({ Customers }: IModels, subdomain: 
             shortMessage: engageMessage.shortMessage || {},
             createdBy: engageMessage.createdBy,
             title: engageMessage.title,
-            kind: engageMessage.kind,
+            kind: engageMessage.kind
           };
 
           if (engageMessage.method === 'email' && engageMessage.email) {
@@ -301,7 +307,7 @@ export const prepareEngageCustomers = async ({ Customers }: IModels, subdomain: 
               {
                 customerFields,
                 content: emailContent,
-                user,
+                user
               }
             );
 
@@ -319,7 +325,11 @@ export const prepareEngageCustomers = async ({ Customers }: IModels, subdomain: 
               data.email = engageMessage.email;
             }
 
-            await sendEngagesMessage({ subdomain, action: 'notification', data: { action, data } });
+            await sendEngagesMessage({
+              subdomain,
+              action: 'notification',
+              data: { action, data }
+            });
           }
         }
       } catch (e) {

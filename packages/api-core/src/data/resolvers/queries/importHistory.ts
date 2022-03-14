@@ -6,19 +6,30 @@ import utils, { paginate } from '../../utils';
 
 const importHistoryQueries = {
   async importHistoryGetTypes() {
-    const services = await getServices();
+    // return servicesImportTypes;
 
-    const servicesImportTypes: any = [];
+    const services = await getServices();
+    const importTypes: Array<{ text: string; contentType: string }> = [];
 
     for (const serviceName of services) {
       const service = await getService(serviceName, true);
+      const meta = service.meta ? service.meta.meta : {};
 
-      if (service.meta && service.meta.importTypes) {
-        servicesImportTypes.push(...service.meta.importTypes);
+      console.log(JSON.stringify(meta));
+
+      if (meta && meta.imports) {
+        const types = meta.imports.importTypes || [];
+
+        for (const type of types) {
+          importTypes.push({
+            ...type,
+            contentType: `${serviceName}:${type.contentType}`
+          });
+        }
       }
     }
 
-    return servicesImportTypes;
+    return importTypes;
   },
 
   /**
@@ -102,18 +113,27 @@ const importHistoryQueries = {
 
   async importHistoryGetExportableServices() {
     const services = await getServices();
-
-    const servicesExportTypes: any = [];
+    const exportTypes: Array<{ text: string; contentType: string }> = [];
 
     for (const serviceName of services) {
       const service = await getService(serviceName, true);
+      const meta = service.meta ? service.meta.meta : {};
 
-      if (service.meta.exportTypes) {
-        servicesExportTypes.push(...service.meta.exportTypes);
+      console.log(JSON.stringify(meta));
+
+      if (meta && meta.imports) {
+        const types = meta.imports.exportTypes || [];
+
+        for (const type of types) {
+          exportTypes.push({
+            ...type,
+            contentType: `${serviceName}:${type.contentType}`
+          });
+        }
       }
     }
 
-    return servicesExportTypes;
+    return exportTypes;
   }
 };
 

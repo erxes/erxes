@@ -34,12 +34,12 @@ export const initBroker = async cl => {
 
   consumeRPCQueue(
     'forms:fields.generateCustomFieldsData',
-    async ({ data: { customData, contentType }}) => {
+    async ({ data: { customData, contentType } }) => {
       return {
         status: 'success',
         data: await Fields.generateCustomFieldsData(customData, contentType)
       };
-  }
+    }
   );
 
   consumeQueue('forms:updateGroup', async ({ groupId, fieldsGroup }) => ({
@@ -49,7 +49,7 @@ export const initBroker = async cl => {
 
   consumeRPCQueue(
     'forms:fields.find',
-    async ({ data: { query, projection, sort }}) => {
+    async ({ data: { query, projection, sort } }) => {
       return {
         status: 'success',
         data: await Fields.find(query, projection)
