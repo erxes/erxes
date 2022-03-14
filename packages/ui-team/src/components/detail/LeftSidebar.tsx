@@ -12,6 +12,8 @@ import { Link } from 'react-router-dom';
 import { IChannel } from '@erxes/ui-settings/src/channels/types';
 import CustomFieldsSection from '../../containers/CustomFieldsSection';
 import { List, SkillList } from './styles';
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { EmptyState } from '@erxes/ui/src/components';
 
 type Props = {
   user: IUser;
@@ -113,7 +115,7 @@ function LeftSidebar({
           />
         </Section.QuickButtons>
         <SkillList>
-          {skills.map(skill => {
+          {skills.length > 0 ? skills.map(skill => {
             const handleRemove = () => excludeUserSkill(skill._id, user._id);
 
             return (
@@ -127,7 +129,7 @@ function LeftSidebar({
                 <Icon icon="times-circle" color="#EA475D" />
               </Button>
             );
-          })}
+          }) : <EmptyState icon="ban" text="No skills" size="small" />}
         </SkillList>
       </Section>
     );
@@ -136,7 +138,7 @@ function LeftSidebar({
   return (
     <Sidebar wide={true}>
       {renderUserInfo()}
-      {renderChannels()}
+      {isEnabled("inbox") && renderChannels()}
       {renderSkills()}
       <CustomFieldsSection user={user} isDetail={true} />
     </Sidebar>

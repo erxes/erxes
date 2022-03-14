@@ -11,6 +11,7 @@ import React from 'react';
 import InfoSection from '../common/InfoSection';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   company: ICompany;
@@ -38,12 +39,12 @@ class CompanyDetails extends React.Component<Props> {
           toEmails={company.emails}
           showEmail={false}
         />
-        <ActivityLogs
+        {isEnabled("logs") && <ActivityLogs
           target={company.primaryName || ''}
           contentId={company._id}
           contentType="contacts:company"
           extraTabs={[]}
-        />
+        />}
       </>
     );
 

@@ -9,7 +9,7 @@ import { queries as templatesQuery } from '@erxes/ui-settings/src/emailTemplates
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
-import { EmailTemplatesQueryResponse } from '@erxes/ui-settings/src/emailTemplates/containers/List';
+import { EmailTemplatesQueryResponse } from '@erxes/ui-settings/src/emailTemplates/types';
 import Widget from '../components/Widget';
 import {
   MESSAGE_KINDS,
@@ -43,7 +43,7 @@ const WidgetContainer = (props: FinalProps) => {
     emptyBulk,
     messagesAddMutation
   } = props;
-
+console.log(emailTemplatesQuery.loading, "email temp")
   if (emailTemplatesQuery.loading || brandsQuery.loading) {
     return null;
   }
