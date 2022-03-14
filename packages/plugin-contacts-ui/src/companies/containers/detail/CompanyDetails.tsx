@@ -40,7 +40,7 @@ const CompanyDetailsContainer = (props: FinalProps) => {
     return <Spinner />;
   }
 
-  const fields = fieldsGroupsQuery.getSystemFieldsGroup.fields;
+  const fields = (fieldsGroupsQuery.getSystemFieldsGroup || {}).fields || [];
 
   const companyDetail = companyDetailQuery.companyDetail || {} as ICompany;
 
