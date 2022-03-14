@@ -15,7 +15,7 @@ import { buildFile } from './exporter';
 import segments from './segments';
 import forms from './forms';
 import { coreModels, generateCoreModels, generateModels, getSubdomain } from './connectionResolver';
-import logConsumers from './logConsumers';
+import logs from './logUtils';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -142,7 +142,7 @@ export default {
   meta: {
     segments,
     forms,
-    logs: { consumers: logConsumers }
+    logs: { consumers: logs }
   },
   apolloServerContext: async (context) => {
     const subdomain = 'os';
