@@ -9,7 +9,7 @@ import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { buildFile } from './exporter';
 import segments from './segments';
 import forms from './forms';
-import logsConsumers from './logsConsumers';
+import logs from './logUtils';
 import { generateCoreModels, generateModels, getSubdomain } from './connectionResolver';
 import imports from './imports';
 
@@ -41,7 +41,7 @@ export default {
 
   meta: {
     forms,
-    logs: { providesActivityLog: true, consumers: logsConsumers },
+    logs: { providesActivityLog: true, consumers: logs },
     segments,
     imports
   },
