@@ -1,14 +1,7 @@
-<<<<<<< HEAD
-import { queries as customerQueries } from '@erxes/ui/src/customers/graphql';
-import conversationFields from './conversationFields';
-import messageFields from './messageFields';
-import { isEnabled } from "@erxes/ui/src/utils/core";
-=======
 import { queries as customerQueries } from "@erxes/ui/src/customers/graphql";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 import conversationFields from "./conversationFields";
 import messageFields from "./messageFields";
->>>>>>> 81dc6034932d912f38aa2fb144bf6d2e9f6ad379
 
 export const paramsDef = `
   $channelId: String
