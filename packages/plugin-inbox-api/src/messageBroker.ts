@@ -227,16 +227,6 @@ export const initBroker = (cl) => {
     return models.Conversations.removeCustomersConversations(customerIds);
   });
 
-  // ! below queue converted 
-  consumeRPCQueue('inbox:rpc_queue:logs:getConversations', async ({ subdomain, query }) => {
-    const models = await generateModels(subdomain);
-
-    return {
-      status: 'success',
-      data: await models.Conversations.find(query).lean()
-    }
-  })
-
   // ? added new
   consumeRPCQueue('inbox:getConversations', async ({ subdomain, data: { query } }) => {
     const models = await generateModels(subdomain);
@@ -306,19 +296,6 @@ export const sendSegmentsMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendNotificationsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessageCore({ client, serviceDiscovery, serviceName: 'notifications', ...args });
 }
-
-// ! log helper
-export const findMongoDocuments = async (serviceName: string, data: any) => {
-  if(!(await serviceDiscovery.isEnabled(serviceName))) {
-    return [];
-  }
-  
-  if(!(await serviceDiscovery.isAvailable(serviceName))) {
-    throw new Error(`${serviceName} service is not available.`);
-  }
-
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:findMongoDocuments`, data);
-};
 
 export default function() {
   return client;
