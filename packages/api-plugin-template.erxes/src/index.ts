@@ -190,6 +190,16 @@ async function startServer() {
       redis
     });
 
+    await join({
+      name: configs.name,
+      port: PORT || '',
+      dbConnectionString: mongoUrl,
+      hasSubscriptions: configs.hasSubscriptions,
+      importTypes: configs.importTypes,
+      exportTypes: configs.exportTypes,
+      meta: configs.meta
+    });
+
     configs.onServerInit({
       db,
       app,
@@ -352,16 +362,6 @@ async function startServer() {
           );
         }
       }
-
-      await join({
-        name: configs.name,
-        port: PORT || '',
-        dbConnectionString: mongoUrl,
-        hasSubscriptions: configs.hasSubscriptions,
-        importTypes: configs.importTypes,
-        exportTypes: configs.exportTypes,
-        meta: configs.meta
-      });
 
       debugInfo(`${configs.name} server is running on port ${PORT}`);
     }
