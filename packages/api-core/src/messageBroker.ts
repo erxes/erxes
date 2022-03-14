@@ -109,6 +109,24 @@ export const initBroker = async (options) => {
       data: await Configs.find(args).distinct('value')
     }));
 
+    consumeRPCQueue('core:users.findOne', async query => ({
+      status: 'success',
+      data: await Users.findOne(query)
+    }));
+
+    consumeRPCQueue('core:users.find', async (data) => {
+      const { query } = data;
+
+      return {
+        status: 'success',
+        data: await Users.find(query)
+      }
+    });
+
+    consumeRPCQueue('core:brands.findOne', async query => ({
+      status: 'success', data: await Brands.findOne(query)
+    }));
+
     consumeRPCQueue('core:getActivityContent', async data => {
       const { action, content } = data;
 
@@ -117,9 +135,6 @@ export const initBroker = async (options) => {
         let removedUsers: IUserDocument[] = [];
 
         if (content) {
-          // addedUsers = await getDocumentList('users', {
-          //   _id: { $in: content.addedUserIds },
-          // });
           addedUsers = await Users.find({ _id: { $in: content.addedUserIds } });
 
           removedUsers = await Users.find({
@@ -150,17 +165,6 @@ export const initBroker = async (options) => {
           return { data: { type: 'user', content: user }, status: 'success' };
         }
 
-        // const integration = await sendRPCMessage(
-        //   'inbox:rpc_queue:getIntegration',
-        //   { _id: activityLog.createdBy }
-        // );
-
-        // if (integration) {
-        //   const brand = await Brands.findOne({ _id: integration.brandId });
-
-        //   return { data: { type: 'brand', content: brand }, status: 'success' };
-        // }
-
         return { data: {}, status: 'success' };
       }
     );
@@ -171,6 +175,7 @@ export const initBroker = async (options) => {
         const deliveries = await EmailDeliveries.find({
           customerId: contentId
         }).lean();
+
         const results: any[] = [];
 
         for (const d of deliveries) {
@@ -188,24 +193,6 @@ export const initBroker = async (options) => {
         };
       }
     );
-
-    consumeRPCQueue('core:users.findOne', async query => ({
-      status: 'success',
-      data: await Users.findOne(query)
-    }));
-
-    consumeRPCQueue('core:users.find', async (data) => {
-      const { query } = data;
-
-      return {
-        status: 'success',
-        data: await Users.find(query)
-      }
-    });
-
-    consumeRPCQueue('core:brands.findOne', async query => ({
-      status: 'success', data: await Brands.findOne(query)
-    }));
   }
 
   return client;
