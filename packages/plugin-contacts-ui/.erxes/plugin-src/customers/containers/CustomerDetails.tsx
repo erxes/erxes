@@ -22,7 +22,7 @@ type FinalProps = {
 
 function CustomerDetailsContainer(props: FinalProps) {
   const { id, fieldsInboxQuery, customerDetailQuery } = props;
-  console.log(fieldsInboxQuery);
+
   if (customerDetailQuery.loading) {
     return <Spinner objective={true} />;
   }

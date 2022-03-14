@@ -13,7 +13,7 @@ import PortableTasks from "@erxes/ui-cards/src/tasks/components/PortableTasks";
 import PortableTickets from "@erxes/ui-cards/src/tickets/components/PortableTickets";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 
-import { pluginsOfCustomerSidebar } from "@erxes/ui/src/pluginUtils";
+// import { pluginsOfCustomerSidebar } from "@erxes/ui/src/pluginUtils";
 import React from "react";
 
 type Props = {
@@ -86,7 +86,9 @@ export default class RightSidebar extends React.Component<Props> {
             <PortableTasks mainType="customer" mainTypeId={customer._id} />
           </>
         )}
-        {pluginsOfCustomerSidebar(customer)}
+
+        {/* {pluginsOfCustomerSidebar(customer)} */}
+
         {this.renderOther()}
       </Sidebar>
     );
