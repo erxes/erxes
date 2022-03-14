@@ -1,7 +1,7 @@
-import { Document, model, Model, Schema } from 'mongoose';
+import { Document, Model, Schema } from 'mongoose';
 import { field } from './utils';
 import { debug } from '../configs';
-
+import { IModels } from '../connectionResolver';
 
 export interface ILocation {
   remoteAddress: string;
@@ -94,18 +94,18 @@ export const schema = new Schema({
   createdAt: field({ type: Date, default: Date.now })
 });
 
-export const loadVisitorClass = () => {
+export const loadVisitorClass = (models: IModels) => {
   class Visitor {
     public static async createOrUpdateVisitorLog(doc: IVistiorDoc) {
-      const visitor = await Visitors.findOne({ visitorId: doc.visitorId });
+      const visitor = await models.Visitors.findOne({ visitorId: doc.visitorId });
 
       if (visitor) {
-        await Visitors.updateOne({ _id: visitor._id }, { $set: doc });
+        await models.Visitors.updateOne({ _id: visitor._id }, { $set: doc });
 
-        return Visitors.findOne({ visitorId: doc.visitorId });
+        return models.Visitors.findOne({ visitorId: doc.visitorId });
       }
 
-      return Visitors.create({
+      return models.Visitors.create({
         ...doc,
         sessionCount: 1,
         lastSeenAt: new Date()
@@ -115,7 +115,7 @@ export const loadVisitorClass = () => {
     public static async updateVisitorLog(doc: IVistiorDoc) {
       const now = new Date();
 
-      const visitor = await Visitors.getVisitorLog(doc.visitorId);
+      const visitor = await models.Visitors.getVisitorLog(doc.visitorId);
 
       // log & quietly return instead of throwing an error
       if (!visitor) {
@@ -147,18 +147,18 @@ export const loadVisitorClass = () => {
       }
 
       // update
-      await Visitors.findOneAndUpdate({ visitorId: doc.visitorId }, query);
+      await models.Visitors.findOneAndUpdate({ visitorId: doc.visitorId }, query);
 
       // updated customer
-      return Visitors.findOne({ visitorId: doc.visitorId });
+      return models.Visitors.findOne({ visitorId: doc.visitorId });
     }
 
     public static getVisitorLog(visitorId: string) {
-      return Visitors.findOne({ visitorId }).lean();
+      return models.Visitors.findOne({ visitorId }).lean();
     }
 
     public static removeVisitorLog(visitorId: string) {
-      return Visitors.deleteOne({ visitorId });
+      return models.Visitors.deleteOne({ visitorId });
     }
   }
 
@@ -166,10 +166,3 @@ export const loadVisitorClass = () => {
 
   return schema;
 };
-
-loadVisitorClass();
-
-// tslint:disable-next-line
-const Visitors = model<IVisitorDocument, IVisitorModel>('visitors', schema);
-
-export default Visitors;

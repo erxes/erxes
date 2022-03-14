@@ -1,5 +1,6 @@
-import { Document, model, Model, Schema } from 'mongoose';
+import { Document, Model, Schema } from 'mongoose';
 import { debug } from '../configs';
+import { IModels } from '../connectionResolver';
 import { compareObjects } from '../utils';
 import { field } from './utils';
 
@@ -71,7 +72,7 @@ export const schema = new Schema({
   extraDesc: field({ type: String, label: 'Extra description', optional: true })
 });
 
-export const loadLogClass = () => {
+export const loadLogClass = (models: IModels) => {
   class Log {
     public static createLog(doc: ILogDoc) {
       const { object='{}', newData } = doc;
@@ -127,7 +128,7 @@ export const loadLogClass = () => {
           break;
       }
 
-      return Logs.create(logDoc);
+      return models.Logs.create(logDoc);
     }
   }
 
@@ -135,10 +136,3 @@ export const loadLogClass = () => {
 
   return schema;
 };
-
-loadLogClass();
-
-// tslint:disable-next-line
-const Logs = model<ILogDocument, ILogModel>('logs', schema);
-
-export default Logs;
