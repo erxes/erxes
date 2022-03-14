@@ -15,6 +15,7 @@ import Uploader from "@erxes/ui/src/components/Uploader";
 import Button from "@erxes/ui/src/components/Button";
 import Icon from "@erxes/ui/src/components/Icon";
 import Spinner from "@erxes/ui/src/components/Spinner";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Name =
   | "successAction"
@@ -180,18 +181,20 @@ class SuccessStep extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <FormGroup>
-          <label>Email templates:</label>
-          <p>{__("Insert email template to content")}</p>
+        ${isEnabled("engages") && 
+          <FormGroup>
+            <label>Email templates:</label>
+            <p>{__("Insert email template to content")}</p>
 
-          <Select
-            value={leadData.templateId}
-            onChange={this.templateChange}
-            options={generateEmailTemplateParams(this.props.emailTemplates)}
-            clearable={false}
-          />
-        </FormGroup>
-
+            <Select
+              value={leadData.templateId}
+              onChange={this.templateChange}
+              options={generateEmailTemplateParams(this.props.emailTemplates)}
+              clearable={false}
+            />
+          </FormGroup>
+        }
+        
         <FormGroup>
           <label>Message</label>
           <EditorCK
