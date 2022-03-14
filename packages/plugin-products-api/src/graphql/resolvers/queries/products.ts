@@ -2,8 +2,8 @@ import { checkPermission, requireLogin } from "@erxes/api-utils/src/permissions"
 import { paginate } from '@erxes/api-utils/src';
 import { PRODUCT_STATUSES } from "../../../models/definitions/products";
 import { escapeRegExp } from "@erxes/api-utils/src/core";
-import { findTags } from "../../../messageBroker";
 import { IContext } from "../../../connectionResolver";
+import { sendTagsMessage } from "../../../messageBroker";
 
 const productQueries = {
   /**
@@ -147,11 +147,18 @@ const productQueries = {
     return models.ProductCategories.findOne({ _id }).lean();
   },
 
-  async productCountByTags(_root, _params, { models }: IContext) {
+  async productCountByTags(_root, _params, { models, subdomain }: IContext) {
     const counts = {};
 
     // Count products by tag =========
-    const tags = await findTags({ type: 'product' });
+    const tags = await sendTagsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        type: 'product'
+      },
+      isRPC: true
+    });
 
     for (const tag of tags) {
       counts[tag._id] = await models.Products.find({

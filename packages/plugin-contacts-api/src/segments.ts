@@ -3,10 +3,6 @@ export default {
     'contacts:customer': 'customers',
     'contacts:company': 'companies'
   },
-  contentTypes: ['customer', 'company'],
-  esTypesMapQueue: 'contacts:segments:esTypesMap',
-  initialSelectorQueue: 'contacts:segments:initialSelector',
-  associationTypesQueue: 'contacts:segments:associationTypes',
 
   descriptionMap: {
     deal: 'Deal',
@@ -16,7 +12,7 @@ export default {
     company: 'Company'
   },
 
-  associationTypes: async ({ mainType }) => {
+  associationTypes: async () => {
     const types: string[] = [
       'contacts:customer',
       'contacts:company',

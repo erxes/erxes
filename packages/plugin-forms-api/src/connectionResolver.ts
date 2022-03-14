@@ -1,16 +1,20 @@
 import { MongoClient } from 'mongodb';
 import * as mongoose from 'mongoose';
 import { mainDb } from './configs';
+import { IFieldDocument, IFieldGroupDocument, } from './models/definitions/fields';
+import { IFormDocument, IFormSubmissionDocument } from './models/definitions/forms';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
-import { IProductCategoryModel, IProductModel, loadProductCategoryClass, loadProductClass } from './models/products';
-import { IProductCategoryDocument, IProductDocument } from './models/definitions/products';
+import { IFieldModel, IFieldGroupModel, loadFieldClass, loadGroupClass} from './models/Fields';
+import { IFormModel, IFormSubmissionModel, loadFormClass, loadFormSubmissionClass } from './models/Forms';
 
 export interface ICoreIModels {
-  Fields;
+  Users;
 }
 export interface IModels {
-  Products: IProductModel;
-  ProductCategories: IProductCategoryModel;
+  Fields: IFieldModel;
+  FieldsGroups: IFieldGroupModel;
+  Forms: IFormModel;
+  FormSubmissions: IFormSubmissionModel;
 }
 
 export interface IContext extends IMainContext {
@@ -36,6 +40,7 @@ export const generateModels = async (
   return models;
 };
 
+
 export const generateCoreModels = async (
   _hostnameOrSubdomain: string
 ): Promise<ICoreIModels> => {
@@ -43,6 +48,10 @@ export const generateCoreModels = async (
 };
 
 const connectCore = async () => {
+  if (coreModels) {
+    return coreModels;
+  }
+
   const url = process.env.API_MONGO_URL || 'mongodb://localhost/erxes';
   const client = new MongoClient(url);
 
@@ -56,16 +65,20 @@ const connectCore = async () => {
 
   db = client.db(dbName);
 
-  return {
-    Fields: await db.collection('fields')
-  }
-}
+  coreModels = {
+    Users: await db.collection('users'),
+  };
+
+  return coreModels;
+};
 
 export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels => {
   models = {} as IModels;
   
-  models.Products = db.model<IProductDocument, IProductModel>('products', loadProductClass(models, subdomain))
-  models.ProductCategories = db.model<IProductCategoryDocument, IProductCategoryModel>('product_categories', loadProductCategoryClass(models))
+  models.Fields = db.model<IFieldDocument, IFieldModel>('fields', loadFieldClass(models))
+  models.FieldsGroups = db.model<IFieldGroupDocument, IFieldGroupModel>('fields_groups', loadGroupClass(models))
+  models.Forms = db.model<IFormDocument, IFormModel>('forms', loadFormClass(models))
+  models.FormSubmissions = db.model<IFormSubmissionDocument, IFormSubmissionModel>('form_submissions', loadFormSubmissionClass(models))
 
   return models;
 };

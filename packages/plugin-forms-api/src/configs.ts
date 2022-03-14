@@ -2,8 +2,9 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
-import apiConnect from  './apiCollections';
+import { coreModels, generateModels, models } from './connectionResolver';
 
+export let mainDb;
 export let debug;
 export let serviceDiscovery;
 
@@ -18,10 +19,18 @@ export default {
     }
   },
   apolloServerContext: context => {
+    const subdomain = 'os';
+
+    context.models = models;
+    context.coreModels = coreModels;
+    context.subdomain = subdomain;
+
     return context;
   },
   onServerInit: async options => {
-    await apiConnect();
+    mainDb = options.db
+
+    await generateModels('os');
 
     initBroker(options.messageBrokerClient);
 

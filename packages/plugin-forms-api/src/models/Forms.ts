@@ -1,7 +1,7 @@
 import * as Random from 'meteor-random';
 import { Model, model } from 'mongoose';
 import * as validator from 'validator';
-import { Fields } from './';
+import { IModels } from '../connectionResolver';
 import {
   formSchema,
   formSubmissionSchema,
@@ -40,10 +40,10 @@ export interface IFormModel extends Model<IFormDocument> {
   validate(formId: string, submissions: ISubmission[]): Promise<IError[]>;
 }
 
-export const loadFormClass = () => {
+export const loadFormClass = (models: IModels) => {
   class Form {
     public static async getForm(_id: string) {
-      const form = await Forms.findOne({ _id });
+      const form = await models.Forms.findOne({ _id });
 
       if (!form) {
         throw new Error('Form not found');
@@ -60,7 +60,7 @@ export const loadFormClass = () => {
 
       do {
         code = Random.id().substr(0, 6);
-        foundForm = Boolean(await Forms.findOne({ code }));
+        foundForm = Boolean(await models.Forms.findOne({ code }));
       } while (foundForm);
 
       return code;
@@ -72,16 +72,16 @@ export const loadFormClass = () => {
     public static async createForm(doc: IForm, createdUserId: string) {
       doc.code = await this.generateCode();
 
-      return Forms.create({ ...doc, createdDate: new Date(), createdUserId });
+      return models.Forms.create({ ...doc, createdDate: new Date(), createdUserId });
     }
 
     /**
      * Updates a form document
      */
     public static async updateForm(_id: string, doc: IForm) {
-      await Forms.updateOne({ _id }, { $set: doc }, { runValidators: true });
+      await models.Forms.updateOne({ _id }, { $set: doc }, { runValidators: true });
 
-      return Forms.findOne({ _id });
+      return models.Forms.findOne({ _id });
     }
 
     /**
@@ -89,16 +89,16 @@ export const loadFormClass = () => {
      */
     public static async removeForm(_id: string) {
       // remove fields
-      await Fields.deleteMany({ contentType: 'form', contentTypeId: _id });
+      await models.Fields.deleteMany({ contentType: 'form', contentTypeId: _id });
 
-      return Forms.deleteOne({ _id });
+      return models.Forms.deleteOne({ _id });
     }
 
     /**
      * Duplicates form and form fields of the form
      */
     public static async duplicate(_id: string) {
-      const form = await Forms.getForm(_id);
+      const form = await models.Forms.getForm(_id);
 
       // duplicate form ===================
       const newForm = await this.createForm(
@@ -111,10 +111,10 @@ export const loadFormClass = () => {
       );
 
       // duplicate fields ===================
-      const fields = await Fields.find({ contentTypeId: _id });
+      const fields = await models.Fields.find({ contentTypeId: _id });
 
       for (const field of fields) {
-        await Fields.createField({
+        await models.Fields.createField({
           contentType: 'form',
           contentTypeId: newForm._id,
           type: field.type,
@@ -131,7 +131,7 @@ export const loadFormClass = () => {
     }
 
     public static async validate(formId: string, submissions: ISubmission[]) {
-      const fields = await Fields.find({ contentTypeId: formId });
+      const fields = await models.Fields.find({ contentTypeId: formId });
       const errors: Array<{ fieldId: string; code: string; text: string }> = [];
 
       for (const field of fields) {
@@ -217,13 +217,13 @@ export interface IFormSubmissionModel extends Model<IFormSubmissionDocument> {
   createFormSubmission(doc: IFormSubmission): Promise<IFormSubmissionDocument>;
 }
 
-export const loadFormSubmissionClass = () => {
+export const loadFormSubmissionClass = (models: IModels) => {
   class FormSubmission {
     /**
      * Creates a form document
      */
     public static async createFormSubmission(doc: IFormSubmission) {
-      return FormSubmissions.create(doc);
+      return models.FormSubmissions.create(doc);
     }
   }
 
@@ -231,17 +231,3 @@ export const loadFormSubmissionClass = () => {
 
   return formSubmissionSchema;
 };
-
-loadFormClass();
-loadFormSubmissionClass();
-
-// tslint:disable-next-line
-const Forms = model<IFormDocument, IFormModel>('forms', formSchema);
-
-// tslint:disable-next-line
-const FormSubmissions = model<IFormSubmissionDocument, IFormSubmissionModel>(
-  'form_submissions',
-  formSubmissionSchema
-);
-
-export { Forms, FormSubmissions };

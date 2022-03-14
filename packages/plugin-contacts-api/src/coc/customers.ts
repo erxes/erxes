@@ -11,7 +11,7 @@ interface ISortParams {
 const findIntegrations = (subdomain, query, options?) =>
   sendInboxMessage({
     subdomain,
-    action: "integrations:find",
+    action: "integrations.find",
     data: { query, options },
     isRPC: true,
     defaultValue: [],
