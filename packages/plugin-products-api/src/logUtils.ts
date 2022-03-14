@@ -5,11 +5,12 @@ import {
   LogDesc,
   gatherNames,
   IDescriptions,
+  getSchemaLabels
 } from '@erxes/api-utils/src/logUtils';
-import { IModels } from './connectionResolver';
 
+import { IModels } from './connectionResolver';
 import messageBroker from './messageBroker';
-import { IProductDocument } from './models/definitions/products';
+import { IProductDocument, productSchema, productCategorySchema } from './models/definitions/products';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
@@ -133,4 +134,14 @@ export const putCreateLog = async (models: IModels, logDoc, user) => {
     { ...logDoc, description, extraDesc, type: `products:${logDoc.type}` },
     user
   );
+};
+
+export default {
+  getSchemaLabels: ({ data: { type } }) => ({
+    status: 'success',
+    data: getSchemaLabels(
+      type,
+      [{ name: 'product', schemas: [productSchema] }, { name: 'productCategory', schemas: [productCategorySchema] }]
+    )
+  })
 };
