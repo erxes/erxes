@@ -112,7 +112,7 @@ export const initBroker = (cl) => {
 
   // ? added new
   consumeRPCQueue(
-    'inbox:findIntegrations',
+    'inbox:integrations.find',
     async ({ subdomain, data: { query, options } }) => {
       const models = await generateModels(subdomain);
 
