@@ -5,12 +5,12 @@ import {
   putActivityLog as commonPutActivityLog,
   LogDesc,
   IDescriptions,
+  getSchemaLabels
 } from '@erxes/api-utils/src/logUtils';
-import { IModels } from './connectionResolver';
+import { IModels, generateModels } from './connectionResolver';
 
 import messageBroker from './messageBroker';
-
-import { ITagDocument } from './models/definitions/tags';
+import { ITagDocument, tagSchema } from './models/definitions/tags';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
@@ -114,4 +114,33 @@ export const putActivityLog = async (params: { action: string; data: any }) => {
     messageBroker: messageBroker(),
     ...updatedParams,
   });
+};
+
+export default {
+  getSchemaLabels: ({ data: { type } }) => ({
+    status: 'success',
+    data: getSchemaLabels(type, [{ name: 'product', schemas: [tagSchema] }]),
+  }),
+  getActivityContent: async ({ subdomain, data }) => {
+    const { action, content } = data;
+    const models = await generateModels(subdomain);
+
+    if (action === 'tagged') {
+      let tags: ITagDocument[] = [];
+
+      if (content) {
+        tags = await models.Tags.find({ _id: { $in: content.tagIds } });
+      }
+
+      return {
+        data: tags,
+        status: 'success',
+      };
+    }
+
+    return {
+      status: 'error',
+      data: 'wrong action',
+    };
+  }
 };
