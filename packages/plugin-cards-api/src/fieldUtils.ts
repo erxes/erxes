@@ -1,5 +1,5 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
-import { IModels } from './connectionResolver';
+import { generateModels, IModels } from './connectionResolver';
 import { BOARD_ITEM_EXTENDED_FIELDS } from './constants';
 import { sendSegmentsMessage } from './messageBroker';
 
@@ -43,8 +43,9 @@ const getPipelineLabelOptions = async (models: IModels, pipelineId) => {
   };
 };
 
-export const generateFields = async (models: IModels, subdomain: string, args) => {
-  const { type, config = {}, segmentId, usageType } = args;
+export const generateFields = async ({ subdomain, data }) => {
+  const models = await generateModels(subdomain);
+  const { type, config = {}, segmentId, usageType } = data;
   const { pipelineId } = config;
 
   let schema: any;
