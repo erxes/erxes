@@ -7,7 +7,7 @@ import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
 import { generateModels, models, coreModels, getSubdomain } from './connectionResolver';
-import logConsumers from './logConsumers';
+import logs from './logs';
 import tags from '../tags';
 
 export let mainDb;
@@ -42,7 +42,7 @@ export default {
       contentTypes: ['conversation'],
     },
     tags,
-    logs: { providesActivityLog: true, consumers: logConsumers }
+    logs: { providesActivityLog: true, consumers: logs }
   },
   apolloServerContext: (context) => {
     const subdomain = 'os';

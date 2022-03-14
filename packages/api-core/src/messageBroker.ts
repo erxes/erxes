@@ -119,13 +119,21 @@ export const initBroker = async (options) => {
 
       return {
         status: 'success',
-        data: await Users.find(query)
+        data: await Users.find(query).lean()
       }
     });
 
     consumeRPCQueue('core:brands.findOne', async query => ({
       status: 'success', data: await Brands.findOne(query)
     }));
+
+    consumeRPCQueue('core:brands.find', async data => {
+      const { query } = data;
+
+      return {
+        status: 'success', data: await Brands.find(query).lean()
+      }
+    });
 
     consumeRPCQueue('core:getActivityContent', async data => {
       const { action, content } = data;
