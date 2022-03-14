@@ -4,6 +4,8 @@ export default {
     'contacts:company': 'companies'
   },
 
+  contentTypes: ['customer', 'company'],
+
   descriptionMap: {
     deal: 'Deal',
     ticket: 'Ticket',

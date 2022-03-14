@@ -72,13 +72,10 @@ class Form extends React.Component<any, any, any> {
 
     const boards = boardsQuery.boards || [];
 
-    console.log(propertyType);
-
     if (
       propertyType &&
       !['cards:deal', 'cards:ticket', 'cards:task'].includes(propertyType)
     ) {
-      console.log(1);
       return null;
     }
 
@@ -86,7 +83,6 @@ class Form extends React.Component<any, any, any> {
       !hideDetailForm &&
       ['cards:deal', 'cards:ticket', 'cards:task'].includes(type)
     ) {
-      console.log(2, hideDetailForm, type);
       return null;
     }
 
@@ -123,7 +119,7 @@ class Form extends React.Component<any, any, any> {
 
 const generateVariable = (type, propertyType) => {
   if (['cards:deal', 'cards:ticket', 'cards:task'].includes(type)) {
-    return type.split(':')[1];
+    return { type: type.split(':')[1] };
   }
 
   return { type: propertyType.split(':')[1] };
