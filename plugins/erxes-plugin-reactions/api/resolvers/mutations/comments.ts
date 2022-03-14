@@ -8,6 +8,8 @@ const commentMutations = [
         user
       );
 
+      await models.Exms.useScoringConfig(models, user, 'commentAdd');
+
       return comment;
     }
   },
@@ -18,7 +20,7 @@ const commentMutations = [
       const comment = await models.Comments.findOne({ _id });
 
       if (comment.createdBy !== user._id) {
-        throw new Error('You cannot edit somebody`s comment');
+        throw new Error('You can only edit your comment');
       }
 
       const updated = await models.Comments.updateComment(
@@ -38,8 +40,10 @@ const commentMutations = [
       const comment = await models.Comments.findOne({ _id });
 
       if (comment.createdBy !== user._id) {
-        throw new Error('You cannot delete somebody`s comment');
+        throw new Error('You can only delete your comment');
       }
+
+      await models.Exms.useScoringConfig(models, user, 'commentRemove');
 
       return models.Comments.removeComment(models, _id);
     }

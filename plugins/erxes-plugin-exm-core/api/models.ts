@@ -41,6 +41,20 @@ class Exm {
 
     return exmObj.remove();
   }
+
+  public static async useScoringConfig(models, user, action, earnOrSpend) {
+    const exmObj = await models.Exms.findOne().lean();
+
+    const scoringConfig = (exmObj.scoringConfig || []).find(
+      config => config.action === action
+    ) || { score: 0 };
+
+    const score = scoringConfig.score || 0;
+
+    await models.Users.updateOne({ _id: user._id }, { $inc: { score } });
+
+    return score;
+  }
 }
 
 export default [
