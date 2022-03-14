@@ -112,7 +112,7 @@ export const itemsAdd = async (
     // clean custom field values
     extendedDoc.customFieldsData = await sendFormsMessage({
       subdomain,
-      action: 'prepareCustomFieldsData',
+      action: 'fields.prepareCustomFieldsData',
       data: extendedDoc.customFieldsData,
       isRPC: true
     });
@@ -258,7 +258,7 @@ export const itemsEdit = async (
     // clean custom field values
     extendedDoc.customFieldsData = await sendFormsMessage({
       subdomain,
-      action: 'prepareCustomFieldsData',
+      action: 'fields.prepareCustomFieldsData',
       data: extendedDoc.customFieldsData,
       isRPC: true
     });

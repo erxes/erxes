@@ -1,8 +1,7 @@
-import { NotificationConfigurations, Notifications } from '../../models';
 import { NOTIFICATION_MODULES } from '../../constants';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
-import { IContext, paginate } from '@erxes/api-utils/src';
-
+import { paginate } from '@erxes/api-utils/src';
+import { IContext } from '../../connectionResolver';
 const notificationQueries = {
   /**
    * Notifications list
@@ -23,7 +22,7 @@ const notificationQueries = {
       page: number;
       perPage: number;
     },
-    { user }: IContext
+    { models, subdomain, user }: IContext
   ) {
     const sort = { date: -1 };
     const selector: any = { receiver: user._id };
@@ -41,12 +40,12 @@ const notificationQueries = {
     }
 
     if (limit) {
-      return Notifications.find(selector)
+      return models.Notifications.find(selector)
         .sort(sort)
         .limit(limit);
     }
 
-    return paginate(Notifications.find(selector), params).sort(sort);
+    return paginate(models.Notifications.find(selector), params).sort(sort);
   },
 
   /**
@@ -55,7 +54,7 @@ const notificationQueries = {
   notificationCounts(
     _root,
     { requireRead }: { requireRead: boolean },
-    { user }: IContext
+    { user, models }: IContext
   ) {
     const selector: any = { receiver: user._id };
 
@@ -63,7 +62,7 @@ const notificationQueries = {
       selector.isRead = false;
     }
 
-    return Notifications.find(selector).countDocuments();
+    return models.Notifications.find(selector).countDocuments();
   },
 
   /**
@@ -76,8 +75,8 @@ const notificationQueries = {
   /**
    * Get per user configuration
    */
-  notificationsGetConfigurations(_root, _args, { user }: IContext) {
-    return NotificationConfigurations.find({ user: user._id });
+  notificationsGetConfigurations(_root, _args, { user, models }: IContext) {
+    return models.NotificationConfigurations.find({ user: user._id });
   },
 };
 
