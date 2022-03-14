@@ -213,7 +213,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
               type: contentType,
               onChangeConfig: this.onChangeConfig,
               hideDetailForm,
-              from: "form",
+              component: "form",
             }}
           />
         );

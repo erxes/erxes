@@ -63,7 +63,8 @@ class Form extends React.Component<any, any, any> {
       config,
       hideDetailForm,
       propertyType,
-      type
+      type,
+      component
     } = this.props;
 
     if (boardsQuery.loading) {
@@ -72,21 +73,7 @@ class Form extends React.Component<any, any, any> {
 
     const boards = boardsQuery.boards || [];
 
-    if (
-      propertyType &&
-      !['cards:deal', 'cards:ticket', 'cards:task'].includes(propertyType)
-    ) {
-      return null;
-    }
-
-    if (
-      !hideDetailForm &&
-      ['cards:deal', 'cards:ticket', 'cards:task'].includes(type)
-    ) {
-      return null;
-    }
-
-    return (
+    const content = (
       <>
         <FlexContent>
           <FlexItem>
@@ -114,6 +101,26 @@ class Form extends React.Component<any, any, any> {
         </FlexContent>
       </>
     );
+
+    if (component === 'filter') {
+      if (
+        propertyType &&
+        !['cards:deal', 'cards:ticket', 'cards:task'].includes(propertyType)
+      ) {
+        return null;
+      }
+
+      if (
+        !hideDetailForm &&
+        ['cards:deal', 'cards:ticket', 'cards:task'].includes(type)
+      ) {
+        return null;
+      }
+
+      return content;
+    } else if (['cards:deal', 'cards:ticket', 'cards:task'].includes(type)) {
+      return content;
+    }
   }
 }
 
