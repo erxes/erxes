@@ -113,6 +113,25 @@ export const initBroker = async options => {
       data: await Configs.find(args).distinct('value')
     }));
 
+    consumeRPCQueue('core:users.findOne', async query => ({
+      status: 'success',
+      data: await Users.findOne(query)
+    }));
+
+    consumeRPCQueue('core:users.find', async data => {
+      const { query } = data;
+
+      return {
+        status: 'success',
+        data: await Users.find(query)
+      };
+    });
+
+    consumeRPCQueue('core:brands.findOne', async query => ({
+      status: 'success',
+      data: await Brands.findOne(query)
+    }));
+
     consumeRPCQueue('core:getActivityContent', async data => {
       const { action, content } = data;
 
@@ -121,9 +140,6 @@ export const initBroker = async options => {
         let removedUsers: IUserDocument[] = [];
 
         if (content) {
-          // addedUsers = await getDocumentList('users', {
-          //   _id: { $in: content.addedUserIds },
-          // });
           addedUsers = await Users.find({ _id: { $in: content.addedUserIds } });
 
           removedUsers = await Users.find({
@@ -153,17 +169,6 @@ export const initBroker = async options => {
         if (user) {
           return { data: { type: 'user', content: user }, status: 'success' };
         }
-
-        // const integration = await sendRPCMessage(
-        //   'inbox:rpc_queue:getIntegration',
-        //   { _id: activityLog.createdBy }
-        // );
-
-        // if (integration) {
-        //   const brand = await Brands.findOne({ _id: integration.brandId });
-
-        //   return { data: { type: 'brand', content: brand }, status: 'success' };
-        // }
 
         return { data: {}, status: 'success' };
       }
@@ -226,6 +231,27 @@ export const initBroker = async options => {
       status: 'success',
       data: await getAwsConfigs()
     }));
+    consumeRPCQueue('core:logs:collectItems', async ({ contentId }) => {
+      const deliveries = await EmailDeliveries.find({
+        customerId: contentId
+      }).lean();
+
+      const results: any[] = [];
+
+      for (const d of deliveries) {
+        results.push({
+          _id: d._id,
+          contentType: 'email',
+          contentId,
+          createdAt: d.createdAt
+        });
+      }
+
+      return {
+        status: 'success',
+        data: results
+      };
+    });
   }
 
   return client;

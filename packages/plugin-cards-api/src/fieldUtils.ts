@@ -1,5 +1,5 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
-import { IModels } from './connectionResolver';
+import { generateModels, IModels } from './connectionResolver';
 import { BOARD_ITEM_EXTENDED_FIELDS } from './constants';
 import { sendSegmentsMessage } from './messageBroker';
 
@@ -43,7 +43,8 @@ const getPipelineLabelOptions = async (models: IModels, pipelineId) => {
   };
 };
 
-export const generateFields = async (models: IModels, subdomain: string, args) => {
+export const generateFields = async (subdomain: string, args) => {
+  const models = await generateModels(subdomain);
   const { type, config = {}, segmentId, usageType } = args;
   const { pipelineId } = config;
 
@@ -96,7 +97,12 @@ export const generateFields = async (models: IModels, subdomain: string, args) =
 
   if (segmentId || pipelineId) {
     const segment = segmentId
-      ? await sendSegmentsMessage({ subdomain, action: 'findOne', data: { _id: segmentId }, isRPC: true })
+      ? await sendSegmentsMessage({
+          subdomain,
+          action: 'findOne',
+          data: { _id: segmentId },
+          isRPC: true
+        })
       : null;
 
     const labelOptions = await getPipelineLabelOptions(

@@ -184,7 +184,11 @@ async function startServer() {
   try {
     // connect to mongo database
     const db = await connect(mongoUrl);
-    const messageBrokerClient = await initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis });
+    const messageBrokerClient = await initBroker({
+      RABBITMQ_HOST,
+      MESSAGE_BROKER_PREFIX,
+      redis
+    });
 
     configs.onServerInit({
       db,
@@ -274,27 +278,22 @@ async function startServer() {
         }
 
         if (logs.collectItems) {
-          consumeRPCQueue(
-            `${configs.name}:logs:collectItems`,
-            async args => ({
-              status: 'success',
-              data: await logs.collectItems(args)
-            })
-          );
+          consumeRPCQueue(`${configs.name}:logs:collectItems`, async args => ({
+            status: 'success',
+            data: await logs.collectItems(args)
+          }));
         }
 
         if (logs.getContentIds) {
-          consumeRPCQueue(
-            `${configs.name}:logs:getContentIds`,
-            async args => ({
-              status: 'success',
-              data: await logs.getContentIds(args)
-            })
-          );
+          consumeRPCQueue(`${configs.name}:logs:getContentIds`, async args => ({
+            status: 'success',
+            data: await logs.getContentIds(args)
+          }));
         }
 
         if (logs.getSchemaLabels) {
-          consumeRPCQueue(`${configs.name}:logs:getSchemaLabels`,
+          consumeRPCQueue(
+            `${configs.name}:logs:getSchemaLabels`,
             async args => ({
               status: 'success',
               data: await logs.getSchemaLabels(args)

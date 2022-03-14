@@ -15,8 +15,7 @@ import {
   IConversationDocument
 } from './definitions/conversations';
 import { ICoreIModels, IModels } from '../connectionResolver';
-// import { Skills } from './Skills';
-
+import { sendFormsMessage } from '../messageBroker';
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
@@ -143,12 +142,13 @@ export const loadClass = (models: IModels, coreModels: ICoreIModels, subdomain: 
         doc.content = cleanHtml(doc.content);
       }
 
-      // ? if (doc.customFieldsData) {
-      //   // clean custom field values
-      //   doc.customFieldsData = await Fields.prepareCustomFieldsData(
-      //     doc.customFieldsData
-      //   );
-      // }
+      // clean custom field values
+      doc.customFieldsData = await sendFormsMessage({
+        subdomain,
+        action: "fields.prepareCustomFieldsData",
+        data: doc.customFieldsData,
+        isRPC: true,
+      });
 
       return models.Conversations.updateOne({ _id }, { $set: doc });
     }

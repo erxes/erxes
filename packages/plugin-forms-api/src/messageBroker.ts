@@ -1,6 +1,7 @@
-import { serviceDiscovery } from './configs';
 import { Fields, FieldsGroups, Forms } from './models';
+import { sendMessage } from '@erxes/api-utils/src/core';
 import { fieldsCombinedByContentType } from './utils';
+import { serviceDiscovery } from './configs';
 
 let client;
 
@@ -11,23 +12,26 @@ export const initBroker = async cl => {
 
   consumeRPCQueue(
     'forms:validate',
-    async ({ subdomain, data: { formId, submissions } }) => ({
+    async ({ data: { formId, submissions } }) => ({
       status: 'success',
       data: await Forms.validate(formId, submissions)
     })
   );
 
-  consumeRPCQueue('forms:rpc_queue:duplicate', async ({ formId }) => ({
-    status: 'success',
-    data: await Forms.duplicate(formId)
-  }));
+  consumeRPCQueue(
+    'forms:rpc_queue:duplicate',
+    async ({ data: { formId } }) => ({
+      status: 'success',
+      data: await Forms.duplicate(formId)
+    })
+  );
 
   consumeQueue('forms:removeForm', async ({ formId }) => ({
     status: 'success',
     data: await Forms.removeForm(formId)
   }));
 
-  consumeRPCQueue('forms:prepareCustomFieldsData', async ({ data }) => ({
+  consumeRPCQueue('forms:fields.prepareCustomFieldsData', async ({ data }) => ({
     status: 'success',
     data: await Fields.prepareCustomFieldsData(data)
   }));
@@ -59,10 +63,10 @@ export const initBroker = async cl => {
     }
   );
 
-  consumeRPCQueue('forms:rpc_queue:fieldsCombinedByContentType', async arg => {
+  consumeRPCQueue('forms:fieldsCombinedByContentType', async ({ data }) => {
     return {
       status: 'success',
-      data: await fieldsCombinedByContentType(arg)
+      data: await fieldsCombinedByContentType(data)
     };
   });
 };
@@ -71,25 +75,22 @@ export const fetchService = async (
   contentType: string,
   action: string,
   data,
-  defaultValue
+  defaultValue?
 ) => {
   const [serviceName, type] = contentType.split(':');
 
-  // const xxa = await serviceDiscovery.isEnabled(serviceName);
-
-  // console.log(serviceName, xxa);
-
-  // if (!(await serviceDiscovery.isEnabled(serviceName))) {
-  //   return defaultValue;
-  // }
-
-  // if (!(await serviceDiscovery.isAvailable(serviceName))) {
-  //   throw new Error(`${serviceName} service is not available.`);
-  // }
-
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:fields:${action}`, {
-    ...data,
-    type
+  return sendMessage({
+    subdomain: 'os',
+    serviceDiscovery,
+    client,
+    isRPC: true,
+    serviceName,
+    action: `fields.${action}`,
+    data: {
+      ...data,
+      type
+    },
+    defaultValue
   });
 };
 

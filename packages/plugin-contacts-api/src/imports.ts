@@ -7,8 +7,8 @@ import { clearEmptyValues, generatePronoun } from './importUtils';
 export default {
   importTypes: IMPORT_TYPES,
   exportTypes: EXPORT_TYPES,
-  insertImportItems: async args => {
-    const models = await generateModels('os');
+  insertImportItems: async (subdomain, args) => {
+    const models = await generateModels(subdomain);
 
     const { Customers, Companies } = models;
 
