@@ -81,6 +81,9 @@ const sidebarConversations = `
           name
         }
       }
+      ${
+        isEnabled("contacts")
+          ? `
       customer {
         _id
         firstName
@@ -92,11 +95,20 @@ const sidebarConversations = `
         avatar
         visitorContactInfo
       }
+      `
+          : ``
+      }
       tagIds
+      ${
+        isEnabled("tags")
+          ? `
       tags {
         _id
         name
         colorCode
+      }
+      `
+          : ``
       }
       readUserIds
     }
@@ -374,6 +386,9 @@ const integrationsConversationFbComments = `
       commentCount
       isResolved
       permalink_url
+      ${
+        isEnabled("contacts")
+          ? `
       customer {
         _id
         visitorContactInfo
@@ -381,6 +396,8 @@ const integrationsConversationFbComments = `
         firstName
         lastName
         middleName
+      }`
+          : ``
       }
     }
   }

@@ -1,3 +1,5 @@
+import { isEnabled } from "@erxes/ui/src/utils/core";
+
 export default `
   _id
   content
@@ -34,6 +36,9 @@ export default `
       position
     }
   }
+  ${
+    isEnabled("contacts")
+      ? `
   customer {
     _id
     avatar
@@ -57,6 +62,9 @@ export default `
       name
       colorCode
     }
+  }
+  `
+      : ``
   }
   mailData {
     messageId

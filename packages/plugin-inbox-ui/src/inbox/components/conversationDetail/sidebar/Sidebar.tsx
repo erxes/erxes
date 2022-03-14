@@ -12,6 +12,7 @@ import WebsiteActivity from '@erxes/ui-contacts/src/customers/components/common/
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import { IField } from '@erxes/ui/src/types';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const ActionSection = asyncComponent(() =>
   import(
@@ -221,12 +222,14 @@ class Index extends React.Component<IndexProps, IndexState> {
             />
             <ConversationCustomFieldsSection conversation={conversation} />
           </Box>
-          <TaggerSection
-            data={customer}
-            type='customer'
-            refetchQueries={taggerRefetchQueries}
-            collapseCallback={toggleSection}
-          />
+          {isEnabled("tags") &&
+            <TaggerSection
+              data={customer}
+              type='customer'
+              refetchQueries={taggerRefetchQueries}
+              collapseCallback={toggleSection}
+            />
+          }
 
           {this.renderTrackedData({ customer, kind, toggleSection })}
           {this.renderDeviceProperties({
@@ -281,18 +284,22 @@ class Index extends React.Component<IndexProps, IndexState> {
             >
               {__('Details')}
             </TabTitle>
-            <TabTitle
-              className={currentSubTab === 'activity' ? 'active' : ''}
-              onClick={activityOnClick}
-            >
-              {__('Activity')}
-            </TabTitle>
+            {isEnabled("contacts") &&
+              <TabTitle
+                className={currentSubTab === 'activity' ? 'active' : ''}
+                onClick={activityOnClick}
+              >
+                {__('Activity')}
+              </TabTitle>
+            }
+            {isEnabled("cards") &&
             <TabTitle
               className={currentSubTab === 'related' ? 'active' : ''}
               onClick={relatedOnClick}
             >
               {__('Related')}
             </TabTitle>
+            }
           </Tabs>
           {this.renderTabSubContent()}
         </>
