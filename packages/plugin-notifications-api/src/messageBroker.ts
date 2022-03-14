@@ -126,14 +126,14 @@ export const initBroker = async (cl) => {
 
   const { consumeRPCQueue, consumeQueue } = cl;
 
-  consumeQueue('notifications:send', async ({ subdomain, doc }) => {
+  consumeQueue('notifications:send', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-    await sendNotification(models, subdomain, doc);
+    await sendNotification(models, subdomain, data);
   });
 
   consumeQueue(
     'notifications:batchUpdate',
-    async ({ subdomain, selector, modifier }) => {
+    async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
       await models.Notifications.update(selector, modifier, { multi: true });
     }
@@ -141,7 +141,7 @@ export const initBroker = async (cl) => {
 
   consumeRPCQueue(
     'notifications:checkIfRead',
-    async ({ subdomain, userId, itemId }) => {
+    async ({ subdomain, data: { userId, itemId } }) => {
       const models = await generateModels(subdomain);
       return {
         status: 'success',
@@ -150,7 +150,7 @@ export const initBroker = async (cl) => {
     }
   );
 
-  consumeRPCQueue('notifications:find', async (subdomain, selector, fields) => {
+  consumeRPCQueue('notifications:find', async ({ subdomain, data: { selector, fields } }) => {
     const models = await generateModels(subdomain);
     return {
       status: 'success',
