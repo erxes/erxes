@@ -1,3 +1,5 @@
+import { isEnabled } from "@erxes/ui/src/utils/core";
+
 export const commonFields = `
   brandId
   name
@@ -15,10 +17,16 @@ export const commonFields = `
   languageCode
   leadData
   formId
-  tags {
-    _id
-    name
-    colorCode
+  ${
+    isEnabled("tags")
+      ? `
+      tags {
+        _id
+        name
+        colorCode
+      }
+  `
+      : ``
   }
   tagIds
   form {
@@ -74,11 +82,17 @@ const integrationsTotalCount = `
 `;
 const tags = `
   query tags($type: String) {
-    tags(type: $type) {
-      _id
-      name
-      type
-      colorCode
+    ${
+      isEnabled("tags")
+        ? `
+        tags(type: $type) {
+          _id
+          name
+          type
+          colorCode
+        }
+    `
+        : ``
     }
   }
 `;

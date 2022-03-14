@@ -39,31 +39,36 @@ export default `
   ${
     isEnabled("contacts")
       ? `
-  customer {
-    _id
-    avatar
-    firstName
-    middleName
-    lastName
-    primaryEmail
-    primaryPhone
-    state
-    companies {
-      _id
-      primaryName
-      website
-    }
+      customer {
+        _id
+        avatar
+        firstName
+        middleName
+        lastName
+        primaryEmail
+        primaryPhone
+        state
+        companies {
+          _id
+          primaryName
+          website
+        }
 
-    customFieldsData
+        customFieldsData
 
-    tagIds
-    getTags {
-      _id
-      name
-      colorCode
-    }
-  }
-  `
+        tagIds
+        ${
+          isEnabled("tags")
+            ? `
+            getTags {
+              _id
+              name
+              colorCode
+            }
+          ` : `` 
+        }
+      }
+    `
       : ``
   }
   mailData {
