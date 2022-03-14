@@ -28,7 +28,7 @@ export const initBroker = async cl => {
     data: await Forms.removeForm(formId)
   }));
 
-  consumeRPCQueue('forms:prepareCustomFieldsData', async ({ data }) => ({
+  consumeRPCQueue('forms:fields.prepareCustomFieldsData', async ({ data }) => ({
     status: 'success',
     data: await Fields.prepareCustomFieldsData(data)
   }));
