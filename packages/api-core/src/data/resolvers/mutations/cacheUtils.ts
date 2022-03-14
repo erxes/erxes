@@ -4,7 +4,7 @@ import { Brands, Users } from '../../../db/models';
 import { get, set } from '../../../inmemoryStorage';
 
 export const getDocument = async (
-  type: 'users' | 'brands' | 'channels',
+  type: 'users' | 'brands',
   selector: { [key: string]: any }
 ) => {
   const list = await getDocumentList(type, selector);
@@ -17,7 +17,7 @@ export const getDocument = async (
 };
 
 export const getDocumentList = async (
-  type: 'users' | 'brands' | 'channels',
+  type: 'users' | 'brands',
   selector: { [key: string]: any }
 ) => {
   const listCache = await get(`erxes_${type}`);

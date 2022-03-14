@@ -5,6 +5,7 @@ import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import { generateAllDataLoaders } from './dataloaders';
 import { coreModels, generateModels, models } from './connectionResolver';
+import logs from './logUtils';
 
 export let debug;
 export let mainDb;
@@ -24,6 +25,7 @@ export default {
 
     return context;
   },
+  meta: { logs: { consumers: logs } },
   onServerInit: async options => {
     mainDb = options.db;
 
