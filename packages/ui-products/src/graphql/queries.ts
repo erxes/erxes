@@ -35,13 +35,6 @@ const productFields = `
   supply
   productCount
   minimiumCount
-  vendor {
-    _id
-    primaryName
-    primaryPhone
-    primaryEmail
-    code
-  }
 `;
 
 const products = `

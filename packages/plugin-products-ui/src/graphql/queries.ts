@@ -29,11 +29,6 @@ const productDetail = `
     productDetail(_id: $_id) {
       ${productFields}
       customFieldsData
-      vendor {
-        _id
-        code
-        primaryName
-      }
     }
   }
 `;
