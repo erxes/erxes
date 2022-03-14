@@ -65,8 +65,6 @@ export const types = (tagsAvailable, contactsAvailable) => `
 
     category: ProductCategory
     ${ contactsAvailable ? 'vendor: Company' : ''}
-    
-    customFieldsDataWithText: JSON
   }
 `;
 

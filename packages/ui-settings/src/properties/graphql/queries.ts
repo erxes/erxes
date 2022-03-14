@@ -33,11 +33,8 @@ const commonFields = `
 
 const commonFieldsGroups = `
   name
-  boardsPipelines {
-    boardId
-    pipelineIds
-  }
   ${genericFields}
+  config
 
   lastUpdatedUser {
     details {
@@ -50,9 +47,15 @@ const commonFieldsGroups = `
 }
 `;
 
+const fieldsGetTypes = `
+  query fieldsGetTypes {
+    fieldsGetTypes
+  }
+`;
+
 const fieldsGroups = `
-  query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $boardId: String, $pipelineId: String) {
-    fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, boardId: $boardId, pipelineId: $pipelineId) {
+  query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $config: JSON) {
+    fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, config: $config) {
       ${commonFieldsGroups}
   }
 `;
@@ -122,6 +125,7 @@ const configs = `
 
 export default {
   fieldsGroups,
+  fieldsGetTypes,
   fields,
   getSystemFieldsGroup,
   inboxFields,

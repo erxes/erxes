@@ -193,7 +193,7 @@ class PropertyRow extends React.Component<Props, State> {
   };
 
   renderTable = (fields, contentType) => {
-    if (fields.length === 0) {
+    if (!fields) {
       return (
         <EmptyState
           icon="circular"
@@ -270,7 +270,7 @@ class PropertyRow extends React.Component<Props, State> {
           )}
         </CollapseRow>
         <Collapse in={this.state.collapse}>
-          <div>{this.renderTable(fields, group.contentType)}</div>
+          <div>{this.renderTable(fields || [], group.contentType)}</div>
         </Collapse>
       </li>
     );

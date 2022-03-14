@@ -1,9 +1,8 @@
-import { GrowthHacks } from '../../../models';
 import {
   checkPermission,
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src';
+import { IContext } from '../../../connectionResolver';
 import { IListParams } from './boards';
 import {
   archivedItems,
@@ -25,11 +24,11 @@ const growthHackQueries = {
   async growthHacks(
     _root,
     args: IGrowthHackListParams,
-    { user, commonQuerySelector }: IContext
+    { user, commonQuerySelector, models, subdomain }: IContext
   ) {
     const filter = {
       ...commonQuerySelector,
-      ...(await generateGrowthHackCommonFilters(user._id, args))
+      ...(await generateGrowthHackCommonFilters(models, subdomain, user._id, args))
     };
     const { sortField, sortDirection, skip = 0, limit = 10 } = args;
 
@@ -42,7 +41,7 @@ const growthHackQueries = {
     sort.order = 1;
     sort.createdAt = -1;
 
-    return GrowthHacks.find(filter)
+    return models.GrowthHacks.find(filter)
       .sort(sort)
       .skip(skip)
       .limit(limit);
@@ -51,12 +50,12 @@ const growthHackQueries = {
   /**
    * Archived list
    */
-  archivedGrowthHacks(_root, args: IArchiveArgs) {
-    return archivedItems(args, GrowthHacks);
+  archivedGrowthHacks(_root, args: IArchiveArgs, { models }: IContext) {
+    return archivedItems(models, args, models.GrowthHacks);
   },
 
-  archivedGrowthHacksCount(_root, args: IArchiveArgs) {
-    return archivedItemsCount(args, GrowthHacks);
+  archivedGrowthHacksCount(_root, args: IArchiveArgs, { models }: IContext) {
+    return archivedItemsCount(models, args, models.GrowthHacks);
   },
 
   /**
@@ -65,24 +64,24 @@ const growthHackQueries = {
   async growthHacksTotalCount(
     _root,
     args: IGrowthHackListParams,
-    { user }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    const filter = await generateGrowthHackCommonFilters(user._id, args);
+    const filter = await generateGrowthHackCommonFilters(models, subdomain, user._id, args);
 
-    return GrowthHacks.find(filter).countDocuments();
+    return models.GrowthHacks.find(filter).countDocuments();
   },
 
   async growthHacksPriorityMatrix(
     _root,
     args: IListParams,
-    { user }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    const filter = await generateGrowthHackCommonFilters(user._id, args);
+    const filter = await generateGrowthHackCommonFilters(models, subdomain, user._id, args);
 
     filter.ease = { $exists: true, $gt: 0 };
     filter.impact = { $exists: true, $gt: 0 };
 
-    return GrowthHacks.aggregate([
+    return models.GrowthHacks.aggregate([
       {
         $match: filter
       },
@@ -111,10 +110,10 @@ const growthHackQueries = {
   /**
    * Growth hack detail
    */
-  async growthHackDetail(_root, { _id }: { _id: string }, { user }: IContext) {
-    const growthHack = await GrowthHacks.getGrowthHack(_id);
+  async growthHackDetail(_root, { _id }: { _id: string }, { user, models }: IContext) {
+    const growthHack = await models.GrowthHacks.getGrowthHack(_id);
 
-    return checkItemPermByUser(user._id, growthHack);
+    return checkItemPermByUser(models, user._id, growthHack);
   }
 };
 

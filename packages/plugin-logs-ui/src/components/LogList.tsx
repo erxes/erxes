@@ -69,12 +69,12 @@ const moduleOptions = [
   { value: 'cards:taskStages', label: 'Task stages' },
   { value: 'cards:ticketStages', label: 'Ticket stages' },
   { value: 'cards:growthHackStages', label: 'Growth hack stages' },
-  // api-core service items
-  { value: 'api-core:brand', label: 'Brands' },
-  { value: 'api-core:permission', label: 'Permissions' },
-  { value: 'api-core:user', label: 'Users' },
-  { value: 'api-core:userGroup', label: 'User groups' },
-  { value: 'api-core:segment', label: 'Segments' },
+  // core-api service items
+  { value: 'core-api:brand', label: 'Brands' },
+  { value: 'core-api:permission', label: 'Permissions' },
+  { value: 'core-api:user', label: 'Users' },
+  { value: 'core-api:userGroup', label: 'User groups' },
+  { value: 'core-api:segment', label: 'Segments' },
   // inbox service items
   { value: 'inbox:integration', label: 'Integrations' },
   { value: 'inbox:channel', label: 'Channels' },

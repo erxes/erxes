@@ -104,7 +104,7 @@ const customerDetail = `
 
 const customersListConfig = `
   query {
-    fieldsDefaultColumnsConfig(contentType: "customer") {
+    fieldsDefaultColumnsConfig(contentType: "contacts:customer") {
       name
       label
       order

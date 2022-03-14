@@ -188,7 +188,7 @@ const integrationQueries = {
 
     const accessToken = account.token;
 
-    let pages = [];
+    let pages: any[] = [];
 
     try {
       pages = await getPageList(accessToken, kind);

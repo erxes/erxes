@@ -10,20 +10,30 @@ import {
   getPostLink
 } from './utils';
 
+interface IDoc {
+  postId?: string,
+  commentId?: string,
+  recipientId: string,
+  senderId: string,
+  content: string,
+  parentId?: string,
+  attachments?: string[],
+  timestamp?: string | number,
+  permalink_url?: ''
+}
+
 export const generatePostDoc = (
   postParams: IPostParams,
   pageId: string,
   userId: string
 ) => {
   const { post_id, id, link, photos, created_time, message } = postParams;
-
-  const doc = {
+  
+  const doc: IDoc = {
     postId: post_id || id,
     content: message || '...',
     recipientId: pageId,
     senderId: userId,
-    attachments: null,
-    timestamp: null,
     permalink_url: ''
   };
 
@@ -60,15 +70,12 @@ export const generateCommentDoc = (
     post
   } = commentParams;
 
-  const doc = {
+  const doc: IDoc = {
     postId: post_id,
     commentId: comment_id,
     recipientId: pageId,
     senderId: userId,
     content: message || '...',
-    parentId: null,
-    attachments: null,
-    timestamp: null,
     permalink_url: ''
   };
 
@@ -111,7 +118,7 @@ export const getOrCreatePost = async (
     $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }]
   });
 
-  const { facebookPageTokensMap } = integration;
+  const { facebookPageTokensMap = {} } = integration;
 
   if (post) {
     return post;
@@ -120,7 +127,7 @@ export const getOrCreatePost = async (
   const postUrl = await getPostLink(
     pageId,
     facebookPageTokensMap,
-    postParams.post_id
+    postParams.post_id || ''
   );
 
   const doc = generatePostDoc(postParams, pageId, userId);
@@ -199,7 +206,7 @@ export const getOrCreateCustomer = async (
     $and: [{ facebookPageIds: { $in: pageId } }, { kind }]
   });
 
-  const { facebookPageTokensMap } = integration;
+  const { facebookPageTokensMap = {} } = integration;
 
   let customer = await Customers.findOne({ userId });
 

@@ -1,13 +1,12 @@
 import * as _ from 'underscore';
-import { PipelineTemplates } from '../../../models';
 import {
   IPipelineTemplate,
   IPipelineTemplateStage
 } from '../../../models/definitions/pipelineTemplates';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
-import { IContext } from '@erxes/api-utils/src';
 // import { registerOnboardHistory } from '../../utils';
 import { checkPermission } from '../../utils';
+import { IContext } from '../../../connectionResolver';
 
 interface IPipelineTemplatesEdit extends IPipelineTemplate {
   _id: string;
@@ -21,16 +20,18 @@ const pipelineTemplateMutations = {
   async pipelineTemplatesAdd(
     _root,
     { stages, ...doc }: IPipelineTemplate,
-    { user, docModifier }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
     await checkPermission(doc.type, user, 'templatesAdd');
 
-    const pipelineTemplate = await PipelineTemplates.createPipelineTemplate(
+    const pipelineTemplate = await models.PipelineTemplates.createPipelineTemplate(
       docModifier({ createdBy: user._id, ...doc }),
       stages
     );
 
     await putCreateLog(
+      models,
+      subdomain,
       {
         type: 'pipelineTemplate',
         newData: { ...doc, stages: pipelineTemplate.stages },
@@ -48,18 +49,20 @@ const pipelineTemplateMutations = {
   async pipelineTemplatesEdit(
     _root,
     { _id, stages, ...doc }: IPipelineTemplatesEdit,
-    { user }: IContext
+    { user, models, subdomain }: IContext
   ) {
     await checkPermission(doc.type, user, 'templatesEdit');
 
-    const pipelineTemplate = await PipelineTemplates.getPipelineTemplate(_id);
-    const updated = await PipelineTemplates.updatePipelineTemplate(
+    const pipelineTemplate = await models.PipelineTemplates.getPipelineTemplate(_id);
+    const updated = await models.PipelineTemplates.updatePipelineTemplate(
       _id,
       doc,
       stages
     );
 
     await putUpdateLog(
+      models,
+      subdomain,
       {
         type: 'pipelineTemplate',
         newData: { ...doc, stages: updated.stages },
@@ -78,9 +81,9 @@ const pipelineTemplateMutations = {
   async pipelineTemplatesDuplicate(
     _root,
     { _id }: { _id: string },
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    const pipelineTemplate = await PipelineTemplates.getPipelineTemplate(_id);
+    const pipelineTemplate = await models.PipelineTemplates.getPipelineTemplate(_id);
 
     await checkPermission(pipelineTemplate.type, user, 'templatesDuplicate');
 
@@ -89,7 +92,7 @@ const pipelineTemplateMutations = {
     //   user
     // });
 
-    return PipelineTemplates.duplicatePipelineTemplate(_id);
+    return models.PipelineTemplates.duplicatePipelineTemplate(_id);
   },
 
   /**
@@ -98,15 +101,17 @@ const pipelineTemplateMutations = {
   async pipelineTemplatesRemove(
     _root,
     { _id }: { _id: string },
-    { user }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    const pipelineTemplate = await PipelineTemplates.getPipelineTemplate(_id);
+    const pipelineTemplate = await models.PipelineTemplates.getPipelineTemplate(_id);
 
     await checkPermission(pipelineTemplate.type, user, 'templatesRemove');
 
-    const removed = await PipelineTemplates.removePipelineTemplate(_id);
+    const removed = await models.PipelineTemplates.removePipelineTemplate(_id);
 
     await putDeleteLog(
+      models,
+      subdomain,
       { type: 'pipelineTemplate', object: pipelineTemplate },
       user
     );

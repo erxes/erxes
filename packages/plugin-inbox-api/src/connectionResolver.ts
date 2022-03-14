@@ -45,7 +45,7 @@ export let models: IModels;
 export let coreModels: ICoreIModels;
 
 export const generateModels = async (
-  _hostnameOrSubdomain: string
+  hostnameOrSubdomain: string
 ): Promise<IModels> => {
   if (models) {
     return models;
@@ -53,10 +53,11 @@ export const generateModels = async (
 
   coreModels = await connectCore();
 
-  loadClasses(mainDb);
+  loadClasses(mainDb, hostnameOrSubdomain);
 
   return models;
 };
+
 
 export const generateCoreModels = async (
   _hostnameOrSubdomain: string
@@ -64,7 +65,15 @@ export const generateCoreModels = async (
     return coreModels;
 };
 
+export const getSubdomain = (hostname: string): string => {
+  return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
+};
+
 const connectCore = async () => {
+  if (coreModels) {
+    return coreModels;
+  }
+
   const url = process.env.API_MONGO_URL || 'mongodb://localhost/erxes';
   const client = new MongoClient(url);
 
@@ -78,30 +87,29 @@ const connectCore = async () => {
 
   db = client.db(dbName);
 
-  return {
+  coreModels = {
     Brands: await db.collection('brands'),
     Users: await db.collection('users'),
     Fields: await db.collection('form_fields'),
     FieldsGroups: await db.collection('form_field_groups'),
     Forms: await db.collection('forms'),
     EmailDeliveries: await db.collection('email_deliveries')
-  }
-}
+  };
 
-export const loadClasses = (db: mongoose.Connection): IModels => {
+  return coreModels;
+};
+
+export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels => {
   models = {} as IModels;
   
   models.Channels = db.model<IChannelDocument, IChannelModel>('channels', loadChannelClass(models))
-  
   models.Skills = db.model<ISkillDocument, ISkillModel>('skills', loadSkillClass(models))
   models.SkillTypes = db.model<ISkillTypeDocument, ISkillTypeModel>('skill_types', loadSkillTypeClass(models))
-
   models.ResponseTemplates = db.model<IResponseTemplateDocument, IResponseTemplateModel>('response_templates', loadResponseTemplateClass(models))
-  models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>('integrations', loadIntegrationClass(models, coreModels))
+  models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>('integrations', loadIntegrationClass(models, coreModels, subdomain))
   models.MessengerApps = db.model<IMessengerAppDocument, IMessengerAppModel>('messenger_apps', loadMessengerAppClass(models))
-
   models.ConversationMessages = db.model<IMessageDocument, IMessageModel>('conversation_messages', loadMessageClass(models))
-  models.Conversations = db.model<IConversationDocument, IConversationModel>('conversations', loadConversationClass(models, coreModels))
+  models.Conversations = db.model<IConversationDocument, IConversationModel>('conversations', loadConversationClass(models, coreModels, subdomain))
 
   return models;
 };

@@ -1,9 +1,8 @@
 import { moduleCheckPermission } from "@erxes/api-utils/src/permissions";
-import { IContext } from "@erxes/api-utils/src/types";
 
-import { ProductCategories, Products } from "../../../models";
 import { IProduct, IProductCategory, IProductDocument } from "../../../models/definitions/products";
 import { putCreateLog, putDeleteLog, putUpdateLog, MODULE_NAMES } from '../../../logUtils';
+import { IContext } from "../../../connectionResolver";
 
 interface IProductsEdit extends IProduct {
   _id: string;
@@ -18,10 +17,11 @@ const productMutations = {
    * Creates a new product
    * @param {Object} doc Product document
    */
-  async productsAdd(_root, doc: IProduct, { user, docModifier }: IContext) {
-    const product = await Products.createProduct(docModifier(doc));
+  async productsAdd(_root, doc: IProduct, { user, docModifier, models }: IContext) {
+    const product = await models.Products.createProduct(docModifier(doc));
 
     await putCreateLog(
+      models,
       {
         type: MODULE_NAMES.PRODUCT,
         newData: {
@@ -45,12 +45,13 @@ const productMutations = {
   async productsEdit(
     _root,
     { _id, ...doc }: IProductsEdit,
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    const product = await Products.getProduct({ _id });
-    const updated = await Products.updateProduct(_id, doc);
+    const product = await models.Products.getProduct({ _id });
+    const updated = await models.Products.updateProduct(_id, doc);
 
     await putUpdateLog(
+      models,
       {
         type: MODULE_NAMES.PRODUCT,
         object: product,
@@ -70,16 +71,16 @@ const productMutations = {
   async productsRemove(
     _root,
     { productIds }: { productIds: string[] },
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    const products: IProductDocument[] = await Products.find({
+    const products: IProductDocument[] = await models.Products.find({
       _id: { $in: productIds }
     }).lean();
 
-    const response = await Products.removeProducts(productIds);
+    const response = await models.Products.removeProducts(productIds);
 
     for (const product of products) {
-      await putDeleteLog({ type: MODULE_NAMES.PRODUCT, object: product }, user);
+      await putDeleteLog(models, { type: MODULE_NAMES.PRODUCT, object: product }, user);
     }
 
     return response;
@@ -92,13 +93,14 @@ const productMutations = {
   async productCategoriesAdd(
     _root,
     doc: IProductCategory,
-    { user, docModifier }: IContext
+    { user, docModifier, models }: IContext
   ) {
-    const productCategory = await ProductCategories.createProductCategory(
+    const productCategory = await models.ProductCategories.createProductCategory(
       docModifier(doc)
     );
 
     await putCreateLog(
+      models,
       {
         type: MODULE_NAMES.PRODUCT_CATEGORY,
         newData: { ...doc, order: productCategory.order },
@@ -118,12 +120,13 @@ const productMutations = {
   async productCategoriesEdit(
     _root,
     { _id, ...doc }: IProductCategoriesEdit,
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    const productCategory = await ProductCategories.getProductCatogery({ _id });
-    const updated = await ProductCategories.updateProductCategory(_id, doc);
+    const productCategory = await models.ProductCategories.getProductCatogery({ _id });
+    const updated = await models.ProductCategories.updateProductCategory(_id, doc);
 
     await putUpdateLog(
+      models,
       {
         type: MODULE_NAMES.PRODUCT_CATEGORY,
         object: productCategory,
@@ -143,12 +146,13 @@ const productMutations = {
   async productCategoriesRemove(
     _root,
     { _id }: { _id: string },
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    const productCategory = await ProductCategories.getProductCatogery({ _id });
-    const removed = await ProductCategories.removeProductCategory(_id);
+    const productCategory = await models.ProductCategories.getProductCatogery({ _id });
+    const removed = await models.ProductCategories.removeProductCategory(_id);
 
     await putDeleteLog(
+      models,
       { type: MODULE_NAMES.PRODUCT_CATEGORY, object: productCategory },
       user
     );
@@ -164,9 +168,10 @@ const productMutations = {
     {
       productIds,
       productFields
-    }: { productIds: string[]; productFields: IProduct }
+    }: { productIds: string[]; productFields: IProduct },
+    { models }: IContext
   ) {
-    return Products.mergeProducts(productIds, { ...productFields });
+    return models.Products.mergeProducts(productIds, { ...productFields });
   }
 };
 

@@ -16,8 +16,6 @@ const typeDefs = async (serviceDiscovery) =>  {
   const tagsEnabled = await serviceDiscovery.isEnabled('tags');
   const inboxEnabled = await serviceDiscovery.isEnabled('inbox');
 
-  console.log({ tagsEnabled, inboxEnabled });
-
   return gql`
     scalar JSON
     scalar Date

@@ -1,14 +1,14 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import SelectBoards from '../containers/SelectBoardPipeline';
-import { IBoardSelectItem, IFieldGroup } from '../types';
+import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React from "react";
+import { IFieldGroup } from "../types";
 
 type Props = {
   group?: IFieldGroup;
@@ -20,27 +20,26 @@ type Props = {
 type State = {
   isVisible: boolean;
   isVisibleInDetail: boolean;
-  selectedItems: IBoardSelectItem[];
+  config: any;
 };
-
 class PropertyGroupForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
     let isVisible = true;
     let isVisibleInDetail = true;
-    let selectedItems = [];
+    let config = {};
 
     if (props.group) {
       isVisible = props.group.isVisible;
       isVisibleInDetail = props.group.isVisibleInDetail;
-      selectedItems = props.group.boardsPipelines || [];
+      config = props.group.config;
     }
 
     this.state = {
+      config,
       isVisible,
       isVisibleInDetail,
-      selectedItems
     };
   }
 
@@ -51,34 +50,23 @@ class PropertyGroupForm extends React.Component<Props, State> {
   }) => {
     const { group, type } = this.props;
     const finalValues = values;
-    const selectedItems = this.state.selectedItems;
+    const config = this.state.config;
 
     if (group) {
       finalValues._id = group._id;
     }
-
-    const boardsPipelines =
-      selectedItems &&
-      selectedItems.map(e => {
-        const boardsPipeline = {
-          boardId: e.boardId,
-          pipelineIds: e.pipelineIds
-        };
-
-        return boardsPipeline;
-      });
 
     return {
       ...finalValues,
       contentType: type,
       isVisible: this.state.isVisible,
       isVisibleInDetail: this.state.isVisibleInDetail,
-      boardsPipelines
+      config,
     };
   };
 
-  visibleHandler = e => {
-    if (e.target.id === 'visible') {
+  visibleHandler = (e) => {
+    if (e.target.id === "visible") {
       const isVisible = e.target.checked;
 
       return this.setState({ isVisible });
@@ -87,10 +75,6 @@ class PropertyGroupForm extends React.Component<Props, State> {
     const isVisibleInDetail = e.target.checked;
 
     return this.setState({ isVisibleInDetail });
-  };
-
-  itemsChange = (items: IBoardSelectItem[]) => {
-    this.setState({ selectedItems: items });
   };
 
   renderFieldVisible() {
@@ -106,7 +90,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
         <ControlLabel>Visible</ControlLabel>
         <div>
           <Toggle
-            id='visible'
+            id="visible"
             checked={this.state.isVisible}
             onChange={this.visibleHandler}
             icons={{ checked: <Checked />, unchecked: <UnChecked /> }}
@@ -126,12 +110,12 @@ class PropertyGroupForm extends React.Component<Props, State> {
         <ControlLabel>Visible in detail</ControlLabel>
         <div>
           <Toggle
-            id='visibleDetail'
+            id="visibleDetail"
             checked={this.state.isVisibleInDetail}
             onChange={this.visibleHandler}
             icons={{
               checked: <span>Yes</span>,
-              unchecked: <span>No</span>
+              unchecked: <span>No</span>,
             }}
           />
         </div>
@@ -139,19 +123,33 @@ class PropertyGroupForm extends React.Component<Props, State> {
     );
   }
 
-  renderBoardSelect() {
-    if (!['task', 'deal', 'ticket'].includes(this.props.type)) {
-      return null;
+  onChangeConfig = (config) => {
+    this.setState({ config });
+  };
+
+  renderExtraContent() {
+    const { type } = this.props;
+    const { config } = this.state;
+
+    const plugins: any[] = (window as any).plugins || [];
+
+    for (const plugin of plugins) {
+      if (type.includes(`${plugin.name}:`) && plugin.propertyGroupForm) {
+        return (
+          <RenderDynamicComponent
+            scope={plugin.scope}
+            component={plugin.propertyGroupForm}
+            injectedProps={{
+              config,
+              type,
+              onChangeConfig: this.onChangeConfig
+            }}
+          />
+        );
+      }
     }
 
-    return (
-      <SelectBoards
-        isRequired={false}
-        onChangeItems={this.itemsChange}
-        type={this.props.type}
-        selectedItems={this.state.selectedItems}
-      />
-    );
+    return null;
   }
 
   renderContent = (formProps: IFormProps) => {
@@ -166,7 +164,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
             {...formProps}
-            name='name'
+            name="name"
             autoFocus={true}
             required={true}
             defaultValue={object.name}
@@ -177,33 +175,32 @@ class PropertyGroupForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Description</ControlLabel>
           <FormControl
             {...formProps}
-            name='description'
+            name="description"
             required={true}
             defaultValue={object.description}
           />
         </FormGroup>
 
         {this.renderFieldVisible()}
+        {this.renderExtraContent()}
 
-        {['visitor', 'lead', 'customer'].includes(object.contentType) ? (
+        {["visitor", "lead", "customer"].includes(object.contentType) ? (
           this.renderFieldVisibleInDetail()
         ) : (
           <></>
         )}
 
-        {this.renderBoardSelect()}
-
         <ModalFooter>
-          <Button btnStyle='simple' onClick={closeModal} icon='times-circle'>
+          <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Close
           </Button>
 
           {renderButton({
-            name: 'property group',
+            name: "property group",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: group
+            object: group,
           })}
         </ModalFooter>
       </>

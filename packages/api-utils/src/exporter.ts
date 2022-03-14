@@ -16,13 +16,13 @@ export const generateXlsx = async (workbook: any): Promise<string> => {
   return workbook.outputAsync();
 };
 
-export const getCustomFieldsData = async (Fields, item, column, type) => {
+export const getCustomFieldsData = async (getField, item, column, type) => {
   let field;
   let value;
 
   if (item.customFieldsData && item.customFieldsData.length > 0) {
     for (const customFeild of item.customFieldsData) {
-      field = await Fields.findOne({
+      field = await getField({
         text: column.label.trim(),
         contentType: type === 'lead' ? 'customer' : type
       });

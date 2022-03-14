@@ -43,6 +43,12 @@ import { types as CommonTypes } from './schema/common';
 
 const typeDefs = async (serviceDiscovery) => {
   const contactsEnabled = await serviceDiscovery.isEnabled('contacts');
+  const formsEnabled = await serviceDiscovery.isEnabled('forms');
+
+  const isEnabled = {
+    contacts: contactsEnabled,
+    forms: formsEnabled
+  }
 
   return gql`
     scalar JSON
@@ -70,7 +76,9 @@ const typeDefs = async (serviceDiscovery) => {
     ${dealTypes(contactsEnabled)}
     ${taskTypes(contactsEnabled)}
     ${ticketTypes(contactsEnabled)}
-    ${growthHackTypes}
+
+    ${formsEnabled ? growthHackTypes : ''}
+
     ${plTypes}
     ${ptTypes}
     ${CommonTypes}
@@ -81,7 +89,9 @@ const typeDefs = async (serviceDiscovery) => {
       ${dealQueries}
       ${taskQueries}
       ${ticketQueries}
-      ${growthHackQueries}
+
+      ${formsEnabled ? growthHackQueries : ''}
+
       ${plQueries}
       ${ptQueries}
       ${checkListQueries}
@@ -92,7 +102,9 @@ const typeDefs = async (serviceDiscovery) => {
       ${dealMutations}
       ${taskMutations}
       ${ticketMutations}
-      ${growthHackMutations}
+
+      ${formsEnabled ? growthHackMutations : ''}
+
       ${plMutations}
       ${ptMutations}
       ${checkListMutations}

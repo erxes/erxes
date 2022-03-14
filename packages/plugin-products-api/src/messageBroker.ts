@@ -1,6 +1,6 @@
 import { getSchemaLabels } from "@erxes/api-utils/src/logUtils";
+import { generateModels } from "./connectionResolver";
 
-import { ProductCategories, Products } from "./models";
 import { productSchema, productCategorySchema } from './models/definitions/products';
 
 let client;
@@ -10,53 +10,78 @@ export const initBroker = async cl => {
 
   const { consumeRPCQueue } = client;
 
-  consumeRPCQueue('products:rpc_queue:findOne', async (selector) => ({
-    data: await Products.findOne(selector),
-    status: 'success',
-  }));
+  consumeRPCQueue('products:findOne', async ({ subdomain, data } ) => {
+    const models = await generateModels(subdomain)
+    
+    return {
+      data: await models.Products.findOne(data),
+      status: 'success'
+    };
+  });
 
   consumeRPCQueue(
-    'productCategories:rpc_queue:find',
-    async ({ query, sort, regData }) => ({
+    'products:categories.find',
+    async ({ subdomain, data: { query, sort, regData } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
         data: regData
-          ? await ProductCategories.find({
+          ? await models.ProductCategories.find({
               order: { $regex: new RegExp(regData) }
             }).sort(sort)
-          : await ProductCategories.find(query),
+          : await models.ProductCategories.find(query),
         status: 'success'
-      })
+      };
+    }
   );
 
-  consumeRPCQueue('productCategories:rpc_queue:findOne', async (selector) => ({
-    data: await ProductCategories.findOne(selector),
-    status: 'success',
-  }));
+  consumeRPCQueue('products:categories.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
 
-  consumeRPCQueue('products:rpc_queue:find', async ({ query, sort }) => ({
-    data: await Products.find(query).sort(sort),
-    status: 'success',
-  }));
+    return {
+      data: await models.ProductCategories.findOne(data),
+      status: 'success'
+    };
+  });
 
-  consumeRPCQueue('products:rpc_queue:update', async ({ selector, modifier }) => ({
-    data: await Products.updateMany(selector, modifier),
-    status: 'success',
-  }));
+  consumeRPCQueue('products:find', async ({ subdomain, data: { query, sort } }) => {
+    const models = await generateModels(subdomain);
 
-  consumeRPCQueue('products:rpc_queue:tag', async args => {
+    return {
+      data: await models.Products.find(query).sort(sort),
+      status: 'success'
+    };
+  });
+
+  consumeRPCQueue(
+    'products:update',
+    async ({ subdomain, selector, modifier }) => {
+    const models = await generateModels(subdomain)
+
+      return {
+        data: await models.Products.updateMany(selector, modifier),
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue('products:tag', async args => {
+    const models = await generateModels(args.subdomain)
+
     let data = {};
 
     if (args.action === 'count') {
-      data = await Products.countDocuments({ tagIds: { $in: args._ids } });
+      data = await models.Products.countDocuments({ tagIds: { $in: args._ids } });
     }
 
     if (args.action === 'tagObject') {
-      await Products.updateMany(
+      await models.Products.updateMany(
         { _id: { $in: args.targetIds } },
         { $set: { tagIds: args.tagIds } },
         { multi: true }
       );
 
-      data = await Products.find({ _id: { $in: args.targetIds } }).lean();
+      data = await models.Products.find({ _id: { $in: args.targetIds } }).lean();
     }
 
     return {
@@ -65,10 +90,11 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('products:rpc_queue:generateInternalNoteNotif', async args => {
+  consumeRPCQueue('products:generateInternalNoteNotif', async args => {
+    const models = await generateModels(args.subdomain)
     const { contentTypeId, notifDoc } = args;
 
-    const product = await Products.getProduct({ _id: contentTypeId });
+    const product = await models.Products.getProduct({ _id: contentTypeId });
 
     notifDoc.content = product.name;
 
@@ -78,7 +104,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('products:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
+  consumeRPCQueue('products:logs.getSchemaLabels', async ({ type }) => ({
     status: 'success',
     data: getSchemaLabels(
       type,
@@ -91,18 +117,28 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
   return client.sendRPCMessage(channel, message);
 };
 
-export const prepareCustomFieldsData = async (doc): Promise<any> => {
-  return client.sendRPCMessage('fields:rpc_queue:prepareCustomFieldsData', {
-    doc,
-  });
+export const prepareCustomFieldsData = async (data): Promise<any> => {
+  return client.sendRPCMessage('forms:prepareCustomFieldsData', data);
 };
 
 export const findTags = async (selector): Promise<any> => {
-  return client.sendRPCMessage('tags:rpc_queue:find', selector);
+  return client.sendRPCMessage('tags:find', selector);
 };
 
 export const findCompanies = async (selector): Promise<any> => {
-  return client.sendRPCMessage('contacts:rpc_queue:findActiveCompanies', selector);
+  return client.sendRPCMessage('contacts:companies.findActiveCompanies', selector);
+};
+
+export const findDealProductIds = async (selector): Promise<any> => {
+  return client.sendRPCMessage('cards:findDealProductIds', selector);
+};
+
+export const updateDeals = async (selector, modifier): Promise<any> => {
+  return client.sendRPCMessage('cards:updateDeals', ({ selector, modifier}));
+};
+
+export const findCompany = async (selector): Promise<any> => {
+  return client.sendRPCMessage('contacts:companies.findCompany', selector);
 };
 
 export default function() {

@@ -1,72 +1,92 @@
-import { getSchemaLabels } from "@erxes/api-utils/src/logUtils";
+import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
+import { generateModels } from './connectionResolver';
+import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { serviceDiscovery } from './configs';
 
-import * as models from "./models";
-import { ITagDocument, tagSchema } from "./models/definitions/tags";
+import { ITagDocument, tagSchema } from './models/definitions/tags';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeRPCQueue } = client;
 
-  consumeRPCQueue('tags:rpc_queue:find', async (selector) => ({
-    data: await models.Tags.find(selector).lean(),
-    status: 'success',
-  }));
+  consumeRPCQueue('tags:find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      data: await models.Tags.find(data).lean(),
+      status: 'success',
+    };
+  });
 
-  consumeRPCQueue('tags:rpc_queue:findOne', async (selector) => ({
-    data: await models.Tags.findOne(selector).lean(),
-    status: 'success',
-  }));
+  consumeRPCQueue('tags:findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      data: await models.Tags.findOne(data).lean(),
+      status: 'success',
+    };
+  });
 
-  consumeRPCQueue('tags:rpc_queue:getActivityContent', async (data) => {
-    const { action, content } = data;
+  consumeRPCQueue(
+    'tags:logs.getActivityContent',
+    async ({ subdomain, data }) => {
+      const { action, content } = data;
+      const models = await generateModels(subdomain);
+      if (action === 'tagged') {
+        let tags: ITagDocument[] = [];
 
-    if (action === 'tagged') {
-      let tags: ITagDocument[] = [];
+        if (content) {
+          // tags = await getDocumentList('tags', { _id: { $in: content.tagIds } });
+          tags = await models.Tags.find({ _id: { $in: content.tagIds } });
+        }
 
-      if (content) {
-        // tags = await getDocumentList('tags', { _id: { $in: content.tagIds } });
-        tags = await models.Tags.find({ _id: { $in: content.tagIds } });
+        return {
+          data: tags,
+          status: 'success',
+        };
       }
 
       return {
-        data: tags,
-        status: 'success'
+        status: 'error',
+        data: 'wrong action',
       };
     }
+  );
 
-    return {
-      status: 'error',
-      data: 'wrong action'
-    }
-  });
-
-  consumeRPCQueue('tags:rpc_queue:findMongoDocuments', async (data) => {
+  consumeRPCQueue('tags:findMongoDocuments', async ({ subdomain, data }) => {
     const { query, name } = data;
-
+    const models = await generateModels(subdomain);
     const collection = models[name];
 
     return {
       status: 'success',
-      data: collection ? await collection.find(query) : []
-    }
+      data: collection ? await collection.find(query) : [],
+    };
   });
 
-  consumeRPCQueue('tags:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
+  consumeRPCQueue('tags:logs.getSchemaLabels', async ({ type }) => ({
     status: 'success',
-    data: getSchemaLabels(type, [{ name: 'product', schemas: [tagSchema] }])
+    data: getSchemaLabels(type, [{ name: 'product', schemas: [tagSchema] }]),
   }));
 
-  consumeRPCQueue('tags:createTag', async (doc) => ({
-    status: 'success',
-    data: await models.Tags.createTag(doc)
-  }));
+  consumeRPCQueue('tags:createTag', async ({ subdomain, data: { doc } }) => {
+    const models = await generateModels(subdomain);
+    return {
+      status: 'success',
+      data: await models.Tags.createTag(doc),
+    };
+  });
 };
 
-export const sendRPCMessage = async (channel, message): Promise<any> => {
-  return client.sendRPCMessage(channel, message);
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    ...args,
+  });
 };
 
 export default function() {

@@ -2,7 +2,7 @@ import * as _ from 'underscore';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { fixDate } from '@erxes/api-utils/src/core';
 import { getDocumentList } from './cacheUtils';
-import { fetchSegment, sendSegmentMessage, sendTagRPCMessage } from './messageBroker';
+import { sendSegmentsMessage, sendTagsMessage } from './messageBroker';
 import { ICoreIModels, IModels } from './connectionResolver';
 
 interface IIn {
@@ -66,30 +66,45 @@ interface IDate {
 export default class Builder {
   public models: IModels;
   public coreModels: ICoreIModels;
+  public subdomain: string;
   public params: IListArgs;
   public user: IUserArgs;
   public queries: any;
   public unassignedQuery?: IUnassignedFilter;
   public activeIntegrationIds: string[] = [];
 
-  constructor(models: IModels, coreModels: ICoreIModels, params: IListArgs, user: IUserArgs) {
+  constructor(models: IModels, coreModels: ICoreIModels, subdomain: string, params: IListArgs, user: IUserArgs) {
     this.models = models;
     this.coreModels = coreModels;
+    this.subdomain = subdomain;
     this.params = params;
     this.user = user;
   }
 
   // filter by segment
   public async segmentFilter(segmentId: string): Promise<{ _id: IIn }> {
-    const segment = await sendSegmentMessage('findOne', { _id: segmentId }, true );
+    const segment = await sendSegmentsMessage({
+      subdomain: this.subdomain,
+      action: "findOne",
+      data: {
+        _id: segmentId
+      },
+      isRPC: true
+    })
 
-    const selector = await fetchSegment(segment, {
-      returnFields: ['_id'],
-      page: 1,
-      perPage: this.params.limit ? this.params.limit + 1 : 11,
-      sortField: 'updatedAt',
-      sortDirection: -1
-    });
+    const selector = await sendSegmentsMessage({
+      subdomain: this.subdomain,
+      action: "fetchSegment",
+      data: {
+        segment,
+        returnFields: ['_id'],
+        page: 1,
+        perPage: this.params.limit ? this.params.limit + 1 : 11,
+        sortField: 'updatedAt',
+        sortDirection: -1
+      },
+      isRPC: true
+    })
 
     const Ids = _.pluck(selector, '_id');
 
@@ -106,9 +121,15 @@ export default class Builder {
   }
 
   public async defaultFilters(): Promise<any> {
-    const activeIntegrations = await getDocumentList(this.models, this.coreModels, 'integrations', {
-      isActive: { $ne: false }
-    });
+    const activeIntegrations = await getDocumentList(
+      this.models,
+      this.coreModels,
+      this.subdomain,
+      'integrations',
+      {
+        isActive: { $ne: false }
+      }
+    );
 
     this.activeIntegrationIds = activeIntegrations.map(integ => integ._id);
 
@@ -154,9 +175,15 @@ export default class Builder {
     // find all posssible integrations
     let availIntegrationIds: string[] = [];
 
-    const channels = await getDocumentList(this.models, this.coreModels, 'channels', {
-      memberIds: this.user._id
-    });
+    const channels = await getDocumentList(
+      this.models,
+      this.coreModels,
+      this.subdomain,
+      'channels',
+      {
+        memberIds: this.user._id
+      }
+    );
 
     if (channels.length === 0) {
       return {
@@ -298,7 +325,14 @@ export default class Builder {
   public async tagFilter(tagIds: string[]): Promise<{ tagIds: IIn }> {
     let ids: string[] = [];
 
-    const tags = await sendTagRPCMessage('find', { _id: { $in: tagIds } });
+    const tags = await sendTagsMessage({
+      subdomain: this.subdomain,
+      action: 'find',
+      data: {
+        _id: { $in: tagIds }
+      },
+      isRPC: true
+    });
 
     for (const tag of tags) {
       ids.push(tag._id);

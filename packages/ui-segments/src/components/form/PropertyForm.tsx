@@ -12,17 +12,9 @@ import Button from '@erxes/ui/src/components/Button';
 type Props = {
   field: IField;
   segmentKey: string;
-  addCondition: (
-    condition: ISegmentCondition,
-    segmentKey: string,
-    boardId?: string,
-    pipelineId?: string,
-    formId?: string
-  ) => void;
+  addCondition: (condition: ISegmentCondition, segmentKey: string) => void;
   propertyType?: string;
-  pipelineId?: string;
-  boardId?: string;
-  formId?: string;
+  config?: any;
   condition?: ISegmentCondition;
 };
 
@@ -30,23 +22,14 @@ type State = {
   chosenOperator?: any;
   currentValue?: any;
   propertyType?: string;
-  pipelineId?: string;
-  boardId?: string;
-  formId?: string;
+  config: any;
 };
 
 class PropertyForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const {
-      field,
-      condition,
-      propertyType,
-      boardId,
-      pipelineId,
-      formId
-    } = this.props;
+    const { field, condition, propertyType, config } = this.props;
 
     let chosenOperator;
 
@@ -66,9 +49,7 @@ class PropertyForm extends React.Component<Props, State> {
       chosenOperator,
       currentValue,
       propertyType: condition ? condition.propertyType : propertyType,
-      pipelineId: condition ? condition.pipelineId : pipelineId,
-      boardId: condition ? condition.boardId : boardId,
-      formId: condition ? condition.formId : formId
+      config: condition ? condition.config : config
     };
   }
 
@@ -187,14 +168,7 @@ class PropertyForm extends React.Component<Props, State> {
 
   onClick = () => {
     const { segmentKey, addCondition, field, condition } = this.props;
-    const {
-      chosenOperator,
-      currentValue,
-      propertyType,
-      boardId,
-      pipelineId,
-      formId
-    } = this.state;
+    const { chosenOperator, currentValue, propertyType, config } = this.state;
 
     return addCondition(
       {
@@ -204,9 +178,7 @@ class PropertyForm extends React.Component<Props, State> {
         propertyName: field.value,
         propertyOperator: chosenOperator.value,
         propertyValue: currentValue,
-        boardId,
-        pipelineId,
-        formId
+        config
       },
       segmentKey
     );

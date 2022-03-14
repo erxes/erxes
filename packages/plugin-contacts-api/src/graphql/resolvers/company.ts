@@ -1,22 +1,22 @@
 import { ICompanyDocument } from "../../models/definitions/companies";
-import { sendConformityMessage } from "../../messageBroker";
 import { IContext } from "../../connectionResolver";
+import { sendCoreMessage } from "../../messageBroker";
 
 export default {
-  __resolveReference({ _id }, _params, { models: { Companies } }: IContext) {
+  __resolveReference({ _id }, { models: { Companies } }: IContext) {
     return Companies.findOne({ _id });
   },
 
   async customers(
     company: ICompanyDocument,
     _,
-    { models: { Customers } }: IContext
+    { models: { Customers }, subdomain }: IContext
   ) {
-    const customerIds = await sendConformityMessage("savedConformity", {
+    const customerIds = await sendCoreMessage({subdomain, action: "conformities.savedConformity", data: {
       mainType: "company",
       mainTypeId: company._id,
       relTypes: ["customer"],
-    });
+    }, isRPC: true, defaultValue: [] });
 
     return Customers.find({ _id: { $in: customerIds || [] } });
   },

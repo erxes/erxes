@@ -1,21 +1,20 @@
-import { Pipelines } from '../../../models';
+import { IContext } from '../../../connectionResolver';
 import { IBoardDocument } from '../../../models/definitions/boards';
-import { IContext } from '@erxes/api-utils/src/types';
 
 export default {
-  pipelines(board: IBoardDocument, {}, { user }: IContext) {
+  pipelines(board: IBoardDocument, {}, { user, models }: IContext) {
     if (board.pipelines) {
       return board.pipelines;
     }
 
     if (user.isOwner) {
-      return Pipelines.find({
+      return models.Pipelines.find({
         boardId: board._id,
         status: { $ne: 'archived' }
       }).lean();
     }
 
-    return Pipelines.find({
+    return models.Pipelines.find({
       $and: [
         { status: { $ne: 'archived' } },
         { boardId: board._id },

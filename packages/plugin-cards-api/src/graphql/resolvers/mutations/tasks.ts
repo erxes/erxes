@@ -1,10 +1,8 @@
-import { Tasks } from '../../../models';
 import {
   IItemCommonFields as ITask,
   IItemDragCommonFields
 } from '../../../models/definitions/boards';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src';
 // import { registerOnboardHistory } from '../../utils';
 import {
   itemsAdd,
@@ -14,6 +12,7 @@ import {
   itemsEdit,
   itemsRemove
 } from './utils';
+import { IContext } from '../../../connectionResolver';
 
 interface ITasksEdit extends ITask {
   _id: string;
@@ -26,9 +25,9 @@ const taskMutations = {
   async tasksAdd(
     _root,
     doc: ITask & { proccessId: string; aboveItemId: string },
-    { user, docModifier }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
-    return itemsAdd(doc, 'task', Tasks.createTask, user, docModifier);
+    return itemsAdd(models, subdomain, doc, 'task', models.Tasks.createTask, user, docModifier);
   },
 
   /**
@@ -37,18 +36,20 @@ const taskMutations = {
   async tasksEdit(
     _root,
     { _id, proccessId, ...doc }: ITasksEdit & { proccessId: string },
-    { user }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    const oldTask = await Tasks.getTask(_id);
+    const oldTask = await models.Tasks.getTask(_id);
 
     const updatedTask = await itemsEdit(
+      models,
+      subdomain,
       _id,
       'task',
       oldTask,
       doc,
       proccessId,
       user,
-      Tasks.updateTask
+      models.Tasks.updateTask
     );
 
     if (updatedTask.assignedUserIds) {
@@ -61,15 +62,15 @@ const taskMutations = {
   /**
    * Change task
    */
-  async tasksChange(_root, doc: IItemDragCommonFields, { user }: IContext) {
-    return itemsChange(doc, 'task', user, Tasks.updateTask);
+  async tasksChange(_root, doc: IItemDragCommonFields, { user, models, subdomain }: IContext) {
+    return itemsChange(models, subdomain, doc, 'task', user, models.Tasks.updateTask);
   },
 
   /**
    * Remove task
    */
-  async tasksRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    return itemsRemove(_id, 'task', user);
+  async tasksRemove(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
+    return itemsRemove(models, subdomain, _id, 'task', user);
   },
 
   /**
@@ -78,25 +79,25 @@ const taskMutations = {
   async tasksWatch(
     _root,
     { _id, isAdd }: { _id: string; isAdd: boolean },
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    return Tasks.watchTask(_id, isAdd, user._id);
+    return models.Tasks.watchTask(_id, isAdd, user._id);
   },
 
   async tasksCopy(
     _root,
     { _id, proccessId }: { _id: string; proccessId: string },
-    { user }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    return itemsCopy(_id, proccessId, 'task', user, [], Tasks.createTask);
+    return itemsCopy(models, subdomain, _id, proccessId, 'task', user, [], models.Tasks.createTask);
   },
 
   async tasksArchive(
     _root,
     { stageId, proccessId }: { stageId: string; proccessId: string },
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    return itemsArchive(stageId, 'task', proccessId, user);
+    return itemsArchive(models, stageId, 'task', proccessId, user);
   }
 };
 

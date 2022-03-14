@@ -64,14 +64,14 @@ function UserDetails({
     <>
       <ActivityInputs
         contentTypeId={user._id}
-        contentType="api-core:user"
+        contentType="core:user"
         showEmail={false}
       />
 
       <ActivityLogs
         target={user.details && user.details.fullName}
         contentId={user._id}
-        contentType="api-core:user"
+        contentType="core:user"
         extraTabs={[{ name: 'conversation', label: 'Conversations' }]}
       />
     </>

@@ -2,7 +2,7 @@ import * as momentTz from 'moment-timezone';
 import { Model, Query } from 'mongoose';
 
 import { ICoreIModels, IModels } from '../connectionResolver';
-import { sendContactMessage, sendContactRPCMessage } from '../messageBroker';
+import { sendContactsMessage } from '../messageBroker';
 
 import { KIND_CHOICES } from './definitions/constants';
 import {
@@ -145,7 +145,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   increaseBookingViewCount(_id: string): Promise<IIntegrationDocument>;
 }
 
-export const loadClass = (models: IModels, coreModels: ICoreIModels) => {
+export const loadClass = (models: IModels, coreModels: ICoreIModels, subdomain: string) => {
   class Integration {
     /**
      * Retreives integration
@@ -394,13 +394,22 @@ export const loadClass = (models: IModels, coreModels: ICoreIModels) => {
       await models.Conversations.deleteMany({ integrationId: _id });
 
       // Remove customers ==================
-      const customers = await sendContactRPCMessage('getCustomers', {
-        integrationId: _id
+      const customers = await sendContactsMessage({
+        subdomain,
+        action: "customers.find", 
+        data: {
+          integrationId: _id
+        },
+        isRPC: true
       });
 
       const customerIds = customers.map(cus => cus._id);
 
-      await sendContactMessage('removeCustomers', customerIds);
+      await sendContactsMessage({
+        subdomain,
+        action: "customers.removeCustomers",
+        data: { customerIds },
+      });
 
       // Remove form
       if (integration.formId) {

@@ -39,7 +39,7 @@ export const getPageList = async (accessToken?: string, kind?: string) => {
     accessToken
   );
 
-  const pages = [];
+  const pages: any[] = [] 
 
   for (const page of response.data) {
     const integration = await Integrations.findOne({
@@ -75,7 +75,7 @@ export const refreshPageAccesToken = async (
 ) => {
   const account = await Accounts.getAccount({ _id: integration.accountId });
 
-  const facebookPageTokensMap = integration.facebookPageTokensMap;
+  const facebookPageTokensMap = integration.facebookPageTokensMap || {};
 
   const pageAccessToken = await getPageAccessToken(pageId, account.token);
 
@@ -93,7 +93,7 @@ export const getPageAccessTokenFromMap = (
   pageId: string,
   pageTokens: { [key: string]: string }
 ): string => {
-  return (pageTokens || {})[pageId] || null;
+  return (pageTokens || {})[pageId];
 };
 
 export const subscribePage = async (
@@ -238,7 +238,7 @@ export const sendReply = async (
     erxesApiId: integrationId
   });
 
-  const { facebookPageTokensMap } = integration;
+  const { facebookPageTokensMap = {}  } = integration;
 
   let pageAccessToken;
 

@@ -1,8 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import apiConnect from './apiCollections';
 
-import { initBroker, sendSegmentMessage } from './messageBroker';
+import { initBroker, sendSegmentsMessage } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import {
@@ -14,7 +13,9 @@ import {
 import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
 import { buildFile } from './exporter';
 import segments from './segments';
-import { coreModels, generateModels, models } from './connectionResolver';
+import forms from './forms';
+import { coreModels, generateCoreModels, generateModels, getSubdomain } from './connectionResolver';
+import logConsumers from './logConsumers';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -140,15 +141,17 @@ export default {
   hasSubscriptions: true,
   meta: {
     segments,
-    logs: { providesActivityLog: false },
+    forms,
+    logs: { consumers: logConsumers }
   },
-  apolloServerContext: context => {
-    context.models = models;
-    context.coreModels = coreModels;
+  apolloServerContext: async (context) => {
+    const subdomain = 'os';
+
+    context.models = await generateModels(subdomain);
+    context.coreModels = await generateCoreModels(subdomain);
+    context.subdomain = subdomain;
   },
   onServerInit: async options => {
-    await apiConnect();
-
     const app = options.app;
     mainDb = options.db;
 
@@ -159,14 +162,16 @@ export default {
       routeErrorHandling(async (req: any, res) => {
         const { query, user } = req;
         const { segment } = query;
+        const subdomain = getSubdomain(req.hostname);
+        const models = await generateModels(subdomain);
 
-        const result = await buildFile(models, query, user);
+        const result = await buildFile(models, coreModels, subdomain, query, user);
 
         res.attachment(`${result.name}.xlsx`);
 
         if (segment) {
           try {
-            sendSegmentMessage('removeSegment', { segmentId: segment });
+            sendSegmentsMessage({ subdomain, action: 'removeSegment', data: { segmentId: segment } });
           } catch (e) {
             console.log((e as Error).message);
           }
@@ -199,8 +204,10 @@ export default {
       routeErrorHandling(
         async (req, res) => {
           const { args } = req.body;
+          const subdomain = getSubdomain(req.hostname);
+          const models = await generateModels(subdomain);
 
-          const response = await identifyCustomer(args);
+          const response = await identifyCustomer(models, subdomain, args);
           return res.json(response);
         },
         res => res.json({})
@@ -211,6 +218,9 @@ export default {
       '/events-update-customer-property',
       routeErrorHandling(
         async (req, res) => {
+          const subdomain = getSubdomain(req.hostname);
+          const models = await generateModels(subdomain);
+
           const response = await updateCustomerProperty(models, req.body);
           return res.json(response);
         },
@@ -218,7 +228,7 @@ export default {
       )
     );
 
-    initBroker(options.messageBrokerClient, models, coreModels);
+    initBroker(options.messageBrokerClient);
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;

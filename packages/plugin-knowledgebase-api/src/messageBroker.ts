@@ -9,7 +9,7 @@ export const initBroker = async (cl) => {
 
   const { consumeRPCQueue } = client;
 
-  consumeRPCQueue('knowledgebase:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
+  consumeRPCQueue('knowledgebase:logs:getSchemaLabels', async ({ type }) => ({
     status: 'success',
     data: getSchemaLabels(type, LOG_MAPPINGS)
   }));
