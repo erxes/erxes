@@ -191,7 +191,7 @@ export const generateQueryBySegment = async (models: IModels, subdomain: string,
     options = {},
     isInitialCall
   } = args;
-  const { contentType } = segment;
+  const [serviceName, contentType ] = segment.contentType.split(':');
   const { defaultMustSelector } = options;
 
   const defaultSelector =
@@ -245,30 +245,32 @@ export const generateQueryBySegment = async (models: IModels, subdomain: string,
   for (const serviceConfig of serviceConfigs) {
     const {
       contentTypes,
-      esTypesMapQueue,
-      initialSelectorQueue
+      esTypesMapAvailable,
+      initialSelectorAvailable
     } = serviceConfig;
 
     if (contentTypes && contentTypes.includes(contentType)) {
-      if (esTypesMapQueue) {
+      if (esTypesMapAvailable) {
         const response = await sendMessage({
           subdomain,
-          serviceName: '',
-          action: esTypesMapQueue,
+          serviceName,
+          isRPC: true,
+          action: 'segments.esTypesMap',
           data: { contentType }
         });
 
         typesMap = response.typesMap;
       }
 
-      if (initialSelectorQueue) {
+      if (initialSelectorAvailable) {
         const {
           negative,
           positive
         } = await sendMessage({
           subdomain,
-          serviceName: '',
-          action: initialSelectorQueue,
+          serviceName,
+          isRPC: true,
+          action: 'segments.initialSelector',
           data: { segment, options }
         });
 
@@ -350,17 +352,20 @@ export const generateQueryBySegment = async (models: IModels, subdomain: string,
       negativeQuery = negativeQuery;
 
       for (const serviceConfig of serviceConfigs) {
-        const { contentTypes, propertyConditionExtenderQueue } = serviceConfig;
+        const { contentTypes, propertyConditionExtenderAvailable } = serviceConfig;
+
+        const [propertyServiceName, propertyContentType] = condition.propertyType.split(':');
 
         if (
           contentTypes &&
-          propertyConditionExtenderQueue &&
-          contentTypes.includes(condition.propertyType)
+          propertyConditionExtenderAvailable &&
+          contentTypes.includes(propertyContentType)
         ) {
           const { positive } = await sendMessage({
             subdomain,
-            serviceName: '',
-            action: propertyConditionExtenderQueue,
+            serviceName: propertyServiceName,
+            isRPC: true,
+            action: 'segments.propertyConditionExtender',
             data: { condition }
           });
 
@@ -385,6 +390,7 @@ export const generateQueryBySegment = async (models: IModels, subdomain: string,
       } else {
         const ids = await associationPropertyFilter(subdomain, {
           serviceConfigs,
+          serviceName,
           mainType: contentType,
           propertyType: condition.propertyType,
           positiveQuery,
@@ -757,12 +763,14 @@ const fetchByQuery = async ({
 
 const associationPropertyFilter = async (subdomain: string, {
   serviceConfigs,
+  serviceName,
   mainType,
   propertyType,
   positiveQuery,
   negativeQuery
 }: {
   serviceConfigs: any;
+  serviceName: string;
   mainType: string;
   propertyType: string;
   positiveQuery: any;
@@ -771,13 +779,14 @@ const associationPropertyFilter = async (subdomain: string, {
   let associatedTypes: string[] = [];
 
   for (const serviceConfig of serviceConfigs) {
-    const { associationTypesQueue } = serviceConfig;
+    const { associationTypesAvailable } = serviceConfig;
 
-    if (associationTypesQueue) {
+    if (associationTypesAvailable) {
       const { types } = await sendMessage({
         subdomain,
-        serviceName: '',
-        action: associationTypesQueue,
+        serviceName,
+        isRPC: true,
+        action: 'segments.associationTypes',
         data: {
           mainType
         }
@@ -798,7 +807,8 @@ const associationPropertyFilter = async (subdomain: string, {
 
     return sendCoreMessage({
       subdomain,
-      action: 'filterConformity',
+      action: 'conformties.filterConformity',
+      isRPC: true,
       data: {
         mainType: propertyType,
         mainTypeIds,

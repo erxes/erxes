@@ -1,9 +1,8 @@
 import { checkPermission, requireLogin } from "@erxes/api-utils/src/permissions";
-import { Fields, FieldsGroups } from "../../../models";
 import { fieldsCombinedByContentType } from "../../../utils";
 import { serviceDiscovery } from "../../../configs";
-import { IContext } from "@erxes/api-utils/src/types";
 import { fetchService } from "../../../messageBroker";
+import { IContext } from "../../../connectionResolver";
 interface IFieldsDefaultColmns {
   [index: number]: { name: string; label: string; order: number } | {};
 }
@@ -45,7 +44,8 @@ const fieldQueries = {
       contentType,
       contentTypeId,
       isVisible
-    }: { contentType: string; contentTypeId: string; isVisible: boolean }
+    }: { contentType: string; contentTypeId: string; isVisible: boolean },
+    { models }: IContext
   ) {
     const query: IFieldsQuery = { contentType };
 
@@ -57,14 +57,14 @@ const fieldQueries = {
       query.isVisible = isVisible;
     }
 
-    return Fields.find(query).sort({ order: 1 });
+    return models.Fields.find(query).sort({ order: 1 });
   },
 
   /**
    * Generates all field choices base on given kind.
    */
-  async fieldsCombinedByContentType(_root, args) {
-    return fieldsCombinedByContentType(args);
+  async fieldsCombinedByContentType(_root, args, { models }: IContext) {
+    return fieldsCombinedByContentType(models, args);
   },
 
   /**
@@ -90,7 +90,7 @@ const fieldQueries = {
     return [];
   },
 
-  // async fieldsInbox(_root) {
+  // ? async fieldsInbox(_root) {
   //   const response: {
   //     customer?: IFieldDocument[];
   //     conversation?: IFieldDocument[];
@@ -183,7 +183,7 @@ const fieldsGroupQueries = {
       isDefinedByErxes: boolean;
       config
     },
-    { commonQuerySelector }: IContext
+    { commonQuerySelector, models }: IContext
   ) {
     let query: any = commonQuerySelector;
 
@@ -198,7 +198,7 @@ const fieldsGroupQueries = {
       query.isDefinedByErxes = isDefinedByErxes;
     }
 
-    const groups = await FieldsGroups.find(query);
+    const groups = await models.FieldsGroups.find(query);
 
     return groups
       .map(group => {
@@ -215,14 +215,14 @@ const fieldsGroupQueries = {
       });
   },
 
-  getSystemFieldsGroup(_root, { contentType }: { contentType: string }) {
+  getSystemFieldsGroup(_root, { contentType }: { contentType: string }, { models }: IContext) {
     const query: any = {};
 
     // querying by content type
     query.contentType = contentType;
     query.isDefinedByErxes = true;
 
-    return FieldsGroups.findOne(query);
+    return models.FieldsGroups.findOne(query);
   }
 };
 
