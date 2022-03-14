@@ -4,12 +4,14 @@ import {
   putDeleteLog as commonPutDeleteLog,
   LogDesc,
   IDescriptions,
-  gatherNames
+  gatherNames,
+  getSchemaLabels
 } from '@erxes/api-utils/src/logUtils';
 import messageBroker from './messageBroker';
-import { MODULE_NAMES } from './constants';
+import { LOG_MAPPINGS, MODULE_NAMES } from './constants';
 import { gatherChannelFieldNames, gatherIntegrationFieldNames, findFromCore } from './logHelper';
 import { IModels } from './connectionResolver';
+import { collectConversations } from "./receiveMessage";
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
@@ -108,4 +110,15 @@ export const putCreateLog = async (models: IModels, logDoc, user) => {
     { ...logDoc, description, extraDesc, type: `inbox:${logDoc.type}` },
     user
   );
+};
+
+export default {
+  collectItems: async ({ data }) => ({
+    data: await collectConversations(data),
+    status: 'success'
+  }),
+  getSchemaLabels: ({ data: { type } }) => ({
+    status: 'success',
+    data: getSchemaLabels(type, LOG_MAPPINGS)
+  })
 };
