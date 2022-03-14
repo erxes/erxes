@@ -1,6 +1,6 @@
 export const types = ({ products, tags, forms }) => `
   ${
-    tags ?
+    forms ?
     `
       extend type Form @key(fields: "_id") {
         _id: String! @external
@@ -40,11 +40,7 @@ export const types = ({ products, tags, forms }) => `
 
     brand: Brand
 
-    ${
-      tags ? `form: Form` : '' 
-    
-    }
-
+    ${ forms ? `form: Form` : '' }
     channels: [Channel]
 
     websiteMessengerApps: [MessengerApp]
