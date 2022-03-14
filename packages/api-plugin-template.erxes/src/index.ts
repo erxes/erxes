@@ -224,28 +224,28 @@ async function startServer() {
       if (segments) {
         if (segments.propertyConditionExtender) {
           consumeRPCQueue(
-            `${configs.name}:segments:propertyConditionExtender`,
+            `${configs.name}:segments.propertyConditionExtender`,
             segments.propertyConditionExtender
           );
         }
 
         if (segments.associationTypes) {
           consumeRPCQueue(
-            `${configs.name}:segments:associationTypes`,
+            `${configs.name}:segments.associationTypes`,
             segments.associationTypes
           );
         }
 
         if (segments.esTypesMap) {
           consumeRPCQueue(
-            `${configs.name}:segments:esTypesMap`,
+            `${configs.name}:segments.esTypesMap`,
             segments.esTypesMap
           );
         }
 
         if (segments.initialSelector) {
           consumeRPCQueue(
-            `${configs.name}:segments:initialSelector`,
+            `${configs.name}:segments.initialSelector`,
             segments.initialSelector
           );
         }
@@ -306,7 +306,7 @@ async function startServer() {
       if (forms) {
         if (forms.fields) {
           consumeRPCQueue(
-            `${configs.name}:rpc_queue:fields:getList`,
+            `${configs.name}:fields.getList`,
             async args => ({
               status: 'success',
               data: await forms.fields(args)
@@ -316,7 +316,7 @@ async function startServer() {
 
         if (forms.groupsFilter) {
           consumeRPCQueue(
-            `${configs.name}:rpc_queue:fields:groupsFilter`,
+            `${configs.name}:fields.groupsFilter`,
             async args => ({
               status: 'success',
               data: await forms.groupsFilter(args)
@@ -327,7 +327,7 @@ async function startServer() {
 
       if (tags) {
         if (tags.tag) {
-          consumeRPCQueue(`${configs.name}:rpc_queue:tag`, async args => ({
+          consumeRPCQueue(`${configs.name}:tag`, async args => ({
             status: 'success',
             data: await tags.tag(args)
           }));
