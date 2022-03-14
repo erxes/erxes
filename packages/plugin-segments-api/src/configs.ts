@@ -5,6 +5,7 @@ import resolvers from "./graphql/resolvers";
 import { initBroker } from "./messageBroker";
 
 export let debug;
+export let mainDb;
 
 export let es: {
   client;
@@ -52,8 +53,8 @@ export default {
   onServerInit: async (options) => {
     initBroker(options.messageBrokerClient);
 
+    mainDb = options.db;
     es = options.elasticsearch;
-
     debug = options.debug;
   },
 };
