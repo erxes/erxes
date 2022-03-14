@@ -7,11 +7,9 @@ import {
   Configs,
   Users,
   Brands,
-  EmailDeliveries
 } from './db/models';
 import { registerModule } from './data/permissions/utils';
 import { sendEmail, sendMobileNotification } from './data/utils';
-import { IUserDocument } from './db/models/definitions/users';
 
 let client;
 
@@ -134,73 +132,6 @@ export const initBroker = async (options) => {
         status: 'success', data: await Brands.find(query).lean()
       }
     });
-
-    consumeRPCQueue('core:getActivityContent', async data => {
-      const { action, content } = data;
-
-      if (action === 'assignee') {
-        let addedUsers: IUserDocument[] = [];
-        let removedUsers: IUserDocument[] = [];
-
-        if (content) {
-          addedUsers = await Users.find({ _id: { $in: content.addedUserIds } });
-
-          removedUsers = await Users.find({
-            _id: { $in: content.removedUserIds }
-          });
-        }
-
-        return {
-          data: { addedUsers, removedUsers },
-          status: 'success'
-        };
-      }
-
-      return {
-        status: 'error',
-        data: 'wrong activity action'
-      };
-    });
-
-    consumeRPCQueue(
-      'core:activityLog:createdByDetail',
-      async ({ activityLog }) => {
-        const user = await Users.findOne({
-          _id: activityLog && activityLog.createdBy
-        });
-
-        if (user) {
-          return { data: { type: 'user', content: user }, status: 'success' };
-        }
-
-        return { data: {}, status: 'success' };
-      }
-    );
-
-    consumeRPCQueue(
-      'core:logs:collectItems',
-      async ({ contentId }) => {
-        const deliveries = await EmailDeliveries.find({
-          customerId: contentId
-        }).lean();
-
-        const results: any[] = [];
-
-        for (const d of deliveries) {
-          results.push({
-            _id: d._id,
-            contentType: 'email',
-            contentId,
-            createdAt: d.createdAt
-          });
-        }
-
-        return {
-          status: 'success',
-          data: results
-        };
-      }
-    );
   }
 
   return client;
