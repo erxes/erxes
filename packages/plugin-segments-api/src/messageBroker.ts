@@ -1,4 +1,4 @@
-import { fetchSegment } from "./graphql/resolvers/queries/queryBuilder";
+import { fetchSegment, isInSegment } from "./graphql/resolvers/queries/queryBuilder";
 import { Segments } from "./models";
 
 let client;
@@ -23,6 +23,12 @@ export const initBroker = async cl => {
   consumeRPCQueue('segments:rpc_queue:fetchSegment', async ({ segmentId, options }) => {
     const segment = await Segments.findOne({ _id: segmentId });
     const data = await fetchSegment(segment, options);
+
+    return { data, status: 'success' };
+  });
+
+  consumeRPCQueue('segments:rpc_queue:isInSegment', async ({ segmentId, idToCheck, options }) => {
+    const data = await isInSegment(segmentId, idToCheck, options);
 
     return { data, status: 'success' };
   });
