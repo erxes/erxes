@@ -6,6 +6,7 @@ import React from 'react';
 import { RightContent } from '../../styles/item';
 import { IItem, IOptions } from '../../types';
 import SidebarConformity from './SidebarConformity';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   item: IItem;
@@ -44,7 +45,7 @@ class Sidebar extends React.Component<Props> {
           />
         </FormGroup>
 
-        {sidebar && sidebar(saveItem)}
+        {isEnabled("products") && sidebar && sidebar(saveItem)}
 
         <CustomFieldsSection item={item} options={options} />
         <SidebarConformity {...this.props} />
