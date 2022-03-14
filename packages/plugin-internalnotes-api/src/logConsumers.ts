@@ -25,7 +25,7 @@ export default {
       data: results,
     };
   },
-  getSchemaLabels: ({ type }) => ({
+  getSchemaLabels: ({ data: { type } }) => ({
     status: 'success',
     data: getSchemaLabels(type, [
       { name: 'internalNote', schemas: [internalNoteSchema] },

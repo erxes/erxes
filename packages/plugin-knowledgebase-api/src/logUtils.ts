@@ -247,7 +247,7 @@ export const putCreateLog = async (models, logDoc, user) => {
 
 // message consumer 
 export default {
-  getSchemaLabels: async ({ type }) => ({
+  getSchemaLabels: async ({ data: { type } }) => ({
     status: 'success',
     data: getSchemaLabels(type, LOG_MAPPINGS)    
   })
