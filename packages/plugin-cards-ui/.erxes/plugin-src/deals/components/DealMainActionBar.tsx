@@ -7,6 +7,7 @@ import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import React from 'react';
 import options from '@erxes/ui-cards/src/deals/options';
 import { getBoardViewType } from '@erxes/ui-cards/src/boards/utils';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   onSearch: (search: string) => void;
@@ -28,13 +29,13 @@ const DealMainActionBar = (props: Props) => {
 
   const extraFilter = (
     <>
-      <SelectProducts
+      {isEnabled("products") && <SelectProducts
         label={__('Filter by products')}
         name="productIds"
         queryParams={queryParams}
         onSelect={onSelect}
-      />
-      <SelectCompanies
+      />}
+      {isEnabled("contacts") && <><SelectCompanies
         label={__('Filter by companies')}
         name="companyIds"
         queryParams={queryParams}
@@ -45,7 +46,7 @@ const DealMainActionBar = (props: Props) => {
         name="customerIds"
         queryParams={queryParams}
         onSelect={onSelect}
-      />
+      /></>}
     </>
   );
 
