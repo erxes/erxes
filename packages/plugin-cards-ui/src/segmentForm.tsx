@@ -104,7 +104,6 @@ class Form extends React.Component<any, any, any> {
 
     if (component === 'filter') {
       if (
-        component === 'filter' &&
         propertyType &&
         !['cards:deal', 'cards:ticket', 'cards:task'].includes(propertyType)
       ) {
@@ -112,7 +111,6 @@ class Form extends React.Component<any, any, any> {
       }
 
       if (
-        component === 'form' &&
         !hideDetailForm &&
         !['cards:deal', 'cards:ticket', 'cards:task'].includes(type)
       ) {
