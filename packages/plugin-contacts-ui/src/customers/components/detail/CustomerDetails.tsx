@@ -16,6 +16,7 @@ import { ICustomer } from '../../types';
 import InfoSection from '@erxes/ui-contacts/src/customers/components/common/InfoSection';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   customer: ICustomer;
@@ -97,7 +98,7 @@ class CustomerDetails extends React.Component<Props> {
           showEmail={false}
           extraTabs={this.renderExtraTabs()}
         />
-        <ActivityLogs
+        {isEnabled("logs") && <ActivityLogs
           target={customer.firstName}
           contentId={customer._id}
           contentType="customer"
@@ -108,7 +109,7 @@ class CustomerDetails extends React.Component<Props> {
             { name: 'sms', label: 'SMS' },
             { name: 'campaign', label: 'Campaign' }
           ]}
-        />
+        />}
       </>
     );
 
