@@ -212,7 +212,6 @@ export const isEnabled = (service: string) => {
     localStorage.getItem("enabledServices") || "{}"
   );
   
-    console.log(localStorage.getItem("enabledServices"))
   return enabledServices[service];
 };
 

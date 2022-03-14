@@ -2,6 +2,7 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const emailTemplates = `
   query emailTemplates($page: Int, $perPage: Int) {
+    
     emailTemplates(page: $page, perPage: $perPage) {
       _id
       name
@@ -18,5 +19,5 @@ const totalCount = `
 
 export default {
   emailTemplates,
-  totalCount
+  totalCount,
 };
