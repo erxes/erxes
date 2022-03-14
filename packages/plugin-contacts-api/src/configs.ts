@@ -19,7 +19,7 @@ import {
   generateModels,
   getSubdomain
 } from './connectionResolver';
-import logConsumers from './logConsumers';
+import logs from './logUtils';
 import imports from './imports';
 
 export let mainDb;
@@ -147,7 +147,7 @@ export default {
     imports,
     segments,
     forms,
-    logs: { consumers: logConsumers }
+    logs: { consumers: logs }
   },
   apolloServerContext: async context => {
     const subdomain = 'os';

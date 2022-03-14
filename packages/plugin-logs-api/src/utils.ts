@@ -1,8 +1,8 @@
 import { debug } from './configs';
-import Logs from './models/Logs';
-import ActivityLogs, { IActivityLogDocument } from './models/ActivityLogs';
+import { IActivityLogDocument } from './models/ActivityLogs';
 import messageBroker from './messageBroker';
 import { IFilter } from './graphql/resolvers/logQueries';
+import { IModels } from './connectionResolver';
 
 export const sendToApi = (channel: string, data) =>
   messageBroker().sendMessage(channel, data);
@@ -247,7 +247,7 @@ export const compareObjects = (oldData: object = {}, newData: object = {}) => {
   };
 };
 
-export const receivePutLogCommand = async (params) => {
+export const receivePutLogCommand = async (models: IModels, params) => {
   debug.info(params);
 
   const {
@@ -261,7 +261,7 @@ export const receivePutLogCommand = async (params) => {
     extraDesc,
   } = params;
 
-  return Logs.createLog({
+  return models.Logs.createLog({
     createdBy,
     type,
     action,
@@ -279,7 +279,7 @@ interface IActivityLogList {
   totalCount: number;
 }
 
-export const fetchActivityLogs = async (params): Promise<IActivityLogList> => {
+export const fetchActivityLogs = async (models: IModels, params): Promise<IActivityLogList> => {
   const filter: {
     contentType?: string;
     contentId?: any;
@@ -296,23 +296,23 @@ export const fetchActivityLogs = async (params): Promise<IActivityLogList> => {
     delete filter.page;
 
     return {
-      activityLogs: await ActivityLogs.find(filter)
+      activityLogs: await models.ActivityLogs.find(filter)
         .sort({
           createdAt: -1,
         })
         .skip(perPage * (page - 1))
         .limit(perPage),
-      totalCount: await ActivityLogs.countDocuments(filter),
+      totalCount: await models.ActivityLogs.countDocuments(filter),
     };
   }
 
   return {
-    activityLogs: await ActivityLogs.find(filter).sort({ createdAt: -1 }).lean(),
-    totalCount: await ActivityLogs.countDocuments(filter),
+    activityLogs: await models.ActivityLogs.find(filter).sort({ createdAt: -1 }).lean(),
+    totalCount: await models.ActivityLogs.countDocuments(filter),
   }
 };
 
-export const fetchLogs = async (params) => {
+export const fetchLogs = async (models: IModels, params) => {
   const { start, end, userId, action, page, perPage, type, desc } = params;
   const filter: IFilter = {};
 
@@ -341,12 +341,12 @@ export const fetchLogs = async (params) => {
   const _page = Number(page || '1');
   const _limit = Number(perPage || '20');
 
-  const logs = await Logs.find(filter)
+  const logs = await models.Logs.find(filter)
     .sort({ createdAt: -1 })
     .limit(_limit)
     .skip((_page - 1) * _limit);
 
-  const logsCount = await Logs.countDocuments(filter);
+  const logsCount = await models.Logs.countDocuments(filter);
 
   return { logs, totalCount: logsCount };
 };

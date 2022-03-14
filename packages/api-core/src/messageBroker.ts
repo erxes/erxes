@@ -2,17 +2,9 @@ import { init as initBrokerCore } from '@erxes/api-utils/src/messageBroker';
 
 import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
-import {
-  Conformities,
-  Configs,
-  Users,
-  Brands,
-  EmailDeliveries
-} from './db/models';
+import { Conformities, Configs, Users, Brands } from './db/models';
 import { registerModule } from './data/permissions/utils';
-import { getAwsConfigs, sendEmail, sendMobileNotification } from './data/utils';
-import { IUserDocument } from './db/models/definitions/users';
-import ImportHistories from './db/models/ImportHistory';
+import { sendEmail, sendMobileNotification } from './data/utils';
 
 let client;
 
@@ -123,7 +115,7 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await Users.find(query)
+        data: await Users.find(query).lean()
       };
     });
 
@@ -132,124 +124,12 @@ export const initBroker = async options => {
       data: await Brands.findOne(query)
     }));
 
-    consumeRPCQueue('core:getActivityContent', async data => {
-      const { action, content } = data;
-
-      if (action === 'assignee') {
-        let addedUsers: IUserDocument[] = [];
-        let removedUsers: IUserDocument[] = [];
-
-        if (content) {
-          addedUsers = await Users.find({ _id: { $in: content.addedUserIds } });
-
-          removedUsers = await Users.find({
-            _id: { $in: content.removedUserIds }
-          });
-        }
-
-        return {
-          data: { addedUsers, removedUsers },
-          status: 'success'
-        };
-      }
-
-      return {
-        status: 'error',
-        data: 'wrong activity action'
-      };
-    });
-
-    consumeRPCQueue(
-      'core:activityLog:createdByDetail',
-      async ({ activityLog }) => {
-        const user = await Users.findOne({
-          _id: activityLog && activityLog.createdBy
-        });
-
-        if (user) {
-          return { data: { type: 'user', content: user }, status: 'success' };
-        }
-
-        return { data: {}, status: 'success' };
-      }
-    );
-
-    consumeRPCQueue('core:logs:collectItems', async ({ contentId }) => {
-      const deliveries = await EmailDeliveries.find({
-        customerId: contentId
-      }).lean();
-      const results: any[] = [];
-
-      for (const d of deliveries) {
-        results.push({
-          _id: d._id,
-          contentType: 'email',
-          contentId,
-          createdAt: d.createdAt
-        });
-      }
-
-      return {
-        status: 'success',
-        data: results
-      };
-    });
-
-    consumeRPCQueue('core:users.findOne', async query => ({
-      status: 'success',
-      data: await Users.findOne(query)
-    }));
-
-    consumeRPCQueue('core:users.find', async data => {
+    consumeRPCQueue('core:brands.find', async data => {
       const { query } = data;
 
       return {
         status: 'success',
-        data: await Users.find(query)
-      };
-    });
-
-    consumeRPCQueue('core:brands.findOne', async query => ({
-      status: 'success',
-      data: await Brands.findOne(query)
-    }));
-
-    consumeRPCQueue(
-      'core:importHistory.updateOne',
-      async (condition, modifier) => ({
-        status: 'success',
-        data: await ImportHistories.updateOne(condition, modifier)
-      })
-    );
-
-    consumeRPCQueue('core:importHistory.findOne', async query => ({
-      status: 'success',
-      data: await ImportHistories.findOne(query)
-    }));
-
-    consumeRPCQueue('core:getAwsConfigs', async () => ({
-      status: 'success',
-      data: await getAwsConfigs()
-    }));
-    consumeRPCQueue('core:logs:collectItems', async ({ contentId }) => {
-      const deliveries = await EmailDeliveries.find({
-        customerId: contentId
-      }).lean();
-
-      const results: any[] = [];
-
-      for (const d of deliveries) {
-        results.push({
-          _id: d._id,
-          contentType: 'email',
-          contentId,
-          createdAt: d.createdAt
-        });
-      }
-
-      return {
-        status: 'success',
-        data: results
+        data: await Brands.find(query).lean()
       };
     });
   }

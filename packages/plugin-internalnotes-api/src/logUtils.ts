@@ -1,13 +1,16 @@
-import { gatherNames, LogDesc, ILogDataParams } from '@erxes/api-utils/src/logUtils';
-
 import {
   putCreateLog as commonPutCreateLog,
   putUpdateLog as commonPutUpdateLog,
   putDeleteLog as commonPutDeleteLog,
+  gatherNames,
+  LogDesc,
+  ILogDataParams,
+  getSchemaLabels
 } from '@erxes/api-utils/src/logUtils';
 
 import messageBroker, { findItem } from './messageBroker';
-import { IInternalNoteDocument } from './models/definitions/internalNotes';
+import { IInternalNoteDocument, internalNoteSchema } from './models/definitions/internalNotes';
+import { generateModels } from './connectionResolver';
 
 const MODULE_NAMES = {
   DEAL: 'deal',
@@ -119,4 +122,34 @@ export const putCreateLog = async (logDoc: ILogDataParams, user) => {
     { ...logDoc, extraDesc: await gatherDescriptions(logDoc.object), type: `internalnotes:${logDoc.type}` },
     user
   );
+};
+
+export default {
+  collectItems: async ({ contentId, subdomain }) => {
+    const models = await generateModels(subdomain);
+    const notes = await models.InternalNotes.find({
+      contentTypeId: contentId,
+    }).sort({ createdAt: -1 });
+    const results: any[] = [];
+
+    for (const note of notes) {
+      results.push({
+        _id: note._id,
+        contentType: 'note',
+        contentId,
+        createdAt: note.createdAt,
+      });
+    }
+
+    return {
+      status: 'success',
+      data: results,
+    };
+  },
+  getSchemaLabels: ({ data: { type } }) => ({
+    status: 'success',
+    data: getSchemaLabels(type, [
+      { name: 'internalNote', schemas: [internalNoteSchema] },
+    ]),
+  })
 };

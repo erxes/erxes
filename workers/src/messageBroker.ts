@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import messageBroker from 'erxes-message-broker';
+import { init as initBrokerCore } from '@erxes/api-utils/src/messageBroker';
 import { RABBITMQ_QUEUES } from './constants';
 
 import {

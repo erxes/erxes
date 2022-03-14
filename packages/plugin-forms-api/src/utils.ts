@@ -1,21 +1,21 @@
+import { IModels } from './connectionResolver';
 import { fetchService } from './messageBroker';
-import { Fields, FieldsGroups } from './models';
 
-export const getCustomFields = async (contentType: string) => {
-  return Fields.find({
+export const getCustomFields = async (models: IModels, contentType: string) => {
+  return models.Fields.find({
     contentType,
     isDefinedByErxes: false
   });
 };
 
-const getFieldGroup = async (_id: string) => {
-  return FieldsGroups.findOne({ _id });
+const getFieldGroup = async (models: IModels, _id: string) => {
+  return models.FieldsGroups.findOne({ _id });
 };
 
 /**
  * Generates all field choices base on given kind.
  */
-export const fieldsCombinedByContentType = async ({
+export const fieldsCombinedByContentType = async (models: IModels, {
   contentType,
   usageType,
   excludedNames,
@@ -52,11 +52,11 @@ export const fieldsCombinedByContentType = async ({
     []
   );
 
-  const customFields = await getCustomFields(contentType);
+  const customFields = await getCustomFields(models, contentType);
 
   // extend fields list using custom fields data
   for (const customField of customFields) {
-    const group = await getFieldGroup(customField.groupId || '');
+    const group = await getFieldGroup(models, customField.groupId || '');
 
     if (
       group &&

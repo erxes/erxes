@@ -43,9 +43,9 @@ const getPipelineLabelOptions = async (models: IModels, pipelineId) => {
   };
 };
 
-export const generateFields = async (subdomain: string, args) => {
+export const generateFields = async ({ subdomain, data }) => {
   const models = await generateModels(subdomain);
-  const { type, config = {}, segmentId, usageType } = args;
+  const { type, config = {}, segmentId, usageType } = data;
   const { pipelineId } = config;
 
   let schema: any;

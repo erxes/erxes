@@ -69,7 +69,16 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       history
     } = this.props;
     let columnsConfig =
-      companiesListConfigQuery.fieldsDefaultColumnsConfig || [];
+      companiesListConfigQuery.fieldsDefaultColumnsConfig || [
+        { name: "primaryName", label: "Primary Name", order: 1 },
+        { name: "size", label: "Size", order: 2 },
+        { name: "links.website", label: "Website", order: 3 },
+        { name: "industry", label: "Industries", order: 4 },
+        { name: "plan", label: "Plan", order: 5 },
+        { name: "lastSeenAt", label: "Last seen at", order: 6 },
+        { name: "sessionCount", label: "Session count", order: 7 },
+        { name: "score", label: "Score", order: 8 },
+      ];
 
     // load config from local storage
     const localConfig = localStorage.getItem('erxes_company_columns_config');

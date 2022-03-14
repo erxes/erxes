@@ -4,17 +4,125 @@ import {
   putDeleteLog as commonPutDeleteLog,
   LogDesc,
   IDescriptions,
-  gatherNames
+  gatherNames,
+  getSchemaLabels
 } from '@erxes/api-utils/src/logUtils';
 import messageBroker from './messageBroker';
-import { MODULE_NAMES } from './constants';
-import { gatherChannelFieldNames, gatherIntegrationFieldNames, findFromCore } from './logHelper';
+import { LOG_MAPPINGS, MODULE_NAMES } from './constants';
 import { IModels } from './connectionResolver';
+import { collectConversations } from "./receiveMessage";
+import { IChannelDocument } from "./models/definitions/channels";
+import { IIntegrationDocument } from "./models/definitions/integrations";
 
-export const LOG_ACTIONS = {
+const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
   DELETE: 'delete',
+};
+
+const findFromCore = async (ids: string[], collectionName: string) => {
+  return messageBroker().sendRPCMessage(
+    `core:${collectionName}.find`,
+    { data: { query: { _id: { $in: ids } } } }
+  ) || [];
+};
+
+const findTags = async (ids: string[]) => {
+  return messageBroker().sendRPCMessage('tags:find', { data: { _id: { $in: ids } } }) || [];
+};
+
+const findForms = async (ids: string[]) => {
+  return messageBroker().sendRPCMessage('forms:find', { data: { query: { _id: { $in: ids } } } }) || [];
+};
+
+export const gatherIntegrationFieldNames = async (
+  doc: IIntegrationDocument,
+  prevList?: LogDesc[]
+) => {
+  let options: LogDesc[] = [];
+
+  if (prevList) {
+    options = prevList;
+  }
+
+  if (doc.createdUserId) {
+    options = await gatherNames({
+      nameFields: ['email', 'username'],
+      foreignKey: 'createdUserId',
+      prevList: options,
+      items: await findFromCore([doc.createdUserId], 'users')
+    });
+  }
+
+  if (doc.brandId) {
+    options = await gatherNames({
+      foreignKey: 'brandId',
+      prevList: options,
+      nameFields: ['name'],
+      items: await findFromCore([doc.brandId], 'brands')
+    });
+  }
+
+  if (doc.tagIds && doc.tagIds.length > 0) {
+    options = await gatherNames({
+      foreignKey: 'tagIds',
+      prevList: options,
+      nameFields: ['name'],
+      items: await findTags(doc.tagIds)
+    });
+  }
+
+  if (doc.formId) {
+    options = await gatherNames({
+      foreignKey: 'formId',
+      prevList: options,
+      nameFields: ['title'],
+      items: await findForms([doc.formId])
+    });
+  }
+
+  return options;
+};
+
+export const gatherChannelFieldNames = async (
+  models: IModels,
+  doc: IChannelDocument,
+  prevList?: LogDesc[]
+): Promise<LogDesc[]> => {
+  let options: LogDesc[] = [];
+
+  if (prevList) {
+    options = prevList;
+  }
+
+  if (doc.userId) {
+    options = await gatherNames({
+      nameFields: ['userId'],
+      foreignKey: 'userId',
+      prevList: options,
+      items: await findFromCore([doc.userId], 'users')
+    });
+  }
+
+  if (doc.memberIds && doc.memberIds.length > 0) {
+    options = await gatherNames({
+      nameFields: ['memberIds'],
+      foreignKey: 'memberIds',
+      prevList: options,
+      items: await findFromCore(doc.memberIds, 'users')
+    });
+  }
+
+  if (doc.integrationIds && doc.integrationIds.length > 0) {
+    options = await gatherNames({
+      foreignKey: 'integrationIds',
+      prevList: options,
+      nameFields: ['name'],
+      items: await models.Integrations.findIntegrations({ _id: { $in: doc.integrationIds } })
+    });
+  }
+
+  return options;
 };
 
 const gatherDescriptions = async (models: IModels, params: any): Promise<IDescriptions> => {
@@ -59,7 +167,7 @@ const gatherDescriptions = async (models: IModels, params: any): Promise<IDescri
         extraDesc = await gatherNames({
           nameFields: ['name'],
           foreignKey: 'brandId',
-          items: await findFromCore(brandIds, 'Brands')
+          items: await findFromCore(brandIds, 'brands')
         });
       }
 
@@ -108,4 +216,15 @@ export const putCreateLog = async (models: IModels, logDoc, user) => {
     { ...logDoc, description, extraDesc, type: `inbox:${logDoc.type}` },
     user
   );
+};
+
+export default {
+  collectItems: async ({ data }) => ({
+    data: await collectConversations(data),
+    status: 'success'
+  }),
+  getSchemaLabels: ({ data: { type } }) => ({
+    status: 'success',
+    data: getSchemaLabels(type, LOG_MAPPINGS)
+  })
 };

@@ -8,7 +8,14 @@ interface ISortParams {
   [index: string]: number;
 }
 
-const findIntegrations = (subdomain, query, options?) => sendInboxMessage({ subdomain, action: 'integrations:find', data: { query, options } });
+const findIntegrations = (subdomain, query, options?) =>
+  sendInboxMessage({
+    subdomain,
+    action: "integrations.find",
+    data: { query, options },
+    isRPC: true,
+    defaultValue: [],
+  });
 
 export interface IConformityQueryParams {
   conformityMainType?: string;

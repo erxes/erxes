@@ -1,7 +1,6 @@
-import { getSchemaLabels } from "@erxes/api-utils/src/logUtils";
+import { ISendMessageArgs, sendMessage } from "@erxes/api-utils/src/core";
 import { generateModels } from "./connectionResolver";
-
-import { productSchema, productCategorySchema } from './models/definitions/products';
+import { serviceDiscovery } from './configs'
 
 let client;
 
@@ -55,7 +54,7 @@ export const initBroker = async cl => {
 
   consumeRPCQueue(
     'products:update',
-    async ({ subdomain, selector, modifier }) => {
+    async ({ subdomain, data: { selector, modifier } }) => {
     const models = await generateModels(subdomain)
 
       return {
@@ -65,34 +64,34 @@ export const initBroker = async cl => {
     }
   );
 
-  consumeRPCQueue('products:tag', async args => {
-    const models = await generateModels(args.subdomain)
+  consumeRPCQueue('products:tag', async ({ subdomain, data  }) => {
+    const models = await generateModels(subdomain)
 
-    let data = {};
+    let response = {};
 
-    if (args.action === 'count') {
-      data = await models.Products.countDocuments({ tagIds: { $in: args._ids } });
+    if (data.action === 'count') {
+      response = await models.Products.countDocuments({ tagIds: { $in: data._ids } });
     }
 
-    if (args.action === 'tagObject') {
+    if (data.action === 'tagObject') {
       await models.Products.updateMany(
-        { _id: { $in: args.targetIds } },
-        { $set: { tagIds: args.tagIds } },
+        { _id: { $in: data.targetIds } },
+        { $set: { tagIds: data.tagIds } },
         { multi: true }
       );
 
-      data = await models.Products.find({ _id: { $in: args.targetIds } }).lean();
+      response = await models.Products.find({ _id: { $in: data.targetIds } }).lean();
     }
 
     return {
       status: 'success',
-      data
+      data: response
     }
   });
 
-  consumeRPCQueue('products:generateInternalNoteNotif', async args => {
-    const models = await generateModels(args.subdomain)
-    const { contentTypeId, notifDoc } = args;
+  consumeRPCQueue('products:generateInternalNoteNotif', async ({ subdomain, data })  => {
+    const models = await generateModels(subdomain)
+    const { contentTypeId, notifDoc } = data;
 
     const product = await models.Products.getProduct({ _id: contentTypeId });
 
@@ -103,43 +102,27 @@ export const initBroker = async cl => {
       data: notifDoc
     }
   });
-
-  consumeRPCQueue('products:logs.getSchemaLabels', async ({ type }) => ({
-    status: 'success',
-    data: getSchemaLabels(
-      type,
-      [{ name: 'product', schemas: [productSchema] }, { name: 'productCategory', schemas: [productCategorySchema] }]
-    )
-  }));
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {
   return client.sendRPCMessage(channel, message);
 };
 
-export const prepareCustomFieldsData = async (data): Promise<any> => {
-  return client.sendRPCMessage('forms:prepareCustomFieldsData', data);
-};
+export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: "forms", ...args })
+}
 
-export const findTags = async (selector): Promise<any> => {
-  return client.sendRPCMessage('tags:find', selector);
-};
+export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: "cards", ...args })
+}
 
-export const findCompanies = async (selector): Promise<any> => {
-  return client.sendRPCMessage('contacts:companies.findActiveCompanies', selector);
-};
+export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: "contacts", ...args })
+}
 
-export const findDealProductIds = async (selector): Promise<any> => {
-  return client.sendRPCMessage('cards:findDealProductIds', selector);
-};
-
-export const updateDeals = async (selector, modifier): Promise<any> => {
-  return client.sendRPCMessage('cards:updateDeals', ({ selector, modifier}));
-};
-
-export const findCompany = async (selector): Promise<any> => {
-  return client.sendRPCMessage('contacts:companies.findCompany', selector);
-};
+export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: "tags", ...args })
+}
 
 export default function() {
   return client;

@@ -1,5 +1,6 @@
 import * as Random from 'meteor-random';
-import { Document, Model, model, Schema } from 'mongoose';
+import { Document, Model, Schema } from 'mongoose';
+import { IModels } from '../connectionResolver';
 
 import { field } from './utils';
 
@@ -48,18 +49,18 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
   ): Promise<{ n: number; ok: number }>;
 }
 
-export const loadClass = () => {
+export const loadClass = (models: IModels, subdomain: string) => {
   class ActivityLog {
     public static addActivityLog(doc: IActivityLogInput) {
-      return ActivityLogs.create(doc);
+      return models.ActivityLogs.create(doc);
     }
 
     public static addActivityLogs(docs: IActivityLogInput[]) {
-      return ActivityLogs.insertMany(docs);
+      return models.ActivityLogs.insertMany(docs);
     }
 
     public static async removeActivityLog(contentId: IActivityLogInput) {
-      await ActivityLogs.deleteMany({ contentId });
+      await models.ActivityLogs.deleteMany({ contentId });
     }
 
     public static async removeActivityLogs(
@@ -67,7 +68,7 @@ export const loadClass = () => {
       contentIds: string[]
     ) {
       // Removing every activity logs of contentType
-      return ActivityLogs.deleteMany({
+      return models.ActivityLogs.deleteMany({
         contentType,
         contentId: { $in: contentIds }
       });
@@ -78,13 +79,3 @@ export const loadClass = () => {
 
   return activityLogSchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const ActivityLogs = model<IActivityLogDocument, IActivityLogModel>(
-  'activity_logs',
-  activityLogSchema
-);
-
-export default ActivityLogs;
