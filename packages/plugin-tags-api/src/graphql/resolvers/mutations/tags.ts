@@ -19,7 +19,7 @@ interface ITagsEdit extends ITag {
 
 const TAG = 'tag';
 
-const tagMutations = (serviceDiscovery) => ({
+const tagMutations = () => ({
   /**
    * Creates a new tag
    */
@@ -73,7 +73,7 @@ const tagMutations = (serviceDiscovery) => ({
       targetIds,
       tagIds,
     }: { type: string; targetIds: string[]; tagIds: string[] },
-    { models, user }: IContext
+    { models, subdomain, user }: IContext
   ) {
     // if (type === 'conversation') {
     //   publishConversationsChanged(targetIds, MODULE_NAMES.TAG);
@@ -88,7 +88,7 @@ const tagMutations = (serviceDiscovery) => ({
       throw new Error('Tag not found.');
     }
 
-    const targets = await tagObject(type, tagIds, targetIds, serviceDiscovery);
+    const targets = await tagObject(subdomain, type, tagIds, targetIds);
 
     for (const target of targets) {
       await putActivityLog({

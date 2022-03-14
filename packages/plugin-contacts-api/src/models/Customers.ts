@@ -290,7 +290,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       // clean custom field values
       doc.customFieldsData = await sendFormsMessage({
         subdomain,
-        action: "prepareCustomFieldsData",
+        action: "fields.prepareCustomFieldsData",
         data: doc.customFieldsData,
         isRPC: true,
       });
@@ -351,7 +351,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         // clean custom field values
         doc.customFieldsData = await sendFormsMessage({
           subdomain,
-          action: "prepareCustomFieldsData",
+          action: "fields.prepareCustomFieldsData",
           data: doc.customFieldsData,
           isRPC: true,
         });

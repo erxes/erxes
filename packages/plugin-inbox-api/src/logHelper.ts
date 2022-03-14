@@ -1,14 +1,18 @@
 import { gatherNames, LogDesc } from "@erxes/api-utils/src/logUtils";
 import { IChannelDocument } from "./models/definitions/channels";
 import { IIntegrationDocument } from "./models/definitions/integrations";
-import messageBroker, { findMongoDocuments } from "./messageBroker";
+import messageBroker from "./messageBroker";
 import { IModels } from "./connectionResolver";
 
 export const findFromCore = async (ids: string[], collectionName: string) => {
   return messageBroker().sendRPCMessage(
-    'core:rpc_queue:findMongoDocuments',
-    { query: { _id: { $in: ids } }, name: collectionName }
+    `core:${collectionName}.find`,
+    { query: { _id: { $in: ids } } }
   ) || [];
+};
+
+const findTags = async (ids: string[]) => {
+  return messageBroker().sendRPCMessage('tags:find', { _id: { $in: ids } }) || [];
 };
 
 export const gatherIntegrationFieldNames = async (
@@ -26,7 +30,7 @@ export const gatherIntegrationFieldNames = async (
       nameFields: ['email', 'username'],
       foreignKey: 'createdUserId',
       prevList: options,
-      items: await findFromCore([doc.createdUserId], 'Users')
+      items: await findFromCore([doc.createdUserId], 'users')
     });
   }
 
@@ -35,7 +39,7 @@ export const gatherIntegrationFieldNames = async (
       foreignKey: 'brandId',
       prevList: options,
       nameFields: ['name'],
-      items: await findFromCore([doc.brandId], 'Brands')
+      items: await findFromCore([doc.brandId], 'brands')
     });
   }
 
@@ -44,9 +48,7 @@ export const gatherIntegrationFieldNames = async (
       foreignKey: 'tagIds',
       prevList: options,
       nameFields: ['name'],
-      items: await findMongoDocuments(
-        'tags', { name: 'Tags', query: { _id: { $in: doc.tagIds } } }
-      )
+      items: await findTags(doc.tagIds)
     });
   }
 
@@ -78,7 +80,7 @@ export const gatherChannelFieldNames = async (
       nameFields: ['userId'],
       foreignKey: 'userId',
       prevList: options,
-      items: await findFromCore([doc.userId], 'Users')
+      items: await findFromCore([doc.userId], 'users')
     });
   }
 
@@ -87,7 +89,7 @@ export const gatherChannelFieldNames = async (
       nameFields: ['memberIds'],
       foreignKey: 'memberIds',
       prevList: options,
-      items: await findFromCore(doc.memberIds, 'Users')
+      items: await findFromCore(doc.memberIds, 'users')
     });
   }
 

@@ -1,15 +1,9 @@
-import { MongoClient } from 'mongodb';
 import * as mongoose from 'mongoose';
 import { mainDb } from './configs';
 import { ITagDocument } from './models/definitions/tags';
 import { ITagModel, loadTagClass } from './models/Tags';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 
-export interface ICoreIModels {
-  Brands;
-  Users;
-  Fields;
-}
 export interface IModels {
   Tags: ITagModel;
 }

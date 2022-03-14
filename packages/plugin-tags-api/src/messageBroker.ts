@@ -14,6 +14,7 @@ export const initBroker = async (cl) => {
 
   consumeRPCQueue('tags:find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
+
     return {
       data: await models.Tags.find(data).lean(),
       status: 'success',
@@ -22,6 +23,7 @@ export const initBroker = async (cl) => {
 
   consumeRPCQueue('tags:findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
+
     return {
       data: await models.Tags.findOne(data).lean(),
       status: 'success',
@@ -33,11 +35,11 @@ export const initBroker = async (cl) => {
     async ({ subdomain, data }) => {
       const { action, content } = data;
       const models = await generateModels(subdomain);
+
       if (action === 'tagged') {
         let tags: ITagDocument[] = [];
 
         if (content) {
-          // tags = await getDocumentList('tags', { _id: { $in: content.tagIds } });
           tags = await models.Tags.find({ _id: { $in: content.tagIds } });
         }
 
@@ -57,6 +59,7 @@ export const initBroker = async (cl) => {
   consumeRPCQueue('tags:findMongoDocuments', async ({ subdomain, data }) => {
     const { query, name } = data;
     const models = await generateModels(subdomain);
+
     const collection = models[name];
 
     return {
@@ -70,11 +73,12 @@ export const initBroker = async (cl) => {
     data: getSchemaLabels(type, [{ name: 'product', schemas: [tagSchema] }]),
   }));
 
-  consumeRPCQueue('tags:createTag', async ({ subdomain, data: { doc } }) => {
+  consumeRPCQueue('tags:createTag', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
+
     return {
       status: 'success',
-      data: await models.Tags.createTag(doc),
+      data: await models.Tags.createTag(data),
     };
   });
 };

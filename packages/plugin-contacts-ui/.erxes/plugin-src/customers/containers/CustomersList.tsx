@@ -91,9 +91,16 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       history,
     } = this.props;
 
-    let columnsConfig =
-      customersListConfigQuery.fieldsDefaultColumnsConfig || [];
-    console.log(customersMainQuery);
+    let columnsConfig = customersListConfigQuery.fieldsDefaultColumnsConfig || [
+      { name: "firstName", label: "First name", order: 1 },
+      { name: "lastName", label: "Last name", order: 2 },
+      { name: "primaryEmail", label: "Primary email", order: 3 },
+      { name: "lastSeenAt", label: "Last seen at", order: 4 },
+      { name: "sessionCount", label: "Session count", order: 5 },
+      { name: "profileScore", label: "Profile score", order: 6 },
+      { name: "middleName", label: "Middle name", order: 7 },
+    ];
+
     // load config from local storage
     const localConfig = localStorage.getItem(`erxes_${type}_columns_config`);
 
