@@ -9,6 +9,7 @@ import { IDashboard } from '../types';
 
 type Props = {
   queryParams: any;
+  dashboard: IDashboard;
   dashboards: IDashboard[];
   loading: boolean;
 };
@@ -47,7 +48,7 @@ const Home = (props: FinalProps) => {
           image="/images/actions/8.svg"
           text="There is no Dashboard"
           size="full"
-          extra={<DashbaordForm />}
+          extra={<DashbaordForm {...props} />}
         />
       </>
     );

@@ -16,6 +16,7 @@ const { REACT_APP_DASHBOARD_URL } = getEnv();
 type Props = {
   id: string;
   dashboard: IDashboard;
+  dashboards: IDashboard[];
   isExplore?: boolean;
 };
 
@@ -75,7 +76,7 @@ class DashboardDetail extends React.Component<Props, State> {
             {trigger}
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            <DashboardList currentDashboard={dashboard._id} />
+            <DashboardList currentDashboard={dashboard._id} {...this.props} />
           </Dropdown.Menu>
         </Dropdown>
       );
@@ -91,7 +92,7 @@ class DashboardDetail extends React.Component<Props, State> {
         {!isExplore && (
           <Link to={`/dashboard/explore/${id}`}>
             <Button btnStyle="success" icon="plus-circle">
-              Create a new char
+              Create a new chart
             </Button>
           </Link>
         )}

@@ -132,12 +132,12 @@ class Settings extends React.PureComponent {
               "brandsAll",
               ["showBrands", "manageBrands"]
             )}
-            {this.renderBox(
+            {/* {this.renderBox(
               "Properties",
               "/images/icons/erxes-01.svg",
               "/settings/properties",
               ""
-            )}
+            )} */}
             {this.renderBox(
               "Import & Export",
               "/images/icons/erxes-22.svg",

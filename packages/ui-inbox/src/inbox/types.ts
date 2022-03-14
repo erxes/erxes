@@ -348,3 +348,7 @@ export type EditMutationResponse = {
     variables: EditCustomFieldsMutationVariables;
   }) => Promise<any>;
 };
+
+export type ResponseTemplatesTotalCountQueryResponse = {
+  responseTemplatesTotalCount: number;
+} & QueryResponse;
