@@ -11,10 +11,10 @@ export interface IDataLoaders {
   company: DataLoader<string, any>;
 }
 
-export function generateAllDataLoaders(models: IModels): IDataLoaders {
+export function generateAllDataLoaders(models: IModels, subdomain: string): IDataLoaders {
   return {
     productCategory: productCategory(models),
-    tag: tag(),
-    company: company(),
+    tag: tag(subdomain),
+    company: company(subdomain),
   };
 }

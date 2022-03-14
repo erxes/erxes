@@ -106,7 +106,7 @@ const gatherCustomerFieldNames = async (
       foreignKey: 'integrationId',
       prevList: options,
       nameFields: ['name'],
-      items: await sendInboxMessage({ subdomain, action: 'integrations:find', data: { _id: { $in: [doc.integrationId] } }, isRPC: true }),
+      items: await sendInboxMessage({ subdomain, action: 'integrations.find', data: { _id: { $in: [doc.integrationId] } }, isRPC: true }),
     });
   }
 
