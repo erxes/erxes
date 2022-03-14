@@ -1,7 +1,10 @@
-import { getUserDetail } from "@erxes/api-utils/src";
-import { Users } from "./apiCollections";
-import { graphqlPubsub } from "./configs";
-import { Notifications } from "./models";
+import { getUserDetail } from '@erxes/api-utils/src';
+import { Users } from './apiCollections';
+import { graphqlPubsub } from './configs';
+import { IModels } from './connectionResolver';
+import { generateModels } from './connectionResolver';
+import { sendMessage } from '@erxes/api-utils/src/core';
+import { serviceDiscovery } from './configs';
 
 let client;
 
@@ -17,7 +20,11 @@ interface ISendNotification {
   contentTypeId: string;
 }
 
-const sendNotification = async (doc: ISendNotification) => {
+const sendNotification = async (
+  models: IModels,
+  subdomain: string,
+  doc: ISendNotification
+) => {
   const {
     createdUser,
     receivers,
@@ -53,7 +60,7 @@ const sendNotification = async (doc: ISendNotification) => {
   for (const receiverId of receiverIds) {
     try {
       // send web and mobile notification
-      const notification = await Notifications.createNotification(
+      const notification = await models.Notifications.createNotification(
         {
           link,
           title,
@@ -67,7 +74,7 @@ const sendNotification = async (doc: ISendNotification) => {
         createdUser._id
       );
 
-      graphqlPubsub.publish("notificationInserted", {
+      graphqlPubsub.publish('notificationInserted', {
         notificationInserted: {
           _id: notification._id,
           userId: receiverId,
@@ -77,7 +84,7 @@ const sendNotification = async (doc: ISendNotification) => {
       });
     } catch (e) {
       // Any other error is serious
-      if (e.message !== "Configuration does not exist") {
+      if (e.message !== 'Configuration does not exist') {
         throw e;
       }
     }
@@ -92,20 +99,25 @@ const sendNotification = async (doc: ISendNotification) => {
     }
   };
 
-  sendMessage("core:sendEmail", {
-    doc: {
-      toEmails,
-      title: "Notification",
-      template: {
-        name: "notification",
-        data: {
-          notification: { ...doc, link },
-          action,
-          userName: getUserDetail(createdUser),
+  sendCoreMessage({
+    subdomain,
+    serviceName: '',
+    action: 'core:sendEmail',
+    data: {
+      doc: {
+        toEmails,
+        title: 'Notification',
+        template: {
+          name: 'notification',
+          data: {
+            notification: { ...doc, link },
+            action,
+            userName: getUserDetail(createdUser),
+          },
         },
       },
+      modifier,
     },
-    modifier,
   });
 };
 
@@ -114,39 +126,51 @@ export const initBroker = async (cl) => {
 
   const { consumeRPCQueue, consumeQueue } = cl;
 
-  consumeQueue("notifications:send", async ({ data }) => {
-    await sendNotification(data);
+  consumeQueue('notifications:send', async ({ subdomain, doc }) => {
+    const models = await generateModels(subdomain);
+    await sendNotification(models, subdomain, doc);
   });
 
-  consumeQueue("notifications:batchUpdate", async ({ data: { selector, modifier} }) => {
-    await Notifications.update(
-      selector,
-      modifier,
-      { multi: true }
-    );
+  consumeQueue(
+    'notifications:batchUpdate',
+    async ({ subdomain, selector, modifier }) => {
+      const models = await generateModels(subdomain);
+      await models.Notifications.update(selector, modifier, { multi: true });
+    }
+  );
+
+  consumeRPCQueue(
+    'notifications:checkIfRead',
+    async ({ subdomain, userId, itemId }) => {
+      const models = await generateModels(subdomain);
+      return {
+        status: 'success',
+        data: await models.Notifications.checkIfRead(userId, itemId),
+      };
+    }
+  );
+
+  consumeRPCQueue('notifications:find', async (subdomain, selector, fields) => {
+    const models = await generateModels(subdomain);
+    return {
+      status: 'success',
+      data: await models.Notifications.find(selector, fields),
+    };
   });
-
-  consumeRPCQueue('notifications:checkIfRead', async ({ data: { userId, itemId }}) => ({
-    status: 'success',
-    data: await Notifications.checkIfRead(
-      userId,
-      itemId
-    ),
-  }));
-
-  consumeRPCQueue('notifications:find', async ({ data: { selector, fields }}) => ({
-    status: 'success',
-    data: await Notifications.find(
-      selector,
-      fields
-    ),
-  }));
 };
 
-export const sendMessage = async (channel, message): Promise<any> => {
-  return client.sendMessage(channel, message);
-};
-
-export const sendRPCMessage = async (channel, message): Promise<any> => {
-  return client.sendRPCMessage(channel, message);
+export const sendCoreMessage = async ({
+  serviceName,
+  action,
+  subdomain,
+  data,
+}): Promise<any> => {
+  return sendMessage({
+    subdomain,
+    client,
+    serviceDiscovery,
+    serviceName,
+    action,
+    data,
+  });
 };

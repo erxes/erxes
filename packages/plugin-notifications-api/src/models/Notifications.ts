@@ -22,7 +22,7 @@ export interface INotificationModel extends Model<INotificationDocument> {
   removeNotification(_id: string): void;
 }
 
-export const loadNotificationClass = () => {
+export const loadNotificationClass = (models) => {
   class Notification {
     /**
      * Marks notifications as read
@@ -34,7 +34,7 @@ export const loadNotificationClass = () => {
         selector = { _id: { $in: ids } };
       }
 
-      return Notifications.updateMany(
+      return models.Notifications.updateMany(
         selector,
         { $set: { isRead: true } },
         { multi: true }
@@ -45,7 +45,7 @@ export const loadNotificationClass = () => {
      * Check if user has read notification
      */
     public static async checkIfRead(userId, contentTypeId) {
-      const notification = await Notifications.findOne({
+      const notification = await models.Notifications.findOne({
         isRead: false,
         receiver: userId,
         contentTypeId,
@@ -62,7 +62,7 @@ export const loadNotificationClass = () => {
       createdUserId: string
     ) {
       // if receiver is configured to get this notification
-      const config = await NotificationConfigurations.findOne({
+      const config = await models.NotificationConfigurations.findOne({
         user: doc.receiver,
         notifType: doc.notifType,
       });
@@ -72,23 +72,26 @@ export const loadNotificationClass = () => {
         throw new Error('Configuration does not exist');
       }
 
-      return Notifications.create({ ...doc, createdUser: createdUserId });
+      return models.Notifications.create({
+        ...doc,
+        createdUser: createdUserId,
+      });
     }
 
     /**
      * Update a notification
      */
     public static async updateNotification(_id: string, doc: INotification) {
-      await Notifications.updateOne({ _id }, doc);
+      await models.Notifications.updateOne({ _id }, doc);
 
-      return Notifications.findOne({ _id });
+      return models.Notifications.findOne({ _id });
     }
 
     /**
      * Remove a notification
      */
     public static removeNotification(_id: string) {
-      return Notifications.deleteOne({ _id });
+      return models.Notifications.deleteOne({ _id });
     }
   }
 
@@ -104,7 +107,7 @@ export interface IConfigModel extends Model<IConfigDocument> {
   ): Promise<IConfigDocument>;
 }
 
-export const loadNotificationConfigClass = () => {
+export const loadNotificationConfigClass = (models) => {
   class Configuration {
     /**
      * Creates an new notification or updates already existing notification configuration
@@ -115,22 +118,22 @@ export const loadNotificationConfigClass = () => {
     ) {
       const selector: any = { user, notifType };
 
-      const oldOne = await NotificationConfigurations.findOne(selector);
+      const oldOne = await models.NotificationConfigurations.findOne(selector);
 
       // If already inserted then raise error
       if (oldOne) {
-        await NotificationConfigurations.updateOne(
+        await models.NotificationConfigurations.updateOne(
           { _id: oldOne._id },
           { $set: { isAllowed } }
         );
 
-        return NotificationConfigurations.findOne({ _id: oldOne._id });
+        return models.NotificationConfigurations.findOne({ _id: oldOne._id });
       }
 
       // If it is first time then insert
       selector.isAllowed = isAllowed;
 
-      return NotificationConfigurations.create(selector);
+      return models.NotificationConfigurations.create(selector);
     }
   }
 
@@ -138,18 +141,3 @@ export const loadNotificationConfigClass = () => {
 
   return configSchema;
 };
-
-loadNotificationClass();
-loadNotificationConfigClass();
-
-// tslint:disable-next-line
-export const NotificationConfigurations = model<IConfigDocument, IConfigModel>(
-  'notification_configs',
-  configSchema
-);
-
-// tslint:disable-next-line
-export const Notifications = model<INotificationDocument, INotificationModel>(
-  'notifications',
-  notificationSchema
-);
