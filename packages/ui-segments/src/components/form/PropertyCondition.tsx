@@ -87,7 +87,7 @@ class PropertyCondition extends React.Component<Props, State> {
               propertyType,
               onChangeConfig: this.onChangeConfig,
               hideDetailForm,
-              from: 'filter'
+              component: 'filter'
             }}
           />
         );
