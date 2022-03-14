@@ -39,7 +39,7 @@ export default {
     return { data: { positive }, status: 'success' };
   },
 
-  associationTypes: async ({ mainType }) => {
+  associationTypes: async ({}) => {
     const types: string[] = [
       'cards:deal',
       'contacts:customer',

@@ -1,10 +1,10 @@
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src/types';
 
-import ActivityLogs, { IActivityLogDocument } from '../../models/ActivityLogs';
+import { IActivityLogDocument } from '../../models/ActivityLogs';
 import { collectPluginContent } from '../../pluginUtils';
 import { fetchActivityLogs, fetchLogs } from '../../utils';
 import { collectServiceItems, getContentIds } from '../../messageBroker';
+import { IContext } from '../../connectionResolver';
 
 export interface IListArgs {
   contentType: string;
@@ -24,7 +24,7 @@ const activityLogQueries = {
   /**
    * Get activity log list
    */
-  async activityLogs(_root, doc: IListArgs, { user }: IContext) {
+  async activityLogs(_root, doc: IListArgs, { user, models }: IContext) {
     const { activityType, contentId, contentType } = doc;
     let activities: IActivityLogDocument[] = [];
 
@@ -57,10 +57,10 @@ const activityLogQueries = {
       const relatedItems = await collectServiceItems(contentType, doc) || [];
       const relatedItemIds = relatedItems.map(r => r._id);
 
-      activities = await ActivityLogs.find({ contentId: { $in: [...relatedItemIds, contentId] } }).lean();
+      activities = await models.ActivityLogs.find({ contentId: { $in: [...relatedItemIds, contentId] } }).lean();
 
     } else {
-      activities = await ActivityLogs.find({ contentId, contentType: activityType }).lean();
+      activities = await models.ActivityLogs.find({ contentId, contentType: activityType }).lean();
     }
 
     return activities;
@@ -74,7 +74,8 @@ const activityLogQueries = {
       pipelineId,
       perPage = 10,
       page = 1
-    }: IListArgsByAction
+    }: IListArgsByAction,
+    { models }: IContext
   ) {
     const allActivityLogs: any[] = [];
     let allTotalCount: number = 0;
@@ -96,6 +97,7 @@ const activityLogQueries = {
 
     if (actionArr.length > 0) {
       const { activityLogs, totalCount } = await fetchActivityLogs(
+        models,
         {
           contentType,
           contentId: { $in: contentIds },
@@ -122,6 +124,7 @@ const activityLogQueries = {
 
     if (action.includes('delete')) {
       const { logs, totalCount } = await fetchLogs(
+        models,
         {
           action: 'delete',
           type: contentType,

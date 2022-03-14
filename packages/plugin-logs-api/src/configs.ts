@@ -1,12 +1,13 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import apiConnect from './apiCollections';
 
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
+import { generateModels, generateCoreModels } from './connectionResolver';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
+export let mainDb;
 
 export let es: {
   client;
@@ -29,9 +30,17 @@ export default {
   },
   hasSubscriptions: false,
   segment: {},
-  apolloServerContext: (context) => {},
+  apolloServerContext: async (context) => {
+    const subdomain = 'os';
+
+    context.models = await generateModels(subdomain);
+    context.coreModels = await generateCoreModels(subdomain);
+    context.subdomain = subdomain;
+
+    return context;
+  },
   onServerInit: async (options) => {
-    await apiConnect();
+    mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 
