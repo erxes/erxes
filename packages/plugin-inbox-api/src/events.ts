@@ -2,7 +2,7 @@ import * as getUuid from 'uuid-by-string';
 import { debug } from './configs';
 import { es } from './configs';
 import { ICoreIModels } from './connectionResolver';
-import { sendContactRPCMessage } from './messageBroker';
+import { sendContactsMessage } from './messageBroker';
 
 interface ISaveEventArgs {
   type?: string;
@@ -198,30 +198,44 @@ export const trackCustomEvent = (coreModels: ICoreIModels, args: {
   });
 };
 
-export const identifyCustomer = async (args: ICustomerIdentifyParams = {}) => {
+export const identifyCustomer = async (subdomain: string, args: ICustomerIdentifyParams = {}) => {
   // get or create customer
-  let customer = await sendContactRPCMessage('getWidgetCustomer', args);
+  let customer = await sendContactsMessage({
+    subdomain,
+    action: "customers.getWidgetCustomer",
+    data: args, 
+    isRPC: true
+  })
 
   if (!customer) {
-    customer = await sendContactRPCMessage('create_customer', {
-      primaryEmail: args.email,
-      code: args.code,
-      primaryPhone: args.phone
-    });
+    customer = await sendContactsMessage({
+      subdomain,
+      action: "customers.createCustomer",
+      data: {
+        primaryEmail: args.email,
+        code: args.code,
+        primaryPhone: args.phone
+      },
+      isRPC: true
+    })
   }
 
   return { customerId: customer._id };
 };
 
-export const updateCustomerProperty = async (coreModels: ICoreIModels, {
-  customerId,
-  name,
-  value
-}: {
-  customerId: string;
-  name: string;
-  value: any;
-}) => {
+export const updateCustomerProperty = async (
+  coreModels: ICoreIModels,
+  subdomain: string,
+  {
+    customerId,
+    name,
+    value
+  }: {
+    customerId: string;
+    name: string;
+    value: any;
+  }
+) => {
   if (!customerId) {
     throw new Error('Customer id is required');
   }
@@ -238,8 +252,13 @@ export const updateCustomerProperty = async (coreModels: ICoreIModels, {
       'code'
     ].includes(name)
   ) {
-    const customer = await sendContactRPCMessage('findCustomer', {
-      _id: customerId
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        _id: customerId
+      },
+      isRPC: true
     });
 
     if (customer) {
@@ -247,13 +266,20 @@ export const updateCustomerProperty = async (coreModels: ICoreIModels, {
       (customer.trackedData || []).forEach(td => (prev[td.field] = td.value));
       prev[name] = value;
 
-      modifier = { trackedData: coreModels.Fields.generateTypedListFromMap(prev) };
+      modifier = {
+        trackedData: coreModels.Fields.generateTypedListFromMap(prev)
+      };
     }
   }
 
-  await await sendContactRPCMessage('updateCustomer', {
-    _id: customerId,
-    doc: modifier
+  await await sendContactsMessage({
+    subdomain,
+    action: "customers.updateCustomer",
+    data: {
+      _id: customerId,
+      doc: modifier
+    },
+    isRPC: true
   });
 
   return { status: 'ok' };

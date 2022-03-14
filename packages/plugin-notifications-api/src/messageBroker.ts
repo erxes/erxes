@@ -5,6 +5,7 @@ import { IModels } from './connectionResolver';
 import { generateModels } from './connectionResolver';
 import { sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
+
 let client;
 
 interface ISendNotification {
@@ -100,9 +101,7 @@ const sendNotification = async (
 
   sendCoreMessage({
     subdomain,
-    serviceDiscovery,
     serviceName: '',
-    client,
     action: 'core:sendEmail',
     data: {
       doc: {
@@ -161,8 +160,6 @@ export const initBroker = async (cl) => {
 };
 
 export const sendCoreMessage = async ({
-  client,
-  serviceDiscovery,
   serviceName,
   action,
   subdomain,

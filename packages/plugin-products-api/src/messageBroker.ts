@@ -10,18 +10,18 @@ export const initBroker = async cl => {
 
   const { consumeRPCQueue } = client;
 
-  consumeRPCQueue('products:findOne', async (selector) => {
-    const models = await generateModels('os')
+  consumeRPCQueue('products:findOne', async ({ subdomain, data } ) => {
+    const models = await generateModels(subdomain)
     
     return {
-      data: await models.Products.findOne(selector),
+      data: await models.Products.findOne(data),
       status: 'success'
     };
   });
 
   consumeRPCQueue(
     'products:categories.find',
-    async ({ subdomain, query, sort, regData }) => {
+    async ({ subdomain, data: { query, sort, regData } }) => {
       const models = await generateModels(subdomain);
 
       return {
@@ -35,17 +35,17 @@ export const initBroker = async cl => {
     }
   );
 
-  consumeRPCQueue('product:categories.findOne', async selector => {
-    const models = await generateModels('os');
+  consumeRPCQueue('products:categories.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
 
     return {
-      data: await models.ProductCategories.findOne(selector),
+      data: await models.ProductCategories.findOne(data),
       status: 'success'
     };
   });
 
-  consumeRPCQueue('products:find', async ({ query, sort }) => {
-    const models = await generateModels('os')
+  consumeRPCQueue('products:find', async ({ subdomain, data: { query, sort } }) => {
+    const models = await generateModels(subdomain);
 
     return {
       data: await models.Products.find(query).sort(sort),

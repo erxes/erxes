@@ -11,7 +11,7 @@ import * as moment from 'moment';
 // ? import { uploadFile, frontendEnv, getSubServiceDomain } from '@erxes/api-utils';
 
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
-import { sendRPCMessage } from '../../messageBroker';
+import { sendFormsMessage } from '../../messageBroker';
 import { IContext, ICoreIModels, IModels } from '../../connectionResolver';
 
 export const isMessengerOnline = async (models: IModels, integration: IIntegrationDocument) => {
@@ -39,10 +39,10 @@ export const isMessengerOnline = async (models: IModels, integration: IIntegrati
   return models.Integrations.isOnline(modifiedIntegration);
 };
 
-const messengerSupporters = async (models: IModels, coreModels: ICoreIModels, integration: IIntegrationDocument) => {
+const messengerSupporters = async (models: IModels, coreModels: ICoreIModels, subdomain: string, integration: IIntegrationDocument) => {
   const messengerData = integration.messengerData || { supporterIds: [] };
 
-  return getDocumentList(models, coreModels, 'users', { _id: { $in: messengerData.supporterIds } });
+  return getDocumentList(models, coreModels, subdomain, 'users', { _id: { $in: messengerData.supporterIds } });
 };
 
 const getWidgetMessages = (models: IModels,conversationId: string) => {
@@ -190,7 +190,7 @@ export default {
   async widgetsConversationDetail(
     _root,
     args: { _id: string; integrationId: string },
-    { models, coreModels }: IContext
+    { models, coreModels, subdomain }: IContext
   ) {
     const { _id, integrationId } = args;
 
@@ -216,10 +216,10 @@ export default {
       messages: await getWidgetMessages(models, conversation._id),
       isOnline: await isMessengerOnline(models, integration),
       operatorStatus: conversation.operatorStatus,
-      participatedUsers: await getDocumentList(models, coreModels, 'users', {
+      participatedUsers: await getDocumentList(models, coreModels, subdomain, 'users', {
         _id: { $in: conversation.participatedUserIds }
       }),
-      supporters: await messengerSupporters(models, coreModels, integration)
+      supporters: await messengerSupporters(models, coreModels, subdomain, integration)
     };
   },
 
@@ -257,11 +257,17 @@ export default {
   async widgetsMessengerSupporters(
     _root,
     { integrationId }: { integrationId: string },
-    { models, coreModels }: IContext
+    { models, coreModels, subdomain }: IContext
   ) {
-    const integration = await getDocument(models, coreModels, 'integrations', {
-      _id: integrationId
-    });
+    const integration = await getDocument(
+      models,
+      coreModels,
+      subdomain,
+      'integrations',
+      {
+        _id: integrationId
+      }
+    );
     let timezone = '';
 
     if (!integration) {
@@ -279,9 +285,15 @@ export default {
     }
 
     return {
-      supporters: await getDocumentList(models, coreModels, 'users', {
-        _id: { $in: messengerData.supporterIds || [] }
-      }),
+      supporters: await getDocumentList(
+        models,
+        coreModels,
+        subdomain,
+        'users',
+        {
+          _id: { $in: messengerData.supporterIds || [] }
+        }
+      ),
       isOnline: await isMessengerOnline(models, integration),
       serverTime: momentTz().tz(timezone)
     };
@@ -300,11 +312,12 @@ export default {
       visitorId?: string;
       browserInfo: IBrowserInfo;
     },
-    { models, coreModels }: IContext
+    { models, coreModels, subdomain }: IContext
   ) {
     return getOrCreateEngageMessage(
       models,
       coreModels,
+      subdomain,
       integrationId,
       browserInfo,
       visitorId,
@@ -319,14 +332,19 @@ export default {
     };
   },
 
-  async widgetsBookingProductWithFields(_root, { _id }: { _id: string }) {
-    const fields = await sendRPCMessage('rpc_queue:Fields.find', {
-      query: {
-        contentType: 'product'
+  async widgetsBookingProductWithFields(_root, { _id }: { _id: string }, { subdomain }: IContext) {
+    const fields = await sendFormsMessage({
+      subdomain,
+      action: 'fields.find',
+      data: {
+        query: {
+          contentType: 'product'
+        },
+        sort: {
+          order: 1
+        }
       },
-      sort: {
-        order: 1
-      }
+      isRPC: true
     });
 
     return {

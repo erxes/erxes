@@ -6,7 +6,7 @@ import { initBroker } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
-import { generateModels, models, coreModels } from './connectionResolver';
+import { generateModels, models, coreModels, getSubdomain } from './connectionResolver';
 import logConsumers from './logConsumers';
 import tags from '../tags';
 
@@ -45,9 +45,14 @@ export default {
     logs: { providesActivityLog: true, consumers: logConsumers }
   },
   apolloServerContext: (context) => {
+    const subdomain = 'os';
+
     context.models = models;
     context.coreModels = coreModels;
     context.dataLoaders = generateAllDataLoaders(models);
+    context.subdomain = subdomain;
+
+    return context;
   },
   onServerInit: async (options) => {
     mainDb = options.db;
@@ -78,8 +83,9 @@ export default {
       routeErrorHandling(
         async (req, res) => {
           const { args } = req.body;
+          const subdomain = getSubdomain(req.hostname);
 
-          const response = await identifyCustomer(args);
+          const response = await identifyCustomer(subdomain, args);
           return res.json(response);
         },
         res => res.json({})
@@ -90,7 +96,9 @@ export default {
       '/events-update-customer-property',
       routeErrorHandling(
         async (req, res) => {
-          const response = await updateCustomerProperty(coreModels, req.body);
+          const subdomain = getSubdomain(req.hostname);
+
+          const response = await updateCustomerProperty(coreModels, subdomain, req.body);
           return res.json(response);
         },
         res => res.json({})

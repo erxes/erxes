@@ -125,10 +125,12 @@ const dealMutations = {
 
       const products = await sendProductsMessage({
         subdomain,
-        action: "find",
+        action: 'find',
         data: {
-          _id: { $in: productIds },
-          supply: { $ne: "unlimited" },
+          query: {
+            _id: { $in: productIds },
+            supply: { $ne: 'unlimited' }
+          }
         },
         isRPC: true,
         defaultValue: []

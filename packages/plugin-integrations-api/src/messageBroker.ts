@@ -37,7 +37,7 @@ export const initBroker = async server => {
 
   const { consumeRPCQueue, consumeQueue } = client;
 
-  consumeRPCQueue('integrations:getAccounts', async ({ kind }) => {
+  consumeRPCQueue('integrations:getAccounts', async ({ data: { kind } }) => {
     if (kind.includes('nylas')) {
       kind = kind.split('-')[1];
     }
@@ -51,8 +51,8 @@ export const initBroker = async server => {
   });
 
   // listen for rpc queue =========
-  consumeRPCQueue('rpc_queue:api_to_integrations', async parsedObject => {
-    const { action, data, type } = parsedObject;
+  consumeRPCQueue('integrations:api_to_integrations', async ({ data }) => {
+    const { action, type } = data;
 
     let response: any = null;
 
@@ -79,7 +79,7 @@ export const initBroker = async server => {
       }
 
       if (type === 'facebook') {
-        response = { data: await handleFacebookMessage(parsedObject) };
+        response = { data: await handleFacebookMessage(data) };
       }
 
       if (action === 'getConfigs') {
@@ -118,8 +118,8 @@ export const initBroker = async server => {
 
   // /facebook/get-status'
   consumeRPCQueue(
-    'integrations:rpc_queue:getFacebookStatus',
-    async ({ integrationId }) => {
+    'integrations:getFacebookStatus',
+    async ({ data: { integrationId } }) => {
       const integration = await Integrations.findOne({
         erxesApiId: integrationId
       });
@@ -144,10 +144,10 @@ export const initBroker = async server => {
 
   // '/daily/room', get
   consumeRPCQueue(
-    'integrations:rpc_queue:getDailyRoom',
-    async (doc) => {
+    'integrations:getDailyRoom',
+    async ({ data }) => {
       return {
-        data: await getDailyRoom(doc),
+        data: await getDailyRoom(data),
         status: 'success'
       };
     }
@@ -155,10 +155,10 @@ export const initBroker = async server => {
 
   // '/daily/room', post create daily room
   consumeRPCQueue(
-    'integrations:rpc_queue:createDailyRoom',
-    async (doc) => {
+    'integrations:createDailyRoom',
+    async ({ data }) => {
       return {
-        data: await createDailyRoom(doc),
+        data: await createDailyRoom(data),
         status: 'success' 
       }
     }
@@ -166,10 +166,10 @@ export const initBroker = async server => {
 
   // '/daily/get-active-room',
   consumeRPCQueue(
-    'integrations:rpc_queue:getDailyActiveRoom',
-    async (doc) => {
+    'integrations:getDailyActiveRoom',
+    async ({ data }) => {
       return {
-        data: await getDailyActiveRoom(doc),
+        data: await getDailyActiveRoom(data),
         status: 'success'
       };
     }
@@ -177,10 +177,10 @@ export const initBroker = async server => {
 
   // '/callpro/get-audio',
   consumeRPCQueue(
-    'integrations:rpc_queue:getCallproAudio',
-    async (doc) => {
+    'integrations:getCallproAudio',
+    async ({ data }) => {
       return {
-        data: await callproGetAudio(doc),
+        data: await callproGetAudio(data),
         status: 'success'
       };
     }
@@ -188,8 +188,8 @@ export const initBroker = async server => {
 
   // /facebook/get-post
   consumeRPCQueue(
-    'integrations:rpc_queue:getFacebookPost',
-    async ({ erxesApiId }) => {
+    'integrations:getFacebookPost',
+    async ({ data: { erxesApiId } }) => {
       const post = await Posts.getPost({ erxesApiId }, true);
 
       return {
@@ -201,16 +201,16 @@ export const initBroker = async server => {
 
   // app.get('/facebook/get-customer-posts'
   consumeRPCQueue(
-    'integrations:rpc_queue:getFbCustomerPosts',
-    async (doc) => {
+    'integrations:getFbCustomerPosts',
+    async ({ data }) => {
       return {
-        data: await facebookGetCustomerPosts(doc),
+        data: await facebookGetCustomerPosts(data),
         status: 'success'
       };
     }
   );
 
-  consumeRPCQueue('integrations:rpc_queue:createIntegration', async ({doc, kind}) => {
+  consumeRPCQueue('integrations:createIntegration', async ({ data: { doc, kind }}) => {
     switch(kind) {
       case 'nylas': 
         await nylasCreateIntegration(doc);
@@ -244,14 +244,14 @@ export const initBroker = async server => {
 });
 
   // '/integrations/remove',
-  consumeRPCQueue('integrations:rcp_queue:removeIntegrations', async ({ integrationId }) => {
+  consumeRPCQueue('integrations:removeIntegrations', async ({ data: { integrationId }}) => {
     await removeIntegration(integrationId);
 
     return { status: 'ok' };
   });
 
   //  '/nylas/send', /gmail/send
-  consumeRPCQueue('integrations:rcp_queue:sendEmail', async ({kind, doc}) => {
+  consumeRPCQueue('integrations:sendEmail', async ({ data: { kind, doc }}) => {
     const { data, erxesApiId } = doc;
 
     if(kind === 'nylas') {
@@ -276,8 +276,8 @@ export const initBroker = async server => {
   })
 
   // /telnyx/send-sms
-  consumeRPCQueue('integrations:rpc_queue:sendSms', async (args) => {
-    const { integrationId, content, to } = args;
+  consumeRPCQueue('integrations:sendSms', async ({ data }) => {
+    const { integrationId, content, to } = data;
 
     const result = await sendSms(
       JSON.stringify({ integrationId, content, toPhone: to })
@@ -286,19 +286,19 @@ export const initBroker = async server => {
     return result;
   })
 
-  consumeRPCQueue('integrations:rpc_queue:reply', async (doc) => {
-    switch(doc.requestName) {
+  consumeRPCQueue('integrations:reply', async ({ data }) => {
+    switch(data.requestName) {
       case "replyChatfuel":
-        await chatfuelReply(doc);
+        await chatfuelReply(data);
         break;
       case 'replyTwitterDm':
-        await twitterReply(doc);
+        await twitterReply(data);
         break;
       case 'replySmooch':
-        await smoothReply(doc)
+        await smoothReply(data)
         break;
       case 'replyWhatsApp':
-        await whatsappReply(doc)
+        await whatsappReply(data)
         break;
       default:
         break;

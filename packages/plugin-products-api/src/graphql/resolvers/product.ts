@@ -2,7 +2,7 @@ import { IContext } from "../../connectionResolver";
 import { IProductDocument } from "../../models/definitions/products";
 
 export default {
-  __resolveReference({ _id }, _params, { models }: IContext) {
+  __resolveReference({ _id }, { models }: IContext) {
     return models.Products.findOne({ _id });
   },
 

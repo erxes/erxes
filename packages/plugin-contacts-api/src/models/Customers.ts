@@ -774,7 +774,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
       const { customFieldsData, trackedData } = await sendFormsMessage({
         subdomain,
-        action: "generateCustomFieldsData",
+        action: "fields.generateCustomFieldsData",
         data: {
           customData,
           contentType: "customer",
@@ -806,11 +806,12 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
       const { customFieldsData, trackedData } = await sendFormsMessage({
         subdomain,
-        action: "generateCustomFieldsData",
+        action: "fields.generateCustomFieldsData",
         data: {
           customData,
           contentType: "customer",
         },
+        isRPC: true
       });
 
       const modifier = {

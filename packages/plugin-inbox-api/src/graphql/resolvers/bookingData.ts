@@ -1,8 +1,9 @@
-import {sendProductCategoryRPCMessage, sendProductRPCMessage} from '../../messageBroker'
+import { IContext } from '../../connectionResolver';
+import { sendProductsMessage} from '../../messageBroker'
 import { IBookingData } from '../../models/definitions/integrations';
 
 export default {
-  async categoryTree(booking: IBookingData) {
+  async categoryTree(booking: IBookingData, _params, { subdomain }: IContext) {
     const tree: Array<{
       _id: string;
       name: string;
@@ -13,26 +14,41 @@ export default {
       count?: number;
     }> = [];
 
-    const mainCategory = await sendProductCategoryRPCMessage('findOne', {
-      _id: booking.productCategoryId
+    const mainCategory = await sendProductsMessage({
+      subdomain,
+      action: "categories.findOne",
+      data: {
+        _id: booking.productCategoryId
+      },
+      isRPC: true
     })
 
-    const allCategories = await sendProductCategoryRPCMessage('find', {
-      query: {
+    const allCategories = await sendProductsMessage({
+      subdomain,
+      action: 'categories.find',
+      data: {
+        query: {},
+        regData: mainCategory.order,
+        sort: {
+          name: 1
+        }
       },
-      regData: mainCategory.order,
-      sort: {
-        name: 1
-      }
-    })
+      isRPC: true
+    });
 
-    const allProducts = await sendProductRPCMessage('find', {
-      query: {
-        categoryId: { $in: allCategories.map(cat => cat._id) },
-        status: { $ne: 'deleted' },
+    const allProducts = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        query: {
+          categoryId: { $in: allCategories.map(cat => cat._id) },
+          status: { $ne: 'deleted' }
+        },
+        sort: { name: 1 }
       },
-      sort: { name: 1 }
-    })
+      isRPC: true
+    });
+
 
     const generateTree = async (parentId: any) => {
       const categories = allCategories.filter(cat => cat.parentId === parentId);

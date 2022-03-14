@@ -27,7 +27,7 @@ export const initBroker = (cl) => {
     }
   );
 
-  consumeRPCQueue("contacts:customers.find", async ({ subdomain, data }) => {
+  consumeRPCQueue("contacts:customers.findOne", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -36,7 +36,7 @@ export const initBroker = (cl) => {
     };
   });
 
-  consumeRPCQueue("contacts:companies.find", async ({ subdomain, data }) => {
+  consumeRPCQueue("contacts:companies.findOne", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -150,14 +150,26 @@ export const initBroker = (cl) => {
     }
   );
 
-  consumeQueue(
-    "contacts:customers.removeCustomers",
-    async ({ subdomain, data }) => {
+  consumeRPCQueue(
+    "contacts:customers.markCustomerAsActive",
+    async ({ subdomain, data: { customerId } }) => {
       const models = await generateModels(subdomain);
 
       return {
         status: "success",
-        data: await models.Customers.removeCustomers(data),
+        data: await models.Customers.markCustomerAsActive(customerId),
+      };
+    }
+  );
+
+  consumeQueue(
+    "contacts:customers.removeCustomers",
+    async ({ subdomain, data: { customerIds } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.Customers.removeCustomers(customerIds),
       };
     }
   );
