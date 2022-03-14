@@ -25,7 +25,6 @@ export const fieldsCombinedByContentType = async (models: IModels, {
   contentType: string;
   usageType?: string;
   excludedNames?: string[];
-  boardId?: string;
   segmentId?: string;
   config?: any;
 }) => {
@@ -39,6 +38,8 @@ export const fieldsCombinedByContentType = async (models: IModels, {
     options?: string[];
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
+
+  console.log(contentType);
 
   fields = await fetchService(
     contentType,

@@ -2,18 +2,13 @@ import { init as initBrokerCore } from '@erxes/api-utils/src/messageBroker';
 
 import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
-import {
-  Conformities,
-  Configs,
-  Users,
-  Brands,
-} from './db/models';
+import { Conformities, Configs, Users, Brands } from './db/models';
 import { registerModule } from './data/permissions/utils';
 import { sendEmail, sendMobileNotification } from './data/utils';
 
 let client;
 
-export const initBroker = async (options) => {
+export const initBroker = async options => {
   client = await initBrokerCore(options);
 
   // do not receive messages in crons worker
@@ -73,7 +68,7 @@ export const initBroker = async (options) => {
     }));
 
     consumeRPCQueue('core:generateInternalNoteNotif', async ({ data }) => {
-      if(data.type === 'user') {
+      if (data.type === 'user') {
         const { contentTypeId, notifDoc } = data;
 
         const usr = await Users.getUser(contentTypeId);
@@ -83,13 +78,13 @@ export const initBroker = async (options) => {
         return {
           status: 'success',
           data: notifDoc
-        }
+        };
       }
 
       return {
         status: 'success',
         data: {}
-      }
+      };
     });
 
     // graphql subscriptions call =========
@@ -98,9 +93,12 @@ export const initBroker = async (options) => {
     });
 
     // listen for rpc queue =========
-    consumeQueue('core:registerOnboardHistory', async ({ data: { type, user } }) => {
-      await registerOnboardHistory(type, user);
-    });
+    consumeQueue(
+      'core:registerOnboardHistory',
+      async ({ data: { type, user } }) => {
+        await registerOnboardHistory(type, user);
+      }
+    );
 
     consumeRPCQueue('core:configs.find', async args => ({
       status: 'success',
@@ -112,25 +110,27 @@ export const initBroker = async (options) => {
       data: await Users.findOne(query)
     }));
 
-    consumeRPCQueue('core:users.find', async (data) => {
+    consumeRPCQueue('core:users.find', async data => {
       const { query } = data;
 
       return {
         status: 'success',
         data: await Users.find(query).lean()
-      }
+      };
     });
 
     consumeRPCQueue('core:brands.findOne', async query => ({
-      status: 'success', data: await Brands.findOne(query)
+      status: 'success',
+      data: await Brands.findOne(query)
     }));
 
     consumeRPCQueue('core:brands.find', async data => {
       const { query } = data;
 
       return {
-        status: 'success', data: await Brands.find(query).lean()
-      }
+        status: 'success',
+        data: await Brands.find(query).lean()
+      };
     });
   }
 

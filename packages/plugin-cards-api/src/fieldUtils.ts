@@ -97,7 +97,12 @@ export const generateFields = async ({ subdomain, data }) => {
 
   if (segmentId || pipelineId) {
     const segment = segmentId
-      ? await sendSegmentsMessage({ subdomain, action: 'findOne', data: { _id: segmentId }, isRPC: true })
+      ? await sendSegmentsMessage({
+          subdomain,
+          action: 'findOne',
+          data: { _id: segmentId },
+          isRPC: true
+        })
       : null;
 
     const labelOptions = await getPipelineLabelOptions(

@@ -1,23 +1,14 @@
 import * as _ from 'underscore';
 import { es } from './configs';
-import {
-  connectCore,
-  generateModels,
-  ICoreIModels
-} from './connectionResolver';
+import { connectCore, generateModels } from './connectionResolver';
 import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
 import { clearEmptyValues, generatePronoun } from './importUtils';
-import {
-  createTag,
-  findOneTag,
-  prepareCustomFieldsData
-} from './messageBroker';
 
 export default {
   importTypes: IMPORT_TYPES,
   exportTypes: EXPORT_TYPES,
-  insertImportItems: async args => {
-    const models = await generateModels('os');
+  insertImportItems: async (subdomain, args) => {
+    const models = await generateModels(subdomain);
 
     const { Customers, Companies } = models;
 
@@ -78,9 +69,9 @@ export default {
 
           customFieldsData = _.uniq(customFieldsData, 'field');
 
-          doc.customFieldsData = await prepareCustomFieldsData(
-            customFieldsData
-          );
+          // doc.customFieldsData = await prepareCustomFieldsData(
+          //   customFieldsData
+          // );
         }
 
         updateDocs.push({
@@ -201,9 +192,9 @@ export default {
 
           // clean custom field values
 
-          doc.customFieldsData = await prepareCustomFieldsData(
-            doc.customFieldsData
-          );
+          // doc.customFieldsData = await prepareCustomFieldsData(
+          //   doc.customFieldsData
+          // );
 
           if (doc.integrationId) {
             doc.relatedIntegrationIds = [doc.integrationId];
@@ -268,9 +259,9 @@ export default {
           }
 
           // clean custom field values
-          doc.customFieldsData = await prepareCustomFieldsData(
-            doc.customFieldsData
-          );
+          // doc.customFieldsData = await prepareCustomFieldsData(
+          //   doc.customFieldsData
+          // );
 
           doc.searchText = Companies.fillSearchText(doc);
           doc.createdAt = new Date();
@@ -408,24 +399,24 @@ export default {
             doc.vendorCode = value;
             break;
 
-          case 'tag':
-            {
-              const tagName = value;
+          // case 'tag':
+          //   {
+          //     const tagName = value;
 
-              let tag = await findOneTag({
-                name: new RegExp(`.*${tagName}.*`, 'i')
-              });
+          //     // let tag = await findOneTag({
+          //     //   name: new RegExp(`.*${tagName}.*`, 'i')
+          //     // });
 
-              if (!tag) {
-                const type = contentType === 'lead' ? 'customer' : contentType;
+          //     if (!tag) {
+          //       const type = contentType === 'lead' ? 'customer' : contentType;
 
-                tag = await createTag({ name: tagName, type });
-              }
+          //       // tag = await createTag({ name: tagName, type });
+          //     }
 
-              doc[property.name] = tag ? [tag._id] : [];
-            }
+          //     doc[property.name] = tag ? [tag._id] : [];
+          //   }
 
-            break;
+          //   break;
 
           case 'assignedUserEmail':
             {

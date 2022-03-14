@@ -40,7 +40,8 @@ export const importer = async (
 
     registerOnboardHistory({ type: `importCreate`, user });
   } catch (e) {
-    throw new Error();
+    console.log(e);
+    // throw new Error();
   }
 };
 
