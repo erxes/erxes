@@ -59,7 +59,7 @@ const gatherDescriptions = async (models: IModels, params: any): Promise<IDescri
         extraDesc = await gatherNames({
           nameFields: ['name'],
           foreignKey: 'brandId',
-          items: await findFromCore(brandIds, 'Brands')
+          items: await findFromCore(brandIds, 'brands')
         });
       }
 
