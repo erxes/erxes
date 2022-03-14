@@ -13,7 +13,7 @@ const pipelineLabelMutations = {
   async pipelineLabelsAdd(
     _root,
     { ...doc }: IPipelineLabel,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const pipelineLabel = await models.PipelineLabels.createPipelineLabel({
       createdBy: user._id,
@@ -22,6 +22,7 @@ const pipelineLabelMutations = {
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: 'pipelineLabel',
         newData: {
@@ -43,13 +44,14 @@ const pipelineLabelMutations = {
   async pipelineLabelsEdit(
     _root,
     { _id, ...doc }: IPipelineLabelsEdit,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const pipelineLabel = await models.PipelineLabels.getPipelineLabel(_id);
     const updated = await models.PipelineLabels.updatePipelineLabel(_id, doc);
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: 'pipelineLabel',
         newData: doc,
@@ -67,13 +69,14 @@ const pipelineLabelMutations = {
   async pipelineLabelsRemove(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const pipelineLabel = await models.PipelineLabels.getPipelineLabel(_id);
     const removed = await models.PipelineLabels.removePipelineLabel(_id);
 
     await putDeleteLog(
       models,
+      subdomain,
       { type: 'pipelineLabel', object: pipelineLabel },
       user
     );

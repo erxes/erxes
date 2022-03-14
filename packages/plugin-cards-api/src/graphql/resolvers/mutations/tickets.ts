@@ -22,9 +22,9 @@ const ticketMutations = {
   async ticketsAdd(
     _root,
     doc: ITicket & { proccessId: string; aboveItemId: string },
-    { user, docModifier, models }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
-    return itemsAdd(models, doc, 'ticket', models.Tickets.createTicket, user, docModifier);
+    return itemsAdd(models, subdomain, doc, 'ticket', models.Tickets.createTicket, user, docModifier);
   },
 
   /**
@@ -33,12 +33,13 @@ const ticketMutations = {
   async ticketsEdit(
     _root,
     { _id, proccessId, ...doc }: ITicketsEdit & { proccessId: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const oldTicket = await models.Tickets.getTicket(_id);
 
     return itemsEdit(
       models,
+      subdomain,
       _id,
       'ticket',
       oldTicket,
@@ -52,15 +53,15 @@ const ticketMutations = {
   /**
    * Change ticket
    */
-  async ticketsChange(_root, doc: IItemDragCommonFields, { user, models }: IContext) {
-    return itemsChange(models, doc, 'ticket', user, models.Tickets.updateTicket);
+  async ticketsChange(_root, doc: IItemDragCommonFields, { user, models, subdomain }: IContext) {
+    return itemsChange(models, subdomain, doc, 'ticket', user, models.Tickets.updateTicket);
   },
 
   /**
    * Remove ticket
    */
-  async ticketsRemove(_root, { _id }: { _id: string }, { user, models }: IContext) {
-    return itemsRemove(models, _id, 'ticket', user);
+  async ticketsRemove(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
+    return itemsRemove(models, subdomain, _id, 'ticket', user);
   },
 
   /**
@@ -77,10 +78,11 @@ const ticketMutations = {
   async ticketsCopy(
     _root,
     { _id, proccessId }: { _id: string; proccessId: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     return itemsCopy(
       models,
+      subdomain,
       _id,
       proccessId,
       'ticket',

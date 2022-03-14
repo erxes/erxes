@@ -1,12 +1,14 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
 import { ICoreIModels, IModels } from '../connectionResolver';
-import { findIntegrations } from '../messageBroker';
+import { sendInboxMessage } from '../messageBroker';
 import { CommonBuilder } from './utils';
 
 interface ISortParams {
   [index: string]: number;
 }
+
+const findIntegrations = (subdomain, query, options?) => sendInboxMessage({ subdomain, action: 'integrations:find', data: { query, options } });
 
 export interface IConformityQueryParams {
   conformityMainType?: string;
@@ -48,8 +50,8 @@ export interface IListArgs extends IConformityQueryParams {
 }
 
 export class Builder extends CommonBuilder<IListArgs> {
-  constructor(models:IModels, coreModels: ICoreIModels, params: IListArgs, context) {
-    super(models, coreModels, 'customers', params, context);
+  constructor(models:IModels, coreModels: ICoreIModels, subdomain: string, params: IListArgs, context) {
+    super(models, coreModels, subdomain, 'customers', params, context);
 
     this.addStateFilter();
   }
@@ -76,7 +78,7 @@ export class Builder extends CommonBuilder<IListArgs> {
 
   // filter by brand
   public async brandFilter(brandId: string): Promise<void> {
-    const integrations = await findIntegrations({ brandId });
+    const integrations = await findIntegrations(this.subdomain, { brandId });
 
     this.positiveList.push({
       terms: {
@@ -87,7 +89,7 @@ export class Builder extends CommonBuilder<IListArgs> {
 
   // filter by integration
   public async integrationFilter(integration: string): Promise<void> {
-    const integrations = await findIntegrations({
+    const integrations = await findIntegrations(this.subdomain, {
       kind: integration
     });
 
@@ -104,7 +106,7 @@ export class Builder extends CommonBuilder<IListArgs> {
 
   // filter by integration kind
   public async integrationTypeFilter(kind: string): Promise<void> {
-    const integrations = await findIntegrations({ kind });
+    const integrations = await findIntegrations(this.subdomain, { kind });
 
     this.positiveList.push({
       terms: {

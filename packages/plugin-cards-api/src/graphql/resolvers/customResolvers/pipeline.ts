@@ -56,32 +56,32 @@ export default {
   async itemsTotalCount(
     pipeline: IPipelineDocument,
     _args,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     switch (pipeline.type) {
       case BOARD_TYPES.DEAL: {
-        const filter = await generateDealCommonFilters(models, user._id, {
+        const filter = await generateDealCommonFilters(models, subdomain, user._id, {
           pipelineId: pipeline._id
         });
 
         return models.Deals.find(filter).countDocuments();
       }
       case BOARD_TYPES.TICKET: {
-        const filter = await generateTicketCommonFilters(models, user._id, {
+        const filter = await generateTicketCommonFilters(models, subdomain, user._id, {
           pipelineId: pipeline._id
         });
 
         return models.Tickets.find(filter).countDocuments();
       }
       case BOARD_TYPES.TASK: {
-        const filter = await generateTaskCommonFilters(models, user._id, {
+        const filter = await generateTaskCommonFilters(models, subdomain, user._id, {
           pipelineId: pipeline._id
         });
 
         return models.Tasks.find(filter).countDocuments();
       }
       case BOARD_TYPES.GROWTH_HACK: {
-        const filter = await generateGrowthHackCommonFilters(models, user._id, {
+        const filter = await generateGrowthHackCommonFilters(models, subdomain, user._id, {
           pipelineId: pipeline._id
         });
 

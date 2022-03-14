@@ -80,6 +80,7 @@ export const itemResolver = async (type: string, item: IItemCommonFields) => {
 
 export const itemsAdd = async (
   models: IModels,
+  subdomain: string,
   doc: (IDeal | IItemCommonFields | ITicket | IGrowthHack) & {
     proccessId: string;
     aboveItemId: string;
@@ -109,16 +110,17 @@ export const itemsAdd = async (
 
   if (extendedDoc.customFieldsData) {
     // clean custom field values
-    extendedDoc.customFieldsData = await sendFormsMessage(
-      'prepareCustomFieldsData',
-      extendedDoc.customFieldsData,
-      true
-    );
+    extendedDoc.customFieldsData = await sendFormsMessage({
+      subdomain,
+      action: 'prepareCustomFieldsData',
+      data: extendedDoc.customFieldsData,
+      isRPC: true
+    });
   }
 
   const item = await createModel(extendedDoc);
 
-  await createConformity({
+  await createConformity(subdomain, {
     mainType: type,
     mainTypeId: item._id,
     companyIds: doc.companyIds,
@@ -126,7 +128,7 @@ export const itemsAdd = async (
   });
 
   if (user) {
-    sendNotifications(models, {
+    sendNotifications(models, subdomain, {
       item,
       user,
       type: NOTIFICATION_TYPES.DEAL_ADD,
@@ -137,6 +139,7 @@ export const itemsAdd = async (
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type,
         newData: extendedDoc,
@@ -236,6 +239,7 @@ export const changeItemStatus = async (models: IModels, {
 
 export const itemsEdit = async (
   models: IModels,
+  subdomain: string,
   _id: string,
   type: string,
   oldItem: any,
@@ -252,11 +256,12 @@ export const itemsEdit = async (
 
   if (extendedDoc.customFieldsData) {
     // clean custom field values
-    extendedDoc.customFieldsData = await sendFormsMessage(
-      'prepareCustomFieldsData',
-      extendedDoc.customFieldsData,
-      true
-    );
+    extendedDoc.customFieldsData = await sendFormsMessage({
+      subdomain,
+      action: 'prepareCustomFieldsData',
+      data: extendedDoc.customFieldsData,
+      isRPC: true
+    });
   }
 
   const updatedItem = await modelUpate(_id, extendedDoc);
@@ -324,10 +329,11 @@ export const itemsEdit = async (
     notificationDoc.removedUsers = removedUserIds;
   }
 
-  await sendNotifications(models, notificationDoc);
+  await sendNotifications(models, subdomain, notificationDoc);
 
   putUpdateLog(
     models,
+    subdomain,
     {
       type,
       object: oldItem,
@@ -389,13 +395,14 @@ export const itemsEdit = async (
   // if task moves between stages
   const { content, action } = await itemMover(
     models,
+    subdomain,
     user._id,
     oldItem,
     type,
     updatedItem.stageId
   );
 
-  await sendNotifications(models, {
+  await sendNotifications(models, subdomain, {
     item: updatedItem,
     user,
     type: NOTIFICATION_TYPES.TASK_CHANGE,
@@ -409,6 +416,7 @@ export const itemsEdit = async (
 
 const itemMover = async (
   models: IModels,
+  subdomain: string,
   userId: string,
   item: IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument,
   contentType: string,
@@ -456,10 +464,11 @@ const itemMover = async (
       }
     });
 
-    sendNotificationsMessage('batchUpdate', {
+    sendNotificationsMessage({ subdomain,
+      action: 'batchUpdate', data: {
       selector: { contentType, contentTypeId: item._id },
       modifier: { $set: { link } }
-    })
+    }})
   }
 
   return { content, action };
@@ -467,6 +476,7 @@ const itemMover = async (
 
 export const itemsChange = async (
   models: IModels,
+  subdomain: string,
   doc: IItemDragCommonFields,
   type: string,
   user: IUserDocument,
@@ -502,13 +512,14 @@ export const itemsChange = async (
 
   const { content, action } = await itemMover(
     models,
+    subdomain,
     user._id,
     item,
     type,
     destinationStageId
   );
 
-  await sendNotifications(models, {
+  await sendNotifications(models, subdomain, {
     item,
     user,
     type: NOTIFICATION_TYPES.DEAL_CHANGE,
@@ -519,6 +530,7 @@ export const itemsChange = async (
 
   await putUpdateLog(
     models,
+    subdomain,
     {
       type,
       object: item,
@@ -550,13 +562,14 @@ export const itemsChange = async (
 
 export const itemsRemove = async (
   models: IModels,
+  subdomain: string,
   _id: string,
   type: string,
   user: IUserDocument
 ) => {
   const item = await getItem(models, type, { _id });
 
-  await sendNotifications(models, {
+  await sendNotifications(models, subdomain, {
     item,
     user,
     type: `${type}Delete`,
@@ -565,17 +578,18 @@ export const itemsRemove = async (
     contentType: type
   });
 
-  await destroyBoardItemRelations(models, item._id, type);
+  await destroyBoardItemRelations(models, subdomain, item._id, type);
 
   const removed = await item.remove();
 
-  await putDeleteLog(models, { type, object: item }, user);
+  await putDeleteLog(models, subdomain, { type, object: item }, user);
 
   return removed;
 };
 
 export const itemsCopy = async (
   models: IModels,
+  subdomain: string,
   _id: string,
   proccessId: string,
   type: string,
@@ -594,10 +608,10 @@ export const itemsCopy = async (
 
   const clone = await modelCreate(doc);
 
-  const companyIds = await getCompanyIds(type, _id);
-  const customerIds = await getCustomerIds(type, _id);
+  const companyIds = await getCompanyIds(subdomain, type, _id);
+  const customerIds = await getCustomerIds(subdomain, type, _id);
 
-  await createConformity({
+  await createConformity(subdomain, {
     mainType: type,
     mainTypeId: clone._id,
     customerIds,

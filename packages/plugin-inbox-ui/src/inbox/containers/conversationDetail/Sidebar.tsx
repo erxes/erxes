@@ -109,7 +109,7 @@ class Sidebar extends React.Component<FinalProps, State> {
       return <Spinner />;
     }
 
-    const fields = fieldsInboxQuery.fieldsInbox;
+    const fields = fieldsInboxQuery.fieldsInbox || {} as any;
 
     const updatedProps = {
       ...this.props,

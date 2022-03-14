@@ -22,10 +22,11 @@ const growthHackMutations = {
   async growthHacksAdd(
     _root,
     doc: IGrowthHack & { proccessId: string; aboveItemId: string },
-    { user, docModifier, models }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
     return itemsAdd(
       models,
+      subdomain,
       doc,
       'growthHack',
       models.GrowthHacks.createGrowthHack,
@@ -40,12 +41,13 @@ const growthHackMutations = {
   async growthHacksEdit(
     _root,
     { _id, proccessId, ...doc }: IGrowthHacksEdit & { proccessId: string },
-    { user, models }
+    { user, models, subdomain }: IContext
   ) {
     const oldGrowthHack = await models.GrowthHacks.getGrowthHack(_id);
 
     return itemsEdit(
       models,
+      subdomain,
       _id,
       'growthHack',
       oldGrowthHack,
@@ -62,16 +64,16 @@ const growthHackMutations = {
   async growthHacksChange(
     _root,
     doc: IItemDragCommonFields,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    return itemsChange(models, doc, 'growthHack', user, models.GrowthHacks.updateGrowthHack);
+    return itemsChange(models, subdomain, doc, 'growthHack', user, models.GrowthHacks.updateGrowthHack);
   },
 
   /**
    * Remove a growth hack
    */
-  async growthHacksRemove(_root, { _id }: { _id: string }, { user, models }: IContext) {
-    return itemsRemove(models, _id, 'growthHack', user);
+  async growthHacksRemove(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
+    return itemsRemove(models, subdomain, _id, 'growthHack', user);
   },
 
   /**
@@ -99,7 +101,7 @@ const growthHackMutations = {
   async growthHacksCopy(
     _root,
     { _id, proccessId }: { _id: string; proccessId: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const extraDocs = [
       'votedUserIds',
@@ -113,6 +115,7 @@ const growthHackMutations = {
 
     return itemsCopy(
       models,
+      subdomain,
       _id,
       proccessId,
       'growthHack',

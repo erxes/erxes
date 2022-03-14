@@ -21,7 +21,7 @@ import {
   customerSchema,
   ICustomerDocument
 } from './models/definitions/customers';
-import { fetchSegment, findTags } from './messageBroker';
+import { fetchSegment, sendTagsMessage } from './messageBroker';
 
 import {
   Builder as CompanyBuildQuery,
@@ -77,8 +77,9 @@ const getCellValue = (item, colName) => {
  * in distinctly defined static variables.
  */
 export const fillCellValue = async (
-  { Customers, Companies }: IModels,
-  { Users }: ICoreIModels,
+  models: IModels,
+  coreModels: ICoreIModels,
+  subdomain: string,
   colName: string,
   item: any
 ): Promise<string> => {
@@ -113,7 +114,7 @@ export const fillCellValue = async (
       cellValue = (item.phones || []).join(', ');
       break;
     case 'mergedIds':
-      const customers: ICustomerDocument[] | null = await Customers.find({
+      const customers: ICustomerDocument[] | null = await models.Customers.find({
         _id: { $in: item.mergedIds }
       });
 
@@ -128,7 +129,7 @@ export const fillCellValue = async (
 
       break;
     case 'parentCompanyId':
-      const parent: ICompanyDocument | null = await Companies.findOne({
+      const parent: ICompanyDocument | null = await models.Companies.findOne({
         _id: item.parentCompanyId
       });
 
@@ -137,9 +138,9 @@ export const fillCellValue = async (
       break;
 
     case 'tag':
-      const tags = await findTags({
+      const tags = await sendTagsMessage({ subdomain, action: 'find', data: {
         _id: { $in: item.tagIds }
-      });
+      }, isRPC: true, defaultValue: [] });
 
       let tagNames = '';
 
@@ -152,7 +153,7 @@ export const fillCellValue = async (
       break;
 
     case 'ownerEmail':
-      const owner: IUserDocument | null = await Users.findOne({
+      const owner: IUserDocument | null = await coreModels.Users.findOne({
         _id: item.ownerId
       });
 
@@ -168,7 +169,7 @@ export const fillCellValue = async (
 };
 
 // Prepares data depending on module type
-const prepareData = async (models: IModels, coreModels: ICoreIModels, query: any, user: IUserDocument): Promise<any[]> => {
+const prepareData = async (models: IModels, coreModels: ICoreIModels, subdomain: string, query: any, user: IUserDocument): Promise<any[]> => {
   const { type, unlimited = false, segment } = query;
 
   let data: any[] = [];
@@ -176,7 +177,7 @@ const prepareData = async (models: IModels, coreModels: ICoreIModels, query: any
   const boardItemsFilter: any = {};
 
   if (segment) {
-    const itemIds = await fetchSegment(segment);
+    const itemIds = await fetchSegment(subdomain, segment);
 
     boardItemsFilter._id = { $in: itemIds };
   }
@@ -185,7 +186,7 @@ const prepareData = async (models: IModels, coreModels: ICoreIModels, query: any
     case MODULE_NAMES.COMPANY:
       const companyParams: ICompanyListArgs = query;
 
-      const companyQb = new CompanyBuildQuery(models, coreModels, companyParams, {});
+      const companyQb = new CompanyBuildQuery(models, coreModels, subdomain, companyParams, {});
       await companyQb.buildAllQueries();
 
       const companyResponse = await companyQb.runQueries('search', unlimited);
@@ -196,7 +197,7 @@ const prepareData = async (models: IModels, coreModels: ICoreIModels, query: any
 
     case 'lead':
       const leadParams: ICustomerListArgs = query;
-      const leadQp = new CustomerBuildQuery(models, coreModels, leadParams, {});
+      const leadQp = new CustomerBuildQuery(models, coreModels, subdomain, leadParams, {});
       await leadQp.buildAllQueries();
 
       const leadResponse = await leadQp.runQueries('search', unlimited);
@@ -206,7 +207,7 @@ const prepareData = async (models: IModels, coreModels: ICoreIModels, query: any
 
     case 'visitor':
       const visitorParams: ICustomerListArgs = query;
-      const visitorQp = new CustomerBuildQuery(models, coreModels, visitorParams, {});
+      const visitorQp = new CustomerBuildQuery(models, coreModels, subdomain, visitorParams, {});
       await visitorQp.buildAllQueries();
 
       const visitorResponse = await visitorQp.runQueries('search', unlimited);
@@ -217,7 +218,7 @@ const prepareData = async (models: IModels, coreModels: ICoreIModels, query: any
     case MODULE_NAMES.CUSTOMER:
       const customerParams: ICustomerListArgs = query;
 
-      const qb = new CustomerBuildQuery(models, coreModels, customerParams, {});
+      const qb = new CustomerBuildQuery(models, coreModels, subdomain, customerParams, {});
       await qb.buildAllQueries();
 
       const customerResponse = await qb.runQueries('search', unlimited);
@@ -335,13 +336,14 @@ const filterHeaders = headers => {
 export const buildFile = async (
   models: IModels,
   coreModels: ICoreIModels,
+  subdomain: string,
   query: any,
   user: IUserDocument
 ): Promise<{ name: string; response: string }> => {
   const { configs } = query;
   let type = query.type;
 
-  const data = await prepareData(models, coreModels, query, user);
+  const data = await prepareData(models, coreModels, subdomain, query, user);
 
   // Reads default template
   const { workbook, sheet } = await createXlsFile();
@@ -382,7 +384,7 @@ export const buildFile = async (
             );
           }
         } else {
-          const cellValue = await fillCellValue(models, coreModels, column.name, item);
+          const cellValue = await fillCellValue(models, coreModels, subdomain, column.name, item);
 
           addCell(column, cellValue, sheet, columnNames, rowIndex);
         }

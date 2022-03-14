@@ -7,7 +7,7 @@ import { conversationConvertToCard } from './models/utils';
 import { getCardItem } from './utils';
 import { notifiedUserIds } from './graphql/utils';
 import { generateModels } from './connectionResolver';
-import { sendMessage } from '@erxes/api-utils/src/core';
+import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
 let client;
 
@@ -16,7 +16,7 @@ export const initBroker = async cl => {
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeRPCQueue('cards:rpc_queue:createTickets', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:tickets.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -25,7 +25,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('cards:rpc_queue:createTasks', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:tasks.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -34,7 +34,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('cards:rpc_queue:findTickets', async ({ subdomain, data })=> {
+  consumeRPCQueue('cards:tickets.find', async ({ subdomain, data })=> {
     const models = await generateModels(subdomain);
 
     return {
@@ -43,7 +43,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('cards:rpc_queue:findOneTickets', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:tickets.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -52,7 +52,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('cards:rpc_queue:findStages', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:stages.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -61,7 +61,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('cards:rpc_queue:findTasks', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:tasks.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -70,7 +70,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('cards:rpc_queue:findOneTasks', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:tasks.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -79,7 +79,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeQueue('checklists:removeChecklists', async ({ subdomain, data: { type, itemIds } }) => {
+  consumeQueue('cards:checklists.removeChecklists', async ({ subdomain, data: { type, itemIds } }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -88,30 +88,30 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('cards:rpc_queue:conversationConvert', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:conversationConvert', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await conversationConvertToCard(models, data)
+      data: await conversationConvertToCard(models, subdomain, data)
     }
   });
 
-  consumeRPCQueue('cards:deals:generateAmounts', async productsData => {
+  consumeRPCQueue('cards:deals.generateAmounts', async productsData => {
     return { data: generateAmounts(productsData), status: 'success' };
   });
 
-  consumeRPCQueue('cards:deals:generateProducts', async productsData => {
-    return { data: await generateProducts(productsData), status: 'success' };
+  consumeRPCQueue('cards:deals.generateProducts', async ({ subdomain, data }) => {
+    return { data: await generateProducts(subdomain, data), status: 'success' };
   });
 
-  consumeRPCQueue('cards:rpc_queue:findItem', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:findItem', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return { data: await getCardItem(models, data), status: 'success' };
   });
 
-  consumeRPCQueue('cards:rpc_queue:findDealProductIds', async ({ subdomain, data: { _ids } }) => {
+  consumeRPCQueue('cards:findDealProductIds', async ({ subdomain, data: { _ids } }) => {
     const models = await generateModels(subdomain);
 
     const dealProductIds = await await models.Deals.find({
@@ -121,13 +121,13 @@ export const initBroker = async cl => {
     return { data: dealProductIds, status: 'success' };
   });
 
-  consumeRPCQueue('cards:rpc_queue:updateDeals', async ({ subdomain, data: { selector, modifier } }) => {
+  consumeRPCQueue('cards:deals.updateMany', async ({ subdomain, data: { selector, modifier } }) => {
     const models = await generateModels(subdomain);
 
     return { data: await models.Deals.updateMany(selector, modifier), status: 'success' };
   });
 
-  consumeRPCQueue('cards:rpc_queue:generateInternalNoteNotif', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:generateInternalNoteNotif', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     let model: any = models.GrowthHacks;
@@ -174,7 +174,7 @@ export const initBroker = async cl => {
     };
   });
 
-  consumeRPCQueue('cards:rpc_queue:notifiedUserIds', async ({ subdomain, data }) => {
+  consumeRPCQueue('cards:notifiedUserIds', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -184,47 +184,47 @@ export const initBroker = async cl => {
   });
 };
 
-export const sendContactsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'contacts', action, data, isRPC, defaultValue);
+export const sendContactsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'contacts', ...args });
 };
 
-export const sendInternalNotesMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'internalNotes', action, data, isRPC, defaultValue);
+export const sendInternalNotesMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'internalNotes', ...args });
 };
 
-export const sendCoreMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'core', action, data, isRPC, defaultValue);
+export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'core', ...args });
 };
 
-export const sendFormsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'forms', action, data, isRPC, defaultValue);
+export const sendFormsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'forms', ...args });
 };
 
-export const sendEngagesMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'engages', action, data, isRPC, defaultValue);
+export const sendEngagesMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'engages', ...args });
 };
 
-export const sendInboxMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'inbox', action, data, isRPC, defaultValue);
+export const sendInboxMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'inbox', ...args });
 };
 
-export const sendProductsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'products', action, data, isRPC, defaultValue);
+export const sendProductsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'products', ...args });
 };
 
-export const sendNotificationsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'notifications', action, data, isRPC, defaultValue);
+export const sendNotificationsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'notifications', ...args });
 };
 
-export const sendLogsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'logs', action, data, isRPC, defaultValue);
+export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'logs', ...args });
 };
 
-export const sendSegmentsMessage = async (action, data, isRPC=false, defaultValue?): Promise<any> => {
-  return sendMessage(client, serviceDiscovery, 'segments', action, data, isRPC, defaultValue);
+export const sendSegmentsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'segments', ...args });
 };
 
-export const fetchSegment = (segment, options?) => sendSegmentsMessage('fetchSegment', { segment, options }, true);
+export const fetchSegment = (subdomain: string, segment, options?) => sendSegmentsMessage({ subdomain, action: 'fetchSegment', data: { segment, options }, isRPC: true });
 
 export default function() {
   return client;

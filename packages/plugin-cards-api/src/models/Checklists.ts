@@ -10,7 +10,7 @@ import {
 } from './definitions/checklists';
 import { putChecklistActivityLog } from '../logUtils';
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { IModels } from '../connectionResolver';
+import { getSubdomain, IModels } from '../connectionResolver';
 
 export interface IChecklistModel extends Model<IChecklistDocument> {
   getChecklist(_id: string): Promise<IChecklistDocument>;
@@ -42,7 +42,7 @@ export interface IChecklistItemModel extends Model<IChecklistItemDocument> {
   ): Promise<IChecklistItemDocument>;
 }
 
-export const loadClass = (models) => {
+export const loadClass = (models: IModels, subdomain: string) => {
   class Checklist {
     public static async getChecklist(_id: string) {
       const checklist = await models.Checklists.findOne({ _id });
@@ -89,7 +89,7 @@ export const loadClass = (models) => {
         ...fields,
       });
 
-      putChecklistActivityLog({
+      putChecklistActivityLog(subdomain, {
         item: checklist,
         contentType: 'checklist',
         action: 'create',
@@ -121,7 +121,7 @@ export const loadClass = (models) => {
         checklistId: checklistObj._id,
       });
 
-      await putChecklistActivityLog({
+      await putChecklistActivityLog(subdomain, {
         item: checklistObj,
         contentType: 'checklist',
         action: 'delete',
@@ -136,7 +136,7 @@ export const loadClass = (models) => {
   return checklistSchema;
 };
 
-export const loadItemClass = (models: IModels) => {
+export const loadItemClass = (models: IModels, subdomain: string) => {
   class ChecklistItem {
     public static async getChecklistItem(_id: string) {
       const checklistItem = await models.ChecklistItems.findOne({ _id });
@@ -165,7 +165,7 @@ export const loadItemClass = (models: IModels) => {
         ...fields,
       });
 
-      await putChecklistActivityLog({
+      await putChecklistActivityLog(subdomain,{
         item: checklistItem,
         contentType: 'checklistItem',
         action: 'create',
@@ -183,7 +183,7 @@ export const loadItemClass = (models: IModels) => {
       const checklistItem = await models.ChecklistItems.findOne({ _id });
       const activityAction = doc.isChecked ? 'checked' : 'unChecked';
 
-      await putChecklistActivityLog({
+      await putChecklistActivityLog(subdomain, {
         item: checklistItem,
         contentType: 'checklistItem',
         action: activityAction,
@@ -202,7 +202,7 @@ export const loadItemClass = (models: IModels) => {
         throw new Error(`Checklist's item not found with id ${_id}`);
       }
 
-      await putChecklistActivityLog({
+      await putChecklistActivityLog(subdomain, {
         item: checklistItem,
         contentType: 'checklistItem',
         action: 'delete'

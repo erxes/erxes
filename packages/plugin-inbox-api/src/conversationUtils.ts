@@ -8,10 +8,10 @@ import { getDocumentList } from './cacheUtils';
 import { IListArgs } from './conversationQueryBuilder';
 import { fixDate } from '@erxes/api-utils/src';
 
-// import { ISegmentDocument } from '../../../db/models/definitions/segments';
+// ? import { ISegmentDocument } from '../../../db/models/definitions/segments';
 
 import { debug } from './configs';
-import { fetchSegment, sendSegmentMessage, sendTagRPCMessage } from './messageBroker';
+import { sendSegmentsMessage, sendTagsMessage } from './messageBroker';
 import { ICoreIModels, IModels } from './connectionResolver';
 
 export interface ICountBy {
@@ -28,10 +28,11 @@ interface IUserArgs {
 const countByChannels = async (
   models: IModels,
   coreModels: ICoreIModels,
+  subdomain: string,
   qb: any,
   counts: ICountBy
 ): Promise<ICountBy> => {
-  const channels = await getDocumentList(models, coreModels, 'channels', {});
+  const channels = await getDocumentList(models, coreModels, subdomain, 'channels', {});
 
   for (const channel of channels) {
     await qb.buildAllQueries();
@@ -44,8 +45,8 @@ const countByChannels = async (
 };
 
 // Count conversation by brand
-const countByBrands = async (models: IModels, coreModels: ICoreIModels, qb: any, counts: ICountBy): Promise<ICountBy> => {
-  const brands = await getDocumentList(models, coreModels, 'brands', {});
+const countByBrands = async (models: IModels, coreModels: ICoreIModels, subdomain: string, qb: any, counts: ICountBy): Promise<ICountBy> => {
+  const brands = await getDocumentList(models, coreModels, subdomain, 'brands', {});
 
   for (const brand of brands) {
     await qb.buildAllQueries();
@@ -58,8 +59,15 @@ const countByBrands = async (models: IModels, coreModels: ICoreIModels, qb: any,
 };
 
 // Count converstaion by tag
-const countByTags = async (qb: any, counts: ICountBy): Promise<ICountBy> => {
-  const tags = await sendTagRPCMessage('find', { type: 'conversation' })
+const countByTags = async (subdomain: string, qb: any, counts: ICountBy): Promise<ICountBy> => {
+  const tags = await sendTagsMessage({
+    subdomain,
+    action: 'find',
+    data: {
+      type: 'conversation'
+    },
+    isRPC: true
+  });
 
   for (const tag of tags) {
     await qb.buildAllQueries();
@@ -87,13 +95,21 @@ const countByIntegrationTypes = async (
 };
 
 export const countBySegment = async (
+  subdomain: string,
   qb: any,
   counts: ICountBy
 ): Promise<ICountBy> => {
   // Count cocs by segments
   let segments: any[] = [];
 
-  segments = await sendSegmentMessage('find', { contentType: 'conversation' }, true);
+  segments = await sendSegmentsMessage({
+    subdomain,
+    action: 'find',
+    data: {
+      contentType: 'conversation'
+    },
+    isRPC: true
+  });
 
   // Count cocs by segment
   for (const s of segments) {
@@ -113,6 +129,7 @@ export const countBySegment = async (
 export const countByConversations = async (
   models: IModels,
   coreModels: ICoreIModels,
+  subdomain: string,
   params: IListArgs,
   integrationIds: string[],
   user: IUserArgs,
@@ -120,11 +137,11 @@ export const countByConversations = async (
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
-  const qb = new CommonBuilder(models, coreModels, params, integrationIds, user);
+  const qb = new CommonBuilder(models, coreModels, subdomain, params, integrationIds, user);
 
   switch (only) {
     case 'byChannels':
-      await countByChannels(models, coreModels, qb, counts);
+      await countByChannels(models, coreModels, subdomain, qb, counts);
       break;
 
     case 'byIntegrationTypes':
@@ -132,15 +149,15 @@ export const countByConversations = async (
       break;
 
     case 'byBrands':
-      await countByBrands(models, coreModels ,qb, counts);
+      await countByBrands(models, coreModels, subdomain ,qb, counts);
       break;
 
     case 'byTags':
-      await countByTags(qb, counts);
+      await countByTags(subdomain, qb, counts);
       break;
 
     case 'bySegment':
-      await countBySegment(qb, counts);
+      await countBySegment(subdomain, qb, counts);
       break;
   }
 
@@ -150,6 +167,7 @@ export const countByConversations = async (
 export class CommonBuilder<IArgs extends IListArgs> {
   public models: IModels;
   public coreModels: ICoreIModels;
+  public subdomain: string;
   public params: IArgs;
   public user: IUserArgs;
   public integrationIds: string[];
@@ -157,9 +175,10 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public filterList: any[];
   public activeIntegrationIds: string[] = [];
 
-  constructor(models: IModels, coreModels: ICoreIModels, params: IArgs, integrationIds: string[], user: IUserArgs) {
+  constructor(models: IModels, coreModels: ICoreIModels, subdomain: string, params: IArgs, integrationIds: string[], user: IUserArgs) {
     this.models = models;
     this.coreModels = coreModels;
+    this.subdomain = subdomain;
     this.params = params;
     this.user = user;
     this.integrationIds = integrationIds;
@@ -173,9 +192,24 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
   // filter by segment
   public async segmentFilter(segmentId: string) {
-    const segment = await sendSegmentMessage('findOne', { _id: segmentId }, true);
+    const segment = await sendSegmentsMessage({
+      subdomain: this.subdomain,
+      action: 'findOne',
+      data: {
+        _id: segmentId
+      },
+      isRPC: true
+    });
 
-    const selector = await fetchSegment(segment, { returnSelector: true });
+    const selector = await sendSegmentsMessage({
+      subdomain: this.subdomain,
+      action: 'fetchSegment',
+      data: {
+        segment,
+        returnSelector: true
+      },
+      isRPC: true
+    });
 
     this.positiveList = [...this.positiveList, selector];
   }

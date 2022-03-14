@@ -17,9 +17,9 @@ const companyQueries = {
   async companies(
     _root,
     params: IListArgs,
-    { commonQuerySelector, commonQuerySelectorElk, models, coreModels }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models, coreModels, subdomain }: IContext
   ) {
-    const qb = new Builder(models, coreModels, params, {
+    const qb = new Builder(models, coreModels, subdomain, params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
@@ -37,9 +37,9 @@ const companyQueries = {
   async companiesMain(
     _root,
     params: IListArgs,
-    { commonQuerySelector, commonQuerySelectorElk, models, coreModels }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models, coreModels, subdomain }: IContext
   ) {
-    const qb = new Builder(models, coreModels , params, {
+    const qb = new Builder(models, coreModels, subdomain, params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
@@ -57,7 +57,7 @@ const companyQueries = {
   async companyCounts(
     _root,
     args: ICountArgs,
-    { commonQuerySelector, commonQuerySelectorElk, models, coreModels }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models, coreModels, subdomain }: IContext
   ) {
 
     const counts = {
@@ -69,18 +69,18 @@ const companyQueries = {
 
     const { only } = args;
 
-    const qb = new Builder(models, coreModels, args, {
+    const qb = new Builder(models, coreModels, subdomain, args, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
 
     switch (only) {
       case "byTag":
-        counts.byTag = await countByTag(TAG_TYPES.COMPANY, qb);
+        counts.byTag = await countByTag(subdomain, TAG_TYPES.COMPANY, qb);
         break;
 
       case "bySegment":
-        counts.bySegment = await countBySegment("company", qb);
+        counts.bySegment = await countBySegment(subdomain, 'company', qb);
         break;
     }
 

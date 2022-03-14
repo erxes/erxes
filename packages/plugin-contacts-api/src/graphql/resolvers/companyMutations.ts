@@ -12,11 +12,12 @@ const companyMutations = {
   /**
    * Creates a new company
    */
-  async companiesAdd(_root, doc: ICompany, { user, docModifier, models }: IContext) {
+  async companiesAdd(_root, doc: ICompany, { user, docModifier, models, subdomain }: IContext) {
     const company = await models.Companies.createCompany(docModifier(doc), user);
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.COMPANY,
         newData: doc,
@@ -34,13 +35,14 @@ const companyMutations = {
   async companiesEdit(
     _root,
     { _id, ...doc }: ICompaniesEdit,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const company = await models.Companies.getCompany(_id);
     const updated = await models.Companies.updateCompany(_id, doc);
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.COMPANY,
         object: company,
@@ -59,14 +61,14 @@ const companyMutations = {
   async companiesRemove(
     _root,
     { companyIds }: { companyIds: string[] },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const companies = await models.Companies.find({ _id: { $in: companyIds } }).lean();
 
     await models.Companies.removeCompanies(companyIds);
 
     for (const company of companies) {
-      await putDeleteLog(models, { type: MODULE_NAMES.COMPANY, object: company }, user);
+      await putDeleteLog(models, subdomain, { type: MODULE_NAMES.COMPANY, object: company }, user);
     }
 
     return companyIds;

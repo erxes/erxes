@@ -43,7 +43,7 @@ const getPipelineLabelOptions = async (models: IModels, pipelineId) => {
   };
 };
 
-export const generateFields = async (models: IModels, args) => {
+export const generateFields = async (models: IModels, subdomain: string, args) => {
   const { type, config = {}, segmentId, usageType } = args;
   const { pipelineId } = config;
 
@@ -96,7 +96,7 @@ export const generateFields = async (models: IModels, args) => {
 
   if (segmentId || pipelineId) {
     const segment = segmentId
-      ? await sendSegmentsMessage('findOne', { _id: segmentId }, true)
+      ? await sendSegmentsMessage({ subdomain, action: 'findOne', data: { _id: segmentId }, isRPC: true })
       : null;
 
     const labelOptions = await getPipelineLabelOptions(

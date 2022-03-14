@@ -12,7 +12,11 @@
     "noImplicitAny": false,
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false,
-    "strict": true
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@erxes/api-utils/*": ["../api-utils/*"]
+    },
   },
   "include": ["./src/**/*.ts"],
   "exclude": ["node_modules", "dist"]

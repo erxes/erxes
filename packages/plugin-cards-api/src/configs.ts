@@ -4,7 +4,6 @@ import resolvers from './graphql/resolvers';
 import { initBroker, sendSegmentsMessage } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initMemoryStorage } from './inmemoryStorage';
-import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
 import permissions from './permissions';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { buildFile } from './exporter';
@@ -47,7 +46,13 @@ export default {
     imports
   },
 
-  apolloServerContext: context => {
+  apolloServerContext: async (context) => {
+    const subdomain = 'os';
+
+    context.models = await generateModels(subdomain);
+    context.coreModels = await generateCoreModels(subdomain);
+    context.subdomain = subdomain;
+
     return context;
   },
   onServerInit: async options => {
@@ -65,13 +70,13 @@ export default {
         const models = await generateModels(subdomain);
         const coreModels = await generateCoreModels(subdomain);
 
-        const result = await buildFile(models, coreModels, query, user);
+        const result = await buildFile(models, coreModels, subdomain, query, user);
 
         res.attachment(`${result.name}.xlsx`);
 
         if (segment) {
           try {
-            sendSegmentsMessage('removeSegment', { segmentId: segment });
+            sendSegmentsMessage({ subdomain, action: 'removeSegment', data: { segmentId: segment } });
           } catch (e) {
             console.log((e as Error).message);
           }

@@ -81,7 +81,7 @@ export interface IConversationModel extends Model<IConversationDocument> {
   ): Promise<{ n: number; nModified: number; ok: number }>;
 }
 
-export const loadClass = (models: IModels, coreModels: ICoreIModels) => {
+export const loadClass = (models: IModels, coreModels: ICoreIModels, subdomain: string) => {
   class Conversation {
     /**
      * Retreives conversation
@@ -143,7 +143,7 @@ export const loadClass = (models: IModels, coreModels: ICoreIModels) => {
         doc.content = cleanHtml(doc.content);
       }
 
-      // if (doc.customFieldsData) {
+      // ? if (doc.customFieldsData) {
       //   // clean custom field values
       //   doc.customFieldsData = await Fields.prepareCustomFieldsData(
       //     doc.customFieldsData
@@ -180,7 +180,7 @@ export const loadClass = (models: IModels, coreModels: ICoreIModels) => {
     ) {
       await this.checkExistanceConversations(conversationIds);
 
-      if (!(await getDocument(models, coreModels, 'users', { _id: assignedUserId }))) {
+      if (!(await getDocument(models, coreModels, subdomain,  'users', { _id: assignedUserId }))) {
         throw new Error(`User not found with id ${assignedUserId}`);
       }
 

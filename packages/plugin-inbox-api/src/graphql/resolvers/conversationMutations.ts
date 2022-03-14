@@ -12,9 +12,11 @@ import { AUTO_BOT_MESSAGES } from '../../models/definitions/constants';
 import { debug } from '../../configs';
 import {
   sendMessage,
-  sendRPCMessage,
-  sendCardsRPCMessage,
-  sendContactRPCMessage
+  sendContactsMessage,
+  sendCardsMessage,
+  sendCoreMessage,
+  sendIntegrationsMessage,
+  sendNotificationsMessage
 } from '../../messageBroker';
 import { graphqlPubsub } from '../../configs';
 
@@ -60,6 +62,7 @@ interface IConversationConvert {
  */
 
 const sendConversationToIntegrations = async (
+  subdomain: string,
   type: string,
   integrationId: string,
   conversationId: string,
@@ -82,16 +85,21 @@ const sendConversationToIntegrations = async (
     const content = strip(doc.content);
 
     try {
-      await sendRPCMessage('rpc_queue:api_to_integrations', {
-        action,
-        type,
-        payload: JSON.stringify({
-          integrationId,
-          conversationId,
-          content: content.replace(/&amp;/g, '&'),
-          attachments: doc.attachments || [],
-          tag: facebookMessageTag
-        })
+      await sendIntegrationsMessage({
+        subdomain,
+        action: 'api_to_integrations',
+        data: {
+          action,
+          type,
+          payload: JSON.stringify({
+            integrationId,
+            conversationId,
+            content: content.replace(/&amp;/g, '&'),
+            attachments: doc.attachments || [],
+            tag: facebookMessageTag
+          })
+        },
+        isRPC: true
       });
     } catch (e) {
       throw new Error(
@@ -101,12 +109,17 @@ const sendConversationToIntegrations = async (
   }
 
   if (requestName) {
-    return sendRPCMessage('integrations:rpc_queue:reply', {
-      conversationId,
-      integrationId,
-      content: strip(doc.content),
-      attachments: doc.attachments || [],
-      requestName
+    return sendIntegrationsMessage({
+      subdomain,
+      action: 'reply',
+      data: {
+        conversationId,
+        integrationId,
+        content: strip(doc.content),
+        attachments: doc.attachments || [],
+        requestName
+      },
+      isRPC: true
     });
   }
 };
@@ -187,7 +200,7 @@ export const publishMessage = async (
   }
 };
 
-const sendNotifications = async ({
+const sendNotifications = async (subdomain: string, {
   user,
   conversations,
   type,
@@ -234,17 +247,29 @@ const sendNotifications = async ({
         break;
     }
 
-    await sendMessage('notifications:send', doc);
+    await sendNotificationsMessage({
+      subdomain,
+      action: "send",
+      data: doc,
+    })
 
     if (mobile) {
       // send mobile notification ======
       try {
-        await sendMessage('core:sendMobileNotification', {
-          title: doc.title,
-          body: strip(doc.content),
-          receivers: conversationNotifReceivers(conversation, user._id, false),
-          customerId: conversation.customerId,
-          conversationId: conversation._id
+        await sendCoreMessage({
+          subdomain,
+          action: 'sendMobileNotification',
+          data: {
+            title: doc.title,
+            body: strip(doc.content),
+            receivers: conversationNotifReceivers(
+              conversation,
+              user._id,
+              false
+            ),
+            customerId: conversation.customerId,
+            conversationId: conversation._id
+          }
         });
       } catch (e) {
         debug.error(`Failed to send mobile notification: ${e.message}`);
@@ -269,7 +294,7 @@ const conversationMutations = {
   async conversationMessageAdd(
     _root,
     doc: IConversationMessageAdd,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const conversation = await models.Conversations.getConversation(
       doc.conversationId
@@ -278,7 +303,7 @@ const conversationMutations = {
       _id: conversation.integrationId
     });
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations: [conversation],
       type: 'conversationAddMessage',
@@ -301,8 +326,13 @@ const conversationMutations = {
     const conversationId = conversation.id;
     const facebookMessageTag = doc.facebookMessageTag;
 
-    const customer = await sendContactRPCMessage('findCustomer', {
-      _id: conversation.customerId
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        _id: conversation.customerId
+      },
+      isRPC: true
     });
 
     // if conversation's integration kind is form then send reply to
@@ -310,11 +340,15 @@ const conversationMutations = {
     const email = customer ? customer.primaryEmail : '';
 
     if (kind === KIND_CHOICES.LEAD && email) {
-      await sendMessage('core:sendEmail', {
-        toEmails: [email],
-        title: 'Reply',
-        template: {
-          data: doc.content
+      await sendCoreMessage({
+        subdomain,
+        action: 'sendEmail',
+        data: {
+          toEmails: [email],
+          title: 'Reply',
+          template: {
+            data: doc.content
+          }
         }
       });
     }
@@ -328,6 +362,7 @@ const conversationMutations = {
       action = 'reply-post';
 
       return sendConversationToIntegrations(
+        subdomain,
         type,
         integrationId,
         conversationId,
@@ -360,6 +395,7 @@ const conversationMutations = {
         doc.content.length > 160 ? splitStr(doc.content, 160) : [doc.content];
 
       for (let i = 0; i < chunks.length; i++) {
+        // ! will refactor
         await sendMessage('erxes-api:integrations-notification', {
           action: 'sendConversationSms',
           payload: JSON.stringify({
@@ -398,6 +434,7 @@ const conversationMutations = {
     }
 
     await sendConversationToIntegrations(
+      subdomain,
       type,
       integrationId,
       conversationId,
@@ -420,7 +457,7 @@ const conversationMutations = {
   async conversationsReplyFacebookComment(
     _root,
     doc: IReplyFacebookComment,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const conversation = await models.Conversations.getConversation(
       doc.conversationId
@@ -429,7 +466,7 @@ const conversationMutations = {
       _id: conversation.integrationId
     });
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations: [conversation],
       type: 'conversationStateChange',
@@ -444,6 +481,7 @@ const conversationMutations = {
     const action = 'reply-post';
 
     await sendConversationToIntegrations(
+      subdomain,
       type,
       integrationId,
       conversationId,
@@ -456,6 +494,7 @@ const conversationMutations = {
   async conversationsChangeStatusFacebookComment(
     _root,
     doc: IReplyFacebookComment,
+    { subdomain }: IContext
   ) {
     const requestName = 'replyFacebookPost';
     const type = 'facebook';
@@ -464,6 +503,7 @@ const conversationMutations = {
     doc.content = '';
 
     return sendConversationToIntegrations(
+      subdomain,
       type,
       '',
       conversationId,
@@ -482,7 +522,7 @@ const conversationMutations = {
       conversationIds,
       assignedUserId
     }: { conversationIds: string[]; assignedUserId: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const { oldConversationById } = await getConversationById(models, {
       _id: { $in: conversationIds }
@@ -496,7 +536,7 @@ const conversationMutations = {
     // notify graphl subscription
     publishConversationsChanged(conversationIds, 'assigneeChanged');
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations,
       type: 'conversationAssigneeChange'
@@ -525,7 +565,7 @@ const conversationMutations = {
   async conversationsUnassign(
     _root,
     { _ids }: { _ids: string[] },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const {
       oldConversations,
@@ -535,7 +575,7 @@ const conversationMutations = {
       _ids
     );
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations: oldConversations,
       type: 'unassign'
@@ -567,7 +607,7 @@ const conversationMutations = {
   async conversationsChangeStatus(
     _root,
     { _ids, status }: { _ids: string[]; status: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const { oldConversationById } = await getConversationById(models, {
       _id: { $in: _ids }
@@ -582,7 +622,7 @@ const conversationMutations = {
       _id: { $in: _ids }
     });
 
-    await sendNotifications({
+    await sendNotifications(subdomain, {
       user,
       conversations: updatedConversations,
       type: 'conversationStateChange'
@@ -608,9 +648,9 @@ const conversationMutations = {
   /**
    * Resolve all conversations
    */
-  async conversationResolveAll(_root, params: IListArgs, { user, models, coreModels }: IContext) {
+  async conversationResolveAll(_root, params: IListArgs, { user, models, coreModels, subdomain }: IContext) {
     // initiate query builder
-    const qb = new QueryBuilder(models, coreModels, params, { _id: user._id });
+    const qb = new QueryBuilder(models, coreModels, subdomain, params, { _id: user._id });
 
     await qb.buildAllQueries();
     const query = qb.mainQuery();
@@ -659,7 +699,7 @@ const conversationMutations = {
   async conversationCreateVideoChatRoom(
     _root,
     { _id },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     let message;
 
@@ -672,12 +712,15 @@ const conversationMutations = {
 
       message = await models.ConversationMessages.addMessage(doc, user._id);
 
-      const videoCallData = await sendRPCMessage('integrations:rpc_queue:createDailyRoom',
-        {
+      const videoCallData = await sendIntegrationsMessage({
+        subdomain,
+        action: 'createDailyRoom',
+        data: {
           erxesApiConversationId: _id,
           erxesApiMessageId: message._id
-        }
-      );
+        },
+        isRPC: true
+      });
 
       const updatedMessage = { ...message._doc, videoCallData };
 
@@ -719,7 +762,7 @@ const conversationMutations = {
   async conversationConvertToCard(
     _root,
     params: IConversationConvert,
-    { user, docModifier, models }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
     const { _id } = params;
 
@@ -732,7 +775,12 @@ const conversationMutations = {
       docModifier
     };
 
-    return sendCardsRPCMessage('conversationConvert', args);
+    return sendCardsMessage({
+      subdomain,
+      action: "conversationConvert",
+      data: args,
+      isRPC: true
+    })
   },
 
   async conversationEditCustomFields(
