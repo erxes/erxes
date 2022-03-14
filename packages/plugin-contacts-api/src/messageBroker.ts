@@ -79,18 +79,6 @@ export const initBroker = (cl) => {
   );
 
   consumeRPCQueue(
-    "contacts:customers.findOne",
-    async ({ subdomain, data: { selector, fields } }) => {
-      const models = await generateModels(subdomain);
-
-      return {
-        status: "success",
-        data: await models.Customers.findOne(selector, fields).lean(),
-      };
-    }
-  );
-
-  consumeRPCQueue(
     "contacts:companies.findActiveCompanies",
     async ({ subdomain, data: { selector, fields } }) => {
       const models = await generateModels(subdomain);

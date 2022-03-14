@@ -7,10 +7,11 @@ import {
   gatherNames,
   gatherUsernames,
   IDescriptions,
+  getSchemaLabels
 } from '@erxes/api-utils/src/logUtils';
 import { ICompanyDocument } from './models/definitions/companies';
 import messageBroker, { sendCoreMessage, sendInboxMessage, sendTagsMessage } from './messageBroker';
-import { MODULE_NAMES } from './constants';
+import { LOG_MAPPINGS, MODULE_NAMES } from './constants';
 import { ICustomerDocument } from './models/definitions/customers';
 import { IModels } from './connectionResolver';
 
@@ -105,7 +106,7 @@ const gatherCustomerFieldNames = async (
       foreignKey: 'integrationId',
       prevList: options,
       nameFields: ['name'],
-      items: await sendInboxMessage({ subdomain, action: 'integrations:find', data: { _id: { $in: [doc.integrationId] } }, isRPC: true }),
+      items: await sendInboxMessage({ subdomain, action: 'integrations.find', data: { _id: { $in: [doc.integrationId] } }, isRPC: true }),
     });
   }
 
@@ -225,4 +226,11 @@ export const prepareCocLogData = (coc) => {
     content,
     contentId: coc._id,
   };
+};
+
+export default {
+  getSchemaLabels: ({ data: { type } }) => ({
+    status: 'success',
+    data: getSchemaLabels(type, LOG_MAPPINGS)
+  })
 };

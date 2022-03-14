@@ -27,6 +27,7 @@ import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
 import { uploader } from './middlewares/fileMiddleware';
 import { join, leave, redis, refreshEnabledServicesCache } from './serviceDiscovery';
+import logs from './logUtils';
 
 import init from './startup';
 
@@ -239,7 +240,7 @@ httpServer.listen(PORT, () => {
     port: PORT,
     dbConnectionString: MONGO_URL,
     hasSubscriptions: false,
-    meta: { logs: { providesActivityLog: true } }
+    meta: { logs: { providesActivityLog: true, consumers: logs } }
   })
 
   debugInit(`GraphQL Server is now running on ${PORT}`);

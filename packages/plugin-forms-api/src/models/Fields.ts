@@ -4,7 +4,8 @@
 
 import { Model, model } from 'mongoose';
 import * as validator from 'validator';
-// import { updateOrder } from './boardUtils';
+import { IModels } from '../connectionResolver';
+// ? import { updateOrder } from './boardUtils';
 import {
   fieldGroupSchema,
   fieldSchema,
@@ -77,13 +78,13 @@ export interface IFieldModel extends Model<IFieldDocument> {
   ): Promise<any>;
 }
 
-export const loadFieldClass = () => {
+export const loadFieldClass = (models: IModels) => {
   class Field {
     /*
      * Check if Group is defined by erxes by default
      */
     public static async checkIsDefinedByErxes(_id: string) {
-      const fieldObj = await Fields.findOne({ _id });
+      const fieldObj = await models.Fields.findOne({ _id });
 
       // Checking if the field is defined by the erxes
       if (fieldObj && fieldObj.isDefinedByErxes) {
@@ -92,7 +93,7 @@ export const loadFieldClass = () => {
     }
 
     public static async checkCanToggleVisible(_id: string) {
-      const fieldObj = await Fields.findOne({ _id });
+      const fieldObj = await models.Fields.findOne({ _id });
 
       // Checking if the field is defined by the erxes
       if (fieldObj && !fieldObj.canHide) {
@@ -121,10 +122,10 @@ export const loadFieldClass = () => {
       }
 
       if (groupName) {
-        let group = await FieldsGroups.findOne({ name: groupName });
+        let group = await models.FieldsGroups.findOne({ name: groupName });
 
         if (!group) {
-          group = await FieldsGroups.createGroup({
+          group = await models.FieldsGroups.createGroup({
             name: groupName,
             contentType,
             isDefinedByErxes: false
@@ -138,13 +139,13 @@ export const loadFieldClass = () => {
       // if there is no field then start with 0
       let order = 0;
 
-      const lastField = await Fields.findOne(query).sort({ order: -1 });
+      const lastField = await models.Fields.findOne(query).sort({ order: -1 });
 
       if (lastField) {
         order = (lastField.order || 0) + 1;
       }
 
-      return Fields.create({
+      return models.Fields.create({
         contentType,
         contentTypeId,
         order,
@@ -162,10 +163,10 @@ export const loadFieldClass = () => {
       const { groupName } = doc;
 
       if (groupName) {
-        let group = await FieldsGroups.findOne({ name: groupName });
+        let group = await models.FieldsGroups.findOne({ name: groupName });
 
         if (!group) {
-          group = await FieldsGroups.createGroup({
+          group = await models.FieldsGroups.createGroup({
             name: groupName,
             contentType: 'form',
             isDefinedByErxes: false
@@ -175,16 +176,16 @@ export const loadFieldClass = () => {
         doc.groupId = group._id;
       }
 
-      await Fields.updateOne({ _id }, { $set: doc });
+      await models.Fields.updateOne({ _id }, { $set: doc });
 
-      return Fields.findOne({ _id });
+      return models.Fields.findOne({ _id });
     }
 
     /*
      * Remove field
      */
     public static async removeField(_id: string) {
-      const fieldObj = await Fields.findOne({ _id });
+      const fieldObj = await models.Fields.findOne({ _id });
 
       if (!fieldObj) {
         throw new Error(`Field not found with id ${_id}`);
@@ -193,13 +194,13 @@ export const loadFieldClass = () => {
       await this.checkIsDefinedByErxes(_id);
 
       // Removing field value from customer
-      // await Customers.updateMany(
+      // ? await Customers.updateMany(
       //   { 'customFieldsData.field': _id },
       //   { $pull: { customFieldsData: { field: _id } } }
       // );
 
       // Removing form associated field
-      await Fields.updateMany(
+      await models.Fields.updateMany(
         { associatedFieldId: _id },
         { $unset: { associatedFieldId: '' } }
       );
@@ -219,7 +220,7 @@ export const loadFieldClass = () => {
      * fixes values if necessary
      */
     public static async clean(_id: string, _value: string | Date | number) {
-      const field = await Fields.findOne({ _id });
+      const field = await models.Fields.findOne({ _id });
 
       let value = _value;
 
@@ -333,15 +334,15 @@ export const loadFieldClass = () => {
       const result: ITypedListItem[] = [];
 
       for (const customFieldData of customFieldsData || []) {
-        const field = await Fields.findById(customFieldData.field);
+        const field = await models.Fields.findById(customFieldData.field);
 
         try {
-          await Fields.clean(customFieldData.field, customFieldData.value);
+          await models.Fields.clean(customFieldData.field, customFieldData.value);
         } catch (e) {
           throw new Error(e.message);
         }
         result.push(
-          Fields.generateTypedItem(
+          models.Fields.generateTypedItem(
             customFieldData.field,
             customFieldData.value,
             field ? field.type || '' : '',
@@ -370,9 +371,9 @@ export const loadFieldClass = () => {
           ? { isVisible, lastUpdatedUserId }
           : { isVisibleInDetail, lastUpdatedUserId };
 
-      await Fields.updateOne({ _id }, { $set: set });
+      await models.Fields.updateOne({ _id }, { $set: set });
 
-      return Fields.findOne({ _id });
+      return models.Fields.findOne({ _id });
     }
 
     public static async createSystemFields(
@@ -380,7 +381,7 @@ export const loadFieldClass = () => {
       contentType: string
     ) {
       switch (contentType) {
-        // case FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER:
+        // ? case FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER:
         //   const customerFields = CUSTOMER_BASIC_INFO.ALL.map(e => ({
         //     text: e.label,
         //     type: e.field,
@@ -457,7 +458,7 @@ export const loadFieldClass = () => {
       let customFieldsData: any = [];
 
       for (const key of keys) {
-        const customField = await Fields.findOne({
+        const customField = await models.Fields.findOne({
           contentType,
           text: key
         });
@@ -506,13 +507,13 @@ export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
   createSystemGroupsFields(): Promise<IFieldGroupDocument[]>;
 }
 
-export const loadGroupClass = () => {
+export const loadGroupClass = (models: IModels) => {
   class FieldGroup {
     /*
      * Check if Group is defined by erxes by default
      */
     public static async checkIsDefinedByErxes(_id: string) {
-      const groupObj = await FieldsGroups.findOne({ _id });
+      const groupObj = await models.FieldsGroups.findOne({ _id });
 
       // Checking if the group is defined by the erxes
       if (groupObj && groupObj.isDefinedByErxes) {
@@ -532,7 +533,7 @@ export const loadGroupClass = () => {
       // Automatically setting order of group to the bottom
       let order = 1;
 
-      const lastGroup = await FieldsGroups.findOne({ contentType }).sort({
+      const lastGroup = await models.FieldsGroups.findOne({ contentType }).sort({
         order: -1
       });
 
@@ -540,7 +541,7 @@ export const loadGroupClass = () => {
         order = (lastGroup.order || 0) + 1;
       }
 
-      return FieldsGroups.create({
+      return models.FieldsGroups.create({
         ...doc,
         isVisible,
         order,
@@ -555,16 +556,16 @@ export const loadGroupClass = () => {
       // Can not edit group that is defined by erxes
       await this.checkIsDefinedByErxes(_id);
 
-      await FieldsGroups.updateOne({ _id }, { $set: doc });
+      await models.FieldsGroups.updateOne({ _id }, { $set: doc });
 
-      return FieldsGroups.findOne({ _id });
+      return models.FieldsGroups.findOne({ _id });
     }
 
     /**
      * Remove field group
      */
     public static async removeGroup(_id: string) {
-      const groupObj = await FieldsGroups.findOne({ _id });
+      const groupObj = await models.FieldsGroups.findOne({ _id });
 
       if (!groupObj) {
         throw new Error(`Group not found with id of ${_id}`);
@@ -574,10 +575,10 @@ export const loadGroupClass = () => {
       await this.checkIsDefinedByErxes(_id);
 
       // Deleting fields that are associated with this group
-      const fields = await Fields.find({ groupId: _id });
+      const fields = await models.Fields.find({ groupId: _id });
 
       for (const field of fields) {
-        await Fields.removeField(field._id);
+        await models.Fields.removeField(field._id);
       }
 
       await groupObj.remove();
@@ -603,14 +604,15 @@ export const loadGroupClass = () => {
           ? { isVisible, lastUpdatedUserId }
           : { isVisibleInDetail, lastUpdatedUserId };
 
-      await FieldsGroups.updateOne({ _id }, { $set: set });
+      await models.FieldsGroups.updateOne({ _id }, { $set: set });
 
-      return FieldsGroups.findOne({ _id });
+      return models.FieldsGroups.findOne({ _id });
     }
 
     /**
      * Create system fields & groups
      */
+    // ? will fix
     public static async createSystemGroupsFields() {
       // for (const group of PROPERTY_GROUPS) {
       //   if (['ticket', 'task', 'lead', 'visitor'].includes(group.value)) {
@@ -663,15 +665,3 @@ export const loadGroupClass = () => {
 
   return fieldGroupSchema;
 };
-
-loadFieldClass();
-loadGroupClass();
-
-// tslint:disable-next-line
-export const FieldsGroups = model<IFieldGroupDocument, IFieldGroupModel>(
-  'fields_groups',
-  fieldGroupSchema
-);
-
-// tslint:disable-next-line
-export const Fields = model<IFieldDocument, IFieldModel>('fields', fieldSchema);

@@ -1,6 +1,5 @@
 import { moduleCheckPermission } from "@erxes/api-utils/src/permissions";
-import { IContext } from "@erxes/api-utils/src/types";
-import { Fields, Forms, FormSubmissions } from "../../../models";
+import { IContext } from "../../../connectionResolver";
 import { IForm } from "../../../models/definitions/forms";
 
 interface IFormsEdit extends IForm {
@@ -18,15 +17,15 @@ const formMutations = {
   /**
    * Create a new form
    */
-  formsAdd(_root, doc: IForm, { user, docModifier }: IContext) {
-    return Forms.createForm(docModifier(doc), user._id);
+  formsAdd(_root, doc: IForm, { user, docModifier, models }: IContext) {
+    return models.Forms.createForm(docModifier(doc), user._id);
   },
 
   /**
    * Update a form data
    */
-  formsEdit(_root, { _id, ...doc }: IFormsEdit) {
-    return Forms.updateForm(_id, doc);
+  formsEdit(_root, { _id, ...doc }: IFormsEdit, { models }: IContext) {
+    return models.Forms.updateForm(_id, doc);
   },
 
   /**
@@ -34,14 +33,15 @@ const formMutations = {
    */
   async formSubmissionsSave(
     _root,
-    { formId, contentTypeId, contentType, formSubmissions }: IFormSubmission
+    { formId, contentTypeId, contentType, formSubmissions }: IFormSubmission,
+    { models }: IContext
   ) {
-    const cleanedFormSubmissions = await Fields.cleanMulti(
+    const cleanedFormSubmissions = await models.Fields.cleanMulti(
       formSubmissions || {}
     );
 
     for (const formFieldId of Object.keys(cleanedFormSubmissions)) {
-      const formSubmission = await FormSubmissions.findOne({
+      const formSubmission = await models.FormSubmissions.findOne({
         contentTypeId,
         contentType,
         formFieldId
@@ -60,7 +60,7 @@ const formMutations = {
           value: formSubmissions[formFieldId]
         };
 
-        FormSubmissions.createFormSubmission(doc);
+        models.FormSubmissions.createFormSubmission(doc);
       }
     }
 

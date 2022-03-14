@@ -5,6 +5,7 @@ import { generateModels, models } from './connectionResolver';
 
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
+import logs from './logUtils';
 
 export let debug;
 export let graphqlPubsub;
@@ -43,4 +44,5 @@ export default {
     graphqlPubsub = options.pubsubClient;
     es = options.elasticsearch;
   },
+  meta: { logs: { consumers: logs } }
 };
