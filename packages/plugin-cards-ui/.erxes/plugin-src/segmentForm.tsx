@@ -112,7 +112,7 @@ class Form extends React.Component<any, any, any> {
 
       if (
         !hideDetailForm &&
-        !['cards:deal', 'cards:ticket', 'cards:task'].includes(type)
+        ['cards:deal', 'cards:ticket', 'cards:task'].includes(type)
       ) {
         return null;
       }
