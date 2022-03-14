@@ -7,7 +7,7 @@ import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
 import { generateModels, models, coreModels, getSubdomain } from './connectionResolver';
-import logs from './logs';
+import logs from './logUtils';
 import tags from '../tags';
 
 export let mainDb;

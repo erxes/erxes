@@ -11,10 +11,11 @@ import {
   gatherNames,
   gatherUsernames,
   IDescriptions,
+  getSchemaLabels
 } from "@erxes/api-utils/src/logUtils";
 import { ITaskDocument } from "./models/definitions/tasks";
 import { ITicketDocument } from "./models/definitions/tickets";
-import { MODULE_NAMES } from "./constants";
+import { LOG_MAPPINGS, MODULE_NAMES } from "./constants";
 import { ACTIVITY_CONTENT_TYPES } from "./models/definitions/constants";
 import messageBroker, {
   sendCoreMessage,
@@ -22,7 +23,13 @@ import messageBroker, {
   sendLogsMessage,
   sendProductsMessage,
 } from "./messageBroker";
-import { IModels } from "./connectionResolver";
+import { IModels, generateModels } from "./connectionResolver";
+import {
+  collectItems,
+  getCardContentIds,
+  getContentItem,
+  getContentTypeDetail,
+} from "./utils";
 
 export const LOG_ACTIONS = {
   CREATE: "create",
@@ -679,4 +686,35 @@ export const putChecklistActivityLog = async (subdomain: string, params) => {
   }
 
   return putActivityLog(updatedParams);
+};
+
+export default {
+  getActivityContent: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return getContentItem(models, data);
+  },
+
+  getContentTypeDetail: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { activityLog = {} } = data;
+
+    return getContentTypeDetail(models, activityLog);
+  },
+
+  collectItems: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return collectItems(models, subdomain, data);
+  },
+
+  getContentIds: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return getCardContentIds(models, data);
+  },
+
+  getSchemaLabels: async ({ data: { type } }) => {
+    return getSchemaLabels(type, LOG_MAPPINGS);
+  },
 };

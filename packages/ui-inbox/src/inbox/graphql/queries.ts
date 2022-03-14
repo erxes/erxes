@@ -208,6 +208,9 @@ const allBrands = `
 
 const tagList = `
   query tags($type: String) {
+    ${
+      isEnabled("tags")
+        ? `
     tags(type: $type) {
       _id
       name
@@ -216,19 +219,28 @@ const tagList = `
       parentId
       relatedIds
     }
+    `
+        : ``
+    }
   }
 `;
 
 // subOf alais as parentId
 const segmentList = `
-    query segments($contentTypes: [String]!, $boardId: String, $pipelineId: String) {
-      segments(contentTypes: $contentTypes, boardId: $boardId, pipelineId: $pipelineId) {
-        _id
-        contentType
-        name
-        parentId: subOf
-      }
+  query segments($contentTypes: [String]!, $boardId: String, $pipelineId: String) {
+    ${
+      isEnabled("segments")
+        ? `
+        segments(contentTypes: $contentTypes, boardId: $boardId, pipelineId: $pipelineId) {
+          _id
+          contentType
+          name
+          parentId: subOf
+        }
+    `
+        : ``
     }
+  }
 `;
 
 const conversationCounts = `
@@ -321,8 +333,9 @@ const generateCustomerDetailQuery = (params) => {
   if (showCompanies) {
     fields = `
       ${fields}
-      ${isEnabled("contacts") &&
-        `companies {
+      ${
+        isEnabled("contacts")
+          ? `companies {
           _id
           primaryName
           website
@@ -334,7 +347,9 @@ const generateCustomerDetailQuery = (params) => {
             lastName
             primaryEmail
           }
-        }`}
+        }`
+          : ``
+      }
     `;
   }
 
@@ -342,10 +357,16 @@ const generateCustomerDetailQuery = (params) => {
     fields = `
       ${fields}
       tagIds
-      getTags {
-        _id
-        name
-        colorCode
+      ${
+        isEnabled("tags")
+          ? `
+          getTags {
+            _id
+            name
+            colorCode
+          }
+        `
+          : ``
       }
     `;
   }
