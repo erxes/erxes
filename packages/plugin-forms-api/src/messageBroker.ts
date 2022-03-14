@@ -22,15 +22,17 @@ export const initBroker = async cl => {
     }
   );
 
-  consumeRPCQueue('forms:rpc_queue:duplicate', async ({ subdomain, data: { formId } }) => {
-    const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    'forms:rpc_queue:duplicate',
+    async ({ subdomain, data: { formId } }) => {
+      const models = await generateModels(subdomain);
 
-    return {
-      status: 'success',
-      data: await models.Forms.duplicate(formId)
-    };
-  }
-);
+      return {
+        status: 'success',
+        data: await models.Forms.duplicate(formId)
+      };
+    }
+  );
 
   consumeQueue('forms:removeForm', async ({ subdomain, data: { formId } }) => {
     const models = await generateModels(subdomain);
@@ -38,10 +40,8 @@ export const initBroker = async cl => {
     return {
       status: 'success',
       data: await models.Forms.removeForm(formId)
-    }
-
-  }
-);
+    };
+  });
 
   consumeRPCQueue(
     'forms:fields.prepareCustomFieldsData',
@@ -56,39 +56,36 @@ export const initBroker = async cl => {
 
   consumeRPCQueue(
     'forms:fields.generateCustomFieldsData',
-<<<<<<< HEAD
-    async ({ data: { customData, contentType } }) => {
-=======
-    async ({ subdomain, data: { customData, contentType }}) => {
+    async ({ subdomain, data: { customData, contentType } }) => {
       const models = await generateModels(subdomain);
 
->>>>>>> 5c454d32d42d25c0d28deaf32c9006664613eaf5
       return {
         status: 'success',
-        data: await models.Fields.generateCustomFieldsData(customData, contentType)
+        data: await models.Fields.generateCustomFieldsData(
+          customData,
+          contentType
+        )
       };
     }
   );
 
-  consumeQueue('forms:updateGroup', async ({ subdomain, data: { groupId, fieldsGroup } }) => {
-    const models = await generateModels(subdomain);
-    
-    return {
-    status: 'success',
-    data: await models.FieldsGroups.updateGroup(groupId, fieldsGroup)
-    }
+  consumeQueue(
+    'forms:updateGroup',
+    async ({ subdomain, data: { groupId, fieldsGroup } }) => {
+      const models = await generateModels(subdomain);
 
-});
+      return {
+        status: 'success',
+        data: await models.FieldsGroups.updateGroup(groupId, fieldsGroup)
+      };
+    }
+  );
 
   consumeRPCQueue(
     'forms:fields.find',
-<<<<<<< HEAD
-    async ({ data: { query, projection, sort } }) => {
-=======
-    async ({ subdomain, data: { query, projection, sort }}) => {
+    async ({ subdomain, data: { query, projection, sort } }) => {
       const models = await generateModels(subdomain);
 
->>>>>>> 5c454d32d42d25c0d28deaf32c9006664613eaf5
       return {
         status: 'success',
         data: await models.Fields.find(query, projection)
@@ -98,14 +95,17 @@ export const initBroker = async cl => {
     }
   );
 
-  consumeRPCQueue('forms:fieldsCombinedByContentType', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain); 
-    
-    return {
-      status: 'success',
-      data: await fieldsCombinedByContentType(models, data)
-    };
-  });
+  consumeRPCQueue(
+    'forms:fieldsCombinedByContentType',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await fieldsCombinedByContentType(models, data)
+      };
+    }
+  );
 };
 
 export const fetchService = async (
