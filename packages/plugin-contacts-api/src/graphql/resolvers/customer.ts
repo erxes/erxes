@@ -74,7 +74,7 @@ export default {
   ) {
     const companyIds = await sendCoreMessage({
       subdomain,
-      action: "savedConformity",
+      action: "conformities.savedConformity",
       data: {
         mainType: "customer",
         mainTypeId: customer._id,
