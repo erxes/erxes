@@ -66,8 +66,7 @@ export const customerFields = `
         name
         colorCode
       }
-    `
-      : ` `
+    ` : ` `
   }
 `;
 

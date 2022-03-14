@@ -6,6 +6,7 @@ import DepartmentList from '../containers/department/List';
 import UnitList from '../containers/unit/List';
 import BranchList from '../containers/branch/List';
 import SegmentFilter from '../containers/filters/SegmentFilter';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 export default function LeftSidebar({
   loadingMainQuery
@@ -16,7 +17,7 @@ export default function LeftSidebar({
     <Sidebar>
       <Structure />
       <DepartmentList />
-      <SegmentFilter loadingMainQuery={loadingMainQuery} />
+      {isEnabled("segments") && <SegmentFilter loadingMainQuery={loadingMainQuery} />}
       <UnitList />
       <BranchList />
     </Sidebar>

@@ -12,7 +12,7 @@ import { Link } from 'react-router-dom';
 import List from '@erxes/ui-settings/src/common/components/List';
 import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
 import { Actions, Bottom, BoxItem, Created } from '../styles';
-import TemplateForm from './TemplateForm';
+import TemplateForm from '@erxes/ui-settings/src/growthHacks/components/TemplateForm';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

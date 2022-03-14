@@ -24,6 +24,7 @@ import {
 } from '../../styles/item';
 import Labels from '../label/Labels';
 import Actions from './Actions';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type DescProps = {
   item: IItem;
@@ -227,14 +228,14 @@ const Left = (props: Props) => {
         showEmail={false}
       />
 
-      <ActivityLogs
+      {isEnabled("logs") && <ActivityLogs
         target={item.name}
         contentId={item._id}
         contentType={options.type}
         extraTabs={
           options.type === 'task' ? [] : [{ name: 'task', label: 'Task' }]
         }
-      />
+      />}
     </LeftContainer>
   );
 };

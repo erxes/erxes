@@ -28,6 +28,7 @@ import {
   ToggleButton,
   ScrollContent
 } from './styles';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const DateFilter = asyncComponent(
   () =>
@@ -188,27 +189,29 @@ class LeftSidebar extends React.Component<Props, State> {
               />
             </FilterToggler>
 
-            <FilterToggler
-              groupText='Segments'
-              toggleName='showSegments'
-              manageUrl='/segments/conversation'
-            >
-              <FilterList
-                query={{
-                  queryName: 'segmentList',
-                  dataName: 'segments',
-                  variables: {
-                    contentTypes: [TAG_TYPES.CONVERSATION]
-                  }
-                }}
-                queryParams={queryParams}
-                counts='bySegment'
-                paramKey='segment'
-                icon='tag-alt'
-                refetchRequired={refetchRequired}
-                treeView={true}
-              />
-            </FilterToggler>
+            {isEnabled("segments") &&
+              <FilterToggler
+                groupText='Segments'
+                toggleName='showSegments'
+                manageUrl='/segments/conversation'
+              >
+                <FilterList
+                  query={{
+                    queryName: 'segmentList',
+                    dataName: 'segments',
+                    variables: {
+                      contentTypes: [TAG_TYPES.CONVERSATION]
+                    }
+                  }}
+                  queryParams={queryParams}
+                  counts='bySegment'
+                  paramKey='segment'
+                  icon='tag-alt'
+                  refetchRequired={refetchRequired}
+                  treeView={true}
+                />
+              </FilterToggler>
+            }
 
             <FilterToggler
               groupText='Brands'
@@ -241,35 +244,36 @@ class LeftSidebar extends React.Component<Props, State> {
               />
             </FilterToggler>
 
-            <FilterToggler
-              groupText='Tags'
-              toggleName='showTags'
-              manageUrl='/tags/conversation'
-            >
-              <FilterList
-                query={{
-                  queryName: 'tagList',
-                  dataName: 'tags',
-                  variables: {
-                    type: TAG_TYPES.CONVERSATION
-                  }
-                }}
-                queryParams={queryParams}
-                counts='byTags'
-                paramKey='tag'
-                icon='tag-alt'
-                refetchRequired={refetchRequired}
-                multiple={true}
-                treeView={true}
-              />
-            </FilterToggler>
+            {isEnabled("tags") &&
+              <FilterToggler
+                groupText='Tags'
+                toggleName='showTags'
+                manageUrl='/tags/conversation'
+              >
+                <FilterList
+                  query={{
+                    queryName: 'tagList',
+                    dataName: 'tags',
+                    variables: {
+                      type: TAG_TYPES.CONVERSATION
+                    }
+                  }}
+                  queryParams={queryParams}
+                  counts='byTags'
+                  paramKey='tag'
+                  icon='tag-alt'
+                  refetchRequired={refetchRequired}
+                  multiple={true}
+                  treeView={true}
+                />
+              </FilterToggler>
+            }
           </ScrollContent>
           <IntegrationModal />
         </SidebarContent>
       </RTG.CSSTransition>
     );
   }
-
   render() {
     const {
       currentUser,
