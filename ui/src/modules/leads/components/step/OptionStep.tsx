@@ -14,10 +14,18 @@ import { Description } from 'modules/settings/styles';
 import React from 'react';
 import { IBrand } from '../../../settings/brands/types';
 import { BackgroundSelector, FlexItem } from './style';
+import SelectDepartments from 'modules/settings/team/containers/department/SelectDepartments';
 
 type Props = {
   onChange: (
-    name: 'brand' | 'language' | 'isRequireOnce' | 'channelIds' | 'theme',
+    name:
+      | 'brand'
+      | 'language'
+      | 'isRequireOnce'
+      | 'channelIds'
+      | 'theme'
+      | 'visibility'
+      | 'departmentIds',
     value: any
   ) => void;
   type: string;
@@ -30,6 +38,8 @@ type Props = {
   fields?: IField[];
   brand?: IBrand;
   channelIds?: string[];
+  visibility?: string;
+  departmentIds?: string[];
   onFieldEdit?: () => void;
 };
 
@@ -70,6 +80,28 @@ class OptionStep extends React.Component<Props, State> {
     );
   }
 
+  renderDepartments() {
+    const { visibility, departmentIds } = this.props;
+
+    if (visibility === 'public') {
+      return;
+    }
+
+    const departmentOnChange = (values: string[]) => {
+      this.onChangeFunction('departmentIds', values);
+    };
+
+    return (
+      <FormGroup>
+        <SelectDepartments
+          defaultValue={departmentIds}
+          isRequired={false}
+          onChange={departmentOnChange}
+        />
+      </FormGroup>
+    );
+  }
+
   render() {
     const { language, brand, isRequireOnce } = this.props;
 
@@ -87,6 +119,11 @@ class OptionStep extends React.Component<Props, State> {
 
     const onSwitchHandler = e => {
       this.onChangeFunction('isRequireOnce', e.target.checked);
+    };
+
+    const onChangeVisibility = (e: React.FormEvent<HTMLElement>) => {
+      const visibility = (e.currentTarget as HTMLInputElement).value;
+      this.onChangeFunction('visibility', visibility);
     };
 
     return (
@@ -120,6 +157,22 @@ class OptionStep extends React.Component<Props, State> {
             description="Choose a channel, if you wish to see every new form in your Team Inbox."
             onChange={channelOnChange}
           />
+
+          <FormGroup>
+            <ControlLabel required={true}>Visibility</ControlLabel>
+            <FormControl
+              name="visibility"
+              componentClass="select"
+              value={this.props.visibility}
+              onChange={onChangeVisibility}
+            >
+              <option value="public">{__('Public')}</option>
+              <option value="private">{__('Private')}</option>
+            </FormControl>
+          </FormGroup>
+
+          {this.renderDepartments()}
+
           <FormGroup>
             <ControlLabel>Language</ControlLabel>
             <Select

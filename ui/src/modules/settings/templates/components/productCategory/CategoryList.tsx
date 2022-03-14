@@ -15,7 +15,7 @@ const TEMPLATE_TYPES = {
   email_templates: 'Emails',
   response_templates: 'Chat Responses',
   growth_hacking: 'Growth Hacking',
-  template: 'Products & Services',
+  templates: 'Products & Services',
   segments: 'Segments',
   sales_pipeline: 'Sales Pipeline',
   automation: 'Automation'

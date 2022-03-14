@@ -49,6 +49,7 @@ export const fieldsTypes = `
     associatedField: Field
     logics: [Logic]
     locationOptions: [LocationOption]
+    showInCard: Boolean
     ${fieldCommonFields}
   }
 
@@ -108,6 +109,7 @@ const fieldsCommonFields = `
   canHide: Boolean
   associatedFieldId: String
   logic: LogicInput
+  showInCard: Boolean
 `;
 
 export const fieldsMutations = `
@@ -142,6 +144,9 @@ export const fieldsGroupsTypes = `
     description: String
     isVisible: Boolean
     isVisibleInDetail: Boolean
+    visibility: String
+    memberIds: [String]
+    departmentIds: [String]
     isDefinedByErxes: Boolean
     fields: [Field]
     lastUpdatedUserId: String
@@ -159,6 +164,9 @@ const fieldsGroupsCommonFields = `
   isVisible: Boolean
   isVisibleInDetail: Boolean
   boardsPipelines: [BoardsPipelinesInput]
+  visibility: String
+  memberIds: [String]
+  departmentIds: [String]
 `;
 
 export const fieldsGroupsQueries = `

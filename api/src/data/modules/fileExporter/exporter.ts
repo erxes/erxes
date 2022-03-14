@@ -327,7 +327,12 @@ const fillDealProductValue = async (
   const productsData = item.productsData;
 
   if (productsData.length === 0) {
-    return;
+    rowIndex++;
+    dealRowIndex++;
+
+    addCell(column, '-', sheet, columnNames, dealRowIndex);
+
+    return { rowIndex, dealRowIndex };
   }
 
   if (dealIds.length === 0) {
@@ -435,7 +440,9 @@ export const buildFile = async (
     let headers: IColumnLabel[] = fillHeaders(type);
 
     if (configs) {
-      headers = JSON.parse(configs);
+      headers = JSON.parse(configs).map(config => {
+        return { name: config, label: config };
+      });
     }
 
     if (type === MODULE_NAMES.DEAL) {
@@ -449,8 +456,10 @@ export const buildFile = async (
         if (column.name.startsWith('customFieldsData')) {
           if (item.customFieldsData && item.customFieldsData.length > 0) {
             for (const customFeild of item.customFieldsData) {
+              const fieldId = column.name.split('.')[1];
+
               const field = await Fields.findOne({
-                text: column.label.trim(),
+                _id: fieldId,
                 contentType: type === 'lead' ? 'customer' : type
               });
 
@@ -475,8 +484,7 @@ export const buildFile = async (
               }
             }
           }
-        }
-        if (column.name.startsWith('productsData')) {
+        } else if (column.name.startsWith('productsData')) {
           const indexes = await fillDealProductValue(
             column,
             item,
@@ -510,61 +518,3 @@ export const buildFile = async (
     response: await generateXlsx(workbook)
   };
 };
-
-// [
-//   {
-//     _id: '0.9085203296297069',
-//     name: 'name',
-//     label: 'Name',
-//     type: 'String',
-//     checked: true,
-//     order: 0
-//   },
-//   {
-//     _id: '0.34630985142840953',
-//     name: 'productsData.discount',
-//     label: 'Discount',
-//     type: 'Number',
-//     checked: true,
-//     order: 0
-//   },
-//   {
-//     _id: '0.4241546336784805',
-//     name: 'productsData.amount',
-//     label: 'Amount',
-//     type: 'Number',
-//     checked: true,
-//     order: 0
-//   },
-//   {
-//     _id: '0.05714234631170023',
-//     name: 'stageId',
-//     label: 'Stage',
-//     type: 'stage',
-//     checked: true,
-//     order: 0
-//   },
-//   {
-//     _id: '0.5302566309557204',
-//     name: 'modifiedBy',
-//     label: 'Modified by',
-//     type: 'user',
-//     selectOptions: [[Object]],
-//     checked: true,
-//     order: 0
-//   },
-//   {
-//     _id: '0.6107598719626994',
-//     name: 'productsData.name',
-//     label: 'Product Name',
-//     checked: true,
-//     order: 0
-//   },
-//   {
-//     _id: '0.5257280770849682',
-//     name: 'productsData.code',
-//     label: 'Product Code',
-//     checked: true,
-//     order: 0
-//   }
-// ];

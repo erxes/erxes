@@ -3,7 +3,6 @@ import asyncComponent from 'modules/common/components/AsyncComponent';
 import { IRouterProps } from 'modules/common/types';
 import { bustIframe } from 'modules/common/utils';
 import { NotifProvider } from 'modules/notifications/context';
-import Robot from 'modules/robot/containers/Robot';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import Navigation from '../containers/Navigation';
@@ -106,8 +105,6 @@ class MainLayout extends React.Component<IProps, { isCollapsed: boolean }> {
           </MainWrapper>
           <DetectBrowser />
         </Layout>
-
-        <Robot collapsed={isCollapsed} />
       </>
     );
   }

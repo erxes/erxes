@@ -9,6 +9,8 @@ export const types = `
     formId: String
     tagIds: [String]
     tags: [Tag]
+    visibility: String
+    departmentIds: [String]
     leadData: JSON
     messengerData: JSON
     uiOptions: JSON
@@ -204,7 +206,9 @@ export const mutations = `
   integrationsCreateLeadIntegration(
     name: String!,
     brandId: String!,
-    channelIds: [String]
+    channelIds: [String],
+    visibility: String,
+    departmentIds: [String],
     languageCode: String,
     formId: String!,
     leadData: IntegrationLeadData!): Integration
@@ -213,7 +217,9 @@ export const mutations = `
     _id: String!
     name: String!,
     brandId: String!,
-    channelIds: [String]
+    channelIds: [String],
+    visibility: String,
+    departmentIds: [String],
     languageCode: String,
     formId: String!,
     leadData: IntegrationLeadData!): Integration
