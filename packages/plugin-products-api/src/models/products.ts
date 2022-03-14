@@ -1,7 +1,7 @@
 import { ICustomField, IUserDocument } from '@erxes/api-utils/src/types';
 import { Model, model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { findCompany, findDealProductIds, prepareCustomFieldsData, updateDeals } from '../messageBroker';
+import { sendCardsMessage, sendContactsMessage, sendFormsMessage } from '../messageBroker';
 import { IProduct, IProductCategory, IProductCategoryDocument, IProductDocument, productCategorySchema, productSchema, PRODUCT_STATUSES } from './definitions/products';
 
 export interface IProductModel extends Model<IProductDocument> {
@@ -20,7 +20,7 @@ export interface IProductModel extends Model<IProductDocument> {
   ): Promise<IProductDocument>;
 }
 
-export const loadProductClass = (models: IModels) => {
+export const loadProductClass = (models: IModels, subdomain: string) => {
   class Product {
     /**
      *
@@ -62,22 +62,29 @@ export const loadProductClass = (models: IModels) => {
       }
 
       if (doc.vendorCode) {
-        const vendor = await findCompany({
-          $or: [
-            { code: doc.vendorCode },
-            { primaryEmail: doc.vendorCode },
-            { primaryPhone: doc.vendorCode },
-            { primaryName: doc.vendorCode }
-          ]
+        const vendor = await sendContactsMessage({
+          subdomain,
+          action: 'companies.findOne',
+          data: {
+            $or: [
+              { code: doc.vendorCode },
+              { primaryEmail: doc.vendorCode },
+              { primaryPhone: doc.vendorCode },
+              { primaryName: doc.vendorCode }
+            ]
+          },
+          isRPC: true
         });
 
         doc.vendorId = vendor?._id;
       }
 
-      // ! will fix
-      // doc.customFieldsData = await prepareCustomFieldsData(
-      //   doc.customFieldsData
-      // );
+      doc.customFieldsData = await sendFormsMessage({
+        subdomain,
+        action: "fields.prepareCustomFieldsData",
+        data: doc.customFieldsData,
+        isRPC: true
+      })
 
       return models.Products.create(doc);
     }
@@ -94,9 +101,12 @@ export const loadProductClass = (models: IModels) => {
 
       if (doc.customFieldsData) {
         // clean custom field values
-        doc.customFieldsData = await prepareCustomFieldsData(
-          doc.customFieldsData
-        );
+        doc.customFieldsData = await sendFormsMessage({
+          subdomain,
+          action: 'fields.prepareCustomFieldsData',
+          data: doc.customFieldsData,
+          isRPC: true
+        });
       }
 
       await models.Products.updateOne({ _id }, { $set: doc });
@@ -108,7 +118,14 @@ export const loadProductClass = (models: IModels) => {
      * Remove products
      */
     public static async removeProducts(_ids: string[]) {
-      const dealProductIds = await findDealProductIds({ _ids });
+      const dealProductIds = await sendCardsMessage({
+        subdomain,
+        action: "findDealProductIds",
+        data: {
+          _ids
+        },
+        isRPC: true
+      })
 
       const usedIds: string[] = [];
       const unUsedIds: string[] = [];
@@ -204,7 +221,14 @@ export const loadProductClass = (models: IModels) => {
         vendorId
       });
 
-      const dealProductIds = await findDealProductIds({ _ids: productIds });
+      const dealProductIds = await sendCardsMessage({
+        subdomain,
+        action: "findDealProductIds",
+        data: {
+          _ids: productIds
+        },
+        isRPC: true
+      })
 
       for (const deal of dealProductIds) {
         if (productIds.includes(deal)) {
@@ -212,10 +236,19 @@ export const loadProductClass = (models: IModels) => {
         }
       }
 
-      await updateDeals(
-        { 'productsData.productId': { $in: usedIds } },
-        { $set: { 'productsData.$.productId': product._id } }
-      );
+      await sendCardsMessage({
+        subdomain,
+        action: 'deals.updateMany',
+        data: {
+          selector: {
+            'productsData.productId': { $in: usedIds }
+          },
+          modifier: {
+            $set: { 'productsData.$.productId': product._id }
+          }
+        },
+        isRPC: true
+      });
 
       return product;
     }

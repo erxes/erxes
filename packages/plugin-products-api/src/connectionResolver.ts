@@ -23,7 +23,7 @@ export let models: IModels;
 export let coreModels: ICoreIModels;
 
 export const generateModels = async (
-  _hostnameOrSubdomain: string
+  hostnameOrSubdomain: string
 ): Promise<IModels> => {
   if (models) {
     return models;
@@ -31,7 +31,7 @@ export const generateModels = async (
 
   coreModels = await connectCore();
 
-  loadClasses(mainDb);
+  loadClasses(mainDb, hostnameOrSubdomain);
 
   return models;
 };
@@ -61,10 +61,10 @@ const connectCore = async () => {
   }
 }
 
-export const loadClasses = (db: mongoose.Connection): IModels => {
+export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels => {
   models = {} as IModels;
   
-  models.Products = db.model<IProductDocument, IProductModel>('products', loadProductClass(models))
+  models.Products = db.model<IProductDocument, IProductModel>('products', loadProductClass(models, subdomain))
   models.ProductCategories = db.model<IProductCategoryDocument, IProductCategoryModel>('product_categories', loadProductCategoryClass(models))
 
   return models;
