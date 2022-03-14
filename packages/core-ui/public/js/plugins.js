@@ -153,5 +153,50 @@ window.plugins = [
         permission: 'showSegments'
       }
     ]
+  },
+
+  {
+    name: "logs",
+    port: 3040,
+    exposes: { "./routes": "./src/routes.tsx" },
+    routes: {
+      url: "http://localhost:3040/remoteEntry.js",
+      scope: "logs",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "logs",
+        to: "/settings/logs",
+        image: "/images/icons/erxes-33.png",
+        location: "settings",
+        scope: "logs",
+        component: "./settings",
+        action: "",
+        permissions: [],
+      },
+    ],
+  },
+
+  {
+    name: "knowledgeBase",
+    port: 3004,
+    exposes: {
+      "./routes": "./src/routes.tsx"
+    },
+    routes: {
+      url: "http://localhost:3004/remoteEntry.js",
+      scope: "knowledgeBase",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: 'Knowledge Base',
+        url: '/knowledgeBase',
+        icon: 'icon-book-open',
+        location: "mainNavigation",
+        permission: "showConversatshowKnowledgeBaseions",
+      }
+    ],
   }
 ];
