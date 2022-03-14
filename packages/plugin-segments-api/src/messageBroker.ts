@@ -1,5 +1,7 @@
+import { ISendMessageArgs, sendMessage as sendMessageCore } from "@erxes/api-utils/src/core";
+import { generateModels } from "./connectionResolver";
 import { fetchSegment } from "./graphql/resolvers/queries/queryBuilder";
-import { Segments } from "./models";
+import { serviceDiscovery } from './configs';
 
 let client;
 
@@ -8,38 +10,45 @@ export const initBroker = async cl => {
 
   const { consumeRPCQueue, consumeQueue } = client;
 
-  consumeRPCQueue('segments:rpc_queue:findOne', async (selector) => {
-    const data = await Segments.findOne(selector);
+  consumeRPCQueue('segments:findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
 
-    return { data, status: 'success' };
+    return {
+      data: await models.Segments.findOne(data),
+      status: 'success'
+    };
   });
 
-  consumeRPCQueue('segments:rpc_queue:find', async (selector) => {
-    const data = await Segments.find(selector);
+  consumeRPCQueue('segments:find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
 
-    return { data, status: 'success' };
+    return { data: await models.Segments.find(data), status: 'success' };
   });
 
-  consumeRPCQueue('segments:rpc_queue:fetchSegment', async ({ segmentId, options }) => {
-    const segment = await Segments.findOne({ _id: segmentId });
-    const data = await fetchSegment(segment, options);
+  consumeRPCQueue('segments:fetchSegment', async ({ subdomain, data: { segmentId, options } }) => {
+    const models = await generateModels(subdomain);
+    const segment = await models.Segments.findOne({ _id: segmentId });
 
-    return { data, status: 'success' };
+    return { data: await fetchSegment(models, subdomain, segment, options), status: 'success' };
   });
 
-  consumeQueue('segments:removeSegment', async ({ segmentId }) => ({
-    status: 'success',
-    data: await Segments.removeSegment(segmentId)
-  }));
+  consumeQueue('segments:removeSegment', async ({ subdomain, data: { segmentId } }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Segments.removeSegment(segmentId)
+    }
+  });
 };
 
-export const sendRPCMessage = async (channel, message): Promise<any> => {
-  return client.sendRPCMessage(channel, message);
+export const sendMessage = async (args: ISendMessageArgs & { serviceName: string }): Promise<any> => {
+  return sendMessageCore({ client, serviceDiscovery, ...args })
 };
 
-export const sendConformityMessage = async (action, data): Promise<any> => {
-  return client.sendRPCMessage(`conformities.${action}`, data);
-};
+export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessageCore({ client, serviceDiscovery, serviceName: "core", ...args })
+}
 
 export default function() {
   return client;
