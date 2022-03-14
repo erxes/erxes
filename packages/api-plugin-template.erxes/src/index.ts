@@ -198,16 +198,6 @@ async function startServer() {
       }
     });
 
-    await join({
-      name: configs.name,
-      port: PORT || '',
-      dbConnectionString: mongoUrl,
-      hasSubscriptions: configs.hasSubscriptions,
-      importTypes: configs.importTypes,
-      exportTypes: configs.exportTypes,
-      meta: configs.meta
-    });
-
     if (configs.permissions) {
       await messageBrokerClient.sendMessage(
         'registerPermissions',
@@ -223,6 +213,8 @@ async function startServer() {
 
       if (segments) {
         if (segments.propertyConditionExtender) {
+          segments.propertyConditionExtenderAvailable = true;
+
           consumeRPCQueue(
             `${configs.name}:segments.propertyConditionExtender`,
             segments.propertyConditionExtender
@@ -230,6 +222,8 @@ async function startServer() {
         }
 
         if (segments.associationTypes) {
+          segments.associationTypesAvailable = true;
+
           consumeRPCQueue(
             `${configs.name}:segments.associationTypes`,
             segments.associationTypes
@@ -237,6 +231,8 @@ async function startServer() {
         }
 
         if (segments.esTypesMap) {
+          segments.esTypesMapAvailable = true;
+
           consumeRPCQueue(
             `${configs.name}:segments.esTypesMap`,
             segments.esTypesMap
@@ -244,6 +240,8 @@ async function startServer() {
         }
 
         if (segments.initialSelector) {
+          segments.initialSelectorAvailable = true;
+
           consumeRPCQueue(
             `${configs.name}:segments.initialSelector`,
             segments.initialSelector
@@ -355,6 +353,16 @@ async function startServer() {
           );
         }
       }
+
+      await join({
+        name: configs.name,
+        port: PORT || '',
+        dbConnectionString: mongoUrl,
+        hasSubscriptions: configs.hasSubscriptions,
+        importTypes: configs.importTypes,
+        exportTypes: configs.exportTypes,
+        meta: configs.meta
+      });
 
       debugInfo(`${configs.name} server is running on port ${PORT}`);
     }
