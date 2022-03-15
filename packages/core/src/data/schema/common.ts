@@ -67,7 +67,7 @@ export const commonTypes = `
   attachments: [Attachment]
   userId: String
 
-  assignedUsers: [User]
+  assignedUsers: JSON
   stage: Stage
   labels: [PipelineLabel]
   pipeline: Pipeline
@@ -111,7 +111,7 @@ export const commonListTypes = `
   name: String
   companies: JSON
   customers: JSON
-  assignedUsers: [User]
+  assignedUsers: JSON
   stage: JSON
   labels: JSON
   isComplete: Boolean

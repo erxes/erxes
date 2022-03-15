@@ -71,14 +71,7 @@ export const commonListFields = `
   name
   ${isEnabled("contacts") ? `companies` : ``}
   ${isEnabled("contacts") ? `customers` : ``}
-  assignedUsers {
-    _id
-    username
-    details {
-      fullName
-    }
-    isActive
-  }
+  assignedUsers
   labels
   stage
   isComplete
@@ -133,14 +126,7 @@ export const commonFields = `
   closeDate
   description
   priority
-  assignedUsers {
-    _id
-    username
-    details {
-      fullName
-    }
-    isActive
-  }
+  assignedUsers
   labels {
     _id
     name
