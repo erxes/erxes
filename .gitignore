@@ -30,5 +30,3 @@ widgets/static
 tsconfig.tsbuildinfo
 packages/plugin*api/.erxes
 /api/src/__tests__/coverage
-
-/packages/api-core/enabled-services.js

@@ -4,6 +4,7 @@ import { Configs } from '../../../db/models';
 import { DEFAULT_CONSTANT_VALUES } from '../../../db/models/definitions/constants';
 import { fetchElk } from '../../../elasticsearch';
 import { moduleRequireLogin } from '../../permissions/wrappers';
+
 import {
   checkPremiumService,
   getCoreDomain,
@@ -11,7 +12,8 @@ import {
   readFile,
   sendRequest
 } from '../../utils';
-import enabledServices = require('../../../../enabled-services');
+
+import * as enabledServices from '../../../../enabled-services';
 
 const doSearch = async (index, value, fields) => {
   const highlightFields = {};
