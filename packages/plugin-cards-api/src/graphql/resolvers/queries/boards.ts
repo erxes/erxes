@@ -6,7 +6,7 @@ import { IStageDocument } from "../../../models/definitions/boards";
 import { CLOSE_DATE_TYPES, PRIORITIES } from "../../../constants";
 import { IPipelineLabelDocument } from "../../../models/definitions/pipelineLabels";
 import { getCloseDateByType } from "./utils";
-import { fetchSegment, sendSegmentsMessage } from "../../../messageBroker";
+import { fetchSegment, sendFormsMessage, sendSegmentsMessage } from "../../../messageBroker";
 import { IContext } from "../../../connectionResolver";
 
 export interface IDate {
@@ -600,6 +600,60 @@ const boardQueries = {
 
     return counts;
   },
+  async cardsFields(_root, _args, { models, subdomain }: IContext) {
+    const result = {};
+
+    for (const ct of ['deal', 'ticket', 'task']) {
+      result[ct] = [];
+
+      const groups = await sendFormsMessage({
+        subdomain,
+        action: 'fieldsGroups.find',
+        data: {
+          query: {
+            contentType: ct
+          }
+        },
+        isRPC: true
+      });
+
+      for (const group of groups) {
+        // ? get config from group
+        const { config } = group;
+
+        const fields = await sendFormsMessage({
+          subdomain,
+          action: 'fields.find',
+          data: {
+            query: {
+              groupId: group._id
+            }
+          },
+          isRPC: true
+        });
+        
+        const pipelines = await models.Pipelines.find({
+          // ! change group to config!!
+          _id: { $in: group.pipelineIds || [] }
+        });
+
+        for (const pipeline of pipelines) {
+          const board = await models.Boards.getBoard(pipeline.boardId);
+
+          for (const field of fields) {
+            result[ct].push({
+              boardName: board.name,
+              pipelineName: pipeline.name,
+              fieldId: field._id,
+              fieldName: field.text
+            });
+          }
+        }
+      }
+    }
+
+    return result;
+  }
 };
 
 moduleRequireLogin(boardQueries);

@@ -95,7 +95,7 @@ export interface IConfigColumn {
 }
 
 export type InboxFieldsQueryResponse = {
-  fieldsInbox: {
+  inboxFields: {
     customer: IField[];
     device: IField[];
     conversation: IField[];

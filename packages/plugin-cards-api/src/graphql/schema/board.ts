@@ -112,6 +112,7 @@ export const queries = `
   archivedStagesCount(pipelineId: String!, search: String): Int
   itemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
   itemsCountByAssignedUser(type: String!, pipelineId: String!, stackBy: String): JSON
+  cardsFields: JSON
 `;
 
 const commonParams = `

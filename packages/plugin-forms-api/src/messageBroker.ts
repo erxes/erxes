@@ -23,7 +23,7 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
-    'forms:rpc_queue:duplicate',
+    'forms:duplicate',
     async ({ subdomain, data: { formId } }) => {
       const models = await generateModels(subdomain);
 
@@ -94,6 +94,31 @@ export const initBroker = async cl => {
       };
     }
   );
+
+  consumeRPCQueue(
+    'forms:fieldsGroups.find',
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.FieldsGroups.find(query)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'forms:fieldsGroups.findOne',
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.FieldsGroups.findOne(query)
+      };
+    }
+  );
+
 
   consumeRPCQueue(
     'forms:fieldsCombinedByContentType',

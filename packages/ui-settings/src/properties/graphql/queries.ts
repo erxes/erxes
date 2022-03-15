@@ -98,8 +98,8 @@ const fields = `
 `;
 
 const inboxFields = `
-  query fieldsInbox {
-    fieldsInbox {
+  query inboxFields {
+    inboxFields {
       customer { ${commonFields} }
       device { ${commonFields} }
       conversation { ${commonFields} }
@@ -107,9 +107,9 @@ const inboxFields = `
   }
 `;
 
-const fieldsItemTyped = `
-  query fieldsItemTyped {
-    fieldsItemTyped
+const cardsFields = `
+  query cardsFields {
+    cardsFields
   }
 `;
 
@@ -129,6 +129,6 @@ export default {
   fields,
   getSystemFieldsGroup,
   inboxFields,
-  fieldsItemTyped,
+  cardsFields,
   configs
 };
