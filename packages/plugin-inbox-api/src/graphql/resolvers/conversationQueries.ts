@@ -257,7 +257,7 @@ const conversationQueries = {
     });
 
     if (customerGroup) {
-       response.customer = await sendFormsMessage({
+       response.customer = (await sendFormsMessage({
          subdomain,
          action: 'fields.find',
          data: {
@@ -267,7 +267,7 @@ const conversationQueries = {
          },
          isRPC: true,
          defaultValue: []
-       });
+       })) || [];
     }
 
     const conversationGroup = await sendFormsMessage({
