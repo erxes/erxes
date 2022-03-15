@@ -1,4 +1,4 @@
-name: Api core CI
+name: Workers CI
 
 on:
   push:
