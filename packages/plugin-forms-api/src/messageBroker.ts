@@ -108,6 +108,18 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
+    'forms:fields.findOne',
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Fields.findOne(query)
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'forms:fieldsGroups.find',
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
@@ -140,6 +152,18 @@ export const initBroker = async cl => {
       return {
         status: 'success',
         data: await fieldsCombinedByContentType(models, data)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'forms:submissions.find',
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.FormSubmissions.find(query)
       };
     }
   );
