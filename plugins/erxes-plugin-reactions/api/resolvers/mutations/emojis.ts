@@ -24,8 +24,16 @@ const emojiMutations = [
 
       if (alreadyReacted) {
         await models.Emojis.removeEmoji(models, doc);
+
+        if (models.Exms) {
+          await models.Exms.useScoring(models, user, 'removeEmoji');
+        }
       } else {
         await models.Emojis.createEmoji(models, doc);
+
+        if (models.Exms) {
+          await models.Exms.useScoring(models, user, 'createEmoji');
+        }
       }
 
       return 'success';
