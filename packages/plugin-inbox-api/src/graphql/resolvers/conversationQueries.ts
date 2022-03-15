@@ -265,7 +265,8 @@ const conversationQueries = {
              groupId: customerGroup._id
            }
          },
-         isRPC: true
+         isRPC: true,
+         defaultValue: []
        });
     }
 
@@ -278,7 +279,7 @@ const conversationQueries = {
           isDefinedByErxes: true
         }
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (conversationGroup) {
@@ -291,7 +292,8 @@ const conversationQueries = {
              groupId: conversationGroup._id
            }
          },
-         isRPC: true
+         isRPC: true,
+         defaultValue: []
        });
     }
     
@@ -316,7 +318,8 @@ const conversationQueries = {
              groupId: deviceGroup._id
            }
          },
-         isRPC: true
+         isRPC: true,
+         defaultValue: []
        });
       
     }
