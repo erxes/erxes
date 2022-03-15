@@ -2,48 +2,14 @@ import * as formidable from 'formidable';
 import * as request from 'request';
 import * as _ from 'underscore';
 import { filterXSS } from 'xss';
-import { RABBITMQ_QUEUES } from '../data/constants';
+
 import {
   checkFile,
   frontendEnv,
-  getConfig,
   getSubServiceDomain,
-  registerOnboardHistory,
   uploadFile
 } from '../data/utils';
 import { debugExternalApi } from '../debuggers';
-import messageBroker from '../messageBroker';
-
-export const importer = async (
-  contentTypes,
-  files,
-  columnsConfig,
-  importHistoryId,
-  associatedContentType,
-  associatedField,
-  user
-) => {
-  try {
-    const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
-
-    await messageBroker().sendMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
-      action: 'createImport',
-      contentTypes,
-      files,
-      uploadType: UPLOAD_SERVICE_TYPE,
-      columnsConfig,
-      user,
-      importHistoryId,
-      associatedContentType,
-      associatedField
-    });
-
-    registerOnboardHistory({ type: `importCreate`, user });
-  } catch (e) {
-    console.log(e);
-    // throw new Error();
-  }
-};
 
 export const uploader = async (req: any, res, next) => {
   const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
