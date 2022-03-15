@@ -20,6 +20,7 @@ import {
 import logs from './logUtils';
 import tags from './tags';
 import segments from './segments';
+import forms from './forms';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -46,6 +47,7 @@ export default {
   },
   hasSubscriptions: true,
   meta: {
+    forms,
     segments,
     tags,
     logs: { providesActivityLog: true, consumers: logs }

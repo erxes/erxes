@@ -11,7 +11,8 @@ export default {
     ticket: 'Ticket',
     task: 'Task',
     customer: 'Customer',
-    company: 'Company'
+    company: 'Company',
+    converstaion: 'Conversation'
   },
 
   associationTypes: async () => {

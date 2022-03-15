@@ -6,7 +6,12 @@ export default {
   contentTypes: ['conversation'],
 
   descriptionMap: {
-    conversation: 'Converstaion'
+    deal: 'Deal',
+    ticket: 'Ticket',
+    task: 'Task',
+    customer: 'Customer',
+    company: 'Company',
+    conversation: 'Conversation'
   },
 
   associationTypes: async ({}) => {

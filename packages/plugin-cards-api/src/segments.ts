@@ -16,7 +16,7 @@ export default {
     task: 'Task',
     customer: 'Customer',
     company: 'Company',
-    conversation: 'Conversation'
+    converstaion: 'Conversation'
   },
 
   propertyConditionExtender: async ({ subdomain, data: { condition } }) => {
