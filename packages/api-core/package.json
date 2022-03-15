@@ -43,6 +43,7 @@
     "apollo-datasource-rest": "^0.5.1",
     "node-schedule": "^1.2.5",
     "erxes-api-utils": "^0.0.34",
-    "validator": "^9.0.0"
+    "validator": "^9.0.0",
+    "cookie-parser": "^1.4.3"
   }
 }
