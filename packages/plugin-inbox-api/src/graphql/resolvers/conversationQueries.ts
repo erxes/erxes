@@ -239,10 +239,14 @@ const conversationQueries = {
   },
    async inboxFields(_root, _args, { subdomain }: IContext) {
     const response: {
-      customer?: any;
-      conversation?: any;
-      device?: any;
-    } = {};
+      customer?: any[];
+      conversation?: any[];
+      device?: any[];
+    } = {
+      customer: [],
+      conversation: [],
+      device: []
+    };
 
     const customerGroup = await sendFormsMessage({
       subdomain,
@@ -257,7 +261,7 @@ const conversationQueries = {
     });
 
     if (customerGroup) {
-       response.customer = await sendFormsMessage({
+       response.customer = (await sendFormsMessage({
          subdomain,
          action: 'fields.find',
          data: {
@@ -265,8 +269,9 @@ const conversationQueries = {
              groupId: customerGroup._id
            }
          },
-         isRPC: true
-       });
+         isRPC: true,
+         defaultValue: []
+       }));
     }
 
     const conversationGroup = await sendFormsMessage({
@@ -278,7 +283,7 @@ const conversationQueries = {
           isDefinedByErxes: true
         }
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (conversationGroup) {
@@ -291,7 +296,8 @@ const conversationQueries = {
              groupId: conversationGroup._id
            }
          },
-         isRPC: true
+         isRPC: true,
+         defaultValue: []
        });
     }
     
@@ -316,7 +322,8 @@ const conversationQueries = {
              groupId: deviceGroup._id
            }
          },
-         isRPC: true
+         isRPC: true,
+         defaultValue: []
        });
       
     }

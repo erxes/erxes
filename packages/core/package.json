@@ -26,24 +26,26 @@
     "migrateKnowledgeBase": "node_modules/.bin/ts-node src/commands/migrateKnowledgeBase.ts",
     "migrateSegment": "node_modules/.bin/ts-node src/commands/segmentMigration.ts",
     "changeToSubscribed": "node_modules/.bin/ts-node src/commands/changeToSubscribed.ts",
-    "fixCompanyScopeBrandIds": "node_modules/.bin/ts-node src/commands/fixCompanyScopeBrandIds.ts"
+    "fixCompanyScopeBrandIds": "node_modules/.bin/ts-node src/commands/fixCompanyScopeBrandIds.ts",
+    "migrateContentType": "node_modules/.bin/ts-node src/commands/migrateContentType.ts",
+    "migrateLogs": "node_modules/.bin/ts-node src/commands/migrateLogs.ts"
   },
   "dependencies": {
+    "apollo-datasource-rest": "^0.5.1",
     "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.3",
     "csv-parser": "^3.0.0",
+    "erxes-api-utils": "^0.0.34",
     "file-type": "^10.4.0",
     "helmet": "^3.23.3",
     "json2csv": "^5.0.1",
+    "node-schedule": "^1.2.5",
     "server-timing-header": "^1.9.0",
     "sha256": "^0.2.0",
     "stream-array": "^1.1.2",
-    "ts-node": "^10.4.0",
-    "xlsx-populate": "^1.20.1",
-    "xlsx-stream-reader": "^1.1.1",
-    "apollo-datasource-rest": "^0.5.1",
-    "node-schedule": "^1.2.5",
-    "erxes-api-utils": "^0.0.34",
+    "ts-node": "^10.7.0",
     "validator": "^9.0.0",
-    "cookie-parser": "^1.4.3"
+    "xlsx-populate": "^1.20.1",
+    "xlsx-stream-reader": "^1.1.1"
   }
 }

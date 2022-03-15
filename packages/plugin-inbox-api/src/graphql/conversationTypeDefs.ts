@@ -189,14 +189,16 @@ export const types = ({ tags, forms }) => `
     recordingLinks: [String]
   }
 
-  type InboxField {
-    ${
-      forms
-        ? `customer: [Field]
-      conversation: [Field]
-      device: [Field] `
-        : ''
-    }
+  ${
+    forms
+      ? `
+        type InboxField {
+          customer: [Field]
+          conversation: [Field]
+          device: [Field]
+        }
+    `
+      : ''
   }
 
   input ConversationMessageParams {
@@ -240,7 +242,7 @@ const filterParams = `
   ${mutationFilterParams}
 `;
 
-export const queries = `
+export const queries = ({ forms }) => `
   conversationMessage(_id: String!): ConversationMessage
   
   conversations(${filterParams}): [Conversation]
@@ -258,7 +260,7 @@ export const queries = `
   conversationDetail(_id: String!): Conversation
   conversationsGetLast(${filterParams}): Conversation
   conversationsTotalUnreadCount: Int
-  inboxFields: InboxField
+  ${ forms ? `inboxFields: InboxField` : '' }
 `;
 
 export const mutations = `

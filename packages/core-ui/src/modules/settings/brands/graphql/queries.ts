@@ -1,5 +1,3 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
-
 const brandDetail = `
   query brandDetail($_id: String!) {
     brandDetail(_id: $_id) {
@@ -7,18 +5,6 @@ const brandDetail = `
       name
       emailConfig
       code
-      ${
-        isEnabled("inbox")
-          ? `
-          integrations {
-            _id
-            name
-            kind
-            brandId
-          }
-        `
-          : ``
-      }
     }
   }
 `;

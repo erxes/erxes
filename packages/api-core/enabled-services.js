@@ -6,12 +6,11 @@ module.exports = {
   contacts: true,
   engages: false,
   inbox: false,
-  internalnotes: true,
+  internalnotes: false,
   knowledgebase: false,
-  logs: true,
+  logs: false,
   notifications: false,
   products: false,
   segments: false,
-  tags: false,
-  forms: false,
+  tags: false
 };
