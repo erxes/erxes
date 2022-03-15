@@ -1,19 +1,14 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import {
-  IItem,
-  IItemParams,
-  IOptions,
-  SaveMutation
-} from '../../types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import GenerateCustomFields from '@erxes/ui-settings/src/properties/components/GenerateCustomFields';
-import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { renderWithProps } from '@erxes/ui/src/utils';
-import { FieldsGroupsQueryResponse } from '@erxes/ui-settings/src/properties/types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { IItem, IItemParams, IOptions, SaveMutation } from "../../types";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import GenerateCustomFields from "@erxes/ui-settings/src/properties/components/GenerateCustomFields";
+import { queries as fieldQueries } from "@erxes/ui-settings/src/properties/graphql";
+import React from "react";
+import { graphql } from "react-apollo";
+import { renderWithProps } from "@erxes/ui/src/utils";
+import { FieldsGroupsQueryResponse } from "@erxes/ui-settings/src/properties/types";
 
 type Props = {
   item: IItem;
@@ -41,12 +36,12 @@ const CustomFieldsSection = (props: FinalProps) => {
 
   const save = (data, callback) => {
     editMutation({
-      variables: { _id, ...data }
+      variables: { _id, ...data },
     })
       .then(() => {
         callback();
       })
-      .catch(e => {
+      .catch((e) => {
         callback(e);
       });
   };
@@ -56,7 +51,7 @@ const CustomFieldsSection = (props: FinalProps) => {
     loading,
     isDetail: false,
     customFieldsData: item.customFieldsData,
-    fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
+    fieldsGroups: fieldsGroupsQuery.fieldsGroups || [],
   };
 
   return <GenerateCustomFields {...updatedProps} />;
@@ -73,21 +68,21 @@ export default (props: Props) => {
         FieldsGroupsQueryResponse,
         { contentType: string; config: { boardId: string } }
       >(gql(fieldQueries.fieldsGroups), {
-        name: 'fieldsGroupsQuery',
+        name: "fieldsGroupsQuery",
         options: () => ({
           variables: {
             contentType: options.type,
             config: {
-              boardId: item.boardId || '',
-              pipelineId: item.pipeline._id || ''
-            }
-          }
-        })
+              boardId: item.boardId || "",
+              pipelineId: item.pipeline._id || "",
+            },
+          },
+        }),
       }),
       graphql<Props, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),
         {
-          name: 'editMutation'
+          name: "editMutation",
         }
       )
     )(CustomFieldsSection)

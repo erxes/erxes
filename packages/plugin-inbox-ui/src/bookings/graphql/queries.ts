@@ -1,3 +1,5 @@
+import { isEnabled } from "@erxes/ui/src/utils/core";
+
 const bookingFields = `
   name
   image {
@@ -83,10 +85,16 @@ export const commonFields = `
     ${bookingFields}
   }
 
-  tags {
-    _id
-    name
-    colorCode
+  ${
+    isEnabled("tags")
+      ? `
+    tags {
+      _id
+      name
+      colorCode
+    }
+  `
+      : ``
   }
 
   form {

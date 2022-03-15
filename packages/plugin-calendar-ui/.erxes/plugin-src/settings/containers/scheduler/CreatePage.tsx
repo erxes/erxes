@@ -20,19 +20,19 @@ type Props = {
 };
 
 type FinalProps = {
-  fetchApiQuery: any;
+  fetchCalendarQuery: any;
 } & Props &
   CreateSchedulePageMutationResponse;
 
 class FormContainer extends React.Component<FinalProps, {}> {
   render() {
-    const { fetchApiQuery, accountId, createMutation, history } = this.props;
+    const { fetchCalendarQuery, accountId, createMutation, history } = this.props;
 
-    if (fetchApiQuery.loading) {
+    if (fetchCalendarQuery.loading) {
       return <Spinner objective={true} />;
     }
 
-    if (fetchApiQuery.error) {
+    if (fetchCalendarQuery.error) {
       return (
         <span style={{ color: 'red' }}>Integrations api is not running</span>
       );
@@ -55,7 +55,7 @@ class FormContainer extends React.Component<FinalProps, {}> {
     const updatedProps = {
       save,
       accountId,
-      calendars: fetchApiQuery.integrationsFetchApi || []
+      calendars: fetchCalendarQuery.integrationsNylasGetCalendars || []
     };
 
     return <PageForm {...updatedProps} />;
@@ -65,10 +65,9 @@ class FormContainer extends React.Component<FinalProps, {}> {
 const getRefetchQueries = (accountId: string) => {
   return [
     {
-      query: gql(integrationQueries.fetchApi),
+      query: gql(integrationQueries.integrationsNylasGetSchedulePages),
       variables: {
-        path: '/nylas/get-schedule-pages',
-        params: { accountId }
+        accountId 
       }
     }
   ];
@@ -76,15 +75,12 @@ const getRefetchQueries = (accountId: string) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, any>(gql(queries.fetchApi), {
-      name: 'fetchApiQuery',
+    graphql<Props, any>(gql(queries.integrationsNylasGetCalendars), {
+      name: 'fetchCalendarQuery',
       options: ({ accountId }) => {
         return {
           variables: {
-            path: '/nylas/get-calendars',
-            params: {
-              accountId
-            }
+            accountId
           }
         };
       }

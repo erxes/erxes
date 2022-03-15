@@ -119,7 +119,7 @@ export const putActivityLog = async (params: { action: string; data: any }) => {
 export default {
   getSchemaLabels: ({ data: { type } }) => ({
     status: 'success',
-    data: getSchemaLabels(type, [{ name: 'product', schemas: [tagSchema] }]),
+    data: getSchemaLabels(type, [{ name: 'tag', schemas: [tagSchema] }]),
   }),
   getActivityContent: async ({ subdomain, data }) => {
     const { action, content } = data;

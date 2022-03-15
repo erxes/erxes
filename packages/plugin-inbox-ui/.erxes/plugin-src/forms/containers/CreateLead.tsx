@@ -20,6 +20,7 @@ import Lead from '../components/Lead';
 import { mutations } from '@erxes/ui-leads/src/graphql';
 import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
 import { ILeadData } from '@erxes/ui-leads/src/types';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   emailTemplatesQuery: EmailTemplatesQueryResponse;
@@ -107,7 +108,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
       afterFormDbSave,
       isActionLoading: this.state.isLoading,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
-      emailTemplates: emailTemplatesQuery.emailTemplates || [],
+      emailTemplates: emailTemplatesQuery ? emailTemplatesQuery.emailTemplates || [] : [],
       configs: configsQuery.configs || []
     };
 
@@ -125,7 +126,8 @@ const withTemplatesQuery = withProps<Props>(
           variables: {
             perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount
           }
-        })
+        }),
+        skip: !isEnabled('engages') ? true: false
       }
     )
   )(CreateLeadContainer)
@@ -134,7 +136,8 @@ const withTemplatesQuery = withProps<Props>(
 export default withProps<Props>(
   compose(
     graphql(gql(templatesQuery.totalCount), {
-      name: 'emailTemplatesTotalCountQuery'
+      name: 'emailTemplatesTotalCountQuery',
+      skip: !isEnabled('engages') ? true: false
     }),
     graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
       name: 'configsQuery'

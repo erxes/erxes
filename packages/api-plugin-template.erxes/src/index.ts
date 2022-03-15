@@ -302,9 +302,9 @@ async function startServer() {
         if (logs.getSchemaLabels) {
           consumeRPCQueue(
             `${configs.name}:logs:getSchemaLabels`,
-            async args => ({
+            args => ({
               status: 'success',
-              data: await logs.getSchemaLabels(args)
+              data: logs.getSchemaLabels(args)
             })
           );
         }

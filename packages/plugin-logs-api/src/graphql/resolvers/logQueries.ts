@@ -29,11 +29,15 @@ const logQueries = {
   logs(_root, params: ILogQueryParams, { models }: IContext) {
     return fetchLogs(models, params);
   },
-  async getDbSchemaLabels(_root, params: { type: string }) {
+  async getDbSchemaLabels(_root, params: { type: string }, { subdomain }: IContext) {
     const [serviceName, moduleName] = params.type.split(':');
-    const response = await getDbSchemaLabels(serviceName, moduleName);
 
-    return response;
+    const response = await getDbSchemaLabels(
+      serviceName,
+      { data: { type: moduleName }, subdomain }
+    );
+
+    return response && response.data && Array.isArray(response.data) ? response.data : [];
   },
 };
 

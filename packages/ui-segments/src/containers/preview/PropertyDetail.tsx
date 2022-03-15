@@ -1,13 +1,13 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import PropertyDetail from '../../components/preview/PropertyDetail';
-import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-settings/src/properties/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { withProps } from "@erxes/ui/src/utils";
+import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
+import PropertyDetail from "../../components/preview/PropertyDetail";
+import { FieldsCombinedByTypeQueryResponse } from "@erxes/ui-settings/src/properties/types";
+import React from "react";
+import { graphql } from "react-apollo";
 
-import { IField, ISegmentCondition } from '../../types';
+import { IField, ISegmentCondition } from "../../types";
 
 type Props = {
   condition: ISegmentCondition;
@@ -31,18 +31,18 @@ class ConditionDetailContainer extends React.Component<FinalProps, {}> {
 
     const fields = fieldsQuery.fieldsCombinedByContentType as any;
 
-    let chosenProperty = fields.find(field => {
+    let chosenProperty = fields.find((field) => {
       return field.name === condition.propertyName;
     });
 
     chosenProperty = {
       value: chosenProperty.name || chosenProperty._id,
       label: chosenProperty.label || chosenProperty.title,
-      type: (chosenProperty.type || '').toLowerCase(),
-      group: chosenProperty.group || '',
+      type: (chosenProperty.type || "").toLowerCase(),
+      group: chosenProperty.group || "",
       selectOptions: chosenProperty.selectOptions || [],
 
-      choiceOptions: chosenProperty.options || []
+      choiceOptions: chosenProperty.options || [],
     };
 
     return (
@@ -58,14 +58,14 @@ class ConditionDetailContainer extends React.Component<FinalProps, {}> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
-      name: 'fieldsQuery',
+      name: "fieldsQuery",
       options: ({ condition, segmentId, config }) => ({
         variables: {
           contentType: condition.propertyType,
           segmentId,
-          config
-        }
-      })
+          config,
+        },
+      }),
     })
   )(ConditionDetailContainer)
 );

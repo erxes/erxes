@@ -1,4 +1,7 @@
-import { checkPermission, requireLogin } from "@erxes/api-utils/src/permissions";
+import {
+  checkPermission,
+  requireLogin,
+} from "@erxes/api-utils/src/permissions";
 import { fieldsCombinedByContentType } from "../../../utils";
 import { serviceDiscovery } from "../../../configs";
 import { fetchService } from "../../../messageBroker";
@@ -17,7 +20,7 @@ export interface IFieldsQuery {
 const fieldQueries = {
   async fieldsGetTypes() {
     const services = await serviceDiscovery.getServices();
-    const fieldTypes: Array<{ description: string, contentType: string }> = [];
+    const fieldTypes: Array<{ description: string; contentType: string }> = [];
 
     for (const serviceName of services) {
       const service = await serviceDiscovery.getService(serviceName, true);
@@ -27,7 +30,10 @@ const fieldQueries = {
         const types = meta.forms.types || [];
 
         for (const type of types) {
-          fieldTypes.push({ description: type.description, contentType: `${serviceName}:${type.type}` });
+          fieldTypes.push({
+            description: type.description,
+            contentType: `${serviceName}:${type.type}`,
+          });
         }
       }
     }
@@ -43,7 +49,7 @@ const fieldQueries = {
     {
       contentType,
       contentTypeId,
-      isVisible
+      isVisible,
     }: { contentType: string; contentTypeId: string; isVisible: boolean },
     { models }: IContext
   ) {
@@ -74,7 +80,7 @@ const fieldQueries = {
     _root,
     { contentType }: { contentType: string }
   ): Promise<IFieldsDefaultColmns> {
-    const [serviceName, type] = contentType.split(':');
+    const [serviceName, type] = contentType.split(":");
     const service = await serviceDiscovery.getService(serviceName, true);
 
     if (!service) {
@@ -162,11 +168,11 @@ const fieldQueries = {
   // }
 };
 
-requireLogin(fieldQueries, 'fieldsCombinedByContentType');
-requireLogin(fieldQueries, 'fieldsDefaultColumnsConfig');
-requireLogin(fieldQueries, 'fieldsItemTyped');
+requireLogin(fieldQueries, "fieldsCombinedByContentType");
+requireLogin(fieldQueries, "fieldsDefaultColumnsConfig");
+requireLogin(fieldQueries, "fieldsItemTyped");
 
-checkPermission(fieldQueries, 'fields', 'showForms', []);
+checkPermission(fieldQueries, "fields", "showForms", []);
 
 const fieldsGroupQueries = {
   /**
@@ -177,11 +183,11 @@ const fieldsGroupQueries = {
     {
       contentType,
       isDefinedByErxes,
-      config
+      config,
     }: {
       contentType: string;
       isDefinedByErxes: boolean;
-      config
+      config;
     },
     { commonQuerySelector, models }: IContext
   ) {
@@ -191,7 +197,12 @@ const fieldsGroupQueries = {
     query.contentType = contentType;
 
     if (config) {
-      query = await fetchService(contentType, 'groupsFilter', { config, contentType }, query)
+      query = await fetchService(
+        contentType,
+        "groupsFilter",
+        { config, contentType },
+        query
+      );
     }
 
     if (isDefinedByErxes !== undefined) {
@@ -201,7 +212,7 @@ const fieldsGroupQueries = {
     const groups = await models.FieldsGroups.find(query);
 
     return groups
-      .map(group => {
+      .map((group) => {
         if (group.isDefinedByErxes) {
           group.order = -1;
         }
@@ -215,7 +226,11 @@ const fieldsGroupQueries = {
       });
   },
 
-  getSystemFieldsGroup(_root, { contentType }: { contentType: string }, { models }: IContext) {
+  getSystemFieldsGroup(
+    _root,
+    { contentType }: { contentType: string },
+    { models }: IContext
+  ) {
     const query: any = {};
 
     // querying by content type
@@ -223,9 +238,9 @@ const fieldsGroupQueries = {
     query.isDefinedByErxes = true;
 
     return models.FieldsGroups.findOne(query);
-  }
+  },
 };
 
-checkPermission(fieldsGroupQueries, 'fieldsGroups', 'showForms', []);
+checkPermission(fieldsGroupQueries, "fieldsGroups", "showForms", []);
 
 export { fieldQueries, fieldsGroupQueries };

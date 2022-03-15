@@ -24,7 +24,6 @@ import { isBoardKind } from '../../utils';
 
 type Props = {
   contentType: string;
-  serviceType: string;
   history?: any;
   id?: string;
   closeModal: () => void;
