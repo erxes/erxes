@@ -1,32 +1,32 @@
-import WithPermission from "modules/common/components/WithPermission";
-import { __ } from "modules/common/utils";
-import Wrapper from "modules/layout/components/Wrapper";
-import { pluginsOfSettings, pluginsSettingsNavigations } from "pluginUtils";
-import React from "react";
-import { Link } from "react-router-dom";
+import WithPermission from 'modules/common/components/WithPermission';
+import { __ } from 'modules/common/utils';
+import Wrapper from 'modules/layout/components/Wrapper';
+import { pluginsOfSettings, pluginsSettingsNavigations } from 'pluginUtils';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import {
   Box,
   BoxName,
   MenusContainer,
   Row,
   RowTitle,
-  Divider,
-} from "@erxes/ui-settings/src/main/styles";
+  Divider
+} from '@erxes/ui-settings/src/main/styles';
 
-const breadcrumb = [{ title: __("Settings"), link: "/settings" }];
+const breadcrumb = [{ title: __('Settings'), link: '/settings' }];
 const permissionActions = [
-  "managePermissions",
-  "showPermissions",
-  "showPermissionModules",
-  "showPermissionActions",
-  "exportPermissions",
+  'managePermissions',
+  'showPermissions',
+  'showPermissionModules',
+  'showPermissionActions',
+  'exportPermissions'
 ];
 const teamPermissions = [
-  "showUsers",
-  "usersEdit",
-  "usersInvite",
-  "usersSetActiveStatus",
-  "exportUsers",
+  'showUsers',
+  'usersEdit',
+  'usersInvite',
+  'usersSetActiveStatus',
+  'exportUsers'
 ];
 
 class Settings extends React.PureComponent {
@@ -41,7 +41,7 @@ class Settings extends React.PureComponent {
   ) {
     const box = (
       <Box color={color}>
-        <Link to={to || "#"}>
+        <Link to={to || '#'}>
           {type && <em>{type}</em>}
           <img src={image} alt={name} />
           <BoxName>{__(name)}</BoxName>
@@ -77,10 +77,10 @@ class Settings extends React.PureComponent {
         <Divider />
         <Row>
           <RowTitle>
-            {__("Plugin Settings")}
-            <span>{__("Set up your additional plugin settings")}</span>
+            {__('Plugin Settings')}
+            <span>{__('Set up your additional plugin settings')}</span>
           </RowTitle>
-          <div id={"PluginSettings"}>
+          <div id={'PluginSettings'}>
             {plugins}
             {pluginsOfSettings(this.renderBox)}
           </div>
@@ -91,46 +91,46 @@ class Settings extends React.PureComponent {
 
   render() {
     const content = (
-      <MenusContainer id={"SettingsMain"}>
+      <MenusContainer id={'SettingsMain'}>
         <Row>
           <RowTitle>
-            {__("General Settings")}
-            <span>{__("Set up your basic settings")}</span>
+            {__('General Settings')}
+            <span>{__('Set up your basic settings')}</span>
           </RowTitle>
-          <div id={"SettingsGeneralSettings"}>
+          <div id={'SettingsGeneralSettings'}>
             {this.renderBox(
-              "System Configuration",
-              "/images/icons/erxes-16.svg",
-              "/settings/general",
-              "generalSettingsAll",
-              ["manageGeneralSettings", "showGeneralSettings"]
+              'System Configuration',
+              '/images/icons/erxes-16.svg',
+              '/settings/general',
+              'generalSettingsAll',
+              ['manageGeneralSettings', 'showGeneralSettings']
             )}
             {this.renderBox(
-              "Permissions",
-              "/images/icons/erxes-02.svg",
-              "/settings/permissions",
-              "permissionsAll",
+              'Permissions',
+              '/images/icons/erxes-02.svg',
+              '/settings/permissions',
+              'permissionsAll',
               permissionActions
             )}
             {this.renderBox(
-              "Status",
-              "/images/icons/erxes-06.svg",
-              "/settings/status",
-              ""
+              'Status',
+              '/images/icons/erxes-06.svg',
+              '/settings/status',
+              ''
             )}
             {this.renderBox(
-              "Team Members",
-              "/images/icons/erxes-23.svg",
-              "/settings/team",
-              "usersAll",
+              'Team Members',
+              '/images/icons/erxes-23.svg',
+              '/settings/team',
+              'usersAll',
               teamPermissions
             )}
             {this.renderBox(
-              "Brands",
-              "/images/icons/erxes-03.svg",
-              "/settings/brands",
-              "brandsAll",
-              ["showBrands", "manageBrands"]
+              'Brands',
+              '/images/icons/erxes-03.svg',
+              '/settings/brands',
+              'brandsAll',
+              ['showBrands', 'manageBrands']
             )}
             {/* {this.renderBox(
               "Properties",
@@ -139,11 +139,11 @@ class Settings extends React.PureComponent {
               ""
             )} */}
             {this.renderBox(
-              "Import & Export",
-              "/images/icons/erxes-22.svg",
-              "/settings/importHistories",
-              "importHistoriesAll",
-              ["importHistories", "removeImportHistories", "importXlsFile"]
+              'Import & Export',
+              '/images/icons/erxes-22.svg',
+              '/settings/importHistories',
+              'importHistoriesAll',
+              ['importHistories', 'removeImportHistories', 'importXlsFile']
             )}
           </div>
         </Row>
@@ -154,7 +154,7 @@ class Settings extends React.PureComponent {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__("Settings")} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__('Settings')} breadcrumb={breadcrumb} />
         }
         content={content}
         transparent={true}

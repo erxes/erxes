@@ -9,6 +9,7 @@ import {
 
 import QueryBuilder, { IListArgs } from "../../conversationQueryBuilder";
 import { IContext, IModels } from "../../connectionResolver";
+import { sendFormsMessage } from "../../messageBroker";
 
 interface ICountBy {
   [index: string]: number;
@@ -236,6 +237,94 @@ const conversationQueries = {
       $and: [{ $or: qb.userRelevanceQuery() }],
     }).countDocuments();
   },
+   async inboxFields(_root, _args, { subdomain }: IContext) {
+    const response: {
+      customer?: any;
+      conversation?: any;
+      device?: any;
+    } = {};
+
+    const customerGroup = await sendFormsMessage({
+      subdomain,
+      action: 'fieldsGroups.findOne',
+      data: {
+        query: {
+          contentType: 'customer',
+          isDefinedByErxes: true
+        }
+      },
+      isRPC: true
+    });
+
+    if (customerGroup) {
+       response.customer = await sendFormsMessage({
+         subdomain,
+         action: 'fields.find',
+         data: {
+           query: {
+             groupId: customerGroup._id
+           }
+         },
+         isRPC: true
+       });
+    }
+
+    const conversationGroup = await sendFormsMessage({
+      subdomain,
+      action: 'fieldsGroups.findOne',
+      data: {
+        query: {
+          contentType: 'conversation',
+          isDefinedByErxes: true
+        }
+      },
+      isRPC: true
+    });
+
+    if (conversationGroup) {
+
+       response.conversation = await sendFormsMessage({
+         subdomain,
+         action: 'fields.find',
+         data: {
+           query: {
+             groupId: conversationGroup._id
+           }
+         },
+         isRPC: true
+       });
+    }
+    
+    const deviceGroup = await sendFormsMessage({
+      subdomain,
+      action: 'fieldsGroups.findOne',
+      data: {
+        query: {
+          contentType: 'device',
+          isDefinedByErxes: true
+        }
+      },
+      isRPC: true
+    });
+
+    if (deviceGroup) {
+       response.device = await sendFormsMessage({
+         subdomain,
+         action: 'fields.find',
+         data: {
+           query: {
+             groupId: deviceGroup._id
+           }
+         },
+         isRPC: true
+       });
+      
+    }
+
+    return response;
+
+  },
+
 };
 
 moduleRequireLogin(conversationQueries);

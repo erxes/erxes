@@ -37,7 +37,7 @@ function CustomerDetailsContainer(props: FinalProps) {
     return <Spinner />;
   }
 
-  const fields = fieldsInboxQuery.fieldsInbox || ({} as any);
+  const fields = fieldsInboxQuery.inboxFields || ({} as any);
 
   const taggerRefetchQueries = [
     {

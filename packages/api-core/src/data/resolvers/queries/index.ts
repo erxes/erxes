@@ -1,6 +1,5 @@
 import brands from './brands';
 import configs from './configs';
-import importHistory from './importHistory';
 import {
   permissionQueries as permissions,
   usersGroupQueries as usersGroups
@@ -14,7 +13,6 @@ export default {
   ...users,
   ...brands,
   ...configs,
-  ...importHistory,
   ...permissions,
   ...usersGroups,
   ...robot,

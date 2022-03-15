@@ -95,82 +95,10 @@ const fieldQueries = {
 
     return [];
   },
-
-  // ? async fieldsInbox(_root) {
-  //   const response: {
-  //     customer?: IFieldDocument[];
-  //     conversation?: IFieldDocument[];
-  //     device?: IFieldDocument[];
-  //   } = {};
-
-  //   const customerGroup = await FieldsGroups.findOne({
-  //     contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
-  //     isDefinedByErxes: true
-  //   });
-
-  //   if (customerGroup) {
-  //     response.customer = await Fields.find({ groupId: customerGroup._id });
-  //   }
-
-  //   const converstionGroup = await FieldsGroups.findOne({
-  //     contentType: FIELDS_GROUPS_CONTENT_TYPES.CONVERSATION,
-  //     isDefinedByErxes: true
-  //   });
-
-  //   if (converstionGroup) {
-  //     response.conversation = await Fields.find({
-  //       groupId: converstionGroup._id
-  //     });
-  //   }
-
-  //   const deviceGroup = await FieldsGroups.findOne({
-  //     contentType: FIELDS_GROUPS_CONTENT_TYPES.DEVICE,
-  //     isDefinedByErxes: true
-  //   });
-
-  //   if (deviceGroup) {
-  //     response.device = await Fields.find({ groupId: deviceGroup._id });
-  //   }
-
-  //   return response;
-  // },
-
-  // async fieldsItemTyped(_root) {
-  //   const result = {};
-
-  //   for (const ct of ['deal', 'ticket', 'task']) {
-  //     result[ct] = [];
-
-  //     const groups = await FieldsGroups.find({ contentType: ct });
-
-  //     for (const group of groups) {
-  //       const fields = await Fields.find({ groupId: group._id });
-  //       const pipelines = await Pipelines.find({
-  //         _id: { $in: group.pipelineIds || [] }
-  //       });
-
-  //       for (const pipeline of pipelines) {
-  //         const board = await Boards.getBoard(pipeline.boardId);
-
-  //         for (const field of fields) {
-  //           result[ct].push({
-  //             boardName: board.name,
-  //             pipelineName: pipeline.name,
-  //             fieldId: field._id,
-  //             fieldName: field.text
-  //           });
-  //         }
-  //       }
-  //     }
-  //   }
-
-  //   return result;
-  // }
 };
 
 requireLogin(fieldQueries, "fieldsCombinedByContentType");
 requireLogin(fieldQueries, "fieldsDefaultColumnsConfig");
-requireLogin(fieldQueries, "fieldsItemTyped");
 
 checkPermission(fieldQueries, "fields", "showForms", []);
 

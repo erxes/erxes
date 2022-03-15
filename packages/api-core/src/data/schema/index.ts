@@ -14,11 +14,6 @@ import {
   types as ConformityTypes
 } from './conformity';
 import {
-  mutations as ImportHistoryMutations,
-  queries as ImportHistoryQueries,
-  types as ImportHistoryTypes
-} from './importHistory';
-import {
   mutations as PermissionMutations,
   queries as PermissionQueries,
   types as PermissionTypes
@@ -39,7 +34,10 @@ import {
   types as StructureTypes
 } from './structure';
 
-import { types as EmailDeliveryTypes, queries as EmailDeliveryQueries } from './emailDelivery';
+import {
+  types as EmailDeliveryTypes,
+  queries as EmailDeliveryQueries
+} from './emailDelivery';
 
 export let types = `
   scalar JSON
@@ -61,7 +59,6 @@ export let types = `
   ${BrandTypes}
   ${ConformityTypes}
   ${ConfigTypes}
-  ${ImportHistoryTypes}
   ${PermissionTypes}
   ${RobotTypes}
   ${StructureTypes}
@@ -73,7 +70,6 @@ export let queries = `
   ${BrandQueries}
   
   ${ConfigQueries}
-  ${ImportHistoryQueries}
   ${PermissionQueries}
   ${RobotQueries}
   ${StructureQueries}
@@ -84,7 +80,6 @@ export let mutations = `
   ${UserMutations}
   ${BrandMutations}
   ${ConfigMutations}
-  ${ImportHistoryMutations}
   ${PermissionMutations}
   ${ConformityMutations}
   ${RobotMutations}
@@ -92,7 +87,6 @@ export let mutations = `
 `;
 
 export let subscriptions = `
-  importHistoryChanged(_id: String!): ImportHistory
   onboardingChanged(userId: String!): OnboardingNotification
 
   userChanged(userId: String): JSON

@@ -1,9 +1,7 @@
-import importHistory from './importHistory';
 import robot from './robot';
 import users from './users';
 
 let subscriptions: any = {
-  ...importHistory,
   ...robot,
   ...users
 };

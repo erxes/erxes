@@ -109,10 +109,11 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
   return company;
 };
 
-export const generateFields = async args => {
-  const { type } = args;
+export const generateFields = async ({ subdomain, data }) => {
+  console.log(data);
+  const { type } = data;
 
-  const models = await generateModels('os');
+  const models = await generateModels(subdomain);
 
   const { Customers, Companies } = models;
 

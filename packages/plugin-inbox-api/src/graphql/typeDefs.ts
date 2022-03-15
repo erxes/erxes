@@ -57,7 +57,7 @@ const typeDefs = async (serviceDiscovery) => {
     scalar JSON
     scalar Date
 
-    ${ConversationTypes(isTagsEnabled)}
+    ${ConversationTypes(isEnabled)}
     ${MessengerAppTypes}
     ${ChannelTypes}
     ${integrationTypes(isEnabled)}
