@@ -10,7 +10,7 @@ export const types = `
   type Attachment @key(fields: "url") @cacheControl(maxAge: 3) {
     url: String!
     name: String
-    type: String!
+    type: String
     size: Float
     duration: Float
   }
