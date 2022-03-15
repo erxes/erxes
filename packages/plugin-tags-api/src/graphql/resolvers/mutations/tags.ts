@@ -75,7 +75,7 @@ const tagMutations = {
     }: { type: string; targetIds: string[]; tagIds: string[] },
     { models, subdomain, user }: IContext
   ) {
-    // if (type === 'conversation') {
+    // ? if (type === 'conversation') {
     //   publishConversationsChanged(targetIds, MODULE_NAMES.TAG);
     // }
 

@@ -1,5 +1,5 @@
 module.exports = {
-  name: "properties",
+  name: "forms",
   port: 3005,
   exposes: {
     "./routes": "./src/routes.tsx",
