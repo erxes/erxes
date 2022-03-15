@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils';
 import { GENDER_TYPES } from '@erxes/ui/src/customers/constants';
-import { ICustomer } from '../../types';
+import { ICustomer } from '@erxes/ui/src/customers/types';
 import {
   FieldStyle,
   SidebarCounter,

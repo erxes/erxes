@@ -13,5 +13,5 @@ module.exports = {
   products: false,
   segments: false,
   tags: false,
-  forms: false,
+  forms: false
 };

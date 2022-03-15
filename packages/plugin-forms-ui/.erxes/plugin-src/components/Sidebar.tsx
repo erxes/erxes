@@ -3,44 +3,35 @@ import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList as List } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { getPropertiesGroups } from '../constants';
-import { SidebarList } from '@erxes/ui-settings/src/styles';
 import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 
 type Props = {
   currentType: string;
+  services: string[];
 };
 
 class Sidebar extends React.Component<Props> {
-  renderListItem(group: string, type: string, text: string) {
-    const className = this.props.currentType === type ? 'active' : '';
+  renderListItem(service) {
+    const className =
+      this.props.currentType && this.props.currentType === service.contentType
+        ? 'active'
+        : '';
 
     return (
-      <li key={`${group}_${type}`}>
-        <Link to={`?type=${type}`} className={className}>
-          {__(text)}
+      <li>
+        <Link to={`?type=${service.contentType}`} className={className}>
+          {__(service.description)}
         </Link>
       </li>
     );
   }
 
-  renderSideBar() {
-    return getPropertiesGroups().map(group => (
-      <SidebarList key={group.value}>
-        <LeftSidebar.Header uppercase={true}>{group.value}</LeftSidebar.Header>
-        <List key={`list_${group.value}`}>
-          {group.types.map(type => {
-            return this.renderListItem(group.value, type.value, type.label);
-          })}
-        </List>
-      </SidebarList>
-    ));
-  }
-
   render() {
     return (
       <LeftSidebar header={<SidebarHeader />} full={true}>
-        {this.renderSideBar()}
+        <List>
+          {this.props.services.map(service => this.renderListItem(service))}
+        </List>
       </LeftSidebar>
     );
   }

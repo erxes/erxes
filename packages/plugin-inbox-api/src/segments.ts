@@ -1,10 +1,9 @@
 export default {
   indexesTypeContentType: {
-    'contacts:customer': 'customers',
-    'contacts:company': 'companies'
+    'inbox:conversation': 'conversations'
   },
 
-  contentTypes: ['customer', 'company'],
+  contentTypes: ['conversation'],
 
   descriptionMap: {
     deal: 'Deal',
@@ -12,17 +11,17 @@ export default {
     task: 'Task',
     customer: 'Customer',
     company: 'Company',
-    converstaion: 'Conversation'
+    conversation: 'Conversation'
   },
 
-  associationTypes: async () => {
+  associationTypes: async ({}) => {
     const types: string[] = [
+      'inbox:conversation',
+      'cards:deal',
       'contacts:customer',
       'contacts:company',
-      'cards:deal',
       'cards:ticket',
-      'cards:task',
-      'inbox:conversation'
+      'cards:task'
     ];
 
     return { data: types, status: 'success' };
@@ -30,15 +29,5 @@ export default {
 
   esTypesMap: async () => {
     return { data: { typesMap: {} }, status: 'success' };
-  },
-
-  initialSelector: async ({ segment, options }) => {
-    const negative = {
-      term: {
-        status: 'deleted'
-      }
-    };
-
-    return { data: { negative }, status: 'success' };
   }
 };
