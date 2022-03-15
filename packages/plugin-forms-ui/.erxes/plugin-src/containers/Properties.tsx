@@ -28,7 +28,6 @@ type Props = {
 
 type FinalProps = {
   fieldsGroupsQuery: FieldsGroupsQueryResponse;
-  fieldsGetTypes: any;
 } & Props &
   FieldsGroupsRemoveMutationResponse &
   FieldsRemoveMutationResponse &
@@ -40,7 +39,6 @@ type FinalProps = {
 
 const PropertiesContainer = (props: FinalProps) => {
   const {
-    fieldsGetTypes,
     fieldsGroupsQuery,
     history,
     fieldsGroupsRemove,
@@ -154,11 +152,9 @@ const PropertiesContainer = (props: FinalProps) => {
 
   const currentType = router.getParam(history, 'type');
   const fieldsGroups = [...(fieldsGroupsQuery.fieldsGroups || [])];
-  const fieldTypes = fieldsGetTypes.fieldsGetTypes || [];
 
   const updatedProps = {
     ...props,
-    fieldTypes,
     fieldsGroups,
     currentType,
     removePropertyGroup,
@@ -188,9 +184,6 @@ const options = ({ queryParams }) => ({
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.fieldsGetTypes), {
-      name: 'fieldsGetTypes',
-    }),
     graphql<Props, FieldsGroupsQueryResponse>(gql(queries.fieldsGroups), {
       name: 'fieldsGroupsQuery',
       options: ({ queryParams }) => ({

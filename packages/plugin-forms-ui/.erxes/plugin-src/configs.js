@@ -1,12 +1,12 @@
 module.exports = {
-  name: "properties",
+  name: "forms",
   port: 3005,
   exposes: {
     "./routes": "./src/routes.tsx",
   },
   routes: {
     url: "http://localhost:3005/remoteEntry.js",
-    scope: "properties",
+    scope: "forms",
     module: "./routes",
   },
   menus: [
@@ -15,7 +15,9 @@ module.exports = {
       to: "/settings/properties",
       image: "/images/icons/erxes-01.svg",
       location: "settings",
-      scope: "properties",
+      scope: "forms",
+      action: "",
+      permissions: [],
     },
   ],
 };
