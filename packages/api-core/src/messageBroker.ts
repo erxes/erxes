@@ -1,5 +1,6 @@
 import { init as initBrokerCore } from '@erxes/api-utils/src/messageBroker';
 
+import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
 import { Conformities, Configs, Users, Brands } from './db/models';
@@ -9,6 +10,8 @@ import {
   sendEmail,
   sendMobileNotification
 } from './data/utils';
+
+import logsUtils from './logUtils';
 
 let client;
 
@@ -142,6 +145,13 @@ export const initBroker = async options => {
         status: 'success',
         data: await getFileUploadConfigs()
       };
+    });
+
+    logConsumers({
+      name: 'core',
+      consumeRPCQueue,
+      getActivityContent: logsUtils.getActivityContent,
+      collectItems: logsUtils.collectItems,
     });
   }
 

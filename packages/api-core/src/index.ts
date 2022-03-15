@@ -252,7 +252,7 @@ async function closeMongooose() {
 
 async function leaveServiceDiscovery() {
   try {
-    await leave('api', PORT);
+    await leave('core', PORT);
     console.log('Left from service discovery');
   } catch (e) {
     console.error(e);
