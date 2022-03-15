@@ -3,7 +3,7 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 
-import DetailInfo from './DetailInfo';
+import DetailInfo from '@erxes/ui-contacts/src/customers/components/common/DetailInfo';
 
 type Props = {
   customer: ICustomer;

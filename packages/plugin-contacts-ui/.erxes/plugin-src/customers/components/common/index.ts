@@ -1,7 +1,6 @@
 import ActionSection from '@erxes/ui-contacts/src/customers/components/common/ActionSection';
 import BasicInfoSection from './BasicInfoSection';
 import CustomerSection from './CustomerSection';
-import DetailInfo from './DetailInfo';
 import DevicePropertiesSection from '@erxes/ui-contacts/src/customers/components/common//DevicePropertiesSection';
 import InfoSection from '@erxes/ui-contacts/src/customers/components/common//InfoSection';
 import TaggerSection from '@erxes/ui-contacts/src/customers/components/common//TaggerSection';
@@ -14,6 +13,5 @@ export {
   TrackedDataSection,
   TaggerSection,
   InfoSection,
-  DetailInfo,
   ActionSection
 };
