@@ -31,7 +31,6 @@ export default {
   },
 
   prepareImportDocs: async ({ subdomain, data }) => {
-    console.log(subdomain, data);
     const models = await generateModels(subdomain);
     const { result, properties, contentType, user } = data;
 
