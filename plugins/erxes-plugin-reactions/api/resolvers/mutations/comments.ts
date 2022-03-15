@@ -8,7 +8,9 @@ const commentMutations = [
         user
       );
 
-      await models.Exms.useScoringConfig(models, user, 'commentAdd');
+      if (models.Exms) {
+        await models.Exms.useScoring(models, user, 'commentAdd');
+      }
 
       return comment;
     }
@@ -43,7 +45,9 @@ const commentMutations = [
         throw new Error('You can only delete your comment');
       }
 
-      await models.Exms.useScoringConfig(models, user, 'commentRemove');
+      if (models.Exms) {
+        await models.Exms.useScoring(models, user, 'commentRemove');
+      }
 
       return models.Comments.removeComment(models, _id);
     }

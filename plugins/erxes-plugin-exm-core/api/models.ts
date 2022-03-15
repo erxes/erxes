@@ -42,7 +42,7 @@ class Exm {
     return exmObj.remove();
   }
 
-  public static async useScoringConfig(models, user, action, earnOrSpend) {
+  public static async useScoring(models, user, action) {
     const exmObj = await models.Exms.findOne().lean();
 
     const scoringConfig = (exmObj.scoringConfig || []).find(
