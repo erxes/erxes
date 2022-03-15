@@ -15,7 +15,7 @@ import { PropertyList } from '@erxes/ui-settings/src/properties/styles';
 import { IFieldGroup } from '@erxes/ui-settings/src/properties/types';
 import { IField } from '@erxes/ui/src/types';
 import PropertyRow from './PropertyRow';
-import Sidebar from './Sidebar';
+import Sidebar from '../containers/SideBar';
 import SortableList from '@erxes/ui/src/components/SortableList';
 
 type Props = {
