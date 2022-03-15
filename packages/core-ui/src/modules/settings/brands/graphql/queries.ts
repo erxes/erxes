@@ -49,5 +49,5 @@ export default {
   brands,
   brandDetail,
   brandsCount,
-  integrationsCount
+  integrationsCount,
 };
