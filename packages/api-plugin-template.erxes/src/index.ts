@@ -16,6 +16,7 @@ import * as http from 'http';
 import { connect } from './connection';
 import { debugInfo, debugError } from './debuggers';
 import { init as initBroker } from '@erxes/api-utils/src/messageBroker';
+import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import * as elasticsearch from './elasticsearch';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
@@ -263,52 +264,17 @@ async function startServer() {
         }
       }
 
-      // logs message consumers
       if (logs) {
-        if (logs.getActivityContent) {
-          consumeRPCQueue(
-            `${configs.name}:logs:getActivityContent`,
-            async args => ({
-              status: 'success',
-              data: await logs.getActivityContent(args)
-            })
-          );
-        }
-
-        if (logs.getContentTypeDetail) {
-          consumeRPCQueue(
-            `${configs.name}:logs:getContentTypeDetail`,
-            async args => ({
-              status: 'success',
-              data: await logs.getContentTypeDetail(args)
-            })
-          );
-        }
-
-        if (logs.collectItems) {
-          consumeRPCQueue(`${configs.name}:logs:collectItems`, async args => ({
-            status: 'success',
-            data: await logs.collectItems(args)
-          }));
-        }
-
-        if (logs.getContentIds) {
-          consumeRPCQueue(`${configs.name}:logs:getContentIds`, async args => ({
-            status: 'success',
-            data: await logs.getContentIds(args)
-          }));
-        }
-
-        if (logs.getSchemaLabels) {
-          consumeRPCQueue(
-            `${configs.name}:logs:getSchemaLabels`,
-            args => ({
-              status: 'success',
-              data: logs.getSchemaLabels(args)
-            })
-          );
-        }
-      } // end logs if()
+        logConsumers({
+          name: configs.name,
+          consumeRPCQueue,
+          getActivityContent: logs.getActivityContent,
+          getContentTypeDetail: logs.getContentTypeDetail,
+          collectItems: logs.collectItems,
+          getContentIds: logs.getContentIds,
+          getSchemalabels: logs.getSchemaLabels,
+        });
+      }
 
       if (forms) {
         if (forms.fields) {
