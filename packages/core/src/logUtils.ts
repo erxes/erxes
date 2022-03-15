@@ -1,6 +1,30 @@
-import { IUserDocument } from './db/models/definitions/users';
+import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
+
+import { MODULE_NAMES } from './data/constants';
+import { brandEmailConfigSchema, brandSchema } from './db/models/definitions/brands';
+import { permissionSchema, userGroupSchema } from './db/models/definitions/permissions';
+import { IUserDocument, userSchema } from './db/models/definitions/users';
 import EmailDeliveries from './db/models/EmailDeliveries';
 import Users from './db/models/Users';
+
+const LOG_MAPPINGS = [
+  {
+    name: MODULE_NAMES.BRAND,
+    schemas: [brandEmailConfigSchema, brandSchema]
+  },
+  {
+    name: MODULE_NAMES.PERMISSION,
+    schemas: [permissionSchema]
+  },
+  {
+    name: MODULE_NAMES.USER_GROUP,
+    schemas: [userGroupSchema]
+  },
+  {
+    name: MODULE_NAMES.USER,
+    schemas: [userSchema]
+  }
+];
 
 export default {
   getActivityContent: async ({ data }) => {
@@ -49,5 +73,9 @@ export default {
       status: 'success',
       data: results
     };
-  }
+  },
+  getSchemaLabels: ({ data: { type } }) => ({
+    status: 'success',
+    data: getSchemaLabels(type, LOG_MAPPINGS)
+  })
 };

@@ -19,4 +19,5 @@ export interface IContext {
     HelpersApi: any;
   };
   dataLoaders: IDataLoaders;
+  subdomain: string
 }

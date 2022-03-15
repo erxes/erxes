@@ -16,6 +16,8 @@ module.exports = {
       image: "/images/icons/erxes-01.svg",
       location: "settings",
       scope: "forms",
+      action: "",
+      permissions: [],
     },
   ],
 };
