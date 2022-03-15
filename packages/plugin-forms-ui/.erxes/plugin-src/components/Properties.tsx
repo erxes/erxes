@@ -21,7 +21,6 @@ import SortableList from '@erxes/ui/src/components/SortableList';
 type Props = {
   queryParams: any;
   refetch?: () => void;
-  fieldTypes: Array<{ description: string, contentType: string }>;
   fieldsGroups: IFieldGroup[];
   currentType: string;
   removePropertyGroup: (data: { _id: string }) => any;
@@ -195,7 +194,7 @@ class Properties extends React.Component<
   };
 
   render() {
-    const { currentType, fieldTypes } = this.props;
+    const { currentType } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -234,7 +233,7 @@ class Properties extends React.Component<
           <Wrapper.Header title={__(currentType)} breadcrumb={breadcrumb} />
         }
         mainHead={headerDescription}
-        leftSidebar={<Sidebar fieldTypes={fieldTypes} currentType={__(currentType)} />}
+        leftSidebar={<Sidebar currentType={__(currentType)} />}
         content={this.renderProperties()}
       />
     );
