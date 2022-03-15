@@ -20,7 +20,8 @@ export default {
       'contacts:company',
       'cards:deal',
       'cards:ticket',
-      'cards:task'
+      'cards:task',
+      'inbox:conversation'
     ];
 
     return { data: types, status: 'success' };

@@ -15,7 +15,8 @@ export default {
     ticket: 'Ticket',
     task: 'Task',
     customer: 'Customer',
-    company: 'Company'
+    company: 'Company',
+    conversation: 'Conversation'
   },
 
   propertyConditionExtender: async ({ subdomain, data: { condition } }) => {
@@ -45,7 +46,8 @@ export default {
       'contacts:customer',
       'contacts:company',
       'cards:ticket',
-      'cards:task'
+      'cards:task',
+      'inbox:conversation'
     ];
 
     return { data: types, status: 'success' };

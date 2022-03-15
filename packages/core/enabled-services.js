@@ -4,7 +4,7 @@ module.exports = {
 
   internalnotes: false,
   notifications: false,
-  inbox: false,
+  inbox: true,
   products: false,
   contacts: true,
 
