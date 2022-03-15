@@ -7,12 +7,12 @@ import { clearEmptyValues, generatePronoun } from './importUtils';
 export default {
   importTypes: IMPORT_TYPES,
   exportTypes: EXPORT_TYPES,
-  insertImportItems: async (subdomain, args) => {
+  insertImportItems: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { Customers, Companies } = models;
 
-    const { docs, user, contentType, useElkSyncer } = args;
+    const { docs, user, contentType, useElkSyncer } = data;
 
     try {
       let objects;
@@ -325,11 +325,11 @@ export default {
     }
   },
 
-  prepareImportDocs: async args => {
+  prepareImportDocs: async ({ subdomain, data }) => {
     const models = await connectCore();
     const { Users } = models;
 
-    const { scopeBrandIds, result, contentType, properties } = args;
+    const { scopeBrandIds, result, contentType, properties } = data;
 
     const bulkDoc: any = [];
 
