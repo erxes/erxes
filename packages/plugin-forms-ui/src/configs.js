@@ -15,7 +15,7 @@ module.exports = {
       to: "/settings/properties",
       image: "/images/icons/erxes-01.svg",
       location: "settings",
-      scope: "properties",
+      scope: "forms",
     },
   ],
 };
