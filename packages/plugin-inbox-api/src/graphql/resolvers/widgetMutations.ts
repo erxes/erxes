@@ -89,7 +89,7 @@ const pConversationClientMessageInserted = async (models, message) => {
       {
         integrationIds: { $in: [integration._id] }
       },
-      { _id: 1 }
+      { _id: 1, memberIds: 1 }
     );
 
     for (const channel of channels) {
