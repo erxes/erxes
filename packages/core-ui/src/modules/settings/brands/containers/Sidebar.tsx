@@ -1,6 +1,5 @@
 import gql from "graphql-tag";
 import * as compose from "lodash.flowright";
-import ButtonMutate from "modules/common/components/ButtonMutate";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { IRouterProps } from "@erxes/ui/src/types";
 import { Alert, confirm, withProps } from "modules/common/utils";
