@@ -1,7 +1,7 @@
-import { queries as customerQueries } from "@erxes/ui/src/customers/graphql";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-import conversationFields from "./conversationFields";
-import messageFields from "./messageFields";
+import { queries as customerQueries } from '@erxes/ui/src/customers/graphql';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import conversationFields from './conversationFields';
+import messageFields from './messageFields';
 
 export const paramsDef = `
   $channelId: String
@@ -82,7 +82,7 @@ const sidebarConversations = `
         }
       }
       ${
-        isEnabled("contacts")
+        isEnabled('contacts')
           ? `
       customer {
         _id
@@ -100,7 +100,7 @@ const sidebarConversations = `
       }
       tagIds
       ${
-        isEnabled("tags")
+        isEnabled('tags')
           ? `
       tags {
         _id
@@ -209,7 +209,7 @@ const allBrands = `
 const tagList = `
   query tags($type: String) {
     ${
-      isEnabled("tags")
+      isEnabled('tags')
         ? `
     tags(type: $type) {
       _id
@@ -227,11 +227,11 @@ const tagList = `
 
 // subOf alais as parentId
 const segmentList = `
-  query segments($contentTypes: [String]!, $boardId: String, $pipelineId: String) {
+  query segments($contentTypes: [String]!) {
     ${
-      isEnabled("segments")
+      isEnabled('segments')
         ? `
-        segments(contentTypes: $contentTypes, boardId: $boardId, pipelineId: $pipelineId) {
+        segments(contentTypes: $contentTypes) {
           _id
           contentType
           name
@@ -290,14 +290,14 @@ const convertToInfo = `
   }
 `;
 
-const generateCustomerDetailQuery = (params) => {
+const generateCustomerDetailQuery = params => {
   const {
     showDeviceProperties = false,
     showTrackedData = false,
     showCustomFields = false,
     showCompanies = false,
     showTags = false,
-    showSegments = false,
+    showSegments = false
   } = params || {};
 
   let fields = `
@@ -334,7 +334,7 @@ const generateCustomerDetailQuery = (params) => {
     fields = `
       ${fields}
       ${
-        isEnabled("contacts")
+        isEnabled('contacts')
           ? `companies {
           _id
           primaryName
@@ -358,7 +358,7 @@ const generateCustomerDetailQuery = (params) => {
       ${fields}
       tagIds
       ${
-        isEnabled("tags")
+        isEnabled('tags')
           ? `
           getTags {
             _id
@@ -408,7 +408,7 @@ const integrationsConversationFbComments = `
       isResolved
       permalink_url
       ${
-        isEnabled("contacts")
+        isEnabled('contacts')
           ? `
       customer {
         _id
@@ -453,5 +453,5 @@ export default {
   generateCustomerDetailQuery,
   convertToInfo,
   integrationsConversationFbComments,
-  integrationsConversationFbCommentsCount,
+  integrationsConversationFbCommentsCount
 };

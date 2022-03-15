@@ -37,7 +37,7 @@ type State = {
 };
 
 class Navigation extends React.Component<{}, State> {
-  private node;
+  private wrapperRef;
 
   constructor(props) {
     super(props);
@@ -47,8 +47,18 @@ class Navigation extends React.Component<{}, State> {
       moreMenus: pluginNavigations().slice(4) || [],
       searchText: "",
     };
+  }
 
-    this.node = React.createRef();
+  setWrapperRef = (node) => {
+    this.wrapperRef = node;
+  };
+
+  componentDidMount() {
+    document.addEventListener("click", this.handleClickOutside, true);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("click", this.handleClickOutside, true);
   }
 
   getLink = (url) => {
@@ -88,18 +98,14 @@ class Navigation extends React.Component<{}, State> {
     });
   };
 
-  handleClick = () => {
-    if (!this.state.showMenu) {
-      document.addEventListener("click", this.handleOutsideClick, true);
-    } else {
-      document.removeEventListener("click", this.handleOutsideClick, true);
+  handleClickOutside = (event) => {
+    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+      this.setState({ showMenu: false });
     }
-
-    this.setState({ showMenu: !this.state.showMenu });
   };
 
-  handleOutsideClick = (e) => {
-    if (!this.node.contains(e.target)) this.handleClick();
+  onClickMore = () => {
+    this.setState({ showMenu: !this.state.showMenu });
   };
 
   renderSubNavItem = (child, index: number) => {
@@ -134,9 +140,7 @@ class Navigation extends React.Component<{}, State> {
       <NavMenuItem>
         <NavLink
           to={this.getLink(url)}
-          onClick={() => {
-            this.setState({ showMenu: false });
-          }}
+          onClick={() => this.setState({ showMenu: false })}
         >
           <NavIcon className={icon} />
           <label>{__(text)}</label>
@@ -211,14 +215,10 @@ class Navigation extends React.Component<{}, State> {
     }
 
     return (
-      <div
-        ref={(node) => {
-          this.node = node;
-        }}
-      >
+      <div ref={this.setWrapperRef}>
         <NavItem>
           <NavMenuItem>
-            <a onClick={() => this.handleClick()}>
+            <a onClick={() => this.onClickMore()}>
               <NavIcon className="icon-ellipsis-h" />
               <label>{__("More")}</label>
             </a>
