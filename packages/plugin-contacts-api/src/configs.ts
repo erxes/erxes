@@ -21,6 +21,7 @@ import {
 } from './connectionResolver';
 import logs from './logUtils';
 import imports from './imports';
+import tags from './tags'
 
 export let mainDb;
 export let graphqlPubsub;
@@ -147,7 +148,8 @@ export default {
     imports,
     segments,
     forms,
-    logs: { consumers: logs }
+    logs: { consumers: logs },
+    tags
   },
   apolloServerContext: async context => {
     const subdomain = 'os';
