@@ -12,7 +12,6 @@ export default function getTypeDefs(plugins: any[]): DocumentNode {
       ${pluginTypeDefs}
 
       activityLogsChanged: Boolean
-      importHistoryChanged(_id: String!): ImportHistory
 
       onboardingChanged(userId: String!): OnboardingNotification
 
