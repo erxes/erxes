@@ -1139,7 +1139,7 @@ export const sendMobileNotification = async ({
   }
 };
 
-export const getAwsConfigs = async () => {
+export const getFileUploadConfigs = async () => {
   const AWS_ACCESS_KEY_ID = await getConfig('AWS_ACCESS_KEY_ID');
   const AWS_SECRET_ACCESS_KEY = await getConfig('AWS_SECRET_ACCESS_KEY');
   const AWS_BUCKET = await getConfig('AWS_BUCKET');
@@ -1148,12 +1148,15 @@ export const getAwsConfigs = async () => {
   );
   const AWS_FORCE_PATH_STYLE = await getConfig('AWS_FORCE_PATH_STYLE');
 
+  const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
+
   return {
     AWS_FORCE_PATH_STYLE,
     AWS_COMPATIBLE_SERVICE_ENDPOINT,
     AWS_BUCKET,
     AWS_SECRET_ACCESS_KEY,
-    AWS_ACCESS_KEY_ID
+    AWS_ACCESS_KEY_ID,
+    UPLOAD_SERVICE_TYPE
   };
 };
 

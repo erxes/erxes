@@ -1,7 +1,6 @@
 import Brands from './Brands';
 import Configs from './Configs';
 import Conformities from './Conformities';
-import ImportHistory from './ImportHistory';
 import { Permissions, UsersGroups } from './Permissions';
 import { OnboardingHistories, RobotEntries } from './Robot';
 import Users from './Users';
@@ -13,7 +12,6 @@ export {
   Brands,
   Conformities,
   Configs,
-  ImportHistory,
   Permissions,
   UsersGroups,
   RobotEntries,

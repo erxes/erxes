@@ -4,7 +4,11 @@ import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
 import { Conformities, Configs, Users, Brands } from './db/models';
 import { registerModule } from './data/permissions/utils';
-import { sendEmail, sendMobileNotification } from './data/utils';
+import {
+  getFileUploadConfigs,
+  sendEmail,
+  sendMobileNotification
+} from './data/utils';
 
 let client;
 
@@ -130,6 +134,13 @@ export const initBroker = async options => {
       return {
         status: 'success',
         data: await Brands.find(query).lean()
+      };
+    });
+
+    consumeRPCQueue('core:getFileUploadConfigs', async () => {
+      return {
+        status: 'success',
+        data: await getFileUploadConfigs()
       };
     });
   }

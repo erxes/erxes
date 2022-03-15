@@ -1,7 +1,6 @@
 import * as permissionActions from '../permissions/actions';
 import Brand from './brand';
 import customScalars from './customScalars';
-import ImportHistory from './importHistory';
 import Mutation from './mutations';
 import Permission from './permission';
 import Query from './queries';
@@ -25,7 +24,6 @@ const resolvers: any = {
   Subscription,
 
   User,
-  ImportHistory,
   Permission,
   UsersGroup,
   Trigger,

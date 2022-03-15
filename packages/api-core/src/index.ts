@@ -10,7 +10,7 @@ import * as mongoose from 'mongoose';
 import * as path from 'path';
 import { initApolloServer } from './apolloClient';
 import { templateExport } from './data/modules/fileExporter/templateExport';
-import { generateErrors } from './data/modules/import/generateErrors';
+
 import {
   authCookieOptions,
   deleteFile,
@@ -26,7 +26,12 @@ import { debugBase, debugError, debugInit } from './debuggers';
 import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
 import { uploader } from './middlewares/fileMiddleware';
-import { join, leave, redis, refreshEnabledServicesCache } from './serviceDiscovery';
+import {
+  join,
+  leave,
+  redis,
+  refreshEnabledServicesCache
+} from './serviceDiscovery';
 import logs from './logUtils';
 
 import init from './startup';
@@ -127,18 +132,6 @@ app.get(
   })
 );
 
-app.get(
-  '/download-import-error',
-  routeErrorHandling(async (req: any, res) => {
-    const { query } = req;
-
-    const { name, response } = await generateErrors(query);
-
-    res.attachment(`${name}.csv`);
-    return res.send(response);
-  })
-);
-
 // read file
 app.get('/read-file', async (req: any, res, next) => {
   try {
@@ -216,10 +209,9 @@ httpServer.listen(PORT, () => {
 
   // connect to mongo database
   connect(mongoUrl).then(async () => {
-    initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis })
-      .catch(e => {
-        debugError(`Error ocurred during message broker init ${e.message}`);
-      })
+    initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }).catch(e => {
+      debugError(`Error ocurred during message broker init ${e.message}`);
+    });
 
     initMemoryStorage();
 
@@ -235,13 +227,13 @@ httpServer.listen(PORT, () => {
       });
   });
 
-  join({ 
-    name: "core",
+  join({
+    name: 'core',
     port: PORT,
     dbConnectionString: MONGO_URL,
     hasSubscriptions: false,
     meta: { logs: { providesActivityLog: true, consumers: logs } }
-  })
+  });
 
   debugInit(`GraphQL Server is now running on ${PORT}`);
 });
@@ -249,19 +241,18 @@ httpServer.listen(PORT, () => {
 // GRACEFULL SHUTDOWN
 process.stdin.resume(); // so the program will not close instantly
 
-
 async function closeMongooose() {
   try {
     await mongoose.connection.close();
     console.log('Mongoose connection disconnected');
-  } catch  (e) { 
-    console.error(e); 
+  } catch (e) {
+    console.error(e);
   }
 }
 
 async function leaveServiceDiscovery() {
   try {
-    await leave("api", PORT);
+    await leave('api', PORT);
     console.log('Left from service discovery');
   } catch (e) {
     console.error(e);
@@ -273,18 +264,16 @@ async function closeHttpServer() {
     await new Promise<void>((resolve, reject) => {
       // Stops the server from accepting new connections and finishes existing connections.
       httpServer.close((error: Error | undefined) => {
-        if(error) {
+        if (error) {
           return reject(error);
         }
         resolve();
-      })
+      });
     });
   } catch (e) {
     console.error(e);
   }
 }
-
-
 
 // If the Node process ends, close the http-server and mongoose.connection and leave service discovery.
 (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
