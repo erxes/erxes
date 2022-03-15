@@ -199,11 +199,13 @@ const integrationQueries = {
       data: {
         type: 'integration'
       },
-      isRPC: true
+      isRPC: true,
+      defaultValue: []
     });
 
     for (const tag of tags) {
       const countQueryResult = await count({ tagIds: tag._id, ...qry });
+
       counts.byTag[tag._id] = !args.tag
         ? countQueryResult
         : args.tag === tag._id

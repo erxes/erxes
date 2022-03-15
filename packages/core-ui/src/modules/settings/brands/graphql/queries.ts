@@ -5,12 +5,6 @@ const brandDetail = `
       name
       emailConfig
       code
-      integrations {
-        _id
-        name
-        kind
-        brandId
-      }
     }
   }
 `;
