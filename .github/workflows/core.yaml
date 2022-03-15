@@ -5,11 +5,11 @@ on:
     branches:
       - '**'
     paths:
-      - 'packages/api-core/**'
-      - '.github/workflows/api-core.yaml'
+      - 'packages/core/**'
+      - '.github/workflows/core.yaml'
 
 jobs:
-  api-core:
+  core:
     runs-on: ubuntu-18.04
 
     steps:
@@ -29,21 +29,21 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-api-core-${{ hashFiles('yarn.lock', 'api-core/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-core-${{ hashFiles('yarn.lock', 'core/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-api-core-
+            ${{ runner.os }}-yarn-core-
             ${{ runner.os }}-yarn-
 
       - name: Build
         run: |
           cd packages/gateway
           yarn install
-          yarn build api-core
+          yarn build core
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
         run: |
-          cd dist/api-core
+          cd dist/core
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/api-core:${GITHUB_REF#refs/heads/} -f Dockerfile .
-          docker push erxes/api-core:${GITHUB_REF#refs/heads/}
+          docker build -t erxes/core:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker push erxes/core:${GITHUB_REF#refs/heads/}
