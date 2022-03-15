@@ -23,6 +23,18 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
+    'forms:find',
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Forms.find(query)
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'forms:duplicate',
     async ({ subdomain, data: { formId } }) => {
       const models = await generateModels(subdomain);
