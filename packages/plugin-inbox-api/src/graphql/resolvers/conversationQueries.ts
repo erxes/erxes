@@ -239,10 +239,14 @@ const conversationQueries = {
   },
    async inboxFields(_root, _args, { subdomain }: IContext) {
     const response: {
-      customer?: any;
-      conversation?: any;
-      device?: any;
-    } = {};
+      customer?: any[];
+      conversation?: any[];
+      device?: any[];
+    } = {
+      customer: [],
+      conversation: [],
+      device: []
+    };
 
     const customerGroup = await sendFormsMessage({
       subdomain,
@@ -267,7 +271,7 @@ const conversationQueries = {
          },
          isRPC: true,
          defaultValue: []
-       })) || [];
+       }));
     }
 
     const conversationGroup = await sendFormsMessage({
