@@ -5,6 +5,7 @@ import {
   receiveImportCreate,
   receiveImportRemove
 } from '../src/worker/utils';
+// import { sendMessage } from '@erxes/api-utils/src/core';
 
 let client;
 
@@ -56,8 +57,31 @@ export const fetchSegment = (segmentId, options?) =>
     options
   });
 
-export const getFileUploadConfigs = () =>
-  sendRPCMessage('core:rpc_queue:getFileUploadConfigs', {});
+export const getFileUploadConfigs = async () =>
+  sendRPCMessage('core:getFileUploadConfigs', {});
+
+// export const fetchService = async (
+//   contentType: string,
+//   action: string,
+//   data,
+//   defaultValue?
+// ) => {
+//   const [serviceName, type] = contentType.split(':');
+
+//   return sendMessage({
+//     subdomain: 'os',
+//     serviceDiscovery,
+//     client,
+//     isRPC: true,
+//     serviceName,
+//     action: `fields.${action}`,
+//     data: {
+//       ...data,
+//       type
+//     },
+//     defaultValue
+//   });
+// };
 
 export default function() {
   return client;

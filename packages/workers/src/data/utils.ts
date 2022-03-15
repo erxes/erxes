@@ -123,7 +123,7 @@ export const getImportCsvInfo = async (fileName: string) => {
           reject();
         });
     } else {
-      const AWS_BUCKET = await getFileUploadConfigs();
+      const { AWS_BUCKET } = await getFileUploadConfigs();
       const s3 = await createAWS();
 
       const params = { Bucket: AWS_BUCKET, Key: fileName };
@@ -157,7 +157,7 @@ export const getImportCsvInfo = async (fileName: string) => {
 };
 
 export const getCsvHeadersInfo = async (fileName: string) => {
-  const UPLOAD_SERVICE_TYPE = await getFileUploadConfigs();
+  const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
 
   return new Promise(async resolve => {
     if (UPLOAD_SERVICE_TYPE === 'local') {

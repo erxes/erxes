@@ -3,7 +3,7 @@ import { ImportHistory } from '../db/models';
 
 import { connect } from './utils';
 import * as _ from 'underscore';
-import messageBroker from 'src/messageBroker';
+import messageBroker from '../messageBroker';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
@@ -21,28 +21,29 @@ const create = async ({
   docs,
   user,
   contentType,
-  useElkSyncer,
-  serviceType
+  useElkSyncer
 }: {
   docs: any;
   user: any;
   contentType: any;
   useElkSyncer: any;
-  serviceType: any;
 }) => {
   console.log('Importing  data');
 
+  const [serviceName, type] = contentType.split(':');
+
   const result = await await messageBroker().sendRPCMessage(
-    `${serviceType}:rpc_queue:insertImportItems`,
+    `${serviceName}:imports:insertImportItems`,
     {
-      docs,
-      user,
-      contentType,
-      useElkSyncer
+      subdomain: 'os',
+      data: {
+        docs,
+        user,
+        contentType: type,
+        useElkSyncer
+      }
     }
   );
-
-  console.log(result);
 
   const { objects, updated, error } = result;
 
@@ -65,7 +66,6 @@ connect().then(async () => {
     scopeBrandIds,
     result,
     contentType,
-    serviceType,
     properties,
     importHistoryId,
     percentage,
@@ -76,7 +76,6 @@ connect().then(async () => {
     scopeBrandIds: string[];
     result: any;
     contentType: string;
-    serviceType: string;
     properties: Array<{ [key: string]: string }>;
     importHistoryId: string;
     percentage: number;
@@ -84,17 +83,22 @@ connect().then(async () => {
     rowIndex?: number;
   } = workerData;
 
+  const [serviceName, type] = contentType.split(':');
+
   // tslint:disable-next-line:no-eval
 
   const bulkDoc = await messageBroker().sendRPCMessage(
-    `${serviceType}:rpc_queue:prepareImportDocs`,
+    `${serviceName}:imports:prepareImportDocs`,
     {
-      result,
-      properties,
-      contentType,
-      user,
-      scopeBrandIds,
-      useElkSyncer
+      subdomain: 'os',
+      data: {
+        result,
+        properties,
+        contentType: type,
+        user,
+        scopeBrandIds,
+        useElkSyncer
+      }
     }
   );
 
@@ -107,8 +111,7 @@ connect().then(async () => {
       docs: bulkDoc,
       user,
       contentType,
-      useElkSyncer,
-      serviceType
+      useElkSyncer
     });
 
     const cocIds = objects.map(obj => obj._id).filter(obj => obj);

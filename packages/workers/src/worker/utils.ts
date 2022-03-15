@@ -12,7 +12,8 @@ import CustomWorker from './workerUtil';
 import * as streamify from 'stream-array';
 import * as os from 'os';
 import { debugWorkers } from './debugger';
-import { getFileUploadConfigs } from '../messageBroker';
+import { getFileUploadConfigs, initBroker } from '../messageBroker';
+import { redis } from '../serviceDiscovery';
 
 const { MONGO_URL = '', ELK_SYNCER } = process.env;
 
@@ -96,7 +97,13 @@ const checkFieldNames = async (fields: string[], columnConfig?: object) => {
   return properties;
 };
 
-export const connect = () => {
+export const connect = async () => {
+  const { RABBITMQ_HOST, MESSAGE_BROKER_PREFIX } = process.env;
+
+  await initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }).catch(e => {
+    console.log(`Error ocurred during message broker init ${e.message}`);
+  });
+
   return mongoose.connect(MONGO_URL, {
     useNewUrlParser: true,
     useCreateIndex: true
@@ -199,7 +206,7 @@ const importBulkStream = ({
     let rowIndex = 0;
 
     if (uploadType === 'AWS') {
-      const AWS_BUCKET = 'aa';
+      const { AWS_BUCKET } = await getFileUploadConfigs();
 
       const s3 = await createAWS();
 
@@ -263,14 +270,14 @@ const importBulkStream = ({
 
 const getWorkerFile = fileName => {
   if (process.env.NODE_ENV !== 'production') {
-    return `./src/workers/${fileName}.worker.import.js`;
+    return `./src/worker/${fileName}.worker.import.js`;
   }
 
   if (fs.existsSync('./build/api')) {
-    return `./build/api/workers/${fileName}.worker.js`;
+    return `./build/api/worker/${fileName}.worker.js`;
   }
 
-  return `./dist/workers/${fileName}.worker.js`;
+  return `./dist/worker/${fileName}.worker.js`;
 };
 
 export const clearEmptyValues = (obj: any) => {

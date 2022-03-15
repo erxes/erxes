@@ -38,7 +38,6 @@ const importHistoryQueries = {
     { type, ...args }: { page: number; perPage: number; type: string }
   ) {
     const filter: { [key: string]: any } = {};
-    console.log('sdadjkslaj');
 
     if (type) {
       filter['contentTypes.contentType'] = type;
@@ -117,8 +116,6 @@ const importHistoryQueries = {
     for (const serviceName of services) {
       const service = await getService(serviceName, true);
       const meta = service.meta ? service.meta.meta : {};
-
-      console.log(JSON.stringify(meta));
 
       if (meta && meta.imports) {
         const types = meta.imports.exportTypes || [];

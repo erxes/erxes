@@ -1,17 +1,5 @@
-import * as _ from 'underscore';
-
-import { RABBITMQ_QUEUES } from '../data/constants';
-
-// import {
-//   checkFile,
-//   frontendEnv,
-//   getConfig,
-//   getSubServiceDomain,
-//   registerOnboardHistory,
-//   uploadFile
-// } from '../data/utils';
-
-import messageBroker, { getFileUploadConfigs } from '../messageBroker';
+import { receiveImportCreate } from '../worker/utils';
+import { getFileUploadConfigs } from '../messageBroker';
 
 export const importer = async (
   contentTypes,
@@ -25,7 +13,7 @@ export const importer = async (
   try {
     const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
 
-    await messageBroker().sendMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
+    await receiveImportCreate({
       action: 'createImport',
       contentTypes,
       files,
@@ -40,8 +28,4 @@ export const importer = async (
     console.log(e);
     // throw new Error();
   }
-};
-
-export const uploader = async (_req: any, _res, _next) => {
-  return 'aa';
 };
