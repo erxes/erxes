@@ -1,5 +1,4 @@
-
-import { generateModels } from "./connectionResolver";
+import { generateModels } from './connectionResolver';
 
 export default {
   tag: async ({ subdomain, data }) => {
@@ -21,7 +20,7 @@ export default {
     if (action === 'tagObject') {
       await model.updateMany(
         { _id: { $in: targetIds } },
-        { $set: { tagIds: tagIds } },
+        { $set: { tagIds } },
         { multi: true }
       );
 
