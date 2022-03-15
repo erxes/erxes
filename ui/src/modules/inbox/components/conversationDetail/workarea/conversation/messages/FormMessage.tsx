@@ -31,6 +31,10 @@ export default class FormMessage extends React.Component<Props, {}> {
   private componentRef;
 
   displayValue(data) {
+    if (typeof data.value === 'object' && data.value.value) {
+      return data.value.value || '-';
+    }
+
     if (data.validation === 'date') {
       return dayjs(data.value).format('YYYY/MM/DD');
     }
