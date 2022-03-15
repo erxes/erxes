@@ -67,7 +67,7 @@ const typeDefs = async (serviceDiscovery) => {
     
     
     extend type Query {
-      ${ConversationQueries}
+      ${ConversationQueries(isEnabled)}
       ${MessengerAppQueries}
       ${ChannelQueries}
       ${IntegrationQueries}
