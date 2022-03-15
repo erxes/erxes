@@ -11,7 +11,7 @@ import {
   sendMobileNotification
 } from './data/utils';
 
-import logsUtils from './logUtils';
+import logUtils from './logUtils';
 
 let client;
 
@@ -150,8 +150,9 @@ export const initBroker = async options => {
     logConsumers({
       name: 'core',
       consumeRPCQueue,
-      getActivityContent: logsUtils.getActivityContent,
-      collectItems: logsUtils.collectItems,
+      getActivityContent: logUtils.getActivityContent,
+      collectItems: logUtils.collectItems,
+      getSchemalabels: logUtils.getSchemaLabels
     });
   }
 
