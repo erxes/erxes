@@ -36,5 +36,11 @@ const generateFields = async ({ subdomain }) => {
 };
 
 export default {
+  types: [
+    {
+      description: 'Conversations',
+      type: 'conversation'
+    }
+  ],
   fields: generateFields
 };
