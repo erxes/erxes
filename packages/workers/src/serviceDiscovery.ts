@@ -65,7 +65,7 @@ export const join = ({
 };
 
 export const leave = async (name, port) => {
-  await registry.down(name, `http:/${isDev ? 'localhost' : name}:${port}`);
+  await registry.down(name, `http://${isDev ? 'localhost' : name}:${port}`);
 
   return redis.del(generateKey(name));
 };

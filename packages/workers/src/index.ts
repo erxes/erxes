@@ -8,7 +8,42 @@ import { connect } from './db/connection';
 import { initMemoryStorage } from './inmemoryStorage';
 import { initApolloServer } from './apolloClient';
 import { initBroker } from './messageBroker';
-import { join, redis } from './serviceDiscovery';
+import { join, leave, redis } from './serviceDiscovery';
+import * as mongoose from 'mongoose';
+
+async function closeMongooose() {
+  try {
+    await mongoose.connection.close();
+    console.log('Mongoose connection disconnected');
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function leaveServiceDiscovery() {
+  try {
+    await leave('worker', PORT);
+    console.log('Left from service discovery');
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function closeHttpServer() {
+  try {
+    await new Promise<void>((resolve, reject) => {
+      // Stops the server from accepting new connections and finishes existing connections.
+      httpServer.close((error: Error | undefined) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve();
+      });
+    });
+  } catch (e) {
+    console.error(e);
+  }
+}
 
 // load environment variables
 dotenv.config();
@@ -47,7 +82,7 @@ const {
   TEST_MONGO_URL = 'mongodb://localhost/erxes-test'
 } = process.env;
 
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, async () => {
   let mongoUrl = MONGO_URL;
 
   if (NODE_ENV === 'test') {
@@ -67,7 +102,7 @@ httpServer.listen(PORT, () => {
     initMemoryStorage();
   });
 
-  join({
+  await join({
     name: 'worker',
     port: PORT,
     dbConnectionString: MONGO_URL,
@@ -76,4 +111,14 @@ httpServer.listen(PORT, () => {
   });
 
   console.log(`GraphQL Server is now running on ${PORT}`);
+});
+
+// If the Node process ends, close the http-server and mongoose.connection and leave service discovery.
+(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
+  process.on(sig, async () => {
+    await closeHttpServer();
+    await closeMongooose();
+    await leaveServiceDiscovery();
+    process.exit(0);
+  });
 });

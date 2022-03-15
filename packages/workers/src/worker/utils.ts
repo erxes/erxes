@@ -273,10 +273,6 @@ const getWorkerFile = fileName => {
     return `./src/worker/${fileName}.worker.import.js`;
   }
 
-  if (fs.existsSync('./build/api')) {
-    return `./build/api/worker/${fileName}.worker.js`;
-  }
-
   return `./dist/worker/${fileName}.worker.js`;
 };
 
