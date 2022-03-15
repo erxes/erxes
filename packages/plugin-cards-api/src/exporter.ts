@@ -240,8 +240,10 @@ export const buildFile = async (
           (selector) =>
             sendFormsMessage({
               subdomain,
-              action: "fields:findOne",
-              data: selector,
+              action: "fields.findOne",
+              data: {
+                query: selector
+              },
               isRPC: true,
             }),
           item,

@@ -24,7 +24,7 @@ export default {
     const companies = await sendContactsMessage({
       subdomain,
       action: "companies.findActiveCompanies",
-      data: { _id: { $in: companyIds } },
+      data: { selector: { _id: { $in: companyIds } } },
       isRPC: true,
       defaultValue: [],
     });
@@ -47,12 +47,14 @@ export default {
 
     const customers = await sendContactsMessage({
       subdomain,
-      action: "customers.findActiveCustomers",
+      action: 'customers.findActiveCustomers',
       data: {
-        _id: { $in: customerIds },
+        selector: {
+          _id: { $in: customerIds }
+        }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     return (customers || []).map(({ _id }) => ({
@@ -78,7 +80,7 @@ export default {
     return Pipelines.findOne({ _id: stage.pipelineId });
   },
 
-  boardId(ticket: ITicketDocument, { models }: IContext) {
+  boardId(ticket: ITicketDocument, _args, { models }: IContext) {
     return boardId(models, ticket);
   },
 
