@@ -10,12 +10,14 @@ export const countDocuments = async (
 
   return sendCommonMessage({
     subdomain,
-    action: `${contentType}.tagCount`,
+    action: 'tag',
     serviceName,
     data: {
       type: contentType,
       _ids,
+      action: 'count'
     },
+    isRPC: true
   });
 };
 
@@ -30,10 +32,13 @@ export const tagObject = async (
   return sendCommonMessage({
     subdomain,
     serviceName,
-    action: `${contentType}.tagObject`,
+    action: 'tag',
     data: {
       tagIds,
       targetIds,
+      type: contentType,
+      action: "tagObject"
     },
+    isRPC: true
   });
 };
