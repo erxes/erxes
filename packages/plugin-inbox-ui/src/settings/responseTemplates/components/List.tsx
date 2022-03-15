@@ -20,6 +20,7 @@ import {
 } from '../constants';
 import Tip from '@erxes/ui/src/components/Tip';
 import Icon from '@erxes/ui/src/components/Icon';
+import Button from '@erxes/ui/src/components/Button';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -81,11 +82,11 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     const onClick = () => changeStatus(_id, status);
 
     return (
-      <Tip text={__(text)}>
-        <div onClick={onClick}>
+      <Button onClick={onClick} btnStyle="link">
+        <Tip text={__(text)} placement="top">
           <Icon icon={icon} />
-        </div>
-      </Tip>
+        </Tip>
+      </Button>
     );
   };
 
@@ -195,7 +196,6 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
         renderFilter={this.renderFilter}
         renderForm={this.renderForm}
         renderContent={this.renderContent}
-        center={true}
         rightActionBar={true}
         leftSidebar={<CategoryList queryParams={this.props.queryParams} />}
         size="lg"

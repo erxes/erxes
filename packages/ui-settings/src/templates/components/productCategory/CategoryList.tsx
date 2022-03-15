@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 
 import TagFilter from '../../containers/TagFilter';
 import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const TEMPLATE_TYPES = {
   email_templates: 'Emails',
@@ -57,7 +58,7 @@ class List extends React.Component<IProps> {
       const condition =
         key === 'segments' || key === 'sales_pipeline' || key === 'automation';
       const count = condition ? (
-        <p style={coming_soon1}>Comging soon</p>
+        <p style={coming_soon1}>Coming soon</p>
       ) : (
         types[key] || 0
       );
@@ -107,7 +108,7 @@ class List extends React.Component<IProps> {
           {this.renderCategoryList()}
         </Section>
         <ProductTypeFilter />
-        <TagFilter />
+        {isEnabled("tags") && <TagFilter />}
       </Sidebar>
     );
   }

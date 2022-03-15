@@ -202,26 +202,24 @@ function ContentStep({
     return (
       <>
         <SubHeading>{__("Products")}</SubHeading>
-        {isEnabled("products") && (
-          <FormGroup>
-            <ControlLabel required={true}>
-              {__("Main Product Category")}
-            </ControlLabel>
-            <Description>
-              Select the main Product Category of the products and services you
-              want to display. If you haven't created one, please go to
-              <a href="/settings/product-service">
+        <FormGroup>
+          <ControlLabel required={true}>
+            {__("Main Product Category")}
+          </ControlLabel>
+          <Description>
+            Select the main Product Category of the products and services you
+            want to display. If you haven't created one, please go to
+            <a href="/settings/product-service">
                 {__(" Product & Service ")}
               </a>
-              to organize your product first.
-            </Description>
-            <SelectProductCategory
-              onChange={(e: any) => onChangeSelect("productCategoryId", e)}
-              value={productCategoryId}
-              placeholder="Choose product category"
-            />
-          </FormGroup>
-        )}
+            to organize your product first.
+          </Description>
+          <SelectProductCategory
+            onChange={(e: any) => onChangeSelect("productCategoryId", e)}
+            value={productCategoryId}
+            placeholder="Choose product category"
+          />
+        </FormGroup>
 
         {renderDisplayBlock()}
 

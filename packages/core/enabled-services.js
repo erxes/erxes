@@ -1,15 +1,26 @@
 module.exports = {
+<<<<<<< HEAD
   logs: false,
   tags: true,
 
   internalnotes: false,
   notifications: false,
   inbox: true,
-  products: false,
+=======
+  automations: false,
+  calendar: false,
+  cards: true,
+  clientportal: false,
   contacts: true,
-
-  forms: false,
-  core: true,
+  engages: false,
+  inbox: false,
+  internalnotes: true,
+  knowledgebase: false,
+  logs: true,
+  notifications: false,
+>>>>>>> 3bf12597ac6741a2798597afa4af2c22b77f6679
+  products: false,
   segments: false,
-  cards: true
+  tags: false,
+  forms: false,
 };
