@@ -105,7 +105,7 @@ const fieldMutations = {
       response.push(field);
     }
 
-    for (const { _id, ...doc } of editingFields) {
+    for (const { _id, ...doc } of editingFields || []) {
       if (doc.logics) {
         for (const logic of doc.logics) {
           if (!logic.fieldId && logic.tempFieldId) {

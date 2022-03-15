@@ -6,6 +6,7 @@ import { initMemoryStorage } from './inmemoryStorage';
 import { generateAllDataLoaders } from './dataloaders';
 import { coreModels, generateModels, models } from './connectionResolver';
 import logs from './logUtils';
+import tags from './tags';
 
 export let debug;
 export let mainDb;
@@ -31,7 +32,7 @@ export default {
 
     return context;
   },
-  meta: { logs: { consumers: logs } },
+  meta: { logs: { consumers: logs }, tags },
   onServerInit: async options => {
     mainDb = options.db;
 

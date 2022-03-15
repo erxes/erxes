@@ -1,15 +1,15 @@
 module.exports = {
-    logs : false,
-    tags : false,
+  logs: false,
+  tags: false,
 
-    internalnotes : false,
-    notifications : false,
-    inbox : false,
-    products : false,
-    contacts : false,
+  internalnotes: false,
+  notifications: false,
+  inbox: true,
+  products: false,
+  contacts: true,
 
-    forms: true,
-    core: true,
-    segments : true,
-    cards : true,
-}
+  forms: true,
+  core: true,
+  segments: false,
+  cards: false,
+};

@@ -248,7 +248,7 @@ class LeftSidebar extends React.Component<Props, State> {
               <FilterToggler
                 groupText='Tags'
                 toggleName='showTags'
-                manageUrl='/tags/conversation'
+                manageUrl='/tags/inbox:conversation'
               >
                 <FilterList
                   query={{
