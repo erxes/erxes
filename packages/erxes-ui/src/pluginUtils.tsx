@@ -69,7 +69,7 @@ const PluginsWrapper = ({
   return (
     <AppConsumer>
       {({ plugins }) =>
-        plugins.map((plugin) => {
+        (plugins || []).map((plugin) => {
           const item = plugin[itemName];
 
           if (!item) {
