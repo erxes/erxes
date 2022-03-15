@@ -4,11 +4,11 @@ export default {
   types: [
     {
       description: 'Customers',
-      type: 'lead'
+      type: 'customer'
     },
     {
       description: 'Leads',
-      type: 'customer'
+      type: 'lead'
     },
     {
       description: 'Companies',
