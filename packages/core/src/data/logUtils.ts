@@ -9,7 +9,7 @@ import {
 import { Users, UsersGroups } from '../db/models/index';
 import { IUserDocument } from '../db/models/definitions/users';
 import messageBroker from '../messageBroker';
-import { RABBITMQ_QUEUES, MODULE_NAMES } from './constants';
+import { MODULE_NAMES } from './constants';
 
 import { registerOnboardHistory } from './utils';
 
@@ -147,10 +147,10 @@ export const putCreateLog = async (
 
   // await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
 
-  messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
-    type: `${params.type}`,
-    targets: [params.object],
-  });
+  // messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+  //   type: `${params.type}`,
+  //   targets: [params.object],
+  // });
 
   const { extraDesc, description } = await gatherDescriptions({
     ...params,
@@ -176,10 +176,10 @@ export const putUpdateLog = async (
 ) => {
   // await sendToWebhook(LOG_ACTIONS.UPDATE, params.type, params);
 
-  messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
-    type: `${params.type}`,
-    targets: [params.updatedDocument],
-  });
+  // messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+  //   type: `${params.type}`,
+  //   targets: [params.updatedDocument],
+  // });
 
   const { extraDesc, description } = await gatherDescriptions({
     ...params,
@@ -205,10 +205,10 @@ export const putDeleteLog = async (
 ) => {
   // await sendToWebhook(LOG_ACTIONS.DELETE, params.type, params);
 
-  messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
-    type: `${params.type}`,
-    targets: [params.object],
-  });
+  // messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+  //   type: `${params.type}`,
+  //   targets: [params.object],
+  // });
 
   const { extraDesc, description } = await gatherDescriptions({
     ...params,
@@ -232,15 +232,15 @@ interface IActivityLogParams {
 }
 
 export const putActivityLog = async (params: IActivityLogParams) => {
-  const { data } = params;
+  // const { data } = params;
 
   try {
-    if (data.target) {
-      messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
-        type: `${data.contentType}`,
-        targets: [data.target],
-      });
-    }
+    // if (data.target) {
+    //   messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
+    //     type: `${data.contentType}`,
+    //     targets: [data.target],
+    //   });
+    // }
 
     return messageBroker().sendMessage('putActivityLog', params);
   } catch (e) {

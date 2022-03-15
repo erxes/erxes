@@ -70,11 +70,10 @@ const moduleOptions = [
   { value: 'cards:ticketStages', label: 'Ticket stages' },
   { value: 'cards:growthHackStages', label: 'Growth hack stages' },
   // core-api service items
-  { value: 'core-api:brand', label: 'Brands' },
-  { value: 'core-api:permission', label: 'Permissions' },
-  { value: 'core-api:user', label: 'Users' },
-  { value: 'core-api:userGroup', label: 'User groups' },
-  { value: 'core-api:segment', label: 'Segments' },
+  { value: 'core:brand', label: 'Brands' },
+  { value: 'core:permission', label: 'Permissions' },
+  { value: 'core:user', label: 'Users' },
+  { value: 'core:userGroup', label: 'User groups' },
   // inbox service items
   { value: 'inbox:integration', label: 'Integrations' },
   { value: 'inbox:channel', label: 'Channels' },
@@ -92,6 +91,7 @@ const moduleOptions = [
   { value: 'engages:engage', label: 'Campaigns' },
   { value: 'internalnotes:internalNote', label: 'Internal notes' },
   { value: 'tags:tag', label: 'Tags' },
+  { value: 'segments:segment', label: 'Segments' },
   { value: 'responseTemplate', label: 'Response templates' },
   { value: 'emailTemplate', label: 'Email templates' },
   { value: 'importHistory', label: 'Import histories' },

@@ -16,7 +16,7 @@ export default {
     if (stage.formId) {
       const submissions = await sendFormsMessage({
         subdomain,
-        action: "submissions:find",
+        action: "submissions.find",
         data: {
           contentTypeId: growthHack._id,
           contentType: "growthHack",
@@ -51,7 +51,7 @@ export default {
 
     return sendFormsMessage({
       subdomain,
-      action: "fields:find",
+      action: "fields.find",
       data: { query, order: 1 },
       isRPC: true,
       defaultValue: [],
