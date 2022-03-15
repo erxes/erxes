@@ -1,5 +1,5 @@
 {
-  "name": "api-core",
+  "name": "core",
   "version": "1.0.0",
   "keywords": [
     "node",
@@ -27,7 +27,8 @@
     "migrateSegment": "node_modules/.bin/ts-node src/commands/segmentMigration.ts",
     "changeToSubscribed": "node_modules/.bin/ts-node src/commands/changeToSubscribed.ts",
     "fixCompanyScopeBrandIds": "node_modules/.bin/ts-node src/commands/fixCompanyScopeBrandIds.ts",
-    "migrateContentType": "node_modules/.bin/ts-node src/commands/migrateContentType.ts"
+    "migrateContentType": "node_modules/.bin/ts-node src/commands/migrateContentType.ts",
+    "migrateLogs": "node_modules/.bin/ts-node src/commands/migrateLogs.ts"
   },
   "dependencies": {
     "apollo-datasource-rest": "^0.5.1",

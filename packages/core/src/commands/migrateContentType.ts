@@ -48,6 +48,16 @@ const switchContentType = contentType => {
     case 'form_submission':
       changedContentType = `form_submission:${contentType}`;
       break;
+    case 'integration':
+      changedContentType = `inbox:${contentType}`;
+      break;
+    case 'conversation':
+      changedContentType = `inbox:${contentType}`;
+      break;
+
+    case 'engageMessage':
+      changedContentType = `engages:${contentType}`;
+      break;
   }
 
   return changedContentType;
@@ -82,9 +92,9 @@ const command = async () => {
   });
 
   await Tags.find({}).forEach(doc => {
-    const contentType = switchContentType(doc.contentType);
+    const contentType = switchContentType(doc.type);
 
-    Tags.updateOne({ _id: doc._id }, { $set: { contentType } });
+    Tags.updateOne({ _id: doc._id }, { $set: { type: contentType } });
   });
 
   await InternalNotes.find({}).forEach(doc => {

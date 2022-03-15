@@ -12,7 +12,6 @@ import {
   SubNavItem,
   MoreMenuWrapper,
   MoreSearch,
-  StoreItem,
   MoreItemRecent,
   MoreMenus,
   MoreTitle,
@@ -259,14 +258,6 @@ class Navigation extends React.Component<{}, State> {
           })}
 
           {this.renderMore()}
-
-          <StoreItem>
-            {this.renderMenuItem({
-              text: "Store",
-              url: "/store",
-              icon: "icon-store",
-            })}
-          </StoreItem>
         </Nav>
       </LeftNavigation>
     );

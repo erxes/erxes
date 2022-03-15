@@ -1,10 +1,9 @@
-import { generateFieldsFromSchema } from "@erxes/api-utils/src";
-import { generateModels } from "./connectionResolver";
+import { generateFieldsFromSchema } from '@erxes/api-utils/src';
+import { generateModels } from './connectionResolver';
 
-const generateFields = async (args) => {
-  const { subdomain } = args;
+const generateFields = async ({ subdomain }) => {
   const models = await generateModels(subdomain);
-  
+
   const schema: any = models.Conversations.schema;
 
   let fields: Array<{
@@ -37,5 +36,5 @@ const generateFields = async (args) => {
 };
 
 export default {
-  fields: generateFields,
+  fields: generateFields
 };

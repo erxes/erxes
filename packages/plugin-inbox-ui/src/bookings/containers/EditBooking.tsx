@@ -116,7 +116,7 @@ class EditBookingContainer extends React.Component<FinalProps, State> {
       save,
       afterFormDbSave,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
-      emailTemplates: emailTemplatesQuery.emailTemplates || [],
+      emailTemplates: emailTemplatesQuery ? emailTemplatesQuery.emailTemplates || [] : [],
       productFields: fieldsQuery.fields || [],
       configs: configsQuery.configs || [],
     };

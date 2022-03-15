@@ -40,7 +40,7 @@ export default class GenerateField extends React.Component<Props, State> {
     this.state = {
       isMapDraggable: true,
       center: props.center,
-      locationOptions: props.locationOptions,
+      locationOptions: props.locationOptions || [],
       mapSize: { width: 0, height: 0 }
     };
   }
@@ -67,6 +67,7 @@ export default class GenerateField extends React.Component<Props, State> {
       mapStyle,
       mapSize
     } = this.state;
+
     const {
       mapControlOptions,
       defaultZoom,
