@@ -714,7 +714,10 @@ export default {
     return getCardContentIds(models, data);
   },
 
-  getSchemaLabels: async ({ data: { type } }) => {
-    return getSchemaLabels(type, LOG_MAPPINGS);
+  getSchemaLabels: ({ data: { type } }) => {
+    return {
+      data: getSchemaLabels(type, LOG_MAPPINGS),
+      status: 'success'
+    };
   },
 };

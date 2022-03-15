@@ -104,14 +104,14 @@ export const putCreateLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const isAutomationsAvailable = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'automations');
+  // const isAutomationsAvailable = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'automations');
 
-  if (isAutomationsAvailable) {
-    messageBroker.sendMessage('automations', {
-      type: `${params.type}`,
-      targets: [params.object]
-    });
-  }
+  // if (isAutomationsAvailable) {
+  //   messageBroker.sendMessage('automations', {
+  //     type: `${params.type}`,
+  //     targets: [params.object]
+  //   });
+  // }
 
   return putLog(
     messageBroker,
@@ -166,12 +166,15 @@ const putLog = async (
   }
 
   return messageBroker.sendMessage('putLog', {
-    ...params,
-    createdBy: user._id,
-    unicode: user.username || user.email || user._id,
-    object: JSON.stringify(params.object),
-    newData: JSON.stringify(params.newData),
-    extraDesc: JSON.stringify(params.extraDesc),
+    subdomain: 'os',
+    data: {
+      ...params,
+      createdBy: user._id,
+      unicode: user.username || user.email || user._id,
+      object: JSON.stringify(params.object),
+      newData: JSON.stringify(params.newData),
+      extraDesc: JSON.stringify(params.extraDesc),
+    }
   });
 };
 
