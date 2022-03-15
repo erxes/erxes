@@ -164,7 +164,7 @@ export const initBroker = (cl) => {
     }
   );
 
-  // ! below queue converted only used in api-core
+  // ! below queue converted only used in core
   // ! unused queue
   consumeRPCQueue('inbox:rpc_queue:getIntegration', async data => {
     const { _id, subdomain } = data;
