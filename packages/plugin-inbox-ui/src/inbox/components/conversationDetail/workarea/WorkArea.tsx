@@ -274,7 +274,7 @@ export default class WorkArea extends React.Component<Props, State> {
           <ContenFooter>
             {typingIndicator}
             <RespondBox
-              showInternal={showInternal}
+              showInternal={isEnabled("internalnotes") ? showInternal : false}
               conversation={currentConversation}
               setAttachmentPreview={this.setAttachmentPreview}
               addMessage={addMessage}
