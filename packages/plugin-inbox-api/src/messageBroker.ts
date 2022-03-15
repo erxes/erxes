@@ -123,12 +123,12 @@ export const initBroker = (cl) => {
   );
 
 
-  // ! below queue converted
-  consumeQueue('inbox:changeCustomer', async ({subdomain, customerId, customerIds}) => {
-    const models = await generateModels(subdomain);
+  // // ! below queue converted
+  // consumeQueue('inbox:changeCustomer', async ({subdomain, customerId, customerIds}) => {
+  //   const models = await generateModels(subdomain);
 
-    await models.Conversations.changeCustomer(customerId, customerIds);
-  });
+  //   await models.Conversations.changeCustomer(customerId, customerIds);
+  // });
 
   // ? added new
   consumeQueue('inbox:changeCustomer', async ({subdomain, data: { customerId, customerIds }}) => {
@@ -137,19 +137,19 @@ export const initBroker = (cl) => {
     await models.Conversations.changeCustomer(customerId, customerIds);
   });
 
-  // ! below queue converted 
-  consumeRPCQueue(
-    'inbox:rpc_queue:getConversation',
-    async ({ subdomain, conversationId }) => {
-      const models = await generateModels(subdomain)
+  // // ! below queue converted 
+  // consumeRPCQueue(
+  //   'inbox:rpc_queue:getConversation',
+  //   async ({ subdomain, conversationId }) => {
+  //     const models = await generateModels(subdomain)
 
-      return {
-        status: 'success',
-        data: await models.Conversations.findOne({ _id: conversationId })
+  //     return {
+  //       status: 'success',
+  //       data: await models.Conversations.findOne({ _id: conversationId })
 
-      }
-    }
-  );
+  //     }
+  //   }
+  // );
 
   // ? added new
   consumeRPCQueue(
@@ -165,6 +165,7 @@ export const initBroker = (cl) => {
   );
 
   // ! below queue converted only used in api-core
+  // ! unused queue
   consumeRPCQueue('inbox:rpc_queue:getIntegration', async data => {
     const { _id, subdomain } = data;
 
@@ -188,7 +189,7 @@ export const initBroker = (cl) => {
 
 
   // ! below queue converted
-  
+  // ? used in engage 
   consumeRPCQueue('inbox:updateConversationMessage', async ({ data }) => {
     const { filter, updateDoc, subdomain } = data;
     const models = await generateModels(subdomain);
