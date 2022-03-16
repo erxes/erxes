@@ -24,13 +24,13 @@ const command = async () => {
   FieldGroups = db.collection('fields_groups');
 
   const groups = await FieldGroups.find({
-    boardsPipelines: { $exists: true }
+    config: { $exists: true }
   }).toArray();
 
   for (const group of groups) {
     await FieldGroups.updateOne(
       { _id: group._id },
-      { $rename: { boardsPipelines: 'config' } }
+      { $rename: { config: 'boardsPipelines' } }
     );
   }
 
