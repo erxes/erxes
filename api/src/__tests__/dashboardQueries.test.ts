@@ -179,7 +179,8 @@ describe('dashboardQueries', () => {
       'Tasks.board',
       'Tickets.board',
       'board',
-      'ConversationProperties.customerFirstName'
+      'ConversationProperties.customerFirstName',
+      'label'
     ];
 
     types.forEach(async type => {

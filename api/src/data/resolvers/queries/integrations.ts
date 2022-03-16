@@ -1,4 +1,4 @@
-import { Channels, Integrations, Tags } from '../../../db/models';
+import { Channels, Integrations, Departments, Tags } from '../../../db/models';
 import {
   INTEGRATION_NAMES_MAP,
   KIND_CHOICES,
@@ -99,12 +99,37 @@ const integrationQueries = {
       sortField: string;
       sortDirection: number;
     },
-    { singleBrandIdSelector }: IContext
+    { singleBrandIdSelector, user }: IContext
   ) {
-    const query = {
+    let query: any = {
       ...singleBrandIdSelector,
       ...(await generateFilterQuery(args))
     };
+
+    if (!user.isOwner) {
+      const departmentIds = await Departments.find({
+        userIds: user._id
+      }).distinct('_id');
+
+      query = {
+        ...query,
+        $or: [
+          { visibility: { $exists: null } },
+          { visibility: 'public' },
+          {
+            $and: [
+              { visibility: 'private' },
+              {
+                $or: [
+                  { createdUserId: user._id },
+                  { departmentIds: { $in: departmentIds } }
+                ]
+              }
+            ]
+          }
+        ]
+      };
+    }
 
     if (args.kind === 'lead') {
       return Integrations.findLeadIntegrations(query, args);

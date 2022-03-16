@@ -76,7 +76,13 @@ class ExportForm extends React.Component<Props, State> {
     const { contentType } = this.props;
     const { columns, segmentId } = this.state;
 
-    const columnsConfig = columns.filter(conf => conf.checked);
+    // const columnsConfig = columns.filter(conf => conf.checked);
+
+    let columnsConfig = columns.filter(conf => conf.checked) as any;
+
+    columnsConfig = columnsConfig.map(conf => {
+      return conf.name;
+    });
 
     const stringified = queryString.stringify({
       configs: JSON.stringify(columnsConfig),

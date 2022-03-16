@@ -43,6 +43,8 @@ type Props = {
     languageCode?: string;
     leadData: ILeadData;
     channelIds?: string[];
+    visibility?: string;
+    departmentIds?: string[];
   }) => void;
 };
 
@@ -88,6 +90,8 @@ type State = {
   successImage?: string;
   successPreviewStyle?: { opacity?: string };
   successImageSize?: string;
+  departmentIds?: string[];
+  visibility?: string;
 };
 
 class Lead extends React.Component<Props, State> {
@@ -149,7 +153,9 @@ class Lead extends React.Component<Props, State> {
 
       successImage: leadData.successImage || '',
       successImageSize: leadData.successImageSize || '',
-      successPreviewStyle: {}
+      successPreviewStyle: {},
+      departmentIds: integration.departmentIds || [],
+      visibility: integration.visibility || 'public'
     };
   }
 
@@ -162,7 +168,9 @@ class Lead extends React.Component<Props, State> {
       title,
       rules,
       formData,
-      channelIds
+      channelIds,
+      departmentIds,
+      visibility
     } = this.state;
 
     if (!title) {
@@ -182,6 +190,8 @@ class Lead extends React.Component<Props, State> {
       brandId: brand,
       channelIds,
       languageCode: this.state.language,
+      departmentIds,
+      visibility,
       leadData: {
         loadType: this.state.type,
         successAction: this.state.successAction,
@@ -305,7 +315,9 @@ class Lead extends React.Component<Props, State> {
       calloutImgSize,
       successImage,
       successImageSize,
-      successPreviewStyle
+      successPreviewStyle,
+      departmentIds,
+      visibility
     } = this.state;
 
     const { integration, emailTemplates } = this.props;
@@ -392,6 +404,8 @@ class Lead extends React.Component<Props, State> {
                   formData={formData}
                   isRequireOnce={isRequireOnce}
                   channelIds={channelIds}
+                  visibility={visibility}
+                  departmentIds={departmentIds}
                   onChange={this.onChange}
                 />
               </Step>

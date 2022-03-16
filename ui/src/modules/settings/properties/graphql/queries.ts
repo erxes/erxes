@@ -22,6 +22,7 @@ const commonFields = `
   }
   groupId
   code
+  showInCard
 
   ${genericFields}
 
@@ -40,7 +41,10 @@ const commonFieldsGroups = `
   }
   code
   ${genericFields}
-
+  
+  visibility
+  memberIds
+  departmentIds
   lastUpdatedUser {
     details {
       fullName

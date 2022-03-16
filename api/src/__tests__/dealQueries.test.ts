@@ -90,6 +90,7 @@ describe('dealQueries', () => {
     pipeline { _id }
     userId
     createdUser { _id }
+    customPropertyTexts
   `;
 
   const qryDealFilter = `
@@ -515,11 +516,20 @@ describe('dealQueries', () => {
     const pipeline = await pipelineFactory({ boardId: board._id });
     const stage = await stageFactory({ pipelineId: pipeline._id });
     const currentUser = await userFactory({});
+    const field = await fieldFactory({
+      showInCard: true,
+      contentType: 'deal'
+    });
 
     const args = { stageId: stage._id };
     const deal = await dealFactory({ ...args, name: 'b' });
     await dealFactory({ ...args, name: 'c' });
     await dealFactory({ ...args, name: 'a' });
+    await dealFactory({
+      ...args,
+      name: 'd',
+      customFieldsData: [{ field: field._id, value: 'test' }]
+    });
 
     Object.assign(args, { pipelineId: stage.pipelineId });
     const qry = `
@@ -527,6 +537,7 @@ describe('dealQueries', () => {
         deals(stageId: $stageId, pipelineId: $pipelineId, sortField: $sortField, sortDirection: $sortDirection) {
           _id
           name
+          customPropertyTexts
         }
       }
     `;
@@ -535,7 +546,7 @@ describe('dealQueries', () => {
       user: currentUser
     });
 
-    expect(response.length).toBe(3);
+    expect(response.length).toBe(4);
 
     response = await graphqlRequest(qry, 'deals', {
       ...args,
@@ -594,11 +605,23 @@ describe('dealQueries', () => {
     const pipeline = await pipelineFactory({ boardId: board._id });
     const stage = await stageFactory({ pipelineId: pipeline._id });
     const { productsData } = await generateProductsData();
+    const field1 = await fieldFactory({
+      showInCard: true,
+      contentType: 'deal'
+    });
+    const field2 = await fieldFactory({
+      showInCard: false,
+      contentType: 'deal'
+    });
 
     const deal = await dealFactory({
       stageId: stage._id,
       watchedUserIds: [currentUser._id],
-      productsData
+      productsData,
+      customFieldsData: [
+        { field: field1._id, value: 'test1' },
+        { field: field2._id, value: 'test2' }
+      ]
     });
 
     const args = { _id: deal._id };
@@ -615,6 +638,8 @@ describe('dealQueries', () => {
       user: currentUser
     });
     expect(response._id).toBe(deal._id);
+
+    expect(response.customPropertyTexts.length).toBe(1);
 
     await Pipelines.updateOne(
       { _id: pipeline._id },
