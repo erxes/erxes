@@ -173,7 +173,7 @@ const createFormConversation = async (
 ) => {
   const { integrationId, formId, submissions } = args;
 
-  const form = await coreModels.Forms.findOne({ _id: formId });
+  const form = await sendFormsMessage({ subdomain, action: 'findOne', data: { _id: formId }, isRPC: true }) ;
 
   if (!form) {
     throw new Error('Form not found');
@@ -252,7 +252,7 @@ const widgetMutations = {
   ) {
     const brand = await coreModels.Brands.findOne({ code: args.brandCode });
 
-    const form = await coreModels.Forms.findOne({ code: args.formCode });
+    const form = await sendFormsMessage({ subdomain, action: 'findOne', data: { code: args.formCode }, isRPC: true }) ;
 
     if (!brand || !form) {
       throw new Error('Invalid configuration');
@@ -897,7 +897,7 @@ const widgetMutations = {
     }
 
     try {
-      await trackViewPageEvent(coreModels, {
+      await trackViewPageEvent(coreModels, subdomain, {
         visitorId,
         customerId,
         attributes: { url: browserInfo.url }
@@ -938,7 +938,7 @@ const widgetMutations = {
       isRPC: true
     });
 
-    const form = await coreModels.Forms.getForm(formId || '');
+    const form = await sendFormsMessage({ subdomain, action: 'findOne', data: { _id: formId }, isRPC: true }) ;
 
     let finalContent = content;
 

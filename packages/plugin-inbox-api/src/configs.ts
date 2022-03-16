@@ -74,11 +74,12 @@ export default {
       routeErrorHandling(
         async (req, res) => {
           const { name, customerId, attributes } = req.body;
+          const subdomain = getSubdomain(req.hostname);
 
           const response =
             name === 'pageView'
-              ? await trackViewPageEvent(coreModels, { customerId, attributes })
-              : await trackCustomEvent(coreModels, {
+              ? await trackViewPageEvent(coreModels, subdomain, { customerId, attributes })
+              : await trackCustomEvent(coreModels, subdomain, {
                   name,
                   customerId,
                   attributes
@@ -111,7 +112,6 @@ export default {
           const subdomain = getSubdomain(req.hostname);
 
           const response = await updateCustomerProperty(
-            coreModels,
             subdomain,
             req.body
           );

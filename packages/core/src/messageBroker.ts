@@ -3,7 +3,7 @@ import { init as initBrokerCore } from '@erxes/api-utils/src/messageBroker';
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
-import { Conformities, Configs, Users, Brands } from './db/models';
+import { Conformities, Configs, Users, Brands, EmailDeliveries } from './db/models';
 import { registerModule } from './data/permissions/utils';
 import {
   getFileUploadConfigs,
@@ -144,6 +144,13 @@ export const initBroker = async options => {
       return {
         status: 'success',
         data: await getFileUploadConfigs()
+      };
+    });
+
+    consumeRPCQueue('core:emailDeliveries.createEmailDelivery', async ({ data }) => {
+      return {
+        status: 'success',
+        data: await EmailDeliveries.createEmailDelivery(data)
       };
     });
 
