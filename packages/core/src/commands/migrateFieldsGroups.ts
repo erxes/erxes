@@ -1,3 +1,4 @@
+
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -23,15 +24,20 @@ const command = async () => {
 
   FieldGroups = db.collection('fields_groups');
 
-  const groups = await FieldGroups.find({
-    config: { $exists: true }
-  }).toArray();
+  const groups = await FieldGroups.find({}).toArray();
 
   for (const group of groups) {
-    await FieldGroups.updateOne(
-      { _id: group._id },
-      { $rename: { config: 'boardsPipelines' } }
-    );
+    await FieldGroups.updateOne({ _id: group._id }, [
+      {
+        $set: {
+          config: {
+            boardsPipelines: group.boardsPipelines,
+            pipelineIds: group.pipelineIds,
+            boardIds: group.boardIds
+          }
+        }
+      }
+    ]);
   }
 
   console.log(`Process finished at: ${new Date()}`);
