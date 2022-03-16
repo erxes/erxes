@@ -4,11 +4,8 @@ import { KIND_CHOICES } from './models/definitions/constants';
 
 import { es } from './configs';
 
-import { getDocumentList } from './cacheUtils';
 import { IListArgs } from './conversationQueryBuilder';
 import { fixDate } from '@erxes/api-utils/src';
-
-// ? import { ISegmentDocument } from '../../../db/models/definitions/segments';
 
 import { debug } from './configs';
 import { sendSegmentsMessage, sendTagsMessage } from './messageBroker';
@@ -27,12 +24,10 @@ interface IUserArgs {
 // Count conversatio  by channel
 const countByChannels = async (
   models: IModels,
-  coreModels: ICoreIModels,
-  subdomain: string,
   qb: any,
   counts: ICountBy
 ): Promise<ICountBy> => {
-  const channels = await getDocumentList(models, coreModels, subdomain, 'channels', {});
+  const channels = await models.Channels.find({});
 
   for (const channel of channels) {
     await qb.buildAllQueries();
@@ -45,8 +40,8 @@ const countByChannels = async (
 };
 
 // Count conversation by brand
-const countByBrands = async (models: IModels, coreModels: ICoreIModels, subdomain: string, qb: any, counts: ICountBy): Promise<ICountBy> => {
-  const brands = await getDocumentList(models, coreModels, subdomain, 'brands', {});
+const countByBrands = async (coreModels: ICoreIModels, qb: any, counts: ICountBy): Promise<ICountBy> => {
+  const brands = await coreModels.Brands.find({});
 
   for (const brand of brands) {
     await qb.buildAllQueries();
@@ -141,7 +136,7 @@ export const countByConversations = async (
 
   switch (only) {
     case 'byChannels':
-      await countByChannels(models, coreModels, subdomain, qb, counts);
+      await countByChannels(models, qb, counts);
       break;
 
     case 'byIntegrationTypes':
@@ -149,7 +144,7 @@ export const countByConversations = async (
       break;
 
     case 'byBrands':
-      await countByBrands(models, coreModels, subdomain ,qb, counts);
+      await countByBrands(coreModels, qb, counts);
       break;
 
     case 'byTags':

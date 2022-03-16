@@ -1,15 +1,7 @@
 import { IBrowserInfo, ICustomField, ILink } from "@erxes/api-utils/src/definitions/common";
 import { KIND_CHOICES } from "./models/definitions/constants";
-
-// ? import { ICustomerDocument } from "../db/models/definitions/customers";
-
-// ? import { ISubmission } from "../db/models/definitions/fields";
-
 import { debug } from "./configs";
 
-// ? import { getDbSchemaLabels } from "./logUtils";
-
-import { getDocument } from "./cacheUtils";
 import { es } from "./configs";
 import { sendContactsMessage, sendCoreMessage, sendEngagesMessage, sendToLog } from "./messageBroker";
 import { ICoreIModels, IModels } from "./connectionResolver";
@@ -267,14 +259,11 @@ export const solveSubmissions = async (models: IModels, coreModels: ICoreIModels
   cachedCustomerId?: string;
 }) => {
   let { cachedCustomerId } = args;
-  const { integrationId, browserInfo, formId } = args;
-  const integration = await getDocument(models, coreModels, subdomain, "integrations", { _id: integrationId });
+  const { integrationId, browserInfo } = args;
+  const integration: any = await models.Integrations.findOne({ _id: integrationId });
 
   const submissionsGrouped = groupSubmissions(args.submissions);
-
-  const conformityIds: {
-    [key: string]: { customerId: string; companyId: string };
-  } = {};
+  const conformityIds: { [key: string]: { customerId: string; companyId: string } } = {};
 
   let cachedCustomer;
 
@@ -397,7 +386,6 @@ export const solveSubmissions = async (models: IModels, coreModels: ICoreIModels
     }
 
     if (groupId === "default") {
-
       cachedCustomer = await sendContactsMessage({
         subdomain,
         action: 'customers.getWidgetCustomer',

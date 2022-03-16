@@ -1,6 +1,5 @@
 import { KIND_CHOICES } from '../../models/definitions/constants';
 import { IIntegrationDocument } from '../../models/definitions/integrations';
-import { getDocument, getDocumentList } from '../../cacheUtils';
 import { sendIntegrationsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
@@ -8,8 +7,8 @@ export default {
   __resolveReference({_id}, { models }: IContext) {
     return models.Integrations.findOne({ _id })
   },
-    brand(integration: IIntegrationDocument, _args, { models, coreModels, subdomain }: IContext) {
-      return getDocument(models, coreModels, subdomain, 'brands', { _id: integration.brandId });
+    brand(integration: IIntegrationDocument, _args, { coreModels }: IContext) {
+      return coreModels.Brands.findOne({ _id: integration.brandId });
   },
 
   async form(integration: IIntegrationDocument) {
@@ -20,8 +19,8 @@ export default {
     return { __typename: 'Form', _id: integration.formId }
   },
 
-  channels(integration: IIntegrationDocument, _args, { models, coreModels, subdomain }: IContext) {
-    return getDocumentList(models, coreModels, subdomain, 'channels', {
+  channels(integration: IIntegrationDocument, _args, { models }: IContext) {
+    return models.Channels.find({
       integrationIds: { $in: [integration._id] }
     });
   },
