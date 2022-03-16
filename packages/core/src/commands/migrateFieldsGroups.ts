@@ -23,14 +23,16 @@ const command = async () => {
 
   FieldGroups = db.collection('fields_groups');
 
-  await FieldGroups.find({ boardsPipelines: { $exists: true } }).forEach(
-    doc => {
-      FieldGroups.updateOne(
-        { _id: doc._id },
-        { $rename: { boardsPipelines: 'config' } }
-      );
-    }
-  );
+  const groups = await FieldGroups.find({
+    boardsPipelines: { $exists: true }
+  }).toArray();
+
+  for (const group of groups) {
+    await FieldGroups.updateOne(
+      { _id: group._id },
+      { $rename: { boardsPipelines: 'config' } }
+    );
+  }
 
   console.log(`Process finished at: ${new Date()}`);
 
