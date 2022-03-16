@@ -196,7 +196,7 @@ const RABBITMQ_HOST = getEnv({ name: 'RABBITMQ_HOST' });
 const MESSAGE_BROKER_PREFIX = getEnv({ name: 'MESSAGE_BROKER_PREFIX' });
 const TEST_MONGO_URL = getEnv({ name: 'TEST_MONGO_URL' });
 
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, async () => {
   let mongoUrl = MONGO_URL;
 
   if (NODE_ENV === 'test') {
@@ -227,7 +227,7 @@ httpServer.listen(PORT, () => {
       });
   });
 
-  join({
+  await join({
     name: 'core',
     port: PORT,
     dbConnectionString: MONGO_URL,
