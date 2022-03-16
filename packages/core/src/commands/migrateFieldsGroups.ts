@@ -27,7 +27,8 @@ const command = async () => {
   const groups = await FieldGroups.find({}).toArray();
 
   for (const group of groups) {
-    await FieldGroups.updateOne({ _id: group._id }, [
+    await FieldGroups.updateOne(
+      { _id: group._id },
       {
         $set: {
           config: {
@@ -37,7 +38,7 @@ const command = async () => {
           }
         }
       }
-    ]);
+    );
   }
 
   console.log(`Process finished at: ${new Date()}`);
