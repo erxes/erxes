@@ -600,8 +600,19 @@ const integrationMutations = {
       throw new Error('Integration kind is not form');
     }
 
-    const sourceForm = await sendFormsMessage({ subdomain, action: 'findOne', data: { _id: sourceIntegration.formId }, isRPC: true });
-    const sourceFields = await sendFormsMessage({ subdomain, action: 'fields.find', data: { query: { contentTypeId: sourceForm._id } }, isRPC: true });
+    const sourceForm = await sendFormsMessage({
+      subdomain,
+      action: 'findOne',
+      data: { _id: sourceIntegration.formId },
+      isRPC: true
+    });
+
+    const sourceFields = await sendFormsMessage({
+      subdomain,
+      action: 'fields.find',
+      data: { query: { contentTypeId: sourceForm._id } },
+      isRPC: true
+    });
 
     const formDoc = docModifier({
       ...sourceForm.toObject(),
@@ -611,7 +622,12 @@ const integrationMutations = {
     delete formDoc._id;
     delete formDoc.code;
 
-    const copiedForm = await sendFormsMessage({ subdomain, action: 'createForm', data: { formDoc, userId: user._id }, isRPC: true });
+    const copiedForm = await sendFormsMessage({
+      subdomain,
+      action: 'createForm',
+      data: { formDoc, userId: user._id },
+      isRPC: true
+    });
 
     const leadData = sourceIntegration.leadData;
 

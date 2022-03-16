@@ -41,7 +41,7 @@ export const isMessengerOnline = async (models: IModels, integration: IIntegrati
 const messengerSupporters = async (coreModels: ICoreIModels, integration: IIntegrationDocument) => {
   const messengerData = integration.messengerData || { supporterIds: [] };
 
-  return coreModels.Users.find({ _id: { $in: messengerData.supporterIds } });
+  return coreModels.Users.find({ _id: { $in: messengerData.supporterIds } }).toArray();
 };
 
 const getWidgetMessages = (models: IModels,conversationId: string) => {
@@ -189,7 +189,7 @@ export default {
   async widgetsConversationDetail(
     _root,
     args: { _id: string; integrationId: string },
-    { models, coreModels, subdomain }: IContext
+    { models, coreModels }: IContext
   ) {
     const { _id, integrationId } = args;
 
@@ -217,7 +217,7 @@ export default {
       operatorStatus: conversation.operatorStatus,
       participatedUsers: await coreModels.Users.find({
         _id: { $in: conversation.participatedUserIds }
-      }),
+      }).toArray(),
       supporters: await messengerSupporters(coreModels, integration)
     };
   },
@@ -281,7 +281,7 @@ export default {
     return {
       supporters: await coreModels.Users.find({
         _id: { $in: messengerData.supporterIds || [] }
-      }),
+      }).toArray(),
       isOnline: await isMessengerOnline(models, integration),
       serverTime: momentTz().tz(timezone)
     };

@@ -110,7 +110,7 @@ export const initBroker = async cl => {
 
   consumeRPCQueue(
     'forms:fields.generateTypedListFromMap',
-    async ({ subdomain, data: { data } }) => {
+    async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
