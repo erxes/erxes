@@ -2,7 +2,7 @@ import * as momentTz from 'moment-timezone';
 import { Model, Query } from 'mongoose';
 
 import { ICoreIModels, IModels } from '../connectionResolver';
-import { sendContactsMessage } from '../messageBroker';
+import { sendContactsMessage, sendFormsMessage } from '../messageBroker';
 
 import { KIND_CHOICES } from './definitions/constants';
 import {
@@ -413,7 +413,7 @@ export const loadClass = (models: IModels, coreModels: ICoreIModels, subdomain: 
 
       // Remove form
       if (integration.formId) {
-        await coreModels.Forms.removeForm(integration.formId);
+        await sendFormsMessage({ subdomain, action: 'removeForm', data: { formId: integration.formId }, isRPC: true })
       }
 
       return models.Integrations.deleteMany({ _id });

@@ -20,10 +20,6 @@ import { IConversationDocument } from './models/definitions/conversations';
 export interface ICoreIModels {
   Brands;
   Users;
-  Fields;
-  FieldsGroups;
-  Forms;
-  EmailDeliveries;
 }
 export interface IModels {
   Channels: IChannelModel;
@@ -90,10 +86,6 @@ const connectCore = async () => {
   coreModels = {
     Brands: await db.collection('brands'),
     Users: await db.collection('users'),
-    Fields: await db.collection('form_fields'),
-    FieldsGroups: await db.collection('form_field_groups'),
-    Forms: await db.collection('forms'),
-    EmailDeliveries: await db.collection('email_deliveries')
   };
 
   return coreModels;

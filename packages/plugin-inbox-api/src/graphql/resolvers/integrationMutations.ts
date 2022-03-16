@@ -3,11 +3,7 @@ import * as telemetry from 'erxes-telemetry';
 import { getUniqueValue } from '@erxes/api-utils/src/core';
 import { putActivityLog } from '@erxes/api-utils/src/logUtils';
 
-import {
-  // ?  ACTIVITY_ACTIONS,
-  // ? ACTIVITY_CONTENT_TYPES,
-  KIND_CHOICES
-} from '../../models/definitions/constants';
+import { KIND_CHOICES } from '../../models/definitions/constants';
 
 import {
   IIntegration,
@@ -16,12 +12,10 @@ import {
   IUiOptions
 } from '../../models/definitions/integrations';
 
-// ? import { IUserDocument } from '../../../db/models/definitions/users';
-
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
 import { debug } from '../../configs';
-import messageBroker, { sendContactsMessage, sendIntegrationsMessage, sendCoreMessage } from '../../messageBroker';
+import messageBroker, { sendContactsMessage, sendIntegrationsMessage, sendCoreMessage, sendFormsMessage } from '../../messageBroker';
 
 import { MODULE_NAMES } from '../../constants';
 import {
@@ -512,7 +506,7 @@ const integrationMutations = {
     doc.userId = user._id;
 
     for (const cusId of customerIds) {
-      await coreModels.EmailDeliveries.createEmailDelivery({ ...doc, customerId: cusId });
+      await sendCoreMessage({ subdomain, action: 'emailDeliveries.createEmailDelivery', data: { ...doc, customerId: cusId }, isRPC: true })
     }
 
     return;
@@ -606,9 +600,8 @@ const integrationMutations = {
       throw new Error('Integration kind is not form');
     }
 
-    const sourceForm = await coreModels.Forms.getForm(sourceIntegration.formId);
-
-    const sourceFields = await coreModels.Fields.find({ contentTypeId: sourceForm._id }).toArray();
+    const sourceForm = await sendFormsMessage({ subdomain, action: 'findOne', data: { _id: sourceIntegration.formId }, isRPC: true });
+    const sourceFields = await sendFormsMessage({ subdomain, action: 'fields.find', data: { query: { contentTypeId: sourceForm._id } }, isRPC: true });
 
     const formDoc = docModifier({
       ...sourceForm.toObject(),
@@ -618,7 +611,7 @@ const integrationMutations = {
     delete formDoc._id;
     delete formDoc.code;
 
-    const copiedForm = await coreModels.Forms.createForm(formDoc, user._id);
+    const copiedForm = await sendFormsMessage({ subdomain, action: 'createForm', data: { formDoc, userId: user._id }, isRPC: true });
 
     const leadData = sourceIntegration.leadData;
 
@@ -654,7 +647,7 @@ const integrationMutations = {
       associatedFieldId: e.associatedFieldId
     }));
 
-    await coreModels.Fields.insertMany(fields);
+    sendFormsMessage({ subdomain, action: 'fields.insertMany', data: { fields } });
 
     await putCreateLog(
       models,

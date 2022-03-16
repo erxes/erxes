@@ -3,7 +3,7 @@ import { KIND_CHOICES } from "./models/definitions/constants";
 import { debug } from "./configs";
 
 import { es } from "./configs";
-import { sendContactsMessage, sendCoreMessage, sendEngagesMessage, sendToLog } from "./messageBroker";
+import { sendContactsMessage, sendCoreMessage, sendEngagesMessage, sendFormsMessage, sendToLog } from "./messageBroker";
 import { ICoreIModels, IModels } from "./connectionResolver";
 
 export const getOrCreateEngageMessage = async (
@@ -362,12 +362,13 @@ export const solveSubmissions = async (models: IModels, coreModels: ICoreIModels
           "check",
         ].includes(submissionType)
       ) {
-        const field = await coreModels.Fields.findById(submission.associatedFieldId);
+        const field = await sendFormsMessage({ subdomain, action: 'fields.findOne', data: { _id: submission.associatedFieldId }, isRPC: true });
+
         if (!field) {
           continue;
         }
 
-        const fieldGroup = await coreModels.FieldsGroups.findById(field.groupId);
+        const fieldGroup = await sendFormsMessage({ subdomain, action: 'fieldsGroups.findOne', data: { _id: field.groupId }, isRPC: true });
 
         if (fieldGroup && fieldGroup.contentType === "company") {
           companyCustomData.push({
@@ -382,7 +383,7 @@ export const solveSubmissions = async (models: IModels, coreModels: ICoreIModels
             value: submission.value,
           });
         }
-      }
+       }
     }
 
     if (groupId === "default") {

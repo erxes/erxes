@@ -35,6 +35,18 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
+    'forms:findOne',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Forms.findOne(data)
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'forms:duplicate',
     async ({ subdomain, data: { formId } }) => {
       const models = await generateModels(subdomain);
@@ -46,13 +58,28 @@ export const initBroker = async cl => {
     }
   );
 
-  consumeQueue('forms:removeForm', async ({ subdomain, data: { formId } }) => {
+  consumeRPCQueue('forms:createForm', async ({ subdomain, data: { formDoc, userId } }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Forms.createForm(formDoc, userId)
+    };
+  });
+
+  consumeRPCQueue('forms:removeForm', async ({ subdomain, data: { formId } }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
       data: await models.Forms.removeForm(formId)
     };
+  });
+
+  consumeQueue('forms:fields.insertMany', async ({ subdomain, data: { fields } }) => {
+    const models = await generateModels(subdomain);
+
+    return models.Fields.insertMany(fields);
   });
 
   consumeRPCQueue(
@@ -77,6 +104,18 @@ export const initBroker = async cl => {
           customData,
           contentType
         )
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'forms:fields.generateTypedListFromMap',
+    async ({ subdomain, data: { data } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Fields.generateTypedListFromMap(data)
       };
     }
   );
