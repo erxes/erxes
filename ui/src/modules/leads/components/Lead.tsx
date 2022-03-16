@@ -13,7 +13,7 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ILeadData, ILeadIntegration } from '../types';
+import { ILeadData, ILeadIntegration, IPaymentConfig } from '../types';
 
 import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import { IFormData } from 'modules/forms/types';
@@ -29,6 +29,7 @@ import {
 } from './step';
 import { PreviewWrapper } from './step/style';
 import StyleSheetStep from './step/StyleSheetStep';
+import PaymentOptionStep from './step/PaymentOptionStep';
 
 type Props = {
   integration?: ILeadIntegration;
@@ -92,6 +93,8 @@ type State = {
   successImageSize?: string;
   departmentIds?: string[];
   visibility?: string;
+  paymentType?: string;
+  paymentConfigs?: IPaymentConfig[];
 };
 
 class Lead extends React.Component<Props, State> {
@@ -155,7 +158,9 @@ class Lead extends React.Component<Props, State> {
       successImageSize: leadData.successImageSize || '',
       successPreviewStyle: {},
       departmentIds: integration.departmentIds || [],
-      visibility: integration.visibility || 'public'
+      visibility: integration.visibility || 'public',
+      paymentType: leadData.paymentType,
+      paymentConfigs: leadData.paymentConfigs || []
     };
   }
 
@@ -219,7 +224,9 @@ class Lead extends React.Component<Props, State> {
         isRequireOnce: this.state.isRequireOnce,
         css: this.state.css,
         successImage: this.state.successImage,
-        successImageSize: this.state.successImageSize
+        successImageSize: this.state.successImageSize,
+        paymentType: this.state.paymentType,
+        paymentConfigs: this.state.paymentConfigs
       }
     };
 
@@ -288,6 +295,26 @@ class Lead extends React.Component<Props, State> {
           Save
         </Button>
       </Button.Group>
+    );
+  };
+
+  renderPaymentOptions = () => {
+    const fields = this.state.formData.fields || [];
+    const paymentFields = fields.filter(
+      field => field.type === 'productCategory'
+    );
+    if (paymentFields.length === 0) {
+      return null;
+    }
+
+    return (
+      <Step
+        img="/images/icons/erxes-25.png"
+        title="Payment options"
+        onClick={this.onStepClick}
+      >
+        <PaymentOptionStep />
+      </Step>
     );
   };
 
@@ -382,6 +409,7 @@ class Lead extends React.Component<Props, State> {
                   currentField={this.state.currentField}
                 />
               </Step>
+              {this.renderPaymentOptions()}
               <Step
                 img="/images/icons/erxes-02.svg"
                 title="Rule"

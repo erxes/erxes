@@ -1,3 +1,4 @@
+import e = require('express');
 import * as React from 'react';
 import { AppConsumer } from '../../messenger/containers/AppContext';
 import { IEmailParams, IIntegration } from '../../types';
@@ -60,7 +61,7 @@ class Form extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const {setHeight, form, integration} = this.props;
+    const { setHeight, form, integration } = this.props;
 
     if (setHeight) {
       setHeight();
@@ -71,23 +72,21 @@ class Form extends React.Component<Props, State> {
       const style = document.createElement('style');
       style.setAttribute('type', 'text/css');
 
-      style.appendChild(
-        document.createTextNode(integration.leadData.css)
-      );
+      style.appendChild(document.createTextNode(integration.leadData.css));
 
       head.appendChild(style);
     }
 
     if (form.fields.findIndex(e => e.type === 'map') !== -1) {
-			const googleMapScript = loadMapApi(
-        form.googleMapApiKey || "",
+      const googleMapScript = loadMapApi(
+        form.googleMapApiKey || '',
         integration.languageCode || 'en'
-			);
+      );
 
-			googleMapScript.addEventListener('load', () => {
-				this.setState({ mapScriptLoaded: true });
-			});
-		}
+      googleMapScript.addEventListener('load', () => {
+        this.setState({ mapScriptLoaded: true });
+      });
+    }
   }
 
   componentDidUpdate() {
@@ -138,11 +137,14 @@ class Form extends React.Component<Props, State> {
       doc[fieldId].groupId = groupId;
     }
 
+    console.log('value', value);
+
     this.setState({ doc });
   };
 
   onSubmit = () => {
     const doc: any = {};
+    const { fields } = this.props.form;
 
     for (const key of Object.keys(this.state.doc)) {
       const field = this.state.doc[key];
@@ -153,6 +155,18 @@ class Form extends React.Component<Props, State> {
         doc[key] = {
           ...field,
           value: String(field.value).replace(new RegExp(',,', 'g'), ', ')
+        };
+      }
+
+      if (field.type === 'productCategory') {
+        const formField = fields.find(f => f._id === key);
+        const products = (formField && formField.products) || [];
+        const selectedProduct = products.find(p => p._id === field.value);
+        doc[key] = selectedProduct && {
+          ...field,
+          value: `${
+            selectedProduct.name
+          } - ${selectedProduct.unitPrice.toLocaleString()}`
         };
       }
     }
@@ -282,11 +296,13 @@ class Form extends React.Component<Props, State> {
           opacity: 0.7,
           height: '13px',
           width: `${percentage}%`
-        }}
-      >
+        }}>
         <div
-          style={{ textAlign: 'center', color: 'white', fontSize: 10 }}
-        >{`${percentage}%`}</div>
+          style={{
+            textAlign: 'center',
+            color: 'white',
+            fontSize: 10
+          }}>{`${percentage}%`}</div>
       </div>
     );
   }
@@ -377,8 +393,7 @@ class Form extends React.Component<Props, State> {
           type="button"
           onClick={action}
           className={`erxes-button btn-block ${isSubmitting ? 'disabled' : ''}`}
-          disabled={disabled}
-        >
+          disabled={disabled}>
           {title}
         </button>
       );

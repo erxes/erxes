@@ -18,6 +18,11 @@ export interface ICallout {
   skip?: boolean;
 }
 
+export interface IPaymentConfig {
+  code: string;
+  value: string;
+}
+
 export interface ILeadData {
   loadType?: string;
   successAction?: string;
@@ -48,6 +53,8 @@ export interface ILeadData {
   conversionRate?: number;
   successImage?: string;
   successImageSize?: string;
+  paymentType?: string;
+  paymentConfigs?: IPaymentConfig[];
 }
 
 export interface IWebhookData {

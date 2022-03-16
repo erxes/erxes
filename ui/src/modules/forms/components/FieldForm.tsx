@@ -24,6 +24,7 @@ import FieldLogics from './FieldLogics';
 import FieldPreview from './FieldPreview';
 import Select from 'react-select-plus';
 import LocationOptions from 'modules/settings/properties/components/LocationOptions';
+import { IProductCategory } from 'modules/settings/productService/types';
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -34,6 +35,7 @@ type Props = {
   fields: IField[];
   numberOfPages: number;
   googleMapApiKey?: string;
+  productCategories?: IProductCategory[];
 };
 
 type State = {
@@ -412,7 +414,7 @@ class FieldForm extends React.Component<Props, State> {
               autoFocus={false}
             />
           </FormGroup>
-
+          {this.renderProductCategory()}
           {this.renderColumn()}
           {this.renderHtml()}
           {this.renderCustomPropertyGroup()}
@@ -488,7 +490,8 @@ class FieldForm extends React.Component<Props, State> {
         'companyName',
         'companyEmail',
         'companyPhone',
-        'html'
+        'html',
+        'productCategory'
       ].includes(field.type)
     ) {
       return null;
@@ -507,6 +510,43 @@ class FieldForm extends React.Component<Props, State> {
             <option value={''} />
             <option value={'customer'}>Customer</option>
             <option value={'company'}>Company</option>
+          </FormControl>
+        </FormGroup>
+      </>
+    );
+  }
+
+  renderProductCategory() {
+    const { field } = this.state;
+    const { productCategories = [] } = this.props;
+
+    if (field.type !== 'productCategory') {
+      return null;
+    }
+
+    const onCategoryChange = e => {
+      this.onFieldChange(
+        'productCategoryId',
+        (e.currentTarget as HTMLInputElement).value
+      );
+    };
+
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel>Categories:</ControlLabel>
+          <FormControl
+            id="productCategories"
+            componentClass="select"
+            defaultValue={field.productCategoryId || ''}
+            onChange={onCategoryChange}
+          >
+            <option>-</option>
+            {productCategories.map(category => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))}
           </FormControl>
         </FormGroup>
       </>

@@ -2,7 +2,7 @@ import Icon from 'modules/common/components/Icon';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 
 import { __ } from 'modules/common/utils';
-import FieldForm from 'modules/forms/components/FieldForm';
+import FieldForm from 'modules/forms/containers/FieldForm';
 import FieldsPreview from 'modules/forms/components/FieldsPreview';
 import { IFormData } from 'modules/forms/types';
 import { IField } from 'modules/settings/properties/types';

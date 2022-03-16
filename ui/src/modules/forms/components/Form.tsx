@@ -7,10 +7,10 @@ import { IField } from 'modules/settings/properties/types';
 import { Description } from 'modules/settings/styles';
 import React from 'react';
 import FormGroup from '../../common/components/form/Group';
+import FieldForm from '../containers/FieldForm';
 import { FormTop, Title } from '../styles';
 import { IForm, IFormData } from '../types';
 import FieldChoices from './FieldChoices';
-import FieldForm from './FieldForm';
 import FieldsPreview from './FieldsPreview';
 
 type Props = {
@@ -205,6 +205,7 @@ class Form extends React.Component<Props, State> {
   };
 
   onFieldSubmit = (field: IField) => {
+    console.log('saving: ', field);
     const { onDocChange } = this.props;
     const { fields, currentMode } = this.state;
 

@@ -183,6 +183,7 @@ const fields = `
         contentType
       }
       pageNumber
+      productCategoryId
     }
   }
 `;

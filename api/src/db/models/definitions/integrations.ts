@@ -1,3 +1,4 @@
+import { openingHour } from './../../../../../ui/src/modules/settings/calendars/types';
 import { Document, Schema } from 'mongoose';
 import { attachmentSchema } from './boards';
 import { IRule, ruleSchema } from './common';
@@ -116,6 +117,11 @@ export interface IBookingDataDocument extends IBookingData, Document {
   viewCount?: number;
 }
 
+export interface IPaymentConfig {
+  code: string;
+  value: string;
+}
+
 export interface ILeadData {
   loadType?: string;
   successAction?: string;
@@ -139,6 +145,8 @@ export interface ILeadData {
   css?: string;
   successImage?: string;
   successImageSize?: string;
+  paymentType?: string;
+  paymentConfigs?: IPaymentConfig[];
 }
 
 export interface IWebhookData {
@@ -270,6 +278,14 @@ export const submissionSchema = new Schema(
   { _id: false }
 );
 
+export const payMentConfigSchema = new Schema(
+  {
+    code: field({ type: String, unique: true }),
+    value: field({ type: Object })
+  },
+  { _id: false }
+);
+
 // subdocument schema for LeadData
 export const leadDataSchema = new Schema(
   {
@@ -379,6 +395,16 @@ export const leadDataSchema = new Schema(
       type: String,
       optional: true,
       label: 'Success image size'
+    }),
+    paymentType: field({
+      type: String,
+      optional: true,
+      label: 'Payment type'
+    }),
+    paymentConfigs: field({
+      type: payMentConfigSchema,
+      optional: true,
+      label: 'Payment configs'
     })
   },
   { _id: false }

@@ -4,10 +4,10 @@ import uploadHandler from '../../uploadHandler';
 import {
   COMPANY_BUSINESS_TYPES,
   DEFAULT_COMPANY_INDUSTRY_TYPES,
-  COUNTRIES,
+  COUNTRIES
 } from '../constants';
 import { FieldValue, IField, IFieldError, ILocationOption } from '../types';
-import MSFmultiSelect from "../multipleSelectScript";
+import MSFmultiSelect from '../multipleSelectScript';
 import { __ } from '../../utils';
 import Map from './Map';
 import Marker from './Marker';
@@ -42,8 +42,7 @@ export default class Field extends React.Component<Props, State> {
       <select
         {...attrs}
         className="form-control"
-        id={attrs.multiple ? `_id${attrs.id}` : ''}
-      >
+        id={attrs.multiple ? `_id${attrs.id}` : ''}>
         {options.map((option, index) => (
           <option key={index} value={option} selected={true}>
             {option}
@@ -180,7 +179,7 @@ export default class Field extends React.Component<Props, State> {
           selectAll: true,
           searchBox: true,
           onChange,
-          afterSelectAll,
+          afterSelectAll
         });
 
         const options =
@@ -242,7 +241,7 @@ export default class Field extends React.Component<Props, State> {
           onError: message => {
             alert(message);
             self.setState({ isAttachingFile: false });
-          },
+          }
         });
       }
     }
@@ -295,8 +294,8 @@ export default class Field extends React.Component<Props, State> {
     const { multipleSelectValues } = this.state;
     if (multipleSelectValues) {
       if (
-        multipleSelectValues.filter((value) => value === selectedValue)
-          .length === 0
+        multipleSelectValues.filter(value => value === selectedValue).length ===
+        0
       ) {
         multipleSelectValues.push(selectedValue);
       }
@@ -373,7 +372,7 @@ export default class Field extends React.Component<Props, State> {
     }
 
     return (
-      <div style={{ height: "250px", width: "100%" }}>
+      <div style={{ height: '250px', width: '100%' }}>
         {this.props.mapScriptLoaded && (
           <Map
             center={
@@ -382,15 +381,14 @@ export default class Field extends React.Component<Props, State> {
             controlSize={25}
             streetViewControl={false}
             zoom={4}
-            style={{ width: "100%", height: "250px" }}
-          >
+            style={{ width: '100%', height: '250px' }}>
             {locationOptions.length > 0 ? (
               locationOptions.map((option, index) => (
                 <Marker
                   color={
                     option.lat === selectedOption.lat &&
                     option.lng === selectedOption.lng
-                      ? "red"
+                      ? 'red'
                       : this.props.color
                   }
                   key={index}
@@ -420,6 +418,23 @@ export default class Field extends React.Component<Props, State> {
     );
   }
 
+  renderProduct(field: IField) {
+    const { products = [] } = field;
+    return (
+      <select
+        onChange={this.onSelectChange}
+        className="form-control"
+        id={field._id}>
+        <option>-</option>
+        {products.map(({ _id, name, unitPrice }) => (
+          <option key={_id} value={_id}>
+            {`${name} - ${unitPrice.toLocaleString()}`}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
   renderControl() {
     const { field, value } = this.props;
     const { options = [], validation = 'text' } = field;
@@ -438,7 +453,7 @@ export default class Field extends React.Component<Props, State> {
         return Field.renderSelect(options, {
           onChange: this.onSelectChange,
           id: field._id,
-          value: String(value),
+          value: String(value)
         });
 
       case 'multiSelect':
@@ -446,28 +461,28 @@ export default class Field extends React.Component<Props, State> {
           value: this.state.multipleSelectValues,
           onChange: this.onMultpleSelectChange,
           id: field._id,
-          multiple: true,
+          multiple: true
         });
 
       case 'pronoun':
         return Field.renderSelect(['Male', 'Female', 'Not applicable'], {
           onChange: this.onSelectChange,
           id: field._id,
-          value: String(value),
+          value: String(value)
         });
 
       case 'businessType':
         return Field.renderSelect(COMPANY_BUSINESS_TYPES, {
           onChange: this.onSelectChange,
           id: field._id,
-          value: String(value),
+          value: String(value)
         });
 
       case 'location':
         return Field.renderSelect(COUNTRIES, {
           onChange: this.onSelectChange,
           id: field._id,
-          value: String(value),
+          value: String(value)
         });
 
       case 'industry':
@@ -475,7 +490,7 @@ export default class Field extends React.Component<Props, State> {
           value: this.state.multipleSelectValues,
           onChange: this.onMultpleSelectChange,
           id: field._id,
-          multiple: true,
+          multiple: true
         });
 
       case 'check':
@@ -530,52 +545,55 @@ export default class Field extends React.Component<Props, State> {
           onChange: this.handleFileInput,
           type: 'file',
           id: field._id,
-          multiple: true,
+          multiple: true
         });
 
       case 'avatar':
         return Field.renderInput({
           onChange: this.handleFileInput,
           type: 'file',
-          id: field._id,
+          id: field._id
         });
 
       case 'company_avatar':
         return Field.renderInput({
           onChange: this.handleFileInput,
           type: 'file',
-          id: field._id,
+          id: field._id
         });
 
       case 'textarea':
         return Field.renderTextarea({
           onChange: this.onTextAreaChange,
           id: field._id,
-          value,
+          value
         });
 
       case 'description':
         return Field.renderTextarea({
           onChange: this.onTextAreaChange,
           id: field._id,
-          value,
+          value
         });
 
       case 'company_description':
         return Field.renderTextarea({
           onChange: this.onTextAreaChange,
           id: field._id,
-          value,
+          value
         });
 
       case 'birthDate':
         return this.renderDatepicker(field._id);
 
       case 'html':
-        return this.renderHtml(field.content || "", field._id);
+        return this.renderHtml(field.content || '', field._id);
 
       case 'map':
         return this.renderMap(field, value);
+
+      case 'productCategory':
+        return this.renderProduct(field);
 
       default:
         return Field.renderInput({
@@ -595,7 +613,7 @@ export default class Field extends React.Component<Props, State> {
       if (field.column) {
         return {
           width: `${100 / field.column}%`,
-          display: "inline-block"
+          display: 'inline-block'
         };
       }
     };
