@@ -16,10 +16,12 @@ import { IMessageModel, loadClass as loadMessageClass } from './models/Conversat
 import { IMessageDocument } from './models/definitions/conversationMessages';
 import { IConversationModel, loadClass as loadConversationClass } from './models/Conversations';
 import { IConversationDocument } from './models/definitions/conversations';
+import { brandSchema } from '@erxes/api-utils/src/definitions/brands';
+import { userSchema } from '@erxes/api-utils/src/definitions/users';
 
 export interface ICoreIModels {
-  Brands;
   Users;
+  Brands;
 }
 export interface IModels {
   Channels: IChannelModel;
@@ -84,8 +86,8 @@ const connectCore = async () => {
   db = client.db(dbName);
 
   coreModels = {
-    Brands: await db.collection('brands'),
-    Users: await db.collection('users'),
+    Users: mainDb.model('users', userSchema ),
+    Brands : mainDb.model('brands', brandSchema)
   };
 
   return coreModels;

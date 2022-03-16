@@ -434,7 +434,7 @@ export const loadClass = (models: IModels, coreModels: ICoreIModels, subdomain: 
       const users =
         (await coreModels.Users.find({ _id: { $in: skill.memberIds || [] } }).sort({
           createdAt: 1
-        })).toArray() || [];
+        })) || [];
 
       if (users.length === 0) {
         return;

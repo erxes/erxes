@@ -952,7 +952,7 @@ const widgetMutations = {
       ).replaceAttributes({
         content,
         customer,
-        user: await coreModels.Users.getUser(form.createdUserId)
+        user: await coreModels.Users.findOne({_id: form.createdUserId}) || {}
       });
 
       finalContent = replacedContent || '';

@@ -12,6 +12,6 @@ export default {
     return coreModels.Users.find({
       _id: { $in: channel.memberIds },
       isActive: { $ne: false }
-    }).toArray();
+    });
   }
 };

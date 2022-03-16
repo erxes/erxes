@@ -1,25 +1,18 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
-export interface IPermission {
-  module: string;
-  action: string;
-  userId?: string;
-  groupId?: string;
-  requiredActions: string[];
-  allowed: boolean;
-}
+import {IPermission, IPermissionDocument,} from '@erxes/api-utils/src/definitions/permissions';
 
+export {
+  IPermission,
+  IPermissionDocument
+}
 export interface IPermissionParams {
   module: string;
   actions: string[];
   userIds?: string[];
   groupIds?: string[];
   allowed: boolean;
-}
-
-export interface IPermissionDocument extends IPermission, Document {
-  _id: string;
 }
 
 export const permissionSchema = new Schema({
