@@ -1,4 +1,4 @@
-name: Plugin clientportals api CI
+name: Plugin clientportal api CI
 
 on:
   push:
@@ -7,11 +7,11 @@ on:
     paths:
       - 'packages/api-utils/**'
       - 'packages/api-plugin-template.erxes/**'
-      - 'packages/plugin-clientportals-api/**'
-      - '.github/workflows/plugin-clientportals-api.yaml'
+      - 'packages/plugin-clientportal-api/**'
+      - '.github/workflows/plugin-clientportal-api.yaml'
 
 jobs:
-  plugin-clientportals-api:
+  plugin-clientportal-api:
     runs-on: ubuntu-18.04
 
     steps:
@@ -31,24 +31,24 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-plugin-clientportals-api-${{ hashFiles('yarn.lock', 'plugin-clientportals-api/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-plugin-clientportal-api-${{ hashFiles('yarn.lock', 'plugin-clientportal-api/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-plugin-clientportals-api-
+            ${{ runner.os }}-yarn-plugin-clientportal-api-
             ${{ runner.os }}-yarn-
 
       - name: Build
         run: |
           cd packages/gateway
           yarn install
-          yarn build plugin clientportals
+          yarn build plugin clientportal
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
         run: |
           ls -la dist
-          ls -la dist/plugin-clientportals-api
+          ls -la dist/plugin-clientportal-api
 
-          cd dist/plugin-clientportals-api/.erxes
+          cd dist/plugin-clientportal-api/.erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/plugin-clientportals-api:${GITHUB_REF#refs/heads/} -f Dockerfile .
-          docker push erxes/plugin-clientportals-api:${GITHUB_REF#refs/heads/}
+          docker build -t erxes/plugin-clientportal-api:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker push erxes/plugin-clientportal-api:${GITHUB_REF#refs/heads/}
