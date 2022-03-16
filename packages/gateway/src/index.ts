@@ -17,7 +17,16 @@ import pubsub from './subscription/pubsub';
 import { getService, getServices, redis } from './redis';
 import { initBroker } from './messageBroker';
 
-const { MAIN_APP_DOMAIN, WIDGETS_DOMAIN, API_DOMAIN, PORT, RABBITMQ_HOST, MESSAGE_BROKER_PREFIX } = process.env;
+const {
+  MAIN_APP_DOMAIN,
+  WIDGETS_DOMAIN,
+  CLIENT_PORTAL_DOMAINS,
+  DASHBOARD_DOMAIN,
+  API_DOMAIN,
+  PORT,
+  RABBITMQ_HOST,
+  MESSAGE_BROKER_PREFIX
+} = process.env;
 
 (async () => {
   await db.connect();
@@ -124,10 +133,9 @@ const { MAIN_APP_DOMAIN, WIDGETS_DOMAIN, API_DOMAIN, PORT, RABBITMQ_HOST, MESSAG
       origin: [
         MAIN_APP_DOMAIN || 'http://localhost:3000',
         WIDGETS_DOMAIN || '',
-        'http://localhost:3001',
+        ...(CLIENT_PORTAL_DOMAINS || '').split(','),
+        DASHBOARD_DOMAIN || '',
         'https://studio.apollographql.com',
-        'http://localhost:3200',
-        'http://localhost:3009', // inbox
       ]
     }
   });
