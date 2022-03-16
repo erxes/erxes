@@ -115,7 +115,8 @@ const productTemplateMutations = {
       type,
       templateItems,
       tagIds,
-      status
+      status,
+      templateImage
     } = productTemplate;
 
     doc.title = title + ' copied';
@@ -127,6 +128,7 @@ const productTemplateMutations = {
     doc.tagIds = tagIds;
     doc.status = status;
     doc.createdBy = user._id;
+    doc.templateImage = templateImage;
 
     const newProductTemplate = await ProductTemplates.create(docModifier(doc));
 

@@ -8,6 +8,7 @@ export const types = `
     description: String
     templateItems: JSON
     templateItemsProduct: JSON
+    templateImage: Attachment
     status: String
     tagIds: [String]
     tags: [Tag]
@@ -27,6 +28,7 @@ const templateParams = `
   description: String
   templateItems: JSON
   status: String
+  templateImage: AttachmentInput
 `;
 
 const productTemplateParams = `

@@ -19,6 +19,7 @@ export interface IProductTemplate {
   templateItems: IProductTemplateItem[];
   templateItemsProduct: any[];
   status: string;
+  templateImage?: any;
   tags: ITag[];
 }
 
