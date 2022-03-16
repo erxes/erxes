@@ -1,7 +1,5 @@
-import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
-import { internalNoteSchema } from './models/definitions/internalNotes';
 
 const checkService = async (serviceName: string, needsList?: boolean) => {
   const enabled = await serviceDiscovery.isEnabled(serviceName);
@@ -36,31 +34,6 @@ export const initBroker = async (cl) => {
   );
 
   consumeRPCQueue(
-    'internalnotes:rpc_queue:activityLog:collectItems',
-    async ({ subdomain, contentId }) => {
-      const models = await generateModels(subdomain);
-      const notes = await models.InternalNotes.find({
-        contentTypeId: contentId,
-      }).sort({ createdAt: -1 });
-      const results: any[] = [];
-
-      for (const note of notes) {
-        results.push({
-          _id: note._id,
-          contentType: 'note',
-          contentId,
-          createdAt: note.createdAt,
-        });
-      }
-
-      return {
-        status: 'success',
-        data: results,
-      };
-    }
-  );
-
-  consumeRPCQueue(
     'internalnotes:rpc_queue:getInternalNotes',
     async ({ subdomain, contentTypeIds, perPageForAction, page }) => {
       const filter = { contentTypeId: { $in: contentTypeIds } };
@@ -77,16 +50,6 @@ export const initBroker = async (cl) => {
         totalCount: await models.InternalNotes.countDocuments(filter),
       };
     }
-  );
-
-  consumeRPCQueue(
-    'internalnotes:rpc_queue:logs:getSchemaLabels',
-    async ({ type }) => ({
-      status: 'success',
-      data: getSchemaLabels(type, [
-        { name: 'internalNote', schemas: [internalNoteSchema] },
-      ]),
-    })
   );
 
   consumeQueue(
@@ -109,10 +72,10 @@ export const sendNotificationMessage = async (
       return defaultValue;
     }
 
-    return client.sendRPCMessage(`notifications:rpc_queue:${action}`, data);
+    return client.sendRPCMessage(`notifications:${action}`, { data });
   }
 
-  return client.sendMessage(`notifications:${action}`, data);
+  return client.sendMessage(`notifications:${action}`, { data });
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {
@@ -132,7 +95,7 @@ export const getContentIds = async (data) => {
 
   await checkService(serviceName, true);
 
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:getContentIds`, data);
+  return client.sendRPCMessage(`${serviceName}:logs:getContentIds`, data);
 };
 
 export default function() {

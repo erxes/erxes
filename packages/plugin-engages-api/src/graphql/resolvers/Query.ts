@@ -1,4 +1,3 @@
-import { IUserDocument } from "@packages/api-core/src/db/models/definitions/users";
 import { paginate } from '@erxes/api-utils/src/core';
 import { IContext } from '@erxes/api-utils/src/types';
 import {
@@ -54,7 +53,7 @@ const tagQueryBuilder = (tagId: string) => ({ tagIds: tagId });
 // status query builder
 const statusQueryBuilder = (
   status: string,
-  user?: IUserDocument
+  user?
 ): IStatusQueryBuilder | undefined => {
   if (status === 'live') {
     return { isLive: true };
@@ -83,7 +82,7 @@ const countsByKind = async commonSelector => ({
 // count for each status type
 const countsByStatus = async (
   commonSelector,
-  { kind, user }: { kind: string; user: IUserDocument }
+  { kind, user }: { kind: string; user }
 ): Promise<ICountsByStatus> => {
   const query: IQuery = commonSelector;
 
@@ -109,7 +108,7 @@ const countsByTag = async (
   }: {
     kind: string;
     status: string;
-    user: IUserDocument;
+    user;
   }
 ): Promise<ICountsByTag> => {
   let query: any = commonSelector;
@@ -139,7 +138,7 @@ const countsByTag = async (
 const listQuery = async (
   commonSelector,
   { kind, status, tag, ids }: IListArgs,
-  user: IUserDocument
+  user
 ) => {
   let query = commonSelector;
 

@@ -1,9 +1,11 @@
-import { checkPermission, requireLogin } from "@erxes/api-utils/src/permissions";
-import { IContext } from "@erxes/api-utils/src/types";
-import { Segments } from "../../../models";
+import {
+  checkPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 import { es, serviceDiscovery } from '../../../configs';
-import { fetchSegment } from "./queryBuilder";
-import { sendRPCMessage } from "../../../messageBroker";
+import { IContext } from '../../../connectionResolver';
+import { sendMessage } from '../../../messageBroker';
+import { fetchSegment } from './queryBuilder';
 
 const segmentQueries = {
   async segmentsGetTypes() {
@@ -17,6 +19,7 @@ const segmentQueries = {
 
       if (meta.segments) {
         const descriptionMap = meta.segments.descriptionMap;
+
         const serviceTypes = meta.segments.contentTypes.map(contentType => ({
           contentType: `${serviceName}:${contentType}`,
           description: descriptionMap[contentType]
@@ -29,7 +32,7 @@ const segmentQueries = {
     return types;
   },
 
-  async segmentsGetAssociationTypes(_root, { contentType }) {
+  async segmentsGetAssociationTypes(_root, { contentType }, { subdomain }: IContext) {
     const [serviceName, type] = contentType.split(':');
     const service = await serviceDiscovery.getService(serviceName, true);
     const meta = service.config.meta || {};
@@ -39,9 +42,19 @@ const segmentQueries = {
     }
 
     const descriptionMap = meta.segments.descriptionMap;
-    const types = await sendRPCMessage(`${serviceName}:segments:associationTypes`, { mainType: type })
 
-    return types.map(atype => ({ value: atype, description: descriptionMap[atype] }));
+    const types = await sendMessage({
+      subdomain,
+      serviceName,
+      action: `segments.associationTypes`,
+      isRPC: true,
+      data: { mainType: type }
+    });
+
+    return types.map(atype => ({
+      value: atype,
+      description: descriptionMap[atype.split(':')[1]]
+    }));
   },
 
   /**
@@ -50,11 +63,9 @@ const segmentQueries = {
   segments(
     _root,
     {
-      contentTypes,
-      boardId,
-      pipelineId
+      contentTypes
     }: { contentTypes: string[]; boardId?: string; pipelineId?: string },
-    { commonQuerySelector }: IContext
+    { models, commonQuerySelector }: IContext
   ) {
     const selector: any = {
       ...commonQuerySelector,
@@ -62,22 +73,22 @@ const segmentQueries = {
       name: { $exists: true }
     };
 
-    if (boardId) {
-      selector.boardId = boardId;
-    }
+    // if (boardId) {
+    //   selector.boardId = boardId;
+    // }
 
-    if (pipelineId) {
-      selector.pipelineId = pipelineId;
-    }
+    // if (pipelineId) {
+    //   selector.pipelineId = pipelineId;
+    // }
 
-    return Segments.find(selector).sort({ name: 1 });
+    return models.Segments.find(selector).sort({ name: 1 });
   },
 
   /**
    * Only segment that has no sub segments
    */
-  async segmentsGetHeads(_root, _args, { commonQuerySelector }: IContext) {
-    return Segments.find({
+  async segmentsGetHeads(_root, _args, { models, commonQuerySelector }: IContext) {
+    return models.Segments.find({
       ...commonQuerySelector,
       name: { $exists: true },
       $or: [{ subOf: { $exists: false } }, { subOf: '' }]
@@ -87,8 +98,8 @@ const segmentQueries = {
   /**
    * Get one segment
    */
-  async segmentDetail(_root, { _id }: { _id: string }) {
-    return Segments.findOne({ _id });
+  async segmentDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Segments.findOne({ _id });
   },
 
   /**
@@ -159,9 +170,12 @@ const segmentQueries = {
       boardId?: string;
       pipelineId?: string;
       conditionsConjunction?: 'and' | 'or';
-    }
+    },
+    { models, subdomain }: IContext
   ) {
     return fetchSegment(
+      models,
+      subdomain,
       {
         name: 'preview',
         color: '#fff',

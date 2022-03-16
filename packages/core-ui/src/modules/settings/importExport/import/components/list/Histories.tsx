@@ -5,7 +5,7 @@ import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 
-import { getEnv, __ } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 
@@ -27,25 +27,6 @@ type Props = {
   serviceType: string;
   removeHistory: (historyId: string, contentType: string) => void;
 };
-
-const DYNAMICLY_TEMPLATE_TYPES = [
-  'customer',
-  'company',
-  'deal',
-  'task',
-  'ticket',
-  'lead',
-  'visitor'
-];
-
-const DATA_IMPORT_TYPES = [
-  'customer',
-  'company',
-  'deal',
-  'task',
-  'ticket',
-  'lead'
-];
 
 class Histories extends React.Component<Props & IRouterProps> {
   renderHistories = () => {
@@ -102,46 +83,19 @@ class Histories extends React.Component<Props & IRouterProps> {
 
   renderExportButton = () => {
     const { currentType, serviceType } = this.props;
-    const { REACT_APP_API_URL } = getEnv();
-
-    const exportData = () => {
-      window.open(
-        `${REACT_APP_API_URL}/file-export?type=${currentType}`,
-        '_blank'
-      );
-    };
-
-    if (DYNAMICLY_TEMPLATE_TYPES.includes(currentType)) {
-      return (
-        <Link
-          to={`/settings/export?type=${currentType}&serviceType=${serviceType}`}
-        >
-          <Button icon="export" btnStyle="primary" size="small">
-            {__(`Export ${this.getButtonText()}`)}
-          </Button>
-        </Link>
-      );
-    }
 
     return (
-      <Button
-        icon="export"
-        btnStyle="primary"
-        size="small"
-        onClick={exportData}
+      <Link
+        to={`/settings/export?type=${currentType}&serviceType=${serviceType}`}
       >
-        {__(`Export ${this.getButtonText()}`)}
-      </Button>
+        <Button icon="export" btnStyle="primary" size="small">
+          {__(`Export ${this.getButtonText()}`)}
+        </Button>
+      </Link>
     );
   };
 
   renderDataImporter() {
-    const { currentType } = this.props;
-
-    if (!DATA_IMPORT_TYPES.includes(currentType)) {
-      return null;
-    }
-
     return (
       <Link to={`/settings/import`}>
         <Button icon="import" btnStyle="success" size="small">

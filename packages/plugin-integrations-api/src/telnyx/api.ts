@@ -47,7 +47,7 @@ const prepareMessage = async ({
     const { telnyxPhoneNumber, telnyxProfileId } = integration;
 
     const msg = {
-      from: telnyxPhoneNumber,
+      from: telnyxPhoneNumber || "",
       to,
       text: content,
       messaging_profile_id: '',
@@ -71,7 +71,7 @@ const handleMessageCallback = async (
   res: any,
   data: ICallbackParams
 ) => {
-  const { conversationId, conversationMessageId, msg } = data;
+  const { conversationId = "", conversationMessageId, msg } = data;
 
   const request = await ConversationMessages.createRequest({
     conversationId,

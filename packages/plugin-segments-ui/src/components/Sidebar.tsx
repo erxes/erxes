@@ -15,7 +15,11 @@ function ListItem(link: string, label: string) {
   );
 }
 
-function Sidebar({ types }: { types: Array<{contentType: string, description: string}>}) {
+function Sidebar({
+  types
+}: {
+  types: Array<{ contentType: string; description: string }>;
+}) {
   return (
     <LeftSidebar full={true} header={<SidebarHeader />}>
       <LeftSidebar.Header uppercase={true}>
@@ -23,8 +27,8 @@ function Sidebar({ types }: { types: Array<{contentType: string, description: st
       </LeftSidebar.Header>
 
       <SidebarList id={'SegmentSidebar'}>
-        {types.map((type) => {
-          return ListItem(`/segments/${type.contentType}`, type.description)
+        {types.map(type => {
+          return ListItem(`/segments/${type.contentType}`, type.description);
         })}
 
         <li>

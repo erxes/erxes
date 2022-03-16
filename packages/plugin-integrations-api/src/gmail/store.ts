@@ -200,7 +200,7 @@ export const storeConversationMessage = async (args: {
       payload: JSON.stringify({
         conversationId: erxesApiId,
         customerId: customerErxesApiId,
-        content: cleanHtml(email.html)
+        content: cleanHtml(email.html || "")
       })
     });
 
@@ -217,10 +217,10 @@ export const storeConversationMessage = async (args: {
       unread: email.unread,
       inReplyTo: email.inReplyTo,
       erxesApiMessageId: apiMessageResponse._id,
-      to: getEmailsAsObject(email.to),
-      cc: getEmailsAsObject(email.cc),
-      bcc: getEmailsAsObject(email.bcc),
-      from: getEmailsAsObject(email.from),
+      to: getEmailsAsObject(email.to || ""),
+      cc: getEmailsAsObject(email.cc || ""),
+      bcc: getEmailsAsObject(email.bcc || ""),
+      from: getEmailsAsObject(email.from || ""),
       sender: email.sender,
       attachments: email.attachments
     });

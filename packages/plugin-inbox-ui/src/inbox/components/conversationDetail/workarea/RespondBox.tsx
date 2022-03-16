@@ -30,6 +30,7 @@ import { IResponseTemplate } from '../../../../settings/responseTemplates/types'
 import { AddMessageMutationVariables, IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import FacebookTaggedMessageModal from './facebook/FacebookTaggedMessageModal';
 import { FacebookTaggedMessage } from './styles';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const Editor = asyncComponent(
   () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
@@ -455,16 +456,20 @@ class RespondBox extends React.Component<Props, State> {
     }
 
     return (
-      <FormControl
-        id='conversationInternalNote'
-        className='toggle-message'
-        componentClass='checkbox'
-        checked={isInternal}
-        onChange={this.toggleForm}
-        disabled={this.props.showInternal}
-      >
-        {__('Internal note')}
-      </FormControl>
+      <>
+        {isEnabled("internalnotes") && (
+          <FormControl
+          id='conversationInternalNote'
+          className='toggle-message'
+          componentClass='checkbox'
+            checked={isInternal}
+            onChange={this.toggleForm}
+            disabled={this.props.showInternal}
+          >
+            {__("Internal note")}
+          </FormControl>
+        )}
+      </>
     );
   }
 

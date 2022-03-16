@@ -52,12 +52,12 @@ const SMOOCH_MODELS = {
 const createOrGetSmoochCustomer = async ({
   kind,
   integrationIds,
-  surname,
-  givenName,
+  surname = "",
+  givenName = "",
   smoochUserId,
-  phone,
-  email,
-  avatarUrl
+  phone = "",
+  email = "",
+  avatarUrl = ""
 }: ISmoochCustomerArguments) => {
   debugSmooch('Create or get smooch customer function called...');
 

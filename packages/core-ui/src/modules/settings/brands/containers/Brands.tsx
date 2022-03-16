@@ -1,27 +1,30 @@
 import gql from "graphql-tag";
 import * as compose from "lodash.flowright";
 import { router as routerUtils, withProps } from "modules/common/utils";
-import { IntegrationsCountQueryResponse } from "@erxes/ui-settings/src/integrations/types";
 import queryString from "query-string";
 import React from "react";
 import { graphql } from "react-apollo";
 import { withRouter } from "react-router-dom";
-import { IRouterProps } from "@erxes/ui/src/types";
+import { IButtonMutateProps, IRouterProps } from "@erxes/ui/src/types";
 import DumbBrands from "../components/Brands";
 import Empty from "../components/Empty";
-import { queries } from "../graphql";
+import { mutations, queries } from "../graphql";
+import { queries as queriesInbox } from "@erxes/ui-inbox/src/inbox/graphql";
 import {
   BrandDetailQueryResponse,
+  BrandsCountQueryResponse,
   BrandsGetLastQueryResponse,
 } from "@erxes/ui/src/brands/types";
+import Spinner from "modules/common/components/Spinner";
+import ButtonMutate from "modules/common/components/ButtonMutate";
 
 type Props = {
   currentBrandId: string;
 };
 
 type FinalProps = {
-  integrationsCountQuery: IntegrationsCountQueryResponse;
   brandDetailQuery: BrandDetailQueryResponse;
+  brandsCountQuery: BrandsCountQueryResponse;
 } & Props &
   IRouterProps;
 
@@ -29,29 +32,74 @@ class Brands extends React.Component<FinalProps> {
   render() {
     const {
       brandDetailQuery,
+      brandsCountQuery,
       location,
-      integrationsCountQuery,
       currentBrandId,
     } = this.props;
 
-    let integrationsCount = 0;
-
-    if (!integrationsCountQuery.loading) {
-      const byBrand = integrationsCountQuery.integrationsTotalCount.byBrand;
-      integrationsCount = byBrand[currentBrandId];
+    if (brandDetailQuery.loading || brandsCountQuery.loading) {
+      return <Spinner objective={true} />;
     }
+
+    const queryParams = queryString.parse(location.search);
+
+    const renderButton = ({
+      name,
+      values,
+      isSubmitted,
+      callback,
+      object,
+    }: IButtonMutateProps) => {
+      return (
+        <ButtonMutate
+          mutation={object ? mutations.brandEdit : mutations.brandAdd}
+          variables={values}
+          callback={callback}
+          refetchQueries={getRefetchQueries(queryParams, currentBrandId)}
+          isSubmitted={isSubmitted}
+          type="submit"
+          successMessage={`You successfully ${
+            object ? "updated" : "added"
+          } a ${name}`}
+        />
+      );
+    };
 
     const extendedProps = {
       ...this.props,
+      renderButton,
       queryParams: queryString.parse(location.search),
       currentBrand: brandDetailQuery.brandDetail || {},
+      brandsTotalCount: brandsCountQuery.brandsTotalCount || 0,
       loading: brandDetailQuery.loading,
-      integrationsCount,
     };
 
     return <DumbBrands {...extendedProps} />;
   }
 }
+
+const getRefetchQueries = (queryParams, currentBrandId?: string) => {
+  return [
+    {
+      query: gql(queries.brands),
+      variables: {
+        perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20,
+      },
+    },
+    {
+      query: gql(queries.brands),
+    },
+    {
+      query: gql(queries.integrationsCount),
+    },
+    {
+      query: gql(queries.brandDetail),
+      variables: { _id: currentBrandId || "" },
+    },
+    { query: gql(queries.brandsCount) },
+    { query: gql(queriesInbox.brandList) },
+  ];
+};
 
 const BrandsContainer = withProps<Props>(
   compose(
@@ -65,15 +113,9 @@ const BrandsContainer = withProps<Props>(
         }),
       }
     ),
-    graphql<Props, IntegrationsCountQueryResponse, { brandId: string }>(
-      gql(queries.integrationsCount),
-      {
-        name: "integrationsCountQuery",
-        options: ({ currentBrandId }: { currentBrandId: string }) => ({
-          variables: { brandId: currentBrandId },
-        }),
-      }
-    )
+    graphql<Props, BrandsCountQueryResponse, {}>(gql(queries.brandsCount), {
+      name: "brandsCountQuery",
+    })
   )(Brands)
 );
 

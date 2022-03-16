@@ -173,7 +173,8 @@ class EventForm extends React.Component<Props, State> {
         eventAttributeFilters:
           eventAttributeFilters[0] && eventAttributeFilters[0].operator
             ? eventAttributeFilters
-            : []
+            : [],
+        config: {}
       },
       segmentKey
     );

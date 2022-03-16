@@ -1,6 +1,13 @@
-export const types = (isProductsAvailable, isTagsAvailable) => `
-  extend type Form @key(fields: "_id") {
-    _id: String! @external
+export const types = ({ products, tags, forms }) => `
+  ${
+    forms ?
+    `
+      extend type Form @key(fields: "_id") {
+        _id: String! @external
+      }
+    `
+    :
+    '' 
   }
 
   extend input InputRule {
@@ -22,7 +29,7 @@ export const types = (isProductsAvailable, isTagsAvailable) => `
     tagIds: [String]
 
     ${
-      isTagsAvailable ? `tags: [Tag]` : '' 
+      tags ? `tags: [Tag]` : '' 
     }
     
     leadData: JSON
@@ -32,7 +39,8 @@ export const types = (isProductsAvailable, isTagsAvailable) => `
     webhookData: JSON
 
     brand: Brand
-    form: Form
+
+    ${ forms ? `form: Form` : '' }
     channels: [Channel]
 
     websiteMessengerApps: [MessengerApp]
@@ -58,7 +66,7 @@ export const types = (isProductsAvailable, isTagsAvailable) => `
     categoryTree: JSON
 
     ${
-      isProductsAvailable ? 
+      products ? 
       `
         mainProductCategory: ProductCategory
       ` : ''

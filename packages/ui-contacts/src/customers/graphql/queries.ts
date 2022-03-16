@@ -1,4 +1,5 @@
-import { queries as customerQueries } from '@erxes/ui/src/customers/graphql';
+import { queries as customerQueries } from "@erxes/ui/src/customers/graphql";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const basicFields = customerQueries.basicFields;
 
@@ -39,17 +40,25 @@ const customerDetail = `
     customerDetail(_id: $_id) {
       ${customerFields}
       urlVisits
-      integration {
-        kind
-        name
-        isActive
+      ${
+        isEnabled("inbox")
+          ? `
+        integration {
+          kind
+          name
+          isActive
+        }
+      `
+          : ``
       }
       companies {
         _id
         primaryName
         website
       }
-      conversations {
+      ${
+        isEnabled("inbox")
+          ? `conversations {
         _id
         content
         createdAt
@@ -86,6 +95,8 @@ const customerDetail = `
           colorCode
         }
         readUserIds
+      }`
+          : ``
       }
     }
   }
@@ -93,7 +104,7 @@ const customerDetail = `
 
 const customersListConfig = `
   query {
-    fieldsDefaultColumnsConfig(contentType: "customer") {
+    fieldsDefaultColumnsConfig(contentType: "contacts:customer") {
       name
       label
       order
@@ -118,5 +129,5 @@ export default {
   customerDetail,
   customersListConfig,
   customersExport,
-  integrationsGetUsedTypes
+  integrationsGetUsedTypes,
 };

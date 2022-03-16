@@ -13,6 +13,7 @@ import InfoSection from './InfoSection';
 import LeadState from '@erxes/ui-contacts/src/customers/containers/LeadState';
 import ActionSection from '../../containers/ActionSection';
 import RightSidebar from './RightSidebar';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   user: IUser;
@@ -64,16 +65,16 @@ function UserDetails({
     <>
       <ActivityInputs
         contentTypeId={user._id}
-        contentType="api-core:user"
+        contentType="core:user"
         showEmail={false}
       />
 
-      <ActivityLogs
+      {isEnabled("logs") && <ActivityLogs
         target={user.details && user.details.fullName}
         contentId={user._id}
-        contentType="api-core:user"
+        contentType="core:user"
         extraTabs={[{ name: 'conversation', label: 'Conversations' }]}
-      />
+      />}
     </>
   );
 

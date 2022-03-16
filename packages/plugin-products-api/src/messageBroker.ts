@@ -1,7 +1,6 @@
-import { getSchemaLabels } from "@erxes/api-utils/src/logUtils";
-
-import { ProductCategories, Products } from "./models";
-import { productSchema, productCategorySchema } from './models/definitions/products';
+import { ISendMessageArgs, sendMessage } from "@erxes/api-utils/src/core";
+import { generateModels } from "./connectionResolver";
+import { serviceDiscovery } from './configs'
 
 let client;
 
@@ -10,65 +9,91 @@ export const initBroker = async cl => {
 
   const { consumeRPCQueue } = client;
 
-  consumeRPCQueue('products:rpc_queue:findOne', async (selector) => ({
-    data: await Products.findOne(selector),
-    status: 'success',
-  }));
+  consumeRPCQueue('products:findOne', async ({ subdomain, data } ) => {
+    const models = await generateModels(subdomain)
+    
+    return {
+      data: await models.Products.findOne(data),
+      status: 'success'
+    };
+  });
 
   consumeRPCQueue(
-    'productCategories:rpc_queue:find',
-    async ({ query, sort, regData }) => ({
+    'products:categories.find',
+    async ({ subdomain, data: { query, sort, regData } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
         data: regData
-          ? await ProductCategories.find({
+          ? await models.ProductCategories.find({
               order: { $regex: new RegExp(regData) }
             }).sort(sort)
-          : await ProductCategories.find(query),
+          : await models.ProductCategories.find(query),
         status: 'success'
-      })
+      };
+    }
   );
 
-  consumeRPCQueue('productCategories:rpc_queue:findOne', async (selector) => ({
-    data: await ProductCategories.findOne(selector),
-    status: 'success',
-  }));
+  consumeRPCQueue('products:categories.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
 
-  consumeRPCQueue('products:rpc_queue:find', async ({ query, sort }) => ({
-    data: await Products.find(query).sort(sort),
-    status: 'success',
-  }));
+    return {
+      data: await models.ProductCategories.findOne(data),
+      status: 'success'
+    };
+  });
 
-  consumeRPCQueue('products:rpc_queue:update', async ({ selector, modifier }) => ({
-    data: await Products.updateMany(selector, modifier),
-    status: 'success',
-  }));
+  consumeRPCQueue('products:find', async ({ subdomain, data: { query, sort } }) => {
+    const models = await generateModels(subdomain);
 
-  consumeRPCQueue('products:rpc_queue:tag', async args => {
-    let data = {};
+    return {
+      data: await models.Products.find(query).sort(sort),
+      status: 'success'
+    };
+  });
 
-    if (args.action === 'count') {
-      data = await Products.countDocuments({ tagIds: { $in: args._ids } });
+  consumeRPCQueue(
+    'products:update',
+    async ({ subdomain, data: { selector, modifier } }) => {
+    const models = await generateModels(subdomain)
+
+      return {
+        data: await models.Products.updateMany(selector, modifier),
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue('products:tag', async ({ subdomain, data  }) => {
+    const models = await generateModels(subdomain)
+
+    let response = {};
+
+    if (data.action === 'count') {
+      response = await models.Products.countDocuments({ tagIds: { $in: data._ids } });
     }
 
-    if (args.action === 'tagObject') {
-      await Products.updateMany(
-        { _id: { $in: args.targetIds } },
-        { $set: { tagIds: args.tagIds } },
+    if (data.action === 'tagObject') {
+      await models.Products.updateMany(
+        { _id: { $in: data.targetIds } },
+        { $set: { tagIds: data.tagIds } },
         { multi: true }
       );
 
-      data = await Products.find({ _id: { $in: args.targetIds } }).lean();
+      response = await models.Products.find({ _id: { $in: data.targetIds } }).lean();
     }
 
     return {
       status: 'success',
-      data
+      data: response
     }
   });
 
-  consumeRPCQueue('products:rpc_queue:generateInternalNoteNotif', async args => {
-    const { contentTypeId, notifDoc } = args;
+  consumeRPCQueue('products:generateInternalNoteNotif', async ({ subdomain, data })  => {
+    const models = await generateModels(subdomain)
+    const { contentTypeId, notifDoc } = data;
 
-    const product = await Products.getProduct({ _id: contentTypeId });
+    const product = await models.Products.getProduct({ _id: contentTypeId });
 
     notifDoc.content = product.name;
 
@@ -77,33 +102,27 @@ export const initBroker = async cl => {
       data: notifDoc
     }
   });
-
-  consumeRPCQueue('products:rpc_queue:logs:getSchemaLabels', async ({ type }) => ({
-    status: 'success',
-    data: getSchemaLabels(
-      type,
-      [{ name: 'product', schemas: [productSchema] }, { name: 'productCategory', schemas: [productCategorySchema] }]
-    )
-  }));
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {
   return client.sendRPCMessage(channel, message);
 };
 
-export const prepareCustomFieldsData = async (doc): Promise<any> => {
-  return client.sendRPCMessage('fields:rpc_queue:prepareCustomFieldsData', {
-    doc,
-  });
-};
+export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: "forms", ...args })
+}
 
-export const findTags = async (selector): Promise<any> => {
-  return client.sendRPCMessage('tags:rpc_queue:find', selector);
-};
+export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: "cards", ...args })
+}
 
-export const findCompanies = async (selector): Promise<any> => {
-  return client.sendRPCMessage('contacts:rpc_queue:findActiveCompanies', selector);
-};
+export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: "contacts", ...args })
+}
+
+export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: "tags", ...args })
+}
 
 export default function() {
   return client;

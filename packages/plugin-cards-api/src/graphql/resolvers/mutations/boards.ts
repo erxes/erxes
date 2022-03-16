@@ -1,4 +1,3 @@
-import { Boards, Pipelines, Stages } from '../../../models';
 import { bulkUpdateOrders, getCollection } from '../../../models/utils';
 import {
   IBoard,
@@ -9,13 +8,12 @@ import {
 } from '../../../models/definitions/boards';
 import { BOARD_STATUSES } from '../../../models/definitions/constants';
 import { graphqlPubsub } from '../../../configs';
-import { IContext } from '@erxes/api-utils/src';
 import { checkPermission } from '../../utils';
-import { sendFieldsGroupMessage } from '../../../messageBroker';
-import { FieldsGroups } from '../../../apiCollections';
 
 import { putCreateLog, putUpdateLog, putDeleteLog } from '../../../logUtils';
 import { configReplacer } from '../../../utils';
+import { IContext } from '../../../connectionResolver';
+import { sendFormsMessage } from '../../../messageBroker';
 
 interface IBoardsEdit extends IBoard {
   _id: string;
@@ -58,14 +56,16 @@ const boardMutations = {
   /**
    * Create new board
    */
-  async boardsAdd(_root, doc: IBoard, { user }: IContext) {
+  async boardsAdd(_root, doc: IBoard, { user, models, subdomain }: IContext) {
     await checkPermission(doc.type, user, 'boardsAdd');
 
     const extendedDoc = { userId: user._id, ...doc };
 
-    const board = await Boards.createBoard(extendedDoc);
+    const board = await models.Boards.createBoard(extendedDoc);
 
     await putCreateLog(
+      models,
+      subdomain,
       {
         type: `${doc.type}Boards`,
         newData: extendedDoc,
@@ -80,13 +80,15 @@ const boardMutations = {
   /**
    * Edit board
    */
-  async boardsEdit(_root, { _id, ...doc }: IBoardsEdit, { user }: IContext) {
+  async boardsEdit(_root, { _id, ...doc }: IBoardsEdit, { user, models, subdomain }: IContext) {
     await checkPermission(doc.type, user, 'boardsEdit');
 
-    const board = await Boards.getBoard(_id);
-    const updated = await Boards.updateBoard(_id, doc);
+    const board = await models.Boards.getBoard(_id);
+    const updated = await models.Boards.updateBoard(_id, doc);
 
     await putUpdateLog(
+      models,
+      subdomain,
       {
         type: `${doc.type}Boards`,
         newData: doc,
@@ -102,28 +104,28 @@ const boardMutations = {
   /**
    * Remove board
    */
-  async boardsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const board = await Boards.getBoard(_id);
+  async boardsRemove(_root, { _id }: { _id: string }, { models, subdomain, user }: IContext) {
+    const board = await models.Boards.getBoard(_id);
 
     await checkPermission(board.type, user, 'boardsRemove');
 
-    const removed = await Boards.removeBoard(_id);
+    const removed = await models.Boards.removeBoard(_id);
 
-    const relatedFieldsGroups = await FieldsGroups.find({
-      boardIds: board._id
-    }).toArray();
+    const relatedFieldsGroups = await sendFormsMessage({
+      subdomain,
+      action: 'groups:find',  data: { boardIds: board._id }, isRPC: true, defaultValue: []
+    });
 
     for (const fieldGroup of relatedFieldsGroups) {
       const boardIds = fieldGroup.boardIds || [];
       fieldGroup.boardIds = boardIds.filter(e => e !== board._id);
 
-      sendFieldsGroupMessage('updateGroup', {
-        groupId: fieldGroup._id,
-        fieldGroup
-      });
+      await sendFormsMessage({ subdomain, action: 'groups:update', data: { groupId: fieldGroup._id, fieldGroup }, isRPC: true });
     }
 
     await putDeleteLog(
+      models,
+      subdomain,
       { type: `${board.type}Boards`, object: board },
       user
     );
@@ -137,7 +139,7 @@ const boardMutations = {
   async pipelinesAdd(
     _root,
     { stages, ...doc }: IPipelinesAdd,
-    { user }: IContext
+    { user, models, subdomain }: IContext
   ) {
     await checkPermission(doc.type, user, 'pipelinesAdd');
 
@@ -145,12 +147,14 @@ const boardMutations = {
       await checkNumberConfig(doc.numberConfig || '', doc.numberSize || '');
     }
 
-    const pipeline = await Pipelines.createPipeline(
+    const pipeline = await models.Pipelines.createPipeline(
       { userId: user._id, ...doc },
       stages
     );
 
     await putCreateLog(
+      models,
+      subdomain,
       {
         type: `${doc.type}Pipelines`,
         newData: doc,
@@ -168,7 +172,7 @@ const boardMutations = {
   async pipelinesEdit(
     _root,
     { _id, stages, ...doc }: IPipelinesEdit,
-    { user }: IContext
+    { user, models, subdomain }: IContext
   ) {
     await checkPermission(doc.type, user, 'pipelinesEdit');
 
@@ -176,11 +180,13 @@ const boardMutations = {
       await checkNumberConfig(doc.numberConfig || '', doc.numberSize || '');
     }
 
-    const pipeline = await Pipelines.getPipeline(_id);
+    const pipeline = await models.Pipelines.getPipeline(_id);
 
-    const updated = await Pipelines.updatePipeline(_id, doc, stages);
+    const updated = await models.Pipelines.updatePipeline(_id, doc, stages);
 
     await putUpdateLog(
+      models,
+      subdomain,
       {
         type: `${doc.type}Pipelines`,
         newData: doc,
@@ -196,8 +202,8 @@ const boardMutations = {
   /**
    * Update pipeline orders
    */
-  async pipelinesUpdateOrder(_root, { orders }: { orders: IOrderInput[] }) {
-    return Pipelines.updateOrder(orders);
+  async pipelinesUpdateOrder(_root, { orders }: { orders: IOrderInput[] }, { models }: IContext) {
+    return models.Pipelines.updateOrder(orders);
   },
 
   /**
@@ -206,38 +212,45 @@ const boardMutations = {
   async pipelinesWatch(
     _root,
     { _id, isAdd, type }: { _id: string; isAdd: boolean; type: string },
-    { user }: IContext
+    { user, models }: IContext
   ) {
     await checkPermission(type, user, 'pipelinesWatch');
 
-    return Pipelines.watchPipeline(_id, isAdd, user._id);
+    return models.Pipelines.watchPipeline(_id, isAdd, user._id);
   },
 
   /**
    * Remove pipeline
    */
-  async pipelinesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const pipeline = await Pipelines.getPipeline(_id);
+  async pipelinesRemove(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
+    const pipeline = await models.Pipelines.getPipeline(_id);
 
     await checkPermission(pipeline.type, user, 'pipelinesRemove');
 
-    const removed = await Pipelines.removePipeline(_id);
+    const removed = await models.Pipelines.removePipeline(_id);
 
-    const relatedFieldsGroups = await FieldsGroups.find({
+    const relatedFieldsGroups = await sendFormsMessage({
+      subdomain,
+      action: 'groups:find', data: {
       pipelineIds: pipeline._id
-    });
+    }, isRPC: true, defaultValue: [] });
 
     for (const fieldGroup of relatedFieldsGroups) {
       const pipelineIds = fieldGroup.pipelineIds || [];
       fieldGroup.pipelineIds = pipelineIds.filter(e => e !== pipeline._id);
 
-      sendFieldsGroupMessage('updateGroup', {
+      await sendFormsMessage({
+        subdomain,
+        action: 'groups:update', data: {
         groupId: fieldGroup._id,
         fieldGroup
-      });
+      }, isRPC: true
+    });
     }
 
     await putDeleteLog(
+      models,
+      subdomain,
       { type: `${pipeline.type}Pipelines`, object: pipeline },
       user
     );
@@ -251,17 +264,19 @@ const boardMutations = {
   async pipelinesArchive(
     _root,
     { _id, status }: { _id; status: string },
-    { user }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    const pipeline = await Pipelines.getPipeline(_id);
+    const pipeline = await models.Pipelines.getPipeline(_id);
 
     await checkPermission(pipeline.type, user, 'pipelinesArchive');
 
-    const archived = await Pipelines.archivePipeline(_id, status);
+    const archived = await models.Pipelines.archivePipeline(_id, status);
 
-    const updated = await Pipelines.findOne({ _id });
+    const updated = await models.Pipelines.findOne({ _id });
 
     await putUpdateLog(
+      models,
+      subdomain,
       {
         type: `${pipeline.type}Pipelines`,
         object: pipeline,
@@ -280,9 +295,9 @@ const boardMutations = {
   /**
    * Duplicate pipeline
    */
-  async pipelinesCopied(_root, { _id }: { _id: string }, { user }: IContext) {
-    const sourcePipeline = await Pipelines.getPipeline(_id);
-    const sourceStages = await Stages.find({ pipelineId: _id }).lean();
+  async pipelinesCopied(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
+    const sourcePipeline = await models.Pipelines.getPipeline(_id);
+    const sourceStages = await models.Stages.find({ pipelineId: _id }).lean();
 
     await checkPermission(sourcePipeline.type, user, 'pipelinesCopied');
 
@@ -293,10 +308,10 @@ const boardMutations = {
       name: `${sourcePipeline.name}-copied`
     };
 
-    const copied = await Pipelines.createPipeline(pipelineDoc);
+    const copied = await models.Pipelines.createPipeline(pipelineDoc);
 
     for (const stage of sourceStages) {
-      await Stages.createStage({
+      await models.Stages.createStage({
         ...stage,
         _id: undefined,
         probability: stage.probability || '10%',
@@ -306,6 +321,8 @@ const boardMutations = {
     }
 
     await putUpdateLog(
+      models,
+      subdomain,
       { type: `${sourcePipeline.type}Pipelines`, object: copied },
       user
     );
@@ -316,20 +333,22 @@ const boardMutations = {
   /**
    * Update stage orders
    */
-  stagesUpdateOrder(_root, { orders }: { orders: IOrderInput[] }) {
-    return Stages.updateOrder(orders);
+  stagesUpdateOrder(_root, { orders }: { orders: IOrderInput[] }, { models }: IContext ) {
+    return models.Stages.updateOrder(orders);
   },
 
   /**
    * Edit stage
    */
-  async stagesEdit(_root, { _id, ...doc }: IStageEdit, { user }: IContext) {
+  async stagesEdit(_root, { _id, ...doc }: IStageEdit, { user, models, subdomain }: IContext) {
     await checkPermission(doc.type, user, 'stagesEdit');
 
-    const stage = await Stages.getStage(_id);
-    const updated = await Stages.updateStage(_id, doc);
+    const stage = await models.Stages.getStage(_id);
+    const updated = await models.Stages.updateStage(_id, doc);
 
     await putUpdateLog(
+      models,
+      subdomain,
       {
         type: `${doc.type}Stages`,
         newData: doc,
@@ -345,14 +364,16 @@ const boardMutations = {
   /**
    * Remove stage
    */
-  async stagesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const stage = await Stages.getStage(_id);
+  async stagesRemove(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
+    const stage = await models.Stages.getStage(_id);
 
     await checkPermission(stage.type, user, 'stagesRemove');
 
-    const removed = await Stages.removeStage(_id);
+    const removed = await models.Stages.removeStage(_id);
 
     await putDeleteLog(
+      models,
+      subdomain,
       { type: `${stage.type}Stages`, object: stage },
       user
     );
@@ -373,11 +394,11 @@ const boardMutations = {
       proccessId: string;
       sortType: string;
     },
-    { user }: IContext
+    { user, models }: IContext
   ) {
     await checkPermission(type, user, 'itemsSort');
 
-    const { collection } = getCollection(type);
+    const { collection } = getCollection(models, type);
 
     const sortTypes = {
       'created-asc': { createdAt: 1 },
@@ -412,7 +433,7 @@ const boardMutations = {
       }
     }
 
-    const stage = await Stages.getStage(stageId);
+    const stage = await models.Stages.getStage(stageId);
 
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {
@@ -443,16 +464,17 @@ const boardMutations = {
       timeSpent: number;
       startDate: string;
     },
-    { user }
+    { user, models }: IContext
   ) {
     await checkPermission(type, user, 'updateTimeTracking');
 
-    return Boards.updateTimeTracking(_id, type, status, timeSpent, startDate);
+    return models.Boards.updateTimeTracking(_id, type, status, timeSpent, startDate);
   },
 
   async boardItemsSaveForGanttTimeline(
     _root,
-    { items, links, type }: { items: any[]; links: any[]; type: string }
+    { items, links, type }: { items: any[]; links: any[]; type: string },
+    { models }: IContext
   ) {
     const bulkOps: any[] = [];
 
@@ -473,7 +495,7 @@ const boardMutations = {
       });
     }
 
-    const { collection } = getCollection(type);
+    const { collection } = getCollection(models, type);
 
     await collection.bulkWrite(bulkOps);
 

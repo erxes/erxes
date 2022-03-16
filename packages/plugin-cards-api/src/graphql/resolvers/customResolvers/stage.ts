@@ -1,10 +1,9 @@
-import { Deals, GrowthHacks, Stages, Tasks, Tickets } from '../../../models';
+import { IContext } from '../../../connectionResolver';
 import { IStageDocument } from '../../../models/definitions/boards';
 import {
   BOARD_STATUSES,
   BOARD_TYPES
 } from '../../../models/definitions/constants';
-import { IContext } from '@erxes/api-utils/src';
 import {
   generateDealCommonFilters,
   generateGrowthHackCommonFilters,
@@ -16,19 +15,20 @@ export default {
   async amount(
     stage: IStageDocument,
     _args,
-    { user }: IContext,
+    { user, models }: IContext,
     { variableValues: args }
   ) {
     const amountsMap = {};
 
     if (stage.type === BOARD_TYPES.DEAL) {
       const filter = await generateDealCommonFilters(
+        models,
         user._id,
         { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
         args.extraParams
       );
 
-      const amountList = await Deals.aggregate([
+      const amountList = await models.Deals.aggregate([
         {
           $match: filter
         },
@@ -66,12 +66,15 @@ export default {
   async itemsTotalCount(
     stage: IStageDocument,
     _args,
-    { user }: IContext,
+    { user, models }: IContext,
     { variableValues: args }
   ) {
+    const { Deals, Tickets, Tasks, GrowthHacks } = models;
+
     switch (stage.type) {
       case BOARD_TYPES.DEAL: {
         const filter = await generateDealCommonFilters(
+          models,
           user._id,
           { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
           args.extraParams
@@ -81,6 +84,7 @@ export default {
       }
       case BOARD_TYPES.TICKET: {
         const filter = await generateTicketCommonFilters(
+          models,
           user._id,
           { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
           args.extraParams
@@ -90,6 +94,7 @@ export default {
       }
       case BOARD_TYPES.TASK: {
         const filter = await generateTaskCommonFilters(
+          models,
           user._id,
           {
             ...args,
@@ -103,6 +108,7 @@ export default {
       }
       case BOARD_TYPES.GROWTH_HACK: {
         const filter = await generateGrowthHackCommonFilters(
+          models,
           user._id,
           { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
           args.extraParams
@@ -119,16 +125,17 @@ export default {
   async initialDealsTotalCount(
     stage: IStageDocument,
     _args,
-    { user }: IContext,
+    { user, models }: IContext,
     { variableValues: args }
   ) {
     const filter = await generateDealCommonFilters(
+      models,
       user._id,
       { ...args, initialStageId: stage._id },
       args.extraParams
     );
 
-    return Deals.find(filter).countDocuments();
+    return models.Deals.find(filter).countDocuments();
   },
 
   /*
@@ -136,7 +143,7 @@ export default {
    * 1. created on this stage initially
    * 2. moved to other stage which has probability other than Lost
    */
-  async inProcessDealsTotalCount(stage: IStageDocument) {
+  async inProcessDealsTotalCount(stage: IStageDocument, _args, { models: { Stages } }: IContext) {
     const filter = {
       pipelineId: stage.pipelineId,
       probability: { $ne: 'Lost' },
@@ -188,10 +195,11 @@ export default {
   async stayedDealsTotalCount(
     stage: IStageDocument,
     _args,
-    { user }: IContext,
+    { user, models }: IContext,
     { variableValues: args }
   ) {
     const filter = await generateDealCommonFilters(
+      models,
       user._id,
       {
         ...args,
@@ -202,14 +210,14 @@ export default {
       args.extraParams
     );
 
-    return Deals.find(filter).countDocuments();
+    return models.Deals.find(filter).countDocuments();
   },
 
   /*
    * Compare current stage with next stage
    * by initial and current deals count
    */
-  async compareNextStage(stage: IStageDocument) {
+  async compareNextStage(stage: IStageDocument, _args, { models: { Stages } }: IContext) {
     const result: { count?: number; percent?: number } = {};
 
     const { order = 1 } = stage;

@@ -6,7 +6,7 @@ const receiveComment = async (params: ICommentParams, pageId: string) => {
   const userId = params.from.id;
   const postId = params.post_id;
   const kind = 'facebook-post';
-  const verb = params.verb;
+  const verb = params.verb || '';
 
   await getOrCreateCustomer(pageId, userId, kind);
 

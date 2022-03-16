@@ -1,15 +1,15 @@
-import { ChecklistItems } from "../../../models/Checklists";
+import { IContext } from "../../../connectionResolver";
 import { IChecklistDocument } from "../../../models/definitions/checklists";
 
 export default {
-  items(checklist: IChecklistDocument) {
-    return ChecklistItems.find({ checklistId: checklist._id }).sort({
+  items(checklist: IChecklistDocument, _args, { models }: IContext) {
+    return models.ChecklistItems.find({ checklistId: checklist._id }).sort({
       order: 1
     });
   },
 
-  async percent(checklist: IChecklistDocument) {
-    const items = await ChecklistItems.find({ checklistId: checklist._id });
+  async percent(checklist: IChecklistDocument, _args, { models }: IContext) {
+    const items = await models.ChecklistItems.find({ checklistId: checklist._id });
 
     if (items.length === 0) {
       return 0;

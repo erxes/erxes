@@ -9,7 +9,7 @@ const EXCLUDE_PATH = [
   '/gmail/login'
 ];
 
-export let userIds = [];
+export let userIds: string[] = [];
 
 const userMiddleware = async (req, _res, next) => {
   const { path, headers, query } = req;

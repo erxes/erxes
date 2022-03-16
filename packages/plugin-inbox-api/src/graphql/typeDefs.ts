@@ -33,7 +33,7 @@ import {
 import {
   types as widgetTypes,
   queries as widgetQueries,
-  mutations as WidgetMutations
+  mutations as widgetMutations
 } from './widgetTypeDefs';
 
 import {
@@ -45,22 +45,29 @@ import {
 const typeDefs = async (serviceDiscovery) => {
   const isProductsEnabled = await serviceDiscovery.isEnabled('products');
   const isTagsEnabled = await serviceDiscovery.isEnabled('tags');
+  const isFormsEnabled = await serviceDiscovery.isEnabled('forms');
+
+  const isEnabled = {
+    products: isProductsEnabled,
+    tags: isTagsEnabled,
+    forms: isFormsEnabled,
+  };
 
   return gql`
     scalar JSON
     scalar Date
 
-    ${ConversationTypes(isTagsEnabled)}
+    ${ConversationTypes(isEnabled)}
     ${MessengerAppTypes}
     ${ChannelTypes}
-    ${integrationTypes(isProductsEnabled, isTagsEnabled)}
+    ${integrationTypes(isEnabled)}
     ${ResponseTemplateTypes}
-    ${widgetTypes(isProductsEnabled)}
+    ${widgetTypes(isEnabled)}
     ${SkillTypes}
     
     
     extend type Query {
-      ${ConversationQueries}
+      ${ConversationQueries(isEnabled)}
       ${MessengerAppQueries}
       ${ChannelQueries}
       ${IntegrationQueries}
@@ -75,7 +82,7 @@ const typeDefs = async (serviceDiscovery) => {
       ${ChannelMutations}
       ${IntegrationMutations}
       ${ResponseTemplateMutations}
-      ${WidgetMutations}
+      ${widgetMutations(isEnabled)}
       ${SkillMutations}
     }
   `

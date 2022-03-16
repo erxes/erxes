@@ -11,6 +11,7 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { darken, rgba } from '@erxes/ui/src/styles/ecolor';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const ResponseSuggestions = styled.ul`
   position: absolute;
@@ -95,11 +96,12 @@ const EditorActions = styled.div`
       cursor: pointer;
       color: ${darken(colors.colorCoreGray, 30)};
     }
-
-    &:first-of-type {
-      position: absolute;
-      left: 20px;
-    }
+    ${isEnabled("internalnotes") && `
+      &:first-of-type {
+        position: absolute;
+        left: 20px;
+      }
+    `}
   }
 
   i {

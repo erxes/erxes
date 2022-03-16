@@ -11,7 +11,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import commonListComposer from '@erxes/ui/src/utils/commonListComposer';
 import TemplateList from '../components/TemplateList';
-import { mutations, queries } from '../graphql';
+import { mutations, queries } from '@erxes/ui-settings/src/growthHacks/graphql';
 import { IPipelineTemplate } from '../types';
 
 export type PipelineTemplatesQueryResponse = {

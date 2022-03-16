@@ -1,9 +1,8 @@
-import { Tickets } from '../../../models';
 import {
   checkPermission,
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src';
+import { IContext } from '../../../connectionResolver';
 import { IListParams } from './boards';
 import {
   archivedItems,
@@ -21,47 +20,47 @@ const ticketQueries = {
   async tickets(
     _root,
     args: IListParams,
-    { user, commonQuerySelector }: IContext
+    { user, commonQuerySelector, models, subdomain }: IContext
   ) {
     const filter = {
       ...commonQuerySelector,
-      ...(await generateTicketCommonFilters(user._id, args))
+      ...(await generateTicketCommonFilters(models, subdomain, user._id, args))
     };
 
-    return await getItemList(filter, args, user, 'ticket');
+    return await getItemList(models, subdomain, filter, args, user, 'ticket');
   },
 
   async ticketsTotalCount(
     _root,
     args: IListParams,
-    { user, commonQuerySelector }: IContext
+    { user, commonQuerySelector, models, subdomain }: IContext
   ) {
     const filter = {
       ...commonQuerySelector,
-      ...(await generateTicketCommonFilters(user._id, args))
+      ...(await generateTicketCommonFilters(models, subdomain, user._id, args))
     };
 
-    return Tickets.find(filter).countDocuments();
+    return models.Tickets.find(filter).countDocuments();
   },
 
   /**
    * Archived list
    */
-  archivedTickets(_root, args: IArchiveArgs) {
-    return archivedItems(args, Tickets);
+  archivedTickets(_root, args: IArchiveArgs, { models }: IContext) {
+    return archivedItems(models, args, models.Tickets);
   },
 
-  archivedTicketsCount(_root, args: IArchiveArgs) {
-    return archivedItemsCount(args, Tickets);
+  archivedTicketsCount(_root, args: IArchiveArgs, { models }: IContext) {
+    return archivedItemsCount(models, args, models.Tickets);
   },
 
   /**
    * Tickets detail
    */
-  async ticketDetail(_root, { _id }: { _id: string }, { user }: IContext) {
-    const ticket = await Tickets.getTicket(_id);
+  async ticketDetail(_root, { _id }: { _id: string }, { user, models }: IContext) {
+    const ticket = await models.Tickets.getTicket(_id);
 
-    return checkItemPermByUser(user._id, ticket);
+    return checkItemPermByUser(models, user._id, ticket);
   }
 };
 

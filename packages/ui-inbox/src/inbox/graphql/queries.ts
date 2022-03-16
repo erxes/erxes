@@ -1,4 +1,5 @@
 import { queries as customerQueries } from '@erxes/ui/src/customers/graphql';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import conversationFields from './conversationFields';
 import messageFields from './messageFields';
 
@@ -80,6 +81,9 @@ const sidebarConversations = `
           name
         }
       }
+      ${
+        isEnabled('contacts')
+          ? `
       customer {
         _id
         firstName
@@ -91,11 +95,20 @@ const sidebarConversations = `
         avatar
         visitorContactInfo
       }
+      `
+          : ``
+      }
       tagIds
+      ${
+        isEnabled('tags')
+          ? `
       tags {
         _id
         name
         colorCode
+      }
+      `
+          : ``
       }
       readUserIds
     }
@@ -195,6 +208,9 @@ const allBrands = `
 
 const tagList = `
   query tags($type: String) {
+    ${
+      isEnabled('tags')
+        ? `
     tags(type: $type) {
       _id
       name
@@ -203,19 +219,28 @@ const tagList = `
       parentId
       relatedIds
     }
+    `
+        : ``
+    }
   }
 `;
 
 // subOf alais as parentId
 const segmentList = `
-    query segments($contentTypes: [String]!, $boardId: String, $pipelineId: String) {
-      segments(contentTypes: $contentTypes, boardId: $boardId, pipelineId: $pipelineId) {
-        _id
-        contentType
-        name
-        parentId: subOf
-      }
+  query segments($contentTypes: [String]!) {
+    ${
+      isEnabled('segments')
+        ? `
+        segments(contentTypes: $contentTypes) {
+          _id
+          contentType
+          name
+          parentId: subOf
+        }
+    `
+        : ``
     }
+  }
 `;
 
 const conversationCounts = `
@@ -308,18 +333,22 @@ const generateCustomerDetailQuery = params => {
   if (showCompanies) {
     fields = `
       ${fields}
-      companies {
-        _id
-        primaryName
-        website
-        customers {
+      ${
+        isEnabled('contacts')
+          ? `companies {
           _id
-          avatar
-          firstName
-          middleName
-          lastName
-          primaryEmail
-        }
+          primaryName
+          website
+          customers {
+            _id
+            avatar
+            firstName
+            middleName
+            lastName
+            primaryEmail
+          }
+        }`
+          : ``
       }
     `;
   }
@@ -328,10 +357,16 @@ const generateCustomerDetailQuery = params => {
     fields = `
       ${fields}
       tagIds
-      getTags {
-        _id
-        name
-        colorCode
+      ${
+        isEnabled('tags')
+          ? `
+          getTags {
+            _id
+            name
+            colorCode
+          }
+        `
+          : ``
       }
     `;
   }
@@ -372,6 +407,9 @@ const integrationsConversationFbComments = `
       commentCount
       isResolved
       permalink_url
+      ${
+        isEnabled('contacts')
+          ? `
       customer {
         _id
         visitorContactInfo
@@ -379,6 +417,8 @@ const integrationsConversationFbComments = `
         firstName
         lastName
         middleName
+      }`
+          : ``
       }
     }
   }

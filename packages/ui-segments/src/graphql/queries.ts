@@ -9,8 +9,7 @@ const segmentFields = `
   conditionsConjunction
   shouldWriteActivityLog
 
-  boardId
-  pipelineId
+  config
 `;
 
 const getTypes = `
@@ -26,8 +25,8 @@ const getAssociationTypes = `
 `;
 
 const segments = `
-  query segments($contentTypes: [String]!, $boardId: String, $pipelineId: String) {
-    segments(contentTypes: $contentTypes, boardId: $boardId, pipelineId: $pipelineId) {
+  query segments($contentTypes: [String]!, $config: JSON) {
+    segments(contentTypes: $contentTypes, config: $config) {
       ${segmentFields}
 
       getSubSegments {
@@ -75,8 +74,8 @@ const events = `
 `;
 
 const combinedFields = `
-  query fieldsCombinedByContentType($contentType: String!, $serviceType: String) {
-    fieldsCombinedByContentType(contentType: $contentType, serviceType: $serviceType)
+  query fieldsCombinedByContentType($contentType: String!) {
+    fieldsCombinedByContentType(contentType: $contentType)
   }
 `;
 

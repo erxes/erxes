@@ -34,7 +34,7 @@ export const getService = async (name: string, config?: boolean) => {
   return result;
 };
 
-export const join = ({
+export const join = async ({
   name,
   port,
   dbConnectionString,
@@ -51,7 +51,7 @@ export const join = ({
   exportTypes?: any;
   meta?: any;
 }) => {
-  redis.set(
+  await redis.set(
     generateKey(name),
 
     JSON.stringify({

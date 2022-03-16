@@ -7,6 +7,8 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { IBreadCrumbItem } from '@erxes/ui/src/types';
 import { ICommonListProps } from '../types';
+import ActionBarDropDown from '../../templates/containers/actionBar/ActionBar';
+import { BarItems } from '@erxes/ui/src/layout/styles';
 
 type Props = {
   title: string;
@@ -21,6 +23,11 @@ type Props = {
   renderFilter?: () => any;
   additionalButton?: React.ReactNode;
   emptyContent?: React.ReactNode;
+  leftSidebar?: any;
+  queryParams?: any;
+  searchValue?: string;
+  history?: any;
+  rightActionBar?: any;
 };
 
 class List extends React.Component<Props & ICommonListProps, {}> {
@@ -43,11 +50,15 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       center,
       remove,
       additionalButton,
-      emptyContent
+      emptyContent,
+      leftSidebar,
+      rightActionBar,
+      queryParams,
+      history
     } = this.props;
 
     const trigger = (
-      <Button btnStyle='success' icon='plus-circle'>
+      <Button btnStyle="success" icon="plus-circle">
         {formTitle}
       </Button>
     );
@@ -56,7 +67,12 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       return renderForm({ ...props, save });
     };
 
-    const actionBarRight = (
+    const actionBarRight = rightActionBar ? (
+      <BarItems>
+        {additionalButton}
+        <ActionBarDropDown queryParams={queryParams} history={history} />
+      </BarItems>
+    ) : (
       <>
         {additionalButton}
         <ModalTrigger
@@ -64,9 +80,9 @@ class List extends React.Component<Props & ICommonListProps, {}> {
           size={size}
           enforceFocus={false}
           trigger={trigger}
-          autoOpenKey='showListFormModal'
+          autoOpenKey="showListFormModal"
           content={content}
-          dialogClassName='transform'
+          dialogClassName="transform"
         />
       </>
     );
@@ -84,13 +100,14 @@ class List extends React.Component<Props & ICommonListProps, {}> {
         mainHead={mainHead}
         footer={<Pagination count={totalCount} />}
         center={center}
+        leftSidebar={leftSidebar}
         content={
           <DataWithLoader
             data={renderContent({ objects, save, refetch, remove })}
             loading={loading}
             count={totalCount}
             emptyText={__('Oops! No data here')}
-            emptyImage='/images/actions/5.svg'
+            emptyImage="/images/actions/5.svg"
             emptyContent={emptyContent}
           />
         }

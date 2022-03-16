@@ -17,12 +17,13 @@ interface IProps extends IRouterProps {
   currentUser?: IUser;
   children: React.ReactNode;
   isShownIndicator: boolean;
+  enabledServices: any;
   closeLoadingBar: () => void;
 }
 
 class MainLayout extends React.Component<IProps> {
   componentDidMount() {
-    const { history, currentUser } = this.props;
+    const { history, currentUser, enabledServices } = this.props;
 
     if (history.location.pathname !== "/reset-password" && !currentUser) {
       history.push("/sign-in");
@@ -51,6 +52,10 @@ class MainLayout extends React.Component<IProps> {
         (window as any).wootric("run");
       };
     } // end currentUser checking
+
+    if (enabledServices && Object.keys(enabledServices).length !== 0) {
+      localStorage.setItem("enabledServices", JSON.stringify(enabledServices));
+    }
 
     // click-jack attack defense
     bustIframe();
@@ -81,8 +86,6 @@ class MainLayout extends React.Component<IProps> {
           </MainWrapper>
           <DetectBrowser />
         </Layout>
-
-        <Robot />
       </>
     );
   }

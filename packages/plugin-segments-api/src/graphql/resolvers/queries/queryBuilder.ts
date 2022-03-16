@@ -1,9 +1,12 @@
 import * as _ from 'underscore';
-import { SEGMENT_DATE_OPERATORS, SEGMENT_NUMBER_OPERATORS } from '../../../constants';
-import { sendConformityMessage, sendRPCMessage } from '../../../messageBroker';
-import { Segments } from '../../../models';
+import {
+  SEGMENT_DATE_OPERATORS,
+  SEGMENT_NUMBER_OPERATORS
+} from '../../../constants';
 import { ICondition, ISegment } from '../../../models/definitions/segments';
 import { es, serviceDiscovery } from '../../../configs';
+import { IModels } from '../../../connectionResolver';
+import { sendCoreMessage, sendMessage } from '../../../messageBroker';
 
 type IOptions = {
   returnAssociated?: { contentType: string; relType: string };
@@ -19,6 +22,8 @@ type IOptions = {
 };
 
 export const isInSegment = async (
+  models: IModels,
+  subdomain: string,
   segmentId: string,
   idToCheck: string,
   options: IOptions = {}
@@ -32,13 +37,15 @@ export const isInSegment = async (
     }
   ];
 
-  const segment = await Segments.getSegment(segmentId);
-  const count = await fetchSegment(segment, options);
+  const segment = await models.Segments.getSegment(segmentId);
+  const count = await fetchSegment(models, subdomain, segment, options);
 
   return count > 0;
 };
 
 export const fetchSegment = async (
+  models: IModels,
+  subdomain: string,
   segment,
   options: IOptions = {}
 ): Promise<any> => {
@@ -59,7 +66,7 @@ export const fetchSegment = async (
   let index = await getIndexByContentType(serviceConfigs, contentType);
   let selector = { bool: {} };
 
-  await generateQueryBySegment({
+  await generateQueryBySegment(models, subdomain, {
     segment,
     selector: selector.bool,
     options,
@@ -85,10 +92,14 @@ export const fetchSegment = async (
     const items = itemsResponse.hits.hits;
     const itemIds = items.map(i => i._id);
 
-    const associationIds = await sendConformityMessage('filterConformity', {
-      mainType: segment.contentType,
-      mainTypeIds: itemIds,
-      relType: returnAssociated.relType
+    const associationIds = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.filterConformity',
+      data: {
+        mainType: segment.contentType,
+        mainTypeIds: itemIds,
+        relType: returnAssociated.relType
+      }
     });
 
     selector = {
@@ -166,7 +177,7 @@ export const fetchSegment = async (
   return response.hits.hits.map(hit => hit._id);
 };
 
-export const generateQueryBySegment = async (args: {
+export const generateQueryBySegment = async (models: IModels, subdomain: string, args: {
   segment: ISegment;
   selector: any;
   serviceConfigs: any;
@@ -180,7 +191,7 @@ export const generateQueryBySegment = async (args: {
     options = {},
     isInitialCall
   } = args;
-  const { contentType } = segment;
+  const [serviceName, contentType ] = segment.contentType.split(':');
   const { defaultMustSelector } = options;
 
   const defaultSelector =
@@ -211,12 +222,12 @@ export const generateQueryBySegment = async (args: {
   const selectorNegativeList =
     cj === 'and' ? selector.must_not : selector.must[0].bool.must_not;
 
-  const parentSegment = await Segments.findOne({ _id: segment.subOf });
+  const parentSegment = await models.Segments.findOne({ _id: segment.subOf });
 
   if (parentSegment && (!segment._id || segment._id !== parentSegment._id)) {
     selectorPositiveList.push({ bool: {} });
 
-    await generateQueryBySegment({
+    await generateQueryBySegment(models, subdomain, {
       ...args,
       selector: selectorPositiveList[selectorPositiveList.length - 1].bool,
       segment: parentSegment,
@@ -234,21 +245,34 @@ export const generateQueryBySegment = async (args: {
   for (const serviceConfig of serviceConfigs) {
     const {
       contentTypes,
-      esTypesMapQueue,
-      initialSelectorQueue
+      esTypesMapAvailable,
+      initialSelectorAvailable
     } = serviceConfig;
 
     if (contentTypes && contentTypes.includes(contentType)) {
-      if (esTypesMapQueue) {
-        const response = await sendRPCMessage(esTypesMapQueue, { contentType });
+      if (esTypesMapAvailable) {
+        const response = await sendMessage({
+          subdomain,
+          serviceName,
+          isRPC: true,
+          action: 'segments.esTypesMap',
+          data: { contentType }
+        });
+
         typesMap = response.typesMap;
       }
 
-      if (initialSelectorQueue) {
+      if (initialSelectorAvailable) {
         const {
           negative,
           positive
-        } = await sendRPCMessage(initialSelectorQueue, { segment, options });
+        } = await sendMessage({
+          subdomain,
+          serviceName,
+          isRPC: true,
+          action: 'segments.initialSelector',
+          data: { segment, options }
+        });
 
         if (negative) {
           propertiesNegative.push(negative);
@@ -300,12 +324,12 @@ export const generateQueryBySegment = async (args: {
       let subSegment = condition.subSegmentForPreview;
 
       if (condition.subSegmentId) {
-        subSegment = await Segments.getSegment(condition.subSegmentId);
+        subSegment = await models.Segments.getSegment(condition.subSegmentId);
       }
 
       selectorPositiveList.push({ bool: {} });
 
-      await generateQueryBySegment({
+      await generateQueryBySegment(models, subdomain, {
         ...args,
         segment: subSegment || ({} as ISegment),
         selector: selectorPositiveList[selectorPositiveList.length - 1].bool,
@@ -328,19 +352,22 @@ export const generateQueryBySegment = async (args: {
       negativeQuery = negativeQuery;
 
       for (const serviceConfig of serviceConfigs) {
-        const { contentTypes, propertyConditionExtenderQueue } = serviceConfig;
+        const { contentTypes, propertyConditionExtenderAvailable } = serviceConfig;
+
+        const [propertyServiceName, propertyContentType] = condition.propertyType.split(':');
 
         if (
           contentTypes &&
-          propertyConditionExtenderQueue &&
-          contentTypes.includes(condition.propertyType)
+          propertyConditionExtenderAvailable &&
+          contentTypes.includes(propertyContentType)
         ) {
-          const { positive } = await sendRPCMessage(
-            propertyConditionExtenderQueue,
-            {
-              condition
-            }
-          );
+          const { positive } = await sendMessage({
+            subdomain,
+            serviceName: propertyServiceName,
+            isRPC: true,
+            action: 'segments.propertyConditionExtender',
+            data: { condition }
+          });
 
           if (positive) {
             positiveQuery = {
@@ -361,8 +388,9 @@ export const generateQueryBySegment = async (args: {
           propertiesNegative.push(negativeQuery);
         }
       } else {
-        const ids = await associationPropertyFilter({
+        const ids = await associationPropertyFilter(subdomain, {
           serviceConfigs,
+          serviceName,
           mainType: contentType,
           propertyType: condition.propertyType,
           positiveQuery,
@@ -733,14 +761,16 @@ const fetchByQuery = async ({
   );
 };
 
-const associationPropertyFilter = async ({
+const associationPropertyFilter = async (subdomain: string, {
   serviceConfigs,
+  serviceName,
   mainType,
   propertyType,
   positiveQuery,
   negativeQuery
 }: {
   serviceConfigs: any;
+  serviceName: string;
   mainType: string;
   propertyType: string;
   positiveQuery: any;
@@ -749,11 +779,17 @@ const associationPropertyFilter = async ({
   let associatedTypes: string[] = [];
 
   for (const serviceConfig of serviceConfigs) {
-    const { associationTypesQueue } = serviceConfig;
+    const { associationTypesAvailable } = serviceConfig;
 
-    if (associationTypesQueue) {
-      const { types } = await sendRPCMessage(associationTypesQueue, {
-        mainType
+    if (associationTypesAvailable) {
+      const { types } = await sendMessage({
+        subdomain,
+        serviceName,
+        isRPC: true,
+        action: 'segments.associationTypes',
+        data: {
+          mainType
+        }
       });
 
       if (types) {
@@ -769,10 +805,15 @@ const associationPropertyFilter = async ({
       negativeQuery
     });
 
-    return sendConformityMessage('filterConformity', {
-      mainType: propertyType,
-      mainTypeIds,
-      relType: mainType === 'lead' ? 'customer' : mainType
+    return sendCoreMessage({
+      subdomain,
+      action: 'conformties.filterConformity',
+      isRPC: true,
+      data: {
+        mainType: propertyType,
+        mainTypeIds,
+        relType: mainType === 'lead' ? 'customer' : mainType
+      }
     });
   }
 

@@ -3,6 +3,7 @@ import * as _ from 'underscore';
 import productCategory from './productCategory';
 import tag from './tag';
 import company from './company';
+import { IModels } from '../connectionResolver';
 
 export interface IDataLoaders {
   productCategory: DataLoader<string, any>;
@@ -10,10 +11,10 @@ export interface IDataLoaders {
   company: DataLoader<string, any>;
 }
 
-export function generateAllDataLoaders(): IDataLoaders {
+export function generateAllDataLoaders(models: IModels, subdomain: string): IDataLoaders {
   return {
-    productCategory: productCategory(),
-    tag: tag(),
-    company: company(),
+    productCategory: productCategory(models),
+    tag: tag(subdomain),
+    company: company(subdomain),
   };
 }

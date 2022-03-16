@@ -3,25 +3,40 @@ import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
-import apiConnect from './apiCollections';
 import { generateAllDataLoaders } from './dataloaders';
+import { coreModels, generateModels, models } from './connectionResolver';
+import logs from './logUtils';
+import tags from './tags';
 
 export let debug;
+export let mainDb;
+export let serviceDiscovery;
 
 export default {
   name: 'products',
   graphql: async (sd) => {
+    serviceDiscovery = sd;
+    
     return {
       typeDefs: await typeDefs(sd),
       resolvers
     }
   },
   apolloServerContext: context => {
-    context.dataLoaders = generateAllDataLoaders();
+    const subdomain = 'os';
+
+    context.subdomain = subdomain;
+    context.models = models;
+    context.coreModels = coreModels;
+    context.dataLoaders = generateAllDataLoaders(models, subdomain);
+
     return context;
   },
+  meta: { logs: { consumers: logs }, tags },
   onServerInit: async options => {
-    await apiConnect();
+    mainDb = options.db;
+
+    await generateModels('os')
 
     initBroker(options.messageBrokerClient);
 

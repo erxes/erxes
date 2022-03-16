@@ -1,10 +1,9 @@
 import { ICustomer } from "../../models/definitions/customers";
-import messageBroker from "../../messageBroker";
+import messageBroker, { sendCoreMessage } from "../../messageBroker";
 import { MODULE_NAMES } from "../../constants";
 import { putCreateLog, putDeleteLog, putUpdateLog } from "../../logUtils";
 import { checkPermission } from "@erxes/api-utils/src/permissions";
 import { validateBulk } from "../../verifierUtils";
-import { sendMessage } from "../../messageBroker";
 import { IContext } from "../../connectionResolver";
 
 interface ICustomersEdit extends ICustomer {
@@ -18,7 +17,7 @@ const customerMutations = {
   async customersAdd(
     _root,
     doc: ICustomer,
-    { user, docModifier, models }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
     const modifiedDoc = docModifier(doc);
 
@@ -26,6 +25,7 @@ const customerMutations = {
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.CUSTOMER,
         newData: modifiedDoc,
@@ -34,10 +34,10 @@ const customerMutations = {
       user
     );
 
-    sendMessage("registerOnboardHistory", {
+    sendCoreMessage({ subdomain, action: "registerOnboardHistory", data: {
       type: `${customer.state}Create`,
       user,
-    });
+    } });
 
     return customer;
   },
@@ -48,13 +48,14 @@ const customerMutations = {
   async customersEdit(
     _root,
     { _id, ...doc }: ICustomersEdit,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const customer = await models.Customers.getCustomer(_id);
     const updated = await models.Customers.updateCustomer(_id, doc);
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.CUSTOMER,
         object: customer,
@@ -98,7 +99,7 @@ const customerMutations = {
   async customersRemove(
     _root,
     { customerIds }: { customerIds: string[] },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const customers = await models.Customers.find({
       _id: { $in: customerIds },
@@ -114,6 +115,7 @@ const customerMutations = {
     for (const customer of customers) {
       await putDeleteLog(
         models,
+        subdomain,
         { type: MODULE_NAMES.CUSTOMER, object: customer },
         user
       );

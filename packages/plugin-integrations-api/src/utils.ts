@@ -76,7 +76,7 @@ export const sendRequest = ({
       `);
 
     request({
-      uri: encodeURI(url),
+      uri: encodeURI(url || ""),
       method,
       headers: {
         'Content-Type': headerType || 'application/json',

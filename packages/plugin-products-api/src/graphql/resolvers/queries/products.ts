@@ -1,9 +1,9 @@
 import { checkPermission, requireLogin } from "@erxes/api-utils/src/permissions";
-import { IContext, paginate } from '@erxes/api-utils/src';
-import { ProductCategories, Products } from "../../../models";
+import { paginate } from '@erxes/api-utils/src';
 import { PRODUCT_STATUSES } from "../../../models/definitions/products";
 import { escapeRegExp } from "@erxes/api-utils/src/core";
-import { findTags } from "../../../messageBroker";
+import { IContext } from "../../../connectionResolver";
+import { sendTagsMessage } from "../../../messageBroker";
 
 const productQueries = {
   /**
@@ -29,7 +29,7 @@ const productQueries = {
       page: number;
       perPage: number;
     },
-    { commonQuerySelector }: IContext
+    { commonQuerySelector, models }: IContext
   ) {
     const filter: any = commonQuerySelector;
 
@@ -40,18 +40,18 @@ const productQueries = {
     }
 
     if (categoryId) {
-      const category = await ProductCategories.getProductCatogery({
+      const category = await models.ProductCategories.getProductCatogery({
         _id: categoryId,
         status: { $in: [null, 'active'] }
       });
 
-      const product_category_ids = await ProductCategories.find(
+      const product_category_ids = await models.ProductCategories.find(
         { order: { $regex: new RegExp(category.order) } },
         { _id: 1 }
       );
       filter.categoryId = { $in: product_category_ids };
     } else {
-      const notActiveCategories = await ProductCategories.find({
+      const notActiveCategories = await models.ProductCategories.find({
         status: { $nin: [null, 'active'] }
       });
 
@@ -79,7 +79,7 @@ const productQueries = {
     }
 
     return paginate(
-      Products.find(filter)
+      models.Products.find(filter)
         .sort('code')
         .lean(),
       pagintationArgs
@@ -92,7 +92,7 @@ const productQueries = {
   productsTotalCount(
     _root,
     { type }: { type: string },
-    { commonQuerySelector }: IContext
+    { commonQuerySelector, models }: IContext
   ) {
     const filter: any = commonQuerySelector;
 
@@ -102,7 +102,7 @@ const productQueries = {
       filter.type = type;
     }
 
-    return Products.find(filter).countDocuments();
+    return models.Products.find(filter).countDocuments();
   },
 
   productCategories(
@@ -112,7 +112,7 @@ const productQueries = {
       searchValue,
       status
     }: { parentId: string; searchValue: string; status: string },
-    { commonQuerySelector }: IContext
+    { commonQuerySelector, models }: IContext
   ) {
     const filter: any = commonQuerySelector;
 
@@ -130,31 +130,38 @@ const productQueries = {
       filter.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
 
-    return ProductCategories.find(filter)
+    return models.ProductCategories.find(filter)
       .sort({ order: 1 })
       .lean();
   },
 
-  productCategoriesTotalCount(_root) {
-    return ProductCategories.find().countDocuments();
+  productCategoriesTotalCount(_root, _params, { models }: IContext) {
+    return models.ProductCategories.find().countDocuments();
   },
 
-  productDetail(_root, { _id }: { _id: string }) {
-    return Products.findOne({ _id }).lean();
+  productDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Products.findOne({ _id }).lean();
   },
 
-  productCategoryDetail(_root, { _id }: { _id: string }) {
-    return ProductCategories.findOne({ _id }).lean();
+  productCategoryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.ProductCategories.findOne({ _id }).lean();
   },
 
-  async productCountByTags() {
+  async productCountByTags(_root, _params, { models, subdomain }: IContext) {
     const counts = {};
 
     // Count products by tag =========
-    const tags = await findTags({ type: 'product' });
+    const tags = await sendTagsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        type: 'product'
+      },
+      isRPC: true
+    });
 
     for (const tag of tags) {
-      counts[tag._id] = await Products.find({
+      counts[tag._id] = await models.Products.find({
         tagIds: tag._id,
         status: { $ne: PRODUCT_STATUSES.DELETED }
       }).countDocuments();

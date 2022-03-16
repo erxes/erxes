@@ -271,7 +271,7 @@ export const subscribeToWebhook = async (account: IAccount) => {
     };
 
     subRequestOptions.oauth.token = account.token;
-    subRequestOptions.oauth.token_secret = account.tokenSecret;
+    subRequestOptions.oauth.token_secret = account.tokenSecret || "";
 
     request
       .post(subRequestOptions)
@@ -297,7 +297,7 @@ export const removeFromWebhook = async (account: IAccount) => {
     };
 
     requestOptions.oauth.token = account.token;
-    requestOptions.oauth.token_secret = account.tokenSecret;
+    requestOptions.oauth.token_secret = account.tokenSecret || "";
 
     request
       .delete(requestOptions)
@@ -353,7 +353,7 @@ export const reply = async (
     };
 
     requestOptions.oauth.token = account.token;
-    requestOptions.oauth.token_secret = account.tokenSecret;
+    requestOptions.oauth.token_secret = account.tokenSecret || "";
 
     request
       .post(requestOptions)

@@ -1,43 +1,44 @@
-import { sendRPCMessage } from './messageBroker';
+import { IContext } from './connectionResolver';
+import { sendCommonMessage } from './messageBroker';
 
 export const countDocuments = async (
+  subdomain: string,
   type: string,
   _ids: string[],
-  serviceDiscovery
 ) => {
   const [serviceName, contentType] = type.split(':');
 
-  const isServerAvailable = await serviceDiscovery.isEnabled(serviceName);
-
-  if (isServerAvailable) {
-    return sendRPCMessage(`${serviceName}:rpc_queue:tag`, {
-      action: 'count',
+  return sendCommonMessage({
+    subdomain,
+    action: 'tag',
+    serviceName,
+    data: {
       type: contentType,
-      _ids
-    });
-  }
-
-  return 0;
+      _ids,
+      action: 'count'
+    },
+    isRPC: true
+  });
 };
 
 export const tagObject = async (
+  subdomain: string,
   type: string,
   tagIds: string[],
   targetIds: string[],
-  serviceDiscovery
 ) => {
   const [serviceName, contentType] = type.split(':');
 
-  const isServerAvailable = await serviceDiscovery.isEnabled(serviceName);
-
-  if (isServerAvailable) {
-    return sendRPCMessage(`${serviceName}:rpc_queue:tag`, {
-      action: 'tagObject',
-      type: contentType,
+  return sendCommonMessage({
+    subdomain,
+    serviceName,
+    action: 'tag',
+    data: {
       tagIds,
-      targetIds
-    });
-  }
-
-  return [];
+      targetIds,
+      type: contentType,
+      action: "tagObject"
+    },
+    isRPC: true
+  });
 };

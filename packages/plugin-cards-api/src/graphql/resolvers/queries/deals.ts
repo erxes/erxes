@@ -1,20 +1,19 @@
-import { Deals } from '../../../models';
 import {
   checkPermission,
-  moduleRequireLogin
-} from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src';
-import dealResolvers from '../customResolvers/deal';
-import { IListParams } from './boards';
+  moduleRequireLogin,
+} from "@erxes/api-utils/src/permissions";
+import dealResolvers from "../customResolvers/deal";
+import { IListParams } from "./boards";
 import {
   archivedItems,
   archivedItemsCount,
   checkItemPermByUser,
   generateDealCommonFilters,
   getItemList,
-  IArchiveArgs
-} from './utils';
-import { findProducts } from '../../../messageBroker';
+  IArchiveArgs,
+} from "./utils";
+import { IContext } from "../../../connectionResolver";
+import { sendProductsMessage } from "../../../messageBroker";
 
 interface IDealListParams extends IListParams {
   productIds?: [string];
@@ -27,39 +26,47 @@ const dealQueries = {
   async deals(
     _root,
     args: IDealListParams,
-    { user, commonQuerySelector }: IContext
+    { user, commonQuerySelector, models, subdomain }: IContext
   ) {
     const filter = {
       ...commonQuerySelector,
-      ...(await generateDealCommonFilters(user._id, args))
+      ...(await generateDealCommonFilters(models, subdomain, user._id, args)),
     };
 
     const getExtraFields = async (item: any) => ({
-      amount: await dealResolvers.amount(item)
+      amount: await dealResolvers.amount(item),
     });
 
     const deals = await getItemList(
+      models,
+      subdomain,
       filter,
       args,
       user,
-      'deal',
+      "deal",
       { productsData: 1 },
       getExtraFields
     );
 
     // @ts-ignore
-    const dealProductIds = deals.flatMap(deal => {
+    const dealProductIds = deals.flatMap((deal) => {
       if (deal.productsData && deal.productsData.length > 0) {
-        return deal.productsData.flatMap(pData => pData.productId || []);
+        return deal.productsData.flatMap((pData) => pData.productId || []);
       }
 
       return [];
     });
 
-    const products = await findProducts('find', {
-      query: {
-        _id: { $in: [...new Set(dealProductIds)] }
-      }
+    const products = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        query: {
+          _id: { $in: [...new Set(dealProductIds)] }
+        }
+      },
+      isRPC: true,
+      defaultValue: []
     });
 
     for (const deal of deals) {
@@ -78,8 +85,8 @@ const dealQueries = {
         }
 
         deal.products.push({
-          ...(typeof pData.toJSON === 'function' ? pData.toJSON() : pData),
-          product: products.find(p => p._id === pData.productId) || {}
+          ...(typeof pData.toJSON === "function" ? pData.toJSON() : pData),
+          product: products.find((p) => p._id === pData.productId) || {},
         });
       }
     }
@@ -87,44 +94,52 @@ const dealQueries = {
     return deals;
   },
 
-  async dealsTotalCount(_root, args: IDealListParams, { user }: IContext) {
-    const filter = await generateDealCommonFilters(user._id, args);
+  async dealsTotalCount(
+    _root,
+    args: IDealListParams,
+    { user, models, subdomain }: IContext
+  ) {
+    const filter = await generateDealCommonFilters(models, subdomain, user._id, args);
 
-    return Deals.find(filter).countDocuments();
+    return models.Deals.find(filter).countDocuments();
   },
 
   /**
    * Archived list
    */
-  archivedDeals(_root, args: IArchiveArgs) {
-    return archivedItems(args, Deals);
+  archivedDeals(_root, args: IArchiveArgs, { models }: IContext) {
+    return archivedItems(models, args, models.Deals);
   },
 
-  archivedDealsCount(_root, args: IArchiveArgs) {
-    return archivedItemsCount(args, Deals);
+  archivedDealsCount(_root, args: IArchiveArgs, { models }: IContext) {
+    return archivedItemsCount(models, args, models.Deals);
   },
 
   /**
    *  Deal total amounts
    */
-  async dealsTotalAmounts(_root, args: IDealListParams, { user }: IContext) {
-    const filter = await generateDealCommonFilters(user._id, args);
+  async dealsTotalAmounts(
+    _root,
+    args: IDealListParams,
+    { user, models, subdomain }: IContext
+  ) {
+    const filter = await generateDealCommonFilters(models, subdomain, user._id, args);
 
-    const amountList = await Deals.aggregate([
+    const amountList = await models.Deals.aggregate([
       {
-        $match: filter
+        $match: filter,
       },
       {
         $lookup: {
-          from: 'stages',
-          let: { letStageId: '$stageId' },
+          from: "stages",
+          let: { letStageId: "$stageId" },
           pipeline: [
             {
               $match: {
                 $expr: {
-                  $eq: ['$_id', '$$letStageId']
-                }
-              }
+                  $eq: ["$_id", "$$letStageId"],
+                },
+              },
             },
             {
               $project: {
@@ -132,62 +147,62 @@ const dealQueries = {
                   $cond: {
                     if: {
                       $or: [
-                        { $eq: ['$probability', 'Won'] },
-                        { $eq: ['$probability', 'Lost'] }
-                      ]
+                        { $eq: ["$probability", "Won"] },
+                        { $eq: ["$probability", "Lost"] },
+                      ],
                     },
-                    then: '$probability',
-                    else: 'In progress'
-                  }
-                }
-              }
-            }
+                    then: "$probability",
+                    else: "In progress",
+                  },
+                },
+              },
+            },
           ],
-          as: 'stageProbability'
-        }
+          as: "stageProbability",
+        },
       },
       {
-        $unwind: '$productsData'
+        $unwind: "$productsData",
       },
       {
-        $unwind: '$stageProbability'
+        $unwind: "$stageProbability",
       },
       {
         $project: {
-          amount: '$productsData.amount',
-          currency: '$productsData.currency',
-          type: '$stageProbability.probability',
-          tickUsed: '$productsData.tickUsed'
-        }
+          amount: "$productsData.amount",
+          currency: "$productsData.currency",
+          type: "$stageProbability.probability",
+          tickUsed: "$productsData.tickUsed",
+        },
       },
       {
-        $match: { tickUsed: true }
+        $match: { tickUsed: true },
       },
       {
         $group: {
-          _id: { currency: '$currency', type: '$type' },
+          _id: { currency: "$currency", type: "$type" },
 
-          amount: { $sum: '$amount' }
-        }
+          amount: { $sum: "$amount" },
+        },
       },
       {
         $group: {
-          _id: '$_id.type',
+          _id: "$_id.type",
           currencies: {
-            $push: { amount: '$amount', name: '$_id.currency' }
-          }
-        }
+            $push: { amount: "$amount", name: "$_id.currency" },
+          },
+        },
       },
       {
-        $sort: { _id: -1 }
-      }
+        $sort: { _id: -1 },
+      },
     ]);
 
-    return amountList.map(type => {
+    return amountList.map((type) => {
       return {
         _id: Math.random(),
         name: type._id,
-        currencies: type.currencies
+        currencies: type.currencies,
       };
     });
   },
@@ -195,15 +210,19 @@ const dealQueries = {
   /**
    * Deal detail
    */
-  async dealDetail(_root, { _id }: { _id: string }, { user }: IContext) {
-    const deal = await Deals.getDeal(_id);
+  async dealDetail(
+    _root,
+    { _id }: { _id: string },
+    { user, models }: IContext
+  ) {
+    const deal = await models.Deals.getDeal(_id);
 
-    return checkItemPermByUser(user._id, deal);
-  }
+    return checkItemPermByUser(models, user._id, deal);
+  },
 };
 
-// moduleRequireLogin(dealQueries);
+moduleRequireLogin(dealQueries);
 
-// checkPermission(dealQueries, 'deals', 'showDeals', []);
+checkPermission(dealQueries, "deals", "showDeals", []);
 
 export default dealQueries;

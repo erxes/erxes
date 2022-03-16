@@ -5,8 +5,22 @@ import { generateAllDataLoaders } from './dataLoaders';
 import { initBroker } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
-import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
-import { generateModels, models, coreModels } from './connectionResolver';
+import {
+  identifyCustomer,
+  trackCustomEvent,
+  trackViewPageEvent,
+  updateCustomerProperty
+} from './events';
+import {
+  generateModels,
+  models,
+  coreModels,
+  getSubdomain
+} from './connectionResolver';
+import logs from './logUtils';
+import tags from './tags';
+import segments from './segments';
+import forms from './forms';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -14,40 +28,41 @@ export let serviceDiscovery;
 
 export let es: {
   client;
-  fetchElk(args: IFetchElkArgs): Promise<any>,
-  getMappings(index: string): Promise<any>,
-  getIndexPrefix(): string,
+  fetchElk(args: IFetchElkArgs): Promise<any>;
+  getMappings(index: string): Promise<any>;
+  getIndexPrefix(): string;
 };
 
 export let debug;
 
 export default {
   name: 'inbox',
-  graphql: async (sd) => {
+  graphql: async sd => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers,
-    }
+      resolvers
+    };
   },
   hasSubscriptions: true,
   meta: {
-    segments: {
-      indexesTypeContentType: {
-        conversation: 'conversations',
-      },
-      contentTypes: ['conversation'],
-    },
-    tagTypes: ['conversation'],
-    logs: { providesActivityLog: true }
+    forms,
+    segments,
+    tags,
+    logs: { providesActivityLog: true, consumers: logs }
   },
-  apolloServerContext: (context) => {
+  apolloServerContext: context => {
+    const subdomain = 'os';
+
     context.models = models;
     context.coreModels = coreModels;
     context.dataLoaders = generateAllDataLoaders(models);
+    context.subdomain = subdomain;
+
+    return context;
   },
-  onServerInit: async (options) => {
+  onServerInit: async options => {
     mainDb = options.db;
     const app = options.app;
 
@@ -63,7 +78,11 @@ export default {
           const response =
             name === 'pageView'
               ? await trackViewPageEvent(coreModels, { customerId, attributes })
-              : await trackCustomEvent(coreModels, { name, customerId, attributes });
+              : await trackCustomEvent(coreModels, {
+                  name,
+                  customerId,
+                  attributes
+                });
 
           return res.json(response);
         },
@@ -76,8 +95,9 @@ export default {
       routeErrorHandling(
         async (req, res) => {
           const { args } = req.body;
+          const subdomain = getSubdomain(req.hostname);
 
-          const response = await identifyCustomer(args);
+          const response = await identifyCustomer(subdomain, args);
           return res.json(response);
         },
         res => res.json({})
@@ -88,18 +108,23 @@ export default {
       '/events-update-customer-property',
       routeErrorHandling(
         async (req, res) => {
-          const response = await updateCustomerProperty(coreModels, req.body);
+          const subdomain = getSubdomain(req.hostname);
+
+          const response = await updateCustomerProperty(
+            coreModels,
+            subdomain,
+            req.body
+          );
           return res.json(response);
         },
         res => res.json({})
       )
     );
 
-
-    initBroker(options.messageBrokerClient)
+    initBroker(options.messageBrokerClient);
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
     es = options.elasticsearch;
-  },
-}
+  }
+};

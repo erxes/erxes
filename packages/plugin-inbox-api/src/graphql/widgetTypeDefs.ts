@@ -1,6 +1,6 @@
-export const types = (isProductsAvailable) => `
+export const types = ({ products, forms }) => `
   ${
-   isProductsAvailable ?
+   products ?
     `
     extend type Product @key(fields: "_id") {
       _id: String! @external
@@ -13,8 +13,19 @@ export const types = (isProductsAvailable) => `
     : ''
   }
 
-  extend type Field @key(fields: "_id") {
-    _id: String! @external
+  ${
+   forms ?
+    `
+    extend type Field @key(fields: "_id") {
+      _id: String! @external
+    }
+
+    type FormConnectResponse {
+      integration: Integration
+      form: Form
+    }
+    `
+    : ''
   }
 
   type MessengerConnectResponse {
@@ -34,11 +45,6 @@ export const types = (isProductsAvailable) => `
     participatedUsers: [User]
     isOnline: Boolean
     supporters: [User]
-  }
-
-  type FormConnectResponse {
-    integration: Integration
-    form: Form
   }
 
   type SaveFormResponse {
@@ -61,15 +67,20 @@ export const types = (isProductsAvailable) => `
     serverTime: String
   }
 
-  type BookingProduct {
-    ${
-      isProductsAvailable ?
-      `
+  ${
+    products ?
+    `
+      type BookingProduct {
         product: Product
-      ` : ''
-    }
+        ${
 
-    fields: [Field]
+          forms ?
+          `
+            fields: [Field]
+          ` : ''
+        }
+      }
+    ` : ''
   }
 
   input FieldValueInput {
@@ -100,13 +111,12 @@ export const queries = (isProductsAvailable) => `
     isProductsAvailable ? 
     `
       widgetsProductCategory(_id: String!): ProductCategory
+      widgetsBookingProductWithFields(_id: String!): BookingProduct
     ` : ''
   }
-
-  widgetsBookingProductWithFields(_id: String!): BookingProduct
 `;
 
-export const mutations = `
+export const mutations = ({ forms }) => `
   widgetsMessengerConnect(
     brandCode: String!
     email: String
@@ -152,20 +162,37 @@ export const mutations = `
   widgetsReadConversationMessages(conversationId: String): JSON
   widgetsSaveCustomerGetNotified(customerId: String, visitorId: String, type: String!, value: String!): JSON
 
-  widgetsLeadConnect(
-    brandCode: String!,
-    formCode: String!,
-    cachedCustomerId: String
-  ): FormConnectResponse
+  ${
+   forms ?
+    `
+    widgetsLeadConnect(
+      brandCode: String!,
+      formCode: String!,
+      cachedCustomerId: String
+    ): FormConnectResponse
 
-  widgetsSaveLead(
-    integrationId: String!
-    formId: String!
-    submissions: [FieldValueInput]
-    browserInfo: JSON!
-    cachedCustomerId: String
-    userId: String
-  ): SaveFormResponse
+    widgetsSaveLead(
+      integrationId: String!
+      formId: String!
+      submissions: [FieldValueInput]
+      browserInfo: JSON!
+      cachedCustomerId: String
+      userId: String
+    ): SaveFormResponse
+
+    widgetsBookingConnect(_id: String): Integration
+
+    widgetsSaveBooking(
+      integrationId: String!
+      formId: String!
+      submissions: [FieldValueInput]
+      browserInfo: JSON!
+      cachedCustomerId: String
+      productId: String
+    ): SaveFormResponse
+    `
+    : ''
+  }
 
   widgetsSendEmail(
     toEmails: [String]
@@ -181,15 +208,4 @@ export const mutations = `
 
   widgetsLeadIncreaseViewCount(formId: String!): JSON
   widgetsSendTypingInfo(conversationId: String!, text: String): String
-
-  widgetsBookingConnect(_id: String): Integration
-
-  widgetsSaveBooking(
-    integrationId: String!
-    formId: String!
-    submissions: [FieldValueInput]
-    browserInfo: JSON!
-    cachedCustomerId: String
-    productId: String
-  ): SaveFormResponse
 `;

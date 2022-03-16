@@ -44,7 +44,7 @@ const receiveDms = async requestBody => {
       const { message_data } = message_create;
       const { attachment } = message_data;
 
-      const attachments = [];
+      const attachments: any[] = [];
 
       if (attachment) {
         attachments.push({ ...extractUrlFromAttachment(attachment) });
@@ -67,7 +67,7 @@ const receiveDms = async requestBody => {
       );
 
       const content = message_data.text;
-      const customerErxesApiId = customer.erxesApiId;
+      const customerErxesApiId = customer.erxesApiId || "";
 
       const conversation = await getOrCreateConversation(
         senderId,

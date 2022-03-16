@@ -1,16 +1,18 @@
-import { NotificationConfigurations, Notifications } from '../../models';
 import { Users } from '../../apiCollections';
 import { IConfig } from '../../models/definitions/notifications';
 import { graphqlPubsub } from '../../configs';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src';
+import { IContext } from '../../connectionResolver';
 
 const notificationMutations = {
   /**
    * Save notification configuration
    */
-  notificationsSaveConfig(_root, doc: IConfig, { user }: IContext) {
-    return NotificationConfigurations.createOrUpdateConfiguration(doc, user);
+  notificationsSaveConfig(_root, doc: IConfig, { user, models }: IContext) {
+    return models.NotificationConfigurations.createOrUpdateConfiguration(
+      doc,
+      user
+    );
   },
 
   /**
@@ -19,7 +21,7 @@ const notificationMutations = {
   async notificationsMarkAsRead(
     _root,
     { _ids, contentTypeId }: { _ids: string[]; contentTypeId: string },
-    { user }: IContext
+    { models, user }: IContext
   ) {
     // notify subscription
     graphqlPubsub.publish('notificationsChanged', '');
@@ -31,12 +33,12 @@ const notificationMutations = {
     let notificationIds = _ids;
 
     if (contentTypeId) {
-      const notifications = await Notifications.find({ contentTypeId });
+      const notifications = await models.Notifications.find({ contentTypeId });
 
       notificationIds = notifications.map((notification) => notification._id);
     }
 
-    return Notifications.markAsRead(notificationIds, user._id);
+    return models.Notifications.markAsRead(notificationIds, user._id);
   },
 
   /**

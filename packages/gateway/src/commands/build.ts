@@ -29,7 +29,7 @@ const execCommand = (command) => {
 const main = async () => {
   if (process.argv.length <= 2) {
     throw new Error(
-      "Please pass the one of the following values gateway,api-core,plugin !!!"
+      "Please pass the one of the following values gateway,core,plugin !!!"
     );
   }
 

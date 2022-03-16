@@ -1,3 +1,4 @@
+import { ACTIONS } from '../../../constants';
 import BoardItemForm from '../../../containers/forms/actions/subForms/BoardItemForm';
 import IfForm from '../../../containers/forms/actions/subForms/IfForm';
 import SetProperty from '../../../containers/forms/actions/subForms/SetProperty';
@@ -6,6 +7,7 @@ import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from 'coreui/utils';
 import React from 'react';
+import Common from './Common';
 import CustomCode from './subForms/CustomCode';
 import Delay from './subForms/Delay';
 
@@ -19,6 +21,15 @@ type Props = {
 class DefaultForm extends React.Component<Props> {
   render() {
     const { activeAction, onSave, closeModal } = this.props;
+
+    const currentAction = ACTIONS.find(
+      action => action.type === activeAction.type && action.component
+    );
+
+    if (currentAction) {
+      const Component = currentAction.component;
+      return <Component {...this.props} common={Common} />;
+    }
 
     return (
       <>

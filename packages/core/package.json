@@ -1,0 +1,51 @@
+{
+  "name": "core",
+  "version": "1.0.0",
+  "keywords": [
+    "node",
+    "express",
+    "graphql",
+    "apollo"
+  ],
+  "private": true,
+  "license": "SEE LICENSE IN LICENSE",
+  "scripts": {
+    "start": "node dist",
+    "start-crons": "node dist/cronJobs",
+    "start-workers": "node dist/workers",
+    "dev": "ERXES_TELEMETRY_DISABLED=1 DEBUG=erxes* NODE_ENV=development nodemon src/index.ts",
+    "dev-crons": "PROCESS_NAME=crons DEBUG=erxes-crons:* NODE_ENV=development nodemon src/cronJobs",
+    "loadTestData": "ts-node ./src/commands/loadTestData.ts",
+    "build": "tsc -p tsconfig.prod.json && tsc-alias -p tsconfig.prod.json",
+    "test": "node --expose-gc --max_old_space_size=8000 ./node_modules/.bin/jest --forceExit --silent --logHeapUsage --w=1",
+    "customCommand": "node_modules/.bin/ts-node src/commands/customCommand.ts",
+    "migrateBoardItems": "node_modules/.bin/ts-node src/commands/migrateBoardItems.ts",
+    "createSystemFieldsGroups": "node_modules/.bin/ts-node src/commands/createSystemFieldsGroups.ts",
+    "addMiddleName": "node_modules/.bin/ts-node src/commands/addMiddleName.ts",
+    "removeUnusedFields": "node_modules/.bin/ts-node src/commands/removeUnusedFields.ts",
+    "migrateKnowledgeBase": "node_modules/.bin/ts-node src/commands/migrateKnowledgeBase.ts",
+    "migrateSegment": "node_modules/.bin/ts-node src/commands/segmentMigration.ts",
+    "changeToSubscribed": "node_modules/.bin/ts-node src/commands/changeToSubscribed.ts",
+    "fixCompanyScopeBrandIds": "node_modules/.bin/ts-node src/commands/fixCompanyScopeBrandIds.ts",
+    "migrateContentType": "node_modules/.bin/ts-node src/commands/migrateContentType.ts",
+    "migrateLogs": "node_modules/.bin/ts-node src/commands/migrateLogs.ts"
+  },
+  "dependencies": {
+    "apollo-datasource-rest": "^0.5.1",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.3",
+    "csv-parser": "^3.0.0",
+    "erxes-api-utils": "^0.0.34",
+    "file-type": "^10.4.0",
+    "helmet": "^3.23.3",
+    "json2csv": "^5.0.1",
+    "node-schedule": "^1.2.5",
+    "server-timing-header": "^1.9.0",
+    "sha256": "^0.2.0",
+    "stream-array": "^1.1.2",
+    "ts-node": "^10.7.0",
+    "validator": "^9.0.0",
+    "xlsx-populate": "^1.20.1",
+    "xlsx-stream-reader": "^1.1.1"
+  }
+}

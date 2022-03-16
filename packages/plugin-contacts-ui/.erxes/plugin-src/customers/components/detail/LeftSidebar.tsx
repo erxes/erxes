@@ -11,6 +11,7 @@ import {
   TrackedDataSection
 } from '../common';
 import WebsiteActivity from '@erxes/ui-contacts/src/customers/components/common/WebsiteActivity';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   customer: ICustomer;
@@ -40,11 +41,11 @@ export default class LeftSidebar extends React.Component<Props> {
         />
         <TrackedDataSection customer={customer} />
         <WebsiteActivity urlVisits={customer.urlVisits || []} />
-        <TaggerSection
+        {isEnabled("tags") && <TaggerSection
           data={customer}
           type="contacts:customer"
           refetchQueries={taggerRefetchQueries}
-        />
+        />}
       </Sidebar>
     );
   }

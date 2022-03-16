@@ -36,7 +36,15 @@ export const twitterReply = async (doc) => {
     erxesApiId: integrationId
   });
 
+  if(!integration) {
+    throw new Error('Integration not found')
+  }
+
   const account = await Accounts.findOne({ _id: integration.accountId });
+
+  if(!account) {
+    throw new Error('Account not found')
+  }
 
   const recipientId = conversation.senderId;
 

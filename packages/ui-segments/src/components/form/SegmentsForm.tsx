@@ -12,7 +12,6 @@ import { ResultCount, SegmentResult } from '../styles';
 
 type Props = {
   contentType: string;
-  serviceType: string;
   fields: any[];
   events: IEvent[];
   boards: IBoard[];
@@ -37,13 +36,7 @@ type Props = {
 
 const SegmentsForm = (props: Props) => {
   const renderHelpText = () => {
-    let text = 'User(s) found';
-
-    if (!['customer', 'lead', 'visitor'].includes(contentType)) {
-      text = `${contentType}(s) found.`;
-    }
-
-    return text;
+    return `${contentType}(s) found.`;
   };
 
   const {
@@ -60,8 +53,7 @@ const SegmentsForm = (props: Props) => {
     segments,
     previewCount,
     count,
-    usageType,
-    serviceType
+    usageType
   } = props;
 
   const renderSidebar = () => {
@@ -97,7 +89,6 @@ const SegmentsForm = (props: Props) => {
 
   const content = (
     <Form
-      serviceType={serviceType}
       contentType={contentType}
       fields={fields}
       events={events}

@@ -38,20 +38,17 @@ export const IMPORT_TYPES = [
   {
     text: 'Customers',
     contentType: 'customer',
-    icon: 'users-alt',
-    serviceType: 'contacts'
+    icon: 'users-alt'
   },
   {
     text: 'Leads',
     contentType: 'lead',
-    icon: 'file-alt',
-    serviceType: 'contacts'
+    icon: 'file-alt'
   },
   {
     text: 'Companies',
     contentType: 'company',
-    icon: 'building',
-    serviceType: 'contacts'
+    icon: 'building'
   }
 ];
 
@@ -59,20 +56,17 @@ export const EXPORT_TYPES = [
   {
     text: 'Customers',
     contentType: 'customer',
-    icon: 'users-alt',
-    serviceType: 'contacts'
+    icon: 'users-alt'
   },
   {
     text: 'Leads',
     contentType: 'lead',
-    icon: 'file-alt',
-    serviceType: 'contacts'
+    icon: 'file-alt'
   },
   {
     text: 'Companies',
     contentType: 'company',
-    icon: 'building',
-    serviceType: 'contacts'
+    icon: 'building'
   }
 ];
 

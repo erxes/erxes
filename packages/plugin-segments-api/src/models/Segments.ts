@@ -1,11 +1,12 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
+import { IModels } from '../connectionResolver';
 import {
   ISegment,
   ISegmentDocument,
   segmentSchema
 } from './definitions/segments';
 
-const createOrUpdateSubSegments = async (segments: ISegment[]) => {
+const createOrUpdateSubSegments = async (models: IModels, segments: ISegment[]) => {
   const updatedSubSugments: Array<{
     subSegmentId: string;
     type: 'subSegment';
@@ -22,10 +23,10 @@ const createOrUpdateSubSegments = async (segments: ISegment[]) => {
 
       delete segment._id;
 
-      await Segments.updateOne({ _id }, { $set: segment });
+      await models.Segments.updateOne({ _id }, { $set: segment });
       // create
     } else {
-      const item = await Segments.create(segment);
+      const item = await models.Segments.create(segment);
 
       updatedSubSugments.push({
         subSegmentId: item._id,
@@ -50,13 +51,13 @@ export interface ISegmentModel extends Model<ISegmentDocument> {
   removeSegment(_id: string): void;
 }
 
-export const loadClass = () => {
+export const loadClass = (models: IModels) => {
   class Segment {
     /*
      * Get a segment
      */
     public static async getSegment(_id: string) {
-      const segment = await Segments.findOne({ _id });
+      const segment = await models.Segments.findOne({ _id });
 
       if (!segment) {
         throw new Error('Segment not found');
@@ -75,12 +76,13 @@ export const loadClass = () => {
       conditionSegments: ISegment[]
     ) {
       const conditions = await createOrUpdateSubSegments(
+        models,
         conditionSegments || []
       );
 
       doc.conditions = conditions;
 
-      return Segments.create(doc);
+      return models.Segments.create(doc);
     }
 
     /*
@@ -92,21 +94,22 @@ export const loadClass = () => {
       conditionSegments: ISegment[]
     ) {
       const conditions = await createOrUpdateSubSegments(
+        models,
         conditionSegments || []
       );
 
       doc.conditions = conditions;
 
-      await Segments.updateOne({ _id }, { $set: doc });
+      await models.Segments.updateOne({ _id }, { $set: doc });
 
-      return Segments.findOne({ _id });
+      return models.Segments.findOne({ _id });
     }
 
     /*
      * Remove segment
      */
     public static async removeSegment(_id: string) {
-      const segmentObj = await Segments.findOne({ _id });
+      const segmentObj = await models.Segments.findOne({ _id });
 
       const subSegmentIds: string[] = [];
 
@@ -122,7 +125,7 @@ export const loadClass = () => {
         }
       }
 
-      await Segments.remove({ _id: { $in: subSegmentIds } });
+      await models.Segments.remove({ _id: { $in: subSegmentIds } });
 
       return segmentObj.remove();
     }
@@ -132,13 +135,3 @@ export const loadClass = () => {
 
   return segmentSchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const Segments = model<ISegmentDocument, ISegmentModel>(
-  'segments',
-  segmentSchema
-);
-
-export default Segments;

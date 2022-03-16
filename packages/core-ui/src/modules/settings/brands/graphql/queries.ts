@@ -5,12 +5,6 @@ const brandDetail = `
       name
       emailConfig
       code
-      integrations {
-        _id
-        name
-        kind
-        brandId
-      }
     }
   }
 `;
@@ -55,5 +49,5 @@ export default {
   brands,
   brandDetail,
   brandsCount,
-  integrationsCount
+  integrationsCount,
 };

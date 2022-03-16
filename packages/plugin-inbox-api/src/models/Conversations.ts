@@ -15,8 +15,7 @@ import {
   IConversationDocument
 } from './definitions/conversations';
 import { ICoreIModels, IModels } from '../connectionResolver';
-// import { Skills } from './Skills';
-
+import { sendFormsMessage } from '../messageBroker';
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
@@ -81,7 +80,7 @@ export interface IConversationModel extends Model<IConversationDocument> {
   ): Promise<{ n: number; nModified: number; ok: number }>;
 }
 
-export const loadClass = (models: IModels, coreModels: ICoreIModels) => {
+export const loadClass = (models: IModels, coreModels: ICoreIModels, subdomain: string) => {
   class Conversation {
     /**
      * Retreives conversation
@@ -143,12 +142,13 @@ export const loadClass = (models: IModels, coreModels: ICoreIModels) => {
         doc.content = cleanHtml(doc.content);
       }
 
-      // if (doc.customFieldsData) {
-      //   // clean custom field values
-      //   doc.customFieldsData = await Fields.prepareCustomFieldsData(
-      //     doc.customFieldsData
-      //   );
-      // }
+      // clean custom field values
+      doc.customFieldsData = await sendFormsMessage({
+        subdomain,
+        action: "fields.prepareCustomFieldsData",
+        data: doc.customFieldsData,
+        isRPC: true,
+      });
 
       return models.Conversations.updateOne({ _id }, { $set: doc });
     }
@@ -180,7 +180,7 @@ export const loadClass = (models: IModels, coreModels: ICoreIModels) => {
     ) {
       await this.checkExistanceConversations(conversationIds);
 
-      if (!(await getDocument(models, coreModels, 'users', { _id: assignedUserId }))) {
+      if (!(await getDocument(models, coreModels, subdomain,  'users', { _id: assignedUserId }))) {
         throw new Error(`User not found with id ${assignedUserId}`);
       }
 

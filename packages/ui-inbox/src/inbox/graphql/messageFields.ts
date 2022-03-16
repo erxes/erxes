@@ -1,3 +1,5 @@
+import { isEnabled } from "@erxes/ui/src/utils/core";
+
 export default `
   _id
   content
@@ -34,29 +36,40 @@ export default `
       position
     }
   }
-  customer {
-    _id
-    avatar
-    firstName
-    middleName
-    lastName
-    primaryEmail
-    primaryPhone
-    state
-    companies {
-      _id
-      primaryName
-      website
-    }
+  ${
+    isEnabled("contacts")
+      ? `
+      customer {
+        _id
+        avatar
+        firstName
+        middleName
+        lastName
+        primaryEmail
+        primaryPhone
+        state
+        companies {
+          _id
+          primaryName
+          website
+        }
 
-    customFieldsData
+        customFieldsData
 
-    tagIds
-    getTags {
-      _id
-      name
-      colorCode
-    }
+        tagIds
+        ${
+          isEnabled("tags")
+            ? `
+            getTags {
+              _id
+              name
+              colorCode
+            }
+          ` : `` 
+        }
+      }
+    `
+      : ``
   }
   mailData {
     messageId

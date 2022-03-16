@@ -43,7 +43,7 @@ class ConversationDetails extends React.Component<Props> {
   }
 
   renderRow(field, value) {
-    const { fields } = this.props;
+    const { fields = [] } = this.props;
 
     const property = fields.find(e => e.type === field);
 
@@ -62,7 +62,7 @@ class ConversationDetails extends React.Component<Props> {
   }
 
   renderIntegration() {
-    const { conversation, fields } = this.props;
+    const { conversation, fields = [] } = this.props;
     const { integration = {} as IIntegration } = conversation;
 
     const property = fields.find(e => e.type === 'integration');

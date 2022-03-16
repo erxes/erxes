@@ -21,6 +21,7 @@ import { ILeadData } from '@erxes/ui-leads/src/types';
 import { ILeadIntegration } from '@erxes/ui-leads/src/types';
 import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
 import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   contentTypeId: string;
@@ -123,7 +124,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       afterFormDbSave,
       isActionLoading: this.state.isLoading,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
-      emailTemplates: emailTemplatesQuery.emailTemplates || [],
+      emailTemplates: emailTemplatesQuery ? emailTemplatesQuery.emailTemplates || [] : [],
       configs: configsQuery.configs || []
     };
 
@@ -141,7 +142,8 @@ const withTemplatesQuery = withProps<FinalProps>(
           variables: {
             perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount
           }
-        })
+        }),
+        skip: !isEnabled('engages') ? true: false
       }
     )
   )(EditLeadContainer)
@@ -150,7 +152,8 @@ const withTemplatesQuery = withProps<FinalProps>(
 export default withProps<FinalProps>(
   compose(
     graphql(gql(templatesQuery.totalCount), {
-      name: 'emailTemplatesTotalCountQuery'
+      name: 'emailTemplatesTotalCountQuery',
+      skip: !isEnabled('engages') ? true: false
     }),
     graphql<Props, LeadIntegrationDetailQueryResponse, { _id: string }>(
       gql(queries.integrationDetail),

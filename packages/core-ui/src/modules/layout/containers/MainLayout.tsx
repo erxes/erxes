@@ -1,7 +1,11 @@
-import { AppConsumer, AppProvider } from 'appContext';
-import { IUser } from 'modules/auth/types';
-import React from 'react';
-import MainLayout from '../components/MainLayout';
+import { withProps } from "@erxes/ui/src/utils/core";
+import * as compose from "lodash.flowright";
+import gql from "graphql-tag";
+import { AppConsumer, AppProvider } from "appContext";
+import { IUser } from "modules/auth/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import MainLayout from "../components/MainLayout";
 
 type Props = {
   currentUser?: IUser;
@@ -9,20 +13,46 @@ type Props = {
   children: React.ReactNode;
 };
 
-const container = (props: Props) => {
-  return (
-  <AppProvider currentUser={props.currentUser} plugins={props.plugins}>
-    <AppConsumer>
-      {({ isShownIndicator, closeLoadingBar }) => {
-        return (
-        <MainLayout
-          {...props}
-          isShownIndicator={isShownIndicator}
-          closeLoadingBar={closeLoadingBar}
-        />
-      )}}
-    </AppConsumer>
-  </AppProvider>
-)};
+type FinalProps = {
+  enabledServicesQuery: any;
+} & Props;
 
-export default container;
+const MainLayoutContainer = (props: FinalProps) => {
+  const { currentUser, plugins, enabledServicesQuery } = props;
+
+  if (enabledServicesQuery.loading) {
+    return null;
+  }
+
+  const enabledServices = enabledServicesQuery.enabledServices || {};
+
+  return (
+    <AppProvider currentUser={currentUser} plugins={plugins}>
+      <AppConsumer>
+        {({ isShownIndicator, closeLoadingBar }) => {
+          return (
+            <MainLayout
+              {...props}
+              enabledServices={enabledServices}
+              isShownIndicator={isShownIndicator}
+              closeLoadingBar={closeLoadingBar}
+            />
+          );
+        }}
+      </AppConsumer>
+    </AppProvider>
+  );
+};
+
+export default withProps<Props>(
+  compose(
+    graphql<Props, {}, {}>(
+      gql(`query enabledServices {
+          enabledServices
+        }`),
+      {
+        name: "enabledServicesQuery",
+      }
+    )
+  )<FinalProps>(MainLayoutContainer)
+);

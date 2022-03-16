@@ -73,7 +73,7 @@ const PluginsWrapper = ({
   return (
     <AppConsumer>
       {({ plugins }) =>
-        plugins.map((plugin) => {
+        (plugins || []).map((plugin) => {
           const item = plugin[itemName];
 
           if (!item) {
@@ -130,7 +130,7 @@ const useDynamicScript = (args) => {
   };
 };
 
-const loadComponent = (scope, module) => {
+export const loadComponent = (scope, module) => {
   return async () => {
     // Initializes the share scope. This fills it with known provided modules from this build and all remotes
     await __webpack_init_sharing__("default");
@@ -254,8 +254,8 @@ export const pluginsSettingsNavigations = (
   const navigationMenus: any[] = [];
 
   for (const plugin of plugins) {
-    for (var i = 0; i < plugins.length; i++) {
-      plugin["color"] = generateRandomColor();
+    for (let i = 0; i < plugins.length; i++) {
+      plugin.color = generateRandomColor();
     }
 
     const hasComponent = Object.keys(plugin.exposes).includes("./settings");
@@ -287,7 +287,7 @@ class TopNavigation extends React.Component<any, any> {
   }
 
   componentDidMount() {
-    var interval = setInterval(() => {
+    const interval = setInterval(() => {
       if (window[this.props.topNav.scope]) {
         window.clearInterval(interval);
 

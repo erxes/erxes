@@ -6,6 +6,7 @@ import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import apiConnect from './apiCollections';
 import { generateModels, models } from './connectionResolver';
+import logs from './logUtils';
 
 export let mainDb;
 export let debug;
@@ -48,6 +49,6 @@ export default {
     es = options.elasticsearch;
   },
   meta: {
-    logs: { providesActivityLog: true },
+    logs: { providesActivityLog: true, consumers: logs },
   },
 };

@@ -33,11 +33,8 @@ const commonFields = `
 
 const commonFieldsGroups = `
   name
-  boardsPipelines {
-    boardId
-    pipelineIds
-  }
   ${genericFields}
+  config
 
   lastUpdatedUser {
     details {
@@ -50,9 +47,15 @@ const commonFieldsGroups = `
 }
 `;
 
+const fieldsGetTypes = `
+  query fieldsGetTypes {
+    fieldsGetTypes
+  }
+`;
+
 const fieldsGroups = `
-  query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $boardId: String, $pipelineId: String) {
-    fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, boardId: $boardId, pipelineId: $pipelineId) {
+  query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $config: JSON) {
+    fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, config: $config) {
       ${commonFieldsGroups}
   }
 `;
@@ -95,8 +98,8 @@ const fields = `
 `;
 
 const inboxFields = `
-  query fieldsInbox {
-    fieldsInbox {
+  query inboxFields {
+    inboxFields {
       customer { ${commonFields} }
       device { ${commonFields} }
       conversation { ${commonFields} }
@@ -104,9 +107,9 @@ const inboxFields = `
   }
 `;
 
-const fieldsItemTyped = `
-  query fieldsItemTyped {
-    fieldsItemTyped
+const cardsFields = `
+  query cardsFields {
+    cardsFields
   }
 `;
 
@@ -122,9 +125,10 @@ const configs = `
 
 export default {
   fieldsGroups,
+  fieldsGetTypes,
   fields,
   getSystemFieldsGroup,
   inboxFields,
-  fieldsItemTyped,
+  cardsFields,
   configs
 };

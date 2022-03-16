@@ -4,30 +4,52 @@ import EmptyState from "modules/common/components/EmptyState";
 import HeaderDescription from "modules/common/components/HeaderDescription";
 import ModalTrigger from "modules/common/components/ModalTrigger";
 import Pagination from "modules/common/components/pagination/Pagination";
+import Table from "modules/common/components/table";
 import { Title } from "modules/common/styles/main";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import BrandForm from "@erxes/ui/src/brands/components/BrandForm";
 import React from "react";
 import { __ } from "../../../common/utils";
 import Wrapper from "../../../layout/components/Wrapper";
-import IntegrationList from "@erxes/ui-inbox/src/settings/integrations/containers/common/IntegrationList";
-import ManageIntegrations from "../containers/ManageIntegrations";
 import Sidebar from "../containers/Sidebar";
 import { IBrand } from "../types";
 
 type Props = {
-  integrationsCount: number;
+  brandsTotalCount: number;
   queryParams: any;
   currentBrand: IBrand;
   loading: boolean;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 class Brands extends React.Component<Props, {}> {
+  renderContent() {
+    const { currentBrand, queryParams, renderButton } = this.props;
+
+    return (
+      <>
+        <Table>
+          <thead>
+            <tr>
+              <th>{__("Brand name")}</th>
+              <th>{__("Actions")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <Sidebar
+              currentBrandId={currentBrand._id}
+              queryParams={queryParams}
+              renderButton={renderButton}
+            />
+          </tbody>
+        </Table>
+        <Pagination count={10} />
+      </>
+    );
+  }
+
   render() {
-    const {
-      integrationsCount,
-      currentBrand,
-      queryParams,
-      loading,
-    } = this.props;
+    const { brandsTotalCount, currentBrand, loading } = this.props;
 
     const breadcrumb = [
       { title: __("Settings"), link: "/settings" },
@@ -45,30 +67,36 @@ class Brands extends React.Component<Props, {}> {
       );
     }
 
-    const trigger = (
-      <Button id={"ManageIntegration"} btnStyle="simple" icon="web-grid-alt">
-        Manage integration
+    const addBrand = (
+      <Button
+        id={"NewBrandButton"}
+        btnStyle="success"
+        block={true}
+        icon="plus-circle"
+      >
+        Add New Brand
       </Button>
     );
 
     const content = (props) => (
-      <ManageIntegrations
+      <BrandForm
         {...props}
-        queryParams={queryParams}
-        currentBrand={currentBrand}
-      />
-    );
-
-    const rightActionBar = currentBrand._id && (
-      <ModalTrigger
-        title="Manage Integration"
-        trigger={trigger}
-        size="lg"
-        content={content}
+        extended={true}
+        renderButton={this.props.renderButton}
       />
     );
 
     const leftActionBar = <Title>{currentBrand.name}</Title>;
+
+    const righActionBar = (
+      <ModalTrigger
+        size="lg"
+        title="New Brand"
+        autoOpenKey="showBrandAddModal"
+        trigger={addBrand}
+        content={content}
+      />
+    );
 
     return (
       <Wrapper
@@ -88,31 +116,18 @@ class Brands extends React.Component<Props, {}> {
           />
         }
         actionBar={
-          <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
-        }
-        leftSidebar={
-          <Sidebar
-            currentBrandId={currentBrand._id}
-            queryParams={queryParams}
-          />
+          <Wrapper.ActionBar left={leftActionBar} right={righActionBar} />
         }
         content={
           <DataWithLoader
-            data={
-              <IntegrationList
-                queryParams={queryParams}
-                variables={{ brandId: currentBrand._id }}
-                disableAction={true}
-                integrationsCount={integrationsCount}
-              />
-            }
+            data={this.renderContent()}
             loading={loading}
-            count={integrationsCount}
+            count={brandsTotalCount}
             emptyText="Add an integration in this Brand"
             emptyImage="/images/actions/2.svg"
           />
         }
-        footer={currentBrand._id && <Pagination count={integrationsCount} />}
+        footer={currentBrand._id && <Pagination count={brandsTotalCount} />}
       />
     );
   }

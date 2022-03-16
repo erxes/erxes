@@ -26,21 +26,21 @@ export const extractEmailFromString = (str?: string): string => {
 
 export const getEmailsAsObject = (
   rawString: string
-): Array<{ email: string }> => {
+): any[] => {
   if (!rawString) {
-    return;
+    return [] 
   }
 
   const emails = extractEmailFromString(rawString);
 
-  return emails
-    .split(' ')
-    .map(email => {
+   return emails.split(' ').map(email => {
       if (email) {
         return { email };
       }
     })
     .filter(email => email !== undefined);
+
+    
 };
 
 export const parseEmailHeader = (
@@ -67,7 +67,7 @@ export const parseEmailHeader = (
 };
 
 export const parseMail = (mails: any) => {
-  const docs = [];
+  const docs: any[] = [];
 
   for (const mail of mails) {
     const doc: any = {};
@@ -216,7 +216,7 @@ export const createMimeMessage = (mailParams: IMailParams): string => {
           attachment.filename +
           '"',
         'Content-Transfer-Encoding: base64' + nl,
-        chunkSubstr(attachment.data, 76)
+        chunkSubstr(attachment.data || '', 76)
       ];
 
       mimeBase.push(mimeAttachment.join(nl));

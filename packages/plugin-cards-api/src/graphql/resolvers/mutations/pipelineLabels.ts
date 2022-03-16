@@ -1,7 +1,6 @@
-import { PipelineLabels } from '../../../models';
 import { IPipelineLabel } from '../../../models/definitions/pipelineLabels';
 import { putCreateLog, putUpdateLog, putDeleteLog } from '../../../logUtils';
-import { IContext } from '@erxes/api-utils/src';
+import { IContext } from '../../../connectionResolver';
 
 interface IPipelineLabelsEdit extends IPipelineLabel {
   _id: string;
@@ -14,14 +13,16 @@ const pipelineLabelMutations = {
   async pipelineLabelsAdd(
     _root,
     { ...doc }: IPipelineLabel,
-    { user }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    const pipelineLabel = await PipelineLabels.createPipelineLabel({
+    const pipelineLabel = await models.PipelineLabels.createPipelineLabel({
       createdBy: user._id,
       ...doc
     });
 
     await putCreateLog(
+      models,
+      subdomain,
       {
         type: 'pipelineLabel',
         newData: {
@@ -43,12 +44,14 @@ const pipelineLabelMutations = {
   async pipelineLabelsEdit(
     _root,
     { _id, ...doc }: IPipelineLabelsEdit,
-    { user }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    const pipelineLabel = await PipelineLabels.getPipelineLabel(_id);
-    const updated = await PipelineLabels.updatePipelineLabel(_id, doc);
+    const pipelineLabel = await models.PipelineLabels.getPipelineLabel(_id);
+    const updated = await models.PipelineLabels.updatePipelineLabel(_id, doc);
 
     await putUpdateLog(
+      models,
+      subdomain,
       {
         type: 'pipelineLabel',
         newData: doc,
@@ -66,12 +69,14 @@ const pipelineLabelMutations = {
   async pipelineLabelsRemove(
     _root,
     { _id }: { _id: string },
-    { user }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    const pipelineLabel = await PipelineLabels.getPipelineLabel(_id);
-    const removed = await PipelineLabels.removePipelineLabel(_id);
+    const pipelineLabel = await models.PipelineLabels.getPipelineLabel(_id);
+    const removed = await models.PipelineLabels.removePipelineLabel(_id);
 
     await putDeleteLog(
+      models,
+      subdomain,
       { type: 'pipelineLabel', object: pipelineLabel },
       user
     );
@@ -88,9 +93,10 @@ const pipelineLabelMutations = {
       pipelineId,
       targetId,
       labelIds
-    }: { pipelineId: string; targetId: string; labelIds: string[] }
+    }: { pipelineId: string; targetId: string; labelIds: string[] },
+    { models }: IContext
   ) {
-    return PipelineLabels.labelsLabel(pipelineId, targetId, labelIds);
+    return models.PipelineLabels.labelsLabel(pipelineId, targetId, labelIds);
   }
 };
 

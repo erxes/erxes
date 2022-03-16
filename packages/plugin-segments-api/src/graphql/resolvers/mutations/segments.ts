@@ -1,7 +1,6 @@
 import { moduleCheckPermission } from "@erxes/api-utils/src/permissions";
-import { IContext } from "@erxes/api-utils/src/types";
+import { IContext } from "../../../connectionResolver";
 import { putUpdateLog, putCreateLog, putDeleteLog } from "../../../logUtils";
-import { Segments } from "../../../models";
 import { ISegment } from "../../../models/definitions/segments";
 
 interface ISegmentsEdit extends ISegment {
@@ -13,12 +12,12 @@ const segmentMutations = {
   /**
    * Create new segment
    */
-  async segmentsAdd(_root, doc: ISegment, { user, docModifier }: IContext) {
+  async segmentsAdd(_root, doc: ISegment, { models, user, docModifier }: IContext) {
     const extendedDoc = docModifier(doc);
 
     const conditionSegments = extendedDoc.conditionSegments;
 
-    const segment = await Segments.createSegment(
+    const segment = await models.Segments.createSegment(
       extendedDoc,
       conditionSegments
     );
@@ -45,13 +44,13 @@ const segmentMutations = {
   async segmentsEdit(
     _root,
     { _id, ...doc }: ISegmentsEdit,
-    { user }: IContext
+    { models, user }: IContext
   )
   {
-    const segment = await Segments.getSegment(_id);
+    const segment = await models.Segments.getSegment(_id);
     const conditionSegments = doc.conditionSegments;
 
-    const updated = await Segments.updateSegment(_id, doc, conditionSegments);
+    const updated = await models.Segments.updateSegment(_id, doc, conditionSegments);
 
     await putUpdateLog(
       {
@@ -69,9 +68,9 @@ const segmentMutations = {
   /**
    * Delete segment
    */
-  async segmentsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const segment = await Segments.getSegment(_id);
-    const removed = await Segments.removeSegment(_id);
+  async segmentsRemove(_root, { _id }: { _id: string }, { models, user }: IContext) {
+    const segment = await models.Segments.getSegment(_id);
+    const removed = await models.Segments.removeSegment(_id);
 
     await putDeleteLog({ type: 'segment', object: segment }, user);
 

@@ -38,15 +38,13 @@ import { getDocument, getMessengerApps } from '../../cacheUtils';
 import { conversationNotifReceivers } from './conversationMutations';
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
 import {
-  sendConformityMessage,
-  sendContactMessage,
-  sendContactRPCMessage,
-  sendFormRPCMessage,
-  sendMessage,
-  sendProductRPCMessage,
   sendToLog,
   client as msgBrokerClient,
-  sendRPCMessage
+  sendContactsMessage,
+  sendProductsMessage,
+  sendFormsMessage,
+  sendCoreMessage,
+  sendIntegrationsMessage
 } from '../../messageBroker';
 import { trackViewPageEvent } from '../../events';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
@@ -91,7 +89,7 @@ const pConversationClientMessageInserted = async (models, message) => {
       {
         integrationIds: { $in: [integration._id] }
       },
-      { _id: 1 }
+      { _id: 1, memberIds: 1 }
     );
 
     for (const channel of channels) {
@@ -152,15 +150,22 @@ export const getMessengerData = async (models: IModels, integration: IIntegratio
   };
 };
 
-const createVisitor = async (visitorId: string) =>
-  sendContactRPCMessage('create_customer', {
-    state: 'visitor',
-    visitorId
+const createVisitor = async (subdomain: string, visitorId: string) => {
+  return sendContactsMessage({
+    subdomain,
+    action: 'customers.createCustomer',
+    data: {
+      state: 'visitor',
+      visitorId
+    },
+    isRPC: true
   });
+};
 
 const createFormConversation = async (
   models: IModels,
   coreModels: ICoreIModels,
+  subdomain: string,
   args: {
     integrationId: string;
     formId: string;
@@ -183,7 +188,15 @@ const createFormConversation = async (
     throw new Error('Form not found');
   }
 
-  const errors = await sendFormRPCMessage('validate', { formId, submissions });
+  const errors = await sendFormsMessage({
+    subdomain,
+    action: "validate",
+    data: {
+      formId,
+      submissions
+    },
+    isRPC: true
+  })
 
   if (errors.length > 0) {
     return { status: 'error', errors };
@@ -191,7 +204,7 @@ const createFormConversation = async (
 
   const content = await generateContent(form);
 
-  const cachedCustomer = await solveSubmissions(models, coreModels, args);
+  const cachedCustomer = await solveSubmissions(models, coreModels, subdomain, args);
 
   const conversationData = await generateConvData();
 
@@ -244,9 +257,9 @@ const widgetMutations = {
   async widgetsLeadConnect(
     _root,
     args: { brandCode: string; formCode: string; cachedCustomerId?: string },
-    { models, coreModels }: IContext
+    { models, coreModels, subdomain }: IContext
   ) {
-    const brand = await getDocument(models, coreModels, 'brands', { code: args.brandCode });
+    const brand = await getDocument(models, coreModels, subdomain, 'brands', { code: args.brandCode });
 
     const form = await coreModels.Forms.findOne({ code: args.formCode });
 
@@ -268,10 +281,15 @@ const widgetMutations = {
     if (integ.createdUserId) {
       const user = await coreModels.Users.findOne({ _id: integ.createdUserId });
 
-      sendMessage('registerOnboardHistory', {
-        type: 'leadIntegrationInstalled',
-        user
+      await sendCoreMessage({
+        subdomain,
+        action: 'registerOnboardHistory',
+        data: {
+          type: 'leadIntegrationInstalled',
+          user
+        }
       });
+
     }
 
     if (integ.leadData?.isRequireOnce && args.cachedCustomerId) {
@@ -302,13 +320,14 @@ const widgetMutations = {
       cachedCustomerId?: string;
       userId?: string;
     },
-    { models, coreModels }: IContext
+    { models, coreModels, subdomain }: IContext
   ) {
     const { submissions } = args;
 
     return createFormConversation(
       models,
       coreModels,
+      subdomain,
       args,
       form => {
         return form.title;
@@ -346,7 +365,7 @@ const widgetMutations = {
       deviceToken?: string;
       visitorId?: string;
     },
-    { models, coreModels }: IContext
+    { models, coreModels, subdomain }: IContext
   ) {
     const {
       brandCode,
@@ -365,14 +384,14 @@ const widgetMutations = {
     const customData = data;
 
     // find brand
-    const brand = await getDocument(models, coreModels, 'brands', { code: brandCode });
+    const brand = await getDocument(models, coreModels, subdomain, 'brands', { code: brandCode });
 
     if (!brand) {
       throw new Error('Invalid configuration');
     }
 
     // find integration
-    const integration = await getDocument(models, coreModels, 'integrations', {
+    const integration = await getDocument(models, coreModels, subdomain, 'integrations', {
       brandId: brand._id,
       kind: KIND_CHOICES.MESSENGER
     });
@@ -384,13 +403,18 @@ const widgetMutations = {
     let customer;
 
     if (cachedCustomerId || email || phone || code) {
-      customer = await sendContactRPCMessage('getWidgetCustomer', {
-        integrationId: integration._id,
-        cachedCustomerId,
-        email,
-        phone,
-        code
-      })
+      customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.getWidgetCustomer',
+        data: {
+          integrationId: integration._id,
+          cachedCustomerId,
+          email,
+          phone,
+          code
+        },
+        isRPC: true
+      });
 
       const doc = {
         integrationId: integration._id,
@@ -403,15 +427,27 @@ const widgetMutations = {
       };
 
       customer = customer
-        ? await sendContactRPCMessage('updateMessengerCustomer', {
-            _id: customer._id,
+        ? 
+          await sendContactsMessage({
+            subdomain,
+            action: "customers.updateMessengerCustomer",
+            data: {
+              _id: customer._id,
+              doc,
+              customData
+            },
+            isRPC: true
+          }) 
+        : 
+        await sendContactsMessage({
+          subdomain,
+          action: "customers.createMessengerCustomer",
+          data: {
             doc,
             customData
-          })
-        : await sendContactRPCMessage('createMessengerCustomer', {
-            doc,
-            customData
-          });
+          },
+          isRPC: true
+        }) 
     }
 
     if (visitorId) {
@@ -424,12 +460,25 @@ const widgetMutations = {
 
     // get or create company
     if (companyData && companyData.name) {
-      let company = await sendContactRPCMessage('findCompany', companyData);
+      let company = await sendContactsMessage({
+        subdomain,
+        action: "companies.findOne",
+        data: companyData,
+        isRPC: true
+      });
 
       const {
         customFieldsData,
         trackedData
-      } = await coreModels.Fields.generateCustomFieldsData(companyData, 'company');
+      } = await sendFormsMessage({
+        subdomain,
+        action: "fields.generateCustomFieldsData",
+        data: {
+          customData: companyData,
+          contentType: 'company'
+        },
+        isRPC: true
+      })
 
       companyData.customFieldsData = customFieldsData;
       companyData.trackedData = trackedData;
@@ -438,27 +487,42 @@ const widgetMutations = {
         companyData.primaryName = companyData.name;
 
         try {
-          company = await sendContactRPCMessage('createCompany', {
-            ...companyData,
-            scopeBrandIds: [brand._id]
+          company = await sendContactsMessage({
+            subdomain,
+            action: 'companies.createCompany',
+            data: {
+              ...companyData,
+              scopeBrandIds: [brand._id]
+            },
+            isRPC: true
           });
         } catch (e) {
           debug.error(e.message);
         }
       } else {
-        company = await sendContactRPCMessage('updateCompany', {
-          ...companyData,
-          scopeBrandIds: [brand._id]
-        });
+        company = await sendContactsMessage({
+          subdomain,
+          action: "companies.updateCompany",
+          data: {
+            ...companyData,
+            scopeBrandIds: [brand._id]
+          },
+          isRPC: true
+        })
       }
 
       if (customer && company) {
         // add company to customer's companyIds list
-        sendConformityMessage('create', {
-          mainType: 'customer',
-          mainTypeId: customer._id,
-          relType: 'company',
-          relTypeId: company._id
+        await sendCoreMessage({
+          subdomain,
+          action: 'conformities.create',
+          data: {
+            mainType: 'customer',
+            mainTypeId: customer._id,
+            relType: 'company',
+            relTypeId: company._id
+          },
+          isRPC: true
         });
       }
     }
@@ -488,7 +552,7 @@ const widgetMutations = {
       attachments?: any[];
       contentType: string;
     },
-    { models, coreModels }: IContext
+    { models, coreModels, subdomain }: IContext
   ) {
     const {
       integrationId,
@@ -516,8 +580,13 @@ const widgetMutations = {
         let integrationConfigs: Array<{ code: string; value?: string }> = [];
 
         try {
-          integrationConfigs = await sendRPCMessage('rpc_queue:api_to_integrations', {
-            action: 'getConfigs'
+          integrationConfigs = await sendIntegrationsMessage({
+            subdomain,
+            action: 'api_to_integrations',
+            data: {
+              action: 'getConfigs'
+            },
+            isRPC: true
           });
 
         } catch (e) {
@@ -549,7 +618,8 @@ const widgetMutations = {
     let { customerId } = args;
 
     if (visitorId && !customerId) {
-      const customer = await createVisitor(visitorId);
+      const customer = await createVisitor(subdomain, visitorId);
+      
       customerId = customer._id;
     }
 
@@ -558,7 +628,7 @@ const widgetMutations = {
     let conversation;
 
     const integration =
-      (await getDocument(models, coreModels, 'integrations', {
+      (await getDocument(models, coreModels, subdomain, 'integrations', {
         _id: integrationId
       })) || {};
 
@@ -630,8 +700,13 @@ const widgetMutations = {
     );
 
     // mark customer as active
-    sendContactMessage('markCustomerAsActive', {
-      customerId: conversation.customerId
+    await sendContactsMessage({
+      subdomain,
+      action: "customers.markCustomerAsActive",
+      data: { 
+        customerId: conversation.customerId
+      },
+      isRPC: true
     });
 
     await pConversationClientMessageInserted(models, msg);
@@ -729,12 +804,16 @@ const widgetMutations = {
 
     if (!HAS_BOTENDPOINT_URL && customerId) {
       try {
-        await sendMessage('core:sendMobileNotification', {
-          title: 'You have a new message',
-          body: conversationContent,
-          customerId,
-          conversationId: conversation._id,
-          receivers: conversationNotifReceivers(conversation, customerId)
+        await sendCoreMessage({
+          subdomain,
+          action: 'sendMobileNotification',
+          data: {
+            title: 'You have a new message',
+            body: conversationContent,
+            customerId,
+            conversationId: conversation._id,
+            receivers: conversationNotifReceivers(conversation, customerId)
+          }
         });
       } catch (e) {
         debug.error(`Failed to send mobile notification: ${e.message}`);
@@ -767,11 +846,11 @@ const widgetMutations = {
     return args.conversationId;
   },
 
-  async widgetsSaveCustomerGetNotified(_root, args, { models }: IContext) {
+  async widgetsSaveCustomerGetNotified(_root, args, { models, subdomain }: IContext) {
     const { visitorId, customerId } = args;
 
     if (visitorId && !customerId) {
-      const customer = await createVisitor(visitorId);
+      const customer = await createVisitor(subdomain, visitorId);
       args.customerId = customer._id;
 
       await models.ConversationMessages.updateVisitorEngageMessages(
@@ -786,7 +865,12 @@ const widgetMutations = {
       );
     }
 
-    return sendContactRPCMessage('saveVisitorContactInfo', args);
+    return  sendContactsMessage({
+      subdomain,
+      action: "customers.saveVisitorContactInfo",
+      data: args,
+      isRPC: true
+    })
   },
 
   /*
@@ -799,13 +883,27 @@ const widgetMutations = {
       customerId,
       browserInfo
     }: { visitorId?: string; customerId?: string; browserInfo: IBrowserInfo },
-    { coreModels }: IContext
+    { coreModels, subdomain }: IContext
   ) {
     // update location
 
     if (customerId) {
-      sendContactMessage('updateLocation', { customerId, browserInfo });
-      sendContactMessage('updateSession', { customerId });
+      sendContactsMessage({
+        subdomain,
+        action: 'customers.updateLocation',
+        data: {
+          customerId,
+          browserInfo
+        }
+      });
+
+      sendContactsMessage({
+        subdomain,
+        action: 'customers.updateSession',
+        data: {
+          customerId,
+        }
+      });
     }
 
     if (visitorId) {
@@ -839,15 +937,21 @@ const widgetMutations = {
     return 'ok';
   },
 
-  async widgetsSendEmail(_root, args: IWidgetEmailParams, { coreModels }: IContext) {
+  async widgetsSendEmail(_root, args: IWidgetEmailParams, { coreModels, subdomain }: IContext) {
     const { toEmails, fromEmail, title, content, customerId, formId } = args;
 
     const attachments = args.attachments || [];
 
     // do not use Customers.getCustomer() because it throws error if not found
-    const customer = await sendContactRPCMessage('findCustomer', {
-      _id: customerId
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: "customers.findOne",
+      data: {
+        _id: customerId
+      }, 
+      isRPC: true
     });
+
     const form = await coreModels.Forms.getForm(formId || '');
 
     let finalContent = content;
@@ -879,12 +983,16 @@ const widgetMutations = {
       });
     }
 
-    await sendMessage('core:sendEmail', {
-      toEmails,
-      fromEmail,
-      title,
-      template: { data: { content: finalContent } },
-      attachments: mailAttachment
+    await sendCoreMessage({
+      subdomain,
+      action: 'sendEmail',
+      data: {
+        toEmails,
+        fromEmail,
+        title,
+        template: { data: { content: finalContent } },
+        attachments: mailAttachment
+      }
     });
   },
 
@@ -907,17 +1015,17 @@ const widgetMutations = {
       payload: string;
       type: string;
     },
-    { models, coreModels }: IContext
+    { models, coreModels, subdomain }: IContext
   ) {
     const integration =
-      (await getDocument(models, coreModels, 'integrations', {
+      (await getDocument(models, coreModels, subdomain, 'integrations', {
         _id: integrationId
       })) || {};
 
     const { botEndpointUrl } = integration.messengerData;
 
     if (visitorId && !customerId) {
-      const customer = await createVisitor(visitorId);
+      const customer = await createVisitor(subdomain, visitorId);
       customerId = customer._id;
     }
 
@@ -1007,7 +1115,7 @@ const widgetMutations = {
   async widgetGetBotInitialMessage(
     _root,
     { integrationId }: { integrationId: string },
-    { models, coreModels }: IContext
+    { models, coreModels, subdomain }: IContext
   ) {
     const sessionId = `_${Math.random()
       .toString(36)
@@ -1016,7 +1124,7 @@ const widgetMutations = {
     await set(`bot_initial_message_session_id_${integrationId}`, sessionId);
 
     const integration =
-      (await getDocument(models, coreModels, 'integrations', {
+      (await getDocument(models, coreModels, subdomain, 'integrations', {
         _id: integrationId
       })) || {};
 
@@ -1062,15 +1170,23 @@ const widgetMutations = {
       cachedCustomerId?: string;
       productId: string;
     },
-    { models, coreModels }: IContext
+    { models, coreModels, subdomain }: IContext
   ) {
     const { submissions, productId } = args;
 
-    const product = await sendProductRPCMessage('findOne', { _id: productId });
+    const product = await sendProductsMessage({
+      subdomain,
+      action: "findOne",
+      data: {
+        _id: productId
+      },
+      isRPC: true
+    });
 
     return createFormConversation(
       models,
       coreModels,
+      subdomain,
       args,
       () => {
         return `<p>submitted a new booking for <strong><a href="/settings/product-service/details/${productId}">${product?.name}</a> ${product?.code}</strong></p>`;

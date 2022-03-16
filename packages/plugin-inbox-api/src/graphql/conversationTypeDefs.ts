@@ -1,4 +1,4 @@
-export const types = isTagsAvailable => `
+export const types = ({ tags, forms }) => `
   extend type Attachment @key(fields: "url") {
     url: String! @external
   }
@@ -13,13 +13,13 @@ export const types = isTagsAvailable => `
   }
 
   ${
-    isTagsAvailable ? 
-    `
+    tags
+      ? `
       extend type Tag @key(fields: "_id") {
         _id: String! @external
       }
     `
-    : ''
+      : ''
   }
 
   extend type User @key(fields: "_id") {
@@ -57,7 +57,7 @@ export const types = isTagsAvailable => `
     facebookPost: FacebookPost
     callProAudio: String
     
-    ${isTagsAvailable ? `tags: [Tag]` : ''}
+    ${tags ? `tags: [Tag]` : ''}
 
     customer: Customer
     integration: Integration
@@ -189,6 +189,18 @@ export const types = isTagsAvailable => `
     recordingLinks: [String]
   }
 
+  ${
+    forms
+      ? `
+        type InboxField {
+          customer: [Field]
+          conversation: [Field]
+          device: [Field]
+        }
+    `
+      : ''
+  }
+
   input ConversationMessageParams {
     content: String,
     mentionedUserIds: [String],
@@ -230,7 +242,7 @@ const filterParams = `
   ${mutationFilterParams}
 `;
 
-export const queries = `
+export const queries = ({ forms }) => `
   conversationMessage(_id: String!): ConversationMessage
   
   conversations(${filterParams}): [Conversation]
@@ -248,6 +260,7 @@ export const queries = `
   conversationDetail(_id: String!): Conversation
   conversationsGetLast(${filterParams}): Conversation
   conversationsTotalUnreadCount: Int
+  ${ forms ? `inboxFields: InboxField` : '' }
 `;
 
 export const mutations = `

@@ -104,14 +104,14 @@ export const putCreateLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const isAutomationsAvailable = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'automations');
+  // const isAutomationsAvailable = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'automations');
 
-  if (isAutomationsAvailable) {
-    messageBroker.sendMessage('automations', {
-      type: `${params.type}`,
-      targets: [params.object]
-    });
-  }
+  // if (isAutomationsAvailable) {
+  //   messageBroker.sendMessage('automations', {
+  //     type: `${params.type}`,
+  //     targets: [params.object]
+  //   });
+  // }
 
   return putLog(
     messageBroker,
@@ -166,12 +166,15 @@ const putLog = async (
   }
 
   return messageBroker.sendMessage('putLog', {
-    ...params,
-    createdBy: user._id,
-    unicode: user.username || user.email || user._id,
-    object: JSON.stringify(params.object),
-    newData: JSON.stringify(params.newData),
-    extraDesc: JSON.stringify(params.extraDesc),
+    subdomain: 'os',
+    data: {
+      ...params,
+      createdBy: user._id,
+      unicode: user.username || user.email || user._id,
+      object: JSON.stringify(params.object),
+      newData: JSON.stringify(params.newData),
+      extraDesc: JSON.stringify(params.extraDesc),
+    }
   });
 };
 
@@ -249,3 +252,51 @@ export const getSchemaLabels = (type: string, schemaMappings: ISchemaMap[]) => {
 
   return fieldNames;
 };
+
+export const logConsumers = (params: { name, consumeRPCQueue?, getActivityContent?, getContentTypeDetail?, collectItems?, getContentIds?, getSchemalabels? }) => {
+  const { name, consumeRPCQueue, getActivityContent, getContentTypeDetail, collectItems, getContentIds, getSchemalabels } = params;
+
+  if (getActivityContent) {
+    consumeRPCQueue(
+      `${name}:logs:getActivityContent`,
+      async args => ({
+        status: 'success',
+        data: await getActivityContent(args)
+      })
+    );
+  }
+
+  if (getContentTypeDetail) {
+    consumeRPCQueue(
+      `${name}:logs:getContentTypeDetail`,
+      async args => ({
+        status: 'success',
+        data: await getContentTypeDetail(args)
+      })
+    );
+  }
+
+  if (collectItems) {
+    consumeRPCQueue(`${name}:logs:collectItems`, async args => ({
+      status: 'success',
+      data: await collectItems(args)
+    }));
+  }
+
+  if (getContentIds) {
+    consumeRPCQueue(`${name}:logs:getContentIds`, async args => ({
+      status: 'success',
+      data: await getContentIds(args)
+    }));
+  }
+
+  if (getSchemalabels) {
+    consumeRPCQueue(
+      `${name}:logs:getSchemaLabels`,
+      args => ({
+        status: 'success',
+        data: getSchemalabels(args)
+      })
+    );
+  }
+}

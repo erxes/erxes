@@ -4,9 +4,11 @@ import apiConnect from './apiCollections';
 
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
+import { generateModels, models } from './connectionResolver';
 
+export let mainDb;
 export let graphqlPubsub;
-
+export let serviceDiscovery;
 export let es: {
   client;
   fetchElk(args: IFetchElkArgs): Promise<any>;
@@ -18,15 +20,26 @@ export let debug;
 
 export default {
   name: 'notifications',
-  graphql: () => ({
-    typeDefs,
-    resolvers,
-  }),
+  graphql: (sd) => {
+    serviceDiscovery = sd;
+    return {
+      typeDefs,
+      resolvers,
+    };
+  },
   hasSubscriptions: true,
   segment: {},
-  apolloServerContext: (context) => {},
+  apolloServerContext: (context) => {
+    context.models = models;
+  },
   onServerInit: async (options) => {
     await apiConnect();
+
+    initBroker(options.messageBrokerClient);
+
+    mainDb = options.db;
+
+    await generateModels('os');
 
     initBroker(options.messageBrokerClient);
 
