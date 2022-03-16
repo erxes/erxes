@@ -1,5 +1,4 @@
 import { IArticleDocument } from '../../models/definitions/knowledgebase';
-import { getDocument } from '../../cacheUtils';
 import { IContext } from '../../connectionResolver';
 
 export default {
@@ -7,7 +6,10 @@ export default {
     return models.KnowledgeBaseArticles.findOne({ _id });
   },
 
-  createdUser(article: IArticleDocument, _args, { coreModels }: IContext) {
-    return getDocument(coreModels, 'users', { _id: article.createdBy });
+  createdUser(article: IArticleDocument, _args) {
+    return {
+      __typename: "User",
+      _id: article.createdBy
+    }
   },
 };
