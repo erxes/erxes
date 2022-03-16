@@ -43,7 +43,7 @@ export const loadDealClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      return createBoardItem(models, doc, 'deal');
+      return createBoardItem(models, subdomain, doc, 'deal');
     }
 
     /**

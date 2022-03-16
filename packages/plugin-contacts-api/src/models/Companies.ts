@@ -252,12 +252,14 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
       });
 
       // create log
-      await putActivityLog({
-        action: "createCocLog",
-        data: {
-          coc: company,
-          contentType: "company",
-          ...prepareCocLogData(company),
+      await putActivityLog(
+        subdomain,
+        {
+          action: "createCocLog",
+          data: {
+            coc: company,
+            contentType: "company",
+            ...prepareCocLogData(company),
         },
       });
 
@@ -302,10 +304,13 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
      */
     public static async removeCompanies(companyIds: string[]) {
       // Removing modules associated with company
-      await putActivityLog({
-        action: "removeActivityLogs",
-        data: { type: ACTIVITY_CONTENT_TYPES.COMPANY, itemIds: companyIds },
-      });
+      await putActivityLog(
+        subdomain,
+        {
+          action: "removeActivityLogs",
+          data: { type: ACTIVITY_CONTENT_TYPES.COMPANY, itemIds: companyIds },
+        }
+      );
 
       await sendInternalNotesMessage({
         subdomain,

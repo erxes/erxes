@@ -433,7 +433,7 @@ export const loadClass = (models: IModels, coreModels: ICoreIModels, subdomain: 
       kind: string,
       brandObject = false
     ) {
-      const brand = await coreModels.Brands.getBrand({ code: brandCode });
+      const brand = await coreModels.Brands.findOne({ code: brandCode });
 
       const integration = await models.Integrations.getIntegration({
         brandId: brand._id,

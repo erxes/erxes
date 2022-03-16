@@ -41,7 +41,7 @@ const countByChannels = async (
 
 // Count conversation by brand
 const countByBrands = async (coreModels: ICoreIModels, qb: any, counts: ICountBy): Promise<ICountBy> => {
-  const brands = await coreModels.Brands.find({});
+  const brands = await coreModels.Brands.find({}).toArray();
 
   for (const brand of brands) {
     await qb.buildAllQueries();

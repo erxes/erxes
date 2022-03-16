@@ -76,11 +76,11 @@ export const initBroker = async (cl) => {
   consumeQueue('putActivityLog', async (args) => {
     debug.info(args);
 
-    const { data: parsedObject, subdomain } = args;
+    const { data: obj, subdomain } = args;
 
     const models = await generateModels(subdomain);
 
-    const { data, action } = parsedObject;
+    const { data, action } = obj;
 
     switch (action) {
       case 'removeActivityLogs': {

@@ -37,7 +37,7 @@ export const getOrCreateEngageMessage = async (
     kind: KIND_CHOICES.MESSENGER,
   });
 
-  const brand = await coreModels.Brands.getBrand({ _id: integration.brandId || "" });
+  const brand = await coreModels.Brands.findOne({ _id: integration.brandId || "" });
 
   // try to create engage chat auto messages
   await sendEngagesMessage({
@@ -362,13 +362,22 @@ export const solveSubmissions = async (models: IModels, coreModels: ICoreIModels
           "check",
         ].includes(submissionType)
       ) {
-        const field = await sendFormsMessage({ subdomain, action: 'fields.findOne', data: { _id: submission.associatedFieldId }, isRPC: true });
+        const field = await sendFormsMessage({
+          subdomain,
+          action: 'fields.findOne',
+          data: { query: { _id: submission.associatedFieldId } },
+          isRPC: true
+        });
 
         if (!field) {
           continue;
         }
 
-        const fieldGroup = await sendFormsMessage({ subdomain, action: 'fieldsGroups.findOne', data: { _id: field.groupId }, isRPC: true });
+        const fieldGroup = await sendFormsMessage({
+          subdomain,
+          action: 'fieldsGroups.findOne',
+          data: { query: { _id: field.groupId }, isRPC: true }
+        });
 
         if (fieldGroup && fieldGroup.contentType === "company") {
           companyCustomData.push({

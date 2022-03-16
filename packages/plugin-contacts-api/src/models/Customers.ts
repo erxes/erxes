@@ -248,7 +248,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         modifiedAt: new Date(),
       });
 
-      await putActivityLog({
+      await putActivityLog(subdomain, {
         action: "createCocLog",
         data: {
           coc: customer,
@@ -322,7 +322,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         validateSingle({ phone: doc.primaryPhone });
       }
 
-      await putActivityLog({
+      await putActivityLog(subdomain, {
         action: "createCocLog",
         data: {
           coc: customer,
@@ -483,7 +483,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
      */
     public static async removeCustomers(customerIds: string[]) {
       // Removing every modules that associated with customer
-      await putActivityLog({
+      await putActivityLog(subdomain, {
         action: "removeActivityLogs",
         data: { type: ACTIVITY_CONTENT_TYPES.CUSTOMER, itemIds: customerIds },
       });
