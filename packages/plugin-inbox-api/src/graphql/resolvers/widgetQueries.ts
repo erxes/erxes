@@ -10,7 +10,7 @@ import * as moment from 'moment';
 // ? import { uploadFile, frontendEnv, getSubServiceDomain } from '@erxes/api-utils';
 
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
-import { sendFormsMessage } from '../../messageBroker';
+import { sendCoreMessage, sendFormsMessage, sendKnowledgeBaseMessage } from '../../messageBroker';
 import { IContext, ICoreIModels, IModels } from '../../connectionResolver';
 
 export const isMessengerOnline = async (models: IModels, integration: IIntegrationDocument) => {
@@ -347,5 +347,65 @@ export default {
         _id
       }
     };
-  }
+  },
+  
+  /*
+   * Search published articles that contain searchString (case insensitive)
+   * in a topic found by topicId
+   * @return {Promise} searched articles
+   */
+  async widgetsKnowledgeBaseArticles(
+    _root: any,
+    args: { topicId: string; searchString: string },
+    { subdomain }: IContext
+  ) {
+    const { topicId, searchString = '' } = args;
+
+    return sendKnowledgeBaseMessage({
+      subdomain,
+      action: 'articles.find',
+      data: {
+        query: {
+          topicId,
+          content: { $regex: `.*${searchString.trim()}.*`, $options: 'i' },
+          status: 'publish'
+        }
+      },
+      isRPC: true
+    });
+
+  },
+
+    /**
+   * Topic detail
+   */
+     async widgetsKnowledgeBaseTopicDetail(_root, { _id }: { _id: string }, { subdomain, coreModels }: IContext) {
+      const topic = await sendKnowledgeBaseMessage({
+        subdomain,
+        action: "topics.findOne",
+        data: {
+          query:{
+            _id
+          }
+        },
+        isRPC: true
+      })
+  
+      if (topic && topic.createdBy) {
+        const user = await coreModels.Users.findOne({ _id: topic.createdBy });
+
+        sendCoreMessage({
+          subdomain,
+          action: 'registerOnboardHistory',
+          data: {
+            type: 'knowledgeBaseInstalled',
+            user
+          }
+        });
+      }
+  
+      return topic;
+    },
+  
+
 };
