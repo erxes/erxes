@@ -570,7 +570,7 @@ const integrationMutations = {
       })
 
       if (response && response.status === 'ok') {
-        await putActivityLog({
+        await putActivityLog(subdomain, {
           messageBroker: messageBroker(),
           action: 'add',
           data: {

@@ -91,7 +91,7 @@ const tagMutations = {
     const targets = await tagObject(subdomain, type, tagIds, targetIds);
 
     for (const target of targets) {
-      await putActivityLog({
+      await putActivityLog(subdomain, {
         action: 'createTagLog',
         data: {
           contentId: target._id,

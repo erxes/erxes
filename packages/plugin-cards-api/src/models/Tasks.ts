@@ -47,7 +47,7 @@ export const loadTaskClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      return createBoardItem(models, doc, 'task');
+      return createBoardItem(models, subdomain, doc, 'task');
     }
 
     /**

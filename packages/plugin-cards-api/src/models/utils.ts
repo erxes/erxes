@@ -291,7 +291,7 @@ export const destroyBoardItemRelations = async (
   contentTypeId: string,
   contentType: string
 ) => {
-  await putActivityLog({
+  await putActivityLog(subdomain, {
     action: "removeActivityLog",
     data: { contentTypeId },
   });
@@ -409,6 +409,7 @@ export const generateBoardNumber = async (
 
 export const createBoardItem = async (
   models: IModels,
+  subdomain: string,
   doc: IItemCommonFields,
   type: string
 ) => {
@@ -432,7 +433,7 @@ export const createBoardItem = async (
     if (
       e.message === `E11000 duplicate key error dup key: { : "${doc.number}" }`
     ) {
-      await createBoardItem(models, doc, type);
+      await createBoardItem(models, subdomain, doc, type);
     }
   }
 
@@ -456,7 +457,7 @@ export const createBoardItem = async (
   }
 
   // create log
-  await putActivityLog({
+  await putActivityLog(subdomain, {
     action: "createBoardItem",
     data: {
       item,
@@ -574,7 +575,7 @@ export const conversationConvertToCard = async (
 
     item.userId = user._id;
 
-    await putActivityLog({
+    await putActivityLog(subdomain, {
       action: "createBoardItem",
       data: { item, contentType: type, contentId: item._id },
     });
