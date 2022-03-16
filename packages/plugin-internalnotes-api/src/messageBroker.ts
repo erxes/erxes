@@ -72,10 +72,10 @@ export const sendNotificationMessage = async (
       return defaultValue;
     }
 
-    return client.sendRPCMessage(`notifications:rpc_queue:${action}`, data);
+    return client.sendRPCMessage(`notifications:${action}`, { data });
   }
 
-  return client.sendMessage(`notifications:${action}`, data);
+  return client.sendMessage(`notifications:${action}`, { data });
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {
