@@ -282,7 +282,7 @@ class CompaniesList extends React.Component<IProps, State> {
               />
             </li>
             <li>
-              <Link to="/settings/properties?type=company">
+              <Link to="/settings/properties?type=contacts:company">
                 {__('Manage properties')}
               </Link>
             </li>
