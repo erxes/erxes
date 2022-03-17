@@ -7,7 +7,6 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import Properties from '../components/Properties';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-settings/src/properties/constants';
 import { mutations, queries } from '@erxes/ui-settings/src/properties/graphql';
 import {
   FieldsGroupsRemoveMutationResponse,
@@ -28,6 +27,7 @@ type Props = {
 
 type FinalProps = {
   fieldsGroupsQuery: FieldsGroupsQueryResponse;
+  fieldsGetTypes: any;
 } & Props &
   FieldsGroupsRemoveMutationResponse &
   FieldsRemoveMutationResponse &
@@ -47,17 +47,24 @@ const PropertiesContainer = (props: FinalProps) => {
     fieldsUpdateVisible,
     fieldsUpdateOrder,
     groupsUpdateOrder,
-    queryParams
+    queryParams,
+    fieldsGetTypes
   } = props;
 
   if (fieldsGroupsQuery.loading) {
     return <Spinner objective={true} />;
   }
 
+  if (fieldsGetTypes.loading) {
+    return <Spinner />;
+  }
+
+  const services = fieldsGetTypes.fieldsGetTypes || [];
+
   if (!router.getParam(history, 'type')) {
     router.setParams(
       history,
-      { type: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER },
+      { type: services[0].contentType.toString() },
       true
     );
   }
@@ -155,6 +162,7 @@ const PropertiesContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
+    services,
     fieldsGroups,
     currentType,
     removePropertyGroup,
@@ -184,6 +192,10 @@ const options = ({ queryParams }) => ({
 
 export default withProps<Props>(
   compose(
+    graphql<Props>(gql(queries.fieldsGetTypes), {
+      name: 'fieldsGetTypes'
+    }),
+
     graphql<Props, FieldsGroupsQueryResponse>(gql(queries.fieldsGroups), {
       name: 'fieldsGroupsQuery',
       options: ({ queryParams }) => ({
