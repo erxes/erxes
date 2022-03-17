@@ -6,6 +6,7 @@ import { queries } from '../../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 import ChartRenderer from '../../components/chart/ChartRenderer';
+import { detachType } from '../../utils';
 
 type Props = {
   pipelineId: string;
@@ -25,7 +26,7 @@ export default function ChartRendererContainer({
     {
       variables: {
         pipelineId,
-        type,
+        type: detachType(type),
         stackBy: stackBy || 'stage'
       }
     }

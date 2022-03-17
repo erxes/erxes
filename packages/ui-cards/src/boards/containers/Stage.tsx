@@ -17,6 +17,7 @@ import {
   SaveItemMutation,
   StagesSortItemsMutationResponse
 } from '../types';
+import { detachType } from '../utils';
 
 type StageProps = {
   stage: IStage;
@@ -150,7 +151,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       stagesSortItemsMutation({
         variables: {
           stageId,
-          type: options.type,
+          type: detachType(options.type),
           proccessId,
           sortType: type
         }

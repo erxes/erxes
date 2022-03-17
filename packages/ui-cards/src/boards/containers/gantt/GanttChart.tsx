@@ -15,6 +15,7 @@ import {
 } from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { mutations } from '../../graphql';
+import { detachType } from '../../utils';
 
 export type BoardItemArgs = {
   _id: string;
@@ -100,7 +101,7 @@ class GanttChartContainer extends React.PureComponent<FinalStageProps, State> {
           variables: {
             items: boardItems,
             links,
-            type: options.type
+            type: detachType(options.type)
           }
         })
         .catch(e => {
