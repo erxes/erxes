@@ -85,8 +85,9 @@ const deals = `
       limit: $limit,
       ${commonParamDefs}
     ) {
-      ${dealFields}
-      ${commonFields}
+      products
+      amount
+      ${commonListFields}
     }
   }
 `;
