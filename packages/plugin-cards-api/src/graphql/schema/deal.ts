@@ -96,7 +96,7 @@ const archivedDealsParams = `
 
 export const queries = `
   dealDetail(_id: String!): Deal
-  deals(${listQueryParams}): [DealListItem]
+  deals(${listQueryParams}): [Deal]
   dealsTotalCount(${listQueryParams}): Int
   archivedDeals(
     page: Int 

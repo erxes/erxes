@@ -33,65 +33,7 @@ const dealQueries = {
       ...(await generateDealCommonFilters(models, subdomain, user._id, args)),
     };
 
-    const getExtraFields = async (item: any) => ({
-      amount: await dealResolvers.amount(item),
-    });
-
-    const deals = await getItemList(
-      models,
-      subdomain,
-      filter,
-      args,
-      user,
-      "deal",
-      { productsData: 1 },
-      getExtraFields
-    );
-
-    // @ts-ignore
-    const dealProductIds = deals.flatMap((deal) => {
-      if (deal.productsData && deal.productsData.length > 0) {
-        return deal.productsData.flatMap((pData) => pData.productId || []);
-      }
-
-      return [];
-    });
-
-    const products = await sendProductsMessage({
-      subdomain,
-      action: 'find',
-      data: {
-        query: {
-          _id: { $in: [...new Set(dealProductIds)] }
-        }
-      },
-      isRPC: true,
-      defaultValue: []
-    });
-
-    for (const deal of deals) {
-      if (
-        !deal.productsData ||
-        (deal.productsData && deal.productsData.length === 0)
-      ) {
-        continue;
-      }
-
-      deal.products = [];
-
-      for (const pData of deal.productsData) {
-        if (!pData.productId) {
-          continue;
-        }
-
-        deal.products.push({
-          ...(typeof pData.toJSON === "function" ? pData.toJSON() : pData),
-          product: products.find((p) => p._id === pData.productId) || {},
-        });
-      }
-    }
-
-    return deals;
+    return models.Deals.find(filter);
   },
 
   async dealsTotalCount(
