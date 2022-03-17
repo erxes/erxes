@@ -282,7 +282,7 @@ export const itemsEdit = async (
   if (doc.status && oldItem.status && oldItem.status !== doc.status) {
     const activityAction = doc.status === 'active' ? 'activated' : 'archived';
 
-    putActivityLog({
+    putActivityLog(subdomain, {
       action: 'createArchiveLog',
       data: {
         item: updatedItem,
@@ -313,7 +313,7 @@ export const itemsEdit = async (
 
     const activityContent = { addedUserIds, removedUserIds };
 
-    putActivityLog({
+    putActivityLog(subdomain, {
       action: 'createAssigneLog',
       data: {
         contentId: _id,
@@ -449,7 +449,7 @@ const itemMover = async (
       text: `${oldStage.name} to ${stage.name}`
     };
 
-    await putActivityLog({
+    await putActivityLog(subdomain, {
       action: 'createBoardItemMovementLog',
       data: {
         item,
@@ -648,6 +648,7 @@ export const itemsCopy = async (
 
 export const itemsArchive = async (
   models: IModels,
+  subdomain: string,
   stageId: string,
   type: string,
   proccessId: string,
@@ -671,7 +672,7 @@ export const itemsArchive = async (
   const stage = await models.Stages.getStage(stageId);
 
   for (const item of items) {
-    await putActivityLog({
+    await putActivityLog(subdomain, {
       action: 'createArchiveLog',
       data: {
         item,

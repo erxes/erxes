@@ -1,5 +1,4 @@
 import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
-import { getDocumentList } from '../../cacheUtils';
 import { IContext } from '../../connectionResolver';
 
 interface IIn {
@@ -14,8 +13,8 @@ const channelQueries = {
   /**
    * Channels list
    */
-  channelsByMembers(_root, { memberIds }: { memberIds: string[] }, { models, coreModels, subdomain }: IContext) {
-    return getDocumentList(models, coreModels, subdomain, 'channels', { memberIds: { $in: memberIds } });
+  channelsByMembers(_root, { memberIds }: { memberIds: string[] }, { models }: IContext) {
+    return models.Channels.find({ memberIds: { $in: memberIds } });
   },
 
   /**

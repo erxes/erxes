@@ -95,9 +95,9 @@ const taskMutations = {
   async tasksArchive(
     _root,
     { stageId, proccessId }: { stageId: string; proccessId: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    return itemsArchive(models, stageId, 'task', proccessId, user);
+    return itemsArchive(models, subdomain, stageId, 'task', proccessId, user);
   }
 };
 

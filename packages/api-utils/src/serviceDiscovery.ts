@@ -1,9 +1,10 @@
 import * as Redis from 'ioredis';
 import * as ServiceRegistry from 'clerq';
 import * as dotenv from 'dotenv';
+
 dotenv.config();
 
-const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, NODE_ENV } = process.env;
+const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, NODE_ENV, LOAD_BALANCER_ADDRESS } = process.env;
 const isDev = NODE_ENV === 'development';
 
 export const redis = new Redis({
@@ -65,14 +66,14 @@ export const join = async ({
 
   return registry.up(
     name,
-    `http://${isDev ? 'localhost' : `plugin-${name}-api`}:${port}`
+    LOAD_BALANCER_ADDRESS || `http://${isDev ? 'localhost' : `plugin-${name}-api`}:${port}`
   );
 };
 
 export const leave = async (name, port) => {
   await registry.down(
     name,
-    `http://${isDev ? 'localhost' : `plugin-${name}-api`}:${port}`
+    LOAD_BALANCER_ADDRESS || `http://${isDev ? 'localhost' : `plugin-${name}-api`}:${port}`
   );
 
   return redis.del(generateKey(name));

@@ -5,7 +5,7 @@ import { Route } from 'react-router-dom';
 
 const CompanyDetails = asyncComponent(() =>
   import(
-    /* webpackChunkName: "CompanyDetails" */ './containers/detail/CompanyDetails'
+    /* webpackChunkName: "CompanyDetail" */ './containers/detail/CompanyDetails'
   )
 );
 

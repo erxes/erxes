@@ -184,7 +184,7 @@ export interface IActivityLogParams {
   data: any;
 }
 
-export const putActivityLog = async (params: IActivityLogParams) => {
+export const putActivityLog = async (subdomain: string, params: IActivityLogParams) => {
   const { messageBroker, data } = params;
   const isAutomationsAvailable = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'automations');
 
@@ -196,7 +196,7 @@ export const putActivityLog = async (params: IActivityLogParams) => {
       });
     }
 
-    return messageBroker.sendMessage('putActivityLog', params);
+    return messageBroker.sendMessage('putActivityLog', { data: params, subdomain });
   } catch (e) {
     return e.message;
   }

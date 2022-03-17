@@ -58,7 +58,7 @@ const removeItems = async (models: IModels, subdomain: string, type: string, sta
 
   const itemIds = items.map(i => i._id);
 
-  await putActivityLog({
+  await putActivityLog(subdomain, {
     action: 'removeActivityLogs',
     data: { type, itemIds }
   });

@@ -46,7 +46,7 @@ export const loadTicketClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      return createBoardItem(models, doc, 'ticket');
+      return createBoardItem(models, subdomain, doc, 'ticket');
     }
 
     /**

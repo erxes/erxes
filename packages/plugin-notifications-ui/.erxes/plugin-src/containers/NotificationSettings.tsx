@@ -64,7 +64,6 @@ const NotificationSettingsContainer = (props: FinalProps) => {
 
   const configs =
     notificationConfigurationsQuery.notificationsGetConfigurations || [];
-  console.log(currentUser);
 
   // default value is checked
   let getNotificationByEmail = currentUser.getNotificationByEmail;

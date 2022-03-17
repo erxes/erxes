@@ -61,7 +61,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
   models.InternalNotes = db.model<IInternalNoteDocument, IInternalNoteModel>(
-    'internalnotes',
+    'internal_notes',
     loadInternalNoteClass(models)
   );
 

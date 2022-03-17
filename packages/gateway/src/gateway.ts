@@ -24,15 +24,15 @@ async function getConfiguredServices(): Promise<ServiceEndpointDefinition[]> {
   const services: ServiceEndpointDefinition[] = await Promise.all(
     serviceNames.map(async (name) => {
       const service = await getService(name);
+
       const def: ServiceEndpointDefinition = {
         name,
         url: `${service.address}/graphql`
       }
+
       return def;
     })
   );
-
-  // services.push({ name: "api", url: `${process.env.API_DOMAIN}/graphql` });
 
   return services;
 }
