@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import {
   clientPortalSchema,
   IClientPortal,
@@ -10,10 +10,10 @@ export interface IClientPortalModel extends Model<IClientPortalDocument> {
   createOrUpdateConfig(args: IClientPortal): Promise<IClientPortalDocument>;
 }
 
-export const loadClass = () => {
+export const loadClientPortalClass = (models) => {
   class ClientPortal {
     public static async getConfig(_id: string) {
-      const config = await ClientPortals.findOne({ _id }).lean();
+      const config = await models.ClientPortals.findOne({ _id }).lean();
 
       if (!config) {
         throw new Error('Config not found');
@@ -23,15 +23,15 @@ export const loadClass = () => {
     }
 
     public static async createOrUpdateConfig({ _id, ...doc }: IClientPortal) {
-      let config = await ClientPortals.findOne({ _id });
+      let config = await models.ClientPortals.findOne({ _id });
 
       if (!config) {
-        config = await ClientPortals.create(doc);
+        config = await models.ClientPortals.create(doc);
 
         return config.toJSON();
       }
 
-      return ClientPortals.findOneAndUpdate(
+      return models.ClientPortals.findOneAndUpdate(
         { _id: config._id },
         { $set: doc },
         { new: true }
@@ -43,12 +43,3 @@ export const loadClass = () => {
 
   return clientPortalSchema;
 };
-
-loadClass();
-
-const ClientPortals = model<IClientPortalDocument, IClientPortalModel>(
-  'client_portal',
-  clientPortalSchema
-);
-
-export default ClientPortals;
