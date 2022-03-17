@@ -3,7 +3,6 @@ import LeftSidebar from "modules/layout/components/Sidebar";
 import { SidebarList as List } from "modules/layout/styles";
 import React from "react";
 import { Link } from "react-router-dom";
-import SidebarHeader from "@erxes/ui-settings/src/common/components/SidebarHeader";
 
 type Props = {
   currentType?: string;
@@ -16,8 +15,7 @@ class Sidebar extends React.Component<Props> {
 
     return (
       <div>
-        <SidebarHeader />
-        <Header uppercase={true}>{__("Filter by content type")}</Header>
+        <Header uppercase="capitalize">{__("Filter by content type")}</Header>
       </div>
     );
   };

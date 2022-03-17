@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { SidebarCounter } from "@erxes/ui/src/layout/styles";
 import { IStructure } from "@erxes/ui-team/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
@@ -6,17 +6,37 @@ import { __, readFile } from "modules/common/utils";
 import Box from "@erxes/ui/src/components/Box";
 import Icon from "@erxes/ui/src/components/Icon";
 import { StructureList } from "../../styles";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Form from "../../containers/structure/Form";
 
 type Props = {
   structure: IStructure;
   showEdit: () => void;
+  refetch: () => Promise<any>;
 };
 
-export default function View({ structure, showEdit }: Props) {
+export default function View({ structure, showEdit, refetch }: Props) {
   const edit = (
     <a href="#settings" onClick={showEdit} tabIndex={0}>
       <Icon icon="edit" size={8} />
     </a>
+  );
+
+  const [showView, setShowView] = useState(Boolean(structure));
+  console.log("show view view dotorh", showView);
+  const content = (props) => {
+    return (
+      <Form
+        {...props}
+        refetch={refetch}
+        structure={structure}
+        showView={() => setShowView(true)}
+      />
+    );
+  };
+
+  const editForm = (
+    <ModalTrigger content={content} title="Structure editing" trigger={edit} />
   );
 
   const renderRow = (name: string, value: any, nowrap?: boolean) => {
@@ -39,7 +59,7 @@ export default function View({ structure, showEdit }: Props) {
 
   return (
     <Box
-      extraButtons={edit}
+      extraButtons={editForm}
       isOpen={true}
       title={__("Structure")}
       name="showStructure"

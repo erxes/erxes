@@ -37,15 +37,15 @@ const types = {
 
 const sizes = {
   large: {
-    padding: "10px 30px",
+    padding: "10px 20px",
     fontSize: "13px",
   },
   medium: {
-    padding: "7px 20px",
+    padding: "5px 10px",
     fontSize: "12px",
   },
   small: {
-    padding: "5px 15px",
+    padding: "3px 7px",
     fontSize: "10px",
   },
 };
@@ -56,7 +56,7 @@ const ButtonStyled = styledTS<{
   block?: boolean;
   uppercase?: boolean;
 }>(styled.button)`
-  border-radius: 30px;
+  border-radius: 7px;
   position: relative;
   transition: all 0.3s ease;
   outline: 0;

@@ -9,9 +9,10 @@ type Props = {
   showView: () => void;
   refetch: () => Promise<any>;
   structure?: IStructure;
+  closeModal?: () => void;
 };
 
-export default function FormContainer({ refetch, showView, structure }: Props) {
+export default function FormContainer({ refetch, showView, structure, closeModal }: Props) {
   const renderButton = ({
     name,
     values,
@@ -50,6 +51,7 @@ export default function FormContainer({ refetch, showView, structure }: Props) {
       structure={structure}
       showView={showView}
       renderButton={renderButton}
+      closeModal={closeModal}
     />
   );
 }

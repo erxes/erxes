@@ -9,7 +9,7 @@ const Container = styled.div`
   flex: 1;
   justify-content: center;
   align-items: center;
-  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing * 2}px;
+  padding: 5px 0;
   background: ${colors.bgLight};
   flex-direction: column;
 

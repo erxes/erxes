@@ -21,7 +21,7 @@ const StyledTable = styledTS<{
 
     th,
     td {
-      border-top: 1px solid ${colors.borderPrimary};
+      border-top: 1px solid ${colors.borderDarker};
       color: ${colors.textPrimary};
       padding: ${dimensions.unitSpacing - 2}px;
       display: table-cell;
@@ -92,8 +92,7 @@ const StyledTable = styledTS<{
     @media (min-width: 1170px) {
       th,
       td {
-        padding: ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing -
-    2}px;
+        padding: ${dimensions.unitSpacing + 2}px ${dimensions.coreSpacing - 2}px;
 
         &:first-child {
           padding-left: ${dimensions.coreSpacing}px;

@@ -1,10 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { colors } from '../styles';
 
-const IconStyle = styledTS<{ size?: number }>(styled.i)`
+const IconStyle = styledTS<{ bordered?: boolean, size?: number }>(styled.i)`
   font-size: ${props => (props.size ? `${props.size}px` : 'inherit')};
   color: ${props => props.color && props.color};
+  border: ${props => props.bordered && `1px solid ${colors.darkShadow}`};
+  padding: ${props => props.bordered && `12px`};
+  border-radius: ${props => props.bordered && `8px`};
 `;
 
 type Props = {
@@ -13,6 +17,7 @@ type Props = {
   style?: any;
   color?: string;
   isActive?: boolean;
+  bordered?: boolean;
   onClick?: (e: React.MouseEvent<HTMLElement>) => void;
 };
 

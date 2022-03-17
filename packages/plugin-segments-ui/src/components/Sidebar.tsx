@@ -22,7 +22,7 @@ function Sidebar({
 }) {
   return (
     <LeftSidebar full={true} header={<SidebarHeader />}>
-      <LeftSidebar.Header uppercase={true}>
+      <LeftSidebar.Header uppercase="uppercase">
         {__('Segments type')}
       </LeftSidebar.Header>
 

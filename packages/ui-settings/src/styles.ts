@@ -215,10 +215,6 @@ const FilterContainer = styled.div`
 
 const SidebarList = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
-
-  > div {
-    border-top: 1px solid ${colors.borderPrimary};
-  }
 `;
 
 const ContentBox = styled.div`

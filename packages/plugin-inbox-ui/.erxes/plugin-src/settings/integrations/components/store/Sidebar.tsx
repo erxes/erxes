@@ -31,7 +31,7 @@ class SideBar extends React.Component<Props> {
         <List id='SettingsSidebar'>
           {INTEGRATION_FILTERS.map((data, index) => (
             <SidebarList key={index}>
-              <LeftSidebar.Header uppercase={true}>
+              <LeftSidebar.Header uppercase="uppercase">
                 {__(data.name)}
               </LeftSidebar.Header>
               {data.items.map(item => this.renderCategory(__(item)))}

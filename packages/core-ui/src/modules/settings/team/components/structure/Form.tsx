@@ -11,7 +11,6 @@ import { ModalFooter } from "@erxes/ui/src/styles/main";
 import { __ } from "modules/common/utils";
 import { IStructure } from "@erxes/ui-team/src/types";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import Box from "@erxes/ui/src/components/Box";
 import Button from "@erxes/ui/src/components/Button";
 import ContactInfoForm from "../common/ContactInfoForm";
 
@@ -19,10 +18,11 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   structure?: IStructure;
   showView: () => void;
+  closeModal?: () => void;
 };
 
 export default function StructureForm(props: Props) {
-  const { structure, renderButton, showView } = props;
+  const { structure, renderButton, closeModal } = props;
   const object = structure || ({} as IStructure);
 
   const dbImage = object.image || null;
@@ -119,7 +119,7 @@ export default function StructureForm(props: Props) {
             style={{ float: "left" }}
             btnStyle="simple"
             type="button"
-            onClick={showView}
+            onClick={closeModal}
             icon="arrow-left"
           >
             {__("Back")}
@@ -128,6 +128,7 @@ export default function StructureForm(props: Props) {
             name: values.title,
             values: generateDoc(values),
             isSubmitted,
+            callback: closeModal,
             object,
           })}
         </ModalFooter>
@@ -136,8 +137,6 @@ export default function StructureForm(props: Props) {
   };
 
   return (
-    <Box isOpen={true} title={__("Structure")} name="showStructure">
       <Form renderContent={renderContent} />
-    </Box>
   );
 }

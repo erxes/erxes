@@ -8,10 +8,11 @@ type Props = {
   htmlFor?: string;
   required?: boolean;
   uppercase?: boolean;
+  bold?: boolean;
 };
 
 function ControlLabel(props: Props) {
-  const { children, ignoreTrans, required, uppercase = true } = props;
+  const { children, ignoreTrans, required, uppercase = true, bold = false } = props;
 
   let content = children;
 
@@ -20,7 +21,7 @@ function ControlLabel(props: Props) {
   }
 
   return (
-    <Label uppercase={uppercase}>
+    <Label uppercase={uppercase} bold={bold}>
       {content}
       {required && <span> *</span>}
     </Label>

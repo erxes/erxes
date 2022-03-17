@@ -29,7 +29,7 @@ class SideBarContainer extends React.Component<FinalProps, State> {
       importHistoryGetExportableServices.importHistoryGetExportableServices ||
       [];
 
-    return <Sidebar currentType={currentType} services={services} />;
+    return <Sidebar currentType={currentType} services={services}/>;
   }
 }
 

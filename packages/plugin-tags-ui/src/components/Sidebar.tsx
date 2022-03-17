@@ -8,7 +8,7 @@ import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeade
 function TagsSidebar() {
   return (
     <LeftSidebar full={true} header={<SidebarHeader />}>
-      <LeftSidebar.Header uppercase={true}>
+      <LeftSidebar.Header uppercase="uppercase">
         {__('Tags type')}
       </LeftSidebar.Header>
       <SidebarList id={'TagsSidebar'}>

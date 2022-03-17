@@ -2,7 +2,6 @@ import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { TabContainer } from '@erxes/ui/src/components/tabs/styles';
 import { colors, dimensions, typography } from '../styles';
-import { lighten } from '../styles/ecolor';
 import { rgba } from '../styles/ecolor';
 import { twinkling } from '../utils/animations';
 
@@ -37,7 +36,6 @@ const PageHeader = styled.div`
 const Contents = styled.div`
   display: flex;
   flex: 1;
-  margin-left: ${dimensions.unitSpacing}px;
   max-height: 100%;
   position: absolute;
   left: 0;
@@ -56,17 +54,20 @@ const VerticalContent = styled.div`
   flex: 1;
   flex-direction: column;
   max-height: 100%;
+  background: #fff;
 `;
 
 const HeightedWrapper = styled.div`
   flex: 1;
+  margin: 0px ${dimensions.coreSpacing}px 0px 20px;
   position: relative;
+  border-radius: 25px;
+  border: 1px solid ${colors.borderDarker};
 `;
 
 const MainHead = styled.div`
-  padding: 0 ${dimensions.coreSpacing}px;
+  padding: 20px ${dimensions.coreSpacing}px;
   background: ${colors.colorWhite};
-  box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
 `;
 
 const MainContent = styledTS<{ transparent?: boolean; center?: boolean }>(
@@ -76,8 +77,7 @@ const MainContent = styledTS<{ transparent?: boolean; center?: boolean }>(
   display: flex;
   flex-direction: column;
   min-width: 480px;
-  box-shadow: ${props =>
-    !props.transparent && `0 0 6px 1px ${colors.shadowPrimary}`};
+  padding: 0 5px 0 10px;
   height: ${props => props.center && '100%'};
   margin: ${props => !props.center && '10px 10px 10px 0'};
 `;
@@ -95,9 +95,10 @@ const ContentHeader = styledTS<{ background: string; zIndex?: number }>(
   background: ${props =>
     props.background === 'transparent' ? 'none' : colors[props.background]};
   padding: ${props =>
-    props.background === 'transparent' ? 0 : `0 ${dimensions.coreSpacing}px`};
+    props.background === 'transparent' ? 0 : `10px ${dimensions.coreSpacing}px`};
   border-bottom: 1px solid ${colors.borderPrimary};
   z-index: ${props => props.zIndex || 2};
+  border-radius: 10px;
 `;
 
 const HeaderContent = styled.div`
@@ -113,9 +114,10 @@ const ContenFooter = styled.div`
   }
 `;
 
-const HeaderItems = styledTS<{ rightAligned?: boolean }>(styled.div)`
+const HeaderItems = styledTS<{ rightAligned?: boolean, width?: string }>(styled.div)`
   align-self: center;
   margin-left: ${props => props.rightAligned && 'auto'};
+  width: ${props => props.width && props.width};
 
   > * + * {
     margin-left: ${dimensions.unitSpacing}px;
@@ -132,14 +134,13 @@ const SideContent = styledTS<{
   position: relative;
   flex-direction: column;
   flex-shrink: 0;
+  border-right: 1px solid ${colors.borderDarker};
   width: ${props => (props.wide ? '340px' : '290px')};
   flex: ${props => (props.half ? '1' : 'none')};
   background: ${props => (props.full ? colors.colorWhite : 'none')};
   margin: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${
   dimensions.unitSpacing
 }px 0;
-  box-shadow: ${props =>
-    props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
 
   ${TabContainer} {
     position: sticky;
@@ -150,19 +151,19 @@ const SideContent = styledTS<{
 
 const SidebarHeader = styledTS<{
   spaceBottom?: boolean;
-  uppercase?: boolean;
+  uppercase?: string;
   bold?: boolean;
 }>(styled.div)`
   background-color: ${colors.bgLight};
   height: ${dimensions.headerSpacing}px;
   margin-bottom: ${props => props.spaceBottom && '10px'};
   align-items: center;
-  padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
+  margin: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
-  text-transform: ${props => props.uppercase && 'uppercase'};
-  font-weight: ${props => (props.bold ? 'bold' : '500')};
+  text-transform: ${props => props.uppercase && props.uppercase};
+  font-weight: ${props => (props.bold ? 'bold' : 'none')};
   display: flex;
-  font-size: ${typography.fontSizeHeading8}px;
+  font-size: 15px;
   flex-direction: row;
   justify-content: space-between;
 `;
@@ -208,14 +209,6 @@ const SidebarBox = styledTS<{
 
   &:last-child {
     margin-bottom: 0;
-  }
-`;
-
-const BoxContent = styled.div`
-  flex: 1;
-
-  ul:first-child {
-    padding: 10px 0;
   }
 `;
 
@@ -334,14 +327,12 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
     &:hover,
     &.active {
       cursor: pointer;
-      background: ${colors.bgActive};
+      background: ${colors.bgUnread};
       text-decoration: none;
       outline: 0;
-      color: ${lighten(colors.textPrimary, 40)};
-    }
-
-    &.active {
-      border-left: 2px solid ${colors.colorSecondary};
+      color: ${colors.colorPrimaryDark};
+      font-weight: 500;
+      font-size: 14px;
     }
 
     &.multiple-choice {
@@ -610,7 +601,6 @@ export {
   SidebarMainContent,
   SidebarFooter,
   SidebarBox,
-  BoxContent,
   SidebarToggle,
   SidebarCounter,
   HelperButtons,

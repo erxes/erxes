@@ -13,7 +13,7 @@ type Props = {
 };
 
 function EmptyContent({ content, vertical, maxItemWidth }: Props) {
-  const { steps, title, description, url, urlText } = content;
+  const { steps } = content;
 
   const renderButton = (
     buttonUrl: string,
@@ -44,10 +44,6 @@ function EmptyContent({ content, vertical, maxItemWidth }: Props) {
 
   return (
     <Container>
-      <h2>{title}</h2>
-      <p>
-        {description} {url && <Link to={url}>{urlText}</Link>}
-      </p>
       <Items vertical={vertical}>
         {steps.map((step, index) => (
           <ItemContent

@@ -1,14 +1,13 @@
-import Button from 'modules/common/components/Button';
-import CollapseContent from 'modules/common/components/CollapseContent';
-import { FormControl } from 'modules/common/components/form';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import Info from 'modules/common/components/Info';
-import CURRENCIES from '@erxes/ui/src/constants/currencies';
-import { Title } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import EmailConfigForm from '@erxes/ui-settings/src/general/components/EmailConfigForm';
+import CollapseContent from "@erxes/ui/src/components/CollapseContent";
+import { FormControl } from "modules/common/components/form";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import Info from "modules/common/components/Info";
+import CURRENCIES from "@erxes/ui/src/constants/currencies";
+import { Title } from '@erxes/ui/src/styles/main';
+import { __ } from "modules/common/utils";
+import Wrapper from "modules/layout/components/Wrapper";
+import EmailConfigForm from "@erxes/ui-settings/src/general/components/EmailConfigForm";
 import React from 'react';
 import Select from 'react-select-plus';
 import { ContentBox } from '@erxes/ui-settings/src/styles';
@@ -25,7 +24,8 @@ import {
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 import ActivateInstallation from './ActivateInstallation';
 import Header from '@erxes/ui-settings/src/general/components/Header';
-import Sidebar from '@erxes/ui-settings/src/general/containers/Sidebar';
+// import Sidebar from '@erxes/ui-settings/src/general/containers/Sidebar';
+import BreadCrumb from '@erxes/ui/src/components/breadcrumb/BreadCrumb';
 
 type Props = {
   currentLanguage: string;
@@ -150,17 +150,6 @@ class GeneralSettings extends React.Component<Props, State> {
       { title: __('Settings'), link: '/settings' },
       { title: __('General system config') }
     ];
-
-    const actionButtons = (
-      <Button
-        id="generalSettingsSave"
-        btnStyle="success"
-        onClick={this.save}
-        icon="check-circle"
-      >
-        Save
-      </Button>
-    );
 
     const mimeTypeOptions = FILE_MIME_TYPES.map(item => ({
       value: item.value,
@@ -454,12 +443,6 @@ class GeneralSettings extends React.Component<Props, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header
-            title={__('General system config')}
-            breadcrumb={breadcrumb}
-          />
-        }
-        mainHead={
           <Header
             title="System config"
             description={
@@ -469,15 +452,10 @@ class GeneralSettings extends React.Component<Props, State> {
             }
           />
         }
+        mainHead={<BreadCrumb breadcrumbs={breadcrumb}/>}
         actionBar={
           <Wrapper.ActionBar
             left={<Title>{__('General system config')}</Title>}
-            right={actionButtons}
-          />
-        }
-        leftSidebar={
-          <Sidebar
-            item={{ url: '/settings/general', text: 'General system config' }}
           />
         }
         content={content}

@@ -9,12 +9,12 @@ const inputScale = '12px';
 const inputBorderWidth = '2px';
 const textInputHeight = '34px';
 
-const Label = styledTS<{ uppercase?: boolean }>(styled.label)`
+const Label = styledTS<{ uppercase?: boolean, bold?: boolean }>(styled.label)`
   text-transform: ${props => (props.uppercase ? 'uppercase' : 'none')};
   display: inline-block;
-  font-weight: ${typography.fontWeightMedium};
+  font-weight: ${props => (props.bold ? '700' : typography.fontWeightMedium)};
   color: ${colors.textPrimary};
-  font-size: ${typography.fontSizeUppercase}px;
+  font-size: ${typography.fontSizeBody}px;
 
   > span {
     color: ${colors.colorCoreRed};

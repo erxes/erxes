@@ -8,21 +8,30 @@ const Wrapper = styled.div`
   line-height: 10px;
 
   .react-toggle--checked .react-toggle-track {
-    background-color: ${colors.colorCoreGreen};
+    background-color: ${colors.colorPrimaryDark};
+  }
+  
+  .react-toggle-track:hover {
+    background-color: ${colors.colorPrimaryDark};
   }
 
   .react-toggle-track {
-    background-color: ${colors.colorCoreBlack};
+    border: 1px solid ${colors.colorPrimaryDark};
+    background-color: ${colors.colorWhite};
   }
 
   .react-toggle-track span {
     display: none;
   }
 
-  .react-toggle--checked .react-toggle-thumb,
+  .react-toggle--checked .react-toggle-thumb{
+    border-color: ${colors.colorPrimaryDark};
+  }
+
   .react-toggle--checked:hover:not(.react-toggle--disabled)
     .react-toggle-track {
-    border-color: ${colors.colorCoreGreen};
+      border-color: ${colors.colorPrimaryDark};
+      background-color: ${colors.colorPrimaryDark};
   }
 `;
 

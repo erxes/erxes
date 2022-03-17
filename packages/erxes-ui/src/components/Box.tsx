@@ -12,6 +12,7 @@ type BoxProps = {
   callback?: () => void;
   collapsible?: boolean;
   isOpen?: boolean;
+  boldText?: boolean;
 };
 
 type BoxState = {
@@ -50,7 +51,7 @@ export default class Box extends React.Component<BoxProps, BoxState> {
 
   renderDropBtn() {
     const { isOpen } = this.state;
-    const icon = isOpen ? 'angle-down' : 'angle-right';
+    const icon = isOpen ? 'angle-up' : 'angle-down';
     const { QuickButtons } = Sidebar.Section;
     const { extraButtons } = this.props;
 
@@ -68,14 +69,14 @@ export default class Box extends React.Component<BoxProps, BoxState> {
 
   render() {
     const { Section } = Sidebar;
-    const { Title } = Section;
+    const { Header } = Sidebar;
 
     const { isOpen } = this.state;
-    const { children, title, collapsible } = this.props;
+    const { children, title, collapsible, boldText } = this.props;
 
     return (
       <SectionContainer>
-        <Title onClick={this.toggle}>{title}</Title>
+        <Header onClick={this.toggle} uppercase="capitalize" bold={boldText}>{title}</Header>
         {this.renderDropBtn()}
         {isOpen ? (
           <Section collapsible={collapsible}>{children}</Section>

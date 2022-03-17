@@ -7,14 +7,16 @@ type Props = {
   bottom?: React.ReactNode;
   background?: string;
   zIndex?: number;
+  rightWidth?: string;
+  leftWidth?: string;
 };
 
-function ActionBar({ left, right, background, bottom, zIndex }: Props) {
+function ActionBar({ left, right, background, bottom, zIndex, rightWidth, leftWidth }: Props) {
   return (
     <ContentHeader background={background || 'bgLight'} zIndex={zIndex}>
       <HeaderContent>
-        {left && <HeaderItems>{left}</HeaderItems>}
-        {right && <HeaderItems rightAligned={true}>{right}</HeaderItems>}
+        {left && <HeaderItems width={rightWidth}>{left}</HeaderItems>}
+        {right && <HeaderItems rightAligned={true} width={leftWidth}>{right}</HeaderItems>}
       </HeaderContent>
       {bottom}
     </ContentHeader>
