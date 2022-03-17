@@ -163,6 +163,10 @@ async function startServer() {
       return serviceNames.includes(name);
     },
     isEnabled: async name => {
+      if (name === 'core') {
+        return true;
+      }
+
       return !!(await redis.sismember('erxes:plugins:enabled', name));
     }
   };

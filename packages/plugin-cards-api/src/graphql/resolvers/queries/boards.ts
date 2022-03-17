@@ -1,4 +1,4 @@
-import { BOARD_STATUSES } from "../../../models/definitions/constants";
+import { BOARD_STATUSES, BOARD_TYPES } from "../../../models/definitions/constants";
 import { paginate, regexSearchText } from "@erxes/api-utils/src";
 import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
 import { getCollection } from "../../../models/utils";
@@ -305,7 +305,7 @@ const boardQueries = {
 
     return assignedUserIds.map((userId) => ({
       __typename: "User",
-      _id: userId,
+      _id: userId || '',
     }));
   },
 
@@ -431,7 +431,7 @@ const boardQueries = {
 
     const users = await coreModels.Users.find({
       _id: { $in: assignedUserIds },
-    });
+    }).toArray();
 
     const usersWithInfo: Array<{ name: string }> = [];
     const countsByGroup = {};

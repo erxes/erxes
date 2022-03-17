@@ -11,7 +11,7 @@ const Calendar = asyncComponent(() =>
 );
 
 const DealColumn = asyncComponent(() =>
-  import(/* webpackChunkName: "DealColumn" */ './containers/CalendarColumn')
+  import(/* webpackChunkName: "DealColumn " */ './containers/CalendarColumn')
 );
 
 const DealMainActionBar = asyncComponent(() =>
