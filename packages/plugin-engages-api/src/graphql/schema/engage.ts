@@ -127,6 +127,41 @@ export const types = async (serviceDiscovery) => {
       total: Float
     }
 
+    type SmsStatus {
+      date: Date
+      status: String
+    }
+  
+    type SmsDelivery {
+      _id: String!
+      createdAt: Date
+      to: String
+  
+      # telnyx data
+      direction: String
+      status: String
+      responseData: String
+      telnyxId: String
+      statusUpdates: [SmsStatus]
+      errorMessages: [String]
+  
+      # engage only
+      engageMessageId: String
+  
+      # integrations only
+      from: String
+      content: String
+      requestData: String
+      erxesApiId: String
+      conversationId: String
+      integrationId: String
+    }    
+
+    type DeliveryList {
+      list: [SmsDelivery]
+      totalCount: Int
+    }  
+
     input EngageScheduleDateInput {
       type: String,
       month: String,
@@ -191,6 +226,7 @@ export const queries = `
   engageVerifiedEmails: [String]
   engageReportsList(page: Int, perPage: Int, customerId: String, status: String): EngageDeliveryReport
   engageEmailPercentages: AvgEmailStats
+  engageSmsDeliveries(type: String!, to: String, page: Int, perPage: Int): DeliveryList
 `;
 
 const commonParams = `

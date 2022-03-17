@@ -9,13 +9,16 @@ import { awsRequests } from '../../trackers/engageTracker';
 import { prepareAvgStats } from '../../utils';
 import { sendContactsMessage, sendTagsMessage } from '../../messageBroker';
 
-interface IListArgs {
+interface IPaged {
+  page?: number;
+  perPage?: number;
+}
+
+interface IListArgs extends IPaged {
   kind?: string;
   status?: string;
   tag?: string;
   ids?: string;
-  page?: number;
-  perPage?: number;
 }
 
 interface IQuery {
@@ -34,11 +37,14 @@ interface ICountsByTag {
   [index: string]: number;
 }
 
-interface IReportParams {
-  page?: number;
-  perPage?: number;
+interface IReportParams extends IPaged {
   customerId?: string;
   status?: string;
+}
+
+interface ISmsDeliveryParams extends IPaged {
+  type: string;
+  to?: string;
 }
 
 // basic count helper
@@ -339,6 +345,32 @@ const engageQueries = {
       }),
       { ...args }
     );
+  },
+
+  async engageSmsDeliveries(_root, params: ISmsDeliveryParams, { models }: IContext) {
+    const { type, to, page, perPage } = params;
+
+    if (type !== 'campaign') {
+      return { status: 'error', message: `Invalid parameter type: "${type}"` };
+    }
+  
+    const filter: any = {};
+  
+    if (to && !(to === 'undefined' || to === 'null')) {
+      filter.to = { $regex: to, $options: '$i' };
+    }
+  
+    const _page = Number(page || '1');
+    const _limit = Number(perPage || '20');
+  
+    const data = await models.SmsRequests.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(_limit)
+      .skip((_page - 1) * _limit);
+  
+    const totalCount = await models.SmsRequests.countDocuments(filter);
+  
+    return { list: data, totalCount };
   }
 };
 
