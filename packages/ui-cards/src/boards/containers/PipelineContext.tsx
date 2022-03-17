@@ -8,7 +8,6 @@ import { graphql } from 'react-apollo';
 import { requestIdleCallback } from 'request-idle-callback';
 import { setTimeout } from 'timers';
 import { mutations, queries, subscriptions } from '../graphql';
-import { DragDisabler } from '../styles/common';
 import {
   IDragResult,
   IFilterParams,
@@ -645,17 +644,10 @@ class PipelineProviderInner extends React.Component<Props, State> {
       stageLoadMap,
       stageIds,
       isShowLabel,
-      isDragEnabled
     } = this.state;
 
     return (
       <>
-        {!isDragEnabled && (
-          <DragDisabler
-            style={{ width: `${this.state.stageIds.length * 290 - 5}px` }}
-          />
-        )}
-
         <PipelineContext.Provider
           value={{
             options: this.props.options,
