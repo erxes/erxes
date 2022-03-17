@@ -46,11 +46,13 @@ const typeDefs = async (serviceDiscovery) => {
   const isProductsEnabled = await serviceDiscovery.isEnabled('products');
   const isTagsEnabled = await serviceDiscovery.isEnabled('tags');
   const isFormsEnabled = await serviceDiscovery.isEnabled('forms');
+  const isKbEnabled = await serviceDiscovery.isEnabled('knowledgebase');
 
   const isEnabled = {
     products: isProductsEnabled,
     tags: isTagsEnabled,
     forms: isFormsEnabled,
+    knowledgeBase: isKbEnabled
   };
 
   return gql`
@@ -72,7 +74,7 @@ const typeDefs = async (serviceDiscovery) => {
       ${ChannelQueries}
       ${IntegrationQueries}
       ${ResponseTemplateQueries}
-      ${widgetQueries(isProductsEnabled)}
+      ${widgetQueries(isEnabled)}
       ${SkillQueries}
     }
 

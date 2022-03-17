@@ -225,25 +225,3 @@ export const putDeleteLog = async (
 
 export const sendToLog = (channel: string, data) =>
   messageBroker().sendMessage(channel, data);
-
-interface IActivityLogParams {
-  action: string;
-  data: any;
-}
-
-export const putActivityLog = async (params: IActivityLogParams) => {
-  // const { data } = params;
-
-  try {
-    // if (data.target) {
-    //   messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
-    //     type: `${data.contentType}`,
-    //     targets: [data.target],
-    //   });
-    // }
-
-    return messageBroker().sendMessage('putActivityLog', params);
-  } catch (e) {
-    return e.message;
-  }
-};

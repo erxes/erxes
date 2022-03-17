@@ -3,6 +3,10 @@ import { getDocument } from '../../cacheUtils';
 import { IContext } from '../../connectionResolver';
 
 export default {
+  __resolveReference({ _id }, { models }: IContext) {
+    return models.KnowledgeBaseTopics.findOne({ _id });
+  },
+  
   brand(topic: ITopicDocument, _args, { coreModels }: IContext) {
     return getDocument(coreModels, 'brands', { _id: topic.brandId });
   },

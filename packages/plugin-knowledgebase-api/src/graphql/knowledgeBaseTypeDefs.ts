@@ -19,8 +19,8 @@ export const types = `
         _id: String! @external
       }
 
-  type KnowledgeBaseArticle {
-    _id: String
+  type KnowledgeBaseArticle @key(fields: "_id") {
+    _id: String!
     title: String
     summary: String
     content: String
@@ -98,8 +98,8 @@ export const types = `
     parentCategoryId: String
   }
 
-  type KnowledgeBaseTopic {
-    _id: String
+  type KnowledgeBaseTopic @key(fields: "_id") {
+    _id: String!
     title: String
     description: String
     categories: [KnowledgeBaseCategory]

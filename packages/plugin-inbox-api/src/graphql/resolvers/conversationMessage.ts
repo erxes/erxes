@@ -1,5 +1,4 @@
 import { debug } from '../../configs';
-import { getDocument } from '../../cacheUtils';
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
 import { sendIntegrationsMessage } from '../../messageBroker';
@@ -23,7 +22,7 @@ export default {
       return null;
     }
 
-    const integration = await getDocument(models, coreModels, subdomain, 'integrations', {
+    const integration = await models.Integrations.findOne({
       _id: conversation.integrationId
     });
 

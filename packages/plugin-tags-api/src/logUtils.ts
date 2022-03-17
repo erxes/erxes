@@ -102,7 +102,7 @@ export const putCreateLog = async (models, logDoc, user) => {
   );
 };
 
-export const putActivityLog = async (params: { action: string; data: any }) => {
+export const putActivityLog = async (subdomain: string, params: { action: string; data: any }) => {
   const { data } = params;
 
   const updatedParams = {
@@ -110,7 +110,7 @@ export const putActivityLog = async (params: { action: string; data: any }) => {
     data: { ...data, contentType: `tags:${data.contentType}` },
   };
 
-  return commonPutActivityLog({
+  return commonPutActivityLog(subdomain, {
     messageBroker: messageBroker(),
     ...updatedParams,
   });

@@ -1,5 +1,4 @@
 import { IChannelDocument } from '../../models/definitions/channels';
-import { getDocumentList } from '../../cacheUtils';
 import { IContext } from '../../connectionResolver';
 
 export default {
@@ -9,8 +8,8 @@ export default {
     });
   },
 
-  members(channel: IChannelDocument, _args, { models, coreModels, subdomain }: IContext) {
-    return getDocumentList(models, coreModels, subdomain, 'users', {
+  members(channel: IChannelDocument, _args, { coreModels }: IContext) {
+    return coreModels.Users.find({
       _id: { $in: channel.memberIds },
       isActive: { $ne: false }
     });

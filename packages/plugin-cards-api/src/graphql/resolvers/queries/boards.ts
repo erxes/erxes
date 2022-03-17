@@ -618,8 +618,7 @@ const boardQueries = {
       });
 
       for (const group of groups) {
-        // ? get config from group
-        const { config } = group;
+        const { config = {} } = group;
 
         const fields = await sendFormsMessage({
           subdomain,
@@ -633,8 +632,7 @@ const boardQueries = {
         });
         
         const pipelines = await models.Pipelines.find({
-          // ! change group to config!!
-          _id: { $in: group.pipelineIds || [] }
+          _id: { $in: config.pipelineIds || [] }
         });
 
         for (const pipeline of pipelines) {

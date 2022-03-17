@@ -1,17 +1,9 @@
 import { IBrowserInfo, ICustomField, ILink } from "@erxes/api-utils/src/definitions/common";
 import { KIND_CHOICES } from "./models/definitions/constants";
-
-// ? import { ICustomerDocument } from "../db/models/definitions/customers";
-
-// ? import { ISubmission } from "../db/models/definitions/fields";
-
 import { debug } from "./configs";
 
-// ? import { getDbSchemaLabels } from "./logUtils";
-
-import { getDocument } from "./cacheUtils";
 import { es } from "./configs";
-import { sendContactsMessage, sendCoreMessage, sendEngagesMessage, sendToLog } from "./messageBroker";
+import { sendContactsMessage, sendCoreMessage, sendEngagesMessage, sendFormsMessage, sendToLog } from "./messageBroker";
 import { ICoreIModels, IModels } from "./connectionResolver";
 
 export const getOrCreateEngageMessage = async (
@@ -45,7 +37,7 @@ export const getOrCreateEngageMessage = async (
     kind: KIND_CHOICES.MESSENGER,
   });
 
-  const brand = await coreModels.Brands.getBrand({ _id: integration.brandId || "" });
+  const brand = await coreModels.Brands.findOne({ _id: integration.brandId || "" });
 
   // try to create engage chat auto messages
   await sendEngagesMessage({
@@ -267,14 +259,11 @@ export const solveSubmissions = async (models: IModels, coreModels: ICoreIModels
   cachedCustomerId?: string;
 }) => {
   let { cachedCustomerId } = args;
-  const { integrationId, browserInfo, formId } = args;
-  const integration = await getDocument(models, coreModels, subdomain, "integrations", { _id: integrationId });
+  const { integrationId, browserInfo } = args;
+  const integration: any = await models.Integrations.findOne({ _id: integrationId });
 
   const submissionsGrouped = groupSubmissions(args.submissions);
-
-  const conformityIds: {
-    [key: string]: { customerId: string; companyId: string };
-  } = {};
+  const conformityIds: { [key: string]: { customerId: string; companyId: string } } = {};
 
   let cachedCustomer;
 
@@ -373,12 +362,22 @@ export const solveSubmissions = async (models: IModels, coreModels: ICoreIModels
           "check",
         ].includes(submissionType)
       ) {
-        const field = await coreModels.Fields.findById(submission.associatedFieldId);
+        const field = await sendFormsMessage({
+          subdomain,
+          action: 'fields.findOne',
+          data: { query: { _id: submission.associatedFieldId } },
+          isRPC: true
+        });
+
         if (!field) {
           continue;
         }
 
-        const fieldGroup = await coreModels.FieldsGroups.findById(field.groupId);
+        const fieldGroup = await sendFormsMessage({
+          subdomain,
+          action: 'fieldsGroups.findOne',
+          data: { query: { _id: field.groupId }, isRPC: true }
+        });
 
         if (fieldGroup && fieldGroup.contentType === "company") {
           companyCustomData.push({
@@ -393,11 +392,10 @@ export const solveSubmissions = async (models: IModels, coreModels: ICoreIModels
             value: submission.value,
           });
         }
-      }
+       }
     }
 
     if (groupId === "default") {
-
       cachedCustomer = await sendContactsMessage({
         subdomain,
         action: 'customers.getWidgetCustomer',

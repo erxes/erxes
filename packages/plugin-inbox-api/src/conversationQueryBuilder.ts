@@ -1,7 +1,6 @@
 import * as _ from 'underscore';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { fixDate } from '@erxes/api-utils/src/core';
-import { getDocumentList } from './cacheUtils';
 import { sendSegmentsMessage, sendTagsMessage } from './messageBroker';
 import { ICoreIModels, IModels } from './connectionResolver';
 
@@ -121,15 +120,9 @@ export default class Builder {
   }
 
   public async defaultFilters(): Promise<any> {
-    const activeIntegrations = await getDocumentList(
-      this.models,
-      this.coreModels,
-      this.subdomain,
-      'integrations',
-      {
-        isActive: { $ne: false }
-      }
-    );
+    const activeIntegrations = await this.models.Integrations.find({
+      isActive: { $ne: false }
+    });
 
     this.activeIntegrationIds = activeIntegrations.map(integ => integ._id);
 
@@ -175,15 +168,9 @@ export default class Builder {
     // find all posssible integrations
     let availIntegrationIds: string[] = [];
 
-    const channels = await getDocumentList(
-      this.models,
-      this.coreModels,
-      this.subdomain,
-      'channels',
-      {
-        memberIds: this.user._id
-      }
-    );
+    const channels = await this.models.Channels.find({
+      memberIds: this.user._id
+    });
 
     if (channels.length === 0) {
       return {

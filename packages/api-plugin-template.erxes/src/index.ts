@@ -27,7 +27,7 @@ import {
   join,
   leave,
   redis
-} from './serviceDiscovery';
+} from '@erxes/api-utils/src/serviceDiscovery';
 
 const configs = require('../../src/configs').default;
 
