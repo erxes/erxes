@@ -83,7 +83,7 @@ const ActivityList = (props: WithStagesProps) => {
 const commonOptions = (queryParams) => {
   const variables = {
     action: queryParams.action,
-    contentType: queryParams.type,
+    contentType: `cards:${queryParams.type}`,
     ...generatePaginationParams(queryParams),
   };
 
@@ -91,7 +91,7 @@ const commonOptions = (queryParams) => {
 };
 
 const commonParams = (queryParams, options) => ({
-  contentType: options.type,
+  contentType: `cards:${options.type}`,
   pipelineId: queryParams.pipelineId,
   page: parseInt(queryParams.page || "1", 10),
   perPage: parseInt(queryParams.perPage || "10", 10),
