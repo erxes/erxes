@@ -2,18 +2,20 @@ import { filterXSS } from 'xss';
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 
+import { IFetchElkArgs } from '@erxes/api-utils/src/types';
+
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers/index';
-import { connect } from './apiCollections';
-import deliveryReports from './api/deliveryReports';
 import telnyx from './api/telnyx';
 import { trackEngages } from './trackers/engageTracker';
 import { debugBase } from './debuggers';
 import { initBroker } from './messageBroker';
-import { IFetchElkArgs } from '@erxes/api-utils/src/types';
+import { generateCoreModels, generateModels } from './connectionResolver';
+import tags from './tags';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
+export let mainDb;
 
 export let es: {
   client;
@@ -36,12 +38,21 @@ export default {
   },
   segment: { schemas: [] },
   hasSubscriptions: false,
-  apolloServerContext: (context) => {
+  meta: { tags },
+  apolloServerContext: async (context) => {
+    const subdomain = 'os';
+
     context.dataloaders = {};
     context.docModifier = (doc) => doc;
+
+    context.models = await generateModels(subdomain);
+    context.coreModels = await generateCoreModels(subdomain);
+    context.subdomain = subdomain;
+
+    return context;
   },
   onServerInit: async (options) => {
-    await connect();
+    mainDb = options.db;
 
     const app = options.app;
 
@@ -70,7 +81,6 @@ export default {
     app.use(bodyParser.urlencoded({ extended: true }));
 
     // Insert routes below
-    app.use('/deliveryReports', deliveryReports);
     app.use('/telnyx', telnyx);
 
     // Error handling middleware

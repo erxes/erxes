@@ -1,12 +1,11 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src/types';
+import { IContext } from '../../connectionResolver';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '@erxes/api-utils/src/logUtils';
 
 import { IEngageMessage } from '../../models/definitions/engages';
 import { CAMPAIGN_KINDS } from '../../constants';
-import { EngageMessages } from '../../models';
 import { checkCampaignDoc, send } from '../../engageUtils';
-import messageBroker from '../../messageBroker';
+import messageBroker, { sendContactsMessage, sendCoreMessage } from '../../messageBroker';
 import { gatherDescriptions } from './logHelper';
 import { updateConfigs, createTransporter, getEditorAttributeUtil } from '../../utils';
 import { awsRequests } from '../../trackers/engageTracker';
@@ -40,7 +39,7 @@ const engageMutations = {
   async engageMessageAdd(
     _root,
     doc: IEngageMessage,
-    { user, docModifier }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
     checkCampaignDoc(doc);
 
@@ -49,7 +48,7 @@ const engageMutations = {
       doc.fromUserId = user._id;
     }
 
-    const engageMessage = await EngageMessages.createEngageMessage(
+    const engageMessage = await models.EngageMessages.createEngageMessage(
       docModifier({ ...doc, createdBy: user._id })
     );
 
@@ -60,7 +59,7 @@ const engageMutations = {
     //   params: engageMessage
     // });
 
-    await send(engageMessage);
+    await send(models, subdomain, engageMessage);
 
     const logDoc = {
       type: MODULE_ENGAGE,
@@ -74,7 +73,7 @@ const engageMutations = {
       },
     };
 
-    const { description, extraDesc } = await gatherDescriptions(logDoc);
+    const { description, extraDesc } = await gatherDescriptions(subdomain, logDoc);
 
     await putCreateLog(messageBroker, { ...logDoc, description, extraDesc }, user);
 
@@ -87,12 +86,12 @@ const engageMutations = {
   async engageMessageEdit(
     _root,
     { _id, ...doc }: IEngageMessageEdit,
-    { user }: IContext
+    { models, subdomain, user }: IContext
   ) {
     checkCampaignDoc(doc);
 
-    const engageMessage = await EngageMessages.getEngageMessage(_id);
-    const updated = await EngageMessages.updateEngageMessage(_id, doc);
+    const engageMessage = await models.EngageMessages.getEngageMessage(_id);
+    const updated = await models.EngageMessages.updateEngageMessage(_id, doc);
 
     // run manually when it was draft & live afterwards
     if (
@@ -100,7 +99,7 @@ const engageMutations = {
       doc.isLive &&
       doc.kind === CAMPAIGN_KINDS.MANUAL
     ) {
-      await send(updated);
+      await send(models, subdomain, updated);
     }
 
     const logDoc = {
@@ -110,7 +109,7 @@ const engageMutations = {
       updatedDocument: updated,
     };
 
-    const { description, extraDesc } = await gatherDescriptions(logDoc);
+    const { description, extraDesc } = await gatherDescriptions(subdomain, logDoc);
 
     await putUpdateLog(
       messageBroker,
@@ -122,7 +121,7 @@ const engageMutations = {
       user
     );
 
-    return EngageMessages.findOne({ _id });
+    return models.EngageMessages.findOne({ _id });
   },
 
   /**
@@ -131,18 +130,18 @@ const engageMutations = {
   async engageMessageRemove(
     _root,
     { _id }: { _id: string },
-    { user }: IContext
+    { models, subdomain, user }: IContext
   ) {
-    const engageMessage = await EngageMessages.getEngageMessage(_id);
+    const engageMessage = await models.EngageMessages.getEngageMessage(_id);
 
-    const removed = await EngageMessages.removeEngageMessage(_id);
+    const removed = await models.EngageMessages.removeEngageMessage(_id);
 
     const logDoc = {
       type: MODULE_ENGAGE,
       object: { ...engageMessage.toObject(), ...emptyCustomers }
     };
 
-    const { description, extraDesc } = await gatherDescriptions(logDoc);
+    const { description, extraDesc } = await gatherDescriptions(subdomain, logDoc);
 
     await putDeleteLog(messageBroker, { ...logDoc, description, extraDesc }, user);
 
@@ -152,8 +151,8 @@ const engageMutations = {
   /**
    * Engage message set live
    */
-  async engageMessageSetLive(_root, { _id }: { _id: string }) {
-    const campaign = await EngageMessages.getEngageMessage(_id);
+  async engageMessageSetLive(_root, { _id }: { _id: string }, { models }: IContext) {
+    const campaign = await models.EngageMessages.getEngageMessage(_id);
 
     if (campaign.isLive) {
       throw new Error('Campaign is already live');
@@ -161,14 +160,14 @@ const engageMutations = {
 
     checkCampaignDoc(campaign);
 
-    return EngageMessages.engageMessageSetLive(_id);
+    return models.EngageMessages.engageMessageSetLive(_id);
   },
 
   /**
    * Engage message set pause
    */
-  engageMessageSetPause(_root, { _id }: { _id: string }) {
-    return EngageMessages.engageMessageSetPause(_id);
+  engageMessageSetPause(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.EngageMessages.engageMessageSetPause(_id);
   },
 
   /**
@@ -177,12 +176,12 @@ const engageMutations = {
   async engageMessageSetLiveManual(
     _root,
     { _id }: { _id: string },
-    { user }: IContext
+    { models, subdomain, user }: IContext
   ) {
-    const draftCampaign = await EngageMessages.getEngageMessage(_id);
-    const live = await EngageMessages.engageMessageSetLive(_id);
+    const draftCampaign = await models.EngageMessages.getEngageMessage(_id);
+    const live = await models.EngageMessages.engageMessageSetLive(_id);
 
-    await send(live);
+    await send(models, subdomain, live);
 
     await putUpdateLog(
       messageBroker,
@@ -205,8 +204,8 @@ const engageMutations = {
     return live;
   },
 
-  async engagesUpdateConfigs(_root, { configsMap }) {
-    await updateConfigs(configsMap);
+  async engagesUpdateConfigs(_root, { configsMap }, { models }: IContext) {
+    await updateConfigs(models, configsMap);
 
     return { status: 'ok' };
   },
@@ -214,8 +213,8 @@ const engageMutations = {
   /**
    * Engage message verify email
    */
-  async engageMessageVerifyEmail(_root, { email }: { email: string }) {
-    const response = await awsRequests.verifyEmail(email);
+  async engageMessageVerifyEmail(_root, { email }: { email: string }, { models }: IContext) {
+    const response = await awsRequests.verifyEmail(models, email);
 
     return JSON.stringify(response);
   },
@@ -223,13 +222,13 @@ const engageMutations = {
   /**
    * Engage message remove verified email
    */
-  async engageMessageRemoveVerifiedEmail(_root, { email }: { email: string }) {
-    const response = await awsRequests.removeVerifiedEmail(email);
+  async engageMessageRemoveVerifiedEmail(_root, { email }: { email: string }, { models }: IContext) {
+    const response = await awsRequests.removeVerifiedEmail(models, email);
 
     return JSON.stringify(response);
   },
 
-  async engageMessageSendTestEmail(_root, args: ITestEmailParams) {
+  async engageMessageSendTestEmail(_root, args: ITestEmailParams, { subdomain, models }: IContext) {
     const { content, from, to, title } = args;
 
     if (!(content && from && to && title)) {
@@ -238,11 +237,19 @@ const engageMutations = {
       );
     }
 
-    const customer = await messageBroker().sendRPCMessage(
-      'contacts:rpc_queue:findCustomer',
-      { customerPrimaryEmail: to }
-    );
-    const targetUser = await messageBroker().sendRPCMessage('core:rpc_queue:findOneUser', { email: to });
+    const { data: customer } = await sendContactsMessage({
+      isRPC: true,
+      subdomain,
+      action: 'customers.findOne',
+      data: { customerPrimaryEmail: to }
+    });
+
+    const { data: targetUser } = await sendCoreMessage({
+      data: { email: to },
+      action: 'users.findOne',
+      subdomain,
+      isRPC: true
+    });
 
     const attributeUtil = await getEditorAttributeUtil();
 
@@ -252,7 +259,7 @@ const engageMutations = {
       user: targetUser,
     });
 
-    const transporter = await createTransporter();
+    const transporter = await createTransporter(models);
 
     const response = await transporter.sendMail({
       from,
@@ -269,9 +276,9 @@ const engageMutations = {
   async engageMessageCopy(
     _root,
     { _id }: { _id },
-    { docModifier, user }: IContext
+    { docModifier, models, user }: IContext
   ) {
-    const sourceCampaign = await EngageMessages.getEngageMessage(_id);
+    const sourceCampaign = await models.EngageMessages.getEngageMessage(_id);
 
     const doc = docModifier({
       ...sourceCampaign.toObject(),
@@ -292,7 +299,7 @@ const engageMutations = {
       doc.scheduleDate.dateTime = null;
     }
 
-    const copy = await EngageMessages.createEngageMessage(doc);
+    const copy = await models.EngageMessages.createEngageMessage(doc);
 
     await putCreateLog(
       messageBroker,

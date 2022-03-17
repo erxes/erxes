@@ -1,13 +1,11 @@
-import { DeliveryReports, EngageMessages } from '../../models';
+import { IContext } from "../../connectionResolver";
+import { IDeliveryReportsDocument } from "../../models/DeliveryReports";
 
 export default {
-  __resolveReference({ _id }) {
-    return DeliveryReports.findOne({ _id });
+  __resolveReference({ _id }: IDeliveryReportsDocument, _args, { models }: IContext) {
+    return models.DeliveryReports.findOne({ _id });
   },
-  engage(root) {
-    return EngageMessages.findOne(
-      { _id: root.engageMessageId },
-      { title: 1 }
-    ).lean();
+  engage({ engageMessageId }: IDeliveryReportsDocument, _args, { models }: IContext) {
+    return models.EngageMessages.findOne({ _id: engageMessageId }, { title: 1 });
   }
 };
