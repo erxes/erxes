@@ -240,7 +240,7 @@ const integrationQueries = {
     }
 
     // Counting integrations by brand
-    const brands = await coreModels.Brands.find({}).toArray();
+    const brands = await coreModels.Brands.find({})
 
     for (const brand of brands) {
       const countQueryResult = await count({ brandId: brand._id, ...qry });

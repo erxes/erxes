@@ -1,4 +1,4 @@
-export const types = ({ products, forms }) => `
+export const types = ({ products, forms, knowledgeBase }) => `
   ${
    products ?
     `
@@ -26,6 +26,20 @@ export const types = ({ products, forms }) => `
     }
     `
     : ''
+  }
+
+  ${
+    knowledgeBase ?
+    `
+    extend type KnowledgeBaseArticle @key(fields: "_id") {
+      _id: String! @external
+    }
+
+    extend type KnowledgeBaseTopic @key(fields: "_id") {
+      _id: String! @external
+    }
+    `
+    : ""
   }
 
   type MessengerConnectResponse {
@@ -96,7 +110,7 @@ export const types = ({ products, forms }) => `
   }
 `;
 
-export const queries = (isProductsAvailable) => `
+export const queries = ({ products, knowledgeBase }) => `
   widgetsConversations(integrationId: String!, customerId: String, visitorId: String): [Conversation]
   widgetsConversationDetail(_id: String, integrationId: String!): ConversationDetailResponse
   widgetExportMessengerData(_id: String, integrationId: String!): String
@@ -108,7 +122,16 @@ export const queries = (isProductsAvailable) => `
   widgetsGetEngageMessage(integrationId: String, customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
 
   ${
-    isProductsAvailable ? 
+    knowledgeBase ?
+    `
+      widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
+      widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
+    ` 
+    : ''
+  }
+
+  ${
+    products ? 
     `
       widgetsProductCategory(_id: String!): ProductCategory
       widgetsBookingProductWithFields(_id: String!): BookingProduct

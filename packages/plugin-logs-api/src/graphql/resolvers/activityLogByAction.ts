@@ -1,9 +1,12 @@
 import { IActivityLogDocument } from '../../models/ActivityLogs';
-import messageBroker, { getContentTypeDetail } from '../../messageBroker';
+import { getContentTypeDetail } from '../../messageBroker';
+import { IContext } from '../../connectionResolver';
 
 export default {
-  createdUser(activityLog: IActivityLogDocument) {
-    return messageBroker().sendRPCMessage('core:rpc_queue:findOneUser', { _id: activityLog.createdBy });
+  async createdUser(activityLog: IActivityLogDocument, _args, { coreModels }: IContext) {
+    const user = await coreModels.Users.findOne({ _id: activityLog.createdBy });
+
+    return user;
   },
 
   contentTypeDetail(activityLog: IActivityLogDocument) {

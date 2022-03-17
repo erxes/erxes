@@ -298,6 +298,10 @@ export const sendNotificationsMessage = (args: ISendMessageArgs): Promise<any> =
   return sendMessageCore({ client, serviceDiscovery, serviceName: 'notifications', ...args });
 }
 
+export const sendKnowledgeBaseMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessageCore({ client, serviceDiscovery, serviceName: 'knowledgebase', ...args });
+}
+
 export default function() {
   return client;
 }
