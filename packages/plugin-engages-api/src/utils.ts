@@ -6,11 +6,11 @@ import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 import { SES_DELIVERY_STATUSES } from './constants';
 import { debugBase, debugError } from './debuggers';
 import messageBroker from './messageBroker';
-import Configs, { ISESConfig } from './models/Configs';
-import { DeliveryReports, Stats } from './models/index';
+import { ISESConfig } from './models/Configs';
 import { getServices, getService } from './redis';
 import { getApi } from './trackers/engageTracker';
 import { ICampaign, ICustomer } from './types';
+import { IModels } from './connectionResolver';
 
 export const isUsingElk = () => {
   const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
@@ -18,8 +18,8 @@ export const isUsingElk = () => {
   return ELK_SYNCER === 'false' ? false : true;
 };
 
-export const createTransporter = async () => {
-  const config: ISESConfig = await Configs.getSESConfigs();
+export const createTransporter = async (models: IModels) => {
+  const config: ISESConfig = await models.Configs.getSESConfigs();
 
   AWS.config.update(config);
 
@@ -59,11 +59,11 @@ export const getEnv = ({
   return value || '';
 };
 
-export const subscribeEngage = () => {
+export const subscribeEngage = (models: IModels) => {
   return new Promise(async (resolve, reject) => {
-    const snsApi = await getApi('sns');
-    const sesApi = await getApi('ses');
-    const configSet = await getConfig('configSet', 'erxes');
+    const snsApi = await getApi(models, 'sns');
+    const sesApi = await getApi(models, 'ses');
+    const configSet = await getConfig(models, 'configSet', 'erxes');
 
     const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
 
@@ -141,8 +141,8 @@ export const subscribeEngage = () => {
   });
 };
 
-export const getValueAsString = async name => {
-  const entry = await Configs.getConfig(name);
+export const getValueAsString = async (models: IModels, name: string) => {
+  const entry = await models.Configs.getConfig(name);
 
   if (entry.value) {
     return entry.value.toString();
@@ -151,21 +151,21 @@ export const getValueAsString = async name => {
   return entry.value;
 };
 
-export const updateConfigs = async (configsMap): Promise<void> => {
-  const prevSESConfigs = await Configs.getSESConfigs();
+export const updateConfigs = async (models: IModels, configsMap): Promise<void> => {
+  const prevSESConfigs = await models.Configs.getSESConfigs();
 
-  await Configs.updateConfigs(configsMap);
+  await models.Configs.updateConfigs(configsMap);
 
-  const updatedSESConfigs = await Configs.getSESConfigs();
+  const updatedSESConfigs = await models.Configs.getSESConfigs();
 
   if (JSON.stringify(prevSESConfigs) !== JSON.stringify(updatedSESConfigs)) {
-    await subscribeEngage();
+    await subscribeEngage(models);
   }
 };
 
-export const getConfigs = async (): Promise<any> => {
+export const getConfigs = async (models: IModels): Promise<any> => {
   const configsMap = {};
-  const configs = await Configs.find({});
+  const configs = await models.Configs.find({});
 
   for (const config of configs) {
     configsMap[config.code] = config.value;
@@ -174,8 +174,8 @@ export const getConfigs = async (): Promise<any> => {
   return configsMap;
 };
 
-export const getConfig = async (code, defaultValue?) => {
-  const configs = await getConfigs();
+export const getConfig = async (models: IModels, code, defaultValue?) => {
+  const configs = await getConfigs(models);
 
   if (!configs[code]) {
     return defaultValue;
@@ -184,20 +184,20 @@ export const getConfig = async (code, defaultValue?) => {
   return configs[code];
 };
 
-export const cleanIgnoredCustomers = async ({
+export const cleanIgnoredCustomers = async (models: IModels, {
   customers,
   engageMessageId
 }: ICustomerAnalyzeParams) => {
   const customerIds = customers.map(c => c._id);
   const ignoredCustomerIds: string[] = [];
 
-  const allowedEmailSkipLimit = await getConfig('allowedEmailSkipLimit', '5');
+  const allowedEmailSkipLimit = await getConfig(models, 'allowedEmailSkipLimit', '5');
 
   /**
    * gather customers who did not complain, open or click previously &
    * no errors occurred
    */
-  const deliveries = await DeliveryReports.aggregate([
+  const deliveries = await models.DeliveryReports.aggregate([
     {
       $match: {
         engageMessageId: { $ne: engageMessageId },
@@ -250,8 +250,8 @@ const getAvgCondition = (fieldName: string) => ({
 });
 
 // Prepares average engage stats of email delivery stats
-export const prepareAvgStats = () => {
-  return Stats.aggregate([
+export const prepareAvgStats = (models: IModels) => {
+  return models.Stats.aggregate([
     {
       $match: { total: { $gt: 0 } }
     },

@@ -1,4 +1,5 @@
-import { Document, Model, model, Schema } from 'mongoose';
+import { Document, Model, Schema } from 'mongoose';
+import { IModels } from '../connectionResolver';
 
 export type MessageType = 'regular' | 'success' | 'failure';
 export const LOG_MESSAGE_TYPES = ['regular', 'success', 'failure'];
@@ -26,14 +27,14 @@ export const logSchema = new Schema({
   type: { type: String, label: 'Message type', enum: LOG_MESSAGE_TYPES }
 });
 
-export const loadLogClass = () => {
+export const loadLogClass = (models: IModels, subdomain: string) => {
   class Log {
     public static async createLog(
       engageMessageId: string,
       type: MessageType,
       message: string
     ) {
-      return Logs.create({ engageMessageId, message, type });
+      return models.Logs.create({ engageMessageId, message, type });
     }
   }
 
@@ -41,10 +42,3 @@ export const loadLogClass = () => {
 
   return logSchema;
 };
-
-loadLogClass();
-
-// tslint:disable-next-line
-const Logs = model<ILogDocument, ILogModel>('engage_logs', logSchema);
-
-export default Logs;

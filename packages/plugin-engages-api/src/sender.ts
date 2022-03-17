@@ -1,5 +1,7 @@
 import * as dotenv from 'dotenv';
 import * as Random from 'meteor-random';
+
+import { IModels } from './connectionResolver';
 import {
   ACTIVITY_CONTENT_TYPES,
   ACTIVITY_LOG_ACTIONS,
@@ -7,7 +9,6 @@ import {
 } from './constants';
 import { debugEngages, debugError } from './debuggers';
 import messageBroker from './messageBroker';
-import { Logs, Stats } from './models';
 import {
   getTelnyxInfo,
   handleMessageCallback,
@@ -25,7 +26,7 @@ import {
 
 dotenv.config();
 
-export const start = async (data: IEmailParams) => {
+export const start = async (models: IModels, data: IEmailParams) => {
   const {
     fromEmail,
     email,
@@ -36,15 +37,15 @@ export const start = async (data: IEmailParams) => {
   } = data;
 
   const { content, subject, attachments, sender, replyTo } = email;
-  const configs = await getConfigs();
+  const configs = await getConfigs(models);
 
-  await Stats.findOneAndUpdate(
+  await models.Stats.findOneAndUpdate(
     { engageMessageId },
     { engageMessageId },
     { upsert: true }
   );
 
-  const transporter = await createTransporter();
+  const transporter = await createTransporter(models);
 
   const sendEmail = async (customer: ICustomer) => {
     const mailMessageId = Random.id();
@@ -98,13 +99,13 @@ export const start = async (data: IEmailParams) => {
 
       debugEngages(msg);
 
-      await Logs.createLog(engageMessageId, 'success', msg);
+      await models.Logs.createLog(engageMessageId, 'success', msg);
 
-      await Stats.updateOne({ engageMessageId }, { $inc: { total: 1 } });
+      await models.Stats.updateOne({ engageMessageId }, { $inc: { total: 1 } });
     } catch (e) {
       debugError(e.message);
 
-      await Logs.createLog(
+      await models.Logs.createLog(
         engageMessageId,
         'failure',
         `Error occurred while sending email to ${customer.primaryEmail}: ${e.message}`
@@ -121,7 +122,7 @@ export const start = async (data: IEmailParams) => {
   let emails: string[] = [];
 
   if (customers.length > unverifiedEmailsLimit) {
-    await Logs.createLog(
+    await models.Logs.createLog(
       engageMessageId,
       'regular',
       `Unverified emails limit exceeded ${unverifiedEmailsLimit}. Customers who have unverified emails will be eliminated.`
@@ -138,7 +139,7 @@ export const start = async (data: IEmailParams) => {
   const {
     customers: cleanCustomers,
     ignoredCustomerIds
-  } = await cleanIgnoredCustomers({
+  } = await cleanIgnoredCustomers(models, {
     customers: filteredCustomers,
     engageMessageId
   });
@@ -146,7 +147,7 @@ export const start = async (data: IEmailParams) => {
   // finalized email list
   emails = cleanCustomers.map(customer => customer.primaryEmail);
 
-  await Logs.createLog(
+  await models.Logs.createLog(
     engageMessageId,
     'regular',
     `Preparing to send emails to ${emails.length}: ${emails}`
@@ -157,7 +158,7 @@ export const start = async (data: IEmailParams) => {
       cus => ignoredCustomerIds.indexOf(cus._id) !== -1
     );
 
-    await Logs.createLog(
+    await models.Logs.createLog(
       engageMessageId,
       'regular',
       `The following customers did not open emails frequently, therefore ignored: ${ignoredCustomers.map(
@@ -197,7 +198,7 @@ export const start = async (data: IEmailParams) => {
         }
       });
     } catch (e) {
-      await Logs.createLog(
+      await models.Logs.createLog(
         engageMessageId,
         'regular',
         `Error occured while creating activity log "${customer.primaryEmail}"`
@@ -207,7 +208,7 @@ export const start = async (data: IEmailParams) => {
 };
 
 // sends bulk sms via engage message
-export const sendBulkSms = async (data: ISmsParams) => {
+export const sendBulkSms = async (models: IModels, data: ISmsParams) => {
   const {
     customers,
     engageMessageId,
@@ -218,7 +219,7 @@ export const sendBulkSms = async (data: ISmsParams) => {
   } = data;
 
   const telnyxInfo = await getTelnyxInfo();
-  const smsLimit = await getConfig('smsLimit', 0);
+  const smsLimit = await getConfig(models, 'smsLimit', 0);
 
   const validCustomers = customers.filter(
     c => c.primaryPhone && c.phoneValidationStatus === 'valid'
@@ -226,7 +227,7 @@ export const sendBulkSms = async (data: ISmsParams) => {
 
   if (kind === CAMPAIGN_KINDS.AUTO) {
     if (!smsLimit) {
-      await Logs.createLog(
+      await models.Logs.createLog(
         engageMessageId,
         'regular',
         `Auto campaign SMS limit is not set: "${smsLimit}"`
@@ -236,7 +237,7 @@ export const sendBulkSms = async (data: ISmsParams) => {
     }
 
     if (smsLimit && validCustomers.length > smsLimit) {
-      await Logs.createLog(
+      await models.Logs.createLog(
         engageMessageId,
         'regular',
         `Chosen "${validCustomers.length}" customers exceeded sms limit "${smsLimit}". Campaign will not run.`
@@ -247,7 +248,7 @@ export const sendBulkSms = async (data: ISmsParams) => {
   }
 
   if (validCustomers.length > 0) {
-    await Logs.createLog(
+    await models.Logs.createLog(
       engageMessageId,
       'regular',
       `Preparing to send SMS to "${validCustomers.length}" customers`
@@ -275,11 +276,11 @@ export const sendBulkSms = async (data: ISmsParams) => {
       await telnyxInfo.instance.messages.create(
         msg,
         async (err: any, res: any) => {
-          await handleMessageCallback(err, res, { engageMessageId, msg });
+          await handleMessageCallback(models, err, res, { engageMessageId, msg });
         }
       ); // end sms creation
     } catch (e) {
-      await Logs.createLog(
+      await models.Logs.createLog(
         engageMessageId,
         'failure',
         `${e.message} while sending to "${msg.to}"`
@@ -303,7 +304,7 @@ export const sendBulkSms = async (data: ISmsParams) => {
         }
       });
     } catch (e) {
-      await Logs.createLog(
+      await models.Logs.createLog(
         engageMessageId,
         'regular',
         `Error occured while creating activity log "${customer.primaryPhone}"`
