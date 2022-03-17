@@ -17,7 +17,6 @@ import {
   MoreTitle,
   NavMenuItem,
 } from "../styles";
-import Tip from "modules/common/components/Tip";
 import { getThemeItem } from "utils";
 import Icon from "modules/common/components/Icon";
 import FormControl from "modules/common/components/form/Control";
@@ -168,9 +167,7 @@ class Navigation extends React.Component<{}, State> {
     if (!childrens || childrens.length === 0) {
       return (
         <WithPermission key={url} action={permission}>
-          <Tip placement="right" key={Math.random()} text={__(text)}>
-            {item}
-          </Tip>
+          {item}
         </WithPermission>
       );
     }
@@ -201,7 +198,12 @@ class Navigation extends React.Component<{}, State> {
         <MoreMenus>
           {moreMenus.map((menu, index) => (
             <MoreItemRecent key={index}>
-              {this.renderMenuItem(menu)}
+              {this.renderNavItem(
+                menu.permission,
+                menu.text,
+                menu.url,
+                menu.icon
+              )}
             </MoreItemRecent>
           ))}
         </MoreMenus>
