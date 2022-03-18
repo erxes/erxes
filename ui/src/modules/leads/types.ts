@@ -18,9 +18,26 @@ export interface ICallout {
   skip?: boolean;
 }
 
-export interface IPaymentConfig {
-  code: string;
-  value: string;
+export interface ISocialPayConfig {
+  terminal?: string;
+  key?: string;
+  url?: string;
+  pushNotification?: string;
+}
+
+export interface IGolomtConfig {
+  checksumKey?: string;
+  token?: string;
+  redirectUrl?: string;
+  pushNotification?: string;
+}
+
+export interface IQPayConfig {
+  merchantUser?: string;
+  merchantPassword?: string;
+  invoiceCode?: string;
+  qPayUrl?: string;
+  callbackUrl?: string;
 }
 
 export interface ILeadData {
@@ -54,7 +71,7 @@ export interface ILeadData {
   successImage?: string;
   successImageSize?: string;
   paymentType?: string;
-  paymentConfigs?: IPaymentConfig[];
+  paymentConfig?: ISocialPayConfig | IQPayConfig | IGolomtConfig;
 }
 
 export interface IWebhookData {

@@ -1,3 +1,4 @@
+import { getOrderInfo } from './../../widgetUtils';
 import * as strip from 'strip';
 import {
   Companies,
@@ -46,7 +47,7 @@ import {
   sendRequest,
   sendToWebhook
 } from '../../utils';
-import { solveSubmissions } from '../../widgetUtils';
+import { getOrderInfo, solveSubmissions } from '../../widgetUtils';
 import { getDocument, getMessengerApps } from './cacheUtils';
 import { conversationNotifReceivers } from './conversations';
 import { IFormDocument } from '../../../db/models/definitions/forms';
@@ -137,6 +138,16 @@ const createFormConversation = async (
   type?: string
 ) => {
   const { integrationId, formId, submissions } = args;
+
+  const res = await getOrderInfo(
+    integrationId,
+    formId,
+    args.cachedCustomerId,
+    submissions
+  );
+
+  if (res.paymentType !== 'none' || res.paymentConfig) {
+  }
 
   const form = await Forms.findOne({ _id: formId });
 

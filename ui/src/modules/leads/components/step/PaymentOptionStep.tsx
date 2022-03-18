@@ -3,47 +3,42 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import { IPaymentConfig } from 'modules/leads/types';
+import {
+  IGolomtConfig,
+  IQPayConfig,
+  ISocialPayConfig
+} from 'modules/leads/types';
 import React from 'react';
 import { FlexItem } from './style';
 
 type Props = {
   paymentType?: string;
-  paymentConfigs?: IPaymentConfig;
+  paymentConfig?: ISocialPayConfig | IQPayConfig | IGolomtConfig;
+  onChange: (name: string, value: any) => void;
 };
 
-type State = {
-  paymentType: string;
-  paymentConfigs: IPaymentConfig;
-};
-
-class PaymentOptionStep extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      paymentType: props.paymentType || 'golomtEcommerce',
-      paymentConfigs: props.paymentConfigs || {}
-    };
-  }
-
+class PaymentOptionStep extends React.Component<Props> {
   onChangeType = e => {
-    this.setState({ paymentType: e.currentTarget.value });
+    if (e.currentTarget.value === 'none') {
+      this.props.onChange('paymentConfig', {});
+    }
+
+    this.props.onChange('paymentType', e.currentTarget.value);
   };
 
   onChangeConfig = (code: string, e) => {
-    const { paymentConfigs } = this.state;
+    const { paymentConfig = {} } = this.props;
 
     console.log(e.target.value, code);
 
-    paymentConfigs[code] = e.target.value;
+    paymentConfig[code] = e.target.value;
 
-    this.setState({ configsMap });
+    this.props.onChange('paymentConfig', paymentConfig);
   };
 
   renderItem = (key: string, title: string, description?: string) => {
-    const { configsMap } = this.state;
-    const value = configsMap[key] || '';
+    const { paymentConfig = {} } = this.props;
+    const value = paymentConfig[key] || '';
 
     return (
       <FormGroup>
@@ -59,23 +54,17 @@ class PaymentOptionStep extends React.Component<Props, State> {
   };
 
   renderGolomtEcommerce() {
-    if (this.state.paymentType !== 'golomtEcommerce') {
+    if (this.props.paymentType !== 'golomtEcommerce') {
       return null;
     }
 
     return (
       <>
+        {this.renderItem('checksumKey', 'Голомт E-Commerce checksum key')}
+        {this.renderItem('token', 'Голомт E-Commerce token')}
+        {this.renderItem('redirectUrl', 'Голомт E-Commerce redirect')}
         {this.renderItem(
-          'GolomtEcommerceChecksumKey',
-          'Голомт E-Commerce checksum key'
-        )}
-        {this.renderItem('GolomtEcommerceToken', 'Голомт E-Commerce token')}
-        {this.renderItem(
-          'GolomtEcommerceRedirectUrl',
-          'Голомт E-Commerce redirect'
-        )}
-        {this.renderItem(
-          'GolomtEcommercePushNotification',
+          'pushNotification',
           'Голомт E-Commerce push notification'
         )}
       </>
@@ -83,15 +72,15 @@ class PaymentOptionStep extends React.Component<Props, State> {
   }
 
   renderSocialPay() {
-    if (this.state.paymentType !== 'socialPay') {
+    if (this.props.paymentType !== 'socialPay') {
       return null;
     }
 
     return (
       <>
-        {this.renderItem('inStoreSPTerminal', 'Terminal')}
-        {this.renderItem('inStoreSPKey', 'Key')}
-        {this.renderItem('inStoreSPUrl', 'InStore SocialPay url')}
+        {this.renderItem('terminal', 'Terminal')}
+        {this.renderItem('key', 'Key')}
+        {this.renderItem('url', 'InStore SocialPay url')}
         {this.renderItem(
           'pushNotification',
           'Push notification url with /pushNotif'
@@ -101,16 +90,16 @@ class PaymentOptionStep extends React.Component<Props, State> {
   }
 
   renderQpay() {
-    if (this.state.paymentType !== 'qPay') {
+    if (this.props.paymentType !== 'qPay') {
       return null;
     }
 
     return (
       <>
-        {this.renderItem('qpayMerchantUser', 'Username')}
-        {this.renderItem('qpayMerchantPassword', 'Password')}
-        {this.renderItem('qpayInvoiceCode', 'Invoice code')}
-        {this.renderItem('qpayUrl', 'Qpay url')}
+        {this.renderItem('merchantUser', 'Username')}
+        {this.renderItem('merchantPassword', 'Password')}
+        {this.renderItem('invoiceCode', 'Invoice code')}
+        {this.renderItem('qPayUrl', 'Qpay url')}
         {this.renderItem('callbackUrl', 'Call back url with /payments')}
       </>
     );
@@ -125,9 +114,10 @@ class PaymentOptionStep extends React.Component<Props, State> {
             <FormControl
               id="paymentOptions "
               componentClass="select"
-              value={this.state.paymentType}
+              value={this.props.paymentType || 'none'}
               onChange={this.onChangeType}
             >
+              <option value={'none'}>None</option>
               <option value={'golomtEcommerce'}>Golomt E-Commerce</option>
               <option value={'socialPay'}>Social Pay</option>
               <option value={'qPay'}>QPay</option>

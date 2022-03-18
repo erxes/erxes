@@ -1,4 +1,3 @@
-import { openingHour } from './../../../../../ui/src/modules/settings/calendars/types';
 import { Document, Schema } from 'mongoose';
 import { attachmentSchema } from './boards';
 import { IRule, ruleSchema } from './common';
@@ -117,9 +116,26 @@ export interface IBookingDataDocument extends IBookingData, Document {
   viewCount?: number;
 }
 
-export interface IPaymentConfig {
-  code: string;
-  value: string;
+export interface ISocialPayConfig {
+  terminal: string;
+  key: string;
+  url: string;
+  pushNotification: string;
+}
+
+export interface IGolomtConfig {
+  checksumKey: string;
+  token: string;
+  redirectUrl: string;
+  pushNotification: string;
+}
+
+export interface IQPayConfig {
+  merchantUser: string;
+  merchantPassword: string;
+  invoiceCode: string;
+  qPayUrl: string;
+  callbackUrl: string;
 }
 
 export interface ILeadData {
@@ -146,7 +162,7 @@ export interface ILeadData {
   successImage?: string;
   successImageSize?: string;
   paymentType?: string;
-  paymentConfigs?: IPaymentConfig[];
+  paymentConfig?: IGolomtConfig | IQPayConfig | ISocialPayConfig;
 }
 
 export interface IWebhookData {
@@ -278,14 +294,6 @@ export const submissionSchema = new Schema(
   { _id: false }
 );
 
-export const payMentConfigSchema = new Schema(
-  {
-    code: field({ type: String, unique: true }),
-    value: field({ type: Object })
-  },
-  { _id: false }
-);
-
 // subdocument schema for LeadData
 export const leadDataSchema = new Schema(
   {
@@ -401,8 +409,8 @@ export const leadDataSchema = new Schema(
       optional: true,
       label: 'Payment type'
     }),
-    paymentConfigs: field({
-      type: payMentConfigSchema,
+    paymentConfig: field({
+      type: Schema.Types.Mixed,
       optional: true,
       label: 'Payment configs'
     })

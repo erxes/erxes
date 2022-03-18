@@ -13,7 +13,13 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ILeadData, ILeadIntegration, IPaymentConfig } from '../types';
+import {
+  IGolomtConfig,
+  ILeadData,
+  ILeadIntegration,
+  IQPayConfig,
+  ISocialPayConfig
+} from '../types';
 
 import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import { IFormData } from 'modules/forms/types';
@@ -94,7 +100,7 @@ type State = {
   departmentIds?: string[];
   visibility?: string;
   paymentType?: string;
-  paymentConfigs?: IPaymentConfig[];
+  paymentConfig?: ISocialPayConfig | IQPayConfig | IGolomtConfig;
 };
 
 class Lead extends React.Component<Props, State> {
@@ -160,7 +166,7 @@ class Lead extends React.Component<Props, State> {
       departmentIds: integration.departmentIds || [],
       visibility: integration.visibility || 'public',
       paymentType: leadData.paymentType,
-      paymentConfigs: leadData.paymentConfigs || []
+      paymentConfig: leadData.paymentConfig || {}
     };
   }
 
@@ -226,7 +232,7 @@ class Lead extends React.Component<Props, State> {
         successImage: this.state.successImage,
         successImageSize: this.state.successImageSize,
         paymentType: this.state.paymentType,
-        paymentConfigs: this.state.paymentConfigs
+        paymentConfig: this.state.paymentConfig
       }
     };
 
@@ -313,7 +319,11 @@ class Lead extends React.Component<Props, State> {
         title="Payment options"
         onClick={this.onStepClick}
       >
-        <PaymentOptionStep />
+        <PaymentOptionStep
+          paymentType={this.state.paymentType}
+          paymentConfig={this.state.paymentConfig}
+          onChange={this.onChange}
+        />
       </Step>
     );
   };
