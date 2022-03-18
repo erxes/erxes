@@ -1,6 +1,6 @@
 import * as faker from 'faker';
+import { IModels } from '../connectionResolver';
 
-import { SmsRequests } from './index';
 import { ISmsRequest } from './SmsRequests';
 
 interface ITelnyxWebhookData {
@@ -47,8 +47,8 @@ export const telnyxWebhookDataFactory = (params: ITelnyxWebhookData) => ({
   }
 });
 
-export const smsRequestFactory = async (params: ISmsRequest) => {
-  const smsRequest = new SmsRequests({
+export const smsRequestFactory = async (models: IModels, params: ISmsRequest) => {
+  const smsRequest = new models.SmsRequests({
     engageMessageId: params.engageMessageId || faker.random.uuid(),
     to: params.to || faker.phone.phoneNumber(),
     requestData: params.requestData || '{}',

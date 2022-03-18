@@ -1,35 +1,35 @@
+import { IContext } from '../../connectionResolver';
 import { IEngageMessageDocument } from '../../models/definitions/engages';
-import { Stats, EngageMessages, Logs } from '../../models';
 import { prepareSmsStats } from '../../telnyxUtils';
 
 export default {
-  __resolveReference({ _id }) {
-    return EngageMessages.findOne({ _id });
+  __resolveReference({ _id }: IEngageMessageDocument, _args, { models }: IContext) {
+    return models.EngageMessages.findOne({ _id });
   },
 
-  async segments(engageMessage: IEngageMessageDocument) {
-    return (engageMessage.segmentIds || []).map(segmentId => ({
+  async segments({ segmentIds = [] }: IEngageMessageDocument) {
+    return segmentIds.map(segmentId => ({
       __typename: 'Segment',
       _id: segmentId
     }));
   },
 
-  brands(engageMessage: IEngageMessageDocument) {
-    return (engageMessage.brandIds || []).map(brandId => ({
+  brands({ brandIds = [] }: IEngageMessageDocument) {
+    return brandIds.map(brandId => ({
       __typename: 'Brand',
       _id: brandId
     }));
   },
 
-  async customerTags(engageMessage: IEngageMessageDocument) {
-    return (engageMessage.customerTagIds || []).map(customerTagId => ({
+  async customerTags({ customerTagIds = [] }: IEngageMessageDocument) {
+    return customerTagIds.map(customerTagId => ({
       __typename: 'Tag',
       _id: customerTagId
     }));
   },
 
-  fromUser(engageMessage: IEngageMessageDocument) {
-    return { __typename: 'User', _id: engageMessage.fromUserId };
+  fromUser({ fromUserId }: IEngageMessageDocument) {
+    return { __typename: 'User', _id: fromUserId };
   },
 
   // common tags
@@ -50,12 +50,12 @@ export default {
     return null;
   },
 
-  stats(engageMessage: IEngageMessageDocument) {
-    return Stats.findOne({ engageMessageId: engageMessage._id });
+  stats({ _id }: IEngageMessageDocument, _args, { models }: IContext) {
+    return models.Stats.findOne({ engageMessageId: _id });
   },
 
-  smsStats(engageMessage: IEngageMessageDocument) {
-    return prepareSmsStats(engageMessage._id);
+  smsStats({ _id }: IEngageMessageDocument, _args, { models }: IContext) {
+    return prepareSmsStats(models, _id);
   },
 
   fromIntegration(engageMessage: IEngageMessageDocument) {
@@ -80,7 +80,7 @@ export default {
     return null;
   },
   
-  logs(engageMessage: IEngageMessageDocument) {
-    return Logs.find({ engageMessageId: engageMessage._id }).lean();
+  logs(engageMessage: IEngageMessageDocument, _args, { models }: IContext) {
+    return models.Logs.find({ engageMessageId: engageMessage._id }).lean();
   }
 };

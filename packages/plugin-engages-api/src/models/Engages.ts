@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 
 import { IBrowserInfo } from "@packages/api-utils/src/definitions/common";
 import { ICustomerDocument } from "@packages/plugin-contacts-api/src/models/definitions/customers";
@@ -10,7 +10,7 @@ import messageBroker, {
 } from '../messageBroker';
 import { MESSAGE_KINDS } from '../constants';
 // import { checkCustomerExists } from '../engageUtils';
-import { isUsingElk, getEditorAttributeUtil } from '../utils';
+import { getEditorAttributeUtil } from '../utils';
 
 import { CAMPAIGN_METHODS, CONTENT_TYPES } from '../constants';
 import { IEngageData, IMessageDocument } from '../types';
@@ -19,6 +19,7 @@ import {
   IEngageMessage,
   IEngageMessageDocument
 } from './definitions/engages';
+import { IModels } from '../connectionResolver';
 
 interface ICheckRulesParams {
   rules: IRule[];
@@ -85,13 +86,13 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   }): Promise<IMessageDocument[]>;
 }
 
-export const loadClass = () => {
+export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
   class Message {
     /**
      * Get engage message
      */
     public static async getEngageMessage(_id: string) {
-      const engageMessage = await EngageMessages.findOne({ _id });
+      const engageMessage = await models.EngageMessages.findOne({ _id });
 
       if (!engageMessage) {
         throw new Error('Campaign not found');
@@ -104,52 +105,50 @@ export const loadClass = () => {
      * Create engage message
      */
     public static createEngageMessage(doc: IEngageMessage) {
-      return EngageMessages.create({
-        ...doc
-      });
+      return models.EngageMessages.create({ ...doc });
     }
 
     /**
      * Update engage message
      */
     public static async updateEngageMessage(_id: string, doc: IEngageMessage) {
-      const message = await EngageMessages.getEngageMessage(_id);
+      const message = await models.EngageMessages.getEngageMessage(_id);
 
       if (message.kind === MESSAGE_KINDS.MANUAL && message.isLive) {
         throw new Error('Can not update manual live campaign');
       }
 
-      await EngageMessages.updateOne({ _id }, { $set: doc });
+      await models.EngageMessages.updateOne({ _id }, { $set: doc });
 
-      return EngageMessages.findOne({ _id });
+      return models.EngageMessages.findOne({ _id });
     }
 
     /**
      * Engage message set live
      */
     public static async engageMessageSetLive(_id: string) {
-      await EngageMessages.updateOne(
+      await models.EngageMessages.updateOne(
         { _id },
         { $set: { isLive: true, isDraft: false } }
       );
 
-      return EngageMessages.findOne({ _id });
+      return models.EngageMessages.findOne({ _id });
     }
 
     /**
      * Engage message set pause
      */
     public static async engageMessageSetPause(_id: string) {
-      await EngageMessages.updateOne({ _id }, { $set: { isLive: false } });
+      await models.EngageMessages.updateOne({ _id }, { $set: { isLive: false } });
 
-      return EngageMessages.findOne({ _id });
+      return models.EngageMessages.findOne({ _id });
     }
 
     /**
      * Remove engage message
      */
     public static async removeEngageMessage(_id: string) {
-      const message = await EngageMessages.findOne({ _id });
+      const message = await models.EngageMessages.findOne({ _id });
 
       if (!message) {
         throw new Error(`Campaign not found with id ${_id}`);
@@ -168,9 +167,9 @@ export const loadClass = () => {
       type: string,
       count: number
     ) {
-      await EngageMessages.updateOne({ _id }, { $set: { [type]: count } });
+      await models.EngageMessages.updateOne({ _id }, { $set: { [type]: count } });
 
-      return EngageMessages.findOne({ _id });
+      return models.EngageMessages.findOne({ _id });
     }
 
     /**
@@ -182,29 +181,29 @@ export const loadClass = () => {
     ) {
       for (const customerId of customerIds) {
         // Updating every engage messages of customer
-        await EngageMessages.updateMany(
+        await models.EngageMessages.updateMany(
           { customerIds: { $in: [customerId] } },
           { $push: { customerIds: newCustomerId } }
         );
 
-        await EngageMessages.updateMany(
+        await models.EngageMessages.updateMany(
           { customerIds: { $in: [customerId] } },
           { $pull: { customerIds: customerId } }
         );
 
         // updating every engage messages of customer participated in
-        await EngageMessages.updateMany(
+        await models.EngageMessages.updateMany(
           { messengerReceivedCustomerIds: { $in: [customerId] } },
           { $push: { messengerReceivedCustomerIds: newCustomerId } }
         );
 
-        await EngageMessages.updateMany(
+        await models.EngageMessages.updateMany(
           { messengerReceivedCustomerIds: { $in: [customerId] } },
           { $pull: { messengerReceivedCustomerIds: customerId } }
         );
       }
 
-      return EngageMessages.find({ customerIds: newCustomerId });
+      return models.EngageMessages.find({ customerIds: newCustomerId });
     }
 
     /**
@@ -212,12 +211,12 @@ export const loadClass = () => {
      */
     public static async removeCustomersEngages(customerIds: string[]) {
       // Removing customer from engage messages
-      await EngageMessages.updateMany(
+      await models.EngageMessages.updateMany(
         { messengerReceivedCustomerIds: { $in: customerIds } },
         { $pull: { messengerReceivedCustomerIds: { $in: customerIds } } }
       );
 
-      return EngageMessages.updateMany(
+      return models.EngageMessages.updateMany(
         { customerIds },
         { $pull: { customerIds } }
       );
@@ -266,7 +265,7 @@ export const loadClass = () => {
       //   });
       // }
 
-      messages = await EngageMessages.find({
+      messages = await models.EngageMessages.find({
         'messenger.brandId': brandId,
         method: CAMPAIGN_METHODS.MESSENGER,
         isLive: true
@@ -315,7 +314,7 @@ export const loadClass = () => {
           continue;
         }
 
-        const user = await findUser(fromUserId || '');
+        const user = await findUser(subdomain, fromUserId || '');
 
         if (!user) {
           continue;
@@ -381,7 +380,7 @@ export const loadClass = () => {
 
             // add given customer to customerIds list
             if (customer) {
-              await EngageMessages.updateOne(
+              await models.EngageMessages.updateOne(
                 { _id: message._id },
                 { $push: { customerIds: customer._id } }
               );
@@ -613,13 +612,3 @@ export const loadClass = () => {
 
   return engageMessageSchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const EngageMessages = model<IEngageMessageDocument, IEngageMessageModel>(
-  'engage_messages',
-  engageMessageSchema
-);
-
-export default EngageMessages;

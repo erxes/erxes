@@ -1,7 +1,7 @@
-import { debugBase } from './debuggers';
-import { EngageMessages, Logs } from './models';
-import { sendBulkSms, start } from './sender';
+import { sendMessage, ISendMessageArgs } from '@erxes/api-utils/src/core';
+
 import { serviceDiscovery } from './configs';
+import { generateModels } from './connectionResolver';
 
 export let client;
 
@@ -10,84 +10,30 @@ export const initBroker = async cl => {
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeQueue('engage:removeCustomersEngages', async customerIds => {
-    await EngageMessages.removeCustomersEngages(customerIds);
+  consumeQueue('engage:removeCustomersEngages', async ({ data: { customerIds }, subdomain }) => {
+    const models = await generateModels(subdomain);
+
+    await models.EngageMessages.removeCustomersEngages(customerIds);
   });
 
-  consumeQueue('engage:changeCustomer', async ({customerId, customerIds}) => {
-    await EngageMessages.changeCustomer(customerId, customerIds);
-  });
+  consumeQueue('engage:changeCustomer', async ({ data: { customerId, customerIds }, subdomain }) => {
+    const models = await generateModels(subdomain);
 
-  // listen for rpc queue =========
-  consumeQueue('erxes-api:engages-notification', async ({ action, data }) => {
-    debugBase(`Receiving queue data from erxes-api ${JSON.stringify(data)}`);
-
-    if (action === 'sendEngage') {
-      await start(data);
-    }
-
-    if (action === 'writeLog') {
-      await Logs.createLog(data.engageMessageId, 'regular', data.msg);
-    }
-
-    if (action === 'sendEngageSms') {
-      await sendBulkSms(data);
-    }
-  });
-
-  consumeRPCQueue('engage:rpc_queue:tag', async args => {
-    let data = {};
-
-    if (args.action === 'count') {
-      data = await EngageMessages.countDocuments({ tagIds: { $in: args._ids } });
-    }
-
-    if (args.action === 'tagObject') {
-      await EngageMessages.updateMany(
-        { _id: { $in: args.targetIds } },
-        { $set: { tagIds: args.tagIds } },
-        { multi: true }
-      );
-
-      data = await EngageMessages.find({ _id: { $in: args.targetIds } }).lean();
-    }
-
-    return {
-      status: 'success',
-      data
-    }
+    await models.EngageMessages.changeCustomer(customerId, customerIds);
   });
 
   consumeRPCQueue('engages:createVisitorOrCustomerMessages', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
     return {
       status: 'success',
-      data: await EngageMessages.createVisitorOrCustomerMessages(data)
+      data: await models.EngageMessages.createVisitorOrCustomerMessages(data)
     }
   });
-
 };
 
 export const sendRPCMessage = async (message): Promise<any> => {
   return client.sendRPCMessage('rpc_queue:api_to_integrations', message);
-};
-
-export const findIntegrations = async (query, options?): Promise<any> => {
-  return client.sendRPCMessage('rpc_queue:findIntegrations', {
-    query,
-    options,
-  });
-};
-
-export const findMongoDocuments = async (serviceName: string, data: any) => {
-  if(!(await serviceDiscovery.isEnabled(serviceName))) {
-    return [];
-  }
-  
-  if(!(await serviceDiscovery.isAvailable(serviceName))) {
-    throw new Error(`${serviceName} service is not available`);
-  }
-
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:findMongoDocuments`, data);
 };
 
 export const createConversationAndMessage = async (doc): Promise<any> => {
@@ -118,9 +64,6 @@ export const removeEngageConversations = async (_id): Promise<any> => {
   return client.consumeQueue('removeEngageConversations', _id);
 };
 
-export const fetchSegment = async (segment, options) => 
-  client.sendRPCMessage('rpc_queue:fetchSegment', { segment, options });
-
 export const getCampaignCustomerInfo = async (data) => {
   return client.sendRPCMessage('contacts:rpc_queue:prepareEngageCustomers', data);
 };
@@ -128,3 +71,47 @@ export const getCampaignCustomerInfo = async (data) => {
 export default function() {
   return client;
 }
+
+export const sendContactsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'contacts', ...args });
+};
+
+export const sendInternalNotesMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'internalNotes', ...args });
+};
+
+export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'core', ...args });
+};
+
+export const sendFormsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'forms', ...args });
+};
+
+export const sendEngagesMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'engages', ...args });
+};
+
+export const sendInboxMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'inbox', ...args });
+};
+
+export const sendProductsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'products', ...args });
+};
+
+export const sendNotificationsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'notifications', ...args });
+};
+
+export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'logs', ...args });
+};
+
+export const sendSegmentsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'segments', ...args });
+};
+
+export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'tags', ...args });
+};
