@@ -453,7 +453,7 @@ export const createBoardItem = async (
 
   if (doc.sourceConversationIds && doc.sourceConversationIds.length > 0) {
     action = "convert";
-    content = item.sourceIds.slice(-1)[0];
+    content = item.sourceConversationIds.slice(-1)[0];
   }
 
   // create log
@@ -481,23 +481,24 @@ const checkBookingConvert = async (subdomain: string, productId: string) => {
     isRPC: true,
   });
 
-  // let dealUOM = await Configs.find({ code: 'dealUOM' }).distinct('value');
   let dealUOM = await sendCoreMessage({
     subdomain,
-    action: "configs:find",
+    action: "configs.find",
     data: {
       code: "dealUOM",
     },
     isRPC: true,
+    defaultValue: []
   });
 
   let dealCurrency = await sendCoreMessage({
     subdomain,
-    action: "configs:find",
+    action: "configs.find",
     data: {
       code: "dealCurrency",
     },
     isRPC: true,
+    defaultValue: []
   });
 
   if (dealUOM.length > 0) {
@@ -590,6 +591,7 @@ export const conversationConvertToCard = async (
           conversationId,
         },
         isRPC: true,
+        defaultValue: {} 
       });
 
       if (con.customerId) {
@@ -638,7 +640,7 @@ export const conversationConvertToCard = async (
       ];
     }
 
-    const item = await itemsAdd(doc, type, create, user, docModifier);
+    const item = await itemsAdd(models, subdomain, doc, type, create, user, docModifier);
 
     return item._id;
   }
