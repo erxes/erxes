@@ -20,6 +20,7 @@ import {
   Content,
   LeftContent
 } from '@erxes/ui-settings/src/integrations/styles';
+import { StepperWrapper, StepperItem, StepCounter } from "@erxes/ui/src/components/stepper"
 
 type Props = {
   contentType: string;
@@ -37,6 +38,9 @@ type State = {
 
   associatedField: string;
   associatedContentType: string;
+
+  current: number;
+  // content: any;
 };
 
 class Form extends React.Component<Props, State> {
@@ -51,7 +55,9 @@ class Form extends React.Component<Props, State> {
       type: 'single',
       contentTypes: [],
       associatedField: '',
-      associatedContentType: ''
+      associatedContentType: '',
+      current: 1,
+      // content:
     };
   }
 
@@ -232,8 +238,9 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    const { importName, disclaimer, type, contentTypes } = this.state;
-
+    const { importName, disclaimer, type, contentTypes, current } = this.state;
+    
+    // const onClick ;
     const title = __('Import');
 
     const breadcrumb = [
@@ -254,6 +261,27 @@ class Form extends React.Component<Props, State> {
                   onChangeContentType={this.onChangeContentType}
                   contentTypes={contentTypes}
                 />
+                {/* <div style ={{justifyContent: 'center'}}><StepperWrapper>
+                  <StepperItem>
+                    <StepCounter complete={current === 1 ? true : false}>1</StepCounter>
+                    <div>First</div>
+                  </StepperItem>
+                  <StepperItem>
+                    <StepCounter complete={current === 2 ? true : false}>2</StepCounter>
+                    <div >Second</div>
+                  </StepperItem>
+                  <StepperItem>
+                    <StepCounter complete={current === 3 ? true : false}>3</StepCounter>
+                    <div >Third</div>
+                  </StepperItem>
+                  <StepperItem>
+                    <StepCounter complete={current === 4 ? true : false}>4</StepCounter>
+                    <div >Forth</div>
+                  </StepperItem>
+                </StepperWrapper> */}
+                {/* {content} */}
+                {/* <Button btnStyle="simple">Back</Button>
+                <Button >Next</Button></div> */}
               </Step>
               <Step img="/images/icons/erxes-10.svg" title="Upload">
                 <FileUpload

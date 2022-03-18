@@ -21,6 +21,10 @@ import {
 import { IFieldGroup } from '@erxes/ui-settings/src/properties/types';
 import { IField } from '@erxes/ui/src/types';
 import SortableList from '@erxes/ui/src/components/SortableList';
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import Dropdown from "react-bootstrap/Dropdown";
+import Tip from "@erxes/ui/src/components/Tip";
+import Icon from "@erxes/ui/src/components/Icon";
 
 type Props = {
   group: IFieldGroup;
@@ -33,6 +37,7 @@ type Props = {
     isVisibleInDetail: boolean;
   }) => void;
   updateFieldOrder: (fields: IField[]) => any;
+  closeModal: () => void;
 };
 
 type State = {
@@ -48,7 +53,7 @@ class PropertyRow extends React.Component<Props, State> {
 
     this.state = {
       collapse: true,
-      fields
+      fields,
     };
   }
 
@@ -57,7 +62,7 @@ class PropertyRow extends React.Component<Props, State> {
 
     if (fields !== nextProps.group.fields) {
       this.setState({
-        fields: nextProps.group.fields
+        fields: nextProps.group.fields,
       });
     }
   }
@@ -66,7 +71,7 @@ class PropertyRow extends React.Component<Props, State> {
     this.setState({ collapse: !this.state.collapse });
   };
 
-  onChangeFields = fields => {
+  onChangeFields = (fields) => {
     this.setState({ fields }, () => {
       this.props.updateFieldOrder(this.state.fields);
     });
@@ -74,15 +79,15 @@ class PropertyRow extends React.Component<Props, State> {
 
   visibleHandler = (e, property) => {
     if (!property.canHide) {
-      return Alert.error('You cannot update this property');
+      return Alert.error("You cannot update this property");
     }
 
-    if (e.target.id === 'visibleDetailToggle') {
+    if (e.target.id === "visibleDetailToggle") {
       const isVisibleInDetail = e.target.checked;
 
       return this.props.updatePropertyDetailVisible({
         _id: property._id,
-        isVisibleInDetail
+        isVisibleInDetail,
       });
     }
 
@@ -100,8 +105,8 @@ class PropertyRow extends React.Component<Props, State> {
 
     if (isGroup) {
       const group: IFieldGroup = data;
-      if (['task', 'ticket', 'deal'].includes(group.contentType)) {
-        size = 'lg';
+      if (["task", "ticket", "deal"].includes(group.contentType)) {
+        size = "lg";
       }
     }
 
@@ -110,28 +115,51 @@ class PropertyRow extends React.Component<Props, State> {
         .then(() => {
           remove({ _id: data._id });
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
 
     return (
-      <ActionButtons>
+      <>
         <ModalTrigger
-          title={isGroup ? 'Edit group' : 'Edit field'}
-          trigger={<Button btnStyle="link" icon="edit-3" />}
+          title={isGroup ? "Edit group" : "Edit field"}
+          trigger={
+            <Button btnStyle="simple" icon="pen-1">
+              Edit
+            </Button>
+          }
           content={content}
           size={size}
         />
-        <Button btnStyle="link" icon="times-circle" onClick={onClick} />
-      </ActionButtons>
+        <Button btnStyle="simple" icon="trash-alt" onClick={onClick}>
+          Delete
+        </Button>
+      </>
     );
   };
-
-  renderTableRow = (field: IField) => {
-    const { removeProperty, queryParams } = this.props;
+  renderPropertyForm = (field, closeModal, queryParams) => {
+    return <PropertyForm
+    closeModal={closeModal}
+    field={field}
+    queryParams={queryParams}
+  />
+  }
+    renderTableRow = (field: IField) => {
+    const { removeProperty, queryParams, closeModal } = this.props;
     const { lastUpdatedUser } = field;
 
-    const onChange = e => this.visibleHandler(e, field);
+    const onChange = (e) => this.visibleHandler(e, field);
+
+    let size;
+
+      const onClick = () =>
+      confirm()
+        .then(() => {
+          removeProperty({ _id: field._id });
+        })
+        .catch((e) => {
+          Alert.error(e.message);
+        });
 
     return (
       <PropertyTableRow key={field._id}>
@@ -142,7 +170,7 @@ class PropertyRow extends React.Component<Props, State> {
         <RowField>
           {lastUpdatedUser && lastUpdatedUser.details
             ? lastUpdatedUser.details.fullName
-            : 'Erxes'}
+            : "Erxes"}
         </RowField>
         <RowField>
           <Toggle
@@ -151,12 +179,12 @@ class PropertyRow extends React.Component<Props, State> {
             disabled={!field.canHide}
             icons={{
               checked: <span>Yes</span>,
-              unchecked: <span>No</span>
+              unchecked: <span>No</span>,
             }}
             onChange={onChange}
           />
         </RowField>
-        {['visitor', 'lead', 'customer', 'device'].includes(
+        {["visitor", "lead", "customer", "device"].includes(
           field.contentType
         ) ? (
           <RowField>
@@ -166,7 +194,7 @@ class PropertyRow extends React.Component<Props, State> {
               disabled={!field.canHide}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>
+                unchecked: <span>No</span>,
               }}
               onChange={onChange}
             />
@@ -175,18 +203,28 @@ class PropertyRow extends React.Component<Props, State> {
           <></>
         )}
         <RowField>
-          {this.renderActionButtons(
-            field,
-            removeProperty,
-            props => (
-              <PropertyForm
-                {...props}
-                field={field}
-                queryParams={queryParams}
-              />
-            ),
-            false
-          )}
+            {!field.isDefinedByErxes && <Dropdown alignRight={true}>
+                <Dropdown.Toggle as={DropdownToggle} id="dropdown-team-member">
+                  <Button btnStyle="link">
+                    <Tip text={__("Actions")} placement="top">
+                      <Icon icon="ellipsis-v" size={20} />
+                    </Tip>
+                  </Button>
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                <ModalTrigger
+                   title={"Edit field"}
+                   trigger={
+                     <Dropdown.Item>
+                       Edit
+                     </Dropdown.Item>
+                   }
+                   content={() => this.renderPropertyForm(field, closeModal, queryParams)}
+                   size={size}
+                 />
+                  <Dropdown.Item onClick={onClick}>Delete</Dropdown.Item>
+                </Dropdown.Menu>
+            </Dropdown>}
         </RowField>
       </PropertyTableRow>
     );
@@ -204,10 +242,10 @@ class PropertyRow extends React.Component<Props, State> {
 
     const child = field => this.renderTableRow(field);
     const showVisibleDetail = [
-      'visitor',
-      'lead',
-      'customer',
-      'device'
+      "visitor",
+      "lead",
+      "customer",
+      "device",
     ].includes(contentType);
 
     const renderListRow = (
@@ -224,15 +262,25 @@ class PropertyRow extends React.Component<Props, State> {
     return (
       <PropertyListTable>
         <PropertyTableHeader>
-          <ControlLabel>{__('Name')}</ControlLabel>
-          <ControlLabel>{__('Last Updated By')}</ControlLabel>
+          <ControlLabel bold={true} uppercase={false}>
+            {__("Name")}
+          </ControlLabel>
+          <ControlLabel bold={true} uppercase={false}>
+            {__("Last Update")}
+          </ControlLabel>
           {showVisibleDetail ? (
-            <ControlLabel>{__('Visible in Team Inbox')}</ControlLabel>
+            <ControlLabel bold={true} uppercase={false}>
+              {__("Visible in Team Inbox")}
+            </ControlLabel>
           ) : (
-            <ControlLabel>{__('Visible')}</ControlLabel>
+            <ControlLabel bold={true} uppercase={false}>
+              {__("Visible")}
+            </ControlLabel>
           )}
           {showVisibleDetail && (
-            <ControlLabel>{__('Visible in detail')}</ControlLabel>
+            <ControlLabel bold={true} uppercase={false}>
+              {__("Visible in detail")}
+            </ControlLabel>
           )}
           <label />
         </PropertyTableHeader>
@@ -252,14 +300,17 @@ class PropertyRow extends React.Component<Props, State> {
     return (
       <li key={group._id}>
         <CollapseRow>
-          <div style={{ flex: 1 }} onClick={this.handleCollapse}>
+          <div
+            style={{ display: "flex", flex: 1, alignContent: "center" }}
+            onClick={this.handleCollapse}
+          >
             <DropIcon isOpen={this.state.collapse} />
-            {group.name} <span>{group.description}</span>
+            {group.name}
           </div>
           {this.renderActionButtons(
             group,
             removePropertyGroup,
-            props => (
+            (props) => (
               <PropertyGroupForm
                 {...props}
                 group={group}

@@ -17,6 +17,7 @@ import { IField } from '@erxes/ui/src/types';
 import PropertyRow from './PropertyRow';
 import Sidebar from './Sidebar';
 import SortableList from '@erxes/ui/src/components/SortableList';
+import BreadCrumb from '@erxes/ui/src/components/breadcrumb/NewBreadCrumb';
 
 type Props = {
   queryParams: any;
@@ -220,6 +221,7 @@ class Properties extends React.Component<
       />
     );
 
+    const services = ["hello", "hi"]
     return (
       <Wrapper
         actionBar={
@@ -229,11 +231,11 @@ class Properties extends React.Component<
             right={this.renderActionBar()}
           />
         }
-        header={
-          <Wrapper.Header title={__(currentType)} breadcrumb={breadcrumb} />
+        subheader={
+          headerDescription
         }
-        mainHead={headerDescription}
-        leftSidebar={<Sidebar currentType={__(currentType)} />}
+        mainHead={<BreadCrumb breadcrumbs={breadcrumb}/>}
+        leftSidebar={<Sidebar currentType={__(currentType)} services={services}/>}
         content={this.renderProperties()}
       />
     );

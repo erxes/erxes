@@ -22,6 +22,7 @@ type Props = {
   center?: boolean;
   shrink?: boolean;
   mainHead?: React.ReactNode;
+  subheader?: React.ReactNode;
 };
 
 class Wrapper extends React.Component<Props> {
@@ -37,7 +38,7 @@ class Wrapper extends React.Component<Props> {
       transparent,
       center,
       shrink,
-      header
+      subheader
     } = this.props;
 
     if (center) {
@@ -49,7 +50,7 @@ class Wrapper extends React.Component<Props> {
               footer={footer}
               transparent={transparent || false}
               center={center}
-              header={header}
+              subheader={subheader}
             >
               {content}
             </PageContent>
@@ -63,7 +64,7 @@ class Wrapper extends React.Component<Props> {
         actionBar={actionBar}
         footer={footer}
         transparent={transparent || false}
-        header={header}
+        subheader={subheader}
       >
         {content}
       </PageContent>
@@ -71,10 +72,11 @@ class Wrapper extends React.Component<Props> {
   }
 
   render() {
-    const { leftSidebar, rightSidebar, mainHead } = this.props;
+    const { header, leftSidebar, rightSidebar, mainHead } = this.props;
 
     return (
       <VerticalContent>
+        {header}
         <MainHead>{mainHead}</MainHead>
         <HeightedWrapper>
           <Contents>

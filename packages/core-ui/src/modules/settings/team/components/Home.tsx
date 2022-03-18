@@ -196,7 +196,7 @@ export default function Home(props: Props) {
   return (
     <Wrapper
       mainHead={<BreadCrumb breadcrumbs={breadcrumb} />}
-      header={headerDescription}
+      subheader={headerDescription}
       leftSidebar={<Sidebar loadingMainQuery={loading} />}
       actionBar={actionBar}
       content={<UserList history={history} queryParams={queryParams} />}

@@ -3,7 +3,8 @@ import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList as List } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
+import { getPropertiesGroups } from '../constants';
+import { SidebarList } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   currentType: string;
@@ -28,7 +29,7 @@ class Sidebar extends React.Component<Props> {
 
   render() {
     return (
-      <LeftSidebar header={<SidebarHeader />} full={true}>
+      <LeftSidebar full={true}>
         <List>
           {this.props.services.map(service => this.renderListItem(service))}
         </List>

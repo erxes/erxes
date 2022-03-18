@@ -302,7 +302,7 @@ class Histories extends React.Component<Props & IRouterProps> {
 
     return (
       <Wrapper
-        header={headerDescription}
+        subheader={headerDescription}
         actionBar={
           <Wrapper.ActionBar
             background="bgActive"

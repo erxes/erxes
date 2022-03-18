@@ -13,11 +13,13 @@ import {
   FieldsGroupsQueryResponse
 } from '../types';
 import { updateCustomFieldsCache } from '../utils';
+import { IField } from "@erxes/ui/src/types";
 
 type Props = {
   queryParams: any;
   closeModal: () => void;
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
+  field?: IField;
 };
 
 type FinalProps = {
@@ -27,7 +29,7 @@ type FinalProps = {
   FieldsEditMutationResponse;
 
 const PropertyFormContainer = (props: FinalProps) => {
-  const { fieldsGroupsQuery, queryParams } = props;
+  const { fieldsGroupsQuery, queryParams, field } = props;
   const { type } = queryParams;
 
   let { renderButton } = props;
@@ -74,7 +76,8 @@ const PropertyFormContainer = (props: FinalProps) => {
     type,
     renderButton,
     groups: fieldsGroupsQuery.fieldsGroups,
-    refetchQueries: getRefetchQueries(queryParams)
+    refetchQueries: getRefetchQueries(queryParams),
+    field: field,
   };
 
   return <PropertyForm {...updatedProps} />;
