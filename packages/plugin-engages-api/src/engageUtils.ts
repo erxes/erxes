@@ -9,10 +9,10 @@ import {
 // import { Users, Customers, Segments } from './apiCollections';
 import { isUsingElk } from './utils';
 import messageBroker, {
-  getCampaignCustomerInfo,
   sendInboxMessage,
   sendCoreMessage,
-  sendSegmentsMessage
+  sendSegmentsMessage,
+  sendContactsMessage
 } from './messageBroker';
 import { IModels } from './connectionResolver';
 import { es } from './configs';
@@ -53,7 +53,7 @@ export const generateCustomerSelector = async (subdomain, {
   const commonParams = { subdomain, isRPC: true };
 
   if (brandIds.length > 0) {
-    const { data: integrations } = await sendInboxMessage({
+    const integrations = await sendInboxMessage({
       ...commonParams,
       action: 'integrations.find',
       data: { query: { brandId: { $in: brandIds } } },
@@ -63,7 +63,7 @@ export const generateCustomerSelector = async (subdomain, {
   }
 
   if (segmentIds.length > 0) {
-    const { data: segments } = await sendSegmentsMessage({
+    const segments = await sendSegmentsMessage({
       ...commonParams,
       action: 'find',
       data: { _id: { $in: segmentIds } }
@@ -78,7 +78,7 @@ export const generateCustomerSelector = async (subdomain, {
     };
 
     for (const segment of segments) {
-      const { data: cIds } = await sendSegmentsMessage({
+      const cIds = await sendSegmentsMessage({
         ...commonParams,
         action: 'fetchSegment',
         data: { segmentId: segment._id, options: segmentOptions }
@@ -101,14 +101,14 @@ export const generateCustomerSelector = async (subdomain, {
           returnFields.push('productsData');
         }
 
-        const { data: items } = await sendSegmentsMessage({
+        const items = await sendSegmentsMessage({
           ...commonParams,
           action: 'fetchSegment',
           data: { options: { returnFields }, segmentId: segment._id },
         });
 
         for (const item of items) {
-          const { data: cusIds } = await sendCoreMessage({
+          const cusIds = await sendCoreMessage({
             ...commonParams,
             action: 'conformities.savedConformity',
             data: {
@@ -187,7 +187,7 @@ export const send = async (
     }
   }
 
-  const { data: user } = await findUser(subdomain, fromUserId);
+  const user = await findUser(subdomain, fromUserId);
 
   if (!user) {
     throw new Error('User not found');
@@ -208,6 +208,7 @@ export const send = async (
   if (engageMessage.method === CAMPAIGN_METHODS.EMAIL) {
     return sendEmailOrSms(
       models,
+      subdomain,
       { engageMessage, customersSelector, user },
       'sendEngage'
     );
@@ -216,6 +217,7 @@ export const send = async (
   if (engageMessage.method === CAMPAIGN_METHODS.SMS) {
     return sendEmailOrSms(
       models,
+      subdomain,
       { engageMessage, customersSelector, user },
       'sendEngageSms'
     );
@@ -225,6 +227,7 @@ export const send = async (
 // Prepares queue data to engages-email-sender
 const sendEmailOrSms = async (
   models: IModels,
+  subdomain,
   { engageMessage, customersSelector, user }: IEngageParams,
   action: 'sendEngage' | 'sendEngageSms'
 ) => {
@@ -241,48 +244,17 @@ const sendEmailOrSms = async (
     );
   }
 
-  const { customerInfos } = await getCampaignCustomerInfo({
-    engageMessage,
-    customersSelector,
-    action,
-    user,
+  // customer info will be sent back via message queue
+  await sendContactsMessage({
+    action: 'customers.prepareEngageCustomers',
+    subdomain,
+    data: {
+      engageMessage,
+      customersSelector,
+      action,
+      user,
+    }
   });
-
-  if (
-    engageMessage.kind === CAMPAIGN_KINDS.MANUAL &&
-    customerInfos.length === 0
-  ) {
-    await models.EngageMessages.deleteOne({ _id: engageMessage._id });
-    throw new Error('No customers found');
-  }
-
-  if (
-    !(
-      engageMessage.kind === CAMPAIGN_KINDS.AUTO &&
-      MINUTELY &&
-      customerInfos.length === 0
-    )
-  ) {
-    await models.Logs.createLog(
-      engageMessageId,
-      'regular',
-      `Matched ${customerInfos.length} customers`
-    );
-  }
-
-  if (engageMessage.scheduleDate && engageMessage.scheduleDate.type === 'pre') {
-    await models.EngageMessages.updateOne(
-      { _id: engageMessage._id },
-      { $set: { 'scheduleDate.type': 'sent' } }
-    );
-  }
-
-  if (customerInfos.length > 0) {
-    await models.EngageMessages.updateOne(
-      { _id: engageMessage._id },
-      { $set: { totalCustomersCount: customerInfos.length } }
-    );
-  }
 };
 
 // check & validate campaign doc
@@ -342,7 +314,7 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
 
 // find user from elastic or mongo
 export const findUser = async (subdomain, userId?: string) => {
-  const { data: user } = await sendCoreMessage({
+  const user = await sendCoreMessage({
     isRPC: true,
     subdomain,
     data: { _id: userId },

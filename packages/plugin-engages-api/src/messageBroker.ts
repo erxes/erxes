@@ -1,7 +1,8 @@
 import { sendMessage, ISendMessageArgs } from '@erxes/api-utils/src/core';
 
-import { serviceDiscovery } from './configs';
+import { serviceDiscovery, debug } from './configs';
 import { generateModels } from './connectionResolver';
+import { start, sendBulkSms } from './sender';
 
 export let client;
 
@@ -9,6 +10,62 @@ export const initBroker = async cl => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
+
+  consumeQueue('engages:notification', async ({ subdomain, data }) => {
+    debug.info(`Receiving queue data from erxes-api ${JSON.stringify(data)}`);
+
+    const models = await generateModels(subdomain);
+
+    const { action, data: realData } = data;
+
+    // if (
+    //   engageMessage.kind === CAMPAIGN_KINDS.MANUAL &&
+    //   customerInfos.length === 0
+    // ) {
+    //   await models.EngageMessages.deleteOne({ _id: engageMessage._id });
+    //   throw new Error('No customers found');
+    // }
+  
+    // if (
+    //   !(
+    //     engageMessage.kind === CAMPAIGN_KINDS.AUTO &&
+    //     MINUTELY &&
+    //     customerInfos.length === 0
+    //   )
+    // ) {
+    //   await models.Logs.createLog(
+    //     engageMessageId,
+    //     'regular',
+    //     `Matched ${customerInfos.length} customers`
+    //   );
+    // }
+  
+    // if (engageMessage.scheduleDate && engageMessage.scheduleDate.type === 'pre') {
+    //   await models.EngageMessages.updateOne(
+    //     { _id: engageMessage._id },
+    //     { $set: { 'scheduleDate.type': 'sent' } }
+    //   );
+    // }
+  
+    // if (customerInfos.length > 0) {
+    //   await models.EngageMessages.updateOne(
+    //     { _id: engageMessage._id },
+    //     { $set: { totalCustomersCount: customerInfos.length } }
+    //   );
+    // }
+
+    if (action === 'sendEngage') {
+      await start(models, realData);
+    }
+
+    if (action === 'writeLog') {
+      await models.Logs.createLog(data.engageMessageId, 'regular', data.msg);
+    }
+
+    if (action === 'sendEngageSms') {
+      await sendBulkSms(models, realData);
+    }
+  });
 
   consumeQueue('engage:removeCustomersEngages', async ({ data: { customerIds }, subdomain }) => {
     const models = await generateModels(subdomain);
@@ -62,10 +119,6 @@ export const updateConversationMessage = async (data: any) => {
 
 export const removeEngageConversations = async (_id): Promise<any> => {
   return client.consumeQueue('removeEngageConversations', _id);
-};
-
-export const getCampaignCustomerInfo = async (data) => {
-  return client.sendRPCMessage('contacts:rpc_queue:prepareEngageCustomers', data);
 };
 
 export default function() {
