@@ -24,12 +24,18 @@ const conformityMutations = {
   /**
    * Edit conformity
    */
-  async conformityEdit(_root, _doc: IConformityEdit) {
+  async conformityEdit(_root, doc: IConformityEdit) {
+    return Conformities.editConformity({
+      ...doc
+    });
+
     // const { addedTypeIds, removedTypeIds } = await Conformities.editConformity({
     //   ...doc
     // });
+
     // const targetTypes = ['deal', 'task', 'ticket'];
     // const targetRelTypes = ['company', 'customer'];
+
     // if (
     //   targetTypes.includes(doc.mainType) &&
     //   targetRelTypes.includes(doc.relType)

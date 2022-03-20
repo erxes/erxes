@@ -1,8 +1,9 @@
 import * as dotenv from 'dotenv';
 import * as Telnyx from 'telnyx';
+import { IModels } from './connectionResolver';
+
 import { SMS_DELIVERY_STATUSES } from './constants';
 import { sendRPCMessage } from './messageBroker';
-import { Logs, SmsRequests } from './models/index';
 import { ICallbackParams, IMessageParams, ITelnyxMessageParams } from './types';
 import { getEnv } from './utils';
 
@@ -36,11 +37,11 @@ export const getTelnyxInfo = async () => {
   };
 };
 
-export const saveTelnyxHookData = async (data: any) => {
+export const saveTelnyxHookData = async (models: IModels, data: any) => {
   if (data && data.payload) {
     const { to = [], id } = data.payload;
 
-    const initialRequest = await SmsRequests.findOne({ telnyxId: id });
+    const initialRequest = await models.SmsRequests.findOne({ telnyxId: id });
 
     if (initialRequest) {
       const receiver = to.find(item => item.phone_number === initialRequest.to);
@@ -51,7 +52,7 @@ export const saveTelnyxHookData = async (data: any) => {
 
         statuses.push({ date: new Date(), status: receiver.status });
 
-        await SmsRequests.updateRequest(initialRequest._id, {
+        await models.SmsRequests.updateRequest(initialRequest._id, {
           status: receiver.status,
           responseData: JSON.stringify(data.payload),
           statusUpdates: statuses
@@ -61,8 +62,8 @@ export const saveTelnyxHookData = async (data: any) => {
   }
 };
 
-export const prepareSmsStats = async (engageMessageId: string) => {
-  const stats = await SmsRequests.aggregate([
+export const prepareSmsStats = async (models: IModels, engageMessageId: string) => {
+  const stats = await models.SmsRequests.aggregate([
     { $match: { engageMessageId } },
     { $group: { _id: '$status', count: { $sum: 1 } } }
   ]);
@@ -77,7 +78,7 @@ export const prepareSmsStats = async (engageMessageId: string) => {
   return result;
 };
 
-export const getSmsDeliveries = async ({
+export const getSmsDeliveries = async (models: IModels, {
   type,
   to,
   page,
@@ -96,12 +97,12 @@ export const getSmsDeliveries = async ({
   const _page = Number(page || '1');
   const _limit = Number(perPage || '20');
 
-  const data = await SmsRequests.find(filter)
+  const data = await models.SmsRequests.find(filter)
     .sort({ createdAt: -1 })
     .limit(_limit)
     .skip((_page - 1) * _limit);
 
-  const totalCount = await SmsRequests.countDocuments(filter);
+  const totalCount = await models.SmsRequests.countDocuments(filter);
 
   return { status: 'ok', data, totalCount };
 };
@@ -150,13 +151,14 @@ export const prepareMessage = async ({
 };
 
 export const handleMessageCallback = async (
+  models: IModels,
   err: any,
   res: any,
   data: ICallbackParams
 ) => {
   const { engageMessageId, msg } = data;
 
-  const request = await SmsRequests.createRequest({
+  const request = await models.SmsRequests.createRequest({
     engageMessageId,
     to: msg.to,
     requestData: JSON.stringify(msg)
@@ -164,14 +166,14 @@ export const handleMessageCallback = async (
 
   if (err) {
     if (engageMessageId) {
-      await Logs.createLog(
+      await models.Logs.createLog(
         engageMessageId,
         'failure',
         `${err.message} "${msg.to}"`
       );
     }
 
-    await SmsRequests.updateRequest(request._id, {
+    await models.SmsRequests.updateRequest(request._id, {
       errorMessages: [err.message],
       status: 'error'
     });
@@ -181,14 +183,14 @@ export const handleMessageCallback = async (
     const receiver = res.data.to.find(item => item.phone_number === msg.to);
 
     if (engageMessageId) {
-      await Logs.createLog(
+      await models.Logs.createLog(
         engageMessageId,
         'success',
         `Message successfully sent to "${msg.to}"`
       );
     }
 
-    await SmsRequests.updateRequest(request._id, {
+    await models.SmsRequests.updateRequest(request._id, {
       status: receiver && receiver.status,
       responseData: JSON.stringify(res.data),
       telnyxId: res.data.id

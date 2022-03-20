@@ -304,9 +304,3 @@ export const getBoardViewType = () => {
 export const getWarningMessage = (type: string): string => {
   return `This will permanently delete the current ${type}. Are you absolutely sure?`;
 };
-
-export const detachType = (type: string) => {
-  const key = "cards:";
-
-  return type.includes(key) ? type.split(key)[1] : type;
-};
