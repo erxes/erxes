@@ -3,11 +3,12 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-
+import { getCustomerName } from '@erxes/api-utils/src/editorAttributeUtils';
 import { IContext, IModels } from '../../connectionResolver';
 import { awsRequests } from '../../trackers/engageTracker';
 import { prepareAvgStats } from '../../utils';
 import { sendContactsMessage, sendTagsMessage } from '../../messageBroker';
+import { debug } from '../../configs';
 
 interface IPaged {
   page?: number;
@@ -130,7 +131,7 @@ const countsByTag = async (
     query = { ...query, ...statusQueryBuilder(status, user) };
   }
 
-  const { data: tags } = await sendTagsMessage({
+  const tags = await sendTagsMessage({
     data: { type: 'engageMessage' },
     isRPC: true,
     subdomain,
@@ -175,7 +176,7 @@ const listQuery = async (
 
   // filter by tag
   if (tag) {
-    const { data: object } = await sendTagsMessage({
+    const object = await sendTagsMessage({
       data: { _id: tag },
       action: 'findOne',
       subdomain,
@@ -188,24 +189,6 @@ const listQuery = async (
   }
 
   return query;
-};
-
-const getCustomerName = (customer) => {
-  if (customer.firstName || customer.lastName) {
-    return (customer.firstName || "") + " " + (customer.lastName || "");
-  }
-
-  if (customer.primaryEmail || customer.primaryPhone) {
-    return customer.primaryEmail || customer.primaryPhone;
-  }
-
-  const { visitorContactInfo } = customer;
-
-  if (visitorContactInfo) {
-    return visitorContactInfo.phone || visitorContactInfo.email;
-  }
-
-  return "Unknown";
 };
 
 interface ICountParams { name: string; kind: string; status: string }
@@ -289,7 +272,7 @@ const engageQueries = {
     const modifiedList: any[] = [];
 
     const customerIds = deliveryReports.map(d => d.customerId);
-    const { data: customers } = await sendContactsMessage({
+    const customers = await sendContactsMessage({
       isRPC: true,
       subdomain,
       data: { _id: { $in: customerIds } },
@@ -333,9 +316,15 @@ const engageQueries = {
   },
 
   async engageEmailPercentages(_root, _args, { models }: IContext) {
-    const stats = await prepareAvgStats(models);
+    try {
+      const stats = await prepareAvgStats(models);
+  
+      return stats[0];
+    } catch (e) {
+      debug.error(e.message);
 
-    return stats[0];
+      return e;
+    }
   },
 
   engageLogs(_root, args, { models }: IContext) {

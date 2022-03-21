@@ -12,6 +12,7 @@ import { debugBase } from './debuggers';
 import { initBroker } from './messageBroker';
 import { generateCoreModels, generateModels } from './connectionResolver';
 import tags from './tags';
+import logs from './logUtils';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -38,7 +39,7 @@ export default {
   },
   segment: { schemas: [] },
   hasSubscriptions: false,
-  meta: { tags },
+  meta: { tags, logs: { consumers: logs } },
   apolloServerContext: async (context) => {
     const subdomain = 'os';
 
