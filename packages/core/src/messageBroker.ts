@@ -69,9 +69,14 @@ export const initBroker = async options => {
       data: await Conformities.addConformities(data)
     }));
 
-    consumeQueue('core:conformities.relatedConformity', async ({ data }) => ({
+    consumeRPCQueue('core:conformities.relatedConformity', async ({ data }) => ({
       status: 'success',
       data: await Conformities.relatedConformity(data)
+    }));
+
+    consumeRPCQueue('core:conformities.filterConformity', async ({ data }) => ({
+      status: 'success',
+      data: await Conformities.filterConformity(data)
     }));
 
     consumeRPCQueue('core:generateInternalNoteNotif', async ({ data }) => {

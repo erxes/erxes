@@ -1,4 +1,6 @@
+import { attachmentType, attachmentInput } from '@erxes/api-utils/src/commonTypeDefs';
 const commonContactInfoTypes = `
+
     phoneNumber: String
     email: String
     links: JSON
@@ -7,6 +9,9 @@ const commonContactInfoTypes = `
 `;
 
 export const types = `
+    ${attachmentType}
+    ${attachmentInput}
+
     type Structure {
         _id: String!
         title: String

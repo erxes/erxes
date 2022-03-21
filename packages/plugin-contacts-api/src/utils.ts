@@ -129,6 +129,9 @@ export const generateFields = async ({ subdomain, data }) => {
   }> = [];
 
   switch (type) {
+    case 'lead':
+      schema = Customers.schema;
+
     case 'customer':
       schema = Customers.schema;
       break;
