@@ -1,5 +1,4 @@
 import * as express from 'express';
-import { IOrderItem } from '../db/models/definitions/formOrders';
 import { IUserDocument } from '../db/models/definitions/users';
 import { IDataLoaders } from './dataLoaders';
 
@@ -25,5 +24,4 @@ export interface IContext {
 export interface IFormOrderInfo {
   amount: number;
   phone: string;
-  items: IOrderItem[];
 }
