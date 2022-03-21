@@ -191,7 +191,9 @@ export const generateQueryBySegment = async (models: IModels, subdomain: string,
     options = {},
     isInitialCall
   } = args;
-  const [serviceName, contentType ] = segment.contentType.split(':');
+
+  const { contentType } = segment;
+  const [serviceName, collectionType ] = contentType.split(':');
   const { defaultMustSelector } = options;
 
   const defaultSelector =
@@ -249,14 +251,14 @@ export const generateQueryBySegment = async (models: IModels, subdomain: string,
       initialSelectorAvailable
     } = serviceConfig;
 
-    if (contentTypes && contentTypes.includes(contentType)) {
+    if (contentTypes && contentTypes.includes(collectionType)) {
       if (esTypesMapAvailable) {
         const response = await sendMessage({
           subdomain,
           serviceName,
           isRPC: true,
           action: 'segments.esTypesMap',
-          data: { contentType }
+          data: { collectionType }
         });
 
         typesMap = response.typesMap;
@@ -397,11 +399,13 @@ export const generateQueryBySegment = async (models: IModels, subdomain: string,
           negativeQuery
         });
 
-        propertiesPositive.push({
-          terms: {
-            _id: ids
-          }
-        });
+        if (ids && ids.length > 0) {
+          propertiesPositive.push({
+            terms: {
+              _id: ids
+            }
+          });
+        }
       }
     }
   }
@@ -782,7 +786,7 @@ const associationPropertyFilter = async (subdomain: string, {
     const { associationTypesAvailable } = serviceConfig;
 
     if (associationTypesAvailable) {
-      const { types } = await sendMessage({
+      const types = await sendMessage({
         subdomain,
         serviceName,
         isRPC: true,
@@ -807,7 +811,7 @@ const associationPropertyFilter = async (subdomain: string, {
 
     return sendCoreMessage({
       subdomain,
-      action: 'conformties.filterConformity',
+      action: 'conformities.filterConformity',
       isRPC: true,
       data: {
         mainType: propertyType,
