@@ -227,7 +227,7 @@ export default class RightMenu extends React.Component<Props, State> {
         {this.renderDates()}
 
         {isEnabled("segments") && <SegmentFilter
-          type={options.type}
+          type={`cards:${options.type}`}
           boardId={queryParams.id || ""}
           pipelineId={queryParams.pipelineId || ""}
         />}
