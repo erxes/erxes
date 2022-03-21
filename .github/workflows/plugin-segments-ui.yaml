@@ -1,4 +1,4 @@
-name: Plugin UI CI
+name: Plugin Segments UI CI
 
 on:
   push:

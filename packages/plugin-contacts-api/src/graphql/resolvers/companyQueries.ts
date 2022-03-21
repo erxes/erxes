@@ -80,7 +80,7 @@ const companyQueries = {
         break;
 
       case "bySegment":
-        counts.bySegment = await countBySegment(subdomain, 'company', qb);
+        counts.bySegment = await countBySegment(subdomain, 'contacts:company', qb);
         break;
     }
 

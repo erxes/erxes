@@ -130,6 +130,7 @@ export const commonFields = `
     _id
     username
     email
+    isActive
 
     details {
       avatar
