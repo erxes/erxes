@@ -3,7 +3,6 @@ import {
   queries as BrandQueries,
   types as BrandTypes
 } from './brand';
-import { types as CommonTypes } from './common';
 import {
   mutations as ConfigMutations,
   queries as ConfigQueries,
@@ -54,7 +53,6 @@ export let types = `
     inheritMaxAge: Boolean
   ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
   
-  ${CommonTypes}
   ${UserTypes}
   ${BrandTypes}
   ${ConformityTypes}
