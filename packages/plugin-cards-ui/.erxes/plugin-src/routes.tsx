@@ -10,8 +10,8 @@ import BoardSettings from './settings/boards/routes';
 const routes = () => {
   return (
     <React.Fragment>
-      <DealRoutes />
       <TaskRoutes />
+      <DealRoutes />
       <TicketRoutes />
       <GrowthHackingRoutes />
       <GrowthSettings />
