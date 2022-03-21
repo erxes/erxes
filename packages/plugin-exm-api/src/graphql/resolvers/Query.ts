@@ -13,7 +13,7 @@ const exmQueries = {
     };
   },
 
-  exmGet(_root, _args, { models }) {
+  async exmGet(_root, _args, { models }) {
     return models.Exms.findOne().sort({ createdAt: -1 });
   }
 };

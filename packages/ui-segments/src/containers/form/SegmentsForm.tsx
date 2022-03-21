@@ -78,7 +78,7 @@ class SegmentsFormContainer extends React.Component<
 
     const callBackResponse = data => {
       if (history) {
-        history.push(`/segments/${contentType}`);
+        history.push(`/segments?contentType=${contentType}`);
       }
 
       if (callback) {
