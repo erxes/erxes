@@ -67,7 +67,10 @@ export const connectCore = async () => {
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
-  models.Exms = db.model<IExmDocument, IExmModel>('exms', loadExmClass(models));
+  models.Exms = db.model<IExmDocument, IExmModel>(
+    'exms',
+    loadExmClass(models, coreModels)
+  );
 
   return models;
 };

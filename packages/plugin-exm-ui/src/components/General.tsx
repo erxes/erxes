@@ -104,7 +104,7 @@ export default function General(props: Props) {
       return [];
     }
 
-    if (!forms) {
+    if (!forms || forms.length === 0) {
       getForms(contentId);
 
       return [];
@@ -116,11 +116,6 @@ export default function General(props: Props) {
   const onSave = () => {
     edit({ _id: exm._id, name, description, features });
   };
-
-  ICON_OPTIONS.unshift({
-    value: '',
-    label: 'Icon сонгоно уу'
-  });
 
   return (
     <GeneralWrapper>

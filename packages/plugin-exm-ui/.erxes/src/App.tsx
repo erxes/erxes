@@ -1,11 +1,10 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { ApolloProvider } from 'react-apollo';
-import apolloClient from '@erxes/ui/src/apolloClient';
+import React from "react";
+import ReactDOM from "react-dom";
+import { ApolloProvider } from "react-apollo";
+import apolloClient from "@erxes/ui/src/apolloClient";
 import Main from '../plugin-src';
 
 const App = () => {
-  console.log('.erxes App');
   return (
     <ApolloProvider client={apolloClient}>
       <Main />
@@ -13,4 +12,4 @@ const App = () => {
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('app'));
+ReactDOM.render(<App />, document.getElementById("app"));
