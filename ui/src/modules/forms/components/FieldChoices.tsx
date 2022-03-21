@@ -112,6 +112,12 @@ function FieldChoices(props: Props) {
         icon="map-marker"
       />
       <FieldChoice {...props} type="html" text={__('HTML')} icon="code" />
+      <FieldChoice
+        {...props}
+        type="productCategory"
+        text={__('Product/Service')}
+        icon="shoppingcart"
+      />
     </Options>
   );
 }
