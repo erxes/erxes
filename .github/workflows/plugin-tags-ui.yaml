@@ -1,4 +1,4 @@
-name: Plugin UI CI
+name: Plugin Tags UI CI
 
 on:
   push:
