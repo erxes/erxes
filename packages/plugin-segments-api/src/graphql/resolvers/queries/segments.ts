@@ -63,8 +63,9 @@ const segmentQueries = {
   segments(
     _root,
     {
-      contentTypes
-    }: { contentTypes: string[]; boardId?: string; pipelineId?: string },
+      contentTypes,
+      config
+    }: { contentTypes: string[]; config?: any },
     { models, commonQuerySelector }: IContext
   ) {
     const selector: any = {
@@ -73,13 +74,11 @@ const segmentQueries = {
       name: { $exists: true }
     };
 
-    // if (boardId) {
-    //   selector.boardId = boardId;
-    // }
-
-    // if (pipelineId) {
-    //   selector.pipelineId = pipelineId;
-    // }
+    if (config) {
+      for (const key of Object.keys(config)) {
+        selector[`config.${key}`] = config[key];
+      }
+    }
 
     return models.Segments.find(selector).sort({ name: 1 });
   },
@@ -160,15 +159,13 @@ const segmentQueries = {
       contentType,
       conditions,
       subOf,
-      boardId,
-      pipelineId,
+      config,
       conditionsConjunction
     }: {
       contentType: string;
       conditions;
       subOf?: string;
-      boardId?: string;
-      pipelineId?: string;
+      config: any,
       conditionsConjunction?: 'and' | 'or';
     },
     { models, subdomain }: IContext
@@ -180,8 +177,7 @@ const segmentQueries = {
         name: 'preview',
         color: '#fff',
         subOf: subOf || '',
-        boardId,
-        pipelineId,
+        config,
         contentType,
         conditions,
         conditionsConjunction
