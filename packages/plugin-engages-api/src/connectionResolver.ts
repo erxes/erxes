@@ -4,7 +4,14 @@ import { IContext as IMainContext } from '@erxes/api-utils/src';
 
 import { mainDb } from './configs';
 import { IConfigDocument, IConfigModel, loadConfigClass } from './models/Configs';
-import { IDeliveryReportModel, IDeliveryReportsDocument, IStatsDocument, IStatsModel, loadStatsClass } from './models/DeliveryReports';
+import {
+  IDeliveryReportModel,
+  IDeliveryReportsDocument,
+  IStatsDocument,
+  IStatsModel,
+  loadStatsClass,
+  deliveryReportsSchema
+} from './models/DeliveryReports';
 import { IEngageMessageModel, loadEngageMessageClass } from './models/Engages';
 import { ILogDocument, ILogModel, loadLogClass } from './models/Logs';
 import { ISmsRequestDocument, ISmsRequestModel, loadSmsRequestClass } from './models/SmsRequests';
@@ -20,7 +27,7 @@ export interface IModels {
   EngageMessages: IEngageMessageModel;
   Logs: ILogModel;
   SmsRequests: ISmsRequestModel;
-  Stats: IStatsModel
+  Stats: IStatsModel;
 }
 
 export interface IContext extends IMainContext {
@@ -85,12 +92,15 @@ export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels
     'engage_messages',
     loadEngageMessageClass(models, subdomain)
   );
-  models.DeliveryReports = db.model<IDeliveryReportsDocument, IDeliveryReportModel>('delivery_reports');
+  models.DeliveryReports = db.model<IDeliveryReportsDocument, IDeliveryReportModel>(
+    'delivery_reports',
+    deliveryReportsSchema
+  );
   models.Stats = db.model<IStatsDocument, IStatsModel>('engage_stats', loadStatsClass(models));
   models.SmsRequests = db.model<ISmsRequestDocument, ISmsRequestModel>(
     'engage_sms_requests',
     loadSmsRequestClass(models, subdomain)
-  );
+    );
   models.Logs = db.model<ILogDocument, ILogModel>('engage_logs', loadLogClass(models, subdomain));
 
   return models;

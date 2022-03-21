@@ -67,15 +67,15 @@ export const start = async (models: IModels, data: IEmailParams) => {
 
     // replace customer attributes =====
     let replacedContent = content;
-    // let replacedSubject = subject;
+    let replacedSubject = subject;
 
-    // if (customer.replacers) {
-    //   for (const replacer of customer.replacers) {
-    //     const regex = new RegExp(replacer.key, 'gi');
-    //     replacedContent = replacedContent.replace(regex, replacer.value);
-    //     replacedSubject = replacedSubject.replace(regex, replacer.value);
-    //   }
-    // }
+    if (customer.replacers) {
+      for (const replacer of customer.replacers) {
+        const regex = new RegExp(replacer.key, 'gi');
+        replacedContent = replacedContent.replace(regex, replacer.value);
+        replacedSubject = replacedSubject.replace(regex, replacer.value);
+      }
+    }
 
     replacedContent += `<div style="padding: 10px; color: #ccc; text-align: center; font-size:12px;">You are receiving this email because you have signed up for our services. <br /> <a style="text-decoration: underline;color: #ccc;" rel="noopener" target="_blank" href="${unsubscribeUrl}">Unsubscribe</a> </div>`;
 
@@ -84,8 +84,7 @@ export const start = async (models: IModels, data: IEmailParams) => {
         from: `${sender || ''} <${fromEmail}>`,
         to: customer.primaryEmail,
         replyTo,
-        // subject: replacedSubject,
-        subject,
+        subject: replacedSubject,
         attachments: mailAttachment,
         html: replacedContent,
         headers: {
@@ -95,6 +94,7 @@ export const start = async (models: IModels, data: IEmailParams) => {
           MailMessageId: mailMessageId
         }
       });
+
       const msg = `Sent email to: ${customer.primaryEmail}`;
 
       debugEngages(msg);
