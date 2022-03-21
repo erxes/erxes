@@ -126,7 +126,13 @@ export const commonFields = `
   closeDate
   description
   priority
-  assignedUsers
+  assignedUsers {
+    _id
+    details {
+      fullName
+      avatar
+    }
+  }
   labels {
     _id
     name

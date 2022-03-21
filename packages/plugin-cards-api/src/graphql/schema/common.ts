@@ -62,7 +62,7 @@ export const commonTypes = `
   attachments: [Attachment]
   userId: String
 
-  assignedUsers: JSON
+  assignedUsers: [User]
   stage: Stage
   labels: [PipelineLabel]
   pipeline: Pipeline
