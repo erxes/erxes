@@ -8,6 +8,12 @@ export const productTemplateFields = `
     description
     templateItems
     status
+    templateImage {    
+      url
+      name    
+      size
+      type
+    }
     tags {
       _id
       name

@@ -129,7 +129,8 @@ export default class Field extends React.Component<Props, State> {
     super(props);
 
     let isMapDraggable = true;
-    const { locationOptions = [] } = props.field;
+
+    const locationOptions = props.field.locationOptions || [];
 
     if (locationOptions.length > 0) {
       isMapDraggable = false;
