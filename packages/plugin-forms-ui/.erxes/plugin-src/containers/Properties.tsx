@@ -7,6 +7,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import Properties from '../components/Properties';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-settings/src/properties/constants';
 import { mutations, queries } from '@erxes/ui-settings/src/properties/graphql';
 import {
   FieldsGroupsRemoveMutationResponse,

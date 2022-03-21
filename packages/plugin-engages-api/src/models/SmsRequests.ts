@@ -1,4 +1,5 @@
-import { Document, Model, model, Schema } from 'mongoose';
+import { Document, Model, Schema } from 'mongoose';
+import { IModels } from '../connectionResolver';
 
 interface ISmsStatus {
   date: Date;
@@ -44,16 +45,16 @@ const schema = new Schema({
   errorMessages: { type: [String], label: 'Error messages' }
 });
 
-export const loadLogClass = () => {
+export const loadSmsRequestClass = (models: IModels, subdomain: string) => {
   class SmsRequest {
     public static createRequest(doc: ISmsRequest) {
-      return SmsRequests.create(doc);
+      return models.SmsRequests.create(doc);
     }
 
     public static async updateRequest(_id: string, doc: ISmsRequest) {
-      await SmsRequests.updateOne({ _id }, { $set: doc });
+      await models.SmsRequests.updateOne({ _id }, { $set: doc });
 
-      return SmsRequests.findOne({ _id });
+      return models.SmsRequests.findOne({ _id });
     }
   }
 
@@ -61,13 +62,3 @@ export const loadLogClass = () => {
 
   return schema;
 };
-
-loadLogClass();
-
-// tslint:disable-next-line
-const SmsRequests = model<ISmsRequestDocument, ISmsRequestModel>(
-  'engage_sms_requests',
-  schema
-);
-
-export default SmsRequests;

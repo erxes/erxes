@@ -77,6 +77,18 @@ const command = async () => {
     const contentType = switchContentType(doc.contentType);
 
     Segments.updateOne({ _id: doc._id }, { $set: { contentType } });
+
+    const updatedConditions: any = [];
+
+    for (const condition of doc.conditions || []) {
+      if (condition.propertyType) {
+        condition.propertyType = switchContentType(condition.propertyType);
+      }
+
+      updatedConditions.push(condition)
+    }
+
+    Segments.updateOne({ _id: doc._id }, { $set: { conditions: updatedConditions } });
   });
 
   await FieldGroups.find({}).forEach(doc => {

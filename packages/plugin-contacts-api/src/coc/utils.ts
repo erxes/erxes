@@ -186,10 +186,9 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
   // filter by segment
   public async segmentFilter(segmentId: string, source?: string) {
-    const segment = await sendSegmentsMessage({ subdomain: this.subdomain, action: 'findOne', data: { _id: segmentId }, isRPC: true });
-
     const selector = await fetchSegment(
-      segment,
+      this.subdomain,
+      segmentId,
       source === 'engages'
         ? { associatedCustomers: true, returnSelector: true }
         : { returnSelector: true }

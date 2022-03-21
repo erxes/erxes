@@ -1,8 +1,10 @@
-import { Users } from '../../apiCollections';
 import { INotificationDocument } from '../../models/definitions/notifications';
 
 export default {
   createdUser(notif: INotificationDocument) {
-    return Users.findOne({ _id: notif.createdUser });
+    return {
+      __typename: 'User',
+      _id: notif.createdUser
+    }
   },
 };

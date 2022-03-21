@@ -66,7 +66,7 @@ const findContentItemName = async (
     }
   }
   if (contentType === MODULE_NAMES.USER) {
-    const user = await messageBroker().sendRPCMessage('core:users.findOne', { _id: contentTypeId })
+    const user = await messageBroker().sendRPCMessage('core:users.findOne', { data: { _id: contentTypeId } })
 
     if (user) {
       name = user.username || user.email || '';
@@ -95,7 +95,7 @@ const gatherDescriptions = async (subdomain: string, obj: IInternalNoteDocument)
     foreignKey: 'createdUserId',
     prevList: extraDesc,
     nameFields: ['email', 'username'],
-    items: [await messageBroker().sendRPCMessage('core:users.findOne', { _id: obj.createdUserId })]
+    items: [await messageBroker().sendRPCMessage('core:users.findOne', { data: { _id: obj.createdUserId } })]
   });
 
   return extraDesc;

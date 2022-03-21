@@ -404,11 +404,11 @@ export const sendContactsMessage = async (
   });
 };
 
-export const fetchSegment = (subdomain, segment, options?) =>
+export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
   sendSegmentsMessage({
     subdomain,
     action: 'fetchSegment',
-    data: { segment, options },
+    data: { segmentId, options },
     isRPC: true
   });
 

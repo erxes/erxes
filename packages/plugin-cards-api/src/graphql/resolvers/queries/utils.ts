@@ -343,7 +343,7 @@ export const calendarFilters = async (models: IModels, filter, args) => {
 
 export const generateDealCommonFilters = async (
   models: IModels,
-  subdomain,
+  subdomain: string,
   currentUserId: string,
   args = {} as any,
   extraParams?: any
