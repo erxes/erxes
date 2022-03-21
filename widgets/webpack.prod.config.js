@@ -13,18 +13,17 @@ module.exports = Merge(CommonConfig, {
       'process.env.NODE_ENV': '"production"',
     }),
     new UglifyJSPlugin({
+      test: /\.js($|\?)/i,
+      sourceMap: true,
       uglifyOptions: {
-        ie8: false,
-        ecma: 8,
-        mangle: true,
-        output: {
-          comments: false,
-          beautify: false,
+        mangle: {
+          keep_fnames: true,
         },
         compress: {
-          pure_getters: true,
-          unsafe: true,
-          unsafe_comps: true,
+          warnings: false,
+        },
+        output: {
+          beautify: false,
         },
       },
     }),
