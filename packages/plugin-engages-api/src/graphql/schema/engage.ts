@@ -86,7 +86,7 @@ export const types = async (serviceDiscovery) => {
       brands: [Brand]
       fromUser: User
       fromIntegration: JSON
-      createdUser: User
+      createdUserName: String
 
       stats: JSON
       smsStats: JSON

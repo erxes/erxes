@@ -11,6 +11,7 @@ const Properties = asyncComponent(() =>
 
 const properties = ({ location }) => {
   const queryParams = queryString.parse(location.search);
+
   return <Properties queryParams={queryParams} />;
 };
 

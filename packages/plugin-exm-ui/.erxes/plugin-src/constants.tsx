@@ -11,6 +11,10 @@ export const TYPE_OPTIONS = [
 
 export const ICON_OPTIONS = [
   {
+    value: '',
+    label: 'Icon сонгоно уу'
+  },
+  {
     value: 'mic-line',
     label: 'mic-line'
   },

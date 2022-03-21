@@ -59,7 +59,11 @@ export default function GeneralContainer(props: Props) {
         variables: { brandId, kind: 'lead' }
       })
       .then(({ data }) => {
+        console.log('data: ', data);
         setForms(data.integrations);
+      })
+      .catch(e => {
+        console.log('Error: ', e);
       });
   };
 

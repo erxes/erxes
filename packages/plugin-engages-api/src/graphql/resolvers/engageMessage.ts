@@ -72,14 +72,16 @@ export default {
     return null;
   },
 
-  async createdUser(engageMessage: IEngageMessageDocument) {
-    if (engageMessage.createdBy) {
-      return { __typename: 'User', _id: engageMessage.createdBy };
+  async createdUserName({ createdBy = '' }: IEngageMessageDocument, _args, { coreModels }) {
+    const user = await coreModels.Users.findOne({ _id: createdBy });
+
+    if (!user) {
+      return '';
     }
 
-    return null;
+    return user.username || user.email || user._id;
   },
-  
+
   logs(engageMessage: IEngageMessageDocument, _args, { models }: IContext) {
     return models.Logs.find({ engageMessageId: engageMessage._id }).lean();
   }
