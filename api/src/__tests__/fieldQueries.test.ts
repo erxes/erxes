@@ -1,3 +1,4 @@
+import { productCategoryFactory, productFactory } from './../db/factories';
 import * as faker from 'faker';
 import * as sinon from 'sinon';
 import { graphqlRequest } from '../db/connection';
@@ -613,5 +614,52 @@ describe('fieldQueries', () => {
     `;
 
     await graphqlRequest(qry, 'fieldsItemTyped');
+  });
+
+  test('Fields query with associated field', async () => {
+    // Creating test data
+    const category = await productCategoryFactory({});
+    await productFactory({ categoryId: category._id });
+
+    await fieldFactory({
+      text: 'text1',
+      contentType: 'form',
+      visible: true,
+      productCategoryId: category._id
+    });
+
+    const qry = `
+    query fields(
+      $contentType: String!
+      $contentTypeId: String
+      $isVisible: Boolean
+    ) {
+      fields(
+        contentType: $contentType
+        contentTypeId: $contentTypeId
+        isVisible: $isVisible
+      ) {
+        text
+        _id
+        isVisible
+        products {
+          _id
+          name
+        }
+      }
+    }
+    
+ `;
+
+    const responses = await graphqlRequest(qry, 'fields', {
+      contentType: 'form',
+      isVisible: true
+    });
+
+    expect(responses.length).toBe(1);
+
+    const field = responses[0];
+
+    expect(field.products).toHaveLength(1);
   });
 });
