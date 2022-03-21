@@ -534,7 +534,7 @@ class FieldForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>Categories:</ControlLabel>
+          <ControlLabel required={true}>Categories:</ControlLabel>
           <FormControl
             id="productCategories"
             componentClass="select"
