@@ -433,7 +433,9 @@ describe('fieldQueries', () => {
          _id
          text
        }
-       products
+       products {
+         _id
+      }
      }
    }
  `;
