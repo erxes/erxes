@@ -6,9 +6,11 @@ import { useQuery } from 'react-apollo';
 import { queries } from '../graphql';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 import General from '../components/General';
 import { IExm } from '../types';
+import { Alert } from '@erxes/ui/src/utils';
 
 type Props = {
   exm: IExm;
@@ -19,7 +21,9 @@ export default function GeneralContainer(props: Props) {
   const brandsQuery = useQuery(gql(queries.allBrands), {
     variables: { kind: 'lead' }
   });
-  const kbQuery = useQuery(gql(queries.knowledgeBaseTopics));
+  const kbQuery = useQuery(gql(queries.knowledgeBaseTopics), {
+    skip: !isEnabled('knowledgebase')
+  });
 
   const [kbCategories, setKbCategories] = useState({});
   const [forms, setForms] = useState([]);
@@ -37,6 +41,10 @@ export default function GeneralContainer(props: Props) {
   }
 
   const getKbCategories = (topicId: string) => {
+    if (!isEnabled('knowledgebase')) {
+      return;
+    }
+
     client
       .query({
         query: gql(queries.knowledgeBaseCategories),
@@ -52,6 +60,10 @@ export default function GeneralContainer(props: Props) {
   };
 
   const getForms = (brandId: string) => {
+    if (!isEnabled('inbox')) {
+      return;
+    }
+
     client
       .query({
         query: gql(queries.integrations),
@@ -59,11 +71,10 @@ export default function GeneralContainer(props: Props) {
         variables: { brandId, kind: 'lead' }
       })
       .then(({ data }) => {
-        console.log('data: ', data);
         setForms(data.integrations);
       })
       .catch(e => {
-        console.log('Error: ', e);
+        Alert.error(e.message);
       });
   };
 
@@ -72,7 +83,9 @@ export default function GeneralContainer(props: Props) {
       {...props}
       forms={forms}
       getForms={getForms}
-      kbTopics={kbQuery.data.knowledgeBaseTopics || []}
+      kbTopics={
+        kbQuery && kbQuery.data ? kbQuery.data.knowledgeBaseTopics || [] : []
+      }
       kbCategories={kbCategories}
       getKbCategories={getKbCategories}
       brands={brandsQuery.data.allBrands || []}
