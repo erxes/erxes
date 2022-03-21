@@ -1,19 +1,12 @@
+import { attachmentInput, attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
+
 export const types = `
+  ${attachmentType}
+  ${attachmentInput}
+  
   extend type Brand @key(fields: "_id") {
     _id: String! @external
   }
-
-  input AttachmentInput {
-    url: String!
-    name: String!
-    type: String
-    size: Float
-    duration: Float
-  }
-
-  extend type Attachment @key(fields: "url") {
-    url: String! @external
-  }    
 
   extend type User @key(fields: "_id") {
         _id: String! @external

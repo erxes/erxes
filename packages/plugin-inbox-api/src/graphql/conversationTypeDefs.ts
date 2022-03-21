@@ -1,7 +1,9 @@
+
+import { attachmentInput, attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
+
 export const types = ({ tags, forms }) => `
-  extend type Attachment @key(fields: "url") {
-    url: String! @external
-  }
+  ${attachmentType}
+  ${attachmentInput}
 
   extend type Customer @key(fields: "_id") {
     _id: String! @external
@@ -212,13 +214,6 @@ export const types = ({ tags, forms }) => `
     isCustomerRead: Boolean,
   }
 
-  input AttachmentInput {
-    url: String!
-    name: String!
-    type: String
-    size: Float
-    duration: Float
-  }
 `;
 
 const mutationFilterParams = `
