@@ -727,6 +727,7 @@ interface IFieldFactoryInput {
   options?: string[];
   associatedFieldId?: string;
   showInCard?: boolean;
+  productCategoryId?: string;
 }
 
 export const fieldFactory = async (params: IFieldFactoryInput) => {
@@ -764,7 +765,8 @@ export const fieldFactory = async (params: IFieldFactoryInput) => {
       params.isDefinedByErxes === undefined || params.isDefinedByErxes === null
         ? false
         : params.isDefinedByErxes,
-    showInCard: params.showInCard || false
+    showInCard: params.showInCard || false,
+    productCategoryId: params.productCategoryId || ''
   });
 };
 

@@ -11,6 +11,12 @@ export interface ILogic {
   logicValue: FieldValue;
 }
 
+export interface IProduct {
+  _id: string;
+  name: string;
+  unitPrice: number;
+}
+
 export interface IField {
   _id: string;
   contentType: string;
@@ -34,6 +40,8 @@ export interface IField {
   logicAction?: string;
   logics?: ILogic[];
   pageNumber?: number;
+  productCategoryId?: string;
+  products?: IProduct[];
 }
 
 export interface ICallout {
@@ -63,7 +71,13 @@ interface IAttachment {
   type: string;
 }
 
-export type FieldValue = string | number | Date | string[] | IAttachment[] | ILocationOption;
+export type FieldValue =
+  | string
+  | number
+  | Date
+  | string[]
+  | IAttachment[]
+  | ILocationOption;
 
 export interface IFieldError {
   fieldId?: string;

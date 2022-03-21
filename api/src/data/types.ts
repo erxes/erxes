@@ -20,3 +20,8 @@ export interface IContext {
   };
   dataLoaders: IDataLoaders;
 }
+
+export interface IFormOrderInfo {
+  amount: number;
+  phone: string;
+}

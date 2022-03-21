@@ -12,6 +12,7 @@ const fieldCommonFields = `
   column: Int
   groupName: String
   pageNumber: Int
+  productCategoryId: String
 `;
 
 export const fieldsTypes = `
@@ -51,6 +52,7 @@ export const fieldsTypes = `
     locationOptions: [LocationOption]
     showInCard: Boolean
     ${fieldCommonFields}
+    products: [Product]
   }
 
   input OrderItem {

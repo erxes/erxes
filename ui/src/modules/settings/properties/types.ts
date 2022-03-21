@@ -47,6 +47,7 @@ export interface IField {
   groupName?: string;
   pageNumber?: number;
   showInCard?: boolean;
+  productCategoryId?: string;
 }
 
 export interface IBoardSelectItem {
