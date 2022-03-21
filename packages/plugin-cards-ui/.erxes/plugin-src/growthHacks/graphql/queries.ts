@@ -45,6 +45,9 @@ const commonFields = `
 
   assignedUsers {
     _id
+    username
+    email
+    
     details {
       avatar
       fullName
