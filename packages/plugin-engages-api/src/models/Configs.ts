@@ -1,4 +1,5 @@
 import { Document, Model, model, Schema } from 'mongoose';
+import { IModels } from '../connectionResolver';
 import { getValueAsString } from '../utils';
 
 export interface IConfig {
@@ -27,13 +28,13 @@ export interface IConfigModel extends Model<IConfigDocument> {
   getSESConfigs(): Promise<ISESConfig>;
 }
 
-export const loadClass = () => {
+export const loadConfigClass = (models: IModels) => {
   class Config {
     /**
      * Get a Config
      */
     public static async getConfig(code: string) {
-      const config = await Configs.findOne({ code });
+      const config = await models.Configs.findOne({ code });
 
       if (!config) {
         return { value: '' };
@@ -52,15 +53,15 @@ export const loadClass = () => {
       code: string;
       value: string[];
     }) {
-      const obj = await Configs.findOne({ code });
+      const obj = await models.Configs.findOne({ code });
 
       if (obj) {
-        await Configs.updateOne({ _id: obj._id }, { $set: { value } });
+        await models.Configs.updateOne({ _id: obj._id }, { $set: { value } });
 
-        return Configs.findOne({ _id: obj._id });
+        return models.Configs.findOne({ _id: obj._id });
       }
 
-      return Configs.create({ code, value });
+      return models.Configs.create({ code, value });
     }
 
     /**
@@ -77,7 +78,7 @@ export const loadClass = () => {
         const value = configsMap[code];
         const doc = { code, value };
 
-        await Configs.createOrUpdateConfig(doc);
+        await models.Configs.createOrUpdateConfig(doc);
       }
     }
 
@@ -85,10 +86,11 @@ export const loadClass = () => {
      * Get a Config
      */
     public static async getSESConfigs() {
-      const accessKeyId = await getValueAsString('accessKeyId');
-      const secretAccessKey = await getValueAsString('secretAccessKey');
-      const region = await getValueAsString('region');
+      const accessKeyId = await getValueAsString(models, 'accessKeyId');
+      const secretAccessKey = await getValueAsString(models, 'secretAccessKey');
+      const region = await getValueAsString(models, 'region');
       const unverifiedEmailsLimit = await getValueAsString(
+        models,
         'unverifiedEmailsLimit'
       );
 
@@ -105,10 +107,3 @@ export const loadClass = () => {
 
   return configsSchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const Configs = model<IConfigDocument, IConfigModel>('configs', configsSchema);
-
-export default Configs;

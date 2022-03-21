@@ -1,13 +1,14 @@
 import * as AWS from 'aws-sdk';
+
 import { debugBase } from '../debuggers';
 import messageBroker from '../messageBroker';
-import { Configs, DeliveryReports, Stats } from '../models';
 import { ISESConfig } from '../models/Configs';
 import { SES_DELIVERY_STATUSES } from '../constants';
 import { routeErrorHandling } from '../utils';
+import { generateModels, IModels } from '../connectionResolver';
 
-export const getApi = async (type: string): Promise<any> => {
-  const config: ISESConfig = await Configs.getSESConfigs();
+export const getApi = async (models: IModels, type: string): Promise<any> => {
+  const config: ISESConfig = await models.Configs.getSESConfigs();
 
   if (!config) {
     return;
@@ -26,7 +27,7 @@ export const getApi = async (type: string): Promise<any> => {
  * Receives notification from amazon simple notification service
  * And updates engage message status and stats
  */
-const handleMessage = async message => {
+const handleMessage = async (models: IModels, message) => {
   let parsedMessage;
 
   try {
@@ -73,19 +74,16 @@ const handleMessage = async message => {
     email: to && to.value
   };
 
-  const exists = await DeliveryReports.findOne({
+  const exists = await models.DeliveryReports.findOne({
     ...mailHeaders,
     status: type
   });
 
   // to prevent duplicate event counting
   if (!exists) {
-    await Stats.updateStats(mailHeaders.engageMessageId, type);
+    await models.Stats.updateStats(mailHeaders.engageMessageId, type);
 
-    await DeliveryReports.create({
-      ...mailHeaders,
-      status: type
-    });
+    await models.DeliveryReports.create({ ...mailHeaders, status: type });
   }
 
   const rejected =
@@ -109,6 +107,10 @@ export const trackEngages = expressApp => {
     routeErrorHandling(async (req, res) => {
       const chunks: any = [];
 
+      const { subdomain } = req.body;
+
+      const models = await generateModels(subdomain);
+
       req.setEncoding('utf8');
 
       req.on('data', chunk => {
@@ -123,7 +125,7 @@ export const trackEngages = expressApp => {
         const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
 
         if (Type === 'SubscriptionConfirmation') {
-          await getApi('sns').then(api =>
+          await getApi(models, 'sns').then(api =>
             api.confirmSubscription({ Token, TopicArn }).promise()
           );
 
@@ -137,7 +139,7 @@ export const trackEngages = expressApp => {
           res.end('success');
         }
 
-        await handleMessage(Message);
+        await handleMessage(models, Message);
 
         return res.end('success');
       });
@@ -146,8 +148,8 @@ export const trackEngages = expressApp => {
 };
 
 export const awsRequests = {
-  async getVerifiedEmails() {
-    const api = await getApi('ses');
+  async getVerifiedEmails(models: IModels) {
+    const api = await getApi(models, 'ses');
 
     return new Promise((resolve, reject) => {
       api.listVerifiedEmailAddresses((error, data) => {
@@ -160,8 +162,8 @@ export const awsRequests = {
     });
   },
 
-  async verifyEmail(email: string) {
-    const api = await getApi('ses');
+  async verifyEmail(models: IModels, email: string) {
+    const api = await getApi(models, 'ses');
 
     return new Promise((resolve, reject) => {
       api.verifyEmailAddress({ EmailAddress: email }, (error, data) => {
@@ -174,8 +176,8 @@ export const awsRequests = {
     });
   },
 
-  async removeVerifiedEmail(email: string) {
-    const api = await getApi('ses');
+  async removeVerifiedEmail(models: IModels, email: string) {
+    const api = await getApi(models, 'ses');
 
     return new Promise((resolve, reject) => {
       api.deleteVerifiedEmailAddress({ EmailAddress: email }, (error, data) => {

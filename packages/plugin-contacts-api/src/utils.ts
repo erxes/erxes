@@ -110,7 +110,6 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
 };
 
 export const generateFields = async ({ subdomain, data }) => {
-  console.log(data);
   const { type } = data;
 
   const models = await generateModels(subdomain);
@@ -130,6 +129,9 @@ export const generateFields = async ({ subdomain, data }) => {
   }> = [];
 
   switch (type) {
+    case 'lead':
+      schema = Customers.schema;
+
     case 'customer':
       schema = Customers.schema;
       break;

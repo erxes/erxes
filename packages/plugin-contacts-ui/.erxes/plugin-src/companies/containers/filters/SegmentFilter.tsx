@@ -16,7 +16,7 @@ const SegmentFilterContainer = (props: {
     ? companyCountsQuery.companyCounts
     : null) || { bySegment: {} };
 
-  return <Segments contentType="company" counts={counts.bySegment || {}} />;
+  return <Segments contentType="contacts:company" counts={counts.bySegment || {}} />;
 };
 
 export default withProps<{ loadingMainQuery: boolean }>(

@@ -1,16 +1,9 @@
+import { attachmentInput, attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
+
 export const types = (tagsAvailable, contactsAvailable) => `
-  extend type Attachment @key(fields: "url") {
-    url: String! @external
-  }
-
-  extend input AttachmentInput {
-    url: String!
-    name: String!
-    type: String
-    size: Float
-    duration: Float
-  }
-
+  ${attachmentType}
+  ${attachmentInput}
+  
   ${
     tagsAvailable ? 
     `
