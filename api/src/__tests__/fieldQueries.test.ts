@@ -419,7 +419,8 @@ describe('fieldQueries', () => {
       text: 'text1',
       contentType: 'form',
       visible: true,
-      associatedFieldId: customField._id
+      associatedFieldId: customField._id,
+      productCategoryId: undefined
     });
 
     const qry = `
@@ -432,6 +433,7 @@ describe('fieldQueries', () => {
          _id
          text
        }
+       products
      }
    }
  `;
@@ -446,6 +448,7 @@ describe('fieldQueries', () => {
     const field = responses[0];
 
     expect(field.associatedField._id).toBe(customField._id);
+    expect(field.products).toHaveLength(0);
   });
 
   test('Fields query with groupName', async () => {
