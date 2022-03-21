@@ -117,9 +117,9 @@ export const initBroker = async options => {
       data: await Configs.find(data).distinct('value')
     }));
 
-    consumeRPCQueue('core:users.findOne', async query => ({
+    consumeRPCQueue('core:users.findOne', async ({ data }) => ({
       status: 'success',
-      data: await Users.findOne(query)
+      data: await Users.findOne(data)
     }));
 
     consumeRPCQueue('core:users.find', async data => {

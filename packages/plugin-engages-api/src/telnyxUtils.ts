@@ -9,13 +9,6 @@ import { getEnv } from './utils';
 
 dotenv.config();
 
-interface ISmsDeliveryParams {
-  type: string;
-  to?: string;
-  page?: number;
-  perPage?: number;
-}
-
 // fetches telnyx config & integrations from erxes-integrations
 export const getTelnyxInfo = async () => {
   const response = await sendRPCMessage({ action: 'getTelnyxInfo' });
@@ -76,35 +69,6 @@ export const prepareSmsStats = async (models: IModels, engageMessageId: string) 
   }
 
   return result;
-};
-
-export const getSmsDeliveries = async (models: IModels, {
-  type,
-  to,
-  page,
-  perPage
-}: ISmsDeliveryParams) => {
-  if (type !== 'campaign') {
-    return { status: 'error', message: `Invalid parameter type: "${type}"` };
-  }
-
-  const filter: any = {};
-
-  if (to && !(to === 'undefined' || to === 'null')) {
-    filter.to = { $regex: to, $options: '$i' };
-  }
-
-  const _page = Number(page || '1');
-  const _limit = Number(perPage || '20');
-
-  const data = await models.SmsRequests.find(filter)
-    .sort({ createdAt: -1 })
-    .limit(_limit)
-    .skip((_page - 1) * _limit);
-
-  const totalCount = await models.SmsRequests.countDocuments(filter);
-
-  return { status: 'ok', data, totalCount };
 };
 
 // alphanumeric sender id only works for countries outside north america

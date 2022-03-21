@@ -139,9 +139,7 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Fields.find(query, projection)
-          .sort(sort)
-          .lean()
+        data: await models.Fields.find(query, projection).sort(sort).lean()
       };
     }
   );
