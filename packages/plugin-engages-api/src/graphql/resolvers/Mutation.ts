@@ -1,14 +1,14 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '@erxes/api-utils/src/logUtils';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 import { IEngageMessage } from '../../models/definitions/engages';
 import { CAMPAIGN_KINDS } from '../../constants';
 import { checkCampaignDoc, send } from '../../engageUtils';
-import messageBroker, { sendContactsMessage, sendCoreMessage } from '../../messageBroker';
-import { gatherDescriptions } from './logHelper';
+import { sendContactsMessage, sendCoreMessage } from '../../messageBroker';
 import { updateConfigs, createTransporter, getEditorAttributeUtil } from '../../utils';
 import { awsRequests } from '../../trackers/engageTracker';
+import { serviceDiscovery, debug } from '../../configs';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -73,9 +73,7 @@ const engageMutations = {
       },
     };
 
-    const { description, extraDesc } = await gatherDescriptions(subdomain, logDoc);
-
-    await putCreateLog(messageBroker, { ...logDoc, description, extraDesc }, user);
+    await putCreateLog(subdomain, logDoc, user);
 
     return engageMessage;
   },
@@ -109,17 +107,7 @@ const engageMutations = {
       updatedDocument: updated,
     };
 
-    const { description, extraDesc } = await gatherDescriptions(subdomain, logDoc);
-
-    await putUpdateLog(
-      messageBroker,
-      {
-        ...logDoc,
-        description,
-        extraDesc
-      },
-      user
-    );
+    await putUpdateLog(subdomain, logDoc, user);
 
     return models.EngageMessages.findOne({ _id });
   },
@@ -141,9 +129,7 @@ const engageMutations = {
       object: { ...engageMessage.toObject(), ...emptyCustomers }
     };
 
-    const { description, extraDesc } = await gatherDescriptions(subdomain, logDoc);
-
-    await putDeleteLog(messageBroker, { ...logDoc, description, extraDesc }, user);
+    await putDeleteLog(subdomain, logDoc, user);
 
     return removed;
   },
@@ -184,7 +170,7 @@ const engageMutations = {
     await send(models, subdomain, live);
 
     await putUpdateLog(
-      messageBroker,
+      subdomain,
       {
         type: MODULE_ENGAGE,
         newData: {
@@ -237,14 +223,16 @@ const engageMutations = {
       );
     }
 
-    const { data: customer } = await sendContactsMessage({
+    let replacedContent = content;
+
+    const customer = await sendContactsMessage({
       isRPC: true,
       subdomain,
       action: 'customers.findOne',
       data: { customerPrimaryEmail: to }
     });
 
-    const { data: targetUser } = await sendCoreMessage({
+    const targetUser = await sendCoreMessage({
       data: { email: to },
       action: 'users.findOne',
       subdomain,
@@ -253,30 +241,36 @@ const engageMutations = {
 
     const attributeUtil = await getEditorAttributeUtil();
 
-    const replacedContent = await attributeUtil.replaceAttributes({
+    replacedContent = await attributeUtil.replaceAttributes({
       content,
       customer,
       user: targetUser,
     });
 
-    const transporter = await createTransporter(models);
+    try {
+      const transporter = await createTransporter(models);
+  
+      const response = await transporter.sendMail({
+        from,
+        to,
+        subject: title,
+        html: content,
+        content: replacedContent
+      });
 
-    const response = await transporter.sendMail({
-      from,
-      to,
-      subject: title,
-      html: content,
-      content: replacedContent
-    });
+      return JSON.stringify(response);
+    } catch (e) {
+      debug.error(e.message)
 
-    return JSON.stringify(response);
+      return e;
+    }
   },
 
   // Helps users fill less form fields to create a campaign
   async engageMessageCopy(
     _root,
     { _id }: { _id },
-    { docModifier, models, user }: IContext
+    { docModifier, models, subdomain, user }: IContext
   ) {
     const sourceCampaign = await models.EngageMessages.getEngageMessage(_id);
 
@@ -302,7 +296,7 @@ const engageMutations = {
     const copy = await models.EngageMessages.createEngageMessage(doc);
 
     await putCreateLog(
-      messageBroker,
+      subdomain,
       {
         type: MODULE_ENGAGE,
         newData: {

@@ -4,7 +4,7 @@ import { chunkArray } from '@erxes/api-utils/src/core';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 
-import { debug } from './configs';
+import { debug, es } from './configs';
 import { ICustomerDocument } from './models/definitions/customers';
 import messageBroker, { sendEngagesMessage } from './messageBroker';
 import { getService, getServices } from './inmemoryStorage';
@@ -110,7 +110,7 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
 };
 
 export const generateFields = async ({ subdomain, data }) => {
-  const { type } = data;
+  const { type, usageType } = data;
 
   const models = await generateModels(subdomain);
 
@@ -155,6 +155,45 @@ export const generateFields = async ({ subdomain, data }) => {
           ...(await generateFieldsFromSchema(path.schema, `${name}.`))
         ];
       }
+    }
+  }
+
+  if (!usageType || usageType === 'export') {
+    const aggre = await es.fetchElk({
+      action: 'search',
+      index: type === 'company' ? 'companies' : 'customers',
+      body: {
+        size: 0,
+        _source: false,
+        aggs: {
+          trackedDataKeys: {
+            nested: {
+              path: 'trackedData'
+            },
+            aggs: {
+              fieldKeys: {
+                terms: {
+                  field: 'trackedData.field',
+                  size: 10000
+                }
+              }
+            }
+          }
+        }
+      },
+      defaultValue: { aggregations: { trackedDataKeys: {} } }
+    });
+
+    const aggregations = aggre.aggregations || { trackedDataKeys: {} };
+    const buckets = (aggregations.trackedDataKeys.fieldKeys || { buckets: [] })
+      .buckets;
+
+    for (const bucket of buckets) {
+      fields.push({
+        _id: Math.random(),
+        name: `trackedData.${bucket.key}`,
+        label: bucket.key
+      });
     }
   }
 
@@ -241,6 +280,50 @@ export const prepareEngageCustomers = async (
     emailContent
   );
 
+  const onFinishPiping = async () => {
+    await sendEngagesMessage({
+      subdomain,
+      action: 'pre-notification',
+      data: { engageMessage, customerInfos }
+    });
+
+    if (customerInfos.length > 0) {
+      const data: any = {
+        customers: [],
+        fromEmail: user.email,
+        engageMessageId: engageMessage._id,
+        shortMessage: engageMessage.shortMessage || {},
+        createdBy: engageMessage.createdBy,
+        title: engageMessage.title,
+        kind: engageMessage.kind
+      };
+
+      if (engageMessage.method === 'email' && engageMessage.email) {
+        const replacedContent = await editorAttributeUtil.replaceAttributes({
+          customerFields,
+          content: emailContent,
+          user
+        });
+
+        engageMessage.email.content = replacedContent;
+
+        data.email = engageMessage.email;
+      }
+
+      const chunks = chunkArray(customerInfos, 3000);
+
+      for (const chunk of chunks) {
+        data.customers = chunk;
+
+        await sendEngagesMessage({
+          subdomain,
+          action: 'notification',
+          data: { action, data },
+        });
+      }
+    }
+  };
+
   const customersItemsMapping = JSON.parse('{}');
 
   const customerTransformerStream = new Transform({
@@ -294,47 +377,7 @@ export const prepareEngageCustomers = async (
 
     pipe.on('finish', async () => {
       try {
-        if (customerInfos.length > 0) {
-          const data: any = {
-            customers: [],
-            fromEmail: user.email,
-            engageMessageId: engageMessage._id,
-            shortMessage: engageMessage.shortMessage || {},
-            createdBy: engageMessage.createdBy,
-            title: engageMessage.title,
-            kind: engageMessage.kind
-          };
-
-          if (engageMessage.method === 'email' && engageMessage.email) {
-            const replacedContent = await editorAttributeUtil.replaceAttributes(
-              {
-                customerFields,
-                content: emailContent,
-                user
-              }
-            );
-
-            engageMessage.email.content = replacedContent;
-
-            data.email = engageMessage.email;
-          }
-
-          const chunks = chunkArray(customerInfos, 3000);
-
-          for (const chunk of chunks) {
-            data.customers = chunk;
-
-            if (action === 'sendEngage') {
-              data.email = engageMessage.email;
-            }
-
-            await sendEngagesMessage({
-              subdomain,
-              action: 'notification',
-              data: { action, data }
-            });
-          }
-        }
+        await onFinishPiping();
       } catch (e) {
         return reject(e);
       }

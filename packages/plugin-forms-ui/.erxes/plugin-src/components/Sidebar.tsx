@@ -3,6 +3,8 @@ import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList as List } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { getPropertiesGroups } from '../constants';
+import { SidebarList } from '@erxes/ui-settings/src/styles';
 import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 
 type Props = {
