@@ -6,7 +6,6 @@ import {
   IEngageMessage,
   IEngageMessageDocument,
 } from './models/definitions/engages';
-// import { Users, Customers, Segments } from './apiCollections';
 import { isUsingElk } from './utils';
 import messageBroker, {
   sendInboxMessage,
@@ -224,7 +223,6 @@ export const send = async (
   }
 };
 
-// Prepares queue data to engages-email-sender
 const sendEmailOrSms = async (
   models: IModels,
   subdomain,
@@ -244,7 +242,7 @@ const sendEmailOrSms = async (
     );
   }
 
-  // customer info will be sent back via message queue
+  // customer info will be prepared at contacts api
   await sendContactsMessage({
     action: 'customers.prepareEngageCustomers',
     subdomain,

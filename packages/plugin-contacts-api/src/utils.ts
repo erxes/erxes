@@ -110,7 +110,6 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
 };
 
 export const generateFields = async ({ subdomain, data }) => {
-  console.log(data);
   const { type } = data;
 
   const models = await generateModels(subdomain);
@@ -239,6 +238,50 @@ export const prepareEngageCustomers = async (
     emailContent
   );
 
+  const onFinishPiping = async () => {
+    await sendEngagesMessage({
+      subdomain,
+      action: 'pre-notification',
+      data: { engageMessage, customerInfos }
+    });
+
+    if (customerInfos.length > 0) {
+      const data: any = {
+        customers: [],
+        fromEmail: user.email,
+        engageMessageId: engageMessage._id,
+        shortMessage: engageMessage.shortMessage || {},
+        createdBy: engageMessage.createdBy,
+        title: engageMessage.title,
+        kind: engageMessage.kind
+      };
+
+      if (engageMessage.method === 'email' && engageMessage.email) {
+        const replacedContent = await editorAttributeUtil.replaceAttributes({
+          customerFields,
+          content: emailContent,
+          user
+        });
+
+        engageMessage.email.content = replacedContent;
+
+        data.email = engageMessage.email;
+      }
+
+      const chunks = chunkArray(customerInfos, 3000);
+
+      for (const chunk of chunks) {
+        data.customers = chunk;
+
+        await sendEngagesMessage({
+          subdomain,
+          action: 'notification',
+          data: { action, data },
+        });
+      }
+    }
+  };
+
   const customersItemsMapping = JSON.parse('{}');
 
   const customerTransformerStream = new Transform({
@@ -292,47 +335,7 @@ export const prepareEngageCustomers = async (
 
     pipe.on('finish', async () => {
       try {
-        if (customerInfos.length > 0) {
-          const data: any = {
-            customers: [],
-            fromEmail: user.email,
-            engageMessageId: engageMessage._id,
-            shortMessage: engageMessage.shortMessage || {},
-            createdBy: engageMessage.createdBy,
-            title: engageMessage.title,
-            kind: engageMessage.kind
-          };
-
-          if (engageMessage.method === 'email' && engageMessage.email) {
-            const replacedContent = await editorAttributeUtil.replaceAttributes(
-              {
-                customerFields,
-                content: emailContent,
-                user
-              }
-            );
-
-            engageMessage.email.content = replacedContent;
-
-            data.email = engageMessage.email;
-          }
-
-          const chunks = chunkArray(customerInfos, 3000);
-
-          for (const chunk of chunks) {
-            data.customers = chunk;
-
-            if (action === 'sendEngage') {
-              data.email = engageMessage.email;
-            }
-
-            await sendEngagesMessage({
-              subdomain,
-              action: 'notification',
-              data: { action, data }
-            });
-          }
-        }
+        await onFinishPiping();
       } catch (e) {
         return reject(e);
       }

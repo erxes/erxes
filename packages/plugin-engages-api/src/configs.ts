@@ -17,6 +17,7 @@ import logs from './logUtils';
 export let graphqlPubsub;
 export let serviceDiscovery;
 export let mainDb;
+export let debug;
 
 export let es: {
   client;
@@ -24,8 +25,6 @@ export let es: {
   getMappings(index: string): Promise<any>;
   getIndexPrefix(): string;
 };
-
-export let debug;
 
 export default {
   name: 'engages',
