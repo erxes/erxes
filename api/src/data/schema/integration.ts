@@ -83,8 +83,6 @@ export const types = `
     css: String
     successImage: String
     successImageSize: String
-    paymentType: String
-    paymentConfig: JSON
   }
 
   input BookingStyleInput {

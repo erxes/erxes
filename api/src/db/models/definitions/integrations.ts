@@ -116,28 +116,6 @@ export interface IBookingDataDocument extends IBookingData, Document {
   viewCount?: number;
 }
 
-export interface ISocialPayConfig {
-  terminal: string;
-  key: string;
-  url: string;
-  pushNotification: string;
-}
-
-export interface IGolomtConfig {
-  checksumKey: string;
-  token: string;
-  redirectUrl: string;
-  pushNotification: string;
-}
-
-export interface IQPayConfig {
-  merchantUser: string;
-  merchantPassword: string;
-  invoiceCode: string;
-  qPayUrl: string;
-  callbackUrl: string;
-}
-
 export interface ILeadData {
   loadType?: string;
   successAction?: string;
@@ -161,8 +139,6 @@ export interface ILeadData {
   css?: string;
   successImage?: string;
   successImageSize?: string;
-  paymentType?: string;
-  paymentConfig?: IGolomtConfig | IQPayConfig | ISocialPayConfig;
 }
 
 export interface IWebhookData {
@@ -403,16 +379,6 @@ export const leadDataSchema = new Schema(
       type: String,
       optional: true,
       label: 'Success image size'
-    }),
-    paymentType: field({
-      type: String,
-      optional: true,
-      label: 'Payment type'
-    }),
-    paymentConfig: field({
-      type: Schema.Types.Mixed,
-      optional: true,
-      label: 'Payment configs'
     })
   },
   { _id: false }

@@ -13,14 +13,7 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import {
-  IGolomtConfig,
-  ILeadData,
-  ILeadIntegration,
-  IQPayConfig,
-  ISocialPayConfig
-} from '../types';
-
+import { ILeadData, ILeadIntegration } from '../types';
 import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import { IFormData } from 'modules/forms/types';
 import { Content, LeftContent } from 'modules/settings/integrations/styles';
@@ -35,7 +28,6 @@ import {
 } from './step';
 import { PreviewWrapper } from './step/style';
 import StyleSheetStep from './step/StyleSheetStep';
-import PaymentOptionStep from './step/PaymentOptionStep';
 
 type Props = {
   integration?: ILeadIntegration;
@@ -99,8 +91,6 @@ type State = {
   successImageSize?: string;
   departmentIds?: string[];
   visibility?: string;
-  paymentType?: string;
-  paymentConfig?: ISocialPayConfig | IQPayConfig | IGolomtConfig;
 };
 
 class Lead extends React.Component<Props, State> {
@@ -164,9 +154,7 @@ class Lead extends React.Component<Props, State> {
       successImageSize: leadData.successImageSize || '',
       successPreviewStyle: {},
       departmentIds: integration.departmentIds || [],
-      visibility: integration.visibility || 'public',
-      paymentType: leadData.paymentType,
-      paymentConfig: leadData.paymentConfig || {}
+      visibility: integration.visibility || 'public'
     };
   }
 
@@ -230,9 +218,7 @@ class Lead extends React.Component<Props, State> {
         isRequireOnce: this.state.isRequireOnce,
         css: this.state.css,
         successImage: this.state.successImage,
-        successImageSize: this.state.successImageSize,
-        paymentType: this.state.paymentType,
-        paymentConfig: this.state.paymentConfig
+        successImageSize: this.state.successImageSize
       }
     };
 
@@ -301,30 +287,6 @@ class Lead extends React.Component<Props, State> {
           Save
         </Button>
       </Button.Group>
-    );
-  };
-
-  renderPaymentOptions = () => {
-    const fields = this.state.formData.fields || [];
-    const paymentFields = fields.filter(
-      field => field.type === 'productCategory'
-    );
-    if (paymentFields.length === 0) {
-      return null;
-    }
-
-    return (
-      <Step
-        img="/images/icons/erxes-25.png"
-        title="Payment options"
-        onClick={this.onStepClick}
-      >
-        <PaymentOptionStep
-          paymentType={this.state.paymentType}
-          paymentConfig={this.state.paymentConfig}
-          onChange={this.onChange}
-        />
-      </Step>
     );
   };
 
@@ -419,7 +381,6 @@ class Lead extends React.Component<Props, State> {
                   currentField={this.state.currentField}
                 />
               </Step>
-              {this.renderPaymentOptions()}
               <Step
                 img="/images/icons/erxes-02.svg"
                 title="Rule"

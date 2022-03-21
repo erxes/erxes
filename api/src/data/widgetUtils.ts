@@ -1,4 +1,3 @@
-import { ISocialPayConfig } from './../../../ui/src/modules/leads/types';
 import {
   Brands,
   Companies,
@@ -8,8 +7,7 @@ import {
   EngageMessages,
   Fields,
   FieldsGroups,
-  Integrations,
-  Products
+  Integrations
 } from '../db/models';
 import Messages from '../db/models/ConversationMessages';
 import { IBrowserInfo } from '../db/models/Customers';
@@ -21,11 +19,7 @@ import { debugBase, debugError } from '../debuggers';
 import { client, fetchElk, getIndexPrefix } from '../elasticsearch';
 import { getDbSchemaLabels, sendToLog } from './logUtils';
 import { getDocument } from './resolvers/mutations/cacheUtils';
-import { findCompany, findCustomer, sendRequest } from './utils';
-import { IFormOrderInfo } from './types';
-import SocialPayInvoices from '../db/models/SocialPayInvoice';
-import FormOrders from '../db/models/FormOrders';
-import * as crypto from 'crypto';
+import { findCompany, findCustomer } from './utils';
 
 export const getOrCreateEngageMessage = async (
   integrationId: string,
@@ -645,125 +639,4 @@ export const solveSubmissions = async (args: {
   }
 
   return cachedCustomer;
-};
-
-export const getOrderInfo = async (
-  integrationId,
-  formId,
-  customerId,
-  submissions: ISubmission[]
-) => {
-  const orderInfo: IFormOrderInfo = {
-    paymentType: 'none',
-    amount: 0,
-    phone: '99391924',
-    items: []
-  };
-  submissions = submissions.filter(
-    e => e.type === 'productCategory' && e.value.length > 0
-  );
-
-  if (submissions.length === 0) {
-    return orderInfo;
-  }
-
-  const integration = await Integrations.getIntegration({ _id: integrationId });
-  const { leadData } = integration;
-
-  if (!leadData) {
-    return orderInfo;
-  }
-
-  if (leadData.paymentType === 'none') {
-    return orderInfo;
-  }
-
-  orderInfo.paymentType = leadData.paymentType || 'none';
-  orderInfo.paymentConfig = leadData.paymentConfig;
-
-  for (const submission of submissions) {
-    const product = await Products.getProduct({ _id: submission.value });
-    const price = product.unitPrice || 0;
-    orderInfo.amount += price;
-    orderInfo.items.push({
-      productId: product._id,
-      quantity: 1,
-      price,
-      total: price * 1
-    });
-  }
-
-  await settleOrder(integrationId, formId, customerId, orderInfo);
-
-  return orderInfo;
-};
-
-export const makeInvoiceNo = length => {
-  let result = '';
-  const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  const charactersLength = characters.length;
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-};
-
-export const socialPayInvoicePhone = async (body: any, url: string) => {
-  const response = await sendRequest({
-    url: `${url}pos/invoice/phone`,
-    method: 'POST',
-    body,
-    redirect: 'follow'
-  });
-
-  console.log('response: ', response);
-  return response;
-};
-
-export const hmac256 = (key, message) => {
-  const hash = crypto.createHmac('sha256', key).update(message);
-  return hash.digest('hex');
-};
-
-export const settleOrder = async (
-  formId: string,
-  integrationId: string,
-  customerId: string,
-  orderInfo: IFormOrderInfo
-) => {
-  let invoice: any = {};
-  const { amount, phone, paymentType, items } = orderInfo;
-
-  if (paymentType === 'socialPay') {
-    const { terminal, key, url } = orderInfo.paymentConfig as ISocialPayConfig;
-    const invoiceNo = await makeInvoiceNo(32);
-
-    invoice = await SocialPayInvoices.createInvoice({
-      status: 'open',
-      amount,
-      invoiceNo,
-      phone
-    });
-
-    const requestBody = {
-      amount,
-      checksum: await hmac256(key, terminal + invoiceNo + amount + phone),
-      invoice: invoiceNo,
-      phone,
-      terminal
-    };
-
-    await socialPayInvoicePhone(requestBody, url || '');
-  }
-
-  const order = await FormOrders.createOrder({
-    formId,
-    integrationId,
-    customerId,
-    items,
-    status: 'placed',
-    invoiceId: invoice._id
-  });
-
-  console.log('order: ', order);
 };
