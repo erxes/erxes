@@ -1,3 +1,5 @@
+import { attachmentInput, attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
+
 const ruleFields = `
   _id : String!,
   kind: String!,
@@ -7,17 +9,8 @@ const ruleFields = `
 `;
 
 export const types = `
-  extend type Attachment @key(fields: "url") {
-    url: String! @external
-  }
-
-  input AttachmentInput {
-    url: String!
-    name: String!
-    type: String
-    size: Float
-    duration: Float
-  }
+  ${attachmentType}
+  ${attachmentInput}
 
   type Rule {
     ${ruleFields}
