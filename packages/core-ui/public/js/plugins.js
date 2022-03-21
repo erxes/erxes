@@ -265,7 +265,8 @@ window.plugins = [
     port: 3005,
     exposes: { './routes': './src/routes.tsx' },
     routes: {
-      url: 'http://localhost:3005/remoteEntry.js',
+      url:
+        'https://plugin-uis.s3.us-west-2.amazonaws.com/plugin-forms-ui/remoteEntry.js',
       scope: 'forms',
       module: './routes'
     },

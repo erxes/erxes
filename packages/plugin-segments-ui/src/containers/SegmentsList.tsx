@@ -33,7 +33,7 @@ const SegmentListContainer = (props: FinalProps) => {
 
   const types = getTypesQuery.segmentsGetTypes || [];
 
-  if (!router.getParam(history, 'contentType')) {
+  if (!router.getParam(history, 'contentType') || !segmentsQuery) {
     router.setParams(
       history,
       { contentType: types[0].contentType.toString() },
@@ -83,8 +83,7 @@ export default withProps<Props>(
         options: ({ contentType }) => ({
           fetchPolicy: 'network-only',
           variables: { contentTypes: [contentType] }
-        }),
-        skip: ({ contentType }) => !contentType
+        })
       }
     ),
 
