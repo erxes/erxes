@@ -128,9 +128,12 @@ export const commonFields = `
   priority
   assignedUsers {
     _id
+    username
+    email
+
     details {
-      fullName
       avatar
+      fullName
     }
   }
   labels {
