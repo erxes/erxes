@@ -45,8 +45,13 @@ class ProductFormContainer extends React.Component<FinalProps> {
       callback,
       object
     }: IButtonMutateProps) => {
+      const attachment = values.templateImage || undefined;
+
       values.discount = Number(values.discount);
       values.totalAmount = Number(values.totalAmount);
+      values.templateImage = attachment
+        ? { ...attachment, __typename: undefined }
+        : null;
 
       return (
         <ButtonMutate

@@ -1,5 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaWrapper } from './utils';
+import { attachmentSchema } from './boards';
 export interface IProductTemplate {
   type: string;
   title: string;
@@ -8,6 +9,7 @@ export interface IProductTemplate {
   description: string;
   templateItems: any[];
   tagIds?: string[];
+  templateImage?: any;
   status: string;
   updatedAt: Date;
   updatedBy: string;
@@ -46,6 +48,7 @@ export const productTemplateSchema = schemaWrapper(
       label: 'Tags',
       index: true
     }),
+    templateImage: field({ type: attachmentSchema }),
     status: field({ type: String, label: 'Status' }),
     tags: field({ type: [String], label: 'Tags' }),
     updatedAt: field({
