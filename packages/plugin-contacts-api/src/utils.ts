@@ -4,7 +4,7 @@ import { chunkArray } from '@erxes/api-utils/src/core';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 
-import { debug } from './configs';
+import { debug, es } from './configs';
 import { ICustomerDocument } from './models/definitions/customers';
 import messageBroker, { sendEngagesMessage } from './messageBroker';
 import { getService, getServices } from './inmemoryStorage';
@@ -110,7 +110,7 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
 };
 
 export const generateFields = async ({ subdomain, data }) => {
-  const { type } = data;
+  const { type, usageType } = data;
 
   const models = await generateModels(subdomain);
 
@@ -155,6 +155,45 @@ export const generateFields = async ({ subdomain, data }) => {
           ...(await generateFieldsFromSchema(path.schema, `${name}.`))
         ];
       }
+    }
+  }
+
+  if (!usageType || usageType === 'export') {
+    const aggre = await es.fetchElk({
+      action: 'search',
+      index: type === 'company' ? 'companies' : 'customers',
+      body: {
+        size: 0,
+        _source: false,
+        aggs: {
+          trackedDataKeys: {
+            nested: {
+              path: 'trackedData'
+            },
+            aggs: {
+              fieldKeys: {
+                terms: {
+                  field: 'trackedData.field',
+                  size: 10000
+                }
+              }
+            }
+          }
+        }
+      },
+      defaultValue: { aggregations: { trackedDataKeys: {} } }
+    });
+
+    const aggregations = aggre.aggregations || { trackedDataKeys: {} };
+    const buckets = (aggregations.trackedDataKeys.fieldKeys || { buckets: [] })
+      .buckets;
+
+    for (const bucket of buckets) {
+      fields.push({
+        _id: Math.random(),
+        name: `trackedData.${bucket.key}`,
+        label: bucket.key
+      });
     }
   }
 

@@ -6,7 +6,11 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import SegmentsList from '../components/SegmentsList';
 import { mutations, queries } from '@erxes/ui-segments/src/graphql';
-import { RemoveMutationResponse, SegmentsQueryResponse } from '@erxes/ui-segments/src/types';
+import {
+  RemoveMutationResponse,
+  SegmentsQueryResponse
+} from '@erxes/ui-segments/src/types';
+import { router } from '@erxes/ui/src/utils';
 
 type Props = {
   contentType: string;
@@ -52,15 +56,12 @@ const SegmentListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(
-      gql(queries.getTypes),
-      {
-        name: 'getTypesQuery',
-        options: () => ({
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
+    graphql<Props>(gql(queries.getTypes), {
+      name: 'getTypesQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
     graphql<Props, SegmentsQueryResponse, { contentTypes: string[] }>(
       gql(queries.segments),
       {

@@ -462,7 +462,7 @@ window.plugins = [
     menus: [
       {
         text: 'Segments',
-        url: '/segments/customer',
+        url: '/segments/contacts:customer',
         icon: 'icon-chart-pie-alt',
         location: 'mainNavigation',
         permission: 'showSegments'

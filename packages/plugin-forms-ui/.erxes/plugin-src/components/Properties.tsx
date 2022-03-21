@@ -15,7 +15,7 @@ import { PropertyList } from '@erxes/ui-settings/src/properties/styles';
 import { IFieldGroup } from '@erxes/ui-settings/src/properties/types';
 import { IField } from '@erxes/ui/src/types';
 import PropertyRow from './PropertyRow';
-import Sidebar from '../containers/SideBar';
+import Sidebar from './Sidebar';
 import SortableList from '@erxes/ui/src/components/SortableList';
 
 type Props = {
@@ -36,6 +36,7 @@ type Props = {
   }) => void;
   updateFieldOrder: (fields: IField[]) => any;
   updateGroupOrder: (groups: IFieldGroup[]) => void;
+  services: string[];
 };
 
 class Properties extends React.Component<
@@ -194,7 +195,7 @@ class Properties extends React.Component<
   };
 
   render() {
-    const { currentType } = this.props;
+    const { currentType, services } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -233,7 +234,9 @@ class Properties extends React.Component<
           <Wrapper.Header title={__(currentType)} breadcrumb={breadcrumb} />
         }
         mainHead={headerDescription}
-        leftSidebar={<Sidebar currentType={__(currentType)} />}
+        leftSidebar={
+          <Sidebar currentType={__(currentType)} services={services} />
+        }
         content={this.renderProperties()}
       />
     );
