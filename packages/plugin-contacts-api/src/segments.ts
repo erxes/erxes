@@ -1,15 +1,17 @@
 export default {
   indexesTypeContentType: {
+    'contacts:lead': 'customers',
     'contacts:customer': 'customers',
     'contacts:company': 'companies'
   },
 
-  contentTypes: ['customer', 'company'],
+  contentTypes: ['lead', 'customer', 'company'],
 
   descriptionMap: {
     deal: 'Deal',
     ticket: 'Ticket',
     task: 'Task',
+    lead: 'Lead',
     customer: 'Customer',
     company: 'Company',
     converstaion: 'Conversation'
@@ -17,6 +19,7 @@ export default {
 
   associationTypes: async () => {
     const types: string[] = [
+      'contacts:lead',
       'contacts:customer',
       'contacts:company',
       'cards:deal',
