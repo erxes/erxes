@@ -9,7 +9,6 @@ import DumbHome from '../components/Home';
 import { queries } from '../graphql';
 
 function Home() {
-  console.log('Home');
   const { data, loading, error } = useQuery(gql(queries.exmGet));
 
   if (loading) {
