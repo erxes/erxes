@@ -6,10 +6,16 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import SegmentsList from '../components/SegmentsList';
 import { mutations, queries } from '@erxes/ui-segments/src/graphql';
-import { RemoveMutationResponse, SegmentsQueryResponse } from '@erxes/ui-segments/src/types';
+import { router } from '@erxes/ui/src/utils';
+import {
+  RemoveMutationResponse,
+  SegmentsQueryResponse
+} from '@erxes/ui-segments/src/types';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   contentType: string;
+  history: any;
 };
 
 type FinalProps = {
@@ -19,7 +25,21 @@ type FinalProps = {
   RemoveMutationResponse;
 
 const SegmentListContainer = (props: FinalProps) => {
-  const { segmentsQuery, getTypesQuery, removeMutation } = props;
+  const { segmentsQuery, getTypesQuery, removeMutation, history } = props;
+
+  if (getTypesQuery.loading) {
+    return <Spinner />;
+  }
+
+  const types = getTypesQuery.segmentsGetTypes || [];
+
+  if (!router.getParam(history, 'contentType')) {
+    router.setParams(
+      history,
+      { contentType: types[0].contentType.toString() },
+      true
+    );
+  }
 
   const removeSegment = segmentId => {
     confirm().then(() => {
@@ -37,8 +57,6 @@ const SegmentListContainer = (props: FinalProps) => {
     });
   };
 
-  const types = getTypesQuery.segmentsGetTypes || [];
-
   const updatedProps = {
     ...props,
     types,
@@ -52,15 +70,12 @@ const SegmentListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(
-      gql(queries.getTypes),
-      {
-        name: 'getTypesQuery',
-        options: () => ({
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
+    graphql<Props>(gql(queries.getTypes), {
+      name: 'getTypesQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
     graphql<Props, SegmentsQueryResponse, { contentTypes: string[] }>(
       gql(queries.segments),
       {
@@ -68,7 +83,8 @@ export default withProps<Props>(
         options: ({ contentType }) => ({
           fetchPolicy: 'network-only',
           variables: { contentTypes: [contentType] }
-        })
+        }),
+        skip: ({ contentType }) => !contentType
       }
     ),
 

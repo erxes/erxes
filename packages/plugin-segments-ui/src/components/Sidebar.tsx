@@ -28,7 +28,10 @@ function Sidebar({
 
       <SidebarList id={'SegmentSidebar'}>
         {types.map(type => {
-          return ListItem(`/segments/${type.contentType}`, type.description);
+          return ListItem(
+            `/segments?contentType=${type.contentType}`,
+            type.description
+          );
         })}
 
         <li>
