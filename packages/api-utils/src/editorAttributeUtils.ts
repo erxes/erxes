@@ -34,6 +34,24 @@ const isValidURL = (url: string): boolean => {
   }
 };
 
+export const getCustomerName = (customer) => {
+  if (customer.firstName || customer.lastName) {
+    return (customer.firstName || "") + " " + (customer.lastName || "");
+  }
+
+  if (customer.primaryEmail || customer.primaryPhone) {
+    return customer.primaryEmail || customer.primaryPhone;
+  }
+
+  const { visitorContactInfo } = customer;
+
+  if (visitorContactInfo) {
+    return visitorContactInfo.phone || visitorContactInfo.email;
+  }
+
+  return "Unknown";
+};
+
 export function runReplacersOn(
   content: string,
   replacers: IReplacer[] = []
@@ -96,8 +114,8 @@ export default class EditorAttributeUtil {
   async getPossibleCustomerFields(): Promise<ICustomerField[]> {
     if (!this._possibleCustomerFields) {
       this._possibleCustomerFields = await this.msgBrokerClient.sendRPCMessage(
-        "rpc_queue:fieldsCombinedByContentType",
-        { contentType: "customer" }
+        "forms:fieldsCombinedByContentType",
+        { data: { contentType: "customer" } }
       );
     }
 
@@ -169,16 +187,6 @@ export default class EditorAttributeUtil {
     }
   }
 
-  async getCustomerName(customer) {
-    if(!this.availableServices.has("contacts")) {
-      throw new Error("Contacts service is not running.");
-    }
-    return this.msgBrokerClient.sendRPCMessage(
-      "contacts:getCustomerName",
-      customer
-    );
-  }
-
   async generateAmounts(productsData) {
     if(!this.availableServices.has("cards")) {
       throw new Error("Cards service is not running.");
@@ -217,18 +225,19 @@ export default class EditorAttributeUtil {
 
       replacers.push({
         key: "{{ customer.name }}",
-        value: await this.getCustomerName(customer),
+        value: getCustomerName(customer),
       });
 
-      const customerFileFieldsById = _.keyBy(
-        await this.msgBrokerClient.sendRPCMessage("rpc_queue:Fields.find", {
+      const fields = await this.msgBrokerClient.sendRPCMessage("forms:fields.find", {
+        data: {
           query: {
             type: "file",
             contentType: "customer",
           },
-        }),
-        "_id"
-      );
+        }
+      });
+
+      const customerFileFieldsById = _.keyBy(fields, "_id");
 
       for (const field of customerFields) {
         if (
@@ -327,12 +336,14 @@ export default class EditorAttributeUtil {
       });
 
       const fieldMetaDatas = await this.msgBrokerClient.sendRPCMessage(
-        "rpc_queue:Fields.find",
+        "forms:fields.find",
         {
-          query: {
-            contentType: item.contentType,
-            isDefinedByErxes: false,
-          },
+          data: {
+            query: {
+              contentType: item.contentType,
+              isDefinedByErxes: false,
+            },
+          }
         }
       );
 

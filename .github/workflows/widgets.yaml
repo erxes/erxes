@@ -41,15 +41,15 @@ jobs:
             ${{ runner.os }}-yarn-widgets-
             ${{ runner.os }}-yarn-
 
-      - name: Install dependencies
-        run: |
-          yarn install
-          cd widgets
-          yarn install --frozen-lockfile
+      # - name: Install dependencies
+      #   run: |
+      #     yarn install
+      #     cd widgets
+      #     yarn install --frozen-lockfile
 
-      - name: Lint
-        run: |
-          yarn lint widgets
+      # - name: Lint
+      #   run: |
+      #     yarn lint widgets
 
       - name: Build
         run: |

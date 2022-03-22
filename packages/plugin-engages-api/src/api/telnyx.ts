@@ -34,22 +34,4 @@ router.get(
   })
 );
 
-// sms delivery reports
-// router.get(
-//   '/sms-deliveries',
-//   routeErrorHandling(async (req, res) => {
-//     debugRequest(debugEngages, req);
-
-//     const { type, to, page = 1, perPage = 20 } = req.query;
-
-//     try {
-//       const result = await getSmsDeliveries({ type, to, page, perPage });
-
-//       return res.json(result);
-//     } catch (e) {
-//       return res.json({ status: 'error', message: e.message });
-//     }
-//   })
-// );
-
 export default router;

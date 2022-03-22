@@ -195,28 +195,6 @@ async function startServer() {
       redis
     });
 
-    await join({
-      name: configs.name,
-      port: PORT || '',
-      dbConnectionString: mongoUrl,
-      hasSubscriptions: configs.hasSubscriptions,
-      importTypes: configs.importTypes,
-      exportTypes: configs.exportTypes,
-      meta: configs.meta
-    });
-
-    configs.onServerInit({
-      db,
-      app,
-      pubsubClient: pubsub,
-      elasticsearch,
-      messageBrokerClient,
-      debug: {
-        info: debugInfo,
-        error: debugError
-      }
-    });
-
     if (configs.permissions) {
       await messageBrokerClient.sendMessage(
         'registerPermissions',
@@ -332,9 +310,31 @@ async function startServer() {
           );
         }
       }
-
-      debugInfo(`${configs.name} server is running on port ${PORT}`);
     }
+
+    await join({
+      name: configs.name,
+      port: PORT || '',
+      dbConnectionString: mongoUrl,
+      hasSubscriptions: configs.hasSubscriptions,
+      importTypes: configs.importTypes,
+      exportTypes: configs.exportTypes,
+      meta: configs.meta
+    });
+
+    configs.onServerInit({
+      db,
+      app,
+      pubsubClient: pubsub,
+      elasticsearch,
+      messageBrokerClient,
+      debug: {
+        info: debugInfo,
+        error: debugError
+      }
+    });
+
+    debugInfo(`${configs.name} server is running on port ${PORT}`);
   } catch (e) {
     debugError(`Error during startup ${e.message}`);
   }

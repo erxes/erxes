@@ -1,4 +1,5 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
@@ -12,20 +13,32 @@ const SegmentsForm = asyncComponent(() =>
   )
 );
 
-const segments = ({ match }) => {
-  const contentType = match.params.contentType;
+const segments = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
 
-  return <SegmentsList contentType={contentType} />;
+  const { contentType } = queryParams;
+
+  return (
+    <SegmentsList
+      queryParams={queryParams}
+      contentType={contentType}
+      history={history}
+    />
+  );
 };
 
-const segmentsForm = ({ match, history }) => {
-  const contentType = match.params.contentType;
+const segmentsForm = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+
+  const { contentType } = queryParams;
 
   return <SegmentsForm history={history} contentType={contentType} />;
 };
 
-const segmentsEditForm = ({ match, history }) => {
-  const { id, contentType } = match.params;
+const segmentsEditForm = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+
+  const { contentType, id } = queryParams;
 
   return <SegmentsForm id={id} history={history} contentType={contentType} />;
 };
@@ -34,23 +47,23 @@ const routes = () => {
   return (
     <React.Fragment>
       <Route
-        key="/segments/:contentType"
+        key="/segments/"
         exact={true}
-        path="/segments/:contentType"
+        path="/segments/"
         component={segments}
       />
 
       <Route
-        key="/segments/new/:contentType"
+        key="/segments/new/"
         exact={true}
-        path="/segments/new/:contentType"
+        path="/segments/new/"
         component={segmentsForm}
       />
 
       <Route
-        key="/segments/edit/:contentType/:id"
+        key="/segments/edit/"
         exact={true}
-        path="/segments/edit/:contentType/:id"
+        path="/segments/edit/"
         component={segmentsEditForm}
       />
     </React.Fragment>

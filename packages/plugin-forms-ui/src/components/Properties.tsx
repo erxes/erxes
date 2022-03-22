@@ -36,6 +36,7 @@ type Props = {
   }) => void;
   updateFieldOrder: (fields: IField[]) => any;
   updateGroupOrder: (groups: IFieldGroup[]) => void;
+  services: string[];
 };
 
 class Properties extends React.Component<
@@ -194,7 +195,7 @@ class Properties extends React.Component<
   };
 
   render() {
-    const { currentType } = this.props;
+    const { currentType, services } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -213,7 +214,7 @@ class Properties extends React.Component<
         icon="/images/actions/26.svg"
         title={__('Properties')}
         description={`${__(
-          'The quick view finder helps you to view basic information on both companies and customers alike'
+          'The quick  view finder helps you to view basic information on both companies and customers alike'
         )}.${__(
           'Add groups and fields of the exact information you want to see'
         )}`}
@@ -233,7 +234,9 @@ class Properties extends React.Component<
           <Wrapper.Header title={__(currentType)} breadcrumb={breadcrumb} />
         }
         mainHead={headerDescription}
-        leftSidebar={<Sidebar currentType={__(currentType)} />}
+        leftSidebar={
+          <Sidebar currentType={__(currentType)} services={services} />
+        }
         content={this.renderProperties()}
       />
     );

@@ -18,7 +18,7 @@ class Sidebar extends React.Component<Props> {
         : '';
 
     return (
-      <li>
+      <li key={service.contentType}>
         <Link to={`?type=${service.contentType}`} className={className}>
           {__(service.description)}
         </Link>

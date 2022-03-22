@@ -23,6 +23,7 @@ type Props = {
   previewCount: (args: {
     conditions: ISegmentCondition[];
     subOf?: string;
+    config?: any;
     conditionsConjunction?: string;
   }) => void;
   counterLoading: boolean;
@@ -83,7 +84,7 @@ const SegmentsForm = (props: Props) => {
 
   const pageTitle = <Title>{title}</Title>;
   const breadcrumb = [
-    { title: __('Segments'), link: `/segments/${contentType}` },
+    { title: __('Segments'), link: `/segments?contentType=${contentType}` },
     { title }
   ];
 

@@ -11,8 +11,7 @@ import { SegmentsQueryResponse } from '../types';
 
 type Props = {
   contentType: string;
-  boardId?: string;
-  pipelineId?: string;
+  config?: any;
   counts: Counts;
 };
 
@@ -51,8 +50,8 @@ export default withProps<Props>(
   compose(
     graphql(gql(queries.segments), {
       name: 'segmentsQuery',
-      options: ({ contentType, boardId, pipelineId }: Props) => ({
-        variables: { contentTypes: [contentType], boardId, pipelineId }
+      options: ({ contentType, config }: Props) => ({
+        variables: { contentTypes: [contentType], config }
       })
     })
   )(withRouter<FinalProps>(FilterContainer))

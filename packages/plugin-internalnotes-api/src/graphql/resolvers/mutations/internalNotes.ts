@@ -4,6 +4,7 @@ import { graphqlPubsub } from '../../../configs';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 import {
   sendNotificationMessage,
+  sendNotificationsMessage,
   sendRPCMessage,
 } from '../../../messageBroker';
 import { IInternalNote } from '../../../models/definitions/internalNotes';
@@ -88,7 +89,11 @@ const internalNoteMutations = (serviceDiscovery) => ({
     }
 
     if (updatedNotifDoc.contentType) {
-      await sendNotificationMessage('send', updatedNotifDoc);
+      await sendNotificationsMessage({
+        subdomain,
+        action: "send",
+        data: updatedNotifDoc
+      });
     }
 
     const internalNote = await models.InternalNotes.createInternalNote(

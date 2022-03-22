@@ -1,35 +1,119 @@
 import { sendMessage, ISendMessageArgs } from '@erxes/api-utils/src/core';
 
-import { serviceDiscovery } from './configs';
+import { serviceDiscovery, debug } from './configs';
 import { generateModels } from './connectionResolver';
+import { start, sendBulkSms } from './sender';
+import { CAMPAIGN_KINDS } from './constants';
 
 export let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeQueue('engage:removeCustomersEngages', async ({ data: { customerIds }, subdomain }) => {
+  consumeQueue('engages:pre-notification', async ({ data, subdomain }) => {
     const models = await generateModels(subdomain);
 
-    await models.EngageMessages.removeCustomersEngages(customerIds);
-  });
+    const { engageMessage, customerInfos = [] } = data;
 
-  consumeQueue('engage:changeCustomer', async ({ data: { customerId, customerIds }, subdomain }) => {
-    const models = await generateModels(subdomain);
+    if (
+      engageMessage.kind === CAMPAIGN_KINDS.MANUAL &&
+      customerInfos.length === 0
+    ) {
+      await models.EngageMessages.deleteOne({ _id: engageMessage._id });
+      throw new Error('No customers found');
+    }
 
-    await models.EngageMessages.changeCustomer(customerId, customerIds);
-  });
+    const MINUTELY =
+      engageMessage.scheduleDate &&
+      engageMessage.scheduleDate.type === 'minute';
 
-  consumeRPCQueue('engages:createVisitorOrCustomerMessages', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
+    if (
+      !(
+        engageMessage.kind === CAMPAIGN_KINDS.AUTO &&
+        MINUTELY &&
+        customerInfos.length === 0
+      )
+    ) {
+      await models.Logs.createLog(
+        engageMessage._id,
+        'regular',
+        `Matched ${customerInfos.length} customers`
+      );
+    }
 
-    return {
-      status: 'success',
-      data: await models.EngageMessages.createVisitorOrCustomerMessages(data)
+    if (
+      engageMessage.scheduleDate &&
+      engageMessage.scheduleDate.type === 'pre'
+    ) {
+      await models.EngageMessages.updateOne(
+        { _id: engageMessage._id },
+        { $set: { 'scheduleDate.type': 'sent' } }
+      );
+    }
+
+    if (customerInfos.length > 0) {
+      await models.EngageMessages.updateOne(
+        { _id: engageMessage._id },
+        { $set: { totalCustomersCount: customerInfos.length } }
+      );
     }
   });
+
+  consumeQueue('engages:notification', async ({ subdomain, data }) => {
+    debug.info(`Receiving queue data ${JSON.stringify(data)}`);
+
+    const models = await generateModels(subdomain);
+
+    try {
+      const { action, data: realData } = data;
+
+      if (action === 'sendEngage') {
+        await start(models, realData);
+      }
+
+      if (action === 'writeLog') {
+        await models.Logs.createLog(data.engageMessageId, 'regular', data.msg);
+      }
+
+      if (action === 'sendEngageSms') {
+        await sendBulkSms(models, realData);
+      }
+    } catch (e) {
+      debug.error(e.message);
+    }
+  });
+
+  consumeQueue(
+    'engage:removeCustomersEngages',
+    async ({ data: { customerIds }, subdomain }) => {
+      const models = await generateModels(subdomain);
+
+      await models.EngageMessages.removeCustomersEngages(customerIds);
+    }
+  );
+
+  consumeQueue(
+    'engage:changeCustomer',
+    async ({ data: { customerId, customerIds }, subdomain }) => {
+      const models = await generateModels(subdomain);
+
+      await models.EngageMessages.changeCustomer(customerId, customerIds);
+    }
+  );
+
+  consumeRPCQueue(
+    'engages:createVisitorOrCustomerMessages',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.EngageMessages.createVisitorOrCustomerMessages(data),
+      };
+    }
+  );
 };
 
 export const sendRPCMessage = async (message): Promise<any> => {
@@ -37,81 +121,99 @@ export const sendRPCMessage = async (message): Promise<any> => {
 };
 
 export const createConversationAndMessage = async (doc): Promise<any> => {
-  if(!(await serviceDiscovery.isEnabled('inbox'))) {
+  if (!(await serviceDiscovery.isEnabled('inbox'))) {
     return null;
   }
 
-  if(!(await serviceDiscovery.isAvailable("inbox"))) {
+  if (!(await serviceDiscovery.isAvailable('inbox'))) {
     throw new Error(`Inbox service is not available`);
   }
 
-  return client.sendRPCMessage('inbox:rpc_queue:createConversationAndMessage', doc);
+  return client.sendRPCMessage(
+    'inbox:rpc_queue:createConversationAndMessage',
+    doc
+  );
 };
 
 export const updateConversationMessage = async (data: any) => {
-  if(!(await serviceDiscovery.isEnabled('inbox'))) {
+  if (!(await serviceDiscovery.isEnabled('inbox'))) {
     return null;
   }
 
-  if(!(await serviceDiscovery.isAvailable("inbox"))) {
+  if (!(await serviceDiscovery.isAvailable('inbox'))) {
     throw new Error(`Inbox service is not available`);
   }
 
-  return client.sendRPCMessage('inbox:rpc_queue:updateConversationMessage', data);
+  return client.sendRPCMessage(
+    'inbox:rpc_queue:updateConversationMessage',
+    data
+  );
 };
 
 export const removeEngageConversations = async (_id): Promise<any> => {
   return client.consumeQueue('removeEngageConversations', _id);
 };
 
-export const getCampaignCustomerInfo = async (data) => {
-  return client.sendRPCMessage('contacts:rpc_queue:prepareEngageCustomers', data);
-};
-
 export default function() {
   return client;
 }
 
-export const sendContactsMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'contacts', ...args });
-};
-
-export const sendInternalNotesMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'internalNotes', ...args });
+export const sendContactsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'contacts',
+    ...args,
+  });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'core', ...args });
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'core',
+    ...args,
+  });
 };
 
-export const sendFormsMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'forms', ...args });
-};
-
-export const sendEngagesMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'engages', ...args });
-};
-
-export const sendInboxMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'inbox', ...args });
-};
-
-export const sendProductsMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'products', ...args });
-};
-
-export const sendNotificationsMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'notifications', ...args });
+export const sendInboxMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'inbox',
+    ...args,
+  });
 };
 
 export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'logs', ...args });
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'logs',
+    ...args,
+  });
 };
 
-export const sendSegmentsMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'segments', ...args });
+export const sendSegmentsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'segments',
+    ...args,
+  });
 };
 
 export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'tags', ...args });
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'tags',
+    ...args,
+  });
 };
