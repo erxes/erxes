@@ -3,7 +3,7 @@ name: Plugin Forms UI
 on:
   push:
     branches:
-      - '**'
+      - federation
     paths:
       - 'packages/plugin-forms-ui/**'
       - '.github/workflows/plugin-forms-ui.yaml'

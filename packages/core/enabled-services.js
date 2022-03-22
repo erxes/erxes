@@ -1,9 +1,8 @@
 module.exports = {
   automations: false,
   calendar: false,
-  cards: false,
   clientportal: false,
-  contacts: true,
+  contacts: false,
   engages: false,
   inbox: false,
   internalnotes: false,
@@ -12,6 +11,9 @@ module.exports = {
   notifications: false,
   products: false,
   segments: false,
-  tags: true,
-  forms: false
+  tags: false,
+
+  core: true,
+  cards: true,
+  forms: true
 };
