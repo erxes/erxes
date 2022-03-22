@@ -3,7 +3,7 @@ name: Plugin Tags UI CI
 on:
   push:
     branches:
-      - '**'
+      - federation
     paths:
       - 'packages/plugin-tags-ui/**'
       - '.github/workflows/plugin-tags-ui.yaml'

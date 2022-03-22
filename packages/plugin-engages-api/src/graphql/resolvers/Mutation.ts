@@ -8,7 +8,7 @@ import { checkCampaignDoc, send } from '../../engageUtils';
 import { sendContactsMessage, sendCoreMessage } from '../../messageBroker';
 import { updateConfigs, createTransporter, getEditorAttributeUtil } from '../../utils';
 import { awsRequests } from '../../trackers/engageTracker';
-import { serviceDiscovery, debug } from '../../configs';
+import { debug } from '../../configs';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
