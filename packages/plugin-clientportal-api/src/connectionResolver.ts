@@ -22,7 +22,7 @@ export interface IContext extends IMainContext {
 export let models: IModels;
 
 export const generateModels = async (
-  hostnameOrSubdomain: string
+  _hostnameOrSubdomain: string
 ): Promise<IModels> => {
   if (models) {
     return models;

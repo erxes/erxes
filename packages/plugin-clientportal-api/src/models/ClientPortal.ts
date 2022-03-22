@@ -1,4 +1,5 @@
 import { Model } from 'mongoose';
+import { IModels } from '../connectionResolver';
 import {
   clientPortalSchema,
   IClientPortal,
@@ -10,7 +11,7 @@ export interface IClientPortalModel extends Model<IClientPortalDocument> {
   createOrUpdateConfig(args: IClientPortal): Promise<IClientPortalDocument>;
 }
 
-export const loadClientPortalClass = (models) => {
+export const loadClientPortalClass = (models: IModels) => {
   class ClientPortal {
     public static async getConfig(_id: string) {
       const config = await models.ClientPortals.findOne({ _id }).lean();

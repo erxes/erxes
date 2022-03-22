@@ -3,7 +3,7 @@ import resolvers from './graphql/resolvers';
 import permissions from './permissions';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
-import { models } from './connectionResolver';
+import { generateModels, models } from './connectionResolver';
 
 export let graphqlPubsub;
 export let mainDb;
@@ -41,6 +41,9 @@ export default {
     return context;
   },
   onServerInit: async (options) => {
+    mainDb = options.db;
+    await generateModels('os');
+
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
