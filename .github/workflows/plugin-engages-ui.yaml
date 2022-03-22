@@ -1,4 +1,4 @@
-name: Plugin UI CI
+name: Plugin Engage UI CI
 
 on:
   push:

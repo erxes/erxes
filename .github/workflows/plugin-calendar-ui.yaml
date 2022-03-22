@@ -1,4 +1,4 @@
-name: Plugin UI CI
+name: Plugin calendar UI CI
 
 on:
   push:

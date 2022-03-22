@@ -1,4 +1,4 @@
-name: Plugin UI CI
+name: Plugin Inbox UI CI
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: Plugin UI CI
+name: Plugin Client portal UI CI
 
 on:
   push:
