@@ -468,11 +468,11 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       segmentCreate: {
         name: 'Create a segment',
-        url: '/segments/new/customer'
+        url: '/segments/new?contentType=customer'
       },
       subSegmentCreate: {
         name: 'Create a subsegment within the previous segment',
-        url: '/segments/new/customer'
+        url: '/segments/new?contentType=customer'
       }
     }
   },

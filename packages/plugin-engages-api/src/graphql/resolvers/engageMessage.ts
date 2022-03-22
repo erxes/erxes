@@ -7,7 +7,7 @@ export default {
     return models.EngageMessages.findOne({ _id });
   },
 
-  async segments({ segmentIds = [] }: IEngageMessageDocument) {
+  segments({ segmentIds = [] }: IEngageMessageDocument) {
     return segmentIds.map(segmentId => ({
       __typename: 'Segment',
       _id: segmentId
@@ -21,7 +21,7 @@ export default {
     }));
   },
 
-  async customerTags({ customerTagIds = [] }: IEngageMessageDocument) {
+  customerTags({ customerTagIds = [] }: IEngageMessageDocument) {
     return customerTagIds.map(customerTagId => ({
       __typename: 'Tag',
       _id: customerTagId
@@ -33,7 +33,7 @@ export default {
   },
 
   // common tags
-  async getTags(engageMessage: IEngageMessageDocument) {
+  getTags(engageMessage: IEngageMessageDocument) {
     return (engageMessage.tagIds || []).map(tagId => ({
       __typename: 'Tag',
       _id: tagId

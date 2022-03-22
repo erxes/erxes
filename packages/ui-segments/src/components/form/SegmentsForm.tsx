@@ -84,7 +84,7 @@ const SegmentsForm = (props: Props) => {
 
   const pageTitle = <Title>{title}</Title>;
   const breadcrumb = [
-    { title: __('Segments'), link: `/segments/${contentType}` },
+    { title: __('Segments'), link: `/segments?contentType=${contentType}` },
     { title }
   ];
 

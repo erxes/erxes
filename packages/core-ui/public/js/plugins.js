@@ -250,8 +250,8 @@ window.plugins = [
         permission: 'showEngagesMessages'
       },
       {
-        text: 'Campaigns settings',
-        to: '#',
+        text: 'Campaign settings',
+        to: '/settings/campaign-configs',
         image: '/images/icons/erxes-31.png',
         location: 'settings',
         scope: 'engages',
@@ -265,7 +265,8 @@ window.plugins = [
     port: 3005,
     exposes: { './routes': './src/routes.tsx' },
     routes: {
-      url: 'http://localhost:3005/remoteEntry.js',
+      url:
+        'https://plugin-uis.s3.us-west-2.amazonaws.com/plugin-forms-ui/remoteEntry.js',
       scope: 'forms',
       module: './routes'
     },
@@ -406,7 +407,7 @@ window.plugins = [
     },
     menus: [
       {
-        text: 'logs',
+        text: 'Logs',
         to: '/settings/logs',
         image: '/images/icons/erxes-33.png',
         location: 'settings',
@@ -462,7 +463,7 @@ window.plugins = [
     menus: [
       {
         text: 'Segments',
-        url: '/segments/contacts:customer',
+        url: '/segments',
         icon: 'icon-chart-pie-alt',
         location: 'mainNavigation',
         permission: 'showSegments'

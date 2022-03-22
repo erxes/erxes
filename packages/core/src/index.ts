@@ -35,6 +35,7 @@ import {
 import logs from './logUtils';
 
 import init from './startup';
+import forms from './forms';
 
 // load environment variables
 dotenv.config();
@@ -232,7 +233,9 @@ httpServer.listen(PORT, async () => {
     port: PORT,
     dbConnectionString: MONGO_URL,
     hasSubscriptions: false,
-    meta: { logs: { providesActivityLog: true, consumers: logs } }
+    meta: { logs: { providesActivityLog: true, consumers: logs },
+    forms
+  }
   });
 
   debugInit(`GraphQL Server is now running on ${PORT}`);

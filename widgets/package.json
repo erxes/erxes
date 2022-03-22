@@ -70,7 +70,7 @@
     "source-map-loader": "^0.2.3",
     "style-loader": "^0.16.1",
     "subscriptions-transport-ws": "^0.9.14",
-    "uglifyjs-webpack-plugin": "^2.2.0",
+    "uglifyjs-webpack-plugin": "1.2.4",
     "url-loader": "^1.0.1",
     "webpack": "4.16.3",
     "webpack-cli": "^3.1.0",
@@ -81,7 +81,7 @@
     "git-repo-info": "^2.1.0",
     "nodemon": "^1.11.0",
     "ts-node": "^8.3.0",
-    "typescript": "^3.5.2"
+    "typescript": "3.9.10"
   },
   "engines": {
     "node": ">=10.x.x"

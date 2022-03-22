@@ -1,7 +1,11 @@
+import React from 'react';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+
 import Spinner from '@erxes/ui/src/components/Spinner';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { __, Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import {
@@ -12,9 +16,6 @@ import {
   EngageConfigQueryResponse,
   EngageVerifiedEmailsQueryResponse
 } from '@erxes/ui-engage/src/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
 import EngageSettingsContent from '../components/EngageSettingsContent';
 
 type Props = {
