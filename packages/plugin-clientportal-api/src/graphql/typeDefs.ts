@@ -9,9 +9,11 @@ import {
 const typeDefs = async (serviceDiscovery) => {
   const contactAvialable = await serviceDiscovery.isEnabled('contacts');
   const cardAvailable = await serviceDiscovery.isEnabled('cards');
+
   return gql`
     scalar JSON
     scalar Date
+
     ${clientPortalTypes(contactAvialable, cardAvailable)}
 
     extend type Query {

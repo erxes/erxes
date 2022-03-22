@@ -1,11 +1,11 @@
 module.exports = {
   automations: false,
   calendar: false,
-  cards: true,
+  cards: false,
   clientportal: false,
   contacts: true,
   engages: false,
-  inbox: true,
+  inbox: false,
   internalnotes: false,
   knowledgebase: false,
   logs: false,

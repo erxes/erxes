@@ -1,5 +1,5 @@
 import WithPermission from "modules/common/components/WithPermission";
-import { __, readFile } from "modules/common/utils";
+import { __, readFile, setBadge } from "modules/common/utils";
 import { pluginNavigations, pluginsOfNavigations } from "pluginUtils";
 import React from "react";
 import { NavLink } from "react-router-dom";
@@ -20,6 +20,8 @@ import {
 import { getThemeItem } from "utils";
 import Icon from "modules/common/components/Icon";
 import FormControl from "modules/common/components/form/Control";
+import Label from "modules/common/components/Label";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 export interface ISubNav {
   permission: string;
@@ -35,7 +37,10 @@ type State = {
   searchText: string;
 };
 
-class Navigation extends React.Component<{}, State> {
+class Navigation extends React.Component<
+  { unreadConversationsCount?: number },
+  State
+> {
   private wrapperRef;
 
   constructor(props) {
@@ -46,6 +51,14 @@ class Navigation extends React.Component<{}, State> {
       moreMenus: pluginNavigations().slice(4) || [],
       searchText: "",
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const unreadCount = nextProps.unreadConversationsCount;
+
+    if (unreadCount !== this.props.unreadConversationsCount) {
+      setBadge(unreadCount, __("Team Inbox").toString());
+    }
   }
 
   setWrapperRef = (node) => {
@@ -134,6 +147,13 @@ class Navigation extends React.Component<{}, State> {
 
   renderMenuItem(nav) {
     const { icon, text, url, label } = nav;
+    const { unreadConversationsCount } = this.props;
+
+    const unreadIndicator = unreadConversationsCount !== 0 && (
+      <Label shake={true} lblStyle="danger" ignoreTrans={true}>
+        {unreadConversationsCount}
+      </Label>
+    );
 
     return (
       <NavMenuItem>
@@ -143,7 +163,9 @@ class Navigation extends React.Component<{}, State> {
         >
           <NavIcon className={icon} />
           <label>{__(text)}</label>
-          {label}
+          {url.includes("inbox") && isEnabled("inbox")
+            ? unreadIndicator
+            : label}
         </NavLink>
       </NavMenuItem>
     );
@@ -248,7 +270,14 @@ class Navigation extends React.Component<{}, State> {
 
         <Nav id="navigation">
           {Navs.map((nav) =>
-            this.renderNavItem(nav.permission, nav.text, nav.url, nav.icon)
+            this.renderNavItem(
+              nav.permission,
+              nav.text,
+              nav.url,
+              nav.icon,
+              nav.childrens || [],
+              nav.label
+            )
           )}
 
           {pluginsOfNavigations(this.renderNavItem)}
