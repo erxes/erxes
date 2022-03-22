@@ -58,6 +58,10 @@ const switchContentType = contentType => {
     case 'engageMessage':
       changedContentType = `engages:${contentType}`;
       break;
+
+    case 'user': 
+      changedContentType = `core:${contentType}`
+      break;
   }
 
   return changedContentType;
