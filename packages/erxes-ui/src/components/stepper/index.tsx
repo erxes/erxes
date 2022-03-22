@@ -1,5 +1,7 @@
 import React from 'react';
 import { StepWrapper, StepItem, StepCount } from './styles';
+import Step from './Step';
+import Steps from './Steps';
 
 function StepperWrapper(props: {
   children: React.ReactNode}) {
@@ -7,7 +9,8 @@ function StepperWrapper(props: {
 }
 
 function StepperItem(props: {
-  children: React.ReactNode}) {
+  children: React.ReactNode;
+  complete?: boolean}) {
   return <StepItem {...props} />;
 }
 
@@ -17,4 +20,4 @@ function StepCounter(props: {
   return <StepCount {...props} />;
 }
 
-export { StepperWrapper, StepperItem, StepCounter };
+export { StepperWrapper, StepperItem, StepCounter, Step, Steps };

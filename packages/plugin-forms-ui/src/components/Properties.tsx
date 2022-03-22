@@ -239,6 +239,7 @@ class Properties extends React.Component<
           <Sidebar currentType={__(currentType)} services={services} />
         }
         content={this.renderProperties()}
+        settings={true}
       />
     );
   }

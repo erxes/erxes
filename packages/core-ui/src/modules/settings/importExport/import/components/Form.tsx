@@ -1,5 +1,5 @@
 import Button from 'modules/common/components/Button';
-import { Step, Steps } from 'modules/common/components/step';
+import { Step, Steps } from '@erxes/ui/src/components/stepper';
 import {
   ControlWrapper,
   Indicator,
@@ -21,6 +21,7 @@ import {
   LeftContent
 } from '@erxes/ui-settings/src/integrations/styles';
 import { StepperWrapper, StepperItem, StepCounter } from "@erxes/ui/src/components/stepper"
+import BreadCrumb from "@erxes/ui/src/components/breadcrumb/NewBreadCrumb";
 
 type Props = {
   contentType: string;
@@ -193,7 +194,7 @@ class Form extends React.Component<Props, State> {
       }
 
       return (
-        <Step img="/images/icons/erxes-10.svg" title="Accociate">
+        <Step title="Accociate">
           <AccociateForm
             attachmentNames={attachmentNames}
             contentTypes={contentTypes}
@@ -218,7 +219,6 @@ class Form extends React.Component<Props, State> {
 
         result.push(
           <Step
-            img="/images/icons/erxes-10.svg"
             title={`Mapping  `}
             key={Math.random()}
           >
@@ -249,55 +249,32 @@ class Form extends React.Component<Props, State> {
       { title }
     ];
 
-    return (
-      <StepWrapper>
-        <Wrapper.Header title={title} breadcrumb={breadcrumb} />
+    const content = (
         <Content>
           <LeftContent>
-            <Steps active={1}>
-              <Step img="/images/icons/erxes-10.svg" title="Type">
+            <Steps active={1} allStep={3} titles={["Type", "Upload", "Detail"]}>
+              <Step title="Type">
                 <TypeForm
                   type={type}
                   onChangeContentType={this.onChangeContentType}
                   contentTypes={contentTypes}
                 />
-                {/* <div style ={{justifyContent: 'center'}}><StepperWrapper>
-                  <StepperItem>
-                    <StepCounter complete={current === 1 ? true : false}>1</StepCounter>
-                    <div>First</div>
-                  </StepperItem>
-                  <StepperItem>
-                    <StepCounter complete={current === 2 ? true : false}>2</StepCounter>
-                    <div >Second</div>
-                  </StepperItem>
-                  <StepperItem>
-                    <StepCounter complete={current === 3 ? true : false}>3</StepCounter>
-                    <div >Third</div>
-                  </StepperItem>
-                  <StepperItem>
-                    <StepCounter complete={current === 4 ? true : false}>4</StepCounter>
-                    <div >Forth</div>
-                  </StepperItem>
-                </StepperWrapper> */}
-                {/* {content} */}
-                {/* <Button btnStyle="simple">Back</Button>
-                <Button >Next</Button></div> */}
+                <div>hohohoho</div>
               </Step>
-              <Step img="/images/icons/erxes-10.svg" title="Upload">
-                <FileUpload
+              <Step title="Upload">
+                {/* <FileUpload
                   onChangeAttachment={this.onChangeAttachment}
                   contentTypes={contentTypes}
                   type={type}
-                />
+                /> */}
+                <div>nknknknk</div>
               </Step>
 
               {/* {this.renderAssociateForm()} */}
               {this.renderMapColumn()}
 
               <Step
-                img="/images/icons/erxes-10.svg"
                 title="Detail"
-                noButton={true}
               >
                 <Details
                   disclaimer={disclaimer}
@@ -305,6 +282,7 @@ class Form extends React.Component<Props, State> {
                   onChangeImportName={this.onChangeImportName}
                   onChangeDisclaimer={this.onChangeDisclaimer}
                 />
+                {/* <div>loolo</div> */}
               </Step>
             </Steps>
 
@@ -322,7 +300,10 @@ class Form extends React.Component<Props, State> {
             </ControlWrapper>
           </LeftContent>
         </Content>
-      </StepWrapper>
+    )
+
+    return (
+        <Wrapper mainHead={<BreadCrumb breadcrumbs={breadcrumb} />} content={content} />
     );
   }
 }

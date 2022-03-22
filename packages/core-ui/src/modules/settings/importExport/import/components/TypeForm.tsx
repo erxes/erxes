@@ -59,7 +59,7 @@ class TypeForm extends React.Component<Props> {
 
   render() {
     return (
-      <FlexItem>
+      <FlexItem h="center">
         <FlexPad direction="column">
           <SubHeading>{__(this.renderText())}</SubHeading>
 

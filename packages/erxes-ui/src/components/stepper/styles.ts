@@ -3,15 +3,16 @@ import styledTS from 'styled-components-ts';
 import { colors } from '@erxes/ui/src/styles'
 
 const StepWrapper = styled.div`
-  margin-top: auto;
+  margin-top: 20px;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   margin-bottom: 20px;
-  width: 800px;
+  width: 100%;
   align-items: center;
+  background: ${colors.colorWhite};
 `;
 
-const StepItem = styled.span`
+const StepItem = styledTS<{complete?: boolean}>(styled.span)`
   position: relative;
   display: flex;
   flex-direction: column;
@@ -19,7 +20,7 @@ const StepItem = styled.span`
   flex: 1;
   z-index: 5;
   justify-content: center;
-  width: 40px;
+  max-width: 400px;
   height: 80px;
   border-radius: 50%; 
   margin-bottom: 6px;
@@ -34,9 +35,9 @@ const StepItem = styled.span`
 
   &:before {
     position: absolute;
-    border-bottom: 2px solid #4bb543;
+    border-bottom: 2px solid ${colors.bgActive};
     width: 100%;
-    top: 25px;
+    top: 30px;
     left: -50%;
     z-index: 2;
   }
@@ -44,20 +45,20 @@ const StepItem = styled.span`
   &:after {
     position: absolute;
     content: "";
-    border-bottom: 2px solid #4bb543;
+    border-bottom: 2px solid ${props => props.complete === true ? colors.colorPrimary : colors.bgActive};
     width: 100%;
-    top: 25px;
+    top: 30px;
     left: 50%;
     z-index: 2;
   }  
 
   &.completed {
-    background-color: #4bb543;
+    background-color: ${colors.colorPrimary};
 
     &:after {
       position: absolute;
     content: "";
-    border-bottom: 2px solid #4bb543;
+    border-bottom: 2px solid ${colors.colorPrimary};
     width: 100%;
     top: 20px;
     left: 50%;
@@ -80,11 +81,12 @@ const StepCount = styledTS<{complete?: boolean}>(styled.div)`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   margin-bottom: 6px;
-  background-color: ${props => props.complete === true ? colors.colorCoreGreen : colors.colorShadowGray};
+  color: ${props => props.complete === true ? colors.colorWhite : colors.colorCoreBlack};
+  background-color: ${props => props.complete === true ? colors.colorPrimary : colors.bgActive};
 `;
 
 export { StepCount, StepItem, StepWrapper};
