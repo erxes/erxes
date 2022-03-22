@@ -1,9 +1,20 @@
-import { generateModels } from "./connectionResolver";
+import { generateModels } from './connectionResolver';
 
 export default {
+  types: [
+    {
+      description: 'Integration',
+      type: 'integration'
+    },
+    {
+      description: 'Conversation',
+      type: 'conversation'
+    }
+  ],
+
   tag: async ({ subdomain, data }) => {
     const { type, targetIds, tagIds, _ids, action } = data;
-    
+
     const models = await generateModels(subdomain);
 
     let response = {};
@@ -20,7 +31,7 @@ export default {
     if (action === 'tagObject') {
       await model.updateMany(
         { _id: { $in: targetIds } },
-        { $set: { tagIds: tagIds } },
+        { $set: { tagIds } },
         { multi: true }
       );
 

@@ -23,7 +23,7 @@ function ListItem(type, contentType) {
 
 function Sidebar({
   types,
-  contentType
+  type
 }: {
   types: Array<{ contentType: string; description: string }>;
   contentType: string;
