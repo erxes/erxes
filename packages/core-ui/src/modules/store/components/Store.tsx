@@ -38,27 +38,10 @@ class Store extends React.Component<Props, State> {
   }
 
   render() {
-    return (
+    return (  
       <Wrapper
-        // header={
-        //   <Wrapper.Header
-        //     title={__(`Companies`) + ` (${totalCount})`}
-        //     queryParams={queryParams}
-        //     submenu={menuContacts}
-        //   />
-        // }
-        // actionBar={actionBar}
-        // footer={<Pagination count={totalCount} />}
         leftSidebar={<Leftbar />}
         content={
-          // <DataWithLoader
-          //   data={mainContent}
-          //   loading={loading}
-          //   count={companies.length}
-          //   emptyText="Add in your first company!"
-          //   emptyImage="/images/actions/1.svg"
-          // />
-          // <h1>hihihihihillllllllllll</h1>
           <Main />
         }
       />

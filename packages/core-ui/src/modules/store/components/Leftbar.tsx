@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
 import CollapseFilter from "./CollapseFilter";
+import FormControl from '@erxes/ui/src/components/form/Control';
 
 const MainContainer = styledTS<{ active?: boolean }>(styled.div)`
   height: 100%;
@@ -163,6 +164,26 @@ class Leftbar extends React.Component<
     );
   };
 
+  renderCheckbox(text: string) {
+    // const { isInternal } = this.state;
+
+    // if (kind.includes('nylas') || kind === 'gmail') {
+    //   return null;
+    // }
+
+    return (
+      <div>
+          <FormControl
+            componentClass='checkbox'
+            onChange={() => {}}
+            color={colors.colorPrimary}
+          >
+            {text}
+          </FormControl>
+      </div>
+    );
+  }
+
   renderFilter = () => {
     const { showInput } = this.state;
 
@@ -184,127 +205,23 @@ class Leftbar extends React.Component<
               </Button>
             </FilterHeader>
             <CollapseFilter compact title="License" open hasBorder={true}>
-              <div className="radio">
-                <input
-                  type="radio"
-                  // value="All"
-                  // checked={this.state.selectedOption === "Male"}
-                  // onChange={this.onValueChange}
-                />
-                All
-              </div>
-              <div className="radio">
-                <input
-                  type="radio"
-                  // value="All"
-                  // checked={this.state.selectedOption === "Male"}
-                  // onChange={this.onValueChange}
-                />
-                Free
-              </div>
-              <div className="radio">
-                <input
-                  type="radio"
-                  // value="All"
-                  // checked={this.state.selectedOption === "Male"}
-                  // onChange={this.onValueChange}
-                />
-                Premium
-              </div>
+                {this.renderCheckbox("All")}
+                {this.renderCheckbox("Free")}
+                {this.renderCheckbox("Premium")}
             </CollapseFilter>
             <CollapseFilter compact title="Categories" open hasBorder={true}>
-              <div className="radio">
-                <input
-                  type="radio"
-                  // value="All"
-                  // checked={this.state.selectedOption === "Male"}
-                  // onChange={this.onValueChange}
-                />
-                All
-              </div>
-              <div className="radio">
-                <input
-                  type="radio"
-                  // value="All"
-                  // checked={this.state.selectedOption === "Male"}
-                  // onChange={this.onValueChange}
-                />
-                Templates
-              </div>
-              <div className="radio">
-                <input
-                  type="radio"
-                  // value="All"
-                  // checked={this.state.selectedOption === "Male"}
-                  // onChange={this.onValueChange}
-                />
-                Plugins
-              </div>
-              <div className="radio">
-                <input
-                  type="radio"
-                  // value="All"
-                  // checked={this.state.selectedOption === "Male"}
-                  // onChange={this.onValueChange}
-                />
-                Add-Ons
-              </div>
+                {this.renderCheckbox("All")}
+                {this.renderCheckbox("Templates")}
+                {this.renderCheckbox("Plugins")}
+                {this.renderCheckbox("Add-Ons")}
             </CollapseFilter>
-            <CollapseFilter compact title="Products" open hasBorder={false}>
-              <div className="radio">
-                <input
-                  type="radio"
-                  // value="All"
-                  // checked={this.state.selectedOption === "Male"}
-                  // onChange={this.onValueChange}
-                />
-                All
-              </div>
-              <div className="radio">
-                <input
-                  type="radio"
-                  // value="All"
-                  // checked={this.state.selectedOption === "Male"}
-                  // onChange={this.onValueChange}
-                />
-                Employee XM
-              </div>
-              <div className="radio">
-                <input
-                  type="radio"
-                  // value="All"
-                  // checked={this.state.selectedOption === "Male"}
-                  // onChange={this.onValueChange}
-                />
-                Customer XM
-              </div>
-              <div className="radio">
-                <input
-                  type="radio"
-                  // value="All"
-                  // checked={this.state.selectedOption === "Male"}
-                  // onChange={this.onValueChange}
-                />
-                Product XM
-              </div>
-              <div className="radio">
-                <input
-                  type="radio"
-                  // value="All"
-                  // checked={this.state.selectedOption === "Male"}
-                  // onChange={this.onValueChange}
-                />
-                Core XM
-              </div>
-              <div className="radio">
-                <input
-                  type="radio"
-                  // value="All"
-                  // checked={this.state.selectedOption === "Male"}
-                  // onChange={this.onValueChange}
-                />
-                Brand XM
-              </div>
+            <CollapseFilter compact title="Products" open hasBorder={true}>
+                {this.renderCheckbox("All")}
+                {this.renderCheckbox("Employee XM")}
+                {this.renderCheckbox("Customer XM")}
+                {this.renderCheckbox("Product XM")}
+                {this.renderCheckbox("Core XM")}
+                {this.renderCheckbox("Brand XM")}
             </CollapseFilter>
           </Filter>
         ) : (

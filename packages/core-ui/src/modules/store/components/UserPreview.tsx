@@ -9,7 +9,6 @@ import styledTS from "styled-components-ts";
 import CollapseFilter from "./CollapseFilter";
 
 const MainContainer = styled.div`
-  margin: 20px;
 `;
 
 const Header = styled.div`
@@ -28,6 +27,7 @@ const PluginCard = styled.div`
   height: 74px;
   width: 24%;
   display: flex;
+  align-items: center;
   background: ${colors.bgMain};
   border-radius: 4px;
 `;
@@ -36,7 +36,7 @@ const PluginPic = styled.div`
   width: 58px;
   margin: 8px;
   height: 58px;
-  background: ${colors.colorBlack};
+  background: ${colors.colorWhite};
   border-radius: 4px;
 `;
 
@@ -44,27 +44,7 @@ const UserInformation = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-`;
-
-const Footer = styled.div`
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const RatingsPreview = styled.div`
-  display: flex;
-`;
-
-const Rating = styled.div`
-  height: 20px;
-  width: 100px;
-  background: ${colors.bgGray};
-`;
-
-const Buttons = styled.div`
-  display: flex;
+  line-height: 10px;
 `;
 
 type Props = {
@@ -139,7 +119,7 @@ class UserPreview extends React.Component<
           <h5>
             <b>{this.props.header}</b>
           </h5>
-          <i>View all</i>
+          <Button btnStyle="link">View all</Button>
         </Header>
         {this.renderList()}
       </MainContainer>

@@ -1,6 +1,7 @@
 import Icon from "modules/common/components/Icon";
 import Button from "./Button";
-import { colors, dimensions } from "modules/common/styles";
+import { colors, dimensions, typography } from "@erxes/ui/src/styles";
+import {Flex} from '@erxes/ui/src/styles/main';
 import { __ } from "modules/common/utils";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -10,7 +11,7 @@ import CollapseFilter from "./CollapseFilter";
 // import { Rating } from "@mui/material";
 
 const MainContainer = styled.div`
-  margin: 20px;
+  padding-bottom: 30px;
   border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
@@ -18,6 +19,7 @@ const Header = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
+  padding: 20px 0px 20px 0px;
 `;
 
 const List = styled.div`
@@ -29,23 +31,20 @@ const List = styled.div`
 const PluginCard = styled.div`
   height: 240px;
   width: 24%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
 `;
 
 const PluginPic = styled.div`
   width: 100%;
   background: ${colors.bgMain};
-  height: 130px;
+  height: 110px;
   border-radius: 4px;
+  margin-bottom: 10px;
 `;
 
 const Footer = styled.div`
   height: 50px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
 `;
 
 const RatingsPreview = styled.div`
@@ -62,11 +61,29 @@ const Buttons = styled.div`
   display: flex;
 `;
 
+const StyledHeader = styled.b`
+  color: ${colors.colorPrimary};
+`;
+
+const Article = styled.b`
+  height: ${typography.lineHeightHeading5};
+`;
+const GrayText = styled.p`
+  color: ${colors.colorCoreGray};
+  padding-right: 5px;
+`;
+
+const Space = styled(GrayText)`
+  padding-left: 5px;
+`;
+
+
+
 type Props = {
-  header: string;
+  header?: string;
   onSearch?: (e) => void;
   clearSearch?: () => void;
-  results;
+  results?;
   loading?: boolean;
 };
 
@@ -90,24 +107,16 @@ class PluginPreview extends React.Component<
         <PluginCard>
           <PluginPic />
           <b>Ecommerce plugin</b>
-          <p>
-            by New Media Group in <b>EXM</b>
-          </p>
+          <Flex>
+            <GrayText>by </GrayText>New media group <Space>in </Space><b>EXM</b>
+          </Flex>
           <Footer>
             <RatingsPreview>
-              <Rating
-                // name="half-rating-read"
-                // defaultValue={2.5}
-                // precision={0.5}
-                // size="small"
-                // readOnly
-              />
+              <Rating />
               <p>/412/</p>
             </RatingsPreview>
-            <Buttons>
-              <Button btnStyle="simple" border size="small"><Icon icon="shopping-cart-alt" size={15}  color= {colors.colorPrimary}/></Button>
-              <Button size="small"><b>Install</b></Button>
-            </Buttons>
+            <Button btnStyle="simple" border size="small"><Icon icon="shopping-cart-alt" size={15}  color={colors.colorPrimary}/></Button>
+            <Button size="small"><b>Install</b></Button>
           </Footer>
         </PluginCard>
         <PluginCard>
@@ -187,10 +196,8 @@ class PluginPreview extends React.Component<
     return (
       <MainContainer>
         <Header>
-          <h5>
-            <b>{this.props.header}</b>
-          </h5>
-          <Button btnStyle="link">View all</Button>
+          <Article>{this.props.header}</Article>
+          <StyledHeader>View all</StyledHeader>
         </Header>
         {this.renderList()}
       </MainContainer>

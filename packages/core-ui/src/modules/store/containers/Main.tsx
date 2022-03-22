@@ -11,13 +11,10 @@ import PluginPreview from '../components/PluginPreview';
 import UserPreview from '../components/UserPreview';
 
 const MainContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  
+  padding: 30px 30px 30px 0px;
 `;
 
-const Slider = styled.div`
-  margin: 20px;
+const Carousel = styled.div`
   height: 250px;
   background-color: ${colors.bgGray};
   border-radius: 8px;
@@ -48,21 +45,8 @@ class Main extends React.Component<
 
   render() {
     return (
-      //   <MainContainer
-      //     // innerRef={this.setWrapperRef}
-      //     active={this.state.showInput}
-      //     // onClick={this.openInput}
-      //   >
-      //     <SearchContainer active={this.state.showInput} onClick={this.openInput}>
-      //       {this.renderSearch()}
-      //       {/* {this.renderResults()} */}
-      //     </SearchContainer>
-      //     <FilterContainer active={this.state.showInput} onClick={this.openInput}>
-      //       {this.renderFilter()}
-      //     </FilterContainer>
-      //   </MainContainer>
       <MainContainer>
-        <Slider>Carousel</Slider>
+        <Carousel>Carousel</Carousel>
         <PluginPreview header="Popular plugins" />
         <UserPreview header="Top user" />
         <PluginPreview header="New plugins" />
@@ -72,3 +56,4 @@ class Main extends React.Component<
 }
 
 export default Main;
+Carousel

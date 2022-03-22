@@ -65,7 +65,7 @@ const Container = styledTS<{ open: boolean; border?: boolean }>(styled.div)`
   margin-bottom: 10px;
   background: ${colors.colorWhite};
   padding: '12px';
-  border-bottom: 1px solid ${(props) => props.border ? colors.borderDarker : colors.colorWhite};
+  border-top: 1px solid ${(props) => props.border ? colors.borderDarker : colors.colorWhite};
 
   &:last-child {
     margin-bottom: 0;

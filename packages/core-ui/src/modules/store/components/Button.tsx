@@ -44,8 +44,9 @@ const ButtonStyled = styledTS<{
   block?: boolean;
   uppercase?: boolean;
   border?: boolean;
+  round?: boolean;
 }>(styled.button)`
-  border-radius: 4px;
+  border-radius: ${(props) => (props.round ? '30px' : '4px')};
   position: relative;
   transition: all 0.3s ease;
   outline: 0;
@@ -172,6 +173,7 @@ export type ButtonProps = {
   uppercase?: boolean;
   target?: string;
   border?: boolean;
+  round?: boolean;
 };
 
 export default class Button extends React.Component<ButtonProps> {
@@ -184,6 +186,7 @@ export default class Button extends React.Component<ButtonProps> {
     type: "button",
     uppercase: false,
     border: false,
+    round: false,
   };
 
   render() {
