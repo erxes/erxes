@@ -222,8 +222,8 @@ const NavMenuItem = styled.div`
 
     span {
       position: absolute;
-      left: ${dimensions.coreSpacing + dimensions.coreSpacing - 1}px;
-      bottom: 12px;
+      right: ${dimensions.coreSpacing + 5}px;
+      top: ${dimensions.coreSpacing}px;
       padding: 4px;
       min-width: 19px;
       min-height: 19px;
