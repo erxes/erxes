@@ -1,11 +1,11 @@
 export const FIELDS_GROUPS_CONTENT_TYPES = {
-  CUSTOMER: 'customer',
-  COMPANY: 'company',
+  CUSTOMER: 'contacts:customer',
+  COMPANY: 'contacts:company',
   PRODUCT: 'product',
   CONVERSATION: 'conversation',
   DEVICE: 'device',
-  USER: 'user',
-  ALL: ['customer', 'company', 'product', 'conversation', 'device', 'user']
+  USER: 'core:user',
+  ALL: ['contacts:customer', 'contacts:company', 'product', 'conversation', 'device', 'core:user']
 };
 
 export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
