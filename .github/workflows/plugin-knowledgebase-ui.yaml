@@ -3,7 +3,7 @@ name: Plugin UI CI
 on:
   push:
     branches:
-      - '**'
+      - federation
     paths:
       - 'packages/plugin-knowledgebase-ui/**'
       - '.github/workflows/plugin-knowledgebase-ui.yaml'

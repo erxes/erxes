@@ -3,7 +3,7 @@ name: Plugin UI CI
 on:
   push:
     branches:
-      - '**'
+      - federation
     paths:
       - 'packages/plugin-logs-ui/**'
       - '.github/workflows/plugin-logs-ui.yaml'

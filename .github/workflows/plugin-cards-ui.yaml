@@ -3,7 +3,7 @@ name: Plugin UI CI
 on:
   push:
     branches:
-      - '**'
+      - federation
     paths:
       - 'packages/plugin-cards-ui/**'
       - '.github/workflows/plugin-cards-ui.yaml'
