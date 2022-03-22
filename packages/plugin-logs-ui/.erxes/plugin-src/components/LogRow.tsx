@@ -38,7 +38,7 @@ class LogRow extends React.Component<Props> {
     }
 
     const content = () => <LogModalContainer log={log} />;
-    let logType = log.type ? log.type : '';
+    let logType = log.type ? log.type.split(':')[1] : '';
 
     // due to engage -> campaign name change
     if (logType === 'engage') {
