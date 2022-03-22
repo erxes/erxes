@@ -1,5 +1,5 @@
 import { Title } from '@erxes/ui/src/styles/main';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import EngageSettingsContent from '../containers/EngageSettingsContent';
