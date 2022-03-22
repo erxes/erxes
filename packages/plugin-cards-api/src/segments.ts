@@ -61,10 +61,12 @@ export default {
     const models = await generateModels(subdomain);
 
     let positive;
+    
+    const config = segment.config || {};
 
     const stageIds = await generateConditionStageIds(models, {
-      boardId: segment.boardId,
-      pipelineId: segment.pipelineId,
+      boardId: config.boardId,
+      pipelineId: config.pipelineId,
       options
     });
 

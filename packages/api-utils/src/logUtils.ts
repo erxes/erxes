@@ -58,15 +58,17 @@ interface ISchemaMap {
   }
 
   for (const item of items) {
-    let name: string = `item with id "${item._id}" has been deleted`;
-
-    for (const n of nameFields) {
-      if (item[n]) {
-        name = item[n];
+    if (item && item._id) {
+      let name: string = `item with id "${item._id}" has been deleted`;
+  
+      for (const n of nameFields) {
+        if (item[n]) {
+          name = item[n];
+        }
       }
+  
+      options.push({ [foreignKey]: item._id, name });
     }
-
-    options.push({ [foreignKey]: item._id, name });
   }
 
   return options;

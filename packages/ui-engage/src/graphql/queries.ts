@@ -1,3 +1,5 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 const listParamsDef = `
   $kind: String
   $status: String
@@ -37,9 +39,7 @@ const commonFields = `
   messenger
   email
 
-  createdUser {
-    _id
-  }
+  createdUserName
 
   brand {
     _id
@@ -80,15 +80,29 @@ const engageMessages = `
         _id
         name
       }
-      segments {
-        _id
-        name
+
+      ${
+        isEnabled('segments')
+          ? `
+              segments {
+                _id
+                name
+              }
+            `
+          : ''
       }
-      getTags {
-        ${tagFields}
-      }
-      customerTags {
-        ${tagFields}
+
+      ${
+        isEnabled('tags')
+          ? `
+              getTags {
+                ${tagFields}
+              }
+              customerTags {
+                ${tagFields}
+              }
+            `
+          : ''
       }
     }
   }
@@ -113,11 +127,25 @@ export const engageDetailFields = `
   brand {
     name
   }
-  customerTags {
-    ${tagFields}
+
+  ${
+    isEnabled('tags')
+      ? `
+          customerTags {
+            ${tagFields}
+          }
+        `
+      : ''
   }
-  segments {
-    contentType
+
+  ${
+    isEnabled('segments')
+      ? `
+          segments {
+            contentType
+          }
+        `
+      : ''
   }
 `;
 
@@ -126,10 +154,23 @@ const engageMessageStats = `
     engageMessageDetail(_id: $_id){
       ${engageDetailFields}
       stats
-      logs
 
-      fromIntegration {
-        name
+      logs {
+        _id
+        createdAt
+        engageMessageId
+        type
+        message
+      }
+
+      ${
+        isEnabled('inbox')
+          ? `
+              fromIntegration {
+                name
+              }
+            `
+          : ''
       }
     }
   }
@@ -311,5 +352,5 @@ export default {
   statusCounts,
   tagCounts,
   verifiedEmails,
-  engageEmailPercentages
+  engageEmailPercentages,
 };

@@ -59,7 +59,7 @@ const countByTags = async (subdomain: string, qb: any, counts: ICountBy): Promis
     subdomain,
     action: 'find',
     data: {
-      type: 'conversation'
+      type: 'inbox:conversation'
     },
     isRPC: true
   });

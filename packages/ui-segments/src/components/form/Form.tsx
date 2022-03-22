@@ -52,6 +52,7 @@ type Props = {
   previewCount?: (args: {
     conditions: IConditionsForPreview[];
     subOf?: string;
+    config?: any;
     conditionsConjunction?: string;
   }) => void;
 
@@ -123,6 +124,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       _id: item._id,
       key: Math.random().toString(),
       contentType: item.contentType || "customer",
+      config: item.config,
       conditionsConjunction: item.conditionsConjunction,
       conditions: item.conditions
         ? item.conditions.map((cond: ISegmentCondition) => ({
@@ -142,21 +144,22 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const { subOf, segments, conditionsConjunction } = this.state;
+    const { subOf, segments, conditionsConjunction, config } = this.state;
     const { previewCount } = this.props;
 
     const conditionsForPreview: IConditionsForPreview[] = [];
 
-    segments.forEach((cond: ISegmentMap) => {
+    segments.forEach((segment: ISegmentMap) => {
       conditionsForPreview.push({
         type: "subSegment",
-        subSegmentForPreview: cond,
+        subSegmentForPreview: segment,
       });
     });
 
     if (previewCount) {
       previewCount({
         conditions: conditionsForPreview,
+        config,
         subOf,
         conditionsConjunction,
       });
@@ -623,6 +626,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       config,
       shouldWriteActivityLog,
     } = this.state;
+
     const finalValues = values;
 
     const conditionSegments: ISubSegment[] = [];
@@ -649,7 +653,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   };
 
   renderSaveButton = (formProps: IFormProps) => {
-    const { segments, state, subOf, conditionsConjunction } = this.state;
+    const { segments, state, subOf, conditionsConjunction, config } = this.state;
     const { values, isSubmitted } = formProps;
     const {
       renderButton,
@@ -664,16 +668,17 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     const onPreviewCount = () => {
       const conditionsForPreview: IConditionsForPreview[] = [];
 
-      segments.forEach((cond: ISegmentMap) => {
+      segments.forEach((seg: ISegmentMap) => {
         conditionsForPreview.push({
           type: "subSegment",
-          subSegmentForPreview: cond,
+          subSegmentForPreview: seg,
         });
       });
 
       if (previewCount) {
         previewCount({
           conditions: conditionsForPreview,
+          config,
           subOf,
           conditionsConjunction,
         });

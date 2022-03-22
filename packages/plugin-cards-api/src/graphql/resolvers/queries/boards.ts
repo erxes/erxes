@@ -582,8 +582,10 @@ const boardQueries = {
       action: "find",
       data: {
         contentType: type,
-        boardId,
-        pipelineId,
+        config: {
+          boardId,
+          pipelineId,
+        }
       },
       isRPC: true,
       defaultValue: [],
@@ -592,7 +594,7 @@ const boardQueries = {
     const counts = {};
 
     for (const segment of segments) {
-      counts[segment._id] = await fetchSegment(segment, {
+      counts[segment._id] = await fetchSegment(subdomain, segment._id, {
         pipelineId,
         returnCount: true,
       });
@@ -600,6 +602,7 @@ const boardQueries = {
 
     return counts;
   },
+
   async cardsFields(_root, _args, { models, subdomain }: IContext) {
     const result = {};
 

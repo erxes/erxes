@@ -121,14 +121,12 @@ class SegmentsFormContainer extends React.Component<
   previewCount = ({
     conditions,
     subOf,
-    boardId,
-    pipelineId,
+    config,
     conditionsConjunction
   }: {
     conditions: ISegmentCondition[];
     subOf?: string;
-    boardId?: string;
-    pipelineId?: string;
+    config?: any;
     conditionsConjunction?: string;
   }) => {
     const { contentType } = this.props;
@@ -142,8 +140,7 @@ class SegmentsFormContainer extends React.Component<
           contentType,
           conditions,
           subOf,
-          boardId,
-          pipelineId,
+          config,
           conditionsConjunction
         },
         fetchPolicy: 'network-only'

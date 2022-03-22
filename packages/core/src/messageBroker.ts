@@ -69,9 +69,14 @@ export const initBroker = async options => {
       data: await Conformities.addConformities(data)
     }));
 
-    consumeQueue('core:conformities.relatedConformity', async ({ data }) => ({
+    consumeRPCQueue('core:conformities.relatedConformity', async ({ data }) => ({
       status: 'success',
       data: await Conformities.relatedConformity(data)
+    }));
+
+    consumeRPCQueue('core:conformities.filterConformity', async ({ data }) => ({
+      status: 'success',
+      data: await Conformities.filterConformity(data)
     }));
 
     consumeRPCQueue('core:generateInternalNoteNotif', async ({ data }) => {
@@ -112,9 +117,9 @@ export const initBroker = async options => {
       data: await Configs.find(data).distinct('value')
     }));
 
-    consumeRPCQueue('core:users.findOne', async query => ({
+    consumeRPCQueue('core:users.findOne', async ({ data }) => ({
       status: 'success',
-      data: await Users.findOne(query)
+      data: await Users.findOne(data)
     }));
 
     consumeRPCQueue('core:users.find', async data => {
