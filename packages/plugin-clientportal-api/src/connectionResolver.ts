@@ -1,4 +1,3 @@
-import { MongoClient } from 'mongodb';
 import * as mongoose from 'mongoose';
 import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
