@@ -34,7 +34,7 @@ const PageHeader = styled.div`
   padding-left: ${dimensions.coreSpacing * 1.5}px;
 `;
 
-const Contents = styled.div`
+const Contents = styledTS<{hasBorder?: boolean}>(styled.div)`
   display: flex;
   flex: 1;
   margin-left: ${dimensions.unitSpacing}px;
@@ -45,6 +45,9 @@ const Contents = styled.div`
   bottom: 0;
   top: 0;
   overflow-x: auto;
+  border: ${props => props.hasBorder && `1px solid ${colors.borderPrimary}`};
+  border-radius: ${props => props.hasBorder && `${dimensions.unitSpacing}px`};
+  margin: ${props => props.hasBorder && dimensions.unitSpacing * 2}px;
 
   @-moz-document url-prefix() {
     overflow: hidden;
@@ -69,7 +72,7 @@ const MainHead = styled.div`
   box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
 `;
 
-const MainContent = styledTS<{ transparent?: boolean; center?: boolean }>(
+const MainContent = styledTS<{ transparent?: boolean; center?: boolean; hasBorder?: boolean }>(
   styled.section
 )`
   flex: 1;
@@ -79,7 +82,8 @@ const MainContent = styledTS<{ transparent?: boolean; center?: boolean }>(
   box-shadow: ${props =>
     !props.transparent && `0 0 6px 1px ${colors.shadowPrimary}`};
   height: ${props => props.center && '100%'};
-  margin: ${props => !props.center && '10px 10px 10px 0'};
+  border-left: ${props => props.hasBorder && `1px solid ${colors.borderPrimary}`};
+  margin: ${props => (props.center || props.hasBorder) ? 0 : '10px 10px 10px 0'};
 `;
 
 const ContentBox = styledTS<{ transparent?: boolean }>(styled.div)`

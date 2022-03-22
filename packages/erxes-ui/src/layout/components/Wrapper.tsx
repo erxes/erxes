@@ -22,6 +22,7 @@ type Props = {
   center?: boolean;
   shrink?: boolean;
   mainHead?: React.ReactNode;
+  hasBorder?: boolean;
 };
 
 class Wrapper extends React.Component<Props> {
@@ -36,7 +37,8 @@ class Wrapper extends React.Component<Props> {
       footer,
       transparent,
       center,
-      shrink
+      shrink,
+      hasBorder
     } = this.props;
 
     if (center) {
@@ -48,6 +50,7 @@ class Wrapper extends React.Component<Props> {
               footer={footer}
               transparent={transparent || false}
               center={center}
+              hasBorder={hasBorder}
             >
               {content}
             </PageContent>
@@ -61,6 +64,7 @@ class Wrapper extends React.Component<Props> {
         actionBar={actionBar}
         footer={footer}
         transparent={transparent || false}
+        hasBorder={hasBorder}
       >
         {content}
       </PageContent>
@@ -68,14 +72,14 @@ class Wrapper extends React.Component<Props> {
   }
 
   render() {
-    const { header, leftSidebar, rightSidebar, mainHead } = this.props;
+    const { header, leftSidebar, rightSidebar, mainHead, hasBorder } = this.props;
 
     return (
       <VerticalContent>
         {header}
         <MainHead>{mainHead}</MainHead>
         <HeightedWrapper>
-          <Contents>
+          <Contents hasBorder={hasBorder}>
             {leftSidebar}
             {this.renderContent()}
             {rightSidebar}
