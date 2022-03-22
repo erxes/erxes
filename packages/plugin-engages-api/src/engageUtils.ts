@@ -7,7 +7,7 @@ import {
   IEngageMessageDocument,
 } from './models/definitions/engages';
 import { isUsingElk } from './utils';
-import messageBroker, {
+import {
   sendInboxMessage,
   sendCoreMessage,
   sendSegmentsMessage,
@@ -243,7 +243,8 @@ const sendEmailOrSms = async (
   }
 
   // customer info will be prepared at contacts api
-  await sendContactsMessage({
+  sendContactsMessage({
+    isRPC: false,
     action: 'customers.prepareEngageCustomers',
     subdomain,
     data: {

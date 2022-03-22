@@ -1,9 +1,9 @@
-name: Plugin UI CI
+name: Plugin Notification UI CI
 
 on:
   push:
     branches:
-      - '**'
+      - federation
     paths:
       - 'packages/plugin-notifications-ui/**'
       - '.github/workflows/plugin-notifications-ui.yaml'

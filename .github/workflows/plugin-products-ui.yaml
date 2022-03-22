@@ -1,9 +1,9 @@
-name: Plugin UI CI
+name: Plugin Product UI CI
 
 on:
   push:
     branches:
-      - '**'
+      - federation
     paths:
       - 'packages/plugin-products-ui/**'
       - '.github/workflows/plugin-products-ui.yaml'
