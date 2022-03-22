@@ -1,9 +1,9 @@
-name: Plugin UI CI
+name: Plugin Inbox UI CI
 
 on:
   push:
     branches:
-      - '**'
+      - federation
     paths:
       - 'packages/plugin-inbox-ui/**'
       - '.github/workflows/plugin-inbox-ui.yaml'

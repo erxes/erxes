@@ -3,7 +3,7 @@ name: UI CI
 on:
   push:
     branches:
-      - '**'
+      - federation
     paths:
       - 'packages/core-ui/**'
       - '.github/workflows/ui.yaml'

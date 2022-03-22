@@ -15,6 +15,13 @@ const tags = `
   }
 `;
 
+const tagsGetTypes = `
+  query tagsGetTypes {
+    tagsGetTypes
+  }
+`;
+
 export default {
-  tags
+  tags,
+  tagsGetTypes
 };

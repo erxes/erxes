@@ -1,9 +1,9 @@
-name: Plugin UI CI
+name: Plugin Engage UI CI
 
 on:
   push:
     branches:
-      - '**'
+      - federation
     paths:
       - 'packages/plugin-engages-ui/**'
       - '.github/workflows/plugin-engages-ui.yaml'

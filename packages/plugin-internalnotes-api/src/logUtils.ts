@@ -8,7 +8,7 @@ import {
   getSchemaLabels
 } from '@erxes/api-utils/src/logUtils';
 
-import messageBroker, { findItem } from './messageBroker';
+import messageBroker, { sendCardsMessage } from './messageBroker';
 import { IInternalNoteDocument, internalNoteSchema } from './models/definitions/internalNotes';
 import { generateModels } from './connectionResolver';
 
@@ -39,7 +39,15 @@ const findContentItemName = async (
     type === MODULE_NAMES.GROWTH_HACK;
 
   if (isCardItem) {
-    const cardItem = await findItem({ _id: contentTypeId, contentType });
+    const cardItem = await sendCardsMessage({
+      subdomain,
+      action: "findItem",
+      data: {
+        _id: contentTypeId,
+        contentType
+      },
+      isRPC: true
+    })
 
     if (cardItem && cardItem.name) {
       name = cardItem.name;

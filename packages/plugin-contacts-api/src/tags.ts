@@ -1,6 +1,16 @@
 import { generateModels } from './connectionResolver';
 
 export default {
+  types: [
+    {
+      description: 'Customer',
+      type: 'customer'
+    },
+    {
+      description: 'Company',
+      type: 'company'
+    }
+  ],
   tag: async ({ subdomain, data }) => {
     const { type, action, _ids, tagIds, targetIds } = data;
 

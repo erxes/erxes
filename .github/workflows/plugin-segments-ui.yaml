@@ -3,7 +3,7 @@ name: Plugin Segments UI CI
 on:
   push:
     branches:
-      - '**'
+      - federation
     paths:
       - 'packages/plugin-segments-ui/**'
       - '.github/workflows/plugin-segments-ui.yaml'
