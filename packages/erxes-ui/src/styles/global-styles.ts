@@ -14,7 +14,7 @@ body {
   line-height: ${typography.lineHeightBody};
   color: ${colors.textPrimary};
   height: 100%;
-  background: ${colors.bgMain} !important;
+  background: ${colors.colorWhite} !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
