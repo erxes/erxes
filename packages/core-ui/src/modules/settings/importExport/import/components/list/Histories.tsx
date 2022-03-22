@@ -313,6 +313,7 @@ class Histories extends React.Component<Props & IRouterProps> {
         leftSidebar={<Sidebar currentType={queryParams.type} />}
         mainHead={<BreadCrumb breadcrumbs={breadcrumb}/>}
         footer={<Pagination count={totalCount} />}
+        settings={true}
         content={
           <DataWithLoader
             data={this.renderHistories()}

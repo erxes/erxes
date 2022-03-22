@@ -459,6 +459,7 @@ class GeneralSettings extends React.Component<Props, State> {
           />
         }
         content={content}
+        settings={true}
       />
     );
   }

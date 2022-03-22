@@ -200,6 +200,7 @@ export default function Home(props: Props) {
       leftSidebar={<Sidebar loadingMainQuery={loading} />}
       actionBar={actionBar}
       content={<UserList history={history} queryParams={queryParams} />}
+      settings={true}
     />
   );
 }

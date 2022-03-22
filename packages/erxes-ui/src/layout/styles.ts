@@ -33,9 +33,10 @@ const PageHeader = styled.div`
   padding-left: ${dimensions.coreSpacing * 1.5}px;
 `;
 
-const Contents = styled.div`
+const Contents = styledTS<{settings?: boolean}>(styled.div)`
   display: flex;
   flex: 1;
+  margin-left: ${props => !props.settings && '10px'};
   max-height: 100%;
   position: absolute;
   left: 0;
@@ -49,25 +50,26 @@ const Contents = styled.div`
   }
 `;
 
-const VerticalContent = styled.div`
+const VerticalContent = styledTS<{settings?: boolean}>(styled.div)`
   display: flex;
   flex: 1;
   flex-direction: column;
   max-height: 100%;
-  background: #fff;
+  background: ${props => props.settings === true ? '#fff' : ''};
 `;
 
-const HeightedWrapper = styled.div`
+const HeightedWrapper = styledTS<{settings?: boolean}>(styled.div)`
   flex: 1;
-  margin: 0px ${dimensions.coreSpacing}px 0px 20px;
   position: relative;
-  border-radius: 25px;
-  border: 1px solid ${colors.borderDarker};
+  margin: ${props => props.settings === true ? '0px 20px 0px 20px' : '0'};
+  border-radius: ${props => props.settings === true ? '25px' : '0'};
+  border: ${props => props.settings === true ? '1px' : '0'} solid ${colors.borderDarker};
 `;
 
-const MainHead = styled.div`
-  padding: 20px ${dimensions.coreSpacing}px;
+const MainHead = styledTS<{settings?: boolean}>(styled.div)`
+  padding: ${props => props.settings === true ? '20px' : '0'} ${dimensions.coreSpacing}px;
   background: ${colors.colorWhite};
+  box-shadow: ${props => props.settings === false ? '0 0 6px 1px' : '0'} ${colors.shadowPrimary};
 `;
 
 const MainContent = styledTS<{ transparent?: boolean; center?: boolean }>(
@@ -128,19 +130,22 @@ const SideContent = styledTS<{
   wide?: boolean;
   half?: boolean;
   full?: boolean;
+  settings?: boolean;
 }>(styled.section)`
   box-sizing: border-box;
   display: flex;
   position: relative;
   flex-direction: column;
   flex-shrink: 0;
-  border-right: 1px solid ${colors.borderDarker};
+  border-right: ${props => props.settings === true ? '1px' : '0'} solid ${colors.borderDarker};
   width: ${props => (props.wide ? '340px' : '290px')};
   flex: ${props => (props.half ? '1' : 'none')};
   background: ${props => (props.full ? colors.colorWhite : 'none')};
   margin: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${
   dimensions.unitSpacing
 }px 0;
+  box-shadow: ${(props) =>
+  props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : "none"};
 
   ${TabContainer} {
     position: sticky;
@@ -158,7 +163,7 @@ const SidebarHeader = styledTS<{
   height: ${dimensions.headerSpacing}px;
   margin-bottom: ${props => props.spaceBottom && '10px'};
   align-items: center;
-  margin: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
+  padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
   text-transform: ${props => props.uppercase && props.uppercase};
   font-weight: ${props => (props.bold ? 'bold' : 'none')};

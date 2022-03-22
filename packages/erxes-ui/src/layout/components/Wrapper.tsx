@@ -23,6 +23,7 @@ type Props = {
   shrink?: boolean;
   mainHead?: React.ReactNode;
   subheader?: React.ReactNode;
+  settings?: boolean;
 };
 
 class Wrapper extends React.Component<Props> {
@@ -72,14 +73,14 @@ class Wrapper extends React.Component<Props> {
   }
 
   render() {
-    const { header, leftSidebar, rightSidebar, mainHead } = this.props;
+    const { header, leftSidebar, rightSidebar, mainHead, settings } = this.props;
 
     return (
-      <VerticalContent>
+      <VerticalContent settings={settings}>
         {header}
-        <MainHead>{mainHead}</MainHead>
-        <HeightedWrapper>
-          <Contents>
+        <MainHead settings={settings}>{mainHead}</MainHead>
+        <HeightedWrapper settings={settings}>
+          <Contents settings={settings}>
             {leftSidebar}
             {this.renderContent()}
             {rightSidebar}
