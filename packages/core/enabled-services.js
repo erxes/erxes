@@ -13,5 +13,6 @@ module.exports = {
   products: false,
   segments: true,
   tags: true,
-  forms: true
+  forms: true,
+  integrations: true
 };
