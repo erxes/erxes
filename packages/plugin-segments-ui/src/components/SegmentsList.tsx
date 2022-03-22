@@ -16,7 +16,7 @@ import Sidebar from './Sidebar';
 
 type Props = {
   contentType?: string;
-  types: Array<{contentType: string, description: string}>;
+  types: Array<{ contentType: string; description: string }>;
   segments: ISegment[];
   loading: boolean;
   removeSegment: (segmentId: string) => void;
@@ -33,7 +33,9 @@ class SegmentsList extends React.Component<Props> {
     return (
       <ActionButtons>
         <Tip text={__('Edit')} placement="top">
-          <Link to={`/segments/edit/${contentType}/${segment._id}`}>
+          <Link
+            to={`/segments/edit?contentType=${contentType}&id=${segment._id}`}
+          >
             <Button btnStyle="link" icon="edit-3" />
           </Link>
         </Tip>
@@ -95,7 +97,10 @@ class SegmentsList extends React.Component<Props> {
     );
 
     const actionBarRight = (
-      <Link id={'NewSegmentButton'} to={`/segments/new/${contentType}`}>
+      <Link
+        id={'NewSegmentButton'}
+        to={`/segments/new?contentType=${contentType}`}
+      >
         <Button btnStyle="success" icon="plus-circle">
           New segment
         </Button>
@@ -123,7 +128,7 @@ class SegmentsList extends React.Component<Props> {
             }
           />
         }
-        leftSidebar={<Sidebar types={types} />}
+        leftSidebar={<Sidebar types={types} contentType={contentType} />}
       />
     );
   }

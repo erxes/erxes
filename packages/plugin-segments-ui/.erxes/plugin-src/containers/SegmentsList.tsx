@@ -6,14 +6,16 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import SegmentsList from '../components/SegmentsList';
 import { mutations, queries } from '@erxes/ui-segments/src/graphql';
+import { router } from '@erxes/ui/src/utils';
 import {
   RemoveMutationResponse,
   SegmentsQueryResponse
 } from '@erxes/ui-segments/src/types';
-import { router } from '@erxes/ui/src/utils';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   contentType: string;
+  history: any;
 };
 
 type FinalProps = {
@@ -23,7 +25,21 @@ type FinalProps = {
   RemoveMutationResponse;
 
 const SegmentListContainer = (props: FinalProps) => {
-  const { segmentsQuery, getTypesQuery, removeMutation } = props;
+  const { segmentsQuery, getTypesQuery, removeMutation, history } = props;
+
+  if (getTypesQuery.loading) {
+    return <Spinner />;
+  }
+
+  const types = getTypesQuery.segmentsGetTypes || [];
+
+  if (!router.getParam(history, 'contentType') || !segmentsQuery) {
+    router.setParams(
+      history,
+      { contentType: types[0].contentType.toString() },
+      true
+    );
+  }
 
   const removeSegment = segmentId => {
     confirm().then(() => {
@@ -40,8 +56,6 @@ const SegmentListContainer = (props: FinalProps) => {
         });
     });
   };
-
-  const types = getTypesQuery.segmentsGetTypes || [];
 
   const updatedProps = {
     ...props,

@@ -12,6 +12,6 @@ module.exports = {
   notifications: false,
   products: false,
   segments: false,
-  tags: false,
+  tags: true,
   forms: false
 };
