@@ -104,12 +104,18 @@ const connectCore = async () => {
   const url = process.env.API_MONGO_URL || 'mongodb://localhost/erxes';
   const client = new MongoClient(url);
 
+  const dbName = 'erxes';
+
+  let db;
+
   await client.connect();
 
   console.log('Connected successfully to server');
 
+  db = client.db(dbName);
+
   coreModels = {
-    Users: mainDb.model('users', userSchema)
+    Users: await db.collection('users')
   };
 
   return coreModels;

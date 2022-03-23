@@ -698,11 +698,11 @@ const sendSuccess = data => ({
 
 export default {
   getActivityContent: async ({ subdomain, data }) => {
-    return sendSuccess(await getContentItem(subdomain, data));
+    return getContentItem(subdomain, data);
   },
 
   getContentTypeDetail: async ({ subdomain, data }) => {
-    return sendSuccess(await getContentTypeDetail(subdomain, data));
+    return getContentTypeDetail(subdomain, data);
   },
 
   collectItems: async ({ subdomain, data }) => {

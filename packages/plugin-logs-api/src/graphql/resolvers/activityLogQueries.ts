@@ -58,7 +58,9 @@ const activityLogQueries = {
       contentType
     }).lean();
 
-    console.log('sdada', activities);
+    activities.sort((a, b) => {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
 
     return activities;
   },

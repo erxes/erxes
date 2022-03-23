@@ -64,10 +64,6 @@ export const getContentItem = async (subdomain, data) => {
   const models = await generateModels(subdomain);
   const coreModels = await generateCoreModels(subdomain);
 
-  const aa = await coreModels.Users.find({});
-
-  console.log('mmmmmmmmm', aa);
-
   const { Deals, Tasks, Tickets, GrowthHacks, Stages } = models;
   const { action, content, contentType, contentId } = data;
 
@@ -163,11 +159,11 @@ export const getContentItem = async (subdomain, data) => {
     if (content) {
       addedUsers = await coreModels.Users.find({
         _id: { $in: content.addedUserIds }
-      });
+      }).toArray();
 
       removedUsers = await coreModels.Users.find({
         _id: { $in: content.removedUserIds }
-      });
+      }).toArray();
     }
 
     return { addedUsers, removedUsers };
@@ -176,7 +172,6 @@ export const getContentItem = async (subdomain, data) => {
 
 export const getContentTypeDetail = async (subdomain, data) => {
   const models = await generateModels(subdomain);
-  const coreModels = await generateCoreModels(subdomain);
 
   const {
     Deals,
@@ -251,26 +246,6 @@ export const collectItems = async (
     })
     .lean()
     .sort({ closeDate: 1 });
-
-  // const contentIds = items
-  //   .filter(activity => activity.action === 'convert')
-  //   .map(activity => activity.content);
-
-  // const conversations = await sendInboxRPCMessage(
-  //   'findIntegrations',
-  //   { query: { _id: { $in: contentIds } } }
-  // ) || [];
-
-  // if (Array.isArray(contentIds) && conversations.length > 0) {
-  //   for (const c of conversations) {
-  //     items.push({
-  //       _id: c._id,
-  //       contentType: 'conversation',
-  //       contentId,
-  //       createdAt: c.createdAt
-  //     });
-  //   }
-  // }
 
   return items;
 };
