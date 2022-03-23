@@ -8,7 +8,7 @@ import {
   getSchemaLabels
 } from '@erxes/api-utils/src/logUtils';
 
-import messageBroker, { sendCardsMessage } from './messageBroker';
+import messageBroker, { sendCardsMessage, sendContactsMessage, sendCoreMessage, sendProductsMessage } from './messageBroker';
 import { IInternalNoteDocument, internalNoteSchema } from './models/definitions/internalNotes';
 import { generateModels } from './connectionResolver';
 
@@ -53,35 +53,62 @@ const findContentItemName = async (
       name = cardItem.name;
     }
   }
-  if (contentType === MODULE_NAMES.CUSTOMER) {
-    const customer = await messageBroker().sendRPCMessage(
-      'contacts:customers.findOne',
-      { data: { _id: contentTypeId }, subdomain }
-    );
+  if (type === MODULE_NAMES.CUSTOMER) {
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: "customers.findOne",
+      data: { _id: contentTypeId },
+      isRPC: true,
+      defaultValue: {}
+    })
+
 
     if (customer) {
-      name = await messageBroker().sendRPCMessage('contacts:rpc_queue:getCustomerName', customer);
+      name = await sendContactsMessage({
+        subdomain,
+        action: 'customers.getCustomerName',
+        data: { customer },
+        isRPC: true,
+        defaultValue: "Unknown"
+      })
     }
   }
-  if (contentType === MODULE_NAMES.COMPANY) {
-    const company = await messageBroker().sendRPCMessage(
-      'contacts:companies.findOne',
-      { data: { _id: contentTypeId }, subdomain }
-    );
+  if (type === MODULE_NAMES.COMPANY) {
+    const company = await sendContactsMessage({
+      subdomain,
+      action: 'companies.findOne',
+      data: {
+        _id: contentTypeId
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
 
     if (company) {
       name = company.primaryName || company.primaryEmail || company.primaryPhone || 'Unknown';
     }
   }
-  if (contentType === MODULE_NAMES.USER) {
-    const user = await messageBroker().sendRPCMessage('core:users.findOne', { data: { _id: contentTypeId } })
+  if (type === MODULE_NAMES.USER) {
+    const user = await sendCoreMessage({
+      subdomain,
+      action: "users.findOne",
+      data: { _id: contentTypeId },
+      isRPC: true,
+      defaultValue: {}
+    })
 
     if (user) {
       name = user.username || user.email || '';
     }
   }
-  if (contentType === MODULE_NAMES.PRODUCT) {
-    const product = await messageBroker().sendRPCMessage('products:findOne', { _id: contentTypeId });
+  if (type === MODULE_NAMES.PRODUCT) {
+    const product = await sendProductsMessage({
+      subdomain,
+      action: "findOne",
+      data: { _id: contentTypeId },
+      isRPC: true,
+      defaultValue: {}
+    })
 
     if (product) {
       name = product.name;
@@ -103,7 +130,13 @@ const gatherDescriptions = async (subdomain: string, obj: IInternalNoteDocument)
     foreignKey: 'createdUserId',
     prevList: extraDesc,
     nameFields: ['email', 'username'],
-    items: [await messageBroker().sendRPCMessage('core:users.findOne', { data: { _id: obj.createdUserId } })]
+    items: [await sendCoreMessage({
+      subdomain,
+      action: "users.findOne",
+      data: { _id: obj.createdUserId },
+      isRPC: true,
+      defaultValue: {}
+    })]
   });
 
   return extraDesc;

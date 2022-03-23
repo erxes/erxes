@@ -115,7 +115,7 @@ module.exports = {
       util: require.resolve("util/"),
     },
     alias: {
-      "coreui/apolloClient": path.resolve(__dirname, "./src/apolloClient.ts")
+      "coreui/apolloClient": path.resolve(__dirname, "./src/apolloClient.ts"),
     },
     extensions: ["*", ".js", ".jsx", ".ts", ".tsx"],
   },
@@ -136,6 +136,7 @@ module.exports = {
       exposes: {
         "./appContext": "./src/appContext",
         "./apolloClient": "./src/apolloClient",
+        "./withPermission": "./src/modules/common/components/WithPermission",
         "./utils": "./src/modules/common/utils",
       },
       shared: {
@@ -155,6 +156,7 @@ module.exports = {
         },
         "./src/appContext": {},
         "./src/apolloClient": {},
+        "./src/modules/common/components/WithPermission": {},
         "./src/modules/common/utils": {},
       },
     }),
