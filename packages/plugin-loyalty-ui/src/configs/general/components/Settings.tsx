@@ -104,7 +104,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem("ShareScoreFee", "Fee for score sharing")}
         </CollapseContent>
 
-        <CollapseContent title={__("Invite settings")}></CollapseContent>
+        {/* <CollapseContent title={__("Invite settings")}></CollapseContent> */}
       </ContentBox>
     );
 

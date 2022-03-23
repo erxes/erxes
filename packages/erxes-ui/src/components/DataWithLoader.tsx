@@ -5,7 +5,7 @@ import React from 'react';
 type Props = {
   data: any;
   count?: any;
-  loading?: boolean;
+  loading: boolean;
   emptyText?: string;
   emptyIcon?: string;
   emptyImage?: string;

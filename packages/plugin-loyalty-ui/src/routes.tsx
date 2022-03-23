@@ -99,7 +99,7 @@ const userSection = (param) => {
 const routes = () => {
   return (
     <>
-      <Route path="/settings/general" component={Settings} />
+      <Route path="/erxes-plugin-loyalty/settings/general" component={Settings} />
 
       <Route path="/settings/voucher" component={voucherCompaignList} />
 

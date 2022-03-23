@@ -1,11 +1,15 @@
-import { withProps } from '@erxes/ui/src/utils';
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import CustomerLoyalties from '../components/CustomerLoyalties';
-import queries from '../graphql/queries';
-import { CustomerDetailQueryResponse, CustomerLoyaltiesQueryResponse, CustomerLoyaltyQueryResponse } from '../types';
+import { withProps } from "@erxes/ui/src/utils";
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "react-apollo";
+import CustomerLoyalties from "../components/CustomerLoyalties";
+import queries from "../graphql/queries";
+import {
+  CustomerDetailQueryResponse,
+  CustomerLoyaltiesQueryResponse,
+  CustomerLoyaltyQueryResponse,
+} from "../types";
 
 type IProps = {
   customerId?: string;
@@ -19,7 +23,12 @@ type FinalProps = {
 
 class customerLoyaltiesContainer extends React.Component<FinalProps> {
   render() {
-    const { customerLoyaltiesQuery, customerLoyaltyQuery, customerDetailQuery, customerId } = this.props;
+    const {
+      customerLoyaltiesQuery,
+      customerLoyaltyQuery,
+      customerDetailQuery,
+      customerId,
+    } = this.props;
 
     if (customerDetailQuery.loading) {
       return null;
@@ -35,13 +44,16 @@ class customerLoyaltiesContainer extends React.Component<FinalProps> {
 
     const customer = customerDetailQuery.customerDetail;
     const loyalties = customerLoyaltiesQuery.customerLoyalties || [];
-    const loyalty = customerLoyaltyQuery.customerLoyalty || { loyalty: 0, customerId };
+    const loyalty = customerLoyaltyQuery.customerLoyalty || {
+      loyalty: 0,
+      customerId,
+    };
 
     const extendedProps = {
       ...this.props,
       customer,
       loyalties,
-      loyalty
+      loyalty,
     };
     return <CustomerLoyalties {...extendedProps} />;
   }
@@ -52,31 +64,31 @@ export default withProps<IProps>(
     graphql<IProps, CustomerLoyaltiesQueryResponse, { customerId: string }>(
       gql(queries.customerLoyalties),
       {
-        name: 'customerLoyaltiesQuery',
-        options: ({ customerId = '' }) => ({
-          variables: { customerId }
-        })
+        name: "customerLoyaltiesQuery",
+        options: ({ customerId = "" }) => ({
+          variables: { customerId },
+        }),
       }
     ),
     graphql<IProps, CustomerLoyaltyQueryResponse, { customerId: string }>(
       gql(queries.customerLoyalty),
       {
-        name: 'customerLoyaltyQuery',
-        options: ({ customerId = '' }) => ({
-          variables: { customerId }
-        })
+        name: "customerLoyaltyQuery",
+        options: ({ customerId = "" }) => ({
+          variables: { customerId },
+        }),
       }
     ),
-    graphql<IProps, CustomerDetailQueryResponse, { customerId: string }>(
+    graphql<IProps, CustomerDetailQueryResponse, { _id: string }>(
       gql(queries.customerDetail),
       {
-        name: 'customerDetailQuery',
-        options: ({ customerId }: { customerId: string }) => ({
+        name: "customerDetailQuery",
+        options: ({ customerId }) => ({
           variables: {
-            _id: customerId
-          }
-        })
+            _id: customerId,
+          },
+        }),
       }
     )
   )(customerLoyaltiesContainer)
-)
+);

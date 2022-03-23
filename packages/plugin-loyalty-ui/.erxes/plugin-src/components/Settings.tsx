@@ -1,14 +1,19 @@
 import {
-  Button, ControlLabel, FormControl, FormGroup, HeaderDescription, Info
-} from '@erxes/ui/src/components';
+  Button,
+  ControlLabel,
+  FormControl,
+  FormGroup,
+  HeaderDescription,
+  Info,
+} from "@erxes/ui/src/components";
 import { ContentBox } from "@erxes/ui/src/layout/styles";
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
-import { __ } from '@erxes/ui/src/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
-import { SettingsContent } from '../styles';
+import { MainStyleTitle as Title } from "@erxes/ui/src/styles/eindex";
+import { __ } from "@erxes/ui/src/utils";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import React from "react";
+import { SettingsContent } from "../styles";
 
-import { IConfigsMap } from '../types';
+import { IConfigsMap } from "../types";
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -28,7 +33,7 @@ class GeneralSettings extends React.Component<Props, State> {
     };
   }
 
-  save = e => {
+  save = (e) => {
     e.preventDefault();
 
     const { configsMap } = this.state;
@@ -65,14 +70,15 @@ class GeneralSettings extends React.Component<Props, State> {
 
   render() {
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Loyalty configs') }
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Loyalty configs") },
     ];
 
     const header = (
       <HeaderDescription
         icon="/images/actions/25.svg"
         title="Loyalty configs"
+        description="loyalty desc"
       />
     );
 
@@ -89,16 +95,18 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const content = (
       <ContentBox>
-        <SettingsContent title={__('General settings')}>
+        <SettingsContent title={__("General settings")}>
           <Info>
             <p>
-              {__(
-                'Хөнгөлөлт бодоходод шаардлагатай тохиргоог тохируулна.'
-              ) + '.'}
+              {__("Хөнгөлөлт бодоходод шаардлагатай тохиргоог тохируулна.") +
+                "."}
             </p>
           </Info>
-          {this.renderItem('LOYALTY_RATIO_CURRENCY', 'Loyalty ratio currency')}
-          {this.renderItem('LOYALTY_PERCENT_OF_DEAL', 'Loyalty percent of deal amount')}
+          {this.renderItem("LOYALTY_RATIO_CURRENCY", "Loyalty ratio currency")}
+          {this.renderItem(
+            "LOYALTY_PERCENT_OF_DEAL",
+            "Loyalty percent of deal amount"
+          )}
         </SettingsContent>
       </ContentBox>
     );
@@ -107,14 +115,14 @@ class GeneralSettings extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Loyalty configs')}
+            title={__("Loyalty configs")}
             breadcrumb={breadcrumb}
           />
         }
         mainHead={header}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Loyalty config')}</Title>}
+            left={<Title>{__("Loyalty config")}</Title>}
             right={actionButtons}
           />
         }
