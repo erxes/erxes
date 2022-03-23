@@ -41,7 +41,7 @@ export const types = `
     color: String
     conditions: JSON
     conditionsConjunction: String
-    shouldWriteActivityLog: Boolean!
+    shouldWriteActivityLog: Boolean
 
     getSubSegments: [Segment]
     subSegmentConditions: [Segment]
