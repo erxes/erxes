@@ -4,11 +4,11 @@ import { chunkArray } from '@erxes/api-utils/src/core';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 
-import { debug } from './configs';
+import { debug, es } from './configs';
 import { ICustomerDocument } from './models/definitions/customers';
 import messageBroker, { sendEngagesMessage } from './messageBroker';
 import { getService, getServices } from './inmemoryStorage';
-import { IModels } from './connectionResolver';
+import { generateModels, IModels } from './connectionResolver';
 
 export const findCustomer = async ({ Customers }: IModels, doc) => {
   let customer;
@@ -17,8 +17,8 @@ export const findCustomer = async ({ Customers }: IModels, doc) => {
     customer = await Customers.findOne({
       $or: [
         { emails: { $in: [doc.customerPrimaryEmail] } },
-        { primaryEmail: doc.customerPrimaryEmail },
-      ],
+        { primaryEmail: doc.customerPrimaryEmail }
+      ]
     });
   }
 
@@ -26,8 +26,8 @@ export const findCustomer = async ({ Customers }: IModels, doc) => {
     customer = await Customers.findOne({
       $or: [
         { phones: { $in: [doc.customerPrimaryPhone] } },
-        { primaryPhone: doc.customerPrimaryPhone },
-      ],
+        { primaryPhone: doc.customerPrimaryPhone }
+      ]
     });
   }
 
@@ -53,26 +53,26 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
     company = await Companies.findOne({
       $or: [
         { names: { $in: [doc.companyPrimaryName] } },
-        { primaryName: doc.companyPrimaryName },
-      ],
+        { primaryName: doc.companyPrimaryName }
+      ]
     });
   }
 
   if (!company && doc.name) {
     company = await Companies.findOne({
-      $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }],
+      $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }]
     });
   }
 
   if (!company && doc.email) {
     company = await Companies.findOne({
-      $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }],
+      $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
     });
   }
 
   if (!company && doc.phone) {
     company = await Companies.findOne({
-      $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }],
+      $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
     });
   }
 
@@ -80,8 +80,8 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
     company = await Companies.findOne({
       $or: [
         { emails: { $in: [doc.companyPrimaryEmail] } },
-        { primaryEmail: doc.companyPrimaryEmail },
-      ],
+        { primaryEmail: doc.companyPrimaryEmail }
+      ]
     });
   }
 
@@ -89,8 +89,8 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
     company = await Companies.findOne({
       $or: [
         { phones: { $in: [doc.companyPrimaryPhone] } },
-        { primaryPhone: doc.companyPrimaryPhone },
-      ],
+        { primaryPhone: doc.companyPrimaryPhone }
+      ]
     });
   }
 
@@ -109,8 +109,12 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
   return company;
 };
 
-export const generateFields = async ({ Customers, Companies }: IModels, args) => {
-  const { contentType } = args;
+export const generateFields = async ({ subdomain, data }) => {
+  const { type, usageType } = data;
+
+  const models = await generateModels(subdomain);
+
+  const { Customers, Companies } = models;
 
   let schema: any;
   let fields: Array<{
@@ -124,7 +128,10 @@ export const generateFields = async ({ Customers, Companies }: IModels, args) =>
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 
-  switch (contentType) {
+  switch (type) {
+    case 'lead':
+      schema = Customers.schema;
+
     case 'customer':
       schema = Customers.schema;
       break;
@@ -145,9 +152,48 @@ export const generateFields = async ({ Customers, Companies }: IModels, args) =>
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
         ];
       }
+    }
+  }
+
+  if (!usageType || usageType === 'export') {
+    const aggre = await es.fetchElk({
+      action: 'search',
+      index: type === 'company' ? 'companies' : 'customers',
+      body: {
+        size: 0,
+        _source: false,
+        aggs: {
+          trackedDataKeys: {
+            nested: {
+              path: 'trackedData'
+            },
+            aggs: {
+              fieldKeys: {
+                terms: {
+                  field: 'trackedData.field',
+                  size: 10000
+                }
+              }
+            }
+          }
+        }
+      },
+      defaultValue: { aggregations: { trackedDataKeys: {} } }
+    });
+
+    const aggregations = aggre.aggregations || { trackedDataKeys: {} };
+    const buckets = (aggregations.trackedDataKeys.fieldKeys || { buckets: [] })
+      .buckets;
+
+    for (const bucket of buckets) {
+      fields.push({
+        _id: Math.random(),
+        name: `trackedData.${bucket.key}`,
+        label: bucket.key
+      });
     }
   }
 
@@ -156,7 +202,7 @@ export const generateFields = async ({ Customers, Companies }: IModels, args) =>
 
 export const getEnv = ({
   name,
-  defaultValue,
+  defaultValue
 }: {
   name: string;
   defaultValue?: string;
@@ -174,7 +220,10 @@ export const getEnv = ({
   return value || '';
 };
 
-export const getContentItem = async ({ Customers, Companies }: IModels, activityLog) => {
+export const getContentItem = async (
+  { Customers, Companies }: IModels,
+  activityLog
+) => {
   const { action, contentType, content } = activityLog;
 
   if (action === 'merge') {
@@ -209,12 +258,11 @@ export const getEditorAttributeUtil = async () => {
   return editor;
 };
 
-export const prepareEngageCustomers = async ({ Customers }: IModels, subdomain: string, {
-  engageMessage,
-  customersSelector,
-  action,
-  user
-}): Promise<any> => {
+export const prepareEngageCustomers = async (
+  { Customers }: IModels,
+  subdomain: string,
+  { engageMessage, customersSelector, action, user }
+): Promise<any> => {
   const customerInfos: Array<{
     _id: string;
     primaryEmail?: string;
@@ -232,6 +280,50 @@ export const prepareEngageCustomers = async ({ Customers }: IModels, subdomain: 
     emailContent
   );
 
+  const onFinishPiping = async () => {
+    await sendEngagesMessage({
+      subdomain,
+      action: 'pre-notification',
+      data: { engageMessage, customerInfos }
+    });
+
+    if (customerInfos.length > 0) {
+      const data: any = {
+        customers: [],
+        fromEmail: user.email,
+        engageMessageId: engageMessage._id,
+        shortMessage: engageMessage.shortMessage || {},
+        createdBy: engageMessage.createdBy,
+        title: engageMessage.title,
+        kind: engageMessage.kind
+      };
+
+      if (engageMessage.method === 'email' && engageMessage.email) {
+        const replacedContent = await editorAttributeUtil.replaceAttributes({
+          customerFields,
+          content: emailContent,
+          user
+        });
+
+        engageMessage.email.content = replacedContent;
+
+        data.email = engageMessage.email;
+      }
+
+      const chunks = chunkArray(customerInfos, 3000);
+
+      for (const chunk of chunks) {
+        data.customers = chunk;
+
+        await sendEngagesMessage({
+          subdomain,
+          action: 'notification',
+          data: { action, data },
+        });
+      }
+    }
+  };
+
   const customersItemsMapping = JSON.parse('{}');
 
   const customerTransformerStream = new Transform({
@@ -245,7 +337,7 @@ export const prepareEngageCustomers = async ({ Customers }: IModels, subdomain: 
           content: emailContent,
           customer,
           item,
-          customerFields,
+          customerFields
         });
 
         customerInfos.push({
@@ -254,13 +346,13 @@ export const prepareEngageCustomers = async ({ Customers }: IModels, subdomain: 
           emailValidationStatus: customer.emailValidationStatus,
           phoneValidationStatus: customer.phoneValidationStatus,
           primaryPhone: customer.primaryPhone,
-          replacers,
+          replacers
         });
       }
 
       // signal upstream that we are ready to take more data
       callback();
-    },
+    }
   });
 
   // generate fields option =======
@@ -268,7 +360,7 @@ export const prepareEngageCustomers = async ({ Customers }: IModels, subdomain: 
     primaryEmail: 1,
     emailValidationStatus: 1,
     phoneValidationStatus: 1,
-    primaryPhone: 1,
+    primaryPhone: 1
   };
 
   for (const field of customerFields || []) {
@@ -285,43 +377,7 @@ export const prepareEngageCustomers = async ({ Customers }: IModels, subdomain: 
 
     pipe.on('finish', async () => {
       try {
-        if (customerInfos.length > 0) {
-          const data: any = {
-            customers: [],
-            fromEmail: user.email,
-            engageMessageId: engageMessage._id,
-            shortMessage: engageMessage.shortMessage || {},
-            createdBy: engageMessage.createdBy,
-            title: engageMessage.title,
-            kind: engageMessage.kind,
-          };
-
-          if (engageMessage.method === 'email' && engageMessage.email) {
-            const replacedContent = await editorAttributeUtil.replaceAttributes(
-              {
-                customerFields,
-                content: emailContent,
-                user,
-              }
-            );
-
-            engageMessage.email.content = replacedContent;
-
-            data.email = engageMessage.email;
-          }
-
-          const chunks = chunkArray(customerInfos, 3000);
-
-          for (const chunk of chunks) {
-            data.customers = chunk;
-
-            if (action === 'sendEngage') {
-              data.email = engageMessage.email;
-            }
-
-            await sendEngagesMessage({ subdomain, action: 'notification', data: { action, data } });
-          }
-        }
+        await onFinishPiping();
       } catch (e) {
         return reject(e);
       }

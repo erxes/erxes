@@ -51,8 +51,8 @@ const segmentDetail = `
   }
 `;
 const segmentsPreviewCount = `
-  query segmentsPreviewCount($contentType: String!, $conditions: JSON, $subOf: String, $boardId: String, $pipelineId: String, $conditionsConjunction: String) {
-    segmentsPreviewCount(contentType: $contentType, conditions: $conditions, subOf: $subOf, boardId: $boardId, pipelineId: $pipelineId, conditionsConjunction: $conditionsConjunction)
+  query segmentsPreviewCount($contentType: String!, $conditions: JSON, $subOf: String, $config: JSON, $conditionsConjunction: String) {
+    segmentsPreviewCount(contentType: $contentType, conditions: $conditions, subOf: $subOf, config: $config, conditionsConjunction: $conditionsConjunction)
   }
 `;
 

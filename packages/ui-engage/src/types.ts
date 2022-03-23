@@ -124,7 +124,7 @@ export interface IEngageMessage extends IEngageMessageDoc {
   logs?: Array<{ message: string }>;
   smsStats?: IEngageSmsStats;
   fromIntegration?: IIntegration;
-  createdUser: string;
+  createdUserName?: string;
 }
 
 // mutation types

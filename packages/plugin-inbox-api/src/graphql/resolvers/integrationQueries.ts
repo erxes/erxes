@@ -10,7 +10,6 @@ import {
 
 import { sendIntegrationsMessage, sendTagsMessage } from '../../messageBroker';
 import { paginate } from '@erxes/api-utils/src';
-import { getDocumentList } from '../../cacheUtils';
 import { IContext } from '../../connectionResolver';
 /**
  * Common helper for integrations & integrationsTotalCount
@@ -199,11 +198,13 @@ const integrationQueries = {
       data: {
         type: 'integration'
       },
-      isRPC: true
+      isRPC: true,
+      defaultValue: []
     });
 
     for (const tag of tags) {
       const countQueryResult = await count({ tagIds: tag._id, ...qry });
+
       counts.byTag[tag._id] = !args.tag
         ? countQueryResult
         : args.tag === tag._id
@@ -223,7 +224,7 @@ const integrationQueries = {
     }
 
     // Counting integrations by channel
-    const channels = await getDocumentList(models, coreModels, subdomain, 'channels', {});
+    const channels = await models.Channels.find({});
 
     for (const channel of channels) {
       const countQueryResult = await count({
@@ -239,7 +240,7 @@ const integrationQueries = {
     }
 
     // Counting integrations by brand
-    const brands = await getDocumentList(models, coreModels, subdomain, 'brands', {});
+    const brands = await coreModels.Brands.find({})
 
     for (const brand of brands) {
       const countQueryResult = await count({ brandId: brand._id, ...qry });

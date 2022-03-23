@@ -21,7 +21,7 @@ import { getDuplicatedStages } from './PipelineTemplates';
 import { configReplacer } from '../utils';
 import { putActivityLog } from '../logUtils';
 import { IModels } from '../connectionResolver';
-import { sendCoreMessage, sendInternalNotesMessage } from '../messageBroker';
+import { sendCoreMessage, sendFormsMessage, sendInternalNotesMessage } from '../messageBroker';
 
 export interface IOrderInput {
   _id: string;
@@ -58,7 +58,7 @@ const removeItems = async (models: IModels, subdomain: string, type: string, sta
 
   const itemIds = items.map(i => i._id);
 
-  await putActivityLog({
+  await putActivityLog(subdomain, {
     action: 'removeActivityLogs',
     data: { type, itemIds }
   });
@@ -490,7 +490,13 @@ export const loadStageClass = (models: IModels, subdomain: string) => {
       await removeStageItems(models, subdomain, pipeline.type, _id);
 
       if (stage.formId) {
-        // await Forms.removeForm(stage.formId);
+        await sendFormsMessage({
+          subdomain,
+          action: "removeForm",
+          data: {
+            formId: stage.formId
+          },
+        })
       }
 
       return models.Stages.deleteOne({ _id });

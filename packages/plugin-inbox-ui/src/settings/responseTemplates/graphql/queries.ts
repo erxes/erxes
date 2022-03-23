@@ -21,5 +21,5 @@ const responseTemplates = `
 
 export default {
   responseTemplates,
-  responseTemplatesTotalCount
+  responseTemplatesTotalCount,
 };

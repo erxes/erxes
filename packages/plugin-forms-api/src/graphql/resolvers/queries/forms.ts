@@ -1,20 +1,19 @@
 import { checkPermission } from "@erxes/api-utils/src/permissions";
-import { IContext } from "@erxes/api-utils/src/types";
-import { Forms } from "../../../models";
+import { IContext } from "../../../connectionResolver";
 
 const formQueries = {
   /**
    * Forms list
    */
-  forms(_root, _args, { commonQuerySelector }: IContext) {
-    return Forms.find(commonQuerySelector).sort({ title: 1 });
+  forms(_root, _args, { commonQuerySelector, models }: IContext) {
+    return models.Forms.find(commonQuerySelector).sort({ title: 1 });
   },
 
   /**
    * Get one form
    */
-  formDetail(_root, { _id }: { _id: string }) {
-    return Forms.findOne({ _id });
+  formDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Forms.findOne({ _id });
   }
 };
 

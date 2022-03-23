@@ -2,7 +2,7 @@ import * as getUuid from 'uuid-by-string';
 import { debug } from './configs';
 import { es } from './configs';
 import { ICoreIModels } from './connectionResolver';
-import { sendContactsMessage } from './messageBroker';
+import { sendContactsMessage, sendFormsMessage } from './messageBroker';
 
 interface ISaveEventArgs {
   type?: string;
@@ -20,7 +20,7 @@ interface ICustomerIdentifyParams {
   integrationId?: string;
 }
 
-export const saveEvent = async (coreModels: ICoreIModels, args: ISaveEventArgs) => {
+export const saveEvent = async (coreModels: ICoreIModels, subdomain: string, args: ISaveEventArgs) => {
   const { type, name, attributes, additionalQuery } = args;
 
   if (!type) {
@@ -63,7 +63,7 @@ export const saveEvent = async (coreModels: ICoreIModels, args: ISaveEventArgs) 
           customerId,
           createdAt: new Date(),
           count: 1,
-          attributes: coreModels.Fields.generateTypedListFromMap(attributes || {})
+          attributes: await sendFormsMessage({ subdomain, action: 'fields.generateTypedListFromMap', data: attributes || {}, isRPC: true })
         }
       }
     });
@@ -140,14 +140,14 @@ export const getNumberOfVisits = async (params: {
   }
 };
 
-export const trackViewPageEvent = (coreModels: ICoreIModels, args: {
+export const trackViewPageEvent = (coreModels: ICoreIModels, subdomain: string, args: {
   customerId?: string;
   visitorId?: string;
   attributes: any;
 }) => {
   const { attributes, customerId, visitorId } = args;
 
-  return saveEvent(coreModels, {
+  return saveEvent(coreModels, subdomain, {
     type: 'lifeCycle',
     name: 'viewPage',
     customerId,
@@ -183,13 +183,13 @@ export const trackViewPageEvent = (coreModels: ICoreIModels, args: {
   });
 };
 
-export const trackCustomEvent = (coreModels: ICoreIModels, args: {
+export const trackCustomEvent = (coreModels: ICoreIModels, subdomain: string, args: {
   name: string;
   customerId?: string;
   visitorId?: string;
   attributes: any;
 }) => {
-  return saveEvent(coreModels, {
+  return saveEvent(coreModels, subdomain, {
     type: 'custom',
     name: args.name,
     customerId: args.customerId,
@@ -224,7 +224,6 @@ export const identifyCustomer = async (subdomain: string, args: ICustomerIdentif
 };
 
 export const updateCustomerProperty = async (
-  coreModels: ICoreIModels,
   subdomain: string,
   {
     customerId,
@@ -267,7 +266,7 @@ export const updateCustomerProperty = async (
       prev[name] = value;
 
       modifier = {
-        trackedData: coreModels.Fields.generateTypedListFromMap(prev)
+        trackedData: await sendFormsMessage({ subdomain, action: 'fields.generateTypedListFromMap', data: prev, isRPC: true })
       };
     }
   }

@@ -1,5 +1,4 @@
 import { debug } from '../../configs';
-import { getDocument } from '../../cacheUtils';
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
 import { sendIntegrationsMessage } from '../../messageBroker';
@@ -19,8 +18,8 @@ export default {
     return conversation.customerId && { __typename: 'Customer', _id: conversation.customerId }
   },
 
-  integration(conversation: IConversationDocument, _args, { models, coreModels, subdomain }: IContext) {
-    return getDocument(models, coreModels, subdomain, 'integrations', { _id: conversation.integrationId });
+  integration(conversation: IConversationDocument, _args, { models }: IContext) {
+    return models.Integrations.findOne({ _id: conversation.integrationId });
   },
 
   user(conversation: IConversationDocument) {
@@ -49,12 +48,9 @@ export default {
   async facebookPost(
     conv: IConversationDocument,
     _args,
-    {  models, coreModels, subdomain }: IContext
+    {  models, subdomain }: IContext
   ) {
-    const integration =
-      (await getDocument(models, coreModels, subdomain, 'integrations', {
-        _id: conv.integrationId
-      })) || {};
+    const integration = (await models.Integrations.findOne({ _id: conv.integrationId })) || {} as any;
 
     if (integration && integration.kind !== 'facebook-post') {
       return null;
@@ -80,12 +76,12 @@ export default {
   async callProAudio(
     conv: IConversationDocument,
     _args,
-    { user, models, coreModels, subdomain }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const integration =
-      (await getDocument(models, coreModels, subdomain, 'integrations', {
+      (await models.Integrations.findOne({
         _id: conv.integrationId
-      })) || {};
+      })) || {} as any;
 
     if (integration && integration.kind !== 'callpro') {
       return null;
@@ -150,9 +146,9 @@ export default {
 
   async isFacebookTaggedMessage(conversation: IConversationDocument, _args, { models, coreModels, subdomain }: IContext) {
     const integration =
-      (await getDocument(models, coreModels, subdomain, 'integrations', {
+      (await models.Integrations.findOne({
         _id: conversation.integrationId
-      })) || {};
+      })) || {} as any;
 
     if (integration && integration.kind !== 'facebook-messenger') {
       return false;

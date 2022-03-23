@@ -1,9 +1,9 @@
-name: Plugin UI CI
+name: Plugin contacts UI CI
 
 on:
   push:
     branches:
-      - '**'
+      - federation
     paths:
       - 'packages/plugin-contacts-ui/**'
       - '.github/workflows/plugin-contacts-ui.yaml'

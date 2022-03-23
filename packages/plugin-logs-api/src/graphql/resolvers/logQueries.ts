@@ -1,4 +1,5 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { IContext } from '../../connectionResolver';
 import { getDbSchemaLabels } from '../../messageBroker';
 import { fetchLogs } from '../../utils';
 
@@ -25,14 +26,18 @@ export interface IFilter extends ICommonParams {
 }
 
 const logQueries = {
-  logs(_root, params: ILogQueryParams) {
-    return fetchLogs(params);
+  logs(_root, params: ILogQueryParams, { models }: IContext) {
+    return fetchLogs(models, params);
   },
-  async getDbSchemaLabels(_root, params: { type: string }) {
+  async getDbSchemaLabels(_root, params: { type: string }, { subdomain }: IContext) {
     const [serviceName, moduleName] = params.type.split(':');
-    const response = await getDbSchemaLabels(serviceName, moduleName);
 
-    return response;
+    const response = await getDbSchemaLabels(
+      serviceName,
+      { data: { type: moduleName }, subdomain }
+    );
+
+    return response && response.data && Array.isArray(response.data) ? response.data : [];
   },
 };
 

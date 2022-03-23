@@ -1,13 +1,38 @@
 import {
   checkPermission,
-  requireLogin,
+  requireLogin
 } from '@erxes/api-utils/src/permissions';
+import { serviceDiscovery } from '../../../configs';
 import { IContext } from '../../../connectionResolver';
 
 const tagQueries = {
   /**
    * Tags list
    */
+
+  async tagsGetTypes() {
+    const services = await serviceDiscovery.getServices();
+    const fieldTypes: Array<{ description: string; contentType: string }> = [];
+
+    for (const serviceName of services) {
+      const service = await serviceDiscovery.getService(serviceName, true);
+      const meta = service.config.meta || {};
+
+      if (meta && meta.tags) {
+        const types = meta.tags.types || [];
+
+        for (const type of types) {
+          fieldTypes.push({
+            description: type.description,
+            contentType: `${serviceName}:${type.type}`
+          });
+        }
+      }
+    }
+
+    return fieldTypes;
+  },
+
   tags(
     _root,
     { type, searchValue }: { type: string; searchValue?: string },
@@ -21,7 +46,7 @@ const tagQueries = {
 
     return models.Tags.find(selector).sort({
       order: 1,
-      name: 1,
+      name: 1
     });
   },
 
@@ -30,7 +55,7 @@ const tagQueries = {
    */
   tagDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Tags.findOne({ _id });
-  },
+  }
 };
 
 requireLogin(tagQueries, 'tagDetail');

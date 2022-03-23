@@ -19,7 +19,7 @@ const generateItemCustomFields = items =>
   }));
 
 const generateAttributes = (
-  itemTypeFields,
+  cardsFields,
   combinedFields?: FieldsCombinedByType[]
 ) => {
   let items: Array<{ name: string; value?: string }> = [
@@ -52,13 +52,13 @@ const generateAttributes = (
     { name: 'Deal' },
     { value: 'dealProducts', name: 'Products' },
     { value: 'dealAmounts', name: 'Amount' },
-    ...generateItemCustomFields(itemTypeFields.deal),
+    ...generateItemCustomFields(cardsFields.deal),
 
     { name: 'Ticket' },
-    ...generateItemCustomFields(itemTypeFields.ticket),
+    ...generateItemCustomFields(cardsFields.ticket),
 
     { name: 'Task' },
-    ...generateItemCustomFields(itemTypeFields.task)
+    ...generateItemCustomFields(cardsFields.task)
   ];
 
   return {
@@ -72,21 +72,21 @@ type Props = {} & IEditorProps;
 
 type FinalProps = {
   combinedFieldsQuery: FieldsCombinedByTypeQueryResponse;
-  fieldsItemTypedQuery;
+  cardsFieldsQuery;
 } & Props;
 
 const EditorContainer = (props: FinalProps) => {
-  const { combinedFieldsQuery, fieldsItemTypedQuery } = props;
+  const { combinedFieldsQuery, cardsFieldsQuery } = props;
 
-  if (combinedFieldsQuery.loading || fieldsItemTypedQuery.loading) {
+  if (combinedFieldsQuery.loading || cardsFieldsQuery.loading) {
     return null;
   }
 
   const combinedFields = combinedFieldsQuery.fieldsCombinedByContentType || [];
-  const itemTypeFields = fieldsItemTypedQuery.fieldsItemTyped || {};
+  const cardsFields = cardsFieldsQuery.cardsFields || {};
 
   const insertItems =
-    props.insertItems || generateAttributes(itemTypeFields, combinedFields);
+    props.insertItems || generateAttributes(cardsFields, combinedFields);
 
   return <EditorCK {...props} insertItems={insertItems} />;
 };
@@ -101,8 +101,8 @@ export default withProps<Props>(
         }
       })
     }),
-    graphql<Props>(gql(fieldQueries.fieldsItemTyped), {
-      name: 'fieldsItemTypedQuery'
+    graphql<Props>(gql(fieldQueries.cardsFields), {
+      name: 'cardsFieldsQuery'
     })
   )(EditorContainer)
 );

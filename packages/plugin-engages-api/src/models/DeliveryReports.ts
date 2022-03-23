@@ -1,4 +1,5 @@
-import { Document, Model, model, Schema } from 'mongoose';
+import { Document, Model, Schema } from 'mongoose';
+import { IModels } from '../connectionResolver';
 
 export interface IStats {
   open: number;
@@ -98,13 +99,13 @@ export interface IStatsModel extends Model<IStatsDocument> {
   updateStats(engageMessageId: string, stat: string): Promise<void>;
 }
 
-export const loadStatsClass = () => {
+export const loadStatsClass = (models: IModels) => {
   class Stat {
     /**
      * Increase stat by 1
      */
     public static async updateStats(engageMessageId: string, stat: string) {
-      return Stats.updateOne({ engageMessageId }, { $inc: { [stat]: 1 } });
+      return models.Stats.updateOne({ engageMessageId }, { $inc: { [stat]: 1 } });
     }
   }
 
@@ -113,19 +114,7 @@ export const loadStatsClass = () => {
   return statsSchema;
 };
 
-loadStatsClass();
-
-// tslint:disable-next-line
-const Stats = model<IStatsDocument, IStatsModel>('engage_stats', statsSchema);
 
 export interface IDeliveryReportModel extends Model<IDeliveryReportsDocument> {
   updateOrCreateReport(headers: any, status: string): Promise<boolean | string>;
 }
-
-// tslint:disable-next-line
-const DeliveryReports = model<IDeliveryReportsDocument, IDeliveryReportModel>(
-  'delivery_reports',
-  deliveryReportsSchema
-);
-
-export { Stats, DeliveryReports };

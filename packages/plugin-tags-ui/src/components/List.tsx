@@ -13,6 +13,7 @@ import Row from './Row';
 import Sidebar from './Sidebar';
 
 type Props = {
+  types: any[];
   tags: ITag[];
   type: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -21,7 +22,15 @@ type Props = {
   loading: boolean;
 };
 
-function List({ tags, type, remove, merge, loading, renderButton }: Props) {
+function List({
+  tags,
+  type,
+  remove,
+  merge,
+  loading,
+  renderButton,
+  types
+}: Props) {
   const trigger = (
     <Button id={'AddTagButton'} btnStyle="success" icon="plus-circle">
       Add tag
@@ -89,7 +98,7 @@ function List({ tags, type, remove, merge, loading, renderButton }: Props) {
 
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
-    { title: __('Tags'), link: '/tags/engageMessage' },
+    { title: __('Tags'), link: '/tags' },
     { title: __(type) }
   ];
   return (
@@ -105,7 +114,7 @@ function List({ tags, type, remove, merge, loading, renderButton }: Props) {
           emptyImage="/images/actions/8.svg"
         />
       }
-      leftSidebar={<Sidebar />}
+      leftSidebar={<Sidebar types={types} type={type} />}
     />
   );
 }

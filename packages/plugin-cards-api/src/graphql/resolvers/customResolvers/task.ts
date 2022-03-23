@@ -24,7 +24,7 @@ export default {
     const activeCompanies = await sendContactsMessage({
       subdomain,
       action: "companies.findActiveCompanies",
-      data: { _id: { $in: companyIds } },
+      data: { selector: { _id: { $in: companyIds } } },
       isRPC: true,
       defaultValue: [],
     });
@@ -36,6 +36,10 @@ export default {
   },
 
   createdUser(task: ITaskDocument) {
+    if (!task.userId) {
+      return;
+    }
+
     return { __typename: "User", _id: task.userId };
   },
 
@@ -56,7 +60,9 @@ export default {
       subdomain,
       action: "customers.findActiveCustomers",
       data: {
-        _id: { $in: customerIds },
+        selector: {
+          _id: { $in: customerIds },
+        }
       },
       isRPC: true,
       defaultValue: [],
@@ -69,9 +75,9 @@ export default {
   },
 
   assignedUsers(task: ITaskDocument) {
-    return (task.assignedUserIds || []).map((_id) => ({
+    return (task.assignedUserIds || []).filter(e => e).map((_id) => ({
       __typename: "User",
-      _id,
+      _id
     }));
   },
 

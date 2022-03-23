@@ -282,7 +282,7 @@ class Row extends React.Component<Props> {
         </td>
 
         <td className="text-normal">
-          <Capitalize>{message.createdUser || '-'}</Capitalize>
+          <Capitalize>{message.createdUserName || '-'}</Capitalize>
         </td>
         <td>
           <Icon icon="calender" />{' '}

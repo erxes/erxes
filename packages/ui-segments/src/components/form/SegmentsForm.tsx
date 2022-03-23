@@ -12,7 +12,6 @@ import { ResultCount, SegmentResult } from '../styles';
 
 type Props = {
   contentType: string;
-  serviceType: string;
   fields: any[];
   events: IEvent[];
   boards: IBoard[];
@@ -24,6 +23,7 @@ type Props = {
   previewCount: (args: {
     conditions: ISegmentCondition[];
     subOf?: string;
+    config?: any;
     conditionsConjunction?: string;
   }) => void;
   counterLoading: boolean;
@@ -54,8 +54,7 @@ const SegmentsForm = (props: Props) => {
     segments,
     previewCount,
     count,
-    usageType,
-    serviceType
+    usageType
   } = props;
 
   const renderSidebar = () => {
@@ -85,13 +84,12 @@ const SegmentsForm = (props: Props) => {
 
   const pageTitle = <Title>{title}</Title>;
   const breadcrumb = [
-    { title: __('Segments'), link: `/segments/${contentType}` },
+    { title: __('Segments'), link: `/segments?contentType=${contentType}` },
     { title }
   ];
 
   const content = (
     <Form
-      serviceType={serviceType}
       contentType={contentType}
       fields={fields}
       events={events}

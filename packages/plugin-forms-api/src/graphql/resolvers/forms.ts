@@ -1,14 +1,16 @@
-import { Users } from "../../apiCollections";
-import { Fields } from "../../models";
+import { IContext } from "../../connectionResolver";
 import { IFormDocument } from "../../models/definitions/forms";
 
 export default {
-  createdUser(form: IFormDocument) {
-    return Users.findOne({ _id: form.createdUserId });
+  __resolveReference({ _id }, { models }: IContext) {
+    return models.Forms.findOne({ _id });
+  },
+  createdUser(form: IFormDocument, _params, { coreModels }: IContext) {
+    return coreModels.Users.findOne({ _id: form.createdUserId });
   },
 
-  fields(form: IFormDocument) {
-    return Fields.find({ contentType: 'form', contentTypeId: form._id }).sort({
+  fields(form: IFormDocument, _params, { models }: IContext) {
+    return models.Fields.find({ contentType: 'form', contentTypeId: form._id }).sort({
       order: 1
     });
   }

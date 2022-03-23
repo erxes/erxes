@@ -1,21 +1,21 @@
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
-import { __ } from 'coreui/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { EMPTY_CONTENT_BOOKINGS } from '../constants';
-import React from 'react';
-import { IBookingIntegration } from '../types';
-import Sidebar from './Sidebar';
-import Row from './BookingRow';
-import { Link } from 'react-router-dom';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
-import { IntegrationsCount } from '@erxes/ui-leads/src/types';
-import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import Table from "@erxes/ui/src/components/table";
+import { __ } from "coreui/utils";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { EMPTY_CONTENT_BOOKINGS } from "../constants";
+import React from "react";
+import { IBookingIntegration } from "../types";
+import Sidebar from "./Sidebar";
+import Row from "./BookingRow";
+import { Link } from "react-router-dom";
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import TaggerPopover from "@erxes/ui/src/tags/components/TaggerPopover";
+import { IntegrationsCount } from "@erxes/ui-leads/src/types";
+import { TAG_TYPES } from "@erxes/ui/src/tags/constants";
 
 type Props = {
   queryParams: any;
@@ -47,15 +47,15 @@ function BookingList(props: Props) {
     totalCount,
     counts,
     archive,
-    integrations
+    integrations,
   } = props;
 
   const onChange = () => {
-    toggleAll(integrations, 'integrations');
+    toggleAll(integrations, "integrations");
   };
 
   const renderRow = () => {
-    return integrations.map(integration => (
+    return integrations.map((integration) => (
       <Row
         key={integration._id}
         integration={integration}
@@ -72,7 +72,7 @@ function BookingList(props: Props) {
 
   if (bulk.length > 0) {
     const tagButton = (
-      <Button btnStyle='simple' size='small' icon='tag-alt'>
+      <Button btnStyle="simple" size="small" icon="tag-alt">
         Tag
       </Button>
     );
@@ -90,8 +90,8 @@ function BookingList(props: Props) {
   }
 
   const actionBarRight = (
-    <Link to='/bookings/create'>
-      <Button btnStyle='success' size='small' icon='plus-circle'>
+    <Link to="/bookings/create">
+      <Button btnStyle="success" size="small" icon="plus-circle">
         Create Booking
       </Button>
     </Link>
@@ -102,24 +102,24 @@ function BookingList(props: Props) {
   );
 
   const content = (
-    <Table whiteSpace='nowrap' hover={true}>
+    <Table whiteSpace="nowrap" hover={true}>
       <thead>
         <tr>
           <th>
             <FormControl
-              componentClass='checkbox'
+              componentClass="checkbox"
               checked={isAllSelected}
               onChange={onChange}
             />
           </th>
-          <th>{__('Listings')}</th>
-          <th>{__('Brand')}</th>
-          <th>{__('Views')}</th>
-          <th>{__('Status')}</th>
-          <th>{__('Created by')}</th>
-          <th>{__('Created at')}</th>
-          <th>{__('Tags')}</th>
-          <th>{__('Actions')}</th>
+          <th>{__("Listings")}</th>
+          <th>{__("Brand")}</th>
+          <th>{__("Views")}</th>
+          <th>{__("Status")}</th>
+          <th>{__("Created by")}</th>
+          <th>{__("Created at")}</th>
+          <th>{__("Tags")}</th>
+          <th>{__("Actions")}</th>
         </tr>
       </thead>
       <tbody>{renderRow()}</tbody>
@@ -130,12 +130,12 @@ function BookingList(props: Props) {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Bookings')}
-          breadcrumb={[{ title: __('Bookings') }]}
+          title={__("Bookings")}
+          breadcrumb={[{ title: __("Bookings") }]}
           queryParams={queryParams}
         />
       }
-      leftSidebar={<Sidebar counts={counts || {}} />}
+      leftSidebar={<Sidebar counts={counts || ({} as any)} />}
       actionBar={actionBar}
       footer={<Pagination count={2} />}
       content={
@@ -146,7 +146,7 @@ function BookingList(props: Props) {
           emptyContent={
             <EmptyContent
               content={EMPTY_CONTENT_BOOKINGS}
-              maxItemWidth='360px'
+              maxItemWidth="360px"
             />
           }
         />

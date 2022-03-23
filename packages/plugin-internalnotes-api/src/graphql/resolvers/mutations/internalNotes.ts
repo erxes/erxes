@@ -4,6 +4,7 @@ import { graphqlPubsub } from '../../../configs';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 import {
   sendNotificationMessage,
+  sendNotificationsMessage,
   sendRPCMessage,
 } from '../../../messageBroker';
 import { IInternalNote } from '../../../models/definitions/internalNotes';
@@ -21,8 +22,8 @@ const sendNotificationOfItems = async (
 ) => {
   const notifDocItems = { ...doc };
   const relatedReceivers = await sendRPCMessage(
-    `${serviceName}:rpc_queue:notifiedUserIds`,
-    item
+    `${serviceName}:notifiedUserIds`,
+    { data: item }
   );
 
   notifDocItems.action = `added note in ${contentType}`;
@@ -43,7 +44,7 @@ const internalNoteMutations = (serviceDiscovery) => ({
   async internalNotesAdd(
     _root,
     args: IInternalNote,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const { contentType, contentTypeId, mentionedUserIds = [] } = args;
 
@@ -68,11 +69,13 @@ const internalNoteMutations = (serviceDiscovery) => ({
     };
 
     const updatedNotifDoc = await sendRPCMessage(
-      `${serviceName}:rpc_queue:generateInternalNoteNotif`,
+      `${serviceName}:generateInternalNoteNotif`,
       {
-        type,
-        contentTypeId,
-        notifDoc,
+        data: {
+          type,
+          contentTypeId,
+          notifDoc,
+        }
       }
     );
 
@@ -86,7 +89,11 @@ const internalNoteMutations = (serviceDiscovery) => ({
     }
 
     if (updatedNotifDoc.contentType) {
-      await sendNotificationMessage('send', updatedNotifDoc);
+      await sendNotificationsMessage({
+        subdomain,
+        action: "send",
+        data: updatedNotifDoc
+      });
     }
 
     const internalNote = await models.InternalNotes.createInternalNote(
@@ -95,6 +102,7 @@ const internalNoteMutations = (serviceDiscovery) => ({
     );
 
     await putCreateLog(
+      subdomain,
       {
         type: 'internalNote',
         newData: {
@@ -117,12 +125,13 @@ const internalNoteMutations = (serviceDiscovery) => ({
   async internalNotesEdit(
     _root,
     { _id, ...doc }: IInternalNotesEdit,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const internalNote = await models.InternalNotes.getInternalNote(_id);
     const updated = await models.InternalNotes.updateInternalNote(_id, doc);
 
     await putUpdateLog(
+      subdomain,
       {
         type: 'internalNote',
         object: internalNote,
@@ -142,12 +151,12 @@ const internalNoteMutations = (serviceDiscovery) => ({
   async internalNotesRemove(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const internalNote = await models.InternalNotes.getInternalNote(_id);
     const removed = await models.InternalNotes.removeInternalNote(_id);
 
-    await putDeleteLog({ type: 'internalNote', object: internalNote }, user);
+    await putDeleteLog(subdomain, { type: 'internalNote', object: internalNote }, user);
 
     graphqlPubsub.publish('activityLogsChanged', {});
 

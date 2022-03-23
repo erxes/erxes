@@ -136,7 +136,7 @@ export const loadPipelineTemplateClass = (models: IModels, subdomain: string) =>
       }
 
       for (const stage of pipelineTemplate.stages) {
-        sendFormsMessage({ subdomain, action: 'removeForm', data: stage.formId });
+        sendFormsMessage({ subdomain, action: 'removeForm', data: { formId: stage.formId } });
       }
 
       return models.PipelineTemplates.deleteOne({ _id });

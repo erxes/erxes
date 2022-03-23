@@ -1,17 +1,11 @@
 import * as strip from 'strip';
 
-// ? import {
-//   IVisitorContactInfoParams
-// } from '../../../db/models/Customers';
-
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
   KIND_CHOICES,
   MESSAGE_TYPES
 } from '../../models/definitions/constants';
-
-// ? import { ISubmission } from '../../../db/models/definitions/fields';
 
 import {
   IAttachment,
@@ -34,7 +28,6 @@ import {
 import { sendRequest } from '@erxes/api-utils/src';
 
 import { solveSubmissions } from '../../widgetUtils';
-import { getDocument, getMessengerApps } from '../../cacheUtils';
 import { conversationNotifReceivers } from './conversationMutations';
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
 import {
@@ -89,7 +82,7 @@ const pConversationClientMessageInserted = async (models, message) => {
       {
         integrationIds: { $in: [integration._id] }
       },
-      { _id: 1 }
+      { _id: 1, memberIds: 1 }
     );
 
     for (const channel of channels) {
@@ -123,13 +116,11 @@ export const getMessengerData = async (models: IModels, integration: IIntegratio
   }
 
   // knowledgebase app =======
-  const kbApp = await getMessengerApps(models, 'knowledgebase', integration._id);
-
+  const kbApp: any = await models.MessengerApps.findOne({ kind: 'knowledgebase', 'credentials.integrationId': integration._id });
   const topicId = kbApp && kbApp.credentials ? kbApp.credentials.topicId : null;
 
   // lead app ==========
-  const leadApps = await getMessengerApps(models, 'lead', integration._id, false);
-
+  const leadApps: any[] = await models.MessengerApps.find({ kind: 'lead', 'credentials.integrationId': integration._id });
   const formCodes = [] as string[];
 
   for (const app of leadApps) {
@@ -139,7 +130,7 @@ export const getMessengerData = async (models: IModels, integration: IIntegratio
   }
 
   // website app ============
-  const websiteApps = await getMessengerApps(models, 'website', integration._id, false);
+  const websiteApps = await models.MessengerApps.find({ kind: 'website', 'credentials.integrationId': integration._id });
 
   return {
     ...(messengerData || {}),
@@ -182,7 +173,7 @@ const createFormConversation = async (
 ) => {
   const { integrationId, formId, submissions } = args;
 
-  const form = await coreModels.Forms.findOne({ _id: formId });
+  const form = await sendFormsMessage({ subdomain, action: 'findOne', data: { _id: formId }, isRPC: true }) ;
 
   if (!form) {
     throw new Error('Form not found');
@@ -259,9 +250,9 @@ const widgetMutations = {
     args: { brandCode: string; formCode: string; cachedCustomerId?: string },
     { models, coreModels, subdomain }: IContext
   ) {
-    const brand = await getDocument(models, coreModels, subdomain, 'brands', { code: args.brandCode });
+    const brand = await coreModels.Brands.findOne({ code: args.brandCode });
 
-    const form = await coreModels.Forms.findOne({ code: args.formCode });
+    const form = await sendFormsMessage({ subdomain, action: 'findOne', data: { code: args.formCode }, isRPC: true }) ;
 
     if (!brand || !form) {
       throw new Error('Invalid configuration');
@@ -384,14 +375,14 @@ const widgetMutations = {
     const customData = data;
 
     // find brand
-    const brand = await getDocument(models, coreModels, subdomain, 'brands', { code: brandCode });
+    const brand = await coreModels.Brands.findOne({ code: brandCode });
 
     if (!brand) {
       throw new Error('Invalid configuration');
     }
 
     // find integration
-    const integration = await getDocument(models, coreModels, subdomain, 'integrations', {
+    const integration = await models.Integrations.findOne({
       brandId: brand._id,
       kind: KIND_CHOICES.MESSENGER
     });
@@ -627,13 +618,8 @@ const widgetMutations = {
     // to the closed conversation even if it's closed
     let conversation;
 
-    const integration =
-      (await getDocument(models, coreModels, subdomain, 'integrations', {
-        _id: integrationId
-      })) || {};
-
+    const integration = (await models.Integrations.findOne({ _id: integrationId })) || {} as any;
     const messengerData = integration.messengerData || {};
-
     const { botEndpointUrl, botShowInitialMessage } = messengerData;
 
     const HAS_BOTENDPOINT_URL = (botEndpointUrl || '').length > 0;
@@ -911,7 +897,7 @@ const widgetMutations = {
     }
 
     try {
-      await trackViewPageEvent(coreModels, {
+      await trackViewPageEvent(coreModels, subdomain, {
         visitorId,
         customerId,
         attributes: { url: browserInfo.url }
@@ -952,7 +938,7 @@ const widgetMutations = {
       isRPC: true
     });
 
-    const form = await coreModels.Forms.getForm(formId || '');
+    const form = await sendFormsMessage({ subdomain, action: 'findOne', data: { _id: formId }, isRPC: true }) ;
 
     let finalContent = content;
 
@@ -966,7 +952,7 @@ const widgetMutations = {
       ).replaceAttributes({
         content,
         customer,
-        user: await coreModels.Users.getUser(form.createdUserId)
+        user: await coreModels.Users.findOne({_id: form.createdUserId}) || {}
       });
 
       finalContent = replacedContent || '';
@@ -1015,13 +1001,9 @@ const widgetMutations = {
       payload: string;
       type: string;
     },
-    { models, coreModels, subdomain }: IContext
+    { models, subdomain }: IContext
   ) {
-    const integration =
-      (await getDocument(models, coreModels, subdomain, 'integrations', {
-        _id: integrationId
-      })) || {};
-
+    const integration = (await models.Integrations.findOne({ _id: integrationId })) || {} as any;
     const { botEndpointUrl } = integration.messengerData;
 
     if (visitorId && !customerId) {
@@ -1115,7 +1097,7 @@ const widgetMutations = {
   async widgetGetBotInitialMessage(
     _root,
     { integrationId }: { integrationId: string },
-    { models, coreModels, subdomain }: IContext
+    { models }: IContext
   ) {
     const sessionId = `_${Math.random()
       .toString(36)
@@ -1123,11 +1105,7 @@ const widgetMutations = {
 
     await set(`bot_initial_message_session_id_${integrationId}`, sessionId);
 
-    const integration =
-      (await getDocument(models, coreModels, subdomain, 'integrations', {
-        _id: integrationId
-      })) || {};
-
+    const integration = (await models.Integrations.findOne({ _id: integrationId })) || {} as any;
     const { botEndpointUrl } = integration.messengerData;
 
     const botRequest = await sendRequest({

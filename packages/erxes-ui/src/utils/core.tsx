@@ -30,7 +30,10 @@ export const loadComponent = (scope, module) => {
   };
 };
 
-export class RenderDynamicComponent extends React.Component<{ scope: string, component: any, injectedProps: any }, { showComponent: boolean }> {
+export class RenderDynamicComponent extends React.Component<
+  { scope: string; component: any; injectedProps: any },
+  { showComponent: boolean }
+> {
   constructor(props) {
     super(props);
 

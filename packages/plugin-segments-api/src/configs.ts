@@ -3,6 +3,7 @@ import typeDefs from "./graphql/typeDefs";
 import resolvers from "./graphql/resolvers";
 
 import { initBroker } from "./messageBroker";
+import { generateModels } from "./connectionResolver";
 
 export let debug;
 export let mainDb;
@@ -47,7 +48,11 @@ export default {
       resolvers: await resolvers(sd),
     };
   },
-  apolloServerContext: (context) => {
+  apolloServerContext: async (context) => {
+    const models = await generateModels('os');
+
+    context.models = models;
+
     return context;
   },
   onServerInit: async (options) => {

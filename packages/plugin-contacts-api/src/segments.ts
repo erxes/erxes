@@ -1,28 +1,31 @@
 export default {
   indexesTypeContentType: {
+    'contacts:lead': 'customers',
     'contacts:customer': 'customers',
     'contacts:company': 'companies'
   },
-  contentTypes: ['customer', 'company'],
-  esTypesMapQueue: 'contacts:segments:esTypesMap',
-  initialSelectorQueue: 'contacts:segments:initialSelector',
-  associationTypesQueue: 'contacts:segments:associationTypes',
+
+  contentTypes: ['lead', 'customer', 'company'],
 
   descriptionMap: {
     deal: 'Deal',
     ticket: 'Ticket',
     task: 'Task',
+    lead: 'Lead',
     customer: 'Customer',
-    company: 'Company'
+    company: 'Company',
+    converstaion: 'Conversation'
   },
 
-  associationTypes: async ({ mainType }) => {
+  associationTypes: async () => {
     const types: string[] = [
+      'contacts:lead',
       'contacts:customer',
       'contacts:company',
       'cards:deal',
       'cards:ticket',
-      'cards:task'
+      'cards:task',
+      'inbox:conversation'
     ];
 
     return { data: types, status: 'success' };
@@ -32,13 +35,25 @@ export default {
     return { data: { typesMap: {} }, status: 'success' };
   },
 
-  initialSelector: async ({ segment, options }) => {
+  initialSelector: async ({ data: { segment } }) => {
     const negative = {
       term: {
         status: 'deleted'
       }
     };
 
-    return { data: { negative }, status: 'success' };
+    const { contentType } = segment;
+
+    let positive;
+
+    if (contentType.includes('customer') || contentType.includes('lead')) {
+      positive = {
+        term: {
+          state: segment.contentType.replace('contacts:', '')
+        }
+      }
+    }
+
+    return { data: { negative, positive }, status: 'success' };
   }
 };

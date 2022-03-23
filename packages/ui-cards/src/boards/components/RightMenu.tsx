@@ -24,6 +24,7 @@ import {
 import { IOptions } from "../types";
 import Archive from "./Archive";
 import SelectLabel from "./label/SelectLabel";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   onSearch: (search: string) => void;
@@ -225,11 +226,11 @@ export default class RightMenu extends React.Component<Props, State> {
 
         {this.renderDates()}
 
-        <SegmentFilter
-          type={options.type}
+        {isEnabled("segments") && <SegmentFilter
+          type={`cards:${options.type}`}
           boardId={queryParams.id || ""}
           pipelineId={queryParams.pipelineId || ""}
-        />
+        />}
       </FilterBox>
     );
   }

@@ -16,7 +16,7 @@ export default {
     },
   ],
   fields: generateFields,
-  groupsFilter: async ({ config, contentType }) => {
+  groupsFilter: async ({ data: { config, contentType } }) => {
     const { boardId, pipelineId } = config || {};
 
     if (!boardId || !pipelineId) {

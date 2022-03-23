@@ -12,19 +12,40 @@ import {
   RemoveMutationResponse,
   TagsQueryResponse
 } from '../types';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { router } from '@erxes/ui/src/utils';
 
 type Props = {
+  history: any;
   type: string;
 };
 
 type FinalProps = {
   tagsQuery: TagsQueryResponse;
+  tagsGetTypes: any;
 } & Props &
   RemoveMutationResponse &
   MergeMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
-  const { tagsQuery, removeMutation, type, mergeMutation } = props;
+  const {
+    tagsGetTypes,
+    tagsQuery,
+    removeMutation,
+    type,
+    mergeMutation,
+    history
+  } = props;
+
+  if (tagsGetTypes.loading) {
+    return <Spinner />;
+  }
+
+  const types = tagsGetTypes.tagsGetTypes || [];
+
+  if (!router.getParam(history, 'type') || !tagsQuery) {
+    router.setParams(history, { type: types[0].contentType.toString() }, true);
+  }
 
   const remove = tag => {
     confirm(
@@ -81,6 +102,7 @@ const ListContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
+    types,
     tags: tagsQuery.tags || [],
     loading: tagsQuery.loading,
     type,
@@ -96,13 +118,16 @@ const getRefetchQueries = (type: string) => {
   return [
     {
       query: gql(queries.tags),
-      variables: { type }
+      variables: { type: type || '' }
     }
   ];
 };
 
 export default withProps<Props>(
   compose(
+    graphql<Props>(gql(queries.tagsGetTypes), {
+      name: 'tagsGetTypes'
+    }),
     graphql<Props, TagsQueryResponse, { type: string }>(gql(queries.tags), {
       name: 'tagsQuery',
       options: ({ type }) => ({

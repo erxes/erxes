@@ -81,12 +81,6 @@ export const fieldsTypes = `
     label: String
     order: Int
   }
-
-  type FieldsInbox {
-    customer: [Field]
-    conversation: [Field]
-    device: [Field]
-  }
 `;
 
 export const fieldsQueries = `
@@ -94,8 +88,6 @@ export const fieldsQueries = `
   fields(contentType: String!, contentTypeId: String, isVisible: Boolean): [Field]
   fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, config: JSON): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
-  fieldsInbox: FieldsInbox
-  fieldsItemTyped: JSON
 `;
 
 const fieldsCommonFields = `

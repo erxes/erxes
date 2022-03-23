@@ -19,18 +19,18 @@ import {
   SidebarList,
   SidebarTitle,
   WhiteBox,
-  WhiteBoxRoot
-} from '@erxes/ui/src/layout/styles';
-import { twinkling } from 'modules/common/utils/animations';
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { getThemeItem } from 'utils';
+  WhiteBoxRoot,
+} from "@erxes/ui/src/layout/styles";
+import { twinkling } from "modules/common/utils/animations";
+import styled, { css } from "styled-components";
+import styledTS from "styled-components-ts";
+import { getThemeItem } from "utils";
 
-import { colors, dimensions } from '../common/styles';
-import { rgba } from '../common/styles/color';
+import { colors, dimensions } from "../common/styles";
+import { rgba } from "../common/styles/color";
 
-const thBackground = getThemeItem('background');
-const thColor = getThemeItem('text_color');
+const thBackground = getThemeItem("background");
+const thColor = getThemeItem("text_color");
 
 const UserHelper = styled.div`
   height: 50px;
@@ -43,14 +43,14 @@ const UserHelper = styled.div`
 `;
 
 const Layout = styledTS<{ isSqueezed?: boolean }>(styled.main)`
-  height: ${props => (props.isSqueezed ? 'calc(100% - 36px)' : '100%')};
+  height: ${(props) => (props.isSqueezed ? "calc(100% - 36px)" : "100%")};
   display: flex;
   flex: 1;
   max-width: 100%;
   position: relative;
   overflow: hidden;
 
-  ${props =>
+  ${(props) =>
     props.isSqueezed &&
     css`
       ${PageHeader} {
@@ -78,7 +78,7 @@ const Authlayout = styled.div`
       ? thBackground
       : `${colors.colorPrimaryDark} url('/images/stars.png') repeat top center;`
   }
-  color: ${thColor ? thColor : ''}
+  color: ${thColor ? thColor : ""}
   flex: 1;
   display: flex;
 
@@ -222,8 +222,8 @@ const NavMenuItem = styled.div`
 
     span {
       position: absolute;
-      left: ${dimensions.coreSpacing + dimensions.coreSpacing - 1}px;
-      bottom: 12px;
+      right: ${dimensions.coreSpacing + 5}px;
+      top: ${dimensions.coreSpacing}px;
       padding: 4px;
       min-width: 19px;
       min-height: 19px;
@@ -325,13 +325,13 @@ const SubNavItem = styledTS<{ additional: boolean }>(styled.li)`
       color: rgba(0, 0, 0, 0.62);
       display: flex;
       align-items: center;
-      border-radius: ${props =>
+      border-radius: ${(props) =>
         !props.additional && dimensions.unitSpacing - 5}px;
-      border-top: ${props =>
+      border-top: ${(props) =>
         props.additional && `1px solid rgba(0, 0, 0, 0.08)`};
-      border-bottom-left-radius: ${props =>
+      border-bottom-left-radius: ${(props) =>
         props.additional && dimensions.unitSpacing - 5}px;
-      border-bottom-right-radius: ${props =>
+      border-bottom-right-radius: ${(props) =>
         props.additional && dimensions.unitSpacing - 5}px;
 
       > i {
@@ -363,6 +363,7 @@ const SubNavTitle = styled.div`
 
 const NavItem = styled.div`
   position: relative;
+  flex: 1;
 
   &:hover {
     ${SubNav} {
@@ -432,7 +433,8 @@ const MoreItemRecent = styled.div`
     width: 70px !important;
   }
 
-  i, a {
+  i,
+  a {
     transition: none !important;
   }
 
@@ -443,7 +445,7 @@ const MoreItemRecent = styled.div`
 
 const MoreMenuWrapper = styledTS<{ visible: boolean }>(styled.div)`
   position: absolute;
-  visibility: ${props => (props.visible ? 'visible' : 'hidden')};
+  visibility: ${(props) => (props.visible ? "visible" : "hidden")};
   padding:${dimensions.coreSpacing}px  5px 20px 20px;
   width: ${dimensions.headerSpacingWide * 6}px;
   height: ${dimensions.headerSpacingWide * 4 + dimensions.coreSpacing}px;
@@ -477,7 +479,7 @@ const MoreSearch = styled.div`
 `;
 
 const StoreItem = styled(NavItem)`
-  bottom:${dimensions.headerSpacingWide + dimensions.unitSpacing}px;
+  bottom: ${dimensions.headerSpacingWide + dimensions.unitSpacing}px;
   left: 0;
   right: 0;
   position: absolute;
@@ -525,5 +527,5 @@ export {
   SubNavTitle,
   SubNavItem,
   DropNav,
-  SmallLabel
+  SmallLabel,
 };

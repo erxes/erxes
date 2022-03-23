@@ -31,9 +31,13 @@ export const generateProducts = async (subdomain: string, productsData) => {
     for (const customFieldData of customFieldsData || []) {
       const field = await sendFormsMessage({
         subdomain,
-        action: "fields:findOne",
-        data: { _id: customFieldData.field },
-        isRPC: true,
+        action: 'fields.findOne',
+        data: {
+          query: {
+            _id: customFieldData.field
+          }
+        },
+        isRPC: true
       });
 
       if (field) {
@@ -89,14 +93,15 @@ export default {
         relTypes: ["company"],
       },
       isRPC: true,
+      defaultValue: []
     });
 
     const activeCompanies = await sendContactsMessage({
       subdomain,
-      action: "companies.findActiveCompanies",
-      data: { _id: { $in: companyIds } },
+      action: 'companies.findActiveCompanies',
+      data: { selector: { _id: { $in: companyIds } } },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     return (activeCompanies || []).map((c) => ({
@@ -121,7 +126,7 @@ export default {
     const activeCustomers = await sendContactsMessage({
       subdomain,
       action: "customers.findActiveCustomers",
-      data: { _id: { $in: customerIds } },
+      data: { selector : { _id: { $in: customerIds } } },
       isRPC: true,
       defaultValue: [],
     });
@@ -141,7 +146,7 @@ export default {
   },
 
   assignedUsers(deal: IDealDocument) {
-    return (deal.assignedUserIds || []).map((_id) => ({
+    return (deal.assignedUserIds || []).filter(e => e).map((_id) => ({
       __typename: "User",
       _id,
     }));
@@ -191,6 +196,10 @@ export default {
   },
 
   createdUser(deal: IDealDocument) {
+    if (!deal.userId) {
+      return;
+    }
+
     return { __typename: "User", _id: deal.userId };
   },
 };

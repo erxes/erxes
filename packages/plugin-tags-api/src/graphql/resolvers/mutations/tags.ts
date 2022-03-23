@@ -19,14 +19,14 @@ interface ITagsEdit extends ITag {
 
 const TAG = 'tag';
 
-const tagMutations = () => ({
+const tagMutations = {
   /**
    * Creates a new tag
    */
   async tagsAdd(_root, doc: ITag, { docModifier, models, user }: IContext) {
     const tag = await models.Tags.createTag(docModifier(doc));
 
-    await putCreateLog({ type: TAG, newData: tag, object: tag }, user, models);
+    await putCreateLog(models, { type: TAG, newData: tag, object: tag }, user);
 
     return tag;
   },
@@ -42,7 +42,7 @@ const tagMutations = () => ({
     const tag = await models.Tags.getTag(_id);
     const updated = await models.Tags.updateTag(_id, doc);
 
-    await putUpdateLog({ type: TAG, object: tag, newData: doc }, user, models);
+    await putUpdateLog(models, { type: TAG, object: tag, newData: doc }, user);
 
     return updated;
   },
@@ -58,7 +58,7 @@ const tagMutations = () => ({
     const tag = await models.Tags.findOne({ _id });
     const removed = await models.Tags.removeTag(_id);
 
-    await putDeleteLog({ type: TAG, object: tag }, models, user);
+    await putDeleteLog(models, { type: TAG, object: tag }, user);
 
     return removed;
   },
@@ -75,7 +75,7 @@ const tagMutations = () => ({
     }: { type: string; targetIds: string[]; tagIds: string[] },
     { models, subdomain, user }: IContext
   ) {
-    // if (type === 'conversation') {
+    // ? if (type === 'conversation') {
     //   publishConversationsChanged(targetIds, MODULE_NAMES.TAG);
     // }
 
@@ -91,7 +91,7 @@ const tagMutations = () => ({
     const targets = await tagObject(subdomain, type, tagIds, targetIds);
 
     for (const target of targets) {
-      await putActivityLog({
+      await putActivityLog(subdomain, {
         action: 'createTagLog',
         data: {
           contentId: target._id,
@@ -113,7 +113,7 @@ const tagMutations = () => ({
   ) {
     return models.Tags.merge(sourceId, destId);
   },
-});
+};
 
 requireLogin(tagMutations, 'tagsTag');
 

@@ -106,7 +106,7 @@ const gatherCustomerFieldNames = async (
       foreignKey: 'integrationId',
       prevList: options,
       nameFields: ['name'],
-      items: await sendInboxMessage({ subdomain, action: 'integrations:find', data: { _id: { $in: [doc.integrationId] } }, isRPC: true }),
+      items: await sendInboxMessage({ subdomain, action: 'integrations.find', data: { _id: { $in: [doc.integrationId] } }, isRPC: true }),
     });
   }
 
@@ -202,12 +202,12 @@ export const putCreateLog = async (models: IModels, subdomain: string, logDoc, u
   );
 };
 
-export const putActivityLog = async (params: { action: string; data: any }) => {
+export const putActivityLog = async (subdomain: string, params: { action: string; data: any }) => {
   const { data } = params;
 
-  const updatedParams = { ...params, data: { ...data, contentType: `contacts:${data.contentType}` } };
+  const updatedParams = { ...params, subdomain, data: { ...data, contentType: `contacts:${data.contentType}` } };
 
-  return commonPutActivityLog({ messageBroker: messageBroker(), ...updatedParams });
+  return commonPutActivityLog(subdomain, { messageBroker: messageBroker(), ...updatedParams });
 };
 
 export const prepareCocLogData = (coc) => {

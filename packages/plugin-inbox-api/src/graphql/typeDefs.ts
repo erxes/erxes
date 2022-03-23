@@ -46,18 +46,20 @@ const typeDefs = async (serviceDiscovery) => {
   const isProductsEnabled = await serviceDiscovery.isEnabled('products');
   const isTagsEnabled = await serviceDiscovery.isEnabled('tags');
   const isFormsEnabled = await serviceDiscovery.isEnabled('forms');
+  const isKbEnabled = await serviceDiscovery.isEnabled('knowledgebase');
 
   const isEnabled = {
     products: isProductsEnabled,
     tags: isTagsEnabled,
     forms: isFormsEnabled,
+    knowledgeBase: isKbEnabled
   };
 
   return gql`
     scalar JSON
     scalar Date
 
-    ${ConversationTypes(isTagsEnabled)}
+    ${ConversationTypes(isEnabled)}
     ${MessengerAppTypes}
     ${ChannelTypes}
     ${integrationTypes(isEnabled)}
@@ -67,12 +69,12 @@ const typeDefs = async (serviceDiscovery) => {
     
     
     extend type Query {
-      ${ConversationQueries}
+      ${ConversationQueries(isEnabled)}
       ${MessengerAppQueries}
       ${ChannelQueries}
       ${IntegrationQueries}
       ${ResponseTemplateQueries}
-      ${widgetQueries(isProductsEnabled)}
+      ${widgetQueries(isEnabled)}
       ${SkillQueries}
     }
 

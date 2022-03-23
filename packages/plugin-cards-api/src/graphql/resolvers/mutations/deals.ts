@@ -204,9 +204,9 @@ const dealMutations = {
   async dealsArchive(
     _root,
     { stageId, proccessId }: { stageId: string; proccessId: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    return itemsArchive(models, stageId, "deal", proccessId, user);
+    return itemsArchive(models, subdomain, stageId, "deal", proccessId, user);
   },
 };
 

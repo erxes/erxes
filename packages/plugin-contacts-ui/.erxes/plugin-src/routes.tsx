@@ -5,8 +5,8 @@ import CustomerRoutes from './customers/routes';
 const routes = () => {
   return (
     <React.Fragment>
-      <CompanyRoutes />
       <CustomerRoutes />
+      <CompanyRoutes />
     </React.Fragment>
   );
 };

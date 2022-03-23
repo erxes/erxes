@@ -16,7 +16,7 @@ const DealColumn = asyncComponent(() =>
 
 const DealMainActionBar = asyncComponent(() =>
   import(
-    /* webpackChunkName: "DealMainActionBar" */ './components/DealMainActionBar'
+    /* webpackChunkName: "DealMainActionbar" */ './components/DealMainActionBar'
   )
 );
 

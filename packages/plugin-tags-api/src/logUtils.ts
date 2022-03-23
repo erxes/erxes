@@ -102,7 +102,7 @@ export const putCreateLog = async (models, logDoc, user) => {
   );
 };
 
-export const putActivityLog = async (params: { action: string; data: any }) => {
+export const putActivityLog = async (subdomain: string, params: { action: string; data: any }) => {
   const { data } = params;
 
   const updatedParams = {
@@ -110,7 +110,7 @@ export const putActivityLog = async (params: { action: string; data: any }) => {
     data: { ...data, contentType: `tags:${data.contentType}` },
   };
 
-  return commonPutActivityLog({
+  return commonPutActivityLog(subdomain, {
     messageBroker: messageBroker(),
     ...updatedParams,
   });
@@ -119,7 +119,7 @@ export const putActivityLog = async (params: { action: string; data: any }) => {
 export default {
   getSchemaLabels: ({ data: { type } }) => ({
     status: 'success',
-    data: getSchemaLabels(type, [{ name: 'product', schemas: [tagSchema] }]),
+    data: getSchemaLabels(type, [{ name: 'tag', schemas: [tagSchema] }]),
   }),
   getActivityContent: async ({ subdomain, data }) => {
     const { action, content } = data;

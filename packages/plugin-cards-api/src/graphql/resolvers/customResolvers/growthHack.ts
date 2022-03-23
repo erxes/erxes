@@ -16,7 +16,7 @@ export default {
     if (stage.formId) {
       const submissions = await sendFormsMessage({
         subdomain,
-        action: "submissions:find",
+        action: "submissions.find",
         data: {
           contentTypeId: growthHack._id,
           contentType: "growthHack",
@@ -51,7 +51,7 @@ export default {
 
     return sendFormsMessage({
       subdomain,
-      action: "fields:find",
+      action: "fields.find",
       data: { query, order: 1 },
       isRPC: true,
       defaultValue: [],
@@ -59,7 +59,7 @@ export default {
   },
 
   assignedUsers(growthHack: IGrowthHackDocument) {
-    return (growthHack.assignedUserIds || []).map((_id) => ({
+    return (growthHack.assignedUserIds || []).filter(e => e).map((_id) => ({
       __typename: "User",
       _id,
     }));
@@ -126,6 +126,10 @@ export default {
   },
 
   createdUser(growthHack: IGrowthHackDocument) {
+    if (!growthHack.userId) {
+      return;
+    }
+
     return { __typename: "User", _id: growthHack.userId };
   },
 };

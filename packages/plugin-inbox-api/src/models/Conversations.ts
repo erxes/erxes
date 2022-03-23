@@ -1,8 +1,6 @@
-import { Model, model } from 'mongoose';
-// import { ConversationMessages, Fields, Users } from '.';
+import { Model } from 'mongoose';
 import { stream } from '@erxes/api-utils/src/bulkUtils';
 import { cleanHtml } from '@erxes/api-utils/src/core';
-import { getDocument } from '../cacheUtils';
 // import { sendToWebhook } from '../../data/utils';
 import { CONVERSATION_STATUSES } from './definitions/constants';
 import {
@@ -180,7 +178,7 @@ export const loadClass = (models: IModels, coreModels: ICoreIModels, subdomain: 
     ) {
       await this.checkExistanceConversations(conversationIds);
 
-      if (!(await getDocument(models, coreModels, subdomain,  'users', { _id: assignedUserId }))) {
+      if (!(await coreModels.Users.findOne({ _id: assignedUserId }))) {
         throw new Error(`User not found with id ${assignedUserId}`);
       }
 
@@ -436,7 +434,7 @@ export const loadClass = (models: IModels, coreModels: ICoreIModels, subdomain: 
       const users =
         (await coreModels.Users.find({ _id: { $in: skill.memberIds || [] } }).sort({
           createdAt: 1
-        })).toArray() || [];
+        })) || [];
 
       if (users.length === 0) {
         return;

@@ -343,9 +343,9 @@ export const calendarFilters = async (models: IModels, filter, args) => {
 
 export const generateDealCommonFilters = async (
   models: IModels,
-  subdomain,
+  subdomain: string,
   currentUserId: string,
-  args: any,
+  args = {} as any,
   extraParams?: any
 ) => {
   args.type = 'deal';
@@ -371,7 +371,7 @@ export const generateTicketCommonFilters = async (
   models: IModels,
   subdomain: string,
   currentUserId: string,
-  args: any,
+  args = {} as any,
   extraParams?: any
 ) => {
   args.type = 'ticket';
@@ -392,7 +392,7 @@ export const generateTaskCommonFilters = async (
   models: IModels,
   subdomain: string,
   currentUserId: string,
-  args: any,
+  args = {} as any,
   extraParams?: any
 ) => {
   args.type = 'task';
@@ -425,7 +425,7 @@ export const generateGrowthHackCommonFilters = async (
   models: IModels,
   subdomain: string,
   currentUserId: string,
-  args: any,
+  args = {} as any,
   extraParams?: any
 ) => {
   args.type = 'growthHack';

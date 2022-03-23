@@ -63,7 +63,8 @@ class Form extends React.Component<any, any, any> {
       config,
       hideDetailForm,
       propertyType,
-      type
+      type,
+      component
     } = this.props;
 
     if (boardsQuery.loading) {
@@ -72,25 +73,7 @@ class Form extends React.Component<any, any, any> {
 
     const boards = boardsQuery.boards || [];
 
-    console.log(propertyType);
-
-    if (
-      propertyType &&
-      !['cards:deal', 'cards:ticket', 'cards:task'].includes(propertyType)
-    ) {
-      console.log(1);
-      return null;
-    }
-
-    if (
-      !hideDetailForm &&
-      ['cards:deal', 'cards:ticket', 'cards:task'].includes(type)
-    ) {
-      console.log(2, hideDetailForm, type);
-      return null;
-    }
-
-    return (
+    const content = (
       <>
         <FlexContent>
           <FlexItem>
@@ -118,12 +101,32 @@ class Form extends React.Component<any, any, any> {
         </FlexContent>
       </>
     );
+
+    if (component === 'filter') {
+      if (
+        propertyType &&
+        !['cards:deal', 'cards:ticket', 'cards:task'].includes(propertyType)
+      ) {
+        return null;
+      }
+
+      if (
+        !hideDetailForm &&
+        ['cards:deal', 'cards:ticket', 'cards:task'].includes(type)
+      ) {
+        return null;
+      }
+
+      return content;
+    } else if (['cards:deal', 'cards:ticket', 'cards:task'].includes(type)) {
+      return content;
+    }
   }
 }
 
 const generateVariable = (type, propertyType) => {
   if (['cards:deal', 'cards:ticket', 'cards:task'].includes(type)) {
-    return type.split(':')[1];
+    return { type: type.split(':')[1] };
   }
 
   return { type: propertyType.split(':')[1] };

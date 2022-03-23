@@ -1,7 +1,7 @@
-import { queries as customerQueries } from "@erxes/ui/src/customers/graphql";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-import conversationFields from "./conversationFields";
-import messageFields from "./messageFields";
+import { queries as customerQueries } from '@erxes/ui/src/customers/graphql';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import conversationFields from './conversationFields';
+import messageFields from './messageFields';
 
 export const paramsDef = `
   $channelId: String
@@ -81,6 +81,9 @@ const sidebarConversations = `
           name
         }
       }
+      ${
+        isEnabled('contacts')
+          ? `
       customer {
         _id
         firstName
@@ -92,11 +95,20 @@ const sidebarConversations = `
         avatar
         visitorContactInfo
       }
+      `
+          : ``
+      }
       tagIds
+      ${
+        isEnabled('tags')
+          ? `
       tags {
         _id
         name
         colorCode
+      }
+      `
+          : ``
       }
       readUserIds
     }
@@ -196,6 +208,9 @@ const allBrands = `
 
 const tagList = `
   query tags($type: String) {
+    ${
+      isEnabled('tags')
+        ? `
     tags(type: $type) {
       _id
       name
@@ -204,19 +219,28 @@ const tagList = `
       parentId
       relatedIds
     }
+    `
+        : ``
+    }
   }
 `;
 
 // subOf alais as parentId
 const segmentList = `
-    query segments($contentTypes: [String]!, $boardId: String, $pipelineId: String) {
-      segments(contentTypes: $contentTypes, boardId: $boardId, pipelineId: $pipelineId) {
-        _id
-        contentType
-        name
-        parentId: subOf
-      }
+  query segments($contentTypes: [String]!) {
+    ${
+      isEnabled('segments')
+        ? `
+        segments(contentTypes: $contentTypes) {
+          _id
+          contentType
+          name
+          parentId: subOf
+        }
+    `
+        : ``
     }
+  }
 `;
 
 const conversationCounts = `
@@ -266,14 +290,14 @@ const convertToInfo = `
   }
 `;
 
-const generateCustomerDetailQuery = (params) => {
+const generateCustomerDetailQuery = params => {
   const {
     showDeviceProperties = false,
     showTrackedData = false,
     showCustomFields = false,
     showCompanies = false,
     showTags = false,
-    showSegments = false,
+    showSegments = false
   } = params || {};
 
   let fields = `
@@ -309,8 +333,9 @@ const generateCustomerDetailQuery = (params) => {
   if (showCompanies) {
     fields = `
       ${fields}
-      ${isEnabled("contacts") &&
-        `companies {
+      ${
+        isEnabled('contacts')
+          ? `companies {
           _id
           primaryName
           website
@@ -322,7 +347,9 @@ const generateCustomerDetailQuery = (params) => {
             lastName
             primaryEmail
           }
-        }`}
+        }`
+          : ``
+      }
     `;
   }
 
@@ -330,10 +357,16 @@ const generateCustomerDetailQuery = (params) => {
     fields = `
       ${fields}
       tagIds
-      getTags {
-        _id
-        name
-        colorCode
+      ${
+        isEnabled('tags')
+          ? `
+          getTags {
+            _id
+            name
+            colorCode
+          }
+        `
+          : ``
       }
     `;
   }
@@ -374,6 +407,9 @@ const integrationsConversationFbComments = `
       commentCount
       isResolved
       permalink_url
+      ${
+        isEnabled('contacts')
+          ? `
       customer {
         _id
         visitorContactInfo
@@ -381,6 +417,8 @@ const integrationsConversationFbComments = `
         firstName
         lastName
         middleName
+      }`
+          : ``
       }
     }
   }
@@ -415,5 +453,5 @@ export default {
   generateCustomerDetailQuery,
   convertToInfo,
   integrationsConversationFbComments,
-  integrationsConversationFbCommentsCount,
+  integrationsConversationFbCommentsCount
 };

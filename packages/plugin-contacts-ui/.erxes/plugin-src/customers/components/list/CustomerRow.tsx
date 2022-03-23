@@ -13,8 +13,8 @@ import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
 import React from 'react';
 import parse from 'ua-parser-js';
 import { renderFlag } from '@erxes/ui-contacts/src/customers/components/common//DevicePropertiesSection';
-import PrimaryEmail from '../common/PrimaryEmail';
-import PrimaryPhone from '../common/PrimaryPhone';
+import PrimaryEmail from '@erxes/ui-contacts/src/customers/components/common/PrimaryEmail';
+import PrimaryPhone from '@erxes/ui-contacts/src/customers/components/common/PrimaryPhone';
 
 type Props = {
   customer: ICustomer;

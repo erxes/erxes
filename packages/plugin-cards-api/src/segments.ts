@@ -15,7 +15,8 @@ export default {
     ticket: 'Ticket',
     task: 'Task',
     customer: 'Customer',
-    company: 'Company'
+    company: 'Company',
+    converstaion: 'Conversation'
   },
 
   propertyConditionExtender: async ({ subdomain, data: { condition } }) => {
@@ -39,13 +40,14 @@ export default {
     return { data: { positive }, status: 'success' };
   },
 
-  associationTypes: async ({ mainType }) => {
+  associationTypes: async ({}) => {
     const types: string[] = [
       'cards:deal',
       'contacts:customer',
       'contacts:company',
       'cards:ticket',
-      'cards:task'
+      'cards:task',
+      'inbox:conversation'
     ];
 
     return { data: types, status: 'success' };
@@ -59,10 +61,12 @@ export default {
     const models = await generateModels(subdomain);
 
     let positive;
+    
+    const config = segment.config || {};
 
     const stageIds = await generateConditionStageIds(models, {
-      boardId: segment.boardId,
-      pipelineId: segment.pipelineId,
+      boardId: config.boardId,
+      pipelineId: config.pipelineId,
       options
     });
 

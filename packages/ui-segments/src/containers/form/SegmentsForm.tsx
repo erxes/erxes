@@ -24,7 +24,6 @@ import { isBoardKind } from '../../utils';
 
 type Props = {
   contentType: string;
-  serviceType: string;
   history?: any;
   id?: string;
   closeModal: () => void;
@@ -79,7 +78,7 @@ class SegmentsFormContainer extends React.Component<
 
     const callBackResponse = data => {
       if (history) {
-        history.push(`/segments/${contentType}`);
+        history.push(`/segments?contentType=${contentType}`);
       }
 
       if (callback) {
@@ -122,14 +121,12 @@ class SegmentsFormContainer extends React.Component<
   previewCount = ({
     conditions,
     subOf,
-    boardId,
-    pipelineId,
+    config,
     conditionsConjunction
   }: {
     conditions: ISegmentCondition[];
     subOf?: string;
-    boardId?: string;
-    pipelineId?: string;
+    config?: any;
     conditionsConjunction?: string;
   }) => {
     const { contentType } = this.props;
@@ -143,8 +140,7 @@ class SegmentsFormContainer extends React.Component<
           contentType,
           conditions,
           subOf,
-          boardId,
-          pipelineId,
+          config,
           conditionsConjunction
         },
         fetchPolicy: 'network-only'

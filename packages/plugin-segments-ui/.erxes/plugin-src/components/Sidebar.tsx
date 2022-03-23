@@ -2,23 +2,31 @@ import { __ } from 'coreui/utils';
 import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 
-function ListItem(link: string, label: string) {
+function ListItem(type, contentType) {
+  const className =
+    contentType && contentType === type.contentType ? 'active' : '';
+
   return (
-    <li>
-      <NavLink activeClassName="active" to={link}>
-        {__(label)}
-      </NavLink>
+    <li key={type.contentType}>
+      <Link
+        className={className}
+        to={`/segments?contentType=${type.contentType}`}
+      >
+        {__(type.description)}
+      </Link>
     </li>
   );
 }
 
 function Sidebar({
-  types
+  types,
+  contentType
 }: {
   types: Array<{ contentType: string; description: string }>;
+  contentType: string;
 }) {
   return (
     <LeftSidebar full={true} header={<SidebarHeader />}>
@@ -28,7 +36,7 @@ function Sidebar({
 
       <SidebarList id={'SegmentSidebar'}>
         {types.map(type => {
-          return ListItem(`/segments/${type.contentType}`, type.description);
+          return ListItem(type, contentType);
         })}
 
         <li>

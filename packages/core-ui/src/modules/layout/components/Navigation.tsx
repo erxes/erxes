@@ -1,5 +1,5 @@
 import WithPermission from "modules/common/components/WithPermission";
-import { __, readFile } from "modules/common/utils";
+import { __, readFile, setBadge } from "modules/common/utils";
 import { pluginNavigations, pluginsOfNavigations } from "pluginUtils";
 import React from "react";
 import { NavLink } from "react-router-dom";
@@ -12,16 +12,16 @@ import {
   SubNavItem,
   MoreMenuWrapper,
   MoreSearch,
-  StoreItem,
   MoreItemRecent,
   MoreMenus,
   MoreTitle,
   NavMenuItem,
 } from "../styles";
-import Tip from "modules/common/components/Tip";
 import { getThemeItem } from "utils";
 import Icon from "modules/common/components/Icon";
 import FormControl from "modules/common/components/form/Control";
+import Label from "modules/common/components/Label";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 export interface ISubNav {
   permission: string;
@@ -37,8 +37,11 @@ type State = {
   searchText: string;
 };
 
-class Navigation extends React.Component<{}, State> {
-  private node;
+class Navigation extends React.Component<
+  { unreadConversationsCount?: number },
+  State
+> {
+  private wrapperRef;
 
   constructor(props) {
     super(props);
@@ -48,8 +51,26 @@ class Navigation extends React.Component<{}, State> {
       moreMenus: pluginNavigations().slice(4) || [],
       searchText: "",
     };
+  }
 
-    this.node = React.createRef();
+  componentWillReceiveProps(nextProps) {
+    const unreadCount = nextProps.unreadConversationsCount;
+
+    if (unreadCount !== this.props.unreadConversationsCount) {
+      setBadge(unreadCount, __("Team Inbox").toString());
+    }
+  }
+
+  setWrapperRef = (node) => {
+    this.wrapperRef = node;
+  };
+
+  componentDidMount() {
+    document.addEventListener("click", this.handleClickOutside, true);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("click", this.handleClickOutside, true);
   }
 
   getLink = (url) => {
@@ -89,18 +110,14 @@ class Navigation extends React.Component<{}, State> {
     });
   };
 
-  handleClick = () => {
-    if (!this.state.showMenu) {
-      document.addEventListener("click", this.handleOutsideClick, true);
-    } else {
-      document.removeEventListener("click", this.handleOutsideClick, true);
+  handleClickOutside = (event) => {
+    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+      this.setState({ showMenu: false });
     }
-
-    this.setState({ showMenu: !this.state.showMenu });
   };
 
-  handleOutsideClick = (e) => {
-    if (!this.node.contains(e.target)) this.handleClick();
+  onClickMore = () => {
+    this.setState({ showMenu: !this.state.showMenu });
   };
 
   renderSubNavItem = (child, index: number) => {
@@ -130,18 +147,25 @@ class Navigation extends React.Component<{}, State> {
 
   renderMenuItem(nav) {
     const { icon, text, url, label } = nav;
+    const { unreadConversationsCount } = this.props;
+
+    const unreadIndicator = unreadConversationsCount !== 0 && (
+      <Label shake={true} lblStyle="danger" ignoreTrans={true}>
+        {unreadConversationsCount}
+      </Label>
+    );
 
     return (
       <NavMenuItem>
         <NavLink
           to={this.getLink(url)}
-          onClick={() => {
-            this.setState({ showMenu: false });
-          }}
+          onClick={() => this.setState({ showMenu: false })}
         >
           <NavIcon className={icon} />
           <label>{__(text)}</label>
-          {label}
+          {url.includes("inbox") && isEnabled("inbox")
+            ? unreadIndicator
+            : label}
         </NavLink>
       </NavMenuItem>
     );
@@ -165,9 +189,7 @@ class Navigation extends React.Component<{}, State> {
     if (!childrens || childrens.length === 0) {
       return (
         <WithPermission key={url} action={permission}>
-          <Tip placement="right" key={Math.random()} text={__(text)}>
-            {item}
-          </Tip>
+          {item}
         </WithPermission>
       );
     }
@@ -198,7 +220,12 @@ class Navigation extends React.Component<{}, State> {
         <MoreMenus>
           {moreMenus.map((menu, index) => (
             <MoreItemRecent key={index}>
-              {this.renderMenuItem(menu)}
+              {this.renderNavItem(
+                menu.permission,
+                menu.text,
+                menu.url,
+                menu.icon
+              )}
             </MoreItemRecent>
           ))}
         </MoreMenus>
@@ -212,14 +239,10 @@ class Navigation extends React.Component<{}, State> {
     }
 
     return (
-      <div
-        ref={(node) => {
-          this.node = node;
-        }}
-      >
+      <div ref={this.setWrapperRef}>
         <NavItem>
           <NavMenuItem>
-            <a onClick={() => this.handleClick()}>
+            <a onClick={() => this.onClickMore()}>
               <NavIcon className="icon-ellipsis-h" />
               <label>{__("More")}</label>
             </a>
@@ -247,7 +270,14 @@ class Navigation extends React.Component<{}, State> {
 
         <Nav id="navigation">
           {Navs.map((nav) =>
-            this.renderNavItem(nav.permission, nav.text, nav.url, nav.icon)
+            this.renderNavItem(
+              nav.permission,
+              nav.text,
+              nav.url,
+              nav.icon,
+              nav.childrens || [],
+              nav.label
+            )
           )}
 
           {pluginsOfNavigations(this.renderNavItem)}
@@ -259,14 +289,6 @@ class Navigation extends React.Component<{}, State> {
           })}
 
           {this.renderMore()}
-
-          <StoreItem>
-            {this.renderMenuItem({
-              text: "Store",
-              url: "/store",
-              icon: "icon-store",
-            })}
-          </StoreItem>
         </Nav>
       </LeftNavigation>
     );

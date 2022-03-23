@@ -12,10 +12,19 @@ import { withRouter } from 'react-router-dom';
 import List from '@erxes/ui-settings/src/common/components/List';
 import RowActions from '@erxes/ui-settings/src/common/components/RowActions';
 import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
-import Form from '../components/Form';
+import Form from '@erxes/ui-settings/src/responseTemplates/components/Form';
+import CategoryList from '@erxes/ui-settings/src/templates/containers/productCategory/CategoryList';
+import {
+  RESPONSE_TEMPLATE_STATUSES,
+  RESPONSE_TEMPLATE_TIPTEXT
+} from '../constants';
+import Tip from '@erxes/ui/src/components/Tip';
+import Icon from '@erxes/ui/src/components/Icon';
+import Button from '@erxes/ui/src/components/Button';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  changeStatus: (_id: string, status: string) => void;
   queryParams: any;
   history: any;
 } & ICommonListProps;
@@ -30,12 +39,13 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
   constructor(props) {
     super(props);
 
-    const {
-      queryParams: { searchValue }
-    } = props;
+    const { queryParams } = props;
+
+    const searchValue =
+      queryParams && queryParams.searchValue ? queryParams.searchValue : '';
 
     this.state = {
-      searchValue: searchValue || ''
+      searchValue
     };
   }
 
@@ -49,6 +59,37 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
+  renderDisableAction = object => {
+    const { changeStatus } = this.props;
+    const _id = object._id;
+    const isActive =
+      object.status === null ||
+      object.status === RESPONSE_TEMPLATE_STATUSES.ACTIVE;
+    const icon = isActive ? 'archive-alt' : 'redo';
+
+    const status = isActive
+      ? RESPONSE_TEMPLATE_STATUSES.ARCHIVED
+      : RESPONSE_TEMPLATE_STATUSES.ACTIVE;
+
+    const text = isActive
+      ? RESPONSE_TEMPLATE_TIPTEXT.ARCHIVED
+      : RESPONSE_TEMPLATE_TIPTEXT.ACTIVE;
+
+    if (!changeStatus) {
+      return null;
+    }
+
+    const onClick = () => changeStatus(_id, status);
+
+    return (
+      <Button onClick={onClick} btnStyle="link">
+        <Tip text={__(text)} placement="top">
+          <Icon icon={icon} />
+        </Tip>
+      </Button>
+    );
+  };
+
   renderRows = ({ objects }) => {
     return objects.map((object, index) => {
       const brand = object.brand || {};
@@ -60,8 +101,9 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
           <RowActions
             {...this.props}
             object={object}
-            size='lg'
+            size="lg"
             renderForm={this.renderForm}
+            additionalActions={this.renderDisableAction}
           />
         </tr>
       );
@@ -81,7 +123,10 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
   };
 
   renderFilter = () => {
-    const { brandId } = this.props.queryParams;
+    const brandId =
+      this.props.queryParams && this.props.queryParams.brandId
+        ? this.props.queryParams
+        : '';
 
     return (
       <FilterContainer>
@@ -90,7 +135,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
             <ControlLabel>Search</ControlLabel>
             <FormControl
               placeholder={__('Search')}
-              name='searchValue'
+              name="searchValue"
               onChange={this.onChange}
               value={this.state.searchValue}
               onKeyPress={this.handleKeyDown}
@@ -101,10 +146,10 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
           <FlexItem>
             <ControlLabel>Brand</ControlLabel>
             <SelectBrands
-              label='Brand'
+              label="Brand"
               initialValue={brandId}
               onSelect={this.onSelect}
-              name='brandId'
+              name="brandId"
               multi={false}
             />
           </FlexItem>
@@ -131,7 +176,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
   render() {
     return (
       <List
-        formTitle='New response template'
+        formTitle="New response template"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
           { title: __('Response templates') }
@@ -151,8 +196,9 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
         renderFilter={this.renderFilter}
         renderForm={this.renderForm}
         renderContent={this.renderContent}
-        center={true}
-        size='lg'
+        rightActionBar={true}
+        leftSidebar={<CategoryList queryParams={this.props.queryParams} />}
+        size="lg"
         {...this.props}
       />
     );

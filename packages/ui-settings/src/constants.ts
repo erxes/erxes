@@ -75,7 +75,7 @@ export const EMPTY_SEGMENT_CONTENT = {
       description: __(
         'If you wish to segment by any properties that are not available on erxes, make sure you’ve already created them'
       ),
-      url: '/settings/properties?type=customer',
+      url: '/settings/properties?type=contacts:customer',
       urlText: 'Go to Properties'
     },
     {
@@ -98,7 +98,7 @@ export const EMPTY_NEW_SEGMENT_CONTENT = {
       description: __(
         'If you wish to segment by any properties that are not available on erxes, make sure you’ve already created them'
       ),
-      url: '/settings/properties?type=customer',
+      url: '/settings/properties?type=contacts:customer',
       urlText: __('Go to Properties')
     },
     {
@@ -476,7 +476,7 @@ export const EMPTY_CONTENT_BOOKINGS = {
       description: __(
         'This widget is based on your erxes Products and Services. Depending on your products, you may need to create custom Properties first. For example, you can display additional information such as Amenities, Services, etc. in the product detail page or as user filters.'
       ),
-      url: '/settings/properties?type=product',
+      url: '/settings/properties?type=products:product',
       urlText: 'Create Custom Properties'
     },
     {

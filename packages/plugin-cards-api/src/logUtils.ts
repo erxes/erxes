@@ -643,7 +643,7 @@ export const putCreateLog = async (
   );
 };
 
-export const putActivityLog = async (params: { action: string; data: any }) => {
+export const putActivityLog = async (subdomain, params: { action: string; data: any }) => {
   const { data } = params;
 
   // if (['createBoardItemMovementLog'].includes(action)) {
@@ -655,7 +655,7 @@ export const putActivityLog = async (params: { action: string; data: any }) => {
     data: { ...data, contentType: `cards:${data.contentType}` },
   };
 
-  return commonPutActivityLog({
+  return commonPutActivityLog(subdomain, {
     messageBroker: messageBroker(),
     ...updatedParams,
   });
@@ -685,36 +685,40 @@ export const putChecklistActivityLog = async (subdomain: string, params) => {
     });
   }
 
-  return putActivityLog(updatedParams);
+  return putActivityLog(subdomain, updatedParams);
 };
+
+const sendSuccess = (data) => ({
+  data, status: 'success'
+});
 
 export default {
   getActivityContent: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    return getContentItem(models, data);
+    return sendSuccess(await getContentItem(models, data));
   },
 
   getContentTypeDetail: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { activityLog = {} } = data;
 
-    return getContentTypeDetail(models, activityLog);
+    return sendSuccess(await getContentTypeDetail(models, activityLog));
   },
 
   collectItems: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    return collectItems(models, subdomain, data);
+    return sendSuccess(await collectItems(models, subdomain, data));
   },
 
   getContentIds: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    return getCardContentIds(models, data);
+    return sendSuccess(await getCardContentIds(models, data));
   },
 
-  getSchemaLabels: async ({ data: { type } }) => {
-    return getSchemaLabels(type, LOG_MAPPINGS);
+  getSchemaLabels: ({ data: { type } }) => {
+    return sendSuccess(getSchemaLabels(type, LOG_MAPPINGS));
   },
 };

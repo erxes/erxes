@@ -58,15 +58,17 @@ interface ISchemaMap {
   }
 
   for (const item of items) {
-    let name: string = `item with id "${item._id}" has been deleted`;
-
-    for (const n of nameFields) {
-      if (item[n]) {
-        name = item[n];
+    if (item && item._id) {
+      let name: string = `item with id "${item._id}" has been deleted`;
+  
+      for (const n of nameFields) {
+        if (item[n]) {
+          name = item[n];
+        }
       }
+  
+      options.push({ [foreignKey]: item._id, name });
     }
-
-    options.push({ [foreignKey]: item._id, name });
   }
 
   return options;
@@ -104,14 +106,14 @@ export const putCreateLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const isAutomationsAvailable = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'automations');
+  // const isAutomationsAvailable = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'automations');
 
-  if (isAutomationsAvailable) {
-    messageBroker.sendMessage('automations', {
-      type: `${params.type}`,
-      targets: [params.object]
-    });
-  }
+  // if (isAutomationsAvailable) {
+  //   messageBroker.sendMessage('automations', {
+  //     type: `${params.type}`,
+  //     targets: [params.object]
+  //   });
+  // }
 
   return putLog(
     messageBroker,
@@ -166,12 +168,15 @@ const putLog = async (
   }
 
   return messageBroker.sendMessage('putLog', {
-    ...params,
-    createdBy: user._id,
-    unicode: user.username || user.email || user._id,
-    object: JSON.stringify(params.object),
-    newData: JSON.stringify(params.newData),
-    extraDesc: JSON.stringify(params.extraDesc),
+    subdomain: 'os',
+    data: {
+      ...params,
+      createdBy: user._id,
+      unicode: user.username || user.email || user._id,
+      object: JSON.stringify(params.object),
+      newData: JSON.stringify(params.newData),
+      extraDesc: JSON.stringify(params.extraDesc),
+    }
   });
 };
 
@@ -181,7 +186,7 @@ export interface IActivityLogParams {
   data: any;
 }
 
-export const putActivityLog = async (params: IActivityLogParams) => {
+export const putActivityLog = async (subdomain: string, params: IActivityLogParams) => {
   const { messageBroker, data } = params;
   const isAutomationsAvailable = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'automations');
 
@@ -193,7 +198,7 @@ export const putActivityLog = async (params: IActivityLogParams) => {
       });
     }
 
-    return messageBroker.sendMessage('putActivityLog', params);
+    return messageBroker.sendMessage('putActivityLog', { data: params, subdomain });
   } catch (e) {
     return e.message;
   }
@@ -249,3 +254,51 @@ export const getSchemaLabels = (type: string, schemaMappings: ISchemaMap[]) => {
 
   return fieldNames;
 };
+
+export const logConsumers = (params: { name, consumeRPCQueue?, getActivityContent?, getContentTypeDetail?, collectItems?, getContentIds?, getSchemalabels? }) => {
+  const { name, consumeRPCQueue, getActivityContent, getContentTypeDetail, collectItems, getContentIds, getSchemalabels } = params;
+
+  if (getActivityContent) {
+    consumeRPCQueue(
+      `${name}:logs:getActivityContent`,
+      async args => ({
+        status: 'success',
+        data: await getActivityContent(args)
+      })
+    );
+  }
+
+  if (getContentTypeDetail) {
+    consumeRPCQueue(
+      `${name}:logs:getContentTypeDetail`,
+      async args => ({
+        status: 'success',
+        data: await getContentTypeDetail(args)
+      })
+    );
+  }
+
+  if (collectItems) {
+    consumeRPCQueue(`${name}:logs:collectItems`, async args => ({
+      status: 'success',
+      data: await collectItems(args)
+    }));
+  }
+
+  if (getContentIds) {
+    consumeRPCQueue(`${name}:logs:getContentIds`, async args => ({
+      status: 'success',
+      data: await getContentIds(args)
+    }));
+  }
+
+  if (getSchemalabels) {
+    consumeRPCQueue(
+      `${name}:logs:getSchemaLabels`,
+      args => ({
+        status: 'success',
+        data: getSchemalabels(args)
+      })
+    );
+  }
+}

@@ -29,7 +29,12 @@ export default {
     };
   },
   apolloServerContext: (context) => {
+    const subdomain = "os"
+
+    context.subdomain = subdomain
     context.models = models;
+
+    return context;
   },
   onServerInit: async (options) => {
     mainDb = options.db;

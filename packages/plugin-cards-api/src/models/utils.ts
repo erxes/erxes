@@ -291,7 +291,7 @@ export const destroyBoardItemRelations = async (
   contentTypeId: string,
   contentType: string
 ) => {
-  await putActivityLog({
+  await putActivityLog(subdomain, {
     action: "removeActivityLog",
     data: { contentTypeId },
   });
@@ -409,6 +409,7 @@ export const generateBoardNumber = async (
 
 export const createBoardItem = async (
   models: IModels,
+  subdomain: string,
   doc: IItemCommonFields,
   type: string
 ) => {
@@ -432,7 +433,7 @@ export const createBoardItem = async (
     if (
       e.message === `E11000 duplicate key error dup key: { : "${doc.number}" }`
     ) {
-      await createBoardItem(models, doc, type);
+      await createBoardItem(models, subdomain, doc, type);
     }
   }
 
@@ -452,11 +453,11 @@ export const createBoardItem = async (
 
   if (doc.sourceConversationIds && doc.sourceConversationIds.length > 0) {
     action = "convert";
-    content = item.sourceIds.slice(-1)[0];
+    content = item.sourceConversationIds.slice(-1)[0];
   }
 
   // create log
-  await putActivityLog({
+  await putActivityLog(subdomain, {
     action: "createBoardItem",
     data: {
       item,
@@ -480,23 +481,24 @@ const checkBookingConvert = async (subdomain: string, productId: string) => {
     isRPC: true,
   });
 
-  // let dealUOM = await Configs.find({ code: 'dealUOM' }).distinct('value');
   let dealUOM = await sendCoreMessage({
     subdomain,
-    action: "configs:find",
+    action: "configs.find",
     data: {
       code: "dealUOM",
     },
     isRPC: true,
+    defaultValue: []
   });
 
   let dealCurrency = await sendCoreMessage({
     subdomain,
-    action: "configs:find",
+    action: "configs.find",
     data: {
       code: "dealCurrency",
     },
     isRPC: true,
+    defaultValue: []
   });
 
   if (dealUOM.length > 0) {
@@ -574,7 +576,7 @@ export const conversationConvertToCard = async (
 
     item.userId = user._id;
 
-    await putActivityLog({
+    await putActivityLog(subdomain, {
       action: "createBoardItem",
       data: { item, contentType: type, contentId: item._id },
     });
@@ -589,6 +591,7 @@ export const conversationConvertToCard = async (
           conversationId,
         },
         isRPC: true,
+        defaultValue: {} 
       });
 
       if (con.customerId) {
@@ -637,7 +640,7 @@ export const conversationConvertToCard = async (
       ];
     }
 
-    const item = await itemsAdd(doc, type, create, user, docModifier);
+    const item = await itemsAdd(models, subdomain, doc, type, create, user, docModifier);
 
     return item._id;
   }

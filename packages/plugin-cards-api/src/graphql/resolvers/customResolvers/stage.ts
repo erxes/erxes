@@ -15,7 +15,7 @@ export default {
   async amount(
     stage: IStageDocument,
     _args,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
     { variableValues: args }
   ) {
     const amountsMap = {};
@@ -23,6 +23,7 @@ export default {
     if (stage.type === BOARD_TYPES.DEAL) {
       const filter = await generateDealCommonFilters(
         models,
+        subdomain,
         user._id,
         { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
         args.extraParams
@@ -66,7 +67,7 @@ export default {
   async itemsTotalCount(
     stage: IStageDocument,
     _args,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
     { variableValues: args }
   ) {
     const { Deals, Tickets, Tasks, GrowthHacks } = models;
@@ -75,6 +76,7 @@ export default {
       case BOARD_TYPES.DEAL: {
         const filter = await generateDealCommonFilters(
           models,
+          subdomain,
           user._id,
           { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
           args.extraParams
@@ -85,6 +87,7 @@ export default {
       case BOARD_TYPES.TICKET: {
         const filter = await generateTicketCommonFilters(
           models,
+          subdomain,
           user._id,
           { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
           args.extraParams
@@ -95,6 +98,7 @@ export default {
       case BOARD_TYPES.TASK: {
         const filter = await generateTaskCommonFilters(
           models,
+          subdomain,
           user._id,
           {
             ...args,
@@ -109,6 +113,7 @@ export default {
       case BOARD_TYPES.GROWTH_HACK: {
         const filter = await generateGrowthHackCommonFilters(
           models,
+          subdomain,
           user._id,
           { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
           args.extraParams
@@ -125,11 +130,12 @@ export default {
   async initialDealsTotalCount(
     stage: IStageDocument,
     _args,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
     { variableValues: args }
   ) {
     const filter = await generateDealCommonFilters(
       models,
+      subdomain,
       user._id,
       { ...args, initialStageId: stage._id },
       args.extraParams
@@ -195,11 +201,12 @@ export default {
   async stayedDealsTotalCount(
     stage: IStageDocument,
     _args,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
     { variableValues: args }
   ) {
     const filter = await generateDealCommonFilters(
       models,
+      subdomain,
       user._id,
       {
         ...args,

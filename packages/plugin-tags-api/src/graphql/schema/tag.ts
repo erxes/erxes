@@ -14,6 +14,7 @@ export const types = `
 `;
 
 export const queries = `
+  tagsGetTypes: [JSON]
   tags(type: String, searchValue: String): [Tag]
   tagDetail(_id: String!): Tag
 `;

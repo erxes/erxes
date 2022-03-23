@@ -1,4 +1,4 @@
-import { BOARD_STATUSES } from "../../../models/definitions/constants";
+import { BOARD_STATUSES, BOARD_TYPES } from "../../../models/definitions/constants";
 import { paginate, regexSearchText } from "@erxes/api-utils/src";
 import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
 import { getCollection } from "../../../models/utils";
@@ -6,7 +6,7 @@ import { IStageDocument } from "../../../models/definitions/boards";
 import { CLOSE_DATE_TYPES, PRIORITIES } from "../../../constants";
 import { IPipelineLabelDocument } from "../../../models/definitions/pipelineLabels";
 import { getCloseDateByType } from "./utils";
-import { fetchSegment, sendSegmentsMessage } from "../../../messageBroker";
+import { fetchSegment, sendFormsMessage, sendSegmentsMessage } from "../../../messageBroker";
 import { IContext } from "../../../connectionResolver";
 
 export interface IDate {
@@ -305,7 +305,7 @@ const boardQueries = {
 
     return assignedUserIds.map((userId) => ({
       __typename: "User",
-      _id: userId,
+      _id: userId || '',
     }));
   },
 
@@ -431,7 +431,7 @@ const boardQueries = {
 
     const users = await coreModels.Users.find({
       _id: { $in: assignedUserIds },
-    });
+    }).toArray();
 
     const usersWithInfo: Array<{ name: string }> = [];
     const countsByGroup = {};
@@ -582,8 +582,10 @@ const boardQueries = {
       action: "find",
       data: {
         contentType: type,
-        boardId,
-        pipelineId,
+        config: {
+          boardId,
+          pipelineId,
+        }
       },
       isRPC: true,
       defaultValue: [],
@@ -592,7 +594,7 @@ const boardQueries = {
     const counts = {};
 
     for (const segment of segments) {
-      counts[segment._id] = await fetchSegment(segment, {
+      counts[segment._id] = await fetchSegment(subdomain, segment._id, {
         pipelineId,
         returnCount: true,
       });
@@ -600,6 +602,59 @@ const boardQueries = {
 
     return counts;
   },
+
+  async cardsFields(_root, _args, { models, subdomain }: IContext) {
+    const result = {};
+
+    for (const ct of ['deal', 'ticket', 'task']) {
+      result[ct] = [];
+
+      const groups = await sendFormsMessage({
+        subdomain,
+        action: 'fieldsGroups.find',
+        data: {
+          query: {
+            contentType: ct
+          }
+        },
+        isRPC: true
+      });
+
+      for (const group of groups) {
+        const { config = {} } = group;
+
+        const fields = await sendFormsMessage({
+          subdomain,
+          action: 'fields.find',
+          data: {
+            query: {
+              groupId: group._id
+            }
+          },
+          isRPC: true
+        });
+        
+        const pipelines = await models.Pipelines.find({
+          _id: { $in: config.pipelineIds || [] }
+        });
+
+        for (const pipeline of pipelines) {
+          const board = await models.Boards.getBoard(pipeline.boardId);
+
+          for (const field of fields) {
+            result[ct].push({
+              boardName: board.name,
+              pipelineName: pipeline.name,
+              fieldId: field._id,
+              fieldName: field.text
+            });
+          }
+        }
+      }
+    }
+
+    return result;
+  }
 };
 
 moduleRequireLogin(boardQueries);

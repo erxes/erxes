@@ -6,7 +6,6 @@ import ImportHistory from './importExport/routes';
 import MainRoutes from './main/routes';
 import PermissionRoutes from './permissions/routes';
 import ProfileRoutes from './profile/routes';
-import PropertiesRoutes from './properties/routes';
 import StatusRoutes from './status/routes';
 import TeamRoutes from './team/routes';
 
@@ -16,7 +15,6 @@ const routes = () => (
     <BrandsRoutes key="BrandsRoutes" />
     <ProfileRoutes key="profile" />
     <General key="General" />
-    <PropertiesRoutes key="PropertiesRoutes" />
     <TeamRoutes key="team" />
     <ImportHistory key="ImportHistory" />
     <StatusRoutes key="StatusRoutes" />

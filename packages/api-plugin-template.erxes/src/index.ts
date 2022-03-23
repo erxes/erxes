@@ -16,6 +16,7 @@ import * as http from 'http';
 import { connect } from './connection';
 import { debugInfo, debugError } from './debuggers';
 import { init as initBroker } from '@erxes/api-utils/src/messageBroker';
+import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import * as elasticsearch from './elasticsearch';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
@@ -26,7 +27,7 @@ import {
   join,
   leave,
   redis
-} from './serviceDiscovery';
+} from '@erxes/api-utils/src/serviceDiscovery';
 
 const configs = require('../../src/configs').default;
 
@@ -162,6 +163,10 @@ async function startServer() {
       return serviceNames.includes(name);
     },
     isEnabled: async name => {
+      if (name === 'core') {
+        return true;
+      }
+
       return !!(await redis.sismember('erxes:plugins:enabled', name));
     }
   };
@@ -184,28 +189,10 @@ async function startServer() {
   try {
     // connect to mongo database
     const db = await connect(mongoUrl);
-    const messageBrokerClient = await initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis });
-
-    configs.onServerInit({
-      db,
-      app,
-      pubsubClient: pubsub,
-      elasticsearch,
-      messageBrokerClient,
-      debug: {
-        info: debugInfo,
-        error: debugError
-      }
-    });
-
-    await join({
-      name: configs.name,
-      port: PORT || '',
-      dbConnectionString: mongoUrl,
-      hasSubscriptions: configs.hasSubscriptions,
-      importTypes: configs.importTypes,
-      exportTypes: configs.exportTypes,
-      meta: configs.meta
+    const messageBrokerClient = await initBroker({
+      RABBITMQ_HOST,
+      MESSAGE_BROKER_PREFIX,
+      redis
     });
 
     if (configs.permissions) {
@@ -223,6 +210,8 @@ async function startServer() {
 
       if (segments) {
         if (segments.propertyConditionExtender) {
+          segments.propertyConditionExtenderAvailable = true;
+
           consumeRPCQueue(
             `${configs.name}:segments.propertyConditionExtender`,
             segments.propertyConditionExtender
@@ -230,6 +219,8 @@ async function startServer() {
         }
 
         if (segments.associationTypes) {
+          segments.associationTypesAvailable = true;
+
           consumeRPCQueue(
             `${configs.name}:segments.associationTypes`,
             segments.associationTypes
@@ -237,6 +228,8 @@ async function startServer() {
         }
 
         if (segments.esTypesMap) {
+          segments.esTypesMapAvailable = true;
+
           consumeRPCQueue(
             `${configs.name}:segments.esTypesMap`,
             segments.esTypesMap
@@ -244,6 +237,8 @@ async function startServer() {
         }
 
         if (segments.initialSelector) {
+          segments.initialSelectorAvailable = true;
+
           consumeRPCQueue(
             `${configs.name}:segments.initialSelector`,
             segments.initialSelector
@@ -251,57 +246,17 @@ async function startServer() {
         }
       }
 
-      // logs message consumers
       if (logs) {
-        if (logs.getActivityContent) {
-          consumeRPCQueue(
-            `${configs.name}:logs:getActivityContent`,
-            async args => ({
-              status: 'success',
-              data: await logs.getActivityContent(args)
-            })
-          );
-        }
-
-        if (logs.getContentTypeDetail) {
-          consumeRPCQueue(
-            `${configs.name}:logs:getContentTypeDetail`,
-            async args => ({
-              status: 'success',
-              data: await logs.getContentTypeDetail(args)
-            })
-          );
-        }
-
-        if (logs.collectItems) {
-          consumeRPCQueue(
-            `${configs.name}:logs:collectItems`,
-            async args => ({
-              status: 'success',
-              data: await logs.collectItems(args)
-            })
-          );
-        }
-
-        if (logs.getContentIds) {
-          consumeRPCQueue(
-            `${configs.name}:logs:getContentIds`,
-            async args => ({
-              status: 'success',
-              data: await logs.getContentIds(args)
-            })
-          );
-        }
-
-        if (logs.getSchemaLabels) {
-          consumeRPCQueue(`${configs.name}:logs:getSchemaLabels`,
-            async args => ({
-              status: 'success',
-              data: await logs.getSchemaLabels(args)
-            })
-          );
-        }
-      } // end logs if()
+        logConsumers({
+          name: configs.name,
+          consumeRPCQueue,
+          getActivityContent: logs.getActivityContent,
+          getContentTypeDetail: logs.getContentTypeDetail,
+          collectItems: logs.collectItems,
+          getContentIds: logs.getContentIds,
+          getSchemalabels: logs.getSchemaLabels,
+        });
+      }
 
       if (forms) {
         if (forms.fields) {
@@ -355,9 +310,31 @@ async function startServer() {
           );
         }
       }
-
-      debugInfo(`${configs.name} server is running on port ${PORT}`);
     }
+
+    await join({
+      name: configs.name,
+      port: PORT || '',
+      dbConnectionString: mongoUrl,
+      hasSubscriptions: configs.hasSubscriptions,
+      importTypes: configs.importTypes,
+      exportTypes: configs.exportTypes,
+      meta: configs.meta
+    });
+
+    configs.onServerInit({
+      db,
+      app,
+      pubsubClient: pubsub,
+      elasticsearch,
+      messageBrokerClient,
+      debug: {
+        info: debugInfo,
+        error: debugError
+      }
+    });
+
+    debugInfo(`${configs.name} server is running on port ${PORT}`);
   } catch (e) {
     debugError(`Error during startup ${e.message}`);
   }

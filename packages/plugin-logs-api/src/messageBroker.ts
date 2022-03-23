@@ -1,10 +1,9 @@
 import { debug } from "./configs";
-import ActivityLogs, { IActivityLogDocument } from "./models/ActivityLogs";
-import Logs from "./models/Logs";
-import Visitors from "./models/Visitors";
+import { IActivityLogDocument } from "./models/ActivityLogs";
 import { receivePutLogCommand, sendToApi } from "./utils";
 import { serviceDiscovery } from './configs';
 import { getService } from './inmemoryStorage';
+import { generateModels } from './connectionResolver';
 
 let client;
 
@@ -36,69 +35,86 @@ export const initBroker = async (cl) => {
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeQueue('putLog', async data => {
+  consumeQueue('putLog', async ({ data, subdomain }) => {
+    const models = await generateModels(subdomain);
+
     try {
-      await receivePutLogCommand(data);
+      await receivePutLogCommand(models, data);
     } catch (e) {
       throw new Error(`Error occurred when receiving putLog message: ${e}`);
     }
   });
 
-  consumeQueue('visitor:createOrUpdate', async data => {
-    await Visitors.createOrUpdateVisitorLog(data);
+  consumeQueue('visitor:createOrUpdate', async ({ data, subdomain }) => {
+    const models = await generateModels(subdomain);
+
+    await models.Visitors.createOrUpdateVisitorLog(data);
   });
 
-  consumeQueue('visitor:convertRequest', async ({ visitorId }) => {
-    const visitor = await Visitors.getVisitorLog(visitorId);
+  consumeQueue('visitor:convertRequest', async ({ data: { visitorId }, subdomain }) => {
+    const models = await generateModels(subdomain);
+    const visitor = await models.Visitors.getVisitorLog(visitorId);
 
     sendToApi('visitor:convertResponse', visitor);
   });
 
   consumeQueue(
     'visitor:updateEntry',
-    async ({ visitorId, location: browserInfo }) => {
-      await Visitors.updateVisitorLog({ visitorId, location: browserInfo });
+    async ({ data: { visitorId, location: browserInfo }, subdomain }) => {
+      const models = await generateModels(subdomain);
+
+      await models.Visitors.updateVisitorLog({ visitorId, location: browserInfo });
     }
   );
 
-  consumeQueue('visitor:removeEntry', async ({ visitorId }) => {
-    await Visitors.removeVisitorLog(visitorId);
+  consumeQueue('visitor:removeEntry', async ({ data: { visitorId }, subdomain }) => {
+    const models = await generateModels(subdomain);
+
+    await models.Visitors.removeVisitorLog(visitorId);
   });
 
-  consumeQueue('putActivityLog', async parsedObject => {
-    debug.info(parsedObject);
+  consumeQueue('putActivityLog', async (args) => {
+    debug.info(args);
 
-    const { data, action } = parsedObject;
+    const { data: obj, subdomain } = args;
+
+    const models = await generateModels(subdomain);
+
+    const { data, action } = obj;
 
     switch (action) {
       case 'removeActivityLogs': {
         const { type, itemIds } = data;
 
-        return ActivityLogs.removeActivityLogs(type, itemIds);
+        return models.ActivityLogs.removeActivityLogs(type, itemIds);
       }
       case 'removeActivityLog': {
         const { contentTypeId } = data;
 
-        return ActivityLogs.removeActivityLog(contentTypeId);
+        return models.ActivityLogs.removeActivityLog(contentTypeId);
       }
       default:
         if (action) {
-          return ActivityLogs.addActivityLog(data);
+          return models.ActivityLogs.addActivityLog(data);
         }
 
         break;
     }
   });
 
-  consumeQueue('logs:activityLogs:updateMany', async ({ query, modifier }) => {
+  consumeQueue('logs:activityLogs:updateMany', async ({ data: { query, modifier }, subdomain }) => {
+    const models = await generateModels(subdomain);
+
     if (query && modifier) {
-      await ActivityLogs.updateMany(query, modifier);
+      await models.ActivityLogs.updateMany(query, modifier);
     }
   });
 
-  consumeQueue('log:delete:old', async ({ months = 1 }) => {
+  consumeQueue('log:delete:old', async ({ data: { months = 1 }, subdomain }) => {
+    const models = await generateModels(subdomain);
     const now = new Date();
-    await Logs.deleteMany({
+
+    await models.Logs.deleteMany({
       createdAt: {
         $lte: new Date(
           now.getFullYear(),
@@ -109,19 +125,26 @@ export const initBroker = async (cl) => {
     });
   });
 
-  consumeRPCQueue('logs:activityLogs:findMany', async ({ query, options }) => ({
-    data: await ActivityLogs.find(query, options).lean(), status: 'success'
-  }));
+  consumeRPCQueue('logs:activityLogs:findMany', async ({ data: { query, options }, subdomain }) => {
+    const models = await generateModels(subdomain);
 
-  consumeRPCQueue('logs:activityLogs:insertMany', async ({ rows }) => ({
-    data: await ActivityLogs.insertMany(rows), status: 'success'
-  }));
+    return {
+      data: await models.ActivityLogs.find(query, options).lean(),
+      status: 'success'
+    }
+  });
+
+  consumeRPCQueue('logs:activityLogs:insertMany', async ({ data: { rows }, subdomain }) => {
+    const models = await generateModels(subdomain);
+
+    return { data: await models.ActivityLogs.insertMany(rows), status: 'success' }
+  });
 };
 
-export const getDbSchemaLabels = async (serviceName: string, type: string) => {
+export const getDbSchemaLabels = async (serviceName: string, args) => {
   const enabled = await serviceDiscovery.isEnabled(serviceName);
 
-  return enabled ? client.sendRPCMessage(`${serviceName}:logs:getSchemaLabels`, { type }) : [];
+  return enabled ? client.sendRPCMessage(`${serviceName}:logs:getSchemaLabels`, args) : [];
 };
 
 export const getActivityContentItem = async (activityLog: IActivityLogDocument) => {

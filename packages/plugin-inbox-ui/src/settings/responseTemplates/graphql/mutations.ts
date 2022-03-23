@@ -35,5 +35,5 @@ const responseTemplatesRemove = `
 export default {
   responseTemplatesAdd,
   responseTemplatesEdit,
-  responseTemplatesRemove
+  responseTemplatesRemove,
 };

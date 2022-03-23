@@ -62,3 +62,7 @@ export type ProductAddMutationResponse = {
 export type ProductCategoriesQueryResponse = {
   productCategories: IProductCategory[];
 } & QueryResponse;
+
+export type ProductsQueryResponses = {
+  products: IProduct[];
+} & QueryResponse;

@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { EditMutationResponse, IProduct } from '../../../types';
 import GenerateCustomFields from '@erxes/ui-settings/src/properties/components/GenerateCustomFields';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-settings/src/properties/constants';
 import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';
@@ -10,10 +11,10 @@ import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import { FieldsGroupsQueryResponse } from '@erxes/ui-settings/src/properties/types';
 import { mutations } from '../../../graphql';
-import { EditMutationResponse, IProduct } from '../../../types';
 
 type Props = {
   product: IProduct;
+  refetchQueries: any[];
   loading?: boolean;
 };
 
@@ -23,7 +24,13 @@ type FinalProps = {
   EditMutationResponse;
 
 const CustomFieldsSection = (props: FinalProps) => {
-  const { loading, product, editMutation, fieldsGroupsQuery } = props;
+  const {
+    loading,
+    product,
+    editMutation,
+    fieldsGroupsQuery,
+    refetchQueries
+  } = props;
 
   if (fieldsGroupsQuery.loading) {
     return (
@@ -37,7 +44,8 @@ const CustomFieldsSection = (props: FinalProps) => {
 
   const save = (data, callback) => {
     editMutation({
-      variables: { _id, ...data }
+      variables: { _id, ...data },
+      refetchQueries
     })
       .then(() => {
         callback();

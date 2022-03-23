@@ -3,7 +3,11 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
-import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
@@ -47,12 +51,12 @@ class Segments extends React.Component<Props> {
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <li id={'SegmentsNewPage'}>
-              <Link to={`/segments/new/${contentType}`}>
+              <Link to={`/segments/new?contentType=${contentType}`}>
                 {__('New segment')}
               </Link>
             </li>
             <li>
-              <Link to={`/segments/${contentType}`}>
+              <Link to={`/segments?contentType=${contentType}`}>
                 {__('Manage segments')}
               </Link>
             </li>

@@ -15,10 +15,6 @@ export type ResponseTemplatesQueryResponse = {
   fetchMore: (variables) => void;
 } & QueryResponse;
 
-export type ResponseTemplatesTotalCountQueryResponse = {
-  responseTemplatesTotalCount: number;
-} & QueryResponse;
-
 export type SaveResponseTemplateMutationVariables = {
   brandId: string;
   name: string;

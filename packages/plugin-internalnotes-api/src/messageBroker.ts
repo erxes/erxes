@@ -1,3 +1,4 @@
+import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
 
@@ -61,6 +62,14 @@ export const initBroker = async (cl) => {
   );
 };
 
+export const sendNotificationsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'notifications', ...args });
+};
+
+export const sendCardsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'cards', ...args })
+}
+
 export const sendNotificationMessage = async (
   action,
   data,
@@ -72,10 +81,10 @@ export const sendNotificationMessage = async (
       return defaultValue;
     }
 
-    return client.sendRPCMessage(`notifications:rpc_queue:${action}`, data);
+    return client.sendRPCMessage(`notifications:${action}`, { data });
   }
 
-  return client.sendMessage(`notifications:${action}`, data);
+  return client.sendMessage(`notifications:${action}`, { data });
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {
