@@ -101,14 +101,16 @@ export const putCreateLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  // const isAutomationsAvailable = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'automations');
+  const isAutomationsAvailable = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'automations');
 
-  // if (isAutomationsAvailable) {
-  //   messageBroker.sendMessage('automations', {
-  //     type: `${params.type}`,
-  //     targets: [params.object]
-  //   });
-  // }
+  if (isAutomationsAvailable) {
+    messageBroker.sendMessage('automations:trigger', {
+      data: {
+        type: `${params.type}`,
+        targets: [params.object]
+      }
+    });
+  }
 
   return putLog(messageBroker, { ...params, action: LOG_ACTIONS.CREATE }, user);
 };
@@ -123,6 +125,17 @@ export const putUpdateLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
+  const isAutomationsAvailable = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'automations');
+
+  if (isAutomationsAvailable) {
+    messageBroker.sendMessage('automations:trigger', {
+      data: {
+        type: `${params.type}`,
+        targets: [params.updatedDocument]
+      }
+    });
+  }
+
   return putLog(messageBroker, { ...params, action: LOG_ACTIONS.UPDATE }, user);
 };
 
@@ -185,8 +198,10 @@ export const putActivityLog = async (
   try {
     if (isAutomationsAvailable && data.target) {
       messageBroker.sendMessage('automations', {
-        type: `${data.contentType}`,
-        targets: [data.target]
+        data: {
+          type: `${data.contentType}`,
+          targets: [data.target]
+        }
       });
     }
 

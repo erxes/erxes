@@ -1,5 +1,4 @@
 module.exports = {
-  automations: false,
   calendar: false,
   cards: true,
   clientportal: false,

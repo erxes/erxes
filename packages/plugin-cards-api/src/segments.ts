@@ -5,7 +5,7 @@ export default {
   indexesTypeContentType: {
     'cards:deal': 'deals',
     'cards:ticket': 'tickets',
-    'cards: task': 'tasks'
+    'cards:task': 'tasks'
   },
 
   contentTypes: ['deal', 'ticket', 'task'],

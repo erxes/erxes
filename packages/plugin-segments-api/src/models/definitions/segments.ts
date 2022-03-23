@@ -124,8 +124,7 @@ export const segmentSchema = schemaWrapper(
     color: field({ type: String }),
     shouldWriteActivityLog: field({
       type: Boolean,
-      required: true,
-      default: false
+      optional: true
     }),
 
     conditionsConjunction: field({

@@ -61,15 +61,15 @@ class BoardItemForm extends React.Component<Props, State> {
     let type = '';
 
     switch (activeAction.type) {
-      case 'createDeal':
+      case 'cards:deals.create':
         type = 'deal';
         break;
 
-      case 'createTask':
+      case 'cards:tasks.create':
         type = 'task';
         break;
 
-      case 'createTicket':
+      case 'cards:tickets.create':
         type = 'ticket';
         break;
     }
