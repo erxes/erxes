@@ -43,11 +43,11 @@ export const isInSegment = async (subdomain: string, segmentId: string, targetId
   const response = await sendSegmentsMessage({
     subdomain,
     action: "isInSegment",
-    data: { segmentId, targetId },
+    data: { segmentId, idToCheck: targetId },
     isRPC: true,
   });
 
-  return response.check;
+  return response;
 };
 
 export const executeActions = async (

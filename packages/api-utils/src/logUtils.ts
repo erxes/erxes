@@ -110,8 +110,10 @@ export const putCreateLog = async (
 
   if (isAutomationsAvailable) {
     messageBroker.sendMessage('automations:trigger', {
-      type: params.type,
-      targets: [params.object]
+      data: {
+        type: params.type,
+        targets: [params.object]
+      }
     });
   }
 
@@ -136,8 +138,10 @@ export const putUpdateLog = async (
 
   if (isAutomationsAvailable) {
     messageBroker.sendMessage('automations:trigger', {
+      data: {
       type: `${params.type}`,
       targets: [params.updatedDocument]
+      }
     });
   }
 
@@ -162,8 +166,10 @@ export const putDeleteLog = async (
 
   if (isAutomationsAvailable) {
     messageBroker.sendMessage('automations:trigger', {
-      type: `${params.type}`,
-      targets: [params.object]
+      data: {
+        type: `${params.type}`,
+        targets: [params.object]
+      }
     });
   }
 
@@ -210,9 +216,11 @@ export const putActivityLog = async (subdomain: string, params: IActivityLogPara
 
   try {
     if (isAutomationsAvailable && data.target) {
-      messageBroker.sendMessage('automations', {
-        type: `${data.contentType}`,
-        targets: [data.target]
+      messageBroker.sendMessage("automations", {
+        data: {
+          type: `${data.contentType}`,
+          targets: [data.target],
+        },
       });
     }
 

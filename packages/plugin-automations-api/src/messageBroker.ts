@@ -26,7 +26,7 @@ export const initBroker = async cl => {
 
     setTimeout(async () => {
       await receiveTrigger({ models, subdomain, type, targets });
-    }, 1000)
+    }, 5000)
   });
 
 };
