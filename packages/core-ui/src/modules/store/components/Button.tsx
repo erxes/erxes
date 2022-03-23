@@ -14,7 +14,6 @@ const types = {
   simple: {
     background: "rgba(0,0,0,0.05)",
     color: colors.colorCoreGray,
-    border: colors.colorCoreGray,
   },
 
   link: {
@@ -33,7 +32,7 @@ const sizes = {
     fontSize: "12px",
   },
   small: {
-    padding: "3px 5px",
+    padding: "4px 10px",
     fontSize: "10px",
   },
 };
@@ -61,7 +60,8 @@ const ButtonStyled = styledTS<{
     color: ${types[props.btnStyle].color
       ? types[props.btnStyle].color
       : colors.colorWhite} !important;
-    border: 1px solid ${props.border ? colors.colorPrimary : types[props.btnStyle].background};
+    border: ${props.border ? '1px solid' : 'none'};
+    border-color: ${props.border && colors.colorPrimary};
     display: ${props.block && "block"};
     width: ${props.block && "100%"};
     font-weight: ${!props.uppercase && "500"};

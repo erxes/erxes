@@ -202,7 +202,7 @@ const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
       height: ${inputHeight};
       display: inline-block;
       vertical-align: text-top;
-      border-radius: 2px;
+      border-radius: 50%;
       cursor: ${props => props.disabled && 'not-allowed'}
     }
 

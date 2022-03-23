@@ -1,7 +1,8 @@
-import Icon from "modules/common/components/Icon";
-import Button from "modules/common/components/Button";
-import { colors, dimensions } from "modules/common/styles";
-import { __ } from "modules/common/utils";
+import Icon from "@erxes/ui/src/components/Icon";
+import Button from "@erxes/ui/src/components/Button";
+import { colors, dimensions, typography } from "@erxes/ui/src/styles";
+import { Flex } from "@erxes/ui/src/styles/main";
+import { __ } from "@erxes/ui/src/utils";
 import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -9,42 +10,64 @@ import styledTS from "styled-components-ts";
 import CollapseFilter from "./CollapseFilter";
 
 const MainContainer = styled.div`
+  padding-bottom: ${dimensions.coreSpacing}px;
+  border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
 const Header = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
+  padding: ${dimensions.coreSpacing}px 0px;
 `;
 
 const List = styled.div`
   width: 100%;
   display: flex;
-  justify-content: space-between;
 `;
 
 const PluginCard = styled.div`
-  height: 74px;
-  width: 24%;
   display: flex;
   align-items: center;
   background: ${colors.bgMain};
   border-radius: 4px;
+  margin-right: ${dimensions.coreSpacing}px;
 `;
 
 const PluginPic = styled.div`
-  width: 58px;
-  margin: 8px;
-  height: 58px;
+  width: 45px;
+  margin: 7px;
+  height: 45px;
   background: ${colors.colorWhite};
-  border-radius: 4px;
+  border-radius: 2px;
 `;
 
 const UserInformation = styled.div`
+  line-height: ${dimensions.unitSpacing}px;
+  margin-right: 7px;
+`;
+
+const StyledHeader = styled.b`
+  color: ${colors.colorPrimary};
+`;
+
+const Article = styled.b`
+  height: ${typography.lineHeightHeading5};
+`;
+
+const GrayText = styled.div`
+  color: ${colors.colorCoreGray};
+  padding-right: 3px;
+`;
+
+const SpaceLeft = styled(GrayText)`
+  padding-left: 3px;
+`;
+
+const SpaceTop = styled.div`
+  padding-top: ${dimensions.unitSpacing}px;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  line-height: 10px;
+  font-size: ${typography.fontSizeUppercase}px;
 `;
 
 type Props = {
@@ -73,39 +96,43 @@ class UserPreview extends React.Component<
     return (
       <List>
         <PluginCard>
-          <PluginPic>
-            
-          </PluginPic>
+          <PluginPic></PluginPic>
           <UserInformation>
-            <p><b>Frime</b></p>
-            <p>use 12 plugin combined in <b>EXM</b></p>
+            <b>Frime</b>
+            <SpaceTop>
+              <GrayText>use</GrayText>12 plugin combined<SpaceLeft>in </SpaceLeft>
+              <b>EXM</b>
+            </SpaceTop>
           </UserInformation>
         </PluginCard>
         <PluginCard>
-          <PluginPic>
-            
-          </PluginPic>
+          <PluginPic></PluginPic>
           <UserInformation>
-            <p><b>Frime</b></p>
-            <p>use 12 plugin combined in <b>EXM</b></p>
+            <b>Frime</b>
+            <SpaceTop>
+              <GrayText>use</GrayText>12 plugin combined<SpaceLeft>in </SpaceLeft>
+              <b>EXM</b>
+            </SpaceTop>
           </UserInformation>
         </PluginCard>
         <PluginCard>
-          <PluginPic>
-            
-          </PluginPic>
+          <PluginPic></PluginPic>
           <UserInformation>
-            <p><b>Frime</b></p>
-            <p>use 12 plugin combined in <b>EXM</b></p>
+            <b>Frime</b>
+            <SpaceTop>
+              <GrayText>use</GrayText>12 plugin combined<SpaceLeft>in </SpaceLeft>
+              <b>EXM</b>
+            </SpaceTop>
           </UserInformation>
         </PluginCard>
         <PluginCard>
-          <PluginPic>
-            
-          </PluginPic>
+          <PluginPic></PluginPic>
           <UserInformation>
-            <p><b>Frime</b></p>
-            <p>use 12 plugin combined in <b>EXM</b></p>
+            <b>Frime</b>
+            <SpaceTop>
+              <GrayText>use</GrayText>12 plugin combined<SpaceLeft>in </SpaceLeft>
+              <b>EXM</b>
+            </SpaceTop>
           </UserInformation>
         </PluginCard>
       </List>
@@ -116,10 +143,8 @@ class UserPreview extends React.Component<
     return (
       <MainContainer>
         <Header>
-          <h5>
-            <b>{this.props.header}</b>
-          </h5>
-          <Button btnStyle="link">View all</Button>
+          <Article>{this.props.header}</Article>
+          <StyledHeader>View all</StyledHeader>
         </Header>
         {this.renderList()}
       </MainContainer>

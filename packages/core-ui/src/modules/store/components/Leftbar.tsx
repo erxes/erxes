@@ -7,13 +7,13 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
 import CollapseFilter from "./CollapseFilter";
-import FormControl from '@erxes/ui/src/components/form/Control';
+import FormControl from "@erxes/ui/src/components/form/Control";
 
 const MainContainer = styledTS<{ active?: boolean }>(styled.div)`
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 30px;
+  padding: ${dimensions.coreSpacing}px;
   justify-content: space-between;
 `;
 
@@ -24,29 +24,24 @@ const MainContainer = styledTS<{ active?: boolean }>(styled.div)`
 
 const SearchContainer = styledTS<{ active?: boolean }>(styled.div)`
   border-radius: 8px;
-  height: 48px;
   position: relative;
   transition: .3s all;
+  margin-bottom: ${dimensions.coreSpacing}px;
+`;
+
+const Search = styled.div`
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 8px;
+  height: 100%;
   display: flex;
   align-items: center;
   position: relative;
-
-  > span {
-    color: ${colors.colorCoreGray};
-    padding-left: 8px;
-  }
-  
-  i {
-    cursor: pointer;
-    color: ${colors.colorCoreDarkGray};
-  }
+  padding: 6px;
 
   input {
     background: 0 0;
     border: none;
-    padding: 8px 8px;
     flex: 1;
-    height: 100%;
     outline: 0;
 
     &:focus {
@@ -55,45 +50,37 @@ const SearchContainer = styledTS<{ active?: boolean }>(styled.div)`
   }
 `;
 
-const Search = styled.div`
-  border: 1px solid ${colors.borderDarker};
-  border-radius: 8px;
-  height: 100%;
-  padding: 0 6px;
-`;
-
 const FilterContainer = styledTS<{ active?: boolean }>(styled.div)`
   position: relative;
-  height: 92%;
+  height: 100%;
   transition: .3s all;
 `;
 
 const Filter = styled.div`
   border-radius: 8px;
   height: 100%;
-  border: 1px solid ${colors.borderDarker};
+  border: 1px solid ${colors.borderPrimary};
 `;
 
 const Box = styled.div`
   border-radius: 8px;
   background: ${colors.colorWhite};
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 0px;
   box-sizing: border-box;
   cursor: pointer;
-  border: 1px solid ${colors.borderDarker};
+  border: 1px solid ${colors.borderPrimary};
 `;
 
 const FilterHeader = styled.div`
-  border-bottom: 1px solid ${colors.borderDarker};
   display: flex;
-  height: 48px;
+  height: 40px;
   justify-content: space-between;
-  padding: 12px;
+  padding: 9px;
   align-items: center;
 `;
 
@@ -101,9 +88,9 @@ const Width = styled.div`
   width: 70%;
 `;
 
-// const FilterBox = styled.div`
-//   border-bottom: 1px solid ${colors.borderPrimary};
-// `;
+const PaddingTop = styled.div`
+  padding-bottom: 5px;
+`;
 
 type Props = {
   onSearch?: (e) => void;
@@ -153,7 +140,7 @@ class Leftbar extends React.Component<
               onKeyDown={onSearch}
               onChange={this.handleInput}
             />
-            <Button>Search</Button>
+            <Button size="small">Search</Button>
           </Search>
         ) : (
           <Box>
@@ -172,15 +159,15 @@ class Leftbar extends React.Component<
     // }
 
     return (
-      <div>
-          <FormControl
-            componentClass='checkbox'
-            onChange={() => {}}
-            color={colors.colorPrimary}
-          >
-            {text}
-          </FormControl>
-      </div>
+      <PaddingTop>
+        <FormControl
+          componentClass="checkbox"
+          onChange={() => {}}
+          color={colors.colorPrimary}
+        >
+          {text}
+        </FormControl>
+      </PaddingTop>
     );
   }
 
@@ -193,35 +180,36 @@ class Leftbar extends React.Component<
           <Filter>
             <FilterHeader>
               <Icon icon="list-ul" size={20} />
-              <Width><b>Filter</b></Width>
-              <Button btnStyle="simple" size="small">
+              <Width>
+                <b>Filter</b>
+              </Width>
+              <Button btnStyle="simple" size="small" onClick={this.closeInput}>
                 <Icon
                   style={{ cursor: "pointer" }}
-                  onClick={this.closeInput}
                   icon="arrow-up-left"
                   size={15}
-                  color= {colors.colorPrimary}
+                  color={colors.colorPrimary}
                 />
               </Button>
             </FilterHeader>
             <CollapseFilter compact title="License" open hasBorder={true}>
-                {this.renderCheckbox("All")}
-                {this.renderCheckbox("Free")}
-                {this.renderCheckbox("Premium")}
+              {this.renderCheckbox("All")}
+              {this.renderCheckbox("Free")}
+              {this.renderCheckbox("Premium")}
             </CollapseFilter>
             <CollapseFilter compact title="Categories" open hasBorder={true}>
-                {this.renderCheckbox("All")}
-                {this.renderCheckbox("Templates")}
-                {this.renderCheckbox("Plugins")}
-                {this.renderCheckbox("Add-Ons")}
+              {this.renderCheckbox("All")}
+              {this.renderCheckbox("Templates")}
+              {this.renderCheckbox("Plugins")}
+              {this.renderCheckbox("Add-Ons")}
             </CollapseFilter>
             <CollapseFilter compact title="Products" open hasBorder={true}>
-                {this.renderCheckbox("All")}
-                {this.renderCheckbox("Employee XM")}
-                {this.renderCheckbox("Customer XM")}
-                {this.renderCheckbox("Product XM")}
-                {this.renderCheckbox("Core XM")}
-                {this.renderCheckbox("Brand XM")}
+              {this.renderCheckbox("All")}
+              {this.renderCheckbox("Employee XM")}
+              {this.renderCheckbox("Customer XM")}
+              {this.renderCheckbox("Product XM")}
+              {this.renderCheckbox("Core XM")}
+              {this.renderCheckbox("Brand XM")}
             </CollapseFilter>
           </Filter>
         ) : (

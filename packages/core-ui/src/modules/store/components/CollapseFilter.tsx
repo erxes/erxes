@@ -4,13 +4,14 @@ import styled, { css } from "styled-components";
 import styledTS from "styled-components-ts";
 import colors from "@erxes/ui/src/styles/colors";
 import Icon from "@erxes/ui/src/components/Icon";
+import { dimensions } from "@erxes/ui/src/styles";
 
 const Title = styledTS<{
   compact?: boolean;
   hasImage?: boolean;
   background?: string;
 }>(styled.a)`
-  padding: ${(props) => (props.compact ? "10px 10px" : "10px")};
+  padding: ${dimensions.unitSpacing}px;
   transition: background 0.3s ease;
   display: flex;
   align-items: center;
@@ -28,32 +29,6 @@ const Title = styledTS<{
   &:hover {
     cursor: pointer;
   }
-
-  ${(props) =>
-    props.hasImage &&
-    css`
-      &:after {
-        content: "";
-        display: block;
-        position: absolute;
-        width: 300px;
-        height: 200%;
-        background-color: ${colors.colorWhite};
-        right: -40px;
-        top: -30px;
-      }
-
-      img {
-        position: absolute;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        height: 100%;
-        max-width: 40%;
-        padding: 10px 10px 0 10px;
-        z-index: 2;
-      }
-    `};
 `;
 
 const Left = styled.div`
@@ -62,10 +37,10 @@ const Left = styled.div`
 `;
 
 const Container = styledTS<{ open: boolean; border?: boolean }>(styled.div)`
-  margin-bottom: 10px;
   background: ${colors.colorWhite};
-  padding: '12px';
-  border-top: 1px solid ${(props) => props.border ? colors.borderDarker : colors.colorWhite};
+  padding: ${dimensions.unitSpacing};
+  border-top: 1px solid ${(props) =>
+    props.border ? colors.borderPrimary : colors.colorWhite};
 
   &:last-child {
     margin-bottom: 0;
@@ -80,7 +55,7 @@ const Container = styledTS<{ open: boolean; border?: boolean }>(styled.div)`
 
 const Content = styledTS<{ full: boolean }>(styled.div)`
   background: ${colors.colorWhite};
-  padding: ${(props) => (props.full ? "0" : "12px")};
+  padding: ${dimensions.unitSpacing}px;
 
   ${Container} {
     background: ${colors.colorWhite};
@@ -132,11 +107,7 @@ function CollapseFilter(props: Props) {
             {props.description}
           </div>
         </Left>
-        {hasImage ? (
-          <img alt="heading" src={props.image} />
-        ) : (
-          <Icon icon="angle-down" />
-        )}
+        <Icon icon="angle-down" />
       </Title>
       <Collapse in={open}>
         <div>

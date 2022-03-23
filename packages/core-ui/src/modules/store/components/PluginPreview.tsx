@@ -1,7 +1,7 @@
 import Icon from "modules/common/components/Icon";
 import Button from "./Button";
 import { colors, dimensions, typography } from "@erxes/ui/src/styles";
-import {Flex} from '@erxes/ui/src/styles/main';
+import { Flex } from "@erxes/ui/src/styles/main";
 import { __ } from "modules/common/utils";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -11,7 +11,7 @@ import CollapseFilter from "./CollapseFilter";
 // import { Rating } from "@mui/material";
 
 const MainContainer = styled.div`
-  padding-bottom: 30px;
+  padding-bottom: ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
@@ -19,18 +19,16 @@ const Header = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 20px 0px 20px 0px;
+  padding: ${dimensions.coreSpacing}px 0px;
 `;
 
 const List = styled.div`
   width: 100%;
   display: flex;
-  justify-content: space-between;
 `;
 
 const PluginCard = styled.div`
-  height: 240px;
-  width: 24%;
+  padding-right: ${dimensions.coreSpacing}px;
 `;
 
 const PluginPic = styled.div`
@@ -38,27 +36,19 @@ const PluginPic = styled.div`
   background: ${colors.bgMain};
   height: 110px;
   border-radius: 4px;
-  margin-bottom: 10px;
+  margin-bottom: ${dimensions.unitSpacing}px;
 `;
 
 const Footer = styled.div`
-  height: 50px;
   display: flex;
   align-items: center;
-`;
-
-const RatingsPreview = styled.div`
-  display: flex;
+  justify-content: space-between;
 `;
 
 const Rating = styled.div`
-  height: 20px;
-  width: 100px;
+  height: ${dimensions.coreSpacing}px;
+  width: 90px;
   background: ${colors.bgGray};
-`;
-
-const Buttons = styled.div`
-  display: flex;
 `;
 
 const StyledHeader = styled.b`
@@ -68,7 +58,8 @@ const StyledHeader = styled.b`
 const Article = styled.b`
   height: ${typography.lineHeightHeading5};
 `;
-const GrayText = styled.p`
+
+const GrayText = styled.div`
   color: ${colors.colorCoreGray};
   padding-right: 5px;
 `;
@@ -76,8 +67,6 @@ const GrayText = styled.p`
 const Space = styled(GrayText)`
   padding-left: 5px;
 `;
-
-
 
 type Props = {
   header?: string;
@@ -108,84 +97,104 @@ class PluginPreview extends React.Component<
           <PluginPic />
           <b>Ecommerce plugin</b>
           <Flex>
-            <GrayText>by </GrayText>New media group <Space>in </Space><b>EXM</b>
+            <GrayText>by </GrayText>New media group <Space>in </Space>
+            <b>EXM</b>
           </Flex>
           <Footer>
-            <RatingsPreview>
+            <Flex>
               <Rating />
-              <p>/412/</p>
-            </RatingsPreview>
-            <Button btnStyle="simple" border size="small"><Icon icon="shopping-cart-alt" size={15}  color={colors.colorPrimary}/></Button>
-            <Button size="small"><b>Install</b></Button>
+              <Space><b>/412/</b></Space>
+            </Flex>
+            <Flex>
+              <Button btnStyle="simple" border size="small">
+                <Icon
+                  icon="shopping-cart-alt"
+                  size={15}
+                  color={colors.colorPrimary}
+                />
+              </Button>
+              <Button size="small">
+                <b>Install</b>
+              </Button>
+            </Flex>
           </Footer>
         </PluginCard>
         <PluginCard>
           <PluginPic />
           <b>Ecommerce plugin</b>
-          <p>
-            by New Media Group in <b>EXM</b>
-          </p>
+          <Flex>
+            <GrayText>by </GrayText>New media group <Space>in </Space>
+            <b>EXM</b>
+          </Flex>
           <Footer>
-            <RatingsPreview>
-              <Rating
-                // name="half-rating-read"
-                // defaultValue={2.5}
-                // precision={0.5}
-                // size="small"
-                // readOnly
-              />
-              <p>/412/</p>
-            </RatingsPreview>
-            <Buttons>
-              <Button btnStyle="simple" border size="small"><Icon icon="shopping-cart-alt" size={15}  color= {colors.colorPrimary}/></Button>
-              <Button size="small"><b>Install</b></Button>
-            </Buttons>
+            <Flex>
+              <Rating />
+              <Space><b>/412/</b></Space>
+            </Flex>
+            <Flex>
+              <Button btnStyle="simple" border size="small">
+                <Icon
+                  icon="shopping-cart-alt"
+                  size={15}
+                  color={colors.colorPrimary}
+                />
+              </Button>
+              <Button size="small">
+                <b>Install</b>
+              </Button>
+            </Flex>
           </Footer>
         </PluginCard>
         <PluginCard>
           <PluginPic />
           <b>Ecommerce plugin</b>
-          <p>
-            by New Media Group in <b>EXM</b>
-          </p>
+          <Flex>
+            <GrayText>by </GrayText>New media group <Space>in </Space>
+            <b>EXM</b>
+          </Flex>
           <Footer>
-            <RatingsPreview>
-              <Rating
-                // name="half-rating-read"
-                // defaultValue={2.5}
-                // precision={0.5}
-                // size="small"
-                // readOnly
-              />
-              <p>/412/</p>
-            </RatingsPreview>
-            <Buttons>
-              <Button btnStyle="simple" border size="small"><Icon icon="shopping-cart-alt" size={15}  color= {colors.colorPrimary}/></Button>
-              <Button size="small"><b>Install</b></Button>
-            </Buttons>
+            <Flex>
+              <Rating />
+              <Space><b>/412/</b></Space>
+            </Flex>
+            <Flex>
+              <Button btnStyle="simple" border size="small">
+                <Icon
+                  icon="shopping-cart-alt"
+                  size={15}
+                  color={colors.colorPrimary}
+                />
+              </Button>
+              <Button size="small">
+                <b>Install</b>
+              </Button>
+            </Flex>
           </Footer>
         </PluginCard>
         <PluginCard>
           <PluginPic />
           <b>Ecommerce plugin</b>
-          <p>
-            by New Media Group in <b>EXM</b>
-          </p>
+          <Flex>
+            <GrayText>by </GrayText>New media group <Space>in </Space>
+            <b>EXM</b>
+          </Flex>
           <Footer>
-            <RatingsPreview>
-              <Rating
-                // name="half-rating-read"
-                // defaultValue={2.5}
-                // precision={0.5}
-                // size="small"
-                // readOnly
-              />
-              <p>/412/</p>
-            </RatingsPreview>
-            <Buttons>
-              <Button btnStyle="simple" border size="small"><Icon icon="shopping-cart-alt" size={15}  color= {colors.colorPrimary}/></Button>
-              <Button size="small"><b>Install</b></Button>
-            </Buttons>
+            <Flex>
+              <Rating />
+              <Space><b>/412/</b></Space>
+            </Flex>
+            <Flex>
+              <Button btnStyle="simple" border size="small">
+                <Icon
+                  icon="shopping-cart-alt"
+                  size={15}
+                  color={colors.colorPrimary}
+                />
+              </Button>
+              <Button size="small">
+                <b>Install</b>
+              </Button>
+            </Flex>
           </Footer>
         </PluginCard>
       </List>

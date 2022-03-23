@@ -11,7 +11,7 @@ import PluginPreview from '../components/PluginPreview';
 import UserPreview from '../components/UserPreview';
 
 const MainContainer = styled.div`
-  padding: 30px 30px 30px 0px;
+  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0px;
 `;
 
 const Carousel = styled.div`
