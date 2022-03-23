@@ -12,6 +12,7 @@ import { Model } from "mongoose";
 
 export interface ICarModel extends Model<ICarDocument> {
   createCar(doc: ICar, user: any): Promise<ICarDocument>;
+  getCar(_id: string): Promise<ICarDocument>;
   updateCar(_id: string, doc: ICar): Promise<ICarDocument>;
   removeCars(carIds: string): Promise<ICarDocument>;
   mergeCars(carIds: string, carFields: any): Promise<ICarDocument>;
@@ -191,7 +192,7 @@ export const loadCarClass = (models) => {
 export interface ICarCategoryModel extends Model<ICarCategoryDocument> {
   getCarCatogery(selector: any): Promise<ICarCategoryDocument>;
   createCarCategory(doc: ICarCategory): Promise<ICarCategoryDocument>;
-  updateCareCategory(
+  updateCarCategory(
     _id: string,
     doc: ICarCategory
   ): Promise<ICarCategoryDocument>;

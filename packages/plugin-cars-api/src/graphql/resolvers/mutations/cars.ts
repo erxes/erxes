@@ -152,7 +152,7 @@ const carMutations = [
       { models, checkPermission, user, messageBroker }
     ) => {
       await checkPermission("manageCars", user);
-      const carCategory = await models.CarCategories.getCarCategory(models, {
+      const carCategory = await models.CarCategories.getCarCatogery(models, {
         _id,
       });
       const updated = await models.CarCategories.updateCarCategory(
