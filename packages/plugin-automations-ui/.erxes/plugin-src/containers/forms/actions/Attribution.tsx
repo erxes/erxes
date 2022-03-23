@@ -57,7 +57,7 @@ export default withProps<Props>(
         name: 'fieldsCombinedByTypeQuery',
         options: ({ triggerType }) => ({
           variables: {
-            contentType: triggerType || 'customer'
+            contentType: triggerType
           }
         })
       }
