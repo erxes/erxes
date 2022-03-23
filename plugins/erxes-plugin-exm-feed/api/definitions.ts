@@ -1,5 +1,10 @@
-// Mongoose schemas =======================
+export type TExmThank = {
+  description: string;
+  recipientIds: string[];
+  createdAt?: Date;
+};
 
+// Mongoose schemas =======================
 const attachmentSchema = {
   name: { type: String },
   url: { type: String },

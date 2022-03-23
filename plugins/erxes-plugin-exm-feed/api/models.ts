@@ -1,4 +1,4 @@
-import { feedSchema, thankSchema } from './definitions';
+import { feedSchema, TExmThank, thankSchema } from './definitions';
 
 class Feed {
   public static async getExmFeed(models, _id: string) {
@@ -31,7 +31,12 @@ class Feed {
   /*
    * Update exm
    */
-  public static async updateExmFeed(models, _id: string, doc: any, user: any) {
+  public static async updateExmFeed(
+    models,
+    _id: string,
+    doc: TExmThank,
+    user: any
+  ) {
     await models.ExmFeed.updateOne(
       { _id },
       {
@@ -74,7 +79,7 @@ class ExmThank {
   /*
    * Create new thank
    */
-  public static async createThank(models, doc: any, user: any) {
+  public static async createThank(models, doc: TExmThank, user: any) {
     const thank = await models.ExmThanks.create({
       createdBy: user._id,
       createdAt: new Date(),
@@ -87,7 +92,12 @@ class ExmThank {
   /*
    * Update thank
    */
-  public static async updateThank(models, _id: string, doc: any, user: any) {
+  public static async updateThank(
+    models,
+    _id: string,
+    doc: TExmThank,
+    user: any
+  ) {
     await models.ExmThanks.updateOne(
       { _id },
       {

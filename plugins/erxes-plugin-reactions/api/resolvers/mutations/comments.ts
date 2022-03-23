@@ -9,7 +9,7 @@ const commentMutations = [
       );
 
       if (models.Exms) {
-        await models.Exms.useScoring(models, user, 'commentAdd');
+        await models.Exms.useScoring(models, user._id, 'commentAdd');
       }
 
       return comment;

@@ -42,7 +42,7 @@ class Exm {
     return exmObj.remove();
   }
 
-  public static async useScoring(models, user, action) {
+  public static async useScoring(models, userId, action) {
     const exmObj = await models.Exms.findOne().lean();
 
     const scoringConfig = (exmObj.scoringConfig || []).find(
@@ -51,7 +51,7 @@ class Exm {
 
     const score = scoringConfig.score || 0;
 
-    await models.Users.updateOne({ _id: user._id }, { $inc: { score } });
+    await models.Users.updateOne({ _id: userId }, { $inc: { score } });
 
     return score;
   }
