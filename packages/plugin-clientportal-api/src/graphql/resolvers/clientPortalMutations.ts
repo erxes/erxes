@@ -1,9 +1,8 @@
-import { ClientPortals } from '../../models';
 import { IClientPortal } from '../../models/definitions/clientPortal';
 import { BOARD_STATUSES } from '../../models/definitions/constants';
 import { checkPermission } from '@erxes/api-utils/src';
 import { sendCardsMessage, sendContactsMessage } from '../../messageBroker';
-
+import { IContext } from '../../connectionResolver';
 interface ICreateCard {
   type: string;
   email: string;
@@ -14,12 +13,12 @@ interface ICreateCard {
 }
 
 const configClientPortalMutations = {
-  clientPortalConfigUpdate(_root, args: IClientPortal) {
-    return ClientPortals.createOrUpdateConfig(args);
+  clientPortalConfigUpdate(_root, args: IClientPortal, { models }: IContext) {
+    return models.ClientPortals.createOrUpdateConfig(args);
   },
 
-  clientPortalRemove(_root, { _id }: { _id: string }) {
-    return ClientPortals.deleteOne({ _id });
+  clientPortalRemove(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.ClientPortals.deleteOne({ _id });
   },
 
   async clientPortalCreateCustomer(
@@ -29,15 +28,21 @@ const configClientPortalMutations = {
       firstName: string;
       lastName: string;
       email: string;
-    }
+    },
+    { models, subdomain }: IContext
   ) {
-    await ClientPortals.getConfig(args.configId);
+    await models.ClientPortals.getConfig(args.configId);
 
-    return sendContactsMessage('create_customer', {
-      firstName: args.firstName,
-      lastName: args.lastName,
-      primaryEmail: args.email,
-      state: 'customer',
+    return sendContactsMessage({
+      subdomain,
+      action: 'customers.createCustomer',
+      data: {
+        firstName: args.firstName,
+        lastName: args.lastName,
+        primaryEmail: args.email,
+        state: 'customer',
+      },
+      isRPC: true,
     });
   },
 
@@ -47,24 +52,34 @@ const configClientPortalMutations = {
       configId: string;
       companyName: string;
       email: string;
-    }
+    },
+    { models, subdomain }: IContext
   ) {
-    await ClientPortals.getConfig(args.configId);
+    await models.ClientPortals.getConfig(args.configId);
 
-    return sendContactsMessage('createCompany', {
-      primaryName: args.companyName,
-      primaryEmail: args.email,
-      names: [args.companyName],
-      emails: [args.email],
+    return sendContactsMessage({
+      subdomain,
+      action: 'companies.createCompany',
+      data: {
+        primaryName: args.companyName,
+        primaryEmail: args.email,
+        names: [args.companyName],
+        emails: [args.email],
+      },
+      isRPC: true,
     });
   },
 
   async clientPortalCreateCard(
     _root,
-    { type, email, subject, priority, description, stageId }: ICreateCard
+    { type, email, subject, priority, description, stageId }: ICreateCard,
+    { subdomain }: IContext
   ) {
-    const customer = await sendContactsMessage('findCustomer', {
-      primaryEmail: email,
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.find',
+      data: { primaryEmail: email },
+      isRPC: true,
     });
 
     if (!customer) {
@@ -81,8 +96,18 @@ const configClientPortalMutations = {
     };
 
     return type === 'ticket'
-      ? await sendCardsMessage('createTickets', { dataCol })
-      : await sendCardsMessage('createTasks', { dataCol });
+      ? await sendCardsMessage({
+          subdomain,
+          action: 'tickets.create',
+          data: dataCol,
+          isRPC: true,
+        })
+      : await sendCardsMessage({
+          subdomain,
+          action: 'tasks.create',
+          data: dataCol,
+          isRPC: true,
+        });
   },
 };
 

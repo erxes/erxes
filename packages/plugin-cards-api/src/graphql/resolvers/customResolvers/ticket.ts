@@ -64,7 +64,7 @@ export default {
   },
 
   assignedUsers(ticket: ITicketDocument) {
-    return (ticket.assignedUserIds || []).map((_id) => ({
+    return (ticket.assignedUserIds || []).filter(e => e).map((_id) => ({
       __typename: "User",
       _id,
     }));
@@ -120,6 +120,10 @@ export default {
   },
 
   createdUser(ticket: ITicketDocument) {
+    if (!ticket.userId) {
+      return;
+    }
+
     return { __typename: "User", _id: ticket.userId };
   },
 };

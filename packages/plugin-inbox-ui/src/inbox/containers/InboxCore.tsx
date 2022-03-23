@@ -10,7 +10,6 @@ import { queries } from "@erxes/ui-inbox/src/inbox/graphql";
 import {
   ConvesationsQueryVariables,
   LastConversationQueryResponse,
-  UnreadConversationsTotalCountQueryResponse,
 } from "@erxes/ui-inbox/src/inbox/types";
 import { generateParams } from "@erxes/ui-inbox/src/inbox/utils";
 import ErrorBoundary from "@erxes/ui/src/errorBoundary";
@@ -23,7 +22,6 @@ interface IRouteProps {
 interface IProps extends IRouteProps {
   conversationsGetLast: any;
   loading: boolean;
-  unreadConversationsCountQuery?: UnreadConversationsTotalCountQueryResponse;
 }
 
 interface IInboxRefetchController {
@@ -79,7 +77,7 @@ class WithCurrentId extends React.Component<IProps> {
       <ErrorBoundary>
         <AppConsumer>
           {({ currentUser }) => {
-            const { queryParams, unreadConversationsCountQuery } = this.props;
+            const { queryParams } = this.props;
             const { _id } = queryParams;
 
             if (!currentUser) {
@@ -97,8 +95,6 @@ class WithCurrentId extends React.Component<IProps> {
                 <InboxCore
                   queryParams={queryParams}
                   currentConversationId={_id}
-                  currentUser={currentUser}
-                  unreadConversationsCountQuery={unreadConversationsCountQuery}
                 />
               </WithRefetchHandling>
             );
@@ -131,15 +127,5 @@ export default compose(
         queryParams: ownProps.queryParams,
       };
     },
-  }),
-  graphql<{}, UnreadConversationsTotalCountQueryResponse, IProps>(
-    gql(queries.unreadConversationsCount),
-    {
-      name: "unreadConversationsCountQuery",
-      options: () => ({
-        fetchPolicy: "network-only",
-        notifyOnNetworkStatusChange: true,
-      }),
-    }
-  )
+  })
 )(WithCurrentId);

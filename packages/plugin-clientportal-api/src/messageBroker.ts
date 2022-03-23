@@ -1,14 +1,32 @@
+import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { serviceDiscovery } from './configs';
+
 let client;
 
 export const initBroker = (cl) => {
   client = cl;
 };
 
-export const sendContactsMessage = async (action, data): Promise<any> => {
-  return client.sendRPCMessage(`contacts:rpc_queue:${action}`, data);
+export const sendContactsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'contacts',
+    ...args,
+  });
 };
-export const sendCardsMessage = async (action, data): Promise<any> => {
-  return client.sendRPCMessage(`cards:rpc_queue:${action}`, data);
+
+export const sendCardsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'cards',
+    ...args,
+  });
 };
 
 export default function() {
