@@ -698,15 +698,11 @@ const sendSuccess = data => ({
 
 export default {
   getActivityContent: async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-
-    return sendSuccess(await getContentItem(models, data));
+    return sendSuccess(await getContentItem(subdomain, data));
   },
 
   getContentTypeDetail: async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-
-    return sendSuccess(await getContentTypeDetail(models, data));
+    return sendSuccess(await getContentTypeDetail(subdomain, data));
   },
 
   collectItems: async ({ subdomain, data }) => {

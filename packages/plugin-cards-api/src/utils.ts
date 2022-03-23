@@ -1,7 +1,11 @@
 import { debug } from './configs';
 import { getCollection } from './models/utils';
 import { MODULE_NAMES } from './constants';
-import { coreModels, IModels } from './connectionResolver';
+import {
+  generateCoreModels,
+  generateModels,
+  IModels
+} from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 
@@ -56,7 +60,14 @@ export const generateConditionStageIds = async (
   return stages.map(s => s._id);
 };
 
-export const getContentItem = async (models: IModels, data) => {
+export const getContentItem = async (subdomain, data) => {
+  const models = await generateModels(subdomain);
+  const coreModels = await generateCoreModels(subdomain);
+
+  const aa = await coreModels.Users.find({});
+
+  console.log('mmmmmmmmm', aa);
+
   const { Deals, Tasks, Tickets, GrowthHacks, Stages } = models;
   const { action, content, contentType, contentId } = data;
 
@@ -163,7 +174,10 @@ export const getContentItem = async (models: IModels, data) => {
   }
 };
 
-export const getContentTypeDetail = async (models: IModels, data) => {
+export const getContentTypeDetail = async (subdomain, data) => {
+  const models = await generateModels(subdomain);
+  const coreModels = await generateCoreModels(subdomain);
+
   const {
     Deals,
     Tickets,
