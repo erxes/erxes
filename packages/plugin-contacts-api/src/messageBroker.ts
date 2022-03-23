@@ -284,40 +284,6 @@ export const initBroker = cl => {
     }
   );
 
-  consumeRPCQueue(
-    'contacts:generateInternalNoteNotif',
-    async ({ subdomain, data }) => {
-      const { contentTypeId, notifDoc, type } = data;
-
-      const { Customers, Companies } = await generateModels(subdomain);
-
-      let model: any = Customers;
-      let link = `/contacts/details/`;
-
-      if (type === 'company') {
-        model = Companies;
-        link = `/companies/details/`;
-      }
-
-      const response = await model.findOne({ _id: contentTypeId });
-
-      const name =
-        type === 'customer'
-          ? await Customers.getCustomerName(response)
-          : await Companies.getCompanyName(response);
-
-      notifDoc.notifType = `${type}Mention`;
-      notifDoc.content = name;
-      notifDoc.link = link + response._id;
-      notifDoc.contentTypeId = response._id;
-      notifDoc.contentType = `${type}`;
-
-      return {
-        status: 'success',
-        data: notifDoc
-      };
-    }
-  );
 };
 
 export const sendSegmentsMessage = async (

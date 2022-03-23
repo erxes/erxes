@@ -12,6 +12,7 @@ import forms from './forms';
 import logs from './logUtils';
 import { generateCoreModels, generateModels, getSubdomain } from './connectionResolver';
 import imports from './imports';
+import internalNotes from './internalNotes';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -43,7 +44,8 @@ export default {
     forms,
     logs: { providesActivityLog: true, consumers: logs },
     segments,
-    imports
+    imports,
+    internalNotes
   },
 
   apolloServerContext: async (context) => {
