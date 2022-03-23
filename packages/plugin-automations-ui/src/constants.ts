@@ -1,5 +1,4 @@
 import { __ } from 'coreui/utils';
-import { pluginsOfAutomationActions } from 'coreui/pluginUtils';
 
 export const ACTIONS = [
   {
@@ -71,7 +70,6 @@ export const ACTIONS = [
     description: __('Send email, SMS or in-app messenger messages to Contacts'),
     isAvailable: false
   },
-  ...pluginsOfAutomationActions()
 ];
 
 export const TRIGGERS = [
