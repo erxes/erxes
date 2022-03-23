@@ -3,6 +3,7 @@ import { IContext } from '../../../connectionResolver';
 import { graphqlPubsub } from '../../../configs';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 import {
+  sendCommonMessage,
   sendNotificationsMessage,
   sendRPCMessage,
 } from '../../../messageBroker';
@@ -72,16 +73,18 @@ const internalNoteMutations = (serviceDiscovery) => ({
       contentTypeId: '',
     };
 
-    const updatedNotifDoc = await sendRPCMessage(
-      `${serviceName}:generateInternalNoteNotif`,
-      {
-        data: {
-          type,
-          contentTypeId,
-          notifDoc,
-        }
-      }
-    );
+
+    const updatedNotifDoc = await sendCommonMessage({
+      subdomain,
+      serviceName,
+      action: 'generateInternalNoteNotif',
+      data: {
+        type,
+        contentTypeId,
+        notifDoc
+      },
+      isRPC: true,
+    });
 
     if (updatedNotifDoc.notifOfItems) {
       const { item } = updatedNotifDoc;

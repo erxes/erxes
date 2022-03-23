@@ -17,6 +17,7 @@ import { connect } from './connection';
 import { debugInfo, debugError } from './debuggers';
 import { init as initBroker } from '@erxes/api-utils/src/messageBroker';
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
+import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
 import * as elasticsearch from './elasticsearch';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
@@ -203,7 +204,7 @@ async function startServer() {
     }
 
     if (configs.meta) {
-      const { segments, forms, tags, imports } = configs.meta;
+      const { segments, forms, tags, imports, internalNotes } = configs.meta;
       const { consumeRPCQueue } = messageBrokerClient;
 
       const logs = configs.meta.logs && configs.meta.logs.consumers;
@@ -287,6 +288,14 @@ async function startServer() {
             data: await tags.tag(args)
           }));
         }
+      }
+
+      if (internalNotes) {
+        internalNoteConsumers({
+          name: configs.name,
+          consumeRPCQueue,
+          generateInternalNoteNotif: internalNotes.generateInternalNoteNotif
+        });
       }
 
       if (imports) {
