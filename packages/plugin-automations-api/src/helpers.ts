@@ -123,7 +123,7 @@ export const replacePlaceHolders = async (
           if (actionData[actionDataKey].includes(complexFieldKey)) {
             const regex = new RegExp(`{{ ${complexFieldKey}.([\\w\\d]+) }}`);
             const match = regex.exec(actionData[actionDataKey]);
-            const fieldId = (match && match.length == 2) ? match[1] : '';
+            const fieldId = (match && match.length === 2) ? match[1] : '';
 
             const complexFieldData = target[complexFieldKey].find(cfd => cfd.field === fieldId);
 

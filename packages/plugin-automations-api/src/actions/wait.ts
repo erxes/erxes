@@ -1,19 +1,18 @@
+import { IModels } from "../connectionResolver";
 import { ACTIONS } from "../constants";
 import { getActionsMap } from "../helpers";
-import Automations from "../models/Automations"
 import { IAction } from "../models/definitions/automaions";
 import { EXECUTION_STATUS } from "../models/definitions/executions";
-import { Executions } from "../models/Executions"
 import { executeActions } from "../utils";
 
-export const playWait = async () => {
-  const waitingExecutions = await Executions.find({
+export const playWait = async (models: IModels) => {
+  const waitingExecutions = await models.Executions.find({
     waitingActionId: { $ne: null },
     startWaitingDate: { $ne: null },
   }).lean()
 
   for (const exec of waitingExecutions) {
-    const automation = await Automations.findOne({ _id: exec.automationId }).lean();
+    const automation = await models.Automations.findOne({ _id: exec.automationId }).lean();
     if (!automation) {
       continue;
     }

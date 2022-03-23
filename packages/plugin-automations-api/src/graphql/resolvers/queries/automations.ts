@@ -1,6 +1,6 @@
 import { paginate } from '@erxes/api-utils/src';
-import { Automations, Executions, Notes } from '../../../models';
 import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
+import { IContext } from '../../../connectionResolver';
 import { sendRPCMessage } from '../../../messageBroker';
 
 interface IListArgs {
@@ -45,28 +45,28 @@ const automationQueries = {
   /**
    * Automations list
    */
-  async automations(_root, params: IListArgs) {
+  async automations(_root, params: IListArgs, { models }: IContext) {
     const filter = generateFilter(params);
 
-    return Automations.find(filter).lean();
+    return models.Automations.find(filter).lean();
   },
 
   /**
    * Automations for only main list
    */
-  async automationsMain(_root, params: IListArgs) {
+  async automationsMain(_root, params: IListArgs, { models }: IContext) {
     const { page, perPage } = params;
 
     const filter = generateFilter(params);
 
     const automations = paginate(
-      Automations.find(filter)
+      models.Automations.find(filter)
         .sort({ createdAt: -1 })
         .lean(),
       { perPage, page }
     );
 
-    const totalCount = await Automations.find(filter).countDocuments();
+    const totalCount = await models.Automations.find(filter).countDocuments();
 
     return {
       list: automations,
@@ -77,21 +77,21 @@ const automationQueries = {
   /**
    * Get one automation
    */
-  async automationDetail(_root, { _id }: { _id: string }) {
-    return Automations.getAutomation(_id);
+  async automationDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Automations.getAutomation(_id);
   },
 
   /**
    * Automations note list
    */
-  automationNotes(_root, params: { automationId: string }) {
-    return Notes.find({ automationId: params.automationId }).sort({ createdAt: -1 });
+  automationNotes(_root, params: { automationId: string }, { models }: IContext) {
+    return models.Notes.find({ automationId: params.automationId }).sort({ createdAt: -1 });
   },
 
   /**
    * Automations history list
    */
-  automationHistories(_root, params: IHistoriesParams) {
+  automationHistories(_root, params: IHistoriesParams, { models }: IContext) {
     const {
       page,
       perPage,
@@ -102,6 +102,7 @@ const automationQueries = {
       beginDate,
       endDate
     } = params;
+
     const filter: any = { automationId };
 
     if (status) {
@@ -125,7 +126,7 @@ const automationQueries = {
     }
 
     return paginate(
-      Executions.find(filter).sort({ createdAt: -1 }),
+      models.Executions.find(filter).sort({ createdAt: -1 }),
       { page, perPage }
     )
   },
@@ -154,12 +155,14 @@ const automationQueries = {
     return result;
   },
 
-  async automationsTotalCount(_root, { status }: { status: string }) {
+  async automationsTotalCount(_root, { status }: { status: string }, { models }: IContext) {
     const filter: any = {};
+
     if (status) {
       filter.status = status;
     }
-    return Automations.find(filter).countDocuments();
+
+    return models.Automations.find(filter).countDocuments();
   }
 };
 

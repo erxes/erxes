@@ -3,7 +3,6 @@ import {
   ITrigger,
   TriggerType
 } from './models/definitions/automaions';
-import { Automations, Executions } from './models/';
 import { ACTIONS } from './constants';
 import { customCode, setProperty } from './actions';
 import {
@@ -15,6 +14,7 @@ import { getActionsMap } from './helpers';
 import { sendRPCMessage, sendSegmentsMessage } from './messageBroker';
 // import { callPluginsAction } from './pluginUtils';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
+import { IModels } from './connectionResolver';
 
 export const getEnv = ({
   name,
@@ -182,24 +182,26 @@ const isDiffValue = (latest, target, field) => {
 }
 
 export const calculateExecution = async ({
+  models,
   automationId,
   trigger,
   target
 }: {
+  models: IModels;
   automationId: string;
   trigger: ITrigger;
   target: any;
 }): Promise<IExecutionDocument | null | undefined> => {
   const { id, type, config } = trigger;
   const { reEnrollment, reEnrollmentRules, contentId } = config;
-  try {
-    console.log('mmmmmmmmmmm', await isInSegment(contentId, target._id))
 
+  try {
     if (!await isInSegment(contentId, target._id)) {
       return;
     }
+
   } catch (e) {
-    await Executions.createExecution({
+    await models.Executions.createExecution({
       automationId,
       triggerId: id,
       triggerType: type,
@@ -212,7 +214,7 @@ export const calculateExecution = async ({
     return;
   }
 
-  const executions = await Executions.find({
+  const executions = await models.Executions.find({
     automationId,
     triggerId: id,
     targetId: target._id
@@ -239,7 +241,7 @@ export const calculateExecution = async ({
     }
   }
 
-  return Executions.createExecution({
+  return models.Executions.createExecution({
     automationId,
     triggerId: id,
     triggerType: type,
@@ -255,13 +257,15 @@ export const calculateExecution = async ({
  * target is one of the TriggerType objects
  */
 export const receiveTrigger = async ({
+  models,
   type,
   targets
 }: {
+  models: IModels,
   type: TriggerType;
   targets: any[];
 }) => {
-  const automations = await Automations.find({
+  const automations = await models.Automations.find({
     status: 'active',
     'triggers.type': { $in: [type] }
   }).lean();
@@ -278,6 +282,7 @@ export const receiveTrigger = async ({
         }
 
         const execution = await calculateExecution({
+          models,
           automationId: automation._id,
           trigger,
           target

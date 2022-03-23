@@ -1,14 +1,15 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
+import { IModels } from '../connectionResolver';
 import { automationSchema, IAutomationDocument } from './definitions/automaions';
 
 export interface IAutomationModel extends Model<IAutomationDocument> {
   getAutomation(_id: string): IAutomationDocument;
 }
 
-export const loadClass = () => {
+export const loadClass = (models: IModels) => {
   class Automation {
     public static async getAutomation(_id) {
-      return Automations.findOne({ _id }).lean();
+      return models.Automations.findOne({ _id }).lean();
     }
   }
 
@@ -16,13 +17,3 @@ export const loadClass = () => {
 
   return automationSchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const Automations = model<IAutomationDocument, IAutomationModel>(
-  'automations',
-  automationSchema
-);
-
-export default Automations;

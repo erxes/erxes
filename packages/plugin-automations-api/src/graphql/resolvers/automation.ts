@@ -1,12 +1,12 @@
-import { Users } from "../../apiCollections";
+import { IContext } from "../../connectionResolver";
 import { IAutomationDoc } from '../../models/definitions/automaions';
 
 export default {
-  createdUser(automation: IAutomationDoc) {
-    return Users.findOne({ _id: automation.createdBy });
+  createdUser(automation: IAutomationDoc, {}, { coreModels }: IContext) {
+    return coreModels.Users.findOne({ _id: automation.createdBy });
   },
 
-  updatedUser(automation: IAutomationDoc) {
-    return Users.findOne({ _id: automation.updatedBy });
+  updatedUser(automation: IAutomationDoc, {}, { coreModels }: IContext) {
+    return coreModels.Users.findOne({ _id: automation.updatedBy });
   }
 };

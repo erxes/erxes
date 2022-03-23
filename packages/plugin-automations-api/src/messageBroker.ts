@@ -4,6 +4,7 @@ import { setTimeout } from 'timers';
 import { receiveTrigger } from './utils';
 import { serviceDiscovery } from './configs';
 import { playWait } from './actions';
+import { generateModels } from './connectionResolver';
 
 let client;
 
@@ -12,18 +13,19 @@ export const initBroker = async cl => {
 
   const { consumeQueue } = cl;
 
-  consumeQueue('automations:trigger', async param => {
-    debugBase(`Receiving queue data: ${JSON.stringify(param)}`);
+  consumeQueue('automations:trigger', async ({ subdomain, data }) => {
+    debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
 
-    const { type, actionType, targets } = param;
+    const models = await generateModels(subdomain);
+    const { type, actionType, targets } = data;
 
     if (actionType && actionType === 'waiting') {
-      await playWait();
+      await playWait(models);
       return;
     }
 
     setTimeout(async () => {
-      await receiveTrigger({ type, targets });
+      await receiveTrigger({ models, type, targets });
     }, 1000)
   });
 

@@ -1,4 +1,5 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
+import { IModels } from '../connectionResolver';
 import { INote, INoteDocument, noteSchema } from './definitions/notes';
 
 export interface INoteModel extends Model<INoteDocument> {
@@ -7,10 +8,10 @@ export interface INoteModel extends Model<INoteDocument> {
   updateNote(_id: string, doc: any): INoteDocument;
 }
 
-export const loadClass = () => {
+export const loadClass = (models: IModels) => {
   class Note {
     public static async getNote(_id: string) {
-      const note = Notes.findOne({ _id }).lean();
+      const note = models.Notes.findOne({ _id }).lean();
 
       if(!note) {
         throw new Error('Note not found')
@@ -19,16 +20,16 @@ export const loadClass = () => {
     }
 
     public static async createNote(doc: INote) {
-      return Notes.create({ ...doc, createdAt: new Date() });
+      return models.Notes.create({ ...doc, createdAt: new Date() });
     }
 
     public static async updateNote(_id: string, doc: INote) {
-      await Notes.updateOne(
+      await models.Notes.updateOne(
         { _id },
         { $set: { ...doc, updatedAt: new Date() } }
       );
 
-      return Notes.findOne({ _id }).lean();
+      return models.Notes.findOne({ _id }).lean();
     }
   }
 
@@ -36,11 +37,3 @@ export const loadClass = () => {
 
   return noteSchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-export const Notes = model<INoteDocument, INoteModel>(
-  'automations_notes',
-  noteSchema
-);

@@ -2,9 +2,9 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
-import apiConnect from './apiCollections';
+import { generateCoreModels, generateModels } from './connectionResolver';
 
+export let mainDb;
 export let debug;
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -53,15 +53,19 @@ export default {
       resolvers: await resolvers(sd)
     }
   },
-  apolloServerContext: context => {
+  apolloServerContext: async (context) => {
+    const subdomain = 'os';
+
+    context.models = await generateModels(subdomain);
+    context.coreModels = await generateCoreModels(subdomain);
+    context.subdomain = subdomain;
+
     return context;
   },
   onServerInit: async options => {
-    await apiConnect();
+    mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
-
-    initMemoryStorage();
 
     graphqlPubsub = options.pubsubClient;
 
