@@ -33,29 +33,11 @@ export const initBroker = async (cl) => {
       );
     }
   );
-
-  consumeRPCQueue(
-    'internalnotes:rpc_queue:getInternalNotes',
-    async ({ subdomain, contentTypeIds, perPageForAction, page }) => {
-      const filter = { contentTypeId: { $in: contentTypeIds } };
-      const models = await generateModels(subdomain);
-      const internalNotes = await models.InternalNotes.find(filter)
-        .sort({
-          createdAt: -1,
-        })
-        .skip(perPageForAction * (page - 1))
-        .limit(perPageForAction);
-
-      return {
-        internalNotes,
-        totalCount: await models.InternalNotes.countDocuments(filter),
-      };
-    }
-  );
-
+  
   consumeQueue(
-    'internalnotes:InternalNotes.removeInternalNotes',
-    async ({ subdomain, contentType, contentTypeIds }) => {
+    'internalnotes:removeInternalNotes',
+    async ({ subdomain, data: { contentType, contentTypeIds } }) => {
+
       const models = await generateModels(subdomain);
       models.InternalNotes.removeInternalNotes(contentType, contentTypeIds);
     }
