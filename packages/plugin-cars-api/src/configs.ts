@@ -1,11 +1,10 @@
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
-import { IFetchElkArgs } from '@erxes/api-utils/src/types';
-import { generateModels, models } from './connectionResolver';
+import typeDefs from "./graphql/typeDefs";
+import resolvers from "./graphql/resolvers";
+import { IFetchElkArgs } from "@erxes/api-utils/src/types";
+import { generateModels, models } from "./connectionResolver";
 
-import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
-import logs from './logUtils';
+import { initBroker } from "./messageBroker";
+import { initMemoryStorage } from "./inmemoryStorage";
 
 export let debug;
 export let graphqlPubsub;
@@ -20,7 +19,7 @@ export let es: {
 };
 
 export default {
-  name: 'cars',
+  name: "cars",
   graphql: async (sd) => {
     serviceDiscovery = sd;
     return {
@@ -29,9 +28,9 @@ export default {
     };
   },
   apolloServerContext: (context) => {
-    const subdomain = "os"
+    const subdomain = "os";
 
-    context.subdomain = subdomain
+    context.subdomain = subdomain;
     context.models = models;
 
     return context;
@@ -39,7 +38,7 @@ export default {
   onServerInit: async (options) => {
     mainDb = options.db;
 
-    await generateModels('os');
+    await generateModels("os");
 
     initBroker(options.messageBrokerClient);
 
@@ -49,5 +48,5 @@ export default {
     graphqlPubsub = options.pubsubClient;
     es = options.elasticsearch;
   },
-  meta: { logs: { consumers: logs } }
+  meta: {},
 };

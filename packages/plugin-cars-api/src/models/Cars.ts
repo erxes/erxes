@@ -4,11 +4,18 @@ import {
   carSchema,
   ICarCategoryDocument,
   ICarDocument,
+  ICar,
+  ICarCategory,
 } from "./definitions/cars";
 
 import { Model } from "mongoose";
 
-export interface ICarModel extends Model<ICarDocument> {}
+export interface ICarModel extends Model<ICarDocument> {
+  createCar(doc: ICar, user: any): Promise<ICarDocument>;
+  updateCar(_id: string, doc: ICar): Promise<ICarDocument>;
+  removeCars(carIds: string): Promise<ICarDocument>;
+  mergeCars(carIds: string, carFields: any): Promise<ICarDocument>;
+}
 
 export const loadCarClass = (models) => {
   class Car {
@@ -74,7 +81,7 @@ export const loadCarClass = (models) => {
     /**
      * Retreives car
      */
-    public static async getCar(models, _id: string) {
+    public static async getCar(_id: string) {
       const car = await models.Cars.findOne({ _id });
 
       if (!car) {
@@ -87,7 +94,7 @@ export const loadCarClass = (models) => {
     /**
      * Create a car
      */
-    public static async createCar(models, doc, user) {
+    public static async createCar(doc, user) {
       // Checking duplicated fields of car
       await models.Cars.checkDuplication(models, doc);
 
@@ -108,7 +115,7 @@ export const loadCarClass = (models) => {
     /**
      * Update car
      */
-    public static async updateCar(models, _id, doc) {
+    public static async updateCar(_id, doc) {
       // Checking duplicated fields of car
       await models.Cars.checkDuplication(models, doc, [_id]);
 
@@ -126,7 +133,7 @@ export const loadCarClass = (models) => {
     /**
      * Remove car
      */
-    public static async removeCars(models, carIds) {
+    public static async removeCars(carIds) {
       for (const carId of carIds) {
         await models.InternalNotes.remove({
           contentType: "car",
@@ -144,7 +151,7 @@ export const loadCarClass = (models) => {
     /**
      * Merge cars
      */
-    public static async mergeCars(models, carIds, carFields) {
+    public static async mergeCars(carIds, carFields) {
       // Checking duplicated fields of car
       await this.checkDuplication(models, carFields, carIds);
 
@@ -181,7 +188,19 @@ export const loadCarClass = (models) => {
   return carSchema;
 };
 
-export interface ICarCategoryModel extends Model<ICarCategoryDocument> {}
+export interface ICarCategoryModel extends Model<ICarCategoryDocument> {
+  getCarCatogery(selector: any): Promise<ICarCategoryDocument>;
+  createCarCategory(doc: ICarCategory): Promise<ICarCategoryDocument>;
+  updateCareCategory(
+    _id: string,
+    doc: ICarCategory
+  ): Promise<ICarCategoryDocument>;
+  removeCarCategory(_id: string): Promise<ICarCategoryDocument>;
+  generateOrder(
+    parentCategory: any,
+    doc: ICarCategory
+  ): Promise<ICarCategoryDocument>;
+}
 
 export const loadCarCategoryClass = (models) => {
   class CarCategory {
@@ -190,7 +209,7 @@ export const loadCarCategoryClass = (models) => {
      * Get Car Cagegory
      */
 
-    public static async getCarCatogery(models, selector: any) {
+    public static async getCarCatogery(selector: any) {
       const carCategory = await models.CarCategories.findOne(selector);
 
       if (!carCategory) {
@@ -203,7 +222,7 @@ export const loadCarCategoryClass = (models) => {
     /**
      * Create a car categorys
      */
-    public static async createCarCategory(models, doc) {
+    public static async createCarCategory(doc) {
       const parentCategory = doc.parentId
         ? await models.CarCategories.findOne({ _id: doc.parentId }).lean()
         : undefined;
@@ -217,7 +236,7 @@ export const loadCarCategoryClass = (models) => {
     /**
      * Update Car category
      */
-    public static async updateCarCategory(models, _id, doc) {
+    public static async updateCarCategory(_id, doc) {
       const parentCategory = doc.parentId
         ? await models.CarCategories.findOne({ _id: doc.parentId }).lean()
         : undefined;
@@ -260,7 +279,7 @@ export const loadCarCategoryClass = (models) => {
     /**
      * Remove Car category
      */
-    public static async removeCarCategory(models, _id) {
+    public static async removeCarCategory(_id) {
       await models.CarCategories.getCarCatogery(models, { _id });
 
       let count = await models.Cars.countDocuments({ categoryId: _id });

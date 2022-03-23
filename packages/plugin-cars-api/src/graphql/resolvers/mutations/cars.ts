@@ -3,33 +3,41 @@ import { gatherDescriptions } from "../../../utils";
 
 const carMutations = [
   {
-    name: 'carsAdd',
-    handler: async (_root, doc, { user, docModifier, models, checkPermission, messageBroker }) => {
-      await checkPermission('manageCars', user);
-      const car = models.Cars.createCar(models, docModifier(doc), user)
+    name: "carsAdd",
+    handler: async (
+      _root,
+      doc,
+      { user, docModifier, models, checkPermission, messageBroker }
+    ) => {
+      await checkPermission("manageCars", user);
+      const car = models.Cars.createCar(models, docModifier(doc), user);
 
       await putCreateLog(
         messageBroker,
         gatherDescriptions,
         {
-          type: 'car',
+          type: "car",
           newData: doc,
           object: car,
-          extraParams: { models }
+          extraParams: { models },
         },
-        user,
+        user
       );
 
       return car;
-    }
+    },
   },
   /**
    * Updates a car
    */
   {
-    name: 'carsEdit',
-    handler: async (_root, { _id, ...doc }, { models, checkPermission, user, messageBroker }) => {
-      await checkPermission('manageCars', user);
+    name: "carsEdit",
+    handler: async (
+      _root,
+      { _id, ...doc },
+      { models, checkPermission, user, messageBroker }
+    ) => {
+      await checkPermission("manageCars", user);
       const car = await models.Cars.getCar(models, _id);
       const updated = await models.Cars.updateCar(models, _id, doc);
 
@@ -37,57 +45,65 @@ const carMutations = [
         messageBroker,
         gatherDescriptions,
         {
-          type: 'car',
+          type: "car",
           object: car,
           newData: { ...doc },
           updatedDocument: updated,
-          extraParams: { models }
+          extraParams: { models },
         },
-        user,
+        user
       );
 
       return updated;
-    }
+    },
   },
 
   /**
    * Removes cars
    */
   {
-    name: 'carsRemove',
-    handler: async (_root, { carIds }: { carIds: string[] }, { models, checkPermission, user, messageBroker }) => {
-      await checkPermission('manageCars', user);
+    name: "carsRemove",
+    handler: async (
+      _root,
+      { carIds }: { carIds: string[] },
+      { models, checkPermission, user, messageBroker }
+    ) => {
+      await checkPermission("manageCars", user);
       const cars = await models.Cars.find({ _id: { $in: carIds } }).lean();
 
       await models.Cars.removeCars(models, carIds);
 
       for (const car of cars) {
-        messageBroker().sendMessage('putActivityLog', {
-          action: 'removeActivityLog',
-          data: { contentTypeId: car._id }
+        messageBroker().sendMessage("putActivityLog", {
+          action: "removeActivityLog",
+          data: { contentTypeId: car._id },
         });
 
         await putDeleteLog(
           messageBroker,
           gatherDescriptions,
-          { type: 'car', object: car, extraParams: { models } },
+          { type: "car", object: car, extraParams: { models } },
           user
         );
       }
 
       return carIds;
-    }
+    },
   },
 
   /**
    * Merge cars
    */
   {
-    name: 'carsMerge',
-    handler: async (_root, { carIds, carFields }, { models, checkPermission, user }) => {
-      await checkPermission('manageCars', user);
+    name: "carsMerge",
+    handler: async (
+      _root,
+      { carIds, carFields },
+      { models, checkPermission, user }
+    ) => {
+      await checkPermission("manageCars", user);
       return models.Cars.mergeCars(models, carIds, carFields);
-    }
+    },
   },
 
   /**
@@ -95,25 +111,32 @@ const carMutations = [
    * @param {Object} doc Car category document
    */
   {
-    name: 'carCategoriesAdd',
-    handler: async (_root, doc, { docModifier, models, checkPermission, user, messageBroker }) => {
-      await checkPermission('manageCars', user);
-      const carCategory = await models.CarCategories.createCarCategory(models, docModifier(doc));
+    name: "carCategoriesAdd",
+    handler: async (
+      _root,
+      doc,
+      { docModifier, models, checkPermission, user, messageBroker }
+    ) => {
+      await checkPermission("manageCars", user);
+      const carCategory = await models.CarCategories.createCarCategory(
+        models,
+        docModifier(doc)
+      );
 
       await putCreateLog(
         messageBroker,
         gatherDescriptions,
         {
-          type: 'car-category',
+          type: "car-category",
           newData: { ...doc, order: carCategory.order },
           object: carCategory,
-          extraParams: { models }
+          extraParams: { models },
         },
-        user,
+        user
       );
 
       return carCategory;
-    }
+    },
   },
 
   /**
@@ -122,27 +145,37 @@ const carMutations = [
    * @param {Object} param2.doc CarCategory info
    */
   {
-    name: 'carCategoriesEdit',
-    handler: async (_root, { _id, ...doc }, { models, checkPermission, user, messageBroker }) => {
-      await checkPermission('manageCars', user);
-      const carCategory = await models.CarCategories.getCarCatogery(models, { _id });
-      const updated = await models.CarCategories.updateCarCategory(models, _id, doc);
+    name: "carCategoriesEdit",
+    handler: async (
+      _root,
+      { _id, ...doc },
+      { models, checkPermission, user, messageBroker }
+    ) => {
+      await checkPermission("manageCars", user);
+      const carCategory = await models.CarCategories.getCarCategory(models, {
+        _id,
+      });
+      const updated = await models.CarCategories.updateCarCategory(
+        models,
+        _id,
+        doc
+      );
 
       await putUpdateLog(
         messageBroker,
         gatherDescriptions,
         {
-          type: 'car-category',
+          type: "car-category",
           object: carCategory,
           newData: doc,
           updatedDocument: updated,
-          extraParams: { models }
+          extraParams: { models },
         },
-        user,
+        user
       );
 
       return updated;
-    }
+    },
   },
 
   /**
@@ -150,65 +183,79 @@ const carMutations = [
    * @param {string} param1._id CarCategory id
    */
   {
-    name: 'carCategoriesRemove',
-    handler: async (_root, { _id }: { _id: string }, { models, checkPermission, user, messageBroker }) => {
-      await checkPermission('manageCars', user);
-      const carCategory = await models.CarCategories.getCarCatogery(models, { _id });
+    name: "carCategoriesRemove",
+    handler: async (
+      _root,
+      { _id }: { _id: string },
+      { models, checkPermission, user, messageBroker }
+    ) => {
+      await checkPermission("manageCars", user);
+      const carCategory = await models.CarCategories.getCarCatogery(models, {
+        _id,
+      });
       const removed = await models.CarCategories.removeCarCategory(models, _id);
 
       await putDeleteLog(
         messageBroker,
         gatherDescriptions,
-        { type: 'car-category', object: carCategory, extraParams: { models } },
+        { type: "car-category", object: carCategory, extraParams: { models } },
         user
       );
 
       return removed;
-    }
+    },
   },
 
   // ClientPortal ===========
   {
-    name: 'cpCarsAdd',
+    name: "cpCarsAdd",
     handler: async (_root, doc, { docModifier, models }) => {
-      const car = await models.Cars.createCar(models, docModifier(doc))
+      const car = await models.Cars.createCar(models, docModifier(doc));
 
       if (doc.customerId) {
-        await models.Conformities.addConformity({ mainType: 'customer', mainTypeId: doc.customerId, relType: 'car', relTypeId: car._id })
+        await models.Conformities.addConformity({
+          mainType: "customer",
+          mainTypeId: doc.customerId,
+          relType: "car",
+          relTypeId: car._id,
+        });
       }
 
       if (doc.companyId) {
-        await models.Conformities.addConformity({ mainType: 'company', mainTypeId: doc.companyId, relType: 'car', relTypeId: car._id })
+        await models.Conformities.addConformity({
+          mainType: "company",
+          mainTypeId: doc.companyId,
+          relType: "car",
+          relTypeId: car._id,
+        });
       }
 
       return car;
-    }
+    },
   },
   /**
    * Updates a car
    */
   {
-    name: 'cpCarsEdit',
+    name: "cpCarsEdit",
     handler: async (_root, { _id, ...doc }, { models }) => {
       await models.Cars.getCar(models, _id);
       const updated = await models.Cars.updateCar(models, _id, doc);
 
       return updated;
-    }
+    },
   },
 
   /**
    * Removes cars
    */
   {
-    name: 'cpCarsRemove',
+    name: "cpCarsRemove",
     handler: async (_root, { carIds }: { carIds: string[] }, { models }) => {
       await models.Cars.removeCars(models, carIds);
       return carIds;
-    }
+    },
   },
-
-
-]
+];
 
 export default carMutations;

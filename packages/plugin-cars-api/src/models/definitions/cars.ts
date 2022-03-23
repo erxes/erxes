@@ -1,16 +1,44 @@
 import { Schema, Document } from "mongoose";
 import { CAR_SELECT_OPTIONS } from "./constants";
-import { schemaHooksWrapper } from "./utils";
+import { field, schemaHooksWrapper } from "./utils";
 
 const getEnum = (fieldName: string): string[] => {
   return CAR_SELECT_OPTIONS[fieldName].map((option) => option.value);
 };
 
-export interface ICar {}
+const attachmentSchema = new Schema(
+  {
+    name: String,
+    url: String,
+    type: String,
+    size: Number,
+  },
+  { _id: false }
+);
+
+export interface ICar {
+  plateNumber: string;
+  vinNumber: string;
+  colorCode: string;
+  categoryId: string;
+  bodyType: string;
+  fuelType: string;
+  gearBox: string;
+  vintageYear: number;
+  importYear: number;
+  status: string;
+  description?: string;
+  tagIds: string[];
+  mergedIds: string[];
+  attachment?: any;
+}
 
 export interface ICarDocument extends ICar, Document {
   _id: string;
   createdAt: Date;
+  modifiedAt: Date;
+  ownerId: string;
+  searchText: string;
 }
 
 export interface ICarCategory {
@@ -28,60 +56,50 @@ export interface ICarCategoryDocument extends ICarCategory, Document {
 
 export const carCategorySchema = schemaHooksWrapper(
   new Schema({
-    _id: { pkey: true },
-    name: { type: String, label: "Name" },
-    code: { type: String, unique: true, label: "Code" },
-    order: { type: String, label: "Order" },
-    parentId: { type: String, optional: true, label: "Parent" },
-    description: { type: String, optional: true, label: "Description" },
-    createdAt: {
+    _id: field({ pkey: true }),
+    name: field({ type: String, label: "Name" }),
+    code: field({ type: String, unique: true, label: "Code" }),
+    order: field({ type: String, label: "Order" }),
+    parentId: field({ type: String, optional: true, label: "Parent" }),
+    description: field({ type: String, optional: true, label: "Description" }),
+    createdAt: field({
       type: Date,
       default: new Date(),
       label: "Created at",
-    },
+    }),
   }),
   "erxes_carCategory"
 );
 
-const attachmentSchema = new Schema(
-  {
-    name: String,
-    url: String,
-    type: String,
-    size: Number,
-  },
-  { _id: false }
-);
-
 export const carSchema = schemaHooksWrapper(
   new Schema({
-    _id: { pkey: true },
+    _id: field({ pkey: true }),
 
-    createdAt: { type: Date, label: "Created at" },
+    createdAt: field({ type: Date, label: "Created at" }),
 
-    modifiedAt: { type: Date, label: "Modified at" },
+    modifiedAt: field({ type: Date, label: "Modified at" }),
 
-    ownerId: { type: String, optional: true, label: "Owner" },
+    ownerId: field({ type: String, optional: true, label: "Owner" }),
 
-    plateNumber: {
+    plateNumber: field({
       type: String,
       optional: true,
       label: "Plate number",
       index: true,
-    },
+    }),
 
-    vinNumber: {
+    vinNumber: field({
       type: String,
       label: "VIN number",
       optional: true,
       index: true,
-    },
+    }),
 
-    colorCode: { type: String, label: "Color code", optional: true },
+    colorCode: field({ type: String, label: "Color code", optional: true }),
 
-    categoryId: { type: String, label: "Category", index: true },
+    categoryId: field({ type: String, label: "Category", index: true }),
 
-    bodyType: {
+    bodyType: field({
       type: String,
       enum: getEnum("BODY_TYPES"),
       default: "",
@@ -89,9 +107,9 @@ export const carSchema = schemaHooksWrapper(
       label: "Brand",
       esType: "keyword",
       selectOptions: CAR_SELECT_OPTIONS.BODY_TYPES,
-    },
+    }),
 
-    fuelType: {
+    fuelType: field({
       type: String,
       enum: getEnum("FUEL_TYPES"),
       default: "",
@@ -99,9 +117,9 @@ export const carSchema = schemaHooksWrapper(
       label: "Brand",
       esType: "keyword",
       selectOptions: CAR_SELECT_OPTIONS.BODY_TYPES,
-    },
+    }),
 
-    gearBox: {
+    gearBox: field({
       type: String,
       enum: getEnum("GEARBOX"),
       default: "",
@@ -109,21 +127,21 @@ export const carSchema = schemaHooksWrapper(
       label: "Gear box",
       esType: "keyword",
       selectOptions: CAR_SELECT_OPTIONS.BODY_TYPES,
-    },
+    }),
 
-    vintageYear: {
+    vintageYear: field({
       type: Number,
       label: "Vintage year",
       default: new Date().getFullYear(),
-    },
+    }),
 
-    importYear: {
+    importYear: field({
       type: Number,
       label: "Imported year",
       default: new Date().getFullYear(),
-    },
+    }),
 
-    status: {
+    status: field({
       type: String,
       enum: getEnum("STATUSES"),
       default: "Active",
@@ -132,22 +150,26 @@ export const carSchema = schemaHooksWrapper(
       esType: "keyword",
       selectOptions: CAR_SELECT_OPTIONS.STATUSES,
       index: true,
-    },
+    }),
 
-    description: { type: String, optional: true, label: "Description" },
+    description: field({ type: String, optional: true, label: "Description" }),
 
-    tagIds: {
+    tagIds: field({
       type: [String],
       optional: true,
       label: "Tags",
-    },
+    }),
 
     // Merged car ids
-    mergedIds: { type: [String], optional: true, label: "Merged companies" },
+    mergedIds: field({
+      type: [String],
+      optional: true,
+      label: "Merged companies",
+    }),
 
-    searchText: { type: String, optional: true, index: true },
+    searchText: field({ type: String, optional: true, index: true }),
 
-    attachment: { type: attachmentSchema },
+    attachment: field({ type: attachmentSchema }),
   }),
   "erxes_cars"
 );
