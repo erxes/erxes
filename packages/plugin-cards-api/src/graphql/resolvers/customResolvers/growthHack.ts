@@ -126,6 +126,10 @@ export default {
   },
 
   createdUser(growthHack: IGrowthHackDocument) {
+    if (!growthHack.userId) {
+      return;
+    }
+
     return { __typename: "User", _id: growthHack.userId };
   },
 };

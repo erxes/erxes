@@ -196,6 +196,10 @@ export default {
   },
 
   createdUser(deal: IDealDocument) {
+    if (!deal.userId) {
+      return;
+    }
+
     return { __typename: "User", _id: deal.userId };
   },
 };

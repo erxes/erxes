@@ -36,6 +36,10 @@ export default {
   },
 
   createdUser(task: ITaskDocument) {
+    if (!task.userId) {
+      return;
+    }
+
     return { __typename: "User", _id: task.userId };
   },
 

@@ -120,6 +120,10 @@ export default {
   },
 
   createdUser(ticket: ITicketDocument) {
+    if (!ticket.userId) {
+      return;
+    }
+
     return { __typename: "User", _id: ticket.userId };
   },
 };
