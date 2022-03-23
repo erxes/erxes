@@ -68,6 +68,16 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
   return client.sendRPCMessage(channel, message);
 };
 
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    ...args,
+  });
+};
+
 export const getContentIds = async (data) => {
   const [serviceName] = data.contentType.split(':');
 
