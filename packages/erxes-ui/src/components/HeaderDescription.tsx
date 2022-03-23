@@ -47,7 +47,7 @@ const DescImg = styled.img`
 type Props = {
   icon: string;
   title: string;
-  description: string;
+  description?: string;
 };
 
 type State = {
