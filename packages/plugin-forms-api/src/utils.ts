@@ -1,10 +1,10 @@
-import { IModels } from "./connectionResolver";
-import { fetchService } from "./messageBroker";
+import { IModels } from './connectionResolver';
+import { fetchService } from './messageBroker';
 
 export const getCustomFields = async (models: IModels, contentType: string) => {
   return models.Fields.find({
     contentType,
-    isDefinedByErxes: false,
+    isDefinedByErxes: false
   });
 };
 
@@ -22,7 +22,7 @@ export const fieldsCombinedByContentType = async (
     usageType,
     excludedNames,
     segmentId,
-    config,
+    config
   }: {
     contentType: string;
     usageType?: string;
@@ -44,11 +44,11 @@ export const fieldsCombinedByContentType = async (
 
   fields = await fetchService(
     contentType,
-    "getList",
+    'getList',
     {
       segmentId,
       usageType,
-      config,
+      config
     },
     []
   );
@@ -57,7 +57,7 @@ export const fieldsCombinedByContentType = async (
 
   // extend fields list using custom fields data
   for (const customField of customFields) {
-    const group = await getFieldGroup(models, customField.groupId || "");
+    const group = await getFieldGroup(models, customField.groupId || '');
 
     if (
       group &&
@@ -70,12 +70,12 @@ export const fieldsCombinedByContentType = async (
         label: customField.text,
         options: customField.options,
         validation: customField.validation,
-        type: customField.type,
+        type: customField.type
       });
     }
   }
 
   fields = [...fields];
 
-  return fields.filter((field) => !(excludedNames || []).includes(field.name));
+  return fields.filter(field => !(excludedNames || []).includes(field.name));
 };

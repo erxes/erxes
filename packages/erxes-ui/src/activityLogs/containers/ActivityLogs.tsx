@@ -96,7 +96,7 @@ const WithData = withProps<WithDataProps>(
           variables: { contentId, contentType, activityType }
         })
       }
-    ),
+    )
   )(Container)
 );
 

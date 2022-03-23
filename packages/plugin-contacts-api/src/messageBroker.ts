@@ -379,7 +379,7 @@ export const sendInternalNotesMessage = async (
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: 'internalNotes',
+    serviceName: 'internalnotes',
     ...args
   });
 };

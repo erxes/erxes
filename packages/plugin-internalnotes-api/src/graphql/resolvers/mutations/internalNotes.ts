@@ -3,7 +3,6 @@ import { IContext } from '../../../connectionResolver';
 import { graphqlPubsub } from '../../../configs';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 import {
-  sendNotificationMessage,
   sendNotificationsMessage,
   sendRPCMessage,
 } from '../../../messageBroker';
@@ -14,6 +13,7 @@ interface IInternalNotesEdit extends IInternalNote {
 }
 
 const sendNotificationOfItems = async (
+  subdomain: string,
   serviceName: any,
   item: any,
   doc: any,
@@ -32,7 +32,11 @@ const sendNotificationOfItems = async (
     return excludeUserIds.indexOf(id) < 0;
   });
 
-  sendNotificationMessage('send', notifDocItems);
+  sendNotificationsMessage({
+    subdomain,
+    action: "send",
+    data: notifDocItems,
+  })
 
   graphqlPubsub.publish('activityLogsChanged', {});
 };
@@ -82,7 +86,7 @@ const internalNoteMutations = (serviceDiscovery) => ({
     if (updatedNotifDoc.notifOfItems) {
       const { item } = updatedNotifDoc;
 
-      await sendNotificationOfItems(serviceName, item, notifDoc, type, [
+      await sendNotificationOfItems(subdomain, serviceName, item, notifDoc, type, [
         ...mentionedUserIds,
         user._id,
       ]);
