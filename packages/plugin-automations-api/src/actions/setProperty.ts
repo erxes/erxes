@@ -1,5 +1,5 @@
 import { replacePlaceHolders } from '../helpers';
-import { sendRPCMessage } from '../messageBroker';
+import { sendCommonMessage } from '../messageBroker';
 
 export const OPERATORS = {
   SET: "set",
@@ -30,35 +30,50 @@ export type Output = {
   result: number;
 }
 
-const getToChangeObjects = async ({ triggerType, target, module }) => {
+const getToChangeObjects = async ({ subdomain, triggerType, target, module }) => {
   if (module === triggerType) {
     return [target];
   }
 
   if (triggerType === 'conversation' && ['task', 'ticket', 'deal'].includes(module)) {
-    return sendRPCMessage('find-objects', { model: `${module[0].toUpperCase()}${module.substr(1)}s`, selector: { sourceConversationIds: { $in: [target._id] } } })
+    return sendCommonMessage({
+      subdomain,
+      serviceName: `${module[0].toUpperCase()}${module.substr(1)}s`,
+      action: 'find',
+      data: { sourceConversationIds: { $in: [target._id] } }
+    });
   }
 
   if (['customer', 'company'].includes(module) && triggerType === 'conversation') {
-    return sendRPCMessage('find-objects', {
-      model: module === 'company' ? 'Companies' : 'Customers', selector: { _id: target[`${module}Id`] }
+    return sendCommonMessage({
+      subdomain,
+      serviceName: module === 'company' ? 'Companies' : 'Customers',
+      action: 'find',
+      data: { _id: target[`${module}Id`] }
     });
   }
 
   if (['task', 'ticket', 'deal', 'customer', 'company'].includes(triggerType) && ['task', 'ticket', 'deal', 'customer', 'company'].includes(module)) {
-    return sendRPCMessage('find-conformities', { mainType: triggerType, mainTypeId: target._id, relType: module });
+    return sendCommonMessage({
+      subdomain,
+      serviceName: 'core',
+      action: 'conformities.find',
+      data: { mainType: triggerType, mainTypeId: target._id, relType: module }
+    });
   }
 
   return [];
 }
 
-const getPerValue = async (conformity, rule, target) => {
+const getPerValue = async (subdomain, conformity, rule, target) => {
   const { field, operator, value } = rule;
   const op1Type = typeof (conformity[field]);
+
   let op1 = conformity[field];
   let updatedValue;
+
   const replaced = (
-    await replacePlaceHolders({ actionData: { config: value }, target, isRelated: op1Type === 'string' ? true : false })
+    await replacePlaceHolders({ subdomain, actionData: { config: value }, target, isRelated: op1Type === 'string' ? true : false })
   ).config;
 
   if (field.includes('Ids')) {
@@ -96,19 +111,21 @@ const getPerValue = async (conformity, rule, target) => {
 
   if (['addDay', 'subtractDay'].includes(operator)) {
     op1 = op1 || new Date();
+
     try {
       op1 = new Date(op1)
     } catch (e) {
       op1 = new Date();
     }
-    updatedValue = operator === 'addDay' ? parseFloat(updatedValue) : -1 * parseFloat(updatedValue);
 
+    updatedValue = operator === 'addDay' ? parseFloat(updatedValue) : -1 * parseFloat(updatedValue);
     updatedValue = new Date(op1.setDate(op1.getDate() + updatedValue))
   }
+
   return updatedValue
 }
 
-export const setProperty = async ({ triggerType, actionConfig, target }) => {
+export const setProperty = async ({ subdomain, triggerType, actionConfig, target }) => {
   const { module, rules } = actionConfig;
   const result: any[] = [];
   const modelBy = {
@@ -121,14 +138,22 @@ export const setProperty = async ({ triggerType, actionConfig, target }) => {
   }
 
   try {
-    const conformities = await getToChangeObjects({ triggerType, target, module });
+    const conformities = await getToChangeObjects({ subdomain, triggerType, target, module });
 
     for (const conformity of conformities) {
       const setDoc = {}
+
       for (const rule of rules) {
-        setDoc[rule.field] = (await getPerValue(conformity, rule, target));
+        setDoc[rule.field] = (await getPerValue(subdomain, conformity, rule, target));
       }
-      const response = await sendRPCMessage('set-property', { model: modelBy[module], _id: conformity._id, setDoc });
+
+      const response = await sendCommonMessage({
+        subdomain,
+        serviceName: modelBy[module],
+        action: 'set-property',
+        data: { _id: conformity._id, setDoc }
+      });
+
       if (response.error) {
         result.push(response);
         continue;

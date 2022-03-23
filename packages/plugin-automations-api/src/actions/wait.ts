@@ -5,7 +5,7 @@ import { IAction } from "../models/definitions/automaions";
 import { EXECUTION_STATUS } from "../models/definitions/executions";
 import { executeActions } from "../utils";
 
-export const playWait = async (models: IModels) => {
+export const playWait = async (models: IModels, subdomain: string) => {
   const waitingExecutions = await models.Executions.find({
     waitingActionId: { $ne: null },
     startWaitingDate: { $ne: null },
@@ -42,7 +42,7 @@ export const playWait = async (models: IModels) => {
     exec.waitingActionId = null;
     exec.startWaitingDate = null;
     exec.save();
-    await executeActions(exec.triggerType, exec, await getActionsMap(automation), currentAction.nextActionId);
+    await executeActions(subdomain, exec.triggerType, exec, await getActionsMap(automation), currentAction.nextActionId);
   }
 
 }

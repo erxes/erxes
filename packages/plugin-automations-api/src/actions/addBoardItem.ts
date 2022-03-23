@@ -1,10 +1,11 @@
 import { replacePlaceHolders } from '../helpers';
-import { sendRPCMessage } from '../messageBroker';
+import { sendCommonMessage } from '../messageBroker';
 
-export const addBoardItem = async ({ action, execution, type }) => {
+export const addBoardItem = async ({ subdomain, action, execution, type }) => {
   const { config = {} } = action;
 
   let newData = action.config.assignedTo ? await replacePlaceHolders({
+    subdomain,
     actionData: { assignedTo: action.config.assignedTo },
     target: execution.target, isRelated: false
   }) : {}
@@ -13,7 +14,7 @@ export const addBoardItem = async ({ action, execution, type }) => {
 
   newData = {
     ...newData,
-    ...await replacePlaceHolders({ actionData: action.config, target: execution.target })
+    ...await replacePlaceHolders({ subdomain, actionData: action.config, target: execution.target })
   };
 
   if (newData.hasOwnProperty('assignedTo')) {
@@ -45,10 +46,14 @@ export const addBoardItem = async ({ action, execution, type }) => {
     newData.sourceConversationIds = [execution.targetId]
   }
 
-  const response = await sendRPCMessage(`add-${type}`, {
-    type,
-    ...newData,
-    conformity
+  const response = await sendCommonMessage({
+    subdomain,
+    serviceName: type,
+    action: `add-${type}`,
+    data: {
+      ...newData,
+      conformity
+    }
   });
 
   if (response.error) {

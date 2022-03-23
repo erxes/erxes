@@ -20,19 +20,34 @@ export const initBroker = async cl => {
     const { type, actionType, targets } = data;
 
     if (actionType && actionType === 'waiting') {
-      await playWait(models);
+      await playWait(models, subdomain);
       return;
     }
 
     setTimeout(async () => {
-      await receiveTrigger({ models, type, targets });
+      await receiveTrigger({ models, subdomain, type, targets });
     }, 1000)
   });
 
 };
 
-export const sendRPCMessage = async (channel, message): Promise<any> => {
-  return client.sendRPCMessage(channel, message);
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    ...args,
+  });
+};
+
+export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'core',
+    ...args
+  });
 };
 
 export const sendSegmentsMessage = async (args: ISendMessageArgs): Promise<any> => {

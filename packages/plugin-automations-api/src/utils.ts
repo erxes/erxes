@@ -3,15 +3,18 @@ import {
   ITrigger,
   TriggerType
 } from './models/definitions/automaions';
+
 import { ACTIONS } from './constants';
-import { customCode, setProperty } from './actions';
+import { setProperty } from './actions';
 import {
   EXECUTION_STATUS,
   IExecAction,
   IExecutionDocument
 } from './models/definitions/executions';
+
 import { getActionsMap } from './helpers';
-import { sendRPCMessage, sendSegmentsMessage } from './messageBroker';
+import { sendSegmentsMessage } from './messageBroker';
+
 // import { callPluginsAction } from './pluginUtils';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 import { IModels } from './connectionResolver';
@@ -36,9 +39,9 @@ export const getEnv = ({
   return value || '';
 };
 
-export const isInSegment = async (segmentId: string, targetId: string) => {
+export const isInSegment = async (subdomain: string, segmentId: string, targetId: string) => {
   const response = await sendSegmentsMessage({
-    subdomain: "",
+    subdomain,
     action: "isInSegment",
     data: { segmentId, targetId },
     isRPC: true,
@@ -48,6 +51,7 @@ export const isInSegment = async (segmentId: string, targetId: string) => {
 };
 
 export const executeActions = async (
+  subdomain: string,
   triggerType: string,
   execution: IExecutionDocument,
   actionsMap: IActionsMap,
@@ -92,7 +96,7 @@ export const executeActions = async (
     if (action.type === ACTIONS.IF) {
       let ifActionId;
 
-      const isIn = await isInSegment(action.config.contentId, execution.targetId)
+      const isIn = await isInSegment(subdomain, action.config.contentId, execution.targetId)
       if (isIn) {
         ifActionId = action.config.yes;
       } else {
@@ -104,11 +108,12 @@ export const executeActions = async (
       execution.actions = [...(execution.actions || []), execAction]
       execution = await execution.save();
 
-      return executeActions(triggerType, execution, actionsMap, ifActionId);
+      return executeActions(subdomain, triggerType, execution, actionsMap, ifActionId);
     }
 
     if (action.type === ACTIONS.SET_PROPERTY) {
       actionResponse = await setProperty({
+        subdomain,
         triggerType,
         actionConfig: action.config,
         target: execution.target
@@ -122,18 +127,8 @@ export const executeActions = async (
     ) {
       const type = action.type.substring(6).toLocaleLowerCase();
 
-    console.log('mmmmmmmmmmmmmm', type)
-
       // actionResponse = await addBoardItem({ action, execution, type });
     }
-
-    if (action.type === ACTIONS.CUSTOM_CODE) {
-      actionResponse = await customCode({ action, execution })
-    }
-
-    // if (action.type.includes('erxes-plugin-')) {
-    //   actionResponse = await callPluginsAction({ action, execution })
-    // }
   } catch (e) {
     execAction.result = { error: e.message, result: e.result };
     execution.actions = [...(execution.actions || []), execAction]
@@ -148,6 +143,7 @@ export const executeActions = async (
   execution = await execution.save();
 
   return executeActions(
+    subdomain,
     triggerType,
     execution,
     actionsMap,
@@ -183,11 +179,13 @@ const isDiffValue = (latest, target, field) => {
 
 export const calculateExecution = async ({
   models,
+  subdomain,
   automationId,
   trigger,
   target
 }: {
   models: IModels;
+  subdomain: string,
   automationId: string;
   trigger: ITrigger;
   target: any;
@@ -196,7 +194,7 @@ export const calculateExecution = async ({
   const { reEnrollment, reEnrollmentRules, contentId } = config;
 
   try {
-    if (!await isInSegment(contentId, target._id)) {
+    if (!await isInSegment(subdomain, contentId, target._id)) {
       return;
     }
 
@@ -258,10 +256,12 @@ export const calculateExecution = async ({
  */
 export const receiveTrigger = async ({
   models,
+  subdomain,
   type,
   targets
 }: {
   models: IModels,
+  subdomain: string,
   type: TriggerType;
   targets: any[];
 }) => {
@@ -283,6 +283,7 @@ export const receiveTrigger = async ({
 
         const execution = await calculateExecution({
           models,
+          subdomain,
           automationId: automation._id,
           trigger,
           target
@@ -290,6 +291,7 @@ export const receiveTrigger = async ({
 
         if (execution) {
           await executeActions(
+            subdomain,
             trigger.type,
             execution,
             await getActionsMap(automation.actions),

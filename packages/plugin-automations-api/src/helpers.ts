@@ -1,74 +1,115 @@
-import { sendRPCMessage } from "./messageBroker";
+import { sendCommonMessage, sendCoreMessage } from "./messageBroker";
 import { IAction, IActionsMap } from "./models/definitions/automaions";
 
-const getRelatedValue = async (target, targetKey) => {
+const getRelatedValue = async (subdomain: string, target, targetKey) => {
   if (['userId', 'assignedUserId', 'closedUserId', 'ownerId', 'createdBy'].includes(targetKey)) {
-    const user = await sendRPCMessage('get-object', {
-      model: 'Users', selector: { _id: target[targetKey] }
+
+    const user = await sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: { _id: target[targetKey] },
+      isRPC: true,
     });
+
     return user && (user.detail && user.detail.fullName || user.email) || '';
   }
 
   if (['participatedUserIds', 'assignedUserIds', 'watchedUserIds'].includes(targetKey)) {
-    const users = await sendRPCMessage('find-objects', {
-      model: 'Users', selector: { _id: { $in: target[targetKey] } }
+    const users = await sendCoreMessage({
+      subdomain,
+      action: 'users.find',
+      data: { _id: { $in: target[targetKey] } },
+      isRPC: true,
     });
+
     return (users.map(user => user.detail && user.detail.fullName || user.email) || []).join(', ')
   }
 
   if (targetKey === 'tagIds') {
-    const tags = await sendRPCMessage('find-objects', {
-      model: 'Tags', selector: { _id: { $in: target[targetKey] } }
+    const tags = await sendCommonMessage({
+      subdomain,
+      serviceName: 'tags',
+      action: 'find',
+      data: { _id: { $in: target[targetKey] } }
     });
+
     return (tags.map(tag => tag.name) || []).join(', ')
   }
 
   if (targetKey === 'labelIds') {
-    const labels = await sendRPCMessage('find-objects', {
-      model: 'Labels', selector: { _id: { $in: target[targetKey] } }
+    const labels = await sendCommonMessage({
+      subdomain,
+      serviceName: 'cards',
+      action: 'pipelineLabels.find',
+      data: { _id: { $in: target[targetKey] } }
     });
+
     return (labels.map(label => label.name) || []).join(', ')
   }
 
   if (['integrationId', 'relatedIntegrationIds'].includes(targetKey)) {
-    const integration = await sendRPCMessage('get-object', {
-      model: 'Integrations', selector: { _id: target[targetKey] }
+    const integration = await sendCommonMessage({
+      subdomain,
+      serviceName: 'inbox',
+      action: 'integrations.findOne',
+      data: { _id: target[targetKey] }
     });
+
     return integration && integration.name || '';
   }
 
   if (['relatedIntegrationIds'].includes(targetKey)) {
-    const integrations = await sendRPCMessage('find-objects', {
-      model: 'Integrations', selector: { _id: { $in: target[targetKey] } }
+    const integrations = await sendCommonMessage({
+      subdomain,
+      serviceName: 'inbox',
+      action: 'integrations.find',
+      data: { _id: { $in: target[targetKey] } }
     });
+
     return (integrations.map(i => i.name) || []).join(', ');
   }
 
   if (targetKey === 'parentCompanyId') {
-    const company = await sendRPCMessage('get-object', {
-      model: 'Companies', selector: { _id: target[targetKey] }
+    const company = await sendCommonMessage({
+      subdomain,
+      serviceName: 'contacts',
+      action: 'companies.findOne',
+      data: { _id: target[targetKey] }
     });
+
     return company && company.name || '';
   }
 
   if (['initialStageId', 'stageId'].includes(targetKey)) {
-    const stage = await sendRPCMessage('get-object', {
-      model: 'Stages', selector: { _id: target[targetKey] }
+    const stage = await sendCommonMessage({
+      subdomain,
+      serviceName: 'cards',
+      action: 'stages.findOne',
+      data: { _id: target[targetKey] }
     });
+
     return stage && stage.name || '';
   }
 
   if (['sourceConversationIds'].includes(targetKey)) {
-    const conversations = await sendRPCMessage('find-objects', {
-      model: 'Conversations', selector: { _id: { $in: target[targetKey] } }
+    const conversations = await sendCommonMessage({
+      subdomain,
+      serviceName: 'inbox',
+      action: 'conversations.find',
+      data: { _id: { $in: target[targetKey] } }
     });
+
     return (conversations.map(c => c.content) || []).join(', ')
   }
 
   if (['brandIds'].includes(targetKey)) {
-    const brands = await sendRPCMessage('find-objects', {
-      model: 'Brands', selector: { _id: { $in: target[targetKey] } }
+    const brands = await sendCommonMessage({
+      subdomain,
+      serviceName: 'core',
+      action: 'brands.find',
+      data: { _id: { $in: target[targetKey] } }
     });
+
     return (brands.map(brand => brand.name) || []).join(', ')
   }
 
@@ -77,10 +118,12 @@ const getRelatedValue = async (target, targetKey) => {
 
 export const replacePlaceHolders = async (
   {
+    subdomain,
     actionData,
     target,
     isRelated = true
   }: {
+    subdomain: string,
     actionData?: any,
     target: any,
     isRelated?: boolean
@@ -93,7 +136,7 @@ export const replacePlaceHolders = async (
     for (const actionDataKey of actionDataKeys) {
       for (const targetKey of targetKeys) {
         if (actionData[actionDataKey].includes(`{{ ${targetKey} }}`)) {
-          const replaceValue = isRelated && await getRelatedValue(target, targetKey) || target[targetKey];
+          const replaceValue = isRelated && await getRelatedValue(subdomain, target, targetKey) || target[targetKey];
 
           actionData[actionDataKey] = actionData[actionDataKey].replace(
             `{{ ${targetKey} }}`, replaceValue

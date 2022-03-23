@@ -1,7 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
 import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import { sendRPCMessage } from '../../../messageBroker';
+import { sendSegmentsMessage } from '../../../messageBroker';
 
 interface IListArgs {
   status: string;
@@ -131,7 +131,7 @@ const automationQueries = {
     )
   },
 
-  async automationConfigPrievewCount(_root, params: { config: any }) {
+  async automationConfigPrievewCount(_root, params: { config: any }, { subdomain }: IContext) {
     const config = params.config;
     if (!config) {
       return;
@@ -142,14 +142,20 @@ const automationQueries = {
       return;
     }
 
-    const segment = await sendRPCMessage('segments:rpc_queue:findOne', { _id: contentId });
+    const segment = await sendSegmentsMessage({ subdomain, action: 'findOne', data: { _id: contentId }, isRPC: true });
 
     if (!segment) {
       return;
     }
 
-    const result = await sendRPCMessage('segments:rpc_queue:fetchSegment', {
-      segmentId: segment._id, options: { returnCount: true }
+    const result = await sendSegmentsMessage({
+      subdomain,
+      action: "fetchSegment",
+      data: {
+        segmentId: segment._id,
+        options: { returnCount: true },
+      },
+      isRPC: true,
     });
 
     return result;
