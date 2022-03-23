@@ -1,10 +1,11 @@
-import { debug } from "./configs";
-import { getCollection } from "./models/utils";
-import { MODULE_NAMES } from "./constants";
-import { IModels } from "./connectionResolver";
-import { sendCoreMessage } from "./messageBroker";
+import { debug } from './configs';
+import { getCollection } from './models/utils';
+import { MODULE_NAMES } from './constants';
+import { coreModels, IModels } from './connectionResolver';
+import { sendCoreMessage } from './messageBroker';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
-export const configReplacer = (config) => {
+export const configReplacer = config => {
   const now = new Date();
 
   // replace type of date
@@ -19,7 +20,7 @@ export const generateConditionStageIds = async (
   {
     boardId,
     pipelineId,
-    options,
+    options
   }: {
     boardId?: string;
     pipelineId?: string;
@@ -38,13 +39,13 @@ export const generateConditionStageIds = async (
     const pipelines = await models.Pipelines.find(
       {
         _id: {
-          $in: pipelineId ? [pipelineId] : board.pipelines || [],
-        },
+          $in: pipelineId ? [pipelineId] : board.pipelines || []
+        }
       },
       { _id: 1 }
     );
 
-    pipelineIds = pipelines.map((p) => p._id);
+    pipelineIds = pipelines.map(p => p._id);
   }
 
   const stages = await models.Stages.find(
@@ -52,32 +53,32 @@ export const generateConditionStageIds = async (
     { _id: 1 }
   );
 
-  return stages.map((s) => s._id);
+  return stages.map(s => s._id);
 };
 
-export const getContentItem = async (models: IModels, activityLog) => {
+export const getContentItem = async (models: IModels, data) => {
   const { Deals, Tasks, Tickets, GrowthHacks, Stages } = models;
-  const { action, content, contentType, contentId } = activityLog;
+  const { action, content, contentType, contentId } = data;
 
   const type =
-    contentType && typeof contentType === "string"
-      ? contentType.split(":")[1]
-      : "";
+    contentType && typeof contentType === 'string'
+      ? contentType.split(':')[1]
+      : '';
 
-  if (action === "moved") {
+  if (action === 'moved') {
     let item = {};
 
     switch (type) {
-      case "deal":
+      case 'deal':
         item = await Deals.getDeal(contentId);
         break;
-      case "task":
+      case 'task':
         item = await Tasks.getTask(contentId);
         break;
-      case "growthHack":
+      case 'growthHack':
         item = await GrowthHacks.getGrowthHack(contentId);
         break;
-      case "ticket":
+      case 'ticket':
         item = await Tickets.getTicket(contentId);
         break;
       default:
@@ -87,7 +88,7 @@ export const getContentItem = async (models: IModels, activityLog) => {
     const { oldStageId, destinationStageId } = content;
 
     const destinationStage = await Stages.findOne({
-      _id: destinationStageId,
+      _id: destinationStageId
     }).lean();
     const oldStage = await Stages.findOne({ _id: oldStageId }).lean();
 
@@ -95,47 +96,104 @@ export const getContentItem = async (models: IModels, activityLog) => {
       return {
         destinationStage: destinationStage.name,
         oldStage: oldStage.name,
-        item,
+        item
       };
     }
 
     return {
-      text: content.text,
+      text: content.text
     };
+  }
+
+  if (action === 'moved') {
+    let item = {};
+
+    switch (type) {
+      case 'deal':
+        item = await Deals.getDeal(contentId);
+        break;
+      case 'task':
+        item = await Tasks.getTask(contentId);
+        break;
+      case 'growthHack':
+        item = await GrowthHacks.getGrowthHack(contentId);
+        break;
+      case 'ticket':
+        item = await Tickets.getTicket(contentId);
+        break;
+      default:
+        break;
+    }
+
+    const { oldStageId, destinationStageId } = content;
+
+    const destinationStage = await Stages.findOne({
+      _id: destinationStageId
+    }).lean();
+    const oldStage = await Stages.findOne({ _id: oldStageId }).lean();
+
+    if (destinationStage && oldStage) {
+      return {
+        destinationStage: destinationStage.name,
+        oldStage: oldStage.name,
+        item
+      };
+    }
+
+    return {
+      text: content.text
+    };
+  }
+
+  if (action === 'assignee') {
+    let addedUsers: IUserDocument[] = [];
+    let removedUsers: IUserDocument[] = [];
+
+    if (content) {
+      addedUsers = await coreModels.Users.find({
+        _id: { $in: content.addedUserIds }
+      });
+
+      removedUsers = await coreModels.Users.find({
+        _id: { $in: content.removedUserIds }
+      });
+    }
+
+    return { addedUsers, removedUsers };
   }
 };
 
-export const getContentTypeDetail = async (models: IModels, activityLog) => {
+export const getContentTypeDetail = async (models: IModels, data) => {
   const {
     Deals,
     Tickets,
     Tasks,
     GrowthHacks,
     ChecklistItems,
-    Checklists,
+    Checklists
   } = models;
-  const { contentType = "", contentId, content } = activityLog;
+  const { contentType = '', contentId, content } = data;
 
   let item = {};
 
   try {
-    switch (contentType.split(":")[1]) {
-      case "deal":
+    switch (contentType.split(':')[1]) {
+      case 'deal':
         item = await Deals.getDeal(contentId);
         break;
-      case "task":
+      case 'task':
         item = await Tasks.getTask(contentId);
         break;
-      case "growthHack":
+      case 'growthHack':
         item = await GrowthHacks.getGrowthHack(contentId);
         break;
-      case "ticket":
+      case 'ticket':
         item = await Tickets.getTicket(contentId);
         break;
-      case "checklist":
+      case 'checklist':
         item = (await Checklists.findOne({ _id: content._id })) || {};
         break;
-      case "checklistitem":
+      case 'checklistitem':
         item = (await ChecklistItems.findOne({ _id: content._id })) || {};
         break;
     }
@@ -154,28 +212,28 @@ export const collectItems = async (
   { contentType, contentId }
 ) => {
   const type =
-    contentType.indexOf(":") !== -1 ? contentType.split(":")[1] : contentType;
+    contentType.indexOf(':') !== -1 ? contentType.split(':')[1] : contentType;
   const { collection } = getCollection(models, type);
 
   const relatedItemIds = await sendCoreMessage({
     subdomain,
-    action: "conformities.savedConformity",
+    action: 'conformities.savedConformity',
     data: {
       mainType: contentType,
       mainTypeId: contentId,
       relTypes:
-        type === "task" ? ["deal", "ticket", "task"] : ["deal", "ticket"],
+        type === 'task' ? ['deal', 'ticket', 'task'] : ['deal', 'ticket']
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   const items = await collection
     .find({
       $and: [
         { _id: { $in: [...relatedItemIds, contentId] } },
-        { status: { $ne: "archived" } },
-      ],
+        { status: { $ne: 'archived' } }
+      ]
     })
     .lean()
     .sort({ closeDate: 1 });
@@ -209,11 +267,11 @@ export const getCardContentIds = async (
   { pipelineId, contentType }
 ) => {
   const type =
-    contentType.indexOf(":") !== -1 ? contentType.split(":")[1] : contentType;
-  const stageIds = await models.Stages.find({ pipelineId }).distinct("_id");
+    contentType.indexOf(':') !== -1 ? contentType.split(':')[1] : contentType;
+  const stageIds = await models.Stages.find({ pipelineId }).distinct('_id');
   const { collection } = getCollection(models, type);
 
-  return collection.find({ stageId: { $in: stageIds } }).distinct("_id");
+  return collection.find({ stageId: { $in: stageIds } }).distinct('_id');
 };
 
 export const getCardItem = async (

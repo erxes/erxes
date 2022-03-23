@@ -25,43 +25,40 @@ const activityLogQueries = {
    * Get activity log list
    */
   async activityLogs(_root, doc: IListArgs, { user, models }: IContext) {
-    const { activityType, contentId, contentType } = doc;
+    const { contentId, contentType } = doc;
     let activities: IActivityLogDocument[] = [];
 
-    const collectItems = (items: any, type?: string) => {
-      (items || []).map(item => {
-        let result: IActivityLogDocument = {} as any;
+    // const collectItems = (items: any, type?: string) => {
+    //   (items || []).map(item => {
+    //     let result: IActivityLogDocument = {} as any;
 
-        if (!type) {
-          result = item;
-        }
+    //     if (!type) {
+    //       result = item;
+    //     }
 
-        activities.push(result);
-      });
-    };
+    //     activities.push(result);
+    //   });
+    // };
 
-    if (activityType && activityType.startsWith('plugin')) {
-      const pluginResponse = await collectPluginContent(
-        doc,
-        user,
-        activities,
-        collectItems
-      );
+    // if (activityType && activityType.startsWith('plugin')) {
+    //   const pluginResponse = await collectPluginContent(
+    //     doc,
+    //     user,
+    //     activities,
+    //     collectItems
+    //   );
 
-      if (pluginResponse) {
-        activities = activities.concat(pluginResponse);
-      }
-    }
+    //   if (pluginResponse) {
+    //     activities = activities.concat(pluginResponse);
+    //   }
+    // }
 
-    if (activityType === 'activity') {
-      const relatedItems = await collectServiceItems(contentType, doc) || [];
-      const relatedItemIds = relatedItems.map(r => r._id);
+    activities = await models.ActivityLogs.find({
+      contentId,
+      contentType
+    }).lean();
 
-      activities = await models.ActivityLogs.find({ contentId: { $in: [...relatedItemIds, contentId] } }).lean();
-
-    } else {
-      activities = await models.ActivityLogs.find({ contentId, contentType: activityType }).lean();
-    }
+    console.log('sdada', activities);
 
     return activities;
   },
@@ -96,16 +93,13 @@ const activityLogQueries = {
     actionArr = actionArr.filter(a => a !== 'delete');
 
     if (actionArr.length > 0) {
-      const { activityLogs, totalCount } = await fetchActivityLogs(
-        models,
-        {
-          contentType,
-          contentId: { $in: contentIds },
-          action: { $in: actionArr },
-          perPage: perPageForAction * 3,
-          page
-        }
-      );
+      const { activityLogs, totalCount } = await fetchActivityLogs(models, {
+        contentType,
+        contentId: { $in: contentIds },
+        action: { $in: actionArr },
+        perPage: perPageForAction * 3,
+        page
+      });
 
       for (const log of activityLogs) {
         allActivityLogs.push({
@@ -123,15 +117,12 @@ const activityLogQueries = {
     }
 
     if (action.includes('delete')) {
-      const { logs, totalCount } = await fetchLogs(
-        models,
-        {
-          action: 'delete',
-          type: contentType,
-          perPage: perPageForAction,
-          page
-        },
-      );
+      const { logs, totalCount } = await fetchLogs(models, {
+        action: 'delete',
+        type: contentType,
+        perPage: perPageForAction,
+        page
+      });
 
       for (const log of logs) {
         allActivityLogs.push({

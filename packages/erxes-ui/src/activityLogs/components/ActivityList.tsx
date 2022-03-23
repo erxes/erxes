@@ -42,6 +42,7 @@ class ActivityList extends React.Component<IActivityListProps> {
 
   renderTimeLine(activities) {
     const result = activities.reduce((item, activity) => {
+      console.log(item, activity);
       const { contentType } = activity;
       const createdDate = dayjs(activity.createdAt).format('MMMM YYYY');
 
