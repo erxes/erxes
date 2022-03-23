@@ -12,7 +12,7 @@ import {
   IExecutionDocument
 } from './models/definitions/executions';
 import { getActionsMap } from './helpers';
-import { sendRPCMessage } from './messageBroker';
+import { sendRPCMessage, sendSegmentsMessage } from './messageBroker';
 // import { callPluginsAction } from './pluginUtils';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 
@@ -37,7 +37,13 @@ export const getEnv = ({
 };
 
 export const isInSegment = async (segmentId: string, targetId: string) => {
-  const response = await sendRPCMessage('segments:rpc_queue:isInSegment', { segmentId, targetId });
+  const response = await sendSegmentsMessage({
+    subdomain: "",
+    action: "isInSegment",
+    data: { segmentId, targetId },
+    isRPC: true,
+  });
+
   return response.check;
 };
 
@@ -63,12 +69,14 @@ export const executeActions = async (
   }
 
   execution.status = EXECUTION_STATUS.ACTIVE;
+
   const execAction: IExecAction = {
     actionId: currentActionId,
     actionType: action.type,
     actionConfig: action.config,
     nextActionId: action.nextActionId
   };
+
   let actionResponse: any = null;
 
   try {
@@ -107,15 +115,17 @@ export const executeActions = async (
       });
     }
 
-    // if (
-    //   action.type === ACTIONS.CREATE_TASK ||
-    //   action.type === ACTIONS.CREATE_TICKET ||
-    //   action.type === ACTIONS.CREATE_DEAL
-    // ) {
-    //   const type = action.type.substring(6).toLocaleLowerCase();
+    if (
+      action.type === ACTIONS.CREATE_TASK ||
+      action.type === ACTIONS.CREATE_TICKET ||
+      action.type === ACTIONS.CREATE_DEAL
+    ) {
+      const type = action.type.substring(6).toLocaleLowerCase();
 
-    //   actionResponse = await addBoardItem({ action, execution, type });
-    // }
+    console.log('mmmmmmmmmmmmmm', type)
+
+      // actionResponse = await addBoardItem({ action, execution, type });
+    }
 
     if (action.type === ACTIONS.CUSTOM_CODE) {
       actionResponse = await customCode({ action, execution })
@@ -183,6 +193,8 @@ export const calculateExecution = async ({
   const { id, type, config } = trigger;
   const { reEnrollment, reEnrollmentRules, contentId } = config;
   try {
+    console.log('mmmmmmmmmmm', await isInSegment(contentId, target._id))
+
     if (!await isInSegment(contentId, target._id)) {
       return;
     }

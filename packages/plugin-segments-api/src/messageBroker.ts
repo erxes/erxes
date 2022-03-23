@@ -34,7 +34,7 @@ export const initBroker = async cl => {
 
   consumeRPCQueue('segments:isInSegment', async ({ subdomain, data: { segmentId, idToCheck, options } }) => {
     const models = await generateModels(subdomain);
-    const data = await isInSegment(models, segmentId, idToCheck, options);
+    const data = await isInSegment(models, subdomain, segmentId, idToCheck, options);
 
     return { data, status: 'success' };
   });

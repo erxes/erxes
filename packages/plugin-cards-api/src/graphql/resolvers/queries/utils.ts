@@ -787,7 +787,7 @@ export const getItemList = async (
       emails: 1,
       phones: 1
     }
-  }, isRPC: true });
+  }, isRPC: true, defaultValue: [] });
 
   const getCocsByItemId = (
     itemId: string,

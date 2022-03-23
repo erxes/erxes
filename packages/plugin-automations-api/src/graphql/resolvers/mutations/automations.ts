@@ -4,7 +4,7 @@ import { IAutomation, IAutomationDoc } from '../../../models/definitions/automai
 import { IContext } from '@erxes/api-utils/src/types';
 import { INote } from '../../../models/definitions/notes';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
-import { sendMessage } from '../../../messageBroker';
+import { sendSegmentsMessage } from '../../../messageBroker';
 
 interface IAutomationNoteEdit extends INote {
   _id: string;
@@ -166,7 +166,7 @@ const automationMutations = (_serviceDiscovery) => ({
     await Executions.removeExecutions(automationIds);
 
     for (const segmentId of segmentIds || []) {
-      sendMessage('segments:removeSegment', { segmentId });
+      sendSegmentsMessage({ subdomain: '', action: 'removeSegment', data: { segmentId } });
     }
 
     return automationIds;
