@@ -70,33 +70,20 @@ export const sendCardsMessage = async (args: ISendMessageArgs): Promise<any> => 
   return sendMessage({ client, serviceDiscovery, serviceName: 'cards', ...args })
 }
 
-export const sendNotificationMessage = async (
-  action,
-  data,
-  isRPC?: boolean,
-  defaultValue?
-): Promise<any> => {
-  if (isRPC) {
-    if (!(await serviceDiscovery.isEnabled('notifications'))) {
-      return defaultValue;
-    }
+export const sendContactsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'contacts', ...args });
+}
 
-    return client.sendRPCMessage(`notifications:${action}`, { data });
-  }
+export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'core', ...args });
+}
 
-  return client.sendMessage(`notifications:${action}`, { data });
-};
+export const sendProductsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'products', ...args });
+}
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {
   return client.sendRPCMessage(channel, message);
-};
-
-export const findItem = async (data) => {
-  const [serviceName] = data.contentType.split(':');
-
-  await checkService(serviceName, false);
-
-  return client.sendRPCMessage(`${serviceName}:rpc_queue:findItem`, data);
 };
 
 export const getContentIds = async (data) => {
