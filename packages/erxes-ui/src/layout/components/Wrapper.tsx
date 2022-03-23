@@ -38,7 +38,6 @@ class Wrapper extends React.Component<Props> {
       transparent,
       center,
       shrink,
-      hasBorder
     } = this.props;
 
     if (center) {
@@ -50,7 +49,6 @@ class Wrapper extends React.Component<Props> {
               footer={footer}
               transparent={transparent || false}
               center={center}
-              hasBorder={hasBorder}
             >
               {content}
             </PageContent>
@@ -64,7 +62,6 @@ class Wrapper extends React.Component<Props> {
         actionBar={actionBar}
         footer={footer}
         transparent={transparent || false}
-        hasBorder={hasBorder}
       >
         {content}
       </PageContent>

@@ -82,8 +82,7 @@ const MainContent = styledTS<{ transparent?: boolean; center?: boolean; hasBorde
   box-shadow: ${props =>
     !props.transparent && `0 0 6px 1px ${colors.shadowPrimary}`};
   height: ${props => props.center && '100%'};
-  border-left: ${props => props.hasBorder && `1px solid ${colors.borderPrimary}`};
-  margin: ${props => (props.center || props.hasBorder) ? 0 : '10px 10px 10px 0'};
+  margin: ${props => !props.center && '10px 10px 10px 0'};
 `;
 
 const ContentBox = styledTS<{ transparent?: boolean }>(styled.div)`
@@ -130,6 +129,7 @@ const SideContent = styledTS<{
   wide?: boolean;
   half?: boolean;
   full?: boolean;
+  hasBorder?: boolean;
 }>(styled.section)`
   box-sizing: border-box;
   display: flex;
@@ -139,11 +139,13 @@ const SideContent = styledTS<{
   width: ${props => (props.wide ? '340px' : '290px')};
   flex: ${props => (props.half ? '1' : 'none')};
   background: ${props => (props.full ? colors.colorWhite : 'none')};
-  margin: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${
+  margin: ${props => !props.hasBorder && `${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${
   dimensions.unitSpacing
-}px 0;
+}px 0`};
+  border-right: ${props => props.hasBorder && `1px solid ${colors.borderPrimary}`};
   box-shadow: ${props =>
     props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
+  padding: ${props => props.hasBorder && `${dimensions.unitSpacing}px`}
 
   ${TabContainer} {
     position: sticky;
@@ -389,9 +391,9 @@ const CenterContent = styled.div`
   }
 `;
 
-const SectionContainer = styled.div`
+const SectionContainer = styledTS<{noShadow?: boolean}>(styled.div)`
   position: relative;
-  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08);
+  box-shadow: ${props => !props.noShadow && `0 0 6px 0 rgba(0, 0, 0, 0.08)`};
   margin-bottom: 10px;
 
   > div {

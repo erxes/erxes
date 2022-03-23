@@ -48,14 +48,14 @@ const Formgroup = styledTS<{ horizontal?: boolean }>(styled.div)`
   }
 `;
 
-const Input = styledTS<{ round?: boolean; hasError?: boolean }>(styled.input)`
+const Input = styledTS<{ round?: boolean; hasError?: boolean; noBorderBottom?: boolean }>(styled.input)`
   display: block;
   border: none;
   width: 100%;
   height: ${textInputHeight};
   padding: ${dimensions.unitSpacing}px 0;
   color: ${colors.textPrimary};
-  border-bottom: 1px solid;
+  border-bottom: ${props => !props.noBorderBottom && '1px solid'};
   border-color:${props =>
     props.hasError ? colors.colorCoreRed : colors.colorShadowGray};
   background: none;
