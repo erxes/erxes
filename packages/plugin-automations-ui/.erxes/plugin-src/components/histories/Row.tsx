@@ -84,7 +84,7 @@ class HistoryRow extends React.Component<Props, State> {
     }
 
     if (
-      ['createTask', 'createDeal', 'createTicket'].includes(action.actionType)
+      ['cards:tasks.create', 'cards:deals.create', 'cards:tickets.create'].includes(action.actionType)
     ) {
       const type = action.actionType.substr(6).toLowerCase();
       return (

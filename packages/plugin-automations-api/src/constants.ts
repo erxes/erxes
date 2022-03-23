@@ -2,10 +2,9 @@ export const ACTIONS = {
   WAIT: "wait",
   IF: "if",
   SET_PROPERTY: "setProperty",
-  CREATE_TASK: "cards:createTask",
-  CREATE_TICKET: "cards:createTicket",
-  CREATE_DEAL: "cards:createDeal",
-  CUSTOM_CODE: "customCode"
+  CREATE_TASK: "cards:tasks.create",
+  CREATE_TICKET: "cards:ticket.create",
+  CREATE_DEAL: "cards:deals.create",
 };
 
 export const TRIGGER_TYPES = {

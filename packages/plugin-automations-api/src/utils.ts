@@ -127,6 +127,8 @@ export const executeActions = async (
     ) {
       const type = action.type.substring(6).toLocaleLowerCase();
 
+      console.log('mmmmmmmmmmmmm', type)
+
       // actionResponse = await addBoardItem({ action, execution, type });
     }
   } catch (e) {

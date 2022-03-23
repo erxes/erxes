@@ -18,21 +18,21 @@ export const ACTIONS = [
     isAvailable: true
   },
   {
-    type: 'createTask',
+    type: 'cards:tasks.create',
     icon: 'file-plus-alt',
     label: __('Create task'),
     description: __('Create task'),
     isAvailable: true
   },
   {
-    type: 'createDeal',
+    type: 'cards:deals.create',
     icon: 'piggy-bank',
     label: __('Create deal'),
     description: __('Create deal'),
     isAvailable: true
   },
   {
-    type: 'createTicket',
+    type: 'cards:tickets.create',
     icon: 'file-plus',
     label: __('Create ticket'),
     description: __('Create ticket'),
@@ -45,13 +45,6 @@ export const ACTIONS = [
     description: __(
       'Delay the next action with a timeframe, a specific event or activity'
     ),
-    isAvailable: true
-  },
-  {
-    type: 'customCode',
-    icon: 'graduation-hat',
-    label: __('Custom code'),
-    description: __('Custom code'),
     isAvailable: true
   },
   {
