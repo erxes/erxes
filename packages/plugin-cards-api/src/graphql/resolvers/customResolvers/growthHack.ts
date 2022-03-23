@@ -59,7 +59,7 @@ export default {
   },
 
   assignedUsers(growthHack: IGrowthHackDocument) {
-    return (growthHack.assignedUserIds || []).map((_id) => ({
+    return (growthHack.assignedUserIds || []).filter(e => e).map((_id) => ({
       __typename: "User",
       _id,
     }));
@@ -126,6 +126,10 @@ export default {
   },
 
   createdUser(growthHack: IGrowthHackDocument) {
+    if (!growthHack.userId) {
+      return;
+    }
+
     return { __typename: "User", _id: growthHack.userId };
   },
 };

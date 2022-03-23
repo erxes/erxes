@@ -281,7 +281,7 @@ export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
 
 // ? added new integraiontsMsg
 export const sendIntegrationsMessage = (args: ISendMessageArgs): Promise<any> => {
-  return sendMessageCore({ client, serviceDiscovery, serviceName: 'integratons', ...args })
+  return sendMessageCore({ client, serviceDiscovery, serviceName: 'integrations', ...args })
 }
 
 // ! widgetUtils, widgetMutations

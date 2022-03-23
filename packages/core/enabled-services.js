@@ -4,8 +4,8 @@ module.exports = {
   cards: false,
   clientportal: false,
   contacts: true,
-  engages: true,
-  inbox: true,
+  engages: false,
+  inbox: false,
   internalnotes: false,
   knowledgebase: false,
   logs: false,
@@ -13,5 +13,6 @@ module.exports = {
   products: false,
   segments: true,
   tags: true,
-  forms: true
+  forms: true,
+  integrations: true
 };

@@ -36,6 +36,10 @@ export default {
   },
 
   createdUser(task: ITaskDocument) {
+    if (!task.userId) {
+      return;
+    }
+
     return { __typename: "User", _id: task.userId };
   },
 
@@ -71,9 +75,9 @@ export default {
   },
 
   assignedUsers(task: ITaskDocument) {
-    return (task.assignedUserIds || []).map((_id) => ({
+    return (task.assignedUserIds || []).filter(e => e).map((_id) => ({
       __typename: "User",
-      _id,
+      _id
     }));
   },
 

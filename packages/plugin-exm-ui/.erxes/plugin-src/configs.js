@@ -13,7 +13,7 @@ module.exports = {
     {
       text: 'Exm core',
       url: '/erxes-plugin-exm/home',
-      icon: '/images/icons/erxes-30.svg',
+      icon: 'icon-cog',
       location: 'mainNavigation',
       permission: 'showExms'
     }

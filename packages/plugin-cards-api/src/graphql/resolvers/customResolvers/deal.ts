@@ -146,7 +146,7 @@ export default {
   },
 
   assignedUsers(deal: IDealDocument) {
-    return (deal.assignedUserIds || []).map((_id) => ({
+    return (deal.assignedUserIds || []).filter(e => e).map((_id) => ({
       __typename: "User",
       _id,
     }));
@@ -196,6 +196,10 @@ export default {
   },
 
   createdUser(deal: IDealDocument) {
+    if (!deal.userId) {
+      return;
+    }
+
     return { __typename: "User", _id: deal.userId };
   },
 };
