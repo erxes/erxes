@@ -1,9 +1,5 @@
 import { IActivityLogDocument } from '../../models/ActivityLogs';
-import {
-  fetchService,
-  getActivityContentItem,
-  getContentTypeDetail
-} from '../../messageBroker';
+import { fetchService } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
 export default {
@@ -20,12 +16,38 @@ export default {
   async contentTypeDetail(activityLog: IActivityLogDocument) {
     const { contentType } = activityLog;
 
-    return fetchService(contentType, 'getContentTypeDetail', activityLog, '');
+    let result = '';
+
+    try {
+      result = await fetchService(
+        contentType,
+        'getContentTypeDetail',
+        activityLog,
+        ''
+      );
+    } catch (e) {
+      return result;
+    }
+
+    return result;
   },
 
   async contentDetail(activityLog: IActivityLogDocument) {
     const { contentType } = activityLog;
 
-    return fetchService(contentType, 'getActivityContent', activityLog, '');
+    let result = '';
+
+    try {
+      result = await fetchService(
+        contentType,
+        'getActivityContent',
+        activityLog,
+        ''
+      );
+    } catch (e) {
+      return result;
+    }
+
+    return result;
   }
 };

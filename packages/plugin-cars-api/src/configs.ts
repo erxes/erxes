@@ -1,7 +1,7 @@
 import typeDefs from "./graphql/typeDefs";
 import resolvers from "./graphql/resolvers";
 import { IFetchElkArgs } from "@erxes/api-utils/src/types";
-import { generateModels, models } from "./connectionResolver";
+import { coreModels, generateModels, models } from "./connectionResolver";
 import { initBroker } from "./messageBroker";
 import { initMemoryStorage } from "./inmemoryStorage";
 
@@ -26,18 +26,19 @@ export default {
       resolvers: await resolvers(sd),
     };
   },
-  apolloServerContext: (context) => {
+
+  apolloServerContext: async (context) => {
     const subdomain = "os";
 
     context.subdomain = subdomain;
-    context.models = models;
+    context.models = await generateModels("os");
+    context.coreModels = coreModels;
 
     return context;
   },
+
   onServerInit: async (options) => {
     mainDb = options.db;
-
-    await generateModels("os");
 
     initBroker(options.messageBrokerClient);
 

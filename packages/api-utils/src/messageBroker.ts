@@ -1,21 +1,26 @@
-import * as amqplib from "amqplib";
-import { v4 as uuid } from "uuid";
-import { debugError, debugInfo } from "./debuggers";
+import * as amqplib from 'amqplib';
+import { v4 as uuid } from 'uuid';
+import { debugError, debugInfo } from './debuggers';
 
 let channel;
 let queuePrefix;
 let redisClient;
 
-const checkQueueName = async (queueName, isSend=false) => {
+const checkQueueName = async (queueName, isSend = false) => {
   const [serviceName, action] = queueName.split(':');
 
   if (!serviceName) {
-    throw new Error(`Invalid queue name. ${queueName}. Queue name must include :`);
+    throw new Error(
+      `Invalid queue name. ${queueName}. Queue name must include :`
+    );
   }
 
   if (action) {
     if (isSend) {
-      const isMember = await redisClient.sismember(`service:queuenames:${serviceName}`, action)
+      const isMember = await redisClient.sismember(
+        `service:queuenames:${serviceName}`,
+        action
+      );
 
       if (isMember === 0) {
         throw new Error(`Not existing queuename ${queueName}`);
@@ -24,7 +29,7 @@ const checkQueueName = async (queueName, isSend=false) => {
 
     return redisClient.sadd(`service:queuenames:${serviceName}`, action);
   }
-}
+};
 
 export const consumeQueue = async (queueName, callback) => {
   queueName = queueName.concat(queuePrefix);
@@ -39,12 +44,14 @@ export const consumeQueue = async (queueName, callback) => {
   try {
     channel.consume(
       queueName,
-      async (msg) => {
+      async msg => {
         if (msg !== null) {
           try {
             await callback(JSON.parse(msg.content.toString()), msg);
           } catch (e) {
-            debugError(`Error occurred during callback ${queueName} ${e.message}`);
+            debugError(
+              `Error occurred during callback ${queueName} ${e.message}`
+            );
           }
 
           channel.ack(msg);
@@ -53,7 +60,9 @@ export const consumeQueue = async (queueName, callback) => {
       { noAck: false }
     );
   } catch (e) {
-    debugError(`Error occurred during consumeq queue ${queueName} ${e.message}`);
+    debugError(
+      `Error occurred during consumeq queue ${queueName} ${e.message}`
+    );
   }
 };
 
@@ -70,7 +79,7 @@ export const consumeRPCQueue = async (queueName, callback) => {
     // TODO: learn more about this
     // await channel.prefetch(10);
 
-    channel.consume(queueName, async (msg) => {
+    channel.consume(queueName, async msg => {
       if (msg !== null) {
         debugInfo(`Received rpc queue message ${msg.content.toString()}`);
 
@@ -81,11 +90,13 @@ export const consumeRPCQueue = async (queueName, callback) => {
             msg.properties.replyTo,
             Buffer.from(JSON.stringify(response)),
             {
-              correlationId: msg.properties.correlationId,
+              correlationId: msg.properties.correlationId
             }
           );
         } catch (e) {
-          debugError(`Error occurred during callback ${queueName} ${e.message}`);
+          debugError(
+            `Error occurred during callback ${queueName} ${e.message}`
+          );
         }
 
         channel.ack(msg);
@@ -113,18 +124,18 @@ export const sendRPCMessage = async (
   const response = await new Promise((resolve, reject) => {
     const correlationId = uuid();
 
-    return channel.assertQueue("", { exclusive: true }).then((q) => {
+    return channel.assertQueue('', { exclusive: true }).then(q => {
       channel.consume(
         q.queue,
-        (msg) => {
+        msg => {
           if (!msg) {
-            return reject(new Error("consumer cancelled by rabbitmq"));
+            return reject(new Error('consumer cancelled by rabbitmq'));
           }
 
           if (msg.properties.correlationId === correlationId) {
             const res = JSON.parse(msg.content.toString());
 
-            if (res.status === "success") {
+            if (res.status === 'success') {
               resolve(res.data);
             } else {
               reject(new Error(res.errorMessage));
@@ -138,7 +149,7 @@ export const sendRPCMessage = async (
 
       channel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)), {
         correlationId,
-        replyTo: q.queue,
+        replyTo: q.queue
       });
     });
   });
@@ -178,6 +189,6 @@ export const init = async ({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }) => {
     consumeQueue,
     consumeRPCQueue,
     sendMessage,
-    sendRPCMessage,
+    sendRPCMessage
   };
 };

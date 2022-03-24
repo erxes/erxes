@@ -213,15 +213,30 @@ export const escapeRegExp = (str: string) => {
 };
 
 export interface ISendMessageArgs {
-  subdomain: string,
-  action: string,
-  data,
-  isRPC?: boolean,
-  defaultValue?
+  subdomain: string;
+  action: string;
+  data;
+  isRPC?: boolean;
+  defaultValue?;
 }
 
-export const sendMessage = async (args: { client: any, serviceDiscovery: any, serviceName: string } & ISendMessageArgs): Promise<any> => {
-  const { client, serviceDiscovery, serviceName, subdomain, action, data, defaultValue, isRPC } = args;
+export const sendMessage = async (
+  args: {
+    client: any;
+    serviceDiscovery: any;
+    serviceName: string;
+  } & ISendMessageArgs
+): Promise<any> => {
+  const {
+    client,
+    serviceDiscovery,
+    serviceName,
+    subdomain,
+    action,
+    data,
+    defaultValue,
+    isRPC
+  } = args;
 
   if (!(await serviceDiscovery.isEnabled(serviceName))) {
     return defaultValue;
@@ -231,5 +246,8 @@ export const sendMessage = async (args: { client: any, serviceDiscovery: any, se
     throw new Error(`${serviceName} service is not available`);
   }
 
-  return client[isRPC ? 'sendRPCMessage' : 'sendMessage'](serviceName + ( serviceName ? ':' : '') + action, { subdomain, data });
+  return client[isRPC ? 'sendRPCMessage' : 'sendMessage'](
+    serviceName + (serviceName ? ':' : '') + action,
+    { subdomain, data }
+  );
 };

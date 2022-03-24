@@ -1,21 +1,15 @@
 import dayjs from 'dayjs';
-// import {
-//   ActivityDate,
-//   FlexBody,
-//   FlexCenterContent
-// } from 'modules/activityLogs/styles';
-// import { IActivityLogItemProps } from 'modules/activityLogs/types';
-// import Icon from 'modules/common/components/Icon';
-// import Tip from 'modules/common/components/Tip';
-// import { renderUserFullName } from 'modules/common/utils';
-
+import {
+  ActivityDate,
+  FlexBody,
+  FlexCenterContent
+} from '@erxes/ui/src/activityLogs/styles';
+import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import { renderUserFullName } from '@erxes/ui/src/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { IActivityLogItemProps } from '../../../types';
-import { ActivityDate, FlexBody, FlexCenterContent } from '../../../styles';
 
 class BoardItemCreate extends React.Component<IActivityLogItemProps> {
   renderContent = () => {
@@ -28,11 +22,9 @@ class BoardItemCreate extends React.Component<IActivityLogItemProps> {
       userName = renderUserFullName(createdByDetail.content);
     }
 
-    const type = contentType.split(':')[1];
-
     const body = (
       <Link
-        to={`/${type}/board?_id=${activity._id}&itemId=${contentTypeDetail._id}`}
+        to={`/${contentType}/board?_id=${activity._id}&itemId=${contentTypeDetail._id}`}
         target="_blank"
       >
         {contentTypeDetail.name} <Icon icon="arrow-to-right" />

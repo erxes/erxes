@@ -220,34 +220,56 @@ export const collectItems = async (
   subdomain: string,
   { contentType, contentId }
 ) => {
-  const type =
-    contentType.indexOf(':') !== -1 ? contentType.split(':')[1] : contentType;
-  const { collection } = getCollection(models, type);
+  // const type =
+  //   contentType.indexOf(':') !== -1 ? contentType.split(':')[1] : contentType;
+  // const { collection } = getCollection(models, type);
 
-  const relatedItemIds = await sendCoreMessage({
+  // const relatedItemIds = await sendCoreMessage({
+  //   subdomain,
+  //   action: 'conformities.savedConformity',
+  //   data: {
+  //     mainType: contentType,
+  //     mainTypeId: contentId,
+  //     relTypes:
+  //       type === 'task' ? ['deal', 'ticket', 'task'] : ['deal', 'ticket']
+  //   },
+  //   isRPC: true,
+  //   defaultValue: []
+  // });
+
+  // const items = await collection
+  //   .find({
+  //     $and: [
+  //       { _id: { $in: [...relatedItemIds, contentId] } },
+  //       { status: { $ne: 'archived' } }
+  //     ]
+  //   })
+  //   .lean()
+  //   .sort({ closeDate: 1 });
+
+  let tasks: any[] = [];
+
+  const relatedTaskIds = await sendCoreMessage({
     subdomain,
     action: 'conformities.savedConformity',
     data: {
-      mainType: contentType,
+      mainType: contentType.split(':')[1],
       mainTypeId: contentId,
-      relTypes:
-        type === 'task' ? ['deal', 'ticket', 'task'] : ['deal', 'ticket']
+      relTypes: ['task']
     },
     isRPC: true,
     defaultValue: []
   });
 
-  const items = await collection
-    .find({
-      $and: [
-        { _id: { $in: [...relatedItemIds, contentId] } },
-        { status: { $ne: 'archived' } }
-      ]
+  if (contentType !== 'cards:task') {
+    tasks = await models.Tasks.find({
+      $and: [{ _id: { $in: relatedTaskIds } }, { status: { $ne: 'archived' } }]
     })
-    .lean()
-    .sort({ closeDate: 1 });
+      .sort({ closeDate: 1 })
+      .lean();
+  }
 
-  return items;
+  return tasks;
 };
 
 // contentType should come with "cards:deal|task|ticket|growthHack" format
