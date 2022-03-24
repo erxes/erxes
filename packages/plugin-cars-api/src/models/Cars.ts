@@ -18,13 +18,26 @@ export interface ICarModel extends Model<ICarDocument> {
   mergeCars(carIds: string, carFields: any): Promise<ICarDocument>;
 }
 
+export interface ICarCategoryModel extends Model<ICarCategoryDocument> {
+  getCarCatogery(selector: any): Promise<ICarCategoryDocument>;
+  createCarCategory(doc: ICarCategory): Promise<ICarCategoryDocument>;
+  updateCarCategory(
+    _id: string,
+    doc: ICarCategory
+  ): Promise<ICarCategoryDocument>;
+  removeCarCategory(_id: string): Promise<ICarCategoryDocument>;
+  generateOrder(
+    parentCategory: any,
+    doc: ICarCategory
+  ): Promise<ICarCategoryDocument>;
+}
+
 export const loadCarClass = (models) => {
   class Car {
     /**
      * Checking if car has duplicated unique properties
      */
     public static async checkDuplication(
-      models,
       carFields: {
         plateNumber?: string;
         vinNumber?: string;
@@ -97,7 +110,7 @@ export const loadCarClass = (models) => {
      */
     public static async createCar(doc, user) {
       // Checking duplicated fields of car
-      await models.Cars.checkDuplication(models, doc);
+      await models.Cars.checkDuplication(doc);
 
       if (!doc.ownerId && user) {
         doc.ownerId = user.name;
@@ -118,10 +131,10 @@ export const loadCarClass = (models) => {
      */
     public static async updateCar(_id, doc) {
       // Checking duplicated fields of car
-      await models.Cars.checkDuplication(models, doc, [_id]);
+      await models.Cars.checkDuplication(doc, [_id]);
 
       const searchText = models.Cars.fillSearchText(
-        Object.assign(await models.Cars.getCar(models, _id), doc)
+        Object.assign(await models.Cars.getCar(_id), doc)
       );
       await models.Cars.updateOne(
         { _id },
@@ -154,18 +167,18 @@ export const loadCarClass = (models) => {
      */
     public static async mergeCars(carIds, carFields) {
       // Checking duplicated fields of car
-      await this.checkDuplication(models, carFields, carIds);
+      await this.checkDuplication(carFields, carIds);
 
       // Merging car tags
       for (const carId of carIds) {
-        models.Cars.getCar(models, carId);
+        models.Cars.getCar(carId);
         await models.Cars.findByIdAndUpdate(carId, {
           $set: { status: "Deleted" },
         });
       }
 
       // Creating car with properties
-      const car = await models.Cars.createCar(models, {
+      const car = await models.Cars.createCar({
         ...carFields,
         mergedIds: carIds,
       });
@@ -188,20 +201,6 @@ export const loadCarClass = (models) => {
 
   return carSchema;
 };
-
-export interface ICarCategoryModel extends Model<ICarCategoryDocument> {
-  getCarCatogery(selector: any): Promise<ICarCategoryDocument>;
-  createCarCategory(doc: ICarCategory): Promise<ICarCategoryDocument>;
-  updateCarCategory(
-    _id: string,
-    doc: ICarCategory
-  ): Promise<ICarCategoryDocument>;
-  removeCarCategory(_id: string): Promise<ICarCategoryDocument>;
-  generateOrder(
-    parentCategory: any,
-    doc: ICarCategory
-  ): Promise<ICarCategoryDocument>;
-}
 
 export const loadCarCategoryClass = (models) => {
   class CarCategory {
@@ -249,7 +248,7 @@ export const loadCarCategoryClass = (models) => {
       // Generatingg  order
       doc.order = await this.generateOrder(parentCategory, doc);
 
-      const carCategory = await models.CarCategories.getCarCatogery(models, {
+      const carCategory = await models.CarCategories.getCarCatogery({
         _id,
       });
 
@@ -281,7 +280,7 @@ export const loadCarCategoryClass = (models) => {
      * Remove Car category
      */
     public static async removeCarCategory(_id) {
-      await models.CarCategories.getCarCatogery(models, { _id });
+      await models.CarCategories.getCarCatogery({ _id });
 
       let count = await models.Cars.countDocuments({ categoryId: _id });
       count += await models.CarCategories.countDocuments({ parentId: _id });
