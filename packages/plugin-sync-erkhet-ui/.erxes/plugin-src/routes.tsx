@@ -1,9 +1,19 @@
 import Settings from './containers/Settings';
-import GeneralSettings from './components/GeneralSettings'
-import StageSettings from './components/StageSettings'
-import PipelineSettings from './components/PipelineSettings'
 import React from 'react';
 import { Route } from 'react-router-dom';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+
+const GeneralSettings = asyncComponent(() =>
+  import(/* webpackChunkName: "KnowledgeBase" */ './components/GeneralSettings')
+)
+
+const StageSettings = asyncComponent(() =>
+  import(/* webpackChunkName: "KnowledgeBase" */ './components/StageSettings')
+)
+
+const PipelineSettings = asyncComponent(() =>
+  import(/* webpackChunkName: "KnowledgeBase" */ './components/PipelineSettings')
+)
 
 const GeneralSetting = () => {
   return (
