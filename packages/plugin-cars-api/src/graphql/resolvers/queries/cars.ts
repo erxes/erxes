@@ -3,6 +3,7 @@ import {
   requireLogin,
 } from "@erxes/api-utils/src/permissions";
 import { paginate } from "erxes-api-utils";
+import { IContext } from "../../../connectionResolver";
 
 const generateFilter = async (models, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -87,8 +88,8 @@ const carQueries = {
     };
   },
 
-  carDetail: async (_root, { _id }, { models }) => {
-    return models.Cars.getCar(models, _id);
+  carDetail: async (_root, { _id }, { models }: IContext) => {
+    return models.Cars.getCar(_id);
   },
 
   carCategories: async (
