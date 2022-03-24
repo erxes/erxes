@@ -13,9 +13,8 @@ import {
 } from './models/definitions/executions';
 
 import { getActionsMap } from './helpers';
-import { sendSegmentsMessage } from './messageBroker';
+import { sendCommonMessage, sendSegmentsMessage } from './messageBroker';
 
-// import { callPluginsAction } from './pluginUtils';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 import { IModels } from './connectionResolver';
 
@@ -120,16 +119,24 @@ export const executeActions = async (
       });
     }
 
-    if (
-      action.type === ACTIONS.CREATE_TASK ||
-      action.type === ACTIONS.CREATE_TICKET ||
-      action.type === ACTIONS.CREATE_DEAL
-    ) {
-      const type = action.type.substring(6).toLocaleLowerCase();
+    const [serviceName, type] = action.type.split(':');
 
-      console.log('mmmmmmmmmmmmm', type)
+    if (type.includes('create')) {
+      actionResponse = await sendCommonMessage({
+        subdomain,
+        serviceName,
+        action: 'automations.receiveActions',
+        data: {
+          action,
+          execution,
+          collectionType: type.replace('.create', '')
+        },
+        isRPC: true
+      });
 
-      // actionResponse = await addBoardItem({ action, execution, type });
+      if (actionResponse.error) {
+        throw new Error(actionResponse.error)
+      }
     }
   } catch (e) {
     execAction.result = { error: e.message, result: e.result };

@@ -12,7 +12,7 @@ module.exports = {
   menus: [
     {
       text: "Plugin Car",
-      url: "/list",
+      url: "/cars",
       location: "mainNavigation",
       icon: "icon-car",
       permission: "showCars",
