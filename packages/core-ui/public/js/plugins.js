@@ -516,6 +516,27 @@ window.plugins = [
     ],
   },
   {
+    name: "pos",
+    port: 3016,
+    exposes: { "./routes": "./src/routes.tsx" },
+    routes: {
+      url: "http://localhost:3016/remoteEntry.js",
+      scope: "pos",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "POS",
+        to: "/pos",
+        image: "/images/icons/erxes-05.svg",
+        location: "settings",
+        scope: "pos",
+        action: "posConfig",
+        permissions: ["showPos"],
+      },
+    ],
+  },
+  {
     name: "products",
     port: 3022,
     exposes: { "./routes": "./src/routes.tsx" },
@@ -575,6 +596,27 @@ window.plugins = [
     ],
   },
   {
+    name: "syncErkhet",
+    port: 3017,
+    exposes: { "./routes": "./src/routes.tsx" },
+    routes: {
+      url: "http://localhost:3017/remoteEntry.js",
+      scope: "syncErkhet",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Sync Erkhet",
+        to: "/erxes-plugin-sync-erkhet/settings/general",
+        image: "/images/icons/erxes-04.svg",
+        location: "settings",
+        scope: "syncErkhet",
+        action: "syncErkhetConfig",
+        permissions: [],
+      },
+    ],
+  },
+  {
     name: "tags",
     port: 3012,
     exposes: { "./routes": "./src/routes.tsx" },
@@ -595,4 +637,34 @@ window.plugins = [
       },
     ],
   },
+  {
+    name: "ebarimt",
+    port: 3018,
+    exposes: {
+      "./routes": "./src/routes.tsx",
+    },
+    routes: {
+      url: "http://localhost:3018/remoteEntry.js",
+      scope: "ebarimt",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Put Responses",
+        url: "/put-responses",
+        icon: "icon-lamp",
+        location: "mainNavigation",
+        permission: "syncEbarimtConfig",
+      },
+      {
+        text: "Ebarimt config",
+        to: "/erxes-plugin-ebarimt/settings/general",
+        image: "/images/icons/erxes-04.svg",
+        location: "settings",
+        scope: "ebarimt",
+        action: "syncEbarimtConfig",
+        permissions: [],
+      },
+    ],
+  }
 ];

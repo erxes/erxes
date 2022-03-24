@@ -253,7 +253,7 @@ export const collectItems = async (
     subdomain,
     action: 'conformities.savedConformity',
     data: {
-      mainType: contentType,
+      mainType: contentType.split(':')[1],
       mainTypeId: contentId,
       relTypes: ['task']
     },

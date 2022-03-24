@@ -5,6 +5,7 @@ on:
     branches:
       - federation
     paths:
+      - 'packages/erxes-ui/**'
       - 'packages/plugin-logs-ui/**'
       - '.github/workflows/plugin-logs-ui.yaml'
 
@@ -37,4 +38,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-logs-ui/.erxes/dist s3://plugin-uis/plugin-logs-ui --delete 
+          aws s3 sync packages/plugin-logs-ui/.erxes/dist s3://plugin-uis/plugin-logs-ui --delete

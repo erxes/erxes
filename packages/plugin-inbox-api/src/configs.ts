@@ -21,6 +21,7 @@ import logs from './logUtils';
 import tags from './tags';
 import segments from './segments';
 import forms from './forms';
+import permissions from './permissions';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -37,6 +38,7 @@ export let debug;
 
 export default {
   name: 'inbox',
+  permissions,
   graphql: async sd => {
     serviceDiscovery = sd;
 

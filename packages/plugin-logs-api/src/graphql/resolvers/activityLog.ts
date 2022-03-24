@@ -1,9 +1,5 @@
 import { IActivityLogDocument } from '../../models/ActivityLogs';
-import {
-  fetchService,
-  getActivityContentItem,
-  getContentTypeDetail
-} from '../../messageBroker';
+import { fetchService } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
 export default {

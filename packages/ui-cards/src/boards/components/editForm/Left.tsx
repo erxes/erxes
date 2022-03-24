@@ -234,7 +234,9 @@ const Left = (props: Props) => {
           contentId={item._id}
           contentType={`cards:${options.type}`}
           extraTabs={
-            options.type === 'task' ? [] : [{ name: 'task', label: 'Task' }]
+            options.type === 'cards:task'
+              ? []
+              : [{ name: 'cards:task', label: 'Task' }]
           }
         />
       )}

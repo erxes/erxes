@@ -4,11 +4,11 @@ import {
   ActivityRow,
   FlexBody,
   FlexCenterContent
-} from '../../../styles';
+} from '@erxes/ui/src/activityLogs/styles';
+import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
 import Tip from '@erxes/ui/src/components/Tip';
-import React from 'react';
-import { IActivityLogItemProps } from '../../../types';
 import { renderUserFullName } from '@erxes/ui/src/utils';
+import React from 'react';
 
 class CheckListItem extends React.Component<
   IActivityLogItemProps,

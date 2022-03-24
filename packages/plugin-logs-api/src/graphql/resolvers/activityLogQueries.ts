@@ -64,7 +64,7 @@ const activityLogQueries = {
       const result = await fetchService(
         serviceName,
         'collectItems',
-        { contentId, contentType },
+        { contentId, contentType, activityType },
         ''
       );
 

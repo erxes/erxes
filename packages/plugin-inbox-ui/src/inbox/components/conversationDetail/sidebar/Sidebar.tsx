@@ -225,7 +225,7 @@ class Index extends React.Component<IndexProps, IndexState> {
           {isEnabled("tags") &&
             <TaggerSection
               data={customer}
-              type='customer'
+              type='contacts:customer'
               refetchQueries={taggerRefetchQueries}
               collapseCallback={toggleSection}
             />

@@ -14,7 +14,7 @@ import { createGateway, IGatewayContext } from './gateway';
 import userMiddleware from './middlewares/userMiddleware';
 import * as db from './db';
 import pubsub from './subscription/pubsub';
-import { getService, getServices, redis } from './redis';
+import { getService, getServices, redis, setAfterMutations } from './redis';
 import { initBroker } from './messageBroker';
 
 const {
@@ -145,6 +145,8 @@ const {
   await new Promise<void>(resolve => httpServer.listen({ port }, resolve));
 
   await initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis });
+
+  await setAfterMutations();
 
   console.log(
     `Erxes gateway ready at http://localhost:${port}${apolloServer.graphqlPath}`
