@@ -139,6 +139,18 @@ export const initBroker = cl => {
   );
 
   consumeRPCQueue(
+    'contacts:customers.updateMany',
+    async ({ subdomain, data: { selector, modifier } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Customers.updateMany(selector, modifier)
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'contacts:customers.markCustomerAsActive',
     async ({ subdomain, data: { customerId } }) => {
       const models = await generateModels(subdomain);
@@ -170,6 +182,18 @@ export const initBroker = cl => {
       return {
         status: 'success',
         data: await Companies.updateCompany(_id, doc)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'contacts:companies.updateMany',
+    async ({ subdomain, data: { selector, modifier } }) => {
+      const { Companies } = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await Companies.updateMany(selector, modifier)
       };
     }
   );
@@ -367,6 +391,16 @@ export const sendContactsMessage = async (
     serviceDiscovery,
     serviceName: 'contacts',
     ...args
+  });
+};
+
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    ...args,
   });
 };
 
