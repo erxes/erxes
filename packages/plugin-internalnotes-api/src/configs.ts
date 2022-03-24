@@ -4,7 +4,6 @@ import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
-import apiConnect from './apiCollections';
 import { generateModels, models } from './connectionResolver';
 import logs from './logUtils';
 
@@ -22,23 +21,21 @@ export let es: {
 
 export default {
   name: 'internalnotes',
-  graphql: async (sd) => {
+  graphql: async sd => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd),
+      resolvers: await resolvers(sd)
     };
   },
-  apolloServerContext: (context) => {
+  apolloServerContext: context => {
     context.models = models;
   },
-  onServerInit: async (options) => {
+  onServerInit: async options => {
     mainDb = options.db;
 
     await generateModels('os');
-
-    await apiConnect();
 
     initBroker(options.messageBrokerClient);
 
@@ -49,6 +46,6 @@ export default {
     es = options.elasticsearch;
   },
   meta: {
-    logs: { providesActivityLog: true, consumers: logs },
-  },
+    logs: { providesActivityLog: true, consumers: logs }
+  }
 };
