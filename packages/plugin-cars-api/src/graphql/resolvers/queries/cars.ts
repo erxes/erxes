@@ -148,13 +148,13 @@ const carQueries = {
   },
 };
 
-requireLogin(carQueries, "carDetail");
+// requireLogin(carQueries, "carDetail");
 
-checkPermission(carQueries, "cars", "showCars");
-checkPermission(carQueries, "carsMain", "showCars");
-checkPermission(carQueries, "carDetail", "showCars");
-checkPermission(carQueries, "carCategories", "showCars");
-checkPermission(carQueries, "carCategoriesTotalCount", "showCars");
-checkPermission(carQueries, "carCategoryDetail", "showCars");
+// checkPermission(carQueries, "cars", "showCars");
+// checkPermission(carQueries, "carsMain", "showCars");
+// checkPermission(carQueries, "carDetail", "showCars");
+// checkPermission(carQueries, "carCategories", "showCars");
+// checkPermission(carQueries, "carCategoriesTotalCount", "showCars");
+// checkPermission(carQueries, "carCategoryDetail", "showCars");
 
 export default carQueries;
