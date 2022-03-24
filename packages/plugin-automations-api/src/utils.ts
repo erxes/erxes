@@ -15,7 +15,6 @@ import {
 import { getActionsMap } from './helpers';
 import { sendCommonMessage, sendSegmentsMessage } from './messageBroker';
 
-// import { callPluginsAction } from './pluginUtils';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 import { IModels } from './connectionResolver';
 

@@ -1,10 +1,10 @@
 import { replacePlaceHolders } from "@erxes/api-utils/src/automations";
-import { generateModels } from "./connectionResolver";
+import { generateModels, IModels } from "./connectionResolver";
 import { itemsAdd } from "./graphql/resolvers/mutations/utils";
 import { sendCommonMessage, sendCoreMessage } from "./messageBroker";
 import { getCollection } from "./models/utils";
 
-const getRelatedValue = async (subdomain: string, target, targetKey) => {
+const getRelatedValue = async (models: IModels, subdomain: string, target, targetKey) => {
   if (
     [
       "userId",
@@ -57,22 +57,16 @@ const getRelatedValue = async (subdomain: string, target, targetKey) => {
   }
 
   if (targetKey === "labelIds") {
-    const labels = await sendCommonMessage({
-      subdomain,
-      serviceName: "cards",
-      action: "pipelineLabels.find",
-      data: { _id: { $in: target[targetKey] } },
+    const labels = await models.PipelineLabels.find({
+      _id: { $in: target[targetKey] } 
     });
 
     return (labels.map((label) => label.name) || []).join(", ");
   }
 
   if (["initialStageId", "stageId"].includes(targetKey)) {
-    const stage = await sendCommonMessage({
-      subdomain,
-      serviceName: "cards",
-      action: "stages.findOne",
-      data: { _id: target[targetKey] },
+    const stage = await models.Stages.findOne({
+      _id: target[targetKey]
     });
 
     return (stage && stage.name) || "";
@@ -93,12 +87,16 @@ const getRelatedValue = async (subdomain: string, target, targetKey) => {
 };
 
 export default {
-  receiveActions: async ({ subdomain, data: { action, execution, collectionType } }) => {
+  receiveActions: async ({
+    subdomain,
+    data: { action, execution, collectionType },
+  }) => {
     const models = await generateModels(subdomain);
     const { config = {} } = action;
 
     let newData = action.config.assignedTo
       ? await replacePlaceHolders({
+          models,
           subdomain,
           getRelatedValue,
           actionData: { assignedTo: action.config.assignedTo },
@@ -112,8 +110,9 @@ export default {
     newData = {
       ...newData,
       ...(await replacePlaceHolders({
+        models,
         subdomain,
-	getRelatedValue,
+        getRelatedValue,
         actionData: action.config,
         target: execution.target,
       })),
@@ -138,7 +137,13 @@ export default {
     try {
       const { create } = getCollection(models, collectionType);
 
-      const item = await itemsAdd(models, subdomain, newData, collectionType, create);
+      const item = await itemsAdd(
+        models,
+        subdomain,
+        newData,
+        collectionType,
+        create
+      );
 
       await sendCoreMessage({
         subdomain,
