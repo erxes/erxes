@@ -11,7 +11,7 @@ import {
 
 export interface IModels {
   Cars: ICarModel;
-  CarCategory: ICarCategoryModel;
+  CarCategories: ICarCategoryModel;
 }
 
 export interface IContext extends IMainContext {
@@ -38,7 +38,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.Cars = db.model<ICarDocument, ICarModel>("cars", loadCarClass(models));
 
-  models.CarCategory = db.model<ICarCategoryDocument, ICarCategoryModel>(
+  models.CarCategories = db.model<ICarCategoryDocument, ICarCategoryModel>(
     "carCategory",
     loadCarCategoryClass(models)
   );
