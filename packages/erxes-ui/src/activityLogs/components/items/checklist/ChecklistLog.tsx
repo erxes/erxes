@@ -5,12 +5,12 @@ import {
   FlexCenterContent,
   Header,
   ShowMore
-} from '../../../styles';
+} from '@erxes/ui/src/activityLogs/styles';
+import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
 import Tip from '@erxes/ui/src/components/Tip';
 import { renderUserFullName } from '@erxes/ui/src/utils';
 import React from 'react';
 import CheckListItem from './ChecklistItem';
-import { IActivityLog } from '../../../types';
 
 type Props = {
   activity: IActivityLog;

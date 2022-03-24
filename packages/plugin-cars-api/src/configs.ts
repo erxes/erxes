@@ -26,18 +26,18 @@ export default {
       resolvers: await resolvers(sd),
     };
   },
-  apolloServerContext: (context) => {
+
+  apolloServerContext: async (context) => {
     const subdomain = "os";
 
     context.subdomain = subdomain;
-    context.models = models;
+    context.models = await generateModels("os");
 
     return context;
   },
+
   onServerInit: async (options) => {
     mainDb = options.db;
-
-    await generateModels("os");
 
     initBroker(options.messageBrokerClient);
 

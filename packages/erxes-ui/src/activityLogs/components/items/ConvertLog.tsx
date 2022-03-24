@@ -5,16 +5,20 @@ import {
   FlexCenterContent
 } from '@erxes/ui/src/activityLogs/styles';
 import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
-import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
-import { renderUserFullName } from '@erxes/ui/src/utils';
+import { __, renderUserFullName } from '@erxes/ui/src/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-class BoardItemCreate extends React.Component<IActivityLogItemProps> {
-  renderContent = () => {
+class ConvertLog extends React.Component<IActivityLogItemProps> {
+  renderContent() {
     const { activity } = this.props;
-    const { contentTypeDetail, contentType, createdByDetail } = activity;
+    const {
+      contentTypeDetail,
+      contentType,
+      content,
+      createdByDetail
+    } = activity;
 
     let userName = 'Unknown';
 
@@ -22,25 +26,35 @@ class BoardItemCreate extends React.Component<IActivityLogItemProps> {
       userName = renderUserFullName(createdByDetail.content);
     }
 
-    const body = (
+    const conversation = (
+      <Link to={`/inbox/index?_id=${content}`} target="_blank">
+        conversation
+      </Link>
+    );
+
+    const item = (
       <Link
-        to={`/${contentType}/board?_id=${activity._id}&itemId=${contentTypeDetail._id}`}
+        to={`${
+          contentType === 'ticket' ? '/inbox' : ''
+        }/${contentType}/board?_id=${activity._id}&itemId=${
+          contentTypeDetail._id
+        }`}
         target="_blank"
       >
-        {contentTypeDetail.name} <Icon icon="arrow-to-right" />
+        {contentTypeDetail.name}
       </Link>
     );
 
     return (
       <span>
-        <strong>{userName}</strong> created {body} {contentType}
+        <strong>{userName}</strong> {__('converted')} {item} {contentType}{' '}
+        {__('from')} a {conversation}
       </span>
     );
-  };
+  }
 
   render() {
-    const { activity } = this.props;
-    const { createdAt } = activity;
+    const { createdAt } = this.props.activity;
 
     return (
       <FlexCenterContent>
@@ -55,4 +69,4 @@ class BoardItemCreate extends React.Component<IActivityLogItemProps> {
   }
 }
 
-export default BoardItemCreate;
+export default ConvertLog;

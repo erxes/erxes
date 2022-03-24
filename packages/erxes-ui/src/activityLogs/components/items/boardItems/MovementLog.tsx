@@ -1,6 +1,10 @@
 import dayjs from 'dayjs';
-import { IActivityLogItemProps } from '../../../types';
-import { ActivityDate, FlexBody, FlexCenterContent } from '../../../styles';
+import {
+  ActivityDate,
+  FlexBody,
+  FlexCenterContent
+} from '@erxes/ui/src/activityLogs/styles';
+import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
 import Tip from '@erxes/ui/src/components/Tip';
 import { renderUserFullName } from '@erxes/ui/src/utils';
 import React from 'react';
@@ -20,8 +24,6 @@ class MovementLog extends React.Component<IActivityLogItemProps> {
         userName = renderUserFullName(createdByDetail.content);
       }
     }
-
-    console.log(contentDetail);
 
     if (contentDetail.item) {
       const { item, destinationStage, oldStage } = contentDetail;
