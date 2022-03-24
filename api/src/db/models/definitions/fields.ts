@@ -76,6 +76,8 @@ export interface IField extends IVisibility {
   column?: number;
   groupName?: string;
   pageNumber?: number;
+  showInCard?: boolean;
+  productCategoryId?: string;
 }
 
 export interface IFieldDocument extends IField, Document {
@@ -98,6 +100,9 @@ export interface IFieldGroup extends IVisibility {
   boardsPipelines?: IBoardsPipelines[];
   boardIds?: string[];
   pipelineIds?: string[];
+  visibility?: string;
+  memberIds?: string[];
+  departmentIds?: string[];
 }
 
 export interface IFieldGroupDocument extends IFieldGroup, Document {
@@ -181,6 +186,17 @@ export const fieldSchema = schemaWrapper(
       optional: true,
       label: 'Number of page',
       min: 1
+    }),
+    showInCard: field({
+      type: Boolean,
+      default: false,
+      optional: true,
+      label: 'Show in card'
+    }),
+    productCategoryId: field({
+      type: String,
+      optional: true,
+      label: 'Product category'
     })
   })
 );
@@ -223,6 +239,9 @@ export const fieldGroupSchema = schemaWrapper(
       type: [String],
       label: 'pipeline ids',
       optional: true
-    })
+    }),
+    visibility: field({ type: String, optional: true }),
+    memberIds: field({ type: [String], label: 'Members' }),
+    departmentIds: field({ type: [String], label: 'Departments' })
   })
 );

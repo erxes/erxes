@@ -4,6 +4,7 @@ import {
   companyFactory,
   conformityFactory,
   customerFactory,
+  fieldFactory,
   pipelineFactory,
   stageFactory,
   taskFactory,
@@ -39,6 +40,7 @@ describe('taskQueries', () => {
     boardId
     stage { _id }
     createdUser { _id }
+    customPropertyTexts
   `;
 
   const qryTaskFilter = `
@@ -158,6 +160,7 @@ describe('taskQueries', () => {
       query tasks($stageId: String!) {
         tasks(stageId: $stageId) {
           _id
+          customPropertyTexts
         }
       }
     `;
@@ -190,11 +193,27 @@ describe('taskQueries', () => {
   });
 
   test('Task detail', async () => {
-    const task = await taskFactory();
+    const field1 = await fieldFactory({
+      showInCard: true,
+      contentType: 'task'
+    });
+    const field2 = await fieldFactory({
+      showInCard: false,
+      contentType: 'task'
+    });
+
+    const task = await taskFactory({
+      customFieldsData: [
+        { field: field1._id, value: 'test1' },
+        { field: field2._id, value: 'test2' }
+      ]
+    });
+
     const response = await graphqlRequest(qryDetail, 'taskDetail', {
       _id: task._id
     });
 
+    expect(response.customPropertyTexts.length).toBe(1);
     expect(response._id).toBe(task._id);
   });
 

@@ -92,6 +92,12 @@ const formDetailQuery = `
           logicOperator
           logicValue
         }
+        productCategoryId
+        products{
+          _id
+          name
+          unitPrice
+        }
       }
     }
   }

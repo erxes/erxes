@@ -235,9 +235,14 @@ export default class GenerateField extends React.Component<Props, State> {
       }
     };
 
+    let files: IAttachment[] = [];
+    if (Array.isArray(value)) {
+      files = value.filter(e => e.url.length !== 0);
+    }
+
     return (
       <Uploader
-        defaultFileList={value || []}
+        defaultFileList={files}
         onChange={onChangeFile}
         multiple={true}
         single={false}

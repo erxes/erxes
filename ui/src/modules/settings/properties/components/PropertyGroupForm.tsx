@@ -1,3 +1,4 @@
+import { SelectTeamMembers, __ } from 'erxes-ui';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
@@ -6,9 +7,12 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Toggle from 'modules/common/components/Toggle';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { SelectMemberStyled } from 'modules/settings/boards/styles';
+import { ExpandWrapper } from 'modules/settings/styles';
 import React from 'react';
 import SelectBoards from '../containers/SelectBoardPipeline';
 import { IBoardSelectItem, IFieldGroup } from '../types';
+import SelectDepartments from 'modules/settings/team/containers/department/SelectDepartments';
 
 type Props = {
   group?: IFieldGroup;
@@ -21,26 +25,39 @@ type State = {
   isVisible: boolean;
   isVisibleInDetail: boolean;
   selectedItems: IBoardSelectItem[];
+  visibility: string;
+  memberIds: string[];
+  departmentIds: string[];
 };
 
 class PropertyGroupForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
+    const { group } = props;
     let isVisible = true;
     let isVisibleInDetail = true;
     let selectedItems = [];
+    let visibility = 'public';
+    let memberIds = [];
+    let departmentIds = [];
 
-    if (props.group) {
-      isVisible = props.group.isVisible;
-      isVisibleInDetail = props.group.isVisibleInDetail;
-      selectedItems = props.group.boardsPipelines || [];
+    if (group) {
+      isVisible = group.isVisible;
+      isVisibleInDetail = group.isVisibleInDetail;
+      selectedItems = group.boardsPipelines || [];
+      visibility = group.visibility;
+      memberIds = group.memberIds || [];
+      departmentIds = group.departmentIds || [];
     }
 
     this.state = {
       isVisible,
       isVisibleInDetail,
-      selectedItems
+      selectedItems,
+      visibility,
+      memberIds,
+      departmentIds
     };
   }
 
@@ -50,8 +67,15 @@ class PropertyGroupForm extends React.Component<Props, State> {
     description: string;
   }) => {
     const { group, type } = this.props;
+    const {
+      isVisible,
+      isVisibleInDetail,
+      selectedItems,
+      visibility,
+      memberIds,
+      departmentIds
+    } = this.state;
     const finalValues = values;
-    const selectedItems = this.state.selectedItems;
 
     if (group) {
       finalValues._id = group._id;
@@ -71,9 +95,12 @@ class PropertyGroupForm extends React.Component<Props, State> {
     return {
       ...finalValues,
       contentType: type,
-      isVisible: this.state.isVisible,
-      isVisibleInDetail: this.state.isVisibleInDetail,
-      boardsPipelines
+      isVisible,
+      isVisibleInDetail,
+      boardsPipelines,
+      visibility,
+      memberIds,
+      departmentIds
     };
   };
 
@@ -91,6 +118,23 @@ class PropertyGroupForm extends React.Component<Props, State> {
 
   itemsChange = (items: IBoardSelectItem[]) => {
     this.setState({ selectedItems: items });
+  };
+
+  onChangeVisibility = (e: React.FormEvent<HTMLElement>) => {
+    const visibility = (e.currentTarget as HTMLInputElement).value;
+
+    this.setState({
+      visibility,
+      memberIds: visibility === 'public' ? [] : this.state.memberIds
+    });
+  };
+
+  onChangeMembers = items => {
+    this.setState({ memberIds: items });
+  };
+
+  onChangeDepartments = items => {
+    this.setState({ departmentIds: items });
   };
 
   renderFieldVisible() {
@@ -154,6 +198,38 @@ class PropertyGroupForm extends React.Component<Props, State> {
     );
   }
 
+  renderSelectMembers() {
+    const { visibility, memberIds } = this.state;
+
+    if (visibility === 'public') {
+      return;
+    }
+
+    return (
+      <>
+        <FormGroup>
+          <SelectMemberStyled zIndex={2002}>
+            <ControlLabel>Members</ControlLabel>
+            <SelectTeamMembers
+              label="Choose members"
+              name="selectedMemberIds"
+              initialValue={memberIds}
+              onSelect={this.onChangeMembers}
+            />
+          </SelectMemberStyled>
+        </FormGroup>
+
+        <FormGroup>
+          <SelectDepartments
+            defaultValue={this.state.departmentIds}
+            isRequired={false}
+            onChange={this.onChangeDepartments}
+          />
+        </FormGroup>
+      </>
+    );
+  }
+
   renderContent = (formProps: IFormProps) => {
     const { group, closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
@@ -197,6 +273,24 @@ class PropertyGroupForm extends React.Component<Props, State> {
         )}
 
         {this.renderBoardSelect()}
+
+        <ExpandWrapper>
+          <FormGroup>
+            <ControlLabel required={true}>Visibility</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="visibility"
+              componentClass="select"
+              value={this.state.visibility}
+              onChange={this.onChangeVisibility}
+            >
+              <option value="public">{__('Public')}</option>
+              <option value="private">{__('Private')}</option>
+            </FormControl>
+          </FormGroup>
+        </ExpandWrapper>
+
+        {this.renderSelectMembers()}
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">

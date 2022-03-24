@@ -2,6 +2,7 @@ import {
   Boards,
   Brands,
   Integrations,
+  PipelineLabels,
   Pipelines,
   Stages,
   Tags,
@@ -111,6 +112,19 @@ export const getPipelines = async (stageType: string) => {
   });
 
   return filters;
+};
+
+export const getLabels = async () => {
+  return PipelineLabels.aggregate([
+    { $match: {} },
+    {
+      $project: {
+        _id: 0,
+        label: '$name',
+        value: '$_id'
+      }
+    }
+  ]);
 };
 
 export const getBoards = async (stageType: string) => {
