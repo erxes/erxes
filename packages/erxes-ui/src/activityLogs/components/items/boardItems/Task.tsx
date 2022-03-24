@@ -14,36 +14,26 @@ import {
   LogWrapper,
   Row,
   Title
-} from '../../../styles';
-
-// import { REMINDER_MINUTES } from 'modules/boards/constants';
-// import { IItem } from 'modules/boards/types';
-// import { selectOptions } from 'modules/boards/utils';
-// import Button from 'modules/common/components/Button';
-// import FormControl from 'modules/common/components/form/Control';
-// import FormGroup from 'modules/common/components/form/Group';
-// import ControlLabel from 'modules/common/components/form/Label';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+} from '@erxes/ui/src/activityLogs/styles';
+import { REMINDER_MINUTES } from '@erxes/ui-cards/src/boards/constants';
+import { IItem } from '@erxes/ui-cards/src/boards/types';
+import { selectOptions } from '@erxes/ui-cards/src/boards/utils';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
-// import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from '../../../../components/form';
-import Button from '../../../../components/Button';
-import { selectOptions } from '../../../../../../ui-cards/src/boards/utils';
-import { REMINDER_MINUTES } from '../../../../../../ui-cards/src/boards/constants';
 
 type Props = {
-  task: any;
+  task: IItem;
   save: (variables, callback) => void;
   remove: (id: string) => void;
 };
@@ -71,10 +61,6 @@ class Task extends React.Component<Props, State> {
       isComplete: task.isComplete || false
     };
   }
-
-  selectOptions = (array: any[] = []) => {
-    return array.map(item => ({ value: item._id, label: item.name }));
-  };
 
   onOverlayClose = () => {
     this.overlayTrigger.hide();
