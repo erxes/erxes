@@ -204,7 +204,7 @@ async function startServer() {
     }
 
     if (configs.meta) {
-      const { segments, forms, tags, imports, internalNotes } = configs.meta;
+      const { segments, forms, tags, imports, internalNotes, automations } = configs.meta;
       const { consumeRPCQueue } = messageBrokerClient;
 
       const logs = configs.meta.logs && configs.meta.logs.consumers;
@@ -315,6 +315,18 @@ async function startServer() {
             async args => ({
               status: 'success',
               data: await imports.insertImportItems(args)
+            })
+          );
+        }
+      }
+
+      if (automations) {
+        if (automations.receiveActions) {
+          consumeRPCQueue(
+            `${configs.name}:automations.receiveActions`,
+            async args => ({
+              status: 'success',
+              data: await automations.receiveActions(args)
             })
           );
         }

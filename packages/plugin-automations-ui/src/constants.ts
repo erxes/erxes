@@ -18,21 +18,21 @@ export const ACTIONS = [
     isAvailable: true
   },
   {
-    type: 'cards:tasks.create',
+    type: 'cards:task.create',
     icon: 'file-plus-alt',
     label: __('Create task'),
     description: __('Create task'),
     isAvailable: true
   },
   {
-    type: 'cards:deals.create',
+    type: 'cards:deal.create',
     icon: 'piggy-bank',
     label: __('Create deal'),
     description: __('Create deal'),
     isAvailable: true
   },
   {
-    type: 'cards:tickets.create',
+    type: 'cards:ticket.create',
     icon: 'file-plus',
     label: __('Create ticket'),
     description: __('Create ticket'),
