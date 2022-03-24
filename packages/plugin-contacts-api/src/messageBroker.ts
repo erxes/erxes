@@ -175,6 +175,18 @@ export const initBroker = cl => {
   );
 
   consumeRPCQueue(
+    'contacts:companies.removeCompanies',
+    async ({ subdomain, data: { _ids } }) => {
+      const { Companies } = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await Companies.removeCompanies(_ids)
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'contacts:companies.updateCommon',
     async ({ subdomain, data: { selector, modifier } }) => {
       const { Companies } = await generateModels(subdomain);
@@ -412,6 +424,6 @@ export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
     isRPC: true
   });
 
-export default function() {
+export default function () {
   return client;
 }

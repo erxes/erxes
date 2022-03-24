@@ -124,7 +124,8 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         data: {
           _ids
         },
-        isRPC: true
+        isRPC: true,
+        defaultValue: []
       })
 
       const usedIds: string[] = [];
