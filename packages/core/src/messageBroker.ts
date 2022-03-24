@@ -1,6 +1,7 @@
 import { init as initBrokerCore } from '@erxes/api-utils/src/messageBroker';
 
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
+import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
 import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
 import { Conformities, Configs, Users, Brands, EmailDeliveries } from './db/models';
@@ -13,6 +14,7 @@ import {
 } from './data/utils';
 
 import logUtils from './logUtils';
+import internalNotes from './internalNotes';
 
 let client;
 
@@ -79,26 +81,6 @@ export const initBroker = async options => {
       status: 'success',
       data: await Conformities.filterConformity(data)
     }));
-
-    consumeRPCQueue('core:generateInternalNoteNotif', async ({ data }) => {
-      if (data.type === 'user') {
-        const { contentTypeId, notifDoc } = data;
-
-        const usr = await Users.getUser(contentTypeId);
-
-        notifDoc.content = `${usr.username || usr.email}`;
-
-        return {
-          status: 'success',
-          data: notifDoc
-        };
-      }
-
-      return {
-        status: 'success',
-        data: {}
-      };
-    });
 
     // graphql subscriptions call =========
     consumeQueue('callPublish', params => {
@@ -183,6 +165,12 @@ export const initBroker = async options => {
       collectItems: logUtils.collectItems,
       getSchemalabels: logUtils.getSchemaLabels
     });
+
+    internalNoteConsumers({
+      name: 'core',
+      consumeRPCQueue,
+      generateInternalNoteNotif: internalNotes.generateInternalNoteNotif
+    })
   }
 
   return client;

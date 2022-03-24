@@ -23,7 +23,7 @@ class ActionDetailForm extends React.Component<Props> {
 
     let { type } = activeAction;
 
-    if (['createDeal', 'createTask', 'createTicket'].includes(type)) {
+    if (['cards:deal.create', 'cards:task.create', 'cards:ticket.create'].includes(type)) {
       type = 'boardItem';
     }
 

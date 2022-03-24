@@ -59,7 +59,7 @@ class TriggerDetailForm extends React.Component<
     return (
       <SegmentsForm
         {...this.props}
-        contentType={activeTrigger.type || 'customer'}
+        contentType={activeTrigger.type}
         closeModal={this.props.closeModal}
         id={config.contentId}
         hideDetailForm={true}

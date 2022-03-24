@@ -33,7 +33,7 @@ class IfForm extends React.Component<Props, State> {
       <ScrolledContent>
         <SegmentsForm
           {...this.props}
-          contentType={triggerType || 'customer'}
+          contentType={triggerType}
           addConfig={addAction}
           closeModal={this.props.closeModal}
           activeTrigger={activeAction}

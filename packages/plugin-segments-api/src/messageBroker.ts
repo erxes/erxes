@@ -1,6 +1,6 @@
 import { ISendMessageArgs, sendMessage as sendMessageCore } from "@erxes/api-utils/src/core";
 import { generateModels } from "./connectionResolver";
-import { fetchSegment } from "./graphql/resolvers/queries/queryBuilder";
+import { fetchSegment, isInSegment } from "./graphql/resolvers/queries/queryBuilder";
 import { serviceDiscovery } from './configs';
 
 let client;
@@ -32,6 +32,14 @@ export const initBroker = async cl => {
     return { data: await fetchSegment(models, subdomain, segment, options), status: 'success' };
   });
 
+  consumeRPCQueue('segments:isInSegment', async ({ subdomain, data: { segmentId, idToCheck, options } }) => {
+    const models = await generateModels(subdomain);
+
+    const data = await isInSegment(models, subdomain, segmentId, idToCheck, options);
+
+    return { data, status: 'success' };
+  });
+
   consumeQueue('segments:removeSegment', async ({ subdomain, data: { segmentId } }) => {
     const models = await generateModels(subdomain);
 
@@ -50,6 +58,6 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessageCore({ client, serviceDiscovery, serviceName: "core", ...args })
 }
 
-export default function() {
+export default function () {
   return client;
 }

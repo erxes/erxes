@@ -1,18 +1,17 @@
 module.exports = {
-  automations: false,
   calendar: false,
-  cards: false,
+  cards: true,
   clientportal: false,
-  contacts: true,
+  contacts: false,
   engages: false,
   inbox: false,
-  internalnotes: false,
+  internalnotes: true,
   knowledgebase: false,
-  logs: false,
+  logs: true,
   notifications: false,
   products: false,
-  segments: true,
-  tags: true,
+  segments: false,
+  tags: false,
   forms: true,
-  integrations: true
+  integrations: false
 };
