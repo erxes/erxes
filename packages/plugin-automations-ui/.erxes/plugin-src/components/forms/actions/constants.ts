@@ -1,30 +1,30 @@
 export const PROPERTY_TYPES = [
   {
-    value: 'customer',
+    value: 'contacts:customer',
     label: 'Contact'
   },
   {
-    value: 'company',
+    value: 'contacts:company',
     label: 'Company'
   },
   {
-    value: 'deal',
+    value: 'cards:deal',
     label: 'Deal'
   },
   {
-    value: 'task',
+    value: 'cards:task',
     label: 'Task'
   },
   {
-    value: 'ticket',
+    value: 'cards:ticket',
     label: 'Ticket'
   },
   {
-    value: 'conversation',
+    value: 'inbox:conversation',
     label: 'Conversation'
   },
   {
-    value: 'user',
+    value: 'core:user',
     label: 'Team Member'
   }
 ];
