@@ -169,7 +169,7 @@ export const receiveRpcMessage = async (subdomain, data) => {
   // }
 
   if (action === 'getUserIds') {
-    const users = await Users.find({}, { _id: 1 }).toArray();
+    const users = await Users.find({}, { _id: 1 })
     return sendSuccess({ userIds: users.map(user => user._id) });
   }
 };

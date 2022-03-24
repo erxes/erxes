@@ -116,16 +116,17 @@ export const removeIntegration = async (
   const { _id, kind, accountId, erxesApiId, nylasAccountId = "", smoochIntegrationId = "" } = integration;
 
   const account = await Accounts.findOne({ _id: accountId });
-
-  if(!account)  {
-    throw new Error("Account not found");
-    
-  }
   
   const selector = { integrationId: _id };
 
   if (kind.includes('facebook')) {
     debugFacebook('Removing  entries');
+
+
+    if(!account)  {
+      throw new Error("Account not found");
+      
+    }
 
     for (const pageId of integration.facebookPageIds || []) {
       let pageTokenResponse;
@@ -239,6 +240,11 @@ export const removeIntegration = async (
 
   if (kind === 'twitter-dm') {
     debugTwitter('Removing twitter entries');
+    
+    if(!account)  {
+      throw new Error("Account not found");
+      
+    }
 
     const conversationIds = await TwitterConversations.find(selector).distinct(
       '_id'
