@@ -81,6 +81,11 @@ export const initBroker = async options => {
       data: await Conformities.filterConformity(data)
     }));
 
+    consumeRPCQueue('core:conformities.findConformities', async ({ data }) => ({
+      status: 'success',
+      data: await Conformities.find(data).lean()
+    }));
+
     // graphql subscriptions call =========
     consumeQueue('callPublish', params => {
       graphqlPubsub.publish(params.name, params.data);
