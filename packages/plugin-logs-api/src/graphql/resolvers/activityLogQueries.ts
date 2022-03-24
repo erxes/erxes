@@ -58,8 +58,6 @@ const activityLogQueries = {
     //   }
     // }
 
-    console.log(contentType);
-
     if (activityType && activityType !== 'activity') {
       const serviceName = activityType.split(':')[0];
 
