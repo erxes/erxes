@@ -58,13 +58,15 @@ const activityLogQueries = {
     //   }
     // }
 
+    console.log(contentType);
+
     if (activityType && activityType !== 'activity') {
       const serviceName = activityType.split(':')[0];
 
       const result = await fetchService(
         serviceName,
         'collectItems',
-        { contentId, contentType },
+        { contentId, contentType, activityType },
         ''
       );
 
