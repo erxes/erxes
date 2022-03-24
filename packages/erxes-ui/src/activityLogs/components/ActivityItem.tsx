@@ -22,8 +22,10 @@ type Props = {
 };
 
 class ActivityItem extends React.Component<Props> {
-  renderDetail(type: string, children: React.ReactNode) {
-    const iconAndColor = getIconAndColor(type) || {};
+  renderDetail(contentType: string, children: React.ReactNode) {
+    const type = contentType.split(':')[1];
+
+    const iconAndColor = getIconAndColor(type || contentType) || {};
 
     if (type === 'conversation') {
       return children;
@@ -31,7 +33,7 @@ class ActivityItem extends React.Component<Props> {
 
     return (
       <ActivityRow key={Math.random()}>
-        <Tip text={formatText(type)} placement="top">
+        <Tip text={formatText(type || contentType)} placement="top">
           <ActivityIcon color={iconAndColor.color}>
             <Icon icon={iconAndColor.icon} />
           </ActivityIcon>
@@ -44,8 +46,6 @@ class ActivityItem extends React.Component<Props> {
   render() {
     const { activity, currentUser, activityRenderItem } = this.props;
     const { _id, contentType, action } = activity;
-
-    console.log('31231231', contentType);
 
     switch ((action && action) || contentType) {
       case 'create':
