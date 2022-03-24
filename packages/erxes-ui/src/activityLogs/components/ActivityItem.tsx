@@ -54,9 +54,9 @@ class ActivityItem extends React.Component<Props> {
           <CreatedLog activity={activity} />
         );
 
-      case 'note':
+      case 'internalnotes:note':
         return this.renderDetail(
-          'note',
+          'internalnotes:note',
           <InternalNote
             noteId={_id}
             activity={activity}

@@ -5,27 +5,25 @@ import { sendRPCMessage } from './messageBroker';
 import { Segments } from './models';
 import { ISegmentDocument } from './models/definitions/segments';
 
-const putSegmentLogs = async (segment: ISegmentDocument, contentIds: string[]) => {
+const putSegmentLogs = async (
+  segment: ISegmentDocument,
+  contentIds: string[]
+) => {
   const maxBulk: number = 10000;
 
-  const activityLogs = await sendRPCMessage(
-    'logs:activityLogs:findMany',
-    {
-      query: {
-        action: 'segment',
-        contentId: { $in: contentIds },
-        contentType: segment.contentType,
-        'content.id': segment._id
-      },
-      options: { contentId: 1 }
-    }
-  );
+  const activityLogs = await sendRPCMessage('logs:activityLogs:findMany', {
+    query: {
+      action: 'segment',
+      contentId: { $in: contentIds },
+      contentType: segment.contentType,
+      'content.id': segment._id
+    },
+    options: { contentId: 1 }
+  });
 
   const foundContentIds = activityLogs.map(s => s.contentId);
 
-  const diffContentIds = contentIds.filter(
-    x => !foundContentIds.includes(x)
-  );
+  const diffContentIds = contentIds.filter(x => !foundContentIds.includes(x));
 
   let bulkOpt: Array<{
     contentType: string;
@@ -52,7 +50,7 @@ const putSegmentLogs = async (segment: ISegmentDocument, contentIds: string[]) =
     bulkOpt.push(doc);
 
     if (bulkCounter === maxBulk) {
-      await sendRPCMessage('logs:activityLogs:insertMany', { rows: bulkOpt });
+      await sendRPCMessage('logs.activityLogs.insertMany', { rows: bulkOpt });
 
       bulkOpt = [];
       bulkCounter = 0;
@@ -63,7 +61,7 @@ const putSegmentLogs = async (segment: ISegmentDocument, contentIds: string[]) =
     return;
   }
 
-  return sendRPCMessage('logs:activityLogs:insertMany', { rows: bulkOpt });
+  return sendRPCMessage('logs.activityLogs.insertMany', { rows: bulkOpt });
 };
 
 /**

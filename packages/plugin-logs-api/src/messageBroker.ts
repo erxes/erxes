@@ -113,7 +113,7 @@ export const initBroker = async cl => {
   });
 
   consumeQueue(
-    'logs:activityLogs:updateMany',
+    'logs.activityLogs.updateMany',
     async ({ data: { query, modifier }, subdomain }) => {
       const models = await generateModels(subdomain);
 
@@ -124,7 +124,7 @@ export const initBroker = async cl => {
   );
 
   consumeQueue(
-    'log:delete:old',
+    'logs.delete.old',
     async ({ data: { months = 1 }, subdomain }) => {
       const models = await generateModels(subdomain);
       const now = new Date();
@@ -142,7 +142,7 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
-    'logs:activityLogs:findMany',
+    'logs.activityLogs.findMany',
     async ({ data: { query, options }, subdomain }) => {
       const models = await generateModels(subdomain);
 
@@ -154,7 +154,7 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
-    'logs:activityLogs:insertMany',
+    'logs.activityLogs.insertMany',
     async ({ data: { rows }, subdomain }) => {
       const models = await generateModels(subdomain);
 
@@ -170,7 +170,7 @@ export const getDbSchemaLabels = async (serviceName: string, args) => {
   const enabled = await serviceDiscovery.isEnabled(serviceName);
 
   return enabled
-    ? client.sendRPCMessage(`${serviceName}:logs:getSchemaLabels`, args)
+    ? client.sendRPCMessage(`${serviceName}:logs.getSchemaLabels`, args)
     : [];
 };
 
@@ -182,7 +182,7 @@ export const getActivityContentItem = async (
   const enabled = await isServiceEnabled(serviceName);
 
   return enabled
-    ? client.sendRPCMessage(`${serviceName}:logs:getActivityContent`, {
+    ? client.sendRPCMessage(`${serviceName}:logs.getActivityContent`, {
         activityLog
       })
     : null;
@@ -196,7 +196,7 @@ export const getContentTypeDetail = async (
   const enabled = await isServiceEnabled(serviceName);
 
   return enabled
-    ? client.sendRPCMessage(`${serviceName}:logs:getContentTypeDetail`, {
+    ? client.sendRPCMessage(`${serviceName}:logs.getContentTypeDetail`, {
         activityLog
       })
     : null;
@@ -208,7 +208,7 @@ export const collectServiceItems = async (contentType: string, data) => {
   const enabled = await isServiceEnabled(serviceName);
 
   return enabled
-    ? client.sendRPCMessage(`${serviceName}:logs:collectItems`, data)
+    ? client.sendRPCMessage(`${serviceName}:logs.collectItems`, data)
     : [];
 };
 
@@ -218,7 +218,7 @@ export const getContentIds = async data => {
   const enabled = await isServiceEnabled(serviceName);
 
   return enabled
-    ? client.sendRPCMessage(`${serviceName}:logs:getContentIds`, data)
+    ? client.sendRPCMessage(`${serviceName}:logs.getContentIds`, data)
     : [];
 };
 
@@ -236,7 +236,7 @@ export const fetchService = async (
     client,
     isRPC: true,
     serviceName,
-    action: `logs:${action}`,
+    action: `logs.${action}`,
     data: {
       ...data,
       type

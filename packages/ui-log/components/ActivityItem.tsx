@@ -40,7 +40,11 @@ const renderDetail = (type: string, children: React.ReactNode) => {
 const activityItem = (activity: IActivityLog) => {
   const { _id, contentType, action } = activity;
 
-  switch ((action && action) || contentType) {
+  const type = contentType.split(':')[1];
+
+  console.log(type, 'dasdasd');
+
+  switch ((action && action) || type) {
     case 'conversation':
       return renderDetail(
         'conversation',
