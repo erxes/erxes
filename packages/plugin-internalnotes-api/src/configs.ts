@@ -4,7 +4,11 @@ import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
-import { generateModels, models } from './connectionResolver';
+import {
+  generateCoreModels,
+  generateModels,
+  models
+} from './connectionResolver';
 import logs from './logUtils';
 
 export let mainDb;
@@ -29,8 +33,14 @@ export default {
       resolvers: await resolvers(sd)
     };
   },
-  apolloServerContext: context => {
-    context.models = models;
+  apolloServerContext: async context => {
+    const subdomain = 'os';
+
+    context.models = await generateModels(subdomain);
+    context.coreModels = await generateCoreModels(subdomain);
+    context.subdomain = subdomain;
+
+    return context;
   },
   onServerInit: async options => {
     mainDb = options.db;
