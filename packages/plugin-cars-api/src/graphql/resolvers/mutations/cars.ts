@@ -3,6 +3,7 @@ import {
   requireLogin,
 } from "@erxes/api-utils/src/permissions";
 import { putCreateLog, putDeleteLog, putUpdateLog } from "erxes-api-utils";
+import { IContext } from "../../../connectionResolver";
 import { gatherDescriptions } from "../../../utils";
 
 const carMutations = {
