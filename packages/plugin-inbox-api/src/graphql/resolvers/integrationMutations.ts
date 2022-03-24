@@ -377,7 +377,7 @@ const integrationMutations = {
           subdomain,
           action: 'removeIntegrations',
           data: {
-            integrationid: _id
+            integrationId: _id
           },
           isRPC: true
         });      
