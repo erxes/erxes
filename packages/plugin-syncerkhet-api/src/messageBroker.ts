@@ -1,9 +1,8 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { afterMutationHandlers } from './afterMutations';
 import { serviceDiscovery } from './configs';
 import { consumeCustomer } from './utils/consumeCustomer';
 import { consumeInventory, consumeInventoryCategory } from './utils/consumeInventory';
-import { getPostData } from './utils/ebarimtData';
-import { getConfig } from './utils/utils';
 
 let client;
 
@@ -33,36 +32,9 @@ export const initBroker = async (cl) => {
     return;
   });
 
-  consumeQueue('syncerkhet:deals.aftermutation', async ({ subdomain, data }) => {
-    const deal = data.updatedDocument
-    const oldDeal = data.object;
-    const destinationStageId = deal.stageId || '';
-
-    if (!(destinationStageId && destinationStageId !== oldDeal.stageId)) {
-      return;
-    }
-
-    const configs = await getConfig(subdomain, 'ebarimtConfig', {});
-
-    if (!Object.keys(configs).includes(destinationStageId)) {
-      return;
-    }
-
-    const config = {
-      ...configs[destinationStageId],
-      ...await getConfig(subdomain, 'ERKHET', {})
-    };
-    const postData = await getPostData(subdomain, config, deal)
-
-    const apiAutomationResponse = await sendRPCMessage('rpc_queue:erxes-automation-erkhet', {
-      action: 'get-response-send-order-info',
-      isEbarimt: config.isEbarimt,
-      payload: JSON.stringify(postData),
-    });
-
-    if (!apiAutomationResponse) {
-      return;
-    }
+  consumeQueue('syncerkhet:afterMutation', async ({ subdomain, data }) => {
+    await afterMutationHandlers(subdomain, data);
+    return;
   })
 };
 

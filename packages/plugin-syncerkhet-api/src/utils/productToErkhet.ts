@@ -16,7 +16,7 @@ export const productCategoryToErkhet = async (subdomain, params, action) => {
 
   const sendData = {
     action,
-    oldCode: oldProductCategory.code || '',
+    oldCode: oldProductCategory.code || productCategory.code || '',
     object: {
       code: productCategory.code || '',
       name: productCategory.name || '',
@@ -27,7 +27,7 @@ export const productCategoryToErkhet = async (subdomain, params, action) => {
   toErkhet(config, sendData, 'product-change')
 }
 
-export const productToErkhet = async (subdomain, messageBroker, memoryStorage, params, action) => {
+export const productToErkhet = async (subdomain, params, action) => {
   const product = params.updatedDocument || params.object
   const oldProduct = params.object;
 
@@ -42,7 +42,7 @@ export const productToErkhet = async (subdomain, messageBroker, memoryStorage, p
 
   const sendData = {
     action,
-    oldCode: oldProduct.code || '',
+    oldCode: oldProduct.code || product.code || '',
     object: {
       code: product.code || '',
       name: product.name || '',

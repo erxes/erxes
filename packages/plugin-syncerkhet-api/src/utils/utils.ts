@@ -11,6 +11,7 @@ export const toErkhet = (config, sendData, action) => {
   sendCommonMessage('rpc_queue:erxes-automation-erkhet', {
     action,
     payload: JSON.stringify(postData),
+    thirdService: true
   });
 }
 

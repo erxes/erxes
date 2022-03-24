@@ -1,4 +1,5 @@
 import * as _ from 'underscore';
+import redis from './redis';
 import { IUserDocument } from './types';
 
 export interface ILogDataParams {
@@ -157,6 +158,23 @@ const putLog = async (
   params: IFinalLogParams,
   user: IUserDocument
 ) => {
+  const value = await redis.get('afterMutations');
+  const afterMutations = JSON.parse(value || '{}');
+
+  if (afterMutations[params.type] && afterMutations[params.type][params.action] && afterMutations[params.type][params.action].length) {
+    for (const service of afterMutations[params.type][params.action]) {
+      messageBroker.sendMessage(`${service}:afterMutation`, {
+        subdomain: 'os',
+        data: {
+          ...params,
+          object: params.object,
+          newData: params.newData,
+          extraDesc: params.extraDesc
+        }
+      })
+    }
+  }
+
   const isLoggerAvailable = await messageBroker.sendRPCMessage(
     'gateway:isServiceAvailable',
     'logs'
@@ -283,35 +301,35 @@ export const logConsumers = (params: {
   } = params;
 
   if (getActivityContent) {
-    consumeRPCQueue(`${name}:logs:getActivityContent`, async args => ({
+    consumeRPCQueue(`${name}: logs: getActivityContent`, async args => ({
       status: 'success',
       data: await getActivityContent(args)
     }));
   }
 
   if (getContentTypeDetail) {
-    consumeRPCQueue(`${name}:logs:getContentTypeDetail`, async args => ({
+    consumeRPCQueue(`${name}: logs: getContentTypeDetail`, async args => ({
       status: 'success',
       data: await getContentTypeDetail(args)
     }));
   }
 
   if (collectItems) {
-    consumeRPCQueue(`${name}:logs:collectItems`, async args => ({
+    consumeRPCQueue(`${name}: logs: collectItems`, async args => ({
       status: 'success',
       data: await collectItems(args)
     }));
   }
 
   if (getContentIds) {
-    consumeRPCQueue(`${name}:logs:getContentIds`, async args => ({
+    consumeRPCQueue(`${name}: logs: getContentIds`, async args => ({
       status: 'success',
       data: await getContentIds(args)
     }));
   }
 
   if (getSchemalabels) {
-    consumeRPCQueue(`${name}:logs:getSchemaLabels`, args => ({
+    consumeRPCQueue(`${name}: logs: getSchemaLabels`, args => ({
       status: 'success',
       data: getSchemalabels(args)
     }));

@@ -1,8 +1,8 @@
 import { sendRequest } from 'erxes-api-utils'
-import { sendContactsMessage, sendNotificationsMessage } from '../messageBroker';
+import { sendCoreMessage, sendContactsMessage, sendNotificationsMessage } from '../messageBroker';
 import { getConfig, toErkhet } from './utils';
 
-export const customerToErkhet = async (subdomain, messageBroker, params, action) => {
+export const customerToErkhet = async (subdomain, params, action) => {
   const config = await getConfig(subdomain, 'ERKHET', {});
 
   const customer = params.updatedDocument || params.object;
@@ -23,7 +23,7 @@ export const customerToErkhet = async (subdomain, messageBroker, params, action)
 
   sendData = {
     action,
-    oldCode: oldCustomer.code || '',
+    oldCode: oldCustomer.code || customer.code || '',
     object: {
       code: customer.code || '',
       name,
@@ -50,7 +50,7 @@ export const validCompanyCode = async (config, companyCode) => {
   return result;
 }
 
-export const companyToErkhet = async (user, subdomain, params, action) => {
+export const companyToErkhet = async (subdomain, params, action) => {
   const config = await getConfig(subdomain, 'ERKHET', {});
   const company = params.updatedDocument || params.object;
   const companyName = await validCompanyCode(config, company.code);
@@ -73,9 +73,16 @@ export const companyToErkhet = async (user, subdomain, params, action) => {
       })
     }
   } else {
+    const user = await sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: { _id: params.createdBy },
+      isRPC: true
+    });
+
     sendNotificationsMessage({
       subdomain,
-      action: "update",
+      action: "send",
       data: {
         createdUser: user,
         receivers: [user._id],
@@ -95,7 +102,7 @@ export const companyToErkhet = async (user, subdomain, params, action) => {
 
   const sendData = {
     action,
-    oldCode: oldCompany.code || '',
+    oldCode: oldCompany.code || company.code || '',
     object: {
       code: company.code || '',
       name: company.primaryName,

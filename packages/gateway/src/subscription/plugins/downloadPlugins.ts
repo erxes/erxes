@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import Downloader from 'nodejs-file-downloader';
-import redis, { getService, getServices } from '../../redis';
+import { redis, getService, getServices } from '../../redis';
 
 const { NODE_ENV } = process.env;
 
@@ -24,12 +24,12 @@ export default async function downloadPlugins(): Promise<void> {
     })
   );
 
-  const services = allServices.filter(service => service.meta.hasSubscriptions);
+  const services = allServices.filter(service => service.meta && service.meta.hasSubscriptions);
 
   if (NODE_ENV !== 'development') {
     try {
       await redis.disconnect();
-    } catch (e) {}
+    } catch (e) { }
   }
 
   await Promise.all(

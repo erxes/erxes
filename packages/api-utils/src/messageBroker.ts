@@ -149,7 +149,9 @@ export const sendRPCMessage = async (
 export const sendMessage = async (queueName: string, data?: any) => {
   queueName = queueName.concat(queuePrefix);
 
-  await checkQueueName(queueName, true);
+  if (!data.thirdService) {
+    await checkQueueName(queueName, true);
+  }
 
   try {
     const message = JSON.stringify(data || {});
