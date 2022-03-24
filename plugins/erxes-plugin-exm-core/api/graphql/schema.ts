@@ -21,6 +21,12 @@ export const types = `
     subContentId: String
   }
 
+  type ExmScoringConfig {
+    _id: String
+    action: String
+    score: Int
+  }
+
   type Exm {
     _id: String
     name: String
@@ -29,6 +35,7 @@ export const types = `
     features: [ExmFeature]
     welcomeContent: [ExmWelcomeContent]
     appearance: ExmAppearance
+    scoringConfig: [ExmScoringConfig]
     createdAt: Date
     createdBy: String
   }
@@ -59,6 +66,12 @@ export const types = `
     contentId: String
     subContentId: String
   }
+
+  input ExmScoringConfigInput {
+    _id: String
+    action: String
+    score: Int
+  }
 `;
 
 export const queries = `
@@ -73,6 +86,7 @@ const commonParams = `
   logo: AttachmentInput
   welcomeContent: [ExmWelcomeContentInput]
   appearance: ExmAppearanceInput
+  scoringConfig: [ExmScoringConfigInput]
 `;
 
 export const mutations = `

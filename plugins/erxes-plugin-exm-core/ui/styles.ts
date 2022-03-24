@@ -103,6 +103,12 @@ export const WelcomeContent = styled.div`
   }
 `;
 
+export const ScoringConfigContent = styled.div`
+  > div {
+    margin-top: 20px;
+  }
+`;
+
 export const UploadItems = styled.div`
   display: flex;
   height: 34px;

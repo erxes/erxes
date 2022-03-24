@@ -131,7 +131,7 @@ export default function General(props: Props) {
             <ControlLabel>{__('Name your team portal')}</ControlLabel>
             <FormControl
               value={name}
-              placeholder='Name'
+              placeholder="Name"
               onChange={(e: any) => setName(e.target.value)}
             />
           </FeatureRowItem>
@@ -139,7 +139,7 @@ export default function General(props: Props) {
             <ControlLabel>{__('Describe your team portal')}</ControlLabel>
             <FormControl
               value={description}
-              placeholder='Description'
+              placeholder="Description"
               onChange={(e: any) => setDescription(e.target.value)}
             />
           </FeatureRowItem>
@@ -151,7 +151,7 @@ export default function General(props: Props) {
           <FeatureRow key={feature._id}>
             <FeatureRowItem>
               <FormControl
-                componentClass='select'
+                componentClass="select"
                 value={feature.contentType}
                 options={TYPE_OPTIONS}
                 onChange={(e: any) => {
@@ -165,7 +165,7 @@ export default function General(props: Props) {
             </FeatureRowItem>
             <FeatureRowItem>
               <FormControl
-                componentClass='select'
+                componentClass="select"
                 value={feature.icon}
                 options={ICON_OPTIONS}
                 onChange={(e: any) =>
@@ -175,8 +175,8 @@ export default function General(props: Props) {
             </FeatureRowItem>
             <FeatureRowItem>
               <FormControl
-                name='name'
-                placeholder='Name'
+                name="name"
+                placeholder="Name"
                 value={feature.name}
                 onChange={(e: any) =>
                   onChangeFeatureItem(feature._id, 'name', e.target.value)
@@ -185,8 +185,8 @@ export default function General(props: Props) {
             </FeatureRowItem>
             <FeatureRowItem>
               <FormControl
-                name='description'
-                placeholder='Description'
+                name="description"
+                placeholder="Description"
                 value={feature.description}
                 onChange={(e: any) =>
                   onChangeFeatureItem(
@@ -254,7 +254,7 @@ export default function General(props: Props) {
             )}
 
             <Button
-              btnStyle='danger'
+              btnStyle="danger"
               onClick={() => onChangeFeature('remove', feature._id)}
             >
               X
@@ -263,7 +263,7 @@ export default function General(props: Props) {
         ))}
         <Button onClick={() => onChangeFeature('add')}>+ Add Features</Button>
       </FeatureLayout>
-      <Button btnStyle='success' onClick={onSave}>
+      <Button btnStyle="success" onClick={onSave}>
         Save
       </Button>
     </GeneralWrapper>

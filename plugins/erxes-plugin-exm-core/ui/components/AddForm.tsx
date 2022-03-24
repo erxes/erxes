@@ -20,12 +20,12 @@ export default function AddForm({ add }: Props) {
     <form style={{ padding: 50 }} onSubmit={onSubmit}>
       <FormControl
         value={name}
-        placeholder='Name'
+        placeholder="Name"
         onChange={(e: any) => setName(e.target.value)}
       />
       <br />
 
-      <Button style={{ float: 'right' }} type='submit'>
+      <Button style={{ float: 'right' }} type="submit">
         Add
       </Button>
     </form>

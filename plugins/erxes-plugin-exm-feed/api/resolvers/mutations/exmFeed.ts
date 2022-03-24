@@ -73,8 +73,6 @@ const exmFeedMutations = [
       });
 
       if (doc.type === 'bravo' && models.Exms) {
-        await models.Exms.useScoring(models, user._id, 'exmBravoAdd');
-
         for (const userId of doc.recipientIds || []) {
           await models.Exms.useScoring(models, userId, 'exmBravoAdd');
         }

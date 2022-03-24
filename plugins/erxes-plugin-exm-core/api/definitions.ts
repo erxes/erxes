@@ -25,6 +25,7 @@ const appearanceSchema = {
 };
 
 const scoringConfigSchema = {
+  _id: { type: String },
   action: { type: String },
   score: { type: String }
 };

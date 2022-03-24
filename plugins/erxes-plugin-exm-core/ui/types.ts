@@ -22,6 +22,11 @@ interface IFeature {
   subContentId: string;
 }
 
+interface IScoringConfig {
+  action: string;
+  score: number;
+}
+
 export interface IExm {
   _id: string;
   name?: string;
@@ -30,4 +35,5 @@ export interface IExm {
   logo?: IAttachment;
   appearance?: IAppearence;
   welcomeContent?: IWelcomeContent[];
+  scoringConfig?: IScoringConfig[];
 }

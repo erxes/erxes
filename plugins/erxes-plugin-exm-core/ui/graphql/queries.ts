@@ -15,6 +15,11 @@ const exmGet = `
         contentId
         subContentId
       }
+
+      scoringConfig {
+        action
+        score
+      }
       
       welcomeContent {
         _id
