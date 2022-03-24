@@ -109,5 +109,7 @@ export const mutations = `
 `;
 
 export const subscriptions = `
-  chatMessageInserted(userId: String!): ChatMessage
+  chatMessageInserted(chatId: String!): ChatMessage
+  chatInserted(userId: String!): Chat
+  chatUnreadCountChanged(userId: String!): Int
 `;

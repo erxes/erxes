@@ -1,4 +1,5 @@
 import { getIsSeen } from '../chat';
+import { graphqlPubsub } from '../subscriptions/pubsub';
 
 const chatQueries = [
   {
@@ -86,6 +87,12 @@ const chatQueries = [
 
       const chat = await models.Chats.getChat(models, chatId);
 
+      if (!getIsSeen(models, chat, user)) {
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: user._id
+        });
+      }
+
       const seenList = [];
 
       for (const info of chat.seenInfos || []) {
@@ -142,6 +149,14 @@ const chatQueries = [
         chat = await models.Chats.createChat(models, {
           participantIds,
           type: 'direct'
+        });
+
+        graphqlPubsub.publish('chatInserted', {
+          userId: user._id
+        });
+
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: user._id
         });
       }
 

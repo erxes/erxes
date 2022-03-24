@@ -65,6 +65,14 @@ const chatMutations = [
         receivers: allParticipantIds
       });
 
+      graphqlPubsub.publish('chatInserted', {
+        userId: user._id
+      });
+
+      graphqlPubsub.publish('chatUnreadCountChanged', {
+        userId: user._id
+      });
+
       return chat;
     }
   },
@@ -114,7 +122,7 @@ const chatMutations = [
       );
 
       graphqlPubsub.publish('chatMessageInserted', {
-        userId: user._id
+        chatId: created.chatId
       });
 
       return created;
