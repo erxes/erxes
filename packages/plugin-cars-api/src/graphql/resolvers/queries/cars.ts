@@ -7,7 +7,7 @@ import { paginate } from "erxes-api-utils";
 const generateFilter = async (models, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
-  filter.status = { $ne: "Deleted" };
+  // filter.status = { $ne: "Deleted" };
 
   if (params.categoryId) {
     filter.categoryId = params.categoryId;

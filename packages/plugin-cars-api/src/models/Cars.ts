@@ -7,6 +7,7 @@ import {
   ICar,
   ICarCategory,
 } from "./definitions/cars";
+import { sendCoreMessage, sendInternalNotesMessage } from "../messageBroker";
 
 import { Model } from "mongoose";
 
@@ -14,7 +15,7 @@ export interface ICarModel extends Model<ICarDocument> {
   createCar(doc: ICar, user: any): Promise<ICarDocument>;
   getCar(_id: string): Promise<ICarDocument>;
   updateCar(_id: string, doc: ICar): Promise<ICarDocument>;
-  removeCars(carIds: string): Promise<ICarDocument>;
+  removeCars(carIds: string[]): Promise<ICarDocument>;
   mergeCars(carIds: string, carFields: any): Promise<ICarDocument>;
 }
 
@@ -149,13 +150,24 @@ export const loadCarClass = (models) => {
      */
     public static async removeCars(carIds) {
       for (const carId of carIds) {
-        await models.InternalNotes.remove({
-          contentType: "car",
-          contentTypeId: carId,
+        await sendInternalNotesMessage({
+          subdomain: models.subdomain,
+          action: "removeInternalNotes",
+          data: {
+            contentType: "car",
+            contentTypeId: carId,
+          },
+          defaultValue: {},
         });
-        await models.Conformities.removeConformity({
-          mainType: "car",
-          mainTypeId: carId,
+
+        await sendCoreMessage({
+          subdomain: models.subdomain,
+          action: "conformities.removeConformity",
+          data: {
+            mainType: "car",
+            mainTypeId: carId,
+          },
+          defaultValue: [],
         });
       }
 
@@ -184,10 +196,16 @@ export const loadCarClass = (models) => {
       });
 
       // Updating customer cars, deals, tasks, tickets
-      await models.Conformities.changeConformity({
-        type: "car",
-        newTypeId: car._id,
-        oldTypeIds: carIds,
+      await sendCoreMessage({
+        subdomain: models.subdomain,
+        action: "conformities.changeConformity",
+        data: {
+          type: "car",
+          newTypeId: car._id,
+          oldTypeIds: carIds,
+        },
+        isRPC: true,
+        defaultValue: [],
       });
 
       // Removing modules associated with current cars
@@ -283,6 +301,7 @@ export const loadCarCategoryClass = (models) => {
       await models.CarCategories.getCarCatogery({ _id });
 
       let count = await models.Cars.countDocuments({ categoryId: _id });
+
       count += await models.CarCategories.countDocuments({ parentId: _id });
 
       if (count > 0) {

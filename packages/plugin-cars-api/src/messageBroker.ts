@@ -8,6 +8,26 @@ export const initBroker = async (cl) => {
   client = cl;
 };
 
+export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: "core",
+    ...args,
+  });
+};
+
+export const sendInternalNotesMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: "internalnotes",
+    ...args,
+  });
+};
+
 export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
