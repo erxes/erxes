@@ -7,10 +7,13 @@ export default () => ({
       component: Home
     }
   ],
-  menu: {
-    label: 'Exm core',
-    icon: 'icon-cog',
-    link: '/home',
-    permission: 'showExms'
-  }
+  settings: [
+    {
+      name: 'Exm core config',
+      image: '/images/icons/erxes-16.svg',
+      to: '/erxes-plugin-exm-core/home',
+      action: 'showExms',
+      permissions: ['showExms']
+    }
+  ]
 });
