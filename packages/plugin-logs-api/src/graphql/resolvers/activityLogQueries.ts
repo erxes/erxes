@@ -54,8 +54,7 @@ const activityLogQueries = {
     // }
 
     activities = await models.ActivityLogs.find({
-      contentId,
-      contentType
+      contentId
     }).lean();
 
     activities.sort((a, b) => {
