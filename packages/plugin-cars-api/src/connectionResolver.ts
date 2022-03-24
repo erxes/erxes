@@ -8,10 +8,16 @@ import {
   ICarCategoryModel,
   ICarModel,
 } from "./models/Cars";
+import { MongoClient } from "mongodb";
+import { userSchema } from "@erxes/api-utils/src/definitions/users";
 
 export interface IModels {
   Cars: ICarModel;
   CarCategories: ICarCategoryModel;
+}
+
+export interface ICoreModels {
+  Users: any;
 }
 
 export interface IContext extends IMainContext {
@@ -20,6 +26,7 @@ export interface IContext extends IMainContext {
 }
 
 export let models: IModels;
+export let coreModels: ICoreModels;
 
 export const generateModels = async (
   _hostnameOrSubdomain: string
@@ -28,9 +35,36 @@ export const generateModels = async (
     return models;
   }
 
+  coreModels = await connectCore();
+
   loadClasses(mainDb);
 
   return models;
+};
+
+const connectCore = async () => {
+  if (coreModels) {
+    return coreModels;
+  }
+
+  const url = process.env.API_MONGO_URL || "mongodb://localhost/erxes";
+  const client = new MongoClient(url);
+
+  const dbName = "erxes";
+
+  let db;
+
+  await client.connect();
+
+  console.log("Connected successfully to server");
+
+  db = client.db(dbName);
+
+  coreModels = {
+    Users: db.collection("users"),
+  };
+
+  return coreModels;
 };
 
 export const loadClasses = (db: mongoose.Connection): IModels => {

@@ -1,39 +1,23 @@
-const carResolvers = [
-  {
-    type: 'Car',
-    field: 'category',
-    handler: (car, { }, { models }) => {
-      return models.CarCategories.findOne({ _id: car.categoryId });
-    }
-  },
-  {
-    type: 'Car',
-    field: 'customers',
-    handler: async (car, { }, { models }) => {
-      const customerIds = await models.Conformities.savedConformity({
-        mainType: 'car',
-        mainTypeId: car._id.toString(),
-        relTypes: ['customer'],
-      });
+const cars = {
+  async owner(car, {}, { coreModels }) {
+    const user = await coreModels.Users.findOne({ _id: car.ownerId });
 
-      return models.Customers.find({ _id: { $in: customerIds || [] } });
-    }
+    return user;
   },
-  {
-    type: 'Car',
-    field: 'owner',
-    handler: (car, { }, { models }) => {
-      return models.Users.findOne({ _id: car.ownerId });
-    }
+
+  async customer(car, {}, { models }) {
+    const customerIds = await models.Conformities.savedConformity({
+      mainType: "car",
+      mainTypeId: car._id.toString(),
+      relTypes: ["customer"],
+    });
+
+    return models.Customers.find({ _id: { $in: customerIds || [] } });
   },
-  {
-    type: 'CarCategory',
-    field: 'carCount',
-    handler: async (category, { }, { models }) => {
-      return models.Cars.countDocuments({ categoryId: category._id, status: { $ne: 'Deleted' } });
-    },
-  }
 
-]
+  category(car, {}, { models }) {
+    return models.CarCategories.findOne({ _id: car.categoryId });
+  },
+};
 
-export default carResolvers
+export default cars;
