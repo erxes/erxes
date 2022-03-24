@@ -177,6 +177,16 @@ export const sendSegmentsMessage = async (args: ISendMessageArgs): Promise<any> 
   return sendMessage({ client, serviceDiscovery, serviceName: 'segments', ...args });
 };
 
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    ...args,
+  });
+};
+
 export const fetchSegment = (subdomain: string, segmentId: string, options?) => sendSegmentsMessage({ subdomain, action: 'fetchSegment', data: { segmentId, options }, isRPC: true });
 
 export default function() {

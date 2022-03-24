@@ -1,4 +1,4 @@
-import { replacePlaceHolders } from '../helpers';
+// import { replacePlaceHolders } from '../helpers';
 import { sendCommonMessage } from '../messageBroker';
 
 export const OPERATORS = {
@@ -72,9 +72,11 @@ const getPerValue = async (subdomain, conformity, rule, target) => {
   let op1 = conformity[field];
   let updatedValue;
 
-  const replaced = (
-    await replacePlaceHolders({ subdomain, actionData: { config: value }, target, isRelated: op1Type === 'string' ? true : false })
-  ).config;
+  // const replaced = (
+  //   await replacePlaceHolders({ subdomain, actionData: { config: value }, target, isRelated: op1Type === 'string' ? true : false })
+  // ).config;
+
+  const replaced = '';
 
   if (field.includes('Ids')) {
     //

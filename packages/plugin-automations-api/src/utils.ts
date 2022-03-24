@@ -13,9 +13,8 @@ import {
 } from './models/definitions/executions';
 
 import { getActionsMap } from './helpers';
-import { sendSegmentsMessage } from './messageBroker';
+import { sendCommonMessage, sendSegmentsMessage } from './messageBroker';
 
-// import { callPluginsAction } from './pluginUtils';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 import { IModels } from './connectionResolver';
 
@@ -39,12 +38,16 @@ export const getEnv = ({
   return value || '';
 };
 
-export const isInSegment = async (subdomain: string, segmentId: string, targetId: string) => {
+export const isInSegment = async (
+  subdomain: string,
+  segmentId: string,
+  targetId: string
+) => {
   const response = await sendSegmentsMessage({
     subdomain,
-    action: "isInSegment",
+    action: 'isInSegment',
     data: { segmentId, idToCheck: targetId },
-    isRPC: true,
+    isRPC: true
   });
 
   return response;
@@ -55,10 +58,10 @@ export const executeActions = async (
   triggerType: string,
   execution: IExecutionDocument,
   actionsMap: IActionsMap,
-  currentActionId?: string,
+  currentActionId?: string
 ): Promise<string | null | undefined> => {
   if (!currentActionId) {
-    execution.status = EXECUTION_STATUS.COMPLETE
+    execution.status = EXECUTION_STATUS.COMPLETE;
     await execution.save();
 
     return 'finished';
@@ -69,7 +72,7 @@ export const executeActions = async (
     execution.status = EXECUTION_STATUS.MISSID;
     await execution.save();
 
-    return 'missed action'
+    return 'missed action';
   }
 
   execution.status = EXECUTION_STATUS.ACTIVE;
@@ -88,7 +91,7 @@ export const executeActions = async (
       execution.waitingActionId = action.id;
       execution.startWaitingDate = new Date();
       execution.status = EXECUTION_STATUS.WAITING;
-      execution.actions = [...(execution.actions || []), execAction]
+      execution.actions = [...(execution.actions || []), execAction];
       await execution.save();
       return 'paused';
     }
@@ -96,7 +99,11 @@ export const executeActions = async (
     if (action.type === ACTIONS.IF) {
       let ifActionId;
 
-      const isIn = await isInSegment(subdomain, action.config.contentId, execution.targetId)
+      const isIn = await isInSegment(
+        subdomain,
+        action.config.contentId,
+        execution.targetId
+      );
       if (isIn) {
         ifActionId = action.config.yes;
       } else {
@@ -105,10 +112,16 @@ export const executeActions = async (
 
       execAction.nextActionId = ifActionId;
       execAction.result = { condition: isIn };
-      execution.actions = [...(execution.actions || []), execAction]
+      execution.actions = [...(execution.actions || []), execAction];
       execution = await execution.save();
 
-      return executeActions(subdomain, triggerType, execution, actionsMap, ifActionId);
+      return executeActions(
+        subdomain,
+        triggerType,
+        execution,
+        actionsMap,
+        ifActionId
+      );
     }
 
     if (action.type === ACTIONS.SET_PROPERTY) {
@@ -120,28 +133,36 @@ export const executeActions = async (
       });
     }
 
-    if (
-      action.type === ACTIONS.CREATE_TASK ||
-      action.type === ACTIONS.CREATE_TICKET ||
-      action.type === ACTIONS.CREATE_DEAL
-    ) {
-      const type = action.type.substring(6).toLocaleLowerCase();
+    const [serviceName, type] = action.type.split(':');
 
-      console.log('mmmmmmmmmmmmm', type)
+    if (type.includes('create')) {
+      actionResponse = await sendCommonMessage({
+        subdomain,
+        serviceName,
+        action: 'automations.receiveActions',
+        data: {
+          action,
+          execution,
+          collectionType: type.replace('.create', '')
+        },
+        isRPC: true
+      });
 
-      // actionResponse = await addBoardItem({ action, execution, type });
+      if (actionResponse.error) {
+        throw new Error(actionResponse.error);
+      }
     }
   } catch (e) {
     execAction.result = { error: e.message, result: e.result };
-    execution.actions = [...(execution.actions || []), execAction]
-    execution.status = EXECUTION_STATUS.ERROR
-    execution.description = `An error occurred while working action: ${action.type}`
+    execution.actions = [...(execution.actions || []), execAction];
+    execution.status = EXECUTION_STATUS.ERROR;
+    execution.description = `An error occurred while working action: ${action.type}`;
     await execution.save();
     return;
   }
 
   execAction.result = actionResponse;
-  execution.actions = [...(execution.actions || []), execAction]
+  execution.actions = [...(execution.actions || []), execAction];
   execution = await execution.save();
 
   return executeActions(
@@ -156,16 +177,15 @@ export const executeActions = async (
 const isDiffValue = (latest, target, field) => {
   const getValue = (obj, attr) => {
     try {
-      return obj[attr]
+      return obj[attr];
     } catch (e) {
       return undefined;
     }
-  }
+  };
 
   const extractFields = field.split('.');
   let latestValue = latest;
   let targetValue = target;
-
 
   for (const f of extractFields) {
     latestValue = getValue(latestValue, f);
@@ -177,7 +197,7 @@ const isDiffValue = (latest, target, field) => {
   }
 
   return false;
-}
+};
 
 export const calculateExecution = async ({
   models,
@@ -187,7 +207,7 @@ export const calculateExecution = async ({
   target
 }: {
   models: IModels;
-  subdomain: string,
+  subdomain: string;
   automationId: string;
   trigger: ITrigger;
   target: any;
@@ -196,10 +216,9 @@ export const calculateExecution = async ({
   const { reEnrollment, reEnrollmentRules, contentId } = config;
 
   try {
-    if (!await isInSegment(subdomain, contentId, target._id)) {
+    if (!(await isInSegment(subdomain, contentId, target._id))) {
       return;
     }
-
   } catch (e) {
     await models.Executions.createExecution({
       automationId,
@@ -218,9 +237,13 @@ export const calculateExecution = async ({
     automationId,
     triggerId: id,
     targetId: target._id
-  }).sort({ createdAt: -1 }).limit(1).lean();
+  })
+    .sort({ createdAt: -1 })
+    .limit(1)
+    .lean();
 
-  const latestExecution: IExecutionDocument = executions.length && executions[0];
+  const latestExecution: IExecutionDocument =
+    executions.length && executions[0];
 
   if (latestExecution) {
     if (!reEnrollment || !reEnrollmentRules.length) {
@@ -262,8 +285,8 @@ export const receiveTrigger = async ({
   type,
   targets
 }: {
-  models: IModels,
-  subdomain: string,
+  models: IModels;
+  subdomain: string;
   type: TriggerType;
   targets: any[];
 }) => {

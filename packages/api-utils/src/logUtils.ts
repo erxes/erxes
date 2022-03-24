@@ -101,7 +101,10 @@ export const putCreateLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const isAutomationsAvailable = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'automations');
+  const isAutomationsAvailable = await messageBroker.sendRPCMessage(
+    'gateway:isServiceAvailable',
+    'automations'
+  );
 
   if (isAutomationsAvailable) {
     messageBroker.sendMessage('automations:trigger', {
@@ -125,7 +128,10 @@ export const putUpdateLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const isAutomationsAvailable = await messageBroker.sendRPCMessage('gateway:isServiceAvailable', 'automations');
+  const isAutomationsAvailable = await messageBroker.sendRPCMessage(
+    'gateway:isServiceAvailable',
+    'automations'
+  );
 
   if (isAutomationsAvailable) {
     messageBroker.sendMessage('automations:trigger', {
@@ -283,35 +289,35 @@ export const logConsumers = (params: {
   } = params;
 
   if (getActivityContent) {
-    consumeRPCQueue(`${name}:logs:getActivityContent`, async args => ({
+    consumeRPCQueue(`${name}:logs.getActivityContent`, async args => ({
       status: 'success',
       data: await getActivityContent(args)
     }));
   }
 
   if (getContentTypeDetail) {
-    consumeRPCQueue(`${name}:logs:getContentTypeDetail`, async args => ({
+    consumeRPCQueue(`${name}:logs.getContentTypeDetail`, async args => ({
       status: 'success',
       data: await getContentTypeDetail(args)
     }));
   }
 
   if (collectItems) {
-    consumeRPCQueue(`${name}:logs:collectItems`, async args => ({
+    consumeRPCQueue(`${name}:logs.collectItems`, async args => ({
       status: 'success',
       data: await collectItems(args)
     }));
   }
 
   if (getContentIds) {
-    consumeRPCQueue(`${name}:logs:getContentIds`, async args => ({
+    consumeRPCQueue(`${name}:logs.getContentIds`, async args => ({
       status: 'success',
       data: await getContentIds(args)
     }));
   }
 
   if (getSchemalabels) {
-    consumeRPCQueue(`${name}:logs:getSchemaLabels`, args => ({
+    consumeRPCQueue(`${name}:logs.getSchemaLabels`, args => ({
       status: 'success',
       data: getSchemalabels(args)
     }));

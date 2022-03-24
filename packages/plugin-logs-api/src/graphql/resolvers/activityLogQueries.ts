@@ -1,10 +1,15 @@
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 
-import { IActivityLogDocument } from '../../models/ActivityLogs';
-import { collectPluginContent } from '../../pluginUtils';
+// import { IActivityLogDocument } from '../../models/ActivityLogs';
+// import { collectPluginContent } from '../../pluginUtils';
 import { fetchActivityLogs, fetchLogs } from '../../utils';
-import { collectServiceItems, getContentIds } from '../../messageBroker';
+import {
+  // collectServiceItems,
+  fetchService,
+  getContentIds
+} from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
+import { serviceDiscovery } from '../../configs';
 
 export interface IListArgs {
   contentType: string;
@@ -25,8 +30,8 @@ const activityLogQueries = {
    * Get activity log list
    */
   async activityLogs(_root, doc: IListArgs, { user, models }: IContext) {
-    const { contentId, contentType } = doc;
-    let activities: IActivityLogDocument[] = [];
+    const { contentId, contentType, activityType } = doc;
+    const activities: any[] = [];
 
     // const collectItems = (items: any, type?: string) => {
     //   (items || []).map(item => {
@@ -53,10 +58,52 @@ const activityLogQueries = {
     //   }
     // }
 
-    activities = await models.ActivityLogs.find({
-      contentId,
-      contentType
-    }).lean();
+    if (activityType && activityType !== 'activity') {
+      const serviceName = activityType.split(':')[0];
+
+      const result = await fetchService(
+        serviceName,
+        'collectItems',
+        { contentId, contentType },
+        ''
+      );
+
+      const { data } = result;
+
+      return data;
+    }
+
+    const services = await serviceDiscovery.getServices();
+
+    for (const serviceName of services) {
+      const service = await serviceDiscovery.getService(serviceName, true);
+      const meta = service.config.meta || {};
+
+      if (meta && meta.logs) {
+        const logs = meta.logs;
+
+        if (logs.providesActivityLog) {
+          const result = await fetchService(
+            serviceName,
+            'collectItems',
+            { contentId, contentType },
+            ''
+          );
+
+          const { data } = result;
+
+          if (Array.isArray(data) && data.length > 0) {
+            activities.push(...data);
+          }
+        }
+      }
+    }
+
+    activities.push(
+      ...(await models.ActivityLogs.find({
+        contentId
+      }).lean())
+    );
 
     activities.sort((a, b) => {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
