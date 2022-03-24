@@ -1,3 +1,4 @@
+import { Products } from './../../db/models/Products';
 import { Fields, FieldsGroups } from '../../db/models';
 import {
   IFieldDocument,
@@ -29,6 +30,15 @@ export const field = {
 
     const group = await FieldsGroups.findOne({ _id: groupId });
     return group && group.name;
+  },
+
+  products(root: IFieldDocument) {
+    const { productCategoryId } = root;
+    if (!productCategoryId) {
+      return [];
+    }
+
+    return Products.find({ categoryId: productCategoryId }).lean();
   }
 };
 

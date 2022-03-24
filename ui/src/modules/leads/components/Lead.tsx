@@ -14,7 +14,6 @@ import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ILeadData, ILeadIntegration } from '../types';
-
 import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import { IFormData } from 'modules/forms/types';
 import { Content, LeftContent } from 'modules/settings/integrations/styles';
