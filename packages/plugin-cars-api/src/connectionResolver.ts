@@ -9,7 +9,6 @@ import {
   ICarModel,
 } from "./models/Cars";
 import { MongoClient } from "mongodb";
-import { userSchema } from "@erxes/api-utils/src/definitions/users";
 
 export interface IModels {
   Cars: ICarModel;
@@ -73,7 +72,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Cars = db.model<ICarDocument, ICarModel>("cars", loadCarClass(models));
 
   models.CarCategories = db.model<ICarCategoryDocument, ICarCategoryModel>(
-    "carCategory",
+    "carCategories",
     loadCarCategoryClass(models)
   );
 
