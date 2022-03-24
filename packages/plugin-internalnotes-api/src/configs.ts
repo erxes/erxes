@@ -4,7 +4,6 @@ import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
-import apiConnect from './apiCollections';
 import { generateModels, models } from './connectionResolver';
 import logs from './logUtils';
 
@@ -37,8 +36,6 @@ export default {
     mainDb = options.db;
 
     await generateModels('os');
-
-    await apiConnect();
 
     initBroker(options.messageBrokerClient);
 
