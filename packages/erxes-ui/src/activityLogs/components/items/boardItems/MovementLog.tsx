@@ -21,8 +21,6 @@ class MovementLog extends React.Component<IActivityLogItemProps> {
       }
     }
 
-    console.log(contentDetail);
-
     if (contentDetail.item) {
       const { item, destinationStage, oldStage } = contentDetail;
 

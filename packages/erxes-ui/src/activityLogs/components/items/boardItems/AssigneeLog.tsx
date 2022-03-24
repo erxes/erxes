@@ -24,8 +24,6 @@ class AssigneeLog extends React.Component<IActivityLogItemProps> {
 
     const { addedUsers = [], removedUsers = [] } = contentDetail;
 
-    console.log(contentDetail);
-
     const addedUserNames = addedUsers.map(user => {
       return (
         <Link
@@ -49,8 +47,6 @@ class AssigneeLog extends React.Component<IActivityLogItemProps> {
         </Link>
       );
     });
-
-    console.log(addedUserNames, removedUserNames);
 
     if (addedUserNames.length > 0 && removedUserNames.length === 0) {
       return (

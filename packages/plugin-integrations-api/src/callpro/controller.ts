@@ -27,7 +27,7 @@ export const callproCreateIntegration = async ({ integrationId, data }) => {
       recordUrl
     });
 
-    return { status: 'ok' };
+    return { status: 'success' };
 };
 
 export const callproGetAudio = async ({ erxesApiId, integrationId }) => {
