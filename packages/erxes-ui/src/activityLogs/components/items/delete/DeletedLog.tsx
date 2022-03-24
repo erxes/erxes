@@ -1,23 +1,19 @@
 import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
 import React from 'react';
 import ChecklistLog from '../../../containers/items/ChecklistLog';
-import BoardItemCreate from './BoardItemCreate';
-import CustomerCreate from './CustomerCreate';
 
-class CreatedLog extends React.Component<IActivityLogItemProps> {
+class DeletedLog extends React.Component<IActivityLogItemProps> {
   render() {
     const { activity } = this.props;
     const { contentType } = activity;
 
     switch (contentType) {
-      case 'contacts:customer':
-        return <CustomerCreate activity={activity} />;
-      case 'cards:checklist':
+      case 'checklist':
         return <ChecklistLog activity={activity} />;
       default:
-        return <BoardItemCreate activity={activity} />;
+        return <ChecklistLog activity={activity} />;
     }
   }
 }
 
-export default CreatedLog;
+export default DeletedLog;

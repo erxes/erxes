@@ -6,25 +6,16 @@ import {
 } from '@erxes/ui/src/activityLogs/styles';
 import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
 import Tip from '@erxes/ui/src/components/Tip';
-import { renderUserFullName } from '@erxes/ui/src/utils';
 import React from 'react';
 
-class ArchiveLog extends React.Component<IActivityLogItemProps> {
+class SegmentLog extends React.Component<IActivityLogItemProps> {
   renderContent = () => {
     const { activity } = this.props;
-    const { contentType, createdByDetail, content } = activity;
-
-    let userName = 'Unknown';
-
-    if (createdByDetail && createdByDetail.type === 'user') {
-      if (createdByDetail.content.details) {
-        userName = renderUserFullName(createdByDetail.content);
-      }
-    }
+    const { contentType, content } = activity;
 
     return (
       <span>
-        <strong>{userName}</strong> {content} this {contentType}
+        This {contentType} joined a <strong> {content.content}</strong> segment
       </span>
     );
   };
@@ -45,4 +36,4 @@ class ArchiveLog extends React.Component<IActivityLogItemProps> {
   }
 }
 
-export default ArchiveLog;
+export default SegmentLog;
