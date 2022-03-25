@@ -159,8 +159,8 @@ func main() {
 	var namespaces []string
 	var scripts []string
 
-	possible_dbs := []string{"erxes"}
-	possible_collections := []string{"users","brands"}
+	possible_dbs := []string
+	possible_collections := []string
 
 	for i := 0; i < len(plugins.Plugins); i++ {
 		var plugin = plugins.Plugins[i]
