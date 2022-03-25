@@ -184,8 +184,6 @@ export default {
         userId: user._id,
         itemId: deal._id,
       },
-      isRPC: true,
-      defaultValue: true,
     });
   },
 

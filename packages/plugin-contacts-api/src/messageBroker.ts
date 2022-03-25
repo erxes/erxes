@@ -139,6 +139,18 @@ export const initBroker = cl => {
   );
 
   consumeRPCQueue(
+    'contacts:customers.updateMany',
+    async ({ subdomain, data: { selector, modifier } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Customers.updateMany(selector, modifier)
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'contacts:customers.markCustomerAsActive',
     async ({ subdomain, data: { customerId } }) => {
       const models = await generateModels(subdomain);
@@ -170,6 +182,18 @@ export const initBroker = cl => {
       return {
         status: 'success',
         data: await Companies.updateCompany(_id, doc)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'contacts:companies.removeCompanies',
+    async ({ subdomain, data: { _ids } }) => {
+      const { Companies } = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await Companies.removeCompanies(_ids)
       };
     }
   );
@@ -284,40 +308,6 @@ export const initBroker = cl => {
     }
   );
 
-  consumeRPCQueue(
-    'contacts:generateInternalNoteNotif',
-    async ({ subdomain, data }) => {
-      const { contentTypeId, notifDoc, type } = data;
-
-      const { Customers, Companies } = await generateModels(subdomain);
-
-      let model: any = Customers;
-      let link = `/contacts/details/`;
-
-      if (type === 'company') {
-        model = Companies;
-        link = `/companies/details/`;
-      }
-
-      const response = await model.findOne({ _id: contentTypeId });
-
-      const name =
-        type === 'customer'
-          ? await Customers.getCustomerName(response)
-          : await Companies.getCompanyName(response);
-
-      notifDoc.notifType = `${type}Mention`;
-      notifDoc.content = name;
-      notifDoc.link = link + response._id;
-      notifDoc.contentTypeId = response._id;
-      notifDoc.contentType = `${type}`;
-
-      return {
-        status: 'success',
-        data: notifDoc
-      };
-    }
-  );
 };
 
 export const sendSegmentsMessage = async (
@@ -379,7 +369,7 @@ export const sendInternalNotesMessage = async (
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: 'internalNotes',
+    serviceName: 'internalnotes',
     ...args
   });
 };
@@ -404,6 +394,16 @@ export const sendContactsMessage = async (
   });
 };
 
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    ...args,
+  });
+};
+
 export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
   sendSegmentsMessage({
     subdomain,
@@ -412,6 +412,6 @@ export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
     isRPC: true
   });
 
-export default function() {
+export default function () {
   return client;
 }

@@ -1,30 +1,30 @@
-import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import Label from '@erxes/ui/src/components/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import WithPermission from '@erxes/ui/src/components/WithPermission';
-import { Alert, getEnv } from '@erxes/ui/src/utils';
-import { __ } from '@erxes/ui/src/utils';
-import InstallCode from '../InstallCode';
+import client from "@erxes/ui/src/apolloClient";
+import gql from "graphql-tag";
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import Button from "@erxes/ui/src/components/Button";
+import Icon from "@erxes/ui/src/components/Icon";
+import Label from "@erxes/ui/src/components/Label";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Tip from "@erxes/ui/src/components/Tip";
+import WithPermission from "coreui/withPermission";
+import { Alert, getEnv } from "@erxes/ui/src/utils";
+import { __ } from "@erxes/ui/src/utils";
+import InstallCode from "../InstallCode";
 import {
   INTEGRATION_KINDS,
-  WEBHOOK_DOC_URL
-} from '@erxes/ui/src/constants/integrations';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { cleanIntegrationKind } from '@erxes/ui/src/utils';
-import { queries } from '../../graphql/index';
-import { INTEGRATIONS_COLORS } from '../../integrationColors';
+  WEBHOOK_DOC_URL,
+} from "@erxes/ui/src/constants/integrations";
+import React from "react";
+import { Link } from "react-router-dom";
+import { cleanIntegrationKind } from "@erxes/ui/src/utils";
+import { queries } from "../../graphql/index";
+import { INTEGRATIONS_COLORS } from "../../integrationColors";
 import {
   IIntegration,
-  IntegrationMutationVariables
-} from '@erxes/ui-settings/src/integrations/types';
-import RefreshPermissionForm from '../facebook/RefreshPermission';
-import CommonFieldForm from './CommonFieldForm';
+  IntegrationMutationVariables,
+} from "@erxes/ui-settings/src/integrations/types";
+import RefreshPermissionForm from "../facebook/RefreshPermission";
+import CommonFieldForm from "./CommonFieldForm";
 
 type Props = {
   _id?: string;
@@ -50,7 +50,7 @@ class IntegrationListItem extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      externalData: null
+      externalData: null,
     };
   }
 
@@ -64,9 +64,9 @@ class IntegrationListItem extends React.Component<Props, State> {
     const onClick = () => archive(integration._id, true);
 
     return (
-      <WithPermission action='integrationsArchive'>
-        <Tip text={__('Archive')} placement='top'>
-          <Button btnStyle='link' onClick={onClick} icon='archive-alt' />
+      <WithPermission action="integrationsArchive">
+        <Tip text={__("Archive")} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
         </Tip>
       </WithPermission>
     );
@@ -82,9 +82,9 @@ class IntegrationListItem extends React.Component<Props, State> {
     const onClick = () => archive(integration._id, false);
 
     return (
-      <WithPermission action='integrationsArchive'>
-        <Tip text={__('Unarchive')} placement='top'>
-          <Button btnStyle='link' onClick={onClick} icon='redo' />
+      <WithPermission action="integrationsArchive">
+        <Tip text={__("Unarchive")} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="redo" />
         </Tip>
       </WithPermission>
     );
@@ -99,9 +99,9 @@ class IntegrationListItem extends React.Component<Props, State> {
     }
 
     const showTrigger = (
-      <Button btnStyle='link'>
-        <Tip text='Show' placement='top'>
-          <Icon icon='eye' />
+      <Button btnStyle="link">
+        <Tip text="Show" placement="top">
+          <Icon icon="eye" />
         </Tip>
       </Button>
     );
@@ -117,8 +117,8 @@ class IntegrationListItem extends React.Component<Props, State> {
             <b>Token</b>: {webhookData.token}
           </div>
           <p>
-            {'For more information, please review the '}
-            <a target='_blank' rel='noopener noreferrer' href={WEBHOOK_DOC_URL}>
+            {"For more information, please review the "}
+            <a target="_blank" rel="noopener noreferrer" href={WEBHOOK_DOC_URL}>
               documentaion.
             </a>
           </p>
@@ -127,10 +127,10 @@ class IntegrationListItem extends React.Component<Props, State> {
     };
 
     return (
-      <WithPermission action='showIntegrations'>
+      <WithPermission action="showIntegrations">
         <ActionButtons>
           <ModalTrigger
-            title='Integration detail'
+            title="Integration detail"
             trigger={showTrigger}
             content={content}
           />
@@ -147,20 +147,20 @@ class IntegrationListItem extends React.Component<Props, State> {
     }
 
     const editTrigger = (
-      <Button btnStyle='link'>
-        <Tip text='Edit' placement='top'>
-          <Icon icon='edit-3' />
+      <Button btnStyle="link">
+        <Tip text="Edit" placement="top">
+          <Icon icon="edit-3" />
         </Tip>
       </Button>
     );
 
-    const content = props => (
+    const content = (props) => (
       <CommonFieldForm
         {...props}
         onSubmit={editIntegration}
         name={integration.name}
         brandId={integration.brandId}
-        channelIds={integration.channels.map(item => item._id) || []}
+        channelIds={integration.channels.map((item) => item._id) || []}
         integrationId={integration._id}
         integrationKind={integration.kind}
         webhookData={integration.webhookData}
@@ -168,10 +168,10 @@ class IntegrationListItem extends React.Component<Props, State> {
     );
 
     return (
-      <WithPermission action='integrationsEdit'>
+      <WithPermission action="integrationsEdit">
         <ActionButtons>
           <ModalTrigger
-            title='Edit integration'
+            title="Edit integration"
             trigger={editTrigger}
             content={content}
           />
@@ -185,31 +185,31 @@ class IntegrationListItem extends React.Component<Props, State> {
 
     if (kind === INTEGRATION_KINDS.MESSENGER) {
       const editTrigger = (
-        <Button btnStyle='link'>
-          <Tip text='Install code' placement='top'>
-            <Icon icon='code' />
+        <Button btnStyle="link">
+          <Tip text="Install code" placement="top">
+            <Icon icon="code" />
           </Tip>
         </Button>
       );
 
-      const content = props => (
+      const content = (props) => (
         <InstallCode {...props} integration={integration} />
       );
 
       return (
         <ActionButtons>
-          <Tip text={__('Edit messenger integration')} placement='top'>
+          <Tip text={__("Edit messenger integration")} placement="top">
             <Link
               to={`/settings/integrations/editMessenger/${integration._id}`}
             >
-              <Button btnStyle='link' icon='edit-3' />
+              <Button btnStyle="link" icon="edit-3" />
             </Link>
           </Tip>
 
           <ModalTrigger
             isOpen={this.props._id === integration._id}
-            title='Install code'
-            size='lg'
+            title="Install code"
+            size="lg"
             trigger={editTrigger}
             content={content}
           />
@@ -230,9 +230,9 @@ class IntegrationListItem extends React.Component<Props, State> {
     const onClick = () => removeIntegration(integration);
 
     return (
-      <WithPermission action='integrationsRemove'>
-        <Tip text={__('Delete')} placement='top'>
-          <Button btnStyle='link' onClick={onClick} icon='times-circle' />
+      <WithPermission action="integrationsRemove">
+        <Tip text={__("Delete")} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="times-circle" />
         </Tip>
       </WithPermission>
     );
@@ -241,7 +241,7 @@ class IntegrationListItem extends React.Component<Props, State> {
   renderRepairAction() {
     const { repair, integration } = this.props;
 
-    if (!integration.kind.includes('facebook')) {
+    if (!integration.kind.includes("facebook")) {
       return null;
     }
 
@@ -249,22 +249,22 @@ class IntegrationListItem extends React.Component<Props, State> {
 
     if (
       integration.healthStatus &&
-      integration.healthStatus.status === 'account-token'
+      integration.healthStatus.status === "account-token"
     ) {
       const editTrigger = (
-        <Button btnStyle='link'>
-          <Tip text={__('Repair')} placement='top'>
-            <Icon icon='refresh' />
+        <Button btnStyle="link">
+          <Tip text={__("Repair")} placement="top">
+            <Icon icon="refresh" />
           </Tip>
         </Button>
       );
 
-      const content = props => <RefreshPermissionForm {...props} />;
+      const content = (props) => <RefreshPermissionForm {...props} />;
 
       return (
         <ActionButtons>
           <ModalTrigger
-            title='Edit integration'
+            title="Edit integration"
             trigger={editTrigger}
             content={content}
           />
@@ -272,8 +272,8 @@ class IntegrationListItem extends React.Component<Props, State> {
       );
     } else {
       return (
-        <Tip text={__('Repair')} placement='top'>
-          <Button btnStyle='link' onClick={onClick} icon='refresh' />
+        <Tip text={__("Repair")} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="refresh" />
         </Tip>
       );
     }
@@ -282,7 +282,7 @@ class IntegrationListItem extends React.Component<Props, State> {
   renderExternalData(integration) {
     const { externalData } = this.state;
     const { kind } = integration;
-    let value = '';
+    let value = "";
 
     if (!this.props.showExternalInfo) {
       return null;
@@ -309,7 +309,7 @@ class IntegrationListItem extends React.Component<Props, State> {
   renderFetchAction(integration: IIntegration) {
     if (
       integration.kind === INTEGRATION_KINDS.MESSENGER ||
-      integration.kind.includes('facebook')
+      integration.kind.includes("facebook")
     ) {
       return null;
     }
@@ -319,21 +319,23 @@ class IntegrationListItem extends React.Component<Props, State> {
         .query({
           query: gql(queries.integrationsGetIntegrationDetail),
           variables: {
-            erxesApiId: integration._id 
-          }
+            erxesApiId: integration._id,
+          },
         })
         .then(({ data }) => {
-          this.setState({ externalData: data.integrationsGetIntegrationDetail });
+          this.setState({
+            externalData: data.integrationsGetIntegrationDetail,
+          });
           this.props.showExternalInfoColumn();
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
 
     return (
-      <Tip text={__('Fetch external data')} placement='top'>
-        <Button btnStyle='link' icon='download-1' onClick={onClick} />
+      <Tip text={__("Fetch external data")} placement="top">
+        <Button btnStyle="link" icon="download-1" onClick={onClick} />
       </Tip>
     );
   }
@@ -344,17 +346,17 @@ class IntegrationListItem extends React.Component<Props, State> {
 
     const healthStatus = integration.healthStatus
       ? integration.healthStatus.status
-      : '';
+      : "";
 
     const error = integration.healthStatus
       ? integration.healthStatus.error
-      : '';
+      : "";
 
-    const labelStyle = integration.isActive ? 'success' : 'danger';
-    const status = integration.isActive ? __('Active') : __('Archived');
-    const labelStyleHealthy = healthStatus === 'healthy' ? 'success' : 'danger';
+    const labelStyle = integration.isActive ? "success" : "danger";
+    const status = integration.isActive ? __("Active") : __("Archived");
+    const labelStyleHealthy = healthStatus === "healthy" ? "success" : "danger";
     const healthStatusText =
-      healthStatus === 'healthy' ? __('Healthy') : __('Unhealthy');
+      healthStatus === "healthy" ? __("Healthy") : __("Unhealthy");
 
     return (
       <tr key={integration._id}>
@@ -364,7 +366,7 @@ class IntegrationListItem extends React.Component<Props, State> {
             {integrationKind}
           </Label>
         </td>
-        <td>{integration.brand ? integration.brand.name : ''}</td>
+        <td>{integration.brand ? integration.brand.name : ""}</td>
         <td>
           <Label lblStyle={labelStyle}>{status}</Label>
         </td>

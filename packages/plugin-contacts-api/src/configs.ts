@@ -22,6 +22,8 @@ import {
 import logs from './logUtils';
 import imports from './imports';
 import tags from './tags'
+import internalNotes from './internalNotes';
+import automations from './automations';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -147,9 +149,11 @@ export default {
   meta: {
     imports,
     segments,
+    automations,
     forms,
     logs: { consumers: logs },
-    tags
+    tags,
+    internalNotes
   },
   apolloServerContext: async context => {
     const subdomain = 'os';

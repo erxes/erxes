@@ -8,8 +8,16 @@ import {
   getSchemaLabels
 } from '@erxes/api-utils/src/logUtils';
 
-import messageBroker, { sendCardsMessage } from './messageBroker';
-import { IInternalNoteDocument, internalNoteSchema } from './models/definitions/internalNotes';
+import messageBroker, {
+  sendCardsMessage,
+  sendContactsMessage,
+  sendCoreMessage,
+  sendProductsMessage
+} from './messageBroker';
+import {
+  IInternalNoteDocument,
+  internalNoteSchema
+} from './models/definitions/internalNotes';
 import { generateModels } from './connectionResolver';
 
 const MODULE_NAMES = {
@@ -30,7 +38,8 @@ const findContentItemName = async (
   contentTypeId: string
 ): Promise<string> => {
   let name: string = '';
-  const type = contentType.indexOf(':') !== -1 ? contentType.split(':')[1] : contentType;
+  const type =
+    contentType.indexOf(':') !== -1 ? contentType.split(':')[1] : contentType;
 
   const isCardItem =
     type === MODULE_NAMES.DEAL ||
@@ -41,47 +50,77 @@ const findContentItemName = async (
   if (isCardItem) {
     const cardItem = await sendCardsMessage({
       subdomain,
-      action: "findItem",
+      action: 'findItem',
       data: {
         _id: contentTypeId,
         contentType
       },
       isRPC: true
-    })
+    });
 
     if (cardItem && cardItem.name) {
       name = cardItem.name;
     }
   }
-  if (contentType === MODULE_NAMES.CUSTOMER) {
-    const customer = await messageBroker().sendRPCMessage(
-      'contacts:customers.findOne',
-      { data: { _id: contentTypeId }, subdomain }
-    );
+  if (type === MODULE_NAMES.CUSTOMER) {
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: { _id: contentTypeId },
+      isRPC: true,
+      defaultValue: {}
+    });
 
     if (customer) {
-      name = await messageBroker().sendRPCMessage('contacts:rpc_queue:getCustomerName', customer);
+      name = await sendContactsMessage({
+        subdomain,
+        action: 'customers.getCustomerName',
+        data: { customer },
+        isRPC: true,
+        defaultValue: 'Unknown'
+      });
     }
   }
-  if (contentType === MODULE_NAMES.COMPANY) {
-    const company = await messageBroker().sendRPCMessage(
-      'contacts:companies.findOne',
-      { data: { _id: contentTypeId }, subdomain }
-    );
+  if (type === MODULE_NAMES.COMPANY) {
+    const company = await sendContactsMessage({
+      subdomain,
+      action: 'companies.findOne',
+      data: {
+        _id: contentTypeId
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
 
     if (company) {
-      name = company.primaryName || company.primaryEmail || company.primaryPhone || 'Unknown';
+      name =
+        company.primaryName ||
+        company.primaryEmail ||
+        company.primaryPhone ||
+        'Unknown';
     }
   }
-  if (contentType === MODULE_NAMES.USER) {
-    const user = await messageBroker().sendRPCMessage('core:users.findOne', { data: { _id: contentTypeId } })
+  if (type === MODULE_NAMES.USER) {
+    const user = await sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: { _id: contentTypeId },
+      isRPC: true,
+      defaultValue: {}
+    });
 
     if (user) {
       name = user.username || user.email || '';
     }
   }
-  if (contentType === MODULE_NAMES.PRODUCT) {
-    const product = await messageBroker().sendRPCMessage('products:findOne', { _id: contentTypeId });
+  if (type === MODULE_NAMES.PRODUCT) {
+    const product = await sendProductsMessage({
+      subdomain,
+      action: 'findOne',
+      data: { _id: contentTypeId },
+      isRPC: true,
+      defaultValue: {}
+    });
 
     if (product) {
       name = product.name;
@@ -91,11 +130,18 @@ const findContentItemName = async (
   return name;
 };
 
-const gatherDescriptions = async (subdomain: string, obj: IInternalNoteDocument) => {
+const gatherDescriptions = async (
+  subdomain: string,
+  obj: IInternalNoteDocument
+) => {
   let extraDesc: LogDesc[] = [
     {
       contentTypeId: obj.contentTypeId,
-      name: await findContentItemName(subdomain, obj.contentType, obj.contentTypeId)
+      name: await findContentItemName(
+        subdomain,
+        obj.contentType,
+        obj.contentTypeId
+      )
     }
   ];
 
@@ -103,62 +149,91 @@ const gatherDescriptions = async (subdomain: string, obj: IInternalNoteDocument)
     foreignKey: 'createdUserId',
     prevList: extraDesc,
     nameFields: ['email', 'username'],
-    items: [await messageBroker().sendRPCMessage('core:users.findOne', { data: { _id: obj.createdUserId } })]
+    items: [
+      await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: { _id: obj.createdUserId },
+        isRPC: true,
+        defaultValue: {}
+      })
+    ]
   });
 
   return extraDesc;
 };
 
-export const putDeleteLog = async (subdomain: string, logDoc: ILogDataParams, user) => {
+export const putDeleteLog = async (
+  subdomain: string,
+  logDoc: ILogDataParams,
+  user
+) => {
   await commonPutDeleteLog(
     messageBroker(),
-    { ...logDoc, extraDesc: await gatherDescriptions(subdomain, logDoc.object), type: `internalnotes:${logDoc.type}` },
+    {
+      ...logDoc,
+      extraDesc: await gatherDescriptions(subdomain, logDoc.object),
+      type: `internalnotes:${logDoc.type}`
+    },
     user
   );
 };
 
-export const putUpdateLog = async (subdomain: string, logDoc: ILogDataParams, user) => {
+export const putUpdateLog = async (
+  subdomain: string,
+  logDoc: ILogDataParams,
+  user
+) => {
   await commonPutUpdateLog(
     messageBroker(),
-    { ...logDoc, extraDesc: await gatherDescriptions(subdomain, logDoc.object), type: `internalnotes:${logDoc.type}` },
+    {
+      ...logDoc,
+      extraDesc: await gatherDescriptions(subdomain, logDoc.object),
+      type: `internalnotes:${logDoc.type}`
+    },
     user
   );
 };
 
-export const putCreateLog = async (subdomain: string, logDoc: ILogDataParams, user) => {
+export const putCreateLog = async (
+  subdomain: string,
+  logDoc: ILogDataParams,
+  user
+) => {
   await commonPutCreateLog(
     messageBroker(),
-    { ...logDoc, extraDesc: await gatherDescriptions(subdomain, logDoc.object), type: `internalnotes:${logDoc.type}` },
+    {
+      ...logDoc,
+      extraDesc: await gatherDescriptions(subdomain, logDoc.object),
+      type: `internalnotes:${logDoc.type}`
+    },
     user
   );
 };
 
 export default {
-  collectItems: async ({ contentId, subdomain }) => {
+  collectItems: async ({ subdomain, data }) => {
+    const { contentId } = data;
+
     const models = await generateModels(subdomain);
     const notes = await models.InternalNotes.find({
-      contentTypeId: contentId,
+      contentTypeId: contentId
     }).sort({ createdAt: -1 });
-    const results: any[] = [];
 
     for (const note of notes) {
-      results.push({
-        _id: note._id,
-        contentType: 'note',
-        contentId,
-        createdAt: note.createdAt,
-      });
+      note.contentType = 'internalnotes:note';
     }
 
     return {
       status: 'success',
-      data: results,
+      data: notes
     };
   },
+
   getSchemaLabels: ({ data: { type } }) => ({
     status: 'success',
     data: getSchemaLabels(type, [
-      { name: 'internalNote', schemas: [internalNoteSchema] },
-    ]),
+      { name: 'internalNote', schemas: [internalNoteSchema] }
+    ])
   })
 };

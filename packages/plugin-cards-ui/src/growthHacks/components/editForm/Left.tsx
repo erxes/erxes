@@ -142,7 +142,7 @@ class Left extends React.Component<Props> {
         <ActivityLogs
           target={item.name}
           contentId={item._id}
-          contentType={type}
+          contentType={`cards:${type}`}
           extraTabs={[]}
         />
       </>

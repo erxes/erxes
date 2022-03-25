@@ -1,0 +1,10 @@
+{
+  "name": "@erxes/plugin-automations-api",
+  "version": "1.0.0",
+  "scripts": {
+    "install-deps": "cd .erxes && yarn install",
+    "dev": "cd .erxes && yarn dev",
+    "build": "cd .erxes && yarn build",
+    "start": "cd .erxes/dist/plugin-cards-api/.erxes && node src"
+  }
+}

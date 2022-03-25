@@ -1,7 +1,7 @@
-import { IPipelineDocument, IStageDocument } from "./models/definitions/boards";
-import { IDealDocument } from "./models/definitions/deals";
-import { IGrowthHackDocument } from "./models/definitions/growthHacks";
-import { IPipelineTemplateDocument } from "./models/definitions/pipelineTemplates";
+import { IPipelineDocument, IStageDocument } from './models/definitions/boards';
+import { IDealDocument } from './models/definitions/deals';
+import { IGrowthHackDocument } from './models/definitions/growthHacks';
+import { IPipelineTemplateDocument } from './models/definitions/pipelineTemplates';
 import {
   putCreateLog as commonPutCreateLog,
   putUpdateLog as commonPutUpdateLog,
@@ -12,29 +12,29 @@ import {
   gatherUsernames,
   IDescriptions,
   getSchemaLabels
-} from "@erxes/api-utils/src/logUtils";
-import { ITaskDocument } from "./models/definitions/tasks";
-import { ITicketDocument } from "./models/definitions/tickets";
-import { LOG_MAPPINGS, MODULE_NAMES } from "./constants";
-import { ACTIVITY_CONTENT_TYPES } from "./models/definitions/constants";
+} from '@erxes/api-utils/src/logUtils';
+import { ITaskDocument } from './models/definitions/tasks';
+import { ITicketDocument } from './models/definitions/tickets';
+import { LOG_MAPPINGS, MODULE_NAMES } from './constants';
+import { ACTIVITY_CONTENT_TYPES } from './models/definitions/constants';
 import messageBroker, {
   sendCoreMessage,
   sendFormsMessage,
   sendLogsMessage,
-  sendProductsMessage,
-} from "./messageBroker";
-import { IModels, generateModels } from "./connectionResolver";
+  sendProductsMessage
+} from './messageBroker';
+import { IModels, generateModels } from './connectionResolver';
 import {
   collectItems,
   getCardContentIds,
   getContentItem,
-  getContentTypeDetail,
-} from "./utils";
+  getContentTypeDetail
+} from './utils';
 
 export const LOG_ACTIONS = {
-  CREATE: "create",
-  UPDATE: "update",
-  DELETE: "delete",
+  CREATE: 'create',
+  UPDATE: 'update',
+  DELETE: 'delete'
 };
 
 type BoardItemDocument =
@@ -46,9 +46,9 @@ type BoardItemDocument =
 const findUsers = async (subdomain: string, ids: string[]) => {
   return sendCoreMessage({
     subdomain,
-    action: "users.find",
+    action: 'users.find',
     data: { _id: { $in: ids } },
-    isRPC: true,
+    isRPC: true
   });
 };
 
@@ -67,41 +67,41 @@ const gatherPipelineFieldNames = async (
   const { Boards } = models;
 
   options = await gatherNames({
-    foreignKey: "boardId",
-    nameFields: ["name"],
+    foreignKey: 'boardId',
+    nameFields: ['name'],
     prevList: options,
-    items: await Boards.find({ _id: doc.boardId }).lean(),
+    items: await Boards.find({ _id: doc.boardId }).lean()
   });
 
   if (doc.userId) {
     options = await gatherUsernames({
-      foreignKey: "userId",
+      foreignKey: 'userId',
       prevList: options,
-      items: await findUsers(subdomain, [doc.userId]),
+      items: await findUsers(subdomain, [doc.userId])
     });
   }
 
   if (doc.excludeCheckUserIds && doc.excludeCheckUserIds.length > 0) {
     options = await gatherUsernames({
-      foreignKey: "excludeCheckUserIds",
+      foreignKey: 'excludeCheckUserIds',
       prevList: options,
-      items: await findUsers(subdomain, doc.excludeCheckUserIds),
+      items: await findUsers(subdomain, doc.excludeCheckUserIds)
     });
   }
 
   if (doc.memberIds && doc.memberIds.length > 0) {
     options = await gatherUsernames({
-      foreignKey: "memberIds",
+      foreignKey: 'memberIds',
       prevList: options,
-      items: await findUsers(subdomain, doc.memberIds),
+      items: await findUsers(subdomain, doc.memberIds)
     });
   }
 
   if (doc.watchedUserIds && doc.watchedUserIds.length > 0) {
     options = await gatherUsernames({
-      foreignKey: "watchedUserIds",
+      foreignKey: 'watchedUserIds',
       prevList: options,
-      items: await findUsers(subdomain, doc.watchedUserIds),
+      items: await findUsers(subdomain, doc.watchedUserIds)
     });
   }
 
@@ -124,58 +124,58 @@ const gatherBoardItemFieldNames = async (
 
   if (doc.userId) {
     options = await gatherUsernames({
-      foreignKey: "userId",
+      foreignKey: 'userId',
       prevList: options,
-      items: await findUsers(subdomain, [doc.userId]),
+      items: await findUsers(subdomain, [doc.userId])
     });
   }
 
   if (doc.assignedUserIds && doc.assignedUserIds.length > 0) {
     options = await gatherUsernames({
-      foreignKey: "assignedUserIds",
+      foreignKey: 'assignedUserIds',
       prevList: options,
-      items: await findUsers(subdomain, doc.assignedUserIds),
+      items: await findUsers(subdomain, doc.assignedUserIds)
     });
   }
 
   if (doc.watchedUserIds && doc.watchedUserIds.length > 0) {
     options = await gatherUsernames({
-      foreignKey: "watchedUserIds",
+      foreignKey: 'watchedUserIds',
       prevList: options,
-      items: await findUsers(subdomain, doc.watchedUserIds),
+      items: await findUsers(subdomain, doc.watchedUserIds)
     });
   }
 
   if (doc.labelIds && doc.labelIds.length > 0) {
     options = await gatherNames({
-      foreignKey: "labelIds",
+      foreignKey: 'labelIds',
       prevList: options,
-      nameFields: ["name"],
-      items: await PipelineLabels.find({ _id: { $in: doc.labelIds } }).lean(),
+      nameFields: ['name'],
+      items: await PipelineLabels.find({ _id: { $in: doc.labelIds } }).lean()
     });
   }
 
   options = await gatherNames({
-    foreignKey: "stageId",
+    foreignKey: 'stageId',
     prevList: options,
-    nameFields: ["name"],
-    items: await Stages.find({ _id: doc.stageId }),
+    nameFields: ['name'],
+    items: await Stages.find({ _id: doc.stageId })
   });
 
   if (doc.initialStageId) {
     options = await gatherNames({
-      foreignKey: "initialStageId",
+      foreignKey: 'initialStageId',
       prevList: options,
-      nameFields: ["name"],
-      items: await Stages.find({ _id: doc.initialStageId }),
+      nameFields: ['name'],
+      items: await Stages.find({ _id: doc.initialStageId })
     });
   }
 
   if (doc.modifiedBy) {
     options = await gatherUsernames({
-      foreignKey: "modifiedBy",
+      foreignKey: 'modifiedBy',
       prevList: options,
-      items: await findUsers(subdomain, [doc.modifiedBy]),
+      items: await findUsers(subdomain, [doc.modifiedBy])
     });
   }
 
@@ -198,20 +198,20 @@ const gatherDealFieldNames = async (
 
   if (doc.productsData && doc.productsData.length > 0) {
     options = await gatherNames({
-      foreignKey: "productId",
+      foreignKey: 'productId',
       prevList: options,
-      nameFields: ["name"],
+      nameFields: ['name'],
       items: await sendProductsMessage({
         subdomain,
-        action: "find",
+        action: 'find',
         data: {
           query: {
-            _id: { $in: doc.productsData.map((p) => p.productId) },
-          },
+            _id: { $in: doc.productsData.map(p => p.productId) }
+          }
         },
         isRPC: true,
-        defaultValue: [],
-      }),
+        defaultValue: []
+      })
     });
   }
 
@@ -234,9 +234,9 @@ const gatherGHFieldNames = async (
 
   if (doc.votedUserIds && doc.votedUserIds.length > 0) {
     options = await gatherUsernames({
-      foreignKey: "votedUserIds",
+      foreignKey: 'votedUserIds',
       prevList: options,
-      items: await findUsers(subdomain, doc.votedUserIds),
+      items: await findUsers(subdomain, doc.votedUserIds)
     });
   }
 
@@ -255,23 +255,23 @@ const gatherPipelineTemplateFieldNames = async (
   }
 
   options = await gatherUsernames({
-    foreignKey: "createdBy",
+    foreignKey: 'createdBy',
     prevList: options,
-    items: await findUsers(subdomain, [doc.createdBy || ""]),
+    items: await findUsers(subdomain, [doc.createdBy || ''])
   });
 
   if (doc.stages && doc.stages.length > 0) {
     options = await gatherNames({
-      foreignKey: "formId",
+      foreignKey: 'formId',
       prevList: options,
-      nameFields: ["title"],
+      nameFields: ['title'],
       items: await sendFormsMessage({
         subdomain,
-        action: "find",
-        data: { _id: { $in: doc.stages.map((s) => s.formId) } },
+        action: 'find',
+        data: { _id: { $in: doc.stages.map(s => s.formId) } },
         isRPC: true,
-        defaultValue: [],
-      }),
+        defaultValue: []
+      })
     });
   }
 
@@ -292,30 +292,30 @@ const gatherStageFieldNames = async (
 
   if (doc.userId) {
     options = await gatherUsernames({
-      foreignKey: "userId",
+      foreignKey: 'userId',
       prevList: options,
-      items: await findUsers(subdomain, [doc.userId]),
+      items: await findUsers(subdomain, [doc.userId])
     });
   }
   if (doc.pipelineId) {
     options = await gatherNames({
-      foreignKey: "pipelineId",
+      foreignKey: 'pipelineId',
       prevList: options,
-      nameFields: ["name"],
-      items: await models.Pipelines.find({ _id: doc.pipelineId }),
+      nameFields: ['name'],
+      items: await models.Pipelines.find({ _id: doc.pipelineId })
     });
   }
   if (doc.formId) {
     options = await gatherNames({
-      foreignKey: "formId",
+      foreignKey: 'formId',
       prevList: options,
-      nameFields: ["title"],
+      nameFields: ['title'],
       items: await sendFormsMessage({
         subdomain,
-        action: "find",
+        action: 'find',
         data: { _id: { $in: [doc.formId] } },
-        isRPC: true,
-      }),
+        isRPC: true
+      })
     });
   }
 
@@ -334,7 +334,7 @@ const findItemName = async (
   const { Deals, Tickets, Tasks, GrowthHacks } = models;
 
   let item: any;
-  let name: string = "";
+  let name: string = '';
 
   if (contentType === ACTIVITY_CONTENT_TYPES.DEAL) {
     item = await Deals.findOne({ _id: contentTypeId });
@@ -367,7 +367,7 @@ const gatherDescriptions = async (
   const { action, type, object, updatedDocument } = params;
 
   let extraDesc: LogDesc[] = [];
-  let description: string = "";
+  let description: string = '';
 
   switch (type) {
     case MODULE_NAMES.BOARD_DEAL:
@@ -376,8 +376,8 @@ const gatherDescriptions = async (
     case MODULE_NAMES.BOARD_TICKET:
       if (object.userId) {
         extraDesc = await gatherUsernames({
-          foreignKey: "userId",
-          items: await findUsers(subdomain, [object.userId]),
+          foreignKey: 'userId',
+          items: await findUsers(subdomain, [object.userId])
         });
       }
 
@@ -435,12 +435,12 @@ const gatherDescriptions = async (
       description = `"${object.name}" has been ${action}d`;
 
       const pipeline = await models.Pipelines.findOne({
-        _id: object.pipelineId,
+        _id: object.pipelineId
       });
 
       extraDesc = await gatherUsernames({
-        foreignKey: "createdBy",
-        items: await findUsers(subdomain, [object.createdBy]),
+        foreignKey: 'createdBy',
+        items: await findUsers(subdomain, [object.createdBy])
       });
 
       if (pipeline) {
@@ -519,12 +519,12 @@ const gatherDescriptions = async (
     case MODULE_NAMES.CHECKLIST:
       const itemName = await findItemName(models, {
         contentType: object.contentType,
-        contentTypeId: object.contentTypeId,
+        contentTypeId: object.contentTypeId
       });
 
       extraDesc = await gatherUsernames({
-        foreignKey: "createdUserId",
-        items: await findUsers(subdomain, [object.createdUserId]),
+        foreignKey: 'createdUserId',
+        items: await findUsers(subdomain, [object.createdUserId])
       });
 
       extraDesc.push({ contentTypeId: object.contentTypeId, name: itemName });
@@ -552,8 +552,8 @@ const gatherDescriptions = async (
       );
 
       extraDesc = await gatherUsernames({
-        foreignKey: "createdUserid",
-        items: await findUsers(subdomain, [object.createdUserId]),
+        foreignKey: 'createdUserid',
+        items: await findUsers(subdomain, [object.createdUserId])
       });
 
       extraDesc.push({ checklistId: checklist._id, name: checklist.title });
@@ -588,7 +588,7 @@ export const putDeleteLog = async (
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.DELETE,
+      action: LOG_ACTIONS.DELETE
     }
   );
 
@@ -610,7 +610,7 @@ export const putUpdateLog = async (
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.UPDATE,
+      action: LOG_ACTIONS.UPDATE
     }
   );
 
@@ -632,7 +632,7 @@ export const putCreateLog = async (
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.CREATE,
+      action: LOG_ACTIONS.CREATE
     }
   );
 
@@ -643,7 +643,10 @@ export const putCreateLog = async (
   );
 };
 
-export const putActivityLog = async (subdomain, params: { action: string; data: any }) => {
+export const putActivityLog = async (
+  subdomain,
+  params: { action: string; data: any }
+) => {
   const { data } = params;
 
   // if (['createBoardItemMovementLog'].includes(action)) {
@@ -652,12 +655,12 @@ export const putActivityLog = async (subdomain, params: { action: string; data: 
 
   const updatedParams = {
     ...params,
-    data: { ...data, contentType: `cards:${data.contentType}` },
+    data: { ...data, contentType: `cards:${data.contentType}` }
   };
 
   return commonPutActivityLog(subdomain, {
     messageBroker: messageBroker(),
-    ...updatedParams,
+    ...updatedParams
   });
 };
 
@@ -665,45 +668,41 @@ export const putChecklistActivityLog = async (subdomain: string, params) => {
   const { action, item } = params;
 
   const updatedParams = {
-    action: "createChecklistLog",
+    action: 'createChecklistLog',
     data: {
       ...params,
       contentId: item.contentTypeId || item.checklistId,
       content: { _id: item._id, name: item.title || item.content },
-      createdBy: item.createdUserId || "",
-    },
+      createdBy: item.createdUserId || ''
+    }
   };
 
-  if (action === "delete") {
+  if (action === 'delete') {
     sendLogsMessage({
       subdomain,
-      action: "activityLogs:updateMany",
+      action: 'activityLogs:updateMany',
       data: {
-        query: { "content._id": item._id },
-        modifier: { $set: { "content.name": item.title || item.content } },
-      },
+        query: { 'content._id': item._id },
+        modifier: { $set: { 'content.name': item.title || item.content } }
+      }
     });
   }
 
   return putActivityLog(subdomain, updatedParams);
 };
 
-const sendSuccess = (data) => ({
-  data, status: 'success'
+const sendSuccess = data => ({
+  data,
+  status: 'success'
 });
 
 export default {
   getActivityContent: async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-
-    return sendSuccess(await getContentItem(models, data));
+    return getContentItem(subdomain, data);
   },
 
   getContentTypeDetail: async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-    const { activityLog = {} } = data;
-
-    return sendSuccess(await getContentTypeDetail(models, activityLog));
+    return getContentTypeDetail(subdomain, data);
   },
 
   collectItems: async ({ subdomain, data }) => {
@@ -720,5 +719,5 @@ export default {
 
   getSchemaLabels: ({ data: { type } }) => {
     return sendSuccess(getSchemaLabels(type, LOG_MAPPINGS));
-  },
+  }
 };

@@ -1,102 +1,5 @@
 window.plugins = [
   {
-    name: "inbox",
-    port: 3009,
-    exposes: {
-      "./routes": "./src/routes.tsx",
-    },
-    routes: {
-      url: "http://localhost:3009/remoteEntry.js",
-      scope: "inbox",
-      module: "./routes",
-    },
-    menus: [
-      {
-        text: "Team Inbox",
-        url: "/inbox",
-        icon: "icon-chat",
-        location: "mainNavigation",
-        permission: "showConversations",
-      },
-      {
-        text: "Bookings",
-        url: "/bookings",
-        icon: "icon-paste",
-        location: "mainNavigation",
-        permission: "showIntegrations",
-      },
-      {
-        text: "Forms",
-        url: "/forms",
-        icon: "icon-laptop",
-        location: "mainNavigation",
-        permission: "showForms",
-      },
-      {
-        text: "Skills",
-        to: "/settings/skills",
-        image: "/images/icons/erxes-29.png",
-        location: "settings",
-        scope: "inbox",
-        action: "skillTypesAll",
-        permissions: [
-          "getSkillTypes",
-          "getSkill",
-          "getSkills",
-          "manageSkills",
-          "manageSkillTypes",
-        ],
-      },
-      {
-        text: "Channels",
-        to: "/settings/channels",
-        image: "/images/icons/erxes-05.svg",
-        location: "settings",
-        scope: "inbox",
-        action: "channelsAll",
-        permissions: ["showChannels", "manageChannels"],
-      },
-      {
-        text: "Integrations",
-        to: "/settings/integrations",
-        image: "/images/icons/erxes-04.svg",
-        location: "settings",
-        scope: "inbox",
-        action: "integrationsAll",
-        permissions: [
-          "showIntegrations",
-          "integrationsCreateMessengerIntegration",
-          "integrationsEditMessengerIntegration",
-          "integrationsSaveMessengerAppearanceData",
-          "integrationsSaveMessengerConfigs",
-          "integrationsCreateLeadIntegration",
-          "integrationsEditLeadIntegration",
-          "integrationsRemove",
-          "integrationsArchive",
-          "integrationsEdit",
-        ],
-      },
-      {
-        text: "Integrations config",
-        to: "/settings/integrations-config",
-        image: "/images/icons/erxes-24.svg",
-        location: "settings",
-        scope: "inbox",
-        action: "generalSettingsAll",
-        permissions: ["manageGeneralSettings", "showGeneralSettings"],
-      },
-      {
-        text: "Responses",
-        to: "/settings/response-templates",
-        image: "/images/icons/erxes-10.svg",
-        location: "settings",
-        scope: "inbox",
-        action: "responseTemplatesAll",
-        permissions: ["manageResponseTemplate", "showResponseTemplates"],
-      },
-    ],
-  },
-  {
     name: "automations",
     port: 3008,
     exposes: { "./routes": "./src/routes.tsx" },
@@ -290,6 +193,25 @@ window.plugins = [
     ],
   },
   {
+    name: "car",
+    port: 3010,
+    exposes: { "./routes": "./src/routes.tsx" },
+    routes: {
+      url: "http://localhost:3010/remoteEntry.js",
+      scope: "car",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Plugin Car",
+        url: "/cars",
+        location: "mainNavigation",
+        icon: "icon-car",
+        permission: "showCars",
+      },
+    ],
+  },
+  {
     name: "clientPortal",
     port: 3015,
     exposes: { "./routes": "./src/routes.tsx" },
@@ -347,8 +269,8 @@ window.plugins = [
         permission: "showEngagesMessages",
       },
       {
-        text: "Campaign settings",
-        to: "/settings/campaign-configs",
+        text: "Campaigns settings",
+        to: "#",
         image: "/images/icons/erxes-31.png",
         location: "settings",
         scope: "engages",
@@ -358,12 +280,30 @@ window.plugins = [
     ],
   },
   {
+    name: "exm",
+    port: 3105,
+    exposes: { "./routes": "./src/routes.tsx" },
+    routes: {
+      url: "http://localhost:3105/remoteEntry.js",
+      scope: "exm",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Exm core",
+        url: "/erxes-plugin-exm/home",
+        icon: "icon-cog",
+        location: "mainNavigation",
+        permission: "showExms",
+      },
+    ],
+  },
+  {
     name: "forms",
     port: 3005,
     exposes: { "./routes": "./src/routes.tsx" },
     routes: {
-      url:
-        "https://plugin-uis.s3.us-west-2.amazonaws.com/plugin-forms-ui/remoteEntry.js",
+      url: "http://localhost:3005/remoteEntry.js",
       scope: "forms",
       module: "./routes",
     },
@@ -376,6 +316,101 @@ window.plugins = [
         scope: "forms",
         action: "",
         permissions: [],
+      },
+    ],
+  },
+  {
+    name: "inbox",
+    port: 3009,
+    exposes: { "./routes": "./src/routes.tsx" },
+    routes: {
+      url: "http://localhost:3009/remoteEntry.js",
+      scope: "inbox",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Team Inbox",
+        url: "/inbox",
+        icon: "icon-chat",
+        location: "mainNavigation",
+        permission: "showConversations",
+      },
+      {
+        text: "Bookings",
+        url: "/bookings",
+        icon: "icon-paste",
+        location: "mainNavigation",
+        permission: "showIntegrations",
+      },
+      {
+        text: "Forms",
+        url: "/forms",
+        icon: "icon-laptop",
+        location: "mainNavigation",
+        permission: "showForms",
+      },
+      {
+        text: "Skills",
+        to: "/settings/skills",
+        image: "/images/icons/erxes-29.png",
+        location: "settings",
+        scope: "inbox",
+        action: "skillTypesAll",
+        permissions: [
+          "getSkillTypes",
+          "getSkill",
+          "getSkills",
+          "manageSkills",
+          "manageSkillTypes",
+        ],
+      },
+      {
+        text: "Channels",
+        to: "/settings/channels",
+        image: "/images/icons/erxes-05.svg",
+        location: "settings",
+        scope: "inbox",
+        action: "channelsAll",
+        permissions: ["showChannels", "manageChannels"],
+      },
+      {
+        text: "Integrations",
+        to: "/settings/integrations",
+        image: "/images/icons/erxes-04.svg",
+        location: "settings",
+        scope: "inbox",
+        action: "integrationsAll",
+        permissions: [
+          "showIntegrations",
+          "integrationsCreateMessengerIntegration",
+          "integrationsEditMessengerIntegration",
+          "integrationsSaveMessengerAppearanceData",
+          "integrationsSaveMessengerConfigs",
+          "integrationsCreateLeadIntegration",
+          "integrationsEditLeadIntegration",
+          "integrationsRemove",
+          "integrationsArchive",
+          "integrationsEdit",
+        ],
+      },
+      {
+        text: "Integrations config",
+        to: "/settings/integrations-config",
+        image: "/images/icons/erxes-24.svg",
+        location: "settings",
+        scope: "inbox",
+        action: "generalSettingsAll",
+        permissions: ["manageGeneralSettings", "showGeneralSettings"],
+      },
+      {
+        text: "Responses",
+        to: "/settings/response-templates",
+        image: "/images/icons/erxes-10.svg",
+        location: "settings",
+        scope: "inbox",
+        action: "responseTemplatesAll",
+        permissions: ["manageResponseTemplate", "showResponseTemplates"],
       },
     ],
   },
@@ -409,7 +444,7 @@ window.plugins = [
     },
     menus: [
       {
-        text: "Logs",
+        text: "logs",
         to: "/settings/logs",
         image: "/images/icons/erxes-33.png",
         location: "settings",
@@ -417,6 +452,34 @@ window.plugins = [
         component: "./settings",
         action: "",
         permissions: [],
+      },
+    ],
+  },
+  {
+    name: "loyalty",
+    port: 3002,
+    exposes: { "./routes": "./src/routes.tsx" },
+    routes: {
+      url: "http://localhost:3002/remoteEntry.js",
+      scope: "loyalty",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Loyalty",
+        url: "/vouchers",
+        icon: "icon-piggybank",
+        location: "mainNavigation",
+        permission: "showLoyalties",
+      },
+      {
+        text: "Loyalty config",
+        to: "/erxes-plugin-loyalty/settings/general",
+        image: "/images/icons/erxes-16.svg",
+        location: "settings",
+        scope: "loyalty",
+        action: "loyaltyConfig",
+        permissions: ["loyaltyConfig"],
       },
     ],
   },
@@ -452,7 +515,67 @@ window.plugins = [
       },
     ],
   },
-
+  {
+    name: "pos",
+    port: 3016,
+    exposes: { "./routes": "./src/routes.tsx" },
+    routes: {
+      url: "http://localhost:3016/remoteEntry.js",
+      scope: "pos",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "POS",
+        to: "/pos",
+        image: "/images/icons/erxes-05.svg",
+        location: "settings",
+        scope: "pos",
+        action: "posConfig",
+        permissions: ["showPos"],
+      },
+    ],
+  },
+  {
+    name: "products",
+    port: 3022,
+    exposes: { "./routes": "./src/routes.tsx" },
+    routes: {
+      url: "http://localhost:3022/remoteEntry.js",
+      scope: "products",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Product and services",
+        to: "/settings/product-service/",
+        image: "/images/icons/erxes-31.png",
+        location: "settings",
+        scope: "products",
+        action: "productsAll",
+        permissions: ["showProducts", "manageProducts"],
+      },
+    ],
+  },
+  {
+    name: "dashboard",
+    port: 3007,
+    exposes: { "./routes": "./src/routes.tsx" },
+    routes: {
+      url: "http://localhost:3007/remoteEntry.js",
+      scope: "dashboard",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Reports",
+        url: "/dashboard",
+        icon: "icon-dashboard",
+        location: "mainNavigation",
+        permission: "showDashboards",
+      },
+    ],
+  },
   {
     name: "segments",
     port: 3013,
@@ -469,6 +592,27 @@ window.plugins = [
         icon: "icon-chart-pie-alt",
         location: "mainNavigation",
         permission: "showSegments",
+      },
+    ],
+  },
+  {
+    name: "syncErkhet",
+    port: 3017,
+    exposes: { "./routes": "./src/routes.tsx" },
+    routes: {
+      url: "http://localhost:3017/remoteEntry.js",
+      scope: "syncErkhet",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Sync Erkhet",
+        to: "/erxes-plugin-sync-erkhet/settings/general",
+        image: "/images/icons/erxes-04.svg",
+        location: "settings",
+        scope: "syncErkhet",
+        action: "syncErkhetConfig",
+        permissions: [],
       },
     ],
   },
@@ -493,4 +637,67 @@ window.plugins = [
       },
     ],
   },
+  {
+    name: "ebarimt",
+    port: 3018,
+    exposes: {
+      "./routes": "./src/routes.tsx",
+    },
+    routes: {
+      url: "http://localhost:3018/remoteEntry.js",
+      scope: "ebarimt",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Put Responses",
+        url: "/put-responses",
+        icon: "icon-lamp",
+        location: "mainNavigation",
+        permission: "syncEbarimtConfig",
+      },
+      {
+        text: "Ebarimt config",
+        to: "/erxes-plugin-ebarimt/settings/general",
+        image: "/images/icons/erxes-04.svg",
+        location: "settings",
+        scope: "ebarimt",
+        action: "syncEbarimtConfig",
+        permissions: [],
+      },
+    ],
+  },
+  {
+    name: 'qpay',
+    port: 3019,
+    exposes: {
+      './routes': './src/routes.tsx'
+    },
+    routes: {
+      url: 'http://localhost:3019/remoteEntry.js',
+      scope: 'qpay',
+      module: './routes'
+    },
+    menus: [
+      {
+        text: 'Qpay config',
+        to: '/erxes-plugin-qpay/settings/',
+        image: '/images/icons/erxes-16.svg',
+        location: "settings",
+        scope: "qpay",
+        action: 'pluginQpayConfig',
+        permissions: ['manageQr','allQr'],
+      },
+      {
+        text: 'SocialPay config',
+        to: '/erxes-plugin-qpay/settings_socialPay/',
+        image: '/images/icons/erxes-16.svg',
+        location: "settings",
+        scope: "qpay",
+        action: 'pluginQpayConfig',
+        permissions: ['manageQr','allQr']
+  
+      }
+    ]
+  }
 ];
