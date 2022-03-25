@@ -46,34 +46,10 @@ class AccountContainer extends React.Component<FinalProps, {}> {
   onAdd = () => {
     const { addLink, kind } = this.props;
 
-
     const { REACT_APP_API_URL } = getEnv();
-    // const url = `${REACT_APP_API_URL}/connect-integration?link=${addLink}&kind=${kind}`;
-    // this.sendRequest()
 
     this.popupWindow(`${REACT_APP_API_URL}/pl:integrations/${addLink}?kind=${kind}`, 'Integration', window, 660, 750);
   };
-
-
-//   sendRequest() {
-//     const { REACT_APP_API_URL } = getEnv();
-
-//   //  http://localhost:3400/fblogin?kind=facebook&userId=wHTFj2qR3iHxBfBsc
-
-    
-//     return fetch(`${REACT_APP_API_URL}/pl:integrations/fblogin?kind=facebook&userId=wHTFj2qR3iHxBfBsc
-
-// `, {
-//       method: "get",
-//       headers: {
-//         Accept: "application/json",
-//         "Content-Type": "application/json"
-//       },
-//     })
-//       .catch(errorResponse => {
-//         console.log(errorResponse, '---------------------------------------------------');
-//       });
-//   }
 
   removeAccount = (accountId: string) => {
     const { removeAccount, onRemove } = this.props;
