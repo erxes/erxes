@@ -5,7 +5,6 @@ import {
 } from './models/definitions/automaions';
 
 import { ACTIONS } from './constants';
-import { setProperty } from './actions';
 import {
   EXECUTION_STATUS,
   IExecAction,
@@ -125,22 +124,32 @@ export const executeActions = async (
     }
 
     if (action.type === ACTIONS.SET_PROPERTY) {
-      actionResponse = await setProperty({
-        subdomain,
-        triggerType,
-        actionConfig: action.config,
-        target: execution.target
-      });
-    }
+      const { module } = action.config;
+      const [serviceName, collectionType] = module.split(':');
 
-    const [serviceName, type] = action.type.split(':');
-
-    if (type.includes('create')) {
       actionResponse = await sendCommonMessage({
         subdomain,
         serviceName,
         action: 'automations.receiveActions',
         data: {
+          triggerType,
+          actionType: 'set-property',
+          action,
+          execution,
+          collectionType,
+        }
+      });
+    }
+
+    if (action.type.includes('create')) {
+      const [serviceName, type] = action.type.split(':');
+
+      actionResponse = await sendCommonMessage({
+        subdomain,
+        serviceName,
+        action: 'automations.receiveActions',
+        data: {
+          actionType: 'create',
           action,
           execution,
           collectionType: type.replace('.create', '')

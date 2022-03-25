@@ -8,8 +8,8 @@ import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
-import { queries as compaignQueries } from '../../../configs/voucherCompaign/graphql';
-import { VoucherCompaignDetailQueryResponse } from '../../../configs/voucherCompaign/types';
+import { queries as campaignQueries } from '../../../configs/voucherCampaign/graphql';
+import { VoucherCampaignDetailQueryResponse } from '../../../configs/voucherCampaign/types';
 import {
   MainQueryResponse,
   RemoveMutationResponse,
@@ -23,7 +23,7 @@ type Props = {
 
 type FinalProps = {
   vouchersMainQuery: MainQueryResponse;
-  voucherCompaignDetailQuery: VoucherCompaignDetailQueryResponse;
+  voucherCampaignDetailQuery: VoucherCampaignDetailQueryResponse;
 } & Props &
   IRouterProps &
   RemoveMutationResponse;
@@ -44,12 +44,12 @@ class VoucherListContainer extends React.Component<FinalProps, State> {
   render() {
     const {
       vouchersMainQuery,
-      voucherCompaignDetailQuery,
+      voucherCampaignDetailQuery,
       vouchersRemove,
       history
     } = this.props;
 
-    if (vouchersMainQuery.loading || (voucherCompaignDetailQuery && voucherCompaignDetailQuery.loading)) {
+    if (vouchersMainQuery.loading || (voucherCampaignDetailQuery && voucherCampaignDetailQuery.loading)) {
       return <Spinner />;
     }
 
@@ -68,14 +68,14 @@ class VoucherListContainer extends React.Component<FinalProps, State> {
 
     const searchValue = this.props.queryParams.searchValue || '';
     const { list = [], totalCount = 0 } = vouchersMainQuery.vouchersMain || {};
-    const currentCompaign = voucherCompaignDetailQuery && voucherCompaignDetailQuery.voucherCompaignDetail;
+    const currentCampaign = voucherCampaignDetailQuery && voucherCampaignDetailQuery.voucherCampaignDetail;
 
     const updatedProps = {
       ...this.props,
       totalCount,
       searchValue,
       vouchers: list,
-      currentCompaign,
+      currentCampaign,
       removeVouchers,
     };
 
@@ -94,7 +94,7 @@ class VoucherListContainer extends React.Component<FinalProps, State> {
 const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
   ids: queryParams.ids,
-  compaignId: queryParams.compaignId,
+  campaignId: queryParams.campaignId,
   status: queryParams.status,
   ownerId: queryParams.ownerId,
   ownerType: queryParams.ownerType,
@@ -119,16 +119,16 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, VoucherCompaignDetailQueryResponse>(
-      gql(compaignQueries.voucherCompaignDetail),
+    graphql<Props, VoucherCampaignDetailQueryResponse>(
+      gql(campaignQueries.voucherCampaignDetail),
       {
-        name: 'voucherCompaignDetailQuery',
+        name: 'voucherCampaignDetailQuery',
         options: ({ queryParams }) => ({
           variables: {
-            _id: queryParams.compaignId
+            _id: queryParams.campaignId
           }
         }),
-        skip: ({ queryParams }) => !queryParams.compaignId,
+        skip: ({ queryParams }) => !queryParams.campaignId,
       }
     ),
     // mutations

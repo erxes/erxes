@@ -144,7 +144,7 @@ class PerSettings extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel>{'defaultPay'}</ControlLabel>
-          {/* <Select
+          <Select
             value={config.defaultPay}
             onChange={this.onChangeCombo}
             clearable={false}
@@ -154,7 +154,7 @@ class PerSettings extends React.Component<Props, State> {
               { value: 'cashAmount', label: 'cashAmount' },
               { value: 'cardAmount', label: 'cardAmount' }
             ]}
-          /> */}
+          />
         </FormGroup>
 
         <ModalFooter>

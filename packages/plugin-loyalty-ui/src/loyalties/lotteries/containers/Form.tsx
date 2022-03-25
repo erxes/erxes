@@ -68,8 +68,8 @@ const getRefetchQueries = () => {
     // lotteries for customer detail lottery associate
     'lotteries',
     'lotteryCounts',
-    'lotteryCompaigns',
-    'lotteryCompaignsTotalCount'
+    'lotteryCampaigns',
+    'lotteryCampaignsTotalCount'
   ];
 };
 

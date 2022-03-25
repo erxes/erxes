@@ -4,7 +4,7 @@ import * as jwt from 'jsonwebtoken';
 // @ts-ignore
 import { sendRequest, frontendEnv } from 'erxes-api-utils';
 import { NextFunction, Request, Response } from 'express';
-import redis from '../redis';
+import { redis } from '../redis';
 import { Users } from '../db';
 
 export default async function userMiddleware(req: Request & { user?: any }, _res: Response, next: NextFunction) {
@@ -55,14 +55,14 @@ export default async function userMiddleware(req: Request & { user?: any }, _res
 
   const token = req.cookies['auth-token'];
 
-  if(!token) { return next(); }
+  if (!token) { return next(); }
 
   try {
     // verify user token and retrieve stored user information
     const { user }: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
 
-    const userDoc = await Users.findOne({ _id : user._id });
-    
+    const userDoc = await Users.findOne({ _id: user._id });
+
     // invalid token access.
     if (!userDoc?.validatedTokens?.includes(token)) {
       return next();

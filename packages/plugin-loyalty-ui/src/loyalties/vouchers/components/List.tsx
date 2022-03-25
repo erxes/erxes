@@ -19,14 +19,14 @@ import { BarItems } from '@erxes/ui/src/layout/styles';
 import { MainStyleCount as Count,MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import { IVoucher } from '../types';
-import { IVoucherCompaign } from '../../../configs/voucherCompaign/types';
+import { IVoucherCampaign } from '../../../configs/voucherCampaign/types';
 import { LoyaltiesTableWrapper } from '../../common/styles';
 import { menuLoyalties } from '../../common/constants';
 import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   vouchers: IVoucher[];
-  currentCompaign?: IVoucherCompaign;
+  currentCampaign?: IVoucherCampaign;
   loading: boolean;
   searchValue: string;
   totalCount: number;
@@ -102,11 +102,11 @@ class VouchersList extends React.Component<IProps, State> {
       isAllSelected,
       totalCount,
       queryParams,
-      currentCompaign
+      currentCampaign
     } = this.props;
 
     const renderCheckbox = () => {
-      if (!currentCompaign || ['spin', 'lottery'].includes(currentCompaign.voucherType)) {
+      if (!currentCampaign || ['spin', 'lottery'].includes(currentCampaign.voucherType)) {
         return;
       }
       return (
@@ -152,7 +152,7 @@ class VouchersList extends React.Component<IProps, State> {
                 key={voucher._id}
                 history={history}
                 toggleBulk={toggleBulk}
-                currentCompaign={currentCompaign}
+                currentCampaign={currentCampaign}
                 queryParams={queryParams}
               />
             ))}
@@ -218,7 +218,7 @@ class VouchersList extends React.Component<IProps, State> {
     };
 
     const actionBarLeft = (
-      <Title>{currentCompaign && `${currentCompaign.voucherType}: ${currentCompaign.title}` || 'All voucher compaigns'} </Title>
+      <Title>{currentCampaign && `${currentCampaign.voucherType}: ${currentCampaign.title}` || 'All voucher campaigns'} </Title>
     );
     const actionBar = (
       <Wrapper.ActionBar right={actionBarRight()} left={actionBarLeft} />

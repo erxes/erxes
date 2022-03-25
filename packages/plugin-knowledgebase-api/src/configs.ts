@@ -5,6 +5,7 @@ import { initBroker } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { coreModels, generateModels, models } from './connectionResolver';
 import logs from './logUtils';
+import permissions from './permissions';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -30,6 +31,7 @@ export default {
     }
   },
   hasSubscriptions: false,
+  permissions,
   segment: {},
   meta: { logs: { consumers: logs } },
   apolloServerContext: (context) => {

@@ -97,6 +97,15 @@ export const initBroker = async cl => {
     }
   });
 
+  consumeRPCQueue('cards:deals.find', async ({ subdomain, data })=> {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Deals.find(data)
+    }
+  });
+
   consumeRPCQueue('cards:deals.generateAmounts', async productsData => {
     return { data: generateAmounts(productsData), status: 'success' };
   });
@@ -119,6 +128,18 @@ export const initBroker = async cl => {
     }).distinct('productsData.productId');
 
     return { data: dealProductIds, status: 'success' };
+  });
+
+  consumeRPCQueue('cards:tickets.updateMany', async ({ subdomain, data: { selector, modifier } }) => {
+    const models = await generateModels(subdomain);
+
+    return { data: await models.Tickets.updateMany(selector, modifier), status: 'success' };
+  });
+
+  consumeRPCQueue('cards:tasks.updateMany', async ({ subdomain, data: { selector, modifier } }) => {
+    const models = await generateModels(subdomain);
+
+    return { data: await models.Tasks.updateMany(selector, modifier), status: 'success' };
   });
 
   consumeRPCQueue('cards:deals.updateMany', async ({ subdomain, data: { selector, modifier } }) => {

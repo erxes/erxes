@@ -123,36 +123,28 @@ const dealMutations = {
 
       const productIds = productsData.map((p) => p.productId);
 
-      const products = await sendProductsMessage({
-        subdomain,
-        action: 'find',
-        data: {
-          query: {
-            _id: { $in: productIds },
-            supply: { $ne: 'unlimited' }
-          }
-        },
-        isRPC: true,
-        defaultValue: []
-      });
-
-      if (stage.probability === "Won") {
-        await sendProductsMessage({
+      if (!(stage.probability === "Won" || prevStage.probability === "Won")) {
+        const products = await sendProductsMessage({
           subdomain,
-          action: "update",
+          action: 'find',
           data: {
-            selector: { _id: { $in: products.map((p) => p._id) } },
-            modifier: { $inc: { productCount: -1 } },
+            query: {
+              _id: { $in: productIds },
+              supply: { $ne: 'unlimited' }
+            }
           },
-          isRPC: true
+          isRPC: true,
+          defaultValue: []
         });
-      } else if (prevStage.probability === "Won") {
+
+        const multiplier = stage.probability === "Won" ? -1 : 1;
+
         await sendProductsMessage({
           subdomain,
           action: "update",
           data: {
             selector: { _id: { $in: products.map((p) => p._id) } },
-            modifier: { $inc: { productCount: 1 } },
+            modifier: { $inc: { productCount: multiplier } },
           },
           isRPC: true
         });
