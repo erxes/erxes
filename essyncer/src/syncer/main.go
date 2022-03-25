@@ -119,21 +119,6 @@ func main() {
 		}
 	}`
 
-	putTemplate("conformities", fmt.Sprintf(`{
-		"mainType": {
-			"type": "keyword"
-		},
-		"mainTypeId": {
-			"type": "keyword"
-		},
-		"relType": {
-			"type": "keyword"
-		},
-		"relTypeId": {
-			"type": "keyword"
-		}
-	}`))
-
 	putTemplate("events", fmt.Sprintf(`{
 		"organizationId": {
 			"type": "keyword"
@@ -174,8 +159,8 @@ func main() {
 	var namespaces []string
 	var scripts []string
 
-	possible_dbs := []string{"erxes","erxes_office"}
-	possible_collections := []string{"users","brands","conformities"}
+	possible_dbs := []string{"erxes"}
+	possible_collections := []string{"users","brands"}
 
 	for i := 0; i < len(plugins.Plugins); i++ {
 		var plugin = plugins.Plugins[i]
