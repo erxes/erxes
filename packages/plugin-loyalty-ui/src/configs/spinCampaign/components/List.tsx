@@ -1,6 +1,6 @@
 import {
-  Button, ControlLabel, FormControl, FormGroup, HeaderDescription, Info,
-  CollapseContent, DataWithLoader, Table, ModalTrigger,
+  Button, FormControl,
+  DataWithLoader, Table, ModalTrigger,
 } from '@erxes/ui/src/components';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { Wrapper, BarItems } from '@erxes/ui/src/layout';

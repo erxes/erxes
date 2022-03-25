@@ -6,7 +6,7 @@ import { ButtonMutate } from '@erxes/ui/src/components';
 import { withProps} from '@erxes/ui/src/utils';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import From from '../components/Form';
-import { mutations, queries } from '../graphql';
+import { mutations } from '../graphql';
 import { ILotteryCampaign } from '../types';
 import { queries as voucherCampaignQueries } from '../../voucherCampaign/graphql';
 import { VoucherCampaignQueryResponse } from '../../voucherCampaign/types';

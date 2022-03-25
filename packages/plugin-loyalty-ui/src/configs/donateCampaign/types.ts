@@ -1,5 +1,4 @@
 import { ICommonTypes } from "../commonTypes";
-import { IVoucherCampaign } from "../voucherCampaign/types";
 
 export type IDonateCampaignAward = {
   _id: string,

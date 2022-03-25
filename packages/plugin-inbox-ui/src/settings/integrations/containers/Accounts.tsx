@@ -47,9 +47,8 @@ class AccountContainer extends React.Component<FinalProps, {}> {
     const { addLink, kind } = this.props;
 
     const { REACT_APP_API_URL } = getEnv();
-    const url = `${REACT_APP_API_URL}/connect-integration?link=${addLink}&kind=${kind}`;
 
-    this.popupWindow(url, 'Integration', window, 660, 750);
+    this.popupWindow(`${REACT_APP_API_URL}/pl:integrations/${addLink}?kind=${kind}`, 'Integration', window, 660, 750);
   };
 
   removeAccount = (accountId: string) => {
