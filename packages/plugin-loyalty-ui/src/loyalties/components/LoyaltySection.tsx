@@ -4,7 +4,6 @@ import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { LoyaltyAmount } from '../../styles';
 import { IDonate } from '../donates/types';
 import { ILottery } from '../lotteries/types';
 import { ISpin } from '../spins/types';
