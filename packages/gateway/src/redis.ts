@@ -1,12 +1,9 @@
-import * as dotenv from "dotenv";
-import Redis from "ioredis";
+import Redis from 'ioredis';
 import ServiceRegistry from 'clerq';
-
-dotenv.config();
 
 const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = process.env;
 
-export const redis = new Redis({
+const redis = new Redis({
   host: REDIS_HOST,
   port: parseInt(REDIS_PORT || "6379", 10),
   password: REDIS_PASSWORD,
@@ -14,28 +11,69 @@ export const redis = new Redis({
 
 const registry = new ServiceRegistry(redis, {});
 
-export const getServices = () => {
-  return registry.services();
-}
+const generateKey = name => `service:config:${name}`;
 
-export const getService = async (name: string, meta?: boolean) => {
+const getServices = () => {
+  return registry.services();
+};
+
+const getService = async (name: string, config?: boolean) => {
   const result = {
     address: await registry.get(name),
-    meta: {}
-  }
+    config: {}
+  };
 
-  if (meta) {
-    const value = await redis.get(`service:config:${name}`);
-    result.meta = JSON.parse(value || '{}');
+  if (config) {
+    const value = await redis.get(generateKey(name));
+    result.config = JSON.parse(value || '{}');
   }
 
   return result;
-}
+};
 
-export const isAvailable = async (name) => {
+const isAvailable = async (name) => {
   const serviceNames = await getServices();
 
   return serviceNames.includes(name);
 }
 
-export default redis;
+const setAfterMutations = async () => {
+  const services = await getServices();
+  const result = {}
+
+  for (const service of services) {
+    const info = await getService(service, true);
+    const meta = Object.keys(info.config).includes('meta') ? (info.config as any).meta : {};
+
+    if (!Object.keys(meta).includes('afterMutations')) {
+      continue
+    }
+
+    for (const type of Object.keys(meta.afterMutations)) {
+      if (!Object.keys(result).includes(type)) {
+        result[type] = {};
+      }
+
+      for (const action of meta.afterMutations[type]) {
+        if (!Object.keys(result[type]).includes(action)) {
+          result[type][action] = [];
+        }
+
+        result[type][action].push(service)
+      }
+    }
+  }
+
+  await redis.set(
+    'afterMutations',
+    JSON.stringify(result)
+  );
+}
+
+export {
+  isAvailable,
+  getServices,
+  getService,
+  redis,
+  setAfterMutations
+};

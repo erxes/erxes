@@ -3,11 +3,12 @@ import {
   requireLogin,
 } from "@erxes/api-utils/src/permissions";
 import { paginate } from "erxes-api-utils";
+import { IContext } from "../../../connectionResolver";
 
 const generateFilter = async (models, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
-  filter.status = { $ne: "Deleted" };
+  // filter.status = { $ne: "Deleted" };
 
   if (params.categoryId) {
     filter.categoryId = params.categoryId;
@@ -87,8 +88,8 @@ const carQueries = {
     };
   },
 
-  carDetail: async (_root, { _id }, { models }) => {
-    return models.Cars.getCar(models, _id);
+  carDetail: async (_root, { _id }, { models }: IContext) => {
+    return models.Cars.getCar(_id);
   },
 
   carCategories: async (
@@ -148,13 +149,13 @@ const carQueries = {
   },
 };
 
-// requireLogin(carQueries, "carDetail");
+requireLogin(carQueries, "carDetail");
 
-// checkPermission(carQueries, "cars", "showCars");
-// checkPermission(carQueries, "carsMain", "showCars");
-// checkPermission(carQueries, "carDetail", "showCars");
-// checkPermission(carQueries, "carCategories", "showCars");
-// checkPermission(carQueries, "carCategoriesTotalCount", "showCars");
-// checkPermission(carQueries, "carCategoryDetail", "showCars");
+checkPermission(carQueries, "cars", "showCars");
+checkPermission(carQueries, "carsMain", "showCars");
+checkPermission(carQueries, "carDetail", "showCars");
+checkPermission(carQueries, "carCategories", "showCars");
+checkPermission(carQueries, "carCategoriesTotalCount", "showCars");
+checkPermission(carQueries, "carCategoryDetail", "showCars");
 
 export default carQueries;

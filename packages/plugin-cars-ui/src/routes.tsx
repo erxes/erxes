@@ -25,9 +25,9 @@ const routes = () => {
   return (
     <>
       <Route
-        key="/cars/details/:id"
+        key="/erxes-plugin-car/details/:id"
         exact={true}
-        path="/cars/details/:id"
+        path="/erxes-plugin-car/details/:id"
         component={details}
       />
       <Route

@@ -1,4 +1,5 @@
 import * as _ from 'underscore';
+import redis from './redis';
 import { IUserDocument } from './types';
 
 export interface ILogDataParams {
@@ -163,6 +164,23 @@ const putLog = async (
   params: IFinalLogParams,
   user: IUserDocument
 ) => {
+  const value = await redis.get('afterMutations');
+  const afterMutations = JSON.parse(value || '{}');
+
+  if (afterMutations[params.type] && afterMutations[params.type][params.action] && afterMutations[params.type][params.action].length) {
+    for (const service of afterMutations[params.type][params.action]) {
+      messageBroker.sendMessage(`${service}:afterMutation`, {
+        subdomain: 'os',
+        data: {
+          ...params,
+          object: params.object,
+          newData: params.newData,
+          extraDesc: params.extraDesc
+        }
+      })
+    }
+  }
+
   const isLoggerAvailable = await messageBroker.sendRPCMessage(
     'gateway:isServiceAvailable',
     'logs'

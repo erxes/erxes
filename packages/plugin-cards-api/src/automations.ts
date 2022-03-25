@@ -1,10 +1,15 @@
-import { replacePlaceHolders } from "@erxes/api-utils/src/automations";
+import { replacePlaceHolders, setProperty } from "@erxes/api-utils/src/automations";
 import { generateModels, IModels } from "./connectionResolver";
 import { itemsAdd } from "./graphql/resolvers/mutations/utils";
 import { sendCommonMessage, sendCoreMessage } from "./messageBroker";
 import { getCollection } from "./models/utils";
 
-const getRelatedValue = async (models: IModels, subdomain: string, target, targetKey) => {
+const getRelatedValue = async (
+  models: IModels,
+  subdomain: string,
+  target,
+  targetKey
+) => {
   if (
     [
       "userId",
@@ -58,7 +63,7 @@ const getRelatedValue = async (models: IModels, subdomain: string, target, targe
 
   if (targetKey === "labelIds") {
     const labels = await models.PipelineLabels.find({
-      _id: { $in: target[targetKey] } 
+      _id: { $in: target[targetKey] },
     });
 
     return (labels.map((label) => label.name) || []).join(", ");
@@ -66,7 +71,7 @@ const getRelatedValue = async (models: IModels, subdomain: string, target, targe
 
   if (["initialStageId", "stageId"].includes(targetKey)) {
     const stage = await models.Stages.findOne({
-      _id: target[targetKey]
+      _id: target[targetKey],
     });
 
     return (stage && stage.name) || "";
@@ -89,76 +94,93 @@ const getRelatedValue = async (models: IModels, subdomain: string, target, targe
 export default {
   receiveActions: async ({
     subdomain,
-    data: { action, execution, collectionType },
+    data: { action, execution, collectionType, triggerType, actionType },
   }) => {
     const models = await generateModels(subdomain);
-    const { config = {} } = action;
 
-    let newData = action.config.assignedTo
-      ? await replacePlaceHolders({
-          models,
-          subdomain,
-          getRelatedValue,
-          actionData: { assignedTo: action.config.assignedTo },
-          target: execution.target,
-          isRelated: false,
-        })
-      : {};
+    if (actionType === "create") {
+      return actionCreate({ models, subdomain, action, execution, collectionType });
+    }
 
-    delete action.config.assignedTo;
+    return setProperty({
+      models,
+      subdomain,
+      getRelatedValue,
+      action,
+      execution,
+      triggerType,
+      sendCommonMessage
+    })
+  },
+};
 
-    newData = {
-      ...newData,
-      ...(await replacePlaceHolders({
+const actionCreate = async ({ models, subdomain, action, execution, collectionType }) => {
+  const { config = {} } = action;
+
+  let newData = action.config.assignedTo
+    ? await replacePlaceHolders({
         models,
         subdomain,
         getRelatedValue,
-        actionData: action.config,
+        actionData: { assignedTo: action.config.assignedTo },
         target: execution.target,
-      })),
-    };
+        isRelated: false,
+      })
+    : {};
 
-    if (newData.hasOwnProperty("assignedTo")) {
-      newData.assignedUserIds = newData.assignedTo.trim().split(", ");
-    }
+  delete action.config.assignedTo;
 
-    if (newData.hasOwnProperty("labelIds")) {
-      newData.labelIds = newData.labelIds.trim().split(", ");
-    }
+  newData = {
+    ...newData,
+    ...(await replacePlaceHolders({
+      models,
+      subdomain,
+      getRelatedValue,
+      actionData: action.config,
+      target: execution.target,
+    })),
+  };
 
-    if (newData.hasOwnProperty("cardName")) {
-      newData.name = newData.cardName;
-    }
+  if (newData.hasOwnProperty("assignedTo")) {
+    newData.assignedUserIds = newData.assignedTo.trim().split(", ");
+  }
 
-    if (config.hasOwnProperty("stageId")) {
-      newData.stageId = config.stageId;
-    }
+  if (newData.hasOwnProperty("labelIds")) {
+    newData.labelIds = newData.labelIds.trim().split(", ");
+  }
 
-    try {
-      const { create } = getCollection(models, collectionType);
+  if (newData.hasOwnProperty("cardName")) {
+    newData.name = newData.cardName;
+  }
 
-      const item = await itemsAdd(
-        models,
-        subdomain,
-        newData,
-        collectionType,
-        create
-      );
+  if (config.hasOwnProperty("stageId")) {
+    newData.stageId = config.stageId;
+  }
 
-      await sendCoreMessage({
-        subdomain,
-        action: "conformities.addConformity",
-        data: {
-          mainType: execution.triggerType,
-          mainTypeId: execution.targetId,
-          relType: `cards:${collectionType}`,
-          relTypeId: item._id,
-        },
-      });
+  try {
+    const { create } = getCollection(models, collectionType);
 
-      return item;
-    } catch (e) {
-      return { error: e.message };
-    }
-  },
+    const item = await itemsAdd(
+      models,
+      subdomain,
+      newData,
+      collectionType,
+      create
+    );
+
+    await sendCoreMessage({
+      subdomain,
+      action: "conformities.addConformity",
+      data: {
+        mainType: execution.triggerType,
+        mainTypeId: execution.targetId,
+        relType: `cards:${collectionType}`,
+        relTypeId: item._id,
+      },
+    });
+
+    return item;
+  } catch (e) {
+    return { error: e.message };
+  }
 };

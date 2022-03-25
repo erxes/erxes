@@ -5,6 +5,7 @@ import {
 import { putCreateLog, putDeleteLog, putUpdateLog } from "erxes-api-utils";
 import { IContext } from "../../../connectionResolver";
 import { gatherDescriptions } from "../../../utils";
+import { sendCoreMessage } from "../../../messageBroker";
 
 const carMutations = {
   carsAdd: async (_root, doc, { user, docModifier, models, messageBroker }) => {
@@ -48,25 +49,25 @@ const carMutations = {
   carsRemove: async (
     _root,
     { carIds }: { carIds: string[] },
-    { models, user, messageBroker }
+    { models, user }: IContext
   ) => {
     const cars = await models.Cars.find({ _id: { $in: carIds } }).lean();
 
     await models.Cars.removeCars(carIds);
 
-    for (const car of cars) {
-      messageBroker().sendMessage("putActivityLog", {
-        action: "removeActivityLog",
-        data: { contentTypeId: car._id },
-      });
+    // for (const car of cars) {
+    //   messageBroker().sendMessage("putActivityLog", {
+    //     action: "removeActivityLog",
+    //     data: { contentTypeId: car._id },
+    //   });
 
-      await putDeleteLog(
-        messageBroker,
-        gatherDescriptions,
-        { type: "car", object: car, extraParams: { models } },
-        user
-      );
-    }
+    //   await putDeleteLog(
+    //     messageBroker,
+    //     gatherDescriptions,
+    //     { type: "car", object: car, extraParams: { models } },
+    //     user
+    //   );
+    // }
 
     return carIds;
   },
@@ -149,20 +150,28 @@ const carMutations = {
     const car = await models.Cars.createCar(docModifier(doc));
 
     if (doc.customerId) {
-      await models.Conformities.addConformity({
-        mainType: "customer",
-        mainTypeId: doc.customerId,
-        relType: "car",
-        relTypeId: car._id,
+      await sendCoreMessage({
+        subdomain: models.subdomain,
+        action: "conformities.addConformities",
+        data: {
+          mainType: "customer",
+          mainTypeId: doc.customerId,
+          relType: "car",
+          relTypeId: car._id,
+        },
       });
     }
 
     if (doc.companyId) {
-      await models.Conformities.addConformity({
-        mainType: "company",
-        mainTypeId: doc.companyId,
-        relType: "car",
-        relTypeId: car._id,
+      await sendCoreMessage({
+        subdomain: models.subdomain,
+        action: "conformities.addConformities",
+        data: {
+          mainType: "company",
+          mainTypeId: doc.companyId,
+          relType: "car",
+          relTypeId: car._id,
+        },
       });
     }
 

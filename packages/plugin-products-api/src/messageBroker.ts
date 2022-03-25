@@ -9,9 +9,9 @@ export const initBroker = async cl => {
 
   const { consumeRPCQueue } = client;
 
-  consumeRPCQueue('products:findOne', async ({ subdomain, data } ) => {
+  consumeRPCQueue('products:findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain)
-    
+
     return {
       data: await models.Products.findOne(data),
       status: 'success'
@@ -26,8 +26,8 @@ export const initBroker = async cl => {
       return {
         data: regData
           ? await models.ProductCategories.find({
-              order: { $regex: new RegExp(regData) }
-            }).sort(sort)
+            order: { $regex: new RegExp(regData) }
+          }).sort(sort)
           : await models.ProductCategories.find(query),
         status: 'success'
       };
@@ -36,9 +36,35 @@ export const initBroker = async cl => {
 
   consumeRPCQueue('products:categories.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-
     return {
       data: await models.ProductCategories.findOne(data),
+      status: 'success'
+    };
+  });
+
+  consumeRPCQueue('products:categories.updateProductCategory', async ({ subdomain, data: { _id, doc } }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.ProductCategories.updateProductCategory(_id, doc),
+      status: 'success'
+    };
+  });
+
+  consumeRPCQueue('products:categories.createProductCategory', async ({ subdomain, data: { doc } }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.ProductCategories.createProductCategory(doc),
+      status: 'success'
+    };
+  });
+
+  consumeRPCQueue('products:categories.removeProductCategory', async ({ subdomain, data: { _id } }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.ProductCategories.removeProductCategory(_id),
       status: 'success'
     };
   });
@@ -53,9 +79,45 @@ export const initBroker = async cl => {
   });
 
   consumeRPCQueue(
+    'products:createProduct',
+    async ({ subdomain, data: { doc } }) => {
+      const models = await generateModels(subdomain)
+
+      return {
+        data: await models.Products.createProduct(doc),
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'products:updateProduct',
+    async ({ subdomain, data: { _id, doc } }) => {
+      const models = await generateModels(subdomain)
+
+      return {
+        data: await models.Products.updateProduct(_id, doc),
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'products:removeProducts',
+    async ({ subdomain, data: { _ids } }) => {
+      const models = await generateModels(subdomain)
+
+      return {
+        data: await models.Products.removeProducts(_ids),
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'products:update',
     async ({ subdomain, data: { selector, modifier } }) => {
-    const models = await generateModels(subdomain)
+      const models = await generateModels(subdomain)
 
       return {
         data: await models.Products.updateMany(selector, modifier),
@@ -64,7 +126,7 @@ export const initBroker = async cl => {
     }
   );
 
-  consumeRPCQueue('products:tag', async ({ subdomain, data  }) => {
+  consumeRPCQueue('products:tag', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain)
 
     let response = {};
@@ -89,7 +151,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeRPCQueue('products:generateInternalNoteNotif', async ({ subdomain, data })  => {
+  consumeRPCQueue('products:generateInternalNoteNotif', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain)
     const { contentTypeId, notifDoc } = data;
 
@@ -124,6 +186,6 @@ export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({ client, serviceDiscovery, serviceName: "tags", ...args })
 }
 
-export default function() {
+export default function () {
   return client;
 }

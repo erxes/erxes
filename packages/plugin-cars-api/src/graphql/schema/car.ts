@@ -11,12 +11,18 @@ export const types = ({ contacts }) => `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
+
   ${
     contacts
-      ? `extend type Customer @key(fields: "_id") {
+      ? `
+        extend type Customer @key(fields: "_id") {
           _id: String! @external
-          conversations: [Conversation]
-        }`
+        }
+
+        extend type Company @key(fields: "_id") {
+          _id: String! @external
+        }
+        `
       : ""
   }
   
