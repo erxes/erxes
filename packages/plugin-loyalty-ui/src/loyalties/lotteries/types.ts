@@ -10,7 +10,7 @@ export interface ILottery extends ILotteryDoc {
   _id: string;
   owner: IUser;
 
-  voucherCompaingId?: string;
+  voucherCampaignId?: string;
 
   // won
   voucherId?: string;

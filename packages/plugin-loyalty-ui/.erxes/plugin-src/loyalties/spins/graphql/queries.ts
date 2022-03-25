@@ -7,12 +7,12 @@ export const spinFields = `
 
 const listParamsDef = `
   ${commonParamsDef}
-  $voucherCompaignId: String
+  $voucherCampaignId: String
 `;
 
 const listParamsValue = `
   ${commonParamsValue}
-  voucherCompaignId: $voucherCompaignId
+  voucherCampaignId: $voucherCampaignId
 `;
 
 export const spins = `

@@ -68,8 +68,8 @@ const getRefetchQueries = () => {
     // spins for customer detail spin associate
     'spins',
     'spinCounts',
-    'spinCompaigns',
-    'spinCompaignsTotalCount'
+    'spinCampaigns',
+    'spinCampaignsTotalCount'
   ];
 };
 

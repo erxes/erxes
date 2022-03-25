@@ -5,20 +5,20 @@ import { __ } from "@erxes/ui/src/utils";
 import { Route } from "react-router-dom";
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
-const VoucherCompaigns = asyncComponent(() =>
-  import(/* webpackChunkName: "KnowledgeBase" */ './configs/voucherCompaign/containers/List')
+const VoucherCampaigns = asyncComponent(() =>
+  import(/* webpackChunkName: "KnowledgeBase" */ './configs/voucherCampaign/containers/List')
 )
 
-const LotteryCompaigns = asyncComponent(() =>
-  import(/* webpackChunkName: "KnowledgeBase" */ './configs/lotteryCompaign/containers/List')
+const LotteryCampaigns = asyncComponent(() =>
+  import(/* webpackChunkName: "KnowledgeBase" */ './configs/lotteryCampaign/containers/List')
 )
 
-const SpinCompaigns = asyncComponent(() =>
-  import(/* webpackChunkName: "KnowledgeBase" */ './configs/spinCompaign/containers/List')
+const SpinCampaigns = asyncComponent(() =>
+  import(/* webpackChunkName: "KnowledgeBase" */ './configs/spinCampaign/containers/List')
 )
 
-const DonateCompaigns = asyncComponent(() =>
-  import(/* webpackChunkName: "KnowledgeBase" */ './configs/donateCompaign/containers/List')
+const DonateCampaigns = asyncComponent(() =>
+  import(/* webpackChunkName: "KnowledgeBase" */ './configs/donateCampaign/containers/List')
 )
 
 const Vouchers = asyncComponent(() =>
@@ -37,36 +37,36 @@ const Donates = asyncComponent(() =>
   import(/* webpackChunkName: "KnowledgeBase" */ './loyalties/donates/containers/List')
 )
 
-const voucherCompaignList = ({ location, history }) => {
+const voucherCampaignList = ({ location, history }) => {
   return (
-    <VoucherCompaigns
+    <VoucherCampaigns
       queryParams={queryString.parse(location.search)}
       history={history}
     />
   );
 };
 
-const lotteryCompaignList = ({ location, history }) => {
+const lotteryCampaignList = ({ location, history }) => {
   return (
-    <LotteryCompaigns
+    <LotteryCampaigns
       queryParams={queryString.parse(location.search)}
       history={history}
     />
   );
 };
 
-const spinCompaignList = ({ location, history }) => {
+const spinCampaignList = ({ location, history }) => {
   return (
-    <SpinCompaigns
+    <SpinCampaigns
       queryParams={queryString.parse(location.search)}
       history={history}
     />
   );
 };
 
-const donateCompaignList = ({ location, history }) => {
+const donateCampaignList = ({ location, history }) => {
   return (
-    <DonateCompaigns
+    <DonateCampaigns
       queryParams={queryString.parse(location.search)}
       history={history}
     />
@@ -111,13 +111,13 @@ const routes = () => {
     <>
       <Route path="/erxes-plugin-loyalty/settings/general" component={Settings} />
 
-      <Route path="/erxes-plugin-loyalty/settings/voucher" component={voucherCompaignList} />
+      <Route path="/erxes-plugin-loyalty/settings/voucher" component={voucherCampaignList} />
 
-      <Route path="/erxes-plugin-loyalty/settings/lottery" component={lotteryCompaignList} />
+      <Route path="/erxes-plugin-loyalty/settings/lottery" component={lotteryCampaignList} />
 
-      <Route path="/erxes-plugin-loyalty/settings/spin" component={spinCompaignList} />
+      <Route path="/erxes-plugin-loyalty/settings/spin" component={spinCampaignList} />
 
-      <Route path="/erxes-plugin-loyalty/settings/donate" component={donateCompaignList} />
+      <Route path="/erxes-plugin-loyalty/settings/donate" component={donateCampaignList} />
 
       <Route path="/vouchers" component={vouchers} />
 

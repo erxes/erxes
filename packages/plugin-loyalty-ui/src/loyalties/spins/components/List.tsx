@@ -15,12 +15,12 @@ import { LoyaltiesTableWrapper } from '../../common/styles';
 import { ISpin } from '../types';
 import SpinRow from './Row';
 import Sidebar from './Sidebar';
-import { ISpinCompaign } from '../../../configs/spinCompaign/types';
+import { ISpinCampaign } from '../../../configs/spinCampaign/types';
 import { menuLoyalties } from '../../common/constants';
 
 interface IProps extends IRouterProps {
   spins: ISpin[];
-  currentCompaign?: ISpinCompaign;
+  currentCampaign?: ISpinCampaign;
   loading: boolean;
   searchValue: string;
   totalCount: number;
@@ -96,7 +96,7 @@ class SpinsList extends React.Component<IProps, State> {
       isAllSelected,
       totalCount,
       queryParams,
-      currentCompaign
+      currentCampaign
     } = this.props;
 
     const mainContent = (
@@ -137,7 +137,7 @@ class SpinsList extends React.Component<IProps, State> {
                 key={spin._id}
                 history={history}
                 toggleBulk={toggleBulk}
-                currentCompaign={currentCompaign}
+                currentCampaign={currentCampaign}
                 queryParams={queryParams}
               />
             ))}
@@ -203,7 +203,7 @@ class SpinsList extends React.Component<IProps, State> {
     };
 
     const actionBarLeft = (
-      <Title>{currentCompaign && `${currentCompaign.title}` || 'All spin compaigns'} </Title>
+      <Title>{currentCampaign && `${currentCampaign.title}` || 'All spin campaigns'} </Title>
     );
     const actionBar = (
       <Wrapper.ActionBar right={actionBarRight()} left={actionBarLeft} />

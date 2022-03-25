@@ -10,14 +10,14 @@ import {
   renderUserFullName
 } from '@erxes/ui/src';
 import { ILottery } from '../types';
-import { ILotteryCompaign } from '../../../configs/lotteryCompaign/types';
+import { ILotteryCampaign } from '../../../configs/lotteryCampaign/types';
 import { IQueryParams } from '@erxes/ui/src/types';
 import { Link } from 'react-router-dom';
 import { ModalTrigger } from '@erxes/ui/src/components';
 
 type Props = {
   lottery: ILottery;
-  currentCompaign?: ILotteryCompaign;
+  currentCampaign?: ILotteryCampaign;
   history: any;
   isChecked: boolean;
   toggleBulk: (lottery: ILottery, isChecked?: boolean) => void;

@@ -14,12 +14,12 @@ import { LoyaltiesTableWrapper } from '../../common/styles';
 import { IDonate } from '../types';
 import DonateRow from './Row';
 import Sidebar from './Sidebar';
-import { IDonateCompaign } from '../../../configs/donateCompaign/types';
+import { IDonateCampaign } from '../../../configs/donateCampaign/types';
 import { menuLoyalties } from '../../common/constants';
 
 interface IProps extends IRouterProps {
   donates: IDonate[];
-  currentCompaign?: IDonateCompaign;
+  currentCampaign?: IDonateCampaign;
   loading: boolean;
   searchValue: string;
   totalCount: number;
@@ -95,7 +95,7 @@ class DonatesList extends React.Component<IProps, State> {
       isAllSelected,
       totalCount,
       queryParams,
-      currentCompaign
+      currentCampaign
     } = this.props;
 
     const mainContent = (
@@ -136,7 +136,7 @@ class DonatesList extends React.Component<IProps, State> {
                 key={donate._id}
                 history={history}
                 toggleBulk={toggleBulk}
-                currentCompaign={currentCompaign}
+                currentCampaign={currentCampaign}
                 queryParams={queryParams}
               />
             ))}
@@ -202,7 +202,7 @@ class DonatesList extends React.Component<IProps, State> {
     };
 
     const actionBarLeft = (
-      <Title>{currentCompaign && `${currentCompaign.title}` || 'All donate compaigns'} </Title>
+      <Title>{currentCampaign && `${currentCampaign.title}` || 'All donate campaigns'} </Title>
     );
     const actionBar = (
       <Wrapper.ActionBar right={actionBarRight()} left={actionBarLeft} />

@@ -5,9 +5,9 @@ import { graphql } from 'react-apollo';
 
 import { withProps } from '@erxes/ui/src';
 import Form from '../components/SetVoucher';
-import { queries as voucherCompaignQueries } from '../../configs/voucherCompaign/graphql';
+import { queries as voucherCampaignQueries } from '../../configs/voucherCampaign/graphql';
 
-import { VoucherCompaignQueryResponse } from '../../configs/voucherCompaign/types';
+import { VoucherCampaignQueryResponse } from '../../configs/voucherCampaign/types';
 
 
 type Props = {
@@ -20,22 +20,22 @@ type Props = {
 };
 
 type FinalProps = {
-  voucherCompaignQuery: VoucherCompaignQueryResponse;
+  voucherCampaignQuery: VoucherCampaignQueryResponse;
 } & Props;
 
 class ProductFormContainer extends React.Component<FinalProps> {
   render() {
-    const { voucherCompaignQuery } = this.props;
+    const { voucherCampaignQuery } = this.props;
 
-    if (voucherCompaignQuery.loading) {
+    if (voucherCampaignQuery.loading) {
       return null;
     }
 
-    const voucherCompaigns = voucherCompaignQuery.voucherCompaigns || [];
+    const voucherCampaigns = voucherCampaignQuery.voucherCampaigns || [];
 
     const updatedProps = {
       ...this.props,
-      voucherCompaigns,
+      voucherCampaigns,
     };
 
     return <Form {...updatedProps} />;
@@ -44,10 +44,10 @@ class ProductFormContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, VoucherCompaignQueryResponse>(
-      gql(voucherCompaignQueries.voucherCompaigns),
+    graphql<Props, VoucherCampaignQueryResponse>(
+      gql(voucherCampaignQueries.voucherCampaigns),
       {
-        name: 'voucherCompaignQuery'
+        name: 'voucherCampaignQuery'
       }
     ),
   )(ProductFormContainer)
