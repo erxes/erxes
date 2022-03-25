@@ -35,6 +35,8 @@ const {
 
   app.use(cookieParser());
 
+  app.use(userMiddleware);
+
   // TODO: Find some solution so that we can stop forwarding /read-file, /initialSetup etc.
   app.use(
     /\/((?!graphql).)*/,
@@ -57,6 +59,9 @@ const {
           return host;
         }
       },
+      onProxyReq: (proxyReq, req: any) => {
+        proxyReq.setHeader('userid', req.user ? req.user._id : '');
+      },
       pathRewrite: async path => {
         let newPath = path;
 
@@ -70,8 +75,6 @@ const {
       }
     })
   );
-
-  app.use(userMiddleware);
 
   const httpServer = http.createServer(app);
 
