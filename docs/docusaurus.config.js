@@ -119,6 +119,10 @@ module.exports = {
               label: "Roadmap",
               href: "https://erxes.io/roadmap",
             },
+            {
+              label: "GSoD",
+              href: "/gsod",
+            },
           ],
         },
         {
