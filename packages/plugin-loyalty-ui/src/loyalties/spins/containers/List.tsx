@@ -8,8 +8,8 @@ import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
-import { queries as compaignQueries } from '../../../configs/spinCompaign/graphql';
-import { SpinCompaignDetailQueryResponse } from '../../../configs/spinCompaign/types';
+import { queries as campaignQueries } from '../../../configs/spinCampaign/graphql';
+import { SpinCampaignDetailQueryResponse } from '../../../configs/spinCampaign/types';
 import {
   MainQueryResponse,
   RemoveMutationResponse,
@@ -23,7 +23,7 @@ type Props = {
 
 type FinalProps = {
   spinsMainQuery: MainQueryResponse;
-  spinCompaignDetailQuery: SpinCompaignDetailQueryResponse;
+  spinCampaignDetailQuery: SpinCampaignDetailQueryResponse;
 } & Props &
   IRouterProps &
   RemoveMutationResponse;
@@ -44,12 +44,12 @@ class SpinListContainer extends React.Component<FinalProps, State> {
   render() {
     const {
       spinsMainQuery,
-      spinCompaignDetailQuery,
+      spinCampaignDetailQuery,
       spinsRemove,
       history
     } = this.props;
 
-    if (spinsMainQuery.loading || (spinCompaignDetailQuery && spinCompaignDetailQuery.loading)) {
+    if (spinsMainQuery.loading || (spinCampaignDetailQuery && spinCampaignDetailQuery.loading)) {
       return <Spinner />;
     }
 
@@ -68,14 +68,14 @@ class SpinListContainer extends React.Component<FinalProps, State> {
 
     const searchValue = this.props.queryParams.searchValue || '';
     const { list = [], totalCount = 0 } = spinsMainQuery.spinsMain || {};
-    const currentCompaign = spinCompaignDetailQuery && spinCompaignDetailQuery.spinCompaignDetail;
+    const currentCampaign = spinCampaignDetailQuery && spinCampaignDetailQuery.spinCampaignDetail;
 
     const updatedProps = {
       ...this.props,
       totalCount,
       searchValue,
       spins: list,
-      currentCompaign,
+      currentCampaign,
       removeSpins,
     };
 
@@ -94,14 +94,14 @@ class SpinListContainer extends React.Component<FinalProps, State> {
 const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
   ids: queryParams.ids,
-  compaignId: queryParams.compaignId,
+  campaignId: queryParams.campaignId,
   status: queryParams.status,
   ownerId: queryParams.ownerId,
   ownerType: queryParams.ownerType,
   searchValue: queryParams.searchValue,
   sortField: queryParams.sortField,
   sortDirection: parseInt(queryParams.sortDirection) || undefined,
-  voucherCompaignId: queryParams.voucherCompaignId,
+  voucherCampaignId: queryParams.voucherCampaignId,
 });
 
 const generateOptions = () => ({
@@ -120,16 +120,16 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, SpinCompaignDetailQueryResponse>(
-      gql(compaignQueries.spinCompaignDetail),
+    graphql<Props, SpinCampaignDetailQueryResponse>(
+      gql(campaignQueries.spinCampaignDetail),
       {
-        name: 'spinCompaignDetailQuery',
+        name: 'spinCampaignDetailQuery',
         options: ({ queryParams }) => ({
           variables: {
-            _id: queryParams.compaignId
+            _id: queryParams.campaignId
           }
         }),
-        skip: ({ queryParams }) => !queryParams.compaignId,
+        skip: ({ queryParams }) => !queryParams.campaignId,
       }
     ),
     // mutations

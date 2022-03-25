@@ -2,7 +2,7 @@ module.exports = {
   calendar: false,
   cards: false,
   clientportal: false,
-  contacts: false,
+  contacts: true,
   engages: false,
   inbox: false,
   internalnotes: false,

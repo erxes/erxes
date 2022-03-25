@@ -68,8 +68,8 @@ const getRefetchQueries = () => {
     // donates for customer detail donate associate
     'donates',
     'donateCounts',
-    'donateCompaigns',
-    'donateCompaignsTotalCount'
+    'donateCampaigns',
+    'donateCampaignsTotalCount'
   ];
 };
 

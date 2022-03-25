@@ -8,8 +8,8 @@ import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
-import { queries as compaignQueries } from '../../../configs/donateCompaign/graphql';
-import { DonateCompaignDetailQueryResponse } from '../../../configs/donateCompaign/types';
+import { queries as campaignQueries } from '../../../configs/donateCampaign/graphql';
+import { DonateCampaignDetailQueryResponse } from '../../../configs/donateCampaign/types';
 import {
   MainQueryResponse,
   RemoveMutationResponse,
@@ -23,7 +23,7 @@ type Props = {
 
 type FinalProps = {
   donatesMainQuery: MainQueryResponse;
-  donateCompaignDetailQuery: DonateCompaignDetailQueryResponse;
+  donateCampaignDetailQuery: DonateCampaignDetailQueryResponse;
 } & Props &
   IRouterProps &
   RemoveMutationResponse;
@@ -44,12 +44,12 @@ class DonateListContainer extends React.Component<FinalProps, State> {
   render() {
     const {
       donatesMainQuery,
-      donateCompaignDetailQuery,
+      donateCampaignDetailQuery,
       donatesRemove,
       history
     } = this.props;
 
-    if (donatesMainQuery.loading || (donateCompaignDetailQuery && donateCompaignDetailQuery.loading)) {
+    if (donatesMainQuery.loading || (donateCampaignDetailQuery && donateCampaignDetailQuery.loading)) {
       return <Spinner />;
     }
 
@@ -68,14 +68,14 @@ class DonateListContainer extends React.Component<FinalProps, State> {
 
     const searchValue = this.props.queryParams.searchValue || '';
     const { list = [], totalCount = 0 } = donatesMainQuery.donatesMain || {};
-    const currentCompaign = donateCompaignDetailQuery && donateCompaignDetailQuery.donateCompaignDetail;
+    const currentCampaign = donateCampaignDetailQuery && donateCampaignDetailQuery.donateCampaignDetail;
 
     const updatedProps = {
       ...this.props,
       totalCount,
       searchValue,
       donates: list,
-      currentCompaign,
+      currentCampaign,
       removeDonates,
     };
 
@@ -94,7 +94,7 @@ class DonateListContainer extends React.Component<FinalProps, State> {
 const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
   ids: queryParams.ids,
-  compaignId: queryParams.compaignId,
+  campaignId: queryParams.campaignId,
   status: queryParams.status,
   ownerId: queryParams.ownerId,
   ownerType: queryParams.ownerType,
@@ -119,16 +119,16 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, DonateCompaignDetailQueryResponse>(
-      gql(compaignQueries.donateCompaignDetail),
+    graphql<Props, DonateCampaignDetailQueryResponse>(
+      gql(campaignQueries.donateCampaignDetail),
       {
-        name: 'donateCompaignDetailQuery',
+        name: 'donateCampaignDetailQuery',
         options: ({ queryParams }) => ({
           variables: {
-            _id: queryParams.compaignId
+            _id: queryParams.campaignId
           }
         }),
-        skip: ({ queryParams }) => !queryParams.compaignId,
+        skip: ({ queryParams }) => !queryParams.campaignId,
       }
     ),
     // mutations

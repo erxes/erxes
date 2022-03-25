@@ -8,8 +8,8 @@ import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
-import { queries as compaignQueries } from '../../../configs/lotteryCompaign/graphql';
-import { LotteryCompaignDetailQueryResponse } from '../../../configs/lotteryCompaign/types';
+import { queries as campaignQueries } from '../../../configs/lotteryCampaign/graphql';
+import { LotteryCampaignDetailQueryResponse } from '../../../configs/lotteryCampaign/types';
 import {
   MainQueryResponse,
   RemoveMutationResponse,
@@ -23,7 +23,7 @@ type Props = {
 
 type FinalProps = {
   lotteriesMainQuery: MainQueryResponse;
-  lotteryCompaignDetailQuery: LotteryCompaignDetailQueryResponse;
+  lotteryCampaignDetailQuery: LotteryCampaignDetailQueryResponse;
 } & Props &
   IRouterProps &
   RemoveMutationResponse;
@@ -44,12 +44,12 @@ class LotteryListContainer extends React.Component<FinalProps, State> {
   render() {
     const {
       lotteriesMainQuery,
-      lotteryCompaignDetailQuery,
+      lotteryCampaignDetailQuery,
       lotteriesRemove,
       history
     } = this.props;
 
-    if (lotteriesMainQuery.loading || (lotteryCompaignDetailQuery && lotteryCompaignDetailQuery.loading)) {
+    if (lotteriesMainQuery.loading || (lotteryCampaignDetailQuery && lotteryCampaignDetailQuery.loading)) {
       return <Spinner />;
     }
 
@@ -68,14 +68,14 @@ class LotteryListContainer extends React.Component<FinalProps, State> {
 
     const searchValue = this.props.queryParams.searchValue || '';
     const { list = [], totalCount = 0 } = lotteriesMainQuery.lotteriesMain || {};
-    const currentCompaign = lotteryCompaignDetailQuery && lotteryCompaignDetailQuery.lotteryCompaignDetail;
+    const currentCampaign = lotteryCampaignDetailQuery && lotteryCampaignDetailQuery.lotteryCampaignDetail;
 
     const updatedProps = {
       ...this.props,
       totalCount,
       searchValue,
       lotteries: list,
-      currentCompaign,
+      currentCampaign,
       removeLotteries,
     };
 
@@ -94,14 +94,14 @@ class LotteryListContainer extends React.Component<FinalProps, State> {
 const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
   ids: queryParams.ids,
-  compaignId: queryParams.compaignId,
+  campaignId: queryParams.campaignId,
   status: queryParams.status,
   ownerId: queryParams.ownerId,
   ownerType: queryParams.ownerType,
   searchValue: queryParams.searchValue,
   sortField: queryParams.sortField,
   sortDirection: parseInt(queryParams.sortDirection) || undefined,
-  voucherCompaignId: queryParams.voucherCompaignId,
+  voucherCampaignId: queryParams.voucherCampaignId,
 });
 
 const generateOptions = () => ({
@@ -120,16 +120,16 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, LotteryCompaignDetailQueryResponse>(
-      gql(compaignQueries.lotteryCompaignDetail),
+    graphql<Props, LotteryCampaignDetailQueryResponse>(
+      gql(campaignQueries.lotteryCampaignDetail),
       {
-        name: 'lotteryCompaignDetailQuery',
+        name: 'lotteryCampaignDetailQuery',
         options: ({ queryParams }) => ({
           variables: {
-            _id: queryParams.compaignId
+            _id: queryParams.campaignId
           }
         }),
-        skip: ({ queryParams }) => !queryParams.compaignId,
+        skip: ({ queryParams }) => !queryParams.campaignId,
       }
     ),
     // mutations

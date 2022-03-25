@@ -13,6 +13,7 @@ import {
 } from "./db/models";
 import { registerModule } from "./data/permissions/utils";
 import {
+  getConfig,
   getFileUploadConfigs,
   sendEmail,
   sendMobileNotification,
@@ -118,12 +119,28 @@ export const initBroker = async (options) => {
       data: await Configs.find(data).distinct("value"),
     }));
 
-    consumeRPCQueue("core:users.findOne", async ({ data }) => ({
-      status: "success",
-      data: await Users.findOne(data),
+    consumeRPCQueue('core:getConfig', async (
+      { data: { code, defaultValue } }
+    ) => {
+      return {
+        status: 'success',
+        data: await getConfig(code, defaultValue)
+      }
+    });
+
+    consumeRPCQueue('core:users.findOne', async ({ data }) => ({
+      status: 'success',
+      data: await Users.findOne(data)
     }));
 
-    consumeRPCQueue("core:users.find", async (data) => {
+    consumeRPCQueue('core:users.updateOne', async ({ data: { selector, modifier } }) => {
+      return {
+        status: 'success',
+        data: await Users.updateOne(selector, modifier)
+      };
+    });
+
+    consumeRPCQueue('core:users.find', async data => {
       const { query } = data;
 
       return {
@@ -191,6 +208,6 @@ export const fetchSegment = (segmentId, options?) =>
     options,
   });
 
-export default function() {
+export default function () {
   return client;
 }

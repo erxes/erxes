@@ -15,12 +15,12 @@ import { LoyaltiesTableWrapper } from '../../common/styles';
 import { ILottery } from '../types';
 import LotteryRow from './Row';
 import Sidebar from './Sidebar';
-import { ILotteryCompaign } from '../../../configs/lotteryCompaign/types';
+import { ILotteryCampaign } from '../../../configs/lotteryCampaign/types';
 import { menuLoyalties } from '../../common/constants';
 
 interface IProps extends IRouterProps {
   lotteries: ILottery[];
-  currentCompaign?: ILotteryCompaign;
+  currentCampaign?: ILotteryCampaign;
   loading: boolean;
   searchValue: string;
   totalCount: number;
@@ -96,7 +96,7 @@ class LotteriesList extends React.Component<IProps, State> {
       isAllSelected,
       totalCount,
       queryParams,
-      currentCompaign
+      currentCampaign
     } = this.props;
 
     const mainContent = (
@@ -140,7 +140,7 @@ class LotteriesList extends React.Component<IProps, State> {
                 key={lottery._id}
                 history={history}
                 toggleBulk={toggleBulk}
-                currentCompaign={currentCompaign}
+                currentCampaign={currentCampaign}
                 queryParams={queryParams}
               />
             ))}
@@ -206,7 +206,7 @@ class LotteriesList extends React.Component<IProps, State> {
     };
 
     const actionBarLeft = (
-      <Title>{currentCompaign && `${currentCompaign.title}` || 'All lottery compaigns'} </Title>
+      <Title>{currentCampaign && `${currentCampaign.title}` || 'All lottery campaigns'} </Title>
     );
     const actionBar = (
       <Wrapper.ActionBar right={actionBarRight()} left={actionBarLeft} />
