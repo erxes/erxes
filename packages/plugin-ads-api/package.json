@@ -1,0 +1,10 @@
+{
+  "name": "@erxes/plugin-ads-api",
+  "version": "1.0.0",
+  "scripts": {
+    "install-deps": "cd .erxes && yarn install",
+    "dev": "cd .erxes && yarn dev",
+    "build": "cd .erxes && yarn build",
+    "start": "cd .erxes/dist/plugin-ads-api/.erxes && node src"
+  }
+}
