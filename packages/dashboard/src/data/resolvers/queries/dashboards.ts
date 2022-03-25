@@ -1,9 +1,10 @@
-import { DashboardItems, Dashboards } from '../../../db/models';
-import { BOARD_TYPES } from '../../../db/models/definitions/constants';
 import {
   DashboardFilters,
   DashboardFilterTypes
-} from '../../dashboardConstants';
+} from 'src/data/dashboardConstants';
+import { DashboardItems, Dashboards } from '../../../db/models';
+
+import { IContext } from '../../types';
 import {
   getBoards,
   getBrands,
@@ -11,11 +12,9 @@ import {
   getIntegrationTypes,
   getPipelines,
   getTags,
-  getUsers
-} from '../../modules/dashboard/utils';
-import { checkPermission } from '../../permissions/wrappers';
-import { IContext } from '../../types';
-import { paginate } from '../../utils';
+  getUsers,
+  paginate
+} from '../../utils';
 
 const dashBoardQueries = {
   dashboards(
@@ -55,7 +54,7 @@ const dashBoardQueries = {
 
     const shemaType = type.split('.')[0];
     let tagType = 'customer';
-    let stageType = BOARD_TYPES.DEAL;
+    let stageType = 'deal';
 
     switch (shemaType) {
       case 'Conversations':
@@ -71,11 +70,11 @@ const dashBoardQueries = {
         break;
 
       case 'Tasks':
-        stageType = BOARD_TYPES.TASK;
+        stageType = 'task';
         break;
 
       case 'Tickets':
-        stageType = BOARD_TYPES.TICKET;
+        stageType = 'ticket';
         break;
     }
 
@@ -112,7 +111,5 @@ const dashBoardQueries = {
     return filters;
   }
 };
-
-checkPermission(dashBoardQueries, 'dashboards', 'showDashboards', []);
 
 export default dashBoardQueries;

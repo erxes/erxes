@@ -10,6 +10,7 @@ import { initApolloServer } from './apolloClient';
 import { initBroker } from './messageBroker';
 import { join, leave, redis } from './serviceDiscovery';
 import * as mongoose from 'mongoose';
+import { connectCoreModelss } from './db';
 
 async function closeMongooose() {
   try {
@@ -109,6 +110,8 @@ httpServer.listen(PORT, async () => {
     hasSubscriptions: false,
     meta: {}
   });
+
+  await connectCoreModelss();
 
   console.log(`GraphQL Server is now running on ${PORT}`);
 });
