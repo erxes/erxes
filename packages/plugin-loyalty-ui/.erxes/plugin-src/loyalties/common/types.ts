@@ -5,5 +5,5 @@ export interface ICommonDoc {
 
   ownerType: String,
   ownerId: string,
-  voucherCampaignId: string,
+  voucherCampaignId?: string,
 }
