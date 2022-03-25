@@ -2,7 +2,7 @@ import React from 'react';
 import Select from 'react-select-plus';
 import { ControlLabel, FormGroup } from '@erxes/ui/src/components';
 import { __ } from '@erxes/ui/src/utils';
-import { IVoucherCompaign } from '../../configs/voucherCompaign/types';
+import { IVoucherCampaign } from '../../configs/voucherCampaign/types';
 import styled from 'styled-components';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 
@@ -17,7 +17,7 @@ type Props = {
   activeAction: any;
   triggerType: string;
   addAction: (action: any, actionId?: string, config?: any) => void;
-  voucherCompaigns: IVoucherCompaign[];
+  voucherCampaigns: IVoucherCampaign[];
   common: any;
 };
 
@@ -45,7 +45,7 @@ class SetVoucher extends React.Component<Props, State> {
 
   onChangeField = option => {
     const { config } = this.state;
-    config.voucherCompaignId = option.value;
+    config.voucherCampaignId = option.value;
 
     this.setState({ config });
   };
@@ -54,11 +54,11 @@ class SetVoucher extends React.Component<Props, State> {
     return (
       <DrawerDetail>
         <FormGroup>
-          <ControlLabel>Voucher Compaign</ControlLabel>
+          <ControlLabel>Voucher Campaign</ControlLabel>
           <Select
             isRequired={true}
-            value={this.state.config.voucherCompaignId}
-            options={this.props.voucherCompaigns.map(v => ({
+            value={this.state.config.voucherCampaignId}
+            options={this.props.voucherCampaigns.map(v => ({
               label: v.title,
               value: v._id
             }))}

@@ -13,9 +13,9 @@ import {
 } from '@erxes/ui/src/styles/eindex';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { ILottery, ILotteryDoc } from '../types';
-import SelectCompaigns from '../../containers/SelectCompaigns';
-import { queries } from '../../../configs/lotteryCompaign/graphql';
-import { queries as voucherCompaignQueries } from '../../../configs/voucherCompaign/graphql';
+import SelectCampaigns from '../../containers/SelectCampaigns';
+import { queries } from '../../../configs/lotteryCampaign/graphql';
+import { queries as voucherCampaignQueries } from '../../../configs/voucherCampaign/graphql';
 import SelectCompanies from '@erxes/ui/src/companies/containers/SelectCompanies';
 import SelectCustomers from '@erxes/ui/src/customers/containers/SelectCustomers';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
@@ -37,8 +37,8 @@ class LotteryForm extends React.Component<Props, State> {
 
     const { lottery = {} as ILottery, queryParams } = this.props;
 
-    if (!lottery.compaignId && queryParams.compaignId) {
-      lottery.compaignId = queryParams.compaignId;
+    if (!lottery.campaignId && queryParams.campaignId) {
+      lottery.campaignId = queryParams.campaignId;
     }
 
     if (!lottery.ownerType) {
@@ -144,14 +144,14 @@ class LotteryForm extends React.Component<Props, State> {
       <>
         <ScrollWrapper>
           <FormGroup>
-            <ControlLabel>Compaign</ControlLabel>
-            <SelectCompaigns
-              queryName='lotteryCompaigns'
-              customQuery={queries.lotteryCompaigns}
-              label='Choose lottery compaign'
-              name='compaignId'
+            <ControlLabel>Campaign</ControlLabel>
+            <SelectCampaigns
+              queryName='lotteryCampaigns'
+              customQuery={queries.lotteryCampaigns}
+              label='Choose lottery campaign'
+              name='campaignId'
               onSelect={this.onChangeSelect}
-              initialValue={lottery.compaignId}
+              initialValue={lottery.campaignId}
             />
           </FormGroup>
 
@@ -205,14 +205,14 @@ class LotteryForm extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Voucher Compaign</ControlLabel>
-            <SelectCompaigns
-              queryName='voucherCompaigns'
-              customQuery={voucherCompaignQueries.voucherCompaigns}
-              label='Choose voucher compaign'
-              name='voucherCompaignId'
+            <ControlLabel>Voucher Campaign</ControlLabel>
+            <SelectCampaigns
+              queryName='voucherCampaigns'
+              customQuery={voucherCampaignQueries.voucherCampaigns}
+              label='Choose voucher campaign'
+              name='voucherCampaignId'
               onSelect={() => { }}
-              initialValue={lottery.voucherCompaignId}
+              initialValue={lottery.voucherCampaignId}
               filterParams={{ voucherType: 'lottery' }}
             />
           </FormGroup>

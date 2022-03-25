@@ -68,8 +68,8 @@ const getRefetchQueries = () => {
     // vouchers for customer detail voucher associate
     'vouchers',
     'voucherCounts',
-    'voucherCompaigns',
-    'voucherCompaignsTotalCount'
+    'voucherCampaigns',
+    'voucherCampaignsTotalCount'
   ];
 };
 

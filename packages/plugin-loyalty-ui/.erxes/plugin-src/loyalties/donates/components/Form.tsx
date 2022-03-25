@@ -13,8 +13,8 @@ import {
 } from '@erxes/ui/src/styles/eindex';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IDonate, IDonateDoc } from '../types';
-import SelectCompaigns from '../../containers/SelectCompaigns';
-import { queries } from '../../../configs/donateCompaign/graphql';
+import SelectCampaigns from '../../containers/SelectCampaigns';
+import { queries } from '../../../configs/donateCampaign/graphql';
 import SelectCompanies from '@erxes/ui/src/companies/containers/SelectCompanies';
 import SelectCustomers from '@erxes/ui/src/customers/containers/SelectCustomers';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
@@ -36,8 +36,8 @@ class DonateForm extends React.Component<Props, State> {
 
     const { donate = {} as IDonate, queryParams } = this.props;
 
-    if (!donate.compaignId && queryParams.compaignId) {
-      donate.compaignId = queryParams.compaignId;
+    if (!donate.campaignId && queryParams.campaignId) {
+      donate.campaignId = queryParams.campaignId;
     }
 
     if (!donate.ownerType) {
@@ -143,15 +143,15 @@ class DonateForm extends React.Component<Props, State> {
       <>
         <ScrollWrapper>
           <FormGroup>
-            <ControlLabel>Compaign</ControlLabel>
-            <SelectCompaigns
-              queryName='donateCompaigns'
-              customQuery={queries.donateCompaigns}
-              label='Choose donate compaign'
-              name='compaignId'
+            <ControlLabel>Campaign</ControlLabel>
+            <SelectCampaigns
+              queryName='donateCampaigns'
+              customQuery={queries.donateCampaigns}
+              label='Choose donate campaign'
+              name='campaignId'
               onSelect={this.onChangeSelect}
-              initialValue={donate.compaignId}
-              filterParams={donate._id ? { equalTypeCompaignId: donate.compaignId } : {}}
+              initialValue={donate.campaignId}
+              filterParams={donate._id ? { equalTypeCampaignId: donate.campaignId } : {}}
             />
           </FormGroup>
 

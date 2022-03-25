@@ -1,5 +1,5 @@
 import React from 'react';
-import SelectCompaigns from '../../containers/SelectCompaigns';
+import SelectCampaigns from '../../containers/SelectCampaigns';
 import {
   Button,
   ControlLabel,
@@ -14,8 +14,8 @@ import {
 import { __ } from '@erxes/ui/src/utils';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { ISpin, ISpinDoc } from '../types';
-import { queries } from '../../../configs/spinCompaign/graphql';
-import { queries as voucherCompaignQueries } from '../../../configs/voucherCompaign/graphql';
+import { queries } from '../../../configs/spinCampaign/graphql';
+import { queries as voucherCampaignQueries } from '../../../configs/voucherCampaign/graphql';
 import SelectCompanies from '@erxes/ui/src/companies/containers/SelectCompanies';
 import SelectCustomers from '@erxes/ui/src/customers/containers/SelectCustomers';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
@@ -37,8 +37,8 @@ class SpinForm extends React.Component<Props, State> {
 
     const { spin = {} as ISpin, queryParams } = this.props;
 
-    if (!spin.compaignId && queryParams.compaignId) {
-      spin.compaignId = queryParams.compaignId;
+    if (!spin.campaignId && queryParams.campaignId) {
+      spin.campaignId = queryParams.campaignId;
     }
 
     if (!spin.ownerType) {
@@ -144,14 +144,14 @@ class SpinForm extends React.Component<Props, State> {
       <>
         <ScrollWrapper>
           <FormGroup>
-            <ControlLabel>Compaign</ControlLabel>
-            <SelectCompaigns
-              queryName='spinCompaigns'
-              customQuery={queries.spinCompaigns}
-              label='Choose spin compaign'
-              name='compaignId'
+            <ControlLabel>Campaign</ControlLabel>
+            <SelectCampaigns
+              queryName='spinCampaigns'
+              customQuery={queries.spinCampaigns}
+              label='Choose spin campaign'
+              name='campaignId'
               onSelect={this.onChangeSelect}
-              initialValue={spin.compaignId}
+              initialValue={spin.campaignId}
             />
           </FormGroup>
 
@@ -193,14 +193,14 @@ class SpinForm extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Voucher Compaign</ControlLabel>
-            <SelectCompaigns
-              queryName='voucherCompaigns'
-              customQuery={voucherCompaignQueries.voucherCompaigns}
-              label='Choose voucher compaign'
-              name='voucherCompaignId'
+            <ControlLabel>Voucher Campaign</ControlLabel>
+            <SelectCampaigns
+              queryName='voucherCampaigns'
+              customQuery={voucherCampaignQueries.voucherCampaigns}
+              label='Choose voucher campaign'
+              name='voucherCampaignId'
               onSelect={() => { }}
-              initialValue={spin.voucherCompaignId}
+              initialValue={spin.voucherCampaignId}
               filterParams={{ voucherType: 'spin' }}
             />
           </FormGroup>
