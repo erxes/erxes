@@ -159,11 +159,11 @@ export const getContentItem = async (subdomain, data) => {
     if (content) {
       addedUsers = await coreModels.Users.find({
         _id: { $in: content.addedUserIds }
-      }).toArray();
+      });
 
       removedUsers = await coreModels.Users.find({
         _id: { $in: content.removedUserIds }
-      }).toArray();
+      });
     }
 
     return { addedUsers, removedUsers };

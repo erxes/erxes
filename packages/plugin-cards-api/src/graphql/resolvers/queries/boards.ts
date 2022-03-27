@@ -431,7 +431,7 @@ const boardQueries = {
 
     const users = await coreModels.Users.find({
       _id: { $in: assignedUserIds },
-    }).toArray();
+    });
 
     const usersWithInfo: Array<{ name: string }> = [];
     const countsByGroup = {};
