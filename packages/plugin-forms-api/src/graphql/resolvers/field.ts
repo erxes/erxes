@@ -9,10 +9,17 @@ export const field = {
     return `erxes-form-field-${root._id}`;
   },
 
-  lastUpdatedUser(root: IFieldDocument, _params, { coreModels }: IContext) {
+  lastUpdatedUser(root: IFieldDocument) {
     const { lastUpdatedUserId } = root;
 
-    return coreModels.Users.findOne({ _id: lastUpdatedUserId });
+    if(!lastUpdatedUserId) {
+      return;
+    }
+
+    return {
+      __typename: 'User',
+      _id: lastUpdatedUserId
+    }
   },
 
   associatedField(root: IFieldDocument, _params, { models }: IContext) {
@@ -36,9 +43,16 @@ export const fieldsGroup = {
     return models.Fields.find({ groupId: root._id }).sort({ order: 1 });
   },
 
-  lastUpdatedUser(fieldGroup: IFieldGroupDocument, _params, { coreModels }: IContext) {
+  lastUpdatedUser(fieldGroup: IFieldGroupDocument) {
     const { lastUpdatedUserId } = fieldGroup;
 
-    return coreModels.Users.findOne({ _id: lastUpdatedUserId });
+    if(!lastUpdatedUserId) {
+      return;
+    }
+
+    return {
+      __typename: "User",
+      _id: lastUpdatedUserId
+    }
   }
 };
