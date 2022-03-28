@@ -11,7 +11,7 @@ import * as moment from 'moment';
 
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
 import { sendCoreMessage, sendFormsMessage, sendKnowledgeBaseMessage } from '../../messageBroker';
-import { IContext, ICoreIModels, IModels } from '../../connectionResolver';
+import { IContext, IModels } from '../../connectionResolver';
 
 export const isMessengerOnline = async (models: IModels, integration: IIntegrationDocument) => {
   if (!integration.messengerData) {
@@ -199,7 +199,7 @@ export default {
   async widgetsConversationDetail(
     _root,
     args: { _id: string; integrationId: string },
-    { models, coreModels, subdomain }: IContext
+    { models, subdomain }: IContext
   ) {
     const { _id, integrationId } = args;
 

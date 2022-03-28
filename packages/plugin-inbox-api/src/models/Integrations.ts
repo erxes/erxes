@@ -1,7 +1,7 @@
 import * as momentTz from 'moment-timezone';
 import { Model, Query } from 'mongoose';
 
-import { ICoreIModels, IModels } from '../connectionResolver';
+import { IModels } from '../connectionResolver';
 import { sendContactsMessage, sendCoreMessage, sendFormsMessage } from '../messageBroker';
 
 import { KIND_CHOICES } from './definitions/constants';
@@ -145,7 +145,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   increaseBookingViewCount(_id: string): Promise<IIntegrationDocument>;
 }
 
-export const loadClass = (models: IModels, coreModels: ICoreIModels, subdomain: string) => {
+export const loadClass = (models: IModels, subdomain: string) => {
   class Integration {
     /**
      * Retreives integration

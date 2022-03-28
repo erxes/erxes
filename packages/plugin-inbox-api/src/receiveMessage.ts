@@ -2,7 +2,7 @@ import { graphqlPubsub } from './configs';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { sendContactsMessage, sendCoreMessage, sendIntegrationsMessage } from './messageBroker';
 import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
-import { generateCoreModels, generateModels } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 
 const sendError = message => ({
   status: 'error',
@@ -25,10 +25,6 @@ export const receiveRpcMessage = async (subdomain, data) => {
     ConversationMessages,
     Conversations
   } = await generateModels(subdomain);
-
-  const {
-    Users
-  } = await generateCoreModels(subdomain);
   
   const doc = JSON.parse(payload || '{}');
 

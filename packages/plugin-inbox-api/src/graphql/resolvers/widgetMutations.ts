@@ -42,7 +42,7 @@ import {
 import { trackViewPageEvent } from '../../events';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 import { getService, getServices } from '../../redis';
-import { IContext, ICoreIModels, IModels } from '../../connectionResolver';
+import { IContext, IModels } from '../../connectionResolver';
 
 // ? import { IFormDocument } from '../../../db/models/definitions/forms';
 
@@ -155,7 +155,6 @@ const createVisitor = async (subdomain: string, visitorId: string) => {
 
 const createFormConversation = async (
   models: IModels,
-  coreModels: ICoreIModels,
   subdomain: string,
   args: {
     integrationId: string;
@@ -195,7 +194,7 @@ const createFormConversation = async (
 
   const content = await generateContent(form);
 
-  const cachedCustomer = await solveSubmissions(models, coreModels, subdomain, args);
+  const cachedCustomer = await solveSubmissions(models, subdomain, args);
 
   const conversationData = await generateConvData();
 
@@ -248,7 +247,7 @@ const widgetMutations = {
   async widgetsLeadConnect(
     _root,
     args: { brandCode: string; formCode: string; cachedCustomerId?: string },
-    { models, coreModels, subdomain }: IContext
+    { models, subdomain }: IContext
   ) {
     const brand = await sendCoreMessage({
       subdomain,
@@ -329,13 +328,12 @@ const widgetMutations = {
       cachedCustomerId?: string;
       userId?: string;
     },
-    { models, coreModels, subdomain }: IContext
+    { models, subdomain }: IContext
   ) {
     const { submissions } = args;
 
     return createFormConversation(
       models,
-      coreModels,
       subdomain,
       args,
       form => {
@@ -374,7 +372,7 @@ const widgetMutations = {
       deviceToken?: string;
       visitorId?: string;
     },
-    { models, coreModels, subdomain }: IContext
+    { models, subdomain }: IContext
   ) {
     const {
       brandCode,
@@ -572,7 +570,7 @@ const widgetMutations = {
       attachments?: any[];
       contentType: string;
     },
-    { models, coreModels, subdomain }: IContext
+    { models, subdomain }: IContext
   ) {
     const {
       integrationId,
@@ -898,7 +896,7 @@ const widgetMutations = {
       customerId,
       browserInfo
     }: { visitorId?: string; customerId?: string; browserInfo: IBrowserInfo },
-    { coreModels, subdomain }: IContext
+    { subdomain }: IContext
   ) {
     // update location
 
@@ -926,7 +924,7 @@ const widgetMutations = {
     }
 
     try {
-      await trackViewPageEvent(coreModels, subdomain, {
+      await trackViewPageEvent(subdomain, {
         visitorId,
         customerId,
         attributes: { url: browserInfo.url }
@@ -952,7 +950,7 @@ const widgetMutations = {
     return 'ok';
   },
 
-  async widgetsSendEmail(_root, args: IWidgetEmailParams, { coreModels, subdomain }: IContext) {
+  async widgetsSendEmail(_root, args: IWidgetEmailParams, { subdomain }: IContext) {
     const { toEmails, fromEmail, title, content, customerId, formId } = args;
 
     const attachments = args.attachments || [];
@@ -1185,7 +1183,7 @@ const widgetMutations = {
       cachedCustomerId?: string;
       productId: string;
     },
-    { models, coreModels, subdomain }: IContext
+    { models, subdomain }: IContext
   ) {
     const { submissions, productId } = args;
 
@@ -1200,7 +1198,6 @@ const widgetMutations = {
 
     return createFormConversation(
       models,
-      coreModels,
       subdomain,
       args,
       () => {

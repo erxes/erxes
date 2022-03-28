@@ -12,7 +12,7 @@ import {
   IConversation,
   IConversationDocument
 } from './definitions/conversations';
-import { ICoreIModels, IModels } from '../connectionResolver';
+import { IModels } from '../connectionResolver';
 import { sendCoreMessage, sendFormsMessage } from '../messageBroker';
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
@@ -78,7 +78,7 @@ export interface IConversationModel extends Model<IConversationDocument> {
   ): Promise<{ n: number; nModified: number; ok: number }>;
 }
 
-export const loadClass = (models: IModels, coreModels: ICoreIModels, subdomain: string) => {
+export const loadClass = (models: IModels, subdomain: string) => {
   class Conversation {
     /**
      * Retreives conversation
