@@ -38,10 +38,20 @@ export const isMessengerOnline = async (models: IModels, integration: IIntegrati
   return models.Integrations.isOnline(modifiedIntegration);
 };
 
-const messengerSupporters = async (coreModels: ICoreIModels, integration: IIntegrationDocument) => {
+const messengerSupporters = async (subdomain: string, integration: IIntegrationDocument) => {
   const messengerData = integration.messengerData || { supporterIds: [] };
 
-  return coreModels.Users.find({ _id: { $in: messengerData.supporterIds } })
+  return sendCoreMessage({
+    subdomain,
+    action: "users.find",
+    data: {
+      query: {
+         _id: { $in: messengerData.supporterIds } 
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  })
 };
 
 const getWidgetMessages = (models: IModels,conversationId: string) => {
@@ -189,7 +199,7 @@ export default {
   async widgetsConversationDetail(
     _root,
     args: { _id: string; integrationId: string },
-    { models, coreModels }: IContext
+    { models, coreModels, subdomain }: IContext
   ) {
     const { _id, integrationId } = args;
 
@@ -215,10 +225,18 @@ export default {
       messages: await getWidgetMessages(models, conversation._id),
       isOnline: await isMessengerOnline(models, integration),
       operatorStatus: conversation.operatorStatus,
-      participatedUsers: await coreModels.Users.find({
-        _id: { $in: conversation.participatedUserIds }
+      participatedUsers: await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: {
+            _id: { $in: conversation.participatedUserIds }
+          }
+        },
+        isRPC: true,
+        defaultValue: []
       }),
-      supporters: await messengerSupporters(coreModels, integration)
+      supporters: await messengerSupporters(subdomain, integration)
     };
   },
 
@@ -256,7 +274,7 @@ export default {
   async widgetsMessengerSupporters(
     _root,
     { integrationId }: { integrationId: string },
-    { models, coreModels }: IContext
+    { models, subdomain }: IContext
   ) {
     const integration = await models.Integrations.findOne({
       _id: integrationId
@@ -279,8 +297,16 @@ export default {
     }
 
     return {
-      supporters: await coreModels.Users.find({
-        _id: { $in: messengerData.supporterIds || [] }
+      supporters: await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: {
+            _id: { $in: messengerData.supporterIds || [] }
+          }
+        },
+        isRPC: true,
+        defaultValue: []
       }),
       isOnline: await isMessengerOnline(models, integration),
       serverTime: momentTz().tz(timezone)
@@ -375,10 +401,10 @@ export default {
 
   },
 
-    /**
-   * Topic detail
-   */
-     async widgetsKnowledgeBaseTopicDetail(_root, { _id }: { _id: string }, { subdomain, coreModels }: IContext) {
+    /*  
+     * Topic detail
+     */
+     async widgetsKnowledgeBaseTopicDetail(_root, { _id }: { _id: string }, { subdomain }: IContext) {
       const topic = await sendKnowledgeBaseMessage({
         subdomain,
         action: "topics.findOne",
@@ -391,7 +417,15 @@ export default {
       })
   
       if (topic && topic.createdBy) {
-        const user = await coreModels.Users.findOne({ _id: topic.createdBy });
+        const user = await sendCoreMessage({
+          subdomain,
+          action: 'users.findOne',
+          data: {
+            _id: topic.createdBy
+          },
+          isRPC: true,
+          defaultValue: {}
+        });
 
         sendCoreMessage({
           subdomain,

@@ -1,5 +1,6 @@
 import { IChannelDocument } from '../../models/definitions/channels';
 import { IContext } from '../../connectionResolver';
+import { sendCoreMessage } from '../../messageBroker';
 
 export default {
   integrations(channel: IChannelDocument, _args, { models }: IContext) {
@@ -8,10 +9,19 @@ export default {
     });
   },
 
-  members(channel: IChannelDocument, _args, { coreModels }: IContext) {
-    return coreModels.Users.find({
-      _id: { $in: channel.memberIds },
-      isActive: { $ne: false }
+  members(channel: IChannelDocument, _args, { subdomain }: IContext) {
+
+    return sendCoreMessage({
+      subdomain,
+      action: 'users.find',
+      data: {
+        query: {
+          _id: { $in: channel.memberIds },
+          isActive: { $ne: false }
+        }
+      },
+      isRPC: true,
+      defaultValue: []
     });
   }
 };

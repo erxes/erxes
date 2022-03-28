@@ -280,7 +280,15 @@ const widgetMutations = {
     }
 
     if (integ.createdUserId) {
-      const user = await coreModels.Users.findOne({ _id: integ.createdUserId });
+      const user = await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          _id: integ.createdUserId
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
 
       await sendCoreMessage({
         subdomain,
@@ -973,7 +981,15 @@ const widgetMutations = {
       ).replaceAttributes({
         content,
         customer,
-        user: await coreModels.Users.findOne({_id: form.createdUserId}) || {}
+        user: await sendCoreMessage({
+          subdomain,
+          action: 'users.findOne',
+          data: {
+            _id: form.createdUserId
+          },
+          isRPC: true,
+          defaultValue: {}
+        }) || {}
       });
 
       finalContent = replacedContent || '';

@@ -13,7 +13,7 @@ import {
   IConversationDocument
 } from './definitions/conversations';
 import { ICoreIModels, IModels } from '../connectionResolver';
-import { sendFormsMessage } from '../messageBroker';
+import { sendCoreMessage, sendFormsMessage } from '../messageBroker';
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
@@ -178,7 +178,16 @@ export const loadClass = (models: IModels, coreModels: ICoreIModels, subdomain: 
     ) {
       await this.checkExistanceConversations(conversationIds);
 
-      if (!(await coreModels.Users.findOne({ _id: assignedUserId }))) {
+      const user = await sendCoreMessage({
+          subdomain,
+          action: 'users.findOne',
+          data: {
+            _id: assignedUserId
+          },
+          isRPC: true,
+        })
+
+      if (!user) {
         throw new Error(`User not found with id ${assignedUserId}`);
       }
 
@@ -431,10 +440,20 @@ export const loadClass = (models: IModels, coreModels: ICoreIModels, subdomain: 
         return;
       }
 
-      const users =
-        (await coreModels.Users.find({ _id: { $in: skill.memberIds || [] } }).sort({
-          createdAt: 1
-        })) || [];
+      const users = await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: {
+            _id: { $in: skill.memberIds || [] }
+          },
+          sort: {
+            createdAt: 1
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
 
       if (users.length === 0) {
         return;
