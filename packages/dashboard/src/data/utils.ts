@@ -6,8 +6,9 @@ import {
   Pipelines,
   Stages,
   Tags,
-  Users
-} from 'src/db';
+  Users,
+  PipelineLabels
+} from '../coreDb';
 
 import { KIND_CHOICES } from './constants';
 
@@ -54,7 +55,13 @@ export const getIntegrationTypes = async () => {
   const filters = [] as any;
 
   for (const kind of KIND_CHOICES.ALL) {
-    const integrationIds = await Integrations.find({ kind }).distinct('_id');
+    const integrationIds: string[] = [];
+
+    const integrations = await Integrations.find({ kind }).toArray();
+
+    integrations.map(integration => {
+      integrationIds.push(integration._id);
+    });
 
     if (integrationIds.length > 0) {
       filters.push({ label: kind, value: integrationIds });
@@ -77,12 +84,29 @@ export const getTags = async type => {
   ]);
 };
 
+export const getLabels = async () => {
+  return PipelineLabels.aggregate([
+    { $match: {} },
+    {
+      $project: {
+        _id: 0,
+        label: '$name',
+        value: '$_id'
+      }
+    }
+  ]);
+};
+
 export const getPipelines = async (stageType: string) => {
   const filters = [] as any;
 
-  const pipelineIds = await Stages.find({ type: stageType }).distinct(
-    'pipelineId'
-  );
+  const pipelineIds: string[] = [];
+
+  const stages = await Stages.find({ type: stageType }).toArray();
+
+  stages.map(stage => {
+    pipelineIds.push(stage.pipelineId);
+  });
 
   const pipelines = await Pipelines.aggregate([
     { $match: { _id: { $in: pipelineIds } } },
@@ -118,13 +142,22 @@ export const getPipelines = async (stageType: string) => {
 export const getBoards = async (stageType: string) => {
   const filters = [] as any;
 
-  const pipelineIds = await Stages.find({ type: stageType }).distinct(
-    'pipelineId'
-  );
+  const pipelineIds: string[] = [];
+  const boardIds: string[] = [];
 
-  const boardIds = await Pipelines.find({ _id: { $in: pipelineIds } }).distinct(
-    'boardId'
-  );
+  const stages = await Stages.find({ type: stageType }).toArray();
+
+  const pipelines = await Pipelines.find({
+    _id: { $in: pipelineIds }
+  }).toArray();
+
+  stages.map(stage => {
+    pipelineIds.push(stage.pipelineId);
+  });
+
+  pipelines.map(pipeline => {
+    boardIds.push(pipeline.boardId);
+  });
 
   const boards = await Boards.aggregate([
     { $match: { _id: { $in: boardIds } } },

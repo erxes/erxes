@@ -8,7 +8,7 @@ import { IListArgs } from './conversationQueryBuilder';
 import { fixDate } from '@erxes/api-utils/src';
 
 import { debug } from './configs';
-import { sendSegmentsMessage, sendTagsMessage } from './messageBroker';
+import { sendCoreMessage, sendSegmentsMessage, sendTagsMessage } from './messageBroker';
 import { ICoreIModels, IModels } from './connectionResolver';
 
 export interface ICountBy {
@@ -40,8 +40,16 @@ const countByChannels = async (
 };
 
 // Count conversation by brand
-const countByBrands = async (coreModels: ICoreIModels, qb: any, counts: ICountBy): Promise<ICountBy> => {
-  const brands = await coreModels.Brands.find({});
+const countByBrands = async (subdomain: string, qb: any, counts: ICountBy): Promise<ICountBy> => {
+  const brands = await sendCoreMessage({
+    subdomain,
+    action: 'brands.find',
+    data: {
+      query: {}
+    },
+    isRPC: true,
+    defaultValue: []
+  })
 
   for (const brand of brands) {
     await qb.buildAllQueries();
@@ -144,7 +152,7 @@ export const countByConversations = async (
       break;
 
     case 'byBrands':
-      await countByBrands(coreModels, qb, counts);
+      await countByBrands(subdomain, qb, counts);
       break;
 
     case 'byTags':

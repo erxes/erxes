@@ -1,7 +1,7 @@
 import {
   DashboardFilters,
   DashboardFilterTypes
-} from 'src/data/dashboardConstants';
+} from '../../dashboardConstants';
 import { DashboardItems, Dashboards } from '../../../db/models';
 
 import { IContext } from '../../types';
@@ -10,19 +10,32 @@ import {
   getBrands,
   getIntegrations,
   getIntegrationTypes,
+  getLabels,
   getPipelines,
   getTags,
-  getUsers,
-  paginate
+  getUsers
 } from '../../utils';
 
 const dashBoardQueries = {
-  dashboards(
-    _root,
-    args: { page: number; perPage: number },
-    { commonQuerySelector }: IContext
-  ) {
-    return paginate(Dashboards.find(commonQuerySelector), args);
+  dashboards(_root, _args, { user }: IContext) {
+    const dashboardFilter = user.isOwner
+      ? {}
+      : {
+          $or: [
+            { visibility: { $exists: null } },
+            { visibility: 'public' },
+            {
+              $and: [
+                { visibility: 'private' },
+                {
+                  $or: [{ selectedMemberIds: user._id }]
+                }
+              ]
+            }
+          ]
+        };
+
+    return Dashboards.find(dashboardFilter).sort({ order: 1 });
   },
 
   dashboardDetails(_root, { _id }: { _id: string }) {
@@ -105,6 +118,10 @@ const dashBoardQueries = {
 
       if (type.includes('tag')) {
         return getTags(tagType);
+      }
+
+      if (type.includes('label')) {
+        return getLabels();
       }
     }
 

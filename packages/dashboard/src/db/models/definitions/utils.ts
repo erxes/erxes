@@ -47,3 +47,7 @@ export const schemaHooksWrapper = (schema, cacheKey: string) => {
 
   return schemaWrapper(schema);
 };
+
+export const escapeRegExp = (str: string) => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};

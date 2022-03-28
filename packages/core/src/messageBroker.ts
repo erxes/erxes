@@ -149,12 +149,12 @@ export const initBroker = async (options) => {
       };
     });
 
-    consumeRPCQueue("core:brands.findOne", async (query) => ({
+    consumeRPCQueue("core:brands.findOne", async ({ data: { query } }) => ({
       status: "success",
       data: await Brands.findOne(query),
     }));
 
-    consumeRPCQueue("core:brands.find", async (data) => {
+    consumeRPCQueue("core:brands.find", async ({ data }) => {
       const { query } = data;
 
       return {
