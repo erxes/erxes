@@ -37,7 +37,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
   models.ClientPortals = db.model<IClientPortalDocument, IClientPortalModel>(
-    'clientportals',
+    'client_portals',
     loadClientPortalClass(models)
   );
 

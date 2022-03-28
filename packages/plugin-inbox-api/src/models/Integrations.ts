@@ -1,8 +1,12 @@
 import * as momentTz from "moment-timezone";
 import { Model, Query } from "mongoose";
 
-import { ICoreIModels, IModels } from "../connectionResolver";
-import { sendContactsMessage, sendFormsMessage } from "../messageBroker";
+import { IModels } from "../connectionResolver";
+import {
+  sendContactsMessage,
+  sendCoreMessage,
+  sendFormsMessage
+} from "../messageBroker";
 
 import { KIND_CHOICES } from "./definitions/constants";
 import {
@@ -145,11 +149,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   increaseBookingViewCount(_id: string): Promise<IIntegrationDocument>;
 }
 
-export const loadClass = (
-  models: IModels,
-  coreModels: ICoreIModels,
-  subdomain: string
-) => {
+export const loadClass = (models: IModels, subdomain: string) => {
   class Integration {
     /**
      * Retreives integration
@@ -435,7 +435,17 @@ export const loadClass = (
       kind: string,
       brandObject = false
     ) {
-      const brand = await coreModels.Brands.findOne({ code: brandCode });
+      const brand = await sendCoreMessage({
+        subdomain,
+        action: "brands.findOne",
+        data: {
+          query: {
+            code: brandCode
+          }
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
 
       const integration = await models.Integrations.getIntegration({
         brandId: brand._id,

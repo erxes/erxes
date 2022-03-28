@@ -49,6 +49,11 @@ cube(`Deals`, {
       type: `string`
     },
 
+    label: {
+      sql: `${CUBE}."labelIds"`,
+      type: `string`
+    },
+
     board: {
       sql: `${CUBE}."stageId"`,
       type: `string`

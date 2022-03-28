@@ -10,7 +10,7 @@ import { initApolloServer } from './apolloClient';
 import { initBroker } from './messageBroker';
 import { join, leave, redis } from './serviceDiscovery';
 import * as mongoose from 'mongoose';
-import { connectCoreModelss } from './db';
+// import * as coreDb from './coreDb';
 
 async function closeMongooose() {
   try {
@@ -76,7 +76,7 @@ const httpServer = createServer(app);
 
 const {
   NODE_ENV,
-  PORT = '3700',
+  PORT = '6000',
   MONGO_URL = 'mongodb://localhost/erxes',
   RABBITMQ_HOST,
   MESSAGE_BROKER_PREFIX,
@@ -111,7 +111,14 @@ httpServer.listen(PORT, async () => {
     meta: {}
   });
 
-  await connectCoreModelss();
+  // try {
+  //   console.log(1);
+  //   await coreDb.connectCoreModels();
+  //   console.log(2);
+  // } catch (e) {
+  //   console.log(3);
+  //   console.log(e);
+  // }
 
   console.log(`GraphQL Server is now running on ${PORT}`);
 });

@@ -1,7 +1,7 @@
 const { tableSchema } = require('../tablePrefix');
 
 cube(`Brands`, {
-  sql: `SELECT * FROM ${tableSchema(tableSchema)}__brands`,
+  sql: `SELECT * FROM ${tableSchema()}__brands`,
 
   joins: {},
 

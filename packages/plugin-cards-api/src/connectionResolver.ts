@@ -43,12 +43,6 @@ import {
   loadPipelineTemplateClass
 } from './models/PipelineTemplates';
 import { IPipelineTemplateDocument } from './models/definitions/pipelineTemplates';
-import { userSchema } from '@erxes/api-utils/src/definitions/users';
-
-export interface ICoreIModels {
-  Users;
-}
-
 export interface IModels {
   Boards: IBoardModel;
   Pipelines: IPipelineModel;
@@ -66,20 +60,12 @@ export interface IModels {
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
-  coreModels: ICoreIModels;
 }
 
 export let models: IModels;
-export let coreModels: ICoreIModels;
 
 export const getSubdomain = (hostname: string): string => {
   return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
-};
-
-export const generateCoreModels = async (
-  _hostnameOrSubdomain: string
-): Promise<ICoreIModels> => {
-  return coreModels;
 };
 
 export const generateModels = async (
@@ -89,36 +75,9 @@ export const generateModels = async (
     return models;
   }
 
-  coreModels = await connectCore();
-
   loadClasses(mainDb, hostnameOrSubdomain);
 
   return models;
-};
-
-const connectCore = async () => {
-  if (coreModels) {
-    return coreModels;
-  }
-
-  const url = process.env.API_MONGO_URL || 'mongodb://localhost/erxes';
-  const client = new MongoClient(url);
-
-  const dbName = 'erxes';
-
-  let db;
-
-  await client.connect();
-
-  console.log('Connected successfully to server');
-
-  db = client.db(dbName);
-
-  coreModels = {
-    Users: await db.collection('users')
-  };
-
-  return coreModels;
 };
 
 export const loadClasses = (

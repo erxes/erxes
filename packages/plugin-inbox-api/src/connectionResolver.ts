@@ -42,13 +42,7 @@ import {
   loadClass as loadConversationClass
 } from './models/Conversations';
 import { IConversationDocument } from './models/definitions/conversations';
-import { brandSchema } from '@erxes/api-utils/src/definitions/brands';
-import { userSchema } from '@erxes/api-utils/src/definitions/users';
 
-export interface ICoreIModels {
-  Users;
-  Brands;
-}
 export interface IModels {
   Channels: IChannelModel;
   Skills: ISkillModel;
@@ -62,11 +56,9 @@ export interface IModels {
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
-  coreModels: ICoreIModels;
 }
 
 export let models: IModels;
-export let coreModels: ICoreIModels;
 
 export const generateModels = async (
   hostnameOrSubdomain: string
@@ -75,47 +67,13 @@ export const generateModels = async (
     return models;
   }
 
-  coreModels = await connectCore();
-
   loadClasses(mainDb, hostnameOrSubdomain);
 
   return models;
 };
 
-export const generateCoreModels = async (
-  _hostnameOrSubdomain: string
-): Promise<ICoreIModels> => {
-  return coreModels;
-};
-
 export const getSubdomain = (hostname: string): string => {
   return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
-};
-
-const connectCore = async () => {
-  if (coreModels) {
-    return coreModels;
-  }
-
-  const url = process.env.API_MONGO_URL || 'mongodb://localhost/erxes';
-  const client = new MongoClient(url);
-
-  const dbName = 'erxes';
-
-  let db;
-
-  await client.connect();
-
-  console.log('Connected successfully to server');
-
-  db = client.db(dbName);
-
-  coreModels = {
-    Users: mainDb.model('users', userSchema),
-    Brands: mainDb.model('brands', brandSchema)
-  };
-
-  return coreModels;
 };
 
 export const loadClasses = (
@@ -142,7 +100,7 @@ export const loadClasses = (
   >('response_templates', loadResponseTemplateClass(models));
   models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>(
     'integrations',
-    loadIntegrationClass(models, coreModels, subdomain)
+    loadIntegrationClass(models, subdomain)
   );
   models.MessengerApps = db.model<IMessengerAppDocument, IMessengerAppModel>(
     'messenger_apps',
@@ -154,7 +112,7 @@ export const loadClasses = (
   );
   models.Conversations = db.model<IConversationDocument, IConversationModel>(
     'conversations',
-    loadConversationClass(models, coreModels, subdomain)
+    loadConversationClass(models, subdomain)
   );
 
   return models;

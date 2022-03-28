@@ -42,7 +42,7 @@ import {
 import { trackViewPageEvent } from "../../events";
 import EditorAttributeUtil from "@erxes/api-utils/src/editorAttributeUtils";
 import { getService, getServices } from "../../redis";
-import { IContext, ICoreIModels, IModels } from "../../connectionResolver";
+import { IContext, IModels } from "../../connectionResolver";
 
 // ? import { IFormDocument } from '../../../db/models/definitions/forms';
 
@@ -167,7 +167,6 @@ const createVisitor = async (subdomain: string, visitorId: string) => {
 
 const createFormConversation = async (
   models: IModels,
-  coreModels: ICoreIModels,
   subdomain: string,
   args: {
     integrationId: string;
@@ -212,12 +211,7 @@ const createFormConversation = async (
 
   const content = await generateContent(form);
 
-  const cachedCustomer = await solveSubmissions(
-    models,
-    coreModels,
-    subdomain,
-    args
-  );
+  const cachedCustomer = await solveSubmissions(models, subdomain, args);
 
   const conversationData = await generateConvData();
 
@@ -301,9 +295,19 @@ const widgetMutations = {
   async widgetsLeadConnect(
     _root,
     args: { brandCode: string; formCode: string; cachedCustomerId?: string },
-    { models, coreModels, subdomain }: IContext
+    { models, subdomain }: IContext
   ) {
-    const brand = await coreModels.Brands.findOne({ code: args.brandCode });
+    const brand = await sendCoreMessage({
+      subdomain,
+      action: "brands.findOne",
+      data: {
+        query: {
+          code: args.brandCode
+        }
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
 
     const form = await sendFormsMessage({
       subdomain,
@@ -330,7 +334,15 @@ const widgetMutations = {
     }
 
     if (integ.createdUserId) {
-      const user = await coreModels.Users.findOne({ _id: integ.createdUserId });
+      const user = await sendCoreMessage({
+        subdomain,
+        action: "users.findOne",
+        data: {
+          _id: integ.createdUserId
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
 
       await sendCoreMessage({
         subdomain,
@@ -370,13 +382,12 @@ const widgetMutations = {
       cachedCustomerId?: string;
       userId?: string;
     },
-    { models, coreModels, subdomain }: IContext
+    { models, subdomain }: IContext
   ) {
     const { submissions } = args;
 
     return createFormConversation(
       models,
-      coreModels,
       subdomain,
       args,
       form => {
@@ -419,7 +430,7 @@ const widgetMutations = {
       deviceToken?: string;
       visitorId?: string;
     },
-    { models, coreModels, subdomain }: IContext
+    { models, subdomain }: IContext
   ) {
     const {
       brandCode,
@@ -438,7 +449,17 @@ const widgetMutations = {
     const customData = data;
 
     // find brand
-    const brand = await coreModels.Brands.findOne({ code: brandCode });
+    const brand = await sendCoreMessage({
+      subdomain,
+      action: "brands.findOne",
+      data: {
+        query: {
+          code: brandCode
+        }
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
 
     if (!brand) {
       throw new Error("Invalid configuration");
@@ -601,7 +622,7 @@ const widgetMutations = {
       attachments?: any[];
       contentType: string;
     },
-    { models, coreModels, subdomain }: IContext
+    { models, subdomain }: IContext
   ) {
     const {
       integrationId,
@@ -932,7 +953,7 @@ const widgetMutations = {
       customerId,
       browserInfo
     }: { visitorId?: string; customerId?: string; browserInfo: IBrowserInfo },
-    { coreModels, subdomain }: IContext
+    { subdomain }: IContext
   ) {
     // update location
 
@@ -960,7 +981,7 @@ const widgetMutations = {
     }
 
     try {
-      await trackViewPageEvent(coreModels, subdomain, {
+      await trackViewPageEvent(subdomain, {
         visitorId,
         customerId,
         attributes: { url: browserInfo.url }
@@ -989,7 +1010,7 @@ const widgetMutations = {
   async widgetsSendEmail(
     _root,
     args: IWidgetEmailParams,
-    { coreModels, subdomain }: IContext
+    { subdomain }: IContext
   ) {
     const { toEmails, fromEmail, title, content, customerId, formId } = args;
 
@@ -1025,7 +1046,15 @@ const widgetMutations = {
         content,
         customer,
         user:
-          (await coreModels.Users.findOne({ _id: form.createdUserId })) || {}
+          (await sendCoreMessage({
+            subdomain,
+            action: "users.findOne",
+            data: {
+              _id: form.createdUserId
+            },
+            isRPC: true,
+            defaultValue: {}
+          })) || {}
       });
 
       finalContent = replacedContent || "";
@@ -1229,7 +1258,7 @@ const widgetMutations = {
       cachedCustomerId?: string;
       productId: string;
     },
-    { models, coreModels, subdomain }: IContext
+    { models, subdomain }: IContext
   ) {
     const { submissions, productId } = args;
 
@@ -1244,7 +1273,6 @@ const widgetMutations = {
 
     return createFormConversation(
       models,
-      coreModels,
       subdomain,
       args,
       () => {
