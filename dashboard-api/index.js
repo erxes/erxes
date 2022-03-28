@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 
 dotenv.config();
 
-const { SCHEMA_PATH, CUBEJS_API_SECRET } = process.env;
+const { SCHEMA_PATH, CUBEJS_API_SECRET, DB_NAME } = process.env;
 
 const server = new CubejsServer({
   schemaPath: SCHEMA_PATH || '/schema',
@@ -50,7 +50,7 @@ server
       });
     });
 
-    console.log(`🚀 Cube.js server is listening on ${port}`);
+    console.log(`🚀 Cube.js server is listening on ${port} dbname ${DB_NAME}`);
   })
   .catch(e => {
     console.error('Fatal error during server start: ');
