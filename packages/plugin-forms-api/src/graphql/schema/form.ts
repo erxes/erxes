@@ -1,4 +1,19 @@
-export const types = `
+export const types = ({ contacts }) => `
+${
+  contacts
+    ? `
+      extend type Customer @key(fields: "_id") {
+        _id: String! @external
+      }
+
+      extend type Company @key(fields: "_id") {
+        _id: String! @external
+      }
+      `
+    : ""
+}
+
+
   type Callout {
     title: String,
     body: String,
@@ -22,6 +37,33 @@ export const types = `
     googleMapApiKey: String
     fields: [Field]
   }
+
+  type FormSubmission {
+    _id: String!
+    customerId: String
+    formId: String
+    formFieldId: String
+    text: String
+    formFieldText: String
+    value: JSON
+    submittedAt: Date
+  }
+
+  type Submission {
+    _id: String!
+    contentTypeId: String
+    customerId: String
+    customer: Customer
+    createdAt: Date
+    customFieldsData:JSON
+    submissions: [FormSubmission]
+  }
+
+  input SubmissionFilter {
+    operator: String
+    value: JSON
+    formFieldId: String
+  }
 `;
 
 const commonFields = `
@@ -40,9 +82,19 @@ const commonFormSubmissionFields = `
   formSubmissions: JSON
 `;
 
+const formSubmissionQueryParams = `
+  tagId: String, 
+  formId: String, 
+  filters: [SubmissionFilter]
+  contentTypeIds: [String]
+  integrationId: String
+`;
+
 export const queries = `
   formDetail(_id: String!): Form
   forms: [Form]
+  formSubmissions(${formSubmissionQueryParams}, page: Int, perPage: Int): [Submission]
+  formSubmissionsTotalCount(${formSubmissionQueryParams}): Int
 `;
 
 export const mutations = `
