@@ -10,6 +10,7 @@ import {
   getBrands,
   getIntegrations,
   getIntegrationTypes,
+  getLabels,
   getPipelines,
   getTags,
   getUsers
