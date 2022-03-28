@@ -16,9 +16,9 @@ import { FieldsQueryResponse } from "@erxes/ui-settings/src/properties/types";
 import { queries as integrationQueries } from "@erxes/ui-settings/src/integrations/graphql";
 
 type Props = {
-  integrationId: string;
-  formId: string;
   queryParams: any;
+  formId: string;
+  integrationId: string;
 };
 
 type FinalProps = {
@@ -37,8 +37,6 @@ class ListContainer extends React.Component<FinalProps> {
       fieldsQuery,
       formSubmissionTotalCountQuery
     } = this.props;
-
-    console.log("queryParamsssssss: ", this.props.queryParams);
 
     const integrationDetail = integrationDetailQuery.integrationDetail || {};
 
@@ -68,9 +66,9 @@ export default withProps<Props>(
       gql(integrationQueries.integrationDetail),
       {
         name: "integrationDetailQuery",
-        options: ({ queryParams }) => ({
+        options: ({ integrationId }) => ({
           variables: {
-            _id: queryParams.integrationId || ""
+            _id: integrationId || ""
           },
           fetchPolicy: "network-only"
         })
@@ -78,16 +76,16 @@ export default withProps<Props>(
     ),
     graphql<Props, FieldsQueryResponse>(gql(queries.fields), {
       name: "fieldsQuery",
-      options: ({ queryParams }) => ({
+      options: ({ formId }) => ({
         variables: {
           contentType: "form",
-          contentTypeId: queryParams.formId
+          contentTypeId: formId
         }
       })
     }),
     graphql<Props, FormSubmissionsQueryResponse>(gql(queries.formSubmissions), {
       name: "formSubmissionsQuery",
-      options: ({ queryParams, formId }) => ({
+      options: ({ formId, queryParams }) => ({
         variables: {
           formId,
           page: parseInt(queryParams.page || "1", 10),
