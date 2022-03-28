@@ -250,7 +250,17 @@ const widgetMutations = {
     args: { brandCode: string; formCode: string; cachedCustomerId?: string },
     { models, coreModels, subdomain }: IContext
   ) {
-    const brand = await coreModels.Brands.findOne({ code: args.brandCode });
+    const brand = await sendCoreMessage({
+      subdomain,
+      action: 'brands.findOne',
+      data: {
+        query: {
+          code: args.brandCode
+        }
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
 
     const form = await sendFormsMessage({ subdomain, action: 'findOne', data: { code: args.formCode }, isRPC: true }) ;
 
@@ -375,7 +385,18 @@ const widgetMutations = {
     const customData = data;
 
     // find brand
-    const brand = await coreModels.Brands.findOne({ code: brandCode });
+    const brand = await sendCoreMessage({
+      subdomain,
+      action: 'brands.findOne',
+      data: {
+        query: {
+          code: brandCode
+        }
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
+
 
     if (!brand) {
       throw new Error('Invalid configuration');

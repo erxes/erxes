@@ -8,7 +8,6 @@ import { ICoreIModels, IModels } from "./connectionResolver";
 
 export const getOrCreateEngageMessage = async (
   models: IModels,
-  coreModels: ICoreIModels,
   subdomain: string,
   integrationId: string,
   browserInfo: IBrowserInfo,
@@ -37,7 +36,17 @@ export const getOrCreateEngageMessage = async (
     kind: KIND_CHOICES.MESSENGER,
   });
 
-  const brand = await coreModels.Brands.findOne({ _id: integration.brandId || "" });
+  const brand = await sendCoreMessage({
+    subdomain,
+    action: 'brands.findOne',
+    data: {
+      query: {
+        _id: integration.brandId
+      }
+    },
+    isRPC: true,
+    defaultValue: {}
+  });
 
   // try to create engage chat auto messages
   await sendEngagesMessage({

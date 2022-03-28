@@ -300,11 +300,10 @@ export default {
       visitorId?: string;
       browserInfo: IBrowserInfo;
     },
-    { models, coreModels, subdomain }: IContext
+    { models, subdomain }: IContext
   ) {
     return getOrCreateEngageMessage(
       models,
-      coreModels,
       subdomain,
       integrationId,
       browserInfo,

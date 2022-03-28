@@ -2,7 +2,7 @@ import * as momentTz from 'moment-timezone';
 import { Model, Query } from 'mongoose';
 
 import { ICoreIModels, IModels } from '../connectionResolver';
-import { sendContactsMessage, sendFormsMessage } from '../messageBroker';
+import { sendContactsMessage, sendCoreMessage, sendFormsMessage } from '../messageBroker';
 
 import { KIND_CHOICES } from './definitions/constants';
 import {
@@ -433,7 +433,18 @@ export const loadClass = (models: IModels, coreModels: ICoreIModels, subdomain: 
       kind: string,
       brandObject = false
     ) {
-      const brand = await coreModels.Brands.findOne({ code: brandCode });
+      
+      const brand = await sendCoreMessage({
+        subdomain,
+        action: 'brands.findOne',
+        data: {
+          query: {
+            code: brandCode
+          }
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
 
       const integration = await models.Integrations.getIntegration({
         brandId: brand._id,
