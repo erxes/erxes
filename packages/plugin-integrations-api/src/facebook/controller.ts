@@ -85,7 +85,7 @@ export const facebookCreateIntegration = async ({ accountId, integrationId, data
 
     await integration.save();
 
-    return { status: 'ok ' };
+    return { status: 'success' };
 };
 
 export const facebookGetCustomerPosts = async ({ customerId }) => {

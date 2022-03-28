@@ -1,6 +1,5 @@
 import { PUBLISH_STATUSES } from '../../models/definitions/constants';
 import { ICategoryDocument } from '../../models/definitions/knowledgebase';
-import { getDocumentList } from '../../cacheUtils';
 import { IContext } from '../../connectionResolver';
 
 export const KnowledgeBaseCategory = {
@@ -24,8 +23,8 @@ export const KnowledgeBaseCategory = {
 
     const authorIds = articles.map((article) => article.createdBy);
 
-    return getDocumentList(coreModels, 'users', {
-      _id: { $in: authorIds },
+    return coreModels.Users.find({
+      _id: { $in: authorIds }
     });
   },
 

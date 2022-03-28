@@ -1,5 +1,4 @@
 import { ITopicDocument } from '../../models/definitions/knowledgebase';
-import { getDocument } from '../../cacheUtils';
 import { IContext } from '../../connectionResolver';
 
 export default {
@@ -7,8 +6,14 @@ export default {
     return models.KnowledgeBaseTopics.findOne({ _id });
   },
   
-  brand(topic: ITopicDocument, _args, { coreModels }: IContext) {
-    return getDocument(coreModels, 'brands', { _id: topic.brandId });
+  brand(topic: ITopicDocument) {
+    return (
+      topic.brandId && {
+        __typename: 'Brand',
+        _id: topic.brandId
+      }
+    );
+
   },
 
   categories(topic: ITopicDocument, _args, { models }: IContext) {
