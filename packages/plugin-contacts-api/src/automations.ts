@@ -36,9 +36,13 @@ const getRelatedValue = async (
   ) {
     const users = await sendCoreMessage({
       subdomain,
-      action: "users.find",
-      data: { _id: { $in: target[targetKey] } },
-      isRPC: true,
+      action: 'users.find',
+      data: {
+        query: {
+          _id: { $in: target[targetKey] }
+        }
+      },
+      isRPC: true
     });
 
     return (
