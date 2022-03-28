@@ -157,12 +157,28 @@ export const getContentItem = async (subdomain, data) => {
     let removedUsers: IUserDocument[] = [];
 
     if (content) {
-      addedUsers = await coreModels.Users.find({
-        _id: { $in: content.addedUserIds }
-      });
+      addedUsers = await sendCoreMessage({
+        subdomain,
+        action: "users.find",
+        data: {
+          query: {
+            _id: { $in: content.addedUserIds }
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });      
 
-      removedUsers = await coreModels.Users.find({
-        _id: { $in: content.removedUserIds }
+      removedUsers = await sendCoreMessage({
+        subdomain,
+        action: "users.find",
+        data: {
+          query: {
+            _id: { $in: content.removedUserIds }
+          }
+        },
+        isRPC: true,
+        defaultValue: []
       });
     }
 

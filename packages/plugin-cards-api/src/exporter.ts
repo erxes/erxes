@@ -9,7 +9,7 @@ import { IUserDocument } from "@erxes/api-utils/src/types";
 import * as moment from "moment";
 import { ICoreIModels, IModels } from "./connectionResolver";
 import { BOARD_BASIC_INFOS, MODULE_NAMES } from "./constants";
-import { fetchSegment, sendFormsMessage } from "./messageBroker";
+import { fetchSegment, sendCoreMessage, sendFormsMessage } from "./messageBroker";
 import {
   commonItemFieldsSchema,
   IStageDocument,
@@ -54,6 +54,7 @@ const getCellValue = (item, colName) => {
 const fillCellValue = async (
   models: IModels,
   coreModels: ICoreIModels,
+  subdomain: string,
   colName: string,
   item: any
 ): Promise<string> => {
@@ -77,8 +78,13 @@ const fillCellValue = async (
 
       break;
     case "userId":
-      const createdUser: IUserDocument | null = await coreModels.Users.findOne({
-        _id: item.userId,
+      const createdUser: IUserDocument | null = await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          _id: item.userId
+        },
+        isRPC: true,
       });
 
       cellValue = createdUser ? createdUser.username : "user not found";
@@ -86,8 +92,16 @@ const fillCellValue = async (
       break;
     // deal, task, ticket fields
     case "assignedUserIds":
-      const assignedUsers: IUserDocument[] = await coreModels.Users.find({
-        _id: { $in: item.assignedUserIds },
+      const assignedUsers: IUserDocument[] = await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: {
+            _id: { $in: item.assignedUserIds }
+          }
+        },
+        isRPC: true,
+        defaultValue: [] 
       });
 
       cellValue = assignedUsers
@@ -97,8 +111,16 @@ const fillCellValue = async (
       break;
 
     case "watchedUserIds":
-      const watchedUsers: IUserDocument[] = await coreModels.Users.find({
-        _id: { $in: item.watchedUserIds },
+      const watchedUsers: IUserDocument[] = await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: {
+            _id: { $in: item.watchedUserIds }
+          }
+        },
+        isRPC: true,
+        defaultValue: []
       });
 
       cellValue = watchedUsers
@@ -136,9 +158,14 @@ const fillCellValue = async (
       break;
 
     case "modifiedBy":
-      const modifiedBy: IUserDocument | null = await coreModels.Users.findOne({
-        _id: item.modifiedBy,
-      });
+      const modifiedBy: IUserDocument | null = await sendCoreMessage({
+        subdomain,
+        action: "users.findOne",
+        data: {
+          _id: item.modifiedBy,
+        },
+        isRPC: true,
+      })
 
       cellValue = modifiedBy ? modifiedBy.username : emptyMsg;
 
@@ -264,6 +291,7 @@ export const buildFile = async (
         const cellValue = await fillCellValue(
           models,
           coreModels,
+          subdomain,
           column.name,
           item
         );
