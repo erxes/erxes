@@ -144,7 +144,7 @@ export default {
     }
   },
 
-  async isFacebookTaggedMessage(conversation: IConversationDocument, _args, { models, coreModels, subdomain }: IContext) {
+  async isFacebookTaggedMessage(conversation: IConversationDocument, _args, { models }: IContext) {
     const integration =
       (await models.Integrations.findOne({
         _id: conversation.integrationId

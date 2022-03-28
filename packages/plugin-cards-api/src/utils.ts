@@ -2,7 +2,6 @@ import { debug } from './configs';
 import { getCollection } from './models/utils';
 import { MODULE_NAMES } from './constants';
 import {
-  generateCoreModels,
   generateModels,
   IModels
 } from './connectionResolver';
@@ -62,7 +61,6 @@ export const generateConditionStageIds = async (
 
 export const getContentItem = async (subdomain, data) => {
   const models = await generateModels(subdomain);
-  const coreModels = await generateCoreModels(subdomain);
 
   const { Deals, Tasks, Tickets, GrowthHacks, Stages } = models;
   const { action, content, contentType, contentId } = data;
@@ -157,13 +155,29 @@ export const getContentItem = async (subdomain, data) => {
     let removedUsers: IUserDocument[] = [];
 
     if (content) {
-      addedUsers = await coreModels.Users.find({
-        _id: { $in: content.addedUserIds }
-      }).toArray();
+      addedUsers = await sendCoreMessage({
+        subdomain,
+        action: "users.find",
+        data: {
+          query: {
+            _id: { $in: content.addedUserIds }
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });      
 
-      removedUsers = await coreModels.Users.find({
-        _id: { $in: content.removedUserIds }
-      }).toArray();
+      removedUsers = await sendCoreMessage({
+        subdomain,
+        action: "users.find",
+        data: {
+          query: {
+            _id: { $in: content.removedUserIds }
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
     }
 
     return { addedUsers, removedUsers };

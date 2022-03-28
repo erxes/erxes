@@ -23,7 +23,7 @@ export const removeKey = async (key: string) => {
     return await client.removeKey(key);
   } catch (e) {
     console.log(
-      `For removeKey of inmemoryStorage, key: ${key}. Error: ${e.message}`
+      `For removeKey oaf inmemoryStorage, key: ${key}. Error: ${e.message}`
     );
   }
 };

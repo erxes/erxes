@@ -8,7 +8,7 @@ import {
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
 
-import { sendIntegrationsMessage, sendTagsMessage } from '../../messageBroker';
+import { sendCoreMessage, sendIntegrationsMessage, sendTagsMessage } from '../../messageBroker';
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
 /**
@@ -172,7 +172,7 @@ const integrationQueries = {
       status: string;
       formLoadType: string;
     },
-  { models, coreModels, subdomain }: IContext
+  { models, subdomain }: IContext
   ) {
     const counts = {
       total: 0,
@@ -240,7 +240,15 @@ const integrationQueries = {
     }
 
     // Counting integrations by brand
-    const brands = await coreModels.Brands.find({})
+    const brands = await sendCoreMessage({
+      subdomain,
+      action: "brands.find",
+      data: {
+        query: {}
+      },
+      isRPC: true,
+      defaultValue: []
+    })
 
     for (const brand of brands) {
       const countQueryResult = await count({ brandId: brand._id, ...qry });

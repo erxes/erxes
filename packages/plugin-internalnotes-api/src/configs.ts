@@ -5,9 +5,7 @@ import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import {
-  generateCoreModels,
   generateModels,
-  models
 } from './connectionResolver';
 import logs from './logUtils';
 
@@ -37,7 +35,6 @@ export default {
     const subdomain = 'os';
 
     context.models = await generateModels(subdomain);
-    context.coreModels = await generateCoreModels(subdomain);
     context.subdomain = subdomain;
 
     return context;
