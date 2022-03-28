@@ -2,7 +2,6 @@ import { debug } from './configs';
 import { getCollection } from './models/utils';
 import { MODULE_NAMES } from './constants';
 import {
-  generateCoreModels,
   generateModels,
   IModels
 } from './connectionResolver';
@@ -62,7 +61,6 @@ export const generateConditionStageIds = async (
 
 export const getContentItem = async (subdomain, data) => {
   const models = await generateModels(subdomain);
-  const coreModels = await generateCoreModels(subdomain);
 
   const { Deals, Tasks, Tickets, GrowthHacks, Stages } = models;
   const { action, content, contentType, contentId } = data;

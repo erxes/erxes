@@ -7,7 +7,7 @@ import {
 } from "@erxes/api-utils/src/exporter";
 import { IUserDocument } from "@erxes/api-utils/src/types";
 import * as moment from "moment";
-import { ICoreIModels, IModels } from "./connectionResolver";
+import { IModels } from "./connectionResolver";
 import { BOARD_BASIC_INFOS, MODULE_NAMES } from "./constants";
 import { fetchSegment, sendCoreMessage, sendFormsMessage } from "./messageBroker";
 import {
@@ -53,7 +53,6 @@ const getCellValue = (item, colName) => {
 
 const fillCellValue = async (
   models: IModels,
-  coreModels: ICoreIModels,
   subdomain: string,
   colName: string,
   item: any
@@ -236,7 +235,6 @@ const addCell = (
 
 export const buildFile = async (
   models: IModels,
-  coreModels: ICoreIModels,
   subdomain: string,
   query: any,
   user: IUserDocument
@@ -290,7 +288,6 @@ export const buildFile = async (
       } else {
         const cellValue = await fillCellValue(
           models,
-          coreModels,
           subdomain,
           column.name,
           item
