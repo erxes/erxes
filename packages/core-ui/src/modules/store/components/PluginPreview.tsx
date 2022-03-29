@@ -28,7 +28,11 @@ const List = styled.div`
 `;
 
 const PluginCard = styled.div`
-  padding-right: ${dimensions.coreSpacing}px;
+  margin-right: ${dimensions.coreSpacing}px;
+  width: 100%;
+  &:nth-child(4) {
+    margin-right: 0;
+  }
 `;
 
 const PluginPic = styled.div`
@@ -36,7 +40,10 @@ const PluginPic = styled.div`
   background: ${colors.bgMain};
   height: 110px;
   border-radius: 4px;
-  margin-bottom: ${dimensions.unitSpacing}px;
+`;
+
+const PluginInformation = styled.div`
+  margin: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px 0;
 `;
 
 const Footer = styled.div`
@@ -95,11 +102,13 @@ class PluginPreview extends React.Component<
       <List>
         <PluginCard>
           <PluginPic />
-          <b>Ecommerce plugin</b>
-          <Flex>
-            <GrayText>by </GrayText>New media group <Space>in </Space>
-            <b>EXM</b>
-          </Flex>
+          <PluginInformation>
+            <b>Ecommerce plugin</b>
+            <Flex>
+              <GrayText>by </GrayText>New media group <Space>in </Space>
+              <b>EXM</b>
+            </Flex>
+          </PluginInformation>
           <Footer>
             <Flex>
               <Rating />
@@ -121,11 +130,13 @@ class PluginPreview extends React.Component<
         </PluginCard>
         <PluginCard>
           <PluginPic />
-          <b>Ecommerce plugin</b>
-          <Flex>
-            <GrayText>by </GrayText>New media group <Space>in </Space>
-            <b>EXM</b>
-          </Flex>
+          <PluginInformation>
+            <b>Ecommerce plugin</b>
+            <Flex>
+              <GrayText>by </GrayText>New media group <Space>in </Space>
+              <b>EXM</b>
+            </Flex>
+          </PluginInformation>
           <Footer>
             <Flex>
               <Rating />
@@ -147,11 +158,13 @@ class PluginPreview extends React.Component<
         </PluginCard>
         <PluginCard>
           <PluginPic />
-          <b>Ecommerce plugin</b>
-          <Flex>
-            <GrayText>by </GrayText>New media group <Space>in </Space>
-            <b>EXM</b>
-          </Flex>
+          <PluginInformation>
+            <b>Ecommerce plugin</b>
+            <Flex>
+              <GrayText>by </GrayText>New media group <Space>in </Space>
+              <b>EXM</b>
+            </Flex>
+          </PluginInformation>
           <Footer>
             <Flex>
               <Rating />
@@ -173,11 +186,13 @@ class PluginPreview extends React.Component<
         </PluginCard>
         <PluginCard>
           <PluginPic />
-          <b>Ecommerce plugin</b>
-          <Flex>
-            <GrayText>by </GrayText>New media group <Space>in </Space>
-            <b>EXM</b>
-          </Flex>
+          <PluginInformation>
+            <b>Ecommerce plugin</b>
+            <Flex>
+              <GrayText>by </GrayText>New media group <Space>in </Space>
+              <b>EXM</b>
+            </Flex>
+          </PluginInformation>
           <Footer>
             <Flex>
               <Rating />

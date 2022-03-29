@@ -1,46 +1,32 @@
-import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { Route } from 'react-router-dom';
-import Container from './containers/Store';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
-const main = (props: IRouterProps) => {
-  // const queryParams = queryString.parse(location.search);
-  // return <List queryParams={queryParams} />;
-  return <Container text="fjfhkjnn" />;
-};
-
-// const routes = () => {
-//   return (
-//     <React.Fragment>
-//       <Route path='/store' exact={true} key='/store' render={main} />
-//     </React.Fragment>
-//   );
-// };
-
-const CustomerDetails = asyncComponent(() =>
+const Store = asyncComponent(() =>
   import(
-    /* webpackChunkName: "CustomerDetails" */ './containers/PluginDetails'
+    /* webpackChunkName: "Store" */ './containers/Store'
   )
 );
+
+const PluginDetails = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Store" */ './containers/PluginDetails'
+  )
+);
+
+const main = () => {
+  return <Store text="fjfhkjnn" />; // change props
+};
 
 const detail = ({ match }) => {
   const id = match.params.id;
 
-  return <CustomerDetails id={id} />;
+  return <PluginDetails id={id} />;
 };
 
 const routes = () => {
   return (
     <React.Fragment>
-      
-      {/* <Route
-        key="/store/details/:id"
-        exact={true}
-        path="/store/details/:id"
-        component={detail}
-      /> */}
-
       <Route
         key="/store/details"
         exact={true}

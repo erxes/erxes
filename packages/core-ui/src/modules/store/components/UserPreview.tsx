@@ -26,12 +26,13 @@ const List = styled.div`
   display: flex;
 `;
 
-const PluginCard = styled.div`
+const PluginCard = styledTS<{ hasMarginRight?: boolean }>(styled.div)`
   display: flex;
   align-items: center;
   background: ${colors.bgMain};
   border-radius: 4px;
-  margin-right: ${dimensions.coreSpacing}px;
+  margin-right: ${props => (props.hasMarginRight ? dimensions.coreSpacing : 0)}px;
+  width: 100%;
 `;
 
 const PluginPic = styled.div`
@@ -95,7 +96,7 @@ class UserPreview extends React.Component<
 
     return (
       <List>
-        <PluginCard>
+        <PluginCard hasMarginRight={true}>
           <PluginPic></PluginPic>
           <UserInformation>
             <b>Frime</b>
@@ -105,7 +106,7 @@ class UserPreview extends React.Component<
             </SpaceTop>
           </UserInformation>
         </PluginCard>
-        <PluginCard>
+        <PluginCard hasMarginRight={true}>
           <PluginPic></PluginPic>
           <UserInformation>
             <b>Frime</b>
@@ -115,7 +116,7 @@ class UserPreview extends React.Component<
             </SpaceTop>
           </UserInformation>
         </PluginCard>
-        <PluginCard>
+        <PluginCard hasMarginRight={true}>
           <PluginPic></PluginPic>
           <UserInformation>
             <b>Frime</b>

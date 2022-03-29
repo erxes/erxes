@@ -53,7 +53,7 @@ const Container = styledTS<{ open: boolean; border?: boolean }>(styled.div)`
   }
 `;
 
-const Content = styledTS<{ full: boolean }>(styled.div)`
+const Content = styled.div`
   background: ${colors.colorWhite};
   padding: ${dimensions.unitSpacing}px;
 
@@ -70,10 +70,7 @@ type Props = {
   description?: React.ReactNode;
   open?: boolean;
   compact?: boolean;
-  image?: string;
-  beforeTitle?: React.ReactNode;
   onClick?: () => void;
-  imageBackground?: string;
   id?: string;
   hasBorder?: boolean;
 };
@@ -87,7 +84,6 @@ function CollapseFilter(props: Props) {
       props.onClick();
     }
   };
-  const hasImage = props.image ? true : false;
   const hasBorder = props.hasBorder ? true : false;
 
   return (
@@ -97,11 +93,8 @@ function CollapseFilter(props: Props) {
         id={props.contendId}
         onClick={onClick}
         compact={props.compact}
-        hasImage={hasImage}
-        background={props.imageBackground}
       >
         <Left>
-          {props.beforeTitle}
           <div>
             <b>{props.title}</b>
             {props.description}
@@ -111,7 +104,7 @@ function CollapseFilter(props: Props) {
       </Title>
       <Collapse in={open}>
         <div>
-          <Content full={hasImage}>{props.children}</Content>
+          <Content>{props.children}</Content>
         </div>
       </Collapse>
     </Container>

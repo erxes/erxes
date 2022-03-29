@@ -1,29 +1,21 @@
 import Icon from "modules/common/components/Icon";
 import Button from "./Button";
-import { colors, dimensions } from "modules/common/styles";
+import { colors, dimensions, typography } from "modules/common/styles";
 import { __ } from "modules/common/utils";
 import React from "react";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
 import CollapseFilter from "./CollapseFilter";
 import FormControl from "@erxes/ui/src/components/form/Control";
 
-const MainContainer = styledTS<{ active?: boolean }>(styled.div)`
+const MainContainer = styledTS<{ active?: boolean }>(styled.section)`
   height: 100%;
+  padding: ${dimensions.coreSpacing}px;
   display: flex;
   flex-direction: column;
-  padding: ${dimensions.coreSpacing}px;
-  justify-content: space-between;
 `;
 
-/*
-  padding: 0 ${(props) =>
-    props.active ? dimensions.unitSpacing : 0};
-*/
-
 const SearchContainer = styledTS<{ active?: boolean }>(styled.div)`
-  border-radius: 8px;
   position: relative;
   transition: .3s all;
   margin-bottom: ${dimensions.coreSpacing}px;
@@ -43,17 +35,12 @@ const Search = styled.div`
     border: none;
     flex: 1;
     outline: 0;
-
-    &:focus {
-      outline: 0;
-    }
   }
 `;
 
 const FilterContainer = styledTS<{ active?: boolean }>(styled.div)`
-  position: relative;
-  height: 100%;
   transition: .3s all;
+  flex: 1;
 `;
 
 const Filter = styled.div`
@@ -64,14 +51,11 @@ const Filter = styled.div`
 
 const Box = styled.div`
   border-radius: 8px;
-  background: ${colors.colorWhite};
   width: 40px;
   height: 40px;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0px;
-  box-sizing: border-box;
   cursor: pointer;
   border: 1px solid ${colors.borderPrimary};
 `;
@@ -84,11 +68,17 @@ const FilterHeader = styled.div`
   align-items: center;
 `;
 
-const Width = styled.div`
-  width: 70%;
+const Section = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
-const PaddingTop = styled.div`
+const PaddingLeft = styled.div`
+  padding-left: ${dimensions.unitSpacing}px;
+  font-weight: 700;
+`;
+
+const PaddingBottom = styled.div`
   padding-bottom: 5px;
 `;
 
@@ -143,7 +133,7 @@ class Leftbar extends React.Component<
             <Button size="small">Search</Button>
           </Search>
         ) : (
-          <Box>
+          <Box onClick={this.openInput}>
             <Icon icon="search-1" size={20} />
           </Box>
         )}
@@ -152,14 +142,9 @@ class Leftbar extends React.Component<
   };
 
   renderCheckbox(text: string) {
-    // const { isInternal } = this.state;
-
-    // if (kind.includes('nylas') || kind === 'gmail') {
-    //   return null;
-    // }
 
     return (
-      <PaddingTop>
+      <PaddingBottom>
         <FormControl
           componentClass="checkbox"
           onChange={() => {}}
@@ -167,7 +152,7 @@ class Leftbar extends React.Component<
         >
           {text}
         </FormControl>
-      </PaddingTop>
+      </PaddingBottom>
     );
   }
 
@@ -179,10 +164,10 @@ class Leftbar extends React.Component<
         {showInput ? (
           <Filter>
             <FilterHeader>
-              <Icon icon="list-ul" size={20} />
-              <Width>
-                <b>Filter</b>
-              </Width>
+              <Section>
+                <Icon icon="list-ul" size={20} />
+                <PaddingLeft>Filter</PaddingLeft>
+              </Section>
               <Button btnStyle="simple" size="small" onClick={this.closeInput}>
                 <Icon
                   style={{ cursor: "pointer" }}
@@ -203,7 +188,7 @@ class Leftbar extends React.Component<
               {this.renderCheckbox("Plugins")}
               {this.renderCheckbox("Add-Ons")}
             </CollapseFilter>
-            <CollapseFilter compact title="Products" open hasBorder={true}>
+            <CollapseFilter title="Products" open hasBorder={true}>
               {this.renderCheckbox("All")}
               {this.renderCheckbox("Employee XM")}
               {this.renderCheckbox("Customer XM")}
@@ -213,7 +198,7 @@ class Leftbar extends React.Component<
             </CollapseFilter>
           </Filter>
         ) : (
-          <Box>
+          <Box onClick={this.openInput}>
             <Icon icon="list-ul" size={20} />
           </Box>
         )}
@@ -223,15 +208,11 @@ class Leftbar extends React.Component<
 
   render() {
     return (
-      <MainContainer
-        // innerRef={this.setWrapperRef}
-        active={this.state.showInput}
-        // onClick={this.openInput}
-      >
-        <SearchContainer active={this.state.showInput} onClick={this.openInput}>
+      <MainContainer>
+        <SearchContainer active={this.state.showInput}>
           {this.renderSearch()}
         </SearchContainer>
-        <FilterContainer active={this.state.showInput} onClick={this.openInput}>
+        <FilterContainer active={this.state.showInput}>
           {this.renderFilter()}
         </FilterContainer>
       </MainContainer>
