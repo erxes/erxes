@@ -13,7 +13,6 @@ export interface ILotteryModel extends Model<ILotteryDocument> {
   updateLottery(_id: string, doc: ILottery): Promise<ILotteryDocument>;
   buyLottery(params: IBuyParams): Promise<ILotteryDocument>;
   removeLotteries(_ids: string[]): void;
-  checkLotteriesSale({ ownerType, ownerId, products }: { ownerType: string, ownerId: string, products: string }): Promise<any>
 }
 
 export const loadLotteryClass = (models: IModels, subdomain: string) => {
@@ -28,11 +27,8 @@ export const loadLotteryClass = (models: IModels, subdomain: string) => {
       return lottery;
     }
 
-    public static async getLotteries({ ownerType, ownerId, statuses }: { ownerType: string, ownerId: string, statuses: string[] }) {
-      return models.Lotteries.find({ ownerType, ownerId, status: { $in: statuses || [] } }).lean();
-    }
-
-    public static async createLottery({ campaignId, ownerType, ownerId, voucherCampaignId = '', userId = '' }) {
+    public static async createLottery(doc: ILottery) {
+      const { campaignId, ownerType, ownerId, voucherCampaignId = '', userId = '' } = doc;
       if (!ownerId || !ownerType) {
         throw new Error('Not create lottery, owner is undefined');
       }
@@ -50,7 +46,8 @@ export const loadLotteryClass = (models: IModels, subdomain: string) => {
     }
 
 
-    public static async updateLottery(_id, { ownerType, ownerId, status, userId = '' }) {
+    public static async updateLottery(_id: string, doc: ILottery) {
+      const { ownerType, ownerId, status, userId = '' } = doc;
       if (!ownerId || !ownerType) {
         throw new Error('Not create spin, owner is undefined');
       }
@@ -69,7 +66,9 @@ export const loadLotteryClass = (models: IModels, subdomain: string) => {
       })
     }
 
-    public static async buyLottery({ campaignId, ownerType, ownerId, count = 1 }) {
+    public static async buyLottery(params: IBuyParams) {
+      const { campaignId, ownerType, ownerId, count = 1 } = params;
+
       if (!ownerId || !ownerType) {
         throw new Error('can not buy lottery, owner is undefined');
       }

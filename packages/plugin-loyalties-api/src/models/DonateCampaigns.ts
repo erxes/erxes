@@ -28,7 +28,7 @@ export const loadDonateCampaignClass = (models: IModels, _subdomain: string) => 
       return donateCampaign;
     }
 
-    static async validDonateCampaign(doc) {
+    static async validDonateCampaign(doc: IDonateCampaign) {
       validCampaign(doc)
 
       const awards = doc.awards || [];

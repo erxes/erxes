@@ -13,7 +13,8 @@ export interface IVoucherModel extends Model<IVoucherDocument> {
   updateVoucher(_id: string, doc: IVoucher): Promise<IVoucherDocument>;
   buyVoucher(params: IBuyParams): Promise<IVoucherDocument>;
   removeVouchers(_ids: string[]): void;
-  checkVouchersSale({ ownerType, ownerId, products }: { ownerType: string, ownerId: string, products: string }): Promise<any>
+  checkVouchersSale({ ownerType, ownerId, products }: { ownerType: string, ownerId: string, products: any }): Promise<any>;
+  confirmVoucherSale({ checkInfo }: any): void;
 }
 
 export const loadVoucherClass = (models: IModels, subdomain: string) => {
@@ -26,10 +27,6 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
       }
 
       return voucherRule;
-    }
-
-    public static async getVouchers({ ownerType, ownerId, statuses }: { ownerType: string, ownerId: string, statuses: string[] }) {
-      return await models.Vouchers.find({ ownerType, ownerId, status: { $in: statuses || [] } }).lean()
     }
 
     public static async createVoucher(doc: IVoucher) {
@@ -79,7 +76,8 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
     }
 
-    public static async buyVoucher({ campaignId, ownerType, ownerId, count = 1 }) {
+    public static async buyVoucher(doc: IBuyParams) {
+      const { campaignId, ownerType, ownerId, count = 1 } = doc;
       if (!ownerId || !ownerType) {
         throw new Error('can not buy voucher, owner is undefined');
       }
