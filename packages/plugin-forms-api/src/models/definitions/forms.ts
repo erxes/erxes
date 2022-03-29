@@ -1,5 +1,5 @@
-import { Document, Schema } from 'mongoose';
-import { field, schemaWrapper } from './utils';
+import { Document, Schema } from "mongoose";
+import { field, schemaWrapper } from "./utils";
 
 export interface IForm {
   title: string;
@@ -8,6 +8,12 @@ export interface IForm {
   description?: string;
   numberOfPages?: number;
   buttonText?: string;
+}
+
+export interface IFormSubmissionFilter {
+  operator: string;
+  value: any;
+  formFieldId: string;
 }
 
 export interface IFormDocument extends IForm, Document {

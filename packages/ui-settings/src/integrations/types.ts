@@ -2,7 +2,7 @@ import { QueryResponse } from "@erxes/ui/src/types";
 import {
   ILeadData,
   ILeadIntegration,
-  IWebhookData,
+  IWebhookData
 } from "@erxes/ui-leads/src/types";
 import { IBrand } from "@erxes/ui/src/brands/types";
 import { IForm } from "@erxes/ui-forms/src/forms/types";
@@ -163,6 +163,7 @@ export type QueryVariables = {
   perPage?: number;
   searchValue?: string;
 };
+
 export type IntegrationsQueryResponse = {
   integrations: IIntegration[];
   loading: boolean;
@@ -212,7 +213,7 @@ export type LeadIntegrationDetailQueryResponse = {
 } & QueryResponse;
 
 export type SendSmsMutationResponse = ({
-  variables: SendSmsMutationVariables,
+  variables: SendSmsMutationVariables
 }) => Promise<any>;
 
 type By = { [key: string]: number };

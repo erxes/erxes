@@ -1,7 +1,7 @@
-import { sendMessage } from '@erxes/api-utils/src/core';
-import { fieldsCombinedByContentType } from './utils';
-import { serviceDiscovery } from './configs';
-import { generateModels } from './connectionResolver';
+import { ISendMessageArgs, sendMessage } from "@erxes/api-utils/src/core";
+import { fieldsCombinedByContentType } from "./utils";
+import { serviceDiscovery } from "./configs";
+import { generateModels } from "./connectionResolver";
 
 let client;
 
@@ -11,95 +11,98 @@ export const initBroker = async cl => {
   const { consumeRPCQueue, consumeQueue } = client;
 
   consumeRPCQueue(
-    'forms:validate',
+    "forms:validate",
     async ({ subdomain, data: { formId, submissions } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.Forms.validate(formId, submissions)
       };
     }
   );
 
-  consumeRPCQueue(
-    'forms:find',
-    async ({ subdomain, data: { query } }) => {
-      const models = await generateModels(subdomain);
+  consumeRPCQueue("forms:find", async ({ subdomain, data: { query } }) => {
+    const models = await generateModels(subdomain);
 
-      return {
-        status: 'success',
-        data: await models.Forms.find(query)
-      };
-    }
-  );
+    return {
+      status: "success",
+      data: await models.Forms.find(query)
+    };
+  });
 
-  consumeRPCQueue(
-    'forms:findOne',
-    async ({ subdomain, data }) => {
-      const models = await generateModels(subdomain);
+  consumeRPCQueue("forms:findOne", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
 
-      return {
-        status: 'success',
-        data: await models.Forms.findOne(data)
-      };
-    }
-  );
+    return {
+      status: "success",
+      data: await models.Forms.findOne(data)
+    };
+  });
 
   consumeRPCQueue(
-    'forms:duplicate',
+    "forms:duplicate",
     async ({ subdomain, data: { formId } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.Forms.duplicate(formId)
       };
     }
   );
 
-  consumeRPCQueue('forms:createForm', async ({ subdomain, data: { formDoc, userId } }) => {
-    const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    "forms:createForm",
+    async ({ subdomain, data: { formDoc, userId } }) => {
+      const models = await generateModels(subdomain);
 
-    return {
-      status: 'success',
-      data: await models.Forms.createForm(formDoc, userId)
-    };
-  });
-
-  consumeRPCQueue('forms:removeForm', async ({ subdomain, data: { formId } }) => {
-    const models = await generateModels(subdomain);
-
-    return {
-      status: 'success',
-      data: await models.Forms.removeForm(formId)
-    };
-  });
-
-  consumeQueue('forms:fields.insertMany', async ({ subdomain, data: { fields } }) => {
-    const models = await generateModels(subdomain);
-
-    return models.Fields.insertMany(fields);
-  });
+      return {
+        status: "success",
+        data: await models.Forms.createForm(formDoc, userId)
+      };
+    }
+  );
 
   consumeRPCQueue(
-    'forms:fields.prepareCustomFieldsData',
+    "forms:removeForm",
+    async ({ subdomain, data: { formId } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.Forms.removeForm(formId)
+      };
+    }
+  );
+
+  consumeQueue(
+    "forms:fields.insertMany",
+    async ({ subdomain, data: { fields } }) => {
+      const models = await generateModels(subdomain);
+
+      return models.Fields.insertMany(fields);
+    }
+  );
+
+  consumeRPCQueue(
+    "forms:fields.prepareCustomFieldsData",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
       return {
-        status: 'success',
+        status: "success",
         data: await models.Fields.prepareCustomFieldsData(data)
       };
     }
   );
 
   consumeRPCQueue(
-    'forms:fields.generateCustomFieldsData',
+    "forms:fields.generateCustomFieldsData",
     async ({ subdomain, data: { customData, contentType } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.Fields.generateCustomFieldsData(
           customData,
           contentType
@@ -109,98 +112,111 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
-    'forms:fields.generateTypedListFromMap',
+    "forms:fields.generateTypedListFromMap",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.Fields.generateTypedListFromMap(data)
       };
     }
   );
 
   consumeQueue(
-    'forms:updateGroup',
+    "forms:updateGroup",
     async ({ subdomain, data: { groupId, fieldsGroup } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.FieldsGroups.updateGroup(groupId, fieldsGroup)
       };
     }
   );
 
   consumeRPCQueue(
-    'forms:fields.find',
+    "forms:fields.find",
     async ({ subdomain, data: { query, projection, sort } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
-        data: await models.Fields.find(query, projection).sort(sort).lean()
+        status: "success",
+        data: await models.Fields.find(query, projection)
+          .sort(sort)
+          .lean()
       };
     }
   );
 
   consumeRPCQueue(
-    'forms:fields.findOne',
+    "forms:fields.findOne",
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.Fields.findOne(query)
       };
     }
   );
 
   consumeRPCQueue(
-    'forms:fieldsGroups.find',
+    "forms:fieldsGroups.find",
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.FieldsGroups.find(query)
       };
     }
   );
 
   consumeRPCQueue(
-    'forms:fieldsGroups.findOne',
+    "forms:fieldsGroups.findOne",
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.FieldsGroups.findOne(query)
       };
     }
   );
 
-
   consumeRPCQueue(
-    'forms:fieldsCombinedByContentType',
+    "forms:fieldsCombinedByContentType",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await fieldsCombinedByContentType(models, data)
       };
     }
   );
 
   consumeRPCQueue(
-    'forms:submissions.find',
+    "forms:submissions.find",
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.FormSubmissions.find(query)
+      };
+    }
+  );
+
+  consumeQueue(
+    "forms:submissions.createFormSubmission",
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.FormSubmissions.createFormSubmission(data)
       };
     }
   );
@@ -212,10 +228,10 @@ export const fetchService = async (
   data,
   defaultValue?
 ) => {
-  const [serviceName, type] = contentType.split(':');
+  const [serviceName, type] = contentType.split(":");
 
   return sendMessage({
-    subdomain: 'os',
+    subdomain: "os",
     serviceDiscovery,
     client,
     isRPC: true,
@@ -226,6 +242,28 @@ export const fetchService = async (
       type
     },
     defaultValue
+  });
+};
+
+export const sendInboxMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: "inbox",
+    ...args
+  });
+};
+
+export const sendContactsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: "contacts",
+    ...args
   });
 };
 

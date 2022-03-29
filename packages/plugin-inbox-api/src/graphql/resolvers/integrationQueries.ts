@@ -1,44 +1,44 @@
 import {
   INTEGRATION_NAMES_MAP,
   KIND_CHOICES
-} from '../../models/definitions/constants';
+} from "../../models/definitions/constants";
 
 import {
   checkPermission,
   moduleRequireLogin
-} from '@erxes/api-utils/src/permissions';
+} from "@erxes/api-utils/src/permissions";
 
-import { sendCoreMessage, sendIntegrationsMessage, sendTagsMessage } from '../../messageBroker';
-import { paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../connectionResolver';
+import {
+  sendCoreMessage,
+  sendIntegrationsMessage,
+  sendTagsMessage
+} from "../../messageBroker";
+import { paginate } from "@erxes/api-utils/src";
+import { IContext } from "../../connectionResolver";
 /**
  * Common helper for integrations & integrationsTotalCount
  */
-const generateFilterQuery = async (subdomain, {
-  kind,
-  channelId,
-  brandId,
-  searchValue,
-  tag,
-  status,
-  formLoadType
-}, models) => {
+const generateFilterQuery = async (
+  subdomain,
+  { kind, channelId, brandId, searchValue, tag, status, formLoadType },
+  models
+) => {
   const query: any = {};
 
   if (kind) {
     query.kind = kind;
   }
 
-  if (kind === 'mail') {
+  if (kind === "mail") {
     query.kind = {
       $in: [
-        'gmail',
-        'nylas-gmail',
-        'nylas-imap',
-        'nylas-office365',
-        'nylas-outlook',
-        'nylas-yahoo',
-        'nylas-exchange'
+        "gmail",
+        "nylas-gmail",
+        "nylas-imap",
+        "nylas-office365",
+        "nylas-outlook",
+        "nylas-yahoo",
+        "nylas-exchange"
       ]
     };
   }
@@ -55,14 +55,14 @@ const generateFilterQuery = async (subdomain, {
   }
 
   if (searchValue) {
-    query.name = new RegExp(`.*${searchValue}.*`, 'i');
+    query.name = new RegExp(`.*${searchValue}.*`, "i");
   }
 
   // filtering integrations by tag
   if (tag) {
     const object = await sendTagsMessage({
       subdomain,
-      action: 'findOne',
+      action: "findOne",
       data: {
         _id: tag
       },
@@ -73,11 +73,11 @@ const generateFilterQuery = async (subdomain, {
   }
 
   if (status) {
-    query.isActive = status === 'active' ? true : false;
+    query.isActive = status === "active" ? true : false;
   }
 
   if (formLoadType) {
-    query['leadData.loadType'] = formLoadType;
+    query["leadData.loadType"] = formLoadType;
   }
 
   return query;
@@ -110,7 +110,7 @@ const integrationQueries = {
       ...(await generateFilterQuery(subdomain, args, models))
     };
 
-    if (args.kind === 'lead') {
+    if (args.kind === "lead") {
       return models.Integrations.findLeadIntegrations(query, args);
     }
 
@@ -125,10 +125,14 @@ const integrationQueries = {
   /**
    * Get lead all integration list
    */
-  async allLeadIntegrations(_root, _args, { singleBrandIdSelector, models }: IContext) {
+  async allLeadIntegrations(
+    _root,
+    _args,
+    { singleBrandIdSelector, models }: IContext
+  ) {
     const query = {
       ...singleBrandIdSelector,
-      kind: 'lead'
+      kind: "lead"
     };
 
     return models.Integrations.findAllIntegrations(query).sort({ name: 1 });
@@ -142,7 +146,9 @@ const integrationQueries = {
 
     for (const kind of KIND_CHOICES.ALL) {
       if (
-        (await models.Integrations.findIntegrations({ kind }).countDocuments()) > 0
+        (await models.Integrations.findIntegrations({
+          kind
+        }).countDocuments()) > 0
       ) {
         usedTypes.push({ _id: kind, name: INTEGRATION_NAMES_MAP[kind] });
       }
@@ -172,7 +178,7 @@ const integrationQueries = {
       status: string;
       formLoadType: string;
     },
-  { models, subdomain }: IContext
+    { models, subdomain }: IContext
   ) {
     const counts = {
       total: 0,
@@ -194,9 +200,9 @@ const integrationQueries = {
     // Counting integrations by tag
     const tags = await sendTagsMessage({
       subdomain,
-      action: 'find',
+      action: "find",
       data: {
-        type: 'integration'
+        type: "integration"
       },
       isRPC: true,
       defaultValue: []
@@ -248,7 +254,7 @@ const integrationQueries = {
       },
       isRPC: true,
       defaultValue: []
-    })
+    });
 
     for (const brand of brands) {
       const countQueryResult = await count({ brandId: brand._id, ...qry });
@@ -263,7 +269,7 @@ const integrationQueries = {
     counts.byStatus.archived = await count({ isActive: false, ...qry });
 
     if (args.status) {
-      if (args.status === 'active') {
+      if (args.status === "active") {
         counts.byStatus.archived = 0;
       } else {
         counts.byStatus.active = 0;
@@ -276,12 +282,16 @@ const integrationQueries = {
     return counts;
   },
 
-  async integrationGetLineWebhookUrl(_root, { _id }: { _id: string }, { subdomain }: IContext) {
+  async integrationGetLineWebhookUrl(
+    _root,
+    { _id }: { _id: string },
+    { subdomain }: IContext
+  ) {
     return sendIntegrationsMessage({
       subdomain,
-      action: 'api_to_integrations',
+      action: "api_to_integrations",
       data: {
-        action: 'line-webhook',
+        action: "line-webhook",
         _id
       },
       isRPC: true
@@ -291,6 +301,6 @@ const integrationQueries = {
 
 moduleRequireLogin(integrationQueries);
 
-checkPermission(integrationQueries, 'integrations', 'showIntegrations', []);
+checkPermission(integrationQueries, "integrations", "showIntegrations", []);
 
 export default integrationQueries;
