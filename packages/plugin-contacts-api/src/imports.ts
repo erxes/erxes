@@ -1,6 +1,6 @@
 import * as _ from 'underscore';
 import { es } from './configs';
-import { connectCore, generateModels } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
 import { clearEmptyValues, generatePronoun } from './importUtils';
 import { sendCoreMessage } from './messageBroker';

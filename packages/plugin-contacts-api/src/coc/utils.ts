@@ -4,7 +4,7 @@ import { KIND_CHOICES } from '../models/definitions/constants';
 import { customerSchema } from '../models/definitions/customers';
 import { debug, es } from '../configs';
 import { COC_LEAD_STATUS_TYPES } from '../constants';
-import { ICoreIModels, IModels } from '../connectionResolver';
+import { IModels } from '../connectionResolver';
 import { fetchSegment, sendCoreMessage, sendSegmentsMessage, sendTagsMessage } from '../messageBroker';
 
 export interface ICountBy {
@@ -153,14 +153,12 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public positiveList: any[];
   public negativeList: any[];
   public models: IModels;
-  public coreModels: ICoreIModels;
   public subdomain: string;
 
   private contentType: 'customers' | 'companies';
 
   constructor(
     models: IModels,
-    coreModels: ICoreIModels,
     subdomain: string,
     contentType: 'customers' | 'companies',
     params: IListArgs,
@@ -170,7 +168,6 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     this.context = context;
     this.params = params;
     this.models = models;
-    this.coreModels = coreModels;
     this.subdomain = subdomain;
 
     this.positiveList = [];

@@ -1,6 +1,6 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
-import { ICoreIModels, IModels } from '../connectionResolver';
+import { IModels } from '../connectionResolver';
 import { sendFormsMessage, sendInboxMessage } from '../messageBroker';
 import { CommonBuilder } from './utils';
 
@@ -57,8 +57,8 @@ export interface IListArgs extends IConformityQueryParams {
 }
 
 export class Builder extends CommonBuilder<IListArgs> {
-  constructor(models:IModels, coreModels: ICoreIModels, subdomain: string, params: IListArgs, context) {
-    super(models, coreModels, subdomain, 'customers', params, context);
+  constructor(models:IModels, subdomain: string, params: IListArgs, context) {
+    super(models, subdomain, 'customers', params, context);
 
     this.addStateFilter();
   }

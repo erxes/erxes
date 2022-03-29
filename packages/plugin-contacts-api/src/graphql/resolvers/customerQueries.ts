@@ -11,7 +11,7 @@ import {
   checkPermission,
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
-import { IContext, ICoreIModels } from '../../connectionResolver';
+import { IContext } from '../../connectionResolver';
 import { sendFormsMessage } from '../../messageBroker';
 interface ICountParams extends IListArgs {
   only: string;
@@ -62,9 +62,9 @@ const customerQueries = {
   async customers(
     _root,
     params: IListArgs,
-    { commonQuerySelector, commonQuerySelectorElk, models, coreModels, subdomain }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext
   ) {
-    const qb = new BuildQuery(models, coreModels, subdomain, params, {
+    const qb = new BuildQuery(models, subdomain, params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
@@ -82,9 +82,9 @@ const customerQueries = {
   async customersMain(
     _root,
     params: IListArgs,
-    { commonQuerySelector, commonQuerySelectorElk, models, coreModels, subdomain }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext
   ) {
-    const qb = new BuildQuery(models, coreModels, subdomain, params, {
+    const qb = new BuildQuery(models, subdomain, params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
@@ -102,7 +102,7 @@ const customerQueries = {
   async customerCounts(
     _root,
     params: ICountParams,
-    { commonQuerySelector, commonQuerySelectorElk, models, coreModels, subdomain }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext
   ) {
     const { only, type, source } = params;
 
@@ -115,7 +115,7 @@ const customerQueries = {
       byLeadStatus: {}
     };
 
-    const qb = new BuildQuery(models, coreModels, subdomain, params, {
+    const qb = new BuildQuery(models, subdomain, params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
