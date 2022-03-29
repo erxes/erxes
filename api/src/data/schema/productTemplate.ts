@@ -11,6 +11,9 @@ export const types = `
     templateImage: Attachment
     status: String
     tagIds: [String]
+    parentId: String
+    order: String
+    relatedIds: [String]
     tags: [Tag]
     updatedAt: Date
     updatedBy: String
@@ -29,6 +32,7 @@ const templateParams = `
   templateItems: JSON
   status: String
   templateImage: AttachmentInput
+  parentId: String
 `;
 
 const productTemplateParams = `

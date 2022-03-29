@@ -362,6 +362,8 @@ interface IProductTemplateInput {
   templateItems?: any[];
   tagIds?: string[];
   status?: string;
+  parentId?: string;
+  relatedIds?: string[];
 }
 
 export const productTemplateFactory = async (
@@ -393,7 +395,9 @@ export const productTemplateFactory = async (
       }
     ],
     tagIds: params.tagIds || [faker.random.uuid()],
-    status: params.status || 'active'
+    status: params.status || 'active',
+    parentId: params.parentId,
+    relatedIds: params.relatedIds || []
   });
 
   return prouctTemplate.save();

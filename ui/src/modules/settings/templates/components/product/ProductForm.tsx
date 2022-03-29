@@ -22,6 +22,7 @@ import Stages from './Stages';
 
 type Props = {
   productTemplate?: IProductTemplate;
+  productTemplates: IProductTemplate[];
   items?: IProductTemplate;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
@@ -77,6 +78,36 @@ class Form extends React.Component<Props, State> {
     this.setState({ discount, totalAmount });
   };
 
+  generateTemplateOptions = (
+    templates: IProductTemplate[],
+    currentTemplateId?: string
+  ) => {
+    const result: React.ReactNode[] = [];
+
+    for (const template of templates) {
+      const order = template.order || '';
+
+      const foundedString = order.match(/[/]/gi);
+
+      let space = '';
+
+      if (foundedString) {
+        space = '\u00A0 '.repeat(foundedString.length);
+      }
+
+      if (currentTemplateId !== template._id) {
+        result.push(
+          <option key={template._id} value={template._id}>
+            {space}
+            {template.title}
+          </option>
+        );
+      }
+    }
+
+    return result;
+  };
+
   onChangeItems = items => {
     this.calculateTotalAmountAndDiscount(items);
   };
@@ -92,7 +123,12 @@ class Form extends React.Component<Props, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal, productTemplate } = this.props;
+    const {
+      renderButton,
+      closeModal,
+      productTemplate,
+      productTemplates
+    } = this.props;
     const { values, isSubmitted } = formProps;
     const object = productTemplate || ({} as IProductTemplate);
     const templateImages =
@@ -188,6 +224,22 @@ class Form extends React.Component<Props, State> {
             rows={3}
           />
         </FormGroup>
+
+        {productTemplates && (
+          <FormGroup>
+            <ControlLabel>Parent Template</ControlLabel>
+
+            <FormControl
+              {...formProps}
+              name="parentId"
+              componentClass="select"
+              defaultValue={object.parentId}
+            >
+              <option value="" />
+              {this.generateTemplateOptions(productTemplates, object._id)}
+            </FormControl>
+          </FormGroup>
+        )}
         <FormGroup>
           <div id="stages-in-pipeline-form">
             <Stages

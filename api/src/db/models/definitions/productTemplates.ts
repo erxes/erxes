@@ -11,6 +11,7 @@ export interface IProductTemplate {
   tagIds?: string[];
   templateImage?: any;
   status: string;
+  parentId?: string;
   updatedAt: Date;
   updatedBy: string;
   createdAt: Date;
@@ -19,6 +20,8 @@ export interface IProductTemplate {
 
 export interface IProductTemplateDocument extends IProductTemplate, Document {
   _id: string;
+  order?: string;
+  relatedIds?: string[];
 }
 
 export const productTemplateItem = new Schema({
@@ -26,7 +29,8 @@ export const productTemplateItem = new Schema({
   itemId: field({ type: String, label: 'Product' }),
   unitPrice: field({ type: Number, label: 'Unit price' }),
   quantity: field({ type: Number, label: 'quantity' }),
-  discount: field({ type: Number, label: 'discount' })
+  discount: field({ type: Number, label: 'discount' }),
+  attachment: field({ type: attachmentSchema })
 });
 
 export const productTemplateSchema = schemaWrapper(
@@ -54,6 +58,13 @@ export const productTemplateSchema = schemaWrapper(
     updatedAt: field({
       type: Date,
       label: 'Updated at'
+    }),
+    parentId: field({ type: String, label: 'Parent', optional: true }),
+    order: field({ type: String, label: 'Order', optional: true }),
+    relatedIds: field({
+      type: [String],
+      optional: true,
+      label: 'Childrens'
     }),
     updatedUser: field({ type: String, label: 'Updated user' }),
     createdAt: field({
