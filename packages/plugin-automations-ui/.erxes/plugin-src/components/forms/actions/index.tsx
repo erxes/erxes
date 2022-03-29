@@ -10,6 +10,7 @@ import React from 'react';
 import Common from './Common';
 import CustomCode from './subForms/CustomCode';
 import Delay from './subForms/Delay';
+import LoyaltyForm from '../../../containers/forms/actions/subForms/LoyaltyForm';
 
 type Props = {
   onSave: () => void;
@@ -61,5 +62,6 @@ export const ActionForms = {
   setProperty: SetProperty,
   if: IfForm,
   boardItem: BoardItemForm,
-  customCode: CustomCode
+  customCode: CustomCode,
+  voucher: LoyaltyForm
 };

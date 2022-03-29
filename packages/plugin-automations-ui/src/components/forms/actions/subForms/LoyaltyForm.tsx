@@ -1,10 +1,10 @@
 import React from 'react';
 import Select from 'react-select-plus';
-import { ControlLabel, FormGroup } from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils';
-import { IVoucherCampaign } from '../../configs/voucherCampaign/types';
+import { __, ControlLabel, FormGroup } from '@erxes/ui/src';
+import { IVoucherCampaign } from '@erxes/plugin-loyalty-ui/src/configs/voucherCampaign/types';
 import styled from 'styled-components';
-import { colors, dimensions } from '@erxes/ui/src/styles';
+import { dimensions, colors } from '@erxes/ui/src/styles';
+import Common from '../Common';
 
 export const DrawerDetail = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -25,7 +25,7 @@ type State = {
   config: any;
 };
 
-class SetVoucher extends React.Component<Props, State> {
+class LoyaltyForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -71,7 +71,6 @@ class SetVoucher extends React.Component<Props, State> {
   }
 
   render() {
-    const Common = this.props.common;
     return (
       <Common config={this.state.config} {...this.props}>
         {this.renderContent()}
@@ -80,4 +79,4 @@ class SetVoucher extends React.Component<Props, State> {
   }
 }
 
-export default SetVoucher;
+export default LoyaltyForm;

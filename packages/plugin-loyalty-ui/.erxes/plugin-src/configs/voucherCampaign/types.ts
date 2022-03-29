@@ -1,6 +1,6 @@
-import { ICommonTypes } from "../commonTypes";
+import { ICommonTypes } from "../../types";
 
-export type IVoucherCampaign = ICommonTypes & {
+export interface IVoucherCampaign extends ICommonTypes {
   buyScore?: number,
 
   score?: number,

@@ -6,6 +6,7 @@ import { generateModels, models } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import logs from './logUtils';
+import automations from './automations';
 
 export let debug;
 export let graphqlPubsub;
@@ -45,6 +46,10 @@ export default {
       ]
     },
   },
+  meta: {
+    logs: { loyalties: logs },
+    automations,
+  },
   graphql: async (sd) => {
     serviceDiscovery = sd;
     return {
@@ -72,6 +77,5 @@ export default {
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
     es = options.elasticsearch;
-  },
-  meta: { logs: { loyalties: logs } }
+  }
 };

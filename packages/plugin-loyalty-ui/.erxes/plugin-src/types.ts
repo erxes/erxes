@@ -1,5 +1,6 @@
 import { ICustomer as ICustomers } from '@erxes/ui/src/customers/types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { IAttachment } from '@erxes/ui/src/types';
 
 export type ICustomer = ICustomers;
 export interface IItem {
@@ -127,4 +128,21 @@ export type ConfigsQueryResponse = {
   configs: IConfig[];
   loading: boolean;
   refetch: () => void;
+};
+
+export interface ICommonTypes {
+  _id?: string;
+  createdAt?: Date;
+  createdBy?: string;
+  modifiedAt?: Date;
+  modifiedBy?: string;
+
+  title?: string;
+  description?: string;
+  startDate?: Date;
+  endDate?: Date;
+  finishDateOfUse?: Date;
+  attachment?: IAttachment;
+
+  status?: string;
 };

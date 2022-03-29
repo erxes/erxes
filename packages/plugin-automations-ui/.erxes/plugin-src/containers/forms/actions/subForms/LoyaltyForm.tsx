@@ -3,11 +3,11 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 
-import { withProps } from '@erxes/ui/src';
-import Form from '../components/SetVoucher';
-import { queries as voucherCampaignQueries } from '../../configs/voucherCampaign/graphql';
+import { withProps } from '@erxes/ui/src/utils';
+import Form from '../../../../components/forms/actions/subForms/LoyaltyForm';
+import { queries as voucherCampaignQueries } from '@erxes/plugin-loyalty-ui/src/configs/voucherCampaign/graphql';
 
-import { VoucherCampaignQueryResponse } from '../../configs/voucherCampaign/types';
+import { VoucherCampaignQueryResponse } from '@erxes/plugin-loyalty-ui/src/configs/voucherCampaign/types';
 
 
 type Props = {
@@ -23,7 +23,7 @@ type FinalProps = {
   voucherCampaignQuery: VoucherCampaignQueryResponse;
 } & Props;
 
-class ProductFormContainer extends React.Component<FinalProps> {
+class LoyaltyFormContainer extends React.Component<FinalProps> {
   render() {
     const { voucherCampaignQuery } = this.props;
 
@@ -50,5 +50,5 @@ export default withProps<Props>(
         name: 'voucherCampaignQuery'
       }
     ),
-  )(ProductFormContainer)
+  )(LoyaltyFormContainer)
 );

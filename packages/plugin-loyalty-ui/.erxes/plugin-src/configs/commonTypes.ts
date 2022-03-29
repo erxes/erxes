@@ -1,5 +1,3 @@
-import { IAttachment } from '@erxes/ui/src/types';
-
 export const commonParamDefs = `
   $title: String,
   $description: String,
@@ -62,22 +60,3 @@ export const commonFilterValues = `
   searchValue: $searchValue,
   filterStatus: $filterStatus,
 `;
-
-
-
-export type ICommonTypes = {
-  _id?: string,
-  createdAt?: Date,
-  createdBy?: string,
-  modifiedAt?: Date,
-  modifiedBy?: string,
-
-  title?: string,
-  description?: string,
-  startDate?: Date,
-  endDate?: Date,
-  finishDateOfUse?: Date,
-  attachment?: IAttachment,
-
-  status?: string
-};

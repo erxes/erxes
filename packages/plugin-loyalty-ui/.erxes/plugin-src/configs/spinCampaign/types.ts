@@ -1,4 +1,4 @@
-import { ICommonTypes } from "../commonTypes";
+import { ICommonTypes } from "../../types";
 
 export type ISpinCampaignAward = {
   _id: string,
@@ -7,7 +7,7 @@ export type ISpinCampaignAward = {
   voucherCampaignId?: string
 }
 
-export type ISpinCampaign = ICommonTypes & {
+export interface ISpinCampaign extends ICommonTypes {
   buyScore?: number,
   awards?: ISpinCampaignAward[]
 
