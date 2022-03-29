@@ -20,7 +20,7 @@ const processHookData = async req => {
 export const telnyxCreateIntegration = async (doc) => {
   await createIntegration(doc);
 
-  return { status: 'ok' };
+  return { status: 'success' };
 } 
 
 const init = async app => {
