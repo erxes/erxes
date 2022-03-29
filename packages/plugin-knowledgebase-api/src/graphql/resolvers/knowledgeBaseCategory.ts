@@ -23,9 +23,12 @@ export const KnowledgeBaseCategory = {
 
     const authorIds = articles.map((article) => article.createdBy);
 
-    return coreModels.Users.find({
-      _id: { $in: authorIds }
-    });
+    return (authorIds || []).map(_id => (
+      {
+        __typename: 'User',
+        _id
+      }
+    ))
   },
 
   firstTopic(category: ICategoryDocument, _args, { models }: IContext) {
