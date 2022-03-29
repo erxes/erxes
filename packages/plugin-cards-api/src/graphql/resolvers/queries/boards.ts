@@ -6,7 +6,7 @@ import { IStageDocument } from "../../../models/definitions/boards";
 import { CLOSE_DATE_TYPES, PRIORITIES } from "../../../constants";
 import { IPipelineLabelDocument } from "../../../models/definitions/pipelineLabels";
 import { getCloseDateByType } from "./utils";
-import { fetchSegment, sendFormsMessage, sendSegmentsMessage } from "../../../messageBroker";
+import { fetchSegment, sendCoreMessage, sendFormsMessage, sendSegmentsMessage } from "../../../messageBroker";
 import { IContext } from "../../../connectionResolver";
 
 export interface IDate {
@@ -345,7 +345,7 @@ const boardQueries = {
       type,
       stackBy,
     }: { pipelineId: string; type: string; stackBy: string },
-    { models, coreModels }: IContext
+    { models, subdomain }: IContext
   ) {
     const { Stages, PipelineLabels } = models;
 
@@ -429,8 +429,16 @@ const boardQueries = {
       return {};
     }
 
-    const users = await coreModels.Users.find({
-      _id: { $in: assignedUserIds },
+    const users = await sendCoreMessage({
+      subdomain,
+      action: 'users.find',
+      data: {
+        query: {
+          _id: { $in: assignedUserIds }
+        }
+      },
+      isRPC: true,
+      defaultValue: []
     });
 
     const usersWithInfo: Array<{ name: string }> = [];

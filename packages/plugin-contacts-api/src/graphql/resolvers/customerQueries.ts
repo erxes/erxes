@@ -11,7 +11,8 @@ import {
   checkPermission,
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
-import { IContext, ICoreIModels } from '../../connectionResolver';
+import { IContext } from '../../connectionResolver';
+import { sendFormsMessage } from '../../messageBroker';
 interface ICountParams extends IListArgs {
   only: string;
   source: string;
@@ -30,11 +31,19 @@ const countByIntegrationType = async (qb): Promise<ICountBy> => {
   return counts;
 };
 
-const countByForm = async ({ Forms }:ICoreIModels ,qb: any, params: any): Promise<ICountBy> => {
+const countByForm = async (subdomain: string, qb: any, params: any): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
   // Count customers by submitted form
-  const forms = await Forms.find({}).toArray();
+  const forms = await sendFormsMessage({
+    subdomain,
+    action: "find",
+    data: {
+      query: {}
+    },
+    isRPC: true,
+    defaultValue: []
+  })
 
   for (const form of forms) {
     await qb.buildAllQueries();
@@ -53,9 +62,9 @@ const customerQueries = {
   async customers(
     _root,
     params: IListArgs,
-    { commonQuerySelector, commonQuerySelectorElk, models, coreModels, subdomain }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext
   ) {
-    const qb = new BuildQuery(models, coreModels, subdomain, params, {
+    const qb = new BuildQuery(models, subdomain, params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
@@ -73,9 +82,9 @@ const customerQueries = {
   async customersMain(
     _root,
     params: IListArgs,
-    { commonQuerySelector, commonQuerySelectorElk, models, coreModels, subdomain }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext
   ) {
-    const qb = new BuildQuery(models, coreModels, subdomain, params, {
+    const qb = new BuildQuery(models, subdomain, params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
@@ -93,7 +102,7 @@ const customerQueries = {
   async customerCounts(
     _root,
     params: ICountParams,
-    { commonQuerySelector, commonQuerySelectorElk, models, coreModels, subdomain }: IContext
+    { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext
   ) {
     const { only, type, source } = params;
 
@@ -106,7 +115,7 @@ const customerQueries = {
       byLeadStatus: {}
     };
 
-    const qb = new BuildQuery(models, coreModels, subdomain, params, {
+    const qb = new BuildQuery(models, subdomain, params, {
       commonQuerySelector,
       commonQuerySelectorElk
     });
@@ -117,7 +126,7 @@ const customerQueries = {
         break;
 
       case 'byBrand':
-        counts.byBrand = await countByBrand(coreModels, qb);
+        counts.byBrand = await countByBrand(subdomain, qb);
         break;
 
       case 'byTag':
@@ -125,7 +134,7 @@ const customerQueries = {
         break;
 
       case 'byForm':
-        counts.byForm = await countByForm(coreModels, qb, params);
+        counts.byForm = await countByForm(subdomain, qb, params);
         break;
 
       case 'byLeadStatus':

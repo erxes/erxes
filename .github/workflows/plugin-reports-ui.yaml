@@ -1,13 +1,12 @@
-name: Plugin Segments UI CI
+name: Plugin Reports UI CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - 'packages/ui-segments/**'
-      - 'packages/plugin-segments-ui/**'
-      - '.github/workflows/plugin-segments-ui.yaml'
+      - 'packages/plugin-reports-ui/**'
+      - '.github/workflows/plugin-reports-ui.yaml'
 
 jobs:
   ui:
@@ -24,8 +23,8 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          # cp -r packages/ui-plugin-template/.erxes packages/plugin-segments-ui/.erxes
-          cd packages/plugin-segments-ui
+          # cp -r packages/ui-plugin-template/.erxes packages/plugin-reports-ui/.erxes
+          cd packages/plugin-reports-ui
           yarn install-deps
           yarn build
 
@@ -38,4 +37,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-segments-ui/.erxes/dist s3://plugin-uis/plugin-segments-ui --delete 
+          aws s3 sync packages/plugin-reports-ui/.erxes/dist s3://plugin-uis/plugin-reports-ui --delete

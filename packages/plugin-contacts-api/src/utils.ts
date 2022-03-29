@@ -6,7 +6,10 @@ import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 
 import { debug, es } from './configs';
 import { ICustomerDocument } from './models/definitions/customers';
-import messageBroker, { sendEngagesMessage } from './messageBroker';
+import messageBroker, {
+  sendCoreMessage,
+  sendEngagesMessage
+} from './messageBroker';
 import { getService, getServices } from './inmemoryStorage';
 import { generateModels, IModels } from './connectionResolver';
 
@@ -109,6 +112,35 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
   return company;
 };
 
+const generateUsersOptions = async (
+  name: string,
+  label: string,
+  type: string,
+  subdomain: string
+) => {
+  const users = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: {
+      query: {}
+    },
+    isRPC: true
+  });
+
+  const options: Array<{ label: string; value: any }> = users.map(user => ({
+    value: user._id,
+    label: user.username || user.email || ''
+  }));
+
+  return {
+    _id: Math.random(),
+    name,
+    label,
+    type,
+    selectOptions: options
+  };
+};
+
 export const generateFields = async ({ subdomain, data }) => {
   const { type, usageType } = data;
 
@@ -196,6 +228,15 @@ export const generateFields = async ({ subdomain, data }) => {
       });
     }
   }
+
+  const ownerOptions = await generateUsersOptions(
+    'ownerId',
+    'Owner',
+    'user',
+    subdomain
+  );
+
+  fields = [...fields, ownerOptions];
 
   return fields;
 };
@@ -318,7 +359,7 @@ export const prepareEngageCustomers = async (
         await sendEngagesMessage({
           subdomain,
           action: 'notification',
-          data: { action, data },
+          data: { action, data }
         });
       }
     }

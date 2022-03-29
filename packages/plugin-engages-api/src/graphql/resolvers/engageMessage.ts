@@ -1,6 +1,7 @@
 import { IContext } from '../../connectionResolver';
 import { IEngageMessageDocument } from '../../models/definitions/engages';
 import { prepareSmsStats } from '../../telnyxUtils';
+import { sendCoreMessage } from '../../messageBroker'
 
 export default {
   __resolveReference({ _id }: IEngageMessageDocument, _args, { models }: IContext) {
@@ -72,8 +73,16 @@ export default {
     return null;
   },
 
-  async createdUserName({ createdBy = '' }: IEngageMessageDocument, _args, { coreModels }) {
-    const user = await coreModels.Users.findOne({ _id: createdBy });
+  async createdUserName({ createdBy = '' }: IEngageMessageDocument, _args, { subdomain }: IContext) {
+    const user = await sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: {
+        _id: createdBy
+      },
+      isRPC: true
+    });
+    
 
     if (!user) {
       return '';

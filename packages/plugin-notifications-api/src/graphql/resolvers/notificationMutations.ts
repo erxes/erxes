@@ -1,8 +1,8 @@
-import { Users } from '../../apiCollections';
 import { IConfig } from '../../models/definitions/notifications';
 import { graphqlPubsub } from '../../configs';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
+import { sendCoreMessage } from '../../messageBroker';
 
 const notificationMutations = {
   /**
@@ -44,15 +44,19 @@ const notificationMutations = {
   /**
    * Show notifications
    */
-  async notificationsShow(_root, _args, { user }: IContext) {
+  async notificationsShow(_root, _args, { user, subdomain }: IContext) {
     graphqlPubsub.publish('userChanged', {
       userChanged: { userId: user._id },
     });
 
-    await Users.updateOne(
-      { _id: user._id },
-      { $set: { isShowNotification: true } }
-    );
+    await sendCoreMessage({
+      subdomain,
+      action: 'users.updateOne',
+      data: {
+        selector: { _id: user._id },
+        modifier: { $set: { isShowNotification: true } }
+      }
+    });
 
     return 'success';
   },

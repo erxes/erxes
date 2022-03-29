@@ -13,7 +13,7 @@ const knowledgeBaseMutations = {
   async knowledgeBaseTopicsAdd(
     _root,
     { doc }: { doc: ITopic },
-    { user, docModifier, models }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
     const topic = await models.KnowledgeBaseTopics.createDoc(
       docModifier(doc),
@@ -22,6 +22,7 @@ const knowledgeBaseMutations = {
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.KB_TOPIC,
         newData: {
@@ -43,13 +44,14 @@ const knowledgeBaseMutations = {
   async knowledgeBaseTopicsEdit(
     _root,
     { _id, doc }: { _id: string; doc: ITopic },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const topic = await models.KnowledgeBaseTopics.getTopic(_id);
     const updated = await models.KnowledgeBaseTopics.updateDoc(_id, doc, user._id);
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.KB_TOPIC,
         object: topic,
@@ -72,12 +74,12 @@ const knowledgeBaseMutations = {
   async knowledgeBaseTopicsRemove(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const topic = await models.KnowledgeBaseTopics.getTopic(_id);
     const removed = await models.KnowledgeBaseTopics.removeDoc(_id);
 
-    await putDeleteLog(models, { type: MODULE_NAMES.KB_TOPIC, object: topic }, user);
+    await putDeleteLog(models, subdomain, { type: MODULE_NAMES.KB_TOPIC, object: topic }, user);
 
     return removed;
   },
@@ -88,12 +90,13 @@ const knowledgeBaseMutations = {
   async knowledgeBaseCategoriesAdd(
     _root,
     { doc }: { doc: ICategoryCreate },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const kbCategory = await models.KnowledgeBaseCategories.createDoc(doc, user._id);
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.KB_CATEGORY,
         newData: {
@@ -115,13 +118,14 @@ const knowledgeBaseMutations = {
   async knowledgeBaseCategoriesEdit(
     _root,
     { _id, doc }: { _id: string; doc: ICategoryCreate },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const kbCategory = await models.KnowledgeBaseCategories.getCategory(_id);
     const updated = await models.KnowledgeBaseCategories.updateDoc(_id, doc, user._id);
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.KB_CATEGORY,
         object: kbCategory,
@@ -144,7 +148,7 @@ const knowledgeBaseMutations = {
   async knowledgeBaseCategoriesRemove(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const kbCategory = await models.KnowledgeBaseCategories.getCategory(_id);
 
@@ -152,6 +156,7 @@ const knowledgeBaseMutations = {
 
     await putDeleteLog(
       models,
+      subdomain,
       { type: MODULE_NAMES.KB_CATEGORY, object: kbCategory },
       user
     );
@@ -165,12 +170,13 @@ const knowledgeBaseMutations = {
   async knowledgeBaseArticlesAdd(
     _root,
     { doc }: { doc: IArticleCreate },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const kbArticle = await models.KnowledgeBaseArticles.createDoc(doc, user._id);
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.KB_ARTICLE,
         newData: {
@@ -192,13 +198,14 @@ const knowledgeBaseMutations = {
   async knowledgeBaseArticlesEdit(
     _root,
     { _id, doc }: { _id: string; doc: IArticleCreate },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const kbArticle = await models.KnowledgeBaseArticles.getArticle(_id);
     const updated = await models.KnowledgeBaseArticles.updateDoc(_id, doc, user._id);
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.KB_ARTICLE,
         object: kbArticle,
@@ -221,13 +228,14 @@ const knowledgeBaseMutations = {
   async knowledgeBaseArticlesRemove(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const kbArticle = await models.KnowledgeBaseArticles.getArticle(_id);
     const removed = await models.KnowledgeBaseArticles.removeDoc(_id);
 
     await putDeleteLog(
       models,
+      subdomain,
       { type: MODULE_NAMES.KB_ARTICLE, object: kbArticle },
       user
     );

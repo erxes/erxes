@@ -14,7 +14,6 @@ import {
 import {
   generateModels,
   models,
-  coreModels,
   getSubdomain
 } from './connectionResolver';
 import logs from './logUtils';
@@ -58,7 +57,6 @@ export default {
     const subdomain = 'os';
 
     context.models = models;
-    context.coreModels = coreModels;
     context.dataLoaders = generateAllDataLoaders(models);
     context.subdomain = subdomain;
 
@@ -80,8 +78,8 @@ export default {
 
           const response =
             name === 'pageView'
-              ? await trackViewPageEvent(coreModels, subdomain, { customerId, attributes })
-              : await trackCustomEvent(coreModels, subdomain, {
+              ? await trackViewPageEvent(subdomain, { customerId, attributes })
+              : await trackCustomEvent(subdomain, {
                   name,
                   customerId,
                   attributes

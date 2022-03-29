@@ -6,9 +6,6 @@ import { IArticleModel, ICategoryModel, ITopicModel, loadArticleClass, loadCateg
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { userSchema } from '@erxes/api-utils/src/definitions/users';
 
-export interface ICoreIModels {
-  Users;
-}
 export interface IModels {
   KnowledgeBaseArticles: IArticleModel;
   KnowledgeBaseCategories: ICategoryModel;
@@ -17,11 +14,9 @@ export interface IModels {
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
-  coreModels: ICoreIModels;
 }
 
 export let models: IModels;
-export let coreModels: ICoreIModels;
 
 export const generateModels = async (
   _hostnameOrSubdomain: string
@@ -30,22 +25,10 @@ export const generateModels = async (
     return models;
   }
 
-  coreModels = await connectCore();
-
   loadClasses(mainDb);
 
   return models;
 };
-
-const connectCore = async () => {
-  if(coreModels) {
-    return coreModels;
-  }
-
-  return {
-    Users: await mainDb.model('users', userSchema)
-  }
-}
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;

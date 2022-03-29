@@ -12,7 +12,7 @@ export const KnowledgeBaseCategory = {
     });
   },
 
-  async authors(category: ICategoryDocument, _args, { models, coreModels }: IContext) {
+  async authors(category: ICategoryDocument, _args, { models }: IContext) {
     const articles = await models.KnowledgeBaseArticles.find(
       {
         categoryId: category._id,
@@ -23,9 +23,12 @@ export const KnowledgeBaseCategory = {
 
     const authorIds = articles.map((article) => article.createdBy);
 
-    return coreModels.Users.find({
-      _id: { $in: authorIds }
-    });
+    return (authorIds || []).map(_id => (
+      {
+        __typename: 'User',
+        _id
+      }
+    ))
   },
 
   firstTopic(category: ICategoryDocument, _args, { models }: IContext) {

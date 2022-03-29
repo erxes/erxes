@@ -3,7 +3,7 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
-import { coreModels, generateModels, models } from './connectionResolver';
+import { generateModels, models } from './connectionResolver';
 import logs from './logUtils';
 import permissions from './permissions';
 
@@ -36,7 +36,6 @@ export default {
   meta: { logs: { consumers: logs } },
   apolloServerContext: (context) => {
     context.models = models;
-    context.coreModels = coreModels;
   },
   onServerInit: async (options) => {
     mainDb = options.db;

@@ -1,6 +1,5 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import apiConnect from './apiCollections';
 
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
@@ -33,8 +32,6 @@ export default {
     context.models = models;
   },
   onServerInit: async (options) => {
-    await apiConnect();
-
     initBroker(options.messageBrokerClient);
 
     mainDb = options.db;

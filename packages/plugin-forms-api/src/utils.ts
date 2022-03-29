@@ -1,5 +1,6 @@
-import { IModels } from './connectionResolver';
-import { fetchService } from './messageBroker';
+import { IModels } from "./connectionResolver";
+import { fetchService, sendInboxMessage } from "./messageBroker";
+import { IFormSubmissionFilter } from "./models/definitions/forms";
 
 export const getCustomFields = async (models: IModels, contentType: string) => {
   return models.Fields.find({
@@ -44,7 +45,7 @@ export const fieldsCombinedByContentType = async (
 
   fields = await fetchService(
     contentType,
-    'getList',
+    "getList",
     {
       segmentId,
       usageType,
@@ -57,7 +58,7 @@ export const fieldsCombinedByContentType = async (
 
   // extend fields list using custom fields data
   for (const customField of customFields) {
-    const group = await getFieldGroup(models, customField.groupId || '');
+    const group = await getFieldGroup(models, customField.groupId || "");
 
     if (
       group &&
@@ -78,4 +79,98 @@ export const fieldsCombinedByContentType = async (
   fields = [...fields];
 
   return fields.filter(field => !(excludedNames || []).includes(field.name));
+};
+
+export const formSubmissionsQuery = async (
+  subdomain,
+  models,
+  {
+    formId,
+    tagId,
+    contentTypeIds,
+    filters
+  }: {
+    formId: string;
+    tagId: string;
+    contentTypeIds: string[];
+    filters: IFormSubmissionFilter[];
+  }
+) => {
+  const integrationsSelector: any = { kind: "lead", isActive: true };
+  let conversationIds: string[] = [];
+
+  if (formId) {
+    integrationsSelector.formId = formId;
+  }
+
+  if (tagId) {
+    integrationsSelector.tagIds = tagId;
+  }
+
+  if (contentTypeIds && contentTypeIds.length > 0) {
+    conversationIds = contentTypeIds;
+  }
+
+  const submissionFilters: any[] = [];
+
+  if (filters && filters.length > 0) {
+    for (const filter of filters) {
+      const { formFieldId, value } = filter;
+
+      switch (filter.operator) {
+        case "eq":
+          submissionFilters.push({ formFieldId, value: { $eq: value } });
+          break;
+
+        case "c":
+          submissionFilters.push({
+            formFieldId,
+            value: { $regex: new RegExp(value) }
+          });
+          break;
+
+        case "gte":
+          submissionFilters.push({
+            formFieldId,
+            value: { $gte: value }
+          });
+          break;
+
+        case "lte":
+          submissionFilters.push({
+            formFieldId,
+            value: { $lte: value }
+          });
+          break;
+
+        default:
+          break;
+      }
+    }
+
+    const subs = await models.FormSubmissions.find({
+      $and: submissionFilters
+    }).lean();
+    conversationIds = subs.map(e => e.contentTypeId);
+  }
+
+  const integration = await sendInboxMessage({
+    subdomain,
+    action: "findIntegration",
+    data: integrationsSelector,
+    isRPC: true,
+    defaultValue: []
+  });
+
+  if (!integration) {
+    return null;
+  }
+
+  let convsSelector: any = { integrationId: integration._id };
+
+  if (conversationIds.length > 0) {
+    convsSelector = { _id: { $in: conversationIds } };
+  }
+
+  return convsSelector;
 };
