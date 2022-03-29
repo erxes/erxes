@@ -3,15 +3,15 @@ module.exports = {
   cards: false,
   clientportal: false,
   contacts: true,
-  engages: false,
-  inbox: false,
+  engages: true,
+  inbox: true,
   internalnotes: false,
   knowledgebase: false,
-  logs: false,
+  logs: true,
   notifications: false,
   products: false,
-  segments: false,
-  tags: false,
-  forms: false,
-  integrations: false
+  segments: true,
+  tags: true,
+  forms: true,
+  integrations: true
 };
