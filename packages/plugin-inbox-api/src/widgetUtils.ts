@@ -4,7 +4,7 @@ import { debug } from "./configs";
 
 import { es } from "./configs";
 import { sendContactsMessage, sendCoreMessage, sendEngagesMessage, sendFormsMessage, sendToLog } from "./messageBroker";
-import { ICoreIModels, IModels } from "./connectionResolver";
+import { IModels } from "./connectionResolver";
 
 export const getOrCreateEngageMessage = async (
   models: IModels,
@@ -260,7 +260,7 @@ const groupSubmissions = (submissions: any[]) => {
   return submissionsGrouped;
 };
 
-export const solveSubmissions = async (models: IModels, coreModels: ICoreIModels, subdomain: string, args: {
+export const solveSubmissions = async (models: IModels, subdomain: string, args: {
   integrationId: string;
   formId: string;
   submissions;

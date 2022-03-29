@@ -88,12 +88,16 @@ query formSubmissions(
   $formId: String
   $contentTypeIds: [String]
   $filters: [SubmissionFilter]
+  $page: Int
+  $perPage: Int
 ) {
   formSubmissions(
     tagId: $tagId
     formId: $formId
     contentTypeIds: $contentTypeIds
     filters: $filters
+    page: $page
+    perPage: $perPage
   ) {
     contentTypeId
     customerId

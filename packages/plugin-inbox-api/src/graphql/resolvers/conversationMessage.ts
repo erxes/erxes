@@ -13,7 +13,7 @@ export default {
     return message.customerId && { __typename: 'Customer', _id: message.customerId }
   },
 
-  async mailData(message: IMessageDocument, _args, { models, coreModels, subdomain }: IContext ) {
+  async mailData(message: IMessageDocument, _args, { models, subdomain }: IContext ) {
     const conversation = await models.Conversations.findOne({
       _id: message.conversationId
     }).lean();

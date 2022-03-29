@@ -53,7 +53,7 @@ class Row extends React.Component<Props> {
       </Button>
     );
 
-    const content = (props) => <Manage integration={integration} {...props} />;
+    const content = props => <Manage integration={integration} {...props} />;
 
     return (
       <ModalTrigger
@@ -100,6 +100,20 @@ class Row extends React.Component<Props> {
       <Tip text={__("Download responses")} placement="top">
         <Button btnStyle="link" onClick={onClick} icon="down-arrow" />
       </Tip>
+    );
+  }
+
+  renderSubmissionsAction() {
+    const { integration } = this.props;
+
+    return (
+      <Link to={`/forms/responses/${integration._id}/${integration.formId}`}>
+        <Button btnStyle="link">
+          <Tip text={__("Submissions")} placement="top">
+            <Icon icon="list" />
+          </Tip>
+        </Button>
+      </Link>
     );
   }
 
@@ -159,7 +173,7 @@ class Row extends React.Component<Props> {
 
     const createdUser = form.createdUser || {
       _id: "",
-      details: { fullName: "" },
+      details: { fullName: "" }
     };
     const tags = integration.tags;
 
@@ -167,7 +181,7 @@ class Row extends React.Component<Props> {
       ? lead.conversionRate.toString()
       : "0.00";
 
-    const onChange = (e) => {
+    const onChange = e => {
       if (toggleBulk) {
         toggleBulk(integration, e.target.checked);
       }
@@ -234,6 +248,7 @@ class Row extends React.Component<Props> {
             {this.renderArchiveAction()}
             {this.renderUnarchiveAction()}
             {this.renderExportAction()}
+            {this.renderSubmissionsAction()}
             {this.renderCopyAction()}
             {this.renderRemoveAction()}
           </ActionButtons>

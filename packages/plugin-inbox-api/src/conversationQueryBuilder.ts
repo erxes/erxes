@@ -2,7 +2,7 @@ import * as _ from 'underscore';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { fixDate } from '@erxes/api-utils/src/core';
 import { sendSegmentsMessage, sendTagsMessage } from './messageBroker';
-import { ICoreIModels, IModels } from './connectionResolver';
+import { IModels } from './connectionResolver';
 
 interface IIn {
   $in: string[];
@@ -64,7 +64,6 @@ interface IDate {
 
 export default class Builder {
   public models: IModels;
-  public coreModels: ICoreIModels;
   public subdomain: string;
   public params: IListArgs;
   public user: IUserArgs;
@@ -72,9 +71,8 @@ export default class Builder {
   public unassignedQuery?: IUnassignedFilter;
   public activeIntegrationIds: string[] = [];
 
-  constructor(models: IModels, coreModels: ICoreIModels, subdomain: string, params: IListArgs, user: IUserArgs) {
+  constructor(models: IModels, subdomain: string, params: IListArgs, user: IUserArgs) {
     this.models = models;
-    this.coreModels = coreModels;
     this.subdomain = subdomain;
     this.params = params;
     this.user = user;

@@ -1,7 +1,6 @@
 import * as getUuid from 'uuid-by-string';
 import { debug } from './configs';
 import { es } from './configs';
-import { ICoreIModels } from './connectionResolver';
 import { sendContactsMessage, sendFormsMessage } from './messageBroker';
 
 interface ISaveEventArgs {
@@ -20,7 +19,7 @@ interface ICustomerIdentifyParams {
   integrationId?: string;
 }
 
-export const saveEvent = async (coreModels: ICoreIModels, subdomain: string, args: ISaveEventArgs) => {
+export const saveEvent = async (subdomain: string, args: ISaveEventArgs) => {
   const { type, name, attributes, additionalQuery } = args;
 
   if (!type) {
@@ -140,14 +139,14 @@ export const getNumberOfVisits = async (params: {
   }
 };
 
-export const trackViewPageEvent = (coreModels: ICoreIModels, subdomain: string, args: {
+export const trackViewPageEvent = (subdomain: string, args: {
   customerId?: string;
   visitorId?: string;
   attributes: any;
 }) => {
   const { attributes, customerId, visitorId } = args;
 
-  return saveEvent(coreModels, subdomain, {
+  return saveEvent(subdomain, {
     type: 'lifeCycle',
     name: 'viewPage',
     customerId,
@@ -183,13 +182,13 @@ export const trackViewPageEvent = (coreModels: ICoreIModels, subdomain: string, 
   });
 };
 
-export const trackCustomEvent = (coreModels: ICoreIModels, subdomain: string, args: {
+export const trackCustomEvent = (subdomain: string, args: {
   name: string;
   customerId?: string;
   visitorId?: string;
   attributes: any;
 }) => {
-  return saveEvent(coreModels, subdomain, {
+  return saveEvent(subdomain, {
     type: 'custom',
     name: args.name,
     customerId: args.customerId,

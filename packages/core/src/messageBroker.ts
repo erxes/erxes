@@ -133,6 +133,11 @@ export const initBroker = async (options) => {
       data: await Users.findOne(data)
     }));
 
+    consumeRPCQueue('core:users.getIds', async ({ data }) => ({
+      status: 'success',
+      data: await Users.find(data, {_id: 1})
+    }));
+
     consumeRPCQueue('core:users.updateOne', async ({ data: { selector, modifier } }) => {
       return {
         status: 'success',
@@ -140,12 +145,12 @@ export const initBroker = async (options) => {
       };
     });
 
-    consumeRPCQueue('core:users.find', async data => {
-      const { query } = data;
+    consumeRPCQueue('core:users.find', async ({ data }) => {
+      const { query, sort = {} } = data;
 
       return {
         status: "success",
-        data: await Users.find(query).lean(),
+        data: await Users.find(query).sort(sort).lean(),
       };
     });
 

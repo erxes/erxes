@@ -9,7 +9,7 @@ import { fixDate } from '@erxes/api-utils/src';
 
 import { debug } from './configs';
 import { sendCoreMessage, sendSegmentsMessage, sendTagsMessage } from './messageBroker';
-import { ICoreIModels, IModels } from './connectionResolver';
+import { IModels } from './connectionResolver';
 
 export interface ICountBy {
   [index: string]: number;
@@ -131,7 +131,6 @@ export const countBySegment = async (
 
 export const countByConversations = async (
   models: IModels,
-  coreModels: ICoreIModels,
   subdomain: string,
   params: IListArgs,
   integrationIds: string[],
@@ -140,7 +139,7 @@ export const countByConversations = async (
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
-  const qb = new CommonBuilder(models, coreModels, subdomain, params, integrationIds, user);
+  const qb = new CommonBuilder(models, subdomain, params, integrationIds, user);
 
   switch (only) {
     case 'byChannels':
@@ -169,7 +168,6 @@ export const countByConversations = async (
 
 export class CommonBuilder<IArgs extends IListArgs> {
   public models: IModels;
-  public coreModels: ICoreIModels;
   public subdomain: string;
   public params: IArgs;
   public user: IUserArgs;
@@ -178,9 +176,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public filterList: any[];
   public activeIntegrationIds: string[] = [];
 
-  constructor(models: IModels, coreModels: ICoreIModels, subdomain: string, params: IArgs, integrationIds: string[], user: IUserArgs) {
+  constructor(models: IModels, subdomain: string, params: IArgs, integrationIds: string[], user: IUserArgs) {
     this.models = models;
-    this.coreModels = coreModels;
     this.subdomain = subdomain;
     this.params = params;
     this.user = user;

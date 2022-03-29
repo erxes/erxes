@@ -1,23 +1,23 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route } from "react-router-dom";
 
 const CreateLead = asyncComponent(() =>
-  import(/* webpackChunkName: "CreateLead" */ './containers/CreateLead')
+  import(/* webpackChunkName: "CreateLead" */ "./containers/CreateLead")
 );
 
 const EditLead = asyncComponent(() =>
-  import(/* webpackChunkName: "EditLead" */ './containers/EditLead')
+  import(/* webpackChunkName: "EditLead" */ "./containers/EditLead")
 );
 
 const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Form" */ './containers/List')
+  import(/* webpackChunkName: "List - Form" */ "./containers/List")
 );
 
 const ResponseList = asyncComponent(() =>
   import(
-    /* webpackChunkName: "List - FormResponse" */ './containers/ResponseList'
+    /* webpackChunkName: "List - FormResponse" */ "./containers/ResponseList"
   )
 );
 
@@ -48,7 +48,15 @@ const editLead = ({ match, location }) => {
 
 const responseList = ({ match, location }) => {
   const { integrationId, formId } = match.params;
-  return <ResponseList queryParams={{ integrationId, formId }} />;
+  const queryParams = queryString.parse(location.search);
+
+  return (
+    <ResponseList
+      queryParams={queryParams}
+      formId={formId}
+      integrationId={integrationId}
+    />
+  );
 };
 
 const routes = () => {
