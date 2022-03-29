@@ -1,4 +1,5 @@
-import { AppConsumer } from "../../../../../core-ui/src/appContext";
+// import { AppConsumer } from "../../../../../core-ui/src/appContext";
+import { AppConsumer } from "coreui/appContext";
 import { IProduct } from "@erxes/ui-products/src/types";
 import React from "react";
 import ProductForm from "../../components/product/ProductForm";
