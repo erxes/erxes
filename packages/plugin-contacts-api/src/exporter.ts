@@ -21,7 +21,7 @@ import {
   customerSchema,
   ICustomerDocument
 } from './models/definitions/customers';
-import { fetchSegment, sendTagsMessage } from './messageBroker';
+import { fetchSegment, sendCoreMessage, sendFormsMessage, sendTagsMessage } from './messageBroker';
 
 import {
   Builder as CompanyBuildQuery,
@@ -31,7 +31,7 @@ import {
   Builder as CustomerBuildQuery,
   IListArgs as ICustomerListArgs
 } from './coc/customers';
-import { ICoreIModels, IModels } from './connectionResolver';
+import { IModels } from './connectionResolver';
 
 export const fillHeaders = (itemType: string): IColumnLabel[] => {
   let columnNames: IColumnLabel[] = [];
@@ -78,7 +78,6 @@ const getCellValue = (item, colName) => {
  */
 export const fillCellValue = async (
   models: IModels,
-  coreModels: ICoreIModels,
   subdomain: string,
   colName: string,
   item: any
@@ -153,8 +152,13 @@ export const fillCellValue = async (
       break;
 
     case 'ownerEmail':
-      const owner: IUserDocument | null = await coreModels.Users.findOne({
-        _id: item.ownerId
+      const owner: IUserDocument | null = await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          _id: item.ownerId
+        },
+        isRPC: true
       });
 
       cellValue = owner ? owner.email : '';
@@ -169,7 +173,7 @@ export const fillCellValue = async (
 };
 
 // Prepares data depending on module type
-const prepareData = async (models: IModels, coreModels: ICoreIModels, subdomain: string, query: any, user: IUserDocument): Promise<any[]> => {
+const prepareData = async (models: IModels, subdomain: string, query: any, user: IUserDocument): Promise<any[]> => {
   const { type, unlimited = false, segment } = query;
 
   let data: any[] = [];
@@ -186,7 +190,7 @@ const prepareData = async (models: IModels, coreModels: ICoreIModels, subdomain:
     case MODULE_NAMES.COMPANY:
       const companyParams: ICompanyListArgs = query;
 
-      const companyQb = new CompanyBuildQuery(models, coreModels, subdomain, companyParams, {});
+      const companyQb = new CompanyBuildQuery(models, subdomain, companyParams, {});
       await companyQb.buildAllQueries();
 
       const companyResponse = await companyQb.runQueries('search', unlimited);
@@ -197,7 +201,7 @@ const prepareData = async (models: IModels, coreModels: ICoreIModels, subdomain:
 
     case 'lead':
       const leadParams: ICustomerListArgs = query;
-      const leadQp = new CustomerBuildQuery(models, coreModels, subdomain, leadParams, {});
+      const leadQp = new CustomerBuildQuery(models, subdomain, leadParams, {});
       await leadQp.buildAllQueries();
 
       const leadResponse = await leadQp.runQueries('search', unlimited);
@@ -207,7 +211,7 @@ const prepareData = async (models: IModels, coreModels: ICoreIModels, subdomain:
 
     case 'visitor':
       const visitorParams: ICustomerListArgs = query;
-      const visitorQp = new CustomerBuildQuery(models, coreModels, subdomain, visitorParams, {});
+      const visitorQp = new CustomerBuildQuery(models, subdomain, visitorParams, {});
       await visitorQp.buildAllQueries();
 
       const visitorResponse = await visitorQp.runQueries('search', unlimited);
@@ -218,7 +222,7 @@ const prepareData = async (models: IModels, coreModels: ICoreIModels, subdomain:
     case MODULE_NAMES.CUSTOMER:
       const customerParams: ICustomerListArgs = query;
 
-      const qb = new CustomerBuildQuery(models, coreModels, subdomain, customerParams, {});
+      const qb = new CustomerBuildQuery(models, subdomain, customerParams, {});
       await qb.buildAllQueries();
 
       const customerResponse = await qb.runQueries('search', unlimited);
@@ -255,13 +259,24 @@ const addCell = (
   }
 };
 
-const fillLeadHeaders = async ({ Fields }: ICoreIModels, formId: string) => {
+const fillLeadHeaders = async (subdomain: string, formId: string) => {
   const headers: IColumnLabel[] = [];
 
-  const fields = await Fields.find({
-    contentType: 'form',
-    contentTypeId: formId
-  }).sort({ order: 1 });
+  const fields = await sendFormsMessage({
+    subdomain,
+    action: 'fields.find',
+    data: {
+      query: {
+        contentType: 'form',
+        contentTypeId: formId
+      },
+      sort: {
+        order: 1
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
 
   for (const field of fields) {
     headers.push({ name: field._id, label: field.text });
@@ -273,7 +288,7 @@ const fillLeadHeaders = async ({ Fields }: ICoreIModels, formId: string) => {
 };
 
 const buildLeadFile = async (
-  coreModels:ICoreIModels,
+  subdomain: string,
   datas: any,
   formId: string,
   sheet: any,
@@ -282,7 +297,7 @@ const buildLeadFile = async (
 ) => {
   debugBase(`Start building an excel file for popups export`);
 
-  const headers: IColumnLabel[] = await fillLeadHeaders(coreModels, formId);
+  const headers: IColumnLabel[] = await fillLeadHeaders(subdomain, formId);
 
   const displayValue = item => {
     if (!item) {
@@ -335,7 +350,6 @@ const filterHeaders = headers => {
 
 export const buildFile = async (
   models: IModels,
-  coreModels: ICoreIModels,
   subdomain: string,
   query: any,
   user: IUserDocument
@@ -343,7 +357,7 @@ export const buildFile = async (
   const { configs } = query;
   let type = query.type;
 
-  const data = await prepareData(models, coreModels, subdomain, query, user);
+  const data = await prepareData(models, subdomain, query, user);
 
   // Reads default template
   const { workbook, sheet } = await createXlsFile();
@@ -352,7 +366,7 @@ export const buildFile = async (
   let rowIndex: number = 1;
 
   if (type === MODULE_NAMES.CUSTOMER && query.form && query.popupData) {
-    await buildLeadFile(coreModels, data, query.form, sheet, columnNames, rowIndex);
+    await buildLeadFile(subdomain, data, query.form, sheet, columnNames, rowIndex);
 
     type = 'Forms';
   } else {
@@ -368,7 +382,15 @@ export const buildFile = async (
       for (const column of headers) {
         if (column.name.startsWith('customFieldsData')) {
           const { field, value } = await getCustomFieldsData(
-            coreModels.Fields,
+            selector =>
+              sendFormsMessage({
+                subdomain,
+                action: 'fields.findOne',
+                data: {
+                  query: selector
+                },
+                isRPC: true
+              }),
             item,
             column,
             type
@@ -384,7 +406,7 @@ export const buildFile = async (
             );
           }
         } else {
-          const cellValue = await fillCellValue(models, coreModels, subdomain, column.name, item);
+          const cellValue = await fillCellValue(models, subdomain, column.name, item);
 
           addCell(column, cellValue, sheet, columnNames, rowIndex);
         }

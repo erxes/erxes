@@ -14,8 +14,6 @@ import { buildFile } from './exporter';
 import segments from './segments';
 import forms from './forms';
 import {
-  coreModels,
-  generateCoreModels,
   generateModels,
   getSubdomain
 } from './connectionResolver';
@@ -159,7 +157,6 @@ export default {
     const subdomain = 'os';
 
     context.models = await generateModels(subdomain);
-    context.coreModels = await generateCoreModels(subdomain);
     context.subdomain = subdomain;
   },
   onServerInit: async options => {
@@ -178,7 +175,6 @@ export default {
 
         const result = await buildFile(
           models,
-          coreModels,
           subdomain,
           query,
           user
