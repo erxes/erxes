@@ -71,8 +71,6 @@ class LoyaltyForm extends React.Component<Props, State> {
   }
 
   render() {
-
-    console.log('hhhhhhhhhhhhhhhhhhhhhhhhhh', this.props.common)
     return (
       <Common config={this.state.config} {...this.props}>
         {this.renderContent()}
