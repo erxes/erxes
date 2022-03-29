@@ -35,7 +35,7 @@ class EditForm extends React.Component<Props, State> {
     super(props);
 
     const item = props.item;
-
+    
     this.state = {
       stageId: item.stageId,
       updatedItem: item,
@@ -152,6 +152,7 @@ class EditForm extends React.Component<Props, State> {
         show={this.props.isPopupVisible}
         onHide={this.onHideModal}
         animation={false}
+        style={{ overflow: 'auto' }}
       >
         {this.renderArchiveStatus()}
         {this.renderHeader()}
