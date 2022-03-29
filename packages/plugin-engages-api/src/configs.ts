@@ -10,7 +10,7 @@ import telnyx from './api/telnyx';
 import { trackEngages } from './trackers/engageTracker';
 import { debugBase } from './debuggers';
 import { initBroker } from './messageBroker';
-import { generateCoreModels, generateModels } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import tags from './tags';
 import logs from './logUtils';
 
@@ -46,7 +46,6 @@ export default {
     context.docModifier = (doc) => doc;
 
     context.models = await generateModels(subdomain);
-    context.coreModels = await generateCoreModels(subdomain);
     context.subdomain = subdomain;
 
     return context;

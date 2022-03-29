@@ -17,10 +17,6 @@ import { ILogDocument, ILogModel, loadLogClass } from './models/Logs';
 import { ISmsRequestDocument, ISmsRequestModel, loadSmsRequestClass } from './models/SmsRequests';
 import { IEngageMessageDocument } from './models/definitions/engages';
 
-export interface ICoreIModels {
-  Users;
-}
-
 export interface IModels {
   Configs: IConfigModel;
   DeliveryReports: IDeliveryReportModel;
@@ -33,20 +29,12 @@ export interface IModels {
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
-  coreModels: ICoreIModels;
 }
 
 export let models: IModels;
-export let coreModels: ICoreIModels;
 
 export const getSubdomain = (hostname: string): string => {
   return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
-};
-
-export const generateCoreModels = async (
-  _hostnameOrSubdomain: string
-): Promise<ICoreIModels> => {
-  return coreModels;
 };
 
 export const generateModels = async (
@@ -56,33 +44,10 @@ export const generateModels = async (
     return models;
   }
 
-  coreModels = await connectCore();
-
   loadClasses(mainDb, hostnameOrSubdomain);
 
   return models;
 };
-
-export const connectCore = async () => {
-  if(coreModels) { return coreModels; }
-
-  const url = process.env.API_MONGO_URL || 'mongodb://localhost/erxes';
-  const client = new MongoClient(url);
-
-  let db;
-
-  await client.connect();
-
-  console.log(`Connected successfully to ${url}`);
-
-  db = client.db();
-
-  coreModels =  {
-    Users: await db.collection('users'),
-  }
-
-  return coreModels;
-}
 
 export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels => {
   models = {} as IModels;
