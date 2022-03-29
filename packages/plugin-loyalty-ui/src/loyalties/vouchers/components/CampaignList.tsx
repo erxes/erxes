@@ -50,11 +50,11 @@ class List extends React.Component<IProps> {
       let link
       switch (campaign.voucherType) {
         case 'lottery':
-          link = `/erxes-plugin-loyalty/lotteries?${qryString}&voucherCampaignId=${campaign._id}`;
+          link = `/lotteries?${qryString}&voucherCampaignId=${campaign._id}`;
           break;
 
         case 'spin':
-          link =`/erxes-plugin-loyalty/spins?${qryString}&voucherCampaignId=${campaign._id}`;
+          link =`/spins?${qryString}&voucherCampaignId=${campaign._id}`;
           break;
 
         default:

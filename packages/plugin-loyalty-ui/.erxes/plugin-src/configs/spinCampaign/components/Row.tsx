@@ -65,7 +65,7 @@ class Row extends React.Component<Props> {
           <TextInfo>{status}</TextInfo>
         </td>
         <td onClick={onClick}>
-          <Link to={`/erxes-plugin-loyalty/spins?campaignId=${_id}`}>
+          <Link to={`/spins?campaignId=${_id}`}>
             <Icon icon='list-2' />
           </Link>
         </td>
