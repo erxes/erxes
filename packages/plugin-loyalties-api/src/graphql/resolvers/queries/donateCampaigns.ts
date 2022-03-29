@@ -55,6 +55,6 @@ const donateCampaignQueries = {
   }
 };
 
-checkPermission(donateCampaignQueries, 'donateCampaigns', 'showDonates', []);
+checkPermission(donateCampaignQueries, 'donateCampaigns', 'showLoyalties', []);
 
 export default donateCampaignQueries;

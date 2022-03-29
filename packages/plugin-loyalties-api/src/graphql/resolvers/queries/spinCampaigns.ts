@@ -56,6 +56,6 @@ const spinCampaignQueries = {
   }
 };
 
-checkPermission(spinCampaignQueries, 'spinCampaigns', 'showDonates', []);
+checkPermission(spinCampaignQueries, 'spinCampaigns', 'showLoyalties', []);
 
 export default spinCampaignQueries;

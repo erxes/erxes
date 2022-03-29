@@ -20,6 +20,6 @@ const configsMutations = {
   },
 };
 
-checkPermission(configsMutations, 'loyaltyConfigsUpdate', 'manageLoyalty');
+checkPermission(configsMutations, 'loyaltyConfigsUpdate', 'manageLoyalties');
 
 export default configsMutations;

@@ -16,8 +16,8 @@ const spinsMutations = {
   },
 };
 
-checkPermission(spinsMutations, 'spinCampaignsAdd', 'manageSpin');
-checkPermission(spinsMutations, 'spinCampaignsEdit', 'manageSpin');
-checkPermission(spinsMutations, 'spinCampaignsRemove', 'manageSpin');
+checkPermission(spinsMutations, 'spinCampaignsAdd', 'manageLoyalties');
+checkPermission(spinsMutations, 'spinCampaignsEdit', 'manageLoyalties');
+checkPermission(spinsMutations, 'spinCampaignsRemove', 'manageLoyalties');
 
 export default spinsMutations;

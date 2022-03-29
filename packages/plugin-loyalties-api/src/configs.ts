@@ -21,6 +21,30 @@ export let es: {
 
 export default {
   name: 'loyalties',
+  permissions: {
+    loyalties: {
+      name: 'loyalties',
+      description: 'Loyalties',
+      actions: [
+        {
+          name: 'loyaltyAll',
+          description: 'All',
+          use: [
+            'showLoyalties',
+            'manageLoyalties'
+          ]
+        },
+        {
+          name: 'showLoyalties',
+          description: 'Show loyalties'
+        },
+        {
+          name: 'manageLoyalties',
+          description: 'Manage loyalties'
+        }
+      ]
+    },
+  },
   graphql: async (sd) => {
     serviceDiscovery = sd;
     return {
@@ -49,5 +73,5 @@ export default {
     graphqlPubsub = options.pubsubClient;
     es = options.elasticsearch;
   },
-  meta: { logs: { consumers: logs } }
+  meta: { logs: { loyalties: logs } }
 };
