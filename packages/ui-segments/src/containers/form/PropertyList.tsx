@@ -37,7 +37,7 @@ class PropertyListContationer extends React.Component<FinalProps, {}> {
       return condition.test(field.label);
     });
 
-    console.log('mmmmmmmmmmmmm', fields, results)
+    (window as any).debugMessage = { fields, results }
 
     const cleanFields = results.map((item) => ({
       value: item.name || item._id,
