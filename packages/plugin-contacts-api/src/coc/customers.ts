@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
 import { ICoreIModels, IModels } from '../connectionResolver';
-import { sendInboxMessage } from '../messageBroker';
+import { sendFormsMessage, sendInboxMessage } from '../messageBroker';
 import { CommonBuilder } from './utils';
 
 interface ISortParams {
@@ -124,11 +124,23 @@ export class Builder extends CommonBuilder<IListArgs> {
 
   // filter by form
   public async formFilter(
+    subdomain: string,
     formId: string,
     startDate?: string,
     endDate?: string
   ): Promise<void> {
-    const submissions = await this.coreModels.FormSubmissions.find({ formId }).toArray();
+    const submissions = await sendFormsMessage({
+      subdomain,
+      action:"submissions.find",
+      data: {
+        query: {
+          formId
+        }
+    },
+      isRPC: true,
+      defaultValue: []
+    });
+
     const ids: string[] = [];
 
     for (const submission of submissions) {
@@ -214,12 +226,13 @@ export class Builder extends CommonBuilder<IListArgs> {
     if (this.params.form) {
       if (this.params.startDate && this.params.endDate) {
         await this.formFilter(
+          this.subdomain,
           this.params.form,
           this.params.startDate,
           this.params.endDate
         );
       } else {
-        await this.formFilter(this.params.form);
+        await this.formFilter(this.subdomain, this.params.form);
       }
     }
   }

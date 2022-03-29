@@ -21,7 +21,7 @@ import {
   customerSchema,
   ICustomerDocument
 } from './models/definitions/customers';
-import { fetchSegment, sendTagsMessage } from './messageBroker';
+import { fetchSegment, sendCoreMessage, sendFormsMessage, sendTagsMessage } from './messageBroker';
 
 import {
   Builder as CompanyBuildQuery,
@@ -153,8 +153,13 @@ export const fillCellValue = async (
       break;
 
     case 'ownerEmail':
-      const owner: IUserDocument | null = await coreModels.Users.findOne({
-        _id: item.ownerId
+      const owner: IUserDocument | null = await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          _id: item.ownerId
+        },
+        isRPC: true
       });
 
       cellValue = owner ? owner.email : '';
@@ -255,13 +260,24 @@ const addCell = (
   }
 };
 
-const fillLeadHeaders = async ({ Fields }: ICoreIModels, formId: string) => {
+const fillLeadHeaders = async (subdomain: string, formId: string) => {
   const headers: IColumnLabel[] = [];
 
-  const fields = await Fields.find({
-    contentType: 'form',
-    contentTypeId: formId
-  }).sort({ order: 1 });
+  const fields = await sendFormsMessage({
+    subdomain,
+    action: 'fields.find',
+    data: {
+      query: {
+        contentType: 'form',
+        contentTypeId: formId
+      },
+      sort: {
+        order: 1
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
 
   for (const field of fields) {
     headers.push({ name: field._id, label: field.text });
@@ -274,6 +290,7 @@ const fillLeadHeaders = async ({ Fields }: ICoreIModels, formId: string) => {
 
 const buildLeadFile = async (
   coreModels:ICoreIModels,
+  subdomain: string,
   datas: any,
   formId: string,
   sheet: any,
@@ -282,7 +299,7 @@ const buildLeadFile = async (
 ) => {
   debugBase(`Start building an excel file for popups export`);
 
-  const headers: IColumnLabel[] = await fillLeadHeaders(coreModels, formId);
+  const headers: IColumnLabel[] = await fillLeadHeaders(subdomain, formId);
 
   const displayValue = item => {
     if (!item) {
@@ -352,7 +369,7 @@ export const buildFile = async (
   let rowIndex: number = 1;
 
   if (type === MODULE_NAMES.CUSTOMER && query.form && query.popupData) {
-    await buildLeadFile(coreModels, data, query.form, sheet, columnNames, rowIndex);
+    await buildLeadFile(coreModels, subdomain, data, query.form, sheet, columnNames, rowIndex);
 
     type = 'Forms';
   } else {
@@ -368,7 +385,15 @@ export const buildFile = async (
       for (const column of headers) {
         if (column.name.startsWith('customFieldsData')) {
           const { field, value } = await getCustomFieldsData(
-            coreModels.Fields,
+            selector =>
+              sendFormsMessage({
+                subdomain,
+                action: 'fields.findOne',
+                data: {
+                  query: selector
+                },
+                isRPC: true
+              }),
             item,
             column,
             type

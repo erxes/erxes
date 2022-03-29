@@ -3,6 +3,7 @@ import { es } from './configs';
 import { connectCore, generateModels } from './connectionResolver';
 import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
 import { clearEmptyValues, generatePronoun } from './importUtils';
+import { sendCoreMessage } from './messageBroker';
 
 export default {
   importTypes: IMPORT_TYPES,
@@ -326,9 +327,6 @@ export default {
   },
 
   prepareImportDocs: async ({ subdomain, data }) => {
-    const models = await connectCore();
-    const { Users } = models;
-
     const { scopeBrandIds, result, contentType, properties } = data;
 
     const bulkDoc: any = [];
@@ -373,7 +371,14 @@ export default {
             {
               const userEmail = value;
 
-              const owner = await Users.findOne({ email: userEmail }).lean();
+              const owner = await sendCoreMessage({
+                subdomain,
+                action: 'users.findOne',
+                data: {
+                  email: userEmail
+                },
+                isRPC: true
+              });
 
               doc[property.name] = owner ? owner._id : '';
             }
@@ -420,7 +425,14 @@ export default {
 
           case 'assignedUserEmail':
             {
-              const assignedUser = await Users.findOne({ email: value });
+               const assignedUser = await sendCoreMessage({
+                 subdomain,
+                 action: 'users.findOne',
+                 data: {
+                   email: value
+                 },
+                 isRPC: true
+               });
 
               doc[property.name] = assignedUser ? [assignedUser._id] : [];
             }

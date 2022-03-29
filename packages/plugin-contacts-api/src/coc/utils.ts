@@ -59,11 +59,19 @@ export const countBySegment = async (
   return counts;
 };
 
-export const countByBrand = async ({ Brands }: ICoreIModels,qb): Promise<ICountBy> => {
+export const countByBrand = async (subdomain: string, qb): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
   // Count customers by brand
-  const brands = await Brands.find().toArray();
+  const brands = await sendCoreMessage({
+    subdomain,
+    action: "brands.find",
+    data: {
+      query: {}
+    },
+    isRPC: true,
+    defaultValue: []
+  });
 
   for (const brand of brands) {
     await qb.buildAllQueries();

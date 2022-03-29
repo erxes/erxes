@@ -7,15 +7,8 @@ import { ICustomerModel, loadCustomerClass } from './models/Customers';
 import { ICustomerDocument } from './models/definitions/customers';
 import { ICompanyDocument } from './models/definitions/companies';
 
+// tslint:disable-next-line: no-empty-interface
 export interface ICoreIModels {
-  Configs;
-  Brands;
-  Users;
-  Fields;
-  FieldsGroups;
-  Forms;
-  EmailDeliveries;
-  FormSubmissions;
 }
 export interface IModels {
   Companies: ICompanyModel;
@@ -69,14 +62,6 @@ export const connectCore = async () => {
   db = client.db();
 
   coreModels =  {
-    Configs: await db.collection('configs'),
-    Brands: await db.collection('brands'),
-    Users: await db.collection('users'),
-    Fields: await db.collection('form_fields'),
-    FieldsGroups: await db.collection('form_field_groups'),
-    Forms: await db.collection('forms'),
-    EmailDeliveries: await db.collection('email_deliveries'),
-    FormSubmissions: await db.collection('form_submissions'),
   }
 
   return coreModels;
