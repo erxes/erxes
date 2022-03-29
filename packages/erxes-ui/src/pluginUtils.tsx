@@ -1,4 +1,8 @@
-import { AppConsumer } from "./appContext";
+declare var __webpack_init_sharing__;
+declare var __webpack_share_scopes__;
+declare var window;
+
+import { AppConsumer, AppProvider } from "./appContext";
 import { IUser } from "@erxes/ui/src/auth/types";
 import { IItem } from "@erxes/ui-cards/src/boards/types";
 import { __ } from "@erxes/ui/src/utils";
@@ -62,11 +66,14 @@ export const pluginsOfRoutes = (currentUser: IUser) => {
 const PluginsWrapper = ({
   itemName,
   callBack,
+  plugins
 }: {
   itemName: string;
   callBack: (plugin: any, item: any) => React.ReactNode;
+  plugins?: any[];
 }) => {
   return (
+    <AppProvider plugins={plugins}>
     <AppConsumer>
       {({ plugins }) =>
         (plugins || []).map((plugin) => {
@@ -80,6 +87,7 @@ const PluginsWrapper = ({
         })
       }
     </AppConsumer>
+    </AppProvider>
   );
 };
 
@@ -176,61 +184,58 @@ export const pluginsOfSettings = (
   );
 };
 
-export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
+export const loadComponent = (scope, module) => {
+  return async () => {
+    // Initializes the share scope. This fills it with known provided modules from this build and all remotes
+    await __webpack_init_sharing__("default");
+
+    const container = window[scope]; // or get the container somewhere else
+
+    // Initialize the container, it may provide shared modules
+    await container.init(__webpack_share_scopes__.default);
+    const factory = await window[scope].get(module);
+
+    const Module = factory();
+    return Module;
+  };
+};
+
+const renderPlguginSidebar = (itemName: string, type: string, object: any) => {
+  const plugins: any[] = (window as any).plugins || [];
   return (
     <PluginsWrapper
-      itemName={"customerRightSidebarSection"}
+      itemName={itemName}
+      plugins={plugins}
       callBack={(_plugin, section) => {
-        const Component = section.section;
+        const Component = React.lazy(loadComponent(section.scope, section.component));
         return (
           <Component
             key={Math.random()}
-            customerId={customer._id}
-            mainType={"customer"}
-            mainTypeId={customer._id}
+            companyId={object._id}
+            mainType={type}
+            mainTypeId={object._id}
           />
         );
       }}
     />
+  );
+};
+
+export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
+  console.log("pluginsOfCustomerSidebar")
+  return renderPlguginSidebar(
+    "customerRightSidebarSection",
+    "customer",
+    customer
   );
 };
 
 export const pluginsOfCompanySidebar = (company: ICompany) => {
-  return (
-    <PluginsWrapper
-      itemName={"companyRightSidebarSection"}
-      callBack={(_plugin, section) => {
-        const Component = section.section;
-        return (
-          <Component
-            key={Math.random()}
-            companyId={company._id}
-            mainType={"company"}
-            mainTypeId={company._id}
-          />
-        );
-      }}
-    />
-  );
+  return renderPlguginSidebar("companyRightSidebarSection", "company", company);
 };
 
 export const pluginsOfItemSidebar = (item: IItem, type: string) => {
-  return (
-    <PluginsWrapper
-      itemName={`${type}RightSidebarSection`}
-      callBack={(_plugin, section) => {
-        const Component = section.section;
-        return (
-          <Component
-            key={Math.random()}
-            itemId={item._id}
-            mainType={type}
-            mainTypeId={item._id}
-          />
-        );
-      }}
-    />
-  );
+  return renderPlguginSidebar(`${type}RightSidebarSection`, type, item);
 };
 
 export const pluginsOfPaymentForm = (

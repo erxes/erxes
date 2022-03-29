@@ -458,7 +458,7 @@ window.plugins = [
   {
     name: "loyalty",
     port: 3002,
-    exposes: { "./routes": "./src/routes.tsx" },
+    exposes: { "./routes": "./src/routes.tsx", "./sidebar": "./src/containers/Sidebar.tsx", },
     routes: {
       url: "http://localhost:3002/remoteEntry.js",
       scope: "loyalty",
@@ -482,6 +482,21 @@ window.plugins = [
         permissions: ["loyaltyConfig"],
       },
     ],
+    customerRightSidebarSection: {
+      text: "customerSection",
+      component: "./sidebar",
+      scope: "loyalty",
+    },
+    companyRightSidebarSection: {
+      text: "companySection",
+      component: "./sidebar",
+      scope: "loyalty",
+    },
+    userRightSidebarSection: {
+      text: "userSection",
+      component: "./sidebar",
+      scope: "loyalty",
+    },
   },
   {
     name: "notifications",

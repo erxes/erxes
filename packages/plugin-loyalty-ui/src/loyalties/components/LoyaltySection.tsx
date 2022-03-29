@@ -3,6 +3,7 @@ import { __ } from '@erxes/ui/src/utils';
 import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import EmptyState from "@erxes/ui/src/components/EmptyState";
 
 import { IDonate } from '../donates/types';
 import { ILottery } from '../lotteries/types';
@@ -83,6 +84,15 @@ class LoyaltySection extends React.Component<IProps, {}> {
     )
   }
 
+  renderEmpty() {
+    const { vouchers, spins, donates, lotteries } = this.props;
+
+    if (!vouchers.length && !spins.length && !lotteries.length && !donates.length){
+      return <EmptyState icon="folder-2" text="Empty" size="small" />;
+    }
+
+    return '';
+  }
   render() {
     return (
       <Box
@@ -90,6 +100,7 @@ class LoyaltySection extends React.Component<IProps, {}> {
         name="Loyalties"
         isOpen={true}
       >
+        {this.renderEmpty()}
         {this.renderVouchers()}
         {this.renderLotteries()}
         {this.renderSpins()}
