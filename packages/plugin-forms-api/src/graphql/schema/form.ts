@@ -53,7 +53,14 @@ ${
     _id: String!
     contentTypeId: String
     customerId: String
-    customer: Customer
+
+    ${
+      contacts ?
+      `
+        customer: Customer
+      `
+      : ""
+    }
     createdAt: Date
     customFieldsData:JSON
     submissions: [FormSubmission]
