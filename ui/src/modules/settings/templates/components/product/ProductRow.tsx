@@ -7,15 +7,22 @@ import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import { __ } from 'modules/common/utils';
 import React from 'react';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 import { PRODUCT_TEMPLATE_STATUSES } from '../../constants';
 import Form from '../../containers/product/ProductForm';
 import { IProductTemplate } from '../../types';
 
+export const TemplateWrapper = styledTS<{ space: number }>(styled.div)`
+  padding-left: ${props => props.space * 20}px;
+`;
+
 type Props = {
   productTemplate: IProductTemplate;
   history: any;
   isChecked: boolean;
+  space: number;
   toggleBulk: (productTemplate: IProductTemplate, isChecked?: boolean) => void;
   changeStatus: (_id: string, status: string) => void;
   duplicateTemplate: (_id: string) => void;
@@ -93,7 +100,7 @@ class Row extends React.Component<Props> {
   };
 
   render() {
-    const { productTemplate, toggleBulk, isChecked } = this.props;
+    const { productTemplate, toggleBulk, isChecked, space } = this.props;
     const { _id, status, title, description, templateItems } = productTemplate;
 
     const tags = productTemplate.tags || [];
@@ -113,7 +120,9 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           />
         </td>
-        <td>{title}</td>
+        <td>
+          <TemplateWrapper space={space}>{title}</TemplateWrapper>
+        </td>
         <td>{description}</td>
         <td>{templateItems.length}</td>
         <td>

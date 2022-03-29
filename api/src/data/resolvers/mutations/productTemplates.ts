@@ -106,7 +106,7 @@ const productTemplateMutations = {
     { user, docModifier }: IContext
   ) {
     const productTemplate = await ProductTemplates.getProductTemplate({ _id });
-    const doc = {} as IProductTemplate;
+    const doc = {} as IProductTemplateDocument;
     const {
       title,
       description,
@@ -116,7 +116,10 @@ const productTemplateMutations = {
       templateItems,
       tagIds,
       status,
-      templateImage
+      templateImage,
+      order,
+      parentId,
+      relatedIds
     } = productTemplate;
 
     doc.title = title + ' copied';
@@ -129,8 +132,13 @@ const productTemplateMutations = {
     doc.status = status;
     doc.createdBy = user._id;
     doc.templateImage = templateImage;
+    doc.order = order + ' copied';
+    doc.parentId = parentId;
+    doc.relatedIds = relatedIds;
 
-    const newProductTemplate = await ProductTemplates.create(docModifier(doc));
+    const newProductTemplate = await ProductTemplates.createProductTemplate(
+      docModifier(doc)
+    );
 
     await putCreateLog(
       {

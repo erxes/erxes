@@ -50,7 +50,10 @@ const productTemplateQueries = {
 
     return paginate(
       ProductTemplates.find(filter)
-        .sort('createdAt')
+        .sort({
+          order: 1,
+          name: 1
+        })
         .lean(),
       args
     );

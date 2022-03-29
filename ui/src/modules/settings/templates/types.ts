@@ -7,6 +7,7 @@ export interface IProductTemplateItem {
   unitPrice: number;
   quantity: number;
   discount: number;
+  attachment?: any;
 }
 
 export interface IProductTemplate {
@@ -19,6 +20,8 @@ export interface IProductTemplate {
   templateItems: IProductTemplateItem[];
   templateItemsProduct: any[];
   status: string;
+  parentId?: string;
+  order?: string;
   templateImage?: any;
   tags: ITag[];
 }
@@ -63,6 +66,7 @@ export type MutationVariables = {
   description: string;
   templateItems: IProductTemplateItem[];
   status: string;
+  parentId: string;
 };
 
 // mutation types

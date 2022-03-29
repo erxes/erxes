@@ -61,17 +61,23 @@ class List extends React.Component<Props, State> {
       duplicateTemplate
     } = this.props;
 
-    return products.map(product => (
-      <Row
-        history={history}
-        key={product._id}
-        productTemplate={product}
-        toggleBulk={toggleBulk}
-        isChecked={bulk.includes(product)}
-        changeStatus={changeStatus}
-        duplicateTemplate={duplicateTemplate}
-      />
-    ));
+    return products.map(product => {
+      const order = product.order || '';
+      const foundedString = order.match(/[/]/gi);
+
+      return (
+        <Row
+          history={history}
+          key={product._id}
+          productTemplate={product}
+          toggleBulk={toggleBulk}
+          space={foundedString ? foundedString.length : 0}
+          isChecked={bulk.includes(product)}
+          changeStatus={changeStatus}
+          duplicateTemplate={duplicateTemplate}
+        />
+      );
+    });
   };
 
   onChange = () => {

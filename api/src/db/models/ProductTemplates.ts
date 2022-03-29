@@ -1,4 +1,5 @@
 import { Model, model } from 'mongoose';
+import * as _ from 'underscore';
 import {
   IProductTemplate,
   IProductTemplateDocument,
@@ -25,6 +26,74 @@ export const fillSearchTextItem = (
     document.discount || 0,
     document.totalAmount || 0
   ]);
+};
+
+// set related templates
+const setRelatedIds = async (template: IProductTemplateDocument) => {
+  if (template.parentId) {
+    const parentTemplate = await ProductTemplates.findOne({
+      _id: template.parentId
+    });
+
+    if (parentTemplate) {
+      let relatedIds: string[];
+
+      relatedIds = template.relatedIds || [];
+      relatedIds.push(template._id);
+
+      relatedIds = _.union(relatedIds, parentTemplate.relatedIds || []);
+
+      await ProductTemplates.updateOne(
+        { _id: parentTemplate._id },
+        { $set: { relatedIds } }
+      );
+
+      const updated = await ProductTemplates.findOne({
+        _id: template.parentId
+      });
+
+      if (updated) {
+        await setRelatedIds(updated);
+      }
+    }
+  }
+};
+
+// remove related templates
+const removeRelatedIds = async (template: IProductTemplateDocument) => {
+  const _id = template ? template._id : '';
+
+  const templates = await ProductTemplates.find({
+    relatedIds: { $in: _id }
+  });
+
+  if (templates.length === 0) {
+    return;
+  }
+
+  const relatedIds: string[] = template.relatedIds || [];
+
+  relatedIds.push(_id);
+
+  const doc: Array<{
+    updateOne: {
+      filter: { _id: string };
+      update: { $set: { relatedIds: string[] } };
+    };
+  }> = [];
+
+  templates.forEach(async t => {
+    const ids = (t.relatedIds || []).filter(id => !relatedIds.includes(id));
+
+    doc.push({
+      updateOne: {
+        filter: { _id: t._id },
+        update: { $set: { relatedIds: ids } }
+      }
+    });
+  });
+
+  await ProductTemplates.bulkWrite(doc);
 };
 
 export interface IProductTemplateModel extends Model<IProductTemplateDocument> {
@@ -76,6 +145,16 @@ export const loadProductTemplateClass = () => {
         );
       }
     }
+
+    /*
+     * Get a parent template
+     */
+    static async getParentTemplate(doc: IProductTemplate) {
+      return ProductTemplates.findOne({
+        _id: doc.parentId
+      }).lean();
+    }
+
     /**
      *
      * Create product template
@@ -83,10 +162,17 @@ export const loadProductTemplateClass = () => {
     public static async createProductTemplate(doc: IProductTemplate) {
       await this.checkDuplication(doc.title);
 
+      const parentTemplate = await this.getParentTemplate(doc);
+      // Generatingg order
+      const order = await this.generateOrder(parentTemplate, doc);
+
       const productTemplate = await ProductTemplates.create({
         ...doc,
+        order,
         searchText: fillSearchTextItem(doc)
       });
+
+      await setRelatedIds(productTemplate);
 
       return productTemplate;
     }
@@ -103,8 +189,31 @@ export const loadProductTemplateClass = () => {
         await ProductTemplate.getProductTemplate({ _id })
       );
 
-      await ProductTemplates.updateOne({ _id }, { $set: doc, searchText });
-      return ProductTemplates.findOne({ _id });
+      const parentTemplate = await this.getParentTemplate(doc);
+
+      if (parentTemplate && parentTemplate.parentId === _id) {
+        throw new Error('Cannot change template');
+      }
+
+      // Generatingg  order
+      const order = await this.generateOrder(parentTemplate, doc);
+      const template = await ProductTemplates.findOne({ _id });
+
+      if (template && template.order) {
+        await removeRelatedIds(template);
+      }
+
+      await ProductTemplates.updateOne(
+        { _id },
+        { $set: { ...doc, order, searchText } }
+      );
+      const updated = await ProductTemplates.findOne({ _id });
+
+      if (updated) {
+        await setRelatedIds(updated);
+      }
+
+      return updated;
     }
 
     /**
@@ -112,7 +221,49 @@ export const loadProductTemplateClass = () => {
      */
     public static async removeProductTemplate(_ids: string[]) {
       await this.checkUsedOnDeal(_ids);
+      const childCount = await ProductTemplates.countDocuments({
+        parentId: _ids
+      });
+
+      for (const _id of _ids) {
+        const template = await ProductTemplates.getProductTemplate({ _id });
+        await removeRelatedIds(template);
+      }
+
+      if (childCount > 0) {
+        throw new Error('Please remove child templates first');
+      }
+
       return ProductTemplates.deleteMany({ _id: { $in: _ids } });
+    }
+
+    /**
+     * Generating order
+     */
+    public static async generateOrder(
+      parentTemplate: IProductTemplateDocument,
+      { title }: { title: string }
+    ) {
+      const order = `${title}`;
+
+      if (!parentTemplate) {
+        return order;
+      }
+
+      let parentOrder = parentTemplate.order;
+
+      if (!parentOrder) {
+        parentOrder = `${parentTemplate.title}`;
+
+        await ProductTemplates.updateOne(
+          {
+            _id: parentTemplate._id
+          },
+          { $set: { order: parentOrder } }
+        );
+      }
+
+      return `${parentOrder}/${order}`;
     }
   }
 

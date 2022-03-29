@@ -7,6 +7,7 @@ const productTemplateParamsDef = `
   $templateItems: JSON
   $status: String
   $templateImage: AttachmentInput
+  $parentId: String
 `;
 
 const productTemplateParams = `
@@ -18,7 +19,7 @@ const productTemplateParams = `
   templateItems: $templateItems
   status: $status
   templateImage: $templateImage
-
+  parentId: $parentId
 `;
 
 const productTemplatesAdd = `

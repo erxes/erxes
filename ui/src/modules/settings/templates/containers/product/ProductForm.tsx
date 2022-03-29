@@ -11,7 +11,8 @@ import Form from '../../components/product/ProductForm';
 import { mutations, queries } from '../../graphql';
 import {
   IProductTemplate,
-  ProductTemplateDetailQueryResponse
+  ProductTemplateDetailQueryResponse,
+  ProductTemplatesQueryResponse
 } from '../../types';
 
 type Props = {
@@ -24,19 +25,22 @@ type Props = {
 type FinalProps = {
   productsQuery: ProductsQueryResponse;
   productTemplateDetailQuery: ProductTemplateDetailQueryResponse;
+  productTemplatesQuery: ProductTemplatesQueryResponse;
 } & Props;
 
 class ProductFormContainer extends React.Component<FinalProps> {
   render() {
-    const { productTemplateDetailQuery } = this.props;
+    const { productTemplateDetailQuery, productTemplatesQuery } = this.props;
 
-    if (productTemplateDetailQuery.loading) {
+    if (productTemplateDetailQuery.loading || productTemplatesQuery.loading) {
       return null;
     }
 
     const productTemplate =
       productTemplateDetailQuery.productTemplateDetail ||
       this.props.productTemplate;
+
+    const productTemplates = productTemplatesQuery.productTemplates || [];
 
     const renderButton = ({
       name,
@@ -77,6 +81,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       productTemplate,
+      productTemplates,
       renderButton
     };
 
@@ -97,6 +102,18 @@ export default withProps<Props>(
         skip: productTemplate => !productTemplate,
         options: ({ productTemplate }) => ({
           variables: { _id: productTemplate ? productTemplate._id : '' },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, ProductTemplatesQueryResponse>(
+      gql(queries.productTemplates),
+      {
+        name: 'productTemplatesQuery',
+        options: () => ({
+          variables: {
+            status: 'active'
+          },
           fetchPolicy: 'network-only'
         })
       }

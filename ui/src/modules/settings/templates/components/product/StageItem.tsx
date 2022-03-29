@@ -27,6 +27,7 @@ type State = {
   quantity: number;
   discount: number;
   categoryId: string;
+  attachment: any;
 };
 
 class StageItem extends React.Component<Props, State> {
@@ -34,7 +35,14 @@ class StageItem extends React.Component<Props, State> {
     super(props);
 
     const item = props.item || ({} as IProductTemplateItem);
-    const { unitPrice, quantity, discount, categoryId, itemId } = item;
+    const {
+      unitPrice,
+      quantity,
+      discount,
+      categoryId,
+      itemId,
+      attachment
+    } = item;
     const { products } = props;
 
     this.state = {
@@ -44,7 +52,8 @@ class StageItem extends React.Component<Props, State> {
       unitPrice: unitPrice ? unitPrice : 0,
       quantity: quantity ? quantity : 0,
       discount: discount ? discount : 0,
-      categoryId: categoryId ? categoryId : ''
+      categoryId: categoryId ? categoryId : '',
+      attachment: attachment ? attachment : null
     };
   }
 
@@ -107,13 +116,15 @@ class StageItem extends React.Component<Props, State> {
         currentProduct: product || undefined,
         unitPrice,
         quantity: 1,
-        discount: 0
+        discount: 0,
+        attachment: null
       });
 
       onChange(_id, 'unitPrice', unitPrice);
       onChange(_id, 'quantity', 1);
       onChange(_id, 'itemId', itemId);
       onChange(_id, 'categoryId', product ? product.categoryId : '');
+      onChange(_id, 'attachment', product ? product.attachment : null);
     };
 
     const content = props => (

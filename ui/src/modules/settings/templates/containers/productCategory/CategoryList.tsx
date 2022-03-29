@@ -40,7 +40,7 @@ class ProductListContainer extends React.Component<FinalProps> {
         emailTemplateTotalCountQeury.emailTemplatesTotalCount || 0,
       growth_hacking:
         growthHacksTemplatesTotalCountQeury.pipelineTemplatesTotalCount || 0,
-      template: productTemplateTotalCountQuery.productTemplateTotalCount || 0
+      templates: productTemplateTotalCountQuery.productTemplateTotalCount || 0
     };
 
     const updatedProps = {
