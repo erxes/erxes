@@ -8,7 +8,9 @@ import { debug, es } from './configs';
 import { ICustomerDocument } from './models/definitions/customers';
 import messageBroker, {
   sendCoreMessage,
-  sendEngagesMessage
+  sendEngagesMessage,
+  sendInboxMessage,
+  sendTagsMessage
 } from './messageBroker';
 import { getService, getServices } from './inmemoryStorage';
 import { generateModels, IModels } from './connectionResolver';
@@ -141,6 +143,26 @@ const generateUsersOptions = async (
   };
 };
 
+const getTags = async (type: string, subdomain: string) => {
+  const tags = await sendTagsMessage({
+    subdomain,
+    action: 'find',
+    data: {
+      type
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  return {
+    _id: Math.random(),
+    name: 'tagIds',
+    label: 'Tag',
+    type: 'tag',
+    selectOptions: tags
+  };
+};
+
 export const generateFields = async ({ subdomain, data }) => {
   const { type, usageType } = data;
 
@@ -235,6 +257,25 @@ export const generateFields = async ({ subdomain, data }) => {
     'user',
     subdomain
   );
+
+  const tags = await getTags(type, subdomain);
+  fields = [...fields, ...[tags]];
+
+  if (type === 'customer') {
+    const integrations = await sendInboxMessage({
+      subdomain,
+      action: 'integrations.find',
+      data: {},
+      isRPC: true
+    });
+
+    fields.push({
+      _id: Math.random(),
+      name: 'relatedIntegrationIds',
+      label: 'Related integration',
+      selectOptions: integrations
+    });
+  }
 
   fields = [...fields, ownerOptions];
 
