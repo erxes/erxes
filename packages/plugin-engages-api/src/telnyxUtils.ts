@@ -3,17 +3,22 @@ import * as Telnyx from 'telnyx';
 import { IModels } from './connectionResolver';
 
 import { SMS_DELIVERY_STATUSES } from './constants';
-import { sendRPCMessage } from './messageBroker';
+import { sendIntegrationsMessage } from './messageBroker';
 import { ICallbackParams, IMessageParams, ITelnyxMessageParams } from './types';
-import { getEnv } from './utils';
+// import { getEnv } from './utils';
 
 dotenv.config();
 
-// fetches telnyx config & integrations from erxes-integrations
-export const getTelnyxInfo = async () => {
-  const response = await sendRPCMessage({ action: 'getTelnyxInfo' });
+// fetches telnyx config & integrations from integrations plugin
+export const getTelnyxInfo = async (subdomain: string) => {
+  const data = await sendIntegrationsMessage({
+    isRPC: true,
+    action: 'api_to_integrations',
+    subdomain,
+    data: { action: 'getTelnyxInfo' }
+  });
 
-  const { telnyxApiKey, integrations = [] } = response;
+  const { telnyxApiKey, integrations = [] } = data;
 
   if (!telnyxApiKey) {
     throw new Error('Telnyx API key is not configured');
@@ -82,7 +87,7 @@ export const prepareMessage = async ({
   to,
   integrations
 }: IMessageParams): Promise<ITelnyxMessageParams> => {
-  const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
+  // const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
   const { content, from, fromIntegrationId } = shortMessage;
 
   const integration = integrations.find(
@@ -98,8 +103,8 @@ export const prepareMessage = async ({
     to,
     text: content,
     messaging_profile_id: integration.telnyxProfileId || '',
-    webhook_url: `${MAIN_API_DOMAIN}/telnyx/webhook`,
-    webhook_failover_url: `${MAIN_API_DOMAIN}/telnyx/webhook-failover`
+    // webhook_url: `${MAIN_API_DOMAIN}/telnyx/webhook`,
+    // webhook_failover_url: `${MAIN_API_DOMAIN}/telnyx/webhook-failover`
   };
 
   // to use alphanumeric sender id, messaging profile id must be set
