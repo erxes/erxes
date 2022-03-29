@@ -12,7 +12,7 @@ export const KnowledgeBaseCategory = {
     });
   },
 
-  async authors(category: ICategoryDocument, _args, { models, coreModels }: IContext) {
+  async authors(category: ICategoryDocument, _args, { models }: IContext) {
     const articles = await models.KnowledgeBaseArticles.find(
       {
         categoryId: category._id,
