@@ -161,11 +161,6 @@ async function startServer() {
     getService,
     isAvailable: async name => {
       const serviceNames = await getServices();
-
-      const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = process.env;
-
-      console.log('mmmmmmmmmmmm', REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, serviceNames)
-
       return serviceNames.includes(name);
     },
     isEnabled: async name => {
