@@ -1,5 +1,5 @@
 import { Model, model } from 'mongoose';
-import { COMPANY_INDUSTRY_TYPES, CUSTOMER_SELECT_OPTIONS, SOCIAL_LINKS } from '@erxes/api-utils/src/constants';
+import { COMPANY_INDUSTRY_TYPES, SEX_OPTIONS, SOCIAL_LINKS } from '@erxes/api-utils/src/constants';
 import { configSchema, IConfig, IConfigDocument } from './definitions/configs';
 
 export interface IConfigModel extends Model<IConfigDocument> {
@@ -46,7 +46,7 @@ export const loadClass = () => {
 
     public static constants() {
       return {
-        sex_choices: CUSTOMER_SELECT_OPTIONS.SEX,
+        sex_choices: SEX_OPTIONS,
         company_industry_types: COMPANY_INDUSTRY_TYPES.map(v => ({
           label: v,
           value: v
