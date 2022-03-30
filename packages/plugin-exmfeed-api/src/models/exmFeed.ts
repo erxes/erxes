@@ -3,15 +3,15 @@ import {
   TExmThank,
   thankSchema,
   IFeedDocument,
-  IThankDocument,
+  IThankDocument
 } from './definitions/exm';
 import { sendCoreMessage, sendInternalNotesMessage } from '../messageBroker';
 
 import { Model } from 'mongoose';
 
-export const loadFeedClass = (models) => {
+export const loadFeedClass = models => {
   class Feed {
-    public static async getExmFeed(models, _id: string) {
+    public static async getExmFeed(_id: string) {
       const exm = await models.ExmFeed.findOne({ _id });
 
       if (!exm) {
@@ -21,39 +21,39 @@ export const loadFeedClass = (models) => {
       return exm;
     }
 
-    public static async removeFeeds(models, ids: string[]) {
+    public static async removeFeeds(ids: string[]) {
       await sendInternalNotesMessage({
         subdomain: models.subdomain,
         action: 'removeInternalNotes',
         data: {
           contentType: 'feed',
-          contentTypeId: ids,
+          contentTypeId: ids
         },
-        defaultValue: {},
+        defaultValue: {}
       });
       await sendCoreMessage({
         subdomain: models.subdomain,
         action: 'conformities.removeConformity',
         data: {
           mainType: 'feed',
-          mainTypeId: ids,
+          mainTypeId: ids
         },
-        defaultValue: [],
+        defaultValue: []
       });
 
       await models.ExmFeed.deleteMany({
-        _id: { $in: ids },
+        _id: { $in: ids }
       });
     }
 
     /*
      * Create new exm
      */
-    public static async createExmFeed(models, doc: any, user: any) {
+    public static async createExmFeed(doc: any, user: any) {
       const exm = await models.ExmFeed.create({
         createdBy: user._id,
         createdAt: doc.createdAt || new Date(),
-        ...doc,
+        ...doc
       });
 
       return exm;
@@ -62,20 +62,15 @@ export const loadFeedClass = (models) => {
     /*
      * Update exm
      */
-    public static async updateExmFeed(
-      models,
-      _id: string,
-      doc: TExmThank,
-      user: any
-    ) {
+    public static async updateExmFeed(_id: string, doc: TExmThank, user: any) {
       await models.ExmFeed.updateOne(
         { _id },
         {
           $set: {
             updatedBy: user._id,
             updatedAt: new Date(),
-            ...doc,
-          },
+            ...doc
+          }
         }
       );
 
@@ -85,7 +80,7 @@ export const loadFeedClass = (models) => {
     /*
      * Remove exm
      */
-    public static async removeExmFeed(models, _id: string) {
+    public static async removeExmFeed(_id: string) {
       const exmObj = await models.ExmFeed.findOne({ _id });
 
       if (!exmObj) {
@@ -99,16 +94,16 @@ export const loadFeedClass = (models) => {
   return feedSchema;
 };
 export interface IFeedModel extends Model<IFeedDocument> {
-  getExmFeed(models, _id: string);
-  removeFeeds(models, ids: string[]);
-  createExmFeed(models, doc: any, user: any);
-  updateExmFeed(models, _id: string, doc: TExmThank, user: any);
-  removeExmFeed(models, _id: string);
+  getExmFeed(_id: string);
+  removeFeeds(ids: string[]);
+  createExmFeed(doc: any, user: any);
+  updateExmFeed(_id: string, doc: TExmThank, user: any);
+  removeExmFeed(_id: string);
 }
 
-export const loadExmThankClass = (models) => {
+export const loadExmThankClass = models => {
   class ExmThank {
-    public static async getThank(models, _id: string) {
+    public static async getThank(_id: string) {
       const thank = await models.ExmThanks.findOne({ _id });
 
       if (!thank) {
@@ -121,11 +116,11 @@ export const loadExmThankClass = (models) => {
     /*
      * Create new thank
      */
-    public static async createThank(models, doc: TExmThank, user: any) {
+    public static async createThank(doc: TExmThank, user: any) {
       const thank = await models.ExmThanks.create({
         createdBy: user._id,
         createdAt: new Date(),
-        ...doc,
+        ...doc
       });
 
       return thank;
@@ -134,50 +129,45 @@ export const loadExmThankClass = (models) => {
     /*
      * Update thank
      */
-    public static async updateThank(
-      models,
-      _id: string,
-      doc: TExmThank,
-      user: any
-    ) {
+    public static async updateThank(_id: string, doc: TExmThank, user: any) {
       await models.ExmThanks.updateOne(
         { _id },
         {
           $set: {
             updatedBy: user._id,
             updatedAt: new Date(),
-            ...doc,
-          },
+            ...doc
+          }
         }
       );
 
       return models.ExmThanks.findOne({
-        _id,
+        _id
       });
     }
 
     /*
      * Remove thank
      */
-    public static async removeThank(models, _id: string) {
+    public static async removeThank(_id: string) {
       const thankObj = await models.ExmThanks.findOne({ _id });
       await sendInternalNotesMessage({
         subdomain: models.subdomain,
         action: 'removeInternalNotes',
         data: {
           contentType: 'thank',
-          contentTypeId: _id,
+          contentTypeId: _id
         },
-        defaultValue: {},
+        defaultValue: {}
       });
       await sendCoreMessage({
         subdomain: models.subdomain,
         action: 'conformities.removeConformity',
         data: {
           mainType: 'thank',
-          mainTypeId: _id,
+          mainTypeId: _id
         },
-        defaultValue: [],
+        defaultValue: []
       });
 
       if (!thankObj) {
@@ -191,8 +181,8 @@ export const loadExmThankClass = (models) => {
   return thankSchema;
 };
 export interface IThankModel extends Model<IThankDocument> {
-  getThank(models, _id: string);
-  createThank(models, doc: TExmThank, user: any);
-  updateThank(models, _id: string, doc: TExmThank, user: any);
-  removeThank(models, _id: string);
+  getThank(_id: string);
+  createThank(doc: TExmThank, user: any);
+  updateThank(_id: string, doc: TExmThank, user: any);
+  removeThank(_id: string);
 }

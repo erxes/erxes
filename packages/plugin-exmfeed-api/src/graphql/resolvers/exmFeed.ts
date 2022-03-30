@@ -1,29 +1,29 @@
 const ExmFeeds = {
-  async createdUser(exmFeed, {}, { models }) {
-    const user = await models.Users.findOne({ _id: exmFeed.createdBy });
+  async createdUser(exmFeed, {}, { coreModels }) {
+    const user = await coreModels.Users.findOne({ _id: exmFeed.createdBy });
     return user;
   },
 
-  async updatedUser(exmFeed, {}, { models }) {
-    const user = models.Users.findOne({ _id: exmFeed.updatedBy });
+  async updatedUser(exmFeed, {}, { coreModels }) {
+    const user = coreModels.Users.findOne({ _id: exmFeed.updatedBy });
     return user;
   },
 
-  async recipients(exmFeed, {}, { models }) {
-    const user = models.Users.find({ _id: { $in: exmFeed.recipientIds } });
+  async recipients(exmFeed, {}, { coreModels }) {
+    const user = coreModels.Users.find({ _id: { $in: exmFeed.recipientIds } });
     return user;
   },
 
-  async eventGoingUsers(exmFeed, {}, { models }) {
-    const user = models.Users.find({
-      _id: { $in: (exmFeed.eventData || {}).goingUserIds || [] },
+  async eventGoingUsers(exmFeed, {}, { coreModels }) {
+    const user = coreModels.Users.find({
+      _id: { $in: (exmFeed.eventData || {}).goingUserIds || [] }
     });
     return user;
   },
 
-  async eventInterestedUsers(exmFeed, {}, { models }) {
-    const user = models.Users.find({
-      _id: { $in: (exmFeed.eventData || {}).interestedUserIds || [] },
+  async eventInterestedUsers(exmFeed, {}, { coreModels }) {
+    const user = coreModels.Users.find({
+      _id: { $in: (exmFeed.eventData || {}).interestedUserIds || [] }
     });
     return user;
   },
@@ -32,7 +32,7 @@ const ExmFeeds = {
     const user = models.Comments
       ? models.Comments.find({
           contentId: exmFeed._id,
-          contentType: 'exmFeed',
+          contentType: 'exmFeed'
         }).countDocuments()
       : 0;
     return user;
@@ -43,7 +43,7 @@ const ExmFeeds = {
       ? models.Emojis.find({
           contentId: exmFeed._id,
           contentType: 'exmFeed',
-          type: 'like',
+          type: 'like'
         }).countDocuments()
       : 0;
     return user;
@@ -53,7 +53,7 @@ const ExmFeeds = {
       ? models.Emojis.find({
           contentId: exmFeed._id,
           contentType: 'exmFeed',
-          type: 'heart',
+          type: 'heart'
         }).countDocuments()
       : 0;
     return user;
@@ -65,7 +65,7 @@ const ExmFeeds = {
           contentId: exmFeed._id,
           contentType: 'exmFeed',
           type: 'heart',
-          userId: user._id,
+          userId: user._id
         })
       : false;
     return User;
@@ -77,11 +77,11 @@ const ExmFeeds = {
           contentId: exmFeed._id,
           contentType: 'exmFeed',
           type: 'like',
-          userId: user._id,
+          userId: user._id
         })
       : false;
     return User;
-  },
+  }
 };
 
 export default ExmFeeds;

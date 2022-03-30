@@ -6,17 +6,18 @@ import {
   loadFeedClass, //loadFeedClass
   loadExmThankClass, //loadExmThankClass
   IThankModel,
-  IFeedModel,
+  IFeedModel
 } from './models/exmFeed';
 import { MongoClient } from 'mongodb';
 
 export interface IModels {
-  Cars: IFeedModel;
-  CarCategories: IThankModel;
+  ExmFeed: IFeedModel;
+  ExmThanks: IThankModel;
 }
 
 export interface ICoreModels {
   Users: any;
+  Configs: any;
 }
 
 export interface IContext extends IMainContext {
@@ -26,6 +27,12 @@ export interface IContext extends IMainContext {
 
 export let models: IModels;
 export let coreModels: ICoreModels;
+
+export const generateCoreModels = async (
+  _hostnameOrSubdomain: string
+): Promise<ICoreModels> => {
+  return coreModels;
+};
 
 export const generateModels = async (
   _hostnameOrSubdomain: string
@@ -61,6 +68,7 @@ const connectCore = async () => {
 
   coreModels = {
     Users: db.collection('users'),
+    Configs: db.collection('configs')
   };
 
   return coreModels;
@@ -69,13 +77,13 @@ const connectCore = async () => {
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
-  models.Cars = db.model<IFeedDocument, IFeedModel>(
-    'feed',
+  models.ExmFeed = db.model<IFeedDocument, IFeedModel>(
+    'exm_feeds',
     loadFeedClass(models)
   );
 
-  models.CarCategories = db.model<IThankDocument, IThankModel>(
-    'carCategories',
+  models.ExmThanks = db.model<IThankDocument, IThankModel>(
+    'exm_thanks',
     loadExmThankClass(models)
   );
 
