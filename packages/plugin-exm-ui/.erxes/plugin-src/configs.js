@@ -14,7 +14,7 @@ module.exports = {
       text: 'Exm core',
       url: '/erxes-plugin-exm/home',
       icon: 'icon-cog',
-      location: 'mainNavigation',
+      location: 'settings',
       permission: 'showExms'
     }
   ]
