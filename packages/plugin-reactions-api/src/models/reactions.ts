@@ -4,7 +4,7 @@ import {
   commentSchema,
   emojiSchema,
   ICommentDocument,
-  IEmojiDocument,
+  IEmojiDocument
 } from './definitions/reaction';
 
 export interface ICommentModel extends Model<ICommentDocument> {
@@ -13,7 +13,8 @@ export interface ICommentModel extends Model<ICommentDocument> {
   updateComment(_id: string, doc: any, user: any): ICommentDocument;
   removeComment(_id: string): ICommentDocument;
 }
-export const loadCommentClass = (models) => {
+
+export const loadCommentClass = models => {
   class Comment {
     /*
      * Create new comment
@@ -35,7 +36,7 @@ export const loadCommentClass = (models) => {
       const comment = await models.Comments.create({
         createdBy: user._id,
         createdAt: new Date(),
-        ...doc,
+        ...doc
       });
 
       return comment;
@@ -51,8 +52,8 @@ export const loadCommentClass = (models) => {
           $set: {
             updatedBy: user._id,
             updatedAt: new Date(),
-            ...doc,
-          },
+            ...doc
+          }
         }
       );
 
@@ -68,6 +69,7 @@ export const loadCommentClass = (models) => {
       return commentObj.remove();
     }
   }
+
   commentSchema.loadClass(Comment);
 
   return commentSchema;
@@ -77,15 +79,16 @@ export interface IEmojiModel extends Model<IEmojiDocument> {
   removeEmoji(doc: EmojiDoc): IEmojiDocument;
 }
 
-export const loadEmojiClass = (models) => {
+export const loadEmojiClass = models => {
   class Emoji {
     /*
      * Create new emoji
      */
     public static async createEmoji(doc: EmojiDoc) {
+      console.log('create emoji doc: ', doc);
       return models.Emojis.create({
         createdAt: new Date(),
-        ...doc,
+        ...doc
       });
     }
 

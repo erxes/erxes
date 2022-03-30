@@ -1,4 +1,4 @@
-name: Plugin KB UI CI
+name: Plugin Exm UI
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - federation
     paths:
       - 'packages/erxes-ui/**'
-      - 'packages/plugin-knowledgebase-ui/**'
-      - '.github/workflows/plugin-knowledgebase-ui.yaml'
+      - 'packages/plugin-exm-ui/**'
+      - '.github/workflows/plugin-exm-ui.yaml'
 
 jobs:
   ui:
@@ -24,8 +24,8 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          # cp -r packages/ui-plugin-template/.erxes packages/plugin-knowledgebase-ui/.erxes
-          cd packages/plugin-knowledgebase-ui
+          # cp -r packages/ui-plugin-template/.erxes packages/plugin-exm-ui/.erxes
+          cd packages/plugin-exm-ui
           yarn install-deps
           yarn build
 
@@ -38,4 +38,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-knowledgebase-ui/.erxes/dist s3://plugin-uis/plugin-knowledgebase-ui --delete 
+          aws s3 sync packages/plugin-exm-ui/.erxes/dist s3://plugin-uis/plugin-exm-ui --delete

@@ -1,14 +1,12 @@
+import { requireLogin } from '@erxes/api-utils/src/permissions';
+
 const commentMutations = {
   commentAdd: async (_root, doc, { user, docModifier, models }) => {
-    const comment = await models.Comments.createComment(
-      models,
-      docModifier(doc),
-      user
-    );
+    const comment = await models.Comments.createComment(docModifier(doc), user);
 
-    if (models.Comments) {
-      await models.Comments.useScoring(models, user._id, 'commentAdd');
-    }
+    // if (models.Exms) {
+    //   await models.Exms.useScoring(models, user._id, 'commentAdd');
+    // }
 
     return comment;
   },
@@ -25,7 +23,6 @@ const commentMutations = {
     }
 
     const updated = await models.Comments.updateComment(
-      models,
       _id,
       docModifier(doc),
       user
@@ -41,12 +38,16 @@ const commentMutations = {
       throw new Error('You can only delete your comment');
     }
 
-    if (models.Comments) {
-      await models.Comments.useScoring(models, user, 'commentRemove');
-    }
+    // if (models.Exms) {
+    //   await models.Exms.useScoring(models, user, 'commentRemove');
+    // }
 
     return models.Comments.removeComment(models, _id);
-  },
+  }
 };
+
+requireLogin(commentMutations, 'commentAdd');
+requireLogin(commentMutations, 'commentEdit');
+requireLogin(commentMutations, 'commentRemove');
 
 export default commentMutations;

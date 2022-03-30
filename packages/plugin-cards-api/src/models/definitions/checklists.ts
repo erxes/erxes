@@ -1,5 +1,4 @@
 import { Document, Schema } from 'mongoose';
-import { ACTIVITY_CONTENT_TYPES } from './constants';
 import { field } from './utils';
 
 export interface IChecklist {

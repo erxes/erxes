@@ -3,8 +3,8 @@ import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { IFeedDocument, IThankDocument } from './models/definitions/exm';
 import {
-  loadFeedClass, //loadFeedClass
-  loadExmThankClass, //loadExmThankClass
+  loadFeedClass,
+  loadExmThankClass,
   IThankModel,
   IFeedModel
 } from './models/exmFeed';

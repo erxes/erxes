@@ -5,6 +5,7 @@ on:
     branches:
       - federation
     paths:
+      - 'packages/erxes-ui/**'
       - 'packages/plugin-tags-ui/**'
       - '.github/workflows/plugin-tags-ui.yaml'
 

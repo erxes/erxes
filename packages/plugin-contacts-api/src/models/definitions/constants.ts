@@ -1,20 +1,15 @@
+import { STATUSES, DEFAULT_SEX_CHOICES } from '@erxes/api-utils/src/constants'
+
 export const ACTIVITY_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
   ALL: ['customer', 'company']
 };
 
-const STATUSES = [
-  { label: 'Active', value: 'Active' },
-  { label: 'Deleted', value: 'Deleted' }
-];
-
-export const DEFAULT_SEX_CHOICES = [
-  { label: 'Not known', value: 0 },
-  { label: 'Male', value: 1 },
-  { label: 'Female', value: 2 },
-  { label: 'Not applicable', value: 9 }
-];
+export {
+  STATUSES,
+  DEFAULT_SEX_CHOICES
+}
 
 export const COMPANY_SELECT_OPTIONS = {
   BUSINESS_TYPES: [

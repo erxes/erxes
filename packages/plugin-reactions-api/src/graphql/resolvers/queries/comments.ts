@@ -1,3 +1,5 @@
+import { requireLogin } from '@erxes/api-utils/src/permissions';
+
 const commentQueries = {
   comments: async (
     _root,
@@ -6,7 +8,7 @@ const commentQueries = {
   ) => {
     const filter: any = {
       contentId,
-      contentType,
+      contentType
     };
 
     if (parentId) {
@@ -14,7 +16,7 @@ const commentQueries = {
     } else {
       filter.$or = [
         { parentId: { $exists: false } },
-        { parentId: { $eq: null } },
+        { parentId: { $eq: null } }
       ];
     }
 
@@ -23,7 +25,7 @@ const commentQueries = {
         .sort({ createdAt: -1 })
         .skip(skip || 0)
         .limit(limit || 20),
-      totalCount: await models.Comments.find(filter).countDocuments(),
+      totalCount: await models.Comments.find(filter).countDocuments()
     };
   },
 
@@ -33,7 +35,10 @@ const commentQueries = {
     { models }
   ) => {
     return models.Comments.find(doc).countDocuments();
-  },
+  }
 };
+
+requireLogin(commentQueries, 'comments');
+requireLogin(commentQueries, 'commentCount');
 
 export default commentQueries;
