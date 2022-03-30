@@ -30,9 +30,11 @@ const exmFeedMutations = {
     //   user
     // );
 
-    let receivers = await coreModels.Users.find().distinct('_id');
+    let receivers = await coreModels.Users.find({
+      _id: { $ne: user._id }
+    }).toArray();
 
-    receivers = receivers.filter(r => r._id !== user._id);
+    receivers = receivers.map(r => r._id);
 
     // sendNotification(models, memoryStorage, graphqlPubsub, {
     //   notifType: 'plugin',

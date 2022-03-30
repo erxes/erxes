@@ -145,6 +145,20 @@ export const initBroker = async (options) => {
       };
     });
 
+    consumeRPCQueue('core:users.getCount', async ({ data: { query } }) => {
+      return {
+        status: 'success',
+        data: await Users.countDocuments(query)
+      };
+    });
+
+    consumeRPCQueue('core:users.create', async ({ data }) => {
+      return {
+        status: 'success',
+        data: await Users.createUser(data)
+      };
+    });
+
     consumeRPCQueue('core:users.find', async ({ data }) => {
       const { query, sort = {} } = data;
 
