@@ -25,6 +25,8 @@ import * as path from 'path';
 import {
   getService,
   getServices,
+  isAvailable,
+  isEnabled,
   join,
   leave,
   redis
@@ -159,17 +161,8 @@ async function startServer() {
   const serviceDiscovery = {
     getServices,
     getService,
-    isAvailable: async name => {
-      const serviceNames = await getServices();
-      return serviceNames.includes(name);
-    },
-    isEnabled: async name => {
-      if (name === 'core') {
-        return true;
-      }
-
-      return !!(await redis.sismember('erxes:plugins:enabled', name));
-    }
+    isAvailable,
+    isEnabled
   };
 
   const apolloServer = await generateApolloServer(serviceDiscovery);
@@ -204,7 +197,7 @@ async function startServer() {
     }
 
     if (configs.meta) {
-      const { segments, forms, tags, imports, internalNotes, automations } = configs.meta;
+      const { segments, forms, tags, imports, internalNotes, automations, search } = configs.meta;
       const { consumeRPCQueue } = messageBrokerClient;
 
       const logs = configs.meta.logs && configs.meta.logs.consumers;
@@ -330,6 +323,18 @@ async function startServer() {
             })
           );
         }
+      }
+
+      if (search) {
+        configs.meta.isSearchable = true;
+
+        consumeRPCQueue(
+          `${configs.name}:search`,
+          async args => ({
+            status: 'success',
+            data: await search(args)
+          })
+        );
       }
     }
 
