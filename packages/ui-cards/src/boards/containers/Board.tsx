@@ -26,8 +26,6 @@ class Board extends React.Component<Props> {
   render() {
     const { pipelineDetailQuery, queryParams, options, viewType } = this.props;
 
-    console.log(options, '--------------------------------------');
-
     if (pipelineDetailQuery && pipelineDetailQuery.loading) {
       return <Spinner />;
     }
