@@ -1,10 +1,10 @@
+import { DEFAULT_CONSTANT_VALUES } from '@erxes/api-utils/src/constants';
 import {
   Configs,
   OnboardingHistories,
   Departments,
   Users
 } from '../../db/models';
-import { DEFAULT_CONSTANT_VALUES } from '../../db/models/definitions/constants';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { getUserActionsMap } from '../permissions/utils';
 import { getConfigs } from '../utils';

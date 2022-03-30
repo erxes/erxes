@@ -1,7 +1,6 @@
 import * as mongoose from "mongoose";
 import * as os from "os";
 import { Configs } from "../../../db/models";
-import { DEFAULT_CONSTANT_VALUES } from "../../../db/models/definitions/constants";
 import { moduleRequireLogin } from "../../permissions/wrappers";
 
 import {
@@ -15,6 +14,7 @@ import {
 import * as enabledServices from "../../../../enabled-services";
 import { getService, getServices } from "../../../serviceDiscovery";
 import { sendCommonMessage } from "../../../messageBroker";
+import { DEFAULT_CONSTANT_VALUES } from "@erxes/api-utils/src/constants";
 
 
 const configQueries = {
