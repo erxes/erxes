@@ -31,6 +31,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
     public static async createVoucher(doc: IVoucher) {
       const { campaignId, ownerType, ownerId, userId = '' } = doc;
+
       if (!ownerId || !ownerType) {
         throw new Error('Not create voucher, owner is undefined');
       }
@@ -59,8 +60,8 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
     }
 
     public static async updateVoucher(_id: string, doc: IVoucher) {
-      console.log(_id, doc)
       const { ownerType, ownerId, status = 'new', userId = '' } = doc;
+
       if (!ownerId || !ownerType) {
         throw new Error('Not create voucher, owner is undefined');
       }
