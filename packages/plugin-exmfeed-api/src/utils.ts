@@ -61,19 +61,15 @@ export const sendMobileNotification = async (
   const tokens: string[] = [];
 
   if (receivers) {
-    tokens.push(
-      ...(await models.Users.find({ _id: { $in: receivers } }).distinct(
-        'deviceTokens'
-      ))
-    );
+    const users = await models.Users.find({ _id: { $in: receivers } });
+
+    tokens.concat(users.map(user => user.deviceTokens));
   }
 
   if (customerId) {
-    tokens.push(
-      ...(await models.Customers.findOne({ _id: customerId }).distinct(
-        'deviceTokens'
-      ))
-    );
+    const customers = await models.Customers.findOne({ _id: customerId });
+
+    tokens.concat(customers.map(c => c.deviceTokens));
   }
 
   if (tokens.length > 0) {
