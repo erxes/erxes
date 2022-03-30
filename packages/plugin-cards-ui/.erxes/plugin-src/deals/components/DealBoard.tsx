@@ -8,8 +8,8 @@ import { menuDeal } from "@erxes/ui/src/utils/menus";
 import { __ } from "coreui/utils";
 import Header from "@erxes/ui/src/layout/components/Header";
 import React from "react";
-import options from "@erxes/ui-cards/src/deals/options";
 import DealMainActionBar from "./DealMainActionBar";
+import options from "@erxes/ui-cards/src/deals/options";
 
 type Props = {
   queryParams: any;
