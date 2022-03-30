@@ -83,7 +83,7 @@ const gatherKbTopicFieldNames = async (
 
 const gatherKbCategoryFieldNames = async (
   models: IModels,
-  subdomain: string, 
+  subdomain: string,
   doc: ICategoryDocument,
   prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
@@ -131,13 +131,11 @@ const gatherKbCategoryFieldNames = async (
 
 const gatherKbArticleFieldNames = async (models: IModels, subdomain: string, doc: IArticleDocument, prevList?: LogDesc[]) => {
   let options: LogDesc[] = [];
-  
+
   if (prevList) {
     options = prevList;
   }
 
-  console.log(await findFromCore(subdomain, [doc.createdBy], 'users'))
-  
   if (doc.createdBy) {
     options = await gatherUsernames({
       foreignKey: 'createdBy',
@@ -268,7 +266,7 @@ export const putCreateLog = async (models: IModels, subdomain: string, logDoc, u
   );
 };
 
-// message consumer 
+// message consumer
 export default {
   getSchemaLabels: ({ data: { type } }) => ({
     status: 'success',

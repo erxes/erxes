@@ -1,5 +1,6 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
+import { sendCoreMessage } from '../../messageBroker';
 
 const exmMutations = {
   /**
@@ -23,23 +24,39 @@ const exmMutations = {
     return updated;
   },
 
-  async userRegistrationCreate(_root, doc, { coreModels }: IContext) {
+  async userRegistrationCreate(_root, doc, { subdomain }: IContext) {
     const { email } = doc;
 
     const mail = email.toLowerCase().trim();
 
-    const userCount = await coreModels.Users.countDocuments({ email: mail });
+    const userCount = await sendCoreMessage({
+      subdomain,
+      action: 'users.getCount',
+      data: {
+        query: {
+          email: mail
+        }
+      },
+      isRPC: true
+    });
 
     if (userCount > 0) {
       throw new Error('You have already registered');
     }
 
     try {
-      return await coreModels.Users.createUser({
-        isActive: false,
-        email: mail,
-        password: doc.password
+
+      return sendCoreMessage({
+        subdomain,
+        action: 'users.create',
+        data: {
+          isActive: false,
+          email: mail,
+          password: doc.password
+        },
+        isRPC: true
       });
+
     } catch (e) {
       throw e;
     }

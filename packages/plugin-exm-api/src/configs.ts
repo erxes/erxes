@@ -8,7 +8,7 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers/index';
 import { debugBase } from './debuggers';
 import { initBroker } from './messageBroker';
-import { generateCoreModels, generateModels } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -43,7 +43,6 @@ export default {
     context.docModifier = doc => doc;
 
     context.models = await generateModels(subdomain);
-    context.coreModels = await generateCoreModels(subdomain);
     context.subdomain = subdomain;
 
     return context;
