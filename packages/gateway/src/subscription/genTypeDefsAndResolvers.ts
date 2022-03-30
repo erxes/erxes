@@ -1,8 +1,6 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 
-const { NODE_ENV } = process.env;
-
 import getPluginConfigs from "./plugins/getPluginConfigs";
 import genTypeDefs from "./genTypeDefs";
 import genResolvers from "./resolvers/genResolvers";
@@ -12,7 +10,7 @@ export default async function genTypeDefsAndResolvers(): Promise<{
   typeDefs: DocumentNode;
   resolvers: any;
 } | null> {
-  const plugins = await getPluginConfigs(NODE_ENV === "development");
+  const plugins = await getPluginConfigs();
 
   if(!plugins?.length) { return null; }
 

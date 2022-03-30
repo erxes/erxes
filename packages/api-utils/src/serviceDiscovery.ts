@@ -10,8 +10,15 @@ const {
   REDIS_PASSWORD,
   NODE_ENV,
   LOAD_BALANCER_ADDRESS,
+  ENABLED_SERVICES_PATH
 } = process.env;
 const isDev = NODE_ENV === "development";
+
+if(!ENABLED_SERVICES_PATH) {
+  throw new Error("ENABLED_SERVICES_PATH environment variable is not configured.")
+}
+
+const enabledServices = require(ENABLED_SERVICES_PATH);
 
 export const redis = new Redis({
   host: REDIS_HOST,
@@ -23,14 +30,19 @@ const registry = new ServiceRegistry(redis, {});
 
 const generateKey = (name) => `service:config:${name}`;
 
-export const getServices = () => {
+export const getAvailableServices = () => {
   return registry.services();
 };
+
+export const getServices = () => {
+  const enabledPlugins = Object.keys(enabledServices || {}).filter(serviceName => enabledServices[serviceName]);
+  return ["core", ...enabledPlugins];
+}
 
 export const getService = async (name: string, config?: boolean) => {
   const result: { address: string; config: any } = {
     address: await registry.get(name),
-    config: {},
+    config: { meta: {} },
   };
 
   if (config) {
@@ -88,14 +100,10 @@ export const leave = async (name, port) => {
 };
 
 export const isAvailable = async (name) => {
-  const serviceNames = await getServices();
+  const serviceNames = await getAvailableServices();
   return serviceNames.includes(name);
 };
 
 export const isEnabled = async (name) => {
-  if (name === "core") {
-    return true;
-  }
-
-  return !!(await redis.sismember("erxes:plugins:enabled", name));
+  return (name === "core") || enabledServices[name];
 };

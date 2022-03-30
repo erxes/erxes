@@ -28,7 +28,7 @@ import { checkPermission } from '@erxes/api-utils/src/permissions';
 
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 import { client as msgBrokerClient } from '../../messageBroker';
-import { getService, getServices } from '../../redis';
+import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { IContext, IModels } from '../../connectionResolver';
 
 interface IEditIntegration extends IIntegration {
@@ -461,11 +461,9 @@ const integrationMutations = {
       });
     }
 
-    const apiService = await getService('api');
-
     const replacedContent = await new EditorAttributeUtil(
       msgBrokerClient,
-      apiService.address,
+      `${process.env.MAIN_API_DOMAIN}/pl:core`,
       await getServices()
     ).replaceAttributes({
       content: body,

@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import Downloader from 'nodejs-file-downloader';
-import { getService, getServices } from '../../redis';
+import { getService, getEnabledServices } from '../../redis';
 
 export default async function downloadPlugins(): Promise<void> {
   const directory = path.join(__dirname, './downloads');
@@ -12,7 +12,7 @@ export default async function downloadPlugins(): Promise<void> {
 
   await clearDirectory(directory);
 
-  const serviceNames = await getServices();
+  const serviceNames = await getEnabledServices();
 
   const allServices: any[] = await Promise.all(
     serviceNames.map(async serviceName => {
