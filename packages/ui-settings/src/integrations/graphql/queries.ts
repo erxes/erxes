@@ -1,3 +1,5 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 const users = `
   query users {
     users {
@@ -66,15 +68,27 @@ const integrations = `
       leadData
       formId
       tagIds
-      tags {
-        _id
-        colorCode
-        name
+      ${
+        isEnabled('tags')
+          ? `
+        tags {
+          _id
+          colorCode
+          name
+        }
+      `
+          : ``
       }
-      form {
-        _id
-        title
-        code
+      ${
+        isEnabled('forms')
+          ? `
+              form {
+                _id
+                title
+                code
+              }
+            `
+          : ''
       }
       healthStatus
     }
@@ -140,7 +154,7 @@ const integrationsGetAccounts = `
   query integrationsGetAccounts($kind: String) {
     integrationsGetAccounts(kind: $kind)
   }
-`
+`;
 
 const integrationsGetIntegrations = `
   query integrationsGetIntegrations($kind: String) {
@@ -202,8 +216,6 @@ const integrationsNylasGetSchedulePages = `
   }
 `;
 
-
-
 export default {
   integrations,
   users,
@@ -222,5 +234,5 @@ export default {
   integrationsVideoCallUsageStatus,
   integrationsNylasGetCalendars,
   integrationsNylasGetSchedulePage,
-  integrationsNylasGetSchedulePages
+  integrationsNylasGetSchedulePages,
 };

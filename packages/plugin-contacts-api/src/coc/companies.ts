@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { ICoreIModels, IModels } from '../connectionResolver';
+import { IModels } from '../connectionResolver';
 
 import { IConformityQueryParams } from './customers';
 import { CommonBuilder } from './utils';
@@ -30,8 +30,8 @@ export interface IListArgs extends IConformityQueryParams {
 }
 
 export class Builder extends CommonBuilder<IListArgs> {
-  constructor(models: IModels, coreModels: ICoreIModels, subdomain: string, params: IListArgs, context) {
-    super(models, coreModels, subdomain, 'companies', params, context);
+  constructor(models: IModels, subdomain: string, params: IListArgs, context) {
+    super(models, subdomain, 'companies', params, context);
   }
 
   public async findAllMongo(limit: number) {

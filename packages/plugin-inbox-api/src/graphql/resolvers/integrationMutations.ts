@@ -377,7 +377,7 @@ const integrationMutations = {
           subdomain,
           action: 'removeIntegrations',
           data: {
-            integrationid: _id
+            integrationId: _id
           },
           isRPC: true
         });      
@@ -425,7 +425,7 @@ const integrationMutations = {
   /**
    * Send mail
    */
-  async integrationSendMail(_root, args: any, { user, coreModels, subdomain }: IContext) {
+  async integrationSendMail(_root, args: any, { user, subdomain }: IContext) {
     const { erxesApiId, body, customerId, ...doc } = args;
 
     let kind = doc.kind;
@@ -592,7 +592,7 @@ const integrationMutations = {
   async integrationsCopyLeadIntegration(
     _root,
     { _id }: { _id },
-    { docModifier, user, models, coreModels, subdomain }: IContext
+    { docModifier, user, models, subdomain }: IContext
   ) {
     const sourceIntegration = await models.Integrations.getIntegration({ _id });
 

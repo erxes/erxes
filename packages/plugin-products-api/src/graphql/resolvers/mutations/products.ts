@@ -17,11 +17,12 @@ const productMutations = {
    * Creates a new product
    * @param {Object} doc Product document
    */
-  async productsAdd(_root, doc: IProduct, { user, docModifier, models }: IContext) {
+  async productsAdd(_root, doc: IProduct, { user, docModifier, models, subdomain }: IContext) {
     const product = await models.Products.createProduct(docModifier(doc));
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.PRODUCT,
         newData: {
@@ -45,13 +46,14 @@ const productMutations = {
   async productsEdit(
     _root,
     { _id, ...doc }: IProductsEdit,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const product = await models.Products.getProduct({ _id });
     const updated = await models.Products.updateProduct(_id, doc);
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.PRODUCT,
         object: product,
@@ -71,7 +73,7 @@ const productMutations = {
   async productsRemove(
     _root,
     { productIds }: { productIds: string[] },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const products: IProductDocument[] = await models.Products.find({
       _id: { $in: productIds }
@@ -80,7 +82,7 @@ const productMutations = {
     const response = await models.Products.removeProducts(productIds);
 
     for (const product of products) {
-      await putDeleteLog(models, { type: MODULE_NAMES.PRODUCT, object: product }, user);
+      await putDeleteLog(models, subdomain, { type: MODULE_NAMES.PRODUCT, object: product }, user);
     }
 
     return response;
@@ -93,7 +95,7 @@ const productMutations = {
   async productCategoriesAdd(
     _root,
     doc: IProductCategory,
-    { user, docModifier, models }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
     const productCategory = await models.ProductCategories.createProductCategory(
       docModifier(doc)
@@ -101,6 +103,7 @@ const productMutations = {
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.PRODUCT_CATEGORY,
         newData: { ...doc, order: productCategory.order },
@@ -120,13 +123,14 @@ const productMutations = {
   async productCategoriesEdit(
     _root,
     { _id, ...doc }: IProductCategoriesEdit,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const productCategory = await models.ProductCategories.getProductCatogery({ _id });
     const updated = await models.ProductCategories.updateProductCategory(_id, doc);
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.PRODUCT_CATEGORY,
         object: productCategory,
@@ -146,13 +150,14 @@ const productMutations = {
   async productCategoriesRemove(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const productCategory = await models.ProductCategories.getProductCatogery({ _id });
     const removed = await models.ProductCategories.removeProductCategory(_id);
 
     await putDeleteLog(
       models,
+      subdomain,
       { type: MODULE_NAMES.PRODUCT_CATEGORY, object: productCategory },
       user
     );

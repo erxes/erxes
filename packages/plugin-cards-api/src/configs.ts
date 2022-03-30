@@ -10,8 +10,10 @@ import { buildFile } from './exporter';
 import segments from './segments';
 import forms from './forms';
 import logs from './logUtils';
-import { generateCoreModels, generateModels, getSubdomain } from './connectionResolver';
+import { generateModels, getSubdomain } from './connectionResolver';
 import imports from './imports';
+import internalNotes from './internalNotes';
+import automations from './automations';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -43,14 +45,15 @@ export default {
     forms,
     logs: { providesActivityLog: true, consumers: logs },
     segments,
-    imports
+    automations,
+    imports,
+    internalNotes
   },
 
   apolloServerContext: async (context) => {
     const subdomain = 'os';
 
     context.models = await generateModels(subdomain);
-    context.coreModels = await generateCoreModels(subdomain);
     context.subdomain = subdomain;
 
     return context;
@@ -68,9 +71,8 @@ export default {
 
         const subdomain = getSubdomain(req.hostname);
         const models = await generateModels(subdomain);
-        const coreModels = await generateCoreModels(subdomain);
 
-        const result = await buildFile(models, coreModels, subdomain, query, user);
+        const result = await buildFile(models, subdomain, query, user);
 
         res.attachment(`${result.name}.xlsx`);
 

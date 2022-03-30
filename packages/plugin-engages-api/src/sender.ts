@@ -5,14 +5,14 @@ import { IModels } from './connectionResolver';
 import {
   ACTIVITY_CONTENT_TYPES,
   ACTIVITY_LOG_ACTIONS,
-  CAMPAIGN_KINDS
+  CAMPAIGN_KINDS,
 } from './constants';
 import { debugEngages, debugError } from './debuggers';
 import messageBroker from './messageBroker';
 import {
   getTelnyxInfo,
   handleMessageCallback,
-  prepareMessage
+  prepareMessage,
 } from './telnyxUtils';
 import { ICustomer, IEmailParams, ISmsParams } from './types';
 import {
@@ -21,7 +21,7 @@ import {
   getConfig,
   getConfigs,
   getEnv,
-  setCampaignCount
+  setCampaignCount,
 } from './utils';
 
 dotenv.config();
@@ -33,7 +33,7 @@ export const start = async (models: IModels, data: IEmailParams) => {
     engageMessageId,
     customers = [],
     createdBy,
-    title
+    title,
   } = data;
 
   const { content, subject, attachments, sender, replyTo } = email;
@@ -53,10 +53,10 @@ export const start = async (models: IModels, data: IEmailParams) => {
     let mailAttachment = [];
 
     if (attachments.length > 0) {
-      mailAttachment = attachments.map(file => {
+      mailAttachment = attachments.map((file) => {
         return {
           filename: file.name || '',
-          path: file.url || ''
+          path: file.url || '',
         };
       });
     }
@@ -91,8 +91,8 @@ export const start = async (models: IModels, data: IEmailParams) => {
           'X-SES-CONFIGURATION-SET': configs.configSet || 'erxes',
           EngageMessageId: engageMessageId,
           CustomerId: customer._id,
-          MailMessageId: mailMessageId
-        }
+          MailMessageId: mailMessageId,
+        },
       });
 
       const msg = `Sent email to: ${customer.primaryEmail}`;
@@ -129,7 +129,7 @@ export const start = async (models: IModels, data: IEmailParams) => {
     );
 
     filteredCustomers = customers.filter(
-      c => c.primaryEmail && c.emailValidationStatus === 'valid'
+      (c) => c.primaryEmail && c.emailValidationStatus === 'valid'
     );
   } else {
     filteredCustomers = customers;
@@ -138,14 +138,14 @@ export const start = async (models: IModels, data: IEmailParams) => {
   // cleans customers who do not open or click emails often
   const {
     customers: cleanCustomers,
-    ignoredCustomerIds
+    ignoredCustomerIds,
   } = await cleanIgnoredCustomers(models, {
     customers: filteredCustomers,
-    engageMessageId
+    engageMessageId,
   });
 
   // finalized email list
-  emails = cleanCustomers.map(customer => customer.primaryEmail);
+  emails = cleanCustomers.map((customer) => customer.primaryEmail);
 
   await models.Logs.createLog(
     engageMessageId,
@@ -155,27 +155,27 @@ export const start = async (models: IModels, data: IEmailParams) => {
 
   if (ignoredCustomerIds.length > 0) {
     const ignoredCustomers = filteredCustomers.filter(
-      cus => ignoredCustomerIds.indexOf(cus._id) !== -1
+      (cus) => ignoredCustomerIds.indexOf(cus._id) !== -1
     );
 
     await models.Logs.createLog(
       engageMessageId,
       'regular',
       `The following customers did not open emails frequently, therefore ignored: ${ignoredCustomers.map(
-        i => i.primaryEmail
+        (i) => i.primaryEmail
       )}`
     );
   }
 
   // set finalized count of the campaign
-  await setCampaignCount({
+  await setCampaignCount(models, {
     _id: engageMessageId,
     totalCustomersCount: filteredCustomers.length,
-    validCustomersCount: cleanCustomers.length
+    validCustomersCount: cleanCustomers.length,
   });
 
   for (const customer of cleanCustomers) {
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       setTimeout(resolve, 1000);
     });
 
@@ -192,10 +192,10 @@ export const start = async (models: IModels, data: IEmailParams) => {
             campaignId: engageMessageId,
             title,
             to: customer.primaryEmail,
-            type: ACTIVITY_CONTENT_TYPES.EMAIL
+            type: ACTIVITY_CONTENT_TYPES.EMAIL,
           },
-          createdBy
-        }
+          createdBy,
+        },
       });
     } catch (e) {
       await models.Logs.createLog(
@@ -208,21 +208,25 @@ export const start = async (models: IModels, data: IEmailParams) => {
 };
 
 // sends bulk sms via engage message
-export const sendBulkSms = async (models: IModels, data: ISmsParams) => {
+export const sendBulkSms = async (
+  models: IModels,
+  subdomain: string,
+  data: ISmsParams
+) => {
   const {
     customers,
     engageMessageId,
     shortMessage,
     createdBy,
     title,
-    kind
+    kind,
   } = data;
 
-  const telnyxInfo = await getTelnyxInfo();
+  const telnyxInfo = await getTelnyxInfo(subdomain);
   const smsLimit = await getConfig(models, 'smsLimit', 0);
 
   const validCustomers = customers.filter(
-    c => c.primaryPhone && c.phoneValidationStatus === 'valid'
+    (c) => c.primaryPhone && c.phoneValidationStatus === 'valid'
   );
 
   if (kind === CAMPAIGN_KINDS.AUTO) {
@@ -255,28 +259,31 @@ export const sendBulkSms = async (models: IModels, data: ISmsParams) => {
     );
   }
 
-  await setCampaignCount({
+  await setCampaignCount(models, {
     _id: engageMessageId,
     totalCustomersCount: customers.length,
-    validCustomersCount: validCustomers.length
+    validCustomersCount: validCustomers.length,
   });
 
   for (const customer of validCustomers) {
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       setTimeout(resolve, 1000);
     });
 
     const msg = await prepareMessage({
       shortMessage,
       to: customer.primaryPhone,
-      integrations: telnyxInfo.integrations
+      integrations: telnyxInfo.integrations,
     });
 
     try {
       await telnyxInfo.instance.messages.create(
         msg,
         async (err: any, res: any) => {
-          await handleMessageCallback(models, err, res, { engageMessageId, msg });
+          await handleMessageCallback(models, err, res, {
+            engageMessageId,
+            msg,
+          });
         }
       ); // end sms creation
     } catch (e) {
@@ -298,10 +305,10 @@ export const sendBulkSms = async (models: IModels, data: ISmsParams) => {
             campaignId: engageMessageId,
             title,
             to: customer.primaryPhone,
-            type: ACTIVITY_CONTENT_TYPES.SMS
+            type: ACTIVITY_CONTENT_TYPES.SMS,
           },
-          createdBy
-        }
+          createdBy,
+        },
       });
     } catch (e) {
       await models.Logs.createLog(

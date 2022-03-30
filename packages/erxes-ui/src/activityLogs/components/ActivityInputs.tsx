@@ -1,12 +1,12 @@
-import React from "react";
-import Icon from "../../components/Icon";
-import { Tabs, TabTitle } from "../../components/tabs";
-import NoteForm from "../../internalNotes/containers/Form";
-import TicketCommentForm from "@erxes/ui-cards/src/boards/containers/TicketCommentForm";
-import { WhiteBoxRoot } from "../../layout/styles";
-import { __ } from "../../utils";
-import { isEnabled } from "../../utils/core";
-import { EmptyContent } from "../styles";
+import React from 'react';
+import Icon from '../../components/Icon';
+import { Tabs, TabTitle } from '../../components/tabs';
+import NoteForm from '../../internalNotes/containers/Form';
+import TicketCommentForm from '@erxes/ui-cards/src/boards/containers/TicketCommentForm';
+import { WhiteBoxRoot } from '../../layout/styles';
+import { __ } from '../../utils';
+import { isEnabled } from '../../utils/core';
+import { EmptyContent } from '../styles';
 
 type Props = {
   contentType: string;
@@ -26,11 +26,11 @@ class ActivityInputs extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      currentTab: "newNote",
+      currentTab: 'newNote'
     };
   }
 
-  onChangeTab = (currentTab) => {
+  onChangeTab = currentTab => {
     this.setState({ currentTab });
   };
 
@@ -38,13 +38,13 @@ class ActivityInputs extends React.PureComponent<Props, State> {
     const { contentTypeId, contentType, showEmail } = this.props;
     const { currentTab } = this.state;
 
-    if (currentTab === "newNote" && isEnabled("internalnotes")) {
+    if (currentTab === 'newNote' && isEnabled('internalnotes')) {
       return (
         <NoteForm contentType={contentType} contentTypeId={contentTypeId} />
       );
     }
 
-    if (currentTab === "ticket") {
+    if (currentTab === 'ticket') {
       return (
         <TicketCommentForm
           contentType={`${contentType}_comment`}
@@ -53,18 +53,14 @@ class ActivityInputs extends React.PureComponent<Props, State> {
       );
     }
 
-    // if (!showEmail) { *needtoconfirm
-    //   return null;
-    // }
-
     return (
       <EmptyContent>
         <img src="/images/actions/automation.svg" alt="empty-img" />
 
         <p>
-          <b>{"You don’t have any activity logs yet"}.</b>
+          <b>{'You don’t have any activity logs yet'}.</b>
           {__(
-            "Automatically execute repetitive tasks and make sure nothing falls through the cracks"
+            'Automatically execute repetitive tasks and make sure nothing falls through the cracks'
           )}
           .
         </p>
@@ -78,7 +74,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
     return (
       <TabTitle
         key={Math.random()}
-        className={currentTab === type ? "active" : ""}
+        className={currentTab === type ? 'active' : ''}
         onClick={this.onChangeTab.bind(this, type)}
       >
         <Icon icon={icon} /> {__(title)}
@@ -91,11 +87,11 @@ class ActivityInputs extends React.PureComponent<Props, State> {
     const tabs: any = [];
 
     if (showEmail) {
-      tabs.push(this.renderTabTitle("email", "envelope-add", "Email"));
+      tabs.push(this.renderTabTitle('email', 'envelope-add', 'Email'));
     }
 
-    if (contentType === "ticket") {
-      tabs.push(this.renderTabTitle("ticket", "ticket", "Ticket reply"));
+    if (contentType === 'ticket') {
+      tabs.push(this.renderTabTitle('ticket', 'ticket', 'Ticket reply'));
     }
 
     return (
@@ -110,8 +106,8 @@ class ActivityInputs extends React.PureComponent<Props, State> {
     return (
       <WhiteBoxRoot>
         <Tabs>
-          {isEnabled("internalnotes") &&
-            this.renderTabTitle("newNote", "file-plus", "New note")}
+          {isEnabled('internalnotes') &&
+            this.renderTabTitle('newNote', 'file-plus', 'New note')}
 
           {this.renderExtraTab()}
         </Tabs>

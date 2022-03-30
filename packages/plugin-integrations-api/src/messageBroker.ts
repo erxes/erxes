@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv';
 import { removeAccount, removeCustomers, removeIntegration, repairIntegrations } from './helpers';
 
-import messageBroker from 'erxes-message-broker';
 import { Accounts, Configs } from './models';
 import { handleFacebookMessage } from './facebook/handleFacebookMessage';
 import { Integrations } from './models';
@@ -28,12 +27,8 @@ dotenv.config();
 
 let client;
 
-export const initBroker = async server => {
-  client = await messageBroker({
-    name: 'integrations',
-    server,
-    envs: process.env
-  });
+export const initBroker = async (cl) => {
+  client = cl;
 
   const { consumeRPCQueue, consumeQueue } = client;
 
@@ -210,44 +205,38 @@ export const initBroker = async server => {
     }
   );
 
-  consumeRPCQueue('integrations:createIntegration', async ({ data: { doc, kind }}) => {
-    switch(kind) {
-      case 'nylas': 
-        await nylasCreateIntegration(doc);
-        break;
-      case 'facebook':
-        await facebookCreateIntegration(doc);
-        break;
-      case 'twitter':
-        await twitterCreateIntegration(doc);
-        break;
-      case 'smooch':
-        await smoochCreateIntegration(doc);
-      break;
-      case 'callpro':
-        await callproCreateIntegration(doc);
-        break;
-      case 'chatfuel':
-        await chatfuelCreateIntegration(doc);
-        break;
-      case 'gmail':
-        await gmailCreateIntegration(doc);
-        break;
-      case 'telnyx':
-        await telnyxCreateIntegration(doc);
-        break;
-      default: 
-      // whatsapp
-        whatsappCreateIntegration(doc);
-        break;
+  consumeRPCQueue(
+    'integrations:createIntegration',
+    async ({ data: { doc, kind } }) => {
+      switch (kind) {
+        case 'nylas':
+          return nylasCreateIntegration(doc);
+        case 'facebook':
+          return facebookCreateIntegration(doc);
+        case 'twitter':
+          return twitterCreateIntegration(doc);
+        case 'smooch':
+          return smoochCreateIntegration(doc);
+        case 'callpro':
+          return callproCreateIntegration(doc);
+        case 'chatfuel':
+          return chatfuelCreateIntegration(doc);
+        case 'gmail':
+          return gmailCreateIntegration(doc);
+        case 'telnyx':
+          return telnyxCreateIntegration(doc);
+        default:
+          // whatsapp
+          return whatsappCreateIntegration(doc);
+      }
     }
-});
+  );
 
   // '/integrations/remove',
   consumeRPCQueue('integrations:removeIntegrations', async ({ data: { integrationId }}) => {
     await removeIntegration(integrationId);
 
-    return { status: 'ok' };
+    return { status: 'success' };
   });
 
   //  '/nylas/send', /gmail/send

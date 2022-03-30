@@ -115,49 +115,42 @@ const dealMutations = {
   ) {
     const deal = await models.Deals.getDeal(doc.itemId);
 
-    if (deal.productsData) {
-      const productsData = deal.productsData;
+    // ! will fix 
+    // if (deal.productsData) {
+    //   const productsData = deal.productsData;
 
-      const stage = await models.Stages.getStage(doc.destinationStageId);
-      const prevStage = await models.Stages.getStage(doc.sourceStageId);
+    //   const stage = await models.Stages.getStage(doc.destinationStageId);
+    //   const prevStage = await models.Stages.getStage(doc.sourceStageId);
 
-      const productIds = productsData.map((p) => p.productId);
+    //   const productIds = productsData.map((p) => p.productId);
 
-      const products = await sendProductsMessage({
-        subdomain,
-        action: 'find',
-        data: {
-          query: {
-            _id: { $in: productIds },
-            supply: { $ne: 'unlimited' }
-          }
-        },
-        isRPC: true,
-        defaultValue: []
-      });
+    //   if (!(stage.probability === "Won" || prevStage.probability === "Won")) {
+    //     const products = await sendProductsMessage({
+    //       subdomain,
+    //       action: 'find',
+    //       data: {
+    //         query: {
+    //           _id: { $in: productIds },
+    //           supply: { $ne: 'unlimited' }
+    //         }
+    //       },
+    //       isRPC: true,
+    //       defaultValue: []
+    //     });
 
-      if (stage.probability === "Won") {
-        await sendProductsMessage({
-          subdomain,
-          action: "update",
-          data: {
-            selector: { _id: { $in: products.map((p) => p._id) } },
-            modifier: { $inc: { productCount: -1 } },
-          },
-          isRPC: true
-        });
-      } else if (prevStage.probability === "Won") {
-        await sendProductsMessage({
-          subdomain,
-          action: "update",
-          data: {
-            selector: { _id: { $in: products.map((p) => p._id) } },
-            modifier: { $inc: { productCount: 1 } },
-          },
-          isRPC: true
-        });
-      }
-    }
+    //     const multiplier = stage.probability === "Won" ? -1 : 1;
+
+    //     await sendProductsMessage({
+    //       subdomain,
+    //       action: "update",
+    //       data: {
+    //         selector: { _id: { $in: products.map((p) => p._id) } },
+    //         modifier: { $inc: { productCount: multiplier } },
+    //       },
+    //       isRPC: true
+    //     });
+    //   }
+    // }
 
     return itemsChange(models, subdomain, doc, "deal", user, models.Deals.updateDeal);
   },

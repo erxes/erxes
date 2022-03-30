@@ -1,0 +1,257 @@
+export const replacePlaceHolders = async (
+  {
+    models,
+    subdomain,
+    actionData,
+    target,
+    isRelated = true,
+    getRelatedValue
+  }: {
+    models,
+    subdomain: string,
+    actionData?: any,
+    target: any,
+    isRelated?: boolean,
+    getRelatedValue: any,
+  }
+) => {
+  if (actionData) {
+    const targetKeys = Object.keys(target);
+    const actionDataKeys = Object.keys(actionData);
+
+    for (const actionDataKey of actionDataKeys) {
+      for (const targetKey of targetKeys) {
+        if (actionData[actionDataKey].includes(`{{ ${targetKey} }}`)) {
+          const replaceValue = isRelated && await getRelatedValue(models, subdomain, target, targetKey) || target[targetKey];
+
+          actionData[actionDataKey] = actionData[actionDataKey].replace(
+            `{{ ${targetKey} }}`, replaceValue
+          );
+        }
+
+        if (actionData[actionDataKey].includes(`{{ now }}`)) {
+          actionData[actionDataKey] = actionData[actionDataKey].replace(`{{ now }}`, new Date())
+        }
+        if (actionData[actionDataKey].includes(`{{ tomorrow }}`)) {
+          const today = new Date()
+          const tomorrow = today.setDate(today.getDate() + 1)
+          actionData[actionDataKey] = actionData[actionDataKey].replace(`{{ tomorrow }}`, tomorrow)
+        }
+        if (actionData[actionDataKey].includes(`{{ nextWeek }}`)) {
+          const today = new Date()
+          const nextWeek = today.setDate(today.getDate() + 7)
+          actionData[actionDataKey] = actionData[actionDataKey].replace(`{{ nextWeek }}`, nextWeek)
+        }
+        if (actionData[actionDataKey].includes(`{{ nextMonth }}`)) {
+          const today = new Date()
+          const nextMonth = today.setDate(today.getDate() + 30)
+          actionData[actionDataKey] = actionData[actionDataKey].replace(`{{ nextMonth }}`, nextMonth)
+        }
+
+        for (const complexFieldKey of ['customFieldsData', 'trackedData']) {
+          if (actionData[actionDataKey].includes(complexFieldKey)) {
+            const regex = new RegExp(`{{ ${complexFieldKey}.([\\w\\d]+) }}`);
+            const match = regex.exec(actionData[actionDataKey]);
+            const fieldId = (match && match.length === 2) ? match[1] : '';
+
+            const complexFieldData = target[complexFieldKey].find(cfd => cfd.field === fieldId);
+
+            if (complexFieldData) {
+              actionData[actionDataKey] = actionData[actionDataKey].replace(
+                `{{ ${complexFieldKey}.${fieldId} }}`, complexFieldData.value
+              );
+            }
+          }
+        }
+      }
+
+      actionData[actionDataKey] = actionData[actionDataKey].replace(/\[\[ /g, '').replace(/ \]\]/g, '')
+    }
+  }
+
+  return actionData;
+}
+
+export const OPERATORS = {
+  SET: "set",
+  CONCAT: "concat",
+  ADD: "add",
+  SUBTRACT: "subtract",
+  MULTIPLY: "multiply",
+  DIVIDE: "divide",
+  PERCENT: "percent",
+  ALL: [
+    'set',
+    'concat',
+    'add',
+    'subtract',
+    'multiply',
+    'divide',
+    'percent',
+  ]
+};
+
+const getPerValue = async (args: { models, subdomain, conformity, rule, target, getRelatedValue }) => {
+  const { models, subdomain, conformity, rule, target, getRelatedValue } = args;
+  const { field, operator, value } = rule;
+  const op1Type = typeof (conformity[field]);
+
+  let op1 = conformity[field];
+  let updatedValue;
+
+  const replaced = (
+    await replacePlaceHolders({
+      models,
+      subdomain,
+      getRelatedValue,
+      actionData: { config: value },
+      target,
+      isRelated: op1Type === 'string' ? true : false
+    })
+  ).config;
+
+  if (field.includes('Ids')) {
+    //
+    const set = [new Set((replaced || '').trim().replace(/, /g, ',').split(',') || [])];
+    updatedValue = [...set];
+  }
+
+  if ([OPERATORS.ADD, OPERATORS.SUBTRACT, OPERATORS.MULTIPLY, OPERATORS.DIVIDE, OPERATORS.PERCENT].includes(operator)) {
+    op1 = op1 || 0;
+    const numberValue = parseInt(value, 10);
+
+    switch (operator) {
+      case OPERATORS.ADD:
+        updatedValue = op1 + numberValue;
+        break;
+      case OPERATORS.SUBTRACT:
+        updatedValue = op1 - numberValue;
+        break;
+      case OPERATORS.MULTIPLY:
+        updatedValue = op1 * numberValue;
+        break;
+      case OPERATORS.DIVIDE:
+        updatedValue = op1 / numberValue || 1;
+        break;
+      case OPERATORS.PERCENT:
+        updatedValue = op1 / 100 * numberValue;
+        break;
+    }
+  }
+
+  if (operator === 'set') {
+    updatedValue = value;
+  }
+
+  if (operator === 'concat') {
+    updatedValue = (op1 || '').concat(updatedValue)
+  }
+
+  if (['addDay', 'subtractDay'].includes(operator)) {
+    op1 = op1 || new Date();
+
+    try {
+      op1 = new Date(op1)
+    } catch (e) {
+      op1 = new Date();
+    }
+
+    updatedValue = operator === 'addDay' ? parseFloat(updatedValue) : -1 * parseFloat(updatedValue);
+    updatedValue = new Date(op1.setDate(op1.getDate() + updatedValue))
+  }
+
+  return updatedValue
+}
+
+const getRelatedTargets = async (triggerType, action, execution, sendCommonMessage) => {
+  const { config } = action;
+  const { target } = execution;
+
+  const { module } = config;
+
+  if (module === triggerType) {
+    return [target];
+  }
+
+  if (triggerType === 'inbox:conversation' && ['cards:task', 'cards:ticket', 'cards:deal'].includes(module)) {
+    return sendCommonMessage({
+      serviceName: 'cards',
+      action: `${module.replace('cards:', '')}s.find`,
+      data: {
+        sourceConversationIds: { $in: [target._id] }
+      },
+      isRPC: true,
+    })
+
+  }
+
+  if (triggerType === 'inbox:conversation' && ['contacts:customer', 'contacts:company'].includes(module)) {
+    return sendCommonMessage({
+      serviceName: 'contacts',
+      action: `${module.includes('customer') ? 'customers' : 'companies'}.find`,
+      data: { _id: target[module.includes('customer') ? 'customerId' : 'companyId'] },
+      isRPC: true
+    });
+  }
+
+  if (['cards:task', 'cards:ticket', 'cards:deal', 'contacts:customer', 'contacts:company'].includes(triggerType) && ['cards:task', 'cards:ticket', 'cards:deal', 'contacts:customer', 'contacts:company'].includes(module)) {
+    const relType = module.replace('cards:', '').replace('contacts:', '');
+
+    const relTypeIds = await sendCommonMessage({
+      serviceName: 'core',
+      action: 'conformities.savedConformity',
+      data: { mainType: triggerType.replace('cards:', ''), mainTypeId: target._id, relTypes: [relType] },
+      isRPC: true
+    });
+
+    const [serviceName, collectionType] = module.split(':');
+
+    return sendCommonMessage({
+      serviceName,
+      action: `${collectionType}s.find`,
+      data: { _id: { $in: relTypeIds } },
+      isRPC: true
+    });
+  }
+
+  return [];
+}
+
+export const setProperty = async ({ models, subdomain, action, execution, getRelatedValue, triggerType, sendCommonMessage }) => {
+  const { module, rules } = action.config;
+  const { target } = execution;
+  const [serviceName, collectionType] = module.split(':');
+
+  const result: any[] = [];
+
+  const conformities = await getRelatedTargets(triggerType, action, execution, sendCommonMessage);
+
+  try {
+    for (const conformity of conformities) {
+      const setDoc = {}
+
+      for (const rule of rules) {
+        setDoc[rule.field] = await getPerValue({ models, subdomain, conformity, rule, target, getRelatedValue });
+      }
+
+      const response = await sendCommonMessage({
+        serviceName,
+        action: `${collectionType}s.updateMany`,
+        data: { selector: { _id: conformity._id }, modifier: setDoc }
+      });
+
+      if (response.error) {
+        result.push(response);
+        continue;
+      }
+
+      result.push({
+        _id: conformity._id,
+        rules: (Object as any).values(setDoc).map(v => String(v)).join(', ')
+      })
+    }
+    return { module, fields: rules.map(r => r.field).join(', '), result }
+  } catch (e) {
+    return { error: e.message };
+  }
+}

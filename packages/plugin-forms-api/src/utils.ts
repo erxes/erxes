@@ -1,10 +1,11 @@
 import { IModels } from "./connectionResolver";
-import { fetchService } from "./messageBroker";
+import { fetchService, sendInboxMessage } from "./messageBroker";
+import { IFormSubmissionFilter } from "./models/definitions/forms";
 
 export const getCustomFields = async (models: IModels, contentType: string) => {
   return models.Fields.find({
     contentType,
-    isDefinedByErxes: false,
+    isDefinedByErxes: false
   });
 };
 
@@ -22,7 +23,7 @@ export const fieldsCombinedByContentType = async (
     usageType,
     excludedNames,
     segmentId,
-    config,
+    config
   }: {
     contentType: string;
     usageType?: string;
@@ -48,7 +49,7 @@ export const fieldsCombinedByContentType = async (
     {
       segmentId,
       usageType,
-      config,
+      config
     },
     []
   );
@@ -70,12 +71,106 @@ export const fieldsCombinedByContentType = async (
         label: customField.text,
         options: customField.options,
         validation: customField.validation,
-        type: customField.type,
+        type: customField.type
       });
     }
   }
 
   fields = [...fields];
 
-  return fields.filter((field) => !(excludedNames || []).includes(field.name));
+  return fields.filter(field => !(excludedNames || []).includes(field.name));
+};
+
+export const formSubmissionsQuery = async (
+  subdomain,
+  models,
+  {
+    formId,
+    tagId,
+    contentTypeIds,
+    filters
+  }: {
+    formId: string;
+    tagId: string;
+    contentTypeIds: string[];
+    filters: IFormSubmissionFilter[];
+  }
+) => {
+  const integrationsSelector: any = { kind: "lead", isActive: true };
+  let conversationIds: string[] = [];
+
+  if (formId) {
+    integrationsSelector.formId = formId;
+  }
+
+  if (tagId) {
+    integrationsSelector.tagIds = tagId;
+  }
+
+  if (contentTypeIds && contentTypeIds.length > 0) {
+    conversationIds = contentTypeIds;
+  }
+
+  const submissionFilters: any[] = [];
+
+  if (filters && filters.length > 0) {
+    for (const filter of filters) {
+      const { formFieldId, value } = filter;
+
+      switch (filter.operator) {
+        case "eq":
+          submissionFilters.push({ formFieldId, value: { $eq: value } });
+          break;
+
+        case "c":
+          submissionFilters.push({
+            formFieldId,
+            value: { $regex: new RegExp(value) }
+          });
+          break;
+
+        case "gte":
+          submissionFilters.push({
+            formFieldId,
+            value: { $gte: value }
+          });
+          break;
+
+        case "lte":
+          submissionFilters.push({
+            formFieldId,
+            value: { $lte: value }
+          });
+          break;
+
+        default:
+          break;
+      }
+    }
+
+    const subs = await models.FormSubmissions.find({
+      $and: submissionFilters
+    }).lean();
+    conversationIds = subs.map(e => e.contentTypeId);
+  }
+
+  const integration = await sendInboxMessage({
+    subdomain,
+    action: "findIntegration",
+    data: integrationsSelector,
+    isRPC: true,
+    defaultValue: []
+  });
+
+  if (!integration) {
+    return null;
+  }
+
+  let convsSelector: any = { integrationId: integration._id };
+
+  if (conversationIds.length > 0) {
+    convsSelector = { _id: { $in: conversationIds } };
+  }
+
+  return convsSelector;
 };

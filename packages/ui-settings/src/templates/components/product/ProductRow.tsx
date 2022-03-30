@@ -1,16 +1,16 @@
-import Button from '@erxes/ui/src/components/Button';
-import { FormControl } from '@erxes/ui/src/components/form';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tags from '@erxes/ui/src/components/Tags';
-import Tip from '@erxes/ui/src/components/Tip';
-import WithPermission from '@erxes/ui/src/components/WithPermission';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import Button from "@erxes/ui/src/components/Button";
+import { FormControl } from "@erxes/ui/src/components/form";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Tags from "@erxes/ui/src/components/Tags";
+import Tip from "@erxes/ui/src/components/Tip";
+import WithPermission from "coreui/withPermission";
+import { __ } from "@erxes/ui/src/utils";
+import React from "react";
 
-import { PRODUCT_TEMPLATE_STATUSES } from '../../constants';
-import Form from '../../containers/product/ProductForm';
-import { IProductTemplate } from '../../types';
+import { PRODUCT_TEMPLATE_STATUSES } from "../../constants";
+import Form from "../../containers/product/ProductForm";
+import { IProductTemplate } from "../../types";
 
 type Props = {
   productTemplate: IProductTemplate;
@@ -25,7 +25,7 @@ class Row extends React.Component<Props> {
   renderChangeStatusAction(_id: string, status: string) {
     const { changeStatus } = this.props;
     const isactive = status === PRODUCT_TEMPLATE_STATUSES.ACTIVE;
-    const tipText = isactive ? 'Archive' : 'Active';
+    const tipText = isactive ? "Archive" : "Active";
 
     if (!changeStatus) {
       return null;
@@ -37,7 +37,7 @@ class Row extends React.Component<Props> {
       <WithPermission action="integrationsArchive">
         <Tip text={__(tipText)} placement="top">
           <Button btnStyle="link" onClick={onClick}>
-            <Icon icon={isactive ? 'archive-alt' : 'redo'} />
+            <Icon icon={isactive ? "archive-alt" : "redo"} />
           </Button>
         </Tip>
       </WithPermission>
@@ -55,7 +55,7 @@ class Row extends React.Component<Props> {
 
     return (
       <WithPermission action="integrationsArchive">
-        <Tip text={__('Duplicate')} placement="top">
+        <Tip text={__("Duplicate")} placement="top">
           <Button btnStyle="link" onClick={onClick}>
             <Icon icon="copy" />
           </Button>
@@ -65,7 +65,7 @@ class Row extends React.Component<Props> {
   }
 
   renderFormTrigger = (trigger: React.ReactNode, thisProps) => {
-    const modalContent = props => (
+    const modalContent = (props) => (
       <Form {...props} productTemplate={thisProps.productTemplate} />
     );
 
@@ -80,10 +80,10 @@ class Row extends React.Component<Props> {
     );
   };
 
-  renderEditAction = props => {
+  renderEditAction = (props) => {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="top">
+        <Tip text={__("Edit")} placement="top">
           <Icon icon="edit-3" />
         </Tip>
       </Button>
@@ -98,7 +98,7 @@ class Row extends React.Component<Props> {
 
     const tags = productTemplate.tags || [];
 
-    const onChange = e => {
+    const onChange = (e) => {
       if (toggleBulk) {
         toggleBulk(productTemplate, e.target.checked);
       }

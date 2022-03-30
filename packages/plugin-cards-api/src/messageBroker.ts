@@ -97,6 +97,15 @@ export const initBroker = async cl => {
     }
   });
 
+  consumeRPCQueue('cards:deals.find', async ({ subdomain, data })=> {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Deals.find(data)
+    }
+  });
+
   consumeRPCQueue('cards:deals.generateAmounts', async productsData => {
     return { data: generateAmounts(productsData), status: 'success' };
   });
@@ -121,57 +130,22 @@ export const initBroker = async cl => {
     return { data: dealProductIds, status: 'success' };
   });
 
+  consumeRPCQueue('cards:tickets.updateMany', async ({ subdomain, data: { selector, modifier } }) => {
+    const models = await generateModels(subdomain);
+
+    return { data: await models.Tickets.updateMany(selector, modifier), status: 'success' };
+  });
+
+  consumeRPCQueue('cards:tasks.updateMany', async ({ subdomain, data: { selector, modifier } }) => {
+    const models = await generateModels(subdomain);
+
+    return { data: await models.Tasks.updateMany(selector, modifier), status: 'success' };
+  });
+
   consumeRPCQueue('cards:deals.updateMany', async ({ subdomain, data: { selector, modifier } }) => {
     const models = await generateModels(subdomain);
 
     return { data: await models.Deals.updateMany(selector, modifier), status: 'success' };
-  });
-
-  consumeRPCQueue('cards:generateInternalNoteNotif', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-
-    let model: any = models.GrowthHacks;
-
-    const { contentTypeId, notifDoc, type } = data;
-
-    if (type === 'growthHack') {
-      const hack = await model.getGrowthHack(contentTypeId);
-
-      notifDoc.content = `${hack.name}`;
-
-      return notifDoc;
-    }
-
-    switch (type) {
-      case 'deal':
-        model = models.Deals;
-        break;
-      case 'task':
-        model = models.Tasks;
-        break;
-      default:
-        model = models.Tickets;
-        break;
-    }
-
-    const card = await model.findOne({ _id: contentTypeId });
-    const stage = await models.Stages.getStage(card.stageId);
-    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
-
-    notifDoc.notifType = `${type}Delete`;
-    notifDoc.content = `"${card.name}"`;
-    notifDoc.link = `/${type}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${card._id}`;
-    notifDoc.contentTypeId = card._id;
-    notifDoc.contentType = `${type}`;
-    notifDoc.item = card;
-
-    // sendNotificationOfItems on ticket, task and deal
-    notifDoc.notifOfItems = true;
-
-    return {
-      status: 'success',
-      data: notifDoc
-    };
   });
 
   consumeRPCQueue('cards:notifiedUserIds', async ({ subdomain, data }) => {
@@ -222,6 +196,16 @@ export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
 
 export const sendSegmentsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({ client, serviceDiscovery, serviceName: 'segments', ...args });
+};
+
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    ...args,
+  });
 };
 
 export const fetchSegment = (subdomain: string, segmentId: string, options?) => sendSegmentsMessage({ subdomain, action: 'fetchSegment', data: { segmentId, options }, isRPC: true });

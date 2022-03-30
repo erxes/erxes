@@ -1,8 +1,8 @@
 import { graphqlPubsub } from './configs';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
-import { sendContactsMessage, sendIntegrationsMessage } from './messageBroker';
+import { sendContactsMessage, sendCoreMessage, sendIntegrationsMessage } from './messageBroker';
 import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
-import { generateCoreModels, generateModels } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 
 const sendError = message => ({
   status: 'error',
@@ -25,10 +25,6 @@ export const receiveRpcMessage = async (subdomain, data) => {
     ConversationMessages,
     Conversations
   } = await generateModels(subdomain);
-
-  const {
-    Users
-  } = await generateCoreModels(subdomain);
   
   const doc = JSON.parse(payload || '{}');
 
@@ -99,7 +95,16 @@ export const receiveRpcMessage = async (subdomain, data) => {
     let user;
 
     if (owner) {
-      user = await Users.findOne({ 'details.operatorPhone': owner });
+      user = await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          'details.operatorPhone': owner
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
+
     }
 
     const assignedUserId = user ? user._id : null;
@@ -169,7 +174,14 @@ export const receiveRpcMessage = async (subdomain, data) => {
   // }
 
   if (action === 'getUserIds') {
-    const users = await Users.find({}, { _id: 1 }).toArray();
+    const users = await sendCoreMessage({
+      subdomain,
+      action: "users.getIds",
+      data: {},
+      isRPC: true,
+      defaultValue: []
+    })
+
     return sendSuccess({ userIds: users.map(user => user._id) });
   }
 };

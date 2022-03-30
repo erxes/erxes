@@ -15,7 +15,7 @@ module.exports = {
       url: '/knowledgeBase',
       icon: 'icon-book-open',
       location: "mainNavigation",
-      permission: "showConversatshowKnowledgeBaseions",
+      permission: "showKnowledgeBase",
     }
   ],
 };

@@ -1,5 +1,4 @@
 import { __ } from 'coreui/utils';
-import { pluginsOfAutomationActions } from 'coreui/pluginUtils';
 
 export const ACTIONS = [
   {
@@ -19,24 +18,31 @@ export const ACTIONS = [
     isAvailable: true
   },
   {
-    type: 'createTask',
+    type: 'cards:task.create',
     icon: 'file-plus-alt',
     label: __('Create task'),
     description: __('Create task'),
     isAvailable: true
   },
   {
-    type: 'createDeal',
+    type: 'cards:deal.create',
     icon: 'piggy-bank',
     label: __('Create deal'),
     description: __('Create deal'),
     isAvailable: true
   },
   {
-    type: 'createTicket',
+    type: 'cards:ticket.create',
     icon: 'file-plus',
     label: __('Create ticket'),
     description: __('Create ticket'),
+    isAvailable: true
+  },
+  {
+    type: 'loyalties:voucher.create',
+    icon: 'file-plus',
+    label: __('Create voucher'),
+    description: __('Create voucher'),
     isAvailable: true
   },
   {
@@ -46,13 +52,6 @@ export const ACTIONS = [
     description: __(
       'Delay the next action with a timeframe, a specific event or activity'
     ),
-    isAvailable: true
-  },
-  {
-    type: 'customCode',
-    icon: 'graduation-hat',
-    label: __('Custom code'),
-    description: __('Custom code'),
     isAvailable: true
   },
   {
@@ -71,12 +70,11 @@ export const ACTIONS = [
     description: __('Send email, SMS or in-app messenger messages to Contacts'),
     isAvailable: false
   },
-  ...pluginsOfAutomationActions()
 ];
 
 export const TRIGGERS = [
   {
-    type: 'customer',
+    type: 'contacts:customer',
     img: 'automation2.svg',
     icon: 'users-alt',
     label: __('Contact'),
@@ -85,7 +83,7 @@ export const TRIGGERS = [
     )
   },
   {
-    type: 'company',
+    type: 'contacts:company',
     img: 'automation2.svg',
     icon: 'university',
     label: __('Company'),
@@ -94,7 +92,7 @@ export const TRIGGERS = [
     )
   },
   {
-    type: 'conversation',
+    type: 'inbox:conversation',
     img: 'automation4.svg',
     icon: 'chat-bubble-user',
     label: __('Conversation'),
@@ -103,7 +101,7 @@ export const TRIGGERS = [
     )
   },
   {
-    type: 'task',
+    type: 'cards:task',
     img: 'automation3.svg',
     icon: 'file-plus-alt',
     label: __('Task'),
@@ -112,7 +110,7 @@ export const TRIGGERS = [
     )
   },
   {
-    type: 'ticket',
+    type: 'cards:ticket',
     img: 'automation3.svg',
     icon: 'file-plus',
     label: __('Ticket'),
@@ -121,7 +119,7 @@ export const TRIGGERS = [
     )
   },
   {
-    type: 'deal',
+    type: 'cards:deal',
     img: 'automation3.svg',
     icon: 'piggy-bank',
     label: __('Sales pipeline'),
@@ -130,7 +128,7 @@ export const TRIGGERS = [
     )
   },
   {
-    type: 'user',
+    type: 'core:user',
     img: 'automation4.svg',
     icon: 'users',
     label: __('Team member'),
@@ -141,13 +139,13 @@ export const TRIGGERS = [
 ];
 
 export const TRIGGER_TYPES = [
-  'user',
-  'deal',
-  'ticket',
-  'task',
-  'conversation',
-  'company',
-  'customer'
+  'core:user',
+  'cards:deal',
+  'cards:ticket',
+  'cards:task',
+  'inbox:conversation',
+  'contacts:company',
+  'contacts:customer'
 ];
 
 export const statusFilters = [

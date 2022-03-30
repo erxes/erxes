@@ -1,7 +1,7 @@
 import { Context } from "graphql-ws";
 import { Extra } from "graphql-ws/lib/use/ws";
 import pubsub from "./pubsub";
-import redis from "../redis";
+import { redis } from "../redis";
 import { Customers, ConversationMessages, Conversations } from "../db";
 
 export async function markClientActive(
@@ -12,7 +12,7 @@ export async function markClientActive(
   const socket: any = ctx.extra.socket;
 
   /*
-    Clear previous one. It could be from previous different client. 
+    Clear previous one. It could be from previous different client.
     Also the client always sends messengerDataJson onSubscription
   */
   socket.messengerData = undefined;
@@ -70,7 +70,7 @@ export async function markClientInactive(
 
   const messengerData = socket.messengerData;
 
-  /* 
+  /*
     This socket might be reused to handle other clients.
     So, we delete old clients data, just in case.
   */

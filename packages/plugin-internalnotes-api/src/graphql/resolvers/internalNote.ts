@@ -1,8 +1,11 @@
-import { Users } from "../../apiCollections";
-import { IInternalNoteDocument } from "../../models/definitions/internalNotes";
+import { IContext } from '../../connectionResolver';
+import { IInternalNoteDocument } from '../../models/definitions/internalNotes';
 
 export default {
   createdUser(note: IInternalNoteDocument) {
-    return Users.findOne({ _id: note.createdUserId });
+    return note.createdUserId && {
+      __typename: 'User',
+      _id: note.createdUserId
+    };
   }
 };

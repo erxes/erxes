@@ -7,8 +7,11 @@ export default {
   __resolveReference({_id}, { models }: IContext) {
     return models.Integrations.findOne({ _id })
   },
-    brand(integration: IIntegrationDocument, _args, { coreModels }: IContext) {
-      return coreModels.Brands.findOne({ _id: integration.brandId });
+    brand(integration: IIntegrationDocument) {
+      return integration.brandId && {
+        __typename: 'Brand',
+        _id: integration.brandId
+      }
   },
 
   async form(integration: IIntegrationDocument) {

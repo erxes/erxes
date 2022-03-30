@@ -4,9 +4,10 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import { generateAllDataLoaders } from './dataloaders';
-import { coreModels, generateModels, models } from './connectionResolver';
+import { generateModels, models } from './connectionResolver';
 import logs from './logUtils';
 import tags from './tags';
+import internalNotes from './internalNotes';
 
 export let debug;
 export let mainDb;
@@ -27,12 +28,11 @@ export default {
 
     context.subdomain = subdomain;
     context.models = models;
-    context.coreModels = coreModels;
     context.dataLoaders = generateAllDataLoaders(models, subdomain);
 
     return context;
   },
-  meta: { logs: { consumers: logs }, tags },
+  meta: { logs: { consumers: logs }, tags, internalNotes },
   onServerInit: async options => {
     mainDb = options.db;
 

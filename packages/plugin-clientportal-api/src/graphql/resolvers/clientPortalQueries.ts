@@ -1,64 +1,113 @@
 // TODO: check if related stages are selected in client portal config
 
-import { ClientPortals } from '../../models';
-
 import { paginate } from '@erxes/api-utils/src';
+import { IContext } from '../../connectionResolver';
 import { sendCardsMessage, sendContactsMessage } from '../../messageBroker';
 
 const configClientPortalQueries = {
   async clientPortalGetConfigs(
     _root,
-    args: { page?: number; perPage?: number }
+    args: { page?: number; perPage?: number },
+    { models }: IContext
   ) {
-    return paginate(ClientPortals.find({}), args);
+    return paginate(models.ClientPortals.find({}), args);
   },
 
-  async clientPortalConfigsTotalCount() {
-    return ClientPortals.countDocuments();
+  async clientPortalConfigsTotalCount(_root, _args, { models }: IContext) {
+    return models.ClientPortals.countDocuments();
   },
 
   /**
    * Get last config
    */
-  clientPortalGetLast(_root) {
-    return ClientPortals.findOne({}).sort({
+  clientPortalGetLast(_root, _args, { models }: IContext) {
+    return models.ClientPortals.findOne({}).sort({
       createdAt: -1,
     });
   },
 
-  async clientPortalGetConfig(_root, { _id }: { _id: string }) {
-    return ClientPortals.findOne({ _id });
+  async clientPortalGetConfig(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    return models.ClientPortals.findOne({ _id });
   },
 
   async clientPortalGetTaskStages(
     _root,
-    { taskPublicPipelineId }: { taskPublicPipelineId: string }
+    { taskPublicPipelineId }: { taskPublicPipelineId: string },
+    { subdomain }: IContext
   ) {
-    return sendCardsMessage('findStages', { pipelineId: taskPublicPipelineId });
+    return sendCardsMessage({
+      subdomain,
+      action: 'stages.find',
+      data: { pipelineId: taskPublicPipelineId },
+      isRPC: true,
+    });
   },
 
-  async clientPortalGetTasks(_root, { stageId }: { stageId: string }) {
-    return sendCardsMessage('findTasks', { stageId });
+  async clientPortalGetTasks(
+    _root,
+    { stageId }: { stageId: string },
+    { subdomain }: IContext
+  ) {
+    return sendCardsMessage({
+      subdomain,
+      action: 'tasks.find',
+      data: stageId,
+      isRPC: true,
+    });
   },
 
-  async clientPortalTickets(_root, { email }: { email: string }) {
-    const customer = await sendContactsMessage('findCustomer', {
-      primaryEmail: email,
+  async clientPortalTickets(
+    _root,
+    { email }: { email: string },
+    { subdomain }: IContext
+  ) {
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.find',
+      data: { primaryEmail: email },
+      isRPC: true,
     });
 
     if (!customer) {
       return [];
     }
 
-    return sendCardsMessage('findTickets', { userId: customer._id });
+    return sendCardsMessage({
+      subdomain,
+      action: 'tickets.find',
+      data: { userId: customer._id },
+      isRPC: true,
+    });
   },
 
-  async clientPortalTask(_root, { _id }: { _id: string }) {
-    return sendCardsMessage('findOneTasks', { _id });
+  async clientPortalTask(
+    _root,
+    { _id }: { _id: string },
+    { subdomain }: IContext
+  ) {
+    return sendCardsMessage({
+      subdomain,
+      action: 'tasks.findOne',
+      data: { _id },
+      isRPC: true,
+    });
   },
 
-  async clientPortalTicket(_root, { _id }: { _id: string }) {
-    return sendCardsMessage('findOneTickets', { _id });
+  async clientPortalTicket(
+    _root,
+    { _id }: { _id: string },
+    { subdomain }: IContext
+  ) {
+    return sendCardsMessage({
+      subdomain,
+      action: 'tickets.findOne',
+      data: { _id },
+      isRPC: true,
+    });
   },
 };
 

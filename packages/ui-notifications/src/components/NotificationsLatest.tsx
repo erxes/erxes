@@ -42,7 +42,7 @@ class NotificationsLatest extends React.Component<Props> {
           <Link to="/notifications">{__("See all")}</Link>
         </NotificationSeeAll>
         <MarkAllRead>
-          <span onClick={() => markAsRead.bind(this, [])}>
+          <span onClick={markAsRead.bind(this, [])}>
             {__("Mark all as read")}
           </span>{" "}
         </MarkAllRead>

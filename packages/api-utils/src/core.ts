@@ -1,7 +1,7 @@
-import * as strip from 'strip';
-import * as faker from 'faker';
-import * as Random from 'meteor-random';
-import { IUserDocument } from './types';
+import * as strip from "strip";
+import * as faker from "faker";
+import * as Random from "meteor-random";
+import { IUserDocument } from "./types";
 
 export const getEnv = ({
   name,
@@ -12,11 +12,11 @@ export const getEnv = ({
 }): string => {
   const value = process.env[name];
 
-  if (!value && typeof defaultValue !== 'undefined') {
+  if (!value && typeof defaultValue !== "undefined") {
     return defaultValue;
   }
 
-  return value || '';
+  return value || "";
 };
 
 /**
@@ -37,8 +37,8 @@ export const paginate = (
 ) => {
   const { page = 0, perPage = 0, ids, excludeIds } = params || { ids: null };
 
-  const _page = Number(page || '1');
-  const _limit = Number(perPage || '20');
+  const _page = Number(page || "1");
+  const _limit = Number(perPage || "20");
 
   if (ids && ids.length > 0) {
     return excludeIds ? collection.limit(_limit) : collection;
@@ -48,7 +48,7 @@ export const paginate = (
 };
 
 export const validSearchText = (values: string[]) => {
-  const value = values.join(' ');
+  const value = values.join(" ");
 
   if (value.length < 512) {
     return value;
@@ -58,28 +58,28 @@ export const validSearchText = (values: string[]) => {
 };
 
 const stringToRegex = (value: string) => {
-  const specialChars = '{}[]\\^$.|?*+()'.split('');
-  const val = value.split('');
+  const specialChars = "{}[]\\^$.|?*+()".split("");
+  const val = value.split("");
 
   const result = val.map(char =>
-    specialChars.includes(char) ? '.?\\' + char : '.?' + char
+    specialChars.includes(char) ? ".?\\" + char : ".?" + char
   );
 
-  return '.*' + result.join('').substring(2) + '.*';
+  return ".*" + result.join("").substring(2) + ".*";
 };
 
 export const regexSearchText = (
   searchValue: string,
-  searchKey = 'searchText'
+  searchKey = "searchText"
 ) => {
   const result: any[] = [];
 
-  searchValue = searchValue.replace(/\s\s+/g, ' ');
+  searchValue = searchValue.replace(/\s\s+/g, " ");
 
-  const words = searchValue.split(' ');
+  const words = searchValue.split(" ");
 
   for (const word of words) {
-    result.push({ [searchKey]: new RegExp(`${stringToRegex(word)}`, 'mui') });
+    result.push({ [searchKey]: new RegExp(`${stringToRegex(word)}`, "mui") });
   }
 
   return { $and: result };
@@ -167,7 +167,7 @@ export const chunkArray = (myArray, chunkSize: number) => {
 };
 
 export const cleanHtml = (content?: string) =>
-  strip(content || '').substring(0, 100);
+  strip(content || "").substring(0, 100);
 
 /**
  * Splits text into chunks of strings limited by given character count
@@ -184,16 +184,16 @@ export const cleanHtml = (content?: string) =>
 export const splitStr = (str: string, size: number): string[] => {
   const cleanStr = strip(str);
 
-  return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, 'g')));
+  return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, "g")));
 };
 
 export const getUniqueValue = async (
   collection: any,
-  fieldName: string = 'code',
+  fieldName: string = "code",
   defaultValue?: string
 ) => {
   const getRandomValue = (type: string) =>
-    type === 'email' ? faker.internet.email().toLowerCase() : Random.id();
+    type === "email" ? faker.internet.email().toLowerCase() : Random.id();
 
   let uniqueValue = defaultValue || getRandomValue(fieldName);
 
@@ -209,19 +209,34 @@ export const getUniqueValue = async (
 };
 
 export const escapeRegExp = (str: string) => {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 };
 
 export interface ISendMessageArgs {
-  subdomain: string,
-  action: string,
-  data,
-  isRPC?: boolean,
-  defaultValue?
+  subdomain: string;
+  action: string;
+  data;
+  isRPC?: boolean;
+  defaultValue?;
 }
 
-export const sendMessage = async (args: { client: any, serviceDiscovery: any, serviceName: string } & ISendMessageArgs): Promise<any> => {
-  const { client, serviceDiscovery, serviceName, subdomain, action, data, defaultValue, isRPC } = args;
+export const sendMessage = async (
+  args: {
+    client: any;
+    serviceDiscovery: any;
+    serviceName: string;
+  } & ISendMessageArgs
+): Promise<any> => {
+  const {
+    client,
+    serviceDiscovery,
+    serviceName,
+    subdomain,
+    action,
+    data,
+    defaultValue,
+    isRPC
+  } = args;
 
   if (!(await serviceDiscovery.isEnabled(serviceName))) {
     return defaultValue;
@@ -231,5 +246,8 @@ export const sendMessage = async (args: { client: any, serviceDiscovery: any, se
     throw new Error(`${serviceName} service is not available`);
   }
 
-  return client[isRPC ? 'sendRPCMessage' : 'sendMessage'](serviceName + ( serviceName ? ':' : '') + action, { subdomain, data });
+  return client[isRPC ? "sendRPCMessage" : "sendMessage"](
+    serviceName + (serviceName ? ":" : "") + action,
+    { subdomain, data }
+  );
 };

@@ -78,7 +78,7 @@ export const initBroker = async (cl) => {
       }
 
       if (action === 'sendEngageSms') {
-        await sendBulkSms(models, realData);
+        await sendBulkSms(models, subdomain, realData);
       }
     } catch (e) {
       debug.error(e.message);
@@ -214,6 +214,15 @@ export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'tags',
+    ...args,
+  });
+};
+
+export const sendIntegrationsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'integrations',
     ...args,
   });
 };
