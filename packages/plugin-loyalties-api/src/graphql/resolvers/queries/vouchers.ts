@@ -44,6 +44,6 @@ const voucherQueries = {
   }
 };
 
-checkPermission(voucherQueries, 'vouchersMain', 'showVouchers', []);
+checkPermission(voucherQueries, 'vouchersMain', 'showLoyalties', []);
 
 export default voucherQueries;

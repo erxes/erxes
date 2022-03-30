@@ -128,23 +128,22 @@ export const getOwner = async (subdomain, ownerType, ownerId) => {
       return await sendContactsMessage({
         subdomain,
         action: 'customers.findOne',
-        data: {
-          _id: ownerId
-        }
+        data: { _id: ownerId },
+        isRPC: true
       });
     case 'user':
       return await sendCoreMessage({
         subdomain,
         action: 'users.findOne',
-        data: { _id: ownerId }
+        data: { _id: ownerId },
+        isRPC: true
       });
     case 'company':
       return await sendContactsMessage({
         subdomain,
         action: 'companies.findOne',
-        data: {
-          _id: ownerId
-        }
+        data: { _id: ownerId },
+        isRPC: true
       })
     default:
       return {}

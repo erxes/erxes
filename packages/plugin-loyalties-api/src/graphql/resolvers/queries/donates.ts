@@ -44,6 +44,6 @@ const donateQueries = {
   }
 };
 
-checkPermission(donateQueries, 'donatesMain', 'showDonates', []);
+checkPermission(donateQueries, 'donatesMain', 'showLoyalties', []);
 
 export default donateQueries;

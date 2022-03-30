@@ -1,12 +1,12 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Spinner, Bulk } from '@erxes/ui/src/components';
+import { Bulk } from '@erxes/ui/src/components';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import LotteryCampaign from '../components/List';
 import { mutations, queries } from '../graphql';
-import { ILotteryCampaign, LotteryCampaignQueryResponse, LotteryCampaignRemoveMutationResponse } from '../types';
+import { LotteryCampaignQueryResponse, LotteryCampaignRemoveMutationResponse } from '../types';
 
 type Props = {
   queryParams: any;

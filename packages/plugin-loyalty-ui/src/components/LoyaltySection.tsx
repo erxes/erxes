@@ -22,7 +22,7 @@ class LoyaltySection extends React.Component<IProps, {}> {
         isOpen={true}
       >
         <SectionBodyItem>
-          <Link to={`/erxes-plugin-loyalty/list/${customerId}`}>
+          <Link to={`/list/${customerId}`}>
             <Icon icon="star" />
             <LoyaltyAmount>{customerLoyalty.loyalty || '0.00'}</LoyaltyAmount>
           </Link>

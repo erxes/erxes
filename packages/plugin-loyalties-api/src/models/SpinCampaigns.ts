@@ -28,7 +28,7 @@ export const loadSpinCampaignClass = (models: IModels, _subdomain: string) => {
       return spinCampaign;
     }
 
-    public static async validSpinCampaign(doc) {
+    static async validSpinCampaign(doc) {
       validCampaign(doc);
       let sumProbability = 0;
       for (const award of doc.awards) {

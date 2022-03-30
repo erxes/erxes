@@ -4,13 +4,15 @@ import { Model, model } from 'mongoose';
 import { getRandomNumber, randomBetween, validCampaign } from './utils';
 import { IModels } from '../connectionResolver';
 import { ILotteryAward, ILotteryCampaign, ILotteryCampaignDocument, lotteryCampaignSchema } from './definitions/lotteryCampaigns';
+import { ILottery } from './definitions/lotteries';
 
 export interface ILotteryCampaignModel extends Model<ILotteryCampaignDocument> {
   getLotteryCampaign(_id: string): Promise<ILotteryCampaignDocument>;
   createLotteryCampaign(doc: ILotteryCampaign): Promise<ILotteryCampaignDocument>;
   updateLotteryCampaign(_id: string, doc: ILotteryCampaign): Promise<ILotteryCampaignDocument>;
   removeLotteryCampaigns(_ids: string[]): void;
-  setLuckyLottery({campaign, award, luckyLottery}: {campaign: ILotteryCampaign, award: ILotteryAward , luckyLottery: ILotteryCampaign})
+  doLottery({ campaignId, awardId }: { campaignId: string, awardId: string }): Promise<ILottery>;
+  getNextChar({ campaignId, awardId, prevChars }: { campaignId: string, awardId: string, prevChars: string }): Promise<any>;
 };
 
 export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) => {
@@ -25,7 +27,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
       return lotteryCampaign;
     }
 
-    public static async validLotteryCampaign(doc) {
+    static async validLotteryCampaign(doc) {
       validCampaign(doc)
     }
 
@@ -149,7 +151,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
           nextChar,
           afterChars,
           fitLotteriesCount,
-          luckyLottery: await models.Lotteries.getLottery((luckyLottery as any)._id)
+          luckyLottery: await models.Lotteries.findOne({ _id: (luckyLottery as any)._id }).lean()
         }
 
       }

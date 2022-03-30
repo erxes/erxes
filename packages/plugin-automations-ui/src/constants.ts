@@ -39,6 +39,13 @@ export const ACTIONS = [
     isAvailable: true
   },
   {
+    type: 'loyalties:voucher.create',
+    icon: 'file-plus',
+    label: __('Create voucher'),
+    description: __('Create voucher'),
+    isAvailable: true
+  },
+  {
     type: 'delay',
     icon: 'hourglass',
     label: __('Delay'),

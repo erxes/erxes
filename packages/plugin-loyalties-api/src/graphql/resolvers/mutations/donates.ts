@@ -21,7 +21,7 @@ const donatesMutations = {
 
 };
 
-checkPermission(donatesMutations, 'donatesAdd', 'manageDonate');
-checkPermission(donatesMutations, 'donatesRemove', 'manageDonate');
+checkPermission(donatesMutations, 'donatesAdd', 'manageLoyalties');
+checkPermission(donatesMutations, 'donatesRemove', 'manageLoyalties');
 
 export default donatesMutations;

@@ -20,7 +20,7 @@ module.exports = {
   },
   {
     text: 'Loyalty config',
-    to: '/erxes-plugin-loyalty/settings/general',
+    to: '/settings/general',
     image: '/images/icons/erxes-16.svg',
     location: "settings",
     scope: "loyalty",

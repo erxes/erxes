@@ -21,8 +21,8 @@ const lotteriesMutations = {
   },
 };
 
-checkPermission(lotteriesMutations, 'lotteriesAdd', 'manageLottery');
-checkPermission(lotteriesMutations, 'lotteriesEdit', 'manageLottery');
-checkPermission(lotteriesMutations, 'lotteriesRemove', 'manageLottery');
+checkPermission(lotteriesMutations, 'lotteriesAdd', 'manageLoyalties');
+checkPermission(lotteriesMutations, 'lotteriesEdit', 'manageLoyalties');
+checkPermission(lotteriesMutations, 'lotteriesRemove', 'manageLoyalties');
 
 export default lotteriesMutations;

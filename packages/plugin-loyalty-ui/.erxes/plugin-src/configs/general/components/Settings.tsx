@@ -4,7 +4,6 @@ import {
   FormControl,
   FormGroup,
   HeaderDescription,
-  Info,
   CollapseContent,
 } from "@erxes/ui/src/components";
 import { __ } from "@erxes/ui/src/utils";

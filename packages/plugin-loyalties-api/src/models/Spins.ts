@@ -27,10 +27,6 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
       return spin;
     }
 
-    public static async getSpins({ ownerType, ownerId, statuses }: { ownerType: string, ownerId: string, statuses: string[] }) {
-      return await models.Spins.find({ ownerType, ownerId, status: { $in: statuses || [] } }).lean()
-    }
-
     public static async createSpin(doc: ISpin) {
       const { campaignId, ownerType, ownerId, voucherCampaignId = '', userId = '' } = doc;
       if (!ownerId || !ownerType) {
@@ -90,7 +86,7 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
       return models.Spins.deleteMany({ _id: { $in: _ids } })
     }
 
-    public static async doSpin(spinId) {
+    public static async doSpin(spinId: string) {
       const spin = await models.Spins.getSpin(spinId);
       const { ownerType, ownerId } = spin;
       const spinCampaign = await models.SpinCampaigns.getSpinCampaign(spin.campaignId);

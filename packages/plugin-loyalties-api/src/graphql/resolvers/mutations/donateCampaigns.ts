@@ -16,8 +16,8 @@ const donatesMutations = {
   },
 };
 
-checkPermission(donatesMutations, 'donateCampaignsAdd', 'manageDonate');
-checkPermission(donatesMutations, 'donateCampaignsEdit', 'manageDonate');
-checkPermission(donatesMutations, 'donateCampaignsRemove', 'manageDonate');
+checkPermission(donatesMutations, 'donateCampaignsAdd', 'manageLoyalties');
+checkPermission(donatesMutations, 'donateCampaignsEdit', 'manageLoyalties');
+checkPermission(donatesMutations, 'donateCampaignsRemove', 'manageLoyalties');
 
 export default donatesMutations;

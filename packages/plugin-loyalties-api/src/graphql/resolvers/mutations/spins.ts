@@ -25,8 +25,8 @@ const spinsMutations = {
   }
 };
 
-checkPermission(spinsMutations, 'spinsAdd', 'manageSpin');
-checkPermission(spinsMutations, 'spinsEdit', 'manageSpin');
-checkPermission(spinsMutations, 'spinsRemove', 'manageSpin');
+checkPermission(spinsMutations, 'spinsAdd', 'manageLoyalties');
+checkPermission(spinsMutations, 'spinsEdit', 'manageLoyalties');
+checkPermission(spinsMutations, 'spinsRemove', 'manageLoyalties');
 
 export default spinsMutations;
