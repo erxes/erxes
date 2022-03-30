@@ -243,7 +243,11 @@ export const sendMessage = async (
   }
 
   if (isRPC && !(await serviceDiscovery.isAvailable(serviceName))) {
-    throw new Error(`${serviceName} service is not available`);
+    if (process.env.NODE_ENV === 'development') {
+      throw new Error(`${serviceName} service is not available`);
+    } else {
+      return defaultValue;
+    }
   }
 
   return client[isRPC ? "sendRPCMessage" : "sendMessage"](
