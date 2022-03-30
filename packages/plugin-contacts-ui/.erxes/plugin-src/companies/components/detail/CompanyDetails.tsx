@@ -8,8 +8,8 @@ import { UserHeader } from '@erxes/ui-contacts/src/customers/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
-import InfoSection from '../common/InfoSection';
 import LeftSidebar from './LeftSidebar';
+import InfoSection from '../common/InfoSection';
 import RightSidebar from './RightSidebar';
 import { isEnabled } from "@erxes/ui/src/utils/core";
 
