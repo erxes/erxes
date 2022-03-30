@@ -3,13 +3,13 @@ import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   ICommentDocument,
-  IEmojiDocument,
+  IEmojiDocument
 } from './models/definitions/reaction'; //ICommentDocument IEmojiDocument
 import {
   loadCommentClass, //loadCommentClass
   loadEmojiClass, //loadEmojiClass
   ICommentModel, //ICommentModel
-  IEmojiModel, //IEmojiModel
+  IEmojiModel //IEmojiModel
 } from './models/reactions';
 import { MongoClient } from 'mongodb';
 
@@ -63,7 +63,7 @@ const connectCore = async () => {
   db = client.db(dbName);
 
   coreModels = {
-    Users: db.collection('users'),
+    Users: db.collection('users')
   };
 
   return coreModels;
@@ -74,12 +74,12 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.Emojis = db.model<IEmojiDocument, IEmojiModel>(
     'emojis',
-    loadCommentClass(models)
+    loadEmojiClass(models)
   );
 
   models.Comments = db.model<ICommentDocument, ICommentModel>(
     'comments',
-    loadEmojiClass(models)
+    loadCommentClass(models)
   );
 
   return models;

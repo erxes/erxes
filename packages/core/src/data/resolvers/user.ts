@@ -82,5 +82,9 @@ export default {
 
   department(user: IUserDocument) {
     return Departments.findOne({ userIds: { $in: user._id } });
+  },
+
+  async leaderBoardPosition(user: IUserDocument) {
+    return (await Users.find({ score: { $gt: user.score || 0 } }).count()) + 1;
   }
 };

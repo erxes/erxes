@@ -1,3 +1,5 @@
+import { requireLogin } from '@erxes/api-utils/src/permissions';
+
 export type EmojiDoc = {
   contentId: string;
   contentType: string;
@@ -15,27 +17,29 @@ const emojiMutations = {
       contentId,
       contentType,
       type,
-      userId: user._id,
+      userId: user._id
     };
 
     const alreadyReacted = await models.Emojis.exists(doc);
 
     if (alreadyReacted) {
-      await models.Emojis.removeEmoji(models, doc);
+      await models.Emojis.removeEmoji(doc);
 
-      if (models.Emojis) {
-        await models.Emojis.useScoring(models, user._id, 'removeEmoji');
-      }
+      // if (models.Exms) {
+      //   await models.Exms.useScoring(models, user._id, 'removeEmoji');
+      // }
     } else {
-      await models.Emojis.createEmoji(models, doc);
+      await models.Emojis.createEmoji(doc);
 
-      if (models.Emojis) {
-        await models.Emojis.useScoring(models, user._id, 'createEmoji');
-      }
+      // if (models.Exms) {
+      //   await models.Exms.useScoring(models, user._id, 'createEmoji');
+      // }
     }
 
     return 'success';
-  },
+  }
 };
+
+requireLogin(emojiMutations, 'emojiReact');
 
 export default emojiMutations;

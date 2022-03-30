@@ -12,10 +12,11 @@ module.exports = {
   menus: [
     {
       text: 'Exm core',
-      url: '/erxes-plugin-exm/home',
-      icon: 'icon-cog',
+      to: '/erxes-plugin-exm/home',
+      image: '/images/icons/erxes-30.png',
       location: 'settings',
-      permission: 'showExms'
+      action: '',
+      permissions: ['showExms']
     }
   ]
 };

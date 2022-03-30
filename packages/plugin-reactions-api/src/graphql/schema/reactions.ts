@@ -1,6 +1,6 @@
 import {
   attachmentType,
-  attachmentInput,
+  attachmentInput
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = () => `
