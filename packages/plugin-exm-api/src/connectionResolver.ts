@@ -16,6 +16,7 @@ export interface IModels {
 export interface IContext extends IMainContext {
   models: IModels;
   coreModels: ICoreIModels;
+  subdomain: string;
 }
 
 export let models: IModels;
@@ -28,7 +29,7 @@ export const generateCoreModels = async (
 };
 
 export const generateModels = async (
-  _hostnameOrSubdomain: string
+  hostnameOrSubdomain: string
 ): Promise<IModels> => {
   if (models) {
     return models;
@@ -36,7 +37,7 @@ export const generateModels = async (
 
   coreModels = await connectCore();
 
-  loadClasses(mainDb);
+  loadClasses(mainDb, hostnameOrSubdomain);
 
   return models;
 };
@@ -64,12 +65,12 @@ export const connectCore = async () => {
   return coreModels;
 };
 
-export const loadClasses = (db: mongoose.Connection): IModels => {
+export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels => {
   models = {} as IModels;
 
   models.Exms = db.model<IExmDocument, IExmModel>(
     'exms',
-    loadExmClass(models, coreModels)
+    loadExmClass(models, subdomain)
   );
 
   return models;
