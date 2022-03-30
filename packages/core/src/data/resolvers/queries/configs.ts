@@ -1,74 +1,21 @@
-import * as mongoose from 'mongoose';
-import * as os from 'os';
-import { Configs } from '../../../db/models';
-import { DEFAULT_CONSTANT_VALUES } from '../../../db/models/definitions/constants';
-import { fetchElk } from '../../../elasticsearch';
-import { moduleRequireLogin } from '../../permissions/wrappers';
+import * as mongoose from "mongoose";
+import * as os from "os";
+import { Configs } from "../../../db/models";
+import { moduleRequireLogin } from "../../permissions/wrappers";
 
 import {
   checkPremiumService,
   getCoreDomain,
   getEnv,
   readFile,
-  sendRequest
-} from '../../utils';
+  sendRequest,
+} from "../../utils";
 
-import * as enabledServices from '../../../../enabled-services';
+import * as enabledServices from "../../../../enabled-services";
+import { getService, getServices } from "../../../serviceDiscovery";
+import { sendCommonMessage } from "../../../messageBroker";
+import { DEFAULT_CONSTANT_VALUES } from "@erxes/api-utils/src/constants";
 
-const doSearch = async (index, value, fields) => {
-  const highlightFields = {};
-
-  fields.forEach(field => {
-    highlightFields[field] = {};
-  });
-
-  const match = {
-    multi_match: {
-      query: value,
-      fields
-    }
-  };
-
-  let query: any = match;
-
-  if (index === 'customers') {
-    query = {
-      bool: {
-        must: [match],
-        must_not: [
-          {
-            term: { status: 'deleted' }
-          }
-        ]
-      }
-    };
-  }
-
-  const fetchResults = await fetchElk({
-    action: 'search',
-    index,
-    body: {
-      query,
-      size: 10,
-      highlight: {
-        fields: highlightFields
-      }
-    },
-    defaultValue: { hits: { hits: [] } }
-  });
-
-  const results = fetchResults.hits.hits.map(result => {
-    return {
-      source: {
-        _id: result._id,
-        ...result._source
-      },
-      highlight: result.highlight
-    };
-  });
-
-  return results;
-};
 
 const configQueries = {
   /**
@@ -80,26 +27,26 @@ const configQueries = {
 
   async configsGetVersion(_root, { releaseNotes }) {
     const result = {
-      version: '-',
+      version: "-",
       isUsingRedis: Boolean(process.env.REDIS_HOST),
       isUsingRabbitMQ: Boolean(process.env.RABBITMQ_HOST),
-      isUsingElkSyncer: Boolean(process.env.ELK_SYNCER !== 'false'),
+      isUsingElkSyncer: Boolean(process.env.ELK_SYNCER !== "false"),
       isLatest: false,
-      releaseInfo: {}
+      releaseInfo: {},
     };
 
-    const erxesDomain = getEnv({ name: 'MAIN_APP_DOMAIN' });
+    const erxesDomain = getEnv({ name: "MAIN_APP_DOMAIN" });
 
     const erxesVersion = await sendRequest({
       url: `${erxesDomain}/version.json`,
-      method: 'GET'
+      method: "GET",
     });
 
-    result.version = erxesVersion.packageVersion || '-';
+    result.version = erxesVersion.packageVersion || "-";
 
     const response = await sendRequest({
-      url: `${process.env.CORE_URL || 'https://erxes.io'}/git-release-info`,
-      method: 'GET'
+      url: `${process.env.CORE_URL || "https://erxes.io"}/git-release-info`,
+      method: "GET",
     });
 
     result.isLatest = result.version === response.tag_name;
@@ -114,11 +61,11 @@ const configQueries = {
   async configsStatus(_root, _args) {
     const status: any = {
       erxesApi: {},
-      erxesIntegration: {}
+      erxesIntegration: {},
     };
 
     const { version, storageEngine } = await mongoose.connection.db.command({
-      serverStatus: 1
+      serverStatus: 1,
     });
 
     status.erxesApi.os = {
@@ -130,18 +77,18 @@ const configQueries = {
       loadavg: os.loadavg(),
       totalmem: os.totalmem(),
       freemem: os.freemem(),
-      cpuCount: os.cpus().length
+      cpuCount: os.cpus().length,
     };
 
     status.erxesApi.process = {
       nodeVersion: process.version,
       pid: process.pid,
-      uptime: process.uptime()
+      uptime: process.uptime(),
     };
 
     status.erxesApi.mongo = {
       version,
-      storageEngine: storageEngine.name
+      storageEngine: storageEngine.name,
     };
 
     return status;
@@ -149,14 +96,14 @@ const configQueries = {
 
   configsGetEnv(_root) {
     return {
-      USE_BRAND_RESTRICTIONS: process.env.USE_BRAND_RESTRICTIONS
+      USE_BRAND_RESTRICTIONS: process.env.USE_BRAND_RESTRICTIONS,
     };
   },
 
   configsConstants(_root) {
     return {
       allValues: Configs.constants(),
-      defaultValues: DEFAULT_CONSTANT_VALUES
+      defaultValues: DEFAULT_CONSTANT_VALUES,
     };
   },
 
@@ -167,9 +114,9 @@ const configQueries = {
   async configsCheckActivateInstallation(_root, args: { hostname: string }) {
     try {
       return await sendRequest({
-        method: 'POST',
+        method: "POST",
         url: `${getCoreDomain()}/check-activate-installation`,
-        body: args
+        body: args,
       });
     } catch (e) {
       throw new Error(e.message);
@@ -177,93 +124,34 @@ const configQueries = {
   },
 
   configsGetEmailTemplate(_root, { name }: { name?: string }) {
-    return readFile(name || 'base');
+    return readFile(name || "base");
   },
 
   async search(_root, { value }: { value: string }) {
-    const searchBoardItems = async _index => {
-      // const items = await doSearch(index, value, ['name', 'description']);
+    const services = await getServices();
 
-      const updatedItems: any = [];
+    let results: Array<{ module: string; items: any[] }> = [];
 
-      // for (const item of items) {
-      //   const stage = (await Stages.findOne({ _id: item.source.stageId })) || {
-      //     pipelineId: ''
-      //   };
-      //   const pipeline = (await Pipelines.findOne({
-      //     _id: stage.pipelineId
-      //   })) || { boardId: '' };
+    for (const serviceName of services) {
+      const service = await getService(serviceName, true);
+      const meta = service.config ? service.config.meta : {};
 
-      //   item.source.pipelineId = stage.pipelineId;
-      //   item.source.boardId = pipeline.boardId;
+      if (meta && meta.isSearchable) {
+        const serviceResults = await sendCommonMessage({
+          serviceName,
+          action: "search",
+          data: {
+            value,
+          },
+          isRPC: true,
+        });
 
-      //   updatedItems.push(item);
-      // }
-
-      return updatedItems;
-    };
-
-    const results = [
-      {
-        module: 'conversationMessages',
-        items: await doSearch('conversation_messages', value, ['content'])
-      },
-      {
-        module: 'contacts',
-        items: await doSearch('customers', value, [
-          'code',
-          'firstName',
-          'lastName',
-          'middleName',
-          'primaryPhone',
-          'primaryEmail',
-          'searchText'
-        ])
-      },
-      {
-        module: 'companies',
-        items: await doSearch('companies', value, [
-          'primaryName',
-          'industry',
-          'plan',
-          'primaryEmail',
-          'primaryPhone',
-          'businessType',
-          'description',
-          'website',
-          'code',
-          'searchText'
-        ])
-      },
-      {
-        module: 'tasks',
-        items: await searchBoardItems('tasks')
-      },
-      {
-        module: 'tickets',
-        items: await searchBoardItems('tickets')
-      },
-      {
-        module: 'deals',
-        items: await searchBoardItems('deals')
-      },
-      {
-        module: 'stages',
-        items: await doSearch('stages', value, ['name'])
-      },
-      {
-        module: 'pipelines',
-        items: await doSearch('pipelines', value, ['name'])
-      },
-      {
-        module: 'engageMessages',
-        items: await doSearch('engage_messages', value, ['title'])
+        results = [...results, ...serviceResults];
       }
-    ];
+    }
 
     return results;
   },
-
 };
 
 moduleRequireLogin(configQueries);
@@ -271,6 +159,6 @@ moduleRequireLogin(configQueries);
 // @ts-ignore
 configQueries.enabledServices = () => {
   return enabledServices;
-}
+};
 
 export default configQueries;

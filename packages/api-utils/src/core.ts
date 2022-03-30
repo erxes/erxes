@@ -251,3 +251,49 @@ export const sendMessage = async (
     { subdomain, data }
   );
 };
+
+export const doSearch = async ({ fetchEs, index, value, fields, customQuery }: { fetchEs, index: string, value: string, fields: string[], customQuery?: any }) => {
+  const highlightFields = {};
+
+  fields.forEach((field) => {
+    highlightFields[field] = {};
+  });
+
+  const match = {
+    multi_match: {
+      query: value,
+      fields,
+    },
+  };
+
+  let query: any = match;
+
+  if (customQuery) {
+    query = customQuery;
+  }
+
+  const fetchResults = await fetchEs({
+    action: "search",
+    index,
+    body: {
+      query,
+      size: 10,
+      highlight: {
+        fields: highlightFields,
+      },
+    },
+    defaultValue: { hits: { hits: [] } },
+  });
+
+  const results = fetchResults.hits.hits.map((result) => {
+    return {
+      source: {
+        _id: result._id,
+        ...result._source,
+      },
+      highlight: result.highlight,
+    };
+  });
+
+  return results;
+};

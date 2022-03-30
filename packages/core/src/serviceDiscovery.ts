@@ -1,5 +1,5 @@
 const enabledServices = require('../enabled-services');
-import { redis, join, leave, getServices, getService } from '@erxes/api-utils/src/serviceDiscovery'
+import { redis, join, leave, getServices, getService, isEnabled, isAvailable } from '@erxes/api-utils/src/serviceDiscovery'
 
 export async function refreshEnabledServicesCache() {
   await redis.del('erxes:plugins:enabled');
@@ -20,5 +20,7 @@ export {
   getServices,
   getService,
   join,
-  leave
+  leave,
+  isEnabled,
+  isAvailable,
 }
