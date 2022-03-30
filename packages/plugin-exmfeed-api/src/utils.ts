@@ -1,5 +1,4 @@
 import * as admin from 'firebase-admin';
-import { debugExternalApi } from 'erxes-api-utils/lib/debuggers';
 
 const initFirebase = async (models): Promise<void> => {
   let config;
@@ -83,12 +82,10 @@ export const sendMobileNotification = async (
           data: { conversationId: conversationId || 'fakeId' }
         })
         .then(response => {
-          debugExternalApi(
-            `Successfully sent message: ${JSON.stringify(response)}`
-          );
+          console.log(`Successfully sent message: ${JSON.stringify(response)}`);
         })
         .catch(error => {
-          debugExternalApi(`Error sending message: ${error.message}`);
+          console.log(`Error sending message: ${error.message}`);
           throw error;
         });
     }
