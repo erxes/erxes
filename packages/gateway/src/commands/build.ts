@@ -67,6 +67,8 @@ const main = async () => {
   );
 
   if (type === "plugin") {
+    console.log('replacing .erxes ...........');
+
     await execute(() =>
       fse.copy("../api-plugin-template.erxes", `../../dist/${folderName}/.erxes`, {
         overwrite: true,

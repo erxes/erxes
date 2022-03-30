@@ -3,24 +3,17 @@ import { gql } from 'apollo-server-express';
 import {
   types as exmTypes,
   queries as exmQueries,
-  mutations as exmMutations,
+  mutations as exmMutations
 } from './schema/exmFeed';
 
-const typeDefs = async (serviceDiscovery) => {
-  const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
-
-  const isEnabled = {
-    contacts: isContactsEnabled,
-  };
-
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date
     
-    ${exmTypes(isEnabled)}
+    ${await exmTypes()}
     
     extend type Query {
-
       ${exmQueries}
     }
     
@@ -29,4 +22,5 @@ const typeDefs = async (serviceDiscovery) => {
     }
   `;
 };
+
 export default typeDefs;

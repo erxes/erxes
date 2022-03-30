@@ -1,12 +1,12 @@
 {
-  "name": "@erxes/plugin-exm-feed-api",
+  "name": "@erxes/plugin-exmfeed-api",
   "version": "1.0.0",
   "scripts": {
     "test": "jest --coverage --forceExit --runInBand",
     "install-deps": "cd .erxes && yarn install",
     "dev": "cd .erxes && yarn dev",
     "build": "cd .erxes && yarn build",
-    "start": "cd .erxes/dist/plugin-exm-feed-api/.erxes && node src"
+    "start": "cd .erxes/dist/plugin-exmfeed-api/.erxes && node src"
   },
   "dependencies": {
     "@types/body-parser": "^1.17.0",

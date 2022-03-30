@@ -12,12 +12,12 @@ const resolvers: any = async () => ({
   ExmThanks,
   Mutation: {
     ...exmFeedMutations,
-    ...exmThankMutations,
+    ...exmThankMutations
   },
   Query: {
     ...exmFeedQueries,
-    ...exmThankQueries,
-  },
+    ...exmThankQueries
+  }
 });
 
 export default resolvers;
