@@ -1,5 +1,5 @@
 import { Document, Model, Schema } from 'mongoose';
-import { ICoreIModels, IModels } from '../connectionResolver';
+import { IModels } from '../connectionResolver';
 import { field } from '@erxes/api-utils/src/definitions/utils';
 import { sendCoreMessage } from '../messageBroker';
 
