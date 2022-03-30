@@ -29,8 +29,7 @@ import { uploader } from './middlewares/fileMiddleware';
 import {
   join,
   leave,
-  redis,
-  refreshEnabledServicesCache
+  redis
 } from './serviceDiscovery';
 import logs from './logUtils';
 
@@ -285,5 +284,3 @@ async function closeHttpServer() {
     process.exit(0);
   });
 });
-
-refreshEnabledServicesCache();

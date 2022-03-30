@@ -24,7 +24,7 @@ const fieldQueries = {
 
     for (const serviceName of services) {
       const service = await serviceDiscovery.getService(serviceName, true);
-      const meta = service.config.meta || {};
+      const meta = service.config?.meta || {};
 
       if (meta && meta.forms) {
         const types = meta.forms.types || [];
@@ -87,7 +87,7 @@ const fieldQueries = {
       return [];
     }
 
-    const meta = service.config.meta || {};
+    const meta = service.config?.meta || {};
 
     if (meta.forms && meta.forms.defaultColumnsConfig) {
       return meta.forms.defaultColumnsConfig[type] || [];

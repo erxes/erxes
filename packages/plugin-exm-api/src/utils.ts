@@ -2,7 +2,7 @@ import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 
 import { debugBase, debugError } from './debuggers';
 import messageBroker from './messageBroker';
-import { getServices, getService } from './redis';
+import { getServices } from '@erxes/api-utils/src/serviceDiscovery'
 import { ICampaign, ICustomer } from './types';
 
 export const isUsingElk = () => {
@@ -70,11 +70,10 @@ export const setCampaignCount = async (campaign: ICampaign) => {
 };
 
 export const getEditorAttributeUtil = async () => {
-  const apiCore = await getService('core');
   const services = await getServices();
   const editor = await new EditorAttributeUtil(
     messageBroker(),
-    apiCore.address,
+    `${process.env.MAIN_API_DOMAIN}/pl:core`,
     services
   );
 

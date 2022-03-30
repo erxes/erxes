@@ -12,7 +12,7 @@ import messageBroker, {
   sendInboxMessage,
   sendTagsMessage
 } from './messageBroker';
-import { getService, getServices } from './inmemoryStorage';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery'
 import { generateModels, IModels } from './connectionResolver';
 
 export const findCustomer = async ({ Customers }: IModels, doc) => {
@@ -329,11 +329,10 @@ export const getContentItem = async (
 };
 
 export const getEditorAttributeUtil = async () => {
-  const core = await getService('core');
   const services = await getServices();
   const editor = await new EditorAttributeUtil(
     messageBroker(),
-    core.address,
+    `${process.env.MAIN_API_DOMAIN}/pl:core`,
     services
   );
 

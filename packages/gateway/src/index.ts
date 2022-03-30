@@ -14,7 +14,7 @@ import { createGateway, IGatewayContext } from './gateway';
 import userMiddleware from './middlewares/userMiddleware';
 import * as db from './db';
 import pubsub from './subscription/pubsub';
-import { getService, getServices, redis, setAfterMutations } from './redis';
+import { getService, getEnabledServices, redis, setAfterMutations } from './redis';
 import { initBroker } from './messageBroker';
 
 const {
@@ -43,7 +43,7 @@ const {
     createProxyMiddleware({
       target: API_DOMAIN,
       router: async req => {
-        const services = await getServices();
+        const services = await getEnabledServices();
 
         let host;
 
@@ -65,7 +65,7 @@ const {
       pathRewrite: async path => {
         let newPath = path;
 
-        const services = await getServices();
+        const services = await getEnabledServices();
 
         for (const service of services) {
           newPath = newPath.replace(`/pl:${service}`, '');
@@ -126,7 +126,15 @@ const {
     }
   });
 
-  await apolloServer.start();
+  try {
+    await apolloServer.start();
+  } catch (e) {
+    console.error(e);
+    console.error(
+      `Gateway might have started before enabled services are ready.`
+    );
+    process.exit(1);
+  }
 
   apolloServer.applyMiddleware({
     app,
