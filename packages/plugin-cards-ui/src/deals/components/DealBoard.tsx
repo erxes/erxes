@@ -20,6 +20,8 @@ class DealBoard extends React.Component<Props> {
   renderContent() {
     const { queryParams, viewType } = this.props;
 
+    console.log('debugging....', options)
+    
     return (
       <Board viewType={viewType} queryParams={queryParams} options={options} />
     );
