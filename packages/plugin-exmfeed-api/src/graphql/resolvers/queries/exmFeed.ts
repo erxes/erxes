@@ -12,25 +12,21 @@ const getDateRange = (filterType: string) => {
       moment()
         .add(filterType === 'today' ? 1 : 8, 'days')
         .format('YYYY-MM-DD')
-    ),
+    )
   };
 };
 
 const exmFeedQueries = {
-  exmFeedDetail: async (_root, params, { models, checkPermission, user }) => {
+  exmFeedDetail: async (_root, params, { models }) => {
     return models.ExmFeed.findOne({ _id: params._id });
   },
 
-  exmFeedCeremonies: async (
-    _root,
-    { contentType, filterType },
-    { models, checkPermission, user }
-  ) => {
+  exmFeedCeremonies: async (_root, { contentType, filterType }, { models }) => {
     const filter: {
       'ceremonyData.willDate': any;
       contentType?: string;
     } = {
-      'ceremonyData.willDate': getDateRange(filterType),
+      'ceremonyData.willDate': getDateRange(filterType)
     };
 
     if (contentType) {
@@ -39,16 +35,18 @@ const exmFeedQueries = {
 
     return {
       list: await models.ExmFeed.find(filter),
-      totalCount: await models.ExmFeed.find(filter).countDocuments(),
+      totalCount: await models.ExmFeed.find(filter).countDocuments()
     };
   },
 
   exmFeed: async (
     _root,
     { isPinned, title, contentTypes, limit, skip, recipientType, type },
-    { models, checkPermission, user }
+    { models, user }
   ) => {
     const doc: any = {};
+
+    console.log('models: ', models);
 
     if (
       contentTypes &&
@@ -75,8 +73,8 @@ const exmFeedQueries = {
         { 'eventData.visibility': 'public' },
         {
           'eventData.visibility': 'private',
-          recipientIds: { $in: [user._id] },
-        },
+          recipientIds: { $in: [user._id] }
+        }
       ];
     }
 
@@ -92,7 +90,7 @@ const exmFeedQueries = {
       } else {
         doc.$or = [
           { recipientIds: { $in: [user._id] } },
-          { createdBy: user._id },
+          { createdBy: user._id }
         ];
       }
     }
@@ -114,11 +112,11 @@ const exmFeedQueries = {
         .sort({ createdAt: -1 })
         .skip(skip || 0)
         .limit(limit || 20),
-      totalCount: await models.ExmFeed.find(doc).countDocuments(),
+      totalCount: await models.ExmFeed.find(doc).countDocuments()
     };
-  },
+  }
 };
-requireLogin(exmFeedQueries, 'showExmActivityFeed');
+
 checkPermission(exmFeedQueries, 'exmFeedDetail', 'showExmActivityFeed');
 checkPermission(exmFeedQueries, 'exmFeedCeremonies', 'showExmActivityFeed');
 checkPermission(exmFeedQueries, 'exmFeed', 'showExmActivityFeed');

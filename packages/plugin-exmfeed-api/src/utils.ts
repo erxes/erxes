@@ -2,9 +2,13 @@ import * as admin from 'firebase-admin';
 import { debugExternalApi } from 'erxes-api-utils/lib/debuggers';
 
 const initFirebase = async (models): Promise<void> => {
-  const config = await models.Configs.findOne({
-    code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
-  });
+  let config;
+
+  if (models.Configs) {
+    config = await models.Configs.findOne({
+      code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
+    });
+  }
 
   if (!config) {
     return;
@@ -47,7 +51,11 @@ export const sendMobileNotification = async (
   }
 ): Promise<void> => {
   if (!admin.apps.length) {
-    await initFirebase(models);
+    try {
+      await initFirebase(models);
+    } catch (e) {
+      console.log(e.message);
+    }
   }
 
   const tokens: string[] = [];

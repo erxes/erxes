@@ -1,120 +1,114 @@
-import {
-  attachmentType,
-  attachmentInput
-} from '@erxes/api-utils/src/commonTypeDefs';
+export const types = () => {
+  return `
+    extend type User @key(fields: "_id") {
+      _id: String! @external
+    }
+    
+    type ExmCeremonyData {
+      startedDate: Date
+      willDate: Date
+      howManyYear: Int
+      year: Int
+    }
 
-export const types = () => `
-  ${attachmentType}
-  ${attachmentInput}
+    type ExmEventData {
+      visibility: String
+      where: String
+      startDate: Date
+      endDate: Date
+      interestedUserIds: [String]
+      goingUserIds: [String]
+    }
 
-  extend type User @key(fields: "_id") {
-    _id: String! @external
-  }
-  
-  type ExmCeremonyData {
-    startedDate: Date
-    willDate: Date
-    howManyYear: Int
-    year: Int
-  }
+    type ExmFeed {
+      _id: String
+      title: String
+      description: String
+      contentType: String
+      visibility: String
+      where: String
+      startDate: Date
+      endDate: Date
+      commentCount: Int
+      likeCount: Int
+      heartCount: Int
+      isHearted: Boolean
+      isLiked: Boolean
+      isPinned: Boolean
+      images: JSON
+      attachments: JSON
+      recipientIds: [String]
+      recipients: [User]
+      createdAt: Date
+      updatedAt: Date
+      createdUser: User
+      updatedUser: User
+      customFieldsData: JSON
+      ceremonyData: ExmCeremonyData
+      eventData: ExmEventData
+      eventGoingUsers: [User]
+      eventInterestedUsers: [User]
+    }
 
-  type ExmEventData {
-    visibility: String
-    where: String
-    startDate: Date
-    endDate: Date
-    interestedUserIds: [String]
-    goingUserIds: [String]
-  }
+    type ExmThank {
+      _id: String
+      description: String
+      recipients: [User]
+      recipientIds: [String]
+      createdAt: Date
+      updatedAt: Date
+      createdUser: User
+    }
 
-  type ExmFeed {
-    _id: String
-    title: String
-    description: String
-    contentType: String
-    visibility: String
-    where: String
-    startDate: Date
-    endDate: Date
-    commentCount: Int
-    likeCount: Int
-    heartCount: Int
-    isHearted: Boolean
-    isLiked: Boolean
-    isPinned: Boolean
-    images: JSON
-    attachments: JSON
-    recipientIds: [String]
-    recipients: [User]
-    createdAt: Date
-    updatedAt: Date
-    createdUser: User
-    updatedUser: User
-    customFieldsData: JSON
-    ceremonyData: ExmCeremonyData
-    eventData: ExmEventData
-    eventGoingUsers: [User]
-    eventInterestedUsers: [User]
-  }
+    type ExmFeedResponse {
+      list: [ExmFeed]
+      totalCount: Int
+    }
 
-  type ExmThank {
-    _id: String
-    description: String
-    recipients: [User]
-    recipientIds: [String]
-    createdAt: Date
-    updatedAt: Date
-    createdUser: User
-  }
+    type ExmThankResponse {
+      list: [ExmThank]
+      totalCount: Int
+    }
 
-  type ExmFeedResponse {
-    list: [ExmFeed]
-    totalCount: Int
-  }
+    enum SourceType {
+      recipient
+      createdByMe
+      admin
+    }
 
-  type ExmThankResponse {
-    list: [ExmThank]
-    totalCount: Int
-  }
+    enum ContentType {
+      event
+      post
+      bravo
+      birthday
+      workAnniversary
+      publicHoliday
+    }
 
-  enum SourceType {
-    recipient
-    createdByMe
-    admin
-  }
+    enum RecipientType {
+      recieved
+      sent
+    }
 
-  enum ContentType {
-    event
-    post
-    bravo
-    birthday
-    workAnniversary
-    publicHoliday
-  }
+    enum FilterType {
+      today
+      upcoming
+    }
 
-  enum RecipientType {
-    recieved
-    sent
-  }
+    input ExmEventDataInput {
+      visibility: String
+      where: String
+      startDate: Date
+      endDate: Date
+    }
 
-  enum FilterType {
-    today
-    upcoming
-  }
-
-  input ExmEventDataInput {
-    visibility: String
-    where: String
-    startDate: Date
-    endDate: Date
-  }
-
-  enum ExmGoingOrInterested {
-    going
-    interested
-    neither
-  }
-`;
+    enum ExmGoingOrInterested {
+      going
+      interested
+      neither
+    }
+  `;
+};
 
 export const queries = `
   exmFeedDetail(_id: String!): ExmFeed
