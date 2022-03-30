@@ -11,13 +11,13 @@ import {
 import { FormControl } from '@erxes/ui/src/components/form';
 import { IQueryParams } from '@erxes/ui/src/types';
 import { IVoucher } from '../types';
-import { IVoucherCompaign } from '../../../configs/voucherCompaign/types';
+import { IVoucherCampaign } from '../../../configs/voucherCampaign/types';
 import { Link } from 'react-router-dom';
 import { ModalTrigger } from '@erxes/ui/src/components';
 
 type Props = {
   voucher: IVoucher;
-  currentCompaign?: IVoucherCompaign;
+  currentCampaign?: IVoucherCampaign;
   history: any;
   isChecked: boolean;
   toggleBulk: (voucher: IVoucher, isChecked?: boolean) => void;
@@ -89,14 +89,14 @@ class VoucherRow extends React.Component<Props> {
   };
 
   render() {
-    const { voucher, isChecked, currentCompaign } = this.props;
+    const { voucher, isChecked, currentCampaign } = this.props;
 
     const onClick = e => {
       e.stopPropagation();
     };
 
     const renderCheckbox = () => {
-      if (!currentCompaign || ['spin', 'lottery'].includes(currentCompaign.voucherType)) {
+      if (!currentCampaign || ['spin', 'lottery'].includes(currentCampaign.voucherType)) {
         return;
       }
       return (

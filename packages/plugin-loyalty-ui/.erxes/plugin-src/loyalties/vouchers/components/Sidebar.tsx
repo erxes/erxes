@@ -1,7 +1,7 @@
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
-import CompaignList from '../containers/CompaignList';
-import FilterCompaign from './FilterCompaign';
+import CampaignList from '../containers/CampaignList';
+import FilterCampaign from './FilterCampaign';
 
 function Sidebar({
   loadingMainQuery,
@@ -14,8 +14,8 @@ function Sidebar({
 }) {
   return (
     <Wrapper.Sidebar>
-      <CompaignList queryParams={queryParams} history={history} />
-      <FilterCompaign queryParams={queryParams} history={history}/>
+      <CampaignList queryParams={queryParams} history={history} />
+      <FilterCampaign queryParams={queryParams} history={history}/>
     </Wrapper.Sidebar>
   );
 }

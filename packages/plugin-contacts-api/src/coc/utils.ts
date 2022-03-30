@@ -4,7 +4,7 @@ import { KIND_CHOICES } from '../models/definitions/constants';
 import { customerSchema } from '../models/definitions/customers';
 import { debug, es } from '../configs';
 import { COC_LEAD_STATUS_TYPES } from '../constants';
-import { ICoreIModels, IModels } from '../connectionResolver';
+import { IModels } from '../connectionResolver';
 import { fetchSegment, sendCoreMessage, sendSegmentsMessage, sendTagsMessage } from '../messageBroker';
 
 export interface ICountBy {
@@ -59,11 +59,19 @@ export const countBySegment = async (
   return counts;
 };
 
-export const countByBrand = async ({ Brands }: ICoreIModels,qb): Promise<ICountBy> => {
+export const countByBrand = async (subdomain: string, qb): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
   // Count customers by brand
-  const brands = await Brands.find().toArray();
+  const brands = await sendCoreMessage({
+    subdomain,
+    action: "brands.find",
+    data: {
+      query: {}
+    },
+    isRPC: true,
+    defaultValue: []
+  });
 
   for (const brand of brands) {
     await qb.buildAllQueries();
@@ -145,14 +153,12 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public positiveList: any[];
   public negativeList: any[];
   public models: IModels;
-  public coreModels: ICoreIModels;
   public subdomain: string;
 
   private contentType: 'customers' | 'companies';
 
   constructor(
     models: IModels,
-    coreModels: ICoreIModels,
     subdomain: string,
     contentType: 'customers' | 'companies',
     params: IListArgs,
@@ -162,7 +168,6 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     this.context = context;
     this.params = params;
     this.models = models;
-    this.coreModels = coreModels;
     this.subdomain = subdomain;
 
     this.positiveList = [];

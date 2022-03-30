@@ -163,15 +163,7 @@ const engageMessageStats = `
         message
       }
 
-      ${
-        isEnabled('inbox')
-          ? `
-              fromIntegration {
-                name
-              }
-            `
-          : ''
-      }
+      ${isEnabled('inbox') ? 'fromIntegration' : ''}
     }
   }
 `;

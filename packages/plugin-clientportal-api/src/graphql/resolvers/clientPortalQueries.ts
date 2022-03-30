@@ -13,14 +13,14 @@ const configClientPortalQueries = {
     return paginate(models.ClientPortals.find({}), args);
   },
 
-  async clientPortalConfigsTotalCount({ models }: IContext) {
+  async clientPortalConfigsTotalCount(_root, _args, { models }: IContext) {
     return models.ClientPortals.countDocuments();
   },
 
   /**
    * Get last config
    */
-  clientPortalGetLast(_root, { models }: IContext) {
+  clientPortalGetLast(_root, _args, { models }: IContext) {
     return models.ClientPortals.findOne({}).sort({
       createdAt: -1,
     });

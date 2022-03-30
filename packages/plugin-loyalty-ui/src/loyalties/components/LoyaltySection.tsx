@@ -4,7 +4,6 @@ import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { LoyaltyAmount } from '../../styles';
 import { IDonate } from '../donates/types';
 import { ILottery } from '../lotteries/types';
 import { ISpin } from '../spins/types';
@@ -28,7 +27,7 @@ class LoyaltySection extends React.Component<IProps, {}> {
 
     return (
       <SectionBodyItem>
-        <Link to={`/erxes-plugin-loyalty/vouchers?ownerId=${ownerId}&ownerType=${ownerType}`}>
+        <Link to={`/vouchers?ownerId=${ownerId}&ownerType=${ownerType}`}>
           <Icon icon="star" />
           {`Vouchers`} ({vouchers.length})
         </Link>
@@ -44,7 +43,7 @@ class LoyaltySection extends React.Component<IProps, {}> {
 
     return (
       <SectionBodyItem>
-        <Link to={`/erxes-plugin-loyalty/spins?ownerId=${ownerId}&ownerType=${ownerType}`}>
+        <Link to={`/spins?ownerId=${ownerId}&ownerType=${ownerType}`}>
           <Icon icon="star" />
           {`Spins`} ({spins.length})
         </Link>
@@ -60,7 +59,7 @@ class LoyaltySection extends React.Component<IProps, {}> {
 
     return (
       <SectionBodyItem>
-        <Link to={`/erxes-plugin-loyalty/lotteries?ownerId=${ownerId}&ownerType=${ownerType}`}>
+        <Link to={`/lotteries?ownerId=${ownerId}&ownerType=${ownerType}`}>
           <Icon icon="star" />
           {`Lotteries`} ({lotteries.length})
         </Link>
@@ -76,7 +75,7 @@ class LoyaltySection extends React.Component<IProps, {}> {
 
     return (
       <SectionBodyItem>
-        <Link to={`/erxes-plugin-loyalty/donates?ownerId=${ownerId}&ownerType=${ownerType}`}>
+        <Link to={`/donates?ownerId=${ownerId}&ownerType=${ownerType}`}>
           <Icon icon="star" />
           {`Donates`} ({donates.length})
         </Link>

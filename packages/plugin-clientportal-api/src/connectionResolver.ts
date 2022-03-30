@@ -6,10 +6,6 @@ import {
   loadClientPortalClass,
 } from './models/ClientPortal';
 import { IClientPortalDocument } from './models/definitions/clientPortal';
-
-export interface ICoreIModels {
-  Fields;
-}
 export interface IModels {
   ClientPortals: IClientPortalModel;
 }
@@ -37,7 +33,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
   models.ClientPortals = db.model<IClientPortalDocument, IClientPortalModel>(
-    'clientportals',
+    'client_portals',
     loadClientPortalClass(models)
   );
 

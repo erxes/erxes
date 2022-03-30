@@ -33,7 +33,7 @@ const conversationQueries = {
   /**
    * Conversations list
    */
-  async conversations(_root, params: IListArgs, { user, models, coreModels, subdomain }: IContext) {
+  async conversations(_root, params: IListArgs, { user, models, subdomain }: IContext) {
     // filter by ids of conversations
     if (params && params.ids) {
       return models.Conversations.find({ _id: { $in: params.ids } }).sort({
@@ -42,7 +42,7 @@ const conversationQueries = {
     }
 
     // initiate query builder
-    const qb = new QueryBuilder(models, coreModels, subdomain, params, {
+    const qb = new QueryBuilder(models, subdomain, params, {
       _id: user._id,
       code: user.code,
       starredConversationIds: user.starredConversationIds
@@ -109,7 +109,7 @@ const conversationQueries = {
   /**
    * Group conversation counts by brands, channels, integrations, status
    */
-  async conversationCounts(_root, params: IListArgs, { user, models, coreModels, subdomain }: IContext) {
+  async conversationCounts(_root, params: IListArgs, { user, models, subdomain }: IContext) {
     const { only } = params;
 
     const response: IConversationRes = {};
@@ -119,7 +119,7 @@ const conversationQueries = {
       starredConversationIds: user.starredConversationIds,
     };
 
-    const qb = new QueryBuilder(models, coreModels, subdomain, params, _user);
+    const qb = new QueryBuilder(models, subdomain, params, _user);
 
     await qb.buildAllQueries();
 
@@ -129,7 +129,6 @@ const conversationQueries = {
     if (only) {
       response[only] = await countByConversations(
         models,
-        coreModels,
         subdomain,
         params,
         integrationIds,
@@ -187,9 +186,9 @@ const conversationQueries = {
   /**
    * Get all conversations count. We will use it in pager
    */
-  async conversationsTotalCount(_root, params: IListArgs, { user, models, coreModels, subdomain }: IContext) {
+  async conversationsTotalCount(_root, params: IListArgs, { user, models, subdomain }: IContext) {
     // initiate query builder
-    const qb = new QueryBuilder(models, coreModels, subdomain, params, {
+    const qb = new QueryBuilder(models, subdomain, params, {
       _id: user._id,
       code: user.code,
       starredConversationIds: user.starredConversationIds,
@@ -203,9 +202,9 @@ const conversationQueries = {
   /**
    * Get last conversation
    */
-  async conversationsGetLast(_root, params: IListArgs, { user, models, coreModels, subdomain }: IContext) {
+  async conversationsGetLast(_root, params: IListArgs, { user, models, subdomain }: IContext) {
     // initiate query builder
-    const qb = new QueryBuilder(models, coreModels, subdomain, params, {
+    const qb = new QueryBuilder(models, subdomain, params, {
       _id: user._id,
       code: user.code,
       starredConversationIds: user.starredConversationIds,
@@ -221,9 +220,9 @@ const conversationQueries = {
   /**
    * Get all unread conversations for logged in user
    */
-  async conversationsTotalUnreadCount(_root, _args, { user, models, coreModels, subdomain }: IContext) {
+  async conversationsTotalUnreadCount(_root, _args, { user, models, subdomain }: IContext) {
     // initiate query builder
-    const qb = new QueryBuilder(models, coreModels, subdomain, {}, { _id: user._id, code: user.code });
+    const qb = new QueryBuilder(models, subdomain, {}, { _id: user._id, code: user.code });
 
     await qb.buildAllQueries();
 

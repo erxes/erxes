@@ -10,13 +10,13 @@ import {
 } from '@erxes/ui/src/utils';
 import { IQueryParams } from '@erxes/ui/src/types';
 import { ISpin } from '../types';
-import { ISpinCompaign } from '../../../configs/spinCompaign/types';
+import { ISpinCampaign } from '../../../configs/spinCampaign/types';
 import { Link } from 'react-router-dom';
 import { FormControl, ModalTrigger } from '@erxes/ui/src/components';
 
 type Props = {
   spin: ISpin;
-  currentCompaign?: ISpinCompaign;
+  currentCampaign?: ISpinCampaign;
   history: any;
   isChecked: boolean;
   toggleBulk: (spin: ISpin, isChecked?: boolean) => void;

@@ -1,5 +1,5 @@
 import React from 'react';
-import SelectCompaigns from '../../containers/SelectCompaigns';
+import SelectCampaigns from '../../containers/SelectCampaigns';
 import {
   Button,
   ControlLabel,
@@ -14,7 +14,7 @@ import {
   MainStyleScrollWrapper as ScrollWrapper,
 } from '@erxes/ui/src/styles/eindex';
 import { IVoucher, IVoucherDoc } from '../types';
-import { queries as compaignQueries } from '../../../configs/voucherCompaign/graphql';
+import { queries as campaignQueries } from '../../../configs/voucherCampaign/graphql';
 import SelectCompanies from '@erxes/ui/src/companies/containers/SelectCompanies';
 import SelectCustomers from '@erxes/ui/src/customers/containers/SelectCustomers';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
@@ -36,8 +36,8 @@ class VoucherForm extends React.Component<Props, State> {
 
     const { voucher = {} as IVoucher, queryParams } = this.props;
 
-    if (!voucher.compaignId && queryParams.compaignId) {
-      voucher.compaignId = queryParams.compaignId;
+    if (!voucher.campaignId && queryParams.campaignId) {
+      voucher.campaignId = queryParams.campaignId;
     }
 
     if (!voucher.ownerType) {
@@ -143,15 +143,15 @@ class VoucherForm extends React.Component<Props, State> {
       <>
         <ScrollWrapper>
           <FormGroup>
-            <ControlLabel>Compaign</ControlLabel>
-            <SelectCompaigns
-              queryName='voucherCompaigns'
-              customQuery={compaignQueries.voucherCompaigns}
-              label='Choose voucher compaign'
-              name='compaignId'
+            <ControlLabel>Campaign</ControlLabel>
+            <SelectCampaigns
+              queryName='voucherCampaigns'
+              customQuery={campaignQueries.voucherCampaigns}
+              label='Choose voucher campaign'
+              name='campaignId'
               onSelect={this.onChangeSelect}
-              initialValue={voucher.compaignId}
-              filterParams={voucher._id ? { equalTypeCompaignId: voucher.compaignId } : {}}
+              initialValue={voucher.campaignId}
+              filterParams={voucher._id ? { equalTypeCampaignId: voucher.campaignId } : {}}
             />
           </FormGroup>
 

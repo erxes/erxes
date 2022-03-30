@@ -1,11 +1,11 @@
 export const commonFields = `
   _id
-  compaignId
+  campaignId
   createdAt
   usedAt
   ownerType
   ownerId
-  voucherCompaignId
+  voucherCampaignId
 
   owner
 `;
@@ -15,7 +15,7 @@ export const commonParamsDef = `
   $perPage: Int
   $sortField: String
   $sortDirection: Int
-  $compaignId: String
+  $campaignId: String
   $status: String
   $ownerId: String
   $ownerType: String
@@ -26,7 +26,7 @@ export const commonParamsValue = `
   perPage: $perPage
   sortField: $sortField
   sortDirection: $sortDirection
-  compaignId: $compaignId
+  campaignId: $campaignId
   status: $status
   ownerId: $ownerId
   ownerType: $ownerType
@@ -34,14 +34,14 @@ export const commonParamsValue = `
 
 // mutation
 export const commonDefs = `
-  $compaignId: String,
+  $campaignId: String,
   $usedAt: Date,
   $ownerType: String,
   $ownerId: String
 `;
 
 export const commonVariables = `
-  compaignId: $compaignId,
+  campaignId: $campaignId,
   usedAt: $usedAt,
   ownerType: $ownerType,
   ownerId: $ownerId

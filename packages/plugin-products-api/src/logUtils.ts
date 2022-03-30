@@ -9,7 +9,7 @@ import {
 } from '@erxes/api-utils/src/logUtils';
 
 import { IModels } from './connectionResolver';
-import messageBroker from './messageBroker';
+import messageBroker, { sendTagsMessage } from './messageBroker';
 import { IProductDocument, productSchema, productCategorySchema } from './models/definitions/products';
 
 export const LOG_ACTIONS = {
@@ -25,6 +25,7 @@ export const MODULE_NAMES = {
 
 const gatherProductFieldNames = async (
   models: IModels,
+  subdomain: string,
   doc: IProductDocument,
   prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
@@ -39,7 +40,15 @@ const gatherProductFieldNames = async (
       foreignKey: 'tagIds',
       prevList: options,
       nameFields: ['name'],
-      items: await messageBroker().sendRPCMessage('tags:rpc_queue:find', { _id: { $in: doc.tagIds } })
+      items: await sendTagsMessage({
+        subdomain,
+        action: 'find',
+        data: {
+          _id: { $in: doc.tagIds }
+        },
+        isRPC: true,
+        defaultValue: []
+      })
     });
   }
 
@@ -55,7 +64,7 @@ const gatherProductFieldNames = async (
   return options;
 };
 
-const gatherDescriptions = async (models: IModels, params: any): Promise<IDescriptions> => {
+const gatherDescriptions = async (models: IModels, subdomain: string, params: any): Promise<IDescriptions> => {
   const { action, type, object, updatedDocument } = params;
 
   let extraDesc: LogDesc[] = [];
@@ -63,10 +72,10 @@ const gatherDescriptions = async (models: IModels, params: any): Promise<IDescri
 
   switch (type) {
     case MODULE_NAMES.PRODUCT:
-      extraDesc = await gatherProductFieldNames(models, object);
+      extraDesc = await gatherProductFieldNames(models, subdomain, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherProductFieldNames(models, updatedDocument, extraDesc);
+        extraDesc = await gatherProductFieldNames(models, subdomain, updatedDocument, extraDesc);
       }
 
       break;
@@ -97,8 +106,8 @@ const gatherDescriptions = async (models: IModels, params: any): Promise<IDescri
   return { extraDesc, description };
 };
 
-export const putDeleteLog = async (models: IModels, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, {
+export const putDeleteLog = async (models: IModels, subdomain: string, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(models, subdomain, {
     ...logDoc,
     action: LOG_ACTIONS.DELETE,
   });
@@ -110,8 +119,8 @@ export const putDeleteLog = async (models: IModels, logDoc, user) => {
   );
 };
 
-export const putUpdateLog = async (models: IModels, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, {
+export const putUpdateLog = async (models: IModels, subdomain: string, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(models, subdomain, {
     ...logDoc,
     action: LOG_ACTIONS.UPDATE,
   });
@@ -123,8 +132,8 @@ export const putUpdateLog = async (models: IModels, logDoc, user) => {
   );
 };
 
-export const putCreateLog = async (models: IModels, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, {
+export const putCreateLog = async (models: IModels, subdomain: string, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(models, subdomain, {
     ...logDoc,
     action: LOG_ACTIONS.CREATE,
   });

@@ -1,4 +1,3 @@
-import { IUser } from '@erxes/ui/src/auth/types';
 import { ICommonDoc } from '../common/types';
 
 export interface ISpinDoc extends ICommonDoc {
@@ -8,7 +7,7 @@ export interface ISpinDoc extends ICommonDoc {
 export interface ISpin extends ISpinDoc {
   _id: string;
   owner: any;
-  voucherCompaingId?: string;
+  voucherCampaignId?: string;
 
   // won
   voucherId?: string;

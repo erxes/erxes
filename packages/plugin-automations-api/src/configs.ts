@@ -2,7 +2,7 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
-import { generateCoreModels, generateModels } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 
 export let mainDb;
 export let debug;
@@ -57,7 +57,6 @@ export default {
     const subdomain = 'os';
 
     context.models = await generateModels(subdomain);
-    context.coreModels = await generateCoreModels(subdomain);
     context.subdomain = subdomain;
 
     return context;

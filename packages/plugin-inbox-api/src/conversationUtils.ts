@@ -8,8 +8,8 @@ import { IListArgs } from './conversationQueryBuilder';
 import { fixDate } from '@erxes/api-utils/src';
 
 import { debug } from './configs';
-import { sendSegmentsMessage, sendTagsMessage } from './messageBroker';
-import { ICoreIModels, IModels } from './connectionResolver';
+import { sendCoreMessage, sendSegmentsMessage, sendTagsMessage } from './messageBroker';
+import { IModels } from './connectionResolver';
 
 export interface ICountBy {
   [index: string]: number;
@@ -40,8 +40,16 @@ const countByChannels = async (
 };
 
 // Count conversation by brand
-const countByBrands = async (coreModels: ICoreIModels, qb: any, counts: ICountBy): Promise<ICountBy> => {
-  const brands = await coreModels.Brands.find({});
+const countByBrands = async (subdomain: string, qb: any, counts: ICountBy): Promise<ICountBy> => {
+  const brands = await sendCoreMessage({
+    subdomain,
+    action: 'brands.find',
+    data: {
+      query: {}
+    },
+    isRPC: true,
+    defaultValue: []
+  })
 
   for (const brand of brands) {
     await qb.buildAllQueries();
@@ -123,7 +131,6 @@ export const countBySegment = async (
 
 export const countByConversations = async (
   models: IModels,
-  coreModels: ICoreIModels,
   subdomain: string,
   params: IListArgs,
   integrationIds: string[],
@@ -132,7 +139,7 @@ export const countByConversations = async (
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
-  const qb = new CommonBuilder(models, coreModels, subdomain, params, integrationIds, user);
+  const qb = new CommonBuilder(models, subdomain, params, integrationIds, user);
 
   switch (only) {
     case 'byChannels':
@@ -144,7 +151,7 @@ export const countByConversations = async (
       break;
 
     case 'byBrands':
-      await countByBrands(coreModels, qb, counts);
+      await countByBrands(subdomain, qb, counts);
       break;
 
     case 'byTags':
@@ -161,7 +168,6 @@ export const countByConversations = async (
 
 export class CommonBuilder<IArgs extends IListArgs> {
   public models: IModels;
-  public coreModels: ICoreIModels;
   public subdomain: string;
   public params: IArgs;
   public user: IUserArgs;
@@ -170,9 +176,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public filterList: any[];
   public activeIntegrationIds: string[] = [];
 
-  constructor(models: IModels, coreModels: ICoreIModels, subdomain: string, params: IArgs, integrationIds: string[], user: IUserArgs) {
+  constructor(models: IModels, subdomain: string, params: IArgs, integrationIds: string[], user: IUserArgs) {
     this.models = models;
-    this.coreModels = coreModels;
     this.subdomain = subdomain;
     this.params = params;
     this.user = user;

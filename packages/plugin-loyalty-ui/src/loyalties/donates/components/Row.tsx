@@ -9,14 +9,14 @@ import {
   renderUserFullName
 } from '@erxes/ui/src/utils';
 import { IDonate } from '../types';
-import { IDonateCompaign } from '../../../configs/donateCompaign/types';
+import { IDonateCampaign } from '../../../configs/donateCampaign/types';
 import { IQueryParams } from '@erxes/ui/src/types';
 import { Link } from 'react-router-dom';
 import { FormControl, ModalTrigger } from '@erxes/ui/src/components';
 
 type Props = {
   donate: IDonate;
-  currentCompaign?: IDonateCompaign;
+  currentCampaign?: IDonateCampaign;
   history: any;
   isChecked: boolean;
   toggleBulk: (donate: IDonate, isChecked?: boolean) => void;
@@ -88,7 +88,7 @@ class DonateRow extends React.Component<Props> {
   };
 
   render() {
-    const { donate, isChecked, currentCompaign } = this.props;
+    const { donate, isChecked, currentCampaign } = this.props;
 
     const onClick = e => {
       e.stopPropagation();

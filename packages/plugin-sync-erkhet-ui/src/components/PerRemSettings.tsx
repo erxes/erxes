@@ -2,7 +2,6 @@ import { Button, CollapseContent, ControlLabel, FormControl, FormGroup } from '@
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import { __ } from '@erxes/ui/src/utils';
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import Select from 'react-select-plus';
 import React from 'react';
 import { IConfigsMap } from '../types';
 

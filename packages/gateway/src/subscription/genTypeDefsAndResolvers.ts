@@ -14,7 +14,7 @@ export default async function genTypeDefsAndResolvers(): Promise<{
 } | null> {
   const plugins = await getPluginConfigs(NODE_ENV === "development");
 
-  if(!plugins?.length) return null;
+  if(!plugins?.length) { return null; }
 
   const typeDefs = genTypeDefs(plugins);
   const resolvers = genResolvers(plugins);
