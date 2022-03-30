@@ -17,6 +17,7 @@ export interface IModels {
 
 export interface ICoreModels {
   Users: any;
+  Configs: any;
 }
 
 export interface IContext extends IMainContext {
@@ -66,7 +67,8 @@ const connectCore = async () => {
   db = client.db(dbName);
 
   coreModels = {
-    Users: db.collection('users')
+    Users: db.collection('users'),
+    Configs: db.collection('configs')
   };
 
   return coreModels;

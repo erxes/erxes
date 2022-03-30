@@ -44,6 +44,6 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
   return client.sendRPCMessage(channel, message);
 };
 
-export default function() {
+export default function () {
   return client;
 }

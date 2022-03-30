@@ -46,8 +46,6 @@ const exmFeedQueries = {
   ) => {
     const doc: any = {};
 
-    console.log('models: ', models);
-
     if (
       contentTypes &&
       contentTypes.includes('publicHoliday') &&
