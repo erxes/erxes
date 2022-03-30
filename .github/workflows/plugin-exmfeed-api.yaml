@@ -1,4 +1,4 @@
-name: Plugin feed Api CI
+name: Plugin Exm feed API
 
 on:
   push:
