@@ -3,7 +3,7 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const Home = asyncComponent(() =>
-  import(/* webpackChunkName: "Plugin exm" */ './containers/Home')
+  import(/* webpackChunkName: "Plugin exm feed" */ './containers/Home')
 );
 
 const ExmRoutes = () => (

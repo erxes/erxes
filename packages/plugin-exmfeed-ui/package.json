@@ -1,5 +1,5 @@
 {
-  "name": "@erxes/plugin-exm-feed-ui",
+  "name": "@erxes/plugin-exmfeed-ui",
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",
