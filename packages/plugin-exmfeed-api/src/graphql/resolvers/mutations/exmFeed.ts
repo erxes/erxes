@@ -6,16 +6,17 @@
 // } from 'erxes-api-utils';
 import { sendMobileNotification } from '../../../utils';
 import { checkPermission } from '@erxes/api-utils/src';
+import { sendCoreMessage } from '../../../messageBroker';
 
 export const gatherDescriptions = async () => {
-  let extraDesc = [];
-  let description = 'description';
+  const extraDesc = [];
+  const description = 'description';
 
   return { extraDesc, description };
 };
 
 const exmFeedMutations = {
-  exmFeedAdd: async (_root, doc, { user, docModifier, models, coreModels }) => {
+  exmFeedAdd: async (_root, doc, { user, docModifier, models, subdomain }) => {
     const exmFeed = await models.ExmFeed.createExmFeed(docModifier(doc), user);
 
     // await putCreateLog(
@@ -30,9 +31,17 @@ const exmFeedMutations = {
     //   user
     // );
 
-    let receivers = await coreModels.Users.find({
-      _id: { $ne: user._id }
-    }).toArray();
+    let receivers = await sendCoreMessage({
+      subdomain,
+      action: 'users.find',
+      data: {
+        query: {
+          _id: { $ne: user._id }
+        }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
 
     receivers = receivers.map(r => r._id);
 
@@ -49,7 +58,7 @@ const exmFeedMutations = {
     //   receivers
     // });
 
-    sendMobileNotification(coreModels, {
+    sendMobileNotification({}, {
       title: doc.title,
       body: doc.description,
       receivers
