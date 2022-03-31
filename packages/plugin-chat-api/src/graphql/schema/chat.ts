@@ -12,22 +12,6 @@ export const types = () => `
     _id: String! @external
   }
 
-  extend type UserDetailsType @key(fields: "_id") {
-    _id: String! @external
-  }
-  
-  extend type Brand @key(fields: "_id") {
-    _id: String! @external
-  }
-
-  extend type OnboardingHistory @key(fields: "_id") {
-    _id: String @external
-  }
-
-  extend type Department @key(fields: "_id") {
-    _id: String! @external
-  }
-  
   type SeenInfo {
     user: User
     lastSeenMessageId: String
@@ -45,31 +29,17 @@ export const types = () => `
     seenList: [SeenInfo]
   }
 
+  type ChatUserDetails {
+    avatar: String
+    description: String
+    fullName: String
+  }
+
   type ChatUser {
     _id: String!
-    createdAt: Date
     username: String
     email: String
-    isActive: Boolean
-    details: UserDetailsType
-    links: JSON
-    status: String
-    emailSignatures: JSON
-    getNotificationByEmail: Boolean
-    groupIds: [String]
-    brandIds: [String]
-    isSubscribed: String
-    isShowNotification: Boolean
-    customFieldsData: JSON
-
-    brands: [Brand]
-    isOwner: Boolean
-    permissionActions: JSON
-    configs: JSON
-    configsConstants: [JSON]
-    onboardingHistory: OnboardingHistory
-    department: Department
-    score: Float
+    details: ChatUserDetails
     isAdmin: Boolean
   }
 
