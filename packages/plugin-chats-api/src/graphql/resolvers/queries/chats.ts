@@ -1,4 +1,4 @@
-import { IModels } from './../../../connectionResolver';
+import { IModels } from '../../../connectionResolver';
 import { getIsSeen } from '../chat';
 import graphqlPubsub from '../subscription/pubsub';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
@@ -17,7 +17,7 @@ const chatQueries = {
         .sort({ createdAt: -1 })
         .skip(skip || 0)
         .limit(limit || 10),
-      totalCount: await models.Chats.find(filter).countDocuments(),
+      totalCount: await models.Chats.find(filter).countDocuments()
     };
   },
 
@@ -31,13 +31,13 @@ const chatQueries = {
     {
       models,
       user,
-      coreModels,
+      coreModels
     }: { models: IModels; user: IUserDocument; coreModels: any }
   ) => {
     const lastMessage = await models.ChatMessages.findOne({
-      chatId,
+      chatId
     }).sort({
-      createdAt: -1,
+      createdAt: -1
     });
 
     if (lastMessage) {
@@ -45,7 +45,7 @@ const chatQueries = {
 
       const seenInfos = chat.seenInfos || [];
 
-      let seenInfo = seenInfos.find((info) => info.userId === user._id);
+      let seenInfo = seenInfos.find(info => info.userId === user._id);
 
       let updated = false;
 
@@ -53,7 +53,7 @@ const chatQueries = {
         seenInfo = {
           userId: user._id,
           lastSeenMessageId: lastMessage._id,
-          seenDate: new Date(),
+          seenDate: new Date()
         };
 
         seenInfos.push(seenInfo);
@@ -80,7 +80,7 @@ const chatQueries = {
 
     if (!getIsSeen(models, chat, user)) {
       graphqlPubsub.publish('chatUnreadCountChanged', {
-        userId: user._id,
+        userId: user._id
       });
     }
 
@@ -93,7 +93,7 @@ const chatQueries = {
         seenList.push({
           user,
           seenDate: info.seenDate,
-          lastSeenMessageId: info.lastSeenMessageId,
+          lastSeenMessageId: info.lastSeenMessageId
         });
       }
     }
@@ -111,13 +111,13 @@ const chatQueries = {
 
     for (const message of list) {
       message.seenList = seenList.filter(
-        (s) => s.lastSeenMessageId === message._id
+        s => s.lastSeenMessageId === message._id
       );
     }
 
     return {
       list,
-      totalCount: await models.ChatMessages.find(filter).countDocuments(),
+      totalCount: await models.ChatMessages.find(filter).countDocuments()
     };
   },
 
@@ -134,24 +134,24 @@ const chatQueries = {
 
     let chat = await models.Chats.findOne({
       type: 'direct',
-      participantIds: { $all: participantIds, $size: participantIds.length },
+      participantIds: { $all: participantIds, $size: participantIds.length }
     });
 
     if (!chat) {
       chat = await models.Chats.createChat(
         {
           participantIds,
-          type: 'direct',
+          type: 'direct'
         },
         user._id
       );
 
       graphqlPubsub.publish('chatInserted', {
-        userId: user._id,
+        userId: user._id
       });
 
       graphqlPubsub.publish('chatUnreadCountChanged', {
-        userId: user._id,
+        userId: user._id
       });
     }
 
@@ -160,7 +160,7 @@ const chatQueries = {
 
   getUnreadChatCount: async (_root, {}, { models, user }) => {
     const chats = await models.Chats.find({
-      participantIds: { $in: user._id },
+      participantIds: { $in: user._id }
     });
 
     let unreadCount = 0;
@@ -174,7 +174,7 @@ const chatQueries = {
     }
 
     return unreadCount;
-  },
+  }
 };
 checkPermission(chatQueries, 'chats', 'showChats');
 checkPermission(chatQueries, 'showChats', 'showChats');

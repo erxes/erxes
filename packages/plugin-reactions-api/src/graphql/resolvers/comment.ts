@@ -1,15 +1,14 @@
 const Comment = {
-  async createdUser(comment, {}, { models }) {
-    const user = await models.Users.findOne({ _id: comment.createdBy });
-    return user;
+  createdUser(comment, {}, { coreModels }) {
+    return coreModels.Users.findOne({ _id: comment.createdBy });
   },
 
   async childCount(comment, {}, { models }) {
     const user = await models.Comments.find({
-      parentId: comment._id,
+      parentId: comment._id
     }).countDocuments();
     return user;
-  },
+  }
 };
 
 export default Comment;
