@@ -10,7 +10,7 @@ import {
 
 export interface IChatModel extends Model<IChatDocument> {
   getChat(_id: string);
-  createChat(doc: IChat, createdBy: string);
+  createChat(doc: IChat, createdBy: string): Promise<IChatDocument>;
   updateChat(_id: string, doc: IChat);
   removeChat(_id: string);
 }
@@ -49,6 +49,7 @@ export const loadChatClass = (models) => {
       return models.Chats.deleteOne({ _id });
     }
   }
+
   chatSchema.loadClass(Chat);
 
   return chatSchema;
@@ -97,16 +98,3 @@ export const loadChatMessageClass = (models) => {
 
   return chatMessageSchema;
 };
-
-// export default [
-//   {
-//     name: 'Chats',
-//     schema: chatSchema,
-//     klass: Chat,
-//   },
-//   {
-//     name: 'ChatMessages',
-//     schema: chatMessageSchema,
-//     klass: ChatMessage,
-//   },
-// ];

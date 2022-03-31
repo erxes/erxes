@@ -1,7 +1,7 @@
-import { sendNotification } from 'erxes-api-utils';
+// import { sendNotification } from 'erxes-api-utils';
 import { CHAT_TYPE, IChatMessage } from '../../../models/definitions/chat';
 import graphqlPubsub from '../subscription/pubsub';
-import { sendMobileNotification } from '../../../utils';
+// import { sendMobileNotification } from '../../../utils';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 
 const checkChatAdmin = async (Chats, userId) => {
@@ -23,18 +23,13 @@ const hasAdminLeft = (chat, userId) => {
 };
 
 const chatMutations = {
-  chatAdd: async (
-    _root,
-    { participantIds, ...doc },
-    { user, models, memoryStorage }
-  ) => {
+  chatAdd: async (_root, { participantIds, ...doc }, { user, models }) => {
     const allParticipantIds =
       participantIds && participantIds.includes(user._id)
         ? participantIds
         : (participantIds || []).concat(user._id);
 
     const chat = await models.Chats.createChat(
-      models,
       {
         ...doc,
         participantIds: allParticipantIds,
@@ -43,24 +38,24 @@ const chatMutations = {
       user._id
     );
 
-    sendNotification(models, memoryStorage, graphqlPubsub, {
-      notifType: 'plugin',
-      title: doc.name || doc.description,
-      content: doc.description,
-      action: `${doc.type} chat created`,
-      link: `/erxes-plugin-chat/home`,
-      createdUser: user,
-      // exclude current user
-      contentType: 'chat',
-      contentTypeId: chat._id,
-      receivers: allParticipantIds,
-    });
+    // sendNotification(models, memoryStorage, graphqlPubsub, {
+    //   notifType: 'plugin',
+    //   title: doc.name || doc.description,
+    //   content: doc.description,
+    //   action: `${doc.type} chat created`,
+    //   link: `/erxes-plugin-chat/home`,
+    //   createdUser: user,
+    //   // exclude current user
+    //   contentType: 'chat',
+    //   contentTypeId: chat._id,
+    //   receivers: allParticipantIds,
+    // });
 
-    sendMobileNotification(models, {
-      title: doc.title,
-      body: doc.description,
-      receivers: allParticipantIds,
-    });
+    // sendMobileNotification(coreModels, {
+    //   title: doc.title,
+    //   body: doc.description,
+    //   receivers: allParticipantIds,
+    // });
 
     graphqlPubsub.publish('chatInserted', {
       userId: user._id,
@@ -74,7 +69,7 @@ const chatMutations = {
   },
 
   chatEdit: async (_root, { _id, ...doc }, { models, user }) => {
-    return models.Chats.updateChat(models, _id, doc);
+    return models.Chats.updateChat(_id, doc);
   },
   chatRemove: async (_root, { _id }, { models, user }) => {
     const chat = await models.Chats.findOne({ _id });
@@ -87,19 +82,15 @@ const chatMutations = {
       await checkChatAdmin(models.Chats, user._id);
     }
 
-    return models.Chats.removeChat(models, _id);
+    return models.Chats.removeChat(_id);
   },
 
-  handchatMessageAddler: async (_root, args, { models, user }) => {
+  chatMessageAdd: async (_root, args, { models, user }) => {
     if (!args.content) {
       throw new Error('Content is required');
     }
 
-    const created = await models.ChatMessages.createChatMessage(
-      models,
-      args,
-      user._id
-    );
+    const created = await models.ChatMessages.createChatMessage(args, user._id);
 
     graphqlPubsub.publish('chatMessageInserted', {
       chatId: created.chatId,
@@ -108,12 +99,12 @@ const chatMutations = {
     return created;
   },
 
-  chatMessageRemove: async (_root, { _id }, { models, user }) => {
-    return models.ChatMessages.removeChatMessage(models, _id);
+  chatMessageRemove: async (_root, { _id }, { models }) => {
+    return models.ChatMessages.removeChatMessage(_id);
   },
 
-  chatMessageToggleIsPinned: async (_root, { _id }, { models, user }) => {
-    const message: IChatMessage = await models.ChatMessages.findOne({ _id });
+  chatMessageToggleIsPinned: async (_root, { _id }, { models }) => {
+    const message: IChatMessage = await models.ChatMessage.findOne({ _id });
 
     await models.ChatMessages.updateOne(
       { _id },
@@ -130,10 +121,10 @@ const chatMutations = {
   ) => {
     await checkChatAdmin(models.Chats, user._id);
 
-    const chat = await models.Chats.getChat(models, _id);
+    const chat = await models.Chats.getChat(_id);
 
     if ((chat.participantIds || []).length === 1) {
-      await models.Chats.removeChat(models, _id);
+      await models.Chats.removeChat(_id);
 
       return 'Chat removed';
     }
@@ -193,7 +184,7 @@ const chatMutations = {
 checkPermission(chatMutations, 'chatAdd', 'manageChats');
 checkPermission(chatMutations, 'chatEdit', 'manageChats');
 checkPermission(chatMutations, 'chatRemove', 'manageChats');
-checkPermission(chatMutations, 'handchatMessageAddler', 'manageChats');
+checkPermission(chatMutations, 'chatMessageAdd', 'manageChats');
 checkPermission(chatMutations, 'chatMessageRemove', 'manageChats');
 checkPermission(chatMutations, 'chatMessageToggleIsPinned', 'manageChats');
 checkPermission(chatMutations, 'chatAddOrRemoveMember', 'manageChats');

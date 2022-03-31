@@ -26,29 +26,28 @@ export const getIsSeen = async (models, chat, user) => {
 
 const Chat = {
   async lastMessage(chat, {}, { models }) {
-    const user = models.ChatMessages.findOne({ chatId: chat._id }).sort({
+    return models.ChatMessages.findOne({ chatId: chat._id }).sort({
       createdAt: -1,
     });
-    return user;
   },
 
-  async createdUser(chat, {}, { models }) {
-    return models.Users.findOne({ _id: chat.createdBy });
+  async createdUser(chat, {}, { coreModels }) {
+    return coreModels.Users.findOne({ _id: chat.createdBy });
   },
 
   async isSeen(chat, {}, { models, user }) {
     return getIsSeen(models, chat, user);
   },
 
-  async participantUsers(chat, {}, { models }) {
-    const users = await models.Users.find({
+  async participantUsers(chat, {}, { coreModels }) {
+    const users = await coreModels.Users.find({
       _id: { $in: chat.participantIds || [] },
-    }).lean();
-    const user = users.map((user) => ({
+    }).toArray();
+
+    return users.map((user) => ({
       ...user,
       isAdmin: (chat.adminIds || []).includes(user._id),
     }));
-    return user;
   },
 };
 

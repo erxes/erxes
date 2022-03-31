@@ -1,14 +1,11 @@
+import { IModels } from './../../../connectionResolver';
 import { getIsSeen } from '../chat';
 import graphqlPubsub from '../subscription/pubsub';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
 const chatQueries = {
-  chats: async (
-    _root,
-    { type, limit, skip },
-    { models, checkPermission, user }
-  ) => {
-    await checkPermission('showChats', user);
-
+  chats: async (_root, { type, limit, skip }, { models, user }) => {
     const filter: any = { participantIds: { $in: [user._id] } };
 
     if (type) {
@@ -24,19 +21,19 @@ const chatQueries = {
     };
   },
 
-  chatDetail: async (_root, { _id }, { models, checkPermission, user }) => {
-    await checkPermission('showChats', user);
-
+  chatDetail: async (_root, { _id }, { models }) => {
     return models.Chats.findOne({ _id });
   },
 
   chatMessages: async (
     _root,
     { chatId, isPinned, limit, skip },
-    { models, user, checkPermission, coreModels }
+    {
+      models,
+      user,
+      coreModels,
+    }: { models: IModels; user: IUserDocument; coreModels: any }
   ) => {
-    await checkPermission('showChats', user);
-
     const lastMessage = await models.ChatMessages.findOne({
       chatId,
     }).sort({
@@ -44,7 +41,7 @@ const chatQueries = {
     });
 
     if (lastMessage) {
-      const chat = await models.Chats.getChat(models, chatId);
+      const chat = await models.Chats.getChat(chatId);
 
       const seenInfos = chat.seenInfos || [];
 
@@ -127,9 +124,8 @@ const chatQueries = {
   getChatIdByUserIds: async (
     _root,
     { userIds },
-    { models, checkPermission, user }
+    { models, user }: { models: IModels; user: IUserDocument }
   ) => {
-    await checkPermission('showChats', user);
     const participantIds = [...(userIds || [])];
 
     if (!participantIds.includes(user._id)) {
@@ -142,10 +138,13 @@ const chatQueries = {
     });
 
     if (!chat) {
-      chat = await models.Chats.createChat(models, {
-        participantIds,
-        type: 'direct',
-      });
+      chat = await models.Chats.createChat(
+        {
+          participantIds,
+          type: 'direct',
+        },
+        user._id
+      );
 
       graphqlPubsub.publish('chatInserted', {
         userId: user._id,
@@ -158,6 +157,7 @@ const chatQueries = {
 
     return chat._id;
   },
+
   getUnreadChatCount: async (_root, {}, { models, user }) => {
     const chats = await models.Chats.find({
       participantIds: { $in: user._id },
@@ -176,5 +176,9 @@ const chatQueries = {
     return unreadCount;
   },
 };
+checkPermission(chatQueries, 'chats', 'showChats');
+checkPermission(chatQueries, 'showChats', 'showChats');
+checkPermission(chatQueries, 'chatMessages', 'showChats');
+checkPermission(chatQueries, 'getChatIdByUserIds', 'showChats');
 
 export default chatQueries;

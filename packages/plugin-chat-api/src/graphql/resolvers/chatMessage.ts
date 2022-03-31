@@ -1,7 +1,6 @@
 const ChatMessage = {
-  async createdUser(chatMessage, {}, { models }) {
-    const user = models.Users.findOne({ _id: chatMessage.createdBy });
-    return user;
+  async createdUser(chatMessage, {}, { coreModels }) {
+    return coreModels.Users.findOne({ _id: chatMessage.createdBy });
   },
 
   async relatedMessage(chatMessage, {}, { models }) {

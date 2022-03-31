@@ -32,8 +32,6 @@ function ListContainer({ chatId, currentUser }: FinalProps) {
     }
   );
 
-  console.log('chatMessageSubscription: ', chatMessageSubscription);
-
   if (chatMessageSubscription.data) {
     chatMessagesQuery.refetch({ chatId });
   }

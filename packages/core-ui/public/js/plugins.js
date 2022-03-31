@@ -16,7 +16,7 @@ window.plugins = [
         url: '/erxes-plugin-chat/home',
         icon: 'icon-cog',
         location: 'mainNavigation',
-        permission: 'chatAll',
+        permission: 'showChats',
       },
     ],
   },
