@@ -31,6 +31,9 @@ class CompanyDetails extends React.Component<Props> {
       { title }
     ];
 
+
+    console.log('---------------------------')
+
     const content = (
       <>
         <ActivityInputs
