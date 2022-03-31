@@ -11,6 +11,7 @@ import Common from './Common';
 import CustomCode from './subForms/CustomCode';
 import Delay from './subForms/Delay';
 import LoyaltyForm from '../../../containers/forms/actions/subForms/LoyaltyForm';
+import ChangeScore from './subForms/ChangeScore';
 
 type Props = {
   onSave: () => void;
@@ -63,5 +64,6 @@ export const ActionForms = {
   if: IfForm,
   boardItem: BoardItemForm,
   customCode: CustomCode,
-  voucher: LoyaltyForm
+  voucher: LoyaltyForm,
+  changeScore: ChangeScore
 };

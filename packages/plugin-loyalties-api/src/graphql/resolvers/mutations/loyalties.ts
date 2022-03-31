@@ -5,9 +5,28 @@ import { confirmVoucherSale } from '../../../utils';
 import { sendContactsMessage } from '../../../../../plugin-internalnotes-api/src/messageBroker';
 import { sendCoreMessage } from '../../../messageBroker';
 
+interface IParam {
+  ownerType: string;
+  ownerId: string;
+  score: number;
+  destinationOwnerId: string;
+  destinationPhone: string;
+  destinationEmail: string;
+  destinationCode: string;
+}
+
 const loyaltiesMutations = {
-  async shareScore(_root, doc: ILottery, { models, subdomain }: IContext) {
-    const { ownerType, ownerId, score, destinationOwnerId, destinationPhone, destinationEmail, destinationCode } = param;
+  async shareScore(_root, doc: IParam, { models, subdomain }: IContext) {
+    const {
+      ownerType,
+      ownerId,
+      score,
+      destinationOwnerId,
+      destinationPhone,
+      destinationEmail,
+      destinationCode
+    } = doc;
+
     let destOwnerId = destinationOwnerId;
 
     if (ownerType === 'customer') {
