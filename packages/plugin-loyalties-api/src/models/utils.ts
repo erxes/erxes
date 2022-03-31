@@ -14,66 +14,6 @@ export const validCampaign = (doc) => {
   }
 }
 
-export const changeScoreOwner = async (subdomain, { ownerType, ownerId, changeScore }) => {
-  let owner;
-  let sendMessage;
-  let action;
-
-  if (ownerType === 'customer') {
-    owner = await sendContactsMessage({
-      subdomain,
-      action: 'customers.findOne',
-      data: {
-        _id: ownerId
-      }
-    });
-    sendMessage = sendContactsMessage;
-    action = 'customers.updateOne'
-  }
-
-  if (ownerType === 'user') {
-    owner = await sendCoreMessage({
-      subdomain,
-      action: 'users.findOne',
-      data: { _id: ownerId }
-    });
-    sendMessage = sendCoreMessage;
-    action = 'users.updateOne';
-  }
-
-  if (ownerType === 'company') {
-    owner = await sendContactsMessage({
-      subdomain,
-      action: 'companies.findOne',
-      data: {
-        _id: ownerId
-      }
-    })
-    sendMessage = sendContactsMessage;
-    action = 'companies.updateCommon';
-  }
-
-  if (!owner) {
-    throw new Error(`not fount ${ownerType}`);
-  }
-
-  const oldScore = owner.score || 0;
-  const newScore = oldScore + changeScore;
-
-  if (changeScore < 0 && newScore < 0) {
-    throw new Error(`score are not enough`);
-  }
-
-  await sendMessage({
-    subdomain,
-    action,
-    data: { selector: { _id: ownerId }, modifier: { $set: { score: newScore } } },
-    isRPC: true
-  });
-
-  return newScore;
-}
-
 export const randomBetween = (min: number, max: number) => {
   return Math.random() * (max - min) + min;
 };

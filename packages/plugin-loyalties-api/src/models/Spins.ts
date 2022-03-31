@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { changeScoreOwner, randomBetween } from './utils';
+import { randomBetween } from './utils';
 import { spinSchema, ISpin, ISpinDocument } from './definitions/spins';
 import { Model, model } from 'mongoose';
 import { IModels } from '../connectionResolver';
@@ -77,7 +77,11 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
         throw new Error('can not buy this spin')
       }
 
-      await changeScoreOwner(subdomain, { ownerType, ownerId, changeScore: -1 * spinCampaign.buyScore * count });
+
+      await models.ScoreLogs.changeScore({
+        ownerType, ownerId, changeScore: -1 * spinCampaign.buyScore * count,
+        description: 'buy spin'
+      });
 
       return models.Spins.createSpin({ campaignId, ownerType, ownerId });
     }
