@@ -18,16 +18,16 @@ export let es: {
 };
 
 export default {
-  name: 'chat',
-  graphql: async (sd) => {
+  name: 'chats',
+  graphql: async sd => {
     serviceDiscovery = sd;
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers(),
+      resolvers: await resolvers()
     };
   },
 
-  apolloServerContext: async (context) => {
+  apolloServerContext: async context => {
     const subdomain = 'os';
 
     context.subdomain = subdomain;
@@ -37,7 +37,7 @@ export default {
     return context;
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async options => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
@@ -48,5 +48,5 @@ export default {
     graphqlPubsub = options.pubsubClient;
     es = options.elasticsearch;
   },
-  meta: {},
+  meta: {}
 };
