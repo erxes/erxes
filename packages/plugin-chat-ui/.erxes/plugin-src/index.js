@@ -10,13 +10,13 @@ export default () => ({
   routes: [
     {
       path: '/home',
-      component: home
-    }
+      component: home,
+    },
   ],
   menu: {
     label: 'Chat',
     icon: 'icon-chat',
     link: '/home',
-    permission: "showAll"
-  }
+    permission: 'showChats',
+  },
 });

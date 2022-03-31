@@ -57,9 +57,9 @@ function SidebarContainer(props: FinalProps) {
       const users = chat.participantUsers || [];
 
       const filteredUsers =
-        chat.participantUsers.length > 1
-          ? chat.participantUsers.filter((u) => u._id !== currentUser._id)
-          : chat.participantUsers;
+        users.length > 1
+          ? users.filter((u) => u._id !== currentUser._id)
+          : users;
 
       return (
         <li key={chat._id}>

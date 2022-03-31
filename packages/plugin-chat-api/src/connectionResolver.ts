@@ -11,8 +11,8 @@ import {
 import { MongoClient } from 'mongodb';
 
 export interface IModels {
-  ChatMessage: IChatMessageModel;
-  Chat: IChatModel;
+  ChatMessages: IChatMessageModel;
+  Chats: IChatModel;
 }
 
 export interface ICoreModels {
@@ -77,14 +77,14 @@ const connectCore = async () => {
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
-  models.ChatMessage = db.model<IChatMessageDocument, IChatMessageModel>(
+  models.ChatMessages = db.model<IChatMessageDocument, IChatMessageModel>(
     'chat-message',
-    loadChatClass(models)
+    loadChatMessageClass(models)
   );
 
-  models.Chat = db.model<IChatDocument, IChatModel>(
+  models.Chats = db.model<IChatDocument, IChatModel>(
     'chat',
-    loadChatMessageClass(models)
+    loadChatClass(models)
   );
 
   return models;

@@ -14,9 +14,9 @@ export interface IAttachment {
   size?: number;
 }
 export interface IChat {
-  name: string;
   participantIds: string[];
-  userIds: string[];
+  name?: string;
+  type: string;
 }
 
 export interface IChatMessage {
@@ -24,6 +24,7 @@ export interface IChatMessage {
   content: string;
   isPinned: boolean;
   attachments: IAttachment[];
+  seenList: string[];
 }
 
 export const CHAT_TYPE = {
@@ -37,15 +38,6 @@ export const VISIBILITIES = {
   PRIVATE: 'private',
   ALL: ['public', 'private'],
 };
-export interface IChatMessage {
-  attachments: IAttachment[];
-  chatId: string;
-  relatedId: String;
-  isPinned: boolean;
-  content: string;
-  createdAt: Date;
-  createdBy: String;
-}
 export interface IChatMessageDocument extends IChatMessage, Document {
   _id: String;
 }
@@ -69,19 +61,6 @@ const seenSchema = {
   seenDate: Date,
   lastSeenMessageId: String,
 };
-
-export interface IChat {
-  name: string;
-  description: String;
-  visibility: String;
-  type: String;
-  isPinned: boolean;
-  participantIds: string[];
-  adminIds: String;
-  seenInfos: String;
-  createdAt: Date;
-  createdBy: String;
-}
 export interface IChatDocument extends IChat, Document {
   _id: String;
 }
