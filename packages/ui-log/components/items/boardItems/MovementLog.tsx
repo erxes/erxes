@@ -20,7 +20,7 @@ class MovementLog extends React.Component<IActivityLogItemProps> {
     if (createdByDetail && createdByDetail.type === 'user') {
       const { content } = createdByDetail;
 
-      if (content.details) {
+      if (content && content.details) {
         userName = renderUserFullName(createdByDetail.content);
       }
     }

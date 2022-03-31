@@ -1,5 +1,5 @@
 {
-  "name": "@erxes/plugin-chat-ui",
+  "name": "@erxes/plugin-chats-ui",
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",
