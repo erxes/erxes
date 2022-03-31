@@ -7,7 +7,7 @@ const program = require('commander');
 const packageJSON = require('../package.json');
 const startCmd = require('../commands/start');
 const updateCmd = require('../commands/update');
-const { start, update, restart } = require('../commands/docker/utils');
+const { start, pullup, restart } = require('../commands/docker/utils');
 
 /**
  * Normalize version argument
@@ -44,14 +44,14 @@ program
   .action(startCmd);
 
 program
-  .command('up')
+  .command('dockerup')
   .description('Run erxes using docker')
   .action(start);
 
 program
-  .command('update')
-  .description('Update erxes using docker')
-  .action(update);
+  .command('pullup')
+  .description('Pull and update erxes using docker')
+  .action(pullup);
 
 program
   .command('restart')

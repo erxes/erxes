@@ -544,3 +544,5 @@ const generateNginxConf = async ({
 };
 
 module.exports.runCommand = runCommand;
+module.exports.downloadFile = downloadFile;
+module.exports.execCurl = execCurl;

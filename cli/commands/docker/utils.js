@@ -1,7 +1,7 @@
 const fs = require("fs");
 const fse = require("fs-extra");
 const yaml = require("yaml");
-const { log, execCommand, filePath } = require("../utils");
+const { log, execCommand, filePath, execCurl } = require("../utils");
 
 const commonEnvs = (configs) => {
   return {
@@ -34,12 +34,11 @@ const generatePluginBlock = (configs, plugin) => {
 module.exports.start = async (program) => {
   const configs = await fse.readJSON(filePath("configs.json"));
 
-  log("Generating docker-compose ...");
-
   const subscription_url = `wss://${configs.main_api_domain.replace(
     "https://",
     ""
   )}/graphql`;
+
   const NGINX_HOST = (configs.main_app_domain || "").replace("https://", "");
 
   const dockerComposeConfig = {
@@ -190,6 +189,10 @@ module.exports.start = async (program) => {
   }
 
   if (configs.mongo) {
+    if (!(await fse.exists(filePath('mongodata')))) {
+      await execCommand('mkdir mongodata');
+    }
+
     dockerComposeConfig.services.mongo = {
       hostname: "mongo",
       image: "mongo:4.0.20",
@@ -206,6 +209,10 @@ module.exports.start = async (program) => {
   }
 
   if (configs.elasticsearch) {
+    if (!(await fse.exists(filePath('elasticsearchData')))) {
+      await execCommand('mkdir elasticsearchData');
+    }
+
     dockerComposeConfig.services.elasticsearch = {
       image: "docker.elastic.co/elasticsearch/elasticsearch:7.8.0",
       container_name: "elasticsearch",
@@ -255,11 +262,53 @@ module.exports.start = async (program) => {
     };
   }
 
+  log('Downloading pluginsMap.js from s3 ....');
+
+  await execCurl(
+    'https://plugin-uis.s3.us-west-2.amazonaws.com/pluginsMap.js',
+    'pluginsMap.js'
+  );
+
+  const pluginsMap = require(filePath('pluginsMap.js'));
+
+  const enabledPlugins = [];
+  const uiPlugins = [];
+
   for (const plugin of configs.plugins || []) {
     dockerComposeConfig.services[
       `plugin_${plugin.name}_api`
     ] = generatePluginBlock(configs, plugin);
+
+    enabledPlugins.push(`${plugin.name}: true`);
+
+    uiPlugins.push(JSON.stringify({
+        name: plugin.name,
+        ...pluginsMap[plugin.name]
+      })
+    );
   }
+
+  log('Generating ui plugins.js ....');
+
+  await fs.promises.writeFile(
+    filePath('plugins.js'),
+    `
+    window.plugins = [
+      ${uiPlugins.join(',')}
+    ]
+  `.replace(/plugin-uis.s3.us-west-2.amazonaws.com/g, NGINX_HOST)
+  );
+
+  log('Generating enabled-plugins.js ....');
+
+  await fs.promises.writeFile(
+    filePath('enabled-plugins.js'),
+    `
+    module.exports = {
+      ${enabledPlugins.join(',')}
+    }
+  `
+  );
 
   const extraServices = configs.extra_services || {};
 
@@ -274,13 +323,20 @@ module.exports.start = async (program) => {
 
   const yamlString = yaml.stringify(dockerComposeConfig);
 
-  fs.writeFileSync("docker-compose.yml", yamlString);
+  log('Generating docker-compose.yml ....');
+
+  fs.writeFileSync(filePath("docker-compose.yml"), yamlString);
+
+  log('docker-compose up ......');
 
   return execCommand('docker-compose up -d');
 };
 
-module.exports.update = async () => {
+module.exports.pullup = async () => {
+  log('docker-compose pull ......');
   await execCommand('docker-compose pull');
+
+  log('docker-compose up -d ......');
   await execCommand('docker-compose up -d');
 }
 
