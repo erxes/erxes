@@ -305,10 +305,10 @@ module.exports.start = async (program) => {
   `.replace(/plugin-uis.s3.us-west-2.amazonaws.com/g, NGINX_HOST)
   );
 
-  log('Generating enabled-plugins.js ....');
+  log('Generating enabled-services.js ....');
 
   await fs.promises.writeFile(
-    filePath('enabled-plugins.js'),
+    filePath('enabled-services.js'),
     `
     module.exports = {
       ${enabledPlugins.join(',')}

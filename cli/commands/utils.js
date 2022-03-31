@@ -67,7 +67,7 @@ function downloadFile(file_url, targetPath) {
 
 const execCommand = command => {
   return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
+    exec(command, { maxBuffer: 1024 * 1000 }, (error, stdout, stderr) => {
       if (error !== null) {
         return reject(error);
       }
