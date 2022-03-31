@@ -15,7 +15,13 @@ class CustomerCreate extends React.Component<IActivityLogItemProps> {
     const { createdByDetail } = activity;
 
     if (createdByDetail && createdByDetail.type === 'user') {
-      const userName = renderUserFullName(createdByDetail.content);
+      const { content } = createdByDetail;
+
+      let userName = 'Unknown';
+
+      if (content && content.details) {
+        userName = renderUserFullName(createdByDetail.content || '');
+      }
 
       return (
         <span>

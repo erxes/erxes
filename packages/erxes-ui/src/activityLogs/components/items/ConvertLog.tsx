@@ -23,7 +23,11 @@ class ConvertLog extends React.Component<IActivityLogItemProps> {
     let userName = 'Unknown';
 
     if (createdByDetail && createdByDetail.type === 'user') {
-      userName = renderUserFullName(createdByDetail.content);
+      const { content } = createdByDetail;
+
+      if (content && content.details) {
+        userName = renderUserFullName(content);
+      }
     }
 
     const conversation = (

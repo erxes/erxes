@@ -15,9 +15,14 @@ class MergedLog extends React.Component<IActivityLogItemProps> {
     const { createdByDetail } = this.props.activity;
 
     if (createdByDetail) {
-      const userName = renderUserFullName(createdByDetail.content);
+      const { content } = createdByDetail;
 
-      return <strong>{userName}</strong>;
+      if (content && content.details) {
+        const userName = renderUserFullName(createdByDetail.content || '');
+
+        return <strong>{userName}</strong>;
+      }
+      
     }
 
     return <strong>System</strong>;
