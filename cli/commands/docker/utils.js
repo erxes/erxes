@@ -276,5 +276,20 @@ module.exports.start = async (program) => {
 
   fs.writeFileSync("docker-compose.yml", yamlString);
 
-  //   return execCommand('docker-compose up -d');
+  return execCommand('docker-compose up -d');
 };
+
+module.exports.update = async () => {
+  await execCommand('docker-compose pull');
+  await execCommand('docker-compose up -d');
+}
+
+module.exports.restart = async () => {
+  const configs = await fse.readJSON(filePath("configs.json"));
+
+  let names = configs.plugins.map(p => `plugin-${p.name}-api`).join(' ');
+
+  names = `${names} core gateway`;
+
+  await execCommand(`docker-compose restart ${names}`);
+}
