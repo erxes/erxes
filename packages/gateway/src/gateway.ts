@@ -26,15 +26,18 @@ async function getConfiguredServices(): Promise<ServiceEndpointDefinition[]> {
   for (const serviceName of serviceNames) {
     try {
       const service = await getService(serviceName);
+
       if(!service.address) {
-        throw new Error("service.address has no value");
+        console.log(`${serviceName} has no address value`);
+        continue;
       }
+
       const def: ServiceEndpointDefinition = {
         name: serviceName,
         url: `${service.address}/graphql`,
       };
+
       services.push(def);
-      
     } catch (e) {
       console.error(e);
       console.error(
