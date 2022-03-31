@@ -15,7 +15,7 @@ module.exports = {
       url: '/erxes-plugin-chat/home',
       icon: 'icon-cog',
       location: 'mainNavigation',
-      permission: 'showAll',
+      permission: 'showChats',
     },
   ],
 };
