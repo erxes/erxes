@@ -131,9 +131,9 @@ const generate = async () => {
       private: true,
       version: '0.1.0',
       scripts: {
-        up: 'erxes up',
-        restart: 'erxes restart',
-        update: 'erxes update'
+        dockerup: 'erxes dockerup',
+        dockerrestart: 'erxes docker-restart',
+        pullup: 'erxes pullup'
       },
       dependencies: {
         erxes: '^0.1.20'
@@ -144,7 +144,7 @@ const generate = async () => {
     }
   );
 
-  execa('yarn', ['install'], { cwd: rootPath }).stdout.pipe(process.stdout);
+  execa('npm', ['install'], { cwd: rootPath }).stdout.pipe(process.stdout);
 };
 
 const main = (async function() {
