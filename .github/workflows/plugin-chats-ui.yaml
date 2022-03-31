@@ -1,4 +1,4 @@
-name: Plugin Cards UI CI
+name: Plugin Chats UI CI
 
 on:
   push:
