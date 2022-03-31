@@ -262,6 +262,12 @@ module.exports.start = async (program) => {
     };
   }
 
+
+  if (!(await fse.exists(filePath('plugin-uis')))) {
+    log('Downloading plugin uis from s3 ....');
+    await execCommand('aws s3 sync s3://plugin-uis plugin-uis  --no-sign-request');
+  }
+
   log('Downloading pluginsMap.js from s3 ....');
 
   await execCurl(

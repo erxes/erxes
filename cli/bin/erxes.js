@@ -54,7 +54,7 @@ program
   .action(pullup);
 
 program
-  .command('restart')
+  .command('docker-restart')
   .description('Restart erxes using docker')
   .action(restart);
 
