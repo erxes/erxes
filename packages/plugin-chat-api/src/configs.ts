@@ -4,6 +4,7 @@ import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { coreModels, generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
+import permissions from './permissions';
 
 export let debug;
 export let graphqlPubsub;
@@ -19,6 +20,7 @@ export let es: {
 
 export default {
   name: 'chat',
+  permissions,
   graphql: async (sd) => {
     serviceDiscovery = sd;
     return {
