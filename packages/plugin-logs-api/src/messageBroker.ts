@@ -2,7 +2,7 @@ import { debug } from './configs';
 import { IActivityLogDocument } from './models/ActivityLogs';
 import { receivePutLogCommand, sendToApi } from './utils';
 import { serviceDiscovery } from './configs';
-import { getService } from './inmemoryStorage';
+import { getService } from '@erxes/api-utils/src/serviceDiscovery'
 import { generateModels } from './connectionResolver';
 import { sendMessage } from '@erxes/api-utils/src/core';
 
@@ -15,7 +15,7 @@ const hasMetaLogs = async (serviceName: string) => {
     return false;
   }
 
-  const { meta = {} } = service;
+  const meta: any = service.config?.meta || {};
 
   if (!(meta.logs && meta.logs.providesActivityLog === true)) {
     return false;

@@ -23,10 +23,8 @@ function getFilesFullPaths(
     .filter(x => x);
 }
 
-export default async function getPluginConfigs(
-  download?: boolean
-): Promise<any[]> {
-  if (download) { await downloadPlugins(); }
+export default async function getPluginConfigs(): Promise<any[]> {
+  await downloadPlugins();
   const directory = path.join(__dirname, '/downloads');
   const files = getFilesFullPaths(directory, name => /\.(t|j)s$/.test(name));
   const modules = await Promise.all(files.map(file => import(file)));

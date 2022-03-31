@@ -1,6 +1,7 @@
 import { Document, Model, Schema } from 'mongoose';
-import { ICoreIModels, IModels } from '../connectionResolver';
+import { IModels } from '../connectionResolver';
 import { field } from '@erxes/api-utils/src/definitions/utils';
+import { sendCoreMessage } from '../messageBroker';
 
 export interface IExm {
   name: string;
@@ -66,7 +67,7 @@ export interface IExmModel extends Model<IExmDocument> {
   useScoring(user: any, action: string): IExmDocument;
 }
 
-export const loadExmClass = (models: IModels, coreModels: ICoreIModels) => {
+export const loadExmClass = (models: IModels, subdomain: string) => {
   class Exm {
     public static async getExm(_id: string) {
       const exm = await models.Exms.findOne({ _id });
@@ -115,7 +116,19 @@ export const loadExmClass = (models: IModels, coreModels: ICoreIModels) => {
 
       const score = scoringConfig.score || 0;
 
-      await coreModels.Users.updateOne({ _id: user._id }, { $inc: { score } });
+      await sendCoreMessage({
+        subdomain,
+        action: 'users.updateOne',
+        data: {
+          selector: {
+            _id: user._id
+          },
+          modifier: {
+            $inc: { score }
+          }
+        },
+        isRPC: true
+      });
 
       return score;
     }

@@ -147,11 +147,6 @@ export const putCreateLog = async (
 
   // await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
 
-  // messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
-  //   type: `${params.type}`,
-  //   targets: [params.object],
-  // });
-
   const { extraDesc, description } = await gatherDescriptions({
     ...params,
     obj: params.object,
@@ -176,11 +171,6 @@ export const putUpdateLog = async (
 ) => {
   // await sendToWebhook(LOG_ACTIONS.UPDATE, params.type, params);
 
-  // messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
-  //   type: `${params.type}`,
-  //   targets: [params.updatedDocument],
-  // });
-
   const { extraDesc, description } = await gatherDescriptions({
     ...params,
     obj: params.object,
@@ -204,11 +194,6 @@ export const putDeleteLog = async (
   user: IUserDocument
 ) => {
   // await sendToWebhook(LOG_ACTIONS.DELETE, params.type, params);
-
-  // messageBroker().sendMessage(RABBITMQ_QUEUES.AUTOMATIONS_TRIGGER, {
-  //   type: `${params.type}`,
-  //   targets: [params.object],
-  // });
 
   const { extraDesc, description } = await gatherDescriptions({
     ...params,

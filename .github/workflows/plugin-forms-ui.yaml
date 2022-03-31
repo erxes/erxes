@@ -5,6 +5,7 @@ on:
     branches:
       - federation
     paths:
+      - 'packages/erxes-ui/**'
       - 'packages/plugin-forms-ui/**'
       - '.github/workflows/plugin-forms-ui.yaml'
 

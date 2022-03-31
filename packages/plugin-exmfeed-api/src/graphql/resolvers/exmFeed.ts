@@ -1,66 +1,82 @@
 const ExmFeeds = {
-  async createdUser(exmFeed, {}, { coreModels }) {
-    const user = await coreModels.Users.findOne({ _id: exmFeed.createdBy });
-    return user;
+  createdUser(exmFeed) {
+    return (
+      exmFeed.createdBy && {
+        __typename: 'User',
+        _id: exmFeed.createdBy
+      }
+    );
   },
 
-  async updatedUser(exmFeed, {}, { coreModels }) {
-    const user = coreModels.Users.findOne({ _id: exmFeed.updatedBy });
-    return user;
+  updatedUser(exmFeed) {
+    return (
+      exmFeed.updatedBy && {
+        __typename: 'User',
+        _id: exmFeed.updatedBy
+      }
+    );
   },
 
-  async recipients(exmFeed, {}, { coreModels }) {
-    const user = coreModels.Users.find({ _id: { $in: exmFeed.recipientIds } });
-    return user;
+  recipients(exmFeed) {
+    return (exmFeed.recipientIds || []).map(_id => ({
+      __typename: 'User',
+      _id
+    }));
   },
 
-  async eventGoingUsers(exmFeed, {}, { coreModels }) {
-    const user = coreModels.Users.find({
-      _id: { $in: (exmFeed.eventData || {}).goingUserIds || [] }
-    });
-    return user;
+  eventGoingUsers(exmFeed) {
+    const { eventData = {} } = exmFeed;
+    const { goingUserIds } = eventData;
+
+    return (goingUserIds || []).map(_id => ({
+      __typename: 'User',
+      _id
+    }));
   },
 
-  async eventInterestedUsers(exmFeed, {}, { coreModels }) {
-    const user = coreModels.Users.find({
-      _id: { $in: (exmFeed.eventData || {}).interestedUserIds || [] }
-    });
-    return user;
+  eventInterestedUsers(exmFeed) {
+    const { eventData = {} } = exmFeed;
+    const { interestedUserIds } = eventData;
+
+    return (interestedUserIds || []).map(_id => (
+      {
+        __typename: 'User',
+        _id
+      }
+    ))
   },
 
   async commentCount(exmFeed, {}, { models }) {
-    const user = models.Comments
-      ? models.Comments.find({
+    return models.Comments
+      ? await models.Comments.find({
           contentId: exmFeed._id,
           contentType: 'exmFeed'
         }).countDocuments()
       : 0;
-    return user;
   },
 
   async likeCount(exmFeed, {}, { models }) {
-    const user = models.Emojis
-      ? models.Emojis.find({
+    return models.Emojis
+      ? await models.Emojis.find({
           contentId: exmFeed._id,
           contentType: 'exmFeed',
           type: 'like'
         }).countDocuments()
       : 0;
-    return user;
   },
+
   async heartCount(exmFeed, {}, { models }) {
-    const user = models.Emojis
-      ? models.Emojis.find({
+    return models.Emojis
+      ? await models.Emojis.find({
           contentId: exmFeed._id,
           contentType: 'exmFeed',
           type: 'heart'
         }).countDocuments()
       : 0;
-    return user;
   },
 
   async isHearted(exmFeed, {}, { models, user }) {
-    const User = models.Emojis
+    return models.Emojis
       ? await models.Emojis.exists({
           contentId: exmFeed._id,
           contentType: 'exmFeed',
@@ -68,11 +84,10 @@ const ExmFeeds = {
           userId: user._id
         })
       : false;
-    return User;
   },
 
   async isLiked(exmFeed, {}, { models, user }) {
-    const User = models.Emojis
+    return models.Emojis
       ? await models.Emojis.exists({
           contentId: exmFeed._id,
           contentType: 'exmFeed',
@@ -80,7 +95,6 @@ const ExmFeeds = {
           userId: user._id
         })
       : false;
-    return User;
   }
 };
 

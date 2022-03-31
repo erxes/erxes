@@ -22,6 +22,7 @@ import imports from './imports';
 import tags from './tags'
 import internalNotes from './internalNotes';
 import automations from './automations';
+import search from './search';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -151,6 +152,7 @@ export default {
     forms,
     logs: { consumers: logs },
     tags,
+    search,
     internalNotes
   },
   apolloServerContext: async context => {

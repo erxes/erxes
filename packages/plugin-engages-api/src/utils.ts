@@ -7,7 +7,7 @@ import { SES_DELIVERY_STATUSES } from './constants';
 import { debugBase, debugError } from './debuggers';
 import messageBroker from './messageBroker';
 import { ISESConfig } from './models/Configs';
-import { getServices, getService } from './redis';
+import { getServices } from '@erxes/api-utils/src/serviceDiscovery'
 import { getApi } from './trackers/engageTracker';
 import { ICampaign, ICustomer } from './types';
 import { IModels } from './connectionResolver';
@@ -336,11 +336,10 @@ export const setCampaignCount = async (models: IModels, data: ICampaign) => {
 };
 
 export const getEditorAttributeUtil = async () => {
-  const apiCore = await getService('core');
   const services = await getServices();
   const editor = await new EditorAttributeUtil(
     messageBroker(),
-    apiCore.address,
+    `${process.env.MAIN_API_DOMAIN}/pl:core`,
     services
   );
 

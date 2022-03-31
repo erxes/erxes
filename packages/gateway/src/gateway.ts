@@ -11,7 +11,7 @@ dotenv.config();
 import { GraphQLRequestContext, GraphQLResponse } from "apollo-server-core";
 import { ValueOrPromise } from "apollo-server-types";
 import splitCookiesString from "./util/splitCookiesString";
-import { getService, getServices } from "./redis";
+import { getService, getEnabledServices } from "./redis";
 
 export interface IGatewayContext {
   req?: express.Request & { user?: any };
@@ -19,20 +19,33 @@ export interface IGatewayContext {
 }
 
 async function getConfiguredServices(): Promise<ServiceEndpointDefinition[]> {
-  const serviceNames = await getServices();
+  const serviceNames = await getEnabledServices();
 
-  const services: ServiceEndpointDefinition[] = await Promise.all(
-    serviceNames.map(async (name) => {
-      const service = await getService(name);
+  const services: ServiceEndpointDefinition[] = [];
 
-      const def: ServiceEndpointDefinition = {
-        name,
-        url: `${service.address}/graphql`
+  for (const serviceName of serviceNames) {
+    try {
+      const service = await getService(serviceName);
+
+      if(!service.address) {
+        console.log(`${serviceName} has no address value`);
+        continue;
       }
 
-      return def;
-    })
-  );
+      const def: ServiceEndpointDefinition = {
+        name: serviceName,
+        url: `${service.address}/graphql`,
+      };
+
+      services.push(def);
+    } catch (e) {
+      console.error(e);
+      console.error(
+        `Cannot get service address for ${serviceName}. Maybe it hasn't joined service discovery yet. Please start the gateway after all services are ready.`
+      );
+      process.exit(1);
+    }
+  }
 
   return services;
 }
