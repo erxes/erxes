@@ -1,8 +1,78 @@
 {
-  "JWT_TOKEN_SECRET": "token",
-  "MONGO_URL": "mongodb://localhost",
-  "ELASTICSEARCH_URL": "http://localhost:9200",
-  "DOMAIN": "http://localhost:3000",
-  "USE_DASHBOARD": false,
-  "ELK_SYNCER": false
+  "jwt_token_secret": "D}B:3;QHW=/9SUfw-R?XPI?ymd}ZS$$",
+  "api_mongo_url": "mongodb://erxes:kpnt4Qzrazxxqw13eaeSFU@mongo:27017/erxes_office?authSource=admin&replicaSet=rs0",
+  "mongo_url": "mongodb://erxes:kpnt4Qzrazxxqw13eaeSFU@mongo:27017/erxes_office?authSource=admin&replicaSet=rs0",
+  "elasticsearch_url": "http://elasticsearch:9200",
+  "redis_host": "redis",
+  "redis_password": "pXwPM2Gz12dM9TKzsdwkYawk9",
+  "rabbitmq_host": "amqp://erxes:kF65qZDw12PJM9awdjkw82bCLW@rabbitmq:5672/office",
+  "main_app_domain": "https://office.erxes.io",
+  "main_api_domain": "https://api.office.erxes.io",
+  "widgets_domain": "https://w.office.erxes.io",
+  "dashboard_domain": "https://office.erxes.io/dashboard/front",
+  "client_portal_domains": "https://culture.erxes.io,https://culture.erxes.mn,https://help.erxes.io,https://back.erxes.mn",
+  "dashboard": {
+    "api_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MDYyODYwNzAsImV4cCI6MTkyMTg2MjA3MH0.HP0plh7qfxF5nBREcbLPZXtElKG38272jBmz-yD3P6s"
+  },
+  "kibana": {},
+  "elasticsearch": {},
+  "redis": {
+    "password": "pXwPM2Gz12dM9TKzsdwkYawk9"
+  },
+  "mongo": {
+    "username": "erxes",
+    "password": "kpnt4Qzrazxxqw13eaeSFU"
+  },
+  "rabbitmq": {
+    "cookie": "dzw3YkCpZcc2cNWmN9VPVEZc9rvCsGyZB",
+    "user": "erxes",
+    "pass": "kF65qZDw12PJM9awdjkw82bCLW",
+    "vhost": "office"
+  },
+  "extra_services": {
+    "client-portal": {
+      "image": "erxes/erxes-client-portal:ci_implement",
+      "container_name": "client-portal",
+      "environment": {
+        "REACT_APP_API_URL": "https://api.office.erxes.io",
+        "REACT_APP_TOPIC_ID": "7gS2nbdE4vnf6vSiE",
+        "NGINX_HOST": "erxes.io"
+      },
+      "ports": [
+        "127.0.0.1:4400:80"
+      ]
+    },
+    "cp": {
+      "image": "erxes/erxes-cp:next",
+      "container_name": "erxes-cp",
+      "environment": {
+        "JWT_TOKEN_SECRET": "asjdalksjd123k123jk190239asd",
+        "MONGO_URL": "mongodb://erxes:kpnt4Qzrazxxqw13eaeSFU@mongo:27017/erxes_client_portal?authSource=admin&replicaSet=rs0",
+        "MAIN_API_DOMAIN": "https://api.office.erxes.io",
+        "REACT_APP_MAIN_API_DOMAIN": "https://api.office.erxes.io",
+        "REACT_APP_NEXT_PUBLIC_MAIN_API_DOMAIN": "https://cp.office.erxes.io/api",
+        "REACT_APP_CLIENT_PORTAL_CONFIG_ID": "hTXArb3i2Xm2hoNnF"
+      },
+      "ports": [
+        "127.0.0.1:5300:3000"
+      ]
+    }
+  },
+  "plugins": [
+    { "name": "cards" },
+    { "name": "contacts" },
+    { "name": "engages" },
+    { "name": "inbox" },
+    { "name": "internalnotes" },
+    { "name": "knowledgebase" },
+    { "name": "notifications" },
+    { "name": "products" },
+    { "name": "forms" },
+    { "name": "segments" },
+    { "name": "tags" },
+    {
+      "name": "logs",
+      "mongo_url": "mongodb://erxes:kpnt4Qzrazxxqw13eaeSFU@mongo:27017/erxes_office_logs?authSource=admin&replicaSet=rs0"
+    }
+  ]
 }
