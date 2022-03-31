@@ -1,12 +1,12 @@
 module.exports = {
-  name: 'chat',
+  name: 'chats',
   port: 3110,
   exposes: {
     './routes': './src/routes.tsx'
   },
   routes: {
     url: 'http://localhost:3110/remoteEntry.js',
-    scope: 'chat',
+    scope: 'chats',
     module: './routes'
   },
   menus: [
