@@ -17,7 +17,9 @@ class ArchiveLog extends React.Component<IActivityLogItemProps> {
     let userName = 'Unknown';
 
     if (createdByDetail && createdByDetail.type === 'user') {
-      if (createdByDetail.content.details) {
+      const { content } = createdByDetail;
+
+      if (content && content.details) {
         userName = renderUserFullName(createdByDetail.content);
       }
     }

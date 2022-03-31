@@ -542,3 +542,5 @@ const generateNginxConf = async ({
   `
   );
 };
+
+module.exports.runCommand = runCommand;

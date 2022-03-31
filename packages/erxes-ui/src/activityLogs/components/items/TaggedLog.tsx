@@ -20,14 +20,14 @@ class TaggedLog extends React.Component<IActivityLogItemProps> {
     if (createdByDetail && createdByDetail.type === 'user') {
       const { content } = createdByDetail;
 
-      if (content.details) {
+      if (content && content.details) {
         userName = renderUserFullName(createdByDetail.content);
       }
     }
 
     const { tags } = contentDetail;
 
-    const tagNames = tags.map(tag => {
+    const tagNames = (tags || []).map(tag => {
       return <Tags key={tag._id} tags={[tag]} size="medium" />;
     });
 
