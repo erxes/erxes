@@ -55,9 +55,11 @@ class ActivityItem extends React.Component<Props> {
     const { activity, currentUser } = this.props;
     const { _id, contentType, action } = activity;
 
+    console.log(contentType, 'contentType,....')
+    
     const type = (contentType || "").split(':')[1];
 
-      console.log(type, '--------', contentType)
+    console.log(type, '--------')
 
     switch ((action && action) || type) {
       case 'conversation':
