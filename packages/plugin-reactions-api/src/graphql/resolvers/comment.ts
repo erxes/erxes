@@ -1,6 +1,9 @@
 const Comment = {
-  createdUser(comment, {}, { coreModels }) {
-    return coreModels.Users.findOne({ _id: comment.createdBy });
+  createdUser(comment) {
+    return comment.createdBy && {
+      __typename: "User",
+      _id: comment.createdBy
+    }
   },
 
   childCount(comment, {}, { models }) {
