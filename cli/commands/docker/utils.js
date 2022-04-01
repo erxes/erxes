@@ -287,11 +287,13 @@ module.exports.start = async (program) => {
 
     enabledPlugins.push(`${plugin.name}: true`);
 
-    uiPlugins.push(JSON.stringify({
-        name: plugin.name,
-        ...pluginsMap[plugin.name]
-      })
-    );
+    if (pluginsMap[plugin.name]) {
+      uiPlugins.push(JSON.stringify({
+          name: plugin.name,
+          ...pluginsMap[plugin.name]
+        })
+      );
+    }
   }
 
   log('Generating ui plugins.js ....');
