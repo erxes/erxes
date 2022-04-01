@@ -7,6 +7,7 @@ import SpinCampaigns from './spinCampaigns';
 import Spins from './spins';
 import VoucherCampaigns from './voucherCampaigns';
 import Vouchers from './vouchers';
+import Loyalties from './loyalties';
 
 export {
   Configs,
@@ -18,5 +19,5 @@ export {
   Spins,
   LotteryCampaigns,
   Lotteries,
-
+  Loyalties,
 };

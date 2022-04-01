@@ -53,13 +53,17 @@ const notificationQueries = {
    */
   notificationCounts(
     _root,
-    { requireRead }: { requireRead: boolean },
+    { requireRead, notifType }: { requireRead: boolean; notifType: string },
     { user, models }: IContext
   ) {
     const selector: any = { receiver: user._id };
 
     if (requireRead) {
       selector.isRead = false;
+    }
+
+    if (notifType) {
+      selector.notifType = notifType;
     }
 
     return models.Notifications.find(selector).countDocuments();
@@ -77,7 +81,7 @@ const notificationQueries = {
    */
   notificationsGetConfigurations(_root, _args, { user, models }: IContext) {
     return models.NotificationConfigurations.find({ user: user._id });
-  },
+  }
 };
 
 moduleRequireLogin(notificationQueries);

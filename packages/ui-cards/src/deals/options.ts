@@ -6,8 +6,8 @@ import { mutations, queries } from "./graphql";
 const options = {
   EditForm: DealEditForm,
   Item: DealItem,
-  type: "deal",
   title: "Deal",
+  type: "deal",
   queriesName: {
     itemsQuery: "deals",
     itemsTotalCountQuery: "dealsTotalCount",

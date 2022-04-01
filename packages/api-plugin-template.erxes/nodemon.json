@@ -1,6 +1,5 @@
 {
 	"watch": [
-		".src/",
 		"../src"
 	],
 	"ext": "js, ts"

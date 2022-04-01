@@ -1,10 +1,13 @@
 import * as admin from 'firebase-admin';
-import { debugExternalApi } from 'erxes-api-utils/lib/debuggers';
 
 const initFirebase = async (models): Promise<void> => {
-  const config = await models.Configs.findOne({
-    code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
-  });
+  let config;
+
+  if (models.Configs) {
+    config = await models.Configs.findOne({
+      code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
+    });
+  }
 
   if (!config) {
     return;
@@ -47,25 +50,25 @@ export const sendMobileNotification = async (
   }
 ): Promise<void> => {
   if (!admin.apps.length) {
-    await initFirebase(models);
+    try {
+      await initFirebase(models);
+    } catch (e) {
+      console.log(e.message);
+    }
   }
 
   const tokens: string[] = [];
 
   if (receivers) {
-    tokens.push(
-      ...(await models.Users.find({ _id: { $in: receivers } }).distinct(
-        'deviceTokens'
-      ))
-    );
+    const users = await models.Users.find({ _id: { $in: receivers } });
+
+    tokens.concat(users.map(user => user.deviceTokens));
   }
 
   if (customerId) {
-    tokens.push(
-      ...(await models.Customers.findOne({ _id: customerId }).distinct(
-        'deviceTokens'
-      ))
-    );
+    const customers = await models.Customers.findOne({ _id: customerId });
+
+    tokens.concat(customers.map(c => c.deviceTokens));
   }
 
   if (tokens.length > 0) {
@@ -79,12 +82,10 @@ export const sendMobileNotification = async (
           data: { conversationId: conversationId || 'fakeId' }
         })
         .then(response => {
-          debugExternalApi(
-            `Successfully sent message: ${JSON.stringify(response)}`
-          );
+          console.log(`Successfully sent message: ${JSON.stringify(response)}`);
         })
         .catch(error => {
-          debugExternalApi(`Error sending message: ${error.message}`);
+          console.log(`Error sending message: ${error.message}`);
           throw error;
         });
     }

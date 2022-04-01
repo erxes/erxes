@@ -297,8 +297,6 @@ export const initBroker = cl => {
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
 
-      console.log("asdasdasdasdasdasdasds");
-
       return {
         status: "success",
         data: await models.Conversations.find(query).countDocuments()

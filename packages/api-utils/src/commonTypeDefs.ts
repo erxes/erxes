@@ -1,4 +1,3 @@
-
 export const attachmentType = `
   type Attachment {
     url: String!
@@ -17,4 +16,4 @@ export const attachmentInput = `
     size: Float
     duration: Float
   }
-`
+`;

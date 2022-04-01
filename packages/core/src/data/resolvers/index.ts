@@ -7,7 +7,6 @@ import Query from './queries';
 import Subscription from './subscriptions';
 import User from './user';
 import UsersGroup from './usersGroup';
-import Trigger from './trigger';
 import Structure from './structure';
 import Department from './departments';
 import Unit from './units';
@@ -26,7 +25,6 @@ const resolvers: any = {
   User,
   Permission,
   UsersGroup,
-  Trigger,
   Structure,
   Department,
   Unit,

@@ -1,12 +1,20 @@
 const ExmThanks = {
-  async createdUser(exmThank, {}, { models }) {
-    const user = models.Users.findOne({ _id: exmThank.createdBy });
-    return user;
+  async createdUser(exmThank) {
+    return exmThank.createdBy && {
+      __typename: 'User',
+      _id: exmThank.createdBy
+    }
   },
-  async recipients(exmThank, {}, { models }) {
-    const user = models.Users.find({ _id: { $in: exmThank.recipientIds } });
-    return user;
-  },
+
+  async recipients({ recipientIds }) {
+    return (recipientIds || []).map(_id => (
+      {
+        __typename: 'User',
+        _id
+      }
+    ))
+    
+  }
 };
 
 export default ExmThanks;

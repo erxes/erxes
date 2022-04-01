@@ -1,43 +1,92 @@
 import { generateModels, IModels } from "./connectionResolver";
+import { sendContactsMessage, sendCoreMessage } from "./messageBroker";
 
 export default {
   receiveActions: async ({
     subdomain,
-    data: { action, execution },
+    data: { action, execution, actionType },
   }) => {
     const models = await generateModels(subdomain);
-    return actionCreate({ models, action, execution });
+    if (actionType === "create") {
+      return actionCreate({ models, subdomain, action, execution });
+    }
 
+    return;
   },
 };
 
-const actionCreate = async ({ models, action, execution }) => {
+const actionCreate = async ({ models, subdomain, action, execution }) => {
   const { config = {} } = action;
   let ownerType;
   let ownerId;
 
+  const [service, type] = execution.triggerType.split(':');
   try {
-    if (['customer', 'user', 'company'].includes(execution.triggerType)) {
-      ownerType = execution.triggerType
+    if (['contacts:customer', 'core:user', 'contacts:company'].includes(execution.triggerType)) {
+      ownerType = type
       ownerId = execution.targetId
     }
 
-    if (execution.triggerType === 'conversation') {
+    if (execution.triggerType === 'inbox:conversation') {
       ownerType = 'customer'
       ownerId = execution.target.customerId
+    }
+
+    if (['cards:task', 'cards:deal', 'cards:ticket'].includes(execution.triggerType)) {
+      const customerIds = await sendCoreMessage({
+        subdomain,
+        action: 'conformities.savedConformity',
+        data: {
+          mainType: type,
+          mainTypeId: execution.targetId,
+          relTypes: ['customer']
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      if (customerIds.length) {
+        const customers = await sendContactsMessage({
+          subdomain,
+          action: 'customers.find',
+          data: {
+            _id: { $in: customerIds }
+          },
+          isRPC: true,
+          defaultValue: []
+        })
+
+        if (customers.length) {
+          ownerType = 'customer'
+          ownerId = customers[0]._id
+        }
+      }
     }
 
     if (!ownerType || !ownerId) {
       return { error: 'not found voucher owner' }
     }
 
-    const voucher = await models.Vouchers.createVoucher({
-      campaignId: action.config.voucherCompaignId,
-      ownerType,
-      ownerId
-    })
+    if (service === 'scoreLog') {
+      const scoreLog = await models.ScoreLogs.changeScore({
+        ownerType,
+        ownerId,
+        changeScore: config.changeScore,
+        description: 'from automation'
+      })
 
-    return voucher;
+      return scoreLog;
+    }
+
+    if (service === 'voucher') {
+      const voucher = await models.Vouchers.createVoucher({
+        campaignId: config.voucherCampaignId,
+        ownerType,
+        ownerId
+      })
+
+      return voucher;
+    }
   } catch (e) {
     return { error: e.message };
   }

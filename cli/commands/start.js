@@ -10,8 +10,6 @@ module.exports = async function(program) {
       await downloadLatesVersion(configs);
     }
 
-    // create configs file
-
     await startServices(configs);
 
     console.log(figlet.textSync('Welcome to Erxes'));

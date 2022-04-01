@@ -55,20 +55,20 @@ class ActivityItem extends React.Component<Props> {
     const { activity, currentUser } = this.props;
     const { _id, contentType, action } = activity;
 
-    const type = contentType.split(':')[1];
+    const type = (contentType || "").split(':')[1];
 
     switch ((action && action) || type) {
       case 'conversation':
         return this.renderDetail(
-          'conversation',
+          activity.contentType,
           <Conversation conversationId={_id} activity={activity} />
         );
       case 'taskDetail':
-        return this.renderDetail('task', <Task taskId={_id} />);
+        return this.renderDetail(activity.contentType, <Task taskId={_id} />);
 
       case 'comment':
         return this.renderDetail(
-          'conversation',
+          activity.contentType,
           <Conversation conversationId={_id} activity={activity} />
         );
       case 'moved':
@@ -89,7 +89,7 @@ class ActivityItem extends React.Component<Props> {
 
       case 'note':
         return this.renderDetail(
-          'internalnotes:note',
+          activity.contentType,
           <InternalNote
             noteId={_id}
             activity={activity}
@@ -115,14 +115,14 @@ class ActivityItem extends React.Component<Props> {
         );
       case 'assignee':
         return this.renderDetail(
-          'assignee',
+          activity.contentType,
           <AssigneeLog activity={activity} />
         );
 
       case 'tagged':
-        return this.renderDetail('tagged', <TaggedLog activity={activity} />);
+        return this.renderDetail(activity.contentType, <TaggedLog activity={activity} />);
       case 'archive':
-        return this.renderDetail('archive', <ArchiveLog activity={activity} />);
+        return this.renderDetail(activity.contentType, <ArchiveLog activity={activity} />);
       case 'send':
         if (contentType === 'campaign') {
           return this.renderDetail(

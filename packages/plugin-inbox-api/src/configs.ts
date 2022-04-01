@@ -21,6 +21,7 @@ import tags from './tags';
 import segments from './segments';
 import forms from './forms';
 import permissions from './permissions';
+import search from './search';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -51,6 +52,7 @@ export default {
     forms,
     segments,
     tags,
+    search,
     logs: { providesActivityLog: true, consumers: logs }
   },
   apolloServerContext: context => {
