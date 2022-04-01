@@ -144,10 +144,11 @@ class Histories extends React.Component<Props & IRouterProps> {
           <Wrapper.ActionBar
             left={<Title capitalize={true}>{__('Imports')}</Title>}
             right={this.renderImportButton()}
+            background="bgActive"
           />
         }
         leftSidebar={<Sidebar currentType={queryParams.type} />}
-        mainHead={headerDescription}
+        subHeader={headerDescription}
         footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader
@@ -157,6 +158,9 @@ class Histories extends React.Component<Props & IRouterProps> {
             emptyContent={<EmptyContent content={EMPTY_IMPORT_CONTENT} />}
           />
         }
+        hasBorder={true}
+        transparent={true}
+        leftSpacing={true}
       />
     );
   }

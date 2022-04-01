@@ -1,14 +1,8 @@
 import Button from 'modules/common/components/Button';
-import { Step, Steps } from 'modules/common/components/step';
-import {
-  ControlWrapper,
-  Indicator,
-  StepWrapper
-} from 'modules/common/components/step/styles';
+import { Step, Steps } from '@erxes/ui/src/components/stepper';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
-import { Link } from 'react-router-dom';
 import FileUpload from './FileUpload';
 
 import Details from './Details';
@@ -164,13 +158,13 @@ class Form extends React.Component<Props, State> {
     const { disclaimer, importName } = this.state;
     if (disclaimer && importName) {
       return (
-        <Button btnStyle="success" onClick={this.onSubmit}>
+        <Button btnStyle="success" size="large" onClick={this.onSubmit}>
           Import
         </Button>
       );
     }
 
-    return null;
+    return <></>;
   };
 
   renderAssociateForm = () => {
@@ -187,7 +181,7 @@ class Form extends React.Component<Props, State> {
       }
 
       return (
-        <Step img="/images/icons/erxes-10.svg" title="Accociate">
+        <Step title="Accociate">
           <AccociateForm
             attachmentNames={attachmentNames}
             contentTypes={contentTypes}
@@ -212,7 +206,6 @@ class Form extends React.Component<Props, State> {
 
         result.push(
           <Step
-            img="/images/icons/erxes-10.svg"
             title={`Mapping  `}
             key={Math.random()}
           >
@@ -242,61 +235,57 @@ class Form extends React.Component<Props, State> {
       { title }
     ];
 
-    return (
-      <StepWrapper>
-        <Wrapper.Header title={title} breadcrumb={breadcrumb} />
-        <Content>
-          <LeftContent>
-            <Steps active={1}>
-              <Step img="/images/icons/erxes-10.svg" title="Type">
-                <TypeForm
-                  type={type}
-                  onChangeContentType={this.onChangeContentType}
-                  contentTypes={contentTypes}
-                />
-              </Step>
-              <Step img="/images/icons/erxes-10.svg" title="Upload">
-                <FileUpload
-                  onChangeAttachment={this.onChangeAttachment}
-                  contentTypes={contentTypes}
-                  type={type}
-                />
-              </Step>
+    const content = (
+      <Content>
+        <LeftContent>
+          <Steps active={1} allStep={this.renderMapColumn().length === 0 ? 3 : 4} titles={["Type", "Upload", "Detail"]}>
+            <Step title="Type" link='importHistories'>
+              <TypeForm
+                type={type}
+                onChangeContentType={this.onChangeContentType}
+                contentTypes={contentTypes}
+              />
+            </Step>
+            <Step title="Upload">
+              <FileUpload
+                onChangeAttachment={this.onChangeAttachment}
+                contentTypes={contentTypes}
+                type={type}
+              />
+            </Step>
 
-              {/* {this.renderAssociateForm()} */}
-              {this.renderMapColumn()}
+            {/* {this.renderAssociateForm()} */}
+            {this.renderMapColumn()}
 
-              <Step
-                img="/images/icons/erxes-10.svg"
-                title="Detail"
-                noButton={true}
-              >
-                <Details
-                  disclaimer={disclaimer}
-                  importName={importName}
-                  onChangeImportName={this.onChangeImportName}
-                  onChangeDisclaimer={this.onChangeDisclaimer}
-                />
-              </Step>
-            </Steps>
+            <Step
+              title="Detail"
+              additionalButton={this.renderImportButton()}
+            >
+              <Details
+                disclaimer={disclaimer}
+                importName={importName}
+                onChangeImportName={this.onChangeImportName}
+                onChangeDisclaimer={this.onChangeDisclaimer}
+              />
+            </Step>
+          </Steps>
 
-            <ControlWrapper>
-              <Indicator />
-              <Button.Group>
-                <Link to="settings/importHistories">
-                  <Button btnStyle="simple" icon="times-circle">
-                    Cancel
-                  </Button>
-                </Link>
+        </LeftContent>
+      </Content>
+  )
 
-                {this.renderImportButton()}
-              </Button.Group>
-            </ControlWrapper>
-          </LeftContent>
-        </Content>
-      </StepWrapper>
-    );
-  }
+  return (
+      <Wrapper 
+      header={
+          <Wrapper.Header
+            title={__('')}
+            breadcrumb={breadcrumb}
+          />
+        } 
+      content={content}
+      transparent={true} />
+  );
+}
 }
 
 export default Form;

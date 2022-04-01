@@ -2,7 +2,6 @@ import React from 'react';
 
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import { IAttachment } from 'modules/common/types';
-import { SubHeading, Description } from '@erxes/ui-settings/src/styles';
 import { FullContent, UploadText } from '../../styles';
 import { renderIcon, renderText } from '../../utils';
 import { IImportHistoryContentType } from '../../types';
@@ -10,6 +9,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import ManageColumns from '@erxes/ui-settings/src/properties/containers/ManageColumns';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { __ } from '@erxes/ui/src/utils/core';
+import { ImportHeader, FileUploadBox } from '../../styles';
 
 type Props = {
   onChangeAttachment: (files: IAttachment[], contentType: string) => void;
@@ -50,7 +50,7 @@ class FileUpload extends React.Component<Props, {}> {
         onChangeAttachment(attachmentsAtt, contentType.contentType);
 
       return (
-        <div key={contentType.contentType} style={{ marginTop: '20px' }}>
+        <FileUploadBox key={contentType.contentType}>
           <UploadText>
             <p>{renderText(contentType.contentType)}</p>
             {this.renderColumnChooser(contentType.contentType)}
@@ -67,7 +67,7 @@ class FileUpload extends React.Component<Props, {}> {
             defaultFileList={[]}
             onChange={onChange}
           />
-        </div>
+        </FileUploadBox>
       );
     });
   };
@@ -76,12 +76,12 @@ class FileUpload extends React.Component<Props, {}> {
     return (
       <FlexItem>
         <FlexPad direction="column" overflow="auto">
-          <SubHeading>{__(`Upload your file`)}</SubHeading>
-          <Description>
+          <ImportHeader>{__(`Upload your file`)}</ImportHeader>
+          <ImportHeader fontSize="12px">
             {__(
               'Before you upload your files below, make sure your file is ready to be imported.'
             )}
-          </Description>
+          </ImportHeader>
           <FullContent center={true}>
             <div style={{ marginBottom: '100px' }}>{this.rendertContent()}</div>
           </FullContent>

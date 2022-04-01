@@ -2,6 +2,7 @@ import { colors, dimensions, typography } from 'modules/common/styles';
 import { BoxRoot } from 'modules/common/styles/main';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 
 const tableHoverColor = '#f5f5f5';
 
@@ -17,6 +18,8 @@ const Box = styled(BoxRoot)`
   padding: 40px;
   background: ${colors.bgLight};
   margin-bottom: 100px;
+  border: 1px dashed ${colors.bgGray};
+  border-radius: ${dimensions.unitSpacing}px;
   i {
     font-size: 38px;
     color: ${colors.colorSecondary};
@@ -36,6 +39,10 @@ const Box = styled(BoxRoot)`
 
   &:last-of-type {
     margin-right: 0;
+  }
+
+  &.active {
+    border: 1px solid ${colors.colorPrimary};
   }
 `;
 
@@ -170,6 +177,20 @@ const ColumnTable = styledTS<{
   `};
 `;
 
+const ImportHeader = styledTS<{fontSize?: string}>(styled.div)`
+  color: ${colors.textSecondary};
+  justify-content: center;
+  font-size: ${props => props.fontSize ? props.fontSize : `${typography.fontSizeHeading7}px`};
+  display: flex;
+  margin-bottom: ${dimensions.coreSpacing}px;
+`;
+
+const FileUploadBox = styled.div`
+  margin-top: ${dimensions.coreSpacing}px;
+  border: 1px dashed ${rgba(colors.colorPrimary, 0.2)};
+  border-radius: ${dimensions.unitSpacing}px;
+`;
+
 export {
   ImportColumnRow,
   ColumnTable,
@@ -179,5 +200,7 @@ export {
   Box,
   FullContent,
   UploadText,
-  TypeContent
+  TypeContent,
+  ImportHeader,
+  FileUploadBox
 };

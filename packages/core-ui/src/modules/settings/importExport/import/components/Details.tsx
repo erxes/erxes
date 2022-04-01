@@ -1,13 +1,14 @@
 import React from 'react';
 
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
-import { SubHeading } from '@erxes/ui-settings/src/styles';
+import { InputBar } from "@erxes/ui-settings/src/styles";
 import {
   ControlLabel,
   FormControl,
   FormGroup
 } from '@erxes/ui/src/components/form';
 import { __ } from '@erxes/ui/src/utils';
+import { ImportHeader } from '../../styles';
 
 type Props = {
   disclaimer: boolean;
@@ -34,24 +35,27 @@ class Details extends React.Component<Props, {}> {
     const { disclaimer, importName } = this.props;
 
     return (
+      <div style={{width: 800}}>
       <FlexItem>
         <FlexPad direction="column" overflow="auto" value={importName}>
-          <SubHeading>{__('Details')}</SubHeading>
 
           <FormGroup>
-            <ControlLabel required={true}>{__('Import Name')}</ControlLabel>
-            <p>
+            <ImportHeader>
               {__(
                 'Giving it a name helps with identifying items in the imports history.'
               )}
               .
-            </p>
+            </ImportHeader>
+            <InputBar>
             <FormControl
               required={true}
               name="title"
               value={importName}
               onChange={this.onChangeName}
+              placeholder={__("Import Name")}
+              noBorderBottom={true}
             />
+            </InputBar>
           </FormGroup>
 
           <FormGroup>
@@ -73,6 +77,7 @@ class Details extends React.Component<Props, {}> {
           </FormGroup>
         </FlexPad>
       </FlexItem>
+      </div>
     );
   }
 }
