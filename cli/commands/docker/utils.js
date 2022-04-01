@@ -21,7 +21,7 @@ const generatePluginBlock = (configs, plugin) => {
     container_name: `plugin-${plugin.name}-api`,
     image: `erxes/plugin-${plugin.name}-api:federation`,
     environment: {
-      PORT: `${plugin.port}` || '4004',
+      PORT: plugin.port || 4004,
       API_MONGO_URL: plugin.api_mongo_url || configs.mongo_url,
       MONGO_URL: plugin.mongo_url || configs.mongo_url,
       ...commonEnvs(configs),
