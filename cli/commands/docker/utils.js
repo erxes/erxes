@@ -338,7 +338,13 @@ module.exports.start = async (program) => {
   return execCommand('docker-compose up -d');
 };
 
-module.exports.pullup = async () => {
+module.exports.pullup = async (program) => {
+  if (program.uis) {
+    log('Syncing plugin uis from s3 ....');
+
+    await execCommand('aws s3 sync s3://plugin-uis plugin-uis  --no-sign-request');
+  }
+
   log('docker-compose pull ......');
   await execCommand('docker-compose pull');
 

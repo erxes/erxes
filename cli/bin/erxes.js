@@ -50,6 +50,7 @@ program
 
 program
   .command('pullup')
+  .option('--uis', 'Download the latest versions of the uis from s3')
   .description('Pull and update erxes using docker')
   .action(pullup);
 
