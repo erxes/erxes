@@ -349,7 +349,7 @@ module.exports.pullup = async () => {
 module.exports.restart = async () => {
   const configs = await fse.readJSON(filePath("configs.json"));
 
-  let names = configs.plugins.map(p => `plugin-${p.name}-api`).join(' ');
+  let names = configs.plugins.map(p => `plugin_${p.name}_api`).join(' ');
 
   names = `${names} core gateway`;
 
