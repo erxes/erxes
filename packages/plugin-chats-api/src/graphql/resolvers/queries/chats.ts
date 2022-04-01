@@ -3,6 +3,7 @@ import { getIsSeen } from '../chat';
 import graphqlPubsub from '../subscription/pubsub';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IUserDocument } from '@erxes/api-utils/src/types';
+import { sendCoreMessage } from '../../../messageBroker';
 
 const chatQueries = {
   chats: async (_root, { type, limit, skip }, { models, user }) => {
@@ -31,8 +32,8 @@ const chatQueries = {
     {
       models,
       user,
-      coreModels
-    }: { models: IModels; user: IUserDocument; coreModels: any }
+      subdomain
+    }: { models: IModels; user: IUserDocument; subdomain: string }
   ) => {
     const lastMessage = await models.ChatMessages.findOne({
       chatId
@@ -87,7 +88,14 @@ const chatQueries = {
     const seenList: any[] = [];
 
     for (const info of chat.seenInfos || []) {
-      const user = await coreModels.Users.findOne({ _id: info.userId });
+      const user = await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          _id: info.userId
+        },
+        isRPC: true
+      });
 
       if (user) {
         seenList.push({
