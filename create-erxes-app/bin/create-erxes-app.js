@@ -133,7 +133,8 @@ const generate = async () => {
       scripts: {
         dockerup: 'erxes dockerup',
         dockerrestart: 'erxes docker-restart',
-        pullup: 'erxes pullup'
+        pullup: 'erxes pullup',
+        'pullup:uis': 'erxes pullup --uis'
       },
       dependencies: {
         erxes: '^0.1.20'
