@@ -1,28 +1,49 @@
 const ExmFeeds = {
-  createdUser(exmFeed, {}, { coreModels }) {
-    return coreModels.Users.findOne({ _id: exmFeed.createdBy });
+  createdUser(exmFeed) {
+    return (
+      exmFeed.createdBy && {
+        __typename: 'User',
+        _id: exmFeed.createdBy
+      }
+    );
   },
 
-  updatedUser(exmFeed, {}, { coreModels }) {
-    return coreModels.Users.findOne({ _id: exmFeed.updatedBy });
+  updatedUser(exmFeed) {
+    return (
+      exmFeed.updatedBy && {
+        __typename: 'User',
+        _id: exmFeed.updatedBy
+      }
+    );
   },
 
-  recipients(exmFeed, {}, { coreModels }) {
-    return coreModels.Users.find({
-      _id: { $in: exmFeed.recipientIds }
-    }).toArray();
+  recipients(exmFeed) {
+    return (exmFeed.recipientIds || []).map(_id => ({
+      __typename: 'User',
+      _id
+    }));
   },
 
-  eventGoingUsers(exmFeed, {}, { coreModels }) {
-    return coreModels.Users.find({
-      _id: { $in: (exmFeed.eventData || {}).goingUserIds || [] }
-    }).toArray();
+  eventGoingUsers(exmFeed) {
+    const { eventData = {} } = exmFeed;
+    const { goingUserIds } = eventData;
+
+    return (goingUserIds || []).map(_id => ({
+      __typename: 'User',
+      _id
+    }));
   },
 
-  eventInterestedUsers(exmFeed, {}, { coreModels }) {
-    return coreModels.Users.find({
-      _id: { $in: (exmFeed.eventData || {}).interestedUserIds || [] }
-    }).toArray();
+  eventInterestedUsers(exmFeed) {
+    const { eventData = {} } = exmFeed;
+    const { interestedUserIds } = eventData;
+
+    return (interestedUserIds || []).map(_id => (
+      {
+        __typename: 'User',
+        _id
+      }
+    ))
   },
 
   async commentCount(exmFeed, {}, { models }) {

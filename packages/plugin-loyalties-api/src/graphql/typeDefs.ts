@@ -10,6 +10,7 @@ import { mutations as voucherCampaignMutations, queries as voucherCampaignQuerie
 import { mutations as voucherMutations, queries as voucherQueries, types as voucherTypes } from './schema/voucher';
 import { mutations as loyaltyMutations, queries as loyaltyQueries, types as loyaltyTypes } from './schema/loyalty';
 import { mutations as configMutations, queries as configQueries, types as configTypes } from './schema/config';
+import { queries as scoreLogQueries, types as scoreLogTypes } from './schema/scoreLog';
 
 const typeDefs = async (_serviceDiscovery) => {
   return gql`
@@ -40,6 +41,7 @@ const typeDefs = async (_serviceDiscovery) => {
     ${voucherTypes}
     ${loyaltyTypes}
     ${configTypes}
+    ${scoreLogTypes}
 
     extend type Query {
       ${donateCampaignQueries}
@@ -52,6 +54,7 @@ const typeDefs = async (_serviceDiscovery) => {
       ${voucherQueries}
       ${loyaltyQueries}
       ${configQueries}
+      ${scoreLogQueries}
     }
 
     extend type Mutation {

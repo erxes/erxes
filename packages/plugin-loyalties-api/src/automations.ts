@@ -20,8 +20,7 @@ const actionCreate = async ({ models, subdomain, action, execution }) => {
   let ownerType;
   let ownerId;
 
-  const [_service, type] = execution.triggerType.split(':');
-
+  const [service, type] = execution.triggerType.split(':');
   try {
     if (['contacts:customer', 'core:user', 'contacts:company'].includes(execution.triggerType)) {
       ownerType = type
@@ -68,13 +67,26 @@ const actionCreate = async ({ models, subdomain, action, execution }) => {
       return { error: 'not found voucher owner' }
     }
 
-    const voucher = await models.Vouchers.createVoucher({
-      campaignId: config.voucherCampaignId,
-      ownerType,
-      ownerId
-    })
+    if (service === 'scoreLog') {
+      const scoreLog = await models.ScoreLogs.changeScore({
+        ownerType,
+        ownerId,
+        changeScore: config.changeScore,
+        description: 'from automation'
+      })
 
-    return voucher;
+      return scoreLog;
+    }
+
+    if (service === 'voucher') {
+      const voucher = await models.Vouchers.createVoucher({
+        campaignId: config.voucherCampaignId,
+        ownerType,
+        ownerId
+      })
+
+      return voucher;
+    }
   } catch (e) {
     return { error: e.message };
   }

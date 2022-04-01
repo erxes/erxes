@@ -2,24 +2,25 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
-import { IUser } from "modules/auth/types";
-import { IItem } from "@erxes/ui-cards/src/boards/types";
-import { __ } from "modules/common/utils";
-import { ICompany } from "@erxes/ui/src/companies/types";
-import { ICustomer } from "@erxes/ui/src/customers/types";
+import { IUser } from 'modules/auth/types';
+import { IItem } from '@erxes/ui-cards/src/boards/types';
+import { __ } from 'modules/common/utils';
+import { ICompany } from '@erxes/ui/src/companies/types';
+import { ICustomer } from '@erxes/ui/src/customers/types';
+import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import {
   Divider,
   PluginSettings,
   Row,
-  RowTitle,
-} from "@erxes/ui-settings/src/main/styles";
-import React from "react";
-import { Route } from "react-router-dom";
-import pluginModules from "./plugins";
-import { ISubNav } from "modules/layout/components/Navigation";
-import { AppConsumer } from "appContext";
-import { generateRandomColor } from "utils";
-import { NavItem } from "modules/layout/components/QuickNavigation";
+  RowTitle
+} from '@erxes/ui-settings/src/main/styles';
+import React from 'react';
+import { Route } from 'react-router-dom';
+import pluginModules from './plugins';
+import { ISubNav } from 'modules/layout/components/Navigation';
+import { AppConsumer } from 'appContext';
+import { generateRandomColor } from 'utils';
+import { NavItem } from 'modules/layout/components/QuickNavigation';
 
 export const pluginsOfRoutes = (currentUser: IUser) => {
   const plugins: any = [];
@@ -32,7 +33,7 @@ export const pluginsOfRoutes = (currentUser: IUser) => {
 
     plugins.push({
       name: pluginName,
-      ...plugin,
+      ...plugin
     });
 
     if (plugin.response) {
@@ -58,14 +59,14 @@ export const pluginsOfRoutes = (currentUser: IUser) => {
     }
   }
 
-  localStorage.setItem("plugins_properties", JSON.stringify(properties));
+  localStorage.setItem('plugins_properties', JSON.stringify(properties));
 
   return { plugins, pluginRoutes, specialPluginRoutes };
 };
 
 const PluginsWrapper = ({
   itemName,
-  callBack,
+  callBack
 }: {
   itemName: string;
   callBack: (plugin: any, item: any) => React.ReactNode;
@@ -73,7 +74,7 @@ const PluginsWrapper = ({
   return (
     <AppConsumer>
       {({ plugins }) =>
-        (plugins || []).map((plugin) => {
+        (plugins || []).map(plugin => {
           const item = plugin[itemName];
 
           if (!item) {
@@ -87,7 +88,7 @@ const PluginsWrapper = ({
   );
 };
 
-const useDynamicScript = (args) => {
+const useDynamicScript = args => {
   const [ready, setReady] = React.useState(false);
   const [failed, setFailed] = React.useState(false);
 
@@ -96,10 +97,10 @@ const useDynamicScript = (args) => {
       return;
     }
 
-    const element = document.createElement("script");
+    const element = document.createElement('script');
 
     element.src = args.url;
-    element.type = "text/javascript";
+    element.type = 'text/javascript';
     element.async = true;
 
     setReady(false);
@@ -126,14 +127,14 @@ const useDynamicScript = (args) => {
 
   return {
     ready,
-    failed,
+    failed
   };
 };
 
 export const loadComponent = (scope, module) => {
   return async () => {
     // Initializes the share scope. This fills it with known provided modules from this build and all remotes
-    await __webpack_init_sharing__("default");
+    await __webpack_init_sharing__('default');
 
     const container = window[scope]; // or get the container somewhere else
 
@@ -165,10 +166,10 @@ const renderPlguginSidebar = (itemName: string, type: string, object: any) => {
   );
 };
 
-const System = (props) => {
+const System = props => {
   if (props.loadScript) {
     const { ready, failed } = useDynamicScript({
-      url: props.system && props.system.url,
+      url: props.system && props.system.url
     });
 
     if (!props.system || !ready || failed) {
@@ -181,9 +182,11 @@ const System = (props) => {
   );
 
   return (
-    <React.Suspense fallback="">
-      <Component />
-    </React.Suspense>
+    <ErrorBoundary>
+      <React.Suspense fallback="">
+        <Component />
+      </React.Suspense>
+    </ErrorBoundary>
   );
 };
 
@@ -258,10 +261,10 @@ export const pluginsSettingsNavigations = (
       plugin.color = generateRandomColor();
     }
 
-    const hasComponent = Object.keys(plugin.exposes).includes("./settings");
+    const hasComponent = Object.keys(plugin.exposes).includes('./settings');
 
     for (const menu of plugin.menus || []) {
-      if (menu.location === "settings") {
+      if (menu.location === 'settings') {
         navigationMenus.push(
           <React.Fragment key={menu.text}>
             <SettingsCustomBox
@@ -323,7 +326,7 @@ export const pluginsOfTopNavigations = () => {
 
   for (const plugin of plugins) {
     for (const menu of plugin.menus || []) {
-      if (menu.location === "topNavigation") {
+      if (menu.location === 'topNavigation') {
         topNavigationMenus.push(
           <React.Fragment key={menu.text}>
             <TopNavigation topNav={menu} />
@@ -357,7 +360,7 @@ export const pluginNavigations = () => {
 
   for (const plugin of plugins) {
     for (const menu of plugin.menus || []) {
-      if (menu.location === "mainNavigation") {
+      if (menu.location === 'mainNavigation') {
         navigationMenus.push(menu);
       }
     }
@@ -378,7 +381,7 @@ export const pluginsOfNavigations = (
 ) => {
   return (
     <PluginsWrapper
-      itemName={"menu"}
+      itemName={'menu'}
       callBack={(plugin, menu) => {
         return renderNavItem(
           menu.permission,
@@ -403,7 +406,7 @@ const renderSettings = (
 ) => {
   let hasPluginsSettings = false;
 
-  const pluginsBoxs = plugins.map((plugin) => {
+  const pluginsBoxs = plugins.map(plugin => {
     const item = plugin.settings;
 
     if (!item) {
@@ -437,8 +440,8 @@ const renderSettings = (
     <>
       <Divider />
       <Row>
-        <RowTitle>{__("Plugins Settings")}</RowTitle>
-        <PluginSettings id={"PluginsSettings"}>{pluginsBoxs}</PluginSettings>
+        <RowTitle>{__('Plugins Settings')}</RowTitle>
+        <PluginSettings id={'PluginsSettings'}>{pluginsBoxs}</PluginSettings>
       </Row>
     </>
   );
@@ -462,14 +465,14 @@ export const pluginsOfSettings = (
 
 export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
   return renderPlguginSidebar(
-    "customerRightSidebarSection",
-    "customer",
+    'customerRightSidebarSection',
+    'customer',
     customer
   );
 };
 
 export const pluginsOfCompanySidebar = (company: ICompany) => {
-  return renderPlguginSidebar("companyRightSidebarSection", "company", company);
+  return renderPlguginSidebar('companyRightSidebarSection', 'company', company);
 };
 
 export const pluginsOfItemSidebar = (item: IItem, type: string) => {
@@ -481,7 +484,7 @@ export const pluginsOfPaymentForm = (
 ) => {
   return (
     <PluginsWrapper
-      itemName={"payments"}
+      itemName={'payments'}
       callBack={(_plugin, payments) => {
         const paymentsTypes: JSX.Element[] = [];
         for (const perPayment of payments) {

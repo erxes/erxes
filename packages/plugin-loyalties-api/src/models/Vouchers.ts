@@ -1,5 +1,4 @@
 import * as _ from 'underscore';
-import { changeScoreOwner } from './utils';
 import { voucherSchema, IVoucher, IVoucherDocument } from './definitions/vouchers';
 import { Model, model } from 'mongoose';
 import { IModels } from '../connectionResolver';
@@ -46,11 +45,25 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
       switch (voucherCampaign.voucherType) {
         case 'spin':
-          return models.Spins.createSpin({ campaignId: voucherCampaign.spinCampaignId, ownerType, ownerId, voucherCampaignId: campaignId, userId });
+          return models.Spins.createSpin({
+            campaignId: voucherCampaign.spinCampaignId,
+            ownerType, ownerId,
+            voucherCampaignId: campaignId, userId
+          });
+
         case 'lottery':
-          return models.Lotteries.createLottery({ campaignId: voucherCampaign.lotteryCampaignId, ownerType, ownerId, voucherCampaignId: campaignId, userId });
+          return models.Lotteries.createLottery({
+            campaignId: voucherCampaign.lotteryCampaignId,
+            ownerType, ownerId,
+            voucherCampaignId: campaignId, userId
+          });
+
         case 'score':
-          return changeScoreOwner(subdomain, { ownerType, ownerId, changeScore: voucherCampaign.score });
+          return models.ScoreLogs.changeScore({
+            ownerType, ownerId, changeScore: voucherCampaign.score,
+            description: 'score voucher'
+          });
+
         case 'discount':
         case 'bonus':
         case 'coupon':
@@ -73,7 +86,11 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
       const now = new Date();
 
-      return models.Vouchers.updateOne({ _id }, { $set: { campaignId, ownerType, ownerId, modifiedAt: now, status, userId } });
+      return models.Vouchers.updateOne({ _id }, {
+        $set: {
+          campaignId, ownerType, ownerId, modifiedAt: now, status, userId
+        }
+      });
 
     }
 
@@ -89,7 +106,10 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         throw new Error('can not buy this voucher');
       }
 
-      await changeScoreOwner(subdomain, { ownerType, ownerId, changeScore: -1 * voucherCampaign.buyScore * count });
+      await models.ScoreLogs.changeScore({
+        ownerType, ownerId, changeScore: -1 * voucherCampaign.buyScore * count,
+        description: 'buy voucher'
+      });
 
       return models.Vouchers.createVoucher({ campaignId, ownerType, ownerId });
     }
