@@ -1,3 +1,5 @@
+import { sendCoreMessage } from "../../messageBroker";
+
 export const getIsSeen = async (models, chat, user) => {
   const lastMessage = await models.ChatMessages.findOne({
     chatId: chat._id,
@@ -31,18 +33,28 @@ const Chat = {
     });
   },
 
-  async createdUser(chat, {}, { coreModels }) {
-    return coreModels.Users.findOne({ _id: chat.createdBy });
+  async createdUser(chat) {
+    return chat.createdBy && {
+      __typename: 'User',
+      _id: chat.createdBy
+    }
   },
 
   async isSeen(chat, {}, { models, user }) {
     return getIsSeen(models, chat, user);
   },
 
-  async participantUsers(chat, {}, { coreModels }) {
-    const users = await coreModels.Users.find({
-      _id: { $in: chat.participantIds || [] },
-    }).toArray();
+  async participantUsers(chat, {}, { subdomain }) {
+    const users = await sendCoreMessage({
+      subdomain,
+      action: 'users.find',
+      data: {
+        query: {
+          _id: { $in: chat.participantIds || [] }
+        }
+      },
+      isRPC: true
+    });
 
     return users.map((user) => ({
       ...user,
