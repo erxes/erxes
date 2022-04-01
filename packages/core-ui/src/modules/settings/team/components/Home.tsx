@@ -6,7 +6,7 @@ import UserList from "../containers/UserList";
 import Sidebar from "./Sidebar";
 import { menuContacts } from "@erxes/ui/src/utils/menus";
 import { FlexItem, FlexRow } from "@erxes/ui-settings/src/styles";
-import { FilterContainer } from "@erxes/ui-settings/src/styles";
+import { FilterContainer, InputBar } from "@erxes/ui-settings/src/styles";
 import { ControlLabel, FormControl } from "@erxes/ui/src/components/form";
 import { router } from "@erxes/ui/src/utils";
 import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
@@ -19,21 +19,6 @@ import styled from "styled-components";
 import styledTS from 'styled-components-ts';
 import { colors, dimensions } from "@erxes/ui/src/styles";
 import Icon from "@erxes/ui/src/components/Icon";
-
-const SearchBar = styledTS<{type: string}>(styled.div)`
-  background: ${colors.bgActive};
-  justify-content: center;
-  align-items: center;
-  display: flex;
-  flex: 1;
-  width: ${props => props.type === "searchBar" && `${dimensions.unitSpacing * 100 + 30}px`};
-  max-width: ${props => props.type === "active" && `${dimensions.headerSpacingWide * 2 + 20}px`};
-  padding: 5px 5px 0 20px;
-  border-radius: 8px;
-  margin-left: ${props => props.type === "active" && '10px'};
-  height: 41px;
-  padding-left: ${props => props.type === "searchBar" && `${dimensions.unitSpacing * 2}px`};
-`;
 
 const ActiveColor = styledTS <{active: boolean}>(styled.div)`
   background: ${props => (props.active === true ? colors.colorCoreGreen : colors.colorCoreYellow)};
@@ -110,7 +95,7 @@ export default function Home(props: Props) {
     <FilterContainer style={{ paddingTop: dimensions.coreSpacing - 10 }}>
       <FlexRow>
         {renderBrandChooser()}
-        <SearchBar type="searchBar">
+        <InputBar type="searchBar">
         <Icon icon="search-1" size={20}/>
         <FlexItem>
           <FormControl
@@ -123,8 +108,8 @@ export default function Home(props: Props) {
             noBorderBottom={true}
           />
         </FlexItem>
-        </SearchBar>
-        <SearchBar type="active">
+        </InputBar>
+        <InputBar type="active">
         <ActiveColor active={active}/>
         <FlexItem>
           <Select
@@ -144,7 +129,7 @@ export default function Home(props: Props) {
             ]}
           />
         </FlexItem>
-        </SearchBar>
+        </InputBar>
       </FlexRow>
     </FilterContainer>
   );

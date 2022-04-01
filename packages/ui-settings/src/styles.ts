@@ -278,6 +278,21 @@ const LogoContainer = styled.div`
   }
 `;
 
+const InputBar = styledTS<{type?: string}>(styled.div)`
+  background: ${colors.bgActive};
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  flex: 1;
+  width: ${props => props.type === "searchBar" && `${dimensions.unitSpacing * 100 + 30}px`};
+  max-width: ${props => props.type === "active" && `${dimensions.headerSpacingWide * 2 + 20}px`};
+  padding: 5px 5px 0 20px;
+  border-radius: 8px;
+  margin-left: ${props => props.type === "active" && '10px'};
+  height: 41px;
+  padding-left: ${props => props.type === "searchBar" && `${dimensions.unitSpacing * 2}px`};
+`;
+
 export {
   MarkdownWrapper,
   FlexItem,
@@ -293,5 +308,6 @@ export {
   FilterContainer,
   SidebarList,
   ContentBox,
-  LogoContainer
+  LogoContainer,
+  InputBar
 };

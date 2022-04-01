@@ -72,7 +72,7 @@ const MainHead = styled.div`
   box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
 `;
 
-const MainContent = styledTS<{ transparent?: boolean; center?: boolean; hasBorder?: boolean }>(
+const MainContent = styledTS<{ transparent?: boolean; center?: boolean; leftSpacing?: boolean }>(
   styled.section
 )`
   flex: 1;
@@ -83,6 +83,7 @@ const MainContent = styledTS<{ transparent?: boolean; center?: boolean; hasBorde
     !props.transparent && `0 0 6px 1px ${colors.shadowPrimary}`};
   height: ${props => props.center && '100%'};
   margin: ${props => !props.center && '10px 10px 10px 0'};
+  padding-left: ${props => props.leftSpacing && `${dimensions.coreSpacing}px`}
 `;
 
 const ContentBox = styledTS<{ transparent?: boolean }>(styled.div)`
@@ -347,7 +348,7 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
     }
 
     &.active {
-      border-left: 2px solid ${colors.colorSecondary};
+      background: ${rgba(colors.colorPrimary, 0.2)}
     }
 
     &.multiple-choice {
