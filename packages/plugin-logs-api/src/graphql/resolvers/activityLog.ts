@@ -1,14 +1,21 @@
 import { IActivityLogDocument } from '../../models/ActivityLogs';
-import { fetchService } from '../../messageBroker';
+import { fetchService, sendCoreMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
 export default {
   async createdByDetail(
     activityLog: IActivityLogDocument,
     _args,
-    { coreModels }: IContext
+    { subdomain }: IContext
   ) {
-    const user = await coreModels.Users.findOne({ _id: activityLog.createdBy });
+    const user = await sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: {
+        _id: activityLog.createdBy
+      },
+      isRPC: true
+    });
 
     return { type: 'user', content: user };
   },
