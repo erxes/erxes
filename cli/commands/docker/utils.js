@@ -244,7 +244,7 @@ module.exports.start = async (program) => {
         RABBITMQ_DEFAULT_PASS: configs.rabbitmq.pass,
         RABBITMQ_DEFAULT_VHOST: configs.rabbitmq.vhost,
       },
-      ports: ["15672:15672"],
+      ports: ["5672:5672", "15672:15672"],
       networks: ["erxes"],
       volumes: ["./rabbitmq-data:/var/lib/rabbitmq"],
     };

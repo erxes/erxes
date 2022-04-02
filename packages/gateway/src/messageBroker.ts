@@ -22,6 +22,10 @@ export const initBroker = async (options) => {
   );
 };
 
+export const sendSchedularMessage = () => {
+  return client.sendMessage('schedular', 'install');
+}
+
 export default function() {
   return client;
 }
