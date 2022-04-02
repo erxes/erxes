@@ -32,6 +32,9 @@ const generatePluginBlock = (configs, plugin) => {
     },
     volumes: ["./enabled-services.js:/data/enabled-services.js"],
     networks: ["erxes"],
+    deploy: {
+      replicas: plugin.replicas || 1
+    }
   };
 };
 
