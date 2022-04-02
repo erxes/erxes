@@ -44,18 +44,18 @@ program
   .action(startCmd);
 
 program
-  .command('dockerup')
+  .command('dup')
   .description('Run erxes using docker')
   .action(start);
 
 program
-  .command('pullup')
+  .command('dupdate')
   .option('--uis', 'Download the latest versions of the uis from s3')
   .description('Pull and update erxes using docker')
   .action(pullup);
 
 program
-  .command('docker-restart')
+  .command('drestart')
   .description('Restart erxes using docker')
   .action(restart);
 

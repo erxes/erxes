@@ -131,10 +131,10 @@ const generate = async () => {
       private: true,
       version: '0.1.0',
       scripts: {
-        dockerup: 'erxes dockerup',
-        dockerrestart: 'erxes docker-restart',
-        pullup: 'erxes pullup',
-        'pullup:uis': 'erxes pullup --uis'
+        dup: 'erxes dup',
+        drestart: 'erxes drestart',
+        dupdate: 'erxes dupdate',
+        'dupdate:uis': 'erxes dupdate --uis'
       },
       dependencies: {
         erxes: '^0.1.20'
