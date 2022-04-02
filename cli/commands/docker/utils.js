@@ -345,7 +345,7 @@ module.exports.pullup = async (program) => {
   for (const name of pluginNames.split(',')) {
     log(`Force updating  ${name}......`);
 
-    await execCommand(`docker service update erxes_plugin_${name}_api --force`);
+    await execCommand(`docker service update ${['gateway', 'core'].includes(name) ? `erxes_${name}` : `erxes_plugin_${name}_api`} --force`);
   }
 }
 
