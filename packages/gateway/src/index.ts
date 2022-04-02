@@ -35,7 +35,7 @@ const {
 
   app.use(cookieParser());
 
-  app.get('/update', (_req, res) => {
+  app.get('/install', (_req, res) => {
     sendSchedularMessage();
     return res.send('done');
   });
