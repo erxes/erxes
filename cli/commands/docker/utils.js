@@ -38,7 +38,7 @@ const generatePluginBlock = (configs, plugin) => {
   };
 };
 
-module.exports.start = async (program) => {
+module.exports.dup = async (program) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath("configs.json"));
@@ -328,7 +328,7 @@ module.exports.start = async (program) => {
   return execCommand('docker stack deploy --compose-file docker-compose.yml erxes  --with-registry-auth');
 };
 
-module.exports.pullup = async (program) => {
+module.exports.dupdate = async (program) => {
   if (program.uis) {
     log('Syncing plugin uis from s3 ....');
 
@@ -345,11 +345,11 @@ module.exports.pullup = async (program) => {
   for (const name of pluginNames.split(',')) {
     log(`Force updating  ${name}......`);
 
-    await execCommand(`docker service update ${['gateway', 'core'].includes(name) ? `erxes_${name}` : `erxes_plugin_${name}_api`} --force`);
+    await execCommand(`docker service update ${['gateway', 'core'].includes(name) ? `erxes_${name} --image erxes/${name}:federation` : `erxes_plugin_${name}_api --image erxes/plugin-${name}-api:federation`}`);
   }
 }
 
-module.exports.restart = async () => {
+module.exports.drestart = async () => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath("configs.json"));
