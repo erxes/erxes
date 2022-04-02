@@ -330,13 +330,20 @@ module.exports.pullup = async (program) => {
     log('Syncing plugin uis from s3 ....');
 
     await execCommand('aws s3 sync s3://plugin-uis plugin-uis  --no-sign-request');
+    return;
   }
 
-  log('docker-compose pull ......');
-  await execCommand('docker-compose pull');
+  if (process.argv.length < 4) {
+    return console.log('Pass plugin names !!!');
+  }
 
-  log('docker-compose up -d ......');
-  await execCommand('docker-compose up -d');
+  const pluginNames = process.argv[3];
+
+  for (const name of pluginNames.split(',')) {
+    log(`Force updating  ${name}......`);
+
+    await execCommand(`docker service update erxes_plugin_${name}_api --force`);
+  }
 }
 
 module.exports.restart = async () => {
