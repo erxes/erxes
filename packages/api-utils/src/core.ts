@@ -242,7 +242,7 @@ export const sendMessage = async (
     return defaultValue;
   }
 
-  if (isRPC && !(await serviceDiscovery.isAvailable(serviceName))) {
+  if (isRPC && serviceName && !(await serviceDiscovery.isAvailable(serviceName))) {
     if (process.env.NODE_ENV === 'development') {
       throw new Error(`${serviceName} service is not available`);
     } else {

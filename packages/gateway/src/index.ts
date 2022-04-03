@@ -15,7 +15,7 @@ import userMiddleware from './middlewares/userMiddleware';
 import * as db from './db';
 import pubsub from './subscription/pubsub';
 import { getService, getEnabledServices, redis, setAfterMutations } from './redis';
-import { initBroker, sendSchedularMessage } from './messageBroker';
+import { initBroker } from './messageBroker';
 
 const {
   MAIN_APP_DOMAIN,
@@ -34,11 +34,6 @@ const {
   const app = express();
 
   app.use(cookieParser());
-
-  app.get('/install', (_req, res) => {
-    sendSchedularMessage();
-    return res.send('done');
-  });
 
   app.use(userMiddleware);
 

@@ -1,3 +1,4 @@
+import { sendCommonMessage } from '../../../messageBroker';
 import { Configs } from '../../../db/models';
 import {
   moduleCheckPermission,
@@ -95,10 +96,20 @@ const configMutations = {
     } catch (e) {
       throw new Error(e.message);
     }
+  },
+
+  async configsManagePluginInstall(_root, args) {
+    return sendCommonMessage({
+      serviceName: '',
+      action: 'managePluginInstall',
+      data: args,
+      isRPC: true
+    });
   }
 };
 
 moduleCheckPermission(configMutations, 'manageGeneralSettings');
 requireLogin(configMutations, 'configsActivateInstallation');
+requireLogin(configMutations, 'configsManagePluginInstall');
 
 export default configMutations;
