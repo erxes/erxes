@@ -17,8 +17,8 @@ const commonEnvs = (configs) => {
 };
 
 const cleaning = async () => {
-  await execCommand('docker rm $(docker ps -a -q -f status=exited)', true);
-}
+  await execCommand("docker rm $(docker ps -a -q -f status=exited)", true);
+};
 
 const generatePluginBlock = (configs, plugin) => {
   return {
@@ -33,8 +33,8 @@ const generatePluginBlock = (configs, plugin) => {
     volumes: ["./enabled-services.js:/data/enabled-services.js"],
     networks: ["erxes"],
     deploy: {
-      replicas: plugin.replicas || 1
-    }
+      replicas: plugin.replicas || 1,
+    },
   };
 };
 
@@ -183,8 +183,8 @@ module.exports.dup = async (program) => {
   }
 
   if (configs.mongo) {
-    if (!(await fse.exists(filePath('mongodata')))) {
-      await execCommand('mkdir mongodata');
+    if (!(await fse.exists(filePath("mongodata")))) {
+      await execCommand("mkdir mongodata");
     }
 
     dockerComposeConfig.services.mongo = {
@@ -202,8 +202,8 @@ module.exports.dup = async (program) => {
   }
 
   if (configs.elasticsearch) {
-    if (!(await fse.exists(filePath('elasticsearchData')))) {
-      await execCommand('mkdir elasticsearchData');
+    if (!(await fse.exists(filePath("elasticsearchData")))) {
+      await execCommand("mkdir elasticsearchData");
     }
 
     dockerComposeConfig.services.elasticsearch = {
@@ -250,20 +250,21 @@ module.exports.dup = async (program) => {
     };
   }
 
-
-  if (!(await fse.exists(filePath('plugin-uis')))) {
-    log('Downloading plugin uis from s3 ....');
-    await execCommand('aws s3 sync s3://plugin-uis plugin-uis  --no-sign-request');
+  if (!(await fse.exists(filePath("plugin-uis")))) {
+    log("Downloading plugin uis from s3 ....");
+    await execCommand(
+      "aws s3 sync s3://plugin-uis plugin-uis  --no-sign-request"
+    );
   }
 
-  log('Downloading pluginsMap.js from s3 ....');
+  log("Downloading pluginsMap.js from s3 ....");
 
   await execCurl(
-    'https://plugin-uis.s3.us-west-2.amazonaws.com/pluginsMap.js',
-    'pluginsMap.js'
+    "https://plugin-uis.s3.us-west-2.amazonaws.com/pluginsMap.js",
+    "pluginsMap.js"
   );
 
-  const pluginsMap = require(filePath('pluginsMap.js'));
+  const pluginsMap = require(filePath("pluginsMap.js"));
 
   const enabledPlugins = [];
   const uiPlugins = [];
@@ -276,32 +277,33 @@ module.exports.dup = async (program) => {
     enabledPlugins.push(`${plugin.name}: true`);
 
     if (pluginsMap[plugin.name]) {
-      uiPlugins.push(JSON.stringify({
+      uiPlugins.push(
+        JSON.stringify({
           name: plugin.name,
-          ...pluginsMap[plugin.name]
+          ...pluginsMap[plugin.name],
         })
       );
     }
   }
 
-  log('Generating ui plugins.js ....');
+  log("Generating ui plugins.js ....");
 
   await fs.promises.writeFile(
-    filePath('plugins.js'),
+    filePath("plugins.js"),
     `
     window.plugins = [
-      ${uiPlugins.join(',')}
+      ${uiPlugins.join(",")}
     ]
   `.replace(/plugin-uis.s3.us-west-2.amazonaws.com/g, NGINX_HOST)
   );
 
-  log('Generating enabled-services.js ....');
+  log("Generating enabled-services.js ....");
 
   await fs.promises.writeFile(
-    filePath('enabled-services.js'),
+    filePath("enabled-services.js"),
     `
     module.exports = {
-      ${enabledPlugins.join(',')}
+      ${enabledPlugins.join(",")}
     }
   `
   );
@@ -319,52 +321,78 @@ module.exports.dup = async (program) => {
 
   const yamlString = yaml.stringify(dockerComposeConfig);
 
-  log('Generating docker-compose.yml ....');
+  log("Generating docker-compose.yml ....");
 
   fs.writeFileSync(filePath("docker-compose.yml"), yamlString);
 
-  log('Deploy ......');
+  log("Deploy ......");
 
-  return execCommand('docker stack deploy --compose-file docker-compose.yml erxes  --with-registry-auth');
+  return execCommand(
+    "docker stack deploy --compose-file docker-compose.yml erxes  --with-registry-auth"
+  );
 };
 
 module.exports.dupdate = async (program) => {
   if (program.uis) {
-    log('Syncing plugin uis from s3 ....');
+    log("Syncing plugin uis from s3 ....");
 
-    await execCommand('aws s3 sync s3://plugin-uis plugin-uis  --no-sign-request');
+    await execCommand(
+      "aws s3 sync s3://plugin-uis plugin-uis  --no-sign-request"
+    );
     return;
   }
 
   if (process.argv.length < 4) {
-    return console.log('Pass plugin names !!!');
+    return console.log("Pass plugin names !!!");
   }
 
   const pluginNames = process.argv[3];
 
-  for (const name of pluginNames.split(',')) {
+  for (const name of pluginNames.split(",")) {
     log(`Force updating  ${name}......`);
 
-    await execCommand(`docker service update ${['gateway', 'core'].includes(name) ? `erxes_${name} --image erxes/${name}:federation` : `erxes_plugin_${name}_api --image erxes/plugin-${name}-api:federation`}`);
+    if (name === "coreui") {
+      await execCommand(
+        `docker service update erxes_coreui --image erxes/erxes:federation`
+      );
+    } else {
+      if (name === "core") {
+        await execCommand(
+          `docker service update erxes_plugin_core_api --image erxes/core:federation`
+        );
+      } else {
+        if (name === "gateway") {
+          await execCommand(
+            `docker service update erxes_gateway --image erxes/gateway:federation`
+          );
+        } else {
+          await execCommand(
+            `docker service update erxes_plugin_${name}_api --image erxes/plugin-${name}-api:federation`
+          );
+        }
+      }
+    }
   }
-}
+};
 
 module.exports.drestart = async () => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath("configs.json"));
 
-  const names = configs.plugins.map(p => `plugin_${p.name}_api`);
-  names.push('plugin_core_api');
+  const names = configs.plugins.map((p) => `plugin_${p.name}_api`);
+  names.push("plugin_core_api");
 
-  console.log('Removing services .......');
-  await execCommand('docker service rm erxes_gateway', true);
+  console.log("Removing services .......");
+  await execCommand("docker service rm erxes_gateway", true);
 
   for (const name of names) {
     await execCommand(`docker service rm erxes_${name}`, true);
   }
 
-  console.log('Deploy .......');
+  console.log("Deploy .......");
 
-  await execCommand('docker stack deploy --compose-file docker-compose.yml erxes  --with-registry-auth');
-}
+  await execCommand(
+    "docker stack deploy --compose-file docker-compose.yml erxes  --with-registry-auth"
+  );
+};
