@@ -99,12 +99,14 @@ const configMutations = {
   },
 
   async configsManagePluginInstall(_root, args) {
-    return sendCommonMessage({
+    await sendCommonMessage({
       serviceName: '',
       action: 'managePluginInstall',
       data: args,
       isRPC: true
     });
+
+    return { status: 'success' };
   }
 };
 
