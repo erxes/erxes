@@ -45,34 +45,6 @@ export const initBroker = cl => {
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  // ! below code converted only used in engage
-  consumeRPCQueue("inbox:rpc_queue:createConversationAndMessage", async doc => {
-    const {
-      subdomain,
-      userId,
-      status,
-      customerId,
-      visitorId,
-      integrationId,
-      content,
-      engageData
-    } = doc;
-    const models = await generateModels(subdomain);
-
-    const data = await createConversationAndMessage(
-      models,
-      userId,
-      status,
-      customerId,
-      visitorId,
-      integrationId,
-      content,
-      engageData
-    );
-
-    return { data, status: "success" };
-  });
-
   // ? added new
   consumeRPCQueue(
     "inbox:createConversationAndMessage",

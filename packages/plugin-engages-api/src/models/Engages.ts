@@ -1,11 +1,10 @@
 import { Model } from 'mongoose';
 
 import { ICustomerDocument } from '@packages/plugin-contacts-api/src/models/definitions/customers';
-import messageBroker, {
+import {
   removeEngageConversations,
-  createConversationAndMessage,
-  updateConversationMessage,
   sendContactsMessage,
+  sendInboxMessage,
 } from '../messageBroker';
 import { checkCustomerExists, findElk, findUser } from '../engageUtils';
 import { getEditorAttributeUtil, isUsingElk } from '../utils';
@@ -391,42 +390,35 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
 
       let prevMessage: IMessageDocument | null;
 
-      // if (isUsingElk()) {
-      //   const conversationMessages = await findElk('conversation_messages', {
-      //     bool: {
-      //       must: [
-      //         { match: { 'engageData.messageId': engageData.messageId } },
-      //         { match: customerId ? { customerId } : { visitorId } }
-      //       ]
-      //     }
-      //   });
+      if (isUsingElk()) {
+        const conversationMessages = await findElk('conversation_messages', {
+          bool: {
+            must: [
+              { match: { 'engageData.messageId': engageData.messageId } },
+              { match: customerId ? { customerId } : { visitorId } }
+            ]
+          }
+        });
 
-      //   prevMessage = null;
+        prevMessage = null;
 
-      //   if (conversationMessages.length > 0) {
-      //     prevMessage = conversationMessages[0];
-      //   }
-      // } else {
-      //   const query = customerId
-      //     ? { customerId, 'engageData.messageId': engageData.messageId }
-      //     : { visitorId, 'engageData.messageId': engageData.messageId };
-      //   prevMessage = await ConversationMessages.findOne(query);
-      // }
+        if (conversationMessages.length > 0) {
+          prevMessage = conversationMessages[0];
+        }
+      } else {
+        const query = customerId
+          ? { customerId, 'engageData.messageId': engageData.messageId }
+          : { visitorId, 'engageData.messageId': engageData.messageId };
 
-      const query = customerId
-        ? { customerId, 'engageData.messageId': engageData.messageId }
-        : { visitorId, 'engageData.messageId': engageData.messageId };
+        prevMessage = await sendInboxMessage({
+          subdomain,
+          action: 'conversationMessages.findOne',
+          data: query,
+          isRPC: true
+        });
+      }
 
-      prevMessage = await messageBroker().sendRPCMessage(
-        'inbox:rpc_queue:findMongoDocuments',
-        query
-      );
-
-      // const prevMessage = await sendInboxMessage({
-      //   action: '',
-      //   subdomain,
-      //   data:
-      // })
+      const commonParams = { isRPC: true, subdomain };
 
       if (prevMessage) {
         if (
@@ -439,22 +431,19 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
 
         const conversationId = prevMessage.conversationId;
 
-        // if (isUsingElk()) {
-        //   messages = await findElk('conversation_messages', {
-        //     match: {
-        //       conversationId
-        //     }
-        //   });
-        // } else {
-        //   messages = await ConversationMessages.find({
-        //     conversationId
-        //   });
-        // }
-
-        messages = await messageBroker().sendRPCMessage(
-          'inbox:rpc_queue:findMongoDocuments',
-          { conversationId }
-        );
+        if (isUsingElk()) {
+          messages = await findElk('conversation_messages', {
+            match: {
+              conversationId
+            }
+          });
+        } else {
+          messages = await sendInboxMessage({
+            ...commonParams,
+            data: { conversationId },
+            action: 'conversationMessages.find',
+          });
+        }
 
         // leave conversations with responses alone
         if (messages.length > 1) {
@@ -462,23 +451,31 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         }
 
         // mark as unread again && reset engageData
-        await updateConversationMessage({
-          filter: { _id: prevMessage._id },
-          updateDoc: { engageData, isCustomerRead: false },
+        await sendInboxMessage({
+          ...commonParams,
+          action: 'updateConversationMessage',
+          data: {
+            filter: { _id: prevMessage._id },
+            updateDoc: { engageData, isCustomerRead: false },
+          }
         });
 
         return null;
       }
 
       // create conversation and message replaced by messagebroker
-      return await createConversationAndMessage({
-        userId: user._id,
-        status: 'engageVisitorAuto',
-        customerId,
-        visitorId,
-        integrationId,
-        replacedContent,
-        engageData,
+      return await sendInboxMessage({
+        ...commonParams,
+        action: 'createConversationAndMessage',
+        data: {
+          userId: user._id,
+          status: 'engageVisitorAuto',
+          customerId,
+          visitorId,
+          integrationId,
+          replacedContent,
+          engageData,
+        }
       });
     }
   }
