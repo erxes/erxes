@@ -5,7 +5,6 @@ import {
   IFeedDocument,
   IThankDocument
 } from './definitions/exm';
-import { sendCoreMessage, sendInternalNotesMessage } from '../messageBroker';
 
 import { Model } from 'mongoose';
 
@@ -22,25 +21,6 @@ export const loadFeedClass = models => {
     }
 
     public static async removeFeeds(ids: string[]) {
-      await sendInternalNotesMessage({
-        subdomain: models.subdomain,
-        action: 'removeInternalNotes',
-        data: {
-          contentType: 'feed',
-          contentTypeId: ids
-        },
-        defaultValue: {}
-      });
-      await sendCoreMessage({
-        subdomain: models.subdomain,
-        action: 'conformities.removeConformity',
-        data: {
-          mainType: 'feed',
-          mainTypeId: ids
-        },
-        defaultValue: []
-      });
-
       await models.ExmFeed.deleteMany({
         _id: { $in: ids }
       });
@@ -151,24 +131,6 @@ export const loadExmThankClass = models => {
      */
     public static async removeThank(_id: string) {
       const thankObj = await models.ExmThanks.findOne({ _id });
-      await sendInternalNotesMessage({
-        subdomain: models.subdomain,
-        action: 'removeInternalNotes',
-        data: {
-          contentType: 'thank',
-          contentTypeId: _id
-        },
-        defaultValue: {}
-      });
-      await sendCoreMessage({
-        subdomain: models.subdomain,
-        action: 'conformities.removeConformity',
-        data: {
-          mainType: 'thank',
-          mainTypeId: _id
-        },
-        defaultValue: []
-      });
 
       if (!thankObj) {
         throw new Error(`Thank you not found with id ${_id}`);
