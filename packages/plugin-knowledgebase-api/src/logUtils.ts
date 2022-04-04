@@ -10,19 +10,27 @@ import {
 import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 
 import { LOG_MAPPINGS, MODULE_NAMES } from './constants';
-import messageBroker from './messageBroker';
+import messageBroker, { sendCoreMessage } from './messageBroker';
 import { IArticleDocument, ICategoryDocument, ITopicDocument } from "./models/definitions/knowledgebase";
 import { IModels } from './connectionResolver';
 
-const findFromCore = async (ids: string[], collectionName: string) => {
-  return messageBroker().sendRPCMessage(
-    `core:${collectionName}.find`,
-    { query: { _id: { $in: ids } } }
-  ) || [];
+const findFromCore = async (subdomain: string, ids: string[], collectionName: string) => {
+  return sendCoreMessage({
+    subdomain,
+    action: `${collectionName}.find`,
+    data: {
+      query: {
+        _id: { $in: ids }
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
 };
 
 const gatherKbTopicFieldNames = async (
   models: IModels,
+  subdomain: string,
   doc: ITopicDocument,
   prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
@@ -35,14 +43,14 @@ const gatherKbTopicFieldNames = async (
   options = await gatherUsernames({
     foreignKey: 'createdBy',
     prevList: options,
-    items: await findFromCore([doc.createdBy], 'users')
+    items: await findFromCore(subdomain, [doc.createdBy], 'users')
   });
 
   if (doc.modifiedBy) {
     options = await gatherUsernames({
       foreignKey: 'modifiedBy',
       prevList: options,
-      items: await findFromCore([doc.modifiedBy], 'users')
+      items: await findFromCore(subdomain, [doc.modifiedBy], 'users')
     });
   }
 
@@ -51,7 +59,7 @@ const gatherKbTopicFieldNames = async (
       foreignKey: 'brandId',
       prevList: options,
       nameFields: ['name'],
-      items: await findFromCore([doc.brandId], 'brands')
+      items: await findFromCore(subdomain, [doc.brandId], 'brands')
     });
   }
 
@@ -75,6 +83,7 @@ const gatherKbTopicFieldNames = async (
 
 const gatherKbCategoryFieldNames = async (
   models: IModels,
+  subdomain: string,
   doc: ICategoryDocument,
   prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
@@ -92,14 +101,14 @@ const gatherKbCategoryFieldNames = async (
   options = await gatherUsernames({
     foreignKey: 'createdBy',
     prevList: options,
-    items: await findFromCore([doc.createdBy], 'users')
+    items: await findFromCore(subdomain, [doc.createdBy], 'users')
   });
 
   if (doc.modifiedBy) {
     options = await gatherUsernames({
       foreignKey: 'modifiedBy',
       prevList: options,
-      items: await findFromCore([doc.modifiedBy], 'users')
+      items: await findFromCore(subdomain, [doc.modifiedBy], 'users')
     });
   }
 
@@ -120,9 +129,9 @@ const gatherKbCategoryFieldNames = async (
   return options;
 };
 
-const gatherKbArticleFieldNames = async (models: IModels, doc: IArticleDocument, prevList?: LogDesc[]) => {
+const gatherKbArticleFieldNames = async (models: IModels, subdomain: string, doc: IArticleDocument, prevList?: LogDesc[]) => {
   let options: LogDesc[] = [];
-  
+
   if (prevList) {
     options = prevList;
   }
@@ -131,7 +140,7 @@ const gatherKbArticleFieldNames = async (models: IModels, doc: IArticleDocument,
     options = await gatherUsernames({
       foreignKey: 'createdBy',
       prevList,
-      items: await findFromCore([doc.createdBy], 'users')
+      items: await findFromCore(subdomain, [doc.createdBy], 'users')
     });
   }
 
@@ -139,7 +148,7 @@ const gatherKbArticleFieldNames = async (models: IModels, doc: IArticleDocument,
     options = await gatherUsernames({
       foreignKey: 'modifiedBy',
       prevList: options,
-      items: await findFromCore([doc.modifiedBy], 'users')
+      items: await findFromCore(subdomain, [doc.modifiedBy], 'users')
     });
   }
 
@@ -162,7 +171,7 @@ const gatherKbArticleFieldNames = async (models: IModels, doc: IArticleDocument,
   return options;
 }
 
-export const gatherDescriptions = async (models: IModels, params: any): Promise<IDescriptions> => {
+export const gatherDescriptions = async (models: IModels, subdomain: string, params: any): Promise<IDescriptions> => {
   const { action, type, object, updatedDocument } = params;
 
   const description = `"${object.title}" has been ${action}d`;
@@ -170,26 +179,26 @@ export const gatherDescriptions = async (models: IModels, params: any): Promise<
 
   switch (type) {
     case MODULE_NAMES.KB_TOPIC:
-      extraDesc = await gatherKbTopicFieldNames(models, object);
+      extraDesc = await gatherKbTopicFieldNames(models, subdomain, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherKbTopicFieldNames(models, updatedDocument, extraDesc);
+        extraDesc = await gatherKbTopicFieldNames(models, subdomain, updatedDocument, extraDesc);
       }
 
       break;
     case MODULE_NAMES.KB_CATEGORY:
-      extraDesc = await gatherKbCategoryFieldNames(models, object);
+      extraDesc = await gatherKbCategoryFieldNames(models, subdomain, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherKbCategoryFieldNames(models, updatedDocument, extraDesc);
+        extraDesc = await gatherKbCategoryFieldNames(models, subdomain, updatedDocument, extraDesc);
       }
 
       break;
     case MODULE_NAMES.KB_ARTICLE:
-      extraDesc = await gatherKbArticleFieldNames(models, object);
+      extraDesc = await gatherKbArticleFieldNames(models, subdomain, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherKbArticleFieldNames(models, updatedDocument, extraDesc);
+        extraDesc = await gatherKbArticleFieldNames(models, subdomain, updatedDocument, extraDesc);
       }
 
       break;
@@ -206,11 +215,15 @@ export const LOG_ACTIONS = {
   DELETE: 'delete',
 };
 
-export const putDeleteLog = async (models, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, {
-    ...logDoc,
-    action: LOG_ACTIONS.DELETE,
-  });
+export const putDeleteLog = async (models: IModels, subdomain: string, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(
+    models,
+    subdomain,
+    {
+      ...logDoc,
+      action: LOG_ACTIONS.DELETE
+    }
+  );
 
   await commonPutDeleteLog(
     messageBroker(),
@@ -219,11 +232,15 @@ export const putDeleteLog = async (models, logDoc, user) => {
   );
 };
 
-export const putUpdateLog = async (models, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, {
-    ...logDoc,
-    action: LOG_ACTIONS.UPDATE,
-  });
+export const putUpdateLog = async (models: IModels, subdomain: string, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(
+    models,
+    subdomain,
+    {
+      ...logDoc,
+      action: LOG_ACTIONS.UPDATE
+    }
+  );
 
   await commonPutUpdateLog(
     messageBroker(),
@@ -232,11 +249,15 @@ export const putUpdateLog = async (models, logDoc, user) => {
   );
 };
 
-export const putCreateLog = async (models, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, {
-    ...logDoc,
-    action: LOG_ACTIONS.CREATE,
-  });
+export const putCreateLog = async (models: IModels, subdomain: string, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(
+    models,
+    subdomain,
+    {
+      ...logDoc,
+      action: LOG_ACTIONS.CREATE
+    }
+  );
 
   await commonPutCreateLog(
     messageBroker(),
@@ -245,7 +266,7 @@ export const putCreateLog = async (models, logDoc, user) => {
   );
 };
 
-// message consumer 
+// message consumer
 export default {
   getSchemaLabels: ({ data: { type } }) => ({
     status: 'success',

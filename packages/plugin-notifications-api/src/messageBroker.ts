@@ -1,9 +1,8 @@
 import { getUserDetail } from '@erxes/api-utils/src';
-import { Users } from './apiCollections';
 import { graphqlPubsub } from './configs';
 import { IModels } from './connectionResolver';
 import { generateModels } from './connectionResolver';
-import { sendMessage } from '@erxes/api-utils/src/core';
+import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 
 let client;
@@ -42,10 +41,18 @@ const sendNotification = async (
   const receiverIds = [...Array.from(new Set(receivers))];
 
   // collecting emails
-  const recipients = await Users.find({
-    _id: { $in: receiverIds },
-    isActive: true,
-  }).toArray();
+  const recipients = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: {
+      query: {
+        _id: { $in: receiverIds },
+        isActive: true
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
 
   // collect recipient emails
   const toEmails: string[] = [];
@@ -101,7 +108,6 @@ const sendNotification = async (
 
   sendCoreMessage({
     subdomain,
-    serviceName: '',
     action: 'core:sendEmail',
     data: {
       doc: {
@@ -159,18 +165,11 @@ export const initBroker = async (cl) => {
   });
 };
 
-export const sendCoreMessage = async ({
-  serviceName,
-  action,
-  subdomain,
-  data,
-}): Promise<any> => {
+export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    subdomain,
     client,
     serviceDiscovery,
-    serviceName,
-    action,
-    data,
+    serviceName: "core",
+    ...args
   });
 };

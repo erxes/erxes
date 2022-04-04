@@ -67,6 +67,8 @@ const main = async () => {
   );
 
   if (type === "plugin") {
+    console.log('replacing .erxes ...........');
+
     await execute(() =>
       fse.copy("../api-plugin-template.erxes", `../../dist/${folderName}/.erxes`, {
         overwrite: true,
@@ -91,7 +93,7 @@ const main = async () => {
   process.chdir("../../dist");
 
   console.log("Yarn install ....");
-  await execCommand("yarn install");
+  await execCommand("yarn install ---production");
 
   process.chdir(folderName);
 

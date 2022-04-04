@@ -2,9 +2,9 @@ import { debug } from './configs';
 import { IActivityLogDocument } from './models/ActivityLogs';
 import { receivePutLogCommand, sendToApi } from './utils';
 import { serviceDiscovery } from './configs';
-import { getService } from './inmemoryStorage';
+import { getService } from '@erxes/api-utils/src/serviceDiscovery'
 import { generateModels } from './connectionResolver';
-import { sendMessage } from '@erxes/api-utils/src/core';
+import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
 let client;
 
@@ -15,7 +15,7 @@ const hasMetaLogs = async (serviceName: string) => {
     return false;
   }
 
-  const { meta = {} } = service;
+  const meta: any = service.config?.meta || {};
 
   if (!(meta.logs && meta.logs.providesActivityLog === true)) {
     return false;
@@ -221,6 +221,10 @@ export const getContentIds = async data => {
     ? client.sendRPCMessage(`${serviceName}:logs.getContentIds`, data)
     : [];
 };
+
+export const sendCoreMessage = (args: ISendMessageArgs) => {
+  return sendMessage({ serviceDiscovery, client, serviceName: "core", ...args });
+}
 
 export const fetchService = async (
   contentType: string,

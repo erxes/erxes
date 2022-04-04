@@ -6,10 +6,6 @@ import {
   loadClientPortalClass,
 } from './models/ClientPortal';
 import { IClientPortalDocument } from './models/definitions/clientPortal';
-
-export interface ICoreIModels {
-  Fields;
-}
 export interface IModels {
   ClientPortals: IClientPortalModel;
 }

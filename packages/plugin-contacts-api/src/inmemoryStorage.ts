@@ -87,32 +87,3 @@ export const get = async (key: string, defaultValue?: any) => {
 export default function() {
   return client;
 }
-
-
-const redis = new Redis({
-  host: REDIS_HOST,
-  port: parseInt(REDIS_PORT || '6379', 10),
-  password: REDIS_PASSWORD
-});
-
-const registry = new ServiceRegistry(redis, {});
-
-export const getServices = () => {
-  return registry.services();
-};
-
-export const getService = async (name: string, meta?: boolean) => {
-  const result: { address: string; meta: any } = {
-    address: await registry.get(name),
-    meta: {}
-  };
-
-  if (meta) {
-    const value = await redis.get(`service:config:${name}`);
-    const parsedConfig = JSON.parse(value || '{}');
-
-    result.meta = parsedConfig && parsedConfig.meta;
-  }
-
-  return result;
-};

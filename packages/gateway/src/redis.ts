@@ -1,7 +1,13 @@
 import Redis from 'ioredis';
 import ServiceRegistry from 'clerq';
 
-const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = process.env;
+const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, ENABLED_SERVICES_PATH } = process.env;
+
+if(!ENABLED_SERVICES_PATH) {
+  throw new Error("ENABLED_SERVICES_PATH environment variable is not configured.")
+}
+
+const enabledServices = require(ENABLED_SERVICES_PATH);
 
 const redis = new Redis({
   host: REDIS_HOST,
@@ -13,8 +19,9 @@ const registry = new ServiceRegistry(redis, {});
 
 const generateKey = name => `service:config:${name}`;
 
-const getServices = () => {
-  return registry.services();
+const getEnabledServices = () => {
+  const enabledPlugins = Object.keys(enabledServices || {}).filter(name => enabledServices[name]);
+  return ["core", ...enabledPlugins];
 };
 
 const getService = async (name: string, config?: boolean) => {
@@ -32,13 +39,13 @@ const getService = async (name: string, config?: boolean) => {
 };
 
 const isAvailable = async (name) => {
-  const serviceNames = await getServices();
+  const serviceNames = await getEnabledServices();
 
   return serviceNames.includes(name);
 }
 
 const setAfterMutations = async () => {
-  const services = await getServices();
+  const services = await getEnabledServices();
   const result = {}
 
   for (const service of services) {
@@ -72,7 +79,7 @@ const setAfterMutations = async () => {
 
 export {
   isAvailable,
-  getServices,
+  getEnabledServices,
   getService,
   redis,
   setAfterMutations

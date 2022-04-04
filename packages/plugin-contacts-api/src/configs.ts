@@ -14,8 +14,6 @@ import { buildFile } from './exporter';
 import segments from './segments';
 import forms from './forms';
 import {
-  coreModels,
-  generateCoreModels,
   generateModels,
   getSubdomain
 } from './connectionResolver';
@@ -24,6 +22,7 @@ import imports from './imports';
 import tags from './tags'
 import internalNotes from './internalNotes';
 import automations from './automations';
+import search from './search';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -153,13 +152,13 @@ export default {
     forms,
     logs: { consumers: logs },
     tags,
+    search,
     internalNotes
   },
   apolloServerContext: async context => {
     const subdomain = 'os';
 
     context.models = await generateModels(subdomain);
-    context.coreModels = await generateCoreModels(subdomain);
     context.subdomain = subdomain;
   },
   onServerInit: async options => {
@@ -178,7 +177,6 @@ export default {
 
         const result = await buildFile(
           models,
-          coreModels,
           subdomain,
           query,
           user

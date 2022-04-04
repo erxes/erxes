@@ -1,14 +1,7 @@
-// import { gql } from 'apollo-server-express';
 import * as dotenv from 'dotenv';
-// import { graphql } from 'graphql';
-// import { makeExecutableSchema } from 'graphql-tools';
 import mongoose = require('mongoose');
-// import resolvers from '../data/resolvers';
-// import { mutations, queries, subscriptions, types } from '../data/schema';
 import { getEnv } from '../data/utils';
 import { debugDb } from '../debuggers';
-// import { userFactory } from './factories';
-// import { generateAllDataLoaders } from '../data/dataLoaders';
 
 dotenv.config();
 
@@ -63,65 +56,3 @@ export const mongoStatus = () => {
     });
   });
 };
-
-// const typeDefs = gql(`
-//   ${types}
-
-//   type Query {
-//     ${queries}
-//   }
-
-//   type Mutation {
-//     ${mutations}
-//   }
-
-//   type Subscription {
-//     ${subscriptions}
-//   }
-// `);
-
-// const schema = makeExecutableSchema({
-//   typeDefs,
-//   resolvers
-// });
-
-// export const graphqlRequest = async (
-//   source: string = '',
-//   name: string = '',
-//   args?: any,
-//   context: any = {}
-// ) => {
-//   const res = {
-//     cookie: () => {
-//       return 'cookie';
-//     }
-//   };
-
-//   const finalContext: any = {};
-
-//   finalContext.requestInfo = { secure: false, cookies: [] };
-//   finalContext.dataSources = context.dataSources;
-//   finalContext.user = context.user || (await userFactory({}));
-//   finalContext.res = context.res || res;
-//   finalContext.commonQuerySelector = {};
-//   finalContext.userBrandIdsSelector = {};
-//   finalContext.brandIdSelector = {};
-//   finalContext.docModifier = doc => doc;
-//   finalContext.dataLoaders = generateAllDataLoaders();
-
-//   const rootValue = {};
-
-//   const response: any = await graphql(
-//     schema,
-//     source,
-//     rootValue,
-//     finalContext,
-//     args
-//   );
-
-//   if (response.errors || !response.data) {
-//     throw response.errors;
-//   }
-
-//   return response.data[name];
-// };

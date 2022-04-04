@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { changeScoreOwner, randomBetween } from './utils';
+import { randomBetween } from './utils';
 import { spinSchema, ISpin, ISpinDocument } from './definitions/spins';
 import { Model, model } from 'mongoose';
 import { IModels } from '../connectionResolver';
@@ -25,10 +25,6 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
       }
 
       return spin;
-    }
-
-    public static async getSpins({ ownerType, ownerId, statuses }: { ownerType: string, ownerId: string, statuses: string[] }) {
-      return await models.Spins.find({ ownerType, ownerId, status: { $in: statuses || [] } }).lean()
     }
 
     public static async createSpin(doc: ISpin) {
@@ -81,7 +77,11 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
         throw new Error('can not buy this spin')
       }
 
-      await changeScoreOwner(subdomain, { ownerType, ownerId, changeScore: -1 * spinCampaign.buyScore * count });
+
+      await models.ScoreLogs.changeScore({
+        ownerType, ownerId, changeScore: -1 * spinCampaign.buyScore * count,
+        description: 'buy spin'
+      });
 
       return models.Spins.createSpin({ campaignId, ownerType, ownerId });
     }
@@ -90,7 +90,7 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
       return models.Spins.deleteMany({ _id: { $in: _ids } })
     }
 
-    public static async doSpin(spinId) {
+    public static async doSpin(spinId: string) {
       const spin = await models.Spins.getSpin(spinId);
       const { ownerType, ownerId } = spin;
       const spinCampaign = await models.SpinCampaigns.getSpinCampaign(spin.campaignId);

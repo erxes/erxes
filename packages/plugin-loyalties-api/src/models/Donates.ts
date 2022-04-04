@@ -1,5 +1,4 @@
 import * as _ from 'underscore';
-import { changeScoreOwner } from './utils';
 import { donateSchema, IDonate, IDonateDocument } from './definitions/donates';
 import { Model, model } from 'mongoose';
 import { IModels } from '../connectionResolver';
@@ -61,7 +60,10 @@ export const loadDonateClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      await changeScoreOwner(subdomain, { ownerType, ownerId, changeScore: -1 * donateScore });
+      await models.ScoreLogs.changeScore({
+        ownerType, ownerId, changeScore: -1 * donateScore,
+        description: 'give donate'
+      });
 
       return await models.Donates.create({ campaignId, ownerType, ownerId, createdAt: new Date(), donateScore, awardId: fitAward._id, voucherId: voucher._id });
     }

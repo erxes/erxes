@@ -6,10 +6,12 @@ import Lotteries from './lotteries';
 import LotteryCampaigns from './lotteryCampaigns';
 import Vouchers from './vouchers';
 import VoucherCampaigns from './voucherCampaigns';
-import loyaltyConfigQueries from './configs';
+import LoyaltyConfigQueries from './configs';
+import ScoreLogs from './scoreLogs';
+import Loyalties from './loyalties';
 
 export {
-  loyaltyConfigQueries,
+  LoyaltyConfigQueries,
   Donates,
   DonateCampaigns,
   Spins,
@@ -18,4 +20,6 @@ export {
   LotteryCampaigns,
   Vouchers,
   VoucherCampaigns,
+  ScoreLogs,
+  Loyalties
 };

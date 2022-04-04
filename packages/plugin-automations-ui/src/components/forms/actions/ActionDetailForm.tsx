@@ -27,6 +27,14 @@ class ActionDetailForm extends React.Component<Props> {
       type = 'boardItem';
     }
 
+    if ('loyalties:voucher.create' === type ) {
+      type = 'voucher'
+    }
+
+    if ('loyalties:scoreLog.create' === type ) {
+      type = 'changeScore'
+    }
+
     const Content = ActionForms[type] || ActionForms.default;
 
     return <Content onSave={this.onSave} {...this.props} />;

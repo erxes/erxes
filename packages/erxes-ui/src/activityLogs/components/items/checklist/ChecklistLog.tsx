@@ -56,7 +56,11 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
     let userName = 'Unknown';
 
     if (createdByDetail && createdByDetail.type === 'user') {
-      userName = renderUserFullName(createdByDetail.content);
+      const { content } = createdByDetail;
+
+      if (content && content.details) {
+        userName = renderUserFullName(createdByDetail.content);
+      }
     }
 
     const checklistName = contentTypeDetail.title || content.name;

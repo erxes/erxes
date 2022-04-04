@@ -20,8 +20,8 @@ export const initBroker = async (cl) => {
   const { consumeQueue, consumeRPCQueue } = cl;
 
   consumeQueue(
-    'internalNotes:batchUpdate',
-    async ({ subdomain, contentType, oldContentTypeIds, newContentTypeId }) => {
+    'internalnotes:batchUpdate',
+    async ({ subdomain, data: { contentType, oldContentTypeIds, newContentTypeId } }) => {
       const models = await generateModels(subdomain);
       // Updating every internal notes of company
       await models.InternalNotes.updateMany(

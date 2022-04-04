@@ -35,6 +35,11 @@ class ConditionDetailContainer extends React.Component<FinalProps, {}> {
       return field.name === condition.propertyName;
     });
 
+    if (!chosenProperty) {
+      console.log(`Missing propertyName: ${condition.propertyName}`)
+      return <></>
+    }
+
     chosenProperty = {
       value: chosenProperty.name || chosenProperty._id,
       label: chosenProperty.label || chosenProperty.title,

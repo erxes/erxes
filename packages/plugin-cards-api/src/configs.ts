@@ -14,6 +14,7 @@ import { generateModels, getSubdomain } from './connectionResolver';
 import imports from './imports';
 import internalNotes from './internalNotes';
 import automations from './automations';
+import search from './search';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -47,7 +48,8 @@ export default {
     segments,
     automations,
     imports,
-    internalNotes
+    internalNotes,
+    search,
   },
 
   apolloServerContext: async (context) => {

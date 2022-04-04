@@ -26,7 +26,6 @@ program
   .option('--redisHost <redisHost>', 'Redis host')
   .option('--rabbitmqHost <rabbitmqHost>', 'RabbitMQ host')
   .option('--elasticsearchUrl <elasticsearchUrl>', 'Elasticsearch url')
-  .option('--elkSyncer <elkSyncer>', 'Use elkSyncer service sync elasticsearch')
   .description('create a new application')
   .action(directory => {
     projectName = directory;
@@ -45,8 +44,6 @@ let redisHost = program.redisHost || '';
 let redisPort = 6379;
 let redisPassword = '';
 let elasticsearchUrl = program.elasticsearchUrl;
-let elkSyncer = program.elkSyncer === "true" ? true : false;
-let useDashboard = false;
 
 const stopProcess = message => {
   if (message) console.error(message);
@@ -108,8 +105,6 @@ const generate = async () => {
     JWT_TOKEN_SECRET: Math.random().toString(),
     MONGO_URL: program.mongoUrl || 'mongodb://localhost',
     ELASTICSEARCH_URL: elasticsearchUrl,
-    ELK_SYNCER: elkSyncer,
-    USE_DASHBOARD: useDashboard,
     DOMAIN: maindomain
   };
 
@@ -136,9 +131,10 @@ const generate = async () => {
       private: true,
       version: '0.1.0',
       scripts: {
-        start: 'erxes start',
-        restart: 'erxes start --ignoreDownload',
-        update: 'erxes update'
+        dup: 'erxes dup',
+        drestart: 'erxes drestart',
+        dupdate: 'erxes dupdate',
+        'dupdate:uis': 'erxes dupdate --uis'
       },
       dependencies: {
         erxes: '^0.1.20'
@@ -149,7 +145,7 @@ const generate = async () => {
     }
   );
 
-  execa('yarn', ['install'], { cwd: rootPath }).stdout.pipe(process.stdout);
+  execa('npm', ['install'], { cwd: rootPath }).stdout.pipe(process.stdout);
 };
 
 const main = (async function() {
@@ -207,7 +203,6 @@ const main = (async function() {
         message: 'Elasticsearch url ?',
         choices: [
           'http://localhost:9200 (on local)',
-          'https://elasticsearch.erxes.io (limited erxes.io offering)',
           'enter your elasticsearch url'
         ]
       }
@@ -215,10 +210,6 @@ const main = (async function() {
 
     if (answers.elasticsearch.includes('http://localhost:9200')) {
       elasticsearchUrl = 'http://localhost:9200';
-    }
-
-    if (answers.elasticsearch.includes('https://elasticsearch.erxes.io')) {
-      elasticsearchUrl = 'https://elasticsearch.erxes.io';
     }
 
     if (answers.elasticsearch.includes('enter')) {
@@ -229,24 +220,6 @@ const main = (async function() {
       });
 
       elasticsearchUrl = answer.customElasticsearchUrl;
-    }
-  }
-
-  if (elasticsearchUrl !== 'https://elasticsearch.erxes.io') {
-    const answers = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'elkSyncer',
-        message: 'How do you want to sync mongo to elasticsearch ?',
-        choices: [
-          'Using mongo change stream',
-          'Using seperate process written in python which requires more specs and more dependencies'
-        ]
-      }
-    ]);
-
-    if (answers.elkSyncer.includes('python')) {
-      elkSyncer = true;
     }
   }
 

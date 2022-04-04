@@ -16,8 +16,8 @@ const vouchersMutations = {
   },
 };
 
-checkPermission(vouchersMutations, 'voucherCampaignsAdd', 'manageVoucher');
-checkPermission(vouchersMutations, 'voucherCampaignsEdit', 'manageVoucher');
-checkPermission(vouchersMutations, 'voucherCampaignsRemove', 'manageVoucher');
+checkPermission(vouchersMutations, 'voucherCampaignsAdd', 'manageLoyalties');
+checkPermission(vouchersMutations, 'voucherCampaignsEdit', 'manageLoyalties');
+checkPermission(vouchersMutations, 'voucherCampaignsRemove', 'manageLoyalties');
 
 export default vouchersMutations;

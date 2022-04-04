@@ -238,16 +238,68 @@ export const sendMessage = async (
     isRPC
   } = args;
 
-  if (!(await serviceDiscovery.isEnabled(serviceName))) {
-    return defaultValue;
-  }
+  if (serviceName) {
+    if (!(await serviceDiscovery.isEnabled(serviceName))) {
+      return defaultValue;
+    }
 
-  if (isRPC && !(await serviceDiscovery.isAvailable(serviceName))) {
-    throw new Error(`${serviceName} service is not available`);
+    if (isRPC && !(await serviceDiscovery.isAvailable(serviceName))) {
+      if (process.env.NODE_ENV === 'development') {
+        throw new Error(`${serviceName} service is not available`);
+      } else {
+        return defaultValue;
+      }
+    }
   }
 
   return client[isRPC ? "sendRPCMessage" : "sendMessage"](
     serviceName + (serviceName ? ":" : "") + action,
     { subdomain, data }
   );
+};
+
+export const doSearch = async ({ fetchEs, index, value, fields, customQuery }: { fetchEs, index: string, value: string, fields: string[], customQuery?: any }) => {
+  const highlightFields = {};
+
+  fields.forEach((field) => {
+    highlightFields[field] = {};
+  });
+
+  const match = {
+    multi_match: {
+      query: value,
+      fields,
+    },
+  };
+
+  let query: any = match;
+
+  if (customQuery) {
+    query = customQuery;
+  }
+
+  const fetchResults = await fetchEs({
+    action: "search",
+    index,
+    body: {
+      query,
+      size: 10,
+      highlight: {
+        fields: highlightFields,
+      },
+    },
+    defaultValue: { hits: { hits: [] } },
+  });
+
+  const results = fetchResults.hits.hits.map((result) => {
+    return {
+      source: {
+        _id: result._id,
+        ...result._source,
+      },
+      highlight: result.highlight,
+    };
+  });
+
+  return results;
 };

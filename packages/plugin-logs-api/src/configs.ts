@@ -3,7 +3,7 @@ import resolvers from './graphql/resolvers';
 
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
-import { generateModels, generateCoreModels } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -34,7 +34,6 @@ export default {
     const subdomain = 'os';
 
     context.models = await generateModels(subdomain);
-    context.coreModels = await generateCoreModels(subdomain);
     context.subdomain = subdomain;
 
     return context;

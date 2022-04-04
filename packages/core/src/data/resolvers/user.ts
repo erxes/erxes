@@ -1,10 +1,10 @@
+import { DEFAULT_CONSTANT_VALUES } from '@erxes/api-utils/src/constants';
 import {
   Configs,
   OnboardingHistories,
   Departments,
   Users
 } from '../../db/models';
-import { DEFAULT_CONSTANT_VALUES } from '../../db/models/definitions/constants';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { getUserActionsMap } from '../permissions/utils';
 import { getConfigs } from '../utils';
@@ -82,5 +82,9 @@ export default {
 
   department(user: IUserDocument) {
     return Departments.findOne({ userIds: { $in: user._id } });
+  },
+
+  async leaderBoardPosition(user: IUserDocument) {
+    return (await Users.find({ score: { $gt: user.score || 0 } }).count()) + 1;
   }
 };

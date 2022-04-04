@@ -6,8 +6,13 @@ import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 
 import { debug, es } from './configs';
 import { ICustomerDocument } from './models/definitions/customers';
-import messageBroker, { sendEngagesMessage } from './messageBroker';
-import { getService, getServices } from './inmemoryStorage';
+import messageBroker, {
+  sendCoreMessage,
+  sendEngagesMessage,
+  sendInboxMessage,
+  sendTagsMessage
+} from './messageBroker';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery'
 import { generateModels, IModels } from './connectionResolver';
 
 export const findCustomer = async ({ Customers }: IModels, doc) => {
@@ -109,6 +114,55 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
   return company;
 };
 
+const generateUsersOptions = async (
+  name: string,
+  label: string,
+  type: string,
+  subdomain: string
+) => {
+  const users = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: {
+      query: {}
+    },
+    isRPC: true
+  });
+
+  const options: Array<{ label: string; value: any }> = users.map(user => ({
+    value: user._id,
+    label: user.username || user.email || ''
+  }));
+
+  return {
+    _id: Math.random(),
+    name,
+    label,
+    type,
+    selectOptions: options
+  };
+};
+
+const getTags = async (type: string, subdomain: string) => {
+  const tags = await sendTagsMessage({
+    subdomain,
+    action: 'find',
+    data: {
+      type
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  return {
+    _id: Math.random(),
+    name: 'tagIds',
+    label: 'Tag',
+    type: 'tag',
+    selectOptions: tags
+  };
+};
+
 export const generateFields = async ({ subdomain, data }) => {
   const { type, usageType } = data;
 
@@ -197,6 +251,34 @@ export const generateFields = async ({ subdomain, data }) => {
     }
   }
 
+  const ownerOptions = await generateUsersOptions(
+    'ownerId',
+    'Owner',
+    'user',
+    subdomain
+  );
+
+  const tags = await getTags(type, subdomain);
+  fields = [...fields, ...[tags]];
+
+  if (type === 'customer') {
+    const integrations = await sendInboxMessage({
+      subdomain,
+      action: 'integrations.find',
+      data: {},
+      isRPC: true
+    });
+
+    fields.push({
+      _id: Math.random(),
+      name: 'relatedIntegrationIds',
+      label: 'Related integration',
+      selectOptions: integrations
+    });
+  }
+
+  fields = [...fields, ownerOptions];
+
   return fields;
 };
 
@@ -247,11 +329,10 @@ export const getContentItem = async (
 };
 
 export const getEditorAttributeUtil = async () => {
-  const core = await getService('core');
   const services = await getServices();
   const editor = await new EditorAttributeUtil(
     messageBroker(),
-    core.address,
+    `${process.env.MAIN_API_DOMAIN}/pl:core`,
     services
   );
 
@@ -318,7 +399,7 @@ export const prepareEngageCustomers = async (
         await sendEngagesMessage({
           subdomain,
           action: 'notification',
-          data: { action, data },
+          data: { action, data }
         });
       }
     }

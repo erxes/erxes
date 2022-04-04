@@ -67,6 +67,6 @@ const voucherCampaignQueries = {
   }
 };
 
-checkPermission(voucherCampaignQueries, 'vouchersMain', 'showDonates', []);
+checkPermission(voucherCampaignQueries, 'voucherCampaigns', 'showLoyalties', []);
 
 export default voucherCampaignQueries;
