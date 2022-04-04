@@ -244,21 +244,6 @@ export const initBroker = cl => {
   });
 
   // ! below queue converted
-  // ? used in engage
-  consumeRPCQueue("inbox:updateConversationMessage", async ({ data }) => {
-    const { filter, updateDoc, subdomain } = data;
-    const models = await generateModels(subdomain);
-
-    const updated = await models.ConversationMessages.updateOne(filter, {
-      $set: updateDoc
-    });
-
-    return {
-      data: updated,
-      status: "success"
-    };
-  });
-
   // ? added new
   consumeRPCQueue(
     "inbox:updateConversationMessage",
