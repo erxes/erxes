@@ -1,10 +1,7 @@
-import { checkPermission, requireLogin } from '@erxes/api-utils/src';
+import { checkPermission } from '@erxes/api-utils/src';
+
 const exmThankQueries = {
-  exmThanks: async (
-    _root,
-    { limit, skip, type },
-    { models, checkPermission, user }
-  ) => {
+  exmThanks: async (_root, { limit, skip, type }, { models, user }) => {
     const doc: { createdBy?: string; recipientIds?: any } = {};
 
     if (type === 'recipient') {
@@ -18,11 +15,11 @@ const exmThankQueries = {
         .sort({ createdAt: -1 })
         .skip(skip || 0)
         .limit(limit || 20),
-      totalCount: await models.ExmThanks.find(doc).countDocuments(),
+      totalCount: await models.ExmThanks.find(doc).countDocuments()
     };
-  },
+  }
 };
-requireLogin(exmThankQueries, 'showExmActivityFeed');
+
 checkPermission(exmThankQueries, 'exmThanks', 'showExmActivityFeed');
 
 export default exmThankQueries;

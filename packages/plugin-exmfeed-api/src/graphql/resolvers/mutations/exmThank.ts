@@ -13,22 +13,14 @@ type TExmThankEdit = {
 } & TExmThank;
 
 const exmThankMutations = {
-  exmThankAdd: async (
-    _root,
-    doc: TExmThank,
-    { checkPermission, user, docModifier, models }
-  ) => {
-    const exmThank = models.ExmThanks.createThank(
-      models,
-      docModifier(doc),
-      user
-    );
+  exmThankAdd: async (_root, doc: TExmThank, { user, docModifier, models }) => {
+    const exmThank = models.ExmThanks.createThank(docModifier(doc), user);
 
     if (models.Exms) {
-      await models.Exms.useScoring(models, user._id, 'exmThankAdd');
+      await models.Exms.useScoring(user._id, 'exmThankAdd');
 
       for (const userId of doc.recipientIds || []) {
-        await models.Exms.useScoring(models, userId, 'exmThankAdd');
+        await models.Exms.useScoring(userId, 'exmThankAdd');
       }
     }
 
@@ -38,10 +30,9 @@ const exmThankMutations = {
   exmThankEdit: async (
     _root,
     { _id, ...doc }: TExmThankEdit,
-    { checkPermission, user, docModifier, models }
+    { user, docModifier, models }
   ) => {
     const updated = await models.ExmThanks.updateThank(
-      models,
       _id,
       docModifier(doc),
       user
@@ -50,17 +41,12 @@ const exmThankMutations = {
     return updated;
   },
 
-  exmThankRemove: async (
-    _root,
-    { _id }: { _id: string },
-    { models, checkPermission, user }
-  ) => {
-    const exmThank = models.ExmThanks.removeThank(models, _id);
+  exmThankRemove: async (_root, { _id }: { _id: string }, { models }) => {
+    const exmThank = models.ExmThanks.removeThank(_id);
 
     return exmThank;
-  },
+  }
 };
-requireLogin(exmThankMutations, 'manageExmActivityFeed');
 
 checkPermission(exmThankMutations, 'exmThankAdd', 'manageExmActivityFeed');
 checkPermission(exmThankMutations, 'exmThankEdit', 'manageExmActivityFeed');

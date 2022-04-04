@@ -61,4 +61,5 @@ export const queries = `
 export const mutations = `
   configsUpdate(configsMap: JSON!): JSON
   configsActivateInstallation(token: String!, hostname: String!): JSON
+  configsManagePluginInstall(type: String!, name: String!): JSON
 `;

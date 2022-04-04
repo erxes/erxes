@@ -10,4 +10,10 @@ const activateInstallation = `
   }
 `;
 
-export default { updateConfigs, activateInstallation };
+const managePluginInstall = `
+  mutation managePluginInstall($type: String!, $name: String!) {
+    configsManagePluginInstall(type: $type, name: $name)
+  }
+`;
+
+export default { updateConfigs, activateInstallation, managePluginInstall };

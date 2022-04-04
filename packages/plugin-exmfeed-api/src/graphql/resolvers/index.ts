@@ -1,23 +1,19 @@
-import ExmFeeds from './exmFeed';
+import customScalars from '@erxes/api-utils/src/customScalars';
+
+import ExmFeed from './exmFeed';
 import ExmThanks from './exmThank';
 
-import exmFeedMutations from './mutations';
-import exmThankMutations from './mutations';
-
-import exmFeedQueries from './queries';
-import exmThankQueries from './queries';
+import Mutation from './mutations';
+import Query from './queries';
 
 const resolvers: any = async () => ({
-  ExmFeeds,
+  ...customScalars,
+
+  ExmFeed,
   ExmThanks,
-  Mutation: {
-    ...exmFeedMutations,
-    ...exmThankMutations
-  },
-  Query: {
-    ...exmFeedQueries,
-    ...exmThankQueries
-  }
+
+  Mutation,
+  Query
 });
 
 export default resolvers;

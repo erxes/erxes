@@ -67,7 +67,7 @@ type Props = {
 };
 
 export default function FilePreview({ fileUrl, fileName }: Props) {
-  if (!fileUrl) {
+  if (!fileUrl || !fileUrl.split) {
     return null;
   }
 

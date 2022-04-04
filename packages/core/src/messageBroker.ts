@@ -1,4 +1,5 @@
 import { init as initBrokerCore } from "@erxes/api-utils/src/messageBroker";
+import { sendMessage } from '@erxes/api-utils/src/core';
 
 import { logConsumers } from "@erxes/api-utils/src/logUtils";
 import { internalNoteConsumers } from "@erxes/api-utils/src/internalNotes";
@@ -18,6 +19,8 @@ import {
   sendEmail,
   sendMobileNotification,
 } from "./data/utils";
+
+import * as serviceDiscovery from './serviceDiscovery';
 
 import logUtils from "./logUtils";
 import internalNotes from "./internalNotes";
@@ -145,6 +148,20 @@ export const initBroker = async (options) => {
       };
     });
 
+    consumeRPCQueue('core:users.getCount', async ({ data: { query } }) => {
+      return {
+        status: 'success',
+        data: await Users.countDocuments(query)
+      };
+    });
+
+    consumeRPCQueue('core:users.create', async ({ data }) => {
+      return {
+        status: 'success',
+        data: await Users.createUser(data)
+      };
+    });
+
     consumeRPCQueue('core:users.find', async ({ data }) => {
       const { query, sort = {} } = data;
 
@@ -203,15 +220,22 @@ export const initBroker = async (options) => {
   return client;
 };
 
-export const sendRPCMessage = async (channel, message): Promise<any> => {
-  return client.sendRPCMessage(channel, message);
-};
+interface IISendMessageArgs {
+  action: string;
+  data;
+  isRPC?: boolean;
+  defaultValue?;
+  serviceName: string
+}
 
-export const fetchSegment = (segmentId, options?) =>
-  sendRPCMessage("segments:rpc_queue:fetchSegment", {
-    segmentId,
-    options,
+export const sendCommonMessage = async (args: IISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    subdomain: 'os',
+    serviceDiscovery,
+    client,
+    ...args,
   });
+};
 
 export default function () {
   return client;

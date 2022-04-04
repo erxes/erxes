@@ -4,13 +4,16 @@ import {
   commonItemFieldsSchema,
   IItemCommonFields
 } from './boards';
+
 import { customFieldSchema, ICustomField } from './common';
+
 import {
   PRODUCT_STATUSES,
   PRODUCT_TYPES,
   PRODUCT_CATEGORY_STATUSES,
   PRODUCT_SUPPLY
 } from './constants';
+
 import { field, schemaWrapper } from './utils';
 
 export interface IProduct {

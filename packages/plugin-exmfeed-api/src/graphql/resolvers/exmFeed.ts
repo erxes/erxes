@@ -1,87 +1,141 @@
+import { sendReactionsMessage } from '../../messageBroker';
+
 const ExmFeeds = {
-  async createdUser(exmFeed, {}, { models }) {
-    const user = await models.Users.findOne({ _id: exmFeed.createdBy });
-    return user;
+  createdUser(exmFeed) {
+    return (
+      exmFeed.createdBy && {
+        __typename: 'User',
+        _id: exmFeed.createdBy
+      }
+    );
   },
 
-  async updatedUser(exmFeed, {}, { models }) {
-    const user = models.Users.findOne({ _id: exmFeed.updatedBy });
-    return user;
+  updatedUser(exmFeed) {
+    return (
+      exmFeed.updatedBy && {
+        __typename: 'User',
+        _id: exmFeed.updatedBy
+      }
+    );
   },
 
-  async recipients(exmFeed, {}, { models }) {
-    const user = models.Users.find({ _id: { $in: exmFeed.recipientIds } });
-    return user;
+  recipients(exmFeed) {
+    return (exmFeed.recipientIds || []).map(_id => ({
+      __typename: 'User',
+      _id
+    }));
   },
 
-  async eventGoingUsers(exmFeed, {}, { models }) {
-    const user = models.Users.find({
-      _id: { $in: (exmFeed.eventData || {}).goingUserIds || [] },
-    });
-    return user;
+  eventGoingUsers(exmFeed) {
+    const { eventData = {} } = exmFeed;
+    const { goingUserIds } = eventData;
+
+    return (goingUserIds || []).map(_id => ({
+      __typename: 'User',
+      _id
+    }));
   },
 
-  async eventInterestedUsers(exmFeed, {}, { models }) {
-    const user = models.Users.find({
-      _id: { $in: (exmFeed.eventData || {}).interestedUserIds || [] },
-    });
-    return user;
+  eventInterestedUsers(exmFeed) {
+    const { eventData = {} } = exmFeed;
+    const { interestedUserIds } = eventData;
+
+    return (interestedUserIds || []).map(_id => ({
+      __typename: 'User',
+      _id
+    }));
   },
 
-  async commentCount(exmFeed, {}, { models }) {
-    const user = models.Comments
-      ? models.Comments.find({
+  async commentCount(exmFeed) {
+    try {
+      return await sendReactionsMessage({
+        subdomain: 'os',
+        action: 'comments.count',
+        data: {
+          contentId: exmFeed._id,
+          contentType: 'exmFeed'
+        },
+        isRPC: true,
+        defaultValue: 0
+      });
+    } catch (e) {
+      return 0;
+    }
+  },
+
+  async likeCount(exmFeed) {
+    try {
+      return await sendReactionsMessage({
+        subdomain: 'os',
+        action: 'emojies.likeCount',
+        data: {
           contentId: exmFeed._id,
           contentType: 'exmFeed',
-        }).countDocuments()
-      : 0;
-    return user;
+          type: 'like'
+        },
+        isRPC: true,
+        defaultValue: 0
+      });
+    } catch (e) {
+      return 0;
+    }
   },
 
-  async likeCount(exmFeed, {}, { models }) {
-    const user = models.Emojis
-      ? models.Emojis.find({
+  async heartCount(exmFeed) {
+    try {
+      return await sendReactionsMessage({
+        subdomain: 'os',
+        action: 'emojies.heartCount',
+        data: {
           contentId: exmFeed._id,
           contentType: 'exmFeed',
-          type: 'like',
-        }).countDocuments()
-      : 0;
-    return user;
+          type: 'heart'
+        },
+        isRPC: true,
+        defaultValue: 0
+      });
+    } catch (e) {
+      return 0;
+    }
   },
-  async heartCount(exmFeed, {}, { models }) {
-    const user = models.Emojis
-      ? models.Emojis.find({
+
+  async isHearted(exmFeed, {}, { user }) {
+    try {
+      return await sendReactionsMessage({
+        subdomain: 'os',
+        action: 'emojies.isHearted',
+        data: {
           contentId: exmFeed._id,
           contentType: 'exmFeed',
           type: 'heart',
-        }).countDocuments()
-      : 0;
-    return user;
+          userId: user._id
+        },
+        isRPC: true,
+        defaultValue: false
+      });
+    } catch (e) {
+      return 0;
+    }
   },
 
-  async isHearted(exmFeed, {}, { models, user }) {
-    const User = models.Emojis
-      ? await models.Emojis.exists({
-          contentId: exmFeed._id,
-          contentType: 'exmFeed',
-          type: 'heart',
-          userId: user._id,
-        })
-      : false;
-    return User;
-  },
-
-  async isLiked(exmFeed, {}, { models, user }) {
-    const User = models.Emojis
-      ? await models.Emojis.exists({
+  async isLiked(exmFeed, {}, { user }) {
+    try {
+      return await sendReactionsMessage({
+        subdomain: 'os',
+        action: 'emojies.isLiked',
+        data: {
           contentId: exmFeed._id,
           contentType: 'exmFeed',
           type: 'like',
-          userId: user._id,
-        })
-      : false;
-    return User;
-  },
+          userId: user._id
+        },
+        isRPC: true,
+        defaultValue: false
+      });
+    } catch (e) {
+      return 0;
+    }
+  }
 };
 
 export default ExmFeeds;

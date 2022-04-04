@@ -3,7 +3,7 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const Home = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - Board Home" */ './containers/Home')
+  import(/* webpackChunkName: "Settings - Board Home"  */ './containers/Home')
 );
 
 const DealHome = () => {

@@ -46,6 +46,13 @@ export const ACTIONS = [
     isAvailable: true
   },
   {
+    type: 'loyalties:scoreLog.create',
+    icon: 'file-plus',
+    label: __('Change Score'),
+    description: __('Change Score'),
+    isAvailable: true
+  },
+  {
     type: 'delay',
     icon: 'hourglass',
     label: __('Delay'),

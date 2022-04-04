@@ -5,6 +5,7 @@ on:
     branches:
       - federation
     paths:
+      - 'packages/erxes-ui/**'
       - 'packages/plugin-calendar-ui/**'
       - '.github/workflows/plugin-calendar-ui.yaml'
 

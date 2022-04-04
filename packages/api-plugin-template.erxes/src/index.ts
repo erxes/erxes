@@ -24,7 +24,10 @@ import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
 import {
   getService,
+  getAvailableServices,
   getServices,
+  isAvailable,
+  isEnabled,
   join,
   leave,
   redis
@@ -32,7 +35,13 @@ import {
 
 const configs = require('../../src/configs').default;
 
-const { MONGO_URL, RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, PORT } = process.env;
+const { MONGO_URL, RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, PORT, ENABLED_SERVICES_PATH } = process.env;
+
+if(!ENABLED_SERVICES_PATH) {
+  throw new Error("ENABLED_SERVICES_PATH environment variable is not configured.")
+}
+
+const enabledServices = require(ENABLED_SERVICES_PATH);
 
 export const app = express();
 
@@ -158,18 +167,10 @@ const generateApolloServer = async serviceDiscovery => {
 async function startServer() {
   const serviceDiscovery = {
     getServices,
+    getAvailableServices,
     getService,
-    isAvailable: async name => {
-      const serviceNames = await getServices();
-      return serviceNames.includes(name);
-    },
-    isEnabled: async name => {
-      if (name === 'core') {
-        return true;
-      }
-
-      return !!(await redis.sismember('erxes:plugins:enabled', name));
-    }
+    isAvailable,
+    isEnabled
   };
 
   const apolloServer = await generateApolloServer(serviceDiscovery);
@@ -204,7 +205,7 @@ async function startServer() {
     }
 
     if (configs.meta) {
-      const { segments, forms, tags, imports, internalNotes, automations } = configs.meta;
+      const { segments, forms, tags, imports, internalNotes, automations, search } = configs.meta;
       const { consumeRPCQueue } = messageBrokerClient;
 
       const logs = configs.meta.logs && configs.meta.logs.consumers;
@@ -330,6 +331,18 @@ async function startServer() {
             })
           );
         }
+      }
+
+      if (search) {
+        configs.meta.isSearchable = true;
+
+        consumeRPCQueue(
+          `${configs.name}:search`,
+          async args => ({
+            status: 'success',
+            data: await search(args)
+          })
+        );
       }
     }
 

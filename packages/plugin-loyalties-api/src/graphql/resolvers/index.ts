@@ -8,6 +8,7 @@ import Spin from './customResolvers/spin';
 import SpinCampaign from './customResolvers/spinCampaign';
 import Lottery from './customResolvers/lottery';
 import LotteryCampaign from './customResolvers/lotteryCampaign';
+import ScoreLog from './customResolvers/scoreLog';
 import {
   Configs as LoyaltyConfigMutations,
   Donates as DonateMutations,
@@ -17,7 +18,8 @@ import {
   Spins as SpinMutations,
   SpinCampaigns as SpinCampaignMutations,
   Lotteries as LotteryMutations,
-  LotteryCampaigns as LotteryCampaignMutations
+  LotteryCampaigns as LotteryCampaignMutations,
+  Loyalties as LoyaltyMutations
 } from './mutations';
 import {
   Donates as DonateQueries,
@@ -28,6 +30,8 @@ import {
   LotteryCampaigns as LotteryCampaignQueries,
   Vouchers as VoucherQueries,
   VoucherCampaigns as VoucherCampaignQueries,
+  ScoreLogs as ScoreLogQueries,
+  Loyalties as LoyaltyQueries
 } from './queries';
 
 const resolvers: any = async (serviceDiscovery) => (
@@ -42,6 +46,7 @@ const resolvers: any = async (serviceDiscovery) => (
     SpinCampaign,
     Lottery,
     LotteryCampaign,
+    ScoreLog,
     Mutation: {
       ...LoyaltyConfigMutations,
       ...DonateMutations,
@@ -52,6 +57,7 @@ const resolvers: any = async (serviceDiscovery) => (
       ...SpinCampaignMutations,
       ...LotteryMutations,
       ...LotteryCampaignMutations,
+      ...LoyaltyMutations
     },
     Query: {
       ...loyaltyConfigQueries,
@@ -62,7 +68,9 @@ const resolvers: any = async (serviceDiscovery) => (
       ...LotteryQueries,
       ...LotteryCampaignQueries,
       ...VoucherQueries,
-      ...VoucherCampaignQueries
+      ...VoucherCampaignQueries,
+      ...ScoreLogQueries,
+      ...LoyaltyQueries
     }
   });
 

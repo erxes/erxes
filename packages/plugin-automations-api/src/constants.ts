@@ -5,7 +5,8 @@ export const ACTIONS = {
   CREATE_TASK: "cards:task.create",
   CREATE_TICKET: "cards:ticket.create",
   CREATE_DEAL: "cards:deal.create",
-  CREATE_VOUCHER: "loyalties:voucher.create"
+  CREATE_VOUCHER: "loyalties:voucher.create",
+  CHANGE_SCORE: "loyalties:scoreLog.create"
 };
 
 export const TRIGGER_TYPES = {

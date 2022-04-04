@@ -93,7 +93,7 @@ const main = async () => {
   process.chdir("../../dist");
 
   console.log("Yarn install ....");
-  await execCommand("yarn install");
+  await execCommand("yarn install ---production");
 
   process.chdir(folderName);
 

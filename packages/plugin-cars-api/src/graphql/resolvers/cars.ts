@@ -1,13 +1,15 @@
 import { sendCoreMessage } from "../../messageBroker";
+import { ICarDocument } from "../../models/definitions/cars";
 
 const cars = {
-  async owner(car, {}, { coreModels }) {
-    const user = await coreModels.Users.findOne({ _id: car.ownerId });
-
-    return user;
+  async owner(car: ICarDocument) {
+    return car.ownerId && {
+      __typename: 'User',
+      _id: car.ownerId
+    }
   },
 
-  async customer(car, {}, { models, subdomain }) {
+  async customer(car: ICarDocument, {}, { models, subdomain }) {
     const customerIds = await sendCoreMessage({
       subdomain,
       action: "conformities.savedConformity",
@@ -23,7 +25,7 @@ const cars = {
     return models.Customers.find({ _id: { $in: customerIds || [] } });
   },
 
-  category(car, {}, { models }) {
+  category(car: ICarDocument, {}, { models }) {
     return models.CarCategories.findOne({ _id: car.categoryId });
   },
 };

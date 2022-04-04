@@ -13,7 +13,7 @@ module.exports = {
     {
       text: 'Exm feed',
       url: '/erxes-plugin-exm-feed/home',
-      icon: 'icon-cog',
+      icon: 'icon-list-2',
       location: 'mainNavigation',
       permission: 'showExmActivityFeed'
     }

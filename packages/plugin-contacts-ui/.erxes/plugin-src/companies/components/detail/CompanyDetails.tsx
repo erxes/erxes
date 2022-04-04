@@ -1,5 +1,5 @@
-import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
 import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
+import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from 'coreui/utils';
 import BasicInfo from '../../containers/detail/BasicInfo';
@@ -8,9 +8,9 @@ import { UserHeader } from '@erxes/ui-contacts/src/customers/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
-import InfoSection from '../common/InfoSection';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
+import InfoSection from '../common/InfoSection';
 import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {

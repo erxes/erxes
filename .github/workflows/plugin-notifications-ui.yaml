@@ -5,6 +5,7 @@ on:
     branches:
       - federation
     paths:
+      - 'packages/erxes-ui/**'
       - 'packages/plugin-notifications-ui/**'
       - '.github/workflows/plugin-notifications-ui.yaml'
 

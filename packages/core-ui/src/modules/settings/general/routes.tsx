@@ -12,12 +12,16 @@ const Theme = asyncComponent(() =>
   import(/* webpackChunkName: "Theme" */ './containers/Theme')
 );
 
+const Installer = asyncComponent(() =>
+  import(/* webpackChunkName: "Theme" */ './containers/Installer')
+);
+
 const routes = () => {
   return (
     <React.Fragment>
       <Route path="/settings/general/" component={GeneralSettings} />
-
       <Route path="/settings/theme/" component={Theme} />
+      <Route path="/settings/installer/" component={Installer} />
     </React.Fragment>
   );
 };
