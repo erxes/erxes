@@ -29,6 +29,8 @@ export default {
     };
   },
 
+  hasSubscriptions: true,
+
   apolloServerContext: async context => {
     const subdomain = 'os';
 

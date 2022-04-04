@@ -64,9 +64,7 @@ export const loadCommentClass = models => {
      * Remove comment
      */
     public static async removeComment(_id: string) {
-      const commentObj = await models.Comments.deleteOne({ _id });
-
-      return commentObj.remove();
+      return models.Comments.deleteOne({ _id });
     }
   }
 
