@@ -1,23 +1,20 @@
 import { Model } from 'mongoose';
 
-import { ICustomerDocument } from "@packages/plugin-contacts-api/src/models/definitions/customers";
-import { findUser } from '../engageUtils';
-import messageBroker, {
+import { ICustomerDocument } from '@packages/plugin-contacts-api/src/models/definitions/customers';
+import {
   removeEngageConversations,
-  createConversationAndMessage,
-  updateConversationMessage,
   sendContactsMessage,
+  sendInboxMessage,
 } from '../messageBroker';
-import { MESSAGE_KINDS } from '../constants';
-import { checkCustomerExists, findElk } from '../engageUtils';
+import { checkCustomerExists, findElk, findUser } from '../engageUtils';
 import { getEditorAttributeUtil, isUsingElk } from '../utils';
 
-import { CAMPAIGN_METHODS, CONTENT_TYPES } from '../constants';
+import { CAMPAIGN_METHODS, CAMPAIGN_KINDS, CONTENT_TYPES } from '../constants';
 import { IEngageData, IMessageDocument } from '../types';
 import {
   engageMessageSchema,
   IEngageMessage,
-  IEngageMessageDocument
+  IEngageMessageDocument,
 } from './definitions/engages';
 import { IModels } from '../connectionResolver';
 import { checkRules } from '../widgetUtils';
@@ -92,7 +89,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
     public static async updateEngageMessage(_id: string, doc: IEngageMessage) {
       const message = await models.EngageMessages.getEngageMessage(_id);
 
-      if (message.kind === MESSAGE_KINDS.MANUAL && message.isLive) {
+      if (message.kind === CAMPAIGN_KINDS.MANUAL && message.isLive) {
         throw new Error('Can not update manual live campaign');
       }
 
@@ -117,7 +114,10 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
      * Engage message set pause
      */
     public static async engageMessageSetPause(_id: string) {
-      await models.EngageMessages.updateOne({ _id }, { $set: { isLive: false } });
+      await models.EngageMessages.updateOne(
+        { _id },
+        { $set: { isLive: false } }
+      );
 
       return models.EngageMessages.findOne({ _id });
     }
@@ -145,7 +145,10 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
       type: string,
       count: number
     ) {
-      await models.EngageMessages.updateOne({ _id }, { $set: { [type]: count } });
+      await models.EngageMessages.updateOne(
+        { _id },
+        { $set: { [type]: count } }
+      );
 
       return models.EngageMessages.findOne({ _id });
     }
@@ -216,7 +219,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         integrationId,
         customer,
         visitorId,
-        browserInfo
+        browserInfo,
       } = params;
 
       const customerObj = customer
@@ -231,15 +234,15 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
             must: [
               { match: { 'messenger.brandId': brandId } },
               { match: { method: CAMPAIGN_METHODS.MESSENGER } },
-              { match: { isLive: true } }
-            ]
-          }
+              { match: { isLive: true } },
+            ],
+          },
         });
       } else {
         messages = await models.EngageMessages.find({
           'messenger.brandId': brandId,
           method: CAMPAIGN_METHODS.MESSENGER,
-          isLive: true
+          isLive: true,
         });
       }
 
@@ -255,11 +258,11 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           segmentIds,
           customerTagIds,
           brandIds,
-          fromUserId
+          fromUserId,
         } = message;
 
         if (
-          message.kind === 'manual' &&
+          message.kind === CAMPAIGN_KINDS.MANUAL &&
           (customerIds || []).length > 0 &&
           !customerIds.includes(customerObj._id)
         ) {
@@ -267,20 +270,19 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         }
 
         const customerExists = await checkCustomerExists(subdomain, {
-            id: customerObj._id,
-            customerIds,
-            segmentIds,
-            tagIds: customerTagIds,
-            brandIds
-          }
-        );
+          id: customerObj._id,
+          customerIds,
+          segmentIds,
+          tagIds: customerTagIds,
+          brandIds,
+        });
 
-        if (message.kind !== MESSAGE_KINDS.VISITOR_AUTO && !customerExists) {
+        if (message.kind !== CAMPAIGN_KINDS.VISITOR_AUTO && !customerExists) {
           continue;
         }
 
         if (
-          message.kind === MESSAGE_KINDS.VISITOR_AUTO &&
+          message.kind === CAMPAIGN_KINDS.VISITOR_AUTO &&
           customerObj.state !== CONTENT_TYPES.VISITOR
         ) {
           continue;
@@ -300,14 +302,14 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           data: {
             url: browserInfo.url,
             visitorId,
-            customerId: customer ? customer._id : undefined
-          }
+            customerId: customer ? customer._id : undefined,
+          },
         });
 
         const hasPassedAllRules = await checkRules({
           rules: messenger.rules,
           browserInfo,
-          numberOfVisits
+          numberOfVisits,
         });
 
         // if given visitor is matched with given condition then create
@@ -316,20 +318,18 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           const editorAttributeUtil = await getEditorAttributeUtil();
 
           // replace keys in content
-          const replacedContent = await editorAttributeUtil.replaceAttributes(
-            {
-              content: messenger.content,
-              customer,
-              user
-            }
-          );
+          const replacedContent = await editorAttributeUtil.replaceAttributes({
+            content: messenger.content,
+            customer,
+            user,
+          });
 
           if (messenger.rules) {
-            messenger.rules = messenger.rules.map(r => ({
+            messenger.rules = messenger.rules.map((r) => ({
               kind: r.kind,
               text: r.text,
               condition: r.condition,
-              value: r.value
+              value: r.value,
             }));
           }
 
@@ -345,8 +345,8 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
                 content: replacedContent,
                 engageKind: message.kind,
                 messageId: message._id,
-                fromUserId: message.fromUserId
-              }
+                fromUserId: message.fromUserId,
+              },
             }
           );
 
@@ -385,44 +385,40 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         integrationId,
         user,
         engageData,
-        replacedContent
+        replacedContent,
       } = args;
 
       let prevMessage: IMessageDocument | null;
 
-      // if (isUsingElk()) {
-      //   const conversationMessages = await findElk('conversation_messages', {
-      //     bool: {
-      //       must: [
-      //         { match: { 'engageData.messageId': engageData.messageId } },
-      //         { match: customerId ? { customerId } : { visitorId } }
-      //       ]
-      //     }
-      //   });
+      if (isUsingElk()) {
+        const conversationMessages = await findElk('conversation_messages', {
+          bool: {
+            must: [
+              { match: { 'engageData.messageId': engageData.messageId } },
+              { match: customerId ? { customerId } : { visitorId } }
+            ]
+          }
+        });
 
-      //   prevMessage = null;
+        prevMessage = null;
 
-      //   if (conversationMessages.length > 0) {
-      //     prevMessage = conversationMessages[0];
-      //   }
-      // } else {
-      //   const query = customerId
-      //     ? { customerId, 'engageData.messageId': engageData.messageId }
-      //     : { visitorId, 'engageData.messageId': engageData.messageId };
-      //   prevMessage = await ConversationMessages.findOne(query);
-      // }
+        if (conversationMessages.length > 0) {
+          prevMessage = conversationMessages[0];
+        }
+      } else {
+        const query = customerId
+          ? { customerId, 'engageData.messageId': engageData.messageId }
+          : { visitorId, 'engageData.messageId': engageData.messageId };
 
-      const query = customerId
-        ? { customerId, 'engageData.messageId': engageData.messageId }
-        : { visitorId, 'engageData.messageId': engageData.messageId };
+        prevMessage = await sendInboxMessage({
+          subdomain,
+          action: 'conversationMessages.findOne',
+          data: query,
+          isRPC: true
+        });
+      }
 
-      prevMessage = await messageBroker().sendRPCMessage('inbox:rpc_queue:findMongoDocuments', query);
-
-      // const prevMessage = await sendInboxMessage({
-      //   action: '',
-      //   subdomain,
-      //   data: 
-      // })
+      const commonParams = { isRPC: true, subdomain };
 
       if (prevMessage) {
         if (
@@ -435,19 +431,19 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
 
         const conversationId = prevMessage.conversationId;
 
-        // if (isUsingElk()) {
-        //   messages = await findElk('conversation_messages', {
-        //     match: {
-        //       conversationId
-        //     }
-        //   });
-        // } else {
-        //   messages = await ConversationMessages.find({
-        //     conversationId
-        //   });
-        // }
-
-        messages = await messageBroker().sendRPCMessage('inbox:rpc_queue:findMongoDocuments', { conversationId });
+        if (isUsingElk()) {
+          messages = await findElk('conversation_messages', {
+            match: {
+              conversationId
+            }
+          });
+        } else {
+          messages = await sendInboxMessage({
+            ...commonParams,
+            data: { conversationId },
+            action: 'conversationMessages.find',
+          });
+        }
 
         // leave conversations with responses alone
         if (messages.length > 1) {
@@ -455,23 +451,31 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         }
 
         // mark as unread again && reset engageData
-        await updateConversationMessage({
-          filter: { _id: prevMessage._id },
-          updateDoc: { engageData, isCustomerRead: false }
+        await sendInboxMessage({
+          ...commonParams,
+          action: 'updateConversationMessage',
+          data: {
+            filter: { _id: prevMessage._id },
+            updateDoc: { engageData, isCustomerRead: false },
+          }
         });
 
         return null;
       }
 
       // create conversation and message replaced by messagebroker
-      return await createConversationAndMessage({
-        userId: user._id,
-        status: 'engageVisitorAuto',
-        customerId,
-        visitorId,
-        integrationId,
-        replacedContent,
-        engageData
+      return await sendInboxMessage({
+        ...commonParams,
+        action: 'createConversationAndMessage',
+        data: {
+          userId: user._id,
+          status: 'engageVisitorAuto',
+          customerId,
+          visitorId,
+          integrationId,
+          replacedContent,
+          engageData,
+        }
       });
     }
   }
