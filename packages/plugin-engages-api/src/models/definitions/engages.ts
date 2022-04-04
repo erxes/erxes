@@ -3,7 +3,7 @@ import { Schema, Document } from 'mongoose';
 import { ruleSchema } from '@erxes/api-utils/src/definitions/common';
 import { field, schemaWrapper } from '@erxes/api-utils/src/definitions/utils';
 import { IRule } from "@packages/api-utils/src/types";
-import { MESSAGE_KINDS, MESSENGER_KINDS, CAMPAIGN_METHODS, SENT_AS_CHOICES } from '../../constants';
+import { MESSENGER_KINDS, CAMPAIGN_METHODS, CAMPAIGN_KINDS, SENT_AS_CHOICES } from '../../constants';
 
 interface IEmail {
   attachments?: any;
@@ -139,7 +139,7 @@ export const smsSchema = new Schema(
 export const engageMessageSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    kind: field({ type: String, label: 'Kind', enum: MESSAGE_KINDS.ALL }),
+    kind: field({ type: String, label: 'Kind', enum: CAMPAIGN_KINDS.ALL }),
     segmentId: field({ type: String, optional: true }), // TODO Remove
     segmentIds: field({
       type: [String],
