@@ -1,3 +1,5 @@
+import { sendReactionsMessage } from '../../messageBroker';
+
 const ExmFeeds = {
   createdUser(exmFeed) {
     return (
@@ -38,63 +40,80 @@ const ExmFeeds = {
     const { eventData = {} } = exmFeed;
     const { interestedUserIds } = eventData;
 
-    return (interestedUserIds || []).map(_id => (
-      {
-        __typename: 'User',
-        _id
-      }
-    ))
+    return (interestedUserIds || []).map(_id => ({
+      __typename: 'User',
+      _id
+    }));
   },
 
-  async commentCount(exmFeed, {}, { models }) {
-    return models.Comments
-      ? await models.Comments.find({
+  async commentCount(exmFeed) {
+    try {
+      return await sendReactionsMessage({
+        subdomain: 'os',
+        action: 'comments.count',
+        data: {
           contentId: exmFeed._id,
           contentType: 'exmFeed'
-        }).countDocuments()
-      : 0;
+        },
+        isRPC: true
+      });
+    } catch (e) {
+      return 0;
+    }
   },
 
   async likeCount(exmFeed, {}, { models }) {
-    return models.Emojis
-      ? await models.Emojis.find({
-          contentId: exmFeed._id,
-          contentType: 'exmFeed',
-          type: 'like'
-        }).countDocuments()
-      : 0;
+    return await sendReactionsMessage({
+      subdomain: 'os',
+      action: 'emojies.likeCount',
+      data: {
+        contentId: exmFeed._id,
+        contentType: 'exmFeed',
+        type: 'like'
+      },
+      isRPC: true
+    });
   },
 
-  async heartCount(exmFeed, {}, { models }) {
-    return models.Emojis
-      ? await models.Emojis.find({
-          contentId: exmFeed._id,
-          contentType: 'exmFeed',
-          type: 'heart'
-        }).countDocuments()
-      : 0;
+  async heartCount(exmFeed) {
+    return await sendReactionsMessage({
+      subdomain: 'os',
+      action: 'emojies.heartCount',
+      data: {
+        contentId: exmFeed._id,
+        contentType: 'exmFeed',
+        type: 'heart'
+      },
+      isRPC: true
+    });
   },
 
-  async isHearted(exmFeed, {}, { models, user }) {
-    return models.Emojis
-      ? await models.Emojis.exists({
-          contentId: exmFeed._id,
-          contentType: 'exmFeed',
-          type: 'heart',
-          userId: user._id
-        })
-      : false;
+  async isHearted(exmFeed, {}, { user }) {
+    return await sendReactionsMessage({
+      subdomain: 'os',
+      action: 'emojies.isHearted',
+      data: {
+        contentId: exmFeed._id,
+        contentType: 'exmFeed',
+        type: 'heart',
+        userId: user._id
+      },
+      isRPC: true
+    });
   },
 
-  async isLiked(exmFeed, {}, { models, user }) {
-    return models.Emojis
-      ? await models.Emojis.exists({
-          contentId: exmFeed._id,
-          contentType: 'exmFeed',
-          type: 'like',
-          userId: user._id
-        })
-      : false;
+  async isLiked(exmFeed, {}, { user }) {
+    return await sendReactionsMessage({
+      subdomain: 'os',
+      action: 'emojies.isLiked',
+      data: {
+        contentId: exmFeed._id,
+        contentType: 'exmFeed',
+        type: 'like',
+        userId: user._id
+      },
+      isRPC: true
+    });
   }
 };
 

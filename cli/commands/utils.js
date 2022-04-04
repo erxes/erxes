@@ -65,10 +65,15 @@ function downloadFile(file_url, targetPath) {
   });
 }
 
-const execCommand = command => {
+const execCommand = (command, ignoreError) => {
   return new Promise((resolve, reject) => {
     exec(command, { maxBuffer: 1024 * 1000 }, (error, stdout, stderr) => {
       if (error !== null) {
+        if (ignoreError) {
+          console.log(error);
+          return resolve('done');
+        }
+
         return reject(error);
       }
 

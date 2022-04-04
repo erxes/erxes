@@ -1,11 +1,67 @@
-import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
+import { generateModels } from './connectionResolver';
 
 let client;
 
-export const initBroker = async (cl) => {
+export const initBroker = async cl => {
   client = cl;
+
+  const { consumeRPCQueue } = client;
+
+  consumeRPCQueue('reactions:comments.count', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Comments.find(data).countDocuments()
+    };
+  });
+
+  consumeRPCQueue(
+    'reactions:emojies.likeCount',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Emojis.find(data).countDocuments()
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'reactions:emojies.heartCount',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Emojis.find(data).countDocuments()
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'reactions:emojies.isHearted',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Emojis.find(data).exists()
+      };
+    }
+  );
+
+  consumeRPCQueue('reactions:emojies.isLiked', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Emojis.find(data).exists()
+    };
+  });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
@@ -13,18 +69,7 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'core',
-    ...args,
-  });
-};
-
-export const sendInternalNotesMessage = async (
-  args: ISendMessageArgs
-): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: 'internalnotes',
-    ...args,
+    ...args
   });
 };
 
@@ -34,7 +79,7 @@ export const sendCommonMessage = async (
   return sendMessage({
     serviceDiscovery,
     client,
-    ...args,
+    ...args
   });
 };
 
