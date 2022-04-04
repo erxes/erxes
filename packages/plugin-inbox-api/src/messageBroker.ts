@@ -189,6 +189,24 @@ export const initBroker = cl => {
     }
   );
 
+  consumeRPCQueue('inbox:conversationMessages.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.ConversationMessages.findOne(data)
+    }
+  });
+
+  consumeRPCQueue('inbox:conversationMessages.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.ConversationMessages.find(data).lean()
+    }
+  });
+
   // ! below queue converted only used in core
   // ! unused queue
   consumeRPCQueue("inbox:rpc_queue:getIntegration", async data => {
