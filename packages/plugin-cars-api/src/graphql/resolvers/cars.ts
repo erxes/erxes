@@ -20,8 +20,6 @@ const cars = {
       defaultValue: [],
     });
 
-    console.log(customerIds, "hehehhehehehehh");
-
     return models.Customers.find({ _id: { $in: customerIds || [] } });
   },
 
