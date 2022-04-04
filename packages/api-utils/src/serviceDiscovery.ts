@@ -12,9 +12,10 @@ const {
   LOAD_BALANCER_ADDRESS,
   ENABLED_SERVICES_PATH
 } = process.env;
+
 const isDev = NODE_ENV === "development";
 
-if(!ENABLED_SERVICES_PATH) {
+if (!ENABLED_SERVICES_PATH) {
   throw new Error("ENABLED_SERVICES_PATH environment variable is not configured.")
 }
 

@@ -7,6 +7,7 @@ import {
 import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { getNumberOfVisits } from './events';
 
 export let client;
 
@@ -308,6 +309,10 @@ export const initBroker = cl => {
     }
   );
 
+  consumeRPCQueue('contacts:getNumberOfVisits', async ({ data }) => ({
+    status: 'success',
+    data: await getNumberOfVisits(data)
+  }));
 };
 
 export const sendSegmentsMessage = async (

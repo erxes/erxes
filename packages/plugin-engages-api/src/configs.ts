@@ -13,6 +13,7 @@ import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import tags from './tags';
 import logs from './logUtils';
+import { initMemoryStorage } from './inmemoryStorage';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -89,8 +90,10 @@ export default {
       debugBase(`Error: ${msg}`);
       res.status(500).send(msg);
     });
-    
+
     initBroker(options.messageBrokerClient);
+
+    initMemoryStorage();
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
