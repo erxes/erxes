@@ -77,7 +77,7 @@ class FileUpload extends React.Component<Props, {}> {
       <FlexItem>
         <FlexPad direction="column" overflow="auto">
           <ImportHeader>{__(`Upload your file`)}</ImportHeader>
-          <ImportHeader fontSize="12px">
+          <ImportHeader fontSize="small">
             {__(
               'Before you upload your files below, make sure your file is ready to be imported.'
             )}

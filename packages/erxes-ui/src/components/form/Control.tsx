@@ -45,7 +45,7 @@ type Props = {
   maxHeight?: number;
   maxLength?: number;
   color?: string;
-  noBorderBottom?: boolean;
+  // noBorderBottom?: boolean;
 };
 
 const renderElement = (Element, attributes, type, child) => {
@@ -115,7 +115,7 @@ class FormControl extends React.Component<Props> {
       maxHeight: props.maxHeight,
       maxLength: props.maxLength,
       color: props.color,
-      noBorderBottom: props.noBorderBottom
+      // noBorderBottom: props.noBorderBottom
     };
 
     if (elementType === 'select') {

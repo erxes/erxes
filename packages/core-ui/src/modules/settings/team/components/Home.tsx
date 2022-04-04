@@ -19,6 +19,7 @@ import styled from "styled-components";
 import styledTS from 'styled-components-ts';
 import { colors, dimensions } from "@erxes/ui/src/styles";
 import Icon from "@erxes/ui/src/components/Icon";
+import { ButtonContainer } from "../styles";
 
 const ActiveColor = styledTS <{active: boolean}>(styled.div)`
   background: ${props => (props.active === true ? colors.colorCoreGreen : colors.colorCoreYellow)};
@@ -146,7 +147,7 @@ export default function Home(props: Props) {
     );
   };
 
-  const trigger = <Button btnStyle="success" icon="plus">Invite team members</Button>;
+  const trigger = <ButtonContainer><Button btnStyle="success" icon="plus">Invite team members</Button></ButtonContainer>;
 
   const righActionBar = (
     <ModalTrigger

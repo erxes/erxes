@@ -180,7 +180,7 @@ const ColumnTable = styledTS<{
 const ImportHeader = styledTS<{fontSize?: string}>(styled.div)`
   color: ${colors.textSecondary};
   justify-content: center;
-  font-size: ${props => props.fontSize ? props.fontSize : `${typography.fontSizeHeading7}px`};
+  font-size: ${props => props.fontSize === 'small' ? `${typography.fontSizeHeading8}px` : props.fontSize === "large" ? `${typography.fontSizeHeading6}px` : `${typography.fontSizeHeading7}px`};
   display: flex;
   margin-bottom: ${dimensions.coreSpacing}px;
 `;
@@ -189,6 +189,14 @@ const FileUploadBox = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
   border: 1px dashed ${rgba(colors.colorPrimary, 0.2)};
   border-radius: ${dimensions.unitSpacing}px;
+`;
+
+const Width = styled.div`
+  width: 800px
+`;
+
+const NoBorder = styled.div`
+
 `;
 
 export {
@@ -202,5 +210,7 @@ export {
   UploadText,
   TypeContent,
   ImportHeader,
-  FileUploadBox
+  FileUploadBox,
+  Width,
+  NoBorder
 };

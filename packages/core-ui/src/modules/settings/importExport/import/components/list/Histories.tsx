@@ -88,7 +88,7 @@ class Histories extends React.Component<Props & IRouterProps> {
       <Link
         to={`/settings/export?type=${currentType}&serviceType=${serviceType}`}
       >
-        <Button icon="export" btnStyle="primary" size="small">
+        <Button icon="export" btnStyle="primary">
           {__(`Export ${this.getButtonText()}`)}
         </Button>
       </Link>
@@ -98,7 +98,7 @@ class Histories extends React.Component<Props & IRouterProps> {
   renderDataImporter() {
     return (
       <Link to={`/settings/import`}>
-        <Button icon="import" btnStyle="success" size="small">
+        <Button icon="import" btnStyle="success">
           {__(`Import data`)}
         </Button>
       </Link>

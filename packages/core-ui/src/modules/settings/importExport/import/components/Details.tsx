@@ -8,7 +8,7 @@ import {
   FormGroup
 } from '@erxes/ui/src/components/form';
 import { __ } from '@erxes/ui/src/utils';
-import { ImportHeader } from '../../styles';
+import { ImportHeader, Width } from '../../styles';
 
 type Props = {
   disclaimer: boolean;
@@ -35,7 +35,7 @@ class Details extends React.Component<Props, {}> {
     const { disclaimer, importName } = this.props;
 
     return (
-      <div style={{width: 800}}>
+      <Width>
       <FlexItem>
         <FlexPad direction="column" overflow="auto" value={importName}>
 
@@ -53,7 +53,7 @@ class Details extends React.Component<Props, {}> {
               value={importName}
               onChange={this.onChangeName}
               placeholder={__("Import Name")}
-              noBorderBottom={true}
+              // noBorderBottom={true}
             />
             </InputBar>
           </FormGroup>
@@ -77,7 +77,7 @@ class Details extends React.Component<Props, {}> {
           </FormGroup>
         </FlexPad>
       </FlexItem>
-      </div>
+      </Width>
     );
   }
 }
