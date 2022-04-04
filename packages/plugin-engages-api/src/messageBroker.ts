@@ -116,40 +116,6 @@ export const initBroker = async (cl) => {
   );
 };
 
-export const sendRPCMessage = async (message): Promise<any> => {
-  return client.sendRPCMessage('rpc_queue:api_to_integrations', message);
-};
-
-export const createConversationAndMessage = async (doc): Promise<any> => {
-  if (!(await serviceDiscovery.isEnabled('inbox'))) {
-    return null;
-  }
-
-  if (!(await serviceDiscovery.isAvailable('inbox'))) {
-    throw new Error(`Inbox service is not available`);
-  }
-
-  return client.sendRPCMessage(
-    'inbox:rpc_queue:createConversationAndMessage',
-    doc
-  );
-};
-
-export const updateConversationMessage = async (data: any) => {
-  if (!(await serviceDiscovery.isEnabled('inbox'))) {
-    return null;
-  }
-
-  if (!(await serviceDiscovery.isAvailable('inbox'))) {
-    throw new Error(`Inbox service is not available`);
-  }
-
-  return client.sendRPCMessage(
-    'inbox:rpc_queue:updateConversationMessage',
-    data
-  );
-};
-
 export const removeEngageConversations = async (_id): Promise<any> => {
   return client.consumeQueue('removeEngageConversations', _id);
 };
