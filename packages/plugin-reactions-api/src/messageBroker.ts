@@ -49,7 +49,7 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Emojis.find(data).exists()
+        data: await models.Emojis.exists(data)
       };
     }
   );
@@ -59,7 +59,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Emojis.find(data).exists()
+      data: await models.Emojis.exists(data)
     };
   });
 };
