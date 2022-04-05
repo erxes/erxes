@@ -1,12 +1,12 @@
 // import { sendNotification } from 'erxes-api-utils';
 import { CHAT_TYPE, IChatMessage } from '../../../models/definitions/chat';
-import graphqlPubsub from '../subscription/pubsub';
+import { graphqlPubsub } from '../../../configs';
 // import { sendMobileNotification } from '../../../utils';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 
 const checkChatAdmin = async (Chats, userId) => {
   const found = await Chats.exists({
-    adminIds: { $in: [userId] },
+    adminIds: { $in: [userId] }
   });
 
   if (!found) {
@@ -33,7 +33,7 @@ const chatMutations = {
       {
         ...doc,
         participantIds: allParticipantIds,
-        adminIds: [user._id],
+        adminIds: [user._id]
       },
       user._id
     );
@@ -58,11 +58,11 @@ const chatMutations = {
     // });
 
     graphqlPubsub.publish('chatInserted', {
-      userId: user._id,
+      userId: user._id
     });
 
     graphqlPubsub.publish('chatUnreadCountChanged', {
-      userId: user._id,
+      userId: user._id
     });
 
     return chat;
@@ -93,7 +93,7 @@ const chatMutations = {
     const created = await models.ChatMessages.createChatMessage(args, user._id);
 
     graphqlPubsub.publish('chatMessageInserted', {
-      chatId: created.chatId,
+      chatId: created.chatId
     });
 
     return created;
@@ -141,8 +141,8 @@ const chatMutations = {
         : {
             $pull: {
               participantIds: { $in: userIds },
-              adminIds: { $in: userIds },
-            },
+              adminIds: { $in: userIds }
+            }
           }
     );
 
@@ -154,7 +154,7 @@ const chatMutations = {
 
     const chat = await models.Chats.findOne({
       _id,
-      participantIds: { $in: [userId] },
+      participantIds: { $in: [userId] }
     });
 
     if (!chat) {
@@ -178,7 +178,7 @@ const chatMutations = {
     );
 
     return 'Success';
-  },
+  }
 };
 
 checkPermission(chatMutations, 'chatAdd', 'manageChats');

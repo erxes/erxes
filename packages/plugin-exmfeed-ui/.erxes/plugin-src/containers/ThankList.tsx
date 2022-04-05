@@ -11,14 +11,14 @@ type Props = {
 };
 
 export default function ThankListContainer(props: Props) {
-  const { queryParams } = props;
+  const queryParams = props.queryParams || {};
 
   const limit = queryParams.limit ? parseInt(queryParams.limit, 10) : 20;
 
   const queryResponse = useQuery(gql(queries.thanks), {
     variables: {
-      limit,
-    },
+      limit
+    }
   });
 
   const [deleteMutation] = useMutation(gql(mutations.deleteThank));
@@ -35,7 +35,7 @@ export default function ThankListContainer(props: Props) {
 
           queryResponse.refetch();
         })
-        .catch((error) => {
+        .catch(error => {
           Alert.error(error.message);
         });
     });
