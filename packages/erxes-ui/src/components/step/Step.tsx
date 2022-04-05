@@ -11,7 +11,9 @@ import {
   StepHeaderTitle,
   StepImg,
   StepItem,
+  ButtonBack
 } from "./styles";
+import { Link } from "react-router-dom";
 
 type Props = {
   stepNumber?: number;
@@ -20,14 +22,43 @@ type Props = {
   title?: string;
   children?: React.ReactNode;
   next?: (stepNumber: number) => void;
+  back?: (stepNumber: number) => void;
   noButton?: boolean;
   message?: any;
   onClick?: (stepNumber: number) => void;
+  link?: string;
+  additionalButton?: React.ReactNode;
+  type?: string;
 };
 
 class Step extends React.Component<Props> {
   renderButton() {
-    const { next } = this.props;
+    const { next, back, link, additionalButton, type } = this.props;
+    if(type === 'stepper'){
+    if (next || back) {
+      return (
+        <div style={{ width: 240 }}>
+          {back && link ? (
+            <Link to={link}>
+              <ButtonBack onClick={back.bind(null, 0)}>
+                Cancel
+              </ButtonBack>
+            </Link>
+          ) : (
+            back && (
+              <ButtonBack onClick={back.bind(null, 0)}>
+                Back
+              </ButtonBack>
+            )
+          )}
+          {next && additionalButton ? additionalButton : next &&(
+            <ButtonBack onClick={next.bind(null, 0)} next={true}>
+              Next
+            </ButtonBack>
+          )}
+        </div>
+      );
+    }}
 
     if (next) {
       return (
@@ -70,12 +101,23 @@ class Step extends React.Component<Props> {
   };
 
   render() {
-    const { stepNumber, active, img, title, children, noButton } = this.props;
+    const { stepNumber, active, img, title, children, noButton, type } = this.props;
 
     let show = false;
 
     if (stepNumber === active) {
       show = true;
+    }
+
+    if(type === "stepper"){
+      return (
+        <StepItem show={show} type={type}>
+          <FullStep show={show} type={type}>
+            <StepContent type={type}>{children}</StepContent>
+            {this.renderButton()}
+          </FullStep>
+        </StepItem>
+      )
     }
 
     return (

@@ -1,5 +1,5 @@
 import Button from 'modules/common/components/Button';
-import { Step, Steps } from '@erxes/ui/src/components/stepper';
+import { Step, Steps } from '@erxes/ui/src/components/step';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
@@ -181,7 +181,7 @@ class Form extends React.Component<Props, State> {
       }
 
       return (
-        <Step title="Accociate">
+        <Step title="Accociate" type="stepper">
           <AccociateForm
             attachmentNames={attachmentNames}
             contentTypes={contentTypes}
@@ -208,6 +208,7 @@ class Form extends React.Component<Props, State> {
           <Step
             title={`Mapping  `}
             key={Math.random()}
+            type="stepper"
           >
             <MapColumn
               contentType={contentType.contentType}
@@ -238,15 +239,15 @@ class Form extends React.Component<Props, State> {
     const content = (
       <Content>
         <LeftContent>
-          <Steps active={1} allStep={this.renderMapColumn().length === 0 ? 3 : 4} titles={["Type", "Upload", "Detail"]}>
-            <Step title="Type" link='importHistories'>
+          <Steps active={1} type="stepper" allStep={this.renderMapColumn().length === 0 ? 3 : 4} titles={["Type", "Upload", "Detail"]}>
+            <Step title="Type" link='importHistories' type="stepper">
               <TypeForm
                 type={type}
                 onChangeContentType={this.onChangeContentType}
                 contentTypes={contentTypes}
               />
             </Step>
-            <Step title="Upload">
+            <Step title="Upload" type="stepper">
               <FileUpload
                 onChangeAttachment={this.onChangeAttachment}
                 contentTypes={contentTypes}
@@ -259,6 +260,7 @@ class Form extends React.Component<Props, State> {
 
             <Step
               title="Detail"
+              type="stepper"
               additionalButton={this.renderImportButton()}
             >
               <Details
