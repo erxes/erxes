@@ -1,40 +1,40 @@
-var { withFilter } = require('graphql-subscriptions');
+var { withFilter } = require("graphql-subscriptions");
 
 module.exports = {
-  name: 'chats',
+  name: "chats",
   typeDefs: `
     chatMessageInserted(chatId: String!): ChatMessage
     chatInserted(_id: String!): Chat
     chatUnreadCountChanged(userId: String!): Int
   `,
-  generateResolvers: graphqlPubsub => {
+  generateResolvers: (graphqlPubsub) => {
     return {
       chatMessageInserted: {
         subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('chatMessageInserted'),
+          () => graphqlPubsub.asyncIterator("chatMessageInserted"),
           (payload, variables) => {
-            return payload.chatMessageInserted.chatId === variables._id;
+            return payload.chatId === variables.chatId;
           }
-        )
+        ),
       },
 
       chatInserted: {
         subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('chatInserted'),
+          () => graphqlPubsub.asyncIterator("chatInserted"),
           (payload, variables) => {
-            return payload.chatInserted.userId === variables.userId;
+            return payload.userId === variables._id;
           }
-        )
+        ),
       },
 
       chatUnreadCountChanged: {
         subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('chatUnreadCountChanged'),
+          () => graphqlPubsub.asyncIterator("chatUnreadCountChanged"),
           (payload, variables) => {
-            return payload.chatUnreadCountChanged.userId === variables.userId;
+            return payload.userId === variables.userId;
           }
-        )
-      }
+        ),
+      },
     };
-  }
+  },
 };
