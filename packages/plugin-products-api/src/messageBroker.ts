@@ -1,6 +1,6 @@
 import { ISendMessageArgs, sendMessage } from "@erxes/api-utils/src/core";
 import { generateModels } from "./connectionResolver";
-import { serviceDiscovery } from './configs'
+import { serviceDiscovery } from "./configs";
 
 let client;
 
@@ -9,161 +9,185 @@ export const initBroker = async cl => {
 
   const { consumeRPCQueue } = client;
 
-  consumeRPCQueue('products:findOne', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain)
+  consumeRPCQueue("products:findOne", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
 
     return {
-      data: await models.Products.findOne(data),
-      status: 'success'
+      data: await models.Products.findOne(data).lean(),
+      status: "success",
     };
   });
 
   consumeRPCQueue(
-    'products:categories.find',
+    "products:categories.find",
     async ({ subdomain, data: { query, sort, regData } }) => {
       const models = await generateModels(subdomain);
 
       return {
         data: regData
           ? await models.ProductCategories.find({
-            order: { $regex: new RegExp(regData) }
-          }).sort(sort)
-          : await models.ProductCategories.find(query),
-        status: 'success'
+              order: { $regex: new RegExp(regData) },
+            }).sort(sort)
+          : await models.ProductCategories.find(query).lean(),
+        status: "success",
       };
     }
   );
 
-  consumeRPCQueue('products:categories.findOne', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-    return {
-      data: await models.ProductCategories.findOne(data),
-      status: 'success'
-    };
-  });
-
-  consumeRPCQueue('products:categories.updateProductCategory', async ({ subdomain, data: { _id, doc } }) => {
-    const models = await generateModels(subdomain);
-
-    return {
-      data: await models.ProductCategories.updateProductCategory(_id, doc),
-      status: 'success'
-    };
-  });
-
-  consumeRPCQueue('products:categories.createProductCategory', async ({ subdomain, data: { doc } }) => {
-    const models = await generateModels(subdomain);
-
-    return {
-      data: await models.ProductCategories.createProductCategory(doc),
-      status: 'success'
-    };
-  });
-
-  consumeRPCQueue('products:categories.removeProductCategory', async ({ subdomain, data: { _id } }) => {
-    const models = await generateModels(subdomain);
-
-    return {
-      data: await models.ProductCategories.removeProductCategory(_id),
-      status: 'success'
-    };
-  });
-
-  consumeRPCQueue('products:find', async ({ subdomain, data: { query, sort } }) => {
-    const models = await generateModels(subdomain);
-
-    return {
-      data: await models.Products.find(query).sort(sort),
-      status: 'success'
-    };
-  });
+  consumeRPCQueue(
+    "products:categories.findOne",
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      return {
+        data: await models.ProductCategories.findOne(data),
+        status: "success",
+      };
+    }
+  );
 
   consumeRPCQueue(
-    'products:createProduct',
+    "products:categories.updateProductCategory",
+    async ({ subdomain, data: { _id, doc } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.ProductCategories.updateProductCategory(_id, doc),
+        status: "success",
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "products:categories.createProductCategory",
     async ({ subdomain, data: { doc } }) => {
-      const models = await generateModels(subdomain)
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.ProductCategories.createProductCategory(doc),
+        status: "success",
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "products:categories.removeProductCategory",
+    async ({ subdomain, data: { _id } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.ProductCategories.removeProductCategory(_id),
+        status: "success",
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "products:find",
+    async ({ subdomain, data: { query, sort } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.Products.find(query)
+          .sort(sort)
+          .lean(),
+        status: "success",
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "products:createProduct",
+    async ({ subdomain, data: { doc } }) => {
+      const models = await generateModels(subdomain);
 
       return {
         data: await models.Products.createProduct(doc),
-        status: 'success'
+        status: "success",
       };
     }
   );
 
   consumeRPCQueue(
-    'products:updateProduct',
+    "products:updateProduct",
     async ({ subdomain, data: { _id, doc } }) => {
-      const models = await generateModels(subdomain)
+      const models = await generateModels(subdomain);
 
       return {
         data: await models.Products.updateProduct(_id, doc),
-        status: 'success'
+        status: "success",
       };
     }
   );
 
   consumeRPCQueue(
-    'products:removeProducts',
+    "products:removeProducts",
     async ({ subdomain, data: { _ids } }) => {
-      const models = await generateModels(subdomain)
+      const models = await generateModels(subdomain);
 
       return {
         data: await models.Products.removeProducts(_ids),
-        status: 'success'
+        status: "success",
       };
     }
   );
 
   consumeRPCQueue(
-    'products:update',
+    "products:update",
     async ({ subdomain, data: { selector, modifier } }) => {
-      const models = await generateModels(subdomain)
+      const models = await generateModels(subdomain);
 
       return {
         data: await models.Products.updateMany(selector, modifier),
-        status: 'success'
+        status: "success",
       };
     }
   );
 
-  consumeRPCQueue('products:tag', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain)
+  consumeRPCQueue("products:tag", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
 
     let response = {};
 
-    if (data.action === 'count') {
-      response = await models.Products.countDocuments({ tagIds: { $in: data._ids } });
+    if (data.action === "count") {
+      response = await models.Products.countDocuments({
+        tagIds: { $in: data._ids },
+      });
     }
 
-    if (data.action === 'tagObject') {
+    if (data.action === "tagObject") {
       await models.Products.updateMany(
         { _id: { $in: data.targetIds } },
         { $set: { tagIds: data.tagIds } },
         { multi: true }
       );
 
-      response = await models.Products.find({ _id: { $in: data.targetIds } }).lean();
+      response = await models.Products.find({
+        _id: { $in: data.targetIds },
+      }).lean();
     }
 
     return {
-      status: 'success',
-      data: response
-    }
+      status: "success",
+      data: response,
+    };
   });
 
-  consumeRPCQueue('products:generateInternalNoteNotif', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain)
-    const { contentTypeId, notifDoc } = data;
+  consumeRPCQueue(
+    "products:generateInternalNoteNotif",
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { contentTypeId, notifDoc } = data;
 
-    const product = await models.Products.getProduct({ _id: contentTypeId });
+      const product = await models.Products.getProduct({ _id: contentTypeId });
 
-    notifDoc.content = product.name;
+      notifDoc.content = product.name;
 
-    return {
-      status: 'success',
-      data: notifDoc
+      return {
+        status: "success",
+        data: notifDoc,
+      };
     }
-  });
+  );
 };
 
 export const sendRPCMessage = async (channel, message): Promise<any> => {
@@ -171,21 +195,41 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
 };
 
 export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: "forms", ...args })
-}
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: "forms",
+    ...args,
+  });
+};
 
 export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: "cards", ...args })
-}
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: "cards",
+    ...args,
+  });
+};
 
 export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: "contacts", ...args })
-}
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: "contacts",
+    ...args,
+  });
+};
 
 export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: "tags", ...args })
-}
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: "tags",
+    ...args,
+  });
+};
 
-export default function () {
+export default function() {
   return client;
 }

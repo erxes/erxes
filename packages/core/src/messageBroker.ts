@@ -1,5 +1,5 @@
 import { init as initBrokerCore } from "@erxes/api-utils/src/messageBroker";
-import { sendMessage } from '@erxes/api-utils/src/core';
+import { sendMessage } from "@erxes/api-utils/src/core";
 
 import { logConsumers } from "@erxes/api-utils/src/logUtils";
 import { internalNoteConsumers } from "@erxes/api-utils/src/internalNotes";
@@ -20,21 +20,21 @@ import {
   sendMobileNotification,
 } from "./data/utils";
 
-import * as serviceDiscovery from './serviceDiscovery';
+import * as serviceDiscovery from "./serviceDiscovery";
 
 import logUtils from "./logUtils";
 import internalNotes from "./internalNotes";
 
 let client;
 
-export const initBroker = async (options) => {
+export const initBroker = async options => {
   client = await initBrokerCore(options);
 
   // do not receive messages in crons worker
   if (!["crons", "workers"].includes(process.env.PROCESS_NAME || "")) {
     const { consumeQueue, consumeRPCQueue } = client;
 
-    consumeQueue("registerPermissions", async (permissions) => {
+    consumeQueue("registerPermissions", async permissions => {
       await registerModule(permissions);
     });
 
@@ -99,13 +99,18 @@ export const initBroker = async (options) => {
       data: await Conformities.changeConformity(data),
     }));
 
-    consumeRPCQueue('core:conformities.findConformities', async ({ data }) => ({
-      status: 'success',
-      data: await Conformities.find(data).lean()
+    consumeRPCQueue("core:conformities.findConformities", async ({ data }) => ({
+      status: "success",
+      data: await Conformities.find(data).lean(),
+    }));
+
+    consumeRPCQueue("core:conformities.editConformity", async ({ data }) => ({
+      status: "success",
+      data: await Conformities.editConformity(data),
     }));
 
     // graphql subscriptions call =========
-    consumeQueue("callPublish", (params) => {
+    consumeQueue("callPublish", params => {
       graphqlPubsub.publish(params.name, params.data);
     });
 
@@ -122,52 +127,58 @@ export const initBroker = async (options) => {
       data: await Configs.find(data).distinct("value"),
     }));
 
-    consumeRPCQueue('core:getConfig', async (
-      { data: { code, defaultValue } }
-    ) => {
-      return {
-        status: 'success',
-        data: await getConfig(code, defaultValue)
+    consumeRPCQueue(
+      "core:getConfig",
+      async ({ data: { code, defaultValue } }) => {
+        return {
+          status: "success",
+          data: await getConfig(code, defaultValue),
+        };
       }
-    });
+    );
 
-    consumeRPCQueue('core:users.findOne', async ({ data }) => ({
-      status: 'success',
-      data: await Users.findOne(data)
+    consumeRPCQueue("core:users.findOne", async ({ data }) => ({
+      status: "success",
+      data: await Users.findOne(data),
     }));
 
-    consumeRPCQueue('core:users.getIds', async ({ data }) => ({
-      status: 'success',
-      data: await Users.find(data, {_id: 1})
+    consumeRPCQueue("core:users.getIds", async ({ data }) => ({
+      status: "success",
+      data: await Users.find(data, { _id: 1 }),
     }));
 
-    consumeRPCQueue('core:users.updateOne', async ({ data: { selector, modifier } }) => {
+    consumeRPCQueue(
+      "core:users.updateOne",
+      async ({ data: { selector, modifier } }) => {
+        return {
+          status: "success",
+          data: await Users.updateOne(selector, modifier),
+        };
+      }
+    );
+
+    consumeRPCQueue("core:users.getCount", async ({ data: { query } }) => {
       return {
-        status: 'success',
-        data: await Users.updateOne(selector, modifier)
+        status: "success",
+        data: await Users.countDocuments(query),
       };
     });
 
-    consumeRPCQueue('core:users.getCount', async ({ data: { query } }) => {
+    consumeRPCQueue("core:users.create", async ({ data }) => {
       return {
-        status: 'success',
-        data: await Users.countDocuments(query)
+        status: "success",
+        data: await Users.createUser(data),
       };
     });
 
-    consumeRPCQueue('core:users.create', async ({ data }) => {
-      return {
-        status: 'success',
-        data: await Users.createUser(data)
-      };
-    });
-
-    consumeRPCQueue('core:users.find', async ({ data }) => {
+    consumeRPCQueue("core:users.find", async ({ data }) => {
       const { query, sort = {} } = data;
 
       return {
         status: "success",
-        data: await Users.find(query).sort(sort).lean(),
+        data: await Users.find(query)
+          .sort(sort)
+          .lean(),
       };
     });
 
@@ -225,18 +236,20 @@ interface IISendMessageArgs {
   data;
   isRPC?: boolean;
   defaultValue?;
-  serviceName: string
+  serviceName: string;
 }
 
-export const sendCommonMessage = async (args: IISendMessageArgs): Promise<any> => {
+export const sendCommonMessage = async (
+  args: IISendMessageArgs
+): Promise<any> => {
   return sendMessage({
-    subdomain: 'os',
+    subdomain: "os",
     serviceDiscovery,
     client,
     ...args,
   });
 };
 
-export default function () {
+export default function() {
   return client;
 }
