@@ -31,6 +31,7 @@ module.exports = {
     },
   ],
   layout: {
+    url: "http://localhost:3018/remoteEntry.js",
     scope: "ebarimt",
     module: "./response"
   }

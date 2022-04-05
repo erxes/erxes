@@ -8,61 +8,10 @@ import { __ } from 'modules/common/utils';
 import { ICompany } from '@erxes/ui/src/companies/types';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
-import {
-  Divider,
-  PluginSettings,
-  Row,
-  RowTitle
-} from '@erxes/ui-settings/src/main/styles';
 import React from 'react';
-import { Route } from 'react-router-dom';
-import pluginModules from './plugins';
-import { ISubNav } from 'modules/layout/components/Navigation';
 import { AppConsumer } from 'appContext';
 import { generateRandomColor } from 'utils';
 import { NavItem } from 'modules/layout/components/QuickNavigation';
-
-export const pluginsOfRoutes = (currentUser: IUser) => {
-  const plugins: any = [];
-  const pluginRoutes: any = [];
-  const specialPluginRoutes: any = [];
-  const properties: any = [];
-
-  for (const pluginName of Object.keys(pluginModules)) {
-    const plugin = pluginModules[pluginName]();
-
-    plugins.push({
-      name: pluginName,
-      ...plugin
-    });
-
-    if (plugin.response) {
-      const Component = plugin.response;
-      specialPluginRoutes.push(
-        <Component key={Math.random()} currentUser={currentUser} />
-      );
-    }
-
-    if (plugin.routes) {
-      for (const route of plugin.routes) {
-        const { component } = route;
-        const path = `/${pluginName}${route.path}`;
-
-        pluginRoutes.push(
-          <Route key={path} exact={true} path={path} component={component} />
-        );
-      }
-    }
-
-    if (plugin.property) {
-      properties.push(plugin.property);
-    }
-  }
-
-  localStorage.setItem('plugins_properties', JSON.stringify(properties));
-
-  return { plugins, pluginRoutes, specialPluginRoutes };
-};
 
 const PluginsWrapper = ({
   itemName,
@@ -339,6 +288,26 @@ export const pluginsOfTopNavigations = () => {
   return topNavigationMenus;
 };
 
+export const pluginLayouts = (currentUser: IUser) => {
+  const plugins: any[] = (window as any).plugins || [];
+  const layouts: any[] = [];
+
+  for (const plugin of plugins) {
+    if (plugin.layout) {
+      // const Component = React.lazy(
+      //   loadComponent(plugin.scope, plugin.layout)
+      // );
+
+      layouts.push(
+        <System key={Math.random()} loadScript={true} system={plugin.layout} currentUser={currentUser} />
+      );
+    }
+  }
+
+  return layouts;
+};
+
+
 export const pluginRouters = () => {
   const plugins: any[] = (window as any).plugins || [];
   const pluginRoutes: any[] = [];
@@ -367,100 +336,6 @@ export const pluginNavigations = () => {
   }
 
   return navigationMenus;
-};
-
-export const pluginsOfNavigations = (
-  renderNavItem: (
-    permission: string,
-    text: string,
-    url: string,
-    icon: string,
-    childrens?: ISubNav[],
-    label?: React.ReactNode
-  ) => React.ReactNode
-) => {
-  return (
-    <PluginsWrapper
-      itemName={'menu'}
-      callBack={(plugin, menu) => {
-        return renderNavItem(
-          menu.permission,
-          menu.label,
-          `/${plugin.name}${menu.link}`,
-          menu.icon
-        );
-      }}
-    />
-  );
-};
-
-const renderSettings = (
-  plugins: any[],
-  renderBox: (
-    name: string,
-    image: string,
-    to: string,
-    action: string,
-    permissions?: string[]
-  ) => React.ReactNode
-) => {
-  let hasPluginsSettings = false;
-
-  const pluginsBoxs = plugins.map(plugin => {
-    const item = plugin.settings;
-
-    if (!item) {
-      return undefined;
-    }
-
-    hasPluginsSettings = true;
-    const pluginSettings: React.ReactNode[] = [];
-
-    for (const perSettings of plugin.settings) {
-      pluginSettings.push(
-        <span key={Math.random()}>
-          {renderBox(
-            perSettings.name,
-            perSettings.image,
-            perSettings.to,
-            perSettings.action,
-            perSettings.permissions
-          )}
-        </span>
-      );
-    }
-    return pluginSettings;
-  });
-
-  if (!hasPluginsSettings) {
-    return undefined;
-  }
-
-  return (
-    <>
-      <Divider />
-      <Row>
-        <RowTitle>{__('Plugins Settings')}</RowTitle>
-        <PluginSettings id={'PluginsSettings'}>{pluginsBoxs}</PluginSettings>
-      </Row>
-    </>
-  );
-};
-
-export const pluginsOfSettings = (
-  renderBox: (
-    name: string,
-    image: string,
-    to: string,
-    action: string,
-    permissions?: string[]
-  ) => React.ReactNode
-) => {
-  return (
-    <AppConsumer>
-      {({ plugins }) => <>{renderSettings(plugins, renderBox)}</>}
-    </AppConsumer>
-  );
 };
 
 export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
@@ -498,18 +373,4 @@ export const pluginsOfPaymentForm = (
       }}
     />
   );
-};
-
-export const pluginsOfWebhooks = () => {
-  let webhookActions: any = [];
-
-  for (const pluginName of Object.keys(pluginModules)) {
-    const plugin = pluginModules[pluginName]();
-
-    if (plugin.webhookActions) {
-      webhookActions = webhookActions.concat(plugin.webhookActions);
-    }
-  }
-
-  return { webhookActions };
 };
