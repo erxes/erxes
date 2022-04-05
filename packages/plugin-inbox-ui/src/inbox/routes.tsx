@@ -5,7 +5,7 @@ import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 
 const InboxComponent = asyncComponent(() =>
-  import(/* webpackChunkName: "InboxCore"  */ './containers/InboxCore')
+  import(/* webpackChunkName: "InboxCore" */ './containers/InboxCore')
 );
 
 const index = ({ location }) => {
