@@ -593,7 +593,7 @@ class FieldForm extends React.Component<Props, State> {
       <>
         <FormGroup>
           <SelectProperty
-            queryParams={{ type: group }}
+            queryParams={{ type: `contacts:${group}` }}
             defaultValue={defaultValue}
             description='Any data collected through this field will copy to:'
             onChange={this.onPropertyChange}
