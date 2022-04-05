@@ -1,4 +1,5 @@
 import { requireLogin } from '@erxes/api-utils/src/permissions';
+import { sendCoreMessage } from '../../../messageBroker';
 
 interface IArgs {
   contentId: string;
@@ -7,10 +8,19 @@ interface IArgs {
 }
 
 const emojiQueries = {
-  emojiReactedUsers: async (_root, doc: IArgs, { models, coreModels }) => {
+  emojiReactedUsers: async (_root, doc: IArgs, { models, subdomain }) => {
     const reactedUserIds = await models.Emojis.find(doc).distinct('userId');
 
-    return coreModels.Users.find({ _id: { $in: reactedUserIds } }).toArray();
+    return sendCoreMessage({
+      subdomain,
+      action: 'users.find',
+      data: {
+        query: {
+          _id: { $in: reactedUserIds }
+        }
+      },
+      isRPC: true
+    });
   },
 
   emojiCount: (_root, doc: IArgs, { models }) => {

@@ -1,7 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
-import { coreModels, generateModels } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import permissions from './permissions';
@@ -19,27 +19,28 @@ export let es: {
 };
 
 export default {
-  name: 'chat',
+  name: 'chats',
   permissions,
-  graphql: async (sd) => {
+  graphql: async sd => {
     serviceDiscovery = sd;
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers(),
+      resolvers: await resolvers()
     };
   },
 
-  apolloServerContext: async (context) => {
+  hasSubscriptions: true,
+
+  apolloServerContext: async context => {
     const subdomain = 'os';
 
     context.subdomain = subdomain;
     context.models = await generateModels('os');
-    context.coreModels = coreModels;
 
     return context;
   },
 
-  onServerInit: async (options) => {
+  onServerInit: async options => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
@@ -50,5 +51,5 @@ export default {
     graphqlPubsub = options.pubsubClient;
     es = options.elasticsearch;
   },
-  meta: {},
+  meta: {}
 };

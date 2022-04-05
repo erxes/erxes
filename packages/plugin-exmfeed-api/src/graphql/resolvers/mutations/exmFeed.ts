@@ -4,18 +4,19 @@
 //   putUpdateLog,
 //   sendNotification
 // } from 'erxes-api-utils';
-import { sendMobileNotification } from '../../../utils';
-import { checkPermission } from '@erxes/api-utils/src';
+// import { sendMobileNotification } from "../../../utils";
+import { checkPermission } from "@erxes/api-utils/src";
+import { sendCoreMessage } from "../../../messageBroker";
 
 export const gatherDescriptions = async () => {
-  let extraDesc = [];
-  let description = 'description';
+  const extraDesc = [];
+  const description = "description";
 
   return { extraDesc, description };
 };
 
 const exmFeedMutations = {
-  exmFeedAdd: async (_root, doc, { user, docModifier, models, coreModels }) => {
+  exmFeedAdd: async (_root, doc, { user, docModifier, models, subdomain }) => {
     const exmFeed = await models.ExmFeed.createExmFeed(docModifier(doc), user);
 
     // await putCreateLog(
@@ -30,11 +31,19 @@ const exmFeedMutations = {
     //   user
     // );
 
-    let receivers = await coreModels.Users.find({
-      _id: { $ne: user._id }
-    }).toArray();
+    let receivers = await sendCoreMessage({
+      subdomain,
+      action: "users.find",
+      data: {
+        query: {
+          _id: { $ne: user._id },
+        },
+      },
+      isRPC: true,
+      defaultValue: [],
+    });
 
-    receivers = receivers.map(r => r._id);
+    receivers = receivers.map((r) => r._id);
 
     // sendNotification(models, memoryStorage, graphqlPubsub, {
     //   notifType: 'plugin',
@@ -49,15 +58,19 @@ const exmFeedMutations = {
     //   receivers
     // });
 
-    sendMobileNotification(coreModels, {
-      title: doc.title,
-      body: doc.description,
-      receivers
-    });
+    // sendCoreMessage({
+    //   subdomain: "os",
+    //   action: "sendMobileNotification",
+    //   data: {
+    //     title: doc.title,
+    //     body: doc.description,
+    //     receivers,
+    //   },
+    // });
 
-    if (doc.type === 'bravo' && models.Exms) {
+    if (doc.type === "bravo" && models.Exms) {
       for (const userId of doc.recipientIds || []) {
-        await models.Exms.useScoring(userId, 'exmBravoAdd');
+        await models.Exms.useScoring(userId, "exmBravoAdd");
       }
     }
 
@@ -131,45 +144,45 @@ const exmFeedMutations = {
     const updateModifier: { $push?: any; $pull?: any } = {};
     const eventData = exmFeed.eventData || {};
 
-    if (goingOrInterested === 'neither') {
+    if (goingOrInterested === "neither") {
       updateModifier.$pull = {
-        'eventData.goingUserIds': user._id,
-        'eventData.interestedUserIds': user._id
+        "eventData.goingUserIds": user._id,
+        "eventData.interestedUserIds": user._id,
       };
-    } else if (goingOrInterested === 'interested') {
+    } else if (goingOrInterested === "interested") {
       if ((eventData.interestedUserIds || []).includes(user._id)) {
         return exmFeed;
       }
 
-      updateModifier.$pull = { 'eventData.goingUserIds': user._id };
-      updateModifier.$push = { 'eventData.interestedUserIds': user._id };
-    } else if (goingOrInterested === 'going') {
+      updateModifier.$pull = { "eventData.goingUserIds": user._id };
+      updateModifier.$push = { "eventData.interestedUserIds": user._id };
+    } else if (goingOrInterested === "going") {
       if ((eventData.goingUserIds || []).includes(user._id)) {
         return exmFeed;
       }
 
-      updateModifier.$push = { 'eventData.goingUserIds': user._id };
-      updateModifier.$pull = { 'eventData.interestedUserIds': user._id };
+      updateModifier.$push = { "eventData.goingUserIds": user._id };
+      updateModifier.$pull = { "eventData.interestedUserIds": user._id };
     }
 
     await models.ExmFeed.updateOne({ _id }, updateModifier);
 
     return models.ExmFeed.getExmFeed(_id);
-  }
+  },
 };
 
-checkPermission(exmFeedMutations, 'exmFeedAdd', 'manageExmActivityFeed');
-checkPermission(exmFeedMutations, 'exmFeedEdit', 'manageExmActivityFeed');
-checkPermission(exmFeedMutations, 'exmFeedRemove', 'manageExmActivityFeed');
+checkPermission(exmFeedMutations, "exmFeedAdd", "manageExmActivityFeed");
+checkPermission(exmFeedMutations, "exmFeedEdit", "manageExmActivityFeed");
+checkPermission(exmFeedMutations, "exmFeedRemove", "manageExmActivityFeed");
 checkPermission(
   exmFeedMutations,
-  'exmFeedToggleIsPinned',
-  'manageExmActivityFeed'
+  "exmFeedToggleIsPinned",
+  "manageExmActivityFeed"
 );
 checkPermission(
   exmFeedMutations,
-  'exmFeedEventGoingOrInterested',
-  'manageExmActivityFeed'
+  "exmFeedEventGoingOrInterested",
+  "manageExmActivityFeed"
 );
 
 export default exmFeedMutations;

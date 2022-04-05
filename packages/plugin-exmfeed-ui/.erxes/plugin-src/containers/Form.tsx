@@ -1,14 +1,15 @@
-import React from 'react';
-import gql from 'graphql-tag';
-import { useQuery } from 'react-apollo';
-import { mutations, queries } from '../graphql';
-import Form from '../components/Form';
-import BravoForm from '../components/BravoForm';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import EventForm from '../components/EventForm';
-import PublicHolidayForm from '../components/PublicHolidayForm';
-import { ButtonWrap, FormWrap } from '../styles';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import React from "react";
+import gql from "graphql-tag";
+import { useQuery } from "react-apollo";
+import { mutations, queries } from "../graphql";
+import Form from "../components/Form";
+import BravoForm from "../components/BravoForm";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import EventForm from "../components/EventForm";
+import PublicHolidayForm from "../components/PublicHolidayForm";
+import { ButtonWrap, FormWrap } from "../styles";
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   contentType?: string;
@@ -21,6 +22,7 @@ export default function FormContainer(props: Props) {
   const { contentType, item, transparent } = props;
 
   const { data } = useQuery(gql(queries.fields), {
+    skip: !isEnabled("forms"),
     variables: {
       contentType: `exmFeed${contentType
         .substring(0, 1)
@@ -56,7 +58,7 @@ export default function FormContainer(props: Props) {
           refetchQueries={[{ query: gql(queries.feed) }]}
           isSubmitted={isSubmitted}
           successMessage={`You successfully ${
-            variables._id ? 'edited' : 'added'
+            variables._id ? "edited" : "added"
           }`}
           type="submit"
           icon="check-circle"
@@ -76,15 +78,15 @@ export default function FormContainer(props: Props) {
   };
 
   const renderContent = () => {
-    if (props.contentType === 'post') {
+    if (props.contentType === "post") {
       return <Form {...updateProps} />;
     }
 
-    if (props.contentType === 'event') {
+    if (props.contentType === "event") {
       return <EventForm {...updateProps} />;
     }
 
-    if (props.contentType === 'publicHoliday') {
+    if (props.contentType === "publicHoliday") {
       return <PublicHolidayForm {...updateProps} />;
     }
 

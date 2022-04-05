@@ -19,6 +19,8 @@ import { IVoucherCampaignModel, loadVoucherCampaignClass } from './models/Vouche
 import { IVoucherDocument } from './models/definitions/vouchers';
 import { IVoucherModel, loadVoucherClass } from './models/Vouchers';
 import { mainDb } from './configs';
+import { IScoreLogModel, loadScoreLogClass } from './models/ScoreLogs';
+import { IScoreLogDocument } from './models/definitions/scoreLog';
 
 
 export interface IModels {
@@ -31,6 +33,7 @@ export interface IModels {
   Spins: ISpinModel;
   LotteryCampaigns: ILotteryCampaignModel;
   Lotteries: ILotteryModel;
+  ScoreLogs: IScoreLogModel;
 
 }
 export interface IContext extends IMainContext {
@@ -64,6 +67,7 @@ export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels
   models.Lotteries = db.model<ILotteryDocument, ILotteryModel>('lotteries', loadLotteryClass(models, subdomain));
   models.VoucherCampaigns = db.model<IVoucherCampaignDocument, IVoucherCampaignModel>('voucher_campaigns', loadVoucherCampaignClass(models, subdomain));
   models.Vouchers = db.model<IVoucherDocument, IVoucherModel>('vouchers', loadVoucherClass(models, subdomain));
+  models.ScoreLogs = db.model<IScoreLogDocument, IScoreLogModel>('scoreLogs', loadScoreLogClass(models, subdomain))
 
   return models;
 };

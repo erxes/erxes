@@ -5,7 +5,7 @@ import { IUserDocument } from "./types";
 
 export const getEnv = ({
   name,
-  defaultValue
+  defaultValue,
 }: {
   name: string;
   defaultValue?: string;
@@ -61,7 +61,7 @@ const stringToRegex = (value: string) => {
   const specialChars = "{}[]\\^$.|?*+()".split("");
   const val = value.split("");
 
-  const result = val.map(char =>
+  const result = val.map((char) =>
     specialChars.includes(char) ? ".?\\" + char : ".?" + char
   );
 
@@ -143,9 +143,9 @@ export const checkUserIds = (
   oldUserIds: string[] = [],
   newUserIds: string[] = []
 ) => {
-  const removedUserIds = oldUserIds.filter(e => !newUserIds.includes(e));
+  const removedUserIds = oldUserIds.filter((e) => !newUserIds.includes(e));
 
-  const addedUserIds = newUserIds.filter(e => !oldUserIds.includes(e));
+  const addedUserIds = newUserIds.filter((e) => !oldUserIds.includes(e));
 
   return { addedUserIds, removedUserIds };
 };
@@ -235,18 +235,20 @@ export const sendMessage = async (
     action,
     data,
     defaultValue,
-    isRPC
+    isRPC,
   } = args;
 
-  if (!(await serviceDiscovery.isEnabled(serviceName))) {
-    return defaultValue;
-  }
-
-  if (isRPC && !(await serviceDiscovery.isAvailable(serviceName))) {
-    if (process.env.NODE_ENV === 'development') {
-      throw new Error(`${serviceName} service is not available`);
-    } else {
+  if (serviceName) {
+    if (!(await serviceDiscovery.isEnabled(serviceName))) {
       return defaultValue;
+    }
+
+    if (isRPC && !(await serviceDiscovery.isAvailable(serviceName))) {
+      if (process.env.NODE_ENV === "development") {
+        throw new Error(`${serviceName} service is not available`);
+      } else {
+        return defaultValue;
+      }
     }
   }
 
@@ -256,7 +258,19 @@ export const sendMessage = async (
   );
 };
 
-export const doSearch = async ({ fetchEs, index, value, fields, customQuery }: { fetchEs, index: string, value: string, fields: string[], customQuery?: any }) => {
+export const doSearch = async ({
+  fetchEs,
+  index,
+  value,
+  fields,
+  customQuery,
+}: {
+  fetchEs;
+  index: string;
+  value: string;
+  fields: string[];
+  customQuery?: any;
+}) => {
   const highlightFields = {};
 
   fields.forEach((field) => {

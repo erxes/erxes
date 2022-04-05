@@ -141,7 +141,7 @@ export const confirmVoucherSale = async (models, checkInfo) => {
     }
 
     if (rule.count) {
-      await models.updateOne({ _id: rule.voucherId }, { $push: { bonusInfo: {usedCount: rule.count, } } });
+      await models.Vouchers.updateOne({ _id: rule.voucherId }, { $push: { bonusInfo: {usedCount: rule.count, } } });
     }
   }
 }

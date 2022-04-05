@@ -64,9 +64,7 @@ export const loadCommentClass = models => {
      * Remove comment
      */
     public static async removeComment(_id: string) {
-      const commentObj = await models.Comments.getComment(models, { _id });
-
-      return commentObj.remove();
+      return models.Comments.deleteOne({ _id });
     }
   }
 
@@ -85,7 +83,6 @@ export const loadEmojiClass = models => {
      * Create new emoji
      */
     public static async createEmoji(doc: EmojiDoc) {
-      console.log('create emoji doc: ', doc);
       return models.Emojis.create({
         createdAt: new Date(),
         ...doc

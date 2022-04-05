@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { changeScoreOwner, getRandomNumber } from './utils';
+import { getRandomNumber } from './utils';
 import { lotterySchema, ILottery, ILotteryDocument } from './definitions/lotteries';
 import { Model, model } from 'mongoose';
 import { IModels } from '../connectionResolver';
@@ -78,7 +78,11 @@ export const loadLotteryClass = (models: IModels, subdomain: string) => {
       if (!lotteryCampaign.buyScore) {
         throw new Error('can not buy this lottery')
       }
-      await changeScoreOwner(subdomain, { ownerType, ownerId, changeScore: -1 * lotteryCampaign.buyScore * count });
+
+      await models.ScoreLogs.changeScore({
+        ownerType, ownerId, changeScore: -1 * lotteryCampaign.buyScore * count,
+        description: 'buy lottery'
+      });
 
       return models.Lotteries.createLottery({ campaignId, ownerType, ownerId });
     }

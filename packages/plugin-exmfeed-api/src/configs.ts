@@ -1,7 +1,7 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
-import { generateCoreModels, generateModels } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 
@@ -33,7 +33,6 @@ export default {
 
     context.subdomain = subdomain;
     context.models = await generateModels(subdomain);
-    context.coreModels = await generateCoreModels(subdomain);
 
     return context;
   },
