@@ -29,22 +29,22 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       let action;
 
       if (ownerType === 'customer') {
-        owner = await sendContactsMessage({
+        owner = await await sendContactsMessage({
           subdomain,
           action: 'customers.findOne',
-          data: {
-            _id: ownerId
-          }
+          data: { _id: ownerId },
+          isRPC: true
         });
         sendMessage = sendContactsMessage;
         action = 'customers.updateOne'
       }
 
       if (ownerType === 'user') {
-        owner = await sendCoreMessage({
+        owner = await await sendCoreMessage({
           subdomain,
           action: 'users.findOne',
-          data: { _id: ownerId }
+          data: { _id: ownerId },
+          isRPC: true
         });
         sendMessage = sendCoreMessage;
         action = 'users.updateOne';
@@ -54,10 +54,9 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         owner = await sendContactsMessage({
           subdomain,
           action: 'companies.findOne',
-          data: {
-            _id: ownerId
-          }
-        })
+          data: { _id: ownerId },
+          isRPC: true
+        });
         sendMessage = sendContactsMessage;
         action = 'companies.updateCommon';
       }
