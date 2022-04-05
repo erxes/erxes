@@ -1,11 +1,11 @@
-import React from 'react';
-import { useQuery, useSubscription } from 'react-apollo';
-import gql from 'graphql-tag';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import MessageList from '../components/MessageList';
-import { queries, subscriptions } from '../graphql';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import { IUser } from '@erxes/ui/src/auth/types';
+import React from "react";
+import { useQuery, useSubscription } from "react-apollo";
+import gql from "graphql-tag";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import MessageList from "../components/MessageList";
+import { queries, subscriptions } from "../graphql";
+import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
+import { IUser } from "@erxes/ui/src/auth/types";
 
 type IProps = {
   chatId: string;
@@ -16,7 +16,6 @@ type FinalProps = {
 } & IProps;
 
 function ListContainer({ chatId, currentUser }: FinalProps) {
-  console.log(chatId, 'hhhhh');
   const chatMessagesQuery = useQuery(gql(queries.chatMessages), {
     variables: {
       chatId,
@@ -27,7 +26,7 @@ function ListContainer({ chatId, currentUser }: FinalProps) {
     gql(subscriptions.chatMessageInserted),
     {
       variables: {
-        userId: currentUser._id,
+        chatId: chatId,
       },
     }
   );

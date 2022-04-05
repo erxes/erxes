@@ -1,9 +1,9 @@
-import { IModels } from '../../../connectionResolver';
-import { getIsSeen } from '../chat';
-import { graphqlPubsub } from '../../../configs';
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import { sendCoreMessage } from '../../../messageBroker';
+import { IModels } from "../../../connectionResolver";
+import { getIsSeen } from "../chat";
+import { graphqlPubsub } from "../../../configs";
+import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { IUserDocument } from "@erxes/api-utils/src/types";
+import { sendCoreMessage } from "../../../messageBroker";
 
 const chatQueries = {
   chats: async (_root, { type, limit, skip }, { models, user }) => {
@@ -18,7 +18,7 @@ const chatQueries = {
         .sort({ createdAt: -1 })
         .skip(skip || 0)
         .limit(limit || 10),
-      totalCount: await models.Chats.find(filter).countDocuments()
+      totalCount: await models.Chats.find(filter).countDocuments(),
     };
   },
 
@@ -32,13 +32,13 @@ const chatQueries = {
     {
       models,
       user,
-      subdomain
+      subdomain,
     }: { models: IModels; user: IUserDocument; subdomain: string }
   ) => {
     const lastMessage = await models.ChatMessages.findOne({
-      chatId
+      chatId,
     }).sort({
-      createdAt: -1
+      createdAt: -1,
     });
 
     if (lastMessage) {
@@ -46,7 +46,7 @@ const chatQueries = {
 
       const seenInfos = chat.seenInfos || [];
 
-      let seenInfo = seenInfos.find(info => info.userId === user._id);
+      let seenInfo = seenInfos.find((info) => info.userId === user._id);
 
       let updated = false;
 
@@ -54,7 +54,7 @@ const chatQueries = {
         seenInfo = {
           userId: user._id,
           lastSeenMessageId: lastMessage._id,
-          seenDate: new Date()
+          seenDate: new Date(),
         };
 
         seenInfos.push(seenInfo);
@@ -80,8 +80,8 @@ const chatQueries = {
     const chat = await models.Chats.getChat(chatId);
 
     if (!getIsSeen(models, chat, user)) {
-      graphqlPubsub.publish('chatUnreadCountChanged', {
-        userId: user._id
+      graphqlPubsub.publish("chatUnreadCountChanged", {
+        userId: user._id,
       });
     }
 
@@ -90,18 +90,18 @@ const chatQueries = {
     for (const info of chat.seenInfos || []) {
       const user = await sendCoreMessage({
         subdomain,
-        action: 'users.findOne',
+        action: "users.findOne",
         data: {
-          _id: info.userId
+          _id: info.userId,
         },
-        isRPC: true
+        isRPC: true,
       });
 
       if (user) {
         seenList.push({
           user,
           seenDate: info.seenDate,
-          lastSeenMessageId: info.lastSeenMessageId
+          lastSeenMessageId: info.lastSeenMessageId,
         });
       }
     }
@@ -119,13 +119,13 @@ const chatQueries = {
 
     for (const message of list) {
       message.seenList = seenList.filter(
-        s => s.lastSeenMessageId === message._id
+        (s) => s.lastSeenMessageId === message._id
       );
     }
 
     return {
       list,
-      totalCount: await models.ChatMessages.find(filter).countDocuments()
+      totalCount: await models.ChatMessages.find(filter).countDocuments(),
     };
   },
 
@@ -141,25 +141,25 @@ const chatQueries = {
     }
 
     let chat = await models.Chats.findOne({
-      type: 'direct',
-      participantIds: { $all: participantIds, $size: participantIds.length }
+      type: "direct",
+      participantIds: { $all: participantIds, $size: participantIds.length },
     });
 
     if (!chat) {
       chat = await models.Chats.createChat(
         {
           participantIds,
-          type: 'direct'
+          type: "direct",
         },
         user._id
       );
 
-      graphqlPubsub.publish('chatInserted', {
-        userId: user._id
+      graphqlPubsub.publish("chatInserted", {
+        userId: user._id,
       });
 
-      graphqlPubsub.publish('chatUnreadCountChanged', {
-        userId: user._id
+      graphqlPubsub.publish("chatUnreadCountChanged", {
+        userId: user._id,
       });
     }
 
@@ -168,7 +168,7 @@ const chatQueries = {
 
   getUnreadChatCount: async (_root, {}, { models, user }) => {
     const chats = await models.Chats.find({
-      participantIds: { $in: user._id }
+      participantIds: { $in: user._id },
     });
 
     let unreadCount = 0;
@@ -182,11 +182,11 @@ const chatQueries = {
     }
 
     return unreadCount;
-  }
+  },
 };
-checkPermission(chatQueries, 'chats', 'showChats');
-checkPermission(chatQueries, 'showChats', 'showChats');
-checkPermission(chatQueries, 'chatMessages', 'showChats');
-checkPermission(chatQueries, 'getChatIdByUserIds', 'showChats');
+checkPermission(chatQueries, "chats", "showChats");
+checkPermission(chatQueries, "showChats", "showChats");
+checkPermission(chatQueries, "chatMessages", "showChats");
+checkPermission(chatQueries, "getChatIdByUserIds", "showChats");
 
 export default chatQueries;
