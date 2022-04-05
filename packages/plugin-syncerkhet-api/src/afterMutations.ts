@@ -42,11 +42,20 @@ export const afterMutationHandlers = async (subdomain, params) => {
         action: 'get-response-send-order-info',
         isEbarimt: config.isEbarimt,
         payload: JSON.stringify(postData),
+        thirdService: true
       });
+
+      console.log(apiAutomationResponse);
 
       if (!apiAutomationResponse) {
         return;
       }
+
+      // TODO:
+      // if (config.isEbrimt) {
+
+      // }
+
       return;
     }
     return;

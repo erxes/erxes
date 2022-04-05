@@ -1,13 +1,12 @@
 export const types = ({ products, tags, forms }) => `
   ${
-    forms ?
-    `
+    forms
+      ? `
       extend type Form @key(fields: "_id") {
         _id: String! @external
       }
     `
-    :
-    '' 
+      : ""
   }
 
   extend input InputRule {
@@ -28,9 +27,7 @@ export const types = ({ products, tags, forms }) => `
     formId: String
     tagIds: [String]
 
-    ${
-      tags ? `tags: [Tag]` : '' 
-    }
+    ${tags ? `tags: [Tag]` : ""}
     
     leadData: JSON
     messengerData: JSON
@@ -40,7 +37,7 @@ export const types = ({ products, tags, forms }) => `
 
     brand: Brand
 
-    ${ forms ? `form: Form` : '' }
+    ${forms ? `form: Form` : ""}
     channels: [Channel]
 
     websiteMessengerApps: [MessengerApp]
@@ -66,10 +63,11 @@ export const types = ({ products, tags, forms }) => `
     categoryTree: JSON
 
     ${
-      products ? 
-      `
+      products
+        ? `
         mainProductCategory: ProductCategory
-      ` : ''
+      `
+        : ""
     }
 
     navigationText: String
