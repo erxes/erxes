@@ -14,7 +14,6 @@ export interface IPutResponseModel extends Model<IPutResponseDoc> {
 export const loadPutResponseClass = (models) => {
   class PutResponse {
     public static async putData(
-      models,
       doc: IPutResponseDoc,
       config: IPutResponseConfig
     ) {

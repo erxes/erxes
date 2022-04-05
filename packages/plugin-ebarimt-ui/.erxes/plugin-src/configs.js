@@ -3,7 +3,10 @@ module.exports = {
   port: 3018,
   exposes: {
     "./routes": "./src/routes.tsx",
+    "./response": "./src/response.tsx"
   },
+  url: "http://localhost:3018/remoteEntry.js",
+  scope: "ebarimt",
   routes: {
     url: "http://localhost:3018/remoteEntry.js",
     scope: "ebarimt",
@@ -27,4 +30,8 @@ module.exports = {
       permissions: [],
     },
   ],
+  layout: {
+    scope: "ebarimt",
+    module: "./response"
+  }
 };
