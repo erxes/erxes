@@ -3,7 +3,7 @@ import { serviceDiscovery } from './configs';
 
 let client;
 
-export const initBroker = async (cl) => {
+export const initBroker = async cl => {
   client = cl;
 };
 
@@ -12,18 +12,18 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'core',
-    ...args,
+    ...args
   });
 };
 
-export const sendInternalNotesMessage = async (
+export const sendReactionsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: 'internalnotes',
-    ...args,
+    serviceName: 'reactions',
+    ...args
   });
 };
 
@@ -33,7 +33,7 @@ export const sendCommonMessage = async (
   return sendMessage({
     serviceDiscovery,
     client,
-    ...args,
+    ...args
   });
 };
 

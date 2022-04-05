@@ -1,6 +1,6 @@
 import { IModels } from '../../../connectionResolver';
 import { getIsSeen } from '../chat';
-import graphqlPubsub from '../subscription/pubsub';
+import { graphqlPubsub } from '../../../configs';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { sendCoreMessage } from '../../../messageBroker';

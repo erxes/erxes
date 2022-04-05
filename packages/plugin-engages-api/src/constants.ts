@@ -22,13 +22,6 @@ export const CONTENT_TYPES = {
   ]
 };
 
-export const MESSAGE_KINDS = {
-  AUTO: 'auto',
-  VISITOR_AUTO: 'visitorAuto',
-  MANUAL: 'manual',
-  ALL: ['auto', 'visitorAuto', 'manual']
-};
-
 export const SMS_DELIVERY_STATUSES = {
   // default telnyx values
   QUEUED: 'queued',

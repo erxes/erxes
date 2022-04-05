@@ -42,7 +42,7 @@ const commentMutations = {
     //   await models.Exms.useScoring(models, user, 'commentRemove');
     // }
 
-    return models.Comments.removeComment(models, _id);
+    return models.Comments.removeComment(_id);
   }
 };
 
