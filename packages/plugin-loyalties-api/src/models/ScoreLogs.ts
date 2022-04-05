@@ -24,6 +24,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
     public static async changeScore(doc: IScoreLog) {
       const { ownerType, ownerId, changeScore, description, createdBy = '' } = doc;
+
+      const score = Number(changeScore);
       let owner;
       let sendMessage;
       let action;
@@ -65,10 +67,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         throw new Error(`not fount ${ownerType}`);
       }
 
-      const oldScore = owner.score || 0;
-      const newScore = oldScore + changeScore;
+      const oldScore = Number(owner.score) || 0;
+      const newScore = oldScore + score;
 
-      if (changeScore < 0 && newScore < 0) {
+      if (score < 0 && newScore < 0) {
         throw new Error(`score are not enough`);
       }
 
@@ -83,7 +85,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         return;
       }
       return await models.ScoreLogs.create({
-        ownerId, ownerType, changeScore,
+        ownerId, ownerType, changeScore: score,
         createdAt: new Date(), description, createdBy
       });
     }
