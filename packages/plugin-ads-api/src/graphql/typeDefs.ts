@@ -8,9 +8,11 @@ import {
 
 const typeDefs = async (serviceDiscovery) => {
   const isContactsEnabled = await serviceDiscovery.isEnabled("contacts");
+  const isFormSubmissionEnabled = await serviceDiscovery.isEnabled("forms");
 
   const isEnabled = {
     contacts: isContactsEnabled,
+    forms: isFormSubmissionEnabled,
   };
 
   return gql`

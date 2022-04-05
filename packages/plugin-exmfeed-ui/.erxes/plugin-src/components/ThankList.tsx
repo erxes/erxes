@@ -7,7 +7,7 @@ import {
   NavItem,
   NewsFeedLayout,
   TextFeed,
-  FeedActions,
+  FeedActions
 } from '../styles';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
@@ -31,16 +31,16 @@ export default function ThankList({
   deleteItem,
   totalCount,
   queryParams,
-  limit,
+  limit
 }: Props) {
-  const editItem = (item) => {
+  const editItem = item => {
     const trigger = (
       <span>
         <a>Edit</a>
       </span>
     );
 
-    const content = (props) => {
+    const content = props => {
       return (
         <ThankForm
           queryParams={queryParams}
@@ -79,7 +79,9 @@ export default function ThankList({
               </b>
               <b>
                 <Icon icon="angle-right" size={14} />{' '}
-                {item.recipients[0].username}
+                {item.recipients && item.recipients.length > 0
+                  ? item.recipients[0].username
+                  : ''}
               </b>
               <p>
                 {dayjs(item.createdAt).format('lll')} <b>#{'ThankYou'}</b>
@@ -109,7 +111,7 @@ export default function ThankList({
 
   return (
     <NewsFeedLayout>
-      {(list || []).map((filteredItem) => renderItem(filteredItem))}
+      {(list || []).map(filteredItem => renderItem(filteredItem))}
       <LoadMore perPage={limit} all={totalCount} />
     </NewsFeedLayout>
   );

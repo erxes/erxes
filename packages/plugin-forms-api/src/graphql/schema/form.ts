@@ -1,4 +1,7 @@
 export const types = ({ contacts }) => `
+
+  ${SubmissionFilter}
+
 ${
   contacts
     ? `
@@ -49,29 +52,29 @@ ${
     submittedAt: Date
   }
 
-  type Submission {
+  type Submission @key(fields: "_id") {
     _id: String!
     contentTypeId: String
     customerId: String
 
     ${
-      contacts ?
-      `
+      contacts
+        ? `
         customer: Customer
       `
-      : ""
+        : ""
     }
     createdAt: Date
     customFieldsData:JSON
     submissions: [FormSubmission]
   }
-
-  input SubmissionFilter {
-    operator: String
-    value: JSON
-    formFieldId: String
-  }
 `;
+
+export const SubmissionFilter = `input SubmissionFilter {
+  operator: String
+  value: JSON
+  formFieldId: String
+}`;
 
 const commonFields = `
   title: String,

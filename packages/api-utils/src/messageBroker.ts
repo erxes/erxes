@@ -115,7 +115,9 @@ export const sendRPCMessage = async (
 ): Promise<any> => {
   queueName = queueName.concat(queuePrefix);
 
-  await checkQueueName(queueName, true);
+  if (!message.thirdService) {
+    await checkQueueName(queueName, true);
+  }
 
   debugInfo(
     `Sending rpc message ${JSON.stringify(message)} to queue ${queueName}`

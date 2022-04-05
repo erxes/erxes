@@ -45,34 +45,6 @@ export const initBroker = cl => {
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  // ! below code converted only used in engage
-  consumeRPCQueue("inbox:rpc_queue:createConversationAndMessage", async doc => {
-    const {
-      subdomain,
-      userId,
-      status,
-      customerId,
-      visitorId,
-      integrationId,
-      content,
-      engageData
-    } = doc;
-    const models = await generateModels(subdomain);
-
-    const data = await createConversationAndMessage(
-      models,
-      userId,
-      status,
-      customerId,
-      visitorId,
-      integrationId,
-      content,
-      engageData
-    );
-
-    return { data, status: "success" };
-  });
-
   // ? added new
   consumeRPCQueue(
     "inbox:createConversationAndMessage",
@@ -189,6 +161,24 @@ export const initBroker = cl => {
     }
   );
 
+  consumeRPCQueue('inbox:conversationMessages.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.ConversationMessages.findOne(data)
+    }
+  });
+
+  consumeRPCQueue('inbox:conversationMessages.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.ConversationMessages.find(data).lean()
+    }
+  });
+
   // ! below queue converted only used in core
   // ! unused queue
   consumeRPCQueue("inbox:rpc_queue:getIntegration", async data => {
@@ -226,21 +216,6 @@ export const initBroker = cl => {
   });
 
   // ! below queue converted
-  // ? used in engage
-  consumeRPCQueue("inbox:updateConversationMessage", async ({ data }) => {
-    const { filter, updateDoc, subdomain } = data;
-    const models = await generateModels(subdomain);
-
-    const updated = await models.ConversationMessages.updateOne(filter, {
-      $set: updateDoc
-    });
-
-    return {
-      data: updated,
-      status: "success"
-    };
-  });
-
   // ? added new
   consumeRPCQueue(
     "inbox:updateConversationMessage",

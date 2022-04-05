@@ -55,65 +55,86 @@ const ExmFeeds = {
           contentId: exmFeed._id,
           contentType: 'exmFeed'
         },
-        isRPC: true
+        isRPC: true,
+        defaultValue: 0
       });
     } catch (e) {
       return 0;
     }
   },
 
-  async likeCount(exmFeed, {}, { models }) {
-    return await sendReactionsMessage({
-      subdomain: 'os',
-      action: 'emojies.likeCount',
-      data: {
-        contentId: exmFeed._id,
-        contentType: 'exmFeed',
-        type: 'like'
-      },
-      isRPC: true
-    });
+  async likeCount(exmFeed) {
+    try {
+      return await sendReactionsMessage({
+        subdomain: 'os',
+        action: 'emojies.likeCount',
+        data: {
+          contentId: exmFeed._id,
+          contentType: 'exmFeed',
+          type: 'like'
+        },
+        isRPC: true,
+        defaultValue: 0
+      });
+    } catch (e) {
+      return 0;
+    }
   },
 
   async heartCount(exmFeed) {
-    return await sendReactionsMessage({
-      subdomain: 'os',
-      action: 'emojies.heartCount',
-      data: {
-        contentId: exmFeed._id,
-        contentType: 'exmFeed',
-        type: 'heart'
-      },
-      isRPC: true
-    });
+    try {
+      return await sendReactionsMessage({
+        subdomain: 'os',
+        action: 'emojies.heartCount',
+        data: {
+          contentId: exmFeed._id,
+          contentType: 'exmFeed',
+          type: 'heart'
+        },
+        isRPC: true,
+        defaultValue: 0
+      });
+    } catch (e) {
+      return 0;
+    }
   },
 
   async isHearted(exmFeed, {}, { user }) {
-    return await sendReactionsMessage({
-      subdomain: 'os',
-      action: 'emojies.isHearted',
-      data: {
-        contentId: exmFeed._id,
-        contentType: 'exmFeed',
-        type: 'heart',
-        userId: user._id
-      },
-      isRPC: true
-    });
+    try {
+      return await sendReactionsMessage({
+        subdomain: 'os',
+        action: 'emojies.isHearted',
+        data: {
+          contentId: exmFeed._id,
+          contentType: 'exmFeed',
+          type: 'heart',
+          userId: user._id
+        },
+        isRPC: true,
+        defaultValue: false
+      });
+    } catch (e) {
+      return 0;
+    }
   },
 
   async isLiked(exmFeed, {}, { user }) {
-    return await sendReactionsMessage({
-      subdomain: 'os',
-      action: 'emojies.isLiked',
-      data: {
-        contentId: exmFeed._id,
-        contentType: 'exmFeed',
-        type: 'like',
-        userId: user._id
-      },
-      isRPC: true
-    });
+    try {
+      return await sendReactionsMessage({
+        subdomain: 'os',
+        action: 'emojies.isLiked',
+        data: {
+          contentId: exmFeed._id,
+          contentType: 'exmFeed',
+          type: 'like',
+          userId: user._id
+        },
+        isRPC: true,
+        defaultValue: false
+      });
+    } catch (e) {
+      return 0;
+    }
   }
 };
 

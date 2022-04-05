@@ -24,27 +24,29 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
     public static async changeScore(doc: IScoreLog) {
       const { ownerType, ownerId, changeScore, description, createdBy = '' } = doc;
+
+      const score = Number(changeScore);
       let owner;
       let sendMessage;
       let action;
 
       if (ownerType === 'customer') {
-        owner = await sendContactsMessage({
+        owner = await await sendContactsMessage({
           subdomain,
           action: 'customers.findOne',
-          data: {
-            _id: ownerId
-          }
+          data: { _id: ownerId },
+          isRPC: true
         });
         sendMessage = sendContactsMessage;
         action = 'customers.updateOne'
       }
 
       if (ownerType === 'user') {
-        owner = await sendCoreMessage({
+        owner = await await sendCoreMessage({
           subdomain,
           action: 'users.findOne',
-          data: { _id: ownerId }
+          data: { _id: ownerId },
+          isRPC: true
         });
         sendMessage = sendCoreMessage;
         action = 'users.updateOne';
@@ -54,10 +56,9 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         owner = await sendContactsMessage({
           subdomain,
           action: 'companies.findOne',
-          data: {
-            _id: ownerId
-          }
-        })
+          data: { _id: ownerId },
+          isRPC: true
+        });
         sendMessage = sendContactsMessage;
         action = 'companies.updateCommon';
       }
@@ -66,10 +67,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         throw new Error(`not fount ${ownerType}`);
       }
 
-      const oldScore = owner.score || 0;
-      const newScore = oldScore + changeScore;
+      const oldScore = Number(owner.score) || 0;
+      const newScore = oldScore + score;
 
-      if (changeScore < 0 && newScore < 0) {
+      if (score < 0 && newScore < 0) {
         throw new Error(`score are not enough`);
       }
 
@@ -84,7 +85,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         return;
       }
       return await models.ScoreLogs.create({
-        ownerId, ownerType, changeScore,
+        ownerId, ownerType, changeScore: score,
         createdAt: new Date(), description, createdBy
       });
     }
