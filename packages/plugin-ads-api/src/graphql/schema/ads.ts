@@ -1,54 +1,41 @@
-export const types = ({ contacts }) => `
-${
-  contacts
-    ? `
-        extend type Customer @key(fields: "_id") {
-          _id: String! @external
-        }
+import { SubmissionFilter } from "@erxes/plugin-forms-api/src/graphql/schema/form";
+
+export const types = ({ contacts, forms }) => `
+  ${
+    contacts
+      ? `
+          extend type Customer @key(fields: "_id") {
+            _id: String! @external
+          }
+    
+          extend type Company @key(fields: "_id") {
+            _id: String! @external
+          }
+          `
+      : ""
+  }
   
-        extend type Company @key(fields: "_id") {
-          _id: String! @external
-        }
-        `
-    : ""
-}
+  ${
+    forms
+      ? `
+      extend type Submission @key(fields: "_id") {
+        _id: String! @external
+      }
+      `
+      : ""
+  }
 
-type Ad {
-  customerId: String
-  loyalty: Float
-}
+  ${SubmissionFilter}
 
-type FormSubmission {
-  _id: String!
-  customerId: String
-  formId: String
-  formFieldId: String
-  text: String
-  formFieldText: String
-  value: JSON
-  submittedAt: Date
-}
+  type Ad {
+    customerId: String
+    loyalty: Float
+  }
 
-type Submission {
-  _id: String!
-  contentTypeId: String
-  customerId: String
-  customer: Customer
-  createdAt: Date
-  customFieldsData: JSON
-  submissions: [FormSubmission]
-}
-
-input SubmissionFilter {
-  operator: String
-  value: JSON
-  formFieldId: String
-}
-
-input FormSubmissionInput {
-  _id: String!
-  value: JSON
-}
+  input FormSubmissionInput {
+    _id: String!
+    value: JSON
+  }
 `;
 
 export const queries = `
@@ -60,34 +47,3 @@ export const mutations = `
   formSubmissionsRemove(customerId: String!, contentTypeId: String!): JSON
   formSubmissionsEdit(contentTypeId: String!, customerId: String!, submissions: [FormSubmissionInput]): Submission
 `;
-
-// type Ad {
-//   customerId: String
-//   loyalty: Float
-// }
-
-// type FormSubmission {
-//   _id: String!
-//   customerId: String
-//   formId: String
-//   formFieldId: String
-//   text: String
-//   formFieldText: String
-//   value: JSON
-//   submittedAt: Date
-// }
-
-// type Submission {
-//   _id: String!
-//   contentTypeId: String
-//   customerId: String
-//   customer: Customer
-//   createdAt: Date
-//   customFieldsData: JSON
-//   submissions: [FormSubmission]
-// }
-
-// input FormSubmissionInput {
-//   _id: String!
-//   value: JSON
-// }
