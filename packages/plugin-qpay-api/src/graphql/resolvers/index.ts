@@ -1,19 +1,12 @@
-import customScalars from '@erxes/api-utils/src/customScalars';
-
-import ExmFeed from './exmFeed';
-import ExmThank from './exmThank';
-
 import Mutation from './mutations';
 import Query from './queries';
+import customScalars from '@erxes/api-utils/src/customScalars';
 
 const resolvers: any = async () => ({
   ...customScalars,
 
-  ExmFeed,
-  ExmThank,
-
   Mutation,
-  Query
+  Query,
 });
 
 export default resolvers;
