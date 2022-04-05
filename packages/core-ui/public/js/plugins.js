@@ -164,4 +164,47 @@ window.plugins = [
       }
     ]
   },
+  {
+    name: "forms",
+    port: 3005,
+    exposes: { "./routes": "./src/routes.tsx" },
+    routes: {
+      url: "http://localhost:3005/remoteEntry.js",
+      scope: "forms",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Properties",
+        to: "/settings/properties",
+        image: "/images/icons/erxes-01.svg",
+        location: "settings",
+        scope: "forms",
+        action: "",
+        permissions: [],
+      },
+    ],
+  },
+  {
+    name: "logs",
+    port: 3040,
+    exposes: { "./routes": "./src/routes.tsx" },
+    routes: {
+      url: "http://localhost:3040/remoteEntry.js",
+      scope: "logs",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Logs",
+        to: "/settings/logs",
+        image: "/images/icons/erxes-33.png",
+        location: "settings",
+        scope: "logs",
+        component: "./settings",
+        action: "",
+        permissions: [],
+      },
+    ],
+  },
 ];
