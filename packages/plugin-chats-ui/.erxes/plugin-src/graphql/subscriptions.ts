@@ -1,11 +1,11 @@
 const chatMessageInserted = `
-  subscription chatMessageInserted($userId: String!) {
-    chatMessageInserted(userId: $userId) {
+  subscription chatMessageInserted($chatId: String!) {
+    chatMessageInserted(chatId: $chatId) {
       _id
     }
   }
 `;
 
 export default {
-  chatMessageInserted
+  chatMessageInserted,
 };
