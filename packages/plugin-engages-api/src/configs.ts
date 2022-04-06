@@ -1,4 +1,3 @@
-import { filterXSS } from 'xss';
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 
@@ -8,12 +7,10 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers/index';
 import telnyx from './api/telnyx';
 import { trackEngages } from './trackers/engageTracker';
-import { debugBase } from './debuggers';
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import tags from './tags';
 import logs from './logUtils';
-import { initMemoryStorage } from './inmemoryStorage';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -62,11 +59,6 @@ export default {
 
     trackEngages(app);
 
-    // for health checking
-    app.get('/health', async (_req, res) => {
-      res.end('ok');
-    });
-
     app.use((req: any, _res, next) => {
       req.rawBody = '';
 
@@ -83,17 +75,7 @@ export default {
     // Insert routes below
     app.use('/telnyx', telnyx);
 
-    // Error handling middleware
-    app.use((error, _req, res, _next) => {
-      const msg = filterXSS(error.message);
-
-      debugBase(`Error: ${msg}`);
-      res.status(500).send(msg);
-    });
-
     initBroker(options.messageBrokerClient);
-
-    initMemoryStorage();
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;

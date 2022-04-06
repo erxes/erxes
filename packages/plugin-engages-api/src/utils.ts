@@ -5,7 +5,7 @@ import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 
 import { SES_DELIVERY_STATUSES } from './constants';
 import { debugBase, debugError } from './debuggers';
-import messageBroker from './messageBroker';
+import messageBroker, { sendContactsMessage } from './messageBroker';
 import { ISESConfig } from './models/Configs';
 import { getServices } from '@erxes/api-utils/src/serviceDiscovery'
 import { getApi } from './trackers/engageTracker';
@@ -188,6 +188,7 @@ export const getConfig = async (models: IModels, code, defaultValue?) => {
 };
 
 export const cleanIgnoredCustomers = async (
+  subdomain: string,
   models: IModels,
   { customers, engageMessageId }: ICustomerAnalyzeParams
 ) => {
@@ -232,9 +233,11 @@ export const cleanIgnoredCustomers = async (
   }
 
   if (ignoredCustomerIds.length > 0) {
-    await messageBroker().sendMessage('engagesNotification', {
-      action: 'setSubscribed',
-      data: { customerIds: ignoredCustomerIds },
+    sendContactsMessage({
+      subdomain,
+      isRPC: false,
+      action: 'customers.setUnsubscribed',
+      data: { customerIds: ignoredCustomerIds }
     });
 
     return {
