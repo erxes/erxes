@@ -1,5 +1,5 @@
 {
-  "name": "plugin-sync-erkhet-ui",
+  "name": "@erxes/plugin-loyalties-ui",
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",
