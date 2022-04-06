@@ -234,7 +234,7 @@ module.exports.dup = async (program) => {
         },
         volumes: ["./enabled-services.js:/data/enabled-services.js"],
         extra_hosts,
-        ports: ["4000:80"],
+        ports: ["3300:80"],
         networks: ["erxes"],
       },
       worker: {
