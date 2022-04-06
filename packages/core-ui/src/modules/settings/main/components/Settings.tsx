@@ -1,7 +1,7 @@
 import WithPermission from 'modules/common/components/WithPermission';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { pluginsOfSettings, pluginsSettingsNavigations } from 'pluginUtils';
+import { pluginsSettingsNavigations } from 'pluginUtils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -82,7 +82,6 @@ class Settings extends React.PureComponent {
           </RowTitle>
           <div id={'PluginSettings'}>
             {plugins}
-            {pluginsOfSettings(this.renderBox)}
           </div>
         </Row>
       </>

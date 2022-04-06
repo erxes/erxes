@@ -1,49 +1,49 @@
-import { graphqlPubsub } from "./configs";
-import { companyCheckCode, getConfig, getPostData } from "./utils";
+import { graphqlPubsub } from './configs';
+import { companyCheckCode, getConfig, getPostData } from './utils';
 
 export default {
-  "cards:deal": ["update"],
-  "contacts:company": ["create", "update"],
+  'cards:deal': ['update'],
+  'contacts:company': ['create', 'update', 'delete'],
 };
 
 export const afterMutationHandlers = async (models, subdomain, params) => {
-  const { type, action } = params;
+  const { type, action, user } = params;
 
-  if (type === "cards:deal") {
-    if (action === "update") {
+  if (type === 'cards:deal') {
+    if (action === 'update') {
       const deal = params.updatedDocument;
       const oldDeal = params.object;
-      const destinationStageId = deal.stageId || "";
+      const destinationStageId = deal.stageId || '';
 
       if (!(destinationStageId && destinationStageId !== oldDeal.stageId)) {
         return;
       }
 
-      const configs = await getConfig(subdomain, "stageInEbarimt", {});
+      const configs = await getConfig(subdomain, 'stageInEbarimt', {});
       const returnConfigs = await getConfig(
         subdomain,
-        "returnStageInEbarimt",
+        'returnStageInEbarimt',
         {}
       );
 
       if (Object.keys(returnConfigs).includes(destinationStageId)) {
         const returnConfig = {
           ...returnConfigs[destinationStageId],
-          ...(await getConfig(subdomain, "EBARIMT", {})),
+          ...(await getConfig(subdomain, 'EBARIMT', {})),
         };
 
         const returnResponse = await models.PutResponses.returnBill(
           models,
-          { ...deal, contentType: "deal", contentId: deal._id },
+          { ...deal, contentType: 'deal', contentId: deal._id },
           returnConfig
         );
 
         try {
-          await graphqlPubsub.publish("automationResponded", {
+          await graphqlPubsub.publish('automationResponded', {
             automationResponded: {
               userId: user._id,
               responseId: returnResponse._id,
-              sessionCode: user.sessionCode || "",
+              sessionCode: user.sessionCode || '',
               content: returnResponse,
             },
           });
@@ -59,22 +59,22 @@ export const afterMutationHandlers = async (models, subdomain, params) => {
 
       const config = {
         ...configs[destinationStageId],
-        ...(await getConfig(subdomain, "EBARIMT", {})),
+        ...(await getConfig(subdomain, 'EBARIMT', {})),
       };
+
       const ebarimtData = await getPostData(models, config, deal);
 
       const ebarimtResponse = await models.PutResponses.putData(
-        models,
         ebarimtData,
         config
       );
 
       try {
-        await graphqlPubsub.publish("automationResponded", {
+        await graphqlPubsub.publish('automationResponded', {
           automationResponded: {
             userId: user._id,
             responseId: ebarimtResponse._id,
-            sessionCode: user.sessionCode || "",
+            sessionCode: user.sessionCode || '',
             content: { ...config, ...ebarimtResponse },
           },
         });
@@ -86,13 +86,13 @@ export const afterMutationHandlers = async (models, subdomain, params) => {
     }
   }
 
-  if (type === "contacts:company") {
-    if (action === "create") {
-      companyCheckCode(user, models, params, subdomain);
+  if (type === 'contacts:company') {
+    if (action === 'create') {
+      companyCheckCode(user, params, subdomain);
     }
 
-    if (action === "update") {
-      companyCheckCode(user, models, params, subdomain);
+    if (action === 'update') {
+      companyCheckCode(user, params, subdomain);
     }
   }
 };
