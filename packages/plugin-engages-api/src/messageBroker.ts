@@ -70,7 +70,7 @@ export const initBroker = async (cl) => {
       const { action, data: realData } = data;
 
       if (action === 'sendEngage') {
-        await start(models, realData);
+        await start(models, subdomain, realData);
       }
 
       if (action === 'writeLog') {
