@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import React from 'react';
-import Response from '../components/Response';
+import ReactDOM from "react-dom";
+import Response from '../components/receipt/Response';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { subscriptions } from '../graphql';
@@ -44,14 +45,19 @@ const ReturnResponseBody = ({ currentUser }: Props) => {
     return <></>;
   }
 
-  const printContent = Response(content)
-  const myWindow =
-    window.open(`__`, '_blank', 'width=800, height=800') || ({} as any);
+  var printContent = document.createElement('div');
+
+  ReactDOM.render(
+    <Response {...content} />,
+    printContent
+  );
+
+  const myWindow = window.open(`__`, '_blank', 'width=800, height=800') || ({} as any);
 
   localStorage.setItem('automationResponseId', responseId);
 
   if ('document' in myWindow && 'write' in myWindow.document) {
-    myWindow.document.write(printContent);
+    myWindow.document.write(printContent.outerHTML);
   } else {
     alert('please allow Pop-ups and redirects on site settings!!!');
   }

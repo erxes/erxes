@@ -6,14 +6,14 @@ module.exports = {
   internalnotes: false,
   knowledgebase: false,
   logs: false,
-  notifications: true,
+  notifications: false,
   segments: false,
   tags: false,
   integrations: false,
   products: false,
   forms: false,
   cards: false,
-
-  contacts: true,
-  inbox: true,
+  emailTemplates: false,
+  contacts: false,
+  inbox: false,
 };

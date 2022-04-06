@@ -243,6 +243,7 @@ module.exports.dup = async (program) => {
           PORT: "80",
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
           LOAD_BALANCER_ADDRESS: "http://plugin_worker_api",
+          MONGO_URL: mongoEnv(configs),
           ...commonEnvs(configs),
         },
         volumes: ["./enabled-services.js:/data/enabled-services.js"],
@@ -282,9 +283,11 @@ module.exports.dup = async (program) => {
       environment: {
         PORT: "80",
         JWT_TOKEN_SECRET: configs.jwt_token_secret,
+        MONGO_URL: mongoEnv(configs),
         ...commonEnvs(configs),
       },
       volumes: ["./enabled-services.js:/data/enabled-services.js"],
+      extra_hosts,
       networks: ["erxes"],
     };
 
