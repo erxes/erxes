@@ -45,7 +45,6 @@ export const initBroker = cl => {
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  // ? added new
   consumeRPCQueue(
     "inbox:createConversationAndMessage",
     async ({ subdomain, data }) => {
@@ -81,28 +80,11 @@ export const initBroker = cl => {
     async data => await receiveRpcMessage("", data)
   );
 
-  // ? added new
   consumeRPCQueue(
     "inbox:integrations_to_api",
     async ({ subdomain, data }) => await receiveRpcMessage(subdomain, data)
   );
 
-  // ! below queue converted
-  consumeRPCQueue(
-    "inbox:rpc_queue:findIntegrations",
-    async ({ subdomain, query, options }) => {
-      const models = await generateModels(subdomain);
-
-      const integrations = await models.Integrations.findIntegrations(
-        query,
-        options
-      );
-
-      return { data: integrations, status: "success" };
-    }
-  );
-
-  // ? added new
   consumeRPCQueue(
     "inbox:integrations.find",
     async ({ subdomain, data: { query, options } }) => {
@@ -116,15 +98,7 @@ export const initBroker = cl => {
       return { data: integrations, status: "success" };
     }
   );
-
-  // // ! below queue converted
-  // consumeQueue('inbox:changeCustomer', async ({subdomain, customerId, customerIds}) => {
-  //   const models = await generateModels(subdomain);
-
-  //   await models.Conversations.changeCustomer(customerId, customerIds);
-  // });
-
-  // ? added new
+  
   consumeQueue(
     "inbox:changeCustomer",
     async ({ subdomain, data: { customerId, customerIds } }) => {
@@ -134,21 +108,6 @@ export const initBroker = cl => {
     }
   );
 
-  // // ! below queue converted
-  // consumeRPCQueue(
-  //   'inbox:rpc_queue:getConversation',
-  //   async ({ subdomain, conversationId }) => {
-  //     const models = await generateModels(subdomain)
-
-  //     return {
-  //       status: 'success',
-  //       data: await models.Conversations.findOne({ _id: conversationId })
-
-  //     }
-  //   }
-  // );
-
-  // ? added new
   consumeRPCQueue(
     "inbox:getConversation",
     async ({ subdomain, data: { conversationId } }) => {
@@ -179,20 +138,6 @@ export const initBroker = cl => {
     }
   });
 
-  // ! below queue converted only used in core
-  // ! unused queue
-  consumeRPCQueue("inbox:rpc_queue:getIntegration", async data => {
-    const { _id, subdomain } = data;
-
-    const models = await generateModels(subdomain);
-
-    return {
-      status: "success",
-      data: await models.Integrations.findOne({ _id })
-    };
-  });
-
-  // ? added new
   consumeRPCQueue(
     "inbox:getIntegration",
     async ({ subdomain, data: { _id } }) => {
@@ -205,7 +150,6 @@ export const initBroker = cl => {
     }
   );
 
-  // ? find integration
   consumeRPCQueue("inbox:findIntegration", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -215,8 +159,6 @@ export const initBroker = cl => {
     };
   });
 
-  // ! below queue converted
-  // ? added new
   consumeRPCQueue(
     "inbox:updateConversationMessage",
     async ({ subdomain, data: { filter, updateDoc } }) => {
@@ -233,17 +175,6 @@ export const initBroker = cl => {
     }
   );
 
-  // ! below queue converted
-  consumeQueue(
-    "inbox:removeCustomersConversations",
-    async ({ customerIds, subdomain }) => {
-      const models = await generateModels(subdomain);
-
-      return models.Conversations.removeCustomersConversations(customerIds);
-    }
-  );
-
-  // ? added new
   consumeQueue(
     "inbox:removeCustomersConversations",
     async ({ subdomain, data: { customerIds } }) => {
@@ -253,7 +184,6 @@ export const initBroker = cl => {
     }
   );
 
-  // ? added new
   consumeRPCQueue(
     "inbox:getConversations",
     async ({ subdomain, data: { query } }) => {
@@ -266,7 +196,6 @@ export const initBroker = cl => {
     }
   );
 
-  // ? added new
   consumeRPCQueue(
     "inbox:conversations.count",
     async ({ subdomain, data: { query } }) => {
@@ -293,12 +222,7 @@ export const initBroker = cl => {
   );
 };
 
-// ! channelMutations, conversationMutations, integrationMutations, widgetMutations
-export const sendMessage = async (channel, message): Promise<any> => {
-  return client.sendMessage(channel, message);
-};
 
-// ? added new
 export const sendContactsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
@@ -310,7 +234,6 @@ export const sendContactsMessage = async (
   });
 };
 
-// ? added new
 export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessageCore({
     client,
@@ -320,7 +243,6 @@ export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
-// ? added new
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessageCore({
     client,
@@ -330,7 +252,6 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
-// ? added new
 export const sendEngagesMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessageCore({
     client,
@@ -340,7 +261,6 @@ export const sendEngagesMessage = (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
-// ? added new
 export const sendCardsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
@@ -352,7 +272,6 @@ export const sendCardsMessage = async (
   });
 };
 
-// ? added new
 export const sendProductsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
@@ -364,7 +283,6 @@ export const sendProductsMessage = async (
   });
 };
 
-// ? added new
 export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessageCore({
     client,
@@ -374,7 +292,6 @@ export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
-// ? added new integraiontsMsg
 export const sendIntegrationsMessage = (
   args: ISendMessageArgs
 ): Promise<any> => {
@@ -386,11 +303,9 @@ export const sendIntegrationsMessage = (
   });
 };
 
-// ! widgetUtils, widgetMutations
 export const sendToLog = (channel: string, data) =>
   client.sendMessage(channel, data);
 
-// ? added new
 export const sendSegmentsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessageCore({
     client,
@@ -400,7 +315,6 @@ export const sendSegmentsMessage = (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
-// ? added new
 export const sendNotificationsMessage = (
   args: ISendMessageArgs
 ): Promise<any> => {
