@@ -1,21 +1,35 @@
-export const types = ({ cardsEnabled }) => {
+export const types = ({ cardsEnabled, formsEnabled }) => {
   return `
+    type DealRP {
+      _id: String
+      name: String
+      products: JSON
+      customFieldsData: JSON
+      assignedUsers: JSON
+      stage: JSON
+    }
+
     type DealsForRentpayResponse {
-      list: ${cardsEnabled ? '[DealListItem]' : 'JSON'}
+      list: [DealRP]
       totalCount: Int
+    }
+
+    ${
+      formsEnabled
+        ? `extend type Field @key(fields: "_id") {
+        _id: String! @external
+        }`
+        : ""
     }
 
     ${
       cardsEnabled
         ? `
-        extend type DealListItem @key(fields: "_id") {
-          _id: String! @external
-        }
         extend type Deal @key(fields: "_id") {
           _id: String! @external
         }
        `
-        : ''
+        : ""
     }
   `;
 };
@@ -37,9 +51,9 @@ const listQueryParams = `
 export const queries = ({ formsEnabled, cardsEnabled }) => `
  dealsForRentpay(${listQueryParams}): DealsForRentpayResponse
  fieldsForRentpay(contentType: String!, code: String, searchable: Boolean): ${
-   formsEnabled ? '[Field]' : 'JSON'
+   formsEnabled ? "[Field]" : "JSON"
  }
- dealDetailForRentpay(_id: String!): ${cardsEnabled ? 'Deal' : 'JSON'}
+ dealDetailForRentpay(_id: String!): ${cardsEnabled ? "Deal" : "JSON"}
 `;
 
 export const mutations = `
