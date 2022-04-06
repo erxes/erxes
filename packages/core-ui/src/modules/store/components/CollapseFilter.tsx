@@ -5,9 +5,9 @@ import styledTS from "styled-components-ts";
 import colors from "@erxes/ui/src/styles/colors";
 import Icon from "@erxes/ui/src/components/Icon";
 import { dimensions } from "@erxes/ui/src/styles";
+import { FlexContent } from "@erxes/ui/src/activityLogs/styles";
 
 const Title = styledTS<{
-  compact?: boolean;
   hasImage?: boolean;
   background?: string;
 }>(styled.a)`
@@ -31,11 +31,6 @@ const Title = styledTS<{
   }
 `;
 
-const Left = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
 const Container = styledTS<{ open: boolean; border?: boolean }>(styled.div)`
   background: ${colors.colorWhite};
   padding: ${dimensions.unitSpacing};
@@ -55,7 +50,8 @@ const Container = styledTS<{ open: boolean; border?: boolean }>(styled.div)`
 
 const Content = styled.div`
   background: ${colors.colorWhite};
-  padding: ${dimensions.unitSpacing}px;
+  padding: 0 ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px
+    ${dimensions.unitSpacing}px;
 
   ${Container} {
     background: ${colors.colorWhite};
@@ -67,9 +63,7 @@ type Props = {
   contendId?: string;
   title: string;
   children: React.ReactNode;
-  description?: React.ReactNode;
   open?: boolean;
-  compact?: boolean;
   onClick?: () => void;
   id?: string;
   hasBorder?: boolean;
@@ -84,28 +78,21 @@ function CollapseFilter(props: Props) {
       props.onClick();
     }
   };
-  const hasBorder = props.hasBorder ? true : false;
 
   return (
-    <Container open={open} id={props.id} border={hasBorder}>
+    <Container open={open} id={props.id} border={props.hasBorder}>
       <Title
         href={props.contendId && `#${props.contendId}`}
         id={props.contendId}
         onClick={onClick}
-        compact={props.compact}
       >
-        <Left>
-          <div>
-            <b>{props.title}</b>
-            {props.description}
-          </div>
-        </Left>
+        <FlexContent>
+          <b>{props.title}</b>
+        </FlexContent>
         <Icon icon="angle-down" />
       </Title>
       <Collapse in={open}>
-        <div>
-          <Content>{props.children}</Content>
-        </div>
+        <Content>{props.children}</Content>
       </Collapse>
     </Container>
   );

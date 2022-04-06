@@ -1,16 +1,5 @@
-import React from 'react';
-import {
-  FormLabel,
-  Input,
-  Radio,
-  Select,
-  SelectWrapper,
-  Progress
-} from '@erxes/ui/src/components/form/styles';
-import { Column } from '@erxes/ui/src/styles/main';
-import Textarea from '@erxes/ui/src/components/form/Textarea';
-import ProgressBar from '@erxes/ui/src/components/ProgressBar';
-import { Checkbox } from '../styles';
+import React from "react";
+import { Checkbox, FormLabel } from "../styles";
 
 type Props = {
   children?: React.ReactNode;
@@ -52,7 +41,7 @@ const renderElement = (Element, attributes, type, child) => {
     <FormLabel key={attributes.key ? attributes.key : null}>
       <Element {...attributes} type={type} />
       <span>
-        {child && '\u00a0\u00a0'}
+        {child && "\u00a0\u00a0"}
         {child}
       </span>
     </FormLabel>
@@ -61,10 +50,10 @@ const renderElement = (Element, attributes, type, child) => {
 
 class FormControl extends React.Component<Props> {
   static defaultProps = {
-    componentClass: 'input',
+    componentClass: "input",
     required: false,
     defaultChecked: false,
-    disabled: false
+    disabled: false,
   };
 
   componentDidMount() {
@@ -79,10 +68,10 @@ class FormControl extends React.Component<Props> {
     const props = this.props;
     const childNode = props.children;
     const elementType = props.componentClass;
-    const errorMessage = props.errors && props.errors[props.name || ''];
+    const errorMessage = props.errors && props.errors[props.name || ""];
 
     // cancel custom browser default form validation error
-    const onChange = e => {
+    const onChange = (e) => {
       if (props.onChange) {
         props.onChange(e);
       }
@@ -96,8 +85,11 @@ class FormControl extends React.Component<Props> {
       onBlur: props.onBlur,
       value: props.value,
       defaultValue: props.defaultValue,
-      [props.defaultChecked ? 'defaultChecked' : 'checked']:
-        props.defaultChecked ? props.defaultChecked : props.checked,
+      [props.defaultChecked
+        ? "defaultChecked"
+        : "checked"]: props.defaultChecked
+        ? props.defaultChecked
+        : props.checked,
       placeholder: props.placeholder,
       hasError: errorMessage ? true : false,
       type: props.type,
@@ -113,96 +105,10 @@ class FormControl extends React.Component<Props> {
       id: props.id,
       maxHeight: props.maxHeight,
       maxLength: props.maxLength,
-      color: props.color
+      color: props.color,
     };
 
-    if (elementType === 'select') {
-      if (props.options) {
-        return (
-          <Column>
-            <SelectWrapper hasError={errorMessage}>
-              <Select {...attributes}>
-                {props.options.map((option, index) => {
-                  return (
-                    <option key={index} value={option.value || '' } disabled={option.disabled}>
-                      {option.label || ''}
-                    </option>
-                  );
-                })}
-              </Select>
-            </SelectWrapper>
-            {errorMessage}
-          </Column>
-        );
-      }
-
-      return (
-        <Column>
-          <SelectWrapper hasError={errorMessage}>
-            <Select {...attributes}>{childNode}</Select>
-          </SelectWrapper>
-          {errorMessage}
-        </Column>
-      );
-    }
-
-    if (elementType === 'radio') {
-      if (props.options) {
-        return props.options.map((option, index) => {
-          return renderElement(
-            Radio,
-            { key: index, ...attributes, ...option },
-            elementType,
-            option.childNode
-          );
-        });
-      }
-
-      return renderElement(Radio, attributes, elementType, childNode);
-    }
-
-    if (elementType === 'poll') {
-      const options = props.options;
-      if (options) {
-        const count = options.length;
-        return options.map((option, index) => {
-          const percentage = (index * 100) / count;
-
-          return (
-            <Progress key={attributes.key ? attributes.key : null}>
-              <div>
-                {renderElement(Radio, attributes, elementType, childNode)}
-                <b>{option}: </b>
-                <span>({percentage.toFixed(2)}%)</span>
-              </div>
-              <ProgressBar percentage={percentage} height="10px" />
-            </Progress>
-          );
-        });
-      }
-
-      return null;
-    }
-
-    if (elementType === 'checkbox') {
-      return renderElement(Checkbox, attributes, elementType, childNode);
-    }
-
-    if (elementType === 'textarea') {
-      return (
-        <Column>
-          <Textarea {...props} hasError={errorMessage} />
-          {errorMessage}
-        </Column>
-      );
-    }
-
-    return (
-      <Column>
-        <Input {...attributes} />
-        {errorMessage}
-      </Column>
-    );
+    return renderElement(Checkbox, attributes, elementType, childNode);
   }
 }
 

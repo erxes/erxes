@@ -21,7 +21,7 @@ class Store extends React.Component<Props, State> {
   }
 
   render() {
-    return <Wrapper leftSidebar={<Leftbar />} content={<Main />} />;
+    return <Wrapper leftSidebar={<Leftbar />} content={<Main loading={false} />} />;
   }
 }
 

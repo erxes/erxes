@@ -1,39 +1,18 @@
 import Icon from "modules/common/components/Icon";
 import Button from "./Button";
-import { colors, dimensions, typography } from "@erxes/ui/src/styles";
+import { colors, dimensions } from "@erxes/ui/src/styles";
 import { Flex } from "@erxes/ui/src/styles/main";
 import { __ } from "modules/common/utils";
 import React from "react";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import CollapseFilter from "./CollapseFilter";
-// import { Rating } from "@mui/material";
-
-const MainContainer = styled.div`
-  padding-bottom: ${dimensions.coreSpacing}px;
-  border-bottom: 1px solid ${colors.borderPrimary};
-`;
-
-const Header = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: ${dimensions.coreSpacing}px 0px;
-`;
-
-const List = styled.div`
-  width: 100%;
-  display: flex;
-`;
-
-const PluginCard = styled.div`
-  margin-right: ${dimensions.coreSpacing}px;
-  width: 100%;
-  &:nth-child(4) {
-    margin-right: 0;
-  }
-`;
+import {
+  ListContainer,
+  ListHeader,
+  ListTitle,
+  ColorText,
+  Card,
+  GrayText,
+} from "../styles";
 
 const PluginPic = styled.div`
   width: 100%;
@@ -58,23 +37,6 @@ const Rating = styled.div`
   background: ${colors.bgGray};
 `;
 
-const StyledHeader = styled.b`
-  color: ${colors.colorPrimary};
-`;
-
-const Article = styled.b`
-  height: ${typography.lineHeightHeading5};
-`;
-
-const GrayText = styled.div`
-  color: ${colors.colorCoreGray};
-  padding-right: 5px;
-`;
-
-const Space = styled(GrayText)`
-  padding-left: 5px;
-`;
-
 type Props = {
   header?: string;
   onSearch?: (e) => void;
@@ -96,135 +58,60 @@ class PluginPreview extends React.Component<
   }
 
   renderList = () => {
-    // const { showInput } = this.state;
+    const ids = [1, 2, 3, 4];
+    const space = "\u00a0";
 
     return (
-      <List>
-        <PluginCard>
-          <PluginPic />
-          <PluginInformation>
-            <b>Ecommerce plugin</b>
-            <Flex>
-              <GrayText>by </GrayText>New media group <Space>in </Space>
-              <b>EXM</b>
-            </Flex>
-          </PluginInformation>
-          <Footer>
-            <Flex>
-              <Rating />
-              <Space><b>/412/</b></Space>
-            </Flex>
-            <Flex>
-              <Button btnStyle="simple" border size="small">
-                <Icon
-                  icon="shopping-cart-alt"
-                  size={15}
-                  color={colors.colorPrimary}
-                />
-              </Button>
-              <Button size="small">
-                <b>Install</b>
-              </Button>
-            </Flex>
-          </Footer>
-        </PluginCard>
-        <PluginCard>
-          <PluginPic />
-          <PluginInformation>
-            <b>Ecommerce plugin</b>
-            <Flex>
-              <GrayText>by </GrayText>New media group <Space>in </Space>
-              <b>EXM</b>
-            </Flex>
-          </PluginInformation>
-          <Footer>
-            <Flex>
-              <Rating />
-              <Space><b>/412/</b></Space>
-            </Flex>
-            <Flex>
-              <Button btnStyle="simple" border size="small">
-                <Icon
-                  icon="shopping-cart-alt"
-                  size={15}
-                  color={colors.colorPrimary}
-                />
-              </Button>
-              <Button size="small">
-                <b>Install</b>
-              </Button>
-            </Flex>
-          </Footer>
-        </PluginCard>
-        <PluginCard>
-          <PluginPic />
-          <PluginInformation>
-            <b>Ecommerce plugin</b>
-            <Flex>
-              <GrayText>by </GrayText>New media group <Space>in </Space>
-              <b>EXM</b>
-            </Flex>
-          </PluginInformation>
-          <Footer>
-            <Flex>
-              <Rating />
-              <Space><b>/412/</b></Space>
-            </Flex>
-            <Flex>
-              <Button btnStyle="simple" border size="small">
-                <Icon
-                  icon="shopping-cart-alt"
-                  size={15}
-                  color={colors.colorPrimary}
-                />
-              </Button>
-              <Button size="small">
-                <b>Install</b>
-              </Button>
-            </Flex>
-          </Footer>
-        </PluginCard>
-        <PluginCard>
-          <PluginPic />
-          <PluginInformation>
-            <b>Ecommerce plugin</b>
-            <Flex>
-              <GrayText>by </GrayText>New media group <Space>in </Space>
-              <b>EXM</b>
-            </Flex>
-          </PluginInformation>
-          <Footer>
-            <Flex>
-              <Rating />
-              <Space><b>/412/</b></Space>
-            </Flex>
-            <Flex>
-              <Button btnStyle="simple" border size="small">
-                <Icon
-                  icon="shopping-cart-alt"
-                  size={15}
-                  color={colors.colorPrimary}
-                />
-              </Button>
-              <Button size="small">
-                <b>Install</b>
-              </Button>
-            </Flex>
-          </Footer>
-        </PluginCard>
-      </List>
+      <Flex>
+        {ids.map((id) => (
+          <Card>
+            <PluginPic />
+            <PluginInformation>
+              <b>Ecommerce plugin</b>
+              <Flex>
+                <GrayText>by{space}</GrayText>New media group
+                <GrayText>
+                  {space}in{space}
+                </GrayText>
+                <b>EXM</b>
+              </Flex>
+            </PluginInformation>
+            <Footer>
+              <Flex>
+                <Rating /> {/* replace with rating stars* */}
+                <GrayText>
+                  {space}
+                  <b>/412/</b>
+                </GrayText>
+              </Flex>
+              <Flex>
+                <Button btnStyle="simple" border size="small">
+                  <Icon
+                    icon="shopping-cart-alt"
+                    size={15}
+                    color={colors.colorPrimary}
+                  />
+                </Button>
+                <Button size="small">
+                  <b>Install</b>
+                </Button>
+              </Flex>
+            </Footer>
+          </Card>
+        ))}
+      </Flex>
     );
   };
 
   render() {
     return (
-      <MainContainer>
-        <Header>
-          <Article>{this.props.header}</Article>
-          <StyledHeader>View all</StyledHeader>
-        </Header>
+      <ListContainer>
+        <ListHeader>
+          <ListTitle>{this.props.header}</ListTitle>
+          <ColorText>View all</ColorText>
+        </ListHeader>
         {this.renderList()}
-      </MainContainer>
+      </ListContainer>
     );
   }
 }

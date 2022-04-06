@@ -1,18 +1,16 @@
-import React from 'react';
-import { Route } from 'react-router-dom';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import React from "react";
+import { Route } from "react-router-dom";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 
 const Store = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Store" */ './containers/Store'
-  )
+  import(/* webpackChunkName: "Store" */ "./containers/Store")
 );
 
-const PluginDetails = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Store" */ './containers/PluginDetails'
-  )
-);
+// const PluginDetails = asyncComponent(() =>
+//   import(
+//     /* webpackChunkName: "Store" */ './containers/PluginDetails'
+//   )
+// );
 
 const main = () => {
   return <Store text="fjfhkjnn" />; // change props
@@ -28,18 +26,13 @@ const routes = () => {
   return (
     <React.Fragment>
       <Route
-        key="/store/details"
+        key="/store/details/"
         exact={true}
-        path="/store/details"
+        path="/store/details/"
         component={detail}
       />
 
-      <Route
-        path="/store"
-        exact={true}
-        key="/store"
-        component={main}
-      />
+      <Route path="/store" exact={true} key="/store" component={main} />
     </React.Fragment>
   );
 };

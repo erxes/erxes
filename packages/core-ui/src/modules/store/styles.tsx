@@ -1,18 +1,33 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 import styledTS from "styled-components-ts";
 import { colors, dimensions, typography } from "@erxes/ui/src/styles";
-import { rgba } from '@erxes/ui/src/styles/ecolor';
+import { rgba } from "@erxes/ui/src/styles/ecolor";
 
-const inputPadding = '0px';
-const inputHeight = '15px';
-const inputScale = '12px';
-const inputBorderWidth = '2px';
+const inputPadding = "0px";
+const inputHeight = "15px";
+const inputScale = "12px";
+const inputBorderWidth = "2px";
 
 const WidgetApperance = styled.div`
   display: flex;
   flex-direction: row;
   flex: 1;
   min-height: 100%;
+`;
+
+const FormLabel = styled.label`
+  position: relative;
+  display: inline-block;
+  font-weight: normal;
+
+  span {
+    cursor: pointer;
+    display: inline-block;
+  }
+
+  &:hover {
+    color: ${colors.colorPrimary};
+  }
 `;
 
 const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
@@ -27,7 +42,7 @@ const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
   position: absolute !important;
   width: 1px !important;
   white-space: nowrap !important;
-  cursor: ${props => props.disabled && 'not-allowed'}
+  cursor: ${(props) => props.disabled && "not-allowed"}
 
   &:focus {
     + span {
@@ -40,7 +55,7 @@ const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
   &:hover {
     + span {
       &::before {
-        border-color: ${props =>
+        border-color: ${(props) =>
           props.color ? props.color : colors.colorLightGray};
       }
     }
@@ -61,7 +76,7 @@ const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
 
     &:before {
       background-color: ${colors.colorWhite};
-      border: ${inputBorderWidth} solid ${props =>
+      border: ${inputBorderWidth} solid ${(props) =>
   props.color ? rgba(props.color, 0.7) : colors.colorShadowGray};
       box-sizing: content-box;
       content: '';
@@ -74,7 +89,7 @@ const inputStyle = styledTS<{ disabled?: boolean; color?: string }>(
       display: inline-block;
       vertical-align: text-top;
       border-radius: 50%;
-      cursor: ${props => props.disabled && 'not-allowed'}
+      cursor: ${(props) => props.disabled && "not-allowed"}
     }
 
     &:after {
@@ -120,7 +135,7 @@ const Checkbox = styledTS<{ color?: string }>(styled(inputStyle))`
   &:checked + span {
     &:before {
       animation: none;
-      background-color: ${props =>
+      background-color: ${(props) =>
         props.color ? props.color : colors.colorSecondary};
       border-color: transparent;
     }
@@ -133,4 +148,47 @@ const Checkbox = styledTS<{ color?: string }>(styled(inputStyle))`
   }
 `;
 
-export { WidgetApperance, Checkbox };
+const ListContainer = styled.div`
+  padding-bottom: ${dimensions.coreSpacing}px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+`;
+
+const ListHeader = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: ${dimensions.coreSpacing}px 0px;
+`;
+
+const ListTitle = styled.b`
+  height: ${typography.lineHeightHeading5};
+`;
+
+const ColorText = styled.b`
+  color: ${colors.colorPrimary};
+`;
+
+const Card = styled.div`
+  margin-right: ${dimensions.coreSpacing}px;
+  width: 100%;
+
+  &:nth-child(4) {
+    margin-right: 0;
+  }
+`;
+
+const GrayText = styled.div`
+  color: ${colors.colorCoreGray};
+`;
+
+export {
+  WidgetApperance,
+  FormLabel,
+  Checkbox,
+  ListContainer,
+  ListHeader,
+  ListTitle,
+  ColorText,
+  Card,
+  GrayText,
+};

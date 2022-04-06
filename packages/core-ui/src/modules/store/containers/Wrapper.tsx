@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { dimensions } from "modules/common/styles";
 
 const Contents = styled.div`
   max-height: 100%;
@@ -7,11 +8,6 @@ const Contents = styled.div`
   position: relative;
   display: flex;
   flex: 1;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  top: 0;
-  overflow-x: auto;
 
   @-moz-document url-prefix() {
     overflow: hidden;
@@ -19,6 +15,8 @@ const Contents = styled.div`
 `;
 
 const MainContent = styled.div`
+  margin: ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px 0;
+  padding: 0 ${dimensions.coreSpacing}px 0 0;
   flex: 1;
   overflow: auto;
 `;

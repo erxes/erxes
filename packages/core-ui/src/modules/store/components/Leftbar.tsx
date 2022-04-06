@@ -6,7 +6,8 @@ import React from "react";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
 import CollapseFilter from "./CollapseFilter";
-import FormControl from "@erxes/ui/src/components/form/Control";
+import FormControl from "./FormControl";
+import { FlexContent } from "@erxes/ui/src/activityLogs/styles";
 
 const MainContainer = styledTS<{ active?: boolean }>(styled.section)`
   height: 100%;
@@ -49,6 +50,14 @@ const Filter = styled.div`
   border: 1px solid ${colors.borderPrimary};
 `;
 
+const FilterHeader = styled.div`
+  display: flex;
+  height: 40px;
+  justify-content: space-between;
+  padding: 9px;
+  align-items: center;
+`;
+
 const Box = styled.div`
   border-radius: 8px;
   width: 40px;
@@ -58,19 +67,6 @@ const Box = styled.div`
   align-items: center;
   cursor: pointer;
   border: 1px solid ${colors.borderPrimary};
-`;
-
-const FilterHeader = styled.div`
-  display: flex;
-  height: 40px;
-  justify-content: space-between;
-  padding: 9px;
-  align-items: center;
-`;
-
-const Section = styled.div`
-  display: flex;
-  align-items: center;
 `;
 
 const PaddingLeft = styled.div`
@@ -141,14 +137,14 @@ class Leftbar extends React.Component<
     );
   };
 
-  renderCheckbox(text: string) {
-
+  renderCheckbox(text: string, checked?: boolean) {
     return (
       <PaddingBottom>
         <FormControl
           componentClass="checkbox"
           onChange={() => {}}
           color={colors.colorPrimary}
+          defaultChecked={checked}
         >
           {text}
         </FormControl>
@@ -164,10 +160,10 @@ class Leftbar extends React.Component<
         {showInput ? (
           <Filter>
             <FilterHeader>
-              <Section>
+              <FlexContent>
                 <Icon icon="list-ul" size={20} />
                 <PaddingLeft>Filter</PaddingLeft>
-              </Section>
+              </FlexContent>
               <Button btnStyle="simple" size="small" onClick={this.closeInput}>
                 <Icon
                   style={{ cursor: "pointer" }}
@@ -177,19 +173,19 @@ class Leftbar extends React.Component<
                 />
               </Button>
             </FilterHeader>
-            <CollapseFilter compact title="License" open hasBorder={true}>
-              {this.renderCheckbox("All")}
+            <CollapseFilter title="License" open hasBorder={true}>
+              {this.renderCheckbox("All", true)}
               {this.renderCheckbox("Free")}
               {this.renderCheckbox("Premium")}
             </CollapseFilter>
-            <CollapseFilter compact title="Categories" open hasBorder={true}>
-              {this.renderCheckbox("All")}
+            <CollapseFilter title="Categories" open hasBorder={true}>
+              {this.renderCheckbox("All", true)}
               {this.renderCheckbox("Templates")}
               {this.renderCheckbox("Plugins")}
               {this.renderCheckbox("Add-Ons")}
             </CollapseFilter>
             <CollapseFilter title="Products" open hasBorder={true}>
-              {this.renderCheckbox("All")}
+              {this.renderCheckbox("All", true)}
               {this.renderCheckbox("Employee XM")}
               {this.renderCheckbox("Customer XM")}
               {this.renderCheckbox("Product XM")}
