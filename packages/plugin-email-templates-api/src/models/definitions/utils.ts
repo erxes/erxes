@@ -19,6 +19,8 @@ export const field = options => {
   return options;
 };
 
-export const escapeRegExp = (str: string) => {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+export const schemaWrapper = schema => {
+  schema.add({ scopeBrandIds: [String] });
+
+  return schema;
 };
