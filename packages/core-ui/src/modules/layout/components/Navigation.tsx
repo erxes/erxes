@@ -1,6 +1,6 @@
 import WithPermission from "modules/common/components/WithPermission";
 import { __, readFile, setBadge } from "modules/common/utils";
-import { pluginNavigations, pluginsOfNavigations } from "pluginUtils";
+import { pluginNavigations } from "pluginUtils";
 import React from "react";
 import { NavLink } from "react-router-dom";
 import {
@@ -279,8 +279,6 @@ class Navigation extends React.Component<
               nav.label
             )
           )}
-
-          {pluginsOfNavigations(this.renderNavItem)}
 
           {this.renderMenuItem({
             text: "Settings",

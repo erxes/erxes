@@ -67,7 +67,7 @@ export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels
   models.Lotteries = db.model<ILotteryDocument, ILotteryModel>('lotteries', loadLotteryClass(models, subdomain));
   models.VoucherCampaigns = db.model<IVoucherCampaignDocument, IVoucherCampaignModel>('voucher_campaigns', loadVoucherCampaignClass(models, subdomain));
   models.Vouchers = db.model<IVoucherDocument, IVoucherModel>('vouchers', loadVoucherClass(models, subdomain));
-  models.ScoreLogs = db.model<IScoreLogDocument, IScoreLogModel>('scoreLogs', loadScoreLogClass(models, subdomain))
+  models.ScoreLogs = db.model<IScoreLogDocument, IScoreLogModel>('score_logs', loadScoreLogClass(models, subdomain))
 
   return models;
 };

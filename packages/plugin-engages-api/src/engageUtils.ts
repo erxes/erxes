@@ -306,7 +306,7 @@ export const checkCustomerExists = async (subdomain: string, params: ICheckCusto
       action: 'customers.findOne',
       data: customersSelector,
       isRPC: true
-    })
+    });
 
     return customer;
   }
