@@ -8,7 +8,7 @@ const commonEnvs = (configs) => {
   const redis = configs.redis || {};
   const rabbitmq = configs.rabbitmq || {};
 
-  const rabbitmq_host = `amqp://${rabbitmq.user}:${rabbitmq.pass}@/${db_server_address}:5672/${rabbitmq.vhost}`;
+  const rabbitmq_host = `amqp://${rabbitmq.user}:${rabbitmq.pass}@${db_server_address}:5672/${rabbitmq.vhost}`;
 
   return {
     DEBUG: "erxes*",
