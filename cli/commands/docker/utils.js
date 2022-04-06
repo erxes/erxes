@@ -237,7 +237,7 @@ module.exports.dup = async (program) => {
         ports: ["3300:80"],
         networks: ["erxes"],
       },
-      worker: {
+      workers: {
         image: "erxes/workers:federation",
         environment: {
           PORT: "80",
@@ -407,6 +407,16 @@ module.exports.dupdate = async (program) => {
       case "coreui":
         await execCommand(
           `docker service update erxes_coreui --image erxes/erxes:federation`
+        );
+        break;
+      case "workers":
+        await execCommand(
+          `docker service update erxes_workers --image erxes/workers:federation`
+        );
+        break;
+      case "dashboard":
+        await execCommand(
+          `docker service update erxes_dashboard --image erxes/dashboard:federation`
         );
         break;
       case "core":
