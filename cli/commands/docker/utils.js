@@ -4,14 +4,20 @@ const yaml = require("yaml");
 const { log, execCommand, filePath, execCurl } = require("../utils");
 
 const commonEnvs = (configs) => {
+  const db_server_address = configs.db_server_address;
+  const redis = configs.redis || {};
+  const rabbitmq = configs.rabbitmq || {};
+
+  const rabbitmq_host = `amqp://${rabbitmq.user}:${rabbitmq.pass}@/${db_server_address}:5672/${rabbitmq.vhost}`;
+
   return {
     DEBUG: "erxes*",
     NODE_ENV: "production",
-    REDIS_HOST: configs.redis_host || "localhost",
-    REDIS_PORT: configs.redis_port || 6379,
-    REDIS_PASSWORD: configs.redis_password || "",
-    RABBITMQ_HOST: configs.rabbitmq_host,
-    ELASTICSEARCH_URL: configs.elasticsearch_url || "",
+    REDIS_HOST: db_server_address,
+    REDIS_PORT: 6379,
+    REDIS_PASSWORD: redis.password || "",
+    RABBITMQ_HOST: rabbitmq_host,
+    ELASTICSEARCH_URL: `${db_server_address}:9200`,
     ENABLED_SERVICES_PATH: "/data/enabled-services.js",
   };
 };
@@ -20,35 +26,39 @@ const cleaning = async () => {
   await execCommand("docker rm $(docker ps -a -q -f status=exited)", true);
 };
 
+const mongoEnv = (configs) => {
+  const mongo = configs.mongo || {};
+  const db_server_address = configs.db_server_address;
+  const mongo_url = `mongodb://${mongo.username}:${mongo.password}@${db_server_address}:27017/${mongo.db_name || 'erxes'}?authSource=admin&replicaSet=rs0`;
+
+  return mongo_url;
+}
+
 const generatePluginBlock = (configs, plugin) => {
+  const mongo_url = plugin.mongo_url || mongoEnv(configs);
+
   return {
     image: `erxes/plugin-${plugin.name}-api:federation`,
     environment: {
       PORT: plugin.port || 80,
-      API_MONGO_URL: plugin.api_mongo_url || configs.mongo_url,
-      MONGO_URL: plugin.mongo_url || configs.mongo_url,
+      API_MONGO_URL: mongo_url,
+      MONGO_URL: mongo_url,
       LOAD_BALANCER_ADDRESS: `http://plugin_${plugin.name}_api`,
       ...commonEnvs(configs),
     },
     volumes: ["./enabled-services.js:/data/enabled-services.js"],
     networks: ["erxes"],
+    extra_hosts: [`mongo:${plugin.db_server_address || configs.db_server_address || '127.0.0.1'}`],
     deploy: {
       replicas: plugin.replicas || 1,
     },
   };
 };
 
-module.exports.dup = async (program) => {
+module.exports.deployDbs = async (program) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath("configs.json"));
-
-  const subscription_url = `wss://${configs.main_api_domain.replace(
-    "https://",
-    ""
-  )}/graphql`;
-
-  const NGINX_HOST = (configs.main_app_domain || "").replace("https://", "");
 
   const dockerComposeConfig = {
     version: "3.3",
@@ -58,121 +68,8 @@ module.exports.dup = async (program) => {
       },
     },
     services: {
-      coreui: {
-        image: "erxes/erxes:federation",
-        environment: {
-          REACT_APP_CDN_HOST: configs.widgets_domain || "",
-          REACT_APP_API_URL: configs.main_api_domain || "",
-          REACT_APP_DASHBOARD_URL: configs.dashboard_domain || "",
-          REACT_APP_API_SUBSCRIPTION_URL: subscription_url,
-          NGINX_HOST,
-          NODE_ENV: "production",
-          REACT_APP_FILE_UPLOAD_MAX_SIZE: 524288000,
-        },
-        ports: ["3000:80"],
-        volumes: [
-          "./plugins.js:/usr/share/nginx/html/js/plugins.js",
-          "./plugin-uis:/usr/share/nginx/html/js/plugins",
-        ],
-        networks: ["erxes"],
-      },
-      plugin_core_api: {
-        image: "erxes/core:federation",
-        environment: {
-          PORT: "80",
-          JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          LOAD_BALANCER_ADDRESS: "http://plugin_core_api",
-          API_DOMAIN: configs.main_api_domain || "",
-          MAIN_APP_DOMAIN: configs.main_app_domain || "",
-          MONGO_URL: configs.mongo_url,
-          EMAIL_VERIFIER_ENDPOINT:
-            configs.email_verifier_endpoint ||
-            "https://email-verifier.erxes.io",
-          ENABLED_SERVICES_PATH: "/data/enabled-services.js",
-          ...commonEnvs(configs),
-        },
-        volumes: ["./enabled-services.js:/data/enabled-services.js"],
-        networks: ["erxes"],
-      },
-      gateway: {
-        image: "erxes/gateway:federation",
-        environment: {
-          PORT: "80",
-          LOAD_BALANCER_ADDRESS: "http://gateway",
-          JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          MAIN_APP_DOMAIN: configs.main_app_domain,
-          API_DOMAIN: "http://plugin_core_api",
-          WIDGETS_DOMAIN: configs.widgets_domain,
-          CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
-          MONGO_URL: configs.mongo_url,
-          ...commonEnvs(configs),
-        },
-        volumes: ["./enabled-services.js:/data/enabled-services.js"],
-        ports: ["4000:80"],
-        networks: ["erxes"],
-      },
-      worker: {
-        image: "erxes/workers:federation",
-        environment: {
-          PORT: "80",
-          JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          LOAD_BALANCER_ADDRESS: "http://plugin_worker_api",
-          ...commonEnvs(configs),
-        },
-        volumes: ["./enabled-services.js:/data/enabled-services.js"],
-        networks: ["erxes"],
-      },
-      essyncer: {
-        image: "erxes/erxes-essyncer:federation",
-        environment: {
-          ELASTICSEARCH_URL: configs.elasticsearch_url,
-          MONGO_URL: configs.mongo_url,
-        },
-        volumes: ["/essyncerData:/data/essyncerData"],
-        networks: ["erxes"],
-      },
     },
   };
-
-  if (configs.widgets_domain) {
-    dockerComposeConfig.services.widgets = {
-      image: "erxes/erxes-widgets:federation",
-      environment: {
-        PORT: "3200",
-        ROOT_URL: configs.widgets_domain,
-        API_URL: configs.main_api_domain,
-        API_SUBSCRIPTIONS_URL: subscription_url,
-      },
-      ports: ["3200:3200"],
-      networks: ["erxes"],
-    };
-  }
-
-  if (configs.dashboard) {
-    dockerComposeConfig.services.dashboard = {
-      image: "erxes/dashboard:federation",
-      environment: {
-        PORT: "80",
-        JWT_TOKEN_SECRET: configs.jwt_token_secret,
-        ...commonEnvs(configs),
-      },
-      volumes: ["./enabled-services.js:/data/enabled-services.js"],
-      networks: ["erxes"],
-    };
-
-    dockerComposeConfig.services["dashboard-front"] = {
-      image: "erxes/erxes-dashboard-front:develop",
-      ports: ["4200:80"],
-      environment: {
-        REACT_APP_API_URL: configs.main_api_domain,
-        REACT_APP_API_SUBSCRIPTION_URL: subscription_url,
-        REACT_APP_DASHBOARD_API_URL: `https://${NGINX_HOST}/dashboard/api`,
-        REACT_APP_DASHBOARD_API_TOKEN: configs.dashboard.api_token,
-        NGINX_HOST,
-      },
-      networks: ["erxes"],
-    };
-  }
 
   if (configs.kibana) {
     dockerComposeConfig.services.kibana = {
@@ -198,6 +95,7 @@ module.exports.dup = async (program) => {
       networks: ["erxes"],
       volumes: ["./mongodata:/data/db"],
       command: ["--replSet", "rs0", "--bind_ip_all"],
+      extra_hosts: ["mongo:127.0.0.1"]
     };
   }
 
@@ -247,6 +145,160 @@ module.exports.dup = async (program) => {
       ports: ["5672:5672", "15672:15672"],
       networks: ["erxes"],
       volumes: ["./rabbitmq-data:/var/lib/rabbitmq"],
+    };
+  }
+
+  const yamlString = yaml.stringify(dockerComposeConfig);
+
+  log("Generating docker-compose-dbs.yml ....");
+
+  fs.writeFileSync(filePath("docker-compose-dbs.yml"), yamlString);
+
+  log("Deploy ......");
+
+  return execCommand(
+    "docker stack deploy --compose-file docker-compose-dbs.yml erxes-dbs  --with-registry-auth"
+  );
+};
+
+module.exports.dup = async (program) => {
+  await cleaning();
+
+  const configs = await fse.readJSON(filePath("configs.json"));
+
+  const subscription_url = `wss://${configs.main_api_domain.replace(
+    "https://",
+    ""
+  )}/graphql`;
+
+  const NGINX_HOST = (configs.main_app_domain || "").replace("https://", "");
+  const extra_hosts = [`mongo:${configs.db_server_address || '127.0.0.1'}`];
+
+  const dockerComposeConfig = {
+    version: "3.3",
+    networks: {
+      erxes: {
+        driver: "overlay",
+      },
+    },
+    services: {
+      coreui: {
+        image: "erxes/erxes:federation",
+        environment: {
+          REACT_APP_CDN_HOST: configs.widgets_domain || "",
+          REACT_APP_API_URL: configs.main_api_domain || "",
+          REACT_APP_DASHBOARD_URL: configs.dashboard_domain || "",
+          REACT_APP_API_SUBSCRIPTION_URL: subscription_url,
+          NGINX_HOST,
+          NODE_ENV: "production",
+          REACT_APP_FILE_UPLOAD_MAX_SIZE: 524288000,
+        },
+        ports: ["3000:80"],
+        volumes: [
+          "./plugins.js:/usr/share/nginx/html/js/plugins.js",
+          "./plugin-uis:/usr/share/nginx/html/js/plugins",
+        ],
+        networks: ["erxes"],
+      },
+      plugin_core_api: {
+        image: "erxes/core:federation",
+        environment: {
+          PORT: "80",
+          JWT_TOKEN_SECRET: configs.jwt_token_secret,
+          LOAD_BALANCER_ADDRESS: "http://plugin_core_api",
+          API_DOMAIN: configs.main_api_domain || "",
+          MAIN_APP_DOMAIN: configs.main_app_domain || "",
+          MONGO_URL: mongoEnv(configs),
+          EMAIL_VERIFIER_ENDPOINT:
+            configs.email_verifier_endpoint ||
+            "https://email-verifier.erxes.io",
+          ENABLED_SERVICES_PATH: "/data/enabled-services.js",
+          ...commonEnvs(configs),
+        },
+        volumes: ["./enabled-services.js:/data/enabled-services.js"],
+        extra_hosts,
+        networks: ["erxes"],
+      },
+      gateway: {
+        image: "erxes/gateway:federation",
+        environment: {
+          PORT: "80",
+          LOAD_BALANCER_ADDRESS: "http://gateway",
+          JWT_TOKEN_SECRET: configs.jwt_token_secret,
+          MAIN_APP_DOMAIN: configs.main_app_domain,
+          API_DOMAIN: "http://plugin_core_api",
+          WIDGETS_DOMAIN: configs.widgets_domain,
+          CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
+          MONGO_URL: mongoEnv(configs),
+          ...commonEnvs(configs),
+        },
+        volumes: ["./enabled-services.js:/data/enabled-services.js"],
+        extra_hosts,
+        ports: ["4000:80"],
+        networks: ["erxes"],
+      },
+      worker: {
+        image: "erxes/workers:federation",
+        environment: {
+          PORT: "80",
+          JWT_TOKEN_SECRET: configs.jwt_token_secret,
+          LOAD_BALANCER_ADDRESS: "http://plugin_worker_api",
+          ...commonEnvs(configs),
+        },
+        volumes: ["./enabled-services.js:/data/enabled-services.js"],
+        extra_hosts,
+        networks: ["erxes"],
+      },
+      essyncer: {
+        image: "erxes/erxes-essyncer:federation",
+        environment: {
+          ELASTICSEARCH_URL: `http://${configs.db_server_address}:9200`,
+          MONGO_URL: mongoEnv(configs),
+        },
+        volumes: ["/essyncerData:/data/essyncerData"],
+        extra_hosts,
+        networks: ["erxes"],
+      },
+    },
+  };
+
+  if (configs.widgets_domain) {
+    dockerComposeConfig.services.widgets = {
+      image: "erxes/erxes-widgets:federation",
+      environment: {
+        PORT: "3200",
+        ROOT_URL: configs.widgets_domain,
+        API_URL: configs.main_api_domain,
+        API_SUBSCRIPTIONS_URL: subscription_url,
+      },
+      ports: ["3200:3200"],
+      networks: ["erxes"],
+    };
+  }
+
+  if (configs.dashboard) {
+    dockerComposeConfig.services.dashboard = {
+      image: "erxes/dashboard:federation",
+      environment: {
+        PORT: "80",
+        JWT_TOKEN_SECRET: configs.jwt_token_secret,
+        ...commonEnvs(configs),
+      },
+      volumes: ["./enabled-services.js:/data/enabled-services.js"],
+      networks: ["erxes"],
+    };
+
+    dockerComposeConfig.services["dashboard-front"] = {
+      image: "erxes/erxes-dashboard-front:develop",
+      ports: ["4200:80"],
+      environment: {
+        REACT_APP_API_URL: configs.main_api_domain,
+        REACT_APP_API_SUBSCRIPTION_URL: subscription_url,
+        REACT_APP_DASHBOARD_API_URL: `https://${NGINX_HOST}/dashboard/api`,
+        REACT_APP_DASHBOARD_API_TOKEN: configs.dashboard.api_token,
+        NGINX_HOST,
+      },
+      networks: ["erxes"],
     };
   }
 
@@ -351,26 +403,27 @@ module.exports.dupdate = async (program) => {
   for (const name of pluginNames.split(",")) {
     log(`Force updating  ${name}......`);
 
-    if (name === "coreui") {
-      await execCommand(
-        `docker service update erxes_coreui --image erxes/erxes:federation`
-      );
-    } else {
-      if (name === "core") {
+    switch (name) {
+      case "coreui":
+        await execCommand(
+          `docker service update erxes_coreui --image erxes/erxes:federation`
+        );
+        break;
+      case "core":
         await execCommand(
           `docker service update erxes_plugin_core_api --image erxes/core:federation`
         );
-      } else {
-        if (name === "gateway") {
-          await execCommand(
-            `docker service update erxes_gateway --image erxes/gateway:federation`
-          );
-        } else {
-          await execCommand(
-            `docker service update erxes_plugin_${name}_api --image erxes/plugin-${name}-api:federation`
-          );
-        }
-      }
+        break;
+      case "gateway":
+        await execCommand(
+          `docker service update erxes_gateway --image erxes/gateway:federation`
+        );
+        break;
+
+      default:
+        await execCommand(
+          `docker service update erxes_plugin_${name}_api --image erxes/plugin-${name}-api:federation`
+        );
     }
   }
 };

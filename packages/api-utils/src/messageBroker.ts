@@ -181,6 +181,8 @@ export const sendMessage = async (queueName: string, data?: any) => {
 export const init = async ({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }) => {
   redisClient = redis;
 
+  console.log('mmmmmmmmmmmmmm', RABBITMQ_HOST)
+
   const connection = await amqplib.connect(RABBITMQ_HOST, { noDelay: true });
 
   channel = await connection.createChannel();

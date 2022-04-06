@@ -7,7 +7,7 @@ const program = require('commander');
 const packageJSON = require('../package.json');
 const startCmd = require('../commands/start');
 const updateCmd = require('../commands/update');
-const { dup, dupdate, drestart } = require('../commands/docker/utils');
+const { dup, dupdate, drestart, deployDbs } = require('../commands/docker/utils');
 
 /**
  * Normalize version argument
@@ -42,6 +42,11 @@ program
   .option('--ignoreDownload', 'Ingore latest updates download')
   .description('Run erxes')
   .action(startCmd);
+
+program
+  .command('deploy-dbs')
+  .description('Delpoy dbs using docker')
+  .action(deployDbs);
 
 program
   .command('dup')
