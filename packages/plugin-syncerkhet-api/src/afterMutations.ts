@@ -14,7 +14,7 @@ export default {
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
-  const { type, action } = params;
+  const { type, action, user } = params;
 
   if (type === 'cards:deal') {
     if (action === 'update') {
@@ -118,17 +118,17 @@ export const afterMutationHandlers = async (subdomain, params) => {
   if (type === 'contacts:company') {
 
     if (action === 'create') {
-      companyToErkhet(subdomain, params, 'create');
+      companyToErkhet(subdomain, params, 'create', user);
       return;
     }
 
     if (action === 'update') {
-      companyToErkhet(subdomain, params, 'update');
+      companyToErkhet(subdomain, params, 'update', user);
       return;
     }
 
     if (action === 'delete') {
-      companyToErkhet(subdomain, params, 'delete');
+      companyToErkhet(subdomain, params, 'delete', user);
       return;
     }
   }

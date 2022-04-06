@@ -20,6 +20,7 @@ export let es: {
 
 export default {
   name: "ebarimt",
+  hasSubscriptions: true,
   graphql: async (sd) => {
     serviceDiscovery = sd;
     return {

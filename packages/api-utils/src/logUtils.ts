@@ -175,7 +175,8 @@ const putLog = async (
           ...params,
           object: params.object,
           newData: params.newData,
-          extraDesc: params.extraDesc
+          extraDesc: params.extraDesc,
+          user
         }
       })
     }

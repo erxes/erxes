@@ -2,7 +2,7 @@ import { IUser } from "modules/auth/types";
 import asyncComponent from "modules/common/components/AsyncComponent";
 import { IRouterProps } from "@erxes/ui/src/types";
 import { bustIframe } from "modules/common/utils";
-import Robot from "modules/robot/containers/Robot";
+
 import React from "react";
 import { withRouter } from "react-router-dom";
 import Navigation from "../containers/Navigation";
