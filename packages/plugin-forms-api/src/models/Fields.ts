@@ -2,10 +2,11 @@
  * Extra fields for form, customer, company
  */
 
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as validator from 'validator';
 import { IModels } from '../connectionResolver';
-// ? import { updateOrder } from './boardUtils';
+import { sendContactsMessage } from '../messageBroker';
+import { updateOrder, IOrderInput } from '@erxes/api-utils/src/commonUtils';
 import {
   fieldGroupSchema,
   fieldSchema,
@@ -14,11 +15,6 @@ import {
   IFieldGroup,
   IFieldGroupDocument
 } from './definitions/fields';
-
-export interface IOrderInput {
-  _id: string;
-  order: number;
-}
 
 export interface ITypedListItem {
   field: string;
@@ -78,7 +74,7 @@ export interface IFieldModel extends Model<IFieldDocument> {
   ): Promise<any>;
 }
 
-export const loadFieldClass = (models: IModels) => {
+export const loadFieldClass = (models: IModels, subdomain: string) => {
   class Field {
     /*
      * Check if Group is defined by erxes by default
@@ -194,10 +190,18 @@ export const loadFieldClass = (models: IModels) => {
       await this.checkIsDefinedByErxes(_id);
 
       // Removing field value from customer
-      // ? await Customers.updateMany(
-      //   { 'customFieldsData.field': _id },
-      //   { $pull: { customFieldsData: { field: _id } } }
-      // );
+      await sendContactsMessage({
+        subdomain,
+        action: 'customers.updateMany',
+        data: {
+          selector: {
+            'customFieldsData.field': _id
+          },
+          modifier: {
+            $pull: { customFieldsData: { field: _id } }
+          }
+        }
+      });
 
       // Removing form associated field
       await models.Fields.updateMany(
@@ -211,9 +215,9 @@ export const loadFieldClass = (models: IModels) => {
     /*
      * Update given fields orders
      */
-    // public static async updateOrder(orders: IOrderInput[]) {
-    //   return updateOrder(Fields, orders);
-    // }
+    public static async updateOrder(orders: IOrderInput[]) {
+      return updateOrder(models.Fields, orders);
+    }
 
     /*
      * Validate per field according to it's validation and type
@@ -656,9 +660,9 @@ export const loadGroupClass = (models: IModels) => {
     /*
      * Update given fieldsGroups orders
      */
-    // public static async updateOrder(orders: IOrderInput[]) {
-    //   return updateOrder(FieldsGroups, orders);
-    // }
+    public static async updateOrder(orders: IOrderInput[]) {
+      return updateOrder(models.FieldsGroups, orders);
+    }
   }
 
   fieldGroupSchema.loadClass(FieldGroup);

@@ -5,7 +5,7 @@ import { IPutResponseModel, loadPutResponseClass } from "./models/Ebarimt";
 import { IContext as IMainContext } from "@erxes/api-utils/src";
 
 export interface IModels {
-  Ebarimt: IPutResponseModel;
+  PutResponses: IPutResponseModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -29,8 +29,8 @@ export const generateModels = async (
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
-  models.Ebarimt = db.model<IPutResponseDoc, IPutResponseModel>(
-    "ebarimt",
+  models.PutResponses = db.model<IPutResponseDoc, IPutResponseModel>(
+    "put_responses",
     loadPutResponseClass(models)
   );
 

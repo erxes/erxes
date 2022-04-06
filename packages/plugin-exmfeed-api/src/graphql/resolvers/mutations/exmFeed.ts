@@ -58,15 +58,15 @@ const exmFeedMutations = {
     //   receivers
     // });
 
-    // sendCoreMessage({
-    //   subdomain: "os",
-    //   action: "sendMobileNotification",
-    //   data: {
-    //     title: doc.title,
-    //     body: doc.description,
-    //     receivers,
-    //   },
-    // });
+    sendCoreMessage({
+      subdomain: "os",
+      action: "sendMobileNotification",
+      data: {
+        title: doc.title,
+        body: doc.description,
+        receivers,
+      },
+    });
 
     if (doc.type === "bravo" && models.Exms) {
       for (const userId of doc.recipientIds || []) {

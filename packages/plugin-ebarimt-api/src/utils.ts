@@ -1,5 +1,5 @@
 import { sendRequest } from "@erxes/api-utils/src";
-import { sendCoreMessage, sendNotificationsMessage } from "./messageBroker";
+import { sendCoreMessage, sendNotificationsMessage, sendContactsMessage, sendProductsMessage } from './messageBroker';
 
 export const sendNotification = (subdomain: string, data) => {
   return sendNotificationsMessage({ subdomain, action: "send", data });
@@ -33,7 +33,7 @@ export const validCompanyCode = async (config, companyCode) => {
   return result;
 };
 
-export const companyCheckCode = async (user, models, params, subdomain) => {
+export const companyCheckCode = async (user, params, subdomain) => {
   const config = await getConfig(subdomain, "EBARIMT", {});
   const company = params.updatedDocument || params.object;
   const companyName = await validCompanyCode(config, company.code);
@@ -42,23 +42,35 @@ export const companyCheckCode = async (user, models, params, subdomain) => {
     if (company.primaryName !== companyName) {
       company.primaryName = companyName;
 
-      await models.Companies.updateCompany(company._id, {
-        company,
-        primaryName: companyName,
-        names: [companyName],
-      });
+      await sendContactsMessage({
+        subdomain,
+        action: 'companies.updateCompany',
+        data: {
+          _id: company._id, doc: {
+            company,
+            primaryName: companyName,
+            names: [companyName]
+          }
+        },
+        isRPC: true
+      })
     }
   } else {
-    sendNotification(subdomain, {
-      createdUser: user,
-      receivers: [user._id],
-      title: "wrong company code",
-      content: `Байгууллагын код буруу бөглөсөн байна. "${company.code}"`,
-      notifType: "companyMention",
-      link: `/companies/details/${company._id}`,
-      action: "update",
-      contentType: "company",
-      contentTypeId: company._id,
+    sendNotificationsMessage({
+      subdomain,
+      action: "send",
+      data: {
+        createdUser: user,
+        receivers: [user._id],
+        title: 'wrong company code',
+        content: `Байгууллагын код буруу бөглөсөн байна. "${company.code}"`,
+        notifType: 'companyMention',
+        link: `/companies/details/${company._id}`,
+        action: 'update',
+        contentType: 'company',
+        contentTypeId: company._id,
+      },
+      defaultValue: true,
     });
   }
 };
@@ -70,19 +82,29 @@ export const validConfigMsg = async (config) => {
   return "";
 };
 
-export const getPostData = async (models, config, deal) => {
+export const getPostData = async (subdomain, config, deal) => {
   let billType = "1";
   let customerCode = "";
   let customerName = "";
 
-  const companyIds = await models.Conformities.savedConformity({
-    mainType: "deal",
-    mainTypeId: deal._id,
-    relTypes: ["company"],
+  const companyIds = await sendCoreMessage({
+    subdomain,
+    action: 'conformities.savedConformity',
+    data: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['company'] },
+    isRPC: true,
+    defaultValue: []
   });
+
   if (companyIds.length > 0) {
-    const companies =
-      (await models.Companies.find({ _id: { $in: companyIds } })) || [];
+
+    const companies = await sendContactsMessage({
+      subdomain,
+      action: 'companies.findActiveCompanies',
+      data: { selector: { _id: { $in: companyIds } }, fields: { _id: 1, code: 1 } },
+      isRPC: true,
+      defaultValue: []
+    });
+
     const re = new RegExp("(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)", "gui");
     for (const company of companies) {
       if (re.test(company.code)) {
@@ -103,21 +125,34 @@ export const getPostData = async (models, config, deal) => {
   }
 
   if (billType === "1") {
-    const customerIds = await models.Conformities.savedConformity({
-      mainType: "deal",
-      mainTypeId: deal._id,
-      relTypes: ["customer"],
+    const customerIds = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.savedConformity',
+      data: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['customer'] },
+      isRPC: true,
+      defaultValue: []
     });
+
     if (customerIds.length > 0) {
-      const customers = await models.Customers.find({
-        _id: { $in: customerIds },
+      const customers = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findActiveCustomers',
+        data: { selector: { _id: { $in: customerIds } }, fields: { _id: 1, code: 1 } },
+        isRPC: true,
+        defaultValue: []
       });
       customerCode = customers.length > 0 ? customers[0].code : "" || "";
     }
   }
 
   const productsIds = deal.productsData.map((item) => item.productId);
-  const products = await models.Products.find({ _id: { $in: productsIds } });
+  const products = await sendProductsMessage({
+    subdomain,
+    action: 'find',
+    data: { query: { _id: { $in: productsIds } } },
+    isRPC: true,
+    defaultValue: []
+  })
 
   const productsById = {};
   for (const product of products) {

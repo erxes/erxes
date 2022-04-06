@@ -1,7 +1,6 @@
 import { Model } from 'mongoose';
 import {
   getCollection,
-  updateOrder,
   watchItem,
   boardNumberGenerator
 } from './utils';
@@ -22,11 +21,7 @@ import { configReplacer } from '../utils';
 import { putActivityLog } from '../logUtils';
 import { IModels } from '../connectionResolver';
 import { sendCoreMessage, sendFormsMessage, sendInternalNotesMessage } from '../messageBroker';
-
-export interface IOrderInput {
-  _id: string;
-  order: number;
-}
+import { updateOrder, IOrderInput } from '@erxes/api-utils/src/commonUtils';
 
 // Not mongoose document, just stage shaped plain object
 type IPipelineStage = IStage & { _id: string };
