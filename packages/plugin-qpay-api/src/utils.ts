@@ -5,7 +5,7 @@ export const configCodes = {
   password: 'qpayMerchantPassword',
   invoiceCode: 'qpayInvoiceCode',
   url: 'qpayUrl',
-  callback: 'callbackUrl'
+  callback: 'callbackUrl',
 };
 
 export const configDescriptions = {
@@ -13,7 +13,7 @@ export const configDescriptions = {
   qpayMerchantPassword: 'Merchant password for API',
   qpayInvoiceCode: 'Invoice code for Merchant',
   qpayUrl: 'Qpay url for API',
-  callbackUrl: 'The callback url for Merchant'
+  callbackUrl: 'The callback url for Merchant',
 };
 
 export const setQpayConfig = async (code, models, doc) => {
@@ -79,7 +79,7 @@ export const getConfigs = async (configs, key) => {
   return config.value;
 };
 
-export const makeInvoiceNo = length => {
+export const makeInvoiceNo = (length) => {
   let result = '';
   const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
   const charactersLength = characters.length;
@@ -93,25 +93,26 @@ export const fetchUrl = async (url, requestOptions) => {
   let returnData;
 
   await fetch(`${url}`, requestOptions)
-    .then(response => response.text())
-    .then(result => {
+    .then((response) => response.text())
+    .then((result) => {
       try {
         returnData = JSON.parse(result);
       } catch (error) {
         returnData = { error: result };
       }
     })
-    .catch(error => console.log('error', error));
+    .catch((error) => console.log('error', error));
 
   return returnData;
 };
 
-export const qpayToken = async configs => {
+export const qpayToken = async (configs) => {
   const host = await getConfigs(configs, configCodes.url);
   const username = await getConfigs(configs, configCodes.username);
   const password = await getConfigs(configs, configCodes.password);
 
   const myHeaders = new fetch.Headers();
+
   const port = '/v2/auth/token';
   myHeaders.append(
     'Authorization',
@@ -124,7 +125,7 @@ export const qpayToken = async configs => {
     method: 'POST',
     headers: myHeaders,
     body: raw,
-    redirect: 'follow'
+    redirect: 'follow',
   };
 
   const tokenInfo = await fetchUrl(`${host}${port}`, requestOptions);
@@ -142,7 +143,7 @@ export const createInvoice = async (varData, token, configs) => {
     method: 'POST',
     headers: myHeaders,
     body: raw,
-    redirect: 'follow'
+    redirect: 'follow',
   };
 
   return fetchUrl(`${host}${port}`, requestOptions);
@@ -156,7 +157,7 @@ export const deleteInvoice = async (invoiceId, token, configs) => {
   const requestOptions = {
     method: 'DELETE',
     headers: myHeaders,
-    redirect: 'follow'
+    redirect: 'follow',
   };
 
   return fetchUrl(`${host}${port}`, requestOptions);
@@ -171,7 +172,7 @@ export const getQpayInvoice = async (invoiceId, token, configs) => {
   let requestOptions = {
     method: 'GET',
     headers: myHeaders,
-    redirect: 'follow'
+    redirect: 'follow',
   };
 
   return fetchUrl(`${host}${port}`, requestOptions);
@@ -189,7 +190,7 @@ export const checkQpayPayment = async (varData, token, configs) => {
     method: 'POST',
     headers: myHeaders,
     body: raw,
-    redirect: 'follow'
+    redirect: 'follow',
   };
 
   return fetchUrl(`${host}${port}`, requestOptions);
@@ -207,7 +208,7 @@ export const listQpayPayment = async (varData, token, configs) => {
     method: 'POST',
     headers: myHeaders,
     body: raw,
-    redirect: 'follow'
+    redirect: 'follow',
   };
 
   return fetchUrl(`${host}${port}`, requestOptions);
@@ -226,14 +227,14 @@ export const deleteQpayPayment = async (
   const port = `/v2/payment/cancel/${paymentId}`;
   const raw = JSON.stringify({
     callback_url: `https://qpay.mn/payment/result?payment_id=${paymentId}`,
-    note: description
+    note: description,
   });
 
   const requestOptions = {
     method: 'DELETE',
     headers: myHeaders,
     body: raw,
-    redirect: 'follow'
+    redirect: 'follow',
   };
 
   return fetchUrl(`${host}${port}`, requestOptions);
@@ -251,7 +252,7 @@ export const getQpayNuat = async (varData, token, configs) => {
     method: 'POST',
     headers: myHeaders,
     body: raw,
-    redirect: 'follow'
+    redirect: 'follow',
   };
 
   return fetchUrl(`${host}${port}`, requestOptions);
