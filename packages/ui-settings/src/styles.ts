@@ -291,6 +291,10 @@ const InputBar = styledTS<{type?: string}>(styled.div)`
   margin-left: ${props => props.type === "active" && '10px'};
   height: 41px;
   padding-left: ${props => props.type === "searchBar" && `${dimensions.unitSpacing * 2}px`};
+
+  input {
+    border-bottom: 0;
+  }
 `;
 
 export {

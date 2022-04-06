@@ -195,9 +195,6 @@ const Width = styled.div`
   width: 800px
 `;
 
-const NoBorder = styled.div`
-
-`;
 
 export {
   ImportColumnRow,
@@ -212,5 +209,4 @@ export {
   ImportHeader,
   FileUploadBox,
   Width,
-  NoBorder
 };

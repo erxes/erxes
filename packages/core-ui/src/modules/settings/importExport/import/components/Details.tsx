@@ -53,7 +53,6 @@ class Details extends React.Component<Props, {}> {
               value={importName}
               onChange={this.onChangeName}
               placeholder={__("Import Name")}
-              // noBorderBottom={true}
             />
             </InputBar>
           </FormGroup>
