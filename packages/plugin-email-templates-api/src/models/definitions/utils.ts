@@ -1,5 +1,4 @@
 import * as Random from 'meteor-random';
-import { removeKey } from '../../inmemoryStorage';
 
 /*
  * Mongoose field options wrapper
