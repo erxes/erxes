@@ -7,13 +7,13 @@ import {
   getQpayNuat,
   getQpayConfigs,
   getConfigs,
-} from '../../../models/definitions/utils';
+} from '../../../utils';
 
 import {
   hmac256,
   socialPayInvoiceCheck,
   configCodes as configCodesSP,
-} from '../../../models/definitions/utilsGolomtSP';
+} from '../../../utilsGolomtSP';
 
 const Queries = {
   /**
