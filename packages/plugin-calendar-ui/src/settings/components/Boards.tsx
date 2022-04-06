@@ -67,7 +67,7 @@ class Boards extends React.Component<Props, {}> {
     const { loading, boards } = this.props;
 
     return (
-      <Sidebar wide={true} header={this.renderSidebarHeader()} full={true}>
+      <Sidebar wide={true} header={this.renderSidebarHeader()} full={true} hasBorder={true}>
         <DataWithLoader
           data={<List>{this.renderItems()}</List>}
           loading={loading}

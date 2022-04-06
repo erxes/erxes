@@ -65,7 +65,7 @@ class Sidebar extends React.Component<Props, {}> {
     const { loading, channelsTotalCount } = this.props;
 
     return (
-      <LeftSidebar wide={true} full={true} header={this.renderSidebarHeader()}>
+      <LeftSidebar wide={true} full={true} header={this.renderSidebarHeader()} hasBorder={true}>
         <SidebarList>{this.renderItems()}</SidebarList>
         {loading && <Spinner />}
         {!loading && channelsTotalCount === 0 && (

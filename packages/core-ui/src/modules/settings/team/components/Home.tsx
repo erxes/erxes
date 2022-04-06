@@ -106,7 +106,6 @@ export default function Home(props: Props) {
             value={searchValue}
             autoFocus={true}
             onFocus={moveCursorAtTheEnd}
-            noBorderBottom={true}
           />
         </FlexItem>
         </InputBar>
