@@ -1,5 +1,5 @@
 module.exports = {
-  name: "loyalty",
+  name: "loyalties",
   port: 3002,
   exposes: {
     "./routes": "./src/routes.tsx",
@@ -7,23 +7,23 @@ module.exports = {
   },
   routes: {
     url: "http://localhost:3002/remoteEntry.js",
-    scope: "loyalty",
+    scope: "loyalties",
     module: "./routes",
   },
   menus: [
     {
-    text: 'Loyalty',
+    text: 'Loyalties',
     url: '/vouchers',
     icon: 'icon-piggybank',
     location: "mainNavigation",
     permission: 'showLoyalties'
   },
   {
-    text: 'Loyalty config',
+    text: 'Loyalties config',
     to: '/settings/general',
     image: '/images/icons/erxes-16.svg',
     location: "settings",
-    scope: "loyalty",
+    scope: "loyalties",
     action: 'loyaltyConfig',
     permissions: ['loyaltyConfig'],
   }
