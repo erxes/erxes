@@ -24,7 +24,8 @@ const emailTemplateMutations = {
       {
         type: EMAIL_TEMPLATE,
         newData: doc,
-        object: template
+        object: template,
+        description: `"${doc.name}" has been created`
       },
       user
     );
@@ -47,7 +48,8 @@ const emailTemplateMutations = {
       {
         type: EMAIL_TEMPLATE,
         object: template,
-        newData: fields
+        newData: fields,
+        description: `"${updated.name}" has been edited`
       },
       user
     );
@@ -76,7 +78,8 @@ const emailTemplateMutations = {
         type: EMAIL_TEMPLATE,
         object: emailTemplate,
         newData: { status },
-        updatedDocument: updated
+        updatedDocument: updated,
+        description: `Status of "${emailTemplate.name}" has been changed`
       },
       user
     );
@@ -95,7 +98,7 @@ const emailTemplateMutations = {
     const removed = await models.EmailTemplates.removeEmailTemplate(_id);
 
     await putDeleteLog(
-      { type: EMAIL_TEMPLATE, object: template },
+      { type: EMAIL_TEMPLATE, object: template, description: `"${template.name}" has been deleted` },
       user
     );
 
