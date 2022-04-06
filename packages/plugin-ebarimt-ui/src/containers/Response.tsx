@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import React from 'react';
-import Response from '../components/Response';
+import Response from '../components/receipt/Response';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { subscriptions } from '../graphql';
