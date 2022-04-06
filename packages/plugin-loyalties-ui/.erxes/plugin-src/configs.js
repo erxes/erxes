@@ -12,20 +12,20 @@ module.exports = {
   },
   menus: [
     {
-    text: 'Loyalties',
-    url: '/vouchers',
-    icon: 'icon-piggybank',
-    location: "mainNavigation",
-    permission: 'showLoyalties'
-  },
-  {
-    text: 'Loyalties config',
-    to: '/settings/general',
-    image: '/images/icons/erxes-16.svg',
-    location: "settings",
-    scope: "loyalties",
-    action: 'loyaltyConfig',
-    permissions: ['loyaltyConfig'],
-  }
-],
+      text: 'Loyalties',
+      url: '/vouchers',
+      icon: 'icon-piggybank',
+      location: "mainNavigation",
+      permission: 'showLoyalties'
+    },
+    {
+      text: 'Loyalties config',
+      to: '/erxes-plugin-loyalty/settings/general',
+      image: '/images/icons/erxes-16.svg',
+      location: "settings",
+      scope: "loyalties",
+      action: 'loyaltyConfig',
+      permissions: ['loyaltyConfig'],
+    }
+  ],
 };
