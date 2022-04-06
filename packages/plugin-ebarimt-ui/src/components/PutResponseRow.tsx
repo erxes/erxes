@@ -6,7 +6,7 @@ import Button from '@erxes/ui/src/components/Button';
 import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import queries from '../graphql/queries';
-import Response from './Response'
+import Response from './receipt/Response'
 
 type Props = {
   putResponse: IPutResponse;
