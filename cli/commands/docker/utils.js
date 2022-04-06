@@ -409,6 +409,16 @@ module.exports.dupdate = async (program) => {
           `docker service update erxes_coreui --image erxes/erxes:federation`
         );
         break;
+      case "widgets":
+        await execCommand(
+          `docker service update erxes_widgets --image erxes/widgets:federation`
+        );
+        break;
+      case "dashboard-front":
+        await execCommand(
+          `docker service update erxes_dashboard-front --image erxes/dashboard-front:federation`
+        );
+        break;
       case "workers":
         await execCommand(
           `docker service update erxes_workers --image erxes/workers:federation`
