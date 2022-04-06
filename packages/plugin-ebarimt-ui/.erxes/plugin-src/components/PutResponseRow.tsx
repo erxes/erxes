@@ -1,13 +1,13 @@
 import _ from 'lodash';
-import { formatValue } from '@erxes/ui/src/utils';
-import ReactDOM from "react-dom";
-import React from 'react';
-import { IPutResponse } from '../types';
 import Button from '@erxes/ui/src/components/Button';
 import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import queries from '../graphql/queries';
-import Response from './receipt/Response'
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Response from './receipt/Response';
+import { formatValue } from '@erxes/ui/src/utils';
+import { IPutResponse } from '../types';
 
 type Props = {
   putResponse: IPutResponse;
