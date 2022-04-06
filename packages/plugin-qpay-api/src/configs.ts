@@ -18,7 +18,7 @@ export let es: {
 };
 
 export default {
-  name: 'reactions',
+  name: 'qpay',
   graphql: async (sd) => {
     serviceDiscovery = sd;
     return {

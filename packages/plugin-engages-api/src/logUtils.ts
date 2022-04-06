@@ -4,7 +4,7 @@ import {
   putUpdateLog as commonPutUpdateLog,
   putDeleteLog as commonPutDeleteLog,
   getSchemaLabels,
-  gatherNames
+  gatherNames,
 } from '@erxes/api-utils/src/logUtils';
 
 import {
@@ -15,7 +15,13 @@ import {
   IEngageMessageDocument,
   IEngageMessage,
 } from './models/definitions/engages';
-import messageBroker, { sendSegmentsMessage, sendCoreMessage, sendTagsMessage } from './messageBroker';
+import messageBroker, {
+  sendSegmentsMessage,
+  sendCoreMessage,
+  sendTagsMessage,
+  sendEmailTemplatesMessage,
+} from './messageBroker';
+import configs from './configs';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
@@ -140,24 +146,31 @@ const gatherEngageFieldNames = async (
     }
   }
 
-  // if (doc.email && doc.email.templateId) {
-  //   options = await gatherNames({
-  //     foreignKey: 'email.templateId',
-  //     prevList: options,
-  //     nameFields: ['name'],
-  //     // EmailTemplates is not yet included in any plugins
-  //     items: await findMongoDocuments('', generateOptions([doc.email.templateId], 'EmailTemplates'))
-  //   });
-  // }
+  if (doc.email && doc.email.templateId) {
+    const template = await sendRPCMessage(
+      {
+        action: 'findOne',
+        data: { _id: doc.email.templateId },
+      },
+      sendEmailTemplatesMessage
+    );
+
+    if (template) {
+      options = await gatherNames({
+        foreignKey: 'email.templateId',
+        prevList: options,
+        nameFields: ['name'],
+        items: [template],
+      });
+    }
+  }
 
   return options;
 };
 
 export const gatherDescriptions = async (subdomain: string, params: any) => {
-  const { object, updatedDocument } = params;
-
-  // action will be filled inside putLog()
-  const description = `"${object.title}" has been`;
+  const { object, updatedDocument, action } = params;
+  const description = `"${object.title}" has been ${action}d`;
 
   let extraDesc: LogDesc[] = await gatherEngageFieldNames(subdomain, object);
 
@@ -180,7 +193,12 @@ export const putDeleteLog = async (subdomain: string, logDoc, user) => {
 
   await commonPutDeleteLog(
     messageBroker(),
-    { ...logDoc, description, extraDesc, type: `engages:${logDoc.type}` },
+    {
+      ...logDoc,
+      description,
+      extraDesc,
+      type: `${configs.name}:${logDoc.type}`,
+    },
     user
   );
 };
@@ -193,7 +211,12 @@ export const putUpdateLog = async (subdomain: string, logDoc, user) => {
 
   await commonPutUpdateLog(
     messageBroker(),
-    { ...logDoc, description, extraDesc, type: `engages:${logDoc.type}` },
+    {
+      ...logDoc,
+      description,
+      extraDesc,
+      type: `${configs.name}:${logDoc.type}`,
+    },
     user
   );
 };
@@ -206,7 +229,12 @@ export const putCreateLog = async (subdomain: string, logDoc, user) => {
 
   await commonPutCreateLog(
     messageBroker(),
-    { ...logDoc, description, extraDesc, type: `engages:${logDoc.type}` },
+    {
+      ...logDoc,
+      description,
+      extraDesc,
+      type: `${configs.name}:${logDoc.type}`,
+    },
     user
   );
 };

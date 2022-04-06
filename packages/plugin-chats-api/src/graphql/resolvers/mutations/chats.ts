@@ -3,6 +3,7 @@ import { CHAT_TYPE, IChatMessage } from "../../../models/definitions/chat";
 import { graphqlPubsub } from "../../../configs";
 // import { sendMobileNotification } from '../../../utils';
 import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { sendCoreMessage } from "../../../messageBroker";
 
 const checkChatAdmin = async (Chats, userId) => {
   const found = await Chats.exists({
@@ -50,6 +51,16 @@ const chatMutations = {
     //   contentTypeId: chat._id,
     //   receivers: allParticipantIds,
     // });
+
+    sendCoreMessage({
+      subdomain: "os",
+      action: "sendMobileNotification",
+      data: {
+        title: doc.title,
+        body: doc.description,
+        receivers: allParticipantIds,
+      },
+    });
 
     // sendMobileNotification(coreModels, {
     //   title: doc.title,

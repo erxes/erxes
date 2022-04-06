@@ -1,4 +1,4 @@
-import { sendCommonMessage, sendCoreMessage } from '../../messageBroker';
+import { sendCommonMessage, sendCoreMessage } from "../../messageBroker";
 
 const removeEmptyValues = obj => {
   const newObj = {};
@@ -22,23 +22,23 @@ const getCustomFieldsDataWithValue = async (customFieldsData: any) => {
 
   for (const customFieldData of customFieldsData || []) {
     const field = await sendCommonMessage({
-      subdomain: 'os',
+      subdomain: "os",
       data: {
         query: {
-          _id: customFieldData.field
-        }
+          _id: customFieldData.field,
+        },
       },
-      serviceName: 'forms',
-      action: 'fields.findOne',
+      serviceName: "forms",
+      action: "fields.findOne",
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     if (field) {
       customFields.push({
         text: field.text,
         data: customFieldData.value,
-        code: field.code
+        code: field.code,
       });
     }
   }
@@ -63,16 +63,16 @@ const queries = {
       waiterIds,
       stageOrder,
       limit,
-      skip
+      skip,
     }
   ) {
     const filter: any = {};
 
     if (priceRange) {
-      const prices = priceRange.split(',');
+      const prices = priceRange.split(",");
 
       filter.unitPrice = {
-        $gte: parseInt(prices[0], 10)
+        $gte: parseInt(prices[0], 10),
       };
 
       if (prices.length === 2) {
@@ -81,30 +81,30 @@ const queries = {
     }
 
     if (searchValue) {
-      filter.description = new RegExp(`.*${searchValue}.*`, 'i');
+      filter.description = new RegExp(`.*${searchValue}.*`, "i");
     }
 
     if (district) {
-      const districts = district.split(',');
+      const districts = district.split(",");
 
       const products = await sendCommonMessage({
-        subdomain: 'os',
+        subdomain: "os",
         isRPC: true,
         data: { code: { $in: districts } },
-        action: 'categories.find',
-        serviceName: 'products',
-        defaultValue: []
+        action: "categories.find",
+        serviceName: "products",
+        defaultValue: [],
       });
 
       const districtIds = products.map(p => p._id);
 
       const parentProducts = await sendCommonMessage({
-        subdomain: 'os',
+        subdomain: "os",
         isRPC: true,
         data: { parentId: { $in: districtIds } },
-        action: 'categories.find',
-        serviceName: 'products',
-        defaultValue: []
+        action: "categories.find",
+        serviceName: "products",
+        defaultValue: [],
       });
 
       const catIds = parentProducts.map(p => p._id);
@@ -116,19 +116,19 @@ const queries = {
 
     if (Object.keys(filter).length > 0) {
       const products = await sendCommonMessage({
-        subdomain: 'os',
+        subdomain: "os",
         data: filter,
-        action: 'categories.find',
-        serviceName: 'products',
+        action: "categories.find",
+        serviceName: "products",
         defaultValue: [],
-        isRPC: true
+        isRPC: true,
       });
 
       const productIds = products.map(p => p._id);
 
-      dealFilter['productsData.productId'] = { $in: productIds };
+      dealFilter["productsData.productId"] = { $in: productIds };
     } else {
-      dealFilter['productsData.0'] = { $exists: true };
+      dealFilter["productsData.0"] = { $exists: true };
     }
 
     if (customFields) {
@@ -147,9 +147,9 @@ const queries = {
               customFieldsData: {
                 $elemMatch: {
                   field,
-                  value: newCustomFields[field][0]
-                }
-              }
+                  value: newCustomFields[field][0],
+                },
+              },
             };
           } else {
             filter = {
@@ -157,10 +157,10 @@ const queries = {
                 customFieldsData: {
                   $elemMatch: {
                     field,
-                    value
-                  }
-                }
-              }))
+                    value,
+                  },
+                },
+              })),
             };
           }
 
@@ -175,21 +175,21 @@ const queries = {
 
     if (customerIds && customerIds.length > 0) {
       const relIds = await sendCoreMessage({
-        subdomain: 'os',
+        subdomain: "os",
         data: {
-          mainType: 'customer',
+          mainType: "customer",
           mainTypeIds: customerIds,
-          relType: 'deal'
+          relType: "deal",
         },
-        action: 'conformities.filterConformity',
+        action: "conformities.filterConformity",
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       if (relIds.length === 0) {
         return {
           list: [],
-          totalCount: 0
+          totalCount: 0,
         };
       }
 
@@ -198,21 +198,21 @@ const queries = {
 
     if (buyerIds && buyerIds.length > 0) {
       const relIds = await sendCoreMessage({
-        subdomain: 'os',
+        subdomain: "os",
         data: {
-          mainType: 'buyerCustomer',
+          mainType: "buyerCustomer",
           mainTypeIds: customerIds,
-          relType: 'deal'
+          relType: "deal",
         },
-        action: 'conformities.filterConformity',
+        action: "conformities.filterConformity",
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       if (relIds.length === 0) {
         return {
           list: [],
-          totalCount: 0
+          totalCount: 0,
         };
       }
 
@@ -221,21 +221,21 @@ const queries = {
 
     if (waiterIds && waiterIds.length > 0) {
       const relIds = await sendCoreMessage({
-        subdomain: 'os',
+        subdomain: "os",
         data: {
-          mainType: 'waiterCustomer',
+          mainType: "waiterCustomer",
           mainTypeIds: customerIds,
-          relType: 'deal'
+          relType: "deal",
         },
-        action: 'conformities.filterConformity',
+        action: "conformities.filterConformity",
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       if (relIds.length === 0) {
         return {
           list: [],
-          totalCount: 0
+          totalCount: 0,
         };
       }
 
@@ -244,39 +244,39 @@ const queries = {
 
     if (stageOrder) {
       const stageFilter: any = {
-        type: 'deal',
-        status: 'active',
-        order: stageOrder
+        type: "deal",
+        status: "active",
+        order: stageOrder,
       };
 
-      if (process.env.NODE_ENV === 'production') {
-        stageFilter.pipelineId = 'QXjcMeP2kZ4W6oHED';
+      if (process.env.NODE_ENV === "production") {
+        stageFilter.pipelineId = "QXjcMeP2kZ4W6oHED";
       }
 
       const stage = await sendCommonMessage({
-        subdomain: 'os',
+        subdomain: "os",
         data: stageFilter,
-        action: 'stages.findOne',
-        serviceName: 'cards',
+        action: "stages.findOne",
+        serviceName: "cards",
         defaultValue: [],
-        isRPC: true
+        isRPC: true,
       });
 
       dealFilter.stageId = stage._id;
     }
 
     const deals = await sendCommonMessage({
-      subdomain: 'os',
+      subdomain: "os",
       data: {
         query: dealFilter,
         sort: { order: 1 },
         skip,
-        limit
+        limit,
       },
-      action: 'deals.find',
-      serviceName: 'cards',
+      action: "deals.find",
+      serviceName: "cards",
       defaultValue: [],
-      isRPC: true
+      isRPC: true,
     });
 
     for (const deal of deals) {
@@ -287,39 +287,39 @@ const queries = {
       );
 
       if (deal.assignedUserIds && deal.assignedUserIds.length > 0) {
-        const assignedUsers = await sendCoreMessage({
-          subdomain: 'os',
+        const assignedUsers = await sendCommonMessage({
+          subdomain: "os",
           data: {
             query: {
-              _id: deal.assignedUserIds
-            }
+              _id: deal.assignedUserIds,
+            },
           },
-          action: 'deals.find',
+          serviceName: "cards",
+          action: "deals.find",
           defaultValue: [],
-          isRPC: true
+          isRPC: true,
         });
 
         deal.assignedUsers = assignedUsers;
       }
 
-      const stage = await sendCoreMessage({
-        subdomain: 'os',
+      const stage = await sendCommonMessage({
+        subdomain: "os",
         data: { _id: deal.stageId },
-        action: 'stages.findOne',
-        defaultValue: null,
-        isRPC: true
+        action: "stages.findOne",
+        serviceName: "cards",
+        isRPC: true,
       });
 
       deal.stage = stage;
 
       if (deal.productsData && deal.productsData.length > 0) {
         const product = await sendCommonMessage({
-          subdomain: 'os',
-          data: { _id: deal.stageId },
-          action: 'findOne',
-          serviceName: 'deals',
-          defaultValue: null,
-          isRPC: true
+          subdomain: "os",
+          data: { _id: deal.productsData[0].productId },
+          action: "findOne",
+          serviceName: "products",
+          isRPC: true,
         });
 
         if (product) {
@@ -329,19 +329,37 @@ const queries = {
     }
 
     const totalCount = await sendCommonMessage({
-      subdomain: 'os',
+      subdomain: "os",
       data: dealFilter,
-      action: 'deals.count',
-      serviceName: 'cards',
+      action: "deals.count",
+      serviceName: "cards",
       defaultValue: 0,
-      isRPC: true
+      isRPC: true,
     });
 
     return {
       list: deals,
-      totalCount
+      totalCount,
     };
-  }
+  },
+
+  async dealDetailForRentpay(_root, { _id }) {
+    const deal = await sendCommonMessage({
+      subdomain: "os",
+      isRPC: true,
+      data: { _id },
+      action: "deals.findOne",
+      serviceName: "cards",
+    });
+
+    const { customFieldsData } = deal;
+
+    deal.customFieldsData = await getCustomFieldsDataWithValue(
+      customFieldsData
+    );
+
+    return deal;
+  },
 };
 
 export default queries;
