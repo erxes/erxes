@@ -124,12 +124,13 @@ export default function() {
   return client;
 }
 
+const commonMsgParams = { client, serviceDiscovery };
+
 export const sendContactsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
+    ...commonMsgParams,
     serviceName: 'contacts',
     ...args,
   });
@@ -137,8 +138,7 @@ export const sendContactsMessage = async (
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
+    ...commonMsgParams,
     serviceName: 'core',
     ...args,
   });
@@ -148,8 +148,7 @@ export const sendInboxMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
+    ...commonMsgParams,
     serviceName: 'inbox',
     ...args,
   });
@@ -157,8 +156,7 @@ export const sendInboxMessage = async (
 
 export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
+    ...commonMsgParams,
     serviceName: 'logs',
     ...args,
   });
@@ -168,8 +166,7 @@ export const sendSegmentsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
+    ...commonMsgParams,
     serviceName: 'segments',
     ...args,
   });
@@ -177,8 +174,7 @@ export const sendSegmentsMessage = async (
 
 export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
+    ...commonMsgParams,
     serviceName: 'tags',
     ...args,
   });
@@ -186,9 +182,16 @@ export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
 
 export const sendIntegrationsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
-    client,
-    serviceDiscovery,
+    ...commonMsgParams,
     serviceName: 'integrations',
+    ...args,
+  });
+};
+
+export const sendEmailTemplatesMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    ...commonMsgParams,
+    serviceName: 'emailTemplates',
     ...args,
   });
 };
