@@ -1,5 +1,5 @@
-import { sendRequest } from 'erxes-api-utils'
-import { sendCoreMessage, sendContactsMessage, sendNotificationsMessage } from '../messageBroker';
+import { sendRequest } from '@erxes/api-utils/src/requests';
+import { sendContactsMessage, sendNotificationsMessage } from '../messageBroker';
 import { getConfig, toErkhet } from './utils';
 
 export const customerToErkhet = async (subdomain, params, action) => {

@@ -1,4 +1,4 @@
-import { sendRequest } from 'erxes-api-utils';
+import { sendRequest } from '@erxes/api-utils/src/requests';
 import { sendContactsMessage, sendCoreMessage, sendProductsMessage } from '../messageBroker';
 
 export const validConfigMsg = async (config) => {
