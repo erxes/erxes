@@ -486,4 +486,135 @@ module.exports = {
       },
     ],
   },
+  loyalties: {
+    exposes: {
+      "./routes": "./src/routes.tsx",
+      // "./settings": "./src/containers/Widget.tsx",
+    },
+    routes: {
+      // url: "http://localhost:3002/remoteEntry.js",
+      url: "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loyalties-ui/remoteEntry.js",
+      scope: "loyalties",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: 'Loyalties',
+        url: '/vouchers',
+        icon: 'icon-piggybank',
+        location: "mainNavigation",
+        permission: 'showLoyalties'
+      },
+      {
+        text: 'Loyalties config',
+        to: '/erxes-plugin-loyalty/settings/general',
+        image: '/images/icons/erxes-16.svg',
+        location: "settings",
+        scope: "loyalties",
+        action: 'loyaltyConfig',
+        permissions: ['loyaltyConfig'],
+      }
+    ],
+  },
+  cars: {
+    exposes: {
+      "./routes": "./src/routes.tsx"
+    },
+    routes: {
+      // url: "http://localhost:3010/remoteEntry.js",
+      url: "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-cars-ui/remoteEntry.js",
+      scope: "car",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Plugin Car",
+        url: "/cars",
+        location: "mainNavigation",
+        icon: "icon-car",
+        permission: "showCars",
+      },
+    ],
+  },
+  ebarimt: {
+    exposes: {
+      "./routes": "./src/routes.tsx",
+      "./response": "./src/response.tsx"
+    },
+    routes: {
+      // url: "http://localhost:3018/remoteEntry.js",
+      url: "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-ebarimt-ui/remoteEntry.js",
+      scope: "ebarimt",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Put Responses",
+        url: "/put-responses",
+        icon: "icon-lamp",
+        location: "mainNavigation",
+        permission: "syncEbarimtConfig",
+      },
+      {
+        text: "Ebarimt config",
+        to: "/erxes-plugin-ebarimt/settings/general",
+        image: "/images/icons/erxes-04.svg",
+        location: "settings",
+        scope: "ebarimt",
+        action: "syncEbarimtConfig",
+        permissions: [],
+      },
+    ],
+    layout: {
+      // url: "http://localhost:3018/remoteEntry.js",
+      url: "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-ebarimt-ui/remoteEntry.js",
+      scope: "ebarimt",
+      module: "./response"
+    }
+  },
+  syncerkhet: {
+    exposes: {
+      './routes': './src/routes.tsx'
+    },
+    routes: {
+      // url: 'http://localhost:3017/remoteEntry.js',
+      url: "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-syncerkhet-ui/remoteEntry.js",
+      scope: 'syncerkhet',
+      module: './routes'
+    },
+    menus: [
+      {
+        text: 'Sync Erkhet',
+        to: '/erxes-plugin-sync-erkhet/settings/general',
+        image: '/images/icons/erxes-04.svg',
+        location: "settings",
+        scope: "syncerkhet",
+        action: 'syncErkhetConfig',
+        permissions: [],
+      }
+    ]
+  },
+  pos: {
+    exposes: {
+      "./routes": "./src/routes.tsx",
+
+    },
+    routes: {
+      // url: "http://localhost:3016/remoteEntry.js",
+      url: "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-pos-ui/remoteEntry.js",
+      scope: "pos",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "POS",
+        to: "/pos",
+        image: "/images/icons/erxes-05.svg",
+        location: "settings",
+        scope: "pos",
+        action: "posConfig",
+        permissions: ['showPos'],
+      },
+    ],
+  }
 };
