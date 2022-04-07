@@ -192,7 +192,7 @@ const FileUploadBox = styled.div`
 `;
 
 const Width = styled.div`
-  width: 800px
+  width: ${(dimensions.unitSpacing - 2) * 10}px;
 `;
 
 

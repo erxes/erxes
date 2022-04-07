@@ -322,7 +322,6 @@ const ButtonBack = styledTS<{ next?: boolean }>(styled.button)`
   border-radius: 8px;
   height:40px;
   width: 110px;
-  padding: 10px 40px;
   font-weight: 500;
   margin-right: 10px;
   color: ${props => props.next === true ? colors.colorWhite : colors.colorPrimary};

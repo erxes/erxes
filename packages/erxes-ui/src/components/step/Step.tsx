@@ -14,6 +14,7 @@ import {
   ButtonBack
 } from "./styles";
 import { Link } from "react-router-dom";
+import { BoxRow } from './style';
 
 type Props = {
   stepNumber?: number;
@@ -32,33 +33,33 @@ type Props = {
 };
 
 class Step extends React.Component<Props> {
+  renderBackButton(text) {
+    const { back } =this.props
+    return (<>
+      {back && <ButtonBack onClick={back.bind(null, 0)}>
+                {text}
+              </ButtonBack>}
+    </>)
+  }
+
   renderButton() {
-    const { next, back, link, additionalButton, type } = this.props;
+    const { next, link, additionalButton, type } = this.props;
     if(type === 'stepper'){
-    if (next || back) {
-      return (
-        <div style={{ width: 240 }}>
-          {back && link ? (
+      return (<>
+         <BoxRow>
+          {link ? (
             <Link to={link}>
-              <ButtonBack onClick={back.bind(null, 0)}>
-                Cancel
-              </ButtonBack>
+              {this.renderBackButton(__('Cancel'))}
             </Link>
-          ) : (
-            back && (
-              <ButtonBack onClick={back.bind(null, 0)}>
-                Back
-              </ButtonBack>
-            )
-          )}
-          {next && additionalButton ? additionalButton : next &&(
+          ) : this.renderBackButton(__('Back'))}
+          {additionalButton ? additionalButton : next &&(
             <ButtonBack onClick={next.bind(null, 0)} next={true}>
-              Next
+              {__('Next')}
             </ButtonBack>
           )}
-        </div>
-      );
-    }}
+         </BoxRow>
+      </>);
+  }
 
     if (next) {
       return (
