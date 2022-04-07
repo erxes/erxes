@@ -126,13 +126,13 @@ export class PutData<IListArgs extends IPutDataArgs> {
     const url = this.config.ebarimtUrl || "";
     this.districtCode = DISTRICTS[this.config.districtName] || "";
     const rd = this.config.companyRD || "";
-    this.vatPercent = this.config.vatPercent || 0;
-    this.cityTaxPercent = this.config.cityTaxPercent || 0;
+    this.vatPercent = Number(this.config.vatPercent) || 0;
+    this.cityTaxPercent = Number(this.config.cityTaxPercent) || 0;
     this.defaultGScode = this.config.defaultGSCode || "";
 
     const { contentType, contentId } = this.params;
 
-    if (!Object.values(DISTRICTS).includes(this.districtCode)) {
+    if (!this.districtCode) {
       throw new Error("Not validate District");
     }
 
