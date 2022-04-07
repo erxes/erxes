@@ -1,5 +1,5 @@
-import fse from "fs-extra";
-import fs from "fs";
+import * as fse from "fs-extra";
+import * as fs from "fs";
 import { exec } from "child_process";
 
 const execute = async (func) => {

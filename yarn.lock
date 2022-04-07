@@ -5588,6 +5588,13 @@ bindings@^1.5.0:
   dependencies:
     file-uri-to-path "1.0.0"
 
+biskviit@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/biskviit/-/biskviit-1.0.1.tgz#037a0cd4b71b9e331fd90a1122de17dc49e420a7"
+  integrity sha1-A3oM1LcbnjMf2QoRIt4X3EnkIKc=
+  dependencies:
+    psl "^1.1.7"
+
 bitsyntax@~0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/bitsyntax/-/bitsyntax-0.1.0.tgz#b0c59acef03505de5a2ed62a2f763c56ae1d6205"
@@ -8476,7 +8483,7 @@ encodeurl@~1.0.2:
   resolved "https://registry.yarnpkg.com/encodeurl/-/encodeurl-1.0.2.tgz#ad3ff4c86ec2d029322f5a02c3a9a606c95b3f59"
   integrity sha1-rT/0yG7C0CkyL1oCw6mmBslbP1k=
 
-encoding@^0.1.11:
+encoding@0.1.12, encoding@^0.1.11:
   version "0.1.12"
   resolved "https://registry.yarnpkg.com/encoding/-/encoding-0.1.12.tgz#538b66f3ee62cd1ab51ec323829d1f9480c74beb"
   integrity sha1-U4tm8+5izRq1HsMjgp0flIDHS+s=
@@ -9324,6 +9331,14 @@ fetch-blob@^3.1.2, fetch-blob@^3.1.4:
   dependencies:
     node-domexception "^1.0.0"
     web-streams-polyfill "^3.0.3"
+
+fetch@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/fetch/-/fetch-1.1.0.tgz#0a8279f06be37f9f0ebb567560a30a480da59a2e"
+  integrity sha1-CoJ58Gvjf58Ou1Z1YKMKSA2lmi4=
+  dependencies:
+    biskviit "1.0.1"
+    encoding "0.1.12"
 
 figures@^1.7.0:
   version "1.7.0"
@@ -16543,6 +16558,11 @@ psl@^1.1.28:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/psl/-/psl-1.2.0.tgz#df12b5b1b3a30f51c329eacbdef98f3a6e136dc6"
   integrity sha512-GEn74ZffufCmkDDLNcl3uuyF/aSD6exEyh1v/ZSdAomB82t6G9hzJVRx0jBmLDW+VfZqks3aScmMw9DszwUalA==
+
+psl@^1.1.7:
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/psl/-/psl-1.8.0.tgz#9326f8bcfb013adcc005fdff056acce020e51c24"
+  integrity sha512-RIdOzyoavK+hA18OGGWDqUTsCLhtA7IcZ/6NCs4fFJaHBDab+pDDmDIByWFRQJq2Cd7r1OoQxBGKOaztq+hjIQ==
 
 pstree.remy@^1.1.8:
   version "1.1.8"

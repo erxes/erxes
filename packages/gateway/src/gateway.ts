@@ -5,13 +5,13 @@ import {
   GraphQLDataSourceProcessOptions,
 } from "@apollo/gateway";
 import { ServiceEndpointDefinition } from "@apollo/gateway/src/config";
-import express from "express";
+import * as express from "express";
 import * as dotenv from "dotenv";
 dotenv.config();
 import { GraphQLRequestContext, GraphQLResponse } from "apollo-server-core";
 import { ValueOrPromise } from "apollo-server-types";
 import splitCookiesString from "./util/splitCookiesString";
-import { getService, getEnabledServices } from "./redis";
+import { getService, getServices } from "./redis";
 
 export interface IGatewayContext {
   req?: express.Request & { user?: any };
@@ -19,7 +19,7 @@ export interface IGatewayContext {
 }
 
 async function getConfiguredServices(): Promise<ServiceEndpointDefinition[]> {
-  const serviceNames = await getEnabledServices();
+  const serviceNames = await getServices();
 
   const services: ServiceEndpointDefinition[] = [];
 
