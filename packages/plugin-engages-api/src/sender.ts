@@ -26,7 +26,7 @@ import {
 
 dotenv.config();
 
-export const start = async (models: IModels, data: IEmailParams) => {
+export const start = async (models: IModels, subdomain: string, data: IEmailParams) => {
   const {
     fromEmail,
     email,
@@ -139,7 +139,7 @@ export const start = async (models: IModels, data: IEmailParams) => {
   const {
     customers: cleanCustomers,
     ignoredCustomerIds,
-  } = await cleanIgnoredCustomers(models, {
+  } = await cleanIgnoredCustomers(subdomain, models, {
     customers: filteredCustomers,
     engageMessageId,
   });

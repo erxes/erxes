@@ -2,7 +2,7 @@ import { moduleCheckPermission } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
 import { putCreateLog } from "../../../logUtils";
 import { IField, IFieldDocument, IFieldGroup } from "../../../models/definitions/fields";
-import { IOrderInput } from "../../../models/Fields";
+import { IOrderInput } from '@erxes/api-utils/src/commonUtils';
 
 interface IFieldsEdit extends IField {
   _id: string;
