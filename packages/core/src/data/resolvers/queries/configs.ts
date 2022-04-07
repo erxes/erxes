@@ -18,14 +18,6 @@ import { DEFAULT_CONSTANT_VALUES } from "@erxes/api-utils/src/constants";
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const { ENABLED_SERVICES_PATH } = process.env;
-
-if(!ENABLED_SERVICES_PATH) {
-  throw new Error("ENABLED_SERVICES_PATH environment variable is not configured");
-}
-
-const enabledServices = require(ENABLED_SERVICES_PATH);
-
 const configQueries = {
   /**
    * Config object
@@ -166,8 +158,15 @@ const configQueries = {
 moduleRequireLogin(configQueries);
 
 // @ts-ignore
-configQueries.enabledServices = () => {
-  return enabledServices;
+configQueries.enabledServices = async () => {
+  const names = await getServices();
+  const result = {};
+
+  for (const name of names) {
+    result[name] = true;
+  }
+
+  return result;
 };
 
 export default configQueries;

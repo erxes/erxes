@@ -5,7 +5,7 @@ export const configCodes = {
   password: 'qpayMerchantPassword',
   invoiceCode: 'qpayInvoiceCode',
   url: 'qpayUrl',
-  callback: 'callbackUrl',
+  callback: 'callbackUrl'
 };
 
 export const configDescriptions = {
@@ -13,7 +13,7 @@ export const configDescriptions = {
   qpayMerchantPassword: 'Merchant password for API',
   qpayInvoiceCode: 'Invoice code for Merchant',
   qpayUrl: 'Qpay url for API',
-  callbackUrl: 'The callback url for Merchant',
+  callbackUrl: 'The callback url for Merchant'
 };
 
 export const setQpayConfig = async (code, models, doc) => {
@@ -38,7 +38,7 @@ export const setQpayConfig = async (code, models, doc) => {
 export const delQpayConfigs = async (code, models, doc) => {
   const addresses = await models.Configs.findOne({ code });
   const value = addresses.value;
-  const selected = value.filter(function(i) {
+  const selected = value.filter(i => {
     if (i._id === doc._id) {
       i.status = 'inactive';
     }
@@ -53,7 +53,7 @@ export const delQpayConfigs = async (code, models, doc) => {
 export const getQpayConfigs = async (code, models, _params) => {
   const addresses = await models.Configs.findOne({ code });
   const value = addresses && addresses.value ? addresses.value : [];
-  const actives = value.filter(function(i) {
+  const actives = value.filter(i => {
     return i.status === 'active';
   });
 
@@ -64,7 +64,7 @@ export const getDataFromConfigById = async (code, ids: [string], configs) => {
   const config = await configs.findOne({ code });
   const values = config.value;
 
-  return values.filter(function(i) {
+  return values.filter(i => {
     return ids.includes(i._id);
   });
 };
@@ -79,7 +79,7 @@ export const getConfigs = async (configs, key) => {
   return config.value;
 };
 
-export const makeInvoiceNo = (length) => {
+export const makeInvoiceNo = length => {
   let result = '';
   const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
   const charactersLength = characters.length;
@@ -93,39 +93,35 @@ export const fetchUrl = async (url, requestOptions) => {
   let returnData;
 
   await fetch(`${url}`, requestOptions)
-    .then((response) => response.text())
-    .then((result) => {
+    .then(response => response.text())
+    .then(result => {
       try {
         returnData = JSON.parse(result);
       } catch (error) {
         returnData = { error: result };
       }
     })
-    .catch((error) => console.log('error', error));
+    .catch(error => console.log('error', error));
 
   return returnData;
 };
 
-export const qpayToken = async (configs) => {
+export const qpayToken = async configs => {
   const host = await getConfigs(configs, configCodes.url);
   const username = await getConfigs(configs, configCodes.username);
   const password = await getConfigs(configs, configCodes.password);
-
-  const myHeaders = new fetch.Headers();
-
   const port = '/v2/auth/token';
-  myHeaders.append(
-    'Authorization',
-    'Basic ' + Buffer.from(`${username}:${password}`).toString('base64')
-  );
-  // myHeaders.append("Authorization", "Basic Tk1NQV9PUDpmWnZvTTlKcw==");
+
   const raw = '';
 
   const requestOptions = {
     method: 'POST',
-    headers: myHeaders,
+    headers: {
+      Authorization:
+        'Basic ' + Buffer.from(`${username}:${password}`).toString('base64')
+    },
     body: raw,
-    redirect: 'follow',
+    redirect: 'follow'
   };
 
   const tokenInfo = await fetchUrl(`${host}${port}`, requestOptions);
@@ -133,82 +129,78 @@ export const qpayToken = async (configs) => {
 };
 
 export const createInvoice = async (varData, token, configs) => {
-  const myHeaders = new fetch.Headers();
-  myHeaders.append('Content-Type', 'application/json');
-  myHeaders.append('Authorization', 'Bearer ' + token);
   const host = await getConfigs(configs, configCodes.url);
   const port = '/v2/invoice';
   const raw = JSON.stringify(varData);
   const requestOptions = {
     method: 'POST',
-    headers: myHeaders,
+    headers: {
+      Authorization: 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    },
     body: raw,
-    redirect: 'follow',
+    redirect: 'follow'
   };
 
   return fetchUrl(`${host}${port}`, requestOptions);
 };
 
 export const deleteInvoice = async (invoiceId, token, configs) => {
-  const myHeaders = new fetch.Headers();
-  myHeaders.append('Authorization', `Bearer ${token}`);
   const host = await getConfigs(configs, configCodes.url);
   const port = `/v2/invoice/${invoiceId}`;
   const requestOptions = {
     method: 'DELETE',
-    headers: myHeaders,
-    redirect: 'follow',
+    headers: { Authorization: 'Bearer ' + token },
+    redirect: 'follow'
   };
 
   return fetchUrl(`${host}${port}`, requestOptions);
 };
 
 export const getQpayInvoice = async (invoiceId, token, configs) => {
-  const myHeaders = new fetch.Headers();
-  myHeaders.append('Authorization', 'Bearer ' + token);
   const host = await getConfigs(configs, configCodes.url);
   const port = `/v2/invoice/${invoiceId}`;
 
-  let requestOptions = {
+  const requestOptions = {
     method: 'GET',
-    headers: myHeaders,
-    redirect: 'follow',
+    headers: { Authorization: 'Bearer ' + token },
+    redirect: 'follow'
   };
 
   return fetchUrl(`${host}${port}`, requestOptions);
 };
 
 export const checkQpayPayment = async (varData, token, configs) => {
-  const myHeaders = new fetch.Headers();
-  myHeaders.append('Content-Type', 'application/json');
-  myHeaders.append('Authorization', `Bearer ${token}`);
   const host = await getConfigs(configs, configCodes.url);
   const port = `/v2/payment/check`;
   const raw = JSON.stringify(varData);
 
   const requestOptions = {
     method: 'POST',
-    headers: myHeaders,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
     body: raw,
-    redirect: 'follow',
+    redirect: 'follow'
   };
 
   return fetchUrl(`${host}${port}`, requestOptions);
 };
 
 export const listQpayPayment = async (varData, token, configs) => {
-  const myHeaders = new fetch.Headers();
-  myHeaders.append('Content-Type', 'application/json');
-  myHeaders.append('Authorization', `Bearer ${token}`);
   const host = await getConfigs(configs, configCodes.url);
   const port = `/v2/payment/list`;
   const raw = JSON.stringify(varData);
 
   const requestOptions = {
     method: 'POST',
-    headers: myHeaders,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
     body: raw,
-    redirect: 'follow',
+    redirect: 'follow'
   };
 
   return fetchUrl(`${host}${port}`, requestOptions);
@@ -220,39 +212,39 @@ export const deleteQpayPayment = async (
   token,
   configs
 ) => {
-  const myHeaders = new fetch.Headers();
-  myHeaders.append('Authorization', `Bearer ${token}`);
-  myHeaders.append('Content-Type', 'application/json');
   const host = await getConfigs(configs, configCodes.url);
   const port = `/v2/payment/cancel/${paymentId}`;
   const raw = JSON.stringify({
     callback_url: `https://qpay.mn/payment/result?payment_id=${paymentId}`,
-    note: description,
+    note: description
   });
 
   const requestOptions = {
     method: 'DELETE',
-    headers: myHeaders,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
     body: raw,
-    redirect: 'follow',
+    redirect: 'follow'
   };
 
   return fetchUrl(`${host}${port}`, requestOptions);
 };
 
 export const getQpayNuat = async (varData, token, configs) => {
-  const myHeaders = new fetch.Headers();
-  myHeaders.append('Authorization', `Bearer ${token}`);
-  myHeaders.append('Content-Type', 'application/json');
   const host = await getConfigs(configs, configCodes.url);
   const port = `/ebarimt/create`;
   const raw = JSON.stringify(varData);
 
   const requestOptions = {
     method: 'POST',
-    headers: myHeaders,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
     body: raw,
-    redirect: 'follow',
+    redirect: 'follow'
   };
 
   return fetchUrl(`${host}${port}`, requestOptions);
