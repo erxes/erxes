@@ -24,7 +24,6 @@ import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
 import {
   getService,
-  getAvailableServices,
   getServices,
   isAvailable,
   isEnabled,
@@ -35,13 +34,7 @@ import {
 
 const configs = require('../../src/configs').default;
 
-const { MONGO_URL, RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, PORT, ENABLED_SERVICES_PATH } = process.env;
-
-if(!ENABLED_SERVICES_PATH) {
-  throw new Error("ENABLED_SERVICES_PATH environment variable is not configured.")
-}
-
-const enabledServices = require(ENABLED_SERVICES_PATH);
+const { MONGO_URL, RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, PORT } = process.env;
 
 export const app = express();
 
@@ -167,7 +160,6 @@ const generateApolloServer = async serviceDiscovery => {
 async function startServer() {
   const serviceDiscovery = {
     getServices,
-    getAvailableServices,
     getService,
     isAvailable,
     isEnabled

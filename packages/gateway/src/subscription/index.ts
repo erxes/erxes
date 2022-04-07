@@ -11,7 +11,7 @@ import {
   subscribe,
   validate,
 } from "graphql";
-import ws from "ws";
+import * as ws from "ws";
 import { GraphQLSchema } from "graphql";
 import GatewayDataSource from "./GatewayDataSource";
 import {
@@ -29,7 +29,8 @@ export async function loadSubscriptions(
 ) {
 
   const typeDefsResolvers = await genTypeDefsAndResolvers();
-  if(!typeDefsResolvers) return;
+
+  if(!typeDefsResolvers) { return; }
 
   const { typeDefs, resolvers } = typeDefsResolvers;
 

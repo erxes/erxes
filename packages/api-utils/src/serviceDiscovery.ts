@@ -19,7 +19,21 @@ if (!ENABLED_SERVICES_PATH) {
   throw new Error("ENABLED_SERVICES_PATH environment variable is not configured.")
 }
 
-const enabledServices = require(ENABLED_SERVICES_PATH);
+const readEnabledServices = async () => {
+  const cacheValue = await redis.lrange('enabled-services', 0, -1);
+
+  if (cacheValue && cacheValue.length > 0) {
+    return cacheValue;
+  }
+
+  delete require.cache[require.resolve(ENABLED_SERVICES_PATH)];
+  const enabledServices = require(ENABLED_SERVICES_PATH);
+
+  await redis.del('enabled-services');
+  await redis.rpush('enabled-services', ...enabledServices);
+
+  return enabledServices;
+}
 
 export const redis = new Redis({
   host: REDIS_HOST,
@@ -31,12 +45,8 @@ const registry = new ServiceRegistry(redis, {});
 
 const generateKey = (name) => `service:config:${name}`;
 
-export const getAvailableServices = () => {
-  return registry.services();
-};
-
-export const getServices = () => {
-  const enabledPlugins = Object.keys(enabledServices || {}).filter(serviceName => enabledServices[serviceName]);
+export const getServices = async (): Promise<string[]> => {
+  const enabledPlugins = await readEnabledServices();
   return ["core", ...enabledPlugins];
 }
 
@@ -101,10 +111,11 @@ export const leave = async (name, port) => {
 };
 
 export const isAvailable = async (name) => {
-  const serviceNames = await getAvailableServices();
+  const serviceNames = await readEnabledServices();
   return serviceNames.includes(name);
 };
 
 export const isEnabled = async (name) => {
-  return (name === "core") || enabledServices[name];
+  const serviceNames = await readEnabledServices();
+  return (name === "core") || serviceNames.includes(name);
 };
