@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import Downloader from 'nodejs-file-downloader';
+import * as Downloader from 'nodejs-file-downloader';
 import { getService, getServices } from '../../redis';
 
 export default async function downloadPlugins(): Promise<void> {
@@ -28,7 +28,7 @@ export default async function downloadPlugins(): Promise<void> {
     services.map(async (service) => {
       const url = `${service.address}/subscriptionPlugin.js`;
       const fileName = `${service.name}.js`;
-      const downloader = new Downloader({
+      const downloader = new (Downloader as any)({
         url,
         directory,
         cloneFiles: false,

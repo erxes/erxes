@@ -329,7 +329,7 @@ module.exports.dup = async (program) => {
       `plugin_${plugin.name}_api`
     ] = generatePluginBlock(configs, plugin);
 
-    enabledPlugins.push(`${plugin.name}: true`);
+    enabledPlugins.push(`'${plugin.name}'`);
 
     if (pluginsMap[plugin.name]) {
       uiPlugins.push(
@@ -357,9 +357,9 @@ module.exports.dup = async (program) => {
   await fs.promises.writeFile(
     filePath("enabled-services.js"),
     `
-    module.exports = {
+    module.exports = [
       ${enabledPlugins.join(",")}
-    }
+    ]
   `
   );
 
