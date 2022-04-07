@@ -7,17 +7,15 @@ type Props = {
 
 export default class ReceiptBody extends React.Component<Props> {
   renderItem(item) {
-    const total = item.unitPrice * (item.count || 0);
-
     return (
       <tr key={Math.random()} className="detail-row">
-        <td>{item.productName}</td>
+        <td>{item.name}</td>
         <td>
-          {item.unitPrice.toLocaleString()} x{item.count}
+          {item.unitPrice.toLocaleString()} x{item.qty}
         </td>
         <td className="totalCount">
           {" "}
-          = <b>{total.toLocaleString()}</b>
+          = <b>{item.totalAmount.toLocaleString()}</b>
         </td>
       </tr>
     );
@@ -33,7 +31,7 @@ export default class ReceiptBody extends React.Component<Props> {
             <th className="totalCount">{__("Total amount")}</th>
           </tr>
         </thead>
-        <tbody>{this.props.items.map((item) => this.renderItem(item))}</tbody>
+        <tbody>{(this.props.items || []).map((item) => this.renderItem(item))}</tbody>
       </table>
     );
   }

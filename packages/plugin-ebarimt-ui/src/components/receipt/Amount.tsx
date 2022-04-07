@@ -1,5 +1,5 @@
 import React from "react";
-import { AmountContainer } from "../../styles";
+import { AmountContainer } from "./styles";
 
 type Props = {
   response: any;

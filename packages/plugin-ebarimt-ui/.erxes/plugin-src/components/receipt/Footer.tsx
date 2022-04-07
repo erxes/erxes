@@ -1,6 +1,6 @@
 import React from "react";
 import QRCode from 'qrcode';
-import { FooterWrapper, Lottery, LotteryCode, LotterySide } from "../../styles";
+import { FooterWrapper, Lottery, LotteryCode, LotterySide } from "./styles";
 import Amount from "./Amount";
 import Button from "@erxes/ui/src/components/Button";
 import { __ } from "@erxes/ui/src/utils";
@@ -11,15 +11,8 @@ type Props = {
 };
 
 export default class Footer extends React.Component<Props> {
-  private putResponse;
-
   constructor(props: Props) {
     super(props);
-
-    const { putResponses = [] } = props.response;
-
-    // comes in descending order by createdAt
-    this.putResponse = putResponses[0];
   }
 
   renderField(text, data) {
@@ -34,13 +27,10 @@ export default class Footer extends React.Component<Props> {
   }
 
   renderQr() {
-    if (!this.putResponse) {
-      return null;
-    }
-
+    const { response } = this.props;
     return (
       <React.Fragment>
-        {this.putResponse.qrData ? (
+        {response.qrData ? (
           <div className="qrcode-wrapper">
             <canvas id="qrcode" />
           </div>
@@ -50,23 +40,19 @@ export default class Footer extends React.Component<Props> {
   }
 
   renderBarCode() {
-    if (!this.putResponse) {
-      return null;
-    }
+    const { response } = this.props;
 
     return (
       <React.Fragment>
-        {this.putResponse.billId ? (<canvas id="bar-code" />) : null}
+        {response.billId ? (<canvas id="bar-code" />) : null}
       </React.Fragment>
     );
   }
 
   renderLotteryCode() {
-    if (!this.putResponse) {
-      return null;
-    }
+    const { response } = this.props;
 
-    if (this.putResponse.billType === '3') {
+    if (response.billType === '3') {
       const { response } = this.props;
       return (
         <LotteryCode>
@@ -78,11 +64,11 @@ export default class Footer extends React.Component<Props> {
     }
 
     return (
-      this.putResponse.lottery ? (
+      response.lottery ? (
         <LotteryCode>
           {__("Lottery")}:
           <br />
-          {this.putResponse.lottery}
+          {response.lottery}
         </LotteryCode>
       ) : null
     )
@@ -121,53 +107,51 @@ export default class Footer extends React.Component<Props> {
   }
 
   componentDidMount() {
-    if (this.putResponse) {
-      const { response } = this.props;
-      const mode = localStorage.getItem('erxesPosMode') || '';
+    const { response } = this.props;
 
-      window.addEventListener('afterprint', () => {
-        setTimeout(() => {
-          window.close();
-        }, 50);
-      });
+    window.addEventListener('afterprint', () => {
+      setTimeout(() => {
+        window.close();
+      }, 50);
+    });
 
-      const { errorCode, lotteryWarningMsg, qrData, success, message, billId } = this.putResponse;
-      const errorMessage = document.getElementById('error-message');
-      const barCode = document.getElementById('bar-code');
+    const { errorCode, lotteryWarningMsg, qrData, success, message, billId } = response;
+    const errorMessage = document.getElementById('error-message');
+    const barCode = document.getElementById('bar-code');
 
-      if (errorMessage) {
-        if (errorCode && message) {
-          errorMessage.innerHTML = `${errorCode}: ${message}`;
-        }
-        if (lotteryWarningMsg) {
-          errorMessage.innerHTML = lotteryWarningMsg;
-        }
+    if (errorMessage) {
+      if (errorCode && message) {
+        errorMessage.innerHTML = `${errorCode}: ${message}`;
+      }
+      if (lotteryWarningMsg) {
+        errorMessage.innerHTML = lotteryWarningMsg;
+      }
+    }
+
+    if (success === 'true') {
+      // draw qr code
+      if (qrData) {
+        const canvas = document.getElementById('qrcode');
+
+        QRCode.toCanvas(canvas, qrData);
       }
 
-      if (success === 'true') {
-        // draw qr code
-        if (qrData) {
-          const canvas = document.getElementById('qrcode');
+      // draw bar code
+      if (barCode && billId) {
+        JsBarcode('#bar-code', billId, {
+          width: 2,
+          height: 30,
+          fontSize: 24,
+          displayValue: true,
+          marginBottom: 30
+        });
+      }
 
-          QRCode.toCanvas(canvas, qrData);
-        }
+      setTimeout(() => {
+        window.print();
+      }, 20)
+    } // end qrcode
 
-        // draw bar code
-        if (barCode && billId) {
-          JsBarcode('#bar-code', billId, {
-            width: 2,
-            height: 30,
-            fontSize: 24,
-            displayValue: true,
-            marginBottom: 30
-          });
-        }
-
-        setTimeout(() => {
-          window.print();
-        }, 20)
-      } // end qrcode
-    }
   } // end componentDidMount
 
   componentWillUnmount() {

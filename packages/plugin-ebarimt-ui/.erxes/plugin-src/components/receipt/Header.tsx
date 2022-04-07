@@ -1,6 +1,6 @@
 import React from "react";
 import dayjs from "dayjs";
-import { HeaderWrapper } from "../../styles";
+import { HeaderWrapper } from "./styles";
 
 type Props = {
   response: any;
