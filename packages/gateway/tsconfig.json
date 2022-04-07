@@ -10,6 +10,7 @@
     "noUnusedParameters": true,
     "noImplicitAny": false,
     "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
     "useUnknownInCatchVariables": false,
     "strict": true,
     "baseUrl": ".",
