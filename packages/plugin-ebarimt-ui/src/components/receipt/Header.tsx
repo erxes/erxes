@@ -56,13 +56,13 @@ export default class Header extends React.Component<Props> {
         <div className="receipt-logo">
           <img src={'logo'} width={'32px'} height={'32px'} />
           <h5><b>{'TTTTTTTTTTT'}</b></h5>
-          <h2><b>&#8470;:</b>{response.number.split("_")[1]}</h2>
+          {/* <h2><b>&#8470;:</b>{response.number.split("_")[1]}</h2> */}
         </div>
         <div className="header">
           <p>
             <b>Огноо:</b>
-            {response.paidDate ? (
-              <span>{dayjs(response.paidDate).format("YYYY.MM.DD HH:mm")}</span>
+            {response.date ? (
+              <span>{dayjs(response.date).format("YYYY.MM.DD HH:mm")}</span>
             ) : null}
           </p>
           {this.renderWorker(response.user)}
