@@ -108,7 +108,7 @@ const sendNotification = async (
 
   sendCoreMessage({
     subdomain,
-    action: 'core:sendEmail',
+    action: 'sendEmail',
     data: {
       doc: {
         toEmails,

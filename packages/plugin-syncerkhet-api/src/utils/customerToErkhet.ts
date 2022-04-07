@@ -50,7 +50,7 @@ export const validCompanyCode = async (config, companyCode) => {
   return result;
 }
 
-export const companyToErkhet = async (subdomain, params, action) => {
+export const companyToErkhet = async (subdomain, params, action, user) => {
   const config = await getConfig(subdomain, 'ERKHET', {});
   const company = params.updatedDocument || params.object;
   const companyName = await validCompanyCode(config, company.code);
@@ -73,13 +73,6 @@ export const companyToErkhet = async (subdomain, params, action) => {
       })
     }
   } else {
-    const user = await sendCoreMessage({
-      subdomain,
-      action: 'users.findOne',
-      data: { _id: params.createdBy },
-      isRPC: true
-    });
-
     sendNotificationsMessage({
       subdomain,
       action: "send",

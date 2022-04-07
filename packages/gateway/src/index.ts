@@ -5,16 +5,16 @@ import { ApolloServer } from 'apollo-server-express';
 import { ApolloGateway } from '@apollo/gateway';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import { createProxyMiddleware } from 'http-proxy-middleware';
-import ws from 'ws';
-import express, { Request, Response } from 'express';
-import http from 'http';
-import cookieParser from 'cookie-parser';
+import * as ws from 'ws';
+import * as express from 'express';
+import * as http from 'http';
+import * as cookieParser from 'cookie-parser';
 import { loadSubscriptions } from './subscription';
 import { createGateway, IGatewayContext } from './gateway';
 import userMiddleware from './middlewares/userMiddleware';
 import * as db from './db';
 import pubsub from './subscription/pubsub';
-import { getService, getEnabledServices, redis, setAfterMutations } from './redis';
+import { clearCache, getService, getServices, redis, setAfterMutations } from './redis';
 import { initBroker } from './messageBroker';
 
 const {
@@ -31,6 +31,8 @@ const {
 (async () => {
   await db.connect();
 
+  await clearCache();
+
   const app = express();
 
   app.use(cookieParser());
@@ -43,7 +45,7 @@ const {
     createProxyMiddleware({
       target: API_DOMAIN,
       router: async req => {
-        const services = await getEnabledServices();
+        const services = await getServices();
 
         let host;
 
@@ -65,7 +67,7 @@ const {
       pathRewrite: async path => {
         let newPath = path;
 
-        const services = await getEnabledServices();
+        const services = await getServices();
 
         for (const service of services) {
           newPath = newPath.replace(`/pl:${service}`, '');
@@ -105,8 +107,8 @@ const {
       res,
       req
     }: {
-      res: Response;
-      req: Request & { user?: any };
+      res;
+      req;
     }): IGatewayContext => {
       return { res, req };
     }

@@ -131,6 +131,7 @@ const generate = async () => {
       private: true,
       version: '0.1.0',
       scripts: {
+        deployDbs: 'erxes deploy-dbs',
         dup: 'erxes dup',
         drestart: 'erxes drestart',
         dupdate: 'erxes dupdate',

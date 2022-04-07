@@ -4,7 +4,7 @@ const { GatewayDataSource } = require("esm")(module)(
 
 import { gql } from "apollo-server-express";
 import { DocumentNode, GraphQLResolveInfo } from "graphql";
-import merge from "lodash/merge";
+import { merge } from "lodash";
 
 export default class ErxesGatewayDataSource extends GatewayDataSource {
   constructor(gatewayUrl: string) {

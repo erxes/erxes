@@ -313,6 +313,18 @@ export const initBroker = cl => {
     status: 'success',
     data: await getNumberOfVisits(data)
   }));
+
+  consumeQueue('contacts:customers.setUnsubscribed', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Customers.updateMany(
+        { _id: { $in: data.customerIds || [] } },
+        { $set: { isSubscribed: 'No' } }
+      )
+    }
+  });
 };
 
 export const sendSegmentsMessage = async (

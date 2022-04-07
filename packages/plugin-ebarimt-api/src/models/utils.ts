@@ -36,7 +36,6 @@ export class PutData<IListArgs extends IPutDataArgs> {
   public models: any;
   public vatPercent!: number;
   public cityTaxPercent!: number;
-  public GScodeByCatIds: any = {};
   public defaultGScode!: string;
   public config: any;
 
@@ -58,7 +57,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
 
     return {
       code: detail.inventoryCode,
-      barCode: this.GScodeByCatIds[product.categoryId] || this.defaultGScode,
+      barCode: this.defaultGScode,
       name: product.name,
       measureUnit: product.sku,
       qty: format_number(detail.count),
@@ -75,17 +74,6 @@ export class PutData<IListArgs extends IPutDataArgs> {
     let vatAmount = 0;
     let citytaxAmount = 0;
     const stocks = [] as any;
-
-    const categoryIds = Object.values(this.params.productsById).map(
-      (item: any) => item["categoryId"]
-    );
-    const unitedCodes = await this.models.UnitedCodes.find({
-      categoryId: { $in: categoryIds },
-    });
-
-    for (const item of unitedCodes) {
-      this.GScodeByCatIds[item.categoryId] = item.unitedCode;
-    }
 
     const taxPercent = this.vatPercent + this.cityTaxPercent;
 
@@ -151,7 +139,6 @@ export class PutData<IListArgs extends IPutDataArgs> {
     this.transactionInfo = await this.generateTransactionInfo();
 
     const prePutResponse = await this.models.PutResponses.putHistories(
-      this.models,
       {
         contentType,
         contentId,
@@ -163,7 +150,6 @@ export class PutData<IListArgs extends IPutDataArgs> {
     }
 
     const resObj = await this.models.PutResponses.createPutResponse(
-      this.models,
       {
         sendInfo: { ...this.transactionInfo },
         contentId,
@@ -195,7 +181,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
       }
     }
 
-    await this.models.PutResponses.updatePutResponse(this.models, resObj._id, {
+    await this.models.PutResponses.updatePutResponse(resObj._id, {
       ...response,
       customerName: this.params.customerName,
     });

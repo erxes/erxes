@@ -1,12 +1,13 @@
 import _ from 'lodash';
-import { formatValue } from '@erxes/ui/src/utils';
-import React from 'react';
-import { IPutResponse } from '../types';
 import Button from '@erxes/ui/src/components/Button';
 import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import queries from '../graphql/queries';
-import Response from './Response'
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Response from './receipt/Response';
+import { formatValue } from '@erxes/ui/src/utils';
+import { IPutResponse } from '../types';
 
 type Props = {
   putResponse: IPutResponse;
@@ -30,11 +31,16 @@ function PutResponseRow({ putResponse, history }: Props) {
   };
 
   const onPrint = () => {
-    const printContent = Response(putResponse)
-    const myWindow =
-      window.open(`__`, '_blank', 'width=800, height=800') || ({} as any);
-    myWindow.document.write(printContent);
+    const printContent = document.createElement('div');
 
+    ReactDOM.render(
+      <Response {...putResponse} />,
+      printContent
+    );
+
+    const myWindow = window.open(`__`, '_blank', 'width=800, height=800') || ({} as any);
+
+    myWindow.document.write(printContent.outerHTML);
   };
 
 

@@ -1,32 +1,34 @@
-import { IUser } from '@erxes/ui/src/auth/types';
 import gql from 'graphql-tag';
 import React from 'react';
-import { useSubscription } from '@apollo/react-hooks';
+import Response from '../components/receipt/Response';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+import { IUser } from '@erxes/ui/src/auth/types';
 import { subscriptions } from '../graphql';
-import Response from '../components/Response';
-
-const SUBSCRIPTION = gql(subscriptions.automationSubscription);
+import { useSubscription } from 'react-apollo';
 
 type Props = {
   currentUser: IUser;
 };
 
-function ReturnResponse({ currentUser }: Props) {
+const ReturnResponseBody = ({ currentUser }: Props) => {
   let content;
   let responseId;
 
-
-  const { data: response, loading } = useSubscription(SUBSCRIPTION, {
-    variables: {
-      userId: currentUser._id,
-      sessionCode: sessionStorage.getItem('sessioncode') || ''
-    },
-    shouldResubscribe: false
-  });
+  const { data: response, loading } = useSubscription(
+    gql(subscriptions.automationSubscription),
+    {
+      variables: {
+        userId: currentUser._id,
+        sessionCode: sessionStorage.getItem('sessioncode') || ''
+      },
+      shouldResubscribe: false
+    }
+  );
 
   if (!response || loading) {
     return <></>;
   }
+
   content = response.automationResponded.content;
 
   responseId = response.automationResponded.responseId;
@@ -56,5 +58,11 @@ function ReturnResponse({ currentUser }: Props) {
 
   return <></>;
 }
+
+const WithCurrentUser = withCurrentUser(ReturnResponseBody);
+
+const ReturnResponse = () => {
+  return <WithCurrentUser />;
+};
 
 export default ReturnResponse;
