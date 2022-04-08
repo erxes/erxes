@@ -256,7 +256,7 @@ module.exports.dup = async (program) => {
           ELASTICSEARCH_URL: `http://${configs.db_server_address}:9200`,
           MONGO_URL: mongoEnv(configs),
         },
-        volumes: ["/essyncerData:/data/essyncerData"],
+        volumes: ["./essyncerData:/data/essyncerData"],
         extra_hosts,
         networks: ["erxes"],
       },
