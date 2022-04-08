@@ -7,13 +7,14 @@ type Props = {
   bottom?: React.ReactNode;
   background?: string;
   zIndex?: number;
+  hasFlex?: boolean;
 };
 
-function ActionBar({ left, right, background, bottom, zIndex }: Props) {
+function ActionBar({ left, right, background, bottom, zIndex, hasFlex }: Props) {
   return (
     <ContentHeader background={background || 'bgLight'} zIndex={zIndex}>
       <HeaderContent>
-        {left && <HeaderItems>{left}</HeaderItems>}
+        {left && <HeaderItems hasFlex={hasFlex}>{left}</HeaderItems>}
         {right && <HeaderItems rightAligned={true}>{right}</HeaderItems>}
       </HeaderContent>
       {bottom}
