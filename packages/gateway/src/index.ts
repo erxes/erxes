@@ -78,6 +78,11 @@ const {
     })
   );
 
+  // for health check
+  app.get('/health', async (_req, res) => {
+    res.end('ok');
+  });
+
   const httpServer = http.createServer(app);
 
   httpServer.on('close', () => {
