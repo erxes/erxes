@@ -34,6 +34,17 @@ const mongoEnv = (configs) => {
   return mongo_url;
 }
 
+const healthcheck = { test: ["CMD", "curl", "-i", "http://localhost:80/health"] };
+const deploy = {
+      mode: "replicated",
+      replicas: 2,
+      update_config: {
+        order: "start-first",
+        failure_action: "rollback",
+        delay: "5s"
+      }
+}
+
 const generatePluginBlock = (configs, plugin) => {
   const mongo_url = plugin.mongo_url || mongoEnv(configs);
 
@@ -48,10 +59,9 @@ const generatePluginBlock = (configs, plugin) => {
     },
     volumes: ["./enabled-services.js:/data/enabled-services.js"],
     networks: ["erxes"],
+    healthcheck,
+    deploy,
     extra_hosts: [`mongo:${plugin.db_server_address || configs.db_server_address || '127.0.0.1'}`],
-    deploy: {
-      replicas: plugin.replicas || 1,
-    },
   };
 };
 
@@ -216,6 +226,8 @@ module.exports.dup = async (program) => {
           ...commonEnvs(configs),
         },
         volumes: ["./enabled-services.js:/data/enabled-services.js"],
+        healthcheck,
+        deploy,
         extra_hosts,
         networks: ["erxes"],
       },
@@ -233,6 +245,8 @@ module.exports.dup = async (program) => {
           ...commonEnvs(configs),
         },
         volumes: ["./enabled-services.js:/data/enabled-services.js"],
+        healthcheck,
+        deploy,
         extra_hosts,
         ports: ["3300:80"],
         networks: ["erxes"],
