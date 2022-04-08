@@ -1,4 +1,3 @@
-import { validSearchText } from "erxes-api-utils";
 import {
   carCategorySchema,
   carSchema,
@@ -10,6 +9,7 @@ import {
 import { sendCoreMessage, sendInternalNotesMessage } from "../messageBroker";
 
 import { Model } from "mongoose";
+import { validSearchText } from '@erxes/api-utils/src';
 
 export interface ICarModel extends Model<ICarDocument> {
   createCar(doc: ICar, user: any): Promise<ICarDocument>;
