@@ -2,10 +2,9 @@ import {
   checkPermission,
   requireLogin,
 } from "@erxes/api-utils/src/permissions";
-import { putCreateLog, putDeleteLog, putUpdateLog } from "erxes-api-utils";
 import { IContext } from "../../../connectionResolver";
-import { gatherDescriptions } from "../../../utils";
 import { sendCoreMessage } from "../../../messageBroker";
+import { putCreateLog, putDeleteLog, putUpdateLog } from "@erxes/api-utils/src/logUtils";
 
 const carMutations = {
   carsAdd: async (_root, doc, { user, docModifier, models, messageBroker }) => {
@@ -13,7 +12,6 @@ const carMutations = {
 
     await putCreateLog(
       messageBroker,
-      gatherDescriptions,
       {
         type: "car",
         newData: doc,
@@ -32,7 +30,6 @@ const carMutations = {
 
     await putUpdateLog(
       messageBroker,
-      gatherDescriptions,
       {
         type: "car",
         object: car,
@@ -87,7 +84,6 @@ const carMutations = {
 
     await putCreateLog(
       messageBroker,
-      gatherDescriptions,
       {
         type: "car-category",
         newData: { ...doc, order: carCategory.order },
@@ -112,7 +108,6 @@ const carMutations = {
 
     await putUpdateLog(
       messageBroker,
-      gatherDescriptions,
       {
         type: "car-category",
         object: carCategory,
@@ -138,7 +133,6 @@ const carMutations = {
 
     await putDeleteLog(
       messageBroker,
-      gatherDescriptions,
       { type: "car-category", object: carCategory, extraParams: { models } },
       user
     );
