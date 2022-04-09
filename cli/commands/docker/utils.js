@@ -59,8 +59,6 @@ const generatePluginBlock = (configs, plugin) => {
     },
     volumes: ["./enabled-services.js:/data/enabled-services.js"],
     networks: ["erxes"],
-    healthcheck,
-    deploy,
     extra_hosts: [`mongo:${plugin.db_server_address || configs.db_server_address || '127.0.0.1'}`],
   };
 };
@@ -185,7 +183,7 @@ module.exports.dup = async (program) => {
   const extra_hosts = [`mongo:${configs.db_server_address || '127.0.0.1'}`];
 
   const dockerComposeConfig = {
-    version: "3.3",
+    version: "3.7",
     networks: {
       erxes: {
         driver: "overlay",
@@ -226,9 +224,6 @@ module.exports.dup = async (program) => {
           ...commonEnvs(configs),
         },
         volumes: ["./enabled-services.js:/data/enabled-services.js"],
-        healthcheck,
-        deploy,
-        extra_hosts,
         networks: ["erxes"],
       },
       gateway: {
