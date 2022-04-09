@@ -223,6 +223,7 @@ module.exports.dup = async (program) => {
           ENABLED_SERVICES_PATH: "/data/enabled-services.js",
           ...commonEnvs(configs),
         },
+        extra_hosts,
         volumes: ["./enabled-services.js:/data/enabled-services.js"],
         networks: ["erxes"],
       },
