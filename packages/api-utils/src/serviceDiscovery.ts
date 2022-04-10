@@ -112,7 +112,7 @@ export const leave = async (name, port) => {
 
 export const isAvailable = async (name) => {
   const serviceNames = await readEnabledServices();
-  return serviceNames.includes(name);
+  return (name === "core") || serviceNames.includes(name);
 };
 
 export const isEnabled = async (name) => {
