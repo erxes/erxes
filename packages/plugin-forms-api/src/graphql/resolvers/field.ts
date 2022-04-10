@@ -40,7 +40,7 @@ export const field = {
 export const fieldsGroup = {
   fields(root: IFieldGroupDocument, _params, { models }: IContext) {
     // Returning all fields that are related to the group
-    return models.Fields.find({ groupId: root._id }).sort({ order: 1 });
+    return models.Fields.find({ groupId: root._id, contentType: root.contentType }).sort({ order: 1 });
   },
 
   lastUpdatedUser(fieldGroup: IFieldGroupDocument) {
