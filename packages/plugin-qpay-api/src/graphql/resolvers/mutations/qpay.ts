@@ -1,11 +1,8 @@
 import {
-  configCodes,
-  getConfigs,
+  getConfig,
   qpayToken,
   makeInvoiceNo,
   createInvoice,
-  setQpayConfig,
-  delQpayConfigs,
   getDataFromConfigById,
   deleteInvoice,
   deleteQpayPayment,
@@ -17,7 +14,6 @@ import {
   socialPayInvoiceQR,
   socialPayInvoiceCancel,
   socialPayPaymentCancel,
-  configCodes as configCodesSP,
 } from '../../../utilsGolomtSP';
 
 const Mutations = {
@@ -25,25 +21,24 @@ const Mutations = {
    * cancel payment socialPay invoice
    */
 
-  cancelPaymentSPInvoice: async (_root, params, { models }) => {
-    const configs = models.Configs;
+  cancelPaymentSPInvoice: async (_root, params, { models, subdomain }) => {
     const invoiceNo = params.invoiceNo;
-    const terminal = await getConfigs(configs, configCodesSP['terminal']);
-    const keyIV = await getConfigs(configs, configCodesSP['key']);
+    const config = await getConfig(subdomain, 'SocialPAY', {});
+    const { inStoreSPTerminal, inStoreSPKey } = config;
     const invoice = await models.SocialPayInvoice.getSocialPayInvoice(
       models,
       invoiceNo
     );
     const amount = invoice.amount;
-    const checksum = await hmac256(keyIV, amount + invoiceNo + terminal);
+    const checksum = await hmac256(inStoreSPKey, amount + invoiceNo + inStoreSPTerminal);
 
     const requestBody = {
       amount,
       checksum,
       invoice: invoiceNo,
-      terminal,
+      terminal: inStoreSPTerminal,
     };
-    const invoiceQrData = await socialPayPaymentCancel(requestBody, configs);
+    const invoiceQrData = await socialPayPaymentCancel(requestBody, config);
     const response =
       invoiceQrData.header && invoiceQrData.header.code
         ? invoiceQrData.header.code
@@ -64,33 +59,32 @@ const Mutations = {
    * cancel socialPay invoice
    */
 
-  cancelSPInvoice: async (_root, params, { models }) => {
-    const configs = models.Configs;
+  cancelSPInvoice: async (_root, params, { subdomain, models }) => {
+    const config = await getConfig(subdomain, 'SocialPAY', {});
     const invoiceNo = params.invoiceNo;
-    const terminal = await getConfigs(configs, configCodesSP['terminal']);
-    const keyIV = await getConfigs(configs, configCodesSP['key']);
+    const { inStoreSPTerminal, inStoreSPKey } = config;
     const invoice = await models.SocialPayInvoice.getSocialPayInvoice(
       models,
       invoiceNo
     );
     const amount = invoice.amount;
-    const checksum = await hmac256(keyIV, terminal + invoiceNo + amount);
+    const checksum = await hmac256(inStoreSPKey, inStoreSPTerminal + invoiceNo + amount);
 
     const requestBody = {
       amount,
       checksum,
       invoice: invoiceNo,
-      terminal,
+      terminal: inStoreSPTerminal,
     };
-    const invoiceQrData = await socialPayInvoiceCancel(requestBody, configs);
+    const invoiceQrData = await socialPayInvoiceCancel(requestBody, config);
     const response =
       invoiceQrData.header && invoiceQrData.header.code
         ? invoiceQrData.header.code
         : 0;
     const responseDesc =
       invoiceQrData.body &&
-      invoiceQrData.body.response &&
-      invoiceQrData.body.response.status
+        invoiceQrData.body.response &&
+        invoiceQrData.body.response.status
         ? invoiceQrData.body.response.status
         : 'UNSUCCESS';
 
@@ -109,15 +103,17 @@ const Mutations = {
    * create socialPay invoice with QR
    */
 
-  createSPInvoiceQr: async (_root, params, { models }) => {
+  createSPInvoiceQr: async (_root, params, { subdomain, models }) => {
     const { amount } = params;
-    const configs = models.Configs;
+    const config = await getConfig(subdomain, 'SocialPAY', {});
+    console.log(config, 'cccccccccccccc')
+
     const invoiceNo = params.invoiceNoAuto
       ? await makeInvoiceNo(32)
       : params.invoice;
-    const terminal = await getConfigs(configs, configCodesSP['terminal']);
-    const keyIV = await getConfigs(configs, configCodesSP['key']);
-    const checksum = await hmac256(keyIV, terminal + invoiceNo + amount);
+
+    const { inStoreSPTerminal, inStoreSPKey } = config;
+    const checksum = await hmac256(inStoreSPKey, inStoreSPTerminal + invoiceNo + amount);
     const doc = { amount, invoiceNo };
     const invoiceLog = await models.SocialPayInvoice.socialPayInvoiceCreate(
       models,
@@ -128,13 +124,14 @@ const Mutations = {
       amount,
       checksum,
       invoice: invoiceNo,
-      terminal,
+      terminal: inStoreSPTerminal,
     };
-    const invoiceQrData = await socialPayInvoiceQR(requestBody, configs);
+    console.log(requestBody)
+    const invoiceQrData = await socialPayInvoiceQR(requestBody, config);
     const qrText =
       invoiceQrData.body &&
-      invoiceQrData.body.response &&
-      invoiceQrData.body.response.desc
+        invoiceQrData.body.response &&
+        invoiceQrData.body.response.desc
         ? invoiceQrData.body.response.desc
         : '';
 
@@ -152,17 +149,18 @@ const Mutations = {
    * create socialPay invoice with phone
    */
 
-  createSPInvoicePhone: async (_root, params, { models }) => {
+  createSPInvoicePhone: async (_root, params, { subdomain, models }) => {
     const { amount, phone } = params;
-    const configs = models.Configs;
+    const config = await getConfig(subdomain, 'SocialPAY', {});
+    const { inStoreSPTerminal, inStoreSPKey } = config;
+
     const invoiceNo = params.invoiceNoAuto
       ? await makeInvoiceNo(32)
       : params.invoice;
-    const terminal = await getConfigs(configs, configCodesSP['terminal']);
-    const keyIV = await getConfigs(configs, configCodesSP['key']);
+
     const checksum = await hmac256(
-      keyIV,
-      terminal + invoiceNo + amount + phone
+      inStoreSPKey,
+      inStoreSPTerminal + invoiceNo + amount + phone
     );
     const doc = { amount, invoiceNo, phone };
     await models.SocialPayInvoice.socialPayInvoiceCreate(models, doc);
@@ -172,158 +170,33 @@ const Mutations = {
       checksum,
       invoice: invoiceNo,
       phone,
-      terminal,
+      terminal: inStoreSPTerminal,
     };
 
-    return await socialPayInvoicePhone(requestBody, configs);
+    return await socialPayInvoicePhone(requestBody, config);
   },
 
   /**
    * START QPAY MUTATIONS
-   * * START QPAY MUTATIONS
-   * * START QPAY MUTATIONS
-   * * START QPAY MUTATIONS
-   * * START QPAY MUTATIONS
    */
-
-  /**
-   * address set and del for qpay invoice
-   */
-
-  setQpayAddress: async (_root, doc, { models }) => {
-    const code = 'qpayAddressCode';
-    return await setQpayConfig(code, models, doc);
-  },
-
-  delQpayAddress: async (_root, doc, { models }) => {
-    const code = 'qpayAddressCode';
-    return await delQpayConfigs(code, models, doc);
-  },
-
-  /**
-   * sender branch data set and del for qpay invoice
-   */
-
-  setQpaySenderBranchData: async (_root, doc, { models }) => {
-    const code = 'qpaySenderBranchDataCode';
-    return await setQpayConfig(code, models, doc);
-  },
-
-  delQpaySenderBranchData: async (_root, doc, { models }) => {
-    const code = 'qpaySenderBranchDataCode';
-    return await delQpayConfigs(code, models, doc);
-  },
-
-  /**
-   * sender staff data set and del for qpay invoice
-   */
-
-  setQpaySenderStaffData: async (_root, doc, { models }) => {
-    const code = 'qpaySenderStaffDataCode';
-    return await setQpayConfig(code, models, doc);
-  },
-
-  delQpaySenderStaffData: async (_root, doc, { models }) => {
-    const code = 'qpaySenderStaffDataCode';
-    return await delQpayConfigs(code, models, doc);
-  },
-
-  /**
-   * invoice receiver data set and del for qpay invoice
-   */
-  setQpayInvoiceReceiverData: async (_root, doc, { models }) => {
-    const code = 'qpayInvoiceReceiverDataCode';
-    return await setQpayConfig(code, models, doc);
-  },
-
-  delQpayInvoiceReceiverData: async (_root, doc, { models }) => {
-    const code = 'qpayInvoiceReceiverDataCode';
-    return await delQpayConfigs(code, models, doc);
-  },
-
-  /**
-   * discounts set and del for qpay invoice
-   */
-
-  setQpayDiscounts: async (_root, doc, { models }) => {
-    const code = 'qpayDiscountsCode';
-    return await setQpayConfig(code, models, doc);
-  },
-
-  delQpayDiscounts: async (_root, doc, { models }) => {
-    const code = 'qpayDiscountsCode';
-    return await delQpayConfigs(code, models, doc);
-  },
-
-  /**
-   * surcharges set and del for qpay invoice
-   */
-
-  setQpaySurcharges: async (_root, doc, { models }) => {
-    const code = 'qpaySurchargesCode';
-    return await setQpayConfig(code, models, doc);
-  },
-
-  delQpaySurcharges: async (_root, doc, { models }) => {
-    const code = 'qpaySurchargesCode';
-    return await delQpayConfigs(code, models, doc);
-  },
-
-  /**
-   * taxes set and del for qpay invoice
-   */
-
-  setQpayTaxes: async (_root, doc, { models }) => {
-    const code = 'qpayTaxesCode';
-    return await setQpayConfig(code, models, doc);
-  },
-
-  delQpayTaxes: async (_root, doc, { models }) => {
-    const code = 'qpayTaxesCode';
-    return await delQpayConfigs(code, models, doc);
-  },
-
-  /**
-   * lines set and del for qpay invoice
-   */
-
-  setQpayLines: async (_root, doc, { models }) => {
-    const code = 'qpayLinesCode';
-    return await setQpayConfig(code, models, doc);
-  },
-
-  delQpayLines: async (_root, doc, { models }) => {
-    const code = 'qpayLinesCode';
-    return await delQpayConfigs(code, models, doc);
-  },
-
-  /**
-   * transaction set and del for qpay invoice
-   */
-
-  setQpayTransaction: async (_root, doc, { models }) => {
-    const code = 'qpayTransactionCode';
-    return await setQpayConfig(code, models, doc);
-  },
-
-  delQpayTransaction: async (_root, doc, { models }) => {
-    const code = 'qpayTransactionCode';
-    return await delQpayConfigs(code, models, doc);
-  },
 
   /**
    * create invoice
    */
 
-  createQpayInvoice: async (_root, doc, { models }) => {
-    const configs = models.Configs;
-    const invoice_code = await getConfigs(configs, configCodes['invoiceCode']);
-    const token = await qpayToken(configs);
-    let callback = await getConfigs(configs, configCodes['callback']);
+  createQpayInvoice: async (_root, doc, { models, subdomain }) => {
+    const config = await getConfig(subdomain, 'QPAY', {});
+    const { qpayInvoiceCode } = config;
+    let { callbackUrl } = config;
+
+    const token = await qpayToken(config);
+
     const sender_invoice_no = !doc.sender_invoice_no_auto
       ? doc.sender_invoice_no
       : await makeInvoiceNo(16);
-    callback = `${callback}?payment_id=${sender_invoice_no}`;
+
+    callbackUrl = `${callbackUrl}?payment_id=${sender_invoice_no}`;
+
     const codeMap = {
       sender_branch_dataId: 'qpaySenderBranchDataCode',
       sender_staff_dataId: 'qpaySenderStaffDataCode',
@@ -335,22 +208,22 @@ const Mutations = {
     const sender_branch_code = doc.sender_branch_code || '';
     const sender_branch_dataId = doc.sender_branch_dataId
       ? (
-          await getDataFromConfigById(
-            codeMap['sender_branch_dataId'],
-            [doc.sender_branch_dataId],
-            configs
-          )
-        )[0].data
+        await getDataFromConfigById(
+          codeMap['sender_branch_dataId'],
+          [doc.sender_branch_dataId],
+          config
+        )
+      )[0].data
       : '';
     const sender_staff_code = doc.sender_staff_code || '';
     const sender_staff_dataId = doc.sender_staff_dataId
       ? (
-          await getDataFromConfigById(
-            codeMap['sender_staff_dataId'],
-            [doc.sender_branch_dataId],
-            configs
-          )
-        )[0].data
+        await getDataFromConfigById(
+          codeMap['sender_staff_dataId'],
+          [doc.sender_branch_dataId],
+          config
+        )
+      )[0].data
       : '';
     const sender_terminal_code = doc.sender_terminal_code || '';
     const sender_terminal_data = doc.sender_terminal_data
@@ -359,12 +232,12 @@ const Mutations = {
     const invoice_receiver_code = doc.invoice_receiver_code || '';
     const invoice_receiver_dataId = doc.invoice_receiver_dataId
       ? (
-          await getDataFromConfigById(
-            codeMap['invoice_receiver_dataId'],
-            [doc.sender_branch_dataId],
-            configs
-          )
-        )[0].data
+        await getDataFromConfigById(
+          codeMap['invoice_receiver_dataId'],
+          [doc.sender_branch_dataId],
+          config
+        )
+      )[0].data
       : '';
     const invoice_description = doc.invoice_description || '';
     const invoice_due_date = doc.invoice_due_date || '';
@@ -380,15 +253,15 @@ const Mutations = {
     const amount = doc.amount || '';
     const note = doc.note || '';
     let lines = doc.lines
-      ? await getDataFromConfigById(codeMap['lines'], doc.lines, configs)
+      ? await getDataFromConfigById(codeMap['lines'], doc.lines, config)
       : '';
     lines = lines ? lines.map((e) => e.data) : '';
     let transactions = doc.transactions
       ? await getDataFromConfigById(
-          codeMap['transactions'],
-          doc.transactions,
-          configs
-        )
+        codeMap['transactions'],
+        doc.transactions,
+        config
+      )
       : '';
     transactions = transactions ? transactions.map((e) => e.data) : '';
 
@@ -398,7 +271,6 @@ const Mutations = {
     };
 
     const invoice = await models.QpayInvoice.qpayInvoiceCreate(
-      models,
       invoiceDoc
     );
     let varData;
@@ -413,9 +285,9 @@ const Mutations = {
       }
     };
 
-    varData = fillVarData({}, 'invoice_code', invoice_code);
+    varData = fillVarData({}, 'invoice_code', qpayInvoiceCode);
     varData = fillVarData(varData, 'sender_invoice_no', sender_invoice_no);
-    varData = fillVarData(varData, 'callback_url', callback);
+    varData = fillVarData(varData, 'callback_url', callbackUrl);
     varData = fillVarData(varData, 'sender_branch_code', sender_branch_code);
     varData = fillVarData(
       varData,
@@ -459,8 +331,8 @@ const Mutations = {
     varData = fillVarData(varData, 'note', note);
     varData = fillVarData(varData, 'lines', lines);
     varData = fillVarData(varData, 'transactions', transactions);
-    const invoiceData = await createInvoice(varData, token, configs);
-    await models.QpayInvoice.qpayInvoiceUpdate(models, invoice, invoiceData);
+    const invoiceData = await createInvoice(varData, token, config);
+    await models.QpayInvoice.qpayInvoiceUpdate(invoice, invoiceData);
 
     return invoiceData;
   },
@@ -469,11 +341,13 @@ const Mutations = {
    * create simple invoice
    */
 
-  createQpaySimpleInvoice: async (_root, doc, { models }) => {
-    const configs = models.Configs;
-    const invoice_code = await getConfigs(configs, configCodes['invoiceCode']);
-    const token = await qpayToken(configs);
-    const callback = await getConfigs(configs, configCodes['callback']);
+  createQpaySimpleInvoice: async (_root, doc, { subdomain, models }) => {
+    console.log(doc, 'dddddddddddddddddd')
+    const config = await getConfig(subdomain, 'QPAY', {});
+    console.log(config, 'cccccccccccccccc')
+    const { qpayInvoiceCode, callbackUrl } = config;
+    const token = await qpayToken(config);
+    console.log(token, 'tttttttttttttt')
 
     const {
       sender_invoice_no_auto,
@@ -491,42 +365,41 @@ const Mutations = {
     };
 
     const invoice = await models.QpayInvoice.qpayInvoiceCreate(
-      models,
       invoiceDoc
     );
 
     const varData = {
-      invoice_code,
+      invoice_code: qpayInvoiceCode,
       sender_invoice_no,
       invoice_receiver_code,
       invoice_description,
       amount,
-      callback_url: `${callback}?payment_id=${sender_invoice_no}`,
+      callback_url: `${callbackUrl}?payment_id=${sender_invoice_no}`,
     };
 
-    const invoiceData = await createInvoice(varData, token, configs);
+    const invoiceData = await createInvoice(varData, token, config);
 
-    await models.QpayInvoice.qpayInvoiceUpdate(models, invoice, invoiceData);
+    await models.QpayInvoice.qpayInvoiceUpdate(invoice, invoiceData);
 
     return invoiceData;
   },
 
-  cancelQpayInvoice: async (_root, params, { models }) => {
-    const configs = models.Configs;
-    const token = await qpayToken(configs);
+  cancelQpayInvoice: async (_root, params, { subdomain }) => {
+    const config = await getConfig(subdomain, 'QPAY', {});
+    const token = await qpayToken(config);
 
-    return await deleteInvoice(params.invoiceId, token, configs);
+    return await deleteInvoice(params.invoiceId, token, config);
   },
 
-  handdeleteQpayPaymentler: async (_root, params, { models }) => {
-    const configs = models.Configs;
-    const token = await qpayToken(configs);
+  deleteQpayPayment: async (_root, params, { subdomain }) => {
+    const config = await getConfig(subdomain, 'QPAY', {});
+    const token = await qpayToken(config);
 
     return await deleteQpayPayment(
       params.paymentId,
       params.description || '',
       token,
-      configs
+      config
     );
   },
 };
