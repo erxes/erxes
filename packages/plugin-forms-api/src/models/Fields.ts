@@ -566,6 +566,10 @@ export const loadGroupClass = (models: IModels) => {
       const services = await serviceDiscovery.getServices();
 
       for (const serviceName of services) {
+        if(serviceName === 'cards') {
+          continue;
+        }
+
         const service = await serviceDiscovery.getService(serviceName, true);
         const meta = service.config?.meta || {};
 
