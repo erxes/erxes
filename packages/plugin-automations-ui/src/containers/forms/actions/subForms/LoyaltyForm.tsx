@@ -1,13 +1,11 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import Form from '../../../../components/forms/actions/subForms/LoyaltyForm';
+import gql from 'graphql-tag';
 import React from 'react';
 import { graphql } from 'react-apollo';
-
+import { queries as voucherCampaignQueries } from '@erxes/plugin-loyalties-ui/src/configs/voucherCampaign/graphql';
+import { VoucherCampaignQueryResponse } from '@erxes/plugin-loyalties-ui/src/configs/voucherCampaign/types';
 import { withProps } from '@erxes/ui/src/utils';
-import Form from '../../../../components/forms/actions/subForms/LoyaltyForm';
-import { queries as voucherCampaignQueries } from '@erxes/plugin-loyalty-ui/src/configs/voucherCampaign/graphql';
-
-import { VoucherCampaignQueryResponse } from '@erxes/plugin-loyalty-ui/src/configs/voucherCampaign/types';
 
 
 type Props = {
