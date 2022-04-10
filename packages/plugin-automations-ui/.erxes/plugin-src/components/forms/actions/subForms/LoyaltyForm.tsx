@@ -1,7 +1,7 @@
 import React from 'react';
 import Select from 'react-select-plus';
 import { __, ControlLabel, FormGroup } from '@erxes/ui/src';
-import { IVoucherCampaign } from '@erxes/plugin-loyalty-ui/src/configs/voucherCampaign/types';
+import { IVoucherCampaign } from '@erxes/plugin-loyalties-ui/src/configs/voucherCampaign/types';
 import styled from 'styled-components';
 import { dimensions, colors } from '@erxes/ui/src/styles';
 import Common from '../Common';

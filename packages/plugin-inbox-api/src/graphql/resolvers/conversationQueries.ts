@@ -10,6 +10,7 @@ import {
 import QueryBuilder, { IListArgs } from "../../conversationQueryBuilder";
 import { IContext, IModels } from "../../connectionResolver";
 import { sendFormsMessage } from "../../messageBroker";
+import { paginate } from "@erxes/api-utils/src";
 
 interface ICountBy {
   [index: string]: number;
@@ -330,6 +331,22 @@ const conversationQueries = {
     return response;
 
   },
+
+  /**
+   * Users conversations list
+   */
+  async userConversations(
+    _root,
+    { _id, perPage }: { _id: string; perPage: number },
+    { models }: IContext
+  ) {
+    const selector = { participatedUserIds: { $in: [_id] } };
+
+    const list = paginate(models.Conversations.find(selector), { perPage });
+    const totalCount = models.Conversations.find(selector).countDocuments();
+
+    return { list, totalCount };
+  }
 
 };
 

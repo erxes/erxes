@@ -203,6 +203,11 @@ export const types = ({ tags, forms }) => `
       : ''
   }
 
+  type UserConversationListResponse {
+    list: [Conversation],
+    totalCount: Float,
+  }
+
   input ConversationMessageParams {
     content: String,
     mentionedUserIds: [String],
@@ -256,6 +261,7 @@ export const queries = ({ forms }) => `
   conversationsGetLast(${filterParams}): Conversation
   conversationsTotalUnreadCount: Int
   ${ forms ? `inboxFields: InboxField` : '' }
+  userConversations(_id: String, perPage: Int): UserConversationListResponse
 `;
 
 export const mutations = `
