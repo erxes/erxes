@@ -22,6 +22,7 @@
     "express": "^4.17.2",
     "faker": "^4.1.0",
     "graphql": "^15.8.0",
+    "moment": "^2.18.1",
     "meteor-random": "^0.0.3",
     "mongoose": "5.7.5",
     "nodemailer": "^6.2.1",
