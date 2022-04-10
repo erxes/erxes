@@ -65,11 +65,6 @@ export const types = `
     score: Float
     leaderBoardPosition: Int
   }
-
-  type UserConversationListResponse {
-    list: [JSON],
-    totalCount: Float,
-  }
 `;
 
 const commonParams = `
@@ -100,7 +95,6 @@ export const queries = `
   userDetail(_id: String): User
   usersTotalCount(${commonSelector}): Int
   currentUser: User
-  userConversations(_id: String, perPage: Int): UserConversationListResponse
 `;
 
 export const mutations = `
