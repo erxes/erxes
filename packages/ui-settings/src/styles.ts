@@ -105,6 +105,8 @@ const FlexRow = styled.div`
   flex-wrap: wrap;
   flex-direction: row;
   align-items: center;
+  flex: 1;
+  margin-right: ${dimensions.coreSpacing}px;
 `;
 
 const SubHeading = styled.h4`
@@ -284,7 +286,6 @@ const InputBar = styledTS<{type?: string}>(styled.div)`
   align-items: center;
   display: flex;
   flex: 1;
-  width: ${props => props.type === "searchBar" && `${dimensions.unitSpacing * 100 + 30}px`};
   max-width: ${props => props.type === "active" && `${dimensions.headerSpacingWide * 2 + 20}px`};
   padding: 5px 5px 0 20px;
   border-radius: 8px;

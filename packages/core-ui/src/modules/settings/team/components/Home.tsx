@@ -158,7 +158,7 @@ export default function Home(props: Props) {
   );
 
   const actionBar = (
-    <Wrapper.ActionBar right={righActionBar} left={renderFilter} />
+    <Wrapper.ActionBar hasFlex={true} right={righActionBar} left={renderFilter} />
   );
 
   return (
