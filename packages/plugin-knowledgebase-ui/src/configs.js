@@ -12,7 +12,7 @@ module.exports = {
   menus: [
     {
       text: 'Knowledge Base',
-      url: '/knowledgebase',
+      url: '/knowledgeBase',
       icon: 'icon-book-open',
       location: "mainNavigation",
       permission: "showKnowledgeBase",
