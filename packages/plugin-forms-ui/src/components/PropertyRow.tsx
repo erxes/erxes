@@ -234,7 +234,7 @@ class PropertyRow extends React.Component<Props, State> {
           {showVisibleDetail && (
             <ControlLabel>{__('Visible in detail')}</ControlLabel>
           )}
-          <label />
+          <ControlLabel>{__('Actions')}</ControlLabel>
         </PropertyTableHeader>
         <div>
           {this.props.group.isDefinedByErxes
@@ -254,7 +254,7 @@ class PropertyRow extends React.Component<Props, State> {
         <CollapseRow>
           <div style={{ flex: 1 }} onClick={this.handleCollapse}>
             <DropIcon isOpen={this.state.collapse} />
-            {group.name} <span>{group.description}</span>
+            {group.name} 
           </div>
           {this.renderActionButtons(
             group,

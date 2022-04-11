@@ -26,7 +26,7 @@ class Home extends React.Component<Props, {}> {
         header={
           <Wrapper.Header title={__('Calendar')} breadcrumb={breadcrumb} />
         }
-        mainHead={
+        subHeader={
           <HeaderDescription
             icon='/images/actions/34.svg'
             title={__(`Group & Calendar`)}
@@ -52,6 +52,8 @@ class Home extends React.Component<Props, {}> {
             />
           )
         }
+        hasBorder={true}
+        transparent={true}
       />
     );
   }

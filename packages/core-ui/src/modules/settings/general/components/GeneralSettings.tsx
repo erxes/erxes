@@ -25,7 +25,6 @@ import {
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 import ActivateInstallation from './ActivateInstallation';
 import Header from '@erxes/ui-settings/src/general/components/Header';
-import Sidebar from '@erxes/ui-settings/src/general/containers/Sidebar';
 
 type Props = {
   currentLanguage: string;
@@ -473,11 +472,6 @@ class GeneralSettings extends React.Component<Props, State> {
           <Wrapper.ActionBar
             left={<Title>{__('General system config')}</Title>}
             right={actionButtons}
-          />
-        }
-        leftSidebar={
-          <Sidebar
-            item={{ url: '/settings/general', text: 'General system config' }}
           />
         }
         content={content}

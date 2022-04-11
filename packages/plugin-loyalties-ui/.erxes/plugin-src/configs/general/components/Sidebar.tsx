@@ -19,26 +19,9 @@ class Sidebar extends React.Component {
     );
   }
 
-  renderSidebarHeader() {
-    return (
-      <TopHeader>
-        <Link to="/settings/">
-          <Button
-            btnStyle="simple"
-            icon="arrow-circle-left"
-            block={true}
-            uppercase={false}
-          >
-            Back to Settings
-          </Button>
-        </Link>
-      </TopHeader>
-    );
-  }
-
   render() {
     return (
-      <LeftSidebar full={true} header={this.renderSidebarHeader()}>
+      <LeftSidebar full={true} hasBorder={true}>
         <List id="SettingsSidebar">
           {this.renderListItem(
             '/erxes-plugin-loyalty/settings/general',

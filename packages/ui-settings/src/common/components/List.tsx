@@ -28,6 +28,8 @@ type Props = {
   searchValue?: string;
   history?: any;
   rightActionBar?: any;
+  hasBorder?: boolean;
+  transparent?: boolean;
 };
 
 class List extends React.Component<Props & ICommonListProps, {}> {
@@ -54,6 +56,8 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       leftSidebar,
       rightActionBar,
       queryParams,
+      hasBorder,
+      transparent,
       history
     } = this.props;
 
@@ -111,6 +115,8 @@ class List extends React.Component<Props & ICommonListProps, {}> {
             emptyContent={emptyContent}
           />
         }
+        hasBorder={hasBorder}
+        transparent={transparent}
       />
     );
   }
