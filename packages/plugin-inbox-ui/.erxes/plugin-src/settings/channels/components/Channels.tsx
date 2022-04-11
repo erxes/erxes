@@ -79,7 +79,7 @@ class Channels extends React.Component<Props, {}> {
             breadcrumb={breadcrumb}
           />
         }
-        mainHead={
+        subHeader={
           <HeaderDescription
             icon='/images/actions/31.svg'
             title={'Channels'}
@@ -120,6 +120,8 @@ class Channels extends React.Component<Props, {}> {
           />
         }
         footer={currentChannel._id && <Pagination count={integrationsCount} />}
+        hasBorder={true}
+        transparent={true}
       />
     );
   }

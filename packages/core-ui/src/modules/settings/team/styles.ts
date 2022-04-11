@@ -5,9 +5,7 @@ import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 
 const ButtonContainer = styled.div`
-  button {
-    margin: ${dimensions.coreSpacing}px 0 0 ${dimensions.coreSpacing}px;
-  }
+  margin: 0 0 14px 0;
 `;
 
 const FlexRow = styled.div`

@@ -1,6 +1,5 @@
-import { schemaHooksWrapper } from './../../../../plugin-inbox-api/src/models/definitions/utils';
 import { Schema, Document } from 'mongoose';
-import { field } from './utils';
+import { field, schemaHooksWrapper } from './utils';
 
 export interface IQpayInvoice {
   senderInvoiceNo: String;

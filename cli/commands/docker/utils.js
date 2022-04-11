@@ -24,6 +24,8 @@ const commonEnvs = (configs) => {
 
 const cleaning = async () => {
   await execCommand("docker rm $(docker ps -a -q -f status=exited)", true);
+  await execCommand("docker rmi $(docker images -f dangling=true -q)", true);
+  await execCommand("docker volume rm $(docker volume ls -q -f dangling=true)", true);
 };
 
 const mongoEnv = (configs) => {

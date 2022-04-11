@@ -1,10 +1,17 @@
 import React from 'react';
-import { StepContainer } from './styles';
+import { StepContainer, StepHeaderTitle } from './styles';
+import { Link } from "react-router-dom";
+import Button from '../Button';
+import { StepWrapper, SteperItem, StepCount } from './styles';
+import { __ } from "../../utils/core";
 
 type Props = {
   children: any;
   active?: number;
   maxStep?: number;
+  allStep?: number;
+  titles?: string[];
+  type?: string;
 };
 
 type State = {
@@ -34,12 +41,45 @@ class Steps extends React.Component<Props, State> {
     }
   };
 
-  render() {
-    const { children, maxStep } = this.props;
-    let index = 0;
+  back = (stepNumber) => {
+    const { activeStep } = this.state;
+    if (stepNumber === 1) {
+      <Link to="settings/importHistories">
+        <Button btnStyle="simple" icon="times-circle">
+          Cancel
+        </Button>
+      </Link>
+    } else {
+      this.setState({ activeStep: activeStep - 1 });
+    }
+  };
 
-    return (
-      <StepContainer>
+  render() {
+    const { children, maxStep, titles, allStep, type } = this.props;
+    const { activeStep } = this.state;
+    let index = 0;
+    const count: number[] = [];
+
+    if (allStep) {
+      for (var i = 1; i <= allStep; i++) {
+        count.push(i);
+      }
+    }
+
+    return (<>
+      {type === 'stepper' && 
+      <StepWrapper type={type}>
+      {count.map((cnt) => {
+        return (
+          <SteperItem complete={activeStep >= cnt}>
+            <StepCount complete={activeStep >= cnt}>{cnt}</StepCount>
+            {titles && <StepHeaderTitle>{__(titles[cnt - 1])}</StepHeaderTitle>}
+          </SteperItem>
+        );
+      })}
+    </StepWrapper>
+    }
+      <StepContainer type={type}>
         {React.Children.map(children, (child: any) => {
           if (!child) {
             return null;
@@ -51,11 +91,12 @@ class Steps extends React.Component<Props, State> {
             stepNumber: index,
             active: this.state.activeStep,
             next: this.next,
+            back: this.back,
             maxStep
           });
         })}
       </StepContainer>
-    );
+    </>);
   }
 }
 
