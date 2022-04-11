@@ -12,6 +12,9 @@ const fieldCommonFields = `
   column: Int
   groupName: String
   pageNumber: Int
+  code: String
+  searchable: Boolean
+  showInCard: Boolean
 `;
 
 export const fieldsTypes = `
@@ -42,7 +45,6 @@ export const fieldsTypes = `
     contentType: String!
     contentTypeId: String
     name: String
-    code: String
     isVisible: Boolean
     isVisibleInDetail: Boolean
     canHide: Boolean
@@ -85,7 +87,7 @@ export const fieldsTypes = `
 
 export const fieldsQueries = `
   fieldsGetTypes: [JSON]
-  fields(contentType: String!, contentTypeId: String, isVisible: Boolean): [Field]
+  fields(contentType: String!, contentTypeId: String, isVisible: Boolean, searchable: Boolean): [Field]
   fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, config: JSON): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
 `;
@@ -105,6 +107,8 @@ const fieldsCommonFields = `
   canHide: Boolean
   associatedFieldId: String
   logic: LogicInput
+  searchable: Boolean
+  showInCard: Boolean
 `;
 
 export const fieldsMutations = `

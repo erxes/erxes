@@ -2,20 +2,20 @@
  * Extra fields for form, customer, company
  */
 
-import { Model } from 'mongoose';
-import * as validator from 'validator';
-import { IModels } from '../connectionResolver';
-import { sendCommonMessage, sendContactsMessage } from '../messageBroker';
-import { updateOrder, IOrderInput } from '@erxes/api-utils/src/commonUtils';
+import { Model } from "mongoose";
+import * as validator from "validator";
+import { IModels } from "../connectionResolver";
+import { sendCommonMessage, sendContactsMessage } from "../messageBroker";
+import { updateOrder, IOrderInput } from "@erxes/api-utils/src/commonUtils";
 import {
   fieldGroupSchema,
   fieldSchema,
   IField,
   IFieldDocument,
   IFieldGroup,
-  IFieldGroupDocument
-} from './definitions/fields';
-import { serviceDiscovery } from '../configs';
+  IFieldGroupDocument,
+} from "./definitions/fields";
+import { serviceDiscovery } from "../configs";
 
 export interface ITypedListItem {
   field: string;
@@ -40,6 +40,7 @@ export const isValidDate = value => {
 };
 
 export interface IFieldModel extends Model<IFieldDocument> {
+  checkCodeDuplication(code: string): string;
   checkIsDefinedByErxes(_id: string): never;
   createField(doc: IField): Promise<IFieldDocument>;
   updateField(_id: string, doc: IField): Promise<IFieldDocument>;
@@ -77,6 +78,15 @@ export interface IFieldModel extends Model<IFieldDocument> {
 
 export const loadFieldClass = (models: IModels, subdomain: string) => {
   class Field {
+    static async checkCodeDuplication(code: string) {
+      const group = await models.Fields.findOne({
+        code,
+      });
+
+      if (group) {
+        throw new Error("Code must be unique");
+      }
+    }
     /*
      * Check if Group is defined by erxes by default
      */
@@ -85,7 +95,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
       // Checking if the field is defined by the erxes
       if (fieldObj && fieldObj.isDefinedByErxes) {
-        throw new Error('Cant update this field');
+        throw new Error("Cant update this field");
       }
     }
 
@@ -94,7 +104,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
       // Checking if the field is defined by the erxes
       if (fieldObj && !fieldObj.canHide) {
-        throw new Error('Cant update this field');
+        throw new Error("Cant update this field");
       }
     }
 
@@ -108,6 +118,10 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       groupName,
       ...fields
     }: IField) {
+      if (fields.code) {
+        await this.checkCodeDuplication(fields.code || "");
+      }
+
       const query: { [key: string]: any } = { contentType };
 
       if (groupId) {
@@ -125,7 +139,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           group = await models.FieldsGroups.createGroup({
             name: groupName,
             contentType,
-            isDefinedByErxes: false
+            isDefinedByErxes: false,
           });
         }
 
@@ -148,7 +162,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         order,
         groupId,
         isDefinedByErxes: false,
-        ...fields
+        ...fields,
       });
     }
 
@@ -165,12 +179,18 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         if (!group) {
           group = await models.FieldsGroups.createGroup({
             name: groupName,
-            contentType: 'form',
-            isDefinedByErxes: false
+            contentType: "form",
+            isDefinedByErxes: false,
           });
         }
 
         doc.groupId = group._id;
+      }
+
+      const field = await models.Fields.findOne({ _id });
+
+      if (doc.code && field && field.code !== doc.code) {
+        await this.checkCodeDuplication(doc.code);
       }
 
       await models.Fields.updateOne({ _id }, { $set: doc });
@@ -193,21 +213,21 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       // Removing field value from customer
       await sendContactsMessage({
         subdomain,
-        action: 'customers.updateMany',
+        action: "customers.updateMany",
         data: {
           selector: {
-            'customFieldsData.field': _id
+            "customFieldsData.field": _id,
           },
           modifier: {
-            $pull: { customFieldsData: { field: _id } }
-          }
-        }
+            $pull: { customFieldsData: { field: _id } },
+          },
+        },
       });
 
       // Removing form associated field
       await models.Fields.updateMany(
         { associatedFieldId: _id },
-        { $unset: { associatedFieldId: '' } }
+        { $unset: { associatedFieldId: "" } }
       );
 
       return fieldObj.remove();
@@ -242,31 +262,31 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
       // required
       if (field.isRequired && (!value || !value.toString().trim())) {
-        throwError('required');
+        throwError("required");
       }
 
       if (value) {
         // email
         if (
-          (type === 'email' || validation === 'email') &&
+          (type === "email" || validation === "email") &&
           !validator.isEmail(value)
         ) {
-          throwError('Invalid email');
+          throwError("Invalid email");
         }
 
         // number
         if (
-          !['check', 'radio', 'select'].includes(type || '') &&
-          validation === 'number' &&
+          !["check", "radio", "select"].includes(type || "") &&
+          validation === "number" &&
           !validator.isFloat(value.toString())
         ) {
-          throwError('Invalid number');
+          throwError("Invalid number");
         }
 
         // date
-        if (validation === 'date') {
+        if (validation === "date") {
           if (!isValidDate(value)) {
-            throwError('Invalid date');
+            throwError("Invalid date");
           }
 
           value = new Date(value);
@@ -305,14 +325,14 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         stringValue = value.toString();
 
         // string
-        if (type === 'input' && !validation) {
+        if (type === "input" && !validation) {
           numberValue = null;
           value = stringValue;
           return { field, value, stringValue, numberValue, dateValue };
         }
 
         // number
-        if (type !== 'check' && validator.isFloat(value.toString())) {
+        if (type !== "check" && validator.isFloat(value.toString())) {
           numberValue = value;
           stringValue = null;
           value = Number(value);
@@ -330,7 +350,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       [key: string]: any;
     }): ITypedListItem[] {
       const ids = Object.keys(data || {});
-      return ids.map(_id => this.generateTypedItem(_id, data[_id], ''));
+      return ids.map(_id => this.generateTypedItem(_id, data[_id], ""));
     }
 
     public static async prepareCustomFieldsData(
@@ -342,7 +362,10 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         const field = await models.Fields.findById(customFieldData.field);
 
         try {
-          await models.Fields.clean(customFieldData.field, customFieldData.value);
+          await models.Fields.clean(
+            customFieldData.field,
+            customFieldData.value
+          );
         } catch (e) {
           throw new Error(e.message);
         }
@@ -350,7 +373,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           models.Fields.generateTypedItem(
             customFieldData.field,
             customFieldData.value,
-            field ? field.type || '' : '',
+            field ? field.type || "" : "",
             field?.validation
           )
         );
@@ -383,21 +406,21 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
     public static async createSystemFields(
       groupId: string,
-      serviceName: string,
+      serviceName: string
     ) {
-        const fields = await sendCommonMessage({
-          subdomain: 'os',
-          serviceName,
-          action: 'systemFields',
-          data: {
-            groupId
-          },
-          isRPC: true,
-          defaultValue: []
-        });
+      const fields = await sendCommonMessage({
+        subdomain: "os",
+        serviceName,
+        action: "systemFields",
+        data: {
+          groupId,
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
 
-        await models.Fields.insertMany(fields);
-      }
+      await models.Fields.insertMany(fields);
+    }
 
     public static async generateCustomFieldsData(
       data: { [key: string]: any },
@@ -410,19 +433,19 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       for (const key of keys) {
         const customField = await models.Fields.findOne({
           contentType,
-          text: key
+          text: key,
         });
 
         let value = data[key];
 
         if (customField) {
-          if (customField.validation === 'date') {
+          if (customField.validation === "date") {
             value = new Date(data[key]);
           }
 
           customFieldsData.push({
             field: customField._id,
-            value
+            value,
           });
 
           delete data[key];
@@ -443,6 +466,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 };
 
 export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
+  checkCodeDuplication(code: string): string;
   checkIsDefinedByErxes(_id: string): never;
   createGroup(doc: IFieldGroup): Promise<IFieldGroupDocument>;
   updateGroup(_id: string, doc: IFieldGroup): Promise<IFieldGroupDocument>;
@@ -459,6 +483,15 @@ export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
 
 export const loadGroupClass = (models: IModels) => {
   class FieldGroup {
+    static async checkCodeDuplication(code: string) {
+      const group = await models.FieldsGroups.findOne({
+        code,
+      });
+
+      if (group) {
+        throw new Error("Code must be unique");
+      }
+    }
     /*
      * Check if Group is defined by erxes by default
      */
@@ -467,7 +500,7 @@ export const loadGroupClass = (models: IModels) => {
 
       // Checking if the group is defined by the erxes
       if (groupObj && groupObj.isDefinedByErxes) {
-        throw new Error('Cant update this group');
+        throw new Error("Cant update this group");
       }
     }
 
@@ -475,6 +508,10 @@ export const loadGroupClass = (models: IModels) => {
      * Create new field group
      */
     public static async createGroup(doc: IFieldGroup) {
+      if (doc.code) {
+        await this.checkCodeDuplication(doc.code || "");
+      }
+
       // Newly created group must be visible
       const isVisible = true;
 
@@ -483,9 +520,11 @@ export const loadGroupClass = (models: IModels) => {
       // Automatically setting order of group to the bottom
       let order = 1;
 
-      const lastGroup = await models.FieldsGroups.findOne({ contentType }).sort({
-        order: -1
-      });
+      const lastGroup = await models.FieldsGroups.findOne({ contentType }).sort(
+        {
+          order: -1,
+        }
+      );
 
       if (lastGroup) {
         order = (lastGroup.order || 0) + 1;
@@ -495,7 +534,7 @@ export const loadGroupClass = (models: IModels) => {
         ...doc,
         isVisible,
         order,
-        isDefinedByErxes: false
+        isDefinedByErxes: false,
       });
     }
 
@@ -503,6 +542,12 @@ export const loadGroupClass = (models: IModels) => {
      * Update field group
      */
     public static async updateGroup(_id: string, doc: IFieldGroup) {
+      const group = await models.FieldsGroups.findOne({ _id });
+
+      if (doc.code && group && group.code !== doc.code) {
+        await this.checkCodeDuplication(doc.code);
+      }
+
       // Can not edit group that is defined by erxes
       await this.checkIsDefinedByErxes(_id);
 
@@ -566,7 +611,7 @@ export const loadGroupClass = (models: IModels) => {
       const services = await serviceDiscovery.getServices();
 
       for (const serviceName of services) {
-        if(serviceName === 'cards') {
+        if (serviceName === "cards") {
           continue;
         }
 
@@ -580,17 +625,17 @@ export const loadGroupClass = (models: IModels) => {
             const contentType = `${serviceName}:${type.type}`;
 
             const doc = {
-              name: 'Basic information',
+              name: "Basic information",
               contentType,
               order: 0,
               isDefinedByErxes: true,
               description: `Basic information of a ${type.type}`,
-              isVisible: true
+              isVisible: true,
             };
 
             const existingGroup = await models.FieldsGroups.findOne({
               contentType: doc.contentType,
-              isDefinedByErxes: true
+              isDefinedByErxes: true,
             });
 
             if (existingGroup) {
