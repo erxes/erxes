@@ -201,7 +201,7 @@ const queries = {
         subdomain: "os",
         data: {
           mainType: "buyerCustomer",
-          mainTypeIds: customerIds,
+          mainTypeIds: buyerIds,
           relType: "deal",
         },
         action: "conformities.filterConformity",
@@ -224,7 +224,7 @@ const queries = {
         subdomain: "os",
         data: {
           mainType: "waiterCustomer",
-          mainTypeIds: customerIds,
+          mainTypeIds: waiterIds,
           relType: "deal",
         },
         action: "conformities.filterConformity",

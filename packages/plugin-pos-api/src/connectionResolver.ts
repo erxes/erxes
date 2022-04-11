@@ -1,13 +1,14 @@
-import * as mongoose from "mongoose";
-import { mainDb } from "./configs";
+import * as mongoose from 'mongoose';
+import { mainDb } from './configs';
 // import { ITagDocument } from "./models/definitions/pos";
 import {
   loadPosClass,
   loadProductGroupClass,
   IPosModel,
   IProductGroupModel,
-} from "./models/Pos";
-import { IContext as IMainContext } from "@erxes/api-utils/src";
+} from './models/Pos';
+import { IPosDocument, IProductGroupDocument } from './models/definitions/pos';
+import { IContext as IMainContext } from '@erxes/api-utils/src';
 
 export interface IModels {
   Pos: IPosModel;
@@ -35,8 +36,11 @@ export const generateModels = async (
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
-  models.Pos = db.model<, IPosModel>("pos", loadPosClass(models));
-  models.ProductGroup = db.model<, IPosModel>("productGroup", loadProductGroupClass(models));
+  models.Pos = db.model<IPosDocument, IPosModel>('pos', loadPosClass(models));
+  models.ProductGroup = db.model<IProductGroupDocument, IProductGroupModel>(
+    'productGroup',
+    loadProductGroupClass(models)
+  );
 
   return models;
 };

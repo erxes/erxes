@@ -1,8 +1,19 @@
-import { posSChema, productGroupSchema } from "./definitions/pos";
-import { IPOS } from "../types";
-import { Model } from "mongoose";
+import {
+  posSChema,
+  productGroupSchema,
+  IPosDocument,
+  IProductGroupDocument,
+} from './definitions/pos';
+import { IPOS } from '../types';
+import { Model } from 'mongoose';
 
-export interface IPosModel extends Model<> {}
+export interface IPosModel extends Model<IPosDocument> {
+  getPosList(query: any): IPosDocument;
+  getPos(query: any): IPosDocument;
+  posAdd(user, doc: IPOS): IPosDocument;
+  posEdit(_id: string, doc: IPOS): IPosDocument;
+  posRemove(_id: string): IPosDocument;
+}
 
 export const loadPosClass = (models) => {
   class Pos {
@@ -14,14 +25,14 @@ export const loadPosClass = (models) => {
       const pos = await models.Pos.findOne(query).lean();
 
       if (!pos) {
-        throw new Error("POS not found");
+        throw new Error('POS not found');
       }
       return pos;
     }
 
     public static generateToken(length: number = 32) {
-      const a = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split(
-        ""
+      const a = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'.split(
+        ''
       );
       const b = [] as any;
 
@@ -31,13 +42,13 @@ export const loadPosClass = (models) => {
         b[i] = a[j];
       }
 
-      return b.join("");
+      return b.join('');
     }
 
     public static async posAdd(user, doc: IPOS) {
       try {
         const integration = await models.Integrations.createIntegration(
-          { ...doc, kind: "pos", isActive: true },
+          { ...doc, kind: 'pos', isActive: true },
           user._id
         );
 
@@ -89,7 +100,12 @@ export const loadPosClass = (models) => {
   return posSChema;
 };
 
-export interface IProductGroupModel extends Model<> {}
+export interface IProductGroupModel extends Model<IProductGroupDocument> {
+  groups(posId: string): IProductGroupDocument;
+  groupsAdd(user, name, description): IProductGroupDocument;
+  groupsEdit(_id, doc): IProductGroupDocument;
+  groupsRemove(_id: string): IProductGroupDocument;
+}
 
 export const loadProductGroupClass = (models) => {
   class ProductGroup {
@@ -110,7 +126,7 @@ export const loadProductGroupClass = (models) => {
       const group = await models.ProductGroups.findOne({ _id }).lean();
 
       if (!group) {
-        throw new Error("group not found");
+        throw new Error('group not found');
       }
 
       await models.ProductGroups.updateOne(

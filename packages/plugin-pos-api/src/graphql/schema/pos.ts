@@ -1,3 +1,8 @@
+import {
+  attachmentType,
+  attachmentInput,
+} from '@erxes/api-utils/src/commonTypeDefs';
+
 const groupCommonFields = `
   posId: String
   description: String
@@ -69,7 +74,14 @@ const posOrderFields = `
   syncedErkhet: Boolean
 `;
 
-export const types = `
+export const types = () => `
+
+  ${attachmentType}
+  ${attachmentInput}
+
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
   type CatProd {
     ${catProd}
   }

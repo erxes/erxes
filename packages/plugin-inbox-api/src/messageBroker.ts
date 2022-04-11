@@ -208,7 +208,6 @@ export const initBroker = cl => {
     }
   );
 
-  // ? added new
   consumeRPCQueue(
     "inbox:getConversationsList",
     async ({ subdomain, data: { query, listParams } }) => {
