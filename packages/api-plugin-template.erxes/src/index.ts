@@ -119,6 +119,8 @@ async function leaveServiceDiscovery() {
 });
 
 const generateApolloServer = async serviceDiscovery => {
+  debugInfo(`Enabled services .... ${getServices()}`);
+
   const { typeDefs, resolvers } = await configs.graphql(serviceDiscovery);
 
   return new ApolloServer({
