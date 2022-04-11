@@ -274,6 +274,8 @@ async function startServer() {
         }
 
         if(forms.systemFields) {
+          forms.systemFieldsAvailable = true;
+
           consumeRPCQueue(`${configs.name}:systemFields`, async args => ({
             status: 'success',
             data: await forms.systemFields(args)
@@ -286,6 +288,14 @@ async function startServer() {
           consumeRPCQueue(`${configs.name}:tag`, async args => ({
             status: 'success',
             data: await tags.tag(args)
+          }));
+        }
+        if (tags.publishChange) {
+          tags.publishChangeAvailable = true;
+          
+          consumeRPCQueue(`${configs.name}:publishChange`, async args => ({
+            status: 'success',
+            data: await tags.publishChange(args)
           }));
         }
       }

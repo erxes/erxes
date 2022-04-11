@@ -15,8 +15,6 @@ import {
 
 import { debug } from "../../configs";
 
-// ? import { trackViewPageEvent } from '../../../events';
-
 import { get, set } from "../../inmemoryStorage";
 import { graphqlPubsub } from "../../configs";
 
@@ -43,8 +41,6 @@ import { trackViewPageEvent } from "../../events";
 import EditorAttributeUtil from "@erxes/api-utils/src/editorAttributeUtils";
 import { getServices } from "@erxes/api-utils/src/serviceDiscovery";
 import { IContext, IModels } from "../../connectionResolver";
-
-// ? import { IFormDocument } from '../../../db/models/definitions/forms';
 
 interface IWidgetEmailParams {
   toEmails: string[];

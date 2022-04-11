@@ -28,10 +28,17 @@ const cleaning = async () => {
   await execCommand("docker volume rm $(docker volume ls -q -f dangling=true)", true);
 };
 
-const mongoEnv = (configs) => {
+const mongoEnv = (configs, plugin) => {
   const mongo = configs.mongo || {};
   const db_server_address = configs.db_server_address;
-  const mongo_url = `mongodb://${mongo.username}:${mongo.password}@${db_server_address}:27017/${mongo.db_name || 'erxes'}?authSource=admin&replicaSet=rs0`;
+
+  let db_name = mongo.db_name || 'erxes';
+
+  if (plugin && plugin.db_name) {
+    db_name = plugin.db_name;
+  }
+
+  const mongo_url = `mongodb://${mongo.username}:${mongo.password}@${db_server_address}:27017/${db_name}?authSource=admin&replicaSet=rs0`;
 
   return mongo_url;
 }
@@ -48,7 +55,7 @@ const deploy = {
 }
 
 const generatePluginBlock = (configs, plugin) => {
-  const mongo_url = plugin.mongo_url || mongoEnv(configs);
+  const mongo_url = plugin.mongo_url || mongoEnv(configs, plugin);
 
   return {
     image: `erxes/plugin-${plugin.name}-api:federation`,
