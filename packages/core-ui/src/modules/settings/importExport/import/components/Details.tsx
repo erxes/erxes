@@ -1,13 +1,14 @@
-import React from 'react';
+import React from "react";
 
-import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
-import { SubHeading } from '@erxes/ui-settings/src/styles';
+import { FlexItem, FlexPad } from "modules/common/components/step/styles";
+import { InputBar } from "@erxes/ui-settings/src/styles";
 import {
   ControlLabel,
   FormControl,
-  FormGroup
-} from '@erxes/ui/src/components/form';
-import { __ } from '@erxes/ui/src/utils';
+  FormGroup,
+} from "@erxes/ui/src/components/form";
+import { __ } from "@erxes/ui/src/utils";
+import { ImportHeader } from "../../styles";
 
 type Props = {
   disclaimer: boolean;
@@ -18,13 +19,13 @@ type Props = {
 };
 
 class Details extends React.Component<Props, {}> {
-  onChangeName = e => {
+  onChangeName = (e) => {
     const value = (e.currentTarget as HTMLInputElement).value;
 
     this.props.onChangeImportName(value);
   };
 
-  onChangeDisclaimer = e => {
+  onChangeDisclaimer = (e) => {
     const value = e.target.checked;
 
     this.props.onChangeDisclaimer(value);
@@ -36,22 +37,22 @@ class Details extends React.Component<Props, {}> {
     return (
       <FlexItem>
         <FlexPad direction="column" overflow="auto" value={importName}>
-          <SubHeading>{__('Details')}</SubHeading>
-
           <FormGroup>
-            <ControlLabel required={true}>{__('Import Name')}</ControlLabel>
-            <p>
+            <ImportHeader>
               {__(
-                'Giving it a name helps with identifying items in the imports history.'
+                "Giving it a name helps with identifying items in the imports history."
               )}
               .
-            </p>
-            <FormControl
-              required={true}
-              name="title"
-              value={importName}
-              onChange={this.onChangeName}
-            />
+            </ImportHeader>
+            <InputBar>
+              <FormControl
+                required={true}
+                name="title"
+                value={importName}
+                onChange={this.onChangeName}
+                placeholder={__("Import Name")}
+              />
+            </InputBar>
           </FormGroup>
 
           <FormGroup>
@@ -62,7 +63,7 @@ class Details extends React.Component<Props, {}> {
               checked={disclaimer}
               onChange={this.onChangeDisclaimer}
             />
-            <ControlLabel required={true}>{__('Disclaimer')}</ControlLabel>
+            <ControlLabel required={true}>{__("Disclaimer")}</ControlLabel>
 
             <p>
               {__(

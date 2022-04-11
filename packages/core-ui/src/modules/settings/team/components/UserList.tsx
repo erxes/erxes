@@ -21,6 +21,7 @@ import {
 import UserForm from "@erxes/ui-team/src/containers/UserForm";
 import UserResetPasswordForm from "@erxes/ui-team/src/containers/UserResetPasswordForm";
 import { UserAvatar } from "../styles";
+import { ControlLabel } from '@erxes/ui/src/components/form';
 
 type IProps = {
   changeStatus: (id: string) => void;
@@ -181,14 +182,14 @@ class UserList extends React.Component<FinalProps, States> {
   renderContent = (props) => {
     return (
       <>
-        <Table>
+        <Table wideHeader={true}>
           <thead>
             <tr>
-              <th>{__("Full name")}</th>
-              <th>{__("Invitation status")}</th>
-              <th>{__("Email")}</th>
-              <th>{__("Status")}</th>
-              <th>{__("Actions")}</th>
+              <th><ControlLabel>{__("Full name")}</ControlLabel></th>
+              <th><ControlLabel>{__("Invitation status")}</ControlLabel></th>
+              <th><ControlLabel>{__("Email")}</ControlLabel></th>
+              <th><ControlLabel>{__("Status")}</ControlLabel></th>
+              <th><ControlLabel>{__("Actions")}</ControlLabel></th>
             </tr>
           </thead>
           <tbody>{this.renderRows(props)}</tbody>

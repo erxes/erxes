@@ -127,7 +127,7 @@ function Skills(props: Props) {
       header={
         <Wrapper.Header title={__('Skill types')} breadcrumb={breadcrumb} />
       }
-      mainHead={
+      subHeader={
         <HeaderDescription
           icon='/images/actions/32.svg'
           title={'All Skills'}
@@ -144,6 +144,8 @@ function Skills(props: Props) {
       leftSidebar={<SkillTypes queryParams={queryParams} />}
       content={renderContent()}
       footer={<Pagination count={totalCount} />}
+      hasBorder={true}
+      transparent={true}
     />
   );
 }

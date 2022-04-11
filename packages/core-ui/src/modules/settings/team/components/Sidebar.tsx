@@ -11,10 +11,10 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 export default function LeftSidebar({
   loadingMainQuery
 }: {
-  loadingMainQuery: boolean;
+  loadingMainQuery: boolean; hasBorder?: boolean
 }) {
   return (
-    <Sidebar>
+    <Sidebar hasBorder={true}>
       <Structure />
       <DepartmentList />
       {isEnabled("segments") && <SegmentFilter loadingMainQuery={loadingMainQuery} />}

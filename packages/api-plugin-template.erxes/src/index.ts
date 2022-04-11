@@ -103,7 +103,7 @@ async function closeHttpServer() {
 async function leaveServiceDiscovery() {
   try {
     await leave(configs.name, PORT || '');
-    console.log(`Left service discovery. name= ${configs.name} port=${PORT}`);
+    console.log(`Left service discovery. name=${configs.name} port=${PORT}`);
   } catch (e) {
     console.error(e);
   }

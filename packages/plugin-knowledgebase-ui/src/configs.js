@@ -1,12 +1,12 @@
 module.exports = {
-  name: "knowledgeBase",
+  name: "knowledgebase",
   port: 3004,
   exposes: {
     "./routes": "./src/routes.tsx"
   },
   routes: {
     url: "http://localhost:3004/remoteEntry.js",
-    scope: "knowledgeBase",
+    scope: "knowledgebase",
     module: "./routes",
   },
   menus: [

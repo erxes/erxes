@@ -1,13 +1,6 @@
 import { __ } from '@erxes/ui/src/utils';
 
 export const EMPTY_IMPORT_CONTENT = {
-  title: __('Getting Started with Import & Export Feature'),
-  description:
-    __(
-      'These steps will help you with importing or exporting your data to and from erxes'
-    ) + '.',
-  urlText: __('Watch our tutorial'),
-  url: '/tutorial',
   steps: [
     {
       title: 'Export your data',

@@ -5,7 +5,6 @@ import { INTEGRATION_FILTERS } from '@erxes/ui/src/constants/integrations';
 import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList as List } from '@erxes/ui/src/layout/styles';
 import { SidebarList } from '@erxes/ui-settings/src/styles';
-import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 
 type Props = {
   currentType: string;
@@ -27,7 +26,7 @@ class SideBar extends React.Component<Props> {
 
   render() {
     return (
-      <LeftSidebar header={<SidebarHeader />} full={true}>
+      <LeftSidebar full={true} hasBorder={true}>
         <List id='SettingsSidebar'>
           {INTEGRATION_FILTERS.map((data, index) => (
             <SidebarList key={index}>

@@ -280,7 +280,7 @@ class List extends React.Component<IProps, State> {
             breadcrumb={breadcrumb}
           />
         }
-        mainHead={
+        subHeader={
           <HeaderDescription
             icon='/images/actions/30.svg'
             title={'Product & Service'}
@@ -307,6 +307,8 @@ class List extends React.Component<IProps, State> {
             emptyImage='/images/actions/5.svg'
           />
         }
+        hasBorder={true}
+        transparent={true}
       />
     );
   }
