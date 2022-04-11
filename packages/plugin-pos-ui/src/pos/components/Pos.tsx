@@ -16,7 +16,7 @@ import {
 } from '@erxes/ui/src';
 import { Content, LeftContent } from '../../styles';
 import { ControlWrapper, Indicator, StepWrapper } from '@erxes/ui/src/components/step/styles';
-import { IIntegration, IPos, IProductGroup } from '../../types';
+import { IPos, IProductGroup } from '../../types';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { Link } from 'react-router-dom';
 import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types'

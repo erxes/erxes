@@ -94,54 +94,14 @@ export type BrandsQueryResponse = {
   brands: IBrand[];
 } & QueryResponse;
 
-export interface IIntegration {
-  _id: string;
-  name: string;
-  isActive: boolean;
-  tags: ITag[];
-  brand: IBrand;
-  brandId: string;
-}
-
-export type IntegrationsQueryResponse = {
-  integrations: IIntegration[];
-} & QueryResponse;
-
-export type IntegrationsCount = {
-  total: number;
-  byTag: Counts;
-  byBrand: Counts;
-  byKind: Counts;
-  byStatus: Counts;
-};
-
-export type CountQueryResponse = {
-  integrationsTotalCount: IntegrationsCount;
-} & QueryResponse;
-
-export type TagCountQueryResponse = {
-  [key: string]: number;
-};
-
-export type IntegrationDetailQueryResponse = {
-  integrationDetail: IIntegration;
-} & QueryResponse;
-
 export type PosDetailQueryResponse = {
   posDetail: IPos;
 } & QueryResponse;
 
 export type IntegrationMutationVariables = {
-  brandId: string;
   name: string;
   description: string;
   productDetails: string[];
-};
-
-export type EditIntegrationMutationResponse = {
-  editIntegrationMutation: (params: {
-    variables: IntegrationMutationVariables;
-  }) => Promise<void>;
 };
 
 export type AddPosMutationResponse = {
@@ -162,35 +122,6 @@ export type RemoveMutationResponse = {
 
 export type CopyMutationResponse = {
   copyMutation: (params: { variables: { _id: string } }) => Promise<void>;
-};
-
-export type ArchiveIntegrationResponse = {
-  archiveIntegration: (params: {
-    variables: { _id: string; status: boolean };
-  }) => Promise<any>;
-};
-
-export type ITagTypes =
-  | 'conversation'
-  | 'customer'
-  | 'engageMessage'
-  | 'company'
-  | 'integration';
-
-export type TagsQueryResponse = {
-  tags: ITag[];
-  loading: boolean;
-  refetch: () => void;
-};
-
-export type TagMutationVariables = {
-  type: string;
-  targetIds: string[];
-  tagIds: string[];
-};
-
-export type TagMutationResponse = {
-  tagMutation: (params: { variables: TagMutationVariables }) => Promise<any>;
 };
 
 export type IButtonMutateProps = {

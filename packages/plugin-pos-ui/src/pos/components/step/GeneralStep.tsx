@@ -19,7 +19,6 @@ import {
   BlockRow,
   BlockRowUp,
 } from "../../../styles";
-import SelectBrand from "../../containers/SelectBrand";
 import { IPos, IScreenConfig } from "../../../types";
 import Select from "react-select-plus";
 
