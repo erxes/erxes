@@ -19,6 +19,9 @@ import Integration from './integration';
 import ConversationMessage from './conversationMessage';
 import BookingData from './bookingData';
 import Customer from './customer';
+import Script from './script';
+import ScriptMutations from './scriptMutations';
+import ScriptQueries from './scriptQueries';
 
 const resolvers: any = {
   ...customScalars,
@@ -28,6 +31,7 @@ const resolvers: any = {
   Integration,
   ConversationMessage,
   BookingData,
+  Script,
   Mutation: {
     ...ConversationMutations,
     ...IntegrationMutations,
@@ -36,7 +40,8 @@ const resolvers: any = {
     ...skillTypesMutations,
     ...skillsMutations,
     ...WidgetMutations,
-    ...MessengerAppMutations
+    ...MessengerAppMutations,
+    ...ScriptMutations
   },
   Query: {
     ...ChannelQueries,
@@ -46,7 +51,8 @@ const resolvers: any = {
     ...skillQueries,
     ...ResponseTemplateQueries,
     ...WidgetQueries,
-    ...ConversationQueries
+    ...ConversationQueries,
+    ...ScriptQueries
   }
 };
 

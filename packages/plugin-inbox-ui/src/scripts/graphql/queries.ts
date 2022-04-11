@@ -1,3 +1,6 @@
+
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 const scripts = `
   query scripts($page: Int, $perPage: Int) {
     scripts(page: $page, perPage: $perPage) {
@@ -14,9 +17,15 @@ const scripts = `
         name
       }
       kbTopicId
+      ${
+        isEnabled('knowledgeBase')
+          ? `
       kbTopic {
         _id
         title
+      }
+      `
+          : ''
       }
     }
   }
