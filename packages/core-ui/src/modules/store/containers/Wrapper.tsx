@@ -8,6 +8,7 @@ const Contents = styled.div`
   position: relative;
   display: flex;
   flex: 1;
+  padding: ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
 
   @-moz-document url-prefix() {
     overflow: hidden;
@@ -15,10 +16,9 @@ const Contents = styled.div`
 `;
 
 const MainContent = styled.div`
-  margin: ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px 0;
-  padding: 0 ${dimensions.coreSpacing}px 0 0;
   flex: 1;
   overflow: auto;
+  padding: 0 ${dimensions.coreSpacing}px;
 `;
 
 type Props = {

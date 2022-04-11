@@ -1,6 +1,6 @@
 import Icon from "modules/common/components/Icon";
 import Button from "./Button";
-import { colors, dimensions, typography } from "modules/common/styles";
+import { colors, dimensions } from "modules/common/styles";
 import { __ } from "modules/common/utils";
 import React from "react";
 import styled from "styled-components";
@@ -11,7 +11,6 @@ import { FlexContent } from "@erxes/ui/src/activityLogs/styles";
 
 const MainContainer = styledTS<{ active?: boolean }>(styled.section)`
   height: 100%;
-  padding: ${dimensions.coreSpacing}px;
   display: flex;
   flex-direction: column;
 `;
@@ -81,7 +80,7 @@ const PaddingBottom = styled.div`
 type Props = {
   onSearch?: (e) => void;
   clearSearch?: () => void;
-  results;
+  results?;
   loading?: boolean;
 };
 

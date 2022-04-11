@@ -6,11 +6,9 @@ const Store = asyncComponent(() =>
   import(/* webpackChunkName: "Store" */ "./containers/Store")
 );
 
-// const PluginDetails = asyncComponent(() =>
-//   import(
-//     /* webpackChunkName: "Store" */ './containers/PluginDetails'
-//   )
-// );
+const PluginDetails = asyncComponent(() =>
+  import(/* webpackChunkName: "Store" */ "./containers/PluginDetails")
+);
 
 const main = () => {
   return <Store text="fjfhkjnn" />; // change props
@@ -26,9 +24,9 @@ const routes = () => {
   return (
     <React.Fragment>
       <Route
-        key="/store/details/"
+        key="/store/details"
         exact={true}
-        path="/store/details/"
+        path="/store/details"
         component={detail}
       />
 

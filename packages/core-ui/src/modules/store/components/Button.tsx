@@ -44,15 +44,17 @@ const ButtonStyled = styledTS<{
   uppercase?: boolean;
   border?: boolean;
   round?: boolean;
+  padding?: string;
+  background?: boolean;
 }>(styled.button)`
-  border-radius: ${(props) => (props.round ? '30px' : '4px')};
+  border-radius: ${(props) => (props.round ? '30px' : props.block ? '8px' : '4px')};
   position: relative;
   transition: all 0.3s ease;
   outline: 0;
 
   ${(props) => css`
-    padding: ${sizes[props.hugeness].padding};
-    background: ${types[props.btnStyle].background};
+    padding: ${(props) => (!props.padding ? sizes[props.hugeness].padding : props.padding)};
+    background: ${(props) => (props.background ? lighten(colors.colorPrimary, 85) : types[props.btnStyle].background)};
     font-size: ${props.uppercase
       ? sizes[props.hugeness].fontSize
       : `calc(${sizes[props.hugeness].fontSize} + 1px)`};
@@ -174,6 +176,8 @@ export type ButtonProps = {
   target?: string;
   border?: boolean;
   round?: boolean;
+  padding?: string;
+  background?: boolean;
 };
 
 export default class Button extends React.Component<ButtonProps> {
@@ -187,6 +191,7 @@ export default class Button extends React.Component<ButtonProps> {
     uppercase: false,
     border: false,
     round: false,
+    padding: '',
   };
 
   render() {

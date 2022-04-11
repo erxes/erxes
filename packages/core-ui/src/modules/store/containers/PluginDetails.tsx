@@ -54,7 +54,7 @@ function PluginDetailsContainer(props: FinalProps) {
   //   deviceFields: fields.device,
   // };
 
-  return <PluginDetails />;
+  return <PluginDetails text='' />;
 }
 
 export default withProps<Props>(
