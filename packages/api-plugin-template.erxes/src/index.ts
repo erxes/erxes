@@ -288,6 +288,14 @@ async function startServer() {
             data: await tags.tag(args)
           }));
         }
+        if (tags.publishChange) {
+          tags.publishChangeAvailable = true;
+          
+          consumeRPCQueue(`${configs.name}:publishChange`, async args => ({
+            status: 'success',
+            data: await tags.publishChange(args)
+          }));
+        }
       }
 
       if (internalNotes) {

@@ -1,4 +1,5 @@
 import { generateModels } from './connectionResolver';
+import { publishConversationsChanged } from './graphql/resolvers/conversationMutations';
 
 export default {
   types: [
@@ -39,5 +40,7 @@ export default {
     }
 
     return response;
-  }
+  },
+  publishChange: ({ data: { targetIds, type } }) =>
+    publishConversationsChanged(targetIds, type)
 };

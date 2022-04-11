@@ -13,6 +13,9 @@ import {
   putActivityLog,
 } from '../../../logUtils';
 
+import { sendCommonMessage } from '../../../messageBroker';
+import { serviceDiscovery } from '../../../configs';
+
 interface ITagsEdit extends ITag {
   _id: string;
 }
@@ -75,10 +78,29 @@ const tagMutations = {
     }: { type: string; targetIds: string[]; tagIds: string[] },
     { models, subdomain, user }: IContext
   ) {
-    // ? if (type === 'conversation') {
-    //   publishConversationsChanged(targetIds, MODULE_NAMES.TAG);
-    // }
+    const services = await serviceDiscovery.getServices();
 
+    for (const serviceName of services) {
+      if(serviceName !== (type || '').split(':')[0]) {
+        continue;
+      }
+
+      const service = await serviceDiscovery.getService(serviceName, true);
+      const meta = service.config?.meta || {};
+
+      if (meta && meta.tags && meta.tags.publishChangeAvailable) {
+        await sendCommonMessage({
+          subdomain,
+          serviceName,
+          action: 'publishChange',
+          data: {
+            targetIds,
+            type: 'tag'
+          }
+        });
+      }
+    }
+    
     const prevTagsCount = await models.Tags.find({
       _id: { $in: tagIds },
       type,
