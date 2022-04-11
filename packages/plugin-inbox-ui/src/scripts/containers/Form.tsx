@@ -4,12 +4,12 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
 import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
-import { queries as integrationQueries } from '../../integrations/graphql';
-import { IntegrationsQueryResponse } from '../../integrations/types';
+import { queries as integrationQueries } from '@erxes/ui-settings/src/integrations/graphql';
+import { IntegrationsQueryResponse } from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
-import { ICommonFormProps } from '../../common/types';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import Form from '../components/Form';
 
 type Props = {
