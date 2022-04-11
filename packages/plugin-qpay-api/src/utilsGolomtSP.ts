@@ -1,12 +1,5 @@
-import { fetchUrl, getConfigs } from './utils';
+import { fetchUrl } from './utils';
 import * as crypto from 'crypto';
-
-export const configCodes = {
-  key: 'inStoreSPKey',
-  terminal: 'inStoreSPTerminal',
-  url: 'inStoreSPUrl',
-  push: 'pushNotification'
-};
 
 export const configDescriptions = {
   inStoreSPKey: 'InStore SocialPay key for checksum',
@@ -20,7 +13,7 @@ export const hmac256 = (key, message) => {
   return hash.digest('hex');
 };
 
-export const socialPayInvoicePhone = async (raw, configs) => {
+export const socialPayInvoicePhone = async (raw, config) => {
   const rawData = JSON.stringify(raw);
   const requestOptions = {
     method: 'POST',
@@ -28,13 +21,13 @@ export const socialPayInvoicePhone = async (raw, configs) => {
     body: rawData,
     redirect: 'follow'
   };
-  const host = await getConfigs(configs, configCodes.url);
+  const { inStoreSPUrl } = config;
   const port = '/pos/invoice/phone';
 
-  return await fetchUrl(`${host}${port}`, requestOptions);
+  return await fetchUrl(`${inStoreSPUrl}${port}`, requestOptions);
 };
 
-export const socialPayInvoiceQR = async (raw, configs) => {
+export const socialPayInvoiceQR = async (raw, config) => {
   const rawData = JSON.stringify(raw);
   const requestOptions = {
     method: 'POST',
@@ -42,13 +35,13 @@ export const socialPayInvoiceQR = async (raw, configs) => {
     body: rawData,
     redirect: 'follow'
   };
-  const host = await getConfigs(configs, configCodes.url);
+  const { inStoreSPUrl } = config;
   const port = '/pos/invoice/qr';
 
-  return await fetchUrl(`${host}${port}`, requestOptions);
+  return await fetchUrl(`${inStoreSPUrl}${port}`, requestOptions);
 };
 
-export const socialPayInvoiceCancel = async (raw, configs) => {
+export const socialPayInvoiceCancel = async (raw, config) => {
   const rawData = JSON.stringify(raw);
   const requestOptions = {
     method: 'POST',
@@ -56,13 +49,13 @@ export const socialPayInvoiceCancel = async (raw, configs) => {
     body: rawData,
     redirect: 'follow'
   };
-  const host = await getConfigs(configs, configCodes.url);
+  const { inStoreSPUrl } = config;
   const port = '/pos/invoice/cancel';
 
-  return await fetchUrl(`${host}${port}`, requestOptions);
+  return await fetchUrl(`${inStoreSPUrl}${port}`, requestOptions);
 };
 
-export const socialPayInvoiceCheck = async (raw, configs) => {
+export const socialPayInvoiceCheck = async (raw, config) => {
   const rawData = JSON.stringify(raw);
   const requestOptions = {
     method: 'POST',
@@ -70,13 +63,13 @@ export const socialPayInvoiceCheck = async (raw, configs) => {
     body: rawData,
     redirect: 'follow'
   };
-  const host = await getConfigs(configs, configCodes.url);
+  const { inStoreSPUrl } = config;
   const port = '/pos/invoice/check';
 
-  return await fetchUrl(`${host}${port}`, requestOptions);
+  return await fetchUrl(`${inStoreSPUrl}${port}`, requestOptions);
 };
 
-export const socialPayPaymentCancel = async (raw, configs) => {
+export const socialPayPaymentCancel = async (raw, config) => {
   const rawData = JSON.stringify(raw);
   const requestOptions = {
     method: 'POST',
@@ -84,8 +77,8 @@ export const socialPayPaymentCancel = async (raw, configs) => {
     body: rawData,
     redirect: 'follow'
   };
-  const host = await getConfigs(configs, configCodes.url);
+  const { inStoreSPUrl } = config;
   const port = '/pos/payment/cancel';
 
-  return await fetchUrl(`${host}${port}`, requestOptions);
+  return await fetchUrl(`${inStoreSPUrl}${port}`, requestOptions);
 };

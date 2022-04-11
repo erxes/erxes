@@ -1,12 +1,5 @@
 import fetch from 'node-fetch';
-
-export const configCodes = {
-  username: 'qpayMerchantUser',
-  password: 'qpayMerchantPassword',
-  invoiceCode: 'qpayInvoiceCode',
-  url: 'qpayUrl',
-  callback: 'callbackUrl'
-};
+import { sendCoreMessage } from './messageBroker';
 
 export const configDescriptions = {
   qpayMerchantUser: 'Merchant username for API',
@@ -16,39 +9,14 @@ export const configDescriptions = {
   callbackUrl: 'The callback url for Merchant'
 };
 
-export const setQpayConfig = async (code, models, doc) => {
-  const _id = Math.random().toString();
-  const value = { _id, status: 'active', data: doc };
-
-  const addresses = await models.Configs.findOne({ code });
-  const values = addresses ? addresses.value : [];
-  values.push(value);
-
-  if (!addresses) {
-    await models.Configs.create({ code, value: values });
-  } else {
-    await models.Configs.updateOne(
-      { _id: addresses._id },
-      { $set: { value: values } }
-    );
-  }
-  return value;
-};
-
-export const delQpayConfigs = async (code, models, doc) => {
-  const addresses = await models.Configs.findOne({ code });
-  const value = addresses.value;
-  const selected = value.filter(i => {
-    if (i._id === doc._id) {
-      i.status = 'inactive';
-    }
-    return i._id === doc._id || i._id !== doc._id;
+export const getConfig = async (subdomain, code, defaultValue?) => {
+  return await sendCoreMessage({
+    subdomain,
+    action: 'getConfig',
+    data: { code, defaultValue },
+    isRPC: true
   });
-
-  await models.Configs.updateOne({ code }, { $set: { value: selected } });
-
-  return selected;
-};
+}
 
 export const getQpayConfigs = async (code, models, _params) => {
   const addresses = await models.Configs.findOne({ code });
@@ -60,23 +28,13 @@ export const getQpayConfigs = async (code, models, _params) => {
   return actives;
 };
 
-export const getDataFromConfigById = async (code, ids: [string], configs) => {
-  const config = await configs.findOne({ code });
-  const values = config.value;
+export const getDataFromConfigById = async (code, ids: [string], config) => {
+  const subConf = config[code];
+  const values = subConf.value;
 
   return values.filter(i => {
     return ids.includes(i._id);
   });
-};
-
-export const getConfigs = async (configs, key) => {
-  const config = await configs.findOne({ code: key });
-
-  if (!config) {
-    throw new Error(`Required to config ${configDescriptions[key]}`);
-  }
-
-  return config.value;
 };
 
 export const makeInvoiceNo = length => {
@@ -106,10 +64,9 @@ export const fetchUrl = async (url, requestOptions) => {
   return returnData;
 };
 
-export const qpayToken = async configs => {
-  const host = await getConfigs(configs, configCodes.url);
-  const username = await getConfigs(configs, configCodes.username);
-  const password = await getConfigs(configs, configCodes.password);
+export const qpayToken = async config => {
+  const { qpayUrl, qpayMerchantUser, qpayMerchantPassword } = config;
+
   const port = '/v2/auth/token';
 
   const raw = '';
@@ -118,18 +75,18 @@ export const qpayToken = async configs => {
     method: 'POST',
     headers: {
       Authorization:
-        'Basic ' + Buffer.from(`${username}:${password}`).toString('base64')
+        'Basic ' + Buffer.from(`${qpayMerchantUser}:${qpayMerchantPassword}`).toString('base64')
     },
     body: raw,
     redirect: 'follow'
   };
 
-  const tokenInfo = await fetchUrl(`${host}${port}`, requestOptions);
+  const tokenInfo = await fetchUrl(`${qpayUrl}${port}`, requestOptions);
   return tokenInfo.access_token;
 };
 
-export const createInvoice = async (varData, token, configs) => {
-  const host = await getConfigs(configs, configCodes.url);
+export const createInvoice = async (varData, token, config) => {
+  const { qpayUrl } = config;
   const port = '/v2/invoice';
   const raw = JSON.stringify(varData);
   const requestOptions = {
@@ -142,11 +99,11 @@ export const createInvoice = async (varData, token, configs) => {
     redirect: 'follow'
   };
 
-  return fetchUrl(`${host}${port}`, requestOptions);
+  return fetchUrl(`${qpayUrl}${port}`, requestOptions);
 };
 
-export const deleteInvoice = async (invoiceId, token, configs) => {
-  const host = await getConfigs(configs, configCodes.url);
+export const deleteInvoice = async (invoiceId, token, config) => {
+  const { qpayUrl } = config;
   const port = `/v2/invoice/${invoiceId}`;
   const requestOptions = {
     method: 'DELETE',
@@ -154,11 +111,11 @@ export const deleteInvoice = async (invoiceId, token, configs) => {
     redirect: 'follow'
   };
 
-  return fetchUrl(`${host}${port}`, requestOptions);
+  return fetchUrl(`${qpayUrl}${port}`, requestOptions);
 };
 
-export const getQpayInvoice = async (invoiceId, token, configs) => {
-  const host = await getConfigs(configs, configCodes.url);
+export const getQpayInvoice = async (invoiceId, token, config) => {
+  const { qpayUrl } = config;
   const port = `/v2/invoice/${invoiceId}`;
 
   const requestOptions = {
@@ -167,11 +124,11 @@ export const getQpayInvoice = async (invoiceId, token, configs) => {
     redirect: 'follow'
   };
 
-  return fetchUrl(`${host}${port}`, requestOptions);
+  return fetchUrl(`${qpayUrl}${port}`, requestOptions);
 };
 
-export const checkQpayPayment = async (varData, token, configs) => {
-  const host = await getConfigs(configs, configCodes.url);
+export const checkQpayPayment = async (varData, token, config) => {
+  const { qpayUrl } = config;
   const port = `/v2/payment/check`;
   const raw = JSON.stringify(varData);
 
@@ -185,11 +142,11 @@ export const checkQpayPayment = async (varData, token, configs) => {
     redirect: 'follow'
   };
 
-  return fetchUrl(`${host}${port}`, requestOptions);
+  return fetchUrl(`${qpayUrl}${port}`, requestOptions);
 };
 
-export const listQpayPayment = async (varData, token, configs) => {
-  const host = await getConfigs(configs, configCodes.url);
+export const listQpayPayment = async (varData, token, config) => {
+  const { qpayUrl } = config;
   const port = `/v2/payment/list`;
   const raw = JSON.stringify(varData);
 
@@ -203,16 +160,16 @@ export const listQpayPayment = async (varData, token, configs) => {
     redirect: 'follow'
   };
 
-  return fetchUrl(`${host}${port}`, requestOptions);
+  return fetchUrl(`${qpayUrl}${port}`, requestOptions);
 };
 
 export const deleteQpayPayment = async (
   paymentId,
   description,
   token,
-  configs
+  config
 ) => {
-  const host = await getConfigs(configs, configCodes.url);
+  const { qpayUrl } = config;
   const port = `/v2/payment/cancel/${paymentId}`;
   const raw = JSON.stringify({
     callback_url: `https://qpay.mn/payment/result?payment_id=${paymentId}`,
@@ -229,11 +186,11 @@ export const deleteQpayPayment = async (
     redirect: 'follow'
   };
 
-  return fetchUrl(`${host}${port}`, requestOptions);
+  return fetchUrl(`${qpayUrl}${port}`, requestOptions);
 };
 
-export const getQpayNuat = async (varData, token, configs) => {
-  const host = await getConfigs(configs, configCodes.url);
+export const getQpayNuat = async (varData, token, config) => {
+  const { qpayUrl } = config;
   const port = `/ebarimt/create`;
   const raw = JSON.stringify(varData);
 
@@ -247,5 +204,5 @@ export const getQpayNuat = async (varData, token, configs) => {
     redirect: 'follow'
   };
 
-  return fetchUrl(`${host}${port}`, requestOptions);
+  return fetchUrl(`${qpayUrl}${port}`, requestOptions);
 };
