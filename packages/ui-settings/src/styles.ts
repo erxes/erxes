@@ -105,6 +105,8 @@ const FlexRow = styled.div`
   flex-wrap: wrap;
   flex-direction: row;
   align-items: center;
+  flex: 1;
+  margin-right: ${dimensions.coreSpacing}px;
 `;
 
 const SubHeading = styled.h4`
@@ -278,6 +280,24 @@ const LogoContainer = styled.div`
   }
 `;
 
+const InputBar = styledTS<{type?: string}>(styled.div)`
+  background: ${colors.bgActive};
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  flex: 1;
+  max-width: ${props => props.type === "active" && `${dimensions.headerSpacingWide * 2 + 20}px`};
+  padding: 5px 5px 0 20px;
+  border-radius: 8px;
+  margin-left: ${props => props.type === "active" && '10px'};
+  height: 41px;
+  padding-left: ${props => props.type === "searchBar" && `${dimensions.unitSpacing * 2}px`};
+
+  input {
+    border-bottom: 0;
+  }
+`;
+
 export {
   MarkdownWrapper,
   FlexItem,
@@ -293,5 +313,6 @@ export {
   FilterContainer,
   SidebarList,
   ContentBox,
-  LogoContainer
+  LogoContainer,
+  InputBar
 };

@@ -10,7 +10,7 @@ import {
   loadSocialPayInvoiceClass, //loadSocialPayInvoiceClass
   IQpayInvoiceModel, //IQpayInvoiceModel
   ISocialPayInvoiceModel, //ISocialPayInvoiceModel
-} from './models/qpay';
+} from './models/Qpay';
 import { MongoClient } from 'mongodb';
 
 export interface IModels {
@@ -75,10 +75,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.SocialPayInvoice = db.model<
     ISocialPayInvoiceDocument,
     ISocialPayInvoiceModel
-  >('SocialPayInvoice', loadSocialPayInvoiceClass(models));
+  >('socialpay_invoices', loadSocialPayInvoiceClass(models));
 
   models.QpayInvoice = db.model<IQpayInvoiceDocument, IQpayInvoiceModel>(
-    'QpayInvoice',
+    'qpay_invoices',
     loadQpayInvoiceClass(models)
   );
 

@@ -211,6 +211,8 @@ class SpinCampaigns extends React.Component<Props, State> {
           />
         }
         leftSidebar={<Sidebar />}
+        hasBorder={true}
+        transparent={true}
       />
     );
   }

@@ -14,7 +14,7 @@ body {
   line-height: ${typography.lineHeightBody};
   color: ${colors.textPrimary};
   height: 100%;
-  background: ${colors.bgMain} !important;
+  background: ${colors.colorWhite} !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -1032,7 +1032,7 @@ a:hover {
 /* scrollbar */
 
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 5px;
   height: 10px;
   background: transparent;
 }                                                                                                                                         
@@ -1043,6 +1043,7 @@ a:hover {
   border-style: solid;
   border-color: transparent;
   border-image: initial;
+  border-radius: 10px;
   transition: background-color 200ms linear 0s;
 } 
 
@@ -1063,6 +1064,7 @@ a:hover {
   border-style: solid;
   border-color: transparent;
   border-image: initial;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-track-piece {

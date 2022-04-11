@@ -1,6 +1,7 @@
 const genericFields = `
   _id
   description
+  code
   order
   isVisible
   isVisibleInDetail
@@ -21,6 +22,8 @@ const commonFields = `
     description
   }
   groupId
+  searchable
+  showInCard
 
   ${genericFields}
 
@@ -130,5 +133,5 @@ export default {
   getSystemFieldsGroup,
   inboxFields,
   cardsFields,
-  configs
+  configs,
 };

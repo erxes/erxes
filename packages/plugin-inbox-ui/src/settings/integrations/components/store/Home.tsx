@@ -136,13 +136,15 @@ class Home extends React.Component<Props, State> {
             right={this.renderSearch()}
           />
         }
-        mainHead={headerDescription}
+        subHeader={headerDescription}
         leftSidebar={<Sidebar currentType={queryParams.type} />}
         content={
           <Content>
             <IntegrationWrapper>{this.renderIntegrations()}</IntegrationWrapper>
           </Content>
         }
+        hasBorder={true}
+        transparent={true}
       />
     );
   }

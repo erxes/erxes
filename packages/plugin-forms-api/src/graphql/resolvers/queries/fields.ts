@@ -15,6 +15,7 @@ export interface IFieldsQuery {
   contentTypeId?: string;
   isVisible?: boolean;
   isDefinedByErxes?: boolean;
+  searchable?: boolean;
 }
 
 const fieldQueries = {
@@ -50,7 +51,13 @@ const fieldQueries = {
       contentType,
       contentTypeId,
       isVisible,
-    }: { contentType: string; contentTypeId: string; isVisible: boolean },
+      searchable,
+    }: {
+      contentType: string;
+      contentTypeId: string;
+      isVisible: boolean;
+      searchable: boolean;
+    },
     { models }: IContext
   ) {
     const query: IFieldsQuery = { contentType };
@@ -61,6 +68,10 @@ const fieldQueries = {
 
     if (isVisible) {
       query.isVisible = isVisible;
+    }
+
+    if (searchable !== undefined) {
+      query.searchable = searchable;
     }
 
     return models.Fields.find(query).sort({ order: 1 });
@@ -140,7 +151,7 @@ const fieldsGroupQueries = {
     const groups = await models.FieldsGroups.find(query);
 
     return groups
-      .map((group) => {
+      .map(group => {
         if (group.isDefinedByErxes) {
           group.order = -1;
         }

@@ -6,7 +6,7 @@ import UserList from "../containers/UserList";
 import Sidebar from "./Sidebar";
 import { menuContacts } from "@erxes/ui/src/utils/menus";
 import { FlexItem, FlexRow } from "@erxes/ui-settings/src/styles";
-import { FilterContainer } from "@erxes/ui-settings/src/styles";
+import { FilterContainer, InputBar } from "@erxes/ui-settings/src/styles";
 import { ControlLabel, FormControl } from "@erxes/ui/src/components/form";
 import { router } from "@erxes/ui/src/utils";
 import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
@@ -15,7 +15,18 @@ import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import Button from "@erxes/ui/src/components/Button";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { IUserGroup } from "@erxes/ui-settings/src/permissions/types";
-import { dimensions } from "@erxes/ui/src/styles";
+import styled from "styled-components";
+import styledTS from 'styled-components-ts';
+import { colors, dimensions } from "@erxes/ui/src/styles";
+import Icon from "@erxes/ui/src/components/Icon";
+import { ButtonContainer } from "../styles";
+
+const ActiveColor = styledTS <{active: boolean}>(styled.div)`
+  background: ${props => (props.active === true ? colors.colorCoreGreen : colors.colorCoreYellow)};
+  border-radius: 50%;
+  height: 10px;
+  width: 10px;
+  `;
 
 type Props = {
   queryParams: any;
@@ -30,6 +41,7 @@ export default function Home(props: Props) {
   let timer;
   const { queryParams, history, loading, configsEnvQuery = {} } = props;
   const [searchValue, setSearchValue] = useState("");
+  const [active, setActive]= useState(true);
 
   const search = (e) => {
     if (timer) {
@@ -53,6 +65,7 @@ export default function Home(props: Props) {
 
   const onStatusChange = (status: { label: string; value: boolean }) => {
     router.setParams(history, { isActive: status.value });
+    setActive(status.value);
   };
 
   const renderBrandChooser = () => {
@@ -83,6 +96,8 @@ export default function Home(props: Props) {
     <FilterContainer style={{ paddingTop: dimensions.coreSpacing - 10 }}>
       <FlexRow>
         {renderBrandChooser()}
+        <InputBar type="searchBar">
+        <Icon icon="search-1" size={20}/>
         <FlexItem>
           <FormControl
             placeholder={__("Search")}
@@ -93,7 +108,9 @@ export default function Home(props: Props) {
             onFocus={moveCursorAtTheEnd}
           />
         </FlexItem>
-
+        </InputBar>
+        <InputBar type="active">
+        <ActiveColor active={active}/>
         <FlexItem>
           <Select
             placeholder={__("Choose status")}
@@ -112,6 +129,7 @@ export default function Home(props: Props) {
             ]}
           />
         </FlexItem>
+        </InputBar>
       </FlexRow>
     </FilterContainer>
   );
@@ -128,7 +146,7 @@ export default function Home(props: Props) {
     );
   };
 
-  const trigger = <Button btnStyle="success">Invite team members</Button>;
+  const trigger = <ButtonContainer><Button btnStyle="success" icon="plus">Invite team members</Button></ButtonContainer>;
 
   const righActionBar = (
     <ModalTrigger
@@ -140,7 +158,7 @@ export default function Home(props: Props) {
   );
 
   const actionBar = (
-    <Wrapper.ActionBar right={righActionBar} left={renderFilter} />
+    <Wrapper.ActionBar hasFlex={true} right={righActionBar} left={renderFilter} />
   );
 
   return (
@@ -152,9 +170,11 @@ export default function Home(props: Props) {
           submenu={menuContacts}
         />
       }
-      leftSidebar={<Sidebar loadingMainQuery={loading} />}
+      leftSidebar={<Sidebar hasBorder={true} loadingMainQuery={loading} />}
       actionBar={actionBar}
       content={<UserList history={history} queryParams={queryParams} />}
+      hasBorder={true}
+      transparent={true}
     />
   );
 }

@@ -10,6 +10,7 @@ type Props = {
   responsive?: boolean;
   whiteSpace?: string;
   alignTop?: boolean;
+  wideHeader?: boolean;
 };
 
 class Table extends React.Component<Props> {
