@@ -2,7 +2,7 @@ import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { getEnv } from '@erxes/ui/src/utils';
-import { MarkdownWrapper } from '../../styles';
+import { MarkdownWrapper } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import ReactMarkdown from 'react-markdown';

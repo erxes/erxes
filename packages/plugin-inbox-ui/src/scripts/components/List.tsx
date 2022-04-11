@@ -7,11 +7,11 @@ import Table from '@erxes/ui/src/components/table';
 import Tip from '@erxes/ui/src/components/Tip';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
-import { EMPTY_CONTENT_SCRIPT } from '../../constants';
+import { EMPTY_CONTENT_SCRIPT } from '@erxes/ui-settings/src/constants';
 import React from 'react';
-import List from '../../common/components/List';
-import RowActions from '../../common/components/RowActions';
-import { ICommonListProps } from '../../common/types';
+import List from '@erxes/ui-settings/src/common/components/List';
+import RowActions from '@erxes/ui-settings/src/common/components/RowActions';
+import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
 import Form from '../containers/Form';
 import InstallCode from './InstallCode';
 
