@@ -14,6 +14,7 @@ import messageBroker, {
 } from './messageBroker';
 import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery'
 import { generateModels, IModels } from './connectionResolver';
+import { COMPANY_INFO, CUSTOMER_BASIC_INFO, DEVICE_PROPERTIES_INFO } from './constants';
 
 export const findCustomer = async ({ Customers }: IModels, doc) => {
   let customer;
@@ -466,4 +467,47 @@ export const prepareEngageCustomers = async (
       resolve({ status: 'done', customerInfos });
     });
   });
+};
+
+
+export const generateSystemFields = ({ data: { groupId } }) => {
+  let contactsFields: any = [];
+
+  const serviceName = 'contacts';
+
+  CUSTOMER_BASIC_INFO.ALL.map(e => {
+    contactsFields.push({
+      text: e.label,
+      type: e.field,
+      canHide: e.canHide,
+      validation: e.validation,
+      groupId,
+      contentType: `${serviceName}:customer`,
+      isDefinedByErxes: true
+    });
+  });
+
+  COMPANY_INFO.ALL.map(e => {
+    contactsFields.push({
+      text: e.label,
+      type: e.field,
+      canHide: e.canHide,
+      validation: e.validation,
+      groupId,
+      contentType: `${serviceName}:company`,
+      isDefinedByErxes: true
+    });
+  });
+
+  DEVICE_PROPERTIES_INFO.ALL.map(e => {
+    contactsFields.push({
+      text: e.label,
+      type: e.field,
+      groupId,
+      contentType: `${serviceName}:device`,
+      isDefinedByErxes: true
+    });
+  });
+
+  return contactsFields;
 };

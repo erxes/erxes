@@ -8,7 +8,6 @@
     "start": "cd .erxes/dist/plugin-qpay-api/.erxes && node src"
   },
   "dependencies": {
-    "fetch": "^1.1.0",
-    "node-fetch": "^3.2.3"
+    "node-fetch": "^2.3.0"
   }
 }

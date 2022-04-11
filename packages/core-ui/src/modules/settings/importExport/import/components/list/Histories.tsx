@@ -88,7 +88,7 @@ class Histories extends React.Component<Props & IRouterProps> {
       <Link
         to={`/settings/export?type=${currentType}&serviceType=${serviceType}`}
       >
-        <Button icon="export" btnStyle="primary" size="small">
+        <Button icon="export" btnStyle="primary">
           {__(`Export ${this.getButtonText()}`)}
         </Button>
       </Link>
@@ -98,7 +98,7 @@ class Histories extends React.Component<Props & IRouterProps> {
   renderDataImporter() {
     return (
       <Link to={`/settings/import`}>
-        <Button icon="import" btnStyle="success" size="small">
+        <Button icon="import" btnStyle="success">
           {__(`Import data`)}
         </Button>
       </Link>
@@ -144,10 +144,11 @@ class Histories extends React.Component<Props & IRouterProps> {
           <Wrapper.ActionBar
             left={<Title capitalize={true}>{__('Imports')}</Title>}
             right={this.renderImportButton()}
+            background="bgActive"
           />
         }
         leftSidebar={<Sidebar currentType={queryParams.type} />}
-        mainHead={headerDescription}
+        subHeader={headerDescription}
         footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader
@@ -157,6 +158,9 @@ class Histories extends React.Component<Props & IRouterProps> {
             emptyContent={<EmptyContent content={EMPTY_IMPORT_CONTENT} />}
           />
         }
+        hasBorder={true}
+        transparent={true}
+        leftSpacing={true}
       />
     );
   }

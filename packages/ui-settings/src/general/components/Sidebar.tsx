@@ -3,7 +3,6 @@ import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList as List } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import SidebarHeader from '../../common/components/SidebarHeader';
 
 class Sidebar extends React.Component<{ isThemeEnabled?: boolean; item: any }> {
   renderListItem(url: string, text: string) {
@@ -23,7 +22,7 @@ class Sidebar extends React.Component<{ isThemeEnabled?: boolean; item: any }> {
     const { item } = this.props;
 
     return (
-      <LeftSidebar full={true} header={<SidebarHeader />}>
+      <LeftSidebar full={true} hasBorder={true}>
         <List id="SettingsSidebar">
           {this.renderListItem(item.url, item.text)}
 

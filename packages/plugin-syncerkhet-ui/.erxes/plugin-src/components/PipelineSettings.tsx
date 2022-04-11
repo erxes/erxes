@@ -108,7 +108,7 @@ class GeneralSettings extends React.Component<Props, State> {
             breadcrumb={breadcrumb}
           />
         }
-        mainHead={<Header />}
+        subHeader={<Header />}
         actionBar={
           <Wrapper.ActionBar
             left={<Title>{__('Remainder configs')}</Title>}
@@ -117,6 +117,8 @@ class GeneralSettings extends React.Component<Props, State> {
         }
         leftSidebar={<Sidebar />}
         content={this.renderContent()}
+        hasBorder={true}
+        transparent={true}
       />
     );
   }

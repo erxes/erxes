@@ -251,6 +251,27 @@ module.exports = {
       },
     ],
   },
+  automations: {
+    exposes: {
+      "./routes": "./src/routes.tsx",
+      // "./settings": "./src/Settings.tsx",
+    },
+    routes: {
+      // url: "http://localhost:3008/remoteEntry.js",
+      url: "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-automations-ui/remoteEntry.js",
+      scope: "automations",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Automations",
+        url: "/automations",
+        location: "mainNavigation",
+        icon: "icon-circular",
+        permission: "showAutomations",
+      },
+    ],
+  },
   knowledgeBase: {
     exposes: { "./routes": "./src/routes.tsx" },
     routes: {
@@ -616,5 +637,36 @@ module.exports = {
         permissions: ['showPos'],
       },
     ],
+  },
+  qpay: {
+    exposes: {
+      './routes': './src/routes.tsx'
+    },
+    routes: {
+      url: 'http://localhost:3019/remoteEntry.js',
+      scope: 'qpay',
+      module: './routes'
+    },
+    menus: [
+      {
+        text: 'Qpay config',
+        to: '/erxes-plugin-qpay/settings/',
+        image: '/images/icons/erxes-16.svg',
+        location: "settings",
+        scope: "qpay",
+        action: 'pluginQpayConfig',
+        permissions: ['manageQr', 'allQr'],
+      },
+      {
+        text: 'SocialPay config',
+        to: '/erxes-plugin-qpay/settings_socialPay/',
+        image: '/images/icons/erxes-16.svg',
+        location: "settings",
+        scope: "qpay",
+        action: 'pluginQpayConfig',
+        permissions: ['manageQr', 'allQr']
+
+      }
+    ]
   }
 };

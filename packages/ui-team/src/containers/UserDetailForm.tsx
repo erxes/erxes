@@ -23,6 +23,7 @@ import {
   UserDetailQueryResponse
 } from '../types';
 import UserForm from './UserForm';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   _id: string;
@@ -86,7 +87,7 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
   }
 
   const { list = [], totalCount = 0 } =
-    userConversationsQuery.userConversations || {};
+    userConversationsQuery && userConversationsQuery.userConversations || {};
 
   const renderButton = ({
     name,
@@ -189,7 +190,8 @@ export default withProps<Props>(
           _id,
           perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
         }
-      })
+      }),
+      skip: !isEnabled("inbox") ? true : false,
     }),
     graphql(gql(channelQueries.channels), {
       name: 'channelsQuery',

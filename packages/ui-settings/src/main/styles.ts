@@ -97,7 +97,7 @@ const Box = styledTS<{ color?: string }>(styled(BoxRoot))`
 `;
 
 const Divider = styled.div`
-  border-bottom: 1px dotted ${darken(colors.borderDarker, 5)};
+  border-bottom: 1px dotted ${darken(colors.borderPrimary, 5)};
   padding-bottom: ${dimensions.coreSpacing}px;
   margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px
     ${columnTitleSize}px;

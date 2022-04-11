@@ -113,7 +113,7 @@ class FormControl extends React.Component<Props> {
       id: props.id,
       maxHeight: props.maxHeight,
       maxLength: props.maxLength,
-      color: props.color
+      color: props.color,
     };
 
     if (elementType === 'select') {

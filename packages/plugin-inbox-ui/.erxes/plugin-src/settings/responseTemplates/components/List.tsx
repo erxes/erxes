@@ -182,7 +182,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
           { title: __('Response templates') }
         ]}
         title={__('Response templates')}
-        mainHead={
+        leftActionBar={
           <HeaderDescription
             icon='/images/actions/24.svg'
             title='Response templates'
@@ -200,6 +200,8 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
         leftSidebar={<CategoryList queryParams={this.props.queryParams} />}
         size="lg"
         {...this.props}
+        hasBorder={true}
+        transparent={true}
       />
     );
   }

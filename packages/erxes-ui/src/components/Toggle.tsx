@@ -6,23 +6,44 @@ import styled from 'styled-components';
 
 const Wrapper = styled.div`
   line-height: 10px;
-
   .react-toggle--checked .react-toggle-track {
-    background-color: ${colors.colorCoreGreen};
+    width: 42px;
+    background-color: ${colors.colorPrimaryDark};
+  }
+  
+  .react-toggle-track:hover {
+    background-color: ${colors.colorPrimaryDark};
   }
 
   .react-toggle-track {
-    background-color: ${colors.colorCoreBlack};
+    width: 42px;
+    border: 3px solid ${colors.colorPrimaryDark};
+    background-color: ${colors.colorWhite};
   }
 
   .react-toggle-track span {
     display: none;
   }
+  
+  .react-toggle-thumb{
+    background: ${colors.colorPrimaryDark};
+    height: 13px;
+    width: 13px;
+    margin: 4px;
+  }
 
-  .react-toggle--checked .react-toggle-thumb,
+  .react-toggle--checked .react-toggle-thumb{
+    background: ${colors.colorWhite};
+    border-color: ${colors.colorPrimaryDark};
+    height: 13px;
+    width: 13px;
+    margin: 4px 15px 0 0;
+  }
+
   .react-toggle--checked:hover:not(.react-toggle--disabled)
     .react-toggle-track {
-    border-color: ${colors.colorCoreGreen};
+      border-color: ${colors.colorPrimaryDark};
+      background-color: ${colors.colorPrimaryDark};
   }
 `;
 

@@ -1,5 +1,6 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src';
 import { generateModels } from './connectionResolver';
+import { CONVERSATION_INFO } from './constants';
 
 const generateFields = async ({ subdomain }) => {
   const models = await generateModels(subdomain);
@@ -38,9 +39,17 @@ const generateFields = async ({ subdomain }) => {
 export default {
   types: [
     {
-      description: 'Conversations',
+      description: 'Conversation details',
       type: 'conversation'
     }
   ],
-  fields: generateFields
+  fields: generateFields,
+  systemFields: ({ data: { groupId } }) =>
+    CONVERSATION_INFO.ALL.map(e => ({
+      text: e.label,
+      type: e.field,
+      groupId,
+      contentType: `inbox:conversation`,
+      isDefinedByErxes: true
+    }))
 };

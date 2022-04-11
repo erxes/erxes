@@ -115,7 +115,7 @@ class GeneralSettings extends React.Component<Props, State> {
             breadcrumb={breadcrumb}
           />
         }
-        mainHead={header}
+        subHeader={header}
         actionBar={
           <Wrapper.ActionBar
             left={<Title>{__("Loyalty config")}</Title>}
@@ -125,6 +125,8 @@ class GeneralSettings extends React.Component<Props, State> {
         content={content}
         leftSidebar={<Sidebar />}
         center={true}
+        hasBorder={true}
+        transparent={true}
       />
     );
   }

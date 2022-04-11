@@ -11,6 +11,7 @@ const StyledTable = styledTS<{
   hover?: boolean;
   bordered?: boolean;
   striped?: boolean;
+  wideHeader?: boolean;
 }>(styled.table)`
   ${props => css`
     width: 100%;
@@ -92,7 +93,7 @@ const StyledTable = styledTS<{
     @media (min-width: 1170px) {
       th,
       td {
-        padding: ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing -
+        padding: ${props => props.wideHeader ? `${dimensions.unitSpacing + 2}px` : `${dimensions.unitSpacing - 2}`} ${dimensions.coreSpacing -
     2}px;
 
         &:first-child {
