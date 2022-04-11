@@ -285,7 +285,8 @@ class Form extends React.Component<Props, State> {
           />
         } 
       content={content}
-      transparent={true} />
+      transparent={true}
+      center={true} />
   );
 }
 }
