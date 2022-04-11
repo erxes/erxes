@@ -24,6 +24,8 @@ const commonEnvs = (configs) => {
 
 const cleaning = async () => {
   await execCommand("docker rm $(docker ps -a -q -f status=exited)", true);
+  await execCommand("docker rmi $(docker images -f dangling=true -q)", true);
+  await execCommand("docker volume rm $(docker volume ls -q -f dangling=true)", true);
 };
 
 const mongoEnv = (configs) => {
@@ -32,6 +34,17 @@ const mongoEnv = (configs) => {
   const mongo_url = `mongodb://${mongo.username}:${mongo.password}@${db_server_address}:27017/${mongo.db_name || 'erxes'}?authSource=admin&replicaSet=rs0`;
 
   return mongo_url;
+}
+
+const healthcheck = { test: ["CMD", "curl", "-i", "http://localhost:80/health"] };
+const deploy = {
+      mode: "replicated",
+      replicas: 2,
+      update_config: {
+        order: "start-first",
+        failure_action: "rollback",
+        delay: "5s"
+      }
 }
 
 const generatePluginBlock = (configs, plugin) => {
@@ -49,9 +62,6 @@ const generatePluginBlock = (configs, plugin) => {
     volumes: ["./enabled-services.js:/data/enabled-services.js"],
     networks: ["erxes"],
     extra_hosts: [`mongo:${plugin.db_server_address || configs.db_server_address || '127.0.0.1'}`],
-    deploy: {
-      replicas: plugin.replicas || 1,
-    },
   };
 };
 
@@ -175,7 +185,7 @@ module.exports.dup = async (program) => {
   const extra_hosts = [`mongo:${configs.db_server_address || '127.0.0.1'}`];
 
   const dockerComposeConfig = {
-    version: "3.3",
+    version: "3.7",
     networks: {
       erxes: {
         driver: "overlay",
@@ -215,8 +225,8 @@ module.exports.dup = async (program) => {
           ENABLED_SERVICES_PATH: "/data/enabled-services.js",
           ...commonEnvs(configs),
         },
-        volumes: ["./enabled-services.js:/data/enabled-services.js"],
         extra_hosts,
+        volumes: ["./enabled-services.js:/data/enabled-services.js"],
         networks: ["erxes"],
       },
       gateway: {
@@ -233,6 +243,8 @@ module.exports.dup = async (program) => {
           ...commonEnvs(configs),
         },
         volumes: ["./enabled-services.js:/data/enabled-services.js"],
+        healthcheck,
+        deploy,
         extra_hosts,
         ports: ["3300:80"],
         networks: ["erxes"],
@@ -256,7 +268,7 @@ module.exports.dup = async (program) => {
           ELASTICSEARCH_URL: `http://${configs.db_server_address}:9200`,
           MONGO_URL: mongoEnv(configs),
         },
-        volumes: ["/essyncerData:/data/essyncerData"],
+        volumes: ["./essyncerData:/data/essyncerData"],
         extra_hosts,
         networks: ["erxes"],
       },

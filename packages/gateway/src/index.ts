@@ -78,6 +78,11 @@ const {
     })
   );
 
+  // for health check
+  app.get('/health', async (_req, res) => {
+    res.end('ok');
+  });
+
   const httpServer = http.createServer(app);
 
   httpServer.on('close', () => {
@@ -147,7 +152,7 @@ const {
         MAIN_APP_DOMAIN || 'http://localhost:3000',
         WIDGETS_DOMAIN || '',
         ...(CLIENT_PORTAL_DOMAINS || '').split(','),
-        DASHBOARD_DOMAIN || '',
+        DASHBOARD_DOMAIN || 'http://localhost:4200',
         'https://studio.apollographql.com',
       ]
     }

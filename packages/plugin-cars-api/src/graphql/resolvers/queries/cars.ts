@@ -1,8 +1,8 @@
+import { paginate } from "@erxes/api-utils/src/core";
 import {
   checkPermission,
   requireLogin,
 } from "@erxes/api-utils/src/permissions";
-import { paginate } from "erxes-api-utils";
 import { IContext } from "../../../connectionResolver";
 
 const generateFilter = async (models, params, commonQuerySelector) => {

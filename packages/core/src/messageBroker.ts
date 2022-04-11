@@ -3,6 +3,7 @@ import { sendMessage } from "@erxes/api-utils/src/core";
 
 import { logConsumers } from "@erxes/api-utils/src/logUtils";
 import { internalNoteConsumers } from "@erxes/api-utils/src/internalNotes";
+import { formConsumers } from "@erxes/api-utils/src/forms";
 import { graphqlPubsub } from "./pubsub";
 import { registerOnboardHistory } from "./data/modules/robot";
 import {
@@ -24,6 +25,7 @@ import * as serviceDiscovery from "./serviceDiscovery";
 
 import logUtils from "./logUtils";
 import internalNotes from "./internalNotes";
+import forms from "./forms";
 
 let client;
 
@@ -225,6 +227,12 @@ export const initBroker = async options => {
       name: "core",
       consumeRPCQueue,
       generateInternalNoteNotif: internalNotes.generateInternalNoteNotif,
+    });
+
+    formConsumers({
+      name: "core",
+      consumeRPCQueue,
+      systemFields: forms.systemFields,
     });
   }
 

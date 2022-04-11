@@ -11,6 +11,7 @@ export interface IQpayInvoiceModel extends Model<IQpayInvoiceDocument> {
   qpayInvoiceCreate(doc: any): IQpayInvoiceDocument;
   qpayInvoiceUpdate(invoice: any, invoiceData: any): IQpayInvoiceDocument;
 }
+
 export const loadQpayInvoiceClass = (models) => {
   class QpayInvoice {
     public static async getQpayInvoice(_id: string) {
@@ -24,6 +25,7 @@ export const loadQpayInvoiceClass = (models) => {
     }
 
     public static async qpayInvoiceCreate(doc) {
+      console.log(doc, 'mmmmmmmmmmmmmmmmm')
       const invoice = await models.QpayInvoice.findOne({
         senderInvoiceNo: doc.senderInvoiceNo,
       });
@@ -49,6 +51,7 @@ export const loadQpayInvoiceClass = (models) => {
   qpayInvoiceSchema.loadClass(QpayInvoice);
   return qpayInvoiceSchema;
 };
+
 export interface ISocialPayInvoiceModel
   extends Model<ISocialPayInvoiceDocument> {
   getSocialPayInvoice(invoiceNo: string): ISocialPayInvoiceDocument;

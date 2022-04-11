@@ -6,5 +6,8 @@
     "dev": "cd .erxes && yarn dev",
     "build": "cd .erxes && yarn build",
     "start": "cd .erxes/dist/plugin-contacts-api/.erxes && node src"
+  },
+  "dependencies": {
+    "uuid-by-string": "^3.0.5"
   }
 }

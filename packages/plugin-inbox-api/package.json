@@ -6,5 +6,9 @@
     "dev": "cd .erxes && yarn dev",
     "build": "cd .erxes && yarn build",
     "start": "cd .erxes/dist/plugin-inbox-api/.erxes && node src"
+  },
+  "dependencies": {
+    "moment-timezone": "^0.5.28",
+    "uuid-by-string": "^3.0.5"
   }
 }

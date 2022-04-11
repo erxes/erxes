@@ -45,6 +45,9 @@ const switchContentType = contentType => {
     case 'lead':
       changedContentType = `contacts:${contentType}`;
       break;
+    case 'device':
+      changedContentType = `contacts:${contentType}`;
+      break;
     case 'form_submission':
       changedContentType = `form_submission:${contentType}`;
       break;
@@ -61,6 +64,10 @@ const switchContentType = contentType => {
 
     case 'user': 
       changedContentType = `core:${contentType}`
+      break;
+      
+    case 'product': 
+      changedContentType = `products:${contentType}`
       break;
   }
 

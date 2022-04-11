@@ -5,14 +5,12 @@ import {
   checkQpayPayment,
   listQpayPayment,
   getQpayNuat,
-  getQpayConfigs,
-  getConfigs,
+  getConfig,
 } from '../../../utils';
 
 import {
   hmac256,
   socialPayInvoiceCheck,
-  configCodes as configCodesSP,
 } from '../../../utilsGolomtSP';
 
 const Queries = {
@@ -20,25 +18,25 @@ const Queries = {
    * check socialPay invoice
    */
 
-  checkSPInvoice: async (_root, params, { models }) => {
-    const configs = models.Configs;
+  checkSPInvoice: async (_root, params, { models, subdomain }) => {
+    const config = await getConfig(subdomain, 'SocialPAY');
     const invoiceNo = params.invoiceNo;
-    const terminal = await getConfigs(configs, configCodesSP['terminal']);
-    const keyIV = await getConfigs(configs, configCodesSP['key']);
+    const { inStoreSPTerminal, inStoreSPKey } = config;
+
     const invoice = await models.SocialPayInvoice.getSocialPayInvoice(
       models,
       invoiceNo
     );
     const amount = invoice.amount;
-    const checksum = await hmac256(keyIV, terminal + invoiceNo + amount);
+    const checksum = await hmac256(inStoreSPKey, inStoreSPTerminal + invoiceNo + amount);
 
     const requestBody = {
       amount,
       checksum,
       invoice: invoiceNo,
-      terminal,
+      terminal: inStoreSPTerminal,
     };
-    const response = await socialPayInvoiceCheck(requestBody, configs);
+    const response = await socialPayInvoiceCheck(requestBody, config);
 
     if (
       response &&
@@ -75,59 +73,15 @@ const Queries = {
    * * START QPAY QUERIES
    */
 
-  getQpayAddresses: async (_root, params, { models }) => {
-    const code = 'qpayAddressCode';
-    return getQpayConfigs(code, models, params);
-  },
-
-  getQpaySenderBranchDatas: async (_root, params, { models }) => {
-    const code = 'qpaySenderBranchDataCode';
-    return getQpayConfigs(code, models, params);
-  },
-
-  getQpaySenderStaffDatas: async (_root, params, { models }) => {
-    const code = 'qpaySenderStaffDataCode';
-    return getQpayConfigs(code, models, params);
-  },
-
-  getQpayInvoiceReceiverDatas: async (_root, params, { models }) => {
-    const code = 'qpayInvoiceReceiverDataCode';
-    return getQpayConfigs(code, models, params);
-  },
-  getQPayDiscounts: async (_root, params, { models }) => {
-    const code = 'qpayDiscountsCode';
-    return getQpayConfigs(code, models, params);
-  },
-
-  getQpaySurcharges: async (_root, params, { models }) => {
-    const code = 'qpaySurchargesCode';
-    return getQpayConfigs(code, models, params);
-  },
-
-  getQpayTaxes: async (_root, params, { models }) => {
-    const code = 'qpayTaxesCode';
-    return getQpayConfigs(code, models, params);
-  },
-
-  getQpayLines: async (_root, params, { models }) => {
-    const code = 'qpayLinesCode';
-    return getQpayConfigs(code, models, params);
-  },
-
-  getQpayTransaction: async (_root, params, { models }) => {
-    const code = 'qpayTransactionCode';
-    return getQpayConfigs(code, models, params);
-  },
-
-  getQpayInvoiceDetails: async (_root, params, { models }) => {
-    const configs = models.Configs;
-    const token = await qpayToken(configs);
+  getQpayInvoiceDetails: async (_root, params, { subdomain, models }) => {
+    const config = await getConfig(subdomain, 'QPAY');
+    const token = await qpayToken(config);
 
     const invoice = await models.QpayInvoice.findOne({
       qpayInvoiceId: params.invoiceId,
     });
 
-    const detail = await getQpayInvoice(params.invoiceId, token, configs);
+    const detail = await getQpayInvoice(params.invoiceId, token, config);
 
     if (
       invoice &&
@@ -162,9 +116,9 @@ const Queries = {
     });
   },
 
-  checkQpayPayments: async (_root, params, { models }) => {
-    const configs = models.Configs;
-    const token = await qpayToken(configs);
+  checkQpayPayments: async (_root, params, { subdomain }) => {
+    const config = await getConfig(subdomain, 'SocialPAY');
+    const token = await qpayToken(config);
 
     const page = params.page ? params.page : 1;
     const limit = params.limit ? params.limit : 100;
@@ -178,12 +132,12 @@ const Queries = {
       },
     };
 
-    return await checkQpayPayment(varData, token, configs);
+    return await checkQpayPayment(varData, token, config);
   },
 
-  listQpayPayments: async (_root, params, { models }) => {
-    const configs = models.Configs;
-    const token = await qpayToken(configs);
+  listQpayPayments: async (_root, params, { subdomain }) => {
+    const config = await getConfig(subdomain, 'SocialPAY');
+    const token = await qpayToken(config);
     const {
       page,
       limit,
@@ -208,23 +162,23 @@ const Queries = {
     varData = merchant_branch_code
       ? { ...varData, ...{ merchant_branch_code } }
       : merchant_terminal_code
-      ? { ...varData, ...{ merchant_terminal_code } }
-      : merchant_staff_code
-      ? { ...varData, ...{ merchant_staff_code } }
-      : varData;
+        ? { ...varData, ...{ merchant_terminal_code } }
+        : merchant_staff_code
+          ? { ...varData, ...{ merchant_staff_code } }
+          : varData;
 
-    return await listQpayPayment(varData, token, configs);
+    return await listQpayPayment(varData, token, config);
   },
 
-  getQpayNuat: async (_root, params, { models }) => {
-    const configs = models.Configs;
-    const token = await qpayToken(configs);
+  getQpayNuat: async (_root, params, { subdomain }) => {
+    const config = await getConfig(subdomain, 'SocialPAY');
+    const token = await qpayToken(config);
     const varData = {
       payment_id: params.paymentId,
       ebarimt_receiver_type: params.receiverType,
     };
 
-    return await getQpayNuat(varData, token, configs);
+    return await getQpayNuat(varData, token, config);
   },
 };
 

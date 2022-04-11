@@ -1,9 +1,7 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import { ILottery } from '../../../models/definitions/lotteries';
 import { confirmVoucherSale } from '../../../utils';
-import { sendContactsMessage } from '../../../../../plugin-internalnotes-api/src/messageBroker';
-import { sendCoreMessage } from '../../../messageBroker';
+import { sendContactsMessage, sendCoreMessage } from '../../../messageBroker';
 
 interface IParam {
   ownerType: string;
