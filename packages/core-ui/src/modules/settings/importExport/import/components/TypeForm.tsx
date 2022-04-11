@@ -2,9 +2,8 @@ import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import React from 'react';
-import { Box, TypeContent } from '../../styles';
+import { Box, TypeContent, ImportHeader } from '../../styles';
 import { IImportHistoryContentType } from '../../types';
-import { SubHeading } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   onChangeContentType: (value: IImportHistoryContentType) => void;
@@ -61,7 +60,7 @@ class TypeForm extends React.Component<Props> {
     return (
       <FlexItem>
         <FlexPad direction="column">
-          <SubHeading>{__(this.renderText())}</SubHeading>
+          <ImportHeader>{__(this.renderText())}</ImportHeader>
 
           <TypeContent center={true}>{this.renderOptions()}</TypeContent>
         </FlexPad>

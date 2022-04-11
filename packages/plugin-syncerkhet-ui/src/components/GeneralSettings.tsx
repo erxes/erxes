@@ -111,7 +111,7 @@ class GeneralSettings extends React.Component<Props, State> {
             breadcrumb={breadcrumb}
           />
         }
-        mainHead={<Header />}
+        subHeader={<Header />}
         actionBar={
           <Wrapper.ActionBar
             left={<Title>{__('Ebarimt configs')}</Title>}
@@ -120,6 +120,8 @@ class GeneralSettings extends React.Component<Props, State> {
         }
         leftSidebar={<Sidebar />}
         content={content}
+        transparent={true}
+        hasBorder={true}
       />
     );
   }

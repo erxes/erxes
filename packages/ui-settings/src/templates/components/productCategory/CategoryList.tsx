@@ -1,9 +1,7 @@
-import { TopHeader } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
 import Sidebar from '@erxes//ui/src/layout/components/Sidebar';
 import Wrapper from '@erxes//ui/src/layout/components/Wrapper';
 import { SidebarCounter, SidebarList } from '@erxes//ui/src/layout/styles';
-import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -88,9 +86,6 @@ class List extends React.Component<IProps> {
   renderCategoryHeader() {
     return (
       <>
-        <TopHeader>
-          <SidebarHeader />
-        </TopHeader>
         <Section.Title>{__('Types')}</Section.Title>
       </>
     );
@@ -102,7 +97,7 @@ class List extends React.Component<IProps> {
 
   render() {
     return (
-      <Sidebar wide={true}>
+      <Sidebar wide={true} hasBorder={true}>
         <Section maxHeight={488}>
           {this.renderCategoryHeader()}
           {this.renderCategoryList()}
