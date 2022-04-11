@@ -1,10 +1,10 @@
-import typeDefs from "./graphql/typeDefs";
-import resolvers from "./graphql/resolvers";
-import { IFetchElkArgs } from "@erxes/api-utils/src/types";
-import { generateModels, models } from "./connectionResolver";
+import typeDefs from './graphql/typeDefs';
+import resolvers from './graphql/resolvers';
+import { IFetchElkArgs } from '@erxes/api-utils/src/types';
+import { generateModels, models } from './connectionResolver';
 
-import { initBroker } from "./messageBroker";
-import { initMemoryStorage } from "./inmemoryStorage";
+import { initBroker } from './messageBroker';
+import { initMemoryStorage } from './inmemoryStorage';
 
 export let debug;
 export let graphqlPubsub;
@@ -19,7 +19,7 @@ export let es: {
 };
 
 export default {
-  name: "tags",
+  name: 'pos',
   graphql: async (sd) => {
     serviceDiscovery = sd;
     return {
@@ -28,7 +28,7 @@ export default {
     };
   },
   apolloServerContext: (context) => {
-    const subdomain = "os";
+    const subdomain = 'os';
 
     context.subdomain = subdomain;
     context.models = models;
@@ -38,7 +38,7 @@ export default {
   onServerInit: async (options) => {
     mainDb = options.db;
 
-    await generateModels("os");
+    await generateModels('os');
 
     initBroker(options.messageBrokerClient);
 
