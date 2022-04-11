@@ -1,17 +1,17 @@
-import { gql } from "apollo-server-express";
+import { gql } from 'apollo-server-express';
 
 import {
   types as posTypes,
   queries as posQueries,
   mutations as posMutations,
-} from "./schema/pos";
+} from './schema/pos';
 
 const typeDefs = async (serviceDiscovery) => {
   return gql`
     scalar JSON
     scalar Date
 
-    ${posTypes}
+    ${await posTypes()}
     
     extend type Query {
       ${posQueries}

@@ -418,7 +418,7 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
         subdomain,
         action: "batchUpdate",
         data: {
-          contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
+          contentType: 'contacts:company',
           newContentTypeId: company._id,
           oldContentTypeIds: companyIds,
         },

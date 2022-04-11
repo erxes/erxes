@@ -1,131 +1,233 @@
-import { Document, Schema } from "mongoose";
-import { field, schemaHooksWrapper } from "./utils";
+import { Document, Schema } from 'mongoose';
+import { field, schemaHooksWrapper } from './utils';
 
-const posOrderItemSchema = {
-  _id: { type: String },
-  createdAt: { type: Date },
-  productId: { type: String, label: "Product" },
-  count: { type: Number },
-  unitPrice: { type: Number },
-  discountAmount: { type: Number },
-  discountPercent: { type: Number },
-};
+export interface IPosOrderItem {
+  createdAt: Date;
+  productId: String;
+  count: Number;
+  unitPrice: Number;
+  discountAmount: Number;
+  discountPercent: Number;
+}
+export interface IPosOrderItemDocument extends IPosOrderItem, Document {
+  _id: string;
+}
+export interface IPosOrders {
+  createdAt: Date;
+  status: String;
+  paidDate: Date;
+  number: String;
+  customerId: String;
+  cardAmount: Number;
+  cashAmount: Number;
+  mobileAmount: Number;
+  totalAmount: Number;
+  finalAmount: Number;
+  shouldPrintEbarimt: Boolean;
+  printedEbarimt: Boolean;
+  billType: String;
+  billId: String;
+  oldBillId: String;
+  type: String;
+  userId: String;
+  items: String;
+  branchId: String;
+  posToken: String;
+  syncId: String;
+  syncedErkhet: Boolean;
+  deliveryInfo: Object;
+}
+export interface IPosOrdersDocument extends IPosOrders, Document {
+  _id: string;
+}
+export interface IPos {
+  name: String;
+  description: String;
+  userId: String;
+  createdAt: Date;
+  integrationId: String;
+  productDetails: String;
+  adminIds: String;
+  cashierIds: String;
+  isOnline: Boolean;
+  branchId: String;
+  allowBranchIds: String;
+  beginNumber: String;
+  maxSkipNumber: Number;
+  waitingScreen: Object;
+  kioskMachine: Object;
+  kitchenScreen: Object;
+  uiOptions: Object;
+  formSectionTitle: String;
+  formIntegrationIds: String;
+  token: String;
+  ebarimtConfig: Object;
+  erkhetConfig: Object;
+  syncInfos: Object;
+  catProdMappings: Object;
+  initialCategoryIds: String;
+  kioskExcludeProductIds: String;
+  deliveryConfig: Object;
+}
+export interface IPosDocument extends IPos, Document {
+  _id: string;
+}
+export interface IProductGroup {
+  name: String;
+  description: String;
+  posId: String;
+  categoryIds: String;
+  excludedCategoryIds: String;
+  excludedProductIds: String;
+}
+export interface IProductGroupDocument extends IProductGroup, Document {
+  _id: string;
+}
 
-export const posOrdersSchema = {
-  _id: { pkey: true },
-  createdAt: { type: Date },
-  status: { type: String, label: "Status of the order" },
-  paidDate: { type: Date, label: "Paid date" },
-  number: { type: String, label: "Order number" },
-  customerId: { type: String, label: "Customer" },
-  cardAmount: { type: Number },
-  cashAmount: { type: Number },
-  mobileAmount: { type: Number },
-  totalAmount: { type: Number },
-  finalAmount: { type: Number },
-  shouldPrintEbarimt: {
-    type: Boolean,
-    label: "Should print ebarimt for this order",
-  },
-  printedEbarimt: { type: Boolean, label: "Printed ebarimt", default: false },
-  billType: { type: String, label: "Ebarimt receiver entity type" },
-  billId: { type: String, label: "Bill id" },
-  registerNumber: { type: String, label: "Register number of the entity" },
-  oldBillId: { type: String, label: "Previous bill id if it is changed" },
-  type: { type: String },
-  userId: { type: String, label: "Created user id" },
+const posOrderItemSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ type: String }),
+    createdAt: field({ type: Date }),
+    productId: field({ type: String, label: 'Product' }),
+    count: field({ type: Number }),
+    unitPrice: field({ type: Number }),
+    discountAmount: field({ type: Number }),
+    discountPercent: field({ type: Number }),
+  }),
+  'erxes_posOrderItem'
+);
 
-  items: { type: posOrderItemSchema, label: "items" },
-  branchId: { type: String, label: "Branch" },
-  posToken: { type: String, optional: true },
-  syncId: { type: String, optional: true },
+export const posOrdersSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    createdAt: field({ type: Date }),
+    status: field({ type: String, label: 'Status of the order' }),
+    paidDate: field({ type: Date, label: 'Paid date' }),
+    number: field({ type: String, label: 'Order number' }),
+    customerId: field({ type: String, label: 'Customer' }),
+    cardAmount: field({ type: Number }),
+    cashAmount: field({ type: Number }),
+    mobileAmount: field({ type: Number }),
+    totalAmount: field({ type: Number }),
+    finalAmount: field({ type: Number }),
+    shouldPrintEbarimt: field({
+      type: Boolean,
+      label: 'Should print ebarimt for this order',
+    }),
+    printedEbarimt: field({
+      type: Boolean,
+      label: 'Printed ebarimt',
+      default: false,
+    }),
+    billType: field({
+      type: String,
+      label: 'Ebarimt receiver entity type',
+    }),
+    billId: field({ type: String, label: 'Bill id' }),
+    registerNumber: field({
+      type: String,
+      label: 'Register number of the entity',
+    }),
+    oldBillId: field({
+      type: String,
+      label: 'Previous bill id if it is changed',
+    }),
+    type: field({ type: String }),
+    userId: field({ type: String, label: 'Created user id' }),
 
-  syncedErkhet: { type: Boolean, default: false },
-  deliveryInfo: {
-    type: Object,
-    optional: true,
-    label: "Delivery Info, address, map, etc",
-  },
-};
+    items: field({ type: posOrderItemSchema, label: 'items' }),
+    branchId: field({ type: String, label: 'Branch' }),
+    posToken: field({ type: String, optional: true }),
+    syncId: field({ type: String, optional: true }),
+
+    syncedErkhet: field({ type: Boolean, default: false }),
+    deliveryInfo: field({
+      type: Object,
+      optional: true,
+      label: 'Delivery Info, address, map, etc',
+    }),
+  }),
+  'erxes_posOrders'
+);
 
 export const posSChema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    name: field({ type: String, label: "Name" }),
-    description: field({ type: String, label: "Description", optional: true }),
-    userId: field({ type: String, optional: true, label: "Created by" }),
-    createdAt: field({ type: Date, label: "Created at" }),
-    integrationId: field({ type: String, label: "Integration id" }),
-    productDetails: field({ type: [String], label: "Product fields" }),
-    adminIds: field({ type: [String], label: "Admin user ids" }),
-    cashierIds: field({ type: [String], label: "Cashier ids" }),
-    isOnline: field({ type: Boolean, label: "Is online pos" }),
-    branchId: field({ type: String, optional: true, label: "Branch" }),
+    name: field({ type: String, label: 'Name' }),
+    description: field({ type: String, label: 'Description', optional: true }),
+    userId: field({ type: String, optional: true, label: 'Created by' }),
+    createdAt: field({ type: Date, label: 'Created at' }),
+    integrationId: field({ type: String, label: 'Integration id' }),
+    productDetails: field({ type: [String], label: 'Product fields' }),
+    adminIds: field({ type: [String], label: 'Admin user ids' }),
+    cashierIds: field({ type: [String], label: 'Cashier ids' }),
+    isOnline: field({ type: Boolean, label: 'Is online pos' }),
+    branchId: field({ type: String, optional: true, label: 'Branch' }),
     allowBranchIds: field({
       type: [String],
       optional: true,
-      label: "Allow branches",
+      label: 'Allow branches',
     }),
-    beginNumber: field({ type: String, optional: true, label: "Begin number" }),
+    beginNumber: field({ type: String, optional: true, label: 'Begin number' }),
     maxSkipNumber: field({
       type: Number,
       optional: true,
-      label: "Skip number",
+      label: 'Skip number',
     }),
-    waitingScreen: field({ type: Object, label: "Waiting screen config" }),
-    kioskMachine: field({ type: Object, label: "Kiosk config" }),
-    kitchenScreen: field({ type: Object, label: "Kitchen screen config" }),
-    uiOptions: field({ type: Object, label: "UI Options" }),
-    formSectionTitle: field({ type: String, label: "Form section title" }),
+    waitingScreen: field({ type: Object, label: 'Waiting screen config' }),
+    kioskMachine: field({ type: Object, label: 'Kiosk config' }),
+    kitchenScreen: field({ type: Object, label: 'Kitchen screen config' }),
+    uiOptions: field({ type: Object, label: 'UI Options' }),
+    formSectionTitle: field({ type: String, label: 'Form section title' }),
     formIntegrationIds: field({
       type: [String],
-      label: "Form integration ids",
+      label: 'Form integration ids',
     }),
-    token: field({ type: String, label: "Pos token" }),
-    ebarimtConfig: field({ type: Object, label: "Ebarimt Config" }),
-    erkhetConfig: field({ type: Object, label: "Erkhet Config" }),
-    syncInfos: field({ type: Object, label: "sync info" }),
+    token: field({ type: String, label: 'Pos token' }),
+    ebarimtConfig: field({ type: Object, label: 'Ebarimt Config' }),
+    erkhetConfig: field({ type: Object, label: 'Erkhet Config' }),
+    syncInfos: field({ type: Object, label: 'sync info' }),
     catProdMappings: field({
       type: [Object],
-      label: "Category product mappings",
+      label: 'Category product mappings',
       optional: true,
     }),
     initialCategoryIds: field({
       type: [String],
-      label: "Pos initial categories",
+      label: 'Pos initial categories',
     }),
     kioskExcludeProductIds: field({
       type: [String],
-      label: "Kiosk exclude products",
+      label: 'Kiosk exclude products',
     }),
-    deliveryConfig: field({ type: Object, label: "Delivery Config" }),
+    deliveryConfig: field({ type: Object, label: 'Delivery Config' }),
   }),
-  "erxes_pos"
+  'erxes_pos'
 );
 
 export const productGroupSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    name: field({ type: String, label: "Name" }),
-    description: field({ type: String, label: "Description", optional: true }),
-    posId: field({ type: String, label: "Pos id" }),
+    name: field({ type: String, label: 'Name' }),
+    description: field({ type: String, label: 'Description', optional: true }),
+    posId: field({ type: String, label: 'Pos id' }),
     categoryIds: field({
       type: [String],
       optional: true,
-      label: "Category ids",
+      label: 'Category ids',
     }),
 
     excludedCategoryIds: field({
       type: [String],
       optional: true,
-      label: "Exclude Category ids",
+      label: 'Exclude Category ids',
     }),
 
     excludedProductIds: field({
       type: [String],
       optional: true,
-      label: "Exclude Product ids",
+      label: 'Exclude Product ids',
     }),
   }),
-  "erxes_productGroup"
+  'erxes_productGroup'
 );

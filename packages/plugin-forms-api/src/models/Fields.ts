@@ -409,7 +409,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       serviceName: string
     ) {
       const fields = await sendCommonMessage({
-        subdomain: "os",
+        subdomain,
         serviceName,
         action: "systemFields",
         data: {
