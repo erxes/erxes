@@ -19,16 +19,13 @@ import {
   BlockRow,
   BlockRowUp,
 } from "../../../styles";
-import { IBrand } from '@erxes/ui/src/brands/types';
 import SelectBrand from "../../containers/SelectBrand";
-import { IIntegration, IPos, IScreenConfig } from "../../../types";
+import { IPos, IScreenConfig } from "../../../types";
 import Select from "react-select-plus";
 
 type Props = {
   onChange: (name: "pos" | "brand", value: any) => void;
   pos?: IPos;
-  brand?: IBrand;
-  formIntegrations: IIntegration[];
   currentMode: "create" | "update" | undefined;
   branches: any[];
 };
@@ -402,14 +399,7 @@ class GeneralStep extends React.Component<Props, {}> {
     )
   }
   render() {
-    const { pos, brand, formIntegrations = [] } = this.props;
-
-    const onChangeBrand = (e) => {
-      this.onChangeFunction(
-        "brand",
-        (e.currentTarget as HTMLInputElement).value
-      );
-    };
+    const { pos } = this.props;
 
     const onAdminSelect = (users) => {
       pos.adminIds = users;
@@ -418,11 +408,6 @@ class GeneralStep extends React.Component<Props, {}> {
 
     const onCashierSelect = (users) => {
       pos.cashierIds = users;
-      this.onChangeFunction("pos", pos);
-    };
-
-    const onChangeForms = (values) => {
-      pos.formIntegrationIds = values.map((item) => item.value) || [];
       this.onChangeFunction("pos", pos);
     };
 
@@ -464,42 +449,12 @@ class GeneralStep extends React.Component<Props, {}> {
                     onChange={this.onChangeInput}
                   />
                 </FormGroup>
-
-                <FormGroup>
-                  <SelectBrand
-                    isRequired={true}
-                    onChange={onChangeBrand}
-                    defaultValue={brand ? brand._id : " "}
-                  />
-                </FormGroup>
               </BlockRow>
             </Block>
 
             <Block>
               <h4>{__("Features")}</h4>
               <BlockRow>
-                <FormGroup>
-                  <ControlLabel>Display name for form section</ControlLabel>
-                  <FormControl
-                    id="formSectionTitle"
-                    type="text"
-                    value={pos.formSectionTitle || ""}
-                    onChange={this.onChangeInput}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <ControlLabel>Display name for form section</ControlLabel>
-                  <Select
-                    placeholder={__("Choose which forms to display")}
-                    value={pos.formIntegrationIds}
-                    onChange={onChangeForms}
-                    options={formIntegrations.map((e) => ({
-                      value: e._id,
-                      label: e.name,
-                    }))}
-                    multi={true}
-                  />
-                </FormGroup>
                 <FormGroup>
                   <ControlLabel>Max Skip number</ControlLabel>
                   <FormControl

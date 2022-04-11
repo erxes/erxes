@@ -12,12 +12,11 @@ import {
 } from '@erxes/ui/src';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { IIntegration, IntegrationsCount, IPos } from '../../types';
+import { IPos } from '../../types';
 import Row from './Row';
 import Sidebar from './Sidebar';
 import { ITag } from '@erxes/ui/src/tags/types';
 import TaggerPopover from './TaggerPopover';
-import { PLUGIN_URL } from '../../constants';
 
 type Props = {
   posList: IPos[];
@@ -70,7 +69,7 @@ class List extends React.Component<Props, {}> {
 
     queryParams.loadingMainQuery = loading;
     let actionBarLeft: React.ReactNode;
-
+    console.log('ddddddddddddddddddddddd')
     if (bulk.length > 0) {
       const tagButton = (
         <Button btnStyle="simple" size="small" icon="tag-alt">
@@ -91,7 +90,7 @@ class List extends React.Component<Props, {}> {
     }
 
     const actionBarRight = (
-      <Link to={`${PLUGIN_URL}/pos/create`}>
+      <Link to={`/pos/create`}>
         <Button btnStyle="success" size="small" icon="plus-circle">
           Create POS
         </Button>
@@ -162,7 +161,7 @@ class List extends React.Component<Props, {}> {
                       description: __(
                         'Fill out the details and create your POS'
                       ),
-                      url: `${PLUGIN_URL}/pos/create`,
+                      url: `/pos/create`,
                       urlText: 'Create POS'
                     }
                   ]

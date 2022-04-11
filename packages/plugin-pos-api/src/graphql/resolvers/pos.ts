@@ -1,40 +1,40 @@
+import { sendProductsMessage, sendCoreMessage } from '../../messageBroker';
 import { getConfig } from "../../utils";
 
 const resolvers = {
-  integration: (pos, {}, { models }) => {
-    if (!pos.integrationId) {
-      return null;
-    }
-    return models.Integrations.findOne({ _id: pos.integrationId });
-  },
-
-  user: (pos, {}, { models }) => {
+  user: (pos, { }, { subdomain }) => {
     if (!pos.userId) {
       return null;
     }
-    return models.Users.findOne({ _id: pos.userId });
+
+    return sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: { _id: pos.userId },
+      isRPC: true
+    })
   },
 
-  posName: async (order, {}, { models }) => {
+  posName: async (order, { }, { models }) => {
     const pos = await models.Pos.findOne({ token: order.posToken }).lean();
     return pos ? pos.name : "";
   },
 
-  userPosOrder: async (order, {}, { models }) => {
+  userPosOrder: async (order, { }, { models }) => {
     if (!order.userId) {
       return null;
     }
     return models.Users.findOne({ _id: order.userId }).lean();
   },
 
-  customer: async (order, {}, { models }) => {
+  customer: async (order, { }, { models }) => {
     if (!order.customerId) {
       return null;
     }
     return models.Customers.findOne({ _id: order.customerId }).lean();
   },
 
-  syncedErkhet: async (order, {}, { subdomain }) => {
+  syncedErkhet: async (order, { }, { subdomain }) => {
     if (order.syncedErkhet) {
       return true;
     }
@@ -45,10 +45,15 @@ const resolvers = {
     return order.syncedErkhet;
   },
 
-  category: async (posProduct, {}, { models }) => {
-    return models.ProductCategories.findOne({
-      _id: posProduct.categoryId,
-    }).lean();
+  category: async (posProduct, { }, { subdomain }) => {
+    return sendProductsMessage({
+      subdomain,
+      action: 'categories.findOne',
+      data: {
+        _id: posProduct.categoryId
+      },
+      isRPC: true,
+    })
   },
 };
 

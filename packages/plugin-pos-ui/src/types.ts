@@ -35,11 +35,9 @@ export type IPos = {
   name: string;
   description?: string;
   createdAt: Date;
-  integrationId: string;
   productDetails?: string[];
   adminIds: [string];
   cashierIds: [string];
-  integration: IIntegration;
   user: IUser;
   isOnline: boolean;
   branchId?: string;
@@ -50,8 +48,6 @@ export type IPos = {
   kioskMachine?: IScreenConfig;
   kitchenScreen?: IScreenConfig;
   uiOptions?: any;
-  formSectionTitle?: string;
-  formIntegrationIds: string[];
   ebarimtConfig: any;
   erkhetConfig: any;
   catProdMappings?: CatProd[];
