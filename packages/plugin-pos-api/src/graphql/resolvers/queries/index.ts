@@ -1,3 +1,3 @@
-import Pos from "./pos";
+import Pos from './pos';
 
-export { Pos };
+export default { ...Pos };

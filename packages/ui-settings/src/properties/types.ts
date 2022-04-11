@@ -1,6 +1,6 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import { QueryResponse } from '@erxes/ui/src/types';
-import { IField } from '@erxes/ui/src/types';
+import { IUser } from "@erxes/ui/src/auth/types";
+import { QueryResponse } from "@erxes/ui/src/types";
+import { IField } from "@erxes/ui/src/types";
 
 export type FieldsQueryResponse = {
   fields: IField[];
@@ -33,13 +33,14 @@ export interface IFieldGroup {
   contentType: string;
   order: React.ReactNode;
   description: string;
+  code: string;
   isVisible: boolean;
   isVisibleInDetail: boolean;
   isDefinedByErxes: boolean;
   fields: IField[];
   lastUpdatedUserId: string;
   lastUpdatedUser: IUser;
-  config: any
+  config: any;
 }
 
 // mutation types
