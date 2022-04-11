@@ -14,5 +14,6 @@ export default {
       groupId,
       contentType: `core:user`,
       isDefinedByErxes: true
-    }))
+    })),
+  systemFieldsAvailable: true
 };

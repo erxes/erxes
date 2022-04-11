@@ -70,7 +70,7 @@ const execCommand = (command, ignoreError) => {
     exec(command, { maxBuffer: 1024 * 1000 }, (error, stdout, stderr) => {
       if (error !== null) {
         if (ignoreError) {
-          console.log(error);
+          console.log(error.message);
           return resolve('done');
         }
 
