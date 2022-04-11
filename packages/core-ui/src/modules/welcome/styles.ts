@@ -1,7 +1,20 @@
 import styled from "styled-components";
-// import styledTS from "styled-components-ts";
+import styledTS from "styled-components-ts";
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import {SectionContainer } from '@erxes/ui/src/layout/styles';
+
+const Header = styled.div`
+  h1 {
+    margin: 20px 0 5px;
+    font-size: 24px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: ${colors.colorCoreGray};
+  }
+`;
 
 const Left = styled.div`
   display: flex;
@@ -50,9 +63,25 @@ const Boxes = styled.div`
   }
   ${SectionContainer} {
     border-top: 1px solid ${colors.borderPrimary};
+    padding-top: ${dimensions.unitSpacing /2}px;
     box-shadow: none;
     border-bottom: none;
+    h3{
+      text-transform: capitalize;
+    }
   }
 `;
 
-export { BoxedStep, BoxHeader, Left, Divider, Boxes }
+const Card = styledTS<{backgroundImage: string}>(styled.div)`
+  border-radius: ${dimensions.unitSpacing}px;
+  border: 1px solid ${colors.borderPrimary};
+  margin: ${dimensions.coreSpacing}px 0;
+  background-image: url("https://i.stack.imgur.com/90nGa.jpg");
+  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing * 2}px;
+
+  ${Header} {
+    max-width: 400px;
+  }
+`;
+
+export { BoxedStep, BoxHeader, Left, Divider, Boxes, Card, Header }

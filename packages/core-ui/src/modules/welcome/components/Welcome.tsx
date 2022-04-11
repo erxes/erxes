@@ -1,28 +1,15 @@
 // import { IUser } from "modules/auth/types";
 // import Icon from 'modules/common/components/Icon';
 import { DescImg } from "@erxes/ui/src/components/HeaderDescription";
-import colors from "modules/common/styles/colors";
 import { __ } from "modules/common/utils";
 import Wrapper from "modules/layout/components/Wrapper";
 import React from "react";
-import styled from "styled-components";
-import { WELCOME } from "../constants";
-import { BoxedStep, BoxHeader, Left, Divider, Boxes } from "../styles";
+import { WELCOME, CARDS } from "../constants";
+import { BoxedStep, BoxHeader, Left, Divider, Boxes, Card, Header } from "../styles";
 import Box from "@erxes/ui/src/components/Box";
+import Icon from "@erxes/ui/src/components/Icon";
+import Button from "@erxes/ui/src/components/Button";
 import { WidgetBackgrounds } from "@erxes/ui-settings/src/styles";
-
-const Header = styled.div`
-  h1 {
-    margin: 20px 0 5px;
-    font-size: 24px;
-  }
-
-  p {
-    margin: 0;
-    font-size: 16px;
-    color: ${colors.colorCoreGray};
-  }
-`;
 
 // const NoBorder = styled.div`
 //   input{border-bottom: 0;}
@@ -59,14 +46,14 @@ function Welcome() {
   };
 
   const renderBoxHeader = (
-    image: string,
     title: string,
+    image?: string,
     description?: string
   ) => {
     return (
       <BoxHeader>
         <Left>
-          <DescImg src={image} />
+          {image && <DescImg src={image} />}
           <div>
             <h4>{title}</h4>
             {description}
@@ -78,46 +65,78 @@ function Welcome() {
 
   const renderDocumentation = () => {
     return (
-        <WidgetBackgrounds>
-          <Boxes>
-            <Box title="Docs">hello</Box>
-            <Box title="How To Plugin">hello</Box>
-          </Boxes>
-          <Boxes>
-            <Box title="API">hello</Box>
-            <Box title="Plugin Monetization">hello</Box>
-          </Boxes>
-        </WidgetBackgrounds>
+      <WidgetBackgrounds>
+        <Boxes>
+          <Box title="Docs">hello</Box>
+          <Box title="How To Plugin">hello</Box>
+        </Boxes>
+        <Boxes>
+          <Box title="API">hello</Box>
+          <Box title="Plugin Monetization">hello</Box>
+        </Boxes>
+      </WidgetBackgrounds>
     );
   };
 
-  // const renderSetup = () => {
-  //   return (<Divider />)
-  // }
+  const renderSetup = () => {
+    return <Divider />;
+  };
 
   const renderGuide = () => {
     return (
-        <WidgetBackgrounds>
-          <Boxes>
-            <Box title="Docs">hello</Box>
-            <Box title="How To Plugin">hello</Box>
-          </Boxes>
-          <Boxes>
-            <Box title="API">hello</Box>
-            <Box title="Plugin Monetization">hello</Box>
-          </Boxes>
-        </WidgetBackgrounds>
+      <WidgetBackgrounds>
+        <Boxes>
+          <Box title="Admin">hello</Box>
+          <Box title="Marketing">hello</Box>
+        </Boxes>
+        <Boxes>
+          <Box title="Sales">hello</Box>
+          <Box title="Support">hello</Box>
+        </Boxes>
+      </WidgetBackgrounds>
     );
+  };
+
+  const renderCommunity = () => {
+    const community = [
+      { name: "github", link: "https://github.com/erxes/erxes", icon: 'github-circled' },
+      { name: "Discord", link: "", icon: '' },
+      { name: "Youtube", link: "", icon: 'youtube-play' },
+      { name: "Figma", link: "", icon: '' },
+      { name: "Twitter", link: "", icon: 'twitter' },
+      { name: "Facebook", link: "", icon: 'facebook-official' },
+      { name: "Blog", link: "", icon: '' },
+    ];
+    return (
+      <WidgetBackgrounds>
+        {community.map(com => (<Button href={com.link} btnStyle="simple" icon={com.icon}>{com.name}</Button>))}
+      </WidgetBackgrounds>
+    );
+  };
+
+  const renderCard = (background: string, title: string, desc: string, button: string, icon: string) => {
+    return <Card backgroundImage={background}>
+      <Header>
+        <h1>{title}</h1>
+        <p>{desc}</p>
+      </Header> 
+      <br/>
+      <Button size="large">{button}<Icon icon={icon}/></Button>
+    </Card>
   }
 
   const content = (
     <>
       {WELCOME.map((group) => (
         <BoxedStep>
-          {renderBoxHeader(group.image, group.title, group.description)}
+          {renderBoxHeader(group.title, group.image, group.description)}
           {group.key === "documentation" && renderDocumentation()}
           {group.key === "usingGuide" && renderGuide()}
+          {group.key === "community" && renderCommunity()}
         </BoxedStep>
+      ))}
+      {CARDS.map((card) => (
+        renderCard(card.background, card.title, card.desc, card.button, card.icon)
       ))}
     </>
   );
