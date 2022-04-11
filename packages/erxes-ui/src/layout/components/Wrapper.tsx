@@ -25,6 +25,7 @@ type Props = {
   hasBorder?: boolean;
   subHeader?: React.ReactNode;
   leftSpacing?: boolean;
+  initialOverflow?: boolean;
 };
 
 class Wrapper extends React.Component<Props> {
@@ -41,7 +42,8 @@ class Wrapper extends React.Component<Props> {
       center,
       shrink,
       subHeader,
-      leftSpacing
+      leftSpacing,
+      initialOverflow
     } = this.props;
 
     if (center) {
@@ -55,6 +57,7 @@ class Wrapper extends React.Component<Props> {
               center={center}
               subHeader={subHeader}
               leftSpacing={leftSpacing}
+              initialOverflow={initialOverflow}
             >
               {content}
             </PageContent>

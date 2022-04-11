@@ -110,12 +110,15 @@ class Step extends React.Component<Props> {
       show = true;
     }
 
-    if(type === "stepper"){
+    if(type === "stepper" ||  type === "stepperColumn"){
+      if(type==="stepperColumn"){
+        show = true;
+      }
       return (
         <StepItem show={show} type={type}>
           <FullStep show={show} type={type}>
             <StepContent type={type}>{children}</StepContent>
-            {this.renderButton()}
+            {!noButton && this.renderButton()}
           </FullStep>
         </StepItem>
       )

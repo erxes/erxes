@@ -86,9 +86,9 @@ const MainContent = styledTS<{ transparent?: boolean; center?: boolean; leftSpac
   padding-left: ${props => props.leftSpacing && `${dimensions.coreSpacing}px`}
 `;
 
-const ContentBox = styledTS<{ transparent?: boolean }>(styled.div)`
+const ContentBox = styledTS<{ transparent?: boolean; initialOverflow?: boolean}>(styled.div)`
   flex: 1;
-  overflow: auto;
+  overflow: ${props => props.initialOverflow ? 'initial' : 'auto'};
   position: relative;
   background-color: ${props => !props.transparent && colors.colorWhite};
 `;

@@ -9,7 +9,6 @@ import {
   BoxedStep,
   BoxHeader,
   Left,
-  Divider,
   Boxes,
   Card,
   Header,
@@ -18,6 +17,8 @@ import Box from "@erxes/ui/src/components/Box";
 import Icon from "@erxes/ui/src/components/Icon";
 import Button from "@erxes/ui/src/components/Button";
 import { WidgetBackgrounds } from "@erxes/ui-settings/src/styles";
+import { Step, Steps } from '@erxes/ui/src/components/step';
+import ProgressBar from '@erxes/ui/src/components/ProgressBar';
 
 function Welcome() {
   // const isOpen = (id: string) => {
@@ -63,6 +64,7 @@ function Welcome() {
             {description}
           </div>
         </Left>
+        <ProgressBar percentage={20} type="circle" />
       </BoxHeader>
     );
   };
@@ -83,7 +85,20 @@ function Welcome() {
   };
 
   const renderSetup = () => {
-    return <Divider />;
+    return (<>
+    <Steps type="stepperColumn" allStep={5} titles={['General information', 'General system configuration', 'Campaign config / File Upload', 'Constant', 'Connecting service']} >
+      <Step type="stepperColumn" noButton={true}>hi</Step>
+      <Step type="stepperColumn" noButton={true}>hi</Step>
+      <Step type="stepperColumn" noButton={true}>hi</Step>
+      <Step type="stepperColumn" noButton={true}>hi</Step>
+      <Step type="stepperColumn" noButton={true}>hi</Step>
+    </Steps>
+    {/* <StepperColumn title="General information" complete= {true} stepNumber={1}>hi</StepperColumn>
+    <StepperColumn title="General information" complete= {false} stepNumber={2}>hi</StepperColumn>
+    <StepperColumn title="General information" complete= {false} stepNumber={3}>hi</StepperColumn>
+    <StepperColumn title="General information" complete= {false} stepNumber={4}>hi</StepperColumn>
+    <StepperColumn title="General information" complete= {false} stepNumber={5}>hi</StepperColumn> */}
+    </>);
   };
 
   const renderGuide = () => {
@@ -166,6 +181,7 @@ function Welcome() {
           {renderBoxHeader(group.title, group.image, group.description)}
           {group.key === "documentation" && renderDocumentation()}
           {group.key === "usingGuide" && renderGuide()}
+          {group.key === 'setup' && renderSetup()}
           {/* {group.key === "community" && renderCommunity()} */}
         </BoxedStep>
       ))}
@@ -190,6 +206,7 @@ function Welcome() {
       content={content}
       transparent={true}
       center={true}
+      initialOverflow={true}
     />
   );
 }

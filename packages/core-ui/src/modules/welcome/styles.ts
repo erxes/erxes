@@ -39,15 +39,7 @@ const BoxHeader = styled.div`
   margin: ${dimensions.coreSpacing}px;
 `;
 
-const Divider = styled.div`
-  border-bottom: 1px solid ${colors.borderPrimary};
-  margin: 0 ${dimensions.coreSpacing}px ${dimensions.unitSpacing / 2}px
-    ${dimensions.unitSpacing * 10 + 25}px;
 
-  @media (max-width: 1170px) {
-    margin-left: ${dimensions.coreSpacing}px;
-  }
-`;
 
 const Boxes = styled.div`
   width: 50%;
@@ -84,4 +76,4 @@ const Card = styledTS<{backgroundImage: string}>(styled.div)`
   }
 `;
 
-export { BoxedStep, BoxHeader, Left, Divider, Boxes, Card, Header }
+export { BoxedStep, BoxHeader, Left, Boxes, Card, Header }
