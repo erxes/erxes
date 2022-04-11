@@ -16,11 +16,11 @@ export const WELCOME = [
     image: '/images/actions/21.svg',
     description: 'Features guides for the core expes platform and native plugins'
   },
-  {
-    title: 'Join our community',
-    key: 'community',
-    description: 'Discuss with team member, contributors and developers on different channels'
-  }
+  // {
+  //   title: 'Join our community',
+  //   key: 'community',
+  //   description: 'Discuss with team member, contributors and developers on different channels'
+  // }
 ];
 
 export const CARDS = [

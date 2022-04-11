@@ -5,15 +5,19 @@ import { __ } from "modules/common/utils";
 import Wrapper from "modules/layout/components/Wrapper";
 import React from "react";
 import { WELCOME, CARDS } from "../constants";
-import { BoxedStep, BoxHeader, Left, Divider, Boxes, Card, Header } from "../styles";
+import {
+  BoxedStep,
+  BoxHeader,
+  Left,
+  Divider,
+  Boxes,
+  Card,
+  Header,
+} from "../styles";
 import Box from "@erxes/ui/src/components/Box";
 import Icon from "@erxes/ui/src/components/Icon";
 import Button from "@erxes/ui/src/components/Button";
 import { WidgetBackgrounds } from "@erxes/ui-settings/src/styles";
-
-// const NoBorder = styled.div`
-//   input{border-bottom: 0;}
-// `;
 
 function Welcome() {
   // const isOpen = (id: string) => {
@@ -99,31 +103,61 @@ function Welcome() {
 
   const renderCommunity = () => {
     const community = [
-      { name: "github", link: "https://github.com/erxes/erxes", icon: 'github-circled' },
-      { name: "Discord", link: "", icon: '' },
-      { name: "Youtube", link: "", icon: 'youtube-play' },
-      { name: "Figma", link: "", icon: '' },
-      { name: "Twitter", link: "", icon: 'twitter' },
-      { name: "Facebook", link: "", icon: 'facebook-official' },
-      { name: "Blog", link: "", icon: '' },
+      {
+        name: "github",
+        link: "https://github.com/erxes/erxes",
+        icon: "github-circled",
+      },
+      { name: "Discord", link: "", icon: "" },
+      { name: "Youtube", link: "", icon: "youtube-play" },
+      { name: "Figma", link: "", icon: "" },
+      { name: "Twitter", link: "", icon: "twitter" },
+      { name: "Facebook", link: "", icon: "facebook-official" },
+      { name: "Blog", link: "", icon: "" },
     ];
     return (
-      <WidgetBackgrounds>
-        {community.map(com => (<Button href={com.link} btnStyle="simple" icon={com.icon}>{com.name}</Button>))}
-      </WidgetBackgrounds>
+      <BoxedStep>
+        {renderBoxHeader(
+          "Join our community",
+          "",
+          "Discuss with team member, contributors and developers on different channels"
+        )}
+        <WidgetBackgrounds>
+          {community.map((com) => (
+            <Button href={com.link} btnStyle="simple" icon={com.icon}>
+              {com.name}
+            </Button>
+          ))}
+        </WidgetBackgrounds>
+      </BoxedStep>
     );
   };
 
-  const renderCard = (background: string, title: string, desc: string, button: string, icon: string) => {
-    return <Card backgroundImage={background}>
-      <Header>
-        <h1>{title}</h1>
-        <p>{desc}</p>
-      </Header> 
-      <br/>
-      <Button size="large">{button}<Icon icon={icon}/></Button>
-    </Card>
-  }
+  const renderCard = (
+    key: string,
+    background: string,
+    title: string,
+    desc: string,
+    button: string,
+    icon: string
+  ) => {
+    return (
+      <>
+        <Card backgroundImage={background}>
+          <Header>
+            <h1>{title}</h1>
+            <p>{desc}</p>
+          </Header>
+          <br />
+          <Button size="large">
+            {button}
+            <Icon icon={icon} />
+          </Button>
+        </Card>
+        {key === "market" && renderCommunity()}
+      </>
+    );
+  };
 
   const content = (
     <>
@@ -132,12 +166,19 @@ function Welcome() {
           {renderBoxHeader(group.title, group.image, group.description)}
           {group.key === "documentation" && renderDocumentation()}
           {group.key === "usingGuide" && renderGuide()}
-          {group.key === "community" && renderCommunity()}
+          {/* {group.key === "community" && renderCommunity()} */}
         </BoxedStep>
       ))}
-      {CARDS.map((card) => (
-        renderCard(card.background, card.title, card.desc, card.button, card.icon)
-      ))}
+      {CARDS.map((card) =>
+        renderCard(
+          card.key,
+          card.background,
+          card.title,
+          card.desc,
+          card.button,
+          card.icon
+        )
+      )}
     </>
   );
 
