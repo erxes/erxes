@@ -274,6 +274,8 @@ async function startServer() {
         }
 
         if(forms.systemFields) {
+          forms.systemFieldsAvailable = true;
+
           consumeRPCQueue(`${configs.name}:systemFields`, async args => ({
             status: 'success',
             data: await forms.systemFields(args)
