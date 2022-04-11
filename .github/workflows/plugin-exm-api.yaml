@@ -3,12 +3,12 @@ name: Plugin Exm Api CI
 on:
   push:
     branches:
-      - '**'
+      - federation
     paths:
-      - 'packages/api-utils/**'
-      - 'packages/api-plugin-template.erxes/**'
-      - 'packages/plugin-exm-api/**'
-      - '.github/workflows/plugin-exm-api.yaml'
+      - "packages/api-utils/**"
+      - "packages/api-plugin-template.erxes/**"
+      - "packages/plugin-exm-api/**"
+      - ".github/workflows/plugin-exm-api.yaml"
 
 jobs:
   plugin-exm-api:
