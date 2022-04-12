@@ -54,6 +54,8 @@ const typeDefs = async (serviceDiscovery) => {
   const isFormsEnabled = await serviceDiscovery.isEnabled('forms');
   const isKbEnabled = await serviceDiscovery.isEnabled('knowledgebase');
 
+  console.log('Tags enabled .............', isTagsEnabled);
+
   const isEnabled = {
     products: isProductsEnabled,
     tags: isTagsEnabled,

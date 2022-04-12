@@ -1,5 +1,3 @@
-export const PLUGIN_URL = '/erxes-plugin-pos';
-
 export const TEXT_COLORS = [
   '#fff',
   '#fefefe',

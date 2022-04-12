@@ -7,7 +7,26 @@ let client;
 export const initBroker = async (cl) => {
   client = cl;
 
-  const { consumeRPCQueue } = client;
+};
+
+export const sendProductsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'products', ...args });
+};
+
+export const sendContactsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'contacts', ...args });
+};
+
+export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'core', ...args });
+};
+
+export const sendCommonMessage = async (channel, message): Promise<any> => {
+  return client.sendMessage(channel, message);
+};
+
+export const sendRPCMessage = async (channel, message): Promise<any> => {
+  return client.sendRPCMessage(channel, message);
 };
 
 export const sendPosMessage = async (
@@ -42,25 +61,6 @@ export const sendPosMessage = async (
       messageBroker().sendMessage(`${channel}_${syncId}`, params);
     }
   }
-};
-
-export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: "core",
-    ...args,
-  });
-};
-
-export const sendCommonMessage = async (
-  args: ISendMessageArgs & { serviceName: string }
-): Promise<any> => {
-  return sendMessage({
-    serviceDiscovery,
-    client,
-    ...args,
-  });
 };
 
 export default function() {
