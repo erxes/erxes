@@ -55,47 +55,38 @@ const Progress = styledTS<{ color?: string }>(styled.div)`
   animation: ${stripe} 1s linear infinite;
 `;
 
-const CircleContainer = styled.div`
-  width: 150px;
-  height: 150px;
+const Container = styled.div`
   position: relative;
-  `;
-  const Circle = styled.circle`
-    width: 150px;
-    height: 150px;
-    fill: none;
-    stroke-width: 5;
-    stroke: #000;
-    transform: translate(5px, 5px);
-    stroke-dasharray: 440;
-    stroke-dashoffset: 440;
-    stroke-linecap: round;
-
-    &:nth-child(1) {
-      stroke-dashoffset: 0;
-      stroke: #f3f3f3;
-    }
-
-    &:nth-child(2) {
-      stroke-dashoffset: calc(440 + (440 * 50) / 100);
-      stroke: #03a9f4;
-    }
 `;
 
-const Num = styled.div`
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  color: #111;
+const Circle = styled.circle`
+  fill: transparent;
+  stroke: hsla(225, 20%, 92%, 0.9);
+  stroke-linecap: round;
+`;
 
-  h2 {
-    font-size: 15;
-  }
+const FilledCircle = styled(Circle)`
+  stroke: ${colors.colorPrimary};
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 0.5s ease-out;
+`;
+
+const Text = styled.div`
+  align-items: center;
+  color: ${colors.colorPrimary};
+  display: flex;
+  font-weight: bold;
+  height: 100%;
+  justify-content: center;
+  left: 0;
+  letter-spacing: 0.025em;
+  margin-bottom: 1rem;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 100%;
+  z-index: 100;
 `;
 
 type Props = {
@@ -116,20 +107,51 @@ function ProgressBar({
   type,
 }: Props) {
   if (type === "circle") {
-    console.log("kolll");
+    const strokeWidth = 3;
+    const radius = (100 / 2) - (strokeWidth * 2);
+    const circumference = radius * 2 * Math.PI;
+    const offset = circumference - percentage / 100 * circumference;
     return (
-      <CircleContainer>
-        <CircleContainer>
-          <Circle cx="70" cy="70" r="70"></Circle>
-          <Circle cx="70" cy="70" r="70"></Circle>
-        </CircleContainer>
-        <Num>
-          <h2>{percentage}</h2>
-        </Num>
-      </CircleContainer>
+      <Container>
+      <svg
+        aria-valuemax={ 100 }
+        aria-valuemin={ 0 }
+        aria-valuenow={ percentage }
+        height={ height }
+        role="progressbar"
+        width={ height }
+        viewBox="0 0 100 100"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+
+        <Circle
+          cx="50"
+          cy="50"
+          r={ radius }
+          strokeWidth={ strokeWidth }
+        />
+
+        <FilledCircle
+          cx="50"
+          cy="50"
+          data-testid="progress-bar-bar"
+          r={ radius }
+          strokeDasharray={ `${ circumference } ${ circumference }` }
+          strokeDashoffset={ offset }
+          strokeWidth={ strokeWidth }
+        />
+
+      </svg>
+
+      <Text data-testid="progress-bar-text">
+        { percentage }%
+      </Text>
+
+    </Container>
+
     );
   }
-  console.log("jplll");
   return (
     <Wrapper height={height}>
       <Progress style={{ width: `${percentage}%` }} color={color} />

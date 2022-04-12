@@ -64,7 +64,7 @@ function Welcome() {
             {description}
           </div>
         </Left>
-        <ProgressBar percentage={20} type="circle" />
+        {title === 'Setup Process' && <ProgressBar percentage={50} type="circle" height='70px' />}
       </BoxHeader>
     );
   };
@@ -93,11 +93,6 @@ function Welcome() {
       <Step type="stepperColumn" noButton={true}>hi</Step>
       <Step type="stepperColumn" noButton={true}>hi</Step>
     </Steps>
-    {/* <StepperColumn title="General information" complete= {true} stepNumber={1}>hi</StepperColumn>
-    <StepperColumn title="General information" complete= {false} stepNumber={2}>hi</StepperColumn>
-    <StepperColumn title="General information" complete= {false} stepNumber={3}>hi</StepperColumn>
-    <StepperColumn title="General information" complete= {false} stepNumber={4}>hi</StepperColumn>
-    <StepperColumn title="General information" complete= {false} stepNumber={5}>hi</StepperColumn> */}
     </>);
   };
 

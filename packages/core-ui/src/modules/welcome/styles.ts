@@ -37,9 +37,10 @@ const BoxHeader = styled.div`
   color: ${colors.colorCoreGray}
   align-items: center;
   margin: ${dimensions.coreSpacing}px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 `;
-
-
 
 const Boxes = styled.div`
   width: 50%;
