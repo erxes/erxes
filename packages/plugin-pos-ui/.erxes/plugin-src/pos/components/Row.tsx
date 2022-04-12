@@ -1,23 +1,20 @@
-import dayjs from 'dayjs';
-import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import {
-  ActionButtons,
-  Button,
-  FormControl,
-  Icon,
-  Label,
-  Tip,
-  __,
-  WithPermission,
-  Tags,
-  Alert
-} from '@erxes/ui/src';
-import { IPos } from '../../types';
-import { RowTitle } from '../../styles';
-import { DateWrapper } from '@erxes/ui/src/styles/main';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import dayjs from 'dayjs';
+import React from 'react';
+import {
+  __,
+  ActionButtons,
+  Alert,
+  Button,
+  Icon,
+  Tip,
+  WithPermission
+} from '@erxes/ui/src';
+import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';
+import { DateWrapper } from '@erxes/ui/src/styles/main';
+import { IPos } from '../../types';
+import { Link } from 'react-router-dom';
+import { RowTitle } from '../../styles';
 
 type Props = {
   pos: IPos;
@@ -91,6 +88,7 @@ class Row extends React.Component<Props> {
             <Link to={`/pos/edit/${pos._id}`}>{pos.name}</Link>
           </RowTitle>
         </td>
+
         <td>
           <strong>{isOnline}</strong>
         </td>

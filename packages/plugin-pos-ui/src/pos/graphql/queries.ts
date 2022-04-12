@@ -50,17 +50,11 @@ const commonParams = `
 const posList = `
   query posList(
     ${commonParamDefs}
-    $brandId: String
-    $tag: String
-    $status: String
     $sortField: String
     $sortDirection: Int
   ) {
     posList(
       ${commonParams}
-      brandId: $brandId
-      tag: $tag
-      status: $status
       sortField: $sortField
       sortDirection: $sortDirection
     ) {
@@ -90,19 +84,6 @@ const productGroups = `
       categoryIds
       excludedCategoryIds
       excludedProductIds
-    }
-  }
-`;
-
-const brands = `
-  query brands(${commonParamDefs}, $searchValue: String) {
-    brands(${commonParams}, searchValue: $searchValue) {
-      _id
-      code
-      name
-      createdAt
-      description
-      emailConfig
     }
   }
 `;
@@ -139,30 +120,12 @@ const getDbSchemaLabels = `
   }
 `;
 
-const tags = `
-  query tagsQuery($type: String) {
-    tags(type: $type) {
-      _id
-      name
-      type
-      colorCode
-      createdAt
-      objectCount
-      totalObjectCount
-      parentId
-      order
-      relatedIds
-    }
-  }
-`;
 
 export default {
   posList,
   configs,
   productGroups,
-  brands,
   posDetail,
   getDbSchemaLabels,
-  tags,
   branches,
 };

@@ -18,8 +18,6 @@ import {
 } from '../../types';
 import { IPos, ProductCategoriesQueryResponse, BranchesQueryResponse } from '../../types';
 import { mutations, queries } from '../graphql';
-import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-settings/src/properties/types'
-import combinedFields from '@erxes/ui-segments/src/graphql/queries';
 
 type Props = {
   posId?: string;
@@ -36,7 +34,6 @@ type FinalProps = {
   groupsQuery: GroupsQueryResponse;
   productCategoriesQuery: ProductCategoriesQueryResponse;
   branchesQuery: BranchesQueryResponse;
-  fieldsCombinedByTypeQuery: FieldsCombinedByTypeQueryResponse;
 } & Props &
   EditPosMutationResponse &
   AddPosMutationResponse &
@@ -60,15 +57,13 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       history,
       productCategoriesQuery,
       branchesQuery,
-      fieldsCombinedByTypeQuery
     } = this.props;
 
     if (
       posDetailQuery && posDetailQuery.loading ||
       groupsQuery.loading ||
       productCategoriesQuery.loading ||
-      branchesQuery.loading ||
-      fieldsCombinedByTypeQuery.loading
+      branchesQuery.loading
     ) {
       return <Spinner objective={true} />;
     }
@@ -76,7 +71,6 @@ class EditPosContainer extends React.Component<FinalProps, State> {
     const pos = posDetailQuery && posDetailQuery.posDetail || {} as IPos;
     const groups = groupsQuery.productGroups || [];
     const branches = branchesQuery.branches || [];
-    const fieldsCombined = fieldsCombinedByTypeQuery.fieldsCombinedByContentType || []
 
     const save = doc => {
       const { posId } = this.props;
@@ -127,7 +121,6 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       pos,
       save,
       branches,
-      fieldsCombined,
       isActionLoading: this.state.isLoading,
       currentMode: 'update',
       productCategories: productCategoriesQuery.productCategories
@@ -197,16 +190,5 @@ export default withProps<Props>(
         fetchPolicy: 'network-only',
       })
     }),
-    graphql<Props, FieldsCombinedByTypeQueryResponse, { contentType: string }>(
-      gql(combinedFields),
-      {
-        name: 'fieldsCombinedByTypeQuery',
-        options: {
-          variables: {
-            contentType: 'deal'
-          }
-        }
-      }
-    )
   )(EditPosContainer)
 );

@@ -1,3 +1,4 @@
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { getFullDate, getTomorrow } from "../../../utils";
 
 export const paginate = (
@@ -112,10 +113,8 @@ const queries = {
   posList: async (
     _root,
     params,
-    { commonQuerySelector, models, checkPermission, user }
+    { commonQuerySelector, models }
   ) => {
-    // await checkPermission("showPos", user);
-
     const query = await generateFilterQuery(
       models,
       params,
@@ -127,8 +126,7 @@ const queries = {
     return posList;
   },
 
-  posDetail: async (_root, { _id }, { models, checkPermission, user }) => {
-    await checkPermission("showPos", user);
+  posDetail: async (_root, { _id }, { models }) => {
     return await models.Pos.getPos(models, { _id });
   },
 
@@ -199,9 +197,8 @@ const queries = {
   productGroups: async (
     _root,
     { posId }: { posId: string },
-    { models, checkPermission, user }
+    { models }
   ) => {
-    await checkPermission("managePos", user);
     return await models.ProductGroups.groups(models, posId);
   },
 
@@ -368,5 +365,9 @@ const queries = {
     return { totalCount, products };
   },
 };
+
+checkPermission(queries, 'posList', 'showPos');
+checkPermission(queries, 'posDetail', "showPos");
+checkPermission(queries, 'productGroups', "managePos");
 
 export default queries;
