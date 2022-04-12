@@ -107,6 +107,14 @@ const chatMutations = {
       chatId: created.chatId,
     });
 
+    const chat = await models.Chats.getChat(created.chatId);
+
+    for (const participant of chat.participantIds) {
+      graphqlPubsub.publish("chatUnreadCountChanged", {
+        userId: participant,
+      });
+    }
+
     return created;
   },
 
