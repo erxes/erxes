@@ -17,7 +17,7 @@ function EngageConfigs() {
       header={
         <Wrapper.Header title={__('Campaign config')} breadcrumb={breadcrumb} />
       }
-      subHeader={
+      mainHead={
         <Header
           title="Campaign config"
           description="Set up your campaign config."

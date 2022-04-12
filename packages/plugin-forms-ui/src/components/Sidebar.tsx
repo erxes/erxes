@@ -5,6 +5,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { HeaderItems } from '@erxes/ui/src/layout/styles';
 import Icon from '@erxes/ui/src/components/Icon';
+import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 
 type Props = {
   currentType: string;
@@ -30,7 +31,7 @@ class Sidebar extends React.Component<Props> {
 
   render() {
     return (
-      <LeftSidebar hasBorder={true}>
+      <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
         <List>
           {this.props.services.map(service => this.renderListItem(service))}
         </List>

@@ -136,7 +136,7 @@ class Home extends React.Component<Props, State> {
             right={this.renderSearch()}
           />
         }
-        subHeader={headerDescription}
+        mainHead={headerDescription}
         leftSidebar={<Sidebar currentType={queryParams.type} />}
         content={
           <Content>

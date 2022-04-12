@@ -67,7 +67,6 @@ window.plugins = [
     port: 3016,
     exposes: {
       "./routes": "./src/routes.tsx",
-
     },
     routes: {
       url: "http://localhost:3016/remoteEntry.js",
@@ -82,9 +81,8 @@ window.plugins = [
         location: "settings",
         scope: "pos",
         action: "posConfig",
-        permissions: ['showPos'],
+        permissions: ["showPos"],
       },
     ],
-  }
-
+  },
 ];
