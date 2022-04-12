@@ -31,16 +31,16 @@ module.exports = {
   customerRightSidebarSection: {
     text: "customerSection",
     component: "./sidebar",
-    scope: "loyalty",
+    scope: "loyalties",
   },
   companyRightSidebarSection: {
     text: "companySection",
     component: "./sidebar",
-    scope: "loyalty",
+    scope: "loyalties",
   },
   userRightSidebarSection: {
     text: "userSection",
     component: "./sidebar",
-    scope: "loyalty",
+    scope: "loyalties",
   },
 };
