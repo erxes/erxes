@@ -22,8 +22,18 @@ const chatQueries = {
     };
   },
 
-  chatDetail: async (_root, { _id }, { models }) => {
-    return models.Chats.findOne({ _id });
+  chatDetail: async (
+    _root,
+    { _id },
+    { models, user }: { models: IModels; user: IUserDocument }
+  ) => {
+    const chat = models.Chats.findOne({ _id });
+
+    graphqlPubsub.publish("chatUnreadCountChanged", {
+      userId: user._id,
+    });
+
+    return chat;
   },
 
   chatMessages: async (
