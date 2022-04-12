@@ -58,7 +58,6 @@ interface IStore extends IState {
     callback?: () => void
   ) => void;
   endConversation: () => void;
-  exportConversation: (callback: (exportData: any) => void) => void;
   readConversation: (conversationId: string) => void;
   readMessages: (conversationId: string) => void;
   replyAutoAnswer: (message: string, payload: string, type: string) => void;
@@ -436,21 +435,6 @@ export class AppProvider extends React.Component<{}, IState> {
     window.location.reload();
   };
 
-  exportConversation = (callback: (exportData: any) => void) => {
-    const { activeConversation } = this.state
-    return client.query({
-      query: gql(graphqlTypes.widgetExportMessengerDataQuery),
-      variables: {
-        _id: activeConversation,
-        integrationId: connection.data.integrationId
-      }
-    }).then(({ data }: any) => {
-      if (data.widgetExportMessengerData) {
-        callback(data.widgetExportMessengerData);
-      }
-    });
-  };
-
   readConversation = (conversationId: string) => {
     this.toggle();
     this.changeConversation(conversationId);
@@ -791,7 +775,6 @@ export class AppProvider extends React.Component<{}, IState> {
           goToConversationList: this.goToConversationList,
           saveGetNotified: this.saveGetNotified,
           endConversation: this.endConversation,
-          exportConversation: this.exportConversation,
           readConversation: this.readConversation,
           readMessages: this.readMessages,
           replyAutoAnswer: this.replyAutoAnswer,
