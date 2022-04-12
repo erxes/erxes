@@ -14,10 +14,8 @@ type Props = {
   toggleHead?: () => void;
   toggleLauncher: (isMessengerVisible?: boolean) => void;
   endConversation: () => void;
-  exportConversation: (callback: (exportData: any) => void) => void;
   setHeadHeight: (height: number) => void;
   onLeftButtonClick?: (e: React.FormEvent<HTMLButtonElement>) => void;
-  activeConversation?: string | null;
 };
 
 type State = {
@@ -76,15 +74,6 @@ class TopBar extends React.Component<Props, State> {
     this.props.toggleLauncher(true);
   };
 
-  exportConversation = () => {
-    const { exportConversation } = this.props;
-    exportConversation(exportData => {
-      // exported data in new tab.
-      const url = readFile(exportData);
-      window.open( url, '_blank')?.focus();
-    });
-  }
-
   renderRightButton() {
     const topBarClassNames = classNames("topbar-button", "right", "fade-in", {
       "dropdown-open": this.state.isVisibleDropdown
@@ -116,13 +105,6 @@ class TopBar extends React.Component<Props, State> {
               {__("Close")}
             </a>
           </li>
-          { this.props.activeConversation &&
-          <li>
-            <a href="#" onClick={this.exportConversation}>
-              {__("Export conversation")}
-            </a>
-          </li>
-          }
         </ul>
       </button>
     );
