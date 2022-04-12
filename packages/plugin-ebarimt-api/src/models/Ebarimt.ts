@@ -1,36 +1,40 @@
 import {
   IPutResponseConfig,
-  IPutResponseDoc,
+  IPutResponse,
+  IPutResponseDocument,
   putResponseSchema,
 } from "./definitions/ebarimt";
 import { PutData, returnBill } from "./utils";
 import { Model } from "mongoose";
 
-export interface IPutResponseModel extends Model<IPutResponseDoc> {
-  createPutResponse(doc: Document): Promise<IPutResponseDoc>;
-  updatePutResponse(_id: string, doc: Document): Promise<IPutResponseDoc>;
+export interface IPutResponseModel extends Model<IPutResponseDocument> {
+  putData(doc: IPutResponse, config: IPutResponseConfig): Promise<IPutResponseDocument>
+  returnBill(doc: { contentType: string, contentId: string }, config: IPutResponseConfig): Promise<IPutResponseDocument>
+  putHistories({ contentType, contentId }: { contentType: string, contentId: string }): Promise<IPutResponseDocument>
+  createPutResponse(doc: IPutResponse): Promise<IPutResponseDocument>;
+  updatePutResponse(_id: string, doc: IPutResponse): Promise<IPutResponseDocument>;
 }
 
 export const loadPutResponseClass = (models) => {
   class PutResponse {
     public static async putData(
-      doc: IPutResponseDoc,
+      doc: IPutResponse,
       config: IPutResponseConfig
     ) {
       const putData = new PutData({ ...doc, config, models });
       return putData.run();
     }
 
-    public static async returnBill(deal, config) {
-      return returnBill(models, deal, config);
+    public static async returnBill(doc, config) {
+      return returnBill(models, doc, config);
     }
 
-    public static async putHistories({ contentType, contentId }) {
+    public static async putHistories({ contentType, contentId }: { contentType: string, contentId: string }) {
       const putResponse = await models.PutResponses.findOne({
         contentType,
         contentId,
         success: true,
-      }).sort({ createdAt: -1 });
+      }).sort({ createdAt: -1 }).lean();
       if (!putResponse) {
         return;
       }

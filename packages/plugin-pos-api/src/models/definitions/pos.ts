@@ -12,7 +12,7 @@ export interface IPosOrderItem {
 export interface IPosOrderItemDocument extends IPosOrderItem, Document {
   _id: string;
 }
-export interface IPosOrders {
+export interface IPosOrder {
   createdAt: Date;
   status: String;
   paidDate: Date;
@@ -37,7 +37,7 @@ export interface IPosOrders {
   syncedErkhet: Boolean;
   deliveryInfo: Object;
 }
-export interface IPosOrdersDocument extends IPosOrders, Document {
+export interface IPosOrderDocument extends IPosOrder, Document {
   _id: string;
 }
 export interface IPos {
@@ -94,7 +94,7 @@ const posOrderItemSchema = schemaHooksWrapper(
   'erxes_posOrderItem'
 );
 
-export const posOrdersSchema = schemaHooksWrapper(
+export const posOrderSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     createdAt: field({ type: Date }),
@@ -147,7 +147,7 @@ export const posOrdersSchema = schemaHooksWrapper(
   'erxes_posOrders'
 );
 
-export const posSChema = schemaHooksWrapper(
+export const posSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),

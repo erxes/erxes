@@ -254,7 +254,6 @@ module.exports = {
   automations: {
     exposes: {
       "./routes": "./src/routes.tsx",
-      // "./settings": "./src/Settings.tsx",
     },
     routes: {
       // url: "http://localhost:3008/remoteEntry.js",
@@ -272,12 +271,12 @@ module.exports = {
       },
     ],
   },
-  knowledgeBase: {
+  knowledgebase: {
     exposes: { "./routes": "./src/routes.tsx" },
     routes: {
       // url: "http://localhost:3004/remoteEntry.js",
       url: "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-knowledgebase-ui/remoteEntry.js",
-      scope: "knowledgeBase",
+      scope: "knowledgebase",
       module: "./routes",
     },
     menus: [
@@ -520,26 +519,26 @@ module.exports = {
     },
     menus: [
       {
-        text: 'Loyalties',
-        url: '/vouchers',
-        icon: 'icon-piggybank',
+        text: "Loyalties",
+        url: "/vouchers",
+        icon: "icon-piggybank",
         location: "mainNavigation",
-        permission: 'showLoyalties'
+        permission: "showLoyalties",
       },
       {
-        text: 'Loyalties config',
-        to: '/erxes-plugin-loyalty/settings/general',
-        image: '/images/icons/erxes-16.svg',
+        text: "Loyalties config",
+        to: "/erxes-plugin-loyalty/settings/general",
+        image: "/images/icons/erxes-16.svg",
         location: "settings",
         scope: "loyalties",
-        action: 'loyaltyConfig',
-        permissions: ['loyaltyConfig'],
-      }
+        action: "loyaltyConfig",
+        permissions: ["loyaltyConfig"],
+      },
     ],
   },
   cars: {
     exposes: {
-      "./routes": "./src/routes.tsx"
+      "./routes": "./src/routes.tsx",
     },
     routes: {
       // url: "http://localhost:3010/remoteEntry.js",
@@ -560,7 +559,7 @@ module.exports = {
   ebarimt: {
     exposes: {
       "./routes": "./src/routes.tsx",
-      "./response": "./src/response.tsx"
+      "./response": "./src/response.tsx",
     },
     routes: {
       // url: "http://localhost:3018/remoteEntry.js",
@@ -590,30 +589,30 @@ module.exports = {
       // url: "http://localhost:3018/remoteEntry.js",
       url: "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-ebarimt-ui/remoteEntry.js",
       scope: "ebarimt",
-      module: "./response"
-    }
+      module: "./response",
+    },
   },
   syncerkhet: {
     exposes: {
-      './routes': './src/routes.tsx'
+      "./routes": "./src/routes.tsx",
     },
     routes: {
       // url: 'http://localhost:3017/remoteEntry.js',
       url: "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-syncerkhet-ui/remoteEntry.js",
-      scope: 'syncerkhet',
-      module: './routes'
+      scope: "syncerkhet",
+      module: "./routes",
     },
     menus: [
       {
-        text: 'Sync Erkhet',
-        to: '/erxes-plugin-sync-erkhet/settings/general',
-        image: '/images/icons/erxes-04.svg',
+        text: "Sync Erkhet",
+        to: "/erxes-plugin-sync-erkhet/settings/general",
+        image: "/images/icons/erxes-04.svg",
         location: "settings",
         scope: "syncerkhet",
-        action: 'syncErkhetConfig',
+        action: "syncErkhetConfig",
         permissions: [],
-      }
-    ]
+      },
+    ],
   },
   pos: {
     exposes: {
@@ -621,12 +620,18 @@ module.exports = {
 
     },
     routes: {
-      // url: "http://localhost:3016/remoteEntry.js",
       url: "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-pos-ui/remoteEntry.js",
       scope: "pos",
       module: "./routes",
     },
     menus: [
+      {
+        text: "Put Responses",
+        url: "/pos-orders",
+        icon: "icon-lamp",
+        location: "mainNavigation",
+        permission: "showPos",
+      },
       {
         text: "POS",
         to: "/pos",
@@ -635,6 +640,56 @@ module.exports = {
         scope: "pos",
         action: "posConfig",
         permissions: ['showPos'],
+      },
+    ],
+  },
+  engages: {
+    exposes: {
+      "./routes": "./src/routes.tsx",
+    },
+    routes: {
+      url: "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-engages-ui/remoteEntry.js",
+      scope: "engages",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Campaigns",
+        url: "/campaigns",
+        icon: "icon-megaphone",
+        location: "mainNavigation",
+        permission: "showEngagesMessages",
+      },
+      {
+        text: "Campaigns settings",
+        to: "#",
+        image: "/images/icons/erxes-31.png",
+        location: "settings",
+        scope: "engages",
+        action: "",
+        permissions: [],
+      },
+    ],
+  },
+
+  neighbor: {
+    exposes: {
+      "./routes": "./src/routes.tsx",
+    },
+    routes: {
+      url: "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-neighbor-ui/remoteEntry.js",
+      scope: "neighbor",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Neighbor",
+        to: "/erxes-plugin-neighbor?type=kindergarden",
+        image: "/images/icons/erxes-05.svg",
+        location: "settings",
+        scope: "Neighbor",
+        action: "",
+        permissions: [],
       },
     ],
   },
