@@ -24,7 +24,6 @@ import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
 import {
   getService,
-  getAvailableServices,
   getServices,
   isAvailable,
   isEnabled,
@@ -35,13 +34,7 @@ import {
 
 const configs = require('../../src/configs').default;
 
-const { MONGO_URL, RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, PORT, ENABLED_SERVICES_PATH } = process.env;
-
-if(!ENABLED_SERVICES_PATH) {
-  throw new Error("ENABLED_SERVICES_PATH environment variable is not configured.")
-}
-
-const enabledServices = require(ENABLED_SERVICES_PATH);
+const { MONGO_URL, RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, PORT } = process.env;
 
 export const app = express();
 
@@ -126,6 +119,9 @@ async function leaveServiceDiscovery() {
 });
 
 const generateApolloServer = async serviceDiscovery => {
+  const services = await getServices();
+  debugInfo(`Enabled services .... ${JSON.stringify(services)}`);
+
   const { typeDefs, resolvers } = await configs.graphql(serviceDiscovery);
 
   return new ApolloServer({
@@ -167,7 +163,6 @@ const generateApolloServer = async serviceDiscovery => {
 async function startServer() {
   const serviceDiscovery = {
     getServices,
-    getAvailableServices,
     getService,
     isAvailable,
     isEnabled
@@ -280,6 +275,15 @@ async function startServer() {
             })
           );
         }
+
+        if(forms.systemFields) {
+          forms.systemFieldsAvailable = true;
+
+          consumeRPCQueue(`${configs.name}:systemFields`, async args => ({
+            status: 'success',
+            data: await forms.systemFields(args)
+          }));
+        }
       }
 
       if (tags) {
@@ -287,6 +291,14 @@ async function startServer() {
           consumeRPCQueue(`${configs.name}:tag`, async args => ({
             status: 'success',
             data: await tags.tag(args)
+          }));
+        }
+        if (tags.publishChange) {
+          tags.publishChangeAvailable = true;
+          
+          consumeRPCQueue(`${configs.name}:publishChange`, async args => ({
+            status: 'success',
+            data: await tags.publishChange(args)
           }));
         }
       }

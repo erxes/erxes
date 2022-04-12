@@ -2,20 +2,20 @@ import * as mongoose from 'mongoose';
 import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
-  ICommentDocument,
-  IEmojiDocument
-} from './models/definitions/reaction'; //ICommentDocument IEmojiDocument
+  IQpayInvoiceDocument, // IQpayInvoiceDocument
+  ISocialPayInvoiceDocument, //  ISocialPayInvoiceDocument,
+} from './models/definitions/qpay'; //IQpayInvoiceDocument ISocialPayInvoiceDocument
 import {
-  loadCommentClass, //loadCommentClass
-  loadEmojiClass, //loadEmojiClass
-  ICommentModel, //ICommentModel
-  IEmojiModel //IEmojiModel
-} from './models/reactions';
+  loadQpayInvoiceClass, //loadQpayInvoiceClass
+  loadSocialPayInvoiceClass, //loadSocialPayInvoiceClass
+  IQpayInvoiceModel, //IQpayInvoiceModel
+  ISocialPayInvoiceModel, //ISocialPayInvoiceModel
+} from './models/Qpay';
 import { MongoClient } from 'mongodb';
 
 export interface IModels {
-  Emojis: IEmojiModel;
-  Comments: ICommentModel;
+  SocialPayInvoice: ISocialPayInvoiceModel;
+  QpayInvoice: IQpayInvoiceModel;
 }
 
 export interface ICoreModels {
@@ -63,7 +63,7 @@ const connectCore = async () => {
   db = client.db(dbName);
 
   coreModels = {
-    Users: db.collection('users')
+    Users: db.collection('users'),
   };
 
   return coreModels;
@@ -72,14 +72,14 @@ const connectCore = async () => {
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
-  models.Emojis = db.model<IEmojiDocument, IEmojiModel>(
-    'emojis',
-    loadEmojiClass(models)
-  );
+  models.SocialPayInvoice = db.model<
+    ISocialPayInvoiceDocument,
+    ISocialPayInvoiceModel
+  >('socialpay_invoices', loadSocialPayInvoiceClass(models));
 
-  models.Comments = db.model<ICommentDocument, ICommentModel>(
-    'comments',
-    loadCommentClass(models)
+  models.QpayInvoice = db.model<IQpayInvoiceDocument, IQpayInvoiceModel>(
+    'qpay_invoices',
+    loadQpayInvoiceClass(models)
   );
 
   return models;

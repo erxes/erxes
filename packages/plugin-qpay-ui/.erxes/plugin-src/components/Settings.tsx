@@ -13,7 +13,7 @@ type Props = {
 };
 
 type State = {
-  configsMap: IConfigsMap;
+  currentMap: IConfigsMap;
 };
 
 class GeneralSettings extends React.Component<Props, State> {
@@ -21,36 +21,39 @@ class GeneralSettings extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      configsMap: props.configsMap,
+      currentMap: props.configsMap.QPAY || {},
     };
   }
 
   save = e => {
     e.preventDefault();
 
-    const { configsMap } = this.state;
-
+    const { currentMap } = this.state;
+    const { configsMap } = this.props;
+    configsMap.QPAY = currentMap;
     this.props.save(configsMap);
   };
 
   onChangeConfig = (code: string, e) => {
-    const { configsMap } = this.state;
-    configsMap[code] = e.target.value;
-    this.setState({ configsMap });
+    const { currentMap } = this.state;
+    const value = e.target.value;
+    currentMap[code] = value;
+
+    this.setState({ currentMap });
   };
 
   renderItem = (key: string, title: string, description?: string) => {
-    const { configsMap } = this.state;
-    let value = configsMap[key] || "";
+    const { currentMap } = this.state;
+    let value = currentMap[key] || "";
 
     if (key === "callbackUrl" && !value) {
       value = 'https://localhost:3000/payments';
-      configsMap[key] = value;
+      currentMap[key] = value;
     }
 
     if (key === "qpayUrl" && !value) {
       value = 'https://merchant.qpay.mn';
-      configsMap[key] = value;
+      currentMap[key] = value;
     }
 
     return (

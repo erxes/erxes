@@ -1,5 +1,4 @@
 import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
 import React from 'react';
 import styled from 'styled-components';
 import QuickNavigation from '../containers/QuickNavigation';
@@ -10,11 +9,10 @@ const TopBar = styled.div`
   justify-content: flex-end;
   align-items: center;
   margin: 0;
-  border: 0;
+  border-bottom: 1px solid ${colors.borderPrimary};
   flex-shrink: 0;
   padding: 0 ${dimensions.coreSpacing}px;
   background: ${colors.colorWhite};
-  box-shadow: 0 1px 6px ${rgba(colors.colorBlack, 0.1)};
   position: absolute;
   left: 0;
   right: 0;

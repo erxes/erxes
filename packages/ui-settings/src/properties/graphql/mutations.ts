@@ -3,6 +3,7 @@ const commonFields = `
   $contentType: String,
   $order: Int,
   $description: String,
+  $code: String,
   $isVisible: Boolean,
   $isVisibleInDetail: Boolean,
   $config: JSON,
@@ -13,6 +14,7 @@ const commonTypes = `
   contentType: $contentType,
   order: $order,
   description: $description,
+  code: $code,
   isVisible: $isVisible,
   isVisibleInDetail: $isVisibleInDetail,
   config: $config
@@ -71,6 +73,9 @@ const commonVariables = `
   $order: Int,
   $groupId: String,
   $isVisible: Boolean,
+  $code: String,
+  $searchable: Boolean,
+  $showInCard: Boolean,
 `;
 
 const commonParams = `
@@ -84,6 +89,9 @@ const commonParams = `
   order: $order,
   groupId: $groupId,
   isVisible: $isVisible,
+  code: $code,
+  searchable: $searchable,
+  showInCard: $showInCard
 `;
 
 const fieldsAdd = `
@@ -152,5 +160,5 @@ export default {
   fieldsRemove,
   fieldsUpdateVisible,
   fieldsUpdateOrder,
-  groupsUpdateOrder
+  groupsUpdateOrder,
 };

@@ -4,27 +4,28 @@ import {
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
-  copyParams
-} from './common';
+  copyParams,
+} from "./common";
 
-export const types = (contactsAvailable) => `
-  type DealListItem {
+export const types = contactsAvailable => `
+  type DealListItem @key(fields: "_id") {
     products: JSON
     amount: JSON
+    customFieldsData: JSON
     ${commonListTypes}
   }
     
-  type Deal {
+  type Deal @key(fields: "_id") {
     _id: String!
     amount: JSON
 
     ${
-      contactsAvailable ?
-      `
+      contactsAvailable
+        ? `
       companies: [Company]
       customers: [Customer]
       `
-      : ''
+        : ""
     }
 
     products: JSON

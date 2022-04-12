@@ -8,6 +8,7 @@ import BookingSettings from "./bookings/routes";
 import FormsSettings from "./forms/routes";
 import IntegrationConfigs from "./settings/integrationsConfig/routes";
 import VideoCallRoutes from "./videoCall/routes";
+import ScriptRoutes from './scripts/routes';
 
 const routes = () => {
   return (
@@ -21,6 +22,7 @@ const routes = () => {
       <BookingSettings />
       <FormsSettings />
       <VideoCallRoutes />
+      <ScriptRoutes/>
     </>
   );
 };

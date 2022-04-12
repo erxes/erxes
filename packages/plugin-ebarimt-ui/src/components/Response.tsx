@@ -7,17 +7,17 @@ export default (response, error?) => {
 
     <head>
       <meta charset="utf-8">
-      <link rel="stylesheet" href="/plugins/ebarimt/print.css" media="print">
-      <script src="/plugins/ebarimt/jquery.js"></script>
-      <script src="/plugins/ebarimt/qrcodegen.js"></script>
-      <script src="/plugins/ebarimt/jsbarcode.js"></script>
+      <link rel="stylesheet" href="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/print.css" media="print">
+      <script src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/jquery.js"></script>
+      <script src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/qrcodegen.js"></script>
+      <script src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/jsbarcode.js"></script>
     </head>
 
     <body>
       <div class="receipt">
 
         <div class="center">
-          <img src="/plugins/ebarimt/ebarimt.png">
+          <img src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/ebarimt.png">
         </div>
         <p class="center">
           ${response.companyName ? response.companyName : ''}
@@ -202,7 +202,10 @@ export default (response, error?) => {
         }
       </style>
       <script>
-        window.print();
+        setTimeout(
+          window.print(),
+          100
+        )
       </script>
     </body>
 

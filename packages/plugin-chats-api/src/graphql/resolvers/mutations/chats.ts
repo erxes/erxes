@@ -1,16 +1,17 @@
 // import { sendNotification } from 'erxes-api-utils';
-import { CHAT_TYPE, IChatMessage } from '../../../models/definitions/chat';
-import { graphqlPubsub } from '../../../configs';
+import { CHAT_TYPE, IChatMessage } from "../../../models/definitions/chat";
+import { graphqlPubsub } from "../../../configs";
 // import { sendMobileNotification } from '../../../utils';
-import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { sendCoreMessage } from "../../../messageBroker";
 
 const checkChatAdmin = async (Chats, userId) => {
   const found = await Chats.exists({
-    adminIds: { $in: [userId] }
+    adminIds: { $in: [userId] },
   });
 
   if (!found) {
-    throw new Error('Only admin can this action');
+    throw new Error("Only admin can this action");
   }
 };
 
@@ -18,7 +19,7 @@ const hasAdminLeft = (chat, userId) => {
   const found = (chat.adminIds || []).indexOf(userId) !== -1;
 
   if (found && (chat.adminIds || []).length === 1) {
-    throw new Error('You cannot remove you. There is no admin except you.');
+    throw new Error("You cannot remove you. There is no admin except you.");
   }
 };
 
@@ -33,7 +34,7 @@ const chatMutations = {
       {
         ...doc,
         participantIds: allParticipantIds,
-        adminIds: [user._id]
+        adminIds: [user._id],
       },
       user._id
     );
@@ -51,18 +52,28 @@ const chatMutations = {
     //   receivers: allParticipantIds,
     // });
 
+    sendCoreMessage({
+      subdomain: "os",
+      action: "sendMobileNotification",
+      data: {
+        title: doc.title,
+        body: doc.description,
+        receivers: allParticipantIds,
+      },
+    });
+
     // sendMobileNotification(coreModels, {
     //   title: doc.title,
     //   body: doc.description,
     //   receivers: allParticipantIds,
     // });
 
-    graphqlPubsub.publish('chatInserted', {
-      userId: user._id
+    graphqlPubsub.publish("chatInserted", {
+      userId: user._id,
     });
 
-    graphqlPubsub.publish('chatUnreadCountChanged', {
-      userId: user._id
+    graphqlPubsub.publish("chatUnreadCountChanged", {
+      userId: user._id,
     });
 
     return chat;
@@ -75,7 +86,7 @@ const chatMutations = {
     const chat = await models.Chats.findOne({ _id });
 
     if (!chat) {
-      throw new Error('Chat not found');
+      throw new Error("Chat not found");
     }
 
     if (chat.type === CHAT_TYPE.GROUP) {
@@ -87,13 +98,13 @@ const chatMutations = {
 
   chatMessageAdd: async (_root, args, { models, user }) => {
     if (!args.content) {
-      throw new Error('Content is required');
+      throw new Error("Content is required");
     }
 
     const created = await models.ChatMessages.createChatMessage(args, user._id);
 
-    graphqlPubsub.publish('chatMessageInserted', {
-      chatId: created.chatId
+    graphqlPubsub.publish("chatMessageInserted", {
+      chatId: created.chatId,
     });
 
     return created;
@@ -126,27 +137,27 @@ const chatMutations = {
     if ((chat.participantIds || []).length === 1) {
       await models.Chats.removeChat(_id);
 
-      return 'Chat removed';
+      return "Chat removed";
     }
 
     // while user is removing himself or herself
-    if (type === 'remove' && (userIds || []).indexOf(user._id) !== -1) {
+    if (type === "remove" && (userIds || []).indexOf(user._id) !== -1) {
       hasAdminLeft(chat, user._id);
     }
 
     await models.Chats.updateOne(
       { _id },
-      type === 'add'
+      type === "add"
         ? { $addToSet: { participantIds: userIds } }
         : {
             $pull: {
               participantIds: { $in: userIds },
-              adminIds: { $in: userIds }
-            }
+              adminIds: { $in: userIds },
+            },
           }
     );
 
-    return 'Success';
+    return "Success";
   },
 
   chatMakeOrRemoveAdmin: async (_root, { _id, userId }, { models, user }) => {
@@ -154,11 +165,11 @@ const chatMutations = {
 
     const chat = await models.Chats.findOne({
       _id,
-      participantIds: { $in: [userId] }
+      participantIds: { $in: [userId] },
     });
 
     if (!chat) {
-      throw new Error('Chat not found');
+      throw new Error("Chat not found");
     }
 
     const found = (chat.adminIds || []).indexOf(userId) !== -1;
@@ -177,17 +188,17 @@ const chatMutations = {
         : { $addToSet: { adminIds: [userId] } }
     );
 
-    return 'Success';
-  }
+    return "Success";
+  },
 };
 
-checkPermission(chatMutations, 'chatAdd', 'manageChats');
-checkPermission(chatMutations, 'chatEdit', 'manageChats');
-checkPermission(chatMutations, 'chatRemove', 'manageChats');
-checkPermission(chatMutations, 'chatMessageAdd', 'manageChats');
-checkPermission(chatMutations, 'chatMessageRemove', 'manageChats');
-checkPermission(chatMutations, 'chatMessageToggleIsPinned', 'manageChats');
-checkPermission(chatMutations, 'chatAddOrRemoveMember', 'manageChats');
-checkPermission(chatMutations, 'chatMakeOrRemoveAdmin', 'manageChats');
+checkPermission(chatMutations, "chatAdd", "manageChats");
+checkPermission(chatMutations, "chatEdit", "manageChats");
+checkPermission(chatMutations, "chatRemove", "manageChats");
+checkPermission(chatMutations, "chatMessageAdd", "manageChats");
+checkPermission(chatMutations, "chatMessageRemove", "manageChats");
+checkPermission(chatMutations, "chatMessageToggleIsPinned", "manageChats");
+checkPermission(chatMutations, "chatAddOrRemoveMember", "manageChats");
+checkPermission(chatMutations, "chatMakeOrRemoveAdmin", "manageChats");
 
 export default chatMutations;

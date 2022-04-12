@@ -1,19 +1,19 @@
-module.exports = {
-  automations: false,
-  calendar: false,
-  clientportal: false,
-  engages: false,
-  internalnotes: false,
-  knowledgebase: false,
-  logs: false,
-  notifications: true,
-  segments: false,
-  tags: false,
-  integrations: false,
-  products: false,
-  forms: false,
-  cards: false,
-
-  contacts: true,
-  inbox: true,
-};
+module.exports = [
+  "automations",
+  "calendar",
+  "clientportal",
+  "engages",
+  "internalnotes",
+  "knowledgebase",
+  "logs",
+  "notifications",
+  "segments",
+  "tags",
+  "integrations",
+  "products",
+  "forms",
+  "cards",
+  "emailTemplates",
+  "contacts",
+  "inbox"
+]

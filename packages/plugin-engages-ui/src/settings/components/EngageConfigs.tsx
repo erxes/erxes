@@ -17,7 +17,7 @@ function EngageConfigs() {
       header={
         <Wrapper.Header title={__('Campaign config')} breadcrumb={breadcrumb} />
       }
-      mainHead={
+      subHeader={
         <Header
           title="Campaign config"
           description="Set up your campaign config."
@@ -35,6 +35,8 @@ function EngageConfigs() {
         />
       }
       content={<EngageSettingsContent />}
+      hasBorder={true}
+      transparent={true}
     />
   );
 }

@@ -94,7 +94,7 @@ const BoxRoot = styledTS<{ selected?: boolean }>(styled.div)`
   box-shadow: ${props =>
     props.selected
       ? `0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)}`
-      : `0 6px 10px 1px ${rgba(colors.colorCoreGray, 0.08)}`} ;
+      : `0 6px 10px 1px ${rgba(colors.colorCoreDarkGray, 0.08)}`} ;
   margin-right: ${dimensions.coreSpacing}px;
   margin-bottom: ${dimensions.coreSpacing}px;
   border-radius: ${dimensions.unitSpacing / 2 - 1}px;

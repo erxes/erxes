@@ -34,7 +34,7 @@ const PageHeader = styled.div`
   padding-left: ${dimensions.coreSpacing * 1.5}px;
 `;
 
-const Contents = styled.div`
+const Contents = styledTS<{hasBorder?: boolean}>(styled.div)`
   display: flex;
   flex: 1;
   margin-left: ${dimensions.unitSpacing}px;
@@ -45,6 +45,9 @@ const Contents = styled.div`
   bottom: 0;
   top: 0;
   overflow-x: auto;
+  border: ${props => props.hasBorder && `1px solid ${colors.borderPrimary}`};
+  border-radius: ${props => props.hasBorder && `${dimensions.unitSpacing}px`};
+  margin: ${props => props.hasBorder && dimensions.unitSpacing * 2}px;
 
   @-moz-document url-prefix() {
     overflow: hidden;
@@ -69,7 +72,7 @@ const MainHead = styled.div`
   box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
 `;
 
-const MainContent = styledTS<{ transparent?: boolean; center?: boolean }>(
+const MainContent = styledTS<{ transparent?: boolean; center?: boolean; leftSpacing?: boolean }>(
   styled.section
 )`
   flex: 1;
@@ -80,6 +83,7 @@ const MainContent = styledTS<{ transparent?: boolean; center?: boolean }>(
     !props.transparent && `0 0 6px 1px ${colors.shadowPrimary}`};
   height: ${props => props.center && '100%'};
   margin: ${props => !props.center && '10px 10px 10px 0'};
+  padding-left: ${props => props.leftSpacing && `${dimensions.coreSpacing}px`}
 `;
 
 const ContentBox = styledTS<{ transparent?: boolean }>(styled.div)`
@@ -113,8 +117,9 @@ const ContenFooter = styled.div`
   }
 `;
 
-const HeaderItems = styledTS<{ rightAligned?: boolean }>(styled.div)`
+const HeaderItems = styledTS<{ rightAligned?: boolean; hasFlex?: boolean }>(styled.div)`
   align-self: center;
+  flex: ${props => props.hasFlex && 1};
   margin-left: ${props => props.rightAligned && 'auto'};
 
   > * + * {
@@ -126,6 +131,7 @@ const SideContent = styledTS<{
   wide?: boolean;
   half?: boolean;
   full?: boolean;
+  hasBorder?: boolean;
 }>(styled.section)`
   box-sizing: border-box;
   display: flex;
@@ -135,11 +141,13 @@ const SideContent = styledTS<{
   width: ${props => (props.wide ? '340px' : '290px')};
   flex: ${props => (props.half ? '1' : 'none')};
   background: ${props => (props.full ? colors.colorWhite : 'none')};
-  margin: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${
+  margin: ${props => !props.hasBorder && `${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${
   dimensions.unitSpacing
-}px 0;
+}px 0`};
+  border-right: ${props => props.hasBorder && `1px solid ${colors.borderPrimary}`};
   box-shadow: ${props =>
     props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
+  padding: ${props => props.hasBorder && `${dimensions.unitSpacing}px`}
 
   ${TabContainer} {
     position: sticky;
@@ -341,7 +349,7 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
     }
 
     &.active {
-      border-left: 2px solid ${colors.colorSecondary};
+      background: ${rgba(colors.colorPrimary, 0.2)}
     }
 
     &.multiple-choice {
@@ -385,9 +393,9 @@ const CenterContent = styled.div`
   }
 `;
 
-const SectionContainer = styled.div`
+const SectionContainer = styledTS<{noShadow?: boolean}>(styled.div)`
   position: relative;
-  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08);
+  box-shadow: ${props => !props.noShadow && `0 0 6px 0 rgba(0, 0, 0, 0.08)`};
   margin-bottom: 10px;
 
   > div {

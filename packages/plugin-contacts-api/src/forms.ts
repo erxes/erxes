@@ -1,4 +1,4 @@
-import { generateFields } from './utils';
+import { generateFields, generateSystemFields } from './utils';
 
 export default {
   types: [
@@ -7,12 +7,12 @@ export default {
       type: 'customer'
     },
     {
-      description: 'Leads',
-      type: 'lead'
-    },
-    {
       description: 'Companies',
       type: 'company'
+    },
+    {
+      description: 'Device properties',
+      type: 'device'
     }
   ],
   fields: generateFields,
@@ -38,5 +38,6 @@ export default {
       { name: 'sessionCount', label: 'Session count', order: 7 },
       { name: 'score', label: 'Score', order: 8 }
     ]
-  }
+  },
+  systemFields: generateSystemFields
 };

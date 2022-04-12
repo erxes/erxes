@@ -22,16 +22,13 @@
     "express": "^4.17.2",
     "faker": "^4.1.0",
     "graphql": "^15.8.0",
+    "moment": "^2.18.1",
     "meteor-random": "^0.0.3",
-    "moment-timezone": "^0.5.28",
-    "mongo-uri": "^0.1.2",
     "mongoose": "5.7.5",
     "nodemailer": "^6.2.1",
     "redis": "^2.8.0",
     "requestify": "^0.2.5",
-    "ts-node": "^8.0.3",
     "tsc-alias": "^1.5.0",
-    "uuid-by-string": "^3.0.5",
     "clerq": "0.5.0",
     "xlsx-populate": "^1.20.1",
     "strip": "^3.0.0",
@@ -59,12 +56,13 @@
     "@types/underscore": "^1.8.9",
     "jest": "^24.9",
     "jest-tobetype": "^1.1.0",
+    "typescript": "^4.5.4",
+    "ts-node": "^10.4.0",
     "nodemon": "^2.0.15",
     "ora": "^3.4.0",
     "sinon": "^7.2.2",
     "supertest": "^5.0.0",
-    "ts-jest": "^22.0.0",
-    "ts-node": "^10.4.0"
+    "ts-jest": "^22.0.0"
   },
   "engines": {
     "node": ">=10.x.x"

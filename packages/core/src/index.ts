@@ -20,7 +20,7 @@ import {
   routeErrorHandling
 } from './data/utils';
 
-import { connect, mongoStatus } from './db/connection';
+import { connect } from './db/connection';
 import { Configs, Users } from './db/models';
 import { debugBase, debugError, debugInit } from './debuggers';
 import { initMemoryStorage } from './inmemoryStorage';
@@ -39,7 +39,7 @@ import forms from './forms';
 // load environment variables
 dotenv.config();
 
-const { NODE_ENV, JWT_TOKEN_SECRET, MAIN_APP_DOMAIN } = process.env;
+const { NODE_ENV, JWT_TOKEN_SECRET, MAIN_APP_DOMAIN, WIDGETS_DOMAIN } = process.env;
 
 if (!JWT_TOKEN_SECRET) {
   throw new Error('Please configure JWT_TOKEN_SECRET environment variable.');
@@ -62,7 +62,10 @@ app.use(cookieParser());
 
 const corsOptions = {
   credentials: true,
-  origin: [MAIN_APP_DOMAIN || 'http://localhost:3000']
+  origin: [
+    MAIN_APP_DOMAIN || 'http://localhost:3000',
+    WIDGETS_DOMAIN || 'http://localhost:3200'
+  ]
 };
 
 app.use(cors(corsOptions));
@@ -113,8 +116,6 @@ app.get(
 
 // for health check
 app.get('/health', async (_req, res) => {
-  await mongoStatus();
-
   res.end('ok');
 });
 

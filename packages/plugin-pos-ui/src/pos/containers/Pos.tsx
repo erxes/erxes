@@ -12,15 +12,12 @@ import {
   EditPosMutationResponse,
   GroupsBulkInsertMutationResponse,
   GroupsQueryResponse,
-  IntegrationDetailQueryResponse,
   IntegrationMutationVariables,
-  IntegrationsQueryResponse,
   IProductGroup,
   PosDetailQueryResponse
 } from '../../types';
 import { IPos, ProductCategoriesQueryResponse, BranchesQueryResponse } from '../../types';
 import { mutations, queries } from '../graphql';
-import { PLUGIN_URL } from '../../constants';
 import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-settings/src/properties/types'
 import combinedFields from '@erxes/ui-segments/src/graphql/queries';
 
@@ -35,10 +32,8 @@ type State = {
 };
 
 type FinalProps = {
-  integrationDetailQuery: IntegrationDetailQueryResponse;
   posDetailQuery: PosDetailQueryResponse;
   groupsQuery: GroupsQueryResponse;
-  integrationsQuery: IntegrationsQueryResponse;
   productCategoriesQuery: ProductCategoriesQueryResponse;
   branchesQuery: BranchesQueryResponse;
   fieldsCombinedByTypeQuery: FieldsCombinedByTypeQueryResponse;
@@ -56,8 +51,6 @@ class EditPosContainer extends React.Component<FinalProps, State> {
   }
 
   render() {
-
-
     const {
       groupsQuery,
       posDetailQuery,
@@ -65,7 +58,6 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       addPosMutation,
       productGroupsBulkInsertMutation,
       history,
-      integrationsQuery,
       productCategoriesQuery,
       branchesQuery,
       fieldsCombinedByTypeQuery
@@ -74,7 +66,6 @@ class EditPosContainer extends React.Component<FinalProps, State> {
     if (
       posDetailQuery && posDetailQuery.loading ||
       groupsQuery.loading ||
-      integrationsQuery.loading ||
       productCategoriesQuery.loading ||
       branchesQuery.loading ||
       fieldsCombinedByTypeQuery.loading
@@ -84,8 +75,6 @@ class EditPosContainer extends React.Component<FinalProps, State> {
 
     const pos = posDetailQuery && posDetailQuery.posDetail || {} as IPos;
     const groups = groupsQuery.productGroups || [];
-    const integration = pos.integration;
-    const formIntegrations = integrationsQuery.integrations || [];
     const branches = branchesQuery.branches || [];
     const fieldsCombined = fieldsCombinedByTypeQuery.fieldsCombinedByContentType || []
 
@@ -120,7 +109,7 @@ class EditPosContainer extends React.Component<FinalProps, State> {
           Alert.success('You successfully updated a pos');
 
           history.push({
-            pathname: `${PLUGIN_URL}/pos`,
+            pathname: `/pos`,
             search: '?refetchList=true'
           });
         })
@@ -134,9 +123,7 @@ class EditPosContainer extends React.Component<FinalProps, State> {
 
     const updatedProps = {
       ...this.props,
-      integration,
       groups,
-      formIntegrations,
       pos,
       save,
       branches,
@@ -195,15 +182,6 @@ export default withProps<Props>(
       name: 'productGroupsBulkInsertMutation'
     }),
 
-    graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
-      name: 'integrationsQuery',
-      options: () => ({
-        fetchPolicy: 'cache-and-network',
-        variables: {
-          kind: 'lead'
-        }
-      })
-    }),
     graphql<Props, ProductCategoriesQueryResponse>(
       gql(productQueries.productCategories),
       {

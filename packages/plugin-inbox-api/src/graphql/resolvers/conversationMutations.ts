@@ -10,8 +10,7 @@ import { IMessageDocument } from '../../models/definitions/conversationMessages'
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { AUTO_BOT_MESSAGES } from '../../models/definitions/constants';
 import { debug } from '../../configs';
-import {
-  sendMessage,
+import messageBroker, {
   sendContactsMessage,
   sendCardsMessage,
   sendCoreMessage,
@@ -27,7 +26,6 @@ import {
   requireLogin
 } from '@erxes/api-utils/src/permissions';
 import { splitStr } from '@erxes/api-utils/src/core';
-// ? import utils from '../../utils';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
 import { IUserDocument } from '@erxes/api-utils/src/types';
@@ -396,7 +394,7 @@ const conversationMutations = {
 
       for (let i = 0; i < chunks.length; i++) {
         // ! will refactor
-        await sendMessage('erxes-api:integrations-notification', {
+        await messageBroker().sendMessage('erxes-api:integrations-notification', {
           action: 'sendConversationSms',
           payload: JSON.stringify({
             conversationMessageId: `${message._id}-part${i + 1}`,

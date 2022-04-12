@@ -10,7 +10,6 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 
-// ? import utils, { checkUserIds } from '../../utils';
 import { checkUserIds } from '@erxes/api-utils/src';
 import { sendCoreMessage, sendNotificationsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';

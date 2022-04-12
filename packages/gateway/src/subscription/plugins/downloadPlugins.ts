@@ -1,7 +1,7 @@
-import path from 'path';
-import fs from 'fs';
-import Downloader from 'nodejs-file-downloader';
-import { getService, getEnabledServices } from '../../redis';
+import * as path from 'path';
+import * as fs from 'fs';
+import * as Downloader from 'nodejs-file-downloader';
+import { getService, getServices } from '../../redis';
 
 export default async function downloadPlugins(): Promise<void> {
   const directory = path.join(__dirname, './downloads');
@@ -12,7 +12,7 @@ export default async function downloadPlugins(): Promise<void> {
 
   await clearDirectory(directory);
 
-  const serviceNames = await getEnabledServices();
+  const serviceNames = await getServices();
 
   const allServices: any[] = await Promise.all(
     serviceNames.map(async serviceName => {
@@ -28,7 +28,7 @@ export default async function downloadPlugins(): Promise<void> {
     services.map(async (service) => {
       const url = `${service.address}/subscriptionPlugin.js`;
       const fileName = `${service.name}.js`;
-      const downloader = new Downloader({
+      const downloader = new (Downloader as any)({
         url,
         directory,
         cloneFiles: false,

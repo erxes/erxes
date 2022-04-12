@@ -55,12 +55,15 @@ export const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
 
   for (const item of items) {
     if (item && item._id) {
-      let name: string = `item with id "${item._id}" has been deleted`;
+      let name: string = '';
 
       for (const n of nameFields) {
+        // first level field
         if (item[n]) {
           name = item[n];
         }
+
+        // TODO: properly fill nested object fields
       }
 
       options.push({ [foreignKey]: item._id, name });
@@ -175,7 +178,8 @@ const putLog = async (
           ...params,
           object: params.object,
           newData: params.newData,
-          extraDesc: params.extraDesc
+          extraDesc: params.extraDesc,
+          user
         }
       })
     }

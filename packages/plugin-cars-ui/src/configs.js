@@ -1,5 +1,5 @@
 module.exports = {
-  name: "car",
+  name: "cars",
   port: 3010,
   exposes: {
     "./routes": "./src/routes.tsx"

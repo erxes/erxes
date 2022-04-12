@@ -30,7 +30,7 @@ class Home extends React.Component<Props, {}> {
         header={
           <Wrapper.Header title={__(boardName)} breadcrumb={breadcrumb} />
         }
-        mainHead={
+        subHeader={
           <HeaderDescription
             icon="/images/actions/34.svg"
             title={`${boardName} & ${pipelineName}`}
@@ -45,6 +45,8 @@ class Home extends React.Component<Props, {}> {
           <Boards options={options} type={type} currentBoardId={boardId} />
         }
         content={<Pipelines options={options} type={type} boardId={boardId} />}
+        hasBorder={true}
+        transparent={true}
       />
     );
   }

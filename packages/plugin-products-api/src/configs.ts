@@ -8,6 +8,7 @@ import { generateModels, models } from './connectionResolver';
 import logs from './logUtils';
 import tags from './tags';
 import internalNotes from './internalNotes';
+import forms from './forms';
 
 export let debug;
 export let mainDb;
@@ -32,7 +33,7 @@ export default {
 
     return context;
   },
-  meta: { logs: { consumers: logs }, tags, internalNotes },
+  meta: { logs: { consumers: logs }, tags, internalNotes, forms },
   onServerInit: async options => {
     mainDb = options.db;
 

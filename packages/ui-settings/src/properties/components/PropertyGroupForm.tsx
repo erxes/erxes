@@ -65,7 +65,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
     };
   };
 
-  visibleHandler = (e) => {
+  visibleHandler = e => {
     if (e.target.id === "visible") {
       const isVisible = e.target.checked;
 
@@ -123,7 +123,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
     );
   }
 
-  onChangeConfig = (config) => {
+  onChangeConfig = config => {
     this.setState({ config });
   };
 
@@ -142,7 +142,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
             injectedProps={{
               config,
               type,
-              onChangeConfig: this.onChangeConfig
+              onChangeConfig: this.onChangeConfig,
             }}
           />
         );
@@ -179,6 +179,11 @@ class PropertyGroupForm extends React.Component<Props, State> {
             required={true}
             defaultValue={object.description}
           />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Code</ControlLabel>
+          <FormControl {...formProps} name="code" defaultValue={object.code} />
         </FormGroup>
 
         {this.renderFieldVisible()}

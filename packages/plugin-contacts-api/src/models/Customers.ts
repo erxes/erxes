@@ -629,7 +629,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         subdomain,
         action: "batchUpdate",
         data: {
-          contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
+          contentType: 'contacts:customer',
           oldContentTypeIds: customerIds,
           newContentTypeId: customer._id,
         },

@@ -5,7 +5,6 @@ import { createServer } from 'http';
 import { filterXSS } from 'xss';
 import { connect } from './db/connection';
 
-import { initMemoryStorage } from './inmemoryStorage';
 import { initApolloServer } from './apolloClient';
 import { initBroker } from './messageBroker';
 import { join, leave, redis } from './serviceDiscovery';
@@ -99,8 +98,6 @@ httpServer.listen(PORT, async () => {
     initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }).catch(e => {
       console.log(`Error ocurred during message broker init ${e.message}`);
     });
-
-    initMemoryStorage();
   });
 
   await join({
@@ -110,15 +107,6 @@ httpServer.listen(PORT, async () => {
     hasSubscriptions: false,
     meta: {}
   });
-
-  // try {
-  //   console.log(1);
-  //   await coreDb.connectCoreModels();
-  //   console.log(2);
-  // } catch (e) {
-  //   console.log(3);
-  //   console.log(e);
-  // }
 
   console.log(`GraphQL Server is now running on ${PORT}`);
 });

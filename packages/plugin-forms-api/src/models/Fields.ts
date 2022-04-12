@@ -2,23 +2,20 @@
  * Extra fields for form, customer, company
  */
 
-import { Model, model } from 'mongoose';
-import * as validator from 'validator';
-import { IModels } from '../connectionResolver';
-// ? import { updateOrder } from './boardUtils';
+import { Model } from "mongoose";
+import * as validator from "validator";
+import { IModels } from "../connectionResolver";
+import { sendCommonMessage, sendContactsMessage } from "../messageBroker";
+import { updateOrder, IOrderInput } from "@erxes/api-utils/src/commonUtils";
 import {
   fieldGroupSchema,
   fieldSchema,
   IField,
   IFieldDocument,
   IFieldGroup,
-  IFieldGroupDocument
-} from './definitions/fields';
-
-export interface IOrderInput {
-  _id: string;
-  order: number;
-}
+  IFieldGroupDocument,
+} from "./definitions/fields";
+import { serviceDiscovery } from "../configs";
 
 export interface ITypedListItem {
   field: string;
@@ -43,6 +40,7 @@ export const isValidDate = value => {
 };
 
 export interface IFieldModel extends Model<IFieldDocument> {
+  checkCodeDuplication(code: string): string;
   checkIsDefinedByErxes(_id: string): never;
   createField(doc: IField): Promise<IFieldDocument>;
   updateField(_id: string, doc: IField): Promise<IFieldDocument>;
@@ -68,7 +66,7 @@ export interface IFieldModel extends Model<IFieldDocument> {
   ): Promise<IFieldDocument>;
   createSystemFields(
     groupId: string,
-    contentType: string
+    serviceName: string
   ): Promise<IFieldDocument[]>;
   generateCustomFieldsData(
     data: {
@@ -78,8 +76,17 @@ export interface IFieldModel extends Model<IFieldDocument> {
   ): Promise<any>;
 }
 
-export const loadFieldClass = (models: IModels) => {
+export const loadFieldClass = (models: IModels, subdomain: string) => {
   class Field {
+    static async checkCodeDuplication(code: string) {
+      const group = await models.Fields.findOne({
+        code,
+      });
+
+      if (group) {
+        throw new Error("Code must be unique");
+      }
+    }
     /*
      * Check if Group is defined by erxes by default
      */
@@ -88,7 +95,7 @@ export const loadFieldClass = (models: IModels) => {
 
       // Checking if the field is defined by the erxes
       if (fieldObj && fieldObj.isDefinedByErxes) {
-        throw new Error('Cant update this field');
+        throw new Error("Cant update this field");
       }
     }
 
@@ -97,7 +104,7 @@ export const loadFieldClass = (models: IModels) => {
 
       // Checking if the field is defined by the erxes
       if (fieldObj && !fieldObj.canHide) {
-        throw new Error('Cant update this field');
+        throw new Error("Cant update this field");
       }
     }
 
@@ -111,6 +118,10 @@ export const loadFieldClass = (models: IModels) => {
       groupName,
       ...fields
     }: IField) {
+      if (fields.code) {
+        await this.checkCodeDuplication(fields.code || "");
+      }
+
       const query: { [key: string]: any } = { contentType };
 
       if (groupId) {
@@ -128,7 +139,7 @@ export const loadFieldClass = (models: IModels) => {
           group = await models.FieldsGroups.createGroup({
             name: groupName,
             contentType,
-            isDefinedByErxes: false
+            isDefinedByErxes: false,
           });
         }
 
@@ -151,7 +162,7 @@ export const loadFieldClass = (models: IModels) => {
         order,
         groupId,
         isDefinedByErxes: false,
-        ...fields
+        ...fields,
       });
     }
 
@@ -168,12 +179,18 @@ export const loadFieldClass = (models: IModels) => {
         if (!group) {
           group = await models.FieldsGroups.createGroup({
             name: groupName,
-            contentType: 'form',
-            isDefinedByErxes: false
+            contentType: "form",
+            isDefinedByErxes: false,
           });
         }
 
         doc.groupId = group._id;
+      }
+
+      const field = await models.Fields.findOne({ _id });
+
+      if (doc.code && field && field.code !== doc.code) {
+        await this.checkCodeDuplication(doc.code);
       }
 
       await models.Fields.updateOne({ _id }, { $set: doc });
@@ -194,15 +211,23 @@ export const loadFieldClass = (models: IModels) => {
       await this.checkIsDefinedByErxes(_id);
 
       // Removing field value from customer
-      // ? await Customers.updateMany(
-      //   { 'customFieldsData.field': _id },
-      //   { $pull: { customFieldsData: { field: _id } } }
-      // );
+      await sendContactsMessage({
+        subdomain,
+        action: "customers.updateMany",
+        data: {
+          selector: {
+            "customFieldsData.field": _id,
+          },
+          modifier: {
+            $pull: { customFieldsData: { field: _id } },
+          },
+        },
+      });
 
       // Removing form associated field
       await models.Fields.updateMany(
         { associatedFieldId: _id },
-        { $unset: { associatedFieldId: '' } }
+        { $unset: { associatedFieldId: "" } }
       );
 
       return fieldObj.remove();
@@ -211,9 +236,9 @@ export const loadFieldClass = (models: IModels) => {
     /*
      * Update given fields orders
      */
-    // public static async updateOrder(orders: IOrderInput[]) {
-    //   return updateOrder(Fields, orders);
-    // }
+    public static async updateOrder(orders: IOrderInput[]) {
+      return updateOrder(models.Fields, orders);
+    }
 
     /*
      * Validate per field according to it's validation and type
@@ -237,31 +262,31 @@ export const loadFieldClass = (models: IModels) => {
 
       // required
       if (field.isRequired && (!value || !value.toString().trim())) {
-        throwError('required');
+        throwError("required");
       }
 
       if (value) {
         // email
         if (
-          (type === 'email' || validation === 'email') &&
+          (type === "email" || validation === "email") &&
           !validator.isEmail(value)
         ) {
-          throwError('Invalid email');
+          throwError("Invalid email");
         }
 
         // number
         if (
-          !['check', 'radio', 'select'].includes(type || '') &&
-          validation === 'number' &&
+          !["check", "radio", "select"].includes(type || "") &&
+          validation === "number" &&
           !validator.isFloat(value.toString())
         ) {
-          throwError('Invalid number');
+          throwError("Invalid number");
         }
 
         // date
-        if (validation === 'date') {
+        if (validation === "date") {
           if (!isValidDate(value)) {
-            throwError('Invalid date');
+            throwError("Invalid date");
           }
 
           value = new Date(value);
@@ -300,14 +325,14 @@ export const loadFieldClass = (models: IModels) => {
         stringValue = value.toString();
 
         // string
-        if (type === 'input' && !validation) {
+        if (type === "input" && !validation) {
           numberValue = null;
           value = stringValue;
           return { field, value, stringValue, numberValue, dateValue };
         }
 
         // number
-        if (type !== 'check' && validator.isFloat(value.toString())) {
+        if (type !== "check" && validator.isFloat(value.toString())) {
           numberValue = value;
           stringValue = null;
           value = Number(value);
@@ -325,7 +350,7 @@ export const loadFieldClass = (models: IModels) => {
       [key: string]: any;
     }): ITypedListItem[] {
       const ids = Object.keys(data || {});
-      return ids.map(_id => this.generateTypedItem(_id, data[_id], ''));
+      return ids.map(_id => this.generateTypedItem(_id, data[_id], ""));
     }
 
     public static async prepareCustomFieldsData(
@@ -337,7 +362,10 @@ export const loadFieldClass = (models: IModels) => {
         const field = await models.Fields.findById(customFieldData.field);
 
         try {
-          await models.Fields.clean(customFieldData.field, customFieldData.value);
+          await models.Fields.clean(
+            customFieldData.field,
+            customFieldData.value
+          );
         } catch (e) {
           throw new Error(e.message);
         }
@@ -345,7 +373,7 @@ export const loadFieldClass = (models: IModels) => {
           models.Fields.generateTypedItem(
             customFieldData.field,
             customFieldData.value,
-            field ? field.type || '' : '',
+            field ? field.type || "" : "",
             field?.validation
           )
         );
@@ -378,75 +406,20 @@ export const loadFieldClass = (models: IModels) => {
 
     public static async createSystemFields(
       groupId: string,
-      contentType: string
+      serviceName: string
     ) {
-      switch (contentType) {
-        // ? case FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER:
-        //   const customerFields = CUSTOMER_BASIC_INFO.ALL.map(e => ({
-        //     text: e.label,
-        //     type: e.field,
-        //     canHide: e.canHide,
-        //     validation: e.validation,
-        //     groupId,
-        //     contentType,
-        //     isDefinedByErxes: true
-        //   }));
-        //   await Fields.insertMany(customerFields);
-        //   break;
-        // case FIELDS_GROUPS_CONTENT_TYPES.COMPANY:
-        //   const companyFields = COMPANY_INFO.ALL.map(e => ({
-        //     text: e.label,
-        //     type: e.field,
-        //     canHide: e.canHide,
-        //     validation: e.validation,
-        //     groupId,
-        //     contentType,
-        //     isDefinedByErxes: true
-        //   }));
-        //   await Fields.insertMany(companyFields);
-        //   break;
-        // case FIELDS_GROUPS_CONTENT_TYPES.PRODUCT:
-        //   const productFields = PRODUCT_INFO.ALL.map(e => ({
-        //     text: e.label,
-        //     type: e.field,
-        //     groupId,
-        //     contentType,
-        //     canHide: false,
-        //     isDefinedByErxes: true
-        //   }));
-        //   await Fields.insertMany(productFields);
-        //   break;
-        // case FIELDS_GROUPS_CONTENT_TYPES.CONVERSATION:
-        //   const conversationFields = CONVERSATION_INFO.ALL.map(e => ({
-        //     text: e.label,
-        //     type: e.field,
-        //     groupId,
-        //     contentType,
-        //     isDefinedByErxes: true
-        //   }));
-        //   await Fields.insertMany(conversationFields);
-        //   break;
-        // case FIELDS_GROUPS_CONTENT_TYPES.DEVICE:
-        //   const deviceFields = DEVICE_PROPERTIES_INFO.ALL.map(e => ({
-        //     text: e.label,
-        //     type: e.field,
-        //     groupId,
-        //     contentType,
-        //     isDefinedByErxes: true
-        //   }));
-        //   await Fields.insertMany(deviceFields);
-        //   break;
-        // case FIELDS_GROUPS_CONTENT_TYPES.USER:
-        //   const userFields = USER_PROPERTIES_INFO.ALL.map(e => ({
-        //     text: e.label,
-        //     type: e.field,
-        //     groupId,
-        //     contentType,
-        //     isDefinedByErxes: true
-        //   }));
-        //   await Fields.insertMany(userFields);
-        //   break;
-      }
+      const fields = await sendCommonMessage({
+        subdomain,
+        serviceName,
+        action: "systemFields",
+        data: {
+          groupId,
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
+
+      await models.Fields.insertMany(fields);
     }
 
     public static async generateCustomFieldsData(
@@ -460,19 +433,19 @@ export const loadFieldClass = (models: IModels) => {
       for (const key of keys) {
         const customField = await models.Fields.findOne({
           contentType,
-          text: key
+          text: key,
         });
 
         let value = data[key];
 
         if (customField) {
-          if (customField.validation === 'date') {
+          if (customField.validation === "date") {
             value = new Date(data[key]);
           }
 
           customFieldsData.push({
             field: customField._id,
-            value
+            value,
           });
 
           delete data[key];
@@ -493,6 +466,7 @@ export const loadFieldClass = (models: IModels) => {
 };
 
 export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
+  checkCodeDuplication(code: string): string;
   checkIsDefinedByErxes(_id: string): never;
   createGroup(doc: IFieldGroup): Promise<IFieldGroupDocument>;
   updateGroup(_id: string, doc: IFieldGroup): Promise<IFieldGroupDocument>;
@@ -509,6 +483,15 @@ export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
 
 export const loadGroupClass = (models: IModels) => {
   class FieldGroup {
+    static async checkCodeDuplication(code: string) {
+      const group = await models.FieldsGroups.findOne({
+        code,
+      });
+
+      if (group) {
+        throw new Error("Code must be unique");
+      }
+    }
     /*
      * Check if Group is defined by erxes by default
      */
@@ -517,7 +500,7 @@ export const loadGroupClass = (models: IModels) => {
 
       // Checking if the group is defined by the erxes
       if (groupObj && groupObj.isDefinedByErxes) {
-        throw new Error('Cant update this group');
+        throw new Error("Cant update this group");
       }
     }
 
@@ -525,6 +508,10 @@ export const loadGroupClass = (models: IModels) => {
      * Create new field group
      */
     public static async createGroup(doc: IFieldGroup) {
+      if (doc.code) {
+        await this.checkCodeDuplication(doc.code || "");
+      }
+
       // Newly created group must be visible
       const isVisible = true;
 
@@ -533,9 +520,11 @@ export const loadGroupClass = (models: IModels) => {
       // Automatically setting order of group to the bottom
       let order = 1;
 
-      const lastGroup = await models.FieldsGroups.findOne({ contentType }).sort({
-        order: -1
-      });
+      const lastGroup = await models.FieldsGroups.findOne({ contentType }).sort(
+        {
+          order: -1,
+        }
+      );
 
       if (lastGroup) {
         order = (lastGroup.order || 0) + 1;
@@ -545,7 +534,7 @@ export const loadGroupClass = (models: IModels) => {
         ...doc,
         isVisible,
         order,
-        isDefinedByErxes: false
+        isDefinedByErxes: false,
       });
     }
 
@@ -553,6 +542,12 @@ export const loadGroupClass = (models: IModels) => {
      * Update field group
      */
     public static async updateGroup(_id: string, doc: IFieldGroup) {
+      const group = await models.FieldsGroups.findOne({ _id });
+
+      if (doc.code && group && group.code !== doc.code) {
+        await this.checkCodeDuplication(doc.code);
+      }
+
       // Can not edit group that is defined by erxes
       await this.checkIsDefinedByErxes(_id);
 
@@ -612,53 +607,52 @@ export const loadGroupClass = (models: IModels) => {
     /**
      * Create system fields & groups
      */
-    // ? will fix
     public static async createSystemGroupsFields() {
-      // for (const group of PROPERTY_GROUPS) {
-      //   if (['ticket', 'task', 'lead', 'visitor'].includes(group.value)) {
-      //     continue;
-      //   }
+      const services = await serviceDiscovery.getServices();
 
-      //   for (const subType of group.types) {
-      //     if (subType.value === 'deal') {
-      //       continue;
-      //     }
+      for (const serviceName of services) {
+        const service = await serviceDiscovery.getService(serviceName, true);
+        const meta = service.config?.meta || {};
 
-      //     const doc = {
-      //       name: 'Basic information',
-      //       contentType: subType.value,
-      //       order: 0,
-      //       isDefinedByErxes: true,
-      //       description: `Basic information of a ${subType.value}`,
-      //       isVisible: true
-      //     };
 
-      //     const existingGroup = await FieldsGroups.findOne({
-      //       contentType: doc.contentType,
-      //       isDefinedByErxes: true
-      //     });
+        if (meta && meta.forms && meta.forms.systemFieldsAvailable) {
+          const types = meta.forms.types || [];
 
-      //     if (existingGroup) {
-      //       continue;
-      //     }
+          for (const type of types) {
+            const contentType = `${serviceName}:${type.type}`;
 
-      //     if (['ticket', 'task', 'lead', 'visitor'].includes(doc.contentType)) {
-      //       continue;
-      //     }
+            const doc = {
+              name: "Basic information",
+              contentType,
+              order: 0,
+              isDefinedByErxes: true,
+              description: `Basic information of a ${type.type}`,
+              isVisible: true,
+            };
 
-      //     const fieldGroup = await FieldsGroups.create(doc);
+            const existingGroup = await models.FieldsGroups.findOne({
+              contentType: doc.contentType,
+              isDefinedByErxes: true,
+            });
 
-      //     await Fields.createSystemFields(fieldGroup._id, subType.value);
-      //   }
-      // }
+            if (existingGroup) {
+              continue;
+            }
+
+            const fieldGroup = await models.FieldsGroups.create(doc);
+
+            await models.Fields.createSystemFields(fieldGroup._id, serviceName);
+          }
+        }
+      }
     }
 
     /*
      * Update given fieldsGroups orders
      */
-    // public static async updateOrder(orders: IOrderInput[]) {
-    //   return updateOrder(FieldsGroups, orders);
-    // }
+    public static async updateOrder(orders: IOrderInput[]) {
+      return updateOrder(models.FieldsGroups, orders);
+    }
   }
 
   fieldGroupSchema.loadClass(FieldGroup);

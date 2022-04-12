@@ -24,8 +24,6 @@ const commonFields = `
   $waitingScreen: JSON
   $kioskMachine: JSON
   $uiOptions: JSON
-  $formSectionTitle: String
-  $formIntegrationIds: [String]
   $ebarimtConfig: JSON
   $erkhetConfig: JSON
   $catProdMappings: [CatProdInput]
@@ -50,8 +48,6 @@ const commonVariables = `
   waitingScreen: $waitingScreen
   kioskMachine: $kioskMachine
   uiOptions: $uiOptions
-  formSectionTitle: $formSectionTitle
-  formIntegrationIds: $formIntegrationIds
   ebarimtConfig: $ebarimtConfig
   erkhetConfig: $erkhetConfig
   catProdMappings: $catProdMappings
@@ -65,7 +61,6 @@ const commonPosFields = `
   name
   description
   createdAt
-  integrationId
   productDetails
 `;
 
@@ -97,29 +92,6 @@ const updateConfigs = `
   }
 `;
 
-const integrationRemove = `
-  mutation integrationsRemove($_id: String!) {
-    integrationsRemove(_id: $_id)
-  }
-`;
-
-const integrationsArchive = `
-  mutation integrationsArchive($_id: String!, $status: Boolean!) {
-    integrationsArchive(_id: $_id, status: $status) {
-      _id
-    }
-  }
-`;
-
-const integrationsEdit = `
-  mutation integrationsEditLeadIntegration($_id: String!, ${commonFormParamsDef}) {
-    integrationsEditLeadIntegration(_id: $_id, ${commonFormParams}) {
-      _id
-      ${commonFields}
-    }
-  }
-`;
-
 const brandAdd = `
   mutation brandsAdd($name: String!, $description: String, $emailConfig: JSON,) {
     brandsAdd(name: $name, description: $description, emailConfig: $emailConfig,) {
@@ -141,9 +113,6 @@ export default {
   posEdit,
   posRemove,
   updateConfigs,
-  integrationRemove,
-  integrationsArchive,
-  integrationsEdit,
   brandAdd,
   saveProductGroups,
 };

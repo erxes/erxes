@@ -1,7 +1,6 @@
 import { bulkUpdateOrders, getCollection } from '../../../models/utils';
 import {
   IBoard,
-  IOrderInput,
   IPipeline,
   IStage,
   IStageDocument
@@ -14,6 +13,7 @@ import { putCreateLog, putUpdateLog, putDeleteLog } from '../../../logUtils';
 import { configReplacer } from '../../../utils';
 import { IContext } from '../../../connectionResolver';
 import { sendFormsMessage } from '../../../messageBroker';
+import { IOrderInput } from '@erxes/api-utils/src/commonUtils';
 
 interface IBoardsEdit extends IBoard {
   _id: string;
