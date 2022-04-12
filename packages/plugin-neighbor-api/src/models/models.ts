@@ -45,7 +45,7 @@ export const loadNeighborClass = (models) => {
 export interface INeighborItemModel extends Model<INeighborItemDocument> {
   createNeighborItem(doc: INeighborItem, user: any): JSON;
   updateNeighborItem(doc: INeighborItem): JSON;
-  removeNeighbor(doc: any): JSON;
+  removeNeighborItem(doc: any): JSON;
 }
 
 export const loadNeighborItemClass = (models) => {

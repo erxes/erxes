@@ -1,3 +1,5 @@
+import { IContext } from "../../../connectionResolver";
+
 const neighborMutations = {
   neighborSave: async (
     _root,
@@ -42,22 +44,20 @@ const neighborMutations = {
     return create;
   },
 
-  neighborItemEdit: async (_root, doc, { user, docModifier, models }) => {
+  neighborItemEdit: async (
+    _root,
+    doc,
+    { user, docModifier, models }: IContext
+  ) => {
     const create = await models.NeighborItem.updateNeighborItem(
-      models,
-      docModifier(doc),
-      user
+      docModifier(doc)
     );
 
     return create;
   },
 
-  neighborItemRemove: async (_root, doc, { user, docModifier, models }) => {
-    return await models.NeighborItem.removeNeighborItem(
-      models,
-      docModifier(doc),
-      user
-    );
+  neighborItemRemove: async (_root, doc, { docModifier, models }: IContext) => {
+    return await models.NeighborItem.removeNeighborItem(docModifier(doc));
   },
 };
 

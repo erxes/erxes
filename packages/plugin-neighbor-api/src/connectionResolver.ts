@@ -73,12 +73,12 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
   models.Neighbor = db.model<INeighborDocument, INeighborModel>(
-    "neighbor",
+    "neighbors",
     loadNeighborClass(models)
   );
 
   models.NeighborItem = db.model<INeighborItemDocument, INeighborItemModel>(
-    "neighborItem",
+    "neighbor_items",
     loadNeighborItemClass(models)
   );
 

@@ -1,4 +1,3 @@
-import { schemaHooksWrapper } from "./../../../../plugin-inbox-api/src/models/definitions/utils";
 import { Schema, Document } from "mongoose";
 import { field } from "./utils";
 
@@ -40,13 +39,10 @@ export interface INeighborDocument extends INeighbor, Document {
   _id: String;
 }
 
-export const NeighborSchema = schemaHooksWrapper(
-  new Schema({
-    productCategoryId: field({ type: String }),
-    info: field({ type: Object, label: "{ typeId: [itemId1, itemId2] }" }),
-  }),
-  "erxes_neighbor"
-);
+export const NeighborSchema = new Schema({
+  productCategoryId: field({ type: String }),
+  info: field({ type: Object, label: "{ typeId: [itemId1, itemId2] }" }),
+});
 
 const schoolSchema = {
   description: field({ type: String, label: "description" }),
@@ -130,24 +126,21 @@ export interface INeighborItemDocument extends INeighborItem, Document {
   _id: String;
 }
 
-export const NeighborItemSchema = schemaHooksWrapper(
-  new Schema({
-    _id: field({ pkey: true }),
-    createdAt: field({ type: Date, label: "created at" }),
-    createdBy: field({ type: String, optional: true, label: "Created by" }),
-    name: field({ type: String, label: "name" }),
-    type: field({ type: String }),
-    schoolData: field({ type: schoolSchema }),
-    kindergardenData: field({ type: schoolSchema }),
-    universityData: field({ type: universitySchema }),
-    sohData: field({ type: sohSxhema }),
-    khorooData: field({ type: khorooSchema }),
-    envInfoData: field({ type: envInfoSchema }),
-    parkingData: field({ type: commonSchema }),
-    busStopData: field({ type: commonSchema }),
-    hospitalData: field({ type: commonSchema }),
-    pharmacyData: field({ type: commonSchema }),
-    districtTownData: field({ type: districtTownSchema }),
-  }),
-  "erxes_neighborItem"
-);
+export const NeighborItemSchema = new Schema({
+  _id: field({ pkey: true }),
+  createdAt: field({ type: Date, label: "created at" }),
+  createdBy: field({ type: String, optional: true, label: "Created by" }),
+  name: field({ type: String, label: "name" }),
+  type: field({ type: String }),
+  schoolData: field({ type: schoolSchema }),
+  kindergardenData: field({ type: schoolSchema }),
+  universityData: field({ type: universitySchema }),
+  sohData: field({ type: sohSxhema }),
+  khorooData: field({ type: khorooSchema }),
+  envInfoData: field({ type: envInfoSchema }),
+  parkingData: field({ type: commonSchema }),
+  busStopData: field({ type: commonSchema }),
+  hospitalData: field({ type: commonSchema }),
+  pharmacyData: field({ type: commonSchema }),
+  districtTownData: field({ type: districtTownSchema }),
+});
