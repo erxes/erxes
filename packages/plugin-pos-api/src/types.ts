@@ -3,8 +3,6 @@ export interface IPOS {
   description?: string;
   userId?: string;
   createdAt?: Date;
-  integrationId?: string;
-  brandId: string;
   tagIds?: string[];
   productDetails?: string[];
   adminIds: string[];
@@ -18,8 +16,6 @@ export interface IPOS {
   waitingScreen?: any;
   kioskMachine?: any;
   uiOptions: any;
-  formSectionTitle?: string;
-  formIntegrationIds?: string[];
   ebarimtConfig?: any;
   erkhetConfig?: any;
   initialCategoryIds?: string[];

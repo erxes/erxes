@@ -42,11 +42,19 @@ import {
   mutations as SkillMutations,
 } from './skillTypeDefs';
 
+import {
+  types as ScriptTypes,
+  queries as ScriptQueries,
+  mutations as ScriptMutations
+} from './scriptTypeDefs'
+
 const typeDefs = async (serviceDiscovery) => {
   const isProductsEnabled = await serviceDiscovery.isEnabled('products');
   const isTagsEnabled = await serviceDiscovery.isEnabled('tags');
   const isFormsEnabled = await serviceDiscovery.isEnabled('forms');
   const isKbEnabled = await serviceDiscovery.isEnabled('knowledgebase');
+
+  console.log('Tags enabled .............', isTagsEnabled);
 
   const isEnabled = {
     products: isProductsEnabled,
@@ -66,6 +74,7 @@ const typeDefs = async (serviceDiscovery) => {
     ${ResponseTemplateTypes}
     ${widgetTypes(isEnabled)}
     ${SkillTypes}
+    ${ScriptTypes(isEnabled)}
     
     
     extend type Query {
@@ -76,6 +85,7 @@ const typeDefs = async (serviceDiscovery) => {
       ${ResponseTemplateQueries}
       ${widgetQueries(isEnabled)}
       ${SkillQueries}
+      ${ScriptQueries}
     }
 
     extend type Mutation {
@@ -86,6 +96,7 @@ const typeDefs = async (serviceDiscovery) => {
       ${ResponseTemplateMutations}
       ${widgetMutations(isEnabled)}
       ${SkillMutations}
+      ${ScriptMutations}
     }
   `
 };

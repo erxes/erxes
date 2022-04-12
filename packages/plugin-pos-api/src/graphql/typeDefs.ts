@@ -11,12 +11,12 @@ const typeDefs = async (serviceDiscovery) => {
     scalar JSON
     scalar Date
 
-    ${await posTypes()}
-    
+    ${await posTypes(serviceDiscovery)}
+
     extend type Query {
       ${posQueries}
     }
-    
+
     extend type Mutation {
       ${posMutations}
     }

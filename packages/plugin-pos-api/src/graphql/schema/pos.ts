@@ -15,8 +15,6 @@ const groupCommonFields = `
 const posCommonFields = `
   name: String
   description: String
-  brandId: String
-  tagIds: [String]
   productDetails: [String]
   adminIds: [String]
   cashierIds: [String]
@@ -29,8 +27,6 @@ const posCommonFields = `
   kitchenScreen: JSON
   kioskMachine: JSON
   uiOptions: JSON
-  formSectionTitle: String
-  formIntegrationIds: [String]
   token: String
   ebarimtConfig: JSON
   erkhetConfig: JSON
@@ -45,7 +41,7 @@ const catProd = `
   productId: String
 `;
 
-const posOrderFields = `
+const posOrderFields = ({ contacts }) => `
   _id: String,
   createdAt: Date,
   status: String,
@@ -70,11 +66,16 @@ const posOrderFields = `
   syncId: String,
   posName: String,
   user: User,
-  customer: Customer,
+  ${contacts
+    ? `
+    customer: Customer
+    `
+    : ""
+  }
   syncedErkhet: Boolean
 `;
 
-export const types = () => `
+export const types = ({ contacts, products }) => `
 
   ${attachmentType}
   ${attachmentInput}
@@ -82,15 +83,21 @@ export const types = () => `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
+  ${contacts
+    ? `
+        extend type Customer @key(fields: "_id") {
+          _id: String! @external
+        }
+        `
+    : ""
+  }
   type CatProd {
     ${catProd}
   }
   type Pos {
     _id: String
     createdAt: Date
-    integrationId: String
     userId: String
-    integration: Integration
     user: User
     ${posCommonFields}
     catProdMappings: [CatProd]
@@ -116,10 +123,10 @@ export const types = () => `
     ${catProd}
   }
   type PosOrder {
-    ${posOrderFields}
+    ${posOrderFields({ contacts })}
   }
   type PosOrderDetail {
-    ${posOrderFields}
+    ${posOrderFields({ contacts })}
     putResponses: JSON
   }
   type PosProduct {
@@ -132,7 +139,12 @@ export const types = () => `
     categoryId: String
     createdAt: Date,
     count: Float
-    category: ProductCategory
+    ${products
+      ? `
+      category: ProductCategory
+      `
+      : ""
+    }
   }
   type PosProducts {
     products: [PosProduct],
@@ -170,7 +182,7 @@ export const queries = `
   posOrderDetail(_id: String): PosOrderDetail
   posProducts(${queryParams} categoryId: String, searchValue: String): PosProducts
   posOrdersSummary(${queryParams}): JSON
-  ecommerceGetBranches(posToken: String): [Branch]
+  ecommerceGetBranches(posToken: String): [JSON]
 `;
 
 export const mutations = `

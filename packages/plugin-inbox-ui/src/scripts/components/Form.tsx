@@ -4,11 +4,11 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
-import { IIntegration } from '../../integrations/types';
+import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';
 import Select from 'react-select-plus';
-import CommonForm from '../../common/components/Form';
-import { ICommonFormProps } from '../../common/types';
+import CommonForm from '@erxes/ui-settings/src/common/components/Form';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { IScript } from '../types';
 
 type Props = {

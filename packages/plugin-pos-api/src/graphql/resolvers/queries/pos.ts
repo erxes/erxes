@@ -31,30 +31,9 @@ const generateFilterQuery = async (
   commonQuerySelector
 ) => {
   const query: any = commonQuerySelector;
-  const integrationQuery: any = { kind: "pos" };
-
-  if (brandId) {
-    integrationQuery.brandId = brandId;
-  }
-
-  if (tag) {
-    const object = await models.Tags.findOne({ _id: tag });
-    integrationQuery.tagIds = { $in: [tag, ...(object?.relatedIds || [])] };
-  }
-
-  if (status) {
-    query.isActive = status === "active" ? true : false;
-  }
-
   if (isOnline) {
     query.isOnline = isOnline === "online";
   }
-
-  const posIntegrations = await models.Integrations.find(integrationQuery, {
-    _id: 1,
-  });
-
-  query.integrationId = { $in: posIntegrations.map((e) => e._id) };
 
   return query;
 };
@@ -135,7 +114,7 @@ const queries = {
     params,
     { commonQuerySelector, models, checkPermission, user }
   ) => {
-    await checkPermission("showPos", user);
+    // await checkPermission("showPos", user);
 
     const query = await generateFilterQuery(
       models,

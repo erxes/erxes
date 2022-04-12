@@ -93,5 +93,14 @@ module.exports = {
       action: "responseTemplatesAll",
       permissions: ["manageResponseTemplate", "showResponseTemplates"],
     },
+    {
+      text: "Widget Script Manager",
+      to: "/settings/scripts",
+      image: "/images/icons/erxes-30.png",
+      location: "settings",
+      scope: "inbox",
+      action: "scriptsAll",
+      permissions: ["manageScripts", "showScripts"],
+    },
   ],
 };

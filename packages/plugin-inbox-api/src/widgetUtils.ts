@@ -3,7 +3,7 @@ import { KIND_CHOICES } from "./models/definitions/constants";
 import { debug } from "./configs";
 
 import { es } from "./configs";
-import { sendContactsMessage, sendCoreMessage, sendEngagesMessage, sendFormsMessage, sendToLog } from "./messageBroker";
+import { sendContactsMessage, sendCoreMessage, sendEngagesMessage, sendFormsMessage, sendLogsMessage } from "./messageBroker";
 import { IModels } from "./connectionResolver";
 
 export const getOrCreateEngageMessage = async (
@@ -115,7 +115,13 @@ export const receiveVisitorDetail = async (subdomain: string, visitor) => {
     debug.error(`Update event error ${e.message}`);
   }
 
-  sendToLog("visitor:removeEntry", { visitorId });
+  await sendLogsMessage({
+    subdomain,
+    action: 'visitor.removeEntry',
+    data: {
+       visitorId 
+    }
+  });
 
   return customer;
 };
