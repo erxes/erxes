@@ -101,7 +101,7 @@ const renderPlguginSidebar = (itemName: string, type: string, object: any) => {
     <PluginsWrapper
       itemName={itemName}
       callBack={(_plugin, section) => {
-        const Component = section.section;
+        const Component = React.lazy(loadComponent(section.scope, section.component));  ;
         return (
           <Component
             key={Math.random()}
@@ -135,7 +135,7 @@ const System = props => {
       <React.Suspense fallback="">
         <Component />
       </React.Suspense>
-    </ErrorBoundary>
+    // </ErrorBoundary>
   );
 };
 
