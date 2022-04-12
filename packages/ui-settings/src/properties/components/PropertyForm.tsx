@@ -5,6 +5,8 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import ModifiableList from "@erxes/ui/src/components/ModifiableList";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import { __ } from "@erxes/ui/src/utils/core";
 import { ModalFooter, MapContainer } from "@erxes/ui/src/styles/main";
 import {
   IButtonMutateProps,
@@ -16,8 +18,8 @@ import React from "react";
 import PropertyGroupForm from "../containers/PropertyGroupForm";
 import { IField } from "@erxes/ui/src/types";
 import { IFieldGroup } from "../types";
-import LocationOptions from './LocationOptions';
-import Map from '@erxes/ui/src/components/Map';
+import LocationOptions from "./LocationOptions";
+import Map from "@erxes/ui/src/components/Map";
 
 type Props = {
   queryParams: any;
@@ -35,6 +37,8 @@ type State = {
   hasOptions: boolean;
   add: boolean;
   currentLocation: ILocationOption;
+  searchable: boolean;
+  showInCard: boolean;
 };
 
 class PropertyForm extends React.Component<Props, State> {
@@ -46,14 +50,24 @@ class PropertyForm extends React.Component<Props, State> {
       type: "",
       locationOptions: [],
       hasOptions: false,
+      searchable: false,
+      showInCard: false,
     };
 
     if (props.field) {
-      const { type, options, locationOptions } = props.field;
+      const {
+        type,
+        options,
+        locationOptions,
+        searchable = false,
+        showInCard = false,
+      } = props.field;
 
       doc = {
         ...doc,
         type,
+        searchable,
+        showInCard,
       };
 
       if (
@@ -67,6 +81,8 @@ class PropertyForm extends React.Component<Props, State> {
           hasOptions: true,
           options: Object.assign([], options || []),
           locationOptions: [],
+          searchable: searchable || false,
+          showInCard,
         };
       }
 
@@ -76,6 +92,8 @@ class PropertyForm extends React.Component<Props, State> {
           hasOptions: false,
           options: [],
           locationOptions: Object.assign([], locationOptions || []),
+          searchable: searchable || false,
+          showInCard: false,
         };
       }
     }
@@ -94,7 +112,14 @@ class PropertyForm extends React.Component<Props, State> {
     text: string;
     description: string;
   }) => {
-    const { field, type } = this.props;
+    const { field } = this.props;
+    const {
+      type,
+      options,
+      locationOptions,
+      showInCard,
+      searchable,
+    } = this.state;
 
     const finalValues = values;
 
@@ -104,26 +129,28 @@ class PropertyForm extends React.Component<Props, State> {
 
     return {
       ...finalValues,
-      type: this.state.type,
-      options: this.state.options,
-      locationOptions: this.state.locationOptions,
-      contentType: type,
+      contentType: this.props.type,
+      type,
+      options,
+      locationOptions,
+      searchable,
+      showInCard,
     };
   };
 
-  onChangeOption = (options) => {
+  onChangeOption = options => {
     this.setState({ options });
   };
 
-  onChangeLocationOption = (locationOptions) => {
+  onChangeLocationOption = locationOptions => {
     this.setState({ locationOptions });
   };
 
-  onRemoveOption = (options) => {
+  onRemoveOption = options => {
     this.setState({ options });
   };
 
-  onTypeChange = (e) => {
+  onTypeChange = e => {
     const value = e.target.value;
     let doc: { hasOptions: boolean; options: any[] } = {
       hasOptions: false,
@@ -140,6 +167,15 @@ class PropertyForm extends React.Component<Props, State> {
     }
 
     this.setState({ type: value, ...doc });
+  };
+
+  onChangeSearchable = e => {
+    const isChecked = (e.currentTarget as HTMLInputElement).checked;
+    this.setState({ searchable: isChecked });
+  };
+
+  onSwitchChange = e => {
+    this.setState({ showInCard: e.target.checked });
   };
 
   renderOptions = () => {
@@ -195,11 +231,35 @@ class PropertyForm extends React.Component<Props, State> {
     );
   };
 
+  renderShowInCard = () => {
+    const { type } = this.props;
+    const { showInCard } = this.state;
+
+    if (!["cards:deal", "cards:ticket", "cards:task"].includes(type)) {
+      return null;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel>Show in card</ControlLabel>
+        <Toggle
+          checked={showInCard}
+          onChange={this.onSwitchChange}
+          icons={{
+            checked: <span>Yes</span>,
+            unchecked: <span>No</span>,
+          }}
+        />
+      </FormGroup>
+    );
+  };
+
   renderAddGroup = () => {
     const { queryParams } = this.props;
 
     const trigger = <Button>Create group</Button>;
-    const content = (props) => (
+
+    const content = props => (
       <PropertyGroupForm {...props} queryParams={queryParams} />
     );
 
@@ -214,7 +274,7 @@ class PropertyForm extends React.Component<Props, State> {
     const object = field || ({} as IField);
 
     const { values, isSubmitted } = formProps;
-    const { type } = this.state;
+    const { type, searchable } = this.state;
 
     return (
       <>
@@ -240,6 +300,15 @@ class PropertyForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
+          <ControlLabel>Code:</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="code"
+            defaultValue={object.code || ""}
+          />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel required={true}>Group:</ControlLabel>
           <Row>
             <FormControl
@@ -250,8 +319,8 @@ class PropertyForm extends React.Component<Props, State> {
               required={true}
             >
               {groups
-                .filter((e) => !e.isDefinedByErxes)
-                .map((group) => {
+                .filter(e => !e.isDefinedByErxes)
+                .map(group => {
                   return (
                     <option key={group._id} value={group._id}>
                       {group.name}
@@ -290,6 +359,7 @@ class PropertyForm extends React.Component<Props, State> {
         </FormGroup>
         {this.renderOptions()}
         {this.renderLocationOptions()}
+        {this.renderShowInCard()}
 
         <FormGroup>
           <ControlLabel>Validation:</ControlLabel>
@@ -304,6 +374,17 @@ class PropertyForm extends React.Component<Props, State> {
             <option value="email">Email</option>
             <option value="number">Number</option>
             <option value="date">Date</option>
+          </FormControl>
+        </FormGroup>
+
+        <FormGroup>
+          <FormControl
+            componentClass="checkbox"
+            name="searchable"
+            checked={searchable}
+            onChange={this.onChangeSearchable}
+          >
+            {__("Searchable")}
           </FormControl>
         </FormGroup>
 

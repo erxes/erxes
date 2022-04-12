@@ -1,4 +1,4 @@
-import { paginate } from 'erxes-api-utils';
+import { paginate } from '@erxes/api-utils/src/core';
 import {
   getQpayInvoice,
   qpayToken,

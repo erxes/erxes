@@ -1,7 +1,5 @@
 import { IProductCategory, IProduct } from '@erxes/ui-products/src/types';
 import { IUser } from '@erxes/ui/src/auth/types'
-import { IBrand } from '@erxes/ui/src/brands/types'
-import { ITag } from '@erxes/ui/src/tags/types';
 
 export type IConfigsMap = { [key: string]: any };
 
@@ -35,11 +33,9 @@ export type IPos = {
   name: string;
   description?: string;
   createdAt: Date;
-  integrationId: string;
   productDetails?: string[];
   adminIds: [string];
   cashierIds: [string];
-  integration: IIntegration;
   user: IUser;
   isOnline: boolean;
   branchId?: string;
@@ -50,8 +46,6 @@ export type IPos = {
   kioskMachine?: IScreenConfig;
   kitchenScreen?: IScreenConfig;
   uiOptions?: any;
-  formSectionTitle?: string;
-  formIntegrationIds: string[];
   ebarimtConfig: any;
   erkhetConfig: any;
   catProdMappings?: CatProd[];
@@ -84,81 +78,15 @@ export interface IRouterProps {
   match: any;
 }
 
-export type Counts = {
-  [key: string]: number;
-};
-
 export type QueryResponse = {
   loading: boolean;
   refetch: () => void;
   error?: string;
 };
 
-export type BrandsQueryResponse = {
-  brands: IBrand[];
-} & QueryResponse;
-
-export interface IIntegration {
-  _id: string;
-  name: string;
-  isActive: boolean;
-  tags: ITag[];
-  brand: IBrand;
-  brandId: string;
-}
-
-export type IntegrationsQueryResponse = {
-  integrations: IIntegration[];
-} & QueryResponse;
-
-export type IntegrationsCount = {
-  total: number;
-  byTag: Counts;
-  byBrand: Counts;
-  byKind: Counts;
-  byStatus: Counts;
-};
-
-export type CountQueryResponse = {
-  integrationsTotalCount: IntegrationsCount;
-} & QueryResponse;
-
-export type TagCountQueryResponse = {
-  [key: string]: number;
-};
-
-export type IntegrationDetailQueryResponse = {
-  integrationDetail: IIntegration;
-} & QueryResponse;
-
 export type PosDetailQueryResponse = {
   posDetail: IPos;
 } & QueryResponse;
-
-export type IntegrationMutationVariables = {
-  brandId: string;
-  name: string;
-  description: string;
-  productDetails: string[];
-};
-
-export type EditIntegrationMutationResponse = {
-  editIntegrationMutation: (params: {
-    variables: IntegrationMutationVariables;
-  }) => Promise<void>;
-};
-
-export type AddPosMutationResponse = {
-  addPosMutation: (params: {
-    variables: IntegrationMutationVariables;
-  }) => Promise<any>;
-};
-
-export type EditPosMutationResponse = {
-  editPosMutation: (params: {
-    variables: { _id: string } & IntegrationMutationVariables;
-  }) => Promise<any>;
-};
 
 export type RemoveMutationResponse = {
   removeMutation: (params: { variables: { _id } }) => Promise<any>;
@@ -166,35 +94,6 @@ export type RemoveMutationResponse = {
 
 export type CopyMutationResponse = {
   copyMutation: (params: { variables: { _id: string } }) => Promise<void>;
-};
-
-export type ArchiveIntegrationResponse = {
-  archiveIntegration: (params: {
-    variables: { _id: string; status: boolean };
-  }) => Promise<any>;
-};
-
-export type ITagTypes =
-  | 'conversation'
-  | 'customer'
-  | 'engageMessage'
-  | 'company'
-  | 'integration';
-
-export type TagsQueryResponse = {
-  tags: ITag[];
-  loading: boolean;
-  refetch: () => void;
-};
-
-export type TagMutationVariables = {
-  type: string;
-  targetIds: string[];
-  tagIds: string[];
-};
-
-export type TagMutationResponse = {
-  tagMutation: (params: { variables: TagMutationVariables }) => Promise<any>;
 };
 
 export type IButtonMutateProps = {

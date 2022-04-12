@@ -16,6 +16,7 @@ import {
 import { registerModule } from "./data/permissions/utils";
 import {
   getConfig,
+  getConfigs,
   getFileUploadConfigs,
   sendEmail,
   sendMobileNotification,
@@ -124,7 +125,12 @@ export const initBroker = async options => {
       }
     );
 
-    consumeRPCQueue("core:configs.find", async ({ data }) => ({
+    consumeRPCQueue("core:getConfigs", async () => ({
+      status: "success",
+      data: await getConfigs()
+    }));
+    
+    consumeRPCQueue("core:configs.getValues", async ({ data }) => ({
       status: "success",
       data: await Configs.find(data).distinct("value"),
     }));
@@ -186,7 +192,7 @@ export const initBroker = async options => {
 
     consumeRPCQueue("core:brands.findOne", async ({ data: { query } }) => ({
       status: "success",
-      data: await Brands.findOne(query),
+      data: await Brands.getBrand(query),
     }));
 
     consumeRPCQueue("core:brands.find", async ({ data }) => {

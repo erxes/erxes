@@ -5,9 +5,10 @@ on:
     branches:
       - federation
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/plugin-forms-ui/**'
-      - '.github/workflows/plugin-forms-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-settings/**"
+      - "packages/plugin-forms-ui/**"
+      - ".github/workflows/plugin-forms-ui.yaml"
 
 jobs:
   ui:

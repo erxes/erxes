@@ -10,6 +10,7 @@ export const MODULE_NAMES = {
   RESPONSE_TEMPLATE: 'responseTemplate',
   CONVERSATION: 'conversation',
   INTEGRATION: 'integration',
+  SCRIPT: 'script'  
 };
 
 export const LOG_MAPPINGS = [

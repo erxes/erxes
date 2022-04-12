@@ -166,22 +166,5 @@ export default withProps<Props>(
         name: 'removeMutation'
       }
     ),
-    graphql<Props, ArchiveIntegrationResponse>(
-      gql(mutations.integrationsArchive),
-      {
-        name: 'archiveIntegration'
-      }
-    ),
-    graphql<Props, CountQueryResponse>(gql(queries.integrationsTotalCount), {
-      name: 'integrationsTotalCountQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          kind: 'pos',
-          tag: queryParams.tag,
-          brandId: queryParams.brand,
-          status: queryParams.status
-        }
-      })
-    })
   )(ListContainer)
 );
