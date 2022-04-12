@@ -1,3 +1,7 @@
+declare var __webpack_init_sharing__;
+declare var __webpack_share_scopes__;
+declare var window;
+
 import { AppConsumer } from "./appContext";
 import { IUser } from "@erxes/ui/src/auth/types";
 import { IItem } from "@erxes/ui-cards/src/boards/types";
@@ -176,12 +180,28 @@ export const pluginsOfSettings = (
   );
 };
 
+export const loadComponent = (scope, module) => {
+  return async () => {
+    // Initializes the share scope. This fills it with known provided modules from this build and all remotes
+    await __webpack_init_sharing__('default');
+
+    const container = window[scope]; // or get the container somewhere else
+
+    // Initialize the container, it may provide shared modules
+    await container.init(__webpack_share_scopes__.default);
+    const factory = await window[scope].get(module);
+
+    const Module = factory();
+    return Module;
+  };
+};
+
 export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
   return (
     <PluginsWrapper
       itemName={"customerRightSidebarSection"}
       callBack={(_plugin, section) => {
-        const Component = section.section;
+        const Component = React.lazy(loadComponent(section.scope, section.component));
         return (
           <Component
             key={Math.random()}

@@ -101,7 +101,7 @@ const renderPlguginSidebar = (itemName: string, type: string, object: any) => {
     <PluginsWrapper
       itemName={itemName}
       callBack={(_plugin, section) => {
-        const Component = React.lazy(loadComponent(section.scope, section.component));  ;
+        const Component = React.lazy(loadComponent(section.scope, section.component));
         return (
           <Component
             key={Math.random()}
