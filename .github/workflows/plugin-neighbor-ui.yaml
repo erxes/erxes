@@ -1,4 +1,4 @@
-name: Plugin Loyalties UI CI
+name: Plugin Neighbor UI CI
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: Plugin Exm Api CI
+name: Plugin Neighbor Api CI
 
 on:
   push:
