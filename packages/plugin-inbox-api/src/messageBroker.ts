@@ -6,6 +6,7 @@ import {
   paginate,
   sendMessage as sendMessageCore
 } from "@erxes/api-utils/src/core";
+import { receiveVisitorDetail } from "./widgetUtils";
 
 export let client;
 
@@ -219,6 +220,10 @@ export const initBroker = cl => {
       };
     }
   );
+
+  consumeQueue('inbox:visitor.convertResponse', async ({ subdomain, data }) => {
+    await receiveVisitorDetail(subdomain, data);
+  });
 };
 
 
@@ -302,9 +307,6 @@ export const sendIntegrationsMessage = (
   });
 };
 
-export const sendToLog = (channel: string, data) =>
-  client.sendMessage(channel, data);
-
 export const sendSegmentsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessageCore({
     client,
@@ -332,6 +334,15 @@ export const sendKnowledgeBaseMessage = (
     client,
     serviceDiscovery,
     serviceName: "knowledgebase",
+    ...args
+  });
+};
+
+export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessageCore({
+    client,
+    serviceDiscovery,
+    serviceName: 'logs',
     ...args
   });
 };

@@ -258,6 +258,7 @@ class PropertyForm extends React.Component<Props, State> {
     const { queryParams } = this.props;
 
     const trigger = <Button>Create group</Button>;
+
     const content = props => (
       <PropertyGroupForm {...props} queryParams={queryParams} />
     );
