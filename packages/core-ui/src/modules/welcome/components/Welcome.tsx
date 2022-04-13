@@ -1,5 +1,4 @@
-// import { IUser } from "modules/auth/types";
-// import Icon from 'modules/common/components/Icon';
+import { IUser } from "modules/auth/types";
 import { DescImg } from "@erxes/ui/src/components/HeaderDescription";
 import { __ } from "modules/common/utils";
 import Wrapper from "modules/layout/components/Wrapper";
@@ -20,16 +19,16 @@ import { WidgetBackgrounds } from "@erxes/ui-settings/src/styles";
 import { Step, Steps } from '@erxes/ui/src/components/step';
 import ProgressBar from '@erxes/ui/src/components/ProgressBar';
 
-function Welcome() {
-  // const isOpen = (id: string) => {
-  //   return window.location.toString().includes(id);
-  // };
+type Props = {
+  currentUser: IUser;
+}
 
+function Welcome({ currentUser }: Props) {
   const renderHeader = () => {
     return (
       <Header>
         <h1>
-          {__("Welcome!")} {"currentUser"}{" "}
+          {__("Welcome!")} {currentUser} {" "}
           <span role="img" aria-label="Wave">
             👋
           </span>
@@ -196,7 +195,7 @@ function Welcome() {
   return (
     <Wrapper
       actionBar={
-        <Wrapper.ActionBar background="transparent" left={renderHeader()} />
+        <Wrapper.ActionBar background="transparent" noBorder={true} left={renderHeader()} />
       }
       content={content}
       transparent={true}

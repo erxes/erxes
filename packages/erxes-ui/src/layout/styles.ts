@@ -93,14 +93,14 @@ const ContentBox = styledTS<{ transparent?: boolean; initialOverflow?: boolean}>
   background-color: ${props => !props.transparent && colors.colorWhite};
 `;
 
-const ContentHeader = styledTS<{ background: string; zIndex?: number }>(
+const ContentHeader = styledTS<{ background: string; zIndex?: number; noBorder?: boolean }>(
   styled.div
 )`
   background: ${props =>
     props.background === 'transparent' ? 'none' : colors[props.background]};
   padding: ${props =>
     props.background === 'transparent' ? 0 : `0 ${dimensions.coreSpacing}px`};
-  border-bottom: 1px solid ${colors.borderPrimary};
+  border-bottom: ${props => !props.noBorder && `1px solid ${colors.borderPrimary}`};
   z-index: ${props => props.zIndex || 2};
 `;
 

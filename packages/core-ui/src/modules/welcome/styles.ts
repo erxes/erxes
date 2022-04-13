@@ -24,7 +24,6 @@ const Left = styled.div`
 const BoxedStep = styled.div`
   border: 1px solid ${colors.borderPrimary};
   border-radius: ${dimensions.unitSpacing}px;
-  margin: ${dimensions.coreSpacing}px 0;
   padding: ${dimensions.unitSpacing}px;
 `;  
 
