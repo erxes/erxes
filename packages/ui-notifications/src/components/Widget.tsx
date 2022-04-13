@@ -116,7 +116,7 @@ class Widget extends React.Component<Props, State> {
         overlay={popoverNotification}
       >
         <NotifButton>
-          <Icon icon="car" size={20} onClick={this.onHideNumber} />
+          <Icon icon="bell" size={20} onClick={this.onHideNumber} />
           {this.renderUnreadCount()}
         </NotifButton>
       </OverlayTrigger>
