@@ -324,13 +324,6 @@ module.exports.dup = async (program) => {
     };
   }
 
-  if (!(await fse.exists(filePath("plugin-uis")))) {
-    log("Downloading plugin uis from s3 ....");
-    await execCommand(
-      "aws s3 sync s3://plugin-uis plugin-uis  --no-sign-request"
-    );
-  }
-
   log("Downloading pluginsMap.js from s3 ....");
 
   await execCurl(
@@ -358,6 +351,21 @@ module.exports.dup = async (program) => {
         })
       );
     }
+  }
+
+  log(`Emptying old plugin-uis`);
+
+  await execCommand('rm -rf plugin-uis', true);
+  await execCommand('mkdir plugin-uis', true);
+
+  for (const plugin of configs.plugins || []) {
+    const name = `plugin-${plugin.name}-ui`;
+
+    log(`Downloading ${name} ui from s3 ....`);
+
+    await execCommand(
+      `aws s3 sync s3://plugin-uis/${name} plugin-uis/${name} --no-sign-request`
+    );
   }
 
   log("Generating ui plugins.js ....");
