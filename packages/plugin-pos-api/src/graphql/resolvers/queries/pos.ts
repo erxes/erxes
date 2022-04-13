@@ -1,3 +1,5 @@
+import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
 import { getFullDate, getTomorrow } from "../../../utils";
 
 export const paginate = (
@@ -26,41 +28,18 @@ export const escapeRegExp = (str: string) => {
 };
 
 const generateFilterQuery = async (
-  models,
-  { brandId, tag, status, isOnline },
+  { isOnline },
   commonQuerySelector
 ) => {
   const query: any = commonQuerySelector;
-  const integrationQuery: any = { kind: "pos" };
-
-  if (brandId) {
-    integrationQuery.brandId = brandId;
-  }
-
-  if (tag) {
-    const object = await models.Tags.findOne({ _id: tag });
-    integrationQuery.tagIds = { $in: [tag, ...(object?.relatedIds || [])] };
-  }
-
-  if (status) {
-    query.isActive = status === "active" ? true : false;
-  }
-
   if (isOnline) {
     query.isOnline = isOnline === "online";
   }
-
-  const posIntegrations = await models.Integrations.find(integrationQuery, {
-    _id: 1,
-  });
-
-  query.integrationId = { $in: posIntegrations.map((e) => e._id) };
 
   return query;
 };
 
 const generateFilterPosQuery = async (
-  _models,
   params,
   commonQuerySelector,
   currentUserId
@@ -133,12 +112,9 @@ const queries = {
   posList: async (
     _root,
     params,
-    { commonQuerySelector, models, checkPermission, user }
+    { commonQuerySelector, models }
   ) => {
-    await checkPermission("showPos", user);
-
     const query = await generateFilterQuery(
-      models,
       params,
       commonQuerySelector
     );
@@ -148,15 +124,14 @@ const queries = {
     return posList;
   },
 
-  posDetail: async (_root, { _id }, { models, checkPermission, user }) => {
-    await checkPermission("showPos", user);
-    return await models.Pos.getPos(models, { _id });
+  posDetail: async (_root, { _id }, { models }) => {
+    return await models.Pos.getPos({ _id });
   },
 
   ecommerceGetBranches: async (
     _root,
     { posToken },
-    { models, messageBroker }
+    { models, messageBroker, subdomain }
   ) => {
     const pos = await models.Pos.findOne({ token: posToken }).lean();
 
@@ -212,23 +187,25 @@ const queries = {
       }
     }
 
-    return await models.Branches.find({
-      _id: { $in: healthyBranchIds },
-    }).lean();
+    return await sendCoreMessage({
+      subdomain,
+      action: 'branches.find',
+      data: { query: { _id: { $in: healthyBranchIds } } },
+      isRPC: true,
+      defaultValue: []
+    })
   },
 
   productGroups: async (
     _root,
     { posId }: { posId: string },
-    { models, checkPermission, user }
+    { models }
   ) => {
-    await checkPermission("managePos", user);
-    return await models.ProductGroups.groups(models, posId);
+    return await models.ProductGroups.groups(posId);
   },
 
   posOrders: async (_root, params, { models, commonQuerySelector, user }) => {
     const query = await generateFilterPosQuery(
-      models,
       params,
       commonQuerySelector,
       user._id
@@ -240,13 +217,21 @@ const queries = {
     });
   },
 
-  posOrderDetail: async (_root, { _id }, { models }) => {
+  posOrderDetail: async (_root, { _id }, { models, subdomain }) => {
     const order = await models.PosOrders.findOne({ _id }).lean();
     const productIds = order.items.map((i) => i.productId);
-    const products = await models.Products.find(
-      { _id: { $in: productIds } },
-      { name: 1 }
-    ).lean();
+
+    const products = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        query: {
+          _id: { $in: productIds }
+        },
+        sort: {}
+      },
+      isRPC: true,
+    });
 
     const productById = {};
     for (const product of products) {
@@ -257,11 +242,6 @@ const queries = {
       item.productName = (productById[item.productId] || {}).name || "unknown";
     }
 
-    order.putResponses = await models.PutResponses.find({
-      contentType: "pos",
-      contentId: order._id,
-    }).lean();
-
     return order;
   },
 
@@ -271,7 +251,6 @@ const queries = {
     { models, commonQuerySelector, user }
   ) => {
     const query = await generateFilterPosQuery(
-      models,
       params,
       commonQuerySelector,
       user._id
@@ -310,9 +289,8 @@ const queries = {
     };
   },
 
-  posProducts: async (_root, params, { models, commonQuerySelector, user }) => {
+  posProducts: async (_root, params, { models, commonQuerySelector, user, subdomain }) => {
     const orderQuery = await generateFilterPosQuery(
-      models,
       params,
       commonQuerySelector,
       user._id
@@ -320,15 +298,28 @@ const queries = {
     const query: any = { status: { $ne: "deleted" } };
 
     if (params.categoryId) {
-      const category = await models.ProductCategories.getProductCatogery({
-        _id: params.categoryId,
-        status: { $in: [null, "active"] },
+      const category = await sendProductsMessage({
+        subdomain,
+        action: 'categories.findOne',
+        data: {
+          _id: params.categoryId,
+          status: { $in: [null, "active"] }
+        },
+        isRPC: true,
+        defaultValue: {}
       });
 
-      const product_category_ids = await models.ProductCategories.find(
-        { order: { $regex: new RegExp(category.order) } },
-        { _id: 1 }
-      ).lean();
+      const productCategories = await sendProductsMessage({
+        subdomain,
+        action: 'categories.find',
+        data: {
+          regData: { order: { $regex: new RegExp(category.order) } }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      const product_category_ids = productCategories.map(p => p._id)
 
       query.categoryId = { $in: product_category_ids };
     }
@@ -352,12 +343,26 @@ const queries = {
     const limit = params.perPage || 20;
     const skip = params.page ? (params.page - 1) * limit : 0;
 
-    const products = await models.Products.find(query)
-      .skip(skip)
-      .limit(limit)
-      .lean();
+    const products = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        query,
+        sort: {},
+        skip,
+        limit
+      },
+      isRPC: true,
+    });
 
-    const totalCount = await models.Products.find(query).countDocuments();
+    const totalCount = await sendProductsMessage({
+      subdomain,
+      action: 'count',
+      data: {
+        query
+      },
+      isRPC: true,
+    });
 
     const productIds = products.map((p) => p._id);
 
@@ -389,5 +394,9 @@ const queries = {
     return { totalCount, products };
   },
 };
+
+checkPermission(queries, 'posList', 'showPos');
+checkPermission(queries, 'posDetail', "showPos");
+checkPermission(queries, 'productGroups', "managePos");
 
 export default queries;

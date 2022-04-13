@@ -207,6 +207,3 @@ export const putDeleteLog = async (
     user
   );
 };
-
-export const sendToLog = (channel: string, data) =>
-  messageBroker().sendMessage(channel, data);

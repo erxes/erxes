@@ -97,8 +97,6 @@ app.get(
 
 // app.post('/webhooks/:id', webhookMiddleware);
 
-// app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
-
 app.use('/static', express.static(path.join(__dirname, 'private')));
 
 app.get(

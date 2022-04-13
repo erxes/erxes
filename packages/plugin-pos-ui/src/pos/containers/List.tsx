@@ -4,8 +4,6 @@ import { Alert, confirm, withProps, Bulk, router } from '@erxes/ui/src';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import {
-  ArchiveIntegrationResponse,
-  CountQueryResponse,
   IRouterProps,
   PosListQueryResponse,
   RemoveMutationResponse
@@ -21,9 +19,7 @@ type Props = {
 
 type FinalProps = {
   posListQuery: PosListQueryResponse;
-  integrationsTotalCountQuery: CountQueryResponse;
 } & RemoveMutationResponse &
-  ArchiveIntegrationResponse &
   IRouterProps &
   Props;
 
@@ -53,18 +49,10 @@ class ListContainer extends React.Component<FinalProps> {
   render() {
     const {
       posListQuery,
-      integrationsTotalCountQuery,
-      removeMutation,
-      archiveIntegration
+      removeMutation
     } = this.props;
 
     const posList = posListQuery.posList || [];
-
-    const counts = integrationsTotalCountQuery
-      ? integrationsTotalCountQuery.integrationsTotalCount
-      : null;
-
-    const totalCount = (counts && counts.total) || 0;
 
     const remove = (posId: string) => {
       const message = 'Are you sure?';
@@ -85,40 +73,11 @@ class ListContainer extends React.Component<FinalProps> {
       });
     };
 
-    const archive = (integrationId: string, status: boolean) => {
-      let message = `Are you sure ?`;
-      let action = 'archived';
-
-      if (!status) {
-        message = 'You are going to unarchive this pos. Are you sure?';
-        action = 'unarchived';
-      }
-
-      confirm(message).then(() => {
-        archiveIntegration({ variables: { _id: integrationId, status } })
-          .then(({ data }) => {
-            const integration = data.integrationsArchive;
-
-            if (integration) {
-              Alert.success(`Form has been ${action}.`);
-            }
-
-            this.refetch();
-          })
-          .catch((e: Error) => {
-            Alert.error(e.message);
-          });
-      });
-    };
-
     const updatedProps = {
       ...this.props,
       posList,
-      counts,
-      totalCount,
       remove,
       loading: posListQuery.loading,
-      archive,
       refetch: this.refetch
     };
 
@@ -166,22 +125,5 @@ export default withProps<Props>(
         name: 'removeMutation'
       }
     ),
-    graphql<Props, ArchiveIntegrationResponse>(
-      gql(mutations.integrationsArchive),
-      {
-        name: 'archiveIntegration'
-      }
-    ),
-    graphql<Props, CountQueryResponse>(gql(queries.integrationsTotalCount), {
-      name: 'integrationsTotalCountQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          kind: 'pos',
-          tag: queryParams.tag,
-          brandId: queryParams.brand,
-          status: queryParams.status
-        }
-      })
-    })
   )(ListContainer)
 );

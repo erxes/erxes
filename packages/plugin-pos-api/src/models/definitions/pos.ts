@@ -12,7 +12,7 @@ export interface IPosOrderItem {
 export interface IPosOrderItemDocument extends IPosOrderItem, Document {
   _id: string;
 }
-export interface IPosOrders {
+export interface IPosOrder {
   createdAt: Date;
   status: String;
   paidDate: Date;
@@ -37,7 +37,7 @@ export interface IPosOrders {
   syncedErkhet: Boolean;
   deliveryInfo: Object;
 }
-export interface IPosOrdersDocument extends IPosOrders, Document {
+export interface IPosOrderDocument extends IPosOrder, Document {
   _id: string;
 }
 export interface IPos {
@@ -45,7 +45,6 @@ export interface IPos {
   description: String;
   userId: String;
   createdAt: Date;
-  integrationId: String;
   productDetails: String;
   adminIds: String;
   cashierIds: String;
@@ -58,8 +57,6 @@ export interface IPos {
   kioskMachine: Object;
   kitchenScreen: Object;
   uiOptions: Object;
-  formSectionTitle: String;
-  formIntegrationIds: String;
   token: String;
   ebarimtConfig: Object;
   erkhetConfig: Object;
@@ -97,7 +94,7 @@ const posOrderItemSchema = schemaHooksWrapper(
   'erxes_posOrderItem'
 );
 
-export const posOrdersSchema = schemaHooksWrapper(
+export const posOrderSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     createdAt: field({ type: Date }),
@@ -150,14 +147,13 @@ export const posOrdersSchema = schemaHooksWrapper(
   'erxes_posOrders'
 );
 
-export const posSChema = schemaHooksWrapper(
+export const posSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
     description: field({ type: String, label: 'Description', optional: true }),
     userId: field({ type: String, optional: true, label: 'Created by' }),
     createdAt: field({ type: Date, label: 'Created at' }),
-    integrationId: field({ type: String, label: 'Integration id' }),
     productDetails: field({ type: [String], label: 'Product fields' }),
     adminIds: field({ type: [String], label: 'Admin user ids' }),
     cashierIds: field({ type: [String], label: 'Cashier ids' }),
@@ -178,11 +174,6 @@ export const posSChema = schemaHooksWrapper(
     kioskMachine: field({ type: Object, label: 'Kiosk config' }),
     kitchenScreen: field({ type: Object, label: 'Kitchen screen config' }),
     uiOptions: field({ type: Object, label: 'UI Options' }),
-    formSectionTitle: field({ type: String, label: 'Form section title' }),
-    formIntegrationIds: field({
-      type: [String],
-      label: 'Form integration ids',
-    }),
     token: field({ type: String, label: 'Pos token' }),
     ebarimtConfig: field({ type: Object, label: 'Ebarimt Config' }),
     erkhetConfig: field({ type: Object, label: 'Erkhet Config' }),

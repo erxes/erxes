@@ -46,24 +46,28 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeQueue('visitor:createOrUpdate', async ({ data, subdomain }) => {
+  consumeQueue('logs:visitor.createOrUpdate', async ({ data, subdomain }) => {
     const models = await generateModels(subdomain);
 
     await models.Visitors.createOrUpdateVisitorLog(data);
   });
 
   consumeQueue(
-    'visitor:convertRequest',
+    'logs:visitor.convertRequest',
     async ({ data: { visitorId }, subdomain }) => {
       const models = await generateModels(subdomain);
       const visitor = await models.Visitors.getVisitorLog(visitorId);
 
-      sendToApi('visitor:convertResponse', visitor);
+      await sendInboxMessage({
+        subdomain,
+        action: "visitor.convertResponse",
+        data: visitor
+      })
     }
   );
 
   consumeQueue(
-    'visitor:updateEntry',
+    'logs:visitor.updateEntry',
     async ({ data: { visitorId, location: browserInfo }, subdomain }) => {
       const models = await generateModels(subdomain);
 
@@ -75,7 +79,7 @@ export const initBroker = async cl => {
   );
 
   consumeQueue(
-    'visitor:removeEntry',
+    'logs:visitor.removeEntry',
     async ({ data: { visitorId }, subdomain }) => {
       const models = await generateModels(subdomain);
 
@@ -224,6 +228,10 @@ export const getContentIds = async data => {
 
 export const sendCoreMessage = (args: ISendMessageArgs) => {
   return sendMessage({ serviceDiscovery, client, serviceName: "core", ...args });
+}
+
+export const sendInboxMessage = (args: ISendMessageArgs) => {
+  return sendMessage({ serviceDiscovery, client, serviceName: "inbox", ...args });
 }
 
 export const fetchService = async (

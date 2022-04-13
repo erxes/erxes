@@ -7,7 +7,6 @@ type Props = {
   children?: React.ReactNode;
   transparent: boolean;
   center?: boolean;
-  subHeader?: React.ReactNode;
   leftSpacing?: boolean;
 };
 
@@ -17,12 +16,11 @@ function PageContent({
   children,
   transparent,
   center,
-  subHeader,
   leftSpacing
 }: Props) {
   return (
     <MainContent transparent={transparent} center={center} leftSpacing={leftSpacing}>
-      {subHeader}{actionBar}
+      {actionBar}
       <ContentBox transparent={transparent}>{children}</ContentBox>
       {footer && <ContenFooter>{footer}</ContenFooter>}
     </MainContent>

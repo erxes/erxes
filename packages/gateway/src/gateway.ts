@@ -27,7 +27,7 @@ async function getConfiguredServices(): Promise<ServiceEndpointDefinition[]> {
     try {
       const service = await getService(serviceName);
 
-      if(!service.address) {
+      if (!service.address) {
         console.log(`${serviceName} has no address value`);
         continue;
       }

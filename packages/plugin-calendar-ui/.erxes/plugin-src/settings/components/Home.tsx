@@ -26,7 +26,7 @@ class Home extends React.Component<Props, {}> {
         header={
           <Wrapper.Header title={__('Calendar')} breadcrumb={breadcrumb} />
         }
-        subHeader={
+        mainHead={
           <HeaderDescription
             icon='/images/actions/34.svg'
             title={__(`Group & Calendar`)}
