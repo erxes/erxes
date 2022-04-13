@@ -170,8 +170,14 @@ export const checkFieldNames = async (
       fieldName = columnConfig[fieldName].value;
     }
 
+    let fieldId;
+
+    if (fieldName.includes('customFieldsData')) {
+      fieldId = fieldName.split('.')[1];
+    }
+
     const fieldObj = await Fields.findOne({
-      text: fieldName,
+      _id: fieldId,
       contentType: type === 'lead' ? 'customer' : type
     });
 
@@ -240,11 +246,6 @@ export const checkFieldNames = async (
     if (fieldName === 'vendorCode') {
       property.name = 'vendorCode';
       property.type = 'vendorCode';
-    }
-
-    if (type === 'Company' && fieldName === 'CustomerEmail') {
-      property.name = 'aaaa';
-      property.type = 'aaaa';
     }
 
     if (!property.type) {
