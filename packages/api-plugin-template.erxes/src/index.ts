@@ -284,6 +284,15 @@ async function startServer() {
             data: await forms.systemFields(args)
           }));
         }
+
+        if(forms.fieldsGroupsHook) {
+          forms.groupsHookAvailable = true;
+
+          consumeRPCQueue(`${configs.name}:fieldsGroupsHook`, async args => ({
+            status: 'success',
+            data: await forms.fieldsGroupsHook(args)
+          }))
+        }
       }
 
       if (tags) {
