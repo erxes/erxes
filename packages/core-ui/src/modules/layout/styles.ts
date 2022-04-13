@@ -157,7 +157,6 @@ const PasswordWithEye = styled.div`
 `;
 
 const LeftNavigation = styled.aside`
-  width: ${dimensions.headerSpacing * 2 - 1}px;
   background: ${colors.colorWhite};
   box-shadow: 1px 0px 5px rgba(0, 0, 0, 0.1);
   z-index: 11;
@@ -187,16 +186,20 @@ const LeftNavigation = styled.aside`
   }
 `;
 
-const NavMenuItem = styled.div`
+const NavMenuItem = styledTS<{ navCollapse?: number }>(styled.div)`
   width: 100%;
 
   > a {  
     display: flex;
     color: ${colors.bgLight}
-    height: ${dimensions.headerSpacingWide}px;
+    height: ${(props) => props.navCollapse === 2 ? dimensions.headerSpacingWide : dimensions.headerSpacing}px;
+    flex-direction: ${(props) => props.navCollapse === 2 && 'column'};
+    padding: ${(props) => props.navCollapse === 3 && dimensions.coreSpacing}px;
     justify-content: center;
+    align-items: center;
     position: relative;
     transition: all 0.3s ease;
+    font-size: 11px;
 
     i {
       padding:0px, 14px, 0px, 0px;
@@ -207,9 +210,6 @@ const NavMenuItem = styled.div`
       cursor: pointer;
       font-size: 11px;
       letter-spacing: 0.4px;
-      position: absolute;
-      bottom: 5px;
-      padding: 5px;
       text-align: center
       justify-content: center
       opacity: 0.6;
@@ -222,9 +222,6 @@ const NavMenuItem = styled.div`
 
     span {
       position: absolute;
-      right: ${dimensions.coreSpacing + 5}px;
-      top: ${dimensions.coreSpacing}px;
-      padding: 4px;
       min-width: 19px;
       min-height: 19px;
       text-align: center
@@ -235,16 +232,14 @@ const NavMenuItem = styled.div`
 
       &:before {
         content: "";
-        width: 3px;
+        width: 2px;
         background: ${colors.colorPrimary};
-        height: 70px;
+        height: ${(props) => props.navCollapse === 2 ? dimensions.headerSpacingWide : dimensions.headerSpacing}px;
         position: absolute;
         display: block;
-        left: 0;
+        right: 0;
         top:0;
         box-shadow: 0px 12px 24px rgba(79, 51, 175, 0.24), 0px 2px 6px rgba(79, 51, 175, 0.16), 0px 0px 1px rgba(79, 51, 175, 0.08);
-        border-top-right-radius: 4px;
-        border-bottom-right-radius: 4px;
       }
 
       > i, label {
@@ -294,7 +289,6 @@ const Nav = styled.nav`
 
 const NavIcon = styled.i`
   font-size: 22px;
-  margin-top: 9px;
   opacity: 0.6;
   color: ${colors.colorBlack};
 `;
@@ -485,6 +479,34 @@ const StoreItem = styled(NavItem)`
   position: absolute;
 `;
 
+const FlexBox = styledTS<{ navCollapse?: number }>(styled.div)`
+  display: flex;
+  padding: ${dimensions.unitSpacing}px;
+  justify-content: ${(props) => props.navCollapse === 3 ? 'end' : 'center'};
+`;
+
+const CollapseBox = styled.div`
+  width: 25px;
+  height: 25px;
+  border: 1px solid ${colors.borderDarker};
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &:hover {
+    cursor: pointer;
+  }
+  
+  &:nth-child(2) {
+    margin-left: ${dimensions.unitSpacing}px;
+  }
+`;
+
+const SmallText = styled.div`
+  font-size: 10px;
+`;
+
 export {
   Layout,
   MoreMenuWrapper,
@@ -528,4 +550,7 @@ export {
   SubNavItem,
   DropNav,
   SmallLabel,
+  FlexBox,
+  CollapseBox,
+  SmallText,
 };

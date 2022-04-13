@@ -16,12 +16,16 @@ import {
   MoreMenus,
   MoreTitle,
   NavMenuItem,
+  FlexBox,
+  CollapseBox,
+  SmallText,
 } from "../styles";
 import { getThemeItem } from "utils";
 import Icon from "modules/common/components/Icon";
 import FormControl from "modules/common/components/form/Control";
 import Label from "modules/common/components/Label";
 import { isEnabled } from "@erxes/ui/src/utils/core";
+import { Flex } from "@erxes/ui/src/styles/main";
 
 export interface ISubNav {
   permission: string;
@@ -35,6 +39,7 @@ type State = {
   showMenu: boolean;
   moreMenus: any[];
   searchText: string;
+  navCollapse: number;
 };
 
 class Navigation extends React.Component<
@@ -50,6 +55,7 @@ class Navigation extends React.Component<
       showMenu: false,
       moreMenus: pluginNavigations().slice(4) || [],
       searchText: "",
+      navCollapse: 2,
     };
   }
 
@@ -116,6 +122,15 @@ class Navigation extends React.Component<
     }
   };
 
+  onClickHandleIcon = (type: string) => {
+    this.setState({
+      navCollapse:
+        type === "plus"
+          ? this.state.navCollapse + 1
+          : this.state.navCollapse - 1,
+    });
+  };
+
   onClickMore = () => {
     this.setState({ showMenu: !this.state.showMenu });
   };
@@ -145,6 +160,50 @@ class Navigation extends React.Component<
     );
   }
 
+  renderNavHandleIcon() {
+    switch (this.state.navCollapse) {
+      case 1:
+        return this.renderHandleIcon("plus");
+      case 3:
+        return (
+          <Flex>
+            <SmallText>Collapse</SmallText>
+            {this.renderHandleIcon("minus")}
+          </Flex>
+        );
+      default:
+        return (
+          <>
+            {this.renderHandleIcon("minus")}
+            {this.renderHandleIcon("plus")}
+          </>
+        );
+    }
+  }
+
+  renderHandleIcon(type: string) {
+    return (
+      <CollapseBox onClick={() => this.onClickHandleIcon(type)}>
+        <Icon icon={type} />
+      </CollapseBox>
+    );
+  }
+
+  renderHandleNavItem(info) {
+    const { icon, text } = info;
+
+    if (this.state.navCollapse === 1) {
+      return <NavIcon className={icon} />;
+    } else {
+      return (
+        <>
+          <NavIcon className={icon} />
+          <label>{text}</label>
+        </>
+      );
+    }
+  }
+
   renderMenuItem(nav) {
     const { icon, text, url, label } = nav;
     const { unreadConversationsCount } = this.props;
@@ -156,13 +215,13 @@ class Navigation extends React.Component<
     );
 
     return (
-      <NavMenuItem>
+      <NavMenuItem navCollapse={this.state.navCollapse}>
         <NavLink
           to={this.getLink(url)}
           onClick={() => this.setState({ showMenu: false })}
         >
-          <NavIcon className={icon} />
-          <label>{__(text)}</label>
+          {this.renderHandleNavItem({ icon: icon, text: text })}
+
           {url.includes("inbox") && isEnabled("inbox")
             ? unreadIndicator
             : label}
@@ -241,10 +300,12 @@ class Navigation extends React.Component<
     return (
       <div ref={this.setWrapperRef}>
         <NavItem>
-          <NavMenuItem>
+          <NavMenuItem navCollapse={this.state.navCollapse}>
             <a onClick={() => this.onClickMore()}>
-              <NavIcon className="icon-ellipsis-h" />
-              <label>{__("More")}</label>
+              {this.renderHandleNavItem({
+                icon: "icon-ellipsis-h",
+                text: "More",
+              })}
             </a>
           </NavMenuItem>
 
@@ -256,7 +317,8 @@ class Navigation extends React.Component<
 
   render() {
     const Navs = pluginNavigations().slice(0, 4);
-    const logo = "logo-dark.png";
+    const logo =
+      this.state.navCollapse === 1 ? "glyph_dark.png" : "logo-dark.png";
     const thLogo = getThemeItem("logo");
 
     return (
@@ -267,6 +329,10 @@ class Navigation extends React.Component<
             alt="erxes"
           />
         </NavLink>
+
+        <FlexBox navCollapse={this.state.navCollapse}>
+          {this.renderNavHandleIcon()}
+        </FlexBox>
 
         <Nav id="navigation">
           {Navs.map((nav) =>
