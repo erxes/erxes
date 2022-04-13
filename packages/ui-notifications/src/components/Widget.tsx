@@ -37,6 +37,7 @@ class Widget extends React.Component<Props, State> {
 
   onHideNumber = (e) => {
     e.preventDefault();
+    e.stopPropagation();
 
     client.mutate({
       mutation: gql(mutations.showNotification)
@@ -116,7 +117,7 @@ class Widget extends React.Component<Props, State> {
         overlay={popoverNotification}
       >
         <NotifButton>
-          <Icon icon="car" size={20} onClick={this.onHideNumber} />
+          <Icon icon="bell" size={20} onClick={this.onHideNumber} />
           {this.renderUnreadCount()}
         </NotifButton>
       </OverlayTrigger>
