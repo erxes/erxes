@@ -127,7 +127,7 @@ function Skills(props: Props) {
       header={
         <Wrapper.Header title={__('Skill types')} breadcrumb={breadcrumb} />
       }
-      subHeader={
+      mainHead={
         <HeaderDescription
           icon='/images/actions/32.svg'
           title={'All Skills'}

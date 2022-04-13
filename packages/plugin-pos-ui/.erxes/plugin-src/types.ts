@@ -1,5 +1,7 @@
 import { IProductCategory, IProduct } from '@erxes/ui-products/src/types';
 import { IUser } from '@erxes/ui/src/auth/types'
+import { IBrand } from '@erxes/ui/src/brands/types'
+import { ITag } from '@erxes/ui/src/tags/types';
 
 export type IConfigsMap = { [key: string]: any };
 
@@ -78,15 +80,41 @@ export interface IRouterProps {
   match: any;
 }
 
+export type Counts = {
+  [key: string]: number;
+};
+
 export type QueryResponse = {
   loading: boolean;
   refetch: () => void;
   error?: string;
 };
 
+export type BrandsQueryResponse = {
+  brands: IBrand[];
+} & QueryResponse;
+
 export type PosDetailQueryResponse = {
   posDetail: IPos;
 } & QueryResponse;
+
+export type IntegrationMutationVariables = {
+  name: string;
+  description: string;
+  productDetails: string[];
+};
+
+export type AddPosMutationResponse = {
+  addPosMutation: (params: {
+    variables: IntegrationMutationVariables;
+  }) => Promise<any>;
+};
+
+export type EditPosMutationResponse = {
+  editPosMutation: (params: {
+    variables: { _id: string } & IntegrationMutationVariables;
+  }) => Promise<any>;
+};
 
 export type RemoveMutationResponse = {
   removeMutation: (params: { variables: { _id } }) => Promise<any>;

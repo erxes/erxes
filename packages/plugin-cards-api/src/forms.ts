@@ -1,4 +1,5 @@
 import { generateFields } from "./fieldUtils";
+import { getBoardsAndPipelines } from "./utils";
 
 export default {
   types: [
@@ -54,4 +55,5 @@ export default {
       ],
     };
   },
+  fieldsGroupsHook: ({ data }) => getBoardsAndPipelines(data) 
 };

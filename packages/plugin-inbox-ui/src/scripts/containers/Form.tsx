@@ -11,6 +11,7 @@ import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import Form from '../components/Form';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   integrationsQuery: IntegrationsQueryResponse;
@@ -21,13 +22,13 @@ type Props = {
 const FormContainer = (props: Props & ICommonFormProps) => {
   const { integrationsQuery, kbTopicsQuery } = props;
 
-  if (integrationsQuery.loading || kbTopicsQuery.loading) {
+  if (integrationsQuery.loading || kbTopicsQuery && kbTopicsQuery.loading) {
     return <Spinner objective={true} />;
   }
 
   const integrations = integrationsQuery.integrations;
 
-  const kbTopics = kbTopicsQuery.knowledgeBaseTopics;
+  const kbTopics = kbTopicsQuery && kbTopicsQuery.knowledgeBaseTopics || [];
 
   const updatedProps = {
     ...props,
@@ -44,6 +45,9 @@ export default withProps<ICommonFormProps>(
     graphql(gql(integrationQueries.integrations), {
       name: 'integrationsQuery'
     }),
-    graphql(gql(kbQueries.knowledgeBaseTopics), { name: 'kbTopicsQuery' })
+    graphql(gql(kbQueries.knowledgeBaseTopics), {
+      name: 'kbTopicsQuery',
+      skip: !isEnabled('knowledgebase') ? true : false
+    })
   )(FormContainer)
 );

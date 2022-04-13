@@ -7,11 +7,14 @@ import {
 } from './schema/pos';
 
 const typeDefs = async (serviceDiscovery) => {
+  const contactsEnabled = await serviceDiscovery.isEnabled('contacts');
+  const productsEnabled = await serviceDiscovery.isEnabled('products');
+
   return gql`
     scalar JSON
     scalar Date
 
-    ${await posTypes(serviceDiscovery)}
+    ${await posTypes({ contactsEnabled, productsEnabled })}
 
     extend type Query {
       ${posQueries}

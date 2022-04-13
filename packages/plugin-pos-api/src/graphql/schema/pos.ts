@@ -41,7 +41,7 @@ const catProd = `
   productId: String
 `;
 
-const posOrderFields = ({ contacts }) => `
+const posOrderFields = (contactsEnabled) => `
   _id: String,
   createdAt: Date,
   status: String,
@@ -66,16 +66,16 @@ const posOrderFields = ({ contacts }) => `
   syncId: String,
   posName: String,
   user: User,
-  ${contacts
+  ${contactsEnabled
     ? `
-    customer: Customer
+      customer: Customer
     `
     : ""
   }
   syncedErkhet: Boolean
 `;
 
-export const types = ({ contacts, products }) => `
+export const types = ({ contactsEnabled, productsEnabled }) => `
 
   ${attachmentType}
   ${attachmentInput}
@@ -83,7 +83,8 @@ export const types = ({ contacts, products }) => `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
-  ${contacts
+
+  ${contactsEnabled
     ? `
         extend type Customer @key(fields: "_id") {
           _id: String! @external
@@ -91,9 +92,19 @@ export const types = ({ contacts, products }) => `
         `
     : ""
   }
+
+  ${
+    productsEnabled ? `
+      extend type ProductCategory @key(fields: "_id") {
+        _id: String! @external
+      }
+    ` : ""
+  }
+
   type CatProd {
     ${catProd}
   }
+
   type Pos {
     _id: String
     createdAt: Date
@@ -102,6 +113,7 @@ export const types = ({ contacts, products }) => `
     ${posCommonFields}
     catProdMappings: [CatProd]
   }
+
   type ProductGroups {
     _id: String
     name: String
@@ -111,6 +123,7 @@ export const types = ({ contacts, products }) => `
     excludedCategoryIds: [String]
     excludedProductIds: [String]
   }
+
   input GroupInput {
     _id: String
     description: String
@@ -119,16 +132,20 @@ export const types = ({ contacts, products }) => `
     excludedCategoryIds: [String]
     excludedProductIds: [String]
   }
+
   input CatProdInput {
     ${catProd}
   }
+
   type PosOrder {
-    ${posOrderFields({ contacts })}
+    ${posOrderFields(contactsEnabled)}
   }
+
   type PosOrderDetail {
-    ${posOrderFields({ contacts })}
+    ${posOrderFields(contactsEnabled)}
     putResponses: JSON
   }
+
   type PosProduct {
     _id: String!
     name: String
@@ -139,12 +156,12 @@ export const types = ({ contacts, products }) => `
     categoryId: String
     createdAt: Date,
     count: Float
-    ${products
-      ? `
-      category: ProductCategory
+    ${productsEnabled
+    ? `
+        category: ProductCategory
       `
-      : ""
-    }
+    : ""
+  }
   }
   type PosProducts {
     products: [PosProduct],
@@ -170,9 +187,6 @@ const queryParams = `
 export const queries = `
   posList(page: Int,
     perPage: Int,
-    brandId: String,
-    tag: String,
-    status: String,
     isOnline: String,
     sortField: String
     sortDirection: Int): [Pos]

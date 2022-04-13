@@ -210,6 +210,25 @@ export const initBroker = async cl => {
       data: await notifiedUserIds(models, data)
     };
   });
+
+  consumeRPCQueue('cards:getLink', async ({ subdomain, data: { _id, type } }) => {
+    const models = await generateModels(subdomain);
+
+    const item = await getCardItem(models, { contentTypeId: _id, contentType: type })
+
+    if (!item) {
+      return ''
+    }
+
+    const stage = await models.Stages.getStage(item.stageId);
+    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+    const board = await models.Boards.getBoard(pipeline.boardId);
+
+    return {
+      status: 'success',
+      data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`
+    };
+  });
 };
 
 export const sendContactsMessage = async (
@@ -336,6 +355,6 @@ export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
     isRPC: true
   });
 
-export default function() {
+export default function () {
   return client;
 }

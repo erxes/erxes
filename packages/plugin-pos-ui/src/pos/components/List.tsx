@@ -1,30 +1,23 @@
 import {
   EmptyContent,
   Button,
-  FormControl,
   DataWithLoader,
   Pagination,
   SortHandler,
   __,
   Table,
-  Wrapper,
-  BarItems
+  Wrapper
 } from '@erxes/ui/src';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IPos } from '../../types';
 import Row from './Row';
-import Sidebar from './Sidebar';
-import { ITag } from '@erxes/ui/src/tags/types';
-import TaggerPopover from './TaggerPopover';
 
 type Props = {
   posList: IPos[];
-  tags: ITag[];
   bulk: IPos[]; //*checkType
   isAllSelected: boolean;
   emptyBulk: () => void;
-  totalCount: number;
   queryParams: any;
   tagsCount: { [key: string]: number };
   toggleBulk: (target: IPos, toAdd: boolean) => void; //*checkType
@@ -57,37 +50,13 @@ class List extends React.Component<Props, {}> {
 
   render() {
     const {
-      totalCount,
       queryParams,
       loading,
-      bulk,
-      emptyBulk,
-      isAllSelected,
       posList,
-      counts
     } = this.props;
 
     queryParams.loadingMainQuery = loading;
     let actionBarLeft: React.ReactNode;
-    console.log('ddddddddddddddddddddddd')
-    if (bulk.length > 0) {
-      const tagButton = (
-        <Button btnStyle="simple" size="small" icon="tag-alt">
-          Tag
-        </Button>
-      );
-
-      actionBarLeft = (
-        <BarItems>
-          <TaggerPopover
-            type="integration"
-            successCallback={emptyBulk}
-            targets={bulk}
-            trigger={tagButton}
-          />
-        </BarItems>
-      );
-    }
 
     const actionBarRight = (
       <Link to={`/pos/create`}>
@@ -106,23 +75,13 @@ class List extends React.Component<Props, {}> {
         <thead>
           <tr>
             <th>
-              <FormControl
-                componentClass="checkbox"
-                checked={isAllSelected}
-                onChange={this.onChange}
-              />
-            </th>
-            <th>
               <SortHandler sortField={'name'} label={__('Name')} />
             </th>
-            <th>{__('Status')}</th>
-            <th>{__('Brand')}</th>
             <th>{__('Is Online')}</th>
             <th>{__('Created by')}</th>
             <th>
               <SortHandler sortField={'createdDate'} label={__('Created at')} />
             </th>
-            <th>{__('Tags')}</th>
             <th>{__('Actions')}</th>
           </tr>
         </thead>
@@ -142,9 +101,8 @@ class List extends React.Component<Props, {}> {
             queryParams={queryParams}
           />
         }
-        leftSidebar={<Sidebar counts={counts || {}} />}
         actionBar={actionBar}
-        footer={<Pagination count={totalCount} />}
+        footer={<Pagination count={50} />}
         content={
           <DataWithLoader
             data={content}

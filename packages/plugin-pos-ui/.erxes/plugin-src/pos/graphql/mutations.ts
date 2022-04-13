@@ -1,6 +1,17 @@
+const commonFormParamsDef = `
+  $name: String!
+  $brandId: String!
+`;
+
+const commonFormParams = `
+  name: $name
+  brandId: $brandId
+`;
+
 const commonFields = `
   $name: String
   $description: String
+  $brandId: String
   $productDetails: [String]
   $adminIds: [String]
   $cashierIds: [String]
@@ -24,6 +35,7 @@ const commonFields = `
 const commonVariables = `
   name: $name,
   description: $description,
+  brandId: $brandId
   productDetails: $productDetails
   adminIds: $adminIds
   cashierIds: $cashierIds
@@ -80,6 +92,14 @@ const updateConfigs = `
   }
 `;
 
+const brandAdd = `
+  mutation brandsAdd($name: String!, $description: String, $emailConfig: JSON,) {
+    brandsAdd(name: $name, description: $description, emailConfig: $emailConfig,) {
+      _id
+    }
+  }
+`;
+
 const saveProductGroups = `
   mutation productGroupsBulkInsert($posId: String, $groups: [GroupInput]) {
     productGroupsBulkInsert(posId: $posId, groups: $groups) {
@@ -93,5 +113,6 @@ export default {
   posEdit,
   posRemove,
   updateConfigs,
+  brandAdd,
   saveProductGroups,
 };

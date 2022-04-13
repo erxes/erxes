@@ -12,6 +12,7 @@ import {
   Users,
   Brands,
   EmailDeliveries,
+  Branches,
 } from "./db/models";
 import { registerModule } from "./data/permissions/utils";
 import {
@@ -204,6 +205,15 @@ export const initBroker = async options => {
       };
     });
 
+    consumeRPCQueue("core:branches.find", async ({ data }) => {
+      const { query } = data;
+
+      return {
+        status: "success",
+        data: await Branches.find(query).lean(),
+      };
+    });
+
     consumeRPCQueue("core:getFileUploadConfigs", async () => {
       return {
         status: "success",
@@ -264,6 +274,6 @@ export const sendCommonMessage = async (
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }

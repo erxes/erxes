@@ -148,7 +148,7 @@ class Histories extends React.Component<Props & IRouterProps> {
           />
         }
         leftSidebar={<Sidebar currentType={queryParams.type} />}
-        subHeader={headerDescription}
+        mainHead={headerDescription}
         footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader
