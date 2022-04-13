@@ -611,14 +611,11 @@ export const loadGroupClass = (models: IModels) => {
       const services = await serviceDiscovery.getServices();
 
       for (const serviceName of services) {
-        if (serviceName === "cards") {
-          continue;
-        }
-
         const service = await serviceDiscovery.getService(serviceName, true);
         const meta = service.config?.meta || {};
 
-        if (meta && meta.forms) {
+
+        if (meta && meta.forms && meta.forms.systemFieldsAvailable) {
           const types = meta.forms.types || [];
 
           for (const type of types) {

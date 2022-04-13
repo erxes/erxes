@@ -452,7 +452,7 @@ const checkBookingConvert = async (subdomain: string, productId: string) => {
 
   let dealUOM = await sendCoreMessage({
     subdomain,
-    action: "configs.find",
+    action: "configs.getValues",
     data: {
       code: "dealUOM",
     },
@@ -462,7 +462,7 @@ const checkBookingConvert = async (subdomain: string, productId: string) => {
 
   let dealCurrency = await sendCoreMessage({
     subdomain,
-    action: "configs.find",
+    action: "configs.getValues",
     data: {
       code: "dealCurrency",
     },

@@ -15,8 +15,6 @@ import {
 
 import { debug } from "../../configs";
 
-// ? import { trackViewPageEvent } from '../../../events';
-
 import { get, set } from "../../inmemoryStorage";
 import { graphqlPubsub } from "../../configs";
 
@@ -31,20 +29,18 @@ import { solveSubmissions } from "../../widgetUtils";
 import { conversationNotifReceivers } from "./conversationMutations";
 import { IBrowserInfo } from "@erxes/api-utils/src/definitions/common";
 import {
-  sendToLog,
   client as msgBrokerClient,
   sendContactsMessage,
   sendProductsMessage,
   sendFormsMessage,
   sendCoreMessage,
-  sendIntegrationsMessage
+  sendIntegrationsMessage,
+  sendLogsMessage
 } from "../../messageBroker";
 import { trackViewPageEvent } from "../../events";
 import EditorAttributeUtil from "@erxes/api-utils/src/editorAttributeUtils";
 import { getServices } from "@erxes/api-utils/src/serviceDiscovery";
 import { IContext, IModels } from "../../connectionResolver";
-
-// ? import { IFormDocument } from '../../../db/models/definitions/forms';
 
 interface IWidgetEmailParams {
   toEmails: string[];
@@ -154,7 +150,7 @@ export const getMessengerData = async (
 };
 
 const createVisitor = async (subdomain: string, visitorId: string) => {
-  return sendContactsMessage({
+  const customer = await sendContactsMessage({
     subdomain,
     action: "customers.createCustomer",
     data: {
@@ -163,6 +159,16 @@ const createVisitor = async (subdomain: string, visitorId: string) => {
     },
     isRPC: true
   });
+
+  await sendLogsMessage({
+    subdomain,
+    action: "visitor.convertRequest",
+    data: {
+      visitorId
+    }
+  })
+
+  return customer;
 };
 
 const createFormConversation = async (
@@ -524,10 +530,14 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      sendToLog("visitor:createOrUpdate", {
-        visitorId,
-        integrationId: integration._id,
-        scopeBrandIds: [brand._id]
+      await sendLogsMessage({
+        subdomain,
+        action: 'visitor.createOrUpdate',
+        data: {
+          visitorId,
+          integrationId: integration._id,
+          scopeBrandIds: [brand._id]
+        }
       });
     }
 
@@ -977,7 +987,16 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      sendToLog("visitor:updateEntry", { visitorId, location: browserInfo });
+      await sendLogsMessage({
+        subdomain,
+        action: 'visitor.updateEntry',
+        data: {
+          data: {
+            visitorId,
+            location: browserInfo
+          }
+        }
+      });
     }
 
     try {
