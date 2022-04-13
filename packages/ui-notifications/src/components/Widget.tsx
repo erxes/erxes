@@ -36,9 +36,6 @@ class Widget extends React.Component<Props, State> {
   }
 
   onHideNumber = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
     client.mutate({
       mutation: gql(mutations.showNotification)
     });
