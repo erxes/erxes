@@ -109,7 +109,7 @@ const StepHeaderTitle = styledTS<{type?: string}>(styled.h5)`
   margin: 0 0 0 ${dimensions.unitSpacing}px;
   border-top: ${props => props.type === 'stepperColumn' && `1px solid ${colors.borderPrimary}`};
   padding: ${props => props.type === 'stepperColumn' && `${dimensions.coreSpacing}px 0`};
-  width: ${props => props.type === 'stepperColumn' && 'calc(100% - 80px)'};
+  width: ${props => props.type === 'stepperColumn' && '100%'};
 `;
 
 const StepContent = styledTS<{type?: string}>(styled.div)`
