@@ -322,8 +322,6 @@ const widgetMutations = {
       isRPC: true
     });
 
-    console.log("form: ", form);
-
     if (!brand || !form) {
       throw new Error("Invalid configuration");
     }
