@@ -625,7 +625,7 @@ module.exports = {
     },
     menus: [
       {
-        text: "Put Responses",
+        text: "Pos Orders",
         url: "/pos-orders",
         icon: "icon-lamp",
         location: "mainNavigation",
