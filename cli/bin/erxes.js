@@ -55,14 +55,7 @@ program
 
 program
   .command('dupdate')
-  .option('--uis', 'Download the latest versions of the uis from s3')
-  .description('Pull and update erxes using docker')
   .action(dupdate);
-
-program
-  .command('drestart')
-  .description('Restart erxes using docker')
-  .action(drestart);
 
 // `$ update erxes`
 program
