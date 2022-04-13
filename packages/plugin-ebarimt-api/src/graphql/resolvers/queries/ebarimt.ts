@@ -1,13 +1,14 @@
 import { getFullDate, getTomorrow } from "./utils";
 import { paginate, regexSearchText } from "@erxes/api-utils/src";
+import { sendCardsMessage } from "../../../messageBroker";
 
-const generateFilter = async (models, params, commonQuerySelector) => {
+const generateFilter = async (subdomain, models, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
   if (params.search) {
     filter.$or = [
-      { billId: { $in: [new RegExp(`.*${params.search}.*`, "i")] } },
-      { returnBillId: { $in: [new RegExp(`.*${params.search}.*`, "i")] } },
+      { billId: new RegExp(`.*${params.search}.*`, 'i') },
+      { returnBillId: new RegExp(`.*${params.search}.*`, 'i') },
     ];
   }
 
@@ -47,10 +48,13 @@ const generateFilter = async (models, params, commonQuerySelector) => {
         if (params.stageId) {
           dealsFilter.stageId = params.stageId;
         } else {
-          const stages = await models.Stages.find(
-            { pipelineId: params.pipelineId },
-            { _id: 1 }
-          ).lean();
+          const stages = await sendCardsMessage({
+            subdomain,
+            action: 'stages.find',
+            data: { pipelineId: params.pipelineId },
+            isRPC: true,
+          });
+
           dealsFilter.stageId = { $in: (stages || []).map((s) => s._id) };
         }
       }
@@ -59,8 +63,14 @@ const generateFilter = async (models, params, commonQuerySelector) => {
       }
 
       if (Object.keys(dealsFilter).length) {
-        const deals = await models.Deals.find(dealsFilter, { _id: 1 }).lean();
-        filter.contentId = { $in: (deals || []).map((p) => p._id) };
+        const deals = await sendCardsMessage({
+          subdomain,
+          action: 'deals.find',
+          data: { query: dealsFilter },
+          isRPC: true,
+        });
+
+        filter.contentId = { $in: (deals || []).map((d) => d._id) };
       }
     }
   }
@@ -107,31 +117,33 @@ export const sortBuilder = (params) => {
 };
 
 const queries = {
-  putResponses: async (_root, params, { commonQuerySelector, models }) => {
-    return paginate(
+  putResponses: async (_root, params, { commonQuerySelector, models, subdomain }) => {
+    const filter = await generateFilter(subdomain, models, params, commonQuerySelector);
+
+    return await paginate(
       models.PutResponses.find(
-        await generateFilter(models, params, commonQuerySelector)
+        filter
       ).sort(sortBuilder(params)),
       {
-        page: params.page,
-        perPage: params.perPage,
+        page: params.page || 1,
+        perPage: params.perPage
       }
     );
   },
 
-  putResponsesCount: async (_root, params, { commonQuerySelector, models }) => {
+  putResponsesCount: async (_root, params, { commonQuerySelector, models, subdomain }) => {
     return models.PutResponses.find(
-      await generateFilter(models, params, commonQuerySelector)
+      await generateFilter(subdomain, models, params, commonQuerySelector)
     ).countDocuments();
   },
 
-  getDealLink: async (_root, param, { models }) => {
-    const deal = await models.Deals.getDeal(param._id);
-    const stage = await models.Stages.getStage(deal.stageId);
-    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
-    const board = await models.Boards.getBoard(pipeline.boardId);
-
-    return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${param._id}`;
+  getDealLink: async (_root, param, { subdomain }) => {
+    return await sendCardsMessage({
+      subdomain,
+      action: 'getLink',
+      data: { _id: param._id, type: 'deal' },
+      isRPC: true
+    })
   },
 };
 

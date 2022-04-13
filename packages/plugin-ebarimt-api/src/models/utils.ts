@@ -149,13 +149,11 @@ export class PutData<IListArgs extends IPutDataArgs> {
       this.transactionInfo.returnBillId = prePutResponse.billId;
     }
 
-    const resObj = await this.models.PutResponses.createPutResponse(
-      {
-        sendInfo: { ...this.transactionInfo },
-        contentId,
-        contentType,
-      }
-    );
+    const resObj = await this.models.PutResponses.createPutResponse({
+      sendInfo: { ...this.transactionInfo },
+      contentId,
+      contentType,
+    });
 
     const responseStr = await sendRequest({
       url: `${url}/put?lib=${rd}`,
@@ -194,7 +192,7 @@ export const returnBill = async (models, doc, config) => {
   const url = config.ebarimtUrl || "";
   const { contentType, contentId } = doc;
 
-  const prePutResponse = await models.PutResponses.putHistories(models, {
+  const prePutResponse = await models.PutResponses.putHistories({
     contentType,
     contentId,
   });
@@ -211,11 +209,13 @@ export const returnBill = async (models, doc, config) => {
     date: prePutResponse.date,
   };
 
-  const resObj = await models.PutResponses.createPutResponse(models, {
+  const resObj = await models.PutResponses.createPutResponse({
     sendInfo: { ...data },
     contentId,
     contentType,
+    returnBillId: prePutResponse.billId,
   });
+
 
   const responseStr = await sendRequest({
     url: `${url}/returnBill?lib=${rd}`,
@@ -225,7 +225,7 @@ export const returnBill = async (models, doc, config) => {
   });
 
   const response = JSON.parse(responseStr);
-  await models.PutResponses.updatePutResponse(models, resObj._id, {
+  await models.PutResponses.updatePutResponse(resObj._id, {
     ...response,
   });
 

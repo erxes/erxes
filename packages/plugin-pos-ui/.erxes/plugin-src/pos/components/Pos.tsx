@@ -29,7 +29,6 @@ type Props = {
   save: (params: any) => void;
   productCategories: IProductCategory[];
   branches: any[];
-  fieldsCombined: FieldsCombinedByType[];
 };
 
 type State = {
@@ -225,9 +224,9 @@ class Pos extends React.Component<Props, State> {
 
   render() {
     const { pos, groups, currentMode, uiOptions } = this.state;
-    const { productCategories, branches, fieldsCombined } = this.props;
+    const { productCategories, branches } = this.props;
     const breadcrumb = [
-      { title: 'POS List', link: `}/pos` },
+      { title: 'POS List', link: `/pos` },
       { title: 'POS' }
     ];
 
@@ -308,7 +307,6 @@ class Pos extends React.Component<Props, State> {
                 <DeliveryConfig
                   onChange={this.onChange}
                   pos={pos}
-                  fieldsCombined={fieldsCombined}
                 />
               </Step>
             </Steps>

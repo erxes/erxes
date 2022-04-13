@@ -17,6 +17,10 @@ export const sendContactsMessage = async (args: ISendMessageArgs): Promise<any> 
   return sendMessage({ client, serviceDiscovery, serviceName: 'contacts', ...args });
 };
 
+export const sendEbarimtMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({ client, serviceDiscovery, serviceName: 'ebarimt', ...args });
+}
+
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({ client, serviceDiscovery, serviceName: 'core', ...args });
 };
@@ -63,6 +67,6 @@ export const sendPosMessage = async (
   }
 };
 
-export default function() {
+export default function () {
   return client;
 }

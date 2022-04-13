@@ -1,23 +1,20 @@
-import dayjs from 'dayjs';
-import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import {
-  ActionButtons,
-  Button,
-  FormControl,
-  Icon,
-  Label,
-  Tip,
-  __,
-  WithPermission,
-  Tags,
-  Alert
-} from '@erxes/ui/src';
-import { IPos } from '../../types';
-import { RowTitle } from '../../styles';
-import { DateWrapper } from '@erxes/ui/src/styles/main';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import dayjs from 'dayjs';
+import React from 'react';
+import {
+  __,
+  ActionButtons,
+  Alert,
+  Button,
+  Icon,
+  Tip,
+  WithPermission
+} from '@erxes/ui/src';
+import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';
+import { DateWrapper } from '@erxes/ui/src/styles/main';
+import { IPos } from '../../types';
+import { Link } from 'react-router-dom';
+import { RowTitle } from '../../styles';
 
 type Props = {
   pos: IPos;
@@ -76,7 +73,7 @@ class Row extends React.Component<Props> {
   };
 
   render() {
-    const { pos, isChecked, toggleBulk } = this.props;
+    const { pos } = this.props;
     const isOnline = pos.isOnline ? 'online pos' : 'offline pos'
 
     const createdUser = pos.user || {
@@ -84,21 +81,8 @@ class Row extends React.Component<Props> {
       details: { fullName: '' }
     };
 
-    const onChange = e => {
-      if (toggleBulk) {
-        toggleBulk(pos, e.target.checked);
-      }
-    };
-
     return (
       <tr>
-        <td>
-          <FormControl
-            checked={isChecked}
-            componentClass="checkbox"
-            onChange={onChange}
-          />
-        </td>
         <td>
           <RowTitle>
             <Link to={`/pos/edit/${pos._id}`}>{pos.name}</Link>

@@ -50,13 +50,11 @@ const commonParams = `
 const posList = `
   query posList(
     ${commonParamDefs}
-    $status: String
     $sortField: String
     $sortDirection: Int
   ) {
     posList(
       ${commonParams}
-      status: $status
       sortField: $sortField
       sortDirection: $sortDirection
     ) {
@@ -122,28 +120,6 @@ const getDbSchemaLabels = `
   }
 `;
 
-const tags = `
-  query tagsQuery($type: String) {
-    tags(type: $type) {
-      _id
-      name
-      type
-      colorCode
-      createdAt
-      objectCount
-      totalObjectCount
-      parentId
-      order
-      relatedIds
-    }
-  }
-`;
-
-const fieldsCombinedByContentType = `
-  query fieldsCombinedByContentType($contentType: String!, $pipelineId: String) {
-    fieldsCombinedByContentType(contentType: $contentType, pipelineId: $pipelineId)
-  }
-`;
 
 export default {
   posList,
@@ -151,7 +127,5 @@ export default {
   productGroups,
   posDetail,
   getDbSchemaLabels,
-  tags,
   branches,
-  fieldsCombinedByContentType
 };
