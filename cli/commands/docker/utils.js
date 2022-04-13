@@ -416,54 +416,36 @@ module.exports.dupdate = async (program) => {
   for (const name of pluginNames.split(",")) {
     log(`Force updating  ${name}......`);
 
-    switch (name) {
-      case "coreui":
-        await execCommand(
-          `docker service update erxes_coreui --image erxes/erxes:federation`
-        );
-        break;
-      case "widgets":
-        await execCommand(
-          `docker service update erxes_widgets --image erxes/widgets:federation`
-        );
-        break;
-      case "dashboard-front":
-        await execCommand(
-          `docker service update erxes_dashboard-front --image erxes/dashboard-front:federation`
-        );
-        break;
-      case "workers":
-        await execCommand(
-          `docker service update erxes_workers --image erxes/workers:federation`
-        );
-        break;
-      case "dashboard":
-        await execCommand(
-          `docker service update erxes_dashboard --image erxes/dashboard:federation`
-        );
-        break;
-      case "core":
-        await execCommand(
-          `docker service update erxes_plugin_core_api --image erxes/core:federation`
-        );
-        break;
-      case "gateway":
-        await execCommand(
-          `docker service update erxes_gateway --image erxes/gateway:federation`
-        );
-        break;
-
-      default:
-        await execCommand(
-          `docker service update erxes_plugin_${name}_api --image erxes/plugin-${name}-api:federation`
-        );
-
-        log("Syncing plugin uis from s3 ....");
-
-        const uiname = `plugin-${name}-ui`;
-
-        await execCommand(`rm -rf plugin-uis/${uiname}`, true);
-        await execCommand(`aws s3 sync s3://plugin-uis/${uiname} plugin-uis/${uiname} --no-sign-request`);
+    if (['dashboard', 'workers', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
+      await execCommand(
+        `docker service update erxes_${name} --image erxes/${name}:federation`
+      );
+      continue;
     }
+
+    if (name === 'coreui') {
+      await execCommand(
+        `docker service update erxes_coreui --image erxes/erxes:federation`
+      );
+      continue;
+    }
+
+    if (name === 'core') {
+      await execCommand(
+        `docker service update erxes_plugin_core_api --image erxes/core:federation`
+      );
+      continue;
+    }
+
+    await execCommand(
+      `docker service update erxes_plugin_${name}_api --image erxes/plugin-${name}-api:federation`
+    );
+
+    log("Syncing plugin uis from s3 ....");
+
+    const uiname = `plugin-${name}-ui`;
+
+    await execCommand(`rm -rf plugin-uis/${uiname}`, true);
+    await execCommand(`aws s3 sync s3://plugin-uis/${uiname} plugin-uis/${uiname} --no-sign-request`);
   }
 };
