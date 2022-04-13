@@ -357,14 +357,16 @@ module.exports.dup = async (program) => {
     await execCommand('mkdir plugin-uis', true);
   }
 
-  for (const plugin of configs.plugins || []) {
-    const name = `plugin-${plugin.name}-ui`;
+  if (program.uis) {
+    for (const plugin of configs.plugins || []) {
+      const name = `plugin-${plugin.name}-ui`;
 
-    log(`Downloading ${name} ui from s3 ....`);
+      log(`Downloading ${name} ui from s3 ....`);
 
-    await execCommand(
-      `aws s3 sync s3://plugin-uis/${name} plugin-uis/${name} --no-sign-request`
-    );
+      await execCommand(
+        `aws s3 sync s3://plugin-uis/${name} plugin-uis/${name} --no-sign-request`
+      );
+    }
   }
 
   log("Generating ui plugins.js ....");

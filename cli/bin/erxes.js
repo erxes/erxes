@@ -51,6 +51,7 @@ program
 program
   .command('dup')
   .description('Run erxes using docker')
+  .option('--uis', 'Download uis')
   .action(dup);
 
 program
