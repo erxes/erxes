@@ -511,7 +511,11 @@ module.exports.manageInstallation = async (program) => {
     log("Running up ....");
     await up();
   } else {
-    await execCommand(`docker service rm erxes_plugin_${name}_api`);
+    log("Running up ....");
+    await up();
+
+    log(`Removing ${name} service ....`);
+    await execCommand(`docker service rm erxes_plugin_${name}_api`, true);
   }
 
   await restart('gateway');
