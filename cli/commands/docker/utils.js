@@ -7,8 +7,7 @@ const commonEnvs = (configs) => {
   const db_server_address = configs.db_server_address;
   const redis = configs.redis || {};
   const rabbitmq = configs.rabbitmq || {};
-
-  const rabbitmq_host = `amqp://${rabbitmq.user}:${rabbitmq.pass}@${db_server_address}:5672/${rabbitmq.vhost}`;
+  const rabbitmq_host = `amqp://${rabbitmq.user}:${rabbitmq.pass}@${rabbitmq.server_address || db_server_address}:5672/${rabbitmq.vhost}`;
 
   return {
     DEBUG: "erxes*",
@@ -19,6 +18,7 @@ const commonEnvs = (configs) => {
     RABBITMQ_HOST: rabbitmq_host,
     ELASTICSEARCH_URL: `${db_server_address}:9200`,
     ENABLED_SERVICES_PATH: "/data/enabled-services.js",
+    MESSAGE_BROKER_PREFIX: rabbitmq.prefix || ''
   };
 };
 
@@ -174,7 +174,7 @@ module.exports.deployDbs = async (program) => {
   log("Deploy ......");
 
   return execCommand(
-    "docker stack deploy --compose-file docker-compose-dbs.yml erxes-dbs  --with-registry-auth"
+    "docker stack deploy --compose-file docker-compose-dbs.yml erxes-dbs --with-registry-auth --resolve-image changed"
   );
 };
 
@@ -402,7 +402,7 @@ module.exports.dup = async (program) => {
   log("Deploy ......");
 
   return execCommand(
-    "docker stack deploy --compose-file docker-compose.yml erxes  --with-registry-auth"
+    "docker stack deploy --compose-file docker-compose.yml erxes --with-registry-auth --resolve-image changed"
   );
 };
 
