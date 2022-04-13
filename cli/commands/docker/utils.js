@@ -72,7 +72,7 @@ const generatePluginBlock = (configs, plugin) => {
   };
 };
 
-module.exports.deployDbs = async (program) => {
+const deployDbs = async (program) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath("configs.json"));
@@ -178,7 +178,7 @@ module.exports.deployDbs = async (program) => {
   );
 };
 
-module.exports.up = async (program) => {
+const up = async (uis) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath("configs.json"));
@@ -357,7 +357,7 @@ module.exports.up = async (program) => {
     await execCommand('mkdir plugin-uis', true);
   }
 
-  if (program.uis) {
+  if (uis) {
     for (const plugin of configs.plugins || []) {
       const name = `plugin-${plugin.name}-ui`;
 
@@ -415,7 +415,7 @@ module.exports.up = async (program) => {
   );
 };
 
-module.exports.update = async (program) => {
+const update = async (program) => {
   if (process.argv.length < 4) {
     return console.log("Pass service names !!!");
   }
@@ -467,8 +467,8 @@ module.exports.update = async (program) => {
   }
 };
 
-module.exports.restart = async (program) => {
-  const name = process.argv[3];
+const restart = async (name) => {
+  log(`Restarting .... ${name}`);
 
   if (name === 'gateway') {
     await execCommand(`docker service update --force erxes_gateway`);
@@ -477,4 +477,57 @@ module.exports.restart = async (program) => {
   if (name === 'coreui') {
     await execCommand(`docker service update --force erxes_coreui`);
   }
+};
+
+module.exports.manageInstallation = async (program) => {
+  const type = process.argv[3];
+  const name = process.argv[4];
+
+  const configs = await fse.readJSON(filePath("configs.json"));
+
+  if (type === "install") {
+    const prevEntry = configs.plugins.find((p) => p.name === name);
+
+    if (!prevEntry) {
+      configs.plugins.push({ name: name });
+    }
+  } else {
+    configs.plugins = configs.plugins.filter(
+      (p) => p.name !== name
+    );
+  }
+
+  log("Updating configs.json ....");
+
+  await fse.writeJSON(filePath("configs.json"), configs);
+
+  if (type === "install") {
+    log("Syncing ui ....");
+
+    await execCommand(
+      `aws s3 sync s3://plugin-uis/plugin-${name}-ui plugin-uis/plugin-${name}-ui --no-sign-request`
+    );
+
+    log("Running up ....");
+    await up();
+  } else {
+    await execCommand(`docker service rm erxes_plugin_${name}_api`);
+  }
+
+  await restart('gateway');
+
+  await restart('coreui');
+};
+
+module.exports.up = (program) => {
+  return up(program.uis);
+};
+
+module.exports.deployDbs = deployDbs;
+
+module.exports.update = update;
+
+module.exports.restart = () => {
+  const name = process.argv[3];
+  return restart(name);
 };
