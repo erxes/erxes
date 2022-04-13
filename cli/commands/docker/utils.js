@@ -178,7 +178,7 @@ module.exports.deployDbs = async (program) => {
   );
 };
 
-module.exports.dup = async (program) => {
+module.exports.up = async (program) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath("configs.json"));
@@ -415,7 +415,7 @@ module.exports.dup = async (program) => {
   );
 };
 
-module.exports.dupdate = async (program) => {
+module.exports.update = async (program) => {
   if (process.argv.length < 4) {
     return console.log("Pass service names !!!");
   }
@@ -423,7 +423,7 @@ module.exports.dupdate = async (program) => {
   const pluginNames = process.argv[3];
 
   for (const name of pluginNames.split(",")) {
-    log(`Force updating  ${name}......`);
+    log(`Updating image ${name}......`);
 
     if (['dashboard', 'workers', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
       await execCommand(
@@ -464,5 +464,17 @@ module.exports.dupdate = async (program) => {
 
     log("Updating gateway ....");
     await execCommand(`docker service update --force erxes_gateway`);
+  }
+};
+
+module.exports.restart = async (program) => {
+  const name = process.argv[3];
+
+  if (name === 'gateway') {
+    await execCommand(`docker service update --force erxes_gateway`);
+  }
+
+  if (name === 'coreui') {
+    await execCommand(`docker service update --force erxes_coreui`);
   }
 };
