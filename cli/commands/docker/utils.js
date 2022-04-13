@@ -353,10 +353,9 @@ module.exports.dup = async (program) => {
     }
   }
 
-  log(`Emptying old plugin-uis`);
-
-  await execCommand('rm -rf plugin-uis', true);
-  await execCommand('mkdir plugin-uis', true);
+  if (!(await fse.exists(filePath("plugin-uis")))) {
+    await execCommand('mkdir plugin-uis', true);
+  }
 
   for (const plugin of configs.plugins || []) {
     const name = `plugin-${plugin.name}-ui`;
