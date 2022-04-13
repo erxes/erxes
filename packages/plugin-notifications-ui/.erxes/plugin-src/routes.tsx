@@ -5,7 +5,7 @@ import { Route } from "react-router-dom";
 
 const NotificationList = asyncComponent(() =>
   import(
-    /* webpackChunkName: "NotificationList" */ "./containers/NotificationList"
+    /* webpackChunkName: "NotificationList"  */ "./containers/NotificationList"
   )
 );
 
