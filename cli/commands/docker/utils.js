@@ -3,6 +3,12 @@ const fse = require("fs-extra");
 const yaml = require("yaml");
 const { log, execCommand, filePath, execCurl } = require("../utils");
 
+const sleep = (ms) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 const commonEnvs = (configs) => {
   const db_server_address = configs.db_server_address;
   const redis = configs.redis || {};
@@ -50,7 +56,7 @@ const deploy = {
       update_config: {
         order: "start-first",
         failure_action: "rollback",
-        delay: "5s"
+        delay: "1s"
       }
 }
 
@@ -215,6 +221,7 @@ const up = async (uis) => {
           "./plugins.js:/usr/share/nginx/html/js/plugins.js",
           "./plugin-uis:/usr/share/nginx/html/js/plugins",
         ],
+        deploy,
         networks: ["erxes"],
       },
       plugin_core_api: {
@@ -502,25 +509,30 @@ module.exports.manageInstallation = async (program) => {
   await fse.writeJSON(filePath("configs.json"), configs);
 
   if (type === "install") {
+    log("Running up ....");
+    await up();
+
     log("Syncing ui ....");
 
     await execCommand(
       `aws s3 sync s3://plugin-uis/plugin-${name}-ui plugin-uis/plugin-${name}-ui --no-sign-request`
     );
 
-    log("Running up ....");
-    await up();
+    await restart('coreui');
+
+    log("Waiting for 30 seconds ....");
+    await sleep(30000);
   } else {
     log("Running up ....");
     await up();
 
     log(`Removing ${name} service ....`);
     await execCommand(`docker service rm erxes_plugin_${name}_api`, true);
+
+    await restart('coreui');
   }
 
   await restart('gateway');
-
-  await restart('coreui');
 };
 
 module.exports.up = (program) => {
