@@ -55,6 +55,7 @@ program
 
 program
   .command('dupdate')
+  .option('--uis', 'Update uis')
   .action(dupdate);
 
 // `$ update erxes`

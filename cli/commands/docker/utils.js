@@ -449,11 +449,19 @@ module.exports.dupdate = async (program) => {
       `docker service update erxes_plugin_${name}_api --image erxes/plugin-${name}-api:federation`
     );
 
-    log("Syncing plugin uis from s3 ....");
+    log("Updating gateway ....");
+    await execCommand(`docker service update erxes_gateway --force`);
 
-    const uiname = `plugin-${name}-ui`;
+    if (program.uis) {
+      log("Syncing plugin uis from s3 ....");
 
-    await execCommand(`rm -rf plugin-uis/${uiname}`, true);
-    await execCommand(`aws s3 sync s3://plugin-uis/${uiname} plugin-uis/${uiname} --no-sign-request`);
+      const uiname = `plugin-${name}-ui`;
+
+      await execCommand(`rm -rf plugin-uis/${uiname}`, true);
+      await execCommand(`aws s3 sync s3://plugin-uis/${uiname} plugin-uis/${uiname} --no-sign-request`);
+
+      log("Restart core ui ....");
+      await execCommand(`docker service update erxes_coreui --force`);
+    }
   }
 };
