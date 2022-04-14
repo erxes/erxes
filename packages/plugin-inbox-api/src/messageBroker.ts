@@ -82,7 +82,7 @@ export const initBroker = cl => {
   );
 
   consumeRPCQueue(
-    "inbox:integrations_to_api",
+    "inbox:integrations.receive",
     async ({ subdomain, data }) => await receiveRpcMessage(subdomain, data)
   );
 
