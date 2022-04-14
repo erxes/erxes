@@ -1,6 +1,7 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
+import messageBroker, { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
 import { getFullDate, getTomorrow } from "../../../utils";
+import { IContext } from '../../../connectionResolver';
 
 export const paginate = (
   collection,
@@ -131,7 +132,7 @@ const queries = {
   ecommerceGetBranches: async (
     _root,
     { posToken },
-    { models, messageBroker, subdomain }
+    { models, subdomain }: IContext
   ) => {
     const pos = await models.Pos.findOne({ token: posToken }).lean();
 
