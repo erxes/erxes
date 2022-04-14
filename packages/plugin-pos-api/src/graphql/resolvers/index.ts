@@ -1,19 +1,22 @@
-import { Pos as PosMutations } from "./mutations";
+import Mutation from './mutations';
 
-import { Pos as PosQueries } from "./queries";
+import Query from './queries';
 
-import Pos from "./pos";
+import Pos from './pos';
+import PosOrder from './posOrder';
+import PosOrderDetail from './posOrderDetail';
+import PosProduct from './posProduct';
+import customScalars from '@erxes/api-utils/src/customScalars';
 
-const resolvers: any = async (serviceDiscovery) => ({
+const resolvers: any = async () => ({
+  ...customScalars,
+
   Pos,
-
-  Mutation: {
-    ...PosMutations,
-  },
-
-  Query: {
-    ...PosQueries,
-  },
+  PosOrder,
+  PosProduct,
+  PosOrderDetail,
+  Mutation,
+  Query,
 });
 
 export default resolvers;

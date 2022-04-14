@@ -168,10 +168,16 @@ export const receiveRpcMessage = async (subdomain, data) => {
     return sendSuccess({ _id: message._id });
   }
 
-  // ? if (action === 'get-configs') {
-  //   const configs = await getConfigs({ Configs }, inmemoryStorage);
-  //   return sendSuccess({ configs });
-  // }
+   if (action === 'get-configs') {
+     const configs = await sendCoreMessage({
+       subdomain,
+       action: 'getConfigs',
+       data: {},
+       isRPC: true
+     });
+
+     return sendSuccess({ configs });
+   }
 
   if (action === 'getUserIds') {
     const users = await sendCoreMessage({

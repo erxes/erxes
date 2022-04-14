@@ -121,7 +121,7 @@ class TemplateList extends React.Component<Props> {
           { title: __('Growth Hacking Templates') }
         ]}
         title={__('Growth Hacking Templates')}
-        leftActionBar={
+        mainHead={
           <HeaderDescription
             icon="/images/actions/34.svg"
             title="Growth Hacking Templates"

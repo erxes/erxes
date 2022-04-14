@@ -113,7 +113,6 @@ export const types = ({ products, forms, knowledgeBase }) => `
 export const queries = ({ products, knowledgeBase }) => `
   widgetsConversations(integrationId: String!, customerId: String, visitorId: String): [Conversation]
   widgetsConversationDetail(_id: String, integrationId: String!): ConversationDetailResponse
-  widgetExportMessengerData(_id: String, integrationId: String!): String
   widgetsGetMessengerIntegration(brandCode: String!): Integration
   widgetsMessages(conversationId: String): [ConversationMessage]
   widgetsUnreadCount(conversationId: String): Int

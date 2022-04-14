@@ -200,6 +200,8 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
         leftSidebar={<CategoryList queryParams={this.props.queryParams} />}
         size="lg"
         {...this.props}
+        hasBorder={true}
+        transparent={true}
       />
     );
   }

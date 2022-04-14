@@ -120,6 +120,8 @@ class Channels extends React.Component<Props, {}> {
           />
         }
         footer={currentChannel._id && <Pagination count={integrationsCount} />}
+        hasBorder={true}
+        transparent={true}
       />
     );
   }

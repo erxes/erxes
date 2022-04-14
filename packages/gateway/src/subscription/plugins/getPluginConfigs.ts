@@ -1,5 +1,6 @@
-import path from 'path';
-import fs from 'fs';
+import * as path from 'path';
+import * as fs from 'fs';
+
 import downloadPlugins from './downloadPlugins';
 
 function getFilesFullPaths(
@@ -27,6 +28,5 @@ export default async function getPluginConfigs(): Promise<any[]> {
   await downloadPlugins();
   const directory = path.join(__dirname, '/downloads');
   const files = getFilesFullPaths(directory, name => /\.(t|j)s$/.test(name));
-  const modules = await Promise.all(files.map(file => import(file)));
-  return modules.map(module => module.default);
+  return await Promise.all(files.map(file => import(file)));
 }

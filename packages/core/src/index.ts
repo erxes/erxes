@@ -20,7 +20,7 @@ import {
   routeErrorHandling
 } from './data/utils';
 
-import { connect, mongoStatus } from './db/connection';
+import { connect } from './db/connection';
 import { Configs, Users } from './db/models';
 import { debugBase, debugError, debugInit } from './debuggers';
 import { initMemoryStorage } from './inmemoryStorage';
@@ -97,8 +97,6 @@ app.get(
 
 // app.post('/webhooks/:id', webhookMiddleware);
 
-// app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
-
 app.use('/static', express.static(path.join(__dirname, 'private')));
 
 app.get(
@@ -116,8 +114,6 @@ app.get(
 
 // for health check
 app.get('/health', async (_req, res) => {
-  await mongoStatus();
-
   res.end('ok');
 });
 

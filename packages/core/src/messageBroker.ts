@@ -3,6 +3,7 @@ import { sendMessage } from "@erxes/api-utils/src/core";
 
 import { logConsumers } from "@erxes/api-utils/src/logUtils";
 import { internalNoteConsumers } from "@erxes/api-utils/src/internalNotes";
+import { formConsumers } from "@erxes/api-utils/src/forms";
 import { graphqlPubsub } from "./pubsub";
 import { registerOnboardHistory } from "./data/modules/robot";
 import {
@@ -11,10 +12,12 @@ import {
   Users,
   Brands,
   EmailDeliveries,
+  Branches,
 } from "./db/models";
 import { registerModule } from "./data/permissions/utils";
 import {
   getConfig,
+  getConfigs,
   getFileUploadConfigs,
   sendEmail,
   sendMobileNotification,
@@ -24,6 +27,7 @@ import * as serviceDiscovery from "./serviceDiscovery";
 
 import logUtils from "./logUtils";
 import internalNotes from "./internalNotes";
+import forms from "./forms";
 
 let client;
 
@@ -122,7 +126,12 @@ export const initBroker = async options => {
       }
     );
 
-    consumeRPCQueue("core:configs.find", async ({ data }) => ({
+    consumeRPCQueue("core:getConfigs", async () => ({
+      status: "success",
+      data: await getConfigs()
+    }));
+    
+    consumeRPCQueue("core:configs.getValues", async ({ data }) => ({
       status: "success",
       data: await Configs.find(data).distinct("value"),
     }));
@@ -184,7 +193,7 @@ export const initBroker = async options => {
 
     consumeRPCQueue("core:brands.findOne", async ({ data: { query } }) => ({
       status: "success",
-      data: await Brands.findOne(query),
+      data: await Brands.getBrand(query),
     }));
 
     consumeRPCQueue("core:brands.find", async ({ data }) => {
@@ -193,6 +202,15 @@ export const initBroker = async options => {
       return {
         status: "success",
         data: await Brands.find(query).lean(),
+      };
+    });
+
+    consumeRPCQueue("core:branches.find", async ({ data }) => {
+      const { query } = data;
+
+      return {
+        status: "success",
+        data: await Branches.find(query).lean(),
       };
     });
 
@@ -226,6 +244,12 @@ export const initBroker = async options => {
       consumeRPCQueue,
       generateInternalNoteNotif: internalNotes.generateInternalNoteNotif,
     });
+
+    formConsumers({
+      name: "core",
+      consumeRPCQueue,
+      systemFields: forms.systemFields,
+    });
   }
 
   return client;
@@ -250,6 +274,6 @@ export const sendCommonMessage = async (
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }

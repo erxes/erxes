@@ -1,12 +1,13 @@
-import { Wrapper } from '@erxes/ui/src/layout';
-import React from 'react';
-import CampaignList from '../containers/CampaignList';
-import FilterCampaign from './FilterCampaign';
+import { Wrapper } from "@erxes/ui/src/layout";
+import React from "react";
+import CampaignList from "../containers/CampaignList";
+import FilterCampaign from "./FilterCampaign";
+import { PaddingTop } from '../../../styles';
 
 function Sidebar({
   loadingMainQuery,
   history,
-  queryParams
+  queryParams,
 }: {
   loadingMainQuery: boolean;
   history: any;
@@ -14,8 +15,10 @@ function Sidebar({
 }) {
   return (
     <Wrapper.Sidebar>
-      <CampaignList queryParams={queryParams} history={history} />
-      <FilterCampaign queryParams={queryParams} history={history}/>
+      <PaddingTop>
+        <CampaignList queryParams={queryParams} history={history} />
+        <FilterCampaign queryParams={queryParams} history={history} />
+      </PaddingTop>
     </Wrapper.Sidebar>
   );
 }

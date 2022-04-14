@@ -32,9 +32,8 @@ interface IProps extends IRouterProps {
 }
 
 export const menuPos = [
-  { title: 'Put Response', link: '/erxes-plugin-ebarimt/put-responses' },
-  { title: 'Pos Orders', link: '/erxes-plugin-pos/pos-orders' },
-  { title: 'Pos Items', link: '/erxes-plugin-pos/pos-order-items' }
+  { title: 'Pos Orders', link: '/pos-orders' },
+  { title: 'Pos Items', link: '/pos-order-items' }
 ];
 
 class Orders extends React.Component<IProps, {}> {
@@ -146,7 +145,7 @@ class Orders extends React.Component<IProps, {}> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__(`Put Response`)}
+            title={__(`Pos Orders`)}
             queryParams={queryParams}
             submenu={menuPos}
           />

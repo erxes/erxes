@@ -1,4 +1,4 @@
-import { sendCoreMessage } from "./messageBroker";
+import { sendContactsMessage, sendCoreMessage, sendProductsMessage } from "./messageBroker";
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
   return await sendCoreMessage({
@@ -36,7 +36,7 @@ export const orderToErkhet = async (
   messageBroker,
   pos,
   orderId,
-  putResId
+  putRes
 ) => {
   let erkhetConfig = await getConfig(subdomain, "ERKHET", {});
 
@@ -51,18 +51,27 @@ export const orderToErkhet = async (
   }
 
   const order = await models.PosOrders.findOne({ _id: orderId }).lean();
-  const putRes = await models.PutResponses.findOne({ _id: putResId }).lean();
 
   const details = [] as any;
 
   const workerEmail =
     (order.userId &&
-      ((await models.Users.findOne({ _id: order.userId }).lean()) || {})
-        .email) ||
-    "";
+      (await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: { _id: order.userId },
+        isRPC: true,
+        defaultValue: {}
+      })).email) || "";
 
   const productsIds = order.items.map((item) => item.productId);
-  const products = await models.Products.find({ _id: { $in: productsIds } });
+  const products = await sendProductsMessage({
+    subdomain,
+    action: 'find',
+    data: { query: { _id: { $in: productsIds } } },
+    isRPC: true,
+    defaultValue: []
+  })
 
   const productCodeById = {};
   for (const product of products) {
@@ -117,7 +126,15 @@ export const orderToErkhet = async (
       hasCitytax: putRes.citytax ? true : false,
       billType: order.billType,
       customerCode: (
-        (await models.Customers.findOne({ _id: order.customerId })) || {}
+        await sendContactsMessage({
+          subdomain,
+          action: 'customers.findOne',
+          data: {
+            _id: order.customerId
+          },
+          isRPC: true,
+          defaultValue: {}
+        })
       ).code,
       description: `${pos.name}`,
       number: `${pos.erkhetConfig.beginNumber || ""}${order.number}`,

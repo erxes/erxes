@@ -1,46 +1,11 @@
-const commonFields = `
-  brandId
-  name
-  kind
-  isActive
-
-  brand {
-    _id
-    name
-    code
-  }
-
-  tags {
-    _id
-    name
-    colorCode
-  }
-`;
-
 const posCommonFields = `
   _id
   name
   description
   createdAt
-  integrationId
   token
   adminIds
   cashierIds
-
-  integration {
-    brandId
-    brand {
-      _id
-      name
-      code
-    }
-    isActive
-    tags {
-      _id
-      name
-      colorCode
-    }
-  }
 
   user {
     _id
@@ -59,8 +24,6 @@ const posCommonFields = `
   kitchenScreen
   kioskMachine
   uiOptions
-  formSectionTitle
-  formIntegrationIds
   ebarimtConfig
   erkhetConfig
 
@@ -87,17 +50,11 @@ const commonParams = `
 const posList = `
   query posList(
     ${commonParamDefs}
-    $brandId: String
-    $tag: String
-    $status: String
     $sortField: String
     $sortDirection: Int
   ) {
     posList(
       ${commonParams}
-      brandId: $brandId
-      tag: $tag
-      status: $status
       sortField: $sortField
       sortDirection: $sortDirection
     ) {
@@ -131,19 +88,6 @@ const productGroups = `
   }
 `;
 
-const brands = `
-  query brands(${commonParamDefs}, $searchValue: String) {
-    brands(${commonParams}, searchValue: $searchValue) {
-      _id
-      code
-      name
-      createdAt
-      description
-      emailConfig
-    }
-  }
-`;
-
 const branches = `
   query branches {
     branches {
@@ -154,18 +98,6 @@ const branches = `
       supervisorId
       code
       userIds
-    }
-  }
-`;
-
-const integrationsTotalCount = `
-  query integrationsTotalCount($kind: String, $tag: String, $brandId: String, $status: String) {
-    integrationsTotalCount(kind:$kind, tag:$tag, brandId: $brandId, status: $status) {
-      byKind
-      byTag
-      byBrand
-      byStatus
-      total
     }
   }
 `;
@@ -188,49 +120,12 @@ const getDbSchemaLabels = `
   }
 `;
 
-const tags = `
-  query tagsQuery($type: String) {
-    tags(type: $type) {
-      _id
-      name
-      type
-      colorCode
-      createdAt
-      objectCount
-      totalObjectCount
-      parentId
-      order
-      relatedIds
-    }
-  }
-`;
-
-const integrations = `
-  query integrations(${commonParamDefs}, $kind: String, $tag: String, $brandId: String, $status: String, $sortField: String, $sortDirection: Int) {
-    integrations(${commonParams}, kind: $kind, tag: $tag, brandId: $brandId, status: $status, sortField: $sortField, sortDirection: $sortDirection) {
-      _id
-      ${commonFields}
-    }
-  }
-`;
-
-const fieldsCombinedByContentType = `
-  query fieldsCombinedByContentType($contentType: String!, $pipelineId: String) {
-    fieldsCombinedByContentType(contentType: $contentType, pipelineId: $pipelineId)
-  }
-`;
-
 
 export default {
   posList,
   configs,
   productGroups,
-  brands,
-  integrationsTotalCount,
   posDetail,
   getDbSchemaLabels,
-  tags,
-  integrations,
   branches,
-  fieldsCombinedByContentType
 };

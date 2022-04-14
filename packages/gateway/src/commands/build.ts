@@ -1,5 +1,5 @@
-import fse from "fs-extra";
-import fs from "fs";
+import * as fse from "fs-extra";
+import * as fs from "fs";
 import { exec } from "child_process";
 
 const execute = async (func) => {
@@ -93,7 +93,7 @@ const main = async () => {
   process.chdir("../../dist");
 
   console.log("Yarn install ....");
-  await execCommand("yarn install ---production");
+  await execCommand("yarn install --production");
 
   process.chdir(folderName);
 

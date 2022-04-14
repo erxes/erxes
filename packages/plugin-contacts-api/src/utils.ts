@@ -5,15 +5,19 @@ import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 
 import { debug, es } from './configs';
-import { ICustomerDocument } from './models/definitions/customers';
+import { customerSchema, ICustomerDocument, locationSchema, visitorContactSchema } from './models/definitions/customers';
 import messageBroker, {
   sendCoreMessage,
   sendEngagesMessage,
+  sendFormsMessage,
   sendInboxMessage,
   sendTagsMessage
 } from './messageBroker';
 import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery'
 import { generateModels, IModels } from './connectionResolver';
+import { COMPANY_INFO, CUSTOMER_BASIC_INFO, DEVICE_PROPERTIES_INFO, MODULE_NAMES } from './constants';
+import { companySchema } from './models/definitions/companies';
+import { ICustomField, ILink } from "@erxes/api-utils/src/types";
 
 export const findCustomer = async ({ Customers }: IModels, doc) => {
   let customer;
@@ -467,3 +471,534 @@ export const prepareEngageCustomers = async (
     });
   });
 };
+
+
+export const generateSystemFields = ({ data: { groupId } }) => {
+  let contactsFields: any = [];
+
+  const serviceName = 'contacts';
+
+  CUSTOMER_BASIC_INFO.ALL.map(e => {
+    contactsFields.push({
+      text: e.label,
+      type: e.field,
+      canHide: e.canHide,
+      validation: e.validation,
+      groupId,
+      contentType: `${serviceName}:customer`,
+      isDefinedByErxes: true
+    });
+  });
+
+  COMPANY_INFO.ALL.map(e => {
+    contactsFields.push({
+      text: e.label,
+      type: e.field,
+      canHide: e.canHide,
+      validation: e.validation,
+      groupId,
+      contentType: `${serviceName}:company`,
+      isDefinedByErxes: true
+    });
+  });
+
+  DEVICE_PROPERTIES_INFO.ALL.map(e => {
+    contactsFields.push({
+      text: e.label,
+      type: e.field,
+      groupId,
+      contentType: `${serviceName}:device`,
+      isDefinedByErxes: true
+    });
+  });
+
+  return contactsFields;
+};
+
+export const updateContactsField = async (models: IModels, subdomain: string, args: {
+  browserInfo: any;
+  cachedCustomerId?: string;
+  integration: any;
+  submissionsGrouped: any;
+}) => {
+  let { cachedCustomerId } = args;
+  const { browserInfo, integration, submissionsGrouped } = args;
+
+  const conformityIds: {
+    [key: string]: { customerId: string; companyId: string };
+  } = {};
+
+  let cachedCustomer;
+  
+  const customerSchemaLabels = await getSchemaLabels('customer');
+  const companySchemaLabels = await getSchemaLabels('company');
+
+  for (const groupId of Object.keys(submissionsGrouped)) {
+    const customerLinks: ILink = {};
+    const companyLinks: ILink = {};
+    const customerDoc: any = {};
+    const companyDoc: any = {};
+
+    const customFieldsData: ICustomField[] = [];
+    const companyCustomData: ICustomField[] = [];
+
+    for (const submission of submissionsGrouped[groupId]) {
+      const submissionType = submission.type || '';
+
+      if (submissionType.includes('customerLinks')) {
+        customerLinks[getSocialLinkKey(submissionType)] = submission.value;
+        continue;
+      }
+
+      if (submissionType.includes('companyLinks')) {
+        companyLinks[getSocialLinkKey(submissionType)] = submission.value;
+        continue;
+      }
+
+      if (submissionType === 'pronoun') {
+        switch (submission.value) {
+          case 'Male':
+            customerDoc.pronoun = 1;
+            break;
+          case 'Female':
+            customerDoc.pronoun = 2;
+            break;
+          case 'Not applicable':
+            customerDoc.pronoun = 9;
+            break;
+          default:
+            customerDoc.pronoun = 0;
+            break;
+        }
+        continue;
+      }
+
+      if (
+        customerSchemaLabels.findIndex(e => e.name === submissionType) !== -1
+      ) {
+        if (
+          submissionType === 'avatar' &&
+          submission.value &&
+          submission.value.length > 0
+        ) {
+          customerDoc.avatar = submission.value[0].url;
+          continue;
+        }
+
+        customerDoc[submissionType] = submission.value;
+        continue;
+      }
+
+      if (submissionType.includes('company_')) {
+        if (
+          submissionType === 'company_avatar' &&
+          submission.value &&
+          submission.value.length > 0
+        ) {
+          companyDoc.avatar = submission.value[0].url;
+          continue;
+        }
+
+        const key = submissionType.split('_')[1];
+        companyDoc[key] = submission.value;
+        continue;
+      }
+
+      if (
+        companySchemaLabels.findIndex(e => e.name === submissionType) !== -1
+      ) {
+        companyDoc[submissionType] = submission.value;
+        continue;
+      }
+
+      if (
+        submission.associatedFieldId &&
+        [
+          'input',
+          'select',
+          'multiSelect',
+          'file',
+          'textarea',
+          'radio',
+          'check',
+          'map'
+        ].includes(submissionType)
+      ) {
+        const field = await sendFormsMessage({
+          subdomain,
+          action: "fields.findOne",
+          data: {
+            query: {
+              _id: submission.associatedFieldId
+            }
+          },
+          isRPC: true
+        });
+
+        if (!field) {
+          continue;
+        }
+
+        const fieldGroup = await sendFormsMessage({
+          subdomain,
+          action: 'fieldsGroups.findOne',
+          data: {
+            query: {
+              _id: field.groupId
+            }
+          },
+          isRPC: true
+        });
+
+        if (fieldGroup && fieldGroup.contentType === 'company') {
+          companyCustomData.push({
+            field: submission.associatedFieldId,
+            value: submission.value
+          });
+        }
+
+        if (fieldGroup && fieldGroup.contentType === 'customer') {
+          customFieldsData.push({
+            field: submission.associatedFieldId,
+            value: submission.value
+          });
+        }
+      }
+    }
+
+    if (groupId === 'default') {
+      cachedCustomer = await models.Customers.getWidgetCustomer({
+        integrationId: integration._id,
+        cachedCustomerId,
+        email: customerDoc.email || '',
+        phone: customerDoc.phone || ''
+      });
+
+      if (!cachedCustomer) {
+        cachedCustomer = await createCustomer(
+          models,
+          integration._id,
+          customerDoc,
+          integration.brandId || ''
+        );
+      }
+
+      await updateCustomerFromForm(
+        models,
+        browserInfo,
+        {
+          ...customerDoc,
+          customFieldsData,
+          links: customerLinks,
+          scopeBrandIds: [integration.brandId || '']
+        },
+        cachedCustomer,
+      );
+
+      cachedCustomerId = cachedCustomer._id;
+
+      conformityIds[groupId] = {
+        customerId: cachedCustomer._id,
+        companyId: ''
+      };
+    } else {
+      let customer = await findCustomer(models, {
+        customerPrimaryEmail: customerDoc.email || '',
+        customerPrimaryPhone: customerDoc.phone || ''
+      });
+
+      if (!customer) {
+        customer = await createCustomer(
+          models,
+          integration._id,
+          customerDoc,
+          integration.brandId || ''
+        );
+      }
+
+      await updateCustomerFromForm(
+        models,
+        browserInfo,
+        {
+          ...customerDoc,
+          customFieldsData,
+          links: customerLinks,
+          scopeBrandIds: [integration.brandId || '']
+        },
+        customer,
+      );
+
+      conformityIds[groupId] = { customerId: customer._id, companyId: '' };
+    }
+
+    if (
+      !(
+        companyDoc.primaryEmail ||
+        companyDoc.primaryPhone ||
+        companyDoc.primaryName
+      )
+    ) {
+      continue;
+    }
+
+    let company = await findCompany(models, {
+      companyPrimaryName: companyDoc.primaryName || '',
+      companyPrimaryEmail: companyDoc.primaryEmail || '',
+      companyPrimaryPhone: companyDoc.primaryPhone || ''
+    });
+
+    companyDoc.scopeBrandIds = [integration.brandId || ''];
+
+    if (!company) {
+      company = await models.Companies.createCompany(companyDoc);
+    }
+
+    if (Object.keys(companyLinks).length > 0) {
+      const links = company.links || {};
+
+      for (const key of Object.keys(companyLinks)) {
+        const value = companyLinks[key];
+        if (!value || value.length === 0) {
+          continue;
+        }
+
+        links[key] = value;
+      }
+      companyDoc.links = links;
+    }
+
+    if (!company.customFieldsData) {
+      companyDoc.customFieldsData = companyCustomData;
+    }
+
+    if (company.customFieldsData && companyCustomData.length > 0) {
+      companyDoc.customFieldsData = prepareCustomFieldsData(
+        company.customFieldsData,
+        companyCustomData
+      );
+    }
+
+    company = await models.Companies.updateCompany(company._id, companyDoc);
+
+    // if company scopeBrandIds does not contain brandId
+    if (
+      company.scopeBrandIds.findIndex(e => e === integration.brandId) === -1
+    ) {
+      await models.Companies.update(
+        { _id: company._id },
+        { $push: { scopeBrandIds: integration.brandId } }
+      );
+    }
+
+    conformityIds[groupId] = {
+      companyId: company._id,
+      customerId: conformityIds[groupId].customerId
+    };
+  }
+
+  let mainCompanyId = '';
+  const relTypeIds: string[] = [];
+
+  for (const key of Object.keys(conformityIds)) {
+    const { companyId, customerId } = conformityIds[key];
+
+    if (key === 'default' && companyId && customerId) {
+      mainCompanyId = companyId;
+      relTypeIds.push(customerId);
+    }
+
+    if (key !== 'default' && companyId && customerId) {
+      await sendCoreMessage({
+        subdomain,
+        action: 'conformities.addConformities',
+        data: {
+          mainType: 'company',
+          mainTypeId: companyId,
+          relType: 'customer',
+          relTypeId: customerId
+        }
+      });
+    }
+
+    if (key !== 'default' && !companyId && customerId) {
+      relTypeIds.push(customerId);
+    }
+  }
+
+  if (mainCompanyId !== '' && relTypeIds.length > 0) {
+    for (const relTypeId of relTypeIds) {
+      await sendCoreMessage({
+        subdomain,
+        action: 'conformities.addConformity',
+        data: {
+          mainType: 'company',
+          mainTypeId: mainCompanyId,
+          relType: 'customer',
+          relTypeId
+        }
+      });
+    }
+  }
+
+  return cachedCustomer;
+};
+
+export const updateCustomerFromForm = async (
+  models: IModels,
+  browserInfo: any,
+  doc: any,
+  customer: ICustomerDocument,
+) => {
+  const customerDoc: any = {
+    ...doc,
+    location: browserInfo,
+    firstName: customer.firstName || doc.firstName,
+    lastName: customer.lastName || doc.lastName,
+    middleName: customer.middleName || doc.middleName,
+    sex: doc.pronoun,
+    birthDate: doc.birthDate,
+    scopeBrandIds: [...doc.scopeBrandIds, ...(customer.scopeBrandIds || [])],
+    ...(customer.primaryEmail
+      ? {}
+      : {
+          emails: [doc.email],
+          primaryEmail: doc.email
+        }),
+    ...(customer.primaryPhone
+      ? {}
+      : {
+          phones: [doc.phone],
+          primaryPhone: doc.phone
+        })
+  };
+
+  if (!customer.customFieldsData) {
+    customerDoc.customFieldsData = doc.customFieldsData;
+  }
+
+  if (customer.customFieldsData && doc.customFieldsData.length > 0) {
+    customerDoc.customFieldsData = prepareCustomFieldsData(
+      customer.customFieldsData,
+      doc.customFieldsData
+    );
+  }
+
+  if (Object.keys(doc.links).length > 0) {
+    const links = customer.links || {};
+
+    for (const key of Object.keys(doc.links)) {
+      const value = doc.links[key];
+      if (!value || value.length === 0) {
+        continue;
+      }
+
+      links[key] = value;
+    }
+    customerDoc.links = links;
+  }
+
+  await models.Customers.updateCustomer(customer._id, customerDoc);
+};
+
+
+const prepareCustomFieldsData = (
+  customerData: ICustomField[],
+  submissionData: ICustomField[]
+) => {
+  const customFieldsData: ICustomField[] = [];
+
+  if (customerData.length === 0) {
+    return submissionData;
+  }
+
+  for (const data of submissionData) {
+    const existingData = customerData.find((e) => e.field === data.field);
+
+    if (existingData && Array.isArray(existingData.value)) {
+      data.value = existingData.value.concat(data.value);
+    }
+
+    customFieldsData.push(data);
+  }
+
+  return customFieldsData;
+};
+
+const createCustomer = async (
+  models: IModels,
+  integrationId: string,
+  customerDoc: any,
+  brandId?: string
+) => {
+  return models.Customers.createCustomer({
+    integrationId,
+    primaryEmail: customerDoc.email || '',
+    emails: [customerDoc.email || ''],
+    firstName: customerDoc.firstName || '',
+    lastName: customerDoc.lastName || '',
+    middleName: customerDoc.middleName || '',
+    primaryPhone: customerDoc.phone || '',
+    scopeBrandIds: [brandId || '']
+  });
+};
+
+const getSocialLinkKey = (type: string) => {
+  return type.substring(type.indexOf('_') + 1);
+};
+
+
+export const getSchemaLabels = async (type: string) => {
+  let fieldNames: any[] = [];
+
+  const found: any = LOG_MAPPINGS.find(m => m.name === type);
+
+  if (found) {
+    const schemas: any = found.schemas || [];
+
+    for (const schema of schemas) {
+      // schema comes as either mongoose schema or plain object
+      const names: string[] = Object.getOwnPropertyNames(schema.obj || schema);
+
+      for (const name of names) {
+        const field: any = schema.obj ? schema.obj[name] : schema[name];
+
+        if (field && field.label) {
+          fieldNames.push({ name, label: field.label });
+        }
+
+        // nested object field names
+        if (typeof field === 'object' && field.type && field.type.obj) {
+          fieldNames = fieldNames.concat(buildLabelList(field.type.obj));
+        }
+      }
+    } // end schema for loop
+  } // end schema name mapping
+
+  return fieldNames;
+};
+
+export const buildLabelList = (obj = {}): any[] => {
+  const list: any[] = [];
+  const fieldNames: string[] = Object.getOwnPropertyNames(obj);
+
+  for (const name of fieldNames) {
+    const field: any = obj[name];
+    const label: string = field && field.label ? field.label : '';
+
+    list.push({ name, label });
+  }
+
+  return list;
+};
+
+const LOG_MAPPINGS = [
+  {
+
+    name: MODULE_NAMES.CUSTOMER,
+    schemas: [customerSchema, locationSchema, visitorContactSchema]
+  },
+  {
+    name: MODULE_NAMES.COMPANY,
+    schemas: [companySchema]
+  },
+]

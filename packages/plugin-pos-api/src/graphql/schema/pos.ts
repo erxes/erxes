@@ -1,3 +1,8 @@
+import {
+  attachmentType,
+  attachmentInput,
+} from '@erxes/api-utils/src/commonTypeDefs';
+
 const groupCommonFields = `
   posId: String
   description: String
@@ -10,8 +15,6 @@ const groupCommonFields = `
 const posCommonFields = `
   name: String
   description: String
-  brandId: String
-  tagIds: [String]
   productDetails: [String]
   adminIds: [String]
   cashierIds: [String]
@@ -24,8 +27,6 @@ const posCommonFields = `
   kitchenScreen: JSON
   kioskMachine: JSON
   uiOptions: JSON
-  formSectionTitle: String
-  formIntegrationIds: [String]
   token: String
   ebarimtConfig: JSON
   erkhetConfig: JSON
@@ -40,7 +41,7 @@ const catProd = `
   productId: String
 `;
 
-const posOrderFields = `
+const posOrderFields = (contactsEnabled) => `
   _id: String,
   createdAt: Date,
   status: String,
@@ -65,24 +66,54 @@ const posOrderFields = `
   syncId: String,
   posName: String,
   user: User,
-  customer: Customer,
+  ${contactsEnabled
+    ? `
+      customer: Customer
+    `
+    : ""
+  }
   syncedErkhet: Boolean
 `;
 
-export const types = `
+export const types = ({ contactsEnabled, productsEnabled }) => `
+
+  ${attachmentType}
+  ${attachmentInput}
+
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  ${contactsEnabled
+    ? `
+        extend type Customer @key(fields: "_id") {
+          _id: String! @external
+        }
+        `
+    : ""
+  }
+
+  ${
+    productsEnabled ? `
+      extend type ProductCategory @key(fields: "_id") {
+        _id: String! @external
+      }
+    ` : ""
+  }
+
   type CatProd {
     ${catProd}
   }
+
   type Pos {
     _id: String
     createdAt: Date
-    integrationId: String
     userId: String
-    integration: Integration
     user: User
     ${posCommonFields}
     catProdMappings: [CatProd]
   }
+
   type ProductGroups {
     _id: String
     name: String
@@ -92,6 +123,7 @@ export const types = `
     excludedCategoryIds: [String]
     excludedProductIds: [String]
   }
+
   input GroupInput {
     _id: String
     description: String
@@ -100,16 +132,20 @@ export const types = `
     excludedCategoryIds: [String]
     excludedProductIds: [String]
   }
+
   input CatProdInput {
     ${catProd}
   }
+
   type PosOrder {
-    ${posOrderFields}
+    ${posOrderFields(contactsEnabled)}
   }
+
   type PosOrderDetail {
-    ${posOrderFields}
+    ${posOrderFields(contactsEnabled)}
     putResponses: JSON
   }
+
   type PosProduct {
     _id: String!
     name: String
@@ -120,7 +156,12 @@ export const types = `
     categoryId: String
     createdAt: Date,
     count: Float
-    category: ProductCategory
+    ${productsEnabled
+    ? `
+        category: ProductCategory
+      `
+    : ""
+  }
   }
   type PosProducts {
     products: [PosProduct],
@@ -146,9 +187,6 @@ const queryParams = `
 export const queries = `
   posList(page: Int,
     perPage: Int,
-    brandId: String,
-    tag: String,
-    status: String,
     isOnline: String,
     sortField: String
     sortDirection: Int): [Pos]
@@ -158,7 +196,7 @@ export const queries = `
   posOrderDetail(_id: String): PosOrderDetail
   posProducts(${queryParams} categoryId: String, searchValue: String): PosProducts
   posOrdersSummary(${queryParams}): JSON
-  ecommerceGetBranches(posToken: String): [Branch]
+  ecommerceGetBranches(posToken: String): [JSON]
 `;
 
 export const mutations = `

@@ -80,12 +80,6 @@ const conversationDetailQuery = `
   }
 `;
 
-const widgetExportMessengerDataQuery = `
-  query widgetExportMessengerData($_id: String, $integrationId: String!) {
-    widgetExportMessengerData(_id: $_id, integrationId:$integrationId)
-  }
-`;
-
 const conversationMessageInserted = `
   subscription conversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
@@ -269,7 +263,6 @@ const integrationsFetchApi = `
 export default {
   messageFields,
   conversationDetailQuery,
-  widgetExportMessengerDataQuery,
   unreadCountQuery,
   totalUnreadCountQuery,
   conversationMessageInserted,

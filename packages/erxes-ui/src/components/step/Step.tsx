@@ -11,7 +11,10 @@ import {
   StepHeaderTitle,
   StepImg,
   StepItem,
+  ButtonBack
 } from "./styles";
+import { Link } from "react-router-dom";
+import { BoxRow } from './style';
 
 type Props = {
   stepNumber?: number;
@@ -20,14 +23,43 @@ type Props = {
   title?: string;
   children?: React.ReactNode;
   next?: (stepNumber: number) => void;
+  back?: (stepNumber: number) => void;
   noButton?: boolean;
   message?: any;
   onClick?: (stepNumber: number) => void;
+  link?: string;
+  additionalButton?: React.ReactNode;
+  type?: string;
 };
 
 class Step extends React.Component<Props> {
+  renderBackButton(text) {
+    const { back } =this.props
+    return (<>
+      {back && <ButtonBack onClick={back.bind(null, 0)}>
+                {text}
+              </ButtonBack>}
+    </>)
+  }
+
   renderButton() {
-    const { next } = this.props;
+    const { next, link, additionalButton, type } = this.props;
+    if(type === 'stepper'){
+      return (<>
+         <BoxRow>
+          {link ? (
+            <Link to={link}>
+              {this.renderBackButton(__('Cancel'))}
+            </Link>
+          ) : this.renderBackButton(__('Back'))}
+          {additionalButton ? additionalButton : next &&(
+            <ButtonBack onClick={next.bind(null, 0)} next={true}>
+              {__('Next')}
+            </ButtonBack>
+          )}
+         </BoxRow>
+      </>);
+  }
 
     if (next) {
       return (
@@ -70,12 +102,23 @@ class Step extends React.Component<Props> {
   };
 
   render() {
-    const { stepNumber, active, img, title, children, noButton } = this.props;
+    const { stepNumber, active, img, title, children, noButton, type } = this.props;
 
     let show = false;
 
     if (stepNumber === active) {
       show = true;
+    }
+
+    if(type === "stepper"){
+      return (
+        <StepItem show={show} type={type}>
+          <FullStep show={show} type={type}>
+            <StepContent type={type}>{children}</StepContent>
+            {this.renderButton()}
+          </FullStep>
+        </StepItem>
+      )
     }
 
     return (

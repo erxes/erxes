@@ -3,6 +3,8 @@ import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList as List } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { HeaderItems } from '@erxes/ui/src/layout/styles';
+import Icon from '@erxes/ui/src/components/Icon';
 import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 
 type Props = {
@@ -21,6 +23,7 @@ class Sidebar extends React.Component<Props> {
       <li key={service.contentType}>
         <Link to={`?type=${service.contentType}`} className={className}>
           {__(service.description)}
+          <HeaderItems rightAligned={true}>{this.props.currentType === service.contentType ? <Icon icon="angle-right"/> : null}</HeaderItems>
         </Link>
       </li>
     );
@@ -28,7 +31,7 @@ class Sidebar extends React.Component<Props> {
 
   render() {
     return (
-      <LeftSidebar header={<SidebarHeader />} full={true}>
+      <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
         <List>
           {this.props.services.map(service => this.renderListItem(service))}
         </List>

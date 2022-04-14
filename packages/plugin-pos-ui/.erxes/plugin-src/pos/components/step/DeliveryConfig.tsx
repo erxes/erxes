@@ -1,4 +1,8 @@
 import React from 'react';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import client from '@erxes/ui/src/apolloClient';
+import gql from 'graphql-tag';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import Select from 'react-select-plus';
 import {
   __,
@@ -13,17 +17,17 @@ import {
   FlexColumn,
   FlexItem
 } from '../../../styles';
-import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
 import { IPos } from '../../../types';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
 
 type Props = {
   onChange: (name: "deliveryConfig", value: any) => void;
   pos?: IPos;
-  fieldsCombined: FieldsCombinedByType[];
 };
 
-class DeliveryConfig extends React.Component<Props, { config: any }> {
+class DeliveryConfig extends React.Component<Props, { config: any, fieldsCombined: FieldsCombinedByType[] }> {
   constructor(props: Props) {
     super(props);
 
@@ -35,8 +39,26 @@ class DeliveryConfig extends React.Component<Props, { config: any }> {
       assignedUserIds: [],
     }
 
+    let fieldsCombined = [];
+
+    if (isEnabled('forms')) {
+      client
+        .query({
+          query: gql(formQueries.fieldsCombinedByContentType),
+          variables: {
+            contentType: 'deal'
+          }
+        })
+        .then(({ data }) => {
+          this.setState({ fieldsCombined: data ? data.fieldsCombinedByContentType : [] || [] });
+        });
+
+      this.setState({ fieldsCombined });
+    }
+
     this.state = {
-      config
+      config,
+      fieldsCombined: []
     };
   }
 
@@ -58,8 +80,7 @@ class DeliveryConfig extends React.Component<Props, { config: any }> {
 
 
   render() {
-    const { fieldsCombined } = this.props;
-    const { config } = this.state;
+    const { config, fieldsCombined } = this.state;
 
     const onChangeBoard = (boardId: string) => {
       this.onChangeConfig('boardId', boardId);
@@ -84,84 +105,45 @@ class DeliveryConfig extends React.Component<Props, { config: any }> {
     const onMapCustomFieldChange = (option) => {
       const value = !option ? '' : option.value.toString();
       this.onChangeConfig('mapCustomField', value)
-
     }
-    // const uomOnChange = (option: HTMLOptionElement) =>
-    //   this.onChangeConfig(
-    //     'uom',
-    //     option ? option.value : ''
-    //   );
-
-    // const currencyOnChange = (currency: HTMLOptionElement) =>
-    //   this.onChangeConfig(
-    //     'currency',
-    //     currency ? currency.value : '',
-    //   );
-
-    // const selectOption = option => (
-    //   <div className="simple-option">
-    //     <span>{option.label}</span>
-    //   </div>
-    // );
 
     return (
       <FlexItem>
         <FlexColumn>
           <LeftItem>
-            <Block>
-              <h4>{__("Stage")}</h4>
-              <BlockRow>
-                <BoardSelectContainer
-                  type='deal'
-                  autoSelectStage={false}
-                  boardId={config.boardId}
-                  pipelineId={config.pipelineId}
-                  stageId={config.stageId}
-                  onChangeBoard={onChangeBoard}
-                  onChangePipeline={onChangePipeline}
-                  onChangeStage={onChangeStage}
+            {isEnabled('cards') && (
+              <Block>
+                <h4>{__("Stage")}</h4>
+                <BlockRow>
+                  <BoardSelectContainer
+                    type='deal'
+                    autoSelectStage={false}
+                    boardId={config.boardId}
+                    pipelineId={config.pipelineId}
+                    stageId={config.stageId}
+                    onChangeBoard={onChangeBoard}
+                    onChangePipeline={onChangePipeline}
+                    onChangeStage={onChangeStage}
 
-                />
-              </BlockRow>
-              <BlockRow>
-                <FormGroup>
-                  <ControlLabel>{__('Choose map field')}</ControlLabel>
-                  <Select
-                    name="mapCustomField"
-                    value={config.mapCustomField}
-                    onChange={onMapCustomFieldChange}
-                    options={fieldsCombined.map(f => ({
-                      value: f._id,
-                      label: f.label
-                    }))}
                   />
-                </FormGroup>
+                </BlockRow>
+                <BlockRow>
+                  <FormGroup>
+                    <ControlLabel>{__('Choose map field')}</ControlLabel>
+                    <Select
+                      name="mapCustomField"
+                      value={config.mapCustomField}
+                      onChange={onMapCustomFieldChange}
+                      options={(fieldsCombined || []).map(f => ({
+                        value: f._id,
+                        label: f.label
+                      }))}
+                    />
+                  </FormGroup>
 
-              </BlockRow>
-            </Block>
-
-            {/* <Block>
-              <h4>{__("Other deal info")}</h4>
-              <BlockRow>
-                <Select
-                  name="uom"
-                  placeholder={__('Choose')}
-                  value={config.uom}
-                  onChange={uomOnChange}
-                  optionRenderer={selectOption}
-                  options={this.selectConfigOptions([''], MEASUREMENTS)}
-                />
-                <Select
-                  name="currency"
-                  placeholder={__('Choose')}
-                  value={config.currency}
-                  onChange={currencyOnChange}
-                  optionRenderer={selectOption}
-                  options={this.selectConfigOptions(currencies, CURRENCIES)}
-                />
-              </BlockRow>
-            </Block> */}
-
+                </BlockRow>
+              </Block>
+            ) || ("Please, enabled cards plugin")}
             <Block>
               <h4>{__("Deal users")}</h4>
               <BlockRow>

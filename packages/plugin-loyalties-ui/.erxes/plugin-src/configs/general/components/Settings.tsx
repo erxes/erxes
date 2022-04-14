@@ -124,7 +124,8 @@ class GeneralSettings extends React.Component<Props, State> {
         }
         content={content}
         leftSidebar={<Sidebar />}
-        center={true}
+        hasBorder={true}
+        transparent={true}
       />
     );
   }

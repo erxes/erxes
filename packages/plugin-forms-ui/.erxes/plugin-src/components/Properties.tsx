@@ -214,7 +214,7 @@ class Properties extends React.Component<
         icon="/images/actions/26.svg"
         title={__('Properties')}
         description={`${__(
-          'The quick  view finder helps you to view basic information on both companies and customers alike'
+          'The quick view finder helps you to view basic information on both companies and customers alike'
         )}.${__(
           'Add groups and fields of the exact information you want to see'
         )}`}
@@ -224,8 +224,8 @@ class Properties extends React.Component<
     return (
       <Wrapper
         actionBar={
-          <Wrapper.ActionBar
-            background="colorWhite"
+           <Wrapper.ActionBar
+            background="bgActive"
             left={title}
             right={this.renderActionBar()}
           />
@@ -238,6 +238,9 @@ class Properties extends React.Component<
           <Sidebar currentType={__(currentType)} services={services} />
         }
         content={this.renderProperties()}
+        hasBorder={true}
+        transparent={true}
+        leftSpacing={true}
       />
     );
   }
