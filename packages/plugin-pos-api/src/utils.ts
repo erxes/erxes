@@ -160,6 +160,7 @@ export const orderToErkhet = async (
       isJson: true,
       isEbarimt: false,
       payload: JSON.stringify(postData),
+      thirdService: true
     }
   );
 
@@ -221,6 +222,7 @@ export const orderDeleteToErkhet = async (
       isJson: true,
       isEbarimt: false,
       payload: JSON.stringify(postData),
+      thirdService: true
     }
   );
 

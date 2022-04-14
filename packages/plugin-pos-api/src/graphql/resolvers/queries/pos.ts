@@ -168,7 +168,9 @@ const queries = {
         const longTask = async () =>
           await messageBroker().sendRPCMessage(
             `rpc_queue:health_check_${syncId}`,
-            {}
+            {
+              thirdService: true
+            }
           );
 
         const timeout = (cb, interval) => () =>
