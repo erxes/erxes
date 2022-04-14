@@ -1,6 +1,7 @@
 import { generateModels } from "./connectionResolver";
 import { ISendMessageArgs, sendMessage } from "@erxes/api-utils/src/core";
 import { serviceDiscovery } from "./configs";
+import { IPosDocument } from './models/definitions/pos';
 
 let client;
 
@@ -38,7 +39,7 @@ export const sendPosMessage = async (
   messageBroker,
   channel,
   params,
-  pos = undefined,
+  pos = undefined as IPosDocument,
   excludeTokens = [] as any
 ) => {
   const allPos = pos ? [pos] : await models.Pos.find().lean();
