@@ -4,7 +4,7 @@ import { generateModels, IModels } from "./connectionResolver";
 import {
   ISendMessageArgs,
   paginate,
-  sendMessage as sendMessageCore
+  sendMessage
 } from "@erxes/api-utils/src/core";
 import { receiveVisitorDetail } from "./widgetUtils";
 
@@ -228,7 +228,7 @@ export const initBroker = cl => {
 export const sendContactsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
-  return sendMessageCore({
+  return sendMessage({
     client,
     serviceDiscovery,
     serviceName: "contacts",
@@ -237,7 +237,7 @@ export const sendContactsMessage = async (
 };
 
 export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
-  return sendMessageCore({
+  return sendMessage({
     client,
     serviceDiscovery,
     serviceName: "forms",
@@ -246,7 +246,7 @@ export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
-  return sendMessageCore({
+  return sendMessage({
     client,
     serviceDiscovery,
     serviceName: "core",
@@ -255,7 +255,7 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendEngagesMessage = (args: ISendMessageArgs): Promise<any> => {
-  return sendMessageCore({
+  return sendMessage({
     client,
     serviceDiscovery,
     serviceName: "engages",
@@ -266,7 +266,7 @@ export const sendEngagesMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendCardsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
-  return sendMessageCore({
+  return sendMessage({
     client,
     serviceDiscovery,
     serviceName: "cards",
@@ -277,7 +277,7 @@ export const sendCardsMessage = async (
 export const sendProductsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
-  return sendMessageCore({
+  return sendMessage({
     client,
     serviceDiscovery,
     serviceName: "products",
@@ -286,7 +286,7 @@ export const sendProductsMessage = async (
 };
 
 export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
-  return sendMessageCore({
+  return sendMessage({
     client,
     serviceDiscovery,
     serviceName: "tags",
@@ -297,7 +297,7 @@ export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendIntegrationsMessage = (
   args: ISendMessageArgs
 ): Promise<any> => {
-  return sendMessageCore({
+  return sendMessage({
     client,
     serviceDiscovery,
     serviceName: "integrations",
@@ -306,7 +306,7 @@ export const sendIntegrationsMessage = (
 };
 
 export const sendSegmentsMessage = (args: ISendMessageArgs): Promise<any> => {
-  return sendMessageCore({
+  return sendMessage({
     client,
     serviceDiscovery,
     serviceName: "segments",
@@ -317,7 +317,7 @@ export const sendSegmentsMessage = (args: ISendMessageArgs): Promise<any> => {
 export const sendNotificationsMessage = (
   args: ISendMessageArgs
 ): Promise<any> => {
-  return sendMessageCore({
+  return sendMessage({
     client,
     serviceDiscovery,
     serviceName: "notifications",
@@ -328,7 +328,7 @@ export const sendNotificationsMessage = (
 export const sendKnowledgeBaseMessage = (
   args: ISendMessageArgs
 ): Promise<any> => {
-  return sendMessageCore({
+  return sendMessage({
     client,
     serviceDiscovery,
     serviceName: "knowledgebase",
@@ -337,7 +337,7 @@ export const sendKnowledgeBaseMessage = (
 };
 
 export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessageCore({
+  return sendMessage({
     client,
     serviceDiscovery,
     serviceName: 'logs',
