@@ -20,3 +20,7 @@ export const ContentBox = styled.div`
   max-width: 640px;
   margin: 0 auto;
 `;
+
+export const PaddingTop = styled.div`
+  padding-top: ${dimensions.unitSpacing}px;
+`;

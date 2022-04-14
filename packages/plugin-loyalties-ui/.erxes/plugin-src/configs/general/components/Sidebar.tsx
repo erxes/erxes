@@ -22,7 +22,7 @@ class Sidebar extends React.Component {
 
   render() {
     return (
-      <LeftSidebar full={true} hasBorder={true} header={<SidebarHeader/>}>
+      <LeftSidebar hasBorder={true} header={<SidebarHeader/>}>
         <List id="SettingsSidebar">
           {this.renderListItem(
             '/erxes-plugin-loyalty/settings/general',
