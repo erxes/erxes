@@ -157,7 +157,9 @@ export const initBroker = async (cl) => {
 
       // paid order info to offline pos
       // TODO: this message RPC, offline pos has seen by this message check
-      await sendPosMessage(models, client, 'vrpc_queue:erxes-pos-to-pos', { order: { ...newOrder, posToken } }, toPos);
+      if (toPos) {
+        await sendPosMessage(models, client, 'vrpc_queue:erxes-pos-to-pos', { order: { ...newOrder, posToken } }, toPos);
+      }
     }
 
     await orderToErkhet(subdomain, models, client, pos, order._id, response._id);
