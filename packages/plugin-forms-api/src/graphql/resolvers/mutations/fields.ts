@@ -3,6 +3,8 @@ import { IContext } from "../../../connectionResolver";
 import { putCreateLog } from "../../../logUtils";
 import { IField, IFieldDocument, IFieldGroup } from "../../../models/definitions/fields";
 import { IOrderInput } from '@erxes/api-utils/src/commonUtils';
+import { serviceDiscovery } from "../../../configs";
+import { sendCommonMessage } from "../../../messageBroker";
 
 interface IFieldsEdit extends IField {
   _id: string;
@@ -24,6 +26,35 @@ interface IFieldsBulkAddAndEditParams {
   addingFields: IField[];
   editingFields: IFieldsEdit[];
 }
+
+const fieldsGroupsHook = async (
+  subdomain: string,
+  doc: IFieldGroup
+): Promise<IFieldGroup> => {
+  const services = await serviceDiscovery.getServices();
+
+  for (const serviceName of services) {
+    if (!((doc.contentType || "").includes(serviceName))) {
+      continue;
+    }
+
+    const service = await serviceDiscovery.getService(serviceName, true);
+    const meta = service.config?.meta || {};
+
+    if (meta && meta.forms && meta.forms.groupsHookAvailable) {
+      doc = await sendCommonMessage({
+        subdomain,
+        serviceName,
+        action: 'fieldsGroupsHook',
+        isRPC: true,
+        data: doc,
+        defaultValue: doc
+      });
+    }
+  }
+
+  return doc;
+};
 
 const fieldMutations = {
   /**
@@ -171,11 +202,9 @@ const fieldsGroupsMutations = {
   async fieldsGroupsAdd(
     _root,
     doc: IFieldGroup,
-    { user, docModifier, models }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
-    // if (doc.boardsPipelines) {
-    //   doc = getBoardsAndPipelines(doc);
-    // }
+    doc = await fieldsGroupsHook(subdomain, doc);
 
     const fieldGroup = await models.FieldsGroups.createGroup(
       docModifier({ ...doc, lastUpdatedUserId: user._id })
@@ -197,14 +226,12 @@ const fieldsGroupsMutations = {
   /**
    * Update group for fields
    */
-  fieldsGroupsEdit(
+  async fieldsGroupsEdit(
     _root,
     { _id, ...doc }: IFieldsGroupsEdit,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    // ? if (doc.boardsPipelines) {
-    //   doc = getBoardsAndPipelines(doc);
-    // }
+    doc = await fieldsGroupsHook(subdomain, doc);
 
     return models.FieldsGroups.updateGroup(_id, {
       ...doc,

@@ -8,6 +8,7 @@ import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { getNumberOfVisits } from './events';
+import { updateContactsField } from './utils';
 
 export let client;
 
@@ -325,6 +326,15 @@ export const initBroker = cl => {
       )
     }
   });
+
+  consumeRPCQueue('contacts:updateContactsField', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain)
+
+    return {
+      status: 'success',
+      data: await updateContactsField(models, subdomain, data)
+    }
+  })
 };
 
 export const sendSegmentsMessage = async (
