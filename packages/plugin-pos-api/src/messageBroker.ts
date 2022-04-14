@@ -203,7 +203,7 @@ export const getChannels = async (
   pos?: IPosDocument,
   excludeTokens?: string[]
 ) => {
-  const channels = [];
+  const channels: string[] = [];
   const allPos = pos ? [pos] : await models.Pos.find().lean();
 
   for (const p of allPos) {
@@ -234,7 +234,7 @@ export const sendPosMessage = async (models: IModels,
   messageBroker: any,
   channel: string,
   params: any,
-  pos?: IPosDocument,
+  pos?: IPosDocument | undefined,
   excludeTokens?: string[]
 ) => {
   const channels = await getChannels(models, channel, pos, excludeTokens);
