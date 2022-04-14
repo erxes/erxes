@@ -8,6 +8,7 @@ import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { getNumberOfVisits } from './events';
+import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from './constants';
 
 export let client;
 
@@ -317,12 +318,32 @@ export const initBroker = cl => {
   consumeQueue('contacts:customers.setUnsubscribed', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    return {
-      status: 'success',
-      data: await models.Customers.updateMany(
-        { _id: { $in: data.customerIds || [] } },
-        { $set: { isSubscribed: 'No' } }
-      )
+    const { customerIds = [], status, _id } = data;
+
+    const update: any = { isSubscribed: 'No' };
+
+    if (status === AWS_EMAIL_STATUSES.BOUNCE) {
+      update.emailValidationStatus = EMAIL_VALIDATION_STATUSES.INVALID;
+    }
+
+    if (_id && status) {
+      return {
+        status: 'success',
+        data: await models.Customers.updateOne(
+          { _id },
+          { $set: update }
+        )
+      }
+    }
+
+    if (customerIds.length > 0 && !status) {
+      return {
+        status: 'success',
+        data: await models.Customers.updateMany(
+          { _id: { $in: customerIds } },
+          { $set: update }
+        )
+      }
     }
   });
 };

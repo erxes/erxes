@@ -116,3 +116,25 @@ export const LOG_MAPPINGS = [
     schemas: [customerSchema, locationSchema, visitorContactSchema]
   }
 ];
+
+export const EMAIL_VALIDATION_STATUSES = {
+  VALID: 'valid',
+  INVALID: 'invalid',
+  ACCEPT_ALL_UNVERIFIABLE: 'accept_all_unverifiable',
+  UNVERIFIABLE: 'unverifiable',
+  UNKNOWN: 'unknown',
+  DISPOSABLE: 'disposable',
+  CATCH_ALL: 'catchall',
+  BAD_SYNTAX: 'badsyntax'
+};
+
+export const AWS_EMAIL_STATUSES = {
+  SEND: 'send',
+  DELIVERY: 'delivery',
+  OPEN: 'open',
+  CLICK: 'click',
+  COMPLAINT: 'complaint',
+  BOUNCE: 'bounce',
+  RENDERING_FAILURE: 'renderingfailure',
+  REJECT: 'reject'
+};
