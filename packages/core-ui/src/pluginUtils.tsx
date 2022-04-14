@@ -9,24 +9,23 @@ import { ICompany } from "@erxes/ui/src/companies/types";
 import { ICustomer } from "@erxes/ui/src/customers/types";
 import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
 import React from "react";
-import { AppConsumer,AppProvider } from "appContext";
+import { AppConsumer } from "appContext";
 import { generateRandomColor } from "utils";
 import { NavItem } from "modules/layout/components/QuickNavigation";
 
 const PluginsWrapper = ({
   itemName,
   callBack,
-  plugins
 }: {
   itemName: string;
   callBack: (plugin: any, item: any) => React.ReactNode;
-  plugins?: any[];
 }) => {
+  console.log("plugins wrapper:", callBack);
   return (
-    <AppProvider plugins={plugins}>
     <AppConsumer>
-      {({ plugins }) =>
-        (plugins || []).map((plugin) => {
+      {({ plugins }) => {
+        console.log("plugins wrapper plugins:", plugins);
+        return (plugins || []).map((plugin) => {
           const item = plugin[itemName];
 
           if (!item) {
@@ -34,10 +33,9 @@ const PluginsWrapper = ({
           }
 
           return callBack(plugin, item);
-        })
-      }
+        });
+      }}
     </AppConsumer>
-    </AppProvider>
   );
 };
 
@@ -101,15 +99,12 @@ export const loadComponent = (scope, module) => {
 };
 
 const renderPlguginSidebar = (itemName: string, type: string, object: any) => {
-  const plugins: any[] = (window as any).plugins || []; 
   return (
     <PluginsWrapper
       itemName={itemName}
-      plugins={plugins}
       callBack={(_plugin, section) => {
-        const Component = React.lazy(
-          loadComponent(section.scope, section.component)
-        );
+        console.log("plugin sidebar callback:", _plugin, section);
+        const Component = section.section;
         return (
           <Component
             key={Math.random()}
