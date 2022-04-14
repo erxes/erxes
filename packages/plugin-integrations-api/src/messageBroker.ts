@@ -328,7 +328,3 @@ export const sendInboxMessage = (args: ISendMessageArgs) => {
    ...args
  }) 
 }
-
-export const sendMessage = async (data?: any) => {
-  return client.sendMessage('integrationsNotification', data);
-};

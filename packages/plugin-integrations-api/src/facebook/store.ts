@@ -2,7 +2,7 @@ import { Comments, Customers, Posts } from './models';
 import { ICommentParams, IPostParams } from './types';
 
 import { debugError } from '../debuggers';
-import { sendInboxMessage, sendMessage } from '../messageBroker';
+import { sendInboxMessage } from '../messageBroker';
 import { Accounts, Integrations } from '../models';
 import {
   getFacebookUser,
@@ -190,7 +190,13 @@ export const getOrCreateComment = async (
       { $set: { ...doc } }
     );
 
-    return sendMessage({ action: 'external-integration-entry-added' });
+    return sendInboxMessage({
+      subdomain: 'os',
+      action: 'integrationsNotification',
+      data: {
+        action: 'external-integration-entry-added'
+      }
+    });
   }
 
   if (comment) {
@@ -199,7 +205,13 @@ export const getOrCreateComment = async (
 
   await Comments.create(doc);
 
-  sendMessage({ action: 'external-integration-entry-added' });
+  sendInboxMessage({
+    subdomain: 'os',
+    action: 'integrationsNotification',
+    data: {
+      action: 'external-integration-entry-added'
+    }
+  });
 };
 
 export const getOrCreateCustomer = async (
