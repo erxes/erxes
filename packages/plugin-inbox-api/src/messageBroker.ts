@@ -1,4 +1,4 @@
-import { receiveRpcMessage } from "./receiveMessage";
+import { receiveIntegrationsNotification, receiveRpcMessage } from "./receiveMessage";
 import { serviceDiscovery } from "./configs";
 import { generateModels, IModels } from "./connectionResolver";
 import {
@@ -85,6 +85,10 @@ export const initBroker = cl => {
     "inbox:integrations.receive",
     async ({ subdomain, data }) => await receiveRpcMessage(subdomain, data)
   );
+
+  consumeQueue('inbox:integrationsNotification', async ({ data }) => {
+    await receiveIntegrationsNotification(data);
+  }); 
 
   consumeRPCQueue(
     "inbox:integrations.find",
