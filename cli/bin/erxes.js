@@ -7,7 +7,7 @@ const program = require('commander');
 const packageJSON = require('../package.json');
 const startCmd = require('../commands/start');
 const updateCmd = require('../commands/update');
-const { up, update, restart, deployDbs } = require('../commands/docker/utils');
+const { manageInstallation, up, update, restart, deployDbs } = require('../commands/docker/utils');
 
 /**
  * Normalize version argument
@@ -62,6 +62,10 @@ program
 program
   .command('restart')
   .action(restart);
+
+program
+  .command('manage-installation')
+  .action(manageInstallation);
 
 // `$ update erxes`
 program
