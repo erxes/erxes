@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk';
 
 import { debugBase } from '../debuggers';
-import messageBroker from '../messageBroker';
+import messageBroker, { sendContactsMessage } from '../messageBroker';
 import { ISESConfig } from '../models/Configs';
 import { SES_DELIVERY_STATUSES } from '../constants';
 import { routeErrorHandling } from '../utils';
@@ -27,7 +27,7 @@ export const getApi = async (models: IModels, type: string): Promise<any> => {
  * Receives notification from amazon simple notification service
  * And updates engage message status and stats
  */
-const handleMessage = async (models: IModels, message) => {
+const handleMessage = async (models: IModels, subdomain: string, message) => {
   let parsedMessage;
 
   try {
@@ -60,6 +60,7 @@ const handleMessage = async (models: IModels, message) => {
 
   const type = eventType.toLowerCase();
 
+  // change message destination after EmailDeliveries are migrated
   if (emailDeliveryId) {
     return messageBroker().sendMessage('engagesNotification', {
       action: 'transactionEmail',
@@ -92,9 +93,11 @@ const handleMessage = async (models: IModels, message) => {
     type === SES_DELIVERY_STATUSES.REJECT;
 
   if (rejected) {
-    await messageBroker().sendMessage('engagesNotification', {
-      action: 'setSubscribed',
-      data: { customerId: mailHeaders.customerId, status: type }
+    sendContactsMessage({
+      subdomain,
+      action: 'customers.setUnsubscribed',
+      isRPC: false,
+      data: { _id: mailHeaders.customerId, status: type }
     });
   }
 
@@ -139,7 +142,7 @@ export const trackEngages = expressApp => {
           res.end('success');
         }
 
-        await handleMessage(models, Message);
+        await handleMessage(models, subdomain, Message);
 
         return res.end('success');
       });
