@@ -75,12 +75,6 @@ export const initBroker = cl => {
     }
   );
 
-  // ! below queue converted only used in plugin-integrations
-  consumeRPCQueue(
-    "rpc_queue:integrations_to_api",
-    async data => await receiveRpcMessage("", data)
-  );
-
   consumeRPCQueue(
     "inbox:integrations.receive",
     async ({ subdomain, data }) => await receiveRpcMessage(subdomain, data)
