@@ -38,4 +38,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-ebarimt-ui/.erxes/dist s3://plugin-uis/plugin-ebarimt-ui --delete
+          aws s3 sync packages/plugin-ebarimt-ui/.erxes/dist s3://erxes-plugins/uis/plugin-ebarimt-ui --delete

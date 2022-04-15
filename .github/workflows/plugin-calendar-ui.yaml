@@ -38,4 +38,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-calendar-ui/.erxes/dist s3://plugin-uis/plugin-calendar-ui --delete 
+          aws s3 sync packages/plugin-calendar-ui/.erxes/dist s3://erxes-plugins/uis/plugin-calendar-ui --delete 
