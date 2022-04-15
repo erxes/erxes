@@ -61,13 +61,14 @@ const deploy = {
 }
 
 const generatePluginBlock = (configs, plugin) => {
+  const api_mongo_url = mongoEnv(configs, {});
   const mongo_url = plugin.mongo_url || mongoEnv(configs, plugin);
 
   return {
     image: `erxes/plugin-${plugin.name}-api:federation`,
     environment: {
       PORT: plugin.port || 80,
-      API_MONGO_URL: mongo_url,
+      API_MONGO_URL: api_mongo_url,
       MONGO_URL: mongo_url,
       LOAD_BALANCER_ADDRESS: `http://plugin_${plugin.name}_api`,
       ...commonEnvs(configs),

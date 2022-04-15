@@ -722,5 +722,26 @@ module.exports = {
 
       }
     ]
+  },
+  'email-templates': {
+    exposes: {
+      "./routes": "./src/routes.tsx",
+    },
+    routes: {
+      url: "https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-email-templates-ui/remoteEntry.js",
+      scope: "emailTemplates",
+      module: "./routes",
+    },
+    menus: [
+      {
+        text: "Email Templates",
+        to: "/settings/email-templates",
+        image: "/images/icons/erxes-09.svg",
+        location: "settings",
+        scope: "emailTemplates",
+        action: "",
+        permissions: [],
+      },
+    ],
   }
 };
