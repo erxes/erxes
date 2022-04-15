@@ -335,7 +335,7 @@ const up = async (uis) => {
   log("Downloading pluginsMap.js from s3 ....");
 
   await execCurl(
-    "https://plugin-uis.s3.us-west-2.amazonaws.com/pluginsMap.js",
+    "https://erxes-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js",
     "pluginsMap.js"
   );
 
@@ -351,11 +351,11 @@ const up = async (uis) => {
 
     enabledPlugins.push(`'${plugin.name}'`);
 
-    if (pluginsMap[plugin.name]) {
+    if (pluginsMap[plugin.name] && pluginsMap[plugin.name].ui) {
       uiPlugins.push(
         JSON.stringify({
           name: plugin.name,
-          ...pluginsMap[plugin.name],
+          ...pluginsMap[plugin.name].ui,
         })
       );
     }
@@ -372,7 +372,7 @@ const up = async (uis) => {
       log(`Downloading ${name} ui from s3 ....`);
 
       await execCommand(
-        `aws s3 sync s3://plugin-uis/${name} plugin-uis/${name} --no-sign-request`
+        `aws s3 sync s3://erxes-plugins/uis/${name} plugin-uis/${name} --no-sign-request`
       );
     }
   }
@@ -464,7 +464,7 @@ const update = async (program) => {
       const uiname = `plugin-${name}-ui`;
 
       await execCommand(`rm -rf plugin-uis/${uiname}`, true);
-      await execCommand(`aws s3 sync s3://plugin-uis/${uiname} plugin-uis/${uiname} --no-sign-request`);
+      await execCommand(`aws s3 sync s3://erxes-plugins/uis/${uiname} plugin-uis/${uiname} --no-sign-request`);
 
       log("Restart core ui ....");
       await execCommand(`docker service update --force erxes_coreui`);
@@ -516,7 +516,7 @@ module.exports.manageInstallation = async (program) => {
     log("Syncing ui ....");
 
     await execCommand(
-      `aws s3 sync s3://plugin-uis/plugin-${name}-ui plugin-uis/plugin-${name}-ui --no-sign-request`
+      `aws s3 sync s3://erxes-plugins/uis/plugin-${name}-ui plugin-uis/plugin-${name}-ui --no-sign-request`
     );
 
     await restart('coreui');
