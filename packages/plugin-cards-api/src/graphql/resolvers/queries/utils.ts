@@ -769,7 +769,7 @@ export const getItemList = async (
   }
 
   if (serverTiming) {
-    serverTiming.startTime('getItems:companies');
+    serverTiming.startTime('getItemsCompanies');
   }
 
   const companies = await sendContactsMessage({ subdomain, action: 'companies.findActiveCompanies', data: {
@@ -787,11 +787,11 @@ export const getItemList = async (
   }, isRPC: true });
 
   if (serverTiming) {
-    serverTiming.endTime('getItems:companies');
+    serverTiming.endTime('getItemsCompanies');
   }
 
   if (serverTiming) {
-    serverTiming.startTime('getItems:customers');
+    serverTiming.startTime('getItemsCustomers');
   }
 
   const customers = await sendContactsMessage({ subdomain, action: 'customers.findActiveCustomers', data: {
@@ -811,7 +811,7 @@ export const getItemList = async (
   }, isRPC: true, defaultValue: [] });
 
   if (serverTiming) {
-    serverTiming.endTime('getItems:customers');
+    serverTiming.endTime('getItemsCustomers');
   }
 
   const getCocsByItemId = (
@@ -831,7 +831,7 @@ export const getItemList = async (
   const updatedList: any[] = [];
 
   if (serverTiming) {
-    serverTiming.startTime('getItems:notifications');
+    serverTiming.startTime('getItemsNotifications');
   }
 
   const notifications = await sendNotificationsMessage({
@@ -850,7 +850,7 @@ export const getItemList = async (
   });
 
   if (serverTiming) {
-    serverTiming.endTime('getItems:notifications');
+    serverTiming.endTime('getItemsNotifications');
   }
 
   for (const item of list) {
