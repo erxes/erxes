@@ -343,6 +343,7 @@ const up = async (uis) => {
 
   const enabledPlugins = [];
   const uiPlugins = [];
+  const essyncerJSON = { plugins: [] };
 
   for (const plugin of configs.plugins || []) {
     dockerComposeConfig.services[
@@ -352,12 +353,25 @@ const up = async (uis) => {
     enabledPlugins.push(`'${plugin.name}'`);
 
     if (pluginsMap[plugin.name] && pluginsMap[plugin.name].ui) {
-      uiPlugins.push(
-        JSON.stringify({
-          name: plugin.name,
-          ...pluginsMap[plugin.name].ui,
-        })
-      );
+      const uiConfig = pluginsMap[plugin.name].ui;
+
+      if (uiConfig) {
+        uiPlugins.push(
+          JSON.stringify({
+            name: plugin.name,
+            ...pluginsMap[plugin.name].ui,
+          })
+        );
+      }
+
+      const apiConfig = pluginsMap[plugin.name].api;
+
+      if (apiConfig && apiConfig.essyncer) {
+        essyncerJSON.plugins.push({
+          db_name: plugin.db_name || 'erxes',
+          collections: apiConfig.essyncer
+        });
+      }
     }
   }
 
@@ -411,6 +425,14 @@ const up = async (uis) => {
   }
 
   const yamlString = yaml.stringify(dockerComposeConfig);
+
+  // essyncer 
+  if (!(await fse.exists(filePath("essyncerData")))) {
+    await execCommand('mkdir essyncerData', true);
+  }
+
+  log("Generating essyncer json ....");
+  await fse.writeJSON(filePath("essyncerData/plugins.json"), essyncerJSON);
 
   log("Generating docker-compose.yml ....");
 
