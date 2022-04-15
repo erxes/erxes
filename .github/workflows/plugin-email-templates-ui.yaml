@@ -38,4 +38,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-email-templates-ui/.erxes/dist s3://plugin-uis/plugin-email-templates-ui --delete
+          aws s3 sync packages/plugin-email-templates-ui/.erxes/dist s3://erxes-plugins/uis/plugin-email-templates-ui --delete

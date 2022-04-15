@@ -38,4 +38,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-chats-ui/.erxes/dist s3://plugin-uis/plugin-chats-ui --delete
+          aws s3 sync packages/plugin-chats-ui/.erxes/dist s3://erxes-plugins/uis/plugin-chats-ui --delete
