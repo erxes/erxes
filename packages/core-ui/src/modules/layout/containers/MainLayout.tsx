@@ -25,7 +25,6 @@ const MainLayoutContainer = (props: FinalProps) => {
   }
 
   const enabledServices = enabledServicesQuery.enabledServices || {};
-
   return (
     <AppProvider currentUser={currentUser} plugins={plugins}>
       <AppConsumer>
