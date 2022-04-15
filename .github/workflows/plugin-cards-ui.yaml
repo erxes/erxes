@@ -38,4 +38,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-cards-ui/.erxes/dist s3://plugin-uis/plugin-cards-ui --delete 
+          aws s3 sync packages/plugin-cards-ui/.erxes/dist s3://erxes-plugins/uis/plugin-cards-ui --delete 

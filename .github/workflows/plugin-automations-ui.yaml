@@ -38,4 +38,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-automations-ui/.erxes/dist s3://plugin-uis/plugin-automations-ui --delete
+          aws s3 sync packages/plugin-automations-ui/.erxes/dist s3://erxes-plugins/uis/plugin-automations-ui --delete

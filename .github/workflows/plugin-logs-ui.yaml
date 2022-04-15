@@ -38,4 +38,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-logs-ui/.erxes/dist s3://plugin-uis/plugin-logs-ui --delete
+          aws s3 sync packages/plugin-logs-ui/.erxes/dist s3://erxes-plugins/uis/plugin-logs-ui --delete

@@ -63,6 +63,7 @@ const createIntegration = async (
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.INTEGRATION,
         newData: { ...doc, createdUserId: user._id, isActive: true },
@@ -86,9 +87,9 @@ const createIntegration = async (
 };
 
 const editIntegration = async (
+  subdomain: string,
   fields: IIntegration,
   integration: IIntegrationDocument,
-  //   user: IUserDocument,
   user,
   updated: IIntegrationDocument,
   models: IModels
@@ -107,6 +108,7 @@ const editIntegration = async (
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.INTEGRATION,
         object: integration,
@@ -142,12 +144,12 @@ const integrationMutations = {
   async integrationsEditMessengerIntegration(
     _root,
     { _id, ...fields }: IEditIntegration,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
     const updated = await models.Integrations.updateMessengerIntegration(_id, fields);
 
-    return editIntegration(fields, integration, user, updated, models);
+    return editIntegration(subdomain, fields, integration, user, updated, models);
   },
 
   /**
@@ -191,13 +193,13 @@ const integrationMutations = {
   async integrationsEditLeadIntegration(
     _root,
     { _id, ...doc }: IEditIntegration,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
 
     const updated = await models.Integrations.updateLeadIntegration(_id, doc);
 
-    return editIntegration(doc, integration, user, updated, models);
+    return editIntegration(subdomain, doc, integration, user, updated, models);
   },
 
   /**
@@ -277,6 +279,7 @@ const integrationMutations = {
 
       await putCreateLog(
         models,
+        subdomain,
         {
           type: MODULE_NAMES.INTEGRATION,
           newData: { ...doc, createdUserId: user._id, isActive: true },
@@ -295,7 +298,7 @@ const integrationMutations = {
   async integrationsEditCommonFields(
     _root,
     { _id, name, brandId, channelIds, data },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
 
@@ -327,6 +330,7 @@ const integrationMutations = {
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.INTEGRATION,
         object: { name: integration.name, brandId: integration.brandId },
@@ -385,6 +389,7 @@ const integrationMutations = {
 
       await putDeleteLog(
         models,
+        subdomain,
         { type: MODULE_NAMES.INTEGRATION, object: integration },
         user
       );
@@ -513,7 +518,7 @@ const integrationMutations = {
   async integrationsArchive(
     _root,
     { _id, status }: IArchiveParams,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
 
@@ -523,6 +528,7 @@ const integrationMutations = {
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.INTEGRATION,
         object: integration,
@@ -665,6 +671,7 @@ const integrationMutations = {
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.INTEGRATION,
         newData: { ...doc, createdUserId: user._id, isActive: true },
@@ -708,13 +715,13 @@ const integrationMutations = {
   async integrationsEditBookingIntegration(
     _root,
     { _id, ...doc }: IEditIntegration,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
 
     const updated = await models.Integrations.updateBookingIntegration(_id, doc);
 
-    return editIntegration(doc, integration, user, updated, models);
+    return editIntegration(subdomain, doc, integration, user, updated, models);
   }
 };
 
