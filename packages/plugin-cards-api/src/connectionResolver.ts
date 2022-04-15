@@ -60,6 +60,7 @@ export interface IModels {
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
+  serverTiming: any;
 }
 
 export let models: IModels;
