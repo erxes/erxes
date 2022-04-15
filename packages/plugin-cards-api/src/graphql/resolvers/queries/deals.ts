@@ -49,7 +49,8 @@ const dealQueries = {
       user,
       "deal",
       { productsData: 1 },
-      getExtraFields
+      getExtraFields,
+      serverTiming
     );
 
     serverTiming.endTime('getItemsList');

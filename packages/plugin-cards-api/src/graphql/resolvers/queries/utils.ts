@@ -622,7 +622,8 @@ export const getItemList = async (
   user: IUserDocument,
   type: string,
   extraFields?: { [key: string]: number },
-  getExtraFields?: (item: any) => { [key: string]: any }
+  getExtraFields?: (item: any) => { [key: string]: any },
+  serverTiming?
 ) => {
   const { collection } = getCollection(models, type);
   const sort = generateSort(args);
@@ -689,11 +690,19 @@ export const getItemList = async (
 
   const ids = list.map(item => item._id);
 
+  if (serverTiming) {
+    serverTiming.startTime('conformities');
+  }
+
   const conformities = await sendCoreMessage({ subdomain, action: 'conformities.getConformities', data: {
     mainType: type,
     mainTypeIds: ids,
     relTypes: ['company', 'customer']
   }, isRPC: true, defaultValue: []});
+
+  if (serverTiming) {
+    serverTiming.endTime('conformities');
+  }
 
   const companyIds: string[] = [];
   const customerIds: string[] = [];
@@ -759,6 +768,10 @@ export const getItemList = async (
     }
   }
 
+  if (serverTiming) {
+    serverTiming.startTime('getItems:companies');
+  }
+
   const companies = await sendContactsMessage({ subdomain, action: 'companies.findActiveCompanies', data: {
     selector: {
       _id: { $in: [...new Set(companyIds)] }
@@ -772,6 +785,14 @@ export const getItemList = async (
       phones: 1
     }
   }, isRPC: true });
+
+  if (serverTiming) {
+    serverTiming.endTime('getItems:companies');
+  }
+
+  if (serverTiming) {
+    serverTiming.startTime('getItems:customers');
+  }
 
   const customers = await sendContactsMessage({ subdomain, action: 'customers.findActiveCustomers', data: {
     selector: {
@@ -789,6 +810,10 @@ export const getItemList = async (
     }
   }, isRPC: true, defaultValue: [] });
 
+  if (serverTiming) {
+    serverTiming.endTime('getItems:customers');
+  }
+
   const getCocsByItemId = (
     itemId: string,
     cocIdsByItemId: any,
@@ -805,6 +830,10 @@ export const getItemList = async (
 
   const updatedList: any[] = [];
 
+  if (serverTiming) {
+    serverTiming.startTime('getItems:notifications');
+  }
+
   const notifications = await sendNotificationsMessage({
     subdomain,
     action: 'find',
@@ -819,6 +848,10 @@ export const getItemList = async (
     isRPC: true,
     defaultValue: []
   });
+
+  if (serverTiming) {
+    serverTiming.endTime('getItems:notifications');
+  }
 
   for (const item of list) {
     const notification = notifications.find(n => n.contentTypeId === item._id);
