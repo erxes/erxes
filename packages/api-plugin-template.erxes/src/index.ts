@@ -38,6 +38,12 @@ const { MONGO_URL, RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, PORT } = process.env;
 
 export const app = express();
 
+if (configs.middlewares) {
+  for (const middleware of configs.middlewares) {
+    app.use(middleware())
+  }
+}
+
 app.disable('x-powered-by');
 
 app.use(cors());
@@ -134,7 +140,7 @@ const generateApolloServer = async serviceDiscovery => {
 
     // for graceful shutdown
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-    context: async ({ req }) => {
+    context: async ({ req, res }) => {
       let user: any = null;
 
       if (req.headers.user) {
@@ -153,7 +159,7 @@ const generateApolloServer = async serviceDiscovery => {
         commonQuerySelector: {}
       };
 
-      await configs.apolloServerContext(context);
+      await configs.apolloServerContext(context, req, res);
 
       return context;
     }
