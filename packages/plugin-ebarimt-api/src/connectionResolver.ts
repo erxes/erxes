@@ -1,6 +1,6 @@
 import * as mongoose from "mongoose";
 import { mainDb } from "./configs";
-import { IPutResponseDoc } from "./models/definitions/ebarimt";
+import { IPutResponseDocument } from "./models/definitions/ebarimt";
 import { IPutResponseModel, loadPutResponseClass } from "./models/Ebarimt";
 import { IContext as IMainContext } from "@erxes/api-utils/src";
 
@@ -29,7 +29,7 @@ export const generateModels = async (
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
-  models.PutResponses = db.model<IPutResponseDoc, IPutResponseModel>(
+  models.PutResponses = db.model<IPutResponseDocument, IPutResponseModel>(
     "put_responses",
     loadPutResponseClass(models)
   );

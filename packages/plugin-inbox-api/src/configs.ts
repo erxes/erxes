@@ -1,3 +1,4 @@
+import * as cors from 'cors';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
@@ -22,6 +23,7 @@ import segments from './segments';
 import forms from './forms';
 import permissions from './permissions';
 import search from './search';
+import widgetsMiddleware from './middlewares/widgetsMiddleware';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -122,6 +124,8 @@ export default {
         res => res.json({})
       )
     );
+
+    app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
 
     initBroker(options.messageBrokerClient);
 

@@ -141,13 +141,12 @@ const SideContent = styledTS<{
   width: ${props => (props.wide ? '340px' : '290px')};
   flex: ${props => (props.half ? '1' : 'none')};
   background: ${props => (props.full ? colors.colorWhite : 'none')};
-  margin: ${props => !props.hasBorder && `${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${
+  margin: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${
   dimensions.unitSpacing
-}px 0`};
+}px 0;
   border-right: ${props => props.hasBorder && `1px solid ${colors.borderPrimary}`};
   box-shadow: ${props =>
     props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
-  padding: ${props => props.hasBorder && `${dimensions.unitSpacing}px`}
 
   ${TabContainer} {
     position: sticky;
@@ -349,7 +348,8 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
     }
 
     &.active {
-      background: ${rgba(colors.colorPrimary, 0.2)}
+      background: ${rgba(colors.colorPrimary, 0.2)};
+      color: ${colors.colorPrimary};
     }
 
     &.multiple-choice {

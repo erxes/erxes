@@ -12,12 +12,13 @@ const scriptMutations = {
   /**
    * Creates a new script
    */
-  async scriptsAdd(_root, doc: IScript, { user, docModifier, models }: IContext) {
+  async scriptsAdd(_root, doc: IScript, { user, docModifier, models, subdomain }: IContext) {
     const modifiedDoc = docModifier(doc);
     const script = await models.Scripts.createScript(modifiedDoc);
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.SCRIPT,
         newData: modifiedDoc,
@@ -35,13 +36,14 @@ const scriptMutations = {
   async scriptsEdit(
     _root,
     { _id, ...fields }: IScriptsEdit,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const script = await models.Scripts.getScript(_id);
     const updated = await models.Scripts.updateScript(_id, fields);
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.SCRIPT,
         object: script,
@@ -57,11 +59,16 @@ const scriptMutations = {
   /**
    * Deletes a script
    */
-  async scriptsRemove(_root, { _id }: { _id: string }, { user, models }: IContext) {
+  async scriptsRemove(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
     const script = await models.Scripts.getScript(_id);
     const removed = await models.Scripts.removeScript(_id);
 
-    await putDeleteLog(models, { type: MODULE_NAMES.SCRIPT, object: script }, user);
+    await putDeleteLog(
+      models,
+      subdomain,
+      { type: MODULE_NAMES.SCRIPT, object: script },
+      user
+    );
 
     return removed;
   }

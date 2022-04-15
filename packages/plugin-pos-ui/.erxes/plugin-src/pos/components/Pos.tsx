@@ -29,11 +29,9 @@ type Props = {
   save: (params: any) => void;
   productCategories: IProductCategory[];
   branches: any[];
-  fieldsCombined: FieldsCombinedByType[];
 };
 
 type State = {
-  brand?: string;
   name?: string;
   description?: string;
   pos?: IPos;
@@ -83,14 +81,10 @@ class Pos extends React.Component<Props, State> {
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { brand, pos, groups, uiOptions, ebarimtConfig, erkhetConfig, deliveryConfig } = this.state;
+    const { pos, groups, uiOptions, ebarimtConfig, erkhetConfig, deliveryConfig } = this.state;
 
     if (!pos.name) {
       return Alert.error('Enter POS name');
-    }
-
-    if (!brand) {
-      return Alert.error('Choose a Brand');
     }
 
     if (!pos.adminIds || !pos.adminIds.length) {
@@ -107,7 +101,6 @@ class Pos extends React.Component<Props, State> {
 
     let doc: any = {
       name: pos.name,
-      brandId: brand,
       description: pos.description,
       productDetails: pos.productDetails || [],
       groups,
@@ -225,9 +218,9 @@ class Pos extends React.Component<Props, State> {
 
   render() {
     const { pos, groups, currentMode, uiOptions } = this.state;
-    const { productCategories, branches, fieldsCombined } = this.props;
+    const { productCategories, branches } = this.props;
     const breadcrumb = [
-      { title: 'POS List', link: `}/pos` },
+      { title: 'POS List', link: `/pos` },
       { title: 'POS' }
     ];
 
@@ -308,7 +301,6 @@ class Pos extends React.Component<Props, State> {
                 <DeliveryConfig
                   onChange={this.onChange}
                   pos={pos}
-                  fieldsCombined={fieldsCombined}
                 />
               </Step>
             </Steps>

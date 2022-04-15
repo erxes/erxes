@@ -79,7 +79,7 @@ class Channels extends React.Component<Props, {}> {
             breadcrumb={breadcrumb}
           />
         }
-        subHeader={
+        mainHead={
           <HeaderDescription
             icon='/images/actions/31.svg'
             title={'Channels'}

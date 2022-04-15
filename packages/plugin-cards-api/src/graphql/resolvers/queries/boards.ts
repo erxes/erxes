@@ -45,7 +45,7 @@ const boardQueries = {
   async boards(
     _root,
     { type }: { type: string },
-    { user, commonQuerySelector, models: { Boards } }: IContext
+    { user, commonQuerySelector, models: { Boards }, res }: IContext
   ) {
     const pipelineFilter = user.isOwner
       ? {}

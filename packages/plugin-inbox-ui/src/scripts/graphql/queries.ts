@@ -18,7 +18,7 @@ const scripts = `
       }
       kbTopicId
       ${
-        isEnabled('knowledgeBase')
+        isEnabled('knowledgebase')
           ? `
       kbTopic {
         _id

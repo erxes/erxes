@@ -39,19 +39,6 @@ const chatMutations = {
       user._id
     );
 
-    // sendNotification(models, memoryStorage, graphqlPubsub, {
-    //   notifType: 'plugin',
-    //   title: doc.name || doc.description,
-    //   content: doc.description,
-    //   action: `${doc.type} chat created`,
-    //   link: `/erxes-plugin-chat/home`,
-    //   createdUser: user,
-    //   // exclude current user
-    //   contentType: 'chat',
-    //   contentTypeId: chat._id,
-    //   receivers: allParticipantIds,
-    // });
-
     sendCoreMessage({
       subdomain: "os",
       action: "sendMobileNotification",
@@ -61,12 +48,6 @@ const chatMutations = {
         receivers: allParticipantIds,
       },
     });
-
-    // sendMobileNotification(coreModels, {
-    //   title: doc.title,
-    //   body: doc.description,
-    //   receivers: allParticipantIds,
-    // });
 
     graphqlPubsub.publish("chatInserted", {
       userId: user._id,

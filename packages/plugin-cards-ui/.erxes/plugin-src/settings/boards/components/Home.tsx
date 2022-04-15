@@ -30,7 +30,7 @@ class Home extends React.Component<Props, {}> {
         header={
           <Wrapper.Header title={__(boardName)} breadcrumb={breadcrumb} />
         }
-        subHeader={
+        mainHead={
           <HeaderDescription
             icon="/images/actions/34.svg"
             title={`${boardName} & ${pipelineName}`}

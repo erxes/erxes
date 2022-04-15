@@ -35,7 +35,7 @@ export const initBroker = async (cl) => {
   consumeQueue('syncerkhet:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;
-  })
+  });
 };
 
 export const sendProductsMessage = async (args: ISendMessageArgs): Promise<any> => {

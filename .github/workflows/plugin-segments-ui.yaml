@@ -39,4 +39,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-segments-ui/.erxes/dist s3://plugin-uis/plugin-segments-ui --delete 
+          aws s3 sync packages/plugin-segments-ui/.erxes/dist s3://erxes-plugins/uis/plugin-segments-ui --delete 

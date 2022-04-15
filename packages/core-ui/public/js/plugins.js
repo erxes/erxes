@@ -67,7 +67,6 @@ window.plugins = [
     port: 3016,
     exposes: {
       "./routes": "./src/routes.tsx",
-
     },
     routes: {
       url: "http://localhost:3016/remoteEntry.js",
@@ -82,7 +81,7 @@ window.plugins = [
         location: "settings",
         scope: "pos",
         action: "posConfig",
-        permissions: ['showPos'],
+        permissions: ["showPos"],
       },
     ],
   },
@@ -100,21 +99,21 @@ window.plugins = [
     },
     menus: [
       {
-        text: 'Loyalties',
-        url: '/vouchers',
-        icon: 'icon-piggybank',
+        text: "Loyalties",
+        url: "/vouchers",
+        icon: "icon-piggybank",
         location: "mainNavigation",
-        permission: 'showLoyalties'
+        permission: "showLoyalties",
       },
       {
-        text: 'Loyalties config',
-        to: '/erxes-plugin-loyalty/settings/general',
-        image: '/images/icons/erxes-16.svg',
+        text: "Loyalties config",
+        to: "/erxes-plugin-loyalty/settings/general",
+        image: "/images/icons/erxes-16.svg",
         location: "settings",
         scope: "loyalties",
-        action: 'loyaltyConfig',
-        permissions: ['loyaltyConfig'],
-      }
+        action: "loyaltyConfig",
+        permissions: ["loyaltyConfig"],
+      },
     ],
     customerRightSidebarSection: {
       text: "customerSection",

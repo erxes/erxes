@@ -327,3 +327,33 @@ export const getCardItem = async (
 
   return item;
 };
+
+export const getBoardsAndPipelines = (doc) => {
+  const { config } = doc;
+  
+  if(!config || !config.boardsPipelines) {
+    return doc;
+  }
+
+  const boardIds: string[] = [];
+  const pipelineIds: string[] = [];
+
+  const boardsPipelines = config.boardsPipelines || [];
+
+  for (const item of boardsPipelines) {
+    boardIds.push(item.boardId || '');
+
+    const pipelines = item.pipelineIds || [];
+
+    for (const pipelineId of pipelines) {
+      pipelineIds.push(pipelineId);
+    }
+  }
+
+  config.boardIds = boardIds;
+  config.pipelineIds = pipelineIds;
+
+  doc.config = config;
+
+  return doc;
+};

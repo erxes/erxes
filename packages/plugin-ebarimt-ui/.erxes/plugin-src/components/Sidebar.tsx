@@ -2,6 +2,7 @@ import { Sidebar as LeftSidebar, SidebarList as List } from '@erxes/ui/src/layou
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 
 class Sidebar extends React.Component {
   renderListItem(url: string, text: string) {
@@ -19,7 +20,7 @@ class Sidebar extends React.Component {
 
   render() {
     return (
-      <LeftSidebar full={true} hasBorder={true}>
+      <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
         <List id="SettingsSidebar">
           {this.renderListItem(
             '/erxes-plugin-ebarimt/settings/general',

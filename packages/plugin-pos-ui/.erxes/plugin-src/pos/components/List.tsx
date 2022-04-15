@@ -6,7 +6,7 @@ import {
   SortHandler,
   __,
   Table,
-  Wrapper,
+  Wrapper
 } from '@erxes/ui/src';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -19,6 +19,7 @@ type Props = {
   isAllSelected: boolean;
   emptyBulk: () => void;
   queryParams: any;
+  tagsCount: { [key: string]: number };
   toggleBulk: (target: IPos, toAdd: boolean) => void; //*checkType
   toggleAll: (bulk: IPos[], name: string) => void; //*checkType
   loading: boolean;
@@ -101,7 +102,7 @@ class List extends React.Component<Props, {}> {
           />
         }
         actionBar={actionBar}
-        footer={<Pagination count={0} />}
+        footer={<Pagination count={50} />}
         content={
           <DataWithLoader
             data={content}

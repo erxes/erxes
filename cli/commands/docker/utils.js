@@ -3,12 +3,17 @@ const fse = require("fs-extra");
 const yaml = require("yaml");
 const { log, execCommand, filePath, execCurl } = require("../utils");
 
+const sleep = (ms) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 const commonEnvs = (configs) => {
   const db_server_address = configs.db_server_address;
   const redis = configs.redis || {};
   const rabbitmq = configs.rabbitmq || {};
-
-  const rabbitmq_host = `amqp://${rabbitmq.user}:${rabbitmq.pass}@${db_server_address}:5672/${rabbitmq.vhost}`;
+  const rabbitmq_host = `amqp://${rabbitmq.user}:${rabbitmq.pass}@${rabbitmq.server_address || db_server_address}:5672/${rabbitmq.vhost}`;
 
   return {
     DEBUG: "erxes*",
@@ -19,6 +24,7 @@ const commonEnvs = (configs) => {
     RABBITMQ_HOST: rabbitmq_host,
     ELASTICSEARCH_URL: `${db_server_address}:9200`,
     ENABLED_SERVICES_PATH: "/data/enabled-services.js",
+    MESSAGE_BROKER_PREFIX: rabbitmq.prefix || ''
   };
 };
 
@@ -50,18 +56,19 @@ const deploy = {
       update_config: {
         order: "start-first",
         failure_action: "rollback",
-        delay: "5s"
+        delay: "1s"
       }
 }
 
 const generatePluginBlock = (configs, plugin) => {
+  const api_mongo_url = mongoEnv(configs, {});
   const mongo_url = plugin.mongo_url || mongoEnv(configs, plugin);
 
   return {
     image: `erxes/plugin-${plugin.name}-api:federation`,
     environment: {
       PORT: plugin.port || 80,
-      API_MONGO_URL: mongo_url,
+      API_MONGO_URL: api_mongo_url,
       MONGO_URL: mongo_url,
       LOAD_BALANCER_ADDRESS: `http://plugin_${plugin.name}_api`,
       ...commonEnvs(configs),
@@ -72,7 +79,7 @@ const generatePluginBlock = (configs, plugin) => {
   };
 };
 
-module.exports.deployDbs = async (program) => {
+const deployDbs = async (program) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath("configs.json"));
@@ -174,11 +181,11 @@ module.exports.deployDbs = async (program) => {
   log("Deploy ......");
 
   return execCommand(
-    "docker stack deploy --compose-file docker-compose-dbs.yml erxes-dbs  --with-registry-auth"
+    "docker stack deploy --compose-file docker-compose-dbs.yml erxes-dbs --with-registry-auth --resolve-image changed"
   );
 };
 
-module.exports.dup = async (program) => {
+const up = async (uis) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath("configs.json"));
@@ -215,6 +222,7 @@ module.exports.dup = async (program) => {
           "./plugins.js:/usr/share/nginx/html/js/plugins.js",
           "./plugin-uis:/usr/share/nginx/html/js/plugins",
         ],
+        deploy,
         networks: ["erxes"],
       },
       plugin_core_api: {
@@ -324,17 +332,10 @@ module.exports.dup = async (program) => {
     };
   }
 
-  if (!(await fse.exists(filePath("plugin-uis")))) {
-    log("Downloading plugin uis from s3 ....");
-    await execCommand(
-      "aws s3 sync s3://plugin-uis plugin-uis  --no-sign-request"
-    );
-  }
-
   log("Downloading pluginsMap.js from s3 ....");
 
   await execCurl(
-    "https://plugin-uis.s3.us-west-2.amazonaws.com/pluginsMap.js",
+    "https://erxes-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js",
     "pluginsMap.js"
   );
 
@@ -342,6 +343,7 @@ module.exports.dup = async (program) => {
 
   const enabledPlugins = [];
   const uiPlugins = [];
+  const essyncerJSON = { plugins: [] };
 
   for (const plugin of configs.plugins || []) {
     dockerComposeConfig.services[
@@ -350,12 +352,41 @@ module.exports.dup = async (program) => {
 
     enabledPlugins.push(`'${plugin.name}'`);
 
-    if (pluginsMap[plugin.name]) {
-      uiPlugins.push(
-        JSON.stringify({
-          name: plugin.name,
-          ...pluginsMap[plugin.name],
-        })
+    if (pluginsMap[plugin.name] && pluginsMap[plugin.name].ui) {
+      const uiConfig = pluginsMap[plugin.name].ui;
+
+      if (uiConfig) {
+        uiPlugins.push(
+          JSON.stringify({
+            name: plugin.name,
+            ...pluginsMap[plugin.name].ui,
+          })
+        );
+      }
+
+      const apiConfig = pluginsMap[plugin.name].api;
+
+      if (apiConfig && apiConfig.essyncer) {
+        essyncerJSON.plugins.push({
+          db_name: plugin.db_name || 'erxes',
+          collections: apiConfig.essyncer
+        });
+      }
+    }
+  }
+
+  if (!(await fse.exists(filePath("plugin-uis")))) {
+    await execCommand('mkdir plugin-uis', true);
+  }
+
+  if (uis) {
+    for (const plugin of configs.plugins || []) {
+      const name = `plugin-${plugin.name}-ui`;
+
+      log(`Downloading ${name} ui from s3 ....`);
+
+      await execCommand(
+        `aws s3 sync s3://erxes-plugins/uis/${name} plugin-uis/${name} --no-sign-request`
       );
     }
   }
@@ -395,6 +426,14 @@ module.exports.dup = async (program) => {
 
   const yamlString = yaml.stringify(dockerComposeConfig);
 
+  // essyncer 
+  if (!(await fse.exists(filePath("essyncerData")))) {
+    await execCommand('mkdir essyncerData', true);
+  }
+
+  log("Generating essyncer json ....");
+  await fse.writeJSON(filePath("essyncerData/plugins.json"), essyncerJSON);
+
   log("Generating docker-compose.yml ....");
 
   fs.writeFileSync(filePath("docker-compose.yml"), yamlString);
@@ -402,92 +441,132 @@ module.exports.dup = async (program) => {
   log("Deploy ......");
 
   return execCommand(
-    "docker stack deploy --compose-file docker-compose.yml erxes  --with-registry-auth"
+    "docker stack deploy --compose-file docker-compose.yml erxes --with-registry-auth --resolve-image changed"
   );
 };
 
-module.exports.dupdate = async (program) => {
-  if (program.uis) {
-    log("Syncing plugin uis from s3 ....");
-
-    await execCommand(
-      "aws s3 sync s3://plugin-uis plugin-uis  --no-sign-request"
-    );
-    return;
-  }
-
+const update = async (program) => {
   if (process.argv.length < 4) {
-    return console.log("Pass plugin names !!!");
+    return console.log("Pass service names !!!");
   }
 
   const pluginNames = process.argv[3];
 
   for (const name of pluginNames.split(",")) {
-    log(`Force updating  ${name}......`);
+    log(`Updating image ${name}......`);
 
-    switch (name) {
-      case "coreui":
-        await execCommand(
-          `docker service update erxes_coreui --image erxes/erxes:federation`
-        );
-        break;
-      case "widgets":
-        await execCommand(
-          `docker service update erxes_widgets --image erxes/widgets:federation`
-        );
-        break;
-      case "dashboard-front":
-        await execCommand(
-          `docker service update erxes_dashboard-front --image erxes/dashboard-front:federation`
-        );
-        break;
-      case "workers":
-        await execCommand(
-          `docker service update erxes_workers --image erxes/workers:federation`
-        );
-        break;
-      case "dashboard":
-        await execCommand(
-          `docker service update erxes_dashboard --image erxes/dashboard:federation`
-        );
-        break;
-      case "core":
-        await execCommand(
-          `docker service update erxes_plugin_core_api --image erxes/core:federation`
-        );
-        break;
-      case "gateway":
-        await execCommand(
-          `docker service update erxes_gateway --image erxes/gateway:federation`
-        );
-        break;
-
-      default:
-        await execCommand(
-          `docker service update erxes_plugin_${name}_api --image erxes/plugin-${name}-api:federation`
-        );
+    if (['dashboard', 'workers', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
+      await execCommand(
+        `docker service update erxes_${name} --image erxes/${name}:federation`
+      );
+      continue;
     }
+
+    if (name === 'coreui') {
+      await execCommand(
+        `docker service update erxes_coreui --image erxes/erxes:federation`
+      );
+      continue;
+    }
+
+    if (name === 'core') {
+      await execCommand(
+        `docker service update erxes_plugin_core_api --image erxes/core:federation`
+      );
+      continue;
+    }
+
+    await execCommand(
+      `docker service update erxes_plugin_${name}_api --image erxes/plugin-${name}-api:federation`
+    );
+
+    if (program.uis) {
+      log("Syncing plugin uis from s3 ....");
+
+      const uiname = `plugin-${name}-ui`;
+
+      await execCommand(`rm -rf plugin-uis/${uiname}`, true);
+      await execCommand(`aws s3 sync s3://erxes-plugins/uis/${uiname} plugin-uis/${uiname} --no-sign-request`);
+
+      log("Restart core ui ....");
+      await execCommand(`docker service update --force erxes_coreui`);
+    }
+
+    log("Updating gateway ....");
+    await execCommand(`docker service update --force erxes_gateway`);
   }
 };
 
-module.exports.drestart = async () => {
-  await cleaning();
+const restart = async (name) => {
+  log(`Restarting .... ${name}`);
+
+  if (name === 'gateway') {
+    await execCommand(`docker service update --force erxes_gateway`);
+  }
+
+  if (name === 'coreui') {
+    await execCommand(`docker service update --force erxes_coreui`);
+  }
+};
+
+module.exports.manageInstallation = async (program) => {
+  const type = process.argv[3];
+  const name = process.argv[4];
 
   const configs = await fse.readJSON(filePath("configs.json"));
 
-  const names = configs.plugins.map((p) => `plugin_${p.name}_api`);
-  names.push("plugin_core_api");
+  if (type === "install") {
+    const prevEntry = configs.plugins.find((p) => p.name === name);
 
-  console.log("Removing services .......");
-  await execCommand("docker service rm erxes_gateway", true);
-
-  for (const name of names) {
-    await execCommand(`docker service rm erxes_${name}`, true);
+    if (!prevEntry) {
+      configs.plugins.push({ name: name });
+    }
+  } else {
+    configs.plugins = configs.plugins.filter(
+      (p) => p.name !== name
+    );
   }
 
-  console.log("Deploy .......");
+  log("Updating configs.json ....");
 
-  await execCommand(
-    "docker stack deploy --compose-file docker-compose.yml erxes  --with-registry-auth"
-  );
+  await fse.writeJSON(filePath("configs.json"), configs);
+
+  if (type === "install") {
+    log("Running up ....");
+    await up();
+
+    log("Syncing ui ....");
+
+    await execCommand(
+      `aws s3 sync s3://erxes-plugins/uis/plugin-${name}-ui plugin-uis/plugin-${name}-ui --no-sign-request`
+    );
+
+    await restart('coreui');
+
+    log("Waiting for 30 seconds ....");
+    await sleep(30000);
+  } else {
+    log("Running up ....");
+    await up();
+
+    log(`Removing ${name} service ....`);
+    await execCommand(`docker service rm erxes_plugin_${name}_api`, true);
+
+    await restart('coreui');
+  }
+
+  await restart('gateway');
+};
+
+module.exports.up = (program) => {
+  return up(program.uis);
+};
+
+module.exports.deployDbs = deployDbs;
+
+module.exports.update = update;
+
+module.exports.restart = () => {
+  const name = process.argv[3];
+  return restart(name);
 };

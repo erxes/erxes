@@ -280,7 +280,7 @@ class List extends React.Component<IProps, State> {
             breadcrumb={breadcrumb}
           />
         }
-        subHeader={
+        mainHead={
           <HeaderDescription
             icon='/images/actions/30.svg'
             title={'Product & Service'}

@@ -147,8 +147,6 @@ class PutResponses extends React.Component<IProps, State> {
 
     const menuPos = [
       { title: 'Put Response', link: '/put-responses' },
-      { title: 'Pos Orders', link: '/pos-orders' },
-      { title: 'Pos Items', link: '/pos-order-items' }
     ];
 
     return (

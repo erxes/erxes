@@ -10,7 +10,7 @@ export interface IPutResponseConfig {
   defaultGSCode: string;
 }
 
-export interface IPutResponseDoc extends Document {
+export interface IPutResponse {
   data: Date;
   orderId: string;
   hasVat: boolean;
@@ -30,6 +30,12 @@ export interface IPutResponseDoc extends Document {
 
   contentType: string;
   contentId: string;
+}
+
+export interface IPutResponseDocument extends Document, IPutResponse {
+  _id: string;
+  createdAt: Date;
+  modifiedAt: Date;
 }
 
 export const putResponseSchema = schemaHooksWrapper(

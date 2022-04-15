@@ -397,6 +397,7 @@ class GeneralStep extends React.Component<Props, {}> {
       </>
     )
   }
+
   render() {
     const { pos } = this.props;
 

@@ -1,5 +1,6 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
+import * as serverTiming from 'server-timing';
 
 import { initBroker, sendSegmentsMessage } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
@@ -52,14 +53,21 @@ export default {
     search,
   },
 
-  apolloServerContext: async (context) => {
+  apolloServerContext: async (context, req, res) => {
     const subdomain = 'os';
 
     context.models = await generateModels(subdomain);
     context.subdomain = subdomain;
 
+    context.serverTiming = {
+      startTime: res.startTime,
+      endTime: res.endTime,
+      setMetric: res.setMetric
+    }
+
     return context;
   },
+  middlewares: [serverTiming],
   onServerInit: async options => {
     mainDb = options.db;
 

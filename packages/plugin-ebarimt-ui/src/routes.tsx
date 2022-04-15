@@ -21,16 +21,6 @@ const PutResponses = asyncComponent(() =>
   import(/* webpackChunkName: "KnowledgeBase" */ './containers/PutResponses')
 )
 
-// const Response = asyncComponent(() =>
-//   import(/* webpackChunkName: "KnowledgeBase" */ './containers/Response')
-// )
-
-// const returnResponse = ({ currentUser }) => {
-//   return (
-//     <Response currentUser={currentUser}/>
-//   )
-// }
-
 const GeneralSetting = () => {
   return (
     <Settings

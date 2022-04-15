@@ -28,7 +28,7 @@ class ClientPortal extends React.Component<Props, {}> {
         header={
           <Wrapper.Header title="Client portal" breadcrumb={breadcrumb} />
         }
-        subHeader={
+        mainHead={
           <HeaderDescription
             icon="/images/actions/32.svg"
             title="Client Portal"
