@@ -543,6 +543,7 @@ const conversationMutations = {
     for (const conversation of conversations) {
       await putUpdateLog(
         models,
+        subdomain,
         {
           type: 'conversation',
           description: 'assignee Changed',
@@ -585,6 +586,7 @@ const conversationMutations = {
     for (const conversation of updatedConversations) {
       await putUpdateLog(
         models,
+        subdomain,
         {
           type: 'conversation',
           description: 'unassignee',
@@ -629,6 +631,7 @@ const conversationMutations = {
     for (const conversation of updatedConversations) {
       await putUpdateLog(
         models,
+        subdomain,
         {
           type: 'conversation',
           description: 'change status',
@@ -669,6 +672,7 @@ const conversationMutations = {
     for (const conversation of updatedConversations) {
       await putUpdateLog(
         models,
+        subdomain,
         {
           type: 'conversation',
           description: 'resolve all',
