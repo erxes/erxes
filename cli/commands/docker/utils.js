@@ -72,6 +72,7 @@ const generatePluginBlock = (configs, plugin) => {
       MONGO_URL: mongo_url,
       LOAD_BALANCER_ADDRESS: `http://plugin_${plugin.name}_api`,
       ...commonEnvs(configs),
+      ...plugin.extraEnv
     },
     volumes: ["./enabled-services.js:/data/enabled-services.js"],
     networks: ["erxes"],
@@ -426,7 +427,7 @@ const up = async (uis) => {
 
   const yamlString = yaml.stringify(dockerComposeConfig);
 
-  // essyncer 
+  // essyncer
   if (!(await fse.exists(filePath("essyncerData")))) {
     await execCommand('mkdir essyncerData', true);
   }
@@ -492,9 +493,10 @@ const update = async (program) => {
       await execCommand(`docker service update --force erxes_coreui`);
     }
 
-    log("Updating gateway ....");
-    await execCommand(`docker service update --force erxes_gateway`);
   }
+
+  log("Updating gateway ....");
+  await execCommand(`docker service update --force erxes_gateway`);
 };
 
 const restart = async (name) => {

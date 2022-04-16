@@ -172,7 +172,7 @@ const putLog = async (
 
   if (afterMutations[params.type] && afterMutations[params.type][params.action] && afterMutations[params.type][params.action].length) {
     for (const service of afterMutations[params.type][params.action]) {
-      messageBroker.sendMessage(`${service}:afterMutation`, {
+      await messageBroker.sendMessage(`${service}:afterMutation`, {
         subdomain: 'os',
         data: {
           ...params,
