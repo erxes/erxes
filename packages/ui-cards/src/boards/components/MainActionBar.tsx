@@ -330,7 +330,7 @@ class MainActionBar extends React.Component<Props> {
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-board">
             <HeaderButton rightIconed={true}>
-              {(currentBoard && currentBoard.name) || __("Choose board")}
+              {(currentBoard && currentBoard.name) || __("Choose board1")}
               <Icon icon="angle-down" />
             </HeaderButton>
           </Dropdown.Toggle>

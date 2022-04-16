@@ -145,13 +145,6 @@ const routes = () => {
         path="/deal/gantt"
         component={gantt}
       />
-
-      <Route
-        key="deals/debug"
-        exact={true}
-        path="/deal/debug"
-        component={() => (<div>debug</div>)}
-      />
     </React.Fragment>
   );
 };
