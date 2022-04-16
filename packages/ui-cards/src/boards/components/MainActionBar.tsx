@@ -250,7 +250,7 @@ class MainActionBar extends React.Component<Props> {
                 to={onFilterClick("board")}
                 className={viewType === "board" ? "active" : ""}
               >
-                {__("Board1")}
+                {__("Board")}
               </Link>
             </li>
             <li key="calendar">
