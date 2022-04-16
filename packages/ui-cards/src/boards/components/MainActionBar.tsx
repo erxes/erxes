@@ -250,7 +250,7 @@ class MainActionBar extends React.Component<Props> {
                 to={onFilterClick("board")}
                 className={viewType === "board" ? "active" : ""}
               >
-                {__("Board")}
+                {__("Board1")}
               </Link>
             </li>
             <li key="calendar">
@@ -330,7 +330,7 @@ class MainActionBar extends React.Component<Props> {
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-board">
             <HeaderButton rightIconed={true}>
-              {(currentBoard && currentBoard.name) || __("Choose board1")}
+              {(currentBoard && currentBoard.name) || __("Choose board")}
               <Icon icon="angle-down" />
             </HeaderButton>
           </Dropdown.Toggle>
