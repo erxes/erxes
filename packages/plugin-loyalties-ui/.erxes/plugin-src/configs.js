@@ -3,7 +3,7 @@ module.exports = {
   port: 3002,
   exposes: {
     "./routes": "./src/routes.tsx",
-    // "./settings": "./src/containers/Widget.tsx",
+    "./sidebar": "./src/containers/Sidebar.tsx",
   },
   routes: {
     url: "http://localhost:3002/remoteEntry.js",
@@ -28,4 +28,19 @@ module.exports = {
       permissions: ['loyaltyConfig'],
     }
   ],
+  customerRightSidebarSection: {
+    text: "customerSection",
+    component: "./sidebar",
+    scope: "loyalties",
+  },
+  companyRightSidebarSection: {
+    text: "companySection",
+    component: "./sidebar",
+    scope: "loyalties",
+  },
+  userRightSidebarSection: {
+    text: "userSection",
+    component: "./sidebar",
+    scope: "loyalties",
+  },
 };
