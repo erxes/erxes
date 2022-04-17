@@ -41,8 +41,8 @@ export default {
 
     await generateModels('os');
 
-    initBroker(options.messageBrokerClient);
-    initBrokerErkhet();
+    await initBroker(options.messageBrokerClient);
+    await initBrokerErkhet();
 
     initMemoryStorage();
 
