@@ -13,8 +13,10 @@ export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue } = client;
+  console.log('zzzzzzzzzzzzzzz')
 
   consumeQueue('syncerkhet:afterMutation', async ({ subdomain, data }) => {
+    console.log('clienttttttttttttt')
     await afterMutationHandlers(subdomain, data);
     return;
   });
@@ -44,8 +46,10 @@ export const initBrokerErkhet = async () => {
   clientErkhet = await erkhetBroker();
 
   const { consumeQueue } = clientErkhet;
+  console.log('ddddddddddddddddddddd')
 
   consumeQueue('rpc_queue:erkhet', async ({ subdomain, data }) => {
+    console.log('client erkhetttttttttttt')
     const { object, old_code, action } = data;
     const objectData = JSON.parse(object)[0];
     const doc = objectData.fields;
