@@ -1,4 +1,4 @@
-import { sendRPCMessage } from './messageBroker';
+import { sendRPCMessage } from './messageBrokerErkhet';
 import { getPostData } from './utils/ebarimtData';
 import { productToErkhet, productCategoryToErkhet } from './utils/productToErkhet';
 import { getConfig } from './utils/utils';
