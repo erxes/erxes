@@ -101,9 +101,7 @@ const command = async () => {
   let bulkOps: any[] = [];
   let counter = 0;
 
-  const logs = await Logs.find().toArray();
-
-  for (const log of logs) {
+  await Logs.find({}).forEach(async log => {
     counter += 1;
     const type = changeType(log.type);
     bulkOps.push({
@@ -118,15 +116,17 @@ const command = async () => {
       counter = 0;
       bulkOps = []
     }
+  })
+
+  if (bulkOps.length) {
+    await Logs.bulkWrite(bulkOps);
   }
+  console.log(`Logs migrated ....`);
 
-  await Logs.bulkWrite(bulkOps);
-
-  const activityLogs = await ActivityLogs.find().toArray();
   bulkOps = [];
   counter = 0;
 
-  for (const log of activityLogs) {
+  await ActivityLogs.find({}).forEach(async log => {
     counter += 1;
     const contentType = changeType(log.contentType);
     bulkOps.push({
@@ -141,8 +141,11 @@ const command = async () => {
       counter = 0;
       bulkOps = []
     }
+  })
+
+  if (bulkOps.length) {
+    await ActivityLogs.bulkWrite(bulkOps);
   }
-  await ActivityLogs.bulkWrite(bulkOps);
 
   console.log(`Process finished at: ${new Date()}`);
 
