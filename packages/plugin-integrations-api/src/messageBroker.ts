@@ -22,6 +22,8 @@ import { chatfuelCreateIntegration, chatfuelReply } from './chatfuel/controller'
 import { gmailCreateIntegration } from './gmail/controller';
 import { telnyxCreateIntegration } from './telnyx/controller';
 import { whatsappCreateIntegration, whatsappReply } from './whatsapp/controller';
+import { ISendMessageArgs, sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core'
+import { serviceDiscovery } from './configs';
 
 dotenv.config();
 
@@ -318,10 +320,11 @@ export default function() {
   return client;
 }
 
-export const sendRPCMessage = async (message): Promise<any> => {
-  return client.sendRPCMessage('rpc_queue:integrations_to_api', message);
-};
-
-export const sendMessage = async (data?: any) => {
-  return client.sendMessage('integrationsNotification', data);
-};
+export const sendInboxMessage = (args: ISendMessageArgs) => {
+ return sendCommonMessage({
+   client,
+   serviceDiscovery,
+   serviceName: "inbox",
+   ...args
+ }) 
+}

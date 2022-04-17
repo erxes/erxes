@@ -40,7 +40,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Cars = db.model<ICarDocument, ICarModel>("cars", loadCarClass(models));
 
   models.CarCategories = db.model<ICarCategoryDocument, ICarCategoryModel>(
-    "carCategories",
+    "car_categories",
     loadCarCategoryClass(models)
   );
 

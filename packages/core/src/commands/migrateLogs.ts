@@ -15,6 +15,7 @@ const client = new MongoClient(LOGS_MONGO_URL);
 let db: Db;
 
 let Logs: Collection<any>;
+let ActivityLogs: Collection<any>;
 
 const changeType = type => {
   let prefix = '';
@@ -95,12 +96,53 @@ const command = async () => {
   db = client.db() as Db;
 
   Logs = db.collection('logs');
+  ActivityLogs = db.collection('activity_logs');
 
-  await Logs.find({}).forEach(doc => {
-    const type = changeType(doc.type);
+  let bulkOps: any[] = [];
+  let counter = 0;
 
-    Logs.updateOne({ _id: doc._id }, { $set: { type } });
-  });
+  const logs = await Logs.find().toArray();
+
+  for (const log of logs) {
+    counter += 1;
+    const type = changeType(log.type);
+    bulkOps.push({
+      updateOne: {
+        filter: { _id: log._id },
+        update: { $set: { type } }
+      }
+    })
+
+    if (counter > 1000) {
+      await Logs.bulkWrite(bulkOps);
+      counter = 0;
+      bulkOps = []
+    }
+  }
+
+  await Logs.bulkWrite(bulkOps);
+
+  const activityLogs = await ActivityLogs.find().toArray();
+  bulkOps = [];
+  counter = 0;
+
+  for (const log of activityLogs) {
+    counter += 1;
+    const contentType = changeType(log.contentType);
+    bulkOps.push({
+      updateOne: {
+        filter: { _id: log._id },
+        update: { $set: { contentType } }
+      }
+    })
+
+    if (counter > 1000) {
+      await ActivityLogs.bulkWrite(bulkOps);
+      counter = 0;
+      bulkOps = []
+    }
+  }
+  await ActivityLogs.bulkWrite(bulkOps);
 
   console.log(`Process finished at: ${new Date()}`);
 

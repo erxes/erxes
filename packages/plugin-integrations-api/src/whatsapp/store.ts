@@ -1,8 +1,8 @@
 import { ConversationMessages, Conversations, Customers } from './models';
 
 import { debugError } from '../debuggers';
-import { sendRPCMessage } from '../messageBroker';
 import { Integrations } from '../models';
+import { sendInboxMessage } from '../messageBroker';
 
 export interface IUser {
   id: string;
@@ -35,16 +35,21 @@ export const getOrCreateCustomer = async (
 
   // save on api
   try {
-    const apiCustomerResponse = await sendRPCMessage({
-      action: 'get-create-update-customer',
-      payload: JSON.stringify({
-        integrationId: integration.erxesApiId,
-        firstName: name,
-        phones: [phoneNumber],
-        primaryPhone: phoneNumber,
-        isUser: true
-      })
-    });
+     const apiCustomerResponse = await sendInboxMessage({
+       subdomain: 'os',
+       action: 'integrations.receive',
+       data: {
+         action: 'get-create-update-customer',
+         payload: JSON.stringify({
+           integrationId: integration.erxesApiId,
+           firstName: name,
+           phones: [phoneNumber],
+           primaryPhone: phoneNumber,
+           isUser: true
+         })
+       },
+       isRPC: true
+     });
 
     customer.erxesApiId = apiCustomerResponse._id;
 
@@ -87,13 +92,18 @@ export const createOrUpdateConversation = async (
 
   // save on api
   try {
-    const apiConversationResponse = await sendRPCMessage({
-      action: 'create-or-update-conversation',
-      payload: JSON.stringify({
-        customerId: customerErxesApiID,
-        integrationId: integrationErxesApiId,
-        content: message.body
-      })
+    const apiConversationResponse = await sendInboxMessage({
+      subdomain: 'os',
+      action: 'integrations.receive',
+      data: {
+        action: 'create-or-update-conversation',
+        payload: JSON.stringify({
+          customerId: customerErxesApiID,
+          integrationId: integrationErxesApiId,
+          content: message.body
+        })
+      },
+      isRPC: true
     });
 
     conversation.erxesApiId = apiConversationResponse._id;
@@ -150,15 +160,20 @@ export const createMessage = async (message, conversationIds) => {
   }
 
   try {
-    await sendRPCMessage({
-      action: 'create-conversation-message',
-      metaInfo: 'replaceContent',
-      payload: JSON.stringify({
-        content: message.body,
-        attachments,
-        conversationId: conversationErxesApiId,
-        customerId: customerErxesApiId
-      })
+    await sendInboxMessage({
+      subdomain: 'os',
+      action: 'integrations.receive',
+      data: {
+        action: 'create-conversation-message',
+        metaInfo: 'replaceContent',
+        payload: JSON.stringify({
+          content: message.body,
+          attachments,
+          conversationId: conversationErxesApiId,
+          customerId: customerErxesApiId
+        })
+      },
+      isRPC: true
     });
   } catch (e) {
     await ConversationMessages.deleteOne({ mid: message.id });

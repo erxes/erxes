@@ -1,4 +1,4 @@
-name: Plugin Car UI CI
+name: Plugin EmailTemplates UI CI
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - federation
     paths:
       - 'packages/erxes-ui/**'
-      - 'packages/plugin-cars-ui/**'
-      - '.github/workflows/plugin-cars-ui.yaml'
+      - 'packages/plugin-email-templates-ui/**'
+      - '.github/workflows/plugin-email-templates-ui.yaml'
 
 jobs:
   ui:
@@ -24,8 +24,8 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          # cp -r packages/ui-plugin-template/.erxes packages/plugin-cars-ui/.erxes
-          cd packages/plugin-cars-ui
+          # cp -r packages/ui-plugin-template/.erxes packages/plugin-email-templates-ui/.erxes
+          cd packages/plugin-email-templates-ui
           yarn install-deps
           yarn build
 
@@ -38,4 +38,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-cars-ui/.erxes/dist s3://erxes-plugins/uis/plugin-cars-ui --delete
+          aws s3 sync packages/plugin-email-templates-ui/.erxes/dist s3://erxes-plugins/uis/plugin-email-templates-ui --delete

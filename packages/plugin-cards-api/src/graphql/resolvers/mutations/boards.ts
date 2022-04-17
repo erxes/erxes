@@ -113,14 +113,25 @@ const boardMutations = {
 
     const relatedFieldsGroups = await sendFormsMessage({
       subdomain,
-      action: 'groups:find',  data: { boardIds: board._id }, isRPC: true, defaultValue: []
+      action: 'fieldsGroups.find',
+      data: {
+        query: {
+          boardIds: board._id
+        }
+      },
+      isRPC: true,
+      defaultValue: []
     });
 
     for (const fieldGroup of relatedFieldsGroups) {
       const boardIds = fieldGroup.boardIds || [];
       fieldGroup.boardIds = boardIds.filter(e => e !== board._id);
 
-      await sendFormsMessage({ subdomain, action: 'groups:update', data: { groupId: fieldGroup._id, fieldGroup }, isRPC: true });
+      await sendFormsMessage({
+        subdomain,
+        action: 'updateGroup',
+        data: { groupId: fieldGroup._id, fieldGroup },
+      });
     }
 
     await putDeleteLog(
@@ -231,21 +242,28 @@ const boardMutations = {
 
     const relatedFieldsGroups = await sendFormsMessage({
       subdomain,
-      action: 'groups:find', data: {
-      pipelineIds: pipeline._id
-    }, isRPC: true, defaultValue: [] });
+      action: 'fieldsGroups.find',
+      data: {
+        query: {
+          pipelineIds: pipeline._id
+        }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
 
     for (const fieldGroup of relatedFieldsGroups) {
       const pipelineIds = fieldGroup.pipelineIds || [];
       fieldGroup.pipelineIds = pipelineIds.filter(e => e !== pipeline._id);
 
-      await sendFormsMessage({
-        subdomain,
-        action: 'groups:update', data: {
-        groupId: fieldGroup._id,
-        fieldGroup
-      }, isRPC: true
-    });
+       await sendFormsMessage({
+         subdomain,
+         action: 'updateGroup',
+         data: {
+           groupId: fieldGroup._id,
+           fieldGroup
+         }
+       });
     }
 
     await putDeleteLog(

@@ -1,7 +1,6 @@
 import queryString from "query-string";
 import React from "react";
 import Settings from "./configs/general/containers/Settings";
-import { __ } from "@erxes/ui/src/utils";
 import { Route } from "react-router-dom";
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 

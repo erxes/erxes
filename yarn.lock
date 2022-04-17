@@ -3041,7 +3041,7 @@
     "@types/qs" "*"
     "@types/range-parser" "*"
 
-"@types/express@*", "@types/express@4.17.13", "@types/express@^4.16.0", "@types/express@^4.17.12", "@types/express@^4.17.13":
+"@types/express@*", "@types/express@4.17.13", "@types/express@^4.16.0", "@types/express@^4.17.12", "@types/express@^4.17.13", "@types/express@^4.17.3":
   version "4.17.13"
   resolved "https://registry.yarnpkg.com/@types/express/-/express-4.17.13.tgz#a76e2995728999bab51a33fabce1d705a3709034"
   integrity sha512-6bSZTPaTIACxn48l50SR+axgrqm6qXFIxrdAKaG6PaJk3+zuUr35hBlgT7vOmJcum+OEaIBLtHV/qloEAFITeA==
@@ -3337,6 +3337,11 @@
   version "10.17.60"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.17.60.tgz#35f3d6213daed95da7f0f73e75bcc6980e90597b"
   integrity sha512-F0KIgDJfy2nA3zMLmWGKxcH2ZVEtCZXHHdOQs2gSaQ27+lNeEfGxzkIw90aXswATX7AZ33tahPbzy6KAfUreVw==
+
+"@types/node@^12.12.30":
+  version "12.20.48"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.20.48.tgz#55f70bd432b6515828c0298689776861b90ca4fa"
+  integrity sha512-4kxzqkrpwYtn6okJUcb2lfUu9ilnb3yhUOH6qX3nug8D2DupZ2drIkff2yJzYcNJVl3begnlcaBJ7tqiTTzjnQ==
 
 "@types/node@^17.0.7", "@types/node@^17.0.8":
   version "17.0.19"
@@ -18387,6 +18392,16 @@ server-timing-header@^1.9.0:
   resolved "https://registry.yarnpkg.com/server-timing-header/-/server-timing-header-1.9.7.tgz#32f39aca076c4c4aefa4521f2446425e37acd5a6"
   integrity sha512-yDJNyIyOyTRAirMVNJ28ndYkB9BP3aKMKLDehFR8ShCOIGBJmajICV9xxGb7kFrdX4bG3PKVYIQXYFzKduA2vw==
   dependencies:
+    on-headers "^1.0.2"
+
+server-timing@3.3.1:
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/server-timing/-/server-timing-3.3.1.tgz#e21c5ef34e7c2c91d20afdf52591544293073781"
+  integrity sha512-U7iv58VEyDYs3XfzfYiDs8kAVZlPcJidkSeLdYSYWu7jYDtfjeFeVeN+I1TQriZBJcVdndO9bS48Zf5HPlT56g==
+  dependencies:
+    "@types/express" "^4.17.3"
+    "@types/node" "^12.12.30"
+    minimist "^1.2.5"
     on-headers "^1.0.2"
 
 set-blocking@^2.0.0:
