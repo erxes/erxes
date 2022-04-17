@@ -10,7 +10,6 @@ export const initBroker = async (cl) => {
   const { consumeQueue } = client;
 
   consumeQueue('syncerkhet:afterMutation', async ({ subdomain, data }) => {
-    console.log('clienttttttttttttt')
     await afterMutationHandlers(subdomain, data);
     return;
   });

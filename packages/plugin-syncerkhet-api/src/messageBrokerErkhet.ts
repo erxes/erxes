@@ -13,10 +13,8 @@ export const initBrokerErkhet = async () => {
   clientErkhet = await erkhetBroker();
 
   const { consumeQueue } = clientErkhet;
-  console.log('ddddddddddddddddddddd')
 
   consumeQueue('rpc_queue:erkhet', async ({ subdomain, data }) => {
-    console.log('client erkhetttttttttttt')
     const { object, old_code, action } = data;
     const objectData = JSON.parse(object)[0];
     const doc = objectData.fields;
@@ -45,7 +43,6 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
 
 export const erkhetBroker = async () => {
   const { ERKHET_RABBITMQ_HOST, ERKHET_MESSAGE_BROKER_PREFIX } = process.env;
-  console.log(ERKHET_RABBITMQ_HOST, ERKHET_MESSAGE_BROKER_PREFIX, 'eeeeeeeeeeeeeeeee')
 
   return await init({
     RABBITMQ_HOST: ERKHET_RABBITMQ_HOST,
