@@ -30,7 +30,11 @@ class Sidebar extends React.Component {
           )}
           {this.renderListItem(
             '/erxes-plugin-sync-erkhet/settings/stage',
-            'Stage in Ebarimt config'
+            'Stage in Erkhet config'
+          )}
+          {this.renderListItem(
+            '/erxes-plugin-sync-erkhet/settings/return-stage',
+            'Stage in Return Erkhet config'
           )}
           {this.renderListItem(
             '/erxes-plugin-sync-erkhet/settings/pipeline',

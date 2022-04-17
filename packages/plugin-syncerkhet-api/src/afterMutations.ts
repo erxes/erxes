@@ -1,8 +1,9 @@
-import { sendRPCMessage } from './messageBrokerErkhet';
+import { sendCommonMessage, sendRPCMessage } from './messageBrokerErkhet';
 import { getPostData } from './utils/ebarimtData';
 import { productToErkhet, productCategoryToErkhet } from './utils/productToErkhet';
 import { getConfig } from './utils/utils';
 import { customerToErkhet, companyToErkhet } from './utils/customerToErkhet';
+import { graphqlPubsub } from './configs';
 
 
 export default {
@@ -27,6 +28,38 @@ export const afterMutationHandlers = async (subdomain, params) => {
       }
 
       const configs = await getConfig(subdomain, 'ebarimtConfig', {});
+      const returnConfigs = await getConfig(subdomain, 'returnEbarimtConfig', {});
+
+      if (Object.keys(returnConfigs).includes(destinationStageId)) {
+        const returnConfig = {
+          ...returnConfigs[destinationStageId],
+          ...(await getConfig(subdomain, 'ERKHET', {})),
+        };
+
+        const orderInfos = [
+          {
+            orderId: deal._id,
+            returnKind: "note",
+          },
+        ];
+
+        const postData = {
+          userEmail: returnConfig.userEmail,
+          token: returnConfig.apiToken,
+          apiKey: returnConfig.apiKey,
+          apiSecret: returnConfig.apiSecret,
+          orderInfos: JSON.stringify(orderInfos),
+        };
+
+        await sendCommonMessage('rpc_queue:erxes-automation-erkhet', {
+          action: 'get-response-send-order-info',
+          isEbarimt: returnConfig.isEbarimt,
+          payload: JSON.stringify(postData),
+          thirdService: true
+        });
+
+        return;
+      }
 
       if (!Object.keys(configs).includes(destinationStageId)) {
         return;
@@ -38,24 +71,37 @@ export const afterMutationHandlers = async (subdomain, params) => {
       };
       const postData = await getPostData(subdomain, config, deal)
 
-      const apiAutomationResponse = await sendRPCMessage('rpc_queue:erxes-automation-erkhet', {
-        action: 'get-response-send-order-info',
-        isEbarimt: config.isEbarimt,
-        payload: JSON.stringify(postData),
-        thirdService: true
-      });
+      if (config.isEbarimt) {
+        const apiAutomationResponse = await sendRPCMessage('rpc_queue:erxes-automation-erkhet', {
+          action: 'get-response-send-order-info',
+          isEbarimt: config.isEbarimt,
+          payload: JSON.stringify(postData),
+          thirdService: true
+        });
 
-      console.log(apiAutomationResponse);
-
-      if (!apiAutomationResponse) {
-        return;
+        if (!apiAutomationResponse) {
+          return;
+        }
+        try {
+          await graphqlPubsub.publish('automationResponded', {
+            automationResponded: {
+              userId: user._id,
+              responseId: deal._id,
+              sessionCode: user.sessionCode || '',
+              content: { ...config, ...apiAutomationResponse },
+            },
+          });
+        } catch (e) {
+          throw new Error(e.message);
+        }
+      } else {
+        await sendCommonMessage('rpc_queue:erxes-automation-erkhet', {
+          action: 'get-response-send-order-info',
+          isEbarimt: config.isEbarimt,
+          payload: JSON.stringify(postData),
+          thirdService: true
+        });
       }
-
-      // TODO:
-      // if (config.isEbrimt) {
-
-      // }
-
       return;
     }
     return;
