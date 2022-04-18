@@ -66,7 +66,6 @@ const removeRelatedIds = async (models: IModels, tag: ITagDocument) => {
 
 export interface ITagModel extends Model<ITagDocument> {
   getTag(_id: string): Promise<ITagDocument>;
-  merge(sourceId: string, destId: string): Promise<ITagDocument>;
   createTag(doc: ITag): Promise<ITagDocument>;
   updateTag(_id: string, doc: ITag): Promise<ITagDocument>;
   removeTag(_id: string): void;
@@ -249,18 +248,11 @@ export const loadTagClass = (models) => {
     public static async removeTag(_id: string) {
       const tag = await models.Tags.getTag(_id);
 
-      //       const collection = getCollection(tag.type);
-
       const childCount = await models.Tags.countDocuments({ parentId: _id });
 
       if (childCount > 0) {
         throw new Error('Please remove child tags first');
       }
-
-      //       await collection.updateMany(
-      //         { tagIds: { $in: [_id] } },
-      //         { $pull: { tagIds: { $in: [_id] } } }
-      //       );
 
       await removeRelatedIds(models, tag);
 
@@ -294,33 +286,6 @@ export const loadTagClass = (models) => {
       }
 
       return `${parentOrder}/${order}`;
-    }
-
-    public static async merge(
-      sourceId: string,
-      destId: string
-    ): Promise<ITagDocument> {
-      const source = await models.Tags.getTag(sourceId);
-
-      //       const collection = await getCollection(source.type);
-
-      //       const items = await collection.find(
-      //         { tagIds: { $in: [sourceId] } },
-      //         { _id: 1 }
-      //       );
-
-      //       const itemIds = items.map(i => i._id);
-
-      //       // add to new destination
-      //       await collection.updateMany(
-      //         { _id: { $in: itemIds } },
-      //         { $push: { tagIds: [destId] } }
-      //       );
-
-      // remove old tag
-      await models.Tags.removeTag(sourceId);
-
-      return models.Tags.getTag(destId);
     }
   }
 
