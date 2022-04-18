@@ -3,7 +3,6 @@ import {
   IItemDragCommonFields
 } from '../../../models/definitions/boards';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-// import { registerOnboardHistory } from '../../utils';
 import {
   itemsAdd,
   itemsArchive,
@@ -13,6 +12,7 @@ import {
   itemsRemove
 } from './utils';
 import { IContext } from '../../../connectionResolver';
+import { sendCoreMessage } from '../../../messageBroker';
 
 interface ITasksEdit extends ITask {
   _id: string;
@@ -53,7 +53,14 @@ const taskMutations = {
     );
 
     if (updatedTask.assignedUserIds) {
-      // await registerOnboardHistory({ type: 'taskAssignUser', user });
+      sendCoreMessage({
+        subdomain,
+        action: 'registerOnboardHistory',
+        data: {
+          type: `taskAssignUser`,
+          user
+        }
+      });
     }
 
     return updatedTask;

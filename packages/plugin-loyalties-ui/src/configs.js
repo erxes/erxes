@@ -3,7 +3,9 @@ module.exports = {
   port: 3002,
   exposes: {
     "./routes": "./src/routes.tsx",
-    "./sidebar": "./src/containers/Sidebar.tsx",
+    "./customerSidebar": "./src/containers/CustomerSidebar.tsx",
+    "./companySidebar": "./src/containers/CompanySidebar.tsx",
+    "./userSidebar": "./src/containers/UserSidebar.tsx",
   },
   routes: {
     url: "http://localhost:3002/remoteEntry.js",
@@ -12,35 +14,35 @@ module.exports = {
   },
   menus: [
     {
-      text: 'Loyalties',
-      url: '/vouchers',
-      icon: 'icon-piggybank',
+      text: "Loyalties",
+      url: "/vouchers",
+      icon: "icon-piggybank",
       location: "mainNavigation",
-      permission: 'showLoyalties'
+      permission: "showLoyalties",
     },
     {
-      text: 'Loyalties config',
-      to: '/erxes-plugin-loyalty/settings/general',
-      image: '/images/icons/erxes-16.svg',
+      text: "Loyalties config",
+      to: "/erxes-plugin-loyalty/settings/general",
+      image: "/images/icons/erxes-16.svg",
       location: "settings",
       scope: "loyalties",
-      action: 'loyaltyConfig',
-      permissions: ['loyaltyConfig'],
-    }
+      action: "loyaltyConfig",
+      permissions: ["loyaltyConfig"],
+    },
   ],
   customerRightSidebarSection: {
     text: "customerSection",
-    component: "./sidebar",
+    component: "./customerSidebar",
     scope: "loyalties",
   },
   companyRightSidebarSection: {
     text: "companySection",
-    component: "./sidebar",
+    component: "./companySidebar",
     scope: "loyalties",
   },
   userRightSidebarSection: {
     text: "userSection",
-    component: "./sidebar",
+    component: "./userSidebar",
     scope: "loyalties",
   },
 };
