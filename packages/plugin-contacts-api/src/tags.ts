@@ -1,4 +1,12 @@
-import { generateModels } from './connectionResolver';
+import { generateModels, IModels } from './connectionResolver';
+
+const modelChanger = (type: string, models: IModels) => {
+  if (type === 'customer') {
+    return models.Customers;
+  }
+
+  return models.Companies;
+};
 
 export default {
   types: [
@@ -17,11 +25,7 @@ export default {
     const models = await generateModels(subdomain);
 
     let response = {};
-    let model: any = models.Companies;
-
-    if (type === 'customer') {
-      model = models.Customers;
-    }
+    let model: any = modelChanger(type, models);
 
     if (action === 'count') {
       response = await model.countDocuments({ tagIds: { $in: _ids } });
@@ -38,5 +42,32 @@ export default {
     }
 
     return response;
+  },
+  fixRelatedItems: async ({
+    subdomain,
+    data: { sourceId, destId, type, action }
+  }) => {
+    const models = await generateModels(subdomain);
+    let model: any = modelChanger(type, models);
+
+    if (action === 'remove') {
+      await model.updateMany(
+        { tagIds: { $in: [sourceId] } },
+        { $pull: { tagIds: { $in: [sourceId] } } }
+      );
+    }
+
+    if (action === 'merge') {
+      const itemIds = await model
+        .find({ tagIds: { $in: [sourceId] } }, { _id: 1 })
+        .distinct('_id');
+
+      // add to new destination
+      await model.updateMany(
+        { _id: { $in: itemIds } },
+        { $set: { 'tagIds.$[elem]': destId } },
+        { arrayFilters: [{ elem: { $eq: sourceId } }] }
+      );
+    }
   }
 };
