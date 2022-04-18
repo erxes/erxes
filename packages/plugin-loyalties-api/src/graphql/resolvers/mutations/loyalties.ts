@@ -18,7 +18,7 @@ interface IParam {
 }
 
 const loyaltiesMutations = {
-  async shareScore(_root, doc: IParam, { models, subdomain, user }: IContext) {
+  async shareScore(_root, doc: IParam, { models, subdomain }: IContext) {
     const {
       ownerType,
       ownerId,
@@ -88,8 +88,16 @@ const loyaltiesMutations = {
 
       destOwnerId = user._id;
 
+      const owner = await sendCoreMessage({
+        subdomain,
+        action: "users.findOne",
+        data: { _id: ownerId },
+        isRPC: true,
+        defaultValue: {},
+      });
+
       sendNotification(subdomain, {
-        createdUser: user,
+        createdUser: owner,
         title: "Loyalty",
         notifType: "plugin",
         action: `send score to you`,
@@ -102,8 +110,8 @@ const loyaltiesMutations = {
         subdomain: subdomain,
         action: "sendMobileNotification",
         data: {
-          title: `${user.details.fullName} sent score to you`,
-          body: `${user.details.fullName} sent ${(score / 100) *
+          title: `${owner.details.fullName} sent score to you`,
+          body: `${owner.details.fullName} sent ${(score / 100) *
             (100 - fee)} score to you`,
           receivers: [destOwnerId],
         },
