@@ -63,12 +63,7 @@ const mutations = {
     return updatedDocument;
   },
 
-  posRemove: async (
-    _root,
-    { _id }: { _id: string },
-    { models, checkPermission, user }
-  ) => {
-    await checkPermission("managePos", user);
+  posRemove: async ( _root, { _id }: { _id: string }, { models } ) => {
     return await models.Pos.posRemove(_id);
   },
 
@@ -167,5 +162,6 @@ const mutations = {
 
 checkPermission(mutations, "posAdd", "managePos");
 checkPermission(mutations, "posEdit", "managePos");
+checkPermission(mutations, "posRemove", "managePos");
 
 export default mutations;

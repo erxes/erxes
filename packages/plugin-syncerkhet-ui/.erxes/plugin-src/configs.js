@@ -17,7 +17,7 @@ module.exports = {
       location: "settings",
       scope: "syncerkhet",
       action: 'syncErkhetConfig',
-      permissions: [],
+      permission: "syncErkhetConfig",
     }
   ]
 };

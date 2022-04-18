@@ -22,6 +22,18 @@ export let es: {
 
 export default {
   name: 'syncerkhet',
+  permissions: {
+    syncerkhet: {
+      name: 'erkhet',
+      description: 'Erkhet',
+      actions: [
+        {
+          name: 'syncErkhetConfig',
+          description: 'Manage erkhet config'
+        }
+      ]
+    },
+  },
   graphql: async (sd) => {
     serviceDiscovery = sd;
     return {
