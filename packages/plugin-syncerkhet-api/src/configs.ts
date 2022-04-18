@@ -4,6 +4,7 @@ import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { generateModels, models } from './connectionResolver';
 
 import { initBroker } from './messageBroker';
+import { initBrokerErkhet } from './messageBrokerErkhet';
 import { initMemoryStorage } from './inmemoryStorage';
 import afterMutations from './afterMutations';
 
@@ -41,7 +42,8 @@ export default {
 
     await generateModels('os');
 
-    initBroker(options.messageBrokerClient);
+    await initBroker(options.messageBrokerClient);
+    await initBrokerErkhet();
 
     initMemoryStorage();
 

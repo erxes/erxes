@@ -126,7 +126,7 @@ function SkillTypes({
   }
 
   return (
-    <Sidebar full={true} wide={true} header={renderHeader()} hasBorder={true}>
+    <Sidebar wide={true} header={renderHeader()} hasBorder={true}>
       <DataWithLoader
         data={renderContent()}
         loading={loading}

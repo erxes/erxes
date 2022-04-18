@@ -191,7 +191,7 @@ const LeftNavigation = styled.aside`
   }
 `;
 
-const NavMenuItem = styledTS<{ navCollapse?: number; type?: string }>(
+const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
   styled.div
 )`
   width: 100%;
@@ -203,6 +203,12 @@ const NavMenuItem = styledTS<{ navCollapse?: number; type?: string }>(
       props.navCollapse === 2
         ? dimensions.headerSpacingWide
         : dimensions.headerSpacing}px;
+    height: ${(props) =>
+      props.isMoreItem
+        ? dimensions.headerSpacingWide
+        : props.navCollapse === 2
+        ? dimensions.headerSpacingWide
+        : dimensions.headerSpacing}px;
     flex-direction: ${(props) => props.navCollapse !== 3 && "column"};
     padding: ${(props) => props.navCollapse === 3 && dimensions.unitSpacing}px;
     justify-content: ${(props) => props.navCollapse !== 3 && "center"};
@@ -211,8 +217,8 @@ const NavMenuItem = styledTS<{ navCollapse?: number; type?: string }>(
     transition: all 0.3s ease;
     font-size: 11px;
     width: ${(props) =>
-      props.type === "more"
-        ? dimensions.headerSpacing * 2 - 1
+      props.isMoreItem
+        ? dimensions.headerSpacing
         : props.navCollapse === 1
         ? dimensions.headerSpacing - 5
         : props.navCollapse === 3

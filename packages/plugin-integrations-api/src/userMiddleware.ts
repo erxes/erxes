@@ -1,4 +1,4 @@
-import { sendRPCMessage } from './messageBroker';
+import { sendInboxMessage } from './messageBroker';
 
 const EXCLUDE_PATH = [
   '/nylas/webhook',
@@ -19,7 +19,15 @@ const userMiddleware = async (req, _res, next) => {
   }
 
   if (userIds.length === 0) {
-    const response = await sendRPCMessage({ action: 'getUserIds' });
+    const response = await sendInboxMessage({
+      subdomain: 'os',
+      action: 'integrations.receive',
+      data: {
+        action: 'getUserIds'
+      },
+      isRPC: true
+    });
+
     userIds = response.userIds;
   }
 

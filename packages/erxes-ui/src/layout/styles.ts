@@ -140,7 +140,7 @@ const SideContent = styledTS<{
   width: ${props => (props.wide ? '340px' : '290px')};
   flex: ${props => (props.half ? '1' : 'none')};
   background: ${props => (props.full ? colors.colorWhite : 'none')};
-  padding: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${
+  margin: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${
   dimensions.unitSpacing
 }px 0;
   border-right: ${props => props.hasBorder && `1px solid ${colors.borderPrimary}`};

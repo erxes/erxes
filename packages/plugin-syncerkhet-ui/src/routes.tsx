@@ -11,6 +11,10 @@ const StageSettings = asyncComponent(() =>
   import(/* webpackChunkName: "KnowledgeBase" */ './components/StageSettings')
 )
 
+const ReturnStageSettings = asyncComponent(() =>
+  import(/* webpackChunkName: "KnowledgeBase" */ './components/ReturnStageSettings')
+)
+
 const PipelineSettings = asyncComponent(() =>
   import(/* webpackChunkName: "KnowledgeBase" */ './components/PipelineSettings')
 )
@@ -27,6 +31,14 @@ const StageSetting = () => {
   return (
     <Settings
       component={StageSettings}
+    />
+  )
+}
+
+const ReturnStageSetting = () => {
+  return (
+    <Settings
+      component={ReturnStageSettings}
     />
   )
 }
@@ -54,6 +66,13 @@ const routes = () => {
         exact={true}
         path="/erxes-plugin-sync-erkhet/settings/stage"
         component={StageSetting}
+      />
+
+      <Route
+        key="/erxes-plugin-sync-erkhet/settings/return-stage"
+        exact={true}
+        path="/erxes-plugin-sync-erkhet/settings/return-stage"
+        component={ReturnStageSetting}
       />
 
       <Route

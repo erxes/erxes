@@ -61,16 +61,18 @@ const deploy = {
 }
 
 const generatePluginBlock = (configs, plugin) => {
+  const api_mongo_url = mongoEnv(configs, {});
   const mongo_url = plugin.mongo_url || mongoEnv(configs, plugin);
 
   return {
     image: `erxes/plugin-${plugin.name}-api:federation`,
     environment: {
       PORT: plugin.port || 80,
-      API_MONGO_URL: mongo_url,
+      API_MONGO_URL: api_mongo_url,
       MONGO_URL: mongo_url,
       LOAD_BALANCER_ADDRESS: `http://plugin_${plugin.name}_api`,
       ...commonEnvs(configs),
+      ...plugin.extraEnv
     },
     volumes: ["./enabled-services.js:/data/enabled-services.js"],
     networks: ["erxes"],
@@ -334,7 +336,7 @@ const up = async (uis) => {
   log("Downloading pluginsMap.js from s3 ....");
 
   await execCurl(
-    "https://plugin-uis.s3.us-west-2.amazonaws.com/pluginsMap.js",
+    "https://erxes-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js",
     "pluginsMap.js"
   );
 
@@ -342,6 +344,7 @@ const up = async (uis) => {
 
   const enabledPlugins = [];
   const uiPlugins = [];
+  const essyncerJSON = { plugins: [] };
 
   for (const plugin of configs.plugins || []) {
     dockerComposeConfig.services[
@@ -350,13 +353,26 @@ const up = async (uis) => {
 
     enabledPlugins.push(`'${plugin.name}'`);
 
-    if (pluginsMap[plugin.name]) {
-      uiPlugins.push(
-        JSON.stringify({
-          name: plugin.name,
-          ...pluginsMap[plugin.name],
-        })
-      );
+    if (pluginsMap[plugin.name] && pluginsMap[plugin.name].ui) {
+      const uiConfig = pluginsMap[plugin.name].ui;
+
+      if (uiConfig) {
+        uiPlugins.push(
+          JSON.stringify({
+            name: plugin.name,
+            ...pluginsMap[plugin.name].ui,
+          })
+        );
+      }
+
+      const apiConfig = pluginsMap[plugin.name].api;
+
+      if (apiConfig && apiConfig.essyncer) {
+        essyncerJSON.plugins.push({
+          db_name: plugin.db_name || 'erxes',
+          collections: apiConfig.essyncer
+        });
+      }
     }
   }
 
@@ -371,7 +387,7 @@ const up = async (uis) => {
       log(`Downloading ${name} ui from s3 ....`);
 
       await execCommand(
-        `aws s3 sync s3://plugin-uis/${name} plugin-uis/${name} --no-sign-request`
+        `aws s3 sync s3://erxes-plugins/uis/${name} plugin-uis/${name} --no-sign-request`
       );
     }
   }
@@ -410,6 +426,14 @@ const up = async (uis) => {
   }
 
   const yamlString = yaml.stringify(dockerComposeConfig);
+
+  // essyncer
+  if (!(await fse.exists(filePath("essyncerData")))) {
+    await execCommand('mkdir essyncerData', true);
+  }
+
+  log("Generating essyncer json ....");
+  await fse.writeJSON(filePath("essyncerData/plugins.json"), essyncerJSON);
 
   log("Generating docker-compose.yml ....");
 
@@ -463,15 +487,16 @@ const update = async (program) => {
       const uiname = `plugin-${name}-ui`;
 
       await execCommand(`rm -rf plugin-uis/${uiname}`, true);
-      await execCommand(`aws s3 sync s3://plugin-uis/${uiname} plugin-uis/${uiname} --no-sign-request`);
+      await execCommand(`aws s3 sync s3://erxes-plugins/uis/${uiname} plugin-uis/${uiname} --no-sign-request`);
 
       log("Restart core ui ....");
       await execCommand(`docker service update --force erxes_coreui`);
     }
 
-    log("Updating gateway ....");
-    await execCommand(`docker service update --force erxes_gateway`);
   }
+
+  log("Updating gateway ....");
+  await execCommand(`docker service update --force erxes_gateway`);
 };
 
 const restart = async (name) => {
@@ -515,7 +540,7 @@ module.exports.manageInstallation = async (program) => {
     log("Syncing ui ....");
 
     await execCommand(
-      `aws s3 sync s3://plugin-uis/plugin-${name}-ui plugin-uis/plugin-${name}-ui --no-sign-request`
+      `aws s3 sync s3://erxes-plugins/uis/plugin-${name}-ui plugin-uis/plugin-${name}-ui --no-sign-request`
     );
 
     await restart('coreui');

@@ -6,7 +6,7 @@
 // } from 'erxes-api-utils';
 // import { sendMobileNotification } from "../../../utils";
 import { checkPermission } from "@erxes/api-utils/src";
-import { sendCoreMessage } from "../../../messageBroker";
+import { sendCoreMessage, sendNotification } from "../../../messageBroker";
 
 export const gatherDescriptions = async () => {
   const extraDesc = [];
@@ -45,21 +45,24 @@ const exmFeedMutations = {
 
     receivers = receivers.map((r) => r._id);
 
-    // sendNotification(models, memoryStorage, graphqlPubsub, {
-    //   notifType: 'plugin',
-    //   title: doc.title,
-    //   content: doc.description,
-    //   action: `${doc.contentType} created`,
-    //   link: `/erxes-plugin-exm-feed/list`,
-    //   createdUser: user,
-    //   // exclude current user
-    //   contentType: 'exmFeed',
-    //   contentTypeId: exmFeed._id,
-    //   receivers
-    // });
+    if (doc.contentType === "bravo") {
+      receivers = doc.recipientIds;
+    }
+
+    sendNotification(subdomain, {
+      createdUser: user,
+      title: doc.title,
+      contentType: "exmFeed",
+      contentTypeId: exmFeed._id,
+      notifType: "plugin",
+      action: `${doc.contentType} created`,
+      content: doc.description,
+      link: `/erxes-plugin-exm-feed/list=${exmFeed._id}`,
+      receivers: receivers,
+    });
 
     sendCoreMessage({
-      subdomain: "os",
+      subdomain: subdomain,
       action: "sendMobileNotification",
       data: {
         title: doc.title,

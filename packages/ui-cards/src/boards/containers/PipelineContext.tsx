@@ -286,6 +286,11 @@ class PipelineProviderInner extends React.Component<Props, State> {
       return;
     }
 
+    const { isDragEnabled } = this.state;
+    if (!isDragEnabled) {
+      return;
+    }
+
     const source = result.source;
     const destination = result.destination;
 

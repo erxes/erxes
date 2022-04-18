@@ -2,7 +2,7 @@ import * as crypto from 'crypto';
 import * as dotenv from 'dotenv';
 import { debugError, debugNylas } from '../debuggers';
 import { getGoogleConfigs } from '../gmail/utils';
-import { sendMessage } from '../messageBroker';
+import { sendInboxMessage } from '../messageBroker';
 import { Accounts, Integrations } from '../models';
 import { compose, getConfig, getEnv } from '../utils';
 import { getCalendarOrEvent, getMessageById } from './api';
@@ -52,7 +52,13 @@ export const syncEvents = async (
       throw new Error(`Account not found with accountUid: ${accountUid}`);
     }
 
-    sendMessage({ action: 'sync-calendar-event' });
+    sendInboxMessage({
+      subdomain: 'os',
+      action: 'integrationsNotification',
+      data: {
+        action: 'sync-calendar-event'
+      }
+    });
 
     switch (action) {
       case 'event.created':

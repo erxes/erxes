@@ -78,11 +78,11 @@ class Navigation extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    // document.addEventListener("click", this.handleClickOutside, true);
+    document.addEventListener("click", this.handleClickOutside, true);
   }
 
   componentWillUnmount() {
-    // document.removeEventListener("click", this.handleClickOutside, true);
+    document.removeEventListener("click", this.handleClickOutside, true);
   }
 
   getLink = (url) => {
@@ -122,11 +122,11 @@ class Navigation extends React.Component<Props, State> {
     });
   };
 
-  // handleClickOutside = (event) => {
-  //   if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
-  //     this.setState({ showMenu: false });
-  //   }
-  // };
+  handleClickOutside = (event) => {
+    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+      this.setState({ showMenu: false });
+    }
+  };
 
   onClickMore = () => {
     if (this.state.clickedMenu === "more") {
@@ -231,21 +231,10 @@ class Navigation extends React.Component<Props, State> {
   }
 
   renderHandleNavItem(info) {
-    const { icon, text, childrens, type } = info;
+    const { icon, text, childrens, isMoreItem } = info;
     const collapseIcon = this.state.showMenu ? "angle-down" : "angle-up";
 
-    // if (this.props.navCollapse === 1) {
-    //   return <NavIcon className={icon} />;
-    // } else {
-    //   return (
-    //     <>
-    //       <NavIcon className={icon} />
-    //       <label>{text}</label>
-    //       {this.props.navCollapse === 3 && <Icon icon={collapseIcon} />}
-    //     </>
-    //   );
-    // }
-    if (type === "more")
+    if (isMoreItem)
       return (
         <>
           <NavIcon className={icon} />
@@ -262,7 +251,7 @@ class Navigation extends React.Component<Props, State> {
             <NavIcon className={icon} />
             <label>{text}</label>
 
-            {childrens.length !== 0 && <Icon icon={collapseIcon} />}
+            {/* {childrens && <Icon icon={collapseIcon} />} */}
           </>
         );
       default:
@@ -276,7 +265,7 @@ class Navigation extends React.Component<Props, State> {
   }
 
   renderMenuItem(nav) {
-    const { icon, text, url, label, childrens, type } = nav;
+    const { icon, text, url, label, childrens, isMoreItem } = nav;
     const { unreadConversationsCount } = this.props;
 
     const unreadIndicator = unreadConversationsCount !== 0 && (
@@ -286,7 +275,7 @@ class Navigation extends React.Component<Props, State> {
     );
 
     return (
-      <NavMenuItem type={type} navCollapse={this.props.navCollapse}>
+      <NavMenuItem isMoreItem={isMoreItem} navCollapse={this.props.navCollapse}>
         <NavLink
           to={this.getLink(url)}
           onClick={() => {
@@ -303,7 +292,7 @@ class Navigation extends React.Component<Props, State> {
             icon: icon,
             text: text,
             childrens: childrens,
-            type: type,
+            isMoreItem: isMoreItem,
           })}
 
           {url.includes("inbox") && isEnabled("inbox")
@@ -321,14 +310,14 @@ class Navigation extends React.Component<Props, State> {
     icon?: string,
     childrens?: ISubNav[],
     label?: React.ReactNode,
-    type?: string
+    isMoreItem?: boolean
   ) => {
     const { navCollapse } = this.props;
 
     const item = (
       <div ref={this.setWrapperRef}>
         <NavItem>
-          {this.renderMenuItem({ icon, url, text, label, childrens, type })}
+          {this.renderMenuItem({ icon, url, text, label, childrens, isMoreItem })}
           {this.renderChildren(url, text, childrens, navCollapse)}
         </NavItem>
       </div>
@@ -346,14 +335,13 @@ class Navigation extends React.Component<Props, State> {
 
     return (
       <WithPermission key={url} action={permission}>
-        {item}
+        {!isMoreItem ? item : <MoreItemRecent>{item}</MoreItemRecent>}
       </WithPermission>
     );
   };
 
   renderMorePlugins = () => {
     const { showMenu, moreMenus } = this.state;
-    const type = "more";
 
     return (
       <MoreMenuWrapper visible={showMenu} navCollapse={this.props.navCollapse}>
@@ -369,24 +357,24 @@ class Navigation extends React.Component<Props, State> {
         </MoreSearch>
         <MoreTitle>{__("Other added plugins")}</MoreTitle>
         <MoreMenus>
-          {moreMenus.map((menu, index) => (
-            <MoreItemRecent key={index}>
-              {this.renderNavItem(
-                menu.permission,
-                menu.text,
-                menu.url,
-                menu.icon,
-                menu.childrens,
-                type
-              )}
-            </MoreItemRecent>
-          ))}
+          {moreMenus.map((menu) =>
+            this.renderNavItem(
+              menu.permission,
+              menu.text,
+              menu.url,
+              menu.icon,
+              [],
+              "",
+              true
+            )
+          )}
         </MoreMenus>
       </MoreMenuWrapper>
     );
   };
 
   renderMore = () => {
+    const text = this.props.navCollapse === 3 ? "More plugins" : "More";
     if (pluginNavigations().length <= 4) {
       return null;
     }
@@ -398,7 +386,7 @@ class Navigation extends React.Component<Props, State> {
             <a onClick={() => this.onClickMore()}>
               {this.renderHandleNavItem({
                 icon: "icon-ellipsis-h",
-                text: "More",
+                text: {text},
               })}
             </a>
           </NavMenuItem>
@@ -410,22 +398,11 @@ class Navigation extends React.Component<Props, State> {
   };
 
   render() {
-    // const plugins: any[] = (window as any).plugins || [];
-
-    // const Routes = pluginRouters().slice(0, 4);
     const Navs = pluginNavigations().slice(0, 4);
 
     const logo =
       this.props.navCollapse === 1 ? "glyph_dark.png" : "logo-dark.png";
     const thLogo = getThemeItem("logo");
-
-    // Navs.map((nav) =>
-    //   console.log(nav, "kikikikkiki")
-    // );
-
-    // Routes.map((route) =>
-    //   console.log(route.props.system, "hahahahahahh")
-    // );
 
     return (
       <LeftNavigation>

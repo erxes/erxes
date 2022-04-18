@@ -38,4 +38,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-exm-ui/.erxes/dist s3://plugin-uis/plugin-exm-ui --delete
+          aws s3 sync packages/plugin-exm-ui/.erxes/dist s3://erxes-plugins/uis/plugin-exm-ui --delete

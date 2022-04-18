@@ -1,6 +1,6 @@
 import { debugCallPro, debugError, debugRequest } from '../debuggers';
 import { routeErrorHandling } from '../helpers';
-import { sendRPCMessage } from '../messageBroker';
+import { sendInboxMessage } from '../messageBroker';
 import { Integrations, Logs } from '../models';
 import { Conversations, Customers } from './models';
 
@@ -116,14 +116,19 @@ const init = async app => {
 
         // save on api
         try {
-          const apiCustomerResponse = await sendRPCMessage({
-            action: 'get-create-update-customer',
-            payload: JSON.stringify({
-              integrationId: integration.erxesApiId,
-              primaryPhone: numberFrom,
-              isUser: true,
-              phones: [numberFrom]
-            })
+          const apiCustomerResponse = await sendInboxMessage({
+            subdomain: 'os',
+            action: 'integrations.receive',
+            data: {
+              action: 'get-create-update-customer',
+              payload: JSON.stringify({
+                integrationId: integration.erxesApiId,
+                primaryPhone: numberFrom,
+                isUser: true,
+                phones: [numberFrom]
+              })
+            },
+            isRPC: true
           });
 
           customer.erxesApiId = apiCustomerResponse._id;
@@ -171,13 +176,18 @@ const init = async app => {
         );
 
         try {
-          await sendRPCMessage({
-            action: 'create-or-update-conversation',
-            payload: JSON.stringify({
-              content: disp,
-              conversationId: conversation.erxesApiId,
-              owner
-            })
+          await sendInboxMessage({
+            subdomain: 'os',
+            action: 'integrations.receive',
+            data: {
+              action: 'create-or-update-conversation',
+              payload: JSON.stringify({
+                content: disp,
+                conversationId: conversation.erxesApiId,
+                owner
+              })
+            },
+            isRPC: true
           });
         } catch (e) {
           debugError(e.message);
@@ -189,14 +199,19 @@ const init = async app => {
 
       // save on api
       try {
-        const apiConversationResponse = await sendRPCMessage({
-          action: 'create-or-update-conversation',
-          payload: JSON.stringify({
-            customerId: customer.erxesApiId,
-            content: disp,
-            integrationId: integration.erxesApiId,
-            owner
-          })
+        const apiConversationResponse = await sendInboxMessage({
+          subdomain: 'os',
+          action: 'integrations.receive',
+          data: {
+            action: 'create-or-update-conversation',
+            payload: JSON.stringify({
+              customerId: customer.erxesApiId,
+              content: disp,
+              integrationId: integration.erxesApiId,
+              owner
+            })
+          },
+          isRPC: true
         });
 
         conversation.erxesApiId = apiConversationResponse._id;

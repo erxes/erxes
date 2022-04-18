@@ -39,4 +39,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-forms-ui/.erxes/dist s3://plugin-uis/plugin-forms-ui --delete
+          aws s3 sync packages/plugin-forms-ui/.erxes/dist s3://erxes-plugins/uis/plugin-forms-ui --delete

@@ -1,4 +1,4 @@
-import { serviceDiscovery } from './configs';
+import { graphqlPubsub, serviceDiscovery } from './configs';
 import {
   generateAmounts,
   generateProducts
@@ -31,6 +31,15 @@ export const initBroker = async cl => {
     return {
       status: 'success',
       data: await models.Tasks.create(data)
+    };
+  });
+
+  consumeRPCQueue('cards:deals.create', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Deals.create(data)
     };
   });
 
@@ -229,6 +238,26 @@ export const initBroker = async cl => {
       data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`
     };
   });
+
+  consumeQueue(
+    'cards:pipelinesChanged',
+    async ({ subdomain, data: { pipelineId, action, data } }) => {
+      const models = await generateModels(subdomain);
+
+      graphqlPubsub.publish('pipelinesChanged', {
+        pipelinesChanged: {
+          _id: pipelineId,
+          proccessId: Math.random(),
+          action,
+          data
+        }
+      });
+
+      return {
+        status: 'success',
+      };
+    }
+  );
 };
 
 export const sendContactsMessage = async (
