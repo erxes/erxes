@@ -21,7 +21,7 @@ const exmThankMutations = {
       subdomain: "os",
       action: "sendMobileNotification",
       data: {
-        title: `${user._id} sent thank you to you`,
+        title: `${user.details.fullName} sent thank you to you`,
         body: doc.description,
         receivers: doc.recipientIds,
       },
