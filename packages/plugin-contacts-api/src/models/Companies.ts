@@ -43,12 +43,6 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
     companyFields: ICompany
   ): Promise<ICompanyDocument>;
 
-  // bulkInsert(
-  //   fieldNames: string[],
-  //   fieldValues: string[][],
-  //   user: IUserDocument
-  // ): Promise<string[]>;
-
   bulkInsert(
     fieldNames: string[],
     fieldValues: string[][],
