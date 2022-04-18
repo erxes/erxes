@@ -52,7 +52,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
         };
 
         await sendCommonMessage('rpc_queue:erxes-automation-erkhet', {
-          action: 'get-response-send-order-info',
+          action: "get-response-return-order",
+          isJson: true,
           isEbarimt: returnConfig.isEbarimt,
           payload: JSON.stringify(postData),
           thirdService: true

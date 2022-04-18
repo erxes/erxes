@@ -324,6 +324,12 @@ async function startServer() {
             data: await tags.publishChange(args)
           }));
         }
+        if (tags.fixRelatedItems) {
+          consumeRPCQueue(`${configs.name}:fixRelatedItems`, async args => ({
+            status: 'success',
+            data: await tags.fixRelatedItems(args)
+          }));
+        }
       }
 
       if (internalNotes) {
