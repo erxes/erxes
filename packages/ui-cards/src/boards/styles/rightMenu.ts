@@ -1,7 +1,7 @@
-import { TabCaption, TabContainer } from '@erxes/ui/src/components/tabs/styles';
-import { colors } from '@erxes/ui/src/styles';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { TabCaption, TabContainer } from "@erxes/ui/src/components/tabs/styles";
+import { colors } from "@erxes/ui/src/styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const FilterBox = styled.div`
   .Select {
@@ -19,11 +19,11 @@ const CustomRangeContainer = styled.div`
   display: flex;
   align-items: flex-end;
 
-  > span {
+  > div {
     flex: 1;
     margin-right: 8px;
 
-    input[type='text'] {
+    input[type="text"] {
       border: none;
       width: 100%;
       height: 34px;
@@ -41,9 +41,9 @@ const CustomRangeContainer = styled.div`
 
 const FilterButton = styledTS<{ selected?: boolean }>(styled.div)`
   padding: 5px 20px;
-  background: ${props =>
+  background: ${(props) =>
     props.selected ? colors.colorSecondary : colors.bgActive};
-  color: ${props =>
+  color: ${(props) =>
     props.selected ? colors.colorWhite : colors.textSecondary};
   line-height: 20px;
   width: 100%;
@@ -56,7 +56,7 @@ const FilterButton = styledTS<{ selected?: boolean }>(styled.div)`
   transition: all 0.3s ease;
 
   &:hover {
-    background: ${props =>
+    background: ${(props) =>
       props.selected ? colors.colorPrimaryDark : colors.bgGray};
     cursor: pointer;
   }
@@ -111,7 +111,7 @@ const TopBar = styled.div`
     flex: 1;
     margin-right: 10px;
 
-    input[type='text'] {
+    input[type="text"] {
       width: 100%;
     }
   }
@@ -167,5 +167,5 @@ export {
   LoadMore,
   CustomRangeContainer,
   BoardItem,
-  ArchiveWrapper
+  ArchiveWrapper,
 };
