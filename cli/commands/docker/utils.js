@@ -504,11 +504,15 @@ const restart = async (name) => {
 
   if (name === 'gateway') {
     await execCommand(`docker service update --force erxes_gateway`);
+    return;
   }
 
   if (name === 'coreui') {
     await execCommand(`docker service update --force erxes_coreui`);
+    return;
   }
+
+  await execCommand(`docker service update --force erxes_plugin_${name}_api`);
 };
 
 module.exports.manageInstallation = async (program) => {

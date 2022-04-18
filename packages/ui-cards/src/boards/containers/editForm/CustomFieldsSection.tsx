@@ -9,6 +9,7 @@ import React from "react";
 import { graphql } from "react-apollo";
 import { renderWithProps } from "@erxes/ui/src/utils";
 import { FieldsGroupsQueryResponse } from "@erxes/ui-settings/src/properties/types";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   item: IItem;
@@ -24,7 +25,7 @@ type FinalProps = {
 const CustomFieldsSection = (props: FinalProps) => {
   const { loading, item, fieldsGroupsQuery, editMutation } = props;
 
-  if (fieldsGroupsQuery.loading) {
+  if (fieldsGroupsQuery && fieldsGroupsQuery.loading) {
     return (
       <Sidebar full={true}>
         <Spinner />
@@ -51,7 +52,7 @@ const CustomFieldsSection = (props: FinalProps) => {
     loading,
     isDetail: false,
     customFieldsData: item.customFieldsData,
-    fieldsGroups: fieldsGroupsQuery.fieldsGroups || [],
+    fieldsGroups: fieldsGroupsQuery ? fieldsGroupsQuery.fieldsGroups : [],
   };
 
   return <GenerateCustomFields {...updatedProps} />;
@@ -78,6 +79,7 @@ export default (props: Props) => {
             },
           },
         }),
+        skip: !isEnabled("forms") ? true : false,
       }),
       graphql<Props, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),

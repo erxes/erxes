@@ -40,7 +40,15 @@ export const app = express();
 
 if (configs.middlewares) {
   for (const middleware of configs.middlewares) {
-    app.use(middleware())
+    app.use(middleware(app))
+  }
+}
+
+if (configs.postHandlers) {
+  for (const handler of configs.postHandlers) {
+    if (handler.path && handler.method) {
+      app.post(handler.path, handler.method);
+    }
   }
 }
 
