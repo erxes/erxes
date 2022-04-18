@@ -1,9 +1,10 @@
-import { checkPermission, requireLogin } from '@erxes/api-utils/src';
-import { TExmThank } from '../../../models/definitions/exm';
+import { checkPermission, requireLogin } from "@erxes/api-utils/src";
+import { sendCoreMessage } from "../../../messageBroker";
+import { TExmThank } from "../../../models/definitions/exm";
 
 export const gatherDescriptions = async () => {
   let extraDesc = [];
-  let description = 'description';
+  let description = "description";
 
   return { extraDesc, description };
 };
@@ -16,11 +17,21 @@ const exmThankMutations = {
   exmThankAdd: async (_root, doc: TExmThank, { user, docModifier, models }) => {
     const exmThank = models.ExmThanks.createThank(docModifier(doc), user);
 
+    sendCoreMessage({
+      subdomain: "os",
+      action: "sendMobileNotification",
+      data: {
+        title: `${user._id} sent thank you to you`,
+        body: doc.description,
+        receivers: doc.recipientIds,
+      },
+    });
+
     if (models.Exms) {
-      await models.Exms.useScoring(user._id, 'exmThankAdd');
+      await models.Exms.useScoring(user._id, "exmThankAdd");
 
       for (const userId of doc.recipientIds || []) {
-        await models.Exms.useScoring(userId, 'exmThankAdd');
+        await models.Exms.useScoring(userId, "exmThankAdd");
       }
     }
 
@@ -45,11 +56,11 @@ const exmThankMutations = {
     const exmThank = models.ExmThanks.removeThank(_id);
 
     return exmThank;
-  }
+  },
 };
 
-checkPermission(exmThankMutations, 'exmThankAdd', 'manageExmActivityFeed');
-checkPermission(exmThankMutations, 'exmThankEdit', 'manageExmActivityFeed');
-checkPermission(exmThankMutations, 'exmThankRemove', 'manageExmActivityFeed');
+checkPermission(exmThankMutations, "exmThankAdd", "manageExmActivityFeed");
+checkPermission(exmThankMutations, "exmThankEdit", "manageExmActivityFeed");
+checkPermission(exmThankMutations, "exmThankRemove", "manageExmActivityFeed");
 
 export default exmThankMutations;
