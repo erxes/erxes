@@ -10,6 +10,7 @@ import { setTimeout } from 'timers';
 import { mutations, queries, subscriptions } from '../graphql';
 import {
   IDragResult,
+  IDragStart,
   IFilterParams,
   IItem,
   IItemMap,
@@ -67,6 +68,7 @@ interface IStore {
   scheduleStage: (stageId: string) => void;
   refetchStage: (stageId: string) => void;
   onDragEnd: (result: IDragResult) => void;
+  onDragStart: (start: IDragStart) => void;
   onAddItem: (stageId: string, item: IItem, aboveItemId?: string) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
   onUpdateItem: (item: IItem, prevStageId?: string) => void;
@@ -280,14 +282,16 @@ class PipelineProviderInner extends React.Component<Props, State> {
     }
   }
 
+  onDragStart = (_start) => {
+    const { isDragEnabled } = this.state;
+    if (!isDragEnabled) {
+      throw new Error('Not ready to move...')
+    }
+  }
+
   onDragEnd = (result, saveToDb = true) => {
     // dropped nowhere
     if (!result.destination) {
-      return;
-    }
-
-    const { isDragEnabled } = this.state;
-    if (!isDragEnabled) {
       return;
     }
 
@@ -657,6 +661,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
           value={{
             options: this.props.options,
             onDragEnd: this.onDragEnd,
+            onDragStart: this.onDragStart,
             onLoadStage: this.onLoadStage,
             scheduleStage: this.scheduleStage,
             refetchStage: this.refetchStage,
