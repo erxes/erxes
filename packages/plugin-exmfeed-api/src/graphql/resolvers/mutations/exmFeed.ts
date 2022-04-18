@@ -62,7 +62,7 @@ const exmFeedMutations = {
     });
 
     sendCoreMessage({
-      subdomain: "os",
+      subdomain: subdomain,
       action: "sendMobileNotification",
       data: {
         title: doc.title,

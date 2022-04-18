@@ -3,7 +3,8 @@ import resolvers from './graphql/resolvers';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { generateModels, models } from './connectionResolver';
 
-import { initBroker, initBrokerErkhet } from './messageBroker';
+import { initBroker } from './messageBroker';
+import { initBrokerErkhet } from './messageBrokerErkhet';
 import { initMemoryStorage } from './inmemoryStorage';
 import afterMutations from './afterMutations';
 
