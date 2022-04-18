@@ -7,7 +7,7 @@ import React from 'react';
 import { ContentBox } from '../styles';
 import { IConfigsMap } from '../types';
 import Header from './Header';
-import PerSettings from './PerSettings';
+import PerSettings from './ReturnPerSettings';
 import Sidebar from './Sidebar';
 
 type Props = {
@@ -32,12 +32,12 @@ class GeneralSettings extends React.Component<Props, State> {
     e.preventDefault();
     const { configsMap } = this.state;
 
-    if (!configsMap.ebarimtConfig) {
-      configsMap.ebarimtConfig = {}
+    if (!configsMap.returnEbarimtConfig) {
+      configsMap.returnEbarimtConfig = {}
     }
 
     // must save prev item saved then new item
-    configsMap.ebarimtConfig.newEbarimtConfig = {
+    configsMap.returnEbarimtConfig.newEbarimtConfig = {
       title: 'New Erkhet Config',
       boardId: '',
       pipelineId: '',
@@ -54,8 +54,8 @@ class GeneralSettings extends React.Component<Props, State> {
 
   delete = (currentConfigKey: string) => {
     const { configsMap } = this.state;
-    delete configsMap.ebarimtConfig[currentConfigKey];
-    delete configsMap.ebarimtConfig['newEbarimtConfig'];
+    delete configsMap.returnEbarimtConfig[currentConfigKey];
+    delete configsMap.returnEbarimtConfig['newEbarimtConfig'];
 
     this.setState({ configsMap });
 
@@ -78,7 +78,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
   renderContent() {
     const { configsMap } = this.state;
-    const configs = configsMap.ebarimtConfig || {};
+    const configs = configsMap.returnEbarimtConfig || {};
 
     return (
       <ContentBox id={'GeneralSettingsMenu'}>
@@ -90,7 +90,7 @@ class GeneralSettings extends React.Component<Props, State> {
   render() {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Erkhet config') }
+      { title: __('Return Erkhet config') }
     ];
 
     const actionButtons = (
@@ -108,14 +108,14 @@ class GeneralSettings extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Erkhet config')}
+            title={__('Return Erkhet config')}
             breadcrumb={breadcrumb}
           />
         }
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Erkhet configs')}</Title>}
+            left={<Title>{__('Return Erkhet configs')}</Title>}
             right={actionButtons}
           />
         }
