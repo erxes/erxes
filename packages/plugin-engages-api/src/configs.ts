@@ -1,12 +1,9 @@
-import * as cookieParser from 'cookie-parser';
-import * as bodyParser from 'body-parser';
-
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers/index';
 import telnyx from './api/telnyx';
-import { trackEngages } from './trackers/engageTracker';
+import { engageTracker } from './trackers/engageTracker';
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import tags from './tags';
@@ -37,6 +34,7 @@ export default {
   segment: { schemas: [] },
   hasSubscriptions: false,
   meta: { tags, logs: { consumers: logs } },
+  postHandlers: [{ path: `/service/engage/tracker`, method: engageTracker }],
   apolloServerContext: async (context) => {
     const subdomain = 'os';
 
@@ -52,25 +50,6 @@ export default {
     mainDb = options.db;
 
     const app = options.app;
-
-    app.disable('x-powered-by');
-
-    app.use(cookieParser());
-
-    trackEngages(app);
-
-    app.use((req: any, _res, next) => {
-      req.rawBody = '';
-
-      req.on('data', (chunk) => {
-        req.rawBody += chunk.toString();
-      });
-
-      next();
-    });
-
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: true }));
 
     // Insert routes below
     app.use('/telnyx', telnyx);

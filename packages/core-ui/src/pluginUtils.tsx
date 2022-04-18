@@ -9,7 +9,6 @@ import { ICompany } from "@erxes/ui/src/companies/types";
 import { ICustomer } from "@erxes/ui/src/customers/types";
 import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
 import React from "react";
-// import { AppConsumer } from "appContext";
 import { generateRandomColor } from "utils";
 import { NavItem } from "modules/layout/components/QuickNavigation";
 
@@ -100,6 +99,10 @@ const renderPlguginSidebar = (itemName: string, type: string, object: any) => {
       itemName={itemName}
       plugins={plugins}
       callBack={(_plugin, section) => {
+        if (!window[section.scope]) {
+          return null;
+        }
+
         const Component = React.lazy(
           loadComponent(section.scope, section.component)
         );
@@ -363,9 +366,12 @@ export const pluginsOfItemSidebar = (item: IItem, type: string) => {
 export const pluginsOfPaymentForm = (
   renderPaymentsByType: (type) => JSX.Element
 ) => {
+  const plugins: any[] = (window as any).plugins || [];
+
   return (
     <PluginsWrapper
       itemName={"payments"}
+      plugins={plugins}
       callBack={(_plugin, payments) => {
         const paymentsTypes: JSX.Element[] = [];
         for (const perPayment of payments) {
