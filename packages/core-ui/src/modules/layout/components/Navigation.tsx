@@ -1,6 +1,6 @@
 import WithPermission from "modules/common/components/WithPermission";
 import { __, readFile, setBadge } from "modules/common/utils";
-import { pluginNavigations } from "pluginUtils";
+import { pluginNavigations, pluginRouters } from "pluginUtils";
 import React from "react";
 import { NavLink } from "react-router-dom";
 import {
@@ -8,6 +8,7 @@ import {
   NavIcon,
   Nav,
   SubNav,
+  SubNavTitle,
   NavItem,
   SubNavItem,
   MoreMenuWrapper,
@@ -19,6 +20,8 @@ import {
   FlexBox,
   CollapseBox,
   SmallText,
+  DropSubNav,
+  DropSubNavItem,
 } from "../styles";
 import { getThemeItem } from "utils";
 import Icon from "modules/common/components/Icon";
@@ -26,26 +29,29 @@ import FormControl from "modules/common/components/form/Control";
 import Label from "modules/common/components/Label";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 import { Flex } from "@erxes/ui/src/styles/main";
+import Tip from "modules/common/components/Tip";
 
 export interface ISubNav {
   permission: string;
-  link: string;
-  value: string;
-  icon: string;
-  additional?: boolean;
+  to: string;
+  text: string;
+  scope: string;
 }
+
+type Props = {
+  unreadConversationsCount?: number;
+  navCollapse: number;
+  onClickHandleIcon: (e) => void;
+};
 
 type State = {
   showMenu: boolean;
   moreMenus: any[];
   searchText: string;
-  navCollapse: number;
+  clickedMenu: string;
 };
 
-class Navigation extends React.Component<
-  { unreadConversationsCount?: number },
-  State
-> {
+class Navigation extends React.Component<Props, State> {
   private wrapperRef;
 
   constructor(props) {
@@ -55,7 +61,7 @@ class Navigation extends React.Component<
       showMenu: false,
       moreMenus: pluginNavigations().slice(4) || [],
       searchText: "",
-      navCollapse: 2,
+      clickedMenu: "",
     };
   }
 
@@ -72,11 +78,11 @@ class Navigation extends React.Component<
   };
 
   componentDidMount() {
-    document.addEventListener("click", this.handleClickOutside, true);
+    // document.addEventListener("click", this.handleClickOutside, true);
   }
 
   componentWillUnmount() {
-    document.removeEventListener("click", this.handleClickOutside, true);
+    // document.removeEventListener("click", this.handleClickOutside, true);
   }
 
   getLink = (url) => {
@@ -116,52 +122,80 @@ class Navigation extends React.Component<
     });
   };
 
-  handleClickOutside = (event) => {
-    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
-      this.setState({ showMenu: false });
-    }
-  };
-
-  onClickHandleIcon = (type: string) => {
-    this.setState({
-      navCollapse:
-        type === "plus"
-          ? this.state.navCollapse + 1
-          : this.state.navCollapse - 1,
-    });
-  };
+  // handleClickOutside = (event) => {
+  //   if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+  //     this.setState({ showMenu: false });
+  //   }
+  // };
 
   onClickMore = () => {
-    this.setState({ showMenu: !this.state.showMenu });
+    if (this.state.clickedMenu === "more") {
+      return this.setState({
+        showMenu: !this.state.showMenu,
+        clickedMenu: "more",
+      });
+    }
+    this.setState({ showMenu: true, clickedMenu: "more" });
   };
 
   renderSubNavItem = (child, index: number) => {
+    // console.log(child, "holaaaa")
     return (
-      <WithPermission key={index} action={child.permission}>
-        <SubNavItem additional={child.additional || false}>
-          <NavLink to={this.getLink(child.link)}>
-            <i className={child.icon} />
-            {__(child.value)}
-          </NavLink>
-        </SubNavItem>
-      </WithPermission>
+      // <WithPermission key={index} action={child.permission}>
+      <SubNavItem additional={child.additional || false}>
+        <Icon icon="corner-down-right-alt" />
+        <NavLink to={this.getLink(child.to)}>{__(child.text)}</NavLink>
+      </SubNavItem>
+      // </WithPermission>
     );
   };
 
-  renderChildren(url: string, text: string, childrens?: ISubNav[]) {
+  renderChildren(
+    url: string,
+    text: string,
+    childrens?: ISubNav[],
+    navCollapse?: number
+  ) {
+    const { showMenu, clickedMenu } = this.state;
     if (!childrens || childrens.length === 0) {
       return null;
     }
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const parent = urlParams.get("parent");
+
+    if (
+      navCollapse === 3 &&
+      clickedMenu === text &&
+      (parent === url || window.location.pathname.startsWith(url))
+    ) {
+      return (
+        <DropSubNav>
+          {childrens.map((child, index) => (
+            <DropSubNavItem>
+              {/* <WithPermission key={index} action={child.permission}> */}
+              <Icon icon="corner-down-right-alt" />
+              <NavLink to={this.getLink(`${child.to}?parent=${url}`)}>
+                {__(child.text)}
+              </NavLink>
+              {/* </WithPermission> */}
+            </DropSubNavItem>
+          ))}
+        </DropSubNav>
+      );
+    }
+
     return (
-      <SubNav>
+      <SubNav visible={showMenu} navCollapse={this.props.navCollapse}>
+        {/* {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>} */}
+        <SubNavTitle>{__(text)}</SubNavTitle>
         {childrens.map((child, index) => this.renderSubNavItem(child, index))}
       </SubNav>
     );
   }
 
   renderNavHandleIcon() {
-    switch (this.state.navCollapse) {
+    switch (this.props.navCollapse) {
       case 1:
         return this.renderHandleIcon("plus");
       case 3:
@@ -183,29 +217,66 @@ class Navigation extends React.Component<
 
   renderHandleIcon(type: string) {
     return (
-      <CollapseBox onClick={() => this.onClickHandleIcon(type)}>
+      <CollapseBox
+        onClick={() => {
+          this.props.onClickHandleIcon(type);
+          this.setState({
+            showMenu: false,
+          });
+        }}
+      >
         <Icon icon={type} />
       </CollapseBox>
     );
   }
 
   renderHandleNavItem(info) {
-    const { icon, text } = info;
+    const { icon, text, childrens, type } = info;
+    const collapseIcon = this.state.showMenu ? "angle-down" : "angle-up";
 
-    if (this.state.navCollapse === 1) {
-      return <NavIcon className={icon} />;
-    } else {
+    // if (this.props.navCollapse === 1) {
+    //   return <NavIcon className={icon} />;
+    // } else {
+    //   return (
+    //     <>
+    //       <NavIcon className={icon} />
+    //       <label>{text}</label>
+    //       {this.props.navCollapse === 3 && <Icon icon={collapseIcon} />}
+    //     </>
+    //   );
+    // }
+    if (type === "more")
       return (
         <>
           <NavIcon className={icon} />
           <label>{text}</label>
         </>
       );
+
+    switch (this.props.navCollapse) {
+      case 1:
+        return <NavIcon className={icon} />;
+      case 3:
+        return (
+          <>
+            <NavIcon className={icon} />
+            <label>{text}</label>
+
+            {childrens.length !== 0 && <Icon icon={collapseIcon} />}
+          </>
+        );
+      default:
+        return (
+          <>
+            <NavIcon className={icon} />
+            <label>{text}</label>
+          </>
+        );
     }
   }
 
   renderMenuItem(nav) {
-    const { icon, text, url, label } = nav;
+    const { icon, text, url, label, childrens, type } = nav;
     const { unreadConversationsCount } = this.props;
 
     const unreadIndicator = unreadConversationsCount !== 0 && (
@@ -215,12 +286,25 @@ class Navigation extends React.Component<
     );
 
     return (
-      <NavMenuItem navCollapse={this.state.navCollapse}>
+      <NavMenuItem type={type} navCollapse={this.props.navCollapse}>
         <NavLink
           to={this.getLink(url)}
-          onClick={() => this.setState({ showMenu: false })}
+          onClick={() => {
+            if (this.state.clickedMenu === text) {
+              return this.setState({
+                showMenu: !this.state.showMenu,
+                clickedMenu: text,
+              });
+            }
+            this.setState({ showMenu: true, clickedMenu: text });
+          }}
         >
-          {this.renderHandleNavItem({ icon: icon, text: text })}
+          {this.renderHandleNavItem({
+            icon: icon,
+            text: text,
+            childrens: childrens,
+            type: type,
+          })}
 
           {url.includes("inbox") && isEnabled("inbox")
             ? unreadIndicator
@@ -236,19 +320,26 @@ class Navigation extends React.Component<
     url: string,
     icon?: string,
     childrens?: ISubNav[],
-    label?: React.ReactNode
+    label?: React.ReactNode,
+    type?: string
   ) => {
+    const { navCollapse } = this.props;
+
     const item = (
-      <NavItem>
-        {this.renderMenuItem({ icon, url, text, label })}
-        {this.renderChildren(url, text, childrens)}
-      </NavItem>
+      <div ref={this.setWrapperRef}>
+        <NavItem>
+          {this.renderMenuItem({ icon, url, text, label, childrens, type })}
+          {this.renderChildren(url, text, childrens, navCollapse)}
+        </NavItem>
+      </div>
     );
 
     if (!childrens || childrens.length === 0) {
       return (
         <WithPermission key={url} action={permission}>
-          {item}
+          <Tip placement="right" key={Math.random()} text={__(text)}>
+            {item}
+          </Tip>
         </WithPermission>
       );
     }
@@ -262,9 +353,10 @@ class Navigation extends React.Component<
 
   renderMorePlugins = () => {
     const { showMenu, moreMenus } = this.state;
+    const type = "more";
 
     return (
-      <MoreMenuWrapper visible={showMenu}>
+      <MoreMenuWrapper visible={showMenu} navCollapse={this.props.navCollapse}>
         <MoreSearch>
           <Icon icon="search-1" size={15} />
           <FormControl
@@ -283,7 +375,9 @@ class Navigation extends React.Component<
                 menu.permission,
                 menu.text,
                 menu.url,
-                menu.icon
+                menu.icon,
+                menu.childrens,
+                type
               )}
             </MoreItemRecent>
           ))}
@@ -300,7 +394,7 @@ class Navigation extends React.Component<
     return (
       <div ref={this.setWrapperRef}>
         <NavItem>
-          <NavMenuItem navCollapse={this.state.navCollapse}>
+          <NavMenuItem navCollapse={this.props.navCollapse}>
             <a onClick={() => this.onClickMore()}>
               {this.renderHandleNavItem({
                 icon: "icon-ellipsis-h",
@@ -316,10 +410,22 @@ class Navigation extends React.Component<
   };
 
   render() {
+    // const plugins: any[] = (window as any).plugins || [];
+
+    // const Routes = pluginRouters().slice(0, 4);
     const Navs = pluginNavigations().slice(0, 4);
+
     const logo =
-      this.state.navCollapse === 1 ? "glyph_dark.png" : "logo-dark.png";
+      this.props.navCollapse === 1 ? "glyph_dark.png" : "logo-dark.png";
     const thLogo = getThemeItem("logo");
+
+    // Navs.map((nav) =>
+    //   console.log(nav, "kikikikkiki")
+    // );
+
+    // Routes.map((route) =>
+    //   console.log(route.props.system, "hahahahahahh")
+    // );
 
     return (
       <LeftNavigation>
@@ -330,7 +436,7 @@ class Navigation extends React.Component<
           />
         </NavLink>
 
-        <FlexBox navCollapse={this.state.navCollapse}>
+        <FlexBox navCollapse={this.props.navCollapse}>
           {this.renderNavHandleIcon()}
         </FlexBox>
 

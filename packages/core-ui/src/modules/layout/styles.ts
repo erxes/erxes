@@ -59,12 +59,17 @@ const Layout = styledTS<{ isSqueezed?: boolean }>(styled.main)`
     `};
 `;
 
-const MainWrapper = styled.div`
+const MainWrapper = styledTS<{ navCollapse?: number }>(styled.div)`
   flex: 1;
   display: flex;
   flex-direction: column;
   padding-top: ${dimensions.headerSpacing}px;
-  padding-left: ${dimensions.headerSpacing * 2}px;
+  padding-left: ${(props) =>
+    props.navCollapse === 2
+      ? dimensions.headerSpacing * 2 - 1
+      : props.navCollapse === 1
+      ? dimensions.headerSpacing - 5
+      : dimensions.headerSpacing * 4}px;
   max-width: 100%;
   transition: width 0.3s;
 `;
@@ -186,20 +191,33 @@ const LeftNavigation = styled.aside`
   }
 `;
 
-const NavMenuItem = styledTS<{ navCollapse?: number }>(styled.div)`
+const NavMenuItem = styledTS<{ navCollapse?: number; type?: string }>(
+  styled.div
+)`
   width: 100%;
 
   > a {  
     display: flex;
     color: ${colors.bgLight}
-    height: ${(props) => props.navCollapse === 2 ? dimensions.headerSpacingWide : dimensions.headerSpacing}px;
-    flex-direction: ${(props) => props.navCollapse === 2 && 'column'};
-    padding: ${(props) => props.navCollapse === 3 && dimensions.coreSpacing}px;
-    justify-content: center;
+    height: ${(props) =>
+      props.navCollapse === 2
+        ? dimensions.headerSpacingWide
+        : dimensions.headerSpacing}px;
+    flex-direction: ${(props) => props.navCollapse !== 3 && "column"};
+    padding: ${(props) => props.navCollapse === 3 && dimensions.unitSpacing}px;
+    justify-content: ${(props) => props.navCollapse !== 3 && "center"};
     align-items: center;
     position: relative;
     transition: all 0.3s ease;
     font-size: 11px;
+    width: ${(props) =>
+      props.type === "more"
+        ? dimensions.headerSpacing * 2 - 1
+        : props.navCollapse === 1
+        ? dimensions.headerSpacing - 5
+        : props.navCollapse === 3
+        ? dimensions.headerSpacing * 4
+        : dimensions.headerSpacing * 2 - 1}px;
 
     i {
       padding:0px, 14px, 0px, 0px;
@@ -210,14 +228,15 @@ const NavMenuItem = styledTS<{ navCollapse?: number }>(styled.div)`
       cursor: pointer;
       font-size: 11px;
       letter-spacing: 0.4px;
-      text-align: center
-      justify-content: center
+      text-align:  ${(props) => props.navCollapse === 2 && "center"};
+      justify-content: center;
       opacity: 0.6;
       color:${colors.colorBlack};
-      width: ${dimensions.headerSpacing * 2 - 1}px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      margin-left:  ${(props) =>
+        props.navCollapse === 3 && dimensions.unitSpacing}px;
     }
 
     span {
@@ -234,7 +253,10 @@ const NavMenuItem = styledTS<{ navCollapse?: number }>(styled.div)`
         content: "";
         width: 2px;
         background: ${colors.colorPrimary};
-        height: ${(props) => props.navCollapse === 2 ? dimensions.headerSpacingWide : dimensions.headerSpacing}px;
+        height: ${(props) =>
+          props.navCollapse === 2
+            ? dimensions.headerSpacingWide
+            : dimensions.headerSpacing}px;
         position: absolute;
         display: block;
         right: 0;
@@ -279,7 +301,6 @@ const NavMenuItem = styledTS<{ navCollapse?: number }>(styled.div)`
 
 const Nav = styled.nav`
   display: block;
-  margin-top: ${dimensions.unitSpacing / 2}px;
   height: calc(100% - 130px);
 
   &::-webkit-scrollbar {
@@ -293,29 +314,52 @@ const NavIcon = styled.i`
   color: ${colors.colorBlack};
 `;
 
-const SubNav = styled.ul`
+const SubNav = styledTS<{ visible: boolean; navCollapse: number }>(styled.ul)`
   background: ${colors.colorWhite};
   position: absolute;
-  left: ${dimensions.headerSpacing * 2}px;
+  left: ${(props) =>
+    props.navCollapse === 2
+      ? dimensions.headerSpacing * 2 + 10
+      : dimensions.headerSpacing + 5}px;
   word-wrap: break-word;
   width: 200px;
   max-height: 100vh;
   box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
   z-index: 999;
-  visibility: hidden;
   top: 0;
   margin: 0;
-  padding: 0;
   color: rgba(0, 0, 0, 0.62);
   list-style: none;
-  border-top-right-radius: 5px;
-  border-bottom-right-radius: 5px;
+  border-radius: 5px;
+  visibility: ${(props) => (props.visible ? "visible" : "hidden")};
+  padding: ${dimensions.unitSpacing}px;
+  &:after {
+    content: " ";
+    border: solid transparent;
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+    border-width: ${dimensions.unitSpacing}px;
+    top: ${dimensions.coreSpacing}px;
+    left: -${dimensions.coreSpacing}px;
+    z-index: 10000;
+    border-right-color: ${colors.colorWhite};
+    box-shadow: transparent;
+
+    @media (max-height: 760px) {
+      top: ${dimensions.coreSpacing - 5}px;
+    }
+  }
 `;
 
 const SubNavItem = styledTS<{ additional: boolean }>(styled.li)`
+  display: flex;
+  width: 100%;
+  flex: 1;
+
     > a {
-      padding: ${dimensions.unitSpacing - 4}px ${dimensions.unitSpacing}px;
-      margin: ${dimensions.unitSpacing - 5}px ${dimensions.unitSpacing}px;
+    padding: 5px ${dimensions.unitSpacing}px;
       color: rgba(0, 0, 0, 0.62);
       display: flex;
       align-items: center;
@@ -349,10 +393,8 @@ const SubNavItem = styledTS<{ additional: boolean }>(styled.li)`
 `;
 
 const SubNavTitle = styled.div`
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px 2px;
-  text-transform: uppercase;
-  color: ${colors.colorWhite};
-  font-weight: 500;
+  color: ${colors.colorBlack};
+  font-weight: 600;
 `;
 
 const NavItem = styled.div`
@@ -437,14 +479,21 @@ const MoreItemRecent = styled.div`
   }
 `;
 
-const MoreMenuWrapper = styledTS<{ visible: boolean }>(styled.div)`
+const MoreMenuWrapper = styledTS<{ visible: boolean; navCollapse: number }>(
+  styled.div
+)`
   position: absolute;
   visibility: ${(props) => (props.visible ? "visible" : "hidden")};
   padding:${dimensions.coreSpacing}px  5px 20px 20px;
   width: ${dimensions.headerSpacingWide * 6}px;
   height: ${dimensions.headerSpacingWide * 4 + dimensions.coreSpacing}px;
   overflow-y: auto;
-  left: ${dimensions.headerSpacing * 2 - 1}px;
+  left: ${(props) =>
+    props.navCollapse === 2
+      ? dimensions.headerSpacing * 2 - 1
+      : props.navCollapse === 1
+      ? dimensions.headerSpacing - 5
+      : dimensions.headerSpacing * 4}px;
   top: 0;
   background: ${colors.colorWhite};
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -482,7 +531,7 @@ const StoreItem = styled(NavItem)`
 const FlexBox = styledTS<{ navCollapse?: number }>(styled.div)`
   display: flex;
   padding: ${dimensions.unitSpacing}px;
-  justify-content: ${(props) => props.navCollapse === 3 ? 'end' : 'center'};
+  justify-content: ${(props) => (props.navCollapse === 3 ? "end" : "center")};
 `;
 
 const CollapseBox = styled.div`
@@ -497,7 +546,7 @@ const CollapseBox = styled.div`
   &:hover {
     cursor: pointer;
   }
-  
+
   &:nth-child(2) {
     margin-left: ${dimensions.unitSpacing}px;
   }
@@ -505,6 +554,46 @@ const CollapseBox = styled.div`
 
 const SmallText = styled.div`
   font-size: 10px;
+`;
+
+const DropSubNav = styled.ul`
+  word-wrap: break-word;
+  width: ${dimensions.headerSpacing * 4}px;
+  top: 0;
+  margin: 0;
+  padding: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px
+    ${dimensions.coreSpacing}px;
+  list-style: none;
+  transition: all 0.9s ease-out;
+`;
+
+const DropSubNavItem = styled.li`
+  display: flex;
+  flex: 1;
+
+  > a {
+    padding: 5px ${dimensions.unitSpacing}px;
+    opacity: 0.8;
+    color: rgba(0, 0, 0, 0.62);
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    letter-spacing: 0.4px;
+    font-size: 11px;
+    width: 100%;
+
+    &.active {
+      opacity: 1;
+      font-weight: bold;
+      position: relative;
+      background: ${rgba(colors.colorBlack, 0.07)};
+    }
+
+    &:hover {
+      background: ${rgba(colors.colorBlack, 0.06)};
+      opacity: 1;
+    }
+  }
 `;
 
 export {
@@ -553,4 +642,6 @@ export {
   FlexBox,
   CollapseBox,
   SmallText,
+  DropSubNav,
+  DropSubNavItem,
 };

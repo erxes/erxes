@@ -314,6 +314,7 @@ export const pluginRouters = () => {
 
   for (const plugin of plugins) {
     if (plugin.routes) {
+      // console.log(plugin.routes, "hbhbhbhbhbhbhh")
       pluginRoutes.push(
         <System key={Math.random()} loadScript={true} system={plugin.routes} />
       );
