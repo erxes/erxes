@@ -3,7 +3,9 @@ module.exports = {
   port: 3002,
   exposes: {
     "./routes": "./src/routes.tsx",
-    "./sidebar": "./src/containers/Sidebar.tsx",
+    "./customerSidebar": "./src/containers/CustomerSidebar.tsx",
+    "./companySidebar": "./src/containers/CompanySidebar.tsx",
+    "./userSidebar": "./src/containers/UserSidebar.tsx",
   },
   routes: {
     url: "http://localhost:3002/remoteEntry.js",
@@ -31,21 +33,21 @@ module.exports = {
   customerRightSidebarSection: [
     {
       text: "customerSection",
-      component: "./sidebar",
+      component: "./customerSidebar",
       scope: "loyalties",
     },
   ],
   companyRightSidebarSection: [
     {
       text: "companySection",
-      component: "./sidebar",
+      component: "./companySidebar",
       scope: "loyalties",
     },
   ],
   userRightSidebarSection: [
     {
       text: "userSection",
-      component: "./sidebar",
+      component: "./userSidebar",
       scope: "loyalties",
     },
   ],

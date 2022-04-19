@@ -31,5 +31,32 @@ export default {
     }
 
     return response;
+  },
+  fixRelatedItems: async ({
+    subdomain,
+    data: { sourceId, destId, action }
+  }) => {
+    const models = await generateModels(subdomain);
+
+    if (action === 'remove') {
+      await models.Products.updateMany(
+        { tagIds: { $in: [sourceId] } },
+        { $pull: { tagIds: { $in: [sourceId] } } }
+      );
+    }
+
+    if (action === 'merge') {
+      const itemIds = await models.Products.find(
+        { tagIds: { $in: [sourceId] } },
+        { _id: 1 }
+      ).distinct('_id');
+
+      // add to new destination
+      await models.Products.updateMany(
+        { _id: { $in: itemIds } },
+        { $set: { 'tagIds.$[elem]': destId } },
+        { arrayFilters: [{ elem: { $eq: sourceId } }] }
+      );
+    }
   }
 };

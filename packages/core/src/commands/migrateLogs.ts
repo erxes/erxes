@@ -88,6 +88,10 @@ const changeType = type => {
       break;
   }
 
+  if (!prefix) {
+    return type;
+  }
+
   return `${prefix}:${type}`;
 };
 
@@ -104,6 +108,11 @@ const command = async () => {
   await Logs.find({}).forEach(async log => {
     counter += 1;
     const type = changeType(log.type);
+
+    if (type === log.type) {
+      return;
+    }
+
     bulkOps.push({
       updateOne: {
         filter: { _id: log._id },
@@ -113,6 +122,7 @@ const command = async () => {
 
     if (counter > 1000) {
       await Logs.bulkWrite(bulkOps);
+      console.log(bulkOps.length, 'continue update logs')
       counter = 0;
       bulkOps = []
     }
@@ -129,6 +139,10 @@ const command = async () => {
   await ActivityLogs.find({}).forEach(async log => {
     counter += 1;
     const contentType = changeType(log.contentType);
+    if (contentType === log.contentType) {
+      return;
+    }
+
     bulkOps.push({
       updateOne: {
         filter: { _id: log._id },
@@ -138,6 +152,7 @@ const command = async () => {
 
     if (counter > 1000) {
       await ActivityLogs.bulkWrite(bulkOps);
+      console.log(bulkOps.length, 'continue update activityLogs')
       counter = 0;
       bulkOps = []
     }

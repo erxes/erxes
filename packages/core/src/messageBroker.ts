@@ -1,5 +1,5 @@
 import { init as initBrokerCore } from "@erxes/api-utils/src/messageBroker";
-import { sendMessage } from "@erxes/api-utils/src/core";
+import { ISendMessageArgs, sendMessage } from "@erxes/api-utils/src/core";
 
 import { logConsumers } from "@erxes/api-utils/src/logUtils";
 import { internalNoteConsumers } from "@erxes/api-utils/src/internalNotes";
@@ -271,6 +271,28 @@ export const sendCommonMessage = async (
     serviceDiscovery,
     client,
     ...args,
+  });
+};
+
+export const sendIntegrationsMessage = (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'integrations',
+    ...args
+  });
+};
+
+export const sendCardsMessage = (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'cards',
+    ...args
   });
 };
 

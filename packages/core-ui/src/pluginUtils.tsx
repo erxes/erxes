@@ -9,7 +9,6 @@ import { ICompany } from "@erxes/ui/src/companies/types";
 import { ICustomer } from "@erxes/ui/src/customers/types";
 import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
 import React from "react";
-// import { AppConsumer } from "appContext";
 import { generateRandomColor } from "utils";
 import { NavItem } from "modules/layout/components/QuickNavigation";
 
@@ -101,6 +100,10 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
       plugins={plugins}
       callBack={(_plugin, sections) => {
         return (sections || []).map(section => {
+          if (!window[section.scope]) {
+            return null;
+          }
+
           const Component = React.lazy(
             loadComponent(section.scope, section.component)
           );
@@ -135,7 +138,7 @@ const System = props => {
   );
 
   return (
-    <ErrorBoundary>
+    <ErrorBoundary pluginName={props.pluginName}>
       <React.Suspense fallback="">
         <Component />
       </React.Suspense>
@@ -298,16 +301,13 @@ export const pluginLayouts = (currentUser: IUser) => {
 
   for (const plugin of plugins) {
     if (plugin.layout) {
-      // const Component = React.lazy(
-      //   loadComponent(plugin.scope, plugin.layout)
-      // );
-
       layouts.push(
         <System
           key={Math.random()}
           loadScript={true}
           system={plugin.layout}
           currentUser={currentUser}
+          pluginName={plugin.name}
         />
       );
     }
@@ -323,7 +323,12 @@ export const pluginRouters = () => {
   for (const plugin of plugins) {
     if (plugin.routes) {
       pluginRoutes.push(
-        <System key={Math.random()} loadScript={true} system={plugin.routes} />
+        <System
+          key={Math.random()}
+          loadScript={true}
+          system={plugin.routes}
+          pluginName={plugin.name}
+        />
       );
     }
   }
@@ -365,9 +370,12 @@ export const pluginsOfItemSidebar = (item: IItem, type: string) => {
 export const pluginsOfPaymentForm = (
   renderPaymentsByType: (type) => JSX.Element
 ) => {
+  const plugins: any[] = (window as any).plugins || [];
+
   return (
     <PluginsWrapper
       itemName={"payments"}
+      plugins={plugins}
       callBack={(_plugin, payments) => {
         const paymentsTypes: JSX.Element[] = [];
         for (const perPayment of payments) {

@@ -4,9 +4,9 @@ import {
   IPipelineTemplateStage
 } from '../../../models/definitions/pipelineTemplates';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
-// import { registerOnboardHistory } from '../../utils';
 import { checkPermission } from '../../utils';
 import { IContext } from '../../../connectionResolver';
+import { sendCoreMessage } from '../../../messageBroker';
 
 interface IPipelineTemplatesEdit extends IPipelineTemplate {
   _id: string;
@@ -81,16 +81,20 @@ const pipelineTemplateMutations = {
   async pipelineTemplatesDuplicate(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const pipelineTemplate = await models.PipelineTemplates.getPipelineTemplate(_id);
 
     await checkPermission(pipelineTemplate.type, user, 'templatesDuplicate');
 
-    // await registerOnboardHistory({
-    //   type: `${pipelineTemplate.type}TemplatesDuplicate`,
-    //   user
-    // });
+      sendCoreMessage({
+        subdomain,
+        action: 'registerOnboardHistory',
+        data: {
+          type: `${pipelineTemplate.type}TemplatesDuplicate`,
+          user
+        }
+      });
 
     return models.PipelineTemplates.duplicatePipelineTemplate(_id);
   },

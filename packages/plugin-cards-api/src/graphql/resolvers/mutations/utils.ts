@@ -40,7 +40,7 @@ import {
   sendNotifications
 } from '../../utils';
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { IModels } from '../../../connectionResolver';
+import { generateModels, IModels } from '../../../connectionResolver';
 import { sendFormsMessage, sendNotificationsMessage } from '../../../messageBroker';
 
 export const itemResolver = async (type: string, item: IItemCommonFields) => {
@@ -717,4 +717,13 @@ export const publishHelperItemsConformities = async (
       }
     }
   });
+};
+
+export const publishHelper = async (subdomain: string, type: string, itemId: string) => {
+  const models = await generateModels(subdomain)
+
+  const item = await getItem(models, type, { _id: itemId });
+
+  const stage = await models.Stages.getStage(item.stageId);
+  await publishHelperItemsConformities(item, stage);
 };

@@ -72,7 +72,7 @@ const generatePluginBlock = (configs, plugin) => {
       MONGO_URL: mongo_url,
       LOAD_BALANCER_ADDRESS: `http://plugin_${plugin.name}_api`,
       ...commonEnvs(configs),
-      ...plugin.extraEnv
+      ...(plugin.extra_env || {})
     },
     volumes: ["./enabled-services.js:/data/enabled-services.js"],
     networks: ["erxes"],
@@ -242,7 +242,10 @@ const up = async (uis) => {
           ...commonEnvs(configs),
         },
         extra_hosts,
-        volumes: ["./enabled-services.js:/data/enabled-services.js"],
+        volumes: [
+          "./enabled-services.js:/data/enabled-services.js",
+          "./permissions.json:/core-api/dist/core/permissions.json"
+        ],
         networks: ["erxes"],
       },
       gateway: {
@@ -345,6 +348,7 @@ const up = async (uis) => {
   const enabledPlugins = [];
   const uiPlugins = [];
   const essyncerJSON = { plugins: [] };
+  const permissionsJSON = [];
 
   for (const plugin of configs.plugins || []) {
     dockerComposeConfig.services[
@@ -367,11 +371,17 @@ const up = async (uis) => {
 
       const apiConfig = pluginsMap[plugin.name].api;
 
-      if (apiConfig && apiConfig.essyncer) {
-        essyncerJSON.plugins.push({
-          db_name: plugin.db_name || 'erxes',
-          collections: apiConfig.essyncer
-        });
+      if (apiConfig) {
+        if (apiConfig.essyncer) {
+          essyncerJSON.plugins.push({
+            db_name: plugin.db_name || 'erxes',
+            collections: apiConfig.essyncer
+          });
+        }
+
+        if (apiConfig.permissions) {
+          permissionsJSON.push(apiConfig.permissions);
+        }
       }
     }
   }
@@ -426,6 +436,9 @@ const up = async (uis) => {
   }
 
   const yamlString = yaml.stringify(dockerComposeConfig);
+
+  log("Generating permissions json ....");
+  await fse.writeJSON(filePath("permissions.json"), permissionsJSON);
 
   // essyncer
   if (!(await fse.exists(filePath("essyncerData")))) {
@@ -504,11 +517,15 @@ const restart = async (name) => {
 
   if (name === 'gateway') {
     await execCommand(`docker service update --force erxes_gateway`);
+    return;
   }
 
   if (name === 'coreui') {
     await execCommand(`docker service update --force erxes_coreui`);
+    return;
   }
+
+  await execCommand(`docker service update --force erxes_plugin_${name}_api`);
 };
 
 module.exports.manageInstallation = async (program) => {
