@@ -1,3 +1,6 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import ConditionsRule from '@erxes/ui/src/components/rule/ConditionsRule';
@@ -7,16 +10,13 @@ import {
   StepWrapper,
   TitleContainer
 } from '@erxes/ui/src/components/step/styles';
-import { Alert, __ } from 'coreui/utils';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
 import { IBreadCrumbItem, IConditionsRule } from '@erxes/ui/src/types';
 import { IConfig } from '@erxes/ui-settings/src/general/types';
-
-import React from 'react';
-import { Link } from 'react-router-dom';
 import { METHODS } from '@erxes/ui-engage/src/constants';
 import {
   IEngageEmail,
@@ -27,6 +27,7 @@ import {
   IEngageSms,
   IIntegrationWithPhone
 } from '@erxes/ui-engage/src/types';
+
 import SmsForm from './SmsForm';
 import ChannelStep from './step/ChannelStep';
 import FullPreviewStep from './step/FullPreviewStep';
