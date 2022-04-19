@@ -27,7 +27,7 @@ module.exports = {
       location: "settings",
       scope: "loyalties",
       action: "loyaltyConfig",
-      permissions: ["loyaltyConfig"],
+      permissions: ["manageLoyalties", "showLoyalties"],
     },
   ],
   customerRightSidebarSection: {
