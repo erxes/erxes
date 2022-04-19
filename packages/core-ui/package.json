@@ -43,7 +43,7 @@
     "xss": "^1.0.3"
   },
   "scripts": {
-    "watch-plugins": "node commands/watch-plugins.js",
+    "generate-doterxes": "node commands/generate-doterxes.js",
     "start": "webpack serve --open --mode development",
     "generateVersion": "node commands/generateVersion.js",
     "build": "node commands/build.js",
