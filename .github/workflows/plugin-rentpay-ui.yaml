@@ -1,4 +1,4 @@
-name: Plugin Product UI CI
+name: Plugin Rentpay UI CI
 
 on:
   push:
