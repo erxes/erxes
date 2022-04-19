@@ -1,7 +1,5 @@
-// import { sendNotification } from 'erxes-api-utils';
 import { CHAT_TYPE, IChatMessage } from "../../../models/definitions/chat";
 import { graphqlPubsub } from "../../../configs";
-// import { sendMobileNotification } from '../../../utils';
 import { checkPermission } from "@erxes/api-utils/src/permissions";
 import { sendCoreMessage } from "../../../messageBroker";
 
@@ -63,6 +61,7 @@ const chatMutations = {
   chatEdit: async (_root, { _id, ...doc }, { models, user }) => {
     return models.Chats.updateChat(_id, doc);
   },
+
   chatRemove: async (_root, { _id }, { models, user }) => {
     const chat = await models.Chats.findOne({ _id });
 
@@ -94,17 +93,33 @@ const chatMutations = {
       graphqlPubsub.publish("chatUnreadCountChanged", {
         userId: participant,
       });
+
+      graphqlPubsub.publish("chatInserted", {
+        userId: participant,
+      });
     }
 
     return created;
   },
 
   chatMessageRemove: async (_root, { _id }, { models }) => {
-    return models.ChatMessages.removeChatMessage(_id);
+    const chat = models.ChatMessages.removeChatMessage(_id);
+
+    const chatMessage = await models.ChatMessages.findOne({ _id });
+
+    graphqlPubsub.publish("chatMessageInserted", {
+      chatId: chatMessage.chatId,
+    });
+
+    return chat;
   },
 
   chatMessageToggleIsPinned: async (_root, { _id }, { models }) => {
-    const message: IChatMessage = await models.ChatMessage.findOne({ _id });
+    const message = await models.ChatMessages.findOne({ _id });
+
+    graphqlPubsub.publish("chatMessageInserted", {
+      chatId: message.chatId,
+    });
 
     await models.ChatMessages.updateOne(
       { _id },
