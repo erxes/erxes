@@ -70,7 +70,5 @@ export default {
 
     debug = options.debug;
   },
-  meta: {
-    logs: { providesActivityLog: true }
-  }
+
 };

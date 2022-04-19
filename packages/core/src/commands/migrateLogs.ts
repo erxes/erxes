@@ -15,6 +15,7 @@ const client = new MongoClient(LOGS_MONGO_URL);
 let db: Db;
 
 let Logs: Collection<any>;
+let ActivityLogs: Collection<any>;
 
 const changeType = type => {
   let prefix = '';
@@ -87,6 +88,10 @@ const changeType = type => {
       break;
   }
 
+  if (!prefix) {
+    return type;
+  }
+
   return `${prefix}:${type}`;
 };
 
@@ -95,12 +100,67 @@ const command = async () => {
   db = client.db() as Db;
 
   Logs = db.collection('logs');
+  ActivityLogs = db.collection('activity_logs');
 
-  await Logs.find({}).forEach(doc => {
-    const type = changeType(doc.type);
+  let bulkOps: any[] = [];
+  let counter = 0;
 
-    Logs.updateOne({ _id: doc._id }, { $set: { type } });
-  });
+  await Logs.find({}).forEach(async log => {
+    counter += 1;
+    const type = changeType(log.type);
+
+    if (type === log.type) {
+      return;
+    }
+
+    bulkOps.push({
+      updateOne: {
+        filter: { _id: log._id },
+        update: { $set: { type } }
+      }
+    })
+
+    if (counter > 1000) {
+      await Logs.bulkWrite(bulkOps);
+      console.log(bulkOps.length, 'continue update logs')
+      counter = 0;
+      bulkOps = []
+    }
+  })
+
+  if (bulkOps.length) {
+    await Logs.bulkWrite(bulkOps);
+  }
+  console.log(`Logs migrated ....`);
+
+  bulkOps = [];
+  counter = 0;
+
+  await ActivityLogs.find({}).forEach(async log => {
+    counter += 1;
+    const contentType = changeType(log.contentType);
+    if (contentType === log.contentType) {
+      return;
+    }
+
+    bulkOps.push({
+      updateOne: {
+        filter: { _id: log._id },
+        update: { $set: { contentType } }
+      }
+    })
+
+    if (counter > 1000) {
+      await ActivityLogs.bulkWrite(bulkOps);
+      console.log(bulkOps.length, 'continue update activityLogs')
+      counter = 0;
+      bulkOps = []
+    }
+  })
+
+  if (bulkOps.length) {
+    await ActivityLogs.bulkWrite(bulkOps);
+  }
 
   console.log(`Process finished at: ${new Date()}`);
 

@@ -1,6 +1,6 @@
 import { debugError, debugNylas } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
-import { sendRPCMessage } from '../messageBroker';
+import { sendInboxMessage } from '../messageBroker';
 import { cleanHtml } from '../utils';
 import {
   NylasCalendars,
@@ -448,10 +448,15 @@ export const getOrCreate = async ({
     try {
       const action = map[collectionName].action;
 
-      const response = await sendRPCMessage({
-        action,
-        metaInfo: action.includes('message') ? 'replaceContent' : null,
-        payload: JSON.stringify(fields.api)
+      const response = await sendInboxMessage({
+        subdomain: 'os',
+        action: 'integrations.receive',
+        data: {
+          action,
+          metaInfo: action.includes('message') ? 'replaceContent' : null,
+          payload: JSON.stringify(fields.api)
+        },
+        isRPC: true
       });
 
       selectedObj[map[collectionName].apiField] = response._id;

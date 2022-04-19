@@ -3,15 +3,15 @@ import {
   requireLogin,
 } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
-import { sendCoreMessage } from "../../../messageBroker";
+import messageBroker, { sendCoreMessage } from "../../../messageBroker";
 import { putCreateLog, putDeleteLog, putUpdateLog } from "@erxes/api-utils/src/logUtils";
 
 const carMutations = {
-  carsAdd: async (_root, doc, { user, docModifier, models, messageBroker }) => {
+  carsAdd: async (_root, doc, { user, docModifier, models }) => {
     const car = models.Cars.createCar(docModifier(doc), user);
 
     await putCreateLog(
-      messageBroker,
+      messageBroker(),
       {
         type: "car",
         newData: doc,
@@ -24,12 +24,12 @@ const carMutations = {
     return car;
   },
 
-  carsEdit: async (_root, { _id, ...doc }, { models, user, messageBroker }) => {
+  carsEdit: async (_root, { _id, ...doc }, { models, user }) => {
     const car = await models.Cars.getCar(_id);
     const updated = await models.Cars.updateCar(_id, doc);
 
     await putUpdateLog(
-      messageBroker,
+      messageBroker(),
       {
         type: "car",
         object: car,
@@ -59,7 +59,7 @@ const carMutations = {
     //   });
 
     //   await putDeleteLog(
-    //     messageBroker,
+    //     messageBroker(),
     //     gatherDescriptions,
     //     { type: "car", object: car, extraParams: { models } },
     //     user
@@ -76,14 +76,14 @@ const carMutations = {
   carCategoriesAdd: async (
     _root,
     doc,
-    { docModifier, models, user, messageBroker }
+    { docModifier, models, user }
   ) => {
     const carCategory = await models.CarCategories.createCarCategory(
       docModifier(doc)
     );
 
     await putCreateLog(
-      messageBroker,
+      messageBroker(),
       {
         type: "car-category",
         newData: { ...doc, order: carCategory.order },
@@ -99,7 +99,7 @@ const carMutations = {
   carCategoriesEdit: async (
     _root,
     { _id, ...doc },
-    { models, user, messageBroker }
+    { models, user }
   ) => {
     const carCategory = await models.CarCategories.getCarCatogery({
       _id,
@@ -107,7 +107,7 @@ const carMutations = {
     const updated = await models.CarCategories.updateCarCategory(_id, doc);
 
     await putUpdateLog(
-      messageBroker,
+      messageBroker(),
       {
         type: "car-category",
         object: carCategory,
@@ -124,7 +124,7 @@ const carMutations = {
   carCategoriesRemove: async (
     _root,
     { _id }: { _id: string },
-    { models, user, messageBroker }
+    { models, user }: IContext
   ) => {
     const carCategory = await models.CarCategories.getCarCatogery({
       _id,
@@ -132,7 +132,7 @@ const carMutations = {
     const removed = await models.CarCategories.removeCarCategory(_id);
 
     await putDeleteLog(
-      messageBroker,
+      messageBroker(),
       { type: "car-category", object: carCategory, extraParams: { models } },
       user
     );

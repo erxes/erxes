@@ -2,19 +2,19 @@ export const types = ({ contacts }) => `
 
   ${SubmissionFilter}
 
-${
-  contacts
-    ? `
-      extend type Customer @key(fields: "_id") {
-        _id: String! @external
-      }
+  ${
+    contacts
+      ? `
+        extend type Customer @key(fields: "_id") {
+          _id: String! @external
+        }
 
-      extend type Company @key(fields: "_id") {
-        _id: String! @external
-      }
-      `
-    : ""
-}
+        extend type Company @key(fields: "_id") {
+          _id: String! @external
+        }
+        `
+      : ""
+  }
 
 
   type Callout {
@@ -93,8 +93,8 @@ const commonFormSubmissionFields = `
 `;
 
 const formSubmissionQueryParams = `
-  tagId: String, 
-  formId: String, 
+  tagId: String,
+  formId: String,
   filters: [SubmissionFilter]
   contentTypeIds: [String]
   integrationId: String

@@ -22,6 +22,8 @@ import { chatfuelCreateIntegration, chatfuelReply } from './chatfuel/controller'
 import { gmailCreateIntegration } from './gmail/controller';
 import { telnyxCreateIntegration } from './telnyx/controller';
 import { whatsappCreateIntegration, whatsappReply } from './whatsapp/controller';
+import { ISendMessageArgs, sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core'
+import { serviceDiscovery } from './configs';
 
 dotenv.config();
 
@@ -294,12 +296,12 @@ export const initBroker = async (cl) => {
     }
   })
 
-  consumeQueue('erxes-api:integrations-notification', async content => {
-    const { action, payload, type } = content;
+  consumeQueue('integrations:notification', async ({ data })  => {
+    const { action, payload, type } = data;
 
     switch (type) {
       case 'removeCustomers':
-        await removeCustomers(content);
+        await removeCustomers(data);
         break;
       case 'addUserId':
         userIds.push(payload._id);
@@ -318,10 +320,11 @@ export default function() {
   return client;
 }
 
-export const sendRPCMessage = async (message): Promise<any> => {
-  return client.sendRPCMessage('rpc_queue:integrations_to_api', message);
-};
-
-export const sendMessage = async (data?: any) => {
-  return client.sendMessage('integrationsNotification', data);
-};
+export const sendInboxMessage = (args: ISendMessageArgs) => {
+ return sendCommonMessage({
+   client,
+   serviceDiscovery,
+   serviceName: "inbox",
+   ...args
+ }) 
+}

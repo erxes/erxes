@@ -1,4 +1,4 @@
-import { IBrowserInfo } from '@packages/api-utils/src/definitions/common';
+import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
 
 /**
  * Checks individual rule

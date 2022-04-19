@@ -177,7 +177,8 @@ class Navigation extends React.Component<
     url: string,
     icon?: string,
     childrens?: ISubNav[],
-    label?: React.ReactNode
+    label?: React.ReactNode,
+    isMoreItem?: boolean
   ) => {
     const item = (
       <NavItem>
@@ -186,17 +187,9 @@ class Navigation extends React.Component<
       </NavItem>
     );
 
-    if (!childrens || childrens.length === 0) {
-      return (
-        <WithPermission key={url} action={permission}>
-          {item}
-        </WithPermission>
-      );
-    }
-
     return (
       <WithPermission key={url} action={permission}>
-        {item}
+        {!isMoreItem ? item : <MoreItemRecent>{item}</MoreItemRecent>}
       </WithPermission>
     );
   };
@@ -218,16 +211,17 @@ class Navigation extends React.Component<
         </MoreSearch>
         <MoreTitle>{__("Other added plugins")}</MoreTitle>
         <MoreMenus>
-          {moreMenus.map((menu, index) => (
-            <MoreItemRecent key={index}>
-              {this.renderNavItem(
-                menu.permission,
-                menu.text,
-                menu.url,
-                menu.icon
-              )}
-            </MoreItemRecent>
-          ))}
+          {moreMenus.map((menu) =>
+            this.renderNavItem(
+              menu.permission,
+              menu.text,
+              menu.url,
+              menu.icon,
+              [],
+              "",
+              true
+            )
+          )}
         </MoreMenus>
       </MoreMenuWrapper>
     );

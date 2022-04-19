@@ -4,6 +4,7 @@ import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { generateModels, models } from './connectionResolver';
 
 import { initBroker } from './messageBroker';
+import { initBrokerErkhet } from './messageBrokerErkhet';
 import { initMemoryStorage } from './inmemoryStorage';
 import afterMutations from './afterMutations';
 
@@ -21,6 +22,18 @@ export let es: {
 
 export default {
   name: 'syncerkhet',
+  permissions: {
+    syncerkhet: {
+      name: 'erkhet',
+      description: 'Erkhet',
+      actions: [
+        {
+          name: 'syncErkhetConfig',
+          description: 'Manage erkhet config'
+        }
+      ]
+    },
+  },
   graphql: async (sd) => {
     serviceDiscovery = sd;
     return {
@@ -41,7 +54,8 @@ export default {
 
     await generateModels('os');
 
-    initBroker(options.messageBrokerClient);
+    await initBroker(options.messageBrokerClient);
+    await initBrokerErkhet();
 
     initMemoryStorage();
 

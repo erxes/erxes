@@ -1,5 +1,3 @@
-import { SubmissionFilter } from "@erxes/plugin-forms-api/src/graphql/schema/form";
-
 export const types = ({ contacts, forms }) => `
   ${
     contacts
@@ -7,14 +5,10 @@ export const types = ({ contacts, forms }) => `
           extend type Customer @key(fields: "_id") {
             _id: String! @external
           }
-    
-          extend type Company @key(fields: "_id") {
-            _id: String! @external
-          }
           `
       : ""
   }
-  
+
   ${
     forms
       ? `
@@ -25,7 +19,11 @@ export const types = ({ contacts, forms }) => `
       : ""
   }
 
-  ${SubmissionFilter}
+  input SubmissionFilter {
+    operator: String
+    value: JSON
+    formFieldId: String
+  }
 
   type Ad {
     customerId: String

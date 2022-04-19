@@ -2,7 +2,7 @@ import { Comments, Customers, Posts } from './models';
 import { ICommentParams, IPostParams } from './types';
 
 import { debugError } from '../debuggers';
-import { sendMessage, sendRPCMessage } from '../messageBroker';
+import { sendInboxMessage } from '../messageBroker';
 import { Accounts, Integrations } from '../models';
 import {
   getFacebookUser,
@@ -142,13 +142,18 @@ export const getOrCreatePost = async (
 
   // create conversation in api
   try {
-    const apiConversationResponse = await sendRPCMessage({
-      action: 'create-or-update-conversation',
-      payload: JSON.stringify({
-        customerId: customerErxesApiId,
-        integrationId: integration.erxesApiId,
-        content: post.content
-      })
+    const apiConversationResponse = await sendInboxMessage({
+      subdomain: 'os',
+      action: 'integrations.receive',
+      data: {
+        action: 'create-or-update-conversation',
+        payload: JSON.stringify({
+          customerId: customerErxesApiId,
+          integrationId: integration.erxesApiId,
+          content: post.content
+        })
+      },
+      isRPC: true
     });
 
     post.erxesApiId = apiConversationResponse._id;
@@ -185,7 +190,13 @@ export const getOrCreateComment = async (
       { $set: { ...doc } }
     );
 
-    return sendMessage({ action: 'external-integration-entry-added' });
+    return sendInboxMessage({
+      subdomain: 'os',
+      action: 'integrationsNotification',
+      data: {
+        action: 'external-integration-entry-added'
+      }
+    });
   }
 
   if (comment) {
@@ -194,7 +205,13 @@ export const getOrCreateComment = async (
 
   await Comments.create(doc);
 
-  sendMessage({ action: 'external-integration-entry-added' });
+  sendInboxMessage({
+    subdomain: 'os',
+    action: 'integrationsNotification',
+    data: {
+      action: 'external-integration-entry-added'
+    }
+  });
 };
 
 export const getOrCreateCustomer = async (
@@ -247,15 +264,20 @@ export const getOrCreateCustomer = async (
 
   // save on api
   try {
-    const apiCustomerResponse = await sendRPCMessage({
-      action: 'get-create-update-customer',
-      payload: JSON.stringify({
-        integrationId: integration.erxesApiId,
-        firstName: fbUser.first_name || fbUser.name,
-        lastName: fbUser.last_name,
-        avatar: fbUserProfilePic,
-        isUser: true
-      })
+    const apiCustomerResponse = await sendInboxMessage({
+      subdomain: 'os',
+      action: 'integrations.receive',
+      data: {
+        action: 'get-create-update-customer',
+        payload: JSON.stringify({
+          integrationId: integration.erxesApiId,
+          firstName: fbUser.first_name || fbUser.name,
+          lastName: fbUser.last_name,
+          avatar: fbUserProfilePic,
+          isUser: true
+        })
+      },
+      isRPC: true
     });
 
     customer.erxesApiId = apiCustomerResponse._id;

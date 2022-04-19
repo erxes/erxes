@@ -10,6 +10,8 @@ import { graphql } from "react-apollo";
 import CustomerDetails from "../components/detail/CustomerDetails";
 import { queries } from "@erxes/ui-contacts/src/customers/graphql";
 import { CustomerDetailQueryResponse } from "@erxes/ui-contacts/src/customers/types";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { IField } from "@erxes/ui/src/types";
 
 type Props = {
   id: string;
@@ -33,11 +35,13 @@ function CustomerDetailsContainer(props: FinalProps) {
     );
   }
 
-  if (fieldsInboxQuery.loading) {
+  if (fieldsInboxQuery && fieldsInboxQuery.loading) {
     return <Spinner />;
   }
 
-  const fields = fieldsInboxQuery.inboxFields || ({} as any);
+  const fields = fieldsInboxQuery
+    ? fieldsInboxQuery.inboxFields || ({} as any)
+    : ([] as IField[]);
 
   const taggerRefetchQueries = [
     {
@@ -72,6 +76,7 @@ export default withProps<Props>(
     ),
     graphql<Props, InboxFieldsQueryResponse>(gql(fieldQueries.inboxFields), {
       name: "fieldsInboxQuery",
+      skip: !isEnabled("inbox") ? true : false,
     })
   )(CustomerDetailsContainer)
 );

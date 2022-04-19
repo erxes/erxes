@@ -1,5 +1,5 @@
 import { Activity } from 'botbuilder';
-import { sendRPCMessage } from '../messageBroker';
+import { sendInboxMessage } from '../messageBroker';
 import Integrations from '../models/Integrations';
 import { ConversationMessages, Conversations } from './models';
 import { getOrCreateCustomer } from './store';
@@ -56,19 +56,24 @@ const receiveMessage = async (activity: Activity) => {
 
     // save on api
     try {
-      const apiConversationResponse = await sendRPCMessage({
-        action: 'create-or-update-conversation',
-        payload: JSON.stringify({
-          customerId: customer.erxesApiId,
-          integrationId: integration.erxesApiId,
-          content: text || '',
-          attachments: (attachments || [])
-            .filter(att => att.type !== 'fallback')
-            .map(att => ({
-              type: att.type,
-              url: att.payload ? att.payload.url : ''
-            }))
-        })
+      const apiConversationResponse = await sendInboxMessage({
+        subdomain: 'os',
+        action: 'integrations.receive',
+        data: {
+          action: 'create-or-update-conversation',
+          payload: JSON.stringify({
+            customerId: customer.erxesApiId,
+            integrationId: integration.erxesApiId,
+            content: text || '',
+            attachments: (attachments || [])
+              .filter(att => att.type !== 'fallback')
+              .map(att => ({
+                type: att.type,
+                url: att.payload ? att.payload.url : ''
+              }))
+          })
+        },
+        isRPC: true
       });
 
       conversation.erxesApiId = apiConversationResponse._id;
@@ -104,20 +109,25 @@ const receiveMessage = async (activity: Activity) => {
 
     // save message on api
     try {
-      await sendRPCMessage({
-        action: 'create-conversation-message',
-        metaInfo: 'replaceContent',
-        payload: JSON.stringify({
-          content: text || '',
-          attachments: (attachments || [])
-            .filter(att => att.type !== 'fallback')
-            .map(att => ({
-              type: att.type,
-              url: att.payload ? att.payload.url : ''
-            })),
-          conversationId: conversation.erxesApiId,
-          customerId: customer.erxesApiId
-        })
+      await sendInboxMessage({
+        subdomain: 'os',
+        action: 'integrations.receive',
+        data: {
+          action: 'create-conversation-message',
+          metaInfo: 'replaceContent',
+          payload: JSON.stringify({
+            content: text || '',
+            attachments: (attachments || [])
+              .filter(att => att.type !== 'fallback')
+              .map(att => ({
+                type: att.type,
+                url: att.payload ? att.payload.url : ''
+              })),
+            conversationId: conversation.erxesApiId,
+            customerId: customer.erxesApiId
+          })
+        },
+        isRPC: true
       });
     } catch (e) {
       await ConversationMessages.deleteOne({ mid: message.mid });

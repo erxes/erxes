@@ -3,6 +3,12 @@ const fse = require("fs-extra");
 const yaml = require("yaml");
 const { log, execCommand, filePath, execCurl } = require("../utils");
 
+const sleep = (ms) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 const commonEnvs = (configs) => {
   const db_server_address = configs.db_server_address;
   const redis = configs.redis || {};
@@ -50,21 +56,23 @@ const deploy = {
       update_config: {
         order: "start-first",
         failure_action: "rollback",
-        delay: "5s"
+        delay: "1s"
       }
 }
 
 const generatePluginBlock = (configs, plugin) => {
+  const api_mongo_url = mongoEnv(configs, {});
   const mongo_url = plugin.mongo_url || mongoEnv(configs, plugin);
 
   return {
     image: `erxes/plugin-${plugin.name}-api:federation`,
     environment: {
       PORT: plugin.port || 80,
-      API_MONGO_URL: mongo_url,
+      API_MONGO_URL: api_mongo_url,
       MONGO_URL: mongo_url,
       LOAD_BALANCER_ADDRESS: `http://plugin_${plugin.name}_api`,
       ...commonEnvs(configs),
+      ...(plugin.extra_env || {})
     },
     volumes: ["./enabled-services.js:/data/enabled-services.js"],
     networks: ["erxes"],
@@ -72,7 +80,7 @@ const generatePluginBlock = (configs, plugin) => {
   };
 };
 
-module.exports.deployDbs = async (program) => {
+const deployDbs = async (program) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath("configs.json"));
@@ -178,7 +186,7 @@ module.exports.deployDbs = async (program) => {
   );
 };
 
-module.exports.dup = async (program) => {
+const up = async (uis) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath("configs.json"));
@@ -215,6 +223,7 @@ module.exports.dup = async (program) => {
           "./plugins.js:/usr/share/nginx/html/js/plugins.js",
           "./plugin-uis:/usr/share/nginx/html/js/plugins",
         ],
+        deploy,
         networks: ["erxes"],
       },
       plugin_core_api: {
@@ -233,7 +242,10 @@ module.exports.dup = async (program) => {
           ...commonEnvs(configs),
         },
         extra_hosts,
-        volumes: ["./enabled-services.js:/data/enabled-services.js"],
+        volumes: [
+          "./enabled-services.js:/data/enabled-services.js",
+          "./permissions.json:/core-api/permissions.json"
+        ],
         networks: ["erxes"],
       },
       gateway: {
@@ -254,6 +266,15 @@ module.exports.dup = async (program) => {
         deploy,
         extra_hosts,
         ports: ["3300:80"],
+        networks: ["erxes"],
+      },
+      crons: {
+        image: "erxes/crons:federation",
+        environment: {
+          MONGO_URL: mongoEnv(configs),
+          ...commonEnvs(configs),
+        },
+        volumes: ["./enabled-services.js:/data/enabled-services.js"],
         networks: ["erxes"],
       },
       workers: {
@@ -324,17 +345,10 @@ module.exports.dup = async (program) => {
     };
   }
 
-  if (!(await fse.exists(filePath("plugin-uis")))) {
-    log("Downloading plugin uis from s3 ....");
-    await execCommand(
-      "aws s3 sync s3://plugin-uis plugin-uis  --no-sign-request"
-    );
-  }
-
   log("Downloading pluginsMap.js from s3 ....");
 
   await execCurl(
-    "https://plugin-uis.s3.us-west-2.amazonaws.com/pluginsMap.js",
+    "https://erxes-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js",
     "pluginsMap.js"
   );
 
@@ -342,6 +356,8 @@ module.exports.dup = async (program) => {
 
   const enabledPlugins = [];
   const uiPlugins = [];
+  const essyncerJSON = { plugins: [] };
+  const permissionsJSON = [];
 
   for (const plugin of configs.plugins || []) {
     dockerComposeConfig.services[
@@ -350,12 +366,47 @@ module.exports.dup = async (program) => {
 
     enabledPlugins.push(`'${plugin.name}'`);
 
-    if (pluginsMap[plugin.name]) {
-      uiPlugins.push(
-        JSON.stringify({
-          name: plugin.name,
-          ...pluginsMap[plugin.name],
-        })
+    if (pluginsMap[plugin.name] && pluginsMap[plugin.name].ui) {
+      const uiConfig = pluginsMap[plugin.name].ui;
+
+      if (uiConfig) {
+        uiPlugins.push(
+          JSON.stringify({
+            name: plugin.name,
+            ...pluginsMap[plugin.name].ui,
+          })
+        );
+      }
+
+      const apiConfig = pluginsMap[plugin.name].api;
+
+      if (apiConfig) {
+        if (apiConfig.essyncer) {
+          essyncerJSON.plugins.push({
+            db_name: plugin.db_name || 'erxes',
+            collections: apiConfig.essyncer
+          });
+        }
+
+        if (apiConfig.permissions) {
+          permissionsJSON.push(apiConfig.permissions);
+        }
+      }
+    }
+  }
+
+  if (!(await fse.exists(filePath("plugin-uis")))) {
+    await execCommand('mkdir plugin-uis', true);
+  }
+
+  if (uis) {
+    for (const plugin of configs.plugins || []) {
+      const name = `plugin-${plugin.name}-ui`;
+
+      log(`Downloading ${name} ui from s3 ....`);
+
+      await execCommand(
+        `aws s3 sync s3://erxes-plugins/uis/${name} plugin-uis/${name} --no-sign-request`
       );
     }
   }
@@ -395,6 +446,17 @@ module.exports.dup = async (program) => {
 
   const yamlString = yaml.stringify(dockerComposeConfig);
 
+  log("Generating permissions json ....");
+  await fse.writeJSON(filePath("permissions.json"), permissionsJSON);
+
+  // essyncer
+  if (!(await fse.exists(filePath("essyncerData")))) {
+    await execCommand('mkdir essyncerData', true);
+  }
+
+  log("Generating essyncer json ....");
+  await fse.writeJSON(filePath("essyncerData/plugins.json"), essyncerJSON);
+
   log("Generating docker-compose.yml ....");
 
   fs.writeFileSync(filePath("docker-compose.yml"), yamlString);
@@ -406,7 +468,7 @@ module.exports.dup = async (program) => {
   );
 };
 
-module.exports.dupdate = async (program) => {
+const update = async (program) => {
   if (process.argv.length < 4) {
     return console.log("Pass service names !!!");
   }
@@ -414,9 +476,9 @@ module.exports.dupdate = async (program) => {
   const pluginNames = process.argv[3];
 
   for (const name of pluginNames.split(",")) {
-    log(`Force updating  ${name}......`);
+    log(`Updating image ${name}......`);
 
-    if (['dashboard', 'workers', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
+    if (['dashboard', 'workers', 'crons', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
       await execCommand(
         `docker service update erxes_${name} --image erxes/${name}:federation`
       );
@@ -441,11 +503,93 @@ module.exports.dupdate = async (program) => {
       `docker service update erxes_plugin_${name}_api --image erxes/plugin-${name}-api:federation`
     );
 
-    log("Syncing plugin uis from s3 ....");
+    if (program.uis) {
+      log("Syncing plugin uis from s3 ....");
 
-    const uiname = `plugin-${name}-ui`;
+      const uiname = `plugin-${name}-ui`;
 
-    await execCommand(`rm -rf plugin-uis/${uiname}`, true);
-    await execCommand(`aws s3 sync s3://plugin-uis/${uiname} plugin-uis/${uiname} --no-sign-request`);
+      await execCommand(`rm -rf plugin-uis/${uiname}`, true);
+      await execCommand(`aws s3 sync s3://erxes-plugins/uis/${uiname} plugin-uis/${uiname} --no-sign-request`);
+
+      log("Restart core ui ....");
+      await execCommand(`docker service update --force erxes_coreui`);
+    }
+
   }
+
+  log("Updating gateway ....");
+  await execCommand(`docker service update --force erxes_gateway`);
+};
+
+const restart = async (name) => {
+  log(`Restarting .... ${name}`);
+
+  if (['gateway', 'coreui', 'workers', 'crons'].includes(name)) {
+    await execCommand(`docker service update --force erxes_${name}`);
+    return;
+  }
+
+  await execCommand(`docker service update --force erxes_plugin_${name}_api`);
+};
+
+module.exports.manageInstallation = async (program) => {
+  const type = process.argv[3];
+  const name = process.argv[4];
+
+  const configs = await fse.readJSON(filePath("configs.json"));
+
+  if (type === "install") {
+    const prevEntry = configs.plugins.find((p) => p.name === name);
+
+    if (!prevEntry) {
+      configs.plugins.push({ name: name });
+    }
+  } else {
+    configs.plugins = configs.plugins.filter(
+      (p) => p.name !== name
+    );
+  }
+
+  log("Updating configs.json ....");
+
+  await fse.writeJSON(filePath("configs.json"), configs);
+
+  if (type === "install") {
+    log("Running up ....");
+    await up();
+
+    log("Syncing ui ....");
+
+    await execCommand(
+      `aws s3 sync s3://erxes-plugins/uis/plugin-${name}-ui plugin-uis/plugin-${name}-ui --no-sign-request`
+    );
+
+    await restart('coreui');
+
+    log("Waiting for 30 seconds ....");
+    await sleep(30000);
+  } else {
+    log("Running up ....");
+    await up();
+
+    log(`Removing ${name} service ....`);
+    await execCommand(`docker service rm erxes_plugin_${name}_api`, true);
+
+    await restart('coreui');
+  }
+
+  await restart('gateway');
+};
+
+module.exports.up = (program) => {
+  return up(program.uis);
+};
+
+module.exports.deployDbs = deployDbs;
+
+module.exports.update = update;
+
+module.exports.restart = () => {
+  const name = process.argv[3];
+  return restart(name);
 };

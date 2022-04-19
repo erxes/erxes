@@ -52,6 +52,9 @@ const spinQueries = {
   }
 };
 
-checkPermission(spinQueries, 'lotteriesMain', 'showLoyalties', []);
+checkPermission(spinQueries, 'lotteriesMain', 'showLoyalties', {
+  list: [],
+  totalCount: 0
+});
 
 export default spinQueries;

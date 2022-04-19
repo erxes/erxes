@@ -35,5 +35,29 @@ export default {
       status: 'success',
       data: result
     };
+  },
+  fixRelatedItems: async ({ subdomain, data: { sourceId, destId, action } }) => {
+    const models = await generateModels(subdomain);
+
+    if (action === 'remove') {
+      await models.EngageMessages.updateMany(
+        { tagIds: { $in: [sourceId] } },
+        { $pull: { tagIds: { $in: [sourceId] } } }
+      );
+    }
+
+    if (action === 'merge') {
+      const itemIds = await models.EngageMessages.find(
+        { tagIds: { $in: [sourceId] } },
+        { _id: 1 }
+      ).distinct('_id');
+
+      // add to new destination
+      await models.EngageMessages.updateMany(
+        { _id: { $in: itemIds } },
+        { $set: { 'tagIds.$[elem]': destId } },
+        { arrayFilters: [{ elem: { $eq: sourceId } }] }
+      );
+    }
   }
 };

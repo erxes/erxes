@@ -24,7 +24,8 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          # cp -r packages/ui-plugin-template/.erxes packages/plugin-inbox-ui/.erxes
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-inbox-ui/.erxes
+          cp -r packages/plugin-inbox-ui/src packages/plugin-inbox-ui/.erxes/plugin-src
           cd packages/plugin-inbox-ui
           yarn install-deps
           yarn build
@@ -38,4 +39,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-inbox-ui/.erxes/dist s3://plugin-uis/plugin-inbox-ui --delete 
+          aws s3 sync packages/plugin-inbox-ui/.erxes/dist s3://erxes-plugins/uis/plugin-inbox-ui --delete 

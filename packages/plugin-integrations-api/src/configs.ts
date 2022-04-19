@@ -1,6 +1,5 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import apiConnect from './apiCollections';
 
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
@@ -32,7 +31,6 @@ export default {
   segment: {},
   apolloServerContext: (context) => {},
   onServerInit: async (options) => {
-    await apiConnect();
 
     const app = options.app;
 

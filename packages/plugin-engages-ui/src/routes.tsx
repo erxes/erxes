@@ -1,8 +1,7 @@
-import React from 'react';
-import EngageRoutes from './campaigns/routes';
-import EmailDeliveryRoutes from '@erxes/ui-settings/src/emailDelivery/routes';
-import SmsDeliveriesRoutes from '@erxes/ui-settings/src/smsDeliveries/routes';
-import EmailTemplatesRoutes from '@erxes/ui-settings/src/emailTemplates/routes';
+import React from "react";
+import EngageRoutes from "./campaigns/routes";
+import EmailDeliveryRoutes from "@erxes/ui-settings/src/emailDelivery/routes";
+import SmsDeliveriesRoutes from "@erxes/ui-settings/src/smsDeliveries/routes";
 
 const routes = () => {
   return (
@@ -10,7 +9,6 @@ const routes = () => {
       <EngageRoutes />
       <EmailDeliveryRoutes />
       <SmsDeliveriesRoutes />
-      <EmailTemplatesRoutes />
     </React.Fragment>
   );
 };

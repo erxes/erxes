@@ -20,11 +20,11 @@ const typeDefs = async (serviceDiscovery) => {
     scalar Date
 
     ${adsTypes(isEnabled)}
-    
+
     extend type Query {
       ${adsQueries}
     }
-    
+
     extend type Mutation {
       ${adsMutations}
     }

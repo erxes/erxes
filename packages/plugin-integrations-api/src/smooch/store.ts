@@ -23,8 +23,8 @@ import {
 } from './types';
 
 import { debugError, debugSmooch } from '../debuggers';
-import { sendRPCMessage } from '../messageBroker';
 import { checkConcurrentError } from '../utils';
+import { sendInboxMessage } from '../messageBroker';
 
 const SMOOCH_MODELS = {
   telegram: {
@@ -257,10 +257,15 @@ const requestMainApi = (
   action: string,
   params: IAPICustomer | IAPIConversation | IAPIConversationMessage
 ) => {
-  return sendRPCMessage({
-    action,
-    metaInfo: action.includes('message') ? 'replaceContent' : null,
-    payload: JSON.stringify(params)
+  return sendInboxMessage({
+    subdomain: 'os',
+    action: 'integrations.receive',
+    data: {
+      action,
+      metaInfo: action.includes('message') ? 'replaceContent' : null,
+      payload: JSON.stringify(params)
+    },
+    isRPC: true
   });
 };
 

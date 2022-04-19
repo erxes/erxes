@@ -3,7 +3,7 @@ import * as request from 'request-promise';
 import * as sanitizeHtml from 'sanitize-html';
 import { debugBase, debugExternalRequests } from './debuggers';
 import {get, set} from './inmemoryStorage';
-import { sendRPCMessage } from './messageBroker';
+import { sendInboxMessage } from './messageBroker';
 import Configs from './models/Configs';
 import { IParticipants, IProviderSettings } from './nylas/types';
 import { sendDailyRequest } from './videoCall/controller';
@@ -217,7 +217,14 @@ export const getConfig = async (code, defaultValue?) => {
 };
 
 export const getCommonGoogleConfigs = async () => {
-  const response = await sendRPCMessage({ action: 'get-configs' });
+  const response = await sendInboxMessage({
+    subdomain: 'os',
+    action: 'integrations.receive',
+    data: {
+      action: 'get-configs'
+    },
+    isRPC: true
+  });
 
   const configs = response.configs;
 

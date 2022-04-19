@@ -2,39 +2,34 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
-import { IUser } from 'modules/auth/types';
-import { IItem } from '@erxes/ui-cards/src/boards/types';
-import { __ } from 'modules/common/utils';
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
-import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
-import React from 'react';
-import { AppConsumer } from 'appContext';
-import { generateRandomColor } from 'utils';
-import { NavItem } from 'modules/layout/components/QuickNavigation';
+import { IUser } from "modules/auth/types";
+import { IItem } from "@erxes/ui-cards/src/boards/types";
+import { __ } from "modules/common/utils";
+import { ICompany } from "@erxes/ui/src/companies/types";
+import { ICustomer } from "@erxes/ui/src/customers/types";
+import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
+import React from "react";
+import { generateRandomColor } from "utils";
+import { NavItem } from "modules/layout/components/QuickNavigation";
 
 const PluginsWrapper = ({
   itemName,
-  callBack
+  callBack,
+  plugins,
 }: {
   itemName: string;
   callBack: (plugin: any, item: any) => React.ReactNode;
+  plugins: any;
 }) => {
-  return (
-    <AppConsumer>
-      {({ plugins }) =>
-        (plugins || []).map(plugin => {
-          const item = plugin[itemName];
+  return (plugins || []).map(plugin => {
+    const item = plugin[itemName];
 
-          if (!item) {
-            return undefined;
-          }
+    if (!item) {
+      return undefined;
+    }
 
-          return callBack(plugin, item);
-        })
-      }
-    </AppConsumer>
-  );
+    return callBack(plugin, item);
+  });
 };
 
 const useDynamicScript = args => {
@@ -46,10 +41,10 @@ const useDynamicScript = args => {
       return;
     }
 
-    const element = document.createElement('script');
+    const element = document.createElement("script");
 
     element.src = args.url;
-    element.type = 'text/javascript';
+    element.type = "text/javascript";
     element.async = true;
 
     setReady(false);
@@ -76,14 +71,14 @@ const useDynamicScript = args => {
 
   return {
     ready,
-    failed
+    failed,
   };
 };
 
 export const loadComponent = (scope, module) => {
   return async () => {
     // Initializes the share scope. This fills it with known provided modules from this build and all remotes
-    await __webpack_init_sharing__('default');
+    await __webpack_init_sharing__("default");
 
     const container = window[scope]; // or get the container somewhere else
 
@@ -96,20 +91,32 @@ export const loadComponent = (scope, module) => {
   };
 };
 
-const renderPlguginSidebar = (itemName: string, type: string, object: any) => {
+const renderPluginSidebar = (itemName: string, type: string, object: any) => {
+  const plugins: any[] = (window as any).plugins || [];
+
   return (
     <PluginsWrapper
       itemName={itemName}
-      callBack={(_plugin, section) => {
-        const Component = section.section;
-        return (
-          <Component
-            key={Math.random()}
-            companyId={object._id}
-            mainType={type}
-            mainTypeId={object._id}
-          />
-        );
+      plugins={plugins}
+      callBack={(_plugin, sections) => {
+        return (sections || []).map(section => {
+          if (!window[section.scope]) {
+            return null;
+          }
+
+          const Component = React.lazy(
+            loadComponent(section.scope, section.component)
+          );
+
+          return (
+            <Component
+              key={Math.random()}
+              id={object._id}
+              mainType={type}
+              mainTypeId={object._id}
+            />
+          );
+        });
       }}
     />
   );
@@ -118,7 +125,7 @@ const renderPlguginSidebar = (itemName: string, type: string, object: any) => {
 const System = props => {
   if (props.loadScript) {
     const { ready, failed } = useDynamicScript({
-      url: props.system && props.system.url
+      url: props.system && props.system.url,
     });
 
     if (!props.system || !ready || failed) {
@@ -131,7 +138,7 @@ const System = props => {
   );
 
   return (
-    <ErrorBoundary>
+    <ErrorBoundary pluginName={props.pluginName}>
       <React.Suspense fallback="">
         <Component />
       </React.Suspense>
@@ -210,10 +217,10 @@ export const pluginsSettingsNavigations = (
       plugin.color = generateRandomColor();
     }
 
-    const hasComponent = Object.keys(plugin.exposes).includes('./settings');
+    const hasComponent = Object.keys(plugin.exposes).includes("./settings");
 
     for (const menu of plugin.menus || []) {
-      if (menu.location === 'settings') {
+      if (menu.location === "settings") {
         navigationMenus.push(
           <React.Fragment key={menu.text}>
             <SettingsCustomBox
@@ -275,7 +282,7 @@ export const pluginsOfTopNavigations = () => {
 
   for (const plugin of plugins) {
     for (const menu of plugin.menus || []) {
-      if (menu.location === 'topNavigation') {
+      if (menu.location === "topNavigation") {
         topNavigationMenus.push(
           <React.Fragment key={menu.text}>
             <TopNavigation topNav={menu} />
@@ -294,19 +301,20 @@ export const pluginLayouts = (currentUser: IUser) => {
 
   for (const plugin of plugins) {
     if (plugin.layout) {
-      // const Component = React.lazy(
-      //   loadComponent(plugin.scope, plugin.layout)
-      // );
-
       layouts.push(
-        <System key={Math.random()} loadScript={true} system={plugin.layout} currentUser={currentUser} />
+        <System
+          key={Math.random()}
+          loadScript={true}
+          system={plugin.layout}
+          currentUser={currentUser}
+          pluginName={plugin.name}
+        />
       );
     }
   }
 
   return layouts;
 };
-
 
 export const pluginRouters = () => {
   const plugins: any[] = (window as any).plugins || [];
@@ -315,7 +323,12 @@ export const pluginRouters = () => {
   for (const plugin of plugins) {
     if (plugin.routes) {
       pluginRoutes.push(
-        <System key={Math.random()} loadScript={true} system={plugin.routes} />
+        <System
+          key={Math.random()}
+          loadScript={true}
+          system={plugin.routes}
+          pluginName={plugin.name}
+        />
       );
     }
   }
@@ -329,7 +342,7 @@ export const pluginNavigations = () => {
 
   for (const plugin of plugins) {
     for (const menu of plugin.menus || []) {
-      if (menu.location === 'mainNavigation') {
+      if (menu.location === "mainNavigation") {
         navigationMenus.push(menu);
       }
     }
@@ -339,27 +352,30 @@ export const pluginNavigations = () => {
 };
 
 export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
-  return renderPlguginSidebar(
-    'customerRightSidebarSection',
-    'customer',
+  return renderPluginSidebar(
+    "customerRightSidebarSection",
+    "customer",
     customer
   );
 };
 
 export const pluginsOfCompanySidebar = (company: ICompany) => {
-  return renderPlguginSidebar('companyRightSidebarSection', 'company', company);
+  return renderPluginSidebar("companyRightSidebarSection", "company", company);
 };
 
 export const pluginsOfItemSidebar = (item: IItem, type: string) => {
-  return renderPlguginSidebar(`${type}RightSidebarSection`, type, item);
+  return renderPluginSidebar(`${type}RightSidebarSection`, type, item);
 };
 
 export const pluginsOfPaymentForm = (
   renderPaymentsByType: (type) => JSX.Element
 ) => {
+  const plugins: any[] = (window as any).plugins || [];
+
   return (
     <PluginsWrapper
-      itemName={'payments'}
+      itemName={"payments"}
+      plugins={plugins}
       callBack={(_plugin, payments) => {
         const paymentsTypes: JSX.Element[] = [];
         for (const perPayment of payments) {
@@ -370,6 +386,31 @@ export const pluginsOfPaymentForm = (
           }
         }
         return paymentsTypes;
+      }}
+    />
+  );
+};
+
+export const pluginsOfProductCategoryActions = (productCategoryId: string) => {
+  const plugins: any[] = (window as any).plugins || [];
+
+  return (
+    <PluginsWrapper
+      plugins={plugins}
+      itemName={"productCategoryActions"}
+      callBack={(_plugin, actions) => {
+        return actions.map(action => {
+          const Component = React.lazy(
+            loadComponent(action.scope, action.component)
+          );
+
+          return (
+            <Component
+              key={Math.random()}
+              productCategoryId={productCategoryId}
+            />
+          );
+        });
       }}
     />
   );

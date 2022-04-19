@@ -3,6 +3,7 @@ module.exports = {
   port: 3021,
   exposes: {
     "./routes": "./src/routes.tsx",
+    "./productCategoryCreateAction": "./src/containers/NeighborForm.tsx",
   },
   routes: {
     url: "http://localhost:3021/remoteEntry.js",
@@ -15,9 +16,16 @@ module.exports = {
       to: "/erxes-plugin-neighbor?type=kindergarden",
       image: "/images/icons/erxes-05.svg",
       location: "settings",
-      scope: "Neighbor",
+      scope: "neighbor",
       action: "",
       permissions: [],
+    },
+  ],
+  productCategoryActions: [
+    {
+      text: "productCategoryCreateAction",
+      component: "./productCategoryCreateAction",
+      scope: "neighbor",
     },
   ],
 };
