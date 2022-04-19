@@ -13,7 +13,7 @@ import {
   IEmailSignature,
   IUser
 } from '../../../db/models/definitions/users';
-import messageBroker from '../../../messageBroker';
+import { sendIntegrationsMessage } from '../../../messageBroker';
 import { putCreateLog, putUpdateLog } from '../../logUtils';
 import { resetPermissionsCache } from '../../permissions/utils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
@@ -84,7 +84,7 @@ const userMutations = {
       lastName?: string;
       subscribeEmail?: boolean;
     },
-    { user }: IContext
+    { user, subdomain }: IContext
   ) {
     const userCount = await Users.countDocuments();
 
@@ -136,10 +136,14 @@ const userMutations = {
       value: 'local'
     });
 
-    await messageBroker().sendMessage('erxes-api:integrations-notification', {
-      type: 'addUserId',
-      payload: {
-        _id: newUser._id
+    await sendIntegrationsMessage({
+      subdomain,
+      action: 'notification',
+      data: {
+        type: 'addUserId',
+        payload: {
+          _id: newUser._id
+        }
       }
     });
 
@@ -411,7 +415,8 @@ const userMutations = {
       passwordConfirmation: string;
       fullName?: string;
       username?: string;
-    }
+    },
+    { subdomain }: IContext
   ) {
     const user = await Users.confirmInvitation({
       token,
@@ -421,10 +426,14 @@ const userMutations = {
       username
     });
 
-    await messageBroker().sendMessage('erxes-api:integrations-notification', {
-      type: 'addUserId',
-      payload: {
-        _id: user._id
+    await sendIntegrationsMessage({
+      subdomain,
+      action: 'notification',
+      data: {
+        type: 'addUserId',
+        payload: {
+          _id: user._id
+        }
       }
     });
 

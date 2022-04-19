@@ -10,7 +10,7 @@ import { IMessageDocument } from '../../models/definitions/conversationMessages'
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { AUTO_BOT_MESSAGES } from '../../models/definitions/constants';
 import { debug } from '../../configs';
-import messageBroker, {
+import {
   sendContactsMessage,
   sendCardsMessage,
   sendCoreMessage,
@@ -393,16 +393,19 @@ const conversationMutations = {
         doc.content.length > 160 ? splitStr(doc.content, 160) : [doc.content];
 
       for (let i = 0; i < chunks.length; i++) {
-        // ! will refactor
-        await messageBroker().sendMessage('erxes-api:integrations-notification', {
-          action: 'sendConversationSms',
-          payload: JSON.stringify({
-            conversationMessageId: `${message._id}-part${i + 1}`,
-            conversationId,
-            integrationId,
-            toPhone: customer.primaryPhone,
-            content: strip(chunks[i])
-          })
+        await sendIntegrationsMessage({
+          subdomain,
+          action: 'notification',
+          data: {
+            action: 'sendConversationSms',
+            payload: JSON.stringify({
+              conversationMessageId: `${message._id}-part${i + 1}`,
+              conversationId,
+              integrationId,
+              toPhone: customer.primaryPhone,
+              content: strip(chunks[i])
+            })
+          }
         });
       }
     }
