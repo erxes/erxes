@@ -88,6 +88,10 @@ const changeType = type => {
       break;
   }
 
+  if (!prefix) {
+    return type;
+  }
+
   return `${prefix}:${type}`;
 };
 
