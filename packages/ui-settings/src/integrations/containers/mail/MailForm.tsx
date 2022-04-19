@@ -1,30 +1,22 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import debounce from 'lodash/debounce';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import { queries as messageQueries } from '@erxes/ui-inbox/src/inbox/graphql';
-import { IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
-import {
-  EmailTemplatesQueryResponse,
-  EmailTemplatesTotalCountQueryResponse
-} from '../../../emailTemplates/types';
-import { queries as templatesQuery } from '../../../emailTemplates/graphql';
-import {
-  mutations,
-  queries
-} from '../../graphql';
-import * as React from 'react';
-import { graphql } from 'react-apollo';
-import MailForm from '../../components/mail/MailForm';
-import { IntegrationsQueryResponse } from '../../types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import debounce from "lodash/debounce";
+import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { Alert, withProps } from "@erxes/ui/src/utils";
+import { queries as messageQueries } from "@erxes/ui-inbox/src/inbox/graphql";
+import { IMail, IMessage } from "@erxes/ui-inbox/src/inbox/types";
+import { mutations, queries } from "../../graphql";
+import * as React from "react";
+import { graphql } from "react-apollo";
+import MailForm from "../../components/mail/MailForm";
+import { IntegrationsQueryResponse } from "../../types";
 import {
   defaultCustomerFields,
   defaultMailFields,
-  defaultMessageFields
-} from './constants';
+  defaultMessageFields,
+} from "./constants";
 
 type Props = {
   clearOnSubmit?: boolean;
@@ -50,8 +42,8 @@ type Props = {
 type FinalProps = {
   currentUser: IUser;
   sendMailMutation: any;
-  emailTemplatesQuery: EmailTemplatesQueryResponse;
-  emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
+  emailTemplatesQuery: any /*change type*/;
+  emailTemplatesTotalCountQuery: any /*change type*/;
   integrationsQuery: IntegrationsQueryResponse;
 } & Props;
 
@@ -69,7 +61,7 @@ const MailFormContainer = (props: FinalProps) => {
     sendMailMutation,
     currentUser,
     mails,
-    messageId
+    messageId,
   } = props;
 
   if (integrationsQuery.loading) {
@@ -95,10 +87,10 @@ const MailFormContainer = (props: FinalProps) => {
         return Object.assign({}, prev, {
           emailTemplates: [
             ...prev.emailTemplates,
-            ...fetchMoreResult.emailTemplates
-          ]
+            ...fetchMoreResult.emailTemplates,
+          ],
         });
-      }
+      },
     });
   };
 
@@ -108,7 +100,7 @@ const MailFormContainer = (props: FinalProps) => {
     variables,
     optimisticResponse,
     update,
-    callback
+    callback,
   }: {
     variables: any;
     optimisticResponse?: any;
@@ -118,16 +110,16 @@ const MailFormContainer = (props: FinalProps) => {
     return sendMailMutation({
       variables: { ...variables, customerId },
       optimisticResponse,
-      update
+      update,
     })
       .then(() => {
-        Alert.success('You have successfully sent a email');
+        Alert.success("You have successfully sent a email");
 
         if (isReply && variables.shouldResolve) {
           debounce(
             () =>
               Alert.info(
-                'This email conversation will be automatically moved to a resolved state.'
+                "This email conversation will be automatically moved to a resolved state."
               ),
             3300
           )();
@@ -141,7 +133,7 @@ const MailFormContainer = (props: FinalProps) => {
           callback();
         }
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
 
         if (closeModal) {
@@ -152,7 +144,7 @@ const MailFormContainer = (props: FinalProps) => {
 
   const sendMail = ({
     variables,
-    callback
+    callback,
   }: {
     variables: any;
     callback: () => void;
@@ -161,39 +153,39 @@ const MailFormContainer = (props: FinalProps) => {
       return save({ variables, callback });
     }
 
-    const email = mailData ? mailData.integrationEmail : '';
+    const email = mailData ? mailData.integrationEmail : "";
 
     const integrationSendMail = {
       _id: Math.round(Math.random() * -1000000),
       ...defaultMessageFields,
       conversationId,
       videoCallData: null,
-      contentType: '',
+      contentType: "",
       content: variables.body,
       customer: {
         ...defaultCustomerFields,
         firstName: email,
-        primaryEmail: email
+        primaryEmail: email,
       },
       mailData: {
         ...defaultMailFields,
-        bcc: [{ __typename: 'Email', email: variables.bcc }],
-        to: [{ __typename: 'Email', email: variables.to }],
-        from: [{ __typename: 'Email', email: variables.to }],
-        cc: [{ __typename: 'Email', email: variables.cc }],
+        bcc: [{ __typename: "Email", email: variables.bcc }],
+        to: [{ __typename: "Email", email: variables.to }],
+        from: [{ __typename: "Email", email: variables.to }],
+        cc: [{ __typename: "Email", email: variables.cc }],
         body: variables.body,
         subject: variables.subject,
         attachments: variables.attachments,
-        integrationEmail: variables.from
-      }
+        integrationEmail: variables.from,
+      },
     };
 
-    const optimisticResponse = { __typename: 'Mutation', integrationSendMail };
+    const optimisticResponse = { __typename: "Mutation", integrationSendMail };
 
-    const update = store => {
+    const update = (store) => {
       const selector = {
         query: gql(messageQueries.conversationMessages),
-        variables: { conversationId, limit: 10, skip: 0 }
+        variables: { conversationId, limit: 10, skip: 0 },
       };
 
       // Read the data from our cache for this query.
@@ -229,7 +221,7 @@ const MailFormContainer = (props: FinalProps) => {
     emailSignatures: currentUser.emailSignatures || [],
     totalCount: emailTemplatesTotalCount,
     mails,
-    messageId
+    messageId,
   };
 
   return <MailForm {...updatedProps} />;
@@ -238,31 +230,28 @@ const MailFormContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
-      name: 'integrationsQuery',
+      name: "integrationsQuery",
       options: () => {
         return {
-          variables: { kind: 'mail', status: 'active' },
-          fetchPolicy: 'network-only'
+          variables: { kind: "mail", status: "active" },
+          fetchPolicy: "network-only",
         };
-      }
+      },
     }),
-    graphql<Props, EmailTemplatesQueryResponse>(
-      gql(templatesQuery.emailTemplates),
-      {
-        name: 'emailTemplatesQuery',
-        options: () => ({
-          variables: { page: 1 }
-        })
-      }
-    ),
-    graphql<Props, any>(gql(templatesQuery.totalCount), {
-      name: 'emailTemplatesTotalCountQuery'
+    graphql<Props, any>(gql(queries.emailTemplates), {
+      name: "emailTemplatesQuery",
+      options: () => ({
+        variables: { page: 1 },
+      }),
+    }),
+    graphql<Props, any>(gql(queries.templateTotalCount), {
+      name: "emailTemplatesTotalCountQuery",
     }),
     graphql<Props>(gql(mutations.integrationSendMail), {
-      name: 'sendMailMutation',
+      name: "sendMailMutation",
       options: () => ({
-        refetchQueries: ['activityLogs']
-      })
+        refetchQueries: ["activityLogs"],
+      }),
     })
   )(withCurrentUser(MailFormContainer))
 );

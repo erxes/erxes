@@ -27,15 +27,6 @@ interface IProps {
   loading: boolean;
 }
 
-const coming_soon = {
-  margin: "10px",
-  paddingLeft: "10px",
-};
-
-const coming_soon1 = {
-  margin: "10px",
-  color: "brown",
-};
 class List extends React.Component<IProps> {
   isActive = (id: string) => {
     const { queryParams } = this.props;
@@ -71,24 +62,12 @@ class List extends React.Component<IProps> {
     return result;
   }
 
-  renderCategoryHeader() {
-    return (
-      <>
-        <Section.Title>{__("Types")}</Section.Title>
-      </>
-    );
-  }
-
-  renderCategoryList() {
-    return <SidebarList>{this.renderContent()}</SidebarList>;
-  }
-
   render() {
     return (
       <Sidebar wide={true} hasBorder={true}>
         <Section maxHeight={488}>
-          {this.renderCategoryHeader()}
-          {this.renderCategoryList()}
+          <Section.Title>{__("Types")}</Section.Title>
+          <SidebarList>{this.renderContent()}</SidebarList>
         </Section>
         <ProductTypeFilter />
         {isEnabled("tags") && <TagFilter />}

@@ -1,20 +1,19 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils';
-import { queries as emailQueries } from '../../../emailTemplates/graphql';
-import { queries as growthQueries } from '../../../growthHacks/graphql';
-import { queries as responseQueries } from '../../../responseTemplates/graphql';
-import { ResponseTemplatesTotalCountQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { withProps } from "@erxes/ui/src/utils";
+import { queries as growthQueries } from "../../../growthHacks/graphql";
+import { queries as responseQueries } from "../../../responseTemplates/graphql";
+import { ResponseTemplatesTotalCountQueryResponse } from "@erxes/ui-inbox/src/inbox/types";
+import React from "react";
+import { graphql } from "react-apollo";
 
-import List from '../../components/productCategory/CategoryList';
-import { queries } from '../../graphql';
+import List from "../../components/productCategory/CategoryList";
+import { queries } from "../../graphql";
 import {
   EmailTemplateTotalCountQueryResponse,
   GrowthHacksTemplateTotalCountQueryResponse,
-  ProductTemplateTotalCountQueryResponse
-} from '../../types';
+  ProductTemplateTotalCountQueryResponse,
+} from "../../types";
 
 type Props = { history?: any; queryParams: any };
 
@@ -30,7 +29,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       productTemplateTotalCountQuery,
       emailTemplateTotalCountQeury,
       responseTemplatesTotalCountQeury,
-      growthHacksTemplatesTotalCountQeury
+      growthHacksTemplatesTotalCountQeury,
     } = this.props;
 
     const types = {
@@ -40,7 +39,7 @@ class ProductListContainer extends React.Component<FinalProps> {
         emailTemplateTotalCountQeury.emailTemplatesTotalCount || 0,
       growth_hacking:
         growthHacksTemplatesTotalCountQeury.pipelineTemplatesTotalCount || 0,
-      template: productTemplateTotalCountQuery.productTemplateTotalCount || 0
+      template: productTemplateTotalCountQuery.productTemplateTotalCount || 0,
     };
 
     const updatedProps = {
@@ -49,7 +48,7 @@ class ProductListContainer extends React.Component<FinalProps> {
         productTemplateTotalCountQuery.loading ||
         emailTemplateTotalCountQeury.loading ||
         responseTemplatesTotalCountQeury.loading,
-      types
+      types,
     };
 
     return <List {...updatedProps} />;
@@ -61,37 +60,37 @@ export default withProps<Props>(
     graphql<Props, ProductTemplateTotalCountQueryResponse, {}>(
       gql(queries.productTemplateTotalCount),
       {
-        name: 'productTemplateTotalCountQuery',
+        name: "productTemplateTotalCountQuery",
         options: () => ({
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: "network-only",
+        }),
       }
     ),
     graphql<{}, EmailTemplateTotalCountQueryResponse, {}>(
-      gql(emailQueries.totalCount),
+      gql(queries.emailTemplateTotalCount),
       {
-        name: 'emailTemplateTotalCountQeury',
+        name: "emailTemplateTotalCountQeury",
         options: () => ({
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: "network-only",
+        }),
       }
     ),
     graphql<{}, ResponseTemplatesTotalCountQueryResponse, {}>(
       gql(responseQueries.responseTemplatesTotalCount),
       {
-        name: 'responseTemplatesTotalCountQeury',
+        name: "responseTemplatesTotalCountQeury",
         options: () => ({
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: "network-only",
+        }),
       }
     ),
     graphql<{}, GrowthHacksTemplateTotalCountQueryResponse, {}>(
       gql(growthQueries.totalCount),
       {
-        name: 'growthHacksTemplatesTotalCountQeury',
+        name: "growthHacksTemplatesTotalCountQeury",
         options: () => ({
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: "network-only",
+        }),
       }
     )
   )(ProductListContainer)
