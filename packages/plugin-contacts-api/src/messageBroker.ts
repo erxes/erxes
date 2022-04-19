@@ -452,6 +452,17 @@ export const sendCommonMessage = async (
   });
 };
 
+export const sendIntegrationsMessage = (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: "integrations",
+    ...args
+  });
+};
+
 export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
   sendSegmentsMessage({
     subdomain,
