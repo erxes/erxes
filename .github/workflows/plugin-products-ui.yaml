@@ -24,7 +24,8 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          # cp -r packages/ui-plugin-template/.erxes packages/plugin-products-ui/.erxes
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-products-ui/.erxes
+          cp -r packages/plugin-products-ui/src packages/plugin-products-ui/.erxes/plugin-src
           cd packages/plugin-products-ui
           yarn install-deps
           yarn build
