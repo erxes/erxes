@@ -285,6 +285,17 @@ export const sendIntegrationsMessage = (
   });
 };
 
+export const sendCardsMessage = (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'cards',
+    ...args
+  });
+};
+
 export default function () {
   return client;
 }

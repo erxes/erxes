@@ -1,15 +1,13 @@
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 
-// import { IActivityLogDocument } from '../../models/ActivityLogs';
-// import { collectPluginContent } from '../../pluginUtils';
 import { fetchActivityLogs, fetchLogs } from '../../utils';
 import {
-  // collectServiceItems,
   fetchService,
   getContentIds
 } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 import { serviceDiscovery } from '../../configs';
+import { IActivityLogDocument } from '../../models/ActivityLogs';
 
 export interface IListArgs {
   contentType: string;
@@ -31,32 +29,7 @@ const activityLogQueries = {
    */
   async activityLogs(_root, doc: IListArgs, { user, models }: IContext) {
     const { contentId, contentType, activityType } = doc;
-    const activities: any[] = [];
-
-    // const collectItems = (items: any, type?: string) => {
-    //   (items || []).map(item => {
-    //     let result: IActivityLogDocument = {} as any;
-
-    //     if (!type) {
-    //       result = item;
-    //     }
-
-    //     activities.push(result);
-    //   });
-    // };
-
-    // if (activityType && activityType.startsWith('plugin')) {
-    //   const pluginResponse = await collectPluginContent(
-    //     doc,
-    //     user,
-    //     activities,
-    //     collectItems
-    //   );
-
-    //   if (pluginResponse) {
-    //     activities = activities.concat(pluginResponse);
-    //   }
-    // }
+    const activities: IActivityLogDocument[] = [];
 
     if (activityType && activityType !== 'activity') {
       const serviceName = activityType.split(':')[0];

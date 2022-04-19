@@ -32,3 +32,4 @@ packages/plugin*api/.erxes
 /api/src/__tests__/coverage
 
 /enabled-services.js
+permissions.json
