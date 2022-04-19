@@ -21,9 +21,8 @@ dump
 gitinfo.json
 ecosystem.config.js
 nginx.conf
-private
-!private/emailTemplates
-/plugins
+src/private/xlsTemplateOutputs
+src/private/uploads
 engages-email-sender/src/__tests__/coverage/
 widgets/static
 *.js.map

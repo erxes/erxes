@@ -111,7 +111,7 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
           return (
             <Component
               key={Math.random()}
-              companyId={object._id}
+              id={object._id}
               mainType={type}
               mainTypeId={object._id}
             />
