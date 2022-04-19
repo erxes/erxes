@@ -30,19 +30,25 @@ module.exports = {
       permissions: ["manageLoyalties", "showLoyalties"],
     },
   ],
-  customerRightSidebarSection: {
-    text: "customerSection",
-    component: "./customerSidebar",
-    scope: "loyalties",
-  },
-  companyRightSidebarSection: {
-    text: "companySection",
-    component: "./companySidebar",
-    scope: "loyalties",
-  },
-  userRightSidebarSection: {
-    text: "userSection",
-    component: "./userSidebar",
-    scope: "loyalties",
-  },
+  customerRightSidebarSection: [
+    {
+      text: "customerSection",
+      component: "./customerSidebar",
+      scope: "loyalties",
+    },
+  ],
+  companyRightSidebarSection: [
+    {
+      text: "companySection",
+      component: "./companySidebar",
+      scope: "loyalties",
+    },
+  ],
+  userRightSidebarSection: [
+    {
+      text: "userSection",
+      component: "./userSidebar",
+      scope: "loyalties",
+    },
+  ],
 };

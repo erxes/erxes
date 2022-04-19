@@ -21,7 +21,7 @@ const PluginsWrapper = ({
   callBack: (plugin: any, item: any) => React.ReactNode;
   plugins: any;
 }) => {
-  return (plugins || []).map((plugin) => {
+  return (plugins || []).map(plugin => {
     const item = plugin[itemName];
 
     if (!item) {
@@ -32,7 +32,7 @@ const PluginsWrapper = ({
   });
 };
 
-const useDynamicScript = (args) => {
+const useDynamicScript = args => {
   const [ready, setReady] = React.useState(false);
   const [failed, setFailed] = React.useState(false);
 
@@ -91,36 +91,38 @@ export const loadComponent = (scope, module) => {
   };
 };
 
-const renderPlguginSidebar = (itemName: string, type: string, object: any) => {
+const renderPluginSidebar = (itemName: string, type: string, object: any) => {
   const plugins: any[] = (window as any).plugins || [];
 
   return (
     <PluginsWrapper
       itemName={itemName}
       plugins={plugins}
-      callBack={(_plugin, section) => {
-        if (!window[section.scope]) {
-          return null;
-        }
+      callBack={(_plugin, sections) => {
+        return (sections || []).map(section => {
+          if (!window[section.scope]) {
+            return null;
+          }
 
-        const Component = React.lazy(
-          loadComponent(section.scope, section.component)
-        );
+          const Component = React.lazy(
+            loadComponent(section.scope, section.component)
+          );
 
-        return (
-          <Component
-            key={Math.random()}
-            companyId={object._id}
-            mainType={type}
-            mainTypeId={object._id}
-          />
-        );
+          return (
+            <Component
+              key={Math.random()}
+              companyId={object._id}
+              mainType={type}
+              mainTypeId={object._id}
+            />
+          );
+        });
       }}
     />
   );
 };
 
-const System = (props) => {
+const System = props => {
   if (props.loadScript) {
     const { ready, failed } = useDynamicScript({
       url: props.system && props.system.url,
@@ -321,7 +323,12 @@ export const pluginRouters = () => {
   for (const plugin of plugins) {
     if (plugin.routes) {
       pluginRoutes.push(
-        <System key={Math.random()} loadScript={true} system={plugin.routes} pluginName={plugin.name} />
+        <System
+          key={Math.random()}
+          loadScript={true}
+          system={plugin.routes}
+          pluginName={plugin.name}
+        />
       );
     }
   }
@@ -345,7 +352,7 @@ export const pluginNavigations = () => {
 };
 
 export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
-  return renderPlguginSidebar(
+  return renderPluginSidebar(
     "customerRightSidebarSection",
     "customer",
     customer
@@ -353,11 +360,11 @@ export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
 };
 
 export const pluginsOfCompanySidebar = (company: ICompany) => {
-  return renderPlguginSidebar("companyRightSidebarSection", "company", company);
+  return renderPluginSidebar("companyRightSidebarSection", "company", company);
 };
 
 export const pluginsOfItemSidebar = (item: IItem, type: string) => {
-  return renderPlguginSidebar(`${type}RightSidebarSection`, type, item);
+  return renderPluginSidebar(`${type}RightSidebarSection`, type, item);
 };
 
 export const pluginsOfPaymentForm = (
@@ -379,6 +386,31 @@ export const pluginsOfPaymentForm = (
           }
         }
         return paymentsTypes;
+      }}
+    />
+  );
+};
+
+export const pluginsOfProductCategoryActions = (productCategoryId: string) => {
+  const plugins: any[] = (window as any).plugins || [];
+
+  return (
+    <PluginsWrapper
+      plugins={plugins}
+      itemName={"productCategoryActions"}
+      callBack={(_plugin, actions) => {
+        return actions.map(action => {
+          const Component = React.lazy(
+            loadComponent(action.scope, action.component)
+          );
+
+          return (
+            <Component
+              key={Math.random()}
+              productCategoryId={productCategoryId}
+            />
+          );
+        });
       }}
     />
   );
