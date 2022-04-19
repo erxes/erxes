@@ -244,7 +244,7 @@ const up = async (uis) => {
         extra_hosts,
         volumes: [
           "./enabled-services.js:/data/enabled-services.js",
-          "./permissions.json:/core-api/dist/core/permissions.json"
+          "./permissions.json:/core-api/permissions.json"
         ],
         networks: ["erxes"],
       },
