@@ -296,12 +296,12 @@ export const initBroker = async (cl) => {
     }
   })
 
-  consumeQueue('erxes-api:integrations-notification', async content => {
-    const { action, payload, type } = content;
+  consumeQueue('integrations:notification', async ({ data })  => {
+    const { action, payload, type } = data;
 
     switch (type) {
       case 'removeCustomers':
-        await removeCustomers(content);
+        await removeCustomers(data);
         break;
       case 'addUserId':
         userIds.push(payload._id);
