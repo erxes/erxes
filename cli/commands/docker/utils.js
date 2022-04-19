@@ -72,7 +72,7 @@ const generatePluginBlock = (configs, plugin) => {
       MONGO_URL: mongo_url,
       LOAD_BALANCER_ADDRESS: `http://plugin_${plugin.name}_api`,
       ...commonEnvs(configs),
-      ...plugin.extraEnv
+      ...(plugin.extraEnv || {})
     },
     volumes: ["./enabled-services.js:/data/enabled-services.js"],
     networks: ["erxes"],
