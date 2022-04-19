@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const listParamsDef = `
   $kind: String
@@ -82,18 +82,18 @@ const engageMessages = `
       }
 
       ${
-        isEnabled('segments')
+        isEnabled("segments")
           ? `
               segments {
                 _id
                 name
               }
             `
-          : ''
+          : ""
       }
 
       ${
-        isEnabled('tags')
+        isEnabled("tags")
           ? `
               getTags {
                 ${tagFields}
@@ -102,7 +102,7 @@ const engageMessages = `
                 ${tagFields}
               }
             `
-          : ''
+          : ""
       }
     }
   }
@@ -129,23 +129,23 @@ export const engageDetailFields = `
   }
 
   ${
-    isEnabled('tags')
+    isEnabled("tags")
       ? `
           customerTags {
             ${tagFields}
           }
         `
-      : ''
+      : ""
   }
 
   ${
-    isEnabled('segments')
+    isEnabled("segments")
       ? `
           segments {
             contentType
           }
         `
-      : ''
+      : ""
   }
 `;
 
@@ -163,7 +163,7 @@ const engageMessageStats = `
         message
       }
 
-      ${isEnabled('inbox') ? 'fromIntegration' : ''}
+      ${isEnabled("inbox") ? "fromIntegration" : ""}
     }
   }
 `;
@@ -334,6 +334,22 @@ const engagesConfigDetail = `
   }
 `;
 
+const emailTemplates = `
+  query emailTemplates($page: Int, $perPage: Int) {
+    emailTemplates(page: $page, perPage: $perPage) {
+      _id
+      name
+      content
+    }
+  }
+`;
+
+const totalCount = `
+  query emailTemplatesTotalCount {
+    emailTemplatesTotalCount
+  }
+`;
+
 export default {
   engageMessages,
   engageMessagesTotalCount,
@@ -351,5 +367,7 @@ export default {
   tagCounts,
   verifiedEmails,
   engageEmailPercentages,
-  engagesConfigDetail
+  engagesConfigDetail,
+  emailTemplates,
+  totalCount,
 };

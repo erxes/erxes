@@ -141,10 +141,28 @@ const fields = `
   }
 `;
 
+const emailTemplates = `
+  query emailTemplates($page: Int, $perPage: Int) {
+    emailTemplates(page: $page, perPage: $perPage) {
+      _id
+      name
+      content
+    }
+  }
+`;
+
+const templateTotalCount = `
+  query emailTemplatesTotalCount {
+    emailTemplatesTotalCount
+  }
+`;
+
 export default {
   productCategories,
   integrations,
   integrationDetail,
   integrationsTotalCount,
-  fields
+  fields,
+  emailTemplates,
+  templateTotalCount,
 };

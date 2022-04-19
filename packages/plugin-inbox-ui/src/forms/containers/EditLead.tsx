@@ -1,26 +1,21 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import {
-  EmailTemplatesQueryResponse,
-  EmailTemplatesTotalCountQueryResponse
-} from '@erxes/ui-settings/src/emailTemplates/types';
-import { queries as templatesQuery } from '@erxes/ui-settings/src/emailTemplates/graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { Alert, withProps } from "@erxes/ui/src/utils";
 import {
   EditIntegrationMutationResponse,
   EditIntegrationMutationVariables,
-  LeadIntegrationDetailQueryResponse
-} from '@erxes/ui-settings/src/integrations/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import Lead from '../components/Lead';
-import { mutations, queries } from '@erxes/ui-leads/src/graphql';
-import { ILeadData } from '@erxes/ui-leads/src/types';
-import { ILeadIntegration } from '@erxes/ui-leads/src/types';
-import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
-import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
+  LeadIntegrationDetailQueryResponse,
+} from "@erxes/ui-settings/src/integrations/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withRouter } from "react-router-dom";
+import { IRouterProps } from "@erxes/ui/src/types";
+import Lead from "../components/Lead";
+import { mutations, queries } from "@erxes/ui-leads/src/graphql";
+import { ILeadData } from "@erxes/ui-leads/src/types";
+import { ILeadIntegration } from "@erxes/ui-leads/src/types";
+import { queries as settingsQueries } from "@erxes/ui-settings/src/general/graphql";
+import { ConfigsQueryResponse } from "@erxes/ui-settings/src/general/types";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
@@ -44,8 +39,8 @@ type State = {
 
 type FinalProps = {
   integrationDetailQuery: LeadIntegrationDetailQueryResponse;
-  emailTemplatesQuery: EmailTemplatesQueryResponse;
-  emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
+  emailTemplatesQuery: any /*change type*/;
+  emailTemplatesTotalCountQuery: any /*change type*/;
   configsQuery: ConfigsQueryResponse;
 } & Props &
   EditIntegrationMutationResponse &
@@ -65,7 +60,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       editIntegrationMutation,
       history,
       emailTemplatesQuery,
-      configsQuery
+      configsQuery,
     } = this.props;
 
     if (integrationDetailQuery.loading) {
@@ -82,7 +77,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
           brandId,
           name,
           languageCode,
-          channelIds
+          channelIds,
         } = this.state.doc;
 
         editIntegrationMutation({
@@ -93,19 +88,19 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
             brandId,
             name,
             languageCode,
-            channelIds
-          }
+            channelIds,
+          },
         })
           .then(() => {
-            Alert.success('You successfully updated a form');
+            Alert.success("You successfully updated a form");
 
             history.push({
-              pathname: '/forms',
-              search: '?popUpRefetchList=true'
+              pathname: "/forms",
+              search: "?popUpRefetchList=true",
             });
           })
 
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
 
             this.setState({ isReadyToSaveForm: false, isLoading: false });
@@ -113,7 +108,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       }
     };
 
-    const save = doc => {
+    const save = (doc) => {
       this.setState({ isLoading: true, isReadyToSaveForm: true, doc });
     };
 
@@ -124,8 +119,10 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       afterFormDbSave,
       isActionLoading: this.state.isLoading,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
-      emailTemplates: emailTemplatesQuery ? emailTemplatesQuery.emailTemplates || [] : [],
-      configs: configsQuery.configs || []
+      emailTemplates: emailTemplatesQuery
+        ? emailTemplatesQuery.emailTemplates || []
+        : [],
+      configs: configsQuery.configs || [],
     };
 
     return <Lead {...updatedProps} />;
@@ -134,55 +131,52 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
 
 const withTemplatesQuery = withProps<FinalProps>(
   compose(
-    graphql<FinalProps, EmailTemplatesQueryResponse>(
-      gql(templatesQuery.emailTemplates),
-      {
-        name: 'emailTemplatesQuery',
-        options: ({ emailTemplatesTotalCountQuery }) => ({
-          variables: {
-            perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount
-          }
-        }),
-        skip: !isEnabled('engages') ? true: false
-      }
-    )
+    graphql<FinalProps>(gql(queries.emailTemplates), {
+      name: "emailTemplatesQuery",
+      options: ({ emailTemplatesTotalCountQuery }) => ({
+        variables: {
+          perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount,
+        },
+      }),
+      skip: !isEnabled("engages") ? true : false,
+    })
   )(EditLeadContainer)
 );
 
 export default withProps<FinalProps>(
   compose(
-    graphql(gql(templatesQuery.totalCount), {
-      name: 'emailTemplatesTotalCountQuery',
-      skip: !isEnabled('engages') ? true: false
+    graphql(gql(queries.templateTotalCount), {
+      name: "emailTemplatesTotalCountQuery",
+      skip: !isEnabled("engages") ? true : false,
     }),
     graphql<Props, LeadIntegrationDetailQueryResponse, { _id: string }>(
       gql(queries.integrationDetail),
       {
-        name: 'integrationDetailQuery',
+        name: "integrationDetailQuery",
         options: ({ contentTypeId }) => ({
-          fetchPolicy: 'cache-and-network',
+          fetchPolicy: "cache-and-network",
           variables: {
-            _id: contentTypeId
-          }
-        })
+            _id: contentTypeId,
+          },
+        }),
       }
     ),
     graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
-      name: 'configsQuery'
+      name: "configsQuery",
     }),
     graphql<
       Props,
       EditIntegrationMutationResponse,
       EditIntegrationMutationVariables
     >(gql(mutations.integrationsEditLeadIntegration), {
-      name: 'editIntegrationMutation',
+      name: "editIntegrationMutation",
       options: {
         refetchQueries: [
-          'leadIntegrations',
-          'leadIntegrationCounts',
-          'formDetail'
-        ]
-      }
+          "leadIntegrations",
+          "leadIntegrationCounts",
+          "formDetail",
+        ],
+      },
     })
   )(withRouter<FinalProps>(withTemplatesQuery))
 );

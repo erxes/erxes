@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const users = `
   query users {
@@ -69,7 +69,7 @@ const integrations = `
       formId
       tagIds
       ${
-        isEnabled('tags')
+        isEnabled("tags")
           ? `
         tags {
           _id
@@ -80,7 +80,7 @@ const integrations = `
           : ``
       }
       ${
-        isEnabled('forms')
+        isEnabled("forms")
           ? `
               form {
                 _id
@@ -88,7 +88,7 @@ const integrations = `
                 code
               }
             `
-          : ''
+          : ""
       }
       healthStatus
     }
@@ -216,6 +216,22 @@ const integrationsNylasGetSchedulePages = `
   }
 `;
 
+const emailTemplates = `
+  query emailTemplates($page: Int, $perPage: Int) {
+    emailTemplates(page: $page, perPage: $perPage) {
+      _id
+      name
+      content
+    }
+  }
+`;
+
+const templateTotalCount = `
+  query emailTemplatesTotalCount {
+    emailTemplatesTotalCount
+  }
+`;
+
 export default {
   integrations,
   users,
@@ -223,6 +239,8 @@ export default {
   integrationTotalCount,
   brands,
   messengerApps,
+  emailTemplates,
+  templateTotalCount,
   integrationGetLineWebhookUrl,
   integrationsGetAccounts,
   integrationsGetIntegrations,

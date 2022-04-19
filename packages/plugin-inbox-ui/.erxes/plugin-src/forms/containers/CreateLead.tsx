@@ -1,30 +1,25 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import {
-  EmailTemplatesQueryResponse,
-  EmailTemplatesTotalCountQueryResponse
-} from '@erxes/ui-settings/src/emailTemplates/types';
-import { queries as templatesQuery } from '@erxes/ui-settings/src/emailTemplates/graphql';
-import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { Alert, withProps } from "@erxes/ui/src/utils";
+import { ConfigsQueryResponse } from "@erxes/ui-settings/src/general/types";
 import {
   AddIntegrationMutationResponse,
-  AddIntegrationMutationVariables
-} from '@erxes/ui-settings/src/integrations/types';
-import { AddFieldsMutationResponse } from '@erxes/ui-settings/src/properties/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import Lead from '../components/Lead';
-import { mutations } from '@erxes/ui-leads/src/graphql';
-import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
-import { ILeadData } from '@erxes/ui-leads/src/types';
+  AddIntegrationMutationVariables,
+} from "@erxes/ui-settings/src/integrations/types";
+import { AddFieldsMutationResponse } from "@erxes/ui-settings/src/properties/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withRouter } from "react-router-dom";
+import { IRouterProps } from "@erxes/ui/src/types";
+import Lead from "../components/Lead";
+import { mutations, queries } from "@erxes/ui-leads/src/graphql";
+import { queries as settingsQueries } from "@erxes/ui-settings/src/general/graphql";
+import { ILeadData } from "@erxes/ui-leads/src/types";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
-  emailTemplatesQuery: EmailTemplatesQueryResponse;
-  emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
+  emailTemplatesQuery: any /*change type*/;
+  emailTemplatesTotalCountQuery: any /*change type*/;
   configsQuery: ConfigsQueryResponse;
 } & IRouterProps &
   AddIntegrationMutationResponse &
@@ -51,8 +46,13 @@ class CreateLeadContainer extends React.Component<Props, State> {
   }
 
   render() {
-    const { addIntegrationMutation, history, emailTemplatesQuery, configsQuery } = this.props;
-    const afterFormDbSave = id => {
+    const {
+      addIntegrationMutation,
+      history,
+      emailTemplatesQuery,
+      configsQuery,
+    } = this.props;
+    const afterFormDbSave = (id) => {
       this.setState({ isReadyToSaveForm: false });
 
       if (this.state.doc) {
@@ -61,7 +61,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
           brandId,
           name,
           languageCode,
-          channelIds
+          channelIds,
         } = this.state.doc;
 
         addIntegrationMutation({
@@ -71,25 +71,25 @@ class CreateLeadContainer extends React.Component<Props, State> {
             brandId,
             name,
             languageCode,
-            channelIds
-          }
+            channelIds,
+          },
         })
           .then(
             ({
               data: {
-                integrationsCreateLeadIntegration: { _id }
-              }
+                integrationsCreateLeadIntegration: { _id },
+              },
             }) => {
-              Alert.success('You successfully added a form');
+              Alert.success("You successfully added a form");
 
               history.push({
-                pathname: '/forms',
-                search: `?popUpRefetchList=true&showInstallCode=${_id}`
+                pathname: "/forms",
+                search: `?popUpRefetchList=true&showInstallCode=${_id}`,
               });
             }
           )
 
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
 
             this.setState({ isLoading: false });
@@ -97,7 +97,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
       }
     };
 
-    const save = doc => {
+    const save = (doc) => {
       this.setState({ isLoading: true, isReadyToSaveForm: true, doc });
     };
 
@@ -108,8 +108,10 @@ class CreateLeadContainer extends React.Component<Props, State> {
       afterFormDbSave,
       isActionLoading: this.state.isLoading,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
-      emailTemplates: emailTemplatesQuery ? emailTemplatesQuery.emailTemplates || [] : [],
-      configs: configsQuery.configs || []
+      emailTemplates: emailTemplatesQuery
+        ? emailTemplatesQuery.emailTemplates || []
+        : [],
+      configs: configsQuery.configs || [],
     };
 
     return <Lead {...updatedProps} />;
@@ -118,36 +120,33 @@ class CreateLeadContainer extends React.Component<Props, State> {
 
 const withTemplatesQuery = withProps<Props>(
   compose(
-    graphql<Props, EmailTemplatesQueryResponse>(
-      gql(templatesQuery.emailTemplates),
-      {
-        name: 'emailTemplatesQuery',
-        options: ({ emailTemplatesTotalCountQuery }) => ({
-          variables: {
-            perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount
-          }
-        }),
-        skip: !isEnabled('engages') ? true: false
-      }
-    )
+    graphql<Props>(gql(queries.emailTemplates), {
+      name: "emailTemplatesQuery",
+      options: ({ emailTemplatesTotalCountQuery }) => ({
+        variables: {
+          perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount,
+        },
+      }),
+      skip: !isEnabled("engages") ? true : false,
+    })
   )(CreateLeadContainer)
 );
 
 export default withProps<Props>(
   compose(
-    graphql(gql(templatesQuery.totalCount), {
-      name: 'emailTemplatesTotalCountQuery',
-      skip: !isEnabled('engages') ? true: false
+    graphql(gql(queries.templateTotalCount), {
+      name: "emailTemplatesTotalCountQuery",
+      skip: !isEnabled("engages") ? true : false,
     }),
     graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
-      name: 'configsQuery'
+      name: "configsQuery",
     }),
     graphql<
       {},
       AddIntegrationMutationResponse,
       AddIntegrationMutationVariables
     >(gql(mutations.integrationsCreateLeadIntegration), {
-      name: 'addIntegrationMutation'
+      name: "addIntegrationMutation",
     })
   )(withRouter<Props>(withTemplatesQuery))
 );
