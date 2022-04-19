@@ -1,6 +1,5 @@
 import { Model } from 'mongoose';
 
-import { ICustomerDocument } from '@packages/plugin-contacts-api/src/models/definitions/customers';
 import {
   removeEngageConversations,
   sendContactsMessage,
@@ -55,7 +54,7 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   createVisitorOrCustomerMessages(params: {
     brandId: string;
     integrationId: string;
-    customer?: ICustomerDocument;
+    customer?: any;
     visitorId?: string;
     browserInfo: any;
   }): Promise<IMessageDocument[]>;
@@ -210,7 +209,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
     public static async createVisitorOrCustomerMessages(params: {
       brandId: string;
       integrationId: string;
-      customer?: ICustomerDocument;
+      customer?: any;
       visitorId?: string;
       browserInfo: any;
     }) {
