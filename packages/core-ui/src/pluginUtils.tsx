@@ -136,7 +136,7 @@ const System = (props) => {
   );
 
   return (
-    <ErrorBoundary>
+    <ErrorBoundary pluginName={props.pluginName}>
       <React.Suspense fallback="">
         <Component />
       </React.Suspense>
@@ -299,16 +299,13 @@ export const pluginLayouts = (currentUser: IUser) => {
 
   for (const plugin of plugins) {
     if (plugin.layout) {
-      // const Component = React.lazy(
-      //   loadComponent(plugin.scope, plugin.layout)
-      // );
-
       layouts.push(
         <System
           key={Math.random()}
           loadScript={true}
           system={plugin.layout}
           currentUser={currentUser}
+          pluginName={plugin.name}
         />
       );
     }
@@ -324,7 +321,7 @@ export const pluginRouters = () => {
   for (const plugin of plugins) {
     if (plugin.routes) {
       pluginRoutes.push(
-        <System key={Math.random()} loadScript={true} system={plugin.routes} />
+        <System key={Math.random()} loadScript={true} system={plugin.routes} pluginName={plugin.name} />
       );
     }
   }
