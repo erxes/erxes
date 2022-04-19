@@ -25,6 +25,8 @@ const init = async () => {
 
   const permissionsPath = filePath('permissions.json');
 
+  debugBase('Permissions path ........', permissionsPath);
+
   if (fs.existsSync(permissionsPath)) {
     debugBase('Found permissions.json');
 
