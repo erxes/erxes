@@ -44,6 +44,9 @@ const donateQueries = {
   }
 };
 
-checkPermission(donateQueries, 'donatesMain', 'showLoyalties', []);
+checkPermission(donateQueries, 'donatesMain', 'showLoyalties', {
+  list: [],
+  totalCount: 0
+});
 
 export default donateQueries;

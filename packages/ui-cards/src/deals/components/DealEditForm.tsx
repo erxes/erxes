@@ -10,7 +10,7 @@ import ProductSection from "./ProductSection";
 import { IProduct } from "@erxes/ui-products/src/types";
 import PortableTasks from "../../tasks/components/PortableTasks";
 import PortableTickets from "../../tickets/components/PortableTickets";
-// import { pluginsOfItemSidebar } from "@erxes/ui/src/pluginUtils";
+import { pluginsOfItemSidebar } from "coreui/pluginUtils";
 import React from "react";
 import { IDeal, IDealParams, IPaymentsData } from "../types";
 
@@ -52,9 +52,9 @@ export default class DealEditForm extends React.Component<Props, State> {
 
     this.state = {
       amount: item.amount || {},
-      productsData: item.products ? item.products.map((p) => ({ ...p })) : [],
+      productsData: item.products ? item.products.map(p => ({ ...p })) : [],
       // collecting data for ItemCounter component
-      products: item.products ? item.products.map((p) => p.product) : [],
+      products: item.products ? item.products.map(p => p.product) : [],
       paymentsData: item.paymentsData,
       changePayData: {},
       refresh: false,
@@ -71,7 +71,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     return (
       <HeaderContentSmall>
         <ControlLabel>Amount</ControlLabel>
-        {Object.keys(amount).map((key) => (
+        {Object.keys(amount).map(key => (
           <p key={key}>
             {amount[key].toLocaleString()} {key}
           </p>
@@ -97,7 +97,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     const amount: any = {};
     const filteredProductsData: any = [];
 
-    productsData.forEach((data) => {
+    productsData.forEach(data => {
       // products
       if (data.product) {
         if (data.currency) {
@@ -115,7 +115,7 @@ export default class DealEditForm extends React.Component<Props, State> {
       }
     });
 
-    Object.keys(paymentsData || {}).forEach((key) => {
+    Object.keys(paymentsData || {}).forEach(key => {
       const perData = paymentsData[key];
 
       if (!perData.currency || !perData.amount || perData.amount === 0) {
@@ -126,7 +126,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     this.setState(
       { productsData: filteredProductsData, products, amount, paymentsData },
       () => {
-        saveItem({ productsData, paymentsData }, (updatedItem) => {
+        saveItem({ productsData, paymentsData }, updatedItem => {
           this.setState({ updatedItem });
         });
       }
@@ -153,9 +153,9 @@ export default class DealEditForm extends React.Component<Props, State> {
   renderProductSection = () => {
     const { products, productsData, paymentsData } = this.state;
 
-    const pDataChange = (pData) => this.onChangeField("productsData", pData);
-    const prsChange = (prs) => this.onChangeField("products", prs);
-    const payDataChange = (payData) =>
+    const pDataChange = pData => this.onChangeField("productsData", pData);
+    const prsChange = prs => this.onChangeField("products", prs);
+    const payDataChange = payData =>
       this.onChangeField("paymentsData", payData);
 
     return (
@@ -177,7 +177,7 @@ export default class DealEditForm extends React.Component<Props, State> {
       <>
         <PortableTickets mainType="deal" mainTypeId={item._id} />
         <PortableTasks mainType="deal" mainTypeId={item._id} />
-        {/* {pluginsOfItemSidebar(item, "deal")} */}
+        {pluginsOfItemSidebar(item, "deal")}
       </>
     );
   };

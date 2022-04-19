@@ -1,49 +1,49 @@
 window.plugins = [
   {
-    name: "contacts",
+    name: 'contacts',
     port: 3011,
-    exposes: { "./routes": "./src/routes.tsx" },
+    exposes: { './routes': './src/routes.tsx' },
     routes: {
-      url: "http://localhost:3011/remoteEntry.js",
-      scope: "contacts",
-      module: "./routes",
+      url: 'http://localhost:3011/remoteEntry.js',
+      scope: 'contacts',
+      module: './routes',
     },
     menus: [
       {
-        text: "Contacts",
-        url: "/contacts/customer",
-        icon: "icon-users",
-        location: "mainNavigation",
-        permission: "showCustomers",
+        text: 'Contacts',
+        url: '/contacts/customer',
+        icon: 'icon-users',
+        location: 'mainNavigation',
+        permission: 'showCustomers',
       },
     ],
   },
   {
-    name: "products",
+    name: 'products',
     port: 3022,
-    exposes: { "./routes": "./src/routes.tsx" },
+    exposes: { './routes': './src/routes.tsx' },
     routes: {
-      url: "http://localhost:3022/remoteEntry.js",
-      scope: "products",
-      module: "./routes",
+      url: 'http://localhost:3022/remoteEntry.js',
+      scope: 'products',
+      module: './routes',
     },
     menus: [
       {
-        text: "Product and services",
-        to: "/settings/product-service/",
-        image: "/images/icons/erxes-31.png",
-        location: "settings",
-        scope: "products",
-        action: "productsAll",
-        permissions: ["showProducts", "manageProducts"],
+        text: 'Product and services',
+        to: '/settings/product-service/',
+        image: '/images/icons/erxes-31.png',
+        location: 'settings',
+        scope: 'products',
+        action: 'productsAll',
+        permissions: ['showProducts', 'manageProducts'],
       },
     ],
   },
   {
-    name: "tags",
+    name: 'tags',
     port: 3012,
     exposes: {
-      "./routes": "./src/routes.tsx",
+      './routes': './src/routes.tsx',
     },
     menus: [
       {
@@ -51,21 +51,21 @@ window.plugins = [
         url: '/inbox',
         icon: 'icon-chat',
         location: 'mainNavigation',
-        permission: 'showConversations'
+        permission: 'showConversations',
       },
       {
         text: 'Bookings',
         url: '/bookings',
         icon: 'icon-paste',
         location: 'mainNavigation',
-        permission: 'showIntegrations'
+        permission: 'showIntegrations',
       },
       {
         text: 'Forms',
         url: '/forms',
         icon: 'icon-laptop',
         location: 'mainNavigation',
-        permission: 'showForms'
+        permission: 'showForms',
       },
       {
         text: 'Skills',
@@ -79,8 +79,8 @@ window.plugins = [
           'getSkill',
           'getSkills',
           'manageSkills',
-          'manageSkillTypes'
-        ]
+          'manageSkillTypes',
+        ],
       },
       {
         text: 'Channels',
@@ -89,7 +89,7 @@ window.plugins = [
         location: 'settings',
         scope: 'inbox',
         action: 'channelsAll',
-        permissions: ['showChannels', 'manageChannels']
+        permissions: ['showChannels', 'manageChannels'],
       },
       {
         text: 'Integrations',
@@ -108,8 +108,8 @@ window.plugins = [
           'integrationsEditLeadIntegration',
           'integrationsRemove',
           'integrationsArchive',
-          'integrationsEdit'
-        ]
+          'integrationsEdit',
+        ],
       },
       {
         text: 'Integrations config',
@@ -118,7 +118,7 @@ window.plugins = [
         location: 'settings',
         scope: 'inbox',
         action: 'generalSettingsAll',
-        permissions: ['manageGeneralSettings', 'showGeneralSettings']
+        permissions: ['manageGeneralSettings', 'showGeneralSettings'],
       },
       {
         text: 'Responses',
@@ -127,7 +127,7 @@ window.plugins = [
         location: 'settings',
         scope: 'inbox',
         action: 'responseTemplatesAll',
-        permissions: ['manageResponseTemplate', 'showResponseTemplates']
+        permissions: ['manageResponseTemplate', 'showResponseTemplates'],
       },
       {
         text: 'Email templates',
@@ -136,96 +136,143 @@ window.plugins = [
         location: 'settings',
         scope: 'inbox',
         action: 'emailTemplateAll',
-        permissions: ['manageEmailTemplate', 'showEmailTemplates']
-      }
-    ]
+        permissions: ['manageEmailTemplate', 'showEmailTemplates'],
+      },
+    ],
   },
   {
-    name: "forms",
+    name: 'forms',
     port: 3005,
-    exposes: { "./routes": "./src/routes.tsx" },
+    exposes: { './routes': './src/routes.tsx' },
     routes: {
-      url: "http://localhost:3012/remoteEntry.js",
-      scope: "tags",
-      module: "./routes",
+      url: 'http://localhost:3012/remoteEntry.js',
+      scope: 'tags',
+      module: './routes',
     },
     menus: [
       {
-        text: "Tags",
-        to: "/tags/inbox:conversation",
-        image: "/images/icons/erxes-18.svg",
-        location: "settings",
-        scope: "tags",
-        action: "tagsAll",
-        permissions: ["showTags", "manageTags"],
+        text: 'Tags',
+        to: '/tags/inbox:conversation',
+        image: '/images/icons/erxes-18.svg',
+        location: 'settings',
+        scope: 'tags',
+        action: 'tagsAll',
+        permissions: ['showTags', 'manageTags'],
       },
     ],
   },
   {
-    name: "Logs",
+    name: 'Logs',
     port: 3040,
-    exposes: { "./routes": "./src/routes.tsx" },
+    exposes: { './routes': './src/routes.tsx' },
     routes: {
-      url: "http://localhost:3016/remoteEntry.js",
-      scope: "pos",
-      module: "./routes",
+      url: 'http://localhost:3016/remoteEntry.js',
+      scope: 'pos',
+      module: './routes',
     },
     menus: [
       {
-        text: "POS",
-        to: "/pos",
-        image: "/images/icons/erxes-05.svg",
-        location: "settings",
-        scope: "pos",
-        action: "posConfig",
-        permissions: ["showPos"],
+        text: 'POS',
+        to: '/pos',
+        image: '/images/icons/erxes-05.svg',
+        location: 'settings',
+        scope: 'pos',
+        action: 'posConfig',
+        permissions: ['showPos'],
       },
     ],
   },
   {
-    name: "loyalties",
+    name: 'loyalties',
     port: 3002,
     exposes: {
-      "./routes": "./src/routes.tsx",
-      "./sidebar": "./src/containers/Sidebar.tsx",
+      './routes': './src/routes.tsx',
+      './sidebar': './src/containers/Sidebar.tsx',
     },
     routes: {
-      url: "http://localhost:3002/remoteEntry.js",
-      scope: "loyalties",
-      module: "./routes",
+      url: 'http://localhost:3002/remoteEntry.js',
+      scope: 'loyalties',
+      module: './routes',
     },
     menus: [
       {
-        text: "Loyalties",
-        url: "/vouchers",
-        icon: "icon-piggybank",
-        location: "mainNavigation",
-        permission: "showLoyalties",
+        text: 'Loyalties',
+        url: '/vouchers',
+        icon: 'icon-piggybank',
+        location: 'mainNavigation',
+        permission: 'showLoyalties',
       },
       {
-        text: "Loyalties config",
-        to: "/erxes-plugin-loyalty/settings/general",
-        image: "/images/icons/erxes-16.svg",
-        location: "settings",
-        scope: "loyalties",
-        action: "loyaltyConfig",
-        permissions: ["loyaltyConfig"],
+        text: 'Loyalties config',
+        to: '/erxes-plugin-loyalty/settings/general',
+        image: '/images/icons/erxes-16.svg',
+        location: 'settings',
+        scope: 'loyalties',
+        action: 'loyaltyConfig',
+        permissions: ['loyaltyConfig'],
       },
     ],
     customerRightSidebarSection: {
-      text: "customerSection",
-      component: "./sidebar",
-      scope: "loyalties",
+      text: 'customerSection',
+      component: './sidebar',
+      scope: 'loyalties',
     },
     companyRightSidebarSection: {
-      text: "companySection",
-      component: "./sidebar",
-      scope: "loyalties",
+      text: 'companySection',
+      component: './sidebar',
+      scope: 'loyalties',
     },
     userRightSidebarSection: {
-      text: "userSection",
-      component: "./sidebar",
-      scope: "loyalties",
+      text: 'userSection',
+      component: './sidebar',
+      scope: 'loyalties',
     },
+  },
+  {
+    name: 'engages',
+    port: 3001,
+    exposes: { './routes': './src/routes.tsx' },
+    routes: {
+      url: 'http://localhost:3001/remoteEntry.js',
+      scope: 'engages',
+      module: './routes',
+    },
+    menus: [
+      {
+        text: 'Campaigns',
+        url: '/campaigns',
+        icon: 'icon-megaphone',
+        location: 'mainNavigation',
+        permission: 'showEngagesMessages',
+      },
+      {
+        text: 'Campaign settings',
+        to: '/settings/campaign-configs',
+        image: '/images/icons/erxes-31.png',
+        location: 'settings',
+        scope: 'engages',
+        action: '',
+        permissions: [],
+      },
+    ],
+  },
+  {
+    name: 'segments',
+    port: 3013,
+    exposes: { './routes': './src/routes.tsx' },
+    routes: {
+      url: 'http://localhost:3013/remoteEntry.js',
+      scope: 'segments',
+      module: './routes',
+    },
+    menus: [
+      {
+        text: 'Segments',
+        url: '/segments/customer',
+        icon: 'icon-chart-pie-alt',
+        location: 'mainNavigation',
+        permission: 'showSegments',
+      },
+    ],
   },
 ];
