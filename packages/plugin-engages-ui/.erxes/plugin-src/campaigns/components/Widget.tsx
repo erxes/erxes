@@ -1,12 +1,11 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import Button from '@erxes/ui/src/components/Button';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { ICustomer } from '@erxes/ui/src/customers/types';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
-import React from 'react';
-import { IEngageMessageDoc } from '@erxes/ui-engage/src/types';
-import WidgetForm from './WidgetForm';
+import { IUser } from "@erxes/ui/src/auth/types";
+import Button from "@erxes/ui/src/components/Button";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { ICustomer } from "@erxes/ui/src/customers/types";
+import { IBrand } from "@erxes/ui/src/brands/types";
+import React from "react";
+import { IEmailTemplate, IEngageMessageDoc } from "@erxes/ui-engage/src/types";
+import WidgetForm from "./WidgetForm";
 
 type Props = {
   emailTemplates: IEmailTemplate[];
@@ -35,7 +34,7 @@ class Widget extends React.Component<Props> {
   };
 
   render() {
-    const content = props => <WidgetForm {...this.props} {...props} />;
+    const content = (props) => <WidgetForm {...this.props} {...props} />;
 
     return (
       <ModalTrigger
