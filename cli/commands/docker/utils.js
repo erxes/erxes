@@ -268,6 +268,15 @@ const up = async (uis) => {
         ports: ["3300:80"],
         networks: ["erxes"],
       },
+      crons: {
+        image: "erxes/crons:federation",
+        environment: {
+          MONGO_URL: mongoEnv(configs),
+          ...commonEnvs(configs),
+        },
+        volumes: ["./enabled-services.js:/data/enabled-services.js"],
+        networks: ["erxes"],
+      },
       workers: {
         image: "erxes/workers:federation",
         environment: {
