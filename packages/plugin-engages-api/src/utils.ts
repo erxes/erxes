@@ -71,6 +71,8 @@ export const subscribeEngage = (models: IModels) => {
       .createTopic({ Name: configSet })
       .promise()
       .catch((e) => {
+        debugError(e.message);
+
         return reject(e.message);
       });
 
@@ -89,6 +91,8 @@ export const subscribeEngage = (models: IModels) => {
         debugBase(response);
       })
       .catch((e) => {
+        debugError(e.message);
+
         return reject(e.message);
       });
 
@@ -100,6 +104,8 @@ export const subscribeEngage = (models: IModels) => {
       })
       .promise()
       .catch((e) => {
+        debugError(e.message);
+
         if (e.message.includes('already exists')) {
           return;
         }
@@ -130,6 +136,8 @@ export const subscribeEngage = (models: IModels) => {
       })
       .promise()
       .catch((e) => {
+        debugError(e.message);
+
         if (e.message.includes('already exists')) {
           return;
         }
