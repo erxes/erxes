@@ -83,19 +83,26 @@ const chatMutations = {
 
     const created = await models.ChatMessages.createChatMessage(args, user._id);
 
+    await models.Chats.updateOne(
+      { _id: created.chatId },
+      { $set: { updatedAt: new Date() } }
+    );
+
     graphqlPubsub.publish("chatMessageInserted", {
       chatId: created.chatId,
     });
 
     const chat = await models.Chats.getChat(created.chatId);
 
-    for (const participant of chat.participantIds) {
+    const recievers = chat.participantIds.filter((i) => i !== user._id);
+
+    for (const reciever of recievers) {
       graphqlPubsub.publish("chatUnreadCountChanged", {
-        userId: participant,
+        userId: reciever,
       });
 
       graphqlPubsub.publish("chatInserted", {
-        userId: participant,
+        userId: reciever,
       });
     }
 
