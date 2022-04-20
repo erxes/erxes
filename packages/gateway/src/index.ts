@@ -19,6 +19,7 @@ import { initBroker } from './messageBroker';
 
 const {
   DOMAIN,
+  WIDGETS_DOMAIN,
   CLIENT_PORTAL_DOMAINS,
   PORT,
   RABBITMQ_HOST,
@@ -146,7 +147,8 @@ const {
     cors: {
       credentials: true,
       origin: [
-        ...(DOMAIN ? [DOMAIN] : ['http://localhost:3000', 'http://localhost:4200']),
+        DOMAIN ? DOMAIN : 'http://localhost:3000',
+        WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
         ...(CLIENT_PORTAL_DOMAINS || '').split(','),
         'https://studio.apollographql.com',
       ]

@@ -458,6 +458,49 @@ const up = async (uis) => {
 
   fs.writeFileSync(filePath("docker-compose.yml"), yamlString);
 
+  log("Generating nginx.conf ....");
+
+  const commonConfig = `
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_http_version 1.1;
+  `;
+
+  await fs.promises.writeFile(
+    filePath('nginx.conf'),
+    `
+    server {
+            listen 80;
+            server_name ${NGINX_HOST};
+
+            index index.html;
+            error_log /var/log/nginx/erxes.error.log;
+            access_log /var/log/nginx/erxes.access.log;
+            location / {
+                    proxy_pass http://127.0.0.1:3000/;
+                    ${commonConfig}
+            }
+            location /widgets/ {
+                    proxy_pass http://127.0.0.1:3200/;
+                    ${commonConfig}
+            }
+            location /gateway/ {
+                    proxy_pass http://127.0.0.1:3300/;
+                    ${commonConfig}
+            }
+
+            location /dashboard/front {
+                proxy_pass http://127.0.0.1:4200/;
+                ${commonConfig}
+            }
+    }
+  `
+  );
+
   log("Deploy ......");
 
   return execCommand(
