@@ -1,9 +1,13 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
-import { IAttachment, QueryResponse, MutationVariables } from '@erxes/ui/src/types';
-import { ISavedConformity } from '../conformity/types';
-import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
+import { IUser } from "@erxes/ui/src/auth/types";
+import { ICompany } from "@erxes/ui/src/companies/types";
+import { ICustomer } from "@erxes/ui/src/customers/types";
+import {
+  IAttachment,
+  QueryResponse,
+  MutationVariables,
+} from "@erxes/ui/src/types";
+import { ISavedConformity } from "../conformity/types";
+import { IActivityLog } from "@erxes/ui/src/activityLogs/types";
 
 export interface IOptions {
   EditForm: any;
@@ -109,7 +113,7 @@ export interface IItemParams {
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
 export type RemoveStageMutation = ({
-  variables
+  variables,
 }: {
   variables: { _id: string };
 }) => Promise<any>;
@@ -130,6 +134,8 @@ export interface IStage {
   itemsTotalCount: number;
   formId: string;
   pipelineId: string;
+  visibility: string;
+  memberIds: string;
   status: string;
   order: number;
 }
@@ -248,7 +254,7 @@ export type PipelinesQueryResponse = {
   loading: boolean;
   refetch: ({
     boardId,
-    type
+    type,
   }: {
     boardId?: string;
     type?: string;
@@ -303,7 +309,7 @@ export type UpdateTimeVariables = {
 export type RemoveMutation = ({ variables: MutationVariables }) => Promise<any>;
 
 export type UpdateTimeTrackMutation = ({
-  variables: UpdateTimeVariables
+  variables: UpdateTimeVariables,
 }) => Promise<any>;
 
 export type CopyVariables = {
@@ -333,17 +339,15 @@ export type PipelineLabelDetailQueryResponse = {
 
 // mutation response
 export type AddPipelineLabelMutationResponse = ({
-  variables: IPipelineLabelVariables
+  variables: IPipelineLabelVariables,
 }) => Promise<any>;
 
 export type EditPipelineLabelMutationResponse = ({
-  variables: EditMutationVariables
+  variables: EditMutationVariables,
 }) => Promise<any>;
 
 export type RemovePipelineLabelMutationResponse = {
-  removeMutation: (params: {
-    variables: MutationVariables;
-  }) => Promise<void>;
+  removeMutation: (params: { variables: MutationVariables }) => Promise<void>;
 };
 
 export type PipelineLabelMutationVariables = {
@@ -405,7 +409,7 @@ export type ConvertToMutationResponse = {
 };
 
 export type StagesSortItemsMutationResponse = ({
-  variables
+  variables,
 }: {
   variables: {
     stageId: string;
