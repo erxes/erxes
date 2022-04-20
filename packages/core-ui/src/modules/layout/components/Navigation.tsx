@@ -22,6 +22,8 @@ import {
   SmallText,
   DropSubNav,
   DropSubNavItem,
+  Center,
+  RoundBox,
 } from "../styles";
 import { getThemeItem } from "utils";
 import Icon from "modules/common/components/Icon";
@@ -30,6 +32,7 @@ import Label from "modules/common/components/Label";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 import { Flex } from "@erxes/ui/src/styles/main";
 import Tip from "modules/common/components/Tip";
+import { colors } from "@erxes/ui/src/styles";
 
 export interface ISubNav {
   permission: string;
@@ -49,6 +52,7 @@ type State = {
   moreMenus: any[];
   searchText: string;
   clickedMenu: string;
+  pinned: boolean;
 };
 
 class Navigation extends React.Component<Props, State> {
@@ -62,6 +66,7 @@ class Navigation extends React.Component<Props, State> {
       moreMenus: pluginNavigations().slice(4) || [],
       searchText: "",
       clickedMenu: "",
+      pinned: false,
     };
   }
 
@@ -123,7 +128,11 @@ class Navigation extends React.Component<Props, State> {
   };
 
   handleClickOutside = (event) => {
-    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+    if (
+      this.wrapperRef &&
+      !this.wrapperRef.contains(event.target) &&
+      this.state.clickedMenu === "more"
+    ) {
       this.setState({ showMenu: false });
     }
   };
@@ -138,12 +147,15 @@ class Navigation extends React.Component<Props, State> {
     this.setState({ showMenu: true, clickedMenu: "more" });
   };
 
+  onClickPin = () => {
+    this.setState({ pinned: !this.state.pinned });
+  };
+
   renderSubNavItem = (child, index: number) => {
-    // console.log(child, "holaaaa")
     return (
       // <WithPermission key={index} action={child.permission}>
       <SubNavItem additional={child.additional || false}>
-        <Icon icon="corner-down-right-alt" />
+        <Icon icon="corner-down-right" size={18} />
         <NavLink to={this.getLink(child.to)}>{__(child.text)}</NavLink>
       </SubNavItem>
       // </WithPermission>
@@ -167,6 +179,7 @@ class Navigation extends React.Component<Props, State> {
     if (
       navCollapse === 3 &&
       clickedMenu === text &&
+      showMenu === true &&
       (parent === url || window.location.pathname.startsWith(url))
     ) {
       return (
@@ -186,8 +199,7 @@ class Navigation extends React.Component<Props, State> {
     }
 
     return (
-      <SubNav visible={showMenu} navCollapse={this.props.navCollapse}>
-        {/* {!collapsed && <SubNavTitle>{__(text)}</SubNavTitle>} */}
+      <SubNav navCollapse={this.props.navCollapse}>
         <SubNavTitle>{__(text)}</SubNavTitle>
         {childrens.map((child, index) => this.renderSubNavItem(child, index))}
       </SubNav>
@@ -200,10 +212,10 @@ class Navigation extends React.Component<Props, State> {
         return this.renderHandleIcon("plus");
       case 3:
         return (
-          <Flex>
+          <Center>
             <SmallText>Collapse</SmallText>
             {this.renderHandleIcon("minus")}
-          </Flex>
+          </Center>
         );
       default:
         return (
@@ -232,7 +244,6 @@ class Navigation extends React.Component<Props, State> {
 
   renderHandleNavItem(info) {
     const { icon, text, childrens, isMoreItem } = info;
-    const collapseIcon = this.state.showMenu ? "angle-down" : "angle-up";
 
     if (isMoreItem)
       return (
@@ -250,8 +261,6 @@ class Navigation extends React.Component<Props, State> {
           <>
             <NavIcon className={icon} />
             <label>{text}</label>
-
-            {/* {childrens && <Icon icon={collapseIcon} />} */}
           </>
         );
       default:
@@ -279,7 +288,10 @@ class Navigation extends React.Component<Props, State> {
         <NavLink
           to={this.getLink(url)}
           onClick={() => {
-            if (this.state.clickedMenu === text) {
+            if (
+              this.state.clickedMenu === text &&
+              this.state.clickedMenu !== "more"
+            ) {
               return this.setState({
                 showMenu: !this.state.showMenu,
                 clickedMenu: text,
@@ -316,14 +328,32 @@ class Navigation extends React.Component<Props, State> {
 
     const item = (
       <div ref={this.setWrapperRef}>
-        <NavItem>
-          {this.renderMenuItem({ icon, url, text, label, childrens, isMoreItem })}
-          {this.renderChildren(url, text, childrens, navCollapse)}
+        <NavItem isMoreItem={isMoreItem}>
+          {this.renderMenuItem({
+            icon,
+            url,
+            text,
+            label,
+            childrens,
+            isMoreItem,
+          })}
+
+          {isMoreItem && (
+            <RoundBox
+              pinned={this.state.pinned}
+              onClick={() => this.onClickPin()}
+            >
+              <Icon icon="clip" />
+            </RoundBox>
+          )}
+
+          {!isMoreItem &&
+            this.renderChildren(url, text, childrens, navCollapse)}
         </NavItem>
       </div>
     );
 
-    if (!childrens || childrens.length === 0) {
+    if ((!childrens || childrens.length === 0) && !isMoreItem) {
       return (
         <WithPermission key={url} action={permission}>
           <Tip placement="right" key={Math.random()} text={__(text)}>
@@ -341,36 +371,42 @@ class Navigation extends React.Component<Props, State> {
   };
 
   renderMorePlugins = () => {
-    const { showMenu, moreMenus } = this.state;
-
-    return (
-      <MoreMenuWrapper visible={showMenu} navCollapse={this.props.navCollapse}>
-        <MoreSearch>
-          <Icon icon="search-1" size={15} />
-          <FormControl
-            onChange={(e: any) =>
-              this.onSearch(e.target.value.trim().toLowerCase())
-            }
-            type="text"
-            placeholder="Find plugins"
-          />
-        </MoreSearch>
-        <MoreTitle>{__("Other added plugins")}</MoreTitle>
-        <MoreMenus>
-          {moreMenus.map((menu) =>
-            this.renderNavItem(
-              menu.permission,
-              menu.text,
-              menu.url,
-              menu.icon,
-              [],
-              "",
-              true
-            )
-          )}
-        </MoreMenus>
-      </MoreMenuWrapper>
-    );
+    const { showMenu, moreMenus, clickedMenu } = this.state;
+    if (clickedMenu === "more") {
+      return (
+        <div ref={this.setWrapperRef}>
+          <MoreMenuWrapper
+            visible={showMenu}
+            navCollapse={this.props.navCollapse}
+          >
+            <MoreSearch>
+              <Icon icon="search-1" size={15} />
+              <FormControl
+                onChange={(e: any) =>
+                  this.onSearch(e.target.value.trim().toLowerCase())
+                }
+                type="text"
+                placeholder="Find plugins"
+              />
+            </MoreSearch>
+            <MoreTitle>{__("Other added plugins")}</MoreTitle>
+            <MoreMenus>
+              {moreMenus.map((menu) =>
+                this.renderNavItem(
+                  menu.permission,
+                  menu.text,
+                  menu.url,
+                  menu.icon,
+                  [],
+                  "",
+                  true
+                )
+              )}
+            </MoreMenus>
+          </MoreMenuWrapper>
+        </div>
+      );
+    }
   };
 
   renderMore = () => {
@@ -378,7 +414,6 @@ class Navigation extends React.Component<Props, State> {
     if (pluginNavigations().length <= 4) {
       return null;
     }
-
     return (
       <div ref={this.setWrapperRef}>
         <NavItem>
@@ -386,11 +421,10 @@ class Navigation extends React.Component<Props, State> {
             <a onClick={() => this.onClickMore()}>
               {this.renderHandleNavItem({
                 icon: "icon-ellipsis-h",
-                text: {text},
+                text: text,
               })}
             </a>
           </NavMenuItem>
-
           {this.renderMorePlugins()}
         </NavItem>
       </div>
@@ -424,7 +458,59 @@ class Navigation extends React.Component<Props, State> {
               nav.text,
               nav.url,
               nav.icon,
-              nav.childrens || [],
+              nav.childrens || [
+                {
+                  text: "Skills",
+                  to: "/settings/skills",
+                  image: "/images/icons/erxes-29.png",
+                  location: "settings",
+                  scope: "inbox",
+                  action: "skillTypesAll",
+                  permissions: [
+                    "getSkillTypes",
+                    "getSkill",
+                    "getSkills",
+                    "manageSkills",
+                    "manageSkillTypes",
+                  ],
+                },
+                {
+                  text: "Channels",
+                  to: "/settings/channels",
+                  image: "/images/icons/erxes-05.svg",
+                  location: "settings",
+                  scope: "inbox",
+                  action: "channelsAll",
+                  permissions: ["showChannels", "manageChannels"],
+                },
+                {
+                  text: "Channels",
+                  to: "/settings/channels",
+                  image: "/images/icons/erxes-05.svg",
+                  location: "settings",
+                  scope: "inbox",
+                  action: "channelsAll",
+                  permissions: ["showChannels", "manageChannels"],
+                },
+                {
+                  text: "Channels",
+                  to: "/settings/channels",
+                  image: "/images/icons/erxes-05.svg",
+                  location: "settings",
+                  scope: "inbox",
+                  action: "channelsAll",
+                  permissions: ["showChannels", "manageChannels"],
+                },
+                {
+                  text: "Channels",
+                  to: "/settings/channels",
+                  image: "/images/icons/erxes-05.svg",
+                  location: "settings",
+                  scope: "inbox",
+                  action: "channelsAll",
+                  permissions: ["showChannels", "manageChannels"],
+                },
+              ], // test data
               nav.label
             )
           )}

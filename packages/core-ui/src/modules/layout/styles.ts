@@ -69,7 +69,7 @@ const MainWrapper = styledTS<{ navCollapse?: number }>(styled.div)`
       ? dimensions.headerSpacing * 2 - 1
       : props.navCollapse === 1
       ? dimensions.headerSpacing - 5
-      : dimensions.headerSpacing * 4}px;
+      : dimensions.headerSpacing * 3 + dimensions.unitSpacing}px;
   max-width: 100%;
   transition: width 0.3s;
 `;
@@ -200,30 +200,38 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
     display: flex;
     color: ${colors.bgLight}
     height: ${(props) =>
-      props.navCollapse === 2
-        ? dimensions.headerSpacingWide
-        : dimensions.headerSpacing}px;
-    height: ${(props) =>
       props.isMoreItem
         ? dimensions.headerSpacingWide
         : props.navCollapse === 2
         ? dimensions.headerSpacingWide
         : dimensions.headerSpacing}px;
-    flex-direction: ${(props) => props.navCollapse !== 3 && "column"};
-    padding: ${(props) => props.navCollapse === 3 && dimensions.unitSpacing}px;
-    justify-content: ${(props) => props.navCollapse !== 3 && "center"};
+    flex-direction: ${(props) =>
+      props.navCollapse === 3
+        ? !props.isMoreItem
+          ? "row"
+          : "column"
+        : "column"};
+    padding: ${(props) =>
+      props.isMoreItem
+        ? dimensions.unitSpacing
+        : props.navCollapse === 3 && dimensions.coreSpacing}px;
+    justify-content: ${(props) =>
+      props.isMoreItem ? "center" : props.navCollapse !== 3 && "center"};
     align-items: center;
     position: relative;
     transition: all 0.3s ease;
     font-size: 11px;
     width: ${(props) =>
       props.isMoreItem
-        ? dimensions.headerSpacing
+        ? dimensions.headerSpacingWide
         : props.navCollapse === 1
         ? dimensions.headerSpacing - 5
         : props.navCollapse === 3
-        ? dimensions.headerSpacing * 4
+        ? dimensions.headerSpacing * 3 + dimensions.unitSpacing
         : dimensions.headerSpacing * 2 - 1}px;
+    border: ${(props) => props.isMoreItem && "1px solid"};
+    border-color: ${(props) => props.isMoreItem && colors.borderPrimary};
+    border-radius: ${(props) => props.isMoreItem && 4}px;
 
     i {
       padding:0px, 14px, 0px, 0px;
@@ -234,7 +242,7 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
       cursor: pointer;
       font-size: 11px;
       letter-spacing: 0.4px;
-      text-align:  ${(props) => props.navCollapse === 2 && "center"};
+      text-align:  center;
       justify-content: center;
       opacity: 0.6;
       color:${colors.colorBlack};
@@ -242,7 +250,11 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
       text-overflow: ellipsis;
       white-space: nowrap;
       margin-left:  ${(props) =>
-        props.navCollapse === 3 && dimensions.unitSpacing}px;
+        props.navCollapse === 3
+          ? props.isMoreItem
+            ? 0
+            : dimensions.unitSpacing
+          : 0}px;
     }
 
     span {
@@ -258,7 +270,7 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
       &:before {
         content: "";
         width: 2px;
-        background: ${colors.colorPrimary};
+        background: ${(props) => !props.isMoreItem && colors.colorPrimary};
         height: ${(props) =>
           props.navCollapse === 2
             ? dimensions.headerSpacingWide
@@ -267,9 +279,11 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
         display: block;
         right: 0;
         top:0;
-        box-shadow: 0px 12px 24px rgba(79, 51, 175, 0.24), 0px 2px 6px rgba(79, 51, 175, 0.16), 0px 0px 1px rgba(79, 51, 175, 0.08);
+        box-shadow: ${(props) =>
+          !props.isMoreItem &&
+          "0px 12px 24px rgba(79, 51, 175, 0.24), 0px 2px 6px rgba(79, 51, 175, 0.16), 0px 0px 1px rgba(79, 51, 175, 0.08)"};
       }
-
+        
       > i, label {
         opacity: 1;
         color: ${colors.colorPrimary};
@@ -315,18 +329,20 @@ const Nav = styled.nav`
 `;
 
 const NavIcon = styled.i`
-  font-size: 22px;
+  font-size: 20px;
   opacity: 0.6;
   color: ${colors.colorBlack};
 `;
 
-const SubNav = styledTS<{ visible: boolean; navCollapse: number }>(styled.ul)`
+const SubNav = styledTS<{ navCollapse: number }>(styled.ul)`
   background: ${colors.colorWhite};
   position: absolute;
   left: ${(props) =>
     props.navCollapse === 2
-      ? dimensions.headerSpacing * 2 + 10
-      : dimensions.headerSpacing + 5}px;
+      ? dimensions.headerSpacing * 2
+      : props.navCollapse === 3
+      ? dimensions.headerSpacingWide * 2 + 20
+      : dimensions.headerSpacing - 5}px;
   word-wrap: break-word;
   width: 200px;
   max-height: 100vh;
@@ -337,26 +353,26 @@ const SubNav = styledTS<{ visible: boolean; navCollapse: number }>(styled.ul)`
   color: rgba(0, 0, 0, 0.62);
   list-style: none;
   border-radius: 5px;
-  visibility: ${(props) => (props.visible ? "visible" : "hidden")};
   padding: ${dimensions.unitSpacing}px;
-  &:after {
-    content: " ";
-    border: solid transparent;
-    height: 0;
-    width: 0;
-    position: absolute;
-    pointer-events: none;
-    border-width: ${dimensions.unitSpacing}px;
-    top: ${dimensions.coreSpacing}px;
-    left: -${dimensions.coreSpacing}px;
-    z-index: 10000;
-    border-right-color: ${colors.colorWhite};
-    box-shadow: transparent;
+  visibility: hidden;
+  // &:after {
+  //   content: " ";
+  //   border: solid transparent;
+  //   height: 0;
+  //   width: 0;
+  //   position: absolute;
+  //   pointer-events: none;
+  //   border-width: ${dimensions.unitSpacing}px;
+  //   top: ${dimensions.coreSpacing}px;
+  //   left: -${dimensions.coreSpacing}px;
+  //   z-index: 10000;
+  //   border-right-color: ${colors.colorWhite};
+  //   box-shadow: transparent;
 
-    @media (max-height: 760px) {
-      top: ${dimensions.coreSpacing - 5}px;
-    }
-  }
+  //   @media (max-height: 760px) {
+  //     top: ${dimensions.coreSpacing - 5}px;
+  //   }
+  // }
 `;
 
 const SubNavItem = styledTS<{ additional: boolean }>(styled.li)`
@@ -403,9 +419,10 @@ const SubNavTitle = styled.div`
   font-weight: 600;
 `;
 
-const NavItem = styled.div`
+const NavItem = styledTS<{ isMoreItem?: boolean }>(styled.div)`
   position: relative;
   flex: 1;
+  cursor : pointer;
 
   &:hover {
     ${SubNav} {
@@ -454,7 +471,7 @@ const SmallLabel = styled.div`
 const MoreMenus = styled.div`
   display: flex;
   flex-wrap: wrap;
-  margin-top: ${dimensions.unitSpacing - 5}px;
+  margin-top: ${dimensions.unitSpacing}px;
 `;
 
 const MoreTitle = styled.h5`
@@ -466,10 +483,9 @@ const MoreItemRecent = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid ${colors.borderPrimary};
-  border-radius: ${dimensions.unitSpacing - 6}px;
   width: ${dimensions.headerSpacing + dimensions.coreSpacing}px;
-  margin: 5px 5px 0 0;
+  margin: 5px 10px 0 0;
+  cursor: pointer;
 
   label {
     width: 70px !important;
@@ -490,7 +506,7 @@ const MoreMenuWrapper = styledTS<{ visible: boolean; navCollapse: number }>(
 )`
   position: absolute;
   visibility: ${(props) => (props.visible ? "visible" : "hidden")};
-  padding:${dimensions.coreSpacing}px  5px 20px 20px;
+  padding:${dimensions.coreSpacing}px;
   width: ${dimensions.headerSpacingWide * 6}px;
   height: ${dimensions.headerSpacingWide * 4 + dimensions.coreSpacing}px;
   overflow-y: auto;
@@ -499,12 +515,14 @@ const MoreMenuWrapper = styledTS<{ visible: boolean; navCollapse: number }>(
       ? dimensions.headerSpacing * 2 - 1
       : props.navCollapse === 1
       ? dimensions.headerSpacing - 5
-      : dimensions.headerSpacing * 4}px;
+      : dimensions.headerSpacing * 3 + dimensions.unitSpacing}px;
   top: 0;
   background: ${colors.colorWhite};
   border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0px 16px 24px rgba(0, 0, 0, 0.06), 0px 2px 6px rgba(0, 0, 0, 0.04),
     0px 0px 1px rgba(0, 0, 0, 0.04);
+    cursor : default
+
 `;
 
 const MoreSearch = styled.div`
@@ -564,11 +582,10 @@ const SmallText = styled.div`
 
 const DropSubNav = styled.ul`
   word-wrap: break-word;
-  width: ${dimensions.headerSpacing * 4}px;
+  width: ${dimensions.headerSpacing * 3 + dimensions.unitSpacing}px;
   top: 0;
   margin: 0;
-  padding: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px
-    ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   list-style: none;
   transition: all 0.9s ease-out;
 `;
@@ -598,6 +615,41 @@ const DropSubNavItem = styled.li`
     &:hover {
       background: ${rgba(colors.colorBlack, 0.06)};
       opacity: 1;
+    }
+  }
+`;
+
+const Center = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+`;
+
+const RoundBox = styledTS<{ pinned?: boolean }>(styled.div)`
+  background: ${(props) =>
+    props.pinned ? colors.colorSecondary : colors.colorWhite};
+  border-radius: 50%;
+  border: 1px solid ${colors.borderPrimary};
+  width: 25px;
+  height: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  color: ${(props) => props.pinned && colors.colorWhite};
+
+  i {
+    color: ${(props) => props.pinned ? colors.colorWhite : colors.colorBlack};
+  }
+
+  &:hover {
+    background: ${(props) =>
+      props.pinned ? colors.colorWhite : colors.colorSecondary};
+    i {
+      color: ${(props) => !props.pinned ? colors.colorWhite : colors.colorBlack};
     }
   }
 `;
@@ -650,4 +702,6 @@ export {
   SmallText,
   DropSubNav,
   DropSubNavItem,
+  Center,
+  RoundBox,
 };
