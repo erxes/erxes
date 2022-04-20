@@ -345,6 +345,15 @@ export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
+export const sendAutomationsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'automations',
+    ...args
+  });
+}
+
 export default function() {
   return client;
 }
