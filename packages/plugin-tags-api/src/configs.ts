@@ -6,6 +6,7 @@ import { generateModels, models } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import logs from './logUtils';
+import permissions from './permissions';
 
 export let debug;
 export let graphqlPubsub;
@@ -21,6 +22,7 @@ export let es: {
 
 export default {
   name: 'tags',
+  permissions,
   graphql: async (sd) => {
     serviceDiscovery = sd;
     return {

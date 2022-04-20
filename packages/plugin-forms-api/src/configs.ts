@@ -3,6 +3,7 @@ import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
 import { generateModels, models } from './connectionResolver';
+import permissions from './permissions';
 
 export let mainDb;
 export let debug;
@@ -10,6 +11,7 @@ export let serviceDiscovery;
 
 export default {
   name: 'forms',
+  permissions,
   graphql: async (sd) => {
     serviceDiscovery = sd;
 

@@ -4,6 +4,7 @@ import resolvers from "./graphql/resolvers";
 
 import { initBroker } from "./messageBroker";
 import { generateModels } from "./connectionResolver";
+import permissions from "./permissions";
 
 export let debug;
 export let mainDb;
@@ -19,27 +20,7 @@ export let serviceDiscovery;
 
 export default {
   name: "segments",
-  permissions: {
-    segments: {
-      name: "segments",
-      description: "Segments",
-      actions: [
-        {
-          name: "segmentsAll",
-          description: "All",
-          use: ["showSegments", "manageSegments"],
-        },
-        {
-          name: "manageSegments",
-          description: "Manage segments",
-        },
-        {
-          name: "showSegments",
-          description: "Show segments list",
-        },
-      ],
-    },
-  },
+  permissions,
   graphql: async (sd) => {
     serviceDiscovery = sd;
 
