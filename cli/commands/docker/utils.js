@@ -510,11 +510,12 @@ const update = async (program) => {
 
       await execCommand(`rm -rf plugin-uis/${uiname}`, true);
       await execCommand(`aws s3 sync s3://erxes-plugins/uis/${uiname} plugin-uis/${uiname} --no-sign-request`);
-
-      log("Restart core ui ....");
-      await execCommand(`docker service update --force erxes_coreui`);
     }
+  }
 
+  if (program.uis) {
+    log("Restart core ui ....");
+    await execCommand(`docker service update --force erxes_coreui`);
   }
 
   log("Updating gateway ....");
