@@ -11,6 +11,7 @@ const sleep = (ms) => {
 
 const commonEnvs = (configs) => {
   const db_server_address = configs.db_server_address;
+  const widgets = configs.widgets || {};
   const redis = configs.redis || {};
   const rabbitmq = configs.rabbitmq || {};
   const rabbitmq_host = `amqp://${rabbitmq.user}:${rabbitmq.pass}@${rabbitmq.server_address || db_server_address}:5672/${rabbitmq.vhost}`;
@@ -19,6 +20,7 @@ const commonEnvs = (configs) => {
     DEBUG: "erxes*",
     NODE_ENV: "production",
     DOMAIN: configs.domain,
+    WIDGETS_DOMAIN: widgets.domain || `${configs.domain}/widgets`,
     REDIS_HOST: db_server_address,
     REDIS_PORT: 6379,
     REDIS_PASSWORD: redis.password || "",
@@ -195,7 +197,8 @@ const up = async (uis) => {
   const domain = configs.domain;
   const gateway_url = `${domain}/gateway`;
   const subscription_url = `wss://${gateway_url.replace("https://", "")}/graphql`;
-  const widgets_domain = `${domain}/widgets`;
+  const widgets = configs.widgets || {};
+  const widgets_domain = widgets.domain || `${domain}/widgets`;
   const dashboard_domain = `${domain}/dashboard/front`;
 
   const NGINX_HOST = domain.replace("https://", "");
