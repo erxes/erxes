@@ -136,6 +136,11 @@ export const initBroker = async (options) => {
     data: await Configs.find(data).distinct("value"),
   }));
 
+  consumeRPCQueue("core:configs.findOne", async ({ data: { query } }) => ({
+    status: "success",
+    data: await Configs.findOne(query),
+  }));
+
   consumeRPCQueue(
     "core:getConfig",
     async ({ data: { code, defaultValue } }) => {
