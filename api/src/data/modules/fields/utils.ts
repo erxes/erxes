@@ -167,7 +167,11 @@ export const checkFieldNames = async (
     property.fieldName = fieldName;
 
     if (columnConfig) {
-      fieldName = columnConfig[fieldName].value;
+      if (columnConfig[fieldName]) {
+        fieldName = columnConfig[fieldName].value;
+      }
+
+      throw new Error(`fieldName error ${fieldName}`);
     }
 
     let fieldId;
