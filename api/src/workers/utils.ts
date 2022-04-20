@@ -345,11 +345,20 @@ export const receiveImportCreate = async (content: any) => {
 
     const updatedColumns = (columns || '').replace(/\n|\r/g, '').split(',');
 
-    const properties = await checkFieldNames(
-      contentType,
-      updatedColumns,
-      columnConfig
-    );
+    let properties;
+    try {
+      properties = await checkFieldNames(
+        contentType,
+        updatedColumns,
+        columnConfig
+      );
+    } catch (e) {
+      debugWorkers('error during check field name ', e.message);
+
+      await ImportHistory.remove({ _id: importHistoryId });
+
+      throw new Error(e.message);
+    }
 
     config[contentType] = { total: rows, properties, fileName };
   }
