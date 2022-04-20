@@ -39,7 +39,7 @@ import forms from './forms';
 // load environment variables
 dotenv.config();
 
-const { NODE_ENV, JWT_TOKEN_SECRET, MAIN_APP_DOMAIN, WIDGETS_DOMAIN } = process.env;
+const { NODE_ENV, JWT_TOKEN_SECRET, DOMAIN } = process.env;
 
 if (!JWT_TOKEN_SECRET) {
   throw new Error('Please configure JWT_TOKEN_SECRET environment variable.');
@@ -62,10 +62,7 @@ app.use(cookieParser());
 
 const corsOptions = {
   credentials: true,
-  origin: [
-    MAIN_APP_DOMAIN || 'http://localhost:3000',
-    WIDGETS_DOMAIN || 'http://localhost:3200'
-  ]
+  origin: DOMAIN ? [DOMAIN] : ['http://localhost:3000', 'http://localhost:3200']
 };
 
 app.use(cors(corsOptions));

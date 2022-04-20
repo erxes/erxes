@@ -20,7 +20,7 @@ export const getAuthCode = async (): Promise<string> => {
 };
 
 const loginMiddleware = async (req, res) => {
-  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
 
   debugRequest(debugGmail, req);
 
@@ -65,7 +65,7 @@ const loginMiddleware = async (req, res) => {
     });
   }
 
-  const url = `${MAIN_APP_DOMAIN}/settings/authorization?gmailAuthorized=true`;
+  const url = `${DOMAIN}/settings/authorization?gmailAuthorized=true`;
 
   debugResponse(debugGmail, req, url);
 

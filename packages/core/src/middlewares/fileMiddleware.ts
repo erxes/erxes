@@ -1,3 +1,4 @@
+import { getEnv } from '@erxes/api-utils/src';
 import * as formidable from 'formidable';
 import * as request from 'request';
 import * as _ from 'underscore';
@@ -5,16 +6,14 @@ import { filterXSS } from 'xss';
 
 import {
   checkFile,
-  frontendEnv,
-  getSubServiceDomain,
   uploadFile
 } from '../data/utils';
 import { debugExternalApi } from '../debuggers';
 
+const DOMAIN = getEnv({ name: 'DOMAIN' });
+
 export const uploader = async (req: any, res, next) => {
-  const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
-    name: 'INTEGRATIONS_API_DOMAIN'
-  });
+  const INTEGRATIONS_API_DOMAIN = `${DOMAIN}/gateway/pl:integrations`;
 
   if (req.query.kind === 'nylas') {
     debugExternalApi(`Pipeing request to ${INTEGRATIONS_API_DOMAIN}`);
@@ -46,16 +45,9 @@ export const uploader = async (req: any, res, next) => {
     const status = await checkFile(file, req.headers.source);
 
     if (status === 'ok') {
-      const API_URL = frontendEnv({ name: 'API_URL', req });
-      const API_DOMAIN =
-        API_URL ||
-        getSubServiceDomain({
-          name: 'API_DOMAIN'
-        });
-
       try {
         const result = await uploadFile(
-          API_DOMAIN,
+          `${DOMAIN}/gateway`,
           file,
           response.upload ? true : false
         );

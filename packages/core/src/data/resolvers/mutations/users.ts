@@ -38,8 +38,8 @@ const sendInvitationEmail = ({
   email: string;
   token: string;
 }) => {
-  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
-  const confirmationUrl = `${MAIN_APP_DOMAIN}/confirmation?token=${token}`;
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const confirmationUrl = `${DOMAIN}/confirmation?token=${token}`;
 
   utils.sendEmail({
     toEmails: [email],
@@ -48,7 +48,7 @@ const sendInvitationEmail = ({
       name: 'userInvitation',
       data: {
         content: confirmationUrl,
-        domain: MAIN_APP_DOMAIN
+        domain: DOMAIN
       }
     }
   });
@@ -182,9 +182,9 @@ const userMutations = {
     const token = await Users.forgotPassword(email);
 
     // send email ==============
-    const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+    const DOMAIN = getEnv({ name: 'DOMAIN' });
 
-    const link = `${MAIN_APP_DOMAIN}/reset-password?token=${token}`;
+    const link = `${DOMAIN}/reset-password?token=${token}`;
 
     await utils.sendEmail({
       toEmails: [email],

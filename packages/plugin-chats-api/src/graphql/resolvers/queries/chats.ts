@@ -15,7 +15,7 @@ const chatQueries = {
 
     return {
       list: await models.Chats.find(filter)
-        .sort({ createdAt: -1 })
+        .sort({ updatedAt: -1 })
         .skip(skip || 0)
         .limit(limit || 10),
       totalCount: await models.Chats.find(filter).countDocuments(),
@@ -168,9 +168,9 @@ const chatQueries = {
         userId: user._id,
       });
 
-      graphqlPubsub.publish("chatUnreadCountChanged", {
-        userId: user._id,
-      });
+      // graphqlPubsub.publish("chatUnreadCountChanged", {
+      //   userId: user._id,
+      // });
     }
 
     return chat._id;
