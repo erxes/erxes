@@ -14,14 +14,13 @@ const loginMiddleware = async (req, res) => {
     'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
   );
 
-  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
   const DOMAIN = getEnv({ name: 'DOMAIN' });
 
   const conf = {
     client_id: FACEBOOK_APP_ID,
     client_secret: FACEBOOK_APP_SECRET,
     scope: FACEBOOK_PERMISSIONS,
-    redirect_uri: `${DOMAIN}/fblogin`
+    redirect_uri: `${DOMAIN}/gateway/pl:integrations/fblogin`
   };
 
   debugRequest(debugFacebook, req);
@@ -97,7 +96,7 @@ const loginMiddleware = async (req, res) => {
       });
     }
 
-    const url = `${MAIN_APP_DOMAIN}/settings/authorization?fbAuthorized=true`;
+    const url = `${DOMAIN}/settings/authorization?fbAuthorized=true`;
 
     debugResponse(debugFacebook, req, url);
 

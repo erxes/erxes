@@ -129,9 +129,9 @@ const init = async app => {
       uid: profile.id_str
     });
 
-    const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+    const DOMAIN = getEnv({ name: 'DOMAIN' });
 
-    const url = `${MAIN_APP_DOMAIN}/settings/integrations?twitterAuthorized=true`;
+    const url = `${DOMAIN}/settings/integrations?twitterAuthorized=true`;
 
     debugResponse(debugTwitter, req, url);
 

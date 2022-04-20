@@ -61,9 +61,9 @@ export const start = async (models: IModels, subdomain: string, data: IEmailPara
       });
     }
 
-    const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
+    const DOMAIN = getEnv({ name: 'DOMAIN' });
 
-    const unsubscribeUrl = `${MAIN_API_DOMAIN}/unsubscribe/?cid=${customer._id}`;
+    const unsubscribeUrl = `${DOMAIN}/gateway/pl:core/unsubscribe/?cid=${customer._id}`;
 
     // replace customer attributes =====
     let replacedContent = content;

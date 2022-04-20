@@ -83,7 +83,7 @@ export const sendEmail = async (params: IEmailParams) => {
     'AWS_SES_SECRET_ACCESS_KEY',
     ''
   );
-  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
 
   // do not send email it is running in test mode
   if (NODE_ENV === 'test') {
@@ -104,7 +104,7 @@ export const sendEmail = async (params: IEmailParams) => {
   const { data = {}, name } = template;
 
   // for unsubscribe url
-  data.domain = MAIN_APP_DOMAIN;
+  data.domain = DOMAIN;
 
   for (const toEmail of toEmails) {
     if (modifier) {
@@ -779,49 +779,6 @@ export const resetConfigsCache = () => {
   memoryStorage().set('configs_erxes_api', '');
 };
 
-export const frontendEnv = ({
-  name,
-  req,
-  requestInfo
-}: {
-  name: string;
-  req?: any;
-  requestInfo?: any;
-}): string => {
-  const cookies = req ? req.cookies : requestInfo.cookies;
-  const keys = Object.keys(cookies);
-
-  const envs: { [key: string]: string } = {};
-
-  for (const key of keys) {
-    envs[key.replace('REACT_APP_', '')] = cookies[key];
-  }
-
-  return envs[name];
-};
-
-export const getSubServiceDomain = ({ name }: { name: string }): string => {
-  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
-
-  const defaultMappings = {
-    API_DOMAIN: `${MAIN_APP_DOMAIN}/api`,
-    WIDGETS_DOMAIN: `${MAIN_APP_DOMAIN}/widgets`,
-    INTEGRATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/integrations`,
-    LOGS_API_DOMAIN: `${MAIN_APP_DOMAIN}/logs`,
-    ENGAGES_API_DOMAIN: `${MAIN_APP_DOMAIN}/engages`,
-    VERIFIER_API_DOMAIN: `${MAIN_APP_DOMAIN}/verifier`,
-    AUTOMATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/automations`
-  };
-
-  const domain = getEnv({ name });
-
-  if (domain) {
-    return domain;
-  }
-
-  return defaultMappings[name];
-};
-
 export const getCoreDomain = () => {
   const NODE_ENV = process.env.NODE_ENV;
 
@@ -854,7 +811,7 @@ export const isUsingElk = () => {
 
 export const checkPremiumService = async type => {
   try {
-    const domain = getEnv({ name: 'MAIN_APP_DOMAIN' })
+    const domain = getEnv({ name: 'DOMAIN' })
       .replace('https://', '')
       .replace('http://', '');
 

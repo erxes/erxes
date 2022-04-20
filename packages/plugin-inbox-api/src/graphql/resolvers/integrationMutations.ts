@@ -468,7 +468,7 @@ const integrationMutations = {
 
     const replacedContent = await new EditorAttributeUtil(
       msgBrokerClient,
-      `${process.env.MAIN_API_DOMAIN}/pl:core`,
+      `${process.env.DOMAIN}/gateway/pl:core`,
       await getServices()
     ).replaceAttributes({
       content: body,

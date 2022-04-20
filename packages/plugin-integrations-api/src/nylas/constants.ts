@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 // load config
 dotenv.config();
 
-const { MAIN_APP_DOMAIN } = process.env;
+const { DOMAIN } = process.env;
 
 // Google
 export const GOOGLE_OAUTH_TOKEN_VALIDATION_URL =
@@ -18,8 +18,8 @@ export const NYLAS_API_URL = 'https://api.nylas.com';
 export const NYLAS_SCHEDULE_API_URL = 'https://schedule.api.nylas.com';
 export const NYLAS_SCHEDULE_MANAGE_PAGES =
   NYLAS_SCHEDULE_API_URL + '/manage/pages';
-export const AUTHORIZED_REDIRECT_URL = `${MAIN_APP_DOMAIN}/settings/integrations`;
-export const AUTHORIZED_CALENDAR_REDIRECT_URL = `${MAIN_APP_DOMAIN}/settings/calendars`;
+export const AUTHORIZED_REDIRECT_URL = `${DOMAIN}/settings/integrations`;
+export const AUTHORIZED_CALENDAR_REDIRECT_URL = `${DOMAIN}/settings/calendars`;
 export const CONNECT_AUTHORIZE_URL = NYLAS_API_URL + '/connect/authorize';
 export const CONNECT_TOKEN_URL = NYLAS_API_URL + '/connect/token';
 

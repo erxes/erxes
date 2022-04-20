@@ -18,6 +18,7 @@ const commonEnvs = (configs) => {
   return {
     DEBUG: "erxes*",
     NODE_ENV: "production",
+    DOMAIN: configs.domain,
     REDIS_HOST: db_server_address,
     REDIS_PORT: 6379,
     REDIS_PASSWORD: redis.password || "",
@@ -191,12 +192,13 @@ const up = async (uis) => {
 
   const configs = await fse.readJSON(filePath("configs.json"));
 
-  const main_api_domain = configs.main_api_domain || `${configs.main_app_domain}/api`;
-  const subscription_url = `wss://${main_api_domain.replace("https://", "")}/graphql`;
-  const widgets_domain = (configs.widgets && configs.widgets.domain) || `${configs.main_app_domain}/widgets`;
-  const dashboard_domain = (configs.dashboard && configs.dashboard.domain) || `${configs.main_app_domain}/dashboard/front`;
+  const domain = configs.domain;
+  const gateway_url = `${domain}/gateway`;
+  const subscription_url = `wss://${gateway_url.replace("https://", "")}/graphql`;
+  const widgets_domain = `${domain}/widgets`;
+  const dashboard_domain = `${domain}/dashboard/front`;
 
-  const NGINX_HOST = (configs.main_app_domain || "").replace("https://", "");
+  const NGINX_HOST = domain.replace("https://", "");
   const extra_hosts = [`mongo:${configs.db_server_address || '127.0.0.1'}`];
 
   const dockerComposeConfig = {
@@ -211,7 +213,7 @@ const up = async (uis) => {
         image: "erxes/erxes:federation",
         environment: {
           REACT_APP_CDN_HOST: widgets_domain,
-          REACT_APP_API_URL: main_api_domain,
+          REACT_APP_API_URL: gateway_url,
           REACT_APP_DASHBOARD_URL: dashboard_domain,
           REACT_APP_API_SUBSCRIPTION_URL: subscription_url,
           NGINX_HOST,
@@ -232,8 +234,6 @@ const up = async (uis) => {
           PORT: "80",
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
           LOAD_BALANCER_ADDRESS: "http://plugin_core_api",
-          API_DOMAIN: main_api_domain,
-          MAIN_APP_DOMAIN: configs.main_app_domain || "",
           MONGO_URL: mongoEnv(configs),
           EMAIL_VERIFIER_ENDPOINT:
             configs.email_verifier_endpoint ||
@@ -254,9 +254,6 @@ const up = async (uis) => {
           PORT: "80",
           LOAD_BALANCER_ADDRESS: "http://gateway",
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          MAIN_APP_DOMAIN: configs.main_app_domain,
-          API_DOMAIN: "http://plugin_core_api",
-          WIDGETS_DOMAIN: widgets_domain,
           CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
           MONGO_URL: mongoEnv(configs),
           ...commonEnvs(configs),
@@ -309,7 +306,7 @@ const up = async (uis) => {
       environment: {
         PORT: "3200",
         ROOT_URL: widgets_domain,
-        API_URL: main_api_domain,
+        API_URL: gateway_url,
         API_SUBSCRIPTIONS_URL: subscription_url,
       },
       ports: ["3200:3200"],
@@ -335,7 +332,7 @@ const up = async (uis) => {
       image: "erxes/erxes-dashboard-front:develop",
       ports: ["4200:80"],
       environment: {
-        REACT_APP_API_URL: main_api_domain,
+        REACT_APP_API_URL: gateway_url,
         REACT_APP_API_SUBSCRIPTION_URL: subscription_url,
         REACT_APP_DASHBOARD_API_URL: `https://${NGINX_HOST}/dashboard/api`,
         REACT_APP_DASHBOARD_API_TOKEN: configs.dashboard.api_token,

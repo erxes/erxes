@@ -36,7 +36,7 @@ const configQueries = {
       releaseInfo: {},
     };
 
-    const erxesDomain = getEnv({ name: "MAIN_APP_DOMAIN" });
+    const erxesDomain = getEnv({ name: "DOMAIN" });
 
     const erxesVersion = await sendRequest({
       url: `${erxesDomain}/version.json`,
