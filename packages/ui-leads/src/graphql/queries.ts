@@ -106,10 +106,28 @@ const forms = `
   }
 `;
 
+const emailTemplates = `
+  query emailTemplates($page: Int, $perPage: Int) {
+    emailTemplates(page: $page, perPage: $perPage) {
+      _id
+      name
+      content
+    }
+  }
+`;
+
+const templateTotalCount = `
+  query emailTemplatesTotalCount {
+    emailTemplatesTotalCount
+  }
+`;
+
 export default {
   integrations,
   integrationDetail,
   integrationsTotalCount,
   tags,
-  forms
+  forms,
+  emailTemplates,
+  templateTotalCount,
 };

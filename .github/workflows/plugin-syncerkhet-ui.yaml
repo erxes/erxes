@@ -24,7 +24,8 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          # cp -r packages/ui-plugin-template/.erxes packages/plugin-syncerkhet-ui/.erxes
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-syncerkhet-ui/.erxes
+          cp -r packages/plugin-syncerkhet-ui/src packages/plugin-syncerkhet-ui/.erxes/plugin-src
           cd packages/plugin-syncerkhet-ui
           yarn install-deps
           yarn build

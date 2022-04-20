@@ -1,17 +1,17 @@
-import Box from '../../components/Box';
-import EmptyState from '../../components/EmptyState';
-import Icon from '../../components/Icon';
-import ModalTrigger from '../../components/ModalTrigger';
-import Spinner from '../../components/Spinner';
-import { ButtonRelated } from '../../styles/main';
-import { __, renderFullName } from '../../utils';
-import GetConformity from '@erxes/ui-cards/src/conformity/containers/GetConformity';
-import { SectionBodyItem } from '../../layout/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import CustomerChooser from '../containers/CustomerChooser';
-import { queries } from '../graphql';
-import { ICustomer } from '../types';
+import Box from "../../components/Box";
+import EmptyState from "../../components/EmptyState";
+import Icon from "../../components/Icon";
+import ModalTrigger from "../../components/ModalTrigger";
+import Spinner from "../../components/Spinner";
+import { ButtonRelated } from "../../styles/main";
+import { __, renderFullName } from "../../utils";
+import GetConformity from "@erxes/ui-cards/src/conformity/containers/GetConformity";
+import { SectionBodyItem } from "../../layout/styles";
+import React from "react";
+import { Link } from "react-router-dom";
+import CustomerChooser from "../containers/CustomerChooser";
+import { queries } from "../graphql";
+import { ICustomer } from "../types";
 
 export type Props = {
   name: string;
@@ -26,11 +26,11 @@ export type Props = {
 function Component({
   name,
   items = [],
-  mainType = '',
-  mainTypeId = '',
+  mainType = "",
+  mainTypeId = "",
   onSelect,
   actionSection,
-  title = ''
+  title = "",
 }: Props) {
   const renderRelatedCustomerChooser = props => {
     return (
@@ -44,7 +44,7 @@ function Component({
 
   const relCustomerTrigger = (
     <ButtonRelated>
-      <span>{__('See related customers..')}</span>
+      <span>{__("See related customers..")}</span>
     </ButtonRelated>
   );
 
@@ -113,7 +113,7 @@ function Component({
 
   return (
     <Box
-      title={__(`${title || 'Customers'}`)}
+      title={__(`${title || "Customers"}`)}
       extraButtons={extraButtons}
       isOpen={true}
       name="showCustomers"
@@ -130,13 +130,15 @@ export type ICustomerSectionProps = {
   customers?: ICustomer[];
   onSelect?: (datas: ICustomer[]) => void;
   actionSection?: any;
+  relType?: string;
+  title?: string;
 };
 
 export default (props: ICustomerSectionProps) => {
   return (
     <GetConformity
       {...props}
-      relType="customer"
+      relType={props.relType || "customer"}
       component={Component}
       queryName="customers"
       itemsQuery={queries.customers}

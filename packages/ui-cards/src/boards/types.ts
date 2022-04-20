@@ -215,6 +215,12 @@ export interface IDragResult {
   itemId?: string;
 }
 
+export interface IDragStart {
+  type: string;
+  source: Position;
+  draggableId?: string;
+  itemId?: string;
+}
 export interface IStageMap {
   [key: string]: IStage;
 }

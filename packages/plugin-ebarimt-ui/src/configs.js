@@ -18,7 +18,7 @@ module.exports = {
       url: "/put-responses",
       icon: "icon-lamp",
       location: "mainNavigation",
-      permission: "syncEbarimtConfig",
+      permission: "managePutResponses",
     },
     {
       text: "Ebarimt config",
@@ -27,7 +27,7 @@ module.exports = {
       location: "settings",
       scope: "ebarimt",
       action: "syncEbarimtConfig",
-      permissions: [],
+      permission: "syncEbarimtConfig",
     },
   ],
   layout: {

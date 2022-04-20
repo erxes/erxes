@@ -1,4 +1,4 @@
-import { queries as productQueries } from '@erxes/ui-products/src/graphql';
+import { queries as productQueries } from "@erxes/ui-products/src/graphql";
 
 export const productTemplateFields = `
     _id
@@ -60,6 +60,12 @@ const productTemplateCountByTags = `
   }
 `;
 
+const emailTemplateTotalCount = `
+  query emailTemplatesTotalCount {
+    emailTemplatesTotalCount
+  }
+`;
+
 const productCategories = productQueries.productCategories;
 const products = productQueries.products;
 
@@ -69,5 +75,6 @@ export default {
   productTemplateDetail,
   productTemplateCountByTags,
   productCategories,
-  products
+  products,
+  emailTemplateTotalCount,
 };

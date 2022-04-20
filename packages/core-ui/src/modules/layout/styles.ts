@@ -377,7 +377,6 @@ const SubNav = styledTS<{ navCollapse: number }>(styled.ul)`
 
 const SubNavItem = styledTS<{ additional: boolean }>(styled.li)`
   display: flex;
-  width: 100%;
   flex: 1;
 
     > a {
@@ -393,6 +392,7 @@ const SubNavItem = styledTS<{ additional: boolean }>(styled.li)`
         props.additional && dimensions.unitSpacing - 5}px;
       border-bottom-right-radius: ${(props) =>
         props.additional && dimensions.unitSpacing - 5}px;
+      width: 100%;
 
       > i {
         font-size: 16px;

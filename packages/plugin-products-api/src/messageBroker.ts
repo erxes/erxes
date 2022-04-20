@@ -7,7 +7,7 @@ let client;
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeRPCQueue } = client;
+  const { consumeRPCQueue, consumeQueue } = client;
 
   consumeRPCQueue("products:findOne", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -145,7 +145,7 @@ export const initBroker = async cl => {
     }
   );
 
-  consumeRPCQueue(
+  consumeQueue(
     "products:update",
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);

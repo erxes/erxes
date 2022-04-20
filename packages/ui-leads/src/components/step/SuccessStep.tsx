@@ -4,13 +4,16 @@ import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { LeftItem } from "@erxes/ui/src/components/step/styles";
 import EditorCK from "@erxes/ui/src/containers/EditorCK";
 import { readFile, uploadHandler, __ } from "@erxes/ui/src/utils";
-import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
+import { generateEmailTemplateParams } from "@erxes/ui-engage/src/utils";
 import { ILeadData } from "../../types";
-import { IEmailTemplate } from "@erxes/ui-settings/src/emailTemplates/types";
 import { FORM_SUCCESS_ACTIONS } from "@erxes/ui/src/constants/integrations";
 import React from "react";
-import Select from 'react-select-plus';
-import { FlexItem, ImagePreview, ImageUpload } from "@erxes/ui/src/components/step/style";
+import Select from "react-select-plus";
+import {
+  FlexItem,
+  ImagePreview,
+  ImageUpload,
+} from "@erxes/ui/src/components/step/style";
 import Uploader from "@erxes/ui/src/components/Uploader";
 import Button from "@erxes/ui/src/components/Button";
 import Icon from "@erxes/ui/src/components/Icon";
@@ -44,7 +47,7 @@ type Props = {
   onChange: (name: Name, value: any) => void;
   leadData?: ILeadData;
   formId?: string;
-  emailTemplates: IEmailTemplate[];
+  emailTemplates: any[] /*change type*/;
   successImage?: string;
   successPreviewStyle?: { opacity?: string };
   successImageSize?: string;
@@ -170,7 +173,6 @@ class SuccessStep extends React.Component<Props, State> {
             onChange={fromEmailOnChange}
           />
         </FormGroup>
-
         <FormGroup>
           <label>Subject Line</label>
           <FormControl
@@ -180,8 +182,8 @@ class SuccessStep extends React.Component<Props, State> {
             onChange={userEmailTitle}
           />
         </FormGroup>
-
-        ${isEnabled("engages") && 
+        $
+        {isEnabled("engages") && (
           <FormGroup>
             <label>Email templates:</label>
             <p>{__("Insert email template to content")}</p>
@@ -193,8 +195,7 @@ class SuccessStep extends React.Component<Props, State> {
               clearable={false}
             />
           </FormGroup>
-        }
-        
+        )}
         <FormGroup>
           <label>Message</label>
           <EditorCK
@@ -204,7 +205,6 @@ class SuccessStep extends React.Component<Props, State> {
             name={`lead_user_email_${editorSubName}`}
           />
         </FormGroup>
-
         <FormGroup>
           <ControlLabel>Attachments: </ControlLabel>
           <Uploader
@@ -212,11 +212,9 @@ class SuccessStep extends React.Component<Props, State> {
             onChange={this.onChangeAttachment}
           />
         </FormGroup>
-
         <FormGroup>
           <ControlLabel>Get email notifications for new responses</ControlLabel>
         </FormGroup>
-
         <FormGroup>
           <label>Admin emails</label>
           <FormControl
@@ -228,7 +226,6 @@ class SuccessStep extends React.Component<Props, State> {
             onChange={adminEmails}
           />
         </FormGroup>
-
         <FormGroup>
           <label>Subject Line</label>
           <FormControl
@@ -238,7 +235,6 @@ class SuccessStep extends React.Component<Props, State> {
             onChange={adminEmailTitle}
           />
         </FormGroup>
-
         <FormGroup>
           <label>Message</label>
           <EditorCK

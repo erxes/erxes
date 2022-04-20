@@ -104,50 +104,45 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
   return true;
 };
 
-export const trackEngages = expressApp => {
-  expressApp.post(
-    `/service/engage/tracker`,
-    routeErrorHandling(async (req, res) => {
-      const chunks: any = [];
+// aws service middleware
+export const engageTracker = async (req, res) => {
+  const chunks: any = [];
 
-      const { subdomain } = req.body;
+  req.setEncoding('utf8');
+  
+  req.on('data', chunk => {
+    chunks.push(chunk);
+  });
 
-      const models = await generateModels(subdomain);
+  req.on('end', async () => {
+    const message = JSON.parse(chunks.join(''));
 
-      req.setEncoding('utf8');
+    debugBase(`receiving on tracker: ${message}`);
 
-      req.on('data', chunk => {
-        chunks.push(chunk);
-      });
+    const subdomain = req.hostname.split('.')[0];
+    const models = await generateModels(subdomain);
 
-      req.on('end', async () => {
-        const message = JSON.parse(chunks.join(''));
+    const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
 
-        debugBase(`receiving on tracker: ${message}`);
+    if (Type === 'SubscriptionConfirmation') {
+      await getApi(models, 'sns').then(api =>
+        api.confirmSubscription({ Token, TopicArn }).promise()
+      );
 
-        const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
+      return res.end('success');
+    }
 
-        if (Type === 'SubscriptionConfirmation') {
-          await getApi(models, 'sns').then(api =>
-            api.confirmSubscription({ Token, TopicArn }).promise()
-          );
+    if (
+      Message ===
+      'Successfully validated SNS topic for Amazon SES event publishing.'
+    ) {
+      res.end('success');
+    }
 
-          return res.end('success');
-        }
+    await handleMessage(models, subdomain, Message);
 
-        if (
-          Message ===
-          'Successfully validated SNS topic for Amazon SES event publishing.'
-        ) {
-          res.end('success');
-        }
-
-        await handleMessage(models, subdomain, Message);
-
-        return res.end('success');
-      });
-    })
-  );
+    return res.end('success');
+  });
 };
 
 export const awsRequests = {

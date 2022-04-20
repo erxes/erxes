@@ -8,6 +8,7 @@ import { getCardItem } from './utils';
 import { notifiedUserIds } from './graphql/utils';
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { publishHelper } from './graphql/resolvers/mutations/utils';
 
 let client;
 
@@ -252,6 +253,34 @@ export const initBroker = async cl => {
           data
         }
       });
+
+      return {
+        status: 'success',
+      };
+    }
+  );
+
+  consumeQueue(
+    'cards:publishHelperItems',
+    async ({ subdomain, data: { addedTypeIds, removedTypeIds, doc } }) => {
+      const targetTypes = ['deal', 'task', 'ticket'];
+      const targetRelTypes = ['company', 'customer'];
+  
+      if (
+        targetTypes.includes(doc.mainType) &&
+        targetRelTypes.includes(doc.relType)
+      ) {
+        await publishHelper(subdomain, doc.mainType, doc.mainTypeId);
+      }
+  
+      if (
+        targetTypes.includes(doc.relType) &&
+        targetRelTypes.includes(doc.mainType)
+      ) {
+        for (const typeId of addedTypeIds.concat(removedTypeIds)) {
+          await publishHelper(subdomain, doc.relType, typeId);
+        }
+      }
 
       return {
         status: 'success',

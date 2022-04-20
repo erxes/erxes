@@ -1,4 +1,3 @@
-import { IContext } from './connectionResolver';
 import { sendCommonMessage } from './messageBroker';
 
 export const countDocuments = async (
@@ -40,5 +39,33 @@ export const tagObject = async (
       action: "tagObject"
     },
     isRPC: true
+  });
+};
+
+export const fixRelatedItems = async ({
+  subdomain,
+  type,
+  sourceId,
+  destId,
+  action
+}:{
+  subdomain: string,
+  type: string,
+  sourceId: string,
+  destId?: string,
+  action: string
+}) => {
+  const [serviceName, contentType] = type.split(':');
+
+  sendCommonMessage({
+    subdomain,
+    serviceName,
+    action: 'fixRelatedItems',
+    data: {
+      sourceId,
+      destId,
+      type: contentType,
+      action
+    }
   });
 };

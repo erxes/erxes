@@ -7,6 +7,6 @@ const loyaltyConfigQueries = {
   },
 };
 
-checkPermission(loyaltyConfigQueries, 'loyaltyConfigs', 'manageLoyalties', []);
+checkPermission(loyaltyConfigQueries, 'loyaltyConfigs', 'manageLoyalties');
 
 export default loyaltyConfigQueries;

@@ -21,14 +21,15 @@ dump
 gitinfo.json
 ecosystem.config.js
 nginx.conf
-private
-!private/emailTemplates
-/plugins
+src/private/xlsTemplateOutputs
+src/private/uploads
 engages-email-sender/src/__tests__/coverage/
 widgets/static
 *.js.map
 tsconfig.tsbuildinfo
-packages/plugin*api/.erxes
+packages/plugin*/.erxes
+packages/core-ui/public/js/
 /api/src/__tests__/coverage
 
 /enabled-services.js
+permissions.json

@@ -19,11 +19,7 @@
     "stream-array": "^1.1.2",
     "ts-node": "^10.4.0",
     "xlsx-populate": "^1.20.1",
-    "xlsx-stream-reader": "^1.1.1",
-    "apollo-datasource-rest": "^0.5.1",
-    "node-schedule": "^1.2.5",
     "cookie-parser": "^1.4.6",
-    "erxes-api-utils": "^0.0.34",
     "validator": "^9.0.0"
   }
 }

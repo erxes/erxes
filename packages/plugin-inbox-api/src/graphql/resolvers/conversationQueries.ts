@@ -253,7 +253,7 @@ const conversationQueries = {
       action: 'fieldsGroups.findOne',
       data: {
         query: {
-          contentType: 'customer',
+          contentType: 'contacts:customer',
           isDefinedByErxes: true
         }
       },
@@ -261,17 +261,17 @@ const conversationQueries = {
     });
 
     if (customerGroup) {
-       response.customer = (await sendFormsMessage({
-         subdomain,
-         action: 'fields.find',
-         data: {
-           query: {
-             groupId: customerGroup._id
-           }
-         },
-         isRPC: true,
-         defaultValue: []
-       }));
+      response.customer = await sendFormsMessage({
+        subdomain,
+        action: 'fields.find',
+        data: {
+          query: {
+            groupId: customerGroup._id
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
     }
 
     const conversationGroup = await sendFormsMessage({
@@ -279,26 +279,25 @@ const conversationQueries = {
       action: 'fieldsGroups.findOne',
       data: {
         query: {
-          contentType: 'conversation',
+          contentType: 'inbox:conversation',
           isDefinedByErxes: true
         }
       },
-      isRPC: true,
+      isRPC: true
     });
 
     if (conversationGroup) {
-
-       response.conversation = await sendFormsMessage({
-         subdomain,
-         action: 'fields.find',
-         data: {
-           query: {
-             groupId: conversationGroup._id
-           }
-         },
-         isRPC: true,
-         defaultValue: []
-       });
+      response.conversation = await sendFormsMessage({
+        subdomain,
+        action: 'fields.find',
+        data: {
+          query: {
+            groupId: conversationGroup._id
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
     }
     
     const deviceGroup = await sendFormsMessage({
@@ -306,7 +305,7 @@ const conversationQueries = {
       action: 'fieldsGroups.findOne',
       data: {
         query: {
-          contentType: 'device',
+          contentType: 'contacts:device',
           isDefinedByErxes: true
         }
       },
@@ -314,22 +313,20 @@ const conversationQueries = {
     });
 
     if (deviceGroup) {
-       response.device = await sendFormsMessage({
-         subdomain,
-         action: 'fields.find',
-         data: {
-           query: {
-             groupId: deviceGroup._id
-           }
-         },
-         isRPC: true,
-         defaultValue: []
-       });
-      
+      response.device = await sendFormsMessage({
+        subdomain,
+        action: 'fields.find',
+        data: {
+          query: {
+            groupId: deviceGroup._id
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
     }
 
     return response;
-
   },
 
   /**
@@ -350,8 +347,8 @@ const conversationQueries = {
 
 };
 
-moduleRequireLogin(conversationQueries);
+// moduleRequireLogin(conversationQueries);
 
-checkPermission(conversationQueries, 'conversations', 'showConversations', []);
+// checkPermission(conversationQueries, 'conversations', 'showConversations', []);
 
 export default conversationQueries;

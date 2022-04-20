@@ -1,38 +1,37 @@
-import { Link } from 'react-router-dom';
-import React, { useState } from 'react';
+import { Link } from "react-router-dom";
+import React, { useState } from "react";
 import {
   ControlWrapper,
   Indicator,
-  StepWrapper
-} from '@erxes/ui/src/components/step/styles';
-import Button from '@erxes/ui/src/components/Button';
-import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
+  StepWrapper,
+} from "@erxes/ui/src/components/step/styles";
+import Button from "@erxes/ui/src/components/Button";
+import { SmallLoader } from "@erxes/ui/src/components/ButtonMutate";
 import {
   Content,
-  LeftContent
-} from '@erxes/ui-settings/src/integrations/styles';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { Alert, __ } from 'coreui/utils';
-import { IBookingIntegration, IBooking } from '../types';
+  LeftContent,
+} from "@erxes/ui-settings/src/integrations/styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { Alert, __ } from "coreui/utils";
+import { IBookingIntegration, IBooking } from "../types";
 import {
   IStyle,
-  IBookingData
-} from '@erxes/ui-settings/src/integrations/types';
-import { Steps, Step } from '@erxes/ui/src/components/step';
-import StyleStep from './steps/StyleStep';
-import ContentStep from './steps/ContentStep';
-import SettingsStep from './steps/SettingsStep';
-import FormStep from './steps/FormStep';
-import SuccessStep from '@erxes/ui-leads/src/components/step/SuccessStep';
-import { IField } from '@erxes/ui/src/types';
-import { PreviewWrapper } from '@erxes/ui/src/components/step/style';
-import FullPreview from '@erxes/ui/src/components/step/FullPreview';
-import { colors } from '@erxes/ui/src/styles';
-import { IForm, IFormData } from '@erxes/ui-forms/src/forms/types';
-import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
-import { ILeadData } from '@erxes/ui-leads/src/types';
-import { IAttachment } from '@erxes/ui/src/types';
-import { IConfig } from '@erxes/ui-settings/src/general/types';
+  IBookingData,
+} from "@erxes/ui-settings/src/integrations/types";
+import { Steps, Step } from "@erxes/ui/src/components/step";
+import StyleStep from "./steps/StyleStep";
+import ContentStep from "./steps/ContentStep";
+import SettingsStep from "./steps/SettingsStep";
+import FormStep from "./steps/FormStep";
+import SuccessStep from "@erxes/ui-leads/src/components/step/SuccessStep";
+import { IField } from "@erxes/ui/src/types";
+import { PreviewWrapper } from "@erxes/ui/src/components/step/style";
+import FullPreview from "@erxes/ui/src/components/step/FullPreview";
+import { colors } from "@erxes/ui/src/styles";
+import { IForm, IFormData } from "@erxes/ui-forms/src/forms/types";
+import { ILeadData } from "@erxes/ui-leads/src/types";
+import { IAttachment } from "@erxes/ui/src/types";
+import { IConfig } from "@erxes/ui-settings/src/general/types";
 
 type Props = {
   integration?: IBookingIntegration;
@@ -50,7 +49,7 @@ type Props = {
   isActionLoading?: boolean;
   afterFormDbSave: (formId: string) => void;
   isReadyToSaveForm: boolean;
-  emailTemplates?: IEmailTemplate[];
+  emailTemplates?: any[] /*change type*/;
   productFields: IField[];
 };
 
@@ -87,7 +86,7 @@ function Booking(props: Props) {
     isReadyToSaveForm,
     emailTemplates,
     productFields,
-    configs
+    configs,
   } = props;
 
   const integration = props.integration || ({} as IBookingIntegration);
@@ -98,80 +97,80 @@ function Booking(props: Props) {
   const leadData = integration.leadData || ({} as ILeadData);
 
   const [state, setState] = useState<State>({
-    title: integration.name || '',
-    brandId: integration.brandId || '',
-    channelIds: channels.map(item => item._id) || [],
-    languageCode: integration.languageCode || 'en',
-    formId: integration.formId || '',
+    title: integration.name || "",
+    brandId: integration.brandId || "",
+    channelIds: channels.map((item) => item._id) || [],
+    languageCode: integration.languageCode || "en",
+    formId: integration.formId || "",
 
     formData: {
-      title: form.title || 'Form Title',
-      description: form.description || '',
-      buttonText: form.buttonText || 'Send',
+      title: form.title || "Form Title",
+      description: form.description || "",
+      buttonText: form.buttonText || "Send",
       fields: [],
-      type: form.type || '',
-      numberOfPages: form.numberOfPages || 1
+      type: form.type || "",
+      numberOfPages: form.numberOfPages || 1,
     },
 
-    successAction: leadData.successAction || '',
-    fromEmail: leadData.fromEmail || '',
-    userEmailTitle: leadData.userEmailTitle || '',
-    userEmailContent: leadData.userEmailContent || '',
+    successAction: leadData.successAction || "",
+    fromEmail: leadData.fromEmail || "",
+    userEmailTitle: leadData.userEmailTitle || "",
+    userEmailContent: leadData.userEmailContent || "",
     adminEmails: leadData.adminEmails || [],
-    adminEmailTitle: leadData.adminEmailTitle || '',
-    adminEmailContent: leadData.adminEmailContent || '',
-    thankTitle: leadData.thankTitle || 'Confirmation',
-    thankContent: leadData.thankContent || 'Thank you.',
+    adminEmailTitle: leadData.adminEmailTitle || "",
+    adminEmailContent: leadData.adminEmailContent || "",
+    thankTitle: leadData.thankTitle || "Confirmation",
+    thankContent: leadData.thankContent || "Thank you.",
     attachments: leadData.attachments || [],
-    redirectUrl: leadData.redirectUrl || '',
-    successImage: leadData.successImage || '',
-    successImageSize: leadData.successImageSize || '',
-    loadType: 'popup',
+    redirectUrl: leadData.redirectUrl || "",
+    successImage: leadData.successImage || "",
+    successImageSize: leadData.successImageSize || "",
+    loadType: "popup",
 
-    carousel: 'form'
+    carousel: "form",
   });
 
   const [booking, setBooking] = useState<IBooking>({
-    name: bookingData.name || '',
-    description: bookingData.description || '',
+    name: bookingData.name || "",
+    description: bookingData.description || "",
     image: bookingData.image,
     userFilters: bookingData.userFilters || [],
-    productCategoryId: bookingData.productCategoryId || '',
-    navigationText: bookingData.navigationText || '',
-    bookingFormText: bookingData.bookingFormText || 'Book product',
-    itemShape: bookingStyle.itemShape || '',
+    productCategoryId: bookingData.productCategoryId || "",
+    navigationText: bookingData.navigationText || "",
+    bookingFormText: bookingData.bookingFormText || "Book product",
+    itemShape: bookingStyle.itemShape || "",
     widgetColor: bookingStyle.widgetColor || colors.colorPrimary,
     productAvailable: bookingStyle.productAvailable || colors.colorPrimary,
-    line: bookingStyle.line || '',
+    line: bookingStyle.line || "",
     columns: bookingStyle.columns || 2,
     rows: bookingStyle.rows || 1,
     margin: bookingStyle.margin || 15,
-    baseFont: bookingStyle.baseFont || '',
+    baseFont: bookingStyle.baseFont || "",
 
-    productFieldIds: bookingData.productFieldIds || []
+    productFieldIds: bookingData.productFieldIds || [],
   });
 
-  const breadcrumb = [{ title: __('Bookings'), link: '/bookings' }];
+  const breadcrumb = [{ title: __("Bookings"), link: "/bookings" }];
 
   const handleSubmit = () => {
     if (!booking.name) {
-      return Alert.error('Enter a booking name');
+      return Alert.error("Enter a booking name");
     }
 
     if (!booking.description) {
-      return Alert.error('Enter a booking description');
+      return Alert.error("Enter a booking description");
     }
 
     if (!state.brandId) {
-      return Alert.error('Choose a brand');
+      return Alert.error("Choose a brand");
     }
 
     if (!state.title) {
-      return Alert.error('Enter a title');
+      return Alert.error("Enter a title");
     }
 
     if (!booking.productCategoryId) {
-      return Alert.error('Choose main product category');
+      return Alert.error("Choose main product category");
     }
 
     const doc = {
@@ -193,9 +192,9 @@ function Booking(props: Props) {
         thankContent: state.thankContent,
         attachments: state.attachments,
         redirectUrl: state.redirectUrl,
-        loadType: 'popup',
+        loadType: "popup",
         successImage: state.successImage,
-        successImageSize: state.successImageSize
+        successImageSize: state.successImageSize,
       },
 
       bookingData: {
@@ -215,9 +214,9 @@ function Booking(props: Props) {
           rows: Number(booking.rows),
           columns: Number(booking.columns),
           margin: Number(booking.margin),
-          baseFont: booking.baseFont
-        }
-      }
+          baseFont: booking.baseFont,
+        },
+      },
     };
 
     save(doc);
@@ -226,18 +225,18 @@ function Booking(props: Props) {
   const onChange = (key: string, value: any) => {
     setState({
       ...state,
-      [key]: value
+      [key]: value,
     });
   };
 
   const onChangeBooking = (key: string, value: any) => {
     setBooking({
       ...booking,
-      [key]: value
+      [key]: value,
     });
   };
 
-  const onFormDocChange = formData => {
+  const onFormDocChange = (formData) => {
     setState({ ...state, formData });
   };
 
@@ -250,8 +249,8 @@ function Booking(props: Props) {
 
   const renderButtons = () => {
     const cancelButton = (
-      <Link to='/bookings'>
-        <Button btnStyle='simple' icon='times-circle'>
+      <Link to="/bookings">
+        <Button btnStyle="simple" icon="times-circle">
           Cancel
         </Button>
       </Link>
@@ -263,8 +262,8 @@ function Booking(props: Props) {
 
         <Button
           disabled={false}
-          btnStyle='success'
-          icon={'check-circle'}
+          btnStyle="success"
+          icon={"check-circle"}
           onClick={handleSubmit}
         >
           {isActionLoading ? <SmallLoader /> : null}
@@ -274,14 +273,14 @@ function Booking(props: Props) {
     );
   };
 
-  const onStepClick = currentStepNumber => {
-    let carousel = 'form';
+  const onStepClick = (currentStepNumber) => {
+    let carousel = "form";
     switch (currentStepNumber) {
       case 4:
-        carousel = 'form';
+        carousel = "form";
         break;
       case 5:
-        carousel = 'success';
+        carousel = "success";
         break;
     }
     return setState({ ...state, carousel });
@@ -289,11 +288,11 @@ function Booking(props: Props) {
 
   return (
     <StepWrapper>
-      <Wrapper.Header title={__('Booking')} breadcrumb={breadcrumb} />
+      <Wrapper.Header title={__("Booking")} breadcrumb={breadcrumb} />
       <Content>
         <LeftContent>
           <Steps>
-            <Step img='/images/icons/erxes-04.svg' title='Style'>
+            <Step img="/images/icons/erxes-04.svg" title="Style">
               <StyleStep
                 onChangeBooking={onChangeBooking}
                 itemShape={booking.itemShape}
@@ -303,7 +302,7 @@ function Booking(props: Props) {
               />
             </Step>
 
-            <Step img='/images/icons/erxes-09.svg' title='Content'>
+            <Step img="/images/icons/erxes-09.svg" title="Content">
               <ContentStep
                 onChangeBooking={onChangeBooking}
                 name={booking.name}
@@ -322,7 +321,7 @@ function Booking(props: Props) {
               />
             </Step>
 
-            <Step img='/images/icons/erxes-01.svg' title='Settings'>
+            <Step img="/images/icons/erxes-01.svg" title="Settings">
               <SettingsStep
                 onChange={onChange}
                 title={state.title}
@@ -333,12 +332,12 @@ function Booking(props: Props) {
             </Step>
 
             <Step
-              img='/images/icons/erxes-02.svg'
-              title='Form'
+              img="/images/icons/erxes-02.svg"
+              title="Form"
               onClick={onStepClick}
             >
               <FormStep
-                theme={booking.widgetColor || ''}
+                theme={booking.widgetColor || ""}
                 afterDbSave={afterFormDbSave}
                 formData={state.formData}
                 isReadyToSaveForm={isReadyToSaveForm}
@@ -349,8 +348,8 @@ function Booking(props: Props) {
             </Step>
 
             <Step
-              img='/images/icons/erxes-13.svg'
-              title='Confirmation'
+              img="/images/icons/erxes-13.svg"
+              title="Confirmation"
               onClick={onStepClick}
               noButton={true}
             >
@@ -360,7 +359,7 @@ function Booking(props: Props) {
                 thankContent={state.thankContent}
                 type={state.loadType}
                 color={booking.widgetColor}
-                theme={booking.widgetColor || ''}
+                theme={booking.widgetColor || ""}
                 successAction={state.successAction}
                 leadData={leadData}
                 formId={integration.formId}
@@ -372,8 +371,8 @@ function Booking(props: Props) {
           </Steps>
           <ControlWrapper>
             <Indicator>
-              {__('You are')} {booking ? 'editing' : 'creating'}{' '}
-              <strong>{booking.name}</strong> {__('form')}
+              {__("You are")} {booking ? "editing" : "creating"}{" "}
+              <strong>{booking.name}</strong> {__("form")}
             </Indicator>
             {renderButtons()}
           </ControlWrapper>
