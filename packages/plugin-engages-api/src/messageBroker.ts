@@ -21,7 +21,7 @@ export const initBroker = async (cl) => {
       engageMessage.kind === CAMPAIGN_KINDS.MANUAL &&
       customerInfos.length === 0
     ) {
-      await models.EngageMessages.deleteOne({ _id: engageMessage._id });
+      await models.Logs.createLog(engageMessage._id, 'failure', 'No customers found');
       throw new Error('No customers found');
     }
 
