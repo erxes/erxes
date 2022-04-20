@@ -200,9 +200,7 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
     display: flex;
     color: ${colors.bgLight}
     height: ${(props) =>
-      props.isMoreItem
-        ? dimensions.headerSpacingWide
-        : props.navCollapse === 2
+      props.isMoreItem || props.navCollapse === 2
         ? dimensions.headerSpacingWide
         : dimensions.headerSpacing}px;
     flex-direction: ${(props) =>
@@ -251,9 +249,7 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
       white-space: nowrap;
       margin-left:  ${(props) =>
         props.navCollapse === 3
-          ? props.isMoreItem
-            ? 0
-            : dimensions.unitSpacing
+          ? !props.isMoreItem && dimensions.unitSpacing
           : 0}px;
     }
 
@@ -334,6 +330,23 @@ const NavIcon = styled.i`
   color: ${colors.colorBlack};
 `;
 
+const RoundBox = styledTS<{ pinned?: boolean }>(styled.div)`
+  background: ${(props) =>
+    props.pinned ? colors.colorSecondary : colors.colorWhite};
+  border-radius: 50%;
+  border: 1px solid ${colors.borderPrimary};
+  width: 25px;
+  height: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  color: ${(props) => props.pinned && colors.colorWhite};
+  transition: all 0.3s ease;
+`;
+
 const SubNav = styledTS<{ navCollapse: number }>(styled.ul)`
   background: ${colors.colorWhite};
   position: absolute;
@@ -355,24 +368,6 @@ const SubNav = styledTS<{ navCollapse: number }>(styled.ul)`
   border-radius: 5px;
   padding: ${dimensions.unitSpacing}px;
   visibility: hidden;
-  // &:after {
-  //   content: " ";
-  //   border: solid transparent;
-  //   height: 0;
-  //   width: 0;
-  //   position: absolute;
-  //   pointer-events: none;
-  //   border-width: ${dimensions.unitSpacing}px;
-  //   top: ${dimensions.coreSpacing}px;
-  //   left: -${dimensions.coreSpacing}px;
-  //   z-index: 10000;
-  //   border-right-color: ${colors.colorWhite};
-  //   box-shadow: transparent;
-
-  //   @media (max-height: 760px) {
-  //     top: ${dimensions.coreSpacing - 5}px;
-  //   }
-  // }
 `;
 
 const SubNavItem = styledTS<{ additional: boolean }>(styled.li)`
@@ -425,6 +420,14 @@ const NavItem = styledTS<{ isMoreItem?: boolean }>(styled.div)`
   cursor : pointer;
 
   &:hover {
+    
+    ${RoundBox} {
+      background: ${(props) => props.isMoreItem && colors.colorSecondary};
+      i {
+        color: ${(props) => props.isMoreItem && colors.colorWhite};
+      }
+    }
+
     ${SubNav} {
       visibility: visible;
     }
@@ -611,11 +614,6 @@ const DropSubNavItem = styled.li`
       position: relative;
       background: ${rgba(colors.colorBlack, 0.07)};
     }
-
-    &:hover {
-      background: ${rgba(colors.colorBlack, 0.06)};
-      opacity: 1;
-    }
   }
 `;
 
@@ -624,34 +622,6 @@ const Center = styled.div`
   justify-content: center;
   align-items: center;
   text-align: center;
-`;
-
-const RoundBox = styledTS<{ pinned?: boolean }>(styled.div)`
-  background: ${(props) =>
-    props.pinned ? colors.colorSecondary : colors.colorWhite};
-  border-radius: 50%;
-  border: 1px solid ${colors.borderPrimary};
-  width: 25px;
-  height: 25px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  right: -10px;
-  top: -10px;
-  color: ${(props) => props.pinned && colors.colorWhite};
-
-  i {
-    color: ${(props) => props.pinned ? colors.colorWhite : colors.colorBlack};
-  }
-
-  &:hover {
-    background: ${(props) =>
-      props.pinned ? colors.colorWhite : colors.colorSecondary};
-    i {
-      color: ${(props) => !props.pinned ? colors.colorWhite : colors.colorBlack};
-    }
-  }
 `;
 
 export {
