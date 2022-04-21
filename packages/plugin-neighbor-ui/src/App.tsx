@@ -5,12 +5,13 @@ import { AppProvider } from "@erxes/ui/src/appContext";
 import { dummyUser } from "@erxes/ui/src/constants/dummy-data";
 
 const App = () => {
+  console.log("wtffff");
   return (
-    // <AppProvider currentUser={dummyUser}>
-    // <PluginLayout>
-    <GeneralRoutes />
-    /* </PluginLayout>
-    </AppProvider> */
+    <AppProvider currentUser={dummyUser}>
+      <PluginLayout>
+        <GeneralRoutes />
+      </PluginLayout>
+    </AppProvider>
   );
 };
 

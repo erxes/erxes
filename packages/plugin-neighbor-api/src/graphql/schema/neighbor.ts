@@ -14,11 +14,13 @@ export const types = () => `
   type Neighbor {
     productCategoryId: String
     info: JSON
+    rate: JSON
   }
 
   input NeighborInput {
     productCategoryId: String
     info: JSON
+    rate: JSON
   }
 
   input LocationInput{
@@ -104,6 +106,7 @@ export const types = () => `
 const neighborParams = `
   productCategoryId: String
   info: JSON
+  rate: JSON
 `;
 
 const neighborItemParams = `
