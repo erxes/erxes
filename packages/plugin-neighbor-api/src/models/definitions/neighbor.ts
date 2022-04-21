@@ -33,6 +33,7 @@ const sex = {
 export interface INeighbor {
   productCategoryId: String;
   info: Object;
+  rate: Object;
 }
 
 export interface INeighborDocument extends INeighbor, Document {
@@ -42,6 +43,7 @@ export interface INeighborDocument extends INeighbor, Document {
 export const NeighborSchema = new Schema({
   productCategoryId: field({ type: String }),
   info: field({ type: Object, label: "{ typeId: [itemId1, itemId2] }" }),
+  rate: field({ type: Object }),
 });
 
 const schoolSchema = {
