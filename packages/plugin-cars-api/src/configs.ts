@@ -22,7 +22,7 @@ export default {
   graphql: async (sd) => {
     serviceDiscovery = sd;
 
-    const t = 1;
+    a
 
     return {
       typeDefs: await typeDefs(sd),
