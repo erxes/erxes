@@ -56,6 +56,7 @@ program
 
 program
   .command('update')
+  .option('--noimage', 'Skip image pull')
   .option('--uis', 'Update uis')
   .action(update);
 
