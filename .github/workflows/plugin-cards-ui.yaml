@@ -5,10 +5,10 @@ on:
     branches:
       - federation
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/ui-cards/**'
-      - 'packages/plugin-cards-ui/**'
-      - '.github/workflows/plugin-cards-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-cards/**"
+      - "packages/plugin-cards-ui/**"
+      - ".github/workflows/plugin-cards-ui.yaml"
 
 jobs:
   ui:
@@ -29,6 +29,8 @@ jobs:
           cp -r packages/plugin-cards-ui/src packages/plugin-cards-ui/.erxes/plugin-src
           cd packages/plugin-cards-ui
           yarn install-deps
+          yarn install --frozen-lockfile
+          cd .erxes
           yarn build
 
       - name: Configure AWS credentials
@@ -40,4 +42,4 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-cards-ui/.erxes/dist s3://erxes-plugins/uis/plugin-cards-ui --delete 
+          aws s3 sync packages/plugin-cards-ui/.erxes/dist s3://erxes-plugins/uis/plugin-cards-ui --delete
