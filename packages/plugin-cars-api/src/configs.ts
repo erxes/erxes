@@ -22,8 +22,6 @@ export default {
   graphql: async (sd) => {
     serviceDiscovery = sd;
 
-    a1
-
     return {
       typeDefs: await typeDefs(sd),
       resolvers: await resolvers(sd),
