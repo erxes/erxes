@@ -24,7 +24,8 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          # cp -r packages/ui-plugin-template/.erxes packages/plugin-chats-ui/.erxes
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-chats-ui/.erxes
+          cp -r packages/plugin-chats-ui/src packages/plugin-chats-ui/.erxes/plugin-src
           cd packages/plugin-chats-ui
           yarn install-deps
           yarn build

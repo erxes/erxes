@@ -5,6 +5,7 @@ import { LinkButton } from "@erxes/ui/src/styles/main";
 import { __ } from "coreui/utils";
 import React from "react";
 import { StageList } from "@erxes/ui-settings/src/boards/styles";
+import { IDepartment } from "@erxes/ui-team/src/types";
 import { IOption } from "../types";
 import StageItem from "./StageItem";
 
@@ -13,6 +14,7 @@ type Props = {
   stages: any;
   type?: string;
   options?: IOption;
+  departments: IDepartment[];
 };
 
 class Stages extends React.Component<Props, {}> {
@@ -39,6 +41,7 @@ class Stages extends React.Component<Props, {}> {
       name: "",
       visibility: "public",
       memberIds: [],
+      departmentIds: [],
       type,
     });
 
@@ -61,7 +64,7 @@ class Stages extends React.Component<Props, {}> {
   };
 
   render() {
-    const { options, type } = this.props;
+    const { options, type, departments } = this.props;
     const Item = options ? options.StageItem : StageItem;
 
     const child = stage => (
@@ -71,6 +74,7 @@ class Stages extends React.Component<Props, {}> {
         onChange={this.onChange}
         remove={this.remove}
         onKeyPress={this.onStageInputKeyPress}
+        departments={departments}
       />
     );
 

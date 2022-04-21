@@ -24,7 +24,8 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          # cp -r packages/ui-plugin-template/.erxes packages/plugin-email-templates-ui/.erxes
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-email-templates-ui/.erxes
+          cp -r packages/plugin-email-templates-ui/src packages/plugin-email-templates-ui/.erxes/plugin-src
           cd packages/plugin-email-templates-ui
           yarn install-deps
           yarn build

@@ -36,8 +36,9 @@ import {
   union,
   uploadHandler,
   urlParser,
-  withProps
-} from '@erxes/ui/src/utils';
+  withProps,
+  generateTree,
+} from "@erxes/ui/src/utils";
 
 export {
   Alert,
@@ -77,5 +78,6 @@ export {
   withProps,
   renderWithProps,
   formatValue,
-  isEmptyContent
+  isEmptyContent,
+  generateTree,
 };

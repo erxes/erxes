@@ -4,12 +4,14 @@ import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
 import { IUser } from "@erxes/ui/src/auth/types";
 import { Alert, withProps } from "@erxes/ui/src/utils";
 import { ICustomer } from "@erxes/ui/src/customers/types";
-import { AddMutationResponse, IEngageMessageDoc } from "../types";
-import { queries as templatesQuery } from "@erxes/ui-settings/src/emailTemplates/graphql";
+import {
+  AddMutationResponse,
+  EmailTemplatesQueryResponse,
+  IEngageMessageDoc,
+} from "../types";
 import React from "react";
 import { graphql } from "react-apollo";
 import { BrandsQueryResponse } from "@erxes/ui/src/brands/types";
-import { EmailTemplatesQueryResponse } from "@erxes/ui-settings/src/emailTemplates/types";
 import Widget from "../components/Widget";
 import {
   MESSAGE_KINDS,
@@ -96,17 +98,14 @@ const WidgetContainer = (props: FinalProps) => {
 
 const withQueries = withProps<Props>(
   compose(
-    graphql<Props, EmailTemplatesQueryResponse>(
-      gql(templatesQuery.emailTemplates),
-      {
-        name: "emailTemplatesQuery",
-        options: ({ totalCountQuery }) => ({
-          variables: {
-            perPage: totalCountQuery.emailTemplatesTotalCount,
-          },
-        }),
-      }
-    ),
+    graphql<Props, EmailTemplatesQueryResponse>(gql(queries.emailTemplates), {
+      name: "emailTemplatesQuery",
+      options: ({ totalCountQuery }) => ({
+        variables: {
+          perPage: totalCountQuery.emailTemplatesTotalCount,
+        },
+      }),
+    }),
     graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
       name: "brandsQuery",
     }),
@@ -122,7 +121,7 @@ const withQueries = withProps<Props>(
 
 export default withProps<Props>(
   compose(
-    graphql(gql(templatesQuery.totalCount), {
+    graphql(gql(queries.totalCount), {
       name: "totalCountQuery",
     })
   )(withQueries)

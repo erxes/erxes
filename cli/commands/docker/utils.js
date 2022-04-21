@@ -244,7 +244,7 @@ const up = async (uis) => {
         extra_hosts,
         volumes: [
           "./enabled-services.js:/data/enabled-services.js",
-          "./permissions.json:/core-api/dist/core/permissions.json"
+          "./permissions.json:/core-api/permissions.json"
         ],
         networks: ["erxes"],
       },
@@ -266,6 +266,15 @@ const up = async (uis) => {
         deploy,
         extra_hosts,
         ports: ["3300:80"],
+        networks: ["erxes"],
+      },
+      crons: {
+        image: "erxes/crons:federation",
+        environment: {
+          MONGO_URL: mongoEnv(configs),
+          ...commonEnvs(configs),
+        },
+        volumes: ["./enabled-services.js:/data/enabled-services.js"],
         networks: ["erxes"],
       },
       workers: {
@@ -469,7 +478,7 @@ const update = async (program) => {
   for (const name of pluginNames.split(",")) {
     log(`Updating image ${name}......`);
 
-    if (['dashboard', 'workers', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
+    if (['dashboard', 'workers', 'crons', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
       await execCommand(
         `docker service update erxes_${name} --image erxes/${name}:federation`
       );
@@ -515,13 +524,8 @@ const update = async (program) => {
 const restart = async (name) => {
   log(`Restarting .... ${name}`);
 
-  if (name === 'gateway') {
-    await execCommand(`docker service update --force erxes_gateway`);
-    return;
-  }
-
-  if (name === 'coreui') {
-    await execCommand(`docker service update --force erxes_coreui`);
+  if (['gateway', 'coreui', 'workers', 'crons'].includes(name)) {
+    await execCommand(`docker service update --force erxes_${name}`);
     return;
   }
 

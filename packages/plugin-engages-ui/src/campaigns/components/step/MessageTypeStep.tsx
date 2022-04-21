@@ -52,7 +52,7 @@ class MessageTypeStep extends React.Component<Props, State> {
   renderSegmentType() {
     const { messageType } = this.state;
 
-    if (messageType !== 'segment') {
+    if (messageType !== CAMPAIGN_TARGET_TYPES.SEGMENT) {
       return null;
     }
 
@@ -83,7 +83,7 @@ class MessageTypeStep extends React.Component<Props, State> {
   renderSelector() {
     const options = CAMPAIGN_TARGET_TYPES.ALL.map(opt => ({
       value: opt,
-      label: opt.charAt(0).toUpperCase() + opt.slice(1)
+      label: opt.split(':')[1]
     }));
 
     return (

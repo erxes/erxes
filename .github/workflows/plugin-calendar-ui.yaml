@@ -24,7 +24,8 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          # cp -r packages/ui-plugin-template/.erxes packages/plugin-calendar-ui/.erxes
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-calendar-ui/.erxes
+          cp -r packages/plugin-calendar-ui/src packages/plugin-calendar-ui/.erxes/plugin-src
           cd packages/plugin-calendar-ui
           yarn install-deps
           yarn build

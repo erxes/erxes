@@ -24,7 +24,8 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          # cp -r packages/ui-plugin-template/.erxes packages/plugin-knowledgebase-ui/.erxes
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-knowledgebase-ui/.erxes
+          cp -r packages/plugin-knowledgebase-ui/src packages/plugin-knowledgebase-ui/.erxes/plugin-src
           cd packages/plugin-knowledgebase-ui
           yarn install-deps
           yarn build

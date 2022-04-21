@@ -67,6 +67,7 @@ export interface IPipeline {
   createdAt: Date;
   createdUser: IUser;
   members?: any[];
+  departmentIds?: string[];
   memberIds?: string[];
   condition?: string;
   label?: string;
@@ -135,7 +136,8 @@ export interface IStage {
   formId: string;
   pipelineId: string;
   visibility: string;
-  memberIds: string;
+  memberIds: string[];
+  departmentIds: string[];
   status: string;
   order: number;
 }

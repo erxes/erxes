@@ -24,7 +24,8 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          # cp -r packages/ui-plugin-template/.erxes packages/plugin-neighbor-ui/.erxes
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-neighbor-ui/.erxes
+          cp -r packages/plugin-neighbor-ui/src packages/plugin-neighbor-ui/.erxes/plugin-src
           cd packages/plugin-neighbor-ui
           yarn install-deps
           yarn build

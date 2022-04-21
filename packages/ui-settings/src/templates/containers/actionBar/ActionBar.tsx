@@ -1,11 +1,11 @@
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { mutations } from '../../../emailTemplates/graphql';
-import { mutations as mutationsGrowthHackTemplate } from '../../../growthHacks/graphql';
-import { mutations as mutationsResponseTemplate } from '../../../responseTemplates/graphql';
-import React from 'react';
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { mutations } from "../../graphql";
+import { mutations as mutationsGrowthHackTemplate } from "../../../growthHacks/graphql";
+import { mutations as mutationsResponseTemplate } from "../../../responseTemplates/graphql";
+import React from "react";
 
-import Form from '../../components/actionBar/ActionBar';
+import Form from "../../components/actionBar/ActionBar";
 
 type Props = {
   queryParams: any;
@@ -19,7 +19,7 @@ class ProductFormContainer extends React.Component<Props> {
       values,
       isSubmitted,
       confirmationUpdate,
-      callback
+      callback,
     }: IButtonMutateProps) => {
       values.discount = Number(values.discount);
       values.totalAmount = Number(values.totalAmount);
@@ -30,7 +30,7 @@ class ProductFormContainer extends React.Component<Props> {
           variables={values}
           callback={callback}
           isSubmitted={isSubmitted}
-          refetchQueries={['emailTemplates', 'emailTemplatesTotalCount']}
+          refetchQueries={["emailTemplates", "emailTemplatesTotalCount"]}
           type="submit"
           btnStyle="primary"
           uppercase={false}
@@ -45,7 +45,7 @@ class ProductFormContainer extends React.Component<Props> {
       values,
       isSubmitted,
       confirmationUpdate,
-      callback
+      callback,
     }: IButtonMutateProps) => {
       values.discount = Number(values.discount);
       values.totalAmount = Number(values.totalAmount);
@@ -56,7 +56,7 @@ class ProductFormContainer extends React.Component<Props> {
           variables={values}
           callback={callback}
           isSubmitted={isSubmitted}
-          refetchQueries={['responseTemplates', 'responseTemplatesTotalCount']}
+          refetchQueries={["responseTemplates", "responseTemplatesTotalCount"]}
           type="submit"
           btnStyle="primary"
           uppercase={false}
@@ -71,7 +71,7 @@ class ProductFormContainer extends React.Component<Props> {
       values,
       isSubmitted,
       confirmationUpdate,
-      callback
+      callback,
     }: IButtonMutateProps) => {
       values.discount = Number(values.discount);
       values.totalAmount = Number(values.totalAmount);
@@ -82,7 +82,7 @@ class ProductFormContainer extends React.Component<Props> {
           variables={values}
           callback={callback}
           isSubmitted={isSubmitted}
-          refetchQueries={['pipelineTemplates', 'pipelineTemplatesTotalCount']}
+          refetchQueries={["pipelineTemplates", "pipelineTemplatesTotalCount"]}
           type="submit"
           btnStyle="primary"
           uppercase={false}
@@ -96,7 +96,7 @@ class ProductFormContainer extends React.Component<Props> {
       ...this.props,
       renderButtonEmailTemplates,
       renderButtonResponseTemplates,
-      renderButtonGrowthHackTemplates
+      renderButtonGrowthHackTemplates,
     };
 
     return <Form {...updatedProps} />;

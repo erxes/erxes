@@ -4,7 +4,7 @@ module.exports = {
   name: "chats",
   typeDefs: `
     chatMessageInserted(chatId: String!): ChatMessage
-    chatInserted(_id: String!): Chat
+    chatInserted(userId: String!): Chat
     chatUnreadCountChanged(userId: String!): Int
   `,
   generateResolvers: (graphqlPubsub) => {
@@ -22,7 +22,7 @@ module.exports = {
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator("chatInserted"),
           (payload, variables) => {
-            return payload.userId === variables._id;
+            return payload.userId === variables.userId;
           }
         ),
       },

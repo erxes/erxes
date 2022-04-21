@@ -1,18 +1,20 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
 import {
   BoardsQueryResponse,
-  StagesQueryResponse
-} from '@erxes/ui-cards/src/boards/types';
-import { IPipeline } from '@erxes/ui-cards/src/boards/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import PipelineForm from '../components/PipelineForm';
-import { queries } from '@erxes/ui-settings/src/boards/graphql';
-import { IOption } from '../types';
+  StagesQueryResponse,
+} from "@erxes/ui-cards/src/boards/types";
+import { IPipeline } from "@erxes/ui-cards/src/boards/types";
+import { DepartmentsQueryResponse } from "@erxes/ui-team/src/types";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { withProps } from "@erxes/ui/src/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import PipelineForm from "../components/PipelineForm";
+import { queries } from "@erxes/ui-settings/src/boards/graphql";
+import { queries as teamQueries } from "@erxes/ui-team/src/graphql";
+import { IOption } from "../types";
 
 type Props = {
   pipeline?: IPipeline;
@@ -27,6 +29,7 @@ type Props = {
 type FinalProps = {
   stagesQuery: StagesQueryResponse;
   boardsQuery: BoardsQueryResponse;
+  departmentsQuery: DepartmentsQueryResponse;
 } & Props;
 
 class PipelineFormContainer extends React.Component<FinalProps> {
@@ -34,27 +37,31 @@ class PipelineFormContainer extends React.Component<FinalProps> {
     const {
       stagesQuery,
       boardsQuery,
+      departmentsQuery,
       boardId,
       renderButton,
-      options
+      options,
     } = this.props;
 
     if (
       (stagesQuery && stagesQuery.loading) ||
-      (boardsQuery && boardsQuery.loading)
+      (boardsQuery && boardsQuery.loading) ||
+      (departmentsQuery && departmentsQuery.loading)
     ) {
       return <Spinner />;
     }
 
     const stages = stagesQuery ? stagesQuery.stages : [];
     const boards = boardsQuery.boards || [];
+    const departments = departmentsQuery.departments || [];
 
     const extendedProps = {
       ...this.props,
       stages,
       boards,
+      departments,
       boardId,
-      renderButton
+      renderButton,
     };
 
     const Form = options ? options.PipelineForm : PipelineForm;
@@ -68,19 +75,22 @@ export default withProps<Props>(
     graphql<Props, StagesQueryResponse, { pipelineId: string }>(
       gql(queries.stages),
       {
-        name: 'stagesQuery',
+        name: "stagesQuery",
         skip: props => !props.pipeline,
         options: ({ pipeline }: { pipeline?: IPipeline }) => ({
-          variables: { pipelineId: pipeline ? pipeline._id : '', isAll: true },
-          fetchPolicy: 'network-only'
-        })
+          variables: { pipelineId: pipeline ? pipeline._id : "", isAll: true },
+          fetchPolicy: "network-only",
+        }),
       }
     ),
+    graphql<{}, DepartmentsQueryResponse>(gql(teamQueries.departments), {
+      name: "departmentsQuery",
+    }),
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
-      name: 'boardsQuery',
+      name: "boardsQuery",
       options: ({ type }) => ({
-        variables: { type }
-      })
+        variables: { type },
+      }),
     })
   )(PipelineFormContainer)
 );

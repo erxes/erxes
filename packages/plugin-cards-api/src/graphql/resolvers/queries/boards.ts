@@ -1,7 +1,4 @@
-import {
-  BOARD_STATUSES,
-  BOARD_TYPES,
-} from "../../../models/definitions/constants";
+import { BOARD_STATUSES } from "../../../models/definitions/constants";
 import { paginate, regexSearchText } from "@erxes/api-utils/src";
 import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
 import { getCollection } from "../../../models/utils";
@@ -165,7 +162,7 @@ const boardQueries = {
   /**
    *  Pipelines list
    */
-  pipelines(
+  async pipelines(
     _root,
     {
       boardId,
@@ -179,7 +176,7 @@ const boardQueries = {
       page: number;
       perPage: number;
     },
-    { user, models: { Pipelines } }: IContext
+    { user, models: { Pipelines }, subdomain }: IContext
   ) {
     const query: any =
       user.isOwner || isAll
@@ -201,6 +198,24 @@ const boardQueries = {
               },
             ],
           };
+
+    if (!user.isOwner && !isAll) {
+      const departments = await sendCoreMessage({
+        subdomain,
+        action: "departments.find",
+        data: {
+          userIds: { $in: [user._id] },
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
+
+      const departmentIds = departments.map(d => d._id);
+
+      if (query !== {} && departmentIds.length > 0) {
+        query.$or[1].$and.push({ departmentIds: { $in: departmentIds } });
+      }
+    }
 
     const { page, perPage } = queryParams;
 
@@ -320,14 +335,14 @@ const boardQueries = {
   /**
    *  Stages list
    */
-  stages(
+  async stages(
     _root,
     {
       pipelineId,
       isNotLost,
       isAll,
     }: { pipelineId: string; isNotLost: boolean; isAll: boolean },
-    { user, models: { Stages } }: IContext
+    { user, models: { Stages }, subdomain }: IContext
   ) {
     const filter: any = {};
 
@@ -338,7 +353,7 @@ const boardQueries = {
     }
 
     if (!isAll) {
-      filter.status = BOARD_STATUSES.ACTIVE;
+      filter.status = { $ne: BOARD_STATUSES.ARCHIVED };
 
       filter.$or = [
         { visibility: "public" },
@@ -346,6 +361,22 @@ const boardQueries = {
           $and: [{ visibility: "private" }, { memberIds: { $in: [user._id] } }],
         },
       ];
+
+      const departments = await sendCoreMessage({
+        subdomain,
+        action: "departments.find",
+        data: {
+          userIds: { $in: [user._id] },
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
+
+      const departmentIds = departments.map(d => d._id);
+
+      if (departmentIds.length > 0) {
+        filter.$or[1].$and.push({ departmentIds: { $in: departmentIds } });
+      }
     }
 
     return Stages.find(filter)

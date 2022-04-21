@@ -20,6 +20,7 @@ export const types = contactsAvailable => `
     boardId: String!
     visibility: String!
     memberIds: [String]
+    departmentIds: [String]
     members: [User]
     bgColor: String
     isWatched: Boolean
@@ -46,6 +47,7 @@ export const types = contactsAvailable => `
     visibility: String
     memberIds: [String]
     members: [User]
+    departmentIds: [String]
     probability: String
     status: String
     amount: JSON
@@ -138,8 +140,9 @@ const pipelineParams = `
   templateId: String,
   isCheckUser: Boolean
   excludeCheckUserIds: [String],
-  numberConfig: String
-  numberSize: String
+  numberConfig: String,
+  numberSize: String,
+  departmentIds: [String]
 `;
 
 export const mutations = `

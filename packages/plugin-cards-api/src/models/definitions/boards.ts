@@ -92,6 +92,7 @@ export interface IPipeline extends ICommonFields {
   numberConfig?: string;
   numberSize?: string;
   lastNum?: string;
+  departmentIds?: string[];
 }
 
 export interface IPipelineDocument extends IPipeline, Document {
@@ -104,6 +105,7 @@ export interface IStage extends ICommonFields {
   pipelineId: string;
   visibility?: string;
   memberIds?: string[];
+  departmentIds?: string[];
   formId?: string;
   status?: string;
 }
@@ -296,6 +298,11 @@ export const pipelineSchema = new Schema({
     optional: true,
     label: "Last generated number",
   }),
+  departmentIds: field({
+    type: [String],
+    optional: true,
+    label: "Related departments",
+  }),
   ...commonFieldsSchema,
 });
 
@@ -321,5 +328,6 @@ export const stageSchema = new Schema({
     label: "Visibility",
   }),
   memberIds: field({ type: [String], label: "Members" }),
+  departmentIds: field({ type: [String], label: "Departments" }),
   ...commonFieldsSchema,
 });

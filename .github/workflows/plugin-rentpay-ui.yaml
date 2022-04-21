@@ -24,7 +24,8 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          # cp -r packages/ui-plugin-template/.erxes packages/plugin-rentpay-ui/.erxes
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-rentpay-ui/.erxes
+          cp -r packages/plugin-rentpay-ui/src packages/plugin-rentpay-ui/.erxes/plugin-src
           cd packages/plugin-rentpay-ui
           yarn install-deps
           yarn build

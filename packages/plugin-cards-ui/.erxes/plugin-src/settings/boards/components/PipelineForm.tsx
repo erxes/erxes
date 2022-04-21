@@ -1,6 +1,7 @@
 import { COLORS } from "@erxes/ui/src/constants/colors";
 import { Flex } from "@erxes/ui/src/styles/main";
 import { IBoard, IPipeline, IStage } from "@erxes/ui-cards/src/boards/types";
+import { IDepartment } from "@erxes/ui-team/src/types";
 import Button from "@erxes/ui/src/components/Button";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import Form from "@erxes/ui/src/components/form/Form";
@@ -8,7 +9,7 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { colors } from "@erxes/ui/src/styles";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import { __ } from "coreui/utils";
+import { __, generateTree } from "coreui/utils";
 import { ExpandWrapper } from "@erxes/ui-settings/src/styles";
 import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
@@ -35,6 +36,7 @@ type Props = {
   options?: IOption;
   renderExtraFields?: (formProps: IFormProps) => JSX.Element;
   extraFields?: any;
+  departments: IDepartment[];
 };
 
 type State = {
@@ -47,6 +49,7 @@ type State = {
   boardId: string;
   numberConfig?: string;
   numberSize?: string;
+  departmentIds?: string[];
 };
 
 class PipelineForm extends React.Component<Props, State> {
@@ -66,6 +69,7 @@ class PipelineForm extends React.Component<Props, State> {
       boardId: props.boardId || "",
       numberConfig: (pipeline && pipeline.numberConfig) || "",
       numberSize: (pipeline && pipeline.numberSize) || "",
+      departmentIds: pipeline ? pipeline.departmentIds || [] : [],
     };
   }
 
@@ -81,6 +85,10 @@ class PipelineForm extends React.Component<Props, State> {
 
   onChangeMembers = items => {
     this.setState({ selectedMemberIds: items });
+  };
+
+  onChangeDepartments = options => {
+    this.setState({ departmentIds: (options || []).map(o => o.value) });
   };
 
   onChangeDominantUsers = items => {
@@ -114,6 +122,7 @@ class PipelineForm extends React.Component<Props, State> {
       boardId,
       numberConfig,
       numberSize,
+      departmentIds,
     } = this.state;
     const finalValues = values;
 
@@ -133,6 +142,7 @@ class PipelineForm extends React.Component<Props, State> {
       excludeCheckUserIds,
       numberConfig,
       numberSize,
+      departmentIds,
     };
   };
 
@@ -151,25 +161,46 @@ class PipelineForm extends React.Component<Props, State> {
   }
 
   renderSelectMembers() {
-    const { visibility, selectedMemberIds } = this.state;
+    const { visibility, selectedMemberIds, departmentIds } = this.state;
 
     if (visibility === "public") {
       return;
     }
 
     return (
-      <FormGroup>
-        <SelectMemberStyled zIndex={2002}>
-          <ControlLabel>Members</ControlLabel>
+      <>
+        <FormGroup>
+          <SelectMemberStyled zIndex={2003}>
+            <ControlLabel>Members</ControlLabel>
 
-          <SelectTeamMembers
-            label="Choose members"
-            name="selectedMemberIds"
-            initialValue={selectedMemberIds}
-            onSelect={this.onChangeMembers}
-          />
-        </SelectMemberStyled>
-      </FormGroup>
+            <SelectTeamMembers
+              label="Choose members"
+              name="selectedMemberIds"
+              initialValue={selectedMemberIds}
+              onSelect={this.onChangeMembers}
+            />
+          </SelectMemberStyled>
+        </FormGroup>
+        <FormGroup>
+          <SelectMemberStyled zIndex={2002}>
+            <ControlLabel>Departments</ControlLabel>
+            <Select
+              value={departmentIds}
+              options={generateTree(
+                this.props.departments,
+                null,
+                (node, level) => ({
+                  value: node._id,
+                  label: `${"---".repeat(level)} ${node.title}`,
+                })
+              )}
+              onChange={this.onChangeDepartments.bind(this)}
+              placeholder={__("Choose department ...")}
+              multi={true}
+            />
+          </SelectMemberStyled>
+        </FormGroup>
+      </>
     );
   }
 
@@ -338,6 +369,7 @@ class PipelineForm extends React.Component<Props, State> {
                 type={this.props.type}
                 stages={this.state.stages}
                 onChangeStages={this.onChangeStages}
+                departments={this.props.departments}
               />
             </div>
           </FormGroup>

@@ -9,7 +9,7 @@ const emailTemplates = `
 `;
 
 const totalCount = `
-  query totalEmailTemplatesCount {
+  query emailTemplatesTotalCount {
     emailTemplatesTotalCount
   }
 `;

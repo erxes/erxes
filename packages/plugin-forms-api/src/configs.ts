@@ -20,7 +20,6 @@ export default {
   },
   apolloServerContext: context => {
     const subdomain = 'os';
-
     context.models = models;
     context.subdomain = subdomain;
 
