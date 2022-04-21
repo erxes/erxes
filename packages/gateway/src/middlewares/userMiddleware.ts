@@ -2,7 +2,7 @@
 import * as telemetry from 'erxes-telemetry';
 import * as jwt from 'jsonwebtoken';
 // @ts-ignore
-import { sendRequest, frontendEnv } from 'erxes-api-utils';
+import { sendRequest } from 'erxes-api-utils';
 import { NextFunction, Request, Response } from 'express';
 import { redis } from '../redis';
 import { Users } from '../db';
@@ -87,7 +87,7 @@ export default async function userMiddleware(req: Request & { user?: any }, _res
     const hostname = await redis.get('hostname');
 
     if (!hostname) {
-      redis.set('hostname', frontendEnv({ name: 'API_URL', req }));
+      redis.set('hostname', process.env.DOMAIN || 'http://localhost:3000');
     }
   } catch (e) {
     console.error(e);

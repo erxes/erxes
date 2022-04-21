@@ -4,6 +4,7 @@ import resolvers from './graphql/resolvers';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
+import permissions from './permissions';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -20,6 +21,7 @@ export let debug;
 
 export default {
   name: 'logs',
+  permissions,
   graphql: async (sd) => {
     serviceDiscovery = sd;
 

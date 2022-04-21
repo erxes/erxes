@@ -5,6 +5,7 @@ import { generateModels, models } from './connectionResolver';
 
 import { initBroker } from './messageBroker';
 import logs from './logUtils';
+import permissions from './permissions';
 
 export let debug;
 export let graphqlPubsub;
@@ -20,6 +21,7 @@ export let es: {
 
 export default {
   name: 'emailTemplates',
+  permissions,
   graphql: async (sd) => {
     serviceDiscovery = sd;
     return {

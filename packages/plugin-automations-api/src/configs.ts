@@ -3,6 +3,7 @@ import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
+import permissions from './permissions';
 
 export let mainDb;
 export let debug;
@@ -11,40 +12,7 @@ export let serviceDiscovery;
 
 export default {
   name: 'automations',
-  permissions: {
-    automations: {
-      name: 'automations',
-      description: 'Automations',
-      actions: [
-        {
-          name: 'automationAll',
-          description: 'All',
-          use: [
-            'showAutomations',
-            'automationsAdd',
-            'automationsEdit',
-            'automationsRemove'
-          ]
-        },
-        {
-          name: 'showAutomations',
-          description: 'Show automations'
-        },
-        {
-          name: 'automationsAdd',
-          description: 'Add automations'
-        },
-        {
-          name: 'automationsEdit',
-          description: 'Edit automations'
-        },
-        {
-          name: 'automationsRemove',
-          description: 'Remove automations'
-        }
-      ]
-    },
-  },
+  permissions,
   graphql: async (sd) => {
     serviceDiscovery = sd;
 

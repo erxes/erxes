@@ -18,8 +18,8 @@ module.exports = {
       permission: "showEngagesMessages",
     },
     {
-      text: "Campaigns settings",
-      to: "#",
+      text: "Campaign settings",
+      to: "/settings/campaign-configs",
       image: "/images/icons/erxes-31.png",
       location: "settings",
       scope: "engages",

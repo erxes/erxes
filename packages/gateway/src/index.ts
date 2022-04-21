@@ -18,11 +18,9 @@ import { clearCache, getService, getServices, redis, setAfterMutations } from '.
 import { initBroker } from './messageBroker';
 
 const {
-  MAIN_APP_DOMAIN,
+  DOMAIN,
   WIDGETS_DOMAIN,
   CLIENT_PORTAL_DOMAINS,
-  DASHBOARD_DOMAIN,
-  API_DOMAIN,
   PORT,
   RABBITMQ_HOST,
   MESSAGE_BROKER_PREFIX
@@ -43,7 +41,7 @@ const {
   app.use(
     /\/((?!graphql).)*/,
     createProxyMiddleware({
-      target: API_DOMAIN,
+      target: process.env.NODE_ENV === 'production' ? 'http://plugin_core_api' : 'http://localhost:3300',
       router: async req => {
         const services = await getServices();
 
@@ -149,10 +147,9 @@ const {
     cors: {
       credentials: true,
       origin: [
-        MAIN_APP_DOMAIN || 'http://localhost:3000',
-        WIDGETS_DOMAIN || '',
+        DOMAIN ? DOMAIN : 'http://localhost:3000',
+        WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
         ...(CLIENT_PORTAL_DOMAINS || '').split(','),
-        DASHBOARD_DOMAIN || 'http://localhost:4200',
         'https://studio.apollographql.com',
       ]
     }

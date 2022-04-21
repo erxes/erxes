@@ -11,6 +11,7 @@ const sleep = (ms) => {
 
 const commonEnvs = (configs) => {
   const db_server_address = configs.db_server_address;
+  const widgets = configs.widgets || {};
   const redis = configs.redis || {};
   const rabbitmq = configs.rabbitmq || {};
   const rabbitmq_host = `amqp://${rabbitmq.user}:${rabbitmq.pass}@${rabbitmq.server_address || db_server_address}:5672/${rabbitmq.vhost}`;
@@ -18,6 +19,8 @@ const commonEnvs = (configs) => {
   return {
     DEBUG: "erxes*",
     NODE_ENV: "production",
+    DOMAIN: configs.domain,
+    WIDGETS_DOMAIN: widgets.domain || `${configs.domain}/widgets`,
     REDIS_HOST: db_server_address,
     REDIS_PORT: 6379,
     REDIS_PASSWORD: redis.password || "",
@@ -191,12 +194,14 @@ const up = async (uis) => {
 
   const configs = await fse.readJSON(filePath("configs.json"));
 
-  const main_api_domain = configs.main_api_domain || `${configs.main_app_domain}/api`;
-  const subscription_url = `wss://${main_api_domain.replace("https://", "")}/graphql`;
-  const widgets_domain = (configs.widgets && configs.widgets.domain) || `${configs.main_app_domain}/widgets`;
-  const dashboard_domain = (configs.dashboard && configs.dashboard.domain) || `${configs.main_app_domain}/dashboard/front`;
+  const domain = configs.domain;
+  const gateway_url = `${domain}/gateway`;
+  const subscription_url = `wss://${gateway_url.replace("https://", "")}/graphql`;
+  const widgets = configs.widgets || {};
+  const widgets_domain = widgets.domain || `${domain}/widgets`;
+  const dashboard_domain = `${domain}/dashboard/front`;
 
-  const NGINX_HOST = (configs.main_app_domain || "").replace("https://", "");
+  const NGINX_HOST = domain.replace("https://", "");
   const extra_hosts = [`mongo:${configs.db_server_address || '127.0.0.1'}`];
 
   const dockerComposeConfig = {
@@ -211,7 +216,7 @@ const up = async (uis) => {
         image: "erxes/erxes:federation",
         environment: {
           REACT_APP_CDN_HOST: widgets_domain,
-          REACT_APP_API_URL: main_api_domain,
+          REACT_APP_API_URL: gateway_url,
           REACT_APP_DASHBOARD_URL: dashboard_domain,
           REACT_APP_API_SUBSCRIPTION_URL: subscription_url,
           NGINX_HOST,
@@ -232,8 +237,6 @@ const up = async (uis) => {
           PORT: "80",
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
           LOAD_BALANCER_ADDRESS: "http://plugin_core_api",
-          API_DOMAIN: main_api_domain,
-          MAIN_APP_DOMAIN: configs.main_app_domain || "",
           MONGO_URL: mongoEnv(configs),
           EMAIL_VERIFIER_ENDPOINT:
             configs.email_verifier_endpoint ||
@@ -254,9 +257,6 @@ const up = async (uis) => {
           PORT: "80",
           LOAD_BALANCER_ADDRESS: "http://gateway",
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          MAIN_APP_DOMAIN: configs.main_app_domain,
-          API_DOMAIN: "http://plugin_core_api",
-          WIDGETS_DOMAIN: widgets_domain,
           CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
           MONGO_URL: mongoEnv(configs),
           ...commonEnvs(configs),
@@ -309,7 +309,7 @@ const up = async (uis) => {
       environment: {
         PORT: "3200",
         ROOT_URL: widgets_domain,
-        API_URL: main_api_domain,
+        API_URL: gateway_url,
         API_SUBSCRIPTIONS_URL: subscription_url,
       },
       ports: ["3200:3200"],
@@ -335,7 +335,7 @@ const up = async (uis) => {
       image: "erxes/erxes-dashboard-front:develop",
       ports: ["4200:80"],
       environment: {
-        REACT_APP_API_URL: main_api_domain,
+        REACT_APP_API_URL: gateway_url,
         REACT_APP_API_SUBSCRIPTION_URL: subscription_url,
         REACT_APP_DASHBOARD_API_URL: `https://${NGINX_HOST}/dashboard/api`,
         REACT_APP_DASHBOARD_API_TOKEN: configs.dashboard.api_token,
@@ -461,6 +461,49 @@ const up = async (uis) => {
 
   fs.writeFileSync(filePath("docker-compose.yml"), yamlString);
 
+  log("Generating nginx.conf ....");
+
+  const commonConfig = `
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_http_version 1.1;
+  `;
+
+  await fs.promises.writeFile(
+    filePath('nginx.conf'),
+    `
+    server {
+            listen 80;
+            server_name ${NGINX_HOST};
+
+            index index.html;
+            error_log /var/log/nginx/erxes.error.log;
+            access_log /var/log/nginx/erxes.access.log;
+            location / {
+                    proxy_pass http://127.0.0.1:3000/;
+                    ${commonConfig}
+            }
+            location /widgets/ {
+                    proxy_pass http://127.0.0.1:3200/;
+                    ${commonConfig}
+            }
+            location /gateway/ {
+                    proxy_pass http://127.0.0.1:3300/;
+                    ${commonConfig}
+            }
+
+            location /dashboard/front {
+                proxy_pass http://127.0.0.1:4200/;
+                ${commonConfig}
+            }
+    }
+  `
+  );
+
   log("Deploy ......");
 
   return execCommand(
@@ -510,11 +553,12 @@ const update = async (program) => {
 
       await execCommand(`rm -rf plugin-uis/${uiname}`, true);
       await execCommand(`aws s3 sync s3://erxes-plugins/uis/${uiname} plugin-uis/${uiname} --no-sign-request`);
-
-      log("Restart core ui ....");
-      await execCommand(`docker service update --force erxes_coreui`);
     }
+  }
 
+  if (program.uis) {
+    log("Restart core ui ....");
+    await execCommand(`docker service update --force erxes_coreui`);
   }
 
   log("Updating gateway ....");
