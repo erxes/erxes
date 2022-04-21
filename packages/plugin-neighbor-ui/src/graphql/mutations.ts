@@ -37,11 +37,13 @@ const commonValues = `
 const neighborVariables = `
   $productCategoryId: String
   $info: JSON
+  $rate: JSON
 `;
 
 const neighborValues = `
   productCategoryId: $productCategoryId
   info: $info
+  rate: $rate
 `;
 
 const neighborSave = `

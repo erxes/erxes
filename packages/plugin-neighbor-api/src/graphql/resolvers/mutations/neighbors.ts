@@ -3,55 +3,40 @@ import { IContext } from "../../../connectionResolver";
 const neighborMutations = {
   neighborSave: async (
     _root,
-    { productCategoryId, info },
-    { user, models }
+    { productCategoryId, info, rate },
+    { models }
   ) => {
     const neighbor = await models.Neighbor.findOne({ productCategoryId });
 
     if (neighbor) {
-      return await models.Neighbor.updateNeighbor(
-        models,
-        { productCategoryId, info },
-        user
-      );
+      return await models.Neighbor.updateNeighbor({
+        productCategoryId,
+        info,
+        rate,
+      });
     } else {
-      return await models.Neighbor.createNeighbor(
-        models,
-        { productCategoryId, info },
-        user
-      );
+      return await models.Neighbor.createNeighbor({
+        productCategoryId,
+        info,
+        rate,
+      });
     }
   },
 
-  neighborRemove: async (_root, doc, { user, docModifier, models }) => {
-    const remove = await models.Neighbor.removeNeighbor(
-      models,
-      docModifier(doc),
-      user
-    );
+  neighborRemove: async (_root, doc, { user, models }: IContext) => {
+    const remove = await models.Neighbor.removeNeighbor(doc);
 
     return remove;
   },
 
-  neighborItemCreate: async (_root, doc, { user, docModifier, models }) => {
-    console.log("heloooo", doc);
-    const create = await models.NeighborItem.createNeighborItem(
-      models,
-      docModifier(doc),
-      user
-    );
+  neighborItemCreate: async (_root, doc, { models, user }) => {
+    const create = await models.NeighborItem.createNeighborItem(doc, user);
 
     return create;
   },
 
-  neighborItemEdit: async (
-    _root,
-    doc,
-    { user, docModifier, models }: IContext
-  ) => {
-    const create = await models.NeighborItem.updateNeighborItem(
-      docModifier(doc)
-    );
+  neighborItemEdit: async (_root, doc, { user, models }: IContext) => {
+    const create = await models.NeighborItem.updateNeighborItem(doc);
 
     return create;
   },

@@ -39,4 +39,6 @@ jobs:
 
       - name: Deploy
         run: |
+          tar -cf build.tar --directory=packages/plugin-tags-ui/.erxes/dist .
+          cp build.tar packages/plugin-tags-ui/.erxes/dist
           aws s3 sync packages/plugin-tags-ui/.erxes/dist s3://erxes-plugins/uis/plugin-tags-ui --delete 

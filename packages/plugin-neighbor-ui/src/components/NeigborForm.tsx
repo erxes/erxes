@@ -7,19 +7,31 @@ import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import ActionButtons from "@erxes/ui/src/components/ActionButtons";
 import { TYPES } from "../constants";
 import NeighorFormItem from "../containers/NeighorFormItem";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { ControlLabel } from "@erxes/ui/src/components/form";
+import { FlexRow } from "../styles";
+import { FlexItem } from "@erxes/ui-settings/src/styles";
+import ReactStars from "react-rating-stars-component";
 
 type Props = {
   neighbor: any;
-  save: (variables: any) => void;
+  save: (info: any, rate: any) => void;
 };
 
 const NeighborForm = ({ neighbor, save }: Props) => {
   const [info, setInfo] = useState(neighbor ? neighbor.info || {} : {});
-
+  const [rate, setRate] = useState(neighbor ? neighbor.rate || {} : {});
   const onChange = (type, values) => {
     setInfo({
       ...info,
       [type]: values,
+    });
+  };
+
+  const onChangeStar = (value, star) => {
+    setRate({
+      ...rate,
+      [value]: star,
     });
   };
 
@@ -33,8 +45,80 @@ const NeighborForm = ({ neighbor, save }: Props) => {
     );
   });
 
+  const renderStar = () => {
+    return (
+      <>
+        <ControlLabel>Орчны үнэлгээ</ControlLabel>
+        <br />
+        <br />
+        <FlexRow>
+          <FlexItem>
+            <ControlLabel uppercase={false}>Алхах орчин</ControlLabel>
+          </FlexItem>
+          <FlexItem>
+            <ReactStars
+              isHalf={true}
+              count={5}
+              value={rate["Алхах орчин"] ? rate["Алхах орчин"] : 0}
+              onChange={(e) => onChangeStar("Алхах орчин", e)}
+              size={25}
+              activeColor="#ffd700"
+            />
+          </FlexItem>
+        </FlexRow>
+        <FlexRow>
+          <FlexItem>
+            <ControlLabel uppercase={false}>Тоглоомын талбай</ControlLabel>
+          </FlexItem>
+          <FlexItem>
+            <ReactStars
+              isHalf={true}
+              count={5}
+              value={rate["Тоглоомын талбай"] ? rate["Тоглоомын талбай"] : 0}
+              onChange={(e) => onChangeStar("Тоглоомын талбай", e)}
+              size={25}
+              activeColor="#ffd700"
+            />
+          </FlexItem>
+        </FlexRow>
+        <FlexRow>
+          <FlexItem>
+            <ControlLabel uppercase={false}>Гадаах авто зогсоол</ControlLabel>
+          </FlexItem>
+          <FlexItem>
+            <ReactStars
+              isHalf={true}
+              count={5}
+              value={
+                rate["Гадаах авто зогсоол"] ? rate["Гадаах авто зогсоол"] : 0
+              }
+              onChange={(e) => onChangeStar("Гадаах авто зогсоол", e)}
+              size={25}
+              activeColor="#ffd700"
+            />
+          </FlexItem>
+        </FlexRow>
+        <FlexRow>
+          <FlexItem>
+            <ControlLabel uppercase={false}>Дэлгүүр</ControlLabel>
+          </FlexItem>
+          <FlexItem>
+            <ReactStars
+              isHalf={true}
+              count={5}
+              value={rate["Дэлгүүр"] ? rate["Дэлгүүр"] : 0}
+              onChange={(e) => onChangeStar("Дэлгүүр", e)}
+              size={25}
+              activeColor="#ffd700"
+            />
+          </FlexItem>
+        </FlexRow>
+      </>
+    );
+  };
+
   const closeModal = (formProps) => {
-    save(info);
+    save(info, rate);
     formProps.closeModal();
   };
 
@@ -54,16 +138,19 @@ const NeighborForm = ({ neighbor, save }: Props) => {
     return (
       <>
         {renderTypes}
-        {cancel}
-        <Button
-          onClick={() => closeModal(formProps)}
-          btnStyle="success"
-          type="button"
-          icon="check-circle"
-          uppercase={false}
-        >
-          Save
-        </Button>
+        {renderStar()}
+        <ModalFooter>
+          {cancel}
+          <Button
+            onClick={() => closeModal(formProps)}
+            btnStyle="success"
+            type="button"
+            icon="check-circle"
+            uppercase={false}
+          >
+            Save
+          </Button>
+        </ModalFooter>
       </>
     );
   };
@@ -71,7 +158,7 @@ const NeighborForm = ({ neighbor, save }: Props) => {
   const trigger = (
     <Button id="skill-edit-skill" btnStyle="link">
       <Tip text={__("Neighbor")} placement="bottom">
-        <Icon icon="edit-3" />
+        <Icon icon="home" />
       </Tip>
     </Button>
   );

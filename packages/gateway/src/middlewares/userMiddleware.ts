@@ -63,10 +63,14 @@ export default async function userMiddleware(req: Request & { user?: any }, _res
 
     const userDoc = await Users.findOne({ _id: user._id });
 
+    if (!userDoc) {
+      return next();
+    }
+
     const validatedToken = await redis.get(`user_token_${user._id}_${token}`);
     
     // invalid token access.
-    if (!userDoc || !validatedToken) {
+    if (!validatedToken) {
       return next();
     }
 
