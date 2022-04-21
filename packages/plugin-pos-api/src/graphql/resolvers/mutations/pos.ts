@@ -158,6 +158,19 @@ const mutations = {
     }
     return await models.PosOrders.deleteOne({ _id });
   },
+  posOrderChangePayments: async (_root, { _id, cashAmount, cardAmount, mobileAmount }, { models }) => {
+    const order = await models.PosOrders.findOne({ _id }).lean();
+    if (!order) {
+      throw new Error('not found order');
+    }
+
+    if (order.totalAmount !== cashAmount + cardAmount + mobileAmount) {
+      throw new Error('not balanced');
+    }
+
+    await models.PosOrders.updateOne({ _id }, { $set: { cashAmount, cardAmount, mobileAmount } });
+    return models.PosOrders.findOne({ _id }).lean();
+  }
 };
 
 checkPermission(mutations, "posAdd", "managePos");

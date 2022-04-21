@@ -155,7 +155,8 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     unitPrice: Float
     categoryId: String
     createdAt: Date,
-    count: Float
+    count: Float,
+    amount: Float,
     ${productsEnabled
     ? `
         category: ProductCategory
@@ -207,4 +208,5 @@ export const mutations = `
   productGroupsBulkInsert(posId: String, groups:[GroupInput]): [ProductGroups]
   posOrderSyncErkhet(_id: String!): PosOrder
   posOrderReturnBill(_id: String!): PosOrder
+  posOrderChangePayments(_id: String!, cashAmount: Float, cardAmount: Float, mobileAmount: Float): PosOrder
 `;

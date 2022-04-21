@@ -14,7 +14,8 @@ class Row extends React.Component<Props> {
       name,
       category,
       unitPrice,
-      count
+      count,
+      amount
     } = product;
 
     return (
@@ -24,6 +25,7 @@ class Row extends React.Component<Props> {
         <td>{category ? category.name : ''}</td>
         <td>{(unitPrice || 0).toLocaleString()}</td>
         <td>{(count || 0).toLocaleString()}</td>
+        <td>{(amount || 0).toLocaleString()}</td>
       </tr>
     );
   }
