@@ -100,7 +100,7 @@ export interface IUserModel extends Model<IUserDocument> {
   ): { token: string; refreshToken: string; user: IUserDocument };
   login(params: ILoginParams): { token: string; refreshToken: string };
   getTokenFields(user: IUserDocument);
-  logout(token: string): string;
+  logout(_user: IUserDocument, token: string): string;
 }
 
 export const loadClass = () => {
@@ -670,7 +670,7 @@ export const loadClass = () => {
 
       // storing tokens in user collection.
       if (token) {
-        redis.set(`user_${token}`, 1, 'EX', 24 * 60 * 60);
+        redis.set(`user_token_${user._id}_${token}`, 1, 'EX', 24 * 60 * 60);
       }
 
       if (deviceToken) {
@@ -699,11 +699,11 @@ export const loadClass = () => {
     /**
      * Logging out user from database
      */
-    public static async logout(currentToken: string) {
-      const validatedToken = await redis.get(`user_${currentToken}`);
+    public static async logout(user: IUserDocument, currentToken: string) {
+      const validatedToken = await redis.get(`user_token_${user._id}_${currentToken}`);
 
       if (validatedToken) {
-        redis.del(`user_${currentToken}`);
+        redis.del(`user_token_${user._id}_${currentToken}`);
 
         return 'loggedout';
       }

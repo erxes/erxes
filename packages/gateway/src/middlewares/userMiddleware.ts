@@ -5,6 +5,7 @@ import * as jwt from 'jsonwebtoken';
 import { sendRequest } from 'erxes-api-utils';
 import { NextFunction, Request, Response } from 'express';
 import { redis } from '../redis';
+import { Users } from '../db';
 
 export default async function userMiddleware(req: Request & { user?: any }, _res: Response, next: NextFunction) {
   const erxesCoreToken = req.headers['erxes-core-token'];
@@ -59,10 +60,13 @@ export default async function userMiddleware(req: Request & { user?: any }, _res
   try {
     // verify user token and retrieve stored user information
     const { user }: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
-    const validatedToken = await redis.get(`user_${token}`);
+
+    const userDoc = await Users.findOne({ _id: user._id });
+
+    const validatedToken = await redis.get(`user_token_${user._id}_${token}`);
     
     // invalid token access.
-    if (!validatedToken) {
+    if (!userDoc || !validatedToken) {
       return next();
     }
 
