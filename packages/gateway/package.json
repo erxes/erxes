@@ -9,6 +9,9 @@
     "download:plugins": "yarn ts-node src/subscription/plugins/runDownloadPlugins.ts"
   },
   "dependencies": {
+    "faker": "^4.1.0",
+    "meteor-random": "^0.0.3",
+    "strip": "^3.0.0",
     "@apollo/federation": "^0.33.8",
     "@apollo/gateway": "^0.44.1",
     "apollo-server-core": "^3.5.0",
