@@ -724,28 +724,6 @@ export const authCookieOptions = (secure: boolean) => {
   return cookieOptions;
 };
 
-/*
- * Handle engage unsubscribe request
- */
-export const handleUnsubscription = async (query: {
-  cid: string;
-  uid: string;
-}) => {
-  // const { cid, uid } = query;
-  const { uid } = query;
-
-  // if (cid) {
-  //   await models.Customers.updateOne(
-  //     { _id: cid },
-  //     { $set: { isSubscribed: 'No' } }
-  //   );
-  // }
-
-  if (uid) {
-    await Users.updateOne({ _id: uid }, { $set: { isSubscribed: 'No' } });
-  }
-};
-
 export const getConfigs = async () => {
   const configsCache = await memoryStorage().get('configs_erxes_api');
 
