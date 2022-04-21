@@ -41,4 +41,6 @@ jobs:
 
       - name: Deploy
         run: |
+          tar -cf build.tar --directory=packages/plugin-cards-ui/.erxes/dist .
+          cp build.tar packages/plugin-cards-ui/.erxes/dist
           aws s3 sync packages/plugin-cards-ui/.erxes/dist s3://erxes-plugins/uis/plugin-cards-ui --delete
