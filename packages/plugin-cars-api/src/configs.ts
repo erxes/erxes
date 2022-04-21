@@ -21,6 +21,9 @@ export default {
   name: "cars",
   graphql: async (sd) => {
     serviceDiscovery = sd;
+
+    const t = 1;
+
     return {
       typeDefs: await typeDefs(sd),
       resolvers: await resolvers(sd),
