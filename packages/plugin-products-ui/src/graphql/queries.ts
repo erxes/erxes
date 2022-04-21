@@ -43,6 +43,18 @@ const productCategoryDetail = `
   }
 `;
 
+// Settings
+
+const configs = `
+  query productsConfigs {
+    productsConfigs {
+      _id
+      code
+      value
+    }
+  }
+`;
+
 export default {
   products,
   productDetail,
@@ -50,5 +62,7 @@ export default {
   productsCount,
   productCategories,
   productCategoriesCount,
-  productCategoryDetail
+  productCategoryDetail,
+
+  configs
 };

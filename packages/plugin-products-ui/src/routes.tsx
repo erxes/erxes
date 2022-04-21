@@ -2,6 +2,8 @@ import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import queryString from "query-string";
 import React from "react";
 import { Route } from "react-router-dom";
+import Settings from "./containers/config/Settings";
+import GeneralSettings from './components/config/GeneralSettings';
 
 const ProductList = asyncComponent(() =>
   import(
@@ -30,6 +32,15 @@ const productService = ({ location, history }) => {
   );
 };
 
+const generalSetting = () => {
+  return (
+    <Settings
+      component={GeneralSettings}
+    />
+  )
+}
+
+
 const routes = () => (
   <React.Fragment>
     <Route
@@ -44,6 +55,13 @@ const routes = () => (
       exact={true}
       key="/settings/product-service/"
       component={productService}
+    />
+
+    <Route
+      path="/settings/products-config/"
+      exact={true}
+      key="/settings/products-config/"
+      component={generalSetting}
     />
   </React.Fragment>
 );

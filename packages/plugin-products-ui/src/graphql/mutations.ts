@@ -27,6 +27,14 @@ const productsMerge = `
   }
 `;
 
+// Settings
+
+const updateConfigs = `
+  mutation productsConfigsUpdate($configsMap: JSON!) {
+    productsConfigsUpdate(configsMap: $configsMap)
+  }
+`;
+
 export default {
   productAdd,
   productEdit,
@@ -34,5 +42,7 @@ export default {
   productCategoryAdd,
   productCategoryEdit,
   productCategoryRemove,
-  productsMerge
+  productsMerge,
+
+  updateConfigs
 };
