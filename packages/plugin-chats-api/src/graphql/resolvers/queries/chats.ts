@@ -123,7 +123,7 @@ const chatQueries = {
     }
 
     const list = await models.ChatMessages.find(filter)
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: -1 })
       .skip(skip || 0)
       .limit(limit || 20);
 
