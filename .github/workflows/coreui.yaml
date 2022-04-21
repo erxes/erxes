@@ -7,20 +7,7 @@ on:
     paths:
       - 'packages/erxes-ui/**'
       - 'packages/core-ui/**'
-      - '.github/workflows/ui.yaml'
-      - '!ui/nginx/**'
-      - '!ui/docker-entrypoint.sh'
-      - '!ui/base.Dockerfile'
-      - '!ui/base.Dockerfile.dockerignore'
-  pull_request:
-    branches:
-      - master
-      - develop
-      - apm
-      - automations
-    paths:
-      - 'ui/**'
-      - '.github/workflows/ui.yaml'
+      - '.github/workflows/coreui.yaml'
       - '!ui/nginx/**'
       - '!ui/docker-entrypoint.sh'
       - '!ui/base.Dockerfile'
