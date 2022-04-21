@@ -29,7 +29,9 @@ jobs:
           cp -r packages/plugin-cards-ui/src packages/plugin-cards-ui/.erxes/plugin-src
           cd packages/plugin-cards-ui
           yarn install-deps
+          cd packages/plugin-cards-ui
           yarn install --frozen-lockfile
+          cd packages/plugin-cards-ui
           yarn build
 
       - name: Configure AWS credentials
