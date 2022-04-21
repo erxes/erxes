@@ -39,4 +39,6 @@ jobs:
 
       - name: Deploy
         run: |
+          tar -cf build.tar --directory=packages/plugin-qpay-ui/.erxes/dist .
+          cp build.tar packages/plugin-qpay-ui/.erxes/dist
           aws s3 sync packages/plugin-qpay-ui/.erxes/dist s3://erxes-plugins/uis/plugin-qpay-ui --delete
