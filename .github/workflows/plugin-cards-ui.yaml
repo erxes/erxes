@@ -5,6 +5,9 @@ on:
     branches:
       - federation
     paths:
+      - "packages/coreui/**"
+      - "packages/ui-settings/**"
+      - "packages/ui-team/**"
       - "packages/erxes-ui/**"
       - "packages/ui-cards/**"
       - "packages/plugin-cards-ui/**"
@@ -28,9 +31,8 @@ jobs:
           cp -r packages/ui-plugin-template/.erxes packages/plugin-cards-ui/.erxes
           cp -r packages/plugin-cards-ui/src packages/plugin-cards-ui/.erxes/plugin-src
           cd packages/plugin-cards-ui
+          yarn install
           yarn install-deps
-          yarn install --frozen-lockfile
-          cd .erxes
           yarn build
 
       - name: Configure AWS credentials
