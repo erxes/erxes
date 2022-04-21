@@ -83,6 +83,22 @@ const generatePluginBlock = (configs, plugin) => {
   };
 };
 
+const syncS3 = async (name) => {
+  log(`Downloading ${name} ui build.tar from s3`);
+
+  const plName = `plugin-${name}-ui`;
+
+  await execCommand(
+    `aws s3 sync s3://erxes-plugins/uis/${plName} plugin-uis/${plName} --no-sign-request --exclude "*" --include build.tar`
+  );
+
+  log(`Extracting build ......`);
+  await execCommand(`tar -xf plugin-uis/${plName}/build.tar --directory=plugin-uis/${plName}`);
+
+  log(`Removing build.tar ......`);
+  await execCommand(`rm plugin-uis/${plName}/build.tar`);
+}
+
 const deployDbs = async (program) => {
   await cleaning();
 
@@ -405,9 +421,7 @@ const up = async (uis) => {
 
       log(`Downloading ${name} ui from s3 ....`);
 
-      await execCommand(
-        `aws s3 sync s3://erxes-plugins/uis/${name} plugin-uis/${name} --no-sign-request`
-      );
+      await syncS3(plugin.name);
     }
   }
 
@@ -519,40 +533,38 @@ const update = async (program) => {
   const pluginNames = process.argv[3];
 
   for (const name of pluginNames.split(",")) {
-    log(`Updating image ${name}......`);
+    if (!program.noimage) {
+      log(`Updating image ${name}......`);
 
-    if (['dashboard', 'workers', 'crons', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
+      if (['dashboard', 'workers', 'crons', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
+        await execCommand(
+          `docker service update erxes_${name} --image erxes/${name}:federation`
+        );
+        continue;
+      }
+
+      if (name === 'coreui') {
+        await execCommand(
+          `docker service update erxes_coreui --image erxes/erxes:federation`
+        );
+        continue;
+      }
+
+      if (name === 'core') {
+        await execCommand(
+          `docker service update erxes_plugin_core_api --image erxes/core:federation`
+        );
+        continue;
+      }
+
       await execCommand(
-        `docker service update erxes_${name} --image erxes/${name}:federation`
+        `docker service update erxes_plugin_${name}_api --image erxes/plugin-${name}-api:federation`
       );
-      continue;
     }
-
-    if (name === 'coreui') {
-      await execCommand(
-        `docker service update erxes_coreui --image erxes/erxes:federation`
-      );
-      continue;
-    }
-
-    if (name === 'core') {
-      await execCommand(
-        `docker service update erxes_plugin_core_api --image erxes/core:federation`
-      );
-      continue;
-    }
-
-    await execCommand(
-      `docker service update erxes_plugin_${name}_api --image erxes/plugin-${name}-api:federation`
-    );
 
     if (program.uis) {
-      log("Syncing plugin uis from s3 ....");
-
-      const uiname = `plugin-${name}-ui`;
-
-      await execCommand(`rm -rf plugin-uis/${uiname}`, true);
-      await execCommand(`aws s3 sync s3://erxes-plugins/uis/${uiname} plugin-uis/${uiname} --no-sign-request`);
+      await execCommand(`rm -rf plugin-uis/${`plugin-${name}-ui`}`, true);
+      await syncS3(name);
     }
   }
 
@@ -604,9 +616,7 @@ module.exports.manageInstallation = async (program) => {
 
     log("Syncing ui ....");
 
-    await execCommand(
-      `aws s3 sync s3://erxes-plugins/uis/plugin-${name}-ui plugin-uis/plugin-${name}-ui --no-sign-request`
-    );
+    await syncS3(name);
 
     await restart('coreui');
 
