@@ -53,5 +53,5 @@ jobs:
         run: |
           cd packages/core-ui
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:${GITHUB_REF#refs/heads/} -f ui.Dockerfile .
+          DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:${GITHUB_REF#refs/heads/} -f base.Dockerfile .
           docker push erxes/erxes:${GITHUB_REF#refs/heads/}
