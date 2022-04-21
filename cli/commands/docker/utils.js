@@ -382,7 +382,7 @@ const up = async (uis) => {
 
     enabledPlugins.push(`'${plugin.name}'`);
 
-    if (pluginsMap[plugin.name] && pluginsMap[plugin.name].ui) {
+    if (pluginsMap[plugin.name]) {
       const uiConfig = pluginsMap[plugin.name].ui;
 
       if (uiConfig) {
@@ -419,9 +419,10 @@ const up = async (uis) => {
     for (const plugin of configs.plugins || []) {
       const name = `plugin-${plugin.name}-ui`;
 
-      log(`Downloading ${name} ui from s3 ....`);
-
-      await syncS3(plugin.name);
+      if (pluginsMap[plugin.name] && pluginsMap[plugin.name].ui) {
+        log(`Downloading ${name} ui from s3 ....`);
+        await syncS3(plugin.name);
+      }
     }
   }
 
