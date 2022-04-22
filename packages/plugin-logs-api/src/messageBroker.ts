@@ -168,6 +168,30 @@ export const initBroker = async cl => {
       };
     }
   );
+
+    consumeRPCQueue(
+      'logs:emailDeliveries.create',
+      async ({ subdomain, data }) => {
+        const models = await generateModels(subdomain);
+
+        return {
+          status: 'success',
+          data: await models.EmailDeliveries.createEmailDelivery(data)
+        };
+      }
+    );
+
+    consumeRPCQueue(
+      'logs:emailDeliveries.find',
+      async ({ subdomain, data: { query } }) => {
+        const models = await generateModels(subdomain);
+
+        return {
+          status: 'success',
+          data: await models.EmailDeliveries.find(query).lean()
+        };
+      }
+    );
 };
 
 export const getDbSchemaLabels = async (serviceName: string, args) => {
