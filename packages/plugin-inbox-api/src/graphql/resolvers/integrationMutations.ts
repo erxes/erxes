@@ -511,12 +511,13 @@ const integrationMutations = {
     for (const cusId of customerIds) {
       await sendLogsMessage({
         subdomain,
-        action:"emailDeliveries.create",
+        action: 'emailDeliveries.create',
         data: {
-           ...doc, customerId: cusId 
+          ...doc,
+          customerId: cusId
         },
         isRPC: true
-      })
+      });
     }
 
     return;

@@ -117,7 +117,7 @@ export const initBroker = async cl => {
   });
 
   consumeQueue(
-    'logs.activityLogs.updateMany',
+    'logs:activityLogs.updateMany',
     async ({ data: { query, modifier }, subdomain }) => {
       const models = await generateModels(subdomain);
 
@@ -128,7 +128,7 @@ export const initBroker = async cl => {
   );
 
   consumeQueue(
-    'logs.delete.old',
+    'logs:delete.old',
     async ({ data: { months = 1 }, subdomain }) => {
       const models = await generateModels(subdomain);
       const now = new Date();
@@ -146,7 +146,7 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
-    'logs.activityLogs.findMany',
+    'logs:activityLogs.findMany',
     async ({ data: { query, options }, subdomain }) => {
       const models = await generateModels(subdomain);
 
