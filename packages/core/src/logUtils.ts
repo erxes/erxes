@@ -4,8 +4,8 @@ import { MODULE_NAMES } from './data/constants';
 import { brandEmailConfigSchema, brandSchema } from './db/models/definitions/brands';
 import { permissionSchema, userGroupSchema } from './db/models/definitions/permissions';
 import { IUserDocument, userSchema } from './db/models/definitions/users';
-import EmailDeliveries from './db/models/EmailDeliveries';
 import Users from './db/models/Users';
+import { sendLogsMessage } from './messageBroker';
 
 const LOG_MAPPINGS = [
   {
@@ -53,10 +53,18 @@ export default {
       data: 'wrong activity action'
     };
   },
-  collectItems: async ({ data: { contentId } }) => {
-    const deliveries = await EmailDeliveries.find({
-      customerId: contentId
-    }).lean();
+  collectItems: async ({ subdomain, data: { contentId } }) => {
+    const deliveries = await sendLogsMessage({
+      subdomain,
+      action: 'emailDeliveries.find',
+      data: {
+        query: {
+          customerId: contentId
+        }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
 
     const results: any[] = [];
 

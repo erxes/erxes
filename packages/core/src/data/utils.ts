@@ -12,13 +12,13 @@ import { graphqlPubsub } from '../pubsub';
 import * as _ from 'underscore';
 import {
   Configs,
-  EmailDeliveries,
   OnboardingHistories,
   Users
 } from '../db/models';
 import * as Handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
-import { EMAIL_DELIVERY_STATUS } from '../db/models/definitions/constants';
+import { sendLogsMessage } from '../messageBroker';
+
 export interface IEmailParams {
   toEmails?: string[];
   fromEmail?: string;
@@ -60,7 +60,7 @@ const applyTemplate = async (data: any, templateName: string) => {
   return template(data);
 };
 
-export const sendEmail = async (params: IEmailParams) => {
+export const sendEmail = async (subdomain: string, params: IEmailParams) => {
   const {
     toEmails = [],
     fromEmail,
@@ -148,13 +148,18 @@ export const sendEmail = async (params: IEmailParams) => {
       AWS_SES_ACCESS_KEY_ID.length > 0 &&
       AWS_SES_SECRET_ACCESS_KEY.length > 0
     ) {
-      const emailDelivery = await EmailDeliveries.create({
-        kind: 'transaction',
-        to: toEmail,
-        from: mailOptions.from,
-        subject: title,
-        body: html,
-        status: EMAIL_DELIVERY_STATUS.PENDING
+      const emailDelivery = await sendLogsMessage({
+        subdomain,
+        action: 'emailDeliveries.create',
+        data: {
+          kind: 'transaction',
+          to: toEmail,
+          from: mailOptions.from,
+          subject: title,
+          body: html,
+          status: 'pending'
+        },
+        isRPC: true,
       });
 
       headers = {
