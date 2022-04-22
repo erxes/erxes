@@ -7,7 +7,6 @@ import {
 import robot from './robot';
 import users from './users';
 import structures from './structures';
-import emailDeliveries from './emailDeliveries';
 
 export default {
   ...users,
@@ -17,5 +16,4 @@ export default {
   ...usersGroups,
   ...robot,
   ...structures,
-  ...emailDeliveries
 };
