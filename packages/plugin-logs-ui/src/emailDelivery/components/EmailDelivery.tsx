@@ -11,6 +11,7 @@ import * as React from 'react';
 import Select from 'react-select-plus';
 import { EMAIL_TYPES } from '../containers/EmailDelivery';
 import Row from './Row';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   list: any;
@@ -123,6 +124,7 @@ function EmailDelivery({
         ) : null}
 
         <React.Fragment>
+          { isEnabled("engages") &&
           <Select
             placeholder={__('Choose Email type')}
             value={emailType}
@@ -130,6 +132,7 @@ function EmailDelivery({
             onChange={handleEmailtype}
             clearable={false}
           />
+          }
           {isTransaction ? null : (
             <Select
               placeholder={__('Choose status')}
