@@ -449,10 +449,22 @@ export const loadStageClass = () => {
       return stage;
     }
 
+    static async checkCodeDuplication(code: string) {
+      const stage = await Stages.findOne({
+        code
+      });
+
+      if (stage) {
+        throw new Error('Code must be unique');
+      }
+    }
+
     /**
      * Create a stage
      */
-    public static createStage(doc: IStage) {
+    public static async createStage(doc: IStage) {
+      await this.checkCodeDuplication(doc.code);
+      
       return Stages.create(doc);
     }
 
@@ -460,6 +472,8 @@ export const loadStageClass = () => {
      * Update Stage
      */
     public static async updateStage(_id: string, doc: IStage) {
+      await this.checkCodeDuplication(doc.code);
+      
       await Stages.updateOne({ _id }, { $set: doc });
 
       return Stages.findOne({ _id });

@@ -104,6 +104,7 @@ export interface IStage extends ICommonFields {
   pipelineId: string;
   formId?: string;
   status?: string;
+  code: string;
 }
 
 export interface IStageDocument extends IStage, Document {
@@ -316,6 +317,10 @@ export const stageSchema = new Schema({
     type: String,
     enum: BOARD_STATUSES.ALL,
     default: BOARD_STATUSES.ACTIVE
+  }),
+  code: field({
+    type: String,
+    label: 'Label'
   }),
   ...commonFieldsSchema
 });

@@ -54,6 +54,7 @@ const stages = `
       pipelineId
       formId
       status
+      code
     }
   }
 `;

@@ -43,6 +43,7 @@ export const types = `
     name: String!
     pipelineId: String!
     probability: String
+    code: String!
     status: String
     amount: JSON
     itemsTotalCount: Int

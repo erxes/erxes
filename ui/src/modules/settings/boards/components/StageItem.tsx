@@ -19,6 +19,8 @@ class StageItem extends React.Component<Props, {}> {
     const { stage, onChange, onKeyPress, remove, type } = this.props;
     const probabilties = PROBABILITY[type].ALL;
 
+    const onChangeCode = (stageId, e) =>
+      onChange(stageId, e.target.name, e.target.value);
     const onChangeName = (stageId, e) =>
       onChange(stageId, e.target.name, e.target.value);
     const onChangeProbability = (stageId, e) =>
@@ -64,6 +66,14 @@ class StageItem extends React.Component<Props, {}> {
             {__('Archived')}
           </option>
         </FormControl>
+
+        <FormControl
+          defaultValue={stage.code}
+          name="code"
+          placeholder={__('Stage code')}
+          autoFocus={true}
+          onChange={onChangeCode.bind(this, stage._id)}
+        />
 
         <Button
           btnStyle="link"
