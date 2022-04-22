@@ -11,11 +11,13 @@ import {
 } from './models/ActivityLogs';
 import { ILogModel, ILogDocument, loadLogClass } from './models/Logs';
 import { IVisitorModel, IVisitorDocument, loadVisitorClass } from './models/Visitors';
+import { IEmailDeliveriesDocument, IEmailDeliveryModel, loadEmailDeliveryClass } from './models/EmailDeliveries';
 
 export interface IModels {
   ActivityLogs: IActivityLogModel;
   Logs: ILogModel;
   Visitors: IVisitorModel;
+  EmailDeliveries: IEmailDeliveryModel;
 }
 
 export interface IContext extends IMainContext {
@@ -61,6 +63,11 @@ export const loadClasses = (
     'visitors',
     loadVisitorClass(models)
   );
+
+  models.EmailDeliveries = db.model<
+    IEmailDeliveriesDocument,
+    IEmailDeliveryModel
+  >('email_deliveries', loadEmailDeliveryClass(models));
 
   return models;
 };
