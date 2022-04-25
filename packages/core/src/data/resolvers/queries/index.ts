@@ -7,6 +7,7 @@ import {
 import robot from './robot';
 import users from './users';
 import structures from './structures';
+import apps from './apps';
 
 export default {
   ...users,
@@ -16,4 +17,5 @@ export default {
   ...usersGroups,
   ...robot,
   ...structures,
+  ...apps
 };

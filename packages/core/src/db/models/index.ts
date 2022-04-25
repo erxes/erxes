@@ -5,6 +5,7 @@ import { Permissions, UsersGroups } from './Permissions';
 import { OnboardingHistories, RobotEntries } from './Robot';
 import Users from './Users';
 import { Structures, Departments, Units, Branches } from './Structure';
+import Apps from './Apps';
 
 export {
   Users,
@@ -18,5 +19,6 @@ export {
   Structures,
   Departments,
   Units,
-  Branches
+  Branches,
+  Apps
 };
