@@ -13,6 +13,10 @@ import {
 
 export default {
   createdUser(pipeline: IPipelineDocument) {
+    if (!pipeline.userId) {
+      return;
+    }
+
     return { __typename: "User", _id: pipeline.userId };
   },
 
