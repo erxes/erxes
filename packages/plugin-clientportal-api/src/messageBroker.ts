@@ -7,6 +7,15 @@ export const initBroker = (cl) => {
   client = cl;
 };
 
+export const sendCoreMessage = async (args: ISendMessageArgs) => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    serviceName: "core",
+    ...args
+  });
+}
+
 export const sendContactsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
@@ -29,6 +38,6 @@ export const sendCardsMessage = async (
   });
 };
 
-export default function() {
+export default function () {
   return client;
 }
