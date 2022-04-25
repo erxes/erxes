@@ -6,9 +6,6 @@ import { internalNoteConsumers } from "@erxes/api-utils/src/internalNotes";
 import { formConsumers } from "@erxes/api-utils/src/forms";
 import { graphqlPubsub } from "./pubsub";
 import { registerOnboardHistory } from "./data/modules/robot";
-import {
-  Conformities,
-} from "./db/models";
 import { registerModule } from "./data/permissions/utils";
 import {
   getConfig,
@@ -53,65 +50,119 @@ export const initBroker = async options => {
     await sendEmail(models, subdomain, data);
   });
 
-  consumeRPCQueue("core:conformities.addConformity", async ({ data }) => ({
-    status: "success",
-    data: await Conformities.addConformity(data),
-  }));
+  consumeRPCQueue("core:conformities.addConformity", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    
+    return {
+      status: "success",
+      data: await models.Conformities.addConformity(data),
+    }
+  });
 
-  consumeRPCQueue("core:conformities.savedConformity", async ({ data }) => ({
-    status: "success",
-    data: await Conformities.savedConformity(data),
-  }));
+  consumeRPCQueue("core:conformities.savedConformity", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    
+    return {
+      status: "success",
+      data: await models.Conformities.savedConformity(data),
+    }
+  
+  });
 
-  consumeQueue("core:conformities.create", async ({ data }) => ({
-    status: "success",
-    data: await Conformities.create(data),
-  }));
+  consumeQueue("core:conformities.create", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    
+    return {
+      status: "success",
+      data: await models.Conformities.create(data),
+    }
+  });
 
-  consumeQueue("core:conformities.removeConformities", async ({ data }) => ({
-    status: "success",
-    data: await Conformities.removeConformities(data),
-  }));
+  consumeQueue("core:conformities.removeConformities", async ({ data }) => {
+    const models = await generateModels(data);
 
-  consumeQueue("core:conformities.removeConformity", async ({ data }) => ({
-    status: "success",
-    data: await Conformities.removeConformity(data),
-  }));
+    return {
+      status: "success",
+      data: await models.Conformities.removeConformities(data),
+    }
+  
+  });
 
-  consumeRPCQueue("core:conformities.getConformities", async ({ data }) => ({
-    status: "success",
-    data: await Conformities.getConformities(data),
-  }));
+  consumeQueue("core:conformities.removeConformity", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
 
-  consumeQueue("core:conformities.addConformities", async ({ data }) => ({
-    status: "success",
-    data: await Conformities.addConformities(data),
-  }));
+    return {
+      status: "success",
+      data: await models.Conformities.removeConformity(data),
+    }
+  
+  });
 
-  consumeRPCQueue("core:conformities.relatedConformity", async ({ data }) => ({
-    status: "success",
-    data: await Conformities.relatedConformity(data),
-  }));
+  consumeRPCQueue("core:conformities.getConformities", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    
+    return {
+      status: "success",
+      data: await models.Conformities.getConformities(data),
+    }
 
-  consumeRPCQueue("core:conformities.filterConformity", async ({ data }) => ({
-    status: "success",
-    data: await Conformities.filterConformity(data),
-  }));
+});
 
-  consumeRPCQueue("core:conformities.changeConformity", async ({ data }) => ({
-    status: "success",
-    data: await Conformities.changeConformity(data),
-  }));
+  consumeQueue("core:conformities.addConformities", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    
+    return {
+      status: "success",
+      data: await models.Conformities.addConformities(data),
+    }
 
-  consumeRPCQueue("core:conformities.findConformities", async ({ data }) => ({
-    status: "success",
-    data: await Conformities.find(data).lean(),
-  }));
+});
 
-  consumeRPCQueue("core:conformities.editConformity", async ({ data }) => ({
-    status: "success",
-    data: await Conformities.editConformity(data),
-  }));
+  consumeRPCQueue("core:conformities.relatedConformity", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    
+    return {
+      status: "success",
+      data: await models.Conformities.relatedConformity(data),
+    }
+
+});
+
+  consumeRPCQueue("core:conformities.filterConformity", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    
+    return {
+      status: "success",
+      data: await models.Conformities.filterConformity(data),
+    }
+  });
+
+  consumeRPCQueue("core:conformities.changeConformity", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: "success",
+      data: await models.Conformities.changeConformity(data),
+    }
+});
+
+  consumeRPCQueue("core:conformities.findConformities", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    
+    return {
+      status: "success",
+      data: await models.Conformities.find(data).lean(),
+    }
+});
+
+  consumeRPCQueue("core:conformities.editConformity", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    
+    return {
+      status: "success",
+      data: await models.Conformities.editConformity(data),
+    }
+});
 
   // graphql subscriptions call =========
   consumeQueue("callPublish", params => {

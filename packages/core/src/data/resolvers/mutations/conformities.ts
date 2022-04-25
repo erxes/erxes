@@ -1,6 +1,5 @@
-import { IContext } from '../../types';
+import { IContext } from '../../../connectionResolver';
 import { sendCardsMessage } from '../../../messageBroker';
-import { Conformities } from '../../../db/models';
 import {
   IConformityAdd,
   IConformityEdit
@@ -10,15 +9,15 @@ const conformityMutations = {
   /**
    * Create new conformity
    */
-  async conformityAdd(_root, doc: IConformityAdd) {
-    return Conformities.addConformity({ ...doc });
+  async conformityAdd(_root, doc: IConformityAdd, { models }: IContext) {
+    return models.Conformities.addConformity({ ...doc });
   },
 
   /**
    * Edit conformity
    */
-  async conformityEdit(_root, doc: IConformityEdit, { subdomain }: IContext) {
-    const { addedTypeIds, removedTypeIds } = await Conformities.editConformity({
+  async conformityEdit(_root, doc: IConformityEdit, { subdomain, models }: IContext) {
+    const { addedTypeIds, removedTypeIds } = await models.Conformities.editConformity({
       ...doc
     });
 
