@@ -8,8 +8,6 @@ import { graphqlPubsub } from "./pubsub";
 import { registerOnboardHistory } from "./data/modules/robot";
 import {
   Conformities,
-  Branches,
-  Departments,
 } from "./db/models";
 import { registerModule } from "./data/permissions/utils";
 import {
@@ -185,10 +183,15 @@ export const initBroker = async options => {
     };
   });
 
-  consumeRPCQueue("core:departments.find", async ({ data }) => ({
-    status: "success",
-    data: await Departments.find(data).lean(),
-  }));
+  consumeRPCQueue("core:departments.find", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    
+    return {
+      status: "success",
+      data: await models.Departments.find(data).lean(),
+    }
+
+  });
 
   consumeRPCQueue(
     "core:users.updateOne",
@@ -253,12 +256,14 @@ export const initBroker = async options => {
     };
   });
 
-  consumeRPCQueue("core:branches.find", async ({ data }) => {
+  consumeRPCQueue("core:branches.find", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
     const { query } = data;
 
     return {
       status: "success",
-      data: await Branches.find(query).lean(),
+      data: await models.Branches.find(query).lean(),
     };
   });
 

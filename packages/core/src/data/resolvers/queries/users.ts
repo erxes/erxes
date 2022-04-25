@@ -1,5 +1,4 @@
-import { IContext } from '../../../connectionResolver';
-import { Branches, Departments, Units } from '../../../db/models';
+import { IContext, IModels } from '../../../connectionResolver';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { paginate } from '../../utils';
 
@@ -21,7 +20,7 @@ interface IListArgs {
   unitId?: string;
 }
 
-const queryBuilder = async (params: IListArgs) => {
+const queryBuilder = async (models: IModels, params: IListArgs) => {
   const {
     searchValue,
     isActive,
@@ -78,19 +77,19 @@ const queryBuilder = async (params: IListArgs) => {
   };
 
   if (departmentId) {
-    const department = await Departments.getDepartment({ _id: departmentId });
+    const department = await models.Departments.getDepartment({ _id: departmentId });
 
     selector._id = getUserIds(department);
   }
 
   if (unitId) {
-    const unit = await Units.getUnit({ _id: unitId });
+    const unit = await models.Units.getUnit({ _id: unitId });
 
     selector._id = getUserIds(unit);
   }
 
   if (branchId) {
-    const branch = await Branches.getBranch({ _id: branchId });
+    const branch = await models.Branches.getBranch({ _id: branchId });
 
     selector._id = getUserIds(branch);
   }
@@ -103,7 +102,7 @@ const userQueries = {
    * Users list
    */
   async users(_root, args: IListArgs, { userBrandIdsSelector, models }: IContext) {
-    const selector = { ...userBrandIdsSelector, ...(await queryBuilder(args)) };
+    const selector = { ...userBrandIdsSelector, ...(await queryBuilder(models, args)) };
 
     const { sortField, sortDirection } = args;
 
@@ -147,7 +146,7 @@ const userQueries = {
     args: IListArgs,
     { userBrandIdsSelector, models }: IContext
   ) {
-    const selector = { ...userBrandIdsSelector, ...(await queryBuilder(args)) };
+    const selector = { ...userBrandIdsSelector, ...(await queryBuilder(models, args)) };
 
     return models.Users.find(selector).countDocuments();
   },

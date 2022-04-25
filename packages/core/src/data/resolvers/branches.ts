@@ -1,5 +1,4 @@
 import { IContext } from '../../connectionResolver';
-import { Branches } from '../../db/models';
 import { IBranchDocument } from '../../db/models/definitions/structures';
 
 export default {
@@ -7,12 +6,12 @@ export default {
     return models.Users.find({ _id: { $in: branch.userIds || [] }, isActive: true });
   },
 
-  parent(branch: IBranchDocument) {
-    return Branches.findOne({ _id: branch.parentId });
+  parent(branch: IBranchDocument, _args, { models }: IContext) {
+    return models.Branches.findOne({ _id: branch.parentId });
   },
 
-  children(branch: IBranchDocument) {
-    return Branches.find({ parentId: branch._id });
+  children(branch: IBranchDocument, _args, { models }: IContext) {
+    return models.Branches.find({ parentId: branch._id });
   },
 
   supervisor(branch: IBranchDocument, _args, { models }: IContext) {

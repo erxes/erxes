@@ -1,8 +1,5 @@
 import { DEFAULT_CONSTANT_VALUES } from '@erxes/api-utils/src/constants';
 import { IContext } from '../../connectionResolver';
-import {
-  Departments
-} from '../../db/models';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { getUserActionsMap } from '../permissions/utils';
 import { getConfigs } from '../utils';
@@ -78,8 +75,8 @@ export default {
     return entries[0];
   },
 
-  department(user: IUserDocument) {
-    return Departments.findOne({ userIds: { $in: user._id } });
+  department(user: IUserDocument, _args, { models }: IContext) {
+    return models.Departments.findOne({ userIds: { $in: user._id } });
   },
 
   async leaderBoardPosition(user: IUserDocument, _args, { models }: IContext) {

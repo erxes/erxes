@@ -1,10 +1,5 @@
 import * as telemetry from 'erxes-telemetry';
 import * as express from 'express';
-import {
-  Branches,
-  Departments,
-  Units
-} from '../../../db/models';
 import { ILink } from '@erxes/api-utils/src/types';
 import {
   IDetail,
@@ -360,21 +355,21 @@ const userMutations = {
       const createdUser = await models.Users.findOne({ email: entry.email });
 
       if (entry.unitId) {
-        await Units.updateOne(
+        await models.Units.updateOne(
           { _id: entry.unitId },
           { $push: { userIds: createdUser?._id } }
         );
       }
 
       if (entry.branchId) {
-        await Branches.updateOne(
+        await models.Branches.updateOne(
           { _id: entry.branchId },
           { $push: { userIds: createdUser?._id } }
         );
       }
 
       if (entry.departmentId) {
-        await Departments.updateOne(
+        await models.Departments.updateOne(
           { _id: entry.departmentId },
           { $push: { userIds: createdUser?._id } }
         );

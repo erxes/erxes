@@ -1,10 +1,8 @@
 import { IContext } from '../../../connectionResolver';
-import { Departments, Units } from '../../../db/models';
-import { Branches, Structures } from '../../../db/models/Structure';
 import { checkPermission } from '../../permissions/wrappers';
 
 const structureQueries = {
-  departments(_root, { searchValue }: { searchValue?: string }) {
+  departments(_root, { searchValue }: { searchValue?: string }, { models }: IContext) {
     const filter: { $or?: any[] } = {};
 
     if (searchValue) {
@@ -23,14 +21,14 @@ const structureQueries = {
       ];
     }
 
-    return Departments.find(filter).sort({ title: 1 });
+    return models.Departments.find(filter).sort({ title: 1 });
   },
 
-  departmentDetail(_root, { _id }) {
-    return Departments.getDepartment({ _id });
+  departmentDetail(_root, { _id }, { models }: IContext) {
+    return models.Departments.getDepartment({ _id });
   },
 
-  units(_root, { searchValue }: { searchValue?: string }) {
+  units(_root, { searchValue }: { searchValue?: string }, { models }: IContext) {
     const filter: { $or?: any[] } = {};
 
     if (searchValue) {
@@ -49,14 +47,14 @@ const structureQueries = {
       ];
     }
 
-    return Units.find(filter).sort({ title: 1 });
+    return models.Units.find(filter).sort({ title: 1 });
   },
 
-  unitDetail(_root, { _id }) {
-    return Units.getUnit({ _id });
+  unitDetail(_root, { _id }, { models }: IContext) {
+    return models.Units.getUnit({ _id });
   },
 
-  branches(_root, { searchValue }: { searchValue?: string }) {
+  branches(_root, { searchValue }: { searchValue?: string }, { models }: IContext) {
     const filter: { parentId?: any; $or?: any[] } = {};
 
     if (searchValue) {
@@ -75,11 +73,11 @@ const structureQueries = {
       ];
     }
 
-    return Branches.find(filter).sort({ title: 1 });
+    return models.Branches.find(filter).sort({ title: 1 });
   },
 
-  branchDetail(_root, { _id }) {
-    return Branches.getBranch({ _id });
+  branchDetail(_root, { _id }, { models }: IContext) {
+    return models.Branches.getBranch({ _id });
   },
 
   async noDepartmentUsers(_root, { excludeId }, { models }: IContext) {
@@ -91,7 +89,7 @@ const structureQueries = {
       filter._id = { $ne: excludeId };
     }
 
-    const departments = await Departments.find(filter);
+    const departments = await models.Departments.find(filter);
 
     departments.forEach(d => {
       if (d.supervisorId) {
@@ -106,8 +104,8 @@ const structureQueries = {
     return models.Users.find({ _id: { $nin: userIds }, isActive: true });
   },
 
-  structureDetail() {
-    return Structures.findOne();
+  structureDetail(_root, _args, { models }: IContext) {
+    return models.Structures.findOne();
   }
 };
 
