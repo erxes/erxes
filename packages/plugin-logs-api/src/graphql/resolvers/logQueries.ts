@@ -26,9 +26,18 @@ export interface IFilter extends ICommonParams {
 }
 
 const logQueries = {
-  logs(_root, params: ILogQueryParams, { models }: IContext) {
-    return fetchLogs(models, params);
+  async logs(_root, params: ILogQueryParams, { models, serverTiming }: IContext) {
+    serverTiming.startTime('logs');
+
+    console.log('in logs .........');
+
+    const response = await fetchLogs(models, params);
+
+    serverTiming.endTime('logs');
+
+    return response;
   },
+
   async getDbSchemaLabels(_root, params: { type: string }, { subdomain }: IContext) {
     const [serviceName, moduleName] = params.type.split(':');
 
