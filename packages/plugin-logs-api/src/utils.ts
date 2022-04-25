@@ -341,18 +341,12 @@ export const fetchLogs = async (models: IModels, params) => {
   const _page = Number(page || '1');
   const _limit = Number(perPage || '20');
 
-  console.log('before filter .........');
-
   const logs = await models.Logs.find(filter)
     .sort({ createdAt: -1 })
     .limit(_limit)
     .skip((_page - 1) * _limit);
 
-  console.log('before count .........', JSON.stringify(filter), models.Logs, models.Logs.countDocuments);
-
-  const logsCount = await models.Logs.countDocuments(filter);
-
-  console.log('after count .........', logsCount);
+  const logsCount = await models.Logs.find(filter).count();
 
   return { logs, totalCount: logsCount };
 };
