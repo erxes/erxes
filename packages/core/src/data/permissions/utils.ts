@@ -1,4 +1,4 @@
-import { Permissions, Users, UsersGroups } from '../../db/models';
+import { IModels } from '../../connectionResolver';
 import { IPermissionDocument } from '../../db/models/definitions/permissions';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { get, set } from '../../inmemoryStorage';
@@ -82,6 +82,7 @@ export const registerModule = (modules: any): void => {
 };
 
 export const can = async (
+  models: IModels,
   action: string,
   user: IUserDocument
 ): Promise<boolean> => {
@@ -93,7 +94,7 @@ export const can = async (
     return true;
   }
 
-  const actionMap: IActionMap = await getUserActionsMap(user);
+  const actionMap: IActionMap = await getUserActionsMap(models, user);
 
   return actionMap[action] === true;
 };
@@ -108,6 +109,7 @@ const getKey = (user: IUserDocument) => `user_permissions_${user._id}`;
  * Get given users permission map from inmemory storage or database
  */
 export const getUserActionsMap = async (
+  models: IModels,
   user: IUserDocument
 ): Promise<IActionMap> => {
   const key = getKey(user);
@@ -118,7 +120,7 @@ export const getUserActionsMap = async (
   if (permissionCache && permissionCache !== '{}') {
     actionMap = JSON.parse(permissionCache);
   } else {
-    actionMap = await userActionsMap(user);
+    actionMap = await userActionsMap(models, user);
 
     set(key, JSON.stringify(actionMap));
   }
@@ -130,9 +132,10 @@ export const getUserActionsMap = async (
  * Get allowed actions
  */
 export const getUserAllowedActions = async (
+  models: IModels,
   user: IUserDocument
 ): Promise<string[]> => {
-  const map = await getUserActionsMap(user);
+  const map = await getUserActionsMap(models, user);
 
   const allowedActions: string[] = [];
 
@@ -148,8 +151,8 @@ export const getUserAllowedActions = async (
 /*
  * Reset permissions map for all users
  */
-export const resetPermissionsCache = async () => {
-  const users = await Users.find({});
+export const resetPermissionsCache = async (models: IModels) => {
+  const users = await models.Users.find({});
 
   for (const user of users) {
     const key = getKey(user);
@@ -159,10 +162,11 @@ export const resetPermissionsCache = async () => {
 };
 
 export const userActionsMap = async (
+  models: IModels,
   user: IUserDocument
 ): Promise<IActionMap> => {
-  const userPermissions = await Permissions.find({ userId: user._id });
-  const groupPermissions = await Permissions.find({
+  const userPermissions = await models.Permissions.find({ userId: user._id });
+  const groupPermissions = await models.Permissions.find({
     groupId: { $in: user.groupIds }
   });
 
@@ -201,7 +205,7 @@ export const userActionsMap = async (
  * If a permission is added or removed from the constants & forgotten from required actions,
  * this util will fix that.
  */
-export const fixPermissions = async (): Promise<string[]> => {
+export const fixPermissions = async (models: IModels): Promise<string[]> => {
   const modules = Object.getOwnPropertyNames(moduleObjects);
   const result: string[] = [];
 
@@ -228,7 +232,7 @@ export const fixPermissions = async (): Promise<string[]> => {
             ? allAction.use
             : otherActions;
 
-        const permissions: IPermissionDocument[] = await Permissions.find({
+        const permissions: IPermissionDocument[] = await models.Permissions.find({
           module: mod,
           action: allAction.name,
           $or: [
@@ -238,7 +242,7 @@ export const fixPermissions = async (): Promise<string[]> => {
         }).lean();
 
         for (const perm of permissions) {
-          await Permissions.updateOne(
+          await models.Permissions.updateOne(
             { _id: perm._id },
             { $set: { requiredActions: mostActions } }
           );
@@ -246,14 +250,14 @@ export const fixPermissions = async (): Promise<string[]> => {
           let message = '';
 
           if (perm.userId) {
-            const user = await Users.findOne({ _id: perm.userId });
+            const user = await models.Users.findOne({ _id: perm.userId });
 
             message = user
               ? `user "${user.email || user.username}"`
               : perm.userId;
           }
           if (perm.groupId) {
-            const group = await UsersGroups.findOne({ _id: perm.groupId });
+            const group = await models.UsersGroups.findOne({ _id: perm.groupId });
 
             message = group ? `user group "${group.name}"` : perm.groupId;
           }

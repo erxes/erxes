@@ -1,4 +1,5 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
+import { IModels } from '../../connectionResolver';
 import {
   IOnboardingHistoryDocument,
   IRobotEntryDocument,
@@ -14,13 +15,13 @@ export interface IRobotEntryModel extends Model<IRobotEntryDocument> {
   updateOrCreate(action: string, data): Promise<IRobotEntryDocument>;
 }
 
-export const loadClass = () => {
+export const loadRobotClass = (models: IModels) => {
   class RobotEntry {
     public static async updateOrCreate(
       action: string,
       data
     ): Promise<IRobotEntryDocument> {
-      return RobotEntries.findOneAndUpdate(
+      return models.RobotEntries.findOneAndUpdate(
         { action, data },
         { isNotified: false },
         { new: true, upsert: true }
@@ -30,32 +31,32 @@ export const loadClass = () => {
     public static async markAsNotified(
       _id: string
     ): Promise<IRobotEntryDocument> {
-      return RobotEntries.updateOne({ _id }, { $set: { isNotified: true } });
+      return models.RobotEntries.updateOne({ _id }, { $set: { isNotified: true } });
     }
 
     public static async createEntry(
       data
     ): Promise<IRobotEntryDocument | undefined> {
       if (data.action === 'channelsWithoutIntegration') {
-        return RobotEntries.updateOrCreate('channelsWithoutIntegration', {
+        return models.RobotEntries.updateOrCreate('channelsWithoutIntegration', {
           channelIds: data.channelIds
         });
       }
 
       if (data.action === 'channelsWithoutMembers') {
-        return RobotEntries.updateOrCreate('channelsWithoutMembers', {
+        return models.RobotEntries.updateOrCreate('channelsWithoutMembers', {
           channelIds: data.channelIds
         });
       }
 
       if (data.action === 'brandsWithoutIntegration') {
-        return RobotEntries.updateOrCreate('brandsWithoutIntegration', {
+        return models.RobotEntries.updateOrCreate('brandsWithoutIntegration', {
           brandIds: data.brandIds
         });
       }
 
       if (data.action === 'featureSuggestion') {
-        return RobotEntries.updateOrCreate('featureSuggestion', {
+        return models.RobotEntries.updateOrCreate('featureSuggestion', {
           message: data.message
         });
       }
@@ -94,16 +95,16 @@ export interface IOnboardingHistoryModel
   userStatus(userId: string): string;
 }
 
-export const loadOnboardingHistoryClass = () => {
+export const loadOnboardingHistoryClass = (models: IModels) => {
   class OnboardingHistory {
     public static async getOrCreate({
       type,
       user
     }: IGetOrCreateDoc): Promise<IGetOrCreateResponse> {
-      const prevEntry = await OnboardingHistories.findOne({ userId: user._id });
+      const prevEntry = await models.OnboardingHistories.findOne({ userId: user._id });
 
       if (!prevEntry) {
-        const entry = await OnboardingHistories.create({
+        const entry = await models.OnboardingHistories.create({
           userId: user._id,
           completedSteps: [type]
         });
@@ -114,7 +115,7 @@ export const loadOnboardingHistoryClass = () => {
         return { status: 'prev', entry: prevEntry };
       }
 
-      const updatedEntry = await OnboardingHistories.updateOne(
+      const updatedEntry = await models.OnboardingHistories.updateOne(
         { userId: user._id },
         { $push: { completedSteps: type } }
       );
@@ -131,7 +132,7 @@ export const loadOnboardingHistoryClass = () => {
       for (const step of steps) {
         const selector = { userId: user._id, completedSteps: { $in: [step] } };
         result[step] =
-          (await OnboardingHistories.find(selector).countDocuments()) > 0;
+          (await models.OnboardingHistories.find(selector).countDocuments()) > 0;
       }
 
       return result;
@@ -140,13 +141,13 @@ export const loadOnboardingHistoryClass = () => {
     public static async forceComplete(
       userId: string
     ): Promise<IOnboardingHistoryDocument> {
-      const entry = await OnboardingHistories.findOne({ userId });
+      const entry = await models.OnboardingHistories.findOne({ userId });
 
       if (!entry) {
-        return OnboardingHistories.create({ userId, isCompleted: true });
+        return models.OnboardingHistories.create({ userId, isCompleted: true });
       }
 
-      return OnboardingHistories.updateOne(
+      return models.OnboardingHistories.updateOne(
         { userId },
         { $set: { isCompleted: true } }
       );
@@ -156,7 +157,7 @@ export const loadOnboardingHistoryClass = () => {
       step: string,
       userId: string
     ): Promise<void> {
-      return OnboardingHistories.updateOne(
+      return models.OnboardingHistories.updateOne(
         { userId },
         { $push: { completedSteps: step } },
         { upsert: true }
@@ -164,7 +165,7 @@ export const loadOnboardingHistoryClass = () => {
     }
 
     public static async userStatus(userId: string): Promise<string> {
-      const entries = await OnboardingHistories.find({ userId });
+      const entries = await models.OnboardingHistories.find({ userId });
       const completed = entries.find(item => item.isCompleted);
 
       if (completed) {
@@ -183,18 +184,3 @@ export const loadOnboardingHistoryClass = () => {
 
   return onboardingHistorySchema;
 };
-
-loadClass();
-loadOnboardingHistoryClass();
-
-// tslint:disable-next-line
-export const RobotEntries = model<IRobotEntryDocument, IRobotEntryModel>(
-  'robot_entries',
-  robotEntrySchema
-);
-
-// tslint:disable-next-line
-export const OnboardingHistories = model<
-  IOnboardingHistoryDocument,
-  IOnboardingHistoryModel
->('onboarding_histories', onboardingHistorySchema);

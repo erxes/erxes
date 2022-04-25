@@ -5,6 +5,7 @@ import * as dotenv from 'dotenv';
 import resolvers from './data/resolvers';
 import * as typeDefDetails from './data/schema';
 import { IDataLoaders, generateAllDataLoaders } from './data/dataLoaders';
+import { generateModels } from './connectionResolver';
 
 // load environment variables
 dotenv.config();
@@ -35,9 +36,11 @@ export const initApolloServer = async (_app, httpServer) => {
     ]),
     // for graceful shutdowns
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-    context: ({ req, res }) => {
-      let user: any = null;
+    context: async ({ req, res }) => {
+      const models = await generateModels('os')
 
+      let user: any = null;
+      
       if (req.headers.user) {
         const userJson = Buffer.from(req.headers.user, 'base64').toString(
           'utf-8'
@@ -45,7 +48,7 @@ export const initApolloServer = async (_app, httpServer) => {
         user = JSON.parse(userJson);
       }
 
-      const dataLoaders: IDataLoaders = generateAllDataLoaders();
+      const dataLoaders: IDataLoaders = generateAllDataLoaders(models);
 
       const requestInfo = {
         secure: req.secure,
@@ -62,7 +65,8 @@ export const initApolloServer = async (_app, httpServer) => {
           user,
           res,
           requestInfo,
-          dataLoaders
+          dataLoaders,
+          models
         };
       }
 
@@ -100,7 +104,8 @@ export const initApolloServer = async (_app, httpServer) => {
         user,
         res,
         requestInfo,
-        dataLoaders
+        dataLoaders,
+        models
       };
     }
   });

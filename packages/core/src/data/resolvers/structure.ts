@@ -1,8 +1,8 @@
-import { Users } from '../../db/models';
+import { IContext } from '../../connectionResolver';
 import { IStructureDocument } from '../../db/models/definitions/structures';
 
 export default {
-  supervisor(structure: IStructureDocument) {
-    return Users.findOne({ _id: structure.supervisorId });
+  supervisor(structure: IStructureDocument, _args, { models }: IContext) {
+    return models.Users.findOne({ _id: structure.supervisorId });
   }
 };
