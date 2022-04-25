@@ -1,7 +1,6 @@
 import { DEFAULT_CONSTANT_VALUES } from '@erxes/api-utils/src/constants';
 import { IContext } from '../../connectionResolver';
 import {
-  OnboardingHistories,
   Departments
 } from '../../db/models';
 import { IUserDocument } from '../../db/models/definitions/users';
@@ -62,8 +61,8 @@ export default {
     return results;
   },
 
-  async onboardingHistory(user: IUserDocument) {
-    const entries = await OnboardingHistories.find({
+  async onboardingHistory(user: IUserDocument, _args, { models }: IContext) {
+    const entries = await models.OnboardingHistories.find({
       userId: user._id
     });
     const completed = entries.find(item => item.isCompleted);

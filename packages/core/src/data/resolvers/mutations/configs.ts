@@ -51,7 +51,7 @@ const configMutations = {
         (prevConfig.value || '').toString() !==
           (updatedConfig.value || '').toString()
       ) {
-        registerOnboardHistory({ type: 'generalSettingsCreate', user });
+        registerOnboardHistory({ models, type: 'generalSettingsCreate', user });
       }
 
       if (
@@ -64,7 +64,7 @@ const configMutations = {
         (prevConfig.value || '').toString() !==
           (updatedConfig.value || '').toString()
       ) {
-        registerOnboardHistory({ type: 'generalSettingsUploadCreate', user });
+        registerOnboardHistory({ models, type: 'generalSettingsUploadCreate', user });
       }
 
       if (
@@ -75,6 +75,7 @@ const configMutations = {
           (updatedConfig.value || '').toString()
       ) {
         registerOnboardHistory({
+          models,
           type: 'generelSettingsConstantsCreate',
           user
         });

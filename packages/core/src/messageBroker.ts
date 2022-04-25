@@ -123,8 +123,10 @@ export const initBroker = async options => {
   // listen for rpc queue =========
   consumeQueue(
     "core:registerOnboardHistory",
-    async ({ data: { type, user } }) => {
-      await registerOnboardHistory(type, user);
+    async ({ subdomain, data: { type, user } }) => {
+      const models = await generateModels(subdomain);
+
+      await registerOnboardHistory(models, type, user);
     }
   );
 

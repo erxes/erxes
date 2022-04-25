@@ -146,7 +146,7 @@ export const putCreateLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  await registerOnboardHistory({ type: `${params.type}Create`, user });
+  await registerOnboardHistory({models, type: `${params.type}Create`, user });
 
   // await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
 

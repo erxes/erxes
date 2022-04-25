@@ -10,9 +10,6 @@ import { debugBase, debugError } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
 import * as _ from 'underscore';
-import {
-  OnboardingHistories,
-} from '../db/models';
 import * as Handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
 import { sendLogsMessage } from '../messageBroker';
@@ -708,13 +705,15 @@ export const generateXlsx = async (workbook: any): Promise<string> => {
 };
 
 export const registerOnboardHistory = ({
+  models,
   type,
   user
 }: {
+  models: IModels,
   type: string;
   user: IUserDocument;
 }) =>
-  OnboardingHistories.getOrCreate({ type, user })
+  models.OnboardingHistories.getOrCreate({ type, user })
     .then(({ status }) => {
       if (status === 'created') {
         graphqlPubsub.publish('onboardingChanged', {
