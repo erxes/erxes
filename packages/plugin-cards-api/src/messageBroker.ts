@@ -139,7 +139,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Deals.countDocuments(data)
+      data: await models.Deals.find(data).count()
     };
   });
 

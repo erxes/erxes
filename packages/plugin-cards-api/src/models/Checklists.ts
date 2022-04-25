@@ -155,7 +155,7 @@ export const loadItemClass = (models: IModels, subdomain: string) => {
       { checklistId, ...fields }: IChecklistItem,
       user: IUserDocument
     ) {
-      const itemsCount = await models.ChecklistItems.countDocuments({ checklistId });
+      const itemsCount = await models.ChecklistItems.find({ checklistId }).count();
 
       const checklistItem = await models.ChecklistItems.create({
         checklistId,

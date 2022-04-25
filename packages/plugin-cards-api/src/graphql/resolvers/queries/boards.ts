@@ -117,7 +117,7 @@ const boardQueries = {
     for (const board of boards) {
       const count = await Pipelines.find({
         boardId: board._id,
-      }).countDocuments();
+      }).count();
 
       counts.push({
         _id: board._id,
@@ -264,7 +264,7 @@ const boardQueries = {
 
     const notStartedCount = await Pipelines.find(
       notStartedQuery
-    ).countDocuments();
+    ).count();
 
     counts["Not started"] = notStartedCount;
 
@@ -276,7 +276,7 @@ const boardQueries = {
 
     const inProgressCount = await Pipelines.find(
       inProgressQuery
-    ).countDocuments();
+    ).count();
 
     counts["In progress"] = inProgressCount;
 
@@ -287,7 +287,7 @@ const boardQueries = {
 
     const completedCounted = await Pipelines.find(
       completedQuery
-    ).countDocuments();
+    ).count();
 
     counts.Completed = completedCounted;
 
@@ -569,7 +569,7 @@ const boardQueries = {
       Object.assign(filter, regexSearchText(search, "name"));
     }
 
-    return Stages.countDocuments(filter);
+    return Stages.count(filter);
   },
 
   /**
