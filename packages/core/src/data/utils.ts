@@ -878,7 +878,6 @@ export const sendMobileNotification = async (models: IModels, {
     );
   }
 
-    // ! will fix
   //   if (customerId) {
   //     tokens.push(
   //       ...(await Customers.findOne({ _id: customerId }).distinct(
