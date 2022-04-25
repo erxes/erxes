@@ -16,7 +16,16 @@ const posOrderReturnBill = `
   }
 `;
 
+const posOrderChangePayments = `
+  mutation posOrderChangePayments($_id: String!, $cashAmount: Float, $cardAmount: Float, $mobileAmount: Float) {
+    posOrderChangePayments(_id: $_id, cashAmount: $cashAmount, cardAmount: $cardAmount, mobileAmount: $mobileAmount){
+      ${orderFields}
+    }
+  }
+`;
+
 export default {
   posOrderSyncErkhet,
-  posOrderReturnBill
+  posOrderReturnBill,
+  posOrderChangePayments
 };

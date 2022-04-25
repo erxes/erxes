@@ -9,6 +9,7 @@ import logs from './logUtils';
 import tags from './tags';
 import internalNotes from './internalNotes';
 import forms from './forms';
+import permissions from './permissions';
 
 export let debug;
 export let mainDb;
@@ -16,6 +17,7 @@ export let serviceDiscovery;
 
 export default {
   name: 'products',
+  permissions,
   graphql: async (sd) => {
     serviceDiscovery = sd;
     

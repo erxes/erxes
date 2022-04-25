@@ -31,24 +31,27 @@ interface ILogin {
   deviceToken?: string;
 }
 
-const sendInvitationEmail = ({
-  email,
-  token
-}: {
-  email: string;
-  token: string;
-}) => {
-  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
-  const confirmationUrl = `${MAIN_APP_DOMAIN}/confirmation?token=${token}`;
+const sendInvitationEmail = (
+  subdomain: string,
+  {
+    email,
+    token
+  }: {
+    email: string;
+    token: string;
+  }
+) => {
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const confirmationUrl = `${DOMAIN}/confirmation?token=${token}`;
 
-  utils.sendEmail({
+  utils.sendEmail(subdomain, {
     toEmails: [email],
     title: 'Team member invitation',
     template: {
       name: 'userInvitation',
       data: {
         content: confirmationUrl,
-        domain: MAIN_APP_DOMAIN
+        domain: DOMAIN
       }
     }
   });
@@ -178,15 +181,15 @@ const userMutations = {
   /*
    * Send forgot password email
    */
-  async forgotPassword(_root, { email }: { email: string }) {
+  async forgotPassword(_root, { email }: { email: string }, { subdomain }: IContext) {
     const token = await Users.forgotPassword(email);
 
     // send email ==============
-    const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+    const DOMAIN = getEnv({ name: 'DOMAIN' });
 
-    const link = `${MAIN_APP_DOMAIN}/reset-password?token=${token}`;
+    const link = `${DOMAIN}/reset-password?token=${token}`;
 
-    await utils.sendEmail({
+    await utils.sendEmail(subdomain, {
       toEmails: [email],
       title: 'Reset password',
       template: {
@@ -345,7 +348,7 @@ const userMutations = {
         departmentId?: string;
       }>;
     },
-    { user }: IContext
+    { user, subdomain }: IContext
   ) {
     for (const entry of entries) {
       await Users.checkDuplication({ email: entry.email });
@@ -374,7 +377,7 @@ const userMutations = {
         );
       }
 
-      sendInvitationEmail({ email: entry.email, token });
+      sendInvitationEmail(subdomain, { email: entry.email, token });
 
       await putCreateLog(
         {
@@ -393,10 +396,10 @@ const userMutations = {
   /*
    * Resend invitation
    */
-  async usersResendInvitation(_root, { email }: { email: string }) {
+  async usersResendInvitation(_root, { email }: { email: string }, { subdomain }: IContext) {
     const token = await Users.resendInvitation({ email });
 
-    sendInvitationEmail({ email, token });
+    sendInvitationEmail(subdomain, { email, token });
 
     return token;
   },

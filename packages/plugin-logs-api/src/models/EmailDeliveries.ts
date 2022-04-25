@@ -1,4 +1,6 @@
-import { Document, Schema } from 'mongoose';
+import { Model, Schema, Document } from 'mongoose';
+import * as Random from 'meteor-random';
+import { IModels } from '../connectionResolver';
 import { field } from './utils';
 
 export interface IAttachmentParams {
@@ -26,14 +28,20 @@ export interface IEmailDeliveriesDocument extends IEmailDeliveries, Document {
   id: string;
 }
 
+export interface IEmailDeliveryModel extends Model<IEmailDeliveriesDocument> {
+  createEmailDelivery(doc: IEmailDeliveries): Promise<IEmailDeliveriesDocument>;
+  updateEmailDeliveryStatus(_id: string, status: string): Promise<void>;
+}
+
+
 export const EMAIL_DELIVERY_STATUS = {
   PENDING: 'pending',
   RECEIVED: 'received',
   ALL: ['pending', 'received']
 };
 
-export const emailDeliverySchema = new Schema({
-  _id: field({ pkey: true }),
+const schema = new Schema({
+  _id: { type: String, default: () => Random.id() },
   subject: field({ type: String }),
   body: field({ type: String }),
   to: field({ type: [String] }),
@@ -50,3 +58,24 @@ export const emailDeliverySchema = new Schema({
     enum: EMAIL_DELIVERY_STATUS.ALL
   })
 });
+
+export const loadEmailDeliveryClass = (models: IModels) => {
+  class EmailDelivery {
+    /**
+     * Create an EmailDelivery document
+     */
+    public static async createEmailDelivery(doc: IEmailDeliveries) {
+      return models.EmailDeliveries.create({
+        ...doc
+      });
+    }
+
+    public static async updateEmailDeliveryStatus(_id: string, status: string) {
+      return models.EmailDeliveries.updateOne({ _id }, { $set: { status } });
+    }
+  }
+
+  schema.loadClass(EmailDelivery);
+
+  return schema;
+};

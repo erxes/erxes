@@ -11,8 +11,8 @@ import {
   Configs,
   Users,
   Brands,
-  EmailDeliveries,
   Branches,
+  Departments,
 } from "./db/models";
 import { registerModule } from "./data/permissions/utils";
 import {
@@ -31,17 +31,17 @@ import forms from "./forms";
 
 let client;
 
-export const initBroker = async (options) => {
+export const initBroker = async options => {
   client = await initBrokerCore(options);
 
   // do not receive messages in crons worker
   const { consumeQueue, consumeRPCQueue } = client;
 
   consumeQueue("core:runCrons", async () => {
-    console.log('Running crons ........');
+    console.log("Running crons ........");
   });
 
-  consumeQueue("registerPermissions", async (permissions) => {
+  consumeQueue("registerPermissions", async permissions => {
     await registerModule(permissions);
   });
 
@@ -49,8 +49,8 @@ export const initBroker = async (options) => {
     await sendMobileNotification(data);
   });
 
-  consumeQueue("core:sendEmail", async ({ data }) => {
-    await sendEmail(data);
+  consumeQueue("core:sendEmail", async ({ subdomain, data }) => {
+    await sendEmail(subdomain, data);
   });
 
   consumeRPCQueue("core:conformities.addConformity", async ({ data }) => ({
@@ -114,7 +114,7 @@ export const initBroker = async (options) => {
   }));
 
   // graphql subscriptions call =========
-  consumeQueue("callPublish", (params) => {
+  consumeQueue("callPublish", params => {
     graphqlPubsub.publish(params.name, params.data);
   });
 
@@ -159,6 +159,11 @@ export const initBroker = async (options) => {
   consumeRPCQueue("core:users.getIds", async ({ data }) => ({
     status: "success",
     data: await Users.find(data, { _id: 1 }),
+  }));
+
+  consumeRPCQueue("core:departments.find", async ({ data }) => ({
+    status: "success",
+    data: await Departments.find(data).lean(),
   }));
 
   consumeRPCQueue(
@@ -226,16 +231,6 @@ export const initBroker = async (options) => {
     };
   });
 
-  consumeRPCQueue(
-    "core:emailDeliveries.createEmailDelivery",
-    async ({ data }) => {
-      return {
-        status: "success",
-        data: await EmailDeliveries.createEmailDelivery(data),
-      };
-    }
-  );
-
   logConsumers({
     name: "core",
     consumeRPCQueue,
@@ -294,6 +289,15 @@ export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: "cards",
+    ...args,
+  });
+};
+
+export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: "logs",
     ...args,
   });
 };

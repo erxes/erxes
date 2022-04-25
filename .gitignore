@@ -20,7 +20,6 @@ oplog.timestamp
 dump
 gitinfo.json
 ecosystem.config.js
-nginx.conf
 src/private/xlsTemplateOutputs
 src/private/uploads
 engages-email-sender/src/__tests__/coverage/

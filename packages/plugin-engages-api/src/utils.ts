@@ -65,12 +65,14 @@ export const subscribeEngage = (models: IModels) => {
     const sesApi = await getApi(models, 'ses');
     const configSet = await getConfig(models, 'configSet', 'erxes');
 
-    const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
+    const DOMAIN = getEnv({ name: 'DOMAIN' });
 
     const topicArn = await snsApi
       .createTopic({ Name: configSet })
       .promise()
       .catch((e) => {
+        debugError(e.message);
+
         return reject(e.message);
       });
 
@@ -82,13 +84,15 @@ export const subscribeEngage = (models: IModels) => {
       .subscribe({
         TopicArn: topicArn.TopicArn,
         Protocol: 'https',
-        Endpoint: `${MAIN_API_DOMAIN}/service/engage/tracker`,
+        Endpoint: `${DOMAIN}/gateway/pl:engages/service/engage/tracker`,
       })
       .promise()
       .then((response) => {
         debugBase(response);
       })
       .catch((e) => {
+        debugError(e.message);
+
         return reject(e.message);
       });
 
@@ -100,6 +104,8 @@ export const subscribeEngage = (models: IModels) => {
       })
       .promise()
       .catch((e) => {
+        debugError(e.message);
+
         if (e.message.includes('already exists')) {
           return;
         }
@@ -130,6 +136,8 @@ export const subscribeEngage = (models: IModels) => {
       })
       .promise()
       .catch((e) => {
+        debugError(e.message);
+
         if (e.message.includes('already exists')) {
           return;
         }
@@ -342,7 +350,7 @@ export const getEditorAttributeUtil = async () => {
   const services = await getServices();
   const editor = await new EditorAttributeUtil(
     messageBroker(),
-    `${process.env.MAIN_API_DOMAIN}/pl:core`,
+    `${process.env.DOMAIN}/gateway/pl:core`,
     services
   );
 

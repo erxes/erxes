@@ -39,4 +39,6 @@ jobs:
 
       - name: Deploy
         run: |
+          tar -cf build.tar --directory=packages/plugin-chats-ui/.erxes/dist .
+          cp build.tar packages/plugin-chats-ui/.erxes/dist
           aws s3 sync packages/plugin-chats-ui/.erxes/dist s3://erxes-plugins/uis/plugin-chats-ui --delete

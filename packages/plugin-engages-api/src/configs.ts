@@ -8,6 +8,7 @@ import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import tags from './tags';
 import logs from './logUtils';
+import permissions from './permissions';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -23,6 +24,7 @@ export let es: {
 
 export default {
   name: 'engages',
+  permissions,
   graphql: async (sd) => {
     serviceDiscovery = sd;
 

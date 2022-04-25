@@ -6,6 +6,7 @@ import * as React from 'react';
 import { useQuery } from 'react-apollo';
 import EmailDelivery from '../components/EmailDelivery';
 import queries from '../queries';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   queryParams: any;
@@ -48,7 +49,8 @@ function EmailDeliveryContainer(props: Props) {
       status: queryParams.status,
       customerId: queryParams.customerId,
       ...generatePaginationParams(queryParams)
-    }
+    },
+    skip: isEnabled("engages") ? false : true
   });
 
   const handleSelectEmailType = (type: string) => {

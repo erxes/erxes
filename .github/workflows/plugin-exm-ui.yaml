@@ -39,4 +39,6 @@ jobs:
 
       - name: Deploy
         run: |
+          tar -cf build.tar --directory=packages/plugin-exm-ui/.erxes/dist .
+          cp build.tar packages/plugin-exm-ui/.erxes/dist
           aws s3 sync packages/plugin-exm-ui/.erxes/dist s3://erxes-plugins/uis/plugin-exm-ui --delete

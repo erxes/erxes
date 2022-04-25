@@ -11,6 +11,7 @@ const sleep = (ms) => {
 
 const commonEnvs = (configs) => {
   const db_server_address = configs.db_server_address;
+  const widgets = configs.widgets || {};
   const redis = configs.redis || {};
   const rabbitmq = configs.rabbitmq || {};
   const rabbitmq_host = `amqp://${rabbitmq.user}:${rabbitmq.pass}@${rabbitmq.server_address || db_server_address}:5672/${rabbitmq.vhost}`;
@@ -18,6 +19,8 @@ const commonEnvs = (configs) => {
   return {
     DEBUG: "erxes*",
     NODE_ENV: "production",
+    DOMAIN: configs.domain,
+    WIDGETS_DOMAIN: widgets.domain || `${configs.domain}/widgets`,
     REDIS_HOST: db_server_address,
     REDIS_PORT: 6379,
     REDIS_PASSWORD: redis.password || "",
@@ -79,6 +82,22 @@ const generatePluginBlock = (configs, plugin) => {
     extra_hosts: [`mongo:${plugin.db_server_address || configs.db_server_address || '127.0.0.1'}`],
   };
 };
+
+const syncS3 = async (name) => {
+  log(`Downloading ${name} ui build.tar from s3`);
+
+  const plName = `plugin-${name}-ui`;
+
+  await execCommand(
+    `aws s3 sync s3://erxes-plugins/uis/${plName} plugin-uis/${plName} --no-sign-request --exclude "*" --include build.tar`
+  );
+
+  log(`Extracting build ......`);
+  await execCommand(`tar -xf plugin-uis/${plName}/build.tar --directory=plugin-uis/${plName}`);
+
+  log(`Removing build.tar ......`);
+  await execCommand(`rm plugin-uis/${plName}/build.tar`);
+}
 
 const deployDbs = async (program) => {
   await cleaning();
@@ -191,12 +210,14 @@ const up = async (uis) => {
 
   const configs = await fse.readJSON(filePath("configs.json"));
 
-  const main_api_domain = configs.main_api_domain || `${configs.main_app_domain}/api`;
-  const subscription_url = `wss://${main_api_domain.replace("https://", "")}/graphql`;
-  const widgets_domain = (configs.widgets && configs.widgets.domain) || `${configs.main_app_domain}/widgets`;
-  const dashboard_domain = (configs.dashboard && configs.dashboard.domain) || `${configs.main_app_domain}/dashboard/front`;
+  const domain = configs.domain;
+  const gateway_url = `${domain}/gateway`;
+  const subscription_url = `wss://${gateway_url.replace("https://", "")}/graphql`;
+  const widgets = configs.widgets || {};
+  const widgets_domain = widgets.domain || `${domain}/widgets`;
+  const dashboard_domain = `${domain}/dashboard/front`;
 
-  const NGINX_HOST = (configs.main_app_domain || "").replace("https://", "");
+  const NGINX_HOST = domain.replace("https://", "");
   const extra_hosts = [`mongo:${configs.db_server_address || '127.0.0.1'}`];
 
   const dockerComposeConfig = {
@@ -211,7 +232,7 @@ const up = async (uis) => {
         image: "erxes/erxes:federation",
         environment: {
           REACT_APP_CDN_HOST: widgets_domain,
-          REACT_APP_API_URL: main_api_domain,
+          REACT_APP_API_URL: gateway_url,
           REACT_APP_DASHBOARD_URL: dashboard_domain,
           REACT_APP_API_SUBSCRIPTION_URL: subscription_url,
           NGINX_HOST,
@@ -232,8 +253,6 @@ const up = async (uis) => {
           PORT: "80",
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
           LOAD_BALANCER_ADDRESS: "http://plugin_core_api",
-          API_DOMAIN: main_api_domain,
-          MAIN_APP_DOMAIN: configs.main_app_domain || "",
           MONGO_URL: mongoEnv(configs),
           EMAIL_VERIFIER_ENDPOINT:
             configs.email_verifier_endpoint ||
@@ -254,9 +273,6 @@ const up = async (uis) => {
           PORT: "80",
           LOAD_BALANCER_ADDRESS: "http://gateway",
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          MAIN_APP_DOMAIN: configs.main_app_domain,
-          API_DOMAIN: "http://plugin_core_api",
-          WIDGETS_DOMAIN: widgets_domain,
           CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
           MONGO_URL: mongoEnv(configs),
           ...commonEnvs(configs),
@@ -309,7 +325,7 @@ const up = async (uis) => {
       environment: {
         PORT: "3200",
         ROOT_URL: widgets_domain,
-        API_URL: main_api_domain,
+        API_URL: gateway_url,
         API_SUBSCRIPTIONS_URL: subscription_url,
       },
       ports: ["3200:3200"],
@@ -335,7 +351,7 @@ const up = async (uis) => {
       image: "erxes/erxes-dashboard-front:develop",
       ports: ["4200:80"],
       environment: {
-        REACT_APP_API_URL: main_api_domain,
+        REACT_APP_API_URL: gateway_url,
         REACT_APP_API_SUBSCRIPTION_URL: subscription_url,
         REACT_APP_DASHBOARD_API_URL: `https://${NGINX_HOST}/dashboard/api`,
         REACT_APP_DASHBOARD_API_TOKEN: configs.dashboard.api_token,
@@ -366,7 +382,7 @@ const up = async (uis) => {
 
     enabledPlugins.push(`'${plugin.name}'`);
 
-    if (pluginsMap[plugin.name] && pluginsMap[plugin.name].ui) {
+    if (pluginsMap[plugin.name]) {
       const uiConfig = pluginsMap[plugin.name].ui;
 
       if (uiConfig) {
@@ -403,11 +419,10 @@ const up = async (uis) => {
     for (const plugin of configs.plugins || []) {
       const name = `plugin-${plugin.name}-ui`;
 
-      log(`Downloading ${name} ui from s3 ....`);
-
-      await execCommand(
-        `aws s3 sync s3://erxes-plugins/uis/${name} plugin-uis/${name} --no-sign-request`
-      );
+      if (pluginsMap[plugin.name] && pluginsMap[plugin.name].ui) {
+        log(`Downloading ${name} ui from s3 ....`);
+        await syncS3(plugin.name);
+      }
     }
   }
 
@@ -461,6 +476,49 @@ const up = async (uis) => {
 
   fs.writeFileSync(filePath("docker-compose.yml"), yamlString);
 
+  log("Generating nginx.conf ....");
+
+  const commonConfig = `
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_http_version 1.1;
+  `;
+
+  await fs.promises.writeFile(
+    filePath('nginx.conf'),
+    `
+    server {
+            listen 80;
+            server_name ${NGINX_HOST};
+
+            index index.html;
+            error_log /var/log/nginx/erxes.error.log;
+            access_log /var/log/nginx/erxes.access.log;
+            location / {
+                    proxy_pass http://127.0.0.1:3000/;
+                    ${commonConfig}
+            }
+            location /widgets/ {
+                    proxy_pass http://127.0.0.1:3200/;
+                    ${commonConfig}
+            }
+            location /gateway/ {
+                    proxy_pass http://127.0.0.1:3300/;
+                    ${commonConfig}
+            }
+
+            location /dashboard/front {
+                proxy_pass http://127.0.0.1:4200/;
+                ${commonConfig}
+            }
+    }
+  `
+  );
+
   log("Deploy ......");
 
   return execCommand(
@@ -476,40 +534,38 @@ const update = async (program) => {
   const pluginNames = process.argv[3];
 
   for (const name of pluginNames.split(",")) {
-    log(`Updating image ${name}......`);
+    if (!program.noimage) {
+      log(`Updating image ${name}......`);
 
-    if (['dashboard', 'workers', 'crons', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
+      if (['dashboard', 'workers', 'crons', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
+        await execCommand(
+          `docker service update erxes_${name} --image erxes/${name}:federation`
+        );
+        continue;
+      }
+
+      if (name === 'coreui') {
+        await execCommand(
+          `docker service update erxes_coreui --image erxes/erxes:federation`
+        );
+        continue;
+      }
+
+      if (name === 'core') {
+        await execCommand(
+          `docker service update erxes_plugin_core_api --image erxes/core:federation`
+        );
+        continue;
+      }
+
       await execCommand(
-        `docker service update erxes_${name} --image erxes/${name}:federation`
+        `docker service update erxes_plugin_${name}_api --image erxes/plugin-${name}-api:federation`
       );
-      continue;
     }
-
-    if (name === 'coreui') {
-      await execCommand(
-        `docker service update erxes_coreui --image erxes/erxes:federation`
-      );
-      continue;
-    }
-
-    if (name === 'core') {
-      await execCommand(
-        `docker service update erxes_plugin_core_api --image erxes/core:federation`
-      );
-      continue;
-    }
-
-    await execCommand(
-      `docker service update erxes_plugin_${name}_api --image erxes/plugin-${name}-api:federation`
-    );
 
     if (program.uis) {
-      log("Syncing plugin uis from s3 ....");
-
-      const uiname = `plugin-${name}-ui`;
-
-      await execCommand(`rm -rf plugin-uis/${uiname}`, true);
-      await execCommand(`aws s3 sync s3://erxes-plugins/uis/${uiname} plugin-uis/${uiname} --no-sign-request`);
+      await execCommand(`rm -rf plugin-uis/${`plugin-${name}-ui`}`, true);
+      await syncS3(name);
     }
   }
 
@@ -561,9 +617,7 @@ module.exports.manageInstallation = async (program) => {
 
     log("Syncing ui ....");
 
-    await execCommand(
-      `aws s3 sync s3://erxes-plugins/uis/plugin-${name}-ui plugin-uis/plugin-${name}-ui --no-sign-request`
-    );
+    await syncS3(name);
 
     await restart('coreui');
 

@@ -157,13 +157,13 @@ export const compose = (...fns) => arg =>
  * Generate url depending on given file upload publicly or not
  */
 export const generateAttachmentUrl = (urlOrName: string) => {
-  const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
 
   if (urlOrName.startsWith('http')) {
     return urlOrName;
   }
 
-  return `${MAIN_API_DOMAIN}/read-file?key=${urlOrName}`;
+  return `${DOMAIN}/gateway/pl:core/read-file?key=${urlOrName}`;
 };
 
 export const downloadAttachment = urlOrName => {

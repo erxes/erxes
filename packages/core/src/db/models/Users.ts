@@ -1,3 +1,4 @@
+import redis from '@erxes/api-utils/src/redis';
 import { ILink } from '@erxes/api-utils/src/types';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
@@ -669,9 +670,7 @@ export const loadClass = () => {
 
       // storing tokens in user collection.
       if (token) {
-        const validatedTokens: string[] = user.validatedTokens || [];
-        validatedTokens.push(token);
-        await user.update({ $set: { validatedTokens } });
+        redis.set(`user_token_${user._id}_${token}`, 1, 'EX', 24 * 60 * 60);
       }
 
       if (deviceToken) {
@@ -701,18 +700,11 @@ export const loadClass = () => {
      * Logging out user from database
      */
     public static async logout(user: IUserDocument, currentToken: string) {
-      const currentUser: any = await this.getUser(user._id);
-      let validatedTokens: string[] = currentUser.validatedTokens || [];
+      const validatedToken = await redis.get(`user_token_${user._id}_${currentToken}`);
 
-      if (validatedTokens.includes(currentToken)) {
-        // invalidating token.
-        validatedTokens = await validatedTokens.filter(
-          token => token !== currentToken
-        );
-        await Users.updateOne(
-          { _id: currentUser._id },
-          { $set: { validatedTokens } }
-        );
+      if (validatedToken) {
+        redis.del(`user_token_${user._id}_${currentToken}`);
+
         return 'loggedout';
       }
 

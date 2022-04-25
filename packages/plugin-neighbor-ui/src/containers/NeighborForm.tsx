@@ -20,8 +20,8 @@ function NeighborFormContainer({ productCategoryId }) {
     return <div>{detailQuery.error.message}</div>;
   }
 
-  const save = (info: any) => {
-    saveMutation({ variables: { productCategoryId, info } })
+  const save = (info: any, rate: object) => {
+    saveMutation({ variables: { productCategoryId, info, rate } })
       .then(() => {
         Alert.success("Successfully saved");
       })

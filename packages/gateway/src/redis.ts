@@ -1,4 +1,4 @@
-import { redis, isAvailable, getService, getServices } from '@erxes/api-utils/src/serviceDiscovery'
+import { redis, isAvailable, getService, getServices, isEnabled } from '@erxes/api-utils/src/serviceDiscovery'
 
 const setAfterMutations = async () => {
   const services = await getServices();
@@ -36,6 +36,14 @@ const setAfterMutations = async () => {
 export const clearCache = async () => {
   await redis.del('enabled-services');
 }
+
+export const serviceDiscovery = {
+  isAvailable,
+  getServices,
+  getService,
+  redis,
+  isEnabled
+};
 
 export {
   isAvailable,

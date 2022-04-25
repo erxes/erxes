@@ -7,6 +7,7 @@ import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import * as ws from 'ws';
 import * as express from 'express';
+import * as fs from 'fs';
 import * as http from 'http';
 import * as cookieParser from 'cookie-parser';
 import { loadSubscriptions } from './subscription';
@@ -16,13 +17,13 @@ import * as db from './db';
 import pubsub from './subscription/pubsub';
 import { clearCache, getService, getServices, redis, setAfterMutations } from './redis';
 import { initBroker } from './messageBroker';
+import { routeErrorHandling } from '@erxes/api-utils/src/requests';
+import { handleUnsubscription } from './util/handleUnsubscription';
 
 const {
-  MAIN_APP_DOMAIN,
+  DOMAIN,
   WIDGETS_DOMAIN,
   CLIENT_PORTAL_DOMAINS,
-  DASHBOARD_DOMAIN,
-  API_DOMAIN,
   PORT,
   RABBITMQ_HOST,
   MESSAGE_BROKER_PREFIX
@@ -39,11 +40,29 @@ const {
 
   app.use(userMiddleware);
 
+  //unsubscribe
+  app.get(
+    '/unsubscribe',
+    routeErrorHandling(async (req: any, res) => {
+      const subdomain = 'os';
+
+      await handleUnsubscription(subdomain, req.query);
+
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+
+      const template = fs.readFileSync(
+        __dirname + '/private/emailTemplates/unsubscribe.html'
+      );
+
+      return res.send(template);
+    })
+  );
+
   // TODO: Find some solution so that we can stop forwarding /read-file, /initialSetup etc.
   app.use(
     /\/((?!graphql).)*/,
     createProxyMiddleware({
-      target: API_DOMAIN,
+      target: process.env.NODE_ENV === 'production' ? 'http://plugin_core_api' : 'http://localhost:3300',
       router: async req => {
         const services = await getServices();
 
@@ -149,10 +168,9 @@ const {
     cors: {
       credentials: true,
       origin: [
-        MAIN_APP_DOMAIN || 'http://localhost:3000',
-        WIDGETS_DOMAIN || '',
+        DOMAIN ? DOMAIN : 'http://localhost:3000',
+        WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
         ...(CLIENT_PORTAL_DOMAINS || '').split(','),
-        DASHBOARD_DOMAIN || 'http://localhost:4200',
         'https://studio.apollographql.com',
       ]
     }

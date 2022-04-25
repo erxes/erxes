@@ -64,6 +64,7 @@ export type OrdersSummaryQueryResponse = {
 
 export type IPosProduct = {
   count: number;
+  amount: number;
 } & IProduct
 
 export type PosProductsQueryResponse = {
@@ -81,4 +82,12 @@ export type PosOrderSyncErkhetMutationResponse = {
 
 export type PosOrderReturnBillMutationResponse = {
   posOrderReturnBill: (mutation: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type PosOrderChangePaymentsMutationResponse = {
+  posOrderChangePayments: (mutation: {
+    variables: {
+      _id: string, cashAmount: number, cardAmount: number, mobileAmount: number
+    }
+  }) => Promise<any>;
 };

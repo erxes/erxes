@@ -379,19 +379,23 @@ const queries = {
         $project: {
           productId: "$items.productId",
           count: "$items.count",
-        },
+          amount: { $multiply: ["$items.unitPrice", "$items.count"] }
+        }
       },
       {
         $group: {
           _id: "$productId",
           count: { $sum: "$count" },
-        },
-      },
+          amount: { $sum: "$amount" }
+        }
+      }
     ]);
 
     for (const product of products) {
-      product.count =
-        (items.find((i) => i._id === product._id) || {}).count || 0;
+      const { count = 0, amount = 0 } = items.find(i => i._id === product._id) || {};
+
+      product.count = count;
+      product.amount = amount;
     }
 
     return { totalCount, products };

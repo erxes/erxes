@@ -3,6 +3,7 @@ import ActivityLogQueries from './activityLogQueries';
 import LogQueries from './logQueries';
 import ActivityLog from './activityLog';
 import ActivityLogByAction from './activityLogByAction';
+import EmailDevliveryQueries from './emailDeliveryQueries';
 
 const resolvers: any = {
   ...customScalars,
@@ -11,6 +12,7 @@ const resolvers: any = {
   Query: {
     ...LogQueries,
     ...ActivityLogQueries,
+    ...EmailDevliveryQueries
   },
 };
 

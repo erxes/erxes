@@ -12,13 +12,13 @@ import { graphqlPubsub } from '../pubsub';
 import * as _ from 'underscore';
 import {
   Configs,
-  EmailDeliveries,
   OnboardingHistories,
   Users
 } from '../db/models';
 import * as Handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
-import { EMAIL_DELIVERY_STATUS } from '../db/models/definitions/constants';
+import { sendLogsMessage } from '../messageBroker';
+
 export interface IEmailParams {
   toEmails?: string[];
   fromEmail?: string;
@@ -60,7 +60,7 @@ const applyTemplate = async (data: any, templateName: string) => {
   return template(data);
 };
 
-export const sendEmail = async (params: IEmailParams) => {
+export const sendEmail = async (subdomain: string, params: IEmailParams) => {
   const {
     toEmails = [],
     fromEmail,
@@ -83,7 +83,7 @@ export const sendEmail = async (params: IEmailParams) => {
     'AWS_SES_SECRET_ACCESS_KEY',
     ''
   );
-  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
 
   // do not send email it is running in test mode
   if (NODE_ENV === 'test') {
@@ -104,7 +104,7 @@ export const sendEmail = async (params: IEmailParams) => {
   const { data = {}, name } = template;
 
   // for unsubscribe url
-  data.domain = MAIN_APP_DOMAIN;
+  data.domain = DOMAIN;
 
   for (const toEmail of toEmails) {
     if (modifier) {
@@ -148,13 +148,18 @@ export const sendEmail = async (params: IEmailParams) => {
       AWS_SES_ACCESS_KEY_ID.length > 0 &&
       AWS_SES_SECRET_ACCESS_KEY.length > 0
     ) {
-      const emailDelivery = await EmailDeliveries.create({
-        kind: 'transaction',
-        to: toEmail,
-        from: mailOptions.from,
-        subject: title,
-        body: html,
-        status: EMAIL_DELIVERY_STATUS.PENDING
+      const emailDelivery = await sendLogsMessage({
+        subdomain,
+        action: 'emailDeliveries.create',
+        data: {
+          kind: 'transaction',
+          to: toEmail,
+          from: mailOptions.from,
+          subject: title,
+          body: html,
+          status: 'pending'
+        },
+        isRPC: true,
       });
 
       headers = {
@@ -724,28 +729,6 @@ export const authCookieOptions = (secure: boolean) => {
   return cookieOptions;
 };
 
-/*
- * Handle engage unsubscribe request
- */
-export const handleUnsubscription = async (query: {
-  cid: string;
-  uid: string;
-}) => {
-  // const { cid, uid } = query;
-  const { uid } = query;
-
-  // if (cid) {
-  //   await models.Customers.updateOne(
-  //     { _id: cid },
-  //     { $set: { isSubscribed: 'No' } }
-  //   );
-  // }
-
-  if (uid) {
-    await Users.updateOne({ _id: uid }, { $set: { isSubscribed: 'No' } });
-  }
-};
-
 export const getConfigs = async () => {
   const configsCache = await memoryStorage().get('configs_erxes_api');
 
@@ -777,49 +760,6 @@ export const getConfig = async (code, defaultValue?) => {
 
 export const resetConfigsCache = () => {
   memoryStorage().set('configs_erxes_api', '');
-};
-
-export const frontendEnv = ({
-  name,
-  req,
-  requestInfo
-}: {
-  name: string;
-  req?: any;
-  requestInfo?: any;
-}): string => {
-  const cookies = req ? req.cookies : requestInfo.cookies;
-  const keys = Object.keys(cookies);
-
-  const envs: { [key: string]: string } = {};
-
-  for (const key of keys) {
-    envs[key.replace('REACT_APP_', '')] = cookies[key];
-  }
-
-  return envs[name];
-};
-
-export const getSubServiceDomain = ({ name }: { name: string }): string => {
-  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
-
-  const defaultMappings = {
-    API_DOMAIN: `${MAIN_APP_DOMAIN}/api`,
-    WIDGETS_DOMAIN: `${MAIN_APP_DOMAIN}/widgets`,
-    INTEGRATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/integrations`,
-    LOGS_API_DOMAIN: `${MAIN_APP_DOMAIN}/logs`,
-    ENGAGES_API_DOMAIN: `${MAIN_APP_DOMAIN}/engages`,
-    VERIFIER_API_DOMAIN: `${MAIN_APP_DOMAIN}/verifier`,
-    AUTOMATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/automations`
-  };
-
-  const domain = getEnv({ name });
-
-  if (domain) {
-    return domain;
-  }
-
-  return defaultMappings[name];
 };
 
 export const getCoreDomain = () => {
@@ -854,7 +794,7 @@ export const isUsingElk = () => {
 
 export const checkPremiumService = async type => {
   try {
-    const domain = getEnv({ name: 'MAIN_APP_DOMAIN' })
+    const domain = getEnv({ name: 'DOMAIN' })
       .replace('https://', '')
       .replace('http://', '');
 
