@@ -24,11 +24,14 @@ export const types = (contactAvailable, cardAvailable) => `
     extend type Ticket @key(fields: "_id") {
       _id: String! @external
     }
+    extend type Deal @key(fields: "_id") {
+      _id: String! @external
+    }
      `
       : ''
   }
-  
-  
+
+
   type ClientPortal {
     _id: String!
     name: String!
@@ -109,13 +112,11 @@ export const queries = (cardAvailable) => `
       clientPortalTickets(email: String!): [Ticket]
       clientPortalTask(_id: String!): Task
       clientPortalTicket(_id: String!): Ticket
+      clientPortalDeal(_id: String!): Deal
+      clientPortalDeals(stageId: String, conformityMainType: String, conformityMainTypeId: String, probability: String): [Deal]
      `
       : ''
   }
-  
-  
-  
-  
 `;
 
 export const mutations = (contactAvailable, cardAvailable) => `
@@ -159,7 +160,7 @@ export const mutations = (contactAvailable, cardAvailable) => `
         email: String!
         priority: String
       ): Ticket
-      
+
      `
       : ''
   }
@@ -173,16 +174,16 @@ export const mutations = (contactAvailable, cardAvailable) => `
         lastName: String
         email: String!
       ): Customer
-    
+
       clientPortalCreateCompany(
         configId: String!
         companyName: String!
         email: String!
       ): Company
-      
+
      `
       : ''
   }
 
- 
+
 `;
