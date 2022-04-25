@@ -1,9 +1,10 @@
-import { Departments, Users } from '../../db/models';
+import { IContext } from '../../connectionResolver';
+import { Departments } from '../../db/models';
 import { IUnitDocument } from '../../db/models/definitions/structures';
 
 export default {
-  users(unit: IUnitDocument) {
-    return Users.find({
+  users(unit: IUnitDocument, _args, { models }: IContext) {
+    return models.Users.find({
       _id: { $in: unit.userIds || [] },
       isActive: true
     });
@@ -13,7 +14,7 @@ export default {
     return Departments.findOne({ _id: unit.departmentId });
   },
 
-  supervisor(unit: IUnitDocument) {
-    return Users.findOne({ _id: unit.supervisorId, isActive: true });
+  supervisor(unit: IUnitDocument, _args, { models }: IContext) {
+    return models.Users.findOne({ _id: unit.supervisorId, isActive: true });
   }
 };

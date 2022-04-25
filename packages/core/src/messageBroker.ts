@@ -8,9 +8,6 @@ import { graphqlPubsub } from "./pubsub";
 import { registerOnboardHistory } from "./data/modules/robot";
 import {
   Conformities,
-  Configs,
-  Users,
-  Brands,
   Branches,
   Departments,
 } from "./db/models";
@@ -28,6 +25,7 @@ import * as serviceDiscovery from "./serviceDiscovery";
 import logUtils from "./logUtils";
 import internalNotes from "./internalNotes";
 import forms from "./forms";
+import { generateModels } from "./connectionResolver";
 
 let client;
 
@@ -45,12 +43,16 @@ export const initBroker = async options => {
     await registerModule(permissions);
   });
 
-  consumeQueue("core:sendMobileNotification", async ({ data }) => {
-    await sendMobileNotification(data);
+  consumeQueue("core:sendMobileNotification", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    await sendMobileNotification(models, data);
   });
 
   consumeQueue("core:sendEmail", async ({ subdomain, data }) => {
-    await sendEmail(subdomain, data);
+    const models = await generateModels(subdomain);
+
+    await sendEmail(models, subdomain, data);
   });
 
   consumeRPCQueue("core:conformities.addConformity", async ({ data }) => ({
@@ -126,20 +128,32 @@ export const initBroker = async options => {
     }
   );
 
-  consumeRPCQueue("core:getConfigs", async () => ({
-    status: "success",
-    data: await getConfigs(),
-  }));
+  consumeRPCQueue("core:getConfigs", async ({ subdomain }) => {
+    const models = await generateModels(subdomain);
 
-  consumeRPCQueue("core:configs.getValues", async ({ data }) => ({
-    status: "success",
-    data: await Configs.find(data).distinct("value"),
-  }));
+    return {
+      status: "success",
+      data: await getConfigs(models),
+    }
+  });
 
-  consumeRPCQueue("core:configs.findOne", async ({ data: { query } }) => ({
-    status: "success",
-    data: await Configs.findOne(query),
-  }));
+  consumeRPCQueue("core:configs.getValues", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: "success",
+      data: await models.Configs.find(data).distinct("value"),
+    }
+  });
+
+  consumeRPCQueue("core:configs.findOne", async ({ subdomain, data: { query } }) => {
+    const models = await generateModels(subdomain);
+    
+    return {
+      status: "success",
+      data: await models.Configs.findOne(query),
+    }
+  });
 
   consumeRPCQueue(
     "core:getConfig",
@@ -151,15 +165,23 @@ export const initBroker = async options => {
     }
   );
 
-  consumeRPCQueue("core:users.findOne", async ({ data }) => ({
-    status: "success",
-    data: await Users.findOne(data),
-  }));
+  consumeRPCQueue('core:users.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
 
-  consumeRPCQueue("core:users.getIds", async ({ data }) => ({
-    status: "success",
-    data: await Users.find(data, { _id: 1 }),
-  }));
+    return {
+      status: 'success',
+      data: await models.Users.findOne(data)
+    };
+  });
+
+  consumeRPCQueue('core:users.getIds', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Users.find(data, { _id: 1 })
+    };
+  });
 
   consumeRPCQueue("core:departments.find", async ({ data }) => ({
     status: "success",
@@ -168,50 +190,64 @@ export const initBroker = async options => {
 
   consumeRPCQueue(
     "core:users.updateOne",
-    async ({ data: { selector, modifier } }) => {
+    async ({ subdomain, data: { selector, modifier } }) => {
+      const models = await generateModels(subdomain);
+
       return {
         status: "success",
-        data: await Users.updateOne(selector, modifier),
+        data: await models.Users.updateOne(selector, modifier),
       };
     }
   );
 
-  consumeRPCQueue("core:users.getCount", async ({ data: { query } }) => {
+  consumeRPCQueue("core:users.getCount", async ({ subdomain, data: { query } }) => {
+    const models = await generateModels(subdomain);
+
     return {
       status: "success",
-      data: await Users.countDocuments(query),
+      data: await models.Users.countDocuments(query),
     };
   });
 
-  consumeRPCQueue("core:users.create", async ({ data }) => {
+  consumeRPCQueue("core:users.create", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
     return {
       status: "success",
-      data: await Users.createUser(data),
+      data: await models.Users.createUser(data),
     };
   });
 
-  consumeRPCQueue("core:users.find", async ({ data }) => {
+  consumeRPCQueue("core:users.find", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
     const { query, sort = {} } = data;
 
     return {
       status: "success",
-      data: await Users.find(query)
+      data: await models.Users.find(query)
         .sort(sort)
         .lean(),
     };
   });
 
-  consumeRPCQueue("core:brands.findOne", async ({ data: { query } }) => ({
-    status: "success",
-    data: await Brands.getBrand(query),
-  }));
+  consumeRPCQueue("core:brands.findOne", async ({ subdomain, data: { query } }) => {
+    const models = await generateModels(subdomain);
 
-  consumeRPCQueue("core:brands.find", async ({ data }) => {
+    return {
+      status: "success",
+      data: await models.Brands.getBrand(query),
+    }
+  });
+
+  consumeRPCQueue("core:brands.find", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
     const { query } = data;
 
     return {
       status: "success",
-      data: await Brands.find(query).lean(),
+      data: await models.Brands.find(query).lean(),
     };
   });
 
@@ -224,10 +260,12 @@ export const initBroker = async options => {
     };
   });
 
-  consumeRPCQueue("core:getFileUploadConfigs", async () => {
+  consumeRPCQueue("core:getFileUploadConfigs", async ({ subdomain }) => {
+    const models = await generateModels(subdomain);
+    
     return {
       status: "success",
-      data: await getFileUploadConfigs(),
+      data: await getFileUploadConfigs(models),
     };
   });
 

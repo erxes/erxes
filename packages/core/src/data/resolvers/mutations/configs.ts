@@ -1,10 +1,9 @@
 import { sendCommonMessage } from '../../../messageBroker';
-import { Configs } from '../../../db/models';
 import {
   moduleCheckPermission,
   requireLogin
 } from '../../permissions/wrappers';
-import { IContext } from '../../types';
+import { IContext } from '../../../connectionResolver';
 import {
   checkPremiumService,
   getCoreDomain,
@@ -18,7 +17,7 @@ const configMutations = {
   /**
    * Create or update config object
    */
-  async configsUpdate(_root, { configsMap }, { user }: IContext) {
+  async configsUpdate(_root, { configsMap }, { user, models }: IContext) {
     const codes = Object.keys(configsMap);
 
     const isThemeEnabled = await checkPremiumService('isThemeServiceEnabled');
@@ -32,19 +31,19 @@ const configMutations = {
         continue;
       }
 
-      const prevConfig = (await Configs.findOne({ code })) || { value: [] };
+      const prevConfig = (await models.Configs.findOne({ code })) || { value: [] };
 
       const value = configsMap[code];
       const doc = { code, value };
 
-      await Configs.createOrUpdateConfig(doc);
+      await models.Configs.createOrUpdateConfig(doc);
 
       resetConfigsCache();
 
-      const updatedConfig = await Configs.getConfig(code);
+      const updatedConfig = await models.Configs.getConfig(code);
 
       if (['GOOGLE_APPLICATION_CREDENTIALS_JSON'].includes(code)) {
-        initFirebase();
+        initFirebase(models);
       }
 
       if (

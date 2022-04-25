@@ -4,7 +4,7 @@ import { OnboardingHistories } from '../../../db/models/Robot';
 import { moduleObjects } from '../../permissions/actions/permission';
 import { getUserAllowedActions, IModuleMap } from '../../permissions/utils';
 import { moduleRequireLogin } from '../../permissions/wrappers';
-import { IContext } from '../../types';
+import { IContext } from '../../../connectionResolver';
 
 const features: {
   [key: string]: {
@@ -231,14 +231,14 @@ const robotQueries = {
     return OnboardingHistories.stepsCompletness(steps, user);
   },
 
-  async onboardingGetAvailableFeatures(_root, _args, { user }: IContext) {
+  async onboardingGetAvailableFeatures(_root, _args, { user, models }: IContext) {
     const results: Array<{
       name: string;
       isComplete: boolean;
       settings?: string[];
       showSettings?: boolean;
     }> = [];
-    const actionsMap = await getUserAllowedActions(user);
+    const actionsMap = await getUserAllowedActions(models, user);
 
     for (const value of Object.keys(features)) {
       const { settings, feature } = features[value];

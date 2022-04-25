@@ -1,9 +1,10 @@
-import { Branches, Users } from '../../db/models';
+import { IContext } from '../../connectionResolver';
+import { Branches } from '../../db/models';
 import { IBranchDocument } from '../../db/models/definitions/structures';
 
 export default {
-  users(branch: IBranchDocument) {
-    return Users.find({ _id: { $in: branch.userIds || [] }, isActive: true });
+  users(branch: IBranchDocument, _args, { models }: IContext) {
+    return models.Users.find({ _id: { $in: branch.userIds || [] }, isActive: true });
   },
 
   parent(branch: IBranchDocument) {
@@ -14,7 +15,7 @@ export default {
     return Branches.find({ parentId: branch._id });
   },
 
-  supervisor(branch: IBranchDocument) {
-    return Users.findOne({ _id: branch.supervisorId, isActive: true });
+  supervisor(branch: IBranchDocument, _args, { models }: IContext) {
+    return models.Users.findOne({ _id: branch.supervisorId, isActive: true });
   }
 };

@@ -1,4 +1,5 @@
-import { Departments, Units, Users } from '../../../db/models';
+import { IContext } from '../../../connectionResolver';
+import { Departments, Units } from '../../../db/models';
 import { Branches, Structures } from '../../../db/models/Structure';
 import { checkPermission } from '../../permissions/wrappers';
 
@@ -81,7 +82,7 @@ const structureQueries = {
     return Branches.getBranch({ _id });
   },
 
-  async noDepartmentUsers(_root, { excludeId }) {
+  async noDepartmentUsers(_root, { excludeId }, { models }: IContext) {
     const userIds: string[] = [];
 
     const filter: { _id?: { $ne: string } } = {};
@@ -102,7 +103,7 @@ const structureQueries = {
       }
     });
 
-    return Users.find({ _id: { $nin: userIds }, isActive: true });
+    return models.Users.find({ _id: { $nin: userIds }, isActive: true });
   },
 
   structureDetail() {

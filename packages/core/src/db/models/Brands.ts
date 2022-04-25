@@ -1,5 +1,6 @@
 import * as Random from 'meteor-random';
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
+import { IModels } from '../../connectionResolver';
 import { brandSchema, IBrand, IBrandDocument } from './definitions/brands';
 
 export interface IBrandModel extends Model<IBrandDocument> {
@@ -11,13 +12,13 @@ export interface IBrandModel extends Model<IBrandDocument> {
   removeBrand(_id: string): IBrandDocument;
 }
 
-export const loadClass = () => {
+export const loadBrandClass = (models: IModels) => {
   class Brand {
     /*
      * Get a Brand
      */
     public static async getBrand(doc: any) {
-      const brand = await Brands.findOne(doc);
+      const brand = await models.Brands.findOne(doc);
 
       if (!brand) {
         throw new Error('Brand not found');
@@ -29,13 +30,13 @@ export const loadClass = () => {
     public static async generateCode(code?: string) {
       let generatedCode = code || Random.id().substr(0, 6);
 
-      let prevBrand = await Brands.findOne({ code: generatedCode });
+      let prevBrand = await models.Brands.findOne({ code: generatedCode });
 
       // search until not existing one found
       while (prevBrand) {
         generatedCode = Random.id().substr(0, 6);
 
-        prevBrand = await Brands.findOne({ code: generatedCode });
+        prevBrand = await models.Brands.findOne({ code: generatedCode });
       }
 
       return generatedCode;
@@ -44,7 +45,7 @@ export const loadClass = () => {
     public static async createBrand(doc: IBrand) {
       // generate code automatically
       // if there is no brand code defined
-      return Brands.create({
+      return models.Brands.create({
         ...doc,
         code: await this.generateCode(),
         createdAt: new Date(),
@@ -56,12 +57,12 @@ export const loadClass = () => {
     }
 
     public static async updateBrand(_id: string, fields: IBrand) {
-      await Brands.updateOne({ _id }, { $set: { ...fields } });
-      return Brands.findOne({ _id });
+      await models.Brands.updateOne({ _id }, { $set: { ...fields } });
+      return models.Brands.findOne({ _id });
     }
 
     public static async removeBrand(_id) {
-      const brandObj = await Brands.findOne({ _id });
+      const brandObj = await models.Brands.findOne({ _id });
 
       if (!brandObj) {
         throw new Error(`Brand not found with id ${_id}`);
@@ -72,11 +73,6 @@ export const loadClass = () => {
   }
 
   brandSchema.loadClass(Brand);
+
+  return brandSchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const Brands = model<IBrandDocument, IBrandModel>('brands', brandSchema);
-
-export default Brands;

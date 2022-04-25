@@ -1,5 +1,5 @@
+import { IContext, IModels } from '../../../connectionResolver';
 import * as _ from 'underscore';
-import { Permissions, Users, UsersGroups } from '../../../db/models';
 import {
   actionsMap,
   IActionsMap,
@@ -15,7 +15,7 @@ interface IListArgs {
   searchValue?: string;
 }
 
-const generateSelector = async ({
+const generateSelector = async (models: IModels, {
   module,
   action,
   userId,
@@ -35,17 +35,17 @@ const generateSelector = async ({
   filter.allowed = typeof allowed === 'undefined' ? true : allowed;
 
   if (userId) {
-    const user = await Users.findOne({ _id: userId });
+    const user = await models.Users.findOne({ _id: userId });
 
     let permissionIds: string[] = [];
 
     if (user) {
-      const groups = await UsersGroups.find(
+      const groups = await models.UsersGroups.find(
         { _id: { $in: user.groupIds } },
         { _id: 1 }
       );
       const groupIds = groups.map(group => group._id);
-      const permissions = await Permissions.find({
+      const permissions = await models.Permissions.find({
         groupId: { $in: groupIds }
       });
 
@@ -75,9 +75,10 @@ const permissionQueries = {
    */
   async permissions(
     _root,
-    { module, action, userId, groupId, allowed, ...args }
+    { module, action, userId, groupId, allowed, ...args },
+    { models }: IContext
   ) {
-    const filter = await generateSelector({
+    const filter = await generateSelector(models, {
       module,
       action,
       userId,
@@ -85,7 +86,7 @@ const permissionQueries = {
       allowed
     });
 
-    return paginate(Permissions.find(filter), args);
+    return paginate(models.Permissions.find(filter), args);
   },
 
   permissionModules() {
@@ -119,9 +120,9 @@ const permissionQueries = {
    * @param {String} args.userId
    * @return {Promise} total count
    */
-  async permissionsTotalCount(_root, args) {
-    const filter = await generateSelector(args);
-    return Permissions.find(filter).countDocuments();
+  async permissionsTotalCount(_root, args, { models }: IContext) {
+    const filter = await generateSelector(models, args);
+    return models.Permissions.find(filter).countDocuments();
   }
 };
 
@@ -131,8 +132,8 @@ const usersGroupQueries = {
    * @param {Object} args - Search params
    * @return {Promise} sorted and filtered users objects
    */
-  usersGroups(_root, args: IListArgs) {
-    const users = paginate(UsersGroups.find({}), args);
+  usersGroups(_root, args: IListArgs, { models }: IContext) {
+    const users = paginate(models.UsersGroups.find({}), args);
 
     return users.sort({ name: 1 });
   },
@@ -141,8 +142,8 @@ const usersGroupQueries = {
    * Get all groups list. We will use it in pager
    * @return {Promise} total count
    */
-  usersGroupsTotalCount() {
-    return UsersGroups.find({}).countDocuments();
+  usersGroupsTotalCount(_root, _args, { models }: IContext) {
+    return models.UsersGroups.find({}).countDocuments();
   }
 };
 

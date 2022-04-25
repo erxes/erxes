@@ -1,6 +1,6 @@
-import { Branches, Departments, Units, Users } from '../../../db/models';
+import { IContext } from '../../../connectionResolver';
+import { Branches, Departments, Units } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
-import { IContext } from '../../types';
 import { paginate } from '../../utils';
 
 interface IListArgs {
@@ -102,7 +102,7 @@ const userQueries = {
   /**
    * Users list
    */
-  async users(_root, args: IListArgs, { userBrandIdsSelector }: IContext) {
+  async users(_root, args: IListArgs, { userBrandIdsSelector, models }: IContext) {
     const selector = { ...userBrandIdsSelector, ...(await queryBuilder(args)) };
 
     const { sortField, sortDirection } = args;
@@ -112,7 +112,7 @@ const userQueries = {
         ? { [sortField]: sortDirection }
         : { username: 1 };
 
-    return paginate(Users.find(selector).sort(sort), args);
+    return paginate(models.Users.find(selector).sort(sort), args);
   },
 
   /**
@@ -121,7 +121,7 @@ const userQueries = {
   allUsers(
     _root,
     { isActive }: { isActive: boolean },
-    { userBrandIdsSelector }: IContext
+    { userBrandIdsSelector, models }: IContext
   ) {
     const selector: { isActive?: boolean } = userBrandIdsSelector;
 
@@ -129,14 +129,14 @@ const userQueries = {
       selector.isActive = true;
     }
 
-    return Users.find(selector).sort({ username: 1 });
+    return models.Users.find(selector).sort({ username: 1 });
   },
 
   /**
    * Get one user
    */
-  userDetail(_root, { _id }: { _id: string }) {
-    return Users.findOne({ _id });
+  userDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Users.findOne({ _id });
   },
 
   /**
@@ -145,19 +145,19 @@ const userQueries = {
   async usersTotalCount(
     _root,
     args: IListArgs,
-    { userBrandIdsSelector }: IContext
+    { userBrandIdsSelector, models }: IContext
   ) {
     const selector = { ...userBrandIdsSelector, ...(await queryBuilder(args)) };
 
-    return Users.find(selector).countDocuments();
+    return models.Users.find(selector).countDocuments();
   },
 
   /**
    * Current user
    */
-  currentUser(_root, _args, { user }: IContext) {
+  currentUser(_root, _args, { user, models }: IContext) {
     return user
-      ? Users.findOne({ _id: user._id, isActive: { $ne: false } })
+      ? models.Users.findOne({ _id: user._id, isActive: { $ne: false } })
       : null;
   },
 };

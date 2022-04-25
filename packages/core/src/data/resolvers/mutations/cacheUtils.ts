@@ -1,13 +1,14 @@
 import sift from 'sift';
+import { IModels } from '../../../connectionResolver';
 
-import { Brands, Users } from '../../../db/models';
 import { get, set } from '../../../inmemoryStorage';
 
 export const getDocument = async (
+  models: IModels,
   type: 'users' | 'brands',
   selector: { [key: string]: any }
 ) => {
-  const list = await getDocumentList(type, selector);
+  const list = await getDocumentList(models, type, selector);
 
   if (list.length > 0) {
     return list[0];
@@ -17,6 +18,7 @@ export const getDocument = async (
 };
 
 export const getDocumentList = async (
+  models: IModels,
   type: 'users' | 'brands',
   selector: { [key: string]: any }
 ) => {
@@ -29,12 +31,12 @@ export const getDocumentList = async (
   } else {
     switch (type) {
       case 'users': {
-        list = await Users.find().lean();
+        list = await models.Users.find().lean();
         break;
       }
 
       case 'brands': {
-        list = await Brands.find().lean();
+        list = await models.Brands.find().lean();
         break;
       }
     }

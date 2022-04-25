@@ -1,9 +1,8 @@
 import { DEFAULT_CONSTANT_VALUES } from '@erxes/api-utils/src/constants';
+import { IContext } from '../../connectionResolver';
 import {
-  Configs,
   OnboardingHistories,
-  Departments,
-  Users
+  Departments
 } from '../../db/models';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { getUserActionsMap } from '../permissions/utils';
@@ -11,8 +10,8 @@ import { getConfigs } from '../utils';
 import { getDocumentList } from './mutations/cacheUtils';
 
 export default {
-  __resolveReference: ({ _id }) => {
-    return Users.findOne({ _id });
+  __resolveReference: ({ _id }, { models }: IContext) => {
+    return models.Users.findOne({ _id });
   },
 
   status(user: IUserDocument) {
@@ -23,26 +22,26 @@ export default {
     return 'Verified';
   },
 
-  brands(user: IUserDocument) {
+  brands(user: IUserDocument, _args, { models }: IContext) {
     if (user.isOwner) {
-      return getDocumentList('brands', {});
+      return getDocumentList(models, 'brands', {});
     }
 
-    return getDocumentList('brands', { _id: { $in: user.brandIds } });
+    return getDocumentList(models, 'brands', { _id: { $in: user.brandIds } });
   },
 
-  async permissionActions(user: IUserDocument) {
-    return getUserActionsMap(user);
+  async permissionActions(user: IUserDocument, _args, { models }: IContext) {
+    return getUserActionsMap(models, user);
   },
 
-  async configs() {
-    return getConfigs();
+  async configs(_user, _args, { models }: IContext) {
+    return getConfigs(models);
   },
 
-  async configsConstants() {
+  async configsConstants(_user, _args, { models }: IContext) {
     const results: any[] = [];
-    const configs = await getConfigs();
-    const constants = Configs.constants();
+    const configs = await getConfigs(models);
+    const constants = models.Configs.constants();
 
     for (const key of Object.keys(constants)) {
       const configValues = configs[key] || [];
@@ -84,7 +83,7 @@ export default {
     return Departments.findOne({ userIds: { $in: user._id } });
   },
 
-  async leaderBoardPosition(user: IUserDocument) {
-    return (await Users.find({ score: { $gt: user.score || 0 } }).count()) + 1;
+  async leaderBoardPosition(user: IUserDocument, _args, { models }: IContext) {
+    return (await models.Users.find({ score: { $gt: user.score || 0 } }).count()) + 1;
   }
 };
