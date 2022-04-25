@@ -11,7 +11,6 @@ import {
   Configs,
   Users,
   Brands,
-  EmailDeliveries,
   Branches,
   Departments,
 } from "./db/models";
@@ -50,8 +49,8 @@ export const initBroker = async options => {
     await sendMobileNotification(data);
   });
 
-  consumeQueue("core:sendEmail", async ({ data }) => {
-    await sendEmail(data);
+  consumeQueue("core:sendEmail", async ({ subdomain, data }) => {
+    await sendEmail(subdomain, data);
   });
 
   consumeRPCQueue("core:conformities.addConformity", async ({ data }) => ({
@@ -232,16 +231,6 @@ export const initBroker = async options => {
     };
   });
 
-  consumeRPCQueue(
-    "core:emailDeliveries.createEmailDelivery",
-    async ({ data }) => {
-      return {
-        status: "success",
-        data: await EmailDeliveries.createEmailDelivery(data),
-      };
-    }
-  );
-
   logConsumers({
     name: "core",
     consumeRPCQueue,
@@ -300,6 +289,15 @@ export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: "cards",
+    ...args,
+  });
+};
+
+export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: "logs",
     ...args,
   });
 };

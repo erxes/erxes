@@ -139,6 +139,16 @@ const chatQueries = {
     };
   },
 
+  chatMessageDetail: async (
+    _root,
+    { _id },
+    { models }: { models: IModels; user: IUserDocument }
+  ) => {
+    const message = await models.ChatMessages.findOne({ _id });
+
+    return message;
+  },
+
   getChatIdByUserIds: async (
     _root,
     { userIds },

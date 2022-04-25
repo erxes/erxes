@@ -15,7 +15,7 @@ import {
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
 import { debug } from '../../configs';
-import messageBroker, { sendContactsMessage, sendIntegrationsMessage, sendCoreMessage, sendFormsMessage } from '../../messageBroker';
+import messageBroker, { sendContactsMessage, sendIntegrationsMessage, sendCoreMessage, sendFormsMessage, sendLogsMessage } from '../../messageBroker';
 
 import { MODULE_NAMES } from '../../constants';
 import {
@@ -509,7 +509,15 @@ const integrationMutations = {
     doc.userId = user._id;
 
     for (const cusId of customerIds) {
-      await sendCoreMessage({ subdomain, action: 'emailDeliveries.createEmailDelivery', data: { ...doc, customerId: cusId }, isRPC: true })
+      await sendLogsMessage({
+        subdomain,
+        action: 'emailDeliveries.create',
+        data: {
+          ...doc,
+          customerId: cusId
+        },
+        isRPC: true
+      });
     }
 
     return;

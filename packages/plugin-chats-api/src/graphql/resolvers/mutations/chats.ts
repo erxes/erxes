@@ -76,23 +76,86 @@ const chatMutations = {
     return models.Chats.removeChat(_id);
   },
 
+  chatMarkAsRead: async (_root, { _id }, { models, user }) => {
+    const lastMessage = await models.ChatMessages.findOne({ chatId: _id }).sort(
+      {
+        createdAt: -1,
+      }
+    );
+
+    let seen;
+
+    if (lastMessage) {
+      const chat = await models.Chats.getChat(_id);
+
+      const seenInfos = chat.seenInfos || [];
+
+      let seenInfo = seenInfos.find((info) => info.userId === user._id);
+
+      let updated = false;
+
+      if (!seenInfo) {
+        seenInfo = {
+          userId: user._id,
+          lastSeenMessageId: lastMessage._id,
+          seenDate: new Date(),
+        };
+
+        seenInfos.push(seenInfo);
+
+        updated = true;
+
+        seen = true;
+      } else {
+        const index = seenInfos.indexOf(seenInfo);
+        if (index > -1) {
+          seenInfos.splice(index, 1);
+        }
+
+        updated = true;
+
+        seen = false;
+
+        // if (seenInfo.lastSeenMessageId !== lastMessage._id) {
+        //   seenInfo.lastSeenMessageId = lastMessage._id;
+        //   seenInfo.seenDate = new Date();
+
+        //   updated = true;
+        // }
+      }
+
+      if (updated) {
+        graphqlPubsub.publish("chatUnreadCountChanged", {
+          userId: user._id,
+        });
+
+        await models.Chats.updateOne(
+          { _id: chat._id },
+          { $set: { seenInfos } }
+        );
+      }
+    }
+
+    return seen;
+  },
+
   chatMessageAdd: async (_root, args, { models, user }) => {
     if (!args.content) {
       throw new Error("Content is required");
     }
 
-    const created = await models.ChatMessages.createChatMessage(args, user._id);
+    const message = await models.ChatMessages.createChatMessage(args, user._id);
 
     await models.Chats.updateOne(
-      { _id: created.chatId },
+      { _id: message.chatId },
       { $set: { updatedAt: new Date() } }
     );
 
     graphqlPubsub.publish("chatMessageInserted", {
-      chatId: created.chatId,
+      chatMessageInserted: message,
     });
 
-    const chat = await models.Chats.getChat(created.chatId);
+    const chat = await models.Chats.getChat(message.chatId);
 
     const recievers = chat.participantIds.filter((i) => i !== user._id);
 
@@ -106,7 +169,7 @@ const chatMutations = {
       });
     }
 
-    return created;
+    return message;
   },
 
   chatMessageRemove: async (_root, { _id }, { models }) => {
@@ -206,6 +269,7 @@ const chatMutations = {
 checkPermission(chatMutations, "chatAdd", "manageChats");
 checkPermission(chatMutations, "chatEdit", "manageChats");
 checkPermission(chatMutations, "chatRemove", "manageChats");
+checkPermission(chatMutations, "chatMarkAsRead", "manageChats");
 checkPermission(chatMutations, "chatMessageAdd", "manageChats");
 checkPermission(chatMutations, "chatMessageRemove", "manageChats");
 checkPermission(chatMutations, "chatMessageToggleIsPinned", "manageChats");
