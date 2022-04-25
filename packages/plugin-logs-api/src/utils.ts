@@ -348,11 +348,11 @@ export const fetchLogs = async (models: IModels, params) => {
     .limit(_limit)
     .skip((_page - 1) * _limit);
 
-  console.log('before count .........', JSON.stringify(filter));
+  console.log('before count .........', JSON.stringify(filter), models.Logs, models.Logs.countDocuments);
 
   const logsCount = await models.Logs.countDocuments(filter);
 
-  console.log('after count .........');
+  console.log('after count .........', logsCount);
 
   return { logs, totalCount: logsCount };
 };
