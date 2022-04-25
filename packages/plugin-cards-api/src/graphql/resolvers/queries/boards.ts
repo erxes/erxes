@@ -55,21 +55,21 @@ const boardQueries = {
     const pipelineFilter = user.isOwner
       ? {}
       : {
-          $or: [
-            { $eq: ["$visibility", "public"] },
-            {
-              $and: [
-                { $eq: ["$visibility", "private"] },
-                {
-                  $or: [
-                    { $in: [user._id, "$memberIds"] },
-                    { $eq: ["$userId", user._id] },
-                  ],
-                },
-              ],
-            },
-          ],
-        };
+        $or: [
+          { $eq: ["$visibility", "public"] },
+          {
+            $and: [
+              { $eq: ["$visibility", "private"] },
+              {
+                $or: [
+                  { $in: [user._id, "$memberIds"] },
+                  { $eq: ["$userId", user._id] },
+                ],
+              },
+            ],
+          },
+        ],
+      };
 
     return Boards.aggregate([
       { $match: { ...commonQuerySelector, type } },
@@ -182,22 +182,22 @@ const boardQueries = {
       user.isOwner || isAll
         ? {}
         : {
-            status: { $ne: "archived" },
-            $or: [
-              { visibility: "public" },
-              {
-                $and: [
-                  { visibility: "private" },
-                  {
-                    $or: [
-                      { memberIds: { $in: [user._id] } },
-                      { userId: user._id },
-                    ],
-                  },
-                ],
-              },
-            ],
-          };
+          status: { $ne: "archived" },
+          $or: [
+            { visibility: "public" },
+            {
+              $and: [
+                { visibility: "private" },
+                {
+                  $or: [
+                    { memberIds: { $in: [user._id] } },
+                    { userId: user._id },
+                  ],
+                },
+              ],
+            },
+          ],
+        };
 
     if (!user.isOwner && !isAll) {
       const departments = await sendCoreMessage({
@@ -356,7 +356,7 @@ const boardQueries = {
       filter.status = { $ne: BOARD_STATUSES.ARCHIVED };
 
       filter.$or = [
-        { visibility: "public" },
+        { visibility: { $in: ["public", null] } },
         {
           $and: [{ visibility: "private" }, { memberIds: { $in: [user._id] } }],
         },
