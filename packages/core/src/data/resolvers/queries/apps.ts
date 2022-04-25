@@ -1,10 +1,10 @@
-import Apps from '../../../db/models/Apps';
+import { IContext } from "../../../connectionResolver";
 
 export default {
-  apps() {
-    return Apps.find().lean();
+  apps(_root, _args, { models }: IContext) {
+    return models.Apps.find().lean();
   },
-  appTotalCount() {
-    return Apps.countDocuments();
+  appTotalCount(_root, _args, { models }: IContext) {
+    return models.Apps.countDocuments();
   }
 }

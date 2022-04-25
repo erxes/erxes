@@ -16,6 +16,8 @@ import { IPermissionDocument, IUserGroupDocument } from './db/models/definitions
 import { IOnboardingHistoryDocument, IRobotEntryDocument } from './db/models/definitions/robot';
 import { IBranchDocument, IDepartmentDocument, IStructureDocument, IUnitDocument } from './db/models/definitions/structures';
 import { connect } from './db/connection';
+import { IAppModel, loadAppClass } from './db/models/Apps';
+import { IAppDocument } from './db/models/definitions/apps';
 
 const MONGO_URL = getEnv({ name: 'MONGO_URL' });
 
@@ -31,7 +33,8 @@ export interface IModels {
   Structures: IStructureModel,
   Departments: IDepartmentModel,
   Units: IUnitModel,
-  Branches: IBranchModel
+  Branches: IBranchModel,
+  Apps: IAppModel
 }
 
 export interface IContext extends IMainContext {
@@ -77,6 +80,8 @@ export const loadClasses = async (db: mongoose.Connection) => {
   models.Departments = db.model<IDepartmentDocument, IDepartmentModel>('departments', loadDepartmentClass(models))
   models.Units = db.model<IUnitDocument, IUnitModel>('units', loadUnitClass(models))
   models.Branches = db.model<IBranchDocument, IBranchModel>('branches', loadBranchClass(models))
+
+  models.Apps = db.model<IAppDocument, IAppModel>('apps', loadAppClass(models));
 
   return models;
 };

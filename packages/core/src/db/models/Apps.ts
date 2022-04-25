@@ -1,4 +1,5 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
+import { IModels } from '../../connectionResolver';
 import { appSchema, IAppDocument, IApp } from './definitions/apps';
 
 export interface IAppModel extends Model<IAppDocument> {
@@ -8,10 +9,10 @@ export interface IAppModel extends Model<IAppDocument> {
   removeApp(_id: string): Promise<string>;
 }
 
-export const loadClass = () => {
+export const loadAppClass = (models: IModels) => {
   class App {
     public static async getApp(_id: string) {
-      const app = await Apps.findOne({ _id });
+      const app = await models.Apps.findOne({ _id });
 
       if (!app) {
         throw new Error('App not found');
@@ -21,25 +22,25 @@ export const loadClass = () => {
     }
 
     public static createApp(doc: IApp) {
-      return Apps.create(doc);
+      return models.Apps.create(doc);
     }
 
     public static async updateApp(_id: string, doc: IApp) {
-      const app = await Apps.getApp(_id);
+      const app = await models.Apps.getApp(_id);
 
-      await Apps.updateOne({ _id }, { $set: doc });
+      await models.Apps.updateOne({ _id }, { $set: doc });
 
-      return Apps.findOne({ _id: app._id });
+      return models.Apps.findOne({ _id: app._id });
     }
 
     public static async removeApp(_id: string) {
-      const app = await Apps.getApp(_id);
+      const app = await models.Apps.getApp(_id);
 
       if (app.isEnabled) {
         throw new Error('Can not remove an enabled app');
       }
 
-      return Apps.deleteOne({ _id });
+      return models.Apps.deleteOne({ _id });
     }
   }
 
@@ -47,9 +48,3 @@ export const loadClass = () => {
 
   return appSchema;
 }
-
-loadClass();
-
-const Apps = model<IAppDocument, IAppModel>('apps', appSchema);
-
-export default Apps;

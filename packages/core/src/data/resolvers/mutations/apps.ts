@@ -1,4 +1,4 @@
-import Apps from '../../../db/models/Apps';
+import { IContext } from "../../../connectionResolver";
 
 interface IAppParams {
   name: string;
@@ -10,13 +10,13 @@ interface IEditParams extends IAppParams {
 }
 
 export default {
-  appsAdd(_root, params: IAppParams) {
-    return Apps.createApp(params);
+  appsAdd(_root, params: IAppParams, { models }: IContext) {
+    return models.Apps.createApp(params);
   },
-  appsEdit(_root, { _id, name, userGroupId }: IEditParams) {
-    return Apps.updateApp(_id, { name, userGroupId });
+  appsEdit(_root, { _id, name, userGroupId }: IEditParams, { models }: IContext) {
+    return models.Apps.updateApp(_id, { name, userGroupId });
   },
-  appsRemove(_root, { _id }: { _id: string }) {
-    return Apps.removeApp(_id);
+  appsRemove(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Apps.removeApp(_id);
   }
 };
