@@ -1,12 +1,16 @@
+const appFields = `
+  _id
+  createdAt
+  name
+  userGroupId
+
+  userGroupName
+`;
+
 const apps = `
   query apps {
     apps {
-      _id
-      createdAt
-      name
-      userGroupId
-
-      userGroupName
+      ${appFields}
     }
   }
 `;
@@ -17,4 +21,12 @@ const appsTotalCount = `
   }
 `;
 
-export default { apps, appsTotalCount }
+const appDetail = `
+  query appDetail($_id: String) {
+    appDetail(_id: $_id) {
+      ${appFields}
+    }
+  }
+`;
+
+export default { apps, appsTotalCount, appDetail }

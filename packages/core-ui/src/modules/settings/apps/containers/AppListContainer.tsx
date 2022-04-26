@@ -3,48 +3,110 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
 
+import { Alert, confirm, __ } from "modules/common/utils";
 import Spinner from "modules/common/components/Spinner";
-import { mutations, queries } from '../graphql/index';
 import { queries as permissionQueries } from '../../permissions/graphql/index';
+import { mutations, queries } from '../graphql/index';
 import AppList from '../components/AppList';
-import { AppsQueryResponse, AppsTotalCountQueryResponse } from '../types';
+import {
+  AppsQueryResponse,
+  AppsTotalCountQueryResponse,
+  AppsAddMutationResponse,
+  AppsEditMutationResponse,
+  AppsRemoveMutationResponse,
+  IAppAddEditParams,
+  IApp
+} from '../types';
 
 type Props = {
   listQuery: AppsQueryResponse;
   totalCountQuery: AppsTotalCountQueryResponse;
+  addMutation: ({ variables: any }) => Promise<IApp>;
+  editMutation: ({ variables: any }) => Promise<IApp>;
+  removeMutation: ({ variables: any }) => Promise<string>;
   userGroupsQuery: any;
 }
 
 class AppListContainer extends React.Component<Props> {
   render() {
-    const { listQuery, userGroupsQuery, totalCountQuery } = this.props;
+    const {
+      listQuery,
+      totalCountQuery,
+      userGroupsQuery,
+      addMutation,
+      editMutation,
+      removeMutation
+    } = this.props;
 
-    if (listQuery.loading || userGroupsQuery.loading || totalCountQuery.loading) {
+    const isLoading = listQuery.loading || totalCountQuery.loading || userGroupsQuery.loading;
+
+    if (isLoading) {
       return <Spinner />;
+    }
+
+    const addApp = (doc: IAppAddEditParams) => {
+      addMutation({ variables: doc }).then(() => {
+        Alert.success('You successfully created an app');
+      }).catch(e => {
+        Alert.error(__(e.message));
+      })
+    }
+
+    const editApp = (_id: string, doc: IAppAddEditParams) => {
+      editMutation({ variables: { _id, ...doc } }).then(() => {
+        Alert.success('You successfully edited an app');
+      }).catch(e => {
+        Alert.error(__(e.message));
+      });
+    }
+
+    const removeApp = (_id: string) => {
+      confirm().then(() => {
+        removeMutation({ variables: { _id } }).then(() => {
+          Alert.success('You successfully deleted an app');
+        }).catch(e => {
+          Alert.error(__(e.message));
+        })
+      });
     }
 
     return (
       <AppList
         apps={listQuery.apps}
-        isLoading={listQuery.loading || userGroupsQuery.loading}
+        isLoading={isLoading}
         count={totalCountQuery.appsTotalCount}
         errorMessage={listQuery.error || ''}
+        addApp={addApp}
+        editApp={editApp}
+        removeApp={removeApp}
+        userGroups={userGroupsQuery.usersGroups}
       />
     );
   }
 }
 
+const options = () => ({ refetchQueries: ['apps'] })
+
 export default compose(
   graphql(gql(queries.apps), {
     name: 'listQuery'
   }),
-  graphql(gql(mutations.appsAdd), {
+  graphql<AppsAddMutationResponse, Props>(gql(mutations.appsAdd), {
     name: 'addMutation',
+    options
   }),
-  graphql(gql(permissionQueries.usersGroups), {
-    name: 'userGroupsQuery'
+  graphql<AppsEditMutationResponse, Props>(gql(mutations.appsEdit), {
+    name: 'editMutation',
+    options
+  }),
+  graphql<AppsRemoveMutationResponse, Props>(gql(mutations.appsRemove), {
+    name: 'removeMutation',
+    options
   }),
   graphql(gql(queries.appsTotalCount), {
     name: 'totalCountQuery'
+  }),
+  graphql(gql(permissionQueries.usersGroups), {
+    name: 'userGroupsQuery'
   })
 )(AppListContainer);
