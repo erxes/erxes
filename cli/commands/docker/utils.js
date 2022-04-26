@@ -336,6 +336,7 @@ const up = async (uis) => {
   if (configs.dashboard) {
     dockerComposeConfig.services.dashboard = {
       image: "erxes/dashboard:federation",
+      ports: ["4300:80"],
       environment: {
         PORT: "80",
         JWT_TOKEN_SECRET: configs.jwt_token_secret,
@@ -509,6 +510,11 @@ const up = async (uis) => {
             location /gateway/ {
                     proxy_pass http://127.0.0.1:3300/;
                     ${commonConfig}
+            }
+
+            location /dashboard/api {
+                proxy_pass http://127.0.0.1:4300/;
+                ${commonConfig}
             }
 
             location /dashboard/front {
