@@ -19,6 +19,27 @@ export const field = options => {
   return options;
 };
 
+export const schemaWrapper = schema => {
+  schema.add({ scopeBrandIds: [String] });
+
+  return schema;
+};
+
+const hookList = [
+  'save',
+  'remove',
+  'update',
+  'updateOne',
+  'updateMany',
+  'deleteOne',
+  'deleteMany',
+  'findOneAndUpdate'
+];
+
+export const schemaHooksWrapper = (schema, cacheKey: string) => {
+  return schemaWrapper(schema);
+};
+
 export const escapeRegExp = (str: string) => {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };

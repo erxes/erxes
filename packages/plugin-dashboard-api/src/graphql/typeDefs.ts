@@ -6,7 +6,7 @@ import {
   types as DashboardTypes
 } from './dashboardTypeDefs';
 
-export const typeDefs = gql`
+const typeDefs = gql`
   scalar JSON
   scalar Date
 
@@ -20,3 +20,5 @@ export const typeDefs = gql`
     ${DashboardMutations}
   }
 `;
+
+export default typeDefs;

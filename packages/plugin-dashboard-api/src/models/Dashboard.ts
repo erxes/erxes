@@ -1,5 +1,6 @@
 import { Model, model } from 'mongoose';
 import _ = require('underscore');
+import { IModels } from '../connectionResolver';
 
 import {
   dashboardItemSchema,
@@ -19,6 +20,7 @@ export interface IDashboardModel extends Model<IDashboardDocument> {
   removeDashboard(_id: string): void;
   validateUniqueness(selector: any, name: string): Promise<boolean>;
 }
+
 export interface IDashboardItemModel extends Model<IDashboardItemDocument> {
   addDashboardItem(doc: IDashboardItemInput): Promise<IDashboardItemDocument>;
   editDashboardItem(
@@ -28,9 +30,12 @@ export interface IDashboardItemModel extends Model<IDashboardItemDocument> {
   removeDashboardItem(_id: string): void;
 }
 
-const setRelatedIds = async (dashboard: IDashboardDocument) => {
+const setRelatedIds = async (
+  dashboard: IDashboardDocument,
+  models: IModels
+) => {
   if (dashboard.parentId) {
-    const parentDashboard = await Dashboards.findOne({
+    const parentDashboard = await models.Dashboards.findOne({
       _id: dashboard.parentId
     });
 
@@ -42,23 +47,28 @@ const setRelatedIds = async (dashboard: IDashboardDocument) => {
 
       relatedIds = _.union(relatedIds, parentDashboard.relatedIds || []);
 
-      await Dashboards.updateOne(
+      await models.Dashboards.updateOne(
         { _id: parentDashboard._id },
         { $set: { relatedIds } }
       );
 
-      const updated = await Dashboards.findOne({ _id: dashboard.parentId });
+      const updated = await models.Dashboards.findOne({
+        _id: dashboard.parentId
+      });
 
       if (updated) {
-        await setRelatedIds(updated);
+        await setRelatedIds(updated, models);
       }
     }
   }
 };
 
 // remove related dashboards
-const removeRelatedIds = async (dashboard: IDashboardDocument) => {
-  const dashboards = await Dashboards.find({
+const removeRelatedIds = async (
+  dashboard: IDashboardDocument,
+  models: IModels
+) => {
+  const dashboards = await models.Dashboards.find({
     relatedIds: { $in: dashboard._id }
   });
 
@@ -88,13 +98,13 @@ const removeRelatedIds = async (dashboard: IDashboardDocument) => {
     });
   });
 
-  await Dashboards.bulkWrite(doc);
+  await models.Dashboards.bulkWrite(doc);
 };
 
-export const loadDashBoardClass = () => {
+export const loadDashboardClass = (models: IModels) => {
   class Dashboard {
     public static async getDashboard(_id: string) {
-      const dashboard = await Dashboards.findOne({ _id });
+      const dashboard = await models.Dashboards.findOne({ _id });
 
       if (!dashboard) {
         throw new Error('Dashboard not found');
@@ -113,13 +123,13 @@ export const loadDashBoardClass = () => {
       }
 
       // can't update name same time more than one dashboards.
-      const count = await Dashboards.find(selector).countDocuments();
+      const count = await models.Dashboards.find(selector).countDocuments();
 
       if (selector && count > 1) {
         return false;
       }
 
-      const obj = selector && (await Dashboards.findOne(selector));
+      const obj = selector && (await models.Dashboards.findOne(selector));
 
       const filter: any = { name };
 
@@ -127,7 +137,7 @@ export const loadDashBoardClass = () => {
         filter._id = { $ne: obj._id };
       }
 
-      const existing = await Dashboards.findOne(filter);
+      const existing = await models.Dashboards.findOne(filter);
 
       if (existing) {
         return false;
@@ -137,7 +147,7 @@ export const loadDashBoardClass = () => {
     }
 
     static async getParentDashboard(doc: IDashboard) {
-      return Dashboards.findOne({
+      return models.Dashboards.findOne({
         _id: doc.parentId
       }).lean();
     }
@@ -157,7 +167,7 @@ export const loadDashBoardClass = () => {
       if (!parentOrder) {
         parentOrder = `${parentDashboard.name}`;
 
-        await Dashboards.updateOne(
+        await models.Dashboards.updateOne(
           {
             _id: parentDashboard._id
           },
@@ -169,7 +179,10 @@ export const loadDashBoardClass = () => {
     }
 
     public static async addDashboard(doc: IDashboard) {
-      const isUnique = await Dashboards.validateUniqueness(null, doc.name);
+      const isUnique = await models.Dashboards.validateUniqueness(
+        null,
+        doc.name
+      );
 
       if (!isUnique) {
         throw new Error('Dashboard duplicated');
@@ -180,18 +193,21 @@ export const loadDashBoardClass = () => {
       // Generating order
       const order = await this.generateOrder(parentDashboard, doc);
 
-      const dashboard = await Dashboards.create({
+      const dashboard = await models.Dashboards.create({
         ...doc,
         order,
         createdAt: new Date()
       });
 
-      await setRelatedIds(dashboard);
+      await setRelatedIds(dashboard, models);
       return dashboard;
     }
 
     public static async editDashboard(_id: string, doc: IDashboard) {
-      const isUnique = await Dashboards.validateUniqueness({ _id }, doc.name);
+      const isUnique = await models.Dashboards.validateUniqueness(
+        { _id },
+        doc.name
+      );
 
       if (!isUnique) {
         throw new Error('Dashboard duplicated');
@@ -206,12 +222,12 @@ export const loadDashBoardClass = () => {
       // Generating  order
       const order = await this.generateOrder(parentDashboard, doc);
 
-      const dashboard = await Dashboards.findOne({
+      const dashboard = await models.Dashboards.findOne({
         _id
       });
 
       if (dashboard && dashboard.order) {
-        const childDashboards = await Dashboards.find({
+        const childDashboards = await models.Dashboards.find({
           $and: [
             {
               order: { $regex: new RegExp(escapeRegExp(dashboard.order), 'i') }
@@ -244,34 +260,36 @@ export const loadDashBoardClass = () => {
             }
           });
 
-          await Dashboards.bulkWrite(bulkDoc);
+          await models.Dashboards.bulkWrite(bulkDoc);
 
-          await removeRelatedIds(dashboard);
+          await removeRelatedIds(dashboard, models);
         }
       }
 
-      await Dashboards.updateOne({ _id }, { $set: { ...doc, order } });
+      await models.Dashboards.updateOne({ _id }, { $set: { ...doc, order } });
 
-      const updated = await Dashboards.findOne({ _id });
+      const updated = await models.Dashboards.findOne({ _id });
 
       if (updated) {
-        await setRelatedIds(updated);
+        await setRelatedIds(updated, models);
       }
 
       return updated;
     }
 
     public static async removeDashboard(_id: string) {
-      const dashboard = await Dashboards.getDashboard(_id);
-      const childCount = await Dashboards.countDocuments({ parentId: _id });
+      const dashboard = await models.Dashboards.getDashboard(_id);
+      const childCount = await models.Dashboards.countDocuments({
+        parentId: _id
+      });
 
       if (childCount > 0) {
         throw new Error('Please remove child dashboards first');
       }
 
-      await removeRelatedIds(dashboard);
+      await removeRelatedIds(dashboard, models);
 
-      return Dashboards.deleteOne({ _id });
+      return models.Dashboards.deleteOne({ _id });
     }
   }
 
@@ -280,20 +298,20 @@ export const loadDashBoardClass = () => {
   return dashboardSchema;
 };
 
-export const loadDashboardItemClass = () => {
+export const loadDashboardItemClass = (models: IModels) => {
   class DashboardItem {
     public static addDashboardItem(doc: IDashboardItemEdit) {
-      return DashboardItems.create(doc);
+      return models.DashboardItems.create(doc);
     }
 
     public static async editDashboardItem(_id: string, feilds: IDashboard) {
-      await DashboardItems.updateOne({ _id }, { $set: feilds });
+      await models.DashboardItems.updateOne({ _id }, { $set: feilds });
 
-      return DashboardItems.findOne({ _id });
+      return models.DashboardItems.findOne({ _id });
     }
 
     public static async removeDashboardItem(_id: string) {
-      await DashboardItems.deleteOne({ _id });
+      await models.DashboardItems.deleteOne({ _id });
     }
   }
 
@@ -301,19 +319,3 @@ export const loadDashboardItemClass = () => {
 
   return dashboardItemSchema;
 };
-
-loadDashBoardClass();
-loadDashboardItemClass();
-
-// tslint:disable-next-line
-const Dashboards = model<IDashboardDocument, IDashboardModel>(
-  'dashboards',
-  dashboardSchema
-);
-// tslint:disable-next-line
-const DashboardItems = model<IDashboardItemDocument, IDashboardItemModel>(
-  'dashboard_items',
-  dashboardItemSchema
-);
-
-export { DashboardItems, Dashboards };

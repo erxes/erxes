@@ -1,13 +1,13 @@
+import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import { typeDefs } from './graphql/typeDefs';
+import { initBroker } from './messageBroker';
 
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
-import { initBroker } from './messageBroker';
-import { connectCoreModels } from './coreDb';
+import { generateModels, models } from './connectionResolver';
 
+export let mainDb;
 export let graphqlPubsub;
 export let serviceDiscovery;
-export let mainDb;
 
 export let es: {
   client;
@@ -20,25 +20,30 @@ export let debug;
 
 export default {
   name: 'dashboard',
-  graphql: async (sd) => {
+  graphql: sd => {
     serviceDiscovery = sd;
 
     return {
       typeDefs,
-      resolvers,
-    }
+      resolvers
+    };
   },
   hasSubscriptions: false,
+
   segment: {},
-  onServerInit: async (options) => {
+  meta: { logs: {} },
+  apolloServerContext: context => {
+    context.models = models;
+  },
+  onServerInit: async options => {
     mainDb = options.db;
 
-    await connectCoreModels();
+    await generateModels('os');
 
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
     es = options.elasticsearch;
-  },
+  }
 };

@@ -1,5 +1,5 @@
-import { Document, Schema } from "mongoose";
-import { field } from "./utils";
+import { Document, Schema } from 'mongoose';
+import { field } from './utils';
 
 export interface IDashboard {
   name: string;
@@ -58,7 +58,7 @@ export const dashboardSchema = new Schema({
   createdAt: field({ type: Date }),
   code: field({ type: String }),
   dashboardCount: field({ type: Number }),
-  relatedIds: field({ type: [String] }),
+  relatedIds: field({ type: [String] })
 });
 
 export const dashboardItemSchema = new Schema({
@@ -68,7 +68,7 @@ export const dashboardItemSchema = new Schema({
   vizState: field({ type: String }),
   name: field({ type: String }),
   type: field({ type: String }),
-  isDateRange: field({ type: Boolean }),
+  isDateRange: field({ type: Boolean })
 });
 
 dashboardSchema.index({ type: 1, order: 1, name: 1 });
