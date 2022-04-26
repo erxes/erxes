@@ -214,11 +214,14 @@ const up = async (uis) => {
   const gateway_url = `${domain}/gateway`;
   const subscription_url = `wss://${gateway_url.replace("https://", "")}/graphql`;
   const widgets = configs.widgets || {};
+  const dashboard = configs.dashboard;
   const widgets_domain = widgets.domain || `${domain}/widgets`;
   const dashboard_domain = `${domain}/dashboard/front`;
+  const dashboard_api_domain = `${domain}/dashboard/api`;
+  const db_server_address = configs.db_server_address;
 
   const NGINX_HOST = domain.replace("https://", "");
-  const extra_hosts = [`mongo:${configs.db_server_address || '127.0.0.1'}`];
+  const extra_hosts = [`mongo:${db_server_address || '127.0.0.1'}`];
 
   const dockerComposeConfig = {
     version: "3.7",
@@ -333,15 +336,20 @@ const up = async (uis) => {
     };
   }
 
-  if (configs.dashboard) {
-    dockerComposeConfig.services.dashboard = {
-      image: "erxes/dashboard:federation",
+  if (dashboard) {
+    dockerComposeConfig.services["dashboard-api"] = {
+      image: "erxes/erxes-dashboard-api:develop",
       ports: ["4300:80"],
       environment: {
         PORT: "80",
-        JWT_TOKEN_SECRET: configs.jwt_token_secret,
-        MONGO_URL: mongoEnv(configs),
-        ...commonEnvs(configs),
+        CUBEJS_DB_TYPE: "elasticsearch",
+        CUBEJS_DB_URL: `http://${db_server_address || 'elasticsearch'}:9200`,
+        CUBEJS_URL: dashboard_api_domain,
+        CUBEJS_TOKEN: dashboard.api_token,
+        CUBEJS_API_SECRET: dashboard.api_secret,
+        REDIS_URL: `redis://${db_server_address || 'redis'}:6379`,
+        REDIS_PASSWORD: configs.redis.password || "",
+        DB_NAME: configs.mongo.db_name || "erxes"
       },
       volumes: ["./enabled-services.js:/data/enabled-services.js"],
       extra_hosts,
