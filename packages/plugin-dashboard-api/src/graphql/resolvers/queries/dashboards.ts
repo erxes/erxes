@@ -1,10 +1,9 @@
 import {
   DashboardFilters,
   DashboardFilterTypes
-} from '../../dashboardConstants';
+} from '../../../constants';
 import { DashboardItems, Dashboards } from '../../../db/models';
 
-import { IContext } from '../../types';
 import {
   getBoards,
   getBrands,
@@ -14,7 +13,8 @@ import {
   getPipelines,
   getTags,
   getUsers
-} from '../../utils';
+} from '../../../utils';
+import { IContext } from '@erxes/api-utils/src';
 
 const dashBoardQueries = {
   dashboards(_root, _args, { user }: IContext) {

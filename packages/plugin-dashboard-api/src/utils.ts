@@ -8,7 +8,7 @@ import {
   Tags,
   Users,
   PipelineLabels
-} from '../coreDb';
+} from './coreDb';
 
 import { KIND_CHOICES } from './constants';
 

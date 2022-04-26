@@ -1,10 +1,9 @@
+import { IContext } from '@erxes/api-utils/src';
 import { DashboardItems, Dashboards } from '../../../db/models';
 import {
   IDashboard,
   IDashboardItemInput
 } from '../../../db/models/definitions/dashboard';
-
-import { IContext } from '../../types';
 
 interface IDashboardEdit extends IDashboard {
   _id: string;
