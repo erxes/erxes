@@ -84,25 +84,8 @@ const DashboardFilters = {
 };
 
 const dashBoardQueries = {
-  dashboards(_root, _args, { user, models }: IContext) {
-    const dashboardFilter = user.isOwner
-      ? {}
-      : {
-          $or: [
-            { visibility: { $exists: null } },
-            { visibility: 'public' },
-            {
-              $and: [
-                { visibility: 'private' },
-                {
-                  $or: [{ selectedMemberIds: user._id }]
-                }
-              ]
-            }
-          ]
-        };
-
-    return models.Dashboards.find(dashboardFilter).sort({ order: 1 });
+  dashboards(_root, _args, { models }: IContext) {
+    return models.Dashboards.find({}).sort({ order: 1 });
   },
 
   dashboardDetails(_root, { _id }: { _id: string }, { models }: IContext) {
