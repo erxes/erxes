@@ -219,6 +219,7 @@ const up = async (uis) => {
   const dashboard_domain = `${domain}/dashboard/front`;
   const dashboard_api_domain = `${domain}/dashboard/api`;
   const db_server_address = configs.db_server_address;
+  const allowCors = configs.allow_cors || '';
 
   const NGINX_HOST = domain.replace("https://", "");
   const extra_hosts = [`mongo:${db_server_address || '127.0.0.1'}`];
@@ -274,6 +275,7 @@ const up = async (uis) => {
         image: "erxes/gateway:federation",
         environment: {
           PORT: "80",
+          ALLOW_CORS: allowCors,
           LOAD_BALANCER_ADDRESS: "http://gateway",
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
           CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",

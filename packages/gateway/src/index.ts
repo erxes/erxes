@@ -172,6 +172,7 @@ const {
         WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
         ...(CLIENT_PORTAL_DOMAINS || '').split(','),
         'https://studio.apollographql.com',
+        ...(process.env.ALLOW_CORS || '').split(',').map(c => c && RegExp(c))
       ]
     }
   });
