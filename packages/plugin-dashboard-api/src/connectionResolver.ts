@@ -1,4 +1,3 @@
-import { MongoClient } from 'mongodb';
 import * as mongoose from 'mongoose';
 import { mainDb } from './configs';
 import {
@@ -12,7 +11,6 @@ import {
   loadDashboardItemClass
 } from './models/Dashboard';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
-import { userSchema } from '@erxes/api-utils/src/definitions/users';
 
 export interface IModels {
   Dashboards: IDashboardModel;
