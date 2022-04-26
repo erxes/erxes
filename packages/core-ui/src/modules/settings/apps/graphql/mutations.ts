@@ -1,5 +1,5 @@
 const commonParamDefs = `$name: String, $userGroupId: String`;
-const commonParams = `name: $name, userGroupId: String`;
+const commonParams = `name: $name, userGroupId: $userGroupId`;
 
 const appsAdd = `
   mutation appsAdd(${commonParamDefs}) {

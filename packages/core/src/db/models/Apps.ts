@@ -6,7 +6,7 @@ export interface IAppModel extends Model<IAppDocument> {
   getApp(_id: string): Promise<IAppDocument>;
   createApp(doc: IApp): Promise<IAppDocument>;
   updateApp(_id: string, doc: IApp): Promise<IAppDocument>;
-  removeApp(_id: string): Promise<string>;
+  removeApp(_id: string): Promise<any>;
 }
 
 export const loadAppClass = (models: IModels) => {

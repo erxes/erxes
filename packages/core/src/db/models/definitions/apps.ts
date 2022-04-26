@@ -21,4 +21,5 @@ export const appSchema = new Schema({
   accessToken: field({ type: String, label: 'Access token' }),
   refreshToken: field({ type: String, label: 'Refresh token used to gain access token' }),
   isEnabled: field({ type: Boolean, label: 'Status of the app' }),
+  userGroupId: field({ type: String, label: 'User group id' })
 });
