@@ -10,8 +10,6 @@ import {
   subscribePage,
   unsubscribePage
 } from './facebook/utils';
-import { Accounts, Integrations } from './models';
-import Configs from './models/Configs';
 import { getEnv, resetConfigsCache, sendRequest } from './utils';
 
 export const removeIntegration = async (
@@ -19,7 +17,7 @@ export const removeIntegration = async (
   integrationErxesApiId: string,
   removeAll: boolean = false
 ): Promise<string> => {
-  const integration = await Integrations.findOne({
+  const integration = await models.Integrations.findOne({
     erxesApiId: integrationErxesApiId
   });
 
@@ -32,7 +30,7 @@ export const removeIntegration = async (
 
   const { _id, kind, accountId, erxesApiId  } = integration;
 
-  const account = await Accounts.findOne({ _id: accountId });
+  const account = await models.Accounts.findOne({ _id: accountId });
   
   const selector = { integrationId: _id };
 
@@ -85,7 +83,7 @@ export const removeIntegration = async (
       conversationId: { $in: conversationIds }
     });
 
-    await Integrations.deleteOne({ _id });
+    await models.Integrations.deleteOne({ _id });
   }
 
   if (kind === 'callpro') {
@@ -119,7 +117,7 @@ export const removeIntegration = async (
     }
   }
 
-  await Integrations.deleteOne({ _id });
+  await models.Integrations.deleteOne({ _id });
 
   return erxesApiId;
 };
@@ -128,7 +126,7 @@ export const removeAccount = async (
   models: IModels,
   _id: string
 ): Promise<{ erxesApiIds: string | string[] } | Error> => {
-  const account = await Accounts.findOne({ _id });
+  const account = await models.Accounts.findOne({ _id });
 
   if (!account) {
     return new Error(`Account not found: ${_id}`);
@@ -136,7 +134,7 @@ export const removeAccount = async (
 
   const erxesApiIds: string[] = [];
 
-  const integrations = await Integrations.find({ accountId: account._id });
+  const integrations = await models.Integrations.find({ accountId: account._id });
 
   if (integrations.length > 0) {
     for (const integration of integrations) {
@@ -149,33 +147,34 @@ export const removeAccount = async (
     }
   }
 
-  await Accounts.deleteOne({ _id });
+  await models.Accounts.deleteOne({ _id });
 
   return { erxesApiIds };
 };
 
 export const repairIntegrations = async (
+  models: IModels,
   integrationId: string
 ): Promise<true | Error> => {
-  const integration = await Integrations.findOne({ erxesApiId: integrationId });
+  const integration = await models.Integrations.findOne({ erxesApiId: integrationId });
 
   if(!integration) {
     throw new Error('Integration not found')
   }
 
   for (const pageId of integration.facebookPageIds || []) {
-    const pageTokens = await refreshPageAccesToken(pageId, integration);
+    const pageTokens = await refreshPageAccesToken(models, pageId, integration);
 
     await subscribePage(pageId, pageTokens[pageId]);
 
-    await Integrations.remove({
+    await models.Integrations.remove({
       erxesApiId: { $ne: integrationId },
       facebookPageIds: pageId,
       kind: integration.kind
     });
   }
 
-  await Integrations.updateOne(
+  await models.Integrations.updateOne(
     { erxesApiId: integrationId },
     { $set: { healthStatus: 'healthy', error: '' } }
   );
@@ -191,8 +190,8 @@ export const removeCustomers = async (models: IModels, params) => {
   await models.CallProCustomers.deleteMany(selector);
 };
 
-export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
-  await Configs.updateConfigs(configsMap);
+export const updateIntegrationConfigs = async (models: IModels, configsMap): Promise<void> => {
+  await models.Configs.updateConfigs(configsMap);
 
   resetConfigsCache();
 };

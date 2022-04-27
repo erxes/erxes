@@ -1,31 +1,31 @@
 import { getPageList } from '../../facebook/utils';
-import { Accounts, Configs, Integrations } from '../../models';
 import { getConfig, getConfigs } from '../../utils';
 import { IContext } from '../../connectionResolver';
 
 const integrationQueries = {
   // app.get('/accounts', async (req, res) => {
-  async integrationsGetAccounts(_root, { kind }: { kind: string }) {
+  async integrationsGetAccounts(_root, { kind }: { kind: string }, { models }: IContext) {
     if (kind.includes('nylas')) {
       kind = kind.split('-')[1];
     }
     const selector = { kind };
 
-    return Accounts.find(selector);
+    return models.Accounts.find(selector);
   },
 
   // app.get('/integrations', async (req, res) => {
-  async integrationsGetIntegrations(_root, { kind }: { kind: string }) {
-    return Integrations.find({ kind });
+  async integrationsGetIntegrations(_root, { kind }: { kind: string }, { models }: IContext) {
+    return models.Integrations.find({ kind });
   },
 
   //  app.get('/integrationDetail', async (req, res) => {
   async integrationsGetIntegrationDetail(
     _root,
-    { erxesApiId }: { erxesApiId: string }
+    { erxesApiId }: { erxesApiId: string },
+    { models }: IContext
   ) {
     // do not expose fields below
-    const integration = await Integrations.findOne(
+    const integration = await models.Integrations.findOne(
       { erxesApiId },
       {
         nylasToken: 0,
@@ -39,8 +39,8 @@ const integrationQueries = {
   },
 
   // app.get('/gmail/get-email',
-  async integrationsGetGmailEmail(_root, { accountId }: { accountId: string }) {
-    const account = await Accounts.findOne({ _id: accountId });
+  async integrationsGetGmailEmail(_root, { accountId }: { accountId: string }, { models }: IContext) {
+    const account = await models.Accounts.findOne({ _id: accountId });
 
     if (!account) {
       throw new Error('Account not found');
@@ -50,8 +50,8 @@ const integrationQueries = {
   },
 
   // app.get('/configs', async (req, res) => {
-  async integrationsGetConfigs(_root, {}) {
-    return Configs.find({});
+  async integrationsGetConfigs(_root, _args, { models }: IContext) {
+    return models.Configs.find({});
   },
 
   // app.get('/facebook/get-comments', async (req, res) => {
@@ -163,8 +163,8 @@ const integrationQueries = {
   },
 
   // app.get('/twitter/get-account', async (req, res, next) => {
-  async integrationsGetTwitterAccount(_root, { accountId }: {accountId: string}) {
-    const account = await Accounts.findOne({ _id: accountId });
+  async integrationsGetTwitterAccount(_root, { accountId }: {accountId: string}, { models }: IContext) {
+    const account = await models.Accounts.findOne({ _id: accountId });
 
     if (!account) {
       throw new Error('Account not found');
@@ -175,20 +175,20 @@ const integrationQueries = {
   },
 
   // app.get('/facebook/get-pages', async (req, res, next) => {
-  async integrationsGetFbPages(_root, args) {
+  async integrationsGetFbPages(_root, args, { models }: IContext) {
     const { kind, accountId } = args;
 
-    const account = await Accounts.getAccount({ _id: accountId });
+    const account = await models.Accounts.getAccount({ _id: accountId });
 
     const accessToken = account.token;
 
     let pages: any[] = [];
 
     try {
-      pages = await getPageList(accessToken, kind);
+      pages = await getPageList(models, accessToken, kind);
     } catch (e) {
       if (!e.message.includes('Application request limit reached')) {
-        await Integrations.updateOne(
+        await models.Integrations.updateOne(
           { accountId },
           { $set: { healthStatus: 'account-token', error: `${e.message}` } }
         );
@@ -199,12 +199,12 @@ const integrationQueries = {
   },
 
   // app.get('/videoCall/usageStatus',
-  async integrationsVideoCallUsageStatus(_root) {
-    const videoCallType = await getConfig('VIDEO_CALL_TYPE');
+  async integrationsVideoCallUsageStatus(_root, _args, { models }: IContext) {
+    const videoCallType = await getConfig(models, 'VIDEO_CALL_TYPE');
 
     switch (videoCallType) {
       case 'daily': {
-        const { DAILY_API_KEY, DAILY_END_POINT } = await getConfigs();
+        const { DAILY_API_KEY, DAILY_END_POINT } = await getConfigs(models);
 
         return Boolean(DAILY_API_KEY && DAILY_END_POINT);
       }

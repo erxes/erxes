@@ -2,7 +2,6 @@ import { ICommentParams, IPostParams } from './types';
 
 import { debugError } from '../debuggers';
 import { sendInboxMessage } from '../messageBroker';
-import { Accounts, Integrations } from '../models';
 import {
   getFacebookUser,
   getFacebookUserProfilePic,
@@ -115,7 +114,7 @@ export const getOrCreatePost = async (
 ) => {
   let post = await models.FbPosts.findOne({ postId: postParams.post_id });
 
-  const integration = await Integrations.getIntegration({
+  const integration = await models.Integrations.getIntegration({
     $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }]
   });
 
@@ -178,11 +177,11 @@ export const getOrCreateComment = async (
     commentId: commentParams.comment_id
   });
 
-  const integration = await Integrations.getIntegration({
+  const integration = await models.Integrations.getIntegration({
     $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }]
   });
 
-  Accounts.getAccount({ _id: integration.accountId });
+  models.Accounts.getAccount({ _id: integration.accountId });
 
   const doc = generateCommentDoc(commentParams, pageId, userId);
 
@@ -222,7 +221,7 @@ export const getOrCreateCustomer = async (
   userId: string,
   kind: string
 ) => {
-  const integration = await Integrations.getIntegration({
+  const integration = await models.Integrations.getIntegration({
     $and: [{ facebookPageIds: { $in: pageId } }, { kind }]
   });
 
@@ -239,7 +238,7 @@ export const getOrCreateCustomer = async (
 
   try {
     fbUser =
-      (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
+      (await getFacebookUser(models, pageId, facebookPageTokensMap, userId)) || {};
   } catch (e) {
     debugError(`Error during get customer info: ${e.message}`);
   }

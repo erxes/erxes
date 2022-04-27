@@ -1,4 +1,5 @@
 import { Document, model, Model, Schema } from 'mongoose';
+import { IModels } from '../connectionResolver';
 import { field } from './utils';
 
 export interface IAccount {
@@ -104,10 +105,10 @@ export interface IAccountModel extends Model<IAccountDocument> {
   getAccount(selector): Promise<IAccountDocument>;
 }
 
-export const loadClass = () => {
+export const loadAccountClass = (models: IModels) => {
   class Account {
     public static async getAccount(selector) {
-      const account = await Accounts.findOne(selector);
+      const account = await models.Accounts.findOne(selector);
 
       if (!account) {
         throw new Error('Account not found');
@@ -122,12 +123,12 @@ export const loadClass = () => {
   return accountSchema;
 };
 
-loadClass();
+// loadClass();
 
-// tslint:disable-next-line
-const Accounts = model<IAccountDocument, IAccountModel>(
-  'accounts',
-  accountSchema
-);
+// // tslint:disable-next-line
+// const Accounts = model<IAccountDocument, IAccountModel>(
+//   'accounts',
+//   accountSchema
+// );
 
-export default Accounts;
+// export default Accounts;

@@ -1,12 +1,11 @@
 import { IModels } from '../connectionResolver';
-import { Integrations } from '../models';
 import { getOrCreateCustomer, getOrCreatePost } from './store';
 import { IPostParams } from './types';
 
 const receivePost = async (models: IModels, params: IPostParams, pageId: string) => {
   const kind = 'facebook-post';
 
-  const integration = await Integrations.findOne({
+  const integration = await models.Integrations.findOne({
     $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }]
   });
 

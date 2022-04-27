@@ -1,9 +1,6 @@
 import * as dotenv from 'dotenv';
 import { removeAccount, removeCustomers, removeIntegration, repairIntegrations } from './helpers';
-
-import { Accounts, Configs } from './models';
 import { handleFacebookMessage } from './facebook/handleFacebookMessage';
-import { Integrations } from './models';
 import { userIds } from './userMiddleware';
 import { getConfig } from './utils';
 import { facebookCreateIntegration, facebookGetCustomerPosts } from './facebook/controller';
@@ -21,11 +18,13 @@ export const initBroker = async (cl) => {
 
   const { consumeRPCQueue, consumeQueue } = client;
 
-  consumeRPCQueue('integrations:getAccounts', async ({ data: { kind } }) => {
+  consumeRPCQueue('integrations:getAccounts', async ({ subdomain, data: { kind } }) => {
+    const models = await generateModels(subdomain);
+
     const selector = { kind };
 
     return {
-      data: await Accounts.find(selector),
+      data: await models.Accounts.find(selector),
       status: 'success'
     };
   });
@@ -46,14 +45,14 @@ export const initBroker = async (cl) => {
       if (action === 'getTelnyxInfo') {
         response = {
           data: {
-            telnyxApiKey: await getConfig('TELNYX_API_KEY'),
-            integrations: await Integrations.find({ kind: 'telnyx' })
+            telnyxApiKey: await getConfig(models, 'TELNYX_API_KEY'),
+            integrations: await models.Integrations.find({ kind: 'telnyx' })
           }
         };
       }
 
       if (action === 'repair-integrations') {
-        response = { data: await repairIntegrations(data._id) };
+        response = { data: await repairIntegrations(models, data._id) };
       }
 
       if (type === 'facebook') {
@@ -61,7 +60,7 @@ export const initBroker = async (cl) => {
       }
 
       if (action === 'getConfigs') {
-        response = { data: await Configs.find({}) };
+        response = { data: await models.Configs.find({}) };
       }
 
       response.status = 'success';
@@ -78,8 +77,10 @@ export const initBroker = async (cl) => {
   // /facebook/get-status'
   consumeRPCQueue(
     'integrations:getFacebookStatus',
-    async ({ data: { integrationId } }) => {
-      const integration = await Integrations.findOne({
+    async ({ subdomain, data: { integrationId } }) => {
+      const models = await generateModels(subdomain);
+
+      const integration = await models.Integrations.findOne({
         erxesApiId: integrationId
       });
 
@@ -144,12 +145,16 @@ export const initBroker = async (cl) => {
 
   consumeRPCQueue(
     'integrations:createIntegration',
-    async ({ data: { doc, kind } }) => {
+    async ({ subdomain, data: { doc, kind } }) => {
+
+      const models = await generateModels(subdomain);
+
+
       switch (kind) {
         case 'facebook':
-          return facebookCreateIntegration(doc);
+          return facebookCreateIntegration(models, doc);
         case 'callpro':
-          return callproCreateIntegration(doc);
+          return callproCreateIntegration(models, doc);
       }
     }
   );

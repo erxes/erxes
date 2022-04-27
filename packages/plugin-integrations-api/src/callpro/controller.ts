@@ -2,14 +2,12 @@ import { generateModels, IModels } from '../connectionResolver';
 import { debugCallPro, debugError, debugRequest } from '../debuggers';
 import { routeErrorHandling } from '../helpers';
 import { sendInboxMessage } from '../messageBroker';
-import { Integrations, Logs } from '../models';
-// import { Conversations, Customers } from './models';
 
-export const callproCreateIntegration = async ({ integrationId, data }) => {
+export const callproCreateIntegration = async (models: IModels, { integrationId, data }) => {
     const { phoneNumber, recordUrl } = JSON.parse(data || '{}');
 
     // Check existing Integration
-    const integration = await Integrations.findOne({
+    const integration = await models.Integrations.findOne({
       kind: 'callpro',
       phoneNumber
     }).lean();
@@ -21,7 +19,7 @@ export const callproCreateIntegration = async ({ integrationId, data }) => {
       throw new Error(message);
     }
 
-    await Integrations.create({
+    await models.Integrations.create({
       kind: 'callpro',
       erxesApiId: integrationId,
       phoneNumber,
@@ -33,7 +31,7 @@ export const callproCreateIntegration = async ({ integrationId, data }) => {
 
 export const callproGetAudio = async (models: IModels, { erxesApiId, integrationId }) => {
 
-  const integration = await Integrations.findOne({
+  const integration = await models.Integrations.findOne({
     erxesApiId: integrationId
   });
 
@@ -76,7 +74,7 @@ const init = async app => {
       const { numberTo, numberFrom, disp, callID, owner } = req.body;
 
       try {
-        await Logs.createLog({
+        await models.Logs.createLog({
           type: 'call-pro',
           value: req.body,
           specialValue: numberFrom || ''
@@ -88,7 +86,7 @@ const init = async app => {
         throw new Error(message);
       }
 
-      const integration = await Integrations.findOne({
+      const integration = await models.Integrations.findOne({
         phoneNumber: numberTo
       }).lean();
 

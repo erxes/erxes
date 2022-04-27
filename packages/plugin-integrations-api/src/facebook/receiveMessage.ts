@@ -1,7 +1,6 @@
 import { Activity } from 'botbuilder';
 import { IModels } from '../connectionResolver';
 import { sendInboxMessage } from '../messageBroker';
-import Integrations from '../models/Integrations';
 import { getOrCreateCustomer } from './store';
 import { IChannelData } from './types';
 
@@ -15,7 +14,7 @@ const receiveMessage = async (models: IModels, activity: Activity) => {
     message
   } = activity.channelData as IChannelData;
 
-  const integration = await Integrations.getIntegration({
+  const integration = await models.Integrations.getIntegration({
     $and: [
       { facebookPageIds: { $in: [recipient.id] } },
       { kind: 'facebook-messenger' }

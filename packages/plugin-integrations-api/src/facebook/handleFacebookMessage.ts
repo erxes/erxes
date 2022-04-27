@@ -71,7 +71,7 @@ export const handleFacebookMessage = async (models: IModels, msg) => {
     }
 
     try {
-      await sendReply(`${id}/comments`, data, recipientId, integrationId);
+      await sendReply(models, `${id}/comments`, data, recipientId, integrationId);
 
       return { status: 'success' };
     } catch (e) {
@@ -92,6 +92,7 @@ export const handleFacebookMessage = async (models: IModels, msg) => {
       if (content) {
         try {
           await sendReply(
+            models,
             'me/messages',
             {
               recipient: { id: senderId },
@@ -109,6 +110,7 @@ export const handleFacebookMessage = async (models: IModels, msg) => {
       for (const message of generateAttachmentMessages(attachments)) {
         try {
           await sendReply(
+            models,
             'me/messages',
             { recipient: { id: senderId }, message, tag },
             recipientId,

@@ -1,10 +1,10 @@
 import * as dotenv from 'dotenv';
 import * as request from 'request-promise';
 import * as sanitizeHtml from 'sanitize-html';
+import { IModels } from './connectionResolver';
 import { debugBase, debugExternalRequests } from './debuggers';
 import {get, set} from './inmemoryStorage';
 import { sendInboxMessage } from './messageBroker';
-import Configs from './models/Configs';
 
 dotenv.config();
 interface IRequestParams {
@@ -184,7 +184,7 @@ export const downloadAttachment = urlOrName => {
   });
 };
 
-export const getConfigs = async () => {
+export const getConfigs = async (models: IModels) => {
   const configsCache = await get('configs_erxes_integrations');
 
   if (configsCache && configsCache !== '{}') {
@@ -192,7 +192,7 @@ export const getConfigs = async () => {
   }
 
   const configsMap = {};
-  const configs = await Configs.find({});
+  const configs = await models.Configs.find({});
 
   for (const config of configs) {
     configsMap[config.code] = config.value;
@@ -203,8 +203,8 @@ export const getConfigs = async () => {
   return configsMap;
 };
 
-export const getConfig = async (code, defaultValue?) => {
-  const configs = await getConfigs();
+export const getConfig = async (models: IModels, code, defaultValue?) => {
+  const configs = await getConfigs(models);
 
   if (!configs[code]) {
     return defaultValue;
