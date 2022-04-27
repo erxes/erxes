@@ -27,7 +27,7 @@ export default {
     const models = await generateModels(subdomain);
 
     let response = {};
-    let model: any = modelChanger(type, models);
+    const model: any = modelChanger(type, models);
 
     if (action === 'count') {
       response = await model.countDocuments({ tagIds: { $in: _ids } });
@@ -53,7 +53,7 @@ export default {
     data: { sourceId, destId, type, action }
   }) => {
     const models = await generateModels(subdomain);
-    let model: any = modelChanger(type, models);
+    const model: any = modelChanger(type, models);
 
     if (action === 'remove') {
       await model.updateMany(

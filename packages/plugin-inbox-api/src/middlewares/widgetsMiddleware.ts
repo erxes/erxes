@@ -1,3 +1,4 @@
+import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as dotenv from 'dotenv';
 dotenv.config()
 
@@ -9,7 +10,8 @@ const widgetsMiddleware = async (req, res) => {
 
   const domain = WIDGETS_DOMAIN || 'http://localhost:3200'
 
-  const models = await generateModels('os')
+  const subdomain = getSubdomain(req.hostname);
+  const models = await generateModels(subdomain);
 
   const script = await models.Scripts.findOne({ _id: req.query.id });
 

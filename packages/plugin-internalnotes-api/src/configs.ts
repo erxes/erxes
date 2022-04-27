@@ -8,6 +8,7 @@ import {
   generateModels,
 } from './connectionResolver';
 import logs from './logUtils';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let mainDb;
 export let debug;
@@ -31,8 +32,8 @@ export default {
       resolvers: await resolvers(sd)
     };
   },
-  apolloServerContext: async context => {
-    const subdomain = 'os';
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req.hostname);
 
     context.models = await generateModels(subdomain);
     context.subdomain = subdomain;
@@ -41,8 +42,6 @@ export default {
   },
   onServerInit: async options => {
     mainDb = options.db;
-
-    await generateModels('os');
 
     initBroker(options.messageBrokerClient);
 

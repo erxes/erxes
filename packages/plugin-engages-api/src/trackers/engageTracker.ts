@@ -4,8 +4,8 @@ import { debugBase } from '../debuggers';
 import messageBroker, { sendContactsMessage } from '../messageBroker';
 import { ISESConfig } from '../models/Configs';
 import { SES_DELIVERY_STATUSES } from '../constants';
-import { routeErrorHandling } from '../utils';
 import { generateModels, IModels } from '../connectionResolver';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export const getApi = async (models: IModels, type: string): Promise<any> => {
   const config: ISESConfig = await models.Configs.getSESConfigs();
@@ -119,7 +119,7 @@ export const engageTracker = async (req, res) => {
 
     debugBase(`receiving on tracker: ${message}`);
 
-    const subdomain = req.hostname.split('.')[0];
+    const subdomain = getSubdomain(req.hostname);
     const models = await generateModels(subdomain);
 
     const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
