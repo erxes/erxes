@@ -273,8 +273,15 @@ class Navigation extends React.Component<Props, State> {
     );
   }
 
-  renderSubNavItem = (child, type: string, name?: string) => {
+  renderSubNavItem = (child, type: string, text: string, name?: string) => {
     if (name && child.scope !== name) {
+      return null;
+    }
+
+    if (
+      child.scope === "cards" &&
+      !child.text.toLowerCase().includes(text.toLowerCase())
+    ) {
       return null;
     }
 
@@ -309,7 +316,7 @@ class Navigation extends React.Component<Props, State> {
     const renderItem = (type: string) => {
       return childrens.map((child, index) => (
         <WithPermission key={index} action={child.permission}>
-          {this.renderSubNavItem(child, type, name)}
+          {this.renderSubNavItem(child, type, text, name)}
         </WithPermission>
       ));
     };
@@ -346,7 +353,12 @@ class Navigation extends React.Component<Props, State> {
     const { countOfPinnedNavigation, pinnedNavigations } = this.state;
 
     const hasChild =
-      childrens && childrens.find((child) => child.scope === name);
+      childrens &&
+      childrens.find((child) =>
+        child.scope === "cards"
+          ? child.text.toLowerCase().includes(text.toLowerCase())
+          : text.toLowerCase().includes(child.scope)
+      );
 
     const onClickPin = () =>
       !isPinned
