@@ -124,6 +124,7 @@ const {
 
   const apolloServer = new ApolloServer({
     gateway,
+    introspection: true,
     // for graceful shutdowns
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
     context: ({
