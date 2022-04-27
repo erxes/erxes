@@ -64,6 +64,7 @@ const corsOptions = {
   origin: [
     DOMAIN ? DOMAIN : 'http://localhost:3000',
     WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
+    ...(process.env.ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
   ]
 };
 
@@ -86,7 +87,7 @@ app.get(
     const envMaps = JSON.parse(req.query.envs || '{}');
 
     for (const key of Object.keys(envMaps)) {
-      res.cookie(key, envMaps[key], authCookieOptions(req.secure));
+      res.cookie(key, envMaps[key], authCookieOptions({ secure: req.secure }));
     }
 
     const configs = await models.Configs.find({

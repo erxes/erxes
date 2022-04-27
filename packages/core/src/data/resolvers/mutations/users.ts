@@ -56,7 +56,9 @@ const login = async (models: IModels, args: ILogin, res: express.Response, secur
 
   const { token } = response;
 
-  res.cookie('auth-token', token, authCookieOptions(secure));
+  const cookieOptions: any = { secure };
+
+  res.cookie('auth-token', token, authCookieOptions(cookieOptions));
 
   telemetry.trackCli('logged_in');
 
