@@ -12,7 +12,6 @@ import { debugGmail, debugNylas } from './debuggers';
 import { getMessage as nylasGetMessage, nylasSendEmail } from './nylas/handleController';
 import { getMessage as gmailGetMessage, sendEmail } from './gmail/handleController';
 import { facebookCreateIntegration, facebookGetCustomerPosts } from './facebook/controller';
-import { twitterCreateIntegration, twitterReply } from './twitter/controller';
 import { smoochCreateIntegration, smoothReply } from './smooch/controller';
 import { nylasCreateIntegration } from './nylas/controller';
 import { callproCreateIntegration, callproGetAudio } from './callpro/controller';
@@ -188,8 +187,6 @@ export const initBroker = async (cl) => {
           return nylasCreateIntegration(doc);
         case 'facebook':
           return facebookCreateIntegration(doc);
-        case 'twitter':
-          return twitterCreateIntegration(doc);
         case 'smooch':
           return smoochCreateIntegration(doc);
         case 'callpro':
@@ -253,9 +250,6 @@ export const initBroker = async (cl) => {
     switch(data.requestName) {
       case "replyChatfuel":
         await chatfuelReply(data);
-        break;
-      case 'replyTwitterDm':
-        await twitterReply(data);
         break;
       case 'replySmooch':
         await smoothReply(data)

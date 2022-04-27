@@ -10,7 +10,6 @@ import initSmooch from './smooch/controller';
 // import { init } from './startup';
 import systemStatus from './systemStatus';
 import initTelnyx from './telnyx/controller';
-import initTwitter from './twitter/controller';
 import userMiddleware from './userMiddleware';
 
 const rawBodySaver = (req, _res, buf, encoding) => {
@@ -59,9 +58,6 @@ const initApp = async app => {
 
   // init callpro
   initCallPro(app);
-
-  // init twitter
-  initTwitter(app);
 
   // init chatfuel
   initChatfuel(app);

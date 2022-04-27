@@ -12,8 +12,6 @@ import {
   debugNylas,
   debugSmooch,
   debugTelnyx,
-  debugTwitter,
-  debugWhatsapp
 } from './debuggers';
 import {
   getPageAccessToken,
@@ -73,13 +71,6 @@ import {
   Conversations as TelnyxConversations,
   Customers as TelnyxCustomers
 } from './telnyx/models';
-import * as twitterApi from './twitter/api';
-import { getTwitterConfig, unsubscribe } from './twitter/api';
-import {
-  ConversationMessages as TwitterConversationMessages,
-  Conversations as TwitterConversations,
-  Customers as TwitterCustomers
-} from './twitter/models';
 import { getEnv, resetConfigsCache, sendRequest } from './utils';
 
 export const removeIntegration = async (
@@ -222,32 +213,6 @@ export const removeIntegration = async (
 
     await models.CallProCustomers.deleteMany(selector);
     await models.CallProConversations.deleteMany(selector);
-  }
-
-  if (kind === 'twitter-dm') {
-    debugTwitter('Removing twitter entries');
-    
-    if(!account)  {
-      throw new Error("Account not found");
-      
-    }
-
-    const conversationIds = await TwitterConversations.find(selector).distinct(
-      '_id'
-    );
-
-    try {
-      unsubscribe(account.uid);
-    } catch (e) {
-      debugError('Failed to unsubscribe twitter account');
-      throw e;
-    }
-
-    await TwitterConversationMessages.deleteMany(selector);
-    await TwitterConversations.deleteMany({
-      conversationId: { $in: conversationIds }
-    });
-    await TwitterCustomers.deleteMany(selector);
   }
 
   // Remove from core =========
@@ -564,7 +529,6 @@ export const removeCustomers = async (models: IModels, params) => {
   await NylasExchangeCustomers.deleteMany(selector);
   await ChatfuelCustomers.deleteMany(selector);
   await models.CallProCustomers.deleteMany(selector);
-  await TwitterCustomers.deleteMany(selector);
   await SmoochTelegramCustomers.deleteMany(selector);
   await SmoochViberCustomers.deleteMany(selector);
   await SmoochLineCustomers.deleteMany(selector);
@@ -594,14 +558,10 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
   const prevSmoochWebhook = await getValueAsString(
     'SMOOCH_WEBHOOK_CALLBACK_URL'
   );
-
-  const prevTwitterConfig = await getTwitterConfig();
-
+  
   await Configs.updateConfigs(configsMap);
 
   resetConfigsCache();
-
-  const updatedTwitterConfig = await getTwitterConfig();
 
   const updatedNylasClientId = await getValueAsString('NYLAS_CLIENT_ID');
   const updatedNylasClientSecret = await getValueAsString(
@@ -638,28 +598,6 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
   } catch (e) {
     debugError(e.message);
     throw e;
-  }
-
-  try {
-    if (
-      prevTwitterConfig.oauth.consumer_key !==
-        updatedTwitterConfig.oauth.consumer_key ||
-      prevTwitterConfig.oauth.consumer_secret !==
-        updatedTwitterConfig.oauth.consumer_secret
-    ) {
-      await twitterApi.registerWebhook();
-    }
-    if (
-      prevTwitterConfig.oauth.token !== updatedTwitterConfig.oauth.token ||
-      prevTwitterConfig.oauth.token_secret !==
-        prevTwitterConfig.oauth.token_secret ||
-      prevTwitterConfig.twitterWebhookEnvironment !==
-        updatedTwitterConfig.twitterWebhookEnvironment
-    ) {
-      await twitterApi.registerWebhook();
-    }
-  } catch (e) {
-    debugError(e);
   }
 
   try {
