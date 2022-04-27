@@ -307,8 +307,6 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
     }
 
     @media (max-height: 760px) {
-      height: ${dimensions.headerSpacing + dimensions.coreSpacing}px;
-
       i {
         line-height: ${dimensions.headerSpacing - dimensions.coreSpacing}px;
       }
