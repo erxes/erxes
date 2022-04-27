@@ -20,7 +20,6 @@ import { callproCreateIntegration, callproGetAudio } from './callpro/controller'
 import { chatfuelCreateIntegration, chatfuelReply } from './chatfuel/controller';
 import { gmailCreateIntegration } from './gmail/controller';
 import { telnyxCreateIntegration } from './telnyx/controller';
-import { whatsappCreateIntegration, whatsappReply } from './whatsapp/controller';
 import { ISendMessageArgs, sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core'
 import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
@@ -235,9 +234,6 @@ export const initBroker = async (cl) => {
           return gmailCreateIntegration(doc);
         case 'telnyx':
           return telnyxCreateIntegration(doc);
-        default:
-          // whatsapp
-          return whatsappCreateIntegration(doc);
       }
     }
   );
@@ -297,9 +293,6 @@ export const initBroker = async (cl) => {
         break;
       case 'replySmooch':
         await smoothReply(data)
-        break;
-      case 'replyWhatsApp':
-        await whatsappReply(data)
         break;
       default:
         break;

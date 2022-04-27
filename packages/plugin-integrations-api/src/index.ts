@@ -13,7 +13,6 @@ import initTelnyx from './telnyx/controller';
 import initTwitter from './twitter/controller';
 import userMiddleware from './userMiddleware';
 import initDaily from './videoCall/controller';
-import initWhatsapp from './whatsapp/controller';
 
 const rawBodySaver = (req, _res, buf, encoding) => {
   if (buf && buf.length) {
@@ -67,9 +66,6 @@ const initApp = async app => {
 
   // init chatfuel
   initChatfuel(app);
-
-  // init whatsapp
-  initWhatsapp(app);
 
   // init chatfuel
   initDaily(app);

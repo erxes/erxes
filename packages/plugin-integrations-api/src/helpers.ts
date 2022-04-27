@@ -81,12 +81,6 @@ import {
   Customers as TwitterCustomers
 } from './twitter/models';
 import { getEnv, resetConfigsCache, sendRequest } from './utils';
-import { logout, setupChatApi as setupWhatsapp } from './whatsapp/api';
-import {
-  ConversationMessages as WhatsappConversationMessages,
-  Conversations as WhatsappConversations,
-  Customers as WhatsappCustomers
-} from './whatsapp/models';
 
 export const removeIntegration = async (
   models: IModels,
@@ -254,27 +248,6 @@ export const removeIntegration = async (
       conversationId: { $in: conversationIds }
     });
     await TwitterCustomers.deleteMany(selector);
-  }
-
-  if (kind === 'whatsapp') {
-    debugWhatsapp('Removing whatsapp entries');
-
-    try {
-      await logout(integration.whatsappinstanceId, integration.whatsappToken);
-    } catch (e) {
-      debugError('Failed to logout WhatsApp account');
-      throw e;
-    }
-
-    const conversationIds = await WhatsappConversations.find(selector).distinct(
-      '_id'
-    );
-
-    await WhatsappConversationMessages.deleteMany({
-      conversationId: { $in: conversationIds }
-    });
-    await WhatsappConversations.deleteMany(selector);
-    await WhatsappCustomers.deleteMany(selector);
   }
 
   // Remove from core =========
@@ -596,7 +569,6 @@ export const removeCustomers = async (models: IModels, params) => {
   await SmoochViberCustomers.deleteMany(selector);
   await SmoochLineCustomers.deleteMany(selector);
   await SmoochTwilioCustomers.deleteMany(selector);
-  await WhatsappCustomers.deleteMany(selector);
 };
 
 export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
@@ -623,10 +595,6 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
     'SMOOCH_WEBHOOK_CALLBACK_URL'
   );
 
-  const prevChatApiWebhook = await getValueAsString(
-    'CHAT_API_WEBHOOK_CALLBACK_URL'
-  );
-  const prevChatApiUID = await getValueAsString('CHAT_API_UID');
   const prevTwitterConfig = await getTwitterConfig();
 
   await Configs.updateConfigs(configsMap);
@@ -651,10 +619,6 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
   const updatedSmoochWebhook = await getValueAsString(
     'SMOOCH_WEBHOOK_CALLBACK_URL'
   );
-  const updatedChatApiWebhook = await getValueAsString(
-    'CHAT_API_WEBHOOK_CALLBACK_URL'
-  );
-  const updatedChatApiUID = await getValueAsString('CHAT_API_UID');
 
   try {
     if (
@@ -713,17 +677,6 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
     }
   } catch (e) {
     debugError(e);
-  }
-
-  if (
-    prevChatApiWebhook !== updatedChatApiWebhook ||
-    prevChatApiUID !== updatedChatApiUID
-  ) {
-    try {
-      await setupWhatsapp();
-    } catch (e) {
-      debugError(e);
-    }
   }
 };
 
