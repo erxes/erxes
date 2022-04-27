@@ -67,13 +67,14 @@ class StageItem extends React.Component<Props, {}> {
           </option>
         </FormControl>
 
-        <FormControl
-          defaultValue={stage.code}
-          name="code"
-          placeholder={__('Stage code')}
-          autoFocus={true}
-          onChange={onChangeCode.bind(this, stage._id)}
-        />
+          <FormControl
+            defaultValue={stage.code}
+            name="code"
+            placeholder={__('Stage code')}
+            autoFocus={true}
+            onChange={onChangeCode.bind(this, stage._id)}
+            required={true}
+          />
 
         <Button
           btnStyle="link"

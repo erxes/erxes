@@ -1097,7 +1097,8 @@ const populateStages = async type => {
       _id: faker.unique,
       name: faker.random.word(),
       type,
-      pipelineId: ''
+      pipelineId: '',
+      code: faker.unique
     };
     stages.push(stage);
   }
