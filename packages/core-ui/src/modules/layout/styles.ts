@@ -350,14 +350,14 @@ const RoundBox = styledTS<{ pinned?: boolean }>(styled.div)`
   top: -5px;
 
   img {
-    filter: ${(props) => props.pinned && "grayscale(100%) invert(1)"};
+    filter: ${(props) => !props.pinned && "brightness(30%)"};
   }
 
   &:hover {
     background: ${colors.colorSecondary};
 
     img {
-      filter: grayscale(100%) invert(1);
+      filter: none;
     }
   }
 `;
