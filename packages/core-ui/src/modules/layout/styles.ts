@@ -286,8 +286,7 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
       background: rgba(0, 0, 0, 0.04);
 
       > i, label {
-        opacity: 1;
-        color: ${colors.colorPrimary};
+        opacity: .8;
       }
     }
 
@@ -318,7 +317,8 @@ const Nav = styled.nav`
 
 const NavIcon = styled.i`
   font-size: 18px;
-  color: rgba(0, 0, 0, 0.62);
+  color: ${colors.colorBlack};
+  opacity: 0.62;
 `;
 
 const RoundBox = styledTS<{ pinned?: boolean }>(styled.div)`
@@ -388,8 +388,7 @@ const SubNavItem = styledTS<{ additional: boolean }>(styled.li)`
 
       &.active {
         opacity: 1;
-        font-weight: bold;
-        position: relative;
+        color: rgba(0,0,0,.8);
         background: ${rgba(colors.colorBlack, 0.07)};
       }
 
@@ -603,7 +602,7 @@ const DropSubNavItem = styled.li`
 
     &.active {
       opacity: 1;
-      font-weight: bold;
+      color: rgba(0, 0, 0, 0.8);
       position: relative;
       background: ${rgba(colors.colorBlack, 0.07)};
     }

@@ -284,7 +284,7 @@ class Navigation extends React.Component<Props, State> {
     if (
       navCollapse === 3 &&
       clickedMenu === text &&
-      showMenu === true &&
+      showMenu &&
       (parent === url || window.location.pathname.startsWith(url))
     ) {
       return <DropSubNav>{renderItem("vertical")}</DropSubNav>;
