@@ -10,7 +10,6 @@ import { debugGmail } from './debuggers';
 import { getMessage as gmailGetMessage, sendEmail } from './gmail/handleController';
 import { facebookCreateIntegration, facebookGetCustomerPosts } from './facebook/controller';
 import { callproCreateIntegration, callproGetAudio } from './callpro/controller';
-import { chatfuelCreateIntegration, chatfuelReply } from './chatfuel/controller';
 import { gmailCreateIntegration } from './gmail/controller';
 import { ISendMessageArgs, sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core'
 import { serviceDiscovery } from './configs';
@@ -170,8 +169,6 @@ export const initBroker = async (cl) => {
           return facebookCreateIntegration(doc);
         case 'callpro':
           return callproCreateIntegration(doc);
-        case 'chatfuel':
-          return chatfuelCreateIntegration(doc);
         case 'gmail':
           return gmailCreateIntegration(doc);
       }
@@ -199,16 +196,6 @@ export const initBroker = async (cl) => {
       await sendEmail(erxesApiId, mailParams);
 
       return { status: 200, statusText: 'success' };
-    }
-  })
-
-  consumeRPCQueue('integrations:reply', async ({ data }) => {
-    switch(data.requestName) {
-      case "replyChatfuel":
-        await chatfuelReply(data);
-        break;
-      default:
-        break;
     }
   })
 

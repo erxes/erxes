@@ -1,8 +1,3 @@
-import {
-  ConversationMessages as ChatfuelConversationMessages,
-  Conversations as ChatfuelConversations,
-  Customers as ChatfuelCustomers
-} from './chatfuel/models';
 import { IModels } from './connectionResolver';
 import {
   debugCallPro,
@@ -163,20 +158,6 @@ export const removeIntegration = async (
     }
   }
 
-  if (kind === 'chatfuel') {
-    debugCallPro('Removing chatfuel entries');
-
-    const conversationIds = await ChatfuelConversations.find(selector).distinct(
-      '_id'
-    );
-
-    await ChatfuelCustomers.deleteMany(selector);
-    await ChatfuelConversations.deleteMany(selector);
-    await ChatfuelConversationMessages.deleteMany({
-      conversationId: { $in: conversationIds }
-    });
-  }
-
   await Integrations.deleteOne({ _id });
 
   return erxesApiId;
@@ -246,7 +227,6 @@ export const removeCustomers = async (models: IModels, params) => {
   const selector = { erxesApiId: { $in: customerIds } };
 
   await models.FbCustomers.deleteMany(selector);
-  await ChatfuelCustomers.deleteMany(selector);
   await models.CallProCustomers.deleteMany(selector);
 };
 

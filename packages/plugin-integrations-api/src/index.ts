@@ -1,7 +1,6 @@
 import * as bodyParser from 'body-parser';
 
 import initCallPro from './callpro/controller';
-import initChatfuel from './chatfuel/controller';
 import { debugIntegrations, debugRequest } from './debuggers';
 import initFacebook from './facebook/controller';
 import initGmail from './gmail/controller';
@@ -51,9 +50,6 @@ const initApp = async app => {
 
   // init callpro
   initCallPro(app);
-
-  // init chatfuel
-  initChatfuel(app);
 
   // Error handling middleware
   app.use((error, _req, res, _next) => {
