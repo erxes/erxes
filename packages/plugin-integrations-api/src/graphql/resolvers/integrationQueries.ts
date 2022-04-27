@@ -5,9 +5,6 @@ import { IContext } from '../../connectionResolver';
 const integrationQueries = {
   // app.get('/accounts', async (req, res) => {
   async integrationsGetAccounts(_root, { kind }: { kind: string }, { models }: IContext) {
-    if (kind.includes('nylas')) {
-      kind = kind.split('-')[1];
-    }
     const selector = { kind };
 
     return models.Accounts.find(selector);
@@ -36,17 +33,6 @@ const integrationQueries = {
     );
 
     return integration;
-  },
-
-  // app.get('/gmail/get-email',
-  async integrationsGetGmailEmail(_root, { accountId }: { accountId: string }, { models }: IContext) {
-    const account = await models.Accounts.findOne({ _id: accountId });
-
-    if (!account) {
-      throw new Error('Account not found');
-    }
-
-    return account.email;
   },
 
   // app.get('/configs', async (req, res) => {
@@ -140,6 +126,7 @@ const integrationQueries = {
 
     return result.reverse();
   },
+
   // app.get('/facebook/get-comments-count', async (req, res) => {
   async integrationsConversationFbCommentsCount(_root, args, { models }: IContext) {
     const { postId, isResolved = false } = args;
@@ -160,18 +147,6 @@ const integrationQueries = {
       commentCount,
       commentCountWithoutReplies
     };
-  },
-
-  // app.get('/twitter/get-account', async (req, res, next) => {
-  async integrationsGetTwitterAccount(_root, { accountId }: {accountId: string}, { models }: IContext) {
-    const account = await models.Accounts.findOne({ _id: accountId });
-
-    if (!account) {
-      throw new Error('Account not found');
-    }
-
-    return account.uid;
-    
   },
 
   // app.get('/facebook/get-pages', async (req, res, next) => {
@@ -196,23 +171,6 @@ const integrationQueries = {
     }
 
     return pages;
-  },
-
-  // app.get('/videoCall/usageStatus',
-  async integrationsVideoCallUsageStatus(_root, _args, { models }: IContext) {
-    const videoCallType = await getConfig(models, 'VIDEO_CALL_TYPE');
-
-    switch (videoCallType) {
-      case 'daily': {
-        const { DAILY_API_KEY, DAILY_END_POINT } = await getConfigs(models);
-
-        return Boolean(DAILY_API_KEY && DAILY_END_POINT);
-      }
-
-      default: {
-        return false;
-      }
-    }
   },
 };
 

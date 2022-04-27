@@ -27,7 +27,6 @@ export const queries = `
   integrationsGetIntegrations(kind: String): JSON
   integrationsGetIntegrationDetail(erxesApiId: String): JSON 
 
-  integrationsGetGmailEmail(accountId: String!): JSON
   integrationsGetConfigs: JSON
   integrationsConversationFbComments(
     postId: String!
@@ -39,10 +38,8 @@ export const queries = `
   ): [FacebookComment]
 
   integrationsConversationFbCommentsCount(postId: String! isResolved: Boolean): JSON
-  integrationsGetTwitterAccount(accountId: String!): String
 
   integrationsGetFbPages(accountId: String! kind: String!): JSON
-  integrationsVideoCallUsageStatus: Boolean
 `;
 
 export const mutations = `
