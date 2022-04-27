@@ -6,8 +6,6 @@ import {get, set} from './inmemoryStorage';
 import { sendInboxMessage } from './messageBroker';
 import Configs from './models/Configs';
 import { IParticipants, IProviderSettings } from './nylas/types';
-import { sendDailyRequest } from './videoCall/controller';
-import { IRecording } from './videoCall/models';
 
 dotenv.config();
 interface IRequestParams {
@@ -261,24 +259,4 @@ export const isAfter = (
   }
 
   return false;
-};
-
-export const getRecordings = async (recordings: IRecording[]) => {
-  const newRecordings: IRecording[] = [];
-
-  for (const record of recordings) {
-    if (!record.expires || (record.expires && !isAfter(record.expires))) {
-      const accessLinkResponse = await sendDailyRequest(
-        `/api/v1/recordings/${record.id}/access-link`,
-        'GET'
-      );
-
-      record.expires = accessLinkResponse.expires;
-      record.url = accessLinkResponse.download_link;
-    }
-
-    newRecordings.push(record);
-  }
-
-  return newRecordings;
 };

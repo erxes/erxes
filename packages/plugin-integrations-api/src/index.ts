@@ -12,7 +12,6 @@ import systemStatus from './systemStatus';
 import initTelnyx from './telnyx/controller';
 import initTwitter from './twitter/controller';
 import userMiddleware from './userMiddleware';
-import initDaily from './videoCall/controller';
 
 const rawBodySaver = (req, _res, buf, encoding) => {
   if (buf && buf.length) {
@@ -66,9 +65,6 @@ const initApp = async app => {
 
   // init chatfuel
   initChatfuel(app);
-
-  // init chatfuel
-  initDaily(app);
 
   // init smooch
   initSmooch(app);

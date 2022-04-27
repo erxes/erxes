@@ -8,7 +8,6 @@ import { getLineWebhookUrl } from './smooch/api';
 import { sendSms } from './telnyx/api';
 import { userIds } from './userMiddleware';
 import { getConfig } from './utils';
-import { createDailyRoom, getDailyActiveRoom, getDailyRoom } from './videoCall/controller';
 import { debugGmail, debugNylas } from './debuggers';
 import { getMessage as nylasGetMessage, nylasSendEmail } from './nylas/handleController';
 import { getMessage as gmailGetMessage, sendEmail } from './gmail/handleController';
@@ -135,39 +134,6 @@ export const initBroker = async (cl) => {
 
       return {
         data: result,
-        status: 'success'
-      };
-    }
-  );
-
-  // '/daily/room', get
-  consumeRPCQueue(
-    'integrations:getDailyRoom',
-    async ({ data }) => {
-      return {
-        data: await getDailyRoom(data),
-        status: 'success'
-      };
-    }
-  );
-
-  // '/daily/room', post create daily room
-  consumeRPCQueue(
-    'integrations:createDailyRoom',
-    async ({ data }) => {
-      return {
-        data: await createDailyRoom(data),
-        status: 'success' 
-      }
-    }
-  );
-
-  // '/daily/get-active-room',
-  consumeRPCQueue(
-    'integrations:getDailyActiveRoom',
-    async ({ data }) => {
-      return {
-        data: await getDailyActiveRoom(data),
         status: 'success'
       };
     }
