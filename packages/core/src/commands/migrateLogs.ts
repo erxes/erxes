@@ -103,7 +103,7 @@ const command = async () => {
   ActivityLogs = db.collection('activity_logs');
   const limit = 1000;
 
-  const logsSummary = await ActivityLogs.find({}).count();
+  const logsSummary = await Logs.find({}).count();
 
   let bulkOps: any[] = [];
 
@@ -134,6 +134,7 @@ const command = async () => {
   if (bulkOps.length) {
     await Logs.bulkWrite(bulkOps);
   }
+
   console.log(`Logs migrated ....`);
 
   bulkOps = [];
