@@ -87,7 +87,7 @@ app.get(
     const envMaps = JSON.parse(req.query.envs || '{}');
 
     for (const key of Object.keys(envMaps)) {
-      res.cookie(key, envMaps[key], authCookieOptions(req.secure));
+      res.cookie(key, envMaps[key], authCookieOptions({ secure: req.secure }));
     }
 
     const configs = await models.Configs.find({
