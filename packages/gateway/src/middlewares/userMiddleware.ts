@@ -57,27 +57,31 @@ export default async function userMiddleware(
     return next();
   }
 
-  const appToken = req.headers['erxes-app-token'];
+  const appToken = (req.headers['erxes-app-token'] || '').toString();
   const models = await generateModels('os');
 
   if (appToken) {
     try {
-      const app = await models.Apps.findOne({ accessToken: appToken });
+      const { app }: any = jwt.verify(appToken, process.env.JWT_TOKEN_SECRET || '');
   
-      if (app) {
-        const permissions = await models.Permissions.find({
-          groupId: app.userGroupId,
-          allowed: true,
-        }).lean();
-  
-        req.user = {
-          _id: 'userId',
-          customPermissions: permissions.map((p) => ({
-            action: p.action,
-            allowed: p.allowed,
-            requiredActions: p.requiredActions,
-          })),
-        };
+      if (app && app._id) {
+        const appInDb = await models.Apps.findOne({ _id: app._id });
+
+        if (appInDb) {
+          const permissions = await models.Permissions.find({
+            groupId: appInDb.userGroupId,
+            allowed: true,
+          }).lean();
+
+          req.user = {
+            _id: 'userId',
+            customPermissions: permissions.map((p) => ({
+              action: p.action,
+              allowed: p.allowed,
+              requiredActions: p.requiredActions,
+            })),
+          };
+        }
       }
   
       return next();
