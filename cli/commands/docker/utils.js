@@ -275,12 +275,12 @@ const up = async (uis) => {
         image: "erxes/gateway:federation",
         environment: {
           PORT: "80",
-          ALLOWED_ORIGINS: allowed_origins,
           LOAD_BALANCER_ADDRESS: "http://gateway",
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
           CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
           MONGO_URL: mongoEnv(configs),
           ...commonEnvs(configs),
+          ...((configs.gateway || {}).extra_env || {})
         },
         volumes: ["./enabled-services.js:/data/enabled-services.js"],
         healthcheck,
