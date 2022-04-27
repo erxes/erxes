@@ -322,20 +322,26 @@ const NavIcon = styled.i`
 `;
 
 const RoundBox = styledTS<{ pinned?: boolean }>(styled.div)`
-  background: ${(props) =>
-    props.pinned ? colors.colorSecondary : colors.colorWhite};
+  background: ${(props) => (props.pinned ? colors.colorSecondary : "#f5f5f5")};
   border-radius: 50%;
   border: 1px solid ${colors.borderPrimary};
-  width: 25px;
-  height: 25px;
+  width: ${dimensions.coreSpacing}px;
+  height: ${dimensions.coreSpacing}px;
   display: flex;
   justify-content: center;
   align-items: center;
   position: absolute;
-  right: -10px;
-  top: -10px;
+  right: -5px;
+  top: -5px;
   color: ${(props) => props.pinned && colors.colorWhite};
-  transition: all 0.3s ease;
+
+  &:hover {
+    background: ${colors.colorSecondary};
+
+    img {
+      filter: grayscale(100%) invert(1);
+    }
+  }
 `;
 
 const SubNav = styledTS<{ navCollapse: number }>(styled.ul)`
@@ -420,13 +426,6 @@ const NavItem = styledTS<{ isMoreItem?: boolean }>(styled.div)`
   cursor : pointer;
 
   &:hover {
-    ${RoundBox} {
-      background: ${(props) => props.isMoreItem && colors.colorSecondary};
-      i {
-        color: ${(props) => props.isMoreItem && colors.colorWhite};
-      }
-    }
-
     ${SubNav} {
       visibility: visible;
     }
@@ -486,11 +485,13 @@ const MoreItemRecent = styled.div`
   justify-content: center;
   align-items: center;
   width: ${dimensions.headerSpacing + dimensions.coreSpacing}px;
+  height: ${dimensions.headerSpacing + dimensions.coreSpacing}px;
   margin: 5px 10px 0 0;
   cursor: pointer;
 
   label {
     width: 70px !important;
+    padding: 0 ${dimensions.unitSpacing}px;
   }
 
   i,
@@ -501,6 +502,10 @@ const MoreItemRecent = styled.div`
   a.active:before {
     content: none;
   }
+
+  &:nth-child(5n) {
+    margin-right: 0;
+  }
 `;
 
 const MoreMenuWrapper = styledTS<{ visible: boolean; navCollapse: number }>(
@@ -508,8 +513,10 @@ const MoreMenuWrapper = styledTS<{ visible: boolean; navCollapse: number }>(
 )`
   position: absolute;
   visibility: ${(props) => (props.visible ? "visible" : "hidden")};
-  padding:${dimensions.coreSpacing}px;
-  width: ${dimensions.headerSpacingWide * 6}px;
+  padding:${dimensions.coreSpacing}px ${dimensions.unitSpacing}px ${
+  dimensions.coreSpacing
+}px ${dimensions.coreSpacing}px;
+  width: ${dimensions.headerSpacingWide * 6 + dimensions.unitSpacing}px;
   height: ${dimensions.headerSpacingWide * 4 + dimensions.coreSpacing}px;
   overflow-y: auto;
   left: ${(props) =>
@@ -532,18 +539,21 @@ const MoreSearch = styled.div`
   align-items: center;
   padding: 0 ${dimensions.unitSpacing}px;
   background: ${colors.bgActive};
-  border-radius: ${dimensions.headerSpacingWide - 1}px;
+  border-radius: ${dimensions.headerSpacingWide}px;
   color: ${colors.colorCoreGray};
   margin-bottom: ${dimensions.coreSpacing}px;
 
   i {
     color: rgba(0, 0, 0, 0.95);
     padding: ${dimensions.unitSpacing - 5}px;
+    font-size: 13px;
   }
 
   input {
     border-bottom: none;
     transition: none;
+    height: 25px;
+    padding: 5px 0;
   }
 `;
 

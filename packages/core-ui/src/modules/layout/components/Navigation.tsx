@@ -324,12 +324,14 @@ class Navigation extends React.Component<Props, State> {
           })}
 
           {isMoreItem && (
-            <RoundBox
-              pinned={this.state.pinned}
-              onClick={() => this.onClickPin()}
-            >
-              <Icon icon="clip" />
-            </RoundBox>
+            <Tip placement="top" text={__("Pin plugin")}>
+              <RoundBox
+                pinned={this.state.pinned}
+                onClick={() => this.onClickPin()}
+              >
+                <img src="/images/pin.svg" alt="pin" />
+              </RoundBox>
+            </Tip>
           )}
 
           {!isMoreItem &&
