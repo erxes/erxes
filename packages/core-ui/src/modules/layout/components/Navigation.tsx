@@ -240,14 +240,24 @@ class Navigation extends React.Component<Props, State> {
     );
   }
 
-  renderSubNavItem = (child, index: number) => {
-    return (
-      // <WithPermission key={index} action={child.permission}>
-      <SubNavItem additional={child.additional || false}>
+  renderSubNavItem = (child, type: string, name?: string) => {
+    if (name && child.scope !== name) {
+      return null;
+    }
+
+    const item = (
+      <>
         <Icon icon="corner-down-right" size={18} />
         <NavLink to={this.getLink(child.to)}>{__(child.text)}</NavLink>
-      </SubNavItem>
-      // </WithPermission>
+      </>
+    );
+
+    if (type === "vertical") {
+      return <DropSubNavItem>{item}</DropSubNavItem>;
+    }
+
+    return (
+      <SubNavItem additional={child.additional || false}>{item}</SubNavItem>
     );
   };
 
@@ -255,6 +265,7 @@ class Navigation extends React.Component<Props, State> {
     url: string,
     text: string,
     childrens?: ISubNav[],
+    name?: string,
     navCollapse?: number
   ) {
     const { showMenu, clickedMenu } = this.state;
@@ -265,32 +276,27 @@ class Navigation extends React.Component<Props, State> {
     const urlParams = new URLSearchParams(window.location.search);
     const parent = urlParams.get("parent");
 
+    const renderItem = (type: string) => {
+      return childrens.map((child, index) => (
+        <WithPermission key={index} action={child.permission}>
+          {this.renderSubNavItem(child, type, name)}
+        </WithPermission>
+      ));
+    };
+
     if (
       navCollapse === 3 &&
       clickedMenu === text &&
       showMenu === true &&
       (parent === url || window.location.pathname.startsWith(url))
     ) {
-      return (
-        <DropSubNav>
-          {childrens.map((child, index) => (
-            <DropSubNavItem>
-              {/* <WithPermission key={index} action={child.permission}> */}
-              <Icon icon="corner-down-right-alt" />
-              <NavLink to={this.getLink(`${child.to}?parent=${url}`)}>
-                {__(child.text)}
-              </NavLink>
-              {/* </WithPermission> */}
-            </DropSubNavItem>
-          ))}
-        </DropSubNav>
-      );
+      return <DropSubNav>{renderItem("vertical")}</DropSubNav>;
     }
 
     return (
       <SubNav navCollapse={this.props.navCollapse}>
         <SubNavTitle>{__(text)}</SubNavTitle>
-        {childrens.map((child, index) => this.renderSubNavItem(child, index))}
+        {renderItem("horizontal")}
       </SubNav>
     );
   }
@@ -300,11 +306,14 @@ class Navigation extends React.Component<Props, State> {
     text: string,
     url: string,
     icon?: string,
+    name?: string,
     childrens?: ISubNav[],
     label?: React.ReactNode,
     isMoreItem?: boolean
   ) => {
     const { navCollapse } = this.props;
+    const hasChild =
+      childrens && childrens.find((child) => child.scope === name);
 
     const item = (
       <div ref={this.setWrapperRef}>
@@ -327,12 +336,16 @@ class Navigation extends React.Component<Props, State> {
           )}
 
           {!isMoreItem &&
-            this.renderChildren(url, text, childrens, navCollapse)}
+            hasChild &&
+            this.renderChildren(url, text, childrens, name, navCollapse)}
         </NavItem>
       </div>
     );
 
-    if ((!childrens || childrens.length === 0) && !isMoreItem) {
+    if (
+      (!isMoreItem && !hasChild) ||
+      ((!childrens || childrens.length === 0) && !isMoreItem)
+    ) {
       return (
         <WithPermission key={url} action={permission}>
           <Tip placement="right" key={Math.random()} text={__(text)}>
@@ -377,6 +390,7 @@ class Navigation extends React.Component<Props, State> {
                   menu.text,
                   menu.url,
                   menu.icon,
+                  "",
                   [],
                   "",
                   true
@@ -442,59 +456,8 @@ class Navigation extends React.Component<Props, State> {
               nav.text,
               nav.url,
               nav.icon,
-              nav.childrens || [
-                {
-                  text: "Skills",
-                  to: "/settings/skills",
-                  image: "/images/icons/erxes-29.png",
-                  location: "settings",
-                  scope: "inbox",
-                  action: "skillTypesAll",
-                  permissions: [
-                    "getSkillTypes",
-                    "getSkill",
-                    "getSkills",
-                    "manageSkills",
-                    "manageSkillTypes",
-                  ],
-                },
-                {
-                  text: "Channels",
-                  to: "/settings/channels",
-                  image: "/images/icons/erxes-05.svg",
-                  location: "settings",
-                  scope: "inbox",
-                  action: "channelsAll",
-                  permissions: ["showChannels", "manageChannels"],
-                },
-                {
-                  text: "Channels",
-                  to: "/settings/channels",
-                  image: "/images/icons/erxes-05.svg",
-                  location: "settings",
-                  scope: "inbox",
-                  action: "channelsAll",
-                  permissions: ["showChannels", "manageChannels"],
-                },
-                {
-                  text: "Channels",
-                  to: "/settings/channels",
-                  image: "/images/icons/erxes-05.svg",
-                  location: "settings",
-                  scope: "inbox",
-                  action: "channelsAll",
-                  permissions: ["showChannels", "manageChannels"],
-                },
-                {
-                  text: "Channels",
-                  to: "/settings/channels",
-                  image: "/images/icons/erxes-05.svg",
-                  location: "settings",
-                  scope: "inbox",
-                  action: "channelsAll",
-                  permissions: ["showChannels", "manageChannels"],
-                },
-              ], // test data
+              nav.name || "",
+              nav.childrens || [],
               nav.label
             )
           )}
