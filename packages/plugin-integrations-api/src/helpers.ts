@@ -67,7 +67,7 @@ export const removeIntegration = async (
   // Remove endpoint
   let integrationRemoveBy;
 
-  const { _id, kind, accountId, erxesApiId, nylasAccountId = "", smoochIntegrationId = "" } = integration;
+  const { _id, kind, accountId, erxesApiId, nylasAccountId = "" } = integration;
 
   const account = await Accounts.findOne({ _id: accountId });
   
