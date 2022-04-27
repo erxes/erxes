@@ -245,19 +245,16 @@ class Navigation extends React.Component<Props, State> {
       return null;
     }
 
-    const item = (
-      <>
-        <Icon icon="corner-down-right" size={18} />
-        <NavLink to={this.getLink(child.to)}>{__(child.text)}</NavLink>
-      </>
+    const link = (
+      <NavLink to={this.getLink(child.to)}>{__(child.text)}</NavLink>
     );
 
     if (type === "vertical") {
-      return <DropSubNavItem>{item}</DropSubNavItem>;
+      return <DropSubNavItem>{link}</DropSubNavItem>;
     }
 
     return (
-      <SubNavItem additional={child.additional || false}>{item}</SubNavItem>
+      <SubNavItem additional={child.additional || false}>{link}</SubNavItem>
     );
   };
 
