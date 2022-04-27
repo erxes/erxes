@@ -11,7 +11,6 @@ import {
   debugGmail,
   debugNylas,
   debugSmooch,
-  debugTelnyx,
 } from './debuggers';
 import {
   getPageAccessToken,
@@ -66,11 +65,6 @@ import {
   SmoochViberConversations,
   SmoochViberCustomers
 } from './smooch/models';
-import {
-  ConversationMessages as TelnyxConversationMessages,
-  Conversations as TelnyxConversations,
-  Customers as TelnyxCustomers
-} from './telnyx/models';
 import { getEnv, resetConfigsCache, sendRequest } from './utils';
 
 export const removeIntegration = async (
@@ -432,24 +426,6 @@ export const removeIntegration = async (
     await SmoochTwilioConversationMessages.deleteMany({
       conversationId: { $in: conversationIds }
     });
-  }
-
-  if (kind === 'telnyx') {
-    debugTelnyx('Removing telnyx entries');
-
-    const conversationIds = await TelnyxConversations.find(selector).distinct(
-      '_id'
-    );
-
-    try {
-      await TelnyxCustomers.deleteMany(selector);
-      await TelnyxConversations.deleteMany(selector);
-      await TelnyxConversationMessages.deleteMany({
-        conversationId: { $in: conversationIds }
-      });
-    } catch (e) {
-      throw new Error(e.message);
-    }
   }
 
   await Integrations.deleteOne({ _id });

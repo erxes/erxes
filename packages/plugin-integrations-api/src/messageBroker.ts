@@ -5,7 +5,6 @@ import { Accounts, Configs } from './models';
 import { handleFacebookMessage } from './facebook/handleFacebookMessage';
 import { Integrations } from './models';
 import { getLineWebhookUrl } from './smooch/api';
-import { sendSms } from './telnyx/api';
 import { userIds } from './userMiddleware';
 import { getConfig } from './utils';
 import { debugGmail, debugNylas } from './debuggers';
@@ -17,7 +16,6 @@ import { nylasCreateIntegration } from './nylas/controller';
 import { callproCreateIntegration, callproGetAudio } from './callpro/controller';
 import { chatfuelCreateIntegration, chatfuelReply } from './chatfuel/controller';
 import { gmailCreateIntegration } from './gmail/controller';
-import { telnyxCreateIntegration } from './telnyx/controller';
 import { ISendMessageArgs, sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core'
 import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
@@ -195,8 +193,6 @@ export const initBroker = async (cl) => {
           return chatfuelCreateIntegration(doc);
         case 'gmail':
           return gmailCreateIntegration(doc);
-        case 'telnyx':
-          return telnyxCreateIntegration(doc);
       }
     }
   );
@@ -235,17 +231,6 @@ export const initBroker = async (cl) => {
     }
   })
 
-  // /telnyx/send-sms
-  consumeRPCQueue('integrations:sendSms', async ({ data }) => {
-    const { integrationId, content, to } = data;
-
-    const result = await sendSms(
-      JSON.stringify({ integrationId, content, toPhone: to })
-    );
-
-    return result;
-  })
-
   consumeRPCQueue('integrations:reply', async ({ data }) => {
     switch(data.requestName) {
       case "replyChatfuel":
@@ -273,10 +258,6 @@ export const initBroker = async (cl) => {
         break;
       default:
         break;
-    }
-
-    if (action === 'sendConversationSms') {
-      await sendSms(payload);
     }
   });
 };

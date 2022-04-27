@@ -9,7 +9,6 @@ import { initNylas } from './nylas/controller';
 import initSmooch from './smooch/controller';
 // import { init } from './startup';
 import systemStatus from './systemStatus';
-import initTelnyx from './telnyx/controller';
 import userMiddleware from './userMiddleware';
 
 const rawBodySaver = (req, _res, buf, encoding) => {
@@ -64,9 +63,6 @@ const initApp = async app => {
 
   // init smooch
   initSmooch(app);
-
-  // init telnyx
-  initTelnyx(app);
 
   // Error handling middleware
   app.use((error, _req, res, _next) => {
