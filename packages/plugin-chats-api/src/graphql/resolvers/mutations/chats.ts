@@ -21,6 +21,18 @@ const hasAdminLeft = (chat, userId) => {
   }
 };
 
+const strip_html = (string: any) => {
+  if (typeof string === "undefined" || string === null) {
+    return;
+  } else {
+    const regex = /(&nbsp;|<([^>]+)>)/gi;
+    var result = string.replace(regex, "");
+    result = result.replace(/&#[0-9][0-9][0-9][0-9];/gi, " ");
+    const cut = result.slice(0, 70);
+    return cut;
+  }
+};
+
 const chatMutations = {
   chatAdd: async (_root, { participantIds, ...doc }, { user, models }) => {
     const allParticipantIds =
@@ -159,6 +171,30 @@ const chatMutations = {
 
     const recievers = chat.participantIds.filter((i) => i !== user._id);
 
+    if (args.mentionedUserIds) {
+      if (args.mentionedUserIds.includes("everyone")) {
+        sendCoreMessage({
+          subdomain: "os",
+          action: "sendMobileNotification",
+          data: {
+            title: `${user.name} sent you chat`,
+            body: strip_html(args.content),
+            receivers: recievers,
+          },
+        });
+      } else {
+        sendCoreMessage({
+          subdomain: "os",
+          action: "sendMobileNotification",
+          data: {
+            title: `${user?.details?.fullName || user?.fullName} sent you chat`,
+            body: strip_html(args.content),
+            receivers: args.mentionedUserIds,
+          },
+        });
+      }
+    }
+
     for (const reciever of recievers) {
       graphqlPubsub.publish("chatUnreadCountChanged", {
         userId: reciever,
@@ -174,12 +210,6 @@ const chatMutations = {
 
   chatMessageRemove: async (_root, { _id }, { models }) => {
     const chat = models.ChatMessages.removeChatMessage(_id);
-
-    const chatMessage = await models.ChatMessages.findOne({ _id });
-
-    graphqlPubsub.publish("chatMessageInserted", {
-      chatId: chatMessage.chatId,
-    });
 
     return chat;
   },

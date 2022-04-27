@@ -101,65 +101,68 @@ const command = async () => {
 
   Logs = db.collection('logs');
   ActivityLogs = db.collection('activity_logs');
+  const limit = 1000;
+
+  const logsSummary = await Logs.find({}).count();
 
   let bulkOps: any[] = [];
-  let counter = 0;
 
-  await Logs.find({}).forEach(async log => {
-    counter += 1;
-    const type = changeType(log.type);
-
-    if (type === log.type) {
-      return;
-    }
-
-    bulkOps.push({
-      updateOne: {
-        filter: { _id: log._id },
-        update: { $set: { type } }
+  for (let skip = 0; skip <= logsSummary; skip = skip + limit) {
+    const logs = await Logs.find({})
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+    for (const log of logs) {
+      const contentType = changeType(log.contentType);
+      if (contentType === log.contentType) {
+        continue;
       }
-    })
 
-    if (counter > 1000) {
-      await Logs.bulkWrite(bulkOps);
-      console.log(bulkOps.length, 'continue update logs')
-      counter = 0;
-      bulkOps = []
+      bulkOps.push({
+        updateOne: {
+          filter: { _id: log._id },
+          update: { $set: { contentType } }
+        }
+      });
     }
-  })
+
+    if (bulkOps.length) {
+      await Logs.bulkWrite(bulkOps);
+    }
+  }
 
   if (bulkOps.length) {
     await Logs.bulkWrite(bulkOps);
   }
+
   console.log(`Logs migrated ....`);
 
   bulkOps = [];
-  counter = 0;
 
-  await ActivityLogs.find({}).forEach(async log => {
-    counter += 1;
-    const contentType = changeType(log.contentType);
-    if (contentType === log.contentType) {
-      return;
-    }
+  const activitySummary = await ActivityLogs.find({}).count();
 
-    bulkOps.push({
-      updateOne: {
-        filter: { _id: log._id },
-        update: { $set: { contentType } }
+  for (let skip = 0; skip <= activitySummary; skip = skip + limit) {
+    const logs = await ActivityLogs.find({})
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+    for (const log of logs) {
+      const contentType = changeType(log.contentType);
+      if (contentType === log.contentType) {
+        continue;
       }
-    })
 
-    if (counter > 1000) {
-      await ActivityLogs.bulkWrite(bulkOps);
-      console.log(bulkOps.length, 'continue update activityLogs')
-      counter = 0;
-      bulkOps = []
+      bulkOps.push({
+        updateOne: {
+          filter: { _id: log._id },
+          update: { $set: { contentType } }
+        }
+      });
     }
-  })
 
-  if (bulkOps.length) {
-    await ActivityLogs.bulkWrite(bulkOps);
+    if (bulkOps.length) {
+      await ActivityLogs.bulkWrite(bulkOps);
+    }
   }
 
   console.log(`Process finished at: ${new Date()}`);
