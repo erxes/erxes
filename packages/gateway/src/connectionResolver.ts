@@ -25,7 +25,7 @@ export const generateModels = async (
     return models;
   }
 
-  const mainDb: any = await connect()
+  const mainDb: any = await connect();
 
   loadClasses(mainDb);
 
