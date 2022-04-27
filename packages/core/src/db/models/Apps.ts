@@ -1,6 +1,8 @@
 import { Model } from 'mongoose';
+
 import { IModels } from '../../connectionResolver';
 import { appSchema, IAppDocument, IApp } from './definitions/apps';
+import { encryptText } from '@erxes/api-utils/src/commonUtils';
 
 export interface IAppModel extends Model<IAppDocument> {
   getApp(_id: string): Promise<IAppDocument>;
@@ -21,8 +23,17 @@ export const loadAppClass = (models: IModels) => {
       return app;
     }
 
-    public static createApp(doc: IApp) {
-      return models.Apps.create(doc);
+    public static async createApp(doc: IApp) {
+      const app = await models.Apps.create(doc);
+
+      const data = encryptText(app._id.toString());
+
+      await models.Apps.updateOne(
+        { _id: app._id },
+        { $set: { accessToken: data.encryptedData } }
+      );
+
+      return models.Apps.findOne({ _id: app._id });
     }
 
     public static async updateApp(_id: string, doc: IApp) {
