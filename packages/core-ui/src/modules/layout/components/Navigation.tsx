@@ -24,6 +24,7 @@ import {
   DropSubNavItem,
   Center,
   RoundBox,
+  BottomMenu,
 } from "../styles";
 import { getThemeItem } from "utils";
 import Icon from "modules/common/components/Icon";
@@ -50,7 +51,8 @@ type State = {
   moreMenus: any[];
   searchText: string;
   clickedMenu: string;
-  pinned: boolean;
+  pinnedNavigations: any[];
+  countOfPinnedNavigation: number;
 };
 
 class Navigation extends React.Component<Props, State> {
@@ -59,12 +61,15 @@ class Navigation extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
+    const countOfPinnedNavigation = window.innerHeight > 900 ? 8 : 5;
+
     this.state = {
       showMenu: false,
-      moreMenus: pluginNavigations().slice(4) || [],
+      moreMenus: pluginNavigations().slice(countOfPinnedNavigation) || [],
       searchText: "",
       clickedMenu: "",
-      pinned: false,
+      pinnedNavigations: [],
+      countOfPinnedNavigation,
     };
   }
 
@@ -120,7 +125,7 @@ class Navigation extends React.Component<Props, State> {
 
     this.setState({
       moreMenus: pluginNavigations()
-        .slice(4)
+        .slice(this.state.countOfPinnedNavigation)
         .filter(filteredValue),
     });
   };
@@ -145,8 +150,18 @@ class Navigation extends React.Component<Props, State> {
     this.setState({ showMenu: true, clickedMenu: "more" });
   };
 
-  onClickPin = () => {
-    this.setState({ pinned: !this.state.pinned });
+  onClickPin = (pinnedPlugin: any) => {
+    this.setState((prevState) => ({
+      pinnedNavigations: [...prevState.pinnedNavigations, pinnedPlugin],
+    }));
+  };
+
+  unPin = (selectPluginName: string) => {
+    this.setState({
+      pinnedNavigations: this.state.pinnedNavigations.filter(
+        (plugin) => plugin.text !== selectPluginName
+      ),
+    });
   };
 
   renderHandleIcon(type: string) {
@@ -306,11 +321,24 @@ class Navigation extends React.Component<Props, State> {
     name?: string,
     childrens?: ISubNav[],
     label?: React.ReactNode,
-    isMoreItem?: boolean
+    isMoreItem?: boolean,
+    isPinned?: boolean
   ) => {
     const { navCollapse } = this.props;
+    const { countOfPinnedNavigation, pinnedNavigations } = this.state;
+
     const hasChild =
       childrens && childrens.find((child) => child.scope === name);
+
+    const onClickPin = () =>
+      !isPinned
+        ? this.onClickPin(
+            pluginNavigations().find((plugin) => plugin.text === text)
+          )
+        : this.unPin(text);
+
+    const limitExceeded = pinnedNavigations.length >= countOfPinnedNavigation;
+    const showPin = limitExceeded ? (isPinned ? true : false) : true;
 
     const item = (
       <div ref={this.setWrapperRef}>
@@ -323,12 +351,12 @@ class Navigation extends React.Component<Props, State> {
             isMoreItem,
           })}
 
-          {isMoreItem && (
-            <Tip placement="top" text={__("Pin plugin")}>
-              <RoundBox
-                pinned={this.state.pinned}
-                onClick={() => this.onClickPin()}
-              >
+          {isMoreItem && showPin && (
+            <Tip
+              placement="top"
+              text={isPinned ? __("Unpin plugin") : __("Pin plugin")}
+            >
+              <RoundBox pinned={isPinned} onClick={onClickPin}>
                 <img src="/images/pin.svg" alt="pin" />
               </RoundBox>
             </Tip>
@@ -362,9 +390,43 @@ class Navigation extends React.Component<Props, State> {
   };
 
   renderMorePlugins = () => {
-    const { showMenu, moreMenus, clickedMenu } = this.state;
+    const { showMenu, moreMenus, clickedMenu, pinnedNavigations } = this.state;
+
+    const renderPlugin = (title: string, plugins: any, isPinned: boolean) => (
+      <>
+        <MoreTitle>{__(title)}</MoreTitle>
+        <MoreMenus>
+          {plugins.map((menu) =>
+            this.renderNavItem(
+              menu.permission,
+              menu.text,
+              menu.url,
+              menu.icon,
+              "",
+              [],
+              "",
+              true,
+              isPinned
+            )
+          )}
+        </MoreMenus>
+      </>
+    );
+
+    const filterPlugins = (allPlugins, pinnedPlugins) => {
+      pinnedPlugins.forEach((el) => {
+        allPlugins = allPlugins.filter((i) => i.url !== el.url);
+      });
+
+      return allPlugins;
+    };
 
     if (clickedMenu === "more") {
+      const otherPlugins =
+        pinnedNavigations.length === 0
+          ? moreMenus
+          : filterPlugins(pluginNavigations(), pinnedNavigations);
+
       return (
         <div ref={this.setWrapperRef}>
           <MoreMenuWrapper
@@ -381,21 +443,9 @@ class Navigation extends React.Component<Props, State> {
                 placeholder="Find plugins"
               />
             </MoreSearch>
-            <MoreTitle>{__("Other added plugins")}</MoreTitle>
-            <MoreMenus>
-              {moreMenus.map((menu) =>
-                this.renderNavItem(
-                  menu.permission,
-                  menu.text,
-                  menu.url,
-                  menu.icon,
-                  "",
-                  [],
-                  "",
-                  true
-                )
-              )}
-            </MoreMenus>
+            {pinnedNavigations.length !== 0 &&
+              renderPlugin("Pinned plugins", pinnedNavigations, true)}
+            {renderPlugin("Other added plugins", otherPlugins, false)}
           </MoreMenuWrapper>
         </div>
       );
@@ -408,7 +458,7 @@ class Navigation extends React.Component<Props, State> {
     const { navCollapse } = this.props;
     const text = navCollapse === 3 ? "More plugins" : "More";
 
-    if (pluginNavigations().length <= 4) {
+    if (pluginNavigations().length <= this.state.countOfPinnedNavigation) {
       return null;
     }
     return (
@@ -429,7 +479,12 @@ class Navigation extends React.Component<Props, State> {
   };
 
   render() {
-    const Navs = pluginNavigations().slice(0, 4);
+    const { countOfPinnedNavigation, pinnedNavigations } = this.state;
+
+    const Navs =
+      pinnedNavigations.length === 0
+        ? pluginNavigations().slice(0, countOfPinnedNavigation)
+        : pinnedNavigations;
 
     const logo =
       this.props.navCollapse === 1 ? "glyph_dark.png" : "logo-dark.png";
@@ -457,17 +512,20 @@ class Navigation extends React.Component<Props, State> {
               nav.icon,
               nav.name || "",
               nav.childrens || [],
-              nav.label
+              nav.label,
+              false
             )
           )}
 
-          {this.renderMenuItem({
-            text: "Settings",
-            url: "/settings",
-            icon: "icon-settings",
-          })}
-
           {this.renderMore()}
+
+          <BottomMenu>
+            {this.renderMenuItem({
+              text: "Settings",
+              url: "/settings",
+              icon: "icon-settings",
+            })}
+          </BottomMenu>
         </Nav>
       </LeftNavigation>
     );

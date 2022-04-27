@@ -244,6 +244,15 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
         props.navCollapse === 3
           ? !props.isMoreItem && dimensions.unitSpacing
           : 0}px;
+      padding: 0 ${dimensions.unitSpacing}px;
+      max-width: ${(props) =>
+        props.isMoreItem
+          ? dimensions.headerSpacingWide
+          : props.navCollapse === 1
+          ? dimensions.headerSpacing - 5
+          : props.navCollapse === 3
+          ? dimensions.headerSpacing * 3 + dimensions.unitSpacing
+          : dimensions.headerSpacing * 2 - 1}px;
     }
 
     span {
@@ -315,6 +324,11 @@ const Nav = styled.nav`
   }
 `;
 
+const BottomMenu = styled.div`
+  position: absolute;
+  bottom: 20px;
+`;
+
 const NavIcon = styled.i`
   font-size: 18px;
   color: ${colors.colorBlack};
@@ -333,7 +347,10 @@ const RoundBox = styledTS<{ pinned?: boolean }>(styled.div)`
   position: absolute;
   right: -5px;
   top: -5px;
-  color: ${(props) => props.pinned && colors.colorWhite};
+
+  img {
+    filter: ${(props) => props.pinned && "grayscale(100%) invert(1)"};
+  }
 
   &:hover {
     background: ${colors.colorSecondary};
@@ -478,6 +495,7 @@ const MoreMenus = styled.div`
 const MoreTitle = styled.h5`
   color: ${colors.colorPrimaryDark};
   margin: 0;
+  margin-top: ${dimensions.coreSpacing}px;
 `;
 
 const MoreItemRecent = styled.div`
@@ -525,7 +543,7 @@ const MoreMenuWrapper = styledTS<{ visible: boolean; navCollapse: number }>(
       : props.navCollapse === 1
       ? dimensions.headerSpacing - 5
       : dimensions.headerSpacing * 3 + dimensions.unitSpacing}px;
-  top: 0;
+  top: -40px;
   background: ${colors.colorWhite};
   border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0px 16px 24px rgba(0, 0, 0, 0.06), 0px 2px 6px rgba(0, 0, 0, 0.04),
@@ -541,7 +559,6 @@ const MoreSearch = styled.div`
   background: ${colors.bgActive};
   border-radius: ${dimensions.headerSpacingWide}px;
   color: ${colors.colorCoreGray};
-  margin-bottom: ${dimensions.coreSpacing}px;
 
   i {
     color: rgba(0, 0, 0, 0.95);
@@ -689,4 +706,5 @@ export {
   DropSubNavItem,
   Center,
   RoundBox,
+  BottomMenu,
 };
