@@ -64,6 +64,7 @@ const corsOptions = {
   origin: [
     DOMAIN ? DOMAIN : 'http://localhost:3000',
     WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
+    ...(process.env.ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
   ]
 };
 
