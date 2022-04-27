@@ -39,14 +39,10 @@ export const queries = `
   ): [FacebookComment]
 
   integrationsConversationFbCommentsCount(postId: String! isResolved: Boolean): JSON
-  integrationsGetNylasEvents(calendarIds: [String] startTime: Date endTime: Date): JSON
   integrationsGetTwitterAccount(accountId: String!): String
 
   integrationsGetFbPages(accountId: String! kind: String!): JSON
   integrationsVideoCallUsageStatus: Boolean
-  integrationsNylasGetCalendars(accountId: String! show: Boolean): JSON
-
-  integrationsNylasGetSchedulePage(pageId: String!): JSON
 `;
 
 export const mutations = `

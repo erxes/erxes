@@ -1,6 +1,5 @@
 import { getPageList } from '../../facebook/utils';
 import { Accounts, Configs, Integrations } from '../../models';
-import { nylasGetAccountCalendars, nylasGetEvents, nylasGetSchedulePage, nylasGetSchedulePages } from '../../nylas/handleController';
 import { getConfig, getConfigs } from '../../utils';
 import { IContext } from '../../connectionResolver';
 
@@ -163,11 +162,6 @@ const integrationQueries = {
     };
   },
 
-    // app.get('/nylas/get-events',
-  async integrationsGetNylasEvents(_root, { calendarIds, startTime, endTime }) {
-    return nylasGetEvents({ calendarIds, startTime, endTime });
-  },
-
   // app.get('/twitter/get-account', async (req, res, next) => {
   async integrationsGetTwitterAccount(_root, { accountId }: {accountId: string}) {
     const account = await Accounts.findOne({ _id: accountId });
@@ -220,26 +214,6 @@ const integrationQueries = {
       }
     }
   },
-
-  // app.get('/nylas/get-calendars',
-  async integrationsNylasGetCalendars(_root, args) {
-    const { accountId, show } = args;
-
-    const calendars = await nylasGetAccountCalendars(accountId, show);
-
-    return calendars;
-  },
-
-  // app.get('/nylas/get-schedule-page',
-  async integrationsNylasGetSchedulePage(_root, { pageId }: { pageId: string }) {
-    return nylasGetSchedulePage(pageId);
-  },
-
-  // app.get('/nylas/get-schedule-pages',
-   async integrationsNylasGetSchedulePages(_root, { accountId }: { accountId: string }) {
-    return nylasGetSchedulePages(accountId);
-  },
-
 };
 
 export default integrationQueries;

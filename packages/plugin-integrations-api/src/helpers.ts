@@ -9,7 +9,6 @@ import {
   debugError,
   debugFacebook,
   debugGmail,
-  debugNylas,
 } from './debuggers';
 import {
   getPageAccessToken,
@@ -25,30 +24,6 @@ import {
 } from './gmail/models';
 import { Accounts, Integrations } from './models';
 import Configs from './models/Configs';
-import { enableOrDisableAccount } from './nylas/api';
-import { removeExistingNylasWebhook } from './nylas/auth';
-import { setupNylas } from './nylas/controller';
-import {
-  NylasExchangeConversationMessages,
-  NylasExchangeConversations,
-  NylasExchangeCustomers,
-  NylasGmailConversationMessages,
-  NylasGmailConversations,
-  NylasGmailCustomers,
-  NylasImapConversationMessages,
-  NylasImapConversations,
-  NylasImapCustomers,
-  NylasOffice365ConversationMessages,
-  NylasOffice365Conversations,
-  NylasOffice365Customers,
-  NylasOutlookConversationMessages,
-  NylasOutlookConversations,
-  NylasOutlookCustomers,
-  NylasYahooConversationMessages,
-  NylasYahooConversations,
-  NylasYahooCustomers
-} from './nylas/models';
-import { createNylasWebhook } from './nylas/tracker';
 import { getEnv, resetConfigsCache, sendRequest } from './utils';
 
 export const removeIntegration = async (
@@ -67,7 +42,7 @@ export const removeIntegration = async (
   // Remove endpoint
   let integrationRemoveBy;
 
-  const { _id, kind, accountId, erxesApiId, nylasAccountId = "" } = integration;
+  const { _id, kind, accountId, erxesApiId  } = integration;
 
   const account = await Accounts.findOne({ _id: accountId });
   
@@ -157,31 +132,6 @@ export const removeIntegration = async (
     }
   }
 
-  if (kind === 'gmail' && integration.nylasToken) {
-    debugNylas('Removing nylas entries');
-
-    const conversationIds = await NylasGmailConversations.find(
-      selector
-    ).distinct('_id');
-
-    await NylasGmailCustomers.deleteMany(selector);
-    await NylasGmailConversations.deleteMany(selector);
-    await NylasGmailConversationMessages.deleteMany({
-      conversationId: { $in: conversationIds }
-    });
-
-    const { email, googleAccessToken } = integration;
-
-    try {
-      // Cancel nylas subscription
-      await enableOrDisableAccount(nylasAccountId, false);
-      await revokeToken(email, googleAccessToken);
-    } catch (e) {
-      debugError('Failed to cancel nylas-gmail account subscription');
-      throw e;
-    }
-  }
-
   if (kind === 'callpro') {
     debugCallPro('Removing callpro entries');
 
@@ -210,116 +160,6 @@ export const removeIntegration = async (
       });
     } catch (e) {
       throw new Error(e.message);
-    }
-  }
-
-  if (kind === 'imap') {
-    debugNylas('Removing nylas-imap entries');
-
-    const conversationIds = await NylasImapConversations.find(
-      selector
-    ).distinct('_id');
-
-    await NylasImapCustomers.deleteMany(selector);
-    await NylasImapConversations.deleteMany(selector);
-    await NylasImapConversationMessages.deleteMany({
-      conversationId: { $in: conversationIds }
-    });
-
-    try {
-      // Cancel nylas subscription
-      await enableOrDisableAccount(nylasAccountId, false);
-    } catch (e) {
-      debugError('Failed to cancel subscription of nylas-imap account');
-      throw e;
-    }
-  }
-
-  if (kind === 'office365') {
-    debugNylas('Removing nylas-office365 entries');
-
-    const conversationIds = await NylasOffice365Conversations.find(
-      selector
-    ).distinct('_id');
-
-    await NylasOffice365Customers.deleteMany(selector);
-    await NylasOffice365Conversations.deleteMany(selector);
-    await NylasOffice365ConversationMessages.deleteMany({
-      conversationId: { $in: conversationIds }
-    });
-
-    try {
-      // Cancel nylas subscription
-      await enableOrDisableAccount(nylasAccountId, false);
-    } catch (e) {
-      debugError('Failed to subscription nylas-office365 account');
-      throw e;
-    }
-  }
-
-  if (kind === 'outlook') {
-    debugNylas('Removing nylas-outlook entries');
-
-    const conversationIds = await NylasOutlookConversations.find(
-      selector
-    ).distinct('_id');
-
-    await NylasOutlookCustomers.deleteMany(selector);
-    await NylasOutlookConversations.deleteMany(selector);
-    await NylasOutlookConversationMessages.deleteMany({
-      conversationId: { $in: conversationIds }
-    });
-
-    try {
-      // Cancel nylas subscription
-      await enableOrDisableAccount(nylasAccountId, false);
-    } catch (e) {
-      debugError('Failed to subscription nylas-outlook account');
-      throw e;
-    }
-  }
-
-  if (kind === 'exchange') {
-    debugNylas('Removing nylas-exchange entries');
-
-    const conversationIds = await NylasYahooConversations.find(
-      selector
-    ).distinct('_id');
-
-    await NylasExchangeCustomers.deleteMany(selector);
-    await NylasExchangeConversations.deleteMany(selector);
-    await NylasExchangeConversationMessages.deleteMany({
-      conversationId: { $in: conversationIds }
-    });
-
-    try {
-      // Cancel nylas subscription
-      await enableOrDisableAccount(nylasAccountId, false);
-    } catch (e) {
-      debugError('Failed to subscription nylas-exchange account');
-      throw e;
-    }
-  }
-
-  if (kind === 'yahoo') {
-    debugNylas('Removing nylas-yahoo entries');
-
-    const conversationIds = await NylasYahooConversations.find(
-      selector
-    ).distinct('_id');
-
-    await NylasYahooCustomers.deleteMany(selector);
-    await NylasYahooConversations.deleteMany(selector);
-    await NylasYahooConversationMessages.deleteMany({
-      conversationId: { $in: conversationIds }
-    });
-
-    try {
-      // Cancel nylas subscription
-      await enableOrDisableAccount(nylasAccountId, false);
-    } catch (e) {
-      debugError('Failed to subscription nylas-yahoo account');
-      throw e;
     }
   }
 
@@ -406,80 +246,14 @@ export const removeCustomers = async (models: IModels, params) => {
   const selector = { erxesApiId: { $in: customerIds } };
 
   await models.FbCustomers.deleteMany(selector);
-  await NylasGmailCustomers.deleteMany(selector);
-  await NylasOutlookCustomers.deleteMany(selector);
-  await NylasOffice365Customers.deleteMany(selector);
-  await NylasYahooCustomers.deleteMany(selector);
-  await NylasImapCustomers.deleteMany(selector);
-  await NylasExchangeCustomers.deleteMany(selector);
   await ChatfuelCustomers.deleteMany(selector);
   await models.CallProCustomers.deleteMany(selector);
 };
 
 export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
-  const getValueAsString = async name => {
-    const entry = await Configs.getConfig(name);
-
-    if (entry.value) {
-      return entry.value.toString();
-    }
-
-    return entry.value;
-  };
-
-  const prevNylasClientId = await getValueAsString('NYLAS_CLIENT_ID');
-  const prevNylasClientSecret = await getValueAsString('NYLAS_CLIENT_SECRET');
-  const prevNylasWebhook = await getValueAsString('NYLAS_WEBHOOK_CALLBACK_URL');
-
-  const prevSmoochAppKeyId = await getValueAsString('SMOOCH_APP_KEY_ID');
-  const prevSmoochAppKeySecret = await getValueAsString(
-    'SMOOCH_APP_KEY_SECRET'
-  );
-  const prevSmoochAppId = await getValueAsString('SMOOCH_APP_ID');
-  const prevSmoochWebhook = await getValueAsString(
-    'SMOOCH_WEBHOOK_CALLBACK_URL'
-  );
-  
   await Configs.updateConfigs(configsMap);
 
   resetConfigsCache();
-
-  const updatedNylasClientId = await getValueAsString('NYLAS_CLIENT_ID');
-  const updatedNylasClientSecret = await getValueAsString(
-    'NYLAS_CLIENT_SECRET'
-  );
-  const updatedNylasWebhook = await getValueAsString(
-    'NYLAS_WEBHOOK_CALLBACK_URL'
-  );
-
-  const updatedSmoochAppKeyId = await getValueAsString('SMOOCH_APP_KEY_ID');
-  const updatedSmoochAppKeySecret = await getValueAsString(
-    'SMOOCH_APP_KEY_SECRET'
-  );
-  const updatedSmoochAppId = await getValueAsString('SMOOCH_APP_ID');
-  const updatedSmoochWebhook = await getValueAsString(
-    'SMOOCH_WEBHOOK_CALLBACK_URL'
-  );
-
-  try {
-    if (
-      prevNylasClientId !== updatedNylasClientId ||
-      prevNylasClientSecret !== updatedNylasClientSecret
-    ) {
-      await setupNylas();
-
-      await removeExistingNylasWebhook();
-      await createNylasWebhook();
-    }
-
-    if (prevNylasWebhook !== updatedNylasWebhook) {
-      await removeExistingNylasWebhook();
-      await createNylasWebhook();
-    }
-  } catch (e) {
-    debugError(e.message);
-    throw e;
-  }
 };
 
 export const routeErrorHandling = (fn, callback?: any) => {

@@ -5,7 +5,6 @@ import { debugBase, debugExternalRequests } from './debuggers';
 import {get, set} from './inmemoryStorage';
 import { sendInboxMessage } from './messageBroker';
 import Configs from './models/Configs';
-import { IParticipants, IProviderSettings } from './nylas/types';
 
 dotenv.config();
 interface IRequestParams {
@@ -24,8 +23,8 @@ interface IRequestParams {
       | {
           [key: string]: string | number | boolean | any;
         }
-      | IProviderSettings
-      | IParticipants[]
+      | any
+      | any[]
       | {
           [key: string]: {
             [key: string]: string | boolean | any;

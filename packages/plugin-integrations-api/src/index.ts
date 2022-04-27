@@ -5,7 +5,6 @@ import initChatfuel from './chatfuel/controller';
 import { debugIntegrations, debugRequest } from './debuggers';
 import initFacebook from './facebook/controller';
 import initGmail from './gmail/controller';
-import { initNylas } from './nylas/controller';
 // import { init } from './startup';
 import systemStatus from './systemStatus';
 import userMiddleware from './userMiddleware';
@@ -31,10 +30,6 @@ const initApp = async app => {
   app.use(bodyParser.json({ limit: '10mb', verify: rawBodySaver }));
 
   app.use(userMiddleware);
-
-  // Intentionally placing this route above raw bodyParser
-  // File upload in nylas controller is not working with rawParser
-  initNylas(app);
 
   app.use(bodyParser.raw({ limit: '10mb', verify: rawBodySaver, type: '*/*' }));
 

@@ -6,11 +6,9 @@ import { handleFacebookMessage } from './facebook/handleFacebookMessage';
 import { Integrations } from './models';
 import { userIds } from './userMiddleware';
 import { getConfig } from './utils';
-import { debugGmail, debugNylas } from './debuggers';
-import { getMessage as nylasGetMessage, nylasSendEmail } from './nylas/handleController';
+import { debugGmail } from './debuggers';
 import { getMessage as gmailGetMessage, sendEmail } from './gmail/handleController';
 import { facebookCreateIntegration, facebookGetCustomerPosts } from './facebook/controller';
-import { nylasCreateIntegration } from './nylas/controller';
 import { callproCreateIntegration, callproGetAudio } from './callpro/controller';
 import { chatfuelCreateIntegration, chatfuelReply } from './chatfuel/controller';
 import { gmailCreateIntegration } from './gmail/controller';
@@ -28,10 +26,6 @@ export const initBroker = async (cl) => {
   const { consumeRPCQueue, consumeQueue } = client;
 
   consumeRPCQueue('integrations:getAccounts', async ({ data: { kind } }) => {
-    if (kind.includes('nylas')) {
-      kind = kind.split('-')[1];
-    }
-
     const selector = { kind };
 
     return {
@@ -82,9 +76,6 @@ export const initBroker = async (cl) => {
         }
 
         switch (path) {
-          case '/nylas/get-message':
-            response = await nylasGetMessage(erxesApiMessageId, integrationId);
-            break;
           case '/gmail/get-message':
             response = await gmailGetMessage(erxesApiMessageId, integrationId);
             break;
@@ -175,8 +166,6 @@ export const initBroker = async (cl) => {
     'integrations:createIntegration',
     async ({ data: { doc, kind } }) => {
       switch (kind) {
-        case 'nylas':
-          return nylasCreateIntegration(doc);
         case 'facebook':
           return facebookCreateIntegration(doc);
         case 'callpro':
@@ -201,16 +190,6 @@ export const initBroker = async (cl) => {
   //  '/nylas/send', /gmail/send
   consumeRPCQueue('integrations:sendEmail', async ({ data: { kind, doc }}) => {
     const { data, erxesApiId } = doc;
-
-    if(kind === 'nylas') {
-      debugNylas('Sending message...');
-
-      const params = JSON.parse(data);
-
-      await nylasSendEmail(erxesApiId, params);
-
-      return { status: 'ok' };
-    }
 
     if(kind === 'gmail') {
       debugGmail(`Sending gmail ===`);
