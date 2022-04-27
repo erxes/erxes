@@ -6,7 +6,6 @@ import { debugIntegrations, debugRequest } from './debuggers';
 import initFacebook from './facebook/controller';
 import initGmail from './gmail/controller';
 import { initNylas } from './nylas/controller';
-import initSmooch from './smooch/controller';
 // import { init } from './startup';
 import systemStatus from './systemStatus';
 import userMiddleware from './userMiddleware';
@@ -60,9 +59,6 @@ const initApp = async app => {
 
   // init chatfuel
   initChatfuel(app);
-
-  // init smooch
-  initSmooch(app);
 
   // Error handling middleware
   app.use((error, _req, res, _next) => {

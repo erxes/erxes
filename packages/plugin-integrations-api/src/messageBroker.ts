@@ -4,14 +4,12 @@ import { removeAccount, removeCustomers, removeIntegration, repairIntegrations }
 import { Accounts, Configs } from './models';
 import { handleFacebookMessage } from './facebook/handleFacebookMessage';
 import { Integrations } from './models';
-import { getLineWebhookUrl } from './smooch/api';
 import { userIds } from './userMiddleware';
 import { getConfig } from './utils';
 import { debugGmail, debugNylas } from './debuggers';
 import { getMessage as nylasGetMessage, nylasSendEmail } from './nylas/handleController';
 import { getMessage as gmailGetMessage, sendEmail } from './gmail/handleController';
 import { facebookCreateIntegration, facebookGetCustomerPosts } from './facebook/controller';
-import { smoochCreateIntegration, smoothReply } from './smooch/controller';
 import { nylasCreateIntegration } from './nylas/controller';
 import { callproCreateIntegration, callproGetAudio } from './callpro/controller';
 import { chatfuelCreateIntegration, chatfuelReply } from './chatfuel/controller';
@@ -53,10 +51,6 @@ export const initBroker = async (cl) => {
     try {
       if (action === 'remove-account') {
         response = { data: await removeAccount(models, data._id) };
-      }
-
-      if (action === 'line-webhook') {
-        response = { data: await getLineWebhookUrl(data._id) };
       }
 
       if (action === 'getTelnyxInfo') {
@@ -185,8 +179,6 @@ export const initBroker = async (cl) => {
           return nylasCreateIntegration(doc);
         case 'facebook':
           return facebookCreateIntegration(doc);
-        case 'smooch':
-          return smoochCreateIntegration(doc);
         case 'callpro':
           return callproCreateIntegration(doc);
         case 'chatfuel':
@@ -235,9 +227,6 @@ export const initBroker = async (cl) => {
     switch(data.requestName) {
       case "replyChatfuel":
         await chatfuelReply(data);
-        break;
-      case 'replySmooch':
-        await smoothReply(data)
         break;
       default:
         break;

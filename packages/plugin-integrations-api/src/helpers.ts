@@ -10,7 +10,6 @@ import {
   debugFacebook,
   debugGmail,
   debugNylas,
-  debugSmooch,
 } from './debuggers';
 import {
   getPageAccessToken,
@@ -50,21 +49,6 @@ import {
   NylasYahooCustomers
 } from './nylas/models';
 import { createNylasWebhook } from './nylas/tracker';
-import * as smoochApi from './smooch/api';
-import {
-  SmoochLineConversationMessages,
-  SmoochLineConversations,
-  SmoochLineCustomers,
-  SmoochTelegramConversationMessages,
-  SmoochTelegramConversations,
-  SmoochTelegramCustomers,
-  SmoochTwilioConversationMessages,
-  SmoochTwilioConversations,
-  SmoochTwilioCustomers,
-  SmoochViberConversationMessages,
-  SmoochViberConversations,
-  SmoochViberCustomers
-} from './smooch/models';
 import { getEnv, resetConfigsCache, sendRequest } from './utils';
 
 export const removeIntegration = async (
@@ -353,81 +337,6 @@ export const removeIntegration = async (
     });
   }
 
-  if (kind === 'telegram') {
-    debugSmooch('Removing Telegram entries');
-    const conversationIds = await SmoochTelegramConversations.find(
-      selector
-    ).distinct('_id');
-    try {
-      await smoochApi.removeIntegration(smoochIntegrationId);
-    } catch (e) {
-      throw e;
-    }
-
-    await SmoochTelegramCustomers.deleteMany(selector);
-    await SmoochTelegramConversations.deleteMany(selector);
-    await SmoochTelegramConversationMessages.deleteMany({
-      conversationId: { $in: conversationIds }
-    });
-  }
-
-  if (kind === 'viber') {
-    debugSmooch('Removing Viber entries');
-    const conversationIds = await SmoochViberConversations.find(
-      selector
-    ).distinct('_id');
-
-    try {
-      await smoochApi.removeIntegration(smoochIntegrationId);
-    } catch (e) {
-      throw e;
-    }
-
-    await SmoochViberCustomers.deleteMany(selector);
-    await SmoochViberConversations.deleteMany(selector);
-    await SmoochViberConversationMessages.deleteMany({
-      conversationId: { $in: conversationIds }
-    });
-  }
-
-  if (kind === 'line') {
-    debugSmooch('Removing Line entries');
-    const conversationIds = await SmoochLineConversations.find(
-      selector
-    ).distinct('_id');
-
-    try {
-      await smoochApi.removeIntegration(smoochIntegrationId);
-    } catch (e) {
-      throw e;
-    }
-
-    await SmoochLineCustomers.deleteMany(selector);
-    await SmoochLineConversations.deleteMany(selector);
-    await SmoochLineConversationMessages.deleteMany({
-      conversationId: { $in: conversationIds }
-    });
-  }
-
-  if (kind === 'twilio') {
-    debugSmooch('Removing Twilio entries');
-    const conversationIds = await SmoochTwilioConversations.find(
-      selector
-    ).distinct('_id');
-
-    try {
-      await smoochApi.removeIntegration(smoochIntegrationId);
-    } catch (e) {
-      throw e;
-    }
-
-    await SmoochTwilioCustomers.deleteMany(selector);
-    await SmoochTwilioConversations.deleteMany(selector);
-    await SmoochTwilioConversationMessages.deleteMany({
-      conversationId: { $in: conversationIds }
-    });
-  }
-
   await Integrations.deleteOne({ _id });
 
   return erxesApiId;
@@ -505,10 +414,6 @@ export const removeCustomers = async (models: IModels, params) => {
   await NylasExchangeCustomers.deleteMany(selector);
   await ChatfuelCustomers.deleteMany(selector);
   await models.CallProCustomers.deleteMany(selector);
-  await SmoochTelegramCustomers.deleteMany(selector);
-  await SmoochViberCustomers.deleteMany(selector);
-  await SmoochLineCustomers.deleteMany(selector);
-  await SmoochTwilioCustomers.deleteMany(selector);
 };
 
 export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
@@ -574,23 +479,6 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
   } catch (e) {
     debugError(e.message);
     throw e;
-  }
-
-  try {
-    if (
-      prevSmoochAppKeyId !== updatedSmoochAppKeyId ||
-      prevSmoochAppKeySecret !== updatedSmoochAppKeySecret ||
-      prevSmoochAppId !== updatedSmoochAppId
-    ) {
-      await smoochApi.setupSmooch();
-      await smoochApi.setupSmoochWebhook();
-    }
-
-    if (prevSmoochWebhook !== updatedSmoochWebhook) {
-      await smoochApi.setupSmoochWebhook();
-    }
-  } catch (e) {
-    debugError(e);
   }
 };
 
