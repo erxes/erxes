@@ -5,7 +5,7 @@ import * as jwt from 'jsonwebtoken';
 import { sendRequest } from 'erxes-api-utils';
 import { NextFunction, Request, Response } from 'express';
 import { redis } from '../redis';
-import { Apps, Permissions, Users } from '../db';
+import { generateModels } from '../connectionResolver';
 
 export default async function userMiddleware(
   req: Request & { user?: any },
@@ -57,26 +57,31 @@ export default async function userMiddleware(
     return next();
   }
 
-  const appToken = req.headers['erxes-app-token'];
+  const appToken = (req.headers['erxes-app-token'] || '').toString();
+  const models = await generateModels('os');
 
   if (appToken) {
     try {
-      const app = await Apps.findOne({ accessToken: appToken });
+      const { app }: any = jwt.verify(appToken, process.env.JWT_TOKEN_SECRET || '');
   
-      if (app) {
-        const permissions = await Permissions.find({
-          groupId: app.userGroupId,
-          allowed: true,
-        }).toArray();
-  
-        req.user = {
-          _id: 'userId',
-          customPermissions: permissions.map((p) => ({
-            action: p.action,
-            allowed: p.allowed,
-            requiredActions: p.requiredActions,
-          })),
-        };
+      if (app && app._id) {
+        const appInDb = await models.Apps.findOne({ _id: app._id });
+
+        if (appInDb) {
+          const permissions = await models.Permissions.find({
+            groupId: appInDb.userGroupId,
+            allowed: true,
+          }).lean();
+
+          req.user = {
+            _id: 'userId',
+            customPermissions: permissions.map((p) => ({
+              action: p.action,
+              allowed: p.allowed,
+              requiredActions: p.requiredActions,
+            })),
+          };
+        }
       }
   
       return next();
@@ -97,7 +102,8 @@ export default async function userMiddleware(
     // verify user token and retrieve stored user information
     const { user }: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
 
-    const userDoc = await Users.findOne({ _id: user._id });
+
+    const userDoc = await models.Users.findOne({ _id: user._id });
 
     if (!userDoc) {
       return next();

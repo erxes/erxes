@@ -1,8 +1,13 @@
 import { Model } from 'mongoose';
+import * as jwt from 'jsonwebtoken';
+import * as dotenv from 'dotenv';
 
 import { IModels } from '../../connectionResolver';
 import { appSchema, IAppDocument, IApp } from './definitions/apps';
-import { encryptText } from '@erxes/api-utils/src/commonUtils';
+
+dotenv.config();
+
+const { JWT_TOKEN_SECRET = '' } = process.env;
 
 export interface IAppModel extends Model<IAppDocument> {
   getApp(_id: string): Promise<IAppDocument>;
@@ -26,11 +31,12 @@ export const loadAppClass = (models: IModels) => {
     public static async createApp(doc: IApp) {
       const app = await models.Apps.create(doc);
 
-      const data = encryptText(app._id.toString());
+      const accessToken = await jwt.sign({ app }, JWT_TOKEN_SECRET, { expiresIn: '14d' });
+      const refreshToken = await jwt.sign({ app }, JWT_TOKEN_SECRET, { expiresIn: '30d' });
 
       await models.Apps.updateOne(
         { _id: app._id },
-        { $set: { accessToken: data.encryptedData } }
+        { $set: { accessToken, refreshToken } }
       );
 
       return models.Apps.findOne({ _id: app._id });
