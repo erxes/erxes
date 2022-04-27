@@ -140,6 +140,7 @@ export interface IStage {
   departmentIds: string[];
   status: string;
   order: number;
+  code: string;
 }
 
 export interface IConversionStage extends IStage {

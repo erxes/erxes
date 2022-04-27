@@ -438,6 +438,7 @@ export interface IStageModel extends Model<IStageDocument> {
   removeStage(_id: string): object;
   updateStage(_id: string, doc: IStage): Promise<IStageDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IStageDocument[]>;
+  checkCodeDuplication(code: string): string;
 }
 
 export const loadStageClass = (models: IModels, subdomain: string) => {
@@ -455,10 +456,21 @@ export const loadStageClass = (models: IModels, subdomain: string) => {
       return stage;
     }
 
+    static async checkCodeDuplication(code: string) {
+      const stage = await models.Stages.findOne({ 
+        code
+      });
+
+      if (stage) {
+        throw new Error('Code must be unique');
+      }
+    }
+
     /**
      * Create a stage
      */
-    public static createStage(doc: IStage) {
+    public static async createStage(doc: IStage) {
+      await this.checkCodeDuplication(doc.code);
       return models.Stages.create(doc);
     }
 
@@ -466,6 +478,7 @@ export const loadStageClass = (models: IModels, subdomain: string) => {
      * Update Stage
      */
     public static async updateStage(_id: string, doc: IStage) {
+      await this.checkCodeDuplication(doc.code);
       await models.Stages.updateOne({ _id }, { $set: doc });
 
       return models.Stages.findOne({ _id });

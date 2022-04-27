@@ -45,6 +45,7 @@ export const types = contactsAvailable => `
     name: String!
     pipelineId: String!
     visibility: String
+    code: String!
     memberIds: [String]
     members: [User]
     departmentIds: [String]

@@ -108,6 +108,7 @@ export interface IStage extends ICommonFields {
   departmentIds?: string[];
   formId?: string;
   status?: string;
+  code: string;
 }
 
 export interface IStageDocument extends IStage, Document {
@@ -326,6 +327,10 @@ export const stageSchema = new Schema({
     enum: VISIBLITIES.ALL,
     default: VISIBLITIES.PUBLIC,
     label: "Visibility",
+  }),
+  code: field({
+    type: String,
+    label: 'Code'
   }),
   memberIds: field({ type: [String], label: "Members" }),
   departmentIds: field({ type: [String], label: "Departments" }),
