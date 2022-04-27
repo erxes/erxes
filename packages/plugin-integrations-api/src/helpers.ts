@@ -3,7 +3,6 @@ import {
   debugCallPro,
   debugError,
   debugFacebook,
-  debugGmail,
 } from './debuggers';
 import {
   getPageAccessToken,
@@ -11,12 +10,6 @@ import {
   subscribePage,
   unsubscribePage
 } from './facebook/utils';
-import { revokeToken, unsubscribeUser } from './gmail/api';
-import {
-  ConversationMessages as GmailConversationMessages,
-  Conversations as GmailConversations,
-  Customers as GmailCustomers
-} from './gmail/models';
 import { Accounts, Integrations } from './models';
 import Configs from './models/Configs';
 import { getEnv, resetConfigsCache, sendRequest } from './utils';
@@ -93,38 +86,6 @@ export const removeIntegration = async (
     });
 
     await Integrations.deleteOne({ _id });
-  }
-
-  if (kind === 'gmail' && !integration.nylasToken) {
-    debugGmail('Removing gmail entries');
-
-    const conversationIds = await GmailConversations.find(selector).distinct(
-      '_id'
-    );
-
-    integrationRemoveBy = { email: integration.email };
-
-    await GmailCustomers.deleteMany(selector);
-    await GmailConversations.deleteMany(selector);
-    await GmailConversationMessages.deleteMany({
-      conversationId: { $in: conversationIds }
-    });
-
-    try {
-      await unsubscribeUser(integration.email);
-
-      if (removeAll) {
-        await revokeToken(integration.email);
-      }
-    } catch (e) {
-      debugError('Failed to unsubscribe gmail account');
-
-      if (e.message.includes('Token has been expired or revoked')) {
-        return ""
-      }
-
-      throw e;
-    }
   }
 
   if (kind === 'callpro') {

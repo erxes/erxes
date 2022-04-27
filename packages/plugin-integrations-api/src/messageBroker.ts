@@ -6,11 +6,8 @@ import { handleFacebookMessage } from './facebook/handleFacebookMessage';
 import { Integrations } from './models';
 import { userIds } from './userMiddleware';
 import { getConfig } from './utils';
-import { debugGmail } from './debuggers';
-import { getMessage as gmailGetMessage, sendEmail } from './gmail/handleController';
 import { facebookCreateIntegration, facebookGetCustomerPosts } from './facebook/controller';
 import { callproCreateIntegration, callproGetAudio } from './callpro/controller';
-import { gmailCreateIntegration } from './gmail/controller';
 import { ISendMessageArgs, sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core'
 import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
@@ -65,22 +62,6 @@ export const initBroker = async (cl) => {
 
       if (action === 'getConfigs') {
         response = { data: await Configs.find({}) };
-      }
-
-      if (action === 'getMessage') {
-        const { path, erxesApiMessageId, integrationId } = data;
-
-        if (!erxesApiMessageId) {
-          throw new Error('erxesApiMessageId is not provided!');
-        }
-
-        switch (path) {
-          case '/gmail/get-message':
-            response = await gmailGetMessage(erxesApiMessageId, integrationId);
-            break;
-          default:
-            break;
-        }
       }
 
       response.status = 'success';
@@ -169,8 +150,6 @@ export const initBroker = async (cl) => {
           return facebookCreateIntegration(doc);
         case 'callpro':
           return callproCreateIntegration(doc);
-        case 'gmail':
-          return gmailCreateIntegration(doc);
       }
     }
   );
@@ -183,21 +162,6 @@ export const initBroker = async (cl) => {
 
     return { status: 'success' };
   });
-
-  //  '/nylas/send', /gmail/send
-  consumeRPCQueue('integrations:sendEmail', async ({ data: { kind, doc }}) => {
-    const { data, erxesApiId } = doc;
-
-    if(kind === 'gmail') {
-      debugGmail(`Sending gmail ===`);
-
-      const mailParams = JSON.parse(data);
-
-      await sendEmail(erxesApiId, mailParams);
-
-      return { status: 200, statusText: 'success' };
-    }
-  })
 
   consumeQueue('integrations:notification', async ({ subdomain, data })  => {
     const models = await generateModels(subdomain);

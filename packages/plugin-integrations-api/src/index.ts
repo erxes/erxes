@@ -3,7 +3,6 @@ import * as bodyParser from 'body-parser';
 import initCallPro from './callpro/controller';
 import { debugIntegrations, debugRequest } from './debuggers';
 import initFacebook from './facebook/controller';
-import initGmail from './gmail/controller';
 // import { init } from './startup';
 import systemStatus from './systemStatus';
 import userMiddleware from './userMiddleware';
@@ -44,9 +43,6 @@ const initApp = async app => {
   
   // init bots
   initFacebook(app);
-
-  // init gmail
-  initGmail(app);
 
   // init callpro
   initCallPro(app);
