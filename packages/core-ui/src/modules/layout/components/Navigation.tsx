@@ -491,6 +491,7 @@ class Navigation extends React.Component<Props, State> {
     if (pluginNavigations().length <= this.state.countOfPinnedNavigation) {
       return null;
     }
+
     return (
       <div ref={this.setWrapperRef}>
         <NavItem>

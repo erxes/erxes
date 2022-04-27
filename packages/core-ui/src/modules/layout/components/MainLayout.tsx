@@ -106,7 +106,13 @@ class MainLayout extends React.Component<IProps, State> {
         <div id="anti-clickjack" style={{ display: "none" }} />
 
         <Layout isSqueezed={isShownIndicator}>
-          {currentUser && <Navigation currentUser={currentUser} navCollapse={this.state.navCollapse} onClickHandleIcon={(e) => this.onClickHandleIcon(e)}/>}
+          {currentUser && (
+            <Navigation
+              currentUser={currentUser}
+              navCollapse={this.state.navCollapse}
+              onClickHandleIcon={(e) => this.onClickHandleIcon(e)}
+            />
+          )}
 
           <MainWrapper navCollapse={this.state.navCollapse}>
             <MainBar />

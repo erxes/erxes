@@ -256,11 +256,16 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
           : dimensions.headerSpacing * 2 - 1}px;
     }
 
-    span {
+    > span {
       position: absolute;
-      min-width: 19px;
-      min-height: 19px;
-      text-align: center
+      right: ${(props) =>
+        props.navCollapse === 1 ? 5 : dimensions.coreSpacing + 5}px;
+      top: ${dimensions.coreSpacing}px;
+      padding: 0;
+      width: ${dimensions.coreSpacing}px;
+      height: ${dimensions.coreSpacing}px;
+      line-height: ${dimensions.coreSpacing}px;
+      text-align: center;
     }
 
     &.active {
@@ -423,7 +428,7 @@ const SubNavItem = styledTS<{ additional: boolean }>(styled.li)`
 
     &:before {
       content: "";
-      background: url("images/line.svg") no-repeat;
+      background: url("/images/line.svg") no-repeat;
       width: 12px;
       height: 25px;
       margin-top: -4px;
@@ -636,12 +641,13 @@ const DropSubNavItem = styled.li`
     &:hover {
       background: ${rgba(colors.colorBlack, 0.06)};
       opacity: 1;
+      border-radius: 4px;
     }
   }
 
   &:before {
     content: "";
-    background: url("images/line.svg") no-repeat;
+    background: url("/images/line.svg") no-repeat;
     width: 12px;
     height: 25px;
     margin-top: -4px;
