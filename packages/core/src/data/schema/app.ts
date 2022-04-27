@@ -19,10 +19,11 @@ export const types = `
 export const mutations = `
   appsAdd(${commonFields}): App
   appsEdit(_id: String!, ${commonFields}): App
-  appsRemove(_id: String!): String
+  appsRemove(_id: String!): JSON
 `;
 
 export const queries = `
   apps: [App]
   appsTotalCount: Int
+  appDetail(_id: String): App
 `;

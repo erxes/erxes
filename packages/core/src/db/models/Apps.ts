@@ -1,12 +1,19 @@
 import { Model } from 'mongoose';
+import * as jwt from 'jsonwebtoken';
+import * as dotenv from 'dotenv';
+
 import { IModels } from '../../connectionResolver';
 import { appSchema, IAppDocument, IApp } from './definitions/apps';
+
+dotenv.config();
+
+const { JWT_TOKEN_SECRET = '' } = process.env;
 
 export interface IAppModel extends Model<IAppDocument> {
   getApp(_id: string): Promise<IAppDocument>;
   createApp(doc: IApp): Promise<IAppDocument>;
   updateApp(_id: string, doc: IApp): Promise<IAppDocument>;
-  removeApp(_id: string): Promise<string>;
+  removeApp(_id: string): Promise<any>;
 }
 
 export const loadAppClass = (models: IModels) => {
@@ -21,8 +28,18 @@ export const loadAppClass = (models: IModels) => {
       return app;
     }
 
-    public static createApp(doc: IApp) {
-      return models.Apps.create(doc);
+    public static async createApp(doc: IApp) {
+      const app = await models.Apps.create(doc);
+
+      const accessToken = await jwt.sign({ app }, JWT_TOKEN_SECRET, { expiresIn: '14d' });
+      const refreshToken = await jwt.sign({ app }, JWT_TOKEN_SECRET, { expiresIn: '30d' });
+
+      await models.Apps.updateOne(
+        { _id: app._id },
+        { $set: { accessToken, refreshToken } }
+      );
+
+      return models.Apps.findOne({ _id: app._id });
     }
 
     public static async updateApp(_id: string, doc: IApp) {

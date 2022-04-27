@@ -9,12 +9,17 @@ import { IApp } from '../types';
 
 type Props = {
   app: IApp;
+  removeApp: (_id: string) => void;
 }
 
 export default class AppRow extends React.Component<Props> {
   render() {
-    const { app } = this.props;
+    const { app, removeApp } = this.props;
   
+    const onClick = () => {
+      removeApp(app._id);
+    }
+
     return (
       <tr>
         <td>{dayjs(app.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
@@ -25,6 +30,7 @@ export default class AppRow extends React.Component<Props> {
               <Tip text="Delete" placement="top">
                 <Button
                   btnStyle="link"
+                  onClick={onClick}
                 >
                   <Icon icon="times-circle" />
                 </Button>
