@@ -30,7 +30,6 @@ const {
 } = process.env;
 
 (async () => {
-  await db.connect();
 
   await clearCache();
 
@@ -40,7 +39,7 @@ const {
 
   app.use(userMiddleware);
 
-  //unsubscribe
+  // unsubscribe
   app.get(
     '/unsubscribe',
     routeErrorHandling(async (req: any, res) => {
