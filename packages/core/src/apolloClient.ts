@@ -37,7 +37,7 @@ export const initApolloServer = async (_app, httpServer) => {
     // for graceful shutdowns
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
     context: async ({ req, res }) => {
-      const models = await generateModels('os')
+      const models = await generateModels(req.hostname)
 
       let user: any = null;
       

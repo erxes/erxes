@@ -6,6 +6,7 @@ import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import permissions from './permissions';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -34,7 +35,7 @@ export default {
   hasSubscriptions: false,
   segment: {},
   apolloServerContext: async (context, req, res) => {
-    const subdomain = 'os';
+    const subdomain = getSubdomain(req.hostname);
 
     context.models = await generateModels(subdomain);
     context.subdomain = subdomain;
