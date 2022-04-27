@@ -68,7 +68,9 @@ class Navigation extends React.Component<Props, State> {
       moreMenus: pluginNavigations().slice(countOfPinnedNavigation) || [],
       searchText: "",
       clickedMenu: "",
-      pinnedNavigations: [],
+      pinnedNavigations: JSON.parse(
+        localStorage.getItem("pinnedPlugins") || "[]"
+      ),
       countOfPinnedNavigation,
     };
   }
@@ -151,17 +153,33 @@ class Navigation extends React.Component<Props, State> {
   };
 
   onClickPin = (pinnedPlugin: any) => {
-    this.setState((prevState) => ({
-      pinnedNavigations: [...prevState.pinnedNavigations, pinnedPlugin],
-    }));
+    this.setState(
+      (prevState) => ({
+        pinnedNavigations: [...prevState.pinnedNavigations, pinnedPlugin],
+      }),
+      () => {
+        localStorage.setItem(
+          "pinnedPlugins",
+          JSON.stringify(this.state.pinnedNavigations)
+        );
+      }
+    );
   };
 
   unPin = (selectPluginName: string) => {
-    this.setState({
-      pinnedNavigations: this.state.pinnedNavigations.filter(
-        (plugin) => plugin.text !== selectPluginName
-      ),
-    });
+    this.setState(
+      {
+        pinnedNavigations: this.state.pinnedNavigations.filter(
+          (plugin) => plugin.text !== selectPluginName
+        ),
+      },
+      () => {
+        localStorage.setItem(
+          "pinnedPlugins",
+          JSON.stringify(this.state.pinnedNavigations)
+        );
+      }
+    );
   };
 
   renderHandleIcon(type: string) {

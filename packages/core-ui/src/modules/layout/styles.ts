@@ -244,7 +244,8 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
         props.navCollapse === 3
           ? !props.isMoreItem && dimensions.unitSpacing
           : 0}px;
-      padding: 0 ${dimensions.unitSpacing}px;
+      padding: ${(props) =>
+        props.navCollapse === 2 && `0 ${dimensions.unitSpacing}px`};
       max-width: ${(props) =>
         props.isMoreItem
           ? dimensions.headerSpacingWide
