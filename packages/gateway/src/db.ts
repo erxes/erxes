@@ -19,6 +19,9 @@ export let Channels: Collection<any>;
 export let Integrations: Collection<any>;
 export let Customers: Collection<any>;
 export let ConversationMessages: Collection<any>;
+// app related
+export let Apps: Collection<any>;
+export let Permissions: Collection<any>;
 
 export async function connect() {
   await client.connect();
@@ -30,6 +33,8 @@ export async function connect() {
   Integrations = db.collection('integrations');
   Customers = db.collection('customers');
   ConversationMessages = db.collection('conversation_messages');
+  Apps = db.collection('apps');
+  Permissions = db.collection('permissions');
 }
 
 export async function disconnect() {
