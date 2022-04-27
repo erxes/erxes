@@ -68,7 +68,7 @@ export default async function userMiddleware(
         const permissions = await models.Permissions.find({
           groupId: app.userGroupId,
           allowed: true,
-        }).toArray();
+        }).lean();
   
         req.user = {
           _id: 'userId',
