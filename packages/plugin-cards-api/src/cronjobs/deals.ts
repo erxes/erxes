@@ -1,5 +1,4 @@
 import * as moment from 'moment';
-import * as schedule from 'node-schedule';
 import { generateModels } from '../connectionResolver';
 import { sendCoreMessage, sendNotificationsMessage } from '../messageBroker';
 

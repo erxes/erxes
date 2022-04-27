@@ -1,11 +1,12 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
-import { generateModels, models } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 
 import { initBroker } from './messageBroker';
 import logs from './logUtils';
 import permissions from './permissions';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let debug;
 export let graphqlPubsub;
@@ -29,18 +30,16 @@ export default {
       resolvers: await resolvers(sd),
     };
   },
-  apolloServerContext: (context) => {
-    const subdomain = "os"
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req.hostname);
 
-    context.subdomain = subdomain
-    context.models = models;
+    context.subdomain = subdomain;
+    context.models = await generateModels(subdomain);
 
     return context;
   },
   onServerInit: async (options) => {
     mainDb = options.db;
-
-    await generateModels('os');
 
     initBroker(options.messageBrokerClient);
 

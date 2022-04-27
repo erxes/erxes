@@ -32,10 +32,6 @@ export interface IContext extends IMainContext {
 
 export let models: IModels;
 
-export const getSubdomain = (hostname: string): string => {
-  return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
-};
-
 export const generateModels = async (
   hostnameOrSubdomain: string
 ): Promise<IModels> => {

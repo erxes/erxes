@@ -34,7 +34,7 @@ const activityLogQueries = {
     if (activityType && activityType !== 'activity') {
       const serviceName = activityType.split(':')[0];
 
-      serverTiming.startTime(`collectecItems:${serviceName}`);
+      serverTiming.startTime(`collectecItems${serviceName}`);
 
       const result = await fetchService(
         serviceName,
@@ -45,7 +45,7 @@ const activityLogQueries = {
 
       const { data } = result;
 
-      serverTiming.endTime(`collectecItems:${serviceName}`);
+      serverTiming.endTime(`collectecItems${serviceName}`);
 
       return data;
     }
@@ -60,7 +60,7 @@ const activityLogQueries = {
         const logs = meta.logs;
 
         if (logs.providesActivityLog) {
-          serverTiming.startTime(`collectecItems:${serviceName}`);
+          serverTiming.startTime(`collectItems${serviceName}`);
 
           const result = await fetchService(
             serviceName,
@@ -69,7 +69,7 @@ const activityLogQueries = {
             ''
           );
 
-          serverTiming.endTime(`collectecItems:${serviceName}`);
+          serverTiming.endTime(`collectItems${serviceName}`);
 
           const { data } = result;
 

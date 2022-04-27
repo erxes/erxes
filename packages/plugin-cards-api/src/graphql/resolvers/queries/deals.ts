@@ -114,7 +114,7 @@ const dealQueries = {
   ) {
     const filter = await generateDealCommonFilters(models, subdomain, user._id, args);
 
-    return models.Deals.find(filter).countDocuments();
+    return models.Deals.find(filter).count();
   },
 
   /**

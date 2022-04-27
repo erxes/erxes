@@ -19,6 +19,7 @@
     "apollo-link-http": "^1.5.16",
     "apollo-link-ws": "^1.0.8",
     "apollo-utilities": "^1.0.5",
+    "copy-text-to-clipboard": "^3.0.1",
     "dayjs": "1.8.15",
     "dotenv": "^10.0.0",
     "erxes-icon": "^1.2.1",

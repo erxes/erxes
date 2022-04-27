@@ -1,9 +1,12 @@
 import { QueryResponse } from '@erxes/ui/src/types';
 
-export interface IApp {
-  _id: string;
+export interface IAppAddEditParams {
   name: string;
   userGroupId: string;
+}
+
+export interface IApp extends IAppEditParams {
+  _id: string;
   isEnabled?: boolean;
   accessToken: string;
   createdAt: Date;

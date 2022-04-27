@@ -5,6 +5,7 @@ import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import permissions from './permissions';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let debug;
 export let graphqlPubsub;
@@ -31,11 +32,11 @@ export default {
 
   hasSubscriptions: true,
 
-  apolloServerContext: async context => {
-    const subdomain = 'os';
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req.hostname);
 
     context.subdomain = subdomain;
-    context.models = await generateModels('os');
+    context.models = await generateModels(subdomain);
 
     return context;
   },

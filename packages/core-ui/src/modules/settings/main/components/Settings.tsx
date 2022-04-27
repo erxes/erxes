@@ -144,6 +144,13 @@ class Settings extends React.PureComponent {
               'importHistoriesAll',
               ['importHistories', 'removeImportHistories', 'importXlsFile']
             )}
+            {this.renderBox(
+              'Apps',
+              '/images/icons/erxes-04.svg',
+              '/settings/apps',
+              '',
+              []
+            )}
           </div>
         </Row>
         {this.renderPluginSettings()}

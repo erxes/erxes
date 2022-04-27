@@ -1,4 +1,3 @@
-import { MongoClient } from 'mongodb';
 import * as mongoose from 'mongoose';
 
 import { IContext as IMainContext } from '@erxes/api-utils/src';
@@ -27,10 +26,6 @@ export interface IContext extends IMainContext {
 }
 
 export let models: IModels;
-
-export const getSubdomain = (hostname: string): string => {
-  return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
-};
 
 export const generateModels = async (
   hostnameOrSubdomain: string

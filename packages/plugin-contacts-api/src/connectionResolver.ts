@@ -29,10 +29,6 @@ export const generateModels = async (
   return models;
 };
 
-export const getSubdomain = (hostname: string): string => {
-  return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
-};
-
 export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels => {
   models = {} as IModels;
   
