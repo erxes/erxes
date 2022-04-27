@@ -7,7 +7,11 @@ import { NextFunction, Request, Response } from 'express';
 import { redis } from '../redis';
 import { generateModels } from '../connectionResolver';
 
-export default async function userMiddleware(req: Request & { user?: any }, _res: Response, next: NextFunction) {
+export default async function userMiddleware(
+  req: Request & { user?: any },
+  _res: Response,
+  next: NextFunction
+) {
   const erxesCoreToken = req.headers['erxes-core-token'];
   const url = req.headers['erxes-core-website-url'];
 
@@ -17,11 +21,11 @@ export default async function userMiddleware(req: Request & { user?: any }, _res
         url: 'https://erxes.io/check-website',
         method: 'POST',
         headers: {
-          'erxes-core-token': erxesCoreToken
+          'erxes-core-token': erxesCoreToken,
         },
         body: {
-          url
-        }
+          url,
+        },
       });
 
       if (response === 'ok') {
@@ -31,19 +35,19 @@ export default async function userMiddleware(req: Request & { user?: any }, _res
             {
               action: 'showIntegrations',
               allowed: true,
-              requiredActions: []
+              requiredActions: [],
             },
             {
               action: 'showKnowledgeBase',
               allowed: true,
-              requiredActions: []
+              requiredActions: [],
             },
             {
               action: 'showScripts',
               allowed: true,
-              requiredActions: []
-            }
-          ]
+              requiredActions: [],
+            },
+          ],
         };
       }
     } catch (e) {
@@ -53,15 +57,47 @@ export default async function userMiddleware(req: Request & { user?: any }, _res
     return next();
   }
 
+  const appToken = req.headers['erxes-app-token'];
+  const models = await generateModels('os');
+
+  if (appToken) {
+    try {
+      const app = await models.Apps.findOne({ accessToken: appToken });
+  
+      if (app) {
+        const permissions = await models.Permissions.find({
+          groupId: app.userGroupId,
+          allowed: true,
+        }).toArray();
+  
+        req.user = {
+          _id: 'userId',
+          customPermissions: permissions.map((p) => ({
+            action: p.action,
+            allowed: p.allowed,
+            requiredActions: p.requiredActions,
+          })),
+        };
+      }
+  
+      return next();
+    } catch (e) {
+      console.error(e);
+
+      return next();
+    }
+  }
+
   const token = req.cookies['auth-token'];
 
-  if (!token) { return next(); }
+  if (!token) {
+    return next();
+  }
 
   try {
     // verify user token and retrieve stored user information
     const { user }: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
 
-    const models = await generateModels('os');
 
     const userDoc = await models.Users.findOne({ _id: user._id });
 
@@ -70,7 +106,7 @@ export default async function userMiddleware(req: Request & { user?: any }, _res
     }
 
     const validatedToken = await redis.get(`user_token_${user._id}_${token}`);
-    
+
     // invalid token access.
     if (!validatedToken) {
       return next();
@@ -84,7 +120,7 @@ export default async function userMiddleware(req: Request & { user?: any }, _res
     const currentDate = new Date();
     const machineId: string = telemetry.getMachineId();
 
-    const lastLoginDate = new Date(await redis.get(machineId) || '');
+    const lastLoginDate = new Date((await redis.get(machineId)) || '');
 
     if (lastLoginDate.getDay() !== currentDate.getDay()) {
       redis.set(machineId, currentDate.toJSON());
@@ -101,6 +137,5 @@ export default async function userMiddleware(req: Request & { user?: any }, _res
     console.error(e);
   }
 
-
   return next();
-};
+}
