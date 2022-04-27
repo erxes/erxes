@@ -1,23 +1,23 @@
-import { Comments, Conversations, Posts } from './models';
+import { IModels } from '../connectionResolver';
 import { generateAttachmentMessages, sendReply } from './utils';
 
 /*
  * Handle requests from erxes api
  */
-export const handleFacebookMessage = async msg => {
+export const handleFacebookMessage = async (models: IModels, msg) => {
   const { action, payload } = msg;
   const doc = JSON.parse(payload || '{}');
 
   if (action === 'change-status-comment') {
     const { conversationId } = doc;
 
-    const comment = await Comments.findOne({ commentId: conversationId });
+    const comment = await models.FbComments.findOne({ commentId: conversationId });
 
     if(!comment) {
       throw new Error("Comment not found")
     }
 
-    return Comments.updateOne(
+    return models.FbComments.updateOne(
       { commentId: conversationId },
       { $set: { isResolved: comment.isResolved ? false : true } }
     );
@@ -26,9 +26,9 @@ export const handleFacebookMessage = async msg => {
   if (action === 'reply-post') {
     const { integrationId, conversationId, content, attachments } = doc;
 
-    const comment = await Comments.findOne({ commentId: conversationId });
+    const comment = await models.FbComments.findOne({ commentId: conversationId });
 
-    const post = await Posts.findOne({
+    const post = await models.FbPosts.findOne({
       $or: [
         { erxesApiId: conversationId },
         { postId: comment ? comment.postId : '' }
@@ -82,7 +82,7 @@ export const handleFacebookMessage = async msg => {
   if (action === 'reply-messenger') {
     const { integrationId, conversationId, content, attachments, tag } = doc;
 
-    const conversation = await Conversations.getConversation({
+    const conversation = await models.FbConversations.getConversation({
       erxesApiId: conversationId
     });
 

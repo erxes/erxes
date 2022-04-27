@@ -1,4 +1,4 @@
-import { Document, Model, model, Schema } from 'mongoose';
+import { Document, Model, Schema } from 'mongoose';
 import { field } from '../models/utils';
 
 // customer ======================
@@ -45,14 +45,14 @@ export const conversationSchema = new Schema({
 
 export interface IConversationModel extends Model<IConversationDocument> {}
 
-// tslint:disable-next-line
-export const Customers = model<ICustomerDocument, ICustomerModel>(
-  'customers_callpro',
-  customerSchema
-);
+// // tslint:disable-next-line
+// export const Customers = model<ICustomerDocument, ICustomerModel>(
+//   'customers_callpro',
+//   customerSchema
+// );
 
-// tslint:disable-next-line
-export const Conversations = model<IConversationDocument, IConversationModel>(
-  'conversations_callpro',
-  conversationSchema
-);
+// // tslint:disable-next-line
+// export const Conversations = model<IConversationDocument, IConversationModel>(
+//   'conversations_callpro',
+//   conversationSchema
+// );

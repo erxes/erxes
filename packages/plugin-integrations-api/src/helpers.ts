@@ -1,12 +1,9 @@
 import {
-  Conversations as CallProConversations,
-  Customers as CallProCustomers
-} from './callpro/models';
-import {
   ConversationMessages as ChatfuelConversationMessages,
   Conversations as ChatfuelConversations,
   Customers as ChatfuelCustomers
 } from './chatfuel/models';
+import { IModels } from './connectionResolver';
 import {
   debugCallPro,
   debugError,
@@ -18,13 +15,6 @@ import {
   debugTwitter,
   debugWhatsapp
 } from './debuggers';
-import {
-  Comments as FacebookComments,
-  ConversationMessages as FacebookConversationMessages,
-  Conversations as FacebookConversations,
-  Customers as FacebookCustomers,
-  Posts as FacebookPosts
-} from './facebook/models';
 import {
   getPageAccessToken,
   refreshPageAccesToken,
@@ -99,6 +89,7 @@ import {
 } from './whatsapp/models';
 
 export const removeIntegration = async (
+  models: IModels,
   integrationErxesApiId: string,
   removeAll: boolean = false
 ): Promise<string> => {
@@ -140,8 +131,8 @@ export const removeIntegration = async (
         throw e;
       }
 
-      await FacebookPosts.deleteMany({ recipientId: pageId });
-      await FacebookComments.deleteMany({ recipientId: pageId });
+      await models.FbPosts.deleteMany({ recipientId: pageId });
+      await models.FbComments.deleteMany({ recipientId: pageId });
 
       try {
         await unsubscribePage(pageId, pageTokenResponse);
@@ -155,15 +146,16 @@ export const removeIntegration = async (
 
     integrationRemoveBy = { fbPageIds: integration.facebookPageIds };
 
-    const conversationIds = await FacebookConversations.find(selector).distinct(
+    const conversationIds = await models.FbConversations.find(selector).distinct(
       '_id'
     );
 
-    await FacebookCustomers.deleteMany({
+    await models.FbCustomers.deleteMany({
       integrationId: integrationErxesApiId
     });
-    await FacebookConversations.deleteMany(selector);
-    await FacebookConversationMessages.deleteMany({
+
+    await models.FbConversations.deleteMany(selector);
+    await models.FbConversationMessages.deleteMany({
       conversationId: { $in: conversationIds }
     });
 
@@ -230,12 +222,12 @@ export const removeIntegration = async (
   if (kind === 'callpro') {
     debugCallPro('Removing callpro entries');
 
-    await CallProConversations.find(selector).distinct('_id');
+    await models.CallProConversations.find(selector).distinct('_id');
 
     integrationRemoveBy = { phoneNumber: integration.phoneNumber };
 
-    await CallProCustomers.deleteMany(selector);
-    await CallProConversations.deleteMany(selector);
+    await models.CallProCustomers.deleteMany(selector);
+    await models.CallProConversations.deleteMany(selector);
   }
 
   if (kind === 'twitter-dm') {
@@ -528,6 +520,7 @@ export const removeIntegration = async (
 };
 
 export const removeAccount = async (
+  models: IModels,
   _id: string
 ): Promise<{ erxesApiIds: string | string[] } | Error> => {
   const account = await Accounts.findOne({ _id });
@@ -543,7 +536,7 @@ export const removeAccount = async (
   if (integrations.length > 0) {
     for (const integration of integrations) {
       try {
-        const response = await removeIntegration(integration.erxesApiId, true);
+        const response = await removeIntegration(models, integration.erxesApiId, true);
         erxesApiIds.push(response);
       } catch (e) {
         throw e;
@@ -585,11 +578,11 @@ export const repairIntegrations = async (
   return true;
 };
 
-export const removeCustomers = async params => {
+export const removeCustomers = async (models: IModels, params) => {
   const { customerIds } = params;
   const selector = { erxesApiId: { $in: customerIds } };
 
-  await FacebookCustomers.deleteMany(selector);
+  await models.FbCustomers.deleteMany(selector);
   await NylasGmailCustomers.deleteMany(selector);
   await NylasOutlookCustomers.deleteMany(selector);
   await NylasOffice365Customers.deleteMany(selector);
@@ -597,7 +590,7 @@ export const removeCustomers = async params => {
   await NylasImapCustomers.deleteMany(selector);
   await NylasExchangeCustomers.deleteMany(selector);
   await ChatfuelCustomers.deleteMany(selector);
-  await CallProCustomers.deleteMany(selector);
+  await models.CallProCustomers.deleteMany(selector);
   await TwitterCustomers.deleteMany(selector);
   await SmoochTelegramCustomers.deleteMany(selector);
   await SmoochViberCustomers.deleteMany(selector);

@@ -8,7 +8,6 @@ import Accounts from '../models/Accounts';
 import Integrations from '../models/Integrations';
 import { getConfig, getEnv, sendRequest } from '../utils';
 import loginMiddleware from './loginMiddleware';
-import { Comments, Customers, Posts } from './models';
 import receiveComment from './receiveComment';
 import receiveMessage from './receiveMessage';
 import receivePost from './receivePost';
@@ -19,6 +18,7 @@ import {
   getPageAccessTokenFromMap,
   subscribePage
 } from './utils';
+import { generateModels, IModels } from '../connectionResolver';
 
 
 export const facebookCreateIntegration = async ({ accountId, integrationId, data, kind }) => {
@@ -88,14 +88,14 @@ export const facebookCreateIntegration = async ({ accountId, integrationId, data
     return { status: 'success' };
 };
 
-export const facebookGetCustomerPosts = async ({ customerId }) => {
-  const customer = await Customers.findOne({ erxesApiId: customerId });
+export const facebookGetCustomerPosts = async (models: IModels, { customerId }) => {
+  const customer = await models.FbCustomers.findOne({ erxesApiId: customerId });
 
   if (!customer) {
     return null;
   }
 
-  const result = await Comments.aggregate([
+  const result = await models.FbComments.aggregate([
     { $match: { senderId: customer.userId } },
     {
       $lookup: {
@@ -135,9 +135,11 @@ const init = async app => {
       `Request to get post data with: ${JSON.stringify(req.query)}`
     );
 
+    const models = await generateModels('os');
+
     const { erxesApiId } = req.query;
 
-    const post = await Posts.getPost({ erxesApiId }, true);
+    const post = await models.FbPosts.getPost({ erxesApiId }, true);
 
     return res.json({
       ...post
@@ -200,6 +202,7 @@ const init = async app => {
   });
 
   app.post('/facebook/receive', async (req, res, next) => {
+    const models = await generateModels('os');
     const data = req.body;
 
     if (data.object !== 'page') {
@@ -246,7 +249,7 @@ const init = async app => {
               return next();
             }
 
-            await receiveMessage(activity);
+            await receiveMessage(models, activity);
 
             debugFacebook(
               `Successfully saved activity ${JSON.stringify(activity)}`
@@ -269,7 +272,7 @@ const init = async app => {
               `Received comment data ${JSON.stringify(event.value)}`
             );
             try {
-              await receiveComment(event.value, entry.id);
+              await receiveComment(models, event.value, entry.id);
               debugFacebook(
                 `Successfully saved  ${JSON.stringify(event.value)}`
               );
@@ -285,7 +288,7 @@ const init = async app => {
               debugFacebook(
                 `Received post data ${JSON.stringify(event.value)}`
               );
-              await receivePost(event.value, entry.id);
+              await receivePost(models, event.value, entry.id);
               debugFacebook(
                 `Successfully saved post ${JSON.stringify(event.value)}`
               );

@@ -10,7 +10,6 @@ import { userIds } from './userMiddleware';
 import { getConfig } from './utils';
 import { createDailyRoom, getDailyActiveRoom, getDailyRoom } from './videoCall/controller';
 import { debugGmail, debugNylas } from './debuggers';
-import { Posts } from './facebook/models';
 import { getMessage as nylasGetMessage, nylasSendEmail } from './nylas/handleController';
 import { getMessage as gmailGetMessage, sendEmail } from './gmail/handleController';
 import { facebookCreateIntegration, facebookGetCustomerPosts } from './facebook/controller';
@@ -24,6 +23,7 @@ import { telnyxCreateIntegration } from './telnyx/controller';
 import { whatsappCreateIntegration, whatsappReply } from './whatsapp/controller';
 import { ISendMessageArgs, sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core'
 import { serviceDiscovery } from './configs';
+import { generateModels } from './connectionResolver';
 
 dotenv.config();
 
@@ -48,14 +48,16 @@ export const initBroker = async (cl) => {
   });
 
   // listen for rpc queue =========
-  consumeRPCQueue('integrations:api_to_integrations', async ({ data }) => {
+  consumeRPCQueue('integrations:api_to_integrations', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
     const { action, type } = data;
 
     let response: any = null;
 
     try {
       if (action === 'remove-account') {
-        response = { data: await removeAccount(data._id) };
+        response = { data: await removeAccount(models, data._id) };
       }
 
       if (action === 'line-webhook') {
@@ -76,7 +78,7 @@ export const initBroker = async (cl) => {
       }
 
       if (type === 'facebook') {
-        response = { data: await handleFacebookMessage(data) };
+        response = { data: await handleFacebookMessage(models, data) };
       }
 
       if (action === 'getConfigs') {
@@ -175,9 +177,11 @@ export const initBroker = async (cl) => {
   // '/callpro/get-audio',
   consumeRPCQueue(
     'integrations:getCallproAudio',
-    async ({ data }) => {
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
       return {
-        data: await callproGetAudio(data),
+        data: await callproGetAudio(models, data),
         status: 'success'
       };
     }
@@ -186,8 +190,10 @@ export const initBroker = async (cl) => {
   // /facebook/get-post
   consumeRPCQueue(
     'integrations:getFacebookPost',
-    async ({ data: { erxesApiId } }) => {
-      const post = await Posts.getPost({ erxesApiId }, true);
+    async ({ subdomain, data: { erxesApiId } }) => {
+      const models = await generateModels(subdomain);
+
+      const post = await models.FbPosts.getPost({ erxesApiId }, true);
 
       return {
         data: post,
@@ -199,9 +205,11 @@ export const initBroker = async (cl) => {
   // app.get('/facebook/get-customer-posts'
   consumeRPCQueue(
     'integrations:getFbCustomerPosts',
-    async ({ data }) => {
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
       return {
-        data: await facebookGetCustomerPosts(data),
+        data: await facebookGetCustomerPosts(models, data),
         status: 'success'
       };
     }
@@ -235,8 +243,10 @@ export const initBroker = async (cl) => {
   );
 
   // '/integrations/remove',
-  consumeRPCQueue('integrations:removeIntegrations', async ({ data: { integrationId }}) => {
-    await removeIntegration(integrationId);
+  consumeRPCQueue('integrations:removeIntegrations', async ({ subdomain, data: { integrationId }}) => {
+    const models = await generateModels(subdomain);
+
+    await removeIntegration(models, integrationId);
 
     return { status: 'success' };
   });
@@ -296,12 +306,14 @@ export const initBroker = async (cl) => {
     }
   })
 
-  consumeQueue('integrations:notification', async ({ data })  => {
+  consumeQueue('integrations:notification', async ({ subdomain, data })  => {
+    const models = await generateModels(subdomain);
+
     const { action, payload, type } = data;
 
     switch (type) {
       case 'removeCustomers':
-        await removeCustomers(data);
+        await removeCustomers(models, data);
         break;
       case 'addUserId':
         userIds.push(payload._id);

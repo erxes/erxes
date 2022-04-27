@@ -1,8 +1,9 @@
+import { generateModels, IModels } from '../connectionResolver';
 import { debugCallPro, debugError, debugRequest } from '../debuggers';
 import { routeErrorHandling } from '../helpers';
 import { sendInboxMessage } from '../messageBroker';
 import { Integrations, Logs } from '../models';
-import { Conversations, Customers } from './models';
+// import { Conversations, Customers } from './models';
 
 export const callproCreateIntegration = async ({ integrationId, data }) => {
     const { phoneNumber, recordUrl } = JSON.parse(data || '{}');
@@ -30,7 +31,7 @@ export const callproCreateIntegration = async ({ integrationId, data }) => {
     return { status: 'success' };
 };
 
-export const callproGetAudio = async ({ erxesApiId, integrationId }) => {
+export const callproGetAudio = async (models: IModels, { erxesApiId, integrationId }) => {
 
   const integration = await Integrations.findOne({
     erxesApiId: integrationId
@@ -43,7 +44,7 @@ export const callproGetAudio = async ({ erxesApiId, integrationId }) => {
     throw new Error(message);
   }
 
-  const conversation = await Conversations.findOne({ erxesApiId });
+  const conversation = await models.CallProConversations.findOne({ erxesApiId });
 
   if (!conversation) {
     const message = 'Conversation not found';
@@ -68,6 +69,8 @@ const init = async app => {
   app.post(
     '/callpro-receive',
     routeErrorHandling(async (req, res) => {
+      const models = await generateModels("os");
+
       debugRequest(debugCallPro, req);
 
       const { numberTo, numberFrom, disp, callID, owner } = req.body;
@@ -97,11 +100,11 @@ const init = async app => {
       }
 
       // get customer
-      let customer = await Customers.findOne({ phoneNumber: numberFrom });
+      let customer = await models.CallProCustomers.findOne({ phoneNumber: numberFrom });
 
       if (!customer) {
         try {
-          customer = await Customers.create({
+          customer = await models.CallProCustomers.create({
             phoneNumber: numberFrom,
             integrationId: integration._id
           });
@@ -134,7 +137,7 @@ const init = async app => {
           customer.erxesApiId = apiCustomerResponse._id;
           await customer.save();
         } catch (e) {
-          await Customers.deleteOne({ _id: customer._id });
+          await models.CallProCustomers.deleteOne({ _id: customer._id });
 
           debugError(
             'Callpro: error occured during create or update customer on api: ',
@@ -145,13 +148,13 @@ const init = async app => {
       }
 
       // get conversation
-      let conversation = await Conversations.findOne({ callId: callID });
+      let conversation = await models.CallProConversations.findOne({ callId: callID });
 
       // create conversation
       if (!conversation) {
         // save on integration db
         try {
-          conversation = await Conversations.create({
+          conversation = await models.CallProConversations.create({
             state: disp,
             callId: callID,
             senderPhoneNumber: numberTo,
@@ -170,7 +173,7 @@ const init = async app => {
 
       // Check state of call and update
       if (conversation.state !== disp) {
-        await Conversations.updateOne(
+        await models.CallProConversations.updateOne(
           { callId: callID },
           { $set: { state: disp } }
         );
@@ -217,7 +220,7 @@ const init = async app => {
         conversation.erxesApiId = apiConversationResponse._id;
         await conversation.save();
       } catch (e) {
-        await Conversations.deleteOne({ _id: conversation._id });
+        await models.CallProConversations.deleteOne({ _id: conversation._id });
 
         debugError(
           'Callpro: error occured during create or update conversation on api: ',

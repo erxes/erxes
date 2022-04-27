@@ -1,8 +1,8 @@
-import { Comments, Customers, Posts } from '../../facebook/models';
 import { getPageList } from '../../facebook/utils';
 import { Accounts, Configs, Integrations } from '../../models';
 import { nylasGetAccountCalendars, nylasGetEvents, nylasGetSchedulePage, nylasGetSchedulePages } from '../../nylas/handleController';
 import { getConfig, getConfigs } from '../../utils';
+import { IContext } from '../../connectionResolver';
 
 const integrationQueries = {
   // app.get('/accounts', async (req, res) => {
@@ -56,11 +56,11 @@ const integrationQueries = {
   },
 
   // app.get('/facebook/get-comments', async (req, res) => {
-  async integrationsConversationFbComments(_root, args) {
+  async integrationsConversationFbComments(_root, args, { models }: IContext) {
     const { postId, isResolved, commentId, senderId } = args;
     let { limit = 10 } = args;
 
-    const post = await Posts.getPost({ erxesApiId: postId });
+    const post = await models.FbPosts.getPost({ erxesApiId: postId });
 
     const query: {
       postId: string;
@@ -76,7 +76,7 @@ const integrationQueries = {
     limit = parseInt(limit, 10);
 
     if (senderId !== 'undefined') {
-      const customer = await Customers.findOne({ erxesApiId: senderId });
+      const customer = await models.FbCustomers.findOne({ erxesApiId: senderId });
 
       if (!customer) {
         return null;
@@ -86,7 +86,7 @@ const integrationQueries = {
       query.parentId = commentId !== 'undefined' ? commentId : null;
     }
 
-    const result = await Comments.aggregate([
+    const result = await models.FbComments.aggregate([
       {
         $match: query
       },
@@ -142,16 +142,16 @@ const integrationQueries = {
     return result.reverse();
   },
   // app.get('/facebook/get-comments-count', async (req, res) => {
-  async integrationsConversationFbCommentsCount(_root, args) {
+  async integrationsConversationFbCommentsCount(_root, args, { models }: IContext) {
     const { postId, isResolved = false } = args;
 
-    const post = await Posts.getPost({ erxesApiId: postId }, true);
+    const post = await models.FbPosts.getPost({ erxesApiId: postId }, true);
 
-    const commentCount = await Comments.countDocuments({
+    const commentCount = await models.FbComments.countDocuments({
       postId: post.postId,
       isResolved
     });
-    const commentCountWithoutReplies = await Comments.countDocuments({
+    const commentCountWithoutReplies = await models.FbComments.countDocuments({
       postId: post.postId,
       isResolved,
       parentId: null
