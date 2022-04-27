@@ -21,7 +21,19 @@ interface IProps extends IRouterProps {
   closeLoadingBar: () => void;
 }
 
-class MainLayout extends React.Component<IProps> {
+type State = {
+  navCollapse: number;
+};
+
+class MainLayout extends React.Component<IProps, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      navCollapse: 2,
+    };
+  }
+
   componentDidMount() {
     const { history, currentUser, enabledServices } = this.props;
 
@@ -57,9 +69,26 @@ class MainLayout extends React.Component<IProps> {
       localStorage.setItem("enabledServices", JSON.stringify(enabledServices));
     }
 
+    const navNumber = localStorage.getItem("navigationNumber");
+
+    this.setState({ navCollapse: navNumber ? parseInt(navNumber) : 2 });
+
     // click-jack attack defense
     bustIframe();
   }
+
+  onClickHandleIcon = (type: string) => {
+    let collapse;
+    if (type === "plus") {
+      collapse = this.state.navCollapse + 1;
+    } else {
+      collapse = this.state.navCollapse - 1;
+    }
+
+    this.setState({ navCollapse: collapse });
+
+    localStorage.setItem("navigationNumber", collapse.toString());
+  };
 
   getLastImport = () => {
     return localStorage.getItem("erxes_import_data") || "";
@@ -77,9 +106,15 @@ class MainLayout extends React.Component<IProps> {
         <div id="anti-clickjack" style={{ display: "none" }} />
 
         <Layout isSqueezed={isShownIndicator}>
-          {currentUser && <Navigation currentUser={currentUser} />}
+          {currentUser && (
+            <Navigation
+              currentUser={currentUser}
+              navCollapse={this.state.navCollapse}
+              onClickHandleIcon={(e) => this.onClickHandleIcon(e)}
+            />
+          )}
 
-          <MainWrapper>
+          <MainWrapper navCollapse={this.state.navCollapse}>
             <MainBar />
 
             {children}

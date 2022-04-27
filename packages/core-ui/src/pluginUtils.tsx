@@ -21,7 +21,7 @@ const PluginsWrapper = ({
   callBack: (plugin: any, item: any) => React.ReactNode;
   plugins: any;
 }) => {
-  return (plugins || []).map(plugin => {
+  return (plugins || []).map((plugin) => {
     const item = plugin[itemName];
 
     if (!item) {
@@ -32,7 +32,7 @@ const PluginsWrapper = ({
   });
 };
 
-const useDynamicScript = args => {
+const useDynamicScript = (args) => {
   const [ready, setReady] = React.useState(false);
   const [failed, setFailed] = React.useState(false);
 
@@ -99,7 +99,7 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
       itemName={itemName}
       plugins={plugins}
       callBack={(_plugin, sections) => {
-        return (sections || []).map(section => {
+        return (sections || []).map((section) => {
           if (!window[section.scope]) {
             return null;
           }
@@ -122,7 +122,7 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
   );
 };
 
-const System = props => {
+const System = (props) => {
   if (props.loadScript) {
     const { ready, failed } = useDynamicScript({
       url: props.system && props.system.url,
@@ -339,11 +339,20 @@ export const pluginRouters = () => {
 export const pluginNavigations = () => {
   const plugins: any[] = (window as any).plugins || [];
   const navigationMenus: any[] = [];
+  const childMenus: any[] = [];
 
   for (const plugin of plugins) {
     for (const menu of plugin.menus || []) {
+      if (menu.location === "settings") {
+        childMenus.push(menu);
+      }
+
       if (menu.location === "mainNavigation") {
-        navigationMenus.push(menu);
+        navigationMenus.push({
+          ...menu,
+          name: plugin.name,
+          childrens: childMenus,
+        });
       }
     }
   }
@@ -399,7 +408,7 @@ export const pluginsOfProductCategoryActions = (productCategoryId: string) => {
       plugins={plugins}
       itemName={"productCategoryActions"}
       callBack={(_plugin, actions) => {
-        return actions.map(action => {
+        return actions.map((action) => {
           const Component = React.lazy(
             loadComponent(action.scope, action.component)
           );
