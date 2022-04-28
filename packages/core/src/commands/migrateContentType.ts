@@ -69,6 +69,10 @@ const switchContentType = contentType => {
     case 'product':
       changedContentType = `products:${contentType}`;
       break;
+
+    case 'form_submission:form_submission':
+      changedContentType = `forms:form_submission`;
+      break;
   }
 
   return changedContentType;
