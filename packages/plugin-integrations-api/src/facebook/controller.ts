@@ -1,9 +1,5 @@
 import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
-import {
-  debugBase,
-  debugError,
-  debugFacebook,
-} from '../debuggers';
+import { debugBase, debugError, debugFacebook } from '../debuggers';
 import { getConfig, getEnv, sendRequest } from '../utils';
 import loginMiddleware from './loginMiddleware';
 import receiveComment from './receiveComment';
@@ -18,75 +14,80 @@ import {
 } from './utils';
 import { generateModels, IModels } from '../connectionResolver';
 
+export const facebookCreateIntegration = async (
+  models: IModels,
+  { accountId, integrationId, data, kind }
+) => {
+  const facebookPageIds = JSON.parse(data).pageIds;
 
-export const facebookCreateIntegration = async (models: IModels, { accountId, integrationId, data, kind }) => {
-    const facebookPageIds = JSON.parse(data).pageIds;
+  const account = await models.Accounts.getAccount({ _id: accountId });
 
-    const account = await models.Accounts.getAccount({ _id: accountId });
+  const integration = await models.Integrations.create({
+    kind,
+    accountId,
+    erxesApiId: integrationId,
+    facebookPageIds
+  });
 
-    const integration = await models.Integrations.create({
-      kind,
-      accountId,
-      erxesApiId: integrationId,
-      facebookPageIds
-    });
+  const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
 
-    const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
-    const DOMAIN = getEnv({ name: 'DOMAIN' });
-
-    if (ENDPOINT_URL) {
-      // send domain to core endpoints
-      try {
-        await sendRequest({
-          url: `${ENDPOINT_URL}/register-endpoint`,
-          method: 'POST',
-          body: {
-            domain: DOMAIN,
-            facebookPageIds,
-            fbPageIds: facebookPageIds
-          }
-        });
-      } catch (e) {
-        await models.Integrations.deleteOne({ _id: integration._id });
-        throw e;
-      }
-    }
-
-    const facebookPageTokensMap: { [key: string]: string } = {};
-
-    for (const pageId of facebookPageIds) {
-      try {
-        const pageAccessToken = await getPageAccessToken(pageId, account.token);
-
-        facebookPageTokensMap[pageId] = pageAccessToken;
-
-        try {
-          await subscribePage(pageId, pageAccessToken);
-          debugFacebook(`Successfully subscribed page ${pageId}`);
-        } catch (e) {
-          debugError(
-            `Error ocurred while trying to subscribe page ${e.message || e}`
-          );
-          throw e;
+  if (ENDPOINT_URL) {
+    // send domain to core endpoints
+    try {
+      await sendRequest({
+        url: `${ENDPOINT_URL}/register-endpoint`,
+        method: 'POST',
+        body: {
+          domain: `${DOMAIN}/gateway/pl:integrations`,
+          facebookPageIds,
+          fbPageIds: facebookPageIds
         }
+      });
+    } catch (e) {
+      await models.Integrations.deleteOne({ _id: integration._id });
+      throw e;
+    }
+  }
+
+  const facebookPageTokensMap: { [key: string]: string } = {};
+
+  for (const pageId of facebookPageIds) {
+    try {
+      const pageAccessToken = await getPageAccessToken(pageId, account.token);
+
+      facebookPageTokensMap[pageId] = pageAccessToken;
+
+      try {
+        await subscribePage(pageId, pageAccessToken);
+        debugFacebook(`Successfully subscribed page ${pageId}`);
       } catch (e) {
         debugError(
-          `Error ocurred while trying to get page access token with ${e.message ||
-            e}`
+          `Error ocurred while trying to subscribe page ${e.message || e}`
         );
-
-        throw e
+        throw e;
       }
+    } catch (e) {
+      debugError(
+        `Error ocurred while trying to get page access token with ${e.message ||
+          e}`
+      );
+
+      throw e;
     }
+  }
 
-    integration.facebookPageTokensMap = facebookPageTokensMap;
+  integration.facebookPageTokensMap = facebookPageTokensMap;
 
-    await integration.save();
+  await integration.save();
 
-    return { status: 'success' };
+  return { status: 'success' };
 };
 
-export const facebookGetCustomerPosts = async (models: IModels, { customerId }) => {
+export const facebookGetCustomerPosts = async (
+  models: IModels,
+  { customerId }
+) => {
   const customer = await models.FbCustomers.findOne({ erxesApiId: customerId });
 
   if (!customer) {
@@ -122,8 +123,7 @@ export const facebookGetCustomerPosts = async (models: IModels, { customerId }) 
   const conversationIds = result.map(conv => conv.conversationId);
 
   return conversationIds;
-}
-
+};
 
 const init = async app => {
   app.get('/fblogin', loginMiddleware);
@@ -170,7 +170,10 @@ const init = async app => {
   const accessTokensByPageId = {};
 
   const getAdapter = async (models: IModels): Promise<any> => {
-    const FACEBOOK_VERIFY_TOKEN = await getConfig(models, 'FACEBOOK_VERIFY_TOKEN');
+    const FACEBOOK_VERIFY_TOKEN = await getConfig(
+      models,
+      'FACEBOOK_VERIFY_TOKEN'
+    );
     const FACEBOOK_APP_SECRET = await getConfig(models, 'FACEBOOK_APP_SECRET');
 
     if (!FACEBOOK_VERIFY_TOKEN || !FACEBOOK_APP_SECRET) {
@@ -190,7 +193,10 @@ const init = async app => {
   app.get('/facebook/receive', async (req, res) => {
     const models = await generateModels('os');
 
-    const FACEBOOK_VERIFY_TOKEN = await getConfig(models, 'FACEBOOK_VERIFY_TOKEN');
+    const FACEBOOK_VERIFY_TOKEN = await getConfig(
+      models,
+      'FACEBOOK_VERIFY_TOKEN'
+    );
 
     // when the endpoint is registered as a webhook, it must echo back
     // the 'hub.challenge' value it receives in the query arguments
