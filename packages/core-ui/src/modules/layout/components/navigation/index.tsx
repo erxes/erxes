@@ -13,7 +13,7 @@ import {
   SubNavItem,
   MoreMenuWrapper,
   MoreSearch,
-  MoreItemRecent,
+  // MoreItemRecent,
   MoreMenus,
   MoreTitle,
   NavMenuItem,
@@ -23,15 +23,16 @@ import {
   DropSubNav,
   DropSubNavItem,
   Center,
-  RoundBox,
+  // RoundBox,
   BottomMenu,
-} from "../styles";
+} from "../../styles";
 import { getThemeItem } from "utils";
 import Icon from "modules/common/components/Icon";
 import FormControl from "modules/common/components/form/Control";
 import Label from "modules/common/components/Label";
 import { isEnabled } from "@erxes/ui/src/utils/core";
-import Tip from "modules/common/components/Tip";
+// import Tip from "modules/common/components/Tip";
+import MenuItem from "./menuItem";
 
 export interface ISubNav {
   permission: string;
@@ -197,7 +198,7 @@ class Navigation extends React.Component<Props, State> {
     );
   }
 
-  renderNavHandleIcon() {
+  renderChangeNavTypeIcon() {
     switch (this.props.navCollapse) {
       case 1:
         return this.renderHandleIcon("plus");
@@ -338,107 +339,117 @@ class Navigation extends React.Component<Props, State> {
     );
   }
 
-  renderNavItem = (
-    permission: string,
-    text: string,
-    url: string,
-    icon?: string,
-    name?: string,
-    childrens?: ISubNav[],
-    label?: React.ReactNode,
-    isMoreItem?: boolean,
-    isPinned?: boolean
-  ) => {
-    const { navCollapse } = this.props;
-    const { countOfPinnedNavigation, pinnedNavigations } = this.state;
+  // renderNavItem = (
+  //   permission: string,
+  //   text: string,
+  //   url: string,
+  //   icon?: string,
+  //   name?: string,
+  //   childrens?: ISubNav[],
+  //   label?: React.ReactNode,
+  //   isMoreItem?: boolean,
+  //   isPinned?: boolean
+  // ) => {
+  //   const { navCollapse } = this.props;
+  //   const { countOfPinnedNavigation, pinnedNavigations } = this.state;
 
-    const hasChild =
-      childrens &&
-      childrens.find((child) =>
-        child.scope === "cards"
-          ? child.text.toLowerCase().includes(text.toLowerCase())
-          : text.toLowerCase().includes(child.scope)
-      );
+  //   const hasChild =
+  //     childrens &&
+  //     childrens.find((child) =>
+  //       child.scope === "cards"
+  //         ? child.text.toLowerCase().includes(text.toLowerCase())
+  //         : text.toLowerCase().includes(child.scope)
+  //     );
 
-    const onClickPin = () =>
-      !isPinned
-        ? this.onClickPin(
-            pluginNavigations().find((plugin) => plugin.text === text)
-          )
-        : this.unPin(text);
+  //   const onClickPin = () =>
+  //     !isPinned
+  //       ? this.onClickPin(
+  //           pluginNavigations().find((plugin) => plugin.text === text)
+  //         )
+  //       : this.unPin(text);
 
-    const limitExceeded = pinnedNavigations.length >= countOfPinnedNavigation;
-    const showPin = limitExceeded ? (isPinned ? true : false) : true;
+  //   const limitExceeded = pinnedNavigations.length >= countOfPinnedNavigation;
+  //   const showPin = limitExceeded ? (isPinned ? true : false) : true;
 
-    const item = (
-      <div ref={this.setWrapperRef}>
-        <NavItem isMoreItem={isMoreItem}>
-          {this.renderMenuItem({
-            icon,
-            url,
-            text,
-            label,
-            isMoreItem,
-          })}
+  //   const item = (
+  //     <div ref={this.setWrapperRef}>
+  //       <NavItem isMoreItem={isMoreItem}>
+  //         {this.renderMenuItem({
+  //           icon,
+  //           url,
+  //           text,
+  //           label,
+  //           isMoreItem,
+  //         })}
 
-          {isMoreItem && showPin && (
-            <Tip
-              placement="top"
-              text={isPinned ? __("Unpin plugin") : __("Pin plugin")}
-            >
-              <RoundBox pinned={isPinned} onClick={onClickPin}>
-                <img src="/images/pin.svg" alt="pin" />
-              </RoundBox>
-            </Tip>
-          )}
+  //         {isMoreItem && showPin && (
+  //           <Tip
+  //             placement="top"
+  //             text={isPinned ? __("Unpin plugin") : __("Pin plugin")}
+  //           >
+  //             <RoundBox pinned={isPinned} onClick={onClickPin}>
+  //               <img src="/images/pin.svg" alt="pin" />
+  //             </RoundBox>
+  //           </Tip>
+  //         )}
 
-          {!isMoreItem &&
-            hasChild &&
-            this.renderChildren(url, text, childrens, name, navCollapse)}
-        </NavItem>
-      </div>
-    );
+  //         {!isMoreItem &&
+  //           hasChild &&
+  //           this.renderChildren(url, text, childrens, name, navCollapse)}
+  //       </NavItem>
+  //     </div>
+  //   );
 
-    if (
-      (!isMoreItem && !hasChild) ||
-      ((!childrens || childrens.length === 0) && !isMoreItem)
-    ) {
-      return (
-        <WithPermission key={url} action={permission}>
-          <Tip placement="right" key={Math.random()} text={__(text)}>
-            {item}
-          </Tip>
-        </WithPermission>
-      );
-    }
+  //   if (
+  //     (!isMoreItem && !hasChild) ||
+  //     ((!childrens || childrens.length === 0) && !isMoreItem)
+  //   ) {
+  //     return (
+  //       <WithPermission key={url} action={permission}>
+  //         <Tip placement="right" key={Math.random()} text={__(text)}>
+  //           {item}
+  //         </Tip>
+  //       </WithPermission>
+  //     );
+  //   }
 
-    return (
-      <WithPermission key={url} action={permission}>
-        {!isMoreItem ? item : <MoreItemRecent>{item}</MoreItemRecent>}
-      </WithPermission>
-    );
-  };
+  //   return (
+  //     <WithPermission key={url} action={permission}>
+  //       {!isMoreItem ? item : <MoreItemRecent>{item}</MoreItemRecent>}
+  //     </WithPermission>
+  //   );
+  // };
 
   renderMorePlugins = () => {
-    const { showMenu, moreMenus, clickedMenu, pinnedNavigations } = this.state;
+    const {
+      showMenu,
+      moreMenus,
+      clickedMenu,
+      pinnedNavigations,
+      countOfPinnedNavigation,
+    } = this.state;
+    const { navCollapse } = this.props;
 
     const renderPlugin = (title: string, plugins: any, isPinned: boolean) => (
       <>
         <MoreTitle>{__(title)}</MoreTitle>
         <MoreMenus>
-          {plugins.map((menu) =>
-            this.renderNavItem(
-              menu.permission,
-              menu.text,
-              menu.url,
-              menu.icon,
-              "",
-              [],
-              "",
-              true,
-              isPinned
-            )
-          )}
+          {plugins.map((menu) => (
+            <MenuItem
+              navCollapse={navCollapse}
+              permission={menu.permission}
+              pinnedNavigations={pinnedNavigations}
+              countOfPinnedNavigation={countOfPinnedNavigation}
+              text={menu.text}
+              url={menu.url}
+              icon={menu.icon}
+              name={""}
+              childrens={[]}
+              label={""}
+              isMoreItem={true}
+              isPinned={isPinned}
+            />
+          ))}
         </MoreMenus>
       </>
     );
@@ -511,14 +522,14 @@ class Navigation extends React.Component<Props, State> {
 
   render() {
     const { countOfPinnedNavigation, pinnedNavigations } = this.state;
+    const { navCollapse } = this.props;
 
     const Navs =
       pinnedNavigations.length === 0
         ? pluginNavigations().slice(0, countOfPinnedNavigation)
         : pinnedNavigations;
 
-    const logo =
-      this.props.navCollapse === 1 ? "glyph_dark.png" : "logo-dark.png";
+    const logo = navCollapse === 1 ? "glyph_dark.png" : "logo-dark.png";
     const thLogo = getThemeItem("logo");
 
     return (
@@ -530,23 +541,27 @@ class Navigation extends React.Component<Props, State> {
           />
         </NavLink>
 
-        <FlexBox navCollapse={this.props.navCollapse}>
-          {this.renderNavHandleIcon()}
+        <FlexBox navCollapse={navCollapse}>
+          {this.renderChangeNavTypeIcon()}
         </FlexBox>
 
         <Nav id="navigation">
-          {Navs.map((nav) =>
-            this.renderNavItem(
-              nav.permission,
-              nav.text,
-              nav.url,
-              nav.icon,
-              nav.name || "",
-              nav.childrens || [],
-              nav.label,
-              false
-            )
-          )}
+          {Navs.map((nav) => (
+            <MenuItem
+              navCollapse={navCollapse}
+              permission={nav.permission}
+              pinnedNavigations={pinnedNavigations}
+              countOfPinnedNavigation={countOfPinnedNavigation}
+              text={nav.text}
+              url={nav.url}
+              icon={nav.icon}
+              name={nav.name || ""}
+              childrens={nav.childrens || []}
+              label={nav.label}
+              isMoreItem={false}
+              isPinned={false}
+            />
+          ))}
 
           {this.renderMore()}
 
