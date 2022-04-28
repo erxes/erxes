@@ -165,6 +165,11 @@ const ButtonGroup = styledTS<{ hasGap: boolean }>(styled.div)`
     `};
 `;
 
+const Img = styled.img `
+  height: 16px;
+  margin-right: 5px;
+`;
+
 export type ButtonProps = {
   children?: React.ReactNode;
   className?: string;
@@ -182,6 +187,7 @@ export type ButtonProps = {
   id?: string;
   uppercase?: boolean;
   target?: string;
+  img?: string;
 };
 
 export default class Button extends React.Component<ButtonProps> {
@@ -197,7 +203,7 @@ export default class Button extends React.Component<ButtonProps> {
 
   render() {
     const { size, ...sizeExcluded } = this.props;
-    const { href, children, ignoreTrans, icon } = sizeExcluded;
+    const { href, children, ignoreTrans, icon, img } = sizeExcluded;
     const props = { ...sizeExcluded, hugeness: size };
 
     // TODO: fix
@@ -214,6 +220,15 @@ export default class Button extends React.Component<ButtonProps> {
       return (
         <Element {...props}>
           <Icon icon={icon} />
+          {content && <span>{content}</span>}
+        </Element>
+      );
+    }
+
+    if (img) {
+      return (
+        <Element {...props}>
+          <Img src={img} alt="img" />
           {content && <span>{content}</span>}
         </Element>
       );

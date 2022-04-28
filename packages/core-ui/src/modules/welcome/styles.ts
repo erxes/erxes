@@ -7,12 +7,17 @@ const Header = styled.div`
   h1 {
     margin: 20px 0 5px;
     font-size: 24px;
+    font-weight: 900;
   }
 
   p {
     margin: 0;
     font-size: 14px;
     color: ${colors.colorCoreGray};
+
+    ul {
+      padding-inline-start: 20px;
+    }
   }
 `;
 
@@ -25,6 +30,7 @@ const BoxedStep = styled.div`
   border: 1px solid ${colors.borderPrimary};
   border-radius: ${dimensions.unitSpacing}px;
   padding: ${dimensions.unitSpacing}px;
+  margin-bottom: ${dimensions.coreSpacing}px;
 `;  
 
 const BoxHeader = styled.div`
@@ -33,9 +39,9 @@ const BoxHeader = styled.div`
     font-weight: 700;
     margin: ${dimensions.unitSpacing / 2}px 0;
   }
-  color: ${colors.colorCoreGray}
+  color: ${colors.colorCoreGray};
   align-items: center;
-  margin: ${dimensions.coreSpacing}px;
+  margin: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -64,14 +70,19 @@ const Boxes = styled.div`
   }
 `;
 
-const Card = styledTS<{backgroundImage: string}>(styled.div)`
+const Card = styledTS<{background: string}>(styled.div)`
   border-radius: ${dimensions.unitSpacing}px;
   border: 1px solid ${colors.borderPrimary};
   margin: ${dimensions.coreSpacing}px 0;
-  background-image: url("https://i.stack.imgur.com/90nGa.jpg");
-  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing * 2}px;
-
-  ${Header} {
+  background: ${props => props.background};
+  padding: ${dimensions.coreSpacing * 2}px ${dimensions.coreSpacing * 2}px;
+  color: white;
+  
+  h4 {
+    margin: 0 0 10px;
+    font-weight: 700;
+  }
+  p {
     max-width: 400px;
   }
 `;

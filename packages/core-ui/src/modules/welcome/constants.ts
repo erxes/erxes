@@ -2,35 +2,31 @@ export const WELCOME = [
   {
     title: 'Setup Process',
     key: 'setup',
-    image: '/images/actions/23.svg',
+    image: '/images/usingGuide.png',
   },
   {
     title: 'Documentation',
     key: 'documentation',
-    image: '/images/actions/21.svg',
+    image: '/images/documentation.svg',
     description: 'Resources for developers'
   },
   {
     title: 'Using Guide',
     key: 'usingGuide',
-    image: '/images/actions/21.svg',
+    image: '/images/usingGuide.png',
     description: 'Features guides for the core expes platform and native plugins'
   },
-  // {
-  //   title: 'Join our community',
-  //   key: 'community',
-  //   description: 'Discuss with team member, contributors and developers on different channels'
-  // }
 ];
 
 export const CARDS = [
   {
-    title: 'Market Place',
+    title: 'MARKETPLACE',
     key: 'market',
     desc: 'Looking for plugins outside the scope of your development team? Visit our marketplace to learn more',
     button: 'Go to market place',
     icon: 'store',
-    background: 'file:///home/ariuka/Downloads/spectrum-gradient.svg'
+    background: '#4F33AF',
+    img: '/images/shootingStars.png'
   },
   {
     title: 'Onboarding optimized for you',
@@ -38,6 +34,7 @@ export const CARDS = [
     desc: 'Contact us to start the onboarding process',
     button: 'Request',
     icon: 'arrow-right',
-    background: 'https://i.stack.imgur.com/90nGa.jpg'
+    img: '/images/astronaut.png',
+    background: 'linear-gradient(0deg, #F883AF -30.54%, #F47FB0 -18.64%, #E772B4 -4.1%, #D25DBB 9.12%, #B53FC4 22.34%, #941ECE 35.56%, #2A1E81 99.02%)'
   }
 ]

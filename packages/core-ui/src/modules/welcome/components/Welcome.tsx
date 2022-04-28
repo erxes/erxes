@@ -11,6 +11,7 @@ import {
   Boxes,
   Card,
   Header,
+  ImageWrapper
 } from "../styles";
 import Box from "@erxes/ui/src/components/Box";
 import Icon from "@erxes/ui/src/components/Icon";
@@ -37,7 +38,6 @@ function Welcome({ currentUser }: Props) {
           {__(
             "Enjoy a frictionless development experience and expand upon the erxes platform without modifying the core platform"
           )}
-          <br />
           <ul>
             <li>
               {__("Free and fair code licensed experience operating system")}
@@ -117,12 +117,12 @@ function Welcome({ currentUser }: Props) {
         link: "https://github.com/erxes/erxes",
         icon: "github-circled",
       },
-      { name: "Discord", link: "", icon: "" },
+      { name: "Discord", link: "", image: "/images/discord.png" },
       { name: "Youtube", link: "", icon: "youtube-play" },
-      { name: "Figma", link: "", icon: "" },
+      { name: "Figma", link: "", image: "/images/figma.png" },
       { name: "Twitter", link: "", icon: "twitter" },
       { name: "Facebook", link: "", icon: "facebook-official" },
-      { name: "Blog", link: "", icon: "" },
+      { name: "Blog", link: "", image: "/images/glyph_dark.png" },
     ];
     return (
       <BoxedStep>
@@ -131,13 +131,15 @@ function Welcome({ currentUser }: Props) {
           "",
           "Discuss with team member, contributors and developers on different channels"
         )}
-        <WidgetBackgrounds>
-          {community.map((com) => (
-            <Button href={com.link} btnStyle="simple" icon={com.icon}>
-              {com.name}
-            </Button>
-          ))}
-        </WidgetBackgrounds>
+        <BoxHeader>
+          <WidgetBackgrounds>
+            {community.map((com) => (
+              <Button href={com.link} btnStyle="simple" icon={com.icon} img={com.image}>
+                {com.name}
+              </Button>
+            ))}
+          </WidgetBackgrounds>
+        </BoxHeader>
       </BoxedStep>
     );
   };
@@ -148,20 +150,22 @@ function Welcome({ currentUser }: Props) {
     title: string,
     desc: string,
     button: string,
-    icon: string
+    icon: string,
+    img: string
   ) => {
     return (
       <>
-        <Card backgroundImage={background}>
-          <Header>
-            <h1>{title}</h1>
-            <p>{desc}</p>
-          </Header>
+        <Card background={background}>
+          <h4>{title}</h4>
+          <p>{desc}</p>
           <br />
           <Button size="large">
             {button}
             <Icon icon={icon} />
           </Button>
+          <ImageWrapper>
+            <img src={img} alt="hello" class="market"/>
+          </ImageWrapper>
         </Card>
         {key === "market" && renderCommunity()}
       </>
@@ -186,7 +190,8 @@ function Welcome({ currentUser }: Props) {
           card.title,
           card.desc,
           card.button,
-          card.icon
+          card.icon,
+          card.img
         )
       )}
     </>
