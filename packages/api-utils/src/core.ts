@@ -317,7 +317,8 @@ export const doSearch = async ({
   return results;
 };
 
-export const getSubdomain = (hostname: string): string => {
+export const getSubdomain = (req): string => {
+  const hostname = req.headers.hostname || req.hostname;
   return hostname.replace(/(^\w+:|^)\/\//, "").split(".")[0];
 };
 

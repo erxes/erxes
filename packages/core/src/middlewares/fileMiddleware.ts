@@ -16,7 +16,7 @@ const DOMAIN = getEnv({ name: 'DOMAIN' });
 
 export const uploader = async (req: any, res, next) => {
 
-  const subdomain = getSubdomain(req.hostname);
+  const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
   const INTEGRATIONS_API_DOMAIN = `${DOMAIN}/gateway/pl:integrations`;
