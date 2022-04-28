@@ -49,7 +49,7 @@ const switchContentType = contentType => {
       changedContentType = `contacts:${contentType}`;
       break;
     case 'form_submission':
-      changedContentType = `form_submission:${contentType}`;
+      changedContentType = `forms:${contentType}`;
       break;
     case 'integration':
       changedContentType = `inbox:${contentType}`;
@@ -62,12 +62,12 @@ const switchContentType = contentType => {
       changedContentType = `engages:${contentType}`;
       break;
 
-    case 'user': 
-      changedContentType = `core:${contentType}`
+    case 'user':
+      changedContentType = `core:${contentType}`;
       break;
-      
-    case 'product': 
-      changedContentType = `products:${contentType}`
+
+    case 'product':
+      changedContentType = `products:${contentType}`;
       break;
   }
 
@@ -96,10 +96,13 @@ const command = async () => {
         condition.propertyType = switchContentType(condition.propertyType);
       }
 
-      updatedConditions.push(condition)
+      updatedConditions.push(condition);
     }
 
-    Segments.updateOne({ _id: doc._id }, { $set: { conditions: updatedConditions } });
+    Segments.updateOne(
+      { _id: doc._id },
+      { $set: { conditions: updatedConditions } }
+    );
   });
 
   await FieldGroups.find({}).forEach(doc => {
