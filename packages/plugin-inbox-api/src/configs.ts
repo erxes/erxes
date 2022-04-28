@@ -57,7 +57,7 @@ export default {
     logs: { providesActivityLog: true, consumers: logs }
   },
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req.hostname);
+    const subdomain = getSubdomain(req);
 
     const models = await generateModels(subdomain);
 
@@ -78,7 +78,7 @@ export default {
       routeErrorHandling(
         async (req, res) => {
           const { name, customerId, attributes } = req.body;
-          const subdomain = getSubdomain(req.hostname);
+          const subdomain = getSubdomain(req);
 
           const response =
             name === 'pageView'
@@ -100,7 +100,7 @@ export default {
       routeErrorHandling(
         async (req, res) => {
           const { args } = req.body;
-          const subdomain = getSubdomain(req.hostname);
+          const subdomain = getSubdomain(req);
 
           const response = await identifyCustomer(subdomain, args);
           return res.json(response);
@@ -113,7 +113,7 @@ export default {
       '/events-update-customer-property',
       routeErrorHandling(
         async (req, res) => {
-          const subdomain = getSubdomain(req.hostname);
+          const subdomain = getSubdomain(req);
 
           const response = await updateCustomerProperty(
             subdomain,

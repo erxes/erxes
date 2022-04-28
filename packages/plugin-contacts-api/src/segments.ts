@@ -14,7 +14,8 @@ export default {
     lead: 'Lead',
     customer: 'Customer',
     company: 'Company',
-    converstaion: 'Conversation'
+    conversation: 'Conversation',
+    form_submission: 'Form Submission'
   },
 
   associationTypes: async () => {
@@ -25,7 +26,8 @@ export default {
       'cards:deal',
       'cards:ticket',
       'cards:task',
-      'inbox:conversation'
+      'inbox:conversation',
+      'forms:form_submission'
     ];
 
     return { data: types, status: 'success' };
@@ -51,7 +53,7 @@ export default {
         term: {
           state: segment.contentType.replace('contacts:', '')
         }
-      }
+      };
     }
 
     return { data: { negative, positive }, status: 'success' };

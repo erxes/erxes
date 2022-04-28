@@ -5,6 +5,7 @@ import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import forms from './forms';
 
 export let mainDb;
 export let debug;
@@ -13,23 +14,26 @@ export let serviceDiscovery;
 export default {
   name: 'forms',
   permissions,
-  graphql: async (sd) => {
+  meta: {
+    forms
+  },
+  graphql: async sd => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
       resolvers: await resolvers(sd)
-    }
+    };
   },
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req.hostname);
+    const subdomain = getSubdomain(req);
     context.models = await generateModels(subdomain);
     context.subdomain = subdomain;
 
     return context;
   },
   onServerInit: async options => {
-    mainDb = options.db
+    mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
 

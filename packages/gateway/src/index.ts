@@ -13,7 +13,6 @@ import * as cookieParser from 'cookie-parser';
 import { loadSubscriptions } from './subscription';
 import { createGateway, IGatewayContext } from './gateway';
 import userMiddleware from './middlewares/userMiddleware';
-import * as db from './db';
 import pubsub from './subscription/pubsub';
 import { clearCache, getService, getServices, redis, setAfterMutations } from './redis';
 import { initBroker } from './messageBroker';
@@ -104,10 +103,6 @@ const {
   const httpServer = http.createServer(app);
 
   httpServer.on('close', () => {
-    try {
-      db.disconnect();
-    } catch (e) {}
-
     try {
       pubsub.close();
     } catch (e) {

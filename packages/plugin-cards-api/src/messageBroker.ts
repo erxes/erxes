@@ -143,6 +143,15 @@ export const initBroker = async cl => {
     };
   });
 
+  consumeRPCQueue('cards:deals.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Deals.findOne(data)
+    };
+  });
+
   consumeRPCQueue('cards:deals.generateAmounts', async productsData => {
     return { data: generateAmounts(productsData), status: 'success' };
   });
@@ -265,14 +274,14 @@ export const initBroker = async cl => {
     async ({ subdomain, data: { addedTypeIds, removedTypeIds, doc } }) => {
       const targetTypes = ['deal', 'task', 'ticket'];
       const targetRelTypes = ['company', 'customer'];
-  
+
       if (
         targetTypes.includes(doc.mainType) &&
         targetRelTypes.includes(doc.relType)
       ) {
         await publishHelper(subdomain, doc.mainType, doc.mainTypeId);
       }
-  
+
       if (
         targetTypes.includes(doc.relType) &&
         targetRelTypes.includes(doc.mainType)

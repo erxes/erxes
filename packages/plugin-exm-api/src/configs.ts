@@ -38,7 +38,7 @@ export default {
   hasSubscriptions: false,
   meta: {},
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req.hostname);
+    const subdomain = getSubdomain(req);
 
     context.dataloaders = {};
     context.docModifier = doc => doc;
