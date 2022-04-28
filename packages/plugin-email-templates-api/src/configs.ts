@@ -23,22 +23,22 @@ export let es: {
 export default {
   name: 'emailTemplates',
   permissions,
-  graphql: async (sd) => {
+  graphql: async sd => {
     serviceDiscovery = sd;
     return {
       typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd),
+      resolvers: await resolvers(sd)
     };
   },
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req.hostname);
+    const subdomain = getSubdomain(req);
 
     context.subdomain = subdomain;
     context.models = await generateModels(subdomain);
 
     return context;
   },
-  onServerInit: async (options) => {
+  onServerInit: async options => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);

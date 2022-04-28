@@ -10,7 +10,7 @@ const widgetsMiddleware = async (req, res) => {
 
   const domain = WIDGETS_DOMAIN || 'http://localhost:3200'
 
-  const subdomain = getSubdomain(req.hostname);
+  const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
   const script = await models.Scripts.findOne({ _id: req.query.id });
