@@ -1,13 +1,12 @@
-import { IConditionsRule } from '@erxes/ui/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IAttachment } from '@erxes/ui/src/types';
-import { QueryResponse } from '@erxes/ui/src/types';
-import { IEmailTemplate } from '@erxes/ui-settings/src/emailTemplates/types';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { ISegment, ISegmentCondition } from '@erxes/ui-segments/src/types';
-import { ITag } from '@erxes/ui/src/tags/types';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
-import { MutationVariables } from '@erxes/ui/src/types';
+import { IConditionsRule } from "@erxes/ui/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { IAttachment } from "@erxes/ui/src/types";
+import { QueryResponse } from "@erxes/ui/src/types";
+import { IBrand } from "@erxes/ui/src/brands/types";
+import { ISegment, ISegmentCondition } from "@erxes/ui-segments/src/types";
+import { ITag } from "@erxes/ui/src/tags/types";
+import { IIntegration } from "@erxes/ui-settings/src/integrations/types";
+import { MutationVariables } from "@erxes/ui/src/types";
 
 export type IEngageScheduleDate = {
   type: string;
@@ -15,7 +14,6 @@ export type IEngageScheduleDate = {
   day: string;
   dateTime: string;
 } | null;
-
 
 export interface IEngageMessenger {
   brandId: string;
@@ -83,6 +81,12 @@ export interface IEmailDelivery {
 
   fromUser: IUser;
   fromEmail: string;
+}
+
+export interface IEmailTemplate {
+  _id: string;
+  name: string;
+  content: string;
 }
 
 export interface IEngageMessageDoc {
@@ -196,6 +200,21 @@ export type EngageMessagesTotalCountQueryResponse = {
   engageMessagesTotalCount: number;
 } & QueryResponse;
 
+export type EmailTemplatesTotalCountQueryResponse = {
+  emailTemplatesTotalCount: number;
+};
+
+export type EmailTemplatesQueryResponse = {
+  fetchMore: (params: {
+    variables: { page: number };
+    updateQuery: (prev: any, fetchMoreResult: any) => void;
+  }) => void;
+  emailTemplates: IEmailTemplate[];
+  variables: { [key: string]: string | number };
+  loading: boolean;
+  refetch: () => void;
+};
+
 export type EngageMessageCounts = {
   all: number;
   auto: number;
@@ -219,7 +238,7 @@ export type TagAdd = (params: {
 
 export type IEmailFormProps = {
   onChange: (
-    name: 'email' | 'content' | 'fromUserId' | 'scheduleDate',
+    name: "email" | "content" | "fromUserId" | "scheduleDate",
     value?: IEngageEmail | IEngageScheduleDate | string
   ) => void;
   message?: string;

@@ -27,7 +27,7 @@ async function getConfiguredServices(): Promise<ServiceEndpointDefinition[]> {
     try {
       const service = await getService(serviceName);
 
-      if(!service.address) {
+      if (!service.address) {
         console.log(`${serviceName} has no address value`);
         continue;
       }
@@ -68,12 +68,18 @@ class CookieHeaderPassingDataSource extends RemoteGraphQLDataSource<
     }
 
     const setCookiesCombined = response.http?.headers.get("set-cookie");
+    const serverTimingHeader = response.http?.headers.get("server-timing");
+
+    if (serverTimingHeader) {
+      context.res.append("Server-Timing", serverTimingHeader);
+    }
 
     const setCookiesArr = splitCookiesString(setCookiesCombined);
 
     for (const setCookie of setCookiesArr || []) {
       context.res.append("Set-Cookie", setCookie);
     }
+
     return response;
   }
 

@@ -1,3 +1,4 @@
+import * as cors from 'cors';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
@@ -13,8 +14,6 @@ import {
 } from './events';
 import {
   generateModels,
-  models,
-  getSubdomain
 } from './connectionResolver';
 import logs from './logUtils';
 import tags from './tags';
@@ -22,6 +21,8 @@ import segments from './segments';
 import forms from './forms';
 import permissions from './permissions';
 import search from './search';
+import widgetsMiddleware from './middlewares/widgetsMiddleware';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -55,8 +56,10 @@ export default {
     search,
     logs: { providesActivityLog: true, consumers: logs }
   },
-  apolloServerContext: context => {
-    const subdomain = 'os';
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req.hostname);
+
+    const models = await generateModels(subdomain);
 
     context.models = models;
     context.dataLoaders = generateAllDataLoaders(models);
@@ -66,9 +69,8 @@ export default {
   },
   onServerInit: async options => {
     mainDb = options.db;
-    const app = options.app;
 
-    await generateModels('os');
+    const app = options.app;
 
     // events
     app.post(
@@ -122,6 +124,8 @@ export default {
         res => res.json({})
       )
     );
+
+    app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
 
     initBroker(options.messageBrokerClient);
 

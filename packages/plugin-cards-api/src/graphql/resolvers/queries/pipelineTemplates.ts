@@ -35,7 +35,7 @@ const pipelineTemplateQueries = {
    *  Pipeline template total count
    */
   pipelineTemplatesTotalCount(_root, _args, { models: { PipelineTemplates } }: IContext) {
-    return PipelineTemplates.find().countDocuments();
+    return PipelineTemplates.find().count();
   }
 };
 

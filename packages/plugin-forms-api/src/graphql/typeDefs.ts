@@ -21,17 +21,17 @@ const typeDefs = async serviceDiscovery => {
   return gql`
     scalar JSON
     scalar Date
-    
+
     ${types(isEnabled)}
     ${fieldsTypes}
     ${fieldsGroupsTypes}
-    
+
     extend type Query {
       ${queries}
       ${fieldsQueries}
       ${fieldsGroupsQueries}
     }
-    
+
     extend type Mutation {
       ${mutations}
       ${fieldsMutations}

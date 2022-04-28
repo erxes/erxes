@@ -1,15 +1,13 @@
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 
-// import { IActivityLogDocument } from '../../models/ActivityLogs';
-// import { collectPluginContent } from '../../pluginUtils';
 import { fetchActivityLogs, fetchLogs } from '../../utils';
 import {
-  // collectServiceItems,
   fetchService,
   getContentIds
 } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 import { serviceDiscovery } from '../../configs';
+import { IActivityLogDocument } from '../../models/ActivityLogs';
 
 export interface IListArgs {
   contentType: string;
@@ -29,37 +27,14 @@ const activityLogQueries = {
   /**
    * Get activity log list
    */
-  async activityLogs(_root, doc: IListArgs, { user, models }: IContext) {
+  async activityLogs(_root, doc: IListArgs, {  models, serverTiming }: IContext) {
     const { contentId, contentType, activityType } = doc;
-    const activities: any[] = [];
-
-    // const collectItems = (items: any, type?: string) => {
-    //   (items || []).map(item => {
-    //     let result: IActivityLogDocument = {} as any;
-
-    //     if (!type) {
-    //       result = item;
-    //     }
-
-    //     activities.push(result);
-    //   });
-    // };
-
-    // if (activityType && activityType.startsWith('plugin')) {
-    //   const pluginResponse = await collectPluginContent(
-    //     doc,
-    //     user,
-    //     activities,
-    //     collectItems
-    //   );
-
-    //   if (pluginResponse) {
-    //     activities = activities.concat(pluginResponse);
-    //   }
-    // }
+    const activities: IActivityLogDocument[] = [];
 
     if (activityType && activityType !== 'activity') {
       const serviceName = activityType.split(':')[0];
+
+      serverTiming.startTime(`collectecItems${serviceName}`);
 
       const result = await fetchService(
         serviceName,
@@ -69,6 +44,8 @@ const activityLogQueries = {
       );
 
       const { data } = result;
+
+      serverTiming.endTime(`collectecItems${serviceName}`);
 
       return data;
     }
@@ -83,12 +60,16 @@ const activityLogQueries = {
         const logs = meta.logs;
 
         if (logs.providesActivityLog) {
+          serverTiming.startTime(`collectItems${serviceName}`);
+
           const result = await fetchService(
             serviceName,
             'collectItems',
             { contentId, contentType },
             ''
           );
+
+          serverTiming.endTime(`collectItems${serviceName}`);
 
           const { data } = result;
 
@@ -99,6 +80,8 @@ const activityLogQueries = {
       }
     }
 
+    serverTiming.startTime(`activities`);
+
     activities.push(
       ...(await models.ActivityLogs.find({
         contentId
@@ -108,6 +91,8 @@ const activityLogQueries = {
     activities.sort((a, b) => {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
+
+    serverTiming.endTime(`activities`);
 
     return activities;
   },

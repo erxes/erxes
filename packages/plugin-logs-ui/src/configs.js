@@ -18,5 +18,15 @@ module.exports = {
       action: "",
       permissions: [],
     },
+    {
+      text: 'Email Deliveries',
+      to: '/settings/emailDelivery',
+      image: '/images/icons/erxes-27.png',
+      location: 'settings',
+      scope: 'logs',
+      component: './settings',
+      action: '',
+      permissions: []
+    }
   ],
 };

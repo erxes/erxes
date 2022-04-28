@@ -140,3 +140,10 @@ export const attachmentSchema = new Schema(
   },
   { _id: false }
 );
+
+export interface IEncryptionData {
+  algorithm: string;
+  iv: string;
+  encryptedData: string;
+  key: Buffer;
+}

@@ -19,6 +19,7 @@
     "apollo-link-http": "^1.5.16",
     "apollo-link-ws": "^1.0.8",
     "apollo-utilities": "^1.0.5",
+    "copy-text-to-clipboard": "^3.0.1",
     "dayjs": "1.8.15",
     "dotenv": "^10.0.0",
     "erxes-icon": "^1.2.1",
@@ -43,7 +44,7 @@
     "xss": "^1.0.3"
   },
   "scripts": {
-    "watch-plugins": "node commands/watch-plugins.js",
+    "generate-doterxes": "node commands/generate-doterxes.js",
     "start": "webpack serve --open --mode development",
     "generateVersion": "node commands/generateVersion.js",
     "build": "node commands/build.js",

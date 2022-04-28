@@ -1,11 +1,11 @@
 import * as AWS from 'aws-sdk';
 
 import { debugBase } from '../debuggers';
-import messageBroker from '../messageBroker';
+import messageBroker, { sendContactsMessage } from '../messageBroker';
 import { ISESConfig } from '../models/Configs';
 import { SES_DELIVERY_STATUSES } from '../constants';
-import { routeErrorHandling } from '../utils';
 import { generateModels, IModels } from '../connectionResolver';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export const getApi = async (models: IModels, type: string): Promise<any> => {
   const config: ISESConfig = await models.Configs.getSESConfigs();
@@ -27,7 +27,7 @@ export const getApi = async (models: IModels, type: string): Promise<any> => {
  * Receives notification from amazon simple notification service
  * And updates engage message status and stats
  */
-const handleMessage = async (models: IModels, message) => {
+const handleMessage = async (models: IModels, subdomain: string, message) => {
   let parsedMessage;
 
   try {
@@ -60,6 +60,7 @@ const handleMessage = async (models: IModels, message) => {
 
   const type = eventType.toLowerCase();
 
+  // change message destination after EmailDeliveries are migrated
   if (emailDeliveryId) {
     return messageBroker().sendMessage('engagesNotification', {
       action: 'transactionEmail',
@@ -92,59 +93,56 @@ const handleMessage = async (models: IModels, message) => {
     type === SES_DELIVERY_STATUSES.REJECT;
 
   if (rejected) {
-    await messageBroker().sendMessage('engagesNotification', {
-      action: 'setSubscribed',
-      data: { customerId: mailHeaders.customerId, status: type }
+    sendContactsMessage({
+      subdomain,
+      action: 'customers.setUnsubscribed',
+      isRPC: false,
+      data: { _id: mailHeaders.customerId, status: type }
     });
   }
 
   return true;
 };
 
-export const trackEngages = expressApp => {
-  expressApp.post(
-    `/service/engage/tracker`,
-    routeErrorHandling(async (req, res) => {
-      const chunks: any = [];
+// aws service middleware
+export const engageTracker = async (req, res) => {
+  const chunks: any = [];
 
-      const { subdomain } = req.body;
+  req.setEncoding('utf8');
+  
+  req.on('data', chunk => {
+    chunks.push(chunk);
+  });
 
-      const models = await generateModels(subdomain);
+  req.on('end', async () => {
+    const message = JSON.parse(chunks.join(''));
 
-      req.setEncoding('utf8');
+    debugBase(`receiving on tracker: ${message}`);
 
-      req.on('data', chunk => {
-        chunks.push(chunk);
-      });
+    const subdomain = getSubdomain(req.hostname);
+    const models = await generateModels(subdomain);
 
-      req.on('end', async () => {
-        const message = JSON.parse(chunks.join(''));
+    const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
 
-        debugBase(`receiving on tracker: ${message}`);
+    if (Type === 'SubscriptionConfirmation') {
+      await getApi(models, 'sns').then(api =>
+        api.confirmSubscription({ Token, TopicArn }).promise()
+      );
 
-        const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
+      return res.end('success');
+    }
 
-        if (Type === 'SubscriptionConfirmation') {
-          await getApi(models, 'sns').then(api =>
-            api.confirmSubscription({ Token, TopicArn }).promise()
-          );
+    if (
+      Message ===
+      'Successfully validated SNS topic for Amazon SES event publishing.'
+    ) {
+      res.end('success');
+    }
 
-          return res.end('success');
-        }
+    await handleMessage(models, subdomain, Message);
 
-        if (
-          Message ===
-          'Successfully validated SNS topic for Amazon SES event publishing.'
-        ) {
-          res.end('success');
-        }
-
-        await handleMessage(models, Message);
-
-        return res.end('success');
-      });
-    })
-  );
+    return res.end('success');
+  });
 };
 
 export const awsRequests = {

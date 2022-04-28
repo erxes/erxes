@@ -4,11 +4,8 @@ import {
   debugError,
   debugFacebook,
 } from '../debuggers';
-import Accounts from '../models/Accounts';
-import Integrations from '../models/Integrations';
 import { getConfig, getEnv, sendRequest } from '../utils';
 import loginMiddleware from './loginMiddleware';
-import { Comments, Customers, Posts } from './models';
 import receiveComment from './receiveComment';
 import receiveMessage from './receiveMessage';
 import receivePost from './receivePost';
@@ -19,14 +16,15 @@ import {
   getPageAccessTokenFromMap,
   subscribePage
 } from './utils';
+import { generateModels, IModels } from '../connectionResolver';
 
 
-export const facebookCreateIntegration = async ({ accountId, integrationId, data, kind }) => {
+export const facebookCreateIntegration = async (models: IModels, { accountId, integrationId, data, kind }) => {
     const facebookPageIds = JSON.parse(data).pageIds;
 
-    const account = await Accounts.getAccount({ _id: accountId });
+    const account = await models.Accounts.getAccount({ _id: accountId });
 
-    const integration = await Integrations.create({
+    const integration = await models.Integrations.create({
       kind,
       accountId,
       erxesApiId: integrationId,
@@ -49,7 +47,7 @@ export const facebookCreateIntegration = async ({ accountId, integrationId, data
           }
         });
       } catch (e) {
-        await Integrations.deleteOne({ _id: integration._id });
+        await models.Integrations.deleteOne({ _id: integration._id });
         throw e;
       }
     }
@@ -88,14 +86,14 @@ export const facebookCreateIntegration = async ({ accountId, integrationId, data
     return { status: 'success' };
 };
 
-export const facebookGetCustomerPosts = async ({ customerId }) => {
-  const customer = await Customers.findOne({ erxesApiId: customerId });
+export const facebookGetCustomerPosts = async (models: IModels, { customerId }) => {
+  const customer = await models.FbCustomers.findOne({ erxesApiId: customerId });
 
   if (!customer) {
     return null;
   }
 
-  const result = await Comments.aggregate([
+  const result = await models.FbComments.aggregate([
     { $match: { senderId: customer.userId } },
     {
       $lookup: {
@@ -135,9 +133,11 @@ const init = async app => {
       `Request to get post data with: ${JSON.stringify(req.query)}`
     );
 
+    const models = await generateModels('os');
+
     const { erxesApiId } = req.query;
 
-    const post = await Posts.getPost({ erxesApiId }, true);
+    const post = await models.FbPosts.getPost({ erxesApiId }, true);
 
     return res.json({
       ...post
@@ -145,9 +145,11 @@ const init = async app => {
   });
 
   app.get('/facebook/get-status', async (req, res) => {
+    const models = await generateModels('os');
+
     const { integrationId } = req.query;
 
-    const integration = await Integrations.findOne({
+    const integration = await models.Integrations.findOne({
       erxesApiId: integrationId
     });
 
@@ -167,9 +169,9 @@ const init = async app => {
 
   const accessTokensByPageId = {};
 
-  const getAdapter = async (): Promise<any> => {
-    const FACEBOOK_VERIFY_TOKEN = await getConfig('FACEBOOK_VERIFY_TOKEN');
-    const FACEBOOK_APP_SECRET = await getConfig('FACEBOOK_APP_SECRET');
+  const getAdapter = async (models: IModels): Promise<any> => {
+    const FACEBOOK_VERIFY_TOKEN = await getConfig(models, 'FACEBOOK_VERIFY_TOKEN');
+    const FACEBOOK_APP_SECRET = await getConfig(models, 'FACEBOOK_APP_SECRET');
 
     if (!FACEBOOK_VERIFY_TOKEN || !FACEBOOK_APP_SECRET) {
       return debugBase('Invalid facebook config');
@@ -186,7 +188,9 @@ const init = async app => {
 
   // Facebook endpoint verifier
   app.get('/facebook/receive', async (req, res) => {
-    const FACEBOOK_VERIFY_TOKEN = await getConfig('FACEBOOK_VERIFY_TOKEN');
+    const models = await generateModels('os');
+
+    const FACEBOOK_VERIFY_TOKEN = await getConfig(models, 'FACEBOOK_VERIFY_TOKEN');
 
     // when the endpoint is registered as a webhook, it must echo back
     // the 'hub.challenge' value it receives in the query arguments
@@ -200,13 +204,14 @@ const init = async app => {
   });
 
   app.post('/facebook/receive', async (req, res, next) => {
+    const models = await generateModels('os');
     const data = req.body;
 
     if (data.object !== 'page') {
       return;
     }
 
-    const adapter = await getAdapter();
+    const adapter = await getAdapter(models);
 
     for (const entry of data.entry) {
       // receive chat
@@ -223,14 +228,14 @@ const init = async app => {
 
             const pageId = activity.recipient.id;
 
-            const integration = await Integrations.getIntegration({
+            const integration = await models.Integrations.getIntegration({
               $and: [
                 { facebookPageIds: { $in: pageId } },
                 { kind: 'facebook-messenger' }
               ]
             });
 
-            await Accounts.getAccount({ _id: integration.accountId });
+            await models.Accounts.getAccount({ _id: integration.accountId });
 
             const { facebookPageTokensMap = {} } = integration;
 
@@ -246,7 +251,7 @@ const init = async app => {
               return next();
             }
 
-            await receiveMessage(activity);
+            await receiveMessage(models, activity);
 
             debugFacebook(
               `Successfully saved activity ${JSON.stringify(activity)}`
@@ -269,7 +274,7 @@ const init = async app => {
               `Received comment data ${JSON.stringify(event.value)}`
             );
             try {
-              await receiveComment(event.value, entry.id);
+              await receiveComment(models, event.value, entry.id);
               debugFacebook(
                 `Successfully saved  ${JSON.stringify(event.value)}`
               );
@@ -285,7 +290,7 @@ const init = async app => {
               debugFacebook(
                 `Received post data ${JSON.stringify(event.value)}`
               );
-              await receivePost(event.value, entry.id);
+              await receivePost(models, event.value, entry.id);
               debugFacebook(
                 `Successfully saved post ${JSON.stringify(event.value)}`
               );

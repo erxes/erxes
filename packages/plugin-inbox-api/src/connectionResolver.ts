@@ -42,6 +42,9 @@ import {
   loadClass as loadConversationClass
 } from './models/Conversations';
 import { IConversationDocument } from './models/definitions/conversations';
+import { IScriptModel } from './models/Scripts';
+import { IScriptDocument } from './models/definitions/scripts';
+import { loadClass as loadScriptClass } from './models/Scripts'
 
 export interface IModels {
   Channels: IChannelModel;
@@ -52,6 +55,7 @@ export interface IModels {
   MessengerApps: IMessengerAppModel;
   ConversationMessages: IMessageModel;
   Conversations: IConversationModel;
+  Scripts: IScriptModel
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -70,10 +74,6 @@ export const generateModels = async (
   loadClasses(mainDb, hostnameOrSubdomain);
 
   return models;
-};
-
-export const getSubdomain = (hostname: string): string => {
-  return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
 };
 
 export const loadClasses = (
@@ -114,6 +114,10 @@ export const loadClasses = (
     'conversations',
     loadConversationClass(models, subdomain)
   );
+  models.Scripts = db.model<IScriptDocument, IScriptModel>(
+    'scripts',
+    loadScriptClass(models, subdomain)
+  )
 
   return models;
 };

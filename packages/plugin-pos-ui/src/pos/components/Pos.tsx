@@ -16,27 +16,22 @@ import {
 } from '@erxes/ui/src';
 import { Content, LeftContent } from '../../styles';
 import { ControlWrapper, Indicator, StepWrapper } from '@erxes/ui/src/components/step/styles';
-import { IIntegration, IPos, IProductGroup } from '../../types';
+import { IPos, IProductGroup } from '../../types';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { Link } from 'react-router-dom';
-import { PLUGIN_URL } from '../../constants';
 import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types'
 
 type Props = {
-  integration?: IIntegration;
   pos?: IPos;
   loading?: boolean;
   isActionLoading: boolean;
   groups: IProductGroup[];
-  formIntegrations: IIntegration[];
   save: (params: any) => void;
   productCategories: IProductCategory[];
   branches: any[];
-  fieldsCombined: FieldsCombinedByType[];
 };
 
 type State = {
-  brand?: string;
   name?: string;
   description?: string;
   pos?: IPos;
@@ -57,7 +52,6 @@ class Pos extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const integration = props.integration || ({} as IIntegration);
     const pos = props.pos || ({} as IPos);
 
     const uiOptions = pos.uiOptions || {
@@ -73,7 +67,6 @@ class Pos extends React.Component<Props, State> {
     };
 
     this.state = {
-      brand: integration.brandId,
       pos,
       carousel: 'pos',
       groups: props.groups || [],
@@ -88,14 +81,10 @@ class Pos extends React.Component<Props, State> {
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { brand, pos, groups, uiOptions, ebarimtConfig, erkhetConfig, deliveryConfig } = this.state;
+    const { pos, groups, uiOptions, ebarimtConfig, erkhetConfig, deliveryConfig } = this.state;
 
     if (!pos.name) {
       return Alert.error('Enter POS name');
-    }
-
-    if (!brand) {
-      return Alert.error('Choose a Brand');
     }
 
     if (!pos.adminIds || !pos.adminIds.length) {
@@ -112,15 +101,12 @@ class Pos extends React.Component<Props, State> {
 
     let doc: any = {
       name: pos.name,
-      brandId: brand,
       description: pos.description,
       productDetails: pos.productDetails || [],
       groups,
       adminIds: pos.adminIds,
       cashierIds: pos.cashierIds,
       kioskMachine: pos.kioskMachine,
-      formSectionTitle: pos.formSectionTitle,
-      formIntegrationIds: pos.formIntegrationIds,
       uiOptions,
       ebarimtConfig,
       erkhetConfig,
@@ -206,7 +192,7 @@ class Pos extends React.Component<Props, State> {
     const SmallLoader = ButtonMutate.SmallLoader;
 
     const cancelButton = (
-      <Link to={`${PLUGIN_URL}/pos`}>
+      <Link to={`/pos`}>
         <Button btnStyle="simple" icon="times-circle">
           Cancel
         </Button>
@@ -232,10 +218,9 @@ class Pos extends React.Component<Props, State> {
 
   render() {
     const { pos, groups, currentMode, uiOptions } = this.state;
-    const { integration, formIntegrations, productCategories, branches, fieldsCombined } = this.props;
-    const brand = integration && integration.brand;
+    const { productCategories, branches } = this.props;
     const breadcrumb = [
-      { title: 'POS List', link: `${PLUGIN_URL}/pos` },
+      { title: 'POS List', link: `/pos` },
       { title: 'POS' }
     ];
 
@@ -256,9 +241,7 @@ class Pos extends React.Component<Props, State> {
                 <GeneralStep
                   onChange={this.onChange}
                   pos={pos}
-                  brand={brand}
                   currentMode={currentMode}
-                  formIntegrations={formIntegrations}
                   branches={branches}
                 />
               </Step>
@@ -318,13 +301,12 @@ class Pos extends React.Component<Props, State> {
                 <DeliveryConfig
                   onChange={this.onChange}
                   pos={pos}
-                  fieldsCombined={fieldsCombined}
                 />
               </Step>
             </Steps>
             <ControlWrapper>
               <Indicator>
-                {__('You are')} {integration ? 'editing' : 'creating'}{' '}
+                {__('You are')} {pos ? 'editing' : 'creating'}{' '}
                 <strong>{name}</strong> {__('pos')}
               </Indicator>
               {this.renderButtons()}

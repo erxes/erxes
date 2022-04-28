@@ -111,7 +111,7 @@ class GeneralSettings extends React.Component<Props, State> {
             breadcrumb={breadcrumb}
           />
         }
-        subHeader={<Header />}
+        mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
             left={<Title>{__('Ebarimt configs')}</Title>}

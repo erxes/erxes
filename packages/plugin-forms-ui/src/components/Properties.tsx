@@ -233,7 +233,7 @@ class Properties extends React.Component<
         header={
           <Wrapper.Header title={__(currentType)} breadcrumb={breadcrumb} />
         }
-        subHeader={headerDescription}
+        mainHead={headerDescription}
         leftSidebar={
           <Sidebar currentType={__(currentType)} services={services} />
         }

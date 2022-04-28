@@ -15,6 +15,7 @@ const client = new MongoClient(LOGS_MONGO_URL);
 let db: Db;
 
 let Logs: Collection<any>;
+let ActivityLogs: Collection<any>;
 
 const changeType = type => {
   let prefix = '';
@@ -87,6 +88,10 @@ const changeType = type => {
       break;
   }
 
+  if (!prefix) {
+    return type;
+  }
+
   return `${prefix}:${type}`;
 };
 
@@ -95,12 +100,70 @@ const command = async () => {
   db = client.db() as Db;
 
   Logs = db.collection('logs');
+  ActivityLogs = db.collection('activity_logs');
+  const limit = 1000;
 
-  await Logs.find({}).forEach(doc => {
-    const type = changeType(doc.type);
+  const logsSummary = await Logs.find({}).count();
 
-    Logs.updateOne({ _id: doc._id }, { $set: { type } });
-  });
+  let bulkOps: any[] = [];
+
+  for (let skip = 0; skip <= logsSummary; skip = skip + limit) {
+    const logs = await Logs.find({})
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+    for (const log of logs) {
+      const contentType = changeType(log.contentType);
+      if (contentType === log.contentType) {
+        continue;
+      }
+
+      bulkOps.push({
+        updateOne: {
+          filter: { _id: log._id },
+          update: { $set: { contentType } }
+        }
+      });
+    }
+
+    if (bulkOps.length) {
+      await Logs.bulkWrite(bulkOps);
+    }
+  }
+
+  if (bulkOps.length) {
+    await Logs.bulkWrite(bulkOps);
+  }
+
+  console.log(`Logs migrated ....`);
+
+  bulkOps = [];
+
+  const activitySummary = await ActivityLogs.find({}).count();
+
+  for (let skip = 0; skip <= activitySummary; skip = skip + limit) {
+    const logs = await ActivityLogs.find({})
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+    for (const log of logs) {
+      const contentType = changeType(log.contentType);
+      if (contentType === log.contentType) {
+        continue;
+      }
+
+      bulkOps.push({
+        updateOne: {
+          filter: { _id: log._id },
+          update: { $set: { contentType } }
+        }
+      });
+    }
+
+    if (bulkOps.length) {
+      await ActivityLogs.bulkWrite(bulkOps);
+    }
+  }
 
   console.log(`Process finished at: ${new Date()}`);
 

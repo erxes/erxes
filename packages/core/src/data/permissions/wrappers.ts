@@ -1,3 +1,4 @@
+import { IModels } from '../../connectionResolver';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { can } from './utils';
 
@@ -77,12 +78,12 @@ export const checkPermission = async (
 ) => {
   const oldMethod = cls[methodName];
 
-  cls[methodName] = async (root, args, context: { user: IUserDocument }) => {
-    const { user } = context;
+  cls[methodName] = async (root, args, context: { user: IUserDocument, models: IModels }) => {
+    const { user, models } = context;
 
     checkLogin(user);
 
-    const allowed = await can(actionName, user);
+    const allowed = await can(models, actionName, user);
 
     if (!allowed) {
       if (defaultValue) {

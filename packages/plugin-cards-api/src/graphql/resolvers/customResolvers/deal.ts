@@ -83,7 +83,9 @@ export const generateAmounts = (productsData) => {
 };
 
 export default {
-  async companies(deal: IDealDocument, _args, { subdomain }: IContext) {
+  async companies(deal: IDealDocument, _args, { subdomain, serverTiming }: IContext) {
+    serverTiming.startTime('resolver:companies');
+
     const companyIds = await sendCoreMessage({
       subdomain,
       action: "conformities.savedConformity",
@@ -104,13 +106,19 @@ export default {
       defaultValue: []
     });
 
-    return (activeCompanies || []).map((c) => ({
+    const response = (activeCompanies || []).map((c) => ({
       __typename: "Company",
       _id: c._id,
     }));
+
+    serverTiming.endTime('resolver:companies');
+    
+    return response;
   },
 
-  async customers(deal: IDealDocument, _args, { subdomain }: IContext) {
+  async customers(deal: IDealDocument, _args, { subdomain, serverTiming }: IContext) {
+    serverTiming.startTime('resolver:customers');
+
     const customerIds = await sendCoreMessage({
       subdomain,
       action: "conformities.savedConformity",
@@ -131,14 +139,24 @@ export default {
       defaultValue: [],
     });
 
-    return (activeCustomers || []).map((c) => ({
+    const response = (activeCustomers || []).map((c) => ({
       __typename: "Customer",
       _id: c._id,
     }));
+
+    serverTiming.endTime('resolver:customers');
+
+    return response;
   },
 
-  async products(deal: IDealDocument, _args, { subdomain }: IContext) {
-    return generateProducts(subdomain, deal.productsData);
+  async products(deal: IDealDocument, _args, { subdomain, serverTiming }: IContext) {
+    serverTiming.startTime('resolver:products');
+
+    const response = await generateProducts(subdomain, deal.productsData);
+
+    serverTiming.endTime('resolver:products');
+
+    return response;
   },
 
   amount(deal: IDealDocument) {
@@ -176,8 +194,10 @@ export default {
     return false;
   },
 
-  hasNotified(deal: IDealDocument, _args, { user, subdomain }: IContext) {
-    return sendNotificationsMessage({
+  async hasNotified(deal: IDealDocument, _args, { user, subdomain, serverTiming }: IContext) {
+    serverTiming.startTime('resolver:hasNotifiied');
+
+    const response = await sendNotificationsMessage({
       subdomain,
       action: "checkIfRead",
       data: {
@@ -185,6 +205,10 @@ export default {
         itemId: deal._id,
       },
     });
+
+    serverTiming.endTime('resolver:hasNotifiied');
+
+    return response;
   },
 
   labels(deal: IDealDocument, _args, { models }: IContext) {

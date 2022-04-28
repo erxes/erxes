@@ -46,24 +46,28 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeQueue('visitor:createOrUpdate', async ({ data, subdomain }) => {
+  consumeQueue('logs:visitor.createOrUpdate', async ({ data, subdomain }) => {
     const models = await generateModels(subdomain);
 
     await models.Visitors.createOrUpdateVisitorLog(data);
   });
 
   consumeQueue(
-    'visitor:convertRequest',
+    'logs:visitor.convertRequest',
     async ({ data: { visitorId }, subdomain }) => {
       const models = await generateModels(subdomain);
       const visitor = await models.Visitors.getVisitorLog(visitorId);
 
-      sendToApi('visitor:convertResponse', visitor);
+      await sendInboxMessage({
+        subdomain,
+        action: "visitor.convertResponse",
+        data: visitor
+      })
     }
   );
 
   consumeQueue(
-    'visitor:updateEntry',
+    'logs:visitor.updateEntry',
     async ({ data: { visitorId, location: browserInfo }, subdomain }) => {
       const models = await generateModels(subdomain);
 
@@ -75,7 +79,7 @@ export const initBroker = async cl => {
   );
 
   consumeQueue(
-    'visitor:removeEntry',
+    'logs:visitor.removeEntry',
     async ({ data: { visitorId }, subdomain }) => {
       const models = await generateModels(subdomain);
 
@@ -113,7 +117,7 @@ export const initBroker = async cl => {
   });
 
   consumeQueue(
-    'logs.activityLogs.updateMany',
+    'logs:activityLogs.updateMany',
     async ({ data: { query, modifier }, subdomain }) => {
       const models = await generateModels(subdomain);
 
@@ -124,7 +128,7 @@ export const initBroker = async cl => {
   );
 
   consumeQueue(
-    'logs.delete.old',
+    'logs:delete.old',
     async ({ data: { months = 1 }, subdomain }) => {
       const models = await generateModels(subdomain);
       const now = new Date();
@@ -142,7 +146,7 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
-    'logs.activityLogs.findMany',
+    'logs:activityLogs.findMany',
     async ({ data: { query, options }, subdomain }) => {
       const models = await generateModels(subdomain);
 
@@ -164,6 +168,30 @@ export const initBroker = async cl => {
       };
     }
   );
+
+    consumeRPCQueue(
+      'logs:emailDeliveries.create',
+      async ({ subdomain, data }) => {
+        const models = await generateModels(subdomain);
+
+        return {
+          status: 'success',
+          data: await models.EmailDeliveries.createEmailDelivery(data)
+        };
+      }
+    );
+
+    consumeRPCQueue(
+      'logs:emailDeliveries.find',
+      async ({ subdomain, data: { query } }) => {
+        const models = await generateModels(subdomain);
+
+        return {
+          status: 'success',
+          data: await models.EmailDeliveries.find(query).lean()
+        };
+      }
+    );
 };
 
 export const getDbSchemaLabels = async (serviceName: string, args) => {
@@ -224,6 +252,10 @@ export const getContentIds = async data => {
 
 export const sendCoreMessage = (args: ISendMessageArgs) => {
   return sendMessage({ serviceDiscovery, client, serviceName: "core", ...args });
+}
+
+export const sendInboxMessage = (args: ISendMessageArgs) => {
+  return sendMessage({ serviceDiscovery, client, serviceName: "inbox", ...args });
 }
 
 export const fetchService = async (

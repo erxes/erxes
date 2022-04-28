@@ -17,12 +17,13 @@ const responseTemplateMutations = {
   async responseTemplatesAdd(
     _root,
     doc: IResponseTemplate,
-    { user, docModifier, models }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
     const template = await models.ResponseTemplates.create(docModifier(doc));
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.RESPONSE_TEMPLATE,
         newData: doc,
@@ -40,13 +41,14 @@ const responseTemplateMutations = {
   async responseTemplatesEdit(
     _root,
     { _id, ...fields }: IResponseTemplatesEdit,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const template = await models.ResponseTemplates.getResponseTemplate(_id);
     const updated = await models.ResponseTemplates.updateResponseTemplate(_id, fields);
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.RESPONSE_TEMPLATE,
         object: template,
@@ -65,13 +67,14 @@ const responseTemplateMutations = {
   async responseTemplatesRemove(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const template = await models.ResponseTemplates.getResponseTemplate(_id);
     const removed = await models.ResponseTemplates.removeResponseTemplate(_id);
 
     await putDeleteLog(
       models,
+      subdomain,
       { type: MODULE_NAMES.RESPONSE_TEMPLATE, object: template },
       user
     );

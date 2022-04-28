@@ -2,7 +2,7 @@ import { Schema, Document } from 'mongoose';
 
 import { ruleSchema } from '@erxes/api-utils/src/definitions/common';
 import { field, schemaWrapper } from '@erxes/api-utils/src/definitions/utils';
-import { IRule } from "@packages/api-utils/src/types";
+import { IRule } from "@erxes/api-utils/src/types";
 import { MESSENGER_KINDS, CAMPAIGN_METHODS, CAMPAIGN_KINDS, SENT_AS_CHOICES } from '../../constants';
 
 interface IEmail {

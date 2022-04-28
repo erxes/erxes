@@ -97,6 +97,7 @@ class WithStages extends Component<WithStagesQueryProps> {
             stageLoadMap,
             itemMap,
             onDragEnd,
+            onDragStart,
             stageIds,
             scheduleStage,
             refetchStage,
@@ -104,7 +105,7 @@ class WithStages extends Component<WithStagesQueryProps> {
             onAddItem,
             onRemoveItem
           }) => (
-            <DragDropContext onDragEnd={onDragEnd}>
+            <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
               <Droppable
                 droppableId="pipeline"
                 type="STAGE"

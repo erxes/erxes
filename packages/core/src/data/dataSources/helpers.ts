@@ -1,11 +1,10 @@
 import { HTTPCache, RESTDataSource } from 'apollo-datasource-rest';
-import { getSubServiceDomain } from '../utils';
 
 export default class HelpersApi extends RESTDataSource {
   constructor() {
     super();
 
-    const HELPERS_DOMAIN = getSubServiceDomain({ name: 'HELPERS_DOMAIN' });
+    const HELPERS_DOMAIN = process.env.HELPERS_DOMAIN;
 
     this.baseURL = HELPERS_DOMAIN;
     this.httpCache = new HTTPCache();

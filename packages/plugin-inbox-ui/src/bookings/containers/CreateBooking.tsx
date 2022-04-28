@@ -1,5 +1,4 @@
 import React from "react";
-import { queries as templatesQuery } from "@erxes/ui-settings/src/emailTemplates/graphql";
 import { IRouterProps } from "@erxes/ui/src/types";
 import Booking from "../components/Booking";
 import * as compose from "lodash.flowright";
@@ -13,10 +12,6 @@ import {
 import { IBookingData } from "@erxes/ui-settings/src/integrations/types";
 import { Alert } from "@erxes/ui/src/utils";
 import { withRouter } from "react-router-dom";
-import {
-  EmailTemplatesQueryResponse,
-  EmailTemplatesTotalCountQueryResponse,
-} from "@erxes/ui-settings/src/emailTemplates/types";
 import { ILeadData } from "@erxes/ui-leads/src/types";
 import { queries } from "../graphql";
 import { queries as settingsQueries } from "@erxes/ui-settings/src/general/graphql";
@@ -30,8 +25,8 @@ type Props = {
 };
 
 type FinalProps = {
-  emailTemplatesQuery: EmailTemplatesQueryResponse;
-  emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
+  emailTemplatesQuery: any /*change type*/;
+  emailTemplatesTotalCountQuery: any /*change type*/;
   fieldsQuery: FieldsQueryResponse;
   configsQuery: ConfigsQueryResponse;
 } & Props &
@@ -115,22 +110,19 @@ class CreateBookingContainer extends React.Component<FinalProps, State> {
 }
 
 export default compose(
-  graphql(gql(templatesQuery.totalCount), {
+  graphql(gql(queries.templateTotalCount), {
     name: "emailTemplatesTotalCountQuery",
     skip: !isEnabled("engages") ? true : false,
   }),
-  graphql<FinalProps, EmailTemplatesQueryResponse>(
-    gql(templatesQuery.emailTemplates),
-    {
-      name: "emailTemplatesQuery",
-      options: ({ emailTemplatesTotalCountQuery }) => ({
-        variables: {
-          perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount,
-        },
-      }),
-      skip: !isEnabled("engages") ? true : false,
-    }
-  ),
+  graphql<FinalProps>(gql(queries.emailTemplates), {
+    name: "emailTemplatesQuery",
+    options: ({ emailTemplatesTotalCountQuery }) => ({
+      variables: {
+        perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount,
+      },
+    }),
+    skip: !isEnabled("engages") ? true : false,
+  }),
   graphql<
     {},
     AddBookingIntegrationMutationResponse,

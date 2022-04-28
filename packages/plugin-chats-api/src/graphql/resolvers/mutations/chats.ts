@@ -1,7 +1,5 @@
-// import { sendNotification } from 'erxes-api-utils';
 import { CHAT_TYPE, IChatMessage } from "../../../models/definitions/chat";
 import { graphqlPubsub } from "../../../configs";
-// import { sendMobileNotification } from '../../../utils';
 import { checkPermission } from "@erxes/api-utils/src/permissions";
 import { sendCoreMessage } from "../../../messageBroker";
 
@@ -23,6 +21,18 @@ const hasAdminLeft = (chat, userId) => {
   }
 };
 
+const strip_html = (string: any) => {
+  if (typeof string === "undefined" || string === null) {
+    return;
+  } else {
+    const regex = /(&nbsp;|<([^>]+)>)/gi;
+    var result = string.replace(regex, "");
+    result = result.replace(/&#[0-9][0-9][0-9][0-9];/gi, " ");
+    const cut = result.slice(0, 70);
+    return cut;
+  }
+};
+
 const chatMutations = {
   chatAdd: async (_root, { participantIds, ...doc }, { user, models }) => {
     const allParticipantIds =
@@ -39,19 +49,6 @@ const chatMutations = {
       user._id
     );
 
-    // sendNotification(models, memoryStorage, graphqlPubsub, {
-    //   notifType: 'plugin',
-    //   title: doc.name || doc.description,
-    //   content: doc.description,
-    //   action: `${doc.type} chat created`,
-    //   link: `/erxes-plugin-chat/home`,
-    //   createdUser: user,
-    //   // exclude current user
-    //   contentType: 'chat',
-    //   contentTypeId: chat._id,
-    //   receivers: allParticipantIds,
-    // });
-
     sendCoreMessage({
       subdomain: "os",
       action: "sendMobileNotification",
@@ -61,12 +58,6 @@ const chatMutations = {
         receivers: allParticipantIds,
       },
     });
-
-    // sendMobileNotification(coreModels, {
-    //   title: doc.title,
-    //   body: doc.description,
-    //   receivers: allParticipantIds,
-    // });
 
     graphqlPubsub.publish("chatInserted", {
       userId: user._id,
@@ -82,6 +73,7 @@ const chatMutations = {
   chatEdit: async (_root, { _id, ...doc }, { models, user }) => {
     return models.Chats.updateChat(_id, doc);
   },
+
   chatRemove: async (_root, { _id }, { models, user }) => {
     const chat = await models.Chats.findOne({ _id });
 
@@ -96,26 +88,138 @@ const chatMutations = {
     return models.Chats.removeChat(_id);
   },
 
+  chatMarkAsRead: async (_root, { _id }, { models, user }) => {
+    const lastMessage = await models.ChatMessages.findOne({ chatId: _id }).sort(
+      {
+        createdAt: -1,
+      }
+    );
+
+    let seen;
+
+    if (lastMessage) {
+      const chat = await models.Chats.getChat(_id);
+
+      const seenInfos = chat.seenInfos || [];
+
+      let seenInfo = seenInfos.find((info) => info.userId === user._id);
+
+      let updated = false;
+
+      if (!seenInfo) {
+        seenInfo = {
+          userId: user._id,
+          lastSeenMessageId: lastMessage._id,
+          seenDate: new Date(),
+        };
+
+        seenInfos.push(seenInfo);
+
+        updated = true;
+
+        seen = true;
+      } else {
+        const index = seenInfos.indexOf(seenInfo);
+        if (index > -1) {
+          seenInfos.splice(index, 1);
+        }
+
+        updated = true;
+
+        seen = false;
+
+        // if (seenInfo.lastSeenMessageId !== lastMessage._id) {
+        //   seenInfo.lastSeenMessageId = lastMessage._id;
+        //   seenInfo.seenDate = new Date();
+
+        //   updated = true;
+        // }
+      }
+
+      if (updated) {
+        graphqlPubsub.publish("chatUnreadCountChanged", {
+          userId: user._id,
+        });
+
+        await models.Chats.updateOne(
+          { _id: chat._id },
+          { $set: { seenInfos } }
+        );
+      }
+    }
+
+    return seen;
+  },
+
   chatMessageAdd: async (_root, args, { models, user }) => {
     if (!args.content) {
       throw new Error("Content is required");
     }
 
-    const created = await models.ChatMessages.createChatMessage(args, user._id);
+    const message = await models.ChatMessages.createChatMessage(args, user._id);
+
+    await models.Chats.updateOne(
+      { _id: message.chatId },
+      { $set: { updatedAt: new Date() } }
+    );
 
     graphqlPubsub.publish("chatMessageInserted", {
-      chatId: created.chatId,
+      chatMessageInserted: message,
     });
 
-    return created;
+    const chat = await models.Chats.getChat(message.chatId);
+
+    const recievers = chat.participantIds.filter((i) => i !== user._id);
+
+    if (args.mentionedUserIds) {
+      if (args.mentionedUserIds.includes("everyone")) {
+        sendCoreMessage({
+          subdomain: "os",
+          action: "sendMobileNotification",
+          data: {
+            title: `${user?.details?.fullName || user?.fullName} sent you chat`,
+            body: strip_html(args.content),
+            receivers: recievers,
+          },
+        });
+      } else {
+        sendCoreMessage({
+          subdomain: "os",
+          action: "sendMobileNotification",
+          data: {
+            title: `${user?.details?.fullName || user?.fullName} sent you chat`,
+            body: strip_html(args.content),
+            receivers: args.mentionedUserIds,
+          },
+        });
+      }
+    }
+
+    for (const reciever of recievers) {
+      graphqlPubsub.publish("chatUnreadCountChanged", {
+        userId: reciever,
+      });
+
+      graphqlPubsub.publish("chatInserted", {
+        userId: reciever,
+      });
+    }
+
+    return message;
   },
 
   chatMessageRemove: async (_root, { _id }, { models }) => {
-    return models.ChatMessages.removeChatMessage(_id);
+    const chat = models.ChatMessages.removeChatMessage(_id);
+
+    return chat;
   },
 
   chatMessageToggleIsPinned: async (_root, { _id }, { models }) => {
-    const message: IChatMessage = await models.ChatMessage.findOne({ _id });
+    const message = await models.ChatMessages.findOne({ _id });
+
+    graphqlPubsub.publish("chatMessageInserted", {
+      chatId: message.chatId,
+    });
 
     await models.ChatMessages.updateOne(
       { _id },
@@ -195,6 +299,7 @@ const chatMutations = {
 checkPermission(chatMutations, "chatAdd", "manageChats");
 checkPermission(chatMutations, "chatEdit", "manageChats");
 checkPermission(chatMutations, "chatRemove", "manageChats");
+checkPermission(chatMutations, "chatMarkAsRead", "manageChats");
 checkPermission(chatMutations, "chatMessageAdd", "manageChats");
 checkPermission(chatMutations, "chatMessageRemove", "manageChats");
 checkPermission(chatMutations, "chatMessageToggleIsPinned", "manageChats");

@@ -1,5 +1,5 @@
-import { Model, model } from 'mongoose';
-import { Users } from '.';
+import { Model } from 'mongoose';
+import { IModels } from '../../connectionResolver';
 import { actionsMap, IActionsMap } from '../../data/permissions/utils';
 import {
   IPermission,
@@ -35,7 +35,7 @@ export interface IUserGroupModel extends Model<IUserGroupDocument> {
   ): Promise<IUserGroupDocument>;
 }
 
-export const permissionLoadClass = () => {
+export const loadPermissionClass = (models: IModels) => {
   class Permission {
     /**
      * Create a permission
@@ -73,10 +73,10 @@ export const permissionLoadClass = () => {
           for (const userId of doc.userIds) {
             filter = { action, userId };
 
-            const entryObj = await Permissions.findOne(filter);
+            const entryObj = await models.Permissions.findOne(filter);
 
             if (!entryObj) {
-              const newEntry = await Permissions.create({ ...entry, userId });
+              const newEntry = await models.Permissions.create({ ...entry, userId });
               permissions.push(newEntry);
             }
           }
@@ -86,10 +86,10 @@ export const permissionLoadClass = () => {
           for (const groupId of doc.groupIds) {
             filter = { action, groupId };
 
-            const entryObj = await Permissions.findOne(filter);
+            const entryObj = await models.Permissions.findOne(filter);
 
             if (!entryObj) {
-              const newEntry = await Permissions.create({ ...entry, groupId });
+              const newEntry = await models.Permissions.create({ ...entry, groupId });
               permissions.push(newEntry);
             }
           }
@@ -105,7 +105,7 @@ export const permissionLoadClass = () => {
      * @return {Promise}
      */
     public static async removePermission(ids: string[]) {
-      const count = await Permissions.find({
+      const count = await models.Permissions.find({
         _id: { $in: ids }
       }).countDocuments();
 
@@ -113,11 +113,11 @@ export const permissionLoadClass = () => {
         throw new Error('Permission not found');
       }
 
-      return Permissions.deleteMany({ _id: { $in: ids } });
+      return models.Permissions.deleteMany({ _id: { $in: ids } });
     }
 
     public static async getPermission(id: string) {
-      const permission = await Permissions.findOne({ _id: id });
+      const permission = await models.Permissions.findOne({ _id: id });
 
       if (!permission) {
         throw new Error('Permission not found');
@@ -132,10 +132,10 @@ export const permissionLoadClass = () => {
   return permissionSchema;
 };
 
-export const userGroupLoadClass = () => {
+export const loadUserGroupClass = (models: IModels) => {
   class UserGroup {
     public static async getGroup(_id: string) {
-      const userGroup = await UsersGroups.findOne({ _id });
+      const userGroup = await models.UsersGroups.findOne({ _id });
 
       if (!userGroup) {
         throw new Error('User group not found');
@@ -148,9 +148,9 @@ export const userGroupLoadClass = () => {
      * Create a group
      */
     public static async createGroup(doc: IUserGroup, memberIds?: string[]) {
-      const group = await UsersGroups.create(doc);
+      const group = await models.UsersGroups.create(doc);
 
-      await Users.updateMany(
+      await models.Users.updateMany(
         { _id: { $in: memberIds || [] } },
         { $push: { groupIds: group._id } }
       );
@@ -167,20 +167,20 @@ export const userGroupLoadClass = () => {
       memberIds?: string[]
     ) {
       // remove groupId from old members
-      await Users.updateMany(
+      await models.Users.updateMany(
         { groupIds: { $in: [_id] } },
         { $pull: { groupIds: { $in: [_id] } } }
       );
 
-      await UsersGroups.updateOne({ _id }, { $set: doc });
+      await models.UsersGroups.updateOne({ _id }, { $set: doc });
 
       // add groupId to new members
-      await Users.updateMany(
+      await models.Users.updateMany(
         { _id: { $in: memberIds || [] } },
         { $push: { groupIds: _id } }
       );
 
-      return UsersGroups.findOne({ _id });
+      return models.UsersGroups.findOne({ _id });
     }
 
     /**
@@ -189,30 +189,30 @@ export const userGroupLoadClass = () => {
      * @return {Promise}
      */
     public static async removeGroup(_id: string) {
-      const groupObj = await UsersGroups.findOne({ _id });
+      const groupObj = await models.UsersGroups.findOne({ _id });
 
       if (!groupObj) {
         throw new Error(`Group not found with id ${_id}`);
       }
 
-      await Users.updateMany(
+      await models.Users.updateMany(
         { groupIds: { $in: [_id] } },
         { $pull: { groupIds: { $in: [_id] } } }
       );
 
-      await Permissions.deleteMany({ groupId: groupObj._id });
+      await models.Permissions.deleteMany({ groupId: groupObj._id });
 
       return groupObj.remove();
     }
 
     public static async copyGroup(sourceGroupId: string, memberIds?: string[]) {
-      const sourceGroup = await UsersGroups.getGroup(sourceGroupId);
+      const sourceGroup = await models.UsersGroups.getGroup(sourceGroupId);
 
-      const nameCount = await UsersGroups.countDocuments({
+      const nameCount = await models.UsersGroups.countDocuments({
         name: new RegExp(`${sourceGroup.name}`, 'i')
       });
 
-      const clone = await UsersGroups.createGroup(
+      const clone = await models.UsersGroups.createGroup(
         {
           name: `${sourceGroup.name}-copied-${nameCount}`,
           description: `${sourceGroup.description}-copied`
@@ -220,10 +220,10 @@ export const userGroupLoadClass = () => {
         memberIds
       );
 
-      const permissions = await Permissions.find({ groupId: sourceGroupId });
+      const permissions = await models.Permissions.find({ groupId: sourceGroupId });
 
       for (const perm of permissions) {
-        await Permissions.create({
+        await models.Permissions.create({
           groupId: clone._id,
           action: perm.action,
           module: perm.module,
@@ -240,18 +240,3 @@ export const userGroupLoadClass = () => {
 
   return userGroupSchema;
 };
-
-permissionLoadClass();
-userGroupLoadClass();
-
-// tslint:disable-next-line
-export const Permissions = model<IPermissionDocument, IPermissionModel>(
-  'permissions',
-  permissionSchema
-);
-
-// tslint:disable-next-line
-export const UsersGroups = model<IUserGroupDocument, IUserGroupModel>(
-  'user_groups',
-  userGroupSchema
-);

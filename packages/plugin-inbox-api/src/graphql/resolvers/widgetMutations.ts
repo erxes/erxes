@@ -29,13 +29,13 @@ import { solveSubmissions } from "../../widgetUtils";
 import { conversationNotifReceivers } from "./conversationMutations";
 import { IBrowserInfo } from "@erxes/api-utils/src/definitions/common";
 import {
-  sendToLog,
   client as msgBrokerClient,
   sendContactsMessage,
   sendProductsMessage,
   sendFormsMessage,
   sendCoreMessage,
-  sendIntegrationsMessage
+  sendIntegrationsMessage,
+  sendLogsMessage
 } from "../../messageBroker";
 import { trackViewPageEvent } from "../../events";
 import EditorAttributeUtil from "@erxes/api-utils/src/editorAttributeUtils";
@@ -150,7 +150,7 @@ export const getMessengerData = async (
 };
 
 const createVisitor = async (subdomain: string, visitorId: string) => {
-  return sendContactsMessage({
+  const customer = await sendContactsMessage({
     subdomain,
     action: "customers.createCustomer",
     data: {
@@ -159,6 +159,16 @@ const createVisitor = async (subdomain: string, visitorId: string) => {
     },
     isRPC: true
   });
+
+  await sendLogsMessage({
+    subdomain,
+    action: "visitor.convertRequest",
+    data: {
+      visitorId
+    }
+  })
+
+  return customer;
 };
 
 const createFormConversation = async (
@@ -311,8 +321,6 @@ const widgetMutations = {
       data: { code: args.formCode },
       isRPC: true
     });
-
-    console.log("form: ", form);
 
     if (!brand || !form) {
       throw new Error("Invalid configuration");
@@ -520,10 +528,14 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      sendToLog("visitor:createOrUpdate", {
-        visitorId,
-        integrationId: integration._id,
-        scopeBrandIds: [brand._id]
+      await sendLogsMessage({
+        subdomain,
+        action: 'visitor.createOrUpdate',
+        data: {
+          visitorId,
+          integrationId: integration._id,
+          scopeBrandIds: [brand._id]
+        }
       });
     }
 
@@ -973,7 +985,16 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      sendToLog("visitor:updateEntry", { visitorId, location: browserInfo });
+      await sendLogsMessage({
+        subdomain,
+        action: 'visitor.updateEntry',
+        data: {
+          data: {
+            visitorId,
+            location: browserInfo
+          }
+        }
+      });
     }
 
     try {
@@ -1034,7 +1055,7 @@ const widgetMutations = {
     if (customer && form) {
       const replacedContent = await new EditorAttributeUtil(
         msgBrokerClient,
-        `${process.env.MAIN_API_DOMAIN}/pl:core`,
+        `${process.env.DOMAIN}/gateway/pl:core`,
         await getServices()
       ).replaceAttributes({
         content,

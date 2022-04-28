@@ -1,5 +1,4 @@
-import { colors, dimensions, typography } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
+import { colors, dimensions } from 'modules/common/styles';
 import { DateContainer } from 'modules/common/styles/main';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';

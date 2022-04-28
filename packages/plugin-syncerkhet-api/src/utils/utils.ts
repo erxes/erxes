@@ -1,4 +1,5 @@
-import { sendCommonMessage, sendCoreMessage } from "../messageBroker";
+import { sendCoreMessage } from "../messageBroker";
+import { sendCommonMessage } from "../messageBrokerErkhet";
 
 export const toErkhet = (config, sendData, action) => {
   const postData = {

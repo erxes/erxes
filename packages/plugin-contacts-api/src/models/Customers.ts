@@ -96,7 +96,6 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   createVisitor(): Promise<string>;
   createCustomer(
     doc: ICustomer,
-    // user?: IUserDocument
     user?: any
   ): Promise<ICustomerDocument>;
   updateCustomer(_id: string, doc: ICustomer): Promise<ICustomerDocument>;
@@ -107,13 +106,11 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   mergeCustomers(
     customerIds: string[],
     customerFields: ICustomer,
-    // user?: IUserDocument
     user?: any
   ): Promise<ICustomerDocument>;
   bulkInsert(
     fieldNames: string[],
     fieldValues: string[][],
-    // user: IUserDocument
     user: any
   ): Promise<string[]>;
   calcPSS(doc: any): IPSS;

@@ -1,5 +1,5 @@
 import { ICustomer } from "../../models/definitions/customers";
-import messageBroker, { sendCoreMessage } from "../../messageBroker";
+import { sendCoreMessage, sendIntegrationsMessage } from "../../messageBroker";
 import { MODULE_NAMES } from "../../constants";
 import { putCreateLog, putDeleteLog, putUpdateLog } from "../../logUtils";
 import { checkPermission } from "@erxes/api-utils/src/permissions";
@@ -107,9 +107,13 @@ const customerMutations = {
 
     await models.Customers.removeCustomers(customerIds);
 
-    await messageBroker().sendMessage("erxes-api:integrations-notification", {
-      type: "removeCustomers",
-      customerIds,
+    await sendIntegrationsMessage({
+      subdomain,
+      action: 'notification',
+      data: {
+        type: 'removeCustomers',
+        customerIds
+      }
     });
 
     for (const customer of customers) {
@@ -121,13 +125,14 @@ const customerMutations = {
       );
 
       if (customer.mergedIds) {
-        await messageBroker().sendMessage(
-          "erxes-api:integrations-notification",
-          {
-            type: "removeCustomers",
-            customerIds: customer.mergedIds,
+        await sendIntegrationsMessage({
+          subdomain,
+          action: 'notification',
+          data: {
+            type: 'removeCustomers',
+            customerIds: customer.mergedIds
           }
-        );
+        });
       }
     }
 

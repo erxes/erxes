@@ -1,6 +1,5 @@
-import { Branches, Departments, Units, Users } from '../../../db/models';
+import { IContext, IModels } from '../../../connectionResolver';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
-import { IContext } from '../../types';
 import { paginate } from '../../utils';
 
 interface IListArgs {
@@ -21,7 +20,7 @@ interface IListArgs {
   unitId?: string;
 }
 
-const queryBuilder = async (params: IListArgs) => {
+const queryBuilder = async (models: IModels, params: IListArgs) => {
   const {
     searchValue,
     isActive,
@@ -78,19 +77,19 @@ const queryBuilder = async (params: IListArgs) => {
   };
 
   if (departmentId) {
-    const department = await Departments.getDepartment({ _id: departmentId });
+    const department = await models.Departments.getDepartment({ _id: departmentId });
 
     selector._id = getUserIds(department);
   }
 
   if (unitId) {
-    const unit = await Units.getUnit({ _id: unitId });
+    const unit = await models.Units.getUnit({ _id: unitId });
 
     selector._id = getUserIds(unit);
   }
 
   if (branchId) {
-    const branch = await Branches.getBranch({ _id: branchId });
+    const branch = await models.Branches.getBranch({ _id: branchId });
 
     selector._id = getUserIds(branch);
   }
@@ -102,8 +101,8 @@ const userQueries = {
   /**
    * Users list
    */
-  async users(_root, args: IListArgs, { userBrandIdsSelector }: IContext) {
-    const selector = { ...userBrandIdsSelector, ...(await queryBuilder(args)) };
+  async users(_root, args: IListArgs, { userBrandIdsSelector, models }: IContext) {
+    const selector = { ...userBrandIdsSelector, ...(await queryBuilder(models, args)) };
 
     const { sortField, sortDirection } = args;
 
@@ -112,7 +111,7 @@ const userQueries = {
         ? { [sortField]: sortDirection }
         : { username: 1 };
 
-    return paginate(Users.find(selector).sort(sort), args);
+    return paginate(models.Users.find(selector).sort(sort), args);
   },
 
   /**
@@ -121,7 +120,7 @@ const userQueries = {
   allUsers(
     _root,
     { isActive }: { isActive: boolean },
-    { userBrandIdsSelector }: IContext
+    { userBrandIdsSelector, models }: IContext
   ) {
     const selector: { isActive?: boolean } = userBrandIdsSelector;
 
@@ -129,14 +128,14 @@ const userQueries = {
       selector.isActive = true;
     }
 
-    return Users.find(selector).sort({ username: 1 });
+    return models.Users.find(selector).sort({ username: 1 });
   },
 
   /**
    * Get one user
    */
-  userDetail(_root, { _id }: { _id: string }) {
-    return Users.findOne({ _id });
+  userDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Users.findOne({ _id });
   },
 
   /**
@@ -145,19 +144,19 @@ const userQueries = {
   async usersTotalCount(
     _root,
     args: IListArgs,
-    { userBrandIdsSelector }: IContext
+    { userBrandIdsSelector, models }: IContext
   ) {
-    const selector = { ...userBrandIdsSelector, ...(await queryBuilder(args)) };
+    const selector = { ...userBrandIdsSelector, ...(await queryBuilder(models, args)) };
 
-    return Users.find(selector).countDocuments();
+    return models.Users.find(selector).countDocuments();
   },
 
   /**
    * Current user
    */
-  currentUser(_root, _args, { user }: IContext) {
+  currentUser(_root, _args, { user, models }: IContext) {
     return user
-      ? Users.findOne({ _id: user._id, isActive: { $ne: false } })
+      ? models.Users.findOne({ _id: user._id, isActive: { $ne: false } })
       : null;
   },
 };

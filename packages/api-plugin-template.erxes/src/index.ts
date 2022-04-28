@@ -38,6 +38,20 @@ const { MONGO_URL, RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, PORT } = process.env;
 
 export const app = express();
 
+if (configs.middlewares) {
+  for (const middleware of configs.middlewares) {
+    app.use(middleware())
+  }
+}
+
+if (configs.postHandlers) {
+  for (const handler of configs.postHandlers) {
+    if (handler.path && handler.method) {
+      app.post(handler.path, handler.method);
+    }
+  }
+}
+
 app.disable('x-powered-by');
 
 app.use(cors());
@@ -119,6 +133,9 @@ async function leaveServiceDiscovery() {
 });
 
 const generateApolloServer = async serviceDiscovery => {
+  const services = await getServices();
+  debugInfo(`Enabled services .... ${JSON.stringify(services)}`);
+
   const { typeDefs, resolvers } = await configs.graphql(serviceDiscovery);
 
   return new ApolloServer({
@@ -131,7 +148,7 @@ const generateApolloServer = async serviceDiscovery => {
 
     // for graceful shutdown
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-    context: async ({ req }) => {
+    context: async ({ req, res }) => {
       let user: any = null;
 
       if (req.headers.user) {
@@ -150,7 +167,7 @@ const generateApolloServer = async serviceDiscovery => {
         commonQuerySelector: {}
       };
 
-      await configs.apolloServerContext(context);
+      await configs.apolloServerContext(context, req, res);
 
       return context;
     }
@@ -281,6 +298,15 @@ async function startServer() {
             data: await forms.systemFields(args)
           }));
         }
+
+        if(forms.fieldsGroupsHook) {
+          forms.groupsHookAvailable = true;
+
+          consumeRPCQueue(`${configs.name}:fieldsGroupsHook`, async args => ({
+            status: 'success',
+            data: await forms.fieldsGroupsHook(args)
+          }))
+        }
       }
 
       if (tags) {
@@ -296,6 +322,12 @@ async function startServer() {
           consumeRPCQueue(`${configs.name}:publishChange`, async args => ({
             status: 'success',
             data: await tags.publishChange(args)
+          }));
+        }
+        if (tags.fixRelatedItems) {
+          consumeRPCQueue(`${configs.name}:fixRelatedItems`, async args => ({
+            status: 'success',
+            data: await tags.fixRelatedItems(args)
           }));
         }
       }

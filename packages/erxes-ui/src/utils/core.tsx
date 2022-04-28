@@ -71,7 +71,7 @@ export class RenderDynamicComponent extends React.Component<
   }
 }
 
-export const renderFullName = (data) => {
+export const renderFullName = data => {
   if (data.firstName || data.lastName || data.middleName) {
     return (
       (data.firstName || "") +
@@ -99,7 +99,7 @@ export const renderFullName = (data) => {
   return "Unknown";
 };
 
-export const renderUserFullName = (data) => {
+export const renderUserFullName = data => {
   const { details } = data;
 
   if (details && details.fullName) {
@@ -153,11 +153,11 @@ export const generateRandomColorCode = () => {
     .slice(2, 8)}`;
 };
 
-const isNumeric = (n) => {
+const isNumeric = n => {
   return !isNaN(parseFloat(n)) && isFinite(n);
 };
 
-export const isTimeStamp = (timestamp) => {
+export const isTimeStamp = timestamp => {
   const newTimestamp = new Date(timestamp).getTime();
   return isNumeric(newTimestamp);
 };
@@ -169,17 +169,17 @@ export const range = (start: number, stop: number) => {
 
 // Return the list of values that are the intersection of two arrays
 export const intersection = (array1: any[], array2: any[]) => {
-  return array1.filter((n) => array2.includes(n));
+  return array1.filter(n => array2.includes(n));
 };
 
 // Computes the union of the passed-in arrays: the list of unique items
 export const union = (array1: any[], array2: any[]) => {
-  return array1.concat(array2.filter((n) => !array1.includes(n)));
+  return array1.concat(array2.filter(n => !array1.includes(n)));
 };
 
 // Similar to without, but returns the values from array that are not present in the other arrays.
 export const difference = (array1: any[], array2: any[]) => {
-  return array1.filter((n) => !array2.includes(n));
+  return array1.filter(n => !array2.includes(n));
 };
 
 export const can = (actionName: string, currentUser: IUser): boolean => {
@@ -264,7 +264,7 @@ export function renderWithProps<Props>(
   return <Wrapped {...props} />;
 }
 
-export const isValidDate = (date) => {
+export const isValidDate = date => {
   const parsedDate = Date.parse(date);
 
   // Checking if it is date
@@ -276,7 +276,7 @@ export const isValidDate = (date) => {
 };
 
 export const extractAttachment = (attachments: IAttachment[]) => {
-  return attachments.map((file) => ({
+  return attachments.map(file => ({
     name: file.name,
     type: file.type,
     url: file.url,
@@ -295,7 +295,7 @@ export const setCookie = (cname: string, cvalue: string, exdays = 100) => {
   document.cookie = `${cname}=${cvalue};${expires};path=/`;
 };
 
-export const getCookie = (cname) => {
+export const getCookie = cname => {
   const name = `${cname}=`;
   const ca = document.cookie.split(";");
 
@@ -375,7 +375,7 @@ export const sendDesktopNotification = (doc: {
   }
 
   if (Notification.permission !== "denied") {
-    Notification.requestPermission((permission) => {
+    Notification.requestPermission(permission => {
       if (!("permission" in Notification)) {
         (Notification as any).permission = permission;
       }
@@ -387,7 +387,7 @@ export const sendDesktopNotification = (doc: {
   }
 };
 
-export const roundToTwo = (value) => {
+export const roundToTwo = value => {
   if (!value) {
     return 0;
   }
@@ -400,7 +400,7 @@ function createLinkFromUrl(url) {
     url = "http://" + url;
   }
 
-  const onClick = (e) => {
+  const onClick = e => {
     e.stopPropagation();
     window.open(url);
   };
@@ -466,7 +466,7 @@ export const getConstantFromStore = (
   const constant = JSON.parse(localStorage.getItem(`config:${key}`) || "[]");
 
   if (isFlat) {
-    return constant.map((element) => element.value);
+    return constant.map(element => element.value);
   }
 
   if (!isMap) {
@@ -475,7 +475,7 @@ export const getConstantFromStore = (
 
   const map = {};
 
-  constant.forEach((element) => {
+  constant.forEach(element => {
     map[element.value] = element.label;
   });
 
@@ -529,4 +529,28 @@ export const getConfig = (key: string) => {
 
 export const setConfig = (key, params) => {
   localStorage.setItem(key, JSON.stringify(params));
+};
+
+export const generateTree = (
+  list,
+  parentId,
+  callback,
+  level = -1,
+  parentKey = "parentId"
+) => {
+  const filtered = list.filter(c => c[parentKey] === parentId);
+
+  if (filtered.length > 0) {
+    level++;
+  } else {
+    level--;
+  }
+
+  return filtered.reduce((tree, node) => {
+    return [
+      ...tree,
+      callback(node, level),
+      ...generateTree(list, node._id, callback, level, parentKey),
+    ];
+  }, []);
 };

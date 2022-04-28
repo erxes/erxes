@@ -7,7 +7,7 @@ let client;
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeRPCQueue } = client;
+  const { consumeRPCQueue, consumeQueue } = client;
 
   consumeRPCQueue("products:findOne", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -83,13 +83,27 @@ export const initBroker = async cl => {
 
   consumeRPCQueue(
     "products:find",
-    async ({ subdomain, data: { query, sort } }) => {
+    async ({ subdomain, data: { query, sort, skip, limit } }) => {
       const models = await generateModels(subdomain);
 
       return {
         data: await models.Products.find(query)
           .sort(sort)
+          .skip(skip || 0)
+          .limit(limit || 100)
           .lean(),
+        status: "success",
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "products:count",
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.Products.find(query).countDocuments(),
         status: "success",
       };
     }
@@ -131,7 +145,7 @@ export const initBroker = async cl => {
     }
   );
 
-  consumeRPCQueue(
+  consumeQueue(
     "products:update",
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);

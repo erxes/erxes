@@ -1,10 +1,11 @@
+import redis from '@erxes/api-utils/src/redis';
 import { ILink } from '@erxes/api-utils/src/types';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as sha256 from 'sha256';
-import { UsersGroups } from '.';
+import { IModels } from '../../connectionResolver';
 import { userActionsMap } from '../../data/permissions/utils';
 import { set } from '../../inmemoryStorage';
 import {
@@ -102,10 +103,10 @@ export interface IUserModel extends Model<IUserDocument> {
   logout(_user: IUserDocument, token: string): string;
 }
 
-export const loadClass = () => {
+export const loadUserClass = (models: IModels) => {
   class User {
     public static async getUser(_id: string) {
-      const user = await Users.findOne({ _id });
+      const user = await models.Users.findOne({ _id });
 
       if (!user) {
         throw new Error('User not found');
@@ -141,7 +142,7 @@ export const loadClass = () => {
 
       // Checking if user has email
       if (email) {
-        previousEntry = await Users.find({ ...query, email });
+        previousEntry = await models.Users.find({ ...query, email });
 
         // Checking if duplicated
         if (previousEntry.length > 0) {
@@ -172,11 +173,11 @@ export const loadClass = () => {
       }
 
       // Checking duplicated email
-      await Users.checkDuplication({ email });
+      await models.Users.checkDuplication({ email });
 
       this.checkPassword(password);
 
-      return Users.create({
+      return models.Users.create({
         isOwner,
         username,
         email,
@@ -215,9 +216,9 @@ export const loadClass = () => {
         delete doc.password;
       }
 
-      await Users.updateOne({ _id }, { $set: doc });
+      await models.Users.updateOne({ _id }, { $set: doc });
 
-      return Users.findOne({ _id });
+      return models.Users.findOne({ _id });
     }
 
     public static async generateToken() {
@@ -238,9 +239,9 @@ export const loadClass = () => {
       password = (password || '').trim();
 
       // Checking duplicated email
-      await Users.checkDuplication({ email });
+      await models.Users.checkDuplication({ email });
 
-      if (!(await UsersGroups.findOne({ _id: groupId }))) {
+      if (!(await models.UsersGroups.findOne({ _id: groupId }))) {
         throw new Error('Invalid group');
       }
 
@@ -248,7 +249,7 @@ export const loadClass = () => {
 
       this.checkPassword(password);
 
-      await Users.create({
+      await models.Users.create({
         email,
         groupIds: [groupId],
         isActive: true,
@@ -266,7 +267,7 @@ export const loadClass = () => {
      * Resend invitation
      */
     public static async resendInvitation({ email }: { email: string }) {
-      const user = await Users.findOne({ email });
+      const user = await models.Users.findOne({ email });
 
       if (!user) {
         throw new Error('User not found');
@@ -276,9 +277,9 @@ export const loadClass = () => {
         throw new Error('Invalid request');
       }
 
-      const { token, expires } = await Users.generateToken();
+      const { token, expires } = await models.Users.generateToken();
 
-      await Users.updateOne(
+      await models.Users.updateOne(
         { email },
         {
           registrationToken: token,
@@ -305,7 +306,7 @@ export const loadClass = () => {
       fullName?: string;
       username?: string;
     }) {
-      const user = await Users.findOne({
+      const user = await models.Users.findOne({
         registrationToken: token,
         registrationTokenExpires: {
           $gt: Date.now()
@@ -326,7 +327,7 @@ export const loadClass = () => {
 
       this.checkPassword(password);
 
-      await Users.updateOne(
+      await models.Users.updateOne(
         { _id: user._id },
         {
           $set: {
@@ -354,12 +355,12 @@ export const loadClass = () => {
       // Checking duplicated email
       await this.checkDuplication({ email, idsToExclude: _id });
 
-      await Users.updateOne(
+      await models.Users.updateOne(
         { _id },
         { $set: { username, email, details, links } }
       );
 
-      return Users.findOne({ _id });
+      return models.Users.findOne({ _id });
     }
 
     /*
@@ -369,9 +370,9 @@ export const loadClass = () => {
       _id: string,
       signatures: IEmailSignature[]
     ) {
-      await Users.updateOne({ _id }, { $set: { emailSignatures: signatures } });
+      await models.Users.updateOne({ _id }, { $set: { emailSignatures: signatures } });
 
-      return Users.findOne({ _id });
+      return models.Users.findOne({ _id });
     }
 
     /*
@@ -381,37 +382,37 @@ export const loadClass = () => {
       _id: string,
       isAllowed: boolean
     ) {
-      await Users.updateOne(
+      await models.Users.updateOne(
         { _id },
         { $set: { getNotificationByEmail: isAllowed } }
       );
 
-      return Users.findOne({ _id });
+      return models.Users.findOne({ _id });
     }
 
     /*
      * Remove user
      */
     public static async setUserActiveOrInactive(_id: string) {
-      const user = await Users.findOne({ _id });
+      const user = await models.Users.findOne({ _id });
 
       if (!user) {
         throw new Error('User not found');
       }
 
       if (user.isActive === false) {
-        await Users.updateOne({ _id }, { $set: { isActive: true } });
+        await models.Users.updateOne({ _id }, { $set: { isActive: true } });
 
-        return Users.findOne({ _id });
+        return models.Users.findOne({ _id });
       }
 
       if (user.isOwner) {
         throw new Error('Can not deactivate owner');
       }
 
-      await Users.updateOne({ _id }, { $set: { isActive: false } });
+      await models.Users.updateOne({ _id }, { $set: { isActive: false } });
 
-      return Users.findOne({ _id });
+      return models.Users.findOne({ _id });
     }
 
     /*
@@ -443,7 +444,7 @@ export const loadClass = () => {
       newPassword: string;
     }) {
       // find user by token
-      const user = await Users.findOne({
+      const user = await models.Users.findOne({
         resetPasswordToken: token,
         resetPasswordExpires: {
           $gt: Date.now()
@@ -461,7 +462,7 @@ export const loadClass = () => {
       this.checkPassword(newPassword);
 
       // set new password
-      await Users.findByIdAndUpdate(
+      await models.Users.findByIdAndUpdate(
         { _id: user._id },
         {
           password: await this.generatePassword(newPassword),
@@ -470,7 +471,7 @@ export const loadClass = () => {
         }
       );
 
-      return Users.findOne({ _id: user._id });
+      return models.Users.findOne({ _id: user._id });
     }
 
     /**
@@ -483,7 +484,7 @@ export const loadClass = () => {
       _id: string;
       newPassword: string;
     }) {
-      const user = await Users.getUser(_id);
+      const user = await models.Users.getUser(_id);
 
       if (!newPassword) {
         throw new Error('Password is required.');
@@ -491,12 +492,12 @@ export const loadClass = () => {
 
       this.checkPassword(newPassword);
 
-      await Users.updateOne(
+      await models.Users.updateOne(
         { _id },
         { $set: { password: await this.generatePassword(newPassword) } }
       );
 
-      return Users.findOne({ _id: user._id });
+      return models.Users.findOne({ _id: user._id });
     }
 
     /*
@@ -518,7 +519,7 @@ export const loadClass = () => {
 
       this.checkPassword(newPassword);
 
-      const user = await Users.getUser(_id);
+      const user = await models.Users.getUser(_id);
 
       // check current password ============
       const valid = await this.comparePassword(currentPassword, user.password);
@@ -528,14 +529,14 @@ export const loadClass = () => {
       }
 
       // set new password
-      await Users.findByIdAndUpdate(
+      await models.Users.findByIdAndUpdate(
         { _id: user._id },
         {
           password: await this.generatePassword(newPassword)
         }
       );
 
-      return Users.findOne({ _id: user._id });
+      return models.Users.findOne({ _id: user._id });
     }
 
     /*
@@ -543,7 +544,7 @@ export const loadClass = () => {
      */
     public static async forgotPassword(email: string) {
       // find user
-      const user = await Users.findOne({
+      const user = await models.Users.findOne({
         email: (email || '').toLowerCase().trim()
       });
 
@@ -556,7 +557,7 @@ export const loadClass = () => {
       const token = buffer.toString('hex');
 
       // save token & expiration date
-      await Users.findByIdAndUpdate(
+      await models.Users.findByIdAndUpdate(
         { _id: user._id },
         {
           resetPasswordToken: token,
@@ -611,7 +612,7 @@ export const loadClass = () => {
         return {};
       }
 
-      const dbUser = await Users.getUser(_id);
+      const dbUser = await models.Users.getUser(_id);
 
       // recreate tokens
       const [newToken, newRefreshToken] = await this.createTokens(
@@ -641,7 +642,7 @@ export const loadClass = () => {
       email = (email || '').toLowerCase().trim();
       password = (password || '').trim();
 
-      const user = await Users.findOne({
+      const user = await models.Users.findOne({
         $or: [
           { email: { $regex: new RegExp(`^${email}$`, 'i') } },
           { username: { $regex: new RegExp(`^${email}$`, 'i') } }
@@ -669,9 +670,7 @@ export const loadClass = () => {
 
       // storing tokens in user collection.
       if (token) {
-        const validatedTokens: string[] = user.validatedTokens || [];
-        validatedTokens.push(token);
-        await user.update({ $set: { validatedTokens } });
+        redis.set(`user_token_${user._id}_${token}`, 1, 'EX', 24 * 60 * 60);
       }
 
       if (deviceToken) {
@@ -688,7 +687,7 @@ export const loadClass = () => {
       await this.generateUserCodeField();
 
       // put permission map in redis, so that other services can use it
-      const actionMap = await userActionsMap(user);
+      const actionMap = await userActionsMap(models, user);
       set(`user_permissions_${user._id}`, JSON.stringify(actionMap));
 
       return {
@@ -701,18 +700,11 @@ export const loadClass = () => {
      * Logging out user from database
      */
     public static async logout(user: IUserDocument, currentToken: string) {
-      const currentUser: any = await this.getUser(user._id);
-      let validatedTokens: string[] = currentUser.validatedTokens || [];
+      const validatedToken = await redis.get(`user_token_${user._id}_${currentToken}`);
 
-      if (validatedTokens.includes(currentToken)) {
-        // invalidating token.
-        validatedTokens = await validatedTokens.filter(
-          token => token !== currentToken
-        );
-        await Users.updateOne(
-          { _id: currentUser._id },
-          { $set: { validatedTokens } }
-        );
+      if (validatedToken) {
+        redis.del(`user_token_${user._id}_${currentToken}`);
+
         return 'loggedout';
       }
 
@@ -720,7 +712,7 @@ export const loadClass = () => {
     }
 
     public static async generateUserCodeField() {
-      const users = await Users.find({ code: { $exists: false } });
+      const users = await models.Users.find({ code: { $exists: false } });
 
       if (users.length === 0) {
         return;
@@ -746,11 +738,11 @@ export const loadClass = () => {
         });
       }
 
-      return Users.bulkWrite(doc);
+      return models.Users.bulkWrite(doc);
     }
 
     public static async generateUserCode() {
-      const users = await Users.find({ code: { $exists: true } })
+      const users = await models.Users.find({ code: { $exists: true } })
         .sort({ code: -1 })
         .limit(1);
 
@@ -776,10 +768,3 @@ export const loadClass = () => {
 
   return userSchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const Users = model<IUserDocument, IUserModel>('users', userSchema);
-
-export default Users;

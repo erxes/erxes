@@ -4,6 +4,7 @@ import { Button } from '@erxes/ui/src/components';
 import { MainStyleTopHeader as TopHeader } from '@erxes/ui/src/styles/eindex';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 
 class Sidebar extends React.Component {
   renderListItem(url: string, text: string) {
@@ -21,7 +22,7 @@ class Sidebar extends React.Component {
 
   render() {
     return (
-      <LeftSidebar full={true}>
+      <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
         <List id="SettingsSidebar">
           {this.renderListItem(
             '/erxes-plugin-sync-erkhet/settings/general',
@@ -29,7 +30,11 @@ class Sidebar extends React.Component {
           )}
           {this.renderListItem(
             '/erxes-plugin-sync-erkhet/settings/stage',
-            'Stage in Ebarimt config'
+            'Stage in Erkhet config'
+          )}
+          {this.renderListItem(
+            '/erxes-plugin-sync-erkhet/settings/return-stage',
+            'Stage in Return Erkhet config'
           )}
           {this.renderListItem(
             '/erxes-plugin-sync-erkhet/settings/pipeline',

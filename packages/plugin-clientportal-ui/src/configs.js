@@ -1,12 +1,12 @@
 module.exports = {
-  name: "clientPortal",
+  name: "clientportal",
   port: 3015,
   exposes: {
     "./routes": "./src/routes.tsx",
   },
   routes: {
     url: "http://localhost:3015/remoteEntry.js",
-    scope: "clientPortal",
+    scope: "clientportal",
     module: "./routes",
   },
   menus: [
@@ -15,7 +15,7 @@ module.exports = {
       to: "/settings/client-portal",
       image: "/images/icons/erxes-32.png",
       location: "settings",
-      scope: "clientPortal",
+      scope: "clientportal",
       action: "",
       permissions: [],
     },

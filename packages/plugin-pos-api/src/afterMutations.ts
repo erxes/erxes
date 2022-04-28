@@ -1,10 +1,6 @@
-import { sendPosMessage } from "./messageBroker";
+import messageBroker, { sendPosMessage } from "./messageBroker";
 
-const handler = async (_root, params: any, { models, messageBroker }) => {
-  if (!messageBroker) {
-    return;
-  }
-
+const handler = async (_root, params: any, { models }) => {
   await sendPosMessage(models, messageBroker, "pos:crudData", params);
 };
 

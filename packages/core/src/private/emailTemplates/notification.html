@@ -1,0 +1,179 @@
+<table
+  role="presentation"
+  cellpadding="0"
+  cellspacing="0"
+  style="max-width: 560px;font-size:0px;width:100%;background: #fff; padding-bottom: 30px;box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.2);border-radius: 10px;"
+  align="center"
+  border="0"
+>
+  <tbody>
+    <tr>
+      <td style="text-align:center;vertical-align:top;font-size:0px;/* padding:30px; */">
+        <div style="cursor:auto;color:grey;font-family:Helvetica Neue;font-size:13px;font-weight:300;line-height:22px;">
+          <div style="position: relative; background:#5629b6;padding-bottom: 10px;border-radius: 10px 10px 0 0;">
+            <table align="center" border="0">
+              <tr>
+                <td width="80px"></td>
+                <td width="80px"><img style="width: 60px;" src="https://i.imgur.com/Obpdd9r.png" /></td>
+                <td align="center" width="80px">
+                  <img
+                    src="https://i.imgur.com/7pXtCWF.png"
+                    style="
+                      width: 60px;
+                      margin-top: 20px;
+                      margin-bottom: 5px;
+                      "
+                  />
+                </td>
+                <td width="80px"><img style="width: 30px;" src="https://i.imgur.com/Obpdd9r.png" /></td>
+                <td width="80px"><img style="width: 45px;" src="https://i.imgur.com/Obpdd9r.png" /></td>
+              </tr>
+            </table>
+          </div>
+
+          <p style="font-size: 21px;color: #444;margin: 40px 30px 10px;padding-bottom:15px;font-weight: 500;border-bottom: 1px solid #eee;">
+            {{ notification.title }}
+          </p>
+          <div style="text-align: left; padding: 0 30px; margin-bottom: 30px;">
+            <p style="color: #444; font-size: 14px;"><strong>{{{ userName }}}</strong> {{{ action }}}:</p>
+            <div style="color: #666; text-align: justify; border-left: 5px solid #5628b6; padding-left: 10px; font-size: 12px;">
+              {{{ notification.content }}}
+            </div>
+            <p style="border-collapse:collapse; font-size:12px; color:#888;">{{ notification.date }}</p>
+          </div>
+
+          <table
+            role="presentation"
+            cellpadding="0"
+            cellspacing="0"
+            style="border-collapse:separate; margin: 10px auto 30px;"
+            align="center"
+            border="0"
+          >
+            <tbody>
+              <tr>
+                <td align="center" valign="middle">
+                  <a
+                    href="{{ notification.link }}"
+                    style="    border-radius: 300px;
+                  box-shadow: 0 4px 28px rgba(0,0,0,.1);
+                  transition: .1s ease-in-out;
+                  transition-property: color,background-color,border-color;
+                  font-size: 14px;
+                  /* text-transform: uppercase; */
+                  background-color: #63d2d6;
+                  font-weight: 300;
+                  text-decoration: none;
+                  border: 1px solid transparent;
+                  padding: 8px 40px;
+                  color: #fff;"
+                    target="_blank"
+                  >
+                    View notification
+                  </a>
+
+                  <div style="margin-top: 20px; padding: 10px 20px;">
+                    <div> or click the <a style="color: #63d2d6;" href="{{ notification.link }}" target="_blank"><strong> link </strong></a></div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div >
+            <a style="color: #5629b6; text-decoration: none;" target="_blank" href="https://erxes.io/team" alt="About us"> About us &nbsp;</a> |
+            <a style="color: #5629b6; text-decoration: none;" target="_blank" href="https://erxes.io/contact" alt="Contact us">&nbsp; Contact us &nbsp;</a> |
+            <a style="color: #5629b6; text-decoration: none;" target="_blank" href="{{ domain }}/unsubscribe?uid={{uid}}" alt="Click here to unsubscribe">&nbsp; Unsubscribe </a>
+          </div>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<!--footer-->
+<table style="margin-top: 20px;" align="center" border="0">
+  <tbody>
+    <tr>
+      <td style="text-align:center;vertical-align:top;">
+        <div>
+          <a href="https://github.com/erxes" target="_blank" style="text-decoration: none">
+            <img
+              style=" padding: 4px;
+              border-radius: 50%;
+              border: 1px solid #eee;
+              margin: 0 3px;"
+              width="15"
+              height="15"
+              src="https://i.imgur.com/2CnEIPf.png"
+              alt="fb-icon"
+            />
+          </a>
+          <a href="https://www.facebook.com/erxesHQ/" target="_blank" style="text-decoration: none">
+            <img
+              style=" padding: 4px;
+              border-radius: 50%;
+              border: 1px solid #eee;
+              margin: 0 3px;"
+              width="15"
+              height="15"
+              src="https://i.imgur.com/x941rD7.png"
+              alt="fb-icon"
+            />
+          </a>
+          <a href="https://twitter.com/erxeshq" target="_blank" style="text-decoration: none">
+            <img
+              style=" padding: 4px;
+              border-radius: 50%;
+              border: 1px solid #eee;
+              margin: 0 3px;"
+              width="15"
+              height="15"
+              src="https://i.imgur.com/4eMAlN0.png"
+              alt="fb-icon"
+            />
+          </a>
+          <a href="https://www.linkedin.com/company/erxes" target="_blank" style="text-decoration: none">
+            <img
+              style=" padding: 4px;
+              border-radius: 50%;
+              border: 1px solid #eee;
+              margin: 0 3px;"
+              width="15"
+              height="15"
+              src="https://i.imgur.com/jnkQIRj.png"
+              alt="fb-icon"
+            />
+          </a>
+          <a
+            href="https://www.youtube.com/channel/UCunYU3kJiiDsXGfB068BbDA"
+            target="_blank"
+            style="text-decoration: none"
+          >
+            <img
+              style=" padding: 4px;
+          border-radius: 50%;
+          border: 1px solid #eee;
+          margin: 0 3px;"
+              width="15"
+              height="15"
+              src="https://i.imgur.com/dD6FG1R.png"
+              alt="fb-icon"
+            />
+          </a>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td
+        style="    text-align: center;
+              vertical-align: top;
+              color: #ccc;
+              font-size: 12px;    font-family: Helvetica Neue;
+              font-weight: 300;"
+      >
+        Copyright © 2020
+        <a style="color:#ccc; text-decoration: none;" target="_blank" href="https://erxes.io">erxes Inc</a>. All rights
+        reserved.
+      </td>
+    </tr>
+  </tbody>
+</table>

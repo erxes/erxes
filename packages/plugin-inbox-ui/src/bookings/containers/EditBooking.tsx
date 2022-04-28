@@ -13,11 +13,6 @@ import { IBookingData } from "@erxes/ui-settings/src/integrations/types";
 import { Alert } from "@erxes/ui/src/utils";
 import { withRouter } from "react-router-dom";
 import { IRouterProps } from "@erxes/ui/src/types";
-import {
-  EmailTemplatesQueryResponse,
-  EmailTemplatesTotalCountQueryResponse,
-} from "@erxes/ui-settings/src/emailTemplates/types";
-import { queries as templatesQuery } from "@erxes/ui-settings/src/emailTemplates/graphql";
 import { queries as settingsQueries } from "@erxes/ui-settings/src/general/graphql";
 import { ILeadData } from "@erxes/ui-leads/src/types";
 import { FieldsQueryResponse } from "@erxes/ui-settings/src/properties/types";
@@ -33,8 +28,8 @@ type Props = {
 
 type FinalProps = {
   integrationDetailQuery: BookingIntegrationDetailQueryResponse;
-  emailTemplatesQuery: EmailTemplatesQueryResponse;
-  emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
+  emailTemplatesQuery: any /*change type*/;
+  emailTemplatesTotalCountQuery: any /*change type*/;
   fieldsQuery: FieldsQueryResponse;
   configsQuery: ConfigsQueryResponse;
 } & IRouterProps &
@@ -116,7 +111,9 @@ class EditBookingContainer extends React.Component<FinalProps, State> {
       save,
       afterFormDbSave,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
-      emailTemplates: emailTemplatesQuery ? emailTemplatesQuery.emailTemplates || [] : [],
+      emailTemplates: emailTemplatesQuery
+        ? emailTemplatesQuery.emailTemplates || []
+        : [],
       productFields: fieldsQuery.fields || [],
       configs: configsQuery.configs || [],
     };
@@ -133,22 +130,19 @@ const commonOptions = () => ({
 });
 
 export default compose(
-  graphql(gql(templatesQuery.totalCount), {
+  graphql(gql(queries.templateTotalCount), {
     name: "emailTemplatesTotalCountQuery",
     skip: !isEnabled("engages") ? true : false,
   }),
-  graphql<FinalProps, EmailTemplatesQueryResponse>(
-    gql(templatesQuery.emailTemplates),
-    {
-      name: "emailTemplatesQuery",
-      options: ({ emailTemplatesTotalCountQuery }) => ({
-        variables: {
-          perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount,
-        },
-      }),
-      skip: !isEnabled("engages") ? true : false,
-    }
-  ),
+  graphql<FinalProps>(gql(queries.emailTemplates), {
+    name: "emailTemplatesQuery",
+    options: ({ emailTemplatesTotalCountQuery }) => ({
+      variables: {
+        perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount,
+      },
+    }),
+    skip: !isEnabled("engages") ? true : false,
+  }),
   graphql<
     {},
     EditBookingIntegrationMutationResponse,

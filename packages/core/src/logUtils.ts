@@ -4,8 +4,8 @@ import { MODULE_NAMES } from './data/constants';
 import { brandEmailConfigSchema, brandSchema } from './db/models/definitions/brands';
 import { permissionSchema, userGroupSchema } from './db/models/definitions/permissions';
 import { IUserDocument, userSchema } from './db/models/definitions/users';
-import EmailDeliveries from './db/models/EmailDeliveries';
-import Users from './db/models/Users';
+import { generateModels } from './connectionResolver';
+import { sendLogsMessage } from './messageBroker';
 
 const LOG_MAPPINGS = [
   {
@@ -27,7 +27,8 @@ const LOG_MAPPINGS = [
 ];
 
 export default {
-  getActivityContent: async ({ data }) => {
+  getActivityContent: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
     const { action, content } = data;
 
     if (action === 'assignee') {
@@ -35,9 +36,9 @@ export default {
       let removedUsers: IUserDocument[] = [];
 
       if (content) {
-        addedUsers = await Users.find({ _id: { $in: content.addedUserIds } });
+        addedUsers = await models.Users.find({ _id: { $in: content.addedUserIds } });
 
-        removedUsers = await Users.find({
+        removedUsers = await models.Users.find({
           _id: { $in: content.removedUserIds }
         });
       }
@@ -53,10 +54,18 @@ export default {
       data: 'wrong activity action'
     };
   },
-  collectItems: async ({ data: { contentId } }) => {
-    const deliveries = await EmailDeliveries.find({
-      customerId: contentId
-    }).lean();
+  collectItems: async ({ subdomain, data: { contentId } }) => {
+    const deliveries = await sendLogsMessage({
+      subdomain,
+      action: 'emailDeliveries.find',
+      data: {
+        query: {
+          customerId: contentId
+        }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
 
     const results: any[] = [];
 

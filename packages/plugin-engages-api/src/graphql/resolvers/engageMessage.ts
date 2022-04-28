@@ -82,7 +82,6 @@ export default {
       },
       isRPC: true
     });
-    
 
     if (!user) {
       return '';

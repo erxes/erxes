@@ -1,4 +1,5 @@
 import { queries as productQueries } from '@erxes/ui-products/src/graphql';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const listParamsDef = `
   $page: Int
@@ -61,14 +62,20 @@ export const orderFields = `
     _id
     email
   }
-  customer {
-    _id
-    firstName
-    lastName
-    middleName
-    primaryEmail
-    primaryPhone
+  ${isEnabled("contacts")
+    ? `
+        customer {
+          _id
+          firstName
+          lastName
+          middleName
+          primaryEmail
+          primaryPhone
+        }
+      `
+    : ``
   }
+
 `;
 
 const posOrders = `
@@ -118,6 +125,7 @@ const posProducts = `
           name
         }
         count
+        amount
       }
 
       totalCount
