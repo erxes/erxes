@@ -28,6 +28,7 @@ export const initApolloServer = async (_app, httpServer) => {
   `);
 
   apolloServer = new ApolloServer({
+    introspection: true,
     schema: buildSubgraphSchema([
       {
         typeDefs,
@@ -40,7 +41,7 @@ export const initApolloServer = async (_app, httpServer) => {
       const models = await generateModels(req.hostname)
 
       let user: any = null;
-      
+
       if (req.headers.user) {
         const userJson = Buffer.from(req.headers.user, 'base64').toString(
           'utf-8'
