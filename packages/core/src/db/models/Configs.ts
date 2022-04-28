@@ -1,6 +1,7 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { COMPANY_INDUSTRY_TYPES, SEX_OPTIONS, SOCIAL_LINKS } from '@erxes/api-utils/src/constants';
 import { configSchema, IConfig, IConfigDocument } from './definitions/configs';
+import { IModels } from '../../connectionResolver';
 
 export interface IConfigModel extends Model<IConfigDocument> {
   getConfig(code: string): Promise<IConfigDocument>;
@@ -8,13 +9,13 @@ export interface IConfigModel extends Model<IConfigDocument> {
   constants();
 }
 
-export const loadClass = () => {
+export const loadConfigClass = (models: IModels) => {
   class Config {
     /*
      * Get a Config
      */
     public static async getConfig(code: string) {
-      const config = await Configs.findOne({ code });
+      const config = await models.Configs.findOne({ code });
 
       if (!config) {
         throw new Error('Config not found');
@@ -33,15 +34,15 @@ export const loadClass = () => {
       code: string;
       value: string[];
     }) {
-      const obj = await Configs.findOne({ code });
+      const obj = await models.Configs.findOne({ code });
 
       if (obj) {
-        await Configs.updateOne({ _id: obj._id }, { $set: { value } });
+        await models.Configs.updateOne({ _id: obj._id }, { $set: { value } });
 
-        return Configs.findOne({ _id: obj._id });
+        return models.Configs.findOne({ _id: obj._id });
       }
 
-      return Configs.create({ code, value });
+      return models.Configs.create({ code, value });
     }
 
     public static constants() {
@@ -60,10 +61,3 @@ export const loadClass = () => {
 
   return configSchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const Configs = model<IConfigDocument, IConfigModel>('configs', configSchema);
-
-export default Configs;

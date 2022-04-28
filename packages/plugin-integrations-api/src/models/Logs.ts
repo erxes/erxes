@@ -1,4 +1,5 @@
 import { Document, Model, model, Schema } from 'mongoose';
+import { IModels } from '../connectionResolver';
 import { field } from './utils';
 
 export interface ILog {
@@ -30,7 +31,7 @@ export interface ILogModel extends Model<ILogDocument> {
   createLog({ type, value, specialValue }: ILogInput): ILogDocument;
 }
 
-export const loadClass = () => {
+export const loadLogClass = (models: IModels) => {
   class Log {
     public static async createLog({
       type,
@@ -41,7 +42,7 @@ export const loadClass = () => {
       value: any;
       specialValue: any;
     }) {
-      return Logs.create({ type, value, specialValue, createdAt: new Date() });
+      return models.Logs.create({ type, value, specialValue, createdAt: new Date() });
     }
   }
 
@@ -50,9 +51,9 @@ export const loadClass = () => {
   return logSchema;
 };
 
-loadClass();
+// loadClass();
 
-// tslint:disable-next-line
-const Logs = model<ILogDocument, ILogModel>('logs', logSchema);
+// // tslint:disable-next-line
+// const Logs = model<ILogDocument, ILogModel>('logs', logSchema);
 
-export default Logs;
+// export default Logs;

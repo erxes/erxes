@@ -32,11 +32,11 @@ import {
   queries as StructureQueries,
   types as StructureTypes
 } from './structure';
-
 import {
-  types as EmailDeliveryTypes,
-  queries as EmailDeliveryQueries
-} from './emailDelivery';
+  types as AppTypes,
+  mutations as AppMutations,
+  queries as AppQueries
+} from './app';
 
 export let types = `
   scalar JSON
@@ -60,7 +60,7 @@ export let types = `
   ${PermissionTypes}
   ${RobotTypes}
   ${StructureTypes}
-  ${EmailDeliveryTypes}
+  ${AppTypes}
 `;
 
 export let queries = `
@@ -71,7 +71,7 @@ export let queries = `
   ${PermissionQueries}
   ${RobotQueries}
   ${StructureQueries}
-  ${EmailDeliveryQueries}
+  ${AppQueries}
 `;
 
 export let mutations = `
@@ -82,6 +82,7 @@ export let mutations = `
   ${ConformityMutations}
   ${RobotMutations}
   ${StructureMutations}
+  ${AppMutations}
 `;
 
 export let subscriptions = `

@@ -121,7 +121,6 @@ const HeaderItems = styledTS<{ rightAligned?: boolean; hasFlex?: boolean }>(styl
   align-self: center;
   flex: ${props => props.hasFlex && 1};
   margin-left: ${props => props.rightAligned && 'auto'};
-
   > * + * {
     margin-left: ${dimensions.unitSpacing}px;
   }
@@ -141,7 +140,7 @@ const SideContent = styledTS<{
   width: ${props => (props.wide ? '340px' : '290px')};
   flex: ${props => (props.half ? '1' : 'none')};
   background: ${props => (props.full ? colors.colorWhite : 'none')};
-  padding: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${
+  margin: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${
   dimensions.unitSpacing
 }px 0;
   border-right: ${props => props.hasBorder && `1px solid ${colors.borderPrimary}`};
@@ -212,7 +211,6 @@ const SidebarBox = styledTS<{
   transition: max-height 0.4s;
   overflow: ${props => (props.collapsible ? 'hidden' : 'initial')};
   display: ${props => props.full && 'flex'};
-
   &:last-child {
     margin-bottom: 0;
   }
@@ -220,7 +218,6 @@ const SidebarBox = styledTS<{
 
 const BoxContent = styled.div`
   flex: 1;
-
   ul:first-child {
     padding: 10px 0;
   }
@@ -236,11 +233,9 @@ const SidebarToggle = styledTS<{ inverse?: boolean }>(styled.a)`
   background: ${props => (props.inverse ? colors.colorWhite : colors.bgLight)};
   border-top: 1px solid ${colors.borderPrimary};
   z-index: 2;
-
   &:hover {
     cursor: pointer;
   }
-
   &:focus {
     outline: 0;
   }
@@ -253,7 +248,6 @@ const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
     props.isSidebarOpen ? `${dimensions.unitSpacing - 2}px` : '15px'};
   color: ${colors.colorCoreLightGray};
   padding-right: ${props => (props.isSidebarOpen ? '20px' : '0')};
-
   a, button {
     color: ${colors.colorCoreLightGray};
     text-transform: none;
@@ -265,10 +259,8 @@ const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
     padding: 0;
     border: none;
     background: none;
-
     > i {
       font-size: 16px;
-
       &:hover {
         color: ${colors.colorCoreBlack};
       }
@@ -286,17 +278,14 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
   overflow: hidden;
   text-overflow: ${props => !props.fullLength && 'ellipsis'};
   padding-left: 5px;
-
   a {
     padding: 0 !important;
     color: ${colors.linkPrimary};
   }
-
   span {
     float: right;
     margin-left: 5px;
   }
-
   ${props =>
     props.nowrap &&
     css`
@@ -309,17 +298,14 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
   margin: 0;
   padding: 0;
   list-style: none;
-
   li.child-segment {
     border-bottom: none;
     background-color: ${colors.bgLight};
-
     > span {
       background-color: ${colors.bgLight};
       box-shadow: -2px 0 10px 2px ${colors.bgLight};
     }
   }
-
   &.no-link li,
   a {
     display: flex;
@@ -333,11 +319,9 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
     outline: 0;
     border-left: 2px solid transparent;
     transition: background 0.3s ease;
-
     > i {
       margin-right: 5px;
     }
-
     &:hover,
     &.active {
       cursor: pointer;
@@ -346,29 +330,24 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
       outline: 0;
       color: ${lighten(colors.textPrimary, 40)};
     }
-
     &.active {
       background: ${rgba(colors.colorPrimary, 0.2)};
       color: ${colors.colorPrimary};
     }
-
     &.multiple-choice {
       flex-wrap: wrap;
       justify-content: space-between;
       white-space: normal;
-
       ${SidebarCounter} {
         max-width: 60%;
         word-break: break-word;
       }
     }
   }
-
   .icon {
     margin-right: 6px;
     color: ${colors.colorCoreGray};
   }
-
   button {
     font-size: 11px;
     padding-bottom: 0;
@@ -386,7 +365,6 @@ const CenterContent = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   > a {
     border: 1px solid ${colors.colorWhite};
     color: ${colors.colorWhite};
@@ -397,19 +375,15 @@ const SectionContainer = styledTS<{noShadow?: boolean}>(styled.div)`
   position: relative;
   box-shadow: ${props => !props.noShadow && `0 0 6px 0 rgba(0, 0, 0, 0.08)`};
   margin-bottom: 10px;
-
   > div {
     margin-bottom: 0;
   }
-
   &:last-child {
     margin-bottom: 0;
   }
-
   ${SidebarBox} {
     box-shadow: none;
   }
-
   ${SidebarTitle} {
     height: 40px;
   }
@@ -421,11 +395,9 @@ const SidebarCollapse = styled.a`
   top: ${dimensions.unitSpacing - 2}px;
   right: ${dimensions.coreSpacing - 3}px;
   font-size: 14px;
-
   &:hover {
     cursor: pointer;
   }
-
   &:focus {
     outline: 0;
   }
@@ -437,24 +409,19 @@ const BarItems = styled.div`
   align-items: center;
   flex-wrap: wrap;
   justify-content: space-evenly;
-
   .dropdown-menu {
     min-width: 200px;
   }
-
   > * + * {
     margin: 5px 0 5px ${dimensions.unitSpacing}px;
   }
-
   .Select {
     min-width: 200px;
   }
-
   input[type='text'] {
     width: auto;
     display: inline-block;
   }
-
   @media (max-width: 768px) {
     > * + * {
       margin: 3px 0 3px ${dimensions.unitSpacing / 2}px;
@@ -466,7 +433,6 @@ const SidebarFlexRow = styled.li`
   white-space: inherit !important;
   display: flex !important;
   justify-content: space-between;
-
   span {
     color: ${colors.colorCoreGray};
     overflow: hidden;
@@ -479,7 +445,6 @@ const SidebarFlexRow = styled.li`
 const FlexItem = styledTS<{ count?: number; hasSpace?: boolean }>(styled.div)`
   flex: ${props => (props.count ? props.count : 1)};
   position: relative;
-
   ${props =>
     props.hasSpace &&
     css`
@@ -494,24 +459,20 @@ const FlexRightItem = styled.div`
 const SectionBodyItem = styled.div`
   border-bottom: 1px solid ${colors.borderPrimary};
   word-break: break-word;
-
   > a {
     padding: 10px 20px;
     display: flex;
     width: 100%;
     color: ${colors.textSecondary};
-
     &:hover {
       text-decoration: underline;
     }
   }
-
   > span {
     display: block;
     padding: 0px 20px 10px 20px;
     margin-top: -10px;
   }
-
   ul li {
     margin-left: ${dimensions.coreSpacing}px;
   }

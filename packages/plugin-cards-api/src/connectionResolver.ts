@@ -60,13 +60,10 @@ export interface IModels {
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
+  serverTiming: any;
 }
 
 export let models: IModels;
-
-export const getSubdomain = (hostname: string): string => {
-  return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
-};
 
 export const generateModels = async (
   hostnameOrSubdomain: string

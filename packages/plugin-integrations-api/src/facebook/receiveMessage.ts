@@ -1,11 +1,10 @@
 import { Activity } from 'botbuilder';
-import { sendRPCMessage } from '../messageBroker';
-import Integrations from '../models/Integrations';
-import { ConversationMessages, Conversations } from './models';
+import { IModels } from '../connectionResolver';
+import { sendInboxMessage } from '../messageBroker';
 import { getOrCreateCustomer } from './store';
 import { IChannelData } from './types';
 
-const receiveMessage = async (activity: Activity) => {
+const receiveMessage = async (models: IModels, activity: Activity) => {
   const {
     recipient,
     sender,
@@ -15,7 +14,7 @@ const receiveMessage = async (activity: Activity) => {
     message
   } = activity.channelData as IChannelData;
 
-  const integration = await Integrations.getIntegration({
+  const integration = await models.Integrations.getIntegration({
     $and: [
       { facebookPageIds: { $in: [recipient.id] } },
       { kind: 'facebook-messenger' }
@@ -27,10 +26,10 @@ const receiveMessage = async (activity: Activity) => {
   const kind = 'facebook-messenger';
 
   // get or create customer
-  const customer = await getOrCreateCustomer(pageId, userId, kind);
+  const customer = await getOrCreateCustomer(models, pageId, userId, kind);
 
   // get conversation
-  let conversation = await Conversations.findOne({
+  let conversation = await models.FbConversations.findOne({
     senderId: userId,
     recipientId: recipient.id
   });
@@ -39,7 +38,7 @@ const receiveMessage = async (activity: Activity) => {
   if (!conversation) {
     // save on integrations db
     try {
-      conversation = await Conversations.create({
+      conversation = await models.FbConversations.create({
         timestamp,
         senderId: userId,
         recipientId: recipient.id,
@@ -56,39 +55,44 @@ const receiveMessage = async (activity: Activity) => {
 
     // save on api
     try {
-      const apiConversationResponse = await sendRPCMessage({
-        action: 'create-or-update-conversation',
-        payload: JSON.stringify({
-          customerId: customer.erxesApiId,
-          integrationId: integration.erxesApiId,
-          content: text || '',
-          attachments: (attachments || [])
-            .filter(att => att.type !== 'fallback')
-            .map(att => ({
-              type: att.type,
-              url: att.payload ? att.payload.url : ''
-            }))
-        })
+      const apiConversationResponse = await sendInboxMessage({
+        subdomain: 'os',
+        action: 'integrations.receive',
+        data: {
+          action: 'create-or-update-conversation',
+          payload: JSON.stringify({
+            customerId: customer.erxesApiId,
+            integrationId: integration.erxesApiId,
+            content: text || '',
+            attachments: (attachments || [])
+              .filter(att => att.type !== 'fallback')
+              .map(att => ({
+                type: att.type,
+                url: att.payload ? att.payload.url : ''
+              }))
+          })
+        },
+        isRPC: true
       });
 
       conversation.erxesApiId = apiConversationResponse._id;
 
       await conversation.save();
     } catch (e) {
-      await Conversations.deleteOne({ _id: conversation._id });
+      await models.FbConversations.deleteOne({ _id: conversation._id });
       throw new Error(e);
     }
   }
 
   // get conversation message
-  const conversationMessage = await ConversationMessages.findOne({
+  const conversationMessage = await models.FbConversationMessages.findOne({
     mid: message.mid
   });
 
   if (!conversationMessage) {
     // save on integrations db
     try {
-      await ConversationMessages.create({
+      await models.FbConversationMessages.create({
         conversationId: conversation._id,
         mid: message.mid,
         timestamp,
@@ -104,23 +108,28 @@ const receiveMessage = async (activity: Activity) => {
 
     // save message on api
     try {
-      await sendRPCMessage({
-        action: 'create-conversation-message',
-        metaInfo: 'replaceContent',
-        payload: JSON.stringify({
-          content: text || '',
-          attachments: (attachments || [])
-            .filter(att => att.type !== 'fallback')
-            .map(att => ({
-              type: att.type,
-              url: att.payload ? att.payload.url : ''
-            })),
-          conversationId: conversation.erxesApiId,
-          customerId: customer.erxesApiId
-        })
+      await sendInboxMessage({
+        subdomain: 'os',
+        action: 'integrations.receive',
+        data: {
+          action: 'create-conversation-message',
+          metaInfo: 'replaceContent',
+          payload: JSON.stringify({
+            content: text || '',
+            attachments: (attachments || [])
+              .filter(att => att.type !== 'fallback')
+              .map(att => ({
+                type: att.type,
+                url: att.payload ? att.payload.url : ''
+              })),
+            conversationId: conversation.erxesApiId,
+            customerId: customer.erxesApiId
+          })
+        },
+        isRPC: true
       });
     } catch (e) {
-      await ConversationMessages.deleteOne({ mid: message.mid });
+      await models.FbConversationMessages.deleteOne({ mid: message.mid });
       throw new Error(e);
     }
   }

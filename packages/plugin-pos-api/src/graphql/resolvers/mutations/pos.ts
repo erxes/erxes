@@ -1,20 +1,22 @@
+import {
+  checkPermission,
+} from "@erxes/api-utils/src/permissions";
 import { orderDeleteToErkhet, orderToErkhet } from "../../../utils";
 import { IPOS } from "../../../types";
-import { sendCoreMessage, sendPosMessage, sendEbarimtMessage } from '../../../messageBroker';
+import messageBroker, { sendCoreMessage, sendPosMessage, sendEbarimtMessage } from '../../../messageBroker';
 import { getConfig } from "../../../utils";
+import { IContext } from "../../../connectionResolver";
 
 const mutations = {
-  posAdd: async (_root, params: IPOS, { models, checkPermission, user }) => {
-    await checkPermission("managePos", user);
+  posAdd: async (_root, params: IPOS, { models, user }: IContext) => {
     return await models.Pos.posAdd(user, params);
   },
 
   posEdit: async (
     _root,
-    { _id, ...params },
-    { models, subdomain, checkPermission, user, messageBroker }
+    { _id, params },
+    { models, subdomain }: IContext
   ) => {
-    await checkPermission("managePos", user);
     const object = await models.Pos.getPos({ _id });
     const updatedDocument = await models.Pos.posEdit(_id, params);
 
@@ -42,31 +44,26 @@ const mutations = {
       defaultValue: []
     })
 
-    if (messageBroker) {
-      await sendPosMessage(
-        models,
-        messageBroker,
-        "pos:crudData",
-        {
-          type: "pos",
-          action: "update",
-          object,
-          updatedDocument,
-          adminUsers,
-          cashierUsers,
-        },
-        object
-      );
-    }
+
+    await sendPosMessage(
+      models,
+      messageBroker,
+      "pos:crudData",
+      {
+        type: "pos",
+        action: "update",
+        object,
+        updatedDocument,
+        adminUsers,
+        cashierUsers,
+      },
+      object
+    );
+
     return updatedDocument;
   },
 
-  posRemove: async (
-    _root,
-    { _id }: { _id: string },
-    { models, checkPermission, user }
-  ) => {
-    await checkPermission("managePos", user);
+  posRemove: async ( _root, { _id }: { _id: string }, { models } ) => {
     return await models.Pos.posRemove(_id);
   },
 
@@ -103,7 +100,7 @@ const mutations = {
   posOrderSyncErkhet: async (
     _root,
     { _id }: { _id: string },
-    { models, messageBroker, subdomain }
+    { models, subdomain }: IContext
   ) => {
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
@@ -134,7 +131,7 @@ const mutations = {
   posOrderReturnBill: async (
     _root,
     { _id }: { _id: string },
-    { models, messageBroker, subdomain }
+    { models,  subdomain }: IContext
   ) => {
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
@@ -161,6 +158,23 @@ const mutations = {
     }
     return await models.PosOrders.deleteOne({ _id });
   },
+  posOrderChangePayments: async (_root, { _id, cashAmount, cardAmount, mobileAmount }, { models }) => {
+    const order = await models.PosOrders.findOne({ _id }).lean();
+    if (!order) {
+      throw new Error('not found order');
+    }
+
+    if (order.totalAmount !== cashAmount + cardAmount + mobileAmount) {
+      throw new Error('not balanced');
+    }
+
+    await models.PosOrders.updateOne({ _id }, { $set: { cashAmount, cardAmount, mobileAmount } });
+    return models.PosOrders.findOne({ _id }).lean();
+  }
 };
+
+checkPermission(mutations, "posAdd", "managePos");
+checkPermission(mutations, "posEdit", "managePos");
+checkPermission(mutations, "posRemove", "managePos");
 
 export default mutations;

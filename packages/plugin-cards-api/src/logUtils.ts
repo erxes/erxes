@@ -684,7 +684,7 @@ export const putChecklistActivityLog = async (subdomain: string, params) => {
   if (action === 'delete') {
     sendLogsMessage({
       subdomain,
-      action: 'activityLogs:updateMany',
+      action: 'activityLogs.updateMany',
       data: {
         query: { 'content._id': item._id },
         modifier: { $set: { 'content.name': item.title || item.content } }

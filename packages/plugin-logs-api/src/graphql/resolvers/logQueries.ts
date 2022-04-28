@@ -29,6 +29,7 @@ const logQueries = {
   logs(_root, params: ILogQueryParams, { models }: IContext) {
     return fetchLogs(models, params);
   },
+
   async getDbSchemaLabels(_root, params: { type: string }, { subdomain }: IContext) {
     const [serviceName, moduleName] = params.type.split(':');
 

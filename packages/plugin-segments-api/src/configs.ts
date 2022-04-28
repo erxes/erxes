@@ -4,6 +4,8 @@ import resolvers from "./graphql/resolvers";
 
 import { initBroker } from "./messageBroker";
 import { generateModels } from "./connectionResolver";
+import permissions from "./permissions";
+import { getSubdomain } from "@erxes/api-utils/src/core";
 
 export let debug;
 export let mainDb;
@@ -19,27 +21,7 @@ export let serviceDiscovery;
 
 export default {
   name: "segments",
-  permissions: {
-    segments: {
-      name: "segments",
-      description: "Segments",
-      actions: [
-        {
-          name: "segmentsAll",
-          description: "All",
-          use: ["showSegments", "manageSegments"],
-        },
-        {
-          name: "manageSegments",
-          description: "Manage segments",
-        },
-        {
-          name: "showSegments",
-          description: "Show segments list",
-        },
-      ],
-    },
-  },
+  permissions,
   graphql: async (sd) => {
     serviceDiscovery = sd;
 
@@ -48,13 +30,15 @@ export default {
       resolvers: await resolvers(sd),
     };
   },
-  apolloServerContext: async (context) => {
-    const models = await generateModels('os');
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req.hostname);
 
-    context.models = models;
+    context.subdomain = subdomain;
+    context.models = await generateModels(subdomain);
 
     return context;
   },
+
   onServerInit: async (options) => {
     initBroker(options.messageBrokerClient);
 

@@ -26,16 +26,20 @@ const dealQueries = {
   async deals(
     _root,
     args: IDealListParams,
-    { user, commonQuerySelector, models, subdomain }: IContext
+    { user, commonQuerySelector, models, subdomain, serverTiming }: IContext
   ) {
     const filter = {
       ...commonQuerySelector,
       ...(await generateDealCommonFilters(models, subdomain, user._id, args)),
     };
 
+    serverTiming.startTime('deals')
+
     const getExtraFields = async (item: any) => ({
       amount: await dealResolvers.amount(item),
     });
+
+    serverTiming.startTime('getItemsList');
 
     const deals = await getItemList(
       models,
@@ -45,8 +49,11 @@ const dealQueries = {
       user,
       "deal",
       { productsData: 1 },
-      getExtraFields
+      getExtraFields,
+      serverTiming
     );
+
+    serverTiming.endTime('getItemsList');
 
     // @ts-ignore
     const dealProductIds = deals.flatMap((deal) => {
@@ -56,6 +63,8 @@ const dealQueries = {
 
       return [];
     });
+
+    serverTiming.startTime('sendProductsMessage');
 
     const products = await sendProductsMessage({
       subdomain,
@@ -68,6 +77,8 @@ const dealQueries = {
       isRPC: true,
       defaultValue: []
     });
+
+    serverTiming.endTime('sendProductsMessage');
 
     for (const deal of deals) {
       if (
@@ -91,6 +102,8 @@ const dealQueries = {
       }
     }
 
+    serverTiming.endTime('deals')
+
     return deals;
   },
 
@@ -101,7 +114,7 @@ const dealQueries = {
   ) {
     const filter = await generateDealCommonFilters(models, subdomain, user._id, args);
 
-    return models.Deals.find(filter).countDocuments();
+    return models.Deals.find(filter).count();
   },
 
   /**

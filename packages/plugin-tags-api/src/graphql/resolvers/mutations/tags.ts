@@ -5,7 +5,7 @@ import {
 import { IContext } from '../../../connectionResolver';
 
 import { ITag } from '../../../models/definitions/tags';
-import { tagObject } from '../../../utils';
+import { fixRelatedItems, tagObject } from '../../../utils';
 import {
   putCreateLog,
   putDeleteLog,
@@ -56,10 +56,17 @@ const tagMutations = {
   async tagsRemove(
     _root,
     { _id }: { _id: string },
-    { models, user }: IContext
+    { models, user, subdomain }: IContext
   ) {
-    const tag = await models.Tags.findOne({ _id });
+    const tag = await models.Tags.getTag(_id);
     const removed = await models.Tags.removeTag(_id);
+
+    await fixRelatedItems({
+      subdomain, 
+      type: tag.type, 
+      sourceId: tag._id,
+      action: 'remove',
+    });
 
     await putDeleteLog(models, { type: TAG, object: tag }, user);
 
@@ -128,13 +135,26 @@ const tagMutations = {
     }
   },
 
-  tagsMerge(
+  async tagsMerge(
     _root,
     { sourceId, destId }: { sourceId: string; destId: string },
-    { models }: IContext
+    { models, subdomain }: IContext
   ) {
-    return models.Tags.merge(sourceId, destId);
-  },
+    const source = await models.Tags.getTag(sourceId);
+
+    await fixRelatedItems({
+      subdomain, 
+      type: source.type, 
+      sourceId, 
+      destId, 
+      action: 'merge'
+    });
+
+    // remove old tag
+    await models.Tags.removeTag(sourceId);
+
+    return models.Tags.getTag(destId);
+  }
 };
 
 requireLogin(tagMutations, 'tagsTag');

@@ -6,6 +6,11 @@ import {
 } from './logTypeDefs';
 
 import {
+  types as EmailDeliveryTypes,
+  queries as EmailDeliveryQueries
+} from './emailDeliveryTypeDefs';
+
+import {
   types as ActivityLogTypes,
   queries as ActivityLogQueries,
 } from './activityLogTypeDefs';
@@ -21,10 +26,12 @@ const typeDefs = async(_serviceDiscovery) => {
 
     ${LogTypes}
     ${ActivityLogTypes}
+    ${EmailDeliveryTypes}
 
     extend type Query {
       ${LogQueries}
       ${ActivityLogQueries}
+      ${EmailDeliveryQueries}
     }
   `;
 }

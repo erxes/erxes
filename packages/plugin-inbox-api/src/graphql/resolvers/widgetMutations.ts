@@ -322,8 +322,6 @@ const widgetMutations = {
       isRPC: true
     });
 
-    console.log("form: ", form);
-
     if (!brand || !form) {
       throw new Error("Invalid configuration");
     }
@@ -1057,7 +1055,7 @@ const widgetMutations = {
     if (customer && form) {
       const replacedContent = await new EditorAttributeUtil(
         msgBrokerClient,
-        `${process.env.MAIN_API_DOMAIN}/pl:core`,
+        `${process.env.DOMAIN}/gateway/pl:core`,
         await getServices()
       ).replaceAttributes({
         content,

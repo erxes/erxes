@@ -5,6 +5,7 @@ import { generateModels, models } from "./connectionResolver";
 import afterMutations from "./afterMutations";
 import { initBroker } from "./messageBroker";
 import { initMemoryStorage } from "./inmemoryStorage";
+import { getSubdomain } from "@erxes/api-utils/src/core";
 
 export let debug;
 export let graphqlPubsub;
@@ -20,6 +21,30 @@ export let es: {
 
 export default {
   name: "ebarimt",
+  permissions: {
+    ebarimt: {
+      name: 'ebarimt',
+      description: 'Ebarimt',
+      actions: [
+        {
+          name: 'ebarimtAll',
+          description: 'All',
+          use: [
+            'managePutResponses',
+            'syncEbarimtConfig'
+          ]
+        },
+        {
+          name: 'managePutResponses',
+          description: 'Manage Put responses'
+        },
+        {
+          name: 'syncEbarimtConfig',
+          description: 'Manage ebarimt config'
+        }
+      ]
+    },
+  },
   hasSubscriptions: true,
   graphql: async (sd) => {
     serviceDiscovery = sd;
@@ -28,18 +53,16 @@ export default {
       resolvers: await resolvers(sd),
     };
   },
-  apolloServerContext: (context) => {
-    const subdomain = "os";
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req.hostname);
 
-    context.subdomain = subdomain;
+    context.subdomain = await generateModels(subdomain);;
     context.models = models;
 
     return context;
   },
   onServerInit: async (options) => {
     mainDb = options.db;
-
-    await generateModels("os");
 
     initBroker(options.messageBrokerClient);
 

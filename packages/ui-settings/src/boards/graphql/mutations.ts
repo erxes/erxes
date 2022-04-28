@@ -47,6 +47,7 @@ const commonPipelineParamsDef = `
   $excludeCheckUserIds: [String],
   $numberConfig: String
   $numberSize: String
+  $departmentIds: [String]
 `;
 
 const commonPipelineParams = `
@@ -66,6 +67,7 @@ const commonPipelineParams = `
   excludeCheckUserIds: $excludeCheckUserIds,
   numberConfig: $numberConfig
   numberSize: $numberSize
+  departmentIds: $departmentIds
 `;
 
 const pipelineAdd = `
@@ -117,5 +119,5 @@ export default {
   pipelinesArchive,
   pipelinesCopied,
   pipelineRemove,
-  pipelinesUpdateOrder
+  pipelinesUpdateOrder,
 };

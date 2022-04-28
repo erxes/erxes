@@ -15,6 +15,7 @@ const getNeighbor = `
     getNeighbor(productCategoryId: $productCategoryId) {
       productCategoryId
       info
+      rate
     }
   }
 `;

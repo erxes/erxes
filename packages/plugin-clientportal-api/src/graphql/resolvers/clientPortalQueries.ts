@@ -2,7 +2,7 @@
 
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
-import { sendCardsMessage, sendContactsMessage } from '../../messageBroker';
+import { sendCardsMessage, sendContactsMessage, sendCoreMessage } from '../../messageBroker';
 
 const configClientPortalQueries = {
   async clientPortalGetConfigs(
@@ -105,6 +105,68 @@ const configClientPortalQueries = {
     return sendCardsMessage({
       subdomain,
       action: 'tickets.findOne',
+      data: { _id },
+      isRPC: true,
+    });
+  },
+
+  async clientPortalDeals(
+    _root,
+    { stageId, conformityMainType, conformityMainTypeId, probability }: { stageId: string, conformityMainType: string, conformityMainTypeId: string, probability: string },
+    { subdomain }: IContext
+  ) {
+    const dealIds = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.savedConformity',
+      data: {
+        mainType: conformityMainType,
+        mainTypeId: conformityMainTypeId,
+        relTypes: ["deal"],
+      },
+      isRPC: true,
+    });
+
+    const query: any = {}
+    if (conformityMainType && conformityMainTypeId) {
+      query._id = { $in: dealIds };
+    }
+
+    if (stageId) {
+      query.stageId = stageId;
+    }
+
+    if (probability) {
+      const stages = await sendCardsMessage({
+        subdomain,
+        action: 'stages.find',
+        data: { type: 'deal', probability },
+        isRPC: true,
+        defaultValue: []
+      })
+
+      query.stageId = { $in: stages.map(s => s._id) };
+    }
+
+
+    return sendCardsMessage({
+      subdomain,
+      action: 'deals.find',
+      data: {
+        query,
+        sort: { modifiedAt: -1 }
+      },
+      isRPC: true,
+    });
+  },
+
+  async clientPortalDeal(
+    _root,
+    { _id }: { _id: string },
+    { subdomain }: IContext
+  ) {
+    return sendCardsMessage({
+      subdomain,
+      action: 'deals.findOne',
       data: { _id },
       isRPC: true,
     });

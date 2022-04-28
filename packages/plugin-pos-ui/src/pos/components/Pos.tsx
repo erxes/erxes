@@ -32,7 +32,6 @@ type Props = {
 };
 
 type State = {
-  brand?: string;
   name?: string;
   description?: string;
   pos?: IPos;
@@ -82,14 +81,10 @@ class Pos extends React.Component<Props, State> {
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { brand, pos, groups, uiOptions, ebarimtConfig, erkhetConfig, deliveryConfig } = this.state;
+    const { pos, groups, uiOptions, ebarimtConfig, erkhetConfig, deliveryConfig } = this.state;
 
     if (!pos.name) {
       return Alert.error('Enter POS name');
-    }
-
-    if (!brand) {
-      return Alert.error('Choose a Brand');
     }
 
     if (!pos.adminIds || !pos.adminIds.length) {
@@ -106,7 +101,6 @@ class Pos extends React.Component<Props, State> {
 
     let doc: any = {
       name: pos.name,
-      brandId: brand,
       description: pos.description,
       productDetails: pos.productDetails || [],
       groups,

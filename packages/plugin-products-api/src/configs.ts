@@ -4,11 +4,13 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import { generateAllDataLoaders } from './dataloaders';
-import { generateModels, models } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import logs from './logUtils';
 import tags from './tags';
 import internalNotes from './internalNotes';
 import forms from './forms';
+import permissions from './permissions';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let debug;
 export let mainDb;
@@ -16,6 +18,7 @@ export let serviceDiscovery;
 
 export default {
   name: 'products',
+  permissions,
   graphql: async (sd) => {
     serviceDiscovery = sd;
     
@@ -24,11 +27,15 @@ export default {
       resolvers
     }
   },
-  apolloServerContext: context => {
-    const subdomain = 'os';
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req.hostname);
 
     context.subdomain = subdomain;
+
+    const models = await generateModels(subdomain);
+
     context.models = models;
+    
     context.dataLoaders = generateAllDataLoaders(models, subdomain);
 
     return context;
@@ -36,8 +43,6 @@ export default {
   meta: { logs: { consumers: logs }, tags, internalNotes, forms },
   onServerInit: async options => {
     mainDb = options.db;
-
-    await generateModels('os')
 
     initBroker(options.messageBrokerClient);
 

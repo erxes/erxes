@@ -56,10 +56,19 @@ const productTemplatesDuplicate = `
   }
 `;
 
+const emailTemplatesAdd = `
+	mutation emailTemplatesAdd($name: String!, $content: String) {
+		emailTemplatesAdd(name: $name, content: $content) {
+			_id
+		}
+	}
+`;
+
 export default {
   productTemplatesAdd,
   productTemplatesEdit,
   productTemplatesRemove,
   productTemplatesChangeStatus,
-  productTemplatesDuplicate
+  productTemplatesDuplicate,
+  emailTemplatesAdd,
 };

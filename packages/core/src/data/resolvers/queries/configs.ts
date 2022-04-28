@@ -1,6 +1,5 @@
 import * as mongoose from "mongoose";
 import * as os from "os";
-import { Configs } from "../../../db/models";
 import { moduleRequireLogin } from "../../permissions/wrappers";
 
 import {
@@ -16,14 +15,15 @@ import { sendCommonMessage } from "../../../messageBroker";
 import { DEFAULT_CONSTANT_VALUES } from "@erxes/api-utils/src/constants";
 
 import * as dotenv from 'dotenv';
+import { IContext } from "../../../connectionResolver";
 dotenv.config();
 
 const configQueries = {
   /**
    * Config object
    */
-  configs(_root) {
-    return Configs.find({});
+  configs(_root, _args, { models }: IContext) {
+    return models.Configs.find({});
   },
 
   async configsGetVersion(_root, { releaseNotes }) {
@@ -36,7 +36,7 @@ const configQueries = {
       releaseInfo: {},
     };
 
-    const erxesDomain = getEnv({ name: "MAIN_APP_DOMAIN" });
+    const erxesDomain = getEnv({ name: "DOMAIN" });
 
     const erxesVersion = await sendRequest({
       url: `${erxesDomain}/version.json`,
@@ -101,9 +101,9 @@ const configQueries = {
     };
   },
 
-  configsConstants(_root) {
+  configsConstants(_root, _args, { models }: IContext) {
     return {
-      allValues: Configs.constants(),
+      allValues: models.Configs.constants(),
       defaultValues: DEFAULT_CONSTANT_VALUES,
     };
   },

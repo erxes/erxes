@@ -1,6 +1,5 @@
-import { Brands } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
-import { IContext } from '../../types';
+import { IContext } from '../../../connectionResolver';
 import { getDocumentList } from '../mutations/cacheUtils';
 
 interface IListArgs {
@@ -25,38 +24,38 @@ const brandQueries = {
   /**
    * All brands
    */
-  allBrands(_root, {}, { brandIdSelector }: IContext) {
-    return getDocumentList('brands', brandIdSelector);
+  allBrands(_root, {}, { brandIdSelector, models }: IContext) {
+    return getDocumentList(models, 'brands', brandIdSelector);
   },
 
   /**
    * Brands list
    */
-  brands(_root, args: IListArgs, { brandIdSelector }: IContext) {
+  brands(_root, args: IListArgs, { brandIdSelector, models }: IContext) {
     const selector = queryBuilder(args, brandIdSelector);
 
-    return Brands.find(selector).sort({ createdAt: -1 });
+    return models.Brands.find(selector).sort({ createdAt: -1 });
   },
 
   /**
    * Get one brand
    */
-  brandDetail(_root, { _id }: { _id: string }) {
-    return Brands.findOne({ _id });
+  brandDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Brands.findOne({ _id });
   },
 
   /**
    * Get all brands count. We will use it in pager
    */
-  brandsTotalCount(_root, _args, { brandIdSelector }: IContext) {
-    return Brands.find(brandIdSelector).countDocuments();
+  brandsTotalCount(_root, _args, { brandIdSelector, models }: IContext) {
+    return models.Brands.find(brandIdSelector).countDocuments();
   },
 
   /**
    * Get last brand
    */
-  brandsGetLast() {
-    return Brands.findOne({}).sort({ createdAt: -1 });
+  brandsGetLast(_root, _args, { models }: IContext) {
+    return models.Brands.findOne({}).sort({ createdAt: -1 });
   }
 };
 

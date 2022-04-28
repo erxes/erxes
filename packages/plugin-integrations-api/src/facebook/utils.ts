@@ -1,6 +1,6 @@
 import * as graph from 'fbgraph';
+import { IModels } from '../connectionResolver';
 import { debugError, debugFacebook } from '../debuggers';
-import { Accounts, Integrations } from '../models';
 import { IIntegrationDocument } from '../models/Integrations';
 import { generateAttachmentUrl } from '../utils';
 import { IAttachment, IAttachmentMessage } from './types';
@@ -33,7 +33,7 @@ export const graphRequest = {
   }
 };
 
-export const getPageList = async (accessToken?: string, kind?: string) => {
+export const getPageList = async (models: IModels, accessToken?: string, kind?: string) => {
   const response: any = await graphRequest.get(
     '/me/accounts?limit=100',
     accessToken
@@ -42,7 +42,7 @@ export const getPageList = async (accessToken?: string, kind?: string) => {
   const pages: any[] = [] 
 
   for (const page of response.data) {
-    const integration = await Integrations.findOne({
+    const integration = await models.Integrations.findOne({
       facebookPageIds: page.id,
       kind
     });
@@ -70,10 +70,11 @@ export const getPageAccessToken = async (
 };
 
 export const refreshPageAccesToken = async (
+  models: IModels,
   pageId: string,
   integration: IIntegrationDocument
 ) => {
-  const account = await Accounts.getAccount({ _id: integration.accountId });
+  const account = await models.Accounts.getAccount({ _id: integration.accountId });
 
   const facebookPageTokensMap = integration.facebookPageTokensMap || {};
 
@@ -81,7 +82,7 @@ export const refreshPageAccesToken = async (
 
   facebookPageTokensMap[pageId] = pageAccessToken;
 
-  await Integrations.updateOne(
+  await models.Integrations.updateOne(
     { _id: integration._id },
     { $set: { facebookPageTokensMap } }
   );
@@ -145,6 +146,7 @@ export const unsubscribePage = async (
 };
 
 export const getFacebookUser = async (
+  models: IModels,
   pageId: string,
   pageTokens: { [key: string]: string },
   fbUserId: string
@@ -166,7 +168,7 @@ export const getFacebookUser = async (
     return response;
   } catch (e) {
     if (e.message.includes('access token')) {
-      await Integrations.updateOne(
+      await models.Integrations.updateOne(
         { facebookPageIds: pageId },
         { $set: { healthStatus: 'page-token', error: `${e.message}` } }
       );
@@ -229,12 +231,13 @@ export const restorePost = async (
 };
 
 export const sendReply = async (
+  models: IModels,
   url: string,
   data: any,
   recipientId: string,
   integrationId: string
 ) => {
-  const integration = await Integrations.getIntegration({
+  const integration = await models.Integrations.getIntegration({
     erxesApiId: integrationId
   });
 
@@ -268,12 +271,12 @@ export const sendReply = async (
     );
 
     if (e.message.includes('access token')) {
-      await Integrations.updateOne(
+      await models.Integrations.updateOne(
         { _id: integration._id },
         { $set: { healthStatus: 'page-token', error: `${e.message}` } }
       );
     } else if (e.code !== 10) {
-      await Integrations.updateOne(
+      await models.Integrations.updateOne(
         { _id: integration._id },
         { $set: { healthStatus: 'account-token', error: `${e.message}` } }
       );
@@ -312,9 +315,9 @@ export const generateAttachmentMessages = (attachments: IAttachment[]) => {
   return messages;
 };
 
-export const checkFacebookPages = async (pages: any) => {
+export const checkFacebookPages = async (models: IModels, pages: any) => {
   for (const page of pages) {
-    const integration = await Integrations.findOne({ pageId: page.id });
+    const integration = await models.Integrations.findOne({ pageId: page.id });
 
     page.isUsed = integration ? true : false;
   }

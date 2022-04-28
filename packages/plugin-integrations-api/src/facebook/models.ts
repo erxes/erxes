@@ -1,4 +1,5 @@
 import { Document, Model, model, Schema } from 'mongoose';
+import { IModels } from '../connectionResolver';
 import { field } from '../models/utils';
 
 // customer ======================
@@ -28,13 +29,13 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   getCustomer(selector: any, isLean?: boolean): Promise<ICustomerDocument>;
 }
 
-export const loadCustomerClass = () => {
+export const loadCustomerClass = (models: IModels) => {
   class Customer {
     public static async getCustomer(selector: any, isLean: boolean) {
-      let customer = await Customers.findOne(selector);
+      let customer = await models.FbCustomers.findOne(selector);
 
       if (isLean) {
-        customer = await Customers.findOne(selector).lean();
+        customer = await models.FbCustomers.findOne(selector).lean();
       }
 
       if (!customer) {
@@ -79,10 +80,10 @@ export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(selector): Promise<IConversationDocument>;
 }
 
-export const loadConversationClass = () => {
+export const loadConversationClass = (models: IModels) => {
   class Conversation {
     public static async getConversation(selector) {
-      const conversation = await Conversations.findOne(selector);
+      const conversation = await models.FbConversations.findOne(selector);
 
       if (!conversation) {
         throw new Error('Conversation not found');
@@ -149,13 +150,13 @@ export interface IPostModel extends Model<IPostDocument> {
   getPost(selector: any, isLean?: boolean): Promise<IPostDocument>;
 }
 
-export const loadPostClass = () => {
+export const loadPostClass = (models: IModels) => {
   class Post {
     public static async getPost(selector: any, isLean: boolean) {
-      let post = await Posts.findOne(selector);
+      let post = await models.FbPosts.findOne(selector);
 
       if (isLean) {
-        post = await Posts.findOne(selector).lean();
+        post = await models.FbPosts.findOne(selector).lean();
       }
 
       if (!post) {
@@ -208,10 +209,10 @@ export interface ICommentModel extends Model<ICommentDocument> {
   getComment(selector): Promise<ICommentDocument>;
 }
 
-export const loadCommentClass = () => {
+export const loadCommentClass = (models: IModels) => {
   class Comment {
     public static async getComment(selector) {
-      const comment = await Comments.findOne(selector);
+      const comment = await models.FbComments.findOne(selector);
 
       if (!comment) {
         throw new Error('Comment not found');
@@ -226,39 +227,39 @@ export const loadCommentClass = () => {
   return commentSchema;
 };
 
-loadCustomerClass();
+// loadCustomerClass();
 
-loadCommentClass();
+// loadCommentClass();
 
-loadConversationClass();
+// loadConversationClass();
 
-loadPostClass();
-// tslint:disable-next-line
-export const Customers = model<ICustomerDocument, ICustomerModel>(
-  'customers_facebook',
-  customerSchema
-);
+// loadPostClass();
+// // tslint:disable-next-line
+// export const Customers = model<ICustomerDocument, ICustomerModel>(
+//   'customers_facebook',
+//   customerSchema
+// );
 
-// tslint:disable-next-line
-export const Conversations = model<IConversationDocument, IConversationModel>(
-  'conversations_facebook',
-  conversationSchema
-);
+// // tslint:disable-next-line
+// export const Conversations = model<IConversationDocument, IConversationModel>(
+//   'conversations_facebook',
+//   conversationSchema
+// );
 
-// tslint:disable-next-line
-export const ConversationMessages = model<
-  IConversationMessageDocument,
-  IConversationMessageModel
->('conversation_messages_facebook', conversationMessageSchema);
+// // tslint:disable-next-line
+// export const ConversationMessages = model<
+//   IConversationMessageDocument,
+//   IConversationMessageModel
+// >('conversation_messages_facebook', conversationMessageSchema);
 
-// tslint:disable-next-line
-export const Posts = model<IPostDocument, IPostModel>(
-  'posts_facebook',
-  postSchema
-);
+// // tslint:disable-next-line
+// export const Posts = model<IPostDocument, IPostModel>(
+//   'posts_facebook',
+//   postSchema
+// );
 
-// tslint:disable-next-line
-export const Comments = model<ICommentDocument, ICommentModel>(
-  'comments_facebook',
-  commentSchema
-);
+// // tslint:disable-next-line
+// export const Comments = model<ICommentDocument, ICommentModel>(
+//   'comments_facebook',
+//   commentSchema
+// );

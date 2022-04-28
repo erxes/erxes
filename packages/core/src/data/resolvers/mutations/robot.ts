@@ -1,14 +1,13 @@
-import { OnboardingHistories, RobotEntries } from '../../../db/models/Robot';
 import { graphqlPubsub } from '../../../pubsub';
-import { IContext } from '../../types';
+import { IContext } from '../../../connectionResolver';
 
 const robotMutations = {
-  robotEntriesMarkAsNotified(_root, { _id }: { _id: string }) {
-    return RobotEntries.markAsNotified(_id);
+  robotEntriesMarkAsNotified(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.RobotEntries.markAsNotified(_id);
   },
 
-  async onboardingCheckStatus(_root, _args, { user }: IContext) {
-    const status = await OnboardingHistories.userStatus(user._id);
+  async onboardingCheckStatus(_root, _args, { user, models }: IContext) {
+    const status = await models.OnboardingHistories.userStatus(user._id);
 
     if (status !== 'completed') {
       graphqlPubsub.publish('onboardingChanged', {
@@ -22,16 +21,16 @@ const robotMutations = {
     return status;
   },
 
-  onboardingForceComplete(_root, _args, { user }: IContext) {
-    return OnboardingHistories.forceComplete(user._id);
+  onboardingForceComplete(_root, _args, { user, models }: IContext) {
+    return models.OnboardingHistories.forceComplete(user._id);
   },
 
   onboardingCompleteShowStep(
     _root,
     { step }: { step: string },
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    return OnboardingHistories.completeShowStep(step, user._id);
+    return models.OnboardingHistories.completeShowStep(step, user._id);
   }
 };
 

@@ -24,7 +24,8 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          # cp -r packages/ui-plugin-template/.erxes packages/plugin-calendar-ui/.erxes
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-calendar-ui/.erxes
+          cp -r packages/plugin-calendar-ui/src packages/plugin-calendar-ui/.erxes/plugin-src
           cd packages/plugin-calendar-ui
           yarn install-deps
           yarn build
@@ -38,4 +39,6 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-calendar-ui/.erxes/dist s3://plugin-uis/plugin-calendar-ui --delete 
+          tar -cf build.tar --directory=packages/plugin-calendar-ui/.erxes/dist .
+          cp build.tar packages/plugin-calendar-ui/.erxes/dist
+          aws s3 sync packages/plugin-calendar-ui/.erxes/dist s3://erxes-plugins/uis/plugin-calendar-ui --delete 

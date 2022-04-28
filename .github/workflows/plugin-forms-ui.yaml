@@ -25,7 +25,8 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          # cp -r packages/ui-plugin-template/.erxes packages/plugin-forms-ui/.erxes
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-forms-ui/.erxes
+          cp -r packages/plugin-forms-ui/src packages/plugin-forms-ui/.erxes/plugin-src
           cd packages/plugin-forms-ui
           yarn install-deps
           yarn build
@@ -39,4 +40,6 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-forms-ui/.erxes/dist s3://plugin-uis/plugin-forms-ui --delete
+          tar -cf build.tar --directory=packages/plugin-forms-ui/.erxes/dist .
+          cp build.tar packages/plugin-forms-ui/.erxes/dist
+          aws s3 sync packages/plugin-forms-ui/.erxes/dist s3://erxes-plugins/uis/plugin-forms-ui --delete

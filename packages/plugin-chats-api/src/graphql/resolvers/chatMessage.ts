@@ -1,9 +1,11 @@
-const ChatMessage = {
+export default {
   async createdUser(chatMessage) {
-    return chatMessage.createdBy && {
-      __typename: 'User',
-      _id: chatMessage.createdBy
-    }
+    return (
+      chatMessage.createdBy && {
+        __typename: "User",
+        _id: chatMessage.createdBy,
+      }
+    );
   },
 
   async relatedMessage(chatMessage, {}, { models }) {
@@ -14,5 +16,3 @@ const ChatMessage = {
     return models.ChatMessages.findOne({ _id: chatMessage.relatedId });
   },
 };
-
-export default ChatMessage;

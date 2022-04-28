@@ -1,4 +1,4 @@
-import { serviceDiscovery } from './configs';
+import { graphqlPubsub, serviceDiscovery } from './configs';
 import {
   generateAmounts,
   generateProducts
@@ -8,6 +8,7 @@ import { getCardItem } from './utils';
 import { notifiedUserIds } from './graphql/utils';
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { publishHelper } from './graphql/resolvers/mutations/utils';
 
 let client;
 
@@ -31,6 +32,15 @@ export const initBroker = async cl => {
     return {
       status: 'success',
       data: await models.Tasks.create(data)
+    };
+  });
+
+  consumeRPCQueue('cards:deals.create', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Deals.create(data)
     };
   });
 
@@ -129,7 +139,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Deals.countDocuments(data)
+      data: await models.Deals.find(data).count()
     };
   });
 
@@ -229,6 +239,54 @@ export const initBroker = async cl => {
       data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`
     };
   });
+
+  consumeQueue(
+    'cards:pipelinesChanged',
+    async ({ subdomain, data: { pipelineId, action, data } }) => {
+      const models = await generateModels(subdomain);
+
+      graphqlPubsub.publish('pipelinesChanged', {
+        pipelinesChanged: {
+          _id: pipelineId,
+          proccessId: Math.random(),
+          action,
+          data
+        }
+      });
+
+      return {
+        status: 'success',
+      };
+    }
+  );
+
+  consumeQueue(
+    'cards:publishHelperItems',
+    async ({ subdomain, data: { addedTypeIds, removedTypeIds, doc } }) => {
+      const targetTypes = ['deal', 'task', 'ticket'];
+      const targetRelTypes = ['company', 'customer'];
+  
+      if (
+        targetTypes.includes(doc.mainType) &&
+        targetRelTypes.includes(doc.relType)
+      ) {
+        await publishHelper(subdomain, doc.mainType, doc.mainTypeId);
+      }
+  
+      if (
+        targetTypes.includes(doc.relType) &&
+        targetRelTypes.includes(doc.mainType)
+      ) {
+        for (const typeId of addedTypeIds.concat(removedTypeIds)) {
+          await publishHelper(subdomain, doc.relType, typeId);
+        }
+      }
+
+      return {
+        status: 'success',
+      };
+    }
+  );
 };
 
 export const sendContactsMessage = async (

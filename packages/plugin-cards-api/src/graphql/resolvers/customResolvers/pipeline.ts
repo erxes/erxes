@@ -1,24 +1,31 @@
-import { IContext } from '../../../connectionResolver';
-import { IPipelineDocument } from '../../../models/definitions/boards';
+import { IContext } from "../../../connectionResolver";
+import { IPipelineDocument } from "../../../models/definitions/boards";
 import {
   BOARD_TYPES,
-  PIPELINE_VISIBLITIES
-} from '../../../models/definitions/constants';
+  VISIBLITIES,
+} from "../../../models/definitions/constants";
 import {
   generateDealCommonFilters,
   generateGrowthHackCommonFilters,
   generateTaskCommonFilters,
-  generateTicketCommonFilters
-} from '../queries/utils';
+  generateTicketCommonFilters,
+} from "../queries/utils";
 
 export default {
   createdUser(pipeline: IPipelineDocument) {
+    if (!pipeline.userId) {
+      return;
+    }
+
     return { __typename: "User", _id: pipeline.userId };
   },
 
   members(pipeline: IPipelineDocument, {}) {
-    if (pipeline.visibility === PIPELINE_VISIBLITIES.PRIVATE && pipeline.memberIds) {
-      return pipeline.memberIds.map(memberId => ({ __typename: "User", _id : memberId }));
+    if (pipeline.visibility === VISIBLITIES.PRIVATE && pipeline.memberIds) {
+      return pipeline.memberIds.map(memberId => ({
+        __typename: "User",
+        _id: memberId,
+      }));
     }
 
     return [];
@@ -42,15 +49,15 @@ export default {
       const endDate = new Date(pipeline.endDate).getTime();
 
       if (now > endDate) {
-        return 'Completed';
+        return "Completed";
       } else if (now < endDate && now > startDate) {
-        return 'In progress';
+        return "In progress";
       } else {
-        return 'Not started';
+        return "Not started";
       }
     }
 
-    return '';
+    return "";
   },
 
   async itemsTotalCount(
@@ -60,33 +67,53 @@ export default {
   ) {
     switch (pipeline.type) {
       case BOARD_TYPES.DEAL: {
-        const filter = await generateDealCommonFilters(models, subdomain, user._id, {
-          pipelineId: pipeline._id
-        });
+        const filter = await generateDealCommonFilters(
+          models,
+          subdomain,
+          user._id,
+          {
+            pipelineId: pipeline._id,
+          }
+        );
 
-        return models.Deals.find(filter).countDocuments();
+        return models.Deals.find(filter).count();
       }
       case BOARD_TYPES.TICKET: {
-        const filter = await generateTicketCommonFilters(models, subdomain, user._id, {
-          pipelineId: pipeline._id
-        });
+        const filter = await generateTicketCommonFilters(
+          models,
+          subdomain,
+          user._id,
+          {
+            pipelineId: pipeline._id,
+          }
+        );
 
-        return models.Tickets.find(filter).countDocuments();
+        return models.Tickets.find(filter).count();
       }
       case BOARD_TYPES.TASK: {
-        const filter = await generateTaskCommonFilters(models, subdomain, user._id, {
-          pipelineId: pipeline._id
-        });
+        const filter = await generateTaskCommonFilters(
+          models,
+          subdomain,
+          user._id,
+          {
+            pipelineId: pipeline._id,
+          }
+        );
 
-        return models.Tasks.find(filter).countDocuments();
+        return models.Tasks.find(filter).count();
       }
       case BOARD_TYPES.GROWTH_HACK: {
-        const filter = await generateGrowthHackCommonFilters(models, subdomain, user._id, {
-          pipelineId: pipeline._id
-        });
+        const filter = await generateGrowthHackCommonFilters(
+          models,
+          subdomain,
+          user._id,
+          {
+            pipelineId: pipeline._id,
+          }
+        );
 
-        return models.GrowthHacks.find(filter).countDocuments();
+        return models.GrowthHacks.find(filter).count();
       }
     }
-  }
+  },
 };

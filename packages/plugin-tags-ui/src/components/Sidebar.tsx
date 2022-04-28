@@ -19,7 +19,7 @@ function ListItem(value, type) {
 
 function TagsSidebar({ types, type }: { types: any[]; type: string }) {
   return (
-    <LeftSidebar full={true} header={<SidebarHeader />}>
+    <LeftSidebar hasBorder={true} header={<SidebarHeader />}>
       <LeftSidebar.Header uppercase={true}>
         {__("Tags type")}
       </LeftSidebar.Header>

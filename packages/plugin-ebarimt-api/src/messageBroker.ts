@@ -39,6 +39,16 @@ export const initBroker = async (cl) => {
     };
   });
 
+  consumeRPCQueue("ebarimt:putresponses.createOrUpdate", async ({ subdomain, data: { _id, doc } }) => {
+    const models = await generateModels(subdomain);
+
+    return await models.PutResponses.updateOne(
+      { _id },
+      { $set: { ...doc } },
+      { upsert: true }
+    );
+  });
+
   consumeRPCQueue("ebarimt:putresponses.putHistories", async ({ subdomain, data: { contentType, contentId } }) => {
     const models = await generateModels(subdomain);
 

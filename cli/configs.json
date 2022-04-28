@@ -1,0 +1,26 @@
+{
+	"jwt_token_secret": "",
+	"db_server_address": "",
+	"main_app_domain": "",
+	"dashboard": {
+	},
+	"elasticsearch": {},
+	"redis": {
+		"password": ""
+	},
+	"mongo": {
+		"username": "",
+		"password": ""
+	},
+	"rabbitmq": {
+		"cookie": "",
+		"user": "",
+		"pass": "",
+		"vhost": ""
+	},
+	"plugins": [
+		{
+			"name": "contacts"
+		}
+	]
+}

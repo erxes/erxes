@@ -228,8 +228,8 @@ export const AWS_EMAIL_DELIVERY_STATUSES = {
 };
 
 export const CAMPAIGN_TARGET_TYPES = {
-  SEGMENT: 'segment',
-  TAG: 'tag',
-  BRAND: 'brand',
-  ALL: ['segment', 'tag', 'brand']
+  SEGMENT: 'segments:segment',
+  TAG: 'tags:tag',
+  BRAND: 'core:brand',
+  ALL: ['segments:segment', 'tags:tag', 'core:brand']
 };
