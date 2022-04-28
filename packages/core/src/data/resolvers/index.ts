@@ -11,6 +11,7 @@ import Structure from './structure';
 import Department from './departments';
 import Unit from './units';
 import Branch from './branches';
+import App from './app';
 
 const resolvers: any = {
   ...customScalars,
@@ -28,7 +29,8 @@ const resolvers: any = {
   Structure,
   Department,
   Unit,
-  Branch
+  Branch,
+  App
 };
 
 export default resolvers;

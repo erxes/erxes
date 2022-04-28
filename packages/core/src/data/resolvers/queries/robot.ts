@@ -1,10 +1,8 @@
-import { RobotEntries } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { OnboardingHistories } from '../../../db/models/Robot';
 import { moduleObjects } from '../../permissions/actions/permission';
 import { getUserAllowedActions, IModuleMap } from '../../permissions/utils';
 import { moduleRequireLogin } from '../../permissions/wrappers';
-import { IContext } from '../../types';
+import { IContext } from '../../../connectionResolver';
 
 const features: {
   [key: string]: {
@@ -212,7 +210,8 @@ const robotQueries = {
       isNotified,
       action,
       parentId
-    }: { isNotified: boolean; action: string; parentId: string }
+    }: { isNotified: boolean; action: string; parentId: string },
+    { models }: IContext
   ) {
     const selector: any = { parentId, action };
 
@@ -220,25 +219,25 @@ const robotQueries = {
       selector.isNotified = isNotified;
     }
 
-    return RobotEntries.find(selector);
+    return models.RobotEntries.find(selector);
   },
 
   onboardingStepsCompleteness(
     _root,
     { steps }: { steps: string[] },
-    { user }: IContext
+    { user, models }: IContext
   ) {
-    return OnboardingHistories.stepsCompletness(steps, user);
+    return models.OnboardingHistories.stepsCompletness(steps, user);
   },
 
-  async onboardingGetAvailableFeatures(_root, _args, { user }: IContext) {
+  async onboardingGetAvailableFeatures(_root, _args, { user, models }: IContext) {
     const results: Array<{
       name: string;
       isComplete: boolean;
       settings?: string[];
       showSettings?: boolean;
     }> = [];
-    const actionsMap = await getUserAllowedActions(user);
+    const actionsMap = await getUserAllowedActions(models, user);
 
     for (const value of Object.keys(features)) {
       const { settings, feature } = features[value];
@@ -267,7 +266,7 @@ const robotQueries = {
           settings,
           showSettings,
           isComplete:
-            (await OnboardingHistories.find(selector).countDocuments()) > 0
+            (await models.OnboardingHistories.find(selector).countDocuments()) > 0
         });
       }
     }

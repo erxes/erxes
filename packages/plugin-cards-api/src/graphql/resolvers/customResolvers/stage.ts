@@ -94,7 +94,7 @@ export default {
           args.extraParams
         );
 
-        return Deals.find(filter).countDocuments();
+        return Deals.find(filter).count();
       }
       case BOARD_TYPES.TICKET: {
         const filter = await generateTicketCommonFilters(
@@ -105,7 +105,7 @@ export default {
           args.extraParams
         );
 
-        return Tickets.find(filter).countDocuments();
+        return Tickets.find(filter).count();
       }
       case BOARD_TYPES.TASK: {
         const filter = await generateTaskCommonFilters(
@@ -120,7 +120,7 @@ export default {
           args.extraParams
         );
 
-        return Tasks.find(filter).countDocuments();
+        return Tasks.find(filter).count();
       }
       case BOARD_TYPES.GROWTH_HACK: {
         const filter = await generateGrowthHackCommonFilters(
@@ -131,7 +131,7 @@ export default {
           args.extraParams
         );
 
-        return GrowthHacks.find(filter).countDocuments();
+        return GrowthHacks.find(filter).count();
       }
     }
   },
@@ -153,7 +153,7 @@ export default {
       args.extraParams
     );
 
-    return models.Deals.find(filter).countDocuments();
+    return models.Deals.find(filter).count();
   },
 
   /*
@@ -233,7 +233,7 @@ export default {
       args.extraParams
     );
 
-    return models.Deals.find(filter).countDocuments();
+    return models.Deals.find(filter).count();
   },
 
   /*

@@ -5,6 +5,7 @@ import resolvers from "./graphql/resolvers";
 import { initBroker } from "./messageBroker";
 import { generateModels } from "./connectionResolver";
 import permissions from "./permissions";
+import { getSubdomain } from "@erxes/api-utils/src/core";
 
 export let debug;
 export let mainDb;
@@ -29,13 +30,15 @@ export default {
       resolvers: await resolvers(sd),
     };
   },
-  apolloServerContext: async (context) => {
-    const models = await generateModels('os');
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req.hostname);
 
-    context.models = models;
+    context.subdomain = subdomain;
+    context.models = await generateModels(subdomain);
 
     return context;
   },
+
   onServerInit: async (options) => {
     initBroker(options.messageBrokerClient);
 

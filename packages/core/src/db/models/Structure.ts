@@ -1,4 +1,5 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
+import { IModels } from '../../connectionResolver';
 import {
   IDepartmentDocument,
   departmentSchema,
@@ -22,13 +23,13 @@ export interface IStructureModel extends Model<IStructureDocument> {
   removeStructure(_id: string): IStructureDocument;
 }
 
-export const loadStructureClass = () => {
+export const loadStructureClass = (models: IModels) => {
   class Structure {
     /*
      * Get a structure
      */
     public static async getStructure(doc: any) {
-      const structure = await Structures.findOne(doc);
+      const structure = await models.Structures.findOne(doc);
 
       if (!structure) {
         throw new Error('Structure not found');
@@ -41,7 +42,7 @@ export const loadStructureClass = () => {
      * Create an structure
      */
     public static async createStructure(doc: any, user: IUserDocument) {
-      const structure = await Structures.create({
+      const structure = await models.Structures.create({
         ...doc,
         createdAt: new Date(),
         createdBy: user._id
@@ -58,7 +59,7 @@ export const loadStructureClass = () => {
       doc: any,
       user: IUserDocument
     ) {
-      await Structures.update(
+      await models.Structures.update(
         { _id },
         {
           ...doc,
@@ -67,29 +68,31 @@ export const loadStructureClass = () => {
         }
       );
 
-      return Structures.findOne({ _id });
+      return models.Structures.findOne({ _id });
     }
 
     /*
      * Remove a structure
      */
     public static async removeStructure(_id: string) {
-      const structure = await Structures.getStructure({ _id });
+      const structure = await models.Structures.getStructure({ _id });
 
       return structure.remove();
     }
   }
 
   structureSchema.loadClass(Structure);
+
+  return structureSchema;
 };
 
-loadStructureClass();
+// loadStructureClass();
 
-// tslint:disable-next-line
-const Structures = model<IStructureDocument, IStructureModel>(
-  'structures',
-  structureSchema
-);
+// // tslint:disable-next-line
+// const models.Structures = model<IStructureDocument, IStructureModel>(
+//   'structures',
+//   structureSchema
+// );
 
 export interface IDepartmentModel extends Model<IDepartmentDocument> {
   getDepartment(doc: any): IDepartmentDocument;
@@ -102,13 +105,13 @@ export interface IDepartmentModel extends Model<IDepartmentDocument> {
   removeDepartment(_id: string): IDepartmentDocument;
 }
 
-export const loadDepartmentClass = () => {
+export const loadDepartmentClass = (models: IModels) => {
   class Department {
     /*
      * Get a department
      */
     public static async getDepartment(doc: any) {
-      const department = await Departments.findOne(doc);
+      const department = await models.Departments.findOne(doc);
 
       if (!department) {
         throw new Error('Department not found');
@@ -121,7 +124,7 @@ export const loadDepartmentClass = () => {
      * Create an department
      */
     public static async createDepartment(doc: any, user: IUserDocument) {
-      const department = await Departments.create({
+      const department = await models.Departments.create({
         ...doc,
         createdAt: new Date(),
         createdBy: user._id
@@ -138,7 +141,7 @@ export const loadDepartmentClass = () => {
       doc: any,
       user: IUserDocument
     ) {
-      await Departments.update(
+      await models.Departments.update(
         { _id },
         {
           ...doc,
@@ -147,31 +150,25 @@ export const loadDepartmentClass = () => {
         }
       );
 
-      return Departments.findOne({ _id });
+      return models.Departments.findOne({ _id });
     }
 
     /*
      * Remove a department
      */
     public static async removeDepartment(_id: string) {
-      const department = await Departments.getDepartment({ _id });
+      const department = await models.Departments.getDepartment({ _id });
 
-      await Departments.deleteMany({ parentId: department._id });
+      await models.Departments.deleteMany({ parentId: department._id });
 
       return department.remove();
     }
   }
 
   departmentSchema.loadClass(Department);
+
+  return departmentSchema;
 };
-
-loadDepartmentClass();
-
-// tslint:disable-next-line
-const Departments = model<IDepartmentDocument, IDepartmentModel>(
-  'departments',
-  departmentSchema
-);
 
 export interface IUnitModel extends Model<IUnitDocument> {
   getUnit(doc: any): IUnitDocument;
@@ -180,13 +177,13 @@ export interface IUnitModel extends Model<IUnitDocument> {
   removeUnit(_id: string): IUnitDocument;
 }
 
-export const loadUnitClass = () => {
+export const loadUnitClass = (models: IModels) => {
   class Unit {
     /*
      * Get an unit
      */
     public static async getUnit(doc: any) {
-      const unit = await Units.findOne(doc);
+      const unit = await models.Units.findOne(doc);
 
       if (!unit) {
         throw new Error('Unit not found');
@@ -199,7 +196,7 @@ export const loadUnitClass = () => {
      * Create an unit
      */
     public static async createUnit(doc: any, user: IUserDocument) {
-      const unit = await Units.create({
+      const unit = await models.Units.create({
         ...doc,
         createdAt: new Date(),
         createdBy: user._id
@@ -212,7 +209,7 @@ export const loadUnitClass = () => {
      * Update an unit
      */
     public static async updateUnit(_id: string, doc: any, user: IUserDocument) {
-      await Units.update(
+      await models.Units.update(
         { _id },
         {
           ...doc,
@@ -221,26 +218,23 @@ export const loadUnitClass = () => {
         }
       );
 
-      return Units.findOne({ _id });
+      return models.Units.findOne({ _id });
     }
 
     /*
      * Remove an unit
      */
     public static async removeUnit(_id: string) {
-      const unit = await Units.getUnit({ _id });
+      const unit = await models.Units.getUnit({ _id });
 
       return unit.remove();
     }
   }
 
   unitSchema.loadClass(Unit);
+
+  return unitSchema;
 };
-
-loadUnitClass();
-
-// tslint:disable-next-line
-const Units = model<IUnitDocument, IUnitModel>('units', unitSchema);
 
 export interface IBranchModel extends Model<IBranchDocument> {
   getBranch(doc: any): IBranchDocument;
@@ -249,13 +243,13 @@ export interface IBranchModel extends Model<IBranchDocument> {
   removeBranch(_id: string): IBranchDocument;
 }
 
-export const loadBranchClass = () => {
+export const loadBranchClass = (models: IModels) => {
   class Branch {
     /*
      * Get a branch
      */
     public static async getBranch(doc: any) {
-      const branch = await Branches.findOne(doc);
+      const branch = await models.Branches.findOne(doc);
 
       if (!branch) {
         throw new Error('Branch not found');
@@ -268,7 +262,7 @@ export const loadBranchClass = () => {
      * Create a branch
      */
     public static async createBranch(doc: any, user: IUserDocument) {
-      const branch = await Branches.create({
+      const branch = await models.Branches.create({
         ...doc,
         createdAt: new Date(),
         createdBy: user._id
@@ -285,7 +279,7 @@ export const loadBranchClass = () => {
       doc: any,
       user: IUserDocument
     ) {
-      await Branches.update(
+      await models.Branches.update(
         { _id },
         {
           ...doc,
@@ -294,25 +288,20 @@ export const loadBranchClass = () => {
         }
       );
 
-      return Branches.findOne({ _id });
+      return models.Branches.findOne({ _id });
     }
 
     /*
      * Remove a branch
      */
     public static async removeBranch(_id: string) {
-      const branch = await Branches.getBranch({ _id });
+      const branch = await models.Branches.getBranch({ _id });
 
       return branch.remove();
     }
   }
 
   branchSchema.loadClass(Branch);
+
+  return branchSchema;
 };
-
-loadBranchClass();
-
-// tslint:disable-next-line
-const Branches = model<IBranchDocument, IBranchModel>('branches', branchSchema);
-
-export { Structures, Departments, Units, Branches };

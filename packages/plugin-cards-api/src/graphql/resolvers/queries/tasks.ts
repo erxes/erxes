@@ -47,7 +47,7 @@ const taskQueries = {
       ...(await generateTaskCommonFilters(models, subdomain, user._id, args)),
     };
 
-    return models.Tasks.find(filter).countDocuments();
+    return models.Tasks.find(filter).count();
   },
 
   /**

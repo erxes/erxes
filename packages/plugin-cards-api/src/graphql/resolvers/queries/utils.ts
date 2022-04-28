@@ -536,7 +536,7 @@ export const archivedItemsCount = async (
   if (stages.length > 0) {
     const filter = generateArhivedItemsFilter(params, stages);
 
-    return collection.countDocuments(filter);
+    return collection.find(filter).count();
   }
 
   return 0;

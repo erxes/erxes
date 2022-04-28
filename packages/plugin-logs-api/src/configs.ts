@@ -1,3 +1,4 @@
+import * as serverTiming from 'server-timing';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
@@ -5,6 +6,7 @@ import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import permissions from './permissions';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -32,14 +34,21 @@ export default {
   },
   hasSubscriptions: false,
   segment: {},
-  apolloServerContext: async (context) => {
-    const subdomain = 'os';
+  apolloServerContext: async (context, req, res) => {
+    const subdomain = getSubdomain(req.hostname);
 
     context.models = await generateModels(subdomain);
     context.subdomain = subdomain;
 
+    context.serverTiming = {
+      startTime: res.startTime,
+      endTime: res.endTime,
+      setMetric: res.setMetric
+    }
+
     return context;
   },
+  middlewares: [serverTiming],
   onServerInit: async (options) => {
     mainDb = options.db;
 

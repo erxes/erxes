@@ -1,6 +1,7 @@
 import { getEnv } from '@erxes/api-utils/src';
 import * as formidable from 'formidable';
 import * as request from 'request';
+import { generateModels, } from '../connectionResolver';
 import * as _ from 'underscore';
 import { filterXSS } from 'xss';
 
@@ -9,10 +10,15 @@ import {
   uploadFile
 } from '../data/utils';
 import { debugExternalApi } from '../debuggers';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 const DOMAIN = getEnv({ name: 'DOMAIN' });
 
 export const uploader = async (req: any, res, next) => {
+
+  const subdomain = getSubdomain(req.hostname);
+  const models = await generateModels(subdomain);
+
   const INTEGRATIONS_API_DOMAIN = `${DOMAIN}/gateway/pl:integrations`;
 
   if (req.query.kind === 'nylas') {
@@ -42,11 +48,12 @@ export const uploader = async (req: any, res, next) => {
     const file = response.file || response.upload;
 
     // check file ====
-    const status = await checkFile(file, req.headers.source);
+    const status = await checkFile(models, file, req.headers.source);
 
     if (status === 'ok') {
       try {
         const result = await uploadFile(
+          models,
           `${DOMAIN}/gateway`,
           file,
           response.upload ? true : false

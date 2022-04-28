@@ -15,15 +15,15 @@
       };
 
       window.envMaps = [
-        { name: 'REACT_APP_API_URL', processValue: 'http://localhost:4000' },
+        { name: 'REACT_APP_API_URL', processValue: '%REACT_APP_API_URL%' },
         {
           name: 'REACT_APP_API_SUBSCRIPTION_URL',
-          processValue: 'ws://localhost:4000/graphql'
+          processValue: '%REACT_APP_API_SUBSCRIPTION_URL%'
         },
-        { name: 'REACT_APP_CDN_HOST', processValue: 'http://localhost:3200' },
+        { name: 'REACT_APP_CDN_HOST', processValue: '%REACT_APP_CDN_HOST%' },
         {
           name: 'REACT_APP_DASHBOARD_URL',
-          processValue: 'http://localhost:4200'
+          processValue: '%REACT_APP_DASHBOARD_URL%'
         },
         {
           name: 'REACT_APP_FILE_UPLOAD_MAX_SIZE',

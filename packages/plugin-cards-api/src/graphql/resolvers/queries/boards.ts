@@ -55,21 +55,21 @@ const boardQueries = {
     const pipelineFilter = user.isOwner
       ? {}
       : {
-          $or: [
-            { $eq: ["$visibility", "public"] },
-            {
-              $and: [
-                { $eq: ["$visibility", "private"] },
-                {
-                  $or: [
-                    { $in: [user._id, "$memberIds"] },
-                    { $eq: ["$userId", user._id] },
-                  ],
-                },
-              ],
-            },
-          ],
-        };
+        $or: [
+          { $eq: ["$visibility", "public"] },
+          {
+            $and: [
+              { $eq: ["$visibility", "private"] },
+              {
+                $or: [
+                  { $in: [user._id, "$memberIds"] },
+                  { $eq: ["$userId", user._id] },
+                ],
+              },
+            ],
+          },
+        ],
+      };
 
     return Boards.aggregate([
       { $match: { ...commonQuerySelector, type } },
@@ -117,7 +117,7 @@ const boardQueries = {
     for (const board of boards) {
       const count = await Pipelines.find({
         boardId: board._id,
-      }).countDocuments();
+      }).count();
 
       counts.push({
         _id: board._id,
@@ -182,22 +182,22 @@ const boardQueries = {
       user.isOwner || isAll
         ? {}
         : {
-            status: { $ne: "archived" },
-            $or: [
-              { visibility: "public" },
-              {
-                $and: [
-                  { visibility: "private" },
-                  {
-                    $or: [
-                      { memberIds: { $in: [user._id] } },
-                      { userId: user._id },
-                    ],
-                  },
-                ],
-              },
-            ],
-          };
+          status: { $ne: "archived" },
+          $or: [
+            { visibility: "public" },
+            {
+              $and: [
+                { visibility: "private" },
+                {
+                  $or: [
+                    { memberIds: { $in: [user._id] } },
+                    { userId: user._id },
+                  ],
+                },
+              ],
+            },
+          ],
+        };
 
     if (!user.isOwner && !isAll) {
       const departments = await sendCoreMessage({
@@ -264,7 +264,7 @@ const boardQueries = {
 
     const notStartedCount = await Pipelines.find(
       notStartedQuery
-    ).countDocuments();
+    ).count();
 
     counts["Not started"] = notStartedCount;
 
@@ -276,7 +276,7 @@ const boardQueries = {
 
     const inProgressCount = await Pipelines.find(
       inProgressQuery
-    ).countDocuments();
+    ).count();
 
     counts["In progress"] = inProgressCount;
 
@@ -287,7 +287,7 @@ const boardQueries = {
 
     const completedCounted = await Pipelines.find(
       completedQuery
-    ).countDocuments();
+    ).count();
 
     counts.Completed = completedCounted;
 
@@ -356,7 +356,7 @@ const boardQueries = {
       filter.status = { $ne: BOARD_STATUSES.ARCHIVED };
 
       filter.$or = [
-        { visibility: "public" },
+        { visibility: { $in: ["public", null] } },
         {
           $and: [{ visibility: "private" }, { memberIds: { $in: [user._id] } }],
         },
@@ -569,7 +569,7 @@ const boardQueries = {
       Object.assign(filter, regexSearchText(search, "name"));
     }
 
-    return Stages.countDocuments(filter);
+    return Stages.count(filter);
   },
 
   /**

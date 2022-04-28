@@ -9,7 +9,6 @@ import segments from './segments';
 import forms from './forms';
 import {
   generateModels,
-  getSubdomain
 } from './connectionResolver';
 import logs from './logUtils';
 import imports from './imports';
@@ -18,6 +17,7 @@ import internalNotes from './internalNotes';
 import automations from './automations';
 import search from './search';
 import permissions from './permissions';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -55,17 +55,16 @@ export default {
     search,
     internalNotes
   },
-  apolloServerContext: async context => {
-    const subdomain = 'os';
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req.hostname);
 
     context.models = await generateModels(subdomain);
     context.subdomain = subdomain;
   },
+
   onServerInit: async options => {
     const app = options.app;
     mainDb = options.db;
-
-    await generateModels('os');
 
     app.get(
       '/file-export',

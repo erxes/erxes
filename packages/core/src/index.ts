@@ -20,8 +20,6 @@ import {
   routeErrorHandling
 } from './data/utils';
 
-import { connect } from './db/connection';
-import { Configs, Users } from './db/models';
 import { debugBase, debugError, debugInit } from './debuggers';
 import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
@@ -35,11 +33,13 @@ import logs from './logUtils';
 
 import init from './startup';
 import forms from './forms';
+import { generateModels } from './connectionResolver'
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 // load environment variables
 dotenv.config();
 
-const { NODE_ENV, JWT_TOKEN_SECRET, WIDGETS_DOMAIN, DOMAIN } = process.env;
+const { JWT_TOKEN_SECRET, WIDGETS_DOMAIN, DOMAIN } = process.env;
 
 if (!JWT_TOKEN_SECRET) {
   throw new Error('Please configure JWT_TOKEN_SECRET environment variable.');
@@ -65,6 +65,7 @@ const corsOptions = {
   origin: [
     DOMAIN ? DOMAIN : 'http://localhost:3000',
     WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
+    ...(process.env.ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
   ]
 };
 
@@ -75,7 +76,10 @@ app.use(helmet({ frameguard: { action: 'sameorigin' } }));
 app.get(
   '/initial-setup',
   routeErrorHandling(async (req: any, res) => {
-    const userCount = await Users.countDocuments();
+    const subdomain = getSubdomain(req.hostname);
+    const models = await generateModels(subdomain);
+
+    const userCount = await models.Users.countDocuments();
 
     if (userCount === 0) {
       return res.send('no owner');
@@ -84,10 +88,10 @@ app.get(
     const envMaps = JSON.parse(req.query.envs || '{}');
 
     for (const key of Object.keys(envMaps)) {
-      res.cookie(key, envMaps[key], authCookieOptions(req.secure));
+      res.cookie(key, envMaps[key], authCookieOptions({ secure: req.secure }));
     }
 
-    const configs = await Configs.find({
+    const configs = await models.Configs.find({
       code: new RegExp(`.*THEME_.*`, 'i')
     }).lean();
 
@@ -104,7 +108,10 @@ app.get(
   routeErrorHandling(async (req: any, res) => {
     const name = req.query.name;
 
-    registerOnboardHistory({ type: `${name}Download`, user: req.user });
+    const subdomain = getSubdomain(req.hostname);
+    const models = await generateModels(subdomain);
+
+    registerOnboardHistory({models, type: `${name}Download`, user: req.user });
 
     return res.redirect(
       `https://erxes-docs.s3-us-west-2.amazonaws.com/templates/${name}`
@@ -122,7 +129,10 @@ app.get(
   routeErrorHandling(async (req: any, res) => {
     const { importType } = req.query;
 
-    registerOnboardHistory({ type: `importDownloadTemplate`, user: req.user });
+    const subdomain = getSubdomain(req.hostname);
+    const models = await generateModels(subdomain);
+
+    registerOnboardHistory({ models, type: `importDownloadTemplate`, user: req.user });
 
     const { name, response } = await templateExport(req.query);
 
@@ -133,6 +143,9 @@ app.get(
 
 // read file
 app.get('/read-file', async (req: any, res, next) => {
+  const subdomain = getSubdomain(req.hostname);
+  const models = await generateModels(subdomain);
+
   try {
     const key = req.query.key;
     const name = req.query.name;
@@ -141,7 +154,7 @@ app.get('/read-file', async (req: any, res, next) => {
       return res.send('Invalid key');
     }
 
-    const response = await readFileRequest(key);
+    const response = await readFileRequest(models, key);
 
     res.attachment(name || key);
 
@@ -166,7 +179,10 @@ app.post(
       return res.end('forbidden');
     }
 
-    const status = await deleteFile(req.body.fileName);
+    const subdomain = getSubdomain(req.hostname);
+    const models = await generateModels(subdomain);
+
+    const status = await deleteFile(models, req.body.fileName);
 
     if (status === 'ok') {
       return res.send(status);
@@ -193,38 +209,28 @@ const PORT = getEnv({ name: 'PORT' });
 const MONGO_URL = getEnv({ name: 'MONGO_URL' });
 const RABBITMQ_HOST = getEnv({ name: 'RABBITMQ_HOST' });
 const MESSAGE_BROKER_PREFIX = getEnv({ name: 'MESSAGE_BROKER_PREFIX' });
-const TEST_MONGO_URL = getEnv({ name: 'TEST_MONGO_URL' });
 
 httpServer.listen(PORT, async () => {
-  let mongoUrl = MONGO_URL;
-
-  if (NODE_ENV === 'test') {
-    mongoUrl = TEST_MONGO_URL;
-  }
-
   initApolloServer(app, httpServer).then(apolloServer => {
     apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });
   });
 
-  // connect to mongo database
-  connect(mongoUrl).then(async () => {
-    initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }).catch(e => {
-      debugError(`Error ocurred during message broker init ${e.message}`);
-    });
-
-    initMemoryStorage();
-
-    init()
-      .then(() => {
-        telemetry.trackCli('server_started');
-        telemetry.startBackgroundUpdate();
-
-        debugBase('Startup successfully started');
-      })
-      .catch(e => {
-        debugError(`Error occured while starting init: ${e.message}`);
-      });
+  initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }).catch(e => {
+    debugError(`Error ocurred during message broker init ${e.message}`);
   });
+
+  initMemoryStorage();
+
+  init()
+    .then(() => {
+      telemetry.trackCli('server_started');
+      telemetry.startBackgroundUpdate();
+
+      debugBase('Startup successfully started');
+    })
+    .catch(e => {
+      debugError(`Error occured while starting init: ${e.message}`);
+    });
 
   await join({
     name: 'core',

@@ -30,7 +30,6 @@ const {
 } = process.env;
 
 (async () => {
-  await db.connect();
 
   await clearCache();
 
@@ -40,7 +39,7 @@ const {
 
   app.use(userMiddleware);
 
-  //unsubscribe
+  // unsubscribe
   app.get(
     '/unsubscribe',
     routeErrorHandling(async (req: any, res) => {
@@ -125,6 +124,7 @@ const {
 
   const apolloServer = new ApolloServer({
     gateway,
+    introspection: true,
     // for graceful shutdowns
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
     context: ({
@@ -172,6 +172,7 @@ const {
         WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
         ...(CLIENT_PORTAL_DOMAINS || '').split(','),
         'https://studio.apollographql.com',
+        ...(process.env.ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
       ]
     }
   });

@@ -13,6 +13,10 @@ import {
 
 export default {
   createdUser(pipeline: IPipelineDocument) {
+    if (!pipeline.userId) {
+      return;
+    }
+
     return { __typename: "User", _id: pipeline.userId };
   },
 
@@ -72,7 +76,7 @@ export default {
           }
         );
 
-        return models.Deals.find(filter).countDocuments();
+        return models.Deals.find(filter).count();
       }
       case BOARD_TYPES.TICKET: {
         const filter = await generateTicketCommonFilters(
@@ -84,7 +88,7 @@ export default {
           }
         );
 
-        return models.Tickets.find(filter).countDocuments();
+        return models.Tickets.find(filter).count();
       }
       case BOARD_TYPES.TASK: {
         const filter = await generateTaskCommonFilters(
@@ -96,7 +100,7 @@ export default {
           }
         );
 
-        return models.Tasks.find(filter).countDocuments();
+        return models.Tasks.find(filter).count();
       }
       case BOARD_TYPES.GROWTH_HACK: {
         const filter = await generateGrowthHackCommonFilters(
@@ -108,7 +112,7 @@ export default {
           }
         );
 
-        return models.GrowthHacks.find(filter).countDocuments();
+        return models.GrowthHacks.find(filter).count();
       }
     }
   },
