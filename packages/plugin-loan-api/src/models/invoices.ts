@@ -1,3 +1,11 @@
+import { IInvoiceDocument } from '../models/definitions/invoices';
+import { Model } from 'mongoose';
+export interface IInvoiceModel extends Model<IInvoiceDocument> {
+  getInvoice(models, selector: any);
+  createInvoice(models, doc);
+  updateInvoice(models, _id, doc);
+  removeInvoices(models, _ids);
+}
 export class Invoice {
   /**
    *
@@ -18,7 +26,13 @@ export class Invoice {
    * Create a invoice
    */
   public static async createInvoice(models, doc) {
-    doc.total = (doc.payment || 0) + (doc.interestEve || 0) + (doc.interestNonce || 0) + (doc.insurance || 0) + (doc.undue || 0) + (doc.debt || 0);
+    doc.total =
+      (doc.payment || 0) +
+      (doc.interestEve || 0) +
+      (doc.interestNonce || 0) +
+      (doc.insurance || 0) +
+      (doc.undue || 0) +
+      (doc.debt || 0);
     return models.LoanInvoices.create(doc);
   }
 
@@ -37,5 +51,4 @@ export class Invoice {
   public static async removeInvoices(models, _ids) {
     return models.LoanInvoices.deleteMany({ _id: { $in: _ids } });
   }
-
 }

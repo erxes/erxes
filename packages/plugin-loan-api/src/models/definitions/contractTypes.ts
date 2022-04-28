@@ -1,5 +1,6 @@
-import { LEASE_TYPES } from "./constants";
-
+import { LEASE_TYPES } from './constants';
+import { schemaHooksWrapper, field } from './utils';
+import { Schema, Document } from 'mongoose';
 export interface IContractConfig {
   receivable: string;
   temp: string;
@@ -50,24 +51,42 @@ export interface IContractType {
   config: IContractConfig;
 }
 
-export interface IContractTypeDocument extends IContractType {
+export interface IContractTypeDocument extends IContractType, Document {
   _id: string;
 }
 
-export const contractTypeSchema = {
-  _id: { pkey: true },
-  code: { type: String, label: 'Code', unique: true },
-  name: { type: String, label: 'Name' },
-  description: { type: String, optional: true, label: 'Description' },
-  status: { type: String, default: 'active', label: 'Status' },
-  number: { type: String, label: 'Number' },
-  vacancy: { type: Number, min: 1, max: 10, label: 'Vacancy', required: true },
-  leaseType: { type: String, enum: LEASE_TYPES.ALL, label: 'Lease Type', required: true, default: LEASE_TYPES.FINANCE },
-  createdAt: {
-    type: Date,
-    default: new Date(),
-    label: 'Created at',
-  },
-  productCategoryIds: { type: [String], label: 'Allow Product Categories' },
-  config: { type: Object }
-};
+export const contractTypeSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    code: field({ type: String, label: 'Code', unique: true }),
+    name: field({ type: String, label: 'Name' }),
+    description: field({ type: String, optional: true, label: 'Description' }),
+    status: field({ type: String, default: 'active', label: 'Status' }),
+    number: field({ type: String, label: 'Number' }),
+    vacancy: field({
+      type: Number,
+      min: 1,
+      max: 10,
+      label: 'Vacancy',
+      required: true,
+    }),
+    leaseType: field({
+      type: String,
+      enum: LEASE_TYPES.ALL,
+      label: 'Lease Type',
+      required: true,
+      default: LEASE_TYPES.FINANCE,
+    }),
+    createdAt: field({
+      type: Date,
+      default: new Date(),
+      label: 'Created at',
+    }),
+    productCategoryIds: field({
+      type: [String],
+      label: 'Allow Product Categories',
+    }),
+    config: field({ type: Object }),
+  }),
+  'erxes_contractTypeSchema'
+);

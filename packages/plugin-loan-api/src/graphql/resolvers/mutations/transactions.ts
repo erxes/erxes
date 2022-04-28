@@ -1,5 +1,5 @@
 import { putCreateLog, putDeleteLog, putUpdateLog } from 'erxes-api-utils';
-import { gatherDescriptions } from '../../utils';
+import { gatherDescriptions } from '../../../utils';
 
 const transactionMutations = {
   transactionsAdd: async (

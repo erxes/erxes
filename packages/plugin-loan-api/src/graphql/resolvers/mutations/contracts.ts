@@ -2,9 +2,9 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from 'erxes-api-utils';
 import {
   ICollateralData,
   IContractDocument,
-} from '../../models/definitions/contracts';
+} from '../../../models/definitions/contracts';
 import { gatherDescriptions } from '../../../utils';
-import { ConfirmBase } from '../../models/utils/confirmContractUtils';
+import { ConfirmBase } from '../../../models/utils/confirmContractUtils';
 
 const contractMutations = {
   contractsAdd: async (

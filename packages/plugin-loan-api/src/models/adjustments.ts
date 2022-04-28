@@ -1,3 +1,6 @@
+import { Model } from 'mongoose';
+import { IAdjustmentDocument } from '../models/definitions/adjustments';
+
 export class Adjustment {
   /**
    *
@@ -36,5 +39,10 @@ export class Adjustment {
   public static async removeAdjustments(models, _ids) {
     return models.Adjustments.deleteMany({ _id: { $in: _ids } });
   }
-
+}
+export interface IAdjustmentModel extends Model<IAdjustmentDocument> {
+  getAdjustment(models, selector: any);
+  createAdjustment(models, doc);
+  updateAdjustment(models, _id, doc);
+  removeAdjustments(models, _ids);
 }
