@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Bulk, Alert, withProps, router } from 'erxes-ui';
+import { Bulk, Alert, withProps, router } from '@erxes/ui/src';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { IRouterProps } from 'erxes-ui/lib/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import CarsList from '../components/list/CarsList';
 import { mutations, queries } from '../graphql';
 import {
@@ -67,7 +67,7 @@ class CarListContainer extends React.Component<FinalProps, State> {
           emptyBulk();
           Alert.success('You successfully deleted a car');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -79,14 +79,14 @@ class CarListContainer extends React.Component<FinalProps, State> {
           carFields: data
         }
       })
-        .then(response => {
+        .then((response) => {
           Alert.success('You successfully merged cars');
           callback();
           history.push(
             `/erxes-plugin-car/details/${response.data.carsMerge._id}`
           );
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -107,7 +107,7 @@ class CarListContainer extends React.Component<FinalProps, State> {
       productCategories
     };
 
-    const carsList = props => {
+    const carsList = (props) => {
       return <CarsList {...updatedProps} {...props} />;
     };
 

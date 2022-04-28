@@ -124,13 +124,13 @@ type CarsListResponse {
 type CarCategoryProducts {
   _id: String
   carCategoryId: String
-  productIds: [String]
-  products: JSON
+  productCategoryIds: [String]
+  productCategories: JSON
 }
 
 type ProductCarCategories {
   _id: String
-  productId: String
+  productCategoryId: String
   carCategoryIds: [String]
   carCategories: JSON
 }

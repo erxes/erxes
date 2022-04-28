@@ -1,4 +1,4 @@
-import { colors, dimensions, SidebarList } from 'erxes-ui';
+import { colors, dimensions, SidebarList } from '@erxes/ui/src';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -57,7 +57,7 @@ const BackgroundSelector = styledTS<{ selected?: boolean }>(styled.li)`
   padding: ${dimensions.unitSpacing / 2}px;
   margin-right: ${dimensions.unitSpacing / 2}px;
   border: 1px solid
-    ${props => (props.selected ? colors.colorShadowGray : 'transparent')};
+    ${(props) => (props.selected ? colors.colorShadowGray : 'transparent')};
 
   > div {
     height: ${dimensions.headerSpacing - 20}px;
@@ -68,7 +68,7 @@ const BackgroundSelector = styledTS<{ selected?: boolean }>(styled.li)`
     line-height: ${dimensions.headerSpacing - 20}px;
 
     > i {
-      visibility: ${props => (props.selected ? 'visible' : 'hidden')};
+      visibility: ${(props) => (props.selected ? 'visible' : 'hidden')};
       font-size: ${dimensions.unitSpacing}px;
       color: ${colors.colorWhite};
 
@@ -101,7 +101,7 @@ const SidebarListItem = styledTS<{ isActive: boolean; isParent?: boolean }>(
 )`
   position: relative;
   border-bottom: 1px solid ${colors.borderPrimary};
-  background: ${props => props.isActive && colors.bgActive};
+  background: ${(props) => props.isActive && colors.bgActive};
   overflow: hidden;
   display: flex;
   justify-content: space-between;
@@ -126,7 +126,7 @@ const SidebarListItem = styledTS<{ isActive: boolean; isParent?: boolean }>(
     > span {
       color: #666;
       font-weight: normal;
-      font-weight ${props => props.isParent && '500'};
+      font-weight ${(props) => props.isParent && '500'};
     }
   }
 
@@ -136,7 +136,7 @@ const SidebarListItem = styledTS<{ isActive: boolean; isParent?: boolean }>(
 
   &:hover {
     cursor: pointer;
-    background: ${props => !props.isActive && colors.bgLight};
+    background: ${(props) => !props.isActive && colors.bgLight};
 
     ${ActionButtons} {
       width: 55px;
@@ -152,7 +152,7 @@ const Action = styled.div`
 `;
 
 const Name = styledTS<{ fontSize?: number }>(styled.div)`
-  font-size: ${props => props.fontSize && `${props.fontSize}px`};
+  font-size: ${(props) => props.fontSize && `${props.fontSize}px`};
   font-weight: 500;
 
   i {

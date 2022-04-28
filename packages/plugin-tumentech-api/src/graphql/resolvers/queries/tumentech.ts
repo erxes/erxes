@@ -109,16 +109,16 @@ const carQueries = {
     { carCategoryId },
     { models, subdomain }
   ) => {
-    const productIds = (
+    const productCategoryIds = (
       (await models.ProductCarCategory.find({ carCategoryId }).lean()) || []
-    ).map((i) => i.productId);
+    ).map((i) => i.productCategoryId);
 
-    const products = await sendProductsMessage({
+    const productCategories = await sendProductsMessage({
       subdomain,
       action: 'find',
       data: {
         query: {
-          _id: { $in: productIds }
+          _id: { $in: productCategoryIds }
         }
       },
       isRPC: true,
@@ -127,18 +127,22 @@ const carQueries = {
 
     return {
       carCategoryId,
-      productIds,
-      products
+      productCategoryIds,
+      productCategories
     };
   },
 
-  productMatchCarCategories: async (_root, { productId }, { models }) => {
+  productMatchCarCategories: async (
+    _root,
+    { productCategoryId },
+    { models }
+  ) => {
     const carCategoryIds = (
-      (await models.ProductCarCategory.find({ productId }).lean()) || []
+      (await models.ProductCarCategory.find({ productCategoryId }).lean()) || []
     ).map((i) => i.carCategoryId);
 
     return {
-      productId,
+      productCategoryId,
       carCategoryIds,
       carCategories: await models.CarCategories.find({
         _id: { $in: carCategoryIds }

@@ -6,48 +6,24 @@ import {
   ControlLabel,
   FormGroup,
   ModalTrigger
-} from 'erxes-ui';
+} from '@erxes/ui/src';
 import React from 'react';
 import CategoryForm from '../../containers/carCategory/CategoryForm';
 import { Row } from '../../styles';
-import { ICarCategory, IOption, IProduct } from '../../types';
+import { ICarCategory, IOption } from '../../types';
 
 import Select from 'react-select-plus';
+import { generateTree } from '../../utils';
 
 type Props = {
   carCategories: ICarCategory[];
   car: ICarCategory;
-  product: IProduct;
   closeModal: () => void;
   saveMatch: (carCategoryIds: any) => void;
 };
 
 type State = {
   categoryIds: string[];
-};
-
-export const generateTree = (
-  list,
-  parentId,
-  callback,
-  level = -1,
-  parentKey = 'parentId'
-) => {
-  const filtered = list.filter((c) => c[parentKey] === parentId);
-
-  if (filtered.length > 0) {
-    level++;
-  } else {
-    level--;
-  }
-
-  return filtered.reduce((tree, node) => {
-    return [
-      ...tree,
-      callback(node, level),
-      ...generateTree(list, node._id, callback, level, parentKey)
-    ];
-  }, []);
 };
 
 class MatchCarForm extends React.Component<Props, State> {

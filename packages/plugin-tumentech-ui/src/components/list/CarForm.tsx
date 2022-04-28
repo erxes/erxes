@@ -13,9 +13,9 @@ import {
   generateCategoryOptions,
   MainStyleDateContainer as DateContainer,
   extractAttachment
-} from 'erxes-ui';
-import { IUser } from 'erxes-ui/lib/auth/types';
-import { IButtonMutateProps, IFormProps } from 'erxes-ui/lib/types';
+} from '@erxes/ui/src';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 
 import {
@@ -42,8 +42,8 @@ import {
   RUNNING_TYPES
 } from '../../constants';
 import { ICar, ICarCategory, ICarDoc, ITrailer } from '../../types';
-import DateControl from 'erxes-ui/lib/components/form/DateControl';
-import Uploader from 'erxes-ui/lib/components/Uploader';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import Uploader from '@erxes/ui/src/components/Uploader';
 
 const generateOptionsConstants = (items, isEmpty = false) => {
   const result: React.ReactNode[] = [];

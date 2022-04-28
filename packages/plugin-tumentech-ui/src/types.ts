@@ -1,13 +1,13 @@
-import {
-  IActivityLog,
-  IActivityLogForMonth
-} from 'erxes-ui/lib/activityLogs/types';
-import { IUser } from 'erxes-ui/lib/auth/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import {
   IProduct as IProductC,
   IProductCategory as IProductCategoryC,
   IProductDoc as IProductDocC
-} from 'erxes-ui/lib/products/types';
+} from '@erxes/ui-products/src/types';
+import {
+  IActivityLog,
+  IActivityLogForMonth
+} from '@erxes/ui/src/activityLogs/types';
 
 export interface IRouterProps {
   history: any;
@@ -252,7 +252,7 @@ export type RemoveMutationResponse = {
 // ------------------
 export type CarCategoryMatchMutationVariables = {
   carCategoryId: string;
-  productIds: string[];
+  productCategoryIds: string[];
 };
 
 export type CarCategoryMatchMutationResponse = {
@@ -263,7 +263,7 @@ export type CarCategoryMatchMutationResponse = {
 
 export type ProductMatchMutationVariables = {
   carCategoryIds: string[];
-  productId: string;
+  productCategoryId: string;
 };
 
 export type ProductMatchMutationResponse = {
@@ -289,8 +289,8 @@ export type AddMutationResponse = {
 // ------------------
 export type CarCategoryMatchQueryResponse = {
   carCategoryMatchProducts: {
-    products: IProduct[];
-    productIds: string[];
+    productCategories: IProductCategory[];
+    productCategoryIds: string[];
     carCategoryId: string[];
   };
   loading: boolean;
@@ -301,7 +301,7 @@ export type ProductMatchQueryResponse = {
   productMatchCarCategories: {
     carCategories: ICarCategory[];
     carCategoryIds: string[];
-    productId: string[];
+    productCategoryId: string[];
   };
   loading: boolean;
   refetch: () => void;

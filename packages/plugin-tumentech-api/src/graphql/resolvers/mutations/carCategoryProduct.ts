@@ -3,29 +3,33 @@ import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
 
 const carCategoryProductMutations = {
   carCategoryMatch: async (_root, doc, { models, subdomain }) => {
-    const { carCategoryId, productIds = [] } = doc;
+    const { carCategoryId, productCategoryIds = [] } = doc;
 
     const dbProductIds = (
       (await models.ProductCarCategory.find({ carCategoryId }).lean()) || []
-    ).map((i) => i.productId);
+    ).map((i) => i.productCategoryId);
 
-    const toDelProductIds = dbProductIds.filter((p) => !productIds.includes(p));
-    const toInsProductIds = productIds.filter((p) => !dbProductIds.includes(p));
+    const toDelProductIds = dbProductIds.filter(
+      (p) => !productCategoryIds.includes(p)
+    );
+    const toInsProductIds = productCategoryIds.filter(
+      (p) => !dbProductIds.includes(p)
+    );
 
     if (toDelProductIds.length) {
       await models.ProductCarCategory.deleteMany({
         carCategoryId,
-        productId: { $in: toDelProductIds }
+        productCategoryId: { $in: toDelProductIds }
       });
     }
 
     if (toInsProductIds.length) {
       const bulkOps: any[] = [];
 
-      for (const productId of toInsProductIds) {
+      for (const productCategoryId of toInsProductIds) {
         bulkOps.push({
           carCategoryId,
-          productId
+          productCategoryId
         });
       }
 
@@ -37,7 +41,7 @@ const carCategoryProductMutations = {
       action: 'find',
       data: {
         query: {
-          _id: { $in: productIds }
+          _id: { $in: productCategoryIds }
         }
       },
       isRPC: true,
@@ -46,16 +50,16 @@ const carCategoryProductMutations = {
 
     return {
       carCategoryId,
-      productIds,
+      productCategoryIds,
       products
     };
   },
 
   productMatch: async (_root, doc, { models, subdomain }) => {
-    const { productId, carCategoryIds = [] } = doc;
+    const { productCategoryId, carCategoryIds = [] } = doc;
 
     const dbcarCategoryIds = (
-      (await models.ProductCarCategory.find({ productId }).lean()) || []
+      (await models.ProductCarCategory.find({ productCategoryId }).lean()) || []
     ).map((i) => i.carCategoryId);
 
     const toDelCarCategoryIds = dbcarCategoryIds.filter(
@@ -67,7 +71,7 @@ const carCategoryProductMutations = {
 
     if (toDelCarCategoryIds.length) {
       await models.ProductCarCategory.deleteMany({
-        productId,
+        productCategoryId,
         carCategoryId: { $in: toDelCarCategoryIds }
       });
     }
@@ -77,7 +81,7 @@ const carCategoryProductMutations = {
 
       for (const carCategoryId of toInsCarCategoryIds) {
         bulkOps.push({
-          productId,
+          productCategoryId,
           carCategoryId
         });
       }
@@ -98,7 +102,7 @@ const carCategoryProductMutations = {
     });
 
     return {
-      productId,
+      productCategoryId,
       carCategoryIds,
       products
     };
