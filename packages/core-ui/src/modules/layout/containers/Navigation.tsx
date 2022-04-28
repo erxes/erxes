@@ -12,6 +12,8 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   currentUser: IUser;
+  navCollapse: number;
+  onClickHandleIcon: (e) => void;
 };
 
 type FinalProps = {

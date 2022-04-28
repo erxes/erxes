@@ -1,7 +1,6 @@
 import { sendMessage, ISendMessageArgs } from '@erxes/api-utils/src/core';
 
 import { serviceDiscovery } from './configs';
-// import { generateModels } from './connectionResolver';
 
 export let client;
 
