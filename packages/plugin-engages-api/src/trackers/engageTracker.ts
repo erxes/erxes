@@ -119,7 +119,7 @@ export const engageTracker = async (req, res) => {
 
     debugBase(`receiving on tracker: ${message}`);
 
-    const subdomain = getSubdomain(req.hostname);
+    const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
     const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
