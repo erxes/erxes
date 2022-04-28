@@ -1,4 +1,4 @@
-import { Chooser, withProps } from '@erxes/ui';
+import { Chooser, withProps } from '@erxes/ui/src';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';

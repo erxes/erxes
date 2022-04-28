@@ -6,7 +6,7 @@ import {
   FormControl,
   FormGroup,
   MainStyleModalFooter as ModalFooter,
-} from '@erxes/ui';
+} from '@erxes/ui/src';
 import React from 'react';
 import { IConfigsMap } from '../types';
 

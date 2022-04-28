@@ -1,5 +1,5 @@
 import * as compose from 'lodash.flowright';
-import { withProps, ButtonMutate } from '@erxes/ui';
+import { withProps, ButtonMutate } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import ContractForm from '../components/list/ContractForm';

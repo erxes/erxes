@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { __, FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui';
+import { __, FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src';
 import React from 'react';
 import { WEEKENDS } from '../../../constants';
 import { Description } from '../../styles';

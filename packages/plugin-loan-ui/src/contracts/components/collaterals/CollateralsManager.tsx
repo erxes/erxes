@@ -5,7 +5,7 @@ import {
   EmptyState,
   MainStyleModalFooter as ModalFooter,
   Table,
-} from '@erxes/ui';
+} from '@erxes/ui/src';
 import { IProduct } from '@erxes/ui-products/src/types';
 import React from 'react';
 

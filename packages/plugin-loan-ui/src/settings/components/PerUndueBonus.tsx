@@ -7,7 +7,7 @@ import {
   FormControl,
   FormGroup,
   MainStyleModalFooter as ModalFooter,
-} from '@erxes/ui';
+} from '@erxes/ui/src';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { IConfigsMap } from '../types';

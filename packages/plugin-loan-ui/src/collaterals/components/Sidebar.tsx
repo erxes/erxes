@@ -1,4 +1,4 @@
-import { Wrapper } from '@erxes/ui';
+import { Wrapper } from '@erxes/ui/src';
 import React from 'react';
 
 import CategoryList from '../containers/CategoryList';

@@ -12,7 +12,7 @@ import {
   Table,
   Wrapper,
   BarItems,
-} from '@erxes/ui';
+} from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';

@@ -8,7 +8,7 @@ import {
   SortHandler,
   Table,
   Wrapper,
-} from '@erxes/ui';
+} from '@erxes/ui/src';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';

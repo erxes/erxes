@@ -13,7 +13,7 @@ import {
   MainStyleScrollWrapper as ScrollWrapper,
   SelectCompanies,
   SelectCustomers,
-} from '@erxes/ui';
+} from '@erxes/ui/src';
 import { ICompany } from '@erxes/ui/src/companies/types';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import { DateContainer } from '@erxes/ui/src/styles/main';

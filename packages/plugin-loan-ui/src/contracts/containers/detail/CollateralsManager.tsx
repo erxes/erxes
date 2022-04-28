@@ -1,5 +1,5 @@
-import { AppConsumer } from '@erxes/ui';
-import { Alert, withProps } from '@erxes/ui';
+import { AppConsumer } from '@erxes/ui/src';
+import { Alert, withProps } from '@erxes/ui/src';
 import { IProduct } from '@erxes/ui-products/src/types';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';

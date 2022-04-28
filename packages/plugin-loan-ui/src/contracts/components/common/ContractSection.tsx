@@ -6,7 +6,7 @@ import {
   MainStyleButtonRelated as ButtonRelated,
   __,
   SectionBodyItem,
-} from '@erxes/ui';
+} from '@erxes/ui/src';
 import GetConformity from '@erxes/ui-cards/src/conformity/containers/GetConformity';
 import React from 'react';
 import { Link } from 'react-router-dom';

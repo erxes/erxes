@@ -1,4 +1,4 @@
-import { __, Box, Icon, Alert, confirm } from '@erxes/ui';
+import { __, Box, Icon, Alert, confirm } from '@erxes/ui/src';
 import React from 'react';
 
 import SchedulesList from '../../containers/Schedules';

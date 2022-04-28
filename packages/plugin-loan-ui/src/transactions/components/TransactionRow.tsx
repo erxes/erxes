@@ -1,4 +1,4 @@
-import { formatValue, FormControl, Icon, ModalTrigger } from '@erxes/ui';
+import { formatValue, FormControl, Icon, ModalTrigger } from '@erxes/ui/src';
 import _ from 'lodash';
 import React from 'react';
 import { TrNumberCols, TrRows } from '../../contracts/styles';

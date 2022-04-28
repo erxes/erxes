@@ -1,4 +1,4 @@
-import { __, Wrapper } from '@erxes/ui';
+import { __, Wrapper } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 

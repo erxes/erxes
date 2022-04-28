@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from '@erxes/ui';
+import { Alert, withProps } from '@erxes/ui/src';
 import { mutations } from '../../graphql';
 import BasicInfoSection from '../../components/common/BasicInfoSection';
 import React from 'react';
