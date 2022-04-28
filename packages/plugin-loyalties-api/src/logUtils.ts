@@ -6,7 +6,7 @@ import {
   getSchemaLabels,
   IDescriptions,
 } from '@erxes/api-utils/src/logUtils';
-import { IModels, generateModels } from './connectionResolver';
+import { IModels } from './connectionResolver';
 
 import messageBroker from './messageBroker';
 import { donateCampaignSchema } from './models/definitions/donateCampaigns';

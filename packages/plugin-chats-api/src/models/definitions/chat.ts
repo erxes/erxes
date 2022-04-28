@@ -24,6 +24,7 @@ export interface IChatMessage {
   content: string;
   isPinned: boolean;
   attachments: IAttachment[];
+  mentionedUserIds?: string[];
   seenList: string[];
 }
 
@@ -46,6 +47,7 @@ export const chatMessageSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     attachments: field({ type: [attachmentSchema], label: "attachments" }),
+    mentionedUserIds: field({ type: [String] }),
     chatId: field({ type: String, label: "Connected chat" }),
     relatedId: field({ type: String, label: "Related message" }),
     isPinned: field({ type: Boolean, default: false, label: "Has pinned" }),

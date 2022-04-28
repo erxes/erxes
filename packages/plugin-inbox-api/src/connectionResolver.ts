@@ -1,4 +1,3 @@
-import { MongoClient } from 'mongodb';
 import * as mongoose from 'mongoose';
 import { mainDb } from './configs';
 import { IChannelDocument } from './models/definitions/channels';
@@ -74,10 +73,6 @@ export const generateModels = async (
   loadClasses(mainDb, hostnameOrSubdomain);
 
   return models;
-};
-
-export const getSubdomain = (hostname: string): string => {
-  return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
 };
 
 export const loadClasses = (

@@ -1,11 +1,10 @@
 import { Activity } from 'botbuilder';
+import { IModels } from '../connectionResolver';
 import { sendInboxMessage } from '../messageBroker';
-import Integrations from '../models/Integrations';
-import { ConversationMessages, Conversations } from './models';
 import { getOrCreateCustomer } from './store';
 import { IChannelData } from './types';
 
-const receiveMessage = async (activity: Activity) => {
+const receiveMessage = async (models: IModels, activity: Activity) => {
   const {
     recipient,
     sender,
@@ -15,7 +14,7 @@ const receiveMessage = async (activity: Activity) => {
     message
   } = activity.channelData as IChannelData;
 
-  const integration = await Integrations.getIntegration({
+  const integration = await models.Integrations.getIntegration({
     $and: [
       { facebookPageIds: { $in: [recipient.id] } },
       { kind: 'facebook-messenger' }
@@ -27,10 +26,10 @@ const receiveMessage = async (activity: Activity) => {
   const kind = 'facebook-messenger';
 
   // get or create customer
-  const customer = await getOrCreateCustomer(pageId, userId, kind);
+  const customer = await getOrCreateCustomer(models, pageId, userId, kind);
 
   // get conversation
-  let conversation = await Conversations.findOne({
+  let conversation = await models.FbConversations.findOne({
     senderId: userId,
     recipientId: recipient.id
   });
@@ -39,7 +38,7 @@ const receiveMessage = async (activity: Activity) => {
   if (!conversation) {
     // save on integrations db
     try {
-      conversation = await Conversations.create({
+      conversation = await models.FbConversations.create({
         timestamp,
         senderId: userId,
         recipientId: recipient.id,
@@ -80,20 +79,20 @@ const receiveMessage = async (activity: Activity) => {
 
       await conversation.save();
     } catch (e) {
-      await Conversations.deleteOne({ _id: conversation._id });
+      await models.FbConversations.deleteOne({ _id: conversation._id });
       throw new Error(e);
     }
   }
 
   // get conversation message
-  const conversationMessage = await ConversationMessages.findOne({
+  const conversationMessage = await models.FbConversationMessages.findOne({
     mid: message.mid
   });
 
   if (!conversationMessage) {
     // save on integrations db
     try {
-      await ConversationMessages.create({
+      await models.FbConversationMessages.create({
         conversationId: conversation._id,
         mid: message.mid,
         timestamp,
@@ -130,7 +129,7 @@ const receiveMessage = async (activity: Activity) => {
         isRPC: true
       });
     } catch (e) {
-      await ConversationMessages.deleteOne({ mid: message.mid });
+      await models.FbConversationMessages.deleteOne({ mid: message.mid });
       throw new Error(e);
     }
   }

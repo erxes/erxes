@@ -1,3 +1,4 @@
+import * as mongoose from "mongoose";
 import * as strip from "strip";
 import * as faker from "faker";
 import * as Random from "meteor-random";
@@ -314,4 +315,31 @@ export const doSearch = async ({
   });
 
   return results;
+};
+
+export const getSubdomain = (hostname: string): string => {
+  return hostname.replace(/(^\w+:|^)\/\//, "").split(".")[0];
+};
+
+const connectionOptions: mongoose.ConnectionOptions = {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
+  family: 4,
+};
+
+export const createGenerateModels = <IModels>(models, loadClasses) => {
+  return async (hostnameOrSubdomain: string): Promise<IModels> => {
+    if (models) {
+      return models;
+    }
+
+    const MONGO_URL = getEnv({ name: "MONGO_URL" });
+
+    const db = await mongoose.connect(MONGO_URL, connectionOptions);
+
+    models = loadClasses(db, hostnameOrSubdomain);
+
+    return models;
+  };
 };

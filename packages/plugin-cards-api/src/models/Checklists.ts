@@ -10,7 +10,7 @@ import {
 } from './definitions/checklists';
 import { putChecklistActivityLog } from '../logUtils';
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { getSubdomain, IModels } from '../connectionResolver';
+import { IModels } from '../connectionResolver';
 
 export interface IChecklistModel extends Model<IChecklistDocument> {
   getChecklist(_id: string): Promise<IChecklistDocument>;

@@ -33,7 +33,8 @@ import logs from './logUtils';
 
 import init from './startup';
 import forms from './forms';
-import { generateModels, getSubdomain } from './connectionResolver'
+import { generateModels } from './connectionResolver'
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 // load environment variables
 dotenv.config();
@@ -87,7 +88,7 @@ app.get(
     const envMaps = JSON.parse(req.query.envs || '{}');
 
     for (const key of Object.keys(envMaps)) {
-      res.cookie(key, envMaps[key], authCookieOptions(req.secure));
+      res.cookie(key, envMaps[key], authCookieOptions({ secure: req.secure }));
     }
 
     const configs = await models.Configs.find({

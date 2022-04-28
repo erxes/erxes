@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 
 import Button from "modules/common/components/Button";
 import DataWithLoader from 'modules/common/components/DataWithLoader';
@@ -11,6 +12,12 @@ import { __ } from 'modules/common/utils';
 import AppRow from './AppRow';
 import AppForm from './AppForm';
 import { IApp, IAppAddEditParams } from '../types';
+
+// due to token column containing too long value
+const FixedTable = styled(Table)`
+  table-layout: fixed;
+  word-break: break-word;
+`;
 
 const breadcrumb = [
   { title: 'Settings', link: '/settings' },
@@ -30,7 +37,7 @@ type Props = {
 
 export default class AppList extends React.Component<Props> {
   renderObjects() {
-    const { apps, removeApp } = this.props;
+    const { apps, editApp, removeApp, userGroups } = this.props;
     const rows: JSX.Element[] = [];
 
     if (!apps) {
@@ -38,7 +45,15 @@ export default class AppList extends React.Component<Props> {
     }
 
     for (const app of apps) {
-      rows.push(<AppRow key={app._id} app={app} removeApp={removeApp} />);
+      rows.push(
+        <AppRow
+          key={app._id}
+          app={app}
+          removeApp={removeApp}
+          editApp={editApp}
+          userGroups={userGroups}
+        />
+      );
     }
 
     return rows;
@@ -46,17 +61,18 @@ export default class AppList extends React.Component<Props> {
 
   renderContent() {
     return (
-      <Table whiteSpace="wrap" hover={true} bordered={true} condensed={true}>
+      <FixedTable whiteSpace="wrap" bordered={true} condensed={true}>
         <thead>
           <tr>
             <th>{__('Date')}</th>
             <th>{__('Name')}</th>
             <th>{__('User group')}</th>
+            <th>{__('Token')}</th>
             <th>{__('Action')}</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>
-      </Table>
+      </FixedTable>
     );
   }
 

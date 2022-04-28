@@ -3,7 +3,9 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
-import { generateModels, models } from './connectionResolver';
+import { generateModels } from './connectionResolver';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import permissions from './permissions';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -20,6 +22,7 @@ export let debug;
 
 export default {
   name: 'dashboard',
+  permissions,
   graphql: sd => {
     serviceDiscovery = sd;
 
@@ -32,13 +35,14 @@ export default {
 
   segment: {},
   meta: { logs: {} },
-  apolloServerContext: context => {
-    context.models = models;
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req.hostname);
+
+    context.subdomain = subdomain;
+    context.models = await generateModels(subdomain);
   },
   onServerInit: async options => {
     mainDb = options.db;
-
-    await generateModels('os');
 
     initBroker(options.messageBrokerClient);
 

@@ -58,7 +58,7 @@ export default async function userMiddleware(
   }
 
   const appToken = (req.headers['erxes-app-token'] || '').toString();
-  const models = await generateModels('os');
+  const models = await generateModels(req.hostname);
 
   if (appToken) {
     try {

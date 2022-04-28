@@ -1,14 +1,13 @@
-import { Comments, Customers, Posts } from './models';
 import { ICommentParams, IPostParams } from './types';
 
 import { debugError } from '../debuggers';
 import { sendInboxMessage } from '../messageBroker';
-import { Accounts, Integrations } from '../models';
 import {
   getFacebookUser,
   getFacebookUserProfilePic,
   getPostLink
 } from './utils';
+import { IModels } from '../connectionResolver';
 
 interface IDoc {
   postId?: string,
@@ -107,14 +106,15 @@ export const generateCommentDoc = (
 };
 
 export const getOrCreatePost = async (
+  models: IModels,
   postParams: IPostParams,
   pageId: string,
   userId: string,
   customerErxesApiId: string
 ) => {
-  let post = await Posts.findOne({ postId: postParams.post_id });
+  let post = await models.FbPosts.findOne({ postId: postParams.post_id });
 
-  const integration = await Integrations.getIntegration({
+  const integration = await models.Integrations.getIntegration({
     $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }]
   });
 
@@ -138,7 +138,7 @@ export const getOrCreatePost = async (
 
   doc.permalink_url = postUrl;
 
-  post = await Posts.create(doc);
+  post = await models.FbPosts.create(doc);
 
   // create conversation in api
   try {
@@ -159,7 +159,7 @@ export const getOrCreatePost = async (
     post.erxesApiId = apiConversationResponse._id;
     await post.save();
   } catch (e) {
-    await Posts.deleteOne({ _id: post._id });
+    await models.FbPosts.deleteOne({ _id: post._id });
     throw new Error(e);
   }
 
@@ -167,25 +167,26 @@ export const getOrCreatePost = async (
 };
 
 export const getOrCreateComment = async (
+  models: IModels,
   commentParams: ICommentParams,
   pageId: string,
   userId: string,
   verb: string
 ) => {
-  const comment = await Comments.findOne({
+  const comment = await models.FbComments.findOne({
     commentId: commentParams.comment_id
   });
 
-  const integration = await Integrations.getIntegration({
+  const integration = await models.Integrations.getIntegration({
     $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }]
   });
 
-  Accounts.getAccount({ _id: integration.accountId });
+  models.Accounts.getAccount({ _id: integration.accountId });
 
   const doc = generateCommentDoc(commentParams, pageId, userId);
 
   if (verb && verb === 'edited') {
-    await Comments.updateOne(
+    await models.FbComments.updateOne(
       { commentId: doc.commentId },
       { $set: { ...doc } }
     );
@@ -203,7 +204,7 @@ export const getOrCreateComment = async (
     return comment;
   }
 
-  await Comments.create(doc);
+  await models.FbComments.create(doc);
 
   sendInboxMessage({
     subdomain: 'os',
@@ -215,17 +216,18 @@ export const getOrCreateComment = async (
 };
 
 export const getOrCreateCustomer = async (
+  models: IModels,
   pageId: string,
   userId: string,
   kind: string
 ) => {
-  const integration = await Integrations.getIntegration({
+  const integration = await models.Integrations.getIntegration({
     $and: [{ facebookPageIds: { $in: pageId } }, { kind }]
   });
 
   const { facebookPageTokensMap = {} } = integration;
 
-  let customer = await Customers.findOne({ userId });
+  let customer = await models.FbCustomers.findOne({ userId });
 
   if (customer) {
     return customer;
@@ -236,7 +238,7 @@ export const getOrCreateCustomer = async (
 
   try {
     fbUser =
-      (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
+      (await getFacebookUser(models, pageId, facebookPageTokensMap, userId)) || {};
   } catch (e) {
     debugError(`Error during get customer info: ${e.message}`);
   }
@@ -247,7 +249,7 @@ export const getOrCreateCustomer = async (
 
   // save on integrations db
   try {
-    customer = await Customers.create({
+    customer = await models.FbCustomers.create({
       userId,
       firstName: fbUser.first_name || fbUser.name,
       lastName: fbUser.last_name,
@@ -283,7 +285,7 @@ export const getOrCreateCustomer = async (
     customer.erxesApiId = apiCustomerResponse._id;
     await customer.save();
   } catch (e) {
-    await Customers.deleteOne({ _id: customer._id });
+    await models.FbCustomers.deleteOne({ _id: customer._id });
     throw new Error(e);
   }
 
