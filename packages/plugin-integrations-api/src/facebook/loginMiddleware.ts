@@ -1,15 +1,17 @@
 import * as graph from 'fbgraph';
+import { generateModels } from '../connectionResolver';
 import { debugFacebook, debugRequest, debugResponse } from '../debuggers';
 import { repairIntegrations } from '../helpers';
-import { Integrations } from '../models';
-import Accounts from '../models/Accounts';
 import { getConfig, getEnv } from '../utils';
 import { graphRequest } from './utils';
 
 const loginMiddleware = async (req, res) => {
-  const FACEBOOK_APP_ID = await getConfig('FACEBOOK_APP_ID');
-  const FACEBOOK_APP_SECRET = await getConfig('FACEBOOK_APP_SECRET');
+  const models = await generateModels('os');
+
+  const FACEBOOK_APP_ID = await getConfig(models, 'FACEBOOK_APP_ID');
+  const FACEBOOK_APP_SECRET = await getConfig(models, 'FACEBOOK_APP_SECRET');
   const FACEBOOK_PERMISSIONS = await getConfig(
+    models,
     'FACEBOOK_PERMISSIONS',
     'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
   );
@@ -72,23 +74,23 @@ const loginMiddleware = async (req, res) => {
 
     const name = `${userAccount.first_name} ${userAccount.last_name}`;
 
-    const account = await Accounts.findOne({ uid: userAccount.id });
+    const account = await models.Accounts.findOne({ uid: userAccount.id });
 
     if (account) {
-      await Accounts.updateOne(
+      await models.Accounts.updateOne(
         { _id: account._id },
         { $set: { token: access_token } }
       );
 
-      const integrations = await Integrations.find({
+      const integrations = await models.Integrations.find({
         accountId: account._id
       });
 
       for (const integration of integrations) {
-        await repairIntegrations(integration.erxesApiId);
+        await repairIntegrations(models, integration.erxesApiId);
       }
     } else {
-      await Accounts.create({
+      await models.Accounts.create({
         token: access_token,
         name,
         kind: 'facebook',
