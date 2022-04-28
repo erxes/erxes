@@ -522,13 +522,13 @@ const up = async (uis) => {
                     ${commonConfig}
             }
 
-            location /dashboard/api {
+            location /dashboard/api/ {
                 proxy_pass http://127.0.0.1:4300/;
                 ${commonConfig}
             }
 
             location /dashboard/front {
-                proxy_pass http://127.0.0.1:4200/;
+                proxy_pass http://127.0.0.1:4200;
                 ${commonConfig}
             }
     }
