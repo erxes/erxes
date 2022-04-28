@@ -1,32 +1,28 @@
-import { Comments, Customers, Posts } from '../../facebook/models';
 import { getPageList } from '../../facebook/utils';
-import { Accounts, Configs, Integrations } from '../../models';
-import { nylasGetAccountCalendars, nylasGetEvents, nylasGetSchedulePage, nylasGetSchedulePages } from '../../nylas/handleController';
 import { getConfig, getConfigs } from '../../utils';
+import { IContext } from '../../connectionResolver';
 
 const integrationQueries = {
   // app.get('/accounts', async (req, res) => {
-  async integrationsGetAccounts(_root, { kind }: { kind: string }) {
-    if (kind.includes('nylas')) {
-      kind = kind.split('-')[1];
-    }
+  async integrationsGetAccounts(_root, { kind }: { kind: string }, { models }: IContext) {
     const selector = { kind };
 
-    return Accounts.find(selector);
+    return models.Accounts.find(selector);
   },
 
   // app.get('/integrations', async (req, res) => {
-  async integrationsGetIntegrations(_root, { kind }: { kind: string }) {
-    return Integrations.find({ kind });
+  async integrationsGetIntegrations(_root, { kind }: { kind: string }, { models }: IContext) {
+    return models.Integrations.find({ kind });
   },
 
   //  app.get('/integrationDetail', async (req, res) => {
   async integrationsGetIntegrationDetail(
     _root,
-    { erxesApiId }: { erxesApiId: string }
+    { erxesApiId }: { erxesApiId: string },
+    { models }: IContext
   ) {
     // do not expose fields below
-    const integration = await Integrations.findOne(
+    const integration = await models.Integrations.findOne(
       { erxesApiId },
       {
         nylasToken: 0,
@@ -39,28 +35,17 @@ const integrationQueries = {
     return integration;
   },
 
-  // app.get('/gmail/get-email',
-  async integrationsGetGmailEmail(_root, { accountId }: { accountId: string }) {
-    const account = await Accounts.findOne({ _id: accountId });
-
-    if (!account) {
-      throw new Error('Account not found');
-    }
-
-    return account.email;
-  },
-
   // app.get('/configs', async (req, res) => {
-  async integrationsGetConfigs(_root, {}) {
-    return Configs.find({});
+  async integrationsGetConfigs(_root, _args, { models }: IContext) {
+    return models.Configs.find({});
   },
 
   // app.get('/facebook/get-comments', async (req, res) => {
-  async integrationsConversationFbComments(_root, args) {
+  async integrationsConversationFbComments(_root, args, { models }: IContext) {
     const { postId, isResolved, commentId, senderId } = args;
     let { limit = 10 } = args;
 
-    const post = await Posts.getPost({ erxesApiId: postId });
+    const post = await models.FbPosts.getPost({ erxesApiId: postId });
 
     const query: {
       postId: string;
@@ -76,7 +61,7 @@ const integrationQueries = {
     limit = parseInt(limit, 10);
 
     if (senderId !== 'undefined') {
-      const customer = await Customers.findOne({ erxesApiId: senderId });
+      const customer = await models.FbCustomers.findOne({ erxesApiId: senderId });
 
       if (!customer) {
         return null;
@@ -86,7 +71,7 @@ const integrationQueries = {
       query.parentId = commentId !== 'undefined' ? commentId : null;
     }
 
-    const result = await Comments.aggregate([
+    const result = await models.FbComments.aggregate([
       {
         $match: query
       },
@@ -141,17 +126,18 @@ const integrationQueries = {
 
     return result.reverse();
   },
+
   // app.get('/facebook/get-comments-count', async (req, res) => {
-  async integrationsConversationFbCommentsCount(_root, args) {
+  async integrationsConversationFbCommentsCount(_root, args, { models }: IContext) {
     const { postId, isResolved = false } = args;
 
-    const post = await Posts.getPost({ erxesApiId: postId }, true);
+    const post = await models.FbPosts.getPost({ erxesApiId: postId }, true);
 
-    const commentCount = await Comments.countDocuments({
+    const commentCount = await models.FbComments.countDocuments({
       postId: post.postId,
       isResolved
     });
-    const commentCountWithoutReplies = await Comments.countDocuments({
+    const commentCountWithoutReplies = await models.FbComments.countDocuments({
       postId: post.postId,
       isResolved,
       parentId: null
@@ -163,38 +149,21 @@ const integrationQueries = {
     };
   },
 
-    // app.get('/nylas/get-events',
-  async integrationsGetNylasEvents(_root, { calendarIds, startTime, endTime }) {
-    return nylasGetEvents({ calendarIds, startTime, endTime });
-  },
-
-  // app.get('/twitter/get-account', async (req, res, next) => {
-  async integrationsGetTwitterAccount(_root, { accountId }: {accountId: string}) {
-    const account = await Accounts.findOne({ _id: accountId });
-
-    if (!account) {
-      throw new Error('Account not found');
-    }
-
-    return account.uid;
-    
-  },
-
   // app.get('/facebook/get-pages', async (req, res, next) => {
-  async integrationsGetFbPages(_root, args) {
+  async integrationsGetFbPages(_root, args, { models }: IContext) {
     const { kind, accountId } = args;
 
-    const account = await Accounts.getAccount({ _id: accountId });
+    const account = await models.Accounts.getAccount({ _id: accountId });
 
     const accessToken = account.token;
 
     let pages: any[] = [];
 
     try {
-      pages = await getPageList(accessToken, kind);
+      pages = await getPageList(models, accessToken, kind);
     } catch (e) {
       if (!e.message.includes('Application request limit reached')) {
-        await Integrations.updateOne(
+        await models.Integrations.updateOne(
           { accountId },
           { $set: { healthStatus: 'account-token', error: `${e.message}` } }
         );
@@ -203,43 +172,6 @@ const integrationQueries = {
 
     return pages;
   },
-
-  // app.get('/videoCall/usageStatus',
-  async integrationsVideoCallUsageStatus(_root) {
-    const videoCallType = await getConfig('VIDEO_CALL_TYPE');
-
-    switch (videoCallType) {
-      case 'daily': {
-        const { DAILY_API_KEY, DAILY_END_POINT } = await getConfigs();
-
-        return Boolean(DAILY_API_KEY && DAILY_END_POINT);
-      }
-
-      default: {
-        return false;
-      }
-    }
-  },
-
-  // app.get('/nylas/get-calendars',
-  async integrationsNylasGetCalendars(_root, args) {
-    const { accountId, show } = args;
-
-    const calendars = await nylasGetAccountCalendars(accountId, show);
-
-    return calendars;
-  },
-
-  // app.get('/nylas/get-schedule-page',
-  async integrationsNylasGetSchedulePage(_root, { pageId }: { pageId: string }) {
-    return nylasGetSchedulePage(pageId);
-  },
-
-  // app.get('/nylas/get-schedule-pages',
-   async integrationsNylasGetSchedulePages(_root, { accountId }: { accountId: string }) {
-    return nylasGetSchedulePages(accountId);
-  },
-
 };
 
 export default integrationQueries;

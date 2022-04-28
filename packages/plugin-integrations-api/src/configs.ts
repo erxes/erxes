@@ -4,6 +4,7 @@ import resolvers from './graphql/resolvers';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
 import initApp from '.'
+import { models } from './connectionResolver';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -16,6 +17,7 @@ export let es: {
 };
 
 export let debug;
+export let mainDb;
 
 export default {
   name: 'integrations',
@@ -29,8 +31,16 @@ export default {
   },
   hasSubscriptions: false,
   segment: {},
-  apolloServerContext: (context) => {},
+  apolloServerContext: (context) => {
+    const subdomain = 'os';
+
+    context.subdomain = subdomain;
+    context.models = models;
+
+    return context;
+  },
   onServerInit: async (options) => {
+    mainDb = options.db;
 
     const app = options.app;
 

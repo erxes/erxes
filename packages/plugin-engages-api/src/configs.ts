@@ -39,7 +39,7 @@ export default {
   meta: { tags, logs: { consumers: logs } },
   postHandlers: [{ path: `/service/engage/tracker`, method: engageTracker }],
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req.hostname);
+    const subdomain = getSubdomain(req);
 
     context.dataloaders = {};
     context.docModifier = (doc) => doc;

@@ -1,6 +1,5 @@
-
 import * as mongoose from 'mongoose';
-import { getEnv, IContext as IMainContext } from '@erxes/api-utils/src';
+import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { IUserModel, loadUserClass } from './db/models/Users';
 import { IUserDocument } from './db/models/definitions/users';
 import { IBrandModel, loadBrandClass } from './db/models/Brands';
@@ -15,11 +14,9 @@ import { IConfigDocument } from './db/models/definitions/configs';
 import { IPermissionDocument, IUserGroupDocument } from './db/models/definitions/permissions';
 import { IOnboardingHistoryDocument, IRobotEntryDocument } from './db/models/definitions/robot';
 import { IBranchDocument, IDepartmentDocument, IStructureDocument, IUnitDocument } from './db/models/definitions/structures';
-import { connect } from './db/connection';
 import { IAppModel, loadAppClass } from './db/models/Apps';
 import { IAppDocument } from './db/models/definitions/apps';
-
-const MONGO_URL = getEnv({ name: 'MONGO_URL' });
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
   Users: IUserModel;
@@ -42,21 +39,7 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels;
-
-export const generateModels = async (
-  _hostnameOrSubdomain: string
-): Promise<IModels> => {
-  if (models) {
-    return models;
-  }
-
-  const db: any = await connect(MONGO_URL)
-
-  loadClasses(db)
-
-  return models;
-};
+export let models: IModels | null = null;
 
 export const loadClasses = async (db: mongoose.Connection) => {
   models = {} as IModels;
@@ -81,3 +64,5 @@ export const loadClasses = async (db: mongoose.Connection) => {
 
   return models;
 };
+
+export const generateModels = createGenerateModels<IModels>(models, loadClasses);
