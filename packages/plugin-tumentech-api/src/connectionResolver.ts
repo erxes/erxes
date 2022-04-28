@@ -1,18 +1,23 @@
 import * as mongoose from 'mongoose';
 import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
-import { ICarCategoryDocument, ICarDocument } from './models/definitions/cars';
 import {
-  loadCarClass,
+  ICarDocument,
+  ICarCategoryDocument,
+  IProductCarCategoryDocument
+} from './models/definitions/tumentech';
+import {
+  loadCarsClass,
   loadCarCategoryClass,
+  ICarModel,
   ICarCategoryModel,
-  ICarModel
-} from './models/Cars';
-import { MongoClient } from 'mongodb';
+  IProductCarCategoryModel
+} from './models/Tumentech';
 
 export interface IModels {
   Cars: ICarModel;
   CarCategories: ICarCategoryModel;
+  ProductCarCategories: IProductCarCategoryModel;
 }
 
 export interface IContext extends IMainContext {
@@ -37,12 +42,20 @@ export const generateModels = async (
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
-  models.Cars = db.model<ICarDocument, ICarModel>('cars', loadCarClass(models));
+  models.Cars = db.model<ICarDocument, ICarModel>(
+    'cars',
+    loadCarsClass(models)
+  );
 
   models.CarCategories = db.model<ICarCategoryDocument, ICarCategoryModel>(
-    'car_categories',
+    'cars_category',
     loadCarCategoryClass(models)
   );
+
+  models.ProductCarCategories = db.model<
+    IProductCarCategoryDocument,
+    IProductCarCategoryModel
+  >('product_cars_category', loadCarCategoryClass(models));
 
   return models;
 };
