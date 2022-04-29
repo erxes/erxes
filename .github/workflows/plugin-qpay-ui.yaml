@@ -1,13 +1,14 @@
-name: Plugin Qpay UI CI
+name: Plugin qpay UI CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/plugin-qpay-ui/**'
-      - '.github/workflows/plugin-qpay-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-qpay/**"
+      - "packages/plugin-qpay-ui/**"
+      - ".github/workflows/plugin-qpay-ui.yaml"
 
 jobs:
   ui:
@@ -27,6 +28,7 @@ jobs:
           cp -r packages/ui-plugin-template/.erxes packages/plugin-qpay-ui/.erxes
           cp -r packages/plugin-qpay-ui/src packages/plugin-qpay-ui/.erxes/plugin-src
           cd packages/plugin-qpay-ui
+          yarn install
           yarn install-deps
           yarn build
 

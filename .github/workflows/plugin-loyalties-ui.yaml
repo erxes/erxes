@@ -1,13 +1,14 @@
-name: Plugin Loyalties UI CI
+name: Plugin loyalties UI CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/plugin-loyalties-ui/**'
-      - '.github/workflows/plugin-loyalties-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-loyalties/**"
+      - "packages/plugin-loyalties-ui/**"
+      - ".github/workflows/plugin-loyalties-ui.yaml"
 
 jobs:
   ui:
@@ -27,6 +28,7 @@ jobs:
           cp -r packages/ui-plugin-template/.erxes packages/plugin-loyalties-ui/.erxes
           cp -r packages/plugin-loyalties-ui/src packages/plugin-loyalties-ui/.erxes/plugin-src
           cd packages/plugin-loyalties-ui
+          yarn install
           yarn install-deps
           yarn build
 

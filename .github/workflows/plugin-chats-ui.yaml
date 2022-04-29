@@ -1,13 +1,14 @@
-name: Plugin Chats UI CI
+name: Plugin chats UI CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/plugin-chats-ui/**'
-      - '.github/workflows/plugin-chats-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-chats/**"
+      - "packages/plugin-chats-ui/**"
+      - ".github/workflows/plugin-chats-ui.yaml"
 
 jobs:
   ui:
@@ -27,6 +28,7 @@ jobs:
           cp -r packages/ui-plugin-template/.erxes packages/plugin-chats-ui/.erxes
           cp -r packages/plugin-chats-ui/src packages/plugin-chats-ui/.erxes/plugin-src
           cd packages/plugin-chats-ui
+          yarn install
           yarn install-deps
           yarn build
 
