@@ -151,7 +151,6 @@ const carQueries = {
 
 requireLogin(carQueries, "carDetail");
 
-checkPermission(carQueries, "cars", "showCars");
 checkPermission(carQueries, "carsMain", "showCars");
 checkPermission(carQueries, "carDetail", "showCars");
 checkPermission(carQueries, "carCategories", "showCars");
