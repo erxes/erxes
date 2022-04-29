@@ -11,7 +11,7 @@ on:
       - '.github/workflows/plugin-syncerkhet-api.yaml'
 
 jobs:
-  plugin-syncerkhet-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

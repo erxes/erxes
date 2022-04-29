@@ -11,7 +11,7 @@ on:
       - '.github/workflows/plugin-inbox-api.yaml'
 
 jobs:
-  plugin-inbox-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

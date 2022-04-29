@@ -5,6 +5,7 @@ import { generateModels, models } from "./connectionResolver";
 import afterMutations from "./afterMutations";
 import { initBroker } from "./messageBroker";
 import { initMemoryStorage } from "./inmemoryStorage";
+import { getSubdomain } from "@erxes/api-utils/src/core";
 
 export let debug;
 export let graphqlPubsub;
@@ -52,18 +53,16 @@ export default {
       resolvers: await resolvers(sd),
     };
   },
-  apolloServerContext: (context) => {
-    const subdomain = "os";
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req);
 
-    context.subdomain = subdomain;
+    context.subdomain = await generateModels(subdomain);;
     context.models = models;
 
     return context;
   },
   onServerInit: async (options) => {
     mainDb = options.db;
-
-    await generateModels("os");
 
     initBroker(options.messageBrokerClient);
 

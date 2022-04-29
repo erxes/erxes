@@ -9,6 +9,7 @@ import resolvers from './graphql/resolvers/index';
 import { debugBase } from './debuggers';
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -36,8 +37,8 @@ export default {
   segment: { schemas: [] },
   hasSubscriptions: false,
   meta: {},
-  apolloServerContext: async context => {
-    const subdomain = 'os';
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req);
 
     context.dataloaders = {};
     context.docModifier = doc => doc;

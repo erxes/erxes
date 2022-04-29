@@ -177,7 +177,7 @@ const chatMutations = {
           subdomain: "os",
           action: "sendMobileNotification",
           data: {
-            title: `${user.name} sent you chat`,
+            title: `${user?.details?.fullName || user?.fullName} sent you chat`,
             body: strip_html(args.content),
             receivers: recievers,
           },

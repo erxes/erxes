@@ -33,7 +33,8 @@ import logs from './logUtils';
 
 import init from './startup';
 import forms from './forms';
-import { generateModels, getSubdomain } from './connectionResolver'
+import { generateModels } from './connectionResolver'
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 // load environment variables
 dotenv.config();
@@ -75,7 +76,7 @@ app.use(helmet({ frameguard: { action: 'sameorigin' } }));
 app.get(
   '/initial-setup',
   routeErrorHandling(async (req: any, res) => {
-    const subdomain = getSubdomain(req.hostname);
+    const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
     const userCount = await models.Users.countDocuments();
@@ -107,7 +108,7 @@ app.get(
   routeErrorHandling(async (req: any, res) => {
     const name = req.query.name;
 
-    const subdomain = getSubdomain(req.hostname);
+    const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
     registerOnboardHistory({models, type: `${name}Download`, user: req.user });
@@ -128,7 +129,7 @@ app.get(
   routeErrorHandling(async (req: any, res) => {
     const { importType } = req.query;
 
-    const subdomain = getSubdomain(req.hostname);
+    const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
     registerOnboardHistory({ models, type: `importDownloadTemplate`, user: req.user });
@@ -142,7 +143,7 @@ app.get(
 
 // read file
 app.get('/read-file', async (req: any, res, next) => {
-  const subdomain = getSubdomain(req.hostname);
+  const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
   try {
@@ -178,7 +179,7 @@ app.post(
       return res.end('forbidden');
     }
 
-    const subdomain = getSubdomain(req.hostname);
+    const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
     const status = await deleteFile(models, req.body.fileName);

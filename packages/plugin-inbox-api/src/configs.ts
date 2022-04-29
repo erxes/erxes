@@ -14,8 +14,6 @@ import {
 } from './events';
 import {
   generateModels,
-  models,
-  getSubdomain
 } from './connectionResolver';
 import logs from './logUtils';
 import tags from './tags';
@@ -24,6 +22,7 @@ import forms from './forms';
 import permissions from './permissions';
 import search from './search';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -57,8 +56,10 @@ export default {
     search,
     logs: { providesActivityLog: true, consumers: logs }
   },
-  apolloServerContext: context => {
-    const subdomain = 'os';
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req);
+
+    const models = await generateModels(subdomain);
 
     context.models = models;
     context.dataLoaders = generateAllDataLoaders(models);
@@ -68,9 +69,8 @@ export default {
   },
   onServerInit: async options => {
     mainDb = options.db;
-    const app = options.app;
 
-    await generateModels('os');
+    const app = options.app;
 
     // events
     app.post(
@@ -78,7 +78,7 @@ export default {
       routeErrorHandling(
         async (req, res) => {
           const { name, customerId, attributes } = req.body;
-          const subdomain = getSubdomain(req.hostname);
+          const subdomain = getSubdomain(req);
 
           const response =
             name === 'pageView'
@@ -100,7 +100,7 @@ export default {
       routeErrorHandling(
         async (req, res) => {
           const { args } = req.body;
-          const subdomain = getSubdomain(req.hostname);
+          const subdomain = getSubdomain(req);
 
           const response = await identifyCustomer(subdomain, args);
           return res.json(response);
@@ -113,7 +113,7 @@ export default {
       '/events-update-customer-property',
       routeErrorHandling(
         async (req, res) => {
-          const subdomain = getSubdomain(req.hostname);
+          const subdomain = getSubdomain(req);
 
           const response = await updateCustomerProperty(
             subdomain,

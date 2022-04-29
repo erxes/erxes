@@ -3,7 +3,8 @@ import resolvers from './graphql/resolvers';
 
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
-import { generateModels, models } from './connectionResolver';
+import { generateModels } from './connectionResolver';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -28,15 +29,15 @@ export default {
   },
   hasSubscriptions: true,
   segment: {},
-  apolloServerContext: (context) => {
-    context.models = models;
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req);
+
+    context.subdomain = subdomain;
+    context.models = await generateModels(subdomain);
   },
+
   onServerInit: async (options) => {
-    initBroker(options.messageBrokerClient);
-
     mainDb = options.db;
-
-    await generateModels('os');
 
     initBroker(options.messageBrokerClient);
 

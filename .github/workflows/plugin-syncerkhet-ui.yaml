@@ -1,13 +1,14 @@
-name: Plugin SyncErkhet UI CI
+name: Plugin syncerkhet UI CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/plugin-syncerkhet-ui/**'
-      - '.github/workflows/plugin-syncerkhet-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-syncerkhet/**"
+      - "packages/plugin-syncerkhet-ui/**"
+      - ".github/workflows/plugin-syncerkhet-ui.yaml"
 
 jobs:
   ui:
@@ -27,6 +28,7 @@ jobs:
           cp -r packages/ui-plugin-template/.erxes packages/plugin-syncerkhet-ui/.erxes
           cp -r packages/plugin-syncerkhet-ui/src packages/plugin-syncerkhet-ui/.erxes/plugin-src
           cd packages/plugin-syncerkhet-ui
+          yarn install
           yarn install-deps
           yarn build
 

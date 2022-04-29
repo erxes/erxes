@@ -27,7 +27,7 @@ type State = {
 };
 
 class Widget extends React.Component<Props, State> {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
@@ -35,7 +35,9 @@ class Widget extends React.Component<Props, State> {
     };
   }
 
-  onHideNumber = () => {
+  onHideNumber = (event: React.MouseEvent) => {
+    event.preventDefault();
+
     client.mutate({
       mutation: gql(mutations.showNotification)
     });

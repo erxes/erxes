@@ -6,6 +6,7 @@ import resolvers from './data/resolvers';
 import * as typeDefDetails from './data/schema';
 import { IDataLoaders, generateAllDataLoaders } from './data/dataLoaders';
 import { generateModels } from './connectionResolver';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 // load environment variables
 dotenv.config();
@@ -37,7 +38,8 @@ export const initApolloServer = async (_app, httpServer) => {
     // for graceful shutdowns
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
     context: async ({ req, res }) => {
-      const models = await generateModels('os')
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
 
       let user: any = null;
       
