@@ -77,6 +77,8 @@ module.exports.devCmd = async (program) => {
     `
   );
 
+  await execCommand(`cd ${filePath(`../packages/core-ui`)} && yarn generate-doterxes`);
+
   if (configs.widgets) {
     log('Installing dependencies in widgets .........')
     await execCommand(`cd ${filePath(`../widgets`)} && yarn install`);
