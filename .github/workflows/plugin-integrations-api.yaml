@@ -11,7 +11,7 @@ on:
       - '.github/workflows/plugin-integrations-api.yaml'
 
 jobs:
-  plugin-integrations-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

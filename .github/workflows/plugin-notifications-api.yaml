@@ -11,7 +11,7 @@ on:
       - '.github/workflows/plugin-notifications-api.yaml'
 
 jobs:
-  plugin-notifications-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

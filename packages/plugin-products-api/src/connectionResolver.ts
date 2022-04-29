@@ -1,6 +1,4 @@
-import { MongoClient } from 'mongodb';
 import * as mongoose from 'mongoose';
-import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { IProductCategoryModel, IProductModel, loadProductCategoryClass, loadProductClass } from './models/Products';
 import { IProductCategoryDocument, IProductDocument } from './models/definitions/products';
@@ -8,6 +6,7 @@ import { IUomModel, loadUomClass } from './models/Uoms';
 import { IUomDocument } from './models/definitions/uoms';
 import { IConfigDocument } from './models/definitions/configs';
 import { IConfigModel, loadConfigClass } from './models/Configs';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 export interface IModels {
   Products: IProductModel;
   ProductCategories: IProductCategoryModel;
@@ -19,19 +18,7 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels;
-
-export const generateModels = async (
-  hostnameOrSubdomain: string
-): Promise<IModels> => {
-  if (models) {
-    return models;
-  }
-
-  loadClasses(mainDb, hostnameOrSubdomain);
-
-  return models;
-};
+export let models: IModels | null = null;
 
 export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels => {
   models = {} as IModels;
@@ -43,3 +30,5 @@ export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels
 
   return models;
 };
+
+export const generateModels = createGenerateModels<IModels>(models, loadClasses)

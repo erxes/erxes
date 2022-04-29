@@ -11,7 +11,7 @@ on:
       - '.github/workflows/plugin-knowledgebase-api.yaml'
 
 jobs:
-  plugin-knowledgebase-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

@@ -1,13 +1,14 @@
-name: Plugin Tags UI CI
+name: Plugin tags UI CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/plugin-tags-ui/**'
-      - '.github/workflows/plugin-tags-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-tags/**"
+      - "packages/plugin-tags-ui/**"
+      - ".github/workflows/plugin-tags-ui.yaml"
 
 jobs:
   ui:
@@ -27,6 +28,7 @@ jobs:
           cp -r packages/ui-plugin-template/.erxes packages/plugin-tags-ui/.erxes
           cp -r packages/plugin-tags-ui/src packages/plugin-tags-ui/.erxes/plugin-src
           cd packages/plugin-tags-ui
+          yarn install
           yarn install-deps
           yarn build
 
@@ -41,4 +43,4 @@ jobs:
         run: |
           tar -cf build.tar --directory=packages/plugin-tags-ui/.erxes/dist .
           cp build.tar packages/plugin-tags-ui/.erxes/dist
-          aws s3 sync packages/plugin-tags-ui/.erxes/dist s3://erxes-plugins/uis/plugin-tags-ui --delete 
+          aws s3 sync packages/plugin-tags-ui/.erxes/dist s3://erxes-plugins/uis/plugin-tags-ui --delete
