@@ -8,7 +8,7 @@ const packageJSON = require('../package.json');
 const startCmd = require('../commands/start');
 const updateCmd = require('../commands/update');
 const { manageInstallation, up, update, restart, deployDbs } = require('../commands/docker/utils');
-const { devCmd, devStop } = require('../commands/dev');
+const { devOnly, devCmd, devStop } = require('../commands/dev');
 
 /**
  * Normalize version argument
@@ -40,7 +40,13 @@ program
 program
   .command('dev')
   .description('Run erxes in dev mode using pm2')
+  .option('--ignoreRun', 'Ignore pm2 start')
   .action(devCmd);
+
+program
+  .command('dev-only')
+  .description('Run only given service')
+  .action(devOnly);
 
 program
   .command('dev-stop')
@@ -49,7 +55,7 @@ program
 
 program
   .command('start')
-  .option('--ignoreDownload', 'Ingore latest updates download')
+  .option('--ignoreDownload', 'Ignore latest updates download')
   .description('Run erxes')
   .action(startCmd);
 

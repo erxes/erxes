@@ -1,11 +1,16 @@
 const fse = require("fs-extra");
 const { execCommand, filePath, log, sleep } = require("./utils");
 
+module.exports.devOnly = async () => {
+  const name = process.argv[3];
+  await execCommand(`pm2 start ecosystem.config.js --only ${name}`);
+};
+
 module.exports.devStop = async () => {
   await execCommand('pm2 delete all');
 }
 
-module.exports.devCmd = async () => {
+module.exports.devCmd = async (program) => {
   const configs = await fse.readJSON(filePath("configs.json"));
 
   const enabledServices = [];
@@ -45,14 +50,6 @@ module.exports.devCmd = async () => {
       script: "yarn",
       args: "start",
       ignore_watch: ["node_modules"],
-      env: {
-        PORT: 3000,
-        NODE_ENV: "development",
-        REACT_APP_CDN_HOST: "http://localhost:3200",
-        REACT_APP_API_URL: "http://localhost:4000",
-        REACT_APP_DASHBOARD_URL: "http://localhost:4200",
-        REACT_APP_API_SUBSCRIPTION_URL: "ws://localhost:4000/graphql"
-      },
     },
     {
       name: "core",
@@ -67,9 +64,32 @@ module.exports.devCmd = async () => {
     },
   ];
 
+  log("Generated ui coreui .env file ....");
+  await fse.writeFile(
+    filePath("../packages/core-ui/.env"),
+    `
+      PORT=3000
+      NODE_ENV="development"
+      REACT_APP_CDN_HOST="http://localhost:3200"
+      REACT_APP_API_URL="http://localhost:4000"
+      REACT_APP_DASHBOARD_URL="http://localhost:4200"
+      REACT_APP_API_SUBSCRIPTION_URL="ws://localhost:4000/graphql"
+    `
+  );
+
   if (configs.widgets) {
     log('Installing dependencies in widgets .........')
     await execCommand(`cd ${filePath(`../widgets`)} && yarn install`);
+
+    await fse.writeFile(
+      filePath("../widgets/.env"),
+      `
+        PORT=3200
+        ROOT_URL="http://localhost:3200"
+        API_URL="http://localhost:4000"
+        API_SUBSCRIPTIONS_URL="ws://localhost:4000/graphql"
+      `
+    );
 
     apps.push({
       name: 'widgets',
@@ -77,12 +97,6 @@ module.exports.devCmd = async () => {
       script: "yarn",
       args: "dev",
       ignore_watch: ["node_modules"],
-      env: {
-        PORT: 3200,
-        ROOT_URL: "http://localhost:3200",
-        API_URL: "http://localhost:4000",
-        API_SUBSCRIPTIONS_URL: "ws://localhost:4000/graphql"
-      },
     });
   }
 
@@ -151,12 +165,14 @@ module.exports.devCmd = async () => {
     `
   );
 
-  log("Generated ecosystem file ....");
-  await execCommand('pm2 start ecosystem.config.js');
+  if (!program.ignoreRun) {
+    log("pm2 start ....");
+    await execCommand('pm2 start ecosystem.config.js');
 
-  log("Waiting for 30 seconds ....");
-  await sleep(30000);
+    log("Waiting for 30 seconds ....");
+    await sleep(30000);
 
-  log("Restarting ....");
-  await execCommand('pm2 restart gateway');
+    log("Restarting ....");
+    await execCommand('pm2 restart gateway');
+  }
 };
