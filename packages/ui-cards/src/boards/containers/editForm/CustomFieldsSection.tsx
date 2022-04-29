@@ -72,7 +72,7 @@ export default (props: Props) => {
         name: "fieldsGroupsQuery",
         options: () => ({
           variables: {
-            contentType: options.type,
+            contentType: `cards:${options.type}`,
             config: {
               boardId: item.boardId || "",
               pipelineId: item.pipeline._id || "",
