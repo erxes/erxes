@@ -1,5 +1,9 @@
+import { attachmentType } from "@erxes/api-utils/src/commonTypeDefs";
+
 export const types = ({ cardsEnabled, formsEnabled }) => {
   return `
+    ${attachmentType}
+
     type DealRP {
       _id: String
       name: String
@@ -7,6 +11,8 @@ export const types = ({ cardsEnabled, formsEnabled }) => {
       customFieldsData: JSON
       assignedUsers: JSON
       stage: JSON
+      description: String
+      attachments: [Attachment]
     }
 
     type DealsForRentpayResponse {
@@ -53,7 +59,7 @@ export const queries = ({ formsEnabled, cardsEnabled }) => `
  fieldsForRentpay(contentType: String!, code: String, searchable: Boolean): ${
    formsEnabled ? "[Field]" : "JSON"
  }
- dealDetailForRentpay(_id: String!): ${cardsEnabled ? "Deal" : "JSON"}
+ dealDetailForRentpay(_id: String!): ${cardsEnabled ? "DealRP" : "JSON"}
 `;
 
 export const mutations = `
