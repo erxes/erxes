@@ -1,6 +1,5 @@
-import { __, FieldStyle, SidebarCounter, SidebarList } from 'erxes-ui';
+import { __, FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src';
 import React from 'react';
-import { Description } from '../../styles';
 import { ICar } from '../../types';
 
 type Props = {

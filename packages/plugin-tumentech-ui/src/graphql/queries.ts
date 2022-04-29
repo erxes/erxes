@@ -1,6 +1,8 @@
-import { conformityQueryFieldDefs, conformityQueryFields } from 'erxes-ui';
-
-import { queries as productQueries } from 'erxes-ui/lib/products/graphql';
+import {
+  conformityQueryFieldDefs,
+  conformityQueryFields
+} from '@erxes/ui-cards/src/conformity';
+import { queries as productQueries } from '@erxes/ui-products/src/graphql';
 
 const productFields = productQueries.productFields;
 
@@ -273,17 +275,17 @@ const carCategoryMatchProducts = `
     carCategoryMatchProducts(carCategoryId: $carCategoryId) {
       _id
       carCategoryId
-      productIds
-      products
+      productCategoryIds
+      productCategories
     }
   }
 `;
 
-const productMatchCarCategories = `
-  query productMatchCarCategories($productId: String) {
-    productMatchCarCategories(productId: $productId) {
+const productCategoryMatchCarCategories = `
+  query productMatchCarCategories($productCategoryId: String) {
+    productMatchCarCategories(productCategoryId: $productCategoryId) {
       _id
-      productId
+      productCategoryId
       carCategoryIds
       carCategories
     }
@@ -313,5 +315,5 @@ export default {
   productCategoriesCount,
   productCategoryDetail,
   carCategoryMatchProducts,
-  productMatchCarCategories
+  productCategoryMatchCarCategories
 };

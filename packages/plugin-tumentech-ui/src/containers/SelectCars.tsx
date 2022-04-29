@@ -1,12 +1,12 @@
-import SelectWithSearch from 'erxes-ui';
-import { IOption, IQueryParams } from 'erxes-ui/lib/types';
+import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
+import { IOption, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 import { queries } from '../graphql';
 import { ICar } from '../types';
 
 // get car options for react-select-plus
 export function generateCarOptions(array: ICar[] = []): IOption[] {
-  return array.map(item => {
+  return array.map((item) => {
     const car = item || ({} as ICar);
 
     return {

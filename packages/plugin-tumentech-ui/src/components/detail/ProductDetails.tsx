@@ -1,9 +1,9 @@
-import ActivityInputs from 'erxes-ui/lib/activityLogs/components/ActivityInputs';
-import ActivityLogs from 'erxes-ui/lib/activityLogs/containers/ActivityLogs';
-import { IUser } from 'erxes-ui/lib/auth/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import { IProduct } from '../../types';
 import React from 'react';
-import { __, Wrapper } from 'erxes-ui';
+import { __, Wrapper } from '@erxes/ui/src';
+import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
 
 type Props = {
   product: IProduct;

@@ -1,197 +1,216 @@
-import {
-    checkPermission,
-  } from "@erxes/api-utils/src/permissions";
-  // import { orderDeleteToErkhet, orderToErkhet } from "../../../utils";
-  // import messageBroker, { sendCoreMessage, sendPosMessage, sendEbarimtMessage } from '../../../messageBroker';
-  // import { getConfig } from "../../../utils";
-  import { IContext } from "../../../connectionResolver";
-import { putCreateLog } from "@erxes/api-utils/src/logUtils";
-  
-  const mutations = {
-    // carsAdd: async (_root,
-    //   doc,
-    //   { user, docModifier, models, checkPermission, messageBroker }) => {
-    //     await checkPermission('manageCars', user);
-    //     const car = await models.Cars.createCar(models, docModifier(doc), user);
-    //     await putCreateLog(
-    //       messageBroker,
-    //       gatherDescriptions,
-    //       {
-    //         type: 'car',
-    //         newData: doc,
-    //         object: car,
-    //         extraParams: { models }
-    //       },
-    //       user
-    //     );
-  
-    //     return car;    
-    // },
-  
-    posEdit: async (
-      _root,
-      { _id, params },
-      { models, subdomain }: IContext
-    ) => {
-      const object = await models.Pos.getPos({ _id });
-      const updatedDocument = await models.Pos.posEdit(_id, params);
-  
-      const adminUsers = await sendCoreMessage({
-        subdomain,
-        action: 'users.find',
-        data: {
-          query: {
-            _id: { $in: updatedDocument.adminIds },
-          }
-        },
-        isRPC: true,
-        defaultValue: []
-      })
-  
-      const cashierUsers = await sendCoreMessage({
-        subdomain,
-        action: 'users.find',
-        data: {
-          query: {
-            _id: { $in: updatedDocument.cashierIds }
-          }
-        },
-        isRPC: true,
-        defaultValue: []
-      })
-  
-  
-      await sendPosMessage(
-        models,
+import { putCreateLog, putDeleteLog, putUpdateLog } from 'erxes-api-utils';
+import { gatherDescriptions } from '../../../utils';
+import { checkPermission } from '@erxes/api-utils/src';
+
+const carMutations = {
+  carsAdd: async (_root, doc, { user, docModifier, models, messageBroker }) => {
+    const car = await models.Cars.createCar(models, docModifier(doc), user);
+    await putCreateLog(
+      messageBroker,
+      gatherDescriptions,
+      {
+        type: 'car',
+        newData: doc,
+        object: car,
+        extraParams: { models }
+      },
+      user
+    );
+
+    return car;
+  },
+  /**
+   * Updates a car
+   */
+
+  carsEdit: async (_root, { _id, ...doc }, { models, user, messageBroker }) => {
+    const car = await models.Cars.getCar(models, _id);
+    const updated = await models.Cars.updateCar(models, _id, doc);
+
+    await putUpdateLog(
+      messageBroker,
+      gatherDescriptions,
+      {
+        type: 'car',
+        object: car,
+        newData: { ...doc },
+        updatedDocument: updated,
+        extraParams: { models }
+      },
+      user
+    );
+
+    return updated;
+  },
+
+  /**
+   * Removes cars
+   */
+  carsRemove: async (
+    _root,
+    { carIds }: { carIds: string[] },
+    { models, user, messageBroker }
+  ) => {
+    const cars = await models.Cars.find({ _id: { $in: carIds } }).lean();
+
+    await models.Cars.removeCars(models, carIds);
+
+    for (const car of cars) {
+      await putDeleteLog(
         messageBroker,
-        "pos:crudData",
-        {
-          type: "pos",
-          action: "update",
-          object,
-          updatedDocument,
-          adminUsers,
-          cashierUsers,
-        },
-        object
+        gatherDescriptions,
+        { type: 'car', object: car, extraParams: { models } },
+        user
       );
-  
-      return updatedDocument;
-    },
-  
-    posRemove: async ( _root, { _id }: { _id: string }, { models } ) => {
-      return await models.Pos.posRemove(_id);
-    },
-  
-    productGroupsBulkInsert: async (
-      _root,
-      { posId, groups }: { posId: string; groups: any[] },
-      { models }
-    ) => {
-      const dbGroups = await models.ProductGroups.groups(posId);
-      const groupsToAdd = [] as any;
-      const groupsToUpdate = [] as any;
-      for (const group of groups) {
-        if (group._id.includes("temporaryId")) {
-          delete group._id;
-          groupsToAdd.push({ ...group, posId });
-        } else {
-          groupsToUpdate.push(group);
-          await models.ProductGroups.groupsEdit(group._id, group);
-        }
-      }
-      const groupsToRemove = dbGroups.filter((el) => {
-        const index = groupsToUpdate.findIndex((g) => g._id === el._id);
-        if (index === -1) {
-          return el._id;
-        }
-      });
-      if (groupsToRemove.length > 0) {
-        await models.ProductGroups.deleteMany({ _id: { $in: groupsToRemove } });
-      }
-      await models.ProductGroups.insertMany(groupsToAdd);
-      return models.ProductGroups.groups(posId);
-    },
-  
-    posOrderSyncErkhet: async (
-      _root,
-      { _id }: { _id: string },
-      { models, subdomain }: IContext
-    ) => {
-      const order = await models.PosOrders.findOne({ _id }).lean();
-      if (!order) {
-        throw new Error("not found order");
-      }
-      const pos = await models.Pos.findOne({ token: order.posToken }).lean();
-  
-      const putRes = await sendEbarimtMessage({
-        subdomain,
-        action: 'putresponses.putHistories',
-        data: {
-          contentType: "pos",
-          contentId: _id,
-        },
-        isRPC: true
-      })
-  
-      if (!pos) {
-        throw new Error("not found pos");
-      }
-      if (!putRes) {
-        throw new Error("not found put response");
-      }
-      await orderToErkhet(models, messageBroker, subdomain, pos, _id, putRes);
-      return await models.PosOrders.findOne({ _id }).lean();
-    },
-  
-    posOrderReturnBill: async (
-      _root,
-      { _id }: { _id: string },
-      { models,  subdomain }: IContext
-    ) => {
-      const order = await models.PosOrders.findOne({ _id }).lean();
-      if (!order) {
-        throw new Error("not found order");
-      }
-      const pos = await models.Pos.findOne({ token: order.posToken }).lean();
-      if (!pos) {
-        throw new Error("not found pos");
-      }
-      const ebarimtMainConfig = await getConfig(subdomain, "EBARIMT", {});
-  
-      await sendEbarimtMessage({
-        subdomain,
-        action: 'putresponses.returnBill',
-        data: {
-          contentType: "pos", contentId: _id,
-          config: { ...pos.ebarimtConfig, ...ebarimtMainConfig }
-        },
-        isRPC: true
-      })
-  
-      if (order.syncedErkhet) {
-        await orderDeleteToErkhet(models, messageBroker, subdomain, pos, _id);
-      }
-      return await models.PosOrders.deleteOne({ _id });
-    },
-    posOrderChangePayments: async (_root, { _id, cashAmount, cardAmount, mobileAmount }, { models }) => {
-      const order = await models.PosOrders.findOne({ _id }).lean();
-      if (!order) {
-        throw new Error('not found order');
-      }
-  
-      if (order.totalAmount !== cashAmount + cardAmount + mobileAmount) {
-        throw new Error('not balanced');
-      }
-  
-      await models.PosOrders.updateOne({ _id }, { $set: { cashAmount, cardAmount, mobileAmount } });
-      return models.PosOrders.findOne({ _id }).lean();
     }
-  };
-  
-  checkPermission(mutations, "posAdd", "managePos");
-  checkPermission(mutations, "posEdit", "managePos");
-  checkPermission(mutations, "posRemove", "managePos");
-  
-  export default mutations;
-  
+
+    return carIds;
+  },
+
+  /**
+   * Merge cars
+   */
+  carsMerge: async (_root, { carIds, carFields }, { models }) => {
+    return models.Cars.mergeCars(models, carIds, carFields);
+  },
+
+  /**
+   * Creates a new car category
+   * @param {Object} doc Car category document
+   */
+  carCategoriesAdd: async (
+    _root,
+    doc,
+    { docModifier, models, user, messageBroker }
+  ) => {
+    const carCategory = await models.CarCategories.createCarCategory(
+      models,
+      docModifier(doc)
+    );
+
+    await putCreateLog(
+      messageBroker,
+      gatherDescriptions,
+      {
+        type: 'car-category',
+        newData: { ...doc, order: carCategory.order },
+        object: carCategory,
+        extraParams: { models }
+      },
+      user
+    );
+
+    return carCategory;
+  },
+
+  /**
+   * Edits a car category
+   * @param {string} param2._id CarCategory id
+   * @param {Object} param2.doc CarCategory info
+   */
+  carCategoriesEdit: async (
+    _root,
+    { _id, ...doc },
+    { models, user, messageBroker }
+  ) => {
+    const carCategory = await models.CarCategories.getCarCatogery(models, {
+      _id
+    });
+    const updated = await models.CarCategories.updateCarCategory(
+      models,
+      _id,
+      doc
+    );
+
+    await putUpdateLog(
+      messageBroker,
+      gatherDescriptions,
+      {
+        type: 'car-category',
+        object: carCategory,
+        newData: doc,
+        updatedDocument: updated,
+        extraParams: { models }
+      },
+      user
+    );
+
+    return updated;
+  },
+
+  /**
+   * Removes a car category
+   * @param {string} param1._id CarCategory id
+   */
+  carCategoriesRemove: async (
+    _root,
+    { _id }: { _id: string },
+    { models, user, messageBroker }
+  ) => {
+    const carCategory = await models.CarCategories.getCarCatogery(models, {
+      _id
+    });
+    const removed = await models.CarCategories.removeCarCategory(models, _id);
+
+    await putDeleteLog(
+      messageBroker,
+      gatherDescriptions,
+      { type: 'car-category', object: carCategory, extraParams: { models } },
+      user
+    );
+
+    return removed;
+  },
+
+  // ClientPortal ===========
+  cpCarsAdd: async (_root, doc, { docModifier, models }) => {
+    const car = await models.Cars.createCar(models, docModifier(doc));
+
+    if (doc.customerId) {
+      await models.Conformities.addConformity({
+        mainType: 'customer',
+        mainTypeId: doc.customerId,
+        relType: 'car',
+        relTypeId: car._id
+      });
+    }
+
+    if (doc.companyId) {
+      await models.Conformities.addConformity({
+        mainType: 'company',
+        mainTypeId: doc.companyId,
+        relType: 'car',
+        relTypeId: car._id
+      });
+    }
+
+    return car;
+  },
+  /**
+   * Updates a car
+   */
+  cpCarsEdit: async (_root, { _id, ...doc }, { models }) => {
+    await models.Cars.getCar(models, _id);
+    const updated = await models.Cars.updateCar(models, _id, doc);
+
+    return updated;
+  },
+
+  /**
+   * Removes cars
+   */
+  cpCarsRemove: async (_root, { carIds }: { carIds: string[] }, { models }) => {
+    await models.Cars.removeCars(models, carIds);
+    return carIds;
+  }
+};
+
+checkPermission(carMutations, 'carsAdd', 'manageCars');
+checkPermission(carMutations, 'carsEdit', 'manageCars');
+checkPermission(carMutations, 'carsRemove', 'manageCars');
+checkPermission(carMutations, 'carsMerge', 'manageCars');
+checkPermission(carMutations, 'carCategoriesAdd', 'manageCars');
+checkPermission(carMutations, 'carCategoriesEdit', 'manageCars');
+checkPermission(carMutations, 'carCategoriesRemove', 'manageCars');
+
+export default carMutations;

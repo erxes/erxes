@@ -1,4 +1,4 @@
-import { withProps, Spinner, Alert } from 'erxes-ui';
+import { withProps, Spinner, Alert } from '@erxes/ui/src';
 import React from 'react';
 import MatchForm from '../components/matchForm/MatchCarForm';
 import { mutations, queries } from '../graphql';
@@ -9,15 +9,15 @@ import {
   ICarCategory,
   CarCategoriesQueryResponse,
   ProductMatchQueryResponse,
-  IProduct,
   ProductMatchMutationResponse,
-  ProductMatchMutationVariables
+  ProductMatchMutationVariables,
+  IProductCategory
 } from '../types';
 
 type Props = {
   car: ICarCategory;
   carCategories: ICarCategory[];
-  product: IProduct;
+  productCategory: IProductCategory;
   closeModal: () => void;
   remove: (productCategoryId: string) => void;
   saveMatch: (carCategoryIds: any) => void;
@@ -33,12 +33,15 @@ class MatchCarFormContainer extends React.Component<FinalProps> {
   saveMatch = (carCategoryIds: any) => {
     this.props
       .editMatch({
-        variables: { productId: this.props.product._id, carCategoryIds }
+        variables: {
+          productCategoryId: this.props.productCategory._id,
+          carCategoryIds
+        }
       })
       .then(() => {
         Alert.success('You successfully added a carCategories');
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
@@ -57,7 +60,10 @@ class MatchCarFormContainer extends React.Component<FinalProps> {
       saveMatch: this.saveMatch,
       carCategories,
       carCategoryIds:
-        productMatchQuery.productMatchCarCategories.carCategoryIds || []
+        (productMatchQuery &&
+          productMatchQuery.productMatchCarCategories &&
+          productMatchQuery.productMatchCarCategories.carCategoryIds) ||
+        []
     };
 
     return <MatchForm {...updatedProps} />;
@@ -81,7 +87,7 @@ export default withProps<FinalProps>(
       {
         name: 'editMatch',
         options: {
-          refetchQueries: ['productMatchCarCategories']
+          refetchQueries: ['productCategoryMatchCarCategories']
         }
       }
     ),
@@ -89,11 +95,11 @@ export default withProps<FinalProps>(
       name: 'carCategoriesQuery'
     }),
     graphql<Props, ProductMatchQueryResponse, {}>(
-      gql(queries.productMatchCarCategories),
+      gql(queries.productCategoryMatchCarCategories),
       {
         name: 'productMatchQuery',
-        options: ({ product }) => ({
-          variables: { productId: product._id },
+        options: ({ productCategory }) => ({
+          variables: { productCategoryId: productCategory._id },
           fetchPolicy: 'network-only'
         })
       }

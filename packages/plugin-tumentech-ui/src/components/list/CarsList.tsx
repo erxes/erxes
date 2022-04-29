@@ -12,8 +12,8 @@ import {
   Table,
   Wrapper,
   BarItems
-} from 'erxes-ui';
-import { IRouterProps, IButtonMutateProps } from 'erxes-ui/lib/types';
+} from '@erxes/ui/src';
+import { IRouterProps, IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 
@@ -72,7 +72,7 @@ class CarsList extends React.Component<IProps, State> {
     toggleAll(cars, 'cars');
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -87,17 +87,17 @@ class CarsList extends React.Component<IProps, State> {
     }, 500);
   };
 
-  removeCars = cars => {
+  removeCars = (cars) => {
     const carIds: string[] = [];
 
-    cars.forEach(car => {
+    cars.forEach((car) => {
       carIds.push(car._id);
     });
 
     this.props.removeCars({ carIds }, this.props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -163,7 +163,7 @@ class CarsList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="cars">
-            {cars.map(car => (
+            {cars.map((car) => (
               <CarRow
                 car={car}
                 isChecked={bulk.includes(car)}
@@ -192,7 +192,7 @@ class CarsList extends React.Component<IProps, State> {
 
     let actionBarLeft: React.ReactNode;
 
-    const carsMerge = props => {
+    const carsMerge = (props) => {
       return <CarsMerge {...props} objects={bulk} save={mergeCars} />;
     };
 
@@ -202,7 +202,7 @@ class CarsList extends React.Component<IProps, State> {
           .then(() => {
             this.removeCars(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
@@ -229,7 +229,7 @@ class CarsList extends React.Component<IProps, State> {
       );
     }
 
-    const carForm = props => {
+    const carForm = (props) => {
       return <CarForm {...props} queryParams={queryParams} />;
     };
 

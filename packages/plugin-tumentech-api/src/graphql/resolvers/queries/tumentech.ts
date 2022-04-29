@@ -1,17 +1,26 @@
-import { paginate } from '@erxes/api-utils/src/core';
-import {
-  checkPermission,
-  requireLogin
-} from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
+import { paginate } from 'erxes-api-utils';
+import { checkPermission } from '@erxes/api-utils/src';
+import { sendProductsMessage } from '../../../messageBroker';
 
 const generateFilter = async (models, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
-  // filter.status = { $ne: "Deleted" };
+  filter.status = { $ne: 'Deleted' };
 
   if (params.categoryId) {
-    filter.categoryId = params.categoryId;
+    const category = await models.CarCategories.findOne({
+      _id: params.categoryId
+    });
+    const categoryIds = await models.CarCategories.find(
+      {
+        $or: [
+          { order: { $regex: new RegExp(`${category.order}/`) } },
+          { order: category.order }
+        ]
+      },
+      { _id: 1 }
+    );
+    filter.categoryId = { $in: categoryIds };
   }
 
   if (params.searchValue) {
@@ -64,7 +73,11 @@ export const sortBuilder = (params) => {
 };
 
 const carQueries = {
+  /**
+   * Cars list
+   */
   cars: async (_root, params, { commonQuerySelector, models }) => {
+    console.log(models);
     return paginate(
       models.Cars.find(
         await generateFilter(models, params, commonQuerySelector)
@@ -76,6 +89,9 @@ const carQueries = {
     );
   },
 
+  /**
+   * Cars for only main list
+   */
   carsMain: async (_root, params, { commonQuerySelector, models }) => {
     const filter = await generateFilter(models, params, commonQuerySelector);
 
@@ -88,8 +104,57 @@ const carQueries = {
     };
   },
 
-  carDetail: async (_root, { _id }, { models }: IContext) => {
-    return models.Cars.getCar(_id);
+  carCategoryMatchProducts: async (
+    _root,
+    { carCategoryId },
+    { models, subdomain }
+  ) => {
+    const productCategoryIds = (
+      (await models.ProductCarCategory.find({ carCategoryId }).lean()) || []
+    ).map((i) => i.productCategoryId);
+
+    const productCategories = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        query: {
+          _id: { $in: productCategoryIds }
+        }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    return {
+      carCategoryId,
+      productCategoryIds,
+      productCategories
+    };
+  },
+
+  productMatchCarCategories: async (
+    _root,
+    { productCategoryId },
+    { models }
+  ) => {
+    const carCategoryIds = (
+      (await models.ProductCarCategory.find({ productCategoryId }).lean()) || []
+    ).map((i) => i.carCategoryId);
+
+    return {
+      productCategoryId,
+      carCategoryIds,
+      carCategories: await models.CarCategories.find({
+        _id: { $in: carCategoryIds }
+      })
+    };
+  },
+
+  /**
+   * Get one car
+   */
+  carDetail: async (_root, { _id }, { models }) => {
+    return models.Cars.getCar(models, _id);
   },
 
   carCategories: async (
@@ -118,6 +183,11 @@ const carQueries = {
     return models.CarCategories.findOne({ _id });
   },
 
+  // clientPortal ================
+
+  /**
+   * Get one car
+   */
   cpCarDetail: async (_root, { _id }, { models }) => {
     return models.Cars.getCar(models, _id);
   },
@@ -149,12 +219,10 @@ const carQueries = {
   }
 };
 
-requireLogin(carQueries, 'carDetail');
-
-checkPermission(carQueries, "carsMain", "showCars");
-checkPermission(carQueries, "carDetail", "showCars");
-checkPermission(carQueries, "carCategories", "showCars");
-checkPermission(carQueries, "carCategoriesTotalCount", "showCars");
-checkPermission(carQueries, "carCategoryDetail", "showCars");
+checkPermission(carQueries, 'carsMain', 'showCars');
+checkPermission(carQueries, 'carDetail', 'showCars');
+checkPermission(carQueries, 'carCategories', 'showCars');
+checkPermission(carQueries, 'carCategoriesTotalCount', 'showCars');
+checkPermission(carQueries, 'carCategoryDetail', 'showCars');
 
 export default carQueries;

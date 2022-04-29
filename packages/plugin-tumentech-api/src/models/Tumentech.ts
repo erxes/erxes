@@ -1,15 +1,16 @@
+import { validSearchText } from 'erxes-api-utils';
 import {
-  carCategorySchema,
+  productCarCategorySchema,
   carSchema,
-  ICarCategoryDocument,
-  ICarDocument,
+  carCategorySchema,
   ICar,
-  ICarCategory
-} from './definitions/cars';
-import { sendCoreMessage, sendInternalNotesMessage } from '../messageBroker';
+  ICarDocument,
+  ICarCategoryDocument,
+  ICarCategory,
+  IProductCarCategoryDocument
+} from './definitions/tumentech';
 
 import { Model } from 'mongoose';
-import { validSearchText } from '@erxes/api-utils/src';
 
 export interface ICarModel extends Model<ICarDocument> {
   createCar(doc: ICar, user: any): Promise<ICarDocument>;
@@ -32,9 +33,11 @@ export interface ICarCategoryModel extends Model<ICarCategoryDocument> {
     doc: ICarCategory
   ): Promise<ICarCategoryDocument>;
 }
+export interface IProductCarCategoryModel
+  extends Model<IProductCarCategoryDocument> {}
 
-export const loadCarClass = (models) => {
-  class Car {
+export const loadCarsClass = (models) => {
+  class Cars {
     /**
      * Checking if car has duplicated unique properties
      */
@@ -109,13 +112,9 @@ export const loadCarClass = (models) => {
     /**
      * Create a car
      */
-    public static async createCar(doc, user) {
+    public static async createCar(doc) {
       // Checking duplicated fields of car
       await models.Cars.checkDuplication(doc);
-
-      if (!doc.ownerId && user) {
-        doc.ownerId = user.name;
-      }
 
       const car = await models.Cars.create({
         ...doc,
@@ -150,24 +149,9 @@ export const loadCarClass = (models) => {
      */
     public static async removeCars(carIds) {
       for (const carId of carIds) {
-        await sendInternalNotesMessage({
-          subdomain: models.subdomain,
-          action: 'removeInternalNotes',
-          data: {
-            contentType: 'car',
-            contentTypeId: carId
-          },
-          defaultValue: {}
-        });
-
-        await sendCoreMessage({
-          subdomain: models.subdomain,
-          action: 'conformities.removeConformity',
-          data: {
-            mainType: 'car',
-            mainTypeId: carId
-          },
-          defaultValue: []
+        await models.Conformities.removeConformity({
+          mainType: 'car',
+          mainTypeId: carId
         });
       }
 
@@ -196,16 +180,10 @@ export const loadCarClass = (models) => {
       });
 
       // Updating customer cars, deals, tasks, tickets
-      await sendCoreMessage({
-        subdomain: models.subdomain,
-        action: 'conformities.changeConformity',
-        data: {
-          type: 'car',
-          newTypeId: car._id,
-          oldTypeIds: carIds
-        },
-        isRPC: true,
-        defaultValue: []
+      await models.Conformities.changeConformity({
+        type: 'car',
+        newTypeId: car._id,
+        oldTypeIds: carIds
       });
 
       // Removing modules associated with current cars
@@ -215,8 +193,7 @@ export const loadCarClass = (models) => {
     }
   }
 
-  carSchema.loadClass(Car);
-
+  carSchema.loadClass(Cars);
   return carSchema;
 };
 
@@ -242,7 +219,9 @@ export const loadCarCategoryClass = (models) => {
      */
     public static async createCarCategory(doc) {
       const parentCategory = doc.parentId
-        ? await models.CarCategories.findOne({ _id: doc.parentId }).lean()
+        ? await models.CarCategories.findOne({
+            _id: doc.parentId
+          }).lean()
         : undefined;
 
       // Generatingg order
@@ -256,7 +235,9 @@ export const loadCarCategoryClass = (models) => {
      */
     public static async updateCarCategory(_id, doc) {
       const parentCategory = doc.parentId
-        ? await models.CarCategories.findOne({ _id: doc.parentId }).lean()
+        ? await models.CarCategories.findOne({
+            _id: doc.parentId
+          }).lean()
         : undefined;
 
       if (parentCategory && parentCategory.parentId === _id) {
@@ -301,8 +282,9 @@ export const loadCarCategoryClass = (models) => {
       await models.CarCategories.getCarCatogery({ _id });
 
       let count = await models.Cars.countDocuments({ categoryId: _id });
-
-      count += await models.CarCategories.countDocuments({ parentId: _id });
+      count += await models.CarCategories.countDocuments({
+        parentId: _id
+      });
 
       if (count > 0) {
         throw new Error("Can't remove a car category");
@@ -322,8 +304,6 @@ export const loadCarCategoryClass = (models) => {
       return order;
     }
   }
-
   carCategorySchema.loadClass(CarCategory);
-
   return carCategorySchema;
 };

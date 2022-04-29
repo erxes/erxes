@@ -3,16 +3,12 @@ import {
   ActivityInputs,
   ActivityLogsContainer as ActivityLogs,
   Wrapper
-} from 'erxes-ui';
-import { IUser } from 'erxes-ui/lib/auth/types';
+} from '@erxes/ui/src';
 import React from 'react';
-
 import { ICar } from '../../types';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
-import Box from 'erxes-ui/lib/components/Box';
-import EmptyState from 'erxes-ui/lib/components/EmptyState';
-import { ScrollTableColls } from '../../styles';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   car: ICar;
