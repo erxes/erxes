@@ -13,7 +13,7 @@ export interface IProductsDataDocument extends IProductsData, Document {
   _id: string;
 }
 
-export interface IPlant {
+export interface IJob {
   code: string;
   name: string;
   type: string;
@@ -27,7 +27,7 @@ export interface IPlant {
   resultProducts: IProductsData;
 }
 
-export interface IPlantDocument extends IPlant, Document {
+export interface IJobDocument extends IJob, Document {
   _id: string;
   createdAt: Date;
   needProducts: IProductsDataDocument;
@@ -42,7 +42,7 @@ export const productsDataSchema = new Schema({
   branchId: field({ type: String, label: 'UOM' }),
 })
 
-export const plantSchema = schemaHooksWrapper(
+export const jobSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     code: field({ type: String, label: 'Code', index: true }),
@@ -61,10 +61,10 @@ export const plantSchema = schemaHooksWrapper(
     resultProducts: field({ type: productsDataSchema, label: 'Result products' }),
 
   }),
-  'erxes_tags'
+  'erxes_jobs'
 );
 
 // for tags query. increases search speed, avoids in-memory sorting
-plantSchema.index({ status: 1 });
+jobSchema.index({ status: 1 });
 
 

@@ -1,7 +1,7 @@
 import { Document, Schema } from 'mongoose';
 import { DURATION_TYPES } from './constants';
 import { field, schemaHooksWrapper } from './utils';
-import { plantSchema, productsDataSchema } from './plants';
+import { jobSchema, productsDataSchema } from './plants';
 
 export interface ITag {
   name: string;
@@ -28,7 +28,7 @@ export const flowTemplateSchema = schemaHooksWrapper(
     startAt: field({ type: Date, optional: true, label: 'Start at' }),
     endAt: field({ type: Date, optional: true, label: 'End at' }),
     frequency: field({ type: Number, label: 'Frequency count' }),
-    currentPlant: field({ type: plantSchema, optional: true, label: 'Current Plant' }),
+    currentPlant: field({ type: jobSchema, optional: true, label: 'Current Plant' }),
 
     // realization
     preFlowIds: field({ type: [String], label: 'Previous plants' }),
