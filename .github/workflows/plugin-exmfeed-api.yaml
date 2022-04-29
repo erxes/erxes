@@ -1,4 +1,4 @@
-name: Plugin Exm feed API
+name: Plugin exmfeed Api CI
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - '.github/workflows/plugin-exmfeed-api.yaml'
 
 jobs:
-  plugin-exmfeed-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

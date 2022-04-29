@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose';
-import { mainDb } from './configs';
 import {
   IDashboardDocument,
   IDashboardItemDocument
@@ -11,6 +10,7 @@ import {
   loadDashboardItemClass
 } from './models/Dashboard';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
   Dashboards: IDashboardModel;
@@ -21,19 +21,7 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels;
-
-export const generateModels = async (
-  _hostnameOrSubdomain: string
-): Promise<IModels> => {
-  if (models) {
-    return models;
-  }
-
-  loadClasses(mainDb);
-
-  return models;
-};
+export let models: IModels | null = null; 
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
@@ -50,3 +38,5 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   return models;
 };
+
+export const generateModels = createGenerateModels<IModels>(models, loadClasses);

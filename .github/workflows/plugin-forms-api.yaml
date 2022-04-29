@@ -1,4 +1,4 @@
-name: Plugin forms api CI
+name: Plugin forms Api CI
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - '.github/workflows/plugin-forms-api.yaml'
 
 jobs:
-  plugin-forms-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

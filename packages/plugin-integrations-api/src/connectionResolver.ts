@@ -1,6 +1,5 @@
 import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src/types';
-import { mainDb } from './configs';
 import {
   conversationSchema as callProConversationSchema,
   customerSchema as callProCustomerSchema,
@@ -9,35 +8,22 @@ import {
   ICustomerDocument as ICallProCustomerDocument,
   ICustomerModel as ICallProCustomerModel
 } from './callpro/models';
-import { 
-  
-  // customerSchema as fbCustomerSchema,
-  // postSchema as fbPostSchema,
-  // commentSchema as fbCommentSchema,
-  // conversationSchema as fbConversationSchema,
+import {
   conversationMessageSchema as fbConversationMessageSchema,
-
-  // ICustomer as IFbCustomer,
   ICustomerDocument as IFbCustomerDocument,
   ICustomerModel as IFbCustomerModel,
-  // IConversation as IFbConversation,
   IConversationDocument as IFbConversationDocument,
   IConversationModel as IFbConversationModel,
-  // IConversationMessage as IFbConversationMessage,
   IConversationMessageDocument as IFbConversationMessageDocument,
   IConversationMessageModel as IFbConversationMessageModel,
-  // IPost as IFbPost,
   IPostDocument as IFbPostDocument,
   IPostModel as IFbPostModel,
-  // IComment as IFbComment,
   ICommentDocument as IFbCommentDocument,
   ICommentModel as IFbCommentModel,
-
   loadCustomerClass as loadFbCustomerClass,
   loadConversationClass as loadFbConversationClass,
   loadCommentClass as loadFbCommentClass,
-  loadPostClass as loadfbPostClass,
-
+  loadPostClass as loadfbPostClass
 } from './facebook/models';
 
 import { IAccountDocument, IAccountModel, loadAccountClass } from './models/Accounts';
@@ -45,6 +31,7 @@ import { IConfigDocument, IConfigModel, loadConfigClass } from './models/Configs
 
 import { IIntegrationDocument, IIntegrationModel, loadIntegrationClass } from './models/Integrations';
 import { ILogDocument, ILogModel, loadLogClass } from './models/Logs';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 
 export interface IModels {
@@ -69,17 +56,7 @@ export interface IContext extends IMainContext {
   models: IModels
 }
 
-export let models: IModels;
-
-export const generateModels = async (_hostnameOrSubdomain): Promise<IModels> => {
-  if (models) {
-    return models
-  }
-
-  loadClasses(mainDb);
-
-  return models;
-}
+export let models: IModels | null = null;
 
 export const loadClasses = (db: mongoose.Connection) => {
   models = {} as IModels;
@@ -99,7 +76,7 @@ export const loadClasses = (db: mongoose.Connection) => {
   models.FbPosts = db.model<IFbPostDocument, IFbPostModel>('posts_facebook', loadfbPostClass(models));
   models.FbComments = db.model<IFbCommentDocument, IFbCommentModel>('comments_facebook', loadFbCommentClass(models))
 
-
-
   return models;
 }
+
+export const generateModels = createGenerateModels<IModels>(models, loadClasses)

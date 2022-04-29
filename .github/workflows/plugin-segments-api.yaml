@@ -1,4 +1,4 @@
-name: Plugin segments api CI
+name: Plugin segments Api CI
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - '.github/workflows/plugin-segments-api.yaml'
 
 jobs:
-  plugin-segments-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

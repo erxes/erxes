@@ -1,4 +1,4 @@
-name: Plugin Rentpay UI CI
+name: Plugin rentpay UI CI
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
       - federation
     paths:
       - "packages/erxes-ui/**"
+      - "packages/ui-rentpay/**"
       - "packages/plugin-rentpay-ui/**"
       - ".github/workflows/plugin-rentpay-ui.yaml"
 
@@ -27,6 +28,7 @@ jobs:
           cp -r packages/ui-plugin-template/.erxes packages/plugin-rentpay-ui/.erxes
           cp -r packages/plugin-rentpay-ui/src packages/plugin-rentpay-ui/.erxes/plugin-src
           cd packages/plugin-rentpay-ui
+          yarn install
           yarn install-deps
           yarn build
 
