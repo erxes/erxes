@@ -1,5 +1,9 @@
 const fse = require("fs-extra");
+const os = require("os");
 const { execCommand, filePath, log, sleep } = require("./utils");
+
+const osType = os.type();
+const commonOptions = osType === 'Darwin' ? {} : { interpreter: '/bin/bash' };
 
 module.exports.devOnly = async () => {
   const name = process.argv[3];
@@ -49,6 +53,7 @@ module.exports.devCmd = async (program) => {
       cwd: filePath("../packages/core-ui/"),
       script: "yarn",
       args: "start",
+      ...commonOptions,
       ignore_watch: ["node_modules"],
     },
     {
@@ -56,6 +61,7 @@ module.exports.devCmd = async (program) => {
       cwd: filePath("../packages/core/"),
       script: "yarn",
       args: "dev",
+      ...commonOptions,
       ignore_watch: ["node_modules"],
       env: {
         PORT: port,
@@ -98,6 +104,7 @@ module.exports.devCmd = async (program) => {
       cwd: filePath(`../widgets`),
       script: "yarn",
       args: "dev",
+      ...commonOptions,
       ignore_watch: ["node_modules"],
     });
   }
@@ -120,6 +127,7 @@ module.exports.devCmd = async (program) => {
         cwd: filePath(`../packages/plugin-${plugin.name}-ui`),
         script: "yarn",
         args: "start",
+      ...commonOptions,
         ignore_watch: ["node_modules"],
       });
     }
@@ -129,6 +137,7 @@ module.exports.devCmd = async (program) => {
       cwd: filePath(`../packages/plugin-${plugin.name}-api`),
       script: "yarn",
       args: "dev",
+      ...commonOptions,
       ignore_watch: ["node_modules"],
       env: {
         PORT: port,
@@ -142,6 +151,7 @@ module.exports.devCmd = async (program) => {
     cwd: filePath(`../packages/gateway`),
     script: "yarn",
     args: "dev",
+      ...commonOptions,
     ignore_watch: ["node_modules"],
     env: {
       PORT: 4000,
