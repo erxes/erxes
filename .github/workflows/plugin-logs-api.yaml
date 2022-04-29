@@ -11,7 +11,7 @@ on:
       - '.github/workflows/plugin-logs-api.yaml'
 
 jobs:
-  plugin-logs-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

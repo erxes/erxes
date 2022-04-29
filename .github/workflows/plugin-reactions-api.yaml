@@ -1,17 +1,17 @@
-name: Plugin Reactions Api CI
+name: Plugin reactions Api CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - "packages/api-utils/**"
-      - "packages/api-plugin-template.erxes/**"
-      - "packages/plugin-reactions-api/**"
-      - ".github/workflows/plugin-reactions-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/api-plugin-template.erxes/**'
+      - 'packages/plugin-reactions-api/**'
+      - '.github/workflows/plugin-reactions-api.yaml'
 
 jobs:
-  plugin-reactions-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

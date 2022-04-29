@@ -1,13 +1,14 @@
-name: Plugin Exm feed UI
+name: Plugin exmfeed UI CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/plugin-exmfeed-ui/**'
-      - '.github/workflows/plugin-exmfeed-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-exmfeed/**"
+      - "packages/plugin-exmfeed-ui/**"
+      - ".github/workflows/plugin-exmfeed-ui.yaml"
 
 jobs:
   ui:
@@ -27,6 +28,7 @@ jobs:
           cp -r packages/ui-plugin-template/.erxes packages/plugin-exmfeed-ui/.erxes
           cp -r packages/plugin-exmfeed-ui/src packages/plugin-exmfeed-ui/.erxes/plugin-src
           cd packages/plugin-exmfeed-ui
+          yarn install
           yarn install-deps
           yarn build
 

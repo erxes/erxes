@@ -1,13 +1,14 @@
-name: Plugin Automations UI CI
+name: Plugin automations UI CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/plugin-automations-ui/**'
-      - '.github/workflows/plugin-automations-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-automations/**"
+      - "packages/plugin-automations-ui/**"
+      - ".github/workflows/plugin-automations-ui.yaml"
 
 jobs:
   ui:
@@ -27,6 +28,7 @@ jobs:
           cp -r packages/ui-plugin-template/.erxes packages/plugin-automations-ui/.erxes
           cp -r packages/plugin-automations-ui/src packages/plugin-automations-ui/.erxes/plugin-src
           cd packages/plugin-automations-ui
+          yarn install
           yarn install-deps
           yarn build
 

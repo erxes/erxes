@@ -1,17 +1,17 @@
-name: Plugin rentpay api CI
+name: Plugin rentpay Api CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - "packages/api-utils/**"
-      - "packages/api-plugin-template.erxes/**"
-      - "packages/plugin-rentpay-api/**"
-      - ".github/workflows/plugin-rentpay-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/api-plugin-template.erxes/**'
+      - 'packages/plugin-rentpay-api/**'
+      - '.github/workflows/plugin-rentpay-api.yaml'
 
 jobs:
-  plugin-rentpay-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:
