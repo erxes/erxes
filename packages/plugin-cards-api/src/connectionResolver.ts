@@ -1,6 +1,4 @@
-import { MongoClient } from 'mongodb';
 import * as mongoose from 'mongoose';
-import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   IBoardModel,
@@ -43,6 +41,8 @@ import {
   loadPipelineTemplateClass
 } from './models/PipelineTemplates';
 import { IPipelineTemplateDocument } from './models/definitions/pipelineTemplates';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
+
 export interface IModels {
   Boards: IBoardModel;
   Pipelines: IPipelineModel;
@@ -63,19 +63,7 @@ export interface IContext extends IMainContext {
   serverTiming: any;
 }
 
-export let models: IModels;
-
-export const generateModels = async (
-  hostnameOrSubdomain: string
-): Promise<IModels> => {
-  if (models) {
-    return models;
-  }
-
-  loadClasses(mainDb, hostnameOrSubdomain);
-
-  return models;
-};
+export let models: IModels | null = null;
 
 export const loadClasses = (
   db: mongoose.Connection,
@@ -130,3 +118,5 @@ export const loadClasses = (
 
   return models;
 };
+
+export const generateModels = createGenerateModels<IModels>(models, loadClasses);
