@@ -9,35 +9,22 @@ import {
   ICustomerDocument as ICallProCustomerDocument,
   ICustomerModel as ICallProCustomerModel
 } from './callpro/models';
-import { 
-  
-  // customerSchema as fbCustomerSchema,
-  // postSchema as fbPostSchema,
-  // commentSchema as fbCommentSchema,
-  // conversationSchema as fbConversationSchema,
+import {
   conversationMessageSchema as fbConversationMessageSchema,
-
-  // ICustomer as IFbCustomer,
   ICustomerDocument as IFbCustomerDocument,
   ICustomerModel as IFbCustomerModel,
-  // IConversation as IFbConversation,
   IConversationDocument as IFbConversationDocument,
   IConversationModel as IFbConversationModel,
-  // IConversationMessage as IFbConversationMessage,
   IConversationMessageDocument as IFbConversationMessageDocument,
   IConversationMessageModel as IFbConversationMessageModel,
-  // IPost as IFbPost,
   IPostDocument as IFbPostDocument,
   IPostModel as IFbPostModel,
-  // IComment as IFbComment,
   ICommentDocument as IFbCommentDocument,
   ICommentModel as IFbCommentModel,
-
   loadCustomerClass as loadFbCustomerClass,
   loadConversationClass as loadFbConversationClass,
   loadCommentClass as loadFbCommentClass,
-  loadPostClass as loadfbPostClass,
-
+  loadPostClass as loadfbPostClass
 } from './facebook/models';
 
 import { IAccountDocument, IAccountModel, loadAccountClass } from './models/Accounts';
