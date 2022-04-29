@@ -7,8 +7,8 @@ import {
   FormGroup,
   MainStyleTitle as Title,
   Wrapper,
-} from '@erxes/ui';
-import { dimensions } from '@erxes/ui';
+} from '@erxes/ui/src';
+import { dimensions } from '@erxes/ui/src';
 import styled from 'styled-components';
 
 import React from 'react';

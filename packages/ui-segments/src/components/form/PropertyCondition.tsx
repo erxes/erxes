@@ -1,17 +1,17 @@
-import { IBoard } from "@erxes/ui-cards/src/boards/types";
-import Select from "react-select-plus";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import { __ } from "@erxes/ui/src/utils";
-import { IField, ISegmentCondition, ISegmentMap } from "../../types";
-import React from "react";
-import PropertyForm from "./PropertyForm";
-import { SegmentBackIcon } from "../styles";
-import Icon from "@erxes/ui/src/components/Icon";
-import PropertyList from "../../containers/form/PropertyList";
-import { IIntegration } from "@erxes/ui-settings/src/integrations/types";
-import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
+import { IBoard } from '@erxes/ui-cards/src/boards/types';
+import Select from 'react-select-plus';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { __ } from '@erxes/ui/src/utils';
+import { IField, ISegmentCondition, ISegmentMap } from '../../types';
+import React from 'react';
+import PropertyForm from './PropertyForm';
+import { SegmentBackIcon } from '../styles';
+import Icon from '@erxes/ui/src/components/Icon';
+import PropertyList from '../../containers/form/PropertyList';
+import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
+import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   contentType: string;
@@ -46,26 +46,26 @@ class PropertyCondition extends React.Component<Props, State> {
 
     this.state = {
       propertyType: contentType,
-      searchValue: "",
-      config,
+      searchValue: '',
+      config
     };
   }
 
-  onClickProperty = (field) => {
+  onClickProperty = field => {
     this.setState({ chosenProperty: field });
   };
 
   onClickBack = () => {
-    this.setState({ chosenProperty: undefined, searchValue: "" });
+    this.setState({ chosenProperty: undefined, searchValue: '' });
   };
 
-  onSearch = (e) => {
+  onSearch = e => {
     const value = e.target.value;
 
     this.setState({ searchValue: value });
   };
 
-  onChangeConfig = (config) => {
+  onChangeConfig = config => {
     this.setState({ config });
   };
 
@@ -77,6 +77,7 @@ class PropertyCondition extends React.Component<Props, State> {
 
     for (const plugin of plugins) {
       if (propertyType.includes(`${plugin.name}:`) && plugin.segmentForm) {
+        console.log(plugin.seg);
         return (
           <RenderDynamicComponent
             scope={plugin.scope}
@@ -87,7 +88,7 @@ class PropertyCondition extends React.Component<Props, State> {
               propertyType,
               onChangeConfig: this.onChangeConfig,
               hideDetailForm,
-              component: "filter",
+              component: 'filter'
             }}
           />
         );
@@ -102,7 +103,7 @@ class PropertyCondition extends React.Component<Props, State> {
 
     const { chosenProperty, propertyType, searchValue, config } = this.state;
 
-    const onChange = (e) => {
+    const onChange = e => {
       const value = e.value;
 
       this.setState({ propertyType: value, chosenProperty: undefined });
@@ -113,9 +114,9 @@ class PropertyCondition extends React.Component<Props, State> {
         <Select
           clearable={false}
           value={propertyType}
-          options={associationTypes.map((option) => ({
+          options={associationTypes.map(option => ({
             value: option.value,
-            label: option.description,
+            label: option.description
           }))}
           onChange={onChange}
         />
@@ -142,7 +143,7 @@ class PropertyCondition extends React.Component<Props, State> {
             <ControlLabel>Properties</ControlLabel>
             <FormControl
               type="text"
-              placeholder={__("Type to search")}
+              placeholder={__('Type to search')}
               onChange={this.onSearch}
             />
           </FormGroup>

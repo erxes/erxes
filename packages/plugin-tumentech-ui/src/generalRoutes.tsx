@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import TumentechRoutes from './routes';
+import TagsRoutes from './routes';
 
 const Routes = () => (
   <Router>
-    <TumentechRoutes />
+    <TagsRoutes />
   </Router>
 );
 

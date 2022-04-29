@@ -3,20 +3,78 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Tags" */ './containers/List')
+const CarList = asyncComponent(() =>
+  import(/* webpackChunkName: "SegmentsList" */ './containers/CarsList')
 );
 
-const tags = ({ location, history }) => {
-  const queryParams = queryString.parse(location.search);
+const CarDetails = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "SegmentsForm" */ './containers/detail/CarDetails'
+  )
+);
 
-  const { type } = queryParams;
+const ProductList = asyncComponent(() =>
+  import(/* webpackChunkName: "SegmentsForm" */ './containers/ProductList')
+);
 
-  return <List type={type} history={history} />;
+const ProductDetails = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "SegmentsForm" */ './containers/detail/ProductDetails'
+  )
+);
+
+const details = ({ match }) => {
+  const id = match.params.id;
+
+  return <CarDetails id={id} />;
+};
+
+const list = ({ location, history }) => {
+  return (
+    <CarList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const productdetails = ({ match }) => {
+  const id = match.params.id;
+
+  return <ProductDetails id={id} />;
+};
+
+const product = ({ location, history }) => {
+  return (
+    <ProductList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
 };
 
 const routes = () => {
-  return <Route path="/tags/" component={tags} />;
+  return (
+    <React.Fragment>
+      <Route key="/list" exact={true} path="/list" component={list} />
+
+      <Route
+        key="/details/:id"
+        exact={true}
+        path="/details/:id"
+        component={details}
+      />
+
+      <Route key="/product" exact={true} path="/product" component={product} />
+
+      <Route
+        key="/product/details/:id"
+        exact={true}
+        path="/product/details/:id"
+        component={productdetails}
+      />
+    </React.Fragment>
+  );
 };
 
 export default routes;

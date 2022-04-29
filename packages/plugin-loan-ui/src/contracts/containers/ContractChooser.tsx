@@ -1,4 +1,4 @@
-import { withProps } from '@erxes/ui';
+import { withProps } from '@erxes/ui/src';
 import ConformityChooser from '@erxes/ui-cards/src/conformity/containers/ConformityChooser';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';

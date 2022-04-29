@@ -1,4 +1,4 @@
-import { dimensions } from '@erxes/ui';
+import { dimensions } from '@erxes/ui/src';
 import styled, { css } from 'styled-components';
 
 export const ContentBox = styled.div`

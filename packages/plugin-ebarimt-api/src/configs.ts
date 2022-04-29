@@ -54,7 +54,7 @@ export default {
     };
   },
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req.hostname);
+    const subdomain = getSubdomain(req);
 
     context.subdomain = await generateModels(subdomain);;
     context.models = models;

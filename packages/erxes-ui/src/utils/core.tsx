@@ -2,23 +2,24 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
-import dayjs from "dayjs";
-import T from "i18n-react";
-import React from "react";
-import { IUser, IUserDoc } from "../auth/types";
-import Tip from "../components/Tip";
-import { Limited } from "../styles/main";
-import { IAttachment } from "../types";
-import * as router from "./router";
-import urlParser from "./urlParser";
+import dayjs from 'dayjs';
+import T from 'i18n-react';
+import React from 'react';
+import { IUser, IUserDoc } from '../auth/types';
+import Tip from '../components/Tip';
+import { Limited } from '../styles/main';
+import { IAttachment } from '../types';
+import * as router from './router';
+import urlParser from './urlParser';
 
 export { urlParser, router };
 
 export const loadComponent = (scope, module) => {
   return async () => {
     // Initializes the share scope. This fills it with known provided modules from this build and all remotes
-    await __webpack_init_sharing__("default");
+    await __webpack_init_sharing__('default');
 
+    console.log(window, scope, window[scope]);
     const container = window[scope]; // or get the container somewhere else
 
     // Initialize the container, it may provide shared modules
@@ -74,11 +75,11 @@ export class RenderDynamicComponent extends React.Component<
 export const renderFullName = data => {
   if (data.firstName || data.lastName || data.middleName) {
     return (
-      (data.firstName || "") +
-      " " +
-      (data.middleName || "") +
-      " " +
-      (data.lastName || "")
+      (data.firstName || '') +
+      ' ' +
+      (data.middleName || '') +
+      ' ' +
+      (data.lastName || '')
     );
   }
 
@@ -87,16 +88,16 @@ export const renderFullName = data => {
   }
 
   if (data.emails && data.emails.length > 0) {
-    return data.emails[0] || "Unknown";
+    return data.emails[0] || 'Unknown';
   }
 
   const { visitorContactInfo } = data;
 
   if (visitorContactInfo) {
-    return visitorContactInfo.phone || visitorContactInfo.email || "Unknown";
+    return visitorContactInfo.phone || visitorContactInfo.email || 'Unknown';
   }
 
-  return "Unknown";
+  return 'Unknown';
 };
 
 export const renderUserFullName = data => {
@@ -110,7 +111,7 @@ export const renderUserFullName = data => {
     return data.email || data.username;
   }
 
-  return "Unknown";
+  return 'Unknown';
 };
 
 export const setTitle = (title: string, force: boolean) => {
@@ -120,17 +121,17 @@ export const setTitle = (title: string, force: boolean) => {
 };
 
 export const setBadge = (count: number, title: string) => {
-  const favicon = document.getElementById("favicon") as HTMLAnchorElement;
+  const favicon = document.getElementById('favicon') as HTMLAnchorElement;
 
   if (count) {
     if (document.title.includes(title)) {
       setTitle(`(${count}) ${title}`, true);
     }
 
-    favicon.href = "/favicon-unread.png";
+    favicon.href = '/favicon-unread.png';
   } else {
     setTitle(title, true);
-    favicon.href = "/favicon.png";
+    favicon.href = '/favicon.png';
   }
 };
 
@@ -204,7 +205,7 @@ export const __ = (key: string, options?: any) => {
   const translation = T.translate(key, options);
 
   if (!translation) {
-    return "";
+    return '';
   }
 
   return translation.toString();
@@ -212,7 +213,7 @@ export const __ = (key: string, options?: any) => {
 
 export const isEnabled = (service: string) => {
   const enabledServices = JSON.parse(
-    localStorage.getItem("enabledServices") || "{}"
+    localStorage.getItem('enabledServices') || '{}'
   );
 
   return enabledServices[service];
@@ -224,7 +225,7 @@ export const isEnabled = (service: string) => {
  * @return {String} - URL
  */
 export const readFile = (value: string): string => {
-  if (!value || urlParser.isValidURL(value) || value.includes("/")) {
+  if (!value || urlParser.isValidURL(value) || value.includes('/')) {
     return value;
   }
 
@@ -235,13 +236,13 @@ export const readFile = (value: string): string => {
 
 export const getUserAvatar = (user: IUserDoc) => {
   if (!user) {
-    return "";
+    return '';
   }
 
   const { details = {} } = user;
 
   if (!details.avatar) {
-    return "/images/avatar-colored.svg";
+    return '/images/avatar-colored.svg';
   }
 
   return readFile(details.avatar);
@@ -281,7 +282,7 @@ export const extractAttachment = (attachments: IAttachment[]) => {
     type: file.type,
     url: file.url,
     size: file.size,
-    duration: file.duration,
+    duration: file.duration
   }));
 };
 
@@ -297,10 +298,10 @@ export const setCookie = (cname: string, cvalue: string, exdays = 100) => {
 
 export const getCookie = cname => {
   const name = `${cname}=`;
-  const ca = document.cookie.split(";");
+  const ca = document.cookie.split(';');
 
   for (let c of ca) {
-    while (c.charAt(0) === " ") {
+    while (c.charAt(0) === ' ') {
       c = c.substring(1);
     }
 
@@ -309,16 +310,16 @@ export const getCookie = cname => {
     }
   }
 
-  return "";
+  return '';
 };
 
 /**
  * Generate random string
  */
 export const generateRandomString = (len: number = 10) => {
-  const charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
-  let randomString = "";
+  let randomString = '';
 
   for (let i = 0; i < len; i++) {
     const position = Math.floor(Math.random() * charSet.length);
@@ -351,12 +352,12 @@ export const sendDesktopNotification = (doc: {
 
     const notification = new Notification(doc.title, {
       body: doc.content,
-      icon: "/favicon.png",
-      dir: "ltr",
+      icon: '/favicon.png',
+      dir: 'ltr'
     });
 
     // notify by sound
-    const audio = new Audio("/sound/notify.mp3");
+    const audio = new Audio('/sound/notify.mp3');
     audio.play();
 
     notification.onclick = () => {
@@ -366,21 +367,21 @@ export const sendDesktopNotification = (doc: {
   };
 
   // Browser doesn't support Notification api
-  if (!("Notification" in window)) {
+  if (!('Notification' in window)) {
     return;
   }
 
-  if (Notification.permission === "granted") {
+  if (Notification.permission === 'granted') {
     return notify();
   }
 
-  if (Notification.permission !== "denied") {
+  if (Notification.permission !== 'denied') {
     Notification.requestPermission(permission => {
-      if (!("permission" in Notification)) {
+      if (!('permission' in Notification)) {
         (Notification as any).permission = permission;
       }
 
-      if (permission === "granted") {
+      if (permission === 'granted') {
         return notify();
       }
     });
@@ -396,8 +397,8 @@ export const roundToTwo = value => {
 };
 
 function createLinkFromUrl(url) {
-  if (!url.includes("http")) {
-    url = "http://" + url;
+  if (!url.includes('http')) {
+    url = 'http://' + url;
   }
 
   const onClick = e => {
@@ -413,7 +414,7 @@ function createLinkFromUrl(url) {
 }
 
 export function formatValue(value) {
-  if (typeof value === "boolean") {
+  if (typeof value === 'boolean') {
     return value.toString();
   }
 
@@ -421,14 +422,14 @@ export function formatValue(value) {
     return createLinkFromUrl(value);
   }
 
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     if (
       dayjs(value).isValid() &&
-      (value.includes("/") || value.includes("-"))
+      (value.includes('/') || value.includes('-'))
     ) {
       return (
-        <Tip text={dayjs(value).format("D MMM YYYY, HH:mm")} placement="top">
-          <time>{dayjs(value).format("L")}</time>
+        <Tip text={dayjs(value).format('D MMM YYYY, HH:mm')} placement="top">
+          <time>{dayjs(value).format('L')}</time>
         </Tip>
       );
     }
@@ -436,11 +437,11 @@ export function formatValue(value) {
     return <Limited>{value}</Limited>;
   }
 
-  if (value && typeof value === "object") {
+  if (value && typeof value === 'object') {
     return value.toString();
   }
 
-  return value || "-";
+  return value || '-';
 }
 
 export function isEmptyContent(content: string) {
@@ -463,7 +464,7 @@ export const getConstantFromStore = (
   isMap?: boolean,
   isFlat?: boolean
 ) => {
-  const constant = JSON.parse(localStorage.getItem(`config:${key}`) || "[]");
+  const constant = JSON.parse(localStorage.getItem(`config:${key}`) || '[]');
 
   if (isFlat) {
     return constant.map(element => element.value);
@@ -485,7 +486,7 @@ export const getConstantFromStore = (
 // Most basic frontend solution for click-jack defense
 export const bustIframe = () => {
   if (window.self === window.top) {
-    const antiClickjack = document.getElementById("anti-clickjack");
+    const antiClickjack = document.getElementById('anti-clickjack');
 
     if (antiClickjack && antiClickjack.parentNode) {
       antiClickjack.parentNode.removeChild(antiClickjack);
@@ -507,14 +508,14 @@ export const getEnv = (): any => {
 };
 
 export const cleanIntegrationKind = (name: string) => {
-  if (name.includes("nylas")) {
-    name = name.replace("nylas-", "");
+  if (name.includes('nylas')) {
+    name = name.replace('nylas-', '');
   }
-  if (name.includes("smooch")) {
-    name = name.replace("smooch-", "");
+  if (name.includes('smooch')) {
+    name = name.replace('smooch-', '');
   }
-  if (name === "lead") {
-    name = "forms";
+  if (name === 'lead') {
+    name = 'forms';
   }
   return name;
 };
@@ -536,7 +537,7 @@ export const generateTree = (
   parentId,
   callback,
   level = -1,
-  parentKey = "parentId"
+  parentKey = 'parentId'
 ) => {
   const filtered = list.filter(c => c[parentKey] === parentId);
 
@@ -550,7 +551,7 @@ export const generateTree = (
     return [
       ...tree,
       callback(node, level),
-      ...generateTree(list, node._id, callback, level, parentKey),
+      ...generateTree(list, node._id, callback, level, parentKey)
     ];
   }, []);
 };

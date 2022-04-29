@@ -5,7 +5,7 @@ import {
   ChooserTitle as Title,
   Icon,
   MainStyleModalFooter as ModalFooter
-} from 'erxes-ui';
+} from '@erxes/ui/src';
 import { Info, InfoDetail, InfoTitle } from '../../styles';
 import React from 'react';
 
@@ -31,7 +31,7 @@ class CarsMerge extends React.Component<Props, State> {
     };
   }
 
-  save = e => {
+  save = (e) => {
     e.preventDefault();
     const { objects } = this.props;
     const selectedValues = { ...this.state.selectedValues };
@@ -51,7 +51,7 @@ class CarsMerge extends React.Component<Props, State> {
     }
 
     this.props.save({
-      ids: objects.map(car => car._id),
+      ids: objects.map((car) => car._id),
       data: { ...selectedValues },
       callback: () => {
         this.props.closeModal();
@@ -86,7 +86,7 @@ class CarsMerge extends React.Component<Props, State> {
       <React.Fragment>
         <Title>{car.primaryName || car.website}</Title>
         <ul>
-          {properties.map(info => {
+          {properties.map((info) => {
             const key = info.field;
 
             if (!car[key]) {

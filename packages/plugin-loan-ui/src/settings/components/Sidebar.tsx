@@ -4,7 +4,7 @@ import {
   MainStyleTopHeader as TopHeader,
   Sidebar as LeftSidebar,
   SidebarList as List,
-} from '@erxes/ui';
+} from '@erxes/ui/src';
 import React from 'react';
 import { Link } from 'react-router-dom';
 

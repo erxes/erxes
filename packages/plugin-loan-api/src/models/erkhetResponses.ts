@@ -1,3 +1,12 @@
+import { IErkhetResponseDocument } from '../models/definitions/erkhetResponses';
+import { Model } from 'mongoose';
+
+export interface IErkhetResponseModel extends Model<IErkhetResponseDocument> {
+  getErkhetResponse(models, selector: any);
+  createErkhetResponse(models, doc);
+  updateErkhetResponse(models, _id, doc);
+  removeErkhetResponses(models, _ids);
+}
 export class ErkhetResponse {
   /**
    *
@@ -38,5 +47,4 @@ export class ErkhetResponse {
     // TODO: check collateralsData
     return models.ErkhetResponses.deleteMany({ _id: { $in: _ids } });
   }
-
 }

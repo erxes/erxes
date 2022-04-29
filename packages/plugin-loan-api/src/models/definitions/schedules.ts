@@ -1,4 +1,5 @@
-import { SCHEDULE_STATUS } from "./constants";
+import { SCHEDULE_STATUS } from './constants';
+import { Document } from 'mongoose';
 
 export interface IDefaultScheduleParam {
   leaseAmount: number;
@@ -8,34 +9,34 @@ export interface IDefaultScheduleParam {
 }
 
 export interface ISchedule {
-  contractId: string,
-  version: string,
-  createdAt: Date,
-  status: string,
-  payDate: Date,
+  contractId: string;
+  version: string;
+  createdAt: Date;
+  status: string;
+  payDate: Date;
 
-  balance: number,
-  undue?: number,
-  interestEve?: number,
-  interestNonce?: number,
-  payment?: number,
-  insurance?: number,
-  debt?: number,
-  total: number,
+  balance: number;
+  undue?: number;
+  interestEve?: number;
+  interestNonce?: number;
+  payment?: number;
+  insurance?: number;
+  debt?: number;
+  total: number;
 
-  didUndue?: number,
-  didInterest?: number,
-  didPayment?: number,
-  didInsurance?: number,
-  didDebt?: number,
-  didTotal: number,
-  surplus?: number,
+  didUndue?: number;
+  didInterest?: number;
+  didPayment?: number;
+  didInsurance?: number;
+  didDebt?: number;
+  didTotal: number;
+  surplus?: number;
 
-  transactionIds?: string[],
-  isDefault: boolean,
+  transactionIds?: string[];
+  isDefault: boolean;
 }
 
-export interface IScheduleDocument extends ISchedule {
+export interface IScheduleDocument extends ISchedule, Document {
   _id: string;
 }
 
@@ -63,7 +64,11 @@ export const scheduleSchema = {
 
   balance: { type: Number, min: 0, label: 'Loan Balance' },
   undue: { type: Number, min: 0, label: 'Undue', optional: true },
-  interestEve: { type: Number, label: 'Loan Interest Eve month', optional: true },
+  interestEve: {
+    type: Number,
+    label: 'Loan Interest Eve month',
+    optional: true,
+  },
   interestNonce: { type: Number, label: 'Loan Interest Nonce', optional: true },
   payment: { type: Number, label: 'Loan Payment', optional: true },
   insurance: { type: Number, min: 0, label: 'Insurance', optional: true },
@@ -71,10 +76,23 @@ export const scheduleSchema = {
   total: { type: Number, label: 'Total Payment' },
 
   didUndue: { type: Number, min: 0, label: 'Did Undue', optional: true },
-  didInterestEve: { type: Number, label: 'Did Loan Interest eve', optional: true },
-  didInterestNonce: { type: Number, label: 'Did Loan Interest nonce', optional: true },
+  didInterestEve: {
+    type: Number,
+    label: 'Did Loan Interest eve',
+    optional: true,
+  },
+  didInterestNonce: {
+    type: Number,
+    label: 'Did Loan Interest nonce',
+    optional: true,
+  },
   didPayment: { type: Number, label: 'Did Loan Payment', optional: true },
-  didInsurance: { type: Number, min: 0, label: 'Did Insurance', optional: true },
+  didInsurance: {
+    type: Number,
+    min: 0,
+    label: 'Did Insurance',
+    optional: true,
+  },
   didDebt: { type: Number, min: 0, label: 'Did Debt', optional: true },
   didTotal: { type: Number, label: 'Did Total Payment', optional: true },
   surplus: { type: Number, min: 0, label: 'Surplus', optional: true },

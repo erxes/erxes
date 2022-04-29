@@ -1,8 +1,16 @@
 import {
-  __, Alert, Button, ControlLabel, Form, FormControl, FormGroup, MainStyleFormColumn as FormColumn,
-  MainStyleFormWrapper as FormWrapper, MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
-} from '@erxes/ui';
+  __,
+  Alert,
+  Button,
+  ControlLabel,
+  Form,
+  FormControl,
+  FormGroup,
+  MainStyleFormColumn as FormColumn,
+  MainStyleFormWrapper as FormWrapper,
+  MainStyleModalFooter as ModalFooter,
+  MainStyleScrollWrapper as ScrollWrapper,
+} from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 
@@ -46,8 +54,11 @@ class TransactionForm extends React.Component<Props, State> {
       futureDebt: transaction.futureDebt || 0,
       debtTenor: transaction.debtTenor || 0,
 
-      maxTotal: Math.max((transaction.calcedInfo.total || 0), (transaction.total || 0)),
-      firstTotal: (transaction.total || 0) - (transaction.futureDebt || 0)
+      maxTotal: Math.max(
+        transaction.calcedInfo.total || 0,
+        transaction.total || 0
+      ),
+      firstTotal: (transaction.total || 0) - (transaction.futureDebt || 0),
     };
   }
 
@@ -73,14 +84,31 @@ class TransactionForm extends React.Component<Props, State> {
     };
   };
 
-  onFieldClick = e => {
+  onFieldClick = (e) => {
     e.target.select();
-  }
+  };
 
   checkValid = () => {
-    const { payment, interestEve, interestNonce, undue, insurance, debt, maxTotal, firstTotal, futureDebt, debtTenor } = this.state;
+    const {
+      payment,
+      interestEve,
+      interestNonce,
+      undue,
+      insurance,
+      debt,
+      maxTotal,
+      firstTotal,
+      futureDebt,
+      debtTenor,
+    } = this.state;
     const { transaction } = this.props;
-    const total = Number(payment) + Number(interestEve) + Number(interestNonce) + Number(undue) + Number(insurance) + Number(debt);
+    const total =
+      Number(payment) +
+      Number(interestEve) +
+      Number(interestNonce) +
+      Number(undue) +
+      Number(insurance) +
+      Number(debt);
 
     if (total > maxTotal) {
       return `Overdue total: Max total is ${maxTotal}`;
@@ -91,17 +119,17 @@ class TransactionForm extends React.Component<Props, State> {
     }
 
     if (futureDebt && transaction.calcedInfo.total < firstTotal) {
-      return `Overdue future debt`
+      return `Overdue future debt`;
     }
 
     if (futureDebt && !debtTenor) {
-      return `must fill debt Tenor when Future debt`
+      return `must fill debt Tenor when Future debt`;
     }
 
     return '';
-  }
+  };
 
-  onChangeField = e => {
+  onChangeField = (e) => {
     const name = (e.target as HTMLInputElement).name;
     let value = Number((e.target as HTMLInputElement).value);
     const oldValue = this.state[name];
@@ -115,11 +143,25 @@ class TransactionForm extends React.Component<Props, State> {
     setTimeout(() => {
       const validErr = this.checkValid();
       if (validErr) {
-        Alert.error(validErr)
+        Alert.error(validErr);
       }
 
-      const { payment, interestEve, interestNonce, undue, insurance, debt, futureDebt } = this.state;
-      const total = Number(payment) + Number(interestEve) + Number(interestNonce) + Number(undue) + Number(insurance) + Number(debt);
+      const {
+        payment,
+        interestEve,
+        interestNonce,
+        undue,
+        insurance,
+        debt,
+        futureDebt,
+      } = this.state;
+      const total =
+        Number(payment) +
+        Number(interestEve) +
+        Number(interestNonce) +
+        Number(undue) +
+        Number(insurance) +
+        Number(debt);
 
       this.setState({ total });
 
@@ -130,7 +172,6 @@ class TransactionForm extends React.Component<Props, State> {
         this.setState({ debtTenor: 0 });
       }
     }, 300);
-
   };
 
   renderFormGroup = (label, props) => {
@@ -156,15 +197,11 @@ class TransactionForm extends React.Component<Props, State> {
           </ChangeAmount>
         </FormColumn>
         <FormColumn>
-          <ChangeAmount>
-            {Number(trCalcedVal).toLocaleString()}
-          </ChangeAmount>
-        </FormColumn >
+          <ChangeAmount>{Number(trCalcedVal).toLocaleString()}</ChangeAmount>
+        </FormColumn>
         <FormColumn>
-          <ChangeAmount>
-            {Number(trVal).toLocaleString()}
-          </ChangeAmount>
-        </FormColumn >
+          <ChangeAmount>{Number(trVal).toLocaleString()}</ChangeAmount>
+        </FormColumn>
         <FormColumn>
           <FormControl
             {...formProps}
@@ -175,15 +212,15 @@ class TransactionForm extends React.Component<Props, State> {
             onChange={this.onChangeField}
             onClick={this.onFieldClick}
           />
-        </FormColumn >
+        </FormColumn>
         <FormColumn>
           <ChangeAmount>
             {Number(trCalcedVal - this.state[fieldName]).toLocaleString()}
           </ChangeAmount>
         </FormColumn>
       </FormWrapper>
-    )
-  }
+    );
+  };
 
   renderInfo = (formProps: IFormProps) => {
     return (
@@ -204,18 +241,17 @@ class TransactionForm extends React.Component<Props, State> {
           <FormColumn>
             <ControlLabel>{__(`Odd`)}</ControlLabel>
           </FormColumn>
-
         </FormWrapper>
-        { this.renderRow(formProps, 'total', 'total')}
-        { this.renderRow(formProps, 'payment', 'payment')}
-        { this.renderRow(formProps, 'interest eve', 'interestEve')}
-        { this.renderRow(formProps, 'interest nonce', 'interestNonce')}
-        { this.renderRow(formProps, 'undue', 'undue')}
-        { this.renderRow(formProps, 'insurance', 'insurance')}
-        { this.renderRow(formProps, 'debt', 'debt')}
+        {this.renderRow(formProps, 'total', 'total')}
+        {this.renderRow(formProps, 'payment', 'payment')}
+        {this.renderRow(formProps, 'interest eve', 'interestEve')}
+        {this.renderRow(formProps, 'interest nonce', 'interestNonce')}
+        {this.renderRow(formProps, 'undue', 'undue')}
+        {this.renderRow(formProps, 'insurance', 'insurance')}
+        {this.renderRow(formProps, 'debt', 'debt')}
       </>
-    )
-  }
+    );
+  };
 
   renderExtraDebt = () => {
     return (
@@ -239,7 +275,7 @@ class TransactionForm extends React.Component<Props, State> {
               onChange={this.onChangeField}
               onClick={this.onFieldClick}
             />
-          </FormColumn >
+          </FormColumn>
           <FormColumn></FormColumn>
         </FormWrapper>
         <FormWrapper>
@@ -261,12 +297,12 @@ class TransactionForm extends React.Component<Props, State> {
               onChange={this.onChangeField}
               onClick={this.onFieldClick}
             />
-          </FormColumn >
+          </FormColumn>
           <FormColumn></FormColumn>
         </FormWrapper>
       </ExtraDebtSection>
-    )
-  }
+    );
+  };
 
   renderContent = (formProps: IFormProps) => {
     const { transaction } = this.props;
@@ -277,9 +313,7 @@ class TransactionForm extends React.Component<Props, State> {
       <>
         <ScrollWrapper>
           <FormWrapper>
-            <FormColumn>
-              {this.renderInfo(formProps)}
-            </FormColumn>
+            <FormColumn>{this.renderInfo(formProps)}</FormColumn>
           </FormWrapper>
           {this.renderExtraDebt()}
         </ScrollWrapper>
@@ -291,9 +325,8 @@ class TransactionForm extends React.Component<Props, State> {
           {renderButton({
             values: this.generateDoc(values),
             isSubmitted,
-            disableLoading: Boolean(this.checkValid())
+            disableLoading: Boolean(this.checkValid()),
           })}
-
         </ModalFooter>
       </>
     );

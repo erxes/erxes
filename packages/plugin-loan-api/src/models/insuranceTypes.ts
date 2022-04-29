@@ -1,3 +1,12 @@
+import { IInsuranceTypeDocument } from '../models/definitions/insuranceTypes';
+import { Model } from 'mongoose';
+
+export interface IInsuranceTypeModel extends Model<IInsuranceTypeDocument> {
+  getInsuranceType(models, selector: any);
+  createInsuranceType(models, doc);
+  updateInsuranceType(models, _id, doc);
+  removeInsuranceTypes(models, _ids);
+}
 export class InsuranceType {
   /**
    *
@@ -38,5 +47,4 @@ export class InsuranceType {
     // TODO: check collateralsData
     return models.InsuranceTypes.deleteMany({ _id: { $in: _ids } });
   }
-
 }

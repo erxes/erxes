@@ -1,6 +1,6 @@
-import { SCHEDULE_STATUS } from '../../models/definitions/constants';
-import { IDefaultScheduleParam } from '../../models/definitions/schedules';
-import { calcPerVirtual, getFullDate } from '../../models/utils/utils';
+import { SCHEDULE_STATUS } from '../../../models/definitions/constants';
+import { IDefaultScheduleParam } from '../../../models/definitions/schedules';
+import { calcPerVirtual, getFullDate } from '../../../models/utils/utils';
 
 const scheduleQueries = {
   scheduleYears: async (_root, params: { contractId: string }, { models }) => {

@@ -1,11 +1,11 @@
 module.exports = {
   name: 'loan',
-  port: 3112,
+  port: 3119,
   exposes: {
     './routes': './src/routes.tsx',
   },
   routes: {
-    url: 'http://localhost:3112/remoteEntry.js',
+    url: 'http://localhost:3119/remoteEntry.js',
     scope: 'loan',
     module: './routes',
   },
@@ -14,7 +14,7 @@ module.exports = {
       text: 'Loan',
       url: '/erxes-plugin-loan/home',
       icon: 'icon-list-2',
-      permission: 'showContracts',
+      permission: 'pluginLoansAll',
     },
   ],
 };

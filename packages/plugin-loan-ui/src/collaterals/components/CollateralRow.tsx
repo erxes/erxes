@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { formatValue } from '@erxes/ui';
+import { formatValue } from '@erxes/ui/src';
 import React from 'react';
 import { ICollateral } from '../types';
 

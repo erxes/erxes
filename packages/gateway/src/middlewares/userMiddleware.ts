@@ -6,6 +6,7 @@ import { sendRequest } from 'erxes-api-utils';
 import { NextFunction, Request, Response } from 'express';
 import { redis } from '../redis';
 import { generateModels } from '../connectionResolver';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export default async function userMiddleware(
   req: Request & { user?: any },
@@ -58,7 +59,8 @@ export default async function userMiddleware(
   }
 
   const appToken = (req.headers['erxes-app-token'] || '').toString();
-  const models = await generateModels(req.hostname);
+  const subdomain = getSubdomain(req);
+  const models = await generateModels(subdomain);
 
   if (appToken) {
     try {
@@ -73,8 +75,10 @@ export default async function userMiddleware(
             allowed: true,
           }).lean();
 
+          const user = await models.Users.findOne({ groupIds: { $in: [appInDb.userGroupId] } });
+
           req.user = {
-            _id: 'userId',
+            _id: user ? user._id : 'userId',
             customPermissions: permissions.map((p) => ({
               action: p.action,
               allowed: p.allowed,

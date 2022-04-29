@@ -1,128 +1,139 @@
-export const types = () => `
-  type CarCategory {
-    _id: String!
-    name: String
-    description: String
-    parentId: String
-    collapseContent: [String]
-    code: String!
-    order: String!
+import {
+  attachmentType,
+  attachmentInput
+} from '@erxes/api-utils/src/commonTypeDefs';
 
-    isRoot: Boolean
-    carCount: Int
+export const types = (contactsAvailable) => `
+
+  ${attachmentType}
+  ${attachmentInput}
+
+  extend type User @key(fields: "_id") {
+    _id: String! @external
   }
 
-  type Car {
-    _id: String!
+type CarCategory {
+  _id: String!
+  name: String
+  description: String
+  parentId: String
+  collapseContent: [String]
+  code: String!
+  order: String!
 
-    createdAt: Date
-    modifiedAt: Date
-    mergedIds: [String]
-    description: String
-    owner: User
+  isRoot: Boolean
+  carCount: Int
+}
 
-    customers: [Customer]
-    companies: [Company]
+type Car {
+  _id: String!
 
-    plateNumber: String
-    vinNumber: String
-    color: String
-    categoryId: String
+  createdAt: Date
+  modifiedAt: Date
+  mergedIds: [String]
+  description: String
+  owner: User
+
+  
+  plateNumber: String
+  vinNumber: String
+  color: String
+  categoryId: String
 
 
-    category: CarCategory
-    fuelType: String
-    engineChange: String
-    listChange: String
+  category: CarCategory
+  fuelType: String
+  engineChange: String
+  listChange: String
 
-    vintageYear: Float
-    importYear: Float
+  vintageYear: Float
+  importYear: Float
 
-    taxDate: Date
-    meterWarranty: Date
-    diagnosisDate: Date
+  taxDate: Date
+  meterWarranty: Date
+  diagnosisDate: Date
 
-    weight: Float
-    engineCapacity: String
-    liftHeight: Float
-    height: Float
+  weight: Float
+  engineCapacity: String
+  liftHeight: Float
+  height: Float
 
-    steeringWheel: String
+  steeringWheel: String
 
-    ownerBy: String
-    repairService: String
-    transmission: String
-    model: String
-    manufacture: String
-    mark: String
-    type: String
-    drivingClassification: String
-    doors: String
-    seats: String
-    trailerType: String
-    tireLoadType: String
-    bowType: String
-    brakeType: String
-    liftType: String
-    totalAxis: String
-    steeringAxis: String
-    forceAxis: String
-    floorType: String
-    barrelNumber: String
-    pumpCapacity: String
-    interval: [String]
-    intervalValue: String
-    wagonCapacity: [String]
-    liftWagonCapacity: [String]
-    wagonCapacityValue: String
-    liftWagonCapacityValue: String
-    running: String
-    runningValue: Float
+  ownerBy: String
+  repairService: String
+  transmission: String
+  carModel: String
+  manufacture: String
+  mark: String
+  type: String
+  drivingClassification: String
+  doors: String
+  seats: String
+  trailerType: String
+  tireLoadType: String
+  bowType: String
+  brakeType: String
+  liftType: String
+  totalAxis: String
+  steeringAxis: String
+  forceAxis: String
+  floorType: String
+  barrelNumber: String
+  pumpCapacity: String
+  interval: [String]
+  intervalValue: String
+  wagonCapacity: [String]
+  liftWagonCapacity: [String]
+  wagonCapacityValue: String
+  liftWagonCapacityValue: String
+  running: String
+  runningValue: Float
 
-    trailerManufacture: String
+  trailerManufacture: String
 
-    wagonLength: Float
-    wagonWidth: Float
+  wagonLength: Float
+  wagonWidth: Float
 
-    porchekHeight: Float
-    volume: Float
-    capacityL: Float
-    barrel1: Float
-    barrel2: Float
-    barrel3: Float
-    barrel4: Float
-    barrel5: Float
-    barrel6: Float
-    barrel7: Float
-    barrel8: Float
+  porchekHeight: Float
+  volume: Float
+  capacityL: Float
+  barrel1: Float
+  barrel2: Float
+  barrel3: Float
+  barrel4: Float
+  barrel5: Float
+  barrel6: Float
+  barrel7: Float
+  barrel8: Float
 
-    forceCapacityValue: Float
-    forceValue: Float
+  forceCapacityValue: Float
+  forceValue: Float
 
-    attachments: [Attachment]
-    fourAttachments: [Attachment]
-    floorAttachments: [Attachment]
-    transformationAttachments: [Attachment]
-  }
+  attachments: [Attachment]
+  fourAttachments: [Attachment]
+  floorAttachments: [Attachment]
+  transformationAttachments: [Attachment]
+}
 
-  type CarsListResponse {
-    list: [Car],
-    totalCount: Float,
-  }
+type CarsListResponse {
+  list: [Car],
+  totalCount: Float,
+}
 
-  type CarCategoryProducts {
-    _id: String
-    carCategoryId: String
-    productIds: [String]
-    products: JSON
-  }
+type CarCategoryProducts {
+  _id: String
+  carCategoryId: String
+  productCategoryIds: [String]
+  productCategories: JSON
+}
 
-  type ProductCarCategories {
-    _id: String
-    productId: String
-    carCategoryIds: [String]
-    carCategories: JSON
-  }
+type ProductCarCategories {
+  _id: String
+  productCategoryId: String
+  carCategoryIds: [String]
+  carCategories: JSON
+}
 `;
 
 const tumentechParams = `
@@ -187,7 +198,7 @@ const tumentechCommonFields = `
   ownerBy: String
   repairService: String
   transmission: String
-  model: String
+  carModel: String
   manufacture: String
   mark: String
   type: String

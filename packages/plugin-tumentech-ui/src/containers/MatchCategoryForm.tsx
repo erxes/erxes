@@ -1,5 +1,5 @@
 import React from 'react';
-import { withProps, Alert, Spinner } from 'erxes-ui';
+import { withProps, Alert, Spinner } from '@erxes/ui/src';
 import MatchCategoryForm from '../components/matchForm/MatchCategoryForm';
 import { mutations, queries } from '../graphql';
 import {
@@ -7,7 +7,9 @@ import {
   CarCategoryMatchQueryResponse,
   CarCategoryMatchMutationResponse,
   CarCategoryMatchMutationVariables,
-  IRouterProps
+  IRouterProps,
+  IProductCategory,
+  ProductCategoriesQueryResponse
 } from '../types';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
@@ -16,11 +18,14 @@ import { withRouter } from 'react-router-dom';
 
 type Props = {
   carCategory: ICarCategory;
+  productCategory: IProductCategory;
+  productCategories: IProductCategory[];
   closeModal: () => void;
 };
 
 type FinalProps = {
   carCategoryMatchQuery: CarCategoryMatchQueryResponse;
+  productCategoriesQuery: ProductCategoriesQueryResponse;
 } & Props &
   IRouterProps &
   CarCategoryMatchMutationResponse;
@@ -30,31 +35,39 @@ class CategoryFormContainer extends React.Component<FinalProps> {
     super(props);
   }
 
-  saveMatch = (productIds: string[]) => {
+  saveMatch = (productCategoryIds: string[]) => {
     this.props
       .editMatch({
-        variables: { carCategoryId: this.props.carCategory._id, productIds }
+        variables: {
+          carCategoryId: this.props.carCategory._id,
+          productCategoryIds
+        }
       })
       .then(() => {
-        Alert.success('You successfully added a products');
+        Alert.success('You successfully added a product category');
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
 
   render() {
-    const { carCategoryMatchQuery } = this.props;
+    const { carCategoryMatchQuery, productCategoriesQuery } = this.props;
 
-    if (carCategoryMatchQuery.loading) {
+    if (carCategoryMatchQuery.loading || productCategoriesQuery.loading) {
       return <Spinner />;
     }
 
-    const response: any = carCategoryMatchQuery.carCategoryMatchProducts || {};
+    const productCategories = productCategoriesQuery.productCategories || [];
 
     const extendedProps = {
       ...this.props,
-      products: response.products || [],
+      productCategories,
+      productCategoryIds:
+        (carCategoryMatchQuery &&
+          carCategoryMatchQuery.carCategoryMatchProducts &&
+          carCategoryMatchQuery.carCategoryMatchProducts.productCategoryIds) ||
+        [],
       saveMatch: this.saveMatch
     };
 
@@ -72,6 +85,12 @@ export default withProps<Props>(
           variables: { carCategoryId: carCategory._id },
           fetchPolicy: 'network-only'
         })
+      }
+    ),
+    graphql<Props, ProductCategoriesQueryResponse>(
+      gql(queries.productCategories),
+      {
+        name: 'productCategoriesQuery'
       }
     ),
     graphql<

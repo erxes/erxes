@@ -9,7 +9,7 @@ import {
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
-} from '@erxes/ui';
+} from '@erxes/ui/src';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import Select from 'react-select-plus';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';

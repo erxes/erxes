@@ -1,4 +1,4 @@
-import { Sidebar } from 'erxes-ui';
+import { Sidebar } from '@erxes/ui/src';
 import React from 'react';
 
 import BasicInfo from '../../containers/detail/BasicInfo';

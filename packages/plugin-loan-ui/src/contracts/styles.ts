@@ -4,7 +4,7 @@ import {
   SidebarList,
   animations,
   typography,
-} from '@erxes/ui';
+} from '@erxes/ui/src';
 import { Input } from '@erxes/ui/src/components/form/styles';
 import styledTS from 'styled-components-ts';
 import styled, { css } from 'styled-components';
