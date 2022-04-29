@@ -75,8 +75,10 @@ export default async function userMiddleware(
             allowed: true,
           }).lean();
 
+          const user = await models.Users.findOne({ groupIds: { $in: [appInDb.userGroupId] } });
+
           req.user = {
-            _id: 'userId',
+            _id: user ? user._id : 'userId',
             customPermissions: permissions.map((p) => ({
               action: p.action,
               allowed: p.allowed,
