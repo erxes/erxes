@@ -40,7 +40,7 @@ export default {
             { visibility: "public" },
             {
               visibility: "private",
-              $or: [{ memberIds: user._id }, { userId: user._id }],
+              $or: [{ memberIds: { $in: user._id } }, { userId: user._id }],
             },
           ],
         },
