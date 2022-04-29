@@ -40,7 +40,7 @@ export default {
             { visibility: "public" },
             {
               visibility: "private",
-              $or: [{ memberIds: { $in: user._id } }, { userId: user._id }],
+              $or: [{ memberIds: { $in: [user._id] } }, { userId: user._id }],
             },
           ],
         },
@@ -48,7 +48,12 @@ export default {
     };
 
     if (departmentIds.length > 0) {
-      query.$and[2].$or.push({ departmentIds: { $in: departmentIds } });
+      query.$and[2].$or.push({
+        $and: [
+          { visibility: "private" },
+          { departmentIds: { $in: departmentIds } },
+        ],
+      });
     }
 
     return models.Pipelines.find(query).lean();
