@@ -63,6 +63,25 @@ module.exports.devCmd = async () => {
     },
   ];
 
+  if (configs.widgets) {
+    log('Installing dependencies in widgets .........')
+    await execCommand(`cd ${filePath(`../widgets`)} && yarn install`);
+
+    apps.push({
+      name: 'widgets',
+      cwd: filePath(`../widgets`),
+      script: "yarn",
+      args: "dev",
+      ignore_watch: ["node_modules"],
+      env: {
+        PORT: 3200,
+        ROOT_URL: "http://localhost:3200",
+        API_URL: "http://localhost:4000",
+        API_SUBSCRIPTIONS_URL: "ws://localhost:4000/graphql"
+      },
+    });
+  }
+
   const uiPlugins = [];
 
   for (const plugin of configs.plugins) {
