@@ -1,6 +1,10 @@
 const fse = require("fs-extra");
 const { execCommand, filePath, log, sleep } = require("./utils");
 
+module.exports.devStop = async () => {
+  await execCommand('pm2 delete all');
+}
+
 module.exports.devCmd = async () => {
   const configs = await fse.readJSON(filePath("configs.json"));
 
@@ -87,17 +91,22 @@ module.exports.devCmd = async () => {
   for (const plugin of configs.plugins) {
     port++;
 
-    const uiConfigs = require(filePath(`../packages/plugin-${plugin.name}-ui/src/configs.js`));
+    if (plugin.ui) {
+      log(`Installing dependencies in ${plugin.name} .........`)
+      await execCommand(`cd ${filePath(`../packages/plugin-${plugin.name}-ui`)} && yarn install-deps`);
 
-    uiPlugins.push(uiConfigs);
+      const uiConfigs = require(filePath(`../packages/plugin-${plugin.name}-ui/src/configs.js`));
 
-    apps.push({
-      name: `${plugin.name}-ui`,
-      cwd: filePath(`../packages/plugin-${plugin.name}-ui`),
-      script: "yarn",
-      args: "start",
-      ignore_watch: ["node_modules"],
-    });
+      uiPlugins.push(uiConfigs);
+
+      apps.push({
+        name: `${plugin.name}-ui`,
+        cwd: filePath(`../packages/plugin-${plugin.name}-ui`),
+        script: "yarn",
+        args: "start",
+        ignore_watch: ["node_modules"],
+      });
+    }
 
     apps.push({
       name: `${plugin.name}-api`,
