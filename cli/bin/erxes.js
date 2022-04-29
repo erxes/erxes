@@ -8,6 +8,7 @@ const packageJSON = require('../package.json');
 const startCmd = require('../commands/start');
 const updateCmd = require('../commands/update');
 const { manageInstallation, up, update, restart, deployDbs } = require('../commands/docker/utils');
+const { devCmd } = require('../commands/dev');
 
 /**
  * Normalize version argument
@@ -36,7 +37,11 @@ program
     console.log(packageJSON.version);
   });
 
-// `$ start erxes`
+program
+  .command('dev')
+  .description('Run erxes in dev mode using pm2')
+  .action(devCmd);
+
 program
   .command('start')
   .option('--ignoreDownload', 'Ingore latest updates download')
