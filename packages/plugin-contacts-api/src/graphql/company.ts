@@ -1,13 +1,12 @@
-// import { conformityQueryFields } from './common';
-
 export const conformityQueryFields = `
   conformityMainType: String
   conformityMainTypeId: String
+  conformityRelType: String
   conformityIsRelated: Boolean
   conformityIsSaved: Boolean
 `;
 
-export const types = (tagsEnabled) => `
+export const types = tagsEnabled => `
 
   type Company @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
@@ -44,7 +43,7 @@ export const types = (tagsEnabled) => `
     trackedData: JSON
 
     customers: [Customer]
-    ${tagsEnabled ? 'getTags: [Tag]': '' }
+    ${tagsEnabled ? "getTags: [Tag]" : ""}
     code: String
     location: String
     score: Float
