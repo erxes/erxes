@@ -138,14 +138,16 @@ module.exports.devCmd = async (program) => {
 
       uiPlugins.push(uiConfigs);
 
-      apps.push({
-        name: `${plugin.name}-ui`,
-        cwd: filePath(`../packages/plugin-${plugin.name}-ui`),
-        script: "yarn",
-        args: "start",
-      ...commonOptions,
-        ignore_watch: ["node_modules"],
-      });
+      if (plugin.ui === 'local') {
+        apps.push({
+          name: `${plugin.name}-ui`,
+          cwd: filePath(`../packages/plugin-${plugin.name}-ui`),
+          script: "yarn",
+          args: "start",
+        ...commonOptions,
+          ignore_watch: ["node_modules"],
+        });
+      }
     }
 
     apps.push({
