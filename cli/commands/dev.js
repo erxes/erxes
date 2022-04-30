@@ -200,6 +200,10 @@ module.exports.devCmd = async (program) => {
       log(`starting ${plugin.name} ....`);
       await sleep(10000);
       await execCommand(`pm2 start ecosystem.config.js --only ${plugin.name}-api`);
+
+      if (plugin.ui === 'local') {
+        await execCommand(`pm2 start ecosystem.config.js --only ${plugin.name}-ui`);
+      }
     }
 
     log(`starting gateway ....`);
