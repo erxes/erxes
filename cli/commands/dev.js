@@ -1,9 +1,5 @@
 const fse = require("fs-extra");
-const os = require("os");
 const { execCommand, filePath, log, sleep } = require("./utils");
-
-const osType = os.type();
-const commonOptions = osType === 'Darwin' ? {} : { interpreter: '/bin/bash' };
 
 module.exports.devOnly = async () => {
   const name = process.argv[3];
@@ -16,6 +12,8 @@ module.exports.devStop = async () => {
 
 module.exports.devCmd = async (program) => {
   const configs = await fse.readJSON(filePath("configs.json"));
+
+  const commonOptions = program.bash ? { interpreter: '/bin/bash' } : {};
 
   const enabledServices = [];
 
