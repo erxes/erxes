@@ -196,13 +196,26 @@ module.exports.devCmd = async (program) => {
   );
 
   if (!program.ignoreRun) {
-    log("pm2 start ....");
-    await execCommand('pm2 start ecosystem.config.js');
-
-    log("Waiting for 30 seconds ....");
+    log("starting core ....");
     await sleep(30000);
+    await execCommand('pm2 start ecosystem.config.js --only core');
 
-    log("Restarting ....");
-    await execCommand('pm2 restart gateway');
+    for (const plugin of configs.plugins) {
+      log(`starting ${plugin.name} ....`);
+      await sleep(10000);
+      await execCommand(`pm2 start ecosystem.config.js --only ${plugin.name}-api`);
+    }
+
+    log(`starting gateway ....`);
+    await sleep(10000);
+    await execCommand(`pm2 start ecosystem.config.js --only gateway`);
+
+    log("starting coreui ....");
+    await execCommand('pm2 start ecosystem.config.js --only coreui');
+
+    if (configs.widgets) {
+      log("starting widgets ....");
+      await execCommand('pm2 start ecosystem.config.js --only widgets');
+    }
   }
 };
