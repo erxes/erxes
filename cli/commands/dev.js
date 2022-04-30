@@ -15,6 +15,8 @@ module.exports.devStop = async () => {
 }
 
 module.exports.devCmd = async (program) => {
+  await execCommand('pm2 delete all');
+
   const configs = await fse.readJSON(filePath("configs.json"));
 
   const enabledServices = [];
@@ -86,8 +88,10 @@ module.exports.devCmd = async (program) => {
   await execCommand(`cd ${filePath(`../packages/core-ui`)} && yarn generate-doterxes`);
 
   if (configs.widgets) {
-    log('Installing dependencies in widgets .........')
-    await execCommand(`cd ${filePath(`../widgets`)} && yarn install`);
+    if (program.deps) {
+      log('Installing dependencies in widgets .........')
+      await execCommand(`cd ${filePath(`../widgets`)} && yarn install`);
+    }
 
     await fse.writeFile(
       filePath("../widgets/.env"),
@@ -115,8 +119,10 @@ module.exports.devCmd = async (program) => {
     port++;
 
     if (plugin.ui) {
-      log(`Installing dependencies in ${plugin.name} .........`)
-      await execCommand(`cd ${filePath(`../packages/plugin-${plugin.name}-ui`)} && yarn install-deps`);
+      if (program.deps) {
+        log(`Installing dependencies in ${plugin.name} .........`)
+        await execCommand(`cd ${filePath(`../packages/plugin-${plugin.name}-ui`)} && yarn install-deps`);
+      }
 
       const uiConfigs = require(filePath(`../packages/plugin-${plugin.name}-ui/src/configs.js`));
 

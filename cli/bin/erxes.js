@@ -40,6 +40,7 @@ program
 program
   .command('dev')
   .description('Run erxes in dev mode using pm2')
+  .option('--deps', 'Install ui dependencies')
   .option('--ignoreRun', 'Ignore pm2 start')
   .action(devCmd);
 
