@@ -119,12 +119,22 @@ module.exports.devCmd = async (program) => {
     port++;
 
     if (plugin.ui) {
-      if (program.deps) {
+      if (program.deps && plugin.ui === 'local') {
         log(`Installing dependencies in ${plugin.name} .........`)
         await execCommand(`cd ${filePath(`../packages/plugin-${plugin.name}-ui`)} && yarn install-deps`);
       }
 
       const uiConfigs = require(filePath(`../packages/plugin-${plugin.name}-ui/src/configs.js`));
+
+      if (plugin.ui === 'remote') {
+        if (uiConfigs.url) {
+          uiConfigs.url = (configs.ui_remote_url || '').replace('<name>', plugin.name);
+        }
+
+        if (uiConfigs.routes) {
+          uiConfigs.routes.url = (configs.ui_remote_url || '').replace('<name>', plugin.name);
+        }
+      }
 
       uiPlugins.push(uiConfigs);
 
