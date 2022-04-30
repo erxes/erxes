@@ -106,7 +106,7 @@ export interface ICarCategoryDocument extends ICarCategory, Document {
 
 export interface IProductCarCategory {
   carCategoryId: String;
-  productId: String;
+  productCategoryId: String;
 }
 
 export interface IProductCarCategoryDocument
@@ -159,7 +159,7 @@ export const productCarCategorySchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     carCategoryId: field({ type: String, label: 'Category' }),
-    productId: field({ type: String, label: 'Category' })
+    productCategoryId: field({ type: String, label: 'Category' })
   }),
   'erxes_productCarCategorySchema'
 );

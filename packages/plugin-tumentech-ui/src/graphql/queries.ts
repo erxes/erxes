@@ -105,7 +105,7 @@ export const carFields = `
   ownerBy
   repairService
   transmission
-  model
+  carModel
   manufacture
   mark
   type
@@ -237,11 +237,13 @@ export const carDetail = `
         primaryEmail
         primaryPhone
       }
+      
       companies {
         _id
         primaryName
         website
       }
+
       attachments {
         name
         url
