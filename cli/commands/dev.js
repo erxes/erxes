@@ -15,8 +15,6 @@ module.exports.devStop = async () => {
 }
 
 module.exports.devCmd = async (program) => {
-  await execCommand('pm2 delete all', true);
-
   const configs = await fse.readJSON(filePath("configs.json"));
 
   const enabledServices = [];
