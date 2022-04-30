@@ -26,9 +26,9 @@ import { routeErrorHandling } from "@erxes/api-utils/src/requests";
 import { handleUnsubscription } from "./util/handleUnsubscription";
 
 const {
-  // DOMAIN,
-  // WIDGETS_DOMAIN,
-  // CLIENT_PORTAL_DOMAINS,
+  DOMAIN,
+  WIDGETS_DOMAIN,
+  CLIENT_PORTAL_DOMAINS,
   PORT,
   RABBITMQ_HOST,
   MESSAGE_BROKER_PREFIX,
@@ -164,14 +164,15 @@ const {
     path: "/graphql",
     cors: {
       credentials: true,
-      // origin: [
-      //   DOMAIN ? DOMAIN : 'http://localhost:3000',
-      //   WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
-      //   ...(CLIENT_PORTAL_DOMAINS || '').split(','),
-      //   'https://studio.apollographql.com',
-      //   ...(process.env.ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
-      // ]
-      origin: "*",
+      origin: [
+        DOMAIN ? DOMAIN : "http://localhost:3000",
+        WIDGETS_DOMAIN ? WIDGETS_DOMAIN : "http://localhost:3200",
+        ...(CLIENT_PORTAL_DOMAINS || "").split(","),
+        "https://studio.apollographql.com",
+        ...(process.env.ALLOWED_ORIGINS || "")
+          .split(",")
+          .map(c => c && RegExp(c)),
+      ],
     },
   });
 
