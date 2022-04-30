@@ -32,7 +32,7 @@ module.exports.devCmd = async (program) => {
 
   const commonEnv = {
     NODE_ENV: "development",
-    JWT_TOKEN_SECRET: "token",
+    JWT_TOKEN_SECRET: configs.jwt_token_secret,
     MONGO_URL: "mongodb://localhost/erxes",
 
     REDIS_HOST: "localhost",
