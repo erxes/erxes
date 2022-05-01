@@ -13,6 +13,7 @@ import {
   subscribePage
 } from './utils';
 import { generateModels, IModels } from '../connectionResolver';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export const facebookCreateIntegration = async (
   models: IModels,
@@ -133,7 +134,8 @@ const init = async app => {
       `Request to get post data with: ${JSON.stringify(req.query)}`
     );
 
-    const models = await generateModels('os');
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
 
     const { erxesApiId } = req.query;
 
@@ -145,7 +147,8 @@ const init = async app => {
   });
 
   app.get('/facebook/get-status', async (req, res) => {
-    const models = await generateModels('os');
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
 
     const { integrationId } = req.query;
 
@@ -191,7 +194,8 @@ const init = async app => {
 
   // Facebook endpoint verifier
   app.get('/facebook/receive', async (req, res) => {
-    const models = await generateModels('os');
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
 
     const FACEBOOK_VERIFY_TOKEN = await getConfig(
       models,
@@ -210,7 +214,9 @@ const init = async app => {
   });
 
   app.post('/facebook/receive', async (req, res, next) => {
-    const models = await generateModels('os');
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
+
     const data = req.body;
 
     if (data.object !== 'page') {
@@ -257,7 +263,7 @@ const init = async app => {
               return next();
             }
 
-            await receiveMessage(models, activity);
+            await receiveMessage(models, subdomain, activity);
 
             debugFacebook(
               `Successfully saved activity ${JSON.stringify(activity)}`
@@ -280,7 +286,7 @@ const init = async app => {
               `Received comment data ${JSON.stringify(event.value)}`
             );
             try {
-              await receiveComment(models, event.value, entry.id);
+              await receiveComment(models, subdomain, event.value, entry.id);
               debugFacebook(
                 `Successfully saved  ${JSON.stringify(event.value)}`
               );
@@ -296,7 +302,7 @@ const init = async app => {
               debugFacebook(
                 `Received post data ${JSON.stringify(event.value)}`
               );
-              await receivePost(models, event.value, entry.id);
+              await receivePost(models, subdomain, event.value, entry.id);
               debugFacebook(
                 `Successfully saved post ${JSON.stringify(event.value)}`
               );
