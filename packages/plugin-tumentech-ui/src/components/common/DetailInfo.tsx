@@ -34,7 +34,7 @@ class DetailInfo extends React.Component<Props> {
         {this.renderRow('Үйлдвэрлэгч', car.manufacture)}
         {this.renderRow('Чиргүүлийн холбоос', car.trailerType)}
         {this.renderRow('Ангилал', car.drivingClassification)}
-        {this.renderRow('Модел', car.model)}
+        {this.renderRow('Модел', car.carModel)}
         {this.renderRow('Марк', car.mark)}
         {this.renderRow('Жин', car.weight)}
         {this.renderRow('Дугуйн даацын төрөл', car.tireLoadType)}

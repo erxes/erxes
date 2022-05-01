@@ -1,10 +1,12 @@
 import { putCreateLog, putDeleteLog, putUpdateLog } from 'erxes-api-utils';
 import { gatherDescriptions } from '../../../utils';
 import { checkPermission } from '@erxes/api-utils/src';
+import messageBroker, { sendCoreMessage } from '../../../messageBroker';
 
 const carMutations = {
   carsAdd: async (_root, doc, { user, docModifier, models, messageBroker }) => {
-    const car = await models.Cars.createCar(models, docModifier(doc), user);
+    const car = await models.Cars.createCar(docModifier(doc), user);
+
     await putCreateLog(
       messageBroker,
       gatherDescriptions,
@@ -24,8 +26,8 @@ const carMutations = {
    */
 
   carsEdit: async (_root, { _id, ...doc }, { models, user, messageBroker }) => {
-    const car = await models.Cars.getCar(models, _id);
-    const updated = await models.Cars.updateCar(models, _id, doc);
+    const car = await models.Cars.getCar(_id);
+    const updated = await models.Cars.updateCar(_id, doc);
 
     await putUpdateLog(
       messageBroker,
@@ -53,7 +55,7 @@ const carMutations = {
   ) => {
     const cars = await models.Cars.find({ _id: { $in: carIds } }).lean();
 
-    await models.Cars.removeCars(models, carIds);
+    await models.Cars.removeCars(carIds);
 
     for (const car of cars) {
       await putDeleteLog(
@@ -71,7 +73,7 @@ const carMutations = {
    * Merge cars
    */
   carsMerge: async (_root, { carIds, carFields }, { models }) => {
-    return models.Cars.mergeCars(models, carIds, carFields);
+    return models.Cars.mergeCars(carIds, carFields);
   },
 
   /**
@@ -84,7 +86,6 @@ const carMutations = {
     { docModifier, models, user, messageBroker }
   ) => {
     const carCategory = await models.CarCategories.createCarCategory(
-      models,
       docModifier(doc)
     );
 
@@ -113,14 +114,10 @@ const carMutations = {
     { _id, ...doc },
     { models, user, messageBroker }
   ) => {
-    const carCategory = await models.CarCategories.getCarCatogery(models, {
+    const carCategory = await models.CarCategories.getCarCatogery({
       _id
     });
-    const updated = await models.CarCategories.updateCarCategory(
-      models,
-      _id,
-      doc
-    );
+    const updated = await models.CarCategories.updateCarCategory(_id, doc);
 
     await putUpdateLog(
       messageBroker,
@@ -147,10 +144,10 @@ const carMutations = {
     { _id }: { _id: string },
     { models, user, messageBroker }
   ) => {
-    const carCategory = await models.CarCategories.getCarCatogery(models, {
+    const carCategory = await models.CarCategories.getCarCatogery({
       _id
     });
-    const removed = await models.CarCategories.removeCarCategory(models, _id);
+    const removed = await models.CarCategories.removeCarCategory(_id);
 
     await putDeleteLog(
       messageBroker,
@@ -164,23 +161,31 @@ const carMutations = {
 
   // ClientPortal ===========
   cpCarsAdd: async (_root, doc, { docModifier, models }) => {
-    const car = await models.Cars.createCar(models, docModifier(doc));
+    const car = await models.Cars.createCar(docModifier(doc));
 
     if (doc.customerId) {
-      await models.Conformities.addConformity({
-        mainType: 'customer',
-        mainTypeId: doc.customerId,
-        relType: 'car',
-        relTypeId: car._id
+      await sendCoreMessage({
+        subdomain: models.subdomain,
+        action: 'conformities.addConformities',
+        data: {
+          mainType: 'customer',
+          mainTypeId: doc.customerId,
+          relType: 'car',
+          relTypeId: car._id
+        }
       });
     }
 
     if (doc.companyId) {
-      await models.Conformities.addConformity({
-        mainType: 'company',
-        mainTypeId: doc.companyId,
-        relType: 'car',
-        relTypeId: car._id
+      await sendCoreMessage({
+        subdomain: models.subdomain,
+        action: 'conformities.addConformities',
+        data: {
+          mainType: 'company',
+          mainTypeId: doc.companyId,
+          relType: 'car',
+          relTypeId: car._id
+        }
       });
     }
 
@@ -191,7 +196,7 @@ const carMutations = {
    */
   cpCarsEdit: async (_root, { _id, ...doc }, { models }) => {
     await models.Cars.getCar(models, _id);
-    const updated = await models.Cars.updateCar(models, _id, doc);
+    const updated = await models.Cars.updateCar(_id, doc);
 
     return updated;
   },
@@ -200,7 +205,7 @@ const carMutations = {
    * Removes cars
    */
   cpCarsRemove: async (_root, { carIds }: { carIds: string[] }, { models }) => {
-    await models.Cars.removeCars(models, carIds);
+    await models.Cars.removeCars(carIds);
     return carIds;
   }
 };

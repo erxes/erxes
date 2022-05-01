@@ -1,9 +1,5 @@
 const fse = require("fs-extra");
-const os = require("os");
 const { execCommand, filePath, log, sleep } = require("./utils");
-
-const osType = os.type();
-const commonOptions = osType === 'Darwin' ? {} : { interpreter: '/bin/bash' };
 
 module.exports.devOnly = async () => {
   const name = process.argv[3];
@@ -15,9 +11,9 @@ module.exports.devStop = async () => {
 }
 
 module.exports.devCmd = async (program) => {
-  await execCommand('pm2 delete all', true);
-
   const configs = await fse.readJSON(filePath("configs.json"));
+
+  const commonOptions = program.bash ? { interpreter: '/bin/bash' } : {};
 
   const enabledServices = [];
 
@@ -36,12 +32,12 @@ module.exports.devCmd = async (program) => {
 
   const commonEnv = {
     NODE_ENV: "development",
-    JWT_TOKEN_SECRET: "token",
+    JWT_TOKEN_SECRET: configs.jwt_token_secret,
     MONGO_URL: "mongodb://localhost/erxes",
 
     REDIS_HOST: "localhost",
     REDIS_PORT: 6379,
-    REDIS_PASSWORD: configs.redis.pass,
+    REDIS_PASSWORD: configs.redis.password,
     RABBITMQ_HOST: "amqp://localhost",
     ELASTICSEARCH_URL: "http://localhost:9200",
     ENABLED_SERVICES_PATH: filePath('enabled-services.js')
@@ -204,6 +200,10 @@ module.exports.devCmd = async (program) => {
       log(`starting ${plugin.name} ....`);
       await sleep(10000);
       await execCommand(`pm2 start ecosystem.config.js --only ${plugin.name}-api`);
+
+      if (plugin.ui === 'local') {
+        await execCommand(`pm2 start ecosystem.config.js --only ${plugin.name}-ui`);
+      }
     }
 
     log(`starting gateway ....`);

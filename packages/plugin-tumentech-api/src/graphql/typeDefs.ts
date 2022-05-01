@@ -7,15 +7,17 @@ import {
 } from './schema/tumentech';
 
 const typeDefs = async (serviceDiscovery) => {
-  const contactsEnabled = await serviceDiscovery.isEnabled('contacts');
+  const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
 
-  console.log(contactsEnabled);
+  const isEnabled = {
+    contacts: isContactsEnabled
+  };
 
   return gql`
     scalar JSON
     scalar Date
     
-    ${await tumentechTypes(contactsEnabled)}
+    ${tumentechTypes(isEnabled)}
     
     extend type Query {
 

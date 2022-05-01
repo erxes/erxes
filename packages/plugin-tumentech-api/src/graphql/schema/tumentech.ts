@@ -3,13 +3,27 @@ import {
   attachmentInput
 } from '@erxes/api-utils/src/commonTypeDefs';
 
-export const types = (contactsAvailable) => `
+export const types = ({ contacts }) => `
 
   ${attachmentType}
   ${attachmentInput}
 
   extend type User @key(fields: "_id") {
     _id: String! @external
+  }
+
+  ${
+    contacts
+      ? `
+        extend type Customer @key(fields: "_id") {
+          _id: String! @external
+        }
+
+        extend type Company @key(fields: "_id") {
+          _id: String! @external
+        }
+        `
+      : ''
   }
 
 type CarCategory {
@@ -34,7 +48,15 @@ type Car {
   description: String
   owner: User
 
-  
+  ${
+    contacts
+      ? `
+    customers: [Customer]
+    companies: [Company]
+    `
+      : ''
+  }
+
   plateNumber: String
   vinNumber: String
   color: String
@@ -162,7 +184,7 @@ export const queries = `
   carCategoriesTotalCount: Int
   carCategoryDetail(_id: String): CarCategory
   carCategoryMatchProducts(carCategoryId: String): CarCategoryProducts
-  productMatchCarCategories(productId: String): ProductCarCategories
+  productMatchCarCategories(productCategoryId: String): ProductCarCategories
 
   cpCarCounts(${tumentechParams}, only: String): JSON
   cpCarDetail(_id: String!): Car
@@ -268,8 +290,8 @@ export const mutations = `
   carCategoriesEdit(_id: String!, ${carCategoryParams}): CarCategory
   carCategoriesRemove(_id: String!): JSON
 
-  carCategoryMatch( carCategoryId: String!, productIds: [String]): CarCategoryProducts
-  productMatch(productId: String!, carCategoryIds: [String]): ProductCarCategories
+  carCategoryMatch( carCategoryId: String!, productCategoryIds: [String]): CarCategoryProducts
+  productMatch(productCategoryId: String!, carCategoryIds: [String]): ProductCarCategories
   cpCarsAdd(${tumentechCommonFields}, customerId: String, companyId: String): Car
   cpCarsEdit(_id: String!, ${tumentechCommonFields}): Car
   cpCarsRemove(carIds: [String]): [String]
