@@ -63,5 +63,6 @@ export const queries = ({ formsEnabled, cardsEnabled }) => `
 `;
 
 export const mutations = `
- modifyWaiterCustomerList(dealId: String, customerId: String, type: String): [String]
+  modifyWaiterCustomerList(dealId: String, customerId: String, type: String): [String]
+  updateRentpayCustomer(customerId: String, customerFields: JSON): JSON
 `;
