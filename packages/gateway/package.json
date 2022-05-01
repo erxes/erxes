@@ -16,7 +16,6 @@
     "@apollo/gateway": "^0.44.1",
     "apollo-server-core": "^3.5.0",
     "apollo-server-express": "^3.5.0",
-    "clerq": "0.5.0",
     "cookie-parser": "^1.4.6",
     "dotenv": "^10.0.0",
     "erxes-api-utils": "^0.0.34",

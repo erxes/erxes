@@ -6,7 +6,7 @@ const carCategoryProductMutations = {
     const { carCategoryId, productCategoryIds = [] } = doc;
 
     const dbProductIds = (
-      (await models.ProductCarCategory.find({ carCategoryId }).lean()) || []
+      (await models.ProductCarCategories.find({ carCategoryId }).lean()) || []
     ).map((i) => i.productCategoryId);
 
     const toDelProductIds = dbProductIds.filter(
@@ -17,7 +17,7 @@ const carCategoryProductMutations = {
     );
 
     if (toDelProductIds.length) {
-      await models.ProductCarCategory.deleteMany({
+      await models.ProductCarCategories.deleteMany({
         carCategoryId,
         productCategoryId: { $in: toDelProductIds }
       });
@@ -33,7 +33,7 @@ const carCategoryProductMutations = {
         });
       }
 
-      await models.ProductCarCategory.insertMany(bulkOps);
+      await models.ProductCarCategories.insertMany(bulkOps);
     }
 
     const products = await sendProductsMessage({
@@ -59,7 +59,8 @@ const carCategoryProductMutations = {
     const { productCategoryId, carCategoryIds = [] } = doc;
 
     const dbcarCategoryIds = (
-      (await models.ProductCarCategory.find({ productCategoryId }).lean()) || []
+      (await models.ProductCarCategories.find({ productCategoryId }).lean()) ||
+      []
     ).map((i) => i.carCategoryId);
 
     const toDelCarCategoryIds = dbcarCategoryIds.filter(
@@ -70,7 +71,7 @@ const carCategoryProductMutations = {
     );
 
     if (toDelCarCategoryIds.length) {
-      await models.ProductCarCategory.deleteMany({
+      await models.ProductCarCategories.deleteMany({
         productCategoryId,
         carCategoryId: { $in: toDelCarCategoryIds }
       });
@@ -86,7 +87,7 @@ const carCategoryProductMutations = {
         });
       }
 
-      await models.ProductCarCategory.insertMany(bulkOps);
+      await models.ProductCarCategories.insertMany(bulkOps);
     }
 
     const products = await sendProductsMessage({

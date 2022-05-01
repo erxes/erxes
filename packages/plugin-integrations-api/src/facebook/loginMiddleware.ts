@@ -1,3 +1,4 @@
+import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as graph from 'fbgraph';
 import { generateModels } from '../connectionResolver';
 import { debugFacebook, debugRequest, debugResponse } from '../debuggers';
@@ -6,7 +7,8 @@ import { getConfig, getEnv } from '../utils';
 import { graphRequest } from './utils';
 
 const loginMiddleware = async (req, res) => {
-  const models = await generateModels('os');
+  const subdomain = getSubdomain(req);
+  const models = await generateModels(subdomain);
 
   const FACEBOOK_APP_ID = await getConfig(models, 'FACEBOOK_APP_ID');
   const FACEBOOK_APP_SECRET = await getConfig(models, 'FACEBOOK_APP_SECRET');

@@ -28,7 +28,7 @@ const commonFields = `
   $ownerBy: String
   $repairService: String
   $transmission: String
-  $model: String
+  $carModel: String
   $manufacture: String
   $mark: String
   $type: String
@@ -110,7 +110,7 @@ const commonVariables = `
   ownerBy: $ownerBy,
   repairService: $repairService,
   transmission: $transmission,
-  model: $model,
+  carModel: $carModel,
   manufacture: $manufacture,
   mark: $mark,
   type: $type,

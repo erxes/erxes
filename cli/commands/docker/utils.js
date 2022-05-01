@@ -1,13 +1,7 @@
 const fs = require("fs");
 const fse = require("fs-extra");
 const yaml = require("yaml");
-const { log, execCommand, filePath, execCurl } = require("../utils");
-
-const sleep = (ms) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
+const { log, sleep, execCommand, filePath, execCurl } = require("../utils");
 
 const commonEnvs = (configs) => {
   const db_server_address = configs.db_server_address;
