@@ -39,13 +39,13 @@ const mutations = {
     return customerIds;
   },
 
-  async updateRentpayCustomer(_root, { customerId, customerFields }) {
+  async updateRentpayCustomer(_root, { customerId, customFields }) {
     const updated = await sendCommonMessage({
       subdomain: "os",
       data: {
         _id: customerId,
         doc: {
-          customerFields,
+          customFields,
         },
       },
       serviceName: "contacts",
