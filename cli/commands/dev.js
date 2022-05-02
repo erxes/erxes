@@ -22,6 +22,10 @@ module.exports.devCmd = async (program) => {
     enabledServices.push(`'${plugin.name}'`);
   }
 
+  if (configs.workers) {
+    enabledServices.push("'workers'");
+  }
+
   await fse.writeFile(
     filePath("enabled-services.js"),
     `
@@ -168,6 +172,22 @@ module.exports.devCmd = async (program) => {
     });
   }
 
+  if (configs.workers) {
+    apps.push({
+      name: 'workers',
+      cwd: filePath(`../packages/workers`),
+      script: "yarn",
+      args: "dev",
+      interpreter,
+        ...commonOptions,
+      ignore_watch: ["node_modules"],
+      env: {
+        PORT: 3700,
+        ...commonEnv,
+      },
+    });
+  }
+
   apps.push({
     name: 'gateway',
     cwd: filePath(`../packages/gateway`),
@@ -213,6 +233,12 @@ module.exports.devCmd = async (program) => {
       if (plugin.ui === 'local') {
         await execCommand(`pm2 start ecosystem.config.js --only ${plugin.name}-ui`);
       }
+    }
+
+    if (configs.workers) {
+      log("starting workers ....");
+      await sleep(10000);
+      await execCommand('pm2 start ecosystem.config.js --only workers');
     }
 
     log(`starting gateway ....`);
