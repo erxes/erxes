@@ -188,7 +188,7 @@ export const repairIntegrations = async (
     // send domain to core endpoints
     try {
       await sendRequest({
-        url: `${ENDPOINT_URL}/register-endpoint`,
+        url: `${ENDPOINT_URL}/update-endpoint`,
         method: 'POST',
         body: {
           domain: `${DOMAIN}/gateway/pl:integrations`,
