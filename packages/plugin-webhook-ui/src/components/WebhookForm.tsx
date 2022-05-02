@@ -7,8 +7,8 @@ import { __, Alert } from '@erxes/ui/src/utils';
 import { WEBHOOK_DOC_URL } from '@erxes/ui/src/constants/integrations';
 import React from 'react';
 import Select from 'react-select-plus';
-import CommonForm from '../../common/components/Form';
-import { ICommonFormProps } from '../../common/types';
+import CommonForm from '@erxes/ui-settings/src/common/components/Form';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { IWebhook } from '../types';
 import { getWebhookActions } from '../utils';
 

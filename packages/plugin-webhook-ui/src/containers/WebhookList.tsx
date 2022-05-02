@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { ICommonFormProps, ICommonListProps } from '../../common/types';
-import { queries as generalQueries } from '../../general/graphql';
+import { ICommonFormProps, ICommonListProps } from '@erxes/ui-settings/src/common/types';
+import { queries as generalQueries } from '@erxes/ui-settings/src/general/graphql';
 
 import React from 'react';
 import { graphql } from 'react-apollo';
