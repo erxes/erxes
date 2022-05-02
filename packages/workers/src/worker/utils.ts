@@ -33,8 +33,21 @@ const checkFieldNames = async (fields: string[], columnConfig?: object) => {
       fieldName = columnConfig[fieldName].value;
     }
 
+    if (columnConfig) {
+      if (columnConfig[fieldName]) {
+        fieldName = columnConfig[fieldName].value;
+      }
+    }
+
     property.name = fieldName;
     property.type = 'basic';
+
+    if (fieldName.includes('customFieldsData')) {
+      const fieldId = fieldName.split('.')[1];
+
+      property.type = 'customProperty';
+      property.id = fieldId;
+    }
 
     if (fieldName === 'companiesPrimaryNames') {
       property.name = 'companyIds';

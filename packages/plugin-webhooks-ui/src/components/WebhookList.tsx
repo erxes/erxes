@@ -11,13 +11,13 @@ import { router } from "@erxes/ui/src/utils";
 import { __ } from "@erxes/ui/src/utils";
 import { Alert } from "@erxes/ui/src/utils";
 import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
-import { FlexItem, FlexRow } from "../../styles";
+import { FlexItem, FlexRow } from "@erxes/ui-settings/src/styles";
 import React from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
-import List from "../../common/components/List";
-import RowActions from "../../common/components/RowActions";
-import { ICommonFormProps, ICommonListProps } from "../../common/types";
-import { FilterContainer } from "../../styles";
+import List from "@erxes/ui-settings/src/common/components/List";
+import RowActions from "@erxes/ui-settings/src/common/components/RowActions";
+import { ICommonFormProps, ICommonListProps } from "@erxes/ui-settings/src/common/types";
+import { FilterContainer } from "@erxes/ui-settings/src/styles";
 import { IWebhook } from "../types";
 import WebhookAddForm from "./WebhookForm";
 
@@ -26,6 +26,7 @@ type IProps = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   queryParams?: any;
   configsEnvQuery?: any;
+  webhooksGetActionsQuery?: any;
 } & ICommonListProps;
 
 type FinalProps = IProps & { currentUser: IUser };
@@ -50,7 +51,11 @@ class WebhookList extends React.Component<FinalProps, States> {
   }
 
   renderForm = (props) => {
-    return <WebhookAddForm {...props} renderButton={this.props.renderButton} />;
+    const { webhooksGetActionsQuery = {} } = this.props;
+
+    const webhookActions = webhooksGetActionsQuery.webhooksGetActions || []
+
+    return <WebhookAddForm {...props} renderButton={this.props.renderButton} webhookActions={webhookActions} />;
   };
 
   renderRows({ objects }: { objects: IWebhook[] }) {
