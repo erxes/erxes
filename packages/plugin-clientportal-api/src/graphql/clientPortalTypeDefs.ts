@@ -174,6 +174,7 @@ export const mutations = (contactAvailable, cardAvailable) => `
         lastName: String
         email: String
         phone: String
+        avatar: String
       ): Customer
 
       clientPortalCreateCompany(
