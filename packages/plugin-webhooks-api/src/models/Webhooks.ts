@@ -5,7 +5,7 @@ import {
   IWebhook,
   IWebhookDocument,
   webhookSchema
-} from './definitions/webhook';
+} from './definitions/webhooks';
 import { IModels } from '../connectionResolver';
 
 export interface IWebhookModel extends Model<IWebhookDocument> {

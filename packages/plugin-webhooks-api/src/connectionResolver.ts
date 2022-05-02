@@ -1,8 +1,8 @@
 import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
-import { IWebhookModel, loadWebhookClass } from './models/Webhook';
-import { IWebhookDocument } from './models/definitions/webhook';
+import { IWebhookModel, loadWebhookClass } from './models/Webhooks';
+import { IWebhookDocument } from './models/definitions/webhooks';
 
 export interface IModels {
   Webhooks: IWebhookModel

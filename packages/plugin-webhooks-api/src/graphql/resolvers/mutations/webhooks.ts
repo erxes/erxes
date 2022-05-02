@@ -1,6 +1,6 @@
 import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 import { WEBHOOK_STATUS } from '../../../models/definitions/constants';
-import { IWebhook } from '../../../models/definitions/webhook';
+import { IWebhook } from '../../../models/definitions/webhooks';
 // import { MODULE_NAMES } from '../../constants';
 // import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { IContext } from '../../../connectionResolver';

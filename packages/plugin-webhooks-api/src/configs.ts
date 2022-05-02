@@ -20,7 +20,7 @@ export let es: {
 };
 
 export default {
-  name: 'webhook',
+  name: 'webhooks',
   graphql: async sd => {
     serviceDiscovery = sd;
     return {

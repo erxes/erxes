@@ -1,13 +1,13 @@
 module.exports = {
-  name: 'webhook',
+  name: 'webhooks',
   port: 3024,
-  scope: 'webhook',
+  scope: 'webhooks',
   exposes: {
     './routes': './src/routes.tsx',
   },
   routes: {
     url: 'http://localhost:3024/remoteEntry.js',
-    scope: 'webhook',
+    scope: 'webhooks',
     module: './routes'
   },
   menus: [
@@ -16,7 +16,7 @@ module.exports = {
       to: '/settings/webhooks',
       image: '/images/icons/erxes-11.svg',
       location: 'settings',
-      scope: 'webhook',
+      scope: 'webhooks',
       action: '',
       permissions: []
     }
