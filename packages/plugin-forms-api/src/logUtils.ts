@@ -9,7 +9,7 @@ import messageBroker from './messageBroker';
 export const putDeleteLog = async (logDoc, user) => {
   await commonPutDeleteLog(
     messageBroker(),
-    { ...logDoc, type: `segments:${logDoc.type}` },
+    { ...logDoc, type: `forms:${logDoc.type}` },
     user
   );
 };
@@ -17,7 +17,7 @@ export const putDeleteLog = async (logDoc, user) => {
 export const putUpdateLog = async (logDoc, user) => {
   await commonPutUpdateLog(
     messageBroker(),
-    { ...logDoc, type: `segments:${logDoc.type}` },
+    { ...logDoc, type: `forms:${logDoc.type}` },
     user
   );
 };
@@ -25,7 +25,7 @@ export const putUpdateLog = async (logDoc, user) => {
 export const putCreateLog = async (logDoc, user) => {
   await commonPutCreateLog(
     messageBroker(),
-    { ...logDoc, type: `segments:${logDoc.type}` },
+    { ...logDoc, type: `forms:${logDoc.type}` },
     user
   );
 };
