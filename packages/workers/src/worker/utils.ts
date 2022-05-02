@@ -37,8 +37,6 @@ const checkFieldNames = async (fields: string[], columnConfig?: object) => {
       if (columnConfig[fieldName]) {
         fieldName = columnConfig[fieldName].value;
       }
-
-      throw new Error(`fieldName error ${fieldName}`);
     }
 
     property.name = fieldName;
