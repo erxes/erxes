@@ -14,6 +14,7 @@ import { getWebhookActions } from '../utils';
 
 type Props = {
   object?: IWebhook;
+  webhookActions: any;
 };
 
 type State = {
@@ -26,16 +27,14 @@ class WebhookForm extends React.Component<Props & ICommonFormProps, State> {
 
     const webhook = props.object || {};
 
-    let webhookActions = [] as any;
+    let selectedActions = [] as any;
 
     if (webhook.actions) {
-      webhookActions =
+      selectedActions =
         webhook.actions.map(item => {
           return { label: item.label, value: item.label };
         }) || [];
     }
-
-    const selectedActions = webhookActions;
 
     this.state = {
       selectedActions
@@ -66,7 +65,7 @@ class WebhookForm extends React.Component<Props & ICommonFormProps, State> {
   collectValues = selectedActions =>
     selectedActions.map(
       selectedAction =>
-        getWebhookActions().find(
+        getWebhookActions(this.props.webhookActions).find(
           action => action.label === selectedAction.label
         ) || {}
     );
@@ -92,7 +91,7 @@ class WebhookForm extends React.Component<Props & ICommonFormProps, State> {
   };
 
   generateActions = () => {
-    const actions = getWebhookActions();
+    const actions = getWebhookActions(this.props.webhookActions);
     return actions.map(action => {
       return { label: action.label, value: action.label };
     });

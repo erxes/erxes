@@ -58,6 +58,9 @@ export default commonListComposer<{ queryParams: any; history: any }>({
     name: 'listQuery',
     options
   }),
+  gqlGetActionsQuery: graphql(gql(queries.webhooksGetActions), {
+    name: 'webhooksGetActionsQuery'
+  }),
   gqlAddMutation: graphql(gql(mutations.webhooksAdd), {
     name: 'addMutation'
   }),

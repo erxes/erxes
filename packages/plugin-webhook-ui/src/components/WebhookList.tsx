@@ -26,6 +26,7 @@ type IProps = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   queryParams?: any;
   configsEnvQuery?: any;
+  webhooksGetActionsQuery?: any;
 } & ICommonListProps;
 
 type FinalProps = IProps & { currentUser: IUser };
@@ -50,7 +51,11 @@ class WebhookList extends React.Component<FinalProps, States> {
   }
 
   renderForm = (props) => {
-    return <WebhookAddForm {...props} renderButton={this.props.renderButton} />;
+    const { webhooksGetActionsQuery = {} } = this.props;
+
+    const webhookActions = webhooksGetActionsQuery.webhooksGetActions || []
+
+    return <WebhookAddForm {...props} renderButton={this.props.renderButton} webhookActions={webhookActions} />;
   };
 
   renderRows({ objects }: { objects: IWebhook[] }) {

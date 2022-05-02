@@ -23,6 +23,7 @@ export const queries = `
   webhooks: [Webhook]
   webhookDetail(_id: String!): Webhook
   webhooksTotalCount: Int
+  webhooksGetActions: JSON
 `;
 
 export const mutations = `
