@@ -160,6 +160,10 @@ const deployDbs = async (program) => {
   }
 
   if (configs.redis) {
+    if (!(await fse.exists(filePath("redisdata")))) {
+      await execCommand("mkdir redisdata");
+    }
+
     dockerComposeConfig.services.redis = {
       image: "redis:5.0.5",
       command: `redis-server --appendonly yes --requirepass ${configs.redis.password}`,
@@ -170,6 +174,10 @@ const deployDbs = async (program) => {
   }
 
   if (configs.rabbitmq) {
+    if (!(await fse.exists(filePath("rabbitmq-data")))) {
+      await execCommand("mkdir rabbitmq-data");
+    }
+
     dockerComposeConfig.services.rabbitmq = {
       image: "rabbitmq:3.7.17-management",
       hostname: "rabbitmq",

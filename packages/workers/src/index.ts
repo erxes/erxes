@@ -100,7 +100,7 @@ httpServer.listen(PORT, async () => {
   });
 
   await join({
-    name: 'worker',
+    name: 'workers',
     port: PORT,
     dbConnectionString: MONGO_URL,
     hasSubscriptions: false,
