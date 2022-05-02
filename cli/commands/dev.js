@@ -23,7 +23,7 @@ module.exports.devCmd = async (program) => {
   }
 
   if (configs.workers) {
-    enabledServices.push('workers');
+    enabledServices.push("'workers'");
   }
 
   await fse.writeFile(
