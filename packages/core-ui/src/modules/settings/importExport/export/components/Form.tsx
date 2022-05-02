@@ -89,7 +89,7 @@ class ExportForm extends React.Component<Props, State> {
       unlimited: true
     });
 
-    const serviceType = contentType.split(':')[1];
+    const serviceType = contentType.split(':')[0];
 
     window.open(
       `${REACT_APP_API_URL}/pl:${serviceType}/file-export?${stringified}`,
