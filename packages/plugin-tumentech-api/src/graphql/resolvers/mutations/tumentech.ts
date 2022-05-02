@@ -4,7 +4,7 @@ import { checkPermission } from '@erxes/api-utils/src';
 import messageBroker, { sendCoreMessage } from '../../../messageBroker';
 
 const carMutations = {
-  carsAdd: async (_root, doc, { user, docModifier, models, messageBroker }) => {
+  carsAdd: async (_root, doc, { user, docModifier, models }) => {
     const car = await models.Cars.createCar(docModifier(doc), user);
 
     await putCreateLog(

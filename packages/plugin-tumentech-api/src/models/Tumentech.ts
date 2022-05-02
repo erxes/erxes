@@ -1,6 +1,5 @@
 import { validSearchText } from 'erxes-api-utils';
 import {
-  productCarCategorySchema,
   carSchema,
   carCategorySchema,
   ICar,
@@ -9,7 +8,7 @@ import {
   ICarCategory,
   IProductCarCategoryDocument
 } from './definitions/tumentech';
-import { sendCoreMessage } from '../messageBroker';
+import { sendCoreMessage, sendInternalNotesMessage } from '../messageBroker';
 import { Model } from 'mongoose';
 
 export interface ICarModel extends Model<ICarDocument> {
@@ -149,6 +148,16 @@ export const loadCarsClass = (models) => {
      */
     public static async removeCars(carIds) {
       for (const carId of carIds) {
+        await sendInternalNotesMessage({
+          subdomain: models.subdomain,
+          action: 'removeInternalNotes',
+          data: {
+            contentType: 'car',
+            contentTypeId: carId
+          },
+          defaultValue: {}
+        });
+
         await sendCoreMessage({
           subdomain: models.subdomain,
           action: 'conformities.removeConformity',

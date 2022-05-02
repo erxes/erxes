@@ -8,20 +8,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
   filter.status = { $ne: 'Deleted' };
 
   if (params.categoryId) {
-    const category = await models.CarCategories.findOne({
-      _id: params.categoryId
-    });
-    const categoryIds = await models.CarCategories.find(
-      {
-        $or: [
-          { order: { $regex: new RegExp(`${category.order}/`) } },
-          { order: category.order }
-        ]
-      },
-      { _id: 1 }
-    );
-    filter.categoryId = { $in: categoryIds };
-    // filter.categoryId = params.categoryId;
+    filter.categoryId = params.categoryId;
   }
 
   if (params.searchValue) {

@@ -38,6 +38,17 @@ export const sendReactionsMessage = async (
   });
 };
 
+export const sendInternalNotesMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'internalnotes',
+    ...args
+  });
+};
+
 export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {
