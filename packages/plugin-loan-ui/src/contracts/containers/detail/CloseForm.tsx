@@ -1,4 +1,4 @@
-import { __, ButtonMutate, withProps } from '@erxes/ui';
+import { __, ButtonMutate, withProps } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';

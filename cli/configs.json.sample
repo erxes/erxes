@@ -1,7 +1,5 @@
 {
-	"jwt_token_secret": "",
-	"db_server_address": "",
-	"main_app_domain": "",
+	"jwt_token_secret": "token",
 	"dashboard": {
 	},
 	"elasticsearch": {},
@@ -20,7 +18,7 @@
 	},
 	"plugins": [
 		{
-			"name": "contacts"
+			"name": "logs"
 		}
 	]
 }

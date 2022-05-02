@@ -1,3 +1,3 @@
-import Pos from './pos';
+import tumentechQuery from "./tumentech";
 
-export default { ...Pos };
+export default { ...tumentechQuery };

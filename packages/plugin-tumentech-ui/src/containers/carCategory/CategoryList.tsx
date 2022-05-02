@@ -1,4 +1,4 @@
-import { Alert, confirm, withProps, ButtonMutate } from 'erxes-ui';
+import { Alert, confirm, withProps, ButtonMutate } from '@erxes/ui/src';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
@@ -14,7 +14,7 @@ import {
   IProductCategory,
   ProductCategoriesQueryResponse
 } from '../../types';
-import { IButtonMutateProps } from 'erxes-ui/lib/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 type Props = {
   history: any;
@@ -73,7 +73,7 @@ class CarListContainer extends React.Component<FinalProps> {
       );
     };
 
-    const remove = carId => {
+    const remove = (carId) => {
       confirm().then(() => {
         carCategoryRemove({
           variables: { _id: carId }
@@ -84,7 +84,7 @@ class CarListContainer extends React.Component<FinalProps> {
 
             Alert.success(`You successfully deleted a car & service category`);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
       });

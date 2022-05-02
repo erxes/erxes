@@ -1,3 +1,11 @@
+import { IScheduleDocument } from '../models/definitions/schedules';
+import { Model } from 'mongoose';
+export interface ISchedule extends Model<IScheduleDocument> {
+  getSchedule(models, selector: any);
+  createSchedule(models, doc);
+  updateSchedule(models, _id, doc);
+  removeSchedule(models, _id);
+}
 export class Schedule {
   /**
    *

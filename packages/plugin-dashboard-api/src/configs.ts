@@ -5,7 +5,6 @@ import { initBroker } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import permissions from './permissions';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -22,7 +21,6 @@ export let debug;
 
 export default {
   name: 'dashboard',
-  permissions,
   graphql: sd => {
     serviceDiscovery = sd;
 

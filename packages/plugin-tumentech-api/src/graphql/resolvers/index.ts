@@ -1,22 +1,16 @@
 import Mutation from './mutations';
-
 import Query from './queries';
-
-import Pos from './pos';
-import PosOrder from './posOrder';
-import PosOrderDetail from './posOrderDetail';
-import PosProduct from './posProduct';
 import customScalars from '@erxes/api-utils/src/customScalars';
+import { Cars as Car, CarCategory } from './tumentech';
 
 const resolvers: any = async () => ({
   ...customScalars,
 
-  Pos,
-  PosOrder,
-  PosProduct,
-  PosOrderDetail,
+  Car,
+  CarCategory,
+
   Mutation,
-  Query,
+  Query
 });
 
 export default resolvers;

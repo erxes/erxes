@@ -4,7 +4,7 @@ import {
   MainStyleTitle as Title,
   Wrapper,
   HeaderDescription,
-} from '@erxes/ui';
+} from '@erxes/ui/src';
 import React from 'react';
 
 import { ContentBox } from '../styles';

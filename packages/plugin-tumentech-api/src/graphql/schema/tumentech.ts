@@ -1,128 +1,161 @@
-export const types = () => `
-  type CarCategory {
-    _id: String!
-    name: String
-    description: String
-    parentId: String
-    collapseContent: [String]
-    code: String!
-    order: String!
+import {
+  attachmentType,
+  attachmentInput
+} from '@erxes/api-utils/src/commonTypeDefs';
 
-    isRoot: Boolean
-    carCount: Int
+export const types = ({ contacts }) => `
+
+  ${attachmentType}
+  ${attachmentInput}
+
+  extend type User @key(fields: "_id") {
+    _id: String! @external
   }
 
-  type Car {
-    _id: String!
+  ${
+    contacts
+      ? `
+        extend type Customer @key(fields: "_id") {
+          _id: String! @external
+        }
 
-    createdAt: Date
-    modifiedAt: Date
-    mergedIds: [String]
-    description: String
-    owner: User
+        extend type Company @key(fields: "_id") {
+          _id: String! @external
+        }
+        `
+      : ''
+  }
 
+type CarCategory {
+  _id: String!
+  name: String
+  description: String
+  parentId: String
+  collapseContent: [String]
+  code: String!
+  order: String!
+
+  isRoot: Boolean
+  carCount: Int
+}
+
+type Car {
+  _id: String!
+
+  createdAt: Date
+  modifiedAt: Date
+  mergedIds: [String]
+  description: String
+  owner: User
+
+  ${
+    contacts
+      ? `
     customers: [Customer]
     companies: [Company]
-
-    plateNumber: String
-    vinNumber: String
-    color: String
-    categoryId: String
-
-
-    category: CarCategory
-    fuelType: String
-    engineChange: String
-    listChange: String
-
-    vintageYear: Float
-    importYear: Float
-
-    taxDate: Date
-    meterWarranty: Date
-    diagnosisDate: Date
-
-    weight: Float
-    engineCapacity: String
-    liftHeight: Float
-    height: Float
-
-    steeringWheel: String
-
-    ownerBy: String
-    repairService: String
-    transmission: String
-    model: String
-    manufacture: String
-    mark: String
-    type: String
-    drivingClassification: String
-    doors: String
-    seats: String
-    trailerType: String
-    tireLoadType: String
-    bowType: String
-    brakeType: String
-    liftType: String
-    totalAxis: String
-    steeringAxis: String
-    forceAxis: String
-    floorType: String
-    barrelNumber: String
-    pumpCapacity: String
-    interval: [String]
-    intervalValue: String
-    wagonCapacity: [String]
-    liftWagonCapacity: [String]
-    wagonCapacityValue: String
-    liftWagonCapacityValue: String
-    running: String
-    runningValue: Float
-
-    trailerManufacture: String
-
-    wagonLength: Float
-    wagonWidth: Float
-
-    porchekHeight: Float
-    volume: Float
-    capacityL: Float
-    barrel1: Float
-    barrel2: Float
-    barrel3: Float
-    barrel4: Float
-    barrel5: Float
-    barrel6: Float
-    barrel7: Float
-    barrel8: Float
-
-    forceCapacityValue: Float
-    forceValue: Float
-
-    attachments: [Attachment]
-    fourAttachments: [Attachment]
-    floorAttachments: [Attachment]
-    transformationAttachments: [Attachment]
+    `
+      : ''
   }
 
-  type CarsListResponse {
-    list: [Car],
-    totalCount: Float,
-  }
+  plateNumber: String
+  vinNumber: String
+  color: String
+  categoryId: String
 
-  type CarCategoryProducts {
-    _id: String
-    carCategoryId: String
-    productIds: [String]
-    products: JSON
-  }
 
-  type ProductCarCategories {
-    _id: String
-    productId: String
-    carCategoryIds: [String]
-    carCategories: JSON
-  }
+  category: CarCategory
+  fuelType: String
+  engineChange: String
+  listChange: String
+
+  vintageYear: Float
+  importYear: Float
+
+  taxDate: Date
+  meterWarranty: Date
+  diagnosisDate: Date
+
+  weight: Float
+  engineCapacity: String
+  liftHeight: Float
+  height: Float
+
+  steeringWheel: String
+
+  ownerBy: String
+  repairService: String
+  transmission: String
+  carModel: String
+  manufacture: String
+  mark: String
+  type: String
+  drivingClassification: String
+  doors: String
+  seats: String
+  trailerType: String
+  tireLoadType: String
+  bowType: String
+  brakeType: String
+  liftType: String
+  totalAxis: String
+  steeringAxis: String
+  forceAxis: String
+  floorType: String
+  barrelNumber: String
+  pumpCapacity: String
+  interval: [String]
+  intervalValue: String
+  wagonCapacity: [String]
+  liftWagonCapacity: [String]
+  wagonCapacityValue: String
+  liftWagonCapacityValue: String
+  running: String
+  runningValue: Float
+
+  trailerManufacture: String
+
+  wagonLength: Float
+  wagonWidth: Float
+
+  porchekHeight: Float
+  volume: Float
+  capacityL: Float
+  barrel1: Float
+  barrel2: Float
+  barrel3: Float
+  barrel4: Float
+  barrel5: Float
+  barrel6: Float
+  barrel7: Float
+  barrel8: Float
+
+  forceCapacityValue: Float
+  forceValue: Float
+
+  attachments: [Attachment]
+  fourAttachments: [Attachment]
+  floorAttachments: [Attachment]
+  transformationAttachments: [Attachment]
+}
+
+type CarsListResponse {
+  list: [Car],
+  totalCount: Float,
+}
+
+type CarCategoryProducts {
+  _id: String
+  carCategoryId: String
+  productCategoryIds: [String]
+  productCategories: JSON
+}
+
+type ProductCarCategories {
+  _id: String
+  productCategoryId: String
+  carCategoryIds: [String]
+  carCategories: JSON
+}
 `;
 
 const tumentechParams = `
@@ -151,7 +184,7 @@ export const queries = `
   carCategoriesTotalCount: Int
   carCategoryDetail(_id: String): CarCategory
   carCategoryMatchProducts(carCategoryId: String): CarCategoryProducts
-  productMatchCarCategories(productId: String): ProductCarCategories
+  productMatchCarCategories(productCategoryId: String): ProductCarCategories
 
   cpCarCounts(${tumentechParams}, only: String): JSON
   cpCarDetail(_id: String!): Car
@@ -187,7 +220,7 @@ const tumentechCommonFields = `
   ownerBy: String
   repairService: String
   transmission: String
-  model: String
+  carModel: String
   manufacture: String
   mark: String
   type: String
@@ -257,8 +290,8 @@ export const mutations = `
   carCategoriesEdit(_id: String!, ${carCategoryParams}): CarCategory
   carCategoriesRemove(_id: String!): JSON
 
-  carCategoryMatch( carCategoryId: String!, productIds: [String]): CarCategoryProducts
-  productMatch(productId: String!, carCategoryIds: [String]): ProductCarCategories
+  carCategoryMatch( carCategoryId: String!, productCategoryIds: [String]): CarCategoryProducts
+  productMatch(productCategoryId: String!, carCategoryIds: [String]): ProductCarCategories
   cpCarsAdd(${tumentechCommonFields}, customerId: String, companyId: String): Car
   cpCarsEdit(_id: String!, ${tumentechCommonFields}): Car
   cpCarsRemove(carIds: [String]): [String]

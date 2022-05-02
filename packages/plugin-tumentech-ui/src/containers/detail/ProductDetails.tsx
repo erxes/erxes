@@ -1,12 +1,12 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IUser } from 'erxes-ui/lib/auth/types';
-import { withProps } from 'erxes-ui/lib/utils';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ProductDetails from '../../components/detail/ProductDetails';
 import { queries } from '../../graphql';
-import { __, Spinner, EmptyState } from 'erxes-ui';
+import { __, Spinner, EmptyState } from '@erxes/ui/src';
 import { DetailQueryResponse } from '../../types';
 import { IProduct } from '../../types';
 

@@ -1,4 +1,4 @@
-import { ButtonMutate, withProps } from '@erxes/ui';
+import { ButtonMutate, withProps } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { queries as companyQueries } from '@erxes/ui/src/companies/graphql';
 import { CompaniesQueryResponse } from '@erxes/ui/src/companies/types';

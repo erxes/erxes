@@ -11,7 +11,7 @@ on:
       - '.github/workflows/plugin-loyalties-api.yaml'
 
 jobs:
-  plugin-loyalties-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

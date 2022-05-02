@@ -1,4 +1,4 @@
-import { SelectWithSearch } from '@erxes/ui';
+import { SelectWithSearch } from '@erxes/ui/src';
 import { IOption, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 

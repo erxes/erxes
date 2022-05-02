@@ -2,7 +2,7 @@ import { IModels } from '../connectionResolver';
 import { getOrCreateCustomer, getOrCreatePost } from './store';
 import { IPostParams } from './types';
 
-const receivePost = async (models: IModels, params: IPostParams, pageId: string) => {
+const receivePost = async (models: IModels, subdomain: string, params: IPostParams, pageId: string) => {
   const kind = 'facebook-post';
 
   const integration = await models.Integrations.findOne({
@@ -15,9 +15,9 @@ const receivePost = async (models: IModels, params: IPostParams, pageId: string)
 
   const userId = params.from.id;
 
-  const customer = await getOrCreateCustomer(models, pageId, userId, kind);
+  const customer = await getOrCreateCustomer(models, subdomain, pageId, userId, kind);
 
-  await getOrCreatePost(models, params, pageId, userId, customer.erxesApiId || '');
+  await getOrCreatePost(models, subdomain, params, pageId, userId, customer.erxesApiId || '');
 };
 
 export default receivePost;

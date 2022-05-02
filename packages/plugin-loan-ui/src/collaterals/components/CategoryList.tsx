@@ -6,7 +6,7 @@ import {
   Sidebar,
   Tip,
   Wrapper,
-} from '@erxes/ui';
+} from '@erxes/ui/src';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import React from 'react';
 import { Link } from 'react-router-dom';

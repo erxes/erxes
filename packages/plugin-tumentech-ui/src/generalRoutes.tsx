@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import TumentechRoutes from './routes';
+import CarRoutes from './routes';
 
 const Routes = () => (
   <Router>
-    <TumentechRoutes />
+    <CarRoutes />
   </Router>
 );
 

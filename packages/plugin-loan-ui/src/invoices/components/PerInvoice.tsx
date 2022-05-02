@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { Icon, __, Alert, Button, confirm, ModalTrigger } from '@erxes/ui';
+import { Icon, __, Alert, Button, confirm, ModalTrigger } from '@erxes/ui/src';
 import { ActivityIcon, ActivityRow } from '@erxes/ui/src/activityLogs/styles';
 import React from 'react';
 import {

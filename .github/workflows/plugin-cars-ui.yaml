@@ -1,13 +1,14 @@
-name: Plugin Car UI CI
+name: Plugin cars UI CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/plugin-cars-ui/**'
-      - '.github/workflows/plugin-cars-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-cars/**"
+      - "packages/plugin-cars-ui/**"
+      - ".github/workflows/plugin-cars-ui.yaml"
 
 jobs:
   ui:
@@ -27,6 +28,7 @@ jobs:
           cp -r packages/ui-plugin-template/.erxes packages/plugin-cars-ui/.erxes
           cp -r packages/plugin-cars-ui/src packages/plugin-cars-ui/.erxes/plugin-src
           cd packages/plugin-cars-ui
+          yarn install
           yarn install-deps
           yarn build
 

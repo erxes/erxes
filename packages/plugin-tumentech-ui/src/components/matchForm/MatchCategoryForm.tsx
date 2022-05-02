@@ -1,54 +1,111 @@
-import { __, ProductChooser } from 'erxes-ui';
+import {
+  __,
+  MainStyleModalFooter as ModalFooter,
+  Button,
+  Form as CommonForm,
+  ControlLabel,
+  FormGroup
+} from '@erxes/ui/src';
 import React from 'react';
-import { IProduct } from '../../types';
+import { Row } from '../../styles';
+import { IOption, IProductCategory } from '../../types';
+import Select from 'react-select-plus';
+import { generateTree } from '../../utils';
 
 type Props = {
-  products: IProduct[];
+  productCategory: IProductCategory;
+  productCategories: IProductCategory[];
   closeModal: () => void;
-  saveMatch: (productIds: string[]) => void;
+  saveMatch: (productCategoryIds: string[]) => void;
 };
 
 type State = {
-  categoryId: string;
+  categoryIds: string[];
 };
 
 class ProductForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
+    const ids = props.productCategoryIds || [];
+
     this.state = {
-      categoryId: ''
+      categoryIds: ids
     };
   }
 
-  onChangeCategory = (categoryId: string) => {
-    this.setState({ categoryId });
+  onChangeCategory = (category: IOption[]) => {
+    this.setState({ categoryIds: category.map((v) => v.value) });
+  };
+
+  saveMatches = () => {
+    const { saveMatch } = this.props;
+
+    saveMatch(this.state.categoryIds);
+    this.props.closeModal();
+  };
+
+  renderContent = () => {
+    const { closeModal, productCategories } = this.props;
+    const { categoryIds } = this.state;
+
+    const categories = productCategories.map((c) => {
+      if (c.parentId === null) {
+        return { ...c, parentId: '' };
+      }
+
+      return c;
+    });
+
+    return (
+      <>
+        <FormGroup>
+          {__(
+            'Please select a type of cargo that can be transported on this machine'
+          )}
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Choose Product Category</ControlLabel>
+          <Row>
+            <Select
+              value={categoryIds}
+              multi={true}
+              onChange={this.onChangeCategory}
+              options={generateTree(categories, '', (node, level) => ({
+                value: node._id,
+                label: `${'---'.repeat(level)} ${node.name}`
+              }))}
+            />
+          </Row>
+        </FormGroup>
+
+        <ModalFooter>
+          <Button
+            btnStyle="simple"
+            onClick={closeModal}
+            icon="times-circle"
+            uppercase={false}
+          >
+            Close
+          </Button>
+
+          <Button
+            btnStyle="success"
+            onClick={this.saveMatches}
+            icon="times-circle"
+            uppercase={false}
+          >
+            Save
+          </Button>
+        </ModalFooter>
+      </>
+    );
   };
 
   render() {
-    const { categoryId } = this.state;
-
-    const productOnChange = (products: IProduct[]) => {
-      const productIds = products.map(p => p._id);
-      this.props.saveMatch(productIds);
-    };
-
-    return (
-      <ProductChooser
-        data={{
-          name: 'Product',
-          products: this.props.products || []
-        }}
-        categoryId={categoryId}
-        onSelect={productOnChange}
-        onChangeCategory={this.onChangeCategory}
-        closeModal={this.props.closeModal}
-      />
-    );
+    return <CommonForm renderContent={this.renderContent} />;
   }
 }
 
 export default ProductForm;
-function callback(): () => void {
-  throw new Error('Function not implemented.');
-}

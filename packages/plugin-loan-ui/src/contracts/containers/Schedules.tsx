@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Bulk, withProps } from '@erxes/ui';
+import { Bulk, withProps } from '@erxes/ui/src';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import SchedulesList from '../components/schedules/SchedulesList';

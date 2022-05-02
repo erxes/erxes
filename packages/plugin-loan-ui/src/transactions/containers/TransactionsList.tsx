@@ -1,4 +1,4 @@
-import { Alert, Bulk, router, withProps } from '@erxes/ui';
+import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';

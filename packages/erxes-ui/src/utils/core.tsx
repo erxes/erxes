@@ -123,15 +123,17 @@ export const setTitle = (title: string, force: boolean) => {
 export const setBadge = (count: number, title: string) => {
   const favicon = document.getElementById('favicon') as HTMLAnchorElement;
 
-  if (count) {
-    if (document.title.includes(title)) {
-      setTitle(`(${count}) ${title}`, true);
-    }
+  if (favicon) {
+    if (count) {
+      if (document.title.includes(title)) {
+        setTitle(`(${count}) ${title}`, true);
+      }
 
-    favicon.href = '/favicon-unread.png';
-  } else {
-    setTitle(title, true);
-    favicon.href = '/favicon.png';
+      favicon.href = '/favicon-unread.png';
+    } else {
+      setTitle(title, true);
+      favicon.href = '/favicon.png';
+    }
   }
 };
 

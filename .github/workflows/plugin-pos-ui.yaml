@@ -1,13 +1,14 @@
-name: Plugin POS UI CI
+name: Plugin pos UI CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/plugin-pos-ui/**'
-      - '.github/workflows/plugin-pos-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-pos/**"
+      - "packages/plugin-pos-ui/**"
+      - ".github/workflows/plugin-pos-ui.yaml"
 
 jobs:
   ui:
@@ -27,6 +28,7 @@ jobs:
           cp -r packages/ui-plugin-template/.erxes packages/plugin-pos-ui/.erxes
           cp -r packages/plugin-pos-ui/src packages/plugin-pos-ui/.erxes/plugin-src
           cd packages/plugin-pos-ui
+          yarn install
           yarn install-deps
           yarn build
 

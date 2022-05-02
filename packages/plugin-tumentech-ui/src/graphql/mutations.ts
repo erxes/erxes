@@ -28,7 +28,7 @@ const commonFields = `
   $ownerBy: String
   $repairService: String
   $transmission: String
-  $model: String
+  $carModel: String
   $manufacture: String
   $mark: String
   $type: String
@@ -110,7 +110,7 @@ const commonVariables = `
   ownerBy: $ownerBy,
   repairService: $repairService,
   transmission: $transmission,
-  model: $model,
+  carModel: $carModel,
   manufacture: $manufacture,
   mark: $mark,
   type: $type,
@@ -240,16 +240,16 @@ const productsRemove = `
 `;
 
 const carCategoryMatch = `
-  mutation carCategoryMatch($carCategoryId: String!, $productIds: [String]) {
-    carCategoryMatch (carCategoryId: $carCategoryId, productIds : $productIds){
+  mutation carCategoryMatch($carCategoryId: String!, $productCategoryIds: [String]) {
+    carCategoryMatch (carCategoryId: $carCategoryId, productCategoryIds : $productCategoryIds){
       _id
     }
   }
 `;
 
 const productMatch = `
-  mutation productMatch($productId: String!, $carCategoryIds: [String]) {
-    productMatch (productId: $productId, carCategoryIds : $carCategoryIds){
+  mutation productMatch($productCategoryId: String!, $carCategoryIds: [String]) {
+    productMatch (productCategoryId: $productCategoryId, carCategoryIds : $carCategoryIds){
       _id
     }
   }

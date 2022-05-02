@@ -217,6 +217,10 @@ const chatMutations = {
   chatMessageToggleIsPinned: async (_root, { _id }, { models }) => {
     const message = await models.ChatMessages.findOne({ _id });
 
+    graphqlPubsub.publish("chatMessageInserted", {
+      chatId: message.chatId,
+    });
+
     await models.ChatMessages.updateOne(
       { _id },
       { $set: { isPinned: !message.isPinned } }

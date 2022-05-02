@@ -6,7 +6,7 @@ import {
   Icon,
   SelectCompanies,
   SelectCustomers,
-} from '@erxes/ui';
+} from '@erxes/ui/src';
 import React from 'react';
 import RTG from 'react-transition-group';
 

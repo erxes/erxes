@@ -1,13 +1,7 @@
 const fs = require("fs");
 const fse = require("fs-extra");
 const yaml = require("yaml");
-const { log, execCommand, filePath, execCurl } = require("../utils");
-
-const sleep = (ms) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
+const { log, sleep, execCommand, filePath, execCurl } = require("../utils");
 
 const commonEnvs = (configs) => {
   const db_server_address = configs.db_server_address;
@@ -522,13 +516,13 @@ const up = async (uis) => {
                     ${commonConfig}
             }
 
-            location /dashboard/api/ {
+            location /dashboard/api {
                 proxy_pass http://127.0.0.1:4300/;
                 ${commonConfig}
             }
 
             location /dashboard/front {
-                proxy_pass http://127.0.0.1:4200;
+                proxy_pass http://127.0.0.1:4200/;
                 ${commonConfig}
             }
     }

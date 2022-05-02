@@ -4,11 +4,11 @@ import {
   ICarCategoryDocument,
   ICarDocument,
   ICar,
-  ICarCategory,
-} from "./definitions/cars";
-import { sendCoreMessage, sendInternalNotesMessage } from "../messageBroker";
+  ICarCategory
+} from './definitions/cars';
+import { sendCoreMessage, sendInternalNotesMessage } from '../messageBroker';
 
-import { Model } from "mongoose";
+import { Model } from 'mongoose';
 import { validSearchText } from '@erxes/api-utils/src';
 
 export interface ICarModel extends Model<ICarDocument> {
@@ -46,7 +46,7 @@ export const loadCarClass = (models) => {
       idsToExclude?: string[] | string
     ) {
       const query: { status: {}; [key: string]: any } = {
-        status: { $ne: "Deleted" },
+        status: { $ne: 'Deleted' }
       };
       let previousEntry;
 
@@ -59,11 +59,11 @@ export const loadCarClass = (models) => {
         // check duplication from primaryName
         previousEntry = await models.Cars.find({
           ...query,
-          plateNumber: carFields.plateNumber,
+          plateNumber: carFields.plateNumber
         });
 
         if (previousEntry.length > 0) {
-          throw new Error("Duplicated plate number");
+          throw new Error('Duplicated plate number');
         }
       }
 
@@ -71,26 +71,26 @@ export const loadCarClass = (models) => {
         // check duplication from code
         previousEntry = await models.Cars.find({
           ...query,
-          vinNumber: carFields.vinNumber,
+          vinNumber: carFields.vinNumber
         });
 
         if (previousEntry.length > 0) {
-          throw new Error("Duplicated VIN number");
+          throw new Error('Duplicated VIN number');
         }
       }
     }
 
     public static fillSearchText(doc) {
       return validSearchText([
-        doc.plateNumber || "",
-        doc.vinNumber || "",
-        doc.description || "",
-        doc.categoryId || "",
+        doc.plateNumber || '',
+        doc.vinNumber || '',
+        doc.description || '',
+        doc.categoryId || ''
       ]);
     }
 
     public static getCarName(car) {
-      return car.plateNumber || car.vinNumber || "Unknown";
+      return car.plateNumber || car.vinNumber || 'Unknown';
     }
 
     /**
@@ -100,7 +100,7 @@ export const loadCarClass = (models) => {
       const car = await models.Cars.findOne({ _id });
 
       if (!car) {
-        throw new Error("Car not found");
+        throw new Error('Car not found');
       }
 
       return car;
@@ -121,7 +121,7 @@ export const loadCarClass = (models) => {
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
-        searchText: models.Cars.fillSearchText(doc),
+        searchText: models.Cars.fillSearchText(doc)
       });
 
       return car;
@@ -152,22 +152,22 @@ export const loadCarClass = (models) => {
       for (const carId of carIds) {
         await sendInternalNotesMessage({
           subdomain: models.subdomain,
-          action: "removeInternalNotes",
+          action: 'removeInternalNotes',
           data: {
-            contentType: "car",
-            contentTypeId: carId,
+            contentType: 'car',
+            contentTypeId: carId
           },
-          defaultValue: {},
+          defaultValue: {}
         });
 
         await sendCoreMessage({
           subdomain: models.subdomain,
-          action: "conformities.removeConformity",
+          action: 'conformities.removeConformity',
           data: {
-            mainType: "car",
-            mainTypeId: carId,
+            mainType: 'car',
+            mainTypeId: carId
           },
-          defaultValue: [],
+          defaultValue: []
         });
       }
 
@@ -185,27 +185,27 @@ export const loadCarClass = (models) => {
       for (const carId of carIds) {
         models.Cars.getCar(carId);
         await models.Cars.findByIdAndUpdate(carId, {
-          $set: { status: "Deleted" },
+          $set: { status: 'Deleted' }
         });
       }
 
       // Creating car with properties
       const car = await models.Cars.createCar({
         ...carFields,
-        mergedIds: carIds,
+        mergedIds: carIds
       });
 
       // Updating customer cars, deals, tasks, tickets
       await sendCoreMessage({
         subdomain: models.subdomain,
-        action: "conformities.changeConformity",
+        action: 'conformities.changeConformity',
         data: {
-          type: "car",
+          type: 'car',
           newTypeId: car._id,
-          oldTypeIds: carIds,
+          oldTypeIds: carIds
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       // Removing modules associated with current cars
@@ -231,7 +231,7 @@ export const loadCarCategoryClass = (models) => {
       const carCategory = await models.CarCategories.findOne(selector);
 
       if (!carCategory) {
-        throw new Error("Car & service category not found");
+        throw new Error('Car & service category not found');
       }
 
       return carCategory;
@@ -260,21 +260,21 @@ export const loadCarCategoryClass = (models) => {
         : undefined;
 
       if (parentCategory && parentCategory.parentId === _id) {
-        throw new Error("Cannot change category");
+        throw new Error('Cannot change category');
       }
 
       // Generatingg  order
       doc.order = await this.generateOrder(parentCategory, doc);
 
       const carCategory = await models.CarCategories.getCarCatogery({
-        _id,
+        _id
       });
 
       const childCategories = await models.CarCategories.find({
         $and: [
-          { order: { $regex: new RegExp(carCategory.order, "i") } },
-          { _id: { $ne: _id } },
-        ],
+          { order: { $regex: new RegExp(carCategory.order, 'i') } },
+          { _id: { $ne: _id } }
+        ]
       });
 
       await models.CarCategories.updateOne({ _id }, { $set: doc });

@@ -1,7 +1,6 @@
 import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 
-import { mainDb } from './configs';
 import { IConfigDocument, IConfigModel, loadConfigClass } from './models/Configs';
 import {
   IDeliveryReportModel,
@@ -15,6 +14,7 @@ import { IEngageMessageModel, loadEngageMessageClass } from './models/Engages';
 import { ILogDocument, ILogModel, loadLogClass } from './models/Logs';
 import { ISmsRequestDocument, ISmsRequestModel, loadSmsRequestClass } from './models/SmsRequests';
 import { IEngageMessageDocument } from './models/definitions/engages';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
   Configs: IConfigModel;
@@ -30,19 +30,7 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels;
-
-export const generateModels = async (
-  hostnameOrSubdomain: string
-): Promise<IModels> => {
-  if (models) {
-    return models;
-  }
-
-  loadClasses(mainDb, hostnameOrSubdomain);
-
-  return models;
-};
+export let models: IModels | null = null;
 
 export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels => {
   models = {} as IModels;
@@ -65,3 +53,5 @@ export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels
 
   return models;
 };
+
+export const generateModels = createGenerateModels<IModels>(models, loadClasses);

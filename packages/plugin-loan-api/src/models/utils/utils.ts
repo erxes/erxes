@@ -1,24 +1,35 @@
-import { getConfig } from 'erxes-api-utils'
-import { IContractDocument } from "../definitions/contracts";
-import { IDefaultScheduleParam } from "../definitions/schedules";
+import { getConfig } from 'erxes-api-utils';
+import { IContractDocument } from '../definitions/contracts';
+import { IDefaultScheduleParam } from '../definitions/schedules';
 
-export const calcInterest = ({ balance, interestRate, dayOfMonth = 30 }: { balance: number; interestRate: number; dayOfMonth?: number }): number => {
-  return Math.round(balance / 100 * interestRate / 360 * dayOfMonth)
-}
+export const calcInterest = ({
+  balance,
+  interestRate,
+  dayOfMonth = 30,
+}: {
+  balance: number;
+  interestRate: number;
+  dayOfMonth?: number;
+}): number => {
+  return Math.round((((balance / 100) * interestRate) / 360) * dayOfMonth);
+};
 
 export const calcPerVirtual = (doc: IDefaultScheduleParam) => {
   const loanPayment = doc.leaseAmount / doc.tenor;
   const loanBalance = doc.leaseAmount - loanPayment;
-  const calcedInterest = calcInterest({ balance: doc.leaseAmount, interestRate: doc.interestRate });
+  const calcedInterest = calcInterest({
+    balance: doc.leaseAmount,
+    interestRate: doc.interestRate,
+  });
   const totalPayment = loanPayment + calcedInterest;
 
   return {
     loanBalance,
     loanPayment,
     calcedInterest,
-    totalPayment
-  }
-}
+    totalPayment,
+  };
+};
 
 export const getDaysInMonth = (date: Date) => {
   const ndate = getFullDate(date);
@@ -34,27 +45,26 @@ export const getDaysInMonth = (date: Date) => {
 export const getPureDate = (date: Date) => {
   const ndate = new Date(date);
   const diffTimeZone = ndate.getTimezoneOffset() * 1000 * 60;
-  return new Date(ndate.getTime() - diffTimeZone)
-}
+  return new Date(ndate.getTime() - diffTimeZone);
+};
 
 export const getFullDate = (date: Date) => {
-  const ndate = getPureDate(date)
+  const ndate = getPureDate(date);
   const year = ndate.getFullYear();
   const month = ndate.getMonth();
   const day = ndate.getDate();
 
   const today = new Date(year, month, day);
-  today.setHours(0, 0, 0, 0)
+  today.setHours(0, 0, 0, 0);
   return today;
-
-}
+};
 
 export const getNextMonthDay = (date: Date, day: number) => {
   const ndate = getFullDate(date);
-  const year = ndate.getFullYear()
-  const month = ndate.getMonth() + 1
+  const year = ndate.getFullYear();
+  const month = ndate.getMonth() + 1;
   return new Date(year, month, day);
-}
+};
 
 export const getDatesDiffMonth = (fromDate: Date, toDate: Date) => {
   const fDate = getFullDate(fromDate);
@@ -63,7 +73,7 @@ export const getDatesDiffMonth = (fromDate: Date, toDate: Date) => {
   if (fDate.getMonth() === tDate.getMonth()) {
     return {
       diffEve: getDiffDay(fromDate, toDate),
-      diffNonce: 0
+      diffNonce: 0,
     };
   }
 
@@ -73,49 +83,67 @@ export const getDatesDiffMonth = (fromDate: Date, toDate: Date) => {
 
   return {
     diffEve: getDiffDay(fromDate, lastDate),
-    diffNonce: getDiffDay(lastDate, toDate)
+    diffNonce: getDiffDay(lastDate, toDate),
   };
-}
+};
 
 export const getDiffDay = (fromDate: Date, toDate: Date) => {
-  const date1 = getFullDate(fromDate)
-  const date2 = getFullDate(toDate)
+  const date1 = getFullDate(fromDate);
+  const date2 = getFullDate(toDate);
   return (date2.getTime() - date1.getTime()) / (1000 * 3600 * 24);
-}
+};
 
 export interface IPerHoliday {
-  month: number
-  day: number
+  month: number;
+  day: number;
 }
 
-const checkNextDay = (date: Date, weekends: number[], useHoliday: boolean, perHolidays: IPerHoliday[]) => {
+const checkNextDay = (
+  date: Date,
+  weekends: number[],
+  useHoliday: boolean,
+  perHolidays: IPerHoliday[]
+) => {
   if (weekends.includes(date.getDay())) {
-    date = new Date(date.getTime() - 1000 * 3600 * 24)
-    checkNextDay(date, weekends, useHoliday, perHolidays)
+    date = new Date(date.getTime() - 1000 * 3600 * 24);
+    checkNextDay(date, weekends, useHoliday, perHolidays);
   }
 
   if (useHoliday) {
     for (const perYear of perHolidays) {
       const holiday = new Date(date.getFullYear(), perYear.month, perYear.day);
       if (getDiffDay(date, holiday) === 0) {
-        date = new Date(date.getTime() - 1000 * 3600 * 24)
-        checkNextDay(date, weekends, useHoliday, perHolidays)
+        date = new Date(date.getTime() - 1000 * 3600 * 24);
+        checkNextDay(date, weekends, useHoliday, perHolidays);
       }
     }
   }
 
   return date;
-}
+};
 
 export const calcPerMonthEqual = (
-  doc: IContractDocument, balance: number, currentDate: Date, payment: number, perHolidays: IPerHoliday[], nextDate?: Date
+  doc: IContractDocument,
+  balance: number,
+  currentDate: Date,
+  payment: number,
+  perHolidays: IPerHoliday[],
+  nextDate?: Date
 ) => {
-  let nextDay = nextDate || getNextMonthDay(currentDate, doc.scheduleDay)
-  nextDay = checkNextDay(nextDay, doc.weekends, doc.useHoliday, perHolidays)
-  const { diffEve, diffNonce } = getDatesDiffMonth(currentDate, nextDay)
+  let nextDay = nextDate || getNextMonthDay(currentDate, doc.scheduleDay);
+  nextDay = checkNextDay(nextDay, doc.weekends, doc.useHoliday, perHolidays);
+  const { diffEve, diffNonce } = getDatesDiffMonth(currentDate, nextDay);
 
-  const calcedInterestEve = calcInterest({ balance, interestRate: doc.interestRate, dayOfMonth: diffEve });
-  const calcedInterestNonce = calcInterest({ balance, interestRate: doc.interestRate, dayOfMonth: diffNonce });
+  const calcedInterestEve = calcInterest({
+    balance,
+    interestRate: doc.interestRate,
+    dayOfMonth: diffEve,
+  });
+  const calcedInterestNonce = calcInterest({
+    balance,
+    interestRate: doc.interestRate,
+    dayOfMonth: diffNonce,
+  });
 
   const loanBalance = balance - payment;
   const totalPayment = payment + calcedInterestEve + calcedInterestNonce;
@@ -125,44 +153,78 @@ export const calcPerMonthEqual = (
     loanBalance,
     calcedInterestEve,
     calcedInterestNonce,
-    totalPayment
-  }
-}
+    totalPayment,
+  };
+};
 
 export const getEqualPay = async ({
-  startDate, tenor, scheduleDay, interestRate, leaseAmount, salvage, nextDate, weekends, useHoliday, perHolidays
+  startDate,
+  tenor,
+  scheduleDay,
+  interestRate,
+  leaseAmount,
+  salvage,
+  nextDate,
+  weekends,
+  useHoliday,
+  perHolidays,
 }: {
-  startDate: Date, tenor: number, scheduleDay: number, interestRate: number, weekends: number[], useHoliday: boolean, perHolidays: IPerHoliday[], leaseAmount?: number, salvage?: number, nextDate?: Date
+  startDate: Date;
+  tenor: number;
+  scheduleDay: number;
+  interestRate: number;
+  weekends: number[];
+  useHoliday: boolean;
+  perHolidays: IPerHoliday[];
+  leaseAmount?: number;
+  salvage?: number;
+  nextDate?: Date;
 }) => {
   if (!leaseAmount) {
     return 0;
   }
 
   let currentDate = getFullDate(startDate);
-  let mainRatio = 0
+  let mainRatio = 0;
   let ratio = 1;
   for (let i = 0; i < tenor; i++) {
-    let nextDay = i === 0 && nextDate ? getFullDate(nextDate) : getNextMonthDay(currentDate, scheduleDay)
-    nextDay = checkNextDay(nextDay, weekends, useHoliday, perHolidays)
+    let nextDay =
+      i === 0 && nextDate
+        ? getFullDate(nextDate)
+        : getNextMonthDay(currentDate, scheduleDay);
+    nextDay = checkNextDay(nextDay, weekends, useHoliday, perHolidays);
     const dayOfMonth = getDiffDay(currentDate, nextDay);
-    const newRatio = ratio / (1 + dayOfMonth * (interestRate / 100) / 360);
+    const newRatio = ratio / (1 + (dayOfMonth * (interestRate / 100)) / 360);
     mainRatio = mainRatio + newRatio;
     currentDate = nextDay;
     ratio = newRatio;
   }
 
-  return Math.round((leaseAmount - salvage * ratio) / mainRatio);
-}
+  return Math.round((leaseAmount - (salvage || 0) * ratio) / mainRatio);
+};
 
 export const calcPerMonthFixed = (
-  doc: IContractDocument, balance: number, currentDate: Date, total: number, perHolidays: IPerHoliday[], nextDate?: Date
+  doc: IContractDocument,
+  balance: number,
+  currentDate: Date,
+  total: number,
+  perHolidays: IPerHoliday[],
+  nextDate?: Date
 ) => {
-  let nextDay = nextDate || getNextMonthDay(currentDate, doc.scheduleDay)
-  nextDay = checkNextDay(nextDay, doc.weekends, doc.useHoliday, perHolidays)
-  const { diffEve, diffNonce } = getDatesDiffMonth(currentDate, nextDay)
+  let nextDay = nextDate || getNextMonthDay(currentDate, doc.scheduleDay);
+  nextDay = checkNextDay(nextDay, doc.weekends, doc.useHoliday, perHolidays);
+  const { diffEve, diffNonce } = getDatesDiffMonth(currentDate, nextDay);
 
-  const calcedInterestEve = calcInterest({ balance, interestRate: doc.interestRate, dayOfMonth: diffEve });
-  const calcedInterestNonce = calcInterest({ balance, interestRate: doc.interestRate, dayOfMonth: diffNonce });
+  const calcedInterestEve = calcInterest({
+    balance,
+    interestRate: doc.interestRate,
+    dayOfMonth: diffEve,
+  });
+  const calcedInterestNonce = calcInterest({
+    balance,
+    interestRate: doc.interestRate,
+    dayOfMonth: diffNonce,
+  });
 
   const loanPayment = total - calcedInterestEve - calcedInterestNonce;
   const loanBalance = balance - loanPayment;
@@ -172,12 +234,13 @@ export const calcPerMonthFixed = (
     loanBalance,
     loanPayment,
     calcedInterestEve,
-    calcedInterestNonce
-  }
-}
+    calcedInterestNonce,
+  };
+};
 
 export const generateRandomString = (len: number = 10) => {
-  const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charSet =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
   let randomString = '';
 
@@ -198,14 +261,18 @@ export const getRandomNumber = () => {
   const dd = today.getDate();
 
   return `${yy}${mm}${dd}-${random}`;
-}
+};
 
 export const getNumber = async (models, contractTypeId) => {
-  const preNumbered = await models.LoanContracts.findOne({ contractTypeId: contractTypeId }).sort({ number: -1 });
-  const type = await models.ContractTypes.getContractType(models, { _id: contractTypeId });
+  const preNumbered = await models.LoanContracts.findOne({
+    contractTypeId: contractTypeId,
+  }).sort({ number: -1 });
+  const type = await models.ContractTypes.getContractType(models, {
+    _id: contractTypeId,
+  });
 
   if (!preNumbered) {
-    return `${type.number}${'0'.repeat(type.vacancy - 1)}1`
+    return `${type.number}${'0'.repeat(type.vacancy - 1)}1`;
   }
 
   const preNumber = preNumbered.number;
@@ -214,27 +281,35 @@ export const getNumber = async (models, contractTypeId) => {
   const preStrLen = String(preInt).length;
   let lessLen = type.vacancy - preStrLen;
 
-  if (lessLen < 0)
-    lessLen = 0
+  if (lessLen < 0) lessLen = 0;
 
-
-  return `${type.number}${'0'.repeat(lessLen)}${preInt + 1}`
-
-}
+  return `${type.number}${'0'.repeat(lessLen)}${preInt + 1}`;
+};
 
 export const getUnduePercent = async (models, memoryStorage, date) => {
-  const undueConfig = await getConfig(models, memoryStorage, 'undueConfig', {}) as [{ startDate: Date, endDate: Date, percent: Number }];
-  const ruledUndueConfigs = Object.values(undueConfig).filter(
-    conf => conf.startDate < date && date < conf.endDate
-  ).sort(
-    (a, b) => (a.endDate < b.endDate) ? 1 : (a.endDate === b.endDate) ? ((a.startDate < b.startDate) ? 1 : -1) : -1
-  )
+  const undueConfig = (await getConfig(
+    models,
+    memoryStorage,
+    'undueConfig',
+    {}
+  )) as [{ startDate: Date; endDate: Date; percent: Number }];
+  const ruledUndueConfigs = Object.values(undueConfig)
+    .filter((conf) => conf.startDate < date && date < conf.endDate)
+    .sort((a, b) =>
+      a.endDate < b.endDate
+        ? 1
+        : a.endDate === b.endDate
+        ? a.startDate < b.startDate
+          ? 1
+          : -1
+        : -1
+    );
   if (!ruledUndueConfigs || !ruledUndueConfigs.length) {
     return;
   }
 
   return ruledUndueConfigs[0].percent;
-}
+};
 
 export const getChanged = (old, anew) => {
   const diff = {};
@@ -244,4 +319,4 @@ export const getChanged = (old, anew) => {
     }
   }
   return diff;
-}
+};

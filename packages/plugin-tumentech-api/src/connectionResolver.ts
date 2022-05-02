@@ -1,21 +1,26 @@
 import * as mongoose from 'mongoose';
 import { mainDb } from './configs';
-import {
-  loadPosClass,
-  loadProductGroupClass,
-  IPosModel,
-  IProductGroupModel,
-  IPosOrderModel,
-  loadPosOrderClass,
-} from './models/Pos';
-import { IPosDocument, IPosOrderDocument, IProductGroupDocument } from './models/definitions/pos';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
+import {
+  ICarDocument,
+  ICarCategoryDocument,
+  IProductCarCategoryDocument,
+  productCarCategorySchema
+} from './models/definitions/tumentech';
+import {
+  loadCarsClass,
+  loadCarCategoryClass,
+  ICarModel,
+  ICarCategoryModel,
+  IProductCarCategoryModel
+} from './models/Tumentech';
 
 export interface IModels {
-  Pos: IPosModel;
-  ProductGroup: IProductGroupModel;
-  PosOrders: IPosOrderModel
+  Cars: ICarModel;
+  CarCategories: ICarCategoryModel;
+  ProductCarCategories: IProductCarCategoryModel;
 }
+
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
@@ -24,26 +29,34 @@ export interface IContext extends IMainContext {
 export let models: IModels;
 
 export const generateModels = async (
-  hostnameOrSubdomain: string
+  _hostnameOrSubdomain: string
 ): Promise<IModels> => {
   if (models) {
     return models;
   }
 
-  loadClasses(mainDb, hostnameOrSubdomain);
+  loadClasses(mainDb);
 
   return models;
 };
 
-export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels => {
+export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
-  models.Pos = db.model<IPosDocument, IPosModel>('pos', loadPosClass(models, subdomain));
-  models.ProductGroup = db.model<IProductGroupDocument, IProductGroupModel>(
-    'productGroup',
-    loadProductGroupClass(models, subdomain)
+  models.Cars = db.model<ICarDocument, ICarModel>(
+    'cars',
+    loadCarsClass(models)
   );
 
-  models.PosOrders = db.model<IPosOrderDocument, IPosOrderModel>('pos_orders', loadPosOrderClass(models, subdomain))
+  models.CarCategories = db.model<ICarCategoryDocument, ICarCategoryModel>(
+    'cars_category',
+    loadCarCategoryClass(models)
+  );
+
+  models.ProductCarCategories = db.model<
+    IProductCarCategoryDocument,
+    IProductCarCategoryModel
+  >('product_cars_category', productCarCategorySchema);
+
   return models;
 };

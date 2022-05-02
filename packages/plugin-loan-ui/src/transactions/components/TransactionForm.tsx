@@ -12,7 +12,7 @@ import {
   MainStyleScrollWrapper as ScrollWrapper,
   SelectCompanies,
   SelectCustomers,
-} from '@erxes/ui';
+} from '@erxes/ui/src';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';

@@ -5,14 +5,14 @@ import {
   ModalTrigger,
   MainStyleButtonRelated as ButtonRelated,
   __,
-  GetConformity,
   SectionBodyItem
-} from 'erxes-ui';
+} from '@erxes/ui/src';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import CarChooser from '../../containers/CarChooser';
 import { queries } from '../../graphql';
 import { ICar } from '../../types';
+import GetConformity from '@erxes/ui-cards/src/conformity/containers/GetConformity';
 
 type Props = {
   name: string;
@@ -34,7 +34,7 @@ function Component(
     collapseCallback
   }: Props
 ) {
-  const renderCarChooser = props => {
+  const renderCarChooser = (props) => {
     return (
       <CarChooser
         {...props}
@@ -44,7 +44,7 @@ function Component(
     );
   };
 
-  const renderRelatedCarChooser = props => {
+  const renderRelatedCarChooser = (props) => {
     return (
       <CarChooser
         {...props}

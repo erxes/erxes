@@ -6,7 +6,7 @@ import { sendRequest } from 'erxes-api-utils';
 import { NextFunction, Request, Response } from 'express';
 import { redis } from '../redis';
 import { generateModels } from '../connectionResolver';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getSubdomain, userActionsMap } from '@erxes/api-utils/src/core';
 
 export default async function userMiddleware(
   req: Request & { user?: any },
@@ -75,14 +75,31 @@ export default async function userMiddleware(
             allowed: true,
           }).lean();
 
-          req.user = {
-            _id: 'userId',
-            customPermissions: permissions.map((p) => ({
-              action: p.action,
-              allowed: p.allowed,
-              requiredActions: p.requiredActions,
-            })),
-          };
+          const user = await models.Users.findOne({ isActive: true, groupIds: { $in: [appInDb.userGroupId] } });
+
+          if (user) {
+            const key = `user_permissions_${user._id}`;
+            const cachedUserPermissions = await redis.get(key);
+  
+            if (cachedUserPermissions && cachedUserPermissions !== '{}') {
+              const userPermissions = await models.Permissions.find({ userId: user._id });
+              const groupPermissions = await models.Permissions.find({
+                groupId: { $in: user.groupIds }
+              });
+
+              const actionMap = await userActionsMap(userPermissions, groupPermissions, user);
+              await redis.set(key, JSON.stringify(actionMap));
+            }
+  
+            req.user = {
+              _id: user._id || 'userId',
+              customPermissions: permissions.map((p) => ({
+                action: p.action,
+                allowed: p.allowed,
+                requiredActions: p.requiredActions,
+              })),
+            };
+          }
         }
       }
   

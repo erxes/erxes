@@ -1,3 +1,4 @@
+import { Document } from 'mongoose';
 export interface IInsuranceType {
   code: string;
   name: string;
@@ -9,7 +10,7 @@ export interface IInsuranceType {
   createdAt: Date;
 }
 
-export interface IInsuranceTypeDocument extends IInsuranceType {
+export interface IInsuranceTypeDocument extends IInsuranceType, Document {
   _id: string;
 }
 
@@ -26,5 +27,5 @@ export const insuranceTypeSchema = {
     type: Date,
     default: new Date(),
     label: 'Created at',
-  }
+  },
 };
