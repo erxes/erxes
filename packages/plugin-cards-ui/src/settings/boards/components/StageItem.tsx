@@ -126,7 +126,6 @@ class StageItem extends React.Component<Props> {
           placeholder={__('Stage code')}
           autoFocus={true}
           onChange={onChangeFormControl.bind(this, stage._id)}
-          required={true}
         />
 
         {this.renderSelectMembers()}
