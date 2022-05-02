@@ -4,7 +4,8 @@ import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   ICarDocument,
   ICarCategoryDocument,
-  IProductCarCategoryDocument
+  IProductCarCategoryDocument,
+  productCarCategorySchema
 } from './models/definitions/tumentech';
 import {
   loadCarsClass,
@@ -55,7 +56,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.ProductCarCategories = db.model<
     IProductCarCategoryDocument,
     IProductCarCategoryModel
-  >('product_cars_category', loadCarCategoryClass(models));
+  >('product_cars_category', productCarCategorySchema);
 
   return models;
 };

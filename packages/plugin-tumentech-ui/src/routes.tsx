@@ -56,12 +56,17 @@ const product = ({ location, history }) => {
 const routes = () => {
   return (
     <React.Fragment>
-      <Route key="/list" exact={true} path="/list" component={list} />
+      <Route
+        key="/erxes-plugin-tumentech/list"
+        exact={true}
+        path="/erxes-plugin-tumentech/list"
+        component={list}
+      />
 
       <Route
-        key="/details/:id"
+        key="/erxes-plugin-car/details/:id"
         exact={true}
-        path="/details/:id"
+        path="/erxes-plugin-car/details/:id"
         component={details}
       />
 

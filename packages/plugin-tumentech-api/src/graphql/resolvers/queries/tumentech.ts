@@ -21,6 +21,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
       { _id: 1 }
     );
     filter.categoryId = { $in: categoryIds };
+    // filter.categoryId = params.categoryId;
   }
 
   if (params.searchValue) {
@@ -77,7 +78,6 @@ const carQueries = {
    * Cars list
    */
   cars: async (_root, params, { commonQuerySelector, models }) => {
-    console.log(models);
     return paginate(
       models.Cars.find(
         await generateFilter(models, params, commonQuerySelector)
@@ -110,7 +110,7 @@ const carQueries = {
     { models, subdomain }
   ) => {
     const productCategoryIds = (
-      (await models.ProductCarCategory.find({ carCategoryId }).lean()) || []
+      (await models.ProductCarCategories.find({ carCategoryId }).lean()) || []
     ).map((i) => i.productCategoryId);
 
     const productCategories = await sendProductsMessage({
@@ -138,7 +138,8 @@ const carQueries = {
     { models }
   ) => {
     const carCategoryIds = (
-      (await models.ProductCarCategory.find({ productCategoryId }).lean()) || []
+      (await models.ProductCarCategories.find({ productCategoryId }).lean()) ||
+      []
     ).map((i) => i.carCategoryId);
 
     return {
@@ -154,7 +155,7 @@ const carQueries = {
    * Get one car
    */
   carDetail: async (_root, { _id }, { models }) => {
-    return models.Cars.getCar(models, _id);
+    return models.Cars.getCar(_id);
   },
 
   carCategories: async (
