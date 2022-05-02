@@ -76,7 +76,7 @@ export interface ITrailer {
   diagnosisDate?: Date;
   taxDate?: Date;
 
-  model?: string;
+  carModel?: string;
   mark?: string;
   color?: string;
   totalAxis?: string;
@@ -125,7 +125,7 @@ export interface ICarDoc {
   vintageYear?: number;
   importYear?: number;
 
-  model?: string;
+  carModel?: string;
   type?: string;
   mark?: string;
   totalAxis?: string;

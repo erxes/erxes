@@ -1,18 +1,27 @@
+import { sendCoreMessage } from '../../messageBroker';
+
 const Cars = {
-  category(car) {
+  category(car, _args, { models }) {
     return (
-      car.categoryId && {
+      car.categoryId &&
+      models.CarCategories.findOne({
         _id: car.categoryId
-      }
+      })
     );
   },
 
   customers(car) {
-    async ({ models }) => {
-      const customerIds = await models.Conformities.savedConformity({
-        mainType: 'car',
-        mainTypeId: car._id.toString(),
-        relTypes: ['customer']
+    async ({ models, subdomain }) => {
+      const customerIds = await sendCoreMessage({
+        subdomain,
+        action: 'conformities.savedConformity',
+        data: {
+          mainType: 'car',
+          mainTypeId: car._id.toString(),
+          relTypes: ['customer']
+        },
+        isRPC: true,
+        defaultValue: []
       });
 
       return models.Customers.find({ _id: { $in: customerIds || [] } });
@@ -33,12 +42,12 @@ const CarCategory = {
         { _id: 1 }
       );
 
-      return models.Cars.countDocuments({
+      return models.Cars.find({
         categoryId: { $in: categoryIds },
         status: { $ne: 'Deleted' }
-      });
+      }).count();
     };
   }
 };
 
-export default { Cars, CarCategory };
+export { Cars, CarCategory };

@@ -9,7 +9,7 @@ import {
   ICarCategory,
   IProductCarCategoryDocument
 } from './definitions/tumentech';
-
+import { sendCoreMessage } from '../messageBroker';
 import { Model } from 'mongoose';
 
 export interface ICarModel extends Model<ICarDocument> {
@@ -149,9 +149,14 @@ export const loadCarsClass = (models) => {
      */
     public static async removeCars(carIds) {
       for (const carId of carIds) {
-        await models.Conformities.removeConformity({
-          mainType: 'car',
-          mainTypeId: carId
+        await sendCoreMessage({
+          subdomain: models.subdomain,
+          action: 'conformities.removeConformity',
+          data: {
+            mainType: 'car',
+            mainTypeId: carId
+          },
+          defaultValue: []
         });
       }
 
@@ -180,10 +185,16 @@ export const loadCarsClass = (models) => {
       });
 
       // Updating customer cars, deals, tasks, tickets
-      await models.Conformities.changeConformity({
-        type: 'car',
-        newTypeId: car._id,
-        oldTypeIds: carIds
+      await sendCoreMessage({
+        subdomain: models.subdomain,
+        action: 'conformities.changeConformity',
+        data: {
+          type: 'car',
+          newTypeId: car._id,
+          oldTypeIds: carIds
+        },
+        isRPC: true,
+        defaultValue: []
       });
 
       // Removing modules associated with current cars
@@ -305,5 +316,6 @@ export const loadCarCategoryClass = (models) => {
     }
   }
   carCategorySchema.loadClass(CarCategory);
+
   return carCategorySchema;
 };

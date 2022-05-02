@@ -52,8 +52,8 @@ type State = {
 };
 
 export const menuPos = [
-  { title: 'Car', link: '/erxes-plugin-car/list' },
-  { title: 'Products', link: '/erxes-plugin-car/product' }
+  { title: 'Car', link: '/erxes-plugin-tumentech/list' },
+  { title: 'Products', link: '/product' }
 ];
 
 class CarsList extends React.Component<IProps, State> {

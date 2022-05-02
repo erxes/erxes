@@ -1,4 +1,5 @@
 import { sendInboxMessage } from './messageBroker';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 const EXCLUDE_PATH = [
   '/nylas/webhook',
@@ -13,6 +14,7 @@ export let userIds: string[] = [];
 
 const userMiddleware = async (req, _res, next) => {
   const { path, headers, query } = req;
+  const subdomain = getSubdomain(req);
 
   if (EXCLUDE_PATH.includes(path)) {
     return next();
@@ -20,7 +22,7 @@ const userMiddleware = async (req, _res, next) => {
 
   if (userIds.length === 0) {
     const response = await sendInboxMessage({
-      subdomain: 'os',
+      subdomain,
       action: 'integrations.receive',
       data: {
         action: 'getUserIds'

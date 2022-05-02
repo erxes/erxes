@@ -537,8 +537,8 @@ class CarForm extends React.Component<Props, State> {
             )}
             {this.renderFormGroup('Модель', {
               ...formProps,
-              name: 'model',
-              defaultValue: car.model || ''
+              name: 'carModel',
+              defaultValue: car.carModel || ''
             })}
             {this.renderFormGroup('Марк', {
               ...formProps,

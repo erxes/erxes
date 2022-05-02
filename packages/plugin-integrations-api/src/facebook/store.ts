@@ -107,6 +107,7 @@ export const generateCommentDoc = (
 
 export const getOrCreatePost = async (
   models: IModels,
+  subdomain: string,
   postParams: IPostParams,
   pageId: string,
   userId: string,
@@ -143,7 +144,7 @@ export const getOrCreatePost = async (
   // create conversation in api
   try {
     const apiConversationResponse = await sendInboxMessage({
-      subdomain: 'os',
+      subdomain,
       action: 'integrations.receive',
       data: {
         action: 'create-or-update-conversation',
@@ -168,6 +169,7 @@ export const getOrCreatePost = async (
 
 export const getOrCreateComment = async (
   models: IModels,
+  subdomain: string,
   commentParams: ICommentParams,
   pageId: string,
   userId: string,
@@ -192,7 +194,7 @@ export const getOrCreateComment = async (
     );
 
     return sendInboxMessage({
-      subdomain: 'os',
+      subdomain,
       action: 'integrationsNotification',
       data: {
         action: 'external-integration-entry-added'
@@ -207,7 +209,7 @@ export const getOrCreateComment = async (
   await models.FbComments.create(doc);
 
   sendInboxMessage({
-    subdomain: 'os',
+    subdomain,
     action: 'integrationsNotification',
     data: {
       action: 'external-integration-entry-added'
@@ -217,6 +219,7 @@ export const getOrCreateComment = async (
 
 export const getOrCreateCustomer = async (
   models: IModels,
+  subdomain: string,
   pageId: string,
   userId: string,
   kind: string
@@ -267,7 +270,7 @@ export const getOrCreateCustomer = async (
   // save on api
   try {
     const apiCustomerResponse = await sendInboxMessage({
-      subdomain: 'os',
+      subdomain,
       action: 'integrations.receive',
       data: {
         action: 'get-create-update-customer',

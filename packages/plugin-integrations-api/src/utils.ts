@@ -213,9 +213,9 @@ export const getConfig = async (models: IModels, code, defaultValue?) => {
   return configs[code];
 };
 
-export const getCommonGoogleConfigs = async () => {
+export const getCommonGoogleConfigs = async (subdomain: string) => {
   const response = await sendInboxMessage({
-    subdomain: 'os',
+    subdomain,
     action: 'integrations.receive',
     data: {
       action: 'get-configs'

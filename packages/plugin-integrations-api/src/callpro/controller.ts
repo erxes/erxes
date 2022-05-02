@@ -2,6 +2,7 @@ import { generateModels, IModels } from '../connectionResolver';
 import { debugCallPro, debugError, debugRequest } from '../debuggers';
 import { routeErrorHandling } from '../helpers';
 import { sendInboxMessage } from '../messageBroker';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export const callproCreateIntegration = async (models: IModels, { integrationId, data }) => {
     const { phoneNumber, recordUrl } = JSON.parse(data || '{}');
@@ -67,7 +68,8 @@ const init = async app => {
   app.post(
     '/callpro-receive',
     routeErrorHandling(async (req, res) => {
-      const models = await generateModels("os");
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
 
       debugRequest(debugCallPro, req);
 
@@ -118,7 +120,7 @@ const init = async app => {
         // save on api
         try {
           const apiCustomerResponse = await sendInboxMessage({
-            subdomain: 'os',
+            subdomain,
             action: 'integrations.receive',
             data: {
               action: 'get-create-update-customer',
@@ -178,7 +180,7 @@ const init = async app => {
 
         try {
           await sendInboxMessage({
-            subdomain: 'os',
+            subdomain,
             action: 'integrations.receive',
             data: {
               action: 'create-or-update-conversation',
@@ -201,7 +203,7 @@ const init = async app => {
       // save on api
       try {
         const apiConversationResponse = await sendInboxMessage({
-          subdomain: 'os',
+          subdomain,
           action: 'integrations.receive',
           data: {
             action: 'create-or-update-conversation',
