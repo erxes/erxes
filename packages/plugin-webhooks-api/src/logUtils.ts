@@ -2,17 +2,30 @@ import {
   putCreateLog as commonPutCreateLog,
   putUpdateLog as commonPutUpdateLog,
   putDeleteLog as commonPutDeleteLog,
-  putActivityLog as commonPutActivityLog,
-  LogDesc,
-  IDescriptions,
-  getSchemaLabels
 } from '@erxes/api-utils/src/logUtils';
-import { IModels, generateModels } from './connectionResolver';
 
 import messageBroker from './messageBroker';
 
-export const LOG_ACTIONS = {
-  CREATE: 'create',
-  UPDATE: 'update',
-  DELETE: 'delete',
+export const putDeleteLog = async (logDoc, user) => {
+  await commonPutDeleteLog(
+    messageBroker(),
+    { ...logDoc, type: `webhooks:${logDoc.type}` },
+    user
+  );
+};
+
+export const putUpdateLog = async (logDoc, user) => {
+  await commonPutUpdateLog(
+    messageBroker(),
+    { ...logDoc, type: `webhooks:${logDoc.type}` },
+    user
+  );
+};
+
+export const putCreateLog = async (logDoc, user) => {
+  await commonPutCreateLog(
+    messageBroker(),
+    { ...logDoc, type: `webhooks:${logDoc.type}` },
+    user
+  );
 };

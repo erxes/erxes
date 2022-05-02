@@ -1,14 +1,15 @@
 import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 import { WEBHOOK_STATUS } from '../../../models/definitions/constants';
 import { IWebhook } from '../../../models/definitions/webhooks';
-// import { MODULE_NAMES } from '../../constants';
-// import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
 import { sendRequest } from "@erxes/api-utils/src";
 
 interface IWebhookEdit extends IWebhook {
   _id: string;
 }
+
+const WEBHOOK = 'webhook';
 
 const webhookMutations = {
   /**
@@ -34,15 +35,15 @@ const webhookMutations = {
         await models.Webhooks.updateStatus(webhook._id, WEBHOOK_STATUS.UNAVAILABLE);
       });
 
-    // await putCreateLog(
-    //   {
-    //     type: MODULE_NAMES.WEBHOOK,
-    //     newData: webhook,
-    //     object: webhook,
-    //     description: `${webhook.url} has been created`
-    //   },
-    //   user
-    // );
+    await putCreateLog(
+      {
+        type: WEBHOOK,
+        newData: webhook,
+        object: webhook,
+        description: `${webhook.url} has been created`
+      },
+      user
+    );
 
     return webhook;
   },
@@ -54,15 +55,15 @@ const webhookMutations = {
     const webhook = await models.Webhooks.getWebHook(_id);
     const updated = await models.Webhooks.updateWebhook(_id, doc);
 
-    // await putUpdateLog(
-    //   {
-    //     type: MODULE_NAMES.WEBHOOK,
-    //     object: webhook,
-    //     newData: doc,
-    //     description: `${webhook.url} has been edited`
-    //   },
-    //   user
-    // );
+    await putUpdateLog(
+      {
+        type: WEBHOOK,
+        object: webhook,
+        newData: doc,
+        description: `${webhook.url} has been edited`
+      },
+      user
+    );
 
     return updated;
   },
@@ -74,14 +75,14 @@ const webhookMutations = {
     const webhook = await models.Webhooks.getWebHook(_id);
     const removed = await models.Webhooks.removeWebhooks(_id);
 
-    // await putDeleteLog(
-    //   {
-    //     type: MODULE_NAMES.WEBHOOK,
-    //     object: webhook,
-    //     description: `${webhook.url} has been removed`
-    //   },
-    //   user
-    // );
+    await putDeleteLog(
+      {
+        type: WEBHOOK,
+        object: webhook,
+        description: `${webhook.url} has been removed`
+      },
+      user
+    );
 
     return removed;
   }
