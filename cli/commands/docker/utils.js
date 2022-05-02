@@ -300,12 +300,12 @@ const up = async (uis) => {
         volumes: ["./enabled-services.js:/data/enabled-services.js"],
         networks: ["erxes"],
       },
-      workers: {
+      plugin_workers_api: {
         image: "erxes/workers:federation",
         environment: {
           PORT: "80",
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          LOAD_BALANCER_ADDRESS: "http://plugin_worker_api",
+          LOAD_BALANCER_ADDRESS: "http://plugin_workers_api",
           MONGO_URL: mongoEnv(configs),
           ...commonEnvs(configs),
         },
