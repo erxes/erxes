@@ -9,7 +9,7 @@ export const types = (contactAvailable, cardAvailable) => `
         _id: String! @external
       }
     `
-      : ''
+      : ""
   }
 
   ${
@@ -28,7 +28,7 @@ export const types = (contactAvailable, cardAvailable) => `
       _id: String! @external
     }
      `
-      : ''
+      : ""
   }
 
 
@@ -98,7 +98,7 @@ export const types = (contactAvailable, cardAvailable) => `
   }
 `;
 
-export const queries = (cardAvailable) => `
+export const queries = cardAvailable => `
   clientPortalGetConfigs(page: Int, perPage: Int): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
   clientPortalGetLast: ClientPortal
@@ -115,7 +115,7 @@ export const queries = (cardAvailable) => `
       clientPortalDeal(_id: String!): Deal
       clientPortalDeals(stageId: String, conformityMainType: String, conformityMainTypeId: String, probability: String): [Deal]
      `
-      : ''
+      : ""
   }
 `;
 
@@ -162,7 +162,7 @@ export const mutations = (contactAvailable, cardAvailable) => `
       ): Ticket
 
      `
-      : ''
+      : ""
   }
 
   ${
@@ -170,9 +170,10 @@ export const mutations = (contactAvailable, cardAvailable) => `
       ? `
       clientPortalCreateCustomer(
         configId: String!
-        firstName: String!
+        firstName: String
         lastName: String
-        email: String!
+        email: String
+        phone: String
       ): Customer
 
       clientPortalCreateCompany(
@@ -182,7 +183,7 @@ export const mutations = (contactAvailable, cardAvailable) => `
       ): Company
 
      `
-      : ''
+      : ""
   }
 
 
