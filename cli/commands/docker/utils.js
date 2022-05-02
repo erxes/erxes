@@ -383,7 +383,7 @@ const up = async (uis) => {
 
   const pluginsMap = require(filePath("pluginsMap.js"));
 
-  const enabledPlugins = [];
+  const enabledPlugins = ['workers'];
   const uiPlugins = [];
   const essyncerJSON = { plugins: [] };
   const permissionsJSON = [];
