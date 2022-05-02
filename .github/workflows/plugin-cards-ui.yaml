@@ -9,6 +9,7 @@ on:
       - "packages/ui-cards/**"
       - "packages/plugin-cards-ui/**"
       - ".github/workflows/plugin-cards-ui.yaml"
+      - ls
 
 jobs:
   ui:
