@@ -555,7 +555,7 @@ const update = async (program) => {
     if (!program.noimage) {
       log(`Updating image ${name}......`);
 
-      if (['dashboard', 'workers', 'crons', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
+      if (['dashboard', 'crons', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
         await execCommand(
           `docker service update erxes_${name} --image erxes/${name}:federation`
         );
