@@ -30,12 +30,10 @@ const checkFieldNames = async (fields: string[], columnConfig?: object) => {
     const property: { [key: string]: any } = {};
 
     if (columnConfig) {
-      fieldName = columnConfig[fieldName].value;
-    }
-
-    if (columnConfig) {
       if (columnConfig[fieldName]) {
         fieldName = columnConfig[fieldName].value;
+      } else {
+        throw new Error(`fieldName error ${fieldName}`);
       }
     }
 
