@@ -170,7 +170,7 @@ const queries = {
       const products = await sendCommonMessage({
         subdomain: "os",
         data: filter,
-        action: "categories.find",
+        action: "find",
         serviceName: "products",
         defaultValue: [],
         isRPC: true,
