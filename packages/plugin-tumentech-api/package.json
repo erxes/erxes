@@ -6,5 +6,8 @@
     "dev": "cd .erxes && yarn dev",
     "build": "cd .erxes && yarn build",
     "start": "cd .erxes/dist/plugin-tumentech-api/.erxes && node src"
+  },
+  "dependencies": {
+    "erxes-api-utils": "^0.0.39"
   }
 }
