@@ -6,62 +6,62 @@ export default {
     {
       label: 'Deal created',
       action: 'create',
-      type: 'deal'
+      type: 'cards:deal'
     },
     {
       label: 'Deal updated',
       action: 'update',
-      type: 'deal'
+      type: 'cards:deal'
     },
     {
       label: 'Deal deleted',
       action: 'delete',
-      type: 'deal'
+      type: 'cards:deal'
     },
     {
       label: 'Deal moved',
       action: 'createBoardItemMovementLog',
-      type: 'deal'
+      type: 'cards:deal'
     },
     {
       label: 'Task created',
       action: 'create',
-      type: 'task'
+      type: 'cards:task'
     },
     {
       label: 'Task updated',
       action: 'update',
-      type: 'task'
+      type: 'cards:task'
     },
     {
       label: 'Task deleted',
       action: 'delete',
-      type: 'task'
+      type: 'cards:task'
     },
     {
       label: 'Task moved',
       action: 'createBoardItemMovementLog',
-      type: 'task'
+      type: 'cards:task'
     },
     {
       label: 'Ticket created',
       action: 'create',
-      type: 'ticket'
+      type: 'cards:ticket'
     },
     {
       label: 'Ticket updated',
       action: 'update',
-      type: 'ticket'
+      type: 'cards:ticket'
     },
     {
       label: 'Ticket deleted',
       action: 'delete',
-      type: 'ticket'
+      type: 'cards:ticket'
     },
     {
       label: 'Ticket moved',
       action: 'createBoardItemMovementLog',
-      type: 'ticket'
+      type: 'cards:ticket'
     }
   ],
   getInfo: async ({ subdomain, data: { data, contentType, actionText, action } }) => {

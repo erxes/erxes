@@ -1,16 +1,16 @@
 export default {
   actions: [
-    { label: 'Admin messages', action: 'create', type: 'userMessages' },
+    { label: 'Admin messages', action: 'create', type: 'inbox:userMessages' },
     {
       label: 'Customer create conversation',
       action: 'create',
-      type: 'conversation'
+      type: 'inbox:conversation'
     },
-    { label: 'Customer messages', action: 'create', type: 'customerMessages' },
+    { label: 'Customer messages', action: 'create', type: 'inbox:customerMessages' },
     {
       label: 'Form submission received',
       action: 'create',
-      type: 'popupSubmitted'
+      type: 'inbox:popupSubmitted'
     }
   ],
   getInfo: ({ data: { data, contentType } }) => {

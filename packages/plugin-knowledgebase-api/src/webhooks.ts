@@ -3,17 +3,17 @@ export default {
     {
       label: 'Knowledge Base created',
       action: 'create',
-      type: 'knowledgeBaseArticle'
+      type: 'knowledgebase:knowledgeBaseArticle'
     },
     {
       label: 'Knowledge Base updated',
       action: 'update',
-      type: 'knowledgeBaseArticle'
+      type: 'knowledgebase:knowledgeBaseArticle'
     },
     {
       label: 'Knowledge Base deleted',
       action: 'delete',
-      type: 'knowledgeBaseArticle'
+      type: 'knowledgebase:knowledgeBaseArticle'
     },
   ],
   getInfo: ({ data: { data, actionText }}) => {
