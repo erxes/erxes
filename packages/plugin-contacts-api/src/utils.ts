@@ -5,7 +5,12 @@ import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 
 import { debug, es } from './configs';
-import { customerSchema, ICustomerDocument, locationSchema, visitorContactSchema } from './models/definitions/customers';
+import {
+  customerSchema,
+  ICustomerDocument,
+  locationSchema,
+  visitorContactSchema
+} from './models/definitions/customers';
 import messageBroker, {
   sendCoreMessage,
   sendEngagesMessage,
@@ -13,11 +18,16 @@ import messageBroker, {
   sendInboxMessage,
   sendTagsMessage
 } from './messageBroker';
-import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery'
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { generateModels, IModels } from './connectionResolver';
-import { COMPANY_INFO, CUSTOMER_BASIC_INFO, DEVICE_PROPERTIES_INFO, MODULE_NAMES } from './constants';
+import {
+  COMPANY_INFO,
+  CUSTOMER_BASIC_INFO,
+  DEVICE_PROPERTIES_INFO,
+  MODULE_NAMES
+} from './constants';
 import { companySchema } from './models/definitions/companies';
-import { ICustomField, ILink } from "@erxes/api-utils/src/types";
+import { ICustomField, ILink } from '@erxes/api-utils/src/types';
 
 export const findCustomer = async ({ Customers }: IModels, doc) => {
   let customer;
@@ -273,12 +283,13 @@ export const generateFields = async ({ subdomain, data }) => {
       isRPC: true
     });
 
-    fields.push({
-      _id: Math.random(),
-      name: 'relatedIntegrationIds',
-      label: 'Related integration',
-      selectOptions: integrations
-    });
+    if (usageType === 'import') {
+      fields.push({
+        _id: Math.random(),
+        name: 'companiesPrimaryNames',
+        label: 'Company Primary Names'
+      });
+    }
   }
 
   fields = [...fields, ownerOptions];
@@ -472,7 +483,6 @@ export const prepareEngageCustomers = async (
   });
 };
 
-
 export const generateSystemFields = ({ data: { groupId } }) => {
   const contactsFields: any = [];
 
@@ -515,12 +525,16 @@ export const generateSystemFields = ({ data: { groupId } }) => {
   return contactsFields;
 };
 
-export const updateContactsField = async (models: IModels, subdomain: string, args: {
-  browserInfo: any;
-  cachedCustomerId?: string;
-  integration: any;
-  submissionsGrouped: any;
-}) => {
+export const updateContactsField = async (
+  models: IModels,
+  subdomain: string,
+  args: {
+    browserInfo: any;
+    cachedCustomerId?: string;
+    integration: any;
+    submissionsGrouped: any;
+  }
+) => {
   let { cachedCustomerId } = args;
   const { browserInfo, integration, submissionsGrouped } = args;
 
@@ -529,7 +543,7 @@ export const updateContactsField = async (models: IModels, subdomain: string, ar
   } = {};
 
   let cachedCustomer;
-  
+
   const customerSchemaLabels = await getSchemaLabels('customer');
   const companySchemaLabels = await getSchemaLabels('company');
 
@@ -626,7 +640,7 @@ export const updateContactsField = async (models: IModels, subdomain: string, ar
       ) {
         const field = await sendFormsMessage({
           subdomain,
-          action: "fields.findOne",
+          action: 'fields.findOne',
           data: {
             query: {
               _id: submission.associatedFieldId
@@ -692,7 +706,7 @@ export const updateContactsField = async (models: IModels, subdomain: string, ar
           links: customerLinks,
           scopeBrandIds: [integration.brandId || '']
         },
-        cachedCustomer,
+        cachedCustomer
       );
 
       cachedCustomerId = cachedCustomer._id;
@@ -725,7 +739,7 @@ export const updateContactsField = async (models: IModels, subdomain: string, ar
           links: customerLinks,
           scopeBrandIds: [integration.brandId || '']
         },
-        customer,
+        customer
       );
 
       conformityIds[groupId] = { customerId: customer._id, companyId: '' };
@@ -847,7 +861,7 @@ export const updateCustomerFromForm = async (
   models: IModels,
   browserInfo: any,
   doc: any,
-  customer: ICustomerDocument,
+  customer: ICustomerDocument
 ) => {
   const customerDoc: any = {
     ...doc,
@@ -900,7 +914,6 @@ export const updateCustomerFromForm = async (
   await models.Customers.updateCustomer(customer._id, customerDoc);
 };
 
-
 const prepareCustomFieldsData = (
   customerData: ICustomField[],
   submissionData: ICustomField[]
@@ -912,7 +925,7 @@ const prepareCustomFieldsData = (
   }
 
   for (const data of submissionData) {
-    const existingData = customerData.find((e) => e.field === data.field);
+    const existingData = customerData.find(e => e.field === data.field);
 
     if (existingData && Array.isArray(existingData.value)) {
       data.value = existingData.value.concat(data.value);
@@ -945,7 +958,6 @@ const createCustomer = async (
 const getSocialLinkKey = (type: string) => {
   return type.substring(type.indexOf('_') + 1);
 };
-
 
 export const getSchemaLabels = async (type: string) => {
   let fieldNames: any[] = [];
@@ -993,12 +1005,11 @@ export const buildLabelList = (obj = {}): any[] => {
 
 const LOG_MAPPINGS = [
   {
-
     name: MODULE_NAMES.CUSTOMER,
     schemas: [customerSchema, locationSchema, visitorContactSchema]
   },
   {
     name: MODULE_NAMES.COMPANY,
     schemas: [companySchema]
-  },
-]
+  }
+];

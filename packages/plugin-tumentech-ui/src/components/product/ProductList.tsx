@@ -1,4 +1,3 @@
-import { Count, Title } from 'erxes-ui/lib/styles/main';
 import { ICarCategory, IRouterProps } from '../../types';
 import React from 'react';
 import { IProduct, IProductCategory } from '../../types';
@@ -14,14 +13,16 @@ import {
   Wrapper,
   BarItems,
   router
-} from 'erxes-ui';
+} from '@erxes/ui/src';
 import { menuPos } from '../list/CarsList';
 import CategoryList from '../../containers/productCategory/CategoryList';
+import { Count, Title } from '@erxes/ui/src/styles/main';
 
 interface IProps extends IRouterProps {
   history: any;
   queryParams: any;
   products: IProduct[];
+  product: IProduct;
   productsCount: number;
   isAllSelected: boolean;
   bulk: any[];
@@ -54,7 +55,7 @@ class List extends React.Component<IProps, State> {
   renderRow = () => {
     const { products, history, toggleBulk, bulk, carCategories } = this.props;
 
-    return products.map(product => (
+    return products.map((product) => (
       <Row
         history={history}
         key={product._id}
@@ -71,17 +72,17 @@ class List extends React.Component<IProps, State> {
     toggleAll(products, 'products');
   };
 
-  removeProducts = products => {
+  removeProducts = (products) => {
     const productIds: string[] = [];
 
-    products.forEach(product => {
+    products.forEach((product) => {
       productIds.push(product._id);
     });
 
     this.props.remove({ productIds }, this.props.emptyBulk);
   };
 
-  renderCount = productCount => {
+  renderCount = (productCount) => {
     return (
       <Count>
         {productCount} product{productCount > 1 && 's'}
@@ -89,7 +90,7 @@ class List extends React.Component<IProps, State> {
     );
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -119,7 +120,9 @@ class List extends React.Component<IProps, State> {
       queryParams,
       isAllSelected,
       currentCategory,
-      history
+      history,
+      product,
+      carCategories
     } = this.props;
 
     const { searchValue } = this.state;
@@ -159,7 +162,6 @@ class List extends React.Component<IProps, State> {
               <th>{__('Minimium count')}</th>
               <th>{__('Unit Price')}</th>
               <th>{__('SKU')}</th>
-              <th>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody>{this.renderRow()}</tbody>
@@ -189,7 +191,13 @@ class List extends React.Component<IProps, State> {
         }
         footer={<Pagination count={productsCount} />}
         leftSidebar={
-          <CategoryList queryParams={queryParams} history={history} />
+          <CategoryList
+            queryParams={queryParams}
+            history={history}
+            product={product}
+            carCategories={carCategories}
+            productCategory={currentCategory}
+          />
         }
         content={
           <DataWithLoader

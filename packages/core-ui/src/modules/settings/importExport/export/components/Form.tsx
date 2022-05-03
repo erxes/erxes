@@ -77,7 +77,7 @@ class ExportForm extends React.Component<Props, State> {
   };
 
   onSubmit = () => {
-    const { contentType, serviceType } = this.props;
+    const { contentType } = this.props;
     const { columns, segmentId } = this.state;
 
     const columnsConfig = columns.filter(conf => conf.checked);
@@ -88,6 +88,8 @@ class ExportForm extends React.Component<Props, State> {
       segment: segmentId,
       unlimited: true
     });
+
+    const serviceType = contentType.split(':')[0];
 
     window.open(
       `${REACT_APP_API_URL}/pl:${serviceType}/file-export?${stringified}`,
@@ -157,7 +159,6 @@ class ExportForm extends React.Component<Props, State> {
                       {...this.props}
                       id={segmentId}
                       contentType={contentType || 'customer'}
-                      serviceType={serviceType}
                       closeModal={this.segmentCloseModal}
                       addFilter={this.addFilter}
                       hideDetailForm={true}

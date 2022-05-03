@@ -1,17 +1,17 @@
-name: Plugin Neighbor Api CI
+name: Plugin neighbor Api CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - "packages/api-utils/**"
-      - "packages/api-plugin-template.erxes/**"
-      - "packages/plugin-neighbor-api/**"
-      - ".github/workflows/plugin-neighbor-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/api-plugin-template.erxes/**'
+      - 'packages/plugin-neighbor-api/**'
+      - '.github/workflows/plugin-neighbor-api.yaml'
 
 jobs:
-  plugin-neighbor-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

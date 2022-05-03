@@ -1,18 +1,27 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, confirm, withProps } from 'erxes-ui';
+import { Alert, confirm, withProps } from '@erxes/ui/src';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import List from '../../components/productCategory/CategoryList';
 import { mutations, queries } from '../../graphql';
 import {
+  ICarCategory,
+  IProduct,
+  IProductCategory,
   ProductCategoriesCountQueryResponse,
   ProductCategoriesQueryResponse,
   ProductCategoryRemoveMutationResponse,
   ProductsQueryResponse
 } from '../../types';
 
-type Props = { history: any; queryParams: any };
+type Props = {
+  history: any;
+  queryParams: any;
+  product: IProduct;
+  productCategory: IProductCategory;
+  carCategories: ICarCategory[];
+};
 
 type FinalProps = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
@@ -29,7 +38,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       productCategoryRemove
     } = this.props;
 
-    const remove = productId => {
+    const remove = (productId) => {
       confirm().then(() => {
         productCategoryRemove({
           variables: { _id: productId }
@@ -43,7 +52,7 @@ class ProductListContainer extends React.Component<FinalProps> {
               `You successfully deleted a product & service category`
             );
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
       });

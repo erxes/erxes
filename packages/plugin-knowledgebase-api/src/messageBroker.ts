@@ -44,6 +44,15 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
+export const sendWebhooksMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: "webhooks",
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }

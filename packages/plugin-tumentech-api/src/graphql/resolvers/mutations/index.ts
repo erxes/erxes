@@ -1,3 +1,4 @@
-import Tumentech from './tumentech';
+import tumentechMutations from './tumentech';
+import tumentechMatchMutations from './carCategoryProduct';
 
-export default { ...Tumentech };
+export default { ...tumentechMutations, ...tumentechMatchMutations };

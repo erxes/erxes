@@ -1,13 +1,13 @@
-import { IStage } from "@erxes/ui-cards/src/boards/types";
-import Button from "@erxes/ui/src/components/Button";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import { __, generateTree } from "coreui/utils";
-import React from "react";
-import { PROBABILITY } from "../constants";
-import { StageItemContainer } from "@erxes/ui-settings/src/boards/styles";
-import { IDepartment } from "@erxes/ui-team/src/types";
-import Select from "react-select-plus";
+import { IStage } from '@erxes/ui-cards/src/boards/types';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { __, generateTree } from 'coreui/utils';
+import React from 'react';
+import { PROBABILITY } from '../constants';
+import { StageItemContainer } from '@erxes/ui-settings/src/boards/styles';
+import { IDepartment } from '@erxes/ui-team/src/types';
+import Select from 'react-select-plus';
 
 type Props = {
   stage: IStage;
@@ -23,7 +23,7 @@ class StageItem extends React.Component<Props> {
     const { stage, onChange } = this.props;
     const { _id, visibility, memberIds, departmentIds } = stage;
 
-    if (!visibility || visibility === "public") {
+    if (!visibility || visibility === 'public') {
       return;
     }
 
@@ -33,7 +33,7 @@ class StageItem extends React.Component<Props> {
           label="Choose members"
           name="memberIds"
           initialValue={memberIds}
-          onSelect={ids => onChange(_id, "memberIds", ids)}
+          onSelect={(ids) => onChange(_id, 'memberIds', ids)}
         />
         <Select
           value={departmentIds}
@@ -42,17 +42,17 @@ class StageItem extends React.Component<Props> {
             null,
             (node, level) => ({
               value: node._id,
-              label: `${"---".repeat(level)} ${node.title}`,
+              label: `${'---'.repeat(level)} ${node.title}`
             })
           )}
-          onChange={options =>
+          onChange={(options) =>
             onChange(
               _id,
-              "departmentIds",
-              (options || []).map(o => o.value)
+              'departmentIds',
+              (options || []).map((o) => o.value)
             )
           }
-          placeholder={__("Choose department ...")}
+          placeholder={__('Choose department ...')}
           multi={true}
         />
       </>
@@ -71,7 +71,7 @@ class StageItem extends React.Component<Props> {
         <FormControl
           defaultValue={stage.name}
           type="text"
-          placeholder={__("Stage name")}
+          placeholder={__('Stage name')}
           onKeyPress={onKeyPress}
           autoFocus={true}
           name="name"
@@ -95,14 +95,14 @@ class StageItem extends React.Component<Props> {
           defaultValue={stage.status}
           componentClass="select"
           name="status"
-          className={""}
+          className={''}
           onChange={onChangeFormControl.bind(this, stage._id)}
         >
           <option key="active" value="active">
-            {__("Active")}
+            {__('Active')}
           </option>
           <option key="archived" value="archived">
-            {__("Archived")}
+            {__('Archived')}
           </option>
         </FormControl>
 
@@ -113,12 +113,20 @@ class StageItem extends React.Component<Props> {
           onChange={onChangeFormControl.bind(this, stage._id)}
         >
           <option key={0} value="public">
-            {__("Public")}
+            {__('Public')}
           </option>
           <option key={1} value="private">
-            {__("Private")}
+            {__('Private')}
           </option>
         </FormControl>
+
+        <FormControl
+          defaultValue={stage.code}
+          name="code"
+          placeholder={__('Stage code')}
+          autoFocus={true}
+          onChange={onChangeFormControl.bind(this, stage._id)}
+        />
 
         {this.renderSelectMembers()}
 

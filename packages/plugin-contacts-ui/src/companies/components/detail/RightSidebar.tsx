@@ -7,10 +7,12 @@ import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 import PortableDeals from "@erxes/ui-cards/src/deals/components/PortableDeals";
 import PortableTasks from "@erxes/ui-cards/src/tasks/components/PortableTasks";
 import PortableTickets from "@erxes/ui-cards/src/tickets/components/PortableTickets";
-import { pluginsOfCompanySidebar } from "@erxes/ui/src/pluginUtils";
+
 import React from "react";
 import { List } from "../../styles";
 import { isEnabled } from "@erxes/ui/src/utils/core";
+
+import { pluginsOfCompanySidebar } from "coreui/pluginUtils";
 
 type Props = {
   company: ICompany;

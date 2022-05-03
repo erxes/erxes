@@ -1,7 +1,6 @@
-import { sendContactsMessage, sendCoreMessage, sendProductsMessage } from "./messageBroker";
 import * as _ from 'underscore';
 
-export const gatherNames = async (params) => {
+const gatherNames = async (params) => {
   const {
     collection,
     idFields,
@@ -35,7 +34,8 @@ export const gatherNames = async (params) => {
   return options;
 };
 
-export const gatherCarFieldNames = async (
+
+const gatherCarFieldNames = async (
   models,
   doc,
   prevList = null

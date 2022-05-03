@@ -1,4 +1,4 @@
-name: Plugin contacts api CI
+name: Plugin contacts Api CI
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - '.github/workflows/plugin-contacts-api.yaml'
 
 jobs:
-  plugin-contacts-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

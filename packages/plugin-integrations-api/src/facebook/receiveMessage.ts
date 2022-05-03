@@ -4,7 +4,7 @@ import { sendInboxMessage } from '../messageBroker';
 import { getOrCreateCustomer } from './store';
 import { IChannelData } from './types';
 
-const receiveMessage = async (models: IModels, activity: Activity) => {
+const receiveMessage = async (models: IModels, subdomain: string, activity: Activity) => {
   const {
     recipient,
     sender,
@@ -26,7 +26,7 @@ const receiveMessage = async (models: IModels, activity: Activity) => {
   const kind = 'facebook-messenger';
 
   // get or create customer
-  const customer = await getOrCreateCustomer(models, pageId, userId, kind);
+  const customer = await getOrCreateCustomer(models, subdomain, pageId, userId, kind);
 
   // get conversation
   let conversation = await models.FbConversations.findOne({
@@ -56,7 +56,7 @@ const receiveMessage = async (models: IModels, activity: Activity) => {
     // save on api
     try {
       const apiConversationResponse = await sendInboxMessage({
-        subdomain: 'os',
+        subdomain,
         action: 'integrations.receive',
         data: {
           action: 'create-or-update-conversation',
@@ -109,7 +109,7 @@ const receiveMessage = async (models: IModels, activity: Activity) => {
     // save message on api
     try {
       await sendInboxMessage({
-        subdomain: 'os',
+        subdomain,
         action: 'integrations.receive',
         data: {
           action: 'create-conversation-message',

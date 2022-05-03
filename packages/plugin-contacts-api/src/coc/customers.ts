@@ -1,14 +1,14 @@
-import * as moment from 'moment';
-import * as _ from 'underscore';
-import { IModels } from '../connectionResolver';
-import { sendFormsMessage, sendInboxMessage } from '../messageBroker';
-import { CommonBuilder } from './utils';
+import * as moment from "moment";
+import * as _ from "underscore";
+import { IModels } from "../connectionResolver";
+import { sendFormsMessage, sendInboxMessage } from "../messageBroker";
+import { CommonBuilder } from "./utils";
 
 interface ISortParams {
   [index: string]: number;
 }
 
-const findIntegrations = (subdomain, query, options?) =>
+const findIntegrations = (subdomain: string, query, options?) =>
   sendInboxMessage({
     subdomain,
     action: "integrations.find",
@@ -20,6 +20,7 @@ const findIntegrations = (subdomain, query, options?) =>
 export interface IConformityQueryParams {
   conformityMainType?: string;
   conformityMainTypeId?: string;
+  conformityRelType?: string;
   conformityIsRelated?: boolean;
   conformityIsSaved?: boolean;
 }
@@ -57,8 +58,8 @@ export interface IListArgs extends IConformityQueryParams {
 }
 
 export class Builder extends CommonBuilder<IListArgs> {
-  constructor(models:IModels, subdomain: string, params: IListArgs, context) {
-    super(models, subdomain, 'customers', params, context);
+  constructor(models: IModels, subdomain: string, params: IListArgs, context) {
+    super(models, subdomain, "customers", params, context);
 
     this.addStateFilter();
   }
@@ -67,8 +68,8 @@ export class Builder extends CommonBuilder<IListArgs> {
     if (this.params.type) {
       this.positiveList.push({
         term: {
-          state: this.params.type
-        }
+          state: this.params.type,
+        },
       });
     }
   }
@@ -89,15 +90,15 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     this.positiveList.push({
       terms: {
-        relatedIntegrationIds: integrations.map(i => i._id)
-      }
+        relatedIntegrationIds: integrations.map(i => i._id),
+      },
     });
   }
 
   // filter by integration
   public async integrationFilter(integration: string): Promise<void> {
     const integrations = await findIntegrations(this.subdomain, {
-      kind: integration
+      kind: integration,
     });
 
     /**
@@ -106,8 +107,8 @@ export class Builder extends CommonBuilder<IListArgs> {
      */
     this.positiveList.push({
       terms: {
-        relatedIntegrationIds: integrations.map(i => i._id)
-      }
+        relatedIntegrationIds: integrations.map(i => i._id),
+      },
     });
   }
 
@@ -117,8 +118,8 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     this.positiveList.push({
       terms: {
-        relatedIntegrationIds: integrations.map(i => i._id)
-      }
+        relatedIntegrationIds: integrations.map(i => i._id),
+      },
     });
   }
 
@@ -131,14 +132,14 @@ export class Builder extends CommonBuilder<IListArgs> {
   ): Promise<void> {
     const submissions = await sendFormsMessage({
       subdomain,
-      action:"submissions.find",
+      action: "submissions.find",
       data: {
         query: {
-          formId
-        }
-    },
+          formId,
+        },
+      },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const ids: string[] = [];
@@ -162,31 +163,28 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     this.positiveList.push({
       terms: {
-        _id: ids
-      }
+        _id: ids,
+      },
     });
   }
 
   public async findAllMongo(limit: number) {
-    const activeIntegrations = await findIntegrations(
-      {},
-      { _id: 1 }
-    );
+    const activeIntegrations = await findIntegrations(this.subdomain, { _id: 1 });
 
     const selector = {
       ...this.context.commonQuerySelector,
-      status: { $ne: 'deleted' },
-      state: this.params.type || 'customer',
+      status: { $ne: "deleted" },
+      state: this.params.type || "customer",
       $or: [
         {
-          integrationId: { $in: [null, undefined, ''] }
+          integrationId: { $in: [null, undefined, ""] },
         },
         {
           integrationId: {
-            $in: activeIntegrations.map(integration => integration._id)
-          }
-        }
-      ]
+            $in: activeIntegrations.map(integration => integration._id),
+          },
+        },
+      ],
     };
 
     const customers = await this.models.Customers.find(selector)
@@ -197,7 +195,7 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     return {
       list: customers,
-      totalCount: count
+      totalCount: count,
     };
   }
 

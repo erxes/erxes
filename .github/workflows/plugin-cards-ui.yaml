@@ -1,17 +1,16 @@
-name: Plugin Cards UI CI
+name: Plugin cards UI CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - "packages/coreui/**"
-      - "packages/ui-settings/**"
-      - "packages/ui-team/**"
       - "packages/erxes-ui/**"
       - "packages/ui-cards/**"
+      - "packages/ui-settings/**"
       - "packages/plugin-cards-ui/**"
       - ".github/workflows/plugin-cards-ui.yaml"
+      - ls
 
 jobs:
   ui:

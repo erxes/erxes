@@ -1,5 +1,5 @@
-import { ButtonMutate, withProps } from 'erxes-ui';
-import { IButtonMutateProps } from 'erxes-ui/lib/types';
+import { ButtonMutate, withProps } from '@erxes/ui/src';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import CategoryForm from '../../components/carCategory/CategoryForm';
 import { mutations, queries } from '../../graphql';

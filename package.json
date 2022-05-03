@@ -31,6 +31,7 @@
     "subTaskConcurrency": 1
   },
   "scripts": {
+    "create-plugins-cis": "node scripts/create-plugins-cis",
     "create-plugin-ui": "node scripts/create-plugin-ui",
     "prepare-plugins": "node scripts/prepare-plugins",
     "prepare-plugins-api": "node scripts/prepare-plugins-api",
