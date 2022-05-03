@@ -128,7 +128,7 @@ const queries = {
       };
 
       if (prices.length === 2) {
-        filter.unitPrice.$lte = parseInt(prices[1], 0);
+        filter.unitPrice.$lte = parseInt(prices[1], 10);
       }
     }
 
@@ -139,27 +139,27 @@ const queries = {
     if (district) {
       const districts = district.split(",");
 
-      const products = await sendCommonMessage({
+      const categories = await sendCommonMessage({
         subdomain: "os",
         isRPC: true,
-        data: { code: { $in: districts } },
+        data: { query: { code: { $in: districts } } },
         action: "categories.find",
         serviceName: "products",
         defaultValue: [],
       });
 
-      const districtIds = products.map(p => p._id);
+      const districtIds = categories.map(p => p._id);
 
-      const parentProducts = await sendCommonMessage({
+      const childCategories = await sendCommonMessage({
         subdomain: "os",
         isRPC: true,
-        data: { parentId: { $in: districtIds } },
+        data: { query: { parentId: { $in: districtIds } } },
         action: "categories.find",
         serviceName: "products",
         defaultValue: [],
       });
 
-      const catIds = parentProducts.map(p => p._id);
+      const catIds = childCategories.map(p => p._id);
 
       filter.categoryId = { $in: catIds };
     }
@@ -169,8 +169,8 @@ const queries = {
     if (Object.keys(filter).length > 0) {
       const products = await sendCommonMessage({
         subdomain: "os",
-        data: filter,
-        action: "categories.find",
+        data: { query: filter },
+        action: "find",
         serviceName: "products",
         defaultValue: [],
         isRPC: true,
@@ -192,10 +192,10 @@ const queries = {
         dealFilter.$and = [];
 
         for (const field of fields) {
-          let filter;
+          let subFilter;
 
           if (newCustomFields[field].length === 1) {
-            filter = {
+            subFilter = {
               customFieldsData: {
                 $elemMatch: {
                   field,
@@ -204,7 +204,7 @@ const queries = {
               },
             };
           } else {
-            filter = {
+            subFilter = {
               $or: newCustomFields[field].map(value => ({
                 customFieldsData: {
                   $elemMatch: {
@@ -216,7 +216,7 @@ const queries = {
             };
           }
 
-          dealFilter.$and.push(filter);
+          dealFilter.$and.push(subFilter);
         }
       }
     }

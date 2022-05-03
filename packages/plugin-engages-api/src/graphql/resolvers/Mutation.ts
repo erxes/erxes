@@ -5,7 +5,7 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { IEngageMessage } from '../../models/definitions/engages';
 import { CAMPAIGN_KINDS } from '../../constants';
 import { checkCampaignDoc, send } from '../../engageUtils';
-import { sendContactsMessage, sendCoreMessage } from '../../messageBroker';
+import { sendContactsMessage, sendCoreMessage, sendWebhooksMessage } from '../../messageBroker';
 import { updateConfigs, createTransporter, getEditorAttributeUtil } from '../../utils';
 import { awsRequests } from '../../trackers/engageTracker';
 import { debug } from '../../configs';
@@ -58,6 +58,16 @@ const engageMutations = {
     //   type: 'engageMessages',
     //   params: engageMessage
     // });
+
+    await sendWebhooksMessage({
+      subdomain,
+      action: 'sendToWebhook',
+      data: {
+        action: 'create',
+        type: 'engages:engageMessages',
+        params: engageMessage
+      }
+    });
 
     await send(models, subdomain, engageMessage);
 
