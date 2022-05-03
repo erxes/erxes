@@ -209,3 +209,12 @@ export const sendEmailTemplatesMessage = async (
     ...args,
   });
 };
+
+export const sendWebhooksMessage = (args: ISendMessageArgs) => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'webhooks',
+    ...args
+  })
+}
