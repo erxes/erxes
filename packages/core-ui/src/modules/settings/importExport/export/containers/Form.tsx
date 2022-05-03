@@ -17,7 +17,6 @@ import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-settings/src/prop
 
 type Props = {
   contentType: string;
-  serviceType: string;
 };
 
 type FinalProps = {
@@ -98,14 +97,13 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
       name: 'fieldsQuery',
-      options: ({ contentType, serviceType }) => {
+      options: ({ contentType }) => {
         return {
           variables: {
             contentType: ['lead', 'visitor'].includes(contentType)
               ? 'customer'
               : contentType,
             usageType: 'export',
-            serviceType,
             excludedNames: COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES.IMPORT
           }
         };
