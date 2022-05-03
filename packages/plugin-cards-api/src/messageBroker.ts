@@ -414,6 +414,15 @@ export const sendCommonMessage = async (
   });
 };
 
+export const sendWebhooksMessage = (args: ISendMessageArgs) => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: "webhooks",
+    ...args
+  })
+}
+
 export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
   sendSegmentsMessage({
     subdomain,

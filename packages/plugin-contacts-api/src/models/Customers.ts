@@ -18,6 +18,7 @@ import {
   sendFormsMessage,
   sendInboxMessage,
   sendInternalNotesMessage,
+  sendWebhooksMessage,
 } from "../messageBroker";
 
 interface IGetCustomerParams {
@@ -935,6 +936,18 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       webhookData.updatedDocument = customer;
 
       // await sendToWebhook('update', 'customer', webhookData);
+
+      console.log(webhookData, '----------------------------------------------');
+
+      await sendWebhooksMessage({
+        subdomain,
+        action: "sendToWebhook",
+        data: {
+          action: "update",
+          type: "contacts:customer",
+          params: webhookData
+        }
+      })
 
       const pssDoc = await models.Customers.calcPSS(customer);
 

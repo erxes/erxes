@@ -13,7 +13,7 @@ import {
   IConversationDocument
 } from './definitions/conversations';
 import { IModels } from '../connectionResolver';
-import { sendCoreMessage, sendFormsMessage } from '../messageBroker';
+import { sendCoreMessage, sendFormsMessage, sendWebhooksMessage } from '../messageBroker';
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
@@ -128,6 +128,16 @@ export const loadClass = (models: IModels, subdomain: string) => {
       });
 
       // await sendToWebhook('create', 'conversation', result);
+
+      await sendWebhooksMessage({
+        subdomain: 'os',
+        action: "sendToWebhook",
+        data: {
+          action: "create",
+          params: result,
+          type: 'inbox:conversation'
+        }
+      })
 
       return result;
     }
