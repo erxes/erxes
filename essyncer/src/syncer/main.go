@@ -119,6 +119,8 @@ func main() {
 		}
 	}`
 
+	fmt.Println("Starting put template")
+
 	putTemplate("events", fmt.Sprintf(`{
 		"organizationId": {
 			"type": "keyword"
@@ -145,6 +147,8 @@ func main() {
 			putTemplate(collection.Name, content)
 		}
 	}
+
+	fmt.Println("Creating mongo-elastic.toml file")
 
 	f, _ := os.Create("mongo-elastic.toml")
 
@@ -224,6 +228,8 @@ func main() {
 
 	f.Close()
 
+	fmt.Println("Before mongo-elastic.toml run")
+
 	cmd := exec.Command("monstache", "-f", "mongo-elastic.toml")
 
 	cmd.Stdin = os.Stdin
@@ -231,4 +237,6 @@ func main() {
 	cmd.Stderr = os.Stderr
 
 	cmd.Run()
+
+	fmt.Println("Running mongo-elastic.toml")
 }

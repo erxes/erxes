@@ -576,6 +576,13 @@ const update = async (program) => {
         continue;
       }
 
+      if (name === 'workers') {
+        await execCommand(
+          `docker service update erxes_plugin_workers_api --image erxes/workers:federation`
+        );
+        continue;
+      }
+
       await execCommand(
         `docker service update erxes_plugin_${name}_api --image erxes/plugin-${name}-api:federation`
       );
