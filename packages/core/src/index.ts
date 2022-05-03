@@ -35,12 +35,7 @@ import { getSubdomain } from "@erxes/api-utils/src/core";
 // load environment variables
 dotenv.config();
 
-const {
-  JWT_TOKEN_SECRET,
-  WIDGETS_DOMAIN,
-  DOMAIN,
-  CLIENT_PORTAL_DOMAINS,
-} = process.env;
+const { JWT_TOKEN_SECRET, WIDGETS_DOMAIN, DOMAIN } = process.env;
 
 if (!JWT_TOKEN_SECRET) {
   throw new Error("Please configure JWT_TOKEN_SECRET environment variable.");
