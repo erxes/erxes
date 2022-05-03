@@ -28,7 +28,7 @@ export const pluginsOfRoutes = (currentUser: IUser) => {
 
     plugins.push({
       name: pluginName,
-      ...plugin,
+      ...plugin
     });
 
     if (plugin.response) {
@@ -61,7 +61,7 @@ export const pluginsOfRoutes = (currentUser: IUser) => {
 
 const PluginsWrapper = ({
   itemName,
-  callBack,
+  callBack
 }: {
   itemName: string;
   callBack: (plugin: any, item: any) => React.ReactNode;
