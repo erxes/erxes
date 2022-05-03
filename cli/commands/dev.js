@@ -50,15 +50,12 @@ module.exports.devCmd = async (program) => {
 
   let port = 3300;
 
-  const interpreter = os.type() === 'Linux' ? '/bin/bash' : '';
-
   const apps = [
     {
       name: "coreui",
       cwd: filePath("../packages/core-ui/"),
       script: "yarn",
       args: "start",
-      interpreter,
       ...commonOptions,
       ignore_watch: ["node_modules"],
     },
@@ -67,7 +64,6 @@ module.exports.devCmd = async (program) => {
       cwd: filePath("../packages/core/"),
       script: "yarn",
       args: "dev",
-      interpreter,
       ...commonOptions,
       ignore_watch: ["node_modules"],
       env: {
@@ -113,7 +109,6 @@ module.exports.devCmd = async (program) => {
       cwd: filePath(`../widgets`),
       script: "yarn",
       args: "dev",
-      interpreter,
       ...commonOptions,
       ignore_watch: ["node_modules"],
     });
@@ -150,7 +145,6 @@ module.exports.devCmd = async (program) => {
           cwd: filePath(`../packages/plugin-${plugin.name}-ui`),
           script: "yarn",
           args: "start",
-          interpreter,
         ...commonOptions,
           ignore_watch: ["node_modules"],
         });
@@ -162,7 +156,6 @@ module.exports.devCmd = async (program) => {
       cwd: filePath(`../packages/plugin-${plugin.name}-api`),
       script: "yarn",
       args: "dev",
-      interpreter,
       ...commonOptions,
       ignore_watch: ["node_modules"],
       env: {
@@ -178,7 +171,6 @@ module.exports.devCmd = async (program) => {
       cwd: filePath(`../packages/workers`),
       script: "yarn",
       args: "dev",
-      interpreter,
         ...commonOptions,
       ignore_watch: ["node_modules"],
       env: {
@@ -193,7 +185,6 @@ module.exports.devCmd = async (program) => {
     cwd: filePath(`../packages/gateway`),
     script: "yarn",
     args: "dev",
-    interpreter,
       ...commonOptions,
     ignore_watch: ["node_modules"],
     env: {
