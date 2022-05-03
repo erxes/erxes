@@ -22,6 +22,10 @@ module.exports.devCmd = async (program) => {
     enabledServices.push(`'${plugin.name}'`);
   }
 
+  if (configs.workers) {
+    enabledServices.push("'workers'");
+  }
+
   await fse.writeFile(
     filePath("enabled-services.js"),
     `
@@ -46,15 +50,12 @@ module.exports.devCmd = async (program) => {
 
   let port = 3300;
 
-  const interpreter = os.type() === 'Linux' ? '/bin/bash' : '';
-
   const apps = [
     {
       name: "coreui",
       cwd: filePath("../packages/core-ui/"),
       script: "yarn",
       args: "start",
-      interpreter,
       ...commonOptions,
       ignore_watch: ["node_modules"],
     },
@@ -63,7 +64,6 @@ module.exports.devCmd = async (program) => {
       cwd: filePath("../packages/core/"),
       script: "yarn",
       args: "dev",
-      interpreter,
       ...commonOptions,
       ignore_watch: ["node_modules"],
       env: {
@@ -109,7 +109,6 @@ module.exports.devCmd = async (program) => {
       cwd: filePath(`../widgets`),
       script: "yarn",
       args: "dev",
-      interpreter,
       ...commonOptions,
       ignore_watch: ["node_modules"],
     });
@@ -146,7 +145,6 @@ module.exports.devCmd = async (program) => {
           cwd: filePath(`../packages/plugin-${plugin.name}-ui`),
           script: "yarn",
           args: "start",
-          interpreter,
         ...commonOptions,
           ignore_watch: ["node_modules"],
         });
@@ -158,11 +156,25 @@ module.exports.devCmd = async (program) => {
       cwd: filePath(`../packages/plugin-${plugin.name}-api`),
       script: "yarn",
       args: "dev",
-      interpreter,
       ...commonOptions,
       ignore_watch: ["node_modules"],
       env: {
         PORT: port,
+        ...commonEnv,
+      },
+    });
+  }
+
+  if (configs.workers) {
+    apps.push({
+      name: 'workers',
+      cwd: filePath(`../packages/workers`),
+      script: "yarn",
+      args: "dev",
+        ...commonOptions,
+      ignore_watch: ["node_modules"],
+      env: {
+        PORT: 3700,
         ...commonEnv,
       },
     });
@@ -173,7 +185,6 @@ module.exports.devCmd = async (program) => {
     cwd: filePath(`../packages/gateway`),
     script: "yarn",
     args: "dev",
-    interpreter,
       ...commonOptions,
     ignore_watch: ["node_modules"],
     env: {
@@ -213,6 +224,12 @@ module.exports.devCmd = async (program) => {
       if (plugin.ui === 'local') {
         await execCommand(`pm2 start ecosystem.config.js --only ${plugin.name}-ui`);
       }
+    }
+
+    if (configs.workers) {
+      log("starting workers ....");
+      await sleep(10000);
+      await execCommand('pm2 start ecosystem.config.js --only workers');
     }
 
     log(`starting gateway ....`);

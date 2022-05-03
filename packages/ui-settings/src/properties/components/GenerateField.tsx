@@ -18,7 +18,7 @@ import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import { __ } from '@erxes/ui/src/utils/core';
 import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
 import Map from '@erxes/ui/src/components/Map';
-import { MapContainer } from 'react-leaflet';
+import { MapContainer } from '@erxes/ui/src/styles/main';
 
 type Props = {
   field: IField;

@@ -45,8 +45,7 @@ class Sidebar extends React.Component<Props> {
           />
         </FormGroup>
 
-        {isEnabled("products") ||
-          (isEnabled("forms") && sidebar && sidebar(saveItem))}
+        {isEnabled("products") && sidebar && sidebar(saveItem)}
 
         <CustomFieldsSection item={item} options={options} />
         <SidebarConformity {...this.props} />
