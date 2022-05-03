@@ -49,8 +49,7 @@ export const getServices = async (): Promise<string[]> => {
 
 export const getService = async (name: string, config?: boolean) => {
   const result: { address: string; config: any } = {
-    address: await redis.get(`service:${name}`) || '',
-    config: { meta: {} },
+    address: await redis.get(`service:${name}`) || '', config: { meta: {} },
   };
 
   if (config) {

@@ -300,12 +300,12 @@ const up = async (uis) => {
         volumes: ["./enabled-services.js:/data/enabled-services.js"],
         networks: ["erxes"],
       },
-      workers: {
+      plugin_workers_api: {
         image: "erxes/workers:federation",
         environment: {
           PORT: "80",
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          LOAD_BALANCER_ADDRESS: "http://plugin_worker_api",
+          LOAD_BALANCER_ADDRESS: "http://plugin_workers_api",
           MONGO_URL: mongoEnv(configs),
           ...commonEnvs(configs),
         },
@@ -555,7 +555,7 @@ const update = async (program) => {
     if (!program.noimage) {
       log(`Updating image ${name}......`);
 
-      if (['dashboard', 'workers', 'crons', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
+      if (['dashboard', 'crons', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
         await execCommand(
           `docker service update erxes_${name} --image erxes/${name}:federation`
         );
@@ -572,6 +572,13 @@ const update = async (program) => {
       if (name === 'core') {
         await execCommand(
           `docker service update erxes_plugin_core_api --image erxes/core:federation`
+        );
+        continue;
+      }
+
+      if (name === 'workers') {
+        await execCommand(
+          `docker service update erxes_plugin_workers_api --image erxes/workers:federation`
         );
         continue;
       }
