@@ -3,7 +3,7 @@ import { es } from './configs';
 import { generateModels } from './connectionResolver';
 import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
 import { clearEmptyValues, generatePronoun } from './importUtils';
-import { sendCoreMessage } from './messageBroker';
+import { sendCoreMessage, sendTagsMessage } from './messageBroker';
 
 export default {
   importTypes: IMPORT_TYPES,
@@ -20,6 +20,7 @@ export default {
 
       let updated: number = 0;
 
+      const conformityCustomerMapping = {};
       const updateDocs: any = [];
 
       let insertDocs: any = [];
@@ -45,6 +46,44 @@ export default {
       const customFieldsByPrimaryPhone = {};
       const customFieldsByPrimaryName = {};
       const customFieldsByCode = {};
+
+      const createConformityMapping = async ({
+        index,
+        field,
+        values,
+        conformityTypeModel,
+        relType
+      }: {
+        index: number;
+        field: string;
+        values: string[];
+        conformityTypeModel: any;
+        relType: string;
+      }) => {
+        if (values.length === 0 && contentType !== relType) {
+          return;
+        }
+
+        const ids = await conformityTypeModel
+          .find({ [field]: { $in: values } })
+          .distinct('_id');
+
+        if (ids.length === 0) {
+          return;
+        }
+
+        for (const id of ids) {
+          if (!conformityCustomerMapping[index]) {
+            conformityCustomerMapping[index] = [];
+          }
+
+          conformityCustomerMapping[index].push({
+            relType,
+            mainType: contentType === 'lead' ? 'customer' : contentType,
+            relTypeId: id
+          });
+        }
+      };
 
       const generateUpdateDocs = async (
         _id,
@@ -246,6 +285,18 @@ export default {
           insertDocs = docs;
         }
 
+        console.log(`Insert doc length: ${insertDocs.length}`);
+
+        insertDocs.map(async (doc, docIndex) => {
+          await createConformityMapping({
+            index: docIndex,
+            field: 'primaryName',
+            values: doc.companiesPrimaryNames || [],
+            conformityTypeModel: Companies,
+            relType: 'company'
+          });
+        });
+
         if (updateDocs.length > 0) {
           await Customers.bulkWrite(updateDocs);
         }
@@ -258,11 +309,6 @@ export default {
           if (!doc.ownerId && user) {
             doc.ownerId = user._id;
           }
-
-          // clean custom field values
-          // doc.customFieldsData = await prepareCustomFieldsData(
-          //   doc.customFieldsData
-          // );
 
           doc.searchText = Companies.fillSearchText(doc);
           doc.createdAt = new Date();
@@ -319,6 +365,36 @@ export default {
 
         objects = await Companies.insertMany(insertDocs);
       }
+
+      const createConformity = async mapping => {
+        if (Object.keys(mapping).length === 0) {
+          return;
+        }
+
+        const conformityDocs: any[] = [];
+
+        objects.map(async (object, objectIndex) => {
+          const items = mapping[objectIndex] || [];
+
+          if (items.length === 0) {
+            return;
+          }
+
+          for (const item of items) {
+            item.mainTypeId = object._id;
+          }
+
+          conformityDocs.push(...items);
+        });
+
+        await sendCoreMessage({
+          subdomain,
+          action: 'conformities.addConformities',
+          data: conformityDocs
+        });
+      };
+
+      await createConformity(conformityCustomerMapping);
 
       return { objects, updated };
     } catch (e) {
@@ -404,35 +480,41 @@ export default {
             doc.vendorCode = value;
             break;
 
-          // case 'tag':
-          //   {
-          //     const tagName = value;
+          case 'tag':
+            {
+              const tagName = value;
 
-          //     // let tag = await findOneTag({
-          //     //   name: new RegExp(`.*${tagName}.*`, 'i')
-          //     // });
+              let tag = await sendTagsMessage({
+                subdomain,
+                action: 'findOne',
+                data: { name: tagName, type: contentType }
+              });
 
-          //     if (!tag) {
-          //       const type = contentType === 'lead' ? 'customer' : contentType;
+              if (!tag) {
+                const type = contentType === 'lead' ? 'customer' : contentType;
 
-          //       // tag = await createTag({ name: tagName, type });
-          //     }
+                tag = await sendTagsMessage({
+                  subdomain,
+                  action: 'createTag',
+                  data: { name: tagName, type: `contacts:${type}` }
+                });
+              }
 
-          //     doc[property.name] = tag ? [tag._id] : [];
-          //   }
+              doc[property.name] = tag ? [tag._id] : [];
+            }
 
-          //   break;
+            break;
 
           case 'assignedUserEmail':
             {
-               const assignedUser = await sendCoreMessage({
-                 subdomain,
-                 action: 'users.findOne',
-                 data: {
-                   email: value
-                 },
-                 isRPC: true
-               });
+              const assignedUser = await sendCoreMessage({
+                subdomain,
+                action: 'users.findOne',
+                data: {
+                  email: value
+                },
+                isRPC: true
+              });
 
               doc[property.name] = assignedUser ? [assignedUser._id] : [];
             }

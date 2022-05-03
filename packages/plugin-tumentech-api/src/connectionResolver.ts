@@ -1,19 +1,19 @@
-import * as mongoose from 'mongoose';
-import { mainDb } from './configs';
-import { IContext as IMainContext } from '@erxes/api-utils/src';
+import * as mongoose from "mongoose";
+import { mainDb } from "./configs";
+import { IContext as IMainContext } from "@erxes/api-utils/src";
 import {
   ICarDocument,
   ICarCategoryDocument,
   IProductCarCategoryDocument,
   productCarCategorySchema
-} from './models/definitions/tumentech';
+} from "./models/definitions/tumentech";
 import {
   loadCarsClass,
   loadCarCategoryClass,
   ICarModel,
   ICarCategoryModel,
   IProductCarCategoryModel
-} from './models/Tumentech';
+} from "./models/Tumentech";
 
 export interface IModels {
   Cars: ICarModel;
@@ -44,19 +44,19 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
   models.Cars = db.model<ICarDocument, ICarModel>(
-    'cars',
+    "cars",
     loadCarsClass(models)
   );
 
   models.CarCategories = db.model<ICarCategoryDocument, ICarCategoryModel>(
-    'cars_category',
+    "car_categories",
     loadCarCategoryClass(models)
   );
 
   models.ProductCarCategories = db.model<
     IProductCarCategoryDocument,
     IProductCarCategoryModel
-  >('product_cars_category', productCarCategorySchema);
+  >("product_car_category", productCarCategorySchema);
 
   return models;
 };
