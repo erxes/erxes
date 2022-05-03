@@ -284,7 +284,7 @@ const getWorkerFile = fileName => {
     return `./src/worker/${fileName}.worker.import.js`;
   }
 
-  return `./dist/worker/${fileName}.worker.import.js`;
+  return `./dist/workers/src/worker/${fileName}.worker.import.js`;
 };
 
 export const clearEmptyValues = (obj: any) => {

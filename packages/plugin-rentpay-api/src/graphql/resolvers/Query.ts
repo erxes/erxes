@@ -383,6 +383,51 @@ const queries = {
 
     return deal;
   },
+
+  async fieldsForRentpay(
+    _root,
+    {
+      contentType,
+      searchable,
+      code,
+    }: {
+      contentType: string;
+      searchable: boolean;
+      code: string;
+    }
+  ) {
+    const query: any = { contentType };
+
+    if (code) {
+      const group = await sendCommonMessage({
+        subdomain: "os",
+        data: { code },
+        action: "fieldsGroups.findOne",
+        serviceName: "forms",
+        defaultValue: null,
+        isRPC: true,
+      });
+
+      if (!group) {
+        throw new Error(`Group not found with ${code}`);
+      }
+
+      query.groupId = group._id;
+    }
+
+    if (searchable !== undefined) {
+      query.searchable = searchable;
+    }
+
+    return sendCommonMessage({
+      subdomain: "os",
+      data: { query, sort: { order: 1 } },
+      action: "fields.find",
+      serviceName: "forms",
+      defaultValue: [],
+      isRPC: true,
+    });
+  },
 };
 
 export default queries;

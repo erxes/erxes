@@ -1,3 +1,3 @@
-import tumentechQuery from "./tumentech";
+import tumentechQuery from './tumentech';
 
 export default { ...tumentechQuery };
