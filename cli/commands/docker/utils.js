@@ -280,7 +280,7 @@ const up = async uis => {
             "https://email-verifier.erxes.io",
           ENABLED_SERVICES_PATH: "/data/enabled-services.js",
           ...commonEnvs(configs),
-          ...((configs.plugin_core_api || {}).extra_env || {}),
+          ...((configs.core || {}).extra_env || {}),
         },
         extra_hosts,
         volumes: [
