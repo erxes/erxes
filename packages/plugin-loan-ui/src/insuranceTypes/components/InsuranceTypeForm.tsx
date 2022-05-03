@@ -10,7 +10,7 @@ import {
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
   SelectCompanies,
-} from '@erxes/ui';
+} from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 

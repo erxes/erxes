@@ -56,7 +56,7 @@ export default {
     internalNotes
   },
   apolloServerContext: async (context, req) => {
-    const subdomain = getSubdomain(req.hostname);
+    const subdomain = getSubdomain(req);
 
     context.models = await generateModels(subdomain);
     context.subdomain = subdomain;
@@ -71,7 +71,7 @@ export default {
       routeErrorHandling(async (req: any, res) => {
         const { query, user } = req;
         const { segment } = query;
-        const subdomain = getSubdomain(req.hostname);
+        const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
 
         const result = await buildFile(

@@ -1,4 +1,4 @@
-import { withProps } from '@erxes/ui';
+import { withProps } from '@erxes/ui/src';
 import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
 import { queries } from '@erxes/ui-products/src/graphql';
 import gql from 'graphql-tag';

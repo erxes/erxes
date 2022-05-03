@@ -46,6 +46,58 @@ const getCustomFieldsDataWithValue = async (customFieldsData: any) => {
   return customFields;
 };
 
+const getProducts = async deal => {
+  const products: any[] = [];
+
+  if (deal.productsData && deal.productsData.length > 0) {
+    const product = await sendCommonMessage({
+      subdomain: "os",
+      data: { _id: deal.productsData[0].productId },
+      action: "findOne",
+      serviceName: "products",
+      isRPC: true,
+    });
+
+    if (product) {
+      products.push(product);
+    }
+  }
+  return products;
+};
+
+const getAssignedUsers = async (deal: any) => {
+  if (deal.assignedUserIds && deal.assignedUserIds.length > 0) {
+    const assignedUsers = await sendCommonMessage({
+      subdomain: "os",
+      data: {
+        query: {
+          _id: deal.assignedUserIds,
+        },
+      },
+      serviceName: "cards",
+      action: "deals.find",
+      defaultValue: [],
+      isRPC: true,
+    });
+
+    return assignedUsers;
+  }
+
+  return [];
+};
+
+const getStage = async (deal: any) => {
+  const stage = await sendCommonMessage({
+    subdomain: "os",
+    data: { _id: deal.stageId },
+    action: "stages.findOne",
+    serviceName: "cards",
+    isRPC: true,
+  });
+
+  return stage;
+};
+
 const queries = {
   /**
    * Group engage messages counts by kind, status, tag
@@ -286,46 +338,11 @@ const queries = {
         customFieldsData
       );
 
-      if (deal.assignedUserIds && deal.assignedUserIds.length > 0) {
-        const assignedUsers = await sendCommonMessage({
-          subdomain: "os",
-          data: {
-            query: {
-              _id: deal.assignedUserIds,
-            },
-          },
-          serviceName: "cards",
-          action: "deals.find",
-          defaultValue: [],
-          isRPC: true,
-        });
+      deal.assignedUsers = await getAssignedUsers(deal);
 
-        deal.assignedUsers = assignedUsers;
-      }
+      deal.stage = await getStage(deal);
 
-      const stage = await sendCommonMessage({
-        subdomain: "os",
-        data: { _id: deal.stageId },
-        action: "stages.findOne",
-        serviceName: "cards",
-        isRPC: true,
-      });
-
-      deal.stage = stage;
-
-      if (deal.productsData && deal.productsData.length > 0) {
-        const product = await sendCommonMessage({
-          subdomain: "os",
-          data: { _id: deal.productsData[0].productId },
-          action: "findOne",
-          serviceName: "products",
-          isRPC: true,
-        });
-
-        if (product) {
-          deal.products = [product];
-        }
-      }
+      deal.products = await getProducts(deal);
     }
 
     const totalCount = await sendCommonMessage({
@@ -358,7 +375,58 @@ const queries = {
       customFieldsData
     );
 
+    deal.products = await getProducts(deal);
+
+    deal.stage = await getStage(deal);
+
+    deal.assignedUsers = await getAssignedUsers(deal);
+
     return deal;
+  },
+
+  async fieldsForRentpay(
+    _root,
+    {
+      contentType,
+      searchable,
+      code,
+    }: {
+      contentType: string;
+      searchable: boolean;
+      code: string;
+    }
+  ) {
+    const query: any = { contentType };
+
+    if (code) {
+      const group = await sendCommonMessage({
+        subdomain: "os",
+        data: { code },
+        action: "fieldsGroups.findOne",
+        serviceName: "forms",
+        defaultValue: null,
+        isRPC: true,
+      });
+
+      if (!group) {
+        throw new Error(`Group not found with ${code}`);
+      }
+
+      query.groupId = group._id;
+    }
+
+    if (searchable !== undefined) {
+      query.searchable = searchable;
+    }
+
+    return sendCommonMessage({
+      subdomain: "os",
+      data: { query, sort: { order: 1 } },
+      action: "fields.find",
+      serviceName: "forms",
+      defaultValue: [],
+      isRPC: true,
+    });
   },
 };
 

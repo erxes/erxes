@@ -1,4 +1,4 @@
-import { Button, formatValue, FormControl, ModalTrigger } from '@erxes/ui';
+import { Button, formatValue, FormControl, ModalTrigger } from '@erxes/ui/src';
 import _ from 'lodash';
 import React from 'react';
 

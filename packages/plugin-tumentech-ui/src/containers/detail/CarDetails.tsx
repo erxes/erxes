@@ -1,5 +1,5 @@
-import { EmptyState, Spinner, withProps } from 'erxes-ui';
-import { IUser } from 'erxes-ui/lib/auth/types';
+import { EmptyState, Spinner, withProps } from '@erxes/ui/src';
+import { IUser } from '@erxes/ui/src/auth/types';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';

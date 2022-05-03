@@ -1,13 +1,13 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'erxes-ui';
+import { Alert, withProps } from '@erxes/ui/src';
 import { mutations, queries } from '../../graphql';
 import BasicInfoSection from '../../components/common/BasicInfoSection';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { IUser } from 'erxes-ui/lib/auth/types';
-import { IRouterProps } from 'erxes-ui/lib/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import {
   ICar,
   RemoveMutationResponse,
@@ -33,7 +33,7 @@ const BasicInfoContainer = (props: FinalProps) => {
         Alert.success('You successfully deleted a car');
         history.push('/cars');
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };

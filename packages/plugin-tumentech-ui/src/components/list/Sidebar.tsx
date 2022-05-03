@@ -1,9 +1,9 @@
-import { Wrapper } from 'erxes-ui';
+import { Wrapper } from '@erxes/ui/src';
 import React from 'react';
 
 import CategoryList from '../../containers/carCategory/CategoryList';
 import { IProduct, IProductCategory } from '../../types';
-import { IButtonMutateProps } from 'erxes-ui/lib/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 function Sidebar({
   loadingMainQuery,

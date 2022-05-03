@@ -1,3 +1,4 @@
+import { Document } from 'mongoose';
 export interface IErkhetResponse {
   createdAt: Date;
   contractId: string;
@@ -6,7 +7,7 @@ export interface IErkhetResponse {
   data: any;
 }
 
-export interface IErkhetResponseDocument extends IErkhetResponse {
+export interface IErkhetResponseDocument extends IErkhetResponse, Document {
   _id: string;
 }
 

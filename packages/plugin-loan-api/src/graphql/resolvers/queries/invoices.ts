@@ -1,6 +1,6 @@
 import { paginate } from 'erxes-api-utils';
-import { getFullDate, getRandomNumber } from '../../models/utils/utils';
-import { getCalcedAmounts } from '../../models/utils/transactionUtils';
+import { getFullDate, getRandomNumber } from '../../../models/utils/utils';
+import { getCalcedAmounts } from '../../../models/utils/transactionUtils';
 
 const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;

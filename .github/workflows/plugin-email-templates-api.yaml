@@ -11,7 +11,7 @@ on:
       - '.github/workflows/plugin-email-templates-api.yaml'
 
 jobs:
-  plugin-email-templates-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

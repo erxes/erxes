@@ -6,10 +6,10 @@ import {
   ControlLabel,
   FormControl,
   FormGroup
-} from 'erxes-ui';
-import { IButtonMutateProps, IFormProps } from 'erxes-ui/lib/types';
+} from '@erxes/ui/src';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { ICarCategory, ICarCategoryDoc } from '../../types';
+import { ICarCategory } from '../../types';
 import Select from 'react-select-plus';
 import { COLLAPSE_CONTENT_SELECTOR } from '../../constants';
 
@@ -35,8 +35,8 @@ class CategoryForm extends React.Component<Props, State> {
     };
   }
 
-  onCollapseContentChange = options => {
-    const collapseContent = options.map(option => option.value);
+  onCollapseContentChange = (options) => {
+    const collapseContent = options.map((option) => option.value);
     this.setState({ collapseContent });
   };
 

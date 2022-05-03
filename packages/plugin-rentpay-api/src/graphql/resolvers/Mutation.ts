@@ -1,4 +1,4 @@
-import { sendCoreMessage } from '../../messageBroker';
+import { sendCommonMessage, sendCoreMessage } from "../../messageBroker";
 
 const mutations = {
   /**
@@ -6,38 +6,55 @@ const mutations = {
    */
   async modifyWaiterCustomerList(_root, { dealId, customerId, type }) {
     let customerIds = await sendCoreMessage({
-      subdomain: 'os',
+      subdomain: "os",
       data: {
-        mainType: 'deal',
+        mainType: "deal",
         mainTypeIds: [dealId],
-        relType: 'waiterCustomer'
+        relType: "waiterCustomer",
       },
-      action: 'conformities.filterConformity',
+      action: "conformities.filterConformity",
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
-    if (type === 'add' && !customerIds.includes(customerId)) {
+    if (type === "add" && !customerIds.includes(customerId)) {
       customerIds.push(customerId);
-    } else if (type === 'remove') {
+    } else if (type === "remove") {
       customerIds = customerIds.filter(id => id !== customerId);
     }
 
     await sendCoreMessage({
-      subdomain: 'os',
+      subdomain: "os",
       data: {
-        mainType: 'deal',
+        mainType: "deal",
         mainTypeId: dealId,
-        relType: 'waiterCustomer',
-        relTypeIds: customerIds
+        relType: "waiterCustomer",
+        relTypeIds: customerIds,
       },
-      action: 'conformities.editConformity',
+      action: "conformities.editConformity",
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     return customerIds;
-  }
+  },
+
+  async updateRentpayCustomer(_root, { customerId, customFields }) {
+    const updated = await sendCommonMessage({
+      subdomain: "os",
+      data: {
+        _id: customerId,
+        doc: {
+          customFields,
+        },
+      },
+      serviceName: "contacts",
+      action: "customers.updateCustomer",
+      isRPC: true,
+    });
+
+    return updated;
+  },
 };
 
 export default mutations;

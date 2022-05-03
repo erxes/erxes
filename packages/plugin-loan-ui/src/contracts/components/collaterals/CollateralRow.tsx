@@ -1,4 +1,4 @@
-import { Icon, __ } from '@erxes/ui';
+import { Icon, __ } from '@erxes/ui/src';
 
 import React from 'react';
 import { NameWrapper, RemoveRow } from '../../styles';

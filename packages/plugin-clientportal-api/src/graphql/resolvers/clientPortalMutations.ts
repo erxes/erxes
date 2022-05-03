@@ -1,8 +1,8 @@
-import { IClientPortal } from '../../models/definitions/clientPortal';
-import { BOARD_STATUSES } from '../../models/definitions/constants';
-import { checkPermission } from '@erxes/api-utils/src';
-import { sendCardsMessage, sendContactsMessage } from '../../messageBroker';
-import { IContext } from '../../connectionResolver';
+import { IClientPortal } from "../../models/definitions/clientPortal";
+import { BOARD_STATUSES } from "../../models/definitions/constants";
+import { checkPermission } from "@erxes/api-utils/src";
+import { sendCardsMessage, sendContactsMessage } from "../../messageBroker";
+import { IContext } from "../../connectionResolver";
 interface ICreateCard {
   type: string;
   email: string;
@@ -28,6 +28,8 @@ const configClientPortalMutations = {
       firstName: string;
       lastName: string;
       email: string;
+      phone: string;
+      avatar: string;
     },
     { models, subdomain }: IContext
   ) {
@@ -35,12 +37,14 @@ const configClientPortalMutations = {
 
     return sendContactsMessage({
       subdomain,
-      action: 'customers.createCustomer',
+      action: "customers.createCustomer",
       data: {
         firstName: args.firstName,
         lastName: args.lastName,
         primaryEmail: args.email,
-        state: 'customer',
+        primaryPhone: args.phone,
+        state: "customer",
+        avatar: args.avatar,
       },
       isRPC: true,
     });
@@ -59,7 +63,7 @@ const configClientPortalMutations = {
 
     return sendContactsMessage({
       subdomain,
-      action: 'companies.createCompany',
+      action: "companies.createCompany",
       data: {
         primaryName: args.companyName,
         primaryEmail: args.email,
@@ -77,13 +81,13 @@ const configClientPortalMutations = {
   ) {
     const customer = await sendContactsMessage({
       subdomain,
-      action: 'customers.find',
+      action: "customers.find",
       data: { primaryEmail: email },
       isRPC: true,
     });
 
     if (!customer) {
-      throw new Error('Customer not registered');
+      throw new Error("Customer not registered");
     }
 
     const dataCol = {
@@ -95,16 +99,16 @@ const configClientPortalMutations = {
       status: BOARD_STATUSES.ACTIVE,
     };
 
-    return type === 'ticket'
+    return type === "ticket"
       ? await sendCardsMessage({
           subdomain,
-          action: 'tickets.create',
+          action: "tickets.create",
           data: dataCol,
           isRPC: true,
         })
       : await sendCardsMessage({
           subdomain,
-          action: 'tasks.create',
+          action: "tasks.create",
           data: dataCol,
           isRPC: true,
         });
@@ -113,14 +117,14 @@ const configClientPortalMutations = {
 
 checkPermission(
   configClientPortalMutations,
-  'clientPortalConfigUpdate',
-  'manageClientPortal'
+  "clientPortalConfigUpdate",
+  "manageClientPortal"
 );
 
 checkPermission(
   configClientPortalMutations,
-  'clientPortalRemove',
-  'manageClientPortal'
+  "clientPortalRemove",
+  "manageClientPortal"
 );
 
 export default configClientPortalMutations;

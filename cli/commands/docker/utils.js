@@ -1,13 +1,7 @@
 const fs = require("fs");
 const fse = require("fs-extra");
 const yaml = require("yaml");
-const { log, execCommand, filePath, execCurl } = require("../utils");
-
-const sleep = (ms) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
+const { log, sleep, execCommand, filePath, execCurl } = require("../utils");
 
 const commonEnvs = (configs) => {
   const db_server_address = configs.db_server_address;
@@ -166,6 +160,10 @@ const deployDbs = async (program) => {
   }
 
   if (configs.redis) {
+    if (!(await fse.exists(filePath("redisdata")))) {
+      await execCommand("mkdir redisdata");
+    }
+
     dockerComposeConfig.services.redis = {
       image: "redis:5.0.5",
       command: `redis-server --appendonly yes --requirepass ${configs.redis.password}`,
@@ -176,6 +174,10 @@ const deployDbs = async (program) => {
   }
 
   if (configs.rabbitmq) {
+    if (!(await fse.exists(filePath("rabbitmq-data")))) {
+      await execCommand("mkdir rabbitmq-data");
+    }
+
     dockerComposeConfig.services.rabbitmq = {
       image: "rabbitmq:3.7.17-management",
       hostname: "rabbitmq",
@@ -298,12 +300,12 @@ const up = async (uis) => {
         volumes: ["./enabled-services.js:/data/enabled-services.js"],
         networks: ["erxes"],
       },
-      workers: {
+      plugin_workers_api: {
         image: "erxes/workers:federation",
         environment: {
           PORT: "80",
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          LOAD_BALANCER_ADDRESS: "http://plugin_worker_api",
+          LOAD_BALANCER_ADDRESS: "http://plugin_workers_api",
           MONGO_URL: mongoEnv(configs),
           ...commonEnvs(configs),
         },
@@ -381,7 +383,7 @@ const up = async (uis) => {
 
   const pluginsMap = require(filePath("pluginsMap.js"));
 
-  const enabledPlugins = [];
+  const enabledPlugins = ["'workers'"];
   const uiPlugins = [];
   const essyncerJSON = { plugins: [] };
   const permissionsJSON = [];
@@ -553,7 +555,7 @@ const update = async (program) => {
     if (!program.noimage) {
       log(`Updating image ${name}......`);
 
-      if (['dashboard', 'workers', 'crons', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
+      if (['dashboard', 'crons', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
         await execCommand(
           `docker service update erxes_${name} --image erxes/${name}:federation`
         );
@@ -570,6 +572,13 @@ const update = async (program) => {
       if (name === 'core') {
         await execCommand(
           `docker service update erxes_plugin_core_api --image erxes/core:federation`
+        );
+        continue;
+      }
+
+      if (name === 'workers') {
+        await execCommand(
+          `docker service update erxes_plugin_workers_api --image erxes/workers:federation`
         );
         continue;
       }

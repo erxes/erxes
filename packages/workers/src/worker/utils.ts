@@ -33,8 +33,21 @@ const checkFieldNames = async (fields: string[], columnConfig?: object) => {
       fieldName = columnConfig[fieldName].value;
     }
 
+    if (columnConfig) {
+      if (columnConfig[fieldName]) {
+        fieldName = columnConfig[fieldName].value;
+      }
+    }
+
     property.name = fieldName;
     property.type = 'basic';
+
+    if (fieldName.includes('customFieldsData')) {
+      const fieldId = fieldName.split('.')[1];
+
+      property.type = 'customProperty';
+      property.id = fieldId;
+    }
 
     if (fieldName === 'companiesPrimaryNames') {
       property.name = 'companyIds';
@@ -273,7 +286,7 @@ const getWorkerFile = fileName => {
     return `./src/worker/${fileName}.worker.import.js`;
   }
 
-  return `./dist/worker/${fileName}.worker.import.js`;
+  return `./dist/workers/src/worker/${fileName}.worker.import.js`;
 };
 
 export const clearEmptyValues = (obj: any) => {

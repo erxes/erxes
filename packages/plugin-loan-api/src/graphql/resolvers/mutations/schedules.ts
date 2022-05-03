@@ -1,7 +1,7 @@
 import { getConfig } from 'erxes-api-utils';
-import { SCHEDULE_STATUS } from '../../models/definitions/constants';
-import { reGenerateSchedules } from '../../models/utils/scheduleUtils';
-import { IPerHoliday } from '../../models/utils/utils';
+import { SCHEDULE_STATUS } from '../../../models/definitions/constants';
+import { reGenerateSchedules } from '../../../models/utils/scheduleUtils';
+import { IPerHoliday } from '../../../models/utils/utils';
 
 const scheduleMutations = {
   regenSchedules: async (

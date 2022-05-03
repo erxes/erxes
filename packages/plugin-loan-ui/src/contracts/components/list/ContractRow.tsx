@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { FormControl, formatValue } from '@erxes/ui';
+import { FormControl, formatValue } from '@erxes/ui/src';
 import React from 'react';
 import { FlexItem } from '../../styles';
 import { IContract } from '../../types';

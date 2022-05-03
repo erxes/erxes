@@ -1,4 +1,4 @@
-import { colors, dimensions, SidebarList } from '@erxes/ui';
+import { colors, dimensions, SidebarList } from '@erxes/ui/src';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 

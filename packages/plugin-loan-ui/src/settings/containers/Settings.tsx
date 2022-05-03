@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Spinner, Alert, withProps } from '@erxes/ui';
+import { Spinner, Alert, withProps } from '@erxes/ui/src';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { mutations, queries } from '../graphql';

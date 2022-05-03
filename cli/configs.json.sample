@@ -1,0 +1,24 @@
+{
+	"jwt_token_secret": "token",
+	"dashboard": {
+	},
+	"elasticsearch": {},
+	"redis": {
+		"password": ""
+	},
+	"mongo": {
+		"username": "",
+		"password": ""
+	},
+	"rabbitmq": {
+		"cookie": "",
+		"user": "",
+		"pass": "",
+		"vhost": ""
+	},
+	"plugins": [
+		{
+			"name": "logs"
+		}
+	]
+}

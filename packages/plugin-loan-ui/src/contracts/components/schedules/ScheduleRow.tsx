@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { __, Icon } from '@erxes/ui';
+import { __, Icon } from '@erxes/ui/src';
 import _ from 'lodash';
 import React from 'react';
 
@@ -11,7 +11,7 @@ type Props = {
 };
 
 function ScheduleRow({ schedule }: Props) {
-  const onClick = e => {
+  const onClick = (e) => {
     e.stopPropagation();
   };
 
@@ -21,30 +21,20 @@ function ScheduleRow({ schedule }: Props) {
 
   const renderIcon = (status) => {
     if (status === 'done') {
-      return (
-        <Icon icon={'medal'} color={'orange'} />
-      )
+      return <Icon icon={'medal'} color={'orange'} />;
     }
     if (status === 'skipped') {
-      return (
-        <Icon icon={'skip-forward-alt'} color={'blue'} />
-      )
+      return <Icon icon={'skip-forward-alt'} color={'blue'} />;
     }
     if (status === 'less') {
-      return (
-        <Icon icon={'thumbs-down'} color={'red'} />
-      )
+      return <Icon icon={'thumbs-down'} color={'red'} />;
     }
 
-    return (
-      <Icon icon={'sync-exclamation'} color={'green'} />
-    )
-  }
+    return <Icon icon={'sync-exclamation'} color={'green'} />;
+  };
   const renderCell = (name, didName) => {
     if (!schedule[didName]) {
-      return (
-        (schedule[name] || 0).toLocaleString()
-      );
+      return (schedule[name] || 0).toLocaleString();
     }
 
     return (
@@ -52,8 +42,8 @@ function ScheduleRow({ schedule }: Props) {
         <WillAmount>{(schedule[name] || 0).toLocaleString()}</WillAmount>
         <DidAmount> / {(schedule[didName] || 0).toLocaleString()}</DidAmount>
       </>
-    )
-  }
+    );
+  };
 
   return (
     <ExtraRow isDefault={schedule.isDefault} key={schedule._id}>
@@ -67,7 +57,6 @@ function ScheduleRow({ schedule }: Props) {
       <td>{renderCell('debt', 'didDebt')}</td>
       <td>{renderCell('total', 'didTotal')}</td>
     </ExtraRow>
-
   );
 }
 

@@ -1,4 +1,4 @@
-import { __, Box, EmptyState, Icon, ModalTrigger } from '@erxes/ui';
+import { __, Box, EmptyState, Icon, ModalTrigger } from '@erxes/ui/src';
 import { IProduct } from '@erxes/ui-products/src/types';
 import React from 'react';
 

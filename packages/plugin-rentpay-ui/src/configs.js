@@ -25,4 +25,5 @@ module.exports = {
       scope: "rentpay",
     },
   ],
+  menus: [],
 };

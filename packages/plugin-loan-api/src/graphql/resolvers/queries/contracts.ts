@@ -1,6 +1,6 @@
 import { paginate } from 'erxes-api-utils';
-import { getCloseInfo } from '../../models/utils/closeUtils';
-import { getFullDate } from '../../models/utils/utils';
+import { getCloseInfo } from '../../../models/utils/closeUtils';
+import { getFullDate } from '../../../models/utils/utils';
 
 const generateFilter = async (models, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;

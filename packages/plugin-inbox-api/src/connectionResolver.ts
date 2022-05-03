@@ -1,6 +1,4 @@
-import { MongoClient } from 'mongodb';
 import * as mongoose from 'mongoose';
-import { mainDb } from './configs';
 import { IChannelDocument } from './models/definitions/channels';
 import {
   ISkillDocument,
@@ -45,6 +43,7 @@ import { IConversationDocument } from './models/definitions/conversations';
 import { IScriptModel } from './models/Scripts';
 import { IScriptDocument } from './models/definitions/scripts';
 import { loadClass as loadScriptClass } from './models/Scripts'
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
   Channels: IChannelModel;
@@ -62,19 +61,7 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels;
-
-export const generateModels = async (
-  hostnameOrSubdomain: string
-): Promise<IModels> => {
-  if (models) {
-    return models;
-  }
-
-  loadClasses(mainDb, hostnameOrSubdomain);
-
-  return models;
-};
+export let models: IModels | null = null;
 
 export const loadClasses = (
   db: mongoose.Connection,
@@ -121,3 +108,5 @@ export const loadClasses = (
 
   return models;
 };
+
+export const generateModels = createGenerateModels<IModels>(models, loadClasses);

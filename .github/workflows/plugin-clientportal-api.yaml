@@ -1,4 +1,4 @@
-name: Plugin clientportal api CI
+name: Plugin clientportal Api CI
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - '.github/workflows/plugin-clientportal-api.yaml'
 
 jobs:
-  plugin-clientportal-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

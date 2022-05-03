@@ -11,7 +11,7 @@ import {
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper,
   SelectTeamMembers,
-} from '@erxes/ui';
+} from '@erxes/ui/src';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';

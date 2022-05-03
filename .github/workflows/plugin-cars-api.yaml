@@ -11,7 +11,7 @@ on:
       - '.github/workflows/plugin-cars-api.yaml'
 
 jobs:
-  plugin-cars-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

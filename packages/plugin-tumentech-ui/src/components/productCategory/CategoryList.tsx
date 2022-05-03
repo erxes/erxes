@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { IProductCategory } from '../../types';
+import { ICarCategory, IProduct, IProductCategory } from '../../types';
 import {
   __,
   Button,
@@ -13,9 +13,10 @@ import {
   router,
   Sidebar,
   SidebarList
-} from 'erxes-ui';
-import CategoryForm from 'erxes-ui/lib/products/containers/CategoryForm';
-import { SidebarListItem } from '../../styles';
+} from '@erxes/ui/src';
+import CategoryForm from '@erxes/ui-products/src/containers/CategoryForm';
+import { ActionButtons, SidebarListItem } from '../../styles';
+import MatchForm from '../../containers/MatchCarForm';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -24,13 +25,16 @@ interface IProps {
   queryParams: any;
   remove: (productCategoryId: string) => void;
   productCategories: IProductCategory[];
+  productCategory: IProductCategory;
   productCategoriesCount: number;
   loading: boolean;
+  product: IProduct;
+  carCategories: ICarCategory[];
 }
 
 class CategoryList extends React.Component<IProps> {
   renderFormTrigger(trigger: React.ReactNode, category?: IProductCategory) {
-    const content = props => (
+    const content = (props) => (
       <CategoryForm
         {...props}
         category={category}
@@ -53,6 +57,59 @@ class CategoryList extends React.Component<IProps> {
 
     return currentGroup === id;
   };
+
+  renderEditAction(category: IProductCategory) {
+    const trigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Edit')} placement="bottom">
+          <Icon icon="edit" />
+        </Tip>
+      </Button>
+    );
+
+    return this.renderFormTrigger(trigger, category);
+  }
+
+  renderManageAction = (category: IProductCategory) => {
+    const { carCategories, product } = this.props;
+    const trigger = (
+      <Button id="skill-edit-skill" btnStyle="link">
+        <Tip text={__('Match')} placement="bottom">
+          <Icon icon="car" />
+        </Tip>
+      </Button>
+    );
+
+    const content = (props) => (
+      <MatchForm
+        {...props}
+        carCategories={carCategories}
+        product={product}
+        productCategory={category}
+      />
+    );
+
+    return (
+      <ModalTrigger
+        title="Add Car Category"
+        trigger={trigger}
+        autoOpenKey="showKBAddMatchModal"
+        content={content}
+      />
+    );
+  };
+
+  renderRemoveAction(category: IProductCategory) {
+    const { remove } = this.props;
+
+    return (
+      <Button btnStyle="link" onClick={remove.bind(null, category._id)}>
+        <Tip text={__('Remove')} placement="bottom">
+          <Icon icon="cancel-1" />
+        </Tip>
+      </Button>
+    );
+  }
 
   renderContent() {
     const { productCategories } = this.props;
@@ -87,6 +144,11 @@ class CategoryList extends React.Component<IProps> {
             {space}
             {name}
           </Link>
+          <ActionButtons>
+            {this.renderEditAction(category)}
+            {this.renderManageAction(category)}
+            {this.renderRemoveAction(category)}
+          </ActionButtons>
         </SidebarListItem>
       );
     }

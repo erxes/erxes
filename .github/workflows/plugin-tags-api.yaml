@@ -11,7 +11,7 @@ on:
       - '.github/workflows/plugin-tags-api.yaml'
 
 jobs:
-  plugin-tags-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

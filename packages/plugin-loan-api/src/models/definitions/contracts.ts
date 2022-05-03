@@ -1,4 +1,4 @@
-import { CONTRACT_STATUS, REPAYMENT_TYPE } from "./constants";
+import { CONTRACT_STATUS, REPAYMENT_TYPE } from './constants';
 import { Document } from 'mongoose';
 
 export interface IInsurancesData extends Document {
@@ -65,7 +65,7 @@ export interface IContract {
   relContractId?: string;
 }
 
-export interface IContractDocument extends IContract {
+export interface IContractDocument extends IContract, Document {
   _id: string;
 }
 
@@ -97,7 +97,7 @@ export const collateralDataSchema = {
   insuranceTypeId: { type: String },
   currency: { type: String },
   insuranceAmount: { type: Number },
-}
+};
 
 export const contractSchema = {
   _id: { pkey: true },
@@ -108,7 +108,7 @@ export const contractSchema = {
     label: 'Status',
     enum: CONTRACT_STATUS.ALL,
     required: true,
-    default: CONTRACT_STATUS.DRAFT
+    default: CONTRACT_STATUS.DRAFT,
   },
   description: { type: String, optional: true, label: 'Description' },
   createdBy: { type: String, label: 'Created By' },
@@ -125,10 +125,10 @@ export const contractSchema = {
   unduePercent: { type: Number, min: 0, max: 100, label: 'Loan Undue percent' },
   repayment: {
     type: String,
-    enum: REPAYMENT_TYPE.map(option => option.value),
+    enum: REPAYMENT_TYPE.map((option) => option.value),
     required: true,
     label: 'Type',
-    selectOptions: REPAYMENT_TYPE
+    selectOptions: REPAYMENT_TYPE,
   },
   startDate: { type: Date, label: 'Rate Start Date' },
   scheduleDay: { type: Number, min: 1, max: 31, label: 'Schedule Day' },
@@ -138,7 +138,7 @@ export const contractSchema = {
 
   insuranceAmount: { type: Number, optional: true, label: 'Insurance' },
   debt: { type: Number, optional: true, label: 'Debt' },
-  debtTenor: {type: Number, optional: true, label: 'debt tenor'},
+  debtTenor: { type: Number, optional: true, label: 'debt tenor' },
   debtLimit: { type: Number, optional: true, label: 'Debt Limit' },
 
   salvageAmount: { type: Number, optional: true, label: 'Salvage Amount' },
@@ -151,9 +151,17 @@ export const contractSchema = {
   weekends: { type: [Number], label: 'weekend' },
   useHoliday: { type: Boolean, label: 'use holiday' },
 
-  closeDate: {type: Date, optional: true, label: 'Close Date'},
-  closeType: {type: String, optional: true, label: 'Close Type'},
-  closeDescription: {type: String, optional: true, label: 'Close Description'},
+  closeDate: { type: Date, optional: true, label: 'Close Date' },
+  closeType: { type: String, optional: true, label: 'Close Type' },
+  closeDescription: {
+    type: String,
+    optional: true,
+    label: 'Close Description',
+  },
 
-  relContractId: {type: String, optional: true, label: 'Change condition contract'}
+  relContractId: {
+    type: String,
+    optional: true,
+    label: 'Change condition contract',
+  },
 };

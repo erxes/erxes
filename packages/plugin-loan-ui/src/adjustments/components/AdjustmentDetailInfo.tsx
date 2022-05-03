@@ -12,7 +12,7 @@ import {
   Sidebar,
   SidebarCounter,
   SidebarList,
-} from '@erxes/ui';
+} from '@erxes/ui/src';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 
