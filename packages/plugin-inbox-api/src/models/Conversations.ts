@@ -129,8 +129,6 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
       // await sendToWebhook('create', 'conversation', result);
 
-      console.log('conversation creating.............');
-
       await sendWebhooksMessage({
         subdomain: 'os',
         action: "sendToWebhook",
