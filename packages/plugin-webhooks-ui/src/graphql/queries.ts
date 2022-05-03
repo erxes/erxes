@@ -32,8 +32,15 @@ const webhooksTotalCount = `
   }
 `;
 
+const webhooksGetActions = `
+  query webhooksGetActions {
+    webhooksGetActions
+  }
+`
+
 export default {
   webhooks,
   webhookDetail,
-  webhooksTotalCount
+  webhooksTotalCount,
+  webhooksGetActions
 };

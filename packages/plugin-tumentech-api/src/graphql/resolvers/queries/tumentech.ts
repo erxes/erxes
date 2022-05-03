@@ -1,14 +1,31 @@
 import { paginate } from 'erxes-api-utils';
 import { checkPermission } from '@erxes/api-utils/src';
-import { sendProductsMessage } from '../../../messageBroker';
+import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
 
-const generateFilter = async (models, params, commonQuerySelector) => {
+const generateFilter = async (
+  models,
+  params,
+  commonQuerySelector,
+  subdomain
+) => {
   const filter: any = commonQuerySelector;
 
   filter.status = { $ne: 'Deleted' };
 
   if (params.categoryId) {
-    filter.categoryId = params.categoryId;
+    const category = await models.CarCategories.findOne({
+      _id: params.categoryId
+    });
+    const categoryIds = await models.CarCategories.find(
+      {
+        $or: [
+          { order: { $regex: new RegExp(`${category.order}/`) } },
+          { order: category.order }
+        ]
+      },
+      { _id: 1 }
+    );
+    filter.categoryId = { $in: categoryIds };
   }
 
   if (params.searchValue) {
@@ -25,10 +42,16 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     params.conformityIsSaved
   ) {
     filter._id = {
-      $in: await models.Conformities.savedConformity({
-        mainType: params.conformityMainType,
-        mainTypeId: params.conformityMainTypeId,
-        relTypes: ['car']
+      $in: await sendCoreMessage({
+        subdomain,
+        action: 'conformities.savedConformity',
+        data: {
+          mainType: params.conformityMainType,
+          mainTypeId: params.conformityMainTypeId,
+          relTypes: ['car']
+        },
+        isRPC: true,
+        defaultValue: []
       })
     };
   }
@@ -38,10 +61,16 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     params.conformityIsRelated
   ) {
     filter._id = {
-      $in: await models.Conformities.relatedConformity({
-        mainType: params.conformityMainType,
-        mainTypeId: params.conformityMainTypeId,
-        relType: 'car'
+      $in: await sendCoreMessage({
+        subdomain,
+        action: 'conformities.relatedConformity',
+        data: {
+          mainType: params.conformityMainType,
+          mainTypeId: params.conformityMainTypeId,
+          relTypes: ['car']
+        },
+        isRPC: true,
+        defaultValue: []
       })
     };
   }
@@ -64,10 +93,10 @@ const carQueries = {
   /**
    * Cars list
    */
-  cars: async (_root, params, { commonQuerySelector, models }) => {
+  cars: async (_root, params, { commonQuerySelector, models, subdomain }) => {
     return paginate(
       models.Cars.find(
-        await generateFilter(models, params, commonQuerySelector)
+        await generateFilter(models, params, commonQuerySelector, subdomain)
       ),
       {
         page: params.page,
@@ -79,8 +108,17 @@ const carQueries = {
   /**
    * Cars for only main list
    */
-  carsMain: async (_root, params, { commonQuerySelector, models }) => {
-    const filter = await generateFilter(models, params, commonQuerySelector);
+  carsMain: async (
+    _root,
+    params,
+    { commonQuerySelector, models, subdomain }
+  ) => {
+    const filter = await generateFilter(
+      models,
+      params,
+      commonQuerySelector,
+      subdomain
+    );
 
     return {
       list: paginate(models.Cars.find(filter).sort(sortBuilder(params)), {

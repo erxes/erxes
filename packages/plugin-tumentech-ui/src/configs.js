@@ -7,8 +7,7 @@ module.exports = {
     './routes': './src/routes.tsx',
     './driverSection': './src/DriverSection.tsx',
     './participantSection': './src/ParticipantSection.tsx',
-    './customerSidebar': './src/containers/CustomerSidebar.tsx',
-    './companySidebar': './src/containers/CompanySidebar.tsx'
+    './carSection': './src/components/common/CarSection.tsx'
   },
   routes: {
     url: 'http://localhost:3023/remoteEntry.js',
@@ -27,18 +26,23 @@ module.exports = {
   customerRightSidebarSection: [
     {
       text: 'customerSection',
-      component: './components/common/CarSection',
-      scope: 'cars'
+      component: './carSection',
+      scope: 'tumentech'
     }
   ],
   companyRightSidebarSection: [
     {
       text: 'companySection',
-      component: './components/common/CarSection',
-      scope: 'cars'
+      component: './carSection',
+      scope: 'tumentech'
     }
   ],
   dealRightSidebarSection: [
+    {
+      text: 'carSection',
+      component: './carSection',
+      scope: 'tumentech'
+    },
     {
       text: 'driverSection',
       component: './driverSection',

@@ -8,7 +8,7 @@ interface ISortParams {
   [index: string]: number;
 }
 
-const findIntegrations = (subdomain, query, options?) =>
+const findIntegrations = (subdomain: string, query, options?) =>
   sendInboxMessage({
     subdomain,
     action: "integrations.find",
@@ -169,7 +169,7 @@ export class Builder extends CommonBuilder<IListArgs> {
   }
 
   public async findAllMongo(limit: number) {
-    const activeIntegrations = await findIntegrations({}, { _id: 1 });
+    const activeIntegrations = await findIntegrations(this.subdomain, { _id: 1 });
 
     const selector = {
       ...this.context.commonQuerySelector,

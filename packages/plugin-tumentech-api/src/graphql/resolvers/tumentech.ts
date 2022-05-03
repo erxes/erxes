@@ -30,6 +30,24 @@ const Cars = {
 };
 
 const CarCategory = {
+  // carCount(category) {
+  //   async ({ models }) => {
+  //   const categoryIds = await models.CarCategories.find(
+  //     {
+  //       $or: [
+  //         { order: { $regex: new RegExp(`${category.order}/`) } },
+  //         { order: category.order }
+  //       ]
+  //     },
+  //     { _id: 1 }
+  //   );
+
+  //   return models.Cars.countDocuments({
+  //     categoryId: category._id,
+  //     status: { $ne: 'Deleted' }
+  //   });
+  // };
+  // }
   carCount(category, {}, { models }) {
     return models.Cars.countDocuments({
       categoryId: category._id,
