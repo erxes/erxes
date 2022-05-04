@@ -171,7 +171,7 @@ class CustomersList extends React.Component<IProps, State> {
                   onChange={this.onChange}
                 />
               </th>
-              {columnsConfig.map(({ name, label }) => (
+              {(columnsConfig || []).map(({ name, label }) => (
                 <th key={name}>
                   <SortHandler sortField={name} label={__(label)} />
                 </th>

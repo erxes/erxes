@@ -176,7 +176,7 @@ function CustomerRow({
           onChange={onChange}
         />
       </td>
-      {columnsConfig.map(({ name }, index) => (
+      {(columnsConfig || []).map(({ name }, index) => (
         <td key={index}>
           <ClickableRow onClick={onTrClick}>
             {displayValue(customer, name)}
