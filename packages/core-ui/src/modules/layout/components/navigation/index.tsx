@@ -1,13 +1,9 @@
-import React from "react"
-import { NavLink } from "react-router-dom"
+import React from "react";
+import { NavLink } from "react-router-dom";
 
-import {
-  LeftNavigation,
-  FlexBox,
-  BottomMenu,
-} from "../../styles";
+import { LeftNavigation, FlexBox, BottomMenu } from "../../styles";
 
-import { __, readFile, setBadge } from "modules/common/utils"
+import { __, readFile, setBadge } from "modules/common/utils";
 
 import NavigationToggler from "./NavigationToggler";
 import NavigationList from "./NavigationList";
@@ -19,13 +15,9 @@ type Props = {
   unreadConversationsCount?: number;
   navCollapse: number;
   onClickHandleIcon: (event: any) => void;
-}
+};
 
-export default class Navigation extends React.Component<Props, any> {
-  constructor(props: Props){
-    super(props)
-  }
-
+export default class Navigation extends React.Component<Props> {
   componentWillReceiveProps(nextProps: any) {
     const unreadCount = nextProps.unreadConversationsCount;
 
@@ -38,23 +30,21 @@ export default class Navigation extends React.Component<Props, any> {
     const {
       unreadConversationsCount,
       navCollapse,
-      onClickHandleIcon
-    } = this.props
+      onClickHandleIcon,
+    } = this.props;
 
     const generateLogoSource = (): string => {
-      const logo = this.props.navCollapse === 1 ? "glyph_dark.png" : "logo-dark.png"
+      const logo =
+        this.props.navCollapse === 1 ? "glyph_dark.png" : "logo-dark.png";
       const thLogo = getThemeItem("logo");
-      
-      return thLogo ? readFile(thLogo) : `/images/${logo}`
-    }
+
+      return thLogo ? readFile(thLogo) : `/images/${logo}`;
+    };
 
     return (
       <LeftNavigation>
         <NavLink to="/">
-          <img
-            src={generateLogoSource()}
-            alt="erxes"
-          />
+          <img src={generateLogoSource()} alt="erxes" />
         </NavLink>
 
         <FlexBox navCollapse={navCollapse}>
@@ -74,13 +64,12 @@ export default class Navigation extends React.Component<Props, any> {
             plugin={{
               text: "Settings",
               url: "/settings",
-              icon: "icon-settings"
+              icon: "icon-settings",
             }}
             navCollapse={navCollapse}
           />
         </BottomMenu>
-
       </LeftNavigation>
-    )
+    );
   }
 }

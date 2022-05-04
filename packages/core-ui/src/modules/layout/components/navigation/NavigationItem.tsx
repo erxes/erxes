@@ -1,11 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-import {
-  NavItem,
-  NavMenuItem,
-  NavIcon
-} from "../../styles";
+import { NavItem, NavMenuItem, NavIcon } from "../../styles";
 
 import WithPermission from "modules/common/components/WithPermission";
 import Tip from "modules/common/components/Tip";
@@ -20,13 +16,13 @@ import { getLink, getChildren } from "./utils";
 import { Plugin, ChildPlugin } from "./types";
 
 type Props = {
-  plugin: Plugin,
-  navCollapse: number,
-  showMenu?: boolean,
-  clickedMenu?: string,
-  toggleMenu?: (text: string) => void,
-  unreadConversationsCount?: number,
-}
+  plugin: Plugin;
+  navCollapse: number;
+  showMenu?: boolean;
+  clickedMenu?: string;
+  toggleMenu?: (text: string) => void;
+  unreadConversationsCount?: number;
+};
 
 export default function NavigationItem(props: Props) {
   const {
@@ -35,7 +31,7 @@ export default function NavigationItem(props: Props) {
     showMenu,
     clickedMenu,
     toggleMenu,
-    unreadConversationsCount
+    unreadConversationsCount,
   } = props;
 
   const children: ChildPlugin[] = getChildren(plugin);
@@ -47,16 +43,17 @@ export default function NavigationItem(props: Props) {
   );
 
   const renderNavItem = () => {
-    if (navCollapse === 1)
-      return <NavIcon className={plugin.icon} />
-    else
-      return (
-        <React.Fragment>
-          <NavIcon className={plugin.icon} />
-          <label>{plugin.text}</label>
-        </React.Fragment>
-      )
-  }
+    if (navCollapse === 1) {
+      return <NavIcon className={plugin.icon} />;
+    }
+
+    return (
+      <>
+        <NavIcon className={plugin.icon} />
+        <label>{plugin.text}</label>
+      </>
+    );
+  };
 
   const navMenuItemNode = (
     <NavMenuItem isMoreItem={false} navCollapse={navCollapse}>
@@ -71,7 +68,7 @@ export default function NavigationItem(props: Props) {
           : plugin.label}
       </NavLink>
     </NavMenuItem>
-  )
+  );
 
   const renderNavMenuItem = () => {
     if (children.length === 0 && plugin.text !== "Settings")
@@ -79,13 +76,16 @@ export default function NavigationItem(props: Props) {
         <Tip placement="right" key={Math.random()} text={__(plugin.text)}>
           {navMenuItemNode}
         </Tip>
-      )
-    else
-      return navMenuItemNode
-  }
+      );
+
+    return navMenuItemNode;
+  };
 
   return (
-    <WithPermission key={plugin.url} action={plugin.permission ? plugin.permission : ""}>
+    <WithPermission
+      key={plugin.url}
+      action={plugin.permission ? plugin.permission : ""}
+    >
       <NavItem isMoreItem={false}>
         {renderNavMenuItem()}
 
@@ -98,5 +98,5 @@ export default function NavigationItem(props: Props) {
         />
       </NavItem>
     </WithPermission>
-  )
-};
+  );
+}
