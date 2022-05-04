@@ -28,8 +28,6 @@ const readEnabledServices = async () => {
   delete require.cache[require.resolve(ENABLED_SERVICES_PATH)];
   const enabledServices = require(ENABLED_SERVICES_PATH);
 
-  enabledServices.push('core');
-
   await redis.del('enabled-services');
   await redis.rpush('enabled-services', ...enabledServices);
 
