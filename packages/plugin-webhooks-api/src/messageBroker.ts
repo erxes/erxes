@@ -15,7 +15,7 @@ export const initBroker = async (cl) => {
     
     return {
       status: 'success',
-      data: await sendToWebhook(models, data)
+      data: await sendToWebhook(models, subdomain, data)
     };
   }); 
 };
