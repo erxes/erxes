@@ -1,33 +1,33 @@
+import { attachmentSchema } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 import { DURATION_TYPES } from './constants';
-import { field, schemaHooksWrapper } from './utils';
+import { field, schemaHooksWrapper, schemaWrapper } from './utils';
 
 export interface IProductsData {
   productId: string;
   quantity: number;
   uimId: string;
   branchId: string;
+  departmentId: string;
 }
 
 export interface IProductsDataDocument extends IProductsData, Document {
   _id: string;
 }
 
-export interface IJob {
+export interface IJobRefer {
   code: string;
   name: string;
   type: string;
   status: string;
   createdAt: Date;
-  prePlantIds: string[];
-  assignedUserIds: string[];
   duration: number;
   durationType: string;
   needProducts: IProductsData;
   resultProducts: IProductsData;
 }
 
-export interface IJobDocument extends IJob, Document {
+export interface IJobReferDocument extends IJobRefer, Document {
   _id: string;
   createdAt: Date;
   needProducts: IProductsDataDocument;
@@ -39,19 +39,20 @@ export const productsDataSchema = new Schema({
   productId: field({ type: String, label: 'Product' }),
   quantity: field({ type: Number, label: 'Quantity' }),
   uomId: field({ type: String, label: 'UOM' }),
-  branchId: field({ type: String, label: 'UOM' }),
+  branchId: field({ type: String, label: 'Branch' }),
+  departmentId: field({ type: String, label: 'Department' }),
 })
 
-export const jobSchema = schemaHooksWrapper(
+export const jobReferSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
+    categoryId: field({ type: String, label: 'Category', index: true }),
     code: field({ type: String, label: 'Code', index: true }),
     name: field({ type: String, label: 'Name' }),
+    attachment: field({ type: attachmentSchema }),
     type: field({ type: String, label: 'Type' }),
     status: field({ type: String, label: 'Status' }),
     createdAt: field({ type: Date, label: 'Created at' }),
-    prePlantIds: field({ type: [String], label: 'Previous plants' }),
-    assignedUserIds: field({ type: [String], label: 'Assigned users' }),
     duration: field({ type: Number, label: 'Duration value' }),
     durationType: field({
       type: String, enum: DURATION_TYPES.ALL,
@@ -61,10 +62,10 @@ export const jobSchema = schemaHooksWrapper(
     resultProducts: field({ type: productsDataSchema, label: 'Result products' }),
 
   }),
-  'erxes_jobs'
+  'erxes_jobRefers'
 );
 
 // for tags query. increases search speed, avoids in-memory sorting
-jobSchema.index({ status: 1 });
+jobReferSchema.index({ status: 1 });
 
 

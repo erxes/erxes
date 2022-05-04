@@ -1,3 +1,15 @@
+export const JOB_CATEGORY_STATUSES = {
+  ACTIVE: 'active',
+  ARCHIVED: 'deleted',
+  ALL: ['active', 'deleted']
+};
+
+export const FLOW_CATEGORY_STATUSES = {
+  ACTIVE: 'active',
+  ARCHIVED: 'deleted',
+  ALL: ['active', 'deleted']
+};
+
 export const DURATION_TYPES = {
   MINUT: "minut",
   HOUR: "hour",
