@@ -1,7 +1,5 @@
 import React from "react";
-import {
-  Nav
-} from "../../styles";
+import { Nav } from "../../styles";
 
 import NavigationItem from "./NavigationItem";
 import NavigationMore from "./NavigationMore";
@@ -20,7 +18,7 @@ type Props = {
 type State = {
   showMenu: boolean;
   clickedMenu: string;
-}
+};
 
 export default class NavigationList extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -29,15 +27,14 @@ export default class NavigationList extends React.Component<Props, State> {
     this.state = {
       showMenu: false,
       clickedMenu: "",
-    }
+    };
   }
 
   toggleMenu = (text: string): void => {
     if (this.state.clickedMenu === text)
-      this.setState({ showMenu: !this.state.showMenu })
-    else
-      this.setState({ showMenu: true, clickedMenu: text })
-  }
+      this.setState({ showMenu: !this.state.showMenu });
+    else this.setState({ showMenu: true, clickedMenu: text });
+  };
 
   render() {
     const {
@@ -45,37 +42,32 @@ export default class NavigationList extends React.Component<Props, State> {
       pinnedPlugins,
       countOfPinnedPlugins,
       updatePinnedPlugins,
-      unreadConversationsCount
+      unreadConversationsCount,
     } = this.props;
 
-    const {
-      showMenu,
-      clickedMenu
-    } = this.state;
+    const { showMenu, clickedMenu } = this.state;
 
     const plugins =
       pinnedPlugins.length === 0
         ? pluginNavigations().slice(0, countOfPinnedPlugins)
         : pinnedPlugins;
-  
+
     return (
       <Nav id="navigation">
-        {plugins.map((plugin: any, index: number) => {
-          return (
-            <NavigationItem
-              key={index}
-              plugin={plugin}
-              navCollapse={navCollapse}
-              showMenu={showMenu}
-              clickedMenu={clickedMenu}
-              toggleMenu={this.toggleMenu}
-              unreadConversationsCount={unreadConversationsCount}
-            />
-          )
-        })}
+        {plugins.map((plugin: any, index: number) => (
+          <NavigationItem
+            key={index}
+            plugin={plugin}
+            navCollapse={navCollapse}
+            showMenu={showMenu}
+            clickedMenu={clickedMenu}
+            toggleMenu={this.toggleMenu}
+            unreadConversationsCount={unreadConversationsCount}
+          />
+        ))}
 
-        {plugins.length > countOfPinnedPlugins &&
-          (<NavigationMore
+        {plugins.length > countOfPinnedPlugins && (
+          <NavigationMore
             navCollapse={navCollapse}
             showMenu={showMenu}
             clickedMenu={clickedMenu}
@@ -83,9 +75,9 @@ export default class NavigationList extends React.Component<Props, State> {
             countOfPinnedPlugins={countOfPinnedPlugins}
             toggleMenu={this.toggleMenu}
             updatePinnedPlugins={updatePinnedPlugins}
-          />)
-        }
+          />
+        )}
       </Nav>
-    )
+    );
   }
 }
