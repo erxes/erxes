@@ -22,7 +22,6 @@ import messageBroker, {
   sendFormsMessage,
   sendLogsMessage,
   sendProductsMessage,
-  sendWebhooksMessage
 } from './messageBroker';
 import { IModels, generateModels } from './connectionResolver';
 import {
@@ -597,16 +596,6 @@ export const putDeleteLog = async (
     }
   );
 
-  await sendWebhooksMessage({
-    subdomain,
-    action: "sendToWebhook",
-    data: {
-      action: "delete",
-      type: "cards:deal",
-      params: logDoc
-    },
-  })
-
   await commonPutDeleteLog(
     messageBroker(),
     { ...logDoc, description, extraDesc, type: `cards:${logDoc.type}` },
@@ -629,16 +618,6 @@ export const putUpdateLog = async (
     }
   );
 
-  await sendWebhooksMessage({
-    subdomain,
-    action: "sendToWebhook",
-    data: {
-      action: "update",
-      type: "cards:deal",
-      params: logDoc
-    },
-  })
-
   await commonPutUpdateLog(
     messageBroker(),
     { ...logDoc, description, extraDesc, type: `cards:${logDoc.type}` },
@@ -660,18 +639,6 @@ export const putCreateLog = async (
       action: LOG_ACTIONS.CREATE
     }
   );
-
-  console.log('deal creating............');
-
-  await sendWebhooksMessage({
-    subdomain,
-    action: "sendToWebhook",
-    data: {
-      action: "create",
-      type: "cards:deal",
-      params: logDoc
-    },
-  })
 
   await commonPutCreateLog(
     messageBroker(),
