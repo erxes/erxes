@@ -1,7 +1,7 @@
 import { Model } from "mongoose";
 
 import { putActivityLog, prepareCocLogData } from "../logUtils";
-import { sendToWebhook, validSearchText } from "@erxes/api-utils/src";
+import { validSearchText } from "@erxes/api-utils/src";
 import { validateSingle } from "../verifierUtils";
 import { ICustomField } from "@erxes/api-utils/src/definitions/common";
 import { ACTIVITY_CONTENT_TYPES } from "./definitions/constants";
@@ -17,6 +17,7 @@ import {
   sendFormsMessage,
   sendInboxMessage,
   sendInternalNotesMessage,
+  sendToWebhook
 } from "../messageBroker";
 
 interface IGetCustomerParams {

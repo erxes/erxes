@@ -22,6 +22,7 @@ import messageBroker, {
   sendFormsMessage,
   sendLogsMessage,
   sendProductsMessage,
+  sendToWebhook
 } from './messageBroker';
 import { IModels, generateModels } from './connectionResolver';
 import {
@@ -30,7 +31,6 @@ import {
   getContentItem,
   getContentTypeDetail
 } from './utils';
-import { sendToWebhook } from '@erxes/api-utils/src';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
