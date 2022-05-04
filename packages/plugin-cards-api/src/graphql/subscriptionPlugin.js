@@ -1,4 +1,5 @@
 var { withFilter } = require("graphql-subscriptions");
+var { gql } = require("apollo-server-express");
 
 module.exports = {
   name: "cards",
@@ -20,12 +21,7 @@ module.exports = {
         ),
       },
       checklistsChanged: {
-        resolve(
-          payload,
-          _args,
-          { dataSources: { gatewayDataSource } },
-          info
-        ) {
+        resolve(payload, _args, { dataSources: { gatewayDataSource } }, info) {
           return gatewayDataSource.queryAndMergeMissingData({
             payload,
             info,
@@ -53,12 +49,7 @@ module.exports = {
       },
 
       checklistDetailChanged: {
-        resolve(
-          payload,
-          _args,
-          { dataSources: { gatewayDataSource } },
-          info
-        ) {
+        resolve(payload, _args, { dataSources: { gatewayDataSource } }, info) {
           return gatewayDataSource.queryAndMergeMissingData({
             payload,
             info,

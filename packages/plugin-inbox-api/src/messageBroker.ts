@@ -7,6 +7,7 @@ import {
   sendMessage
 } from "@erxes/api-utils/src/core";
 import { receiveVisitorDetail } from "./widgetUtils";
+import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 
 export let client;
 
@@ -354,15 +355,8 @@ export const sendAutomationsMessage = async (args: ISendMessageArgs): Promise<an
   });
 }
 
-export const sendWebhooksMessage = async (
-  args: ISendMessageArgs
-): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: 'webhooks',
-    ...args
-  });
+export const sendToWebhook = ({ subdomain, data }) => {
+  return sendWebhook(client, { subdomain, data });
 };
 
 export default function() {
