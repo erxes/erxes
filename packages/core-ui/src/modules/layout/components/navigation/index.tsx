@@ -1,20 +1,20 @@
-import React from 'react'
-import { NavLink } from 'react-router-dom'
+import React from "react"
+import { NavLink } from "react-router-dom"
 
 import {
   LeftNavigation,
   FlexBox,
   BottomMenu,
-} from '../../styles';
+} from "../../styles";
 
-import { readFile } from 'modules/common/utils'
+import { readFile } from "modules/common/utils"
 
-import NavigationToggler from './NavigationToggler';
-import NavigationList from './NavigationList';
-import NavigationItem from './NavigationItem';
+import NavigationToggler from "./NavigationToggler";
+import NavigationList from "./NavigationList";
+import NavigationItem from "./NavigationItem";
 
-import { Plugin } from './types';
-import { getThemeItem } from 'utils';
+import { Plugin } from "./types";
+import { getThemeItem } from "utils";
 
 type Props = {
   unreadConversationsCount?: number;
@@ -33,7 +33,7 @@ export default class Navigation extends React.Component<Props, State> {
     
     this.state = {
       pinnedPlugins: JSON.parse(
-        localStorage.getItem('pinnedPlugins') || "[]"
+        localStorage.getItem("pinnedPlugins") || "[]"
       ),
       countOfPinnedPlugins: window.innerHeight > 900 ? 8 : 5
     }
@@ -60,18 +60,18 @@ export default class Navigation extends React.Component<Props, State> {
     } = this.state
 
     const generateLogoSource = (): string => {
-      const logo = this.props.navCollapse === 1 ? 'glyph_dark.png' : 'logo-dark.png'
-      const thLogo = getThemeItem('logo');
+      const logo = this.props.navCollapse === 1 ? "glyph_dark.png" : "logo-dark.png"
+      const thLogo = getThemeItem("logo");
       
       return thLogo ? readFile(thLogo) : `/images/${logo}`
     }
 
     return (
       <LeftNavigation>
-        <NavLink to='/'>
+        <NavLink to="/">
           <img
             src={generateLogoSource()}
-            alt='erxes'
+            alt="erxes"
           />
         </NavLink>
 

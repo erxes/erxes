@@ -1,20 +1,20 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React from "react";
+import { NavLink } from "react-router-dom";
 
 import {
   NavItem,
   NavMenuItem,
   NavIcon
-} from '../../styles';
+} from "../../styles";
 
-import WithPermission from 'modules/common/components/WithPermission';
+import WithPermission from "modules/common/components/WithPermission";
 import Tip from "modules/common/components/Tip";
-import { __ } from 'modules/common/utils';
+import { __ } from "modules/common/utils";
 
-import NavigationChildList from './NavigationListChild';
+import NavigationChildList from "./NavigationListChild";
 
-import { getLink, getChildren } from './utils';
-import { Plugin, ChildPlugin } from './types';
+import { getLink, getChildren } from "./utils";
+import { Plugin, ChildPlugin } from "./types";
 
 type Props = {
   plugin: Plugin,
@@ -55,9 +55,9 @@ export default function NavigationItem(props: Props) {
   )
 
   return (
-    <WithPermission key={plugin.url} action={plugin.permission ? plugin.permission : ''}>
+    <WithPermission key={plugin.url} action={plugin.permission ? plugin.permission : ""}>
       <NavItem isMoreItem={false}>
-        {children.length === 0 || plugin.text !== "Settings"
+        {children.length === 0 && plugin.text !== "Settings"
           ? (
             <Tip placement="right" key={Math.random()} text={__(plugin.text)}>
               {navMenuItemElement}

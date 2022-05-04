@@ -3,7 +3,7 @@ import {
   CollapseBox,
   Center,
   SmallText
-} from '../../styles';
+} from "../../styles";
 import Icon from "modules/common/components/Icon";
 
 type Props = {

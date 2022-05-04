@@ -1,13 +1,13 @@
-import React from 'react';
+import React from "react";
 import {
   Nav
-} from '../../styles';
+} from "../../styles";
 
-import NavigationItem from './NavigationItem';
-import NavigationMore from './NavigationMore';
+import NavigationItem from "./NavigationItem";
+import NavigationMore from "./NavigationMore";
 
-import { Plugin } from './types';
-import { pluginNavigations } from './utils';
+import { Plugin } from "./types";
+import { pluginNavigations } from "./utils";
 
 type Props = {
   navCollapse: number;
@@ -27,7 +27,7 @@ export default class NavigationList extends React.Component<Props, State> {
 
     this.state = {
       showMenu: false,
-      clickedMenu: '',
+      clickedMenu: "",
     }
   }
 
@@ -57,7 +57,7 @@ export default class NavigationList extends React.Component<Props, State> {
         : pinnedPlugins;
   
     return (
-      <Nav id='navigation'>
+      <Nav id="navigation">
         {plugins.map((plugin: any, index: number) => {
           return (
             <NavigationItem

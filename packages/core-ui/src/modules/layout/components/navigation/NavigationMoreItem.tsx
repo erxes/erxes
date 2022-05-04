@@ -1,18 +1,18 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React from "react";
+import { NavLink } from "react-router-dom";
 import {
   NavItem,
   NavIcon,
   NavMenuItem,
   MoreItemRecent,
   RoundBox,
-} from '../../styles'
-import Tip from 'modules/common/components/Tip'
-import WithPermission from 'modules/common/components/WithPermission';
-import { __ } from 'modules/common/utils'
+} from "../../styles"
+import Tip from "modules/common/components/Tip"
+import WithPermission from "modules/common/components/WithPermission";
+import { __ } from "modules/common/utils"
 
-import { getLink } from './utils';
-import { Plugin } from './types';
+import { getLink } from "./utils";
+import { Plugin } from "./types";
 
 type Props = {
   plugin: Plugin,
@@ -32,7 +32,7 @@ export default function NavigationMoreItem(props: Props) {
   } = props
 
   return (
-    <WithPermission key={plugin.url} action={plugin.permission ? plugin.permission : ''}>
+    <WithPermission key={plugin.url} action={plugin.permission ? plugin.permission : ""}>
       <MoreItemRecent>
         <NavItem isMoreItem={true}>
           <NavMenuItem isMoreItem={true} navCollapse={navCollapse}>
