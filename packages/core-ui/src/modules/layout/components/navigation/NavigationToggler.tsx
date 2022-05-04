@@ -8,13 +8,16 @@ import Icon from "modules/common/components/Icon";
 
 type Props = {
   navCollapse: number;
-  onClickHandleIcon: (e) => void;
+  onClickHandleIcon: (event: any) => void;
 };
 
-function NavigationToggler(props: Props) {
-  const { onClickHandleIcon, navCollapse } = props;
+export default function NavigationToggler(props: Props) {
+  const {
+    navCollapse,
+    onClickHandleIcon,
+  } = props;
 
-  function renderHandleIcon(type: string) {
+  const renderHandleIcon = (type: string): JSX.Element => {
     return (
       <CollapseBox
         onClick={() => {
@@ -45,5 +48,3 @@ function NavigationToggler(props: Props) {
       );
   }
 }
-
-export default NavigationToggler;

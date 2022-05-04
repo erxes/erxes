@@ -27,7 +27,7 @@ type State = {
   countOfPinnedPlugins: number;
 }
 
-class Navigation extends React.Component<Props, State> {
+export default class Navigation extends React.Component<Props, State> {
   constructor(props: Props){
     super(props)
     
@@ -39,7 +39,7 @@ class Navigation extends React.Component<Props, State> {
     }
   }
 
-  private updatePinnedPlugins = (plugins: Plugin[]): void => {
+  updatePinnedPlugins = (plugins: Plugin[]): void => {
     this.setState({ pinnedPlugins: plugins })
 
     localStorage.setItem(
@@ -48,22 +48,29 @@ class Navigation extends React.Component<Props, State> {
     );
   }
 
-  private generateLogoSource = (): string => {
-    const logo = this.props.navCollapse === 1 ? 'glyph_dark.png' : 'logo-dark.png'
-    const thLogo = getThemeItem('logo');
+  render() {
+    const {
+      navCollapse,
+      onClickHandleIcon
+    } = this.props
     
-    return thLogo ? readFile(thLogo) : `/images/${logo}`
-  }
+    const {
+      pinnedPlugins,
+      countOfPinnedPlugins
+    } = this.state
 
-  public render() {
-    const { pinnedPlugins, countOfPinnedPlugins } = this.state
-    const { navCollapse, onClickHandleIcon } = this.props
+    const generateLogoSource = (): string => {
+      const logo = this.props.navCollapse === 1 ? 'glyph_dark.png' : 'logo-dark.png'
+      const thLogo = getThemeItem('logo');
+      
+      return thLogo ? readFile(thLogo) : `/images/${logo}`
+    }
 
     return (
       <LeftNavigation>
         <NavLink to='/'>
           <img
-            src={this.generateLogoSource()}
+            src={generateLogoSource()}
             alt='erxes'
           />
         </NavLink>
@@ -97,5 +104,3 @@ class Navigation extends React.Component<Props, State> {
     )
   }
 }
-
-export default Navigation

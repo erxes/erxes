@@ -21,7 +21,7 @@ type State = {
   clickedMenu: string;
 }
 
-class NavigationList extends React.Component<Props, State> {
+export default class NavigationList extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -31,14 +31,14 @@ class NavigationList extends React.Component<Props, State> {
     }
   }
 
-  private toggleMenu = (text: string) => {
+  toggleMenu = (text: string): void => {
     if (this.state.clickedMenu === text)
       this.setState({ showMenu: !this.state.showMenu })
     else
       this.setState({ showMenu: true, clickedMenu: text })
   }
 
-  public render() {
+  render() {
     const {
       navCollapse,
       pinnedPlugins,
@@ -84,5 +84,3 @@ class NavigationList extends React.Component<Props, State> {
     )
   }
 }
-
-export default NavigationList;

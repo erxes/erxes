@@ -8,12 +8,13 @@ import {
 } from '../../styles';
 
 import WithPermission from 'modules/common/components/WithPermission';
-import { __ } from 'modules/common/utils'
+import Tip from "modules/common/components/Tip";
+import { __ } from 'modules/common/utils';
 
-import NavigationItemChild from './NavigationItemChild';
+import NavigationChildList from './NavigationListChild';
 
-import { getLink } from './utils';
-import { Plugin } from './types';
+import { getLink, getChildren } from './utils';
+import { Plugin, ChildPlugin } from './types';
 
 type Props = {
   plugin: Plugin,
@@ -24,30 +25,50 @@ type Props = {
 }
 
 export default function NavigationItem(props: Props) {
-  const { plugin, navCollapse, showMenu, clickedMenu, toggleMenu } = props
+  const {
+    plugin,
+    navCollapse,
+    showMenu,
+    clickedMenu,
+    toggleMenu
+  } = props;
+
+  const children: ChildPlugin[] = getChildren(plugin);
+
+  const navMenuItemElement = (
+    <NavMenuItem isMoreItem={false} navCollapse={navCollapse}>
+      <NavLink
+        to={getLink(plugin.url)}
+        onClick={() => toggleMenu && toggleMenu(plugin.text)}
+      >
+        {navCollapse === 1
+          ? <NavIcon className={plugin.icon} />
+          : (
+            <React.Fragment>
+              <NavIcon className={plugin.icon} />
+              <label>{plugin.text}</label>
+            </React.Fragment>
+          )
+        }
+      </NavLink>
+    </NavMenuItem>
+  )
 
   return (
     <WithPermission key={plugin.url} action={plugin.permission ? plugin.permission : ''}>
       <NavItem isMoreItem={false}>
-        <NavMenuItem isMoreItem={false} navCollapse={navCollapse}>
-          <NavLink
-            to={getLink(plugin.url)}
-            onClick={() => toggleMenu && toggleMenu(plugin.text)}
-          >
-            {navCollapse === 1
-              ? <NavIcon className={plugin.icon} />
-              : (
-                <React.Fragment>
-                  <NavIcon className={plugin.icon} />
-                  <label>{plugin.text}</label>
-                </React.Fragment>
-              )
-            }
-          </NavLink>
-        </NavMenuItem>
+        {children.length === 0 || plugin.text !== "Settings"
+          ? (
+            <Tip placement="right" key={Math.random()} text={__(plugin.text)}>
+              {navMenuItemElement}
+            </Tip>
+          )
+          : navMenuItemElement
+        }
 
-        <NavigationItemChild
+        <NavigationChildList
           plugin={plugin}
+          children={children}
           navCollapse={navCollapse}
           showMenu={showMenu}
           clickedMenu={clickedMenu}

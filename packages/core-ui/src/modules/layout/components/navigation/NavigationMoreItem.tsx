@@ -12,12 +12,27 @@ import WithPermission from 'modules/common/components/WithPermission';
 import { __ } from 'modules/common/utils'
 
 import { getLink } from './utils';
+import { Plugin } from './types';
 
-function NavigationMoreItem(props) {
-  const { plugin, navCollapse, isPinnable, isPinned, handleOnClick } = props
+type Props = {
+  plugin: Plugin,
+  navCollapse: number,
+  isPinnable: boolean,
+  isPinned: boolean,
+  handleOnClick: (plugin: Plugin) => void,
+}
+
+export default function NavigationMoreItem(props: Props) {
+  const {
+    plugin,
+    navCollapse,
+    isPinnable,
+    isPinned,
+    handleOnClick
+  } = props
 
   return (
-    <WithPermission key={plugin.url} action={plugin.permission}>
+    <WithPermission key={plugin.url} action={plugin.permission ? plugin.permission : ''}>
       <MoreItemRecent>
         <NavItem isMoreItem={true}>
           <NavMenuItem isMoreItem={true} navCollapse={navCollapse}>
@@ -43,5 +58,3 @@ function NavigationMoreItem(props) {
     </WithPermission>
   )
 }
-
-export default NavigationMoreItem
