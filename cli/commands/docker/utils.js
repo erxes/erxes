@@ -272,6 +272,7 @@ const up = async uis => {
         image: "erxes/core:federation",
         environment: {
           PORT: "80",
+          CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
           LOAD_BALANCER_ADDRESS: "http://plugin_core_api",
           MONGO_URL: mongoEnv(configs),

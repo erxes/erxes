@@ -121,7 +121,7 @@ class EmailTemplateList extends React.Component<Props> {
           { title: __('Email templates') }
         ]}
         title={__('Email templates')}
-        mainHead={
+        leftActionBar={
           <HeaderDescription
             icon='/images/actions/22.svg'
             title='Email templates'
@@ -135,13 +135,14 @@ class EmailTemplateList extends React.Component<Props> {
           />
         }
         renderForm={this.renderForm}
-        rightActionBar={true}
+        // rightActionBar={true}
         renderContent={this.renderContent}
-        leftSidebar={<CategoryList queryParams={this.props.queryParams} />}
         {...this.props}
         queryParams={this.props.queryParams}
         history={this.props.history}
-        hasBorder={true}
+        // hasBorder={true}
+        // transparent={true}
+        leftSpacing={true}
       />
     );
   }
