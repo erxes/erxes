@@ -92,7 +92,8 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       history,
     } = this.props;
 
-    let columnsConfig = customersListConfigQuery.fieldsDefaultColumnsConfig || [
+    let columnsConfig = (customersListConfigQuery &&
+      customersListConfigQuery.fieldsDefaultColumnsConfig) || [
       { name: "firstName", label: "First name", order: 1 },
       { name: "lastName", label: "Last name", order: 2 },
       { name: "primaryEmail", label: "Primary email", order: 3 },
