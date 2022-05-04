@@ -1,4 +1,4 @@
-name: Plugin email-templates UI CI
+name: Plugin emailtemplates UI CI
 
 on:
   push:
@@ -6,9 +6,10 @@ on:
       - federation
     paths:
       - "packages/erxes-ui/**"
-      - "packages/ui-email-templates/**"
-      - "packages/plugin-email-templates-ui/**"
-      - ".github/workflows/plugin-email-templates-ui.yaml"
+      - "packages/ui-emailtemplates/**"
+      - "packages/plugin-emailtemplates-ui/**"
+      - ".github/workflows/plugin-emailtemplates-ui.yaml"
+      - ls
 
 jobs:
   ui:
@@ -25,9 +26,9 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          cp -r packages/ui-plugin-template/.erxes packages/plugin-email-templates-ui/.erxes
-          cp -r packages/plugin-email-templates-ui/src packages/plugin-email-templates-ui/.erxes/plugin-src
-          cd packages/plugin-email-templates-ui
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-emailtemplates-ui/.erxes
+          cp -r packages/plugin-emailtemplates-ui/src packages/plugin-emailtemplates-ui/.erxes/plugin-src
+          cd packages/plugin-emailtemplates-ui
           yarn install
           yarn install-deps
           yarn build
@@ -41,6 +42,6 @@ jobs:
 
       - name: Deploy
         run: |
-          tar -cf build.tar --directory=packages/plugin-email-templates-ui/.erxes/dist .
-          cp build.tar packages/plugin-email-templates-ui/.erxes/dist
-          aws s3 sync packages/plugin-email-templates-ui/.erxes/dist s3://erxes-plugins/uis/plugin-email-templates-ui --delete
+          tar -cf build.tar --directory=packages/plugin-emailtemplates-ui/.erxes/dist .
+          cp build.tar packages/plugin-emailtemplates-ui/.erxes/dist
+          aws s3 sync packages/plugin-emailtemplates-ui/.erxes/dist s3://erxes-plugins/uis/plugin-emailtemplates-ui --delete
