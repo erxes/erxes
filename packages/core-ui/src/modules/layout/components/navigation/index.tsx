@@ -13,30 +13,17 @@ import NavigationToggler from "./NavigationToggler";
 import NavigationList from "./NavigationList";
 import NavigationItem from "./NavigationItem";
 
-import { Plugin } from "./types";
 import { getThemeItem } from "utils";
 
 type Props = {
   unreadConversationsCount?: number;
   navCollapse: number;
-  onClickHandleIcon: (event) => void;
+  onClickHandleIcon: (event: any) => void;
 }
 
-type State = {
-  pinnedPlugins: Plugin[];
-  countOfPinnedPlugins: number;
-}
-
-export default class Navigation extends React.Component<Props, State> {
+export default class Navigation extends React.Component<Props, any> {
   constructor(props: Props){
     super(props)
-    
-    this.state = {
-      pinnedPlugins: JSON.parse(
-        localStorage.getItem("pinnedPlugins") || "[]"
-      ),
-      countOfPinnedPlugins: window.innerHeight > 900 ? 8 : 5
-    }
   }
 
   componentWillReceiveProps(nextProps: any) {
@@ -47,26 +34,12 @@ export default class Navigation extends React.Component<Props, State> {
     }
   }
 
-  updatePinnedPlugins = (plugins: Plugin[]): void => {
-    this.setState({ pinnedPlugins: plugins })
-
-    localStorage.setItem(
-      "pinnedPlugins",
-      JSON.stringify(plugins)
-    );
-  }
-
   render() {
     const {
       unreadConversationsCount,
       navCollapse,
       onClickHandleIcon
     } = this.props
-    
-    const {
-      pinnedPlugins,
-      countOfPinnedPlugins
-    } = this.state
 
     const generateLogoSource = (): string => {
       const logo = this.props.navCollapse === 1 ? "glyph_dark.png" : "logo-dark.png"
@@ -93,9 +66,6 @@ export default class Navigation extends React.Component<Props, State> {
 
         <NavigationList
           navCollapse={navCollapse}
-          pinnedPlugins={pinnedPlugins}
-          countOfPinnedPlugins={countOfPinnedPlugins}
-          updatePinnedPlugins={this.updatePinnedPlugins}
           unreadConversationsCount={unreadConversationsCount}
         />
 
