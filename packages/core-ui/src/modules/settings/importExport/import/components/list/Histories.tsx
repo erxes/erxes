@@ -24,7 +24,6 @@ type Props = {
   loading: boolean;
   totalCount: number;
   currentType: string;
-  serviceType: string;
   removeHistory: (historyId: string, contentType: string) => void;
 };
 
@@ -82,12 +81,10 @@ class Histories extends React.Component<Props & IRouterProps> {
   }
 
   renderExportButton = () => {
-    const { currentType, serviceType } = this.props;
+    const { currentType } = this.props;
 
     return (
-      <Link
-        to={`/settings/export?type=${currentType}&serviceType=${serviceType}`}
-      >
+      <Link to={`/settings/export?type=${currentType}`}>
         <Button icon="export" btnStyle="primary">
           {__(`Export ${this.getButtonText()}`)}
         </Button>

@@ -199,12 +199,9 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
         renderFilter={this.renderFilter}
         renderForm={this.renderForm}
         renderContent={this.renderContent}
-        rightActionBar={true}
-        leftSidebar={<CategoryList queryParams={this.props.queryParams} />}
         size="lg"
         {...this.props}
-        hasBorder={true}
-        transparent={true}
+        center={true}
       />
     );
   }

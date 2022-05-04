@@ -25,6 +25,7 @@ import {
   ChangeStatusMutationResponse,
   ChangeStatusMutationVariables,
 } from "@erxes/ui-contacts/src/customers/types";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   queryParams: any;
@@ -91,7 +92,8 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       history,
     } = this.props;
 
-    let columnsConfig = customersListConfigQuery.fieldsDefaultColumnsConfig || [
+    let columnsConfig = (customersListConfigQuery &&
+      customersListConfigQuery.fieldsDefaultColumnsConfig) || [
       { name: "firstName", label: "First name", order: 1 },
       { name: "lastName", label: "Last name", order: 2 },
       { name: "primaryEmail", label: "Primary email", order: 3 },
@@ -280,22 +282,27 @@ const getRefetchQueries = (queryParams?: any, type?: string) => {
     {
       query: gql(queries.customerCounts),
       variables: { type, only: "byTag" },
+      skip: !isEnabled("tags") ? true : false,
     },
     {
       query: gql(queries.customerCounts),
       variables: { type, only: "byForm" },
+      skip: !isEnabled("inbox") ? true : false,
     },
     {
       query: gql(queries.customerCounts),
       variables: { type, only: "byIntegrationType" },
+      skip: !isEnabled("inbox") ? true : false,
     },
     {
       query: gql(queries.customerCounts),
       variables: { type, only: "byLeadStatus" },
+      skip: !isEnabled("inbox") ? true : false,
     },
     {
       query: gql(queries.customerCounts),
       variables: { type, only: "bySegment" },
+      skip: !isEnabled("segments") ? true : false,
     },
     {
       query: gql(queries.customerCounts),

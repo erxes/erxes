@@ -1,7 +1,6 @@
 import { Model } from 'mongoose';
 import { stream } from '@erxes/api-utils/src/bulkUtils';
 import { cleanHtml } from '@erxes/api-utils/src/core';
-// import { sendToWebhook } from '../../data/utils';
 import { CONVERSATION_STATUSES } from './definitions/constants';
 import {
   IMessageDocument,
@@ -14,6 +13,7 @@ import {
 } from './definitions/conversations';
 import { IModels } from '../connectionResolver';
 import { sendCoreMessage, sendFormsMessage } from '../messageBroker';
+import { sendToWebhook } from '../messageBroker';
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
@@ -127,7 +127,14 @@ export const loadClass = (models: IModels, subdomain: string) => {
         ...(userRelevance ? { userRelevance } : {})
       });
 
-      // await sendToWebhook('create', 'conversation', result);
+      await sendToWebhook({
+        subdomain,
+        data: {
+          action: 'create',
+          type: 'inbox:conversation',
+          params: result
+        }
+      });
 
       return result;
     }

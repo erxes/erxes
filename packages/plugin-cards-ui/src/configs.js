@@ -117,7 +117,7 @@ module.exports = {
     },
     {
       text: 'Growth Hacking Templates',
-      to: '/settings/boards/growthHack',
+      to: '/settings/boards/growthHackTemplate',
       image: '/images/icons/erxes-12.svg',
       location: 'settings',
       scope: 'cards',

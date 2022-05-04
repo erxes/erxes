@@ -21,7 +21,8 @@ import messageBroker, {
   sendCoreMessage,
   sendFormsMessage,
   sendLogsMessage,
-  sendProductsMessage
+  sendProductsMessage,
+  sendToWebhook
 } from './messageBroker';
 import { IModels, generateModels } from './connectionResolver';
 import {
@@ -651,16 +652,23 @@ export const putActivityLog = async (
   subdomain,
   params: { action: string; data: any }
 ) => {
-  const { data } = params;
-
-  // if (['createBoardItemMovementLog'].includes(action)) {
-  //   await sendToWebhook(action, data.contentType, params);
-  // }
+  const { data, action } = params;
 
   const updatedParams = {
     ...params,
     data: { ...data, contentType: `cards:${data.contentType}` }
   };
+
+  if (action === 'createBoardItemMovementLog') {
+    await sendToWebhook({
+      subdomain,
+      data: {
+        action,
+        type: `cards:${data.contentType}`,
+        params
+      }
+    });
+  }
 
   return commonPutActivityLog(subdomain, {
     messageBroker: messageBroker(),

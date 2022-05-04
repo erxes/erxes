@@ -9,7 +9,6 @@ import segments from './segments';
 import forms from './forms';
 import {
   generateModels,
-  getSubdomain
 } from './connectionResolver';
 import logs from './logUtils';
 import imports from './imports';
@@ -18,6 +17,8 @@ import internalNotes from './internalNotes';
 import automations from './automations';
 import search from './search';
 import permissions from './permissions';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import webhooks from './webhooks';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -53,26 +54,26 @@ export default {
     logs: { consumers: logs },
     tags,
     search,
-    internalNotes
+    internalNotes,
+    webhooks
   },
-  apolloServerContext: async context => {
-    const subdomain = 'os';
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req);
 
     context.models = await generateModels(subdomain);
     context.subdomain = subdomain;
   },
+
   onServerInit: async options => {
     const app = options.app;
     mainDb = options.db;
-
-    await generateModels('os');
 
     app.get(
       '/file-export',
       routeErrorHandling(async (req: any, res) => {
         const { query, user } = req;
         const { segment } = query;
-        const subdomain = getSubdomain(req.hostname);
+        const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
 
         const result = await buildFile(

@@ -1,9 +1,11 @@
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
-import { IFetchElkArgs } from '@erxes/api-utils/src/types';
-import { generateModels } from './connectionResolver';
-import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
+import typeDefs from "./graphql/typeDefs";
+import resolvers from "./graphql/resolvers";
+import { IFetchElkArgs } from "@erxes/api-utils/src/types";
+import { generateModels } from "./connectionResolver";
+import { initBroker } from "./messageBroker";
+import { initMemoryStorage } from "./inmemoryStorage";
+import { getSubdomain } from "@erxes/api-utils/src/core";
+import permissions from "./permissions";
 
 export let debug;
 export let graphqlPubsub;
@@ -18,18 +20,19 @@ export let es: {
 };
 
 export default {
-  name: 'exmfeed',
+  name: "exmfeed",
+  permissions,
   graphql: async sd => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
 
-  apolloServerContext: async context => {
-    const subdomain = 'os';
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req);
 
     context.subdomain = subdomain;
     context.models = await generateModels(subdomain);
@@ -48,5 +51,5 @@ export default {
     graphqlPubsub = options.pubsubClient;
     es = options.elasticsearch;
   },
-  meta: {}
+  meta: {},
 };

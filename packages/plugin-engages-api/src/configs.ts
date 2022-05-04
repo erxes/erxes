@@ -9,6 +9,8 @@ import { generateModels } from './connectionResolver';
 import tags from './tags';
 import logs from './logUtils';
 import permissions from './permissions';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import webhooks from './webhooks';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -35,10 +37,10 @@ export default {
   },
   segment: { schemas: [] },
   hasSubscriptions: false,
-  meta: { tags, logs: { consumers: logs } },
+  meta: { tags, logs: { consumers: logs }, webhooks },
   postHandlers: [{ path: `/service/engage/tracker`, method: engageTracker }],
-  apolloServerContext: async (context) => {
-    const subdomain = 'os';
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req);
 
     context.dataloaders = {};
     context.docModifier = (doc) => doc;

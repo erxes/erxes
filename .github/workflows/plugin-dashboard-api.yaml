@@ -1,4 +1,4 @@
-name: Plugin dashboard api CI
+name: Plugin dashboard Api CI
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - '.github/workflows/plugin-dashboard-api.yaml'
 
 jobs:
-  plugin-dashboard-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

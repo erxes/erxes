@@ -1,5 +1,4 @@
 import * as Redis from "ioredis";
-import * as ServiceRegistry from "clerq";
 import * as dotenv from "dotenv";
 
 dotenv.config();
@@ -41,8 +40,6 @@ export const redis = new Redis({
   password: REDIS_PASSWORD,
 });
 
-const registry = new ServiceRegistry(redis, {});
-
 const generateKey = (name) => `service:config:${name}`;
 
 export const getServices = async (): Promise<string[]> => {
@@ -52,8 +49,7 @@ export const getServices = async (): Promise<string[]> => {
 
 export const getService = async (name: string, config?: boolean) => {
   const result: { address: string; config: any } = {
-    address: await registry.get(name),
-    config: { meta: {} },
+    address: await redis.get(`service:${name}`) || '', config: { meta: {} },
   };
 
   if (config) {
@@ -93,19 +89,20 @@ export const join = async ({
     })
   );
 
-  return registry.up(
-    name,
-    LOAD_BALANCER_ADDRESS ||
-      `http://${isDev ? "localhost" : `plugin-${name}-api`}:${port}`
-  );
+  await redis.set(
+    `service:${name}`,
+    LOAD_BALANCER_ADDRESS || `http://${isDev ? "localhost" : `plugin-${name}-api`}:${port}`
+  )
 };
 
-export const leave = async (name, port) => {
-  await registry.down(
-    name,
-    LOAD_BALANCER_ADDRESS ||
-      `http://${isDev ? "localhost" : `plugin-${name}-api`}:${port}`
-  );
+export const leave = async (name, _port) => {
+  await redis.del(`service:${name}`);
+
+  try {
+    await redis.del(`service:queuenames:${name}`);
+  } catch (e) {
+    console.log(`error during service:queuenames delete ${e.message}`);
+  }
 
   return redis.del(generateKey(name));
 };

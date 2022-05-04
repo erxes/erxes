@@ -1,7 +1,9 @@
+import * as mongoose from "mongoose";
 import * as strip from "strip";
 import * as faker from "faker";
 import * as Random from "meteor-random";
 import { IUserDocument } from "./types";
+import { IPermissionDocument } from "./definitions/permissions";
 
 export const getEnv = ({
   name,
@@ -314,4 +316,72 @@ export const doSearch = async ({
   });
 
   return results;
+};
+
+export const getSubdomain = (req): string => {
+  const hostname = req.headers.hostname || req.hostname;
+  return hostname.replace(/(^\w+:|^)\/\//, "").split(".")[0];
+};
+
+const connectionOptions: mongoose.ConnectionOptions = {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
+  family: 4,
+};
+
+export const createGenerateModels = <IModels>(models, loadClasses) => {
+  return async (hostnameOrSubdomain: string): Promise<IModels> => {
+    if (models) {
+      return models;
+    }
+
+    const MONGO_URL = getEnv({ name: "MONGO_URL" });
+
+    const db = await mongoose.connect(MONGO_URL, connectionOptions);
+
+    models = loadClasses(db, hostnameOrSubdomain);
+
+    return models;
+  };
+};
+
+interface IActionMap {
+  [key: string]: boolean;
+}
+
+export const userActionsMap = async (
+  userPermissions: IPermissionDocument[],
+  groupPermissions: IPermissionDocument[],
+  user: any
+): Promise<IActionMap> => {
+  const totalPermissions: IPermissionDocument[] = [
+    ...userPermissions,
+    ...groupPermissions,
+    ...(user.customPermissions || [])
+  ];
+  const allowedActions: IActionMap = {};
+
+  const check = (name: string, allowed: boolean) => {
+    if (typeof allowedActions[name] === 'undefined') {
+      allowedActions[name] = allowed;
+    }
+
+    // if a specific permission is denied elsewhere, follow that rule
+    if (allowedActions[name] && !allowed) {
+      allowedActions[name] = false;
+    }
+  };
+
+  for (const { requiredActions, allowed, action } of totalPermissions) {
+    if (requiredActions.length > 0) {
+      for (const actionName of requiredActions) {
+        check(actionName, allowed);
+      }
+    } else {
+      check(action, allowed);
+    }
+  }
+
+  return allowedActions;
 };

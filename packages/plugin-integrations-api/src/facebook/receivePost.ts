@@ -1,11 +1,11 @@
-import { Integrations } from '../models';
+import { IModels } from '../connectionResolver';
 import { getOrCreateCustomer, getOrCreatePost } from './store';
 import { IPostParams } from './types';
 
-const receivePost = async (params: IPostParams, pageId: string) => {
+const receivePost = async (models: IModels, subdomain: string, params: IPostParams, pageId: string) => {
   const kind = 'facebook-post';
 
-  const integration = await Integrations.findOne({
+  const integration = await models.Integrations.findOne({
     $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }]
   });
 
@@ -15,9 +15,9 @@ const receivePost = async (params: IPostParams, pageId: string) => {
 
   const userId = params.from.id;
 
-  const customer = await getOrCreateCustomer(pageId, userId, kind);
+  const customer = await getOrCreateCustomer(models, subdomain, pageId, userId, kind);
 
-  await getOrCreatePost(params, pageId, userId, customer.erxesApiId || '');
+  await getOrCreatePost(models, subdomain, params, pageId, userId, customer.erxesApiId || '');
 };
 
 export default receivePost;

@@ -4,6 +4,7 @@ import { IFetchElkArgs } from "@erxes/api-utils/src/types";
 import { generateModels } from "./connectionResolver";
 import { initBroker } from "./messageBroker";
 import { initMemoryStorage } from "./inmemoryStorage";
+import { getSubdomain } from "@erxes/api-utils/src/core";
 
 export let debug;
 export let graphqlPubsub;
@@ -19,6 +20,30 @@ export let es: {
 
 export default {
   name: "cars",
+  permissions: {
+    cars: {
+      name: 'cars',
+      description: 'Cars',
+      actions: [
+        {
+          name: 'all',
+          description: 'All',
+          use: [
+            'showCars',
+            'manageCars'
+          ]
+        },
+        {
+          name: 'showCars',
+          description: 'Show cars'
+        },
+        {
+          name: 'manageCars',
+          description: 'Manage cars'
+        },
+      ]
+    },
+  },
   graphql: async (sd) => {
     serviceDiscovery = sd;
 
@@ -28,11 +53,11 @@ export default {
     };
   },
 
-  apolloServerContext: async (context) => {
-    const subdomain = "os";
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req);
 
     context.subdomain = subdomain;
-    context.models = await generateModels("os");
+    context.models = await generateModels(subdomain);
 
     return context;
   },

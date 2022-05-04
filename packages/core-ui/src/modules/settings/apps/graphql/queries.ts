@@ -3,6 +3,7 @@ const appFields = `
   createdAt
   name
   userGroupId
+  accessToken
 
   userGroupName
 `;

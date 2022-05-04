@@ -1,4 +1,4 @@
-name: Plugin POS Api CI
+name: Plugin pos Api CI
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - '.github/workflows/plugin-pos-api.yaml'
 
 jobs:
-  plugin-pos-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:

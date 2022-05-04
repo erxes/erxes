@@ -1,9 +1,9 @@
-import { paginate } from "@erxes/api-utils/src/core";
+import { paginate } from '@erxes/api-utils/src/core';
 import {
   checkPermission,
-  requireLogin,
-} from "@erxes/api-utils/src/permissions";
-import { IContext } from "../../../connectionResolver";
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
+import { IContext } from '../../../connectionResolver';
 
 const generateFilter = async (models, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -15,7 +15,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
   }
 
   if (params.searchValue) {
-    filter.searchText = { $in: [new RegExp(`.*${params.searchValue}.*`, "i")] };
+    filter.searchText = { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] };
   }
 
   if (params.ids) {
@@ -31,8 +31,8 @@ const generateFilter = async (models, params, commonQuerySelector) => {
       $in: await models.Conformities.savedConformity({
         mainType: params.conformityMainType,
         mainTypeId: params.conformityMainTypeId,
-        relTypes: ["car"],
-      }),
+        relTypes: ['car']
+      })
     };
   }
   if (
@@ -44,8 +44,8 @@ const generateFilter = async (models, params, commonQuerySelector) => {
       $in: await models.Conformities.relatedConformity({
         mainType: params.conformityMainType,
         mainTypeId: params.conformityMainTypeId,
-        relType: "car",
-      }),
+        relType: 'car'
+      })
     };
   }
 
@@ -71,7 +71,7 @@ const carQueries = {
       ),
       {
         page: params.page,
-        perPage: params.perPage,
+        perPage: params.perPage
       }
     );
   },
@@ -82,9 +82,9 @@ const carQueries = {
     return {
       list: paginate(models.Cars.find(filter).sort(sortBuilder(params)), {
         page: params.page,
-        perPage: params.perPage,
+        perPage: params.perPage
       }),
-      totalCount: models.Cars.find(filter).count(),
+      totalCount: models.Cars.find(filter).count()
     };
   },
 
@@ -104,7 +104,7 @@ const carQueries = {
     }
 
     if (searchValue) {
-      filter.name = new RegExp(`.*${searchValue}.*`, "i");
+      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
 
     return models.CarCategories.find(filter).sort({ order: 1 });
@@ -134,7 +134,7 @@ const carQueries = {
     }
 
     if (searchValue) {
-      filter.name = new RegExp(`.*${searchValue}.*`, "i");
+      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
 
     return models.CarCategories.find(filter).sort({ order: 1 });
@@ -146,12 +146,11 @@ const carQueries = {
 
   cpCarCategoryDetail: async (_root, { _id }, { models }) => {
     return models.CarCategories.findOne({ _id });
-  },
+  }
 };
 
-requireLogin(carQueries, "carDetail");
+requireLogin(carQueries, 'carDetail');
 
-checkPermission(carQueries, "cars", "showCars");
 checkPermission(carQueries, "carsMain", "showCars");
 checkPermission(carQueries, "carDetail", "showCars");
 checkPermission(carQueries, "carCategories", "showCars");

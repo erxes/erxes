@@ -1,10 +1,8 @@
-import { MongoClient } from 'mongodb';
 import * as mongoose from 'mongoose';
-import { mainDb } from './configs';
 import { IArticleDocument, ICategoryDocument, ITopicDocument } from './models/definitions/knowledgebase';
 import { IArticleModel, ICategoryModel, ITopicModel, loadArticleClass, loadCategoryClass, loadTopicClass } from './models/KnowledgeBase';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
-import { userSchema } from '@erxes/api-utils/src/definitions/users';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
   KnowledgeBaseArticles: IArticleModel;
@@ -16,19 +14,7 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels;
-
-export const generateModels = async (
-  _hostnameOrSubdomain: string
-): Promise<IModels> => {
-  if (models) {
-    return models;
-  }
-
-  loadClasses(mainDb);
-
-  return models;
-};
+export let models: IModels | null = null;
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
@@ -47,3 +33,5 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   return models;
 };
+
+export const generateModels = createGenerateModels<IModels>(models, loadClasses)

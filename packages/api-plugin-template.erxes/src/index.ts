@@ -214,7 +214,7 @@ async function startServer() {
     }
 
     if (configs.meta) {
-      const { segments, forms, tags, imports, internalNotes, automations, search } = configs.meta;
+      const { segments, forms, tags, imports, internalNotes, automations, search, webhooks } = configs.meta;
       const { consumeRPCQueue } = messageBrokerClient;
 
       const logs = configs.meta.logs && configs.meta.logs.consumers;
@@ -328,6 +328,17 @@ async function startServer() {
           consumeRPCQueue(`${configs.name}:fixRelatedItems`, async args => ({
             status: 'success',
             data: await tags.fixRelatedItems(args)
+          }));
+        }
+      }
+
+      if(webhooks) {
+        if (webhooks.getInfo) {
+          webhooks.getInfoAvailable = true;
+
+          consumeRPCQueue(`${configs.name}:webhooks.getInfo`, async args => ({
+            status: 'success',
+            data: await webhooks.getInfo(args)
           }));
         }
       }
