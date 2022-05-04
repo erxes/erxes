@@ -46,21 +46,25 @@ export default function NavigationItem(props: Props) {
     </Label>
   );
 
-  const navMenuItemElement = (
+  const renderNavItem = () => {
+    if (navCollapse === 1)
+      return <NavIcon className={plugin.icon} />
+    else
+      return (
+        <React.Fragment>
+          <NavIcon className={plugin.icon} />
+          <label>{plugin.text}</label>
+        </React.Fragment>
+      )
+  }
+
+  const navMenuItemNode = (
     <NavMenuItem isMoreItem={false} navCollapse={navCollapse}>
       <NavLink
         to={getLink(plugin.url)}
         onClick={() => toggleMenu && toggleMenu(plugin.text)}
       >
-        {navCollapse === 1
-          ? <NavIcon className={plugin.icon} />
-          : (
-            <React.Fragment>
-              <NavIcon className={plugin.icon} />
-              <label>{plugin.text}</label>
-            </React.Fragment>
-          )
-        }
+        {renderNavItem()}
 
         {plugin.url.includes("inbox") && isEnabled("inbox")
           ? unreadIndicator
@@ -69,17 +73,21 @@ export default function NavigationItem(props: Props) {
     </NavMenuItem>
   )
 
+  const renderNavMenuItem = () => {
+    if (children.length === 0 && plugin.text !== "Settings")
+      return (
+        <Tip placement="right" key={Math.random()} text={__(plugin.text)}>
+          {navMenuItemNode}
+        </Tip>
+      )
+    else
+      return navMenuItemNode
+  }
+
   return (
     <WithPermission key={plugin.url} action={plugin.permission ? plugin.permission : ""}>
       <NavItem isMoreItem={false}>
-        {children.length === 0 && plugin.text !== "Settings"
-          ? (
-            <Tip placement="right" key={Math.random()} text={__(plugin.text)}>
-              {navMenuItemElement}
-            </Tip>
-          )
-          : navMenuItemElement
-        }
+        {renderNavMenuItem()}
 
         <NavigationChildList
           plugin={plugin}

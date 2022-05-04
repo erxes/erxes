@@ -9,15 +9,14 @@ import { pluginNavigations } from "./utils";
 
 type Props = {
   navCollapse: number;
-  pinnedPlugins: any[];
-  countOfPinnedPlugins: number;
-  updatePinnedPlugins: (plugins: Plugin[]) => void;
   unreadConversationsCount?: number;
 };
 
 type State = {
   showMenu: boolean;
   clickedMenu: string;
+  pinnedPlugins: Plugin[];
+  countOfPinnedPlugins: number;
 };
 
 export default class NavigationList extends React.Component<Props, State> {
@@ -27,6 +26,10 @@ export default class NavigationList extends React.Component<Props, State> {
     this.state = {
       showMenu: false,
       clickedMenu: "",
+      pinnedPlugins: JSON.parse(
+        localStorage.getItem("pinnedPlugins") || "[]"
+      ),
+      countOfPinnedPlugins: window.innerHeight > 900 ? 8 : 5
     };
   }
 
@@ -36,16 +39,27 @@ export default class NavigationList extends React.Component<Props, State> {
     else this.setState({ showMenu: true, clickedMenu: text });
   };
 
+  updatePinnedPlugins = (plugins: Plugin[]): void => {
+    this.setState({ pinnedPlugins: plugins })
+
+    localStorage.setItem(
+      "pinnedPlugins",
+      JSON.stringify(plugins)
+    );
+  }
+
   render() {
     const {
       navCollapse,
-      pinnedPlugins,
-      countOfPinnedPlugins,
-      updatePinnedPlugins,
       unreadConversationsCount,
     } = this.props;
-
-    const { showMenu, clickedMenu } = this.state;
+    
+    const {
+      showMenu,
+      clickedMenu,
+      pinnedPlugins,
+      countOfPinnedPlugins,
+    } = this.state;
 
     const plugins =
       pinnedPlugins.length === 0
@@ -74,7 +88,7 @@ export default class NavigationList extends React.Component<Props, State> {
             pinnedPlugins={pinnedPlugins}
             countOfPinnedPlugins={countOfPinnedPlugins}
             toggleMenu={this.toggleMenu}
-            updatePinnedPlugins={updatePinnedPlugins}
+            updatePinnedPlugins={this.updatePinnedPlugins}
           />
         )}
       </Nav>
