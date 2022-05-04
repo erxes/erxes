@@ -5,7 +5,6 @@ import HeaderDescription from "modules/common/components/HeaderDescription";
 import ModalTrigger from "modules/common/components/ModalTrigger";
 import Pagination from "modules/common/components/pagination/Pagination";
 import Table from "modules/common/components/table";
-import { Title } from "modules/common/styles/main";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import BrandForm from "@erxes/ui/src/brands/components/BrandForm";
 import React from "react";
@@ -13,6 +12,7 @@ import { __ } from "../../../common/utils";
 import Wrapper from "../../../layout/components/Wrapper";
 import Sidebar from "../containers/Sidebar";
 import { IBrand } from "../types";
+import { Padding, Title } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   brandsTotalCount: number;
@@ -27,7 +27,7 @@ class Brands extends React.Component<Props, {}> {
     const { currentBrand, queryParams, renderButton } = this.props;
 
     return (
-      <>
+      <Padding>
         <Table>
           <thead>
             <tr>
@@ -44,7 +44,7 @@ class Brands extends React.Component<Props, {}> {
           </tbody>
         </Table>
         <Pagination count={10} />
-      </>
+      </Padding>
     );
   }
 

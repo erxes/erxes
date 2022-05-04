@@ -1,26 +1,27 @@
-import { FormControl } from '@erxes/ui/src/components/form';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import Table from '@erxes/ui/src/components/table';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from 'coreui/utils';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
-import { FilterContainer } from '@erxes/ui-settings/src/styles';
-import * as React from 'react';
-import { withRouter } from 'react-router-dom';
-import List from '@erxes/ui-settings/src/common/components/List';
-import RowActions from '@erxes/ui-settings/src/common/components/RowActions';
-import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
-import Form from '@erxes/ui-settings/src/responseTemplates/components/Form';
-import CategoryList from '@erxes/ui-settings/src/templates/containers/productCategory/CategoryList';
+import { FormControl } from "@erxes/ui/src/components/form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
+import Table from "@erxes/ui/src/components/table";
+import { IButtonMutateProps, IRouterProps } from "@erxes/ui/src/types";
+import { __, router } from "coreui/utils";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
+import { FlexItem, FlexRow } from "@erxes/ui-settings/src/styles";
+import { FilterContainer } from "@erxes/ui-settings/src/styles";
+import * as React from "react";
+import { withRouter } from "react-router-dom";
+import List from "@erxes/ui-settings/src/common/components/List";
+import RowActions from "@erxes/ui-settings/src/common/components/RowActions";
+import { ICommonListProps } from "@erxes/ui-settings/src/common/types";
+import Form from "@erxes/ui-settings/src/responseTemplates/components/Form";
+import CategoryList from "@erxes/ui-settings/src/templates/containers/productCategory/CategoryList";
 import {
   RESPONSE_TEMPLATE_STATUSES,
-  RESPONSE_TEMPLATE_TIPTEXT
-} from '../constants';
-import Tip from '@erxes/ui/src/components/Tip';
-import Icon from '@erxes/ui/src/components/Icon';
-import Button from '@erxes/ui/src/components/Button';
+  RESPONSE_TEMPLATE_TIPTEXT,
+} from "../constants";
+import Tip from "@erxes/ui/src/components/Tip";
+import Icon from "@erxes/ui/src/components/Icon";
+import Button from "@erxes/ui/src/components/Button";
+import { Padding } from "@erxes/ui-settings/src/styles"
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -42,10 +43,10 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     const { queryParams } = props;
 
     const searchValue =
-      queryParams && queryParams.searchValue ? queryParams.searchValue : '';
+      queryParams && queryParams.searchValue ? queryParams.searchValue : "";
 
     this.state = {
-      searchValue
+      searchValue,
     };
   }
 
@@ -55,17 +56,17 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     this.setState({ searchValue: value });
   };
 
-  renderForm = props => {
+  renderForm = (props) => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
-  renderDisableAction = object => {
+  renderDisableAction = (object) => {
     const { changeStatus } = this.props;
     const _id = object._id;
     const isActive =
       object.status === null ||
       object.status === RESPONSE_TEMPLATE_STATUSES.ACTIVE;
-    const icon = isActive ? 'archive-alt' : 'redo';
+    const icon = isActive ? "archive-alt" : "redo";
 
     const status = isActive
       ? RESPONSE_TEMPLATE_STATUSES.ARCHIVED
@@ -111,7 +112,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
   };
 
   handleKeyDown = (e: React.KeyboardEvent<Element>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       const { value, name } = e.currentTarget as HTMLInputElement;
 
       router.setParams(this.props.history, { [name]: value });
@@ -126,7 +127,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     const brandId =
       this.props.queryParams && this.props.queryParams.brandId
         ? this.props.queryParams
-        : '';
+        : "";
 
     return (
       <FilterContainer>
@@ -134,7 +135,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
           <FlexItem>
             <ControlLabel>Search</ControlLabel>
             <FormControl
-              placeholder={__('Search')}
+              placeholder={__("Search")}
               name="searchValue"
               onChange={this.onChange}
               value={this.state.searchValue}
@@ -158,18 +159,20 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     );
   };
 
-  renderContent = props => {
+  renderContent = (props) => {
     return (
-      <Table>
-        <thead>
-          <tr>
-            <th>{__('Brand')}</th>
-            <th>{__('Name')}</th>
-            <th>{__('Actions')}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderRows(props)}</tbody>
-      </Table>
+      <Padding>
+        <Table>
+          <thead> 
+            <tr>
+              <th>{__("Brand")}</th>
+              <th>{__("Name")}</th>
+              <th>{__("Actions")}</th>
+            </tr>
+          </thead>
+          <tbody>{this.renderRows(props)}</tbody>
+        </Table>
+      </Padding>
     );
   };
 
@@ -178,18 +181,18 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
       <List
         formTitle="New response template"
         breadcrumb={[
-          { title: __('Settings'), link: '/settings' },
-          { title: __('Response templates') }
+          { title: __("Settings"), link: "/settings" },
+          { title: __("Response templates") },
         ]}
-        title={__('Response templates')}
+        title={__("Response templates")}
         mainHead={
           <HeaderDescription
-            icon='/images/actions/24.svg'
-            title='Response templates'
+            icon="/images/actions/24.svg"
+            title="Response templates"
             description={`${__(
-              'Make things easy for your team members and add in ready made response templates'
+              "Make things easy for your team members and add in ready made response templates"
             )}.${__(
-              'Manage and edit your response templates according to each situation and respond in a timely manner and without the hassle'
+              "Manage and edit your response templates according to each situation and respond in a timely manner and without the hassle"
             )}`}
           />
         }

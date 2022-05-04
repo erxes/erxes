@@ -1,4 +1,5 @@
 import { colors, dimensions } from "@erxes/ui/src/styles";
+import { rgba } from "@erxes/ui/src/styles/ecolor";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
 import { SidebarListItem } from "../styles";
@@ -7,7 +8,6 @@ import { HeaderContent } from "@erxes/ui-cards/src/boards/styles/item";
 
 const BoardItem = styledTS<{ isActive: boolean }>(styled(SidebarListItem))`
   overflow: hidden;
-  background: ${props => props.isActive && colors.bgActive};
   
   > button {
     padding: 10px 15px 10px 20px;

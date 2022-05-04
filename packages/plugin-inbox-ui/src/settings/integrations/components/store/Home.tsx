@@ -10,7 +10,7 @@ import { ByKindTotalCount } from '@erxes/ui-settings/src/integrations/types';
 import Row from './Row';
 import Sidebar from './Sidebar';
 import { Content, FullHeight, IntegrationWrapper, SearchInput } from '@erxes/ui-settings/src/integrations/components/store/styles';
-import { Title } from '@erxes/ui/src/styles/main';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   totalCount: ByKindTotalCount;

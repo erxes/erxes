@@ -38,8 +38,9 @@ export default function BlockList(props: Props) {
       extraButtons={extraButtons}
       collapsible={allDatas.length > 6}
       noShadow={true}
+      noMarginBottom={true}
     >
-      <SidebarList className="no-link">{renderItems}</SidebarList>
+      <SidebarList isSettings={true} className="no-link">{renderItems}</SidebarList>
     </Box>
   );
 }

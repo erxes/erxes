@@ -4,7 +4,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { Title } from '@erxes/ui/src/styles/main';
+import { Title } from '@erxes/ui-settings/src/styles';
 import { __ } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
@@ -240,7 +240,6 @@ class Properties extends React.Component<
         content={this.renderProperties()}
         hasBorder={true}
         transparent={true}
-        leftSpacing={true}
       />
     );
   }

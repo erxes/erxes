@@ -16,13 +16,14 @@ import Button from "@erxes/ui/src/components/Button";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { IUserGroup } from "@erxes/ui-settings/src/permissions/types";
 import styled from "styled-components";
-import styledTS from 'styled-components-ts';
-import { colors, dimensions } from "@erxes/ui/src/styles";
+import styledTS from "styled-components-ts";
+import { colors } from "@erxes/ui/src/styles";
 import Icon from "@erxes/ui/src/components/Icon";
-import { ButtonContainer } from "../styles";
+import Pagination from "modules/common/components/pagination/Pagination";
 
-const ActiveColor = styledTS <{active: boolean}>(styled.div)`
-  background: ${props => (props.active === true ? colors.colorCoreGreen : colors.colorCoreYellow)};
+const ActiveColor = styledTS<{ active: boolean }>(styled.div)`
+  background: ${(props) =>
+    props.active === true ? colors.colorCoreGreen : colors.colorCoreYellow};
   border-radius: 50%;
   height: 10px;
   width: 10px;
@@ -34,14 +35,15 @@ type Props = {
   configsEnvQuery: any;
   loading: boolean;
   usersGroups: IUserGroup[];
+  totalCount : number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 export default function Home(props: Props) {
   let timer;
-  const { queryParams, history, loading, configsEnvQuery = {} } = props;
+  const { queryParams, history, loading, configsEnvQuery = {}, totalCount } = props;
   const [searchValue, setSearchValue] = useState("");
-  const [active, setActive]= useState(true);
+  const [active, setActive] = useState(true);
 
   const search = (e) => {
     if (timer) {
@@ -93,42 +95,42 @@ export default function Home(props: Props) {
   };
 
   const renderFilter = (
-    <FilterContainer style={{ paddingTop: dimensions.coreSpacing - 10 }}>
+    <FilterContainer>
       <FlexRow>
         {renderBrandChooser()}
         <InputBar type="searchBar">
-        <Icon icon="search-1" size={20}/>
-        <FlexItem>
-          <FormControl
-            placeholder={__("Search")}
-            name="searchValue"
-            onChange={search}
-            value={searchValue}
-            autoFocus={true}
-            onFocus={moveCursorAtTheEnd}
-          />
-        </FlexItem>
+          <Icon icon="search-1" size={20} />
+          <FlexItem>
+            <FormControl
+              placeholder={__("Search")}
+              name="searchValue"
+              onChange={search}
+              value={searchValue}
+              autoFocus={true}
+              onFocus={moveCursorAtTheEnd}
+            />
+          </FlexItem>
         </InputBar>
         <InputBar type="active">
-        <ActiveColor active={active}/>
-        <FlexItem>
-          <Select
-            placeholder={__("Choose status")}
-            value={queryParams.isActive || true}
-            onChange={onStatusChange}
-            clearable={false}
-            options={[
-              {
-                value: true,
-                label: __("Active"),
-              },
-              {
-                value: false,
-                label: __("Deactivated"),
-              },
-            ]}
-          />
-        </FlexItem>
+          <ActiveColor active={active} />
+          <FlexItem>
+            <Select
+              placeholder={__("Choose status")}
+              value={queryParams.isActive || true}
+              onChange={onStatusChange}
+              clearable={false}
+              options={[
+                {
+                  value: true,
+                  label: __("Active"),
+                },
+                {
+                  value: false,
+                  label: __("Deactivated"),
+                },
+              ]}
+            />
+          </FlexItem>
         </InputBar>
       </FlexRow>
     </FilterContainer>
@@ -146,7 +148,11 @@ export default function Home(props: Props) {
     );
   };
 
-  const trigger = <ButtonContainer><Button btnStyle="success" icon="plus">Invite team members</Button></ButtonContainer>;
+  const trigger = (
+    <Button btnStyle="success" icon="plus">
+      Invite team members
+    </Button>
+  );
 
   const righActionBar = (
     <ModalTrigger
@@ -158,7 +164,11 @@ export default function Home(props: Props) {
   );
 
   const actionBar = (
-    <Wrapper.ActionBar hasFlex={true} right={righActionBar} left={renderFilter} />
+    <Wrapper.ActionBar
+      hasFlex={true}
+      right={righActionBar}
+      left={renderFilter}
+    />
   );
 
   return (
@@ -175,6 +185,7 @@ export default function Home(props: Props) {
       content={<UserList history={history} queryParams={queryParams} />}
       hasBorder={true}
       transparent={true}
+      footer={<Pagination count={totalCount} />}
     />
   );
 }

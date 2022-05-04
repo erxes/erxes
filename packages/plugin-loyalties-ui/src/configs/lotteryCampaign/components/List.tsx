@@ -13,6 +13,7 @@ import { MainStyleTitle as Title } from "@erxes/ui/src/styles/eindex";
 import { BarItems, Wrapper } from "@erxes/ui/src/layout";
 import { __, confirm, router, Alert } from "@erxes/ui/src/utils";
 import { ILotteryCampaign } from "../types";
+import { Padding } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   lotteryCampaigns: ILotteryCampaign[];
@@ -165,7 +166,7 @@ class LotteryCampaigns extends React.Component<Props, State> {
     ];
 
     const content = (
-      <>
+      <Padding>
         <Table hover={true}>
           <thead>
             <tr>
@@ -186,7 +187,7 @@ class LotteryCampaigns extends React.Component<Props, State> {
           </thead>
           <tbody>{this.renderRow()}</tbody>
         </Table>
-      </>
+      </Padding>
     );
 
     return (

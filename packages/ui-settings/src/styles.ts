@@ -3,6 +3,7 @@ import styled from "styled-components";
 import styledTS from "styled-components-ts";
 import { DateContainer } from "@erxes/ui/src/styles/main";
 import { rgba } from "@erxes/ui/src/styles/ecolor";
+import { lighten } from "@erxes/ui/src/styles/ecolor";
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 
@@ -25,36 +26,44 @@ const ActionButtons = styled.div`
 
 const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   position: relative;
-  border-bottom: 1px solid ${colors.borderPrimary};
-  background: ${(props) => props.isActive && colors.bgActive};
+  background: ${(props) => props.isActive && rgba(colors.colorPrimary, 0.2)};
   overflow: hidden;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-right: 20px;
+  
   a {
     white-space: normal;
     flex: 1;
-    padding: 10px 0 10px 20px;
-    font-weight: 500;
+    color: ${(props) => props.isActive && colors.colorPrimary} !important;
+    font-weight: ${(props) => props.isActive ? 600 : 500};
+
+    margin: 0 20px;
+    padding: 10px 0;
+
     &:hover {
       background: none;
+      color: ${(props) => !props.isActive && lighten(colors.textPrimary, 40)};
     }
+
     &:focus {
-      color: inherit;
       text-decoration: none;
     }
+
     > span {
       color: #666;
       font-weight: normal;
     }
   }
+
   &:last-child {
     border: none;
   }
+  
   &:hover {
     cursor: pointer;
     background: ${(props) => !props.isActive && colors.bgLight};
+
     ${ActionButtons} {
       width: 60px;
     }
@@ -211,16 +220,11 @@ const SubItem = styled.div`
 
 const FilterContainer = styled.div`
   position: relative;
-  padding-bottom: ${dimensions.coreSpacing}px;
   z-index: 2;
 `;
 
 const SidebarList = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
-
-  > div {
-    border-top: 1px solid ${colors.borderPrimary};
-  }
 `;
 
 const ContentBox = styled.div`
@@ -300,6 +304,28 @@ const InputBar = styledTS<{ type?: string }>(styled.div)`
   }
 `;
 
+const Padding = styled.div`
+  padding: 0 ${dimensions.coreSpacing}px;
+`;
+
+const Header = styled.div`
+  margin: 20px 20px 0px 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+`;
+
+const Title = styledTS<{ capitalize?: boolean }>(styled.div)`
+  font-size: 24px;
+  display: flex;
+  line-height: 30px;
+  text-transform: ${props => props.capitalize && 'capitalize'};
+
+  > span {
+    font-size: 75%;
+    color: #666;
+  }
+`;
+
 export {
   MarkdownWrapper,
   FlexItem,
@@ -317,4 +343,7 @@ export {
   ContentBox,
   LogoContainer,
   InputBar,
+  Padding,
+  Header,
+  Title,
 };

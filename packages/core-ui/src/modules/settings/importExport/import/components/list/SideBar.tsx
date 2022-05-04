@@ -3,6 +3,8 @@ import LeftSidebar from "modules/layout/components/Sidebar";
 import { SidebarList as List } from "modules/layout/styles";
 import React from "react";
 import { Link } from "react-router-dom";
+import { Padding } from "@erxes/ui-settings/src/styles";
+import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 
 type Props = {
   currentType?: string;
@@ -14,9 +16,12 @@ class Sidebar extends React.Component<Props> {
     const { Header } = LeftSidebar;
 
     return (
-      <div>
-        <Header uppercase={true}>{__("Filter by content type")}</Header>
-      </div>
+      <>
+        <SidebarHeader />
+        <Padding>
+          <Header uppercase={true}>{__("Filter by content type")}</Header>
+        </Padding>
+      </>
     );
   };
 
@@ -41,7 +46,7 @@ class Sidebar extends React.Component<Props> {
   render() {
     return (
       <LeftSidebar header={this.renderSidebarHeader()} hasBorder={true}>
-        <LeftSidebar.Section>
+        <LeftSidebar.Section isSettings={true} noShadow={true}>
             {this.props.services.length === 0 ? null : <List id={"ImportExportSidebar"}>
             {this.props.services.map((service) => this.renderListItem(service))}
           </List>}

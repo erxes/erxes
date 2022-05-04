@@ -4,7 +4,6 @@ import Icon from '@erxes/ui/src/components/Icon';
 import LoadMore from '@erxes/ui/src/components/LoadMore';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
-import { TopHeader } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { __ } from 'coreui/utils';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
@@ -15,6 +14,7 @@ import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { ISkillType, ISkillTypesDocument } from '@erxes/ui-settings/src/skills/types';
 import SkillTypeForm from './SkillTypeForm';
+import { Header } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   queryParams: any;
@@ -101,7 +101,7 @@ function SkillTypes({
 
     return (
       <>
-        <TopHeader>{renderFormTrigger(trigger)}</TopHeader>
+        <Header>{renderFormTrigger(trigger)}</Header>
         <Section.Title>{__('Skill types')}</Section.Title>
       </>
     );
@@ -109,7 +109,7 @@ function SkillTypes({
 
   function renderContent() {
     return (
-      <SidebarList>
+      <SidebarList isSettings={true}>
         {objects.map(object => (
           <SidebarListItem key={object._id} isActive={isItemActive(object._id)}>
             <Link to={`?typeId=${object._id}`}>

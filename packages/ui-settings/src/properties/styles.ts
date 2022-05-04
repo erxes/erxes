@@ -46,8 +46,7 @@ const CollapseRow = styled.div`
   overflow: hidden;
   justify-content: space-between;
   padding: ${dimensions.coreSpacing}px;
-  background: ${colors.bgLight};
-  border-bottom: 1px solid ${colors.borderPrimary};
+  background: ${colors.colorWhite};
   border-top: 1px solid ${colors.borderPrimary};
 
   span {
@@ -106,14 +105,15 @@ const PropertyListTable = styled.div`
 
 const PropertyTableHeader = styled.div`
   display: flex;
-  background: ${colors.bgLight};
+  background: ${colors.colorWhite};
 
   > label {
-    padding: 8px ${dimensions.coreSpacing}px;
+    padding: 10px 0;
     position: sticky;
     z-index: 1;
     top: 0;
     width: 33%;
+    font-weight: bold;
 
     &:last-child {
       width: 10%;

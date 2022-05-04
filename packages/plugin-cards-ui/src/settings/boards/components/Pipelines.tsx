@@ -1,26 +1,26 @@
-import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
-import { collectOrders } from '@erxes/ui-cards/src/boards/utils';
-import Button from '@erxes/ui/src/components/Button';
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Table from '@erxes/ui/src/components/table';
-import { Title } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from 'coreui/utils';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
+import { IBoard, IPipeline } from "@erxes/ui-cards/src/boards/types";
+import { collectOrders } from "@erxes/ui-cards/src/boards/utils";
+import Button from "@erxes/ui/src/components/Button";
+import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Table from "@erxes/ui/src/components/table";
+import { IButtonMutateProps, IRouterProps } from "@erxes/ui/src/types";
+import { __, router } from "coreui/utils";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { BarItems } from "@erxes/ui/src/layout/styles";
 import {
   EMPTY_CONTENT_DEAL_PIPELINE,
-  EMPTY_CONTENT_TASK_PIPELINE
-} from '@erxes/ui-settings/src/constants';
-import React from 'react';
-import { Link, withRouter } from 'react-router-dom';
-import PipelineForm from '../containers/PipelineForm';
-import { IOption } from '../types';
-import { PipelineCount } from '@erxes/ui-settings/src/boards/styles';
-import PipelineRow from './PipelineRow';
-import SortHandler from '@erxes/ui/src/components/SortHandler';
+  EMPTY_CONTENT_TASK_PIPELINE,
+} from "@erxes/ui-settings/src/constants";
+import React from "react";
+import { Link, withRouter } from "react-router-dom";
+import PipelineForm from "../containers/PipelineForm";
+import { IOption } from "../types";
+import { PipelineCount } from "@erxes/ui-settings/src/boards/styles";
+import PipelineRow from "./PipelineRow";
+import SortHandler from "@erxes/ui/src/components/SortHandler";
+import { Padding, Title } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   type: string;
@@ -70,13 +70,13 @@ class Pipelines extends React.Component<Props, State> {
 
     const { history } = props;
 
-    const showModal = history.location.hash.includes('showPipelineModal');
+    const showModal = history.location.hash.includes("showPipelineModal");
 
     this.state = {
       showModal,
       pipelines: props.pipelines,
       isDragDisabled: false,
-      searchValue: ''
+      searchValue: "",
     };
   }
 
@@ -105,11 +105,11 @@ class Pipelines extends React.Component<Props, State> {
 
   addPipeline = () => {
     this.setState({
-      showModal: true
+      showModal: true,
     });
   };
 
-  onChangePipelines = pipelines => {
+  onChangePipelines = (pipelines) => {
     this.setState({ pipelines });
 
     this.props.updateOrder(collectOrders(pipelines));
@@ -121,7 +121,7 @@ class Pipelines extends React.Component<Props, State> {
     this.setState({ isDragDisabled: !isDragDisabled });
   };
 
-  searchHandler = event => {
+  searchHandler = (event) => {
     const searchValue = event.target.value.toLowerCase();
     const { history, pipelines } = this.props;
 
@@ -130,7 +130,7 @@ class Pipelines extends React.Component<Props, State> {
     let updatedPipelines = pipelines;
 
     if (searchValue) {
-      updatedPipelines = pipelines.filter(p =>
+      updatedPipelines = pipelines.filter((p) =>
         p.name.toLowerCase().includes(searchValue)
       );
     }
@@ -142,8 +142,8 @@ class Pipelines extends React.Component<Props, State> {
     const { renderButton, type, options, history } = this.props;
     const { pipelines } = this.state;
 
-    const sortDirection = router.getParam(history, 'sortDirection');
-    const sortField = router.getParam(history, 'sortField');
+    const sortDirection = router.getParam(history, "sortDirection");
+    const sortField = router.getParam(history, "sortField");
 
     const sortedPipelines = [...pipelines];
 
@@ -151,7 +151,7 @@ class Pipelines extends React.Component<Props, State> {
       sortItems(sortedPipelines, sortDirection, sortField);
     }
 
-    return sortedPipelines.map(pipeline => (
+    return sortedPipelines.map((pipeline) => (
       <PipelineRow
         key={pipeline._id}
         pipeline={pipeline}
@@ -169,14 +169,14 @@ class Pipelines extends React.Component<Props, State> {
   renderContent() {
     const { pipelines, options, type } = this.props;
 
-    const pipelineName = options ? options.pipelineName : 'pipeline';
+    const pipelineName = options ? options.pipelineName : "pipeline";
 
     if (pipelines.length === 0) {
-      if (type === 'deal' || type === 'task') {
+      if (type === "deal" || type === "task") {
         return (
           <EmptyContent
             content={
-              type === 'deal'
+              type === "deal"
                 ? EMPTY_CONTENT_DEAL_PIPELINE
                 : EMPTY_CONTENT_TASK_PIPELINE
             }
@@ -194,20 +194,22 @@ class Pipelines extends React.Component<Props, State> {
     }
 
     return (
-      <Table whiteSpace="nowrap" hover={true}>
-        <thead>
-          <tr>
-            <th>
-              <SortHandler sortField={'name'} label={__('Name')} />
-            </th>
-            <th>{__('Status')}</th>
-            <th>{__('Created at')}</th>
-            <th>{__('Created By')}</th>
-            <th>{__('Actions')}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderRows()}</tbody>
-      </Table>
+      <Padding>
+        <Table whiteSpace="nowrap" hover={true}>
+          <thead>
+            <tr>
+              <th>
+                <SortHandler sortField={"name"} label={__("Name")} />
+              </th>
+              <th>{__("Status")}</th>
+              <th>{__("Created at")}</th>
+              <th>{__("Created By")}</th>
+              <th>{__("Actions")}</th>
+            </tr>
+          </thead>
+          <tbody>{this.renderRows()}</tbody>
+        </Table>
+      </Padding>
     );
   }
 
@@ -229,7 +231,7 @@ class Pipelines extends React.Component<Props, State> {
 
   renderButton() {
     const { options, boardId, history } = this.props;
-    const pipelineName = options ? options.pipelineName : 'pipeline';
+    const pipelineName = options ? options.pipelineName : "pipeline";
 
     if (!boardId) {
       return null;
@@ -239,9 +241,9 @@ class Pipelines extends React.Component<Props, State> {
       <BarItems>
         <FormControl
           type="text"
-          placeholder={__('Type to search')}
+          placeholder={__("Type to search")}
           onChange={this.searchHandler}
-          value={router.getParam(history, 'searchValue')}
+          value={router.getParam(history, "searchValue")}
           autoFocus={true}
         />
 
@@ -259,15 +261,15 @@ class Pipelines extends React.Component<Props, State> {
 
   render() {
     const { currentBoard, pipelines, options } = this.props;
-    const pipelineName = options ? options.pipelineName : 'pipeline';
+    const pipelineName = options ? options.pipelineName : "pipeline";
 
     const leftActionBar = (
       <Title>
-        {currentBoard ? currentBoard.name : ''}
+        {currentBoard ? currentBoard.name : ""}
 
         <PipelineCount>
           ({pipelines.length} {__(pipelineName)}
-          {pipelines.length > 1 && 's'})
+          {pipelines.length > 1 && "s"})
         </PipelineCount>
       </Title>
     );

@@ -309,7 +309,7 @@ export default class GenerateField extends React.Component<Props, State> {
     const entries = Object.entries(object);
 
     return (
-      <SidebarList className="no-hover" key={index}>
+      <SidebarList isSettings={true} className="no-hover" key={index}>
         {entries.map(e => {
           const key = e[0];
           const value: any = e[1] || '';

@@ -14,12 +14,14 @@ import {
 
 function Title({
   children,
-  onClick
+  onClick,
+  isSettings
 }: {
   children: React.ReactNode;
   onClick?: () => void;
+  isSettings?: boolean;
 }) {
-  return <SidebarTitle onClick={onClick}>{children}</SidebarTitle>;
+  return <SidebarTitle onClick={onClick} isSettings={isSettings}>{children}</SidebarTitle>;
 }
 
 function QuickButtons({
@@ -42,6 +44,7 @@ type Props = {
   noBackground?: boolean;
   full?: boolean;
   maxHeight: number;
+  isSettings?: boolean;
 };
 
 type State = {
@@ -85,7 +88,8 @@ class Section extends React.Component<Props, State> {
       noShadow,
       noBackground,
       full,
-      maxHeight
+      maxHeight,
+      isSettings
     } = this.props;
 
     const style = collapsible
@@ -101,6 +105,7 @@ class Section extends React.Component<Props, State> {
         noShadow={noShadow}
         noBackground={noBackground}
         full={full}
+        isSettings={isSettings}
       >
         <BoxContent>{children}</BoxContent>
         {collapsible ? this.renderCollapseButton() : null}
@@ -114,11 +119,12 @@ type HeaderProps = {
   uppercase?: boolean;
   bold?: boolean;
   spaceBottom?: boolean;
+  isSettings?: boolean;
 };
 
-function Header({ children, spaceBottom, uppercase, bold }: HeaderProps) {
+function Header({ children, spaceBottom, uppercase, bold, isSettings }: HeaderProps) {
   return (
-    <SidebarHeader spaceBottom={spaceBottom} uppercase={uppercase} bold={bold}>
+    <SidebarHeader isSettings={isSettings} spaceBottom={spaceBottom} uppercase={uppercase} bold={bold}>
       {children}
     </SidebarHeader>
   );
@@ -135,7 +141,8 @@ type SidebarProps = {
   wide?: boolean;
   full?: boolean;
   half?: boolean;
-  hasBorder?: boolean
+  hasBorder?: boolean;
+  isSettings?: boolean;
 };
 
 export default class Sidebar extends React.Component<SidebarProps> {
@@ -144,10 +151,10 @@ export default class Sidebar extends React.Component<SidebarProps> {
   static Footer = Footer;
 
   render() {
-    const { children, wide, header, footer, half, full, hasBorder } = this.props;
+    const { children, wide, header, footer, half, full, hasBorder, isSettings } = this.props;
 
     return (
-      <SideContent half={half} wide={wide} full={full} hasBorder={hasBorder}>
+      <SideContent half={half} wide={wide} full={full} hasBorder={hasBorder} isSettings={isSettings}>
         {header}
         <SidebarMainContent>{children}</SidebarMainContent>
         {footer}

@@ -1,9 +1,9 @@
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { colors, dimensions, typography } from '../../styles';
-import { FormLabel, Input } from '../form/styles';
+import styled, { css } from "styled-components";
+import styledTS from "styled-components-ts";
+import { colors, dimensions, typography } from "../../styles";
+import { FormLabel, Input } from "../form/styles";
 
-const tableHoverColor = '#f5f5f5';
+const tableHoverColor = "#f5f5f5";
 
 const StyledTable = styledTS<{
   whiteSpace?: string;
@@ -24,7 +24,7 @@ const StyledTable = styledTS<{
     td {
       border-top: 1px solid ${colors.borderPrimary};
       color: ${colors.textPrimary};
-      padding: ${dimensions.unitSpacing - 2}px;
+      padding: ${dimensions.unitSpacing - 2}px 0;
       display: table-cell;
       vertical-align: ${props.alignTop && 'top'};
 
@@ -37,12 +37,12 @@ const StyledTable = styledTS<{
       th,
       td {
         text-transform: uppercase;
-        color: ${colors.colorCoreGray};
+        padding: ${dimensions.unitSpacing + 5}px 0;
         font-size: ${typography.fontSizeUppercase}px;
       }
 
       th {
-        background-color: ${colors.bgLight};
+        background-color: ${colors.colorWhite};
         position: sticky;
         z-index: 1;
         top: 0;
@@ -93,11 +93,12 @@ const StyledTable = styledTS<{
     @media (min-width: 1170px) {
       th,
       td {
-        padding: ${props => props.wideHeader ? `${dimensions.unitSpacing + 2}px` : `${dimensions.unitSpacing - 2}`} ${dimensions.coreSpacing -
-    2}px;
+        padding: ${(props) =>
+          props.wideHeader
+            ? `${dimensions.unitSpacing + 2}px 0`
+            : `${dimensions.unitSpacing - 2}`} ${dimensions.coreSpacing - 2}px;
 
         &:first-child {
-          padding-left: ${dimensions.coreSpacing}px;
         }
 
         &:last-child {

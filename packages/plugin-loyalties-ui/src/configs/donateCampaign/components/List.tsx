@@ -13,6 +13,7 @@ import { BarItems, Wrapper } from '@erxes/ui/src/layout';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { __, router, confirm, Alert } from '@erxes/ui/src/utils';
 import { IDonateCampaign } from '../types';
+import { Padding } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   donateCampaigns: IDonateCampaign[];
@@ -164,7 +165,7 @@ class DonateCampaigns extends React.Component<Props, State> {
     ];
 
     const content = (
-      <>
+      <Padding>
         <Table hover={true}>
           <thead>
             <tr>
@@ -185,7 +186,7 @@ class DonateCampaigns extends React.Component<Props, State> {
           </thead>
           <tbody>{this.renderRow()}</tbody>
         </Table>
-      </>
+      </Padding>
     );
 
     return (

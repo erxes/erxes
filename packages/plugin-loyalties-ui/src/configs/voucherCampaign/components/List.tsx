@@ -10,6 +10,7 @@ import { IVoucherCampaign } from '../types';
 import Row from './Row';
 import Form from '../containers/Form'
 import { __, Alert, router, confirm } from '@erxes/ui/src/utils';
+import { Padding } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   voucherCampaigns: IVoucherCampaign[];
@@ -163,7 +164,7 @@ class VoucherCampaigns extends React.Component<Props, State> {
     ];
 
     const content = (
-      <>
+      <Padding>
         <Table hover={true}>
           <thead>
             <tr>
@@ -185,7 +186,7 @@ class VoucherCampaigns extends React.Component<Props, State> {
           </thead>
           <tbody>{this.renderRow()}</tbody>
         </Table>
-      </>
+      </Padding>
     );
 
     return (

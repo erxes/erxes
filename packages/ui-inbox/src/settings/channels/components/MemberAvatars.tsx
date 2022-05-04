@@ -43,5 +43,9 @@ export default function MemberAvatars(props: Props) {
     return [renderedMembers, readMore];
   };
 
+  if(props.allMembers.length === 0 || props.selectedMemberIds.length === 0) {
+    return null;
+  }
+  
   return <Members>{renderMembers()}</Members>;
 }

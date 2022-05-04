@@ -23,7 +23,7 @@ function TagsSidebar({ types, type }: { types: any[]; type: string }) {
       <LeftSidebar.Header uppercase={true}>
         {__("Tags type")}
       </LeftSidebar.Header>
-      <SidebarList id={"TagsSidebar"}>
+      <SidebarList isSettings={true} id={"TagsSidebar"}>
         {types.map((value) => {
           return ListItem(value, type);
         })}

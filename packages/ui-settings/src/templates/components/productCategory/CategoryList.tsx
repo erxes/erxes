@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import TagFilter from "../../containers/TagFilter";
 import ProductTypeFilter from "../product/filters/ProdcutTypeFilter";
 import { isEnabled } from "@erxes/ui/src/utils/core";
+import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 
 const TEMPLATE_TYPES = {
   email_templates: "Emails",
@@ -64,10 +65,10 @@ class List extends React.Component<IProps> {
 
   render() {
     return (
-      <Sidebar wide={true} hasBorder={true}>
-        <Section maxHeight={488}>
+      <Sidebar header={<SidebarHeader />} wide={true} hasBorder={true}>
+        <Section noShadow={true} maxHeight={488}>
           <Section.Title>{__("Types")}</Section.Title>
-          <SidebarList>{this.renderContent()}</SidebarList>
+          <SidebarList isSettings={true}>{this.renderContent()}</SidebarList>
         </Section>
         <ProductTypeFilter />
         {isEnabled("tags") && <TagFilter />}
