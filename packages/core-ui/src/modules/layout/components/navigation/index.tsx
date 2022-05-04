@@ -1,20 +1,20 @@
-import React from 'react'
-import { NavLink } from 'react-router-dom'
+import React from "react"
+import { NavLink } from "react-router-dom"
 
 import {
   LeftNavigation,
   FlexBox,
   BottomMenu,
-} from '../../styles';
+} from "../../styles";
 
-import { readFile } from 'modules/common/utils'
+import { __, readFile, setBadge } from "modules/common/utils"
 
-import NavigationToggler from './NavigationToggler';
-import NavigationList from './NavigationList';
-import NavigationItem from './NavigationItem';
+import NavigationToggler from "./NavigationToggler";
+import NavigationList from "./NavigationList";
+import NavigationItem from "./NavigationItem";
 
-import { Plugin } from './types';
-import { getThemeItem } from 'utils';
+import { Plugin } from "./types";
+import { getThemeItem } from "utils";
 
 type Props = {
   unreadConversationsCount?: number;
@@ -27,19 +27,27 @@ type State = {
   countOfPinnedPlugins: number;
 }
 
-class Navigation extends React.Component<Props, State> {
+export default class Navigation extends React.Component<Props, State> {
   constructor(props: Props){
     super(props)
     
     this.state = {
       pinnedPlugins: JSON.parse(
-        localStorage.getItem('pinnedPlugins') || "[]"
+        localStorage.getItem("pinnedPlugins") || "[]"
       ),
       countOfPinnedPlugins: window.innerHeight > 900 ? 8 : 5
     }
   }
 
-  private updatePinnedPlugins = (plugins: Plugin[]): void => {
+  componentWillReceiveProps(nextProps: any) {
+    const unreadCount = nextProps.unreadConversationsCount;
+
+    if (unreadCount !== this.props.unreadConversationsCount) {
+      setBadge(unreadCount, __("Team Inbox").toString());
+    }
+  }
+
+  updatePinnedPlugins = (plugins: Plugin[]): void => {
     this.setState({ pinnedPlugins: plugins })
 
     localStorage.setItem(
@@ -48,23 +56,31 @@ class Navigation extends React.Component<Props, State> {
     );
   }
 
-  private generateLogoSource = (): string => {
-    const logo = this.props.navCollapse === 1 ? 'glyph_dark.png' : 'logo-dark.png'
-    const thLogo = getThemeItem('logo');
+  render() {
+    const {
+      unreadConversationsCount,
+      navCollapse,
+      onClickHandleIcon
+    } = this.props
     
-    return thLogo ? readFile(thLogo) : `/images/${logo}`
-  }
+    const {
+      pinnedPlugins,
+      countOfPinnedPlugins
+    } = this.state
 
-  public render() {
-    const { pinnedPlugins, countOfPinnedPlugins } = this.state
-    const { navCollapse, onClickHandleIcon } = this.props
+    const generateLogoSource = (): string => {
+      const logo = this.props.navCollapse === 1 ? "glyph_dark.png" : "logo-dark.png"
+      const thLogo = getThemeItem("logo");
+      
+      return thLogo ? readFile(thLogo) : `/images/${logo}`
+    }
 
     return (
       <LeftNavigation>
-        <NavLink to='/'>
+        <NavLink to="/">
           <img
-            src={this.generateLogoSource()}
-            alt='erxes'
+            src={generateLogoSource()}
+            alt="erxes"
           />
         </NavLink>
 
@@ -80,6 +96,7 @@ class Navigation extends React.Component<Props, State> {
           pinnedPlugins={pinnedPlugins}
           countOfPinnedPlugins={countOfPinnedPlugins}
           updatePinnedPlugins={this.updatePinnedPlugins}
+          unreadConversationsCount={unreadConversationsCount}
         />
 
         <BottomMenu>
@@ -97,5 +114,3 @@ class Navigation extends React.Component<Props, State> {
     )
   }
 }
-
-export default Navigation

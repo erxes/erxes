@@ -1,19 +1,20 @@
-import React from 'react';
+import React from "react";
 import {
   Nav
-} from '../../styles';
+} from "../../styles";
 
-import NavigationItem from './NavigationItem';
-import NavigationMore from './NavigationMore';
+import NavigationItem from "./NavigationItem";
+import NavigationMore from "./NavigationMore";
 
-import { Plugin } from './types';
-import { pluginNavigations } from './utils';
+import { Plugin } from "./types";
+import { pluginNavigations } from "./utils";
 
 type Props = {
   navCollapse: number;
   pinnedPlugins: any[];
   countOfPinnedPlugins: number;
   updatePinnedPlugins: (plugins: Plugin[]) => void;
+  unreadConversationsCount?: number;
 };
 
 type State = {
@@ -21,29 +22,30 @@ type State = {
   clickedMenu: string;
 }
 
-class NavigationList extends React.Component<Props, State> {
+export default class NavigationList extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
     this.state = {
       showMenu: false,
-      clickedMenu: '',
+      clickedMenu: "",
     }
   }
 
-  private toggleMenu = (text: string) => {
+  toggleMenu = (text: string): void => {
     if (this.state.clickedMenu === text)
       this.setState({ showMenu: !this.state.showMenu })
     else
       this.setState({ showMenu: true, clickedMenu: text })
   }
 
-  public render() {
+  render() {
     const {
       navCollapse,
       pinnedPlugins,
       countOfPinnedPlugins,
-      updatePinnedPlugins
+      updatePinnedPlugins,
+      unreadConversationsCount
     } = this.props;
 
     const {
@@ -57,7 +59,7 @@ class NavigationList extends React.Component<Props, State> {
         : pinnedPlugins;
   
     return (
-      <Nav id='navigation'>
+      <Nav id="navigation">
         {plugins.map((plugin: any, index: number) => {
           return (
             <NavigationItem
@@ -67,6 +69,7 @@ class NavigationList extends React.Component<Props, State> {
               showMenu={showMenu}
               clickedMenu={clickedMenu}
               toggleMenu={this.toggleMenu}
+              unreadConversationsCount={unreadConversationsCount}
             />
           )
         })}
@@ -84,5 +87,3 @@ class NavigationList extends React.Component<Props, State> {
     )
   }
 }
-
-export default NavigationList;

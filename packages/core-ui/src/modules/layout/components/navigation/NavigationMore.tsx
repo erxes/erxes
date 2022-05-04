@@ -6,17 +6,16 @@ import {
   NavIcon,
   MoreMenus,
   MoreMenuWrapper,
-  MoreItemRecent,
   MoreTitle,
   MoreSearch,
-} from '../../styles'
+} from "../../styles"
 
 import Icon from "modules/common/components/Icon";
 import FormControl from "modules/common/components/form/Control";
 
 import NavigationMoreItem from "./NavigationMoreItem";
 
-import { Plugin } from './types';
+import { Plugin } from "./types";
 import { pluginNavigations, filterPlugins } from "./utils";
 
 type Props = {
@@ -34,42 +33,42 @@ type State = {
   searchedPlugins: Plugin[];
 }
 
-class NavigationMore extends React.Component<Props, State> {
+export default class NavigationMore extends React.Component<Props, State> {
   wrapperRef: any;
 
   constructor(props: Props) {
     super(props);
 
     this.state = {
-      searchText: '',
+      searchText: "",
       searchedPlugins: [],
     };
     this.wrapperRef = React.createRef();
   }
 
-  public componentDidMount() {
-    document.addEventListener("click", this.handleClickOutside)
+  componentDidMount() {
+    document.addEventListener("mousedown", this.handleClickOutside)
   }
 
-  public componentWillUnmount() {
-    document.removeEventListener("click", this.handleClickOutside)
+  componentWillUnmount() {
+    document.removeEventListener("mousedown", this.handleClickOutside)
   }
 
-  private handleClickOutside = (event): void => {
+  handleClickOutside = (event: any): void => {
     if (
       this.wrapperRef &&
       !this.wrapperRef.current.contains(event.target) &&
-      this.props.clickedMenu === 'more'  
+      this.props.clickedMenu === "more"  
     ) {
-      this.props.toggleMenu('')
+      this.props.toggleMenu("")
     }
   }
 
-  private handleSearch = (event): void => {
+  handleSearch = (event: any): void => {
     const otherPlugins: Plugin[] = filterPlugins(pluginNavigations(), this.props.pinnedPlugins);
     const searchedPlugins = otherPlugins.filter((plugin: Plugin) => {
-      if (event.target.value !== '')
-        return plugin.text.toLowerCase().includes(event.target.value.toLowerCase())
+      if (event.target.value !== "")
+        return plugin.text!.toLowerCase().includes(event.target.value.toLowerCase())
       else
         return;
     })
@@ -80,14 +79,14 @@ class NavigationMore extends React.Component<Props, State> {
     })
   }
 
-  private handlePin = (plugin: Plugin): void => {
+  handlePin = (plugin: Plugin): void => {
     if (this.props.pinnedPlugins.length < this.props.countOfPinnedPlugins)
       this.props.updatePinnedPlugins(
         [...this.props.pinnedPlugins, plugin]
       )
   }
 
-  private handleUnpin = (plugin: Plugin): void => {
+  handleUnpin = (plugin: Plugin): void => {
     this.props.updatePinnedPlugins(
       this.props.pinnedPlugins.filter(
         (item: Plugin) => item.text !== plugin.text
@@ -95,7 +94,7 @@ class NavigationMore extends React.Component<Props, State> {
     )
   }
 
-  public render() {
+  render() {
     const {
       navCollapse,
       showMenu,
@@ -113,23 +112,43 @@ class NavigationMore extends React.Component<Props, State> {
     const text = navCollapse === 3 ? "More plugins" : "More";
 
     const otherPlugins =
-      searchText !== ''
+      searchText !== ""
         ? searchedPlugins
         : pinnedPlugins.length === 0
         ? pluginNavigations().slice(countOfPinnedPlugins)
         : filterPlugins(pluginNavigations(), pinnedPlugins);
 
+    const PinnedPluginsElement = () => (
+      <React.Fragment>
+        <MoreTitle>Pinned plugins</MoreTitle>
+        <MoreMenus>
+            {pinnedPlugins.map((plugin: Plugin, index: number) => {
+              return (
+                <NavigationMoreItem
+                  key={index}
+                  plugin={plugin}
+                  isPinnable={true}
+                  isPinned={true}
+                  navCollapse={navCollapse}
+                  handleOnClick={this.handleUnpin}
+                />
+              )
+            })}
+        </MoreMenus>
+      </React.Fragment>
+    )
+
     return (
       <div ref={this.wrapperRef}>
         <NavItem>
           <NavMenuItem navCollapse={navCollapse}>
-            <a onClick={() => toggleMenu('more')}>
-              <NavIcon className='icon-ellipsis-h' />
+            <a onClick={() => toggleMenu("more")}>
+              <NavIcon className="icon-ellipsis-h" />
               {navCollapse !== 1 && <label>{text}</label>}
             </a>
           </NavMenuItem>
           <MoreMenuWrapper
-            visible={showMenu && clickedMenu === 'more'}
+            visible={showMenu && clickedMenu === "more"}
             navCollapse={this.props.navCollapse}
           >
             <MoreSearch>
@@ -141,24 +160,8 @@ class NavigationMore extends React.Component<Props, State> {
                 onChange={this.handleSearch}
               />
             </MoreSearch>
-            {pinnedPlugins.length !== 0 && searchText === '' && (
-              <React.Fragment>
-                <MoreTitle>Pinned plugins</MoreTitle>
-                <MoreMenus>
-                    {pinnedPlugins.map((plugin: Plugin, index: number) => {
-                      return (
-                        <NavigationMoreItem
-                          key={index}
-                          plugin={plugin}
-                          isPinnable={true}
-                          isPinned={true}
-                          navCollapse={navCollapse}
-                          handleOnClick={this.handleUnpin}
-                        />
-                      )
-                    })}
-                </MoreMenus>
-              </React.Fragment>
+            {pinnedPlugins.length !== 0 && searchText === "" && (
+              <PinnedPluginsElement />
             )}
             <MoreTitle>Other added plugins</MoreTitle>
             <MoreMenus>
@@ -171,7 +174,6 @@ class NavigationMore extends React.Component<Props, State> {
                       isPinned={false}
                       navCollapse={navCollapse}
                       handleOnClick={this.handlePin}
-                      countOfPinnedPlugins={countOfPinnedPlugins}
                     />
                   )
                 })}
@@ -182,5 +184,3 @@ class NavigationMore extends React.Component<Props, State> {
     )
   }
 }
-
-export default NavigationMore;
