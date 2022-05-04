@@ -6,39 +6,35 @@ import {
   NavMenuItem,
   MoreItemRecent,
   RoundBox,
-} from "../../styles"
-import Tip from "modules/common/components/Tip"
+} from "../../styles";
+import Tip from "modules/common/components/Tip";
 import WithPermission from "modules/common/components/WithPermission";
-import { __ } from "modules/common/utils"
+import { __ } from "modules/common/utils";
 
 import { getLink } from "./utils";
 import { Plugin } from "./types";
 
 type Props = {
-  plugin: Plugin,
-  navCollapse: number,
-  isPinnable: boolean,
-  isPinned: boolean,
-  handleOnClick: (plugin: Plugin) => void,
-}
+  plugin: Plugin;
+  navCollapse: number;
+  isPinnable: boolean;
+  isPinned: boolean;
+  handleOnClick: (plugin: Plugin) => void;
+};
 
 export default function NavigationMoreItem(props: Props) {
-  const {
-    plugin,
-    navCollapse,
-    isPinnable,
-    isPinned,
-    handleOnClick
-  } = props
+  const { plugin, navCollapse, isPinnable, isPinned, handleOnClick } = props;
 
   return (
-    <WithPermission key={plugin.url} action={plugin.permission ? plugin.permission : ""}>
+    <WithPermission
+      key={plugin.url}
+      action={plugin.permission ? plugin.permission : ""}
+      actions={plugin.permissions ? plugin.permissions : []}
+    >
       <MoreItemRecent>
         <NavItem isMoreItem={true}>
           <NavMenuItem isMoreItem={true} navCollapse={navCollapse}>
-            <NavLink
-              to={getLink(plugin.url)}
-            >
+            <NavLink to={getLink(plugin.url)}>
               <NavIcon className={plugin.icon} />
               <label>{plugin.text}</label>
             </NavLink>
@@ -56,5 +52,5 @@ export default function NavigationMoreItem(props: Props) {
         </NavItem>
       </MoreItemRecent>
     </WithPermission>
-  )
+  );
 }

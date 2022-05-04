@@ -105,6 +105,7 @@ export default function NavigationItem(props: Props) {
     <WithPermission
       key={plugin.url}
       action={plugin.permission ? plugin.permission : ""}
+      actions={plugin.permissions ? plugin.permissions : []}
     >
       {renderItem()}
     </WithPermission>
