@@ -74,15 +74,17 @@ export default class NavigationList extends React.Component<Props, State> {
           )
         })}
 
-        <NavigationMore
-          navCollapse={navCollapse}
-          showMenu={showMenu}
-          clickedMenu={clickedMenu}
-          pinnedPlugins={pinnedPlugins}
-          countOfPinnedPlugins={countOfPinnedPlugins}
-          toggleMenu={this.toggleMenu}
-          updatePinnedPlugins={updatePinnedPlugins}
-        />
+        {plugins.length > countOfPinnedPlugins &&
+          (<NavigationMore
+            navCollapse={navCollapse}
+            showMenu={showMenu}
+            clickedMenu={clickedMenu}
+            pinnedPlugins={pinnedPlugins}
+            countOfPinnedPlugins={countOfPinnedPlugins}
+            toggleMenu={this.toggleMenu}
+            updatePinnedPlugins={updatePinnedPlugins}
+          />)
+        }
       </Nav>
     )
   }
