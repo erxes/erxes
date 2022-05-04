@@ -3,7 +3,7 @@ import { IModels } from "./connectionResolver";
 import { serviceDiscovery } from './configs'
 import { sendCommonMessage } from "./messageBroker";
 
-export const sendToWebhook = async (
+export const send = async (
   models: IModels,
   subdomain: string,
   { action, type, params }: { action: string; type: string; params: any }
@@ -77,13 +77,10 @@ const prepareWebhookContent = async (subdomain: string, type, action, data) => {
       break;
   }
 
-    const services = await serviceDiscovery.getServices();
+  const isEnabled = await serviceDiscovery.isEnabled(serviceName);
 
-    const isServiceExist = services.indexOf(serviceName);
-
-    if(isServiceExist !== -1) {
+    if (isEnabled) {
       const service = await serviceDiscovery.getService(serviceName, true);
-
 
       const meta = service.config?.meta || {};
 

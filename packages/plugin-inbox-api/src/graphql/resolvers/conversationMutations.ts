@@ -15,7 +15,8 @@ import {
   sendCardsMessage,
   sendCoreMessage,
   sendIntegrationsMessage,
-  sendNotificationsMessage
+  sendNotificationsMessage,
+  sendToWebhook
 } from '../../messageBroker';
 import { graphqlPubsub } from '../../configs';
 
@@ -30,7 +31,6 @@ import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { IContext, IModels } from '../../connectionResolver';
-import { sendToWebhook } from '@erxes/api-utils/src';
 
 export interface IConversationMessageAdd {
   conversationId: string;

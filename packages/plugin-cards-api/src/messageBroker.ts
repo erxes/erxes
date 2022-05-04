@@ -9,6 +9,7 @@ import { notifiedUserIds } from './graphql/utils';
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { publishHelper } from './graphql/resolvers/mutations/utils';
+import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 
 let client;
 
@@ -421,6 +422,10 @@ export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
     data: { segmentId, options },
     isRPC: true
   });
+
+export const sendToWebhook = ({ subdomain, data }) => {
+  return sendWebhook(client, { subdomain, data });
+};
 
 export default function () {
   return client;
