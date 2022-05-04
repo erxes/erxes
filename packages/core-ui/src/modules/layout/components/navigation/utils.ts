@@ -1,4 +1,4 @@
-import { Plugin, ChildPlugin } from './types';
+import { Plugin, ChildPlugin } from "./types";
 
 export const getLink = (url: string): string => {
   const storageValue = window.localStorage.getItem("pagination:perPage");
@@ -52,24 +52,30 @@ export const pluginNavigations = (): any[] => {
 };
 
 export const getChildren = (plugin: Plugin): ChildPlugin[] => {
-  if (!plugin.children)
-    return [];
+  const { children, name, url, text } = plugin;
 
-  return plugin.children && plugin.children.filter((child: ChildPlugin) => {
-    if (plugin.name && child.scope !== plugin.name)
-      return;
+  if (!children) return [];
 
-    if (
-      child.scope === "cards" &&
-      !child.text.toLowerCase().includes(plugin.text.toLowerCase())
-    )
-      return;
+  return (
+    children &&
+    children.filter((child: ChildPlugin) => {
+      if (
+        (name && child.scope !== name) ||
+        (name === "inbox" && !url.includes(child.scope)) ||
+        (child.scope === "cards" &&
+          !child.text.toLowerCase().includes(text.toLowerCase()))
+      )
+        return null;
 
-    return child;
-  })
-}
+      return child;
+    })
+  );
+};
 
-export const filterPlugins = (allPlugins: Plugin[], pinnedPlugins: Plugin[]): Plugin[] => {
+export const filterPlugins = (
+  allPlugins: Plugin[],
+  pinnedPlugins: Plugin[]
+): Plugin[] => {
   pinnedPlugins.forEach((el) => {
     allPlugins = allPlugins.filter((i) => i.url !== el.url);
   });
