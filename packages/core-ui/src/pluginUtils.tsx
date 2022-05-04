@@ -15,7 +15,7 @@ import { NavItem } from "modules/layout/components/QuickNavigation";
 const PluginsWrapper = ({
   itemName,
   callBack,
-  plugins
+  plugins,
 }: {
   itemName: string;
   callBack: (plugin: any, item: any) => React.ReactNode;
@@ -71,7 +71,7 @@ const useDynamicScript = (args) => {
 
   return {
     ready,
-    failed
+    failed,
   };
 };
 
@@ -125,7 +125,7 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
 const System = (props) => {
   if (props.loadScript) {
     const { ready, failed } = useDynamicScript({
-      url: props.system && props.system.url
+      url: props.system && props.system.url,
     });
 
     if (!props.system || !ready || failed) {
@@ -334,30 +334,6 @@ export const pluginRouters = () => {
   }
 
   return pluginRoutes;
-};
-
-export const pluginNavigations = () => {
-  const plugins: any[] = (window as any).plugins || [];
-  const navigationMenus: any[] = [];
-  const childMenus: any[] = [];
-
-  for (const plugin of plugins) {
-    for (const menu of plugin.menus || []) {
-      if (menu.location === "settings") {
-        childMenus.push(menu);
-      }
-
-      if (menu.location === "mainNavigation") {
-        navigationMenus.push({
-          ...menu,
-          name: plugin.name,
-          childrens: childMenus
-        });
-      }
-    }
-  }
-
-  return navigationMenus;
 };
 
 export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
