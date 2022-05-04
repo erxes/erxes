@@ -50,7 +50,7 @@ export default function NavigationItem(props: Props) {
     return (
       <>
         <NavIcon className={plugin.icon} />
-        <label>{plugin.text}</label>
+        <label>{__(plugin.text)}</label>
       </>
     );
   };
