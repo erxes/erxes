@@ -148,8 +148,6 @@ export const putCreateLog = async (
 ) => {
   await registerOnboardHistory({models, type: `${params.type}Create`, user });
 
-  // await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
-
   const { extraDesc, description } = await gatherDescriptions(models, {
     ...params,
     obj: params.object,
@@ -173,8 +171,6 @@ export const putUpdateLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  // await sendToWebhook(LOG_ACTIONS.UPDATE, params.type, params);
-
   const { extraDesc, description } = await gatherDescriptions(models, {
     ...params,
     obj: params.object,
@@ -198,8 +194,6 @@ export const putDeleteLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  // await sendToWebhook(LOG_ACTIONS.DELETE, params.type, params);
-
   const { extraDesc, description } = await gatherDescriptions(models, {
     ...params,
     obj: params.object,

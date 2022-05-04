@@ -463,17 +463,6 @@ export const sendIntegrationsMessage = (
   });
 };
 
-export const sendWebhooksMessage = (
-  args: ISendMessageArgs
-): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: "webhooks",
-    ...args
-  });
-};
-
 export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
   sendSegmentsMessage({
     subdomain,

@@ -30,6 +30,7 @@ import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { IContext, IModels } from '../../connectionResolver';
+import { sendToWebhook } from '@erxes/api-utils/src';
 
 export interface IConversationMessageAdd {
   conversationId: string;
@@ -447,7 +448,14 @@ const conversationMutations = {
 
     const dbMessage = await models.ConversationMessages.getMessage(message._id);
 
-    // ? await utils.sendToWebhook('create', 'userMessages', dbMessage);
+    await sendToWebhook({
+      subdomain,
+      data: {
+        action: 'create',
+        type: 'inbox:userMessages',
+        params: dbMessage
+      }
+    });
 
     // Publishing both admin & client
     publishMessage(models, dbMessage, conversation.customerId);

@@ -67,15 +67,14 @@ const getProducts = async deal => {
 
 const getAssignedUsers = async (deal: any) => {
   if (deal.assignedUserIds && deal.assignedUserIds.length > 0) {
-    const assignedUsers = await sendCommonMessage({
+    const assignedUsers = await sendCoreMessage({
       subdomain: "os",
       data: {
         query: {
-          _id: deal.assignedUserIds,
+          _id: { $in: deal.assignedUserIds },
         },
       },
-      serviceName: "cards",
-      action: "deals.find",
+      action: "users.find",
       defaultValue: [],
       isRPC: true,
     });

@@ -5,10 +5,11 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { IEngageMessage } from '../../models/definitions/engages';
 import { CAMPAIGN_KINDS } from '../../constants';
 import { checkCampaignDoc, send } from '../../engageUtils';
-import { sendContactsMessage, sendCoreMessage, sendWebhooksMessage } from '../../messageBroker';
+import { sendContactsMessage, sendCoreMessage } from '../../messageBroker';
 import { updateConfigs, createTransporter, getEditorAttributeUtil } from '../../utils';
 import { awsRequests } from '../../trackers/engageTracker';
 import { debug } from '../../configs';
+import { sendToWebhook } from '@erxes/api-utils/src';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -52,19 +53,11 @@ const engageMutations = {
       docModifier({ ...doc, createdBy: user._id })
     );
 
-    // all models must be collected inside an object
-    // await sendToWebhook(models, {
-    //   action: 'create',
-    //   type: 'engageMessages',
-    //   params: engageMessage
-    // });
-
-    await sendWebhooksMessage({
+    await sendToWebhook({
       subdomain,
-      action: 'sendToWebhook',
       data: {
-        action: 'create',
-        type: 'engages:engageMessages',
+        action: "create",
+        type: "engages:engageMessages",
         params: engageMessage
       }
     });

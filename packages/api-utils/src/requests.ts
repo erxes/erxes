@@ -1,4 +1,5 @@
 import * as requestify from 'requestify';
+import { sendMessage } from './messageBroker';
 import { debugExternalApi } from './debuggers';
 export interface IRequestParams {
   url?: string;
@@ -66,4 +67,11 @@ export const routeErrorHandling = (fn, callback?: any) => {
       return next(e);
     }
   };
+};
+
+export const sendToWebhook = async ({ subdomain, data }) => {
+  await sendMessage(`webhooks:sendToWebhook`, {
+    subdomain,
+    data
+  });
 };

@@ -67,8 +67,19 @@ export default {
   getInfo: async ({ subdomain, data: { data, contentType, actionText, action } }) => {
     const models = await generateModels(subdomain);
 
+    if (action === 'createBoardItemMovementLog') {
+      return {
+        content: `${contentType} with name ${data.data.item.name ||
+          ''} has moved from ${data.data.activityLogContent.text}`,
+        url: data.data.link
+      };
+    }
+
     if (!['create', 'update'].includes(action)) {
-      return;
+      return {
+        content: `${contentType} ${actionText}`,
+        url: ''
+      };
     }
 
     const { object } = data;
