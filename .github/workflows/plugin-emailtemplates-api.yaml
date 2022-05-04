@@ -9,6 +9,7 @@ on:
       - 'packages/api-plugin-template.erxes/**'
       - 'packages/plugin-emailtemplates-api/**'
       - '.github/workflows/plugin-emailtemplates-api.yaml'
+      - ls
 
 jobs:
   api:

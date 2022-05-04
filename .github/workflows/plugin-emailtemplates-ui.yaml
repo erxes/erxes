@@ -9,6 +9,7 @@ on:
       - "packages/ui-emailtemplates/**"
       - "packages/plugin-emailtemplates-ui/**"
       - ".github/workflows/plugin-emailtemplates-ui.yaml"
+      - ls
 
 jobs:
   ui:
