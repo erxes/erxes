@@ -7,7 +7,7 @@ import {
   BottomMenu,
 } from "../../styles";
 
-import { readFile } from "modules/common/utils"
+import { __, readFile, setBadge } from "modules/common/utils"
 
 import NavigationToggler from "./NavigationToggler";
 import NavigationList from "./NavigationList";
@@ -39,6 +39,14 @@ export default class Navigation extends React.Component<Props, State> {
     }
   }
 
+  componentWillReceiveProps(nextProps: any) {
+    const unreadCount = nextProps.unreadConversationsCount;
+
+    if (unreadCount !== this.props.unreadConversationsCount) {
+      setBadge(unreadCount, __("Team Inbox").toString());
+    }
+  }
+
   updatePinnedPlugins = (plugins: Plugin[]): void => {
     this.setState({ pinnedPlugins: plugins })
 
@@ -50,6 +58,7 @@ export default class Navigation extends React.Component<Props, State> {
 
   render() {
     const {
+      unreadConversationsCount,
       navCollapse,
       onClickHandleIcon
     } = this.props
@@ -87,6 +96,7 @@ export default class Navigation extends React.Component<Props, State> {
           pinnedPlugins={pinnedPlugins}
           countOfPinnedPlugins={countOfPinnedPlugins}
           updatePinnedPlugins={this.updatePinnedPlugins}
+          unreadConversationsCount={unreadConversationsCount}
         />
 
         <BottomMenu>

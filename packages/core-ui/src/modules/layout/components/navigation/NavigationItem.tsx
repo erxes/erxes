@@ -9,7 +9,10 @@ import {
 
 import WithPermission from "modules/common/components/WithPermission";
 import Tip from "modules/common/components/Tip";
+import Label from "modules/common/components/Label";
 import { __ } from "modules/common/utils";
+
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 import NavigationChildList from "./NavigationListChild";
 
@@ -22,6 +25,7 @@ type Props = {
   showMenu?: boolean,
   clickedMenu?: string,
   toggleMenu?: (text: string) => void,
+  unreadConversationsCount?: number,
 }
 
 export default function NavigationItem(props: Props) {
@@ -30,10 +34,17 @@ export default function NavigationItem(props: Props) {
     navCollapse,
     showMenu,
     clickedMenu,
-    toggleMenu
+    toggleMenu,
+    unreadConversationsCount
   } = props;
 
   const children: ChildPlugin[] = getChildren(plugin);
+
+  const unreadIndicator = unreadConversationsCount !== 0 && (
+    <Label shake={true} lblStyle="danger" ignoreTrans={true}>
+      {unreadConversationsCount}
+    </Label>
+  );
 
   const navMenuItemElement = (
     <NavMenuItem isMoreItem={false} navCollapse={navCollapse}>
@@ -50,6 +61,10 @@ export default function NavigationItem(props: Props) {
             </React.Fragment>
           )
         }
+
+        {plugin.url.includes("inbox") && isEnabled("inbox")
+          ? unreadIndicator
+          : plugin.label}
       </NavLink>
     </NavMenuItem>
   )

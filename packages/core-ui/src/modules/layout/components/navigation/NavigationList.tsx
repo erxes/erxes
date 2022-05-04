@@ -14,6 +14,7 @@ type Props = {
   pinnedPlugins: any[];
   countOfPinnedPlugins: number;
   updatePinnedPlugins: (plugins: Plugin[]) => void;
+  unreadConversationsCount?: number;
 };
 
 type State = {
@@ -43,7 +44,8 @@ export default class NavigationList extends React.Component<Props, State> {
       navCollapse,
       pinnedPlugins,
       countOfPinnedPlugins,
-      updatePinnedPlugins
+      updatePinnedPlugins,
+      unreadConversationsCount
     } = this.props;
 
     const {
@@ -67,6 +69,7 @@ export default class NavigationList extends React.Component<Props, State> {
               showMenu={showMenu}
               clickedMenu={clickedMenu}
               toggleMenu={this.toggleMenu}
+              unreadConversationsCount={unreadConversationsCount}
             />
           )
         })}
