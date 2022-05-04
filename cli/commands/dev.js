@@ -213,8 +213,8 @@ module.exports.devCmd = async (program) => {
 
   if (!program.ignoreRun) {
     log("starting core ....");
-    await sleep(30000);
     await execCommand('pm2 start ecosystem.config.js --only core');
+    await sleep(30000);
 
     for (const plugin of configs.plugins) {
       log(`starting ${plugin.name} ....`);
