@@ -69,9 +69,16 @@ export const routeErrorHandling = (fn, callback?: any) => {
   };
 };
 
-export const sendToWebhook = async ({ subdomain, data }) => {
-  await sendMessage(`webhooks:sendToWebhook`, {
-    subdomain,
-    data
-  });
+export const sendToWebhook = async (messageBroker, { subdomain, data }) => {
+  const isWebhooksAvailable = await messageBroker.sendRPCMessage(
+    'gateway:isServiceAvailable',
+    'webhooks'
+  );
+
+  if (isWebhooksAvailable) {
+    await sendMessage(`webhooks:send`, {
+      subdomain,
+      data
+    });
+  }
 };

@@ -126,7 +126,7 @@ export const putCreateLog = async (
   );
   
   if(isWebhooksAvailable) {
-    messageBroker.sendMessage('webhooks:sendToWebhook', {
+    messageBroker.sendMessage('webhooks:send', {
       data: {
         action: LOG_ACTIONS.CREATE,
         type: params.type,
@@ -168,7 +168,7 @@ export const putUpdateLog = async (
   );
 
   if(isWebhooksAvailable) {
-    messageBroker.sendMessage('webhooks:sendToWebhook', {
+    messageBroker.sendMessage('webhooks:send', {
       data: {
         action: LOG_ACTIONS.UPDATE,
         type: params.type,
@@ -196,7 +196,7 @@ export const putDeleteLog = async (
   );
 
   if(isWebhooksAvailable) {
-    messageBroker.sendMessage('webhooks:sendToWebhook', {
+    messageBroker.sendMessage('webhooks:send', {
       data: {
         action: LOG_ACTIONS.DELETE,
         type: params.type,

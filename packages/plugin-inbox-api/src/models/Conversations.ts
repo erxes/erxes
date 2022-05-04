@@ -13,7 +13,7 @@ import {
 } from './definitions/conversations';
 import { IModels } from '../connectionResolver';
 import { sendCoreMessage, sendFormsMessage } from '../messageBroker';
-import { sendToWebhook } from '@erxes/api-utils/src';
+import { sendToWebhook } from '../messageBroker';
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
   createConversation(doc: IConversation): Promise<IConversationDocument>;

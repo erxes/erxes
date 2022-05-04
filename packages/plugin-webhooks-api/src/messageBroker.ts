@@ -1,6 +1,6 @@
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { sendToWebhook } from './utils';
+import { send } from './utils';
 import { serviceDiscovery } from './configs';
 
 let client;
@@ -10,12 +10,12 @@ export const initBroker = async (cl) => {
 
   const { consumeQueue } = client;
   
-  consumeQueue('webhooks:sendToWebhook', async ({ subdomain, data }) => {
+  consumeQueue('webhooks:send', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     
     return {
       status: 'success',
-      data: await sendToWebhook(models, subdomain, data)
+      data: await send(models, subdomain, data)
     };
   }); 
 };

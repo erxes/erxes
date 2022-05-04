@@ -23,7 +23,7 @@ import {
   BOT_MESSAGE_TYPES
 } from "../../models/definitions/constants";
 
-import { sendRequest, sendToWebhook } from "@erxes/api-utils/src";
+import { sendRequest } from "@erxes/api-utils/src";
 
 import { solveSubmissions } from "../../widgetUtils";
 import { conversationNotifReceivers } from "./conversationMutations";
@@ -35,7 +35,8 @@ import {
   sendFormsMessage,
   sendCoreMessage,
   sendIntegrationsMessage,
-  sendLogsMessage
+  sendLogsMessage,
+  sendToWebhook
 } from "../../messageBroker";
 import { trackViewPageEvent } from "../../events";
 import EditorAttributeUtil from "@erxes/api-utils/src/editorAttributeUtils";
