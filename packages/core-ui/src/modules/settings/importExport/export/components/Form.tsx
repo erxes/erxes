@@ -159,7 +159,6 @@ class ExportForm extends React.Component<Props, State> {
                       {...this.props}
                       id={segmentId}
                       contentType={contentType || 'customer'}
-                      serviceType={serviceType}
                       closeModal={this.segmentCloseModal}
                       addFilter={this.addFilter}
                       hideDetailForm={true}

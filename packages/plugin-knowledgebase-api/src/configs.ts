@@ -7,6 +7,7 @@ import { generateModels } from './connectionResolver';
 import logs from './logUtils';
 import permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import webhooks from './webhooks';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -34,7 +35,7 @@ export default {
   hasSubscriptions: false,
   permissions,
   segment: {},
-  meta: { logs: { consumers: logs } },
+  meta: { logs: { consumers: logs }, webhooks },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
 

@@ -23,6 +23,7 @@ import permissions from './permissions';
 import search from './search';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import webhooks from './webhooks';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -54,7 +55,8 @@ export default {
     segments,
     tags,
     search,
-    logs: { providesActivityLog: true, consumers: logs }
+    logs: { providesActivityLog: true, consumers: logs },
+    webhooks
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);

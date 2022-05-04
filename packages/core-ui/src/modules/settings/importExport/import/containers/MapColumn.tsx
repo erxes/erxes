@@ -76,13 +76,10 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
       name: 'fieldsQuery',
-      options: ({ contentType, serviceType }) => {
+      options: ({ contentType }) => {
         return {
           variables: {
-            serviceType,
-            contentType: ['lead', 'visitor'].includes(contentType)
-              ? 'customer'
-              : contentType,
+            contentType,
             usageType: 'import',
             excludedNames: COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES.IMPORT
           }

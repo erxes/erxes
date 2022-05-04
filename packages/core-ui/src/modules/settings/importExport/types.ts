@@ -23,7 +23,6 @@ export interface IImportHistoryItem {
 export interface IImportHistoryContentType {
   type: 'core' | 'plugin';
   contentType: string;
-  serviceType?: string;
 }
 // query types
 
