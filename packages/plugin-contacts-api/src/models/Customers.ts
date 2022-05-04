@@ -1,8 +1,7 @@
 import { Model } from "mongoose";
 
 import { putActivityLog, prepareCocLogData } from "../logUtils";
-// import { sendToWebhook } from '../../data/utils';
-import { validSearchText } from "@erxes/api-utils/src";
+import { sendToWebhook, validSearchText } from "@erxes/api-utils/src";
 import { validateSingle } from "../verifierUtils";
 import { ICustomField } from "@erxes/api-utils/src/definitions/common";
 import { ACTIVITY_CONTENT_TYPES } from "./definitions/constants";
@@ -933,6 +932,15 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       customer = await models.Customers.getCustomer(customerId);
 
       webhookData.updatedDocument = customer;
+
+      await sendToWebhook({
+        subdomain,
+        data: {
+          action: 'update',
+          type: 'contacts:customer',
+          params: webhookData
+        }
+      });
 
       const pssDoc = await models.Customers.calcPSS(customer);
 

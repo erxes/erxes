@@ -9,6 +9,7 @@ import { sendContactsMessage, sendCoreMessage } from '../../messageBroker';
 import { updateConfigs, createTransporter, getEditorAttributeUtil } from '../../utils';
 import { awsRequests } from '../../trackers/engageTracker';
 import { debug } from '../../configs';
+import { sendToWebhook } from '@erxes/api-utils/src';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -52,12 +53,14 @@ const engageMutations = {
       docModifier({ ...doc, createdBy: user._id })
     );
 
-    // all models must be collected inside an object
-    // await sendToWebhook(models, {
-    //   action: 'create',
-    //   type: 'engageMessages',
-    //   params: engageMessage
-    // });
+    await sendToWebhook({
+      subdomain,
+      data: {
+        action: "create",
+        type: "engages:engageMessages",
+        params: engageMessage
+      }
+    });
 
     await send(models, subdomain, engageMessage);
 
