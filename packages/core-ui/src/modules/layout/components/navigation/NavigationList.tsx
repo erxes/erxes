@@ -26,10 +26,8 @@ export default class NavigationList extends React.Component<Props, State> {
     this.state = {
       showMenu: false,
       clickedMenu: "",
-      pinnedPlugins: JSON.parse(
-        localStorage.getItem("pinnedPlugins") || "[]"
-      ),
-      countOfPinnedPlugins: window.innerHeight > 900 ? 8 : 5
+      pinnedPlugins: JSON.parse(localStorage.getItem("pinnedPlugins") || "[]"),
+      countOfPinnedPlugins: window.innerHeight > 900 ? 8 : 5,
     };
   }
 
@@ -40,20 +38,14 @@ export default class NavigationList extends React.Component<Props, State> {
   };
 
   updatePinnedPlugins = (plugins: Plugin[]): void => {
-    this.setState({ pinnedPlugins: plugins })
+    this.setState({ pinnedPlugins: plugins });
 
-    localStorage.setItem(
-      "pinnedPlugins",
-      JSON.stringify(plugins)
-    );
-  }
+    localStorage.setItem("pinnedPlugins", JSON.stringify(plugins));
+  };
 
   render() {
-    const {
-      navCollapse,
-      unreadConversationsCount,
-    } = this.props;
-    
+    const { navCollapse, unreadConversationsCount } = this.props;
+
     const {
       showMenu,
       clickedMenu,
@@ -80,7 +72,7 @@ export default class NavigationList extends React.Component<Props, State> {
           />
         ))}
 
-        {plugins.length > countOfPinnedPlugins && (
+        {pluginNavigations().length > countOfPinnedPlugins && (
           <NavigationMore
             navCollapse={navCollapse}
             showMenu={showMenu}

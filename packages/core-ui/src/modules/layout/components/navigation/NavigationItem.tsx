@@ -81,11 +81,8 @@ export default function NavigationItem(props: Props) {
     return navMenuItemNode;
   };
 
-  return (
-    <WithPermission
-      key={plugin.url}
-      action={plugin.permission ? plugin.permission : ""}
-    >
+  const renderItem = () => {
+    return (
       <NavItem isMoreItem={false}>
         {renderNavMenuItem()}
 
@@ -97,6 +94,19 @@ export default function NavigationItem(props: Props) {
           clickedMenu={clickedMenu}
         />
       </NavItem>
+    );
+  };
+
+  if (plugin.text === "Settings") {
+    return renderItem();
+  }
+
+  return (
+    <WithPermission
+      key={plugin.url}
+      action={plugin.permission ? plugin.permission : ""}
+    >
+      {renderItem()}
     </WithPermission>
   );
 }
