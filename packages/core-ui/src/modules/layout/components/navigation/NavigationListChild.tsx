@@ -1,18 +1,18 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React from "react";
+import { NavLink } from "react-router-dom";
 import {
   SubNav,
   SubNavTitle,
   SubNavItem,
   DropSubNav,
   DropSubNavItem,
-} from '../../styles'
+} from "../../styles"
 
 import WithPermission from "modules/common/components/WithPermission";
-import { __ } from 'modules/common/utils'
+import { __ } from "modules/common/utils"
 
-import { getLink } from './utils';
-import { Plugin, ChildPlugin } from './types';
+import { getLink } from "./utils";
+import { Plugin, ChildPlugin } from "./types";
 
 type Props = {
   plugin: Plugin,
@@ -31,9 +31,6 @@ export default function NavigationChildList(props: Props) {
     clickedMenu
   } = props;
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const parent = urlParams.get("parent");
-
   const renderChildren = (type: string) => {
     return children.map((child: ChildPlugin, index: number) => {
       const link = (
@@ -42,9 +39,13 @@ export default function NavigationChildList(props: Props) {
   
       return (
         <WithPermission key={index} action={child.permission}>
-          {type === 'vertical'
-            ? <SubNavItem additional={child.additional || false}>{link}</SubNavItem>
-            : <DropSubNavItem>{link}</DropSubNavItem>
+          {type === "horizontal"
+            ? <DropSubNavItem>{link}</DropSubNavItem>
+            : (
+              <SubNavItem additional={child.additional || false}>
+                {link}
+              </SubNavItem>
+            )
           }
         </WithPermission>
       )
@@ -57,8 +58,7 @@ export default function NavigationChildList(props: Props) {
   if (
     navCollapse === 3 &&
     clickedMenu === plugin.text &&
-    showMenu &&
-    (parent === plugin.url || window.location.pathname.startsWith(plugin.url))
+    showMenu
   ) {
     return (
       <DropSubNav>
