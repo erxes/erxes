@@ -98,13 +98,14 @@ export default function NavigationItem(props: Props) {
   };
 
   if (plugin.text === "Settings") {
-    return renderItem();
+    return <React.Fragment key={plugin.url}>{renderItem()}</React.Fragment>;
   }
 
   return (
     <WithPermission
       key={plugin.url}
       action={plugin.permission ? plugin.permission : ""}
+      actions={plugin.permissions ? plugin.permissions : []}
     >
       {renderItem()}
     </WithPermission>
