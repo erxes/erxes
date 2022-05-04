@@ -1,10 +1,10 @@
-import typeDefs from "./graphql/typeDefs";
-import resolvers from "./graphql/resolvers";
-import { IFetchElkArgs } from "@erxes/api-utils/src/types";
-import { generateModels } from "./connectionResolver";
-import { initBroker } from "./messageBroker";
-import { initMemoryStorage } from "./inmemoryStorage";
-import { getSubdomain } from "@erxes/api-utils/src/core";
+import typeDefs from './graphql/typeDefs';
+import resolvers from './graphql/resolvers';
+import { IFetchElkArgs } from '@erxes/api-utils/src/types';
+import { generateModels } from './connectionResolver';
+import { initBroker } from './messageBroker';
+import { initMemoryStorage } from './inmemoryStorage';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let debug;
 export let graphqlPubsub;
@@ -19,7 +19,7 @@ export let es: {
 };
 
 export default {
-  name: "cars",
+  name: 'cars',
   permissions: {
     cars: {
       name: 'cars',
@@ -28,20 +28,17 @@ export default {
         {
           name: 'all',
           description: 'All',
-          use: [
-            'showCars',
-            'manageCars'
-          ]
+          use: ['showCars', 'manageCars'],
         },
         {
           name: 'showCars',
-          description: 'Show cars'
+          description: 'Show cars',
         },
         {
           name: 'manageCars',
-          description: 'Manage cars'
+          description: 'Manage cars',
         },
-      ]
+      ],
     },
   },
   graphql: async (sd) => {
