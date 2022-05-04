@@ -354,17 +354,6 @@ export const sendAutomationsMessage = async (args: ISendMessageArgs): Promise<an
   });
 }
 
-export const sendWebhooksMessage = async (
-  args: ISendMessageArgs
-): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: 'webhooks',
-    ...args
-  });
-};
-
 export default function() {
   return client;
 }
