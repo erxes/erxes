@@ -37,6 +37,7 @@ var plugins = [
   { name: 'loyalties', ui: true, api: true },
   { name: 'neighbor', ui: true, api: true },
   { name: 'notifications', ui: true, api: true },
+  { name: 'webhooks', ui: true, api: true },
   { name: 'pos', ui: true, api: true },
   { name: 'products', ui: true, api: true },
   { name: 'qpay', ui: true, api: true },
