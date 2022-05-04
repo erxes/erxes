@@ -1,16 +1,16 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import React, { useEffect, useRef, useState } from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '@erxes/ui/src/utils';
-import { queries as integrationQuery } from '@erxes/ui-settings/src/integrations/graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import React, { useEffect, useRef, useState } from "react";
+import { graphql } from "react-apollo";
+import { withProps } from "@erxes/ui/src/utils";
+import { queries as integrationQuery } from "@erxes/ui-settings/src/integrations/graphql";
 import {
   IntegrationsCountQueryResponse,
-  IntegrationsQueryResponse
-} from '@erxes/ui-settings/src/integrations/types';
-import LeadFilter from '../../components/list/LeadFilter';
-import { queries } from '@erxes/ui-contacts/src/customers/graphql';
-import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
+  IntegrationsQueryResponse,
+} from "@erxes/ui-settings/src/integrations/types";
+import LeadFilter from "../../components/list/LeadFilter";
+import { queries } from "@erxes/ui-contacts/src/customers/graphql";
+import { CountQueryResponse } from "@erxes/ui-contacts/src/customers/types";
 
 type Props = {
   integrationsQuery?: IntegrationsQueryResponse;
@@ -45,7 +45,7 @@ function LeadFilterContainer(props: Props) {
     if (integrationsQuery) {
       integrationsQuery.refetch({
         perPage: 10,
-        page: Math.floor(integrations.length / 10) + 1
+        page: Math.floor(integrations.length / 10) + 1,
       });
     }
   };
@@ -63,7 +63,7 @@ function LeadFilterContainer(props: Props) {
     all:
       totalCountQuery && totalCountQuery.integrationsTotalCount
         ? totalCountQuery.integrationsTotalCount.byKind.lead
-        : 0
+        : 0,
   };
 
   return <LeadFilter {...updatedProps} />;
@@ -79,28 +79,28 @@ export default withProps<WrapperProps>(
     graphql<WrapperProps, IntegrationsQueryResponse, {}>(
       gql(integrationQuery.integrations),
       {
-        name: 'integrationsQuery',
+        name: "integrationsQuery",
         options: () => ({
-          variables: { kind: 'lead', perPage: 10, page: 1 }
+          variables: { kind: "lead", perPage: 10, page: 1 },
         }),
-        skip: ({ loadingMainQuery }) => loadingMainQuery
+        skip: ({ loadingMainQuery }) => loadingMainQuery,
       }
     ),
     graphql<WrapperProps, IntegrationsCountQueryResponse, {}>(
-      gql((integrationQuery || {} as any).integrationTotalCount),
+      gql((integrationQuery || ({} as any)).integrationTotalCount),
       {
-        name: 'totalCountQuery',
-        skip: ({ loadingMainQuery }) => loadingMainQuery
+        name: "totalCountQuery",
+        skip: ({ loadingMainQuery }) => loadingMainQuery,
       }
     ),
     graphql<WrapperProps, CountQueryResponse, { only: string }>(
       gql(queries.customerCounts),
       {
-        name: 'customersCountQuery',
+        name: "customersCountQuery",
         skip: ({ loadingMainQuery }) => loadingMainQuery,
         options: ({ type }) => ({
-          variables: { type, only: 'byForm' }
-        })
+          variables: { type, only: "byForm" },
+        }),
       }
     )
   )(LeadFilterContainer)

@@ -3,7 +3,7 @@ import {
   attachmentInput
 } from '@erxes/api-utils/src/commonTypeDefs';
 
-export const types = ({ contacts }) => `
+export const types = ({ contacts, cards }) => `
 
   ${attachmentType}
   ${attachmentInput}
@@ -20,6 +20,16 @@ export const types = ({ contacts }) => `
         }
 
         extend type Company @key(fields: "_id") {
+          _id: String! @external
+        }
+        `
+      : ''
+  }
+
+  ${
+    cards
+      ? `
+        extend type Deal @key(fields: "_id") {
           _id: String! @external
         }
         `
@@ -156,6 +166,32 @@ type ProductCarCategories {
   carCategoryIds: [String]
   carCategories: JSON
 }
+
+type Participant @key(fields: "_id") @cacheControl(maxAge: 3) {
+  _id: String!
+  customerId: String!
+  dealId: String!
+  status: String!
+
+  createdAt: Date
+  detail: JSON
+
+  ${
+    contacts
+      ? `
+      customer: Customer
+    `
+      : ''
+  }
+
+  ${
+    cards
+      ? `
+      deal: Deal
+    `
+      : ''
+  }
+}
 `;
 
 const tumentechParams = `
@@ -191,6 +227,10 @@ export const queries = `
   cpCarCategories(parentId: String, searchValue: String): [CarCategory]
   cpCarCategoriesTotalCount: Int
   cpCarCategoryDetail(_id: String): CarCategory
+
+  participants(page: Int, perPage: Int, customerId: String, dealId: String, status: String): [Participant]
+  participantDetail(_id: String!): Participant
+  participantsTotalCount(customerId: String, dealId: String, status: String): Int
 `;
 
 const tumentechCommonFields = `
@@ -281,6 +321,12 @@ const carCategoryParams = `
   collapseContent: [String]
 `;
 
+const participantParams = `
+  customerId: String!
+  dealId: String
+  detail: JSON
+`;
+
 export const mutations = `
   carsAdd(${tumentechCommonFields}): Car
   carsEdit(_id: String!, ${tumentechCommonFields}): Car
@@ -295,4 +341,8 @@ export const mutations = `
   cpCarsAdd(${tumentechCommonFields}, customerId: String, companyId: String): Car
   cpCarsEdit(_id: String!, ${tumentechCommonFields}): Car
   cpCarsRemove(carIds: [String]): [String]
+
+  participantsAdd(${participantParams}): Participant
+  participantsEdit(_id: String! ${participantParams}): Participant
+  participantsRemove(_id: String!): JSON
 `;

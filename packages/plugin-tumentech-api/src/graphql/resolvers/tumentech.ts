@@ -1,4 +1,4 @@
-import { sendCoreMessage } from '../../messageBroker';
+import { sendCoreMessage, sendContactsMessage, sendCardsMessage } from "../../messageBroker";
 
 const Cars = {
   category(car, _args, { models }) {
@@ -14,11 +14,11 @@ const Cars = {
     async ({ models, subdomain }) => {
       const customerIds = await sendCoreMessage({
         subdomain,
-        action: 'conformities.savedConformity',
+        action: "conformities.savedConformity",
         data: {
-          mainType: 'car',
+          mainType: "car",
           mainTypeId: car._id.toString(),
-          relTypes: ['customer']
+          relTypes: ["customer"]
         },
         isRPC: true,
         defaultValue: []
@@ -30,30 +30,40 @@ const Cars = {
 };
 
 const CarCategory = {
-  // carCount(category) {
-  //   async ({ models }) => {
-  //   const categoryIds = await models.CarCategories.find(
-  //     {
-  //       $or: [
-  //         { order: { $regex: new RegExp(`${category.order}/`) } },
-  //         { order: category.order }
-  //       ]
-  //     },
-  //     { _id: 1 }
-  //   );
-
-  //   return models.Cars.countDocuments({
-  //     categoryId: category._id,
-  //     status: { $ne: 'Deleted' }
-  //   });
-  // };
-  // }
   carCount(category, {}, { models }) {
     return models.Cars.countDocuments({
       categoryId: category._id,
-      status: { $ne: 'Deleted' }
+      status: { $ne: "Deleted" }
     });
   }
 };
 
-export { Cars, CarCategory };
+const Participant = {
+  async customer(participant, _args, { subdomain }) {
+    return sendContactsMessage({
+      subdomain,
+      action: "customers.findOne",
+      data: {
+        _id:participant.customerId
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+  },
+
+  async deal(participant, _args, { subdomain }) {
+    return sendCardsMessage({
+      subdomain,
+      action: "deals.findOne",
+      data: {
+        _id:participant.dealId
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+  }
+
+ 
+};
+
+export { Cars, CarCategory, Participant };

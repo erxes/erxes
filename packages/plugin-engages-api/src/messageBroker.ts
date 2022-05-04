@@ -1,5 +1,5 @@
 import { sendMessage, ISendMessageArgs } from "@erxes/api-utils/src/core";
-
+import { sendToWebhook as sendWebhook } from "@erxes/api-utils/src";
 import { serviceDiscovery, debug } from "./configs";
 import { generateModels } from "./connectionResolver";
 import { start, sendBulkSms } from "./sender";
@@ -208,4 +208,8 @@ export const sendEmailTemplatesMessage = async (
     serviceName: "emailTemplates",
     ...args,
   });
+};
+
+export const sendToWebhook = ({ subdomain, data }) => {
+  return sendWebhook(client, { subdomain, data });
 };
