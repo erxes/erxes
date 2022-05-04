@@ -402,7 +402,23 @@ const up = async uis => {
 
   const enabledPlugins = ["'workers'"];
   const uiPlugins = [];
-  const essyncerJSON = { plugins: [] };
+  const essyncerJSON = { plugins: [{
+    db_name: configs.mongo.db_name || "erxes",
+    collections: 
+      [
+        {
+          name: "users",
+          schema: "{}",
+          script: "",
+        },
+        {
+          name: "conformities",
+          schema: "{}",
+          script: "",
+        }
+    ],
+  }] };
+
   const permissionsJSON = [];
 
   for (const plugin of configs.plugins || []) {
@@ -429,7 +445,7 @@ const up = async uis => {
       if (apiConfig) {
         if (apiConfig.essyncer) {
           essyncerJSON.plugins.push({
-            db_name: plugin.db_name || "erxes",
+            db_name: configs.mongo.db_name || "erxes",
             collections: apiConfig.essyncer,
           });
         }

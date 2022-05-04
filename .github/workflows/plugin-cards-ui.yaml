@@ -7,10 +7,8 @@ on:
     paths:
       - "packages/erxes-ui/**"
       - "packages/ui-cards/**"
-      - "packages/ui-settings/**"
       - "packages/plugin-cards-ui/**"
       - ".github/workflows/plugin-cards-ui.yaml"
-      - ls
 
 jobs:
   ui:

@@ -23,7 +23,7 @@ var plugins = [
   { name: 'contacts', ui: true, api: true },
   { name: 'dashboard', ui: true, api: true },
   { name: 'ebarimt', ui: true, api: true },
-  { name: 'email-templates', ui: true, api: true },
+  { name: 'emailtemplates', ui: true, api: true },
   { name: 'engages', ui: true, api: true },
   { name: 'exm', ui: true, api: true },
   { name: 'exmfeed', ui: true, api: true },

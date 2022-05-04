@@ -20,6 +20,30 @@ export let es: {
 
 export default {
   name: "cars",
+  permissions: {
+    cars: {
+      name: 'cars',
+      description: 'Cars',
+      actions: [
+        {
+          name: 'all',
+          description: 'All',
+          use: [
+            'showCars',
+            'manageCars'
+          ]
+        },
+        {
+          name: 'showCars',
+          description: 'Show cars'
+        },
+        {
+          name: 'manageCars',
+          description: 'Manage cars'
+        },
+      ]
+    },
+  },
   graphql: async (sd) => {
     serviceDiscovery = sd;
 

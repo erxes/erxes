@@ -1,7 +1,6 @@
 import { Model } from "mongoose";
 
 import { putActivityLog, prepareCocLogData } from "../logUtils";
-// import { sendToWebhook } from '../../data/utils';
 import { validSearchText } from "@erxes/api-utils/src";
 import { validateSingle } from "../verifierUtils";
 import { ICustomField } from "@erxes/api-utils/src/definitions/common";
@@ -18,7 +17,7 @@ import {
   sendFormsMessage,
   sendInboxMessage,
   sendInternalNotesMessage,
-  sendWebhooksMessage,
+  sendToWebhook
 } from "../messageBroker";
 
 interface IGetCustomerParams {
@@ -935,19 +934,14 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
       webhookData.updatedDocument = customer;
 
-      // await sendToWebhook('update', 'customer', webhookData);
-
-      console.log(webhookData, '----------------------------------------------');
-
-      await sendWebhooksMessage({
+      await sendToWebhook({
         subdomain,
-        action: "sendToWebhook",
         data: {
-          action: "update",
-          type: "contacts:customer",
+          action: 'update',
+          type: 'contacts:customer',
           params: webhookData
         }
-      })
+      });
 
       const pssDoc = await models.Customers.calcPSS(customer);
 
