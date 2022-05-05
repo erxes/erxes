@@ -13,6 +13,7 @@ const filePath = (pathName) => {
 var workflowsPath = (fileName) => filePath(`./.github/workflows/${fileName}`);
 
 var plugins = [
+  { name: 'inbox', ui: true, api: true },
   { name: 'ads', api: true },
   { name: 'automations', ui: true, api: true },
   { name: 'calendar', ui: true },
@@ -28,7 +29,6 @@ var plugins = [
   { name: 'exm', ui: true, api: true },
   { name: 'exmfeed', ui: true, api: true },
   { name: 'forms', ui: true, api: true },
-  { name: 'inbox', ui: true, api: true },
   { name: 'integrations',  api: true },
   { name: 'internalnotes',  api: true },
   { name: 'knowledgebase', ui: true, api: true },
@@ -63,6 +63,9 @@ var main = async () => {
       fs.writeFileSync(workflowsPath(`plugin-${plugin.name}-ui.yaml`), uiContent);
 
       const uiConfigs = require(filePath(`./packages/plugin-${plugin.name}-ui/src/configs.js`));
+
+      delete uiConfigs.name;
+      delete uiConfigs.port;
 
       const url = `https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-${plugin.name}-ui/remoteEntry.js`;
       uiConfigs.url = url;
