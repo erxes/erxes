@@ -5,6 +5,7 @@ import { coreModels, generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import * as permissions from './permissions';
 
 export let debug;
 export let graphqlPubsub;
@@ -20,30 +21,7 @@ export let es: {
 
 export default {
   name: 'qpay',
-  permissions: {
-    qpay: {
-      name: 'qpay',
-      description: 'QPAY',
-      actions: [
-        {
-          name: 'qpayAll',
-          description: 'All',
-          use: [
-            'manageQr',
-            'allQr'
-          ]
-        },
-        {
-          name: 'manageQr',
-          description: 'Manage QR'
-        },
-        {
-          name: 'allQr',
-          description: 'All QR'
-        }
-      ]
-    },
-  },
+  permissions,
   graphql: async (sd) => {
     serviceDiscovery = sd;
     return {

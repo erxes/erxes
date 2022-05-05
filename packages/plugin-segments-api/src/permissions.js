@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   segments: {
     name: "segments",
     description: "Segments",

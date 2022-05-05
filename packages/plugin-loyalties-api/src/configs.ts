@@ -8,6 +8,7 @@ import { initMemoryStorage } from './inmemoryStorage';
 import logs from './logUtils';
 import automations from './automations';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import * as permissions from './permissions';
 
 export let debug;
 export let graphqlPubsub;
@@ -23,30 +24,7 @@ export let es: {
 
 export default {
   name: 'loyalties',
-  permissions: {
-    loyalties: {
-      name: 'loyalties',
-      description: 'Loyalties',
-      actions: [
-        {
-          name: 'loyaltyAll',
-          description: 'All',
-          use: [
-            'showLoyalties',
-            'manageLoyalties'
-          ]
-        },
-        {
-          name: 'showLoyalties',
-          description: 'Show loyalties'
-        },
-        {
-          name: 'manageLoyalties',
-          description: 'Manage loyalties'
-        }
-      ]
-    },
-  },
+  permissions,
   meta: {
     logs: { loyalties: logs },
     automations,

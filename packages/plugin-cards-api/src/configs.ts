@@ -5,7 +5,7 @@ import * as serverTiming from 'server-timing';
 import { initBroker, sendSegmentsMessage } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initMemoryStorage } from './inmemoryStorage';
-import permissions from './permissions';
+import * as permissions from './permissions';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { buildFile } from './exporter';
 import segments from './segments';

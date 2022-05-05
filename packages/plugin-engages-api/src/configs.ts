@@ -8,7 +8,7 @@ import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import tags from './tags';
 import logs from './logUtils';
-import permissions from './permissions';
+import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 

@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   logs: {
     name: 'logs',
     description: 'Logs',

@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   forms: {
     name: 'forms',
     description: 'Form',
