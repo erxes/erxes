@@ -64,7 +64,6 @@ var main = async () => {
 
       const uiConfigs = require(filePath(`./packages/plugin-${plugin.name}-ui/src/configs.js`));
 
-      delete uiConfigs.name;
       delete uiConfigs.port;
 
       const url = `https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-${plugin.name}-ui/remoteEntry.js`;
