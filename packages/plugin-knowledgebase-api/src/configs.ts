@@ -5,7 +5,7 @@ import { initBroker } from './messageBroker';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
-import permissions from './permissions';
+import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 

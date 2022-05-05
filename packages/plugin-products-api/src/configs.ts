@@ -9,7 +9,7 @@ import logs from './logUtils';
 import tags from './tags';
 import internalNotes from './internalNotes';
 import forms from './forms';
-import permissions from './permissions';
+import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let debug;
@@ -21,11 +21,11 @@ export default {
   permissions,
   graphql: async (sd) => {
     serviceDiscovery = sd;
-    
+
     return {
       typeDefs: await typeDefs(sd),
-      resolvers
-    }
+      resolvers,
+    };
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -35,13 +35,13 @@ export default {
     const models = await generateModels(subdomain);
 
     context.models = models;
-    
+
     context.dataLoaders = generateAllDataLoaders(models, subdomain);
 
     return context;
   },
   meta: { logs: { consumers: logs }, tags, internalNotes, forms },
-  onServerInit: async options => {
+  onServerInit: async (options) => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
@@ -49,5 +49,5 @@ export default {
     initMemoryStorage();
 
     debug = options.debug;
-  }
+  },
 };

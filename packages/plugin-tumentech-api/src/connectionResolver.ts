@@ -15,10 +15,14 @@ import {
   IProductCarCategoryModel
 } from "./models/Tumentech";
 
+import { IParticipantDocument } from "./models/definitions/participants";
+import { IParticipantModel, loadParticipantClass } from "./models/Participants";
+
 export interface IModels {
   Cars: ICarModel;
   CarCategories: ICarCategoryModel;
   ProductCarCategories: IProductCarCategoryModel;
+  Participants: IParticipantModel;
 }
 
 export interface IContext extends IMainContext {
@@ -57,6 +61,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IProductCarCategoryDocument,
     IProductCarCategoryModel
   >("product_car_category", productCarCategorySchema);
+
+  models.Participants = db.model<IParticipantDocument, IParticipantModel>(
+    "participants",
+    loadParticipantClass(models)
+  );
 
   return models;
 };

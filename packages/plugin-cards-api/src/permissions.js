@@ -1,4 +1,4 @@
-const permissions = {
+module.exports = {
   deals: {
     name: 'deals',
     description: 'Deals',

@@ -1,4 +1,4 @@
-const permissions = {
+module.exports = {
   knowledgeBase: {
     name: "knowledgeBase",
     description: "KnowledgeBase",
@@ -19,5 +19,3 @@ const permissions = {
     ],
   },
 };
-
-export default permissions;

@@ -173,3 +173,15 @@ export const CAR_SELECT_OPTIONS = {
     { label: 'Зүтгэх хүчний мэдээлэл', value: 'renderForceImformation' }
   ]
 };
+
+             
+export const PARTICIPATION_STATUSES = {
+  PARTICIPATING: 'participating',
+  LOSE: 'lose',
+  WON: 'won',
+  ALL: [
+    'participating',
+    'lose',
+    'won',
+  ]
+};

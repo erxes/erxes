@@ -89,10 +89,14 @@ export const join = async ({
     })
   );
 
+  const address = LOAD_BALANCER_ADDRESS || `http://${isDev ? "localhost" : `plugin-${name}-api`}:${port}`;
+
   await redis.set(
     `service:${name}`,
-    LOAD_BALANCER_ADDRESS || `http://${isDev ? "localhost" : `plugin-${name}-api`}:${port}`
+    address
   )
+
+  console.log(`$service:${name} joined with ${address}`);
 };
 
 export const leave = async (name, _port) => {
@@ -104,7 +108,9 @@ export const leave = async (name, _port) => {
     console.log(`error during service:queuenames delete ${e.message}`);
   }
 
-  return redis.del(generateKey(name));
+  await redis.del(generateKey(name));
+
+  console.log(`$service:${name} left`);
 };
 
 export const isAvailable = async (name) => {

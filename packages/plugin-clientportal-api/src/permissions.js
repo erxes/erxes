@@ -1,4 +1,4 @@
-const permissions = {
+module.exports = {
   clientPortal: {
     name: 'clientPortal',
     description: 'Client portal',
@@ -10,5 +10,3 @@ const permissions = {
     ],
   },
 };
-
-export default permissions;

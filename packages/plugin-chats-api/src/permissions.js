@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   chats: {
     name: 'chats',
     description: 'Chats',
