@@ -17,3 +17,5 @@ export const configSchema = new Schema({
   code: field({ type: String, unique: true }),
   value: field({ type: Object })
 });
+
+// etc codes: IS_UOM, DEFAULT_UOM,

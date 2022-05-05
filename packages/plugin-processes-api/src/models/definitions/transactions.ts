@@ -20,9 +20,10 @@ export interface ITransactionDocument extends ITransaction, Document {
   createdBy: string;
 }
 
-export const transactionsSchema = schemaHooksWrapper(
+export const transactionSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
+    status: field({ type: String, label: 'Status' }),
     createdAt: { type: Date, default: new Date(), label: 'Created date' },
     createdBy: { type: String, label: 'Created User' },
 
@@ -41,8 +42,8 @@ export const transactionsSchema = schemaHooksWrapper(
   'erxes_transactions'
 );
 
-// for transactionsSchema query. increases search speed, avoids in-memory sorting
-transactionsSchema.index({
+// for transactionSchema query. increases search speed, avoids in-memory sorting
+transactionSchema.index({
   isDebit: 1,
   productId: 1,
   branchId: 1,

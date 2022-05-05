@@ -18,8 +18,37 @@ export const DURATION_TYPES = {
   ALL: ["minut", "hour", "day", "month"],
 };
 
+export const JOB_STATUSES = {
+  ACTIVE: 'active',
+  DRAFT: 'draft',
+  DELETED: 'deleted',
+  ALL: ['active', 'draft', 'deleted']
+}
 
+export const WORK_STATUSES = {
+  TODO: 'todo',
+  DOING: 'doing',
+  DONE: 'done',
+  ALL: ['todo', 'doing', 'done']
+}
 
-// sale plan
-// process plan
-//
+export const OVERALLWORK_STATUSES = {
+  TODO: 'todo',
+  DOING: 'doing',
+  DONE: 'done',
+  ALL: ['todo', 'doing', 'done']
+}
+
+export const PERFORM_STATUSES = {
+  TODO: 'todo',
+  DOING: 'doing',
+  DONE: 'done',
+  ALL: ['todo', 'doing', 'done']
+}
+
+export const _STATUSES = {
+  TODO: 'todo',
+  DOING: 'doing',
+  DONE: 'done',
+  ALL: ['todo', 'doing', 'done']
+}

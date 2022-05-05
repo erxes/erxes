@@ -13,14 +13,14 @@ export interface IJob {
   quantity: { type: Number }
 }
 
-export interface IProcess {
+export interface IWork {
   name: String;
   categoryId: String;
   status: String;
   jobs: IJob[];
 }
 
-export interface IProcessDocument extends IProcess, Document {
+export interface IWorkDocument extends IWork, Document {
   _id: string;
   createdAt: Date;
   createdBy: string;
@@ -41,7 +41,7 @@ export const jobSchema = new Schema(
   { _id: false }
 )
 
-export const worksSchema = schemaHooksWrapper(
+export const workSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     jobId: field({ type: String }),
@@ -63,7 +63,7 @@ export const worksSchema = schemaHooksWrapper(
   'erxes_flows'
 );
 
-// for worksSchema query. increases search speed, avoids in-memory sorting
-worksSchema.index({ status: 1 });
+// for workSchema query. increases search speed, avoids in-memory sorting
+workSchema.index({ status: 1 });
 
 
