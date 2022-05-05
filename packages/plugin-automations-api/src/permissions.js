@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   automations: {
     name: 'automations',
     description: 'Automations',

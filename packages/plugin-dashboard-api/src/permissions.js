@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   dashboards: {
     name: "dashboards",
     description: "Dashboards",

@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   products: {
     name: 'products',
     description: 'Products',

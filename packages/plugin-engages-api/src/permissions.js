@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   engages: {
     name: 'engages',
     description: 'Campaigns',

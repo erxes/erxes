@@ -83,6 +83,11 @@ export const generateAmounts = (productsData) => {
 };
 
 export default {
+  __resolveReference({ _id }, { models }: IContext) {
+    return models.Deals.findOne({ _id });
+  },
+
+
   async companies(deal: IDealDocument, _args, { subdomain, serverTiming }: IContext) {
     serverTiming.startTime('resolver:companies');
 

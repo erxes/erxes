@@ -6,6 +6,7 @@ import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import * as permissions from './permissions';
 
 export let debug;
 export let graphqlPubsub;
@@ -21,30 +22,7 @@ export let es: {
 
 export default {
   name: 'pos',
-  permissions: {
-    pos: {
-      name: 'pos',
-      description: 'POS',
-      actions: [
-        {
-          name: 'posAll',
-          description: 'All',
-          use: [
-            'managePos',
-            'showPos'
-          ]
-        },
-        {
-          name: 'managePos',
-          description: 'Manage POS'
-        },
-        {
-          name: 'showPos',
-          description: 'Show'
-        }
-      ]
-    },
-  },
+  permissions,
   graphql: async (sd) => {
     serviceDiscovery = sd;
     return {

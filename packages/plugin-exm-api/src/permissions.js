@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   exm: {
     name: "exm",
     description: "Exm core",
