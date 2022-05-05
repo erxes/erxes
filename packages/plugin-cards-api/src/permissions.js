@@ -511,5 +511,3 @@ module.exports = {
     ]
   },
 }
-
-export default permissions;
