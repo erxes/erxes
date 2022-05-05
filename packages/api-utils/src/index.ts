@@ -15,7 +15,7 @@ import {
   escapeRegExp
 } from './core';
 import { putCreateLog, putDeleteLog, putUpdateLog } from './logUtils';
-import { sendRequest } from './requests';
+import { sendRequest, sendToWebhook } from './requests';
 import { updateUserScore, getScoringConfig } from './scoring';
 import { generateFieldsFromSchema } from './fieldUtils';
 
@@ -44,6 +44,7 @@ export { paginate }; // ( collection, params: { ids ?: string[]; page ?: number;
 export { validSearchText }; // (values: string[])
 export { regexSearchText }; // ( searchValue: string, searchKey = "searchText" )
 export { sendRequest }; // ( { url, method, headers, form, body, params }: IRequestParams, errorMessage ?: string )
+export { sendToWebhook }; 
 export { fixDate };
 export { getDate };
 export { getToday };
@@ -81,6 +82,7 @@ export default {
   validSearchText,
   regexSearchText,
   sendRequest,
+  sendToWebhook,
   fixDate,
   getDate,
   getToday,

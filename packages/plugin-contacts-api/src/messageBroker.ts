@@ -10,6 +10,7 @@ import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { getNumberOfVisits } from './events';
 import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from './constants';
 import { updateContactsField } from './utils';
+import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 
 export let client;
 
@@ -463,17 +464,6 @@ export const sendIntegrationsMessage = (
   });
 };
 
-export const sendWebhooksMessage = (
-  args: ISendMessageArgs
-): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: "webhooks",
-    ...args
-  });
-};
-
 export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
   sendSegmentsMessage({
     subdomain,
@@ -481,6 +471,10 @@ export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
     data: { segmentId, options },
     isRPC: true
   });
+
+export const sendToWebhook = ({ subdomain, data }) => {
+  return sendWebhook(client, { subdomain, data });
+};
 
 export default function () {
   return client;

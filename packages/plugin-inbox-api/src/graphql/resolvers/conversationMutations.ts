@@ -15,7 +15,8 @@ import {
   sendCardsMessage,
   sendCoreMessage,
   sendIntegrationsMessage,
-  sendNotificationsMessage
+  sendNotificationsMessage,
+  sendToWebhook
 } from '../../messageBroker';
 import { graphqlPubsub } from '../../configs';
 
@@ -447,7 +448,14 @@ const conversationMutations = {
 
     const dbMessage = await models.ConversationMessages.getMessage(message._id);
 
-    // ? await utils.sendToWebhook('create', 'userMessages', dbMessage);
+    await sendToWebhook({
+      subdomain,
+      data: {
+        action: 'create',
+        type: 'inbox:userMessages',
+        params: dbMessage
+      }
+    });
 
     // Publishing both admin & client
     publishMessage(models, dbMessage, conversation.customerId);

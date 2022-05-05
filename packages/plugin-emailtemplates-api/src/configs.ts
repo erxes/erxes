@@ -21,7 +21,7 @@ export let es: {
 };
 
 export default {
-  name: 'emailTemplates',
+  name: 'emailtemplates',
   permissions,
   graphql: async sd => {
     serviceDiscovery = sd;

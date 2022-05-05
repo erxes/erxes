@@ -35,7 +35,8 @@ import {
   sendFormsMessage,
   sendCoreMessage,
   sendIntegrationsMessage,
-  sendLogsMessage
+  sendLogsMessage,
+  sendToWebhook
 } from "../../messageBroker";
 import { trackViewPageEvent } from "../../events";
 import EditorAttributeUtil from "@erxes/api-utils/src/editorAttributeUtils";
@@ -255,7 +256,15 @@ const createFormConversation = async (
       conversationId: conversation._id
     };
 
-    // ?    await sendToWebhook('create', 'popupSubmitted', formData);
+    await sendToWebhook({
+      subdomain,
+      data: {
+        action: 'create',
+        type: 'inbox:popupSubmitted',
+        params: formData
+      }
+    });
+    
   }
 
   for (const submission of submissions) {
@@ -894,7 +903,14 @@ const widgetMutations = {
       }
     }
 
-    // ? await sendToWebhook('create', 'customerMessages', msg);
+    await sendToWebhook({
+      subdomain,
+      data: {
+        action: 'create',
+        type: 'inbox:customerMessages',
+        params: msg
+      }
+    });
 
     return msg;
   },
