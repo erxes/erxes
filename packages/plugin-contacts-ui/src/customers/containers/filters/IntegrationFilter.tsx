@@ -18,9 +18,9 @@ class IntegrationFilterContainer extends React.Component<Props> {
   render() {
     const { customersCountQuery, integrationsGetUsedTypesQuery } = this.props;
 
-    const counts = customersCountQuery
+    const counts = (customersCountQuery
       ? customersCountQuery.customerCounts
-      : { byIntegrationType: {} };
+      : null) || { byIntegrationType: {} };
 
     const loading =
       (customersCountQuery && customersCountQuery.loading) ||

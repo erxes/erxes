@@ -1,6 +1,6 @@
 import {
   attachmentType,
-  attachmentInput
+  attachmentInput,
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = ({ contacts, cards }) => `
@@ -29,10 +29,13 @@ export const types = ({ contacts, cards }) => `
   ${
     cards
       ? `
-        extend type Deal @key(fields: "_id") {
-          _id: String! @external
-        }
-        `
+    extend type Stage @key(fields: "_id") {
+      _id: String! @external
+    }
+    extend type Deal @key(fields: "_id") {
+      _id: String! @external
+    }
+     `
       : ''
   }
 
