@@ -94,9 +94,6 @@ const getStage = async (query: any) => {
 };
 
 const queries = {
-  /**
-   * Group engage messages counts by kind, status, tag
-   */
   async dealsForRentpay(
     _root,
     {
