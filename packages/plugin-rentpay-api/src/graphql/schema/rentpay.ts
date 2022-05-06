@@ -39,7 +39,6 @@ const listQueryParams = `
     priceRange: String
     district: String
     customFields: JSON
-    stageOrder: Int
     stageCode: String
     stageId: String
     limit: Int

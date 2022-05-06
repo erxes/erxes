@@ -106,6 +106,7 @@ const queries = {
       buyerIds,
       waiterIds,
       stageCode,
+      stageId,
       limit,
       skip,
     }
@@ -296,7 +297,9 @@ const queries = {
       dealFilter = { _id: { $in: relIds } };
     }
 
-    if (stageCode) {
+    if (stageId) {
+      dealFilter.stageId = stageId;
+    } else if (stageCode) {
       const stage = await getStage({ code: stageCode });
 
       dealFilter.stageId = stage._id;
@@ -349,7 +352,7 @@ const queries = {
         (deal.assignedUserIds || []).includes(user._id)
       );
 
-      if (!stageCode) {
+      if (!stageId) {
         deal.stage = await getStage({ _id: deal.stageId });
       }
 
