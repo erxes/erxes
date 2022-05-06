@@ -57,7 +57,7 @@ const getCustomFieldsDataWithValue = async (customFieldsData: any) => {
 const getProducts = async (productIds: string[]) => {
   return sendCommonMessage({
     subdomain: "os",
-    data: { _id: { $in: productIds } },
+    data: { query: { _id: { $in: productIds } } },
     action: "find",
     serviceName: "products",
     defaultValue: [],
@@ -340,6 +340,7 @@ const queries = {
       const product = products.find(
         p => p._id === deal.productsData[0].productId
       );
+      console.log("product: ", product);
 
       if (product) {
         deal.products = [product];
