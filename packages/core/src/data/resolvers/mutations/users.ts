@@ -1,5 +1,4 @@
 import * as telemetry from 'erxes-telemetry';
-import * as express from 'express';
 import { ILink } from '@erxes/api-utils/src/types';
 import {
   IDetail,
@@ -49,20 +48,6 @@ const sendInvitationEmail = (
       }
     }
   });
-};
-
-const login = async (models: IModels, args: ILogin, res: express.Response, secure: boolean) => {
-  const response = await models.Users.login(args);
-
-  const { token } = response;
-
-  const cookieOptions: any = { secure };
-
-  res.cookie('auth-token', token, authCookieOptions(cookieOptions));
-
-  telemetry.trackCli('logged_in');
-
-  return 'loggedIn';
 };
 
 const userMutations = {
@@ -159,11 +144,22 @@ const userMutations = {
 
     return 'success';
   },
+
   /*
    * Login
    */
   async login(_root, args: ILogin, { res, requestInfo, models }: IContext) {
-    return login(models, args, res, requestInfo.secure);
+    const response = await models.Users.login(args);
+
+    const { token } = response;
+
+    const cookieOptions: any = { secure: requestInfo.secure };
+
+    res.cookie('auth-token', token, authCookieOptions(cookieOptions));
+
+    telemetry.trackCli('logged_in');
+
+    return 'loggedIn';
   },
 
   async logout(_root, _args, { res, user, requestInfo, models }: IContext) {
