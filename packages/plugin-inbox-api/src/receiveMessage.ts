@@ -1,8 +1,9 @@
 import { graphqlPubsub } from './configs';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
-import { sendContactsMessage, sendCoreMessage, sendIntegrationsMessage } from './messageBroker';
+import { sendContactsMessage, sendCoreMessage, sendIntegrationsMessage, sendLogsMessage } from './messageBroker';
 import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
 import { generateModels } from './connectionResolver';
+import { IConversationDocument } from './models/definitions/conversations';
 
 const sendError = message => ({
   status: 'error',
@@ -218,49 +219,81 @@ export const removeEngageConversations = async (models, _id) => {
   await models.Conversations.removeEngageConversations(_id);
 };
 
-export const collectConversations = async ({ contentId, contentType, subdomain }) => {
+export const collectConversations = async ({
+  contentId,
+  contentType,
+  subdomain
+}) => {
   const models = await generateModels(subdomain);
   const results: any[] = [];
-  const conversations = await models.Conversations.find({
-    $or: [{ customerId: contentId }, { participatedUserIds: contentId }]
-  }).lean();
+
+  const activities = await sendLogsMessage({
+    subdomain,
+    action: 'activityLogs.findMany',
+    data: {
+      query: {
+        contentId,
+        action: 'convert'
+      },
+      options: {
+        content: 1
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const contentIds = activities.map(activity => activity.content);
+
+  let conversations: IConversationDocument[] = [];
+
+  if (!contentIds.length) {
+    conversations = await models.Conversations.find({
+      $or: [{ customerId: contentId }, { participatedUserIds: contentId }]
+    }).lean();
+  } else {
+    conversations = await models.Conversations.find({
+      _id: { $in: contentIds }
+    }).lean();
+  }
 
   for (const c of conversations) {
     results.push({
       _id: c._id,
-      contentType: 'conversation',
+      contentType: 'inbox:conversation',
       contentId,
       createdAt: c.createdAt
     });
   }
 
   if (contentType === 'customer') {
-  let conversationIds;
+    let conversationIds;
 
-  try {
-    
-    conversationIds = await sendIntegrationsMessage({
-      subdomain,
-      action: "getFbCustomerPosts",
-      data: {
-        customerId: contentId
-      },
-      isRPC: true
-    })
-    
-    const cons = await models.Conversations.find({ _id: { $in: conversationIds } }).lean();
-
-    for (const c of cons) {
-      results.push({
-        _id: c._id,
-        contentType: 'comment',
-        contentId,
-        createdAt: c.createdAt
+    try {
+      conversationIds = await sendIntegrationsMessage({
+        subdomain,
+        action: 'getFbCustomerPosts',
+        data: {
+          customerId: contentId
+        },
+        isRPC: true
       });
-  }
-  } catch (e) {
-    debugExternalApi(e);
-  }
+
+      const cons = await models.Conversations.find({
+        _id: { $in: conversationIds }
+      }).lean();
+
+      for (const c of cons) {
+        results.push({
+          _id: c._id,
+          contentType: 'comment',
+          contentId,
+          createdAt: c.createdAt
+        });
+      }
+    } catch (e) {
+      debugExternalApi(e);
+    }
   }
 
   return results;
