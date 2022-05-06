@@ -47,7 +47,7 @@ export const initBroker = async options => {
   consumeQueue("core:sendEmail", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    await sendEmail(models, subdomain, data);
+    await sendEmail(subdomain, data, models);
   });
 
   consumeRPCQueue("core:conformities.addConformity", async ({ subdomain, data }) => {

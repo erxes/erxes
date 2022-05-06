@@ -37,8 +37,14 @@ export const loadParticipantClass = (models: IModels) => {
       });
     }
 
-    public static async updateParticipant(_id: string, fields: IParticipant) {
-      await models.Participants.updateOne({ _id }, { $set: { ...fields } });
+    public static async updateParticipant(_id: string, doc: IParticipant) {
+      const participant = await models.Participants.findOne({ _id });
+
+      if (!participant) {
+        throw new Error(`Participant not found with id ${_id}`);
+      }
+
+      await models.Participants.updateOne({ _id }, { $set: { ...doc } });
       return models.Participants.findOne({ _id });
     }
 
