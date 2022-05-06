@@ -100,16 +100,6 @@ export const join = async ({
 };
 
 export const leave = async (name, _port) => {
-  await redis.del(`service:${name}`);
-
-  try {
-    await redis.del(`service:queuenames:${name}`);
-  } catch (e) {
-    console.log(`error during service:queuenames delete ${e.message}`);
-  }
-
-  await redis.del(generateKey(name));
-
   console.log(`$service:${name} left`);
 };
 
