@@ -1,6 +1,6 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import permissions from './permissions';
+import * as permissions from './permissions';
 import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';

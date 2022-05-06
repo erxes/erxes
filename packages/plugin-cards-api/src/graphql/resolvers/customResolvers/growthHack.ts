@@ -4,6 +4,10 @@ import { IContext } from "../../../connectionResolver";
 import { sendFormsMessage } from "../../../messageBroker";
 
 export default {
+  __resolveReference({ _id }, { models }: IContext) {
+    return models.GrowthHacks.findOne({ _id });
+  },
+
   async formSubmissions(
     growthHack: IGrowthHackDocument,
     _args,

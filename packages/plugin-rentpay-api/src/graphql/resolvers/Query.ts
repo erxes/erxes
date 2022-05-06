@@ -18,21 +18,29 @@ const removeEmptyValues = obj => {
 };
 
 const getCustomFieldsDataWithValue = async (customFieldsData: any) => {
+  if (!customFieldsData || customFieldsData.length === 0) {
+    return [];
+  }
+
   const customFields: any[] = [];
 
-  for (const customFieldData of customFieldsData || []) {
-    const field = await sendCommonMessage({
-      subdomain: "os",
-      data: {
-        query: {
-          _id: customFieldData.field,
-        },
+  const fieldIds = (customFieldsData || []).map(d => d.field);
+
+  const fields = await sendCommonMessage({
+    subdomain: "os",
+    data: {
+      query: {
+        _id: { $in: fieldIds },
       },
-      serviceName: "forms",
-      action: "fields.findOne",
-      isRPC: true,
-      defaultValue: [],
-    });
+    },
+    serviceName: "forms",
+    action: "fields.find",
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  for (const customFieldData of customFieldsData || []) {
+    const field = fields.find(f => f._id === customFieldData.field);
 
     if (field) {
       customFields.push({
@@ -46,43 +54,31 @@ const getCustomFieldsDataWithValue = async (customFieldsData: any) => {
   return customFields;
 };
 
-const getProducts = async deal => {
-  const products: any[] = [];
-
-  if (deal.productsData && deal.productsData.length > 0) {
-    const product = await sendCommonMessage({
-      subdomain: "os",
-      data: { _id: deal.productsData[0].productId },
-      action: "findOne",
-      serviceName: "products",
-      isRPC: true,
-    });
-
-    if (product) {
-      products.push(product);
-    }
-  }
-  return products;
+const getProducts = async (productIds: string[]) => {
+  return sendCommonMessage({
+    subdomain: "os",
+    data: { _id: { $in: productIds } },
+    action: "find",
+    serviceName: "products",
+    defaultValue: [],
+    isRPC: true,
+  });
 };
 
-const getAssignedUsers = async (deal: any) => {
-  if (deal.assignedUserIds && deal.assignedUserIds.length > 0) {
-    const assignedUsers = await sendCoreMessage({
-      subdomain: "os",
-      data: {
-        query: {
-          _id: { $in: deal.assignedUserIds },
-        },
+const getAssignedUsers = async (assignedUserIds: string[]) => {
+  const assignedUsers = await sendCoreMessage({
+    subdomain: "os",
+    data: {
+      query: {
+        _id: { $in: assignedUserIds },
       },
-      action: "users.find",
-      defaultValue: [],
-      isRPC: true,
-    });
+    },
+    action: "users.find",
+    defaultValue: [],
+    isRPC: true,
+  });
 
-    return assignedUsers;
-  }
-
-  return [];
+  return assignedUsers;
 };
 
 const getStage = async (deal: any) => {
@@ -112,7 +108,7 @@ const queries = {
       customerIds,
       buyerIds,
       waiterIds,
-      stageOrder,
+      stageId,
       limit,
       skip,
     }
@@ -293,27 +289,8 @@ const queries = {
       dealFilter = { _id: { $in: relIds } };
     }
 
-    if (stageOrder) {
-      const stageFilter: any = {
-        type: "deal",
-        status: "active",
-        order: stageOrder,
-      };
-
-      if (process.env.NODE_ENV === "production") {
-        stageFilter.pipelineId = "QXjcMeP2kZ4W6oHED";
-      }
-
-      const stage = await sendCommonMessage({
-        subdomain: "os",
-        data: stageFilter,
-        action: "stages.findOne",
-        serviceName: "cards",
-        defaultValue: [],
-        isRPC: true,
-      });
-
-      dealFilter.stageId = stage._id;
+    if (stageId) {
+      dealFilter.stageId = stageId;
     }
 
     const deals = await sendCommonMessage({
@@ -330,6 +307,23 @@ const queries = {
       isRPC: true,
     });
 
+    const productIds: string[] = deals.map(
+      deal => deal.productsData[0].productId
+    );
+
+    let products: any[] = [];
+
+    if (productIds.length > 0) {
+      products = await getProducts(productIds);
+    }
+
+    const assignedUserIds: string[] = deals.flatMap(
+      d => d.assignedUserIds || []
+    );
+
+    const uniqueUserIds = [...new Set(assignedUserIds)];
+    const assignedUsers = await getAssignedUsers(uniqueUserIds);
+
     for (const deal of deals) {
       const { customFieldsData } = deal;
 
@@ -337,11 +331,19 @@ const queries = {
         customFieldsData
       );
 
-      deal.assignedUsers = await getAssignedUsers(deal);
+      deal.assignedUsers = assignedUsers.filter(user =>
+        (deal.assignedUserIds || []).includes(user._id)
+      );
 
-      deal.stage = await getStage(deal);
+      deal.stage = stageId ? {} : await getStage(deal);
 
-      deal.products = await getProducts(deal);
+      const product = products.find(
+        p => p._id === deal.productsData[0].productId
+      );
+
+      if (product) {
+        deal.products = [product];
+      }
     }
 
     const totalCount = await sendCommonMessage({
@@ -374,11 +376,16 @@ const queries = {
       customFieldsData
     );
 
-    deal.products = await getProducts(deal);
+    const productId: string =
+      deal.productsData && deal.productsData.length > 0
+        ? deal.productsData[0].productId
+        : "";
 
-    deal.stage = await getStage(deal);
+    if (productId) {
+      deal.products = await getProducts([productId]);
+    }
 
-    deal.assignedUsers = await getAssignedUsers(deal);
+    deal.assignedUsers = await getAssignedUsers(deal.assignedUserIds || []);
 
     return deal;
   },

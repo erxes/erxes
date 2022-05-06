@@ -19,7 +19,7 @@ import logs from './logUtils';
 import tags from './tags';
 import segments from './segments';
 import forms from './forms';
-import permissions from './permissions';
+import * as permissions from './permissions';
 import search from './search';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
 import { getSubdomain } from '@erxes/api-utils/src/core';

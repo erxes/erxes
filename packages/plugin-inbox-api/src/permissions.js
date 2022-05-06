@@ -1,5 +1,4 @@
-
-const permissions = {
+module.exports = {
   inbox: {
     name: 'inbox',
     description: 'Inbox',
@@ -222,5 +221,3 @@ const permissions = {
     ]
   },
 }
-
-export default permissions;
