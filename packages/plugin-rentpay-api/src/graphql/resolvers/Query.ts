@@ -81,10 +81,10 @@ const getAssignedUsers = async (assignedUserIds: string[]) => {
   return assignedUsers;
 };
 
-const getStage = async (deal: any) => {
+const getStage = async (query: any) => {
   const stage = await sendCommonMessage({
     subdomain: "os",
-    data: { _id: deal.stageId },
+    data: query,
     action: "stages.findOne",
     serviceName: "cards",
     isRPC: true,
@@ -108,7 +108,7 @@ const queries = {
       customerIds,
       buyerIds,
       waiterIds,
-      stageId,
+      stageCode,
       limit,
       skip,
     }
@@ -299,8 +299,10 @@ const queries = {
       dealFilter = { _id: { $in: relIds } };
     }
 
-    if (stageId) {
-      dealFilter.stageId = stageId;
+    if (stageCode) {
+      const stage = await getStage({ code: stageCode });
+
+      dealFilter.stageId = stage._id;
     }
 
     const deals = await sendCommonMessage({
@@ -350,7 +352,9 @@ const queries = {
         (deal.assignedUserIds || []).includes(user._id)
       );
 
-      deal.stage = stageId ? {} : await getStage(deal);
+      if (!stageCode) {
+        deal.stage = await getStage({ _id: deal.stageId });
+      }
 
       const product = products.find(
         p => p._id === deal.productsData[0].productId
