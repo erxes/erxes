@@ -29,7 +29,10 @@ const readEnabledServices = async () => {
   const enabledServices = require(ENABLED_SERVICES_PATH);
 
   await redis.del('enabled-services');
-  await redis.rpush('enabled-services', ...enabledServices);
+
+  if (enabledServices && enabledServices.length > 0) {
+    await redis.rpush('enabled-services', ...enabledServices);
+  }
 
   return enabledServices;
 }
