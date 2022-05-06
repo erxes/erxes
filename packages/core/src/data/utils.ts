@@ -56,7 +56,7 @@ const applyTemplate = async (data: any, templateName: string) => {
   return template(data);
 };
 
-export const sendEmail = async (models: IModels, subdomain: string, params: IEmailParams) => {
+export const sendEmail = async (subdomain: string, params: IEmailParams, models?: IModels) => {
   const {
     toEmails = [],
     fromEmail,
@@ -69,16 +69,16 @@ export const sendEmail = async (models: IModels, subdomain: string, params: IEma
   } = params;
 
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-  const DEFAULT_EMAIL_SERVICE = await getConfig(models, 'DEFAULT_EMAIL_SERVICE', 'SES');
-  const defaultTemplate = await getConfig(models, 'COMPANY_EMAIL_TEMPLATE');
-  const defaultTemplateType = await getConfig(models, 'COMPANY_EMAIL_TEMPLATE_TYPE');
-  const COMPANY_EMAIL_FROM = await getConfig(models, 'COMPANY_EMAIL_FROM', '');
-  const AWS_SES_CONFIG_SET = await getConfig(models, 'AWS_SES_CONFIG_SET', '');
-  const AWS_SES_ACCESS_KEY_ID = await getConfig(models, 'AWS_SES_ACCESS_KEY_ID', '');
+  const DEFAULT_EMAIL_SERVICE = await getConfig('DEFAULT_EMAIL_SERVICE', 'SES', models);
+  const defaultTemplate = await getConfig('COMPANY_EMAIL_TEMPLATE', '', models);
+  const defaultTemplateType = await getConfig('COMPANY_EMAIL_TEMPLATE_TYPE', '', models);
+  const COMPANY_EMAIL_FROM = await getConfig('COMPANY_EMAIL_FROM', '', models);
+  const AWS_SES_CONFIG_SET = await getConfig('AWS_SES_CONFIG_SET', '', models);
+  const AWS_SES_ACCESS_KEY_ID = await getConfig('AWS_SES_ACCESS_KEY_ID', '', models);
   const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
-    models,
     'AWS_SES_SECRET_ACCESS_KEY',
-    ''
+    '',
+    models
   );
   const DOMAIN = getEnv({ name: 'DOMAIN' });
 
@@ -91,9 +91,7 @@ export const sendEmail = async (models: IModels, subdomain: string, params: IEma
   let transporter;
 
   try {
-    transporter = await createTransporter(models, {
-      ses: DEFAULT_EMAIL_SERVICE === 'SES'
-    });
+    transporter = await createTransporter({ ses: DEFAULT_EMAIL_SERVICE === 'SES' }, models);
   } catch (e) {
     return debugError(e.message);
   }
@@ -179,14 +177,15 @@ export const sendEmail = async (models: IModels, subdomain: string, params: IEma
 /**
  * Create default or ses transporter
  */
-export const createTransporter = async (models: IModels, { ses }) => {
+export const createTransporter = async ({ ses }, models?: IModels) => {
   if (ses) {
-    const AWS_SES_ACCESS_KEY_ID = await getConfig(models, 'AWS_SES_ACCESS_KEY_ID');
+    const AWS_SES_ACCESS_KEY_ID = await getConfig('AWS_SES_ACCESS_KEY_ID', '', models);
     const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
-      models,
-      'AWS_SES_SECRET_ACCESS_KEY'
+      'AWS_SES_SECRET_ACCESS_KEY',
+      '',
+      models
     );
-    const AWS_REGION = await getConfig(models, 'AWS_REGION');
+    const AWS_REGION = await getConfig('AWS_REGION', '', models);
 
     AWS.config.update({
       region: AWS_REGION,
@@ -199,11 +198,11 @@ export const createTransporter = async (models: IModels, { ses }) => {
     });
   }
 
-  const MAIL_SERVICE = await getConfig(models, 'MAIL_SERVICE');
-  const MAIL_PORT = await getConfig(models, 'MAIL_PORT');
-  const MAIL_USER = await getConfig(models, 'MAIL_USER');
-  const MAIL_PASS = await getConfig(models, 'MAIL_PASS');
-  const MAIL_HOST = await getConfig(models, 'MAIL_HOST');
+  const MAIL_SERVICE = await getConfig('MAIL_SERVICE', '', models);
+  const MAIL_PORT = await getConfig('MAIL_PORT', '', models);
+  const MAIL_USER = await getConfig('MAIL_USER', '', models);
+  const MAIL_PASS = await getConfig('MAIL_PASS', '', models);
+  const MAIL_HOST = await getConfig('MAIL_HOST', '', models);
 
   let auth;
 
@@ -307,8 +306,9 @@ export const checkFile = async (models: IModels, file, source?: string) => {
   ];
 
   const UPLOAD_FILE_TYPES = await getConfig(
-    models,
-    source === 'widgets' ? 'WIDGETS_UPLOAD_FILE_TYPES' : 'UPLOAD_FILE_TYPES'
+    source === 'widgets' ? 'WIDGETS_UPLOAD_FILE_TYPES' : 'UPLOAD_FILE_TYPES',
+    '',
+    models
   );
 
   if (
@@ -326,15 +326,16 @@ export const checkFile = async (models: IModels, file, source?: string) => {
 /**
  * Create AWS instance
  */
-export const createAWS = async (models, ) => {
-  const AWS_ACCESS_KEY_ID = await getConfig(models, 'AWS_ACCESS_KEY_ID');
-  const AWS_SECRET_ACCESS_KEY = await getConfig(models, 'AWS_SECRET_ACCESS_KEY');
-  const AWS_BUCKET = await getConfig(models, 'AWS_BUCKET');
+export const createAWS = async (models?: IModels) => {
+  const AWS_ACCESS_KEY_ID = await getConfig('AWS_ACCESS_KEY_ID', '', models);
+  const AWS_SECRET_ACCESS_KEY = await getConfig('AWS_SECRET_ACCESS_KEY', '', models);
+  const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
   const AWS_COMPATIBLE_SERVICE_ENDPOINT = await getConfig(
-    models,
-    'AWS_COMPATIBLE_SERVICE_ENDPOINT'
+    'AWS_COMPATIBLE_SERVICE_ENDPOINT',
+    '',
+    models
   );
-  const AWS_FORCE_PATH_STYLE = await getConfig(models, 'AWS_FORCE_PATH_STYLE');
+  const AWS_FORCE_PATH_STYLE = await getConfig('AWS_FORCE_PATH_STYLE', '', models);
 
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
     throw new Error('AWS credentials are not configured');
@@ -365,13 +366,14 @@ export const createAWS = async (models, ) => {
 /**
  * Create Google Cloud Storage instance
  */
-const createGCS = async (models: IModels) => {
+const createGCS = async (models?: IModels) => {
   const GOOGLE_APPLICATION_CREDENTIALS = await getConfig(
-    models,
-    'GOOGLE_APPLICATION_CREDENTIALS'
+    'GOOGLE_APPLICATION_CREDENTIALS',
+    '',
+    models
   );
-  const GOOGLE_PROJECT_ID = await getConfig(models, 'GOOGLE_PROJECT_ID');
-  const BUCKET = await getConfig(models, 'GOOGLE_CLOUD_STORAGE_BUCKET');
+  const GOOGLE_PROJECT_ID = await getConfig('GOOGLE_PROJECT_ID', '', models);
+  const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET', '', models);
 
   if (!GOOGLE_PROJECT_ID || !GOOGLE_APPLICATION_CREDENTIALS || !BUCKET) {
     throw new Error('Google Cloud Storage credentials are not configured');
@@ -390,15 +392,15 @@ const createGCS = async (models: IModels) => {
  * Save binary data to amazon s3
  */
 export const uploadFileAWS = async (
-  models: IModels,
   file: { name: string; path: string; type: string },
-  forcePrivate: boolean = false
+  forcePrivate: boolean = false,
+  models?: IModels
 ): Promise<string> => {
   const IS_PUBLIC = forcePrivate
     ? false
-    : await getConfig(models, 'FILE_SYSTEM_PUBLIC', 'true');
-  const AWS_PREFIX = await getConfig(models, 'AWS_PREFIX', '');
-  const AWS_BUCKET = await getConfig(models, 'AWS_BUCKET');
+    : await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
+  const AWS_PREFIX = await getConfig('AWS_PREFIX', '', models);
+  const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
 
   // initialize s3
   const s3 = await createAWS(models);
@@ -438,8 +440,8 @@ export const uploadFileAWS = async (
 /*
  * Delete file from amazon s3
  */
-export const deleteFileAWS = async (models: IModels, fileName: string) => {
-  const AWS_BUCKET = await getConfig(models, 'AWS_BUCKET');
+export const deleteFileAWS = async (fileName: string, models?: IModels) => {
+  const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
 
   const params = { Bucket: AWS_BUCKET, Key: fileName };
 
@@ -490,14 +492,13 @@ export const uploadFileLocal = async (file: {
  * Save file to google cloud storage
  */
 export const uploadFileGCS = async (
-  models: IModels,
   file: {
   name: string;
   path: string;
   type: string;
-}): Promise<string> => {
-  const BUCKET = await getConfig(models, 'GOOGLE_CLOUD_STORAGE_BUCKET');
-  const IS_PUBLIC = await getConfig(models, 'FILE_SYSTEM_PUBLIC');
+}, models: IModels): Promise<string> => {
+  const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET', '', models);
+  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', '', models);
 
   // initialize GCS
   const storage = await createGCS(models);
@@ -546,8 +547,8 @@ const deleteFileLocal = async (fileName: string) => {
   });
 };
 
-const deleteFileGCS = async (models: IModels, fileName: string) => {
-  const BUCKET = await getConfig(models, 'GOOGLE_CLOUD_STORAGE_BUCKET');
+const deleteFileGCS = async (fileName: string, models?: IModels) => {
+  const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET', '', models);
 
   // initialize GCS
   const storage = await createGCS(models);
@@ -572,11 +573,11 @@ const deleteFileGCS = async (models: IModels, fileName: string) => {
 /**
  * Read file from GCS, AWS
  */
-export const readFileRequest = async (models: IModels, key: string): Promise<any> => {
-  const UPLOAD_SERVICE_TYPE = await getConfig(models, 'UPLOAD_SERVICE_TYPE', 'AWS');
+export const readFileRequest = async (key: string, models?: IModels, ): Promise<any> => {
+  const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS', models);
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {
-    const GCS_BUCKET = await getConfig(models, 'GOOGLE_CLOUD_STORAGE_BUCKET');
+    const GCS_BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET', '', models);
     const storage = await createGCS(models);
 
     const bucket = storage.bucket(GCS_BUCKET);
@@ -590,7 +591,7 @@ export const readFileRequest = async (models: IModels, key: string): Promise<any
   }
 
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    const AWS_BUCKET = await getConfig(models, 'AWS_BUCKET');
+    const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
     const s3 = await createAWS(models);
 
     return new Promise((resolve, reject) => {
@@ -636,22 +637,22 @@ export const readFileRequest = async (models: IModels, key: string): Promise<any
  * Save binary data to amazon s3
  */
 export const uploadFile = async (
-  models: IModels,
   apiUrl: string,
   file,
-  fromEditor = false
+  fromEditor = false,
+  models: IModels
 ): Promise<any> => {
-  const IS_PUBLIC = await getConfig(models, 'FILE_SYSTEM_PUBLIC');
-  const UPLOAD_SERVICE_TYPE = await getConfig(models, 'UPLOAD_SERVICE_TYPE', 'AWS');
+  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', '', models);
+  const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS', models);
 
   let nameOrLink = '';
 
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    nameOrLink = await uploadFileAWS(models, file);
+    nameOrLink = await uploadFileAWS(file, false, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {
-    nameOrLink = await uploadFileGCS(models, file);
+    nameOrLink = await uploadFileGCS(file, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'local') {
@@ -672,14 +673,14 @@ export const uploadFile = async (
 };
 
 export const deleteFile = async (models: IModels, fileName: string): Promise<any> => {
-  const UPLOAD_SERVICE_TYPE = await getConfig(models, 'UPLOAD_SERVICE_TYPE', 'AWS');
+  const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS', models);
 
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    return deleteFileAWS(models, fileName);
+    return deleteFileAWS(fileName, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {
-    return deleteFileGCS(models, fileName);
+    return deleteFileGCS(fileName, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'local') {
@@ -738,7 +739,7 @@ export const authCookieOptions = (options = {}) => {
   return cookieOptions;
 };
 
-export const getConfigs = async (models: IModels) => {
+export const getConfigs = async (models) => {
   const configsCache = await memoryStorage().get('configs_erxes_api');
 
   if (configsCache && configsCache !== '{}') {
@@ -757,7 +758,7 @@ export const getConfigs = async (models: IModels) => {
   return configsMap;
 };
 
-export const getConfig = async (models: IModels, code, defaultValue?) => {
+export const getConfig = async (code: string, defaultValue?: string, models?: IModels, ) => {
   const configs = await getConfigs(models);
 
   if (!configs[code]) {
@@ -905,15 +906,17 @@ export const sendMobileNotification = async (models: IModels, {
 };
 
 export const getFileUploadConfigs = async (models: IModels) => {
-  const AWS_ACCESS_KEY_ID = await getConfig(models, 'AWS_ACCESS_KEY_ID');
-  const AWS_SECRET_ACCESS_KEY = await getConfig(models, 'AWS_SECRET_ACCESS_KEY');
-  const AWS_BUCKET = await getConfig(models, 'AWS_BUCKET');
-  const AWS_COMPATIBLE_SERVICE_ENDPOINT = await getConfig(models,
-    'AWS_COMPATIBLE_SERVICE_ENDPOINT'
+  const AWS_ACCESS_KEY_ID = await getConfig('AWS_ACCESS_KEY_ID', '', models);
+  const AWS_SECRET_ACCESS_KEY = await getConfig('AWS_SECRET_ACCESS_KEY', '', models);
+  const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
+  const AWS_COMPATIBLE_SERVICE_ENDPOINT = await getConfig(
+    'AWS_COMPATIBLE_SERVICE_ENDPOINT',
+    '',
+    models
   );
-  const AWS_FORCE_PATH_STYLE = await getConfig(models, 'AWS_FORCE_PATH_STYLE');
+  const AWS_FORCE_PATH_STYLE = await getConfig('AWS_FORCE_PATH_STYLE', '', models);
 
-  const UPLOAD_SERVICE_TYPE = await getConfig(models, 'UPLOAD_SERVICE_TYPE', 'AWS');
+  const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS', models);
 
   return {
     AWS_FORCE_PATH_STYLE,

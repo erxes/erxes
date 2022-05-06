@@ -37,7 +37,7 @@ const sendInvitationEmail = (
   const DOMAIN = getEnv({ name: 'DOMAIN' });
   const confirmationUrl = `${DOMAIN}/confirmation?token=${token}`;
 
-  utils.sendEmail(models, subdomain, {
+  utils.sendEmail(subdomain, {
     toEmails: [email],
     title: 'Team member invitation',
     template: {
@@ -47,7 +47,7 @@ const sendInvitationEmail = (
         domain: DOMAIN
       }
     }
-  });
+  }, models);
 };
 
 const userMutations = {
@@ -182,7 +182,7 @@ const userMutations = {
 
     const link = `${DOMAIN}/reset-password?token=${token}`;
 
-    await utils.sendEmail(models, subdomain, {
+    await utils.sendEmail(subdomain, {
       toEmails: [email],
       title: 'Reset password',
       template: {
@@ -191,7 +191,7 @@ const userMutations = {
           content: link
         }
       }
-    });
+    }, models);
 
     return 'sent';
   },
