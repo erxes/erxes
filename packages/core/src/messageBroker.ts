@@ -256,6 +256,18 @@ export const initBroker = async options => {
     }
   );
 
+  consumeRPCQueue(
+    'core:users.updateMany',
+    async ({ subdomain, data: { selector, modifier } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Users.updateMany(selector, modifier)
+      };
+    }
+  );
+
   consumeRPCQueue("core:users.getCount", async ({ subdomain, data: { query } }) => {
     const models = await generateModels(subdomain);
 
