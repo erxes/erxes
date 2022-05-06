@@ -26,12 +26,6 @@ const generateFilterQuery = async ({ customerId, dealId, status }) => {
 
 const participantQueries = {
   participants: async (_root, params, { models }: IContext) => {
-    const testFolder = "/home/cook/work/federation/erxes/packages/plugin-tags-api";
-
-    fs.readdirSync(testFolder).forEach(file => {
-      console.log("+++++++++++++++++++++++++++++++ ",file);
-    });
-
     const qry = await generateFilterQuery(params);
 
     return paginate(models.Participants.find(qry).lean(), {
