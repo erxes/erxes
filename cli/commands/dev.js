@@ -69,6 +69,7 @@ module.exports.devCmd = async (program) => {
       env: {
         PORT: port,
         ...commonEnv,
+        ...((configs.core || {}).envs || {})
       },
     },
   ];
@@ -176,6 +177,7 @@ module.exports.devCmd = async (program) => {
       env: {
         PORT: 3700,
         ...commonEnv,
+        ...((configs.workers || {}).envs || {})
       },
     });
   }
@@ -190,6 +192,7 @@ module.exports.devCmd = async (program) => {
     env: {
       PORT: 4000,
       ...commonEnv,
+      ...((configs.gateway || {}).envs || {})
     },
   });
 
