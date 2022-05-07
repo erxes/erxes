@@ -967,7 +967,7 @@ export const sendMobileNotification = async (
   }
 };
 
-export const getFileUploadConfigs = async (models?: IModels) => {
+export const getFileUploadConfigs = async (models: IModels) => {
   const AWS_ACCESS_KEY_ID = await getConfig('AWS_ACCESS_KEY_ID', '', models);
   const AWS_SECRET_ACCESS_KEY = await getConfig(
     'AWS_SECRET_ACCESS_KEY',

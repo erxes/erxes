@@ -363,19 +363,11 @@ export const initBroker = async options => {
   });
 
   consumeRPCQueue('core:getFileUploadConfigs', async ({ subdomain }) => {
-    let data;
-    let models;
-
-    if (subdomain) {
-      models = await generateModels(subdomain);
-      data = await getFileUploadConfigs(models);
-    }
-
-    data = await getFileUploadConfigs();
+    const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data
+      data: await getFileUploadConfigs(models)
     };
   });
 

@@ -58,7 +58,7 @@ export const fetchSegment = (segmentId, options?) =>
   });
 
 export const getFileUploadConfigs = async () =>
-  sendRPCMessage('core:getFileUploadConfigs', { subdomain: 'os' });
+  sendRPCMessage('core:getFileUploadConfigs', {});
 
 export default function() {
   return client;
