@@ -58,30 +58,7 @@ export const fetchSegment = (segmentId, options?) =>
   });
 
 export const getFileUploadConfigs = async () =>
-  sendRPCMessage('core:getFileUploadConfigs', {});
-
-// export const fetchService = async (
-//   contentType: string,
-//   action: string,
-//   data,
-//   defaultValue?
-// ) => {
-//   const [serviceName, type] = contentType.split(':');
-
-//   return sendMessage({
-//     subdomain: 'os',
-//     serviceDiscovery,
-//     client,
-//     isRPC: true,
-//     serviceName,
-//     action: `fields.${action}`,
-//     data: {
-//       ...data,
-//       type
-//     },
-//     defaultValue
-//   });
-// };
+  sendRPCMessage('core:getFileUploadConfigs', { subdomain: 'os' });
 
 export default function() {
   return client;
