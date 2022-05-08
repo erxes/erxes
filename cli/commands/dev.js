@@ -8,13 +8,13 @@ module.exports.devOnly = async () => {
 };
 
 module.exports.devStop = async () => {
-  await execCommand('pm2 delete all');
-}
+  await execCommand("pm2 delete all");
+};
 
 module.exports.devCmd = async (program) => {
   const configs = await fse.readJSON(filePath("configs.json"));
 
-  const commonOptions = program.bash ? { interpreter: '/bin/bash' } : {};
+  const commonOptions = program.bash ? { interpreter: "/bin/bash" } : {};
 
   const enabledServices = [];
 
@@ -45,7 +45,7 @@ module.exports.devCmd = async (program) => {
     REDIS_PASSWORD: configs.redis.password,
     RABBITMQ_HOST: "amqp://localhost",
     ELASTICSEARCH_URL: "http://localhost:9200",
-    ENABLED_SERVICES_PATH: filePath('enabled-services.js')
+    ENABLED_SERVICES_PATH: filePath("enabled-services.js")
   };
 
   let port = 3300;
@@ -57,7 +57,7 @@ module.exports.devCmd = async (program) => {
       script: "yarn",
       args: "start",
       ...commonOptions,
-      ignore_watch: ["node_modules"],
+      ignore_watch: ["node_modules"]
     },
     {
       name: "core",
@@ -68,9 +68,17 @@ module.exports.devCmd = async (program) => {
       ignore_watch: ["node_modules"],
       env: {
         PORT: port,
+<<<<<<< HEAD
+        CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
+        ...commonEnv
+      }
+    }
+=======
         ...commonEnv,
+        ...((configs.core || {}).envs || {})
       },
     },
+>>>>>>> b60d833717b5931d55effaaa12fa376429c2b401
   ];
 
   log("Generated ui coreui .env file ....");
@@ -86,11 +94,13 @@ module.exports.devCmd = async (program) => {
     `
   );
 
-  await execCommand(`cd ${filePath(`../packages/core-ui`)} && yarn generate-doterxes`);
+  await execCommand(
+    `cd ${filePath(`../packages/core-ui`)} && yarn generate-doterxes`
+  );
 
   if (configs.widgets) {
     if (program.deps) {
-      log('Installing dependencies in widgets .........')
+      log("Installing dependencies in widgets .........");
       await execCommand(`cd ${filePath(`../widgets`)} && yarn install`);
     }
 
@@ -105,12 +115,12 @@ module.exports.devCmd = async (program) => {
     );
 
     apps.push({
-      name: 'widgets',
+      name: "widgets",
       cwd: filePath(`../widgets`),
       script: "yarn",
       args: "dev",
       ...commonOptions,
-      ignore_watch: ["node_modules"],
+      ignore_watch: ["node_modules"]
     });
   }
 
@@ -120,33 +130,45 @@ module.exports.devCmd = async (program) => {
     port++;
 
     if (plugin.ui) {
-      if (program.deps && plugin.ui === 'local') {
-        log(`Installing dependencies in ${plugin.name} .........`)
-        await execCommand(`cd ${filePath(`../packages/plugin-${plugin.name}-ui`)} && yarn install-deps`);
+      if (program.deps && plugin.ui === "local") {
+        log(`Installing dependencies in ${plugin.name} .........`);
+        await execCommand(
+          `cd ${filePath(
+            `../packages/plugin-${plugin.name}-ui`
+          )} && yarn install-deps`
+        );
       }
 
-      const uiConfigs = require(filePath(`../packages/plugin-${plugin.name}-ui/src/configs.js`));
+      const uiConfigs = require(filePath(
+        `../packages/plugin-${plugin.name}-ui/src/configs.js`
+      ));
 
-      if (plugin.ui === 'remote') {
+      if (plugin.ui === "remote") {
         if (uiConfigs.url) {
-          uiConfigs.url = (configs.ui_remote_url || '').replace('<name>', plugin.name);
+          uiConfigs.url = (configs.ui_remote_url || "").replace(
+            "<name>",
+            plugin.name
+          );
         }
 
         if (uiConfigs.routes) {
-          uiConfigs.routes.url = (configs.ui_remote_url || '').replace('<name>', plugin.name);
+          uiConfigs.routes.url = (configs.ui_remote_url || "").replace(
+            "<name>",
+            plugin.name
+          );
         }
       }
 
       uiPlugins.push(uiConfigs);
 
-      if (plugin.ui === 'local') {
+      if (plugin.ui === "local") {
         apps.push({
           name: `${plugin.name}-ui`,
           cwd: filePath(`../packages/plugin-${plugin.name}-ui`),
           script: "yarn",
           args: "start",
-        ...commonOptions,
-          ignore_watch: ["node_modules"],
+          ...commonOptions,
+          ignore_watch: ["node_modules"]
         });
       }
     }
@@ -160,37 +182,51 @@ module.exports.devCmd = async (program) => {
       ignore_watch: ["node_modules"],
       env: {
         PORT: port,
-        ...commonEnv,
-      },
+        ...commonEnv
+      }
     });
   }
 
   if (configs.workers) {
     apps.push({
-      name: 'workers',
+      name: "workers",
       cwd: filePath(`../packages/workers`),
       script: "yarn",
       args: "dev",
-        ...commonOptions,
+      ...commonOptions,
       ignore_watch: ["node_modules"],
       env: {
         PORT: 3700,
+<<<<<<< HEAD
+        ...commonEnv
+      }
+=======
         ...commonEnv,
+        ...((configs.workers || {}).envs || {})
       },
+>>>>>>> b60d833717b5931d55effaaa12fa376429c2b401
     });
   }
 
   apps.push({
-    name: 'gateway',
+    name: "gateway",
     cwd: filePath(`../packages/gateway`),
     script: "yarn",
     args: "dev",
-      ...commonOptions,
+    ...commonOptions,
     ignore_watch: ["node_modules"],
     env: {
       PORT: 4000,
+<<<<<<< HEAD
+      CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
+
+      ...commonEnv
+    }
+=======
       ...commonEnv,
+      ...((configs.gateway || {}).envs || {})
     },
+>>>>>>> b60d833717b5931d55effaaa12fa376429c2b401
   });
 
   // replace ui plugins.js
@@ -213,23 +249,27 @@ module.exports.devCmd = async (program) => {
 
   if (!program.ignoreRun) {
     log("starting core ....");
-    await execCommand('pm2 start ecosystem.config.js --only core');
+    await execCommand("pm2 start ecosystem.config.js --only core");
     await sleep(30000);
 
     for (const plugin of configs.plugins) {
       log(`starting ${plugin.name} ....`);
-      await execCommand(`pm2 start ecosystem.config.js --only ${plugin.name}-api`);
+      await execCommand(
+        `pm2 start ecosystem.config.js --only ${plugin.name}-api`
+      );
       await sleep(10000);
 
-      if (plugin.ui === 'local') {
-        await execCommand(`pm2 start ecosystem.config.js --only ${plugin.name}-ui`);
+      if (plugin.ui === "local") {
+        await execCommand(
+          `pm2 start ecosystem.config.js --only ${plugin.name}-ui`
+        );
         await sleep(10000);
       }
     }
 
     if (configs.workers) {
       log("starting workers ....");
-      await execCommand('pm2 start ecosystem.config.js --only workers');
+      await execCommand("pm2 start ecosystem.config.js --only workers");
       await sleep(10000);
     }
 
@@ -238,11 +278,11 @@ module.exports.devCmd = async (program) => {
     await sleep(10000);
 
     log("starting coreui ....");
-    await execCommand('pm2 start ecosystem.config.js --only coreui');
+    await execCommand("pm2 start ecosystem.config.js --only coreui");
 
     if (configs.widgets) {
       log("starting widgets ....");
-      await execCommand('pm2 start ecosystem.config.js --only widgets');
+      await execCommand("pm2 start ecosystem.config.js --only widgets");
     }
   }
 };
