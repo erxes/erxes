@@ -3,7 +3,7 @@ export interface ICommonDoc {
   createdAt: Date,
   usedAt: Date,
 
-  ownerType: String,
+  ownerType: string,
   ownerId: string,
   voucherCampaignId?: string,
 }

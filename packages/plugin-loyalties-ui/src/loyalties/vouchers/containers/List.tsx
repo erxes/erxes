@@ -100,7 +100,7 @@ const generateParams = ({ queryParams }) => ({
   ownerType: queryParams.ownerType,
   searchValue: queryParams.searchValue,
   sortField: queryParams.sortField,
-  sortDirection: parseInt(queryParams.sortDirection) || undefined
+  sortDirection: Number(queryParams.sortDirection) || undefined
 });
 
 const generateOptions = () => ({
