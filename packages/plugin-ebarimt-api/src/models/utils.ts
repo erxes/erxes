@@ -46,6 +46,69 @@ export class PutData<IListArgs extends IPutDataArgs> {
     this.config = params.config;
   }
 
+  public async run(): Promise<IPutResponse> {
+    const url = this.config.ebarimtUrl || '';
+    this.districtCode = DISTRICTS[this.config.districtName] || '';
+    const rd = this.config.companyRD || '';
+    this.vatPercent = Number(this.config.vatPercent) || 0;
+    this.cityTaxPercent = Number(this.config.cityTaxPercent) || 0;
+    this.defaultGScode = this.config.defaultGSCode || '';
+
+    const { contentType, contentId } = this.params;
+
+    if (!this.districtCode) {
+      throw new Error('Not validate District');
+    }
+
+    this.transactionInfo = await this.generateTransactionInfo();
+
+    const prePutResponse = await this.models.PutResponses.putHistories({
+      contentType,
+      contentId
+    });
+
+    if (prePutResponse) {
+      this.transactionInfo.returnBillId = prePutResponse.billId;
+    }
+
+    const resObj = await this.models.PutResponses.createPutResponse({
+      sendInfo: { ...this.transactionInfo },
+      contentId,
+      contentType
+    });
+
+    const responseStr = await sendRequest({
+      url: `${url}/put?lib=${rd}`,
+      method: 'POST',
+      body: { data: this.transactionInfo },
+      params: { data: this.transactionInfo }
+    });
+
+    const response = JSON.parse(responseStr);
+
+    if (
+      response.billType === '1' &&
+      response.lottery === '' &&
+      response.success
+    ) {
+      if (prePutResponse) {
+        response.lottery = prePutResponse.lottery;
+      } else {
+        response.getInformation = await sendRequest({
+          url: `${url}/getInformation?lib=${rd}`,
+          method: 'GET'
+        });
+      }
+    }
+
+    await this.models.PutResponses.updatePutResponse(resObj._id, {
+      ...response,
+      customerName: this.params.customerName
+    });
+
+    return this.models.PutResponses.findOne({ _id: resObj._id }).lean();
+  }
+
   private async generateStock(detail, vat, citytax) {
     if (!detail.count) {
       return;
@@ -121,69 +184,6 @@ export class PutData<IListArgs extends IPutDataArgs> {
       // # Хэрвээ буцаах гэж байгаа бол түүний ДДД
       returnBillId: this.params.returnBillId
     };
-  }
-
-  public async run(): Promise<IPutResponse> {
-    const url = this.config.ebarimtUrl || '';
-    this.districtCode = DISTRICTS[this.config.districtName] || '';
-    const rd = this.config.companyRD || '';
-    this.vatPercent = Number(this.config.vatPercent) || 0;
-    this.cityTaxPercent = Number(this.config.cityTaxPercent) || 0;
-    this.defaultGScode = this.config.defaultGSCode || '';
-
-    const { contentType, contentId } = this.params;
-
-    if (!this.districtCode) {
-      throw new Error('Not validate District');
-    }
-
-    this.transactionInfo = await this.generateTransactionInfo();
-
-    const prePutResponse = await this.models.PutResponses.putHistories({
-      contentType,
-      contentId
-    });
-
-    if (prePutResponse) {
-      this.transactionInfo.returnBillId = prePutResponse.billId;
-    }
-
-    const resObj = await this.models.PutResponses.createPutResponse({
-      sendInfo: { ...this.transactionInfo },
-      contentId,
-      contentType
-    });
-
-    const responseStr = await sendRequest({
-      url: `${url}/put?lib=${rd}`,
-      method: 'POST',
-      body: { data: this.transactionInfo },
-      params: { data: this.transactionInfo }
-    });
-
-    const response = JSON.parse(responseStr);
-
-    if (
-      response.billType === '1' &&
-      response.lottery === '' &&
-      response.success
-    ) {
-      if (prePutResponse) {
-        response.lottery = prePutResponse.lottery;
-      } else {
-        response.getInformation = await sendRequest({
-          url: `${url}/getInformation?lib=${rd}`,
-          method: 'GET'
-        });
-      }
-    }
-
-    await this.models.PutResponses.updatePutResponse(resObj._id, {
-      ...response,
-      customerName: this.params.customerName
-    });
-
-    return this.models.PutResponses.findOne({ _id: resObj._id }).lean();
   }
 }
 
