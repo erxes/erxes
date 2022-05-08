@@ -8,6 +8,7 @@ import { initBrokerErkhet } from './messageBrokerErkhet';
 import { initMemoryStorage } from './inmemoryStorage';
 import afterMutations from './afterMutations';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import * as permissions from './permissions';
 
 export let debug;
 export let graphqlPubsub;
@@ -23,18 +24,7 @@ export let es: {
 
 export default {
   name: 'syncerkhet',
-  permissions: {
-    syncerkhet: {
-      name: 'erkhet',
-      description: 'Erkhet',
-      actions: [
-        {
-          name: 'syncErkhetConfig',
-          description: 'Manage erkhet config'
-        }
-      ]
-    },
-  },
+  permissions,
   graphql: async (sd) => {
     serviceDiscovery = sd;
     return {

@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   engages: {
     name: "exmfeed",
     description: "Exm feed",

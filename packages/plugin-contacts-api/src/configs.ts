@@ -16,7 +16,7 @@ import tags from './tags'
 import internalNotes from './internalNotes';
 import automations from './automations';
 import search from './search';
-import permissions from './permissions';
+import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 

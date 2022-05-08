@@ -8,6 +8,10 @@ import { ITaskDocument } from "../../../models/definitions/tasks";
 import { boardId } from "../../utils";
 
 export default {
+  __resolveReference({ _id }, { models }: IContext) {
+    return models.Tasks.findOne({ _id });
+  },
+
   async companies(task: ITaskDocument, _args, { subdomain }: IContext) {
     const companyIds = await sendCoreMessage({
       subdomain,

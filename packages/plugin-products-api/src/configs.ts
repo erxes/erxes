@@ -9,7 +9,7 @@ import logs from './logUtils';
 import tags from './tags';
 import internalNotes from './internalNotes';
 import forms from './forms';
-import permissions from './permissions';
+import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let debug;

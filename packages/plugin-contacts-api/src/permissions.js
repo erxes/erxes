@@ -1,4 +1,4 @@
-export default {
+module.exports = {
     companies: {
       name: 'companies',
       description: 'Companies',

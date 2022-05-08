@@ -27,16 +27,6 @@ export const types = ({ cardsEnabled, formsEnabled }) => {
         }`
         : ""
     }
-
-    ${
-      cardsEnabled
-        ? `
-        extend type Deal @key(fields: "_id") {
-          _id: String! @external
-        }
-       `
-        : ""
-    }
   `;
 };
 
@@ -49,7 +39,8 @@ const listQueryParams = `
     priceRange: String
     district: String
     customFields: JSON
-    stageOrder: Int
+    stageCode: String
+    stageId: String
     limit: Int
     skip: Int
  `;
