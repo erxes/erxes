@@ -9,8 +9,25 @@ import { ICompany } from "@erxes/ui/src/companies/types";
 import { ICustomer } from "@erxes/ui/src/customers/types";
 import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
 import React from "react";
-import { generateRandomColor } from "utils";
 import { NavItem } from "modules/layout/components/QuickNavigation";
+
+const PLUGIN_LABEL_COLORS: string[] = [
+  "",
+  "#F44336", // RED
+  "#E91E63", // PINK
+  "#9C27B0", // PURPLE
+  "#673AB7", // DEEP PURPLE
+  "#3F51B5", // INDIGO
+  "#2196F3", // BLUE
+  "#00BCD4", // CYAN
+  "#009688", // TEAL
+  "#4CAF50", // GREEN
+  "#8BC34A", // LIGHT GREEN
+  "#CDDC39", // LIME
+  "#FFC107", // AMBER
+  "#FF9800", // ORANGE
+  "#FF5722", // DEEP ORANGE
+]
 
 const PluginsWrapper = ({
   itemName,
@@ -212,20 +229,21 @@ export const pluginsSettingsNavigations = (
   const plugins: any[] = (window as any).plugins || [];
   const navigationMenus: any[] = [];
 
-  for (const plugin of plugins) {
-    for (let i = 0; i < plugins.length; i++) {
-      plugin.color = generateRandomColor();
-    }
-
-    const hasComponent = Object.keys(plugin.exposes).includes("./settings");
-
-    for (const menu of plugin.menus || []) {
+  for (let i = 0; i < plugins.length; i++) {
+    if (i >= PLUGIN_LABEL_COLORS.length)
+      plugins[i].color = PLUGIN_LABEL_COLORS[i - PLUGIN_LABEL_COLORS.length];
+    else
+      plugins[i].color = PLUGIN_LABEL_COLORS[i];
+  
+    const hasComponent = Object.keys(plugins[i].exposes).includes("./settings");
+  
+    for (const menu of plugins[i].menus || []) {
       if (menu.location === "settings") {
         navigationMenus.push(
           <React.Fragment key={menu.text}>
             <SettingsCustomBox
               settingsNav={menu}
-              color={plugin.color}
+              color={plugins[i].color}
               renderBox={renderBox}
               hasComponent={hasComponent}
             />
