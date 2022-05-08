@@ -12,8 +12,6 @@ import {
   LastConversationQueryResponse,
 } from "@erxes/ui-inbox/src/inbox/types";
 import { generateParams } from "@erxes/ui-inbox/src/inbox/utils";
-import ErrorBoundary from "@erxes/ui/src/errorBoundary";
-
 interface IRouteProps {
   queryParams: any;
   history: any;
@@ -74,33 +72,31 @@ class WithCurrentId extends React.Component<IProps> {
 
   render() {
     return (
-      <ErrorBoundary>
-        <AppConsumer>
-          {({ currentUser }) => {
-            const { queryParams } = this.props;
-            const { _id } = queryParams;
+      <AppConsumer>
+        {({ currentUser }) => {
+          const { queryParams } = this.props;
+          const { _id } = queryParams;
 
-            if (!currentUser) {
-              return null;
-            }
+          if (!currentUser) {
+            return null;
+          }
 
-            if (!_id || !can("showConversations", currentUser)) {
-              return (
-                <Empty queryParams={queryParams} currentUser={currentUser} />
-              );
-            }
-
+          if (!_id || !can("showConversations", currentUser)) {
             return (
-              <WithRefetchHandling>
-                <InboxCore
-                  queryParams={queryParams}
-                  currentConversationId={_id}
-                />
-              </WithRefetchHandling>
+              <Empty queryParams={queryParams} currentUser={currentUser} />
             );
-          }}
-        </AppConsumer>
-      </ErrorBoundary>
+          }
+
+          return (
+            <WithRefetchHandling>
+              <InboxCore
+                queryParams={queryParams}
+                currentConversationId={_id}
+              />
+            </WithRefetchHandling>
+          );
+        }}
+      </AppConsumer>
     );
   }
 }

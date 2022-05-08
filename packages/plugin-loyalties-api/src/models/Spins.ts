@@ -103,16 +103,18 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
 
       const awards = spinCampaign.awards || [];
 
-      const intervals: { awardId: string, min: number, max: number }[] = [];
+      interface IInterval { awardId: string, min: number, max: number };
+      const intervals: IInterval[] = [];
       let intervalBegin = 0;
-      for (const award of awards) {
+
+      for (const awrd of awards) {
         const min = intervalBegin;
-        const max = intervalBegin + award.probability;
+        const max = intervalBegin + awrd.probability;
         intervals.push({
-          awardId: award._id,
+          awardId: awrd._id,
           min, max
         })
-        intervalBegin = intervalBegin + award.probability;
+        intervalBegin = intervalBegin + awrd.probability;
       }
 
       const random = randomBetween(0, 100);

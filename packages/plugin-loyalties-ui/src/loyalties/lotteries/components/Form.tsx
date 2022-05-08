@@ -46,7 +46,7 @@ class LotteryForm extends React.Component<Props, State> {
     }
 
     this.state = {
-      lottery: lottery
+      lottery
     };
   }
 
@@ -211,7 +211,7 @@ class LotteryForm extends React.Component<Props, State> {
               customQuery={voucherCampaignQueries.voucherCampaigns}
               label='Choose voucher campaign'
               name='voucherCampaignId'
-              onSelect={() => { }}
+              onSelect={() => { return; }}
               initialValue={lottery.voucherCampaignId}
               filterParams={{ voucherType: 'lottery' }}
             />

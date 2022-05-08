@@ -45,7 +45,7 @@ class VoucherForm extends React.Component<Props, State> {
     }
 
     this.state = {
-      voucher: voucher
+      voucher
     };
   }
 

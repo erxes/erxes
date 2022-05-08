@@ -160,7 +160,7 @@ app.get("/read-file", async (req: any, res, next) => {
       return res.send("Invalid key");
     }
 
-    const response = await readFileRequest(models, key);
+    const response = await readFileRequest(key, models);
 
     res.attachment(name || key);
 

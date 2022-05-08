@@ -57,7 +57,7 @@ const getCustomFieldsDataWithValue = async (customFieldsData: any) => {
 const getProducts = async (productIds: string[]) => {
   return sendCommonMessage({
     subdomain: "os",
-    data: { _id: { $in: productIds } },
+    data: { query: { _id: { $in: productIds } } },
     action: "find",
     serviceName: "products",
     defaultValue: [],
@@ -81,10 +81,10 @@ const getAssignedUsers = async (assignedUserIds: string[]) => {
   return assignedUsers;
 };
 
-const getStage = async (deal: any) => {
+const getStage = async (query: any) => {
   const stage = await sendCommonMessage({
     subdomain: "os",
-    data: { _id: deal.stageId },
+    data: query,
     action: "stages.findOne",
     serviceName: "cards",
     isRPC: true,
@@ -94,9 +94,6 @@ const getStage = async (deal: any) => {
 };
 
 const queries = {
-  /**
-   * Group engage messages counts by kind, status, tag
-   */
   async dealsForRentpay(
     _root,
     {
@@ -108,6 +105,7 @@ const queries = {
       customerIds,
       buyerIds,
       waiterIds,
+      stageCode,
       stageId,
       limit,
       skip,
@@ -161,8 +159,11 @@ const queries = {
 
     let dealFilter: any = {};
 
+    let productIds: any[] = [];
+    let products: any[] = [];
+
     if (Object.keys(filter).length > 0) {
-      const products = await sendCommonMessage({
+      products = await sendCommonMessage({
         subdomain: "os",
         data: { query: filter },
         action: "find",
@@ -171,9 +172,16 @@ const queries = {
         isRPC: true,
       });
 
-      const productIds = products.map(p => p._id);
+      if (products.length === 0) {
+        return {
+          list: [],
+          totalCount: 0,
+        };
+      }
 
-      dealFilter["productsData.productId"] = { $in: productIds };
+      productIds = products.map(p => p._id);
+
+      dealFilter["productsData.productId"] = { $in: [...new Set(productIds)] };
     } else {
       dealFilter["productsData.0"] = { $exists: true };
     }
@@ -291,6 +299,10 @@ const queries = {
 
     if (stageId) {
       dealFilter.stageId = stageId;
+    } else if (stageCode) {
+      const stage = await getStage({ code: stageCode });
+
+      dealFilter.stageId = stage._id;
     }
 
     const deals = await sendCommonMessage({
@@ -307,14 +319,19 @@ const queries = {
       isRPC: true,
     });
 
-    const productIds: string[] = deals.map(
-      deal => deal.productsData[0].productId
-    );
+    if (deals.length === 0) {
+      return {
+        list: [],
+        totalCount: 0,
+      };
+    }
 
-    let products: any[] = [];
+    if (productIds.length === 0) {
+      productIds = deals.map(deal => deal.productsData[0].productId);
 
-    if (productIds.length > 0) {
-      products = await getProducts(productIds);
+      if (productIds.length > 0) {
+        products = await getProducts([...new Set(productIds)]);
+      }
     }
 
     const assignedUserIds: string[] = deals.flatMap(
@@ -335,7 +352,9 @@ const queries = {
         (deal.assignedUserIds || []).includes(user._id)
       );
 
-      deal.stage = stageId ? {} : await getStage(deal);
+      if (!stageId) {
+        deal.stage = await getStage({ _id: deal.stageId });
+      }
 
       const product = products.find(
         p => p._id === deal.productsData[0].productId

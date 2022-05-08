@@ -46,7 +46,7 @@ class SpinForm extends React.Component<Props, State> {
     }
 
     this.state = {
-      spin: spin
+      spin
     };
   }
 
@@ -199,7 +199,7 @@ class SpinForm extends React.Component<Props, State> {
               customQuery={voucherCampaignQueries.voucherCampaigns}
               label='Choose voucher campaign'
               name='voucherCampaignId'
-              onSelect={() => { }}
+              onSelect={() => { return; }}
               initialValue={spin.voucherCampaignId}
               filterParams={{ voucherType: 'spin' }}
             />
