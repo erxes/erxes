@@ -1,7 +1,24 @@
 import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
 
+export const getPureDate = (date: Date) => {
+  const ndate = new Date(date);
+  const diffTimeZone = ndate.getTimezoneOffset() * 1000 * 60;
+  return new Date(ndate.getTime() - diffTimeZone);
+};
+
+export const getFullDate = (date: Date) => {
+  const ndate = getPureDate(date);
+  const year = ndate.getFullYear();
+  const month = ndate.getMonth();
+  const day = ndate.getDate();
+
+  const today = new Date(year, month, day);
+  today.setHours(0, 0, 0, 0);
+  return today;
+};
+
 export const validCampaign = (doc) => {
-  if (!doc.startDate || doc.startDate < new Date()) {
+  if (!doc.startDate || getFullDate(doc.startDate) < getFullDate(new Date())) {
     throw new Error('The start date must be in the future')
   }
 
@@ -43,23 +60,26 @@ const generateRandom = (type: string, len: number) => {
 
 export const getRandomNumber = (number) => {
   const re = /{ \[.-..?\] \* [0-9]* }/g;
-  const items = number.match(/{ \[.-..?\] \* [0-9]* }|./g)
+  const items = number.match(/{ \[.-..?\] \* [0-9]* }|./g);
 
-  const result: string[] = []
+  const result: string[] = [];
   for (const item of items) {
     let str = item;
 
     if (re.test(str)) {
       const key = (str.match(/\[.-..?\]/g)[0] || '').replace('[', '').replace(']', '');
-      const len = parseInt((str.match(/ \* [0-9]* /g)[0] || '').substring(3) || 0);
+      let len = Number((str.match(/ \* [0-9]* /g)[0] || '').substring(3) || '0');
+      if (isNaN(len)) {
+        len = 8;
+      }
 
-      str = generateRandom(key, len)
+      str = generateRandom(key, len);
     }
 
-    result.push(str)
+    result.push(str);
   }
 
-  return result.join('')
+  return result.join('');
 }
 
 export const getOwner = async (subdomain, ownerType, ownerId) => {

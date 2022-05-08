@@ -105,18 +105,3 @@ export const commonSchema = {
   ownerType: field({ type: String, label: 'Owner Type', enum: OWNER_TYPES.ALL }),
   ownerId: field({ type: String }),
 }
-
-export const validCampaign = (doc) => {
-  if (!doc.startDate || doc.startDate < new Date()) {
-    throw new Error('The start date must be in the future')
-  }
-
-  if (doc.endDate && doc.startDate > doc.endDate) {
-    throw new Error('The end date must be after from start date')
-  }
-
-  if (doc.finishDateOfUse && doc.endDate > doc.finishDateOfUse) {
-    throw new Error('The finish date of use must be after from end date')
-  }
-}
-

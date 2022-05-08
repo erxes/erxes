@@ -96,7 +96,7 @@ export const loadVoucherCampaignClass = (models: IModels, _subdomain: string) =>
       return models.VoucherCampaigns.updateOne({ _id }, { $set: doc });
     }
 
-    public static async removeVoucherCampaigns(ids: [String]) {
+    public static async removeVoucherCampaigns(ids: string[]) {
       const atVoucherIds = await models.Vouchers.find({
         voucherCampaignId: { $in: ids }
       }).distinct('voucherCampaignId');

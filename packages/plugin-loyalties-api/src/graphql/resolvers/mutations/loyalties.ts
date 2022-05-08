@@ -107,7 +107,7 @@ const loyaltiesMutations = {
       });
 
       sendCoreMessage({
-        subdomain: subdomain,
+        subdomain,
         action: "sendMobileNotification",
         data: {
           title: `${owner.details.fullName} sent score to you`,
