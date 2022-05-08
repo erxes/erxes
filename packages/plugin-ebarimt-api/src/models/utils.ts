@@ -1,6 +1,6 @@
 import { DISTRICTS } from './constants';
 import { sendRequest } from '@erxes/api-utils/src';
-import { IPutResponse } from '../../../../../../temp/erxes-pos/ui/src/modules/orders/types';
+import { IPutResponse } from './definitions/ebarimt';
 
 const format_number = (num: number) => {
   return num.toFixed(2);
