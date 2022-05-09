@@ -2,7 +2,7 @@
  <img src="docs/static/img/logo_dark.svg" alt="erxes logo" width="20%" />
 </p>
 
-<p align="center">erxes is an open fair-code licensed all-in-one growth marketing & management software. We offer an all-in-one solution for sales, marketing, and customer service teams, with a focus on the entire customer experience.</p>
+<p align="center">erxes is a free and open fair-code licensed experience operating system (XOS). By adopting a plugin-based architecture, erxes provides more monetization options, better security and privacy, and near-infinite scalability for developers & independent agencies to their clients.</p>
 
 <p align="center">
   <a href="https://app.codacy.com/gh/erxes/erxes?utm_source=github.com&utm_medium=referral&utm_content=erxes">
@@ -30,7 +30,7 @@ With erxes, achieving growth and unity within your company is possible. We desig
 - Leverage growth marketing and scale your business with **Growth Hacking** ready-made templates and prioritize with different metrics and scoring systems
 - Convert more prospects with email, SMS, and in-app chat **Campaigns**
 - Never miss a potential lead by capturing them with a customizable **Forms**
-- Track your entire sales and drive leads to a successful close with our Kansan-style boards in the **Sales Pipeline**
+- Track your entire sales and drive leads to a successful close with our Kanban-style boards in the **Sales Pipeline**
 - Coordinate and manage all your customer interactions in the **Contact Management**
 - Stay in sync with your customers and staff with **Team Inbox**
 - Connect with your customers in continuous real-time omnichannel with **Messenger**
