@@ -119,6 +119,22 @@ export const putCreateLog = async (
     });
   }
 
+
+  const isWebhooksAvailable = await messageBroker.sendRPCMessage(
+    'gateway:isServiceAvailable',
+    'webhooks'
+  );
+  
+  if(isWebhooksAvailable) {
+    messageBroker.sendMessage('webhooks:send', {
+      data: {
+        action: LOG_ACTIONS.CREATE,
+        type: params.type,
+        params
+      }
+    });
+  }
+
   return putLog(messageBroker, { ...params, action: LOG_ACTIONS.CREATE }, user);
 };
 
@@ -146,6 +162,21 @@ export const putUpdateLog = async (
     });
   }
 
+  const isWebhooksAvailable = await messageBroker.sendRPCMessage(
+    'gateway:isServiceAvailable',
+    'webhooks'
+  );
+
+  if(isWebhooksAvailable) {
+    messageBroker.sendMessage('webhooks:send', {
+      data: {
+        action: LOG_ACTIONS.UPDATE,
+        type: params.type,
+        params
+      }
+    });
+  }
+
   return putLog(messageBroker, { ...params, action: LOG_ACTIONS.UPDATE }, user);
 };
 
@@ -159,6 +190,21 @@ export const putDeleteLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
+  const isWebhooksAvailable = await messageBroker.sendRPCMessage(
+    'gateway:isServiceAvailable',
+    'webhooks'
+  );
+
+  if(isWebhooksAvailable) {
+    messageBroker.sendMessage('webhooks:send', {
+      data: {
+        action: LOG_ACTIONS.DELETE,
+        type: params.type,
+        params
+      }
+    });
+  }
+
   return putLog(messageBroker, { ...params, action: LOG_ACTIONS.DELETE }, user);
 };
 

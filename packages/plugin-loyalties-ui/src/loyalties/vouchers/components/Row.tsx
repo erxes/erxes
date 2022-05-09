@@ -117,7 +117,7 @@ class VoucherRow extends React.Component<Props> {
         <td key={'ownerType'}>{this.displayValue(voucher, 'ownerType')}</td>
         <td key={'ownerId'} onClick={onClick}>{this.renderOwner()}</td>
         <td key={'status'}>{this.displayValue(voucher, 'status')}</td>
-        <td key={'actions'} onClick={onClick}></td>
+        <td key={'actions'} onClick={onClick}>.</td>
       </tr>
     );
 

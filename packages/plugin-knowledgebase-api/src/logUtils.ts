@@ -10,7 +10,7 @@ import {
 import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 
 import { LOG_MAPPINGS, MODULE_NAMES } from './constants';
-import messageBroker, { sendCoreMessage, sendWebhooksMessage } from './messageBroker';
+import messageBroker, { sendCoreMessage } from './messageBroker';
 import { IArticleDocument, ICategoryDocument, ITopicDocument } from "./models/definitions/knowledgebase";
 import { IModels } from './connectionResolver';
 
@@ -258,18 +258,6 @@ export const putCreateLog = async (models: IModels, subdomain: string, logDoc, u
       action: LOG_ACTIONS.CREATE
     }
   );
-
-  console.log('creating............')
-  await sendWebhooksMessage({
-    subdomain,
-    action: "sendToWebhook",
-    data: {
-      action: "create",
-      type: "knowledgebase:knowledgeBaseArticle",
-      params: logDoc
-    },
-    
-  })
 
   await commonPutCreateLog(
     messageBroker(),

@@ -29,7 +29,10 @@ const readEnabledServices = async () => {
   const enabledServices = require(ENABLED_SERVICES_PATH);
 
   await redis.del('enabled-services');
-  await redis.rpush('enabled-services', ...enabledServices);
+
+  if (enabledServices && enabledServices.length > 0) {
+    await redis.rpush('enabled-services', ...enabledServices);
+  }
 
   return enabledServices;
 }
@@ -89,22 +92,18 @@ export const join = async ({
     })
   );
 
+  const address = LOAD_BALANCER_ADDRESS || `http://${isDev ? "localhost" : `plugin-${name}-api`}:${port}`;
+
   await redis.set(
     `service:${name}`,
-    LOAD_BALANCER_ADDRESS || `http://${isDev ? "localhost" : `plugin-${name}-api`}:${port}`
+    address
   )
+
+  console.log(`$service:${name} joined with ${address}`);
 };
 
 export const leave = async (name, _port) => {
-  await redis.del(`service:${name}`);
-
-  try {
-    await redis.del(`service:queuenames:${name}`);
-  } catch (e) {
-    console.log(`error during service:queuenames delete ${e.message}`);
-  }
-
-  return redis.del(generateKey(name));
+  console.log(`$service:${name} left`);
 };
 
 export const isAvailable = async (name) => {

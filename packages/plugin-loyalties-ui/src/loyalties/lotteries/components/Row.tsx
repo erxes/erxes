@@ -109,7 +109,7 @@ class LotteryRow extends React.Component<Props> {
         <td key={'ownerType'}>{this.displayValue(lottery, 'ownerType')}</td>
         <td key={'ownerId'} onClick={onClick}>{this.renderOwner()}</td>
         <td key={'status'}>{this.displayValue(lottery, 'status')}</td>
-        <td key={'actions'} onClick={onClick}></td>
+        <td key={'actions'} onClick={onClick}>.</td>
       </tr>
     );
 

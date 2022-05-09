@@ -10,7 +10,7 @@ import { debugBase } from "./debuggers";
 import { initBroker } from "./messageBroker";
 import { generateModels } from "./connectionResolver";
 import { getSubdomain } from "@erxes/api-utils/src/core";
-import permissions from "./permissions";
+import * as permissions from "./permissions";
 
 export let graphqlPubsub;
 export let serviceDiscovery;

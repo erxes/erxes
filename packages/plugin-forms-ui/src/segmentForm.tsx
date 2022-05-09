@@ -8,8 +8,9 @@ import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 
 import Spinner from '@erxes/ui/src/components/Spinner';
-import queries from './queries';
 import { FormsQueryResponse } from '@erxes/ui-forms/src/forms/types';
+import { queries } from '@erxes/ui-leads/src/graphql';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 
 type Props = {
   type: string;
@@ -36,10 +37,10 @@ class Form extends React.Component<any, any, any> {
     }
 
     const { formId } = config;
-    const forms = formsQuery.forms || [];
+    const forms = formsQuery.integrations || [];
 
     if (forms[0] && !formId) {
-      this.props.onChangeConfig({ formId: forms[0]._id });
+      this.props.onChangeConfig({ formId: forms[0].formId });
     }
 
     return (
@@ -48,7 +49,7 @@ class Form extends React.Component<any, any, any> {
           <ControlLabel>Form</ControlLabel>
           <Select
             value={formId}
-            options={forms.map(b => ({ value: b._id, label: b.title }))}
+            options={forms.map(b => ({ value: b.formId, label: b.name }))}
             onChange={this.onChangeForm.bind(this, 'formId')}
           />
         </FormGroup>
@@ -59,8 +60,15 @@ class Form extends React.Component<any, any, any> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, FormsQueryResponse, {}>(gql(queries.forms), {
-      name: 'formsQuery'
+    graphql<Props, FormsQueryResponse, {}>(gql(queries.integrations), {
+      name: 'formsQuery',
+      options: ({}) => {
+        return {
+          variables: {
+            kind: INTEGRATION_KINDS.FORMS
+          }
+        };
+      }
     })
   )(Form)
 );

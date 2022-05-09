@@ -169,7 +169,13 @@ export class Builder extends CommonBuilder<IListArgs> {
   }
 
   public async findAllMongo(limit: number) {
-    const activeIntegrations = await findIntegrations(this.subdomain, { _id: 1 });
+    const activeIntegrations = await findIntegrations(
+      this.subdomain,
+      {},
+      {
+        _id: 1,
+      }
+    );
 
     const selector = {
       ...this.context.commonQuerySelector,

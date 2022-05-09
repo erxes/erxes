@@ -40,6 +40,25 @@ const sendNotification = async (
   // remove duplicated ids
   const receiverIds = [...Array.from(new Set(receivers))];
 
+  await sendCoreMessage({
+    subdomain,
+    action: 'users.updateMany',
+    data: {
+      selector: {
+        _id: { $in: receiverIds }
+      },
+      modifier: {
+        $set: { isShowNotification: false }
+      }
+    }
+  });
+
+  for (const userId of doc.receivers) {
+    graphqlPubsub.publish('userChanged', {
+      userChanged: { userId }
+    });
+  }
+
   // collecting emails
   const recipients = await sendCoreMessage({
     subdomain,

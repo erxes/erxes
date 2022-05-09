@@ -8,6 +8,10 @@ import { ITicketDocument } from "../../../models/definitions/tickets";
 import { boardId } from "../../utils";
 
 export default {
+  __resolveReference({ _id }, { models }: IContext) {
+    return models.Tickets.findOne({ _id });
+  },
+
   async companies(ticket: ITicketDocument, _args, { subdomain }: IContext) {
     const companyIds = await sendCoreMessage({
       subdomain,

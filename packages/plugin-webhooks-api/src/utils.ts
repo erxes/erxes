@@ -3,8 +3,9 @@ import { IModels } from "./connectionResolver";
 import { serviceDiscovery } from './configs'
 import { sendCommonMessage } from "./messageBroker";
 
-export const sendToWebhook = async (
+export const send = async (
   models: IModels,
+  subdomain: string,
   { action, type, params }: { action: string; type: string; params: any }
 ) => {
   const webhooks = await models.Webhooks.find({
@@ -27,7 +28,7 @@ export const sendToWebhook = async (
     }
 
     const { slackContent, content, url } = await prepareWebhookContent(
-      models,
+      subdomain,
       type,
       action,
       data
@@ -51,14 +52,13 @@ export const sendToWebhook = async (
       .then(async () => {
         await models.Webhooks.updateStatus(webhook._id, 'available');
       })
-      .catch(async (e) => {
-        console.log('catching error', e)
+      .catch(async () => {
         await models.Webhooks.updateStatus(webhook._id, 'unavailable');
       });
   }
 };
 
-const prepareWebhookContent = async (_models, type, action, data) => {
+const prepareWebhookContent = async (subdomain: string, type, action, data) => {
   const [serviceName, contentType] = type.split(':');
 
   let actionText = 'created';
@@ -72,115 +72,38 @@ const prepareWebhookContent = async (_models, type, action, data) => {
     case 'delete':
       actionText = 'has been deleted';
       break;
-    // ! case 'createBoardItemMovementLog':
-    //   content = `${type} with name ${
-    //     data.data.item.name || ''
-    //   } has moved from ${data.data.activityLogContent.text}`;
-    //   url = data.data.link;
     default:
       actionText = 'has been created';
       break;
   }
 
-    // * [contacts, inbox, cards]
-    const services = await serviceDiscovery.getServices();
+  const isEnabled = await serviceDiscovery.isEnabled(serviceName);
 
-    // * contacts === 1
-    const isServiceExist = services.indexOf(serviceName);
-
-    if(isServiceExist !== -1) {
-      // * contacts
+    if (isEnabled) {
       const service = await serviceDiscovery.getService(serviceName, true);
 
-      // * contacts meta
       const meta = service.config?.meta || {};
-      
+
       if (meta && meta.webhooks && meta.webhooks.getInfoAvailable) {
-        // * send msg to contacts
         const response = await sendCommonMessage({
-          subdomain: 'os',
+          subdomain,
           action: 'webhooks.getInfo',
           serviceName,
           data: {
             data,
             actionText,
-            contentType
+            contentType,
+            action
           },
           isRPC: true
         });
-        console.log(response, 'response')
-        
 
         url = response.url;
         content = response.content;
       }
     }
 
-  // switch (type) {
-    // case WEBHOOK_TYPES.CUSTOMER:
-    //   url = `/contacts/details/${data.object._id}`;
-    //   content = `Customer ${actionText}`;
-    //   break;
-
-    // case WEBHOOK_TYPES.COMPANY:
-    //   url = `/companies/details/${data.object._id}`;
-    //   content = `Company ${actionText}`;
-    //   break;
-
-    // case WEBHOOK_TYPES.KNOWLEDGEBASE:
-    //   url = `/knowledgeBase?id=${data.newData.categoryIds[0]}`;
-    //   content = `Knowledge base article ${actionText}`;
-    //   break;
-
-    // case WEBHOOK_TYPES.USER_MESSAGES:
-    //   url = `/inbox/index?_id=${data.conversationId}`;
-    //   content = 'Admin has replied to a conversation';
-    //   break;
-
-    // case WEBHOOK_TYPES.CUSTOMER_MESSAGES:
-    //   url = `/inbox/index?_id=${data.conversationId}`;
-    //   content = 'Customer has send a conversation message';
-    //   break;
-
-    // case WEBHOOK_TYPES.CONVERSATION:
-    //   url = `/inbox/index?_id=${data._id}`;
-    //   content = 'Customer has started new conversation';
-    //   break;
-
-    // case WEBHOOK_TYPES.FORM_SUBMITTED:
-    //   url = `/inbox/index?_id=${data.conversationId}`;
-    //   content = 'Customer has submitted a form';
-    //   break;
-
-    // case WEBHOOK_TYPES.CAMPAIGN:
-    //   url = `/campaigns/show/${data._id}`;
-
-    //   if (data.method === 'messenger') {
-    //     url = `/campaigns/edit/${data.$_id}`;
-    //   }
-
-    //   content = 'Campaign has been created';
-    //   break;
-
-    // default:
-    //   content = `${type} ${actionText}`;
-    //   url = '';
-    //   break;
-  // }
-
-  // if (
-  //   [WEBHOOK_TYPES.DEAL, WEBHOOK_TYPES.TASK, WEBHOOK_TYPES.TICKET].includes(
-  //     type
-  //   ) &&
-  //   ['create', 'update'].includes(action)
-  // ) {
-  //   const { object } = data;
-  //   url = await getBoardItemLink(models, object.stageId, object._id);
-  //   content = `${type} ${actionText}`;
-  // }
-
-  // url = `${getEnv({ name: 'MAIN_APP_DOMAIN' })}${url}`;
-  url = `http://localhost:4000${url}`
+  url = `${getEnv({ name: 'DOMAIN' })}${url}`;
 
   let slackContent = '';
 

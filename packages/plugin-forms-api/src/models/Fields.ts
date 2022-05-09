@@ -2,20 +2,20 @@
  * Extra fields for form, customer, company
  */
 
-import { Model } from "mongoose";
-import * as validator from "validator";
-import { IModels } from "../connectionResolver";
-import { sendCommonMessage, sendContactsMessage } from "../messageBroker";
-import { updateOrder, IOrderInput } from "@erxes/api-utils/src/commonUtils";
+import { Model } from 'mongoose';
+import * as validator from 'validator';
+import { IModels } from '../connectionResolver';
+import { sendCommonMessage, sendContactsMessage } from '../messageBroker';
+import { updateOrder, IOrderInput } from '@erxes/api-utils/src/commonUtils';
 import {
   fieldGroupSchema,
   fieldSchema,
   IField,
   IFieldDocument,
   IFieldGroup,
-  IFieldGroupDocument,
-} from "./definitions/fields";
-import { serviceDiscovery } from "../configs";
+  IFieldGroupDocument
+} from './definitions/fields';
+import { serviceDiscovery } from '../configs';
 
 export interface ITypedListItem {
   field: string;
@@ -80,11 +80,11 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
   class Field {
     static async checkCodeDuplication(code: string) {
       const group = await models.Fields.findOne({
-        code,
+        code
       });
 
       if (group) {
-        throw new Error("Code must be unique");
+        throw new Error('Code must be unique');
       }
     }
     /*
@@ -95,7 +95,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
       // Checking if the field is defined by the erxes
       if (fieldObj && fieldObj.isDefinedByErxes) {
-        throw new Error("Cant update this field");
+        throw new Error('Cant update this field');
       }
     }
 
@@ -104,7 +104,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
       // Checking if the field is defined by the erxes
       if (fieldObj && !fieldObj.canHide) {
-        throw new Error("Cant update this field");
+        throw new Error('Cant update this field');
       }
     }
 
@@ -119,7 +119,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       ...fields
     }: IField) {
       if (fields.code) {
-        await this.checkCodeDuplication(fields.code || "");
+        await this.checkCodeDuplication(fields.code || '');
       }
 
       const query: { [key: string]: any } = { contentType };
@@ -139,7 +139,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           group = await models.FieldsGroups.createGroup({
             name: groupName,
             contentType,
-            isDefinedByErxes: false,
+            isDefinedByErxes: false
           });
         }
 
@@ -162,7 +162,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         order,
         groupId,
         isDefinedByErxes: false,
-        ...fields,
+        ...fields
       });
     }
 
@@ -179,8 +179,8 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         if (!group) {
           group = await models.FieldsGroups.createGroup({
             name: groupName,
-            contentType: "form",
-            isDefinedByErxes: false,
+            contentType: 'form',
+            isDefinedByErxes: false
           });
         }
 
@@ -213,21 +213,21 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       // Removing field value from customer
       await sendContactsMessage({
         subdomain,
-        action: "customers.updateMany",
+        action: 'customers.updateMany',
         data: {
           selector: {
-            "customFieldsData.field": _id,
+            'customFieldsData.field': _id
           },
           modifier: {
-            $pull: { customFieldsData: { field: _id } },
-          },
-        },
+            $pull: { customFieldsData: { field: _id } }
+          }
+        }
       });
 
       // Removing form associated field
       await models.Fields.updateMany(
         { associatedFieldId: _id },
-        { $unset: { associatedFieldId: "" } }
+        { $unset: { associatedFieldId: '' } }
       );
 
       return fieldObj.remove();
@@ -262,31 +262,31 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
       // required
       if (field.isRequired && (!value || !value.toString().trim())) {
-        throwError("required");
+        throwError('required');
       }
 
       if (value) {
         // email
         if (
-          (type === "email" || validation === "email") &&
+          (type === 'email' || validation === 'email') &&
           !validator.isEmail(value)
         ) {
-          throwError("Invalid email");
+          throwError('Invalid email');
         }
 
         // number
         if (
-          !["check", "radio", "select"].includes(type || "") &&
-          validation === "number" &&
+          !['check', 'radio', 'select'].includes(type || '') &&
+          validation === 'number' &&
           !validator.isFloat(value.toString())
         ) {
-          throwError("Invalid number");
+          throwError('Invalid number');
         }
 
         // date
-        if (validation === "date") {
+        if (validation === 'date') {
           if (!isValidDate(value)) {
-            throwError("Invalid date");
+            throwError('Invalid date');
           }
 
           value = new Date(value);
@@ -325,14 +325,14 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         stringValue = value.toString();
 
         // string
-        if (type === "input" && !validation) {
+        if (type === 'input' && !validation) {
           numberValue = null;
           value = stringValue;
           return { field, value, stringValue, numberValue, dateValue };
         }
 
         // number
-        if (type !== "check" && validator.isFloat(value.toString())) {
+        if (type !== 'check' && validator.isFloat(value.toString())) {
           numberValue = value;
           stringValue = null;
           value = Number(value);
@@ -350,7 +350,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       [key: string]: any;
     }): ITypedListItem[] {
       const ids = Object.keys(data || {});
-      return ids.map(_id => this.generateTypedItem(_id, data[_id], ""));
+      return ids.map(_id => this.generateTypedItem(_id, data[_id], ''));
     }
 
     public static async prepareCustomFieldsData(
@@ -360,6 +360,10 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
       for (const customFieldData of customFieldsData || []) {
         const field = await models.Fields.findById(customFieldData.field);
+
+        if (!field) {
+          continue;
+        }
 
         try {
           await models.Fields.clean(
@@ -373,7 +377,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           models.Fields.generateTypedItem(
             customFieldData.field,
             customFieldData.value,
-            field ? field.type || "" : "",
+            field ? field.type || '' : '',
             field?.validation
           )
         );
@@ -411,12 +415,12 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       const fields = await sendCommonMessage({
         subdomain,
         serviceName,
-        action: "systemFields",
+        action: 'systemFields',
         data: {
-          groupId,
+          groupId
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       await models.Fields.insertMany(fields);
@@ -433,19 +437,19 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       for (const key of keys) {
         const customField = await models.Fields.findOne({
           contentType,
-          text: key,
+          text: key
         });
 
         let value = data[key];
 
         if (customField) {
-          if (customField.validation === "date") {
+          if (customField.validation === 'date') {
             value = new Date(data[key]);
           }
 
           customFieldsData.push({
             field: customField._id,
-            value,
+            value
           });
 
           delete data[key];
@@ -485,11 +489,11 @@ export const loadGroupClass = (models: IModels) => {
   class FieldGroup {
     static async checkCodeDuplication(code: string) {
       const group = await models.FieldsGroups.findOne({
-        code,
+        code
       });
 
       if (group) {
-        throw new Error("Code must be unique");
+        throw new Error('Code must be unique');
       }
     }
     /*
@@ -500,7 +504,7 @@ export const loadGroupClass = (models: IModels) => {
 
       // Checking if the group is defined by the erxes
       if (groupObj && groupObj.isDefinedByErxes) {
-        throw new Error("Cant update this group");
+        throw new Error('Cant update this group');
       }
     }
 
@@ -509,7 +513,7 @@ export const loadGroupClass = (models: IModels) => {
      */
     public static async createGroup(doc: IFieldGroup) {
       if (doc.code) {
-        await this.checkCodeDuplication(doc.code || "");
+        await this.checkCodeDuplication(doc.code || '');
       }
 
       // Newly created group must be visible
@@ -522,7 +526,7 @@ export const loadGroupClass = (models: IModels) => {
 
       const lastGroup = await models.FieldsGroups.findOne({ contentType }).sort(
         {
-          order: -1,
+          order: -1
         }
       );
 
@@ -534,7 +538,7 @@ export const loadGroupClass = (models: IModels) => {
         ...doc,
         isVisible,
         order,
-        isDefinedByErxes: false,
+        isDefinedByErxes: false
       });
     }
 
@@ -614,7 +618,6 @@ export const loadGroupClass = (models: IModels) => {
         const service = await serviceDiscovery.getService(serviceName, true);
         const meta = service.config?.meta || {};
 
-
         if (meta && meta.forms && meta.forms.systemFieldsAvailable) {
           const types = meta.forms.types || [];
 
@@ -622,17 +625,17 @@ export const loadGroupClass = (models: IModels) => {
             const contentType = `${serviceName}:${type.type}`;
 
             const doc = {
-              name: "Basic information",
+              name: 'Basic information',
               contentType,
               order: 0,
               isDefinedByErxes: true,
               description: `Basic information of a ${type.type}`,
-              isVisible: true,
+              isVisible: true
             };
 
             const existingGroup = await models.FieldsGroups.findOne({
               contentType: doc.contentType,
-              isDefinedByErxes: true,
+              isDefinedByErxes: true
             });
 
             if (existingGroup) {

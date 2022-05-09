@@ -1,23 +1,23 @@
-import * as React from 'react';
-import { AppConsumer } from '../../messenger/containers/AppContext';
-import { IEmailParams, IIntegration } from '../../types';
+import * as React from "react";
+import { AppConsumer } from "../../messenger/containers/AppContext";
+import { IEmailParams, IIntegration } from "../../types";
 import {
   __,
   checkLogicFulfilled,
   fixErrorMessage,
   LogicParams,
   readFile
-} from '../../utils';
-import { connection } from '../connection';
+} from "../../utils";
+import { connection } from "../connection";
 import {
   FieldValue,
   ICurrentStatus,
   IFieldError,
   IForm,
   IFormDoc
-} from '../types';
-import { TopBar } from './';
-import Field from './Field';
+} from "../types";
+import { TopBar } from "./";
+import Field from "./Field";
 
 type Props = {
   form: IForm;
@@ -52,9 +52,9 @@ class Form extends React.Component<Props, State> {
     }
 
     if (this.props.integration.leadData.css) {
-      const head = document.getElementsByTagName('head')[0];
-      const style = document.createElement('style');
-      style.setAttribute('type', 'text/css');
+      const head = document.getElementsByTagName("head")[0];
+      const style = document.createElement("style");
+      style.setAttribute("type", "text/css");
 
       style.appendChild(
         document.createTextNode(this.props.integration.leadData.css)
@@ -75,7 +75,7 @@ class Form extends React.Component<Props, State> {
     const nextStatus = nextProps.currentStatus.status;
 
     // after successfull save and create new button, reset doc state
-    if (currentStatus !== nextStatus && nextStatus === 'INITIAL') {
+    if (currentStatus !== nextStatus && nextStatus === "INITIAL") {
       this.setState({ doc: this.resetDocState() });
     }
 
@@ -98,7 +98,7 @@ class Form extends React.Component<Props, State> {
   }) => {
     const doc = this.state.doc;
 
-    if (doc[fieldId].validation === 'multiSelect') {
+    if (doc[fieldId].validation === "multiSelect") {
       value = value.toString();
     }
 
@@ -123,10 +123,10 @@ class Form extends React.Component<Props, State> {
 
       doc[key] = field;
 
-      if (field.type === 'multiSelect' || field.type === 'check') {
+      if (field.type === "multiSelect" || field.type === "check") {
         doc[key] = {
           ...field,
-          value: String(field.value).replace(new RegExp(',,', 'g'), ', ')
+          value: String(field.value).replace(new RegExp(",,", "g"), ", ")
         };
       }
     }
@@ -156,7 +156,7 @@ class Form extends React.Component<Props, State> {
     if (this.canChangePage()) {
       this.setState({ currentPage: this.state.currentPage + 1 });
     } else {
-      alert(__('Please fill out required fields'));
+      alert(__("Please fill out required fields"));
     }
   };
 
@@ -172,17 +172,17 @@ class Form extends React.Component<Props, State> {
       let isHidden = false;
       if (
         field.logicAction &&
-        field.logicAction === 'show' &&
+        field.logicAction === "show" &&
         field.logics &&
         field.logics.length > 0
       ) {
         isHidden = true;
       }
 
-      let value = '';
+      let value = "";
 
-      if (field.type === 'html') {
-        value = field.content || '';
+      if (field.type === "html") {
+        value = field.content || "";
       }
 
       doc[field._id] = {
@@ -212,8 +212,8 @@ class Form extends React.Component<Props, State> {
   hideField(id: string) {
     const { doc } = this.state;
 
-    if (doc[id].value !== '' || !doc[id].isHidden) {
-      doc[id].value = '';
+    if (doc[id].value !== "" || !doc[id].isHidden) {
+      doc[id].value = "";
       doc[id].isHidden = true;
       this.setState({ doc });
     }
@@ -223,14 +223,14 @@ class Form extends React.Component<Props, State> {
     const { doc } = this.state;
 
     if (doc[id].isHidden) {
-      doc[id].value = '';
+      doc[id].value = "";
       doc[id].isHidden = false;
       this.setState({ doc });
     }
   }
 
   renderHead(title: string) {
-    const { hasTopBar, color = '' } = this.props;
+    const { hasTopBar, color = "" } = this.props;
 
     if (hasTopBar) {
       return <TopBar title={title} color={color} />;
@@ -254,12 +254,12 @@ class Form extends React.Component<Props, State> {
         style={{
           background: this.props.color,
           opacity: 0.7,
-          height: '13px',
+          height: "13px",
           width: `${percentage}%`
         }}
       >
         <div
-          style={{ textAlign: 'center', color: 'white', fontSize: 10 }}
+          style={{ textAlign: "center", color: "white", fontSize: 10 }}
         >{`${percentage}%`}</div>
       </div>
     );
@@ -279,29 +279,36 @@ class Form extends React.Component<Props, State> {
       );
 
       if (field.logics && field.logics.length > 0) {
-        const logics: LogicParams[] = field.logics.map(logic => {
-          const { validation, value, type } = this.state.doc[logic.fieldId];
+        const logics: LogicParams[] = [];
+        for (const logic of field.logics) {
+          const relatedField = this.state.doc[logic.fieldId];
 
-          return {
+          if (!relatedField) {
+            continue;
+          }
+
+          const { validation, value, type } = relatedField;
+
+          logics.push({
             fieldId: logic.fieldId,
             operator: logic.logicOperator,
             logicValue: logic.logicValue,
             fieldValue: value,
             validation,
             type
-          };
-        });
-
+          });
+        }
+        
         const isLogicsFulfilled = checkLogicFulfilled(logics);
 
-        if (field.logicAction && field.logicAction === 'show') {
+        if (field.logicAction && field.logicAction === "show") {
           if (!isLogicsFulfilled) {
             this.hideField(field._id);
             return null;
           }
         }
 
-        if (field.logicAction && field.logicAction === 'hide') {
+        if (field.logicAction && field.logicAction === "hide") {
           if (isLogicsFulfilled) {
             this.hideField(field._id);
             return null;
@@ -317,7 +324,7 @@ class Form extends React.Component<Props, State> {
           field={field}
           error={fieldError}
           onChange={this.onFieldValueChange}
-          value={this.state.doc[field._id].value || ''}
+          value={this.state.doc[field._id].value || ""}
         />
       );
     });
@@ -325,7 +332,7 @@ class Form extends React.Component<Props, State> {
     return (
       <>
         {nonFieldError ? (
-          <p style={{ color: 'red' }}>{fixErrorMessage(nonFieldError.text)}</p>
+          <p style={{ color: "red" }}>{fixErrorMessage(nonFieldError.text)}</p>
         ) : null}
         {renderedFields}
       </>
@@ -344,10 +351,10 @@ class Form extends React.Component<Props, State> {
     ) => {
       return (
         <button
-          style={{ background: color, margin: '5px' }}
+          style={{ background: color, margin: "5px" }}
           type="button"
           onClick={action}
-          className={`erxes-button btn-block ${isSubmitting ? 'disabled' : ''}`}
+          className={`erxes-button btn-block ${isSubmitting ? "disabled" : ""}`}
           disabled={disabled}
         >
           {title}
@@ -357,7 +364,7 @@ class Form extends React.Component<Props, State> {
 
     if (numberOfPages === 1) {
       return button(
-        isSubmitting ? __('Loading ...') : form.buttonText || __('Send'),
+        isSubmitting ? __("Loading ...") : form.buttonText || __("Send"),
         this.onSubmit,
         isSubmitting
       );
@@ -365,11 +372,11 @@ class Form extends React.Component<Props, State> {
 
     if (currentPage === numberOfPages) {
       return (
-        <div style={{ width: '100%' }}>
-          <div style={{ display: 'flex' }}>
-            {button(__('Back'), this.onbackClick, isSubmitting)}
+        <div style={{ width: "100%" }}>
+          <div style={{ display: "flex" }}>
+            {button(__("Back"), this.onbackClick, isSubmitting)}
             {button(
-              isSubmitting ? __('Loading ...') : form.buttonText || __('Send'),
+              isSubmitting ? __("Loading ...") : form.buttonText || __("Send"),
               this.onSubmit,
               isSubmitting
             )}
@@ -379,14 +386,14 @@ class Form extends React.Component<Props, State> {
     }
 
     if (currentPage === 1 && numberOfPages > 1) {
-      return button(__('Next'), this.onNextClick, isSubmitting);
+      return button(__("Next"), this.onNextClick, isSubmitting);
     }
 
     return (
-      <div style={{ width: '100%' }}>
-        <div style={{ display: 'flex' }}>
-          {button(__('Back'), this.onbackClick, isSubmitting)}
-          {button(__('Next'), this.onNextClick, isSubmitting)}
+      <div style={{ width: "100%" }}>
+        <div style={{ display: "flex" }}>
+          {button(__("Back"), this.onbackClick, isSubmitting)}
+          {button(__("Next"), this.onNextClick, isSubmitting)}
         </div>
       </div>
     );
@@ -435,9 +442,9 @@ class Form extends React.Component<Props, State> {
         {this.renderHead(thankTitle || form.title)}
         <div className="erxes-form-content">
           <div className="erxes-callout-body">
-          {this.renderSuccessImage(successImage || "", form.title)}
+            {this.renderSuccessImage(successImage || "", form.title)}
             {thankContent ||
-              __('Thanks for your message. We will respond as soon as we can.')}
+              __("Thanks for your message. We will respond as soon as we can.")}
           </div>
         </div>
       </div>
@@ -448,7 +455,7 @@ class Form extends React.Component<Props, State> {
     const { form, currentStatus, sendEmail, integration } = this.props;
     const doc = this.state.doc;
 
-    if (currentStatus.status === 'SUCCESS') {
+    if (currentStatus.status === "SUCCESS") {
       const {
         successAction,
         redirectUrl,
@@ -465,14 +472,14 @@ class Form extends React.Component<Props, State> {
       } = integration.leadData;
 
       // redirect to some url
-      if (successAction === 'redirect') {
+      if (successAction === "redirect") {
         window.open(redirectUrl);
       }
 
       // send email to user and admins
-      if (successAction === 'email') {
+      if (successAction === "email") {
         const emailField = form.fields.find(
-          f => f.validation === 'email' || f.type === 'email'
+          f => f.validation === "email" || f.type === "email"
         );
 
         if (emailField) {
@@ -520,7 +527,7 @@ export default (props: Props) => (
           // if lead is in a messenger, return messenger theme color (getColor())
           // else return lead theme color
           color={
-            getColor ? getColor() : props.integration.leadData.themeColor || ''
+            getColor ? getColor() : props.integration.leadData.themeColor || ""
           }
         />
       );

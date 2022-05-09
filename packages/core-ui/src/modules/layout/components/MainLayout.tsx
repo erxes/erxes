@@ -110,7 +110,7 @@ class MainLayout extends React.Component<IProps, State> {
             <Navigation
               currentUser={currentUser}
               navCollapse={this.state.navCollapse}
-              onClickHandleIcon={(e) => this.onClickHandleIcon(e)}
+              onClickHandleIcon={this.onClickHandleIcon}
             />
           )}
 

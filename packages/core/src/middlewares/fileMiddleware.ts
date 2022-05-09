@@ -53,10 +53,10 @@ export const uploader = async (req: any, res, next) => {
     if (status === 'ok') {
       try {
         const result = await uploadFile(
-          models,
           `${DOMAIN}/gateway`,
           file,
-          response.upload ? true : false
+          response.upload ? true : false,
+          models
         );
 
         return res.send(result);

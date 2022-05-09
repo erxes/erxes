@@ -47,8 +47,8 @@ class ProductFormContainer extends React.Component<FinalProps> {
       const attachment = values.attachment || undefined;
       const attachmentMore = values.attachmentMore || [];
 
-      attachmentMore.map(attachment => {
-        attachmentMoreArray.push({ ...attachment, __typename: undefined });
+      attachmentMore.map(att => {
+        attachmentMoreArray.push({ ...att, __typename: undefined });
       })
 
       values.attachment = attachment ? { ...attachment, __typename: undefined } : null;
