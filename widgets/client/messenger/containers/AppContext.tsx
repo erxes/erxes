@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 import * as React from "react";
-import client, { wsLink } from "../../apollo-client";
+import client from "../../apollo-client";
 import { getLocalStorageItem, setLocalStorageItem } from "../../common";
 import {
   IBrand,
@@ -58,6 +58,7 @@ interface IStore extends IState {
     callback?: () => void
   ) => void;
   endConversation: () => void;
+  exportConversation: (callback: (exportData: any) => void) => void;
   readConversation: (conversationId: string) => void;
   readMessages: (conversationId: string) => void;
   replyAutoAnswer: (message: string, payload: string, type: string) => void;
@@ -405,13 +406,6 @@ export class AppProvider extends React.Component<{}, IState> {
           isVisible: true,
           isSmallContainer: this.isSmallContainer()
         });
-
-        const messengerDataJson = getLocalStorageItem('messengerDataJson');
-        const messengerData = JSON.parse(messengerDataJson);
-        messengerData.customerId = widgetsSaveCustomerGetNotified._id;
-        setLocalStorageItem("messengerDataJson", JSON.stringify(messengerData));
-
-        wsLink.restart();
       });
   };
 
@@ -433,6 +427,21 @@ export class AppProvider extends React.Component<{}, IState> {
 
     this.toggle(true);
     window.location.reload();
+  };
+
+  exportConversation = (callback: (exportData: any) => void) => {
+    const { activeConversation } = this.state
+    return client.query({
+      query: gql(graphqlTypes.widgetExportMessengerDataQuery),
+      variables: {
+        _id: activeConversation,
+        integrationId: connection.data.integrationId
+      }
+    }).then(({ data }: any) => {
+      if (data.widgetExportMessengerData) {
+        callback(data.widgetExportMessengerData);
+      }
+    });
   };
 
   readConversation = (conversationId: string) => {
@@ -528,7 +537,7 @@ export class AppProvider extends React.Component<{}, IState> {
         }
       })
       .then(({ data }) => {
-        if (data?.widgetGetBotInitialMessage) {
+        if (data && data.widgetGetBotInitialMessage) {
           callback(data.widgetGetBotInitialMessage);
         }
       });
@@ -571,7 +580,12 @@ export class AppProvider extends React.Component<{}, IState> {
         }
       })
       .then(({ data }) => {
-        const { conversationId, customerId } = data?.widgetBotRequest;
+        if (!data){
+          this.setState({ sendingMessage: false });
+          return
+        }
+
+        const { conversationId, customerId } = data.widgetBotRequest;
 
         setLocalStorageItem("customerId", customerId);
         connection.data.customerId = customerId;
@@ -775,6 +789,7 @@ export class AppProvider extends React.Component<{}, IState> {
           goToConversationList: this.goToConversationList,
           saveGetNotified: this.saveGetNotified,
           endConversation: this.endConversation,
+          exportConversation: this.exportConversation,
           readConversation: this.readConversation,
           readMessages: this.readMessages,
           replyAutoAnswer: this.replyAutoAnswer,

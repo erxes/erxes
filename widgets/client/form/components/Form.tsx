@@ -83,7 +83,7 @@ class Form extends React.Component<Props, State> {
 
     if (form.fields.findIndex(e => e.type === "map") !== -1) {
       const googleMapScript = loadMapApi(
-        form.googleMapApiKey || "",
+        form.googleMapApiKey || "test",
         integration.languageCode || "en"
       );
 
