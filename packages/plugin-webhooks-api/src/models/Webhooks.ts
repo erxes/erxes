@@ -40,11 +40,11 @@ export const loadWebhookClass = (models: IModels) => {
      * Create webhook
      */
     public static async createWebhook(doc: IWebhook) {
-      // if (!doc.url.includes('https')) {
-      //   throw new Error(
-      //     'Url is not valid. Enter valid url with ssl cerfiticate'
-      //   );
-      // }
+      if (!doc.url.includes("https")) {
+        throw new Error(
+          "Url is not valid. Enter valid url with ssl cerfiticate"
+        );
+      }
 
       const modifiedDoc: any = { ...doc };
       modifiedDoc.token = await getUniqueValue(models.Webhooks, "token");
@@ -54,11 +54,11 @@ export const loadWebhookClass = (models: IModels) => {
     }
 
     public static async updateWebhook(_id: string, doc: IWebhook) {
-      // if (!doc.url.includes("https")) {
-      //   throw new Error(
-      //     "Url is not valid. Enter valid url with ssl cerfiticate"
-      //   );
-      // }
+      if (!doc.url.includes("https")) {
+        throw new Error(
+          "Url is not valid. Enter valid url with ssl cerfiticate"
+        );
+      }
 
       await models.Webhooks.updateOne(
         { _id },

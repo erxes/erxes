@@ -1,17 +1,17 @@
-import { AppConsumer } from "coreui/appContext";
-import * as compose from "lodash.flowright";
-import gql from "graphql-tag";
-import { can, router as routerUtils } from "@erxes/ui/src/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import Empty from "../components/Empty";
-import InboxCore from "../components/InboxCore";
-import { queries } from "@erxes/ui-inbox/src/inbox/graphql";
+import { AppConsumer } from 'coreui/appContext';
+import * as compose from 'lodash.flowright';
+import gql from 'graphql-tag';
+import { can, router as routerUtils } from '@erxes/ui/src/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import Empty from '../components/Empty';
+import InboxCore from '../components/InboxCore';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 import {
   ConvesationsQueryVariables,
-  LastConversationQueryResponse,
-} from "@erxes/ui-inbox/src/inbox/types";
-import { generateParams } from "@erxes/ui-inbox/src/inbox/utils";
+  LastConversationQueryResponse
+} from '@erxes/ui-inbox/src/inbox/types';
+import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
 interface IRouteProps {
   queryParams: any;
   history: any;
@@ -47,7 +47,7 @@ class WithRefetchHandling extends React.Component<
 
     this.state = {
       notifyConsumersOfManagementAction: notifHandler,
-      refetchRequired: "",
+      refetchRequired: ''
     };
   }
 
@@ -81,7 +81,7 @@ class WithCurrentId extends React.Component<IProps> {
             return null;
           }
 
-          if (!_id || !can("showConversations", currentUser)) {
+          if (!_id || !can('showConversations', currentUser)) {
             return (
               <Empty queryParams={queryParams} currentUser={currentUser} />
             );
@@ -113,15 +113,15 @@ export default compose(
     },
     options: (props: IRouteProps) => ({
       variables: generateParams(props.queryParams),
-      fetchPolicy: "network-only",
+      fetchPolicy: 'network-only'
     }),
     props: ({ data, ownProps }: { data?: any; ownProps: IRouteProps }) => {
       return {
         conversationsGetLast: data.conversationsGetLast,
         loading: data.loading,
         history: ownProps.history,
-        queryParams: ownProps.queryParams,
+        queryParams: ownProps.queryParams
       };
-    },
+    }
   })
 )(WithCurrentId);

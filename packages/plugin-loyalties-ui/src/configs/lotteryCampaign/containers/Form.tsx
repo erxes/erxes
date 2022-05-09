@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { ButtonMutate } from '@erxes/ui/src/components';
-import { withProps} from '@erxes/ui/src/utils';
+import { withProps } from '@erxes/ui/src/utils';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import From from '../components/Form';
 import { mutations } from '../graphql';
@@ -41,22 +41,29 @@ class ProductFormContainer extends React.Component<FinalProps> {
 
       attachmentMore.map(att => {
         attachmentMoreArray.push({ ...att, __typename: undefined });
-      })
+      });
 
-      values.attachment = attachment ? { ...attachment, __typename: undefined } : null;
+      values.attachment = attachment
+        ? { ...attachment, __typename: undefined }
+        : null;
       values.attachmentMore = attachmentMoreArray;
 
       return (
         <ButtonMutate
-          mutation={object && object._id ? mutations.lotteryCampaignsEdit : mutations.lotteryCampaignsAdd}
+          mutation={
+            object && object._id
+              ? mutations.lotteryCampaignsEdit
+              : mutations.lotteryCampaignsAdd
+          }
           variables={values}
           callback={callback}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
           type="submit"
           uppercase={false}
-          successMessage={`You successfully ${object ? 'updated' : 'added'
-            } a ${name}`}
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${name}`}
         />
       );
     };
@@ -66,7 +73,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       renderButton,
-      voucherCampaigns,
+      voucherCampaigns
     };
 
     return <From {...updatedProps} />;
@@ -84,6 +91,6 @@ export default withProps<Props>(
       {
         name: 'voucherCampaignsQuery'
       }
-    ),
+    )
   )(ProductFormContainer)
 );

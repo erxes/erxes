@@ -259,7 +259,12 @@ function General({
     );
   };
 
-  const renderFeatureBlock = (title: string, childrens: any, toggleName: string, toggle: boolean) => {
+  const renderFeatureBlock = (
+    title: string,
+    childrens: any,
+    toggleName: string,
+    toggle: boolean
+  ) => {
     return (
       <BlockRow>
         <BlockRowTitle>{__(title)}</BlockRowTitle>
@@ -311,9 +316,13 @@ function General({
           </>,
           'kbToggle',
           kbToggle
-        )
-        }
-        {renderFeatureBlock('publicTask', renderTaskPipelines(), 'publicTaskToggle', publicTaskToggle)}
+        )}
+        {renderFeatureBlock(
+          'publicTask',
+          renderTaskPipelines(),
+          'publicTaskToggle',
+          publicTaskToggle
+        )}
 
         {renderFeatureBlock(
           'tickets',

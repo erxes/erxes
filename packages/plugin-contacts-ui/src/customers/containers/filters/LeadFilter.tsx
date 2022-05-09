@@ -22,7 +22,7 @@ function LeadFilterContainer(props: Props) {
   const { integrationsQuery, totalCountQuery, customersCountQuery } = props;
 
   const defaultIntegrations = integrationsQuery
-    ? integrationsQuery.integrations
+    ? integrationsQuery.integrations || []
     : [];
 
   console.log('debug ========', defaultIntegrations);

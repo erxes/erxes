@@ -5,13 +5,13 @@ import {
   ControlLabel,
   Form,
   FormControl,
-  FormGroup,
+  FormGroup
 } from '@erxes/ui/src/components';
 import { __ } from '@erxes/ui/src/utils';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import {
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
+  MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src/styles/eindex';
 import { IVoucher, IVoucherDoc } from '../types';
 import { queries as campaignQueries } from '../../../configs/voucherCampaign/graphql';
@@ -71,8 +71,8 @@ class VoucherForm extends React.Component<Props, State> {
       value = Number(value);
     }
 
-    this.setState({ voucher: { ...this.state.voucher, [name]: value } } as any)
-  }
+    this.setState({ voucher: { ...this.state.voucher, [name]: value } } as any);
+  };
 
   renderFormGroup = (label, props) => {
     return (
@@ -83,19 +83,19 @@ class VoucherForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeSelect = (e) => {
+  onChangeSelect = e => {
     const { voucher } = this.state;
-    const target = (e.currentTarget as HTMLInputElement);
+    const target = e.currentTarget as HTMLInputElement;
     const value = target.value;
     const name = target.name;
 
-    this.setState({ voucher: { ...voucher, [name]: value } })
-  }
+    this.setState({ voucher: { ...voucher, [name]: value } });
+  };
 
-  onChangeOwnerId = (ownerId) => {
+  onChangeOwnerId = ownerId => {
     const { voucher } = this.state;
-    this.setState({ voucher: { ...voucher, ownerId } })
-  }
+    this.setState({ voucher: { ...voucher, ownerId } });
+  };
 
   renderOwner = () => {
     const { voucher } = this.state;
@@ -108,7 +108,7 @@ class VoucherForm extends React.Component<Props, State> {
           initialValue={voucher.ownerId}
           onSelect={this.onChangeOwnerId}
         />
-      )
+      );
     }
 
     if (voucher.ownerType === 'user') {
@@ -120,7 +120,7 @@ class VoucherForm extends React.Component<Props, State> {
           initialValue={voucher.ownerId}
           onSelect={this.onChangeOwnerId}
         />
-      )
+      );
     }
 
     return (
@@ -131,8 +131,8 @@ class VoucherForm extends React.Component<Props, State> {
         initialValue={voucher.ownerId}
         onSelect={this.onChangeOwnerId}
       />
-    )
-  }
+    );
+  };
 
   renderContent = (formProps: IFormProps) => {
     const { voucher } = this.state;
@@ -145,13 +145,15 @@ class VoucherForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Campaign</ControlLabel>
             <SelectCampaigns
-              queryName='voucherCampaigns'
+              queryName="voucherCampaigns"
               customQuery={campaignQueries.voucherCampaigns}
-              label='Choose voucher campaign'
-              name='campaignId'
+              label="Choose voucher campaign"
+              name="campaignId"
               onSelect={this.onChangeSelect}
               initialValue={voucher.campaignId}
-              filterParams={voucher._id ? { equalTypeCampaignId: voucher.campaignId } : {}}
+              filterParams={
+                voucher._id ? { equalTypeCampaignId: voucher.campaignId } : {}
+              }
             />
           </FormGroup>
 
@@ -165,9 +167,18 @@ class VoucherForm extends React.Component<Props, State> {
               required={true}
               onChange={this.onChangeSelect}
             >
-              <option key={'customer'} value={'customer'}> {'customer'} </option>
-              <option key={'user'} value={'user'}> {'user'} </option>
-              <option key={'company'} value={'company'}> {'company'} </option>
+              <option key={'customer'} value={'customer'}>
+                {' '}
+                {'customer'}{' '}
+              </option>
+              <option key={'user'} value={'user'}>
+                {' '}
+                {'user'}{' '}
+              </option>
+              <option key={'company'} value={'company'}>
+                {' '}
+                {'company'}{' '}
+              </option>
             </FormControl>
           </FormGroup>
 
@@ -186,8 +197,14 @@ class VoucherForm extends React.Component<Props, State> {
               required={true}
               onChange={this.onChangeSelect}
             >
-              <option key={'new'} value={'new'}> {'new'} </option>
-              <option key={'used'} value={'used'}> {'used'} </option>
+              <option key={'new'} value={'new'}>
+                {' '}
+                {'new'}{' '}
+              </option>
+              <option key={'used'} value={'used'}>
+                {' '}
+                {'used'}{' '}
+              </option>
             </FormControl>
           </FormGroup>
         </ScrollWrapper>
