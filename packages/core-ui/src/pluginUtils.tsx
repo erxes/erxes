@@ -2,43 +2,43 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
-import { IUser } from "modules/auth/types";
-import { IItem } from "@erxes/ui-cards/src/boards/types";
-import { __ } from "modules/common/utils";
-import { ICompany } from "@erxes/ui/src/companies/types";
-import { ICustomer } from "@erxes/ui/src/customers/types";
-import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
-import React from "react";
-import { NavItem } from "modules/layout/components/QuickNavigation";
+import { IUser } from 'modules/auth/types';
+import { IItem } from '@erxes/ui-cards/src/boards/types';
+import { __ } from 'modules/common/utils';
+import { ICompany } from '@erxes/ui/src/companies/types';
+import { ICustomer } from '@erxes/ui/src/customers/types';
+import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
+import React from 'react';
+import { NavItem } from 'modules/layout/components/QuickNavigation';
 
 const PLUGIN_LABEL_COLORS: string[] = [
-  "",
-  "#F44336", // RED
-  "#E91E63", // PINK
-  "#9C27B0", // PURPLE
-  "#673AB7", // DEEP PURPLE
-  "#3F51B5", // INDIGO
-  "#2196F3", // BLUE
-  "#00BCD4", // CYAN
-  "#009688", // TEAL
-  "#4CAF50", // GREEN
-  "#8BC34A", // LIGHT GREEN
-  "#CDDC39", // LIME
-  "#FFC107", // AMBER
-  "#FF9800", // ORANGE
-  "#FF5722", // DEEP ORANGE
-]
+  '',
+  '#63D2D6', // CYAN
+  '#E91E63', // PINK
+  '#9C27B0', // PURPLE
+  '#673AB7', // DEEP PURPLE
+  '#3F51B5', // INDIGO
+  '#2196F3', // BLUE
+  '#00BCD4', // CYAN
+  '#009688', // TEAL
+  '#4CAF50', // GREEN
+  '#8BC34A', // LIGHT GREEN
+  '#CDDC39', // LIME
+  '#FFC107', // AMBER
+  '#FF9800', // ORANGE
+  '#FF5722' // DEEP ORANGE
+];
 
 const PluginsWrapper = ({
   itemName,
   callBack,
-  plugins,
+  plugins
 }: {
   itemName: string;
   callBack: (plugin: any, item: any) => React.ReactNode;
   plugins: any;
 }) => {
-  return (plugins || []).map((plugin) => {
+  return (plugins || []).map(plugin => {
     const item = plugin[itemName];
 
     if (!item) {
@@ -49,7 +49,7 @@ const PluginsWrapper = ({
   });
 };
 
-const useDynamicScript = (args) => {
+const useDynamicScript = args => {
   const [ready, setReady] = React.useState(false);
   const [failed, setFailed] = React.useState(false);
 
@@ -58,10 +58,10 @@ const useDynamicScript = (args) => {
       return;
     }
 
-    const element = document.createElement("script");
+    const element = document.createElement('script');
 
     element.src = args.url;
-    element.type = "text/javascript";
+    element.type = 'text/javascript';
     element.async = true;
 
     setReady(false);
@@ -88,14 +88,14 @@ const useDynamicScript = (args) => {
 
   return {
     ready,
-    failed,
+    failed
   };
 };
 
 export const loadComponent = (scope, module) => {
   return async () => {
     // Initializes the share scope. This fills it with known provided modules from this build and all remotes
-    await __webpack_init_sharing__("default");
+    await __webpack_init_sharing__('default');
 
     const container = window[scope]; // or get the container somewhere else
 
@@ -116,7 +116,7 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
       itemName={itemName}
       plugins={plugins}
       callBack={(_plugin, sections) => {
-        return (sections || []).map((section) => {
+        return (sections || []).map(section => {
           if (!window[section.scope]) {
             return null;
           }
@@ -139,10 +139,10 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
   );
 };
 
-const System = (props) => {
+const System = props => {
   if (props.loadScript) {
     const { ready, failed } = useDynamicScript({
-      url: props.system && props.system.url,
+      url: props.system && props.system.url
     });
 
     if (!props.system || !ready || failed) {
@@ -232,13 +232,12 @@ export const pluginsSettingsNavigations = (
   for (let i = 0; i < plugins.length; i++) {
     if (i >= PLUGIN_LABEL_COLORS.length)
       plugins[i].color = PLUGIN_LABEL_COLORS[i - PLUGIN_LABEL_COLORS.length];
-    else
-      plugins[i].color = PLUGIN_LABEL_COLORS[i];
-  
-    const hasComponent = Object.keys(plugins[i].exposes).includes("./settings");
-  
+    else plugins[i].color = PLUGIN_LABEL_COLORS[i];
+
+    const hasComponent = Object.keys(plugins[i].exposes).includes('./settings');
+
     for (const menu of plugins[i].menus || []) {
-      if (menu.location === "settings") {
+      if (menu.location === 'settings') {
         navigationMenus.push(
           <React.Fragment key={menu.text}>
             <SettingsCustomBox
@@ -300,7 +299,7 @@ export const pluginsOfTopNavigations = () => {
 
   for (const plugin of plugins) {
     for (const menu of plugin.menus || []) {
-      if (menu.location === "topNavigation") {
+      if (menu.location === 'topNavigation') {
         topNavigationMenus.push(
           <React.Fragment key={menu.text}>
             <TopNavigation topNav={menu} />
@@ -356,14 +355,14 @@ export const pluginRouters = () => {
 
 export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
   return renderPluginSidebar(
-    "customerRightSidebarSection",
-    "customer",
+    'customerRightSidebarSection',
+    'customer',
     customer
   );
 };
 
 export const pluginsOfCompanySidebar = (company: ICompany) => {
-  return renderPluginSidebar("companyRightSidebarSection", "company", company);
+  return renderPluginSidebar('companyRightSidebarSection', 'company', company);
 };
 
 export const pluginsOfItemSidebar = (item: IItem, type: string) => {
@@ -377,7 +376,7 @@ export const pluginsOfPaymentForm = (
 
   return (
     <PluginsWrapper
-      itemName={"payments"}
+      itemName={'payments'}
       plugins={plugins}
       callBack={(_plugin, payments) => {
         const paymentsTypes: JSX.Element[] = [];
@@ -400,9 +399,9 @@ export const pluginsOfProductCategoryActions = (productCategoryId: string) => {
   return (
     <PluginsWrapper
       plugins={plugins}
-      itemName={"productCategoryActions"}
+      itemName={'productCategoryActions'}
       callBack={(_plugin, actions) => {
-        return actions.map((action) => {
+        return actions.map(action => {
           const Component = React.lazy(
             loadComponent(action.scope, action.component)
           );
