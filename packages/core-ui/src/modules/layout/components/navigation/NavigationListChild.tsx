@@ -1,18 +1,18 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
+import React from 'react';
+import { NavLink } from 'react-router-dom';
 import {
   SubNav,
   SubNavTitle,
   SubNavItem,
   DropSubNav,
-  DropSubNavItem,
-} from "../../styles";
+  DropSubNavItem
+} from '../../styles';
 
-import WithPermission from "modules/common/components/WithPermission";
-import { __ } from "modules/common/utils";
+import WithPermission from 'modules/common/components/WithPermission';
+import { __ } from 'modules/common/utils';
 
-import { getLink } from "./utils";
-import { Plugin, ChildPlugin } from "./types";
+import { getLink } from './utils';
+import { Plugin, ChildPlugin } from './types';
 
 type Props = {
   plugin: Plugin;
@@ -34,10 +34,10 @@ export default function NavigationChildList(props: Props) {
       return (
         <WithPermission
           key={index}
-          action={permission ? permission : ""}
+          action={permission ? permission : ''}
           actions={permissions ? permissions : []}
         >
-          {type === "horizontal" ? (
+          {type === 'horizontal' ? (
             <DropSubNavItem>{link}</DropSubNavItem>
           ) : (
             <SubNavItem additional={additional || false}>{link}</SubNavItem>
@@ -49,14 +49,13 @@ export default function NavigationChildList(props: Props) {
 
   if (children.length === 0) return <></>;
 
-  if (navCollapse === 3 && clickedMenu === plugin.text && showMenu) {
-    return <DropSubNav>{renderChildren("vertical")}</DropSubNav>;
-  } else {
-    return (
-      <SubNav navCollapse={navCollapse}>
-        <SubNavTitle>{__(plugin.text)}</SubNavTitle>
-        {renderChildren("horizontal")}
-      </SubNav>
-    );
-  }
+  if (navCollapse === 3 && clickedMenu === plugin.text && showMenu)
+    return <DropSubNav>{renderChildren('vertical')}</DropSubNav>;
+
+  return (
+    <SubNav navCollapse={navCollapse}>
+      <SubNavTitle>{__(plugin.text)}</SubNavTitle>
+      {renderChildren('horizontal')}
+    </SubNav>
+  );
 }

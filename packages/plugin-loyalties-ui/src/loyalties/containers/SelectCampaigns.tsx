@@ -2,7 +2,10 @@ import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
 import { IOption, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 
-interface IParam { _id: string, title: string };
+interface IParam {
+  _id: string;
+  title: string;
+}
 
 function generateOptions(array: IParam[] = []): IOption[] {
   return array.map(item => {

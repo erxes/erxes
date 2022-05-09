@@ -12,7 +12,7 @@ export interface ISpinModel extends Model<ISpinDocument> {
   updateSpin(_id: string, doc: ISpin): Promise<ISpinDocument>;
   removeSpins(_ids: string[]): void;
   buySpin(params: IBuyParams): Promise<ISpinDocument>;
-  doSpin(spinId: string): Promise<ISpinDocument>
+  doSpin(spinId: string): Promise<ISpinDocument>;
 }
 
 export const loadSpinClass = (models: IModels, subdomain: string) => {
@@ -21,19 +21,27 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
       const spin = await models.Spins.findOne({ _id }).lean();
 
       if (!spin) {
-        throw new Error('not found spin rule')
+        throw new Error('not found spin rule');
       }
 
       return spin;
     }
 
     public static async createSpin(doc: ISpin) {
-      const { campaignId, ownerType, ownerId, voucherCampaignId = '', userId = '' } = doc;
+      const {
+        campaignId,
+        ownerType,
+        ownerId,
+        voucherCampaignId = '',
+        userId = ''
+      } = doc;
       if (!ownerId || !ownerType) {
         throw new Error('Not create spin, owner is undefined');
       }
 
-      const spinCampaign = await models.SpinCampaigns.getSpinCampaign(campaignId);
+      const spinCampaign = await models.SpinCampaigns.getSpinCampaign(
+        campaignId
+      );
 
       const now = new Date();
 
@@ -41,7 +49,15 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
         throw new Error('Not create spin, expired');
       }
 
-      return await models.Spins.create({ campaignId, ownerType, ownerId, createdAt: new Date(), status: SPIN_STATUS.NEW, voucherCampaignId, userId })
+      return await models.Spins.create({
+        campaignId,
+        ownerType,
+        ownerId,
+        createdAt: new Date(),
+        status: SPIN_STATUS.NEW,
+        voucherCampaignId,
+        userId
+      });
     }
 
     public static async updateSpin(_id: string, doc: ISpin) {
@@ -57,11 +73,19 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
 
       const now = new Date();
 
-      return await models.Spins.updateOne({ _id, }, {
-        $set: {
-          campaignId, ownerType, ownerId, modifiedAt: now, status: status || SPIN_STATUS.NEW, userId
+      return await models.Spins.updateOne(
+        { _id },
+        {
+          $set: {
+            campaignId,
+            ownerType,
+            ownerId,
+            modifiedAt: now,
+            status: status || SPIN_STATUS.NEW,
+            userId
+          }
         }
-      })
+      );
     }
 
     public static async buySpin(params: IBuyParams) {
@@ -71,15 +95,18 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
         throw new Error('can not buy spin, owner is undefined');
       }
 
-      const spinCampaign = await models.SpinCampaigns.getSpinCampaign(campaignId);
+      const spinCampaign = await models.SpinCampaigns.getSpinCampaign(
+        campaignId
+      );
 
       if (!spinCampaign.buyScore) {
-        throw new Error('can not buy this spin')
+        throw new Error('can not buy this spin');
       }
 
-
       await models.ScoreLogs.changeScore({
-        ownerType, ownerId, changeScore: -1 * spinCampaign.buyScore * count,
+        ownerType,
+        ownerId,
+        changeScore: -1 * spinCampaign.buyScore * count,
         description: 'buy spin'
       });
 
@@ -87,13 +114,15 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
     }
 
     public static async removeSpins(_ids: string[]) {
-      return models.Spins.deleteMany({ _id: { $in: _ids } })
+      return models.Spins.deleteMany({ _id: { $in: _ids } });
     }
 
     public static async doSpin(spinId: string) {
       const spin = await models.Spins.getSpin(spinId);
       const { ownerType, ownerId } = spin;
-      const spinCampaign = await models.SpinCampaigns.getSpinCampaign(spin.campaignId);
+      const spinCampaign = await models.SpinCampaigns.getSpinCampaign(
+        spin.campaignId
+      );
 
       const now = new Date();
 
@@ -103,7 +132,11 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
 
       const awards = spinCampaign.awards || [];
 
-      interface IInterval { awardId: string, min: number, max: number };
+      interface IInterval {
+        awardId: string;
+        min: number;
+        max: number;
+      }
       const intervals: IInterval[] = [];
       let intervalBegin = 0;
 
@@ -112,23 +145,39 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
         const max = intervalBegin + awrd.probability;
         intervals.push({
           awardId: awrd._id,
-          min, max
-        })
+          min,
+          max
+        });
         intervalBegin = intervalBegin + awrd.probability;
       }
 
       const random = randomBetween(0, 100);
 
-      const interval = intervals.find(i => (i.min <= random && random < i.max));
+      const interval = intervals.find(i => i.min <= random && random < i.max);
 
       if (!interval) {
-        await models.Spins.updateOne({ _id: spinId }, { status: SPIN_STATUS.LOSS, usedAt: new Date() });
+        await models.Spins.updateOne(
+          { _id: spinId },
+          { status: SPIN_STATUS.LOSS, usedAt: new Date() }
+        );
         return models.Spins.getSpin(spinId);
       }
 
-      const award = awards.find(a => a._id === interval.awardId) || {} as any;
-      const voucher = await models.Vouchers.createVoucher({ campaignId: award.voucherCampaignId, ownerType, ownerId });
-      await models.Spins.updateOne({ _id: spinId }, { status: SPIN_STATUS.WON, voucherId: voucher._id, awardId: award._id, usedAt: new Date() });
+      const award = awards.find(a => a._id === interval.awardId) || ({} as any);
+      const voucher = await models.Vouchers.createVoucher({
+        campaignId: award.voucherCampaignId,
+        ownerType,
+        ownerId
+      });
+      await models.Spins.updateOne(
+        { _id: spinId },
+        {
+          status: SPIN_STATUS.WON,
+          voucherId: voucher._id,
+          awardId: award._id,
+          usedAt: new Date()
+        }
+      );
 
       return models.Spins.getSpin(spinId);
     }

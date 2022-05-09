@@ -191,6 +191,10 @@ const RowSmall = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
 `;
 
+const RowFill = styled.div`
+  flex: 1;
+`;
+
 const DateWrapper = styled.div`
   input {
     border-radius: 0;
@@ -216,5 +220,6 @@ export {
   LogicItem,
   LogicRow,
   RowSmall,
-  DateWrapper
+  DateWrapper,
+  RowFill
 };

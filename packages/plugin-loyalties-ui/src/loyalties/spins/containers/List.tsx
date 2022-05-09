@@ -49,7 +49,10 @@ class SpinListContainer extends React.Component<FinalProps, State> {
       history
     } = this.props;
 
-    if (spinsMainQuery.loading || (spinCampaignDetailQuery && spinCampaignDetailQuery.loading)) {
+    if (
+      spinsMainQuery.loading ||
+      (spinCampaignDetailQuery && spinCampaignDetailQuery.loading)
+    ) {
       return <Spinner />;
     }
 
@@ -68,7 +71,8 @@ class SpinListContainer extends React.Component<FinalProps, State> {
 
     const searchValue = this.props.queryParams.searchValue || '';
     const { list = [], totalCount = 0 } = spinsMainQuery.spinsMain || {};
-    const currentCampaign = spinCampaignDetailQuery && spinCampaignDetailQuery.spinCampaignDetail;
+    const currentCampaign =
+      spinCampaignDetailQuery && spinCampaignDetailQuery.spinCampaignDetail;
 
     const updatedProps = {
       ...this.props,
@@ -76,7 +80,7 @@ class SpinListContainer extends React.Component<FinalProps, State> {
       searchValue,
       spins: list,
       currentCampaign,
-      removeSpins,
+      removeSpins
     };
 
     const spinsList = props => {
@@ -101,25 +105,27 @@ const generateParams = ({ queryParams }) => ({
   searchValue: queryParams.searchValue,
   sortField: queryParams.sortField,
   sortDirection: Number(queryParams.sortDirection) || undefined,
-  voucherCampaignId: queryParams.voucherCampaignId,
+  voucherCampaignId: queryParams.voucherCampaignId
 });
 
 const generateOptions = () => ({
-  refetchQueries: ['spinsMain', 'spinCounts', 'spinCategories', 'spinCategoriesTotalCount']
+  refetchQueries: [
+    'spinsMain',
+    'spinCounts',
+    'spinCategories',
+    'spinCategoriesTotalCount'
+  ]
 });
 
 export default withProps<Props>(
   compose(
-    graphql<{ queryParams: any }, MainQueryResponse>(
-      gql(queries.spinsMain),
-      {
-        name: 'spinsMainQuery',
-        options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
+    graphql<{ queryParams: any }, MainQueryResponse>(gql(queries.spinsMain), {
+      name: 'spinsMainQuery',
+      options: ({ queryParams }) => ({
+        variables: generateParams({ queryParams }),
+        fetchPolicy: 'network-only'
+      })
+    }),
     graphql<Props, SpinCampaignDetailQueryResponse>(
       gql(campaignQueries.spinCampaignDetail),
       {
@@ -129,7 +135,7 @@ export default withProps<Props>(
             _id: queryParams.campaignId
           }
         }),
-        skip: ({ queryParams }) => !queryParams.campaignId,
+        skip: ({ queryParams }) => !queryParams.campaignId
       }
     ),
     // mutations
@@ -139,6 +145,6 @@ export default withProps<Props>(
         name: 'spinsRemove',
         options: generateOptions
       }
-    ),
+    )
   )(withRouter<IRouterProps>(SpinListContainer))
 );

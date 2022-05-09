@@ -49,43 +49,47 @@ class VoucherRow extends React.Component<Props> {
     }
 
     if (voucher.ownerType === 'customer') {
-      return <FlexItem>
-        <Link to={`/contacts/details/${voucher.ownerId}`}>
-          {formatValue(renderFullName(voucher.owner))}
-        </Link>
-      </FlexItem>;
+      return (
+        <FlexItem>
+          <Link to={`/contacts/details/${voucher.ownerId}`}>
+            {formatValue(renderFullName(voucher.owner))}
+          </Link>
+        </FlexItem>
+      );
     }
 
     if (voucher.ownerType === 'user') {
-      return <FlexItem>
-        <Link to={`/settings/team/details/${voucher.ownerId}`}>
-          {formatValue(renderUserFullName(voucher.owner))}
-        </Link>
-      </FlexItem>;
+      return (
+        <FlexItem>
+          <Link to={`/settings/team/details/${voucher.ownerId}`}>
+            {formatValue(renderUserFullName(voucher.owner))}
+          </Link>
+        </FlexItem>
+      );
     }
 
     if (voucher.ownerType === 'company') {
-      return <FlexItem>
-        <Link to={`/companies/details/${voucher.ownerId}`}>
-          {formatValue(this.displayValue(voucher.owner, 'name'))}
-        </Link>
-      </FlexItem>;
+      return (
+        <FlexItem>
+          <Link to={`/companies/details/${voucher.ownerId}`}>
+            {formatValue(this.displayValue(voucher.owner, 'name'))}
+          </Link>
+        </FlexItem>
+      );
     }
 
     return '';
-  }
+  };
 
   modalContent = props => {
-    const { voucher } = this.props
+    const { voucher } = this.props;
 
     const updatedProps = {
       ...props,
       voucher
-    }
+    };
 
-    return (
-      <Form {...updatedProps} />
-    )
+    return <Form {...updatedProps} />;
   };
 
   render() {
@@ -96,7 +100,10 @@ class VoucherRow extends React.Component<Props> {
     };
 
     const renderCheckbox = () => {
-      if (!currentCampaign || ['spin', 'lottery'].includes(currentCampaign.voucherType)) {
+      if (
+        !currentCampaign ||
+        ['spin', 'lottery'].includes(currentCampaign.voucherType)
+      ) {
         return;
       }
       return (
@@ -107,17 +114,21 @@ class VoucherRow extends React.Component<Props> {
             onChange={this.onChange}
           />
         </td>
-      )
-    }
+      );
+    };
 
     const trigger = (
       <tr>
         {renderCheckbox()}
         <td key={'createdAt'}>{dayjs(voucher.createdAt).format('lll')} </td>
         <td key={'ownerType'}>{this.displayValue(voucher, 'ownerType')}</td>
-        <td key={'ownerId'} onClick={onClick}>{this.renderOwner()}</td>
+        <td key={'ownerId'} onClick={onClick}>
+          {this.renderOwner()}
+        </td>
         <td key={'status'}>{this.displayValue(voucher, 'status')}</td>
-        <td key={'actions'} onClick={onClick}>.</td>
+        <td key={'actions'} onClick={onClick}>
+          .
+        </td>
       </tr>
     );
 
@@ -128,7 +139,6 @@ class VoucherRow extends React.Component<Props> {
         autoOpenKey="showProductModal"
         content={this.modalContent}
       />
-
     );
   }
 }

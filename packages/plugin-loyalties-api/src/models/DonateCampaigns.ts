@@ -1,6 +1,10 @@
 import * as _ from 'underscore';
 import { CAMPAIGN_STATUS } from './definitions/constants';
-import { donateCampaignSchema, IDonateCampaign, IDonateCampaignDocument } from './definitions/donateCampaigns';
+import {
+  donateCampaignSchema,
+  IDonateCampaign,
+  IDonateCampaignDocument
+} from './definitions/donateCampaigns';
 import { Model, model } from 'mongoose';
 import { validCampaign } from './utils';
 import { IModels } from '../connectionResolver';
@@ -8,15 +12,21 @@ import { IModels } from '../connectionResolver';
 export interface IDonateCampaignModel extends Model<IDonateCampaignDocument> {
   getDonateCampaign(_id: string): Promise<IDonateCampaignDocument>;
   createDonateCampaign(doc: IDonateCampaign): Promise<IDonateCampaignDocument>;
-  updateDonateCampaign(_id: string, doc: IDonateCampaign): Promise<IDonateCampaignDocument>;
+  updateDonateCampaign(
+    _id: string,
+    doc: IDonateCampaign
+  ): Promise<IDonateCampaignDocument>;
   removeDonateCampaigns(_ids: string[]): void;
+}
+
+const getSortAwards = awards => {
+  return awards.sort((a, b) => a.minScore - b.minScore);
 };
 
-const getSortAwards = (awards) => {
-  return awards.sort((a, b) => a.minScore - b.minScore)
-};
-
-export const loadDonateCampaignClass = (models: IModels, _subdomain: string) => {
+export const loadDonateCampaignClass = (
+  models: IModels,
+  _subdomain: string
+) => {
   class DonateCampaign {
     public static async getDonateCampaign(_id: string) {
       const donateCampaign = await models.DonateCampaigns.findOne({ _id });
@@ -29,16 +39,20 @@ export const loadDonateCampaignClass = (models: IModels, _subdomain: string) => 
     }
 
     static async validDonateCampaign(doc: IDonateCampaign) {
-      validCampaign(doc)
+      validCampaign(doc);
 
       const awards = doc.awards || [];
-      if (doc.maxScore && awards.length && (awards[awards.length - 1].minScore || 0) > doc.maxScore) {
-        throw new Error('Max score must be greather than level scores')
+      if (
+        doc.maxScore &&
+        awards.length &&
+        (awards[awards.length - 1].minScore || 0) > doc.maxScore
+      ) {
+        throw new Error('Max score must be greather than level scores');
       }
 
-      const levels = awards.map(a => a.minScore)
+      const levels = awards.map(a => a.minScore);
       if (levels.length > [...new Set(levels)].length) {
-        throw new Error('Levels scores must be unique')
+        throw new Error('Levels scores must be unique');
       }
     }
 
@@ -47,8 +61,8 @@ export const loadDonateCampaignClass = (models: IModels, _subdomain: string) => 
         ...doc,
         awards: getSortAwards(doc.awards),
         createdAt: new Date(),
-        modifiedAt: new Date(),
-      }
+        modifiedAt: new Date()
+      };
 
       try {
         await this.validDonateCampaign(modifier);
@@ -59,12 +73,15 @@ export const loadDonateCampaignClass = (models: IModels, _subdomain: string) => 
       return models.DonateCampaigns.create(modifier);
     }
 
-    public static async updateDonateCampaign(_id: string, doc: IDonateCampaign) {
+    public static async updateDonateCampaign(
+      _id: string,
+      doc: IDonateCampaign
+    ) {
       const modifier = {
         ...doc,
         awards: getSortAwards(doc.awards),
-        modifiedAt: new Date(),
-      }
+        modifiedAt: new Date()
+      };
 
       try {
         await this.validDonateCampaign(modifier);
@@ -82,7 +99,7 @@ export const loadDonateCampaignClass = (models: IModels, _subdomain: string) => 
 
       const campaignIds = [...atDonateIds];
 
-      const usedCampaignIds = ids.filter(id => (campaignIds.includes(id)));
+      const usedCampaignIds = ids.filter(id => campaignIds.includes(id));
       const deleteCampaignIds = ids.map(id => !usedCampaignIds.includes(id));
       const now = new Date();
 
@@ -91,9 +108,11 @@ export const loadDonateCampaignClass = (models: IModels, _subdomain: string) => 
         { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } }
       );
 
-      return models.DonateCampaigns.deleteMany({ _id: { $in: deleteCampaignIds } });
+      return models.DonateCampaigns.deleteMany({
+        _id: { $in: deleteCampaignIds }
+      });
     }
-  };
+  }
 
   donateCampaignSchema.loadClass(DonateCampaign);
 
