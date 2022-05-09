@@ -59,8 +59,8 @@ function Appearance({
     headingFont
   } = styles || ({} as Styles);
 
-  const handleAvatarUploader = (logoUrl: string) => {
-    handleFormChange('logo', logoUrl);
+  const handleAvatarUploader = (name: string, url: string) => {
+    handleFormChange(name, url);
   };
 
   function renderSelect({
@@ -144,7 +144,9 @@ function Appearance({
               <p>{__('Client portal main logo PNG')}.</p>
               <AvatarUpload
                 avatar={logo}
-                onAvatarUpload={handleAvatarUploader}
+                onAvatarUpload={logoUrl =>
+                  handleAvatarUploader('logo', logoUrl)
+                }
               />
             </FormGroup>
 
@@ -153,7 +155,9 @@ function Appearance({
               <p>{__('16x16px transparent PNG')}.</p>
               <AvatarUpload
                 avatar={icon}
-                onAvatarUpload={handleAvatarUploader}
+                onAvatarUpload={iconUrl =>
+                  handleAvatarUploader('icon', iconUrl)
+                }
               />
             </FormGroup>
           </FlexContent>

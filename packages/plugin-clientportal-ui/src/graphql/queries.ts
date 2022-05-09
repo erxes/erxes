@@ -41,6 +41,10 @@ export const commonFields = `
   twilioAccountSid
   twilioAuthToken
   twilioFromNumber
+  kbToggle
+  publicTaskToggle
+  ticketToggle
+  taskToggle
 `;
 
 const getTotalCount = `

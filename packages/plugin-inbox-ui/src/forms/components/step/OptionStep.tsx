@@ -20,7 +20,13 @@ import {
 
 type Props = {
   onChange: (
-    name: 'brand' | 'language' | 'isRequireOnce' | 'channelIds' | 'theme',
+    name:
+      | 'brand'
+      | 'language'
+      | 'isRequireOnce'
+      | 'channelIds'
+      | 'theme'
+      | 'saveAsCustomer',
     value: any
   ) => void;
   type: string;
@@ -30,6 +36,7 @@ type Props = {
   title?: string;
   language?: string;
   isRequireOnce?: boolean;
+  saveAsCustomer?: boolean;
   fields?: IField[];
   brand?: IBrand;
   channelIds?: string[];
@@ -74,7 +81,7 @@ class OptionStep extends React.Component<Props, State> {
   }
 
   render() {
-    const { language, brand, isRequireOnce } = this.props;
+    const { language, brand, isRequireOnce, saveAsCustomer } = this.props;
 
     const onChange = e =>
       this.onChangeFunction(
@@ -89,7 +96,7 @@ class OptionStep extends React.Component<Props, State> {
     const onChangeLanguage = e => this.onSelectChange(e, 'language');
 
     const onSwitchHandler = e => {
-      this.onChangeFunction('isRequireOnce', e.target.checked);
+      this.onChangeFunction(e.target.id, e.target.checked);
     };
 
     return (
@@ -120,13 +127,13 @@ class OptionStep extends React.Component<Props, State> {
           <SelectChannels
             defaultValue={this.props.channelIds}
             isRequired={false}
-            description='Choose a channel, if you wish to see every new form in your Team Inbox.'
+            description="Choose a channel, if you wish to see every new form in your Team Inbox."
             onChange={channelOnChange}
           />
           <FormGroup>
             <ControlLabel>Language</ControlLabel>
             <Select
-              id='language'
+              id="language"
               value={language}
               options={LANGUAGES}
               onChange={onChangeLanguage}
@@ -143,7 +150,25 @@ class OptionStep extends React.Component<Props, State> {
             <br />
             <div>
               <Toggle
+                id="isRequireOnce"
                 checked={isRequireOnce || false}
+                onChange={onSwitchHandler}
+                icons={{
+                  checked: <span>Yes</span>,
+                  unchecked: <span>No</span>
+                }}
+              />
+            </div>
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Save as customer</ControlLabel>
+            <Description>Forcibly turn lead to customer.</Description>
+            <br />
+            <div>
+              <Toggle
+                id="saveAsCustomer"
+                checked={saveAsCustomer || false}
                 onChange={onSwitchHandler}
                 icons={{
                   checked: <span>Yes</span>,

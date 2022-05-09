@@ -538,6 +538,8 @@ export const updateContactsField = async (
   let { cachedCustomerId } = args;
   const { browserInfo, integration, submissionsGrouped } = args;
 
+  const { leadData } = integration;
+
   const conformityIds: {
     [key: string]: { customerId: string; companyId: string };
   } = {};
@@ -664,14 +666,14 @@ export const updateContactsField = async (
           isRPC: true
         });
 
-        if (fieldGroup && fieldGroup.contentType === 'company') {
+        if (fieldGroup && fieldGroup.contentType === 'contacts:company') {
           companyCustomData.push({
             field: submission.associatedFieldId,
             value: submission.value
           });
         }
 
-        if (fieldGroup && fieldGroup.contentType === 'customer') {
+        if (fieldGroup && fieldGroup.contentType === 'contacts:customer') {
           customFieldsData.push({
             field: submission.associatedFieldId,
             value: submission.value
@@ -693,7 +695,8 @@ export const updateContactsField = async (
           models,
           integration._id,
           customerDoc,
-          integration.brandId || ''
+          integration.brandId || '',
+          leadData.saveAsCustomer
         );
       }
 
@@ -941,9 +944,10 @@ const createCustomer = async (
   models: IModels,
   integrationId: string,
   customerDoc: any,
-  brandId?: string
+  brandId?: string,
+  saveAsCustomer?: boolean
 ) => {
-  return models.Customers.createCustomer({
+  const doc: any = {
     integrationId,
     primaryEmail: customerDoc.email || '',
     emails: [customerDoc.email || ''],
@@ -952,7 +956,13 @@ const createCustomer = async (
     middleName: customerDoc.middleName || '',
     primaryPhone: customerDoc.phone || '',
     scopeBrandIds: [brandId || '']
-  });
+  };
+
+  if (saveAsCustomer) {
+    doc.state = 'customer';
+  }
+
+  return models.Customers.createCustomer(doc);
 };
 
 const getSocialLinkKey = (type: string) => {

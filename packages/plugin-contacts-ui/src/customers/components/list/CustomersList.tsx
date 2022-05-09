@@ -1,42 +1,42 @@
-import gql from "graphql-tag";
-import Button from "@erxes/ui/src/components/Button";
-import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
-import DateFilter from "@erxes/ui/src/components/DateFilter";
-import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
-import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import Icon from "@erxes/ui/src/components/Icon";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Pagination from "@erxes/ui/src/components/pagination/Pagination";
-import SortHandler from "@erxes/ui/src/components/SortHandler";
-import Table from "@erxes/ui/src/components/table";
-import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
-import { menuContacts } from "@erxes/ui/src/utils/menus";
-import * as routerUtils from "@erxes/ui/src/utils/router";
+import gql from 'graphql-tag';
+import Button from '@erxes/ui/src/components/Button';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import DateFilter from '@erxes/ui/src/components/DateFilter';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import SortHandler from '@erxes/ui/src/components/SortHandler';
+import Table from '@erxes/ui/src/components/table';
+import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
+import { menuContacts } from '@erxes/ui/src/utils/menus';
+import * as routerUtils from '@erxes/ui/src/utils/router';
 import {
   EMAIL_VALIDATION_STATUSES,
-  PHONE_VALIDATION_STATUSES,
-} from "@erxes/ui/src/customers/constants";
-import { queries } from "@erxes/ui-contacts/src/customers/graphql";
-import { EMPTY_CONTENT_CONTACTS } from "@erxes/ui-settings/src/constants";
-import React from "react";
-import Dropdown from "react-bootstrap/Dropdown";
-import { withRouter } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { IRouterProps } from "@erxes/ui/src/types";
-import { __, Alert, confirm, router } from "coreui/utils";
-import Widget from "@erxes/ui-engage/src/containers/Widget";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { BarItems } from "@erxes/ui/src/layout/styles";
-import ManageColumns from "@erxes/ui-settings/src/properties/containers/ManageColumns";
-import { IConfigColumn } from "@erxes/ui-settings/src/properties/types";
-import TaggerPopover from "@erxes/ui/src/tags/components/TaggerPopover";
-import CustomerForm from "@erxes/ui/src/customers/containers/CustomerForm";
-import { ICustomer } from "../../types";
-import CustomersMerge from "@erxes/ui-contacts/src/customers/components/detail/CustomersMerge";
-import CustomerRow from "./CustomerRow";
-import Sidebar from "./Sidebar";
-import { TAG_TYPES } from "@erxes/ui/src/tags/constants";
+  PHONE_VALIDATION_STATUSES
+} from '@erxes/ui/src/customers/constants';
+import { queries } from '@erxes/ui-contacts/src/customers/graphql';
+import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
+import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import { withRouter } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { __, Alert, confirm, router } from 'coreui/utils';
+import Widget from '@erxes/ui-engage/src/containers/Widget';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import ManageColumns from '@erxes/ui-settings/src/properties/containers/ManageColumns';
+import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
+import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
+import CustomerForm from '@erxes/ui/src/customers/containers/CustomerForm';
+import { ICustomer } from '../../types';
+import CustomersMerge from '@erxes/ui-contacts/src/customers/components/detail/CustomersMerge';
+import CustomerRow from './CustomerRow';
+import Sidebar from './Sidebar';
+import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
 
 interface IProps extends IRouterProps {
   type: string;
@@ -87,7 +87,7 @@ class CustomersList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue,
+      searchValue: this.props.searchValue
     };
   }
 
@@ -99,7 +99,7 @@ class CustomersList extends React.Component<IProps, State> {
       if (searchType === type) {
         routerUtils.setParams(history, { searchValue });
       } else {
-        this.setState({ searchValue: "" });
+        this.setState({ searchValue: '' });
       }
     }
   }
@@ -107,13 +107,13 @@ class CustomersList extends React.Component<IProps, State> {
   onChange = () => {
     const { toggleAll, customers } = this.props;
 
-    toggleAll(customers, "customers");
+    toggleAll(customers, 'customers');
   };
 
-  removeCustomers = (customers) => {
+  removeCustomers = customers => {
     const customerIds: string[] = [];
 
-    customers.forEach((customer) => {
+    customers.forEach(customer => {
       customerIds.push(customer._id);
     });
 
@@ -139,7 +139,7 @@ class CustomersList extends React.Component<IProps, State> {
   changeVerificationStatus = (type: string, status: string, customers) => {
     const customerIds: string[] = [];
 
-    customers.forEach((customer) => {
+    customers.forEach(customer => {
       customerIds.push(customer._id);
     });
 
@@ -156,7 +156,7 @@ class CustomersList extends React.Component<IProps, State> {
       toggleBulk,
       history,
       isAllSelected,
-      isExpand,
+      isExpand
     } = this.props;
 
     return (
@@ -176,11 +176,11 @@ class CustomersList extends React.Component<IProps, State> {
                   <SortHandler sortField={name} label={__(label)} />
                 </th>
               ))}
-              <th>{__("Tags")}</th>
+              <th>{__('Tags')}</th>
             </tr>
           </thead>
-          <tbody id="customers" className={isExpand ? "expand" : ""}>
-            {(customers || []).map((customer) => (
+          <tbody id="customers" className={isExpand ? 'expand' : ''}>
+            {(customers || []).map(customer => (
               <CustomerRow
                 customer={customer}
                 columnsConfig={columnsConfig}
@@ -196,7 +196,7 @@ class CustomersList extends React.Component<IProps, State> {
     );
   }
 
-  search = (e) => {
+  search = e => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -207,7 +207,7 @@ class CustomersList extends React.Component<IProps, State> {
     this.setState({ searchValue, searchType: type });
 
     this.timer = setTimeout(() => {
-      router.removeParams(history, "page");
+      router.removeParams(history, 'page');
       router.setParams(history, { searchValue });
     }, 500);
   };
@@ -215,7 +215,7 @@ class CustomersList extends React.Component<IProps, State> {
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;
 
-    e.target.value = "";
+    e.target.value = '';
     e.target.value = tmpValue;
   }
 
@@ -241,21 +241,21 @@ class CustomersList extends React.Component<IProps, State> {
       queryParams,
       exportData,
       renderExpandButton,
-      mergeCustomerLoading,
+      mergeCustomerLoading
     } = this.props;
 
     const addTrigger = (
       <Button btnStyle="success" size="small" icon="plus-circle">
-        Add {type || "customer"}
+        Add {type || 'customer'}
       </Button>
     );
 
-    const onEmailStatusClick = (e) => {
-      this.changeVerificationStatus("email", e.target.id, bulk);
+    const onEmailStatusClick = e => {
+      this.changeVerificationStatus('email', e.target.id, bulk);
     };
 
-    const onPhoneStatusClick = (e) => {
-      this.changeVerificationStatus("phone", e.target.id, bulk);
+    const onPhoneStatusClick = e => {
+      this.changeVerificationStatus('phone', e.target.id, bulk);
     };
 
     const emailVerificationStatusList = [] as any;
@@ -290,24 +290,24 @@ class CustomersList extends React.Component<IProps, State> {
       );
     }
 
-    const editColumns = <a href="#edit">{__("Choose Properties/View")}</a>;
+    const editColumns = <a href="#edit">{__('Choose Properties/View')}</a>;
 
     const dateFilter = queryParams.form && (
       <DateFilter queryParams={queryParams} history={history} />
     );
 
-    const manageColumns = (props) => {
+    const manageColumns = props => {
       return (
         <ManageColumns
           {...props}
-          contentType={type}
+          contentType={`contacts:${type}`}
           location={location}
           history={history}
         />
       );
     };
 
-    const customerForm = (props) => {
+    const customerForm = props => {
       return (
         <CustomerForm
           {...props}
@@ -318,7 +318,7 @@ class CustomersList extends React.Component<IProps, State> {
       );
     };
 
-    const customersMerge = (props) => {
+    const customersMerge = props => {
       return (
         <CustomersMerge
           {...props}
@@ -333,7 +333,7 @@ class CustomersList extends React.Component<IProps, State> {
       <BarItems>
         <FormControl
           type="text"
-          placeholder={__("Type to search")}
+          placeholder={__('Type to search')}
           onChange={this.search}
           value={this.state.searchValue}
           autoFocus={true}
@@ -347,7 +347,7 @@ class CustomersList extends React.Component<IProps, State> {
         <Dropdown className="dropdown-btn" alignRight={true}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
             <Button btnStyle="simple" size="small">
-              {__("Customize ")} <Icon icon="angle-down" />
+              {__('Customize ')} <Icon icon="angle-down" />
             </Button>
           </Dropdown.Toggle>
           <Dropdown.Menu>
@@ -360,41 +360,41 @@ class CustomersList extends React.Component<IProps, State> {
             </li>
             <li>
               <Link to="/settings/properties?type=contatcs:customer">
-                {__("Manage properties")}
+                {__('Manage properties')}
               </Link>
             </li>
             <li>
               <a href="#export" onClick={exportData.bind(this, bulk)}>
-                {type === "lead"
-                  ? __("Export this leads")
-                  : __("Export this contacts")}
+                {type === 'lead'
+                  ? __('Export this leads')
+                  : __('Export this contacts')}
               </a>
             </li>
             <li>
               <a
                 href="#verifyEmail"
-                onClick={this.verifyCustomers.bind(this, "email")}
+                onClick={this.verifyCustomers.bind(this, 'email')}
               >
-                {__("Verify emails")}
+                {__('Verify emails')}
               </a>
             </li>
             <li>
               <a
                 href="#verifyPhone"
-                onClick={this.verifyCustomers.bind(this, "phone")}
+                onClick={this.verifyCustomers.bind(this, 'phone')}
               >
-                {__("Verify phone numbers")}
+                {__('Verify phone numbers')}
               </a>
             </li>
           </Dropdown.Menu>
         </Dropdown>
         <Link to={`/settings/importHistories?type=${type}`}>
           <Button btnStyle="primary" size="small" icon="arrow-from-right">
-            {__("Go to import")}
+            {__('Go to import')}
           </Button>
         </Link>
 
-        {type === "visitor" ? null : (
+        {type === 'visitor' ? null : (
           <ModalTrigger
             title="New customer"
             autoOpenKey="showCustomerModal"
@@ -427,13 +427,13 @@ class CustomersList extends React.Component<IProps, State> {
           .then(() => {
             this.removeCustomers(bulk);
           })
-          .catch((e) => {
+          .catch(e => {
             Alert.error(e.message);
           });
 
       const refetchQuery = {
         query: gql(queries.customerCounts),
-        variables: { type, only: "byTag" },
+        variables: { type, only: 'byTag' }
       };
 
       actionBarLeft = (
@@ -464,7 +464,7 @@ class CustomersList extends React.Component<IProps, State> {
           >
             <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
               <Button btnStyle="simple" size="small">
-                {__("Change email status ")} <Icon icon="angle-down" />
+                {__('Change email status ')} <Icon icon="angle-down" />
               </Button>
             </Dropdown.Toggle>
             <Dropdown.Menu>
@@ -475,7 +475,7 @@ class CustomersList extends React.Component<IProps, State> {
           <Dropdown className="dropdown-btn" alignRight={true}>
             <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
               <Button btnStyle="simple" size="small">
-                {__("Change phone status ")} <Icon icon="angle-down" />
+                {__('Change phone status ')} <Icon icon="angle-down" />
               </Button>
             </Dropdown.Toggle>
             <Dropdown.Menu>
@@ -524,4 +524,4 @@ class CustomersList extends React.Component<IProps, State> {
   }
 }
 
-export default withTableWrapper("Customer", withRouter(CustomersList));
+export default withTableWrapper('Customer', withRouter(CustomersList));
