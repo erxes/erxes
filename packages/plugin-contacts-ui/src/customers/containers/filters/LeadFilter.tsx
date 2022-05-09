@@ -25,8 +25,6 @@ function LeadFilterContainer(props: Props) {
     ? integrationsQuery.integrations || []
     : [];
 
-  console.log('debug ========', defaultIntegrations);
-
   const [integrations, setIntegrations] = useState(defaultIntegrations);
 
   const prevProp = useRef(integrationsQuery);
