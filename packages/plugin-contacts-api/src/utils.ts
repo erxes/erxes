@@ -666,14 +666,14 @@ export const updateContactsField = async (
           isRPC: true
         });
 
-        if (fieldGroup && fieldGroup.contentType === 'company') {
+        if (fieldGroup && fieldGroup.contentType === 'contacts:company') {
           companyCustomData.push({
             field: submission.associatedFieldId,
             value: submission.value
           });
         }
 
-        if (fieldGroup && fieldGroup.contentType === 'customer') {
+        if (fieldGroup && fieldGroup.contentType === 'contacts:customer') {
           customFieldsData.push({
             field: submission.associatedFieldId,
             value: submission.value
