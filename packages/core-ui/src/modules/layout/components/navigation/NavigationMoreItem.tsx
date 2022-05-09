@@ -20,10 +20,18 @@ type Props = {
   isPinnable: boolean;
   isPinned: boolean;
   handleOnClick: (plugin: Plugin) => void;
+  toggleMenu: (text: string) => void;
 };
 
 export default function NavigationMoreItem(props: Props) {
-  const { plugin, navCollapse, isPinnable, isPinned, handleOnClick } = props;
+  const {
+    plugin,
+    navCollapse,
+    isPinnable,
+    isPinned,
+    handleOnClick,
+    toggleMenu
+  } = props;
 
   return (
     <WithPermission
@@ -34,7 +42,7 @@ export default function NavigationMoreItem(props: Props) {
       <MoreItemRecent>
         <NavItem isMoreItem={true}>
           <NavMenuItem isMoreItem={true} navCollapse={navCollapse}>
-            <NavLink to={getLink(plugin.url)}>
+            <NavLink to={getLink(plugin.url)} onClick={() => toggleMenu(plugin.text)}>
               <NavIcon className={plugin.icon} />
               <label>{plugin.text}</label>
             </NavLink>

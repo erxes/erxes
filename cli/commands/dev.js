@@ -69,11 +69,7 @@ module.exports.devCmd = async (program) => {
       ignore_watch: ["node_modules"],
       env: {
         PORT: port,
-<<<<<<< HEAD
-        CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
-=======
         CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
->>>>>>> f1cf1370684cf11320f8a9f2f764015b13ecef9d
         ...commonEnv,
         ...((configs.core || {}).envs || {})
       }
@@ -198,11 +194,7 @@ module.exports.devCmd = async (program) => {
         PORT: 3700,
         ...commonEnv,
         ...((configs.workers || {}).envs || {})
-<<<<<<< HEAD
-      }
-=======
       },
->>>>>>> f1cf1370684cf11320f8a9f2f764015b13ecef9d
     });
   }
 
@@ -218,11 +210,7 @@ module.exports.devCmd = async (program) => {
       CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
       ...commonEnv,
       ...((configs.gateway || {}).envs || {})
-<<<<<<< HEAD
-    }
-=======
     },
->>>>>>> f1cf1370684cf11320f8a9f2f764015b13ecef9d
   });
 
   // replace ui plugins.js
