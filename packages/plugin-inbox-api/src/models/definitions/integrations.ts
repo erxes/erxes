@@ -1,5 +1,9 @@
 import { Document, Schema } from 'mongoose';
-import { attachmentSchema, IRule, ruleSchema } from '@erxes/api-utils/src/definitions/common';
+import {
+  attachmentSchema,
+  IRule,
+  ruleSchema
+} from '@erxes/api-utils/src/definitions/common';
 import {
   KIND_CHOICES,
   LEAD_LOAD_TYPES,
@@ -134,6 +138,7 @@ export interface ILeadData {
   viewCount?: number;
   contactsGathered?: number;
   isRequireOnce?: boolean;
+  saveAsCustomer?: boolean;
   templateId?: string;
   attachments?: IAttachment[];
   css?: string;
@@ -355,7 +360,12 @@ export const leadDataSchema = new Schema(
     isRequireOnce: field({
       type: Boolean,
       optional: true,
-      label: 'Do now show again if already filled out'
+      label: 'Do not show again if already filled out'
+    }),
+    saveAsCustomer: field({
+      type: Boolean,
+      optional: true,
+      label: 'Save as customer'
     }),
     templateId: field({
       type: String,
