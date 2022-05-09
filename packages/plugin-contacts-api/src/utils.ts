@@ -962,8 +962,6 @@ const createCustomer = async (
     doc.state = 'customer';
   }
 
-  console.log(doc);
-
   return models.Customers.createCustomer(doc);
 };
 
