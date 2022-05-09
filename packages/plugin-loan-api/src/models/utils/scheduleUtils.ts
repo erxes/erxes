@@ -720,7 +720,7 @@ export const betweenScheduled = async (
   preSchedule,
   pendingSchedules
 ) => {
-  const trReaction = [];
+  const trReaction: any = [];
   const doc = await fillAmounts(models, {}, tr, preSchedule, true);
 
   doc.contractId = contract._id;
@@ -731,6 +731,7 @@ export const betweenScheduled = async (
     ...doc,
     isDefault: false,
   });
+
   trReaction.push({ scheduleId: updatedSchedule._id, preData: undefined });
 
   await generatePendingSchedules(
@@ -752,7 +753,7 @@ export const onNextScheduled = async (
   nextSchedule,
   pendingSchedules
 ) => {
-  const trReaction = [];
+  const trReaction: any[] = [];
 
   const doc = await fillAmounts(
     models,
@@ -793,7 +794,11 @@ export const afterNextScheduled = async (
   nextSchedule,
   pendingSchedules
 ) => {
-  const trReaction = [];
+  interface ITrReaction {
+    scheduleId: string;
+    preData?: any;
+  }
+  const trReaction: ITrReaction[] = [];
   const doc = await fillAmounts(
     models,
     { ...nextSchedule },
@@ -823,7 +828,7 @@ export const afterNextScheduled = async (
 
   for (const skippedSchedule of skippedSchedules) {
     trReaction.push({
-      scheduleId: skippedSchedule._id,
+      scheduleId: skippedSchedule._id || 0,
       preData: { status: SCHEDULE_STATUS.PENDING },
     });
   }
