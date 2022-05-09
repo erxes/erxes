@@ -20,15 +20,19 @@ const container = (props: Props) => {
         setHeadHeight,
         headHeight,
         getUiOptions,
+        exportConversation,
+        activeConversation
       }) => {
         return (
           <TopBar
             {...props}
+            activeConversation={activeConversation}
             color={getUiOptions().color}
             textColor={getUiOptions().textColor || '#fff'}
             toggleLauncher={toggle}
             isChat={Boolean(!connection.setting.email)}
             endConversation={endConversation}
+            exportConversation={exportConversation}
             prevHeight={headHeight}
             setHeadHeight={setHeadHeight}
           />

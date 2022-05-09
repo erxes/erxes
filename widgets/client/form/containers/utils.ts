@@ -1,15 +1,16 @@
-import gql from 'graphql-tag';
-import client from '../../apollo-client';
-import { getLocalStorageItem } from '../../common';
-import { IBrowserInfo, IEmailParams } from '../../types';
-import { requestBrowserInfo } from '../../utils';
-import { connection } from '../connection';
+import gql from "graphql-tag";
+import client from "../../apollo-client";
+import { getLocalStorageItem } from "../../common";
+import { IBrowserInfo, IEmailParams } from "../../types";
+import { requestBrowserInfo } from "../../utils";
+import { connection } from "../connection";
 import {
+  cancelOrderMutation,
   increaseViewCountMutation,
   saveFormMutation,
   sendEmailMutation
-} from '../graphql';
-import { IFormDoc, ISaveFormResponse } from '../types';
+} from "../graphql";
+import { IFormDoc, ISaveFormResponse } from "../types";
 
 /*
  * Send message to iframe's parent
@@ -19,17 +20,17 @@ export const postMessage = (options: any) => {
   window.parent.postMessage(
     {
       fromErxes: true,
-      source: 'fromForms',
+      source: "fromForms",
       setting: connection.setting,
       ...options
     },
-    '*'
+    "*"
   );
 };
 
 export const saveBrowserInfo = () => {
   requestBrowserInfo({
-    source: 'fromForms',
+    source: "fromForms",
     postData: {
       setting: connection.setting
     },
@@ -52,7 +53,7 @@ export const sendEmail = ({
 }: IEmailParams) => {
   const customerId = connection.customerId
     ? connection.customerId
-    : getLocalStorageItem('customerId');
+    : getLocalStorageItem("customerId");
 
   client.mutate({
     mutation: gql(sendEmailMutation),
@@ -101,7 +102,8 @@ export const saveLead = (params: {
       associatedFieldId,
       groupId,
       isHidden,
-      column
+      column,
+      productId
     } = doc[fieldId];
 
     if (isHidden) {
@@ -116,13 +118,14 @@ export const saveLead = (params: {
       validation,
       associatedFieldId,
       groupId,
-      column
+      column,
+      productId
     };
   });
 
   const cachedCustomerId = connection.customerId
     ? connection.customerId
-    : getLocalStorageItem('customerId');
+    : getLocalStorageItem("customerId");
 
   const variables = {
     integrationId,
@@ -138,7 +141,7 @@ export const saveLead = (params: {
       variables
     })
 
-    .then(({ data }) => {
+    .then(async ({ data }) => {
       if (data) {
         const { widgetsSaveLead } = data;
 
@@ -147,17 +150,17 @@ export const saveLead = (params: {
 
           postMessage({
             fromErxes: true,
-            message: 'setLocalStorageItem',
-            key: 'customerId',
+            message: "setLocalStorageItem",
+            key: "customerId",
             value: widgetsSaveLead.customerId
           });
         }
 
         saveCallback(widgetsSaveLead);
 
-        if (widgetsSaveLead && widgetsSaveLead.status === 'ok') {
+        if (widgetsSaveLead && widgetsSaveLead.status === "ok") {
           postMessage({
-            message: 'formSuccess',
+            message: "formSuccess",
             variables
           });
         }
@@ -165,6 +168,29 @@ export const saveLead = (params: {
     })
 
     .catch(e => {
-      saveCallback({ status: 'error', errors: [{ text: e.message }] });
+      saveCallback({ status: "error", errors: [{ text: e.message }] });
+    });
+};
+
+export const cancelOrder = (params: {
+  customerId: string;
+  messageId: string;
+  cancelCallback: (response: string) => void;
+}) => {
+  const { customerId, messageId, cancelCallback } = params;
+
+  client
+    .mutate({
+      mutation: gql(cancelOrderMutation),
+      variables: {
+        customerId,
+        messageId
+      }
+    })
+    .then(res => {
+      cancelCallback("CANCELLED");
+    })
+    .catch(_e => {
+      cancelCallback("CANCEL_FAILED");
     });
 };

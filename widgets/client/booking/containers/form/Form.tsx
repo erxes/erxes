@@ -1,10 +1,12 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
-import DumbForm from '../../../form/components/Form';
-import { ICurrentStatus, IForm } from '../../../form/types';
-import { formDetailQuery } from '../../graphql';
-import { AppConsumer } from '../AppContext';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, graphql } from "react-apollo";
+import client from "../../../apollo-client";
+import DumbForm from "../../../form/components/Form";
+import { formInvoiceUpdated } from "../../../form/graphql";
+import { ICurrentStatus, IForm } from "../../../form/types";
+import { formDetailQuery } from "../../graphql";
+import { AppConsumer } from "../AppContext";
 
 const Form = (props: ChildProps<IProps, QueryResponse>) => {
   const { data } = props;
@@ -23,6 +25,24 @@ const Form = (props: ChildProps<IProps, QueryResponse>) => {
     integration: props.integration
   };
 
+  React.useEffect(() => {
+    client
+      .subscribe({
+        query: gql(formInvoiceUpdated),
+        variables: { messageId: props.lastMessageId || "" }
+      })
+      .subscribe({
+        next({ data }) {
+          if (data.formInvoiceUpdated.status === "success") {
+            props.onChangeCurrentStatus("SUCCESS");
+          }
+        },
+        error(err: any) {
+          console.error("err", err);
+        }
+      });
+  });
+
   return <DumbForm {...extendedProps} hasTopBar={true} />;
 };
 
@@ -37,6 +57,11 @@ interface IProps {
   onCreateNew: () => void;
   sendEmail: (params: any) => void;
   isSubmitting?: boolean;
+  invoiceResponse?: any;
+  invoiceType?: string;
+  lastMessageId?: string;
+  onCancelOrder: (customerId: string, messageId: string) => void;
+  onChangeCurrentStatus: (status: string) => void;
 }
 
 const FormWithData = graphql<IProps, QueryResponse>(
@@ -44,7 +69,7 @@ const FormWithData = graphql<IProps, QueryResponse>(
 
   {
     options: ({ integration }) => ({
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
       variables: {
         _id: integration.formId
       }
@@ -60,7 +85,12 @@ const WithContext = () => (
       sendEmail,
       isSubmitting,
       getIntegration,
-      save
+      save,
+      invoiceResponse,
+      lastMessageId,
+      invoiceType,
+      cancelOrder,
+      onChangeCurrentStatus
     }) => {
       const integration = getIntegration();
 
@@ -72,6 +102,11 @@ const WithContext = () => (
           onCreateNew={createNew}
           sendEmail={sendEmail}
           integration={integration}
+          invoiceResponse={invoiceResponse}
+          invoiceType={invoiceType}
+          lastMessageId={lastMessageId}
+          onCancelOrder={cancelOrder}
+          onChangeCurrentStatus={onChangeCurrentStatus}
         />
       );
     }}
