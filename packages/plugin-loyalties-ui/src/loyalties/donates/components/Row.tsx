@@ -48,43 +48,47 @@ class DonateRow extends React.Component<Props> {
     }
 
     if (donate.ownerType === 'customer') {
-      return <FlexItem>
-        <Link to={`/contacts/details/${donate.ownerId}`}>
-          {formatValue(renderFullName(donate.owner))}
-        </Link>
-      </FlexItem>;
+      return (
+        <FlexItem>
+          <Link to={`/contacts/details/${donate.ownerId}`}>
+            {formatValue(renderFullName(donate.owner))}
+          </Link>
+        </FlexItem>
+      );
     }
 
     if (donate.ownerType === 'user') {
-      return <FlexItem>
-        <Link to={`/settings/team/details/${donate.ownerId}`}>
-          {formatValue(renderUserFullName(donate.owner))}
-        </Link>
-      </FlexItem>;
+      return (
+        <FlexItem>
+          <Link to={`/settings/team/details/${donate.ownerId}`}>
+            {formatValue(renderUserFullName(donate.owner))}
+          </Link>
+        </FlexItem>
+      );
     }
 
     if (donate.ownerType === 'company') {
-      return <FlexItem>
-        <Link to={`/companies/details/${donate.ownerId}`}>
-          {formatValue(this.displayValue(donate.owner, 'name'))}
-        </Link>
-      </FlexItem>;
+      return (
+        <FlexItem>
+          <Link to={`/companies/details/${donate.ownerId}`}>
+            {formatValue(this.displayValue(donate.owner, 'name'))}
+          </Link>
+        </FlexItem>
+      );
     }
 
     return '';
-  }
+  };
 
   modalContent = props => {
-    const { donate } = this.props
+    const { donate } = this.props;
 
     const updatedProps = {
       ...props,
       donate
-    }
+    };
 
-    return (
-      <Form {...updatedProps} />
-    )
+    return <Form {...updatedProps} />;
   };
 
   render() {
@@ -105,9 +109,13 @@ class DonateRow extends React.Component<Props> {
         </td>
         <td key={'createdAt'}>{dayjs(donate.createdAt).format('lll')} </td>
         <td key={'ownerType'}>{this.displayValue(donate, 'ownerType')}</td>
-        <td key={'ownerId'} onClick={onClick}>{this.renderOwner()}</td>
+        <td key={'ownerId'} onClick={onClick}>
+          {this.renderOwner()}
+        </td>
         <td key={'status'}>{this.displayValue(donate, 'donateScore')}</td>
-        <td key={'actions'} onClick={onClick}>.</td>
+        <td key={'actions'} onClick={onClick}>
+          .
+        </td>
       </tr>
     );
 
@@ -118,7 +126,6 @@ class DonateRow extends React.Component<Props> {
         autoOpenKey="showProductModal"
         content={this.modalContent}
       />
-
     );
   }
 }

@@ -1,9 +1,9 @@
 export interface ICommonDoc {
-  campaignId: string,
-  createdAt: Date,
-  usedAt: Date,
+  campaignId: string;
+  createdAt: Date;
+  usedAt: Date;
 
-  ownerType: string,
-  ownerId: string,
-  voucherCampaignId?: string,
+  ownerType: string;
+  ownerId: string;
+  voucherCampaignId?: string;
 }

@@ -9,7 +9,7 @@ export const types = (contactAvailable, cardAvailable) => `
         _id: String! @external
       }
     `
-      : ""
+      : ''
   }
 
   ${
@@ -28,7 +28,7 @@ export const types = (contactAvailable, cardAvailable) => `
       _id: String! @external
     }
      `
-      : ""
+      : ''
   }
 
 
@@ -119,7 +119,7 @@ export const queries = cardAvailable => `
       clientPortalDeal(_id: String!): Deal
       clientPortalDeals(stageId: String, conformityMainType: String, conformityMainTypeId: String, probability: String): [Deal]
      `
-      : ""
+      : ''
   }
 `;
 
@@ -170,7 +170,7 @@ export const mutations = (contactAvailable, cardAvailable) => `
       ): Ticket
 
      `
-      : ""
+      : ''
   }
 
   ${
@@ -192,7 +192,7 @@ export const mutations = (contactAvailable, cardAvailable) => `
       ): Company
 
      `
-      : ""
+      : ''
   }
 
 

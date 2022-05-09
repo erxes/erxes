@@ -49,43 +49,47 @@ class LotteryRow extends React.Component<Props> {
     }
 
     if (lottery.ownerType === 'customer') {
-      return <FlexItem>
-        <Link to={`/contacts/details/${lottery.ownerId}`}>
-          {formatValue(renderFullName(lottery.owner))}
-        </Link>
-      </FlexItem>;
+      return (
+        <FlexItem>
+          <Link to={`/contacts/details/${lottery.ownerId}`}>
+            {formatValue(renderFullName(lottery.owner))}
+          </Link>
+        </FlexItem>
+      );
     }
 
     if (lottery.ownerType === 'user') {
-      return <FlexItem>
-        <Link to={`/settings/team/details/${lottery.ownerId}`}>
-          {formatValue(renderUserFullName(lottery.owner))}
-        </Link>
-      </FlexItem>;
+      return (
+        <FlexItem>
+          <Link to={`/settings/team/details/${lottery.ownerId}`}>
+            {formatValue(renderUserFullName(lottery.owner))}
+          </Link>
+        </FlexItem>
+      );
     }
 
     if (lottery.ownerType === 'company') {
-      return <FlexItem>
-        <Link to={`/companies/details/${lottery.ownerId}`}>
-          {formatValue(this.displayValue(lottery.owner, 'name'))}
-        </Link>
-      </FlexItem>;
+      return (
+        <FlexItem>
+          <Link to={`/companies/details/${lottery.ownerId}`}>
+            {formatValue(this.displayValue(lottery.owner, 'name'))}
+          </Link>
+        </FlexItem>
+      );
     }
 
     return '';
-  }
+  };
 
   modalContent = props => {
-    const { lottery } = this.props
+    const { lottery } = this.props;
 
     const updatedProps = {
       ...props,
       lottery
-    }
+    };
 
-    return (
-      <Form {...updatedProps} />
-    )
+    return <Form {...updatedProps} />;
   };
 
   render() {
@@ -107,9 +111,13 @@ class LotteryRow extends React.Component<Props> {
         <td key={'createdAt'}>{dayjs(lottery.createdAt).format('lll')} </td>
         <td key={'number'}>{this.displayValue(lottery, 'number')}</td>
         <td key={'ownerType'}>{this.displayValue(lottery, 'ownerType')}</td>
-        <td key={'ownerId'} onClick={onClick}>{this.renderOwner()}</td>
+        <td key={'ownerId'} onClick={onClick}>
+          {this.renderOwner()}
+        </td>
         <td key={'status'}>{this.displayValue(lottery, 'status')}</td>
-        <td key={'actions'} onClick={onClick}>.</td>
+        <td key={'actions'} onClick={onClick}>
+          .
+        </td>
       </tr>
     );
 
@@ -120,7 +128,6 @@ class LotteryRow extends React.Component<Props> {
         autoOpenKey="showProductModal"
         content={this.modalContent}
       />
-
     );
   }
 }

@@ -49,7 +49,10 @@ class VoucherListContainer extends React.Component<FinalProps, State> {
       history
     } = this.props;
 
-    if (vouchersMainQuery.loading || (voucherCampaignDetailQuery && voucherCampaignDetailQuery.loading)) {
+    if (
+      vouchersMainQuery.loading ||
+      (voucherCampaignDetailQuery && voucherCampaignDetailQuery.loading)
+    ) {
       return <Spinner />;
     }
 
@@ -68,7 +71,9 @@ class VoucherListContainer extends React.Component<FinalProps, State> {
 
     const searchValue = this.props.queryParams.searchValue || '';
     const { list = [], totalCount = 0 } = vouchersMainQuery.vouchersMain || {};
-    const currentCampaign = voucherCampaignDetailQuery && voucherCampaignDetailQuery.voucherCampaignDetail;
+    const currentCampaign =
+      voucherCampaignDetailQuery &&
+      voucherCampaignDetailQuery.voucherCampaignDetail;
 
     const updatedProps = {
       ...this.props,
@@ -76,7 +81,7 @@ class VoucherListContainer extends React.Component<FinalProps, State> {
       searchValue,
       vouchers: list,
       currentCampaign,
-      removeVouchers,
+      removeVouchers
     };
 
     const vouchersList = props => {
@@ -104,7 +109,12 @@ const generateParams = ({ queryParams }) => ({
 });
 
 const generateOptions = () => ({
-  refetchQueries: ['vouchersMain', 'voucherCounts', 'voucherCategories', 'voucherCategoriesTotalCount']
+  refetchQueries: [
+    'vouchersMain',
+    'voucherCounts',
+    'voucherCategories',
+    'voucherCategoriesTotalCount'
+  ]
 });
 
 export default withProps<Props>(
@@ -128,7 +138,7 @@ export default withProps<Props>(
             _id: queryParams.campaignId
           }
         }),
-        skip: ({ queryParams }) => !queryParams.campaignId,
+        skip: ({ queryParams }) => !queryParams.campaignId
       }
     ),
     // mutations
@@ -138,6 +148,6 @@ export default withProps<Props>(
         name: 'vouchersRemove',
         options: generateOptions
       }
-    ),
+    )
   )(withRouter<IRouterProps>(VoucherListContainer))
 );

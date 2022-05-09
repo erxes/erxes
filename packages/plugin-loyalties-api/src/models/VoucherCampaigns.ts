@@ -3,19 +3,36 @@ import { CAMPAIGN_STATUS } from './definitions/constants';
 import { Model, model } from 'mongoose';
 import { validCampaign } from './utils';
 import { IModels } from '../connectionResolver';
-import { IVoucherCampaign, IVoucherCampaignDocument, voucherCampaignSchema } from './definitions/voucherCampaigns';
+import {
+  IVoucherCampaign,
+  IVoucherCampaignDocument,
+  voucherCampaignSchema
+} from './definitions/voucherCampaigns';
 
 export interface IVoucherCampaignModel extends Model<IVoucherCampaignDocument> {
   getVoucherCampaign(_id: string): Promise<IVoucherCampaignDocument>;
-  createVoucherCampaign(doc: IVoucherCampaign): Promise<IVoucherCampaignDocument>;
-  updateVoucherCampaign(_id: string, doc: IVoucherCampaign): Promise<IVoucherCampaignDocument>;
+  createVoucherCampaign(
+    doc: IVoucherCampaign
+  ): Promise<IVoucherCampaignDocument>;
+  updateVoucherCampaign(
+    _id: string,
+    doc: IVoucherCampaign
+  ): Promise<IVoucherCampaignDocument>;
   removeVoucherCampaigns(_ids: string[]): void;
-};
+}
 
-const validVoucherCampaign = (doc) => {
-  validCampaign(doc)
+const validVoucherCampaign = doc => {
+  validCampaign(doc);
 
-  if (!doc.score && !doc.productCategoryIds && !doc.productIds && !doc.bonusProductId && !doc.spinCampaignId && !doc.lotteryCampaignId && !doc.coupon) {
+  if (
+    !doc.score &&
+    !doc.productCategoryIds &&
+    !doc.productIds &&
+    !doc.bonusProductId &&
+    !doc.spinCampaignId &&
+    !doc.lotteryCampaignId &&
+    !doc.coupon
+  ) {
     throw new Error('Could not create null Voucher campaign');
   }
 
@@ -30,9 +47,12 @@ const validVoucherCampaign = (doc) => {
   if (doc.lotteryCampaignId && !doc.lotteryCount) {
     throw new Error('Must fill lottery count when choosed lottery campaign');
   }
-}
+};
 
-export const loadVoucherCampaignClass = (models: IModels, _subdomain: string) => {
+export const loadVoucherCampaignClass = (
+  models: IModels,
+  _subdomain: string
+) => {
   class VoucherCampaign {
     public static async getVoucherCampaign(_id: string) {
       const voucherCampaign = await models.VoucherCampaigns.findOne({ _id });
@@ -54,9 +74,8 @@ export const loadVoucherCampaignClass = (models: IModels, _subdomain: string) =>
       doc = {
         ...doc,
         createdAt: new Date(),
-        modifiedAt: new Date(),
-
-      }
+        modifiedAt: new Date()
+      };
 
       return models.VoucherCampaigns.create(doc);
     }
@@ -68,30 +87,46 @@ export const loadVoucherCampaignClass = (models: IModels, _subdomain: string) =>
         throw new Error(e.message);
       }
 
-      const voucherCampaignDB = await models.VoucherCampaigns.getVoucherCampaign(_id);
+      const voucherCampaignDB = await models.VoucherCampaigns.getVoucherCampaign(
+        _id
+      );
 
       if (voucherCampaignDB.voucherType !== doc.voucherType) {
-        let usedVoucherCount = 0
+        let usedVoucherCount = 0;
         switch (voucherCampaignDB.voucherType) {
           case 'spin':
-            usedVoucherCount = Number(models.Spins.find({ campaignId: voucherCampaignDB.spinCampaignId }).countDocuments());
+            usedVoucherCount = Number(
+              models.Spins.find({
+                campaignId: voucherCampaignDB.spinCampaignId
+              }).countDocuments()
+            );
             break;
           case 'lottery':
-            usedVoucherCount = Number(models.Lotteries.find({ campaignId: voucherCampaignDB.lotteryCampaignId }).countDocuments());
+            usedVoucherCount = Number(
+              models.Lotteries.find({
+                campaignId: voucherCampaignDB.lotteryCampaignId
+              }).countDocuments()
+            );
             break;
           default:
-            usedVoucherCount = Number(models.Vouchers.find({ campaignId: voucherCampaignDB._id }).countDocuments());
+            usedVoucherCount = Number(
+              models.Vouchers.find({
+                campaignId: voucherCampaignDB._id
+              }).countDocuments()
+            );
         }
 
         if (usedVoucherCount) {
-          throw new Error(`Cant change voucher type because: this voucher Campaign in used. Set voucher type: ${voucherCampaignDB.voucherType}`)
+          throw new Error(
+            `Cant change voucher type because: this voucher Campaign in used. Set voucher type: ${voucherCampaignDB.voucherType}`
+          );
         }
       }
 
       doc = {
         ...doc,
-        modifiedAt: new Date(),
-      }
+        modifiedAt: new Date()
+      };
 
       return models.VoucherCampaigns.updateOne({ _id }, { $set: doc });
     }
@@ -113,10 +148,15 @@ export const loadVoucherCampaignClass = (models: IModels, _subdomain: string) =>
         'awards.voucherCampaignId': { $in: ids }
       }).distinct('awards.voucherCampaignId');
 
-      const campaignIds = [...atVoucherIds, ...atDonateCampaignIds, ...atLotteryCampaignIds, ...atSpinCampaignIds];
-      const usedCampaignIds = ids.filter(id => (campaignIds.includes(id)));
+      const campaignIds = [
+        ...atVoucherIds,
+        ...atDonateCampaignIds,
+        ...atLotteryCampaignIds,
+        ...atSpinCampaignIds
+      ];
+      const usedCampaignIds = ids.filter(id => campaignIds.includes(id));
 
-      const deleteCampaignIds = ids.filter(id => (!usedCampaignIds.includes(id)));
+      const deleteCampaignIds = ids.filter(id => !usedCampaignIds.includes(id));
 
       const now = new Date();
 
@@ -125,9 +165,11 @@ export const loadVoucherCampaignClass = (models: IModels, _subdomain: string) =>
         { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } }
       );
 
-      return models.VoucherCampaigns.deleteMany({ _id: { $in: deleteCampaignIds } });
+      return models.VoucherCampaigns.deleteMany({
+        _id: { $in: deleteCampaignIds }
+      });
     }
-  };
+  }
 
   voucherCampaignSchema.loadClass(VoucherCampaign);
 
