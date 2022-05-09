@@ -1,6 +1,6 @@
 import {
   attachmentType,
-  attachmentInput,
+  attachmentInput
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = ({ contacts, cards }) => `
@@ -346,6 +346,6 @@ export const mutations = `
   cpCarsRemove(carIds: [String]): [String]
 
   participantsAdd(${participantParams}): Participant
-  participantsEdit(_id: String! ${participantParams}): Participant
+  participantsEdit(_id: String! status:String ${participantParams}): Participant
   participantsRemove(_id: String!): JSON
 `;
