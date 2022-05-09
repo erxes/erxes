@@ -8,8 +8,6 @@ import GrowthSettings from './settings/growthHacks/routes';
 import BoardSettings from './settings/boards/routes';
 
 const routes = () => {
-  console.log('debug third ======');
-
   return (
     <React.Fragment>
       <TaskRoutes />
