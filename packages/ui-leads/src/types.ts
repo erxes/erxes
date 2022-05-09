@@ -44,6 +44,7 @@ export interface ILeadData {
   getTags?: ITag[];
   form?: IForm;
   isRequireOnce?: boolean;
+  saveAsCustomer?: boolean;
   templateId?: string;
   attachments?: IAttachment[];
   css?: string;
@@ -65,9 +66,7 @@ export interface ILeadIntegration extends IIntegration {
 }
 
 export type RemoveMutationResponse = {
-  removeMutation: (params: {
-    variables: MutationVariables;
-  }) => Promise<any>;
+  removeMutation: (params: { variables: MutationVariables }) => Promise<any>;
 };
 
 export type CopyMutationResponse = {
