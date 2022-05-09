@@ -1,30 +1,32 @@
 import Icon from '@erxes/ui/src/components/Icon';
-import { IField } from '@erxes/ui/src/types';
+import { ILocationOption } from '@erxes/ui/src/types';
 import { LinkButton } from '@erxes/ui/src/styles/main';
 import React, { useEffect, useState } from 'react';
 import LocationOption from './LocationOption';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 
 type Props = {
-  onFieldChange: (name: string, value: any) => void;
-  currentField: IField;
+  onChange: (value: ILocationOption[]) => void;
+  locationOptions: ILocationOption[];
+  currentLocation?: ILocationOption;
 };
 
 function LocationOptions(props: Props) {
-  const { currentField, onFieldChange } = props;
+  const { locationOptions, currentLocation, onChange } = props;
 
   const [options, setOptions] = useState(
-    (currentField.locationOptions || []).map(({ description, lat, lng }) => {
+    (locationOptions || []).map(({ lat, lng, description }) => {
       return {
-        description,
         lat,
-        lng
+        lng,
+        description
       };
     })
   );
 
   useEffect(() => {
-    onFieldChange('locationOptions', options);
-  }, [options, onFieldChange]);
+    onChange(options);
+  }, [options, onChange]);
 
   const onChangeOption = (option, index) => {
     // find current editing one
@@ -36,18 +38,17 @@ function LocationOptions(props: Props) {
     }
 
     setOptions(options);
-    onFieldChange('locationOptions', options);
+    onChange(options);
   };
 
   const addOption = () => {
-    setOptions([
-      ...options,
-      {
-        lat: 0.0,
-        lng: 0.0,
-        description: ''
-      }
-    ]);
+    const option: any = currentLocation || {
+      lat: 0.0,
+      lng: 0.0,
+      description: ''
+    };
+
+    setOptions([...options, option]);
   };
 
   const removeOption = (index: number) => {
@@ -65,10 +66,11 @@ function LocationOptions(props: Props) {
           index={index}
         />
       ))}
-
-      <LinkButton onClick={addOption}>
-        <Icon icon="plus-1" /> Add option
-      </LinkButton>
+      <FormGroup>
+        <LinkButton onClick={addOption}>
+          <Icon icon="plus-1" /> Add option
+        </LinkButton>
+      </FormGroup>
     </>
   );
 }

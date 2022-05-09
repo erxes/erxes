@@ -21,11 +21,13 @@
   },
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^3.0.5",
+    "@googlemaps/typescript-guards": "^1.0.7",
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
     "@types/classnames": "^2.2.6",
     "@types/cors": "^2.8.4",
     "@types/dotenv": "^4.0.3",
     "@types/express": "^4.16.0",
+    "@types/google.maps": "^3.47.4",
     "@types/react": "^16.4.7",
     "@types/react-dom": "^16.4.7",
     "@types/react-i18next": "^7.8.0",
@@ -54,6 +56,7 @@
     "ejs": "^2.5.6",
     "erxes-icon": "^1.0.5",
     "express": "^4.14.0",
+    "fast-equals": "^2.0.4",
     "file-loader": "^1.1.11",
     "graphql": "^15.8.0",
     "graphql-tag": "^2.6.1",
@@ -75,9 +78,11 @@
     "webpack": "4.16.3",
     "webpack-cli": "^3.1.0",
     "webpack-merge": "^4.1.3",
-    "xss": "^1.0.3"
+    "xss": "^1.0.3",
+    "qrcode": "^1.5.0"
   },
   "devDependencies": {
+    "@types/qrcode": "^1.4.2",
     "git-repo-info": "^2.1.0",
     "nodemon": "^1.11.0",
     "ts-node": "^8.3.0",
