@@ -23,7 +23,13 @@ type Props = {
 };
 
 export default function NavigationChildList(props: Props) {
-  const { plugin, children, navCollapse, showMenu, clickedMenu } = props;
+  const {
+    plugin,
+    children,
+    navCollapse,
+    showMenu,
+    clickedMenu,
+  } = props;
 
   const renderChildren = (type: string) => {
     return children.map((child: ChildPlugin, index: number) => {
@@ -49,14 +55,13 @@ export default function NavigationChildList(props: Props) {
 
   if (children.length === 0) return <></>;
 
-  if (navCollapse === 3 && clickedMenu === plugin.text && showMenu) {
+  if (navCollapse === 3 && clickedMenu === plugin.text && showMenu)
     return <DropSubNav>{renderChildren("vertical")}</DropSubNav>;
-  } else {
+  else
     return (
       <SubNav navCollapse={navCollapse}>
         <SubNavTitle>{__(plugin.text)}</SubNavTitle>
         {renderChildren("horizontal")}
       </SubNav>
     );
-  }
 }
