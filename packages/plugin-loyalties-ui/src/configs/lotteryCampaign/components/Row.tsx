@@ -68,7 +68,6 @@ class Row extends React.Component<Props> {
           <Link to={`/lotteries?campaignId=${_id}`}>
             <Icon icon='list-2' />
           </Link>
-          <span> </span>
           <Link to={`/lottery/${_id}`}>
             <Icon icon='award' />
           </Link>

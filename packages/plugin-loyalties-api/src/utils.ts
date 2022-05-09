@@ -1,4 +1,5 @@
-export const checkVouchersSale = async (models, ownerType: string, ownerId: string, products: { productId: string, quantity: number }[]) => {
+interface IProductD { productId: string, quantity: number }
+export const checkVouchersSale = async (models, ownerType: string, ownerId: string, products: IProductD[]) => {
   const result = {};
 
   const now = new Date();
@@ -141,7 +142,7 @@ export const confirmVoucherSale = async (models, checkInfo) => {
     }
 
     if (rule.count) {
-      await models.Vouchers.updateOne({ _id: rule.voucherId }, { $push: { bonusInfo: {usedCount: rule.count, } } });
+      await models.Vouchers.updateOne({ _id: rule.voucherId }, { $push: { bonusInfo: { usedCount: rule.count, } } });
     }
   }
 }

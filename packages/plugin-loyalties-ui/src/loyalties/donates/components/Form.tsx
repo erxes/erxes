@@ -45,7 +45,7 @@ class DonateForm extends React.Component<Props, State> {
     }
 
     this.state = {
-      donate: donate
+      donate
     };
   }
 

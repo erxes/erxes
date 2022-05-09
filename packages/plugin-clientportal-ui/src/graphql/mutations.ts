@@ -27,6 +27,11 @@ const createOrUpdateConfig = `
     $twilioAccountSid: String
     $twilioAuthToken: String
     $twilioFromNumber: String
+    $kbToggle: Boolean
+    $publicTaskToggle: Boolean
+    $ticketToggle: Boolean
+    $taskToggle: Boolean
+
   ) {
     clientPortalConfigUpdate(
       _id: $_id,
@@ -54,6 +59,10 @@ const createOrUpdateConfig = `
       twilioAccountSid: $twilioAccountSid
       twilioAuthToken: $twilioAuthToken
       twilioFromNumber: $twilioFromNumber
+      kbToggle: $kbToggle,
+      publicTaskToggle: $publicTaskToggle,
+      ticketToggle: $ticketToggle,
+      taskToggle: $taskToggle,
     ) {
       ${commonFields}
     }

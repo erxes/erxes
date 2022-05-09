@@ -1,38 +1,49 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
-import { WEBHOOK_STATUS } from '../../../models/definitions/constants';
-import { IWebhook } from '../../../models/definitions/webhooks';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
-import { IContext } from '../../../connectionResolver';
+import { moduleCheckPermission } from "@erxes/api-utils/src/permissions";
+import { WEBHOOK_STATUS } from "../../../models/definitions/constants";
+import { IWebhook } from "../../../models/definitions/webhooks";
+import { putCreateLog, putDeleteLog, putUpdateLog } from "../../../logUtils";
+import { IContext } from "../../../connectionResolver";
 import { sendRequest } from "@erxes/api-utils/src";
 
 interface IWebhookEdit extends IWebhook {
   _id: string;
 }
 
-const WEBHOOK = 'webhook';
+const WEBHOOK = "webhook";
 
 const webhookMutations = {
   /**
    * Creates a new webhook
    */
-  async webhooksAdd(_root, doc: IWebhook, { user, docModifier, models }: IContext) {
+  async webhooksAdd(
+    _root,
+    doc: IWebhook,
+    { user, docModifier, models }: IContext
+  ) {
     const webhook = await models.Webhooks.createWebhook(docModifier(doc));
 
     sendRequest({
       url: webhook.url,
       headers: {
-        'Erxes-token': webhook.token || ''
+        "Erxes-token": webhook.token || ""
       },
-      method: 'post',
+      method: "post",
       body: {
-        text: 'You have successfully connected erxes webhook'
+        text: "You have successfully connected erxes webhook"
       }
     })
       .then(async () => {
-        await models.Webhooks.updateStatus(webhook._id, WEBHOOK_STATUS.AVAILABLE);
+        await models.Webhooks.updateStatus(
+          webhook._id,
+          WEBHOOK_STATUS.AVAILABLE
+        );
       })
-      .catch(async () => {
-        await models.Webhooks.updateStatus(webhook._id, WEBHOOK_STATUS.UNAVAILABLE);
+      .catch(async (err) => {
+        console.log("error ", err);
+        await models.Webhooks.updateStatus(
+          webhook._id,
+          WEBHOOK_STATUS.UNAVAILABLE
+        );
       });
 
     await putCreateLog(
@@ -51,9 +62,37 @@ const webhookMutations = {
   /**
    * Edits a webhook
    */
-  async webhooksEdit(_root, { _id, ...doc }: IWebhookEdit, { user, models }: IContext) {
+  async webhooksEdit(
+    _root,
+    { _id, ...doc }: IWebhookEdit,
+    { user, models }: IContext
+  ) {
     const webhook = await models.Webhooks.getWebHook(_id);
     const updated = await models.Webhooks.updateWebhook(_id, doc);
+
+    sendRequest({
+      url: webhook.url,
+      headers: {
+        "Erxes-token": webhook.token || ""
+      },
+      method: "post",
+      body: {
+        text: "You have successfully connected erxes webhook"
+      }
+    })
+      .then(async () => {
+        await models.Webhooks.updateStatus(
+          webhook._id,
+          WEBHOOK_STATUS.AVAILABLE
+        );
+      })
+      .catch(async (err) => {
+        console.log("error ", err);
+        await models.Webhooks.updateStatus(
+          webhook._id,
+          WEBHOOK_STATUS.UNAVAILABLE
+        );
+      });
 
     await putUpdateLog(
       {
@@ -71,7 +110,11 @@ const webhookMutations = {
   /**
    * Removes a webhook
    */
-  async webhooksRemove(_root, { _id }: { _id: string }, { models, user }: IContext) {
+  async webhooksRemove(
+    _root,
+    { _id }: { _id: string },
+    { models, user }: IContext
+  ) {
     const webhook = await models.Webhooks.getWebHook(_id);
     const removed = await models.Webhooks.removeWebhooks(_id);
 
@@ -88,7 +131,6 @@ const webhookMutations = {
   }
 };
 
-moduleCheckPermission(webhookMutations, 'manageWebhooks');
+moduleCheckPermission(webhookMutations, "manageWebhooks");
 
 export default webhookMutations;
-
