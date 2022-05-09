@@ -6,6 +6,7 @@ on:
       - federation
     paths:
       - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
       - "packages/ui-tumentech/**"
       - "packages/plugin-tumentech-ui/**"
       - ".github/workflows/plugin-tumentech-ui.yaml"

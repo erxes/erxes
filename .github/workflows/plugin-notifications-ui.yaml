@@ -6,6 +6,7 @@ on:
       - federation
     paths:
       - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
       - "packages/ui-notifications/**"
       - "packages/plugin-notifications-ui/**"
       - ".github/workflows/plugin-notifications-ui.yaml"
