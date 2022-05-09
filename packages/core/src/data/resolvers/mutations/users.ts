@@ -1,5 +1,4 @@
 import * as telemetry from 'erxes-telemetry';
-import * as express from 'express';
 import { ILink } from '@erxes/api-utils/src/types';
 import {
   IDetail,
@@ -38,7 +37,7 @@ const sendInvitationEmail = (
   const DOMAIN = getEnv({ name: 'DOMAIN' });
   const confirmationUrl = `${DOMAIN}/confirmation?token=${token}`;
 
-  utils.sendEmail(models, subdomain, {
+  utils.sendEmail(subdomain, {
     toEmails: [email],
     title: 'Team member invitation',
     template: {
@@ -48,21 +47,7 @@ const sendInvitationEmail = (
         domain: DOMAIN
       }
     }
-  });
-};
-
-const login = async (models: IModels, args: ILogin, res: express.Response, secure: boolean) => {
-  const response = await models.Users.login(args);
-
-  const { token } = response;
-
-  const cookieOptions: any = { secure };
-
-  res.cookie('auth-token', token, authCookieOptions(cookieOptions));
-
-  telemetry.trackCli('logged_in');
-
-  return 'loggedIn';
+  }, models);
 };
 
 const userMutations = {
@@ -159,11 +144,22 @@ const userMutations = {
 
     return 'success';
   },
+
   /*
    * Login
    */
   async login(_root, args: ILogin, { res, requestInfo, models }: IContext) {
-    return login(models, args, res, requestInfo.secure);
+    const response = await models.Users.login(args);
+
+    const { token } = response;
+
+    const cookieOptions: any = { secure: requestInfo.secure };
+
+    res.cookie('auth-token', token, authCookieOptions(cookieOptions));
+
+    telemetry.trackCli('logged_in');
+
+    return 'loggedIn';
   },
 
   async logout(_root, _args, { res, user, requestInfo, models }: IContext) {
@@ -186,7 +182,7 @@ const userMutations = {
 
     const link = `${DOMAIN}/reset-password?token=${token}`;
 
-    await utils.sendEmail(models, subdomain, {
+    await utils.sendEmail(subdomain, {
       toEmails: [email],
       title: 'Reset password',
       template: {
@@ -195,7 +191,7 @@ const userMutations = {
           content: link
         }
       }
-    });
+    }, models);
 
     return 'sent';
   },

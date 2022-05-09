@@ -208,30 +208,6 @@ const carMutations = {
     await models.Cars.removeCars(carIds);
     return carIds;
   },
-
-  participantsAdd: async (
-    _root,
-    { carIds }: { carIds: string[] },
-    { models }
-  ) => {
-    return null;
-  },
-
-  participantsEdit: async (
-    _root,
-    { carIds }: { carIds: string[] },
-    { models }
-  ) => {
-    return null;
-  },
-
-  participantsRemove: async (
-    _root,
-    { carIds }: { carIds: string[] },
-    { models }
-  ) => {
-    return null;
-  }
 };
 
 checkPermission(carMutations, "carsAdd", "manageCars");

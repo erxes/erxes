@@ -59,6 +59,10 @@ export const types = (contactAvailable, cardAvailable) => `
     twilioAccountSid: String
     twilioAuthToken: String
     twilioFromNumber: String
+    kbToggle: Boolean,
+    publicTaskToggle: Boolean,
+    ticketToggle: Boolean,
+    taskToggle: Boolean,
   }
 
   type Styles {
@@ -146,6 +150,10 @@ export const mutations = (contactAvailable, cardAvailable) => `
     twilioAccountSid: String
     twilioAuthToken: String
     twilioFromNumber: String
+    kbToggle: Boolean,
+    publicTaskToggle: Boolean,
+    ticketToggle: Boolean,
+    taskToggle: Boolean,
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON

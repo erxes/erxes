@@ -2,9 +2,11 @@ import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
 import { IOption, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 
-function generateOptions(array: { _id: string, title: string }[] = []): IOption[] {
+interface IParam { _id: string, title: string };
+
+function generateOptions(array: IParam[] = []): IOption[] {
   return array.map(item => {
-    const campaign = item || ({} as { _id: string, title: string });
+    const campaign = item || ({} as IParam);
 
     return {
       value: campaign._id,

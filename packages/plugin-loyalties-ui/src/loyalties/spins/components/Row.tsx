@@ -107,7 +107,7 @@ class SpinRow extends React.Component<Props> {
         <td key={'ownerType'}>{this.displayValue(spin, 'ownerType')}</td>
         <td key={'ownerId'} onClick={onClick}>{this.renderOwner()}</td>
         <td key={'status'}>{this.displayValue(spin, 'status')}</td>
-        <td key={'actions'} onClick={onClick}></td>
+        <td key={'actions'} onClick={onClick}>.</td>
       </tr>
     );
 

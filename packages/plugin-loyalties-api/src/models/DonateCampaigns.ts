@@ -75,7 +75,7 @@ export const loadDonateCampaignClass = (models: IModels, _subdomain: string) => 
       return models.DonateCampaigns.updateOne({ _id }, { $set: modifier });
     }
 
-    public static async removeDonateCampaigns(ids: [String]) {
+    public static async removeDonateCampaigns(ids: string[]) {
       const atDonateIds = await models.Donates.find({
         campaignId: { $in: ids }
       }).distinct('campaignId');

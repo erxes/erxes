@@ -36,6 +36,11 @@ jobs:
             ${{ runner.os }}-yarn-plugin-loyalties-api-
             ${{ runner.os }}-yarn-
 
+      - name: Lint
+        run: |
+          yarn install
+          yarn lintp plugin-loyalties-api
+
       - name: Build
         run: |
           cd packages/gateway
