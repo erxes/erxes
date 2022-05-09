@@ -36,6 +36,7 @@ module.exports = (env, args) => {
     output: {
       uniqueName: configs.name,
       publicPath: args.mode === 'development' ? `http://localhost:${port}/` : undefined,
+      chunkFilename: '[chunkhash].js'
     },
 
     optimization: {
