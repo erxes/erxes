@@ -12,7 +12,10 @@ import { queries as productQueries } from '@erxes/ui-products/src/graphql';
 import { queries as spinCampaignQueries } from '../../spinCampaign/graphql';
 import { queries as lotteryCampaignQueries } from '../../lotteryCampaign/graphql';
 import { IVoucherCampaign } from '../types';
-import { ProductCategoriesQueryResponse, ProductsQueryResponse } from '@erxes/ui-products/src/types';
+import {
+  ProductCategoriesQueryResponse,
+  ProductsQueryResponse
+} from '@erxes/ui-products/src/types';
 import { SpinCampaignQueryResponse } from '../../spinCampaign/types';
 import { LotteryCampaignQueryResponse } from '../../lotteryCampaign/types';
 
@@ -30,9 +33,19 @@ type FinalProps = {
 
 class ProductFormContainer extends React.Component<FinalProps> {
   render() {
-    const { productCategoriesQuery, productsQuery, spinCampaignQuery, lotteryCampaignQuery } = this.props;
+    const {
+      productCategoriesQuery,
+      productsQuery,
+      spinCampaignQuery,
+      lotteryCampaignQuery
+    } = this.props;
 
-    if (productCategoriesQuery.loading || productsQuery.loading || spinCampaignQuery.loading || lotteryCampaignQuery.loading) {
+    if (
+      productCategoriesQuery.loading ||
+      productsQuery.loading ||
+      spinCampaignQuery.loading ||
+      lotteryCampaignQuery.loading
+    ) {
       return null;
     }
 
@@ -49,22 +62,29 @@ class ProductFormContainer extends React.Component<FinalProps> {
 
       attachmentMore.map(att => {
         attachmentMoreArray.push({ ...att, __typename: undefined });
-      })
+      });
 
-      values.attachment = attachment ? { ...attachment, __typename: undefined } : null;
+      values.attachment = attachment
+        ? { ...attachment, __typename: undefined }
+        : null;
       values.attachmentMore = attachmentMoreArray;
 
       return (
         <ButtonMutate
-          mutation={object && object._id ? mutations.voucherCampaignsEdit : mutations.voucherCampaignsAdd}
+          mutation={
+            object && object._id
+              ? mutations.voucherCampaignsEdit
+              : mutations.voucherCampaignsAdd
+          }
           variables={values}
           callback={callback}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
           type="submit"
           uppercase={false}
-          successMessage={`You successfully ${object ? 'updated' : 'added'
-            } a ${name}`}
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${name}`}
         />
       );
     };
@@ -99,12 +119,9 @@ export default withProps<Props>(
         name: 'productCategoriesQuery'
       }
     ),
-    graphql<Props, ProductsQueryResponse>(
-      gql(productQueries.products),
-      {
-        name: 'productsQuery'
-      }
-    ),
+    graphql<Props, ProductsQueryResponse>(gql(productQueries.products), {
+      name: 'productsQuery'
+    }),
     graphql<Props, SpinCampaignQueryResponse>(
       gql(spinCampaignQueries.spinCampaigns),
       {

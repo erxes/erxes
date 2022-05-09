@@ -83,21 +83,28 @@ export const consumeRPCQueue = async (queueName, callback) => {
       if (msg !== null) {
         debugInfo(`Received rpc queue message ${msg.content.toString()}`);
 
-        try {
-          const response = await callback(JSON.parse(msg.content.toString()));
+        let response;
 
-          channel.sendToQueue(
-            msg.properties.replyTo,
-            Buffer.from(JSON.stringify(response)),
-            {
-              correlationId: msg.properties.correlationId
-            }
-          );
+        try {
+          response = await callback(JSON.parse(msg.content.toString()));
         } catch (e) {
           debugError(
             `Error occurred during callback ${queueName} ${e.message}`
           );
+
+          response = {
+            status: 'error',
+            errorMessage: e.message
+          };
         }
+
+        channel.sendToQueue(
+          msg.properties.replyTo,
+          Buffer.from(JSON.stringify(response)),
+          {
+            correlationId: msg.properties.correlationId
+          }
+        );
 
         channel.ack(msg);
       }

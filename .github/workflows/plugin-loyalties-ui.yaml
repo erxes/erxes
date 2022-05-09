@@ -6,6 +6,7 @@ on:
       - federation
     paths:
       - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
       - "packages/ui-loyalties/**"
       - "packages/plugin-loyalties-ui/**"
       - ".github/workflows/plugin-loyalties-ui.yaml"

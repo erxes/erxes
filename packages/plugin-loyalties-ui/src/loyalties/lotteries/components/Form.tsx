@@ -5,11 +5,11 @@ import {
   ControlLabel,
   Form,
   FormControl,
-  FormGroup,
+  FormGroup
 } from '@erxes/ui/src/components';
 import {
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
+  MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src/styles/eindex';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { ILottery, ILotteryDoc } from '../types';
@@ -72,8 +72,8 @@ class LotteryForm extends React.Component<Props, State> {
       value = Number(value);
     }
 
-    this.setState({ lottery: { ...this.state.lottery, [name]: value } } as any)
-  }
+    this.setState({ lottery: { ...this.state.lottery, [name]: value } } as any);
+  };
 
   renderFormGroup = (label, props) => {
     return (
@@ -84,19 +84,19 @@ class LotteryForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeSelect = (e) => {
+  onChangeSelect = e => {
     const { lottery } = this.state;
-    const target = (e.currentTarget as HTMLInputElement);
+    const target = e.currentTarget as HTMLInputElement;
     const value = target.value;
     const name = target.name;
 
-    this.setState({ lottery: { ...lottery, [name]: value } })
-  }
+    this.setState({ lottery: { ...lottery, [name]: value } });
+  };
 
-  onChangeOwnerId = (ownerId) => {
+  onChangeOwnerId = ownerId => {
     const { lottery } = this.state;
-    this.setState({ lottery: { ...lottery, ownerId } })
-  }
+    this.setState({ lottery: { ...lottery, ownerId } });
+  };
 
   renderOwner = () => {
     const { lottery } = this.state;
@@ -109,7 +109,7 @@ class LotteryForm extends React.Component<Props, State> {
           initialValue={lottery.ownerId}
           onSelect={this.onChangeOwnerId}
         />
-      )
+      );
     }
 
     if (lottery.ownerType === 'user') {
@@ -121,7 +121,7 @@ class LotteryForm extends React.Component<Props, State> {
           initialValue={lottery.ownerId}
           onSelect={this.onChangeOwnerId}
         />
-      )
+      );
     }
 
     return (
@@ -132,8 +132,8 @@ class LotteryForm extends React.Component<Props, State> {
         initialValue={lottery.ownerId}
         onSelect={this.onChangeOwnerId}
       />
-    )
-  }
+    );
+  };
 
   renderContent = (formProps: IFormProps) => {
     const { lottery } = this.state;
@@ -146,10 +146,10 @@ class LotteryForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Campaign</ControlLabel>
             <SelectCampaigns
-              queryName='lotteryCampaigns'
+              queryName="lotteryCampaigns"
               customQuery={queries.lotteryCampaigns}
-              label='Choose lottery campaign'
-              name='campaignId'
+              label="Choose lottery campaign"
+              name="campaignId"
               onSelect={this.onChangeSelect}
               initialValue={lottery.campaignId}
             />
@@ -166,7 +166,6 @@ class LotteryForm extends React.Component<Props, State> {
             />
           </FormGroup>
 
-
           <FormGroup>
             <ControlLabel>Owner type</ControlLabel>
             <FormControl
@@ -177,9 +176,18 @@ class LotteryForm extends React.Component<Props, State> {
               required={true}
               onChange={this.onChangeSelect}
             >
-              <option key={'customer'} value={'customer'}> {'customer'} </option>
-              <option key={'user'} value={'user'}> {'user'} </option>
-              <option key={'company'} value={'company'}> {'company'} </option>
+              <option key={'customer'} value={'customer'}>
+                {' '}
+                {'customer'}{' '}
+              </option>
+              <option key={'user'} value={'user'}>
+                {' '}
+                {'user'}{' '}
+              </option>
+              <option key={'company'} value={'company'}>
+                {' '}
+                {'company'}{' '}
+              </option>
             </FormControl>
           </FormGroup>
 
@@ -198,20 +206,31 @@ class LotteryForm extends React.Component<Props, State> {
               required={true}
               onChange={this.onChangeSelect}
             >
-              <option key={'new'} value={'new'}> {'new'} </option>
-              <option key={'loss'} value={'loss'}> {'loss'} </option>
-              <option key={'won'} value={'won'}> {'won'} </option>
+              <option key={'new'} value={'new'}>
+                {' '}
+                {'new'}{' '}
+              </option>
+              <option key={'loss'} value={'loss'}>
+                {' '}
+                {'loss'}{' '}
+              </option>
+              <option key={'won'} value={'won'}>
+                {' '}
+                {'won'}{' '}
+              </option>
             </FormControl>
           </FormGroup>
 
           <FormGroup>
             <ControlLabel>Voucher Campaign</ControlLabel>
             <SelectCampaigns
-              queryName='voucherCampaigns'
+              queryName="voucherCampaigns"
               customQuery={voucherCampaignQueries.voucherCampaigns}
-              label='Choose voucher campaign'
-              name='voucherCampaignId'
-              onSelect={() => { return; }}
+              label="Choose voucher campaign"
+              name="voucherCampaignId"
+              onSelect={() => {
+                return;
+              }}
               initialValue={lottery.voucherCampaignId}
               filterParams={{ voucherType: 'lottery' }}
             />

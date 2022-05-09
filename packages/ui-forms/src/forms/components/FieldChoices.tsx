@@ -33,79 +33,85 @@ function FieldChoices(props: Props) {
     <Options>
       <FieldChoice
         {...props}
-        type='input'
+        type="input"
         text={__('Text input')}
-        icon='edit-alt'
+        icon="edit-alt"
       />
       <FieldChoice
         {...props}
-        type='textarea'
+        type="textarea"
         text={__('Text area')}
-        icon='paragraph'
+        icon="paragraph"
       />
       <FieldChoice
         {...props}
-        type='check'
+        type="check"
         text={__('Checkbox')}
-        icon='check-square'
+        icon="check-square"
       />
       <FieldChoice
         {...props}
-        type='radio'
+        type="radio"
         text={__('Radio button')}
-        icon='check-circle'
+        icon="check-circle"
       />
       <FieldChoice
         {...props}
-        type='select'
+        type="select"
         text={__('Select')}
-        icon='sort-amount-down'
+        icon="sort-amount-down"
       />
-      <FieldChoice {...props} type='file' text={__('File')} icon='paperclip' />
+      <FieldChoice {...props} type="file" text={__('File')} icon="paperclip" />
       <FieldChoice
         {...props}
-        type='email'
+        type="email"
         text={__('Email')}
-        icon='envelope-alt'
+        icon="envelope-alt"
       />
-      <FieldChoice {...props} type='phone' text={__('Phone')} icon='phone' />
+      <FieldChoice {...props} type="phone" text={__('Phone')} icon="phone" />
       <FieldChoice
         {...props}
-        type='firstName'
+        type="firstName"
         text={__('First name')}
-        icon='user-6'
+        icon="user-6"
       />
       <FieldChoice
         {...props}
-        type='middleName'
+        type="middleName"
         text={__('Middle name')}
-        icon='user-6'
+        icon="user-6"
       />
       <FieldChoice
         {...props}
-        type='lastName'
+        type="lastName"
         text={__('Last name')}
-        icon='user-6'
+        icon="user-6"
       />
       <FieldChoice
         {...props}
-        type='company_primaryName'
+        type="company_primaryName"
         text={__('Company name')}
-        icon='building'
+        icon="building"
       />
       <FieldChoice
         {...props}
-        type='company_primaryEmail'
+        type="company_primaryEmail"
         text={__('Company Email')}
-        icon='envelope-alt'
+        icon="envelope-alt"
       />
       <FieldChoice
         {...props}
-        type='company_primaryPhone'
+        type="company_primaryPhone"
         text={__('Company Phone')}
-        icon='phone'
+        icon="phone"
       />
-      <FieldChoice {...props} type='html' text={__('HTML')} icon='code' />
+      <FieldChoice
+        {...props}
+        type="map"
+        text={__('Location/Map')}
+        icon="map-marker"
+      />
+      <FieldChoice {...props} type="html" text={__('HTML')} icon="code" />
     </Options>
   );
 }

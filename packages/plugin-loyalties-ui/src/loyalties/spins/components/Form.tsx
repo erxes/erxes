@@ -5,11 +5,11 @@ import {
   ControlLabel,
   Form,
   FormControl,
-  FormGroup,
+  FormGroup
 } from '@erxes/ui/src/components';
 import {
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
+  MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src/styles/eindex';
 import { __ } from '@erxes/ui/src/utils';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
@@ -72,8 +72,8 @@ class SpinForm extends React.Component<Props, State> {
       value = Number(value);
     }
 
-    this.setState({ spin: { ...this.state.spin, [name]: value } } as any)
-  }
+    this.setState({ spin: { ...this.state.spin, [name]: value } } as any);
+  };
 
   renderFormGroup = (label, props) => {
     return (
@@ -84,19 +84,19 @@ class SpinForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeSelect = (e) => {
+  onChangeSelect = e => {
     const { spin } = this.state;
-    const target = (e.currentTarget as HTMLInputElement);
+    const target = e.currentTarget as HTMLInputElement;
     const value = target.value;
     const name = target.name;
 
-    this.setState({ spin: { ...spin, [name]: value } })
-  }
+    this.setState({ spin: { ...spin, [name]: value } });
+  };
 
-  onChangeOwnerId = (ownerId) => {
+  onChangeOwnerId = ownerId => {
     const { spin } = this.state;
-    this.setState({ spin: { ...spin, ownerId } })
-  }
+    this.setState({ spin: { ...spin, ownerId } });
+  };
 
   renderOwner = () => {
     const { spin } = this.state;
@@ -109,7 +109,7 @@ class SpinForm extends React.Component<Props, State> {
           initialValue={spin.ownerId}
           onSelect={this.onChangeOwnerId}
         />
-      )
+      );
     }
 
     if (spin.ownerType === 'user') {
@@ -121,7 +121,7 @@ class SpinForm extends React.Component<Props, State> {
           initialValue={spin.ownerId}
           onSelect={this.onChangeOwnerId}
         />
-      )
+      );
     }
 
     return (
@@ -132,8 +132,8 @@ class SpinForm extends React.Component<Props, State> {
         initialValue={spin.ownerId}
         onSelect={this.onChangeOwnerId}
       />
-    )
-  }
+    );
+  };
 
   renderContent = (formProps: IFormProps) => {
     const { spin } = this.state;
@@ -146,10 +146,10 @@ class SpinForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Campaign</ControlLabel>
             <SelectCampaigns
-              queryName='spinCampaigns'
+              queryName="spinCampaigns"
               customQuery={queries.spinCampaigns}
-              label='Choose spin campaign'
-              name='campaignId'
+              label="Choose spin campaign"
+              name="campaignId"
               onSelect={this.onChangeSelect}
               initialValue={spin.campaignId}
             />
@@ -165,9 +165,18 @@ class SpinForm extends React.Component<Props, State> {
               required={true}
               onChange={this.onChangeSelect}
             >
-              <option key={'customer'} value={'customer'}> {'customer'} </option>
-              <option key={'user'} value={'user'}> {'user'} </option>
-              <option key={'company'} value={'company'}> {'company'} </option>
+              <option key={'customer'} value={'customer'}>
+                {' '}
+                {'customer'}{' '}
+              </option>
+              <option key={'user'} value={'user'}>
+                {' '}
+                {'user'}{' '}
+              </option>
+              <option key={'company'} value={'company'}>
+                {' '}
+                {'company'}{' '}
+              </option>
             </FormControl>
           </FormGroup>
 
@@ -186,20 +195,31 @@ class SpinForm extends React.Component<Props, State> {
               required={true}
               onChange={this.onChangeSelect}
             >
-              <option key={'new'} value={'new'}> {'new'} </option>
-              <option key={'loss'} value={'loss'}> {'loss'} </option>
-              <option key={'won'} value={'won'}> {'won'} </option>
+              <option key={'new'} value={'new'}>
+                {' '}
+                {'new'}{' '}
+              </option>
+              <option key={'loss'} value={'loss'}>
+                {' '}
+                {'loss'}{' '}
+              </option>
+              <option key={'won'} value={'won'}>
+                {' '}
+                {'won'}{' '}
+              </option>
             </FormControl>
           </FormGroup>
 
           <FormGroup>
             <ControlLabel>Voucher Campaign</ControlLabel>
             <SelectCampaigns
-              queryName='voucherCampaigns'
+              queryName="voucherCampaigns"
               customQuery={voucherCampaignQueries.voucherCampaigns}
-              label='Choose voucher campaign'
-              name='voucherCampaignId'
-              onSelect={() => { return; }}
+              label="Choose voucher campaign"
+              name="voucherCampaignId"
+              onSelect={() => {
+                return;
+              }}
               initialValue={spin.voucherCampaignId}
               filterParams={{ voucherType: 'spin' }}
             />

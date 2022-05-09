@@ -6,25 +6,25 @@ export interface IBuyParams {
   campaignId: string;
   ownerType: string;
   ownerId: string;
-  count?: number
+  count?: number;
 }
 
 export interface ICommonCampaignFields {
-  title: string,
-  description?: string,
-  startDate: Date,
-  endDate: Date,
-  finishDateOfUse: Date,
+  title: string;
+  description?: string;
+  startDate: Date;
+  endDate: Date;
+  finishDateOfUse: Date;
   attachments?: any[];
 
-  status: string,
+  status: string;
 }
 
 export interface ICommonCampaignDocument {
-  createdAt?: Date,
-  createdBy?: string,
-  modifiedAt?: Date,
-  modifiedBy?: string,
+  createdAt?: Date;
+  createdBy?: string;
+  modifiedAt?: Date;
+  modifiedBy?: string;
 }
 
 export interface ICommonCampaignParams {
@@ -33,8 +33,8 @@ export interface ICommonCampaignParams {
   sortField?: string;
   sortDirection?: number;
 
-  searchValue?: string,
-  filterStatus?: string,
+  searchValue?: string;
+  filterStatus?: string;
 }
 
 export interface ICommonParams {
@@ -102,6 +102,10 @@ export const commonSchema = {
   usedAt: field({ type: Date, label: 'Used date', optional: true }),
   userId: field({ type: String, label: 'Modified User', optional: true }),
 
-  ownerType: field({ type: String, label: 'Owner Type', enum: OWNER_TYPES.ALL }),
-  ownerId: field({ type: String }),
-}
+  ownerType: field({
+    type: String,
+    label: 'Owner Type',
+    enum: OWNER_TYPES.ALL
+  }),
+  ownerId: field({ type: String })
+};

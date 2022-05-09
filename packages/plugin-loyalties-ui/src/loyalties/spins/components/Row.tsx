@@ -20,7 +20,7 @@ type Props = {
   history: any;
   isChecked: boolean;
   toggleBulk: (spin: ISpin, isChecked?: boolean) => void;
-  queryParams: IQueryParams
+  queryParams: IQueryParams;
 };
 
 class SpinRow extends React.Component<Props> {
@@ -48,43 +48,47 @@ class SpinRow extends React.Component<Props> {
     }
 
     if (spin.ownerType === 'customer') {
-      return <FlexItem>
-        <Link to={`/contacts/details/${spin.ownerId}`}>
-          {formatValue(renderFullName(spin.owner))}
-        </Link>
-      </FlexItem>;
+      return (
+        <FlexItem>
+          <Link to={`/contacts/details/${spin.ownerId}`}>
+            {formatValue(renderFullName(spin.owner))}
+          </Link>
+        </FlexItem>
+      );
     }
 
     if (spin.ownerType === 'user') {
-      return <FlexItem>
-        <Link to={`/settings/team/details/${spin.ownerId}`}>
-          {formatValue(renderUserFullName(spin.owner))}
-        </Link>
-      </FlexItem>;
+      return (
+        <FlexItem>
+          <Link to={`/settings/team/details/${spin.ownerId}`}>
+            {formatValue(renderUserFullName(spin.owner))}
+          </Link>
+        </FlexItem>
+      );
     }
 
     if (spin.ownerType === 'company') {
-      return <FlexItem>
-        <Link to={`/companies/details/${spin.ownerId}`}>
-          {formatValue(this.displayValue(spin.owner, 'name'))}
-        </Link>
-      </FlexItem>;
+      return (
+        <FlexItem>
+          <Link to={`/companies/details/${spin.ownerId}`}>
+            {formatValue(this.displayValue(spin.owner, 'name'))}
+          </Link>
+        </FlexItem>
+      );
     }
 
     return '';
-  }
+  };
 
   modalContent = props => {
-    const { spin } = this.props
+    const { spin } = this.props;
 
     const updatedProps = {
       ...props,
       spin
-    }
+    };
 
-    return (
-      <Form {...updatedProps} />
-    )
+    return <Form {...updatedProps} />;
   };
 
   render() {
@@ -105,9 +109,13 @@ class SpinRow extends React.Component<Props> {
         </td>
         <td key={'createdAt'}>{dayjs(spin.createdAt).format('lll')} </td>
         <td key={'ownerType'}>{this.displayValue(spin, 'ownerType')}</td>
-        <td key={'ownerId'} onClick={onClick}>{this.renderOwner()}</td>
+        <td key={'ownerId'} onClick={onClick}>
+          {this.renderOwner()}
+        </td>
         <td key={'status'}>{this.displayValue(spin, 'status')}</td>
-        <td key={'actions'} onClick={onClick}>.</td>
+        <td key={'actions'} onClick={onClick}>
+          .
+        </td>
       </tr>
     );
 
@@ -118,7 +126,6 @@ class SpinRow extends React.Component<Props> {
         autoOpenKey="showProductModal"
         content={this.modalContent}
       />
-
     );
   }
 }

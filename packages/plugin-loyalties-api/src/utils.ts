@@ -1,5 +1,13 @@
-interface IProductD { productId: string, quantity: number }
-export const checkVouchersSale = async (models, ownerType: string, ownerId: string, products: IProductD[]) => {
+interface IProductD {
+  productId: string;
+  quantity: number;
+}
+export const checkVouchersSale = async (
+  models,
+  ownerType: string,
+  ownerId: string,
+  products: IProductD[]
+) => {
   const result = {};
 
   const now = new Date();
@@ -12,8 +20,8 @@ export const checkVouchersSale = async (models, ownerType: string, ownerId: stri
         voucherId: '',
         potentialBonus: 0,
         discount: 0,
-        sumDiscount: 0,
-      }
+        sumDiscount: 0
+      };
     }
   }
 
@@ -26,8 +34,8 @@ export const checkVouchersSale = async (models, ownerType: string, ownerId: stri
 
     ownerType: 1,
     ownerId: 1,
-    campaign: { $arrayElemAt: ['$campaign_doc', 0] },
-  }
+    campaign: { $arrayElemAt: ['$campaign_doc', 0] }
+  };
   const lookup = {
     $lookup: {
       from: 'voucher_campaigns',
@@ -35,7 +43,7 @@ export const checkVouchersSale = async (models, ownerType: string, ownerId: stri
       foreignField: '_id',
       as: 'campaign_doc'
     }
-  }
+  };
   const voucherFilter = { ownerType, ownerId, status: { $in: ['new'] } };
 
   const activeVouchers = await models.Vouchers.find(voucherFilter).lean();
@@ -44,12 +52,12 @@ export const checkVouchersSale = async (models, ownerType: string, ownerId: stri
   const campaignFilter = {
     _id: { $in: activeCampaignIds },
     finishDateOfUse: { $gte: now }
-  }
+  };
 
   // bonus
   const bonusCampaign = await models.VoucherCampaigns.find({
     ...campaignFilter,
-    voucherType: { $in: ['bonus'] },
+    voucherType: { $in: ['bonus'] }
   }).lean();
 
   const bonusVouchers = await models.Vouchers.aggregate([
@@ -58,22 +66,29 @@ export const checkVouchersSale = async (models, ownerType: string, ownerId: stri
         ...voucherFilter,
         campaignId: { $in: bonusCampaign.map(c => c._id) }
       }
-    }, {
+    },
+    {
       $lookup: lookup
-    }, {
+    },
+    {
       $project: {
         ...voucherProject,
-        bonusInfo: 1,
+        bonusInfo: 1
       }
     }
-  ])
+  ]);
 
   for (const bonusVoucher of bonusVouchers) {
     for (const productId of productsIds) {
       if (bonusVoucher.campaign.bonusProductId === productId) {
         result[productId].voucherCampaignId = bonusVoucher.campaignId;
         result[productId].voucherId = bonusVoucher._id;
-        result[productId].potentialBonus += (bonusVoucher.campaign.bonusCount - (bonusVoucher.bonusInfo || []).reduce((sum, i) => sum + i.usedCount, 0));
+        result[productId].potentialBonus +=
+          bonusVoucher.campaign.bonusCount -
+          (bonusVoucher.bonusInfo || []).reduce(
+            (sum, i) => sum + i.usedCount,
+            0
+          );
       }
     }
   }
@@ -81,7 +96,7 @@ export const checkVouchersSale = async (models, ownerType: string, ownerId: stri
   // discount
   const discountCampaign = await models.VoucherCampaigns.find({
     ...campaignFilter,
-    voucherType: { $in: ['discount'] },
+    voucherType: { $in: ['discount'] }
   }).lean();
 
   const discountVouchers = await models.Vouchers.aggregate([
@@ -90,24 +105,32 @@ export const checkVouchersSale = async (models, ownerType: string, ownerId: stri
         ...voucherFilter,
         campaignId: { $in: discountCampaign.map(c => c._id) }
       }
-    }, {
+    },
+    {
       $lookup: lookup
-    }, {
+    },
+    {
       $project: {
-        ...voucherProject,
+        ...voucherProject
       }
     }
-  ])
+  ]);
 
-  const productCatIds = discountCampaign.reduce((catIds, c) => catIds.concat(c.productCategoryIds), []);
-  const catProducts = await models.Products.find({ categoryId: { $in: [...new Set(productCatIds)] } }, { _id: 1, categoryId: 1 }).lean();
-  const productIdByCatId = {}
+  const productCatIds = discountCampaign.reduce(
+    (catIds, c) => catIds.concat(c.productCategoryIds),
+    []
+  );
+  const catProducts = await models.Products.find(
+    { categoryId: { $in: [...new Set(productCatIds)] } },
+    { _id: 1, categoryId: 1 }
+  ).lean();
+  const productIdByCatId = {};
   for (const pr of catProducts) {
     if (!Object.keys(productCatIds).includes(pr.categoryId)) {
-      productIdByCatId[pr.categoryId] = []
+      productIdByCatId[pr.categoryId] = [];
     }
 
-    productIdByCatId[pr.categoryId].push(pr._id)
+    productIdByCatId[pr.categoryId].push(pr._id);
   }
 
   for (const discountVoucher of discountVouchers) {
@@ -115,7 +138,7 @@ export const checkVouchersSale = async (models, ownerType: string, ownerId: stri
     let productIds = discountVoucher.campaign.productIds || [];
 
     for (const catId of catIds) {
-      productIds = productIds.concat(productCatIds[catId])
+      productIds = productIds.concat(productCatIds[catId]);
     }
 
     for (const productId of productsIds) {
@@ -125,13 +148,14 @@ export const checkVouchersSale = async (models, ownerType: string, ownerId: stri
           result[productId].voucherId = discountVoucher._id;
           result[productId].discount = discountVoucher.discountPercent;
         }
-        result[productId].sumDiscount += discountVoucher.campaign.discountPercent;
+        result[productId].sumDiscount +=
+          discountVoucher.campaign.discountPercent;
       }
     }
   }
 
   return result;
-}
+};
 
 export const confirmVoucherSale = async (models, checkInfo) => {
   for (const productId of Object.keys(checkInfo)) {
@@ -142,7 +166,10 @@ export const confirmVoucherSale = async (models, checkInfo) => {
     }
 
     if (rule.count) {
-      await models.Vouchers.updateOne({ _id: rule.voucherId }, { $push: { bonusInfo: { usedCount: rule.count, } } });
+      await models.Vouchers.updateOne(
+        { _id: rule.voucherId },
+        { $push: { bonusInfo: { usedCount: rule.count } } }
+      );
     }
   }
-}
+};

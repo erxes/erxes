@@ -93,6 +93,10 @@ class FieldForm extends React.Component<Props, State> {
     });
   };
 
+  onChangeLocation = options => {
+    this.setFieldAttrChanges('locationOptions', options);
+  };
+
   onPropertyChange = (selectedField: IField) => {
     const { field, group } = this.state;
 
@@ -167,20 +171,20 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor='validation'>Validation:</ControlLabel>
+        <ControlLabel htmlFor="validation">Validation:</ControlLabel>
 
         <FormControl
-          id='validation'
-          componentClass='select'
+          id="validation"
+          componentClass="select"
           value={field.validation || ''}
           onChange={validation}
         >
           <option />
-          <option value='email'>{__('Email')}</option>
-          <option value='number'>{__('Number')}</option>
-          <option value='datetime'>{__('Date Time')}</option>
-          <option value='date'>{__('Date')}</option>
-          <option value='phone'>{__('Phone')}</option>
+          <option value="email">{__('Email')}</option>
+          <option value="number">{__('Number')}</option>
+          <option value="datetime">{__('Date Time')}</option>
+          <option value="date">{__('Date')}</option>
+          <option value="phone">{__('Phone')}</option>
         </FormControl>
       </FormGroup>
     );
@@ -201,11 +205,11 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor='type'>Options:</ControlLabel>
+        <ControlLabel htmlFor="type">Options:</ControlLabel>
 
         <FormControl
-          id='options'
-          componentClass='textarea'
+          id="options"
+          componentClass="textarea"
           value={(field.options || []).join('\n')}
           onChange={onChange}
         />
@@ -223,10 +227,9 @@ class FieldForm extends React.Component<Props, State> {
     return (
       <FormGroup>
         <ControlLabel htmlFor="locationOptions">Options:</ControlLabel>
-
         <LocationOptions
-          currentField={field}
-          onFieldChange={this.onFieldChange}
+          locationOptions={field.locationOptions || []}
+          onChange={this.onChangeLocation}
         />
       </FormGroup>
     );
@@ -245,7 +248,7 @@ class FieldForm extends React.Component<Props, State> {
     };
 
     return (
-      <Button btnStyle='danger' onClick={onDelete} icon='minus-circle-1'>
+      <Button btnStyle="danger" onClick={onDelete} icon="minus-circle-1">
         Delete
       </Button>
     );
@@ -268,7 +271,7 @@ class FieldForm extends React.Component<Props, State> {
     return (
       <FormGroup>
         <FlexRow>
-          <ControlLabel htmlFor='description'>
+          <ControlLabel htmlFor="description">
             {__('Select multiple values')}
           </ControlLabel>
           <Toggle
@@ -304,7 +307,7 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor='pageNumber'>Page number</ControlLabel>
+        <ControlLabel htmlFor="pageNumber">Page number</ControlLabel>
         <Select
           isRequired={true}
           value={field.pageNumber || 1}
@@ -349,13 +352,13 @@ class FieldForm extends React.Component<Props, State> {
           open={true}
         >
           <FormGroup>
-            <ControlLabel htmlFor='text' required={true}>
+            <ControlLabel htmlFor="text" required={true}>
               Field Label
             </ControlLabel>
 
             <FormControl
-              id='FieldLabel'
-              type='text'
+              id="FieldLabel"
+              type="text"
               value={field.text || ''}
               onChange={text}
               autoFocus={true}
@@ -363,9 +366,9 @@ class FieldForm extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel htmlFor='description'>Field description</ControlLabel>
+            <ControlLabel htmlFor="description">Field description</ControlLabel>
             <FormControl
-              id='FieldDescription'
+              id="FieldDescription"
               value={field.description || ''}
               onChange={desc}
             />
@@ -383,7 +386,7 @@ class FieldForm extends React.Component<Props, State> {
 
           <FormGroup>
             <FlexRow>
-              <ControlLabel htmlFor='description'>
+              <ControlLabel htmlFor="description">
                 {__('Field is required')}
               </ControlLabel>
               <Toggle
@@ -397,13 +400,13 @@ class FieldForm extends React.Component<Props, State> {
             </FlexRow>
           </FormGroup>
           <FormGroup>
-            <ControlLabel htmlFor='text' required={false}>
+            <ControlLabel htmlFor="text" required={false}>
               Group Name
             </ControlLabel>
             <p>Use with logic and group multiple fields</p>
             <FormControl
-              id='GroupName'
-              type='text'
+              id="GroupName"
+              type="text"
               value={field.groupName || ''}
               onChange={groupName}
               autoFocus={false}
@@ -427,9 +430,9 @@ class FieldForm extends React.Component<Props, State> {
 
         <Modal.Footer>
           <Button
-            btnStyle='simple'
-            type='button'
-            icon='times-circle'
+            btnStyle="simple"
+            type="button"
+            icon="times-circle"
             onClick={onCancel}
           >
             Cancel
@@ -439,7 +442,7 @@ class FieldForm extends React.Component<Props, State> {
 
           <Button
             onClick={this.onSubmit}
-            btnStyle='success'
+            btnStyle="success"
             icon={mode === 'update' ? 'check-circle' : 'plus-circle'}
           >
             {mode === 'update' ? 'Save' : 'Add to Form'}
@@ -461,7 +464,7 @@ class FieldForm extends React.Component<Props, State> {
             <FieldPreview field={field} configs={this.props.configs} />
 
             <ShowPreview>
-              <Icon icon='eye' /> {__('Field preview')}
+              <Icon icon="eye" /> {__('Field preview')}
             </ShowPreview>
           </Preview>
         </PreviewSection>
@@ -493,8 +496,8 @@ class FieldForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Property type:</ControlLabel>
           <FormControl
-            id='propertyGroup'
-            componentClass='select'
+            id="propertyGroup"
+            componentClass="select"
             defaultValue={group}
             onChange={this.onPropertyGroupChange}
           >
@@ -522,11 +525,11 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor='validation'>Field width:</ControlLabel>
+        <ControlLabel htmlFor="validation">Field width:</ControlLabel>
 
         <FormControl
-          id='validation'
-          componentClass='select'
+          id="validation"
+          componentClass="select"
           value={field.column || ''}
           onChange={onChangeColumn}
         >
@@ -548,7 +551,7 @@ class FieldForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel htmlFor='html'>HTML:</ControlLabel>
+        <ControlLabel htmlFor="html">HTML:</ControlLabel>
         <EditorCK
           content={field.content || ''}
           toolbar={[
@@ -595,7 +598,7 @@ class FieldForm extends React.Component<Props, State> {
           <SelectProperty
             queryParams={{ type: `contacts:${group}` }}
             defaultValue={defaultValue}
-            description='Any data collected through this field will copy to:'
+            description="Any data collected through this field will copy to:"
             onChange={this.onPropertyChange}
           />
         </FormGroup>
@@ -609,7 +612,7 @@ class FieldForm extends React.Component<Props, State> {
     return (
       <Modal
         show={true}
-        size='xl'
+        size="xl"
         onHide={onCancel}
         animation={false}
         enforceFocus={false}
@@ -619,7 +622,7 @@ class FieldForm extends React.Component<Props, State> {
             {mode === 'create' ? 'Add' : 'Edit'} {field.type} field
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body id='ModalBody' className='md-padding'>
+        <Modal.Body id="ModalBody" className="md-padding">
           {this.renderContent()}
         </Modal.Body>
       </Modal>

@@ -59,10 +59,6 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
       historiesQuery.stopPolling();
     }
 
-    if (!router.getParam(history, 'type')) {
-      router.setParams(history, { type: 'customer' }, true);
-    }
-
     const currentType = router.getParam(history, 'type');
 
     const removeHistory = (historyId: string, contentType: string) => {

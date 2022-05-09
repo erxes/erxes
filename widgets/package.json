@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^3.0.5",
+    "@googlemaps/typescript-guards": "^1.0.7",
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
     "@types/classnames": "^2.2.6",
     "@types/cors": "^2.8.4",
@@ -54,6 +55,7 @@
     "ejs": "^2.5.6",
     "erxes-icon": "^1.0.5",
     "express": "^4.14.0",
+    "fast-equals": "^2.0.4",
     "file-loader": "^1.1.11",
     "graphql": "^15.8.0",
     "graphql-tag": "^2.6.1",
@@ -75,13 +77,16 @@
     "webpack": "4.16.3",
     "webpack-cli": "^3.1.0",
     "webpack-merge": "^4.1.3",
-    "xss": "^1.0.3"
+    "xss": "^1.0.3",
+    "qrcode": "^1.5.0"
   },
   "devDependencies": {
+    "@types/qrcode": "^1.4.2",
+    "@types/google.maps": "^3.47.4",
     "git-repo-info": "^2.1.0",
     "nodemon": "^1.11.0",
     "ts-node": "^8.3.0",
-    "typescript": "3.9.10"
+    "typescript": "^3.5.2"
   },
   "engines": {
     "node": ">=10.x.x"
