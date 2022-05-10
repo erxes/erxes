@@ -16,7 +16,11 @@ import Select from 'react-select-plus';
 import { IOption } from '@erxes/ui/src/types';
 import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import { __ } from '@erxes/ui/src/utils/core';
-import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
 import Map from '@erxes/ui/src/components/Map';
 import { MapContainer } from '@erxes/ui/src/styles/main';
 
@@ -368,7 +372,7 @@ export default class GenerateField extends React.Component<Props, State> {
     return (
       <MapContainer>
         <Map
-          center={currentLocation}
+          center={currentLocation || { lat: 0, lng: 0 }}
           googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
           defaultZoom={7}
           locationOptions={locationOptions}
@@ -548,7 +552,7 @@ export default class GenerateField extends React.Component<Props, State> {
       case 'map': {
         return this.renderMap(attrs);
       }
-      
+
       default:
         try {
           return this.renderInput(attrs);

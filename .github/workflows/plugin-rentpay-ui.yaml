@@ -6,6 +6,7 @@ on:
       - federation
     paths:
       - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
       - "packages/ui-rentpay/**"
       - "packages/plugin-rentpay-ui/**"
       - ".github/workflows/plugin-rentpay-ui.yaml"

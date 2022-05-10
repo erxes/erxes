@@ -1,14 +1,14 @@
-import React from "react";
-import NeighborForm from "../components/NeigborForm";
-import { useQuery, useMutation } from "react-apollo";
-import gql from "graphql-tag";
-import { Alert } from "@erxes/ui/src/utils";
-import queries from "../graphql/queries";
-import mutations from "../graphql/mutations";
+import React from 'react';
+import NeighborForm from '../components/NeigborForm';
+import { useQuery, useMutation } from 'react-apollo';
+import gql from 'graphql-tag';
+import { Alert } from '@erxes/ui/src/utils';
+import queries from '../graphql/queries';
+import mutations from '../graphql/mutations';
 
 function NeighborFormContainer({ productCategoryId }) {
   const detailQuery = useQuery(gql(queries.getNeighbor), {
-    variables: { productCategoryId },
+    variables: { productCategoryId }
   });
   const [saveMutation] = useMutation(gql(mutations.neighborSave));
 
@@ -20,12 +20,12 @@ function NeighborFormContainer({ productCategoryId }) {
     return <div>{detailQuery.error.message}</div>;
   }
 
-  const save = (info: any, rate: object) => {
-    saveMutation({ variables: { productCategoryId, info, rate } })
+  const save = (data: any, rate: object) => {
+    saveMutation({ variables: { productCategoryId, data, rate } })
       .then(() => {
-        Alert.success("Successfully saved");
+        Alert.success('Successfully saved');
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };

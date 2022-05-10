@@ -6,6 +6,7 @@ on:
       - federation
     paths:
       - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
       - "packages/ui-chats/**"
       - "packages/plugin-chats-ui/**"
       - ".github/workflows/plugin-chats-ui.yaml"

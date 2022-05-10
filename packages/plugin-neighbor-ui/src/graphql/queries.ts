@@ -14,7 +14,7 @@ const getNeighbor = `
   query getNeighbor($productCategoryId:String!) {
     getNeighbor(productCategoryId: $productCategoryId) {
       productCategoryId
-      info
+      data
       rate
     }
   }

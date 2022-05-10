@@ -5,11 +5,11 @@ import {
   ControlLabel,
   Form,
   FormControl,
-  FormGroup,
+  FormGroup
 } from '@erxes/ui/src/components';
 import {
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
+  MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src/styles/eindex';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IDonate, IDonateDoc } from '../types';
@@ -71,8 +71,8 @@ class DonateForm extends React.Component<Props, State> {
       value = Number(value);
     }
 
-    this.setState({ donate: { ...this.state.donate, [name]: value } } as any)
-  }
+    this.setState({ donate: { ...this.state.donate, [name]: value } } as any);
+  };
 
   renderFormGroup = (label, props) => {
     return (
@@ -83,19 +83,19 @@ class DonateForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeSelect = (e) => {
+  onChangeSelect = e => {
     const { donate } = this.state;
-    const target = (e.currentTarget as HTMLInputElement);
+    const target = e.currentTarget as HTMLInputElement;
     const value = target.value;
     const name = target.name;
 
-    this.setState({ donate: { ...donate, [name]: value } })
-  }
+    this.setState({ donate: { ...donate, [name]: value } });
+  };
 
-  onChangeOwnerId = (ownerId) => {
+  onChangeOwnerId = ownerId => {
     const { donate } = this.state;
-    this.setState({ donate: { ...donate, ownerId } })
-  }
+    this.setState({ donate: { ...donate, ownerId } });
+  };
 
   renderOwner = () => {
     const { donate } = this.state;
@@ -108,7 +108,7 @@ class DonateForm extends React.Component<Props, State> {
           initialValue={donate.ownerId}
           onSelect={this.onChangeOwnerId}
         />
-      )
+      );
     }
 
     if (donate.ownerType === 'user') {
@@ -120,7 +120,7 @@ class DonateForm extends React.Component<Props, State> {
           initialValue={donate.ownerId}
           onSelect={this.onChangeOwnerId}
         />
-      )
+      );
     }
 
     return (
@@ -131,8 +131,8 @@ class DonateForm extends React.Component<Props, State> {
         initialValue={donate.ownerId}
         onSelect={this.onChangeOwnerId}
       />
-    )
-  }
+    );
+  };
 
   renderContent = (formProps: IFormProps) => {
     const { donate } = this.state;
@@ -145,13 +145,15 @@ class DonateForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Campaign</ControlLabel>
             <SelectCampaigns
-              queryName='donateCampaigns'
+              queryName="donateCampaigns"
               customQuery={queries.donateCampaigns}
-              label='Choose donate campaign'
-              name='campaignId'
+              label="Choose donate campaign"
+              name="campaignId"
               onSelect={this.onChangeSelect}
               initialValue={donate.campaignId}
-              filterParams={donate._id ? { equalTypeCampaignId: donate.campaignId } : {}}
+              filterParams={
+                donate._id ? { equalTypeCampaignId: donate.campaignId } : {}
+              }
             />
           </FormGroup>
 
@@ -165,9 +167,18 @@ class DonateForm extends React.Component<Props, State> {
               required={true}
               onChange={this.onChangeSelect}
             >
-              <option key={'customer'} value={'customer'}> {'customer'} </option>
-              <option key={'user'} value={'user'}> {'user'} </option>
-              <option key={'company'} value={'company'}> {'company'} </option>
+              <option key={'customer'} value={'customer'}>
+                {' '}
+                {'customer'}{' '}
+              </option>
+              <option key={'user'} value={'user'}>
+                {' '}
+                {'user'}{' '}
+              </option>
+              <option key={'company'} value={'company'}>
+                {' '}
+                {'company'}{' '}
+              </option>
             </FormControl>
           </FormGroup>
 

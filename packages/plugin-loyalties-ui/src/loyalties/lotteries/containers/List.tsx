@@ -49,7 +49,10 @@ class LotteryListContainer extends React.Component<FinalProps, State> {
       history
     } = this.props;
 
-    if (lotteriesMainQuery.loading || (lotteryCampaignDetailQuery && lotteryCampaignDetailQuery.loading)) {
+    if (
+      lotteriesMainQuery.loading ||
+      (lotteryCampaignDetailQuery && lotteryCampaignDetailQuery.loading)
+    ) {
       return <Spinner />;
     }
 
@@ -67,8 +70,11 @@ class LotteryListContainer extends React.Component<FinalProps, State> {
     };
 
     const searchValue = this.props.queryParams.searchValue || '';
-    const { list = [], totalCount = 0 } = lotteriesMainQuery.lotteriesMain || {};
-    const currentCampaign = lotteryCampaignDetailQuery && lotteryCampaignDetailQuery.lotteryCampaignDetail;
+    const { list = [], totalCount = 0 } =
+      lotteriesMainQuery.lotteriesMain || {};
+    const currentCampaign =
+      lotteryCampaignDetailQuery &&
+      lotteryCampaignDetailQuery.lotteryCampaignDetail;
 
     const updatedProps = {
       ...this.props,
@@ -76,7 +82,7 @@ class LotteryListContainer extends React.Component<FinalProps, State> {
       searchValue,
       lotteries: list,
       currentCampaign,
-      removeLotteries,
+      removeLotteries
     };
 
     const lotteriesList = props => {
@@ -101,11 +107,16 @@ const generateParams = ({ queryParams }) => ({
   searchValue: queryParams.searchValue,
   sortField: queryParams.sortField,
   sortDirection: Number(queryParams.sortDirection) || undefined,
-  voucherCampaignId: queryParams.voucherCampaignId,
+  voucherCampaignId: queryParams.voucherCampaignId
 });
 
 const generateOptions = () => ({
-  refetchQueries: ['lotteriesMain', 'lotteryCounts', 'lotteryCategories', 'lotteryCategoriesTotalCount']
+  refetchQueries: [
+    'lotteriesMain',
+    'lotteryCounts',
+    'lotteryCategories',
+    'lotteryCategoriesTotalCount'
+  ]
 });
 
 export default withProps<Props>(
@@ -129,7 +140,7 @@ export default withProps<Props>(
             _id: queryParams.campaignId
           }
         }),
-        skip: ({ queryParams }) => !queryParams.campaignId,
+        skip: ({ queryParams }) => !queryParams.campaignId
       }
     ),
     // mutations
@@ -139,6 +150,6 @@ export default withProps<Props>(
         name: 'lotteriesRemove',
         options: generateOptions
       }
-    ),
+    )
   )(withRouter<IRouterProps>(LotteryListContainer))
 );

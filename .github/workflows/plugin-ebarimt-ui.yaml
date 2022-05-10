@@ -6,6 +6,7 @@ on:
       - federation
     paths:
       - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
       - "packages/ui-ebarimt/**"
       - "packages/plugin-ebarimt-ui/**"
       - ".github/workflows/plugin-ebarimt-ui.yaml"

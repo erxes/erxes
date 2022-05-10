@@ -1,4 +1,9 @@
-import { FormControl, TextInfo, ModalTrigger, Icon } from '@erxes/ui/src/components';
+import {
+  FormControl,
+  TextInfo,
+  ModalTrigger,
+  Icon
+} from '@erxes/ui/src/components';
 import React from 'react';
 import Form from '../containers/Form';
 import { ILotteryCampaign } from '../types';
@@ -18,11 +23,9 @@ class Row extends React.Component<Props> {
     const updatedProps = {
       ...props,
       lotteryCampaign
-    }
+    };
 
-    return (
-      <Form {...updatedProps} />
-    )
+    return <Form {...updatedProps} />;
   };
 
   render() {
@@ -44,8 +47,7 @@ class Row extends React.Component<Props> {
       startDate,
       endDate,
       finishDateOfUse,
-      status,
-
+      status
     } = lotteryCampaign;
 
     const trigger = (
@@ -66,14 +68,14 @@ class Row extends React.Component<Props> {
         </td>
         <td onClick={onClick}>
           <Link to={`/lotteries?campaignId=${_id}`}>
-            <Icon icon='list-2' />
+            <Icon icon="list-2" />
           </Link>
           <Link to={`/lottery/${_id}`}>
-            <Icon icon='award' />
+            <Icon icon="award" />
           </Link>
         </td>
       </tr>
-    )
+    );
 
     return (
       <ModalTrigger
@@ -83,7 +85,6 @@ class Row extends React.Component<Props> {
         autoOpenKey="showProductModal"
         content={this.modalContent}
       />
-
     );
   }
 }

@@ -177,13 +177,17 @@ export const fetchSegment = async (
   return response.hits.hits.map(hit => hit._id);
 };
 
-export const generateQueryBySegment = async (models: IModels, subdomain: string, args: {
-  segment: ISegment;
-  selector: any;
-  serviceConfigs: any;
-  options?: IOptions;
-  isInitialCall?: boolean;
-}) => {
+export const generateQueryBySegment = async (
+  models: IModels,
+  subdomain: string,
+  args: {
+    segment: ISegment;
+    selector: any;
+    serviceConfigs: any;
+    options?: IOptions;
+    isInitialCall?: boolean;
+  }
+) => {
   const {
     segment,
     selector,
@@ -193,7 +197,7 @@ export const generateQueryBySegment = async (models: IModels, subdomain: string,
   } = args;
 
   const { contentType } = segment;
-  const [serviceName, collectionType ] = contentType.split(':');
+  const [serviceName, collectionType] = contentType.split(':');
   const { defaultMustSelector } = options;
 
   const defaultSelector =
@@ -265,10 +269,7 @@ export const generateQueryBySegment = async (models: IModels, subdomain: string,
       }
 
       if (initialSelectorAvailable) {
-        const {
-          negative,
-          positive
-        } = await sendMessage({
+        const { negative, positive } = await sendMessage({
           subdomain,
           serviceName,
           isRPC: true,
@@ -354,9 +355,15 @@ export const generateQueryBySegment = async (models: IModels, subdomain: string,
       negativeQuery = negativeQuery;
 
       for (const serviceConfig of serviceConfigs) {
-        const { contentTypes, propertyConditionExtenderAvailable } = serviceConfig;
+        const {
+          contentTypes,
+          propertyConditionExtenderAvailable
+        } = serviceConfig;
 
-        const [propertyServiceName, propertyContentType] = condition.propertyType.split(':');
+        const [
+          propertyServiceName,
+          propertyContentType
+        ] = condition.propertyType.split(':');
 
         if (
           contentTypes &&
@@ -492,11 +499,16 @@ export const generateNestedQuery = (
   kind: string,
   field: string,
   operator: string,
-  query: any
+  query: any,
+  fixedValue: any
 ) => {
   const fieldKey = field.replace(`${kind}.`, '');
 
   let fieldValue = 'value';
+
+  if (typeof fixedValue === 'string') {
+    fieldValue = 'stringValue';
+  }
 
   if (SEGMENT_NUMBER_OPERATORS.includes(operator)) {
     fieldValue = 'numberValue';
@@ -698,7 +710,8 @@ export function elkConvertConditionToQuery(args: {
           nestedType,
           field,
           operator,
-          positiveQuery
+          positiveQuery,
+          fixedValue
         );
       }
 
@@ -707,7 +720,8 @@ export function elkConvertConditionToQuery(args: {
           nestedType,
           field,
           operator,
-          negativeQuery
+          negativeQuery,
+          fixedValue
         );
       }
     }
@@ -765,21 +779,24 @@ const fetchByQuery = async ({
   );
 };
 
-const associationPropertyFilter = async (subdomain: string, {
-  serviceConfigs,
-  serviceName,
-  mainType,
-  propertyType,
-  positiveQuery,
-  negativeQuery
-}: {
-  serviceConfigs: any;
-  serviceName: string;
-  mainType: string;
-  propertyType: string;
-  positiveQuery: any;
-  negativeQuery: any;
-}) => {
+const associationPropertyFilter = async (
+  subdomain: string,
+  {
+    serviceConfigs,
+    serviceName,
+    mainType,
+    propertyType,
+    positiveQuery,
+    negativeQuery
+  }: {
+    serviceConfigs: any;
+    serviceName: string;
+    mainType: string;
+    propertyType: string;
+    positiveQuery: any;
+    negativeQuery: any;
+  }
+) => {
   let associatedTypes: string[] = [];
 
   for (const serviceConfig of serviceConfigs) {

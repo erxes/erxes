@@ -1,12 +1,16 @@
-import * as React from 'react';
-import { IBookingData } from '../types';
-import Card from './common/Card';
-import Button from './common/Button';
-import { readFile, __ } from '../../utils';
+import * as React from "react";
+import { IBookingData } from "../types";
+import Card from "./common/Card";
+import Button from "./common/Button";
+import { readFile, __ } from "../../utils";
 type Props = {
   goToIntro: () => void;
   booking: IBookingData | null;
   goToCategory: (categoryId: string) => void;
+  invoiceResponse?: any;
+  invoiceType?: string;
+  lastMessageId?: string;
+  onCancelOrder: (customerId: string, messageId: string) => void;
 };
 
 function Booking({ goToIntro, booking, goToCategory }: Props) {
@@ -25,28 +29,28 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
   const { columns, rows, line, margin } = style;
 
   const childCategories = categoryTree.filter(
-    tree => tree.parentId === productCategoryId && tree.type === 'category'
+    tree => tree.parentId === productCategoryId && tree.type === "category"
   );
 
   const column: string = columns!;
-  const colCount = parseInt(column, 10) >= 4 ? '4' : columns;
+  const colCount = parseInt(column, 10) >= 4 ? "4" : columns;
 
   const gridStyle = {
-    marginTop: '10px',
+    marginTop: "10px",
     gridTemplateColumns: `repeat(${colCount}, minmax(120px, 1fr))`,
-    gap: margin || '10px'
+    gap: margin || "10px"
   };
 
-  let selectedId = '';
+  let selectedId = "";
 
   const selectCard = (el: any) => {
     selectedId = el._id;
     const count: string = el.count!;
     const status =
-      el.status === 'disabled' || parseInt(count, 10) === 0 ? 'disabled' : '';
+      el.status === "disabled" || parseInt(count, 10) === 0 ? "disabled" : "";
 
     setTimeout(() => {
-      if (status !== 'disabled') {
+      if (status !== "disabled") {
         goToCategory(selectedId);
       }
     }, 100);
@@ -84,7 +88,7 @@ function Booking({ goToIntro, booking, goToCategory }: Props) {
     return (
       <div className="footer">
         <Button
-          text={__('Back')}
+          text={__("Back")}
           type="back"
           onClickHandler={() => goToIntro()}
           style={{ backgroundColor: style.widgetColor, left: 0 }}

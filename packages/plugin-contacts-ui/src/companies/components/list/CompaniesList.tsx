@@ -245,7 +245,7 @@ class CompaniesList extends React.Component<IProps, State> {
           {...props}
           location={location}
           history={history}
-          contentType="company"
+          contentType="contacts:company"
         />
       );
     };

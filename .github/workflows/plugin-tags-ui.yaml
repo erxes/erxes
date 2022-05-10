@@ -6,6 +6,7 @@ on:
       - federation
     paths:
       - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
       - "packages/ui-tags/**"
       - "packages/plugin-tags-ui/**"
       - ".github/workflows/plugin-tags-ui.yaml"

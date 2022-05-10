@@ -1,13 +1,13 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { ChildProps, compose, graphql } from 'react-apollo';
-import client from '../../apollo-client';
-import { IParticipator, IUser } from '../../types';
-import { ConversationDetail as DumbComponent } from '../components';
-import { connection } from '../connection';
-import graphqlTypes from '../graphql';
-import { IConversation, IMessage } from '../types';
-import { AppConsumer } from './AppContext';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, compose, graphql } from "react-apollo";
+import client from "../../apollo-client";
+import { IParticipator, IUser } from "../../types";
+import { ConversationDetail as DumbComponent } from "../components";
+import { connection } from "../connection";
+import graphqlTypes from "../graphql";
+import { IConversation, IMessage } from "../types";
+import { AppConsumer } from "./AppContext";
 
 type Props = {
   conversationId: string;
@@ -48,7 +48,7 @@ class ConversationDetail extends React.Component<
       .subscribe({
         query: gql(graphqlTypes.conversationBotTypingStatus),
         variables: { _id: conversationId },
-        fetchPolicy: 'network-only'
+        fetchPolicy: "network-only"
       })
       .subscribe({
         next({ data: { conversationBotTypingStatus } }) {
@@ -101,7 +101,7 @@ class ConversationDetail extends React.Component<
         const conversationChanged = subData.conversationChanged || {};
         const type = conversationChanged.type;
 
-        if (forceLogoutWhenResolve && type === 'closed') {
+        if (forceLogoutWhenResolve && type === "closed") {
           endConversation(conversationId);
         }
       }
@@ -148,7 +148,7 @@ const query = compose(
           _id: ownProps.conversationId,
           integrationId: connection.data.integrationId
         },
-        fetchPolicy: 'network-only'
+        fetchPolicy: "network-only"
       })
     }
   )
@@ -174,11 +174,11 @@ const WithConsumer = (props: PropsWithConsumer) => {
         getBotInitialMessage,
         errorMessage
       }) => {
-        const key = activeConversation || 'create';
+        const key = activeConversation || "create";
         const {
           isOnline,
           forceLogoutWhenResolve,
-          botShowInitialMessage, 
+          botShowInitialMessage,
           showTimezone
         } = getMessengerData();
 
