@@ -321,34 +321,6 @@ export const doSearch = async ({
   return results;
 };
 
-export const getSubdomain = (req): string => {
-  const hostname = req.headers.hostname || req.hostname;
-  return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
-};
-
-const connectionOptions: mongoose.ConnectionOptions = {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useFindAndModify: false,
-  family: 4
-};
-
-export const createGenerateModels = <IModels>(models, loadClasses) => {
-  return async (hostnameOrSubdomain: string): Promise<IModels> => {
-    if (models) {
-      return models;
-    }
-
-    const MONGO_URL = getEnv({ name: 'MONGO_URL' });
-
-    const db = await mongoose.connect(MONGO_URL, connectionOptions);
-
-    models = loadClasses(db, hostnameOrSubdomain);
-
-    return models;
-  };
-};
-
 interface IActionMap {
   [key: string]: boolean;
 }
@@ -387,4 +359,32 @@ export const userActionsMap = async (
   }
 
   return allowedActions;
+};
+
+export const getSubdomain = (req): string => {
+  const hostname = req.headers.hostname || req.hostname;
+  return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
+};
+
+const connectionOptions: mongoose.ConnectionOptions = {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
+  family: 4
+};
+
+export const createGenerateModels = <IModels>(models, loadClasses) => {
+  return async (hostnameOrSubdomain: string): Promise<IModels> => {
+    if (models) {
+      return models;
+    }
+
+    const MONGO_URL = getEnv({ name: 'MONGO_URL' });
+
+    const db = await mongoose.connect(MONGO_URL, connectionOptions);
+
+    models = loadClasses(db, hostnameOrSubdomain);
+
+    return models;
+  };
 };
