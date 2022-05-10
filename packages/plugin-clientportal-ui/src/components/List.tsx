@@ -93,7 +93,12 @@ function ClientPortalList({
   };
 
   return (
-    <LeftSidebar isSettings wide={true} header={renderSidebarHeader()} hasBorder={true}>
+    <LeftSidebar
+      noMargin
+      wide={true}
+      header={renderSidebarHeader()}
+      hasBorder={true}
+    >
       <SidebarList isSettings={true} id={'ClientPortalSidebar'}>
         {renderRow()}
         <LoadMore all={totalCount} loading={loading} />

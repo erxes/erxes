@@ -1,9 +1,9 @@
-import { colors, dimensions, typography } from "@erxes/ui/src/styles";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import { DateContainer } from "@erxes/ui/src/styles/main";
-import { rgba } from "@erxes/ui/src/styles/ecolor";
-import { lighten } from "@erxes/ui/src/styles/ecolor";
+import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { DateContainer } from '@erxes/ui/src/styles/main';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
+import { lighten } from '@erxes/ui/src/styles/ecolor';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 
@@ -26,7 +26,7 @@ const ActionButtons = styled.div`
 
 const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   position: relative;
-  background: ${(props) => props.isActive && rgba(colors.colorPrimary, 0.2)};
+  background: ${props => props.isActive && rgba(colors.colorPrimary, 0.2)};
   overflow: hidden;
   display: flex;
   justify-content: space-between;
@@ -35,15 +35,15 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   a {
     white-space: normal;
     flex: 1;
-    color: ${(props) => props.isActive && colors.colorPrimary} !important;
-    font-weight: ${(props) => props.isActive ? 600 : 500};
+    color: ${props => props.isActive && colors.colorPrimary} !important;
+    font-weight: ${props => (props.isActive ? 600 : 500)};
 
     margin: 0 20px;
     padding: 10px 0;
 
     &:hover {
       background: none;
-      color: ${(props) => !props.isActive && lighten(colors.textPrimary, 40)};
+      color: ${props => !props.isActive && lighten(colors.textPrimary, 40)};
     }
 
     &:focus {
@@ -62,7 +62,7 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   
   &:hover {
     cursor: pointer;
-    background: ${(props) => !props.isActive && colors.bgLight};
+    background: ${props => !props.isActive && colors.bgLight};
 
     ${ActionButtons} {
       width: 60px;
@@ -166,19 +166,19 @@ const BackgroundSelector = styled.div`
     background-size: 220%;
 
     &.background-1 {
-      background-image: url("/images/patterns/bg-1.png");
+      background-image: url('/images/patterns/bg-1.png');
     }
 
     &.background-2 {
-      background-image: url("/images/patterns/bg-2.png");
+      background-image: url('/images/patterns/bg-2.png');
     }
 
     &.background-3 {
-      background-image: url("/images/patterns/bg-3.png");
+      background-image: url('/images/patterns/bg-3.png');
     }
 
     &.background-4 {
-      background-image: url("/images/patterns/bg-4.png");
+      background-image: url('/images/patterns/bg-4.png');
     }
 
     &.background-5 {
@@ -242,7 +242,7 @@ const LogoContainer = styled.div`
   height: 56px;
   cursor: pointer;
   box-shadow: 0 0 ${dimensions.unitSpacing}px 0 ${rgba(colors.colorBlack, 0.2)};
-  background-image: url("/images/erxes.png");
+  background-image: url('/images/erxes.png');
   background-color: ${colors.colorPrimary};
   background-position: center;
   background-size: 20px;
@@ -267,7 +267,7 @@ const LogoContainer = styled.div`
     font-size: ${dimensions.unitSpacing}px;
   }
 
-  input[type="file"] {
+  input[type='file'] {
     display: none;
   }
 
@@ -290,22 +290,18 @@ const InputBar = styledTS<{ type?: string }>(styled.div)`
   align-items: center;
   display: flex;
   flex: 1;
-  max-width: ${(props) =>
-    props.type === "active" && `${dimensions.headerSpacingWide * 2 + 20}px`};
+  max-width: ${props =>
+    props.type === 'active' && `${dimensions.headerSpacingWide * 2 + 20}px`};
   padding: 5px 5px 0 20px;
   border-radius: 8px;
-  margin-left: ${(props) => props.type === "active" && "10px"};
+  margin-left: ${props => props.type === 'active' && '10px'};
   height: 41px;
-  padding-left: ${(props) =>
-    props.type === "searchBar" && `${dimensions.unitSpacing * 2}px`};
+  padding-left: ${props =>
+    props.type === 'searchBar' && `${dimensions.unitSpacing * 2}px`};
 
   input {
     border-bottom: 0;
   }
-`;
-
-const Padding = styled.div`
-  padding: 0 ${dimensions.coreSpacing}px;
 `;
 
 const Header = styled.div`
@@ -343,7 +339,6 @@ export {
   ContentBox,
   LogoContainer,
   InputBar,
-  Padding,
   Header,
-  Title,
+  Title
 };

@@ -124,7 +124,7 @@ class GroupList extends React.Component<IProps> {
   renderContent() {
     const { objects } = this.props;
 
-    return <SidebarList isSettings={true}>{this.renderObjects(objects)}</SidebarList>;
+    return <SidebarList isSettings>{this.renderObjects(objects)}</SidebarList>;
   }
 
   renderSidebarHeader() {
@@ -142,7 +142,7 @@ class GroupList extends React.Component<IProps> {
     return (
       <>
         <Header>{this.renderFormTrigger(trigger)}</Header>
-        <Section.Title isSettings={true}>
+        <Section.Title isSettings>
           {__('User groups')}
           <Section.QuickButtons>
             {router.getParam(this.props.history, 'groupId') && (
@@ -162,7 +162,12 @@ class GroupList extends React.Component<IProps> {
     const { totalCount, loading } = this.props;
 
     return (
-      <Sidebar hasBorder={true} wide={true} header={this.renderSidebarHeader()} isSettings={true}>
+      <Sidebar
+        hasBorder={true}
+        wide={true}
+        header={this.renderSidebarHeader()}
+        noMargin
+      >
         <DataWithLoader
           data={this.renderContent()}
           loading={loading}

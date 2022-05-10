@@ -1,17 +1,16 @@
-import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
-import EmptyState from "@erxes/ui/src/components/EmptyState";
-import Table from "@erxes/ui/src/components/table";
-import { Count } from "@erxes/ui/src/styles/main";
-import { __ } from "@erxes/ui/src/utils";
-import { EMPTY_CONTENT_MESSENGER } from "@erxes/ui-settings/src/constants";
-import React from "react";
-import { INTEGRATION_KINDS } from "@erxes/ui/src/constants/integrations";
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Table from '@erxes/ui/src/components/table';
+import { Count } from '@erxes/ui/src/styles/main';
+import { __ } from '@erxes/ui/src/utils';
+import { EMPTY_CONTENT_MESSENGER } from '@erxes/ui-settings/src/constants';
+import React from 'react';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import {
   IIntegration,
-  IntegrationMutationVariables,
-} from "@erxes/ui-settings/src/integrations/types";
-import IntegrationListItem from "./IntegrationListItem";
-import { Padding } from "@erxes/ui-settings/src/styles";
+  IntegrationMutationVariables
+} from '@erxes/ui-settings/src/integrations/types';
+import IntegrationListItem from './IntegrationListItem';
 
 type Props = {
   integrations: IIntegration[];
@@ -47,14 +46,14 @@ class IntegrationList extends React.Component<Props, State> {
       editIntegration,
       queryParams: { _id },
       disableAction,
-      repair,
+      repair
     } = this.props;
 
     const showExternalInfoColumn = () => {
       this.setState({ showExternalInfo: true });
     };
 
-    return integrations.map((i) => (
+    return integrations.map(i => (
       <IntegrationListItem
         key={i._id}
         _id={_id}
@@ -89,26 +88,24 @@ class IntegrationList extends React.Component<Props, State> {
     return (
       <>
         <Count>
-          {integrationsCount} {kind} integration{integrationsCount > 1 && "s"}
+          {integrationsCount} {kind} integration{integrationsCount > 1 && 's'}
         </Count>
-        <Padding>
-          <Table>
-            <thead>
-              <tr>
-                <th>{__("Name")}</th>
-                <th>{__("Kind")}</th>
-                <th>{__("Brand")}</th>
-                <th>{__("Status")}</th>
-                <th>{__("Health status")}</th>
-                {this.state.showExternalInfo ? (
-                  <th>{__("External info")}</th>
-                ) : null}
-                <th style={{ width: 130 }}>{__("Actions")}</th>
-              </tr>
-            </thead>
-            <tbody>{this.renderRows()}</tbody>
-          </Table>
-        </Padding>
+        <Table>
+          <thead>
+            <tr>
+              <th>{__('Name')}</th>
+              <th>{__('Kind')}</th>
+              <th>{__('Brand')}</th>
+              <th>{__('Status')}</th>
+              <th>{__('Health status')}</th>
+              {this.state.showExternalInfo ? (
+                <th>{__('External info')}</th>
+              ) : null}
+              <th style={{ width: 130 }}>{__('Actions')}</th>
+            </tr>
+          </thead>
+          <tbody>{this.renderRows()}</tbody>
+        </Table>
       </>
     );
   }

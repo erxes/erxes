@@ -7,7 +7,7 @@ const coreSpace = `${dimensions.coreSpacing}px`;
 
 const PropertyList = styled.ul`
   list-style: none;
-  padding: 0;
+  padding: 0 ${dimensions.coreSpacing}px;
   margin: 0;
   margin-top: -1px;
 
@@ -47,7 +47,6 @@ const CollapseRow = styled.div`
   justify-content: space-between;
   padding: ${dimensions.coreSpacing}px;
   background: ${colors.colorWhite};
-  border-top: 1px solid ${colors.borderPrimary};
 
   span {
     font-size: 12px;
@@ -108,7 +107,7 @@ const PropertyTableHeader = styled.div`
   background: ${colors.colorWhite};
 
   > label {
-    padding: 10px 0;
+    padding: 8px 0;
     position: sticky;
     z-index: 1;
     top: 0;

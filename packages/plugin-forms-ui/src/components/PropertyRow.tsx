@@ -1,14 +1,14 @@
-import ActionButtons from "@erxes/ui/src/components/ActionButtons";
-import Button from "@erxes/ui/src/components/Button";
-import EmptyState from "@erxes/ui/src/components/EmptyState";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Toggle from "@erxes/ui/src/components/Toggle";
-import { __, Alert, confirm } from "@erxes/ui/src/utils";
-import React from "react";
-import Collapse from "react-bootstrap/Collapse";
-import PropertyForm from "@erxes/ui-settings/src/properties/containers/PropertyForm";
-import PropertyGroupForm from "@erxes/ui-settings/src/properties/containers/PropertyGroupForm";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Button from '@erxes/ui/src/components/Button';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { __, Alert, confirm } from '@erxes/ui/src/utils';
+import React from 'react';
+import Collapse from 'react-bootstrap/Collapse';
+import PropertyForm from '@erxes/ui-settings/src/properties/containers/PropertyForm';
+import PropertyGroupForm from '@erxes/ui-settings/src/properties/containers/PropertyGroupForm';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import {
   CollapseRow,
   DropIcon,
@@ -16,12 +16,11 @@ import {
   PropertyListTable,
   PropertyTableHeader,
   RowField,
-  PropertyTableRow,
-} from "@erxes/ui-settings/src/properties/styles";
-import { IFieldGroup } from "@erxes/ui-settings/src/properties/types";
-import { IField } from "@erxes/ui/src/types";
-import SortableList from "@erxes/ui/src/components/SortableList";
-import { Padding } from "@erxes/ui-settings/src/styles";
+  PropertyTableRow
+} from '@erxes/ui-settings/src/properties/styles';
+import { IFieldGroup } from '@erxes/ui-settings/src/properties/types';
+import { IField } from '@erxes/ui/src/types';
+import SortableList from '@erxes/ui/src/components/SortableList';
 
 type Props = {
   group: IFieldGroup;
@@ -49,7 +48,7 @@ class PropertyRow extends React.Component<Props, State> {
 
     this.state = {
       collapse: true,
-      fields,
+      fields
     };
   }
 
@@ -58,7 +57,7 @@ class PropertyRow extends React.Component<Props, State> {
 
     if (fields !== nextProps.group.fields) {
       this.setState({
-        fields: nextProps.group.fields,
+        fields: nextProps.group.fields
       });
     }
   }
@@ -67,7 +66,7 @@ class PropertyRow extends React.Component<Props, State> {
     this.setState({ collapse: !this.state.collapse });
   };
 
-  onChangeFields = (fields) => {
+  onChangeFields = fields => {
     this.setState({ fields }, () => {
       this.props.updateFieldOrder(this.state.fields);
     });
@@ -75,15 +74,15 @@ class PropertyRow extends React.Component<Props, State> {
 
   visibleHandler = (e, property) => {
     if (!property.canHide) {
-      return Alert.error("You cannot update this property");
+      return Alert.error('You cannot update this property');
     }
 
-    if (e.target.id === "visibleDetailToggle") {
+    if (e.target.id === 'visibleDetailToggle') {
       const isVisibleInDetail = e.target.checked;
 
       return this.props.updatePropertyDetailVisible({
         _id: property._id,
-        isVisibleInDetail,
+        isVisibleInDetail
       });
     }
 
@@ -101,8 +100,8 @@ class PropertyRow extends React.Component<Props, State> {
 
     if (isGroup) {
       const group: IFieldGroup = data;
-      if (["task", "ticket", "deal"].includes(group.contentType)) {
-        size = "lg";
+      if (['task', 'ticket', 'deal'].includes(group.contentType)) {
+        size = 'lg';
       }
     }
 
@@ -111,14 +110,14 @@ class PropertyRow extends React.Component<Props, State> {
         .then(() => {
           remove({ _id: data._id });
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
         });
 
     return (
       <ActionButtons>
         <ModalTrigger
-          title={isGroup ? "Edit group" : "Edit field"}
+          title={isGroup ? 'Edit group' : 'Edit field'}
           trigger={<Button btnStyle="link" icon="edit-3" />}
           content={content}
           size={size}
@@ -132,7 +131,7 @@ class PropertyRow extends React.Component<Props, State> {
     const { removeProperty, queryParams } = this.props;
     const { lastUpdatedUser } = field;
 
-    const onChange = (e) => this.visibleHandler(e, field);
+    const onChange = e => this.visibleHandler(e, field);
 
     return (
       <PropertyTableRow key={field._id}>
@@ -143,7 +142,7 @@ class PropertyRow extends React.Component<Props, State> {
         <RowField>
           {lastUpdatedUser && lastUpdatedUser.details
             ? lastUpdatedUser.details.fullName
-            : "Erxes"}
+            : 'Erxes'}
         </RowField>
         <RowField>
           <Toggle
@@ -152,12 +151,12 @@ class PropertyRow extends React.Component<Props, State> {
             disabled={!field.canHide}
             icons={{
               checked: <span>Yes</span>,
-              unchecked: <span>No</span>,
+              unchecked: <span>No</span>
             }}
             onChange={onChange}
           />
         </RowField>
-        {["visitor", "lead", "customer", "device"].includes(
+        {['visitor', 'lead', 'customer', 'device'].includes(
           field.contentType
         ) ? (
           <RowField>
@@ -167,7 +166,7 @@ class PropertyRow extends React.Component<Props, State> {
               disabled={!field.canHide}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>,
+                unchecked: <span>No</span>
               }}
               onChange={onChange}
             />
@@ -179,7 +178,7 @@ class PropertyRow extends React.Component<Props, State> {
           {this.renderActionButtons(
             field,
             removeProperty,
-            (props) => (
+            props => (
               <PropertyForm
                 {...props}
                 field={field}
@@ -203,12 +202,12 @@ class PropertyRow extends React.Component<Props, State> {
       );
     }
 
-    const child = (field) => this.renderTableRow(field);
+    const child = field => this.renderTableRow(field);
     const showVisibleDetail = [
-      "visitor",
-      "lead",
-      "customer",
-      "device",
+      'visitor',
+      'lead',
+      'customer',
+      'device'
     ].includes(contentType);
 
     const renderListRow = (
@@ -223,28 +222,26 @@ class PropertyRow extends React.Component<Props, State> {
     );
 
     return (
-      <Padding>
-        <PropertyListTable>
-          <PropertyTableHeader>
-            <ControlLabel>{__("Name")}</ControlLabel>
-            <ControlLabel>{__("Last Updated By")}</ControlLabel>
-            {showVisibleDetail ? (
-              <ControlLabel>{__("Visible in Team Inbox")}</ControlLabel>
-            ) : (
-              <ControlLabel>{__("Visible")}</ControlLabel>
-            )}
-            {showVisibleDetail && (
-              <ControlLabel>{__("Visible in detail")}</ControlLabel>
-            )}
-            <ControlLabel>{__("Actions")}</ControlLabel>
-          </PropertyTableHeader>
-          <div>
-            {this.props.group.isDefinedByErxes
-              ? fields.map((field) => this.renderTableRow(field))
-              : renderListRow}
-          </div>
-        </PropertyListTable>
-      </Padding>
+      <PropertyListTable>
+        <PropertyTableHeader>
+          <ControlLabel>{__('Name')}</ControlLabel>
+          <ControlLabel>{__('Last Updated By')}</ControlLabel>
+          {showVisibleDetail ? (
+            <ControlLabel>{__('Visible in Team Inbox')}</ControlLabel>
+          ) : (
+            <ControlLabel>{__('Visible')}</ControlLabel>
+          )}
+          {showVisibleDetail && (
+            <ControlLabel>{__('Visible in detail')}</ControlLabel>
+          )}
+          <ControlLabel>{__('Actions')}</ControlLabel>
+        </PropertyTableHeader>
+        <div>
+          {this.props.group.isDefinedByErxes
+            ? fields.map(field => this.renderTableRow(field))
+            : renderListRow}
+        </div>
+      </PropertyListTable>
     );
   };
 
@@ -262,7 +259,7 @@ class PropertyRow extends React.Component<Props, State> {
           {this.renderActionButtons(
             group,
             removePropertyGroup,
-            (props) => (
+            props => (
               <PropertyGroupForm
                 {...props}
                 group={group}

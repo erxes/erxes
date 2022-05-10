@@ -10,7 +10,7 @@ import React from 'react';
 import { IOption } from '../types';
 import BoardForm from './BoardForm';
 import BoardRow from './BoardRow';
-import { Header } from "@erxes/ui-settings/src/styles";
+import { Header } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   currentBoardId?: string;
@@ -76,7 +76,7 @@ class Boards extends React.Component<Props, {}> {
       options && options.boardName ? options.boardName.toLowerCase() : 'board';
 
     return (
-      <Sidebar isSettings wide header={this.renderSidebarHeader()} hasBorder>
+      <Sidebar noMargin wide header={this.renderSidebarHeader()} hasBorder>
         <DataWithLoader
           data={<List isSettings>{this.renderItems()}</List>}
           loading={loading}

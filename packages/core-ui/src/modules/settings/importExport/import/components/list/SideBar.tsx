@@ -1,9 +1,8 @@
-import { __ } from "modules/common/utils";
-import LeftSidebar from "modules/layout/components/Sidebar";
-import { SidebarList as List } from "modules/layout/styles";
-import React from "react";
-import { Link } from "react-router-dom";
-import { Padding } from "@erxes/ui-settings/src/styles";
+import { __ } from 'modules/common/utils';
+import LeftSidebar from 'modules/layout/components/Sidebar';
+import { SidebarList as List } from 'modules/layout/styles';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 
 type Props = {
@@ -18,9 +17,9 @@ class Sidebar extends React.Component<Props> {
     return (
       <>
         <SidebarHeader />
-        <Padding>
-          <Header isSettings={true} uppercase={true}>{__("Filter by content type")}</Header>
-        </Padding>
+        <Header isSettings uppercase={true}>
+          {__('Filter by content type')}
+        </Header>
       </>
     );
   };
@@ -42,7 +41,11 @@ class Sidebar extends React.Component<Props> {
 
   render() {
     return (
-      <LeftSidebar isSettings={true} header={this.renderSidebarHeader()} hasBorder={true}>
+      <LeftSidebar
+        noMargin={true}
+        header={this.renderSidebarHeader()}
+        hasBorder={true}
+      >
         <LeftSidebar.Section isSettings noShadow>
           {this.props.services.length === 0 ? null : (
             <List id={'ImportExportSidebar'}>

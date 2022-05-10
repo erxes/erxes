@@ -21,7 +21,11 @@ function Title({
   onClick?: () => void;
   isSettings?: boolean;
 }) {
-  return <SidebarTitle onClick={onClick} isSettings={isSettings}>{children}</SidebarTitle>;
+  return (
+    <SidebarTitle onClick={onClick} isSettings={isSettings}>
+      {children}
+    </SidebarTitle>
+  );
 }
 
 function QuickButtons({
@@ -122,9 +126,20 @@ type HeaderProps = {
   isSettings?: boolean;
 };
 
-function Header({ children, spaceBottom, uppercase, bold, isSettings }: HeaderProps) {
+function Header({
+  children,
+  spaceBottom,
+  uppercase,
+  bold,
+  isSettings
+}: HeaderProps) {
   return (
-    <SidebarHeader isSettings={isSettings} spaceBottom={spaceBottom} uppercase={uppercase} bold={bold}>
+    <SidebarHeader
+      isSettings={isSettings}
+      spaceBottom={spaceBottom}
+      uppercase={uppercase}
+      bold={bold}
+    >
       {children}
     </SidebarHeader>
   );
@@ -142,7 +157,7 @@ type SidebarProps = {
   full?: boolean;
   half?: boolean;
   hasBorder?: boolean;
-  isSettings?: boolean;
+  noMargin?: boolean;
 };
 
 export default class Sidebar extends React.Component<SidebarProps> {
@@ -151,10 +166,25 @@ export default class Sidebar extends React.Component<SidebarProps> {
   static Footer = Footer;
 
   render() {
-    const { children, wide, header, footer, half, full, hasBorder, isSettings } = this.props;
+    const {
+      children,
+      wide,
+      header,
+      footer,
+      half,
+      full,
+      hasBorder,
+      noMargin
+    } = this.props;
 
     return (
-      <SideContent half={half} wide={wide} full={full} hasBorder={hasBorder} isSettings={isSettings}>
+      <SideContent
+        half={half}
+        wide={wide}
+        full={full}
+        hasBorder={hasBorder}
+        noMargin={noMargin}
+      >
         {header}
         <SidebarMainContent>{children}</SidebarMainContent>
         {footer}
