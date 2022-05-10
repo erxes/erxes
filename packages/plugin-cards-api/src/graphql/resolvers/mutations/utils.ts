@@ -101,7 +101,14 @@ export const prepareCustomData = async (subdomain, type, doc) => {
 
   const generatedCustomFieldsData = generatedData.customFieldsData || [];
 
-  return [...customFieldsData, ...generatedCustomFieldsData];
+  const jsonObject = [
+    ...customFieldsData,
+    ...generatedCustomFieldsData
+  ].map(e => JSON.stringify(e));
+
+  const uniqueSet = new Set(jsonObject);
+
+  return Array.from(uniqueSet).map(e => JSON.parse(e));
 };
 
 export const itemsAdd = async (
