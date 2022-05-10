@@ -261,6 +261,7 @@ export const sendMessage = async (
 };
 
 export const doSearch = async ({
+  customQuery,
   fetchEs,
   subdomain,
   index,
@@ -287,11 +288,11 @@ export const doSearch = async ({
     }
   };
 
-  // let query: any = match;
+  let query: any = match;
 
-  // if (customQuery) {
-  //   query = customQuery;
-  // }
+  if (customQuery) {
+    query = customQuery;
+  }
 
   const fetchResults = await fetchEs({
     subdomain,
@@ -300,7 +301,7 @@ export const doSearch = async ({
     body: {
       query: {
         bool: {
-          must: [match]
+          must: [query]
         }
       },
       size: 10,
