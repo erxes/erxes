@@ -58,7 +58,6 @@ export default function NavigationItem(props: Props) {
   const navMenuItemNode = (
     <NavMenuItem isMoreItem={false} navCollapse={navCollapse}>
       <NavLink
-        className={clickedMenu === plugin.text ? 'active' : ''}
         to={getLink(plugin.url)}
         onClick={() => toggleMenu && toggleMenu(plugin.text)}
       >

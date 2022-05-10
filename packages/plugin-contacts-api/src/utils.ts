@@ -162,18 +162,53 @@ const getTags = async (type: string, subdomain: string) => {
     subdomain,
     action: 'find',
     data: {
-      type
+      type: `contacts:${['lead', 'visitor'].includes(type) ? 'customer' : type}`
     },
     isRPC: true,
     defaultValue: []
   });
+
+  const selectOptions: Array<{ label: string; value: any }> = [];
+
+  for (const tag of tags) {
+    selectOptions.push({
+      value: tag._id,
+      label: tag.name
+    });
+  }
 
   return {
     _id: Math.random(),
     name: 'tagIds',
     label: 'Tag',
     type: 'tag',
-    selectOptions: tags
+    selectOptions
+  };
+};
+
+const getIntegrations = async (subdomain: string) => {
+  const integrations = await sendInboxMessage({
+    subdomain,
+    action: 'integrations.find',
+    data: {},
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const selectOptions: Array<{ label: string; value: any }> = [];
+
+  for (const integration of integrations) {
+    selectOptions.push({
+      value: integration._id,
+      label: integration.name
+    });
+  }
+
+  return {
+    _id: Math.random(),
+    name: 'relatedIntegrationIds',
+    label: 'Related integration',
+    selectOptions
   };
 };
 
@@ -273,15 +308,13 @@ export const generateFields = async ({ subdomain, data }) => {
   );
 
   const tags = await getTags(type, subdomain);
-  fields = [...fields, ...[tags]];
+
+  fields = [...fields, tags];
 
   if (type === 'customer') {
-    const integrations = await sendInboxMessage({
-      subdomain,
-      action: 'integrations.find',
-      data: {},
-      isRPC: true
-    });
+    const integrations = await getIntegrations(subdomain);
+
+    fields = [...fields, integrations];
 
     if (usageType === 'import') {
       fields.push({
@@ -1023,3 +1056,33 @@ const LOG_MAPPINGS = [
     schemas: [companySchema]
   }
 ];
+
+export const prepareCustomData = async (subdomain, doc) => {
+  const { data } = doc;
+  const { customFieldsData = [] } = doc;
+
+  if (!data) {
+    return customFieldsData;
+  }
+
+  const generatedData = await sendFormsMessage({
+    subdomain,
+    action: 'fields.generateCustomFieldsData',
+    data: {
+      customData: data,
+      contentType: 'contacts:customer'
+    },
+    isRPC: true
+  });
+
+  const generatedCustomFieldsData = generatedData.customFieldsData || [];
+
+  const jsonObject = [
+    ...customFieldsData,
+    ...generatedCustomFieldsData
+  ].map(e => JSON.stringify(e));
+
+  const uniqueSet = new Set(jsonObject);
+
+  return Array.from(uniqueSet).map(e => JSON.parse(e));
+};

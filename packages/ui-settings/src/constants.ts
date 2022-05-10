@@ -47,7 +47,7 @@ export const EMPTY_IMPORT_CONTENT = {
       )}.${__(
         'If you wish to export your popup forms, go to Customer and click on Export Popups Data'
       )}`,
-      url: '/settings/importHistories?type=customer',
+      url: '/settings/importHistories',
       isOutside: false,
       urlText: 'Go to Customers',
       icon: 'export'
@@ -273,7 +273,7 @@ export const EMPTY_CONTENT_CONTACTS = {
       description: __(
         'Use Import feature to bulk import all your previous Customers or Leads'
       ),
-      url: '/settings/importHistories?type=customer',
+      url: '/settings/importHistories',
       urlText: 'Go to Customer Import'
     },
     {

@@ -27,7 +27,7 @@ class Sidebar extends React.Component<Props> {
         : '';
 
     return (
-      <li>
+      <li key={Math.random()}>
         <Link to={`?type=${service.contentType}`} className={className}>
           {__(service.text)}
         </Link>

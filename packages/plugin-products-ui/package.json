@@ -5,5 +5,6 @@
     "install-deps": "cd .erxes && yarn install",
     "start": "cd .erxes && yarn start",
     "build": "cd .erxes && yarn build"
-  }
+  },
+  "dependencies": {}
 }

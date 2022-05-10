@@ -1,9 +1,9 @@
-import { IContext } from "../../../connectionResolver";
+import { IContext } from '../../../connectionResolver';
 
 const neighborMutations = {
   neighborSave: async (
     _root,
-    { productCategoryId, info, rate },
+    { productCategoryId, data, rate },
     { models }
   ) => {
     const neighbor = await models.Neighbor.findOne({ productCategoryId });
@@ -11,14 +11,14 @@ const neighborMutations = {
     if (neighbor) {
       return await models.Neighbor.updateNeighbor({
         productCategoryId,
-        info,
-        rate,
+        data,
+        rate
       });
     } else {
       return await models.Neighbor.createNeighbor({
         productCategoryId,
-        info,
-        rate,
+        data,
+        rate
       });
     }
   },
@@ -43,7 +43,7 @@ const neighborMutations = {
 
   neighborItemRemove: async (_root, doc, { docModifier, models }: IContext) => {
     return await models.NeighborItem.removeNeighborItem(docModifier(doc));
-  },
+  }
 };
 
 export default neighborMutations;
