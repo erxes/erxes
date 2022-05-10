@@ -1,13 +1,18 @@
-import { ICustomer } from "../../models/definitions/customers";
-import { sendCoreMessage, sendIntegrationsMessage } from "../../messageBroker";
-import { MODULE_NAMES } from "../../constants";
-import { putCreateLog, putDeleteLog, putUpdateLog } from "../../logUtils";
-import { checkPermission } from "@erxes/api-utils/src/permissions";
-import { validateBulk } from "../../verifierUtils";
-import { IContext } from "../../connectionResolver";
+import { ICustomer } from '../../models/definitions/customers';
+import {
+  sendCoreMessage,
+  sendFormsMessage,
+  sendIntegrationsMessage
+} from '../../messageBroker';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { validateBulk } from '../../verifierUtils';
+import { IContext } from '../../connectionResolver';
 
 interface ICustomersEdit extends ICustomer {
   _id: string;
+  data: any;
 }
 
 const customerMutations = {
@@ -29,15 +34,19 @@ const customerMutations = {
       {
         type: MODULE_NAMES.CUSTOMER,
         newData: modifiedDoc,
-        object: customer,
+        object: customer
       },
       user
     );
 
-    sendCoreMessage({ subdomain, action: "registerOnboardHistory", data: {
-      type: `${customer.state}Create`,
-      user,
-    } });
+    sendCoreMessage({
+      subdomain,
+      action: 'registerOnboardHistory',
+      data: {
+        type: `${customer.state}Create`,
+        user
+      }
+    });
 
     return customer;
   },
@@ -50,6 +59,27 @@ const customerMutations = {
     { _id, ...doc }: ICustomersEdit,
     { user, models, subdomain }: IContext
   ) {
+    const { data } = doc;
+
+    if (data) {
+      const generatedData = await sendFormsMessage({
+        subdomain,
+        action: 'fields.generateCustomFieldsData',
+        data: {
+          customData: data,
+          contentType: 'contacts:customer'
+        },
+        isRPC: true
+      });
+
+      const { customFieldsData = [] } = doc;
+      const generatedCustomFieldsData = generatedData.customFieldsData || [];
+      doc.customFieldsData = [
+        ...customFieldsData,
+        ...generatedCustomFieldsData
+      ];
+    }
+
     const customer = await models.Customers.getCustomer(_id);
     const updated = await models.Customers.updateCustomer(_id, doc);
 
@@ -60,7 +90,7 @@ const customerMutations = {
         type: MODULE_NAMES.CUSTOMER,
         object: customer,
         newData: doc,
-        updatedDocument: updated,
+        updatedDocument: updated
       },
       user
     );
@@ -86,7 +116,7 @@ const customerMutations = {
     _root,
     {
       customerIds,
-      customerFields,
+      customerFields
     }: { customerIds: string[]; customerFields: ICustomer },
     { user, models: { Customers } }: IContext
   ) {
@@ -102,7 +132,7 @@ const customerMutations = {
     { user, models, subdomain }: IContext
   ) {
     const customers = await models.Customers.find({
-      _id: { $in: customerIds },
+      _id: { $in: customerIds }
     }).lean();
 
     await models.Customers.removeCustomers(customerIds);
@@ -157,17 +187,17 @@ const customerMutations = {
       args.type,
       args.status
     );
-  },
+  }
 };
 
-checkPermission(customerMutations, "customersAdd", "customersAdd");
-checkPermission(customerMutations, "customersEdit", "customersEdit");
-checkPermission(customerMutations, "customersMerge", "customersMerge");
-checkPermission(customerMutations, "customersRemove", "customersRemove");
+checkPermission(customerMutations, 'customersAdd', 'customersAdd');
+checkPermission(customerMutations, 'customersEdit', 'customersEdit');
+checkPermission(customerMutations, 'customersMerge', 'customersMerge');
+checkPermission(customerMutations, 'customersRemove', 'customersRemove');
 checkPermission(
   customerMutations,
-  "customersChangeState",
-  "customersChangeState"
+  'customersChangeState',
+  'customersChangeState'
 );
 
 export default customerMutations;
