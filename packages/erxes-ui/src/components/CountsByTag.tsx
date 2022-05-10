@@ -13,9 +13,11 @@ interface IProps extends IRouterProps {
   counts: any;
   manageUrl: string;
   loading: boolean;
+  isSettings?: boolean;
+  noShadow?: boolean;
 }
 
-function CountsByTag({ history, tags, counts, manageUrl, loading }: IProps) {
+function CountsByTag({ history, tags, counts, manageUrl, loading, isSettings, noShadow }: IProps) {
   const onClick = () => {
     router.setParams(history, { tag: null });
   };
@@ -40,6 +42,8 @@ function CountsByTag({ history, tags, counts, manageUrl, loading }: IProps) {
       title={__('Filter by tags')}
       collapsible={tags.length > 7}
       name="showFilterByTags"
+      isSettings={isSettings}
+      noShadow={noShadow}
     >
       <FilterByParams
         fields={tags}

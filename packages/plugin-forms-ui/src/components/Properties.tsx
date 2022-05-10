@@ -17,6 +17,7 @@ import { IField } from '@erxes/ui/src/types';
 import PropertyRow from './PropertyRow';
 import Sidebar from './Sidebar';
 import SortableList from '@erxes/ui/src/components/SortableList';
+import { Padding } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   queryParams: any;
@@ -127,10 +128,12 @@ class Properties extends React.Component<
     const defaultGroups = fieldsGroups.filter(group => group.isDefinedByErxes);
 
     return (
-      <PropertyList>
-        {defaultGroups.map(group => this.renderRow(group))}
-        {this.renderSortableList()}
-      </PropertyList>
+      <Padding>
+        <PropertyList>
+          {defaultGroups.map(group => this.renderRow(group))}
+          {this.renderSortableList()}
+        </PropertyList>
+      </Padding>
     );
   };
 
@@ -225,7 +228,8 @@ class Properties extends React.Component<
       <Wrapper
         actionBar={
            <Wrapper.ActionBar
-            background="bgActive"
+            isSettings
+            background="bgWhite"
             left={title}
             right={this.renderActionBar()}
           />
@@ -240,6 +244,7 @@ class Properties extends React.Component<
         content={this.renderProperties()}
         hasBorder={true}
         transparent={true}
+        noPadding
       />
     );
   }

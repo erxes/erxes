@@ -23,7 +23,7 @@ class Sidebar extends React.Component<{ isThemeEnabled?: boolean; item: any }> {
     const { item } = this.props;
 
     return (
-      <LeftSidebar header={<SidebarHeader />}  full={true} hasBorder={true}>
+      <LeftSidebar isSettings header={<SidebarHeader />}  full={true} hasBorder={true}>
         <List id="SettingsSidebar">
           {this.renderListItem(item.url, item.text)}
 

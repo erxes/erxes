@@ -19,7 +19,7 @@ class Sidebar extends React.Component<Props> {
       <>
         <SidebarHeader />
         <Padding>
-          <Header uppercase={true}>{__("Filter by content type")}</Header>
+          <Header isSettings={true} uppercase={true}>{__("Filter by content type")}</Header>
         </Padding>
       </>
     );
@@ -42,8 +42,8 @@ class Sidebar extends React.Component<Props> {
 
   render() {
     return (
-      <LeftSidebar header={this.renderSidebarHeader()} hasBorder={true}>
-        <LeftSidebar.Section isSettings={true} noShadow={true}>
+      <LeftSidebar isSettings={true} header={this.renderSidebarHeader()} hasBorder={true}>
+        <LeftSidebar.Section isSettings noShadow>
           {this.props.services.length === 0 ? null : (
             <List id={'ImportExportSidebar'}>
               {this.props.services.map(service => this.renderListItem(service))}

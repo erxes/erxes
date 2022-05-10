@@ -168,6 +168,8 @@ export default function Home(props: Props) {
       hasFlex={true}
       right={righActionBar}
       left={renderFilter}
+      isSettings={true}
+      background="colorWhite"
     />
   );
 
@@ -186,6 +188,7 @@ export default function Home(props: Props) {
       hasBorder={true}
       transparent={true}
       footer={<Pagination count={totalCount} />}
+      noPadding={true}
     />
   );
 }

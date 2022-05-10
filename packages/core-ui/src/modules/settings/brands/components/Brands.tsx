@@ -12,7 +12,8 @@ import { __ } from "../../../common/utils";
 import Wrapper from "../../../layout/components/Wrapper";
 import Sidebar from "../containers/Sidebar";
 import { IBrand } from "../types";
-import { Padding, Title } from "@erxes/ui-settings/src/styles";
+import { Padding } from "@erxes/ui-settings/src/styles";
+import { Title } from "@erxes/ui/src/styles/main";
 
 type Props = {
   brandsTotalCount: number;

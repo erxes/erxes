@@ -18,6 +18,7 @@ import { ChooseBox, FlexContainer } from "@erxes/ui-engage/src/styles";
 import { IEngageMessage } from "@erxes/ui-engage/src/types";
 import PercentItem, { ItemWrapper } from "./PercentItem";
 import { TAG_TYPES } from "@erxes/ui/src/tags/constants";
+import { Padding } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   messages: IEngageMessage[];
@@ -222,48 +223,52 @@ class List extends React.Component<Props> {
 
     const actionBar = (
       <Wrapper.ActionBar
+        isSettings
+        background="colorWhite"
         left={this.renderTagger()}
         right={this.renderRightActionBar()}
       />
     );
 
     const mainContent = (
-      <Table whiteSpace="nowrap" hover={true} bordered={true}>
-        <thead>
-          <tr>
-            <th style={{ width: 60 }}>
-              <FormControl
-                checked={isAllSelected}
-                componentClass="checkbox"
-                onChange={this.onChange}
+      <Padding>
+        <Table whiteSpace="nowrap" hover={true} bordered={true}>
+          <thead>
+            <tr>
+              <th style={{ width: 60 }}>
+                <FormControl
+                  checked={isAllSelected}
+                  componentClass="checkbox"
+                  onChange={this.onChange}
+                />
+              </th>
+              <th>{__("Title")}</th>
+              <th>{__("Status")}</th>
+              <th>{__("Total")}</th>
+              <th>{__("Type")}</th>
+              <th>{__("Brand")}</th>
+              <th>{__("From")}</th>
+              <th>{__("Created by")}</th>
+              <th>{__("Created date")}</th>
+              <th>{__("Scheduled date")}</th>
+              <th>{__("Tags")}</th>
+              <th>{__("Actions")}</th>
+            </tr>
+          </thead>
+          <tbody id="engageMessages">
+            {messages.map((message) => (
+              <MessageListRow
+                isChecked={bulk.includes(message)}
+                toggleBulk={toggleBulk}
+                key={message._id}
+                message={message}
+                queryParams={queryParams}
+                refetch={refetch}
               />
-            </th>
-            <th>{__("Title")}</th>
-            <th>{__("Status")}</th>
-            <th>{__("Total")}</th>
-            <th>{__("Type")}</th>
-            <th>{__("Brand")}</th>
-            <th>{__("From")}</th>
-            <th>{__("Created by")}</th>
-            <th>{__("Created date")}</th>
-            <th>{__("Scheduled date")}</th>
-            <th>{__("Tags")}</th>
-            <th>{__("Actions")}</th>
-          </tr>
-        </thead>
-        <tbody id="engageMessages">
-          {messages.map((message) => (
-            <MessageListRow
-              isChecked={bulk.includes(message)}
-              toggleBulk={toggleBulk}
-              key={message._id}
-              message={message}
-              queryParams={queryParams}
-              refetch={refetch}
-            />
-          ))}
-        </tbody>
-      </Table>
+            ))}
+          </tbody>
+        </Table>
+      </Padding>
     );
 
     return (
@@ -286,6 +291,8 @@ class List extends React.Component<Props> {
             emptyContent={<EmptyContent content={EMPTY_CONTENT_ENGAGE} />}
           />
         }
+        hasBorder
+        noPadding
       />
     );
   }

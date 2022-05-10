@@ -100,8 +100,8 @@ const ContentHeader = styledTS<{ background: string; zIndex?: number; isSettings
   background: ${props =>
     props.background === 'transparent' ? 'none' : colors[props.background]};
   padding: ${(props) => props.isSettings ? '0 0 12px 0' : props.background === 'transparent' ? 0 : `0 ${dimensions.coreSpacing}px`}
-  padding-bottom: 12px;
-  margin: ${(props) => props.isSettings && '12px 20px'};
+  padding-bottom: ${(props) => props.isSettings && '12px'};
+  margin: ${(props) => props.isSettings && '12px 20px 0 20px'};
   border-bottom: 1px solid ${colors.borderPrimary};
   z-index: ${props => props.zIndex || 2};
 `;
@@ -145,8 +145,6 @@ const SideContent = styledTS<{
   background: ${props => (props.full ? colors.colorWhite : 'none')};
   margin: ${(props) => props.isSettings ? 0 : `${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px 0`}
   border-right: ${props => props.hasBorder && `1px solid ${colors.borderPrimary}`};
-  box-shadow: ${props =>
-    props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
 
   ${TabContainer} {
     position: sticky;
@@ -313,7 +311,7 @@ const SidebarList = styledTS<{ capitalize?: boolean, isSettings?: boolean }>(sty
   &.no-link li,
   a {
     display: flex;
-    padding: ${(props) => !props.isSettings && '6px 20px'};
+    padding: 6px 20px;
     color: ${colors.textPrimary};
     white-space: nowrap;
     overflow: hidden;

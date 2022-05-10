@@ -76,9 +76,9 @@ class Boards extends React.Component<Props, {}> {
       options && options.boardName ? options.boardName.toLowerCase() : 'board';
 
     return (
-      <Sidebar wide={true} header={this.renderSidebarHeader()} hasBorder={true}>
+      <Sidebar isSettings wide header={this.renderSidebarHeader()} hasBorder>
         <DataWithLoader
-          data={<List>{this.renderItems()}</List>}
+          data={<List isSettings>{this.renderItems()}</List>}
           loading={loading}
           count={boards.length}
           emptyText={`${__(`There is no `)}${' '}${boardName}`}

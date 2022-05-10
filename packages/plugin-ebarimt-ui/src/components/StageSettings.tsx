@@ -1,7 +1,7 @@
 import { Button } from '@erxes/ui/src/components';
 import { __ } from '@erxes/ui/src/utils';
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { Wrapper } from '@erxes/ui/src/layout';import React from 'react';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 import { ContentBox } from '../styles';
 import { IConfigsMap } from '../types';
@@ -118,6 +118,8 @@ class GeneralSettings extends React.Component<Props, State> {
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
+            background="colorWhite"
+            isSettings
             left={<Title>{__('Ebarimt configs')}</Title>}
             right={actionButtons}
           />
@@ -126,6 +128,7 @@ class GeneralSettings extends React.Component<Props, State> {
         content={this.renderContent()}
         hasBorder={true}
         transparent={true}
+        noPadding
       />
     );
   }

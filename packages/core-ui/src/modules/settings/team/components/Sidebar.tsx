@@ -14,7 +14,7 @@ export default function LeftSidebar({
   loadingMainQuery: boolean; hasBorder?: boolean
 }) {
   return (
-    <Sidebar hasBorder={true}>
+    <Sidebar isSettings={true} hasBorder={true}>
       <Structure />
       <DepartmentList />
       {isEnabled("segments") && <SegmentFilter loadingMainQuery={loadingMainQuery} />}
