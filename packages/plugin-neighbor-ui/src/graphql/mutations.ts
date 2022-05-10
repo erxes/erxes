@@ -36,13 +36,13 @@ const commonValues = `
 
 const neighborVariables = `
   $productCategoryId: String
-  $info: JSON
+  $data: JSON
   $rate: JSON
 `;
 
 const neighborValues = `
   productCategoryId: $productCategoryId
-  info: $info
+  data: $data
   rate: $rate
 `;
 
@@ -75,5 +75,5 @@ export default {
   neighborSave,
   neighborItemCreate,
   neighborItemEdit,
-  neighborItemRemove,
+  neighborItemRemove
 };
