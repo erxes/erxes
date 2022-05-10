@@ -48,7 +48,7 @@ type Props = {
   noBackground?: boolean;
   full?: boolean;
   maxHeight: number;
-  isSettings?: boolean;
+  noMargin?: boolean;
 };
 
 type State = {
@@ -93,7 +93,7 @@ class Section extends React.Component<Props, State> {
       noBackground,
       full,
       maxHeight,
-      isSettings
+      noMargin
     } = this.props;
 
     const style = collapsible
@@ -109,7 +109,7 @@ class Section extends React.Component<Props, State> {
         noShadow={noShadow}
         noBackground={noBackground}
         full={full}
-        isSettings={isSettings}
+        noMargin={noMargin}
       >
         <BoxContent>{children}</BoxContent>
         {collapsible ? this.renderCollapseButton() : null}

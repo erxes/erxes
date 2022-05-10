@@ -216,10 +216,10 @@ const SidebarBox = styledTS<{
   noShadow?: boolean;
   collapsible?: boolean;
   full?: boolean;
-  isSettings?: boolean;
+  noMargin?: boolean;
 }>(styled.div)`
   background-color: ${props => (props.noBackground ? '' : colors.colorWhite)};
-  margin-bottom: ${props => !props.isSettings && dimensions.unitSpacing}px;
+  margin-bottom: ${props => !props.noMargin && dimensions.unitSpacing}px;
   box-shadow: ${props =>
     props.noShadow ? 'none' : `0 0 6px 1px ${colors.shadowPrimary}`};
   padding-bottom: ${props =>

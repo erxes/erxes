@@ -8,7 +8,10 @@ import {
 } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MESSAGE_KIND_FILTERS, statusFilters } from '@erxes/ui-engage/src/constants';
+import {
+  MESSAGE_KIND_FILTERS,
+  statusFilters
+} from '@erxes/ui-engage/src/constants';
 import { ITag } from '@erxes/ui/src/tags/types';
 
 const { Section } = Wrapper.Sidebar;
@@ -26,7 +29,7 @@ class Sidebar extends React.Component<Props> {
     const { kindCounts, history } = this.props;
 
     return (
-      <Section noShadow isSettings>
+      <Section noShadow noMargin>
         <Section.Title isSettings>{__('Kind')}</Section.Title>
 
         <SidebarList>
@@ -60,7 +63,7 @@ class Sidebar extends React.Component<Props> {
     const { statusCounts, history } = this.props;
 
     return (
-      <Section noShadow isSettings>
+      <Section noShadow noMargin>
         <Section.Title isSettings>{__('Status')}</Section.Title>
 
         <SidebarList>
@@ -89,7 +92,7 @@ class Sidebar extends React.Component<Props> {
     const { tags, tagCounts } = this.props;
 
     return (
-      <Wrapper.Sidebar isSettings={true} hasBorder={true}>
+      <Wrapper.Sidebar noMargin={true} hasBorder={true}>
         {this.renderKindFilter()}
         {this.renderStatusFilter()}
 

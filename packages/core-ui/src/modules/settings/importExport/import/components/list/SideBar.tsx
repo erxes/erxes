@@ -46,7 +46,7 @@ class Sidebar extends React.Component<Props> {
         header={this.renderSidebarHeader()}
         hasBorder={true}
       >
-        <LeftSidebar.Section isSettings noShadow>
+        <LeftSidebar.Section noMargin noShadow>
           {this.props.services.length === 0 ? null : (
             <List id={'ImportExportSidebar'}>
               {this.props.services.map(service => this.renderListItem(service))}
