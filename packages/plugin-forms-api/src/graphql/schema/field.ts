@@ -15,6 +15,7 @@ const fieldCommonFields = `
   code: String
   searchable: Boolean
   showInCard: Boolean
+  keys: [String]
 `;
 
 export const fieldsTypes = `
@@ -109,6 +110,7 @@ const fieldsCommonFields = `
   logic: LogicInput
   searchable: Boolean
   showInCard: Boolean
+  keys: [String]
 `;
 
 export const fieldsMutations = `

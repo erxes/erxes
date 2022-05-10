@@ -13,6 +13,7 @@ type Props = {
   showDragHandler?: boolean | true;
   isDragDisabled?: boolean;
   droppableId?: string;
+  emptyMessage?: string;
 };
 
 class SortableList extends React.Component<Props> {
@@ -53,10 +54,16 @@ class SortableList extends React.Component<Props> {
   }
 
   render() {
-    const { fields, child, isDragDisabled, droppableId = '' } = this.props;
+    const {
+      fields,
+      child,
+      isDragDisabled,
+      droppableId = '',
+      emptyMessage = 'There is no fields'
+    } = this.props;
 
     if (fields.length === 0) {
-      return <EmptyState text="There is no fields" icon="ban" />;
+      return <EmptyState text={emptyMessage} icon="ban" />;
     }
 
     return (
