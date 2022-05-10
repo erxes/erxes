@@ -265,8 +265,7 @@ export const doSearch = async ({
   subdomain,
   index,
   value,
-  fields,
-  customQuery
+  fields
 }: {
   fetchEs: (args: IFetchElkArgs) => Promise<any>;
   subdomain: string;
@@ -288,11 +287,11 @@ export const doSearch = async ({
     }
   };
 
-  let query: any = match;
+  // let query: any = match;
 
-  if (customQuery) {
-    query = customQuery;
-  }
+  // if (customQuery) {
+  //   query = customQuery;
+  // }
 
   const fetchResults = await fetchEs({
     subdomain,
