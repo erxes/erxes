@@ -16,11 +16,12 @@ const emailTemplateMutations = {
   async emailTemplatesAdd(
     _root,
     doc: IEmailTemplate,
-    { user, docModifier, models }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
     const template = await models.EmailTemplates.create(docModifier(doc));
 
     await putCreateLog(
+      subdomain,
       {
         type: EMAIL_TEMPLATE,
         newData: doc,
@@ -39,12 +40,16 @@ const emailTemplateMutations = {
   async emailTemplatesEdit(
     _root,
     { _id, ...fields }: IEmailTemplatesEdit,
-    { models, user }: IContext
+    { models, subdomain, user }: IContext
   ) {
     const template = await models.EmailTemplates.getEmailTemplate(_id);
-    const updated = await models.EmailTemplates.updateEmailTemplate(_id, fields);
+    const updated = await models.EmailTemplates.updateEmailTemplate(
+      _id,
+      fields
+    );
 
     await putUpdateLog(
+      subdomain,
       {
         type: EMAIL_TEMPLATE,
         object: template,
@@ -65,7 +70,7 @@ const emailTemplateMutations = {
   async emailTemplatesChangeStatus(
     _root,
     { _id, status }: IEmailTemplatesEdit,
-    { models, user }: IContext
+    { models, subdomain, user }: IContext
   ) {
     const emailTemplate = await models.EmailTemplates.getEmailTemplate(_id);
 
@@ -74,6 +79,7 @@ const emailTemplateMutations = {
     const updated = await models.EmailTemplates.findOne({ _id });
 
     await putUpdateLog(
+      subdomain,
       {
         type: EMAIL_TEMPLATE,
         object: emailTemplate,
@@ -92,13 +98,18 @@ const emailTemplateMutations = {
   async emailTemplatesRemove(
     _root,
     { _id }: { _id: string },
-    { models, user }: IContext
+    { models, subdomain, user }: IContext
   ) {
     const template = await models.EmailTemplates.getEmailTemplate(_id);
     const removed = await models.EmailTemplates.removeEmailTemplate(_id);
 
     await putDeleteLog(
-      { type: EMAIL_TEMPLATE, object: template, description: `"${template.name}" has been deleted` },
+      subdomain,
+      {
+        type: EMAIL_TEMPLATE,
+        object: template,
+        description: `"${template.name}" has been deleted`
+      },
       user
     );
 

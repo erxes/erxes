@@ -7,24 +7,27 @@ import {
 import { emailTemplateSchema } from './models/definitions/emailTemplates';
 import messageBroker from './messageBroker';
 
-export const putDeleteLog = async (logDoc, user) => {
+export const putDeleteLog = async (subdomain: string, logDoc, user) => {
   await commonPutDeleteLog(
+    subdomain,
     messageBroker(),
     { ...logDoc, type: `emailTemplates:${logDoc.type}` },
     user
   );
 };
 
-export const putUpdateLog = async (logDoc, user) => {
+export const putUpdateLog = async (subdomain: string, logDoc, user) => {
   await commonPutUpdateLog(
+    subdomain,
     messageBroker(),
     { ...logDoc, type: `emailTemplates:${logDoc.type}` },
     user
   );
 };
 
-export const putCreateLog = async (logDoc, user) => {
+export const putCreateLog = async (subdomain: string, logDoc, user) => {
   await commonPutCreateLog(
+    subdomain,
     messageBroker(),
     { ...logDoc, type: `emailTemplates:${logDoc.type}` },
     user
@@ -34,6 +37,8 @@ export const putCreateLog = async (logDoc, user) => {
 export default {
   getSchemaLabels: ({ data: { type } }) => ({
     status: 'success',
-    data: getSchemaLabels(type, [{ name: 'emailTemplate', schemas: [emailTemplateSchema] }]),
+    data: getSchemaLabels(type, [
+      { name: 'emailTemplate', schemas: [emailTemplateSchema] }
+    ])
   })
 };

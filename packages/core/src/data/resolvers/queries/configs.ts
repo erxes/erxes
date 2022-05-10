@@ -101,6 +101,7 @@ const configQueries = {
 
       if (meta && meta.isSearchable) {
         const serviceResults = await sendCommonMessage({
+          subdomain,
           serviceName,
           action: 'search',
           data: {

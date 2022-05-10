@@ -598,6 +598,7 @@ export const putDeleteLog = async (
   );
 
   await commonPutDeleteLog(
+    subdomain,
     messageBroker(),
     { ...logDoc, description, extraDesc, type: `cards:${logDoc.type}` },
     user
@@ -620,6 +621,7 @@ export const putUpdateLog = async (
   );
 
   await commonPutUpdateLog(
+    subdomain,
     messageBroker(),
     { ...logDoc, description, extraDesc, type: `cards:${logDoc.type}` },
     user
@@ -642,6 +644,7 @@ export const putCreateLog = async (
   );
 
   await commonPutCreateLog(
+    subdomain,
     messageBroker(),
     { ...logDoc, description, extraDesc, type: `cards:${logDoc.type}` },
     user

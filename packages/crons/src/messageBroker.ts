@@ -1,6 +1,6 @@
-import { sendMessage } from "@erxes/api-utils/src/core";
+import { sendMessage } from '@erxes/api-utils/src/core';
 import { init as initBrokerCore } from '@erxes/api-utils/src/messageBroker';
-import * as serviceDiscovery from "./serviceDiscovery";
+import * as serviceDiscovery from './serviceDiscovery';
 
 let client;
 
@@ -11,6 +11,7 @@ export const initBroker = async options => {
 };
 
 interface IISendMessageArgs {
+  subdomain: string;
   action: string;
   data;
   isRPC?: boolean;
@@ -22,10 +23,9 @@ export const sendCommonMessage = async (
   args: IISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    subdomain: "os",
     serviceDiscovery,
     client,
-    ...args,
+    ...args
   });
 };
 
