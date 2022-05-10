@@ -293,7 +293,7 @@ class CompaniesList extends React.Component<IProps, State> {
             </li>
           </Dropdown.Menu>
         </Dropdown>
-        <Link to="/settings/importHistories?type=company">
+        <Link to="/settings/importHistories?type=contacts:company">
           <Button btnStyle="primary" size="small" icon="arrow-from-right">
             {__('Go to import')}
           </Button>

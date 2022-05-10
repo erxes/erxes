@@ -1,8 +1,8 @@
-import { debug } from "./configs";
-import { es } from "./configs";
-
+import { debug } from './configs';
+import { es } from './configs';
 
 export const getNumberOfVisits = async (params: {
+  subdomain: string;
   url: string;
   visitorId?: string;
   customerId?: string;
@@ -13,39 +13,40 @@ export const getNumberOfVisits = async (params: {
 
   try {
     const response = await es.fetchElk({
-      action: "search",
-      index: "events",
+      subdomain: params.subdomain,
+      action: 'search',
+      index: 'events',
       body: {
         query: {
           bool: {
             must: [
-              { term: { name: "viewPage" } },
+              { term: { name: 'viewPage' } },
               { term: searchId },
               {
                 nested: {
-                  path: "attributes",
+                  path: 'attributes',
                   query: {
                     bool: {
                       must: [
                         {
                           term: {
-                            "attributes.field": "url",
-                          },
+                            'attributes.field': 'url'
+                          }
                         },
                         {
                           match: {
-                            "attributes.value": params.url,
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-              },
-            ],
-          },
-        },
-      },
+                            'attributes.value': params.url
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
     });
 
     const hits = response.hits.hits;

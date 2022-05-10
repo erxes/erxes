@@ -1,27 +1,33 @@
-import { doSearch } from "@erxes/api-utils/src/core";
-import { generateModels, IModels } from "./connectionResolver";
-import { es } from "./configs";
+import { doSearch } from '@erxes/api-utils/src/core';
+import { generateModels, IModels } from './connectionResolver';
+import { es } from './configs';
 
-const searchBoardItems = async (models: IModels, index, value) => {
+const searchBoardItems = async (
+  models: IModels,
+  subdomain: string,
+  index: string,
+  value
+) => {
   const items = await doSearch({
     fetchEs: es.fetchElk,
+    subdomain,
     index,
     value,
-    fields: ["name", "description"],
+    fields: ['name', 'description']
   });
 
   const updatedItems: any = [];
 
   for (const item of items) {
     const stage = (await models.Stages.findOne({
-      _id: item.source.stageId,
+      _id: item.source.stageId
     })) || {
-      pipelineId: "",
+      pipelineId: ''
     };
 
     const pipeline = (await models.Pipelines.findOne({
-      _id: stage.pipelineId,
-    })) || { boardId: "" };
+      _id: stage.pipelineId
+    })) || { boardId: '' };
 
     item.source.pipelineId = stage.pipelineId;
     item.source.boardId = pipeline.boardId;
@@ -37,35 +43,37 @@ const search = async ({ subdomain, data: { value } }) => {
 
   return [
     {
-      module: "tasks",
-      items: await searchBoardItems(models, "tasks", value),
+      module: 'tasks',
+      items: await searchBoardItems(models, subdomain, 'tasks', value)
     },
     {
-      module: "tickets",
-      items: await searchBoardItems(models, "tickets", value),
+      module: 'tickets',
+      items: await searchBoardItems(models, subdomain, 'tickets', value)
     },
     {
-      module: "deals",
-      items: await searchBoardItems(models, "deals", value),
+      module: 'deals',
+      items: await searchBoardItems(models, subdomain, 'deals', value)
     },
     {
-      module: "stages",
+      module: 'stages',
       items: await doSearch({
         fetchEs: es.fetchElk,
-        index: "stages",
+        subdomain,
+        index: 'stages',
         value,
-        fields: ["name"],
-      }),
+        fields: ['name']
+      })
     },
     {
-      module: "pipelines",
+      module: 'pipelines',
       items: await doSearch({
         fetchEs: es.fetchElk,
-        index: "pipelines",
+        subdomain,
+        index: 'pipelines',
         value,
-        fields: ["name"],
-      }),
-    },
+        fields: ['name']
+      })
+    }
   ];
 };
 

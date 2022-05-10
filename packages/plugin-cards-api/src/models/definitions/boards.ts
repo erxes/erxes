@@ -51,6 +51,7 @@ export interface IItemCommonFields {
   customFieldsData?: ICustomField[];
   score?: number;
   number?: string;
+  data?: any;
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {

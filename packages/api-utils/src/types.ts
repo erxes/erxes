@@ -76,6 +76,7 @@ export interface IColumnLabel {
   label: string;
 }
 export interface IFetchElkArgs {
+  subdomain: string;
   action: string;
   index: string;
   body: any;

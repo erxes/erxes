@@ -11,10 +11,18 @@ import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 
 import { LOG_MAPPINGS, MODULE_NAMES } from './constants';
 import messageBroker, { sendCoreMessage } from './messageBroker';
-import { IArticleDocument, ICategoryDocument, ITopicDocument } from "./models/definitions/knowledgebase";
+import {
+  IArticleDocument,
+  ICategoryDocument,
+  ITopicDocument
+} from './models/definitions/knowledgebase';
 import { IModels } from './connectionResolver';
 
-const findFromCore = async (subdomain: string, ids: string[], collectionName: string) => {
+const findFromCore = async (
+  subdomain: string,
+  ids: string[],
+  collectionName: string
+) => {
   return sendCoreMessage({
     subdomain,
     action: `${collectionName}.find`,
@@ -119,7 +127,9 @@ const gatherKbCategoryFieldNames = async (
   }
 
   if (doc.topicId) {
-    const topic = await models.KnowledgeBaseTopics.findOne({ _id: doc.topicId });
+    const topic = await models.KnowledgeBaseTopics.findOne({
+      _id: doc.topicId
+    });
 
     if (topic) {
       options.push({ topicId: doc.topicId, name: topic.title });
@@ -129,7 +139,12 @@ const gatherKbCategoryFieldNames = async (
   return options;
 };
 
-const gatherKbArticleFieldNames = async (models: IModels, subdomain: string, doc: IArticleDocument, prevList?: LogDesc[]) => {
+const gatherKbArticleFieldNames = async (
+  models: IModels,
+  subdomain: string,
+  doc: IArticleDocument,
+  prevList?: LogDesc[]
+) => {
   let options: LogDesc[] = [];
 
   if (prevList) {
@@ -153,7 +168,9 @@ const gatherKbArticleFieldNames = async (models: IModels, subdomain: string, doc
   }
 
   if (doc.topicId) {
-    const topic = await models.KnowledgeBaseTopics.findOne({ _id: doc.topicId });
+    const topic = await models.KnowledgeBaseTopics.findOne({
+      _id: doc.topicId
+    });
 
     if (topic) {
       options.push({ topicId: topic._id, name: topic.title });
@@ -161,7 +178,9 @@ const gatherKbArticleFieldNames = async (models: IModels, subdomain: string, doc
   }
 
   if (doc.categoryId) {
-    const category = await models.KnowledgeBaseCategories.findOne({ _id: doc.categoryId });
+    const category = await models.KnowledgeBaseCategories.findOne({
+      _id: doc.categoryId
+    });
 
     if (category) {
       options.push({ categoryId: doc.categoryId, name: category.title });
@@ -169,9 +188,13 @@ const gatherKbArticleFieldNames = async (models: IModels, subdomain: string, doc
   }
 
   return options;
-}
+};
 
-export const gatherDescriptions = async (models: IModels, subdomain: string, params: any): Promise<IDescriptions> => {
+export const gatherDescriptions = async (
+  models: IModels,
+  subdomain: string,
+  params: any
+): Promise<IDescriptions> => {
   const { action, type, object, updatedDocument } = params;
 
   const description = `"${object.title}" has been ${action}d`;
@@ -182,7 +205,12 @@ export const gatherDescriptions = async (models: IModels, subdomain: string, par
       extraDesc = await gatherKbTopicFieldNames(models, subdomain, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherKbTopicFieldNames(models, subdomain, updatedDocument, extraDesc);
+        extraDesc = await gatherKbTopicFieldNames(
+          models,
+          subdomain,
+          updatedDocument,
+          extraDesc
+        );
       }
 
       break;
@@ -190,7 +218,12 @@ export const gatherDescriptions = async (models: IModels, subdomain: string, par
       extraDesc = await gatherKbCategoryFieldNames(models, subdomain, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherKbCategoryFieldNames(models, subdomain, updatedDocument, extraDesc);
+        extraDesc = await gatherKbCategoryFieldNames(
+          models,
+          subdomain,
+          updatedDocument,
+          extraDesc
+        );
       }
 
       break;
@@ -198,7 +231,12 @@ export const gatherDescriptions = async (models: IModels, subdomain: string, par
       extraDesc = await gatherKbArticleFieldNames(models, subdomain, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherKbArticleFieldNames(models, subdomain, updatedDocument, extraDesc);
+        extraDesc = await gatherKbArticleFieldNames(
+          models,
+          subdomain,
+          updatedDocument,
+          extraDesc
+        );
       }
 
       break;
@@ -212,10 +250,15 @@ export const gatherDescriptions = async (models: IModels, subdomain: string, par
 export const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
-  DELETE: 'delete',
+  DELETE: 'delete'
 };
 
-export const putDeleteLog = async (models: IModels, subdomain: string, logDoc, user) => {
+export const putDeleteLog = async (
+  models: IModels,
+  subdomain: string,
+  logDoc,
+  user
+) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
@@ -226,13 +269,19 @@ export const putDeleteLog = async (models: IModels, subdomain: string, logDoc, u
   );
 
   await commonPutDeleteLog(
+    subdomain,
     messageBroker(),
     { ...logDoc, description, extraDesc, type: `knowledgebase:${logDoc.type}` },
     user
   );
 };
 
-export const putUpdateLog = async (models: IModels, subdomain: string, logDoc, user) => {
+export const putUpdateLog = async (
+  models: IModels,
+  subdomain: string,
+  logDoc,
+  user
+) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
@@ -243,13 +292,19 @@ export const putUpdateLog = async (models: IModels, subdomain: string, logDoc, u
   );
 
   await commonPutUpdateLog(
+    subdomain,
     messageBroker(),
     { ...logDoc, description, extraDesc, type: `knowledgebase:${logDoc.type}` },
     user
   );
 };
 
-export const putCreateLog = async (models: IModels, subdomain: string, logDoc, user) => {
+export const putCreateLog = async (
+  models: IModels,
+  subdomain: string,
+  logDoc,
+  user
+) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
@@ -260,6 +315,7 @@ export const putCreateLog = async (models: IModels, subdomain: string, logDoc, u
   );
 
   await commonPutCreateLog(
+    subdomain,
     messageBroker(),
     { ...logDoc, description, extraDesc, type: `knowledgebase:${logDoc.type}` },
     user

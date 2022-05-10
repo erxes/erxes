@@ -1,10 +1,7 @@
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 
 import { fetchActivityLogs, fetchLogs } from '../../utils';
-import {
-  fetchService,
-  getContentIds
-} from '../../messageBroker';
+import { fetchService, getContentIds } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 import { serviceDiscovery } from '../../configs';
 import { IActivityLogDocument } from '../../models/ActivityLogs';
@@ -27,7 +24,11 @@ const activityLogQueries = {
   /**
    * Get activity log list
    */
-  async activityLogs(_root, doc: IListArgs, {  models, serverTiming }: IContext) {
+  async activityLogs(
+    _root,
+    doc: IListArgs,
+    { models, subdomain, serverTiming }: IContext
+  ) {
     const { contentId, contentType, activityType } = doc;
     const activities: IActivityLogDocument[] = [];
 
@@ -37,6 +38,7 @@ const activityLogQueries = {
       serverTiming.startTime(`collectecItems${serviceName}`);
 
       const result = await fetchService(
+        subdomain,
         serviceName,
         'collectItems',
         { contentId, contentType, activityType },
@@ -63,6 +65,7 @@ const activityLogQueries = {
           serverTiming.startTime(`collectItems${serviceName}`);
 
           const result = await fetchService(
+            subdomain,
             serviceName,
             'collectItems',
             { contentId, contentType },

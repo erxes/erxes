@@ -1,6 +1,6 @@
-import { IModels } from "./connectionResolver";
-import { fetchService, sendInboxMessage } from "./messageBroker";
-import { IFormSubmissionFilter } from "./models/definitions/forms";
+import { IModels } from './connectionResolver';
+import { fetchService, sendInboxMessage } from './messageBroker';
+import { IFormSubmissionFilter } from './models/definitions/forms';
 
 export const getCustomFields = async (models: IModels, contentType: string) => {
   return models.Fields.find({
@@ -18,6 +18,7 @@ const getFieldGroup = async (models: IModels, _id: string) => {
  */
 export const fieldsCombinedByContentType = async (
   models: IModels,
+  subdomain: string,
   {
     contentType,
     usageType,
@@ -44,8 +45,9 @@ export const fieldsCombinedByContentType = async (
   }> = [];
 
   fields = await fetchService(
+    subdomain,
     contentType,
-    "getList",
+    'getList',
     {
       segmentId,
       usageType,
@@ -56,9 +58,24 @@ export const fieldsCombinedByContentType = async (
 
   const customFields = await getCustomFields(models, contentType);
 
+  const generateSelectOptions = options => {
+    const selectOptions: Array<{ label: string; value: any }> = [];
+
+    if (options && options.length > 0) {
+      for (const option of options) {
+        selectOptions.push({
+          value: option,
+          label: option
+        });
+      }
+    }
+
+    return selectOptions;
+  };
+
   // extend fields list using custom fields data
   for (const customField of customFields) {
-    const group = await getFieldGroup(models, customField.groupId || "");
+    const group = await getFieldGroup(models, customField.groupId || '');
 
     if (
       group &&
@@ -70,6 +87,7 @@ export const fieldsCombinedByContentType = async (
         name: `customFieldsData.${customField._id}`,
         label: customField.text,
         options: customField.options,
+        selectOptions: generateSelectOptions(customField.options),
         validation: customField.validation,
         type: customField.type
       });
@@ -96,7 +114,7 @@ export const formSubmissionsQuery = async (
     filters: IFormSubmissionFilter[];
   }
 ) => {
-  const integrationsSelector: any = { kind: "lead", isActive: true };
+  const integrationsSelector: any = { kind: 'lead', isActive: true };
   let conversationIds: string[] = [];
 
   if (formId) {
@@ -118,25 +136,25 @@ export const formSubmissionsQuery = async (
       const { formFieldId, value } = filter;
 
       switch (filter.operator) {
-        case "eq":
+        case 'eq':
           submissionFilters.push({ formFieldId, value: { $eq: value } });
           break;
 
-        case "c":
+        case 'c':
           submissionFilters.push({
             formFieldId,
             value: { $regex: new RegExp(value) }
           });
           break;
 
-        case "gte":
+        case 'gte':
           submissionFilters.push({
             formFieldId,
             value: { $gte: value }
           });
           break;
 
-        case "lte":
+        case 'lte':
           submissionFilters.push({
             formFieldId,
             value: { $lte: value }
@@ -156,7 +174,7 @@ export const formSubmissionsQuery = async (
 
   const integration = await sendInboxMessage({
     subdomain,
-    action: "findIntegration",
+    action: 'findIntegration',
     data: integrationsSelector,
     isRPC: true,
     defaultValue: []
