@@ -1,7 +1,7 @@
 import { doSearch } from '@erxes/api-utils/src/core';
 import { es } from './configs';
 
-const search = async (subdomain, { data: { value } }) => {
+const search = async ({ subdomain, data: { value } }) => {
   return [
     {
       module: 'contacts',
