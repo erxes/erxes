@@ -301,7 +301,7 @@ export const doSearch = async ({
     body: {
       query: {
         bool: {
-          must: [match]
+          must: [query]
         }
       },
       size: 10,
