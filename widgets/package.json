@@ -32,6 +32,7 @@
     "@types/react-i18next": "^7.8.0",
     "@types/react-modal": "^3.10.6",
     "@types/react-transition-group": "^2.0.14",
+    "@types/google.maps": "^3.47.4",
     "@types/ws": "^5.1.2",
     "add-graphql-subscriptions": "^1.0.1",
     "ajv": "^6.10.2",
@@ -63,6 +64,7 @@
     "i18n-react": "^0.6.4",
     "json-loader": "^0.5.4",
     "node-sass": "^4.14.1",
+    "qrcode": "^1.5.0",
     "react": "^16.11.0",
     "react-apollo": "^2.1.9",
     "react-dom": "^16.11.0",
@@ -77,12 +79,10 @@
     "webpack": "4.16.3",
     "webpack-cli": "^3.1.0",
     "webpack-merge": "^4.1.3",
-    "xss": "^1.0.3",
-    "qrcode": "^1.5.0"
+    "xss": "^1.0.3"
   },
   "devDependencies": {
     "@types/qrcode": "^1.4.2",
-    "@types/google.maps": "^3.47.4",
     "git-repo-info": "^2.1.0",
     "nodemon": "^1.11.0",
     "ts-node": "^8.3.0",
