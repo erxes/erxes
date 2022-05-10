@@ -126,6 +126,7 @@ export default {
 
       const prepareDocs = async (body, type, collectionDocs) => {
         const response = await es.fetchElk({
+          subdomain,
           action: 'search',
           index: type,
           body: {
