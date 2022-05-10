@@ -1078,12 +1078,12 @@ export const prepareCustomData = async (subdomain, doc) => {
 
   const generatedCustomFieldsData = generatedData.customFieldsData || [];
 
-  const jsonObject = [
-    ...customFieldsData,
-    ...generatedCustomFieldsData
-  ].map(e => JSON.stringify(e));
-
-  const uniqueSet = new Set(jsonObject);
-
-  return Array.from(uniqueSet).map(e => JSON.parse(e));
+  return [
+    ...new Map(
+      [...customFieldsData, ...generatedCustomFieldsData].map(item => [
+        item.field,
+        item
+      ])
+    ).values()
+  ];
 };
