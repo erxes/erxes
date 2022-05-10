@@ -299,7 +299,11 @@ export const doSearch = async ({
     action: 'search',
     index,
     body: {
-      query,
+      query: {
+        bool: {
+          must: [match]
+        }
+      },
       size: 10,
       highlight: {
         fields: highlightFields
