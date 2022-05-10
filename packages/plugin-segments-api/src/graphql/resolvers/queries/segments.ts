@@ -32,7 +32,11 @@ const segmentQueries = {
     return types;
   },
 
-  async segmentsGetAssociationTypes(_root, { contentType }, { subdomain }: IContext) {
+  async segmentsGetAssociationTypes(
+    _root,
+    { contentType },
+    { subdomain }: IContext
+  ) {
     const [serviceName, type] = contentType.split(':');
     const service = await serviceDiscovery.getService(serviceName, true);
     const meta = service.config.meta || {};
@@ -62,10 +66,7 @@ const segmentQueries = {
    */
   segments(
     _root,
-    {
-      contentTypes,
-      config
-    }: { contentTypes: string[]; config?: any },
+    { contentTypes, config }: { contentTypes: string[]; config?: any },
     { models, commonQuerySelector }: IContext
   ) {
     const selector: any = {
@@ -86,7 +87,11 @@ const segmentQueries = {
   /**
    * Only segment that has no sub segments
    */
-  async segmentsGetHeads(_root, _args, { models, commonQuerySelector }: IContext) {
+  async segmentsGetHeads(
+    _root,
+    _args,
+    { models, commonQuerySelector }: IContext
+  ) {
     return models.Segments.find({
       ...commonQuerySelector,
       name: { $exists: true },
@@ -104,7 +109,11 @@ const segmentQueries = {
   /**
    * Return event names with attribute names
    */
-  async segmentsEvents(_root, { contentType }: { contentType: string }) {
+  async segmentsEvents(
+    _root,
+    { contentType }: { contentType: string },
+    { subdomain }: IContext
+  ) {
     const aggs = {
       names: {
         terms: {
@@ -128,6 +137,7 @@ const segmentQueries = {
     };
 
     const aggreEvents = await es.fetchElk({
+      subdomain,
       action: 'search',
       index: 'events',
       body: {
@@ -165,7 +175,7 @@ const segmentQueries = {
       contentType: string;
       conditions;
       subOf?: string;
-      config: any,
+      config: any;
       conditionsConjunction?: 'and' | 'or';
     },
     { models, subdomain }: IContext

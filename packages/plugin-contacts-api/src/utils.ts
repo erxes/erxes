@@ -263,6 +263,7 @@ export const generateFields = async ({ subdomain, data }) => {
 
   if (!usageType || usageType === 'export') {
     const aggre = await es.fetchElk({
+      subdomain,
       action: 'search',
       index: type === 'company' ? 'companies' : 'customers',
       body: {
