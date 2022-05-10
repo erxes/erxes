@@ -41,7 +41,10 @@ import {
 } from '../../utils';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { generateModels, IModels } from '../../../connectionResolver';
-import { sendFormsMessage, sendNotificationsMessage } from '../../../messageBroker';
+import {
+  sendFormsMessage,
+  sendNotificationsMessage
+} from '../../../messageBroker';
 
 export const itemResolver = async (type: string, item: IItemCommonFields) => {
   let resolverType = '';
@@ -78,6 +81,29 @@ export const itemResolver = async (type: string, item: IItemCommonFields) => {
   return additionInfo;
 };
 
+export const prepareCustomData = async (subdomain, type, doc) => {
+  const { data } = doc;
+  const { customFieldsData = [] } = doc;
+
+  if (!data) {
+    return customFieldsData;
+  }
+
+  const generatedData = await sendFormsMessage({
+    subdomain,
+    action: 'fields.generateCustomFieldsData',
+    data: {
+      customData: data,
+      contentType: `cards:${type}`
+    },
+    isRPC: true
+  });
+
+  const generatedCustomFieldsData = generatedData.customFieldsData || [];
+
+  return [...customFieldsData, ...generatedCustomFieldsData];
+};
+
 export const itemsAdd = async (
   models: IModels,
   subdomain: string,
@@ -107,6 +133,12 @@ export const itemsAdd = async (
       aboveItemId: doc.aboveItemId
     })
   };
+
+  extendedDoc.customFieldsData = await prepareCustomData(
+    subdomain,
+    type,
+    extendedDoc
+  );
 
   if (extendedDoc.customFieldsData) {
     // clean custom field values
@@ -167,19 +199,22 @@ export const itemsAdd = async (
   return item;
 };
 
-export const changeItemStatus = async (models: IModels, {
-  type,
-  item,
-  status,
-  proccessId,
-  stage
-}: {
-  type: string;
-  item: any;
-  status: string;
-  proccessId: string;
-  stage: IStageDocument;
-}) => {
+export const changeItemStatus = async (
+  models: IModels,
+  {
+    type,
+    item,
+    status,
+    proccessId,
+    stage
+  }: {
+    type: string;
+    item: any;
+    status: string;
+    proccessId: string;
+    stage: IStageDocument;
+  }
+) => {
   if (status === 'archived') {
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {
@@ -253,6 +288,12 @@ export const itemsEdit = async (
     modifiedAt: new Date(),
     modifiedBy: user._id
   };
+
+  extendedDoc.customFieldsData = await prepareCustomData(
+    subdomain,
+    type,
+    extendedDoc
+  );
 
   if (extendedDoc.customFieldsData) {
     // clean custom field values
@@ -464,11 +505,14 @@ const itemMover = async (
       }
     });
 
-    sendNotificationsMessage({ subdomain,
-      action: 'batchUpdate', data: {
-      selector: { contentType, contentTypeId: item._id },
-      modifier: { $set: { link } }
-    }})
+    sendNotificationsMessage({
+      subdomain,
+      action: 'batchUpdate',
+      data: {
+        selector: { contentType, contentTypeId: item._id },
+        modifier: { $set: { link } }
+      }
+    });
   }
 
   return { content, action };
@@ -482,7 +526,7 @@ export const itemsChange = async (
   user: IUserDocument,
   modelUpdate: any
 ) => {
-  const { collection } = getCollection(models ,type);
+  const { collection } = getCollection(models, type);
   const {
     proccessId,
     itemId,
@@ -491,7 +535,7 @@ export const itemsChange = async (
     sourceStageId
   } = doc;
 
-  const item = await getItem(models ,type, { _id: itemId });
+  const item = await getItem(models, type, { _id: itemId });
 
   const extendedDoc: IItemCommonFields = {
     modifiedAt: new Date(),
@@ -719,8 +763,12 @@ export const publishHelperItemsConformities = async (
   });
 };
 
-export const publishHelper = async (subdomain: string, type: string, itemId: string) => {
-  const models = await generateModels(subdomain)
+export const publishHelper = async (
+  subdomain: string,
+  type: string,
+  itemId: string
+) => {
+  const models = await generateModels(subdomain);
 
   const item = await getItem(models, type, { _id: itemId });
 
