@@ -23,6 +23,8 @@ import {
 } from '@erxes/ui/src/layout/styles';
 import Map from '@erxes/ui/src/components/Map';
 import { MapContainer } from '@erxes/ui/src/styles/main';
+import { Icon } from '@erxes/ui/src/components';
+import ObjectListItem from './ObjectListItem';
 
 type Props = {
   field: IField;
@@ -318,7 +320,7 @@ export default class GenerateField extends React.Component<Props, State> {
           const key = e[0];
           const value: any = e[1] || '';
 
-          if (!keys.includes(key)) {
+          if (!keys || !keys.includes(key)) {
             return null;
           }
 
@@ -345,11 +347,14 @@ export default class GenerateField extends React.Component<Props, State> {
     }
 
     return (
-      <ObjectList>
-        {(value || []).map((object, index) =>
-          this.renderObject(keys, object, index)
-        )}
-      </ObjectList>
+      <>
+        {(value || []).map((object, index) => (
+          // this.renderObject(keys, object, index)
+          <ObjectList>
+            <ObjectListItem keys={keys} object={object} />
+          </ObjectList>
+        ))}
+      </>
     );
   }
 
@@ -568,6 +573,29 @@ export default class GenerateField extends React.Component<Props, State> {
     }
   }
 
+  renderAddButton() {
+    const { field } = this.props;
+
+    if (field.type !== 'objectList' || !field.keys) {
+      return null;
+    }
+
+    const onClick = () => {
+      const object = field.keys.reduce((e, key) => {
+        e[key] = '';
+        return e;
+      }, {});
+
+      this.setState({ value: [...this.state.value, object] });
+    };
+
+    return (
+      <button onClick={onClick}>
+        <Icon icon="plus-circle" />
+      </button>
+    );
+  }
+
   render() {
     const { field, hasLogic } = this.props;
 
@@ -576,6 +604,8 @@ export default class GenerateField extends React.Component<Props, State> {
         <ControlLabel ignoreTrans={true} required={field.isRequired}>
           {field.text}
         </ControlLabel>
+        {this.renderAddButton()}
+
         {hasLogic && <LogicIndicator>Logic</LogicIndicator>}
         {field.description ? <p>{field.description}</p> : null}
 

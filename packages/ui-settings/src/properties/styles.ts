@@ -180,26 +180,8 @@ const FlexRow = styled.div`
 `;
 
 const ObjectList = styled.div`
-  ul {
-    padding: 0;
-    border-bottom: 1px dashed ${colors.borderDarker};
-
-    li {
-      padding: 5px 0;
-      display: flex;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-
-      > div {
-        text-transform: capitalize;
-      }
-    }
-
-    &:last-child {
-      border: 0;
-    }
-  }
+  padding: -50;
+  border-bottom: 2px dashed ${colors.borderDarker};
 `;
 
 export {
