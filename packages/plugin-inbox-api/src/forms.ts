@@ -1,7 +1,7 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src';
 import { generateModels, IModels } from './connectionResolver';
 import { CONVERSATION_INFO } from './constants';
-import { sendTagsMessage } from './messageBroker';
+import { sendCoreMessage, sendTagsMessage } from './messageBroker';
 
 const getTags = async (subdomain: string) => {
   const tags = await sendTagsMessage({
@@ -51,6 +51,35 @@ const getIntegrations = async (models: IModels) => {
   };
 };
 
+const generateUsersOptions = async (
+  name: string,
+  label: string,
+  type: string,
+  subdomain: string
+) => {
+  const users = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: {
+      query: {}
+    },
+    isRPC: true
+  });
+
+  const options: Array<{ label: string; value: any }> = users.map(user => ({
+    value: user._id,
+    label: user.username || user.email || ''
+  }));
+
+  return {
+    _id: Math.random(),
+    name,
+    label,
+    type,
+    selectOptions: options
+  };
+};
+
 const generateFields = async ({ subdomain }) => {
   const models = await generateModels(subdomain);
 
@@ -67,13 +96,7 @@ const generateFields = async ({ subdomain }) => {
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 
-  // generate list using customer or company schema
   fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
-
-  const tags = await getTags(subdomain);
-  const integrations = await getIntegrations(models);
-
-  fields = [...fields, tags, integrations];
 
   for (const name of Object.keys(schema.paths)) {
     const path = schema.paths[name];
@@ -86,6 +109,37 @@ const generateFields = async ({ subdomain }) => {
       ];
     }
   }
+
+  const tags = await getTags(subdomain);
+  const integrations = await getIntegrations(models);
+
+  fields = [...fields, tags, integrations];
+
+  const assignedUserOptions = await generateUsersOptions(
+    'assignedUserId',
+    'Assigned to',
+    'user',
+    subdomain
+  );
+
+  const participatedUserOptions = await generateUsersOptions(
+    'participatedUserIds',
+    'Participating team member',
+    'user',
+    subdomain
+  );
+
+  const closedUserOptions = await generateUsersOptions(
+    'closedUserId',
+    'Resolved by',
+    'user',
+    subdomain
+  );
+
+  fields = [
+    ...fields,
+    ...[participatedUserOptions, assignedUserOptions, closedUserOptions]
+  ];
 
   return fields;
 };
