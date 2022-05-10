@@ -20,6 +20,7 @@ import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
   queryParams: any;
+  history: any;
   histories: IImportHistory[];
   loading: boolean;
   totalCount: number;
@@ -112,7 +113,7 @@ class Histories extends React.Component<Props & IRouterProps> {
   };
 
   render() {
-    const { histories, loading, totalCount, queryParams } = this.props;
+    const { histories, loading, totalCount, history, currentType } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -144,7 +145,7 @@ class Histories extends React.Component<Props & IRouterProps> {
             background="bgActive"
           />
         }
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar history={history} currentType={currentType} />}
         mainHead={headerDescription}
         footer={<Pagination count={totalCount} />}
         content={

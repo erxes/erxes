@@ -561,7 +561,7 @@ const widgetMutations = {
         action: 'fields.generateCustomFieldsData',
         data: {
           customData: companyData,
-          contentType: 'company'
+          contentType: 'contacts:company'
         },
         isRPC: true
       });

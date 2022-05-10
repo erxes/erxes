@@ -775,7 +775,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         action: 'fields.generateCustomFieldsData',
         data: {
           customData,
-          contentType: 'customer'
+          contentType: 'constacts:customer'
         },
         isRPC: true
       });
@@ -807,7 +807,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         action: 'fields.generateCustomFieldsData',
         data: {
           customData,
-          contentType: 'customer'
+          contentType: 'contacts:customer'
         },
         isRPC: true
       });

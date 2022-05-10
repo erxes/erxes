@@ -1,45 +1,45 @@
-import React, { useState } from "react";
-import Tip from "@erxes/ui/src/components/Tip";
-import { __ } from "@erxes/ui/src/utils";
-import Icon from "@erxes/ui/src/components/Icon";
-import Button from "@erxes/ui/src/components/Button";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import ActionButtons from "@erxes/ui/src/components/ActionButtons";
-import { TYPES } from "../constants";
-import NeighorFormItem from "../containers/NeighorFormItem";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
-import { ControlLabel } from "@erxes/ui/src/components/form";
-import { FlexRow } from "../styles";
-import { FlexItem } from "@erxes/ui-settings/src/styles";
-import ReactStars from "react-rating-stars-component";
+import React, { useState } from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
+import Icon from '@erxes/ui/src/components/Icon';
+import Button from '@erxes/ui/src/components/Button';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import { TYPES } from '../constants';
+import NeighorFormItem from '../containers/NeighorFormItem';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { ControlLabel } from '@erxes/ui/src/components/form';
+import { FlexRow } from '../styles';
+import { FlexItem } from '@erxes/ui-settings/src/styles';
+import ReactStars from 'react-rating-stars-component';
 
 type Props = {
   neighbor: any;
-  save: (info: any, rate: any) => void;
+  save: (data: any, rate: any) => void;
 };
 
 const NeighborForm = ({ neighbor, save }: Props) => {
-  const [info, setInfo] = useState(neighbor ? neighbor.info || {} : {});
+  const [data, setdata] = useState(neighbor ? neighbor.data || {} : {});
   const [rate, setRate] = useState(neighbor ? neighbor.rate || {} : {});
   const onChange = (type, values) => {
-    setInfo({
-      ...info,
-      [type]: values,
+    setdata({
+      ...data,
+      [type]: values
     });
   };
 
   const onChangeStar = (value, star) => {
     setRate({
       ...rate,
-      [value]: star,
+      [value]: star
     });
   };
 
-  const renderTypes = TYPES.map((type) => {
+  const renderTypes = TYPES.map(type => {
     return (
       <NeighorFormItem
         type={type}
-        itemInfo={info[type.type] || []}
+        itemData={data[type.type] || []}
         onChange={onChange}
       />
     );
@@ -59,8 +59,8 @@ const NeighborForm = ({ neighbor, save }: Props) => {
             <ReactStars
               isHalf={true}
               count={5}
-              value={rate["Алхах орчин"] ? rate["Алхах орчин"] : 0}
-              onChange={(e) => onChangeStar("Алхах орчин", e)}
+              value={rate['Алхах орчин'] ? rate['Алхах орчин'] : 0}
+              onChange={e => onChangeStar('Алхах орчин', e)}
               size={25}
               activeColor="#ffd700"
             />
@@ -74,8 +74,8 @@ const NeighborForm = ({ neighbor, save }: Props) => {
             <ReactStars
               isHalf={true}
               count={5}
-              value={rate["Тоглоомын талбай"] ? rate["Тоглоомын талбай"] : 0}
-              onChange={(e) => onChangeStar("Тоглоомын талбай", e)}
+              value={rate['Тоглоомын талбай'] ? rate['Тоглоомын талбай'] : 0}
+              onChange={e => onChangeStar('Тоглоомын талбай', e)}
               size={25}
               activeColor="#ffd700"
             />
@@ -90,9 +90,9 @@ const NeighborForm = ({ neighbor, save }: Props) => {
               isHalf={true}
               count={5}
               value={
-                rate["Гадаах авто зогсоол"] ? rate["Гадаах авто зогсоол"] : 0
+                rate['Гадаах авто зогсоол'] ? rate['Гадаах авто зогсоол'] : 0
               }
-              onChange={(e) => onChangeStar("Гадаах авто зогсоол", e)}
+              onChange={e => onChangeStar('Гадаах авто зогсоол', e)}
               size={25}
               activeColor="#ffd700"
             />
@@ -106,8 +106,8 @@ const NeighborForm = ({ neighbor, save }: Props) => {
             <ReactStars
               isHalf={true}
               count={5}
-              value={rate["Дэлгүүр"] ? rate["Дэлгүүр"] : 0}
-              onChange={(e) => onChangeStar("Дэлгүүр", e)}
+              value={rate['Дэлгүүр'] ? rate['Дэлгүүр'] : 0}
+              onChange={e => onChangeStar('Дэлгүүр', e)}
               size={25}
               activeColor="#ffd700"
             />
@@ -117,12 +117,12 @@ const NeighborForm = ({ neighbor, save }: Props) => {
     );
   };
 
-  const closeModal = (formProps) => {
-    save(info, rate);
+  const closeModal = formProps => {
+    save(data, rate);
     formProps.closeModal();
   };
 
-  const content = (formProps) => {
+  const content = formProps => {
     const cancel = (
       <Button
         btnStyle="simple"
@@ -157,7 +157,7 @@ const NeighborForm = ({ neighbor, save }: Props) => {
 
   const trigger = (
     <Button id="skill-edit-skill" btnStyle="link">
-      <Tip text={__("Neighbor")} placement="bottom">
+      <Tip text={__('Neighbor')} placement="bottom">
         <Icon icon="home" />
       </Tip>
     </Button>
@@ -165,7 +165,7 @@ const NeighborForm = ({ neighbor, save }: Props) => {
 
   return (
     <ActionButtons>
-      <ModalTrigger title={"neighbor"} trigger={trigger} content={content} />
+      <ModalTrigger title={'neighbor'} trigger={trigger} content={content} />
     </ActionButtons>
   );
 };
