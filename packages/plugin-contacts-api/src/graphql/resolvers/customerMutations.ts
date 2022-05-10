@@ -1,18 +1,14 @@
 import { ICustomer } from '../../models/definitions/customers';
-import {
-  sendCoreMessage,
-  sendFormsMessage,
-  sendIntegrationsMessage
-} from '../../messageBroker';
+import { sendCoreMessage, sendIntegrationsMessage } from '../../messageBroker';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { validateBulk } from '../../verifierUtils';
 import { IContext } from '../../connectionResolver';
+import { prepareCustomData } from '../../utils';
 
 interface ICustomersEdit extends ICustomer {
   _id: string;
-  data: any;
 }
 
 const customerMutations = {
@@ -25,6 +21,11 @@ const customerMutations = {
     { user, docModifier, models, subdomain }: IContext
   ) {
     const modifiedDoc = docModifier(doc);
+
+    modifiedDoc.customFieldsData = await prepareCustomData(
+      subdomain,
+      modifiedDoc
+    );
 
     const customer = await models.Customers.createCustomer(modifiedDoc, user);
 
@@ -59,26 +60,7 @@ const customerMutations = {
     { _id, ...doc }: ICustomersEdit,
     { user, models, subdomain }: IContext
   ) {
-    const { data } = doc;
-
-    if (data) {
-      const generatedData = await sendFormsMessage({
-        subdomain,
-        action: 'fields.generateCustomFieldsData',
-        data: {
-          customData: data,
-          contentType: 'contacts:customer'
-        },
-        isRPC: true
-      });
-
-      const { customFieldsData = [] } = doc;
-      const generatedCustomFieldsData = generatedData.customFieldsData || [];
-      doc.customFieldsData = [
-        ...customFieldsData,
-        ...generatedCustomFieldsData
-      ];
-    }
+    doc.customFieldsData = await prepareCustomData(subdomain, doc);
 
     const customer = await models.Customers.getCustomer(_id);
     const updated = await models.Customers.updateCustomer(_id, doc);

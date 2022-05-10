@@ -1,4 +1,7 @@
-import { attachmentInput, attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
+import {
+  attachmentInput,
+  attachmentType
+} from '@erxes/api-utils/src/commonTypeDefs';
 
 const ruleFields = `
   _id : String!,
@@ -89,6 +92,7 @@ export const commonMutationParams = `
   status: String,
   sourceConversationIds: [String],
   customFieldsData: JSON
+  data: JSON
 `;
 
 export const commonDragParams = `

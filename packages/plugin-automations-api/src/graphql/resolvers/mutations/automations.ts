@@ -1,5 +1,8 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IAutomation, IAutomationDoc } from '../../../models/definitions/automaions';
+import {
+  IAutomation,
+  IAutomationDoc
+} from '../../../models/definitions/automaions';
 import { INote } from '../../../models/definitions/notes';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 import { sendSegmentsMessage } from '../../../messageBroker';
@@ -13,23 +16,24 @@ interface IAutomationsEdit extends IAutomation {
   _id: string;
 }
 
-const automationMutations = (_serviceDiscovery) => ({
+const automationMutations = _serviceDiscovery => ({
   /**
    * Creates a new automation
    */
   async automationsAdd(
     _root,
     doc: IAutomation,
-    { user, docModifier, models }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
     const automation = await models.Automations.create({
-      ...docModifier({ ...doc, }),
+      ...docModifier({ ...doc }),
       createdAt: new Date(),
       createdBy: user._id,
       updatedBy: user._id
     });
 
     await putCreateLog(
+      subdomain,
       {
         type: 'automation',
         newData: doc,
@@ -44,7 +48,11 @@ const automationMutations = (_serviceDiscovery) => ({
   /**
    * Updates a automation
    */
-  async automationsEdit(_root, { _id, ...doc }: IAutomationsEdit, { user, models }: IContext) {
+  async automationsEdit(
+    _root,
+    { _id, ...doc }: IAutomationsEdit,
+    { user, models, subdomain }: IContext
+  ) {
     const automation = await models.Automations.getAutomation(_id);
 
     const updated = await models.Automations.updateOne(
@@ -53,6 +61,7 @@ const automationMutations = (_serviceDiscovery) => ({
     );
 
     await putUpdateLog(
+      subdomain,
       {
         type: 'automation',
         object: automation,
@@ -68,7 +77,11 @@ const automationMutations = (_serviceDiscovery) => ({
   /**
    * Save as a template
    */
-  async automationsSaveAsTemplate(_root, { _id, name }: { _id: string; name: string }, { user, models }: IContext) {
+  async automationsSaveAsTemplate(
+    _root,
+    { _id, name }: { _id: string; name: string },
+    { user, models, subdomain }: IContext
+  ) {
     const automation = await models.Automations.getAutomation(_id);
 
     const automationDoc: IAutomationDoc = {
@@ -87,6 +100,7 @@ const automationMutations = (_serviceDiscovery) => ({
     });
 
     await putUpdateLog(
+      subdomain,
       {
         type: 'automation',
         object: created,
@@ -101,7 +115,11 @@ const automationMutations = (_serviceDiscovery) => ({
   /**
    * Save as a template
    */
-  async automationsCreateFromTemplate(_root, { _id }: { _id: string }, { user, models }: IContext) {
+  async automationsCreateFromTemplate(
+    _root,
+    { _id }: { _id: string },
+    { user, models, subdomain }: IContext
+  ) {
     const automation = await models.Automations.getAutomation(_id);
 
     if (automation.status !== 'template') {
@@ -119,12 +137,12 @@ const automationMutations = (_serviceDiscovery) => ({
 
     delete automationDoc._id;
 
-
     const created = await models.Automations.create({
-      ...automationDoc,
+      ...automationDoc
     });
 
     await putCreateLog(
+      subdomain,
       {
         type: 'automation',
         newData: automation,
@@ -144,8 +162,9 @@ const automationMutations = (_serviceDiscovery) => ({
     { automationIds }: { automationIds: string[] },
     { models }: IContext
   ) {
-
-    const automations = await models.Automations.find({ _id: { $in: automationIds } });
+    const automations = await models.Automations.find({
+      _id: { $in: automationIds }
+    });
 
     let segmentIds: string[] = [];
 
@@ -167,7 +186,11 @@ const automationMutations = (_serviceDiscovery) => ({
     await models.Executions.removeExecutions(automationIds);
 
     for (const segmentId of segmentIds || []) {
-      sendSegmentsMessage({ subdomain: '', action: 'removeSegment', data: { segmentId } });
+      sendSegmentsMessage({
+        subdomain: '',
+        action: 'removeSegment',
+        data: { segmentId }
+      });
     }
 
     return automationIds;
@@ -179,13 +202,14 @@ const automationMutations = (_serviceDiscovery) => ({
   async automationsAddNote(
     _root,
     doc: INote,
-    { user, docModifier, models }: IContext
+    { user, docModifier, models, subdomain }: IContext
   ) {
     const noteDoc = { ...doc, createdBy: user._id };
 
     const note = await models.Notes.createNote(docModifier(noteDoc));
 
     await putUpdateLog(
+      subdomain,
       {
         type: 'automation',
         object: note,
@@ -203,7 +227,7 @@ const automationMutations = (_serviceDiscovery) => ({
   async automationsEditNote(
     _root,
     { _id, ...doc }: IAutomationNoteEdit,
-    { user, docModifier, dataSources, models }: IContext
+    { user, docModifier, dataSources, models, subdomain }: IContext
   ) {
     const note = await dataSources.AutomationsAPI.getAutomationNote({ _id });
 
@@ -216,6 +240,7 @@ const automationMutations = (_serviceDiscovery) => ({
     const updated = await models.Notes.updateNote(_id, docModifier(noteDoc));
 
     await putUpdateLog(
+      subdomain,
       {
         type: 'automation',
         object: note,
@@ -231,12 +256,17 @@ const automationMutations = (_serviceDiscovery) => ({
   /**
    * Remove note
    */
-  async automationsRemoveNote(_root, { _id }: { _id: string }, { user, models }: IContext) {
-    const note = await models.Notes.getNote(_id)
+  async automationsRemoveNote(
+    _root,
+    { _id }: { _id: string },
+    { user, models, subdomain }: IContext
+  ) {
+    const note = await models.Notes.getNote(_id);
 
     await models.Notes.deleteOne({ _id });
 
     await putDeleteLog(
+      subdomain,
       {
         type: 'automation',
         object: note

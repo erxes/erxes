@@ -74,6 +74,7 @@ export interface ICustomer {
   lastSeenAt?: Date;
   sessionCount?: number;
   visitorId?: string;
+  data?: any;
 }
 
 export interface IValidationResponse {

@@ -18,6 +18,7 @@ const getFieldGroup = async (models: IModels, _id: string) => {
  */
 export const fieldsCombinedByContentType = async (
   models: IModels,
+  subdomain: string,
   {
     contentType,
     usageType,
@@ -44,6 +45,7 @@ export const fieldsCombinedByContentType = async (
   }> = [];
 
   fields = await fetchService(
+    subdomain,
     contentType,
     'getList',
     {

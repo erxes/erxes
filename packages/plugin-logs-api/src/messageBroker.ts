@@ -2,7 +2,7 @@ import { debug } from './configs';
 import { IActivityLogDocument } from './models/ActivityLogs';
 import { receivePutLogCommand, sendToApi } from './utils';
 import { serviceDiscovery } from './configs';
-import { getService } from '@erxes/api-utils/src/serviceDiscovery'
+import { getService } from '@erxes/api-utils/src/serviceDiscovery';
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
@@ -60,9 +60,9 @@ export const initBroker = async cl => {
 
       await sendInboxMessage({
         subdomain,
-        action: "visitor.convertResponse",
+        action: 'visitor.convertResponse',
         data: visitor
-      })
+      });
     }
   );
 
@@ -169,29 +169,29 @@ export const initBroker = async cl => {
     }
   );
 
-    consumeRPCQueue(
-      'logs:emailDeliveries.create',
-      async ({ subdomain, data }) => {
-        const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    'logs:emailDeliveries.create',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
 
-        return {
-          status: 'success',
-          data: await models.EmailDeliveries.createEmailDelivery(data)
-        };
-      }
-    );
+      return {
+        status: 'success',
+        data: await models.EmailDeliveries.createEmailDelivery(data)
+      };
+    }
+  );
 
-    consumeRPCQueue(
-      'logs:emailDeliveries.find',
-      async ({ subdomain, data: { query } }) => {
-        const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    'logs:emailDeliveries.find',
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
 
-        return {
-          status: 'success',
-          data: await models.EmailDeliveries.find(query).lean()
-        };
-      }
-    );
+      return {
+        status: 'success',
+        data: await models.EmailDeliveries.find(query).lean()
+      };
+    }
+  );
 };
 
 export const getDbSchemaLabels = async (serviceName: string, args) => {
@@ -251,14 +251,25 @@ export const getContentIds = async data => {
 };
 
 export const sendCoreMessage = (args: ISendMessageArgs) => {
-  return sendMessage({ serviceDiscovery, client, serviceName: "core", ...args });
-}
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    serviceName: 'core',
+    ...args
+  });
+};
 
 export const sendInboxMessage = (args: ISendMessageArgs) => {
-  return sendMessage({ serviceDiscovery, client, serviceName: "inbox", ...args });
-}
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    serviceName: 'inbox',
+    ...args
+  });
+};
 
 export const fetchService = async (
+  subdomain: string,
   contentType: string,
   action: string,
   data,
@@ -267,7 +278,7 @@ export const fetchService = async (
   const [serviceName, type] = contentType.split(':');
 
   return sendMessage({
-    subdomain: 'os',
+    subdomain,
     serviceDiscovery,
     client,
     isRPC: true,

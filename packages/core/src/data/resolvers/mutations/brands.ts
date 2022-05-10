@@ -12,11 +12,12 @@ const brandMutations = {
   /**
    * Create new brand
    */
-  async brandsAdd(_root, doc: IBrand, { user, models }: IContext) {
+  async brandsAdd(_root, doc: IBrand, { user, models, subdomain }: IContext) {
     const brand = await models.Brands.createBrand({ userId: user._id, ...doc });
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.BRAND,
         newData: { ...doc, userId: user._id },
@@ -31,11 +32,16 @@ const brandMutations = {
   /**
    * Update brand
    */
-  async brandsEdit(_root, { _id, ...fields }: IBrandsEdit, { user, models }: IContext) {
+  async brandsEdit(
+    _root,
+    { _id, ...fields }: IBrandsEdit,
+    { user, models, subdomain }: IContext
+  ) {
     const updated = await models.Brands.updateBrand(_id, fields);
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.BRAND,
         object: updated,
@@ -50,11 +56,20 @@ const brandMutations = {
   /**
    * Delete brand
    */
-  async brandsRemove(_root, { _id }: { _id: string }, { user, models }: IContext) {
+  async brandsRemove(
+    _root,
+    { _id }: { _id: string },
+    { user, models, subdomain }: IContext
+  ) {
     const brand = await models.Brands.getBrand({ _id });
     const removed = await models.Brands.removeBrand(_id);
 
-    await putDeleteLog(models, { type: MODULE_NAMES.BRAND, object: brand }, user);
+    await putDeleteLog(
+      models,
+      subdomain,
+      { type: MODULE_NAMES.BRAND, object: brand },
+      user
+    );
 
     return removed;
   }

@@ -1,5 +1,5 @@
-import { Document, Schema } from "mongoose";
-import { field, schemaWrapper } from "./utils";
+import { Document, Schema } from 'mongoose';
+import { field, schemaWrapper } from './utils';
 
 export interface ISubmission {
   _id: string;
@@ -24,12 +24,12 @@ export const logicSchema = new Schema(
     fieldId: field({ type: String }),
     logicOperator: field({
       type: String,
-      optional: true,
+      optional: true
     }),
     logicValue: field({
       type: Schema.Types.Mixed,
-      optional: true,
-    }),
+      optional: true
+    })
   },
   { _id: false }
 );
@@ -48,6 +48,7 @@ export interface IField extends IVisibility {
   content?: string;
   description?: string;
   options?: string[];
+  keys?: string[];
   isRequired?: boolean;
   isDefinedByErxes?: boolean;
   order?: number;
@@ -91,116 +92,121 @@ export const fieldSchema = schemaWrapper(
     _id: field({ pkey: true }),
 
     // form, customer, company
-    contentType: field({ type: String, label: "Content type" }),
+    contentType: field({ type: String, label: 'Content type' }),
 
     // formId when contentType is form
-    contentTypeId: field({ type: String, label: "Content type item" }),
+    contentTypeId: field({ type: String, label: 'Content type item' }),
 
-    type: field({ type: String, label: "Type" }),
+    type: field({ type: String, label: 'Type' }),
     validation: field({
       type: String,
       optional: true,
-      label: "Validation",
+      label: 'Validation'
     }),
-    text: field({ type: String, label: "Text" }),
-    field: field({ type: String, optional: true, label: "Field identifier" }),
+    text: field({ type: String, label: 'Text' }),
+    field: field({ type: String, optional: true, label: 'Field identifier' }),
     description: field({
       type: String,
       optional: true,
-      label: "Description",
+      label: 'Description'
     }),
     code: field({
       type: String,
       optional: true,
-      label: "Unique code",
+      label: 'Unique code'
     }),
     options: field({
       type: [String],
       optional: true,
-      label: "Options",
+      label: 'Options'
     }),
-    isRequired: field({ type: Boolean, label: "Is required" }),
-    isDefinedByErxes: field({ type: Boolean, label: "Is defined by erxes" }),
-    order: field({ type: Number, label: "Order" }),
-    groupId: field({ type: String, label: "Field group" }),
-    isVisible: field({ type: Boolean, default: true, label: "Is visible" }),
+    keys: field({
+      type: [String],
+      optional: true,
+      label: 'Keys'
+    }),
+    isRequired: field({ type: Boolean, label: 'Is required' }),
+    isDefinedByErxes: field({ type: Boolean, label: 'Is defined by erxes' }),
+    order: field({ type: Number, label: 'Order' }),
+    groupId: field({ type: String, label: 'Field group' }),
+    isVisible: field({ type: Boolean, default: true, label: 'Is visible' }),
     isVisibleInDetail: field({
       type: Boolean,
       default: true,
-      label: "Is group visible in detail",
+      label: 'Is group visible in detail'
     }),
     canHide: field({
       type: Boolean,
       default: true,
-      label: "Can toggle isVisible",
+      label: 'Can toggle isVisible'
     }),
     searchable: field({
       type: Boolean,
       default: false,
-      label: "Useful for searching",
+      label: 'Useful for searching'
     }),
-    lastUpdatedUserId: field({ type: String, label: "Last updated by" }),
+    lastUpdatedUserId: field({ type: String, label: 'Last updated by' }),
     associatedFieldId: field({
       type: String,
       optional: true,
-      label: "Stores custom property fieldId for form field id",
+      label: 'Stores custom property fieldId for form field id'
     }),
     logics: field({ type: [logicSchema] }),
     column: field({ type: Number, optional: true }),
     logicAction: field({
       type: String,
       label:
-        "If action is show field will appear when logics fulfilled, if action is hide it will disappear when logic fulfilled",
+        'If action is show field will appear when logics fulfilled, if action is hide it will disappear when logic fulfilled'
     }),
     content: field({
       type: String,
       optional: true,
-      label: "Stores html content form of field type with html",
+      label: 'Stores html content form of field type with html'
     }),
     pageNumber: field({
       type: Number,
       optional: true,
-      label: "Number of page",
-      min: 1,
+      label: 'Number of page',
+      min: 1
     }),
     showInCard: field({
       type: Boolean,
       default: false,
       optional: true,
-      label: "Show in card",
-    }),
+      label: 'Show in card'
+    })
   })
 );
 
 export const fieldGroupSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    name: field({ type: String, label: "Name" }),
+    name: field({ type: String, label: 'Name' }),
     // customer, company
     contentType: field({
       type: String,
-      label: "Content type",
+      label: 'Content type'
     }),
-    order: field({ type: Number, label: "Order" }),
+    order: field({ type: Number, label: 'Order' }),
     isDefinedByErxes: field({
       type: Boolean,
       default: false,
-      label: "Is defined by erxes",
+      label: 'Is defined by erxes'
     }),
-    description: field({ type: String, label: "Description" }),
+    description: field({ type: String, label: 'Description' }),
     code: field({
       type: String,
       optional: true,
-      label: "Unique code",
+      label: 'Unique code'
     }),
     // Id of user who updated the group
-    lastUpdatedUserId: field({ type: String, label: "Last updated by" }),
-    isVisible: field({ type: Boolean, default: true, label: "Is visible" }),
+    lastUpdatedUserId: field({ type: String, label: 'Last updated by' }),
+    isVisible: field({ type: Boolean, default: true, label: 'Is visible' }),
     isVisibleInDetail: field({
       type: Boolean,
       default: true,
-      label: "Is group visible in detail",
+      label: 'Is group visible in detail'
     }),
-    config: { type: Object },
+    config: { type: Object }
   })
 );

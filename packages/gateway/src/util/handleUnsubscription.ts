@@ -1,12 +1,15 @@
-import { sendContactsMessage, sendCoreMessage } from "../messageBroker";
+import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
 
 /*
  * Handle engage unsubscribe request
  */
-export const handleUnsubscription = async (subdomain: string, query: {
-  cid: string;
-  uid: string;
-}) => {
+export const handleUnsubscription = async (
+  subdomain: string,
+  query: {
+    cid: string;
+    uid: string;
+  }
+) => {
   const { cid, uid } = query;
 
   if (cid) {
@@ -28,7 +31,7 @@ export const handleUnsubscription = async (subdomain: string, query: {
 
   if (uid) {
     await sendCoreMessage({
-      subdomain: 'os',
+      subdomain,
       action: 'users.updateOne',
       data: {
         selector: {
