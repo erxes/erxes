@@ -99,6 +99,24 @@ export const initBroker = async cl => {
     };
   });
 
+  consumeRPCQueue('cards:pipelines.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Pipelines.find(data)
+    };
+  });
+
+  consumeRPCQueue('cards:boards.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Boards.find(data)
+    };
+  });
+
   consumeQueue(
     'cards:checklists.removeChecklists',
     async ({ subdomain, data: { type, itemIds } }) => {
@@ -231,24 +249,30 @@ export const initBroker = async cl => {
     };
   });
 
-  consumeRPCQueue('cards:getLink', async ({ subdomain, data: { _id, type } }) => {
-    const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    'cards:getLink',
+    async ({ subdomain, data: { _id, type } }) => {
+      const models = await generateModels(subdomain);
 
-    const item = await getCardItem(models, { contentTypeId: _id, contentType: type })
+      const item = await getCardItem(models, {
+        contentTypeId: _id,
+        contentType: type
+      });
 
-    if (!item) {
-      return ''
+      if (!item) {
+        return '';
+      }
+
+      const stage = await models.Stages.getStage(item.stageId);
+      const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+      const board = await models.Boards.getBoard(pipeline.boardId);
+
+      return {
+        status: 'success',
+        data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`
+      };
     }
-
-    const stage = await models.Stages.getStage(item.stageId);
-    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
-    const board = await models.Boards.getBoard(pipeline.boardId);
-
-    return {
-      status: 'success',
-      data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`
-    };
-  });
+  );
 
   consumeQueue(
     'cards:pipelinesChanged',
@@ -265,7 +289,7 @@ export const initBroker = async cl => {
       });
 
       return {
-        status: 'success',
+        status: 'success'
       };
     }
   );
@@ -293,7 +317,7 @@ export const initBroker = async cl => {
       }
 
       return {
-        status: 'success',
+        status: 'success'
       };
     }
   );
@@ -427,6 +451,6 @@ export const sendToWebhook = ({ subdomain, data }) => {
   return sendWebhook(client, { subdomain, data });
 };
 
-export default function () {
+export default function() {
   return client;
 }
