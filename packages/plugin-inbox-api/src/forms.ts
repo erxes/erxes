@@ -1,6 +1,55 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src';
-import { generateModels } from './connectionResolver';
+import { generateModels, IModels } from './connectionResolver';
 import { CONVERSATION_INFO } from './constants';
+import { sendTagsMessage } from './messageBroker';
+
+const getTags = async (subdomain: string) => {
+  const tags = await sendTagsMessage({
+    subdomain,
+    action: 'find',
+    data: {
+      type: `inbox:conversation`
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const selectOptions: Array<{ label: string; value: any }> = [];
+
+  for (const tag of tags) {
+    selectOptions.push({
+      value: tag._id,
+      label: tag.name
+    });
+  }
+
+  return {
+    _id: Math.random(),
+    name: 'tagIds',
+    label: 'Tag',
+    type: 'tag',
+    selectOptions
+  };
+};
+
+const getIntegrations = async (models: IModels) => {
+  const selectOptions = await models.Integrations.aggregate([
+    {
+      $project: {
+        _id: 0,
+        label: '$name',
+        value: '$_id'
+      }
+    }
+  ]);
+
+  return {
+    _id: Math.random(),
+    name: 'relatedIntegrationIds',
+    label: 'Related integration',
+    selectOptions
+  };
+};
 
 const generateFields = async ({ subdomain }) => {
   const models = await generateModels(subdomain);
@@ -20,6 +69,11 @@ const generateFields = async ({ subdomain }) => {
 
   // generate list using customer or company schema
   fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
+
+  const tags = await getTags(subdomain);
+  const integrations = await getIntegrations(models);
+
+  fields = [...fields, tags, integrations];
 
   for (const name of Object.keys(schema.paths)) {
     const path = schema.paths[name];

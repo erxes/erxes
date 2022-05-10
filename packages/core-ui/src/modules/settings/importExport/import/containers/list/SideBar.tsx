@@ -9,6 +9,7 @@ import { queries } from '../../graphql';
 
 type Props = {
   currentType: string;
+  history: any;
 };
 
 type State = {};
@@ -19,7 +20,11 @@ type FinalProps = {
 
 class SideBarContainer extends React.Component<FinalProps, State> {
   render() {
-    const { importHistoryGetExportableServices, currentType } = this.props;
+    const {
+      importHistoryGetExportableServices,
+      currentType,
+      history
+    } = this.props;
 
     if (importHistoryGetExportableServices.loading) {
       return <Spinner />;
@@ -28,6 +33,8 @@ class SideBarContainer extends React.Component<FinalProps, State> {
     const services =
       importHistoryGetExportableServices.importHistoryGetExportableServices ||
       [];
+
+    console.log(services);
 
     if (!router.getParam(history, 'type')) {
       router.setParams(history, { type: services[0].contentType }, true);
