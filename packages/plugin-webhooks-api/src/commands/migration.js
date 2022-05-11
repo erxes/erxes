@@ -1,6 +1,6 @@
 const { generateModels } = require('../connectionResolver.ts');
 
-const switchContentType = (contentType): string => {
+const switchContentType = (contentType) => {
   let changedContentType = contentType;
 
   switch (contentType) {
