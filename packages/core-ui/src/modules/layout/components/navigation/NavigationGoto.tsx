@@ -65,8 +65,6 @@ export default class NavigationGoto extends React.Component<Props, State> {
       }
     }
 
-    _.sortBy(totalPlugins, ["text"])
-
     this.setState({ plugins: totalPlugins })
   }
 
@@ -111,7 +109,7 @@ export default class NavigationGoto extends React.Component<Props, State> {
         return plugin
     })
 
-    filteredPlugins = _.sortBy(filteredPlugins, ["text"])
+    filteredPlugins = _.sortBy(filteredPlugins, ["name", "text"])
 
     if (filteredPlugins.length === 0)
       return (
