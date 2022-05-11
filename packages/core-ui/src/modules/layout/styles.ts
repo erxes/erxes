@@ -703,7 +703,7 @@ const GotoCategory = styled.div`
 
 const GotoItem = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   padding: 0.75em 1em;
   border-bottom: 1px solid ${colors.borderDarker};
@@ -716,6 +716,7 @@ const GotoItem = styled.div`
   span {
     text-transform: capitalize;
     color: ${colors.colorCoreGray};
+    margin-left: auto;
   }
 
   &:hover {
