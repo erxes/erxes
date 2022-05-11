@@ -11,7 +11,7 @@ type Props = {
 };
 
 export default function ObjectListItem(props: Props) {
-  const { object, keys, onEdit, index } = props;
+  const { object, keys, index, onEdit } = props;
 
   const entries = Object.entries(object);
 

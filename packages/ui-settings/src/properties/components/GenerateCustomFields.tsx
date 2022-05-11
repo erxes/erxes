@@ -155,8 +155,6 @@ class GenerateGroup extends React.Component<Props, State> {
             return null;
           }
 
-          console.log('FIELD :', field);
-
           return (
             <GenerateField
               field={field}
@@ -164,6 +162,7 @@ class GenerateGroup extends React.Component<Props, State> {
               onValueChange={this.onChange}
               defaultValue={data[field._id] || ''}
               currentLocation={this.state.currentLocation}
+              isEditing={this.state.editing}
             />
           );
         })}

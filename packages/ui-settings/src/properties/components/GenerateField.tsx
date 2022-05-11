@@ -31,6 +31,7 @@ type Props = {
   currentLocation: ILocationOption;
   defaultValue?: any;
   hasLogic?: boolean;
+  isEditing?: boolean;
   isPreview?: boolean;
   onValueChange?: (data: { _id: string; value: any }) => void;
   onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
@@ -311,30 +312,6 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
-  renderObject(keys: string[], object: any, index: number) {
-    const entries = Object.entries(object);
-
-    return (
-      <SidebarList className="no-hover" key={index}>
-        {entries.map(e => {
-          const key = e[0];
-          const value: any = e[1] || '';
-
-          if (!keys || !keys.includes(key)) {
-            return null;
-          }
-
-          return (
-            <li key={key}>
-              <FieldStyle>{key}:</FieldStyle>
-              <SidebarCounter>{value}</SidebarCounter>
-            </li>
-          );
-        })}
-      </SidebarList>
-    );
-  }
-
   renderObjectList(keys, attrs) {
     let { value = [] } = attrs;
 
@@ -357,7 +334,12 @@ export default class GenerateField extends React.Component<Props, State> {
 
     return (
       <>
-        <ObjectList keys={keys} value={value} onChange={onChange} />
+        <ObjectList
+          keys={keys}
+          value={value}
+          onChange={onChange}
+          isEditing={this.props.isEditing}
+        />
       </>
     );
   }

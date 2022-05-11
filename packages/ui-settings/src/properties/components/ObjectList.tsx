@@ -7,19 +7,21 @@ import ObjectListItem from './ObjectListItem';
 type Props = {
   keys: string[];
   value: any[];
+  isEditing: boolean;
   onChange: (value: any[]) => void;
 };
 
 export default function ObjectList(props: Props) {
   const { value, keys, onChange } = props;
 
-  const [isEditing, setEditing] = useState(false);
+  const [isEditing, setEditing] = useState(props.isEditing);
   const [objects, setObjects] = useState(value);
   const [currentIndex, setCurrentIndex] = useState(-1);
 
   useEffect(() => {
     setObjects(value);
-  }, [value, currentIndex, setCurrentIndex]);
+    setEditing(props.isEditing);
+  }, [value, props.isEditing, currentIndex, setCurrentIndex]);
 
   const onChangeValue = (index: number, key: string, value: any) => {
     const newObjects = [...objects];
@@ -39,16 +41,18 @@ export default function ObjectList(props: Props) {
   };
 
   const onClickRemove = () => {
-    setEditing(false);
-
     objects.splice(currentIndex, 1);
 
     setObjects(objects);
     onChange(objects);
+    setEditing(false);
   };
 
   const renderButtons = (index: number) => {
-    if (!isEditing || index !== currentIndex) {
+    if (
+      (typeof isEditing !== 'undefined' && !isEditing) ||
+      index !== currentIndex
+    ) {
       return null;
     }
 
