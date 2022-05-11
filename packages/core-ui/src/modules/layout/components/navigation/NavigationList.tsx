@@ -27,7 +27,7 @@ export default class NavigationList extends React.Component<Props, State> {
       showMenu: false,
       clickedMenu: "",
       pinnedPlugins: JSON.parse(localStorage.getItem("pinnedPlugins") || "[]"),
-      countOfPinnedPlugins: window.innerHeight > 900 ? 8 : 5,
+      countOfPinnedPlugins: window.innerHeight > 900 ? 7 : 4,
     };
   }
 
