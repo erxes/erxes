@@ -16,6 +16,7 @@ import Tip from "modules/common/components/Tip";
 import WithPermission from "modules/common/components/WithPermission";
 import Icon from "modules/common/components/Icon";
 import { __ } from "modules/common/utils";
+import { pluginNavigations, getChildren } from './utils';
 
 type Props = {
   navCollapse: number;
@@ -52,16 +53,19 @@ export default class NavigationGoto extends React.Component<Props, State> {
     document.addEventListener("keydown", this.handleKeyDown);
     document.addEventListener("keyup", this.handleKeyUp);
 
-    const plugins: any[] = (window as any).plugins || [];
+    let plugins: any[] = pluginNavigations() || [];
     let totalPlugins: any[] = [];
 
     for (const plugin of plugins) {
-      for (const menu of plugin.menus) {
-        totalPlugins.push({
-          ...menu,
-          name: plugin.name,
-          icon: plugin.icon
-        })
+      let children: any[] = getChildren(plugin);
+      
+      totalPlugins.push(plugin)
+
+      for (const child of children) {
+        child.icon = plugin.icon;
+        child.name = plugin.name;
+
+        totalPlugins.push(child);
       }
     }
 
@@ -104,12 +108,10 @@ export default class NavigationGoto extends React.Component<Props, State> {
     let filteredPlugins: any[] = [];
     const { plugins, searchValue } = this.state;
 
-    filteredPlugins = plugins.filter((plugin: any, index: number) => {
+    filteredPlugins = plugins.filter((plugin: any) => {
       if (plugin.text.toLowerCase().includes(searchValue.toLowerCase()))
         return plugin
     })
-
-    filteredPlugins = _.sortBy(filteredPlugins, ["name", "text"])
 
     if (filteredPlugins.length === 0)
       return (
@@ -133,6 +135,7 @@ export default class NavigationGoto extends React.Component<Props, State> {
             to={plugin.url ? plugin.url : plugin.to}
           >
             <GotoItem>
+              <i className={plugin.icon} />
               <p>{plugin.text}</p>
               <span>{plugin.name}</span>
             </GotoItem>

@@ -719,6 +719,12 @@ const GotoItem = styled.div`
     margin-left: auto;
   }
 
+  i {
+    color: ${colors.colorCoreGray};
+    font-size: 14px;
+    margin-right: 1em;
+  }
+
   &:hover {
     background: ${rgba(colors.colorBlack, 0.06)};
   }
