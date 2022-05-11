@@ -395,6 +395,7 @@ export const initBroker = async options => {
 };
 
 interface IISendMessageArgs {
+  subdomain: string;
   action: string;
   data;
   isRPC?: boolean;
@@ -406,7 +407,6 @@ export const sendCommonMessage = async (
   args: IISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    subdomain: 'os',
     serviceDiscovery,
     client,
     ...args

@@ -25,10 +25,10 @@ export type ClientPortalConfig = {
   twilioAccountSid?: string;
   twilioAuthToken?: string;
   twilioFromNumber?: string;
-  kbToggle?: boolean,
-  publicTaskToggle?: boolean,
-  ticketToggle?: boolean,
-  taskToggle?: boolean,
+  kbToggle?: boolean;
+  publicTaskToggle?: boolean;
+  ticketToggle?: boolean;
+  taskToggle?: boolean;
 };
 
 export type Styles = {

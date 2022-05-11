@@ -413,7 +413,22 @@ const up = async uis => {
         },
         {
           name: "conformities",
-          schema: "{}",
+          schema: ` 
+            {
+              "mainType": {
+                "type": "keyword"
+              },
+              "mainTypeId": {
+                "type": "keyword"
+              },
+              "relType": {
+                "type": "keyword"
+              },
+              "relTypeId": {
+                "type": "keyword"
+              }
+            }
+          `,
           script: "",
         }
     ],

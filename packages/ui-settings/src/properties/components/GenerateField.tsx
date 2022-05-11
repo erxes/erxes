@@ -16,7 +16,11 @@ import Select from 'react-select-plus';
 import { IOption } from '@erxes/ui/src/types';
 import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import { __ } from '@erxes/ui/src/utils/core';
-import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
 import Map from '@erxes/ui/src/components/Map';
 import { MapContainer } from '@erxes/ui/src/styles/main';
 
@@ -305,7 +309,7 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
-  renderObject(object: any, index: number) {
+  renderObject(keys: string[], object: any, index: number) {
     const entries = Object.entries(object);
 
     return (
@@ -313,6 +317,10 @@ export default class GenerateField extends React.Component<Props, State> {
         {entries.map(e => {
           const key = e[0];
           const value: any = e[1] || '';
+
+          if (!keys.includes(key)) {
+            return null;
+          }
 
           return (
             <li key={key}>
@@ -325,7 +333,7 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
-  renderObjectList(attrs) {
+  renderObjectList(keys, attrs) {
     let { value = [] } = attrs;
 
     if (typeof value === 'string' && value.length > 0) {
@@ -338,7 +346,9 @@ export default class GenerateField extends React.Component<Props, State> {
 
     return (
       <ObjectList>
-        {(value || []).map((object, index) => this.renderObject(object, index))}
+        {(value || []).map((object, index) =>
+          this.renderObject(keys, object, index)
+        )}
       </ObjectList>
     );
   }
@@ -368,7 +378,7 @@ export default class GenerateField extends React.Component<Props, State> {
     return (
       <MapContainer>
         <Map
-          center={currentLocation}
+          center={currentLocation || { lat: 0, lng: 0 }}
           googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
           defaultZoom={7}
           locationOptions={locationOptions}
@@ -435,7 +445,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderControl() {
     const { field } = this.props;
-    const { type } = field;
+    const { type, keys } = field;
     const options = field.options || [];
 
     const attrs = {
@@ -542,13 +552,13 @@ export default class GenerateField extends React.Component<Props, State> {
       }
 
       case 'objectList': {
-        return this.renderObjectList(attrs);
+        return this.renderObjectList(keys, attrs);
       }
 
       case 'map': {
         return this.renderMap(attrs);
       }
-      
+
       default:
         try {
           return this.renderInput(attrs);

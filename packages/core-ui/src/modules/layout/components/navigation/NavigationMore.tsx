@@ -131,6 +131,7 @@ export default class NavigationMore extends React.Component<Props, State> {
                   isPinned={true}
                   navCollapse={navCollapse}
                   handleOnClick={this.handleUnpin}
+                  toggleMenu={toggleMenu}
                 />
               )
             })}
@@ -174,6 +175,7 @@ export default class NavigationMore extends React.Component<Props, State> {
                       isPinned={false}
                       navCollapse={navCollapse}
                       handleOnClick={this.handlePin}
+                      toggleMenu={toggleMenu}
                     />
                   )
                 })}

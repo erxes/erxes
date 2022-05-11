@@ -80,9 +80,7 @@ class Settings extends React.PureComponent {
             {__('Plugin Settings')}
             <span>{__('Set up your additional plugin settings')}</span>
           </RowTitle>
-          <div id={'PluginSettings'}>
-            {plugins}
-          </div>
+          <div id={'PluginSettings'}>{plugins}</div>
         </Row>
       </>
     );
@@ -110,12 +108,6 @@ class Settings extends React.PureComponent {
               '/settings/permissions',
               'permissionsAll',
               permissionActions
-            )}
-            {this.renderBox(
-              'Status',
-              '/images/icons/erxes-06.svg',
-              '/settings/status',
-              ''
             )}
             {this.renderBox(
               'Team Members',

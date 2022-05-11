@@ -1,6 +1,6 @@
-import { ICompanyDocument } from "../../models/definitions/companies";
-import { IContext } from "../../connectionResolver";
-import { sendCoreMessage } from "../../messageBroker";
+import { ICompanyDocument } from '../../models/definitions/companies';
+import { IContext } from '../../connectionResolver';
+import { sendCoreMessage } from '../../messageBroker';
 
 export default {
   __resolveReference({ _id }, { models: { Companies } }: IContext) {
@@ -12,17 +12,23 @@ export default {
     _,
     { models: { Customers }, subdomain }: IContext
   ) {
-    const customerIds = await sendCoreMessage({subdomain, action: "conformities.savedConformity", data: {
-      mainType: "company",
-      mainTypeId: company._id,
-      relTypes: ["customer"],
-    }, isRPC: true, defaultValue: [] });
+    const customerIds = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.savedConformity',
+      data: {
+        mainType: 'company',
+        mainTypeId: company._id,
+        relTypes: ['customer']
+      },
+      isRPC: true,
+      defaultValue: []
+    });
 
     return Customers.find({ _id: { $in: customerIds || [] } });
   },
 
   async getTags(company: ICompanyDocument) {
-    return (company.tagIds || []).map((_id) => ({ __typename: "Tag", _id }));
+    return (company.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
   },
 
   owner(company: ICompanyDocument) {
@@ -30,7 +36,7 @@ export default {
       return;
     }
 
-    return { __typename: "User", _id: company.ownerId };
+    return { __typename: 'User', _id: company.ownerId };
   },
 
   parentCompany(
@@ -39,5 +45,5 @@ export default {
     { models: { Companies } }: IContext
   ) {
     return Companies.findOne({ _id: parentCompanyId });
-  },
+  }
 };

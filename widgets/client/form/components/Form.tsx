@@ -1,3 +1,4 @@
+import e = require("express");
 import * as React from "react";
 import { AppConsumer } from "../../messenger/containers/AppContext";
 import { IEmailParams, IIntegration } from "../../types";
@@ -6,7 +7,8 @@ import {
   checkLogicFulfilled,
   fixErrorMessage,
   LogicParams,
-  readFile
+  readFile,
+  loadMapApi
 } from "../../utils";
 import { connection } from "../connection";
 import {
@@ -14,7 +16,8 @@ import {
   ICurrentStatus,
   IFieldError,
   IForm,
-  IFormDoc
+  IFormDoc,
+  ILocationOption
 } from "../types";
 import { TopBar } from "./";
 import Field from "./Field";
@@ -25,6 +28,7 @@ type Props = {
   currentStatus: ICurrentStatus;
   callSubmit?: boolean;
   onSubmit: (doc: IFormDoc, formCode: string) => void;
+  onCancelOrder: (customerId: string, messageId: string) => void;
   onCreateNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   setHeight?: () => void;
@@ -32,35 +36,60 @@ type Props = {
   isSubmitting?: boolean;
   color?: string;
   extraContent?: string;
+  invoiceResponse?: any;
+  invoiceType?: string;
+  lastMessageId?: string;
 };
 
 type State = {
   doc: IFormDoc;
   currentPage: number;
+  currentLocation?: ILocationOption;
+  mapScriptLoaded?: boolean;
 };
 
 class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { doc: this.resetDocState(), currentPage: 1 };
+    let currentLocation: ILocationOption | undefined;
+
+    if (props.form.fields.findIndex(e => e.type === "map") !== -1) {
+      currentLocation = {
+        lat: connection.browserInfo.latitude,
+        lng: connection.browserInfo.longitude
+      };
+    }
+
+    this.state = { doc: this.resetDocState(), currentPage: 1, currentLocation };
   }
 
   componentDidMount() {
-    if (this.props.setHeight) {
-      this.props.setHeight();
+    const { setHeight, form, integration } = this.props;
+
+    if (setHeight) {
+      setHeight();
     }
 
-    if (this.props.integration.leadData.css) {
+    if (integration.leadData.css) {
       const head = document.getElementsByTagName("head")[0];
       const style = document.createElement("style");
       style.setAttribute("type", "text/css");
 
-      style.appendChild(
-        document.createTextNode(this.props.integration.leadData.css)
-      );
+      style.appendChild(document.createTextNode(integration.leadData.css));
 
       head.appendChild(style);
+    }
+
+    if (form.fields.findIndex(e => e.type === "map") !== -1) {
+      const googleMapScript = loadMapApi(
+        form.googleMapApiKey || "test",
+        integration.languageCode || "en"
+      );
+
+      googleMapScript.addEventListener("load", () => {
+        this.setState({ mapScriptLoaded: true });
+      });
     }
   }
 
@@ -117,6 +146,7 @@ class Form extends React.Component<Props, State> {
 
   onSubmit = () => {
     const doc: any = {};
+    const { fields } = this.props.form;
 
     for (const key of Object.keys(this.state.doc)) {
       const field = this.state.doc[key];
@@ -127,6 +157,19 @@ class Form extends React.Component<Props, State> {
         doc[key] = {
           ...field,
           value: String(field.value).replace(new RegExp(",,", "g"), ", ")
+        };
+      }
+
+      if (field.type === "productCategory") {
+        const formField = fields.find(f => f._id === key);
+        const products = (formField && formField.products) || [];
+        const selectedProduct = products.find(p => p._id === field.value);
+        doc[key] = selectedProduct && {
+          ...field,
+          value: `${
+            selectedProduct.name
+          } - ${selectedProduct.unitPrice.toLocaleString()}`,
+          productId: selectedProduct._id
         };
       }
     }
@@ -259,7 +302,11 @@ class Form extends React.Component<Props, State> {
         }}
       >
         <div
-          style={{ textAlign: "center", color: "white", fontSize: 10 }}
+          style={{
+            textAlign: "center",
+            color: "white",
+            fontSize: 10
+          }}
         >{`${percentage}%`}</div>
       </div>
     );
@@ -279,26 +326,19 @@ class Form extends React.Component<Props, State> {
       );
 
       if (field.logics && field.logics.length > 0) {
-        const logics: LogicParams[] = [];
-        for (const logic of field.logics) {
-          const relatedField = this.state.doc[logic.fieldId];
+        const logics: LogicParams[] = field.logics.map(logic => {
+          const { validation, value, type } = this.state.doc[logic.fieldId];
 
-          if (!relatedField) {
-            continue;
-          }
-
-          const { validation, value, type } = relatedField;
-
-          logics.push({
+          return {
             fieldId: logic.fieldId,
             operator: logic.logicOperator,
             logicValue: logic.logicValue,
             fieldValue: value,
             validation,
             type
-          });
-        }
-        
+          };
+        });
+
         const isLogicsFulfilled = checkLogicFulfilled(logics);
 
         if (field.logicAction && field.logicAction === "show") {
@@ -325,6 +365,9 @@ class Form extends React.Component<Props, State> {
           error={fieldError}
           onChange={this.onFieldValueChange}
           value={this.state.doc[field._id].value || ""}
+          currentLocation={this.state.currentLocation}
+          color={this.props.color}
+          mapScriptLoaded={this.state.mapScriptLoaded}
         />
       );
     });
@@ -430,13 +473,14 @@ class Form extends React.Component<Props, State> {
       <img onLoad={this.props.setHeight} src={readFile(image)} alt={title} />
     );
   }
+
   renderSuccessForm(
     thankTitle?: string,
     thankContent?: string,
     successImage?: string
   ) {
     const { integration, form } = this.props;
-
+  
     return (
       <div className="erxes-form">
         {this.renderHead(thankTitle || form.title)}
@@ -451,8 +495,100 @@ class Form extends React.Component<Props, State> {
     );
   }
 
+  renderinvoiceResponse(response: string) {
+    if (this.props.invoiceType === "golomtEcommerce") {
+      const GolomtFrame = ({
+        src,
+        width,
+        height
+      }: {
+        src: string;
+        width: string;
+        height: string;
+      }) => (
+        <iframe
+          src={src}
+          width={width}
+          height={height}
+          scrolling="yes"
+        ></iframe>
+      );
+
+      return <GolomtFrame src={response} width="100%" height="600px" />;
+    }
+
+    const onClick = () => {
+      this.props.onCancelOrder(
+        connection.customerId,
+        this.props.lastMessageId || ""
+      );
+    };
+
+    const button = () => {
+      return (
+        <button
+          style={{ background: this.props.color, margin: "5px" }}
+          type="button"
+          onClick={onClick}
+          className={"erxes-button btn-block"}
+        >
+          Cancel
+        </button>
+      );
+    };
+
+    if (response.includes("data:image")) {
+      return (
+        <div className="erxes-form">
+          {this.renderHead("Open social pay and scan qr code")}
+          <div className="erxes-form-content">
+            <div
+              style={{
+                verticalAlign: "middle",
+                textAlign: "center",
+                display: "table-cell"
+              }}
+            >
+              <img src={response} width="200px" height={"200px"} />
+            </div>
+            {button()}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="erxes-form">
+        {this.renderHead("finish order")}
+        <div className="erxes-form-content">
+          <div className="erxes-callout-body">
+            {"open social pay and finalize payment"}
+          </div>
+          {button()}
+        </div>
+      </div>
+    );
+  }
+
+  renderCancelledForm() {
+    return (
+      <div className="erxes-form">
+        {this.renderHead("Order has cancelled")}
+        <div className="erxes-form-content">
+          <div className="erxes-callout-body">{__("Order has cancelled.")}</div>
+        </div>
+      </div>
+    );
+  }
+
   render() {
-    const { form, currentStatus, sendEmail, integration } = this.props;
+    const {
+      form,
+      currentStatus,
+      sendEmail,
+      integration,
+      invoiceResponse
+    } = this.props;
     const doc = this.state.doc;
 
     if (currentStatus.status === "SUCCESS") {
@@ -512,6 +648,14 @@ class Form extends React.Component<Props, State> {
       } // end successAction = "email"
 
       return this.renderSuccessForm(thankTitle, thankContent, successImage);
+    }
+
+    if (currentStatus.status === "PENDING" && invoiceResponse) {
+      return this.renderinvoiceResponse(invoiceResponse);
+    }
+
+    if (currentStatus.status === "CANCELLED") {
+      return this.renderCancelledForm();
     }
 
     return this.renderForm();

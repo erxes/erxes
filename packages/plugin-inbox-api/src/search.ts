@@ -1,17 +1,18 @@
-import { doSearch } from "@erxes/api-utils/src/core";
-import { es } from "./configs";
+import { doSearch } from '@erxes/api-utils/src/elasticsearch';
+import { es } from './configs';
 
-const search = async ({ data: { value } }) => {
+const search = async ({ subdomain, data: { value } }) => {
   return [
     {
-      module: "conversationMessages",
+      module: 'conversationMessages',
       items: await doSearch({
         fetchEs: es.fetchElk,
-        index: "conversation_messages",
+        subdomain,
+        index: 'conversation_messages',
         value,
-        fields: ["content"],
-      }),
-    },
+        fields: ['content']
+      })
+    }
   ];
 };
 

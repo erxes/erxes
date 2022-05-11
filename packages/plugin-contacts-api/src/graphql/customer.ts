@@ -116,6 +116,7 @@ const fields = `
   isSubscribed: String
   links: JSON
   customFieldsData: JSON
+  data: JSON
   code: String
   sex: Int
   birthDate: Date

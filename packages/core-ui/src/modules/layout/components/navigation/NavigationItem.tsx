@@ -42,7 +42,7 @@ export default function NavigationItem(props: Props) {
     </Label>
   );
 
-  const renderNavItem = () => {
+  const renderNavIcon = () => {
     if (navCollapse === 1) {
       return <NavIcon className={plugin.icon} />;
     }
@@ -61,7 +61,7 @@ export default function NavigationItem(props: Props) {
         to={getLink(plugin.url)}
         onClick={() => toggleMenu && toggleMenu(plugin.text)}
       >
-        {renderNavItem()}
+        {renderNavIcon()}
 
         {plugin.url.includes("inbox") && isEnabled("inbox")
           ? unreadIndicator

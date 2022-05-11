@@ -1,12 +1,12 @@
-import React from "react";
-import { useQuery } from "react-apollo";
-import gql from "graphql-tag";
-import NeighborFormItem from "../components/NeighorFormItem";
-import queries from "../graphql/queries";
+import React from 'react';
+import { useQuery } from 'react-apollo';
+import gql from 'graphql-tag';
+import NeighborFormItem from '../components/NeighorFormItem';
+import queries from '../graphql/queries';
 
-function NeighborFormContainer({ type, itemInfo, onChange }) {
+function NeighborFormContainer({ type, itemData, onChange }) {
   const itemsQuery = useQuery(gql(queries.getNeighborItems), {
-    variables: { type: type.type },
+    variables: { type: type.type }
   });
 
   if (itemsQuery.loading) {
@@ -19,7 +19,7 @@ function NeighborFormContainer({ type, itemInfo, onChange }) {
 
   return (
     <NeighborFormItem
-      itemInfo={itemInfo}
+      itemData={itemData}
       onChange={onChange}
       type={type}
       options={itemsQuery.data.getNeighborItems}

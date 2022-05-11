@@ -1,22 +1,27 @@
 import {
   checkPermission,
-  requireLogin,
-} from "@erxes/api-utils/src/permissions";
-import { IContext } from "../../../connectionResolver";
-import messageBroker, { sendCoreMessage } from "../../../messageBroker";
-import { putCreateLog, putDeleteLog, putUpdateLog } from "@erxes/api-utils/src/logUtils";
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
+import { IContext } from '../../../connectionResolver';
+import messageBroker, { sendCoreMessage } from '../../../messageBroker';
+import {
+  putCreateLog,
+  putDeleteLog,
+  putUpdateLog
+} from '@erxes/api-utils/src/logUtils';
 
 const carMutations = {
-  carsAdd: async (_root, doc, { user, docModifier, models }) => {
+  carsAdd: async (_root, doc, { user, docModifier, models, subdomain }) => {
     const car = models.Cars.createCar(docModifier(doc), user);
 
     await putCreateLog(
+      subdomain,
       messageBroker(),
       {
-        type: "car",
+        type: 'car',
         newData: doc,
         object: car,
-        extraParams: { models },
+        extraParams: { models }
       },
       user
     );
@@ -24,18 +29,19 @@ const carMutations = {
     return car;
   },
 
-  carsEdit: async (_root, { _id, ...doc }, { models, user }) => {
+  carsEdit: async (_root, { _id, ...doc }, { models, user, subdomain }) => {
     const car = await models.Cars.getCar(_id);
     const updated = await models.Cars.updateCar(_id, doc);
 
     await putUpdateLog(
+      subdomain,
       messageBroker(),
       {
-        type: "car",
+        type: 'car',
         object: car,
         newData: { ...doc },
         updatedDocument: updated,
-        extraParams: { models },
+        extraParams: { models }
       },
       user
     );
@@ -76,19 +82,20 @@ const carMutations = {
   carCategoriesAdd: async (
     _root,
     doc,
-    { docModifier, models, user }
+    { docModifier, models, subdomain, user }
   ) => {
     const carCategory = await models.CarCategories.createCarCategory(
       docModifier(doc)
     );
 
     await putCreateLog(
+      subdomain,
       messageBroker(),
       {
-        type: "car-category",
+        type: 'car-category',
         newData: { ...doc, order: carCategory.order },
         object: carCategory,
-        extraParams: { models },
+        extraParams: { models }
       },
       user
     );
@@ -99,21 +106,22 @@ const carMutations = {
   carCategoriesEdit: async (
     _root,
     { _id, ...doc },
-    { models, user }
+    { models, subdomain, user }
   ) => {
     const carCategory = await models.CarCategories.getCarCatogery({
-      _id,
+      _id
     });
     const updated = await models.CarCategories.updateCarCategory(_id, doc);
 
     await putUpdateLog(
+      subdomain,
       messageBroker(),
       {
-        type: "car-category",
+        type: 'car-category',
         object: carCategory,
         newData: doc,
         updatedDocument: updated,
-        extraParams: { models },
+        extraParams: { models }
       },
       user
     );
@@ -124,16 +132,17 @@ const carMutations = {
   carCategoriesRemove: async (
     _root,
     { _id }: { _id: string },
-    { models, user }: IContext
+    { models, subdomain, user }: IContext
   ) => {
     const carCategory = await models.CarCategories.getCarCatogery({
-      _id,
+      _id
     });
     const removed = await models.CarCategories.removeCarCategory(_id);
 
     await putDeleteLog(
+      subdomain,
       messageBroker(),
-      { type: "car-category", object: carCategory, extraParams: { models } },
+      { type: 'car-category', object: carCategory, extraParams: { models } },
       user
     );
 
@@ -146,26 +155,26 @@ const carMutations = {
     if (doc.customerId) {
       await sendCoreMessage({
         subdomain: models.subdomain,
-        action: "conformities.addConformities",
+        action: 'conformities.addConformities',
         data: {
-          mainType: "customer",
+          mainType: 'customer',
           mainTypeId: doc.customerId,
-          relType: "car",
-          relTypeId: car._id,
-        },
+          relType: 'car',
+          relTypeId: car._id
+        }
       });
     }
 
     if (doc.companyId) {
       await sendCoreMessage({
         subdomain: models.subdomain,
-        action: "conformities.addConformities",
+        action: 'conformities.addConformities',
         data: {
-          mainType: "company",
+          mainType: 'company',
           mainTypeId: doc.companyId,
-          relType: "car",
-          relTypeId: car._id,
-        },
+          relType: 'car',
+          relTypeId: car._id
+        }
       });
     }
 
@@ -182,17 +191,17 @@ const carMutations = {
   cpCarsRemove: async (_root, { carIds }: { carIds: string[] }, { models }) => {
     await models.Cars.removeCars(carIds);
     return carIds;
-  },
+  }
 };
 
-requireLogin(carMutations, "manageCars");
+requireLogin(carMutations, 'manageCars');
 
-checkPermission(carMutations, "carsAdd", "manageCars");
-checkPermission(carMutations, "carsEdit", "manageCars");
-checkPermission(carMutations, "carsRemove", "manageCars");
-checkPermission(carMutations, "carsMerge", "manageCars");
-checkPermission(carMutations, "carCategoriesAdd", "manageCars");
-checkPermission(carMutations, "carCategoriesEdit", "manageCars");
-checkPermission(carMutations, "carCategoriesRemove", "manageCars");
+checkPermission(carMutations, 'carsAdd', 'manageCars');
+checkPermission(carMutations, 'carsEdit', 'manageCars');
+checkPermission(carMutations, 'carsRemove', 'manageCars');
+checkPermission(carMutations, 'carsMerge', 'manageCars');
+checkPermission(carMutations, 'carCategoriesAdd', 'manageCars');
+checkPermission(carMutations, 'carCategoriesEdit', 'manageCars');
+checkPermission(carMutations, 'carCategoriesRemove', 'manageCars');
 
 export default carMutations;

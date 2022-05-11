@@ -162,18 +162,53 @@ const getTags = async (type: string, subdomain: string) => {
     subdomain,
     action: 'find',
     data: {
-      type
+      type: `contacts:${['lead', 'visitor'].includes(type) ? 'customer' : type}`
     },
     isRPC: true,
     defaultValue: []
   });
+
+  const selectOptions: Array<{ label: string; value: any }> = [];
+
+  for (const tag of tags) {
+    selectOptions.push({
+      value: tag._id,
+      label: tag.name
+    });
+  }
 
   return {
     _id: Math.random(),
     name: 'tagIds',
     label: 'Tag',
     type: 'tag',
-    selectOptions: tags
+    selectOptions
+  };
+};
+
+const getIntegrations = async (subdomain: string) => {
+  const integrations = await sendInboxMessage({
+    subdomain,
+    action: 'integrations.find',
+    data: {},
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const selectOptions: Array<{ label: string; value: any }> = [];
+
+  for (const integration of integrations) {
+    selectOptions.push({
+      value: integration._id,
+      label: integration.name
+    });
+  }
+
+  return {
+    _id: Math.random(),
+    name: 'relatedIntegrationIds',
+    label: 'Related integration',
+    selectOptions
   };
 };
 
@@ -228,6 +263,7 @@ export const generateFields = async ({ subdomain, data }) => {
 
   if (!usageType || usageType === 'export') {
     const aggre = await es.fetchElk({
+      subdomain,
       action: 'search',
       index: type === 'company' ? 'companies' : 'customers',
       body: {
@@ -273,15 +309,13 @@ export const generateFields = async ({ subdomain, data }) => {
   );
 
   const tags = await getTags(type, subdomain);
-  fields = [...fields, ...[tags]];
+
+  fields = [...fields, tags];
 
   if (type === 'customer') {
-    const integrations = await sendInboxMessage({
-      subdomain,
-      action: 'integrations.find',
-      data: {},
-      isRPC: true
-    });
+    const integrations = await getIntegrations(subdomain);
+
+    fields = [...fields, integrations];
 
     if (usageType === 'import') {
       fields.push({
@@ -538,6 +572,8 @@ export const updateContactsField = async (
   let { cachedCustomerId } = args;
   const { browserInfo, integration, submissionsGrouped } = args;
 
+  const { leadData } = integration;
+
   const conformityIds: {
     [key: string]: { customerId: string; companyId: string };
   } = {};
@@ -664,14 +700,14 @@ export const updateContactsField = async (
           isRPC: true
         });
 
-        if (fieldGroup && fieldGroup.contentType === 'company') {
+        if (fieldGroup && fieldGroup.contentType === 'contacts:company') {
           companyCustomData.push({
             field: submission.associatedFieldId,
             value: submission.value
           });
         }
 
-        if (fieldGroup && fieldGroup.contentType === 'customer') {
+        if (fieldGroup && fieldGroup.contentType === 'contacts:customer') {
           customFieldsData.push({
             field: submission.associatedFieldId,
             value: submission.value
@@ -693,7 +729,8 @@ export const updateContactsField = async (
           models,
           integration._id,
           customerDoc,
-          integration.brandId || ''
+          integration.brandId || '',
+          leadData.saveAsCustomer
         );
       }
 
@@ -941,9 +978,10 @@ const createCustomer = async (
   models: IModels,
   integrationId: string,
   customerDoc: any,
-  brandId?: string
+  brandId?: string,
+  saveAsCustomer?: boolean
 ) => {
-  return models.Customers.createCustomer({
+  const doc: any = {
     integrationId,
     primaryEmail: customerDoc.email || '',
     emails: [customerDoc.email || ''],
@@ -952,7 +990,13 @@ const createCustomer = async (
     middleName: customerDoc.middleName || '',
     primaryPhone: customerDoc.phone || '',
     scopeBrandIds: [brandId || '']
-  });
+  };
+
+  if (saveAsCustomer) {
+    doc.state = 'customer';
+  }
+
+  return models.Customers.createCustomer(doc);
 };
 
 const getSocialLinkKey = (type: string) => {
@@ -1013,3 +1057,33 @@ const LOG_MAPPINGS = [
     schemas: [companySchema]
   }
 ];
+
+export const prepareCustomData = async (subdomain, doc) => {
+  const { data } = doc;
+  const { customFieldsData = [] } = doc;
+
+  if (!data) {
+    return customFieldsData;
+  }
+
+  const generatedData = await sendFormsMessage({
+    subdomain,
+    action: 'fields.generateCustomFieldsData',
+    data: {
+      customData: data,
+      contentType: 'contacts:customer'
+    },
+    isRPC: true
+  });
+
+  const generatedCustomFieldsData = generatedData.customFieldsData || [];
+
+  return [
+    ...new Map(
+      [...customFieldsData, ...generatedCustomFieldsData].map(item => [
+        item.field,
+        item
+      ])
+    ).values()
+  ];
+};

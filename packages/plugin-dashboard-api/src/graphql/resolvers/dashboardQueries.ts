@@ -1,4 +1,10 @@
 import { IContext } from '../../connectionResolver';
+import {
+  sendCardsMessage,
+  sendCoreMessage,
+  sendInboxMessage,
+  sendTagsMessage
+} from '../../messageBroker';
 
 const DashboardFilterTypes = {
   User: ['modifiedBy', 'firstRespondedUser', 'assignedUser']
@@ -83,6 +89,249 @@ const DashboardFilters = {
   ]
 };
 
+const KIND_CHOICES = {
+  MESSENGER: 'messenger',
+  LEAD: 'lead',
+  FACEBOOK_MESSENGER: 'facebook-messenger',
+  FACEBOOK_POST: 'facebook-post',
+  GMAIL: 'gmail',
+  NYLAS_GMAIL: 'nylas-gmail',
+  NYLAS_IMAP: 'nylas-imap',
+  NYLAS_OFFICE365: 'nylas-office365',
+  NYLAS_EXCHANGE: 'nylas-exchange',
+  NYLAS_OUTLOOK: 'nylas-outlook',
+  NYLAS_YAHOO: 'nylas-yahoo',
+  CALLPRO: 'callpro',
+  TWITTER_DM: 'twitter-dm',
+  CHATFUEL: 'chatfuel',
+  SMOOCH_VIBER: 'smooch-viber',
+  SMOOCH_LINE: 'smooch-line',
+  SMOOCH_TELEGRAM: 'smooch-telegram',
+  SMOOCH_TWILIO: 'smooch-twilio',
+  WHATSAPP: 'whatsapp',
+  TELNYX: 'telnyx',
+  WEBHOOK: 'webhook',
+  ALL: [
+    'messenger',
+    'lead',
+    'facebook-messenger',
+    'facebook-post',
+    'gmail',
+    'callpro',
+    'chatfuel',
+    'nylas-gmail',
+    'nylas-imap',
+    'nylas-office365',
+    'nylas-outlook',
+    'nylas-exchange',
+    'nylas-yahoo',
+    'twitter-dm',
+    'smooch-viber',
+    'smooch-line',
+    'smooch-telegram',
+    'smooch-twilio',
+    'whatsapp',
+    'telnyx',
+    'webhook'
+  ]
+};
+
+export const getUsers = async subdomain => {
+  const filters = [] as any;
+
+  const users = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: {
+      query: {
+        username: { $exists: true },
+        isActive: true
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  for (const user of users) {
+    filters.push({ label: user.details.fullName, value: user._id });
+  }
+
+  return filters;
+};
+
+export const getBrands = async subdomain => {
+  const filters = [] as any;
+
+  const brands = await sendCoreMessage({
+    subdomain,
+    action: 'brands.find',
+    data: {
+      query: {}
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  for (const brand of brands) {
+    filters.push({ label: brand.name, value: brand._id });
+  }
+
+  return filters;
+};
+
+export const getIntegrations = async subdomain => {
+  const filters = [] as any;
+
+  const integrations = await sendInboxMessage({
+    subdomain,
+    action: 'integrations.find',
+    data: {},
+    isRPC: true
+  });
+
+  for (const integration of integrations) {
+    filters.push({ label: integration.name, value: integration._id });
+  }
+
+  return filters;
+};
+
+export const getIntegrationTypes = async subdomain => {
+  const filters = [] as any;
+
+  for (const kind of KIND_CHOICES.ALL) {
+    const integrations = await sendInboxMessage({
+      subdomain,
+      action: 'integrations.find',
+      data: { kind },
+      isRPC: true
+    });
+
+    const integrationIds = integrations.map(integration => integration._id);
+
+    if (integrationIds.length > 0) {
+      filters.push({ label: kind, value: integrationIds });
+    }
+  }
+
+  return filters;
+};
+
+export const getTags = async (subdomain, type) => {
+  const filters = [] as any;
+
+  const tags = await sendTagsMessage({
+    subdomain,
+    action: 'tags:find',
+    data: { type },
+    isRPC: true
+  });
+
+  for (const tag of tags) {
+    filters.push({ label: tag.name, value: tag._id });
+  }
+
+  return filters;
+};
+
+export const getPipelines = async (stageType: string, subdomain) => {
+  const filters = [] as any;
+
+  const stages = await sendCardsMessage({
+    subdomain,
+    action: 'stages.find',
+    data: { type: stageType },
+    isRPC: true
+  });
+
+  const pipelineIds = stages.map(stage => stage.pipelineId);
+
+  const pipelines = await sendCardsMessage({
+    subdomain,
+    action: 'pipelines.find',
+    data: { _id: { $in: pipelineIds } },
+    isRPC: true
+  });
+
+  for (const pipeline of pipelines) {
+    const pipeLineStages = await sendCardsMessage({
+      subdomain,
+      action: 'stages.find',
+      data: { pipelineId: pipeline._id },
+      isRPC: true
+    });
+
+    const stageIds = pipeLineStages.map(pipeLineStage => pipeLineStage._id);
+
+    filters.push({ label: pipeline.name, value: stageIds });
+  }
+
+  return filters;
+};
+
+export const getBoards = async (subdomain: string, stageType: string) => {
+  const filters = [] as any;
+
+  const stages = await sendCardsMessage({
+    subdomain,
+    action: 'stages.find',
+    data: { type: stageType },
+    isRPC: true
+  });
+
+  const pipelineIds = stages.map(stage => stage.pipelineId);
+
+  const pipelines = await sendCardsMessage({
+    subdomain,
+    action: 'pipelines.find',
+    data: { _id: { $in: pipelineIds } },
+    isRPC: true
+  });
+
+  const boardIds = pipelines.map(pipeline => pipeline.boardId);
+
+  const boards = await sendCardsMessage({
+    subdomain,
+    action: 'boards.find',
+    data: { _id: { $in: boardIds } },
+    isRPC: true
+  });
+
+  for (const board of boards) {
+    const stageIds = [] as any;
+
+    board.stages.map(stage => {
+      stageIds.push(stage._id);
+    });
+
+    const boardPipelines = await sendCardsMessage({
+      subdomain,
+      action: 'pipelines.find',
+      data: { boardId: board._id },
+      isRPC: true
+    });
+
+    const boardPipelineIds = boardPipelines.map(
+      boardPipeline => boardPipeline._id
+    );
+
+    const boardStages = await sendCardsMessage({
+      subdomain,
+      action: 'stages.find',
+      data: { pipelineId: { $in: boardPipelineIds } },
+      isRPC: true
+    });
+
+    boardStages.map(stage => {
+      stageIds.push(stage._id);
+    });
+
+    filters.push({ label: board.name, value: stageIds });
+  }
+
+  return filters;
+};
+
 const dashBoardQueries = {
   dashboards(_root, _args, { models }: IContext) {
     return models.Dashboards.find({}).sort({ order: 1 });
@@ -119,7 +368,7 @@ const dashBoardQueries = {
   async dashboardFilters(
     _root,
     { type }: { type: string },
-    { models }: IContext
+    { subdomain, models }: IContext
   ) {
     const filters = DashboardFilters[type];
 
@@ -151,35 +400,31 @@ const dashBoardQueries = {
 
     if (!filters) {
       if (type.includes('pipeline')) {
-        return [];
+        return getPipelines(stageType, subdomain);
       }
 
       if (DashboardFilterTypes.User.some(name => type.includes(name))) {
-        return [];
+        return getUsers(subdomain);
       }
 
       if (type.includes('brand')) {
-        return [];
+        return getBrands(subdomain);
       }
 
       if (type.includes('integrationName')) {
-        return [];
+        return getIntegrations(subdomain);
       }
 
       if (type.includes('integrationType')) {
-        return [];
+        return getIntegrationTypes(subdomain);
       }
 
       if (type.includes('board')) {
-        return [];
+        return getBoards(subdomain, stageType);
       }
 
       if (type.includes('tag')) {
-        return [];
-      }
-
-      if (type.includes('label')) {
-        return [];
+        return getTags(subdomain, type);
       }
     }
 

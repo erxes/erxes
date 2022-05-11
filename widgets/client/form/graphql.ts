@@ -5,6 +5,7 @@ export const formDetailQuery = `
       description
       buttonText
       numberOfPages
+      googleMapApiKey
       code
 
       fields {
@@ -15,12 +16,16 @@ export const formDetailQuery = `
         content
         description
         options
+        locationOptions{
+          lat
+          lng
+          description
+        }
         isRequired
         order
         validation
         associatedFieldId
         column
-        
         groupId
         logicAction
         pageNumber
@@ -63,6 +68,8 @@ export const saveFormMutation = `
         code
         text
       }
+      invoiceResponse
+      invoiceType
     }
   }
 `;
@@ -76,5 +83,17 @@ export const sendEmailMutation = `
 export const increaseViewCountMutation = `
   mutation widgetsLeadIncreaseViewCount($formId: String!) {
     widgetsLeadIncreaseViewCount(formId: $formId)
+  }
+`;
+
+export const cancelOrderMutation = `
+  mutation widgetsCancelOrder($customerId: String!, $messageId: String!) {
+    widgetsCancelOrder(customerId: $customerId, messageId: $messageId)
+  }
+`;
+
+export const formInvoiceUpdated = `
+  subscription formInvoiceUpdated($messageId: String) {
+    formInvoiceUpdated(messageId: $messageId) 
   }
 `;

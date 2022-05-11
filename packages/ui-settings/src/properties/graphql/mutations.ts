@@ -76,6 +76,7 @@ const commonVariables = `
   $code: String,
   $searchable: Boolean,
   $showInCard: Boolean,
+  $keys: [String]
 `;
 
 const commonParams = `
@@ -92,6 +93,7 @@ const commonParams = `
   code: $code,
   searchable: $searchable,
   showInCard: $showInCard
+  keys: $keys
 `;
 
 const fieldsAdd = `
@@ -160,5 +162,5 @@ export default {
   fieldsRemove,
   fieldsUpdateVisible,
   fieldsUpdateOrder,
-  groupsUpdateOrder,
+  groupsUpdateOrder
 };

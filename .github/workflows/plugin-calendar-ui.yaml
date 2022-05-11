@@ -6,6 +6,7 @@ on:
       - federation
     paths:
       - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
       - "packages/ui-calendar/**"
       - "packages/plugin-calendar-ui/**"
       - ".github/workflows/plugin-calendar-ui.yaml"
