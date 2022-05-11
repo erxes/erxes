@@ -1,4 +1,4 @@
-import { doSearch } from '@erxes/api-utils/src/core';
+import { doSearch } from '@erxes/api-utils/src/elasticsearch';
 import { generateModels, IModels } from './connectionResolver';
 import { es } from './configs';
 
