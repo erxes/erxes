@@ -309,7 +309,7 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
-  renderObject(object: any, index: number) {
+  renderObject(keys: string[], object: any, index: number) {
     const entries = Object.entries(object);
 
     return (
@@ -317,6 +317,10 @@ export default class GenerateField extends React.Component<Props, State> {
         {entries.map(e => {
           const key = e[0];
           const value: any = e[1] || '';
+
+          if (!keys.includes(key)) {
+            return null;
+          }
 
           return (
             <li key={key}>
@@ -329,7 +333,7 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
-  renderObjectList(attrs) {
+  renderObjectList(keys, attrs) {
     let { value = [] } = attrs;
 
     if (typeof value === 'string' && value.length > 0) {
@@ -342,7 +346,9 @@ export default class GenerateField extends React.Component<Props, State> {
 
     return (
       <ObjectList>
-        {(value || []).map((object, index) => this.renderObject(object, index))}
+        {(value || []).map((object, index) =>
+          this.renderObject(keys, object, index)
+        )}
       </ObjectList>
     );
   }
@@ -439,7 +445,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderControl() {
     const { field } = this.props;
-    const { type } = field;
+    const { type, keys } = field;
     const options = field.options || [];
 
     const attrs = {
@@ -546,7 +552,7 @@ export default class GenerateField extends React.Component<Props, State> {
       }
 
       case 'objectList': {
-        return this.renderObjectList(attrs);
+        return this.renderObjectList(keys, attrs);
       }
 
       case 'map': {

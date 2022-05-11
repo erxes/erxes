@@ -20,13 +20,18 @@ export default {
     return { type: 'user', content: user };
   },
 
-  async contentTypeDetail(activityLog: IActivityLogDocument) {
+  async contentTypeDetail(
+    activityLog: IActivityLogDocument,
+    _args,
+    { subdomain }: IContext
+  ) {
     const { contentType } = activityLog;
 
     let result = '';
 
     try {
       result = await fetchService(
+        subdomain,
         contentType,
         'getContentTypeDetail',
         activityLog,
@@ -39,13 +44,18 @@ export default {
     return result;
   },
 
-  async contentDetail(activityLog: IActivityLogDocument) {
+  async contentDetail(
+    activityLog: IActivityLogDocument,
+    _args,
+    { subdomain }: IContext
+  ) {
     const { contentType } = activityLog;
 
     let result = '';
 
     try {
       result = await fetchService(
+        subdomain,
         contentType,
         'getActivityContent',
         activityLog,

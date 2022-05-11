@@ -11,19 +11,19 @@ import {
   LoadingContent,
   StageFooter,
   StageRoot,
-  StageTitle,
-} from "../../styles/stage";
-import EmptyState from "@erxes/ui/src/components/EmptyState";
-import Icon from "@erxes/ui/src/components/Icon";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import { __ } from "coreui/utils";
-import React from "react";
-import { Draggable } from "react-beautiful-dnd";
-import { AddForm } from "../../containers/portable";
-import { IItem, IOptions, IStage } from "../../types";
-import { renderAmount } from "../../utils";
-import ItemList from "../stage/ItemList";
-import { OverlayTrigger, Popover, Dropdown } from "react-bootstrap";
+  StageTitle
+} from '../../styles/stage';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { __ } from 'coreui/utils';
+import React from 'react';
+import { Draggable } from 'react-beautiful-dnd';
+import { AddForm } from '../../containers/portable';
+import { IItem, IOptions, IStage } from '../../types';
+import { renderAmount } from '../../utils';
+import ItemList from '../stage/ItemList';
+import { OverlayTrigger, Popover, Dropdown } from 'react-bootstrap';
 
 type Props = {
   loadingItems: () => boolean;
@@ -141,18 +141,18 @@ export default class Stage extends React.Component<Props, State> {
           ) : (
             <>
               <li onClick={archiveItems} key="archive-items">
-                {__("Archive All Cards in This List")}
+                {__('Archive All Cards in This List')}
               </li>
               <li onClick={archiveList} key="archive-list">
-                {__("Archive This List")}
+                {__('Archive This List')}
               </li>
               <li onClick={removeStage} key="remove-stage">
-                {__("Remove stage")}
+                {__('Remove stage')}
               </li>
 
               <Dropdown.Divider />
 
-              <li onClick={this.toggleSortOptions}>{__("Sort By")}</li>
+              <li onClick={this.toggleSortOptions}>{__('Sort By')}</li>
             </>
           )}
         </ActionList>
@@ -163,7 +163,7 @@ export default class Stage extends React.Component<Props, State> {
   renderCtrl() {
     return (
       <OverlayTrigger
-        ref={(overlayTrigger) => {
+        ref={overlayTrigger => {
           this.overlayTrigger = overlayTrigger;
         }}
         trigger="click"
@@ -200,8 +200,8 @@ export default class Stage extends React.Component<Props, State> {
         <li
           onClick={sortItems.bind(
             this,
-            "created-desc",
-            "date created (newest first)"
+            'created-desc',
+            'date created (newest first)'
           )}
         >
           Date created (Newest first)
@@ -209,8 +209,8 @@ export default class Stage extends React.Component<Props, State> {
         <li
           onClick={sortItems.bind(
             this,
-            "created-asc",
-            "date created (oldest first)"
+            'created-asc',
+            'date created (oldest first)'
           )}
         >
           Date created (Oldest first)
@@ -218,8 +218,8 @@ export default class Stage extends React.Component<Props, State> {
         <li
           onClick={sortItems.bind(
             this,
-            "modified-desc",
-            "date modified (newest first)"
+            'modified-desc',
+            'date modified (newest first)'
           )}
         >
           Date modified (Newest first)
@@ -227,8 +227,8 @@ export default class Stage extends React.Component<Props, State> {
         <li
           onClick={sortItems.bind(
             this,
-            "modified-asc",
-            "date modified (oldest first)"
+            'modified-asc',
+            'date modified (oldest first)'
           )}
         >
           Date modified (Oldest first)
@@ -236,8 +236,8 @@ export default class Stage extends React.Component<Props, State> {
         <li
           onClick={sortItems.bind(
             this,
-            "close-asc",
-            "date assigned (Earliest first)"
+            'close-asc',
+            'date assigned (Earliest first)'
           )}
         >
           Date assigned (Earliest first)
@@ -245,14 +245,14 @@ export default class Stage extends React.Component<Props, State> {
         <li
           onClick={sortItems.bind(
             this,
-            "close-desc",
-            "date assigned (Latest first)"
+            'close-desc',
+            'date assigned (Latest first)'
           )}
         >
           Date assigned (Latest first)
         </li>
         <li
-          onClick={sortItems.bind(this, "alphabetically-asc", "alphabetically")}
+          onClick={sortItems.bind(this, 'alphabetically-asc', 'alphabetically')}
         >
           Alphabetically
         </li>
@@ -263,7 +263,7 @@ export default class Stage extends React.Component<Props, State> {
   onScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
     const bottom =
-      Math.round(target.scrollHeight - target.scrollTop) <= target.clientHeight;
+      Math.floor(target.scrollHeight - target.scrollTop) <= target.clientHeight;
 
     if (bottom) {
       this.props.loadMore();
@@ -288,10 +288,10 @@ export default class Stage extends React.Component<Props, State> {
       showSelect: false,
       callback: (item: IItem) => onAddItem(stage._id, item),
       stageId: stage._id,
-      aboveItemId: "",
+      aboveItemId: ''
     };
 
-    const content = (props) => <AddForm {...props} {...formProps} />;
+    const content = props => <AddForm {...props} {...formProps} />;
 
     return <ModalTrigger title={addText} trigger={trigger} content={content} />;
   }

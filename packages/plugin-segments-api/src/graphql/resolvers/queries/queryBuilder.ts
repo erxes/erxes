@@ -80,6 +80,7 @@ export const fetchSegment = async (
     index = returnAssociated.contentType;
 
     const itemsResponse = await es.fetchElk({
+      subdomain,
       action: 'search',
       index: await getIndexByContentType(serviceConfigs, contentType),
       body: {
@@ -122,6 +123,7 @@ export const fetchSegment = async (
   // count entries
   if (options.returnCount) {
     const countResponse = await es.fetchElk({
+      subdomain,
       action: 'count',
       index,
       body: {
@@ -160,6 +162,7 @@ export const fetchSegment = async (
   }
 
   const response = await es.fetchElk({
+    subdomain,
     action: 'search',
     index,
     body: {
@@ -477,6 +480,7 @@ export const generateQueryBySegment = async (
 
     if (eventPositive.length > 0 || eventNegative.length > 0) {
       const idsByEvents = await fetchByQuery({
+        subdomain,
         index: 'events',
         _source: contentType === 'company' ? 'companyId' : 'customerId',
         positiveQuery: eventPositive,
@@ -749,17 +753,20 @@ const getIndexByContentType = async (
 };
 
 const fetchByQuery = async ({
+  subdomain,
   index,
   positiveQuery,
   negativeQuery,
   _source = '_id'
 }: {
+  subdomain: string;
   index: string;
   _source?: string;
   positiveQuery: any;
   negativeQuery: any;
 }) => {
   const response = await es.fetchElk({
+    subdomain,
     action: 'search',
     index,
     body: {
@@ -821,6 +828,7 @@ const associationPropertyFilter = async (
 
   if (associatedTypes.includes(propertyType)) {
     const mainTypeIds = await fetchByQuery({
+      subdomain,
       index: await getIndexByContentType(serviceConfigs, propertyType),
       positiveQuery,
       negativeQuery
@@ -840,6 +848,7 @@ const associationPropertyFilter = async (
 
   if (propertyType === 'form_submission') {
     return fetchByQuery({
+      subdomain,
       index: 'form_submissions',
       _source: 'customerId',
       positiveQuery,

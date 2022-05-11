@@ -118,7 +118,7 @@ class ExportForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { contentType, count, loading, serviceType } = this.props;
+    const { contentType, count, loading } = this.props;
     const { segmentId, searchValue, columns } = this.state;
 
     const title = __('Export');

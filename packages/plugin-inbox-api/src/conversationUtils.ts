@@ -8,7 +8,11 @@ import { IListArgs } from './conversationQueryBuilder';
 import { fixDate } from '@erxes/api-utils/src';
 
 import { debug } from './configs';
-import { sendCoreMessage, sendSegmentsMessage, sendTagsMessage } from './messageBroker';
+import {
+  sendCoreMessage,
+  sendSegmentsMessage,
+  sendTagsMessage
+} from './messageBroker';
 import { IModels } from './connectionResolver';
 
 export interface ICountBy {
@@ -40,7 +44,11 @@ const countByChannels = async (
 };
 
 // Count conversation by brand
-const countByBrands = async (subdomain: string, qb: any, counts: ICountBy): Promise<ICountBy> => {
+const countByBrands = async (
+  subdomain: string,
+  qb: any,
+  counts: ICountBy
+): Promise<ICountBy> => {
   const brands = await sendCoreMessage({
     subdomain,
     action: 'brands.find',
@@ -49,7 +57,7 @@ const countByBrands = async (subdomain: string, qb: any, counts: ICountBy): Prom
     },
     isRPC: true,
     defaultValue: []
-  })
+  });
 
   for (const brand of brands) {
     await qb.buildAllQueries();
@@ -62,7 +70,11 @@ const countByBrands = async (subdomain: string, qb: any, counts: ICountBy): Prom
 };
 
 // Count converstaion by tag
-const countByTags = async (subdomain: string, qb: any, counts: ICountBy): Promise<ICountBy> => {
+const countByTags = async (
+  subdomain: string,
+  qb: any,
+  counts: ICountBy
+): Promise<ICountBy> => {
   const tags = await sendTagsMessage({
     subdomain,
     action: 'find',
@@ -176,7 +188,13 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public filterList: any[];
   public activeIntegrationIds: string[] = [];
 
-  constructor(models: IModels, subdomain: string, params: IArgs, integrationIds: string[], user: IUserArgs) {
+  constructor(
+    models: IModels,
+    subdomain: string,
+    params: IArgs,
+    integrationIds: string[],
+    user: IUserArgs
+  ) {
     this.models = models;
     this.subdomain = subdomain;
     this.params = params;
@@ -500,6 +518,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
     };
 
     const response = await es.fetchElk({
+      subdomain: this.subdomain,
       action: 'count',
       index: 'conversations',
       body: queryOptions,

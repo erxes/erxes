@@ -1,7 +1,7 @@
-import { ICustomerDocument } from "../../models/definitions/customers";
-import { es } from "../../configs";
-import { sendCoreMessage, sendInboxMessage } from "../../messageBroker";
-import { IContext } from "../../connectionResolver";
+import { ICustomerDocument } from '../../models/definitions/customers';
+import { es } from '../../configs';
+import { sendCoreMessage, sendInboxMessage } from '../../messageBroker';
+import { IContext } from '../../connectionResolver';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -12,43 +12,44 @@ export default {
     if (!customer.integrationId) {
       return null;
     }
-    return { __typename: "Integration", _id: customer.integrationId };
+    return { __typename: 'Integration', _id: customer.integrationId };
   },
 
   async getTags(customer: ICustomerDocument) {
-    return (customer.tagIds || []).map((_id) => ({ __typename: "Tag", _id }));
+    return (customer.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
   },
 
-  async urlVisits(customer: ICustomerDocument) {
+  async urlVisits(customer: ICustomerDocument, _args, { subdomain }: IContext) {
     const response = await es.fetchElk({
-      action: "search",
-      index: "events",
+      subdomain,
+      action: 'search',
+      index: 'events',
       body: {
-        _source: ["createdAt", "count", "attributes"],
+        _source: ['createdAt', 'count', 'attributes'],
         query: {
           bool: {
             must: [
               {
-                term: { customerId: customer._id },
+                term: { customerId: customer._id }
               },
               {
-                term: { name: "viewPage" },
-              },
-            ],
-          },
-        },
+                term: { name: 'viewPage' }
+              }
+            ]
+          }
+        }
       },
-      defaultValue: { hits: { hits: [] } },
+      defaultValue: { hits: { hits: [] } }
     });
 
-    return response.hits.hits.map((hit) => {
+    return response.hits.hits.map(hit => {
       const source = hit._source;
       const firstAttribute = source.attributes[0] || {};
 
       return {
         createdAt: source.createdAt,
         count: source.count,
-        url: firstAttribute.value,
+        url: firstAttribute.value
       };
     });
   },
@@ -60,10 +61,10 @@ export default {
   ) {
     return sendInboxMessage({
       subdomain,
-      action: "getConversations",
+      action: 'getConversations',
       data: { customerId: customer._id },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
   },
 
@@ -74,18 +75,18 @@ export default {
   ) {
     const companyIds = await sendCoreMessage({
       subdomain,
-      action: "conformities.savedConformity",
+      action: 'conformities.savedConformity',
       data: {
-        mainType: "customer",
+        mainType: 'customer',
         mainTypeId: customer._id,
-        relTypes: ["company"],
+        relTypes: ['company']
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     const companies = await Companies.find({
-      _id: { $in: (companyIds || []).filter((id) => id) },
+      _id: { $in: (companyIds || []).filter(id => id) }
     }).limit(10);
     return companies;
   },
@@ -95,6 +96,6 @@ export default {
       return;
     }
 
-    return { __typename: "User", _id: customer.ownerId };
-  },
+    return { __typename: 'User', _id: customer.ownerId };
+  }
 };

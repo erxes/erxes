@@ -1,29 +1,32 @@
 import {
   putCreateLog as commonPutCreateLog,
   putUpdateLog as commonPutUpdateLog,
-  putDeleteLog as commonPutDeleteLog,
+  putDeleteLog as commonPutDeleteLog
 } from '@erxes/api-utils/src/logUtils';
 
 import messageBroker from './messageBroker';
 
-export const putDeleteLog = async (logDoc, user) => {
+export const putDeleteLog = async (subdomain: string, logDoc, user) => {
   await commonPutDeleteLog(
+    subdomain,
     messageBroker(),
     { ...logDoc, type: `forms:${logDoc.type}` },
     user
   );
 };
 
-export const putUpdateLog = async (logDoc, user) => {
+export const putUpdateLog = async (subdomain: string, logDoc, user) => {
   await commonPutUpdateLog(
+    subdomain,
     messageBroker(),
     { ...logDoc, type: `forms:${logDoc.type}` },
     user
   );
 };
 
-export const putCreateLog = async (logDoc, user) => {
+export const putCreateLog = async (subdomain: string, logDoc, user) => {
   await commonPutCreateLog(
+    subdomain,
     messageBroker(),
     { ...logDoc, type: `forms:${logDoc.type}` },
     user

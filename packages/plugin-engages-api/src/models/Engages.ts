@@ -3,7 +3,7 @@ import { Model } from 'mongoose';
 import {
   removeEngageConversations,
   sendContactsMessage,
-  sendInboxMessage,
+  sendInboxMessage
 } from '../messageBroker';
 import { checkCustomerExists, findElk, findUser } from '../engageUtils';
 import { getEditorAttributeUtil, isUsingElk } from '../utils';
@@ -13,7 +13,7 @@ import { IEngageData, IMessageDocument } from '../types';
 import {
   engageMessageSchema,
   IEngageMessage,
-  IEngageMessageDocument,
+  IEngageMessageDocument
 } from './definitions/engages';
 import { IModels } from '../connectionResolver';
 import { checkRules } from '../widgetUtils';
@@ -218,7 +218,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         integrationId,
         customer,
         visitorId,
-        browserInfo,
+        browserInfo
       } = params;
 
       const customerObj = customer
@@ -228,20 +228,20 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
       let messages: IEngageMessageDocument[] = [];
 
       if (isUsingElk()) {
-        messages = await findElk('engage_messages', {
+        messages = await findElk(subdomain, 'engage_messages', {
           bool: {
             must: [
               { match: { 'messenger.brandId': brandId } },
               { match: { method: CAMPAIGN_METHODS.MESSENGER } },
-              { match: { isLive: true } },
-            ],
-          },
+              { match: { isLive: true } }
+            ]
+          }
         });
       } else {
         messages = await models.EngageMessages.find({
           'messenger.brandId': brandId,
           method: CAMPAIGN_METHODS.MESSENGER,
-          isLive: true,
+          isLive: true
         });
       }
 
@@ -257,7 +257,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           segmentIds,
           customerTagIds,
           brandIds,
-          fromUserId,
+          fromUserId
         } = message;
 
         if (
@@ -273,7 +273,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           customerIds,
           segmentIds,
           tagIds: customerTagIds,
-          brandIds,
+          brandIds
         });
 
         if (message.kind !== CAMPAIGN_KINDS.VISITOR_AUTO && !customerExists) {
@@ -301,14 +301,14 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           data: {
             url: browserInfo.url,
             visitorId,
-            customerId: customer ? customer._id : undefined,
-          },
+            customerId: customer ? customer._id : undefined
+          }
         });
 
         const hasPassedAllRules = await checkRules({
           rules: messenger.rules,
           browserInfo,
-          numberOfVisits,
+          numberOfVisits
         });
 
         // if given visitor is matched with given condition then create
@@ -320,15 +320,15 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           const replacedContent = await editorAttributeUtil.replaceAttributes({
             content: messenger.content,
             customer,
-            user,
+            user
           });
 
           if (messenger.rules) {
-            messenger.rules = messenger.rules.map((r) => ({
+            messenger.rules = messenger.rules.map(r => ({
               kind: r.kind,
               text: r.text,
               condition: r.condition,
-              value: r.value,
+              value: r.value
             }));
           }
 
@@ -344,8 +344,8 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
                 content: replacedContent,
                 engageKind: message.kind,
                 messageId: message._id,
-                fromUserId: message.fromUserId,
-              },
+                fromUserId: message.fromUserId
+              }
             }
           );
 
@@ -384,20 +384,24 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         integrationId,
         user,
         engageData,
-        replacedContent,
+        replacedContent
       } = args;
 
       let prevMessage: IMessageDocument | null;
 
       if (isUsingElk()) {
-        const conversationMessages = await findElk('conversation_messages', {
-          bool: {
-            must: [
-              { match: { 'engageData.messageId': engageData.messageId } },
-              { match: customerId ? { customerId } : { visitorId } }
-            ]
+        const conversationMessages = await findElk(
+          subdomain,
+          'conversation_messages',
+          {
+            bool: {
+              must: [
+                { match: { 'engageData.messageId': engageData.messageId } },
+                { match: customerId ? { customerId } : { visitorId } }
+              ]
+            }
           }
-        });
+        );
 
         prevMessage = null;
 
@@ -431,7 +435,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         const conversationId = prevMessage.conversationId;
 
         if (isUsingElk()) {
-          messages = await findElk('conversation_messages', {
+          messages = await findElk(subdomain, 'conversation_messages', {
             match: {
               conversationId
             }
@@ -440,7 +444,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           messages = await sendInboxMessage({
             ...commonParams,
             data: { conversationId },
-            action: 'conversationMessages.find',
+            action: 'conversationMessages.find'
           });
         }
 
@@ -455,7 +459,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           action: 'updateConversationMessage',
           data: {
             filter: { _id: prevMessage._id },
-            updateDoc: { engageData, isCustomerRead: false },
+            updateDoc: { engageData, isCustomerRead: false }
           }
         });
 
@@ -473,7 +477,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           visitorId,
           integrationId,
           replacedContent,
-          engageData,
+          engageData
         }
       });
     }

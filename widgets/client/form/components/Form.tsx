@@ -480,7 +480,7 @@ class Form extends React.Component<Props, State> {
     successImage?: string
   ) {
     const { integration, form } = this.props;
-
+  
     return (
       <div className="erxes-form">
         {this.renderHead(thankTitle || form.title)}
