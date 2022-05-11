@@ -1,3 +1,4 @@
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import { CAMPAIGN_KINDS, CAMPAIGN_METHODS, CONTENT_TYPES } from './constants';
 import {
   IEngageMessage,
@@ -11,8 +12,6 @@ import {
   sendContactsMessage
 } from './messageBroker';
 import { IModels } from './connectionResolver';
-import { es } from './configs';
-
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
   customersSelector: any;
@@ -259,7 +258,7 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
 };
 
 export const findElk = async (subdomain: string, index: string, query) => {
-  const response = await es.fetchElk({
+  const response = await fetchEs({
     subdomain,
     action: 'search',
     index,

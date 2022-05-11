@@ -2,8 +2,6 @@ import * as _ from 'underscore';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { KIND_CHOICES } from './models/definitions/constants';
 
-import { es } from './configs';
-
 import { IListArgs } from './conversationQueryBuilder';
 import { fixDate } from '@erxes/api-utils/src';
 
@@ -14,6 +12,7 @@ import {
   sendTagsMessage
 } from './messageBroker';
 import { IModels } from './connectionResolver';
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 
 export interface ICountBy {
   [index: string]: number;
@@ -517,7 +516,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
       }
     };
 
-    const response = await es.fetchElk({
+    const response = await fetchEs({
       subdomain: this.subdomain,
       action: 'count',
       index: 'conversations',

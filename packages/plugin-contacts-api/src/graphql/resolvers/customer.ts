@@ -1,7 +1,7 @@
 import { ICustomerDocument } from '../../models/definitions/customers';
-import { es } from '../../configs';
 import { sendCoreMessage, sendInboxMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -20,7 +20,7 @@ export default {
   },
 
   async urlVisits(customer: ICustomerDocument, _args, { subdomain }: IContext) {
-    const response = await es.fetchElk({
+    const response = await fetchEs({
       subdomain,
       action: 'search',
       index: 'events',

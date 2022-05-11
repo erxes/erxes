@@ -1,5 +1,5 @@
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import * as _ from 'underscore';
-import { es } from './configs';
 import { generateModels } from './connectionResolver';
 import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
 import { clearEmptyValues, generatePronoun } from './importUtils';
@@ -125,7 +125,7 @@ export default {
       };
 
       const prepareDocs = async (body, type, collectionDocs) => {
-        const response = await es.fetchElk({
+        const response = await fetchEs({
           subdomain,
           action: 'search',
           index: type,
