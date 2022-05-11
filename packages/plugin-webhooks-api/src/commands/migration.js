@@ -70,7 +70,7 @@ const command = async () => {
       });
     }
 
-    await Webhooks.updateOne(
+    await models.Webhooks.updateOne(
       { _id: webhook._id },
       {
         $set: {
