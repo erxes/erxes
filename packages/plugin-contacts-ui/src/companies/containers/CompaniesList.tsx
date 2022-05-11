@@ -80,7 +80,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
     ];
 
     // load config from local storage
-    const localConfig = localStorage.getItem('erxes_company_columns_config');
+    const localConfig = localStorage.getItem('erxes_contacts:company_columns_config');
 
     if (localConfig) {
       columnsConfig = JSON.parse(localConfig).filter(conf => {

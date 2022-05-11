@@ -104,7 +104,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
     ];
 
     // load config from local storage
-    const localConfig = localStorage.getItem(`erxes_${type}_columns_config`);
+    const localConfig = localStorage.getItem(`erxes_contacts:${type}_columns_config`);
 
     if (localConfig) {
       columnsConfig = JSON.parse(localConfig).filter(conf => {
