@@ -109,6 +109,7 @@ export interface IField {
   searchable?: boolean;
   showInCard?: boolean;
   keys?: string[];
+  productCategoryId?: string;
 }
 
 export interface IFormProps {
