@@ -2,16 +2,24 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import _ from "lodash";
 import { Modal } from "react-bootstrap";
-
-import WithPermission from "modules/common/components/WithPermission";
-import Icon from "modules/common/components/Icon";
-
 import {
+  NavItem,
+  NavMenuItem,
+  NavIcon,
   GotoFormWrapper,
   GotoWrapper,
   GotoItem,
   GotoCategory
-} from "../styles";
+} from "../../styles";
+
+import Tip from "modules/common/components/Tip";
+import WithPermission from "modules/common/components/WithPermission";
+import Icon from "modules/common/components/Icon";
+import { __ } from "modules/common/utils";
+
+type Props = {
+  navCollapse: number;
+}
 
 type State = {
   show: boolean;
@@ -20,9 +28,9 @@ type State = {
   searchValue: string;
 }
 
-class GotoNavigation extends React.Component<any, State> {
+export default class NavigationGoto extends React.Component<Props, State> {
   private searchFormInput: any;
-  constructor(props: any) {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
@@ -143,33 +151,55 @@ class GotoNavigation extends React.Component<any, State> {
       show
     } = this.state;
 
+    const {
+      navCollapse
+    } = this.props;
+
     if (keysPressed.Control === true && keysPressed.m === true) 
       this.handleShow();
     
     return (
-      <Modal
-        show={show}
-        onHide={this.handleShow}
-      >
-        <GotoFormWrapper>
-          <Icon icon="search-1" size={16} />
-          <input
-            placeholder="Go to:"
-            value={searchValue}
-            onChange={this.handleSearch}
-            ref={this.searchFormInput}
-          />
-          <Icon icon="times" size={16} onClick={this.handleClear} />
-        </GotoFormWrapper>
-        <GotoWrapper>
-          <GotoCategory>
-            Navigation
-          </GotoCategory>
-          {this.renderFilteredPlugins()}
-        </GotoWrapper>
-      </Modal>
+      <React.Fragment>
+        <NavItem isMoreItem={false}>
+          <Tip placement="right" text={__("Go to (Ctrl + M)")}>
+            <NavMenuItem isMoreItem={false} navCollapse={navCollapse}>
+              <a onClick={this.handleShow}>
+                {navCollapse === 1
+                  ? <NavIcon className="icon-search" />
+                  : (
+                    <>
+                      <NavIcon className="icon-search" />
+                      <label>{__("Go to...")}</label>
+                    </>
+                  )
+                }
+              </a>
+            </NavMenuItem>
+          </Tip>
+        </NavItem>
+
+        <Modal
+          show={show}
+          onHide={this.handleShow}
+        >
+          <GotoFormWrapper>
+            <Icon icon="search-1" size={16} />
+            <input
+              placeholder="Go to:"
+              value={searchValue}
+              onChange={this.handleSearch}
+              ref={this.searchFormInput}
+            />
+            <Icon icon="times" size={16} onClick={this.handleClear} />
+          </GotoFormWrapper>
+          <GotoWrapper>
+            <GotoCategory>
+              Navigation
+            </GotoCategory>
+            {this.renderFilteredPlugins()}
+          </GotoWrapper>
+        </Modal>
+      </React.Fragment>
     )
   }
 }
-
-export default GotoNavigation;
