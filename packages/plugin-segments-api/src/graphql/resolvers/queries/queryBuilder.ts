@@ -1,10 +1,11 @@
 import * as _ from 'underscore';
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import {
   SEGMENT_DATE_OPERATORS,
   SEGMENT_NUMBER_OPERATORS
 } from '../../../constants';
 import { ICondition, ISegment } from '../../../models/definitions/segments';
-import { es, serviceDiscovery } from '../../../configs';
+import { serviceDiscovery } from '../../../configs';
 import { IModels } from '../../../connectionResolver';
 import { sendCoreMessage, sendMessage } from '../../../messageBroker';
 
@@ -79,7 +80,7 @@ export const fetchSegment = async (
   if (returnAssociated && contentType !== returnAssociated.contentType) {
     index = returnAssociated.contentType;
 
-    const itemsResponse = await es.fetchElk({
+    const itemsResponse = await fetchEs({
       subdomain,
       action: 'search',
       index: await getIndexByContentType(serviceConfigs, contentType),
@@ -122,7 +123,7 @@ export const fetchSegment = async (
 
   // count entries
   if (options.returnCount) {
-    const countResponse = await es.fetchElk({
+    const countResponse = await fetchEs({
       subdomain,
       action: 'count',
       index,
@@ -161,7 +162,7 @@ export const fetchSegment = async (
     };
   }
 
-  const response = await es.fetchElk({
+  const response = await fetchEs({
     subdomain,
     action: 'search',
     index,
@@ -765,7 +766,7 @@ const fetchByQuery = async ({
   positiveQuery: any;
   negativeQuery: any;
 }) => {
-  const response = await es.fetchElk({
+  const response = await fetchEs({
     subdomain,
     action: 'search',
     index,

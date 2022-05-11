@@ -2,7 +2,7 @@ import { IContractTypeDocument } from '../models/definitions/contractTypes';
 import { Model, Document } from 'mongoose';
 import { contractTypeSchema } from '../models/definitions/contractTypes';
 
-export const loadContractTypeClass = (models) => {
+export const loadContractTypeClass = models => {
   class ContractType {
     /**
      *
@@ -22,14 +22,14 @@ export const loadContractTypeClass = (models) => {
     /**
      * Create a insuranceType
      */
-    public static async createContractType(models, doc) {
+    public static async createContractType(doc) {
       return models.ContractTypes.create(doc);
     }
 
     /**
      * Update ContractType
      */
-    public static async updateContractType(models, _id, doc) {
+    public static async updateContractType(_id, doc) {
       await models.ContractTypes.updateOne({ _id }, { $set: doc });
 
       return models.ContractTypes.findOne({ _id });
@@ -38,7 +38,7 @@ export const loadContractTypeClass = (models) => {
     /**
      * Remove ContractType
      */
-    public static async removeContractTypes(models, _ids) {
+    public static async removeContractTypes(_ids) {
       // await models.ContractTypes.getContractTypeCatogery(models, { _id });
       // TODO: check collateralsData
       return models.ContractTypes.deleteMany({ _id: { $in: _ids } });

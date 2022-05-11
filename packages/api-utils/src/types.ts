@@ -75,15 +75,6 @@ export interface IColumnLabel {
   name: string;
   label: string;
 }
-export interface IFetchElkArgs {
-  subdomain: string;
-  action: string;
-  index: string;
-  body: any;
-  _id?: string;
-  defaultValue?: any;
-}
-
 export interface IRule {
   kind: string;
   text: string;

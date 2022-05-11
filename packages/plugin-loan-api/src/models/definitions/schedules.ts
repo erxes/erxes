@@ -1,5 +1,6 @@
 import { SCHEDULE_STATUS } from './constants';
-import { Document } from 'mongoose';
+import { Document, Schema } from 'mongoose';
+import { schemaHooksWrapper, field } from './utils';
 
 export interface IDefaultScheduleParam {
   leaseAmount: number;
@@ -40,63 +41,92 @@ export interface IScheduleDocument extends ISchedule, Document {
   _id: string;
 }
 
-export const scheduleSchema = {
-  _id: { pkey: true },
-  contractId: { type: String, label: 'Contract', index: true },
-  version: { type: String, optional: true, label: 'version' },
-  createdAt: {
-    type: Date,
-    default: new Date(),
-    label: 'Created at',
-  },
-  status: {
-    type: String,
-    label: 'Status',
-    enum: SCHEDULE_STATUS.ALL,
-    default: SCHEDULE_STATUS.PENDING,
-    required: true,
-  },
-  payDate: {
-    type: Date,
-    default: new Date(),
-    label: 'Created at',
-  },
+export const scheduleSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    contractId: field({ type: String, label: 'Contract', index: true }),
+    version: field({ type: String, optional: true, label: 'version' }),
+    createdAt: field({
+      type: Date,
+      default: new Date(),
+      label: 'Created at'
+    }),
+    status: field({
+      type: String,
+      label: 'Status',
+      enum: SCHEDULE_STATUS.ALL,
+      default: SCHEDULE_STATUS.PENDING,
+      required: true
+    }),
+    payDate: field({
+      type: Date,
+      default: new Date(),
+      label: 'Created at'
+    }),
 
-  balance: { type: Number, min: 0, label: 'Loan Balance' },
-  undue: { type: Number, min: 0, label: 'Undue', optional: true },
-  interestEve: {
-    type: Number,
-    label: 'Loan Interest Eve month',
-    optional: true,
-  },
-  interestNonce: { type: Number, label: 'Loan Interest Nonce', optional: true },
-  payment: { type: Number, label: 'Loan Payment', optional: true },
-  insurance: { type: Number, min: 0, label: 'Insurance', optional: true },
-  debt: { type: Number, min: 0, label: 'Debt', optional: true },
-  total: { type: Number, label: 'Total Payment' },
+    balance: field({ type: Number, min: 0, label: 'Loan Balance' }),
+    undue: field({ type: Number, min: 0, label: 'Undue', optional: true }),
+    interestEve: field({
+      type: Number,
+      label: 'Loan Interest Eve month',
+      optional: true
+    }),
+    interestNonce: field({
+      type: Number,
+      label: 'Loan Interest Nonce',
+      optional: true
+    }),
+    payment: field({ type: Number, label: 'Loan Payment', optional: true }),
+    insurance: field({
+      type: Number,
+      min: 0,
+      label: 'Insurance',
+      optional: true
+    }),
+    debt: field({ type: Number, min: 0, label: 'Debt', optional: true }),
+    total: field({ type: Number, label: 'Total Payment' }),
 
-  didUndue: { type: Number, min: 0, label: 'Did Undue', optional: true },
-  didInterestEve: {
-    type: Number,
-    label: 'Did Loan Interest eve',
-    optional: true,
-  },
-  didInterestNonce: {
-    type: Number,
-    label: 'Did Loan Interest nonce',
-    optional: true,
-  },
-  didPayment: { type: Number, label: 'Did Loan Payment', optional: true },
-  didInsurance: {
-    type: Number,
-    min: 0,
-    label: 'Did Insurance',
-    optional: true,
-  },
-  didDebt: { type: Number, min: 0, label: 'Did Debt', optional: true },
-  didTotal: { type: Number, label: 'Did Total Payment', optional: true },
-  surplus: { type: Number, min: 0, label: 'Surplus', optional: true },
+    didUndue: field({
+      type: Number,
+      min: 0,
+      label: 'Did Undue',
+      optional: true
+    }),
+    didInterestEve: field({
+      type: Number,
+      label: 'Did Loan Interest eve',
+      optional: true
+    }),
+    didInterestNonce: field({
+      type: Number,
+      label: 'Did Loan Interest nonce',
+      optional: true
+    }),
+    didPayment: field({
+      type: Number,
+      label: 'Did Loan Payment',
+      optional: true
+    }),
+    didInsurance: field({
+      type: Number,
+      min: 0,
+      label: 'Did Insurance',
+      optional: true
+    }),
+    didDebt: field({ type: Number, min: 0, label: 'Did Debt', optional: true }),
+    didTotal: field({
+      type: Number,
+      label: 'Did Total Payment',
+      optional: true
+    }),
+    surplus: field({ type: Number, min: 0, label: 'Surplus', optional: true }),
 
-  transactionIds: { type: [String], label: 'transactions', optional: true },
-  isDefault: { type: Boolean, label: 'is default', default: true },
-};
+    transactionIds: field({
+      type: [String],
+      label: 'transactions',
+      optional: true
+    }),
+    isDefault: field({ type: Boolean, label: 'is default', default: true })
+  }),
+  'erxes_scheduleSchema'
+);

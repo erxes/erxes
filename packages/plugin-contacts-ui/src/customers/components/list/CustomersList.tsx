@@ -161,7 +161,7 @@ class CustomersList extends React.Component<IProps, State> {
 
     return (
       <withTableWrapper.Wrapper>
-        <Table whiteSpace="nowrap" hover={true} bordered={true}>
+        <Table whiteSpace="nowrap" hover={true} bordered={true} responsive={true} wideHeader={true}>
           <thead>
             <tr>
               <th>
