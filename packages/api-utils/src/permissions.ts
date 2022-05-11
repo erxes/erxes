@@ -1,4 +1,4 @@
-import redis from "./redis";
+import redis from './redis';
 
 export interface IUser {
   _id: string;
@@ -17,7 +17,7 @@ export interface IPermissionContext {
 
 export const checkLogin = (user?: IUser) => {
   if (!user || !user._id) {
-    throw new Error("Login required");
+    throw new Error('Login required');
   }
 };
 
@@ -46,7 +46,9 @@ export const permissionWrapper = (
   };
 };
 
-export const getUserActionsMap = async (user: IUser): Promise<IActionMap | null> => {
+export const getUserActionsMap = async (
+  user: IUser
+): Promise<IActionMap | null> => {
   const key = getKey(user);
   const actionMapJson = await redis.get(key);
 
@@ -67,8 +69,8 @@ export const can = async (action: string, user?: IUser): Promise<boolean> => {
 
   const actionMap = await getUserActionsMap(user);
 
-  if(!actionMap) {
-    throw new Error(`User permission not found in Redis storage. user._id = ${user._id}`);
+  if (!actionMap) {
+    return false;
   }
 
   return actionMap[action] === true;
@@ -99,7 +101,7 @@ export const checkPermission = async (
         return defaultValue;
       }
 
-      throw new Error("Permission required");
+      throw new Error('Permission required');
     }
 
     return oldMethod(root, args, context, info);
@@ -108,7 +110,6 @@ export const checkPermission = async (
 
 export const requireLogin = (cls: any, methodName: string) =>
   permissionWrapper(cls, methodName, [checkLogin]);
-
 
 export const moduleRequireLogin = (mdl: any) => {
   for (const method in mdl) {
