@@ -1,15 +1,29 @@
+import { Button } from '@erxes/ui/src/components';
 import { FormControl } from '@erxes/ui/src/components/form';
+import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 
 type Props = {
   keys: string[];
   object: any;
+  index: number;
+  onEdit: (index: number) => void;
+  onChange: (index: number, key: string, value: any) => void;
 };
 
 export default function ObjectListItem(props: Props) {
-  const { object, keys } = props;
+  const { object, keys, onEdit, index } = props;
 
   const entries = Object.entries(object);
+
+  const onFocus = _event => {
+    onEdit(index);
+  };
+
+  const onChange = e => {
+    console.log(e.target);
+    props.onChange(index, e.target.id, e.target.value);
+  };
 
   return (
     <>
@@ -24,7 +38,14 @@ export default function ObjectListItem(props: Props) {
         return (
           <>
             <p>{key}</p>
-            <FormControl id={key} type="text" value={value} placeholder={key} />
+            <FormControl
+              id={key}
+              type="text"
+              value={value}
+              placeholder={key}
+              onChange={onChange}
+              onFocus={onFocus}
+            />
           </>
         );
       })}

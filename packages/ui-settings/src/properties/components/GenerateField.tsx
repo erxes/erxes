@@ -11,7 +11,7 @@ import {
   COUNTRIES
 } from '@erxes/ui/src/companies/constants';
 import React from 'react';
-import { LogicIndicator, SelectInput, ObjectList } from '../styles';
+import { LogicIndicator, SelectInput } from '../styles';
 import Select from 'react-select-plus';
 import { IOption } from '@erxes/ui/src/types';
 import ModifiableList from '@erxes/ui/src/components/ModifiableList';
@@ -24,7 +24,7 @@ import {
 import Map from '@erxes/ui/src/components/Map';
 import { MapContainer } from '@erxes/ui/src/styles/main';
 import { Icon } from '@erxes/ui/src/components';
-import ObjectListItem from './ObjectListItem';
+import ObjectList from './ObjectList';
 
 type Props = {
   field: IField;
@@ -346,16 +346,17 @@ export default class GenerateField extends React.Component<Props, State> {
       }
     }
 
-    return (
-      <>
-        {(value || []).map((object, index) => (
-          // this.renderObject(keys, object, index)
-          <ObjectList>
-            <ObjectListItem keys={keys} object={object} />
-          </ObjectList>
-        ))}
-      </>
-    );
+    // return (
+    //   <>
+    //     {(value || []).map((object, index) => (
+    //       // this.renderObject(keys, object, index)
+    //       <ObjectList>
+    //         <ObjectListItem keys={keys} object={object} />
+    //       </ObjectList>
+    //     ))}
+    //   </>
+    // );
+    return <ObjectList keys={keys} value={value} />;
   }
 
   renderMap(attrs) {
