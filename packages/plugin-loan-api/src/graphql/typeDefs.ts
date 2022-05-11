@@ -3,15 +3,15 @@ import { gql } from 'apollo-server-express';
 import {
   types as loanTypes,
   queries as loanQueries,
-  mutations as loanMutations,
-} from './schema/contract';
+  mutations as loanMutations
+} from './schema/loan';
 
 const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date
     
-    ${await loanTypes()}
+    ${loanTypes}
     
     extend type Query {
       ${loanQueries}

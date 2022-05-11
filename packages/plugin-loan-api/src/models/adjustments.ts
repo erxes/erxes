@@ -1,48 +1,53 @@
+import { adjustmentSchema } from './definitions/adjustments';
 import { Model } from 'mongoose';
 import { IAdjustmentDocument } from '../models/definitions/adjustments';
 
-export class Adjustment {
-  /**
-   *
-   * Get Adjustment
-   */
+export const loadAdjustmentClass = models => {
+  class Adjustment {
+    /**
+     *
+     * Get Adjustment
+     */
 
-  public static async getAdjustment(models, selector: any) {
-    const adjustment = await models.Adjustments.findOne(selector);
+    public static async getAdjustment(selector: any) {
+      const adjustment = await models.Adjustments.findOne(selector);
 
-    if (!adjustment) {
-      throw new Error('Adjustment not found');
+      if (!adjustment) {
+        throw new Error('Adjustment not found');
+      }
+
+      return adjustment;
     }
 
-    return adjustment;
-  }
+    /**
+     * Create a adjustment
+     */
+    public static async createAdjustment(doc) {
+      return models.Adjustments.create(doc);
+    }
 
-  /**
-   * Create a adjustment
-   */
-  public static async createAdjustment(models, doc) {
-    return models.Adjustments.create(doc);
-  }
+    /**
+     * Update Adjustment
+     */
+    public static async updateAdjustment(_id, doc) {
+      await models.Adjustments.updateOne({ _id }, { $set: doc });
 
-  /**
-   * Update Adjustment
-   */
-  public static async updateAdjustment(models, _id, doc) {
-    await models.Adjustments.updateOne({ _id }, { $set: doc });
+      return models.Adjustments.findOne({ _id });
+    }
 
-    return models.Adjustments.findOne({ _id });
+    /**
+     * Remove Adjustment
+     */
+    public static async removeAdjustments(_ids) {
+      return models.Adjustments.deleteMany({ _id: { $in: _ids } });
+    }
   }
-
-  /**
-   * Remove Adjustment
-   */
-  public static async removeAdjustments(models, _ids) {
-    return models.Adjustments.deleteMany({ _id: { $in: _ids } });
-  }
-}
+  adjustmentSchema.loadClass(Adjustment);
+  return adjustmentSchema;
+};
 export interface IAdjustmentModel extends Model<IAdjustmentDocument> {
-  getAdjustment(models, selector: any);
-  createAdjustment(models, doc);
-  updateAdjustment(models, _id, doc);
-  removeAdjustments(models, _ids);
+  getAdjustment(selector: any);
+  createAdjustment(doc);
+  updateAdjustment(_id, doc);
+  removeAdjustments(_ids);
 }
