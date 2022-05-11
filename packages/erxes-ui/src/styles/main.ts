@@ -99,7 +99,7 @@ const BoxRoot = styledTS<{ selected?: boolean }>(styled.div)`
   margin-bottom: ${dimensions.coreSpacing}px;
   border-radius: ${dimensions.unitSpacing / 2 - 1}px;
   transition: all 0.25s ease;
-  border: 1px solid
+  border: 1px ${props => (props.selected ? 'solid' : 'dashed')}
     ${props => (props.selected ? colors.colorSecondary : colors.borderPrimary)};
 
   > a {

@@ -1,6 +1,6 @@
-const { generateModels } = require('../connectionResolver.ts');
+const { generateModels } = require('../connectionResolver.js');
 
-const switchContentType = (contentType): string => {
+const switchContentType = (contentType) => {
   let changedContentType = contentType;
 
   switch (contentType) {
@@ -70,7 +70,7 @@ const command = async () => {
       });
     }
 
-    await Webhooks.updateOne(
+    await models.Webhooks.updateOne(
       { _id: webhook._id },
       {
         $set: {
