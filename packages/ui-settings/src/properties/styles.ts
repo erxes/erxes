@@ -179,9 +179,10 @@ const FlexRow = styled.div`
   }
 `;
 
-const ObjectList = styled.div`
-  padding: -50;
+const ObjectListItemContainer = styled.div`
   border-bottom: 2px dashed ${colors.borderDarker};
+  padding-top: 10px;
+  padding-bottom: 10px;
 `;
 
 export {
@@ -198,5 +199,5 @@ export {
   PropertyTableRow,
   RowField,
   FlexRow,
-  ObjectList
+  ObjectListItemContainer
 };

@@ -23,7 +23,7 @@ import {
 } from '@erxes/ui/src/layout/styles';
 import Map from '@erxes/ui/src/components/Map';
 import { MapContainer } from '@erxes/ui/src/styles/main';
-import { Icon } from '@erxes/ui/src/components';
+import { Button, Icon } from '@erxes/ui/src/components';
 import ObjectList from './ObjectList';
 
 type Props = {
@@ -346,17 +346,20 @@ export default class GenerateField extends React.Component<Props, State> {
       }
     }
 
-    // return (
-    //   <>
-    //     {(value || []).map((object, index) => (
-    //       // this.renderObject(keys, object, index)
-    //       <ObjectList>
-    //         <ObjectListItem keys={keys} object={object} />
-    //       </ObjectList>
-    //     ))}
-    //   </>
-    // );
-    return <ObjectList keys={keys} value={value} />;
+    const { field, onValueChange } = this.props;
+
+    const onChange = (value: any[]) => {
+      if (onValueChange) {
+        this.setState({ value });
+        onValueChange({ _id: field._id, value });
+      }
+    };
+
+    return (
+      <>
+        <ObjectList keys={keys} value={value} onChange={onChange} />
+      </>
+    );
   }
 
   renderMap(attrs) {
@@ -576,24 +579,25 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderAddButton() {
     const { field } = this.props;
+    const { keys = [] } = field;
 
     if (field.type !== 'objectList' || !field.keys) {
       return null;
     }
 
     const onClick = () => {
-      const object = field.keys.reduce((e, key) => {
+      const object = keys.reduce((e, key) => {
         e[key] = '';
         return e;
       }, {});
 
-      this.setState({ value: [...this.state.value, object] });
+      this.setState({ value: [object, ...this.state.value] });
     };
 
     return (
-      <button onClick={onClick}>
+      <Button btnStyle="link" onClick={onClick}>
         <Icon icon="plus-circle" />
-      </button>
+      </Button>
     );
   }
 

@@ -1,30 +1,32 @@
 import { Button } from '@erxes/ui/src/components';
 import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState, useEffect } from 'react';
+import { ObjectListItemContainer } from '../styles';
 import ObjectListItem from './ObjectListItem';
 
 type Props = {
   keys: string[];
   value: any[];
+  onChange: (value: any[]) => void;
 };
 
 export default function ObjectList(props: Props) {
-  const { value, keys } = props;
+  const { value, keys, onChange } = props;
 
   const [isEditing, setEditing] = useState(false);
   const [objects, setObjects] = useState(value);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(-1);
 
   useEffect(() => {
     setObjects(value);
-  }, [value]);
+  }, [value, currentIndex, setCurrentIndex]);
 
-  const onChange = (index: number, key: string, value: any) => {
+  const onChangeValue = (index: number, key: string, value: any) => {
     const newObjects = [...objects];
     newObjects[index][key] = value;
-    setObjects(newObjects);
 
-    console.log(objects);
+    setObjects(newObjects);
+    onChange(objects);
   };
 
   const onEdit = (index: number) => {
@@ -38,10 +40,11 @@ export default function ObjectList(props: Props) {
 
   const onClickRemove = () => {
     setEditing(false);
-  };
 
-  const onClickSAve = () => {
-    setEditing(false);
+    objects.splice(currentIndex, 1);
+
+    setObjects(objects);
+    onChange(objects);
   };
 
   const renderButtons = (index: number) => {
@@ -52,40 +55,39 @@ export default function ObjectList(props: Props) {
     return (
       <>
         <Button
-          id="cancel"
           btnStyle="simple"
           type="button"
           onClick={onClickCancel}
           icon="times-circle"
-        ></Button>
+        >
+          Discard
+        </Button>
         <Button
-          id="remove"
           btnStyle="danger"
           type="button"
           onClick={onClickRemove}
           icon="minus-circle"
-        ></Button>
-        <Button
-          id="save"
-          onClick={onClickSAve}
-          type="submit"
-          btnStyle="success"
-          icon="check-circle"
-        ></Button>
+        >
+          Remove
+        </Button>
       </>
     );
   };
 
-  return (objects || []).map((object, index) => (
+  return (
     <>
-      <ObjectListItem
-        index={index}
-        keys={keys}
-        object={object}
-        onEdit={onEdit}
-        onChange={onChange}
-      />
-      {renderButtons(index)}
+      {(objects || []).map((object, index) => (
+        <ObjectListItemContainer>
+          <ObjectListItem
+            index={index}
+            keys={keys}
+            object={object}
+            onEdit={onEdit}
+            onChange={onChangeValue}
+          />
+          {renderButtons(index)}
+        </ObjectListItemContainer>
+      ))}
     </>
-  ));
+  );
 }

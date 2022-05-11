@@ -1,7 +1,6 @@
-import { Button } from '@erxes/ui/src/components';
 import { FormControl } from '@erxes/ui/src/components/form';
 import { __ } from '@erxes/ui/src/utils/core';
-import React, { useState } from 'react';
+import React from 'react';
 
 type Props = {
   keys: string[];
@@ -21,7 +20,6 @@ export default function ObjectListItem(props: Props) {
   };
 
   const onChange = e => {
-    console.log(e.target);
     props.onChange(index, e.target.id, e.target.value);
   };
 
