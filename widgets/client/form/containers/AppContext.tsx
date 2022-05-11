@@ -188,7 +188,7 @@ export class AppProvider extends React.Component<{}, IState> {
 
         switch (response.status) {
           case "ok":
-            status = "SUCESS";
+            status = "SUCCESS";
             break;
           case "pending":
             status = "PENDING";
