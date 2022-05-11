@@ -161,7 +161,7 @@ export default class NavigationGoto extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <NavItem isMoreItem={false}>
-          <Tip placement="right" text={__("Go to (Ctrl + M)")}>
+          <Tip placement="right" text={__("Go to... (Ctrl + M)")}>
             <NavMenuItem isMoreItem={false} navCollapse={navCollapse}>
               <a onClick={this.handleShow}>
                 {navCollapse === 1
