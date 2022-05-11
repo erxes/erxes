@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import TagsRoutes from './routes';
+import ProcessesRoutes from './routes';
 
 const Routes = () => (
   <Router>
-    <TagsRoutes />
+    <ProcessesRoutes />
   </Router>
 );
 

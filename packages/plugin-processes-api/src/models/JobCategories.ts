@@ -1,12 +1,20 @@
 import { Model, model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
-import { IJobCategory, IJobCategoryDocument, jobCategorySchema } from './definitions/jobCategories';
+import { JOB_STATUSES } from './definitions/constants';
+import {
+  IJobCategory,
+  IJobCategoryDocument,
+  jobCategorySchema
+} from './definitions/jobCategories';
 
 export interface IJobCategoryModel extends Model<IJobCategoryDocument> {
   getJobCategory(_id: string): Promise<IJobCategoryDocument>;
   createJobCategory(doc: IJobCategory): Promise<IJobCategoryDocument>;
-  updateJobCategory(_id: string, doc: IJobCategory): Promise<IJobCategoryDocument>;
+  updateJobCategory(
+    _id: string,
+    doc: IJobCategory
+  ): Promise<IJobCategoryDocument>;
   removeJobCategory(_id: string): void;
 }
 
@@ -31,7 +39,7 @@ export const loadJobCategoryClass = (models: IModels) => {
     public static async createJobCategory(doc: IJobCategory) {
       const job = await models.JobCategories.create({
         ...doc,
-        createdAt: new Date(),
+        createdAt: new Date()
       });
 
       return job;
@@ -41,11 +49,11 @@ export const loadJobCategoryClass = (models: IModels) => {
      * Update JobCategory
      */
     public static async updateJobCategory(_id: string, doc: IJobCategory) {
-      const job = await models.JobCategories.getJobCategory(_id,);
+      const job = await models.JobCategories.getJobCategory(_id);
 
       await models.JobCategories.updateOne({ _id }, { $set: { ...doc } });
 
-      const updated = await models.JobCategories.getJobCategory( _id );
+      const updated = await models.JobCategories.getJobCategory(_id);
 
       return updated;
     }
@@ -55,6 +63,15 @@ export const loadJobCategoryClass = (models: IModels) => {
      */
     public static async removeJobCategory(_id: string) {
       await models.JobCategories.getJobCategory(_id);
+      let count = await models.JobRefers.countDocuments({
+        categoryId: _id,
+        status: { $ne: JOB_STATUSES.ARCHIVED }
+      });
+      count += await models.JobCategories.countDocuments({ parentId: _id });
+
+      if (count > 0) {
+        throw new Error("Can't remove a job category");
+      }
       return models.JobCategories.deleteOne({ _id });
     }
   }

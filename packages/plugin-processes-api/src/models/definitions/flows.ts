@@ -1,21 +1,25 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
-import { IJobRefer, jobReferSchema } from './jobs';
+import { IJobRefer } from './jobs';
 
 export interface IJob {
   id: string;
   nextJobIds: string[];
-  jobRefer: IJobRefer,
-  style: { type: Object },
-  label: { type: String, optional: true },
-  description: { type: String, optional: true },
-  quantity: { type: Number }
+  jobReferId: string;
+  style: Object;
+  label: string;
+  description: string;
+  quantity: number;
+}
+
+export interface IJobDocument extends IJob {
+  jobRefer: IJobRefer;
 }
 
 export interface IFlow {
-  name: String;
-  categoryId: String;
-  status: String;
+  name: string;
+  categoryId: string;
+  status: string;
   jobs: IJob[];
 }
 
@@ -35,7 +39,7 @@ export const jobSchema = new Schema(
     label: { type: String, optional: true },
     description: { type: String, optional: true },
 
-    jobRefer: { type: jobReferSchema },
+    jobReferId: { type: String },
     quantity: { type: Number },
     assignUserIds: { type: [String] },
     outBranchId: { type: String },
@@ -44,7 +48,7 @@ export const jobSchema = new Schema(
     inDepartmentId: { type: String }
   },
   { _id: false }
-)
+);
 
 export const flowSchema = schemaHooksWrapper(
   new Schema({
@@ -56,12 +60,10 @@ export const flowSchema = schemaHooksWrapper(
     createdBy: { type: String },
     updatedAt: { type: Date, default: new Date(), label: 'Updated date' },
     updatedBy: { type: String },
-    jobs: field({ type: jobSchema, label: 'Jobs' }),
+    jobs: field({ type: jobSchema, label: 'Jobs' })
   }),
   'erxes_flows'
 );
 
 // for tags query. increases search speed, avoids in-memory sorting
 flowSchema.index({ status: 1 });
-
-

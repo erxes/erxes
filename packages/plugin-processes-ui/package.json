@@ -1,5 +1,5 @@
 {
-  "name": "@erxes/plugin-factures-ui",
+  "name": "@erxes/plugin-processes-ui",
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",

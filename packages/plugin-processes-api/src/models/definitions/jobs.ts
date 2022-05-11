@@ -2,8 +2,15 @@ import { attachmentSchema } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 import { DURATION_TYPES } from './constants';
 import { field, schemaHooksWrapper, schemaWrapper } from './utils';
+import {
+  IBranch,
+  IDepartment
+} from '../../../../../../../temp/erxes/ui/src/modules/settings/team/types';
+import { IUom } from '../../../../plugin-products-api/src/models/definitions/uoms';
+import { IProduct } from '@packages/plugin-products-api/src/models/definitions/products';
 
 export interface IProductsData {
+  id: string;
   productId: string;
   quantity: number;
   uimId: string;
@@ -11,8 +18,11 @@ export interface IProductsData {
   departmentId: string;
 }
 
-export interface IProductsDataDocument extends IProductsData, Document {
-  _id: string;
+export interface IProductsDataDocument extends IProductsData {
+  product: IProduct;
+  branch: IBranch;
+  department: IDepartment;
+  uom: IUom;
 }
 
 export interface IJobRefer {
@@ -40,8 +50,8 @@ export const productsDataSchema = new Schema({
   quantity: field({ type: Number, label: 'Quantity' }),
   uomId: field({ type: String, label: 'UOM' }),
   branchId: field({ type: String, label: 'Branch' }),
-  departmentId: field({ type: String, label: 'Department' }),
-})
+  departmentId: field({ type: String, label: 'Department' })
+});
 
 export const jobReferSchema = schemaHooksWrapper(
   new Schema({
@@ -55,17 +65,19 @@ export const jobReferSchema = schemaHooksWrapper(
     createdAt: field({ type: Date, label: 'Created at' }),
     duration: field({ type: Number, label: 'Duration value' }),
     durationType: field({
-      type: String, enum: DURATION_TYPES.ALL,
-      default: DURATION_TYPES.HOUR, label: 'Duration value'
+      type: String,
+      enum: DURATION_TYPES.ALL,
+      default: DURATION_TYPES.HOUR,
+      label: 'Duration value'
     }),
     needProducts: field({ type: productsDataSchema, label: 'Need products' }),
-    resultProducts: field({ type: productsDataSchema, label: 'Result products' }),
-
+    resultProducts: field({
+      type: productsDataSchema,
+      label: 'Result products'
+    })
   }),
   'erxes_jobRefers'
 );
 
 // for tags query. increases search speed, avoids in-memory sorting
 jobReferSchema.index({ status: 1 });
-
-

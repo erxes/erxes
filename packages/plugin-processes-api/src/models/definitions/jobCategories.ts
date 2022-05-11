@@ -5,7 +5,6 @@ import { field, schemaWrapper } from './utils';
 export interface IJobCategory {
   name: string;
   code: string;
-  order: string;
   description?: string;
   parentId?: string;
   attachment?: any;
@@ -14,6 +13,7 @@ export interface IJobCategory {
 
 export interface IJobCategoryDocument extends IJobCategory, Document {
   _id: string;
+  order: string;
   createdAt: Date;
 }
 
