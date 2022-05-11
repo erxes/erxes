@@ -1,0 +1,175 @@
+import React from "react";
+import { NavLink } from "react-router-dom";
+import _ from "lodash";
+import { Modal } from "react-bootstrap";
+
+import WithPermission from "modules/common/components/WithPermission";
+import Icon from "modules/common/components/Icon";
+
+import {
+  GotoFormWrapper,
+  GotoWrapper,
+  GotoItem,
+  GotoCategory
+} from "../styles";
+
+type State = {
+  show: boolean;
+  keysPressed: any;
+  plugins: any[];
+  searchValue: string;
+}
+
+class GotoNavigation extends React.Component<any, State> {
+  private searchFormInput: any;
+  constructor(props: any) {
+    super(props);
+
+    this.state = {
+      show: false,
+      keysPressed: {},
+      plugins: [],
+      searchValue: "",
+    }
+
+    this.searchFormInput = React.createRef();
+  }
+  
+  componentDidUpdate() {
+    if (this.state.show === true && this.searchFormInput && this.searchFormInput.current)
+      this.searchFormInput.current.focus();
+  }
+  
+  componentDidMount() {
+    document.addEventListener("keydown", this.handleKeyDown);
+    document.addEventListener("keyup", this.handleKeyUp);
+
+    const plugins: any[] = (window as any).plugins || [];
+    let totalPlugins: any[] = [];
+
+    for (const plugin of plugins) {
+      for (const menu of plugin.menus) {
+        totalPlugins.push({
+          ...menu,
+          name: plugin.name,
+          icon: plugin.icon
+        })
+      }
+    }
+
+    _.sortBy(totalPlugins, ["text"])
+
+    this.setState({ plugins: totalPlugins })
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.handleKeyDown);
+    document.removeEventListener("keyup", this.handleKeyUp);
+  }
+
+  handleKeyDown = (event: any) => {
+    let key = event.key
+
+    this.setState({ keysPressed: { ...this.state.keysPressed, [key]: true} })
+  }
+
+  handleKeyUp = (event: any) => {
+    delete this.state.keysPressed[event.key];
+
+    this.setState({ keysPressed: { ...this.state.keysPressed } })
+  }
+
+  handleShow = () => {
+    this.setState({ show: !this.state.show, keysPressed: {} });
+
+    if (this.searchFormInput.current !== null)
+      console.log(this.searchFormInput.current)
+  }
+
+  handleSearch = (event: any) => {
+    this.setState({ searchValue: event.target.value })
+  }
+
+  handleClear = () => {
+    this.setState({ searchValue: "" })
+  }
+
+  renderFilteredPlugins = () => {
+    let filteredPlugins: any[] = [];
+    const { plugins, searchValue } = this.state;
+
+    filteredPlugins = plugins.filter((plugin: any, index: number) => {
+      if (plugin.text.toLowerCase().includes(searchValue.toLowerCase()))
+        return plugin
+    })
+
+    filteredPlugins = _.sortBy(filteredPlugins, ["text"])
+
+    if (filteredPlugins.length === 0)
+      return (
+        <GotoItem>
+          <i>No matching results</i>
+        </GotoItem>
+      )
+
+    return filteredPlugins.map((plugin: any, index: number) => {
+      if (!plugin.url)
+        plugin.url = plugin.to
+
+      return (
+        <WithPermission
+          key={index}
+          action={plugin.permission ? plugin.permission : ""}
+          actions={plugin.permissions ? plugin.permissions : []}
+        >
+          <NavLink
+            onClick={this.handleShow}
+            to={plugin.url ? plugin.url : plugin.to}
+          >
+            <GotoItem>
+              <p>{plugin.text}</p>
+              <span>{plugin.name}</span>
+            </GotoItem>
+          </NavLink>
+        </WithPermission>
+      )
+    })
+  }
+  
+  render() {
+    const {
+      keysPressed,
+      searchValue,
+      show
+    } = this.state;
+
+    if (keysPressed.Control === true && keysPressed.m === true) 
+      this.handleShow();
+    
+    return (
+      <Modal
+        show={show}
+        onHide={this.handleShow}
+      >
+        <GotoFormWrapper>
+          <Icon icon="search-1" size={16} />
+          <input
+            placeholder="Go to:"
+            value={searchValue}
+            onChange={this.handleSearch}
+            ref={this.searchFormInput}
+          />
+          <Icon icon="times" size={16} onClick={this.handleClear} />
+        </GotoFormWrapper>
+        <GotoWrapper>
+          <GotoCategory>
+            Navigation
+          </GotoCategory>
+          {this.renderFilteredPlugins()}
+        </GotoWrapper>
+      </Modal>
+    )
+  }
+}
+
+export default GotoNavigation;

@@ -2,6 +2,7 @@ import { colors, dimensions } from 'modules/common/styles';
 import React from 'react';
 import styled from 'styled-components';
 import QuickNavigation from '../containers/QuickNavigation';
+import GotoNavigation from '../components/GotoNavigation';
 
 const TopBar = styled.div`
   height: ${dimensions.headerSpacing}px;
@@ -24,6 +25,7 @@ function MainBar() {
   return (
     <TopBar>
       <QuickNavigation />
+      <GotoNavigation />
     </TopBar>
   );
 }
