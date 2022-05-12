@@ -137,7 +137,7 @@ const ColumnTable = styledTS<{
       }
 
       th {
-        background-color: ${colors.bgLight};
+        background-color: ${colors.colorWhite};
         position: sticky;
         z-index: 1;
         top: 0;
