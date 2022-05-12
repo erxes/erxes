@@ -63,7 +63,6 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   &:hover {
     cursor: pointer;
     background: ${props => !props.isActive && colors.bgLight};
-
     ${ActionButtons} {
       width: 60px;
     }
@@ -107,6 +106,7 @@ const ExpandWrapper = styled.div`
 const Description = styled.div`
   color: ${colors.colorCoreGray};
   font-size: 12px;
+  margin-bottom: ${dimensions.coreSpacing}px;
 `;
 
 const FlexRow = styled.div`

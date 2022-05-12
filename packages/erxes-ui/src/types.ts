@@ -1,5 +1,5 @@
-import { IUser } from "./auth/types";
-import { IActivityLogForMonth } from "./activityLogs/types";
+import { IUser } from './auth/types';
+import { IActivityLogForMonth } from './activityLogs/types';
 
 export interface IRouterProps {
   history: any;
@@ -108,6 +108,8 @@ export interface IField {
   pageNumber?: number;
   searchable?: boolean;
   showInCard?: boolean;
+  keys?: string[];
+  productCategoryId?: string;
 }
 
 export interface IFormProps {
@@ -160,7 +162,7 @@ export type IEditorProps = {
   mentionUsers?: IMentionUser[];
   toolbar?: any[];
   autoFocus?: boolean;
-  toolbarLocation?: "top" | "bottom";
+  toolbarLocation?: 'top' | 'bottom';
   autoGrow?: boolean;
   autoGrowMinHeight?: number;
   autoGrowMaxHeight?: number;

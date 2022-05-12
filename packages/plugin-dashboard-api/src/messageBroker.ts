@@ -16,6 +16,37 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
+export const sendInboxMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'inbox',
+    ...args
+  });
+};
+
+export const sendCardsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'cards',
+    ...args
+  });
+};
+
+export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'tags',
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }

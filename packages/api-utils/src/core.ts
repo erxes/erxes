@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 import * as strip from 'strip';
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
-import { IFetchElkArgs, IUserDocument } from './types';
+import { IUserDocument } from './types';
 import { IPermissionDocument } from './definitions/permissions';
 
 export const getEnv = ({
@@ -258,70 +258,6 @@ export const sendMessage = async (
     serviceName + (serviceName ? ':' : '') + action,
     { subdomain, data }
   );
-};
-
-export const doSearch = async ({
-  fetchEs,
-  subdomain,
-  index,
-  value,
-  fields
-}: {
-  fetchEs: (args: IFetchElkArgs) => Promise<any>;
-  subdomain: string;
-  index: string;
-  value: string;
-  fields: string[];
-  customQuery?: any;
-}) => {
-  const highlightFields = {};
-
-  fields.forEach(field => {
-    highlightFields[field] = {};
-  });
-
-  const match = {
-    multi_match: {
-      query: value,
-      fields
-    }
-  };
-
-  // let query: any = match;
-
-  // if (customQuery) {
-  //   query = customQuery;
-  // }
-
-  const fetchResults = await fetchEs({
-    subdomain,
-    action: 'search',
-    index,
-    body: {
-      query: {
-        bool: {
-          must: [match]
-        }
-      },
-      size: 10,
-      highlight: {
-        fields: highlightFields
-      }
-    },
-    defaultValue: { hits: { hits: [] } }
-  });
-
-  const results = fetchResults.hits.hits.map(result => {
-    return {
-      source: {
-        _id: result._id,
-        ...result._source
-      },
-      highlight: result.highlight
-    };
-  });
-
-  return results;
 };
 
 interface IActionMap {

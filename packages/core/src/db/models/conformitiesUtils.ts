@@ -1,4 +1,4 @@
-import { fetchElk } from '../../elasticsearch';
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import { IConformity, IConformityRelated } from './definitions/conformities';
 
 export const getMatchConformities = ({
@@ -157,8 +157,9 @@ export const getSavedAnyConformityQuery = ({
   };
 };
 
-export const findElk = async query => {
-  const response = await fetchElk({
+export const findElk = async (subdomain, query) => {
+  const response = await fetchEs({
+    subdomain,
     action: 'search',
     index: 'conformities',
     body: {

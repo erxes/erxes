@@ -24,6 +24,7 @@ import FieldPreview from './FieldPreview';
 import Select from 'react-select-plus';
 import { IConfig } from '@erxes/ui-settings/src/general/types';
 import LocationOptions from './LocationOptions';
+import { IProductCategory } from '@erxes/ui-products/src/types';
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -32,8 +33,8 @@ type Props = {
   mode: 'create' | 'update';
   field: IField;
   fields: IField[];
-  configs: IConfig[];
   numberOfPages: number;
+  productCategories?: IProductCategory[];
 };
 
 type State = {
@@ -414,6 +415,7 @@ class FieldForm extends React.Component<Props, State> {
           </FormGroup>
 
           {this.renderColumn()}
+          {this.renderProductCategory()}
           {this.renderHtml()}
           {this.renderCustomPropertyGroup()}
           {this.renderCustomProperty()}
@@ -461,7 +463,7 @@ class FieldForm extends React.Component<Props, State> {
 
         <PreviewSection>
           <Preview>
-            <FieldPreview field={field} configs={this.props.configs} />
+            <FieldPreview field={field} />
 
             <ShowPreview>
               <Icon icon="eye" /> {__('Field preview')}
@@ -485,7 +487,8 @@ class FieldForm extends React.Component<Props, State> {
         'companyName',
         'companyEmail',
         'companyPhone',
-        'html'
+        'html',
+        'productCategory'
       ].includes(field.type)
     ) {
       return null;
@@ -504,6 +507,43 @@ class FieldForm extends React.Component<Props, State> {
             <option value={''} />
             <option value={'customer'}>Customer</option>
             <option value={'company'}>Company</option>
+          </FormControl>
+        </FormGroup>
+      </>
+    );
+  }
+
+  renderProductCategory() {
+    const { field } = this.state;
+    const { productCategories = [] } = this.props;
+
+    if (field.type !== 'productCategory') {
+      return null;
+    }
+
+    const onCategoryChange = e => {
+      this.onFieldChange(
+        'productCategoryId',
+        (e.currentTarget as HTMLInputElement).value
+      );
+    };
+
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel>Categories:</ControlLabel>
+          <FormControl
+            id="productCategories"
+            componentClass="select"
+            defaultValue={field.productCategoryId || ''}
+            onChange={onCategoryChange}
+          >
+            <option>-</option>
+            {productCategories.map(category => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))}
           </FormControl>
         </FormGroup>
       </>
