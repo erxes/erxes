@@ -50,7 +50,7 @@ const generateKey = name => `service:config:${name}`;
 
 export const getServices = async (): Promise<string[]> => {
   const enabledPlugins = await readEnabledServices();
-  return ['core', ...enabledPlugins];
+  return ['core', ...enabledPlugins.split(' ').map(p => p.replace(/:/gi, ''))];
 };
 
 export const getService = async (name: string, config?: boolean) => {
