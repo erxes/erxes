@@ -55,10 +55,14 @@ export const types = (contactAvailable, cardAvailable) => `
     ticketBoardId: String
     styles: Styles
     mobileResponsive: Boolean
-    googleCredentials: JSON
+    smsConfiguration: String
     twilioAccountSid: String
-    twilioAuthToken: String
     twilioFromNumber: String
+    twilioAuthToken: String
+    twilioOtp: String
+    messageproPhoneNumber: String
+    messageproApiKey: String
+    messageproOtp: String
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,
@@ -146,10 +150,14 @@ export const mutations = (contactAvailable, cardAvailable) => `
     ticketBoardId: String
     styles: StylesParams
     mobileResponsive: Boolean
-    googleCredentials: JSON
+    smsConfiguration: String
     twilioAccountSid: String
     twilioAuthToken: String
     twilioFromNumber: String
+    twilioOtp: String
+    messageproApiKey: String
+    messageproPhoneNumber: String
+    messageproOtp: String
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,

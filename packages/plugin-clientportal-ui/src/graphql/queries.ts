@@ -37,10 +37,14 @@ export const commonFields = `
     secondaryBtnColor
   }
   mobileResponsive
-  googleCredentials
+  smsConfiguration
   twilioAccountSid
   twilioAuthToken
   twilioFromNumber
+  twilioOtp
+  messageproApiKey
+  messageproPhoneNumber
+  messageproOtp
   kbToggle
   publicTaskToggle
   ticketToggle

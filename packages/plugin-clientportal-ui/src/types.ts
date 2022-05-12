@@ -21,10 +21,14 @@ export type ClientPortalConfig = {
   ticketPipelineId?: string;
   styles?: Styles;
   mobileResponsive?: boolean;
-  googleCredentials?: object;
+  smsConfiguration?: string;
   twilioAccountSid?: string;
   twilioAuthToken?: string;
   twilioFromNumber?: string;
+  twilioOtp?: string;
+  messageproApiKey?: string;
+  messageproPhoneNumber?: string;
+  messageproOtp?: string;
   kbToggle?: boolean;
   publicTaskToggle?: boolean;
   ticketToggle?: boolean;

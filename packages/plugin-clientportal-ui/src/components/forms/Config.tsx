@@ -2,8 +2,10 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
-import React from 'react';
+import React, { useState } from 'react';
 import { ClientPortalConfig } from '../../types';
+import Select from 'react-select-plus';
+import { CONFIGURATIONS } from '../../constants';
 
 type Props = {
   handleFormChange: (name: string, value: string) => void;
@@ -20,10 +22,13 @@ type ControlItem = {
 };
 
 function General({
-  googleCredentials,
   twilioAccountSid,
   twilioAuthToken,
   twilioFromNumber,
+  twilioOtp,
+  messageproApiKey,
+  messageproPhoneNumber,
+  messageproOtp,
   handleFormChange
 }: Props) {
   function renderControl({
@@ -41,7 +46,6 @@ function General({
         (e.currentTarget as HTMLInputElement).value
       );
     };
-
     return (
       <FormGroup>
         <ControlLabel required={required}>{label}</ControlLabel>
@@ -59,31 +63,88 @@ function General({
     );
   }
 
+  const [smsConfiguration, setSmsConfiguration] = useState<any>({});
+
+  const renderTwilio = () => {
+    if (!(smsConfiguration === 'Twilio')) {
+      return;
+    }
+
+    return (
+      <>
+        {renderControl({
+          label: 'TWILIO ACCOUNT SID',
+          formValueName: 'twilioAccountSid',
+          formValue: twilioAccountSid
+        })}
+
+        {renderControl({
+          label: 'TWILIO AUTH TOKEN',
+          formValueName: 'twilioAuthToken',
+          formValue: twilioAuthToken
+        })}
+
+        {renderControl({
+          label: 'TWILIO FROM NUMBER',
+          formValueName: 'twilioFromNumber',
+          formValue: twilioFromNumber
+        })}
+
+        {renderControl({
+          label: 'TWILIO OTP',
+          formValueName: 'twilioOtp',
+          formValue: twilioOtp
+        })}
+      </>
+    );
+  };
+
+  const renderMessagePro = () => {
+    if (!(smsConfiguration === 'MessagePro')) {
+      return;
+    }
+    return (
+      <>
+        {renderControl({
+          label: 'MESSAGEPRO API KEY',
+          formValueName: 'messageproApiKey',
+          formValue: messageproApiKey
+        })}
+
+        {renderControl({
+          label: 'MESSAGEPRO PHONE NUMBER',
+          formValueName: 'messageproPhoneNumber',
+          formValue: messageproPhoneNumber
+        })}
+
+        {renderControl({
+          label: 'MESSAGEPRO OTP',
+          formValueName: 'messageproOtp',
+          formValue: messageproOtp
+        })}
+      </>
+    );
+  };
+
+  const onChangeConfiguration = (value: any) => {
+    setSmsConfiguration(value.value);
+    handleFormChange('smsConfiguration', value.value);
+  };
+
   return (
     <>
-      {renderControl({
-        label: 'TWILIO ACCOUNT SID',
-        formValueName: 'twilioAccountSid',
-        formValue: twilioAccountSid
-      })}
-
-      {renderControl({
-        label: 'TWILIO AUTH TOKEN',
-        formValueName: 'twilioAuthToken',
-        formValue: twilioAuthToken
-      })}
-
-      {renderControl({
-        label: 'TWILIO FROM NUMBER',
-        formValueName: 'twilioFromNumber',
-        formValue: twilioFromNumber
-      })}
-
-      {renderControl({
-        label: 'Google Application Credentials',
-        formValueName: 'googleCredentials',
-        formValue: googleCredentials
-      })}
+      <FormGroup>
+        <ControlLabel>Sms Configuration</ControlLabel>
+        <Select
+          placeholder="Choose a configuration"
+          value={smsConfiguration}
+          options={CONFIGURATIONS}
+          name="SMS Configuration"
+          onChange={onChangeConfiguration}
+        />
+      </FormGroup>
+      {renderTwilio()}
+      {renderMessagePro()}
     </>
   );
 }

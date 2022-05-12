@@ -23,10 +23,14 @@ const createOrUpdateConfig = `
     $ticketBoardId: String
     $styles: StylesParams
     $mobileResponsive: Boolean
-    $googleCredentials: JSON
+    $smsConfiguration: String
     $twilioAccountSid: String
     $twilioAuthToken: String
     $twilioFromNumber: String
+    $twilioOtp: String
+    $messageproApiKey: String
+    $messageproPhoneNumber: String
+    $messageproOtp: String
     $kbToggle: Boolean
     $publicTaskToggle: Boolean
     $ticketToggle: Boolean
@@ -55,10 +59,14 @@ const createOrUpdateConfig = `
       ticketBoardId: $ticketBoardId
       styles: $styles
       mobileResponsive: $mobileResponsive
-      googleCredentials: $googleCredentials
+      smsConfiguration: $smsConfiguration
       twilioAccountSid: $twilioAccountSid
       twilioAuthToken: $twilioAuthToken
       twilioFromNumber: $twilioFromNumber
+      twilioOtp: $twilioOtp
+      messageproApiKey: $messageproApiKey
+      messageproPhoneNumber: $messageproPhoneNumber
+      messageproOtp: $messageproOtp
       kbToggle: $kbToggle,
       publicTaskToggle: $publicTaskToggle,
       ticketToggle: $ticketToggle,

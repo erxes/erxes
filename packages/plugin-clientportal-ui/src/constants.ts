@@ -50,3 +50,14 @@ export const FONTS = [
     value: `'Open Sans', sans-serif`
   }
 ];
+
+export const CONFIGURATIONS = [
+  {
+    label: 'Twilio',
+    value: 'Twilio'
+  },
+  {
+    label: 'MessagePro',
+    value: 'MessagePro'
+  }
+];
