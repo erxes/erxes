@@ -83,7 +83,7 @@ class FileUpload extends React.Component<Props, {}> {
             )}
           </ImportHeader>
           <FullContent center={true}>
-            <div style={{ marginBottom: '100px' }}>{this.rendertContent()}</div>
+            <div style={{ marginBottom: '30px' }}>{this.rendertContent()}</div>
           </FullContent>
         </FlexPad>
       </FlexItem>
