@@ -21,23 +21,20 @@ if (!ENABLED_SERVICES_PATH) {
 }
 
 const readEnabledServices = async () => {
-  const cacheValue = await redis.lrange('enabled-services', 0, -1);
+  const cacheValue = await redis.get('enabled_services');
 
   if (cacheValue && cacheValue.length > 0) {
     return cacheValue;
   }
 
   delete require.cache[require.resolve(ENABLED_SERVICES_PATH)];
-  const enabledServices = require(ENABLED_SERVICES_PATH);
+
+  const enabledServices = require(ENABLED_SERVICES_PATH)
+    .map(e => `:${e}:`)
+    .join(' ');
 
   if (enabledServices && enabledServices.length > 0) {
-    await redis.rpush('enabled-services', ...enabledServices);
-
-    console.log(
-      'mmmmmmmmmm',
-      enabledServices,
-      await redis.lrange('enabled-services', 0, -1)
-    );
+    await redis.set('enabled_services', enabledServices);
   }
 
   return enabledServices;
@@ -114,10 +111,10 @@ export const leave = async (name, _port) => {
 
 export const isAvailable = async name => {
   const serviceNames = await readEnabledServices();
-  return name === 'core' || serviceNames.includes(name);
+  return name === 'core' || serviceNames.includes(`:${name}:`);
 };
 
 export const isEnabled = async name => {
   const serviceNames = await readEnabledServices();
-  return name === 'core' || serviceNames.includes(name);
+  return name === 'core' || serviceNames.includes(`:${name}:`);
 };
