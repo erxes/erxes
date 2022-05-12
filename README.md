@@ -2,7 +2,7 @@
  <img src="docs/static/img/logo_dark.svg" alt="erxes logo" width="20%" />
 </p>
 
-<p align="center">erxes is a free and open fair-code licensed experience operating system (XOS). By adopting a plugin-based architecture, erxes provides more monetization options, better security and privacy, and near-infinite scalability for developers & independent agencies to their clients.</p>
+<p align="center">erxes is a free and open fair-code licensed experience operating system (XOS). By adopting a plugin-based architecture, erxes provides more monetization options, better security and privacy, and near-infinite scalability for developers & Independent agencies to their clients.</p>
 
 <p align="center">
   <a href="https://app.codacy.com/gh/erxes/erxes?utm_source=github.com&utm_medium=referral&utm_content=erxes">
