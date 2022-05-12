@@ -87,9 +87,12 @@ export default async function userMiddleware(
 
           if (user) {
             const key = `user_permissions_${user._id}`;
-            const cachedUserPermissions = await redis.get(key);
+            const cachedPermissions = await redis.get(key);
 
-            if (cachedUserPermissions && cachedUserPermissions !== '{}') {
+            if (
+              !cachedPermissions ||
+              (cachedPermissions && cachedPermissions === '{}')
+            ) {
               const userPermissions = await models.Permissions.find({
                 userId: user._id
               });
@@ -102,6 +105,7 @@ export default async function userMiddleware(
                 groupPermissions,
                 user
               );
+
               await redis.set(key, JSON.stringify(actionMap));
             }
 
