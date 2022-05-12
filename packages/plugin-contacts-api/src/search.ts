@@ -1,12 +1,10 @@
 import { doSearch } from '@erxes/api-utils/src/elasticsearch';
-import { es } from './configs';
 
 const search = async ({ subdomain, data: { value } }) => {
   return [
     {
       module: 'contacts',
       items: await doSearch({
-        fetchEs: es.fetchElk,
         subdomain,
         index: 'customers',
         value,
@@ -24,7 +22,6 @@ const search = async ({ subdomain, data: { value } }) => {
     {
       module: 'companies',
       items: await doSearch({
-        fetchEs: es.fetchElk,
         subdomain,
         index: 'companies',
         value,

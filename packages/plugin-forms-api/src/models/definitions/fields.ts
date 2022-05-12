@@ -10,6 +10,7 @@ export interface ISubmission {
   stageId?: string;
   groupId?: string;
   column?: number;
+  productId?: string;
 }
 
 export interface ILogic {
@@ -65,6 +66,7 @@ export interface IField extends IVisibility {
   groupName?: string;
   pageNumber?: number;
   showInCard?: boolean;
+  productCategoryId?: string;
 }
 
 export interface IFieldDocument extends IField, Document {
@@ -174,6 +176,11 @@ export const fieldSchema = schemaWrapper(
       default: false,
       optional: true,
       label: 'Show in card'
+    }),
+    productCategoryId: field({
+      type: String,
+      optional: true,
+      label: 'Product category'
     })
   })
 );

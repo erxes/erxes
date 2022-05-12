@@ -2,7 +2,7 @@ import * as _ from 'underscore';
 import { companySchema } from '../models/definitions/companies';
 import { KIND_CHOICES } from '../models/definitions/constants';
 import { customerSchema } from '../models/definitions/customers';
-import { debug, es } from '../configs';
+import { debug } from '../configs';
 import { COC_LEAD_STATUS_TYPES } from '../constants';
 import { IModels } from '../connectionResolver';
 import {
@@ -11,6 +11,7 @@ import {
   sendSegmentsMessage,
   sendTagsMessage
 } from '../messageBroker';
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 
 export interface ICountBy {
   [index: string]: number;
@@ -464,7 +465,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     let totalCount = 0;
 
     if (action === 'search') {
-      const totalCountResponse = await es.fetchElk({
+      const totalCountResponse = await fetchEs({
         subdomain: this.subdomain,
         action: 'count',
         index: this.contentType,
@@ -498,7 +499,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       }
     }
 
-    const response = await es.fetchElk({
+    const response = await fetchEs({
       subdomain: this.subdomain,
       action,
       index: this.contentType,

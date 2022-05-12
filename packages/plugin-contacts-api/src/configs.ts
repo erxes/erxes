@@ -2,17 +2,14 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { initBroker, sendSegmentsMessage } from './messageBroker';
-import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { buildFile } from './exporter';
 import segments from './segments';
 import forms from './forms';
-import {
-  generateModels,
-} from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import logs from './logUtils';
 import imports from './imports';
-import tags from './tags'
+import tags from './tags';
 import internalNotes from './internalNotes';
 import automations from './automations';
 import search from './search';
@@ -23,13 +20,6 @@ import webhooks from './webhooks';
 export let mainDb;
 export let graphqlPubsub;
 export let serviceDiscovery;
-
-export let es: {
-  client;
-  fetchElk(args: IFetchElkArgs): Promise<any>;
-  getMappings(index: string): Promise<any>;
-  getIndexPrefix(): string;
-};
 
 export let debug;
 
@@ -76,12 +66,7 @@ export default {
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
 
-        const result = await buildFile(
-          models,
-          subdomain,
-          query,
-          user
-        );
+        const result = await buildFile(models, subdomain, query, user);
 
         res.attachment(`${result.name}.xlsx`);
 
@@ -100,11 +85,10 @@ export default {
         return res.send(result.response);
       })
     );
-    
+
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
-    es = options.elasticsearch;
   }
 };

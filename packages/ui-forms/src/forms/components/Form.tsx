@@ -11,7 +11,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import { FormTop, Title } from '../styles';
 import { IForm, IFormData } from '../types';
 import FieldChoices from './FieldChoices';
-import FieldForm from './FieldForm';
+import FieldForm from '../containers/FieldForm';
 import FieldsPreview from './FieldsPreview';
 
 type Props = {
@@ -26,7 +26,6 @@ type Props = {
   hideOptionalFields?: boolean;
   currentMode?: 'create' | 'update' | undefined;
   currentField?: IField;
-  configs: IConfig[];
   color?: string;
 };
 
@@ -217,7 +216,7 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    const { renderPreviewWrapper, configs } = this.props;
+    const { renderPreviewWrapper } = this.props;
     const {
       currentMode,
       currentField,
@@ -234,7 +233,6 @@ class Form extends React.Component<Props, State> {
           onFieldClick={this.onFieldClick}
           onChangeFieldsOrder={this.onChangeFieldsOrder}
           currentPage={this.state.currentPage}
-          configs={configs}
         />
       );
     };
@@ -247,14 +245,16 @@ class Form extends React.Component<Props, State> {
           <Description>
             {__('Choose a field type from the options below.')}
           </Description>
-          <FieldChoices onChoiceClick={this.onChoiceClick} />
+          <FieldChoices
+            type={this.props.type}
+            onChoiceClick={this.onChoiceClick}
+          />
         </LeftItem>
         {currentField && (
           <FieldForm
             mode={currentMode || 'create'}
             field={currentField}
             fields={fields}
-            configs={configs}
             numberOfPages={numberOfPages || 1}
             onSubmit={this.onFieldSubmit}
             onDelete={this.onFieldDelete}

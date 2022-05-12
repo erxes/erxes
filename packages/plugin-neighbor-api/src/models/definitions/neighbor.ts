@@ -71,7 +71,7 @@ const universitySchema = {
   locationValue: field({ type: location })
 };
 
-const sohSxhema = {
+const sohSchema = {
   thermality: field({ type: String, label: 'thermality' }),
   electricity: field({ type: String, label: 'electricity' }),
   security: field({ type: String, label: 'security' }),
@@ -150,7 +150,7 @@ export const NeighborItemSchema = new Schema({
   schoolData: field({ type: schoolSchema }),
   kindergardenData: field({ type: schoolSchema }),
   universityData: field({ type: universitySchema }),
-  sohData: field({ type: sohSxhema }),
+  sohData: field({ type: sohSchema }),
   khorooData: field({ type: khorooSchema }),
   envInfoData: field({ type: envInfoSchema }),
   parkingData: field({ type: commonSchema }),

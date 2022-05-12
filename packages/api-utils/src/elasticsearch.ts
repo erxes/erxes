@@ -1,14 +1,21 @@
-import { IFetchElkArgs } from './types';
+import * as elasticsearch from 'elasticsearch';
+import { debugError } from './debuggers';
+export interface IFetchEsArgs {
+  subdomain: string;
+  action: string;
+  index: string;
+  body: any;
+  _id?: string;
+  defaultValue?: any;
+}
 
 export const doSearch = async ({
   customQuery,
-  fetchEs,
   subdomain,
   index,
   value,
   fields
 }: {
-  fetchEs: (args: IFetchElkArgs) => Promise<any>;
   subdomain: string;
   index: string;
   value: string;
@@ -63,4 +70,53 @@ export const doSearch = async ({
   });
 
   return results;
+};
+
+export const fetchEs = async ({
+  action,
+  index,
+  body,
+  _id,
+  defaultValue
+}: IFetchEsArgs) => {
+  try {
+    const params: any = {
+      index: `${getIndexPrefix()}${index}`,
+      body
+    };
+
+    if (action === 'search' && body && !body.size) {
+      body.size = 10000;
+    }
+
+    if (_id) {
+      params.id = _id;
+    }
+
+    const response = await client[action](params);
+
+    return response;
+  } catch (e) {
+    debugError(`Error during es query ${e.message}`);
+
+    if (typeof defaultValue !== 'undefined') {
+      return defaultValue;
+    }
+
+    throw new Error(e);
+  }
+};
+
+const { ELASTICSEARCH_URL = 'http://localhost:9200' } = process.env;
+
+export const client = new elasticsearch.Client({
+  hosts: [ELASTICSEARCH_URL]
+});
+
+export const getMappings = async (index: string) => {
+  return client.indices.getMapping({ index });
+};
+
+export const getIndexPrefix = () => {
+  return 'erxes__';
 };

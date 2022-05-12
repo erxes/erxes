@@ -3,7 +3,6 @@ import resolvers from './graphql/resolvers';
 import * as serverTiming from 'server-timing';
 
 import { initBroker, sendSegmentsMessage } from './messageBroker';
-import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { initMemoryStorage } from './inmemoryStorage';
 import * as permissions from './permissions';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
@@ -22,13 +21,6 @@ import webhooks from './webhooks';
 export let mainDb;
 export let graphqlPubsub;
 export let serviceDiscovery;
-
-export let es: {
-  client;
-  fetchElk(args: IFetchElkArgs): Promise<any>;
-  getMappings(index: string): Promise<any>;
-  getIndexPrefix(): string;
-};
 
 export let debug;
 
@@ -66,7 +58,7 @@ export default {
       startTime: res.startTime,
       endTime: res.endTime,
       setMetric: res.setMetric
-    }
+    };
 
     return context;
   },
@@ -91,7 +83,11 @@ export default {
 
         if (segment) {
           try {
-            sendSegmentsMessage({ subdomain, action: 'removeSegment', data: { segmentId: segment } });
+            sendSegmentsMessage({
+              subdomain,
+              action: 'removeSegment',
+              data: { segmentId: segment }
+            });
           } catch (e) {
             console.log((e as Error).message);
           }
@@ -107,6 +103,5 @@ export default {
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
-    es = options.elasticsearch;
   }
 };

@@ -8,7 +8,6 @@ import FieldPreview from './FieldPreview';
 
 type Props = {
   fields: IField[];
-  configs: IConfig[];
   formDesc?: string;
   onFieldClick?: (field: IField) => void;
   onChangeFieldsOrder?: (fields: IField[]) => void;
@@ -74,7 +73,6 @@ class FieldsPreview extends React.Component<Props, State> {
           key={field._id}
           onClick={this.props.onFieldClick}
           field={field}
-          configs={this.props.configs}
         />
       );
     };
@@ -97,7 +95,7 @@ class FieldsPreview extends React.Component<Props, State> {
             child={child}
             fields={fields}
             onChangeFields={this.onChangeFields}
-            droppableId='form'
+            droppableId="form"
           />
         </FieldsWrapper>
       </>

@@ -70,7 +70,8 @@ class PropertyForm extends React.Component<Props, State> {
         ...doc,
         type,
         searchable,
-        showInCard
+        showInCard,
+        keys
       };
 
       if (
