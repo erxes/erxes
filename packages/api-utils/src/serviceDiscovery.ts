@@ -30,12 +30,14 @@ const readEnabledServices = async () => {
   delete require.cache[require.resolve(ENABLED_SERVICES_PATH)];
   const enabledServices = require(ENABLED_SERVICES_PATH);
 
-  await redis.del('enabled-services');
-
   if (enabledServices && enabledServices.length > 0) {
-    console.log('mmmmmmmmmm', enabledServices, JSON.stringify(enabledServices));
-
     await redis.rpush('enabled-services', ...enabledServices);
+
+    console.log(
+      'mmmmmmmmmm',
+      enabledServices,
+      await redis.lrange('enabled-services', 0, -1)
+    );
   }
 
   return enabledServices;
