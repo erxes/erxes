@@ -1,0 +1,54 @@
+name: Plugin exm Api CI
+
+on:
+  push:
+    branches:
+      - federation
+    paths:
+      - 'packages/api-utils/**'
+      - 'packages/api-plugin-template.erxes/**'
+      - 'packages/plugin-exm-api/**'
+      - '.github/workflows/plugin-exm-api.yaml'
+
+jobs:
+  api:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 12.20.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.20.x
+
+      # https://github.com/actions/cache/blob/master/examples.md#node---yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-plugin-exm-api-${{ hashFiles('yarn.lock', 'plugin-exm-api/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-plugin-exm-api-
+            ${{ runner.os }}-yarn-
+
+      - name: Build
+        run: |
+          cd packages/gateway
+          yarn install
+          yarn build plugin exm
+
+      - name: Build docker image
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
+        run: |
+          ls -la dist
+          ls -la dist/plugin-exm-api
+
+          cd dist/plugin-exm-api/.erxes
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker build -t erxes/plugin-exm-api:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker push erxes/plugin-exm-api:${GITHUB_REF#refs/heads/}

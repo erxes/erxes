@@ -1,0 +1,47 @@
+name: Plugin calendar UI CI
+
+on:
+  push:
+    branches:
+      - federation
+    paths:
+      - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
+      - "packages/ui-calendar/**"
+      - "packages/plugin-calendar-ui/**"
+      - ".github/workflows/plugin-calendar-ui.yaml"
+
+jobs:
+  ui:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: Use Node.js 14.18.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.18.x
+
+      - uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          yarn install --frozen-lockfile
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-calendar-ui/.erxes
+          cp -r packages/plugin-calendar-ui/src packages/plugin-calendar-ui/.erxes/plugin-src
+          cd packages/plugin-calendar-ui
+          yarn install
+          yarn install-deps
+          yarn build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Deploy
+        run: |
+          tar -cf build.tar --directory=packages/plugin-calendar-ui/.erxes/dist .
+          cp build.tar packages/plugin-calendar-ui/.erxes/dist
+          aws s3 sync packages/plugin-calendar-ui/.erxes/dist s3://erxes-plugins/uis/plugin-calendar-ui --delete

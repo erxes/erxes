@@ -1,0 +1,47 @@
+name: Plugin notifications UI CI
+
+on:
+  push:
+    branches:
+      - federation
+    paths:
+      - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
+      - "packages/ui-notifications/**"
+      - "packages/plugin-notifications-ui/**"
+      - ".github/workflows/plugin-notifications-ui.yaml"
+
+jobs:
+  ui:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: Use Node.js 14.18.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.18.x
+
+      - uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          yarn install --frozen-lockfile
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-notifications-ui/.erxes
+          cp -r packages/plugin-notifications-ui/src packages/plugin-notifications-ui/.erxes/plugin-src
+          cd packages/plugin-notifications-ui
+          yarn install
+          yarn install-deps
+          yarn build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Deploy
+        run: |
+          tar -cf build.tar --directory=packages/plugin-notifications-ui/.erxes/dist .
+          cp build.tar packages/plugin-notifications-ui/.erxes/dist
+          aws s3 sync packages/plugin-notifications-ui/.erxes/dist s3://erxes-plugins/uis/plugin-notifications-ui --delete

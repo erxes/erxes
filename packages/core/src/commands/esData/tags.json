@@ -1,0 +1,1129 @@
+{
+  "took": 23,
+  "timed_out": false,
+  "_shards": {
+    "total": 1,
+    "successful": 1,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": {
+      "value": 62,
+      "relation": "eq"
+    },
+    "max_score": 1.0,
+    "hits": [
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "h6Np4wkEfaRbEG7yr",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [
+            "x2PSHiPngZBwH736r",
+            "Zw322oAY9AX7uRbuM",
+            "iYQxfw4p8ZzodJNd8",
+            "ZS2sNTX3EDjRvZJXJ",
+            "kpi2fCMyYJhHEJiN7"
+          ],
+          "scopeBrandIds": [],
+          "name": "Байршил",
+          "type": "conversation",
+          "colorCode": "#f47373",
+          "parentId": "",
+          "order": "Байршилconversation",
+          "createdAt": "2022-01-20T03:25:13.153000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "iYQxfw4p8ZzodJNd8",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Хойд бүс",
+          "type": "conversation",
+          "colorCode": "#cd5a91",
+          "parentId": "h6Np4wkEfaRbEG7yr",
+          "order": "Байршилconversation/Хойд бүсconversation",
+          "createdAt": "2022-03-18T02:16:49.443000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "jG2D3ppA6dGney79h",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Хажуу өрөө",
+          "type": "customer",
+          "colorCode": "#01aecc",
+          "parentId": "bsaqqtxsCP9yngJyw",
+          "order": "Өрөөний тооcustomer/Хажуу өрөөcustomer",
+          "createdAt": "2022-01-20T05:53:35.900000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "jGzMmHEsTjuL7RBWT",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [
+            "uxg2e5XQYpZckR522",
+            "kW7zv7ne6ownZEPsB",
+            "3572ZCfQzTGjkoRfj"
+          ],
+          "scopeBrandIds": [],
+          "name": "Хэрэглэгчийн төрөл",
+          "type": "customer",
+          "colorCode": "#d9e3f0",
+          "parentId": "",
+          "order": "Хэрэглэгчийн төрөлcustomer",
+          "createdAt": "2021-11-03T10:49:41.022000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "kW7zv7ne6ownZEPsB",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Агентлагын агент",
+          "type": "customer",
+          "colorCode": "#697689",
+          "parentId": "jGzMmHEsTjuL7RBWT",
+          "order": "Хэрэглэгчийн төрөлcustomer/Агентлагын агентcustomer",
+          "createdAt": "2021-11-03T10:50:24.670000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "kpi2fCMyYJhHEJiN7",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Төвийн бүс ",
+          "type": "conversation",
+          "colorCode": "#0078bf",
+          "parentId": "h6Np4wkEfaRbEG7yr",
+          "order": "Байршилconversation/Төвийн бүс conversation",
+          "createdAt": "2022-03-18T02:15:53.715000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "ocqRqZuafitHu4nh6",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Сонгинохайрхан",
+          "type": "customer",
+          "colorCode": "#f47373",
+          "parentId": "ETC4x3DXR2aWCLXXT",
+          "order": "Байршилcustomer/Сонгинохайрханcustomer",
+          "createdAt": "2022-01-20T03:29:39.295000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "pZtdaM2bbGCbZHfo3",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "1 өрөө",
+          "type": "product",
+          "colorCode": "#89609d",
+          "parentId": "3tWM9nqtN2SttA8AN",
+          "order": "Өрөөний тооproduct/1 өрөөproduct",
+          "createdAt": "2021-11-11T02:55:33.711000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "Ys2wuN8CqPLyunufn",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "2 өрөө",
+          "type": "product",
+          "colorCode": "#d29034",
+          "parentId": "3tWM9nqtN2SttA8AN",
+          "order": "Өрөөний тооproduct/2 өрөөproduct",
+          "createdAt": "2021-11-11T02:55:53.565000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "ZPkq3GFQGAdzDfxdP",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Урд",
+          "type": "product",
+          "colorCode": "#f47373",
+          "parentId": "AdECWup8KasqrYAKC",
+          "order": "Байршилproduct/Урдproduct",
+          "createdAt": "2021-11-11T02:52:40.138000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "ZS2sNTX3EDjRvZJXJ",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Зүүн бүс ",
+          "type": "conversation",
+          "colorCode": "#f47373",
+          "parentId": "h6Np4wkEfaRbEG7yr",
+          "order": "Байршилconversation/Зүүн бүс conversation",
+          "createdAt": "2022-01-20T03:25:37.082000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "Zw322oAY9AX7uRbuM",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Баруун бүс ",
+          "type": "conversation",
+          "colorCode": "#f47373",
+          "parentId": "h6Np4wkEfaRbEG7yr",
+          "order": "Байршилconversation/Баруун бүс conversation",
+          "createdAt": "2022-01-20T03:25:50.978000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "a8Y7Rff9rjKrNfCMv",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": ["atdygxt5W2Q62zmkQ", "HC2Wy5hkTrhtHmJfs"],
+          "scopeBrandIds": [],
+          "name": "Төлөв",
+          "type": "customer",
+          "colorCode": "#4bbf6b",
+          "parentId": "",
+          "order": "Төлөвcustomer",
+          "createdAt": "2021-11-03T10:50:37.994000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "atdygxt5W2Q62zmkQ",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "түрээслэхээр сонирхож байгаа",
+          "type": "customer",
+          "colorCode": "#f7ce53",
+          "parentId": "a8Y7Rff9rjKrNfCMv",
+          "order": "Төлөвcustomer/түрээслэхээр сонирхож байгааcustomer",
+          "createdAt": "2021-10-25T07:11:21.728000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "bsaqqtxsCP9yngJyw",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [
+            "jG2D3ppA6dGney79h",
+            "26xMgMz3kCRmMoHWP",
+            "AtXtYXSB4vYMxHdyt",
+            "Ldb2C59EEeFHRmzS7",
+            "9aYgLHEjvMyHPqtTf"
+          ],
+          "scopeBrandIds": [],
+          "name": "Өрөөний тоо",
+          "type": "customer",
+          "colorCode": "#0078bf",
+          "parentId": "",
+          "order": "Өрөөний тооcustomer",
+          "createdAt": "2022-01-20T03:31:22.211000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "cFCo6QQkSTZidMJpn",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Сүхбаатар",
+          "type": "customer",
+          "colorCode": "#f47373",
+          "parentId": "ETC4x3DXR2aWCLXXT",
+          "order": "Байршилcustomer/Сүхбаатарcustomer",
+          "createdAt": "2022-01-20T03:29:23.919000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "dCcjCbtqt8ckj48BY",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "owner",
+          "type": "conversation",
+          "colorCode": "#4bbf6b",
+          "parentId": "",
+          "order": "ownerconversation",
+          "createdAt": "2022-01-20T03:15:49.579000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "fkKXzZjoL39xP6Xvo",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [
+            "MMfM3x28LiMr4zHeJ",
+            "zXR39ecqMAKPZtdBr",
+            "3dzM9ttB8YdP9z5TR",
+            "XTF2gNxi24q94yAbr",
+            "Ae99LWiwiEKa4oqpv",
+            "8ErzLRETTmSRvXRBv",
+            "Ret4kg9pShzdAMvBz",
+            "G83W4uJhD982cYsr8"
+          ],
+          "scopeBrandIds": [],
+          "name": "Үнийн дүн",
+          "type": "customer",
+          "colorCode": "#f7ce53",
+          "parentId": "",
+          "order": "Үнийн дүнcustomer",
+          "createdAt": "2022-01-20T03:42:35.504000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "8ErzLRETTmSRvXRBv",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "800K - 1000K",
+          "type": "customer",
+          "colorCode": "#D9E3F0",
+          "parentId": "fkKXzZjoL39xP6Xvo",
+          "order": "Үнийн дүнcustomer/800K - 1000Kcustomer",
+          "createdAt": "2022-01-20T03:43:54.371000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "8RBksEFc4byp2ga64",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Хан-Уул",
+          "type": "customer",
+          "colorCode": "#f47373",
+          "parentId": "ETC4x3DXR2aWCLXXT",
+          "order": "Байршилcustomer/Хан-Уулcustomer",
+          "createdAt": "2022-01-20T03:30:21.364000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "9aYgLHEjvMyHPqtTf",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "1 өрөө",
+          "type": "customer",
+          "colorCode": "#0078bf",
+          "parentId": "bsaqqtxsCP9yngJyw",
+          "order": "Өрөөний тооcustomer/1 өрөөcustomer",
+          "createdAt": "2022-01-20T03:31:36.782000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "AdECWup8KasqrYAKC",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [
+            "3Xx2LbaKdxDvkA7Aw",
+            "w6B8fvdZhhEsNQ7nz",
+            "TyaAJNrq7KS24u2gC",
+            "ZPkq3GFQGAdzDfxdP"
+          ],
+          "scopeBrandIds": [],
+          "name": "Байршил",
+          "type": "product",
+          "colorCode": "#d9e3f0",
+          "parentId": "",
+          "order": "Байршилproduct",
+          "createdAt": "2021-11-11T02:52:18.062000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "Ae99LWiwiEKa4oqpv",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "1000K - 1200K",
+          "type": "customer",
+          "colorCode": "#D9E3F0",
+          "parentId": "fkKXzZjoL39xP6Xvo",
+          "order": "Үнийн дүнcustomer/1000K - 1200Kcustomer",
+          "createdAt": "2022-01-20T03:44:11.429000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "AtXtYXSB4vYMxHdyt",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "3 өрөө",
+          "type": "customer",
+          "colorCode": "#0078bf",
+          "parentId": "bsaqqtxsCP9yngJyw",
+          "order": "Өрөөний тооcustomer/3 өрөөcustomer",
+          "createdAt": "2022-01-20T03:31:59.858000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "BgiMZQjjTEhb4kXCQ",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "5+ өрөө",
+          "type": "product",
+          "colorCode": "#ff6900",
+          "parentId": "3tWM9nqtN2SttA8AN",
+          "order": "Өрөөний тооproduct/5+ өрөөproduct",
+          "createdAt": "2021-11-11T02:58:08.996000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "ETC4x3DXR2aWCLXXT",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [
+            "8RBksEFc4byp2ga64",
+            "FZgfE5zCtTLDHmEur",
+            "ocqRqZuafitHu4nh6",
+            "cFCo6QQkSTZidMJpn",
+            "4gEoaWBW5iccuFDjo",
+            "w6864s9Xv4hzAxeZK"
+          ],
+          "scopeBrandIds": [],
+          "name": "Байршил",
+          "type": "customer",
+          "colorCode": "#f47373",
+          "parentId": "",
+          "order": "Байршилcustomer",
+          "createdAt": "2022-01-20T03:28:48.281000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "EbYn4mfmX9hZWmEmE",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Тодорхой бус ",
+          "type": "customer",
+          "colorCode": "#0078bf",
+          "parentId": "",
+          "order": "Тодорхой бус customer",
+          "createdAt": "2022-02-09T02:15:18.634000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "FZgfE5zCtTLDHmEur",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Чингэлтэй",
+          "type": "customer",
+          "colorCode": "#F47373",
+          "parentId": "ETC4x3DXR2aWCLXXT",
+          "order": "Байршилcustomer/Чингэлтэйcustomer",
+          "createdAt": "2022-01-20T03:29:59.271000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "qZixJnoDfhxevmxjh",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Тест ",
+          "type": "conversation",
+          "colorCode": "#f7ce53",
+          "parentId": "pHaSChuKfGjBwduwd",
+          "order": "OTHERconversation/Тест conversation",
+          "createdAt": "2022-03-18T02:15:11.797000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "qmnxWS6ikxZaGNfTC",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "1 жилээс дээш",
+          "type": "customer",
+          "colorCode": "#89609d",
+          "parentId": "2i8d5QKjZwkpmAYgx",
+          "order": "Хугацааcustomer/1 жилээс дээшcustomer",
+          "createdAt": "2022-01-20T03:49:41.452000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "quT7cWvrgndd3EfSc",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "6 сараас - 1 жил",
+          "type": "customer",
+          "colorCode": "#89609d",
+          "parentId": "2i8d5QKjZwkpmAYgx",
+          "order": "Хугацааcustomer/6 сараас - 1 жилcustomer",
+          "createdAt": "2022-01-20T03:49:30.508000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "skKJdxZMbmSzcDMgu",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Маркетинг",
+          "type": "conversation",
+          "colorCode": "#f7ce53",
+          "parentId": "pHaSChuKfGjBwduwd",
+          "order": "OTHERconversation/Маркетингconversation",
+          "createdAt": "2022-03-18T02:14:57.877000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "uxg2e5XQYpZckR522",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Түрээслэгч",
+          "type": "customer",
+          "colorCode": "#cd5a91",
+          "parentId": "jGzMmHEsTjuL7RBWT",
+          "order": "Хэрэглэгчийн төрөлcustomer/Түрээслэгчcustomer",
+          "createdAt": "2021-11-03T10:49:58.872000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "w6864s9Xv4hzAxeZK",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Баянгол",
+          "type": "customer",
+          "colorCode": "#f47373",
+          "parentId": "ETC4x3DXR2aWCLXXT",
+          "order": "Байршилcustomer/Баянголcustomer",
+          "createdAt": "2022-01-20T03:29:00.973000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "w6B8fvdZhhEsNQ7nz",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Баруун",
+          "type": "product",
+          "colorCode": "#0078bf",
+          "parentId": "AdECWup8KasqrYAKC",
+          "order": "Байршилproduct/Баруунproduct",
+          "createdAt": "2021-11-11T02:53:35.270000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "x2PSHiPngZBwH736r",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Урд бүс ",
+          "type": "conversation",
+          "colorCode": "#63d2d6",
+          "parentId": "h6Np4wkEfaRbEG7yr",
+          "order": "Байршилconversation/Урд бүс conversation",
+          "createdAt": "2022-03-18T02:16:20.925000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "yCNySEBkanCRpxYTm",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "6 сараас доош",
+          "type": "customer",
+          "colorCode": "#89609d",
+          "parentId": "2i8d5QKjZwkpmAYgx",
+          "order": "Хугацааcustomer/6 сараас доошcustomer",
+          "createdAt": "2022-01-20T03:49:04.880000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "zXR39ecqMAKPZtdBr",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "1800K - 2000K",
+          "type": "customer",
+          "colorCode": "#d9e3f0",
+          "parentId": "fkKXzZjoL39xP6Xvo",
+          "order": "Үнийн дүнcustomer/1800K - 2000Kcustomer",
+          "createdAt": "2022-01-20T03:46:01.549000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "G83W4uJhD982cYsr8",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "< 600K доош үнэтэй",
+          "type": "customer",
+          "colorCode": "#D9E3F0",
+          "parentId": "fkKXzZjoL39xP6Xvo",
+          "order": "Үнийн дүнcustomer/< 600K доош үнэтэйcustomer",
+          "createdAt": "2022-01-20T03:43:11.277000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "HC2Wy5hkTrhtHmJfs",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Одоо түрээслэж байгаа",
+          "type": "customer",
+          "colorCode": "#f47373",
+          "parentId": "a8Y7Rff9rjKrNfCMv",
+          "order": "Төлөвcustomer/Одоо түрээслэж байгааcustomer",
+          "createdAt": "2021-10-25T06:25:12.474000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "K7XdwfQT5jvQf2zWk",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "1 өрөө",
+          "type": "conversation",
+          "colorCode": "#697689",
+          "parentId": "kgDqYAPKegZ2tZWtj",
+          "order": "Өрөөний тооconversation/1 өрөөconversation",
+          "createdAt": "2022-01-20T03:26:18.419000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "Ldb2C59EEeFHRmzS7",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "2 өрөө",
+          "type": "customer",
+          "colorCode": "#01aecc",
+          "parentId": "bsaqqtxsCP9yngJyw",
+          "order": "Өрөөний тооcustomer/2 өрөөcustomer",
+          "createdAt": "2022-01-20T03:31:50.129000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "MMfM3x28LiMr4zHeJ",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "2000K дээш үнэтэй",
+          "type": "customer",
+          "colorCode": "#d9e3f0",
+          "parentId": "fkKXzZjoL39xP6Xvo",
+          "order": "Үнийн дүнcustomer/2000K дээш үнэтэйcustomer",
+          "createdAt": "2022-01-20T03:46:25.692000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "RXW3qvqdtEQRPL56N",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "4 өрөө",
+          "type": "product",
+          "colorCode": "#f7ce53",
+          "parentId": "3tWM9nqtN2SttA8AN",
+          "order": "Өрөөний тооproduct/4 өрөөproduct",
+          "createdAt": "2021-11-11T02:57:40.586000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "Ret4kg9pShzdAMvBz",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "600K - 800K",
+          "type": "customer",
+          "colorCode": "#D9E3F0",
+          "parentId": "fkKXzZjoL39xP6Xvo",
+          "order": "Үнийн дүнcustomer/600K - 800Kcustomer",
+          "createdAt": "2022-01-20T03:43:38.660000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "TyaAJNrq7KS24u2gC",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Хойд",
+          "type": "product",
+          "colorCode": "#01aecc",
+          "parentId": "AdECWup8KasqrYAKC",
+          "order": "Байршилproduct/Хойдproduct",
+          "createdAt": "2021-11-11T02:53:01.537000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "XTF2gNxi24q94yAbr",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "1200K - 1500K",
+          "type": "customer",
+          "colorCode": "#d9e3f0",
+          "parentId": "fkKXzZjoL39xP6Xvo",
+          "order": "Үнийн дүнcustomer/1200K - 1500Kcustomer",
+          "createdAt": "2022-01-20T03:44:43.877000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "YBspmxzAnPHp4AGwc",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "3 өрөө",
+          "type": "product",
+          "colorCode": "#63d2d6",
+          "parentId": "3tWM9nqtN2SttA8AN",
+          "order": "Өрөөний тооproduct/3 өрөөproduct",
+          "createdAt": "2021-11-11T02:57:18.855000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "gmWZQynh79zwrDaAG",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Алдаа ",
+          "type": "conversation",
+          "colorCode": "#eb144c",
+          "parentId": "pHaSChuKfGjBwduwd",
+          "order": "OTHERconversation/Алдаа conversation",
+          "createdAt": "2022-03-28T05:43:07.753000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "pHaSChuKfGjBwduwd",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [
+            "gmWZQynh79zwrDaAG",
+            "qZixJnoDfhxevmxjh",
+            "skKJdxZMbmSzcDMgu"
+          ],
+          "scopeBrandIds": [],
+          "name": "OTHER",
+          "type": "conversation",
+          "colorCode": "#d9e3f0",
+          "parentId": "",
+          "order": "OTHERconversation",
+          "createdAt": "2022-02-10T04:36:50.274000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "26xMgMz3kCRmMoHWP",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "4 өрөө",
+          "type": "customer",
+          "colorCode": "#0078bf",
+          "parentId": "bsaqqtxsCP9yngJyw",
+          "order": "Өрөөний тооcustomer/4 өрөөcustomer",
+          "createdAt": "2022-01-20T03:32:11.137000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "2ScnGkTtcZer4xAZD",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "2 өрөө",
+          "type": "conversation",
+          "colorCode": "#697689",
+          "parentId": "kgDqYAPKegZ2tZWtj",
+          "order": "Өрөөний тооconversation/2 өрөөconversation",
+          "createdAt": "2022-01-20T03:26:29.758000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "2i8d5QKjZwkpmAYgx",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [
+            "qmnxWS6ikxZaGNfTC",
+            "quT7cWvrgndd3EfSc",
+            "yCNySEBkanCRpxYTm"
+          ],
+          "scopeBrandIds": [],
+          "name": "Хугацаа",
+          "type": "customer",
+          "colorCode": "#eb144c",
+          "parentId": "",
+          "order": "Хугацааcustomer",
+          "createdAt": "2022-01-20T03:48:23.926000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "2pTuE4GjcCZqT9Jun",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "buyer",
+          "type": "conversation",
+          "colorCode": "#89609d",
+          "parentId": "",
+          "order": "buyerconversation",
+          "createdAt": "2022-01-20T03:15:37.298000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "3572ZCfQzTGjkoRfj",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Түрээслүүлэгч",
+          "type": "customer",
+          "colorCode": "#0078bf",
+          "parentId": "jGzMmHEsTjuL7RBWT",
+          "order": "Хэрэглэгчийн төрөлcustomer/Түрээслүүлэгчcustomer",
+          "createdAt": "2021-11-03T10:50:08.729000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "3Xx2LbaKdxDvkA7Aw",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Төвийн",
+          "type": "product",
+          "colorCode": "#4bbf6b",
+          "parentId": "AdECWup8KasqrYAKC",
+          "order": "Байршилproduct/Төвийнproduct",
+          "createdAt": "2021-11-11T02:53:12.113000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "3dzM9ttB8YdP9z5TR",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "1500K - 1800K",
+          "type": "customer",
+          "colorCode": "#d9e3f0",
+          "parentId": "fkKXzZjoL39xP6Xvo",
+          "order": "Үнийн дүнcustomer/1500K - 1800Kcustomer",
+          "createdAt": "2022-01-20T03:44:54.898000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "3tWM9nqtN2SttA8AN",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [
+            "BgiMZQjjTEhb4kXCQ",
+            "RXW3qvqdtEQRPL56N",
+            "YBspmxzAnPHp4AGwc",
+            "Ys2wuN8CqPLyunufn",
+            "pZtdaM2bbGCbZHfo3"
+          ],
+          "scopeBrandIds": [],
+          "name": "Өрөөний тоо",
+          "type": "product",
+          "colorCode": "#D9E3F0",
+          "parentId": "",
+          "order": "Өрөөний тооproduct",
+          "createdAt": "2021-11-11T02:55:16.121000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "4gEoaWBW5iccuFDjo",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "Баянзүрх",
+          "type": "customer",
+          "colorCode": "#F47373",
+          "parentId": "ETC4x3DXR2aWCLXXT",
+          "order": "Байршилcustomer/Баянзүрхcustomer",
+          "createdAt": "2022-01-20T03:29:12.129000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "6RLsjQgMqfDSghnr7",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "3 өрөө ",
+          "type": "conversation",
+          "colorCode": "#d9e3f0",
+          "parentId": "kgDqYAPKegZ2tZWtj",
+          "order": "Өрөөний тооconversation/3 өрөө conversation",
+          "createdAt": "2022-03-18T02:14:25.302000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "T6bpbZ2rcduTiZQ9T",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [],
+          "scopeBrandIds": [],
+          "name": "4 өрөө ",
+          "type": "conversation",
+          "colorCode": "#89609d",
+          "parentId": "kgDqYAPKegZ2tZWtj",
+          "order": "Өрөөний тооconversation/4 өрөө conversation",
+          "createdAt": "2022-04-07T05:35:14.712000",
+          "__v": 0
+        }
+      },
+      {
+        "_index": "erxes__tags",
+        "_type": "_doc",
+        "_id": "kgDqYAPKegZ2tZWtj",
+        "_score": 1.0,
+        "_source": {
+          "relatedIds": [
+            "T6bpbZ2rcduTiZQ9T",
+            "6RLsjQgMqfDSghnr7",
+            "2ScnGkTtcZer4xAZD",
+            "K7XdwfQT5jvQf2zWk"
+          ],
+          "scopeBrandIds": [],
+          "name": "Өрөөний тоо",
+          "type": "conversation",
+          "colorCode": "#697689",
+          "parentId": "",
+          "order": "Өрөөний тооconversation",
+          "createdAt": "2022-01-20T03:26:06.336000",
+          "__v": 0
+        }
+      }
+    ]
+  }
+}
