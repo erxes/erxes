@@ -84,7 +84,7 @@ class MapColumn extends React.Component<Props, {}> {
     return (
       <>
         <FlexItem>
-          <FlexPad direction="column">
+          <FlexPad type="stepper" direction="column">
             <SubHeading>
               {__(`${this.renderText(contentType)} mapping`)}
             </SubHeading>
