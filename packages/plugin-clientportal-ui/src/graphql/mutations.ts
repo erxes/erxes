@@ -27,10 +27,9 @@ const createOrUpdateConfig = `
     $twilioAccountSid: String
     $twilioAuthToken: String
     $twilioFromNumber: String
-    $twilioOtp: String
     $messageproApiKey: String
     $messageproPhoneNumber: String
-    $messageproOtp: String
+    $content: String
     $kbToggle: Boolean
     $publicTaskToggle: Boolean
     $ticketToggle: Boolean
@@ -63,10 +62,9 @@ const createOrUpdateConfig = `
       twilioAccountSid: $twilioAccountSid
       twilioAuthToken: $twilioAuthToken
       twilioFromNumber: $twilioFromNumber
-      twilioOtp: $twilioOtp
       messageproApiKey: $messageproApiKey
       messageproPhoneNumber: $messageproPhoneNumber
-      messageproOtp: $messageproOtp
+      content: $content
       kbToggle: $kbToggle,
       publicTaskToggle: $publicTaskToggle,
       ticketToggle: $ticketToggle,

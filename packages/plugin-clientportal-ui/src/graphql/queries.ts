@@ -41,10 +41,9 @@ export const commonFields = `
   twilioAccountSid
   twilioAuthToken
   twilioFromNumber
-  twilioOtp
   messageproApiKey
   messageproPhoneNumber
-  messageproOtp
+  content
   kbToggle
   publicTaskToggle
   ticketToggle

@@ -59,10 +59,9 @@ export const types = (contactAvailable, cardAvailable) => `
     twilioAccountSid: String
     twilioFromNumber: String
     twilioAuthToken: String
-    twilioOtp: String
     messageproPhoneNumber: String
     messageproApiKey: String
-    messageproOtp: String
+    content: String
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,
@@ -154,10 +153,9 @@ export const mutations = (contactAvailable, cardAvailable) => `
     twilioAccountSid: String
     twilioAuthToken: String
     twilioFromNumber: String
-    twilioOtp: String
     messageproApiKey: String
     messageproPhoneNumber: String
-    messageproOtp: String
+    content: String
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,

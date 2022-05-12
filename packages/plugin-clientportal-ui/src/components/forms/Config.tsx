@@ -25,10 +25,9 @@ function General({
   twilioAccountSid,
   twilioAuthToken,
   twilioFromNumber,
-  twilioOtp,
   messageproApiKey,
   messageproPhoneNumber,
-  messageproOtp,
+  content,
   handleFormChange
 }: Props) {
   function renderControl({
@@ -91,9 +90,9 @@ function General({
         })}
 
         {renderControl({
-          label: 'TWILIO OTP',
-          formValueName: 'twilioOtp',
-          formValue: twilioOtp
+          label: 'CONTENT',
+          formValueName: 'content',
+          formValue: content
         })}
       </>
     );
@@ -118,9 +117,9 @@ function General({
         })}
 
         {renderControl({
-          label: 'MESSAGEPRO OTP',
-          formValueName: 'messageproOtp',
-          formValue: messageproOtp
+          label: 'CONTENT',
+          formValueName: 'content',
+          formValue: content
         })}
       </>
     );

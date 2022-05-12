@@ -25,10 +25,9 @@ export type ClientPortalConfig = {
   twilioAccountSid?: string;
   twilioAuthToken?: string;
   twilioFromNumber?: string;
-  twilioOtp?: string;
   messageproApiKey?: string;
   messageproPhoneNumber?: string;
-  messageproOtp?: string;
+  content?: string;
   kbToggle?: boolean;
   publicTaskToggle?: boolean;
   ticketToggle?: boolean;
