@@ -17,14 +17,15 @@ export const generateProducts = async (subdomain: string, productsData) => {
       continue;
     }
 
-    const product = await sendProductsMessage({
-      subdomain,
-      action: 'findOne',
-      data: { _id: data.productId },
-      isRPC: true
-    });
+    const product =
+      (await sendProductsMessage({
+        subdomain,
+        action: 'findOne',
+        data: { _id: data.productId },
+        isRPC: true
+      })) || {};
 
-    const { customFieldsData } = product || {};
+    const { customFieldsData } = product;
 
     const customFields: any[] = [];
 
