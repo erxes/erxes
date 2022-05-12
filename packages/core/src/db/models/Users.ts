@@ -1,20 +1,23 @@
-import redis from "@erxes/api-utils/src/redis";
-import { ILink } from "@erxes/api-utils/src/types";
-import * as bcrypt from "bcryptjs";
-import * as crypto from "crypto";
-import * as jwt from "jsonwebtoken";
-import { Model } from "mongoose";
-import * as sha256 from "sha256";
-import { IModels } from "../../connectionResolver";
-import { userActionsMap } from "../../data/permissions/utils";
-import { set } from "../../inmemoryStorage";
+import redis from '@erxes/api-utils/src/redis';
+import { ILink } from '@erxes/api-utils/src/types';
+import { USER_ROLES } from '@erxes/api-utils/src/constants';
+
+import * as bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
+import * as jwt from 'jsonwebtoken';
+import { Model } from 'mongoose';
+import * as sha256 from 'sha256';
+import { IModels } from '../../connectionResolver';
+import { userActionsMap } from '../../data/permissions/utils';
+import { set } from '../../inmemoryStorage';
 import {
   IDetail,
   IEmailSignature,
   IUser,
   IUserDocument,
-  userSchema,
-} from "./definitions/users";
+  userSchema
+} from './definitions/users';
+import { IAppDocument } from './definitions/apps';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -101,6 +104,7 @@ export interface IUserModel extends Model<IUserDocument> {
   login(params: ILoginParams): { token: string; refreshToken: string };
   getTokenFields(user: IUserDocument);
   logout(_user: IUserDocument, token: string): string;
+  createSystemUser(doc: IAppDocument): IUserDocument;
 }
 
 export const loadUserClass = (models: IModels) => {
@@ -109,7 +113,7 @@ export const loadUserClass = (models: IModels) => {
       const user = await models.Users.findOne({ _id });
 
       if (!user) {
-        throw new Error("User not found");
+        throw new Error('User not found');
       }
 
       return user;
@@ -118,7 +122,7 @@ export const loadUserClass = (models: IModels) => {
     public static checkPassword(password: string) {
       if (!password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/)) {
         throw new Error(
-          "Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"
+          'Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters'
         );
       }
     }
@@ -127,7 +131,7 @@ export const loadUserClass = (models: IModels) => {
      */
     public static async checkDuplication({
       email,
-      idsToExclude,
+      idsToExclude
     }: {
       email?: string;
       idsToExclude?: string;
@@ -146,13 +150,13 @@ export const loadUserClass = (models: IModels) => {
 
         // Checking if duplicated
         if (previousEntry.length > 0) {
-          throw new Error("Duplicated email");
+          throw new Error('Duplicated email');
         }
       }
     }
 
     public static getSecret() {
-      return process.env.JWT_TOKEN_SECRET || "";
+      return process.env.JWT_TOKEN_SECRET || '';
     }
 
     /**
@@ -166,11 +170,11 @@ export const loadUserClass = (models: IModels) => {
       links,
       groupIds,
       isActive,
-      isOwner = false,
+      isOwner = false
     }: IUser) {
       // empty string password validation
-      if (password === "") {
-        throw new Error("Password can not be empty");
+      if (password === '') {
+        throw new Error('Password can not be empty');
       }
 
       // Checking duplicated email
@@ -188,7 +192,7 @@ export const loadUserClass = (models: IModels) => {
         isActive: isActive !== undefined ? isActive : true,
         // hash password
         password: await this.generatePassword(password),
-        code: await this.generateUserCode(),
+        code: await this.generateUserCode()
       });
     }
 
@@ -196,8 +200,8 @@ export const loadUserClass = (models: IModels) => {
      * Update user information
      */
     public static async updateUser(_id: string, doc: IUpdateUser) {
-      doc.password = (doc.password || "").trim();
-      doc.email = (doc.email || "").toLowerCase().trim();
+      doc.password = (doc.password || '').trim();
+      doc.email = (doc.email || '').toLowerCase().trim();
 
       if (doc.email) {
         // Checking duplicated email
@@ -224,11 +228,11 @@ export const loadUserClass = (models: IModels) => {
 
     public static async generateToken() {
       const buffer = await crypto.randomBytes(20);
-      const token = buffer.toString("hex");
+      const token = buffer.toString('hex');
 
       return {
         token,
-        expires: Date.now() + 86400000,
+        expires: Date.now() + 86400000
       };
     }
 
@@ -236,14 +240,14 @@ export const loadUserClass = (models: IModels) => {
      * Create new user with invitation token
      */
     public static async invite({ email, password, groupId }: IInviteParams) {
-      email = (email || "").toLowerCase().trim();
-      password = (password || "").trim();
+      email = (email || '').toLowerCase().trim();
+      password = (password || '').trim();
 
       // Checking duplicated email
       await models.Users.checkDuplication({ email });
 
       if (!(await models.UsersGroups.findOne({ _id: groupId }))) {
-        throw new Error("Invalid group");
+        throw new Error('Invalid group');
       }
 
       const { token, expires } = await User.generateToken();
@@ -258,7 +262,7 @@ export const loadUserClass = (models: IModels) => {
         password: await this.generatePassword(password),
         registrationToken: token,
         registrationTokenExpires: expires,
-        code: await this.generateUserCode(),
+        code: await this.generateUserCode()
       });
 
       return token;
@@ -271,11 +275,11 @@ export const loadUserClass = (models: IModels) => {
       const user = await models.Users.findOne({ email });
 
       if (!user) {
-        throw new Error("User not found");
+        throw new Error('User not found');
       }
 
       if (!user.registrationToken) {
-        throw new Error("Invalid request");
+        throw new Error('Invalid request');
       }
 
       const { token, expires } = await models.Users.generateToken();
@@ -284,7 +288,7 @@ export const loadUserClass = (models: IModels) => {
         { email },
         {
           registrationToken: token,
-          registrationTokenExpires: expires,
+          registrationTokenExpires: expires
         }
       );
 
@@ -299,7 +303,7 @@ export const loadUserClass = (models: IModels) => {
       password,
       passwordConfirmation,
       fullName,
-      username,
+      username
     }: {
       token: string;
       password: string;
@@ -310,20 +314,20 @@ export const loadUserClass = (models: IModels) => {
       const user = await models.Users.findOne({
         registrationToken: token,
         registrationTokenExpires: {
-          $gt: Date.now(),
-        },
+          $gt: Date.now()
+        }
       });
 
       if (!user || !token) {
-        throw new Error("Token is invalid or has expired");
+        throw new Error('Token is invalid or has expired');
       }
 
-      if (password === "") {
-        throw new Error("Password can not be empty");
+      if (password === '') {
+        throw new Error('Password can not be empty');
       }
 
       if (password !== passwordConfirmation) {
-        throw new Error("Password does not match");
+        throw new Error('Password does not match');
       }
 
       this.checkPassword(password);
@@ -337,9 +341,9 @@ export const loadUserClass = (models: IModels) => {
             registrationToken: undefined,
             username,
             details: {
-              fullName,
-            },
-          },
+              fullName
+            }
+          }
         }
       );
 
@@ -401,7 +405,7 @@ export const loadUserClass = (models: IModels) => {
       const user = await models.Users.findOne({ _id });
 
       if (!user) {
-        throw new Error("User not found");
+        throw new Error('User not found');
       }
 
       if (user.isActive === false) {
@@ -411,7 +415,7 @@ export const loadUserClass = (models: IModels) => {
       }
 
       if (user.isOwner) {
-        throw new Error("Can not deactivate owner");
+        throw new Error('Can not deactivate owner');
       }
 
       await models.Users.updateOne({ _id }, { $set: { isActive: false } });
@@ -442,7 +446,7 @@ export const loadUserClass = (models: IModels) => {
      */
     public static async resetPassword({
       token,
-      newPassword,
+      newPassword
     }: {
       token: string;
       newPassword: string;
@@ -451,16 +455,16 @@ export const loadUserClass = (models: IModels) => {
       const user = await models.Users.findOne({
         resetPasswordToken: token,
         resetPasswordExpires: {
-          $gt: Date.now(),
-        },
+          $gt: Date.now()
+        }
       });
 
       if (!user) {
-        throw new Error("Password reset token is invalid or has expired.");
+        throw new Error('Password reset token is invalid or has expired.');
       }
 
       if (!newPassword) {
-        throw new Error("Password is required.");
+        throw new Error('Password is required.');
       }
 
       this.checkPassword(newPassword);
@@ -471,7 +475,7 @@ export const loadUserClass = (models: IModels) => {
         {
           password: await this.generatePassword(newPassword),
           resetPasswordToken: undefined,
-          resetPasswordExpires: undefined,
+          resetPasswordExpires: undefined
         }
       );
 
@@ -483,7 +487,7 @@ export const loadUserClass = (models: IModels) => {
      */
     public static async resetMemberPassword({
       _id,
-      newPassword,
+      newPassword
     }: {
       _id: string;
       newPassword: string;
@@ -491,7 +495,7 @@ export const loadUserClass = (models: IModels) => {
       const user = await models.Users.getUser(_id);
 
       if (!newPassword) {
-        throw new Error("Password is required.");
+        throw new Error('Password is required.');
       }
 
       this.checkPassword(newPassword);
@@ -510,15 +514,15 @@ export const loadUserClass = (models: IModels) => {
     public static async changePassword({
       _id,
       currentPassword,
-      newPassword,
+      newPassword
     }: {
       _id: string;
       currentPassword: string;
       newPassword: string;
     }) {
       // Password can not be empty string
-      if (newPassword === "") {
-        throw new Error("Password can not be empty");
+      if (newPassword === '') {
+        throw new Error('Password can not be empty');
       }
 
       this.checkPassword(newPassword);
@@ -529,14 +533,14 @@ export const loadUserClass = (models: IModels) => {
       const valid = await this.comparePassword(currentPassword, user.password);
 
       if (!valid) {
-        throw new Error("Incorrect current password");
+        throw new Error('Incorrect current password');
       }
 
       // set new password
       await models.Users.findByIdAndUpdate(
         { _id: user._id },
         {
-          password: await this.generatePassword(newPassword),
+          password: await this.generatePassword(newPassword)
         }
       );
 
@@ -549,23 +553,23 @@ export const loadUserClass = (models: IModels) => {
     public static async forgotPassword(email: string) {
       // find user
       const user = await models.Users.findOne({
-        email: (email || "").toLowerCase().trim(),
+        email: (email || '').toLowerCase().trim()
       });
 
       if (!user) {
-        throw new Error("Invalid email");
+        throw new Error('Invalid email');
       }
 
       // create the random token
       const buffer = await crypto.randomBytes(20);
-      const token = buffer.toString("hex");
+      const token = buffer.toString('hex');
 
       // save token & expiration date
       await models.Users.findByIdAndUpdate(
         { _id: user._id },
         {
           resetPasswordToken: token,
-          resetPasswordExpires: Date.now() + 86400000,
+          resetPasswordExpires: Date.now() + 86400000
         }
       );
 
@@ -581,7 +585,7 @@ export const loadUserClass = (models: IModels) => {
         groupIds: user.groupIds,
         brandIds: user.brandIds,
         username: user.username,
-        code: user.code,
+        code: user.code
       };
     }
 
@@ -591,10 +595,10 @@ export const loadUserClass = (models: IModels) => {
     public static async createTokens(_user: IUserDocument, secret: string) {
       const user = this.getTokenFields(_user);
 
-      const createToken = await jwt.sign({ user }, secret, { expiresIn: "1d" });
+      const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
 
       const createRefreshToken = await jwt.sign({ user }, secret, {
-        expiresIn: "7d",
+        expiresIn: '7d'
       });
 
       return [createToken, createRefreshToken];
@@ -604,7 +608,7 @@ export const loadUserClass = (models: IModels) => {
      * Renews tokens
      */
     public static async refreshTokens(refreshToken: string) {
-      let _id = "";
+      let _id = '';
 
       try {
         // validate refresh token
@@ -627,7 +631,7 @@ export const loadUserClass = (models: IModels) => {
       return {
         token: newToken,
         refreshToken: newRefreshToken,
-        user: dbUser,
+        user: dbUser
       };
     }
 
@@ -637,33 +641,33 @@ export const loadUserClass = (models: IModels) => {
     public static async login({
       email,
       password,
-      deviceToken,
+      deviceToken
     }: {
       email: string;
       password: string;
       deviceToken?: string;
     }) {
-      email = (email || "").toLowerCase().trim();
-      password = (password || "").trim();
+      email = (email || '').toLowerCase().trim();
+      password = (password || '').trim();
 
       const user = await models.Users.findOne({
         $or: [
-          { email: { $regex: new RegExp(`^${email}$`, "i") } },
-          { username: { $regex: new RegExp(`^${email}$`, "i") } },
+          { email: { $regex: new RegExp(`^${email}$`, 'i') } },
+          { username: { $regex: new RegExp(`^${email}$`, 'i') } }
         ],
-        isActive: true,
+        isActive: true
       });
 
       if (!user || !user.password) {
         // user with provided email not found
-        throw new Error("Invalid login");
+        throw new Error('Invalid login');
       }
 
       const valid = await this.comparePassword(password, user.password);
 
       if (!valid) {
         // bad password
-        throw new Error("Invalid login");
+        throw new Error('Invalid login');
       }
 
       // create tokens
@@ -674,7 +678,7 @@ export const loadUserClass = (models: IModels) => {
 
       // storing tokens in user collection.
       if (token) {
-        redis.set(`user_token_${user._id}_${token}`, 1, "EX", 24 * 60 * 60);
+        redis.set(`user_token_${user._id}_${token}`, 1, 'EX', 24 * 60 * 60);
       }
 
       if (deviceToken) {
@@ -696,7 +700,7 @@ export const loadUserClass = (models: IModels) => {
 
       return {
         token,
-        refreshToken,
+        refreshToken
       };
     }
 
@@ -711,10 +715,10 @@ export const loadUserClass = (models: IModels) => {
       if (validatedToken) {
         redis.del(`user_token_${user._id}_${currentToken}`);
 
-        return "loggedout";
+        return 'loggedout';
       }
 
-      return "token not found";
+      return 'token not found';
     }
 
     public static async generateUserCodeField() {
@@ -731,7 +735,7 @@ export const loadUserClass = (models: IModels) => {
         };
       }> = [];
 
-      let code = parseInt((await this.generateUserCode()) || "", 10);
+      let code = parseInt((await this.generateUserCode()) || '', 10);
 
       for (const user of users) {
         code++;
@@ -739,8 +743,8 @@ export const loadUserClass = (models: IModels) => {
         doc.push({
           updateOne: {
             filter: { _id: user._id },
-            update: { $set: { code: this.getCodeString(code) } },
-          },
+            update: { $set: { code: this.getCodeString(code) } }
+          }
         });
       }
 
@@ -753,12 +757,12 @@ export const loadUserClass = (models: IModels) => {
         .limit(1);
 
       if (users.length === 0) {
-        return "000";
+        return '000';
       }
 
       const [user] = users;
 
-      let code = parseInt(user.code || "", 10);
+      let code = parseInt(user.code || '', 10);
 
       code++;
 
@@ -766,7 +770,18 @@ export const loadUserClass = (models: IModels) => {
     }
 
     public static getCodeString(code: number) {
-      return ("00" + code).slice(-3);
+      return ('00' + code).slice(-3);
+    }
+
+    public static async createSystemUser(app: IAppDocument) {
+      return models.Users.create({
+        role: USER_ROLES.SYSTEM,
+        password: await this.generatePassword(app._id),
+        username: app.name,
+        code: await this.generateUserCode(),
+        groupIds: [app.userGroupId],
+        appId: app._id
+      });
     }
   }
 
