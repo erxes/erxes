@@ -1,5 +1,5 @@
-import * as Redis from "ioredis";
-import * as dotenv from "dotenv";
+import * as Redis from 'ioredis';
+import * as dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -12,10 +12,12 @@ const {
   ENABLED_SERVICES_PATH
 } = process.env;
 
-const isDev = NODE_ENV === "development";
+const isDev = NODE_ENV === 'development';
 
 if (!ENABLED_SERVICES_PATH) {
-  throw new Error("ENABLED_SERVICES_PATH environment variable is not configured.")
+  throw new Error(
+    'ENABLED_SERVICES_PATH environment variable is not configured.'
+  );
 }
 
 const readEnabledServices = async () => {
@@ -31,33 +33,36 @@ const readEnabledServices = async () => {
   await redis.del('enabled-services');
 
   if (enabledServices && enabledServices.length > 0) {
+    console.log('mmmmmmmmmm', enabledServices, JSON.stringify(enabledServices));
+
     await redis.rpush('enabled-services', ...enabledServices);
   }
 
   return enabledServices;
-}
+};
 
 export const redis = new Redis({
   host: REDIS_HOST,
-  port: parseInt(REDIS_PORT || "6379", 10),
-  password: REDIS_PASSWORD,
+  port: parseInt(REDIS_PORT || '6379', 10),
+  password: REDIS_PASSWORD
 });
 
-const generateKey = (name) => `service:config:${name}`;
+const generateKey = name => `service:config:${name}`;
 
 export const getServices = async (): Promise<string[]> => {
   const enabledPlugins = await readEnabledServices();
-  return ["core", ...enabledPlugins];
-}
+  return ['core', ...enabledPlugins];
+};
 
 export const getService = async (name: string, config?: boolean) => {
   const result: { address: string; config: any } = {
-    address: await redis.get(`service:${name}`) || '', config: { meta: {} },
+    address: (await redis.get(`service:${name}`)) || '',
+    config: { meta: {} }
   };
 
   if (config) {
     const value = await redis.get(generateKey(name));
-    result.config = JSON.parse(value || "{}");
+    result.config = JSON.parse(value || '{}');
   }
 
   return result;
@@ -70,7 +75,7 @@ export const join = async ({
   hasSubscriptions = false,
   importTypes,
   exportTypes,
-  meta,
+  meta
 }: {
   name: string;
   port: string;
@@ -88,16 +93,15 @@ export const join = async ({
       hasSubscriptions,
       importTypes,
       exportTypes,
-      meta,
+      meta
     })
   );
 
-  const address = LOAD_BALANCER_ADDRESS || `http://${isDev ? "localhost" : `plugin-${name}-api`}:${port}`;
+  const address =
+    LOAD_BALANCER_ADDRESS ||
+    `http://${isDev ? 'localhost' : `plugin-${name}-api`}:${port}`;
 
-  await redis.set(
-    `service:${name}`,
-    address
-  )
+  await redis.set(`service:${name}`, address);
 
   console.log(`$service:${name} joined with ${address}`);
 };
@@ -106,12 +110,12 @@ export const leave = async (name, _port) => {
   console.log(`$service:${name} left`);
 };
 
-export const isAvailable = async (name) => {
+export const isAvailable = async name => {
   const serviceNames = await readEnabledServices();
-  return (name === "core") || serviceNames.includes(name);
+  return name === 'core' || serviceNames.includes(name);
 };
 
-export const isEnabled = async (name) => {
+export const isEnabled = async name => {
   const serviceNames = await readEnabledServices();
-  return (name === "core") || serviceNames.includes(name);
+  return name === 'core' || serviceNames.includes(name);
 };
