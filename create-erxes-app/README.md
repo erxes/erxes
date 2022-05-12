@@ -26,7 +26,6 @@ Using yarn
 yarn global add create-erxes-app
 create-erxes-app my-app
 ```
-
 Using npm
 
 ```
