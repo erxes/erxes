@@ -39,7 +39,8 @@ const command = async () => {
         role: 'system',
         appId: app._id,
         username: app.name,
-        groupIds: [app.userGroupId]
+        groupIds: [app.userGroupId],
+        email: `${app.name}@domain.com`
       });
     }
   }
