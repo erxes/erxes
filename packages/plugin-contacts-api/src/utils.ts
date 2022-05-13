@@ -1074,7 +1074,8 @@ export const prepareCustomData = async (subdomain, doc) => {
       customData: data,
       contentType: 'contacts:customer'
     },
-    isRPC: true
+    isRPC: true,
+    defaultValue: { customFieldsData: [] }
   });
 
   const generatedCustomFieldsData = generatedData.customFieldsData || [];
