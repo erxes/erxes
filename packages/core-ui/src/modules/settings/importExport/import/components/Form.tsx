@@ -264,6 +264,7 @@ class Form extends React.Component<Props, State> {
               additionalButton={this.renderImportButton()}
             >
               <Details
+                type="stepper"
                 disclaimer={disclaimer}
                 importName={importName}
                 onChangeImportName={this.onChangeImportName}

@@ -34,10 +34,6 @@ const Box = styled(BoxRoot)`
     color: ${colors.colorCoreLightGray};
     min-height: 36px;
   }
-
-  &:last-of-type {
-    margin-right: 0;
-  }
 `;
 
 const ImportTitle = styled.div`
@@ -66,9 +62,11 @@ const FullContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
 const TypeContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
   flex: 1;
   display: flex !important;
-  margin-bottom: 100px;
+  margin-bottom: 30px;
+  margin-left: 20px;
   justify-content: ${props => props.center && 'center'};
   align-items: ${props => (props.align ? 'flex-start' : 'center')};
+  flex-wrap: wrap;
 
   @media (max-width: 1440px) {
     display: block;
@@ -139,7 +137,7 @@ const ColumnTable = styledTS<{
       }
 
       th {
-        background-color: ${colors.bgLight};
+        background-color: ${colors.colorWhite};
         position: sticky;
         z-index: 1;
         top: 0;
