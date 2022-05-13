@@ -2,7 +2,6 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
 import { getSubdomain } from '@erxes/api-utils/src/core';
@@ -34,8 +33,6 @@ export default {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
-
-    initMemoryStorage();
 
     graphqlPubsub = options.pubsubClient;
     debug = options.debug;

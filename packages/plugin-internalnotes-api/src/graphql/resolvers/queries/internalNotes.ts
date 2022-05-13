@@ -28,20 +28,23 @@ const internalNoteQueries = {
     _root,
     {
       contentType,
-      contentTypeId,
+      contentTypeId
     }: { contentType: string; contentTypeId: string },
     { models }: IContext
   ) {
     return models.InternalNotes.find({ contentType, contentTypeId }).sort({
-      createdDate: 1,
+      createdDate: 1
     });
   },
   async internalNotesByAction(
     _root,
     { contentType, pipelineId, page = 1, perPage = 10 }: IParams,
-    { models }: IContext
+    { models, subdomain }: IContext
   ) {
-    const contentIds = await getContentIds({ pipelineId, contentType });
+    const contentIds = await getContentIds(subdomain, {
+      pipelineId,
+      contentType
+    });
 
     let totalCount = 0;
     const filter = { contentTypeId: { $in: contentIds } };
@@ -49,7 +52,7 @@ const internalNoteQueries = {
 
     const internalNotes = await models.InternalNotes.find(filter)
       .sort({
-        createdAt: -1,
+        createdAt: -1
       })
       .skip(perPage * (page - 1))
       .limit(perPage);
@@ -62,7 +65,7 @@ const internalNoteQueries = {
         contentId: note.contentTypeId,
         createdAt: note.createdAt,
         createdBy: note.createdUserId,
-        content: note.content,
+        content: note.content
       });
     }
 
@@ -70,8 +73,14 @@ const internalNoteQueries = {
 
     return { list, totalCount };
   },
-  async internalNotesAsLogs(_root, { contentTypeId }: INoteAsLogParams, { models }: IContext) {
-    const notes = await models.InternalNotes.find({ contentTypeId }).sort({ createdAt: -1 }).lean();
+  async internalNotesAsLogs(
+    _root,
+    { contentTypeId }: INoteAsLogParams,
+    { models }: IContext
+  ) {
+    const notes = await models.InternalNotes.find({ contentTypeId })
+      .sort({ createdAt: -1 })
+      .lean();
 
     // convert to activityLog schema
     return notes.map(n => ({

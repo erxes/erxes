@@ -36,6 +36,20 @@ const configClientPortalMutations = {
   ) {
     await models.ClientPortals.getConfig(args.configId);
 
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        customerPrimaryEmail: args.email,
+        customerPrimaryPhone: args.phone
+      },
+      isRPC: true
+    });
+
+    if (customer) {
+      return customer;
+    }
+
     return sendContactsMessage({
       subdomain,
       action: 'customers.createCustomer',
