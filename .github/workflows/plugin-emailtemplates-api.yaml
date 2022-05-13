@@ -42,9 +42,9 @@ jobs:
           yarn install
           yarn build plugin emailtemplates
           ls
-          ls dist
-          ls dist/plugin-emailtemplates-api
-          cd dist/plugin-emailtemplates-api/.erxes
+          ls ../../dist
+          ls ../../dist/plugin-emailtemplates-api
+          cd ../../dist/plugin-emailtemplates-api/.erxes
           node dist/main/.erxes/src
 
       - name: Build docker image
