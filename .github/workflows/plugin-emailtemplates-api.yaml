@@ -41,15 +41,14 @@ jobs:
           cd packages/gateway
           yarn install
           yarn build plugin emailtemplates
+          cd dist/plugin-emailtemplates-api/.erxes
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
         run: |
           ls -la dist
           ls -la dist/plugin-emailtemplates-api
-
           cd dist/plugin-emailtemplates-api/.erxes
-          node dist/main/.erxes/src
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
           docker build -t erxes/plugin-emailtemplates-api:${GITHUB_REF#refs/heads/} -f Dockerfile .
           docker push erxes/plugin-emailtemplates-api:${GITHUB_REF#refs/heads/}
