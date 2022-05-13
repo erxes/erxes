@@ -14,17 +14,6 @@ jobs:
   api:
     runs-on: ubuntu-18.04
 
-    services:
-      redis:
-        image: redis
-        ports:
-          - 6379:6379
-
-      rabbitmq:
-        image: rabbitmq:3.8
-        ports:
-          - 5672:5672
-
     steps:
       - uses: actions/checkout@v2
 
@@ -53,7 +42,7 @@ jobs:
           yarn install
           yarn build plugin emailtemplates
           cd ../../dist/plugin-emailtemplates-api/.erxes
-          cd dist/main/.erxes/src
+          cd dist/main/.erxes/src1
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
