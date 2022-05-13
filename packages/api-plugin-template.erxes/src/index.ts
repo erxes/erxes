@@ -18,7 +18,6 @@ import { debugInfo, debugError } from './debuggers';
 import { init as initBroker } from '@erxes/api-utils/src/messageBroker';
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
-import * as elasticsearch from './elasticsearch';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
@@ -40,7 +39,7 @@ export const app = express();
 
 if (configs.middlewares) {
   for (const middleware of configs.middlewares) {
-    app.use(middleware())
+    app.use(middleware());
   }
 }
 
@@ -214,7 +213,16 @@ async function startServer() {
     }
 
     if (configs.meta) {
-      const { segments, forms, tags, imports, internalNotes, automations, search, webhooks } = configs.meta;
+      const {
+        segments,
+        forms,
+        tags,
+        imports,
+        internalNotes,
+        automations,
+        search,
+        webhooks
+      } = configs.meta;
       const { consumeRPCQueue } = messageBrokerClient;
 
       const logs = configs.meta.logs && configs.meta.logs.consumers;
@@ -265,19 +273,16 @@ async function startServer() {
           getContentTypeDetail: logs.getContentTypeDetail,
           collectItems: logs.collectItems,
           getContentIds: logs.getContentIds,
-          getSchemalabels: logs.getSchemaLabels,
+          getSchemalabels: logs.getSchemaLabels
         });
       }
 
       if (forms) {
         if (forms.fields) {
-          consumeRPCQueue(
-            `${configs.name}:fields.getList`,
-            async args => ({
-              status: 'success',
-              data: await forms.fields(args)
-            })
-          );
+          consumeRPCQueue(`${configs.name}:fields.getList`, async args => ({
+            status: 'success',
+            data: await forms.fields(args)
+          }));
         }
 
         if (forms.groupsFilter) {
@@ -290,7 +295,7 @@ async function startServer() {
           );
         }
 
-        if(forms.systemFields) {
+        if (forms.systemFields) {
           forms.systemFieldsAvailable = true;
 
           consumeRPCQueue(`${configs.name}:systemFields`, async args => ({
@@ -299,13 +304,13 @@ async function startServer() {
           }));
         }
 
-        if(forms.fieldsGroupsHook) {
+        if (forms.fieldsGroupsHook) {
           forms.groupsHookAvailable = true;
 
           consumeRPCQueue(`${configs.name}:fieldsGroupsHook`, async args => ({
             status: 'success',
             data: await forms.fieldsGroupsHook(args)
-          }))
+          }));
         }
       }
 
@@ -318,7 +323,7 @@ async function startServer() {
         }
         if (tags.publishChange) {
           tags.publishChangeAvailable = true;
-          
+
           consumeRPCQueue(`${configs.name}:publishChange`, async args => ({
             status: 'success',
             data: await tags.publishChange(args)
@@ -332,7 +337,7 @@ async function startServer() {
         }
       }
 
-      if(webhooks) {
+      if (webhooks) {
         if (webhooks.getInfo) {
           webhooks.getInfoAvailable = true;
 
@@ -388,13 +393,10 @@ async function startServer() {
       if (search) {
         configs.meta.isSearchable = true;
 
-        consumeRPCQueue(
-          `${configs.name}:search`,
-          async args => ({
-            status: 'success',
-            data: await search(args)
-          })
-        );
+        consumeRPCQueue(`${configs.name}:search`, async args => ({
+          status: 'success',
+          data: await search(args)
+        }));
       }
     }
 
@@ -412,7 +414,6 @@ async function startServer() {
       db,
       app,
       pubsubClient: pubsub,
-      elasticsearch,
       messageBrokerClient,
       debug: {
         info: debugInfo,

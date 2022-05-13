@@ -1,17 +1,17 @@
-import Button from "@erxes/ui/src/components/Button";
-import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
-import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
-import Pagination from "@erxes/ui/src/components/pagination/Pagination";
-import Table from "@erxes/ui/src/components/table";
-import { __ } from "@erxes/ui/src/utils";
-import { IForm, IFormResponse } from "@erxes/ui-forms/src/forms/types";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { EMPTY_CONTENT_POPUPS } from "@erxes/ui-settings/src/constants";
-import { IField } from "@erxes/ui/src/types";
-import React from "react";
+import Button from '@erxes/ui/src/components/Button';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import Table from '@erxes/ui/src/components/table';
+import { __ } from '@erxes/ui/src/utils';
+import { IForm, IFormResponse } from '@erxes/ui-forms/src/forms/types';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { EMPTY_CONTENT_POPUPS } from '@erxes/ui-settings/src/constants';
+import { IField } from '@erxes/ui/src/types';
+import React from 'react';
 
-import ResponseRow from "./ResponseRow";
-import { getEnv } from "coreui/utils";
+import ResponseRow from './ResponseRow';
+import { getEnv } from 'coreui/utils';
 
 type Props = {
   integrationDetail: IForm;
@@ -50,8 +50,8 @@ class List extends React.Component<Props, {}> {
 
     const onClick = () => {
       window.open(
-        `${REACT_APP_API_URL}/file-export?type=customer&popupData=true&form=${queryParams.formId}`,
-        "_blank"
+        `${REACT_APP_API_URL}/pl:inbox/file-export?type=customer&popupData=true&form=${queryParams.formId}`,
+        '_blank'
       );
     };
 
@@ -90,8 +90,8 @@ class List extends React.Component<Props, {}> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__("Form responses")}
-            breadcrumb={[{ title: __("Responses") }]}
+            title={__('Form responses')}
+            breadcrumb={[{ title: __('Responses') }]}
             queryParams={queryParams}
           />
         }

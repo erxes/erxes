@@ -4,7 +4,6 @@ import resolvers from './graphql/resolvers';
 
 import { generateAllDataLoaders } from './dataLoaders';
 import { initBroker } from './messageBroker';
-import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import {
   identifyCustomer,
@@ -12,9 +11,7 @@ import {
   trackViewPageEvent,
   updateCustomerProperty
 } from './events';
-import {
-  generateModels,
-} from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import logs from './logUtils';
 import tags from './tags';
 import segments from './segments';
@@ -28,13 +25,6 @@ import webhooks from './webhooks';
 export let mainDb;
 export let graphqlPubsub;
 export let serviceDiscovery;
-
-export let es: {
-  client;
-  fetchElk(args: IFetchElkArgs): Promise<any>;
-  getMappings(index: string): Promise<any>;
-  getIndexPrefix(): string;
-};
 
 export let debug;
 
@@ -117,10 +107,7 @@ export default {
         async (req, res) => {
           const subdomain = getSubdomain(req);
 
-          const response = await updateCustomerProperty(
-            subdomain,
-            req.body
-          );
+          const response = await updateCustomerProperty(subdomain, req.body);
           return res.json(response);
         },
         res => res.json({})
@@ -133,6 +120,5 @@ export default {
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
-    es = options.elasticsearch;
   }
 };

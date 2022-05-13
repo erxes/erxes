@@ -24,6 +24,7 @@ const commonFields = `
   groupId
   searchable
   showInCard
+  keys
 
   ${genericFields}
 
@@ -133,5 +134,5 @@ export default {
   getSystemFieldsGroup,
   inboxFields,
   cardsFields,
-  configs,
+  configs
 };

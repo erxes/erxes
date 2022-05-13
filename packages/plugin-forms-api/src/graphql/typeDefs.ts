@@ -1,4 +1,4 @@
-import { gql } from "apollo-server-express";
+import { gql } from 'apollo-server-express';
 
 import {
   fieldsTypes,
@@ -7,15 +7,17 @@ import {
   fieldsGroupsTypes,
   fieldsGroupsQueries,
   fieldsGroupsMutations
-} from "./schema/field";
+} from './schema/field';
 
-import { types, queries, mutations } from "./schema/form";
+import { types, queries, mutations } from './schema/form';
 
 const typeDefs = async serviceDiscovery => {
-  const isContactsEnabled = await serviceDiscovery.isEnabled("contacts");
+  const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
+  const isProductsEnabled = await serviceDiscovery.isEnabled('products');
 
   const isEnabled = {
-    contacts: isContactsEnabled
+    contacts: isContactsEnabled,
+    products: isProductsEnabled
   };
 
   return gql`
@@ -23,7 +25,7 @@ const typeDefs = async serviceDiscovery => {
     scalar Date
 
     ${types(isEnabled)}
-    ${fieldsTypes}
+    ${fieldsTypes(isEnabled)}
     ${fieldsGroupsTypes}
 
     extend type Query {
