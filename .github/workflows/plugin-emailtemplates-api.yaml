@@ -42,6 +42,7 @@ jobs:
           yarn install
           yarn build plugin emailtemplates
           cd dist/plugin-emailtemplates-api/.erxes
+          node dist/main/.erxes/src
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
