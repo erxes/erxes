@@ -7,6 +7,7 @@ module.exports = {
     './routes': './src/routes.tsx',
     './driverSection': './src/DriverSection.tsx',
     './participantSection': './src/ParticipantSection.tsx',
+    './participantsSection': './src/ParticipantsSection.tsx',
     './carSection': './src/components/common/CarSection.tsx'
   },
   routes: {
@@ -51,6 +52,11 @@ module.exports = {
     {
       text: 'participantSection',
       component: './participantSection',
+      scope: 'tumentech'
+    },
+    {
+      text: 'participantsSection',
+      component: './participantsSection',
       scope: 'tumentech'
     }
   ]
