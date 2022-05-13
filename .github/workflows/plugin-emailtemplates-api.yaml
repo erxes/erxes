@@ -39,13 +39,10 @@ jobs:
       - name: Build
         run: |
           cd packages/gateway
+          pwd
           yarn install
           yarn build plugin emailtemplates
-          ls
-          ls ../../dist
-          ls ../../dist/plugin-emailtemplates-api
-          cd ../../dist/plugin-emailtemplates-api/.erxes
-          node dist/main/.erxes/src
+          ENABLED_SERVICES_PATH='/' node dist/main/.erxes/src
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
