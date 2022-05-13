@@ -41,6 +41,7 @@ jobs:
           cd packages/gateway
           yarn install
           yarn build plugin emailtemplates
+          ls
           ls dist
           ls dist/plugin-emailtemplates-api
           cd dist/plugin-emailtemplates-api/.erxes
