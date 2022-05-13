@@ -1,6 +1,6 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import { generateModels } from './connectionResolver';
+import { generateModels, test } from './connectionResolver';
 
 import { initBroker } from './messageBroker';
 import logs from './logUtils';
