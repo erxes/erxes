@@ -25,7 +25,7 @@ const sendNotificationOfItems = async (
     serviceName,
     action: 'notifiedUserIds',
     subdomain,
-    data: { item },
+    data: item,
     isRPC: true
   });
 
