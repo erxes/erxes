@@ -23,6 +23,11 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+      rabbitmq:
+        image: rabbitmq:3.8
+        ports:
+          - 5672
+
     steps:
       - uses: actions/checkout@v2
 
