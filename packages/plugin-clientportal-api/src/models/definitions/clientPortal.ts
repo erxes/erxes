@@ -52,6 +52,27 @@ export interface IClientPortalDocument extends IClientPortal, Document {
   _id: string;
 }
 
+export interface IUser {
+  createdAt?: Date;
+  password?: string;
+  email?: string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: number;
+  registrationToken?: string;
+  registrationTokenExpires?: Date;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  type?: string;
+  companyName?: string;
+  companyRegistrationNumber?: number;
+  deviceTokens?: string[];
+}
+
+export interface IUserDocument extends IUser, Document {
+  _id: string;
+}
+
 const stylesSchema = new Schema(
   {
     bodyColor: field({ type: String, optional: true }),
@@ -76,6 +97,43 @@ const stylesSchema = new Schema(
 );
 
 export const clientPortalSchema = new Schema({
+  _id: field({ pkey: true }),
+  name: field({ type: String }),
+  description: field({ type: String, optional: true }),
+  url: field({ type: String }),
+  logo: field({ type: String, optional: true }),
+  icon: field({ type: String, optional: true }),
+  knowledgeBaseLabel: field({ type: String, optional: true }),
+  knowledgeBaseTopicId: field({ type: String }),
+  ticketLabel: field({ type: String, optional: true }),
+  taskPublicBoardId: field({ type: String, optional: true }),
+  taskPublicPipelineId: field({ type: String, optional: true }),
+  taskLabel: field({ type: String, optional: true }),
+  taskStageId: field({ type: String }),
+  taskPipelineId: field({ type: String }),
+  taskBoardId: field({ type: String }),
+  ticketStageId: field({ type: String }),
+  ticketPipelineId: field({ type: String }),
+  ticketBoardId: field({ type: String }),
+  domain: field({ type: String, optional: true }),
+  dnsStatus: field({ type: String, optional: true }),
+  styles: field({ type: stylesSchema, optional: true }),
+  mobileResponsive: field({ type: Boolean, optional: true }),
+  createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
+  smsConfiguration: field({ type: String, optional: true }),
+  twilioAccountSid: field({ type: String, optional: true }),
+  messageproPhoneNumber: field({ type: String, optional: true }),
+  twilioFromNumber: field({ type: String, optional: true }),
+  messageproApiKey: field({ type: String, optional: true }),
+  messageproAuthToken: field({ type: String, optional: true }),
+  content: field({ type: String, optional: true }),
+  kbToggle: field({ type: Boolean }),
+  publicTaskToggle: field({ type: Boolean }),
+  ticketToggle: field({ type: Boolean }),
+  taskToggle: field({ type: Boolean })
+});
+
+export const clientPortalUserSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
   description: field({ type: String, optional: true }),

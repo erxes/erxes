@@ -31,7 +31,6 @@ export const types = (contactAvailable, cardAvailable) => `
       : ''
   }
 
-
   type ClientPortal {
     _id: String!
     name: String!
@@ -103,6 +102,18 @@ export const types = (contactAvailable, cardAvailable) => `
     baseFont: String
     headingFont: String
   }
+
+  type ClientPortalUser {
+    _id: String!
+    firstName: String
+    lastName: String
+    phone: String
+    email: String!
+    type: String
+    erxesCustomerId: String
+    companyName: String
+    companyRegistrationNumber: String
+  }
 `;
 
 export const queries = cardAvailable => `
@@ -110,6 +121,8 @@ export const queries = cardAvailable => `
   clientPortalGetConfig(_id: String!): ClientPortal
   clientPortalGetLast: ClientPortal
   clientPortalConfigsTotalCount: Int
+  userDetail(_id: String!): ClientPortalUser
+  currentUser: ClientPortalUser
 
   ${
     cardAvailable
@@ -124,6 +137,17 @@ export const queries = cardAvailable => `
      `
       : ''
   }
+`;
+
+const userParams = `
+  password: String!,
+  email: String,
+  firstName: String,
+  lastName: String,
+  phone: String,
+  type: String,
+  companyName: String,
+  companyRegistrationNumber: Int,
 `;
 
 export const mutations = (contactAvailable, cardAvailable) => `
@@ -201,5 +225,13 @@ export const mutations = (contactAvailable, cardAvailable) => `
       : ''
   }
 
-
+  login(email: String!, password: String!, type: String, description: String, deviceToken: String): String
+  logout: String
+  forgotPassword(email: String!): String!
+  resetPasswordWithCode(phone: String!, code: String!, password: String!): String
+  resetPassword(token: String!, newPassword: String!): JSON
+  userAdd(${userParams}): String
+  userEdit(_id: String!, ${userParams}): ClientPortalUser
+  userChangePassword(currentPassword: String!, newPassword: String!): User
+  sendVerificationCode(phone: String!): String!
 `;
