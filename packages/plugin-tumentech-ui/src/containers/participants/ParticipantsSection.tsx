@@ -15,7 +15,7 @@ type Props = {
 function ParticipantContainer(props: Props) {
   const { dealId } = props;
 
-  const participantsGroupQuery = useQuery(gql(queries.participants), {
+  const participantsQuery = useQuery(gql(queries.participants), {
     variables: { dealId },
     fetchPolicy: 'network-only'
   });
@@ -27,7 +27,7 @@ function ParticipantContainer(props: Props) {
     callback
   }: IButtonMutateProps) => {
     const callBackResponse = () => {
-      // brandsQuery.refetch();
+      participantsQuery.refetch();
 
       if (callback) {
         callback();
@@ -36,7 +36,7 @@ function ParticipantContainer(props: Props) {
 
     return (
       <ButtonMutate
-        mutation={mutations.addParticipants}
+        mutation={mutations.selectWinner}
         variables={values}
         callback={callBackResponse}
         isSubmitted={isSubmitted}
@@ -47,14 +47,14 @@ function ParticipantContainer(props: Props) {
   };
 
   const participantsChanged = () => {
-    participantsGroupQuery.refetch();
+    participantsQuery.refetch();
   };
 
-  if (participantsGroupQuery.loading) {
+  if (participantsQuery.loading) {
     return <Spinner />;
   }
 
-  const participants = participantsGroupQuery.data.participants || [];
+  const participants = participantsQuery.data.participants || [];
 
   return (
     <ParticipantsSection

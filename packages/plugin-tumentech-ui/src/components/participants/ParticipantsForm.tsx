@@ -22,16 +22,24 @@ const ParticipantsForm = (props: Props) => {
   const { deal, closeModal, renderButton } = props;
   const object = deal || {};
 
+  const [driver, setDriver] = useState<IParticipant>(undefined);
+
+  const onChangeParticipants = (participants: IParticipant[]) => {
+    const winner = participants.filter(p => p.status === 'won');
+
+    if (!winner.length) {
+      return;
+    }
+
+    setDriver(winner[0]);
+  };
+
   const renderFooter = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
     if (deal) {
       values.dealId = deal._id;
     }
-
-    const updatedValues = {
-      ...values
-    };
 
     return (
       <ModalFooter>
@@ -46,7 +54,10 @@ const ParticipantsForm = (props: Props) => {
 
         {renderButton({
           name: 'deal',
-          values: updatedValues,
+          values: driver && {
+            dealId: driver.deal._id,
+            customerId: driver.customer._id
+          },
           isSubmitted,
           callback: closeModal,
           object
@@ -59,7 +70,10 @@ const ParticipantsForm = (props: Props) => {
     return (
       <>
         <FormGroup>
-          <List participants={props.participants} />
+          <List
+            participants={props.participants}
+            onChangeParticipants={onChangeParticipants}
+          />
         </FormGroup>
 
         {renderFooter({ ...formProps })}

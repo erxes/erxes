@@ -354,4 +354,5 @@ export const mutations = `
   participantsEdit(_id: String! status:String ${participantParams}): Participant
   participantsRemove(_id: String, doc: [ParticipantsRemove]): JSON
   participantsRemoveFromDeal(dealId: String!, customerIds: [String]): JSON
+  selectWinner(dealId: String!, customerId: String!): Participant
 `;

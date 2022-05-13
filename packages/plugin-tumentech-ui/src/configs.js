@@ -5,8 +5,6 @@ module.exports = {
   url: 'http://localhost:3023/remoteEntry.js',
   exposes: {
     './routes': './src/routes.tsx',
-    './driverSection': './src/DriverSection.tsx',
-    './participantSection': './src/ParticipantSection.tsx',
     './participantsSection': './src/Participants.tsx',
     './carSection': './src/components/common/CarSection.tsx'
   },
@@ -42,16 +40,6 @@ module.exports = {
     {
       text: 'carSection',
       component: './carSection',
-      scope: 'tumentech'
-    },
-    {
-      text: 'driverSection',
-      component: './driverSection',
-      scope: 'tumentech'
-    },
-    {
-      text: 'participantSection',
-      component: './participantSection',
       scope: 'tumentech'
     },
     {

@@ -51,16 +51,9 @@ const participantMutations = {
 
   participantsRemove: async (
     _root,
-    { _id, doc }: { _id: string; doc: any[] },
+    { _id }: { _id: string },
     { models }: IContext
   ) => {
-    if (doc) {
-      return models.Participants.deleteMany({
-        dealId: 'uid',
-        id: { $in: [10, 2, 3, 5] }
-      });
-    }
-
     return models.Participants.removeParticipant(_id);
   },
 
@@ -73,6 +66,29 @@ const participantMutations = {
       dealId,
       customerId: { $in: customerIds }
     });
+  },
+
+  selectWinner: async (
+    _root,
+    { dealId, customerId }: { dealId: string; customerId: string },
+    { models }: IContext
+  ) => {
+    await models.Participants.updateMany(
+      {
+        dealId
+      },
+      { $set: { status: 'lose' } }
+    );
+
+    await models.Participants.updateOne(
+      {
+        dealId,
+        customerId
+      },
+      { $set: { status: 'won' } }
+    );
+
+    return models.Participants.getParticipant({ dealId, customerId });
   }
 };
 

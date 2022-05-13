@@ -6,40 +6,56 @@ import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   participants: IParticipant[];
+  onChangeParticipants: (participants: IParticipant[]) => void;
 };
 
-class List extends React.Component<Props, {}> {
+type State = {
+  participants: IParticipant[];
+};
+
+class List extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      participants: props.participants || []
+    };
+  }
+
   renderRow() {
-    const { participants } = this.props;
+    const participants = this.state.participants;
+
+    const onChangeStatus = (selectedId: string, isChecked: boolean) => {
+      const changed = participants.map(p => {
+        if (p._id === selectedId) {
+          return { ...p, status: p.status = isChecked ? 'won' : 'lost' };
+        }
+
+        return { ...p, status: 'lost' };
+      });
+
+      this.props.onChangeParticipants(changed);
+      this.setState({ participants: changed });
+    };
 
     return participants.map(participant => (
-      <Row key={participant._id} participant={participant} />
+      <Row
+        key={participant._id}
+        participant={participant}
+        onChangeStatus={onChangeStatus}
+      />
     ));
   }
 
   render() {
-    // const content = (
-    //   <Table whiteSpace="nowrap" hover={true}>
-    //     <thead>
-    //       <tr>
-    //         <th>{__("Participant")}</th>
-    //         <th>{__("status")}</th>
-    //         <th>{__("price offer")}</th>
-    //         <th>{__("Actions")}</th>
-    //       </tr>
-    //     </thead>
-    //     <tbody>{this.renderRow()}</tbody>
-    //   </Table>
-    // );
-
     return (
       <Table whiteSpace="nowrap" hover={true}>
         <thead>
           <tr>
             <th>{__('Participant')}</th>
-            <th>{__('status')}</th>
-            <th>{__('price offer')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__('Price offer')}</th>
+            <th>{__('Status')}</th>
+            <th>{__('Action')}</th>
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>

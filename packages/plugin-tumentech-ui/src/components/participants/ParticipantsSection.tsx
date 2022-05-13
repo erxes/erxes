@@ -49,6 +49,7 @@ export default function Component({
     if (!participants || !participants.length) {
       return <EmptyState icon="user-6" text="No data" />;
     }
+
     return (
       <div>
         {participants.map((participant, index) => (
@@ -74,21 +75,27 @@ export default function Component({
   );
 
   const manageContent = props => (
-    <ParticipantsForm participants={participants} renderButton={renderButton} />
+    <ParticipantsForm
+      participants={participants}
+      renderButton={renderButton}
+      closeModal={props.closeModal}
+    />
   );
 
   const extraButtons = (
     <>
-      <ModalTrigger
-        title="Manage"
-        size="lg"
-        trigger={
-          <button>
-            <Icon icon="edit-3" />
-          </button>
-        }
-        content={manageContent}
-      />
+      {participants.length && (
+        <ModalTrigger
+          title="Manage"
+          size="lg"
+          trigger={
+            <button>
+              <Icon icon="edit-3" />
+            </button>
+          }
+          content={manageContent}
+        />
+      )}
       <ModalTrigger
         title="Participants"
         size="lg"

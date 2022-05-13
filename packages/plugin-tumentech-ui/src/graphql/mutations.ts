@@ -274,6 +274,14 @@ mutation participantsRemoveFromDeal($dealId: String!, $customerIds: [String]){
   participantsRemoveFromDeal(dealId: $dealId, customerIds: $customerIds)
 }`;
 
+const selectWinner = `
+mutation selectWinner($customerId: String!, $dealId: String!){
+  selectWinner(customerId: $customerId,dealId: $dealId) {
+    _id
+  }
+}
+`;
+
 export default {
   carsAdd,
   carsEdit,
@@ -289,5 +297,6 @@ export default {
   productMatch,
   addParticipants,
   removeParticipants,
-  removeParticipantsFromDeal
+  removeParticipantsFromDeal,
+  selectWinner
 };
