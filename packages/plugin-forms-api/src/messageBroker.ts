@@ -211,12 +211,28 @@ export const initBroker = async cl => {
 
   consumeQueue(
     'forms:submissions.createFormSubmission',
-    async ({ subdomain, data }) => {
+    async ({ subdomain, data: { submissions, customer } }) => {
       const models = await generateModels(subdomain);
+
+      const isAutomationsAvailable = await client.sendRPCMessage(
+        'gateway:isServiceAvailable',
+        'automations'
+      );
+
+      if (isAutomationsAvailable && customer) {
+        client.sendMessage('automations:trigger', {
+          data: {
+            type: `contacts:customer`,
+            targets: [customer]
+          }
+        });
+      }
 
       return {
         status: 'success',
-        data: await models.FormSubmissions.createFormSubmission(data)
+        data: await models.FormSubmissions.insertMany(submissions, {
+          ordered: false
+        })
       };
     }
   );
