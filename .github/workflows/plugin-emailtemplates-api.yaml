@@ -53,10 +53,7 @@ jobs:
           yarn install
           yarn build plugin emailtemplates
           cd ../../dist/plugin-emailtemplates-api/.erxes
-          pwd
-          touch enabled-services.js | echo "module.exports = ['test']" > enabled-services.js
-          ls
-          ENABLED_SERVICES_PATH='/home/runner/work/erxes/erxes/dist/plugin-emailtemplates-api/.erxes/enabled-services.js' node dist/main/.erxes/src
+          cd dist/main/.erxes/src
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
