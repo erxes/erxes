@@ -49,13 +49,13 @@ jobs:
 
       - name: Build
         run: |
-          pwd
-          ls
-          touch enabled-services.js
           cd packages/gateway
           yarn install
           yarn build plugin emailtemplates
           cd ../../dist/plugin-emailtemplates-api/.erxes
+          pwd
+          ls
+          touch enabled-services.js
           ENABLED_SERVICES_PATH='/home/runner/work/erxes/packages/gateway/enabled-services.js' node dist/main/.erxes/src
 
       - name: Build docker image
