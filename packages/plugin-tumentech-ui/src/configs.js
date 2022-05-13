@@ -7,7 +7,7 @@ module.exports = {
     './routes': './src/routes.tsx',
     './driverSection': './src/DriverSection.tsx',
     './participantSection': './src/ParticipantSection.tsx',
-    './participantsSection': './src/ParticipantsSection.tsx',
+    './participantsSection': './src/Participants.tsx',
     './carSection': './src/components/common/CarSection.tsx'
   },
   routes: {
