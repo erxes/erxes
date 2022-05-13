@@ -54,7 +54,7 @@ jobs:
           yarn build plugin emailtemplates
           cd ../../dist/plugin-emailtemplates-api/.erxes
           pwd
-          touch enabled-services.js | echo module.exports = ['test'] > enabled-services.js
+          touch enabled-services.js | echo "module.exports = ['test']" > enabled-services.js
           ls
           ENABLED_SERVICES_PATH='/home/runner/work/erxes/erxes/dist/plugin-emailtemplates-api/.erxes/enabled-services.js' node dist/main/.erxes/src
 
