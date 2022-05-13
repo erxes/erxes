@@ -1,6 +1,5 @@
 import { doSearch } from '@erxes/api-utils/src/elasticsearch';
 import { generateModels, IModels } from './connectionResolver';
-import { es } from './configs';
 
 const searchBoardItems = async (
   models: IModels,
@@ -9,7 +8,6 @@ const searchBoardItems = async (
   value
 ) => {
   const items = await doSearch({
-    fetchEs: es.fetchElk,
     subdomain,
     index,
     value,
@@ -57,7 +55,6 @@ const search = async ({ subdomain, data: { value } }) => {
     {
       module: 'stages',
       items: await doSearch({
-        fetchEs: es.fetchElk,
         subdomain,
         index: 'stages',
         value,
@@ -67,7 +64,6 @@ const search = async ({ subdomain, data: { value } }) => {
     {
       module: 'pipelines',
       items: await doSearch({
-        fetchEs: es.fetchElk,
         subdomain,
         index: 'pipelines',
         value,

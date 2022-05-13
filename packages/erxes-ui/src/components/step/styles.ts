@@ -26,7 +26,6 @@ const StepWrapper = styledTS<{ type?: string }>(styled.div)`
   flex-direction: ${props => !props.type && 'column'};
   flex: ${props => !props.type && '1'};
   justify-content: ${props => props.type === 'stepper' && 'center'};
-  width: ${props => props.type === 'stepper' && '100%'};
   align-items: ${props => props.type === 'stepper' && 'center'};
   background: ${props => props.type === 'stepper' && `${colors.colorWhite}`};
 `;
@@ -35,7 +34,8 @@ const StepItem = styledTS<{ show: boolean; type?: string }>(styled.div)`
   transition: ${props => !props.type && `all .3s ease`};
   width: ${props =>
     props.show ? '100%' : props.type === 'stepper' ? '0px' : '60px'};
-  box-shadow: 0 0 4px ${colors.colorShadowGray};
+  box-shadow: ${props =>
+    props.type !== 'stepper' && '0 0 4px ${colors.colorShadowGray}'};
   justify-content: ${props => props.type === 'stepper' && 'center'};
 `;
 
@@ -162,6 +162,7 @@ const FlexItem = styledTS<{
   v?: string;
   h?: string;
   direction?: string;
+  type?: string;
 }>(styled.div)`
   display: flex;
   height: 100%;
@@ -206,7 +207,8 @@ const FlexItem = styledTS<{
 `;
 
 const FlexPad = styled(FlexItem)`
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.coreSpacing}px
+    ${props => props.type === 'stepper' && '150'}px;
   flex: 1;
   border-right: ${colors.borderPrimary};
 `;

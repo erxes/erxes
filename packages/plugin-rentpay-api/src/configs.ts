@@ -1,4 +1,3 @@
-import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
@@ -6,13 +5,6 @@ import { initBroker } from './messageBroker';
 
 export let debug;
 export let mainDb;
-
-export let es: {
-  client;
-  fetchElk(args: IFetchElkArgs): Promise<any>;
-  getMappings(index: string): Promise<any>;
-  getIndexPrefix(): string;
-};
 
 export let serviceDiscovery;
 
@@ -33,7 +25,6 @@ export default {
     initBroker(options.messageBrokerClient);
 
     mainDb = options.db;
-    es = options.elasticsearch;
     debug = options.debug;
   }
 };

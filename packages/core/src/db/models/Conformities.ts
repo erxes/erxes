@@ -39,7 +39,7 @@ export interface IConformityModel extends Model<IConformityDocument> {
   getConformities(doc: IGetConformityBulk): Promise<IConformityDocument[]>;
 }
 
-export const loadConformityClass = (models: IModels) => {
+export const loadConformityClass = (models: IModels, subdomain: string) => {
   class Conformity {
     /**
      * Create a conformity
@@ -141,7 +141,7 @@ export const loadConformityClass = (models: IModels) => {
       return conformityHelper({
         doc,
         getConformities: async () => {
-          return findElk({
+          return findElk(subdomain, {
             ...getQueryConformities({
               mainType: doc.mainType,
               relTypes: doc.relTypes,
@@ -176,7 +176,7 @@ export const loadConformityClass = (models: IModels) => {
         return conformityHelper({
           doc,
           getConformities: async data => {
-            return findElk({
+            return findElk(subdomain, {
               ...getQueryConformities({
                 mainType: data.mainType,
                 relTypes: [data.relType],
@@ -205,7 +205,7 @@ export const loadConformityClass = (models: IModels) => {
 
     public static async getConformities(doc: IGetConformityBulk) {
       if (isUsingElk()) {
-        return findElk({ ...getQueryConformities({ ...doc }) });
+        return findElk(subdomain, { ...getQueryConformities({ ...doc }) });
       }
 
       return models.Conformities.aggregate([
@@ -257,7 +257,7 @@ export const loadConformityClass = (models: IModels) => {
       return relatedConformityHelper({
         doc,
         getSaved: async data => {
-          return findElk({
+          return findElk(subdomain, {
             ...getSavedAnyConformityQuery({
               mainType: data.mainType,
               mainTypeId: data.mainTypeId
@@ -265,7 +265,7 @@ export const loadConformityClass = (models: IModels) => {
           });
         },
         getRelated: async (data, savedList) => {
-          return findElk({
+          return findElk(subdomain, {
             bool: {
               should: [
                 {

@@ -1,5 +1,5 @@
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import { debug } from './configs';
-import { es } from './configs';
 
 export const getNumberOfVisits = async (params: {
   subdomain: string;
@@ -12,7 +12,7 @@ export const getNumberOfVisits = async (params: {
     : { visitorId: params.visitorId };
 
   try {
-    const response = await es.fetchElk({
+    const response = await fetchEs({
       subdomain: params.subdomain,
       action: 'search',
       index: 'events',
