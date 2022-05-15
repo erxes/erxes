@@ -1,4 +1,7 @@
-import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
+import {
+  checkPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 import { serviceDiscovery } from '../../../configs';
 import { IContext } from '../../../connectionResolver';
 
@@ -27,7 +30,7 @@ const webhookQueries = {
 
   async webhooksGetActions(_root) {
     const services = await serviceDiscovery.getServices();
-    const webhookActions: any  = [];
+    const webhookActions: any = [];
 
     for (const serviceName of services) {
       const service = await serviceDiscovery.getService(serviceName, true);
@@ -38,11 +41,9 @@ const webhookQueries = {
 
         for (const action of actions) {
           webhookActions.push({
-            // description: type.description,
-            // contentType: `${serviceName}:${type.type}`,
             label: action.label,
             action: action.action,
-            type:  action.type
+            type: action.type
           });
         }
       }
@@ -52,14 +53,7 @@ const webhookQueries = {
   }
 };
 
-// requireLogin(webhookQueries, 'webhookDetail');
-// checkPermission(webhookQueries, 'webhooks', 'showWebhooks', []);
+requireLogin(webhookQueries, 'webhookDetail');
+checkPermission(webhookQueries, 'webhooks', 'showWebhooks', []);
 
 export default webhookQueries;
-
-// { label: 'Customer created', action: 'create', type: 'customer' },
-// { label: 'Customer updated', action: 'update', type: 'customer' },
-// { label: 'Customer deleted', action: 'delete', type: 'customer' },
-// { label: 'Company created', action: 'create', type: 'company' },
-// { label: 'Company updated', action: 'update', type: 'company' },
-// { label: 'Company deleted', action: 'delete', type: 'company' }, 
