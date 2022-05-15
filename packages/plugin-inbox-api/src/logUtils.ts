@@ -295,8 +295,8 @@ export const putCreateLog = async (
 };
 
 export default {
-  collectItems: async ({ data }) => ({
-    data: await collectConversations(data),
+  collectItems: async ({ subdomain, data }) => ({
+    data: await collectConversations(subdomain, data),
     status: 'success'
   }),
   getSchemaLabels: ({ data: { type } }) => ({
