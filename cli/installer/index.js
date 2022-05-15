@@ -12,7 +12,7 @@ open
   })
   .then(function (ch) {
     return ch.assertQueue(queueName).then(function (ok) {
-      console.log("Waiting for schedular message .....");
+      console.log("Waiting for installer message .....");
 
       return ch.consume(queueName, async (msg) => {
         if (msg !== null) {
@@ -30,7 +30,7 @@ open
             );
           }
 
-          shell.cd("scheduler");
+          shell.cd("installer");
 
           ch.sendToQueue(
             msg.properties.replyTo,
