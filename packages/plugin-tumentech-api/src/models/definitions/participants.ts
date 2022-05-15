@@ -17,8 +17,8 @@ export interface IParticipantDocument extends IParticipant, Document {
 export const participantSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    customerId: field({ type: String, label: 'Customer Id' }),
-    dealId: field({ type: String, label: 'Deal Id' }),
+    customerId: field({ type: String, label: 'Customer Id', required: true }),
+    dealId: field({ type: String, label: 'Deal Id', required: true }),
     status: field({
       type: String,
       label: 'Status',

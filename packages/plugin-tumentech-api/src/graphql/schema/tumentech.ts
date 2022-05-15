@@ -352,7 +352,7 @@ export const mutations = `
 
   participantsAdd(${participantParams} customerIds: [String]): [Participant]
   participantsEdit(_id: String! status:String ${participantParams}): Participant
-  participantsRemove(_id: String, doc: [ParticipantsRemove]): JSON
+  participantsRemove(_id: String): JSON
   participantsRemoveFromDeal(dealId: String!, customerIds: [String]): JSON
   selectWinner(dealId: String!, customerId: String!): Participant
 `;
