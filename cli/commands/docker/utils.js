@@ -219,7 +219,7 @@ const deployDbs = async program => {
   );
 };
 
-const up = async uis => {
+const up = async ({ uis, fromInstaller }) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath('configs.json'));
@@ -394,7 +394,13 @@ const up = async uis => {
 
   if (configs.installer) {
     await fse.copy(`${__dirname}/../../installer`, filePath('installer'));
-    await execCommand(`cd installer && npm install && RABBITMQ_HOST=${RABBITMQ_HOST} npm run pm2 start index.js`);
+
+    await execCommand(`cd installer && npm install`);
+
+    if (!fromInstaller) {
+      await execCommand(`cd installer && npm run pm2 delete all`, true);
+      await execCommand(`cd installer && RABBITMQ_HOST=${RABBITMQ_HOST} npm run pm2 start index.js`);
+    }
   }
 
   log('Downloading pluginsMap.js from s3 ....');
@@ -700,7 +706,7 @@ module.exports.manageInstallation = async program => {
 
   if (type === 'install') {
     log('Running up ....');
-    await up();
+    await up({ fromInstaller: true });
 
     log('Syncing ui ....');
 
@@ -712,7 +718,7 @@ module.exports.manageInstallation = async program => {
     await sleep(30000);
   } else {
     log('Running up ....');
-    await up();
+    await up({ fromInstaller: true });
 
     log(`Removing ${name} service ....`);
     await execCommand(`docker service rm erxes_plugin_${name}_api`, true);
@@ -724,7 +730,7 @@ module.exports.manageInstallation = async program => {
 };
 
 module.exports.up = program => {
-  return up(program.uis);
+  return up({ uis: program.uis });
 };
 
 module.exports.deployDbs = deployDbs;
