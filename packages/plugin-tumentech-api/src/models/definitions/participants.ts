@@ -26,8 +26,13 @@ export const participantSchema = schemaHooksWrapper(
       default: 'participating',
       required: true
     }),
-    detail: field({ type: Schema.Types.Mixed, label: 'Detail' }),
-    createdAt: field({ type: Date, label: 'Created at' }),
+    detail: field({
+      type: Schema.Types.Mixed,
+      label: 'Detail',
+      optional: true,
+      default: { price: 0 }
+    }),
+    createdAt: field({ type: Date, label: 'Created at' })
   }),
   'erxes_participants'
 );
