@@ -195,6 +195,11 @@ type Participant @key(fields: "_id") @cacheControl(maxAge: 3) {
       : ''
   }
 }
+
+input ParticipantsRemove {
+  dealId: String!
+  customerId: String!
+}
 `;
 
 const tumentechParams = `
@@ -325,7 +330,7 @@ const carCategoryParams = `
 `;
 
 const participantParams = `
-  customerId: String!
+  customerId: String
   dealId: String
   detail: JSON
 `;
@@ -345,7 +350,9 @@ export const mutations = `
   cpCarsEdit(_id: String!, ${tumentechCommonFields}): Car
   cpCarsRemove(carIds: [String]): [String]
 
-  participantsAdd(${participantParams}): Participant
+  participantsAdd(${participantParams} customerIds: [String]): [Participant]
   participantsEdit(_id: String! status:String ${participantParams}): Participant
-  participantsRemove(_id: String!): JSON
+  participantsRemove(_id: String, doc: [ParticipantsRemove]): JSON
+  participantsRemoveFromDeal(dealId: String!, customerIds: [String]): JSON
+  selectWinner(dealId: String!, customerId: String!): Participant
 `;

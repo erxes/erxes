@@ -1,8 +1,9 @@
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import { es, serviceDiscovery } from '../../../configs';
+import { serviceDiscovery } from '../../../configs';
 import { IContext } from '../../../connectionResolver';
 import { sendMessage } from '../../../messageBroker';
 import { fetchSegment } from './queryBuilder';
@@ -136,7 +137,7 @@ const segmentQueries = {
       }
     };
 
-    const aggreEvents = await es.fetchElk({
+    const aggreEvents = await fetchEs({
       subdomain,
       action: 'search',
       index: 'events',

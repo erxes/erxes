@@ -1,5 +1,3 @@
-import { IFetchElkArgs } from '@erxes/api-utils/src/types';
-
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers/index';
 import telnyx from './api/telnyx';
@@ -17,23 +15,16 @@ export let serviceDiscovery;
 export let mainDb;
 export let debug;
 
-export let es: {
-  client;
-  fetchElk(args: IFetchElkArgs): Promise<any>;
-  getMappings(index: string): Promise<any>;
-  getIndexPrefix(): string;
-};
-
 export default {
   name: 'engages',
   permissions,
-  graphql: async (sd) => {
+  graphql: async sd => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers,
-    }
+      resolvers
+    };
   },
   segment: { schemas: [] },
   hasSubscriptions: false,
@@ -43,14 +34,14 @@ export default {
     const subdomain = getSubdomain(req);
 
     context.dataloaders = {};
-    context.docModifier = (doc) => doc;
+    context.docModifier = doc => doc;
 
     context.models = await generateModels(subdomain);
     context.subdomain = subdomain;
 
     return context;
   },
-  onServerInit: async (options) => {
+  onServerInit: async options => {
     mainDb = options.db;
 
     const app = options.app;
@@ -62,6 +53,5 @@ export default {
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
-    es = options.elasticsearch;
-  },
+  }
 };

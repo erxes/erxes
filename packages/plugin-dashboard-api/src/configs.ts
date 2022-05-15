@@ -2,7 +2,6 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 
-import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
@@ -10,13 +9,6 @@ import * as permissions from './permissions';
 export let mainDb;
 export let graphqlPubsub;
 export let serviceDiscovery;
-
-export let es: {
-  client;
-  fetchElk(args: IFetchElkArgs): Promise<any>;
-  getMappings(index: string): Promise<any>;
-  getIndexPrefix(): string;
-};
 
 export let debug;
 
@@ -48,6 +40,5 @@ export default {
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
-    es = options.elasticsearch;
   }
 };

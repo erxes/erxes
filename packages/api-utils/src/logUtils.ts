@@ -293,7 +293,7 @@ export const putActivityLog = async (
 
   try {
     if (isAutomationsAvailable && data.target) {
-      messageBroker.sendMessage('automations', {
+      messageBroker.sendMessage('automations:trigger', {
         data: {
           type: `${data.contentType}`,
           targets: [data.target]

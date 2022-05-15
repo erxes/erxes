@@ -1,13 +1,13 @@
-import { IDealDocument } from "../../../models/definitions/deals";
-import { boardId } from "../../utils";
-import { IContext } from "../../../connectionResolver";
+import { IDealDocument } from '../../../models/definitions/deals';
+import { boardId } from '../../utils';
+import { IContext } from '../../../connectionResolver';
 import {
   sendContactsMessage,
   sendCoreMessage,
   sendFormsMessage,
   sendNotificationsMessage,
-  sendProductsMessage,
-} from "../../../messageBroker";
+  sendProductsMessage
+} from '../../../messageBroker';
 
 export const generateProducts = async (subdomain: string, productsData) => {
   const products: any = [];
@@ -17,12 +17,13 @@ export const generateProducts = async (subdomain: string, productsData) => {
       continue;
     }
 
-    const product = await sendProductsMessage({
-      subdomain,
-      action: "findOne",
-      data: { _id: data.productId },
-      isRPC: true,
-    });
+    const product =
+      (await sendProductsMessage({
+        subdomain,
+        action: 'findOne',
+        data: { _id: data.productId },
+        isRPC: true
+      })) || {};
 
     const { customFieldsData } = product;
 
@@ -43,7 +44,7 @@ export const generateProducts = async (subdomain: string, productsData) => {
       if (field) {
         customFields[customFieldData.field] = {
           text: field.text,
-          data: customFieldData.value,
+          data: customFieldData.value
         };
       }
     }
@@ -51,18 +52,18 @@ export const generateProducts = async (subdomain: string, productsData) => {
     product.customFieldsData = customFields;
 
     products.push({
-      ...(typeof data.toJSON === "function" ? data.toJSON() : data),
-      product,
+      ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
+      product
     });
   }
 
   return products;
 };
 
-export const generateAmounts = (productsData) => {
+export const generateAmounts = productsData => {
   const amountsMap = {};
 
-  (productsData || []).forEach((product) => {
+  (productsData || []).forEach(product => {
     // Tick paid or used is false then exclude
     if (!product.tickUsed) {
       return;
@@ -87,17 +88,20 @@ export default {
     return models.Deals.findOne({ _id });
   },
 
-
-  async companies(deal: IDealDocument, _args, { subdomain, serverTiming }: IContext) {
+  async companies(
+    deal: IDealDocument,
+    _args,
+    { subdomain, serverTiming }: IContext
+  ) {
     serverTiming.startTime('resolver:companies');
 
     const companyIds = await sendCoreMessage({
       subdomain,
-      action: "conformities.savedConformity",
+      action: 'conformities.savedConformity',
       data: {
-        mainType: "deal",
+        mainType: 'deal',
         mainTypeId: deal._id,
-        relTypes: ["company"],
+        relTypes: ['company']
       },
       isRPC: true,
       defaultValue: []
@@ -111,42 +115,46 @@ export default {
       defaultValue: []
     });
 
-    const response = (activeCompanies || []).map((c) => ({
-      __typename: "Company",
-      _id: c._id,
+    const response = (activeCompanies || []).map(c => ({
+      __typename: 'Company',
+      _id: c._id
     }));
 
     serverTiming.endTime('resolver:companies');
-    
+
     return response;
   },
 
-  async customers(deal: IDealDocument, _args, { subdomain, serverTiming }: IContext) {
+  async customers(
+    deal: IDealDocument,
+    _args,
+    { subdomain, serverTiming }: IContext
+  ) {
     serverTiming.startTime('resolver:customers');
 
     const customerIds = await sendCoreMessage({
       subdomain,
-      action: "conformities.savedConformity",
+      action: 'conformities.savedConformity',
       data: {
-        mainType: "deal",
+        mainType: 'deal',
         mainTypeId: deal._id,
-        relTypes: ["customer"],
+        relTypes: ['customer']
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     const activeCustomers = await sendContactsMessage({
       subdomain,
-      action: "customers.findActiveCustomers",
-      data: { selector : { _id: { $in: customerIds } } },
+      action: 'customers.findActiveCustomers',
+      data: { selector: { _id: { $in: customerIds } } },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
-    const response = (activeCustomers || []).map((c) => ({
-      __typename: "Customer",
-      _id: c._id,
+    const response = (activeCustomers || []).map(c => ({
+      __typename: 'Customer',
+      _id: c._id
     }));
 
     serverTiming.endTime('resolver:customers');
@@ -154,7 +162,11 @@ export default {
     return response;
   },
 
-  async products(deal: IDealDocument, _args, { subdomain, serverTiming }: IContext) {
+  async products(
+    deal: IDealDocument,
+    _args,
+    { subdomain, serverTiming }: IContext
+  ) {
     serverTiming.startTime('resolver:products');
 
     const response = await generateProducts(subdomain, deal.productsData);
@@ -169,10 +181,12 @@ export default {
   },
 
   assignedUsers(deal: IDealDocument) {
-    return (deal.assignedUserIds || []).filter(e => e).map((_id) => ({
-      __typename: "User",
-      _id,
-    }));
+    return (deal.assignedUserIds || [])
+      .filter(e => e)
+      .map(_id => ({
+        __typename: 'User',
+        _id
+      }));
   },
 
   async pipeline(deal: IDealDocument, _args, { models }: IContext) {
@@ -199,16 +213,20 @@ export default {
     return false;
   },
 
-  async hasNotified(deal: IDealDocument, _args, { user, subdomain, serverTiming }: IContext) {
+  async hasNotified(
+    deal: IDealDocument,
+    _args,
+    { user, subdomain, serverTiming }: IContext
+  ) {
     serverTiming.startTime('resolver:hasNotifiied');
 
     const response = await sendNotificationsMessage({
       subdomain,
-      action: "checkIfRead",
+      action: 'checkIfRead',
       data: {
         userId: user._id,
-        itemId: deal._id,
-      },
+        itemId: deal._id
+      }
     });
 
     serverTiming.endTime('resolver:hasNotifiied');
@@ -218,7 +236,7 @@ export default {
 
   labels(deal: IDealDocument, _args, { models }: IContext) {
     return models.PipelineLabels.find({
-      _id: { $in: deal.labelIds || [] },
+      _id: { $in: deal.labelIds || [] }
     }).lean();
   },
 
@@ -227,6 +245,6 @@ export default {
       return;
     }
 
-    return { __typename: "User", _id: deal.userId };
-  },
+    return { __typename: 'User', _id: deal.userId };
+  }
 };
