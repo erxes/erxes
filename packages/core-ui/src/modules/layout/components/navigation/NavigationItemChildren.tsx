@@ -22,7 +22,7 @@ type Props = {
   clickedMenu?: string;
 };
 
-export default function NavigationChildList(props: Props) {
+export default function NavigationItemChildren(props: Props) {
   const {
     plugin,
     children,

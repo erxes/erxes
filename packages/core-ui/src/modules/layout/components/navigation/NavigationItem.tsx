@@ -10,7 +10,7 @@ import { __ } from "modules/common/utils";
 
 import { isEnabled } from "@erxes/ui/src/utils/core";
 
-import NavigationChildList from "./NavigationListChild";
+import NavigationItemChildren from "./NavigationItemChildren";
 
 import { getLink, getChildren } from "./utils";
 import { Plugin, ChildPlugin } from "./types";
@@ -86,7 +86,7 @@ export default function NavigationItem(props: Props) {
       <NavItem isMoreItem={false}>
         {renderNavMenuItem()}
 
-        <NavigationChildList
+        <NavigationItemChildren
           plugin={plugin}
           children={children}
           navCollapse={navCollapse}

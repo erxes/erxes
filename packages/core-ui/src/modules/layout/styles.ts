@@ -661,6 +661,75 @@ const Center = styled.div`
   text-align: center;
 `;
 
+const GotoFormWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5em 0;
+  border-bottom: 1px solid ${colors.borderDarker};
+
+  input {
+    font-size: 16px;
+    border: none;
+    outline: none;
+    padding: 1em 0;
+    width: 100%;
+    background-color: ${colors.bgLight}
+  }
+
+  i {
+    margin: 1em;
+    cursor: pointer;
+  }
+`
+
+const GotoWrapper = styled.div`
+  max-height: 400px;
+  overflow-y: scroll;
+
+  a {
+    text-decoration: none;
+  }
+`
+
+const GotoCategory = styled.div`
+  position: sticky;
+  top: 0;
+  padding: 0.25em 1em;
+  font-weight: bolder;
+  color: ${colors.colorCoreBlack}
+  background-color: ${colors.bgGray}
+`
+
+const GotoItem = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0.75em 1em;
+  border-bottom: 1px solid ${colors.borderDarker};
+
+  p {
+    color: ${colors.colorCoreBlack};
+    margin: 0;
+  }
+
+  span {
+    text-transform: capitalize;
+    color: ${colors.colorCoreGray};
+    margin-left: auto;
+  }
+
+  i {
+    color: ${colors.colorCoreGray};
+    font-size: 14px;
+    margin-right: 1em;
+  }
+
+  &:hover {
+    background: ${rgba(colors.colorBlack, 0.06)};
+  }
+`
+
 export {
   Layout,
   MoreMenuWrapper,
@@ -712,4 +781,8 @@ export {
   Center,
   RoundBox,
   BottomMenu,
+  GotoFormWrapper,
+  GotoWrapper,
+  GotoCategory,
+  GotoItem,
 };
