@@ -696,7 +696,9 @@ module.exports.manageInstallation = async program => {
     if (!prevEntry) {
       configs.plugins.push({ name: name });
     }
-  } else {
+  }
+
+  if (type === 'uninstall') {
     configs.plugins = configs.plugins.filter(p => p.name !== name);
   }
 
@@ -716,7 +718,10 @@ module.exports.manageInstallation = async program => {
 
     log('Waiting for 30 seconds ....');
     await sleep(30000);
-  } else {
+    await restart('gateway');
+  }
+
+  if (type === 'uninstall') {
     log('Running up ....');
     await up({ fromInstaller: true });
 
@@ -724,9 +729,13 @@ module.exports.manageInstallation = async program => {
     await execCommand(`docker service rm erxes_plugin_${name}_api`, true);
 
     await restart('coreui');
+    await restart('gateway');
   }
 
-  await restart('gateway');
+  if (type === 'update') {
+    log('Update date ....');
+    await update({ uis: true });
+  }
 };
 
 module.exports.up = program => {
