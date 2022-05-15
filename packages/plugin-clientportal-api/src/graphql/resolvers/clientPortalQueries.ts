@@ -2,7 +2,11 @@
 
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
-import { sendCardsMessage, sendContactsMessage, sendCoreMessage } from '../../messageBroker';
+import {
+  sendCardsMessage,
+  sendContactsMessage,
+  sendCoreMessage
+} from '../../messageBroker';
 
 const configClientPortalQueries = {
   async clientPortalGetConfigs(
@@ -22,7 +26,7 @@ const configClientPortalQueries = {
    */
   clientPortalGetLast(_root, _args, { models }: IContext) {
     return models.ClientPortals.findOne({}).sort({
-      createdAt: -1,
+      createdAt: -1
     });
   },
 
@@ -43,7 +47,7 @@ const configClientPortalQueries = {
       subdomain,
       action: 'stages.find',
       data: { pipelineId: taskPublicPipelineId },
-      isRPC: true,
+      isRPC: true
     });
   },
 
@@ -56,7 +60,7 @@ const configClientPortalQueries = {
       subdomain,
       action: 'tasks.find',
       data: stageId,
-      isRPC: true,
+      isRPC: true
     });
   },
 
@@ -69,7 +73,7 @@ const configClientPortalQueries = {
       subdomain,
       action: 'customers.find',
       data: { primaryEmail: email },
-      isRPC: true,
+      isRPC: true
     });
 
     if (!customer) {
@@ -80,7 +84,7 @@ const configClientPortalQueries = {
       subdomain,
       action: 'tickets.find',
       data: { userId: customer._id },
-      isRPC: true,
+      isRPC: true
     });
   },
 
@@ -93,7 +97,7 @@ const configClientPortalQueries = {
       subdomain,
       action: 'tasks.findOne',
       data: { _id },
-      isRPC: true,
+      isRPC: true
     });
   },
 
@@ -106,13 +110,23 @@ const configClientPortalQueries = {
       subdomain,
       action: 'tickets.findOne',
       data: { _id },
-      isRPC: true,
+      isRPC: true
     });
   },
 
   async clientPortalDeals(
     _root,
-    { stageId, conformityMainType, conformityMainTypeId, probability }: { stageId: string, conformityMainType: string, conformityMainTypeId: string, probability: string },
+    {
+      stageId,
+      conformityMainType,
+      conformityMainTypeId,
+      probability
+    }: {
+      stageId: string;
+      conformityMainType: string;
+      conformityMainTypeId: string;
+      probability: string;
+    },
     { subdomain }: IContext
   ) {
     const dealIds = await sendCoreMessage({
@@ -121,12 +135,12 @@ const configClientPortalQueries = {
       data: {
         mainType: conformityMainType,
         mainTypeId: conformityMainTypeId,
-        relTypes: ["deal"],
+        relTypes: ['deal']
       },
-      isRPC: true,
+      isRPC: true
     });
 
-    const query: any = {}
+    const query: any = {};
     if (conformityMainType && conformityMainTypeId) {
       query._id = { $in: dealIds };
     }
@@ -142,11 +156,10 @@ const configClientPortalQueries = {
         data: { type: 'deal', probability },
         isRPC: true,
         defaultValue: []
-      })
+      });
 
       query.stageId = { $in: stages.map(s => s._id) };
     }
-
 
     return sendCardsMessage({
       subdomain,
@@ -155,7 +168,7 @@ const configClientPortalQueries = {
         query,
         sort: { modifiedAt: -1 }
       },
-      isRPC: true,
+      isRPC: true
     });
   },
 
@@ -168,9 +181,23 @@ const configClientPortalQueries = {
       subdomain,
       action: 'deals.findOne',
       data: { _id },
-      isRPC: true,
+      isRPC: true
     });
-  },
+  }
 };
 
-export default configClientPortalQueries;
+const clientPortalUserQueries = {
+  async clientPortalUserDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    return models.ClientPortalUsers.findOne({ _id });
+  },
+
+  async clientPortalCurrentUser(_root, _args, { user, models }: IContext) {
+    return user ? models.ClientPortalUsers.findOne({ _id: user._id }) : null;
+  }
+};
+
+export default { configClientPortalQueries, clientPortalUserQueries };

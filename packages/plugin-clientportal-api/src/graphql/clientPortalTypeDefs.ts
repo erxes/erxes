@@ -121,8 +121,8 @@ export const queries = cardAvailable => `
   clientPortalGetConfig(_id: String!): ClientPortal
   clientPortalGetLast: ClientPortal
   clientPortalConfigsTotalCount: Int
-  userDetail(_id: String!): ClientPortalUser
-  currentUser: ClientPortalUser
+  clientPortalUserDetail(_id: String!): ClientPortalUser
+  clientPortalCurrentUser: ClientPortalUser
 
   ${
     cardAvailable
@@ -225,13 +225,13 @@ export const mutations = (contactAvailable, cardAvailable) => `
       : ''
   }
 
-  login(email: String!, password: String!, type: String, description: String, deviceToken: String): String
-  logout: String
-  forgotPassword(email: String!): String!
-  resetPasswordWithCode(phone: String!, code: String!, password: String!): String
-  resetPassword(token: String!, newPassword: String!): JSON
-  userAdd(${userParams}): String
-  userEdit(_id: String!, ${userParams}): ClientPortalUser
-  userChangePassword(currentPassword: String!, newPassword: String!): User
-  sendVerificationCode(phone: String!): String!
+  clientPortalLogin(email: String!, password: String!, type: String, description: String, deviceToken: String): String
+  clientPortalLogout: String
+  clientPortalForgotPassword(email: String!): String!
+  clientPortalResetPasswordWithCode(phone: String!, code: String!, password: String!): String
+  clientPortalResetPassword(token: String!, newPassword: String!): JSON
+  clientPortalUserAdd(${userParams}): String
+  clientPortalUserEdit(_id: String!, ${userParams}): ClientPortalUser
+  clientPortalUserChangePassword(currentPassword: String!, newPassword: String!): ClientPortalUser
+  clientPortalSendVerificationCode(phone: String!): String!
 `;

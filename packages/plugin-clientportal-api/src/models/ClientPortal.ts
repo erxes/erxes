@@ -1,5 +1,7 @@
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
+import * as jwt from 'jsonwebtoken';
+import * as randomize from 'randomatic';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import {
@@ -17,12 +19,22 @@ export interface IClientPortalModel extends Model<IClientPortalDocument> {
   createOrUpdateConfig(args: IClientPortal): Promise<IClientPortalDocument>;
 }
 
+const configId = process.env.REACT_APP_CLIENT_PORTAL_CONFIG_ID;
+
 const SALT_WORK_FACTOR = 10;
 
 interface IEditProfile {
   firstName?: string;
   lastName?: string;
   email?: string;
+}
+
+interface ILoginParams {
+  type?: string;
+  email: string;
+  password: string;
+  deviceToken?: string;
+  description?: string;
 }
 
 export interface IUserModel extends Model<IUserDocument> {
@@ -54,7 +66,7 @@ export interface IUserModel extends Model<IUserDocument> {
   refreshTokens(
     refreshToken: string
   ): { token: string; refreshToken: string; user: IUserDocument };
-  // login(args: ILoginParams): { token: string; refreshToken: string };
+  login(args: ILoginParams): { token: string; refreshToken: string };
   imposeVerificationCode(phone: string): string;
   changePasswordWithCode({
     phone,
@@ -145,6 +157,339 @@ export const loadClientPortalUserClass = (models: IModels) => {
           'Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters'
         );
       }
+    }
+
+    public static async createUser({ password, email, ...doc }: IUser) {
+      // empty string password validation
+      if (password === '') {
+        throw new Error('Password can not be empty');
+      }
+
+      if (password) this.checkPassword(password);
+
+      const tEmail = (email || '').toLowerCase().trim();
+
+      if (await models.ClientPortalUsers.findOne({ email: tEmail })) {
+        throw new Error('The user is already exists');
+      }
+
+      // const performCreate = async () => {
+      //   return models.ClientPortalUsers.create({
+      //     ...doc,
+      //     email: tEmail,
+      //     // hash password
+      //     password: await this.generatePassword(password)
+      //   });
+      // }
+
+      const { companyName, firstName, lastName, type } = doc;
+
+      // if (type === USER_LOGIN_TYPES.COMPANY) {
+      //   const company: { _id?: string } = await sendGraphQLRequest({
+      //     query: clientPortalCreateCompany,
+      //     name: 'clientPortalCreateCompany',
+      //     variables: {
+      //       configId,
+      //       email: tEmail,
+      //       companyName
+      //     }
+      //   });
+
+      //   if (company && company._id) {
+      //     const user = await performCreate();
+
+      //     await models.ClientPortalUsers.updateOne(
+      //       { _id: user._id },
+      //       { $set: { erxesCompanyId: company._id } }
+      //     );
+
+      //     return user._id;
+      //   }
+
+      //   return;
+      // }
+
+      // const customer: { _id?: string } = await sendGraphQLRequest({
+      //   query: clientPortalCreateCustomer,
+      //   name: 'clientPortalCreateCustomer',
+      //   variables: {
+      //     configId,
+      //     email: tEmail,
+      //     firstName,
+      //     lastName
+      //   }
+      // });
+
+      // if (customer && customer._id) {
+      //   const user = await performCreate();
+
+      //   await models.ClientPortalUsers.updateOne(
+      //     { _id: user._id },
+      //     { $set: { erxesCustomerId: customer._id } }
+      //   );
+
+      // return user._id;
+      // }
+    }
+
+    public static async editProfile(_id: string, { password, ...doc }: IUser) {
+      const user = await models.ClientPortalUsers.findOne({ _id }).lean();
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      // check current password ============
+      const valid = await this.comparePassword(password, user.password);
+
+      if (!valid) {
+        throw new Error('Incorrect current password');
+      }
+
+      const email = doc.email;
+
+      // Checking duplicated email
+      const exisitingUser = await models.ClientPortalUsers.findOne({
+        email
+      }).lean();
+
+      if (exisitingUser) {
+        throw new Error('Email duplicated');
+      }
+
+      await models.ClientPortalUsers.updateOne({ _id }, { $set: doc });
+
+      return models.ClientPortalUsers.findOne({ _id });
+    }
+
+    public static async resetPassword({
+      token,
+      newPassword
+    }: {
+      token: string;
+      newPassword: string;
+    }) {
+      const user = await models.ClientPortalUsers.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpires: {
+          $gt: Date.now()
+        }
+      });
+
+      if (!user) {
+        throw new Error('Password reset token is invalid or has expired.');
+      }
+
+      if (!newPassword) {
+        throw new Error('Password is required.');
+      }
+
+      this.checkPassword(newPassword);
+
+      // set new password
+      await models.ClientPortalUsers.findByIdAndUpdate(
+        { _id: user._id },
+        {
+          password: await this.generatePassword(newPassword),
+          resetPasswordToken: undefined,
+          resetPasswordExpires: undefined
+        }
+      );
+
+      return models.ClientPortalUsers.findOne({ _id: user._id });
+    }
+
+    public static async changePassword({
+      _id,
+      currentPassword,
+      newPassword
+    }: {
+      _id: string;
+      currentPassword: string;
+      newPassword: string;
+    }) {
+      // Password can not be empty string
+      if (newPassword === '') {
+        throw new Error('Password can not be empty');
+      }
+
+      this.checkPassword(newPassword);
+
+      const user = await models.ClientPortalUsers.findOne({ _id }).lean();
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      // check current password ============
+      const valid = await this.comparePassword(currentPassword, user.password);
+
+      if (!valid) {
+        throw new Error('Incorrect current password');
+      }
+
+      // set new password
+      await models.ClientPortalUsers.findByIdAndUpdate(
+        { _id: user._id },
+        {
+          password: await this.generatePassword(newPassword)
+        }
+      );
+
+      return models.ClientPortalUsers.findOne({ _id: user._id });
+    }
+
+    public static async forgotPassword(email: string) {
+      const user = await models.ClientPortalUsers.findOne({ email });
+
+      if (!user) {
+        throw new Error('Invalid email');
+      }
+
+      // create the random token
+      const buffer = await crypto.randomBytes(20);
+      const token = buffer.toString('hex');
+
+      // save token & expiration date
+      await models.ClientPortalUsers.findByIdAndUpdate(
+        { _id: user._id },
+        {
+          resetPasswordToken: token,
+          resetPasswordExpires: Date.now() + 86400000
+        }
+      );
+
+      return token;
+    }
+
+    public static async changePasswordWithCode({
+      phone,
+      code,
+      password
+    }: {
+      phone: string;
+      code: string;
+      password: string;
+    }) {
+      const user = await models.ClientPortalUsers.findOne({
+        phone,
+        verificationCode: code
+      }).lean();
+
+      if (!user) {
+        throw new Error('Wrong code');
+      }
+
+      // Password can not be empty string
+      if (password === '') {
+        throw new Error('Password can not be empty');
+      }
+
+      this.checkPassword(password);
+
+      // set new password
+      await models.ClientPortalUsers.findByIdAndUpdate(
+        { _id: user._id },
+        {
+          password: await this.generatePassword(password)
+        }
+      );
+
+      return 'success';
+    }
+
+    public static async createTokens(_user: IUserDocument, secret: string) {
+      const user = {
+        _id: _user._id,
+        email: _user.email,
+        firstName: _user.firstName,
+        lastName: _user.lastName
+      };
+
+      const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
+
+      const createRefreshToken = await jwt.sign({ user }, secret, {
+        expiresIn: '7d'
+      });
+
+      return [createToken, createRefreshToken];
+    }
+
+    // public static async refreshTokens(refreshToken: string) {];;;;
+
+    static generateVerificationCode() {
+      return randomize('0', 6);
+    }
+
+    public static async imposeVerificationCode(phone: string) {
+      const user = await models.ClientPortalUsers.findOne({ phone });
+      const code = this.generateVerificationCode();
+      const codeExpires = Date.now() + 60000;
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      await models.ClientPortalUsers.updateOne(
+        { _id: user._id },
+        {
+          $set: { verificationCode: code, verificationCodeExpires: codeExpires }
+        }
+      );
+
+      return code;
+    }
+
+    public static async login({
+      type,
+      email,
+      password,
+      description,
+      deviceToken
+    }: ILoginParams) {
+      const user = await models.ClientPortalUsers.findOne({
+        email: { $regex: new RegExp(`^${email}$`, 'i') }
+        // type: type || { $ne: USER_LOGIN_TYPES.COMPANY }
+      });
+
+      if (!user || !user.password) {
+        throw new Error('Invalid login');
+      }
+
+      const valid = await this.comparePassword(password, user.password);
+
+      if (!valid) {
+        // bad password
+        throw new Error('Invalid login');
+      }
+
+      // create tokens
+      const [token, refreshToken] = await this.createTokens(
+        user,
+        this.getSecret()
+      );
+
+      if (deviceToken) {
+        const deviceTokens: string[] = user.deviceTokens || [];
+
+        if (!deviceTokens.includes(deviceToken)) {
+          deviceTokens.push(deviceToken);
+
+          await user.update({ $set: { deviceTokens } });
+        }
+      }
+
+      // await Logs.createLog({
+      //   type: 'user',
+      //   typeId: user._id,
+      //   text: 'login',
+      //   description
+      // });
+
+      return {
+        token,
+        refreshToken
+      };
     }
   }
 

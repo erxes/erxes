@@ -54,7 +54,7 @@ export interface IClientPortalDocument extends IClientPortal, Document {
 
 export interface IUser {
   createdAt?: Date;
-  password?: string;
+  password: string;
   email?: string;
   resetPasswordToken?: string;
   resetPasswordExpires?: number;
