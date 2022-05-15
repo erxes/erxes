@@ -82,7 +82,7 @@ erxes is a free and open <a href="https://faircode.io/">fair-code</a> licensed u
 Technically, no. The <a href="https://commonsclause.com/">Commons Clause</a> that is attached to the GNU General Public License v3.0 license takes away some rights. Hence, according to the definition of the <a href="https://bit.ly/2WJ5uTh">Open Source Initiative (OSI)</a>, erxes is not open-source. Instead we are fair-code. 
 
 ## What does fair-code mean for erxes?
-erxes' source code is open, and everyone (individuals and companies) can **use it for free privately**. But if you want to commercialize it, restrictions may apply in the form of prior permissions and official agreements.
+erxes source code is open, and everyone (individuals and companies) can **use it for free privately**. But if you want to commercialize it, restrictions may apply in the form of prior permissions and official agreements.
 
 ## Can I use erxes to manage my clients and make revenue?
 Yes, you can offer consulting and support services without prior permission as long as it is less than 30,000 USD ($30k) per year. If your revenue from services based on erxes is more than this threshold, we invite you to become a partner agency and apply for a license. If you have any questions about this, feel free to reach out to us at info@erxes.io.
