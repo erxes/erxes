@@ -240,6 +240,7 @@ const up = async uis => {
 
   const NGINX_HOST = domain.replace('https://', '');
   const extra_hosts = [`mongo:${db_server_address || '127.0.0.1'}`];
+  const { RABBITMQ_HOST } = commonEnvs(configs);
 
   const dockerComposeConfig = {
     version: '3.7',
@@ -389,6 +390,11 @@ const up = async uis => {
       },
       networks: ['erxes']
     };
+  }
+
+  if (configs.installer) {
+    await fse.copy(`${__dirname}/../../installer`, filePath('installer'));
+    await execCommand(`cd installer && npm install && RABBITMQ_HOST=${RABBITMQ_HOST} npm run pm2 start index.js`);
   }
 
   log('Downloading pluginsMap.js from s3 ....');

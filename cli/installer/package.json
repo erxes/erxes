@@ -1,0 +1,16 @@
+{
+  "name": "installer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "pm2": "./node_modules/pm2/bin/pm2"
+  },
+  "dependencies": {
+    "amqplib": "^0.9.0",
+    "pm2": "^5.2.0",
+    "shelljs": "^0.8.5"
+  }
+}
