@@ -7,7 +7,7 @@ export default {
   },
 
   category(product: IProductDocument, _, { dataLoaders }: IContext) {
-    console.log('heeeey', product);
+    // console.log('heeeey111', product);
     return (
       (product.categoryId &&
         dataLoaders.productCategory.load(product.categoryId)) ||

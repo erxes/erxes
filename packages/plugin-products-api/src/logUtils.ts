@@ -10,17 +10,22 @@ import {
 
 import { IModels } from './connectionResolver';
 import messageBroker, { sendTagsMessage } from './messageBroker';
-import { IProductDocument, productSchema, productCategorySchema } from './models/definitions/products';
+import {
+  IProductDocument,
+  productSchema,
+  productCategorySchema
+} from './models/definitions/products';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
-  DELETE: 'delete',
+  DELETE: 'delete'
 };
 
 export const MODULE_NAMES = {
   PRODUCT: 'product',
   PRODUCT_CATEGORY: 'productCategory',
+  UOM: 'uom'
 };
 
 const gatherProductFieldNames = async (
@@ -57,14 +62,20 @@ const gatherProductFieldNames = async (
       foreignKey: 'categoryId',
       prevList: options,
       nameFields: ['name'],
-      items: await models.ProductCategories.find({ _id: { $in: [doc.categoryId] } }).lean()
+      items: await models.ProductCategories.find({
+        _id: { $in: [doc.categoryId] }
+      }).lean()
     });
   }
 
   return options;
 };
 
-const gatherDescriptions = async (models: IModels, subdomain: string, params: any): Promise<IDescriptions> => {
+const gatherDescriptions = async (
+  models: IModels,
+  subdomain: string,
+  params: any
+): Promise<IDescriptions> => {
   const { action, type, object, updatedDocument } = params;
 
   let extraDesc: LogDesc[] = [];
@@ -75,7 +86,12 @@ const gatherDescriptions = async (models: IModels, subdomain: string, params: an
       extraDesc = await gatherProductFieldNames(models, subdomain, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherProductFieldNames(models, subdomain, updatedDocument, extraDesc);
+        extraDesc = await gatherProductFieldNames(
+          models,
+          subdomain,
+          updatedDocument,
+          extraDesc
+        );
       }
 
       break;
@@ -94,7 +110,9 @@ const gatherDescriptions = async (models: IModels, subdomain: string, params: an
         extraDesc = await gatherNames({
           foreignKey: 'parentId',
           nameFields: ['name'],
-          items: await models.ProductCategories.find({ _id: { $in: parentIds } }).lean()
+          items: await models.ProductCategories.find({
+            _id: { $in: parentIds }
+          }).lean()
         });
       }
 
@@ -106,11 +124,20 @@ const gatherDescriptions = async (models: IModels, subdomain: string, params: an
   return { extraDesc, description };
 };
 
-export const putDeleteLog = async (models: IModels, subdomain: string, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, subdomain, {
-    ...logDoc,
-    action: LOG_ACTIONS.DELETE,
-  });
+export const putDeleteLog = async (
+  models: IModels,
+  subdomain: string,
+  logDoc,
+  user
+) => {
+  const { description, extraDesc } = await gatherDescriptions(
+    models,
+    subdomain,
+    {
+      ...logDoc,
+      action: LOG_ACTIONS.DELETE
+    }
+  );
 
   await commonPutDeleteLog(
     messageBroker(),
@@ -119,11 +146,20 @@ export const putDeleteLog = async (models: IModels, subdomain: string, logDoc, u
   );
 };
 
-export const putUpdateLog = async (models: IModels, subdomain: string, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, subdomain, {
-    ...logDoc,
-    action: LOG_ACTIONS.UPDATE,
-  });
+export const putUpdateLog = async (
+  models: IModels,
+  subdomain: string,
+  logDoc,
+  user
+) => {
+  const { description, extraDesc } = await gatherDescriptions(
+    models,
+    subdomain,
+    {
+      ...logDoc,
+      action: LOG_ACTIONS.UPDATE
+    }
+  );
 
   await commonPutUpdateLog(
     messageBroker(),
@@ -132,11 +168,20 @@ export const putUpdateLog = async (models: IModels, subdomain: string, logDoc, u
   );
 };
 
-export const putCreateLog = async (models: IModels, subdomain: string, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, subdomain, {
-    ...logDoc,
-    action: LOG_ACTIONS.CREATE,
-  });
+export const putCreateLog = async (
+  models: IModels,
+  subdomain: string,
+  logDoc,
+  user
+) => {
+  const { description, extraDesc } = await gatherDescriptions(
+    models,
+    subdomain,
+    {
+      ...logDoc,
+      action: LOG_ACTIONS.CREATE
+    }
+  );
 
   await commonPutCreateLog(
     messageBroker(),
@@ -148,9 +193,9 @@ export const putCreateLog = async (models: IModels, subdomain: string, logDoc, u
 export default {
   getSchemaLabels: ({ data: { type } }) => ({
     status: 'success',
-    data: getSchemaLabels(
-      type,
-      [{ name: 'product', schemas: [productSchema] }, { name: 'productCategory', schemas: [productCategorySchema] }]
-    )
+    data: getSchemaLabels(type, [
+      { name: 'product', schemas: [productSchema] },
+      { name: 'productCategory', schemas: [productCategorySchema] }
+    ])
   })
 };

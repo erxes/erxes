@@ -1,18 +1,18 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
-export interface IConfig {
+export interface IProductsConfig {
   code: string;
   value: any;
 }
 
-export interface IConfigDocument extends IConfig, Document {
+export interface IProductsConfigDocument extends IProductsConfig, Document {
   _id: string;
 }
 
 // Mongoose schemas ===========
 
-export const configSchema = new Schema({
+export const productsConfigSchema = new Schema({
   _id: field({ pkey: true }),
   code: field({ type: String, unique: true }),
   value: field({ type: Object })

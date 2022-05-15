@@ -11,6 +11,13 @@ export type IProduct = IProductC & {};
 
 export type IProductCategory = IProductCategoryC & {};
 
+export interface IUom {
+  _id: string;
+  name: string;
+  code: string;
+  createdAt: Date;
+}
+
 // query types
 
 export type ProductsQueryResponse = {
@@ -25,6 +32,16 @@ export type ProductCategoriesCountQueryResponse = {
   productCategoriesTotalCount: number;
 } & QueryResponse;
 
+// UOM
+
+export type UomsQueryResponse = {
+  uoms: IUom[];
+} & QueryResponse;
+
+export type UomsCountQueryResponse = {
+  uomsTotalCount: number;
+} & QueryResponse;
+
 export type MutationVariables = {
   _id?: string;
   type: string;
@@ -32,6 +49,12 @@ export type MutationVariables = {
   description?: string;
   sku?: string;
   createdAt?: Date;
+};
+
+export type MutationUomVariables = {
+  _id?: string;
+  name: string;
+  code: string;
 };
 
 // mutation types
@@ -82,19 +105,33 @@ export type MergeMutationResponse = {
   }) => Promise<any>;
 };
 
+// UOM
+
+export type UomAddMutationResponse = {
+  uomsAdd: (mutation: { variables: MutationUomVariables }) => Promise<any>;
+};
+
+export type UomEditMutationResponse = {
+  uomsEdit: (mutation: { variables: MutationUomVariables }) => Promise<any>;
+};
+
+export type UomRemoveMutationResponse = {
+  uomsRemove: (mutation: { variables: { uomIds: string[] } }) => Promise<any>;
+};
+
 // SETTINGS
 
 export type IConfigsMap = { [key: string]: any };
 
-export type IConfig = {
+export type IProductsConfig = {
   _id: string;
   code: string;
   value: any;
 };
 
 // query types
-export type ConfigsQueryResponse = {
-  configs: IConfig[];
+export type ProductsConfigsQueryResponse = {
+  productsConfigs: IProductsConfig[];
   loading: boolean;
   refetch: () => void;
 };

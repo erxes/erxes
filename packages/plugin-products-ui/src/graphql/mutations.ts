@@ -27,9 +27,39 @@ const productsMerge = `
   }
 `;
 
+// UOM
+
+const uomsAdd = `
+  mutation uomsAdd($name: String, $code: String) {
+    uomsAdd(name: $name, code: $code) {
+      _id
+      name
+      code
+      createdAt
+    }
+  }
+`;
+
+const uomsEdit = `
+  mutation uomsEdit($id: String!, $name: String, $code: String) {
+    uomsEdit(_id: $id, name: $name, code: $code) {
+      _id
+      name
+      code
+      createdAt
+    }
+  }
+`;
+
+const uomsRemove = `
+  mutation uomsRemove($uomIds: [String!]) {
+    uomsRemove(uomIds: $uomIds)
+  }
+`;
+
 // Settings
 
-const updateConfigs = `
+const productsConfigsUpdate = `
   mutation productsConfigsUpdate($configsMap: JSON!) {
     productsConfigsUpdate(configsMap: $configsMap)
   }
@@ -44,5 +74,9 @@ export default {
   productCategoryRemove,
   productsMerge,
 
-  updateConfigs
+  uomsAdd,
+  uomsEdit,
+  uomsRemove,
+
+  productsConfigsUpdate
 };

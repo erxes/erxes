@@ -1,4 +1,4 @@
-import resolvers from './resolvers';
+import resolvers from '../dataloaders/resolvers';
 import typeDefs from './typeDefs';
 
 const mod = {

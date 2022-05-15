@@ -1,9 +1,12 @@
-import { checkPermission, requireLogin } from "@erxes/api-utils/src/permissions";
+import {
+  checkPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
-import { PRODUCT_STATUSES } from "../../../models/definitions/products";
-import { escapeRegExp } from "@erxes/api-utils/src/core";
-import { IContext } from "../../../connectionResolver";
-import { sendTagsMessage } from "../../../messageBroker";
+import { PRODUCT_STATUSES } from '../../../models/definitions/products';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
+import { IContext } from '../../../connectionResolver';
+import { sendTagsMessage } from '../../../messageBroker';
 
 const productQueries = {
   /**
@@ -77,6 +80,8 @@ const productQueries = {
 
       filter.$or = fields;
     }
+
+    console.log('filter: ', filter);
 
     return paginate(
       models.Products.find(filter)

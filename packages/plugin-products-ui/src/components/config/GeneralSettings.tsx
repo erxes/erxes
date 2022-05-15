@@ -1,4 +1,10 @@
-import { Button, CollapseContent, ControlLabel, FormControl, FormGroup } from '@erxes/ui/src/components';
+import {
+  Button,
+  CollapseContent,
+  ControlLabel,
+  FormControl,
+  FormGroup
+} from '@erxes/ui/src/components';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { __ } from '@erxes/ui/src/utils';
 import { Wrapper } from '@erxes/ui/src/layout';
@@ -23,7 +29,7 @@ class GeneralSettings extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentMap: props.configsMap.ERKHET || {},
+      currentMap: props.configsMap || {}
     };
   }
 
@@ -31,9 +37,9 @@ class GeneralSettings extends React.Component<Props, State> {
     e.preventDefault();
 
     const { currentMap } = this.state;
-    const { configsMap } = this.props;
-    configsMap.ERKHET = currentMap;
-    this.props.save(configsMap);
+    // const { configsMap } = this.props;
+    // configsMap = currentMap;
+    this.props.save(currentMap);
   };
 
   onChangeConfig = (code: string, value) => {
@@ -49,11 +55,13 @@ class GeneralSettings extends React.Component<Props, State> {
   };
 
   onChangeCheckbox = (code: string, e) => {
-    this.onChangeConfig(code, e.target.checked)
-  }
+    this.onChangeConfig(code, e.target.checked);
+  };
 
   renderCheckbox = (key: string, title?: string, description?: string) => {
     const { currentMap } = this.state;
+
+    console.log(currentMap);
 
     return (
       <FormGroup>
@@ -62,11 +70,11 @@ class GeneralSettings extends React.Component<Props, State> {
         <FormControl
           checked={currentMap[key]}
           onChange={this.onChangeCheckbox.bind(this, key)}
-          componentClass='checkbox'
+          componentClass="checkbox"
         />
       </FormGroup>
     );
-  }
+  };
 
   renderItem = (key: string, description?: string) => {
     const { currentMap } = this.state;
@@ -106,7 +114,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderCheckbox('isReqiureUOM', 'is Reqiured UOM', '')}
         </CollapseContent>
       </ContentBox>
-    )
+    );
 
     return (
       <Wrapper
