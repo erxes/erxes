@@ -132,7 +132,7 @@ class CompaniesList extends React.Component<IProps, State> {
 
     const mainContent = (
       <withTableWrapper.Wrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table whiteSpace="nowrap" bordered={true} hover={true} wideHeader={true} responsive={true}>
           <thead>
             <tr>
               <th>

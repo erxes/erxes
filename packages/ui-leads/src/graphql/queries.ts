@@ -1,4 +1,4 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 export const commonFields = `
   brandId
@@ -18,7 +18,7 @@ export const commonFields = `
   leadData
   formId
   ${
-    isEnabled("tags")
+    isEnabled('tags')
       ? `
       tags {
         _id
@@ -49,6 +49,9 @@ export const commonFields = `
     }
   }
   isActive
+
+  visibility
+  departmentIds
 `;
 
 const integrations = `
@@ -83,7 +86,7 @@ const integrationsTotalCount = `
 const tags = `
   query tags($type: String) {
     ${
-      isEnabled("tags")
+      isEnabled('tags')
         ? `
         tags(type: $type) {
           _id
@@ -129,5 +132,5 @@ export default {
   tags,
   forms,
   emailTemplates,
-  templateTotalCount,
+  templateTotalCount
 };

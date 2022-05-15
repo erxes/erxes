@@ -110,6 +110,7 @@ export const types = ({ products, forms, knowledgeBase }) => `
     stageId: String
     groupId: String
     column: Int
+    productId: String
   }
 `;
 

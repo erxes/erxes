@@ -16,9 +16,20 @@ const fieldCommonFields = `
   searchable: Boolean
   showInCard: Boolean
   keys: [String]
+  productCategoryId: String
 `;
 
-export const fieldsTypes = `
+export const fieldsTypes = ({ products }) => `
+  ${
+    products
+      ? `
+      extend type Product @key(fields: "_id") {
+        _id: String! @external
+      }
+      `
+      : ''
+  }
+
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
@@ -56,6 +67,14 @@ export const fieldsTypes = `
     associatedField: Field
     logics: [Logic]
     locationOptions: [LocationOption]
+    ${
+      products
+        ? `
+        products: [Product]
+      `
+        : ''
+    }
+   
     ${fieldCommonFields}
   }
 

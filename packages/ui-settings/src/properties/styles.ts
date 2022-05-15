@@ -179,27 +179,10 @@ const FlexRow = styled.div`
   }
 `;
 
-const ObjectList = styled.div`
-  ul {
-    padding: 0;
-    border-bottom: 1px dashed ${colors.borderDarker};
-
-    li {
-      padding: 5px 0;
-      display: flex;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-
-      > div {
-        text-transform: capitalize;
-      }
-    }
-
-    &:last-child {
-      border: 0;
-    }
-  }
+const ObjectListItemContainer = styled.div`
+  border-bottom: 2px dashed ${colors.borderDarker};
+  padding-top: 10px;
+  padding-bottom: 10px;
 `;
 
 export {
@@ -216,5 +199,5 @@ export {
   PropertyTableRow,
   RowField,
   FlexRow,
-  ObjectList
+  ObjectListItemContainer
 };
