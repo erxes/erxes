@@ -134,23 +134,30 @@ class Installer extends React.Component<FinalProps, { loading: any }> {
               </p>
 
               {enabledServices[plugin.name] ? (
-                <div>
-                  <button
-                    onClick={manageInstall.bind(this, 'uninstall', plugin.name)}
-                    className="uninstall"
-                  >
-                    {loading[plugin.name] ? 'Loading ...' : 'Uninstall'}
-                  </button>
+                <>
+                  <span>{loading[plugin.name] ? 'Loading ...' : ''}</span>
+                  <div>
+                    <button
+                      onClick={manageInstall.bind(
+                        this,
+                        'uninstall',
+                        plugin.name
+                      )}
+                      className="uninstall"
+                    >
+                      Uninstall
+                    </button>
 
-                  <button
-                    onClick={manageInstall.bind(this, 'update', plugin.name)}
-                    className="update"
-                  >
-                    {loading[plugin.name] ? 'Loading ...' : 'Update'}
-                  </button>
+                    <button
+                      onClick={manageInstall.bind(this, 'update', plugin.name)}
+                      className="update"
+                    >
+                      Update
+                    </button>
 
-                  <div style={{ clear: 'both' }} />
-                </div>
+                    <div style={{ clear: 'both' }} />
+                  </div>
+                </>
               ) : (
                 <button
                   onClick={manageInstall.bind(this, 'install', plugin.name)}
