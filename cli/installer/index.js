@@ -41,6 +41,8 @@ open
           );
 
           ch.ack(msg);
+
+          console.log(`Done ${content}`);
         }
       });
     });
