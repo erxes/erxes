@@ -607,15 +607,9 @@ const up = async ({ uis, fromInstaller }) => {
   );
 };
 
-const update = async program => {
-  if (process.argv.length < 4) {
-    return console.log('Pass service names !!!');
-  }
-
-  const pluginNames = process.argv[3];
-
+const update = async ({ pluginNames, noimage, uis }) => {
   for (const name of pluginNames.split(',')) {
-    if (!program.noimage) {
+    if (!noimage) {
       log(`Updating image ${name}......`);
 
       if (['crons', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
@@ -658,13 +652,13 @@ const update = async program => {
       );
     }
 
-    if (program.uis) {
+    if (uis) {
       await execCommand(`rm -rf plugin-uis/${`plugin-${name}-ui`}`, true);
       await syncS3(name);
     }
   }
 
-  if (program.uis) {
+  if (uis) {
     log('Restart core ui ....');
     await execCommand(`docker service update --force erxes_coreui`);
   }
@@ -734,7 +728,7 @@ module.exports.manageInstallation = async program => {
 
   if (type === 'update') {
     log('Update date ....');
-    await update({ uis: true });
+    await update({ pluginNames: name, uis: true });
   }
 };
 
@@ -744,7 +738,15 @@ module.exports.up = program => {
 
 module.exports.deployDbs = deployDbs;
 
-module.exports.update = update;
+module.exports.update = (program) => {
+  if (process.argv.length < 4) {
+    return console.log('Pass service names !!!');
+  }
+
+  const pluginNames = process.argv[3];
+
+  return update({ pluginNames, noimage: program.noimage, uis: program.uis });
+};
 
 module.exports.restart = () => {
   const name = process.argv[3];
