@@ -446,7 +446,8 @@ const buildLeadFile = async (
     for (const column of headers) {
       const item = await data.find(
         obj =>
-          obj._id === column.name || obj.text.trim() === column.label.trim()
+          obj._id === column.name ||
+          (obj.text || '').trim() === (column.label || '').trim()
       );
 
       const cellValue = displayValue(item);
