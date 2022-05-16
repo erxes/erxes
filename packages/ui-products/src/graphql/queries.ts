@@ -1,3 +1,5 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 const productFields = `
   _id
   name
@@ -8,10 +10,16 @@ const productFields = `
   description
   unitPrice
   sku
-  getTags {
-    _id
-    name
-    colorCode
+  ${
+    isEnabled('tags')
+      ? `
+    getTags {
+      _id
+      name
+      colorCode
+    }
+    `
+      : ``
   }
   tagIds
   createdAt
