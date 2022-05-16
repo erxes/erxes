@@ -1,4 +1,5 @@
 import { paginate } from 'erxes-api-utils';
+import { checkPermission } from '@erxes/api-utils/src';
 
 const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -7,7 +8,7 @@ const generateFilter = async (params, commonQuerySelector) => {
     filter.$or = [
       { name: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
       { code: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
-      { number: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
+      { number: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } }
     ];
   }
 
@@ -18,7 +19,7 @@ const generateFilter = async (params, commonQuerySelector) => {
   return filter;
 };
 
-export const sortBuilder = (params) => {
+export const sortBuilder = params => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -45,7 +46,7 @@ const contractTypeQueries = {
       ),
       {
         page: params.page,
-        perPage: params.perPage,
+        perPage: params.perPage
       }
     );
   },
@@ -67,10 +68,10 @@ const contractTypeQueries = {
         models.ContractTypes.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
-          perPage: params.perPage,
+          perPage: params.perPage
         }
       ),
-      totalCount: models.ContractTypes.find(filter).count(),
+      totalCount: models.ContractTypes.find(filter).count()
     };
   },
 
@@ -85,7 +86,11 @@ const contractTypeQueries = {
   ) => {
     await checkPermission('showContracts', user);
     return models.ContractTypes.getContractType(models, { _id });
-  },
+  }
 };
+
+checkPermission(contractTypeQueries, 'contractTypes', 'showContracts');
+checkPermission(contractTypeQueries, 'contractTypesMain', 'showContracts');
+checkPermission(contractTypeQueries, 'contractTypeDetail', 'showContracts');
 
 export default contractTypeQueries;

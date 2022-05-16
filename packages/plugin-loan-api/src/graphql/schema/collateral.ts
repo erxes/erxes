@@ -1,8 +1,16 @@
-export const types = () => {
-  return `
-    extend type User @key(fields: "_id") {
-      _id: String! @external
-    }
+import {
+  attachmentType,
+  attachmentInput
+} from '@erxes/api-utils/src/commonTypeDefs';
+
+export const types = () => `
+
+  ${attachmentType}
+  ${attachmentInput}
+
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
   type CollateralData {
     _id: String
     collateralId: String
@@ -44,7 +52,6 @@ export const types = () => {
     totalCount: Float,
   }
 `;
-};
 
 const queryParams = `
   page: Int

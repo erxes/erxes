@@ -1,5 +1,6 @@
 import { putCreateLog, putDeleteLog, putUpdateLog } from 'erxes-api-utils';
 import { gatherDescriptions } from '../../../utils';
+import { checkPermission } from '@erxes/api-utils/src';
 
 const invoiceMutations = {
   invoicesAdd: async (
@@ -26,7 +27,7 @@ const invoiceMutations = {
         type: 'invoice',
         newData: doc,
         object: invoice,
-        extraParams: { models },
+        extraParams: { models }
       },
       user
     );
@@ -58,7 +59,7 @@ const invoiceMutations = {
         object: invoice,
         newData: { ...doc },
         updatedDocument: updated,
-        extraParams: { models },
+        extraParams: { models }
       },
       user
     );
@@ -78,7 +79,7 @@ const invoiceMutations = {
     await checkPermission('manageInvoices', user);
     // TODO: contracts check
     const invoices = await models.LoanInvoices.find({
-      _id: { $in: invoiceIds },
+      _id: { $in: invoiceIds }
     }).lean();
 
     await models.LoanInvoices.removeInvoices(models, invoiceIds);
@@ -93,7 +94,11 @@ const invoiceMutations = {
     }
 
     return invoiceIds;
-  },
+  }
 };
+
+checkPermission(invoiceMutations, 'invoicesAdd', 'manageInvoices');
+checkPermission(invoiceMutations, 'invoicesEdit', 'manageInvoices');
+checkPermission(invoiceMutations, 'invoicesRemove', 'manageInvoices');
 
 export default invoiceMutations;

@@ -1,4 +1,5 @@
 import { paginate } from 'erxes-api-utils';
+import { checkPermission } from '@erxes/api-utils/src';
 
 const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -14,7 +15,7 @@ const generateFilter = async (params, commonQuerySelector) => {
   return filter;
 };
 
-export const sortBuilder = (params) => {
+export const sortBuilder = params => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -35,14 +36,13 @@ const insuranceTypeQueries = {
     params,
     { commonQuerySelector, models, checkPermission, user }
   ) => {
-    await checkPermission('showInsuranceTypes', user);
     return paginate(
       models.InsuranceTypes.find(
         await generateFilter(params, commonQuerySelector)
       ),
       {
         page: params.page,
-        perPage: params.perPage,
+        perPage: params.perPage
       }
     );
   },
@@ -56,7 +56,6 @@ const insuranceTypeQueries = {
     params,
     { commonQuerySelector, models, checkPermission, user }
   ) => {
-    await checkPermission('showInsuranceTypes', user);
     const filter = await generateFilter(params, commonQuerySelector);
 
     return {
@@ -64,10 +63,10 @@ const insuranceTypeQueries = {
         models.InsuranceTypes.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
-          perPage: params.perPage,
+          perPage: params.perPage
         }
       ),
-      totalCount: models.InsuranceTypes.find(filter).count(),
+      totalCount: models.InsuranceTypes.find(filter).count()
     };
   },
 
@@ -80,9 +79,20 @@ const insuranceTypeQueries = {
     { _id },
     { models, checkPermission, user }
   ) => {
-    await checkPermission('showInsuranceTypes', user);
     return models.InsuranceTypes.getInsuredType(models, { _id });
-  },
+  }
 };
+
+checkPermission(insuranceTypeQueries, 'insuranceTypes', 'showInsuranceTypes');
+checkPermission(
+  insuranceTypeQueries,
+  'insuranceTypesMain',
+  'showInsuranceTypes'
+);
+checkPermission(
+  insuranceTypeQueries,
+  'insuranceTypeDetail',
+  'showInsuranceTypes'
+);
 
 export default insuranceTypeQueries;

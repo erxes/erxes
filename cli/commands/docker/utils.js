@@ -219,7 +219,7 @@ const deployDbs = async program => {
   );
 };
 
-const up = async uis => {
+const up = async ({ uis, fromInstaller }) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath('configs.json'));
@@ -240,6 +240,7 @@ const up = async uis => {
 
   const NGINX_HOST = domain.replace('https://', '');
   const extra_hosts = [`mongo:${db_server_address || '127.0.0.1'}`];
+  const { RABBITMQ_HOST } = commonEnvs(configs);
 
   const dockerComposeConfig = {
     version: '3.7',
@@ -389,6 +390,17 @@ const up = async uis => {
       },
       networks: ['erxes']
     };
+  }
+
+  if (configs.installer) {
+    await fse.copy(`${__dirname}/../../installer`, filePath('installer'));
+
+    await execCommand(`cd installer && npm install`);
+
+    if (!fromInstaller) {
+      await execCommand(`cd installer && npm run pm2 delete all`, true);
+      await execCommand(`cd installer && RABBITMQ_HOST=${RABBITMQ_HOST} npm run pm2 start index.js`);
+    }
   }
 
   log('Downloading pluginsMap.js from s3 ....');
@@ -595,15 +607,9 @@ const up = async uis => {
   );
 };
 
-const update = async program => {
-  if (process.argv.length < 4) {
-    return console.log('Pass service names !!!');
-  }
-
-  const pluginNames = process.argv[3];
-
+const update = async ({ pluginNames, noimage, uis }) => {
   for (const name of pluginNames.split(',')) {
-    if (!program.noimage) {
+    if (!noimage) {
       log(`Updating image ${name}......`);
 
       if (['crons', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
@@ -646,13 +652,13 @@ const update = async program => {
       );
     }
 
-    if (program.uis) {
+    if (uis) {
       await execCommand(`rm -rf plugin-uis/${`plugin-${name}-ui`}`, true);
       await syncS3(name);
     }
   }
 
-  if (program.uis) {
+  if (uis) {
     log('Restart core ui ....');
     await execCommand(`docker service update --force erxes_coreui`);
   }
@@ -684,7 +690,9 @@ module.exports.manageInstallation = async program => {
     if (!prevEntry) {
       configs.plugins.push({ name: name });
     }
-  } else {
+  }
+
+  if (type === 'uninstall') {
     configs.plugins = configs.plugins.filter(p => p.name !== name);
   }
 
@@ -694,7 +702,7 @@ module.exports.manageInstallation = async program => {
 
   if (type === 'install') {
     log('Running up ....');
-    await up();
+    await up({ fromInstaller: true });
 
     log('Syncing ui ....');
 
@@ -704,26 +712,41 @@ module.exports.manageInstallation = async program => {
 
     log('Waiting for 30 seconds ....');
     await sleep(30000);
-  } else {
+    await restart('gateway');
+  }
+
+  if (type === 'uninstall') {
     log('Running up ....');
-    await up();
+    await up({ fromInstaller: true });
 
     log(`Removing ${name} service ....`);
     await execCommand(`docker service rm erxes_plugin_${name}_api`, true);
 
     await restart('coreui');
+    await restart('gateway');
   }
 
-  await restart('gateway');
+  if (type === 'update') {
+    log('Update date ....');
+    await update({ pluginNames: name, uis: true });
+  }
 };
 
 module.exports.up = program => {
-  return up(program.uis);
+  return up({ uis: program.uis });
 };
 
 module.exports.deployDbs = deployDbs;
 
-module.exports.update = update;
+module.exports.update = (program) => {
+  if (process.argv.length < 4) {
+    return console.log('Pass service names !!!');
+  }
+
+  const pluginNames = process.argv[3];
+
+  return update({ pluginNames, noimage: program.noimage, uis: program.uis });
+};
 
 module.exports.restart = () => {
   const name = process.argv[3];

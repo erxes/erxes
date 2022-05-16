@@ -1,5 +1,6 @@
 import { putCreateLog, putDeleteLog, putUpdateLog } from 'erxes-api-utils';
 import { gatherDescriptions } from '../../../utils';
+import { checkPermission } from '@erxes/api-utils/src';
 
 const contractTypeMutations = {
   contractTypesAdd: async (
@@ -7,8 +8,6 @@ const contractTypeMutations = {
     doc,
     { user, docModifier, models, checkPermission, messageBroker }
   ) => {
-    await checkPermission('manageContracts', user);
-
     const contractType = models.ContractTypes.createContractType(
       models,
       docModifier(doc),
@@ -22,7 +21,7 @@ const contractTypeMutations = {
         type: 'contractType',
         newData: doc,
         object: contractType,
-        extraParams: { models },
+        extraParams: { models }
       },
       user
     );
@@ -38,9 +37,8 @@ const contractTypeMutations = {
     { _id, ...doc },
     { models, checkPermission, user, messageBroker }
   ) => {
-    await checkPermission('manageContracts', user);
     const contractType = await models.ContractTypes.getContractType(models, {
-      _id,
+      _id
     });
     const updated = await models.ContractTypes.updateContractType(
       models,
@@ -56,7 +54,7 @@ const contractTypeMutations = {
         object: contractType,
         newData: { ...doc },
         updatedDocument: updated,
-        extraParams: { models },
+        extraParams: { models }
       },
       user
     );
@@ -73,10 +71,9 @@ const contractTypeMutations = {
     { contractTypeIds }: { contractTypeIds: string[] },
     { models, checkPermission, user, messageBroker }
   ) => {
-    await checkPermission('manageContracts', user);
     // TODO: contracts check
     const contractTypes = await models.ContractTypes.find({
-      _id: { $in: contractTypeIds },
+      _id: { $in: contractTypeIds }
     }).lean();
 
     await models.ContractTypes.removeContractTypes(models, contractTypeIds);
@@ -91,7 +88,15 @@ const contractTypeMutations = {
     }
 
     return contractTypeIds;
-  },
+  }
 };
+
+checkPermission(contractTypeMutations, 'contractTypesAdd', 'manageContracts');
+checkPermission(contractTypeMutations, 'contractTypesEdit', 'manageContracts');
+checkPermission(
+  contractTypeMutations,
+  'contractTypesRemove',
+  'manageContracts'
+);
 
 export default contractTypeMutations;

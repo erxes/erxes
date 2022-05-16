@@ -266,6 +266,7 @@ const createFormConversation = async (
     });
   }
 
+  const docs: any[] = [];
   for (const submission of submissions) {
     let value: any = submission.value || '';
 
@@ -280,22 +281,25 @@ const createFormConversation = async (
       value = new Date(submission.value);
     }
 
-    const doc = {
+    docs.push({
       contentTypeId: conversation._id,
       contentType: type,
       formFieldId: submission._id,
       formId,
       value,
       customerId: cachedCustomer._id
-    };
-
-    await sendFormsMessage({
-      subdomain,
-      action: 'submissions.createFormSubmission',
-      data: doc,
-      isRPC: false
     });
   }
+
+  await sendFormsMessage({
+    subdomain,
+    action: 'submissions.createFormSubmission',
+    data: {
+      submissions: docs,
+      customer: cachedCustomer
+    },
+    isRPC: false
+  });
 
   return {
     status: 'ok',
