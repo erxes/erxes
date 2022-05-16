@@ -1,12 +1,11 @@
 import Button from '@erxes/ui/src/components/Button';
 import { __, bustIframe } from '../../utils';
 import React from 'react';
-import Col from 'react-bootstrap/Col';
-import Container from 'react-bootstrap/Container';
 import {
+  AuthWrapper,
+  AuthItem,
   AuthContent,
   AuthDescription,
-  Authlayout,
   CenterContent,
   MobileRecommend
 } from '../styles';
@@ -63,14 +62,12 @@ class AuthLayout extends React.Component<Props, {}> {
 
     return (
       <>
-        <img src="/images/logo.png" alt="erxes" />
-        <h1>{__('Open Source Growth Marketing Platform')}</h1>
-        <p>
-          {__(
-            'Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.'
-          )}
-        </p>
-        <a href={__('Homepage link')}>« {__('Go to home page')}</a>
+        <h1>{__('Grow your business better and faster')}</h1>
+        <h2>
+          {__('Single ')}
+          <b>{__('experience operating system (XOS)')}</b>
+          {__(' to align your entire business')}
+        </h2>
       </>
     );
   }
@@ -81,20 +78,18 @@ class AuthLayout extends React.Component<Props, {}> {
   }
 
   render() {
-    const { content, col = { first: 6, second: 5 } } = this.props;
+    const { content, col = { first: 6, second: 6 } } = this.props;
 
     return (
-      <Authlayout className="auth-container">
-        <AuthContent>
-          <Container>
-            <Col md={col.first}>
-              <AuthDescription>{this.renderDesciption()}</AuthDescription>
-            </Col>
-            <Col md={{ span: col.second, offset: 1 }}>{content}</Col>
-          </Container>
-        </AuthContent>
-        {this.renderRecommendMobileVersion()}
-      </Authlayout>
+      <AuthWrapper>
+        <AuthItem order={1}>
+          <AuthContent>{content}</AuthContent>
+        </AuthItem>
+        <AuthItem order={0}>
+          <AuthDescription>{this.renderDesciption()}</AuthDescription>
+          {this.renderRecommendMobileVersion()}
+        </AuthItem>
+      </AuthWrapper>
     );
   }
 }
