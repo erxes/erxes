@@ -1,4 +1,5 @@
 import { paginate } from 'erxes-api-utils';
+import { checkPermission } from '@erxes/api-utils/src';
 
 const generateFilter = async (models, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -8,7 +9,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
       { number: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
       { _id: 1 }
     );
-    filter.contractId = { $in: contracts.map((item) => item._id) };
+    filter.contractId = { $in: contracts.map(item => item._id) };
   }
 
   if (params.ids) {
@@ -29,13 +30,13 @@ const generateFilter = async (models, params, commonQuerySelector) => {
 
   if (params.startDate) {
     filter.payDate = {
-      $gte: new Date(params.startDate),
+      $gte: new Date(params.startDate)
     };
   }
 
   if (params.endDate) {
     filter.payDate = {
-      $lte: new Date(params.endDate),
+      $lte: new Date(params.endDate)
     };
   }
 
@@ -43,8 +44,8 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     filter.payDate = {
       $and: [
         { $gte: new Date(params.startDate) },
-        { $lte: new Date(params.endDate) },
-      ],
+        { $lte: new Date(params.endDate) }
+      ]
     };
   }
 
@@ -59,7 +60,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
   return filter;
 };
 
-export const sortBuilder = (params) => {
+export const sortBuilder = params => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -86,7 +87,7 @@ const transactionQueries = {
       ),
       {
         page: params.page,
-        perPage: params.perPage,
+        perPage: params.perPage
       }
     );
   },
@@ -108,10 +109,10 @@ const transactionQueries = {
         models.LoanTransactions.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
-          perPage: params.perPage,
+          perPage: params.perPage
         }
       ),
-      totalCount: await models.LoanTransactions.find(filter).count(),
+      totalCount: await models.LoanTransactions.find(filter).count()
     };
   },
 
@@ -126,7 +127,11 @@ const transactionQueries = {
   ) => {
     await checkPermission('showTransactions', user);
     return models.LoanTransactions.getTransaction(models, { _id });
-  },
+  }
 };
+
+checkPermission(transactionQueries, 'transactions', 'showTransactions');
+checkPermission(transactionQueries, 'transactionsMain', 'showTransactions');
+checkPermission(transactionQueries, 'transactionDetail', 'showTransactions');
 
 export default transactionQueries;

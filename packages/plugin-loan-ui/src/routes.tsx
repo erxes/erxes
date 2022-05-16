@@ -2,16 +2,17 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import Settings from './settings/containers/Settings';
 
 const ContractList = asyncComponent(() =>
-  import(/* webpackChunkName: "ContractList" */ './Contracts/containers/List')
+  import(/* webpackChunkName: "ContractList" */ './contracts/containers/List')
 );
 
-// const ContractDetails = asyncComponent(() =>
-//   import(
-//     /* webpackChunkName: "ContractDetails" */ './contracts/containers/detail/ContractDetails'
-//   )
-// );
+const ContractDetails = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "ContractDetails" */ './contracts/containers/detail/ContractDetails'
+  )
+);
 // const AdjustmentDetails = asyncComponent(() =>
 //   import(
 //     /* webpackChunkName: "AdjustmentDetails" */ './Adjustments/containers/AdjustmentDetails'
@@ -23,11 +24,11 @@ const CollateralList = asyncComponent(() =>
   )
 );
 
-// const TransactionList = asyncComponent(() =>
-//   import(
-//     /* webpackChunkName: "TransactionList" */ './transactions/containers/TransactionsList'
-//   )
-// );
+const TransactionList = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "TransactionList" */ './transactions/containers/TransactionsList'
+  )
+);
 const AdjustmentList = asyncComponent(() =>
   import(
     /* webpackChunkName: "AdjustmentList" */ './adjustments/containers/AdjustmentsList'
@@ -43,21 +44,11 @@ const ContractTypesList = asyncComponent(() =>
     /* webpackChunkName: "ContractTypesList" */ './contractTypes/containers/ContractTypesList'
   )
 );
-// const ContractTypeDetails = asyncComponent(() =>
-//   import(
-//     /* webpackChunkName: "ContractTypeDetails" */ './contractTypes/containers/ContractTypeDetails'
-//   )
-// );
-// const Settings = asyncComponent(() =>
-//   import(
-//     /* webpackChunkName: "UndueSettings" */ './settings/components/UndueSettings'
-//   )
-// );
-// const HolidaySetting = asyncComponent(() =>
-//   import(
-//     /* webpackChunkName: "HolidaySetting" */ './settings/components/HolidaySettings'
-//   )
-// );
+const ContractTypeDetails = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "ContractTypeDetails" */ './contractTypes/containers/ContractTypeDetails'
+  )
+);
 
 const contractLists = ({ location, history }) => {
   return (
@@ -68,11 +59,11 @@ const contractLists = ({ location, history }) => {
   );
 };
 
-// const contractDetail = ({ match }) => {
-//   const id = match.params.id;
+const detailsOfContract = ({ match }) => {
+  const id = match.params.id;
 
-//   return <ContractDetails id={id} />;
-// };
+  return <ContractDetails id={id} />;
+};
 
 // const adjustmentDetail = ({ match }) => {
 //   const id = match.params.id;
@@ -89,14 +80,14 @@ const collateralLists = ({ location, history }) => {
   );
 };
 
-// const transactionLists = ({ location, history }) => {
-//   return (
-//     <TransactionList
-//       queryParams={queryString.parse(location.search)}
-//       history={history}
-//     />
-//   );
-// };
+const transactionLists = ({ location, history }) => {
+  return (
+    <TransactionList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
 
 const adjustmentLists = ({ location, history }) => {
   return (
@@ -125,102 +116,34 @@ const contractTypesLists = ({ location, history }) => {
   );
 };
 
-// const contractTypeDetail = ({ match }) => {
-//   const id = match.params.id;
+const contractTypeDetail = ({ match }) => {
+  const id = match.params.id;
 
-//   return <ContractTypeDetails id={id} />;
-// };
+  return <ContractTypeDetails id={id} />;
+};
 
-// const undueSettings = ({ location, history }) => {
-//   return <Settings components={undueSettings}></Settings>;
-// };
+const undueSettings = ({ location, history }) => {
+  return <Settings components={undueSettings}></Settings>;
+};
 
-// const holidaySettings = ({ location, history }) => {
-//   return <Settings components={holidaySettings}></Settings>;
-// };
-
-// () => ({
-//   customerRightSidebarSection: {
-//     section: ContractSection,
-//   },
-//   companyRightSidebarSection: {
-//     section: ContractSection,
-//   },
-//   dealRightSidebarSection: {
-//     section: ContractSection,
-//   },
-// });
+const holidaySettings = ({ location, history }) => {
+  return <Settings components={holidaySettings}></Settings>;
+};
 
 const LoanRoutes = () => {
   return (
     <React.Fragment>
-      <Route
-        key="/contract-list"
-        exact={true}
-        path="/contract-list"
-        component={contractLists}
-      />
-      {/* <Route
-        key="/contract-details/:id"
-        exact={true}
-        path="/contract-details/:id"
-        component={contractDetail}
-      /> */}
-
-      <Route
-        key="/collateral-list"
-        exact={true}
-        path="/collateral-list"
-        component={collateralLists}
-      />
-      {/* <Route
-        key="/transaction-list"
-        exact={true}
-        path="/transaction-list"
-        component={transactionLists}
-      /> */}
-      <Route
-        key="/insurance-types"
-        exact={true}
-        path="/insurance-types"
-        component={insuranceTypesLists}
-      />
-      <Route
-        key="/contract-types"
-        exact={true}
-        path="/contract-types"
-        component={contractTypesLists}
-      />
-      {/* <Route
-        key="/contract-type-details/:id"
-        exact={true}
-        path="/contract-type-details/:id"
-        component={contractTypeDetail}
-      />  */}
-      {/* <Route
-        key="/undue-settings"
-        exact={true}
-        path="/undue-settings"
-        component={undueSettings}
-      /> */}
-      {/* <Route
-        key="/Holiday-settings"
-        exact={true}
-        path="/Holiday-settings"
-        component={holidaySettings}
-      />  */}
-      <Route
-        key="/adjustment-list"
-        exact={true}
-        path="/adjustment-list"
-        component={adjustmentLists}
-      />
-      {/* <Route
-        key="/adjustment-details/:id"
-        exact={true}
-        path="/adjustment-details/:id"
-        component={adjustmentDetail}
-      />  */}
+      <Route path="/contract-list" component={contractLists} />
+      <Route path="/contract-details/:id" component={detailsOfContract} />
+      <Route path="/collateral-list" component={collateralLists} />
+      <Route path="/transaction-list" component={transactionLists} />
+      <Route path="/insurance-types" component={insuranceTypesLists} />
+      <Route path="/settings/contract-types" component={contractTypesLists} />
+      <Route path="/contract-type-details/:id" component={contractTypeDetail} />
+      <Route path="/undue-settings" component={undueSettings} />
+      <Route path="/settings/holiday-settings" component={holidaySettings} />
+      <Route path="/adjustment-list" component={adjustmentLists} />
+      {/* <Route path="/adjustment-details/:id" component={adjustmentDetail} /> */}
     </React.Fragment>
   );
 };
