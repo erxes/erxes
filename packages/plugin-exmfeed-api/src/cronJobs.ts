@@ -1,7 +1,7 @@
 import { FEED_CONTENT_TYPES } from '../src/models/definitions/exm';
 import * as moment from 'moment';
 
-const getUserInfo = (user) => {
+const getUserInfo = user => {
   const details = user.details;
 
   if (!details) {
@@ -36,7 +36,7 @@ const generateData = (
             .toISOString()
         ),
         howManyYear: year - userYear,
-        year,
+        year
       };
     }
 
@@ -46,40 +46,40 @@ const generateData = (
       recipientIds: [user._id],
       ceremonyData,
       createdAt: new Date(),
-      createdBy: user._id,
+      createdBy: user._id
     });
   }
 
   return feeds;
 };
 
-export const createCeremonies = async (models) => {
+export const createCeremonies = async models => {
   console.log('starting to create ceremonies');
 
   const now = new Date();
   const year = now.getFullYear();
 
-  const usersHasBirthday = await models.Users.find({
-    'details.birthDate': { $exists: true },
+  const usersHasBirthday = await models.Users.findUsers({
+    'details.birthDate': { $exists: true }
   });
 
-  const usersHasWorkAnniversary = await models.Users.find({
-    'details.workStartedDate': { $exists: true },
+  const usersHasWorkAnniversary = await models.Users.findUsers({
+    'details.workStartedDate': { $exists: true }
   });
 
   const yesterday = moment()
     .add(-1, 'days')
     .format('YYYY-MM-DD');
 
-  const newUsers = await models.Users.find({
-    createdAt: { $gte: new Date(yesterday) },
+  const newUsers = await models.Users.findUsers({
+    createdAt: { $gte: new Date(yesterday) }
   });
 
   await models.ExmFeed.deleteMany({
     contentType: {
-      $in: [FEED_CONTENT_TYPES.BIRTHDAY, FEED_CONTENT_TYPES.WORK_ANNIVARSARY],
+      $in: [FEED_CONTENT_TYPES.BIRTHDAY, FEED_CONTENT_TYPES.WORK_ANNIVARSARY]
     },
-    'ceremonyData.year': year,
+    'ceremonyData.year': year
   });
 
   let feeds = generateData(
@@ -125,6 +125,6 @@ export default [
     schedule: '25 9 * * *',
     handler: async ({ models }) => {
       await createCeremonies(models);
-    },
-  },
+    }
+  }
 ];

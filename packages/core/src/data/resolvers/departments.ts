@@ -3,7 +3,7 @@ import { IDepartmentDocument } from '../../db/models/definitions/structures';
 
 export default {
   users(department: IDepartmentDocument, _args, { models }: IContext) {
-    return models.Users.find({
+    return models.Users.findUsers({
       _id: { $in: department.userIds || [] },
       isActive: true
     });
@@ -29,6 +29,9 @@ export default {
   },
 
   supervisor(department: IDepartmentDocument, _args, { models }: IContext) {
-    return models.Users.findOne({ _id: department.supervisorId, isActive: true });
+    return models.Users.findOne({
+      _id: department.supervisorId,
+      isActive: true
+    });
   }
 };
