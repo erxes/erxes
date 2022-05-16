@@ -1,11 +1,11 @@
-import React from "react";
-import { Nav } from "../../styles";
+import React from 'react';
+import { Nav } from '../../styles';
 
-import NavigationItem from "./NavigationItem";
-import NavigationMore from "./NavigationMore";
+import NavigationItem from './NavigationItem';
+import NavigationMore from './NavigationMore';
 
-import { Plugin } from "./types";
-import { pluginNavigations } from "./utils";
+import { Plugin } from './types';
+import { pluginNavigations } from './utils';
 
 type Props = {
   navCollapse: number;
@@ -25,9 +25,9 @@ export default class NavigationList extends React.Component<Props, State> {
 
     this.state = {
       showMenu: false,
-      clickedMenu: "",
-      pinnedPlugins: JSON.parse(localStorage.getItem("pinnedPlugins") || "[]"),
-      countOfPinnedPlugins: window.innerHeight > 900 ? 8 : 5,
+      clickedMenu: '',
+      pinnedPlugins: JSON.parse(localStorage.getItem('pinnedPlugins') || '[]'),
+      countOfPinnedPlugins: window.innerHeight > 900 ? 8 : 5
     };
   }
 
@@ -40,7 +40,7 @@ export default class NavigationList extends React.Component<Props, State> {
   updatePinnedPlugins = (plugins: Plugin[]): void => {
     this.setState({ pinnedPlugins: plugins });
 
-    localStorage.setItem("pinnedPlugins", JSON.stringify(plugins));
+    localStorage.setItem('pinnedPlugins', JSON.stringify(plugins));
   };
 
   render() {
@@ -50,7 +50,7 @@ export default class NavigationList extends React.Component<Props, State> {
       showMenu,
       clickedMenu,
       pinnedPlugins,
-      countOfPinnedPlugins,
+      countOfPinnedPlugins
     } = this.state;
 
     const plugins =

@@ -1,6 +1,11 @@
 import { graphqlPubsub } from './configs';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
-import { sendContactsMessage, sendCoreMessage, sendIntegrationsMessage, sendLogsMessage } from './messageBroker';
+import {
+  sendContactsMessage,
+  sendCoreMessage,
+  sendIntegrationsMessage,
+  sendLogsMessage
+} from './messageBroker';
 import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
 import { generateModels } from './connectionResolver';
 import { IConversationDocument } from './models/definitions/conversations';
@@ -20,13 +25,13 @@ const sendSuccess = data => ({
  */
 export const receiveRpcMessage = async (subdomain, data) => {
   const { action, metaInfo, payload } = data;
-  
+
   const {
     Integrations,
     ConversationMessages,
     Conversations
   } = await generateModels(subdomain);
-  
+
   const doc = JSON.parse(payload || '{}');
 
   if (action === 'get-create-update-customer') {
@@ -42,7 +47,7 @@ export const receiveRpcMessage = async (subdomain, data) => {
 
     let customer;
 
-    const getCustomer = async (selector) =>
+    const getCustomer = async selector =>
       sendContactsMessage({
         subdomain,
         action: 'customers.findOne',
@@ -75,7 +80,6 @@ export const receiveRpcMessage = async (subdomain, data) => {
     if (customer) {
       return sendSuccess({ _id: customer._id });
     } else {
-      
       customer = await sendContactsMessage({
         subdomain,
         action: 'customers.createCustomer',
@@ -105,7 +109,6 @@ export const receiveRpcMessage = async (subdomain, data) => {
         isRPC: true,
         defaultValue: {}
       });
-
     }
 
     const assignedUserId = user ? user._id : null;
@@ -169,25 +172,25 @@ export const receiveRpcMessage = async (subdomain, data) => {
     return sendSuccess({ _id: message._id });
   }
 
-   if (action === 'get-configs') {
-     const configs = await sendCoreMessage({
-       subdomain,
-       action: 'getConfigs',
-       data: {},
-       isRPC: true
-     });
+  if (action === 'get-configs') {
+    const configs = await sendCoreMessage({
+      subdomain,
+      action: 'getConfigs',
+      data: {},
+      isRPC: true
+    });
 
-     return sendSuccess({ configs });
-   }
+    return sendSuccess({ configs });
+  }
 
   if (action === 'getUserIds') {
     const users = await sendCoreMessage({
       subdomain,
-      action: "users.getIds",
+      action: 'users.getIds',
       data: {},
       isRPC: true,
       defaultValue: []
-    })
+    });
 
     return sendSuccess({ userIds: users.map(user => user._id) });
   }
@@ -219,11 +222,10 @@ export const removeEngageConversations = async (models, _id) => {
   await models.Conversations.removeEngageConversations(_id);
 };
 
-export const collectConversations = async ({
-  contentId,
-  contentType,
-  subdomain
-}) => {
+export const collectConversations = async (
+  subdomain: string,
+  { contentId, contentType }: { contentId: string; contentType: string }
+) => {
   const models = await generateModels(subdomain);
   const results: any[] = [];
 

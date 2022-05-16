@@ -1,5 +1,6 @@
 import { putCreateLog, putDeleteLog, putUpdateLog } from 'erxes-api-utils';
 import { gatherDescriptions } from '../../../utils';
+import { checkPermission } from '@erxes/api-utils/src';
 
 const transactionMutations = {
   transactionsAdd: async (
@@ -7,8 +8,6 @@ const transactionMutations = {
     doc,
     { user, docModifier, models, checkPermission, memoryStorage, messageBroker }
   ) => {
-    await checkPermission('manageTransactions', user);
-
     const transaction = models.LoanTransactions.createTransaction(
       models,
       messageBroker,
@@ -24,7 +23,7 @@ const transactionMutations = {
         type: 'transaction',
         newData: doc,
         object: transaction,
-        extraParams: { models },
+        extraParams: { models }
       },
       user
     );
@@ -41,9 +40,8 @@ const transactionMutations = {
     { _id, ...doc },
     { models, checkPermission, memoryStorage, user, messageBroker }
   ) => {
-    await checkPermission('manageTransactions', user);
     const transaction = await models.LoanTransactions.getTransaction(models, {
-      _id,
+      _id
     });
 
     const updated = await models.LoanTransactions.updateTransaction(
@@ -62,7 +60,7 @@ const transactionMutations = {
         object: transaction,
         newData: { ...doc },
         updatedDocument: updated,
-        extraParams: { models },
+        extraParams: { models }
       },
       user
     );
@@ -79,9 +77,8 @@ const transactionMutations = {
     { _id, ...doc },
     { models, checkPermission, memoryStorage, user, messageBroker }
   ) => {
-    await checkPermission('manageTransactions', user);
     const transaction = await models.LoanTransactions.getTransaction(models, {
-      _id,
+      _id
     });
 
     const updated = await models.LoanTransactions.changeTransaction(
@@ -100,7 +97,7 @@ const transactionMutations = {
         object: transaction,
         newData: { ...doc },
         updatedDocument: updated,
-        extraParams: { models },
+        extraParams: { models }
       },
       user
     );
@@ -117,10 +114,9 @@ const transactionMutations = {
     { transactionIds }: { transactionIds: string[] },
     { models, checkPermission, user, messageBroker }
   ) => {
-    await checkPermission('manageTransactions', user);
     // TODO: contracts check
     const transactions = await models.LoanTransactions.find({
-      _id: { $in: transactionIds },
+      _id: { $in: transactionIds }
     }).lean();
 
     await models.LoanTransactions.removeTransactions(models, transactionIds);
@@ -135,7 +131,19 @@ const transactionMutations = {
     }
 
     return transactionIds;
-  },
+  }
 };
+checkPermission(transactionMutations, 'transactionsAdd', 'manageTransactions');
+checkPermission(transactionMutations, 'transactionsEdit', 'manageTransactions');
+checkPermission(
+  transactionMutations,
+  'transactionsChange',
+  'manageTransactions'
+);
+checkPermission(
+  transactionMutations,
+  'transactionsRemove',
+  'manageTransactions'
+);
 
 export default transactionMutations;

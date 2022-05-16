@@ -46,6 +46,9 @@ export const types = ({ products, tags, forms }) => `
     healthStatus: JSON
 
     bookingData: BookingData
+
+    visibility: String
+    departmentIds: [String]
   }
 
   type BookingData {
@@ -234,6 +237,8 @@ export const mutations = `
     name: String!,
     brandId: String!,
     channelIds: [String]
+    visibility: String,
+    departmentIds: [String],
     languageCode: String,
     formId: String!,
     leadData: IntegrationLeadData!): Integration
@@ -242,6 +247,8 @@ export const mutations = `
     _id: String!
     name: String!,
     brandId: String!,
+    visibility: String,
+    departmentIds: [String],
     channelIds: [String]
     languageCode: String,
     formId: String!,

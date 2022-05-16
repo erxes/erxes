@@ -3,7 +3,6 @@ import resolvers from './graphql/resolvers';
 import * as serverTiming from 'server-timing';
 
 import { initBroker, sendSegmentsMessage } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
 import * as permissions from './permissions';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { buildFile } from './exporter';
@@ -98,8 +97,6 @@ export default {
     );
 
     initBroker(options.messageBrokerClient);
-
-    initMemoryStorage();
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;

@@ -3,7 +3,6 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
-import { __ } from 'coreui/utils';
 import { IFormData } from '@erxes/ui-forms/src/forms/types';
 import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
 import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
@@ -17,6 +16,8 @@ import {
   BackgroundSelector,
   FlexItem
 } from '@erxes/ui/src/components/step/style';
+import { __ } from 'coreui/utils';
+import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
 
 type Props = {
   onChange: (
@@ -26,7 +27,9 @@ type Props = {
       | 'isRequireOnce'
       | 'channelIds'
       | 'theme'
-      | 'saveAsCustomer',
+      | 'saveAsCustomer'
+      | 'visibility'
+      | 'departmentIds',
     value: any
   ) => void;
   type: string;
@@ -40,6 +43,8 @@ type Props = {
   fields?: IField[];
   brand?: IBrand;
   channelIds?: string[];
+  visibility?: string;
+  departmentIds?: string[];
   onFieldEdit?: () => void;
 };
 
@@ -80,6 +85,28 @@ class OptionStep extends React.Component<Props, State> {
     );
   }
 
+  renderDepartments() {
+    const { visibility, departmentIds } = this.props;
+
+    if (visibility === 'public') {
+      return;
+    }
+
+    const departmentOnChange = (values: string[]) => {
+      this.onChangeFunction('departmentIds', values);
+    };
+
+    return (
+      <FormGroup>
+        <SelectDepartments
+          defaultValue={departmentIds}
+          isRequired={false}
+          onChange={departmentOnChange}
+        />
+      </FormGroup>
+    );
+  }
+
   render() {
     const { language, brand, isRequireOnce, saveAsCustomer } = this.props;
 
@@ -97,6 +124,11 @@ class OptionStep extends React.Component<Props, State> {
 
     const onSwitchHandler = e => {
       this.onChangeFunction(e.target.id, e.target.checked);
+    };
+
+    const onChangeVisibility = (e: React.FormEvent<HTMLElement>) => {
+      const visibility = (e.currentTarget as HTMLInputElement).value;
+      this.onChangeFunction('visibility', visibility);
     };
 
     return (
@@ -130,6 +162,22 @@ class OptionStep extends React.Component<Props, State> {
             description="Choose a channel, if you wish to see every new form in your Team Inbox."
             onChange={channelOnChange}
           />
+
+          <FormGroup>
+            <ControlLabel required={true}>Visibility</ControlLabel>
+            <FormControl
+              name="visibility"
+              componentClass="select"
+              value={this.props.visibility}
+              onChange={onChangeVisibility}
+            >
+              <option value="public">{__('Public')}</option>
+              <option value="private">{__('Private')}</option>
+            </FormControl>
+          </FormGroup>
+
+          {this.renderDepartments()}
+
           <FormGroup>
             <ControlLabel>Language</ControlLabel>
             <Select

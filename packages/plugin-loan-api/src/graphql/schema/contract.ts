@@ -1,8 +1,16 @@
-export const types = () => {
-  return `
-    extend type User @key(fields: "_id") {
-      _id: String! @external
-    }
+import {
+  attachmentType,
+  attachmentInput
+} from '@erxes/api-utils/src/commonTypeDefs';
+
+export const types = () => `
+
+  ${attachmentType}
+  ${attachmentInput}
+
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
   type CurrentSchedule {
     contractId: String
     version: String
@@ -80,10 +88,7 @@ export const types = () => {
     relContract: RecContract
   }
 
-  type ContractsListResponse {
-    list: [Contract],
-    totalCount: Float,
-  }
+
 
   type ConfirmResponse {
     result: JSON
@@ -105,7 +110,7 @@ export const types = () => {
     total: Float,
   }
 `;
-};
+
 const queryParams = `
   page: Int
   perPage: Int
@@ -123,7 +128,7 @@ const queryParams = `
 `;
 
 export const queries = `
-  contractsMain(${queryParams}): ContractsListResponse
+  
   contracts(${queryParams}): [Contract]
   contractDetail(_id: String!): Contract
   cpContracts(cpUserType: String cpUserEmail: String cpUserPhone: String): [Contract]

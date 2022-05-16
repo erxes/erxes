@@ -41,13 +41,12 @@ jobs:
           cd packages/gateway
           yarn install
           yarn build plugin exmfeed
+          cd ../../dist/plugin-exmfeed-api/.erxes
+          cd dist/main/.erxes/src
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
         run: |
-          ls -la dist
-          ls -la dist/plugin-exmfeed-api
-
           cd dist/plugin-exmfeed-api/.erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
           docker build -t erxes/plugin-exmfeed-api:${GITHUB_REF#refs/heads/} -f Dockerfile .
