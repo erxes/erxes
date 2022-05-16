@@ -148,6 +148,7 @@ const userParams = `
   type: String,
   companyName: String,
   companyRegistrationNumber: Int,
+  clientPortalConfigId: String
 `;
 
 export const mutations = (contactAvailable, cardAvailable) => `

@@ -200,4 +200,4 @@ const clientPortalUserQueries = {
   }
 };
 
-export default { configClientPortalQueries, clientPortalUserQueries };
+export default { ...configClientPortalQueries, ...clientPortalUserQueries };

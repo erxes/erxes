@@ -4,7 +4,7 @@ import { checkPermission } from '@erxes/api-utils/src';
 import { sendCardsMessage, sendContactsMessage } from '../../messageBroker';
 import { IContext, models } from '../../connectionResolver';
 import * as express from 'express';
-import { authCookieOptions } from '../../../utils';
+import { authCookieOptions, sendSms } from '../../../utils';
 // import twilio from 'twilio';
 
 interface ILoginParams {
@@ -27,20 +27,20 @@ interface ICreateCard {
 // const login = async (
 //   args: ILoginParams,
 //   res: express.Response,
-//   secure: boolean
+//   secure: boolean,
+//   { models }: IContext
 // ) => {
-//   // const response = await models.ClientPortalUsers.login(args);
+//   const response = await models.ClientPortalUsers.login(args);
 
-//   // const { token } = response;
+//   const { token } = response;
 
-//   // res.cookie('client-auth-token', token, authCookieOptions(secure));
+//   res.cookie('client-auth-token', token, authCookieOptions(secure));
 
 //   return 'loggedIn';
 // };
 
 const configClientPortalMutations = {
   clientPortalConfigUpdate(_root, args: IClientPortal, { models }: IContext) {
-    console.log(args, 'hellooooooo');
     return models.ClientPortals.createOrUpdateConfig(args);
   },
 
@@ -156,80 +156,70 @@ const configClientPortalMutations = {
   }
 };
 
-// const clientPortalUserMutations = {
-//   userAdd: async (_root, args: IUser, { models }: IContext) => {
-//     return models.ClientPortalUsers.createUser(args);
-//   },
+const clientPortalUserMutations = {
+  clientPortalUserAdd: async (_root, args: IUser, { models }: IContext) => {
+    return models.ClientPortalUsers.createUser(args);
+  },
 
-//   /*
-//    * Login
-//    */
-//   login: async (_root, args: ILoginParams, { res, requestInfo }: IContext) => {
-//     return login(args, res, requestInfo.secure);
-//   },
+  /*
+   * Login
+   */
+  // clientPortalLogin: async (_root, args: ILoginParams, { res, requestInfo }: IContext) => {
+  //   return login(args, res, requestInfo.secure);
+  // },
 
-//   /*
-//    * Logout
-//    */
-//   async logout(_root, _args, { res }: IContext) {
-//     res.cookie('client-auth-token', '1', { maxAge: 0 });
+  /*
+   * Logout
+   */
+  async clientPortalLogout(_root, _args, { res }: IContext) {
+    res.cookie('client-auth-token', '1', { maxAge: 0 });
 
-//     return 'loggedout';
-//   },
+    return 'loggedout';
+  },
 
-//   /*
-//    * Change user password
-//    */
-//   userChangePassword(
-//     _root,
-//     args: { currentPassword: string; newPassword: string },
-//     { user, models }: IContext
-//   ) {
-//     return models.ClientPortalUsers.changePassword({ _id: user._id, ...args });
-//   },
+  /*
+   * Change user password
+   */
+  clientPortalUserChangePassword(
+    _root,
+    args: { currentPassword: string; newPassword: string },
+    { user, models }: IContext
+  ) {
+    return models.ClientPortalUsers.changePassword({ _id: user._id, ...args });
+  },
 
-//   /*
-//    * Change user password
-//    */
-//   resetPasswordWithCode(
-//     _root,
-//     args: { phone: string; password: string; code: string }, { models }: IContext
-//   ) {
-//     return models.ClientPortalUsers.changePasswordWithCode(args);
-//   },
+  /*
+   * Change user password
+   */
+  clientPortalResetPasswordWithCode(
+    _root,
+    args: { phone: string; password: string; code: string },
+    { models }: IContext
+  ) {
+    return models.ClientPortalUsers.changePasswordWithCode(args);
+  },
 
-//   /*
-//    * Edit user profile
-//    */
-//   async userEdit(_root, args: IUser, { user, models }: IContext) {
-//     return models.ClientPortalUsers.editProfile(user._id, args);
-//   },
+  /*
+   * Edit user profile
+   */
+  async clientPortalUserEdit(_root, args: IUser, { user, models }: IContext) {
+    return models.ClientPortalUsers.editProfile(user._id, args);
+  },
 
-//   // async sendVerificationCode(root, { phone }, { models }: IContext) {
-//   //   const code = await models.ClientPortalUsers.imposeVerificationCode(phone);
+  async clientPortalSendVerificationCode(
+    _root,
+    { phone },
+    { models }: IContext
+  ) {
+    const code = await models.ClientPortalUsers.imposeVerificationCodePhone(
+      phone
+    );
 
-//   //   // Twilio Credentials
-//   //   const accountSid = process.env.TWILIO_ACCOUNT_SID;
-//   //   const authToken = process.env.TWILIO_AUTH_TOKEN;
-//   //   const fromNumber = process.env.TWILIO_FROM_NUMBER;
+    const body = `Your verification code is ${code}`;
 
-//   //   // require the Twilio module and create a REST client
-//   //   const client = twilio(accountSid, authToken);
-//   //   client.messages.create(
-//   //     {
-//   //       to: `+976${phone}`,
-//   //       from: fromNumber,
-//   //       body: code
-//   //     },
-//   //     (err, message) => {
-//   //       console.log(err);
-//   //       console.log(message);
-//   //     }
-//   //   );
-
-//   //   return 'sent';
-//   // }
-// };
+    return sendSms(phone, body);
+  }
+};
 
 checkPermission(
   configClientPortalMutations,
@@ -243,4 +233,4 @@ checkPermission(
   'manageClientPortal'
 );
 
-export default { configClientPortalMutations };
+export default { ...configClientPortalMutations, ...clientPortalUserMutations };

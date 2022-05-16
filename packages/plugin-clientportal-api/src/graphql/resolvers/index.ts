@@ -5,11 +5,11 @@ import customScalars from '@erxes/api-utils/src/customScalars';
 const resolvers: any = {
   ...customScalars,
   Mutation: {
-    ...clientPortalMutations,
+    ...clientPortalMutations
   },
   Query: {
-    ...clientPortalQueries,
-  },
+    ...clientPortalQueries
+  }
 };
 
 export default resolvers;

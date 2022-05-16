@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
 import * as randomize from 'randomatic';
 import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
+import { IContext, IModels } from '../connectionResolver';
 import {
   clientPortalSchema,
   clientPortalUserSchema,
@@ -13,6 +13,9 @@ import {
   IUserDocument
 } from './definitions/clientPortal';
 import * as sha256 from 'sha256';
+import { USER_LOGIN_TYPES } from '../../utils';
+import { sendContactsMessage } from '../messageBroker';
+import { sendSms } from '../../utils';
 
 export interface IClientPortalModel extends Model<IClientPortalDocument> {
   getConfig(_id: string): Promise<IClientPortalDocument>;
@@ -45,7 +48,7 @@ export interface IUserModel extends Model<IUserDocument> {
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
   comparePassword(password: string, userPassword: string): boolean;
-  resetPassword({
+  clientPortalResetPassword({
     token,
     newPassword
   }: {
@@ -61,12 +64,13 @@ export interface IUserModel extends Model<IUserDocument> {
     currentPassword: string;
     newPassword: string;
   }): Promise<IUserDocument>;
-  forgotPassword(email: string): string;
+  clientPortalForgotPassword(email: string): string;
   createTokens(_user: IUserDocument, secret: string): string[];
   refreshTokens(
     refreshToken: string
   ): { token: string; refreshToken: string; user: IUserDocument };
   login(args: ILoginParams): { token: string; refreshToken: string };
+  imposeVerificationCodePhone(phone: string): string;
   imposeVerificationCode(phone: string): string;
   changePasswordWithCode({
     phone,
@@ -159,7 +163,22 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
     }
 
-    public static async createUser({ password, email, ...doc }: IUser) {
+    public static async sendVerification(phone, email) {
+      const phoneCode = await this.imposeVerificationCodePhone(phone);
+
+      const body = `Your verification code is ${phoneCode}`;
+
+      // const emailCode = await this.imposeVerificationCodeEmail(email);
+
+      // const body = `Баталгаажууулах код: ${emailCode}`;
+
+      await sendSms(phone, body);
+    }
+
+    public static async createUser(
+      { password, email, phone, ...doc }: IUser,
+      subdomain: string
+    ) {
       // empty string password validation
       if (password === '') {
         throw new Error('Password can not be empty');
@@ -173,6 +192,10 @@ export const loadClientPortalUserClass = (models: IModels) => {
         throw new Error('The user is already exists');
       }
 
+      if (phone && (await models.ClientPortalUsers.findOne({ phone }))) {
+        throw new Error('The user is already exists');
+      }
+
       // const performCreate = async () => {
       //   return models.ClientPortalUsers.create({
       //     ...doc,
@@ -181,6 +204,16 @@ export const loadClientPortalUserClass = (models: IModels) => {
       //     password: await this.generatePassword(password)
       //   });
       // }
+
+      const user = await models.ClientPortalUsers.create({
+        ...doc,
+        phone,
+        email: tEmail,
+        // hash password
+        password: await this.generatePassword(password)
+      });
+
+      this.sendVerification(phone, tEmail);
 
       const { companyName, firstName, lastName, type } = doc;
 
@@ -220,16 +253,33 @@ export const loadClientPortalUserClass = (models: IModels) => {
       //   }
       // });
 
-      // if (customer && customer._id) {
-      //   const user = await performCreate();
+      // const user = await performCreate();
 
-      //   await models.ClientPortalUsers.updateOne(
-      //     { _id: user._id },
-      //     { $set: { erxesCustomerId: customer._id } }
-      //   );
+      // if (user._id) {
+      const customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.createCustomer',
+        data: {
+          firstName: doc.firstName,
+          lastName: doc.lastName,
+          primaryEmail: email,
+          primaryPhone: phone,
+          state: 'customer'
+        },
+        isRPC: true
+      });
 
-      // return user._id;
+      // return customer;
       // }
+
+      if (customer && customer._id) {
+        await models.ClientPortalUsers.updateOne(
+          { _id: user._id },
+          { $set: { erxesCustomerId: customer._id } }
+        );
+
+        return user._id;
+      }
     }
 
     public static async editProfile(_id: string, { password, ...doc }: IUser) {
@@ -262,7 +312,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
       return models.ClientPortalUsers.findOne({ _id });
     }
 
-    public static async resetPassword({
+    public static async clientPortalResetPassword({
       token,
       newPassword
     }: {
@@ -339,7 +389,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
       return models.ClientPortalUsers.findOne({ _id: user._id });
     }
 
-    public static async forgotPassword(email: string) {
+    public static async clientPortalForgotPassword(email: string) {
       const user = await models.ClientPortalUsers.findOne({ email });
 
       if (!user) {
@@ -434,6 +484,28 @@ export const loadClientPortalUserClass = (models: IModels) => {
         { _id: user._id },
         {
           $set: { verificationCode: code, verificationCodeExpires: codeExpires }
+        }
+      );
+
+      return code;
+    }
+
+    public static async imposeVerificationCodePhone(phone: string) {
+      const user = await models.ClientPortalUsers.findOne({ phone });
+      const code = this.generateVerificationCode();
+      const codeExpires = Date.now() + 60000;
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      await models.ClientPortalUsers.updateOne(
+        { _id: user._id },
+        {
+          $set: {
+            verificationCodePhone: code,
+            verificationCodePhoneExpires: codeExpires
+          }
         }
       );
 
