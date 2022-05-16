@@ -30,7 +30,7 @@ class LeftSidebar extends React.Component<Props> {
         {isEnabled('tags') && (
           <TaggerSection
             data={product}
-            type="product"
+            type="products:product"
             refetchQueries={refetchQueries}
           />
         )}
