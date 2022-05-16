@@ -45,7 +45,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
     name: String
     code: String
     type: String
-    description: String
+    description: StringCategory
     sku: String
     unitPrice: Float
     categoryId: String

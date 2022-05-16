@@ -105,6 +105,7 @@ export const types = () => `
   }
 
 `;
+
 const neighborParams = `
   productCategoryId: String
   data: JSON
