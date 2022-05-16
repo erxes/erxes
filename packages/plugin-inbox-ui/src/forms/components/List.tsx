@@ -1,23 +1,23 @@
-import Button from "@erxes/ui/src/components/Button";
-import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
-import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import Pagination from "@erxes/ui/src/components/pagination/Pagination";
-import SortHandler from "@erxes/ui/src/components/SortHandler";
-import Table from "@erxes/ui/src/components/table";
-import { __ } from "coreui/utils";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { BarItems } from "@erxes/ui/src/layout/styles";
-import { EMPTY_CONTENT_POPUPS } from "@erxes/ui-settings/src/constants";
-import TaggerPopover from "@erxes/ui/src/tags/components/TaggerPopover";
-import React from "react";
-import { Link } from "react-router-dom";
-import { ITag } from "@erxes/ui/src/tags/types";
-import { ILeadIntegration, IntegrationsCount } from "@erxes/ui-leads/src/types";
-import Row from "./Row";
-import Sidebar from "./Sidebar";
-import { TAG_TYPES } from "@erxes/ui/src/tags/constants";
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import Button from '@erxes/ui/src/components/Button';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import SortHandler from '@erxes/ui/src/components/SortHandler';
+import Table from '@erxes/ui/src/components/table';
+import { __ } from 'coreui/utils';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import { EMPTY_CONTENT_POPUPS } from '@erxes/ui-settings/src/constants';
+import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { ITag } from '@erxes/ui/src/tags/types';
+import { ILeadIntegration, IntegrationsCount } from '@erxes/ui-leads/src/types';
+import Row from './Row';
+import Sidebar from './Sidebar';
+import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   integrations: ILeadIntegration[];
@@ -41,7 +41,7 @@ type Props = {
 class List extends React.Component<Props, {}> {
   onChange = () => {
     const { toggleAll, integrations } = this.props;
-    toggleAll(integrations, "integrations");
+    toggleAll(integrations, 'integrations');
   };
 
   renderRow() {
@@ -52,10 +52,10 @@ class List extends React.Component<Props, {}> {
       toggleBulk,
       archive,
       queryParams,
-      copy,
+      copy
     } = this.props;
 
-    return integrations.map((integration) => (
+    return integrations.map(integration => (
       <Row
         key={integration._id}
         isChecked={bulk.includes(integration)}
@@ -78,7 +78,7 @@ class List extends React.Component<Props, {}> {
       emptyBulk,
       isAllSelected,
       integrations,
-      counts,
+      counts
     } = this.props;
 
     queryParams.loadingMainQuery = loading;
@@ -93,12 +93,14 @@ class List extends React.Component<Props, {}> {
 
       actionBarLeft = (
         <BarItems>
-          <TaggerPopover
-            type={TAG_TYPES.INTEGRATION}
-            successCallback={emptyBulk}
-            targets={bulk}
-            trigger={tagButton}
-          />
+          {isEnabled('tags') && (
+            <TaggerPopover
+              type={TAG_TYPES.INTEGRATION}
+              successCallback={emptyBulk}
+              targets={bulk}
+              trigger={tagButton}
+            />
+          )}
         </BarItems>
       );
     }
@@ -127,34 +129,34 @@ class List extends React.Component<Props, {}> {
               />
             </th>
             <th>
-              <SortHandler sortField={"name"} label={__("Name")} />
+              <SortHandler sortField={'name'} label={__('Name')} />
             </th>
-            <th>{__("Status")}</th>
+            <th>{__('Status')}</th>
             <th>
               <SortHandler
-                sortField={"leadData.viewCount"}
-                label={__("Views")}
+                sortField={'leadData.viewCount'}
+                label={__('Views')}
               />
             </th>
             <th>
               <SortHandler
-                sortField={"leadData.conversionRate"}
-                label={__("Conversion rate")}
+                sortField={'leadData.conversionRate'}
+                label={__('Conversion rate')}
               />
             </th>
             <th>
               <SortHandler
-                sortField={"leadData.contactsGathered"}
-                label={__("Contacts gathered")}
+                sortField={'leadData.contactsGathered'}
+                label={__('Contacts gathered')}
               />
             </th>
-            <th>{__("Brand")}</th>
-            <th>{__("Created by")}</th>
+            <th>{__('Brand')}</th>
+            <th>{__('Created by')}</th>
             <th>
-              <SortHandler sortField={"createdDate"} label={__("Created at")} />
+              <SortHandler sortField={'createdDate'} label={__('Created at')} />
             </th>
-            {isEnabled("tags") && <th>{__("Tags")}</th>}
-            <th>{__("Actions")}</th>
+            {isEnabled('tags') && <th>{__('Tags')}</th>}
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>
@@ -165,8 +167,8 @@ class List extends React.Component<Props, {}> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__("Forms")}
-            breadcrumb={[{ title: __("Forms") }]}
+            title={__('Forms')}
+            breadcrumb={[{ title: __('Forms') }]}
             queryParams={queryParams}
           />
         }
