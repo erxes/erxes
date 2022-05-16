@@ -1,5 +1,6 @@
 import * as admin from 'firebase-admin';
 import { debugExternalApi } from 'erxes-api-utils/lib/debuggers';
+import { USER_ROLES } from '@erxes/api-utils/src/constants';
 
 const initFirebase = async (models): Promise<void> => {
   const config = await models.Configs.findOne({
@@ -54,9 +55,10 @@ export const sendMobileNotification = async (
 
   if (receivers) {
     tokens.push(
-      ...(await models.Users.find({ _id: { $in: receivers } }).distinct(
-        'deviceTokens'
-      ))
+      ...(await models.Users.find({
+        _id: { $in: receivers },
+        role: { $ne: USER_ROLES.SYSTEM }
+      }).distinct('deviceTokens'))
     );
   }
 
@@ -70,7 +72,7 @@ export const sendMobileNotification = async (
 
   if (tokens.length > 0) {
     // send notification
-    for (let token of tokens) {
+    for (const token of tokens) {
       admin
         .messaging()
         .send({

@@ -14,6 +14,7 @@ import * as Handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
 import { sendLogsMessage } from '../messageBroker';
 import { IModels } from '../connectionResolver';
+import { USER_ROLES } from '@erxes/api-utils/src/constants';
 
 export interface IEmailParams {
   toEmails?: string[];
@@ -937,9 +938,10 @@ export const sendMobileNotification = async (
 
   if (receivers) {
     tokens.push(
-      ...(await models.Users.find({ _id: { $in: receivers } }).distinct(
-        'deviceTokens'
-      ))
+      ...(await models.Users.find({
+        _id: { $in: receivers },
+        role: { $ne: USER_ROLES.SYSTEM }
+      }).distinct('deviceTokens'))
     );
   }
 
