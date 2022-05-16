@@ -108,10 +108,6 @@ class ParticipantChooser extends React.Component<
       return renderFullName(customer);
     };
 
-    if (participantsQuery.loading || customersQuery.loading) {
-      return <Spinner />;
-    }
-
     const customers = customersQuery.customers || [];
 
     const updatedProps = {
