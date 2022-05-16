@@ -180,6 +180,8 @@ export interface IIntegration {
   isActive?: boolean;
   channelIds?: string[];
   bookingData?: IBookingData;
+  departmentIds?: string[];
+  visibility?: string;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {
@@ -480,6 +482,9 @@ export const integrationSchema = schemaHooksWrapper(
 
     name: field({ type: String, label: 'Name' }),
     brandId: field({ type: String, label: 'Brand' }),
+
+    visibility: field({ type: String, label: 'Visibility' }),
+    departmentIds: field({ type: [String], label: 'Departments' }),
 
     languageCode: field({
       type: String,

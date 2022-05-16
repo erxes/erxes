@@ -41,13 +41,12 @@ jobs:
           cd packages/gateway
           yarn install
           yarn build plugin cards
+          cd ../../dist/plugin-cards-api/.erxes
+          cd dist/main/.erxes/src
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
         run: |
-          ls -la dist
-          ls -la dist/plugin-cards-api
-
           cd dist/plugin-cards-api/.erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
           docker build -t erxes/plugin-cards-api:${GITHUB_REF#refs/heads/} -f Dockerfile .

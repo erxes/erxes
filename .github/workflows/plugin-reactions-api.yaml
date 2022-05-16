@@ -41,13 +41,12 @@ jobs:
           cd packages/gateway
           yarn install
           yarn build plugin reactions
+          cd ../../dist/plugin-reactions-api/.erxes
+          cd dist/main/.erxes/src
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
         run: |
-          ls -la dist
-          ls -la dist/plugin-reactions-api
-
           cd dist/plugin-reactions-api/.erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
           docker build -t erxes/plugin-reactions-api:${GITHUB_REF#refs/heads/} -f Dockerfile .

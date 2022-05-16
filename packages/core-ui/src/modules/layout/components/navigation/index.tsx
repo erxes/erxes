@@ -8,6 +8,7 @@ import { __, readFile, setBadge } from "modules/common/utils";
 import NavigationToggler from "./NavigationToggler";
 import NavigationList from "./NavigationList";
 import NavigationItem from "./NavigationItem";
+import NavigationGoto from "./NavigationGoto";
 
 import { getThemeItem } from "utils";
 
@@ -53,6 +54,10 @@ export default class Navigation extends React.Component<Props> {
             onClickHandleIcon={onClickHandleIcon}
           />
         </FlexBox>
+
+        <NavigationGoto
+          navCollapse={navCollapse}
+        />
 
         <NavigationList
           navCollapse={navCollapse}
