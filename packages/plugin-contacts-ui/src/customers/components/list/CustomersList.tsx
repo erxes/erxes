@@ -37,6 +37,7 @@ import CustomersMerge from '@erxes/ui-contacts/src/customers/components/detail/C
 import CustomerRow from './CustomerRow';
 import Sidebar from './Sidebar';
 import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 interface IProps extends IRouterProps {
   type: string;
@@ -161,7 +162,13 @@ class CustomersList extends React.Component<IProps, State> {
 
     return (
       <withTableWrapper.Wrapper>
-        <Table whiteSpace="nowrap" hover={true} bordered={true} responsive={true} wideHeader={true}>
+        <Table
+          whiteSpace="nowrap"
+          hover={true}
+          bordered={true}
+          responsive={true}
+          wideHeader={true}
+        >
           <thead>
             <tr>
               <th>
@@ -440,13 +447,15 @@ class CustomersList extends React.Component<IProps, State> {
         <BarItems>
           <Widget customers={bulk} emptyBulk={emptyBulk} />
 
-          <TaggerPopover
-            type={TAG_TYPES.CUSTOMER}
-            successCallback={this.afterTag}
-            targets={bulk}
-            trigger={tagButton}
-            refetchQueries={[refetchQuery]}
-          />
+          {isEnabled('tags') && (
+            <TaggerPopover
+              type={TAG_TYPES.CUSTOMER}
+              successCallback={this.afterTag}
+              targets={bulk}
+              trigger={tagButton}
+              refetchQueries={[refetchQuery]}
+            />
+          )}
           {bulk.length === 2 && (
             <ModalTrigger
               title="Merge Customers"
