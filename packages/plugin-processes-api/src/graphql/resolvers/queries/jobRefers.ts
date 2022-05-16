@@ -1,37 +1,77 @@
+import { paginate } from '@erxes/api-utils/src/core';
 import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import { serviceDiscovery } from '../../../configs';
 import { IContext } from '../../../connectionResolver';
 
-const tagQueries = {
-  tags(
+interface IParam {
+  categoryId: string;
+  searchValue?: string;
+  ids: string[];
+  excludeIds: boolean;
+}
+
+const generateFilter = (params: IParam, commonQuerySelector) => {
+  const { categoryId, searchValue, ids, excludeIds } = params;
+  const selector: any = { ...commonQuerySelector };
+
+  if (categoryId) {
+    selector.categoryId = categoryId;
+  }
+
+  if (searchValue) {
+    selector.name = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+
+  if (ids && ids.length > 0) {
+    selector._id = { [excludeIds ? '$nin' : '$in']: ids };
+  }
+
+  return selector;
+};
+
+const jobReferQueries = {
+  jobRefers(
     _root,
-    { type, searchValue }: { type: string; searchValue?: string },
+    params: IParam & {
+      page: number;
+      perPage: number;
+    },
     { models, commonQuerySelector }: IContext
   ) {
-    const selector: any = { ...commonQuerySelector, type };
+    const selector = generateFilter(params, commonQuerySelector);
 
-    if (searchValue) {
-      selector.name = new RegExp(`.*${searchValue}.*`, 'i');
-    }
+    return paginate(
+      models.JobRefers.find(selector)
+        .sort({
+          code: 1
+        })
+        .lean(),
+      { ...params }
+    );
+  },
 
-    return models.Tags.find(selector).sort({
-      order: 1,
-      name: 1
-    });
+  jobReferTotalCount(
+    _root,
+    params: IParam,
+    { commonQuerySelector, models }: IContext
+  ) {
+    const selector = generateFilter(params, commonQuerySelector);
+
+    return models.JobRefers.find(selector).count();
   },
 
   /**
-   * Get one tag
+   * Get one jobRefer
    */
-  tagDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Tags.findOne({ _id });
+  jobReferDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.JobRefers.findOne({ _id });
   }
 };
 
-requireLogin(tagQueries, 'tagDetail');
-checkPermission(tagQueries, 'tags', 'showTags', []);
+requireLogin(jobReferQueries, 'jobReferDetail');
+checkPermission(jobReferQueries, 'jobRefers', 'showJobRefers');
+checkPermission(jobReferQueries, 'jobReferDetail', 'showJobRefers');
 
-export default tagQueries;
+export default jobReferQueries;

@@ -34,6 +34,7 @@ export const types = `
 const qryParams = `
   categoryId: String,
   searchValue: String,
+  ids: String,
   excludeIds: Boolean
 `;
 

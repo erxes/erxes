@@ -100,7 +100,7 @@ class Row extends React.Component<Props, State> {
         </Info>
       );
     };
-    
+
     return (
       <Modal show={true} onHide={this.toggleMergeWindow}>
         <Modal.Header closeButton={true}>

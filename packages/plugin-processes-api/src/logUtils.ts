@@ -2,46 +2,52 @@ import {
   putCreateLog as commonPutCreateLog,
   putUpdateLog as commonPutUpdateLog,
   putDeleteLog as commonPutDeleteLog,
-  putActivityLog as commonPutActivityLog,
   LogDesc,
+  gatherNames,
   IDescriptions,
   getSchemaLabels
 } from '@erxes/api-utils/src/logUtils';
-import { IModels, generateModels } from './connectionResolver';
 
+import { IModels } from './connectionResolver';
 import messageBroker from './messageBroker';
-import { ITagDocument, tagSchema } from './models/definitions/tags';
+import {
+  IProductDocument,
+  productSchema,
+  productCategorySchema
+} from './models/definitions/products';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
-  DELETE: 'delete',
+  DELETE: 'delete'
 };
 
-const gatherTagNames = async (
+export const MODULE_NAMES = {
+  PRODUCT: 'product',
+  PRODUCT_CATEGORY: 'productCategory'
+};
+
+const gatherProductFieldNames = async (
   models: IModels,
-  doc: ITagDocument,
+  subdomain: string,
+  doc: IProductDocument,
   prevList?: LogDesc[]
-) => {
-  const options: LogDesc[] = prevList ? prevList : [];
+): Promise<LogDesc[]> => {
+  let options: LogDesc[] = [];
 
-  if (doc.parentId) {
-    const parent = await models.Tags.findOne({ _id: doc.parentId });
-
-    options.push({ parentId: doc.parentId, name: parent && parent.name });
+  if (prevList) {
+    options = prevList;
   }
 
-  if (doc.relatedIds) {
-    const children = await models.Tags.find({
-      _id: { $in: doc.relatedIds },
-    }).lean();
-
-    if (children.length > 0) {
-      options.push({
-        relatedIds: doc.relatedIds,
-        name: children.map((c) => c.name),
-      });
-    }
+  if (doc.categoryId) {
+    options = await gatherNames({
+      foreignKey: 'categoryId',
+      prevList: options,
+      nameFields: ['name'],
+      items: await models.ProductCategories.find({
+        _id: { $in: [doc.categoryId] }
+      }).lean()
+    });
   }
 
   return options;
@@ -49,98 +55,132 @@ const gatherTagNames = async (
 
 const gatherDescriptions = async (
   models: IModels,
+  subdomain: string,
   params: any
 ): Promise<IDescriptions> => {
-  const { action, object, updatedDocument } = params;
+  const { action, type, object, updatedDocument } = params;
 
+  let extraDesc: LogDesc[] = [];
   const description = `"${object.name}" has been ${action}d`;
-  let extraDesc: LogDesc[] = await gatherTagNames(models, object);
 
-  if (updatedDocument) {
-    extraDesc = await gatherTagNames(models, updatedDocument, extraDesc);
+  switch (type) {
+    case MODULE_NAMES.PRODUCT:
+      extraDesc = await gatherProductFieldNames(models, subdomain, object);
+
+      if (updatedDocument) {
+        extraDesc = await gatherProductFieldNames(
+          models,
+          subdomain,
+          updatedDocument,
+          extraDesc
+        );
+      }
+
+      break;
+    case MODULE_NAMES.PRODUCT_CATEGORY:
+      const parentIds: string[] = [];
+
+      if (object.parentId) {
+        parentIds.push(object.parentId);
+      }
+
+      if (updatedDocument && updatedDocument.parentId !== object.parentId) {
+        parentIds.push(updatedDocument.parentId);
+      }
+
+      if (parentIds.length > 0) {
+        extraDesc = await gatherNames({
+          foreignKey: 'parentId',
+          nameFields: ['name'],
+          items: await models.ProductCategories.find({
+            _id: { $in: parentIds }
+          }).lean()
+        });
+      }
+
+      break;
+    default:
+      break;
   }
 
   return { extraDesc, description };
 };
 
-export const putDeleteLog = async (models, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, {
-    ...logDoc,
-    action: LOG_ACTIONS.DELETE,
-  });
+export const putDeleteLog = async (
+  models: IModels,
+  subdomain: string,
+  logDoc,
+  user
+) => {
+  const { description, extraDesc } = await gatherDescriptions(
+    models,
+    subdomain,
+    {
+      ...logDoc,
+      action: LOG_ACTIONS.DELETE
+    }
+  );
 
   await commonPutDeleteLog(
+    subdomain,
     messageBroker(),
-    { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
+    { ...logDoc, description, extraDesc, type: `products:${logDoc.type}` },
     user
   );
 };
 
-export const putUpdateLog = async (models, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, {
-    ...logDoc,
-    action: LOG_ACTIONS.UPDATE,
-  });
+export const putUpdateLog = async (
+  models: IModels,
+  subdomain: string,
+  logDoc,
+  user
+) => {
+  const { description, extraDesc } = await gatherDescriptions(
+    models,
+    subdomain,
+    {
+      ...logDoc,
+      action: LOG_ACTIONS.UPDATE
+    }
+  );
 
   await commonPutUpdateLog(
+    subdomain,
     messageBroker(),
-    { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
+    { ...logDoc, description, extraDesc, type: `products:${logDoc.type}` },
     user
   );
 };
 
-export const putCreateLog = async (models, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, {
-    ...logDoc,
-    action: LOG_ACTIONS.CREATE,
-  });
+export const putCreateLog = async (
+  models: IModels,
+  subdomain: string,
+  logDoc,
+  user
+) => {
+  const { description, extraDesc } = await gatherDescriptions(
+    models,
+    subdomain,
+    {
+      ...logDoc,
+      action: LOG_ACTIONS.CREATE
+    }
+  );
 
   await commonPutCreateLog(
+    subdomain,
     messageBroker(),
-    { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
+    { ...logDoc, description, extraDesc, type: `products:${logDoc.type}` },
     user
   );
-};
-
-export const putActivityLog = async (subdomain: string, params: { action: string; data: any }) => {
-  const { data } = params;
-
-  const updatedParams = {
-    ...params,
-    data: { ...data, contentType: `tags:${data.contentType}` },
-  };
-
-  return commonPutActivityLog(subdomain, {
-    messageBroker: messageBroker(),
-    ...updatedParams,
-  });
 };
 
 export default {
   getSchemaLabels: ({ data: { type } }) => ({
     status: 'success',
-    data: getSchemaLabels(type, [{ name: 'tag', schemas: [tagSchema] }]),
-  }),
-  getActivityContent: async ({ subdomain, data }) => {
-    const { action, content } = data;
-    const models = await generateModels(subdomain);
-
-    if (action === 'tagged') {
-      let tags: ITagDocument[] = [];
-
-      if (content) {
-        tags = await models.Tags.find({ _id: { $in: content.tagIds } });
-      }
-
-      return {
-        data: tags,
-        status: 'success',
-      };
-    }
-
-    return {
-      status: 'error',
-      data: 'wrong action',
-    };
-  }
+    data: getSchemaLabels(type, [
+      { name: 'product', schemas: [productSchema] },
+      { name: 'productCategory', schemas: [productCategorySchema] }
+    ])
+  })
 };
