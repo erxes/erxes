@@ -35,9 +35,9 @@ class ContractDetails extends React.Component<Props, State> {
     const breadcrumb = [
       {
         title: __('Contract types'),
-        link: '/erxes-plugin-loan/contract-types',
+        link: '/contract-types'
       },
-      { title },
+      { title }
     ];
 
     const content = () => {

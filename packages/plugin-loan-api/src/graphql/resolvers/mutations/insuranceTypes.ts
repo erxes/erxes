@@ -1,5 +1,6 @@
 import { putCreateLog, putDeleteLog, putUpdateLog } from 'erxes-api-utils';
 import { gatherDescriptions } from '../../../utils';
+import { checkPermission } from '@erxes/api-utils/src';
 
 const insuranceTypeMutations = {
   insuranceTypesAdd: async (
@@ -7,8 +8,6 @@ const insuranceTypeMutations = {
     doc,
     { user, docModifier, models, checkPermission, messageBroker }
   ) => {
-    await checkPermission('manageInsuranceTypes', user);
-
     doc.yearPercents = doc.yearPercents.split(', ');
     const insuranceType = models.InsuranceTypes.createInsuranceType(
       models,
@@ -23,7 +22,7 @@ const insuranceTypeMutations = {
         type: 'insuranceType',
         newData: doc,
         object: insuranceType,
-        extraParams: { models },
+        extraParams: { models }
       },
       user
     );
@@ -39,10 +38,9 @@ const insuranceTypeMutations = {
     { _id, ...doc },
     { models, checkPermission, user, messageBroker }
   ) => {
-    await checkPermission('manageInsuranceTypes', user);
     doc.yearPercents = doc.yearPercents.split(', ');
     const insuranceType = await models.InsuranceTypes.getInsuranceType(models, {
-      _id,
+      _id
     });
     const updated = await models.InsuranceTypes.updateInsuranceType(
       models,
@@ -58,7 +56,7 @@ const insuranceTypeMutations = {
         object: insuranceType,
         newData: { ...doc },
         updatedDocument: updated,
-        extraParams: { models },
+        extraParams: { models }
       },
       user
     );
@@ -74,10 +72,9 @@ const insuranceTypeMutations = {
     { insuranceTypeIds }: { insuranceTypeIds: string[] },
     { models, checkPermission, user, messageBroker }
   ) => {
-    await checkPermission('manageInsuranceTypes', user);
     // TODO: contracts check
     const insuranceTypes = await models.InsuranceTypes.find({
-      _id: { $in: insuranceTypeIds },
+      _id: { $in: insuranceTypeIds }
     }).lean();
 
     await models.InsuranceTypes.removeInsuranceTypes(models, insuranceTypeIds);
@@ -89,14 +86,29 @@ const insuranceTypeMutations = {
         {
           type: 'insuranceType',
           object: insuranceType,
-          extraParams: { models },
+          extraParams: { models }
         },
         user
       );
     }
 
     return insuranceTypeIds;
-  },
+  }
 };
+checkPermission(
+  insuranceTypeMutations,
+  'insuranceTypesAdd',
+  'manageInsuranceTypes'
+);
+checkPermission(
+  insuranceTypeMutations,
+  'insuranceTypesEdit',
+  'manageInsuranceTypes'
+);
+checkPermission(
+  insuranceTypeMutations,
+  'insuranceTypesRemove',
+  'manageInsuranceTypes'
+);
 
 export default insuranceTypeMutations;

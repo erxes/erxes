@@ -1,6 +1,7 @@
 import { paginate } from 'erxes-api-utils';
 import { getCloseInfo } from '../../../models/utils/closeUtils';
 import { getFullDate } from '../../../models/utils/utils';
+import { checkPermission } from '@erxes/api-utils/src';
 
 const generateFilter = async (models, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -19,7 +20,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     const date = getFullDate(params.closeDate);
     filter.closeDate = {
       $gte: date,
-      $lte: new Date(date.getTime() + 1000 * 3600 * 24),
+      $lte: new Date(date.getTime() + 1000 * 3600 * 24)
     };
   }
 
@@ -32,8 +33,8 @@ const generateFilter = async (models, params, commonQuerySelector) => {
       $in: await models.Conformities.savedConformity({
         mainType: params.conformityMainType,
         mainTypeId: params.conformityMainTypeId,
-        relTypes: ['contract', 'contractSub'],
-      }),
+        relTypes: ['contract', 'contractSub']
+      })
     };
   }
   if (
@@ -46,14 +47,14 @@ const generateFilter = async (models, params, commonQuerySelector) => {
       await models.Conformities.relatedConformity({
         mainType: params.conformityMainType,
         mainTypeId: params.conformityMainTypeId,
-        relType: 'contract',
+        relType: 'contract'
       })
     );
     ids = ids.concat(
       await models.Conformities.relatedConformity({
         mainType: params.conformityMainType,
         mainTypeId: params.conformityMainTypeId,
-        relType: 'contractSub',
+        relType: 'contractSub'
       })
     );
     filter._id = { $in: ids };
@@ -66,7 +67,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
   return filter;
 };
 
-export const sortBuilder = (params) => {
+export const sortBuilder = params => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -95,7 +96,7 @@ const contractQueries = {
       ),
       {
         page: params.page,
-        perPage: params.perPage,
+        perPage: params.perPage
       }
     );
   },
@@ -117,10 +118,10 @@ const contractQueries = {
         models.LoanContracts.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
-          perPage: params.perPage,
+          perPage: params.perPage
         }
       ),
-      totalCount: models.LoanContracts.find(filter).count(),
+      totalCount: models.LoanContracts.find(filter).count()
     };
   },
 
@@ -137,33 +138,33 @@ const contractQueries = {
     if (mainType === 'customer') {
       const customer = await models.Customers.getWidgetCustomer({
         email: params.cpUserEmail,
-        phone: params.cpUserPhone,
+        phone: params.cpUserPhone
       });
 
       const contractIds = await models.Conformities.savedConformity({
         mainType,
         mainTypeId: customer._id,
-        relTypes: ['contract'],
+        relTypes: ['contract']
       });
 
       return models.LoanContracts.find({ _id: { $in: contractIds } }).sort({
-        createdAt: -1,
+        createdAt: -1
       });
     }
 
     let company = await models.Companies.findOne({
       $or: [
         { emails: { $in: [params.cpUserEmail] } },
-        { primaryEmail: params.cpUserEmail },
-      ],
+        { primaryEmail: params.cpUserEmail }
+      ]
     }).lean();
 
     if (!company) {
       company = await models.Companies.findOne({
         $or: [
           { phones: { $in: [params.cpUserPhone] } },
-          { primaryPhone: params.cpUserPhone },
-        ],
+          { primaryPhone: params.cpUserPhone }
+        ]
       }).lean();
     }
 
@@ -174,11 +175,11 @@ const contractQueries = {
     const contractIds = await models.Conformities.savedConformity({
       mainType,
       mainTypeId: company._id,
-      relTypes: ['contract'],
+      relTypes: ['contract']
     });
 
     return models.LoanContracts.find({ _id: { $in: contractIds } }).sort({
-      createdAt: -1,
+      createdAt: -1
     });
   },
 
@@ -188,10 +189,13 @@ const contractQueries = {
 
   closeInfo: async (_root, { contractId, date }, { models, memoryStorage }) => {
     const contract = await models.LoanContracts.getContract(models, {
-      _id: contractId,
+      _id: contractId
     });
     return getCloseInfo(models, memoryStorage, contract, date);
-  },
+  }
 };
+
+checkPermission(contractQueries, 'contractsMain', 'showContracts');
+checkPermission(contractQueries, 'contractDetail', 'showContracts');
 
 export default contractQueries;

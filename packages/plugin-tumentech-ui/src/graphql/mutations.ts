@@ -255,6 +255,33 @@ const productMatch = `
   }
 `;
 
+const addParticipants = `
+mutation participantsAdd($customerId: String, $dealId: String, $customerIds: [String]){
+  participantsAdd(customerId: $customerId, dealId: $dealId, customerIds: $customerIds) {
+    _id
+  }
+}
+`;
+
+const removeParticipants = `
+mutation participantsRemove($id: String, $doc: [ParticipantsRemove]) {
+  participantsRemove(_id: $id, doc: $doc)
+}
+`;
+
+const removeParticipantsFromDeal = `
+mutation participantsRemoveFromDeal($dealId: String!, $customerIds: [String]){
+  participantsRemoveFromDeal(dealId: $dealId, customerIds: $customerIds)
+}`;
+
+const selectWinner = `
+mutation selectWinner($customerId: String!, $dealId: String!){
+  selectWinner(customerId: $customerId,dealId: $dealId) {
+    _id
+  }
+}
+`;
+
 export default {
   carsAdd,
   carsEdit,
@@ -267,5 +294,9 @@ export default {
   productsRemove,
 
   carCategoryMatch,
-  productMatch
+  productMatch,
+  addParticipants,
+  removeParticipants,
+  removeParticipantsFromDeal,
+  selectWinner
 };

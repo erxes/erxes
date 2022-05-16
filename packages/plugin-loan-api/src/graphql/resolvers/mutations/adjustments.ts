@@ -1,5 +1,6 @@
 import { putCreateLog, putDeleteLog, putUpdateLog } from 'erxes-api-utils';
 import { gatherDescriptions } from '../../../utils';
+import { checkPermission } from '@erxes/api-utils/src';
 
 const adjustmentMutations = {
   adjustmentsAdd: async (
@@ -7,8 +8,6 @@ const adjustmentMutations = {
     doc,
     { user, docModifier, models, checkPermission, messageBroker }
   ) => {
-    await checkPermission('manageContracts', user);
-
     doc.createdBy = user._id;
     const adjustment = models.Adjustments.createAdjustment(
       models,
@@ -23,7 +22,7 @@ const adjustmentMutations = {
         type: 'adjustment',
         newData: doc,
         object: adjustment,
-        extraParams: { models },
+        extraParams: { models }
       },
       user
     );
@@ -38,7 +37,6 @@ const adjustmentMutations = {
     { _id, ...doc },
     { models, checkPermission, user, messageBroker }
   ) => {
-    await checkPermission('manageContracts', user);
     const adjustment = await models.Adjustments.getAdjustment(models, { _id });
     const updated = await models.Adjustments.updateAdjustment(models, _id, doc);
 
@@ -50,7 +48,7 @@ const adjustmentMutations = {
         object: adjustment,
         newData: { ...doc },
         updatedDocument: updated,
-        extraParams: { models },
+        extraParams: { models }
       },
       user
     );
@@ -67,10 +65,9 @@ const adjustmentMutations = {
     { adjustmentIds }: { adjustmentIds: string[] },
     { models, checkPermission, user, messageBroker }
   ) => {
-    await checkPermission('manageContracts', user);
     // TODO: contracts check
     const adjustments = await models.Adjustments.find({
-      _id: { $in: adjustmentIds },
+      _id: { $in: adjustmentIds }
     }).lean();
 
     await models.Adjustments.removeAdjustments(models, adjustmentIds);
@@ -85,7 +82,11 @@ const adjustmentMutations = {
     }
 
     return adjustmentIds;
-  },
+  }
 };
+
+checkPermission(adjustmentMutations, 'adjustmentsAdd', 'manageContracts');
+checkPermission(adjustmentMutations, 'adjustmentsEdit', 'manageContracts');
+checkPermission(adjustmentMutations, 'adjustmentsRemove', 'manageContracts');
 
 export default adjustmentMutations;
