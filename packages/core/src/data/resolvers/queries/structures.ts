@@ -2,7 +2,11 @@ import { IContext } from '../../../connectionResolver';
 import { checkPermission } from '../../permissions/wrappers';
 
 const structureQueries = {
-  departments(_root, { searchValue }: { searchValue?: string }, { models }: IContext) {
+  departments(
+    _root,
+    { searchValue }: { searchValue?: string },
+    { models }: IContext
+  ) {
     const filter: { $or?: any[] } = {};
 
     if (searchValue) {
@@ -28,7 +32,11 @@ const structureQueries = {
     return models.Departments.getDepartment({ _id });
   },
 
-  units(_root, { searchValue }: { searchValue?: string }, { models }: IContext) {
+  units(
+    _root,
+    { searchValue }: { searchValue?: string },
+    { models }: IContext
+  ) {
     const filter: { $or?: any[] } = {};
 
     if (searchValue) {
@@ -54,7 +62,11 @@ const structureQueries = {
     return models.Units.getUnit({ _id });
   },
 
-  branches(_root, { searchValue }: { searchValue?: string }, { models }: IContext) {
+  branches(
+    _root,
+    { searchValue }: { searchValue?: string },
+    { models }: IContext
+  ) {
     const filter: { parentId?: any; $or?: any[] } = {};
 
     if (searchValue) {
@@ -101,7 +113,7 @@ const structureQueries = {
       }
     });
 
-    return models.Users.find({ _id: { $nin: userIds }, isActive: true });
+    return models.Users.findUsers({ _id: { $nin: userIds }, isActive: true });
   },
 
   structureDetail(_root, _args, { models }: IContext) {
