@@ -257,7 +257,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Users.find(data, { _id: 1 })
+      data: await models.Users.findUsers(data, { _id: 1 })
     };
   });
 

@@ -105,6 +105,7 @@ export interface IUserModel extends Model<IUserDocument> {
   getTokenFields(user: IUserDocument);
   logout(_user: IUserDocument, token: string): string;
   createSystemUser(doc: IAppDocument): IUserDocument;
+  findUsers(query: any, options?: any): Promise<IUserDocument[]>;
 }
 
 export const loadUserClass = (models: IModels) => {
@@ -146,7 +147,7 @@ export const loadUserClass = (models: IModels) => {
 
       // Checking if user has email
       if (email) {
-        previousEntry = await models.Users.find({ ...query, email });
+        previousEntry = await models.Users.findUsers({ ...query, email });
 
         // Checking if duplicated
         if (previousEntry.length > 0) {
@@ -774,14 +775,27 @@ export const loadUserClass = (models: IModels) => {
     }
 
     public static async createSystemUser(app: IAppDocument) {
+      const user = await models.Users.findOne({ appId: app._id });
+
+      if (user) {
+        return user;
+      }
+
       return models.Users.create({
         role: USER_ROLES.SYSTEM,
         password: await this.generatePassword(app._id),
         username: app.name,
         code: await this.generateUserCode(),
         groupIds: [app.userGroupId],
-        appId: app._id
+        appId: app._id,
+        isActive: true
       });
+    }
+
+    public static findUsers(query: any, options?: any) {
+      const filter = { ...query, role: { $ne: USER_ROLES.SYSTEM } };
+
+      return models.Users.find(filter, options);
     }
   }
 
