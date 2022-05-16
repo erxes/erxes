@@ -6,6 +6,7 @@ import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import segments from './segments';
+import forms from './forms';
 
 export let debug;
 export let graphqlPubsub;
@@ -23,7 +24,8 @@ export default {
   },
 
   meta: {
-    segments
+    segments,
+    forms
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);

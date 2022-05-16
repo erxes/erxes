@@ -55,6 +55,25 @@ class CarListContainer extends React.Component<FinalProps, State> {
       productCategoriesQuery
     } = this.props;
 
+    let columnsConfig = [
+      { name: 'plateNumber', label: 'Plate number', order: 1 },
+      { name: 'vinNumber', label: 'Vin number', order: 2 },
+      { name: 'vintageYear', label: 'Vintage year', order: 3 },
+      { name: 'importYear', label: 'Import year', order: 4 },
+      { name: 'description', label: 'Description', order: 5 }
+    ];
+
+    // load config from local storage
+    const localConfig = localStorage.getItem(
+      `erxes_tumentech:cars_columns_config`
+    );
+
+    if (localConfig) {
+      columnsConfig = JSON.parse(localConfig).filter(conf => {
+        return conf && conf.checked;
+      });
+    }
+
     if (productCategoriesQuery.loading) {
       return null;
     }
@@ -67,7 +86,7 @@ class CarListContainer extends React.Component<FinalProps, State> {
           emptyBulk();
           Alert.success('You successfully deleted a car');
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
         });
     };
@@ -79,14 +98,14 @@ class CarListContainer extends React.Component<FinalProps, State> {
           carFields: data
         }
       })
-        .then((response) => {
+        .then(response => {
           Alert.success('You successfully merged cars');
           callback();
           history.push(
             `/erxes-plugin-car/details/${response.data.carsMerge._id}`
           );
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
         });
     };
@@ -104,10 +123,11 @@ class CarListContainer extends React.Component<FinalProps, State> {
       loading: carsMainQuery.loading || this.state.loading,
       removeCars,
       mergeCars,
-      productCategories
+      productCategories,
+      columnsConfig
     };
 
-    const carsList = (props) => {
+    const carsList = props => {
       return <CarsList {...updatedProps} {...props} />;
     };
 

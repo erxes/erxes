@@ -317,9 +317,11 @@ const prepareData = async (
           defaultValue: []
         });
 
-        const uniqueCustomerIds = formSubmissions.map(
+        const customerIds = formSubmissions.map(
           submission => submission.customerId
         );
+
+        const uniqueCustomerIds = [...new Set(customerIds)] as any;
 
         const formDatas: any[] = [];
 

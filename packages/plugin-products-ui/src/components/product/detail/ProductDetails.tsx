@@ -6,6 +6,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IProduct } from '../../../types';
 import React from 'react';
 import LeftSidebar from './LeftSidebar';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   product: IProduct;
@@ -28,15 +29,17 @@ class CompanyDetails extends React.Component<Props> {
       <>
         <ActivityInputs
           contentTypeId={product._id}
-          contentType='products:product'
+          contentType="products:product"
           showEmail={false}
         />
-        <ActivityLogs
-          target={product.name || ''}
-          contentId={product._id}
-          contentType='products:product'
-          extraTabs={[]}
-        />
+        {isEnabled('logs') && (
+          <ActivityLogs
+            target={product.name || ''}
+            contentId={product._id}
+            contentType="products:product"
+            extraTabs={[]}
+          />
+        )}
       </>
     );
 
