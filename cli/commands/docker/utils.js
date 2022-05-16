@@ -621,7 +621,7 @@ const update = async ({ pluginNames, noimage, uis }) => {
     if (!noimage) {
       log(`Updating image ${name}......`);
 
-      if (['crons', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
+      if (['crons', 'dashboard-front', 'gateway'].includes(name)) {
         await execCommand(
           `docker service update erxes_${name} --image erxes/${name}:federation`
         );
@@ -638,6 +638,13 @@ const update = async ({ pluginNames, noimage, uis }) => {
       if (name === 'coreui') {
         await execCommand(
           `docker service update erxes_coreui --image erxes/erxes:federation`
+        );
+        continue;
+      }
+
+      if (name === 'widgets') {
+        await execCommand(
+          `docker service update erxes_widgets --image erxes/erxes-widgets:federation`
         );
         continue;
       }
