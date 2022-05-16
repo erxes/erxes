@@ -34,7 +34,7 @@ const PageHeader = styled.div`
   padding-left: ${dimensions.coreSpacing * 1.5}px;
 `;
 
-const Contents = styledTS<{hasBorder?: boolean}>(styled.div)`
+const Contents = styledTS<{ hasBorder?: boolean }>(styled.div)`
   display: flex;
   flex: 1;
   margin-left: ${dimensions.unitSpacing}px;
@@ -72,9 +72,11 @@ const MainHead = styled.div`
   box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
 `;
 
-const MainContent = styledTS<{ transparent?: boolean; center?: boolean; leftSpacing?: boolean }>(
-  styled.section
-)`
+const MainContent = styledTS<{
+  transparent?: boolean;
+  center?: boolean;
+  leftSpacing?: boolean;
+}>(styled.section)`
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -86,21 +88,27 @@ const MainContent = styledTS<{ transparent?: boolean; center?: boolean; leftSpac
   padding-left: ${props => props.leftSpacing && `${dimensions.coreSpacing}px`}
 `;
 
-const ContentBox = styledTS<{ transparent?: boolean; initialOverflow?: boolean}>(styled.div)`
+const ContentBox = styledTS<{
+  transparent?: boolean;
+  initialOverflow?: boolean;
+}>(styled.div)`
   flex: 1;
-  overflow: ${props => props.initialOverflow ? 'initial' : 'auto'};
+  overflow: ${props => (props.initialOverflow ? 'initial' : 'auto')};
   position: relative;
   background-color: ${props => !props.transparent && colors.colorWhite};
 `;
 
-const ContentHeader = styledTS<{ background: string; zIndex?: number; noBorder?: boolean }>(
-  styled.div
-)`
+const ContentHeader = styledTS<{
+  background: string;
+  zIndex?: number;
+  noBorder?: boolean;
+}>(styled.div)`
   background: ${props =>
     props.background === 'transparent' ? 'none' : colors[props.background]};
   padding: ${props =>
     props.background === 'transparent' ? 0 : `0 ${dimensions.coreSpacing}px`};
-  border-bottom: ${props => !props.noBorder && `1px solid ${colors.borderPrimary}`};
+  border-bottom: ${props =>
+    !props.noBorder && `1px solid ${colors.borderPrimary}`};
   z-index: ${props => props.zIndex || 2};
 `;
 
@@ -117,7 +125,9 @@ const ContenFooter = styled.div`
   }
 `;
 
-const HeaderItems = styledTS<{ rightAligned?: boolean; hasFlex?: boolean }>(styled.div)`
+const HeaderItems = styledTS<{ rightAligned?: boolean; hasFlex?: boolean }>(
+  styled.div
+)`
   align-self: center;
   flex: ${props => props.hasFlex && 1};
   margin-left: ${props => props.rightAligned && 'auto'};
@@ -143,7 +153,8 @@ const SideContent = styledTS<{
   margin: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${
   dimensions.unitSpacing
 }px 0;
-  border-right: ${props => props.hasBorder && `1px solid ${colors.borderPrimary}`};
+  border-right: ${props =>
+    props.hasBorder && `1px solid ${colors.borderPrimary}`};
   box-shadow: ${props =>
     props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
 
@@ -173,13 +184,14 @@ const SidebarHeader = styledTS<{
   justify-content: space-between;
 `;
 
-const SidebarTitle = styledTS<{ children: any }>(
+const SidebarTitle = styledTS<{ children: any; noBackground?: boolean }>(
   styled(SidebarHeader.withComponent('h3'))
 )`
   padding: 0 ${dimensions.coreSpacing}px;
   margin: 0;
   text-transform: uppercase;
   position: relative;
+  background-color: ${props => props.noBackground && 'white'};
 `;
 
 const SidebarMainContent = styled.div`
@@ -371,7 +383,7 @@ const CenterContent = styled.div`
   }
 `;
 
-const SectionContainer = styledTS<{noShadow?: boolean}>(styled.div)`
+const SectionContainer = styledTS<{ noShadow?: boolean }>(styled.div)`
   position: relative;
   box-shadow: ${props => !props.noShadow && `0 0 6px 0 rgba(0, 0, 0, 0.08)`};
   margin-bottom: 10px;
