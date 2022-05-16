@@ -1,5 +1,4 @@
 import * as telemetry from 'erxes-telemetry';
-import * as express from 'express';
 import { ILink } from '@erxes/api-utils/src/types';
 import {
   IDetail,
@@ -38,31 +37,21 @@ const sendInvitationEmail = (
   const DOMAIN = getEnv({ name: 'DOMAIN' });
   const confirmationUrl = `${DOMAIN}/confirmation?token=${token}`;
 
-  utils.sendEmail(models, subdomain, {
-    toEmails: [email],
-    title: 'Team member invitation',
-    template: {
-      name: 'userInvitation',
-      data: {
-        content: confirmationUrl,
-        domain: DOMAIN
+  utils.sendEmail(
+    subdomain,
+    {
+      toEmails: [email],
+      title: 'Team member invitation',
+      template: {
+        name: 'userInvitation',
+        data: {
+          content: confirmationUrl,
+          domain: DOMAIN
+        }
       }
-    }
-  });
-};
-
-const login = async (models: IModels, args: ILogin, res: express.Response, secure: boolean) => {
-  const response = await models.Users.login(args);
-
-  const { token } = response;
-
-  const cookieOptions: any = { secure };
-
-  res.cookie('auth-token', token, authCookieOptions(cookieOptions));
-
-  telemetry.trackCli('logged_in');
-
-  return 'loggedIn';
+    },
+    models
+  );
 };
 
 const userMutations = {
@@ -148,6 +137,7 @@ const userMutations = {
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: 'user',
         description: 'create user',
@@ -159,11 +149,22 @@ const userMutations = {
 
     return 'success';
   },
+
   /*
    * Login
    */
   async login(_root, args: ILogin, { res, requestInfo, models }: IContext) {
-    return login(models, args, res, requestInfo.secure);
+    const response = await models.Users.login(args);
+
+    const { token } = response;
+
+    const cookieOptions: any = { secure: requestInfo.secure };
+
+    res.cookie('auth-token', token, authCookieOptions(cookieOptions));
+
+    telemetry.trackCli('logged_in');
+
+    return 'loggedIn';
   },
 
   async logout(_root, _args, { res, user, requestInfo, models }: IContext) {
@@ -178,7 +179,11 @@ const userMutations = {
   /*
    * Send forgot password email
    */
-  async forgotPassword(_root, { email }: { email: string }, { subdomain, models }: IContext) {
+  async forgotPassword(
+    _root,
+    { email }: { email: string },
+    { subdomain, models }: IContext
+  ) {
     const token = await models.Users.forgotPassword(email);
 
     // send email ==============
@@ -186,16 +191,20 @@ const userMutations = {
 
     const link = `${DOMAIN}/reset-password?token=${token}`;
 
-    await utils.sendEmail(models, subdomain, {
-      toEmails: [email],
-      title: 'Reset password',
-      template: {
-        name: 'resetPassword',
-        data: {
-          content: link
+    await utils.sendEmail(
+      subdomain,
+      {
+        toEmails: [email],
+        title: 'Reset password',
+        template: {
+          name: 'resetPassword',
+          data: {
+            content: link
+          }
         }
-      }
-    });
+      },
+      models
+    );
 
     return 'sent';
   },
@@ -203,14 +212,22 @@ const userMutations = {
   /*
    * Reset password
    */
-  async resetPassword(_root, args: { token: string; newPassword: string }, { models }: IContext) {
+  async resetPassword(
+    _root,
+    args: { token: string; newPassword: string },
+    { models }: IContext
+  ) {
     return models.Users.resetPassword(args);
   },
 
   /*
    * Reset member's password
    */
-  usersResetMemberPassword(_root, args: { _id: string; newPassword: string }, { models }: IContext) {
+  usersResetMemberPassword(
+    _root,
+    args: { _id: string; newPassword: string },
+    { models }: IContext
+  ) {
     return models.Users.resetMemberPassword(args);
   },
 
@@ -228,7 +245,11 @@ const userMutations = {
   /*
    * Update user
    */
-  async usersEdit(_root, args: IUsersEdit, { user, models }: IContext) {
+  async usersEdit(
+    _root,
+    args: IUsersEdit,
+    { user, models, subdomain }: IContext
+  ) {
     const { _id, channelIds, ...doc } = args;
     const userOnDb = await models.Users.getUser(_id);
 
@@ -238,6 +259,7 @@ const userMutations = {
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: 'user',
         description: 'edit profile',
@@ -269,11 +291,14 @@ const userMutations = {
       details: IDetail;
       links: ILink;
     },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const userOnDb = await models.Users.getUser(user._id);
 
-    const valid = await models.Users.comparePassword(password, userOnDb.password);
+    const valid = await models.Users.comparePassword(
+      password,
+      userOnDb.password
+    );
 
     if (!password || !valid) {
       // bad password
@@ -290,6 +315,7 @@ const userMutations = {
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: 'user',
         description: 'edit profile',
@@ -309,7 +335,7 @@ const userMutations = {
   async usersSetActiveStatus(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     if (user._id === _id) {
       throw new Error('You can not delete yourself');
@@ -318,6 +344,7 @@ const userMutations = {
     const updatedUser = await models.Users.setUserActiveOrInactive(_id);
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: 'user',
         description: 'changed status',
@@ -381,6 +408,7 @@ const userMutations = {
 
       await putCreateLog(
         models,
+        subdomain,
         {
           type: 'user',
           description: 'invited user',
@@ -397,7 +425,11 @@ const userMutations = {
   /*
    * Resend invitation
    */
-  async usersResendInvitation(_root, { email }: { email: string }, { subdomain, models }: IContext) {
+  async usersResendInvitation(
+    _root,
+    { email }: { email: string },
+    { subdomain, models }: IContext
+  ) {
     const token = await models.Users.resendInvitation({ email });
 
     sendInvitationEmail(models, subdomain, { email, token });
@@ -443,6 +475,7 @@ const userMutations = {
 
     await putUpdateLog(
       models,
+      subdomain,
       {
         type: 'user',
         description: 'confirm invitation',

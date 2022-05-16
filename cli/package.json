@@ -1,6 +1,6 @@
 {
   "name": "erxes",
-  "version": "0.2.81",
+  "version": "0.2.101",
   "description": "Free and open fair-code licensed all-in-one growth marketing & management software",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes",
@@ -28,9 +28,9 @@
     "fs-extra": "^9.0.1",
     "jsonwebtoken": "^8.5.1",
     "kill-port": "^1.6.1",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "request": "^2.88.2",
-    "shelljs": "^0.8.4",
+    "shelljs": "^0.8.5",
     "yaml": "^1.10.2"
   }
 }

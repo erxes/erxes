@@ -6,6 +6,7 @@ on:
       - federation
     paths:
       - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
       - "packages/ui-syncerkhet/**"
       - "packages/plugin-syncerkhet-ui/**"
       - ".github/workflows/plugin-syncerkhet-ui.yaml"

@@ -18,7 +18,12 @@ const SegmentFilterContainer = (props: Props & WrapperProps) => {
     ? customersCountQuery.customerCounts
     : null) || { bySegment: {} };
 
-  return <Segments contentType={`contacts:${type}`} counts={counts.bySegment} />;
+  return (
+    <Segments
+      contentType={`contacts:${type}`}
+      counts={counts.bySegment || {}}
+    />
+  );
 };
 
 type WrapperProps = {

@@ -101,6 +101,7 @@ export type LogDesc = {
 } & { name: any };
 
 export const putCreateLog = async (
+  subdomain: string,
   messageBroker,
   params: ILogDataParams,
   user: IUserDocument
@@ -119,7 +120,27 @@ export const putCreateLog = async (
     });
   }
 
-  return putLog(messageBroker, { ...params, action: LOG_ACTIONS.CREATE }, user);
+  const isWebhooksAvailable = await messageBroker.sendRPCMessage(
+    'gateway:isServiceAvailable',
+    'webhooks'
+  );
+
+  if (isWebhooksAvailable) {
+    messageBroker.sendMessage('webhooks:send', {
+      data: {
+        action: LOG_ACTIONS.CREATE,
+        type: params.type,
+        params
+      }
+    });
+  }
+
+  return putLog(
+    subdomain,
+    messageBroker,
+    { ...params, action: LOG_ACTIONS.CREATE },
+    user
+  );
 };
 
 /**
@@ -128,6 +149,7 @@ export const putCreateLog = async (
  * @param user User information from mutation context
  */
 export const putUpdateLog = async (
+  subdomain: string,
   messageBroker,
   params: ILogDataParams,
   user: IUserDocument
@@ -146,7 +168,27 @@ export const putUpdateLog = async (
     });
   }
 
-  return putLog(messageBroker, { ...params, action: LOG_ACTIONS.UPDATE }, user);
+  const isWebhooksAvailable = await messageBroker.sendRPCMessage(
+    'gateway:isServiceAvailable',
+    'webhooks'
+  );
+
+  if (isWebhooksAvailable) {
+    messageBroker.sendMessage('webhooks:send', {
+      data: {
+        action: LOG_ACTIONS.UPDATE,
+        type: params.type,
+        params
+      }
+    });
+  }
+
+  return putLog(
+    subdomain,
+    messageBroker,
+    { ...params, action: LOG_ACTIONS.UPDATE },
+    user
+  );
 };
 
 /**
@@ -155,14 +197,36 @@ export const putUpdateLog = async (
  * @param user User information from mutation context
  */
 export const putDeleteLog = async (
+  subdomain: string,
   messageBroker,
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  return putLog(messageBroker, { ...params, action: LOG_ACTIONS.DELETE }, user);
+  const isWebhooksAvailable = await messageBroker.sendRPCMessage(
+    'gateway:isServiceAvailable',
+    'webhooks'
+  );
+
+  if (isWebhooksAvailable) {
+    messageBroker.sendMessage('webhooks:send', {
+      data: {
+        action: LOG_ACTIONS.DELETE,
+        type: params.type,
+        params
+      }
+    });
+  }
+
+  return putLog(
+    subdomain,
+    messageBroker,
+    { ...params, action: LOG_ACTIONS.DELETE },
+    user
+  );
 };
 
 const putLog = async (
+  subdomain: string,
   messageBroker,
   params: IFinalLogParams,
   user: IUserDocument
@@ -170,10 +234,14 @@ const putLog = async (
   const value = await redis.get('afterMutations');
   const afterMutations = JSON.parse(value || '{}');
 
-  if (afterMutations[params.type] && afterMutations[params.type][params.action] && afterMutations[params.type][params.action].length) {
+  if (
+    afterMutations[params.type] &&
+    afterMutations[params.type][params.action] &&
+    afterMutations[params.type][params.action].length
+  ) {
     for (const service of afterMutations[params.type][params.action]) {
       await messageBroker.sendMessage(`${service}:afterMutation`, {
-        subdomain: 'os',
+        subdomain,
         data: {
           ...params,
           object: params.object,
@@ -181,7 +249,7 @@ const putLog = async (
           extraDesc: params.extraDesc,
           user
         }
-      })
+      });
     }
   }
 
@@ -195,7 +263,7 @@ const putLog = async (
   }
 
   return messageBroker.sendMessage('putLog', {
-    subdomain: 'os',
+    subdomain,
     data: {
       ...params,
       createdBy: user._id,
@@ -225,7 +293,7 @@ export const putActivityLog = async (
 
   try {
     if (isAutomationsAvailable && data.target) {
-      messageBroker.sendMessage('automations', {
+      messageBroker.sendMessage('automations:trigger', {
         data: {
           type: `${data.contentType}`,
           targets: [data.target]

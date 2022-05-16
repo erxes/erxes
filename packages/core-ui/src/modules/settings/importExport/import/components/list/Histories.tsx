@@ -20,11 +20,11 @@ import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
   queryParams: any;
+  history: any;
   histories: IImportHistory[];
   loading: boolean;
   totalCount: number;
   currentType: string;
-  serviceType: string;
   removeHistory: (historyId: string, contentType: string) => void;
 };
 
@@ -82,12 +82,10 @@ class Histories extends React.Component<Props & IRouterProps> {
   }
 
   renderExportButton = () => {
-    const { currentType, serviceType } = this.props;
+    const { currentType } = this.props;
 
     return (
-      <Link
-        to={`/settings/export?type=${currentType}&serviceType=${serviceType}`}
-      >
+      <Link to={`/settings/export?type=${currentType}`}>
         <Button icon="export" btnStyle="primary">
           {__(`Export ${this.getButtonText()}`)}
         </Button>
@@ -115,7 +113,7 @@ class Histories extends React.Component<Props & IRouterProps> {
   };
 
   render() {
-    const { histories, loading, totalCount, queryParams } = this.props;
+    const { histories, loading, totalCount, history, currentType } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -147,7 +145,7 @@ class Histories extends React.Component<Props & IRouterProps> {
             background="bgActive"
           />
         }
-        leftSidebar={<Sidebar currentType={queryParams.type} />}
+        leftSidebar={<Sidebar history={history} currentType={currentType} />}
         mainHead={headerDescription}
         footer={<Pagination count={totalCount} />}
         content={

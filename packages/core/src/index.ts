@@ -24,22 +24,23 @@ import { debugBase, debugError, debugInit } from './debuggers';
 import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
 import { uploader } from './middlewares/fileMiddleware';
-import {
-  join,
-  leave,
-  redis
-} from './serviceDiscovery';
+import { join, leave, redis } from './serviceDiscovery';
 import logs from './logUtils';
 
 import init from './startup';
 import forms from './forms';
-import { generateModels } from './connectionResolver'
+import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 // load environment variables
 dotenv.config();
 
-const { JWT_TOKEN_SECRET, WIDGETS_DOMAIN, DOMAIN } = process.env;
+const {
+  JWT_TOKEN_SECRET,
+  WIDGETS_DOMAIN,
+  DOMAIN,
+  CLIENT_PORTAL_DOMAINS
+} = process.env;
 
 if (!JWT_TOKEN_SECRET) {
   throw new Error('Please configure JWT_TOKEN_SECRET environment variable.');
@@ -65,6 +66,7 @@ const corsOptions = {
   origin: [
     DOMAIN ? DOMAIN : 'http://localhost:3000',
     WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
+    ...(CLIENT_PORTAL_DOMAINS || '').split(','),
     ...(process.env.ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
   ]
 };
@@ -111,7 +113,7 @@ app.get(
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
-    registerOnboardHistory({models, type: `${name}Download`, user: req.user });
+    registerOnboardHistory({ models, type: `${name}Download`, user: req.user });
 
     return res.redirect(
       `https://erxes-docs.s3-us-west-2.amazonaws.com/templates/${name}`
@@ -132,7 +134,11 @@ app.get(
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
-    registerOnboardHistory({ models, type: `importDownloadTemplate`, user: req.user });
+    registerOnboardHistory({
+      models,
+      type: `importDownloadTemplate`,
+      user: req.user
+    });
 
     const { name, response } = await templateExport(req.query);
 
@@ -154,7 +160,7 @@ app.get('/read-file', async (req: any, res, next) => {
       return res.send('Invalid key');
     }
 
-    const response = await readFileRequest(models, key);
+    const response = await readFileRequest(key, models);
 
     res.attachment(name || key);
 

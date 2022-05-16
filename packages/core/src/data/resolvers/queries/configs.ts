@@ -1,21 +1,19 @@
-import * as mongoose from "mongoose";
-import * as os from "os";
-import { moduleRequireLogin } from "../../permissions/wrappers";
+import { moduleRequireLogin } from '../../permissions/wrappers';
 
 import {
   checkPremiumService,
   getCoreDomain,
   getEnv,
   readFile,
-  sendRequest,
-} from "../../utils";
+  sendRequest
+} from '../../utils';
 
-import { getService, getServices } from "../../../serviceDiscovery";
-import { sendCommonMessage } from "../../../messageBroker";
-import { DEFAULT_CONSTANT_VALUES } from "@erxes/api-utils/src/constants";
+import { getService, getServices } from '../../../serviceDiscovery';
+import { sendCommonMessage } from '../../../messageBroker';
+import { DEFAULT_CONSTANT_VALUES } from '@erxes/api-utils/src/constants';
 
 import * as dotenv from 'dotenv';
-import { IContext } from "../../../connectionResolver";
+import { IContext } from '../../../connectionResolver';
 dotenv.config();
 
 const configQueries = {
@@ -28,26 +26,26 @@ const configQueries = {
 
   async configsGetVersion(_root, { releaseNotes }) {
     const result = {
-      version: "-",
+      version: '-',
       isUsingRedis: Boolean(process.env.REDIS_HOST),
       isUsingRabbitMQ: Boolean(process.env.RABBITMQ_HOST),
-      isUsingElkSyncer: Boolean(process.env.ELK_SYNCER !== "false"),
+      isUsingElkSyncer: Boolean(process.env.ELK_SYNCER !== 'false'),
       isLatest: false,
-      releaseInfo: {},
+      releaseInfo: {}
     };
 
-    const erxesDomain = getEnv({ name: "DOMAIN" });
+    const erxesDomain = getEnv({ name: 'DOMAIN' });
 
     const erxesVersion = await sendRequest({
       url: `${erxesDomain}/version.json`,
-      method: "GET",
+      method: 'GET'
     });
 
-    result.version = erxesVersion.packageVersion || "-";
+    result.version = erxesVersion.packageVersion || '-';
 
     const response = await sendRequest({
-      url: `${process.env.CORE_URL || "https://erxes.io"}/git-release-info`,
-      method: "GET",
+      url: `${process.env.CORE_URL || 'https://erxes.io'}/git-release-info`,
+      method: 'GET'
     });
 
     result.isLatest = result.version === response.tag_name;
@@ -59,52 +57,16 @@ const configQueries = {
     return result;
   },
 
-  async configsStatus(_root, _args) {
-    const status: any = {
-      erxesApi: {},
-      erxesIntegration: {},
-    };
-
-    const { version, storageEngine } = await mongoose.connection.db.command({
-      serverStatus: 1,
-    });
-
-    status.erxesApi.os = {
-      type: os.type(),
-      platform: os.platform(),
-      arch: os.arch(),
-      release: os.release(),
-      uptime: os.uptime(),
-      loadavg: os.loadavg(),
-      totalmem: os.totalmem(),
-      freemem: os.freemem(),
-      cpuCount: os.cpus().length,
-    };
-
-    status.erxesApi.process = {
-      nodeVersion: process.version,
-      pid: process.pid,
-      uptime: process.uptime(),
-    };
-
-    status.erxesApi.mongo = {
-      version,
-      storageEngine: storageEngine.name,
-    };
-
-    return status;
-  },
-
   configsGetEnv(_root) {
     return {
-      USE_BRAND_RESTRICTIONS: process.env.USE_BRAND_RESTRICTIONS,
+      USE_BRAND_RESTRICTIONS: process.env.USE_BRAND_RESTRICTIONS
     };
   },
 
   configsConstants(_root, _args, { models }: IContext) {
     return {
       allValues: models.Configs.constants(),
-      defaultValues: DEFAULT_CONSTANT_VALUES,
+      defaultValues: DEFAULT_CONSTANT_VALUES
     };
   },
 
@@ -115,9 +77,9 @@ const configQueries = {
   async configsCheckActivateInstallation(_root, args: { hostname: string }) {
     try {
       return await sendRequest({
-        method: "POST",
+        method: 'POST',
         url: `${getCoreDomain()}/check-activate-installation`,
-        body: args,
+        body: args
       });
     } catch (e) {
       throw new Error(e.message);
@@ -125,10 +87,10 @@ const configQueries = {
   },
 
   configsGetEmailTemplate(_root, { name }: { name?: string }) {
-    return readFile(name || "base");
+    return readFile(name || 'base');
   },
 
-  async search(_root, { value }: { value: string }) {
+  async search(_root, { value }: { value: string }, { subdomain }: IContext) {
     const services = await getServices();
 
     let results: Array<{ module: string; items: any[] }> = [];
@@ -139,12 +101,14 @@ const configQueries = {
 
       if (meta && meta.isSearchable) {
         const serviceResults = await sendCommonMessage({
+          subdomain,
           serviceName,
-          action: "search",
+          action: 'search',
           data: {
-            value,
+            subdomain,
+            value
           },
-          isRPC: true,
+          isRPC: true
         });
 
         results = [...results, ...serviceResults];
@@ -152,7 +116,7 @@ const configQueries = {
     }
 
     return results;
-  },
+  }
 };
 
 moduleRequireLogin(configQueries);

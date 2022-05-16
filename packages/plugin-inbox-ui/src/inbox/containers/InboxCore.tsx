@@ -1,19 +1,17 @@
-import { AppConsumer } from "coreui/appContext";
-import * as compose from "lodash.flowright";
-import gql from "graphql-tag";
-import { can, router as routerUtils } from "@erxes/ui/src/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import Empty from "../components/Empty";
-import InboxCore from "../components/InboxCore";
-import { queries } from "@erxes/ui-inbox/src/inbox/graphql";
+import { AppConsumer } from 'coreui/appContext';
+import * as compose from 'lodash.flowright';
+import gql from 'graphql-tag';
+import { can, router as routerUtils } from '@erxes/ui/src/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import Empty from '../components/Empty';
+import InboxCore from '../components/InboxCore';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 import {
   ConvesationsQueryVariables,
-  LastConversationQueryResponse,
-} from "@erxes/ui-inbox/src/inbox/types";
-import { generateParams } from "@erxes/ui-inbox/src/inbox/utils";
-import ErrorBoundary from "@erxes/ui/src/errorBoundary";
-
+  LastConversationQueryResponse
+} from '@erxes/ui-inbox/src/inbox/types';
+import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
 interface IRouteProps {
   queryParams: any;
   history: any;
@@ -49,7 +47,7 @@ class WithRefetchHandling extends React.Component<
 
     this.state = {
       notifyConsumersOfManagementAction: notifHandler,
-      refetchRequired: "",
+      refetchRequired: ''
     };
   }
 
@@ -74,33 +72,31 @@ class WithCurrentId extends React.Component<IProps> {
 
   render() {
     return (
-      <ErrorBoundary>
-        <AppConsumer>
-          {({ currentUser }) => {
-            const { queryParams } = this.props;
-            const { _id } = queryParams;
+      <AppConsumer>
+        {({ currentUser }) => {
+          const { queryParams } = this.props;
+          const { _id } = queryParams;
 
-            if (!currentUser) {
-              return null;
-            }
+          if (!currentUser) {
+            return null;
+          }
 
-            if (!_id || !can("showConversations", currentUser)) {
-              return (
-                <Empty queryParams={queryParams} currentUser={currentUser} />
-              );
-            }
-
+          if (!_id || !can('showConversations', currentUser)) {
             return (
-              <WithRefetchHandling>
-                <InboxCore
-                  queryParams={queryParams}
-                  currentConversationId={_id}
-                />
-              </WithRefetchHandling>
+              <Empty queryParams={queryParams} currentUser={currentUser} />
             );
-          }}
-        </AppConsumer>
-      </ErrorBoundary>
+          }
+
+          return (
+            <WithRefetchHandling>
+              <InboxCore
+                queryParams={queryParams}
+                currentConversationId={_id}
+              />
+            </WithRefetchHandling>
+          );
+        }}
+      </AppConsumer>
     );
   }
 }
@@ -117,15 +113,15 @@ export default compose(
     },
     options: (props: IRouteProps) => ({
       variables: generateParams(props.queryParams),
-      fetchPolicy: "network-only",
+      fetchPolicy: 'network-only'
     }),
     props: ({ data, ownProps }: { data?: any; ownProps: IRouteProps }) => {
       return {
         conversationsGetLast: data.conversationsGetLast,
         loading: data.loading,
         history: ownProps.history,
-        queryParams: ownProps.queryParams,
+        queryParams: ownProps.queryParams
       };
-    },
+    }
   })
 )(WithCurrentId);

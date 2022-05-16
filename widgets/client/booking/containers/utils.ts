@@ -1,13 +1,26 @@
-import gql from 'graphql-tag';
-import client from '../../apollo-client';
-import { getLocalStorageItem, setLocalStorageItem } from '../../common';
-import { requestBrowserInfo } from '../../utils';
-import { connection } from '../connection';
-import { saveBookingMutation } from '../graphql';
+import gql from "graphql-tag";
+import client from "../../apollo-client";
+import { getLocalStorageItem } from "../../common";
+import { requestBrowserInfo } from "../../utils";
+import { connection } from "../connection";
+import { saveBookingMutation } from "../graphql";
+
+export const postMessage = (options: any) => {
+  // notify parent window launcher state
+  window.parent.postMessage(
+    {
+      fromErxes: true,
+      source: "fromBookings",
+      setting: connection.setting,
+      ...options
+    },
+    "*"
+  );
+};
 
 export const saveBrowserInfo = () => {
   requestBrowserInfo({
-    source: 'fromBookings',
+    source: "fromBookings",
     postData: {
       setting: connection.setting
     },
@@ -65,12 +78,16 @@ export const saveBooking = (params: {
     };
   });
 
+  const cachedCustomerId = connection.customerId
+    ? connection.customerId
+    : getLocalStorageItem("customerId");
+
   const variables = {
     integrationId,
     formId,
     browserInfo,
     submissions: submissions.filter(e => e),
-    cachedCustomerId: getLocalStorageItem('customerId'),
+    cachedCustomerId,
     productId
   };
 
@@ -86,16 +103,19 @@ export const saveBooking = (params: {
         saveCallback(widgetsSaveBooking);
 
         if (widgetsSaveBooking.customerId) {
-          setLocalStorageItem(
-            'customerId',
-            widgetsSaveBooking.customerId,
-            connection.setting
-          );
+          connection.customerId = widgetsSaveBooking.customerId;
+
+          postMessage({
+            fromErxes: true,
+            message: "setLocalStorageItem",
+            key: "customerId",
+            value: widgetsSaveBooking.customerId
+          });
         }
       }
     })
 
     .catch(e => {
-      saveCallback({ status: 'error', errors: [{ text: e.message }] });
+      saveCallback({ status: "error", errors: [{ text: e.message }] });
     });
 };

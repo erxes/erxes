@@ -5,8 +5,16 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { IEngageMessage } from '../../models/definitions/engages';
 import { CAMPAIGN_KINDS } from '../../constants';
 import { checkCampaignDoc, send } from '../../engageUtils';
-import { sendContactsMessage, sendCoreMessage } from '../../messageBroker';
-import { updateConfigs, createTransporter, getEditorAttributeUtil } from '../../utils';
+import {
+  sendContactsMessage,
+  sendCoreMessage,
+  sendToWebhook
+} from '../../messageBroker';
+import {
+  updateConfigs,
+  createTransporter,
+  getEditorAttributeUtil
+} from '../../utils';
 import { awsRequests } from '../../trackers/engageTracker';
 import { debug } from '../../configs';
 
@@ -29,7 +37,7 @@ interface ITestEmailParams {
  */
 const emptyCustomers = {
   customerIds: [],
-  messengerReceivedCustomerIds: [],
+  messengerReceivedCustomerIds: []
 };
 
 const engageMutations = {
@@ -52,12 +60,14 @@ const engageMutations = {
       docModifier({ ...doc, createdBy: user._id })
     );
 
-    // all models must be collected inside an object
-    // await sendToWebhook(models, {
-    //   action: 'create',
-    //   type: 'engageMessages',
-    //   params: engageMessage
-    // });
+    await sendToWebhook({
+      subdomain,
+      data: {
+        action: 'create',
+        type: 'engages:engageMessages',
+        params: engageMessage
+      }
+    });
 
     await send(models, subdomain, engageMessage);
 
@@ -65,12 +75,12 @@ const engageMutations = {
       type: MODULE_ENGAGE,
       newData: {
         ...doc,
-        ...emptyCustomers,
+        ...emptyCustomers
       },
       object: {
         ...engageMessage.toObject(),
-        ...emptyCustomers,
-      },
+        ...emptyCustomers
+      }
     };
 
     await putCreateLog(subdomain, logDoc, user);
@@ -104,7 +114,7 @@ const engageMutations = {
       type: MODULE_ENGAGE,
       object: { ...engageMessage.toObject(), ...emptyCustomers },
       newData: { ...updated.toObject(), ...emptyCustomers },
-      updatedDocument: updated,
+      updatedDocument: updated
     };
 
     await putUpdateLog(subdomain, logDoc, user);
@@ -137,7 +147,11 @@ const engageMutations = {
   /**
    * Engage message set live
    */
-  async engageMessageSetLive(_root, { _id }: { _id: string }, { models }: IContext) {
+  async engageMessageSetLive(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
     const campaign = await models.EngageMessages.getEngageMessage(_id);
 
     if (campaign.isLive) {
@@ -175,14 +189,14 @@ const engageMutations = {
         type: MODULE_ENGAGE,
         newData: {
           isLive: true,
-          isDraft: false,
+          isDraft: false
         },
         object: {
           _id,
           isLive: draftCampaign.isLive,
-          isDraft: draftCampaign.isDraft,
+          isDraft: draftCampaign.isDraft
         },
-        description: `Campaign "${draftCampaign.title}" has been set live`,
+        description: `Campaign "${draftCampaign.title}" has been set live`
       },
       user
     );
@@ -199,7 +213,11 @@ const engageMutations = {
   /**
    * Engage message verify email
    */
-  async engageMessageVerifyEmail(_root, { email }: { email: string }, { models }: IContext) {
+  async engageMessageVerifyEmail(
+    _root,
+    { email }: { email: string },
+    { models }: IContext
+  ) {
     const response = await awsRequests.verifyEmail(models, email);
 
     return JSON.stringify(response);
@@ -208,13 +226,21 @@ const engageMutations = {
   /**
    * Engage message remove verified email
    */
-  async engageMessageRemoveVerifiedEmail(_root, { email }: { email: string }, { models }: IContext) {
+  async engageMessageRemoveVerifiedEmail(
+    _root,
+    { email }: { email: string },
+    { models }: IContext
+  ) {
     const response = await awsRequests.removeVerifiedEmail(models, email);
 
     return JSON.stringify(response);
   },
 
-  async engageMessageSendTestEmail(_root, args: ITestEmailParams, { subdomain, models }: IContext) {
+  async engageMessageSendTestEmail(
+    _root,
+    args: ITestEmailParams,
+    { subdomain, models }: IContext
+  ) {
     const { content, from, to, title } = args;
 
     if (!(content && from && to && title)) {
@@ -244,12 +270,12 @@ const engageMutations = {
     replacedContent = await attributeUtil.replaceAttributes({
       content,
       customer,
-      user: targetUser,
+      user: targetUser
     });
 
     try {
       const transporter = await createTransporter(models);
-  
+
       const response = await transporter.sendMail({
         from,
         to,
@@ -260,7 +286,7 @@ const engageMutations = {
 
       return JSON.stringify(response);
     } catch (e) {
-      debug.error(e.message)
+      debug.error(e.message);
 
       return e;
     }
@@ -283,7 +309,7 @@ const engageMutations = {
       isLive: false,
       runCount: 0,
       totalCustomersCount: 0,
-      validCustomersCount: 0,
+      validCustomersCount: 0
     });
 
     delete doc._id;
@@ -301,19 +327,19 @@ const engageMutations = {
         type: MODULE_ENGAGE,
         newData: {
           ...doc,
-          ...emptyCustomers,
+          ...emptyCustomers
         },
         object: {
           ...copy.toObject(),
-          ...emptyCustomers,
+          ...emptyCustomers
         },
-        description: `Campaign "${sourceCampaign.title}" has been copied`,
+        description: `Campaign "${sourceCampaign.title}" has been copied`
       },
       user
     );
 
     return copy;
-  },
+  }
 };
 
 checkPermission(engageMutations, 'engageMessageAdd', 'engageMessageAdd');

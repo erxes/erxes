@@ -6,9 +6,15 @@ import Tags from '@erxes/ui/src/components/Tags';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import { formatValue } from '@erxes/ui/src/utils';
 import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
-import { GENDER_TYPES, LEAD_STATUS_TYPES } from '@erxes/ui/src/customers/constants';
-import { BooleanStatus, ClickableRow } from '@erxes/ui-contacts/src/customers/styles';
-import { ICustomer } from '../../types';
+import {
+  GENDER_TYPES,
+  LEAD_STATUS_TYPES
+} from '@erxes/ui/src/customers/constants';
+import {
+  BooleanStatus,
+  ClickableRow
+} from '@erxes/ui-contacts/src/customers/styles';
+import { ICustomer, IVisitorContact } from '../../types';
 import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
 import React from 'react';
 import parse from 'ua-parser-js';
@@ -82,13 +88,19 @@ function displayValue(customer, name) {
 
   if (name === 'primaryEmail') {
     return (
-      <PrimaryEmail email={value} status={customer.emailValidationStatus} />
+      <PrimaryEmail
+        email={value}
+        status={customer.emailValidationStatus || ''}
+      />
     );
   }
 
   if (name === 'primaryPhone') {
     return (
-      <PrimaryPhone phone={value} status={customer.phoneValidationStatus} />
+      <PrimaryPhone
+        phone={value}
+        status={customer.phoneValidationStatus || ''}
+      />
     );
   }
 
@@ -101,7 +113,8 @@ function displayValue(customer, name) {
   }
 
   if (name === 'visitorContactInfo') {
-    const visitorContactInfo = customer.visitorContactInfo;
+    const visitorContactInfo =
+      customer.visitorContactInfo || ({} as IVisitorContact);
 
     if (visitorContactInfo) {
       return formatValue(visitorContactInfo.email || visitorContactInfo.phone);
@@ -132,7 +145,7 @@ function displayValue(customer, name) {
 }
 
 function CustomerRow({
-  customer,
+  customer = {} as ICustomer,
   columnsConfig,
   toggleBulk,
   isChecked,
@@ -163,7 +176,7 @@ function CustomerRow({
           onChange={onChange}
         />
       </td>
-      {columnsConfig.map(({ name }, index) => (
+      {(columnsConfig || []).map(({ name }, index) => (
         <td key={index}>
           <ClickableRow onClick={onTrClick}>
             {displayValue(customer, name)}

@@ -31,8 +31,6 @@ packages/core-ui/public/js/plugins.js
 /api/src/__tests__/coverage
 
 /enabled-services.js
-permissions.json
-
-
+cli/permissions.json
 cli/enabled-services.js
 cli/configs.json

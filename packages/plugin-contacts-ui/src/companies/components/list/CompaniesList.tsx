@@ -132,7 +132,13 @@ class CompaniesList extends React.Component<IProps, State> {
 
     const mainContent = (
       <withTableWrapper.Wrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table
+          whiteSpace="nowrap"
+          bordered={true}
+          hover={true}
+          wideHeader={true}
+          responsive={true}
+        >
           <thead>
             <tr>
               <th>
@@ -245,7 +251,7 @@ class CompaniesList extends React.Component<IProps, State> {
           {...props}
           location={location}
           history={history}
-          contentType="company"
+          contentType="contacts:company"
         />
       );
     };
@@ -293,7 +299,7 @@ class CompaniesList extends React.Component<IProps, State> {
             </li>
           </Dropdown.Menu>
         </Dropdown>
-        <Link to="/settings/importHistories?type=company">
+        <Link to="/settings/importHistories?type=contacts:company">
           <Button btnStyle="primary" size="small" icon="arrow-from-right">
             {__('Go to import')}
           </Button>

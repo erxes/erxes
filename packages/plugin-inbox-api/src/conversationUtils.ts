@@ -2,14 +2,17 @@ import * as _ from 'underscore';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import { KIND_CHOICES } from './models/definitions/constants';
 
-import { es } from './configs';
-
 import { IListArgs } from './conversationQueryBuilder';
 import { fixDate } from '@erxes/api-utils/src';
 
 import { debug } from './configs';
-import { sendCoreMessage, sendSegmentsMessage, sendTagsMessage } from './messageBroker';
+import {
+  sendCoreMessage,
+  sendSegmentsMessage,
+  sendTagsMessage
+} from './messageBroker';
 import { IModels } from './connectionResolver';
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 
 export interface ICountBy {
   [index: string]: number;
@@ -40,7 +43,11 @@ const countByChannels = async (
 };
 
 // Count conversation by brand
-const countByBrands = async (subdomain: string, qb: any, counts: ICountBy): Promise<ICountBy> => {
+const countByBrands = async (
+  subdomain: string,
+  qb: any,
+  counts: ICountBy
+): Promise<ICountBy> => {
   const brands = await sendCoreMessage({
     subdomain,
     action: 'brands.find',
@@ -49,7 +56,7 @@ const countByBrands = async (subdomain: string, qb: any, counts: ICountBy): Prom
     },
     isRPC: true,
     defaultValue: []
-  })
+  });
 
   for (const brand of brands) {
     await qb.buildAllQueries();
@@ -62,7 +69,11 @@ const countByBrands = async (subdomain: string, qb: any, counts: ICountBy): Prom
 };
 
 // Count converstaion by tag
-const countByTags = async (subdomain: string, qb: any, counts: ICountBy): Promise<ICountBy> => {
+const countByTags = async (
+  subdomain: string,
+  qb: any,
+  counts: ICountBy
+): Promise<ICountBy> => {
   const tags = await sendTagsMessage({
     subdomain,
     action: 'find',
@@ -176,7 +187,13 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public filterList: any[];
   public activeIntegrationIds: string[] = [];
 
-  constructor(models: IModels, subdomain: string, params: IArgs, integrationIds: string[], user: IUserArgs) {
+  constructor(
+    models: IModels,
+    subdomain: string,
+    params: IArgs,
+    integrationIds: string[],
+    user: IUserArgs
+  ) {
     this.models = models;
     this.subdomain = subdomain;
     this.params = params;
@@ -499,7 +516,8 @@ export class CommonBuilder<IArgs extends IListArgs> {
       }
     };
 
-    const response = await es.fetchElk({
+    const response = await fetchEs({
+      subdomain: this.subdomain,
       action: 'count',
       index: 'conversations',
       body: queryOptions,

@@ -1,12 +1,8 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 
 import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
-import {
-  generateModels,
-} from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import logs from './logUtils';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
@@ -14,13 +10,6 @@ export let mainDb;
 export let debug;
 export let graphqlPubsub;
 export let serviceDiscovery;
-
-export let es: {
-  client;
-  fetchElk(args: IFetchElkArgs): Promise<any>;
-  getMappings(index: string): Promise<any>;
-  getIndexPrefix(): string;
-};
 
 export default {
   name: 'internalnotes',
@@ -45,11 +34,8 @@ export default {
 
     initBroker(options.messageBrokerClient);
 
-    initMemoryStorage();
-
     graphqlPubsub = options.pubsubClient;
     debug = options.debug;
-    es = options.elasticsearch;
   },
   meta: {
     logs: { providesActivityLog: true, consumers: logs }

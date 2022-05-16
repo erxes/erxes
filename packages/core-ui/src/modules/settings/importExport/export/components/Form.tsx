@@ -118,7 +118,7 @@ class ExportForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { contentType, count, loading, serviceType } = this.props;
+    const { contentType, count, loading } = this.props;
     const { segmentId, searchValue, columns } = this.state;
 
     const title = __('Export');
@@ -159,7 +159,6 @@ class ExportForm extends React.Component<Props, State> {
                       {...this.props}
                       id={segmentId}
                       contentType={contentType || 'customer'}
-                      serviceType={serviceType}
                       closeModal={this.segmentCloseModal}
                       addFilter={this.addFilter}
                       hideDetailForm={true}

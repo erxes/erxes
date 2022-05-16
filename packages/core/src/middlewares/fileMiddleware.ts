@@ -1,21 +1,17 @@
 import { getEnv } from '@erxes/api-utils/src';
 import * as formidable from 'formidable';
 import * as request from 'request';
-import { generateModels, } from '../connectionResolver';
+import { generateModels } from '../connectionResolver';
 import * as _ from 'underscore';
 import { filterXSS } from 'xss';
 
-import {
-  checkFile,
-  uploadFile
-} from '../data/utils';
+import { checkFile, uploadFile } from '../data/utils';
 import { debugExternalApi } from '../debuggers';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 const DOMAIN = getEnv({ name: 'DOMAIN' });
 
 export const uploader = async (req: any, res, next) => {
-
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
@@ -53,10 +49,10 @@ export const uploader = async (req: any, res, next) => {
     if (status === 'ok') {
       try {
         const result = await uploadFile(
-          models,
           `${DOMAIN}/gateway`,
           file,
-          response.upload ? true : false
+          response.upload ? true : false,
+          models
         );
 
         return res.send(result);

@@ -6,14 +6,19 @@ import {
   DEFAULT_COMPANY_INDUSTRY_TYPES,
   COUNTRIES
 } from '../constants';
-import { FieldValue, IField, IFieldError } from '../types';
+import { FieldValue, IField, IFieldError, ILocationOption } from '../types';
 import MSFmultiSelect from '../multipleSelectScript';
-import { IAttachment } from '../../messenger/types';
+import { __ } from '../../utils';
+import Map from './Map';
+import Marker from './Marker';
 
 type Props = {
   field: IField;
   error?: IFieldError;
   value?: FieldValue;
+  currentLocation?: ILocationOption;
+  color?: string;
+  mapScriptLoaded?: boolean;
   onChange: (params: {
     fieldId: string;
     value: FieldValue;
@@ -27,6 +32,8 @@ type State = {
   dateTimeValue: Date | string;
   isAttachingFile?: boolean;
   multipleSelectValues?: string[];
+  isMapDraggable: boolean;
+  currentLocation: ILocationOption;
 };
 
 export default class Field extends React.Component<Props, State> {
@@ -35,8 +42,7 @@ export default class Field extends React.Component<Props, State> {
       <select
         {...attrs}
         className="form-control"
-        id={attrs.multiple ? `_id${attrs.id}` : ''}
-      >
+        id={attrs.multiple ? `_id${attrs.id}` : ''}>
         {options.map((option, index) => (
           <option key={index} value={option} selected={true}>
             {option}
@@ -65,13 +71,12 @@ export default class Field extends React.Component<Props, State> {
     if (value) {
       values = value.split(',,');
     }
-    
+
     return (
       <div className="check-control">
         {options.map((option, index) => {
-       
           const checked = values.indexOf(option) > -1 ? true : false;
-          
+
           return (
             <div key={index}>
               <label>
@@ -123,10 +128,20 @@ export default class Field extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    let isMapDraggable = true;
+
+    const locationOptions = props.field.locationOptions || [];
+
+    if (locationOptions.length > 0) {
+      isMapDraggable = false;
+    }
+
     this.state = {
       dateValue: '',
       dateTimeValue: '',
-      multipleSelectValues: []
+      multipleSelectValues: [],
+      isMapDraggable,
+      currentLocation: props.currentLocation || { lat: 0.0, lng: 0.0 }
     };
   }
 
@@ -205,31 +220,34 @@ export default class Field extends React.Component<Props, State> {
 
   handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
+
     const self = this;
-
+    const attachments: any[] = [];
     if (files && files.length > 0) {
-      uploadHandler({
-        file: files[0],
+      for (const file of Array.from(files)) {
+        uploadHandler({
+          file,
 
-        beforeUpload() {
-          self.setState({ isAttachingFile: true });
-        },
+          beforeUpload() {
+            self.setState({ isAttachingFile: true });
+          },
 
-        // upload to server
-        afterUpload({ response, fileInfo }: any) {
-          const attachment = { url: response, ...fileInfo };
+          // upload to server
+          afterUpload({ response, fileInfo }: any) {
+            const attachment = { url: response, ...fileInfo };
+            attachments.push(attachment);
+            self.setState({ isAttachingFile: false });
+          },
 
-          self.setState({ isAttachingFile: false });
-
-          self.onChange([attachment]);
-        },
-
-        onError: message => {
-          alert(message);
-          self.setState({ isAttachingFile: false });
-        }
-      });
+          onError: message => {
+            alert(message);
+            self.setState({ isAttachingFile: false });
+          }
+        });
+      }
     }
+
+    self.onChange(attachments);
   };
 
   onDateChange = (date?: Date | string) => {
@@ -288,6 +306,10 @@ export default class Field extends React.Component<Props, State> {
     this.setState({ multipleSelectValues });
   };
 
+  onLocationChange = (option: ILocationOption) => {
+    this.onChange(option || '');
+  };
+
   renderDatepicker(id: string) {
     let defaultValue = new Date();
 
@@ -336,6 +358,81 @@ export default class Field extends React.Component<Props, State> {
         timeFormat="HH:mm"
         dateFormat="YYYY/MM/DD"
       />
+    );
+  }
+
+  renderMap(field: IField, selectedValue?: FieldValue) {
+    const locationOptions: ILocationOption[] = field.locationOptions || [];
+    let { currentLocation } = this.state;
+
+    let selectedOption: ILocationOption = { lat: 0, lng: 0 };
+
+    if (selectedValue) {
+      selectedOption = selectedValue as ILocationOption;
+      currentLocation = { lat: selectedOption.lat, lng: selectedOption.lng };
+    }
+
+    return (
+      <div style={{ height: '250px', width: '100%' }}>
+        {this.props.mapScriptLoaded && (
+          <Map
+            center={
+              new google.maps.LatLng(currentLocation.lat, currentLocation.lng)
+            }
+            controlSize={25}
+            streetViewControl={false}
+            zoom={4}
+            style={{ width: '100%', height: '250px' }}>
+            {locationOptions.length > 0 ? (
+              locationOptions.map((option, index) => (
+                <Marker
+                  color={
+                    option.lat === selectedOption.lat &&
+                    option.lng === selectedOption.lng
+                      ? 'red'
+                      : this.props.color
+                  }
+                  key={index}
+                  position={new google.maps.LatLng(option.lat, option.lng)}
+                  content={option.description}
+                  draggable={false}
+                  onChange={this.onLocationChange}
+                />
+              ))
+            ) : (
+              <Marker
+                color={this.props.color}
+                position={
+                  new google.maps.LatLng(
+                    currentLocation.lat,
+                    currentLocation.lng
+                  )
+                }
+                content={__('Select your location')}
+                draggable={true}
+                onChange={this.onLocationChange}
+              />
+            )}
+          </Map>
+        )}
+      </div>
+    );
+  }
+
+  renderProduct(field: IField) {
+    const { products = [] } = field;
+    return (
+      <select
+        onChange={this.onSelectChange}
+        className="form-control"
+        id={field._id}>
+        <option>-</option>
+        {products.map(({ _id, name, unitPrice }) => (
+          <option key={_id} value={_id}>
+            {`${name} - ${unitPrice.toLocaleString()}`}
+          </option>
+        ))}
+      </select>
     );
   }
 
@@ -448,7 +545,8 @@ export default class Field extends React.Component<Props, State> {
         return Field.renderInput({
           onChange: this.handleFileInput,
           type: 'file',
-          id: field._id
+          id: field._id,
+          multiple: true
         });
 
       case 'avatar':
@@ -491,6 +589,12 @@ export default class Field extends React.Component<Props, State> {
 
       case 'html':
         return this.renderHtml(field.content || '', field._id);
+
+      case 'map':
+        return this.renderMap(field, value);
+
+      case 'productCategory':
+        return this.renderProduct(field);
 
       default:
         return Field.renderInput({

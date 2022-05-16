@@ -17,8 +17,6 @@ const Box = styled(BoxRoot)`
   width: 200px;
   padding: 40px;
   background: ${colors.bgLight};
-  margin-bottom: 100px;
-  border: 1px dashed ${colors.bgGray};
   border-radius: ${dimensions.unitSpacing}px;
   i {
     font-size: 38px;
@@ -35,14 +33,6 @@ const Box = styled(BoxRoot)`
     font-size: 12px;
     color: ${colors.colorCoreLightGray};
     min-height: 36px;
-  }
-
-  &:last-of-type {
-    margin-right: 0;
-  }
-
-  &.active {
-    border: 1px solid ${colors.colorPrimary};
   }
 `;
 
@@ -71,9 +61,12 @@ const FullContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
 
 const TypeContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
   flex: 1;
-  display: flex;
+  display: flex !important;
+  margin-bottom: 30px;
+  margin-left: 20px;
   justify-content: ${props => props.center && 'center'};
   align-items: ${props => (props.align ? 'flex-start' : 'center')};
+  flex-wrap: wrap;
 
   @media (max-width: 1440px) {
     display: block;
@@ -144,7 +137,7 @@ const ColumnTable = styledTS<{
       }
 
       th {
-        background-color: ${colors.bgLight};
+        background-color: ${colors.colorWhite};
         position: sticky;
         z-index: 1;
         top: 0;
@@ -177,16 +170,22 @@ const ColumnTable = styledTS<{
   `};
 `;
 
-const ImportHeader = styledTS<{fontSize?: string}>(styled.div)`
+const ImportHeader = styledTS<{ fontSize?: string }>(styled.div)`
   color: ${colors.textSecondary};
   justify-content: center;
-  font-size: ${props => props.fontSize === 'small' ? `${typography.fontSizeHeading8}px` : props.fontSize === "large" ? `${typography.fontSizeHeading6}px` : `${typography.fontSizeHeading7}px`};
+  font-size: ${props =>
+    props.fontSize === 'small'
+      ? `${typography.fontSizeHeading8}px`
+      : props.fontSize === 'large'
+      ? `${typography.fontSizeHeading6}px`
+      : `${typography.fontSizeHeading7}px`};
   display: flex;
   margin-bottom: ${dimensions.coreSpacing}px;
 `;
 
 const FileUploadBox = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing}px;
   border: 1px dashed ${rgba(colors.colorPrimary, 0.2)};
   border-radius: ${dimensions.unitSpacing}px;
 `;
@@ -194,7 +193,6 @@ const FileUploadBox = styled.div`
 const Width = styled.div`
   width: ${(dimensions.unitSpacing - 2) * 10}px;
 `;
-
 
 export {
   ImportColumnRow,
@@ -208,5 +206,5 @@ export {
   TypeContent,
   ImportHeader,
   FileUploadBox,
-  Width,
+  Width
 };

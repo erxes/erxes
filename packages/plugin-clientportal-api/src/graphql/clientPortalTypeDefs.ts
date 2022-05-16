@@ -9,7 +9,7 @@ export const types = (contactAvailable, cardAvailable) => `
         _id: String! @external
       }
     `
-      : ""
+      : ''
   }
 
   ${
@@ -28,7 +28,7 @@ export const types = (contactAvailable, cardAvailable) => `
       _id: String! @external
     }
      `
-      : ""
+      : ''
   }
 
 
@@ -59,6 +59,10 @@ export const types = (contactAvailable, cardAvailable) => `
     twilioAccountSid: String
     twilioAuthToken: String
     twilioFromNumber: String
+    kbToggle: Boolean,
+    publicTaskToggle: Boolean,
+    ticketToggle: Boolean,
+    taskToggle: Boolean,
   }
 
   type Styles {
@@ -115,7 +119,7 @@ export const queries = cardAvailable => `
       clientPortalDeal(_id: String!): Deal
       clientPortalDeals(stageId: String, conformityMainType: String, conformityMainTypeId: String, probability: String): [Deal]
      `
-      : ""
+      : ''
   }
 `;
 
@@ -146,6 +150,10 @@ export const mutations = (contactAvailable, cardAvailable) => `
     twilioAccountSid: String
     twilioAuthToken: String
     twilioFromNumber: String
+    kbToggle: Boolean,
+    publicTaskToggle: Boolean,
+    ticketToggle: Boolean,
+    taskToggle: Boolean,
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON
@@ -162,7 +170,7 @@ export const mutations = (contactAvailable, cardAvailable) => `
       ): Ticket
 
      `
-      : ""
+      : ''
   }
 
   ${
@@ -184,7 +192,7 @@ export const mutations = (contactAvailable, cardAvailable) => `
       ): Company
 
      `
-      : ""
+      : ''
   }
 
 

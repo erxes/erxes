@@ -1,5 +1,9 @@
 import { Document, Schema } from 'mongoose';
-import { attachmentSchema, IRule, ruleSchema } from '@erxes/api-utils/src/definitions/common';
+import {
+  attachmentSchema,
+  IRule,
+  ruleSchema
+} from '@erxes/api-utils/src/definitions/common';
 import {
   KIND_CHOICES,
   LEAD_LOAD_TYPES,
@@ -134,6 +138,7 @@ export interface ILeadData {
   viewCount?: number;
   contactsGathered?: number;
   isRequireOnce?: boolean;
+  saveAsCustomer?: boolean;
   templateId?: string;
   attachments?: IAttachment[];
   css?: string;
@@ -175,6 +180,8 @@ export interface IIntegration {
   isActive?: boolean;
   channelIds?: string[];
   bookingData?: IBookingData;
+  departmentIds?: string[];
+  visibility?: string;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {
@@ -355,7 +362,12 @@ export const leadDataSchema = new Schema(
     isRequireOnce: field({
       type: Boolean,
       optional: true,
-      label: 'Do now show again if already filled out'
+      label: 'Do not show again if already filled out'
+    }),
+    saveAsCustomer: field({
+      type: Boolean,
+      optional: true,
+      label: 'Save as customer'
     }),
     templateId: field({
       type: String,
@@ -470,6 +482,9 @@ export const integrationSchema = schemaHooksWrapper(
 
     name: field({ type: String, label: 'Name' }),
     brandId: field({ type: String, label: 'Brand' }),
+
+    visibility: field({ type: String, label: 'Visibility' }),
+    departmentIds: field({ type: [String], label: 'Departments' }),
 
     languageCode: field({
       type: String,

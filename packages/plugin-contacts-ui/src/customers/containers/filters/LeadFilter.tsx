@@ -20,9 +20,11 @@ type Props = {
 
 function LeadFilterContainer(props: Props) {
   const { integrationsQuery, totalCountQuery, customersCountQuery } = props;
+
   const defaultIntegrations = integrationsQuery
-    ? integrationsQuery.integrations
+    ? integrationsQuery.integrations || []
     : [];
+
   const [integrations, setIntegrations] = useState(defaultIntegrations);
 
   const prevProp = useRef(integrationsQuery);
@@ -87,7 +89,7 @@ export default withProps<WrapperProps>(
       }
     ),
     graphql<WrapperProps, IntegrationsCountQueryResponse, {}>(
-      gql((integrationQuery || {} as any).integrationTotalCount),
+      gql((integrationQuery || ({} as any)).integrationTotalCount),
       {
         name: 'totalCountQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery

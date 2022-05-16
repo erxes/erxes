@@ -1,6 +1,6 @@
 import {
   checkPermission,
-  requireLogin,
+  requireLogin
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 
@@ -10,7 +10,7 @@ import {
   putCreateLog,
   putDeleteLog,
   putUpdateLog,
-  putActivityLog,
+  putActivityLog
 } from '../../../logUtils';
 
 import { sendCommonMessage } from '../../../messageBroker';
@@ -26,10 +26,19 @@ const tagMutations = {
   /**
    * Creates a new tag
    */
-  async tagsAdd(_root, doc: ITag, { docModifier, models, user }: IContext) {
+  async tagsAdd(
+    _root,
+    doc: ITag,
+    { docModifier, models, subdomain, user }: IContext
+  ) {
     const tag = await models.Tags.createTag(docModifier(doc));
 
-    await putCreateLog(models, { type: TAG, newData: tag, object: tag }, user);
+    await putCreateLog(
+      models,
+      subdomain,
+      { type: TAG, newData: tag, object: tag },
+      user
+    );
 
     return tag;
   },
@@ -40,12 +49,17 @@ const tagMutations = {
   async tagsEdit(
     _root,
     { _id, ...doc }: ITagsEdit,
-    { models, user }: IContext
+    { models, subdomain, user }: IContext
   ) {
     const tag = await models.Tags.getTag(_id);
     const updated = await models.Tags.updateTag(_id, doc);
 
-    await putUpdateLog(models, { type: TAG, object: tag, newData: doc }, user);
+    await putUpdateLog(
+      models,
+      subdomain,
+      { type: TAG, object: tag, newData: doc },
+      user
+    );
 
     return updated;
   },
@@ -62,13 +76,13 @@ const tagMutations = {
     const removed = await models.Tags.removeTag(_id);
 
     await fixRelatedItems({
-      subdomain, 
-      type: tag.type, 
+      subdomain,
+      type: tag.type,
       sourceId: tag._id,
-      action: 'remove',
+      action: 'remove'
     });
 
-    await putDeleteLog(models, { type: TAG, object: tag }, user);
+    await putDeleteLog(models, subdomain, { type: TAG, object: tag }, user);
 
     return removed;
   },
@@ -81,14 +95,14 @@ const tagMutations = {
     {
       type,
       targetIds,
-      tagIds,
+      tagIds
     }: { type: string; targetIds: string[]; tagIds: string[] },
     { models, subdomain, user }: IContext
   ) {
     const services = await serviceDiscovery.getServices();
 
     for (const serviceName of services) {
-      if(serviceName !== (type || '').split(':')[0]) {
+      if (serviceName !== (type || '').split(':')[0]) {
         continue;
       }
 
@@ -107,10 +121,10 @@ const tagMutations = {
         });
       }
     }
-    
+
     const prevTagsCount = await models.Tags.find({
       _id: { $in: tagIds },
-      type,
+      type
     }).countDocuments();
 
     if (prevTagsCount !== tagIds.length) {
@@ -129,8 +143,8 @@ const tagMutations = {
           target,
           content: { tagIds: tagIds || [] },
           createdBy: user._id,
-          action: 'tagged',
-        },
+          action: 'tagged'
+        }
       });
     }
   },
@@ -143,10 +157,10 @@ const tagMutations = {
     const source = await models.Tags.getTag(sourceId);
 
     await fixRelatedItems({
-      subdomain, 
-      type: source.type, 
-      sourceId, 
-      destId, 
+      subdomain,
+      type: source.type,
+      sourceId,
+      destId,
       action: 'merge'
     });
 

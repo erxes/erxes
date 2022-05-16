@@ -1,8 +1,8 @@
-import { debug } from "./configs";
-import { es } from "./configs";
-
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import { debug } from './configs';
 
 export const getNumberOfVisits = async (params: {
+  subdomain: string;
   url: string;
   visitorId?: string;
   customerId?: string;
@@ -12,40 +12,41 @@ export const getNumberOfVisits = async (params: {
     : { visitorId: params.visitorId };
 
   try {
-    const response = await es.fetchElk({
-      action: "search",
-      index: "events",
+    const response = await fetchEs({
+      subdomain: params.subdomain,
+      action: 'search',
+      index: 'events',
       body: {
         query: {
           bool: {
             must: [
-              { term: { name: "viewPage" } },
+              { term: { name: 'viewPage' } },
               { term: searchId },
               {
                 nested: {
-                  path: "attributes",
+                  path: 'attributes',
                   query: {
                     bool: {
                       must: [
                         {
                           term: {
-                            "attributes.field": "url",
-                          },
+                            'attributes.field': 'url'
+                          }
                         },
                         {
                           match: {
-                            "attributes.value": params.url,
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-              },
-            ],
-          },
-        },
-      },
+                            'attributes.value': params.url
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
     });
 
     const hits = response.hits.hits;

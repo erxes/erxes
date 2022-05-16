@@ -3,7 +3,7 @@ import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
-import permissions from './permissions';
+import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let mainDb;
@@ -14,13 +14,13 @@ export let serviceDiscovery;
 export default {
   name: 'automations',
   permissions,
-  graphql: async (sd) => {
+  graphql: async sd => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
       resolvers: await resolvers(sd)
-    }
+    };
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -38,6 +38,5 @@ export default {
     graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
-  },
-
+  }
 };

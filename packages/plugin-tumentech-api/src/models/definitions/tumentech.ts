@@ -3,7 +3,7 @@ import { CAR_SELECT_OPTIONS } from '../../constants';
 import { field, schemaHooksWrapper } from './utils';
 
 const getEnum = (fieldName: string): string[] => {
-  return CAR_SELECT_OPTIONS[fieldName].map((option) => option.value);
+  return CAR_SELECT_OPTIONS[fieldName].map(option => option.value);
 };
 
 export interface ICar {
@@ -100,7 +100,7 @@ export interface ICarCategory {
 
 export interface ICarCategoryDocument extends ICarCategory, Document {
   _id: string;
-  order?: string;
+  order: string;
   createdAt: Date;
 }
 

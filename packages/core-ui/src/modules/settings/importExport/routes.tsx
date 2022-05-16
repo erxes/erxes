@@ -21,12 +21,7 @@ const Histories = asyncComponent(() =>
 
 const exportForm = ({ location }) => {
   const queryParams = queryString.parse(location.search);
-  return (
-    <Export
-      contentType={queryParams.type}
-      serviceType={queryParams.serviceType}
-    />
-  );
+  return <Export contentType={queryParams.type} />;
 };
 
 const importForm = ({ location }) => {

@@ -13,19 +13,7 @@ const generateFilter = async (
   filter.status = { $ne: 'Deleted' };
 
   if (params.categoryId) {
-    const category = await models.CarCategories.findOne({
-      _id: params.categoryId
-    });
-    const categoryIds = await models.CarCategories.find(
-      {
-        $or: [
-          { order: { $regex: new RegExp(`${category.order}/`) } },
-          { order: category.order }
-        ]
-      },
-      { _id: 1 }
-    );
-    filter.categoryId = { $in: categoryIds };
+    filter.categoryId = params.categoryId;
   }
 
   if (params.searchValue) {
@@ -78,7 +66,7 @@ const generateFilter = async (
   return filter;
 };
 
-export const sortBuilder = (params) => {
+export const sortBuilder = params => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -136,7 +124,7 @@ const carQueries = {
   ) => {
     const productCategoryIds = (
       (await models.ProductCarCategories.find({ carCategoryId }).lean()) || []
-    ).map((i) => i.productCategoryId);
+    ).map(i => i.productCategoryId);
 
     const productCategories = await sendProductsMessage({
       subdomain,
@@ -165,7 +153,7 @@ const carQueries = {
     const carCategoryIds = (
       (await models.ProductCarCategories.find({ productCategoryId }).lean()) ||
       []
-    ).map((i) => i.carCategoryId);
+    ).map(i => i.carCategoryId);
 
     return {
       productCategoryId,

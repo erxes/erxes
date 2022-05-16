@@ -1,6 +1,7 @@
 import { paginate } from 'erxes-api-utils';
 import { getFullDate, getRandomNumber } from '../../../models/utils/utils';
 import { getCalcedAmounts } from '../../../models/utils/transactionUtils';
+import { checkPermission } from '@erxes/api-utils/src';
 
 const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -27,20 +28,20 @@ const generateFilter = async (params, commonQuerySelector) => {
 
   if (params.payDate1) {
     filter.payDate = {
-      $gte: new Date(params.payDate1),
+      $gte: new Date(params.payDate1)
     };
   }
 
   if (params.payDate2) {
     filter.payDate = {
-      $lte: new Date(params.payDate2),
+      $lte: new Date(params.payDate2)
     };
   }
 
   return filter;
 };
 
-export const sortBuilder = (params) => {
+export const sortBuilder = params => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -61,14 +62,13 @@ const invoiceQueries = {
     params,
     { commonQuerySelector, models, checkPermission, user }
   ) => {
-    await checkPermission('showInvoices', user);
     return paginate(
       models.LoanInvoices.find(
         await generateFilter(params, commonQuerySelector)
       ),
       {
         page: params.page,
-        perPage: params.perPage,
+        perPage: params.perPage
       }
     );
   },
@@ -82,7 +82,6 @@ const invoiceQueries = {
     params,
     { commonQuerySelector, models, checkPermission, user }
   ) => {
-    await checkPermission('showInvoices', user);
     const filter = await generateFilter(params, commonQuerySelector);
 
     return {
@@ -90,10 +89,10 @@ const invoiceQueries = {
         models.LoanInvoices.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
-          perPage: params.perPage,
+          perPage: params.perPage
         }
       ),
-      totalCount: models.LoanInvoices.find(filter).count(),
+      totalCount: models.LoanInvoices.find(filter).count()
     };
   },
 
@@ -102,7 +101,6 @@ const invoiceQueries = {
    */
 
   invoiceDetail: async (_root, { _id }, { models, checkPermission, user }) => {
-    await checkPermission('showInvoices', user);
     return models.LoanInvoices.getInvoice(models, { _id });
   },
   /**
@@ -121,10 +119,10 @@ const invoiceQueries = {
       interestEve,
       interestNonce,
       insurance,
-      debt,
+      debt
     } = (await getCalcedAmounts(models, memoryStorage, {
       contractId,
-      payDate: currentDate,
+      payDate: currentDate
     })) as any;
 
     return {
@@ -143,9 +141,13 @@ const invoiceQueries = {
         (interestNonce || 0) +
         (undue || 0) +
         (insurance || 0) +
-        (debt || 0),
+        (debt || 0)
     };
-  },
+  }
 };
+
+checkPermission(invoiceQueries, 'handinvoicesler', 'showInvoices');
+checkPermission(invoiceQueries, 'invoicesMain', 'showInvoices');
+checkPermission(invoiceQueries, 'invoiceDetail', 'showInvoices');
 
 export default invoiceQueries;

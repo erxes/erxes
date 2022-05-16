@@ -1,45 +1,44 @@
-import { doSearch } from "@erxes/api-utils/src/core";
-import { es } from "./configs";
+import { doSearch } from '@erxes/api-utils/src/elasticsearch';
 
-const search = async ({ data: { value } }) => {
+const search = async ({ subdomain, data: { value } }) => {
   return [
     {
-      module: "contacts",
+      module: 'contacts',
       items: await doSearch({
-        fetchEs: es.fetchElk,
-        index: "customers",
+        subdomain,
+        index: 'customers',
         value,
         fields: [
-          "code",
-          "firstName",
-          "lastName",
-          "middleName",
-          "primaryPhone",
-          "primaryEmail",
-          "searchText",
-        ],
-      }),
+          'code',
+          'firstName',
+          'lastName',
+          'middleName',
+          'primaryPhone',
+          'primaryEmail',
+          'searchText'
+        ]
+      })
     },
     {
-      module: "companies",
+      module: 'companies',
       items: await doSearch({
-        fetchEs: es.fetchElk,
-        index: "companies",
+        subdomain,
+        index: 'companies',
         value,
         fields: [
-          "primaryName",
-          "industry",
-          "plan",
-          "primaryEmail",
-          "primaryPhone",
-          "businessType",
-          "description",
-          "website",
-          "code",
-          "searchText",
-        ],
-      }),
-    },
+          'primaryName',
+          'industry',
+          'plan',
+          'primaryEmail',
+          'primaryPhone',
+          'businessType',
+          'description',
+          'website',
+          'code',
+          'searchText'
+        ]
+      })
+    }
   ];
 };
 

@@ -1,25 +1,30 @@
-import { attachmentInput, attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
+import {
+  attachmentInput,
+  attachmentType
+} from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = (tagsAvailable, contactsAvailable) => `
   ${attachmentType}
   ${attachmentInput}
   
   ${
-    tagsAvailable ? 
-    `
+    tagsAvailable
+      ? `
       extend type Tag @key(fields: "_id") {
         _id: String! @external
       }
-    ` : ''
+    `
+      : ''
   }
 
   ${
-    contactsAvailable ? 
-    `
+    contactsAvailable
+      ? `
       extend type Company @key(fields: "_id") {
         _id: String! @external
       }
-    ` : ''
+    `
+      : ''
   }
 
   type ProductCategory @key(fields: "_id") {
@@ -31,7 +36,6 @@ export const types = (tagsAvailable, contactsAvailable) => `
     order: String!
     attachment: Attachment
     status: String
-
     isRoot: Boolean
     productCount: Int
   }
@@ -47,7 +51,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
     categoryId: String
     customFieldsData: JSON
     createdAt: Date
-    ${tagsAvailable ?  `getTags: [Tag]`: ''}
+    ${tagsAvailable ? `getTags: [Tag]` : ''}
     tagIds: [String]
     attachment: Attachment
     attachmentMore: [Attachment]
@@ -57,7 +61,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
     minimiumCount: Int
 
     category: ProductCategory
-    ${ contactsAvailable ? 'vendor: Company' : ''}
+    ${contactsAvailable ? 'vendor: Company' : ''}
   }
 `;
 

@@ -1,7 +1,7 @@
 export const types = ({ products, forms, knowledgeBase }) => `
   ${
-   products ?
-    `
+    products
+      ? `
     extend type Product @key(fields: "_id") {
       _id: String! @external
     }
@@ -10,12 +10,12 @@ export const types = ({ products, forms, knowledgeBase }) => `
       _id: String! @external
     }
     `
-    : ''
+      : ''
   }
 
   ${
-   forms ?
-    `
+    forms
+      ? `
     extend type Field @key(fields: "_id") {
       _id: String! @external
     }
@@ -25,12 +25,12 @@ export const types = ({ products, forms, knowledgeBase }) => `
       form: Form
     }
     `
-    : ''
+      : ''
   }
 
   ${
-    knowledgeBase ?
-    `
+    knowledgeBase
+      ? `
     extend type KnowledgeBaseArticle @key(fields: "_id") {
       _id: String! @external
     }
@@ -39,7 +39,7 @@ export const types = ({ products, forms, knowledgeBase }) => `
       _id: String! @external
     }
     `
-    : ""
+      : ''
   }
 
   type MessengerConnectResponse {
@@ -67,6 +67,8 @@ export const types = ({ products, forms, knowledgeBase }) => `
     messageId: String
     customerId: String
     userId: String
+    invoiceType: String
+    invoiceResponse: String
   }
 
   type Error {
@@ -82,19 +84,20 @@ export const types = ({ products, forms, knowledgeBase }) => `
   }
 
   ${
-    products ?
-    `
+    products
+      ? `
       type BookingProduct {
         product: Product
         ${
-
-          forms ?
-          `
+          forms
+            ? `
             fields: [Field]
-          ` : ''
+          `
+            : ''
         }
       }
-    ` : ''
+    `
+      : ''
   }
 
   input FieldValueInput {
@@ -107,6 +110,7 @@ export const types = ({ products, forms, knowledgeBase }) => `
     stageId: String
     groupId: String
     column: Int
+    productId: String
   }
 `;
 
@@ -121,20 +125,21 @@ export const queries = ({ products, knowledgeBase }) => `
   widgetsGetEngageMessage(integrationId: String, customerId: String, visitorId: String, browserInfo: JSON!): ConversationMessage
 
   ${
-    knowledgeBase ?
-    `
+    knowledgeBase
+      ? `
       widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
       widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
-    ` 
-    : ''
+    `
+      : ''
   }
 
   ${
-    products ? 
-    `
+    products
+      ? `
       widgetsProductCategory(_id: String!): ProductCategory
       widgetsBookingProductWithFields(_id: String!): BookingProduct
-    ` : ''
+    `
+      : ''
   }
 `;
 
@@ -185,8 +190,8 @@ export const mutations = ({ forms }) => `
   widgetsSaveCustomerGetNotified(customerId: String, visitorId: String, type: String!, value: String!): JSON
 
   ${
-   forms ?
-    `
+    forms
+      ? `
     widgetsLeadConnect(
       brandCode: String!,
       formCode: String!,
@@ -213,7 +218,7 @@ export const mutations = ({ forms }) => `
       productId: String
     ): SaveFormResponse
     `
-    : ''
+      : ''
   }
 
   widgetsSendEmail(

@@ -1,18 +1,35 @@
 import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
 
-export const validCampaign = (doc) => {
-  if (!doc.startDate || doc.startDate < new Date()) {
-    throw new Error('The start date must be in the future')
+export const getPureDate = (date: Date) => {
+  const ndate = new Date(date);
+  const diffTimeZone = ndate.getTimezoneOffset() * 1000 * 60;
+  return new Date(ndate.getTime() - diffTimeZone);
+};
+
+export const getFullDate = (date: Date) => {
+  const ndate = getPureDate(date);
+  const year = ndate.getFullYear();
+  const month = ndate.getMonth();
+  const day = ndate.getDate();
+
+  const today = new Date(year, month, day);
+  today.setHours(0, 0, 0, 0);
+  return today;
+};
+
+export const validCampaign = doc => {
+  if (!doc.startDate || getFullDate(doc.startDate) < getFullDate(new Date())) {
+    throw new Error('The start date must be in the future');
   }
 
   if (doc.endDate && doc.startDate > doc.endDate) {
-    throw new Error('The end date must be after from start date')
+    throw new Error('The end date must be after from start date');
   }
 
   if (doc.finishDateOfUse && doc.endDate > doc.finishDateOfUse) {
-    throw new Error('The finish date of use must be after from end date')
+    throw new Error('The finish date of use must be after from end date');
   }
-}
+};
 
 export const randomBetween = (min: number, max: number) => {
   return Math.random() * (max - min) + min;
@@ -25,8 +42,8 @@ const RandomTypes = {
   'a-Z': 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
   '0-z': '0123456789abcdefghijklmnopqrstuvwxyz',
   '0-Z': '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-  '0-zZ': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-}
+  '0-zZ': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+};
 
 const generateRandom = (type: string, len: number) => {
   const charSet = RandomTypes[type] || '0123456789';
@@ -35,32 +52,42 @@ const generateRandom = (type: string, len: number) => {
 
   for (let i = 0; i < len; i++) {
     const position = Math.floor(Math.random() * charSet.length);
-    randomString = `${randomString}${charSet.substring(position, position + 1)}`;
+    randomString = `${randomString}${charSet.substring(
+      position,
+      position + 1
+    )}`;
   }
 
   return randomString;
 };
 
-export const getRandomNumber = (number) => {
+export const getRandomNumber = number => {
   const re = /{ \[.-..?\] \* [0-9]* }/g;
-  const items = number.match(/{ \[.-..?\] \* [0-9]* }|./g)
+  const items = number.match(/{ \[.-..?\] \* [0-9]* }|./g);
 
-  const result: string[] = []
+  const result: string[] = [];
   for (const item of items) {
     let str = item;
 
     if (re.test(str)) {
-      const key = (str.match(/\[.-..?\]/g)[0] || '').replace('[', '').replace(']', '');
-      const len = parseInt((str.match(/ \* [0-9]* /g)[0] || '').substring(3) || 0);
+      const key = (str.match(/\[.-..?\]/g)[0] || '')
+        .replace('[', '')
+        .replace(']', '');
+      let len = Number(
+        (str.match(/ \* [0-9]* /g)[0] || '').substring(3) || '0'
+      );
+      if (isNaN(len)) {
+        len = 8;
+      }
 
-      str = generateRandom(key, len)
+      str = generateRandom(key, len);
     }
 
-    result.push(str)
+    result.push(str);
   }
 
-  return result.join('')
-}
+  return result.join('');
+};
 
 export const getOwner = async (subdomain, ownerType, ownerId) => {
   switch (ownerType) {
@@ -86,6 +113,6 @@ export const getOwner = async (subdomain, ownerType, ownerId) => {
         isRPC: true
       });
     default:
-      return {}
+      return {};
   }
-}
+};

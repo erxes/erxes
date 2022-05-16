@@ -9,6 +9,7 @@ import { notifiedUserIds } from './graphql/utils';
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { publishHelper } from './graphql/resolvers/mutations/utils';
+import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 
 let client;
 
@@ -95,6 +96,24 @@ export const initBroker = async cl => {
     return {
       status: 'success',
       data: await models.Tasks.findOne(data)
+    };
+  });
+
+  consumeRPCQueue('cards:pipelines.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Pipelines.find(data)
+    };
+  });
+
+  consumeRPCQueue('cards:boards.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Boards.find(data)
     };
   });
 
@@ -230,24 +249,30 @@ export const initBroker = async cl => {
     };
   });
 
-  consumeRPCQueue('cards:getLink', async ({ subdomain, data: { _id, type } }) => {
-    const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    'cards:getLink',
+    async ({ subdomain, data: { _id, type } }) => {
+      const models = await generateModels(subdomain);
 
-    const item = await getCardItem(models, { contentTypeId: _id, contentType: type })
+      const item = await getCardItem(models, {
+        contentTypeId: _id,
+        contentType: type
+      });
 
-    if (!item) {
-      return ''
+      if (!item) {
+        return '';
+      }
+
+      const stage = await models.Stages.getStage(item.stageId);
+      const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+      const board = await models.Boards.getBoard(pipeline.boardId);
+
+      return {
+        status: 'success',
+        data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`
+      };
     }
-
-    const stage = await models.Stages.getStage(item.stageId);
-    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
-    const board = await models.Boards.getBoard(pipeline.boardId);
-
-    return {
-      status: 'success',
-      data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`
-    };
-  });
+  );
 
   consumeQueue(
     'cards:pipelinesChanged',
@@ -264,7 +289,7 @@ export const initBroker = async cl => {
       });
 
       return {
-        status: 'success',
+        status: 'success'
       };
     }
   );
@@ -292,7 +317,7 @@ export const initBroker = async cl => {
       }
 
       return {
-        status: 'success',
+        status: 'success'
       };
     }
   );
@@ -422,6 +447,10 @@ export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
     isRPC: true
   });
 
-export default function () {
+export const sendToWebhook = ({ subdomain, data }) => {
+  return sendWebhook(client, { subdomain, data });
+};
+
+export default function() {
   return client;
 }

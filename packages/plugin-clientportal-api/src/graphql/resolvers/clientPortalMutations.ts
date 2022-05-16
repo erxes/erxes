@@ -1,8 +1,9 @@
-import { IClientPortal } from "../../models/definitions/clientPortal";
-import { BOARD_STATUSES } from "../../models/definitions/constants";
-import { checkPermission } from "@erxes/api-utils/src";
-import { sendCardsMessage, sendContactsMessage } from "../../messageBroker";
-import { IContext } from "../../connectionResolver";
+import { IClientPortal } from '../../models/definitions/clientPortal';
+import { BOARD_STATUSES } from '../../models/definitions/constants';
+import { checkPermission } from '@erxes/api-utils/src';
+import { sendCardsMessage, sendContactsMessage } from '../../messageBroker';
+import { IContext } from '../../connectionResolver';
+
 interface ICreateCard {
   type: string;
   email: string;
@@ -35,18 +36,32 @@ const configClientPortalMutations = {
   ) {
     await models.ClientPortals.getConfig(args.configId);
 
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        customerPrimaryEmail: args.email,
+        customerPrimaryPhone: args.phone
+      },
+      isRPC: true
+    });
+
+    if (customer) {
+      return customer;
+    }
+
     return sendContactsMessage({
       subdomain,
-      action: "customers.createCustomer",
+      action: 'customers.createCustomer',
       data: {
         firstName: args.firstName,
         lastName: args.lastName,
         primaryEmail: args.email,
         primaryPhone: args.phone,
-        state: "customer",
-        avatar: args.avatar,
+        state: 'customer',
+        avatar: args.avatar
       },
-      isRPC: true,
+      isRPC: true
     });
   },
 
@@ -63,14 +78,14 @@ const configClientPortalMutations = {
 
     return sendContactsMessage({
       subdomain,
-      action: "companies.createCompany",
+      action: 'companies.createCompany',
       data: {
         primaryName: args.companyName,
         primaryEmail: args.email,
         names: [args.companyName],
-        emails: [args.email],
+        emails: [args.email]
       },
-      isRPC: true,
+      isRPC: true
     });
   },
 
@@ -81,13 +96,13 @@ const configClientPortalMutations = {
   ) {
     const customer = await sendContactsMessage({
       subdomain,
-      action: "customers.find",
+      action: 'customers.find',
       data: { primaryEmail: email },
-      isRPC: true,
+      isRPC: true
     });
 
     if (!customer) {
-      throw new Error("Customer not registered");
+      throw new Error('Customer not registered');
     }
 
     const dataCol = {
@@ -96,35 +111,35 @@ const configClientPortalMutations = {
       description,
       priority,
       stageId,
-      status: BOARD_STATUSES.ACTIVE,
+      status: BOARD_STATUSES.ACTIVE
     };
 
-    return type === "ticket"
+    return type === 'ticket'
       ? await sendCardsMessage({
           subdomain,
-          action: "tickets.create",
+          action: 'tickets.create',
           data: dataCol,
-          isRPC: true,
+          isRPC: true
         })
       : await sendCardsMessage({
           subdomain,
-          action: "tasks.create",
+          action: 'tasks.create',
           data: dataCol,
-          isRPC: true,
+          isRPC: true
         });
-  },
+  }
 };
 
 checkPermission(
   configClientPortalMutations,
-  "clientPortalConfigUpdate",
-  "manageClientPortal"
+  'clientPortalConfigUpdate',
+  'manageClientPortal'
 );
 
 checkPermission(
   configClientPortalMutations,
-  "clientPortalRemove",
-  "manageClientPortal"
+  'clientPortalRemove',
+  'manageClientPortal'
 );
 
 export default configClientPortalMutations;

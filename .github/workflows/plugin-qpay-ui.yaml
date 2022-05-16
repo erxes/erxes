@@ -6,6 +6,7 @@ on:
       - federation
     paths:
       - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
       - "packages/ui-qpay/**"
       - "packages/plugin-qpay-ui/**"
       - ".github/workflows/plugin-qpay-ui.yaml"

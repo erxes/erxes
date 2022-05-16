@@ -59,12 +59,7 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
       historiesQuery.stopPolling();
     }
 
-    if (!router.getParam(history, 'type')) {
-      router.setParams(history, { type: 'customer' }, true);
-    }
-
     const currentType = router.getParam(history, 'type');
-    const serviceType = router.getParam(history, 'serviceType');
 
     const removeHistory = (historyId: string, contentType: string) => {
       importHistoriesRemove({
@@ -87,8 +82,7 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
       loading: historiesQuery.loading || this.state.loading,
       totalCount: histories.count || 0,
       removeHistory,
-      currentType,
-      serviceType
+      currentType
     };
 
     return <Histories {...updatedProps} />;

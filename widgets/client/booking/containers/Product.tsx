@@ -1,10 +1,10 @@
-import * as React from 'react';
-import { Product } from '../components';
-import { AppConsumer } from './AppContext';
-import { ChildProps, compose, graphql } from 'react-apollo';
-import { bookingProductWithFields } from '../graphql';
-import gql from 'graphql-tag';
-import { IBookingData, IProductWithFields } from '../types';
+import * as React from "react";
+import { Product } from "../components";
+import { AppConsumer } from "./AppContext";
+import { ChildProps, graphql, compose } from "react-apollo";
+import { bookingProductWithFields } from "../graphql";
+import gql from "graphql-tag";
+import { IBookingData, IProductWithFields } from "../types";
 
 type Props = {
   productId: string;

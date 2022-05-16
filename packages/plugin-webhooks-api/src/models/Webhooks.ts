@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { getUniqueValue } from '@erxes/api-utils/src/core';
 import { WEBHOOK_STATUS } from './definitions/constants';
 import {
@@ -60,7 +60,11 @@ export const loadWebhookClass = (models: IModels) => {
         );
       }
 
-      await models.Webhooks.updateOne({ _id }, { $set: doc }, { runValidators: true });
+      await models.Webhooks.updateOne(
+        { _id },
+        { $set: doc },
+        { runValidators: true }
+      );
 
       return models.Webhooks.findOne({ _id });
     }
@@ -84,13 +88,3 @@ export const loadWebhookClass = (models: IModels) => {
 
   return webhookSchema;
 };
-
-// loadWebhookClass();
-
-// tslint:disable-next-line
-// const Webhooks = model<IWebhookDocument, IWebhookModel>(
-//   'webhooks',
-//   webhookSchema
-// );
-
-// export default Webhooks;

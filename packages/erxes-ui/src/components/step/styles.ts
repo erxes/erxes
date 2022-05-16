@@ -2,7 +2,7 @@ import { colors, dimensions } from '../../styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-  const StepContainer = styledTS<{type?: string}>(styled.div)`
+const StepContainer = styledTS<{ type?: string }>(styled.div)`
   display: flex;
   flex: 1;
   height: 100%;
@@ -10,27 +10,32 @@ import styledTS from 'styled-components-ts';
   box-shadow: ${props => !props.type && `0 0 4px ${colors.colorShadowGray}`};
 
   > *:nth-child(n + 2) {
-    margin-left: ${props =>!props.type && `5px`};
+    margin-left: ${props => !props.type && `5px`};
   }
 `;
 
-const StepWrapper = styledTS<{type?: string}>(styled.div)`
-  margin: ${props => props.type === 'stepper' ? `${dimensions.coreSpacing}px` : `${dimensions.unitSpacing}px`};
+const StepWrapper = styledTS<{ type?: string }>(styled.div)`
+  margin: ${props =>
+    props.type === 'stepper'
+      ? `${dimensions.coreSpacing}px`
+      : `${dimensions.unitSpacing}px`};
   height: ${props => !props.type && `100%`};
-  height: ${props => !props.type && `calc(100% - ${dimensions.unitSpacing * 2}px)`};
+  height: ${props =>
+    !props.type && `calc(100% - ${dimensions.unitSpacing * 2}px)`};
   display: flex;
-  flex-direction: ${props => props.type !== "stepper" && 'column'};
+  flex-direction: ${props => props.type !== 'stepper' && 'column'};
   flex: ${props => !props.type && '1'};
   justify-content: ${props => props.type === 'stepper' && 'center'};
-  width: ${props => props.type === 'stepper' && '100%'};
   align-items: ${props => props.type === 'stepper' && 'center'};
   background: ${props => props.type === 'stepper' && `${colors.colorWhite}`};
 `;
 
 const StepItem = styledTS<{ show: boolean; type?: string }>(styled.div)`
   transition: ${props => !props.type && `all .3s ease`};
-  width: ${props => (props.show ? '100%' : props.type === 'stepper' ? '0px' : '60px')};
-  box-shadow: 0 0 4px ${colors.colorShadowGray};
+  width: ${props =>
+    props.show ? '100%' : props.type === 'stepper' ? '0px' : '60px'};
+  box-shadow: ${props =>
+    props.type !== 'stepper' && '0 0 4px ${colors.colorShadowGray}'};
   justify-content: ${props => props.type === 'stepper' && 'center'};
   display: ${props => props.type === 'stepperColumn' && 'flex'};
   flex-direction: ${props => props.type === 'stepperColumn' && 'row'};
@@ -105,14 +110,16 @@ const StepImg = styled.div`
   }
 `;
 
-const StepHeaderTitle = styledTS<{type?: string}>(styled.h5)`
+const StepHeaderTitle = styledTS<{ type?: string }>(styled.h5)`
   margin: 0 0 0 ${dimensions.unitSpacing}px;
-  border-top: ${props => props.type === 'stepperColumn' && `1px solid ${colors.borderPrimary}`};
-  padding: ${props => props.type === 'stepperColumn' && `${dimensions.coreSpacing}px 0`};
+  border-top: ${props =>
+    props.type === 'stepperColumn' && `1px solid ${colors.borderPrimary}`};
+  padding: ${props =>
+    props.type === 'stepperColumn' && `${dimensions.coreSpacing}px 0`};
   width: ${props => props.type === 'stepperColumn' && '100%'};
 `;
 
-const StepContent = styledTS<{type?: string}>(styled.div)`
+const StepContent = styledTS<{ type?: string }>(styled.div)`
   width: ${props => props.type !== 'stepperColumn' && '100%'};
   height: ${props => !props.type && 'calc(100% - 55px)'};
   overflow: hidden;
@@ -163,6 +170,7 @@ const FlexItem = styledTS<{
   v?: string;
   h?: string;
   direction?: string;
+  type?: string;
 }>(styled.div)`
   display: flex;
   height: 100%;
@@ -207,7 +215,8 @@ const FlexItem = styledTS<{
 `;
 
 const FlexPad = styled(FlexItem)`
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.coreSpacing}px
+    ${props => props.type === 'stepper' && '150'}px;
   flex: 1;
   border-right: ${colors.borderPrimary};
 `;
@@ -236,23 +245,30 @@ const Preview = styledTS<{ fullHeight?: boolean }>(styled.div)`
   overflow: hidden;
 `;
 
-const StepCount = styledTS<{complete?: boolean; type?: string}>(styled.div)`
+const StepCount = styledTS<{ complete?: boolean; type?: string }>(styled.div)`
   position: relative;
   z-index: 5;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: ${props => props.type === 'stepper' ? '50px' : '25px'};
-  height: ${props => props.type === 'stepper' ? '50px' : '25px'};
+  width: ${props => (props.type === 'stepper' ? '50px' : '25px')};
+  height: ${props => (props.type === 'stepper' ? '50px' : '25px')};
   border-radius: 50%;
-  color: ${props => props.complete === true ? colors.colorWhite : colors.colorCoreBlack};
-  background-color: ${props => props.complete === true ? `${props.type === 'stepper' ? colors.colorPrimary : colors.colorCoreGreen}` : colors.bgActive};
+  color: ${props =>
+    props.complete === true ? colors.colorWhite : colors.colorCoreBlack};
+  background-color: ${props =>
+    props.complete === true
+      ? `${
+          props.type === 'stepper' ? colors.colorPrimary : colors.colorCoreGreen
+        }`
+      : colors.bgActive};
 `;
 
-const SteperItem = styledTS<{complete?: boolean; type?: string}>(styled.span)`
+const SteperItem = styledTS<{ complete?: boolean; type?: string }>(styled.span)`
   position: relative;
   display: flex;
-  flex-direction: ${props => props.type === "stepperColumn" ? 'row' : 'column'};
+  flex-direction: ${props =>
+    props.type === 'stepperColumn' ? 'row' : 'column'};
   align-items: center;
   flex: 1;
   z-index: 5;
@@ -270,8 +286,10 @@ const SteperItem = styledTS<{complete?: boolean; type?: string}>(styled.span)`
   }
   &:before {
     position: absolute;
-    border-bottom: ${props => props.type === 'stepper' && `2px solid ${colors.bgActive}`};
-    border-right: ${props => props.type === 'stepperColumn' && `2px solid ${colors.bgActive}`};
+    border-bottom: ${props =>
+      props.type === 'stepper' && `2px solid ${colors.bgActive}`};
+    border-right: ${props =>
+      props.type === 'stepperColumn' && `2px solid ${colors.bgActive}`};
     width: ${props => props.type === 'stepper' && '100%'};
     height: ${props => props.type === 'stepperColumn' && '100%'};
     top: 30px;
@@ -281,12 +299,20 @@ const SteperItem = styledTS<{complete?: boolean; type?: string}>(styled.span)`
   &:after {
     position: absolute;
     content: "";
-    border-bottom: ${props => props.type === 'stepper' && `2px solid ${props.complete === true ? colors.colorPrimary : colors.bgActive}`};
-    border-right: ${props => props.type === 'stepperColumn' && `2px solid ${props.complete === true ? colors.colorCoreGreen : colors.bgActive}`};
+    border-bottom: ${props =>
+      props.type === 'stepper' &&
+      `2px solid ${
+        props.complete === true ? colors.colorPrimary : colors.bgActive
+      }`};
+    border-right: ${props =>
+      props.type === 'stepperColumn' &&
+      `2px solid ${
+        props.complete === true ? colors.colorCoreGreen : colors.bgActive
+      }`};
     width: ${props => props.type === 'stepper' && '100%'};
     height: ${props => props.type === 'stepperColumn' && '100%'};
     top: 30px;
-    left: ${props => props.type === 'stepper' ? "50%" : '11px'};
+    left: ${props => (props.type === 'stepper' ? '50%' : '11px')};
     z-index: 2;
   }  
   &.completed {
@@ -294,8 +320,10 @@ const SteperItem = styledTS<{complete?: boolean; type?: string}>(styled.span)`
     &:after {
       position: absolute;
     content: "";
-    border-bottom: ${props => props.type === 'stepper' && `2px solid ${colors.colorPrimary}`};
-    border-right: ${props => props.type === 'stepperColumn' && `2px solid ${colors.colorCoreGreen}`};
+    border-bottom: ${props =>
+      props.type === 'stepper' && `2px solid ${colors.colorPrimary}`};
+    border-right: ${props =>
+      props.type === 'stepperColumn' && `2px solid ${colors.colorCoreGreen}`};
     width: ${props => props.type === 'stepper' && '100%'};
     height: ${props => props.type === 'stepperColumn' && '100%'};
     top: 20px;
@@ -319,8 +347,10 @@ const StyledButton = styledTS<{ next?: boolean }>(styled.button)`
   padding: 10px 40px;
   font-weight: 500;
   margin-right: 10px;
-  color: ${props => props.next === true ? colors.colorWhite : colors.colorPrimary};
-  background: ${props => props.next === true ? colors.colorPrimary : colors.colorWhite};
+  color: ${props =>
+    props.next === true ? colors.colorWhite : colors.colorPrimary};
+  background: ${props =>
+    props.next === true ? colors.colorPrimary : colors.colorWhite};
 `;
 
 const ButtonContainer = styled.div`
@@ -336,8 +366,10 @@ const ButtonBack = styledTS<{ next?: boolean }>(styled.button)`
   width: 110px;
   font-weight: 500;
   margin-right: 10px;
-  color: ${props => props.next === true ? colors.colorWhite : colors.colorPrimary};
-  background: ${props => props.next === true ? colors.colorPrimary : colors.colorWhite};
+  color: ${props =>
+    props.next === true ? colors.colorWhite : colors.colorPrimary};
+  background: ${props =>
+    props.next === true ? colors.colorPrimary : colors.colorWhite};
 `;
 
 export {
@@ -359,8 +391,8 @@ export {
   FlexPad,
   LeftItem,
   Preview,
-  StepCount, 
-  SteperItem, 
+  StepCount,
+  SteperItem,
   StyledButton,
   ButtonContainer,
   ButtonBack

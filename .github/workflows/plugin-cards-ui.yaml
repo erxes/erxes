@@ -6,10 +6,10 @@ on:
       - federation
     paths:
       - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
       - "packages/ui-cards/**"
       - "packages/plugin-cards-ui/**"
       - ".github/workflows/plugin-cards-ui.yaml"
-      - ls
 
 jobs:
   ui:

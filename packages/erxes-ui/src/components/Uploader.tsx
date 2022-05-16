@@ -131,7 +131,7 @@ class Uploader extends React.Component<Props, State> {
 
       afterUpload: ({ status, response, fileInfo }) => {
         if (status !== 'ok') {
-          Alert.error(response);
+          Alert.error(response.statusText);
           return this.setState({ loading: false });
         }
 
@@ -190,7 +190,7 @@ class Uploader extends React.Component<Props, State> {
     return (
       <UploadBtnWithIcon>
         <label>
-          {icon ? <Icon icon={icon}></Icon> : null}
+          {icon ? <Icon icon={icon} /> : null}
           <div>
             <span>{text ? __(text) : __('Upload an attachment')}</span>
             <Meta>
