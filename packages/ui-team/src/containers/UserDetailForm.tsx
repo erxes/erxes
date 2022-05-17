@@ -87,7 +87,7 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
   }
 
   const { list = [], totalCount = 0 } =
-    userConversationsQuery && userConversationsQuery.userConversations || {};
+    (userConversationsQuery && userConversationsQuery.userConversations) || {};
 
   const renderButton = ({
     name,
@@ -191,7 +191,7 @@ export default withProps<Props>(
           perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
         }
       }),
-      skip: !isEnabled("inbox") ? true : false,
+      skip: !isEnabled('inbox')
     }),
     graphql(gql(channelQueries.channels), {
       name: 'channelsQuery',
