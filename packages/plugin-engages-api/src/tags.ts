@@ -31,12 +31,12 @@ export default {
       }).lean();
     }
 
-    return {
-      status: 'success',
-      data: result
-    };
+    return result;
   },
-  fixRelatedItems: async ({ subdomain, data: { sourceId, destId, action } }) => {
+  fixRelatedItems: async ({
+    subdomain,
+    data: { sourceId, destId, action }
+  }) => {
     const models = await generateModels(subdomain);
 
     if (action === 'remove') {

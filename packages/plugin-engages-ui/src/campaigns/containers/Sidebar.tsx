@@ -10,6 +10,7 @@ import { queries } from '@erxes/ui-engage/src/graphql';
 import { CountQueryResponse } from '@erxes/ui-engage/src/types';
 import { TagsQueryResponse } from '@erxes/ui/src/tags/types';
 import { queries as tagQueries } from '@erxes/ui/src/tags/graphql';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   queryParams: any;
@@ -34,8 +35,8 @@ const SidebarContainer = (props: FinalProps) => {
     ...props,
     kindCounts: kindCountsQuery.engageMessageCounts || {},
     statusCounts: statusCountsQuery.engageMessageCounts || {},
-    tags: tagsQuery.tags || [],
-    tagCounts: tagCountsQuery.engageMessageCounts || {}
+    tags: (tagsQuery && tagsQuery.tags) || [],
+    tagCounts: (tagCountsQuery && tagCountsQuery.engageMessageCounts) || {}
   };
 
   return <Sidebar {...updatedProps} />;
@@ -57,15 +58,13 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, Counts, { type: string }>(
-      gql(tagQueries.tags),
-      {
-        name: 'tagsQuery',
-        options: () => ({
-          variables: { type: 'engageMessage' }
-        })
-      }
-    ),
+    graphql<Props, Counts, { type: string }>(gql(tagQueries.tags), {
+      name: 'tagsQuery',
+      options: () => ({
+        variables: { type: 'engages:engageMessage' }
+      }),
+      skip: !isEnabled('tags')
+    }),
     graphql<Props, CountQueryResponse, { kind: string; status: string }>(
       gql(queries.tagCounts),
       {
@@ -75,7 +74,8 @@ export default withProps<Props>(
             kind: queryParams.kind || '',
             status: queryParams.status || ''
           }
-        })
+        }),
+        skip: !isEnabled('tags')
       }
     )
   )(withRouter<FinalProps>(SidebarContainer))
