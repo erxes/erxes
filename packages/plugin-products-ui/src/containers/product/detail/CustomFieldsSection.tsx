@@ -75,7 +75,7 @@ export default withProps<Props>(
             isDefinedByErxes: false
           }
         }),
-        skip: !isEnabled('forms') ? true : false
+        skip: !isEnabled('forms')
       }
     ),
     graphql<Props, EditMutationResponse, IProduct>(gql(mutations.productEdit), {
