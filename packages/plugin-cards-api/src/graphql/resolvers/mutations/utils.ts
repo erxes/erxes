@@ -299,7 +299,6 @@ export const itemsEdit = async (
   // seperating only change stage action to prevent
   // replacing other fields with empty values
   if (Object.keys(doc).length === 1 && doc.stageId) {
-    console.log('in stage change ..........');
     return await modelUpate(_id, extendedDoc);
   }
 
