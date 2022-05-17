@@ -55,6 +55,8 @@ class CarListContainer extends React.Component<FinalProps, State> {
       productCategoriesQuery
     } = this.props;
 
+    console.log('queryParams: ', this.props.queryParams);
+
     let columnsConfig = [
       { name: 'plateNumber', label: 'Plate number', order: 1 },
       { name: 'vinNumber', label: 'Vin number', order: 2 },
@@ -139,19 +141,19 @@ class CarListContainer extends React.Component<FinalProps, State> {
   }
 }
 
-const generateParams = ({ queryParams }) => ({
-  variables: {
+const generateParams = ({ queryParams }) => {
+  return {
     ...router.generatePaginationParams(queryParams || {}),
     ids: queryParams.ids,
     categoryId: queryParams.categoryId,
+    segment: queryParams.segment,
     searchValue: queryParams.searchValue,
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
       : undefined
-  },
-  fetchPolicy: 'network-only'
-});
+  };
+};
 
 const generateOptions = () => ({
   refetchQueries: [
@@ -167,11 +169,14 @@ const generateOptions = () => ({
 
 export default withProps<Props>(
   compose(
-    graphql<{ queryParams: any }, MainQueryResponse, ListQueryVariables>(
+    graphql<Props, MainQueryResponse, ListQueryVariables>(
       gql(queries.carsMain),
       {
         name: 'carsMainQuery',
-        options: generateParams
+        options: ({ queryParams }) => ({
+          variables: generateParams({ queryParams }),
+          fetchPolicy: 'network-only'
+        })
       }
     ),
     // mutations

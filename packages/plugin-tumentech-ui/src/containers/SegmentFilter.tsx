@@ -18,7 +18,7 @@ const SegmentFilterContainer = (props: Props & WrapperProps) => {
   //     ? carCountQuery.customerCounts
   //     : null) || { bySegment: {} };
 
-  console.log(carCountQuery);
+  // console.log(carCountQuery);
 
   return <Segments contentType={'tumentech:car'} counts={{}} />;
 };

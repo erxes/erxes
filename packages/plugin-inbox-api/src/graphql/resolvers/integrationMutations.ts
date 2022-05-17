@@ -217,7 +217,10 @@ const integrationMutations = {
     { _id, ...doc }: IEditIntegration,
     { user, models, subdomain }: IContext
   ) {
+    console.log('integrationsEditLeadIntegration');
     const integration = await models.Integrations.getIntegration({ _id });
+
+    console.log('inte: ', integration);
 
     const updated = await models.Integrations.updateLeadIntegration(_id, doc);
 
