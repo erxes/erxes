@@ -9,7 +9,12 @@ import React from 'react';
 import { ByKindTotalCount } from '@erxes/ui-settings/src/integrations/types';
 import Row from './Row';
 import Sidebar from './Sidebar';
-import { Content, FullHeight, IntegrationWrapper, SearchInput } from '@erxes/ui-settings/src/integrations/components/store/styles';
+import {
+  Content,
+  FullHeight,
+  IntegrationWrapper,
+  SearchInput
+} from '@erxes/ui-settings/src/integrations/components/store/styles';
 import { Title } from '@erxes/ui/src/styles/main';
 
 type Props = {
@@ -29,7 +34,7 @@ class Home extends React.Component<Props, State> {
     this.state = {
       searchValue: '',
       integrations: INTEGRATIONS.filter(
-        integration => integration.category.indexOf('All integrations') !== -1
+        integration => integration.category.indexOf('All add-ons') !== -1
       )
     };
   }
@@ -46,9 +51,8 @@ class Home extends React.Component<Props, State> {
         integrations: INTEGRATIONS.filter(
           integration =>
             integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
-            integration.category.indexOf(
-              queryParams.type || 'All integrations'
-            ) !== -1
+            integration.category.indexOf(queryParams.type || 'All add-ons') !==
+              -1
         )
       });
     }
@@ -82,7 +86,7 @@ class Home extends React.Component<Props, State> {
         <FullHeight>
           <EmptyState
             text={`No results for "${searchValue}"`}
-            image='/images/actions/2.svg'
+            image="/images/actions/2.svg"
           />
         </FullHeight>
       );
@@ -94,10 +98,10 @@ class Home extends React.Component<Props, State> {
   renderSearch() {
     return (
       <SearchInput isInPopover={false}>
-        <Icon icon='search-1' />
+        <Icon icon="search-1" />
         <FormControl
-          type='text'
-          placeholder={__('Type to search for an integration') + '...'}
+          type="text"
+          placeholder={__('Type to search for an add-ons') + '...'}
           onChange={this.onSearch}
         />
       </SearchInput>
@@ -109,16 +113,16 @@ class Home extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('App store') },
-      { title: `${this.props.queryParams.type || __('All integrations')}` }
+      { title: __('Add-ons') },
+      { title: `${this.props.queryParams.type || __('All add-ons')}` }
     ];
 
     const headerDescription = (
       <HeaderDescription
-        icon='/images/actions/33.svg'
-        title='App store'
+        icon="/images/actions/33.svg"
+        title="Add-ons"
         description={`${__(
-          'Set up your integrations and start connecting with your customers'
+          'Set up your add-ons and start connecting with your customers'
         )}.${__(
           'Now you can reach them on wherever platform they feel most comfortable'
         )}`}
@@ -128,11 +132,11 @@ class Home extends React.Component<Props, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('App store')} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__('Add-ons')} breadcrumb={breadcrumb} />
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{queryParams.type || 'All Integrations'}</Title>}
+            left={<Title>{queryParams.type || 'All Add-ons'}</Title>}
             right={this.renderSearch()}
           />
         }
