@@ -146,4 +146,28 @@ const SideNumber = styled.div`
   }
 `;
 
-export { BoxedStep, BoxHeader, Left, Boxes, Card, Header, SideNumber };
+const LinkedButton = styled.a`
+  color: black;
+  width: 100%;
+
+  h3 {
+    border-top: 1px solid #eee;
+    padding: 0 20px;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    justify-content: space-between;
+    padding-top: 18px;
+  }
+`;
+
+export {
+  BoxedStep,
+  BoxHeader,
+  Left,
+  Boxes,
+  Card,
+  Header,
+  SideNumber,
+  LinkedButton
+};

@@ -44,7 +44,7 @@ export default class Navigation extends React.Component<Props> {
 
     return (
       <LeftNavigation>
-        <NavLink to="/">
+        <NavLink to="/welcome">
           <img src={generateLogoSource()} alt="erxes" />
         </NavLink>
 

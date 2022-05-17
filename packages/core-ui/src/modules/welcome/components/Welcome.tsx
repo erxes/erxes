@@ -3,7 +3,7 @@ import { DescImg } from '@erxes/ui/src/components/HeaderDescription';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
-import { WELCOME, CARDS } from '../constants';
+import { WELCOME, CARDS, COMMUNITY } from '../constants';
 import {
   BoxedStep,
   BoxHeader,
@@ -11,13 +11,15 @@ import {
   Boxes,
   Card,
   Header,
-  SideNumber
+  SideNumber,
+  LinkedButton
 } from '../styles';
 import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';
 import { WidgetBackgrounds } from '@erxes/ui-settings/src/styles';
 import { Step, Steps } from '@erxes/ui/src/components/step';
 import ProgressBar from '@erxes/ui/src/components/ProgressBar';
+import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   currentUser: IUser;
@@ -73,20 +75,38 @@ function Welcome({ currentUser }: Props) {
     return (
       <WidgetBackgrounds>
         <Boxes>
-          <Box title="Docs" noBackground={true}>
-            hello
-          </Box>
-          <Box title="How To Plugin" noBackground={true}>
-            hello
-          </Box>
+          <LinkedButton
+            href="https://www.erxes.org/overview/deployment-overview"
+            target="_blank"
+          >
+            <h3>
+              Documentation
+              <Icon icon="angle-right" />
+            </h3>
+          </LinkedButton>
+          <LinkedButton
+            href="https://www.erxes.org/user/subscription-getting-started"
+            target="_blank"
+          >
+            <h3>
+              User's guide
+              <Icon icon="angle-right" />
+            </h3>
+          </LinkedButton>
         </Boxes>
         <Boxes>
-          <Box title="API" noBackground={true}>
-            hello
-          </Box>
-          <Box title="Plugin Monetization" noBackground={true}>
-            hello
-          </Box>
+          <LinkedButton href="https://www.erxes.org/invest" target="_blank">
+            <h3>
+              Invest
+              <Icon icon="angle-right" />
+            </h3>
+          </LinkedButton>
+          <LinkedButton href="https://www.erxes.org/service" target="_blank">
+            <h3>
+              Service
+              <Icon icon="angle-right" />
+            </h3>
+          </LinkedButton>
         </Boxes>
       </WidgetBackgrounds>
     );
@@ -164,35 +184,6 @@ function Welcome({ currentUser }: Props) {
   };
 
   const renderCommunity = () => {
-    const community = [
-      {
-        name: 'github',
-        link: 'https://github.com/erxes/erxes',
-        icon: 'github-circled'
-      },
-      {
-        name: 'Discord',
-        link: 'https://discord.com/invite/aaGzy3gQK5',
-        image: '/images/discord.png'
-      },
-      {
-        name: 'Youtube',
-        link: 'https://www.youtube.com/channel/UCunYU3kJiiDsXGfB068BbDA',
-        icon: 'youtube-play'
-      },
-      { name: 'Figma', link: '', image: '/images/figma.png' },
-      { name: 'Twitter', link: 'https://twitter.com/erxeshq', icon: 'twitter' },
-      {
-        name: 'Facebook',
-        link: 'https://www.facebook.com/erxesHQ/',
-        icon: 'facebook-official'
-      },
-      {
-        name: 'Blog',
-        link: 'https://erxes.io/blog',
-        image: '/images/glyph_dark.png'
-      }
-    ];
     return (
       <BoxedStep>
         {renderBoxHeader(
@@ -202,7 +193,7 @@ function Welcome({ currentUser }: Props) {
         )}
         <BoxHeader>
           <WidgetBackgrounds>
-            {community.map(com => (
+            {COMMUNITY.map(com => (
               <Button
                 href={com.link}
                 btnStyle="simple"
@@ -219,15 +210,8 @@ function Welcome({ currentUser }: Props) {
     );
   };
 
-  const renderCard = (
-    key: string,
-    background: string,
-    title: string,
-    desc: string,
-    button: string,
-    icon: string,
-    img: string
-  ) => {
+  const renderCard = card => {
+    const { key, background, title, desc, button, img } = card;
     return (
       <>
         <Card background={background} img={img}>
@@ -261,17 +245,7 @@ function Welcome({ currentUser }: Props) {
           {group.key === 'setup' && renderSetup()}
         </BoxedStep>
       ))}
-      {CARDS.map(card =>
-        renderCard(
-          card.key,
-          card.background,
-          card.title,
-          card.desc,
-          card.button,
-          card.icon,
-          card.img
-        )
-      )}
+      {CARDS.map(card => renderCard(card))}
     </>
   );
 
