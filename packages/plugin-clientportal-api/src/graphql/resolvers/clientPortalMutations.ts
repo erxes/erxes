@@ -1,11 +1,14 @@
-import { IClientPortal, IUser } from '../../models/definitions/clientPortal';
+import {
+  IClientPortal,
+  IUser,
+  IUserDocument
+} from '../../models/definitions/clientPortal';
 import { BOARD_STATUSES } from '../../models/definitions/constants';
 import { checkPermission } from '@erxes/api-utils/src';
 import { sendCardsMessage, sendContactsMessage } from '../../messageBroker';
 import { IContext, models } from '../../connectionResolver';
 import * as express from 'express';
 import { authCookieOptions, sendSms } from '../../../utils';
-// import twilio from 'twilio';
 
 interface ILoginParams {
   type?: string;
@@ -14,6 +17,10 @@ interface ILoginParams {
   deviceToken?: string;
   description?: string;
 }
+
+type UserEdit = {
+  _id: string;
+} & IUser;
 
 interface ICreateCard {
   type: string;
@@ -26,15 +33,13 @@ interface ICreateCard {
 
 // const login = async (
 //   args: ILoginParams,
-//   res: express.Response,
-//   secure: boolean,
-//   { models }: IContext
+//   {res, requestInfo, models }: IContext
 // ) => {
 //   const response = await models.ClientPortalUsers.login(args);
 
 //   const { token } = response;
 
-//   res.cookie('client-auth-token', token, authCookieOptions(secure));
+//   res.cookie('client-auth-token', token, authCookieOptions(requestInfo.secure));
 
 //   return 'loggedIn';
 // };
@@ -164,9 +169,19 @@ const clientPortalUserMutations = {
   /*
    * Login
    */
-  // clientPortalLogin: async (_root, args: ILoginParams, { res, requestInfo }: IContext) => {
-  //   return login(args, res, requestInfo.secure);
-  // },
+  clientPortalLogin: async (_root, args: ILoginParams, context: IContext) => {
+    //  const response = await models.ClientPortalUsers.login(args);
+
+    // const { token } = response;
+
+    console.log(context);
+    // const secure = requestInfo.secure || false
+    // const cookieOptions: any = { secure };
+
+    // res.cookie('client-auth-token', token, authCookieOptions(cookieOptions));
+
+    return 'loggedIn';
+  },
 
   /*
    * Logout
@@ -202,22 +217,10 @@ const clientPortalUserMutations = {
   /*
    * Edit user profile
    */
-  async clientPortalUserEdit(_root, args: IUser, { user, models }: IContext) {
-    return models.ClientPortalUsers.editProfile(user._id, args);
-  },
+  async clientPortalUserEdit(_root, args: UserEdit, { models }: IContext) {
+    const { _id, ...doc } = args;
 
-  async clientPortalSendVerificationCode(
-    _root,
-    { phone },
-    { models }: IContext
-  ) {
-    const code = await models.ClientPortalUsers.imposeVerificationCodePhone(
-      phone
-    );
-
-    const body = `Your verification code is ${code}`;
-
-    return sendSms(phone, body);
+    return models.ClientPortalUsers.editProfile(_id, doc);
   }
 };
 

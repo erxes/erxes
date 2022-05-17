@@ -163,7 +163,11 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
     }
 
-    public static async sendVerification(phone, email) {
+    public static async sendVerification(
+      phone,
+      email,
+      cpConfig: IClientPortalDocument
+    ) {
       const phoneCode = await this.imposeVerificationCodePhone(phone);
 
       const body = `Your verification code is ${phoneCode}`;
@@ -172,11 +176,11 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       // const body = `Баталгаажууулах код: ${emailCode}`;
 
-      await sendSms(phone, body);
+      await sendSms(phone, body, cpConfig);
     }
 
     public static async createUser(
-      { password, email, phone, ...doc }: IUser,
+      { password, email, phone, clientPortalConfigId, ...doc }: IUser,
       subdomain: string
     ) {
       // empty string password validation
@@ -196,24 +200,19 @@ export const loadClientPortalUserClass = (models: IModels) => {
         throw new Error('The user is already exists');
       }
 
-      // const performCreate = async () => {
-      //   return models.ClientPortalUsers.create({
-      //     ...doc,
-      //     email: tEmail,
-      //     // hash password
-      //     password: await this.generatePassword(password)
-      //   });
-      // }
+      clientPortalConfigId = 'AfhKWXZjjxKaxjxgi';
+      const config = await models.ClientPortals.getConfig(clientPortalConfigId);
 
       const user = await models.ClientPortalUsers.create({
         ...doc,
         phone,
         email: tEmail,
+        clientPortalConfigId: config._id,
         // hash password
         password: await this.generatePassword(password)
       });
 
-      this.sendVerification(phone, tEmail);
+      this.sendVerification(phone, tEmail, config);
 
       const { companyName, firstName, lastName, type } = doc;
 
@@ -268,9 +267,6 @@ export const loadClientPortalUserClass = (models: IModels) => {
         },
         isRPC: true
       });
-
-      // return customer;
-      // }
 
       if (customer && customer._id) {
         await models.ClientPortalUsers.updateOne(
@@ -465,7 +461,37 @@ export const loadClientPortalUserClass = (models: IModels) => {
       return [createToken, createRefreshToken];
     }
 
-    // public static async refreshTokens(refreshToken: string) {];;;;
+    public static async refreshTokens(refreshToken: string) {
+      let _id = '';
+
+      try {
+        // validate refresh token
+        const { user }: any = jwt.verify(refreshToken, this.getSecret());
+
+        _id = user._id;
+        // if refresh token is expired then force to login
+      } catch (e) {
+        return {};
+      }
+
+      const dbUsers = await models.ClientPortalUsers.findOne({ _id });
+
+      if (!dbUsers) {
+        throw new Error('User not found');
+      }
+
+      // recreate tokens
+      const [newToken, newRefreshToken] = await this.createTokens(
+        dbUsers,
+        this.getSecret()
+      );
+
+      return {
+        token: newToken,
+        refreshToken: newRefreshToken,
+        user: dbUsers
+      };
+    }
 
     static generateVerificationCode() {
       return randomize('0', 6);
@@ -490,6 +516,68 @@ export const loadClientPortalUserClass = (models: IModels) => {
       return code;
     }
 
+    public static async login({
+      email,
+      password,
+      description,
+      deviceToken
+    }: ILoginParams) {
+      if (!email || !password) {
+        throw new Error('Invalid login');
+      }
+
+      const user = await models.ClientPortalUsers.findOne({
+        // phone: email.trim(),
+        email: { $regex: new RegExp(`^${email}$`, 'i') }
+      });
+
+      console.log(user, 'hhhhhhhhhhhh');
+
+      if (!user || !user.password) {
+        throw new Error('Invalid login');
+      }
+
+      const valid = await this.comparePassword(password, user.password);
+
+      if (!valid) {
+        // bad password
+        throw new Error('Invalid login');
+      }
+
+      if (!user.email && !user.phone) {
+        // not verified email or phone
+        throw new Error('Account not verified');
+      }
+
+      // create tokens
+      const [token, refreshToken] = await this.createTokens(
+        user,
+        this.getSecret()
+      );
+
+      if (deviceToken) {
+        const deviceTokens: string[] = user.deviceTokens || [];
+
+        if (!deviceTokens.includes(deviceToken)) {
+          deviceTokens.push(deviceToken);
+
+          await user.update({ $set: { deviceTokens } });
+        }
+      }
+
+      // await Logs.createLog({
+      //   type: "user",
+      //   typeId: user._id,
+      //   text: "login",
+      //   description,
+      // });
+
+      return {
+        token,
+        refreshToken
+      };
+    }
+
     public static async imposeVerificationCodePhone(phone: string) {
       const user = await models.ClientPortalUsers.findOne({ phone });
       const code = this.generateVerificationCode();
@@ -510,58 +598,6 @@ export const loadClientPortalUserClass = (models: IModels) => {
       );
 
       return code;
-    }
-
-    public static async login({
-      type,
-      email,
-      password,
-      description,
-      deviceToken
-    }: ILoginParams) {
-      const user = await models.ClientPortalUsers.findOne({
-        email: { $regex: new RegExp(`^${email}$`, 'i') }
-        // type: type || { $ne: USER_LOGIN_TYPES.COMPANY }
-      });
-
-      if (!user || !user.password) {
-        throw new Error('Invalid login');
-      }
-
-      const valid = await this.comparePassword(password, user.password);
-
-      if (!valid) {
-        // bad password
-        throw new Error('Invalid login');
-      }
-
-      // create tokens
-      const [token, refreshToken] = await this.createTokens(
-        user,
-        this.getSecret()
-      );
-
-      if (deviceToken) {
-        const deviceTokens: string[] = user.deviceTokens || [];
-
-        if (!deviceTokens.includes(deviceToken)) {
-          deviceTokens.push(deviceToken);
-
-          await user.update({ $set: { deviceTokens } });
-        }
-      }
-
-      // await Logs.createLog({
-      //   type: 'user',
-      //   typeId: user._id,
-      //   text: 'login',
-      //   description
-      // });
-
-      return {
-        token,
-        refreshToken
-      };
     }
   }
 

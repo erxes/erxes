@@ -1,4 +1,6 @@
 import { sendRequest } from "@erxes/api-utils/src";
+import { IClientPortalDocument } from "./src/models/definitions/clientPortal";
+import * as twilio from 'twilio';
 
 export const authCookieOptions = (secure: boolean) => {
   const oneDay = 1 * 24 * 3600 * 1000; // 1 day
@@ -19,45 +21,51 @@ export const USER_LOGIN_TYPES = {
   ALL: ['customer', 'company']
 };
 
-export const sendSms = async (phone: string, body: string) => {
-  const SMS_INTEGRATION_TYPE = process.env.SMS_INTEGRATION_TYPE;
-
+export const sendSms = async (phone: string, body: string, clientPortalConfig: IClientPortalDocument) => {
+  const SMS_INTEGRATION_TYPE = clientPortalConfig.smsConfiguration;
+  
   switch (SMS_INTEGRATION_TYPE) {
-    // case "twilio":
-    //   // Twilio Credentials
-    //   const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    //   const authToken = process.env.TWILIO_AUTH_TOKEN;
-    //   const twilioPhoneNumber = process.env.TWILIO_FROM_NUMBER;
+    case "Twilio":
+      // Twilio Credentials
+      const accountSid = clientPortalConfig.twilioAccountSid;
+      const authToken = clientPortalConfig.twilioAuthToken;
+      const twilioPhoneNumber = clientPortalConfig.twilioFromNumber;
 
-    //   // require the Twilio module and create a REST client
-    //   const client = twilio(accountSid, authToken);
-    //   client.messages.create(
-    //     {
-    //       to: `+976${phone}`,
-    //       from: twilioPhoneNumber,
-    //       body,
-    //     },
-    //     (err, message) => {
-    //       if (err) {
-    //         debugError(err.message);
-    //         throw new Error(err.message);
-    //       }
+      // require the Twilio module and create a REST client
+      const client = twilio(accountSid, authToken);
+      client.messages.create(
+        {
+          to: `+976${phone}`,
+          from: twilioPhoneNumber,
+          body,
+        },
+        (err, message) => {
+          if (err) {
+            // debugError(err.message);
+            throw new Error(err.message);
+          }
 
-    //       debugExternalApi(`
-    //         Success from : twillio
-    //         responseBody: ${JSON.stringify(message)}
-    //     `);
-    //       return "sent";
-    //     }
-    //   );
-    //   break;
+        //   debugExternalApi(`
+        //     Success from : twillio
+        //     responseBody: ${JSON.stringify(message)}
+        // `);
+          return "sent";
+        }
+      );
+      break;
 
-    case "messagepro":
+    case "MessagePro":
       // MessagePro Credentials
-      // const apiKey = process.env.MESSAGEPRO_API_KEY;
-      const apiKey = 'test';
-      // const messageproPhoneNumber = process.env.MESSAGEPRO_PHONE_NUMBER;
-      const messageproPhoneNumber = '99184523';
+      const apiKey = clientPortalConfig.messageproApiKey;
+      const messageproPhoneNumber = clientPortalConfig.messageproPhoneNumber;
+
+      if(!apiKey) {
+        return ''
+      }
+
+      if(!messageproPhoneNumber) {
+        return ''
+      }
 
       try {
         await sendRequest({

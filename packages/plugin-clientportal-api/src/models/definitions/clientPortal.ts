@@ -29,6 +29,13 @@ export interface IClientPortal {
   publicTaskToggle?: boolean;
   ticketToggle?: boolean;
   taskToggle?: boolean;
+  smsConfiguration?: string;
+  twilioAccountSid?: string;
+  twilioAuthToken?: string;
+  twilioFromNumber?: string;
+  messageproApiKey?: string;
+  messageproPhoneNumber?: string;
+  content?: string;
 }
 
 interface IStyles {
@@ -68,6 +75,7 @@ export interface IUser {
   companyName?: string;
   companyRegistrationNumber?: number;
   deviceTokens?: string[];
+  clientPortalConfigId: string;
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -156,6 +164,7 @@ export const clientPortalUserSchema = new Schema({
   password: { type: String },
 
   firstName: { type: String, optional: true },
+  clientPortalConfigId: { type: String, required: true },
   phone: { type: String, optional: true },
   lastName: { type: String, optional: true },
   resetPasswordToken: { type: String, optional: true },
