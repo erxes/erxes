@@ -22,13 +22,13 @@ type Props = {
 const FormContainer = (props: Props & ICommonFormProps) => {
   const { integrationsQuery, kbTopicsQuery } = props;
 
-  if (integrationsQuery.loading || kbTopicsQuery && kbTopicsQuery.loading) {
+  if (integrationsQuery.loading || (kbTopicsQuery && kbTopicsQuery.loading)) {
     return <Spinner objective={true} />;
   }
 
   const integrations = integrationsQuery.integrations;
 
-  const kbTopics = kbTopicsQuery && kbTopicsQuery.knowledgeBaseTopics || [];
+  const kbTopics = (kbTopicsQuery && kbTopicsQuery.knowledgeBaseTopics) || [];
 
   const updatedProps = {
     ...props,
@@ -47,7 +47,7 @@ export default withProps<ICommonFormProps>(
     }),
     graphql(gql(kbQueries.knowledgeBaseTopics), {
       name: 'kbTopicsQuery',
-      skip: !isEnabled('knowledgebase') ? true : false
+      skip: !isEnabled('knowledgebase')
     })
   )(FormContainer)
 );

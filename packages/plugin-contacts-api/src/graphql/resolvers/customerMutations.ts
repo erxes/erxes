@@ -5,7 +5,6 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { validateBulk } from '../../verifierUtils';
 import { IContext } from '../../connectionResolver';
-import { prepareCustomData } from '../../utils';
 
 interface ICustomersEdit extends ICustomer {
   _id: string;
@@ -21,11 +20,6 @@ const customerMutations = {
     { user, docModifier, models, subdomain }: IContext
   ) {
     const modifiedDoc = docModifier(doc);
-
-    modifiedDoc.customFieldsData = await prepareCustomData(
-      subdomain,
-      modifiedDoc
-    );
 
     const customer = await models.Customers.createCustomer(modifiedDoc, user);
 
@@ -60,8 +54,6 @@ const customerMutations = {
     { _id, ...doc }: ICustomersEdit,
     { user, models, subdomain }: IContext
   ) {
-    doc.customFieldsData = await prepareCustomData(subdomain, doc);
-
     const customer = await models.Customers.getCustomer(_id);
     const updated = await models.Customers.updateCustomer(_id, doc);
 
