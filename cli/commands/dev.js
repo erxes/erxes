@@ -11,7 +11,7 @@ module.exports.devStop = async () => {
   await execCommand("pm2 delete all");
 };
 
-module.exports.devCmd = async (program) => {
+module.exports.devCmd = async program => {
   const configs = await fse.readJSON(filePath("configs.json"));
 
   const commonOptions = program.bash ? { interpreter: "/bin/bash" } : {};
@@ -36,7 +36,7 @@ module.exports.devCmd = async (program) => {
   );
 
   const commonEnv = {
-    DEBUG: 'erxes*',
+    DEBUG: "erxes*",
     NODE_ENV: "development",
     JWT_TOKEN_SECRET: configs.jwt_token_secret,
     MONGO_URL: "mongodb://localhost/erxes",
@@ -46,7 +46,7 @@ module.exports.devCmd = async (program) => {
     REDIS_PASSWORD: configs.redis.password,
     RABBITMQ_HOST: "amqp://localhost",
     ELASTICSEARCH_URL: "http://localhost:9200",
-    ENABLED_SERVICES_PATH: filePath("enabled-services.js")
+    ENABLED_SERVICES_PATH: filePath("enabled-services.js"),
   };
 
   let port = 3300;
@@ -58,7 +58,7 @@ module.exports.devCmd = async (program) => {
       script: "yarn",
       args: "start",
       ...commonOptions,
-      ignore_watch: ["node_modules"]
+      ignore_watch: ["node_modules"],
     },
     {
       name: "core",
@@ -69,11 +69,11 @@ module.exports.devCmd = async (program) => {
       ignore_watch: ["node_modules"],
       env: {
         PORT: port,
-        CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
+        CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
         ...commonEnv,
-        ...((configs.core || {}).envs || {})
-      }
-    }
+        ...((configs.core || {}).envs || {}),
+      },
+    },
   ];
 
   log("Generated ui coreui .env file ....");
@@ -115,7 +115,7 @@ module.exports.devCmd = async (program) => {
       script: "yarn",
       args: "dev",
       ...commonOptions,
-      ignore_watch: ["node_modules"]
+      ignore_watch: ["node_modules"],
     });
   }
 
@@ -163,7 +163,7 @@ module.exports.devCmd = async (program) => {
           script: "yarn",
           args: "start",
           ...commonOptions,
-          ignore_watch: ["node_modules"]
+          ignore_watch: ["node_modules"],
         });
       }
     }
@@ -177,8 +177,9 @@ module.exports.devCmd = async (program) => {
       ignore_watch: ["node_modules"],
       env: {
         PORT: port,
-        ...commonEnv
-      }
+        ...(plugin.extra_env || {}),
+        ...commonEnv,
+      },
     });
   }
 
@@ -193,7 +194,7 @@ module.exports.devCmd = async (program) => {
       env: {
         PORT: 3700,
         ...commonEnv,
-        ...((configs.workers || {}).envs || {})
+        ...((configs.workers || {}).envs || {}),
       },
     });
   }
@@ -209,7 +210,7 @@ module.exports.devCmd = async (program) => {
       PORT: 4000,
       CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
       ...commonEnv,
-      ...((configs.gateway || {}).envs || {})
+      ...((configs.gateway || {}).envs || {}),
     },
   });
 
