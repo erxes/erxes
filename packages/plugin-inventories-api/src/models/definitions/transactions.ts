@@ -1,6 +1,5 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
-import { IProductsData } from './jobs';
 
 export interface ITransaction {
   yieldId: string;
