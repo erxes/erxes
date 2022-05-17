@@ -1,6 +1,7 @@
 import { IUser } from 'modules/auth/types';
 import { DescImg } from '@erxes/ui/src/components/HeaderDescription';
 import { __ } from 'modules/common/utils';
+import _ from 'lodash';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
@@ -32,11 +33,18 @@ function Welcome({ currentUser }: Props) {
     currentUser.onboardingHistory &&
     currentUser.onboardingHistory.completedSteps;
 
+  console.log(currentUser);
+
   let active = 0;
 
   if (currentUser.username && currentUser.email) active = 1;
 
-  if (completedSteps && completedSteps.indexOf('generalSettingsCreate') > -1)
+  if (
+    (completedSteps && completedSteps.indexOf('generalSettingsCreate') > -1) ||
+    (currentUser.configs.dealCurrency &&
+      currentUser.configs.dealCurrency.length !== 0) ||
+    (currentUser.configs.dealUOM && currentUser.configs.dealUOM.length !== 0)
+  )
     active = 2;
 
   if (currentUser.brands!.length !== 0) active = 3;
@@ -45,6 +53,22 @@ function Welcome({ currentUser }: Props) {
     active = 4;
 
   if (completedSteps && completedSteps.indexOf('userCreate') > -1) active = 5;
+
+  Object.keys(currentUser.configs).map((value: string) => {
+    if (
+      value.includes('AWS') ||
+      value.includes('GOOGLE') ||
+      value.includes('COMPANY') ||
+      value.includes('FILE') ||
+      value.includes('MAIL') ||
+      value.includes('EMAIL') ||
+      value.includes('WIDGETS') ||
+      value.includes('UPLOAD')
+    ) {
+      active = 6;
+      return;
+    }
+  });
 
   const renderHeader = () => {
     return (
