@@ -43,15 +43,15 @@ import {
 } from './transaction';
 
 export const types = `
-  ${adjustmentTypes},
-  ${contractTypes},
-  ${collateralTypes}
-  ${contractTypeTypes},
-  ${insuranceTypeTypes},
-  ${invoiceTypes},
-  ${scheduleTypes},
-  ${transactionTypes},
-  ${erkhetResponseTypes},
+  ${adjustmentTypes()},
+  ${contractTypes()},
+  ${collateralTypes()}
+  ${contractTypeTypes()},
+  ${insuranceTypeTypes()},
+
+  ${scheduleTypes()},
+ 
+
 `;
 
 export const queries = `

@@ -1,4 +1,5 @@
 import { paginate } from 'erxes-api-utils';
+import { checkPermission } from '@erxes/api-utils/src';
 
 const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -13,20 +14,20 @@ const generateFilter = async (params, commonQuerySelector) => {
 
   if (params.startDate) {
     filter.payDate = {
-      $gte: new Date(params.startDate),
+      $gte: new Date(params.startDate)
     };
   }
 
   if (params.endDate) {
     filter.payDate = {
-      $lte: new Date(params.endDate),
+      $lte: new Date(params.endDate)
     };
   }
 
   return filter;
 };
 
-export const sortBuilder = (params) => {
+export const sortBuilder = params => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -47,14 +48,13 @@ const adjustmentQueries = {
     params,
     { commonQuerySelector, models, checkPermission, user }
   ) => {
-    await checkPermission('showContracts', user);
     return paginate(
       models.Adjustments.find(
         await generateFilter(params, commonQuerySelector)
       ),
       {
         page: params.page,
-        perPage: params.perPage,
+        perPage: params.perPage
       }
     );
   },
@@ -68,7 +68,6 @@ const adjustmentQueries = {
     params,
     { commonQuerySelector, models, checkPermission, user }
   ) => {
-    await checkPermission('showContracts', user);
     const filter = await generateFilter(params, commonQuerySelector);
 
     return {
@@ -76,10 +75,10 @@ const adjustmentQueries = {
         models.Adjustments.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
-          perPage: params.perPage,
+          perPage: params.perPage
         }
       ),
-      totalCount: models.Adjustments.find(filter).count(),
+      totalCount: models.Adjustments.find(filter).count()
     };
   },
 
@@ -92,9 +91,12 @@ const adjustmentQueries = {
     { _id },
     { models, checkPermission, user }
   ) => {
-    await checkPermission('showContracts', user);
     return models.Adjustments.getAdjustment(models, { _id });
-  },
+  }
 };
+
+checkPermission(adjustmentQueries, 'adjustments', 'showContracts');
+checkPermission(adjustmentQueries, 'adjustmentsMain', 'showContracts');
+checkPermission(adjustmentQueries, 'adjustmentDetail', 'showContracts');
 
 export default adjustmentQueries;

@@ -1,4 +1,4 @@
-import { attachmentType } from "@erxes/api-utils/src/commonTypeDefs";
+import { attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = ({ cardsEnabled, formsEnabled }) => {
   return `
@@ -25,7 +25,7 @@ export const types = ({ cardsEnabled, formsEnabled }) => {
         ? `extend type Field @key(fields: "_id") {
         _id: String! @external
         }`
-        : ""
+        : ''
     }
   `;
 };
@@ -40,7 +40,6 @@ const listQueryParams = `
     district: String
     customFields: JSON
     stageCode: String
-    stageId: String
     limit: Int
     skip: Int
  `;
@@ -48,12 +47,12 @@ const listQueryParams = `
 export const queries = ({ formsEnabled, cardsEnabled }) => `
  dealsForRentpay(${listQueryParams}): DealsForRentpayResponse
  fieldsForRentpay(contentType: String!, code: String, searchable: Boolean): ${
-   formsEnabled ? "[Field]" : "JSON"
+   formsEnabled ? '[Field]' : 'JSON'
  }
- dealDetailForRentpay(_id: String!): ${cardsEnabled ? "DealRP" : "JSON"}
+ dealDetailForRentpay(_id: String!): ${cardsEnabled ? 'DealRP' : 'JSON'}
 `;
 
 export const mutations = `
   modifyWaiterCustomerList(dealId: String, customerId: String, type: String): [String]
-  updateRentpayCustomer(customerId: String, customFields: JSON): JSON
+  createRentpayCustomer(firstName: String, lastName: String, email: String, phone: String): JSON
 `;

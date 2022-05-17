@@ -1,18 +1,18 @@
 import { putCreateLog, putDeleteLog, putUpdateLog } from 'erxes-api-utils';
 import {
   ICollateralData,
-  IContractDocument,
+  IContractDocument
 } from '../../../models/definitions/contracts';
 import { gatherDescriptions } from '../../../utils';
 import { ConfirmBase } from '../../../models/utils/confirmContractUtils';
+import { checkPermission } from '@erxes/api-utils/src';
 
 const contractMutations = {
   contractsAdd: async (
     _root,
     doc,
-    { user, docModifier, models, checkPermission, messageBroker }
+    { user, docModifier, models, messageBroker }
   ) => {
-    await checkPermission('manageContracts', user);
     const contract = models.LoanContracts.createContract(
       models,
       docModifier(doc),
@@ -26,7 +26,7 @@ const contractMutations = {
         type: 'contract',
         newData: doc,
         object: contract,
-        extraParams: { models },
+        extraParams: { models }
       },
       user
     );
@@ -41,9 +41,8 @@ const contractMutations = {
   contractsEdit: async (
     _root,
     { _id, ...doc },
-    { models, checkPermission, user, messageBroker }
+    { models, user, messageBroker }
   ) => {
-    await checkPermission('manageContracts', user);
     const contract = await models.LoanContracts.getContract(models, { _id });
     const updated = await models.LoanContracts.updateContract(models, _id, doc);
 
@@ -55,7 +54,7 @@ const contractMutations = {
         object: contract,
         newData: { ...doc },
         updatedDocument: updated,
-        extraParams: { models },
+        extraParams: { models }
       },
       user
     );
@@ -70,11 +69,10 @@ const contractMutations = {
   contractsClose: async (
     _root,
     { ...doc },
-    { models, checkPermission, user, messageBroker, memoryStorage }
+    { models, user, messageBroker, memoryStorage }
   ) => {
-    await checkPermission('manageContracts', user);
     const contract = await models.LoanContracts.getContract(models, {
-      _id: doc.contractId,
+      _id: doc.contractId
     });
     const updated = await models.LoanContracts.closeContract(
       models,
@@ -91,7 +89,7 @@ const contractMutations = {
         object: contract,
         newData: { ...doc },
         updatedDocument: updated,
-        extraParams: { models },
+        extraParams: { models }
       },
       user
     );
@@ -106,11 +104,10 @@ const contractMutations = {
   contractsRemove: async (
     _root,
     { contractIds }: { contractIds: string[] },
-    { models, checkPermission, user, messageBroker }
+    { models, user, messageBroker }
   ) => {
-    await checkPermission('manageContracts', user);
     const contracts = await models.LoanContracts.find({
-      _id: { $in: contractIds },
+      _id: { $in: contractIds }
     }).lean();
 
     await models.LoanContracts.removeContracts(models, contractIds);
@@ -134,17 +131,16 @@ const contractMutations = {
   getProductsData: async (
     _root,
     { contractId }: { contractId: string },
-    { models, checkPermission, user }
+    { models, user }
   ) => {
-    await checkPermission('manageContracts', user);
     const contract = await models.LoanContracts.getContract(models, {
-      _id: contractId,
+      _id: contractId
     });
 
     const dealIds = await models.Conformities.savedConformity({
       mainType: 'contract',
       relTypes: ['deal'],
-      mainTypeId: contract._id,
+      mainTypeId: contract._id
     });
     if (!dealIds) {
       return contract;
@@ -152,7 +148,7 @@ const contractMutations = {
 
     const deals = await models.Deals.find({ _id: { $in: dealIds } }).lean();
     const oldCollateralIds = contract.collateralsData.map(
-      (item) => item.collateralId
+      item => item.collateralId
     );
 
     const collateralsData: ICollateralData[] = contract.collateralsData;
@@ -167,7 +163,7 @@ const contractMutations = {
             cost: data.unitPrice,
             percent: 100,
             marginAmount: 0,
-            leaseAmount: 0,
+            leaseAmount: 0
           });
         }
       }
@@ -177,16 +173,16 @@ const contractMutations = {
 
     for (const data of collateralsData || []) {
       const collateral = await models.Products.findOne({
-        _id: data.collateralId,
+        _id: data.collateralId
       });
       const insuranceType = await models.InsuranceTypes.findOne({
-        _id: data.insuranceTypeId,
+        _id: data.insuranceTypeId
       });
 
       collaterals.push({
         ...data,
         collateral,
-        insuranceType,
+        insuranceType
       });
     }
 
@@ -204,7 +200,6 @@ const contractMutations = {
     { contractId }: { contractId: string },
     { models, checkPermission, user, messageBroker, memoryStorage }
   ) => {
-    await checkPermission('manageContracts', user);
     const contract: IContractDocument = await models.LoanContracts.getContract(
       models,
       { _id: contractId }
@@ -215,16 +210,23 @@ const contractMutations = {
     }
 
     const schedules = await models.RepaymentSchedules.find({
-      contractId,
+      contractId
     }).lean();
     if (!schedules || !schedules.length) {
       throw new Error('Schedules are undefined');
     }
 
     return {
-      result: await ConfirmBase(models, messageBroker, memoryStorage, contract),
+      result: await ConfirmBase(models, messageBroker, memoryStorage, contract)
     };
-  },
+  }
 };
+
+checkPermission(contractMutations, 'contractsAdd', 'manageContracts');
+checkPermission(contractMutations, 'contractsEdit', 'manageContracts');
+checkPermission(contractMutations, 'contractsClose', 'manageContracts');
+checkPermission(contractMutations, 'contractsRemove', 'manageContracts');
+checkPermission(contractMutations, 'getProductsData', 'manageContracts');
+checkPermission(contractMutations, 'contractConfirm', 'manageContracts');
 
 export default contractMutations;
