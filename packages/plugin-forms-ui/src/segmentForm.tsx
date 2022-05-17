@@ -36,7 +36,7 @@ class Form extends React.Component<any, any, any> {
       return <Spinner />;
     }
 
-    const { formId } = config;
+    const { formId } = config || {};
     const forms = formsQuery.integrations || [];
 
     if (forms[0] && !formId) {
