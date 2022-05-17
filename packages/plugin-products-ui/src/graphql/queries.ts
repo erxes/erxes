@@ -45,16 +45,7 @@ const productCategoryDetail = `
 
 // UOM
 
-const uoms = `
-query uoms {
-  uoms {
-    _id
-    name
-    code
-    createdAt
-  }
-}
-`;
+const uoms = productQueries.uoms;
 
 const uomsTotalCount = `
 query uomsTotalCount {
@@ -64,15 +55,7 @@ query uomsTotalCount {
 
 // Settings
 
-const productsConfigs = `
-  query productsConfigs {
-    productsConfigs {
-      _id
-      code
-      value
-    }
-  }
-`;
+const productsConfigs = productQueries.productsConfigs;
 
 export default {
   products,

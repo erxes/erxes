@@ -13,7 +13,6 @@ import {
   UomRemoveMutationResponse
 } from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
-// import { router } from '@erxes/ui/src/utils';
 
 type Props = {
   history: any;
@@ -26,31 +25,29 @@ type FinalProps = {
   UomRemoveMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
-  const { uomsQuery, uomsCountQuery } = props;
+  const { uomsQuery, uomsCountQuery, uomsRemove } = props;
 
   if (uomsQuery.loading || uomsCountQuery.loading) {
     return <Spinner />;
   }
 
-  // const remove = tag => {
-  //   confirm(
-  //     `This action will remove the uom. Are you sure?`
-  //   )
-  //     .then(() => {
-  //       uomRemoveMutation({ variables: { _id: tag._id } })
-  //         .then(() => {
-  //           Alert.success('You successfully deleted a tag');
-  //           uomsQuery.refetch();
-  //           uomCountQuery.refetch();
-  //         })
-  //         .catch(e => {
-  //           Alert.error(e.message);
-  //         });
-  //     })
-  //     .catch(e => {
-  //       Alert.error(e.message);
-  //     });
-  // };
+  const remove = uom => {
+    confirm(`This action will remove the uom. Are you sure?`)
+      .then(() => {
+        uomsRemove({ variables: { uomIds: [uom._id] } })
+          .then(() => {
+            Alert.success('You successfully deleted a uom');
+            uomsQuery.refetch();
+            uomsCountQuery.refetch();
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
 
   const renderButton = ({
     name,
@@ -79,7 +76,8 @@ const ListContainer = (props: FinalProps) => {
     uoms: uomsQuery.uoms || [],
     uomsTotalCount: uomsCountQuery.uomsTotalCount || 0,
     loading: uomsQuery.loading,
-    renderButton
+    renderButton,
+    remove
   };
 
   return <List {...updatedProps} />;
@@ -98,7 +96,7 @@ export default withProps<Props>(
     graphql<Props, UomRemoveMutationResponse, { _id: string }>(
       gql(mutations.uomsRemove),
       {
-        name: 'uomRemoveMutation'
+        name: 'uomsRemove'
       }
     )
   )(ListContainer)

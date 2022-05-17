@@ -35,6 +35,8 @@ const productFields = `
   supply
   productCount
   minimiumCount
+  uomId
+  subUoms
 `;
 
 const products = `
@@ -88,8 +90,35 @@ const productCategories = `
   }
 `;
 
+// UOM
+
+const uoms = `
+query uoms {
+  uoms {
+    _id
+    name
+    code
+    createdAt
+  }
+}
+`;
+
+// Settings
+
+const productsConfigs = `
+  query productsConfigs {
+    productsConfigs {
+      _id
+      code
+      value
+    }
+  }
+`;
+
 export default {
   productFields,
   products,
-  productCategories
+  productCategories,
+  productsConfigs,
+  uoms
 };

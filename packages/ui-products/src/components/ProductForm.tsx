@@ -1,5 +1,5 @@
 import React from 'react';
-
+import Select from 'react-select-plus';
 import SelectCompanies from '@erxes/ui/src/companies/containers/SelectCompanies';
 import Button from '@erxes/ui/src/components/Button';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
@@ -26,11 +26,13 @@ import {
 import { TYPES, PRODUCT_SUPPLY } from '../constants';
 import CategoryForm from '../containers/CategoryForm';
 import { Row } from '@erxes/ui-settings/src/integrations/styles';
-import { IProduct, IProductCategory } from '../types';
+import { IProduct, IProductCategory, IUom, IConfigsMap } from '../types';
 
 type Props = {
   product?: IProduct;
   productCategories: IProductCategory[];
+  uoms?: IUom[];
+  configsMap?: IConfigsMap;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -43,6 +45,8 @@ type State = {
   attachmentMore?: IAttachment[];
   vendorId: string;
   description: string;
+  uomId: string;
+  subUoms: any[];
 };
 
 class Form extends React.Component<Props, State> {
@@ -57,8 +61,12 @@ class Form extends React.Component<Props, State> {
       productCount,
       minimiumCount,
       vendorId,
-      description
+      description,
+      uomId,
+      subUoms
     } = product;
+
+    const defaultUom = props.configsMap.default_uom || '';
 
     this.state = {
       disabled: supply === 'limited' ? false : true,
@@ -67,7 +75,9 @@ class Form extends React.Component<Props, State> {
       attachment: attachment ? attachment : undefined,
       attachmentMore: attachmentMore ? attachmentMore : undefined,
       vendorId: vendorId ? vendorId : '',
-      description: description ? description : ''
+      description: description ? description : '',
+      uomId: uomId ? uomId : defaultUom,
+      subUoms: subUoms ? subUoms : []
     };
   }
 
@@ -79,6 +89,8 @@ class Form extends React.Component<Props, State> {
     minimiumCount: number;
     vendorId: string;
     description: string;
+    uomId: string;
+    subUoms: [];
   }) => {
     const { product } = this.props;
     const finalValues = values;
@@ -88,7 +100,9 @@ class Form extends React.Component<Props, State> {
       productCount,
       minimiumCount,
       vendorId,
-      description
+      description,
+      uomId,
+      subUoms
     } = this.state;
 
     if (product) {
@@ -104,7 +118,9 @@ class Form extends React.Component<Props, State> {
       productCount,
       minimiumCount,
       vendorId,
-      description
+      description,
+      uomId,
+      subUoms
     };
   };
 
@@ -118,10 +134,91 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  onComboEvent = (variable: string, e) => {
-    const value = variable === 'vendorId' ? e : e.target.value;
+  renderSubUoms(uoms) {
+    const subUoms = this.state.subUoms;
+    return subUoms.map(subUom => (
+      <>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>Sub UOM</ControlLabel>
+              <Select
+                value={subUom.uomId}
+                onChange={this.updateUoms.bind(this, 'subUomId', subUom._id)}
+                options={uoms.map(e => ({ value: e._id, label: e.name }))}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>Ratio</ControlLabel>
+              <Row>
+                <FormControl
+                  value={subUom.ratio}
+                  onChange={this.updateUoms.bind(this, 'ratio', subUom._id)}
+                  type="number"
+                />
+                <Button
+                  btnStyle="simple"
+                  uppercase={false}
+                  icon="cancel-1"
+                  onClick={this.onClickMinusSub.bind(this, subUom._id)}
+                />
+              </Row>
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+      </>
+    ));
+  }
+
+  onComboEvent = (variable: string, id = 0, e) => {
+    let value = '';
+
+    switch (variable) {
+      case 'vendorId':
+        value = e;
+        break;
+      case 'uomId':
+        value = e.value;
+        break;
+      default:
+        value = e.target.value;
+    }
 
     this.setState({ [variable]: value } as any);
+  };
+
+  updateUoms = (type, id, e) => {
+    const { subUoms } = this.state;
+    const condition = type === 'ratio';
+    const value = condition ? e.target.value : e.value;
+
+    let chosen = subUoms.find(sub => sub._id === id);
+    const uomId = condition ? chosen.uomId : value;
+    const ratio = condition ? value : chosen.ratio;
+
+    chosen = { uomId, ratio, _id: id };
+
+    const others = subUoms.filter(sub => sub._id !== id);
+
+    others.push(chosen);
+    this.setState({ subUoms: others });
+  };
+
+  onClickAddSub = () => {
+    const subUoms = this.state.subUoms;
+    const count = subUoms.length;
+
+    subUoms.push({ uomId: '', ratio: 0, _id: count + 1 });
+    this.setState({ subUoms });
+  };
+
+  onClickMinusSub = counter => {
+    const subUoms = this.state.subUoms;
+    const filteredUoms = subUoms.filter(sub => sub._id !== counter);
+
+    this.setState({ subUoms: filteredUoms });
   };
 
   onChangeDescription = e => {
@@ -149,11 +246,16 @@ class Form extends React.Component<Props, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal, product, productCategories } = this.props;
+    const {
+      renderButton,
+      closeModal,
+      product,
+      productCategories,
+      configsMap,
+      uoms
+    } = this.props;
     const { values, isSubmitted } = formProps;
     const object = product || ({} as IProduct);
-
-    const types = TYPES.ALL;
 
     const trigger = (
       <Button btnStyle="primary" uppercase={false} icon="plus-circle">
@@ -172,8 +274,11 @@ class Form extends React.Component<Props, State> {
       description,
       productCount,
       disabled,
-      minimiumCount
+      minimiumCount,
+      subUoms
     } = this.state;
+
+    const isUom = configsMap.isReqiureUOM || false;
 
     return (
       <>
@@ -197,7 +302,7 @@ class Form extends React.Component<Props, State> {
             defaultValue={object.type}
             required={true}
           >
-            {types.map((typeName, index) => (
+            {Object.keys(TYPES).map((typeName, index) => (
               <option key={index} value={typeName}>
                 {typeName}
               </option>
@@ -359,10 +464,38 @@ class Form extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>SKU</ControlLabel>
-          <FormControl {...formProps} name="sku" defaultValue={object.sku} />
-        </FormGroup>
+        {!isUom && (
+          <FormGroup>
+            <ControlLabel>SKU</ControlLabel>
+            <FormControl {...formProps} name="sku" defaultValue={object.sku} />
+          </FormGroup>
+        )}
+
+        {isUom && (
+          <>
+            <FormGroup>
+              <ControlLabel>UOM</ControlLabel>
+              <Row>
+                <Select
+                  value={this.state.uomId}
+                  onChange={this.onComboEvent.bind(this, 'uomId')}
+                  options={uoms.map(e => ({ value: e._id, label: e.name }))}
+                />
+                <Button
+                  btnStyle="primary"
+                  uppercase={false}
+                  icon="plus-circle"
+                  onClick={this.onClickAddSub}
+                >
+                  {' '}
+                  Add sub
+                </Button>
+              </Row>
+            </FormGroup>
+
+            {this.renderSubUoms(uoms)}
+          </>
+        )}
 
         <ModalFooter>
           <Button

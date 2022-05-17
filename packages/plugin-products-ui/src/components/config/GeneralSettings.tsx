@@ -9,19 +9,22 @@ import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { __ } from '@erxes/ui/src/utils';
 import { Wrapper } from '@erxes/ui/src/layout';
 import React from 'react';
-import { CONFIGS_KEY_LABELS } from '../../constants';
+import Select from 'react-select-plus';
 import { ContentBox } from '../../styles';
-import { IConfigsMap } from '../../types';
+import { IConfigsMap, IUom } from '../../types';
 import Header from './Header';
 import Sidebar from './Sidebar';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
+  uoms: IUom[];
 };
 
 type State = {
   currentMap: IConfigsMap;
+  is_uom: boolean;
+  default_uom: string;
 };
 
 class GeneralSettings extends React.Component<Props, State> {
@@ -29,7 +32,11 @@ class GeneralSettings extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentMap: props.configsMap || {}
+      currentMap: props.configsMap || {},
+      is_uom: props.configsMap.isReqiureUOM || false,
+      default_uom: props.configsMap.default_uom
+        ? props.configsMap.default_uom
+        : ''
     };
   }
 
@@ -37,8 +44,6 @@ class GeneralSettings extends React.Component<Props, State> {
     e.preventDefault();
 
     const { currentMap } = this.state;
-    // const { configsMap } = this.props;
-    // configsMap = currentMap;
     this.props.save(currentMap);
   };
 
@@ -55,13 +60,19 @@ class GeneralSettings extends React.Component<Props, State> {
   };
 
   onChangeCheckbox = (code: string, e) => {
-    this.onChangeConfig(code, e.target.checked);
+    const checked = e.target.checked;
+    this.setState({ is_uom: checked });
+    this.onChangeConfig(code, checked);
+  };
+
+  onChangeCombobox = (code: string, option) => {
+    const value = option.value;
+    this.setState({ default_uom: value });
+    this.onChangeConfig(code, value);
   };
 
   renderCheckbox = (key: string, title?: string, description?: string) => {
     const { currentMap } = this.state;
-
-    console.log(currentMap);
 
     return (
       <FormGroup>
@@ -76,16 +87,18 @@ class GeneralSettings extends React.Component<Props, State> {
     );
   };
 
-  renderItem = (key: string, description?: string) => {
+  renderCombobox = (key: string, title?: string, description?: string) => {
     const { currentMap } = this.state;
+    const { uoms } = this.props;
 
     return (
       <FormGroup>
-        <ControlLabel>{CONFIGS_KEY_LABELS[key]}</ControlLabel>
+        <ControlLabel>{title || key}</ControlLabel>
         {description && <p>{__(description)}</p>}
-        <FormControl
-          defaultValue={currentMap[key]}
-          onChange={this.onChangeInput.bind(this, key)}
+        <Select
+          value={this.state.default_uom}
+          onChange={this.onChangeCombobox.bind(this, key)}
+          options={uoms.map(e => ({ value: e._id, label: e.name }))}
         />
       </FormGroup>
     );
@@ -112,6 +125,8 @@ class GeneralSettings extends React.Component<Props, State> {
       <ContentBox id={'GeneralSettingsMenu'}>
         <CollapseContent title="General settings">
           {this.renderCheckbox('isReqiureUOM', 'is Reqiured UOM', '')}
+          {this.state.is_uom &&
+            this.renderCombobox('default_uom', 'default uom')}
         </CollapseContent>
       </ContentBox>
     );

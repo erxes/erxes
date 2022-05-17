@@ -1,15 +1,19 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import React from "react";
-import { graphql } from "react-apollo";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
 
-import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
-import { IButtonMutateProps } from "@erxes/ui/src/types";
-import { withProps } from "@erxes/ui/src/utils";
-import From from "../components/ProductForm";
-import { mutations, queries } from "../graphql";
-import { IProduct } from "../types";
-import { ProductCategoriesQueryResponse } from "@erxes/ui-products/src/types";
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { withProps } from '@erxes/ui/src/utils';
+import From from '../components/ProductForm';
+import { mutations, queries } from '../graphql';
+import { IProduct, IConfigsMap } from '../types';
+import {
+  ProductCategoriesQueryResponse,
+  ProductsConfigsQueryResponse,
+  UomsQueryResponse
+} from '@erxes/ui-products/src/types';
 
 type Props = {
   product?: IProduct;
@@ -18,13 +22,23 @@ type Props = {
 
 type FinalProps = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
+  productsConfigsQuery: ProductsConfigsQueryResponse;
+  uomsQuery: UomsQueryResponse;
 } & Props;
 
 class ProductFormContainer extends React.Component<FinalProps> {
   render() {
-    const { productCategoriesQuery } = this.props;
+    const {
+      productCategoriesQuery,
+      productsConfigsQuery,
+      uomsQuery
+    } = this.props;
 
-    if (productCategoriesQuery.loading) {
+    if (
+      productCategoriesQuery.loading ||
+      productsConfigsQuery.loading ||
+      uomsQuery.loading
+    ) {
       return null;
     }
 
@@ -33,15 +47,15 @@ class ProductFormContainer extends React.Component<FinalProps> {
       values,
       isSubmitted,
       callback,
-      object,
+      object
     }: IButtonMutateProps) => {
       const { unitPrice, productCount, minimiumCount } = values;
       const attachmentMoreArray: any[] = [];
       const attachment = values.attachment || undefined;
       const attachmentMore = values.attachmentMore || [];
 
-      attachmentMore.map((attachment) => {
-        attachmentMoreArray.push({ ...attachment, __typename: undefined });
+      attachmentMore.map(attach => {
+        attachmentMoreArray.push({ ...attach, __typename: undefined });
       });
 
       values.unitPrice = Number(unitPrice);
@@ -62,18 +76,28 @@ class ProductFormContainer extends React.Component<FinalProps> {
           type="submit"
           uppercase={false}
           successMessage={`You successfully ${
-            object ? "updated" : "added"
+            object ? 'updated' : 'added'
           } a ${name}`}
         />
       );
     };
 
     const productCategories = productCategoriesQuery.productCategories || [];
+    const configs = productsConfigsQuery.productsConfigs || [];
+    const configsMap = {};
+
+    for (const config of configs) {
+      configsMap[config.code] = config.value;
+    }
+
+    const uoms = uomsQuery.uoms || [];
 
     const updatedProps = {
       ...this.props,
       renderButton,
       productCategories,
+      uoms,
+      configsMap: configsMap || ({} as IConfigsMap)
     };
 
     return <From {...updatedProps} />;
@@ -82,10 +106,10 @@ class ProductFormContainer extends React.Component<FinalProps> {
 
 const getRefetchQueries = () => {
   return [
-    "productDetail",
-    "products",
-    "productsTotalCount",
-    "productCategories",
+    'productDetail',
+    'products',
+    'productsTotalCount',
+    'productCategories'
   ];
 };
 
@@ -94,8 +118,14 @@ export default withProps<Props>(
     graphql<Props, ProductCategoriesQueryResponse>(
       gql(queries.productCategories),
       {
-        name: "productCategoriesQuery",
+        name: 'productCategoriesQuery'
       }
-    )
+    ),
+    graphql<{}, UomsQueryResponse>(gql(queries.uoms), {
+      name: 'uomsQuery'
+    }),
+    graphql<{}, ProductsConfigsQueryResponse>(gql(queries.productsConfigs), {
+      name: 'productsConfigsQuery'
+    })
   )(ProductFormContainer)
 );

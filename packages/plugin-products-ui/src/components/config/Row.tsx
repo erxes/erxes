@@ -12,7 +12,7 @@ import Modal from 'react-bootstrap/Modal';
 import Select from 'react-select-plus';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import Form from '@erxes/ui/src/tags/components/Form';
+import Form from './UomsForm';
 import { IUom } from '../../types';
 
 export const TagWrapper = styledTS<{ space: number }>(styled.div)`
@@ -21,6 +21,8 @@ export const TagWrapper = styledTS<{ space: number }>(styled.div)`
 
 type Props = {
   uom: IUom;
+  remove: (brandId: string) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 type State = {
@@ -44,6 +46,37 @@ class Row extends React.Component<Props, State> {
     this.setState({ mergeDestination: option });
   };
 
+  renderEditAction = uom => {
+    const { renderButton } = this.props;
+
+    const editTrigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Edit')} placement="bottom">
+          <Icon icon="edit" />
+        </Tip>
+      </Button>
+    );
+
+    const content = props => (
+      <Form {...props} uom={uom} extended={true} renderButton={renderButton} />
+    );
+
+    return (
+      <ModalTrigger
+        size="lg"
+        title="Edit"
+        trigger={editTrigger}
+        content={content}
+      />
+    );
+  };
+
+  remove = uom => {
+    const { remove } = this.props;
+
+    remove(uom);
+  };
+
   render() {
     const { uom } = this.props;
 
@@ -60,22 +93,18 @@ class Row extends React.Component<Props, State> {
         <td>{uom.name || ''}</td>
         <td>{uom.code || ''}</td>
         <td>
-          {/* <ActionButtons>
-            <ModalTrigger
-              title="Edit tag"
-              trigger={editTrigger}
-              content={() => void ()}
-            />
-
-            <Tip text={__('Delete')} placement="top">
-              <Button
-                btnStyle="link"
-                onClick={this.removeTag}
-                icon="times-circle"
-              />
-            </Tip>
-          </ActionButtons> */}
-          edit remove
+          <ActionButtons>
+            <ActionButtons>
+              {this.renderEditAction(uom)}
+              <Tip text={__('Delete')} placement="bottom">
+                <Button
+                  btnStyle="link"
+                  onClick={() => this.remove(uom)}
+                  icon="cancel-1"
+                />
+              </Tip>
+            </ActionButtons>
+          </ActionButtons>
         </td>
       </tr>
     );

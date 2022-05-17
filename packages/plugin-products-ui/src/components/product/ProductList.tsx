@@ -134,7 +134,7 @@ class List extends React.Component<IProps, State> {
     ];
 
     const trigger = (
-      <Button btnStyle='success' icon='plus-circle'>
+      <Button btnStyle="success" icon="plus-circle">
         Add items
       </Button>
     );
@@ -144,22 +144,22 @@ class List extends React.Component<IProps, State> {
     let actionBarRight = (
       <BarItems>
         <FormControl
-          type='text'
+          type="text"
           placeholder={__('Type to search')}
           onChange={this.search}
           value={this.state.searchValue}
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
-        <Link to='/settings/importHistories?type=product'>
-          <Button btnStyle='simple' icon='arrow-from-right'>
+        <Link to="/settings/importHistories?type=product">
+          <Button btnStyle="simple" icon="arrow-from-right">
             {__('Import items')}
           </Button>
         </Link>
         <ModalTrigger
-          title='Add Product/Services'
+          title="Add Product/Services"
           trigger={trigger}
-          autoOpenKey='showProductModal'
+          autoOpenKey="showProductModal"
           content={modalContent}
         />
       </BarItems>
@@ -174,7 +174,7 @@ class List extends React.Component<IProps, State> {
               <th style={{ width: 60 }}>
                 <FormControl
                   checked={isAllSelected}
-                  componentClass='checkbox'
+                  componentClass="checkbox"
                   onChange={this.onChange}
                 />
               </th>
@@ -198,9 +198,9 @@ class List extends React.Component<IProps, State> {
     if (currentCategory.productCount === 0) {
       content = (
         <EmptyState
-          image='/images/actions/8.svg'
-          text='No Brands'
-          size='small'
+          image="/images/actions/8.svg"
+          text="No Brands"
+          size="small"
         />
       );
     }
@@ -218,7 +218,7 @@ class List extends React.Component<IProps, State> {
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle='simple' size='small' icon='tag-alt'>
+        <Button btnStyle="simple" size="small" icon="tag-alt">
           Tag
         </Button>
       );
@@ -233,7 +233,7 @@ class List extends React.Component<IProps, State> {
           });
 
       const mergeButton = (
-        <Button btnStyle='primary' size='small' icon='merge'>
+        <Button btnStyle="primary" size="small" icon="merge">
           Merge
         </Button>
       );
@@ -242,9 +242,9 @@ class List extends React.Component<IProps, State> {
         <BarItems>
           {bulk.length === 2 && (
             <ModalTrigger
-              title='Merge Product'
-              size='lg'
-              dialogClassName='modal-1000w'
+              title="Merge Product"
+              size="lg"
+              dialogClassName="modal-1000w"
               trigger={mergeButton}
               content={productsMerge}
             />
@@ -257,9 +257,9 @@ class List extends React.Component<IProps, State> {
             refetchQueries={['productCountByTags']}
           />
           <Button
-            btnStyle='danger'
-            size='small'
-            icon='cancel-1'
+            btnStyle="danger"
+            size="small"
+            icon="cancel-1"
             onClick={onClick}
           >
             Remove
@@ -282,7 +282,7 @@ class List extends React.Component<IProps, State> {
         }
         mainHead={
           <HeaderDescription
-            icon='/images/actions/30.svg'
+            icon="/images/actions/30.svg"
             title={'Product & Service'}
             description={`${__(
               'All information and know-how related to your business products and services are found here'
@@ -303,8 +303,8 @@ class List extends React.Component<IProps, State> {
             data={content}
             loading={loading}
             count={productsCount}
-            emptyText='There is no data'
-            emptyImage='/images/actions/5.svg'
+            emptyText="There is no data"
+            emptyImage="/images/actions/5.svg"
           />
         }
         hasBorder={true}

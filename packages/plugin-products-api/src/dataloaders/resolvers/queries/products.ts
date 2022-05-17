@@ -81,8 +81,6 @@ const productQueries = {
       filter.$or = fields;
     }
 
-    console.log('filter: ', filter);
-
     return paginate(
       models.Products.find(filter)
         .sort('code')

@@ -60,6 +60,9 @@ export const types = (tagsAvailable, contactsAvailable) => `
     productCount: Int
     minimiumCount: Int
 
+    uomId: String
+    subUoms: JSON
+
     category: ProductCategory
     ${contactsAvailable ? 'vendor: Company' : ''}
   }
@@ -78,8 +81,11 @@ const productParams = `
   attachmentMore: [AttachmentInput],
   supply: String,
   productCount: Int,
-  minimiumCount: Int
+  minimiumCount: Int,
   vendorId: String,
+
+  uomId: String,
+  subUoms: JSON
 `;
 
 const productCategoryParams = `

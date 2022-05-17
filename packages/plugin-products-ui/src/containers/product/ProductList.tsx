@@ -50,6 +50,10 @@ class ProductListContainer extends React.Component<FinalProps> {
       history
     } = this.props;
 
+    if (productsQuery.loading) {
+      return false;
+    }
+
     const products = productsQuery.products || [];
 
     // remove action

@@ -8,7 +8,7 @@ import {
   Table
 } from '@erxes/ui/src/components';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import BrandForm from '@erxes/ui/src/brands/components/BrandForm';
+import Form from './UomsForm';
 import { Wrapper } from '@erxes/ui/src/layout';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
@@ -21,11 +21,12 @@ type Props = {
   uoms: IUom[];
   loading: boolean;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  remove: (brandId: string) => void;
 };
 
 class Brands extends React.Component<Props, {}> {
   renderContent() {
-    const { uoms, renderButton } = this.props;
+    const { uoms, renderButton, remove } = this.props;
 
     return (
       <>
@@ -39,7 +40,14 @@ class Brands extends React.Component<Props, {}> {
           </thead>
           <tbody>
             {uoms.map(uom => {
-              return <Row key={uom._id} uom={uom} />;
+              return (
+                <Row
+                  key={uom._id}
+                  uom={uom}
+                  renderButton={renderButton}
+                  remove={remove}
+                />
+              );
             })}
           </tbody>
         </Table>
@@ -50,9 +58,6 @@ class Brands extends React.Component<Props, {}> {
 
   render() {
     const { uomsTotalCount, uoms, loading } = this.props;
-
-    console.log('uomsTotalCount', uomsTotalCount);
-
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Uoms'), link: '/settings/uoms-manage' }
@@ -76,11 +81,7 @@ class Brands extends React.Component<Props, {}> {
     );
 
     const content = props => (
-      <BrandForm
-        {...props}
-        extended={true}
-        renderButton={this.props.renderButton}
-      />
+      <Form {...props} extended={true} renderButton={this.props.renderButton} />
     );
 
     const righActionBar = (

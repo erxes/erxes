@@ -5,8 +5,6 @@ const uomQueries = {
    * Uoms list
    */
   uoms(_root, _args, { models }: IContext) {
-    console.log('here uoms');
-
     return models.Uoms.find({})
       .sort({ order: 1 })
       .lean();

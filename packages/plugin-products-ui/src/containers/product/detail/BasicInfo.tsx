@@ -8,14 +8,16 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import BasicInfo from '../../../components/product/detail/BasicInfo';
 import { IProduct, ProductRemoveMutationResponse } from '../../../types';
-import { mutations } from '../../../graphql';
+import { mutations, queries } from '../../../graphql';
 
 type Props = {
   product: IProduct;
   refetchQueries?: any[];
 };
 
-type FinalProps = { currentUser: IUser } & Props &
+type FinalProps = {
+  currentUser: IUser;
+} & Props &
   IRouterProps &
   ProductRemoveMutationResponse;
 

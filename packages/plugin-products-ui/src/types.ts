@@ -1,7 +1,8 @@
 import {
   IProduct as IProductC,
   IProductCategory as IProductCategoryC,
-  IProductDoc as IProductDocC
+  IProductDoc as IProductDocC,
+  IUom as IUomC
 } from '@erxes/ui-products/src/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
@@ -11,12 +12,7 @@ export type IProduct = IProductC & {};
 
 export type IProductCategory = IProductCategoryC & {};
 
-export interface IUom {
-  _id: string;
-  name: string;
-  code: string;
-  createdAt: Date;
-}
+export type IUom = IUomC & {};
 
 // query types
 
