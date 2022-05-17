@@ -1,20 +1,27 @@
 import { Model, model } from 'mongoose';
-import { COMPANY_INDUSTRY_TYPES, SEX_OPTIONS, SOCIAL_LINKS } from '@erxes/api-utils/src/constants';
-import { configSchema, IConfig, IConfigDocument } from './definitions/configs';
+// import { COMPANY_INDUSTRY_TYPES, SEX_OPTIONS, SOCIAL_LINKS } from '@erxes/api-utils/src/constants';
+import {
+  productsConfigSchema,
+  IProductsConfig,
+  IProductsConfigDocument
+} from './definitions/configs';
 
-export interface IConfigModel extends Model<IConfigDocument> {
-  getConfig(code: string): Promise<IConfigDocument>;
-  createOrUpdateConfig({ code, value }: IConfig): IConfigDocument;
+export interface IProductsConfigModel extends Model<IProductsConfigDocument> {
+  getConfig(code: string): Promise<IProductsConfigDocument>;
+  createOrUpdateConfig({
+    code,
+    value
+  }: IProductsConfig): IProductsConfigDocument;
   constants();
 }
 
-export const loadConfigClass = (models, subdomain) => {
-  class Config {
+export const loadProductsConfigClass = models => {
+  class ProductsConfig {
     /*
      * Get a Config
      */
     public static async getConfig(code: string) {
-      const config = await models.Configs.findOne({ code });
+      const config = await models.ProductsConfigs.findOne({ code });
 
       if (!config) {
         throw new Error('Config not found');
@@ -33,24 +40,26 @@ export const loadConfigClass = (models, subdomain) => {
       code: string;
       value: string[];
     }) {
-      const obj = await models.Configs.findOne({ code });
+      const obj = await models.ProductsConfigs.findOne({ code });
 
       if (obj) {
-        await models.Configs.updateOne({ _id: obj._id }, { $set: { value } });
+        await models.ProductsConfigs.updateOne(
+          { _id: obj._id },
+          { $set: { value } }
+        );
 
-        return models.Configs.findOne({ _id: obj._id });
+        return models.ProductsConfigs.findOne({ _id: obj._id });
       }
 
-      return models.Configs.create({ code, value });
+      return models.ProductsConfigs.create({ code, value });
     }
 
     public static constants() {
-      return {
-      };
+      return {};
     }
   }
 
-  configSchema.loadClass(Config);
+  productsConfigSchema.loadClass(ProductsConfig);
 
-  return configSchema;
+  return productsConfigSchema;
 };

@@ -13,6 +13,8 @@ const productParamsDef = `
   $productCount: Int,
   $minimiumCount: Int,
   $vendorId: String,
+  $uomId: String,
+  $subUoms: JSON,
 `;
 
 const productCategoryParamsDef = `
@@ -38,7 +40,9 @@ const productParams = `
   supply: $supply,
   productCount: $productCount,
   minimiumCount: $minimiumCount,
-  vendorId: $vendorId
+  vendorId: $vendorId,
+  uomId: $uomId,
+  subUoms: $subUoms
 `;
 
 const productCategoryParams = `

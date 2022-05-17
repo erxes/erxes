@@ -1,8 +1,6 @@
-import { ICustomField, IUserDocument } from '@erxes/api-utils/src/types';
 import { Model, model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendContactsMessage, sendFormsMessage } from '../messageBroker';
-import { IProduct, IProductCategory, IProductCategoryDocument, productCategorySchema, productSchema, PRODUCT_STATUSES } from './definitions/products';
+import { PRODUCT_STATUSES } from './definitions/products';
 import { IUom, IUomDocument, uomSchema } from './definitions/uoms';
 
 export interface IUomModel extends Model<IUomDocument> {
@@ -41,7 +39,7 @@ export const loadUomClass = (models: IModels, subdomain: string) => {
     }
 
     /**
-     * Create a product
+     * Create a uom
      */
     public static async createUom(doc: IUom) {
       await this.checkCodeDuplication(doc.code);
@@ -64,18 +62,20 @@ export const loadUomClass = (models: IModels, subdomain: string) => {
     }
 
     /**
-     * Remove products
+     * Remove uoms
      */
     public static async removeUoms(_ids: string[]) {
-      const products = await models.Products.find({ uomId: { $in: _ids } }).lean();
-      const productIds = products.map(p => p._id)
+      const uoms = await models.Uoms.find({
+        uomId: { $in: _ids }
+      }).lean();
+      const uomIds = uoms.map(p => p._id);
 
       const usedIds: string[] = [];
       const unUsedIds: string[] = [];
       let response = 'deleted';
 
       for (const id of _ids) {
-        if (!productIds.includes(id)) {
+        if (!uomIds.includes(id)) {
           unUsedIds.push(id);
         } else {
           usedIds.push(id);

@@ -1,5 +1,8 @@
-import { IContext } from "../../connectionResolver";
-import { IProductCategoryDocument, PRODUCT_STATUSES } from "../../models/definitions/products";
+import { IContext } from '../../connectionResolver';
+import {
+  IProductCategoryDocument,
+  PRODUCT_STATUSES
+} from '../../models/definitions/products';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -10,7 +13,11 @@ export default {
     return category.parentId ? false : true;
   },
 
-  async productCount(category: IProductCategoryDocument, {}, { models }: IContext) {
+  async productCount(
+    category: IProductCategoryDocument,
+    {},
+    { models }: IContext
+  ) {
     const product_category_ids = await models.ProductCategories.find(
       { order: { $regex: new RegExp(category.order) } },
       { _id: 1 }

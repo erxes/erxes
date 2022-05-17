@@ -16,7 +16,7 @@ import {
   SidebarList
 } from '@erxes/ui/src/layout/styles';
 import ProductForm from '@erxes/ui-products/src/containers/ProductForm';
-import { IProduct } from '../../../types';
+import { IProduct, IConfigsMap } from '../../../types';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
@@ -74,15 +74,15 @@ class BasicInfo extends React.Component<Props> {
     return (
       <Action>
         <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id='dropdown-info'>
-            <Button btnStyle='simple' size='medium'>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
+            <Button btnStyle="simple" size="medium">
               {__('Action')}
-              <Icon icon='angle-down' />
+              <Icon icon="angle-down" />
             </Button>
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <li>
-              <a href='#delete' onClick={onDelete}>
+              <a href="#delete" onClick={onDelete}>
                 {__('Delete')}
               </a>
             </li>
@@ -124,9 +124,9 @@ class BasicInfo extends React.Component<Props> {
         <InfoWrapper>
           <Name>{name}</Name>
           <ModalTrigger
-            title='Edit basic info'
-            trigger={<Icon icon='edit' />}
-            size='lg'
+            title="Edit basic info"
+            trigger={<Icon icon="edit" />}
+            size="lg"
             content={content}
           />
         </InfoWrapper>
@@ -134,7 +134,7 @@ class BasicInfo extends React.Component<Props> {
         {this.renderAction()}
 
         {this.renderImage(attachment)}
-        <SidebarList className='no-link'>
+        <SidebarList className="no-link">
           {this.renderView('Code', code)}
           {this.renderView('Type', type)}
           {this.renderView('Category', category ? category.name : '')}

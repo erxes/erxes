@@ -1,4 +1,7 @@
-import { Sidebar as LeftSidebar, SidebarList as List } from '@erxes/ui/src/layout';
+import {
+  Sidebar as LeftSidebar,
+  SidebarList as List
+} from '@erxes/ui/src/layout';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -22,10 +25,10 @@ class Sidebar extends React.Component {
     return (
       <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
         <List id="SettingsSidebar">
-          {this.renderListItem(
-            '/settings/products-config',
-            'General config'
-          )}
+          {this.renderListItem('/settings/products-config', 'General config')}
+        </List>
+        <List id="SettingsSidebar">
+          {this.renderListItem('/settings/uoms-manage', 'Uoms manage')}
         </List>
       </LeftSidebar>
     );

@@ -1,19 +1,20 @@
-import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
-import queryString from "query-string";
-import React from "react";
-import { Route } from "react-router-dom";
-import Settings from "./containers/config/Settings";
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import queryString from 'query-string';
+import React from 'react';
+import { Route } from 'react-router-dom';
+import Settings from './containers/config/Settings';
+import Uom from './containers/config/Uoms';
 import GeneralSettings from './components/config/GeneralSettings';
 
 const ProductList = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Settings List - ProductService" */ "./containers/product/ProductList"
+    /* webpackChunkName: "Settings List - ProductService" */ './containers/product/ProductList'
   )
 );
 
 const ProductDeatils = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Settings List - ProductService" */ "./containers/product/detail/ProductDetails"
+    /* webpackChunkName: "Settings List - ProductService" */ './containers/product/detail/ProductDetails'
   )
 );
 
@@ -33,13 +34,12 @@ const productService = ({ location, history }) => {
 };
 
 const generalSetting = () => {
-  return (
-    <Settings
-      component={GeneralSettings}
-    />
-  )
-}
+  return <Settings component={GeneralSettings} />;
+};
 
+const uomManage = () => {
+  return <Uom history={history} />;
+};
 
 const routes = () => (
   <React.Fragment>
@@ -62,6 +62,13 @@ const routes = () => (
       exact={true}
       key="/settings/products-config/"
       component={generalSetting}
+    />
+
+    <Route
+      path="/settings/uoms-manage/"
+      exact={true}
+      key="/settings/uoms-manage/"
+      component={uomManage}
     />
   </React.Fragment>
 );

@@ -6,6 +6,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { withProps } from '@erxes/ui/src/utils';
 import {
   DetailQueryResponse,
+  ProductsConfigsQueryResponse,
   IProduct
 } from '../../../types';
 import React from 'react';
@@ -19,6 +20,7 @@ type Props = {
 
 type FinalProps = {
   productDetailQuery: DetailQueryResponse;
+  productsConfigsQuery: ProductsConfigsQueryResponse;
   currentUser: IUser;
 } & Props;
 
@@ -31,7 +33,7 @@ const ProductDetailsContainer = (props: FinalProps) => {
 
   if (!productDetailQuery.productDetail) {
     return (
-      <EmptyState text='Product not found' image='/images/actions/24.svg' />
+      <EmptyState text="Product not found" image="/images/actions/24.svg" />
     );
   }
 

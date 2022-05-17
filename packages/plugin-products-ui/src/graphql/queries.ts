@@ -43,17 +43,19 @@ const productCategoryDetail = `
   }
 `;
 
+// UOM
+
+const uoms = productQueries.uoms;
+
+const uomsTotalCount = `
+query uomsTotalCount {
+  uomsTotalCount
+}
+`;
+
 // Settings
 
-const configs = `
-  query productsConfigs {
-    productsConfigs {
-      _id
-      code
-      value
-    }
-  }
-`;
+const productsConfigs = productQueries.productsConfigs;
 
 export default {
   products,
@@ -64,5 +66,8 @@ export default {
   productCategoriesCount,
   productCategoryDetail,
 
-  configs
+  uoms,
+  uomsTotalCount,
+
+  productsConfigs
 };

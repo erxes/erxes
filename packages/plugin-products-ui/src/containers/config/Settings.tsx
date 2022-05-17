@@ -1,25 +1,30 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { Spinner } from '@erxes/ui/src/components'
+import { Spinner } from '@erxes/ui/src/components';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { mutations, queries } from '../../graphql';
-import { ConfigsQueryResponse, IConfigsMap } from '../../types';
+import {
+  ProductsConfigsQueryResponse,
+  IConfigsMap,
+  UomsQueryResponse
+} from '../../types';
 
 type Props = {
   component: any;
-}
+};
 type FinalProps = {
-  configsQuery: ConfigsQueryResponse;
+  productsConfigsQuery: ProductsConfigsQueryResponse;
+  uomsQuery: UomsQueryResponse;
   updateConfigs: (configsMap: IConfigsMap) => Promise<void>;
 } & Props;
 
 class SettingsContainer extends React.Component<FinalProps> {
   render() {
-    const { updateConfigs, configsQuery } = this.props;
+    const { updateConfigs, productsConfigsQuery, uomsQuery } = this.props;
 
-    if (configsQuery.loading) {
+    if (productsConfigsQuery.loading || uomsQuery.loading) {
       return <Spinner objective={true} />;
     }
 
@@ -29,16 +34,15 @@ class SettingsContainer extends React.Component<FinalProps> {
         variables: { configsMap: map }
       })
         .then(() => {
-          configsQuery.refetch();
-
-          Alert.success('You successfully updated stage in ebarimt settings');
+          productsConfigsQuery.refetch();
+          Alert.success('You successfully updated settings');
         })
         .catch(error => {
           Alert.error(error.message);
         });
     };
 
-    const configs = configsQuery.configs || [];
+    const configs = productsConfigsQuery.productsConfigs || [];
 
     const configsMap = {};
 
@@ -52,6 +56,7 @@ class SettingsContainer extends React.Component<FinalProps> {
         {...this.props}
         configsMap={configsMap}
         save={save}
+        uoms={uomsQuery.uoms}
       />
     );
   }
@@ -59,10 +64,13 @@ class SettingsContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<{}, ConfigsQueryResponse>(gql(queries.configs), {
-      name: 'configsQuery'
+    graphql<{}, ProductsConfigsQueryResponse>(gql(queries.productsConfigs), {
+      name: 'productsConfigsQuery'
     }),
-    graphql<{}>(gql(mutations.updateConfigs), {
+    graphql<{}, UomsQueryResponse>(gql(queries.uoms), {
+      name: 'uomsQuery'
+    }),
+    graphql<{}>(gql(mutations.productsConfigsUpdate), {
       name: 'updateConfigs'
     })
   )(SettingsContainer)
