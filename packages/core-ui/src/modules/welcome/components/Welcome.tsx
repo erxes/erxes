@@ -3,6 +3,7 @@ import { DescImg } from '@erxes/ui/src/components/HeaderDescription';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import { STEPS, BANNER, COMMUNITY } from '../constants';
 import {
   BoxedStep,
@@ -26,6 +27,25 @@ type Props = {
 };
 
 function Welcome({ currentUser }: Props) {
+  const history = useHistory();
+  const completedSteps =
+    currentUser.onboardingHistory &&
+    currentUser.onboardingHistory.completedSteps;
+
+  let active = 0;
+
+  if (currentUser.username && currentUser.email) active = 1;
+
+  if (completedSteps && completedSteps.indexOf('generalSettingsCreate') > -1)
+    active = 2;
+
+  if (currentUser.brands!.length !== 0) active = 3;
+
+  if (completedSteps && completedSteps.indexOf('userGroupCreate') > -1)
+    active = 4;
+
+  if (completedSteps && completedSteps.indexOf('userCreate') > -1) active = 5;
+
   const renderHeader = () => {
     return (
       <Header>
@@ -65,7 +85,11 @@ function Welcome({ currentUser }: Props) {
           </div>
         </Left>
         {title === 'Setup Process' && (
-          <ProgressBar percentage={50} type="circle" height="70px" />
+          <ProgressBar
+            percentage={Math.floor((active / 6) * 100)}
+            type="circle"
+            height="70px"
+          />
         )}
       </BoxHeader>
     );
@@ -105,35 +129,52 @@ function Welcome({ currentUser }: Props) {
 
   const renderSetup = () => {
     return (
-      <>
-        <Steps
-          type="stepperColumn"
-          allStep={5}
-          titles={[
-            'General information',
-            'General system configuration',
-            'Campaign config / File Upload',
-            'Constant',
-            'Connecting service'
-          ]}
-        >
-          <Step type="stepperColumn" noButton={true}>
-            hi
-          </Step>
-          <Step type="stepperColumn" noButton={true}>
-            hi
-          </Step>
-          <Step type="stepperColumn" noButton={true}>
-            hi
-          </Step>
-          <Step type="stepperColumn" noButton={true}>
-            hi
-          </Step>
-          <Step type="stepperColumn" noButton={true}>
-            hi
-          </Step>
-        </Steps>
-      </>
+      <Steps type="stepperColumn" active={active}>
+        <Step type="stepper" title="General Information">
+          <Button size="large" onClick={() => history.push('/profile')}>
+            Go to your profile
+          </Button>
+        </Step>
+        <Step type="stepper" title="General system configuration">
+          <Button
+            size="large"
+            onClick={() => history.push('/settings/general')}
+          >
+            Go to the general setting
+          </Button>
+        </Step>
+        <Step type="stepper" title="Create a brand">
+          <Button
+            size="large"
+            onClick={() =>
+              history.push('/settings/brands#showBrandAddModal=true')
+            }
+          >
+            Go to the brand settings
+          </Button>
+        </Step>
+        <Step type="stepper" title="Create a user group">
+          <Button
+            size="large"
+            onClick={() => history.push('/settings/permissions')}
+          >
+            Go to permissions
+          </Button>
+        </Step>
+        <Step type="stepper" title="Invite team members">
+          <Button size="large" onClick={() => history.push('/settings/team')}>
+            Go to team members
+          </Button>
+        </Step>
+        <Step type="stepper" title="Connecting service">
+          <Button
+            size="large"
+            onClick={() => history.push('/settings/general')}
+          >
+            Go to the general settings
+          </Button>
+        </Step>
+      </Steps>
     );
   };
 

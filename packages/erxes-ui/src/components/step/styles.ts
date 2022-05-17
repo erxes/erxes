@@ -78,7 +78,6 @@ const FullStep = styledTS<{ show: boolean; type?: string }>(styled.div)`
   transition: ${props => !props.type && 'all 0.3s ease'};
   display: ${props => (props.show ? 'flex' : 'none')};
   flex-direction: column;
-  align-items: ${props => props.type === 'stepper' && 'center'};
   flex: ${props => props.type && '1'};
 `;
 
@@ -123,8 +122,8 @@ const StepContent = styledTS<{ type?: string }>(styled.div)`
   width: ${props => props.type !== 'stepperColumn' && '100%'};
   height: ${props => !props.type && 'calc(100% - 55px)'};
   overflow: hidden;
-  justify-content: ${props => props.type && 'center'};
   display: ${props => props.type && 'flex'};
+  padding-top: 1em;
 `;
 
 const ShortStep = styledTS<{ show: boolean }>(styled.div)`
@@ -254,6 +253,7 @@ const StepCount = styledTS<{ complete?: boolean; type?: string }>(styled.div)`
   width: ${props => (props.type === 'stepper' ? '50px' : '25px')};
   height: ${props => (props.type === 'stepper' ? '50px' : '25px')};
   border-radius: 50%;
+  top: 1.25em;
   color: ${props =>
     props.complete === true ? colors.colorWhite : colors.colorCoreBlack};
   background-color: ${props =>
@@ -269,14 +269,20 @@ const SteperItem = styledTS<{ complete?: boolean; type?: string }>(styled.span)`
   display: flex;
   flex-direction: ${props =>
     props.type === 'stepperColumn' ? 'row' : 'column'};
-  align-items: center;
   flex: 1;
   z-index: 5;
   justify-content: center;
   max-width: ${props => props.type === 'stepper' && '400px'};
   height: 80px;
   margin-bottom: 6px;
-  justify-content: ${props => props.type === 'stepperColumn' && 'flex-start'};
+  align-items: ${props =>
+    props.type === 'stepper' || props.type === 'stepperColumn'
+      ? 'flex-start'
+      : 'center'};
+  justify-content: ${props =>
+    props.type === 'stepper' || props.type === 'stepperColumn'
+      ? 'flex-start'
+      : 'center'};
   width: ${props => props.type === 'stepperColumn' && '100%'};
   &.active {
     font-weight: bold;
@@ -360,16 +366,20 @@ const ButtonContainer = styled.div`
 `;
 
 const ButtonBack = styledTS<{ next?: boolean }>(styled.button)`
-  border: 1px solid ${colors.colorPrimary};
+  border: none;
   border-radius: 8px;
-  height:40px;
+  height: 36px;
   width: 110px;
   font-weight: 500;
-  margin-right: 10px;
+  margin-left: 10px;
   color: ${props =>
     props.next === true ? colors.colorWhite : colors.colorPrimary};
   background: ${props =>
     props.next === true ? colors.colorPrimary : colors.colorWhite};
+
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 export {

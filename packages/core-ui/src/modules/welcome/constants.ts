@@ -44,7 +44,7 @@ export const BANNER = [
 
 export const COMMUNITY = [
   {
-    name: 'github',
+    name: 'Github',
     link: 'https://github.com/erxes/erxes',
     icon: 'github-circled'
   },
