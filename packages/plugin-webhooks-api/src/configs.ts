@@ -5,6 +5,7 @@ import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import * as permissions from './permissions';
 
 export let debug;
 export let graphqlPubsub;
@@ -13,6 +14,7 @@ export let serviceDiscovery;
 
 export default {
   name: 'webhooks',
+  permissions,
   graphql: async sd => {
     serviceDiscovery = sd;
     return {
