@@ -100,7 +100,7 @@ class Sidebar extends React.Component<Props> {
         {isEnabled('tags') && (
           <CountsByTag
             tags={tags}
-            manageUrl="tags/engageMessage"
+            manageUrl="tags/engages:engageMessage"
             counts={tagCounts}
             loading={false}
           />
