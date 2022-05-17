@@ -40,7 +40,7 @@ type TotalCount = {
 type Props = {
   integration: any;
   getClassName: (selectedKind: string) => string;
-  toggleBox: (kind: string, isAvailable: boolean) => void;
+  toggleBox: (kind: string) => void;
   customLink?: (kind: string, addLink: string) => void;
   queryParams: any;
   totalCount: TotalCount;
@@ -69,9 +69,7 @@ function renderType(type: string) {
 }
 
 function renderCreate(createUrl, kind, isAvailable) {
-  if (!isAvailable) return;
-
-  if (!createUrl && !kind) {
+  if ((!createUrl && !kind) || !isAvailable) {
     return null;
   }
 
@@ -176,21 +174,19 @@ function Entry({
   totalCount,
   customLink
 }: Props) {
-  const { kind, isAvailable } = integration;
-  const { createUrl, createModal } = integration;
+  const { kind, isAvailable, createUrl, createModal } = integration;
 
   const handleLink = () => {
     return customLink && customLink(kind, createUrl);
   };
 
-  function renderCustomLink() {
-    if (!isAvailable) return;
-
+  function renderCustomLink(isAvailable) {
     if (
       ![
         INTEGRATION_KINDS.NYLAS_GMAIL,
         INTEGRATION_KINDS.NYLAS_OFFICE365
-      ].includes(kind)
+      ].includes(kind) ||
+      !isAvailable
     ) {
       return null;
     }
@@ -201,7 +197,7 @@ function Entry({
   return (
     <IntegrationItem key={integration.name} className={getClassName(kind)}>
       <Box
-        onClick={() => toggleBox(kind, isAvailable)}
+        onClick={() => toggleBox(kind)}
         isInMessenger={integration.inMessenger}
       >
         <img alt="logo" src={integration.logo} />
@@ -218,7 +214,7 @@ function Entry({
           </Ribbon>
         )}
       </Box>
-      {renderCustomLink()}
+      {renderCustomLink(isAvailable)}
       {renderCreate(createUrl, createModal, isAvailable)}
     </IntegrationItem>
   );

@@ -194,12 +194,23 @@ export const INTEGRATIONS = [
       'All add-ons, For support teams, For marketing teams, Marketing automation, Conversation'
   },
   {
+    name: 'Call Pro',
+    description: 'Connect your call pro phone number',
+    inMessenger: false,
+    isAvailable: true,
+    kind: 'callpro',
+    logo: '/images/integrations/callpro.png',
+    createModal: 'callpro',
+    category:
+      'All add-ons, For support teams, Marketing automation, Phone and video, Conversation'
+  },
+  {
     name: 'Gmail',
     description: __(
       'Connect a company email address such as sales@mycompany.com or info@mycompany.com'
     ),
     inMessenger: false,
-    isAvailable: true,
+    isAvailable: false,
     kind: 'gmail',
     logo: '/images/integrations/gmail.png',
     createModal: 'gmail',
@@ -212,7 +223,7 @@ export const INTEGRATIONS = [
     description:
       'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
     inMessenger: false,
-    isAvailable: true,
+    isAvailable: false,
     kind: 'nylas-imap',
     logo: '/images/integrations/email.png',
     createModal: 'nylas-imap',
@@ -225,7 +236,7 @@ export const INTEGRATIONS = [
     description:
       'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
     inMessenger: false,
-    isAvailable: true,
+    isAvailable: false,
     kind: 'nylas-office365',
     logo: '/images/integrations/office365.png',
     createModal: 'nylas-office365',
@@ -238,7 +249,7 @@ export const INTEGRATIONS = [
     description:
       'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
     inMessenger: false,
-    isAvailable: true,
+    isAvailable: false,
     kind: 'nylas-gmail',
     logo: '/images/integrations/gmail.png',
     createModal: 'nylas-gmail',
@@ -251,7 +262,7 @@ export const INTEGRATIONS = [
     description:
       'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
     inMessenger: false,
-    isAvailable: true,
+    isAvailable: false,
     kind: 'nylas-exchange',
     logo: '/images/integrations/exchange.png',
     createModal: 'nylas-exchange',
@@ -264,7 +275,7 @@ export const INTEGRATIONS = [
     description:
       'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
     inMessenger: false,
-    isAvailable: true,
+    isAvailable: false,
     kind: 'nylas-outlook',
     logo: '/images/integrations/outlook.png',
     createModal: 'nylas-outlook',
@@ -277,7 +288,7 @@ export const INTEGRATIONS = [
     description:
       'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
     inMessenger: false,
-    isAvailable: true,
+    isAvailable: false,
     kind: 'nylas-yahoo',
     logo: '/images/integrations/yahoo.png',
     createModal: 'nylas-yahoo',
@@ -286,21 +297,10 @@ export const INTEGRATIONS = [
       'All add-ons, For support teams, Marketing automation, Email marketing, Conversation'
   },
   {
-    name: 'Call Pro',
-    description: 'Connect your call pro phone number',
-    inMessenger: false,
-    isAvailable: true,
-    kind: 'callpro',
-    logo: '/images/integrations/callpro.png',
-    createModal: 'callpro',
-    category:
-      'All add-ons, For support teams, Marketing automation, Phone and video, Conversation'
-  },
-  {
     name: 'Chatfuel',
     description: 'Connect your chatfuel account',
     inMessenger: false,
-    isAvailable: true,
+    isAvailable: false,
     kind: 'chatfuel',
     logo: '/images/integrations/chatfuel.png',
     createModal: 'chatfuel',
@@ -311,7 +311,7 @@ export const INTEGRATIONS = [
     name: 'WhatsApp by Smooch',
     description: 'Get a hold of your Whatsapp messages through your Team Inbox',
     inMessenger: false,
-    isAvailable: true,
+    isAvailable: false,
     kind: 'whatsapp',
     logo: '/images/integrations/whatsapp.png',
     createModal: 'whatsapp',
@@ -322,7 +322,7 @@ export const INTEGRATIONS = [
     description:
       'Connect to your Telegram, a cloud-based mobile and desktop messaging app',
     inMessenger: false,
-    isAvailable: true,
+    isAvailable: false,
     kind: 'smooch-telegram',
     logo: '/images/integrations/telegram.png',
     createModal: 'smooch-telegram',
@@ -332,7 +332,7 @@ export const INTEGRATIONS = [
     name: 'Viber by Smooch',
     description: 'Connect Viber to your Team Inbox',
     inMessenger: false,
-    isAvailable: true,
+    isAvailable: false,
     kind: 'smooch-viber',
     logo: '/images/integrations/viber.png',
     createModal: 'smooch-viber',
@@ -343,7 +343,7 @@ export const INTEGRATIONS = [
     name: 'Line by Smooch',
     description: 'See and reply to Line messages in your Team Inbox',
     inMessenger: false,
-    isAvailable: true,
+    isAvailable: false,
     kind: 'smooch-line',
     logo: '/images/integrations/line.png',
     createModal: 'smooch-line',
@@ -354,7 +354,7 @@ export const INTEGRATIONS = [
     name: 'SMS by Telnyx',
     description: 'Connect your Telnyx account to send & receive SMS',
     inMessenger: false,
-    isAvailable: true,
+    isAvailable: false,
     kind: 'telnyx',
     logo: '/images/integrations/telnyx.png',
     createModal: 'telnyx',
@@ -365,7 +365,7 @@ export const INTEGRATIONS = [
     name: 'Incoming Webhook',
     description: 'Configure incoming webhooks',
     inMessenger: false,
-    isAvailable: true,
+    isAvailable: false,
     kind: 'webhook',
     logo: '/images/integrations/incoming-webhook.png',
     createModal: 'webhook',
@@ -376,7 +376,7 @@ export const INTEGRATIONS = [
   //   name: 'Outgoing Webhook',
   //   description: 'Configure outging webhooks',
   //   inMessenger: false,
-  //   isAvailable: true,
+  //   isAvailable: false,
   //   kind: 'outgoing-webhook',
   //   logo: '/images/integrations/webhook.png',
   //   createModal: 'outgoing-webhook',

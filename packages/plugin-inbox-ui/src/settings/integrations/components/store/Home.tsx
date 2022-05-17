@@ -69,21 +69,6 @@ class Home extends React.Component<Props, State> {
     const datas = [] as any;
     const rows = [...integrations];
 
-    rows.map((item: any) => {
-      if (
-        item.name === 'Facebook Post' ||
-        item.name === 'Facebook Messenger' ||
-        item.name === 'Messenger' ||
-        item.name === 'Call Pro'
-      )
-        item.isAvailable = true;
-      else item.isAvailable = false;
-
-      return item;
-    });
-
-    rows.sort((a: any, b: any) => b.isAvailable - a.isAvailable);
-
     while (rows.length > 0) {
       datas.push(
         <Row
