@@ -31,19 +31,6 @@ interface ICreateCard {
   stageId: string;
 }
 
-// const login = async (
-//   args: ILoginParams,
-//   {res, requestInfo, models }: IContext
-// ) => {
-//   const response = await models.ClientPortalUsers.login(args);
-
-//   const { token } = response;
-
-//   res.cookie('client-auth-token', token, authCookieOptions(requestInfo.secure));
-
-//   return 'loggedIn';
-// };
-
 const configClientPortalMutations = {
   clientPortalConfigUpdate(_root, args: IClientPortal, { models }: IContext) {
     return models.ClientPortals.createOrUpdateConfig(args);
@@ -169,16 +156,18 @@ const clientPortalUserMutations = {
   /*
    * Login
    */
-  clientPortalLogin: async (_root, args: ILoginParams, context: IContext) => {
-    //  const response = await models.ClientPortalUsers.login(args);
+  clientPortalLogin: async (
+    _root,
+    args: ILoginParams,
+    { res, requestInfo, models }: IContext
+  ) => {
+    const response = await models.ClientPortalUsers.login(args);
 
-    // const { token } = response;
+    const { token } = response;
 
-    console.log(context);
-    // const secure = requestInfo.secure || false
-    // const cookieOptions: any = { secure };
+    const cookieOptions: any = { secure: requestInfo.secure };
 
-    // res.cookie('client-auth-token', token, authCookieOptions(cookieOptions));
+    res.cookie('client-auth-token', token, authCookieOptions(cookieOptions));
 
     return 'loggedIn';
   },

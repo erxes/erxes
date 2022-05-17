@@ -234,5 +234,4 @@ export const mutations = (contactAvailable, cardAvailable) => `
   clientPortalUserAdd(${userParams}): String
   clientPortalUserEdit(_id: String!, ${userParams}): ClientPortalUser
   clientPortalUserChangePassword(currentPassword: String!, newPassword: String!): ClientPortalUser
-  clientPortalSendVerificationCode(phone: String!): String!
 `;

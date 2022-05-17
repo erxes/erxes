@@ -13,7 +13,6 @@ import {
   IUserDocument
 } from './definitions/clientPortal';
 import * as sha256 from 'sha256';
-import { USER_LOGIN_TYPES } from '../../utils';
 import { sendContactsMessage } from '../messageBroker';
 import { sendSms } from '../../utils';
 
@@ -255,18 +254,30 @@ export const loadClientPortalUserClass = (models: IModels) => {
       // const user = await performCreate();
 
       // if (user._id) {
+
       const customer = await sendContactsMessage({
         subdomain,
-        action: 'customers.createCustomer',
-        data: {
-          firstName: doc.firstName,
-          lastName: doc.lastName,
-          primaryEmail: email,
-          primaryPhone: phone,
-          state: 'customer'
-        },
+        action: 'customers.findOne',
+        data: { primaryPhone: phone },
         isRPC: true
       });
+
+      if (customer) {
+        return customer;
+      } else {
+        await sendContactsMessage({
+          subdomain,
+          action: 'customers.createCustomer',
+          data: {
+            firstName: doc.firstName,
+            lastName: doc.lastName,
+            primaryEmail: email,
+            primaryPhone: phone,
+            state: 'customer'
+          },
+          isRPC: true
+        });
+      }
 
       if (customer && customer._id) {
         await models.ClientPortalUsers.updateOne(
@@ -278,7 +289,11 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
     }
 
-    public static async editProfile(_id: string, { password, ...doc }: IUser) {
+    public static async editProfile(
+      _id: string,
+      { password, ...doc }: IUser,
+      subdomain: string
+    ) {
       const user = await models.ClientPortalUsers.findOne({ _id }).lean();
 
       if (!user) {
@@ -294,6 +309,8 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       const email = doc.email;
 
+      const erxesCustomerId = user.erxesCustomerId;
+
       // Checking duplicated email
       const exisitingUser = await models.ClientPortalUsers.findOne({
         email
@@ -304,6 +321,22 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       await models.ClientPortalUsers.updateOne({ _id }, { $set: doc });
+
+      const customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.updateCustomer',
+        data: { _id: erxesCustomerId, doc },
+        isRPC: true
+      });
+
+      if (customer && customer._id) {
+        await models.ClientPortalUsers.updateOne(
+          { _id: user._id },
+          { $set: { erxesCustomerId: customer._id } }
+        );
+
+        return user._id;
+      }
 
       return models.ClientPortalUsers.findOne({ _id });
     }
@@ -530,8 +563,6 @@ export const loadClientPortalUserClass = (models: IModels) => {
         // phone: email.trim(),
         email: { $regex: new RegExp(`^${email}$`, 'i') }
       });
-
-      console.log(user, 'hhhhhhhhhhhh');
 
       if (!user || !user.password) {
         throw new Error('Invalid login');
