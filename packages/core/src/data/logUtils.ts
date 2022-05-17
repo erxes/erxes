@@ -3,15 +3,15 @@ import {
   putCreateLog as commonPutCreateLog,
   putDeleteLog as commonPutDeleteLog,
   putUpdateLog as commonPutUpdateLog,
-  gatherUsernames,
+  gatherUsernames
 } from '@erxes/api-utils/src/logUtils';
 
-import { Users, UsersGroups } from '../db/models/index';
 import { IUserDocument } from '../db/models/definitions/users';
 import messageBroker from '../messageBroker';
 import { MODULE_NAMES } from './constants';
 
 import { registerOnboardHistory } from './utils';
+import { IModels } from '../connectionResolver';
 
 export type LogDesc = {
   [key: string]: any;
@@ -50,6 +50,7 @@ interface IDescriptionParams {
 }
 
 const gatherUserFieldNames = async (
+  models: IModels,
   doc: IUserDocument,
   prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
@@ -63,13 +64,14 @@ const gatherUserFieldNames = async (
   options = await gatherUsernames({
     foreignKey: 'groupIds',
     prevList: options,
-    items: await UsersGroups.find({ _id: { $in: doc.groupIds } }).lean(),
+    items: await models.UsersGroups.find({ _id: { $in: doc.groupIds } }).lean()
   });
 
   return options;
 };
 
 const gatherDescriptions = async (
+  models: IModels,
   params: IDescriptionParams
 ): Promise<IDescriptions> => {
   const { obj, action, type, updatedDocument } = params;
@@ -83,12 +85,12 @@ const gatherDescriptions = async (
         description = `"${obj.name}" has been ${action}d`;
 
         if (obj.userId) {
-          const user = await Users.findOne({ _id: obj.userId });
+          const user = await models.Users.findOne({ _id: obj.userId });
 
           if (user) {
             extraDesc.push({
               userId: obj.userId,
-              name: user.username || user.email,
+              name: user.username || user.email
             });
           }
         }
@@ -98,7 +100,7 @@ const gatherDescriptions = async (
       description = `Permission of module "${obj.module}", action "${obj.action}" assigned to `;
 
       if (obj.groupId) {
-        const group = await UsersGroups.getGroup(obj.groupId);
+        const group = await models.UsersGroups.getGroup(obj.groupId);
 
         description = `${description} user group "${group.name}" `;
 
@@ -106,13 +108,13 @@ const gatherDescriptions = async (
       }
 
       if (obj.userId) {
-        const permUser = await Users.getUser(obj.userId);
+        const permUser = await models.Users.getUser(obj.userId);
 
         description = `${description} user "${permUser.email}" has been ${action}d`;
 
         extraDesc.push({
           userId: obj.userId,
-          name: permUser.username || permUser.email,
+          name: permUser.username || permUser.email
         });
       }
 
@@ -120,10 +122,14 @@ const gatherDescriptions = async (
     case MODULE_NAMES.USER:
       description = `"${obj.username || obj.email}" has been ${action}d`;
 
-      extraDesc = await gatherUserFieldNames(obj);
+      extraDesc = await gatherUserFieldNames(models, obj);
 
       if (updatedDocument) {
-        extraDesc = await gatherUserFieldNames(updatedDocument, extraDesc);
+        extraDesc = await gatherUserFieldNames(
+          models,
+          updatedDocument,
+          extraDesc
+        );
       }
 
       break;
@@ -140,20 +146,21 @@ const gatherDescriptions = async (
  * @param user User information from mutation context
  */
 export const putCreateLog = async (
+  models: IModels,
+  subdomain: string,
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  await registerOnboardHistory({ type: `${params.type}Create`, user });
+  await registerOnboardHistory({ models, type: `${params.type}Create`, user });
 
-  // await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
-
-  const { extraDesc, description } = await gatherDescriptions({
+  const { extraDesc, description } = await gatherDescriptions(models, {
     ...params,
     obj: params.object,
-    action: 'create',
+    action: 'create'
   });
 
   return commonPutCreateLog(
+    subdomain,
     messageBroker(),
     { ...params, extraDesc, description, type: `core:${params.type}` },
     user
@@ -166,18 +173,19 @@ export const putCreateLog = async (
  * @param user User information from mutation context
  */
 export const putUpdateLog = async (
+  models: IModels,
+  subdomain: string,
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  // await sendToWebhook(LOG_ACTIONS.UPDATE, params.type, params);
-
-  const { extraDesc, description } = await gatherDescriptions({
+  const { extraDesc, description } = await gatherDescriptions(models, {
     ...params,
     obj: params.object,
-    action: 'update',
+    action: 'update'
   });
 
   return commonPutUpdateLog(
+    subdomain,
     messageBroker(),
     { ...params, type: `core:${params.type}`, extraDesc, description },
     user
@@ -190,18 +198,19 @@ export const putUpdateLog = async (
  * @param user User information from mutation context
  */
 export const putDeleteLog = async (
+  models: IModels,
+  subdomain: string,
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  // await sendToWebhook(LOG_ACTIONS.DELETE, params.type, params);
-
-  const { extraDesc, description } = await gatherDescriptions({
+  const { extraDesc, description } = await gatherDescriptions(models, {
     ...params,
     obj: params.object,
-    action: 'delete',
+    action: 'delete'
   });
 
   return commonPutDeleteLog(
+    subdomain,
     messageBroker(),
     { ...params, type: `core:${params.type}`, description, extraDesc },
     user

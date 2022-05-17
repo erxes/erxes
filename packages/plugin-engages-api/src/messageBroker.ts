@@ -1,5 +1,5 @@
 import { sendMessage, ISendMessageArgs } from '@erxes/api-utils/src/core';
-
+import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 import { serviceDiscovery, debug } from './configs';
 import { generateModels } from './connectionResolver';
 import { start, sendBulkSms } from './sender';
@@ -7,7 +7,7 @@ import { CAMPAIGN_KINDS } from './constants';
 
 export let client;
 
-export const initBroker = async (cl) => {
+export const initBroker = async cl => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
@@ -21,7 +21,11 @@ export const initBroker = async (cl) => {
       engageMessage.kind === CAMPAIGN_KINDS.MANUAL &&
       customerInfos.length === 0
     ) {
-      await models.EngageMessages.deleteOne({ _id: engageMessage._id });
+      await models.Logs.createLog(
+        engageMessage._id,
+        'failure',
+        'No customers found'
+      );
       throw new Error('No customers found');
     }
 
@@ -86,7 +90,7 @@ export const initBroker = async (cl) => {
   });
 
   consumeQueue(
-    'engage:removeCustomersEngages',
+    'engages:removeCustomersEngages',
     async ({ data: { customerIds }, subdomain }) => {
       const models = await generateModels(subdomain);
 
@@ -95,7 +99,7 @@ export const initBroker = async (cl) => {
   );
 
   consumeQueue(
-    'engage:changeCustomer',
+    'engages:changeCustomer',
     async ({ data: { customerId, customerIds }, subdomain }) => {
       const models = await generateModels(subdomain);
 
@@ -110,7 +114,7 @@ export const initBroker = async (cl) => {
 
       return {
         status: 'success',
-        data: await models.EngageMessages.createVisitorOrCustomerMessages(data),
+        data: await models.EngageMessages.createVisitorOrCustomerMessages(data)
       };
     }
   );
@@ -131,7 +135,7 @@ export const sendContactsMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'contacts',
-    ...args,
+    ...args
   });
 };
 
@@ -140,7 +144,7 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'core',
-    ...args,
+    ...args
   });
 };
 
@@ -151,7 +155,7 @@ export const sendInboxMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'inbox',
-    ...args,
+    ...args
   });
 };
 
@@ -160,7 +164,7 @@ export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'logs',
-    ...args,
+    ...args
   });
 };
 
@@ -171,7 +175,7 @@ export const sendSegmentsMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'segments',
-    ...args,
+    ...args
   });
 };
 
@@ -180,24 +184,32 @@ export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'tags',
-    ...args,
+    ...args
   });
 };
 
-export const sendIntegrationsMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendIntegrationsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
     serviceName: 'integrations',
-    ...args,
+    ...args
   });
 };
 
-export const sendEmailTemplatesMessage = async (args: ISendMessageArgs): Promise<any> => {
+export const sendEmailTemplatesMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
     serviceName: 'emailTemplates',
-    ...args,
+    ...args
   });
+};
+
+export const sendToWebhook = ({ subdomain, data }) => {
+  return sendWebhook(client, { subdomain, data });
 };

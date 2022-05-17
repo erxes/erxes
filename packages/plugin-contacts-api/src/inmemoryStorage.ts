@@ -1,6 +1,4 @@
 import * as dotenv from 'dotenv';
-import * as Redis from 'ioredis';
-import * as ServiceRegistry from 'clerq';
 import memoryStorage from 'erxes-inmemory-storage';
 
 import { debug } from './configs';

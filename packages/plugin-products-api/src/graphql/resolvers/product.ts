@@ -1,5 +1,5 @@
-import { IContext } from "../../connectionResolver";
-import { IProductDocument } from "../../models/definitions/products";
+import { IContext } from '../../connectionResolver';
+import { IProductDocument } from '../../models/definitions/products';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -23,5 +23,5 @@ export default {
     return (
       (product.vendorId && dataLoaders.company.load(product.vendorId)) || null
     );
-  },
+  }
 };

@@ -130,6 +130,7 @@ class List extends React.Component<IProps, State> {
               <th>{__('Category')}</th>
               <th>{__('Unit Price')}</th>
               <th>{__('Pos Sale')}</th>
+              <th>{__('Pos Amount')}</th>
             </tr>
           </thead>
           <tbody>{this.renderRow()}</tbody>

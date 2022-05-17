@@ -2,29 +2,23 @@ import { filterXSS } from 'xss';
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 
-import { IFetchElkArgs } from '@erxes/api-utils/src/types';
-
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers/index';
 import { debugBase } from './debuggers';
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import * as permissions from './permissions';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
 export let mainDb;
 
-export let es: {
-  client;
-  fetchElk(args: IFetchElkArgs): Promise<any>;
-  getMappings(index: string): Promise<any>;
-  getIndexPrefix(): string;
-};
-
 export let debug;
 
 export default {
   name: 'exm',
+  permissions,
   graphql: async sd => {
     serviceDiscovery = sd;
 
@@ -36,8 +30,8 @@ export default {
   segment: { schemas: [] },
   hasSubscriptions: false,
   meta: {},
-  apolloServerContext: async context => {
-    const subdomain = 'os';
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req);
 
     context.dataloaders = {};
     context.docModifier = doc => doc;
@@ -86,6 +80,5 @@ export default {
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
-    es = options.elasticsearch;
   }
 };

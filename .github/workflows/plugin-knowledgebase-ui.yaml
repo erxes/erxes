@@ -1,13 +1,15 @@
-name: Plugin KB UI CI
+name: Plugin knowledgebase UI CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/plugin-knowledgebase-ui/**'
-      - '.github/workflows/plugin-knowledgebase-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
+      - "packages/ui-knowledgebase/**"
+      - "packages/plugin-knowledgebase-ui/**"
+      - ".github/workflows/plugin-knowledgebase-ui.yaml"
 
 jobs:
   ui:
@@ -24,8 +26,10 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          # cp -r packages/ui-plugin-template/.erxes packages/plugin-knowledgebase-ui/.erxes
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-knowledgebase-ui/.erxes
+          cp -r packages/plugin-knowledgebase-ui/src packages/plugin-knowledgebase-ui/.erxes/plugin-src
           cd packages/plugin-knowledgebase-ui
+          yarn install
           yarn install-deps
           yarn build
 
@@ -38,4 +42,6 @@ jobs:
 
       - name: Deploy
         run: |
-          aws s3 sync packages/plugin-knowledgebase-ui/.erxes/dist s3://erxes-plugins/uis/plugin-knowledgebase-ui --delete 
+          tar -cf build.tar --directory=packages/plugin-knowledgebase-ui/.erxes/dist .
+          cp build.tar packages/plugin-knowledgebase-ui/.erxes/dist
+          aws s3 sync packages/plugin-knowledgebase-ui/.erxes/dist s3://erxes-plugins/uis/plugin-knowledgebase-ui --delete

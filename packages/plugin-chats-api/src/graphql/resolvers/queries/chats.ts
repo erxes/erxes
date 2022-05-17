@@ -15,7 +15,7 @@ const chatQueries = {
 
     return {
       list: await models.Chats.find(filter)
-        .sort({ createdAt: -1 })
+        .sort({ updatedAt: -1 })
         .skip(skip || 0)
         .limit(limit || 10),
       totalCount: await models.Chats.find(filter).countDocuments(),
@@ -123,7 +123,7 @@ const chatQueries = {
     }
 
     const list = await models.ChatMessages.find(filter)
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: -1 })
       .skip(skip || 0)
       .limit(limit || 20);
 
@@ -137,6 +137,16 @@ const chatQueries = {
       list,
       totalCount: await models.ChatMessages.find(filter).countDocuments(),
     };
+  },
+
+  chatMessageDetail: async (
+    _root,
+    { _id },
+    { models }: { models: IModels; user: IUserDocument }
+  ) => {
+    const message = await models.ChatMessages.findOne({ _id });
+
+    return message;
   },
 
   getChatIdByUserIds: async (
@@ -168,9 +178,9 @@ const chatQueries = {
         userId: user._id,
       });
 
-      graphqlPubsub.publish("chatUnreadCountChanged", {
-        userId: user._id,
-      });
+      // graphqlPubsub.publish("chatUnreadCountChanged", {
+      //   userId: user._id,
+      // });
     }
 
     return chat._id;

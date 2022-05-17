@@ -24,7 +24,8 @@ function commonListComposer<ComponentProps>(options) {
     gqlCopyMutation,
     ListComponent,
     gqlConfigsQuery,
-    confirmProps
+    confirmProps,
+    gqlGetActionsQuery,
   } = options;
 
   type Props = {
@@ -171,6 +172,10 @@ function commonListComposer<ComponentProps>(options) {
 
   if (gqlCopyMutation) {
     composeAttr.push(gqlCopyMutation);
+  }
+
+  if (gqlGetActionsQuery) {
+    composeAttr.push(gqlGetActionsQuery);
   }
 
   return withProps<ComponentProps>(

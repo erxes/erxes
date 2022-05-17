@@ -5,6 +5,8 @@ import * as dotenv from 'dotenv';
 import resolvers from './data/resolvers';
 import * as typeDefDetails from './data/schema';
 import { IDataLoaders, generateAllDataLoaders } from './data/dataLoaders';
+import { generateModels } from './connectionResolver';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 // load environment variables
 dotenv.config();
@@ -35,7 +37,10 @@ export const initApolloServer = async (_app, httpServer) => {
     ]),
     // for graceful shutdowns
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-    context: ({ req, res }) => {
+    context: async ({ req, res }) => {
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
+
       let user: any = null;
 
       if (req.headers.user) {
@@ -45,7 +50,7 @@ export const initApolloServer = async (_app, httpServer) => {
         user = JSON.parse(userJson);
       }
 
-      const dataLoaders: IDataLoaders = generateAllDataLoaders();
+      const dataLoaders: IDataLoaders = generateAllDataLoaders(models);
 
       const requestInfo = {
         secure: req.secure,
@@ -62,7 +67,9 @@ export const initApolloServer = async (_app, httpServer) => {
           user,
           res,
           requestInfo,
-          dataLoaders
+          dataLoaders,
+          subdomain,
+          models
         };
       }
 
@@ -100,7 +107,9 @@ export const initApolloServer = async (_app, httpServer) => {
         user,
         res,
         requestInfo,
-        dataLoaders
+        dataLoaders,
+        subdomain,
+        models
       };
     }
   });

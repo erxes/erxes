@@ -1,5 +1,3 @@
-import { IFetchElkArgs } from '@erxes/api-utils/src/types';
-
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers/index';
 import telnyx from './api/telnyx';
@@ -8,45 +6,42 @@ import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import tags from './tags';
 import logs from './logUtils';
+import * as permissions from './permissions';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import webhooks from './webhooks';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
 export let mainDb;
 export let debug;
 
-export let es: {
-  client;
-  fetchElk(args: IFetchElkArgs): Promise<any>;
-  getMappings(index: string): Promise<any>;
-  getIndexPrefix(): string;
-};
-
 export default {
   name: 'engages',
-  graphql: async (sd) => {
+  permissions,
+  graphql: async sd => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers,
-    }
+      resolvers
+    };
   },
   segment: { schemas: [] },
   hasSubscriptions: false,
-  meta: { tags, logs: { consumers: logs } },
+  meta: { tags, logs: { consumers: logs }, webhooks },
   postHandlers: [{ path: `/service/engage/tracker`, method: engageTracker }],
-  apolloServerContext: async (context) => {
-    const subdomain = 'os';
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req);
 
     context.dataloaders = {};
-    context.docModifier = (doc) => doc;
+    context.docModifier = doc => doc;
 
     context.models = await generateModels(subdomain);
     context.subdomain = subdomain;
 
     return context;
   },
-  onServerInit: async (options) => {
+  onServerInit: async options => {
     mainDb = options.db;
 
     const app = options.app;
@@ -58,6 +53,5 @@ export default {
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
-    es = options.elasticsearch;
-  },
+  }
 };

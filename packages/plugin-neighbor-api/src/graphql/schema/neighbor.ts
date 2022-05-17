@@ -1,7 +1,7 @@
 import {
   attachmentType,
-  attachmentInput,
-} from "@erxes/api-utils/src/commonTypeDefs";
+  attachmentInput
+} from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = () => `
 
@@ -11,14 +11,18 @@ export const types = () => `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
-  type Neighbor {
+  type Neighbor  @key(fields: "_id"){
+    _id: String!
     productCategoryId: String
+    data: JSON
     info: JSON
+    rate: JSON
   }
 
   input NeighborInput {
     productCategoryId: String
-    info: JSON
+    data: JSON
+    rate: JSON
   }
 
   input LocationInput{
@@ -103,7 +107,8 @@ export const types = () => `
 `;
 const neighborParams = `
   productCategoryId: String
-  info: JSON
+  data: JSON
+  rate: JSON
 `;
 
 const neighborItemParams = `

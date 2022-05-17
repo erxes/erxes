@@ -205,14 +205,9 @@ class Form extends React.Component<Props, State> {
         const attachment = attachments[contentType.contentType];
 
         result.push(
-          <Step
-            title={`Mapping  `}
-            key={Math.random()}
-            type="stepper"
-          >
+          <Step title={`Mapping  `} key={Math.random()} type="stepper">
             <MapColumn
               contentType={contentType.contentType}
-              serviceType={contentType.serviceType}
               attachments={attachment}
               columnWithChosenField={columnWithChosenField}
               onChangeColumn={this.onChangeColumn}
@@ -239,8 +234,13 @@ class Form extends React.Component<Props, State> {
     const content = (
       <Content>
         <LeftContent>
-          <Steps active={1} type="stepper" allStep={this.renderMapColumn().length === 0 ? 3 : 4} titles={["Type", "Upload", "Detail"]}>
-            <Step title="Type" link='importHistories' type="stepper">
+          <Steps
+            active={1}
+            type="stepper"
+            allStep={this.renderMapColumn().length === 0 ? 3 : 4}
+            titles={['Type', 'Upload', 'Detail']}
+          >
+            <Step title="Type" link="importHistories" type="stepper">
               <TypeForm
                 type={type}
                 onChangeContentType={this.onChangeContentType}
@@ -264,6 +264,7 @@ class Form extends React.Component<Props, State> {
               additionalButton={this.renderImportButton()}
             >
               <Details
+                type="stepper"
                 disclaimer={disclaimer}
                 importName={importName}
                 onChangeImportName={this.onChangeImportName}
@@ -271,24 +272,18 @@ class Form extends React.Component<Props, State> {
               />
             </Step>
           </Steps>
-
         </LeftContent>
       </Content>
-  )
+    );
 
-  return (
-      <Wrapper 
-      header={
-          <Wrapper.Header
-            title={__('')}
-            breadcrumb={breadcrumb}
-          />
-        } 
-      content={content}
-      transparent={true}
-      center={true} />
-  );
-}
+    return (
+      <Wrapper
+        header={<Wrapper.Header title={__('')} breadcrumb={breadcrumb} />}
+        content={content}
+        transparent={true}
+      />
+    );
+  }
 }
 
 export default Form;

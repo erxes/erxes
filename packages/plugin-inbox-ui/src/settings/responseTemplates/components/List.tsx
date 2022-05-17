@@ -184,8 +184,8 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
         title={__('Response templates')}
         mainHead={
           <HeaderDescription
-            icon='/images/actions/24.svg'
-            title='Response templates'
+            icon="/images/actions/24.svg"
+            title="Response templates"
             description={`${__(
               'Make things easy for your team members and add in ready made response templates'
             )}.${__(
@@ -196,12 +196,9 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
         renderFilter={this.renderFilter}
         renderForm={this.renderForm}
         renderContent={this.renderContent}
-        rightActionBar={true}
-        leftSidebar={<CategoryList queryParams={this.props.queryParams} />}
         size="lg"
         {...this.props}
-        hasBorder={true}
-        transparent={true}
+        center={true}
       />
     );
   }

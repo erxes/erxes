@@ -79,7 +79,7 @@ const getRefetchQueries = () => {
     },
     {
       query: gql(tagQueries.tags),
-      variables: { type: 'customer' }
+      variables: { type: 'contacts:customer' }
     }
   ];
 };
@@ -88,7 +88,7 @@ export default withProps<Props>(
   compose(
     graphql<Props, TagsQueryResponse>(gql(tagQueries.tags), {
       name: 'tagsQuery',
-      options: () => ({ variables: { type: 'customer' } })
+      options: () => ({ variables: { type: 'contacts:customer' } })
     }),
     graphql<Props, CountQueryResponse, { only: string }>(
       gql(queries.customerCounts),

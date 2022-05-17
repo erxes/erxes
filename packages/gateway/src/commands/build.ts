@@ -119,10 +119,4 @@ const main = async () => {
   }
 };
 
-main()
-  .then(() => {
-    process.exit();
-  })
-  .catch((e) => {
-    console.log(e.message);
-  });
+main().then(() => { process.exit(); })

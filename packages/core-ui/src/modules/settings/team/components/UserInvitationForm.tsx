@@ -7,7 +7,7 @@ import Icon from "@erxes/ui/src/components/Icon";
 import Info from "@erxes/ui/src/components/Info";
 import { ModalFooter, LinkButton } from "@erxes/ui/src/styles/main";
 import { IButtonMutateProps, IFormProps, IOption } from "@erxes/ui/src/types";
-import { __, Alert } from "modules/common/utils";
+import { __, generateTree, Alert } from "modules/common/utils";
 import { IChannel } from "@erxes/ui-settings/src/channels/types";
 import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
 import { IUserGroup } from "@erxes/ui-settings/src/permissions/types";
@@ -21,7 +21,6 @@ import {
   IInvitationEntry,
   IUnit,
 } from "@erxes/ui-team/src/types";
-import { generateTree } from "../utils";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -137,7 +136,7 @@ class UserInvitationForm extends React.Component<Props, State> {
 
     const emails = values.split(",");
 
-    emails.map((e) => entries.splice(0, 0, generateEmptyEntry()));
+    emails.map(e => entries.splice(0, 0, generateEmptyEntry()));
 
     this.setState({ addMany: false });
   };
@@ -201,7 +200,7 @@ class UserInvitationForm extends React.Component<Props, State> {
   generateChannelOptions(
     array: Array<{ _id: string; name?: string; title?: string }>
   ): IOption[] {
-    return array.map((item) => {
+    return array.map(item => {
       return {
         value: item._id,
         label: item.name || item.title || "",
@@ -210,7 +209,7 @@ class UserInvitationForm extends React.Component<Props, State> {
   }
 
   generateGroupsChoices = () => {
-    return this.props.usersGroups.map((group) => ({
+    return this.props.usersGroups.map(group => ({
       value: group._id,
       label: group.name,
     }));

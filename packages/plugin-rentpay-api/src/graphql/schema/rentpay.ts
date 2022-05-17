@@ -1,5 +1,9 @@
+import { attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
+
 export const types = ({ cardsEnabled, formsEnabled }) => {
   return `
+    ${attachmentType}
+
     type DealRP {
       _id: String
       name: String
@@ -7,6 +11,8 @@ export const types = ({ cardsEnabled, formsEnabled }) => {
       customFieldsData: JSON
       assignedUsers: JSON
       stage: JSON
+      description: String
+      attachments: [Attachment]
     }
 
     type DealsForRentpayResponse {
@@ -19,17 +25,7 @@ export const types = ({ cardsEnabled, formsEnabled }) => {
         ? `extend type Field @key(fields: "_id") {
         _id: String! @external
         }`
-        : ""
-    }
-
-    ${
-      cardsEnabled
-        ? `
-        extend type Deal @key(fields: "_id") {
-          _id: String! @external
-        }
-       `
-        : ""
+        : ''
     }
   `;
 };
@@ -43,7 +39,8 @@ const listQueryParams = `
     priceRange: String
     district: String
     customFields: JSON
-    stageOrder: Int
+    stageCode: String
+    stageId: String
     limit: Int
     skip: Int
  `;
@@ -51,11 +48,12 @@ const listQueryParams = `
 export const queries = ({ formsEnabled, cardsEnabled }) => `
  dealsForRentpay(${listQueryParams}): DealsForRentpayResponse
  fieldsForRentpay(contentType: String!, code: String, searchable: Boolean): ${
-   formsEnabled ? "[Field]" : "JSON"
+   formsEnabled ? '[Field]' : 'JSON'
  }
- dealDetailForRentpay(_id: String!): ${cardsEnabled ? "Deal" : "JSON"}
+ dealDetailForRentpay(_id: String!): ${cardsEnabled ? 'DealRP' : 'JSON'}
 `;
 
 export const mutations = `
- modifyWaiterCustomerList(dealId: String, customerId: String, type: String): [String]
+  modifyWaiterCustomerList(dealId: String, customerId: String, type: String): [String]
+  updateRentpayCustomer(customerId: String, customFields: JSON): JSON
 `;

@@ -92,6 +92,12 @@ const formDetailQuery = `
           logicOperator
           logicValue
         }
+        productCategoryId
+        products{
+          _id
+          name
+          unitPrice
+        }
       }
     }
   }
@@ -147,6 +153,8 @@ export const saveBookingMutation = `
         code
         text
       }
+      invoiceResponse
+      invoiceType
     }
   }
 `;

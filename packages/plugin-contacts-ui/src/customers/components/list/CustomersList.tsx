@@ -161,7 +161,13 @@ class CustomersList extends React.Component<IProps, State> {
 
     return (
       <withTableWrapper.Wrapper>
-        <Table whiteSpace="nowrap" hover={true} bordered={true}>
+        <Table
+          whiteSpace="nowrap"
+          hover={true}
+          bordered={true}
+          responsive={true}
+          wideHeader={true}
+        >
           <thead>
             <tr>
               <th>
@@ -171,7 +177,7 @@ class CustomersList extends React.Component<IProps, State> {
                   onChange={this.onChange}
                 />
               </th>
-              {columnsConfig.map(({ name, label }) => (
+              {(columnsConfig || []).map(({ name, label }) => (
                 <th key={name}>
                   <SortHandler sortField={name} label={__(label)} />
                 </th>
@@ -180,7 +186,7 @@ class CustomersList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="customers" className={isExpand ? 'expand' : ''}>
-            {customers.map(customer => (
+            {(customers || []).map(customer => (
               <CustomerRow
                 customer={customer}
                 columnsConfig={columnsConfig}
@@ -300,7 +306,7 @@ class CustomersList extends React.Component<IProps, State> {
       return (
         <ManageColumns
           {...props}
-          contentType={type}
+          contentType={`contacts:${type}`}
           location={location}
           history={history}
         />

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import Welcome from './components/Welcome';
+import Welcome from './container/Welcome';
 
 const routes = () => {
   return (

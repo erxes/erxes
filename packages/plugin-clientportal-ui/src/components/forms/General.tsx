@@ -28,7 +28,7 @@ type Props = {
   boards: IBoard[];
   pipelines: IPipeline[];
   fetchPipelines: (boardId: string) => void;
-  handleFormChange: (name: string, value: string) => void;
+  handleFormChange: (name: string, value: string | boolean) => void;
 } & ClientPortalConfig;
 
 type ControlItem = {
@@ -67,15 +67,13 @@ function General({
   ticketPipelineId,
   ticketBoardId,
   fetchPipelines,
-  handleFormChange
+  handleFormChange,
+  kbToggle,
+  publicTaskToggle,
+  taskToggle,
+  ticketToggle
 }: Props) {
   const [show, setShow] = useState<boolean>(false);
-  const [toggle, setToggle] = useState({
-    knowledgeBase: true,
-    tasks: false,
-    tickets: false,
-    publicTask: true
-  });
 
   const handleToggleBoardSelect = () => setShow(!show);
 
@@ -84,7 +82,7 @@ function General({
   };
 
   const onChangeToggle = (key: string, value: boolean) => {
-    setToggle({ ...toggle, [key]: value } as any);
+    handleFormChange(key, value);
   };
 
   function generateOptions(options: any, valueKey: string, labelKey: string) {
@@ -261,7 +259,12 @@ function General({
     );
   };
 
-  const renderFeatureBlock = (title: string, childrens: any) => {
+  const renderFeatureBlock = (
+    title: string,
+    childrens: any,
+    toggleName: string,
+    toggle: boolean
+  ) => {
     return (
       <BlockRow>
         <BlockRowTitle>{__(title)}</BlockRowTitle>
@@ -270,8 +273,8 @@ function General({
             <ControlLabel>Show {title}</ControlLabel>
             <p>{__('Show in Client Portal')}</p>
             <Toggle
-              checked={toggle[title]}
-              onChange={() => onChangeToggle(title, !toggle[title])}
+              checked={toggle}
+              onChange={() => onChangeToggle(toggleName, !toggle)}
               icons={{
                 checked: <span>Yes</span>,
                 unchecked: <span>No</span>
@@ -279,7 +282,7 @@ function General({
             />
           </FormGroup>
         </ToggleWrap>
-        <Features isToggled={toggle[title]}>
+        <Features isToggled={toggle}>
           <BlockRow>{childrens}</BlockRow>
         </Features>
       </BlockRow>
@@ -310,9 +313,16 @@ function General({
                 onChange={handleSelectChange}
               />
             </FormGroup>
-          </>
+          </>,
+          'kbToggle',
+          kbToggle
         )}
-        {renderFeatureBlock('publicTask', renderTaskPipelines())}
+        {renderFeatureBlock(
+          'publicTask',
+          renderTaskPipelines(),
+          'publicTaskToggle',
+          publicTaskToggle
+        )}
 
         {renderFeatureBlock(
           'tickets',
@@ -330,7 +340,9 @@ function General({
               pipelineId: ticketPipelineId,
               boardId: ticketBoardId
             })}
-          </>
+          </>,
+          'ticketToggle',
+          ticketToggle
         )}
 
         {renderFeatureBlock(
@@ -349,7 +361,9 @@ function General({
               pipelineId: taskPipelineId,
               boardId: taskBoardId
             })}
-          </>
+          </>,
+          'taskToggle',
+          taskToggle
         )}
       </Block>
     );

@@ -24,11 +24,14 @@ export const types = (contactAvailable, cardAvailable) => `
     extend type Ticket @key(fields: "_id") {
       _id: String! @external
     }
+    extend type Deal @key(fields: "_id") {
+      _id: String! @external
+    }
      `
       : ''
   }
-  
-  
+
+
   type ClientPortal {
     _id: String!
     name: String!
@@ -56,6 +59,10 @@ export const types = (contactAvailable, cardAvailable) => `
     twilioAccountSid: String
     twilioAuthToken: String
     twilioFromNumber: String
+    kbToggle: Boolean,
+    publicTaskToggle: Boolean,
+    ticketToggle: Boolean,
+    taskToggle: Boolean,
   }
 
   type Styles {
@@ -95,7 +102,7 @@ export const types = (contactAvailable, cardAvailable) => `
   }
 `;
 
-export const queries = (cardAvailable) => `
+export const queries = cardAvailable => `
   clientPortalGetConfigs(page: Int, perPage: Int): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
   clientPortalGetLast: ClientPortal
@@ -109,13 +116,11 @@ export const queries = (cardAvailable) => `
       clientPortalTickets(email: String!): [Ticket]
       clientPortalTask(_id: String!): Task
       clientPortalTicket(_id: String!): Ticket
+      clientPortalDeal(_id: String!): Deal
+      clientPortalDeals(stageId: String, conformityMainType: String, conformityMainTypeId: String, probability: String): [Deal]
      `
       : ''
   }
-  
-  
-  
-  
 `;
 
 export const mutations = (contactAvailable, cardAvailable) => `
@@ -145,6 +150,10 @@ export const mutations = (contactAvailable, cardAvailable) => `
     twilioAccountSid: String
     twilioAuthToken: String
     twilioFromNumber: String
+    kbToggle: Boolean,
+    publicTaskToggle: Boolean,
+    ticketToggle: Boolean,
+    taskToggle: Boolean,
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON
@@ -159,7 +168,7 @@ export const mutations = (contactAvailable, cardAvailable) => `
         email: String!
         priority: String
       ): Ticket
-      
+
      `
       : ''
   }
@@ -169,20 +178,22 @@ export const mutations = (contactAvailable, cardAvailable) => `
       ? `
       clientPortalCreateCustomer(
         configId: String!
-        firstName: String!
+        firstName: String
         lastName: String
-        email: String!
+        email: String
+        phone: String
+        avatar: String
       ): Customer
-    
+
       clientPortalCreateCompany(
         configId: String!
         companyName: String!
         email: String!
       ): Company
-      
+
      `
       : ''
   }
 
- 
+
 `;

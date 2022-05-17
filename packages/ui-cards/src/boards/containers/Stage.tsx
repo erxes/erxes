@@ -85,7 +85,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         ]);
       })
       .catch(e => {
-        Alert.error(e.message);
+        console.log(e.message);
       });
   };
 
@@ -104,6 +104,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         });
       })
       .catch(e => {
+        console.log('blah12');
         Alert.error(e.message);
       });
   };

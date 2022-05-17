@@ -18,7 +18,6 @@ import {
   Disposable,
   SubscribeMessage,
 } from "graphql-ws";
-import { markClientActive, markClientInactive } from './clientStatusUtils';
 import genTypeDefsAndResolvers from './genTypeDefsAndResolvers';
 
 let disposable: Disposable;
@@ -59,11 +58,9 @@ export async function loadSubscriptions(
         return { dataSources: { gatewayDataSource } };
       },
       onSubscribe: async (
-        ctx,
+        _ctx,
         msg: SubscribeMessage
       ): Promise<ExecutionArgs | readonly GraphQLError[] | void> => {
-        await markClientActive(ctx);
-
         const args = {
           schema,
           operationName: msg.payload.operationName,
@@ -93,10 +90,7 @@ export async function loadSubscriptions(
         }
         // Ready execution arguments
         return args;
-      },
-      onClose: async (ctx) => {
-        await markClientInactive(ctx);
-      },
+      }
     },
     wsServer
   );

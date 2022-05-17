@@ -2,7 +2,7 @@ import { debug } from './configs';
 import { IActivityLogDocument } from './models/ActivityLogs';
 import { receivePutLogCommand, sendToApi } from './utils';
 import { serviceDiscovery } from './configs';
-import { getService } from '@erxes/api-utils/src/serviceDiscovery'
+import { getService } from '@erxes/api-utils/src/serviceDiscovery';
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
@@ -60,9 +60,9 @@ export const initBroker = async cl => {
 
       await sendInboxMessage({
         subdomain,
-        action: "visitor.convertResponse",
+        action: 'visitor.convertResponse',
         data: visitor
-      })
+      });
     }
   );
 
@@ -117,7 +117,7 @@ export const initBroker = async cl => {
   });
 
   consumeQueue(
-    'logs.activityLogs.updateMany',
+    'logs:activityLogs.updateMany',
     async ({ data: { query, modifier }, subdomain }) => {
       const models = await generateModels(subdomain);
 
@@ -128,7 +128,7 @@ export const initBroker = async cl => {
   );
 
   consumeQueue(
-    'logs.delete.old',
+    'logs:delete.old',
     async ({ data: { months = 1 }, subdomain }) => {
       const models = await generateModels(subdomain);
       const now = new Date();
@@ -146,7 +146,7 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
-    'logs.activityLogs.findMany',
+    'logs:activityLogs.findMany',
     async ({ data: { query, options }, subdomain }) => {
       const models = await generateModels(subdomain);
 
@@ -165,6 +165,30 @@ export const initBroker = async cl => {
       return {
         data: await models.ActivityLogs.insertMany(rows),
         status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'logs:emailDeliveries.create',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.EmailDeliveries.createEmailDelivery(data)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'logs:emailDeliveries.find',
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.EmailDeliveries.find(query).lean()
       };
     }
   );
@@ -227,14 +251,25 @@ export const getContentIds = async data => {
 };
 
 export const sendCoreMessage = (args: ISendMessageArgs) => {
-  return sendMessage({ serviceDiscovery, client, serviceName: "core", ...args });
-}
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    serviceName: 'core',
+    ...args
+  });
+};
 
 export const sendInboxMessage = (args: ISendMessageArgs) => {
-  return sendMessage({ serviceDiscovery, client, serviceName: "inbox", ...args });
-}
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    serviceName: 'inbox',
+    ...args
+  });
+};
 
 export const fetchService = async (
+  subdomain: string,
   contentType: string,
   action: string,
   data,
@@ -243,7 +278,7 @@ export const fetchService = async (
   const [serviceName, type] = contentType.split(':');
 
   return sendMessage({
-    subdomain: 'os',
+    subdomain,
     serviceDiscovery,
     client,
     isRPC: true,

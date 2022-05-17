@@ -77,7 +77,7 @@ class Form extends React.Component<Props, State> {
     this.props.handleUpdate(formValues);
   };
 
-  handleFormChange = (name: string, value: string | object) => {
+  handleFormChange = (name: string, value: string | object | boolean) => {
     this.setState({
       formValues: {
         ...this.state.formValues,

@@ -1,8 +1,9 @@
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import { es, serviceDiscovery } from '../../../configs';
+import { serviceDiscovery } from '../../../configs';
 import { IContext } from '../../../connectionResolver';
 import { sendMessage } from '../../../messageBroker';
 import { fetchSegment } from './queryBuilder';
@@ -32,7 +33,11 @@ const segmentQueries = {
     return types;
   },
 
-  async segmentsGetAssociationTypes(_root, { contentType }, { subdomain }: IContext) {
+  async segmentsGetAssociationTypes(
+    _root,
+    { contentType },
+    { subdomain }: IContext
+  ) {
     const [serviceName, type] = contentType.split(':');
     const service = await serviceDiscovery.getService(serviceName, true);
     const meta = service.config.meta || {};
@@ -62,10 +67,7 @@ const segmentQueries = {
    */
   segments(
     _root,
-    {
-      contentTypes,
-      config
-    }: { contentTypes: string[]; config?: any },
+    { contentTypes, config }: { contentTypes: string[]; config?: any },
     { models, commonQuerySelector }: IContext
   ) {
     const selector: any = {
@@ -86,7 +88,11 @@ const segmentQueries = {
   /**
    * Only segment that has no sub segments
    */
-  async segmentsGetHeads(_root, _args, { models, commonQuerySelector }: IContext) {
+  async segmentsGetHeads(
+    _root,
+    _args,
+    { models, commonQuerySelector }: IContext
+  ) {
     return models.Segments.find({
       ...commonQuerySelector,
       name: { $exists: true },
@@ -104,7 +110,11 @@ const segmentQueries = {
   /**
    * Return event names with attribute names
    */
-  async segmentsEvents(_root, { contentType }: { contentType: string }) {
+  async segmentsEvents(
+    _root,
+    { contentType }: { contentType: string },
+    { subdomain }: IContext
+  ) {
     const aggs = {
       names: {
         terms: {
@@ -127,7 +137,8 @@ const segmentQueries = {
       }
     };
 
-    const aggreEvents = await es.fetchElk({
+    const aggreEvents = await fetchEs({
+      subdomain,
       action: 'search',
       index: 'events',
       body: {
@@ -165,7 +176,7 @@ const segmentQueries = {
       contentType: string;
       conditions;
       subOf?: string;
-      config: any,
+      config: any;
       conditionsConjunction?: 'and' | 'or';
     },
     { models, subdomain }: IContext

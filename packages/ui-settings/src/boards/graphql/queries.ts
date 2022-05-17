@@ -38,6 +38,8 @@ const pipelines = `
       isCheckUser
       excludeCheckUserIds
       numberConfig
+      memberIds
+      departmentIds
       numberSize
       createdAt
       createdUser{
@@ -55,9 +57,13 @@ const stages = `
       _id
       name
       probability
+      visibility
+      memberIds
+      departmentIds
       pipelineId
       formId
       status
+      code
     }
   }
 `;
@@ -77,5 +83,5 @@ export default {
   pipelines,
   stages,
   boardGetLast,
-  boardDetail
+  boardDetail,
 };

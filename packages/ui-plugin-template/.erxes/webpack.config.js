@@ -36,6 +36,7 @@ module.exports = (env, args) => {
     output: {
       uniqueName: configs.name,
       publicPath: args.mode === 'development' ? `http://localhost:${port}/` : undefined,
+      chunkFilename: '[chunkhash].js'
     },
 
     optimization: {
@@ -74,6 +75,7 @@ module.exports = (env, args) => {
 
     devServer: {
       port: port,
+      allowedHosts: 'all',
       historyApiFallback: true,
     },
 

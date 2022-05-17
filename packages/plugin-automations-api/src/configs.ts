@@ -3,6 +3,8 @@ import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
+import * as permissions from './permissions';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let mainDb;
 export let debug;
@@ -11,50 +13,17 @@ export let serviceDiscovery;
 
 export default {
   name: 'automations',
-  permissions: {
-    automations: {
-      name: 'automations',
-      description: 'Automations',
-      actions: [
-        {
-          name: 'automationAll',
-          description: 'All',
-          use: [
-            'showAutomations',
-            'automationsAdd',
-            'automationsEdit',
-            'automationsRemove'
-          ]
-        },
-        {
-          name: 'showAutomations',
-          description: 'Show automations'
-        },
-        {
-          name: 'automationsAdd',
-          description: 'Add automations'
-        },
-        {
-          name: 'automationsEdit',
-          description: 'Edit automations'
-        },
-        {
-          name: 'automationsRemove',
-          description: 'Remove automations'
-        }
-      ]
-    },
-  },
-  graphql: async (sd) => {
+  permissions,
+  graphql: async sd => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
       resolvers: await resolvers(sd)
-    }
+    };
   },
-  apolloServerContext: async (context) => {
-    const subdomain = 'os';
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req);
 
     context.models = await generateModels(subdomain);
     context.subdomain = subdomain;
@@ -69,6 +38,5 @@ export default {
     graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
-  },
-
+  }
 };

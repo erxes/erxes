@@ -1,44 +1,35 @@
-import typeDefs from "./graphql/typeDefs";
-import resolvers from "./graphql/resolvers";
-import { IFetchElkArgs } from "@erxes/api-utils/src/types";
-import { generateModels, models } from "./connectionResolver";
+import typeDefs from './graphql/typeDefs';
+import resolvers from './graphql/resolvers';
+import { generateModels } from './connectionResolver';
 
-import { initBroker } from "./messageBroker";
-import { initMemoryStorage } from "./inmemoryStorage";
+import { initBroker } from './messageBroker';
+import { initMemoryStorage } from './inmemoryStorage';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let debug;
 export let graphqlPubsub;
 export let mainDb;
 export let serviceDiscovery;
 
-export let es: {
-  client;
-  fetchElk(args: IFetchElkArgs): Promise<any>;
-  getMappings(index: string): Promise<any>;
-  getIndexPrefix(): string;
-};
-
 export default {
-  name: "neighbor",
-  graphql: async (sd) => {
+  name: 'neighbor',
+  graphql: async sd => {
     serviceDiscovery = sd;
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers(),
+      resolvers: await resolvers()
     };
   },
-  apolloServerContext: (context) => {
-    const subdomain = "os";
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req);
 
     context.subdomain = subdomain;
-    context.models = models;
+    context.models = await generateModels(subdomain);
 
     return context;
   },
-  onServerInit: async (options) => {
+  onServerInit: async options => {
     mainDb = options.db;
-
-    await generateModels("os");
 
     initBroker(options.messageBrokerClient);
 
@@ -46,7 +37,7 @@ export default {
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
-    es = options.elasticsearch;
   },
-  meta: {},
+
+  meta: {}
 };

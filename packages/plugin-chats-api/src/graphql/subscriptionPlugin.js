@@ -1,19 +1,34 @@
 var { withFilter } = require("graphql-subscriptions");
+var { gql } = require("apollo-server-express");
 
 module.exports = {
   name: "chats",
   typeDefs: `
     chatMessageInserted(chatId: String!): ChatMessage
-    chatInserted(_id: String!): Chat
+    chatInserted(userId: String!): Chat
     chatUnreadCountChanged(userId: String!): Int
   `,
   generateResolvers: (graphqlPubsub) => {
     return {
       chatMessageInserted: {
+        resolve(payload, _args, { dataSources: { gatewayDataSource } }, info) {
+          return gatewayDataSource.queryAndMergeMissingData({
+            payload,
+            info,
+            queryVariables: { _id: payload.chatMessageInserted._id },
+            buildQueryUsingSelections: (selections) => gql`
+              query Subscription_GetChatMessage($_id: String!) {
+                chatMessageDetail(_id: $_id) {
+                  ${selections}
+                }
+              }
+          `,
+          });
+        },
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator("chatMessageInserted"),
           (payload, variables) => {
-            return payload.chatId === variables.chatId;
+            return payload.chatMessageInserted.chatId === variables.chatId;
           }
         ),
       },
@@ -22,7 +37,7 @@ module.exports = {
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator("chatInserted"),
           (payload, variables) => {
-            return payload.userId === variables._id;
+            return payload.userId === variables.userId;
           }
         ),
       },

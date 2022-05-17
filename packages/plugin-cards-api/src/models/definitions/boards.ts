@@ -5,7 +5,7 @@ import {
   BOARD_STATUSES_OPTIONS,
   BOARD_TYPES,
   HACK_SCORING_TYPES,
-  PIPELINE_VISIBLITIES,
+  VISIBLITIES,
   PROBABILITY,
   TIME_TRACK_TYPES
 } from './constants';
@@ -51,6 +51,7 @@ export interface IItemCommonFields {
   customFieldsData?: ICustomField[];
   score?: number;
   number?: string;
+  data?: any;
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -92,6 +93,7 @@ export interface IPipeline extends ICommonFields {
   numberConfig?: string;
   numberSize?: string;
   lastNum?: string;
+  departmentIds?: string[];
 }
 
 export interface IPipelineDocument extends IPipeline, Document {
@@ -102,8 +104,12 @@ export interface IStage extends ICommonFields {
   name?: string;
   probability?: string;
   pipelineId: string;
+  visibility?: string;
+  memberIds?: string[];
+  departmentIds?: string[];
   formId?: string;
   status?: string;
+  code?: string;
 }
 
 export interface IStageDocument extends IStage, Document {
@@ -260,8 +266,8 @@ export const pipelineSchema = new Schema({
   }),
   visibility: field({
     type: String,
-    enum: PIPELINE_VISIBLITIES.ALL,
-    default: PIPELINE_VISIBLITIES.PUBLIC,
+    enum: VISIBLITIES.ALL,
+    default: VISIBLITIES.PUBLIC,
     label: 'Visibility'
   }),
   watchedUserIds: field({ type: [String], label: 'Watched users' }),
@@ -294,6 +300,11 @@ export const pipelineSchema = new Schema({
     optional: true,
     label: 'Last generated number'
   }),
+  departmentIds: field({
+    type: [String],
+    optional: true,
+    label: 'Related departments'
+  }),
   ...commonFieldsSchema
 });
 
@@ -312,5 +323,18 @@ export const stageSchema = new Schema({
     enum: BOARD_STATUSES.ALL,
     default: BOARD_STATUSES.ACTIVE
   }),
+  visibility: field({
+    type: String,
+    enum: VISIBLITIES.ALL,
+    default: VISIBLITIES.PUBLIC,
+    label: 'Visibility'
+  }),
+  code: field({
+    type: String,
+    label: 'Code',
+    optional: true
+  }),
+  memberIds: field({ type: [String], label: 'Members' }),
+  departmentIds: field({ type: [String], label: 'Departments' }),
   ...commonFieldsSchema
 });

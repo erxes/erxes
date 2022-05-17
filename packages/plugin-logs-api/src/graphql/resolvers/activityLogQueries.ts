@@ -1,10 +1,7 @@
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 
 import { fetchActivityLogs, fetchLogs } from '../../utils';
-import {
-  fetchService,
-  getContentIds
-} from '../../messageBroker';
+import { fetchService, getContentIds } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 import { serviceDiscovery } from '../../configs';
 import { IActivityLogDocument } from '../../models/ActivityLogs';
@@ -27,14 +24,21 @@ const activityLogQueries = {
   /**
    * Get activity log list
    */
-  async activityLogs(_root, doc: IListArgs, { user, models }: IContext) {
+  async activityLogs(
+    _root,
+    doc: IListArgs,
+    { models, subdomain, serverTiming }: IContext
+  ) {
     const { contentId, contentType, activityType } = doc;
     const activities: IActivityLogDocument[] = [];
 
     if (activityType && activityType !== 'activity') {
       const serviceName = activityType.split(':')[0];
 
+      serverTiming.startTime(`collectecItems${serviceName}`);
+
       const result = await fetchService(
+        subdomain,
         serviceName,
         'collectItems',
         { contentId, contentType, activityType },
@@ -42,6 +46,8 @@ const activityLogQueries = {
       );
 
       const { data } = result;
+
+      serverTiming.endTime(`collectecItems${serviceName}`);
 
       return data;
     }
@@ -56,12 +62,17 @@ const activityLogQueries = {
         const logs = meta.logs;
 
         if (logs.providesActivityLog) {
+          serverTiming.startTime(`collectItems${serviceName}`);
+
           const result = await fetchService(
+            subdomain,
             serviceName,
             'collectItems',
             { contentId, contentType },
             ''
           );
+
+          serverTiming.endTime(`collectItems${serviceName}`);
 
           const { data } = result;
 
@@ -72,6 +83,8 @@ const activityLogQueries = {
       }
     }
 
+    serverTiming.startTime(`activities`);
+
     activities.push(
       ...(await models.ActivityLogs.find({
         contentId
@@ -81,6 +94,8 @@ const activityLogQueries = {
     activities.sort((a, b) => {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
+
+    serverTiming.endTime(`activities`);
 
     return activities;
   },

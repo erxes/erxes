@@ -1,13 +1,15 @@
-name: Plugin Loyalties UI CI
+name: Plugin loyalties UI CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/plugin-loyalties-ui/**'
-      - '.github/workflows/plugin-loyalties-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
+      - "packages/ui-loyalties/**"
+      - "packages/plugin-loyalties-ui/**"
+      - ".github/workflows/plugin-loyalties-ui.yaml"
 
 jobs:
   ui:
@@ -24,8 +26,10 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          # cp -r packages/ui-plugin-template/.erxes packages/plugin-loyalties-ui/.erxes
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-loyalties-ui/.erxes
+          cp -r packages/plugin-loyalties-ui/src packages/plugin-loyalties-ui/.erxes/plugin-src
           cd packages/plugin-loyalties-ui
+          yarn install
           yarn install-deps
           yarn build
 
@@ -38,4 +42,6 @@ jobs:
 
       - name: Deploy
         run: |
+          tar -cf build.tar --directory=packages/plugin-loyalties-ui/.erxes/dist .
+          cp build.tar packages/plugin-loyalties-ui/.erxes/dist
           aws s3 sync packages/plugin-loyalties-ui/.erxes/dist s3://erxes-plugins/uis/plugin-loyalties-ui --delete

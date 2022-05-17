@@ -28,6 +28,9 @@ const generateReport = async (req, res, isExport) => {
     if (!e.message.includes('Values required for filter')) {
       res.send('No data');
     }
+    res.send('e.message');
+
+    console.log(e.message);
   }
 
   const queryDimensions = resultSet.loadResponse.query.dimensions;

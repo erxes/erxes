@@ -3,30 +3,23 @@ import resolvers from './graphql/resolvers';
 import * as serverTiming from 'server-timing';
 
 import { initBroker, sendSegmentsMessage } from './messageBroker';
-import { IFetchElkArgs } from '@erxes/api-utils/src/types';
-import { initMemoryStorage } from './inmemoryStorage';
-import permissions from './permissions';
+import * as permissions from './permissions';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { buildFile } from './exporter';
 import segments from './segments';
 import forms from './forms';
 import logs from './logUtils';
-import { generateModels, getSubdomain } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import imports from './imports';
 import internalNotes from './internalNotes';
 import automations from './automations';
 import search from './search';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import webhooks from './webhooks';
 
 export let mainDb;
 export let graphqlPubsub;
 export let serviceDiscovery;
-
-export let es: {
-  client;
-  fetchElk(args: IFetchElkArgs): Promise<any>;
-  getMappings(index: string): Promise<any>;
-  getIndexPrefix(): string;
-};
 
 export let debug;
 
@@ -51,10 +44,11 @@ export default {
     imports,
     internalNotes,
     search,
+    webhooks
   },
 
   apolloServerContext: async (context, req, res) => {
-    const subdomain = 'os';
+    const subdomain = getSubdomain(req);
 
     context.models = await generateModels(subdomain);
     context.subdomain = subdomain;
@@ -63,7 +57,7 @@ export default {
       startTime: res.startTime,
       endTime: res.endTime,
       setMetric: res.setMetric
-    }
+    };
 
     return context;
   },
@@ -79,7 +73,7 @@ export default {
         const { query, user } = req;
         const { segment } = query;
 
-        const subdomain = getSubdomain(req.hostname);
+        const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
 
         const result = await buildFile(models, subdomain, query, user);
@@ -88,7 +82,11 @@ export default {
 
         if (segment) {
           try {
-            sendSegmentsMessage({ subdomain, action: 'removeSegment', data: { segmentId: segment } });
+            sendSegmentsMessage({
+              subdomain,
+              action: 'removeSegment',
+              data: { segmentId: segment }
+            });
           } catch (e) {
             console.log((e as Error).message);
           }
@@ -100,10 +98,7 @@ export default {
 
     initBroker(options.messageBrokerClient);
 
-    initMemoryStorage();
-
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
-    es = options.elasticsearch;
   }
 };

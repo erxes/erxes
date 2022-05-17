@@ -21,9 +21,11 @@ export type Props = {
   onSelect?: (customers: ICustomer[]) => void;
   actionSection?: any;
   title?: string;
+  relType?: string;
 };
 
 function Component({
+  relType,
   name,
   items = [],
   mainType = "",
@@ -92,7 +94,7 @@ function Component({
     return (
       <CustomerChooser
         {...props}
-        data={{ name, customers: items, mainTypeId, mainType }}
+        data={{ name, customers: items, mainTypeId, mainType, relType }}
         onSelect={onSelect}
       />
     );

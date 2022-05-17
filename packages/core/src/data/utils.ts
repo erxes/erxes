@@ -10,15 +10,11 @@ import { debugBase, debugError } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
 import * as _ from 'underscore';
-import {
-  Configs,
-  EmailDeliveries,
-  OnboardingHistories,
-  Users
-} from '../db/models';
 import * as Handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
-import { EMAIL_DELIVERY_STATUS } from '../db/models/definitions/constants';
+import { sendLogsMessage } from '../messageBroker';
+import { IModels } from '../connectionResolver';
+
 export interface IEmailParams {
   toEmails?: string[];
   fromEmail?: string;
@@ -60,7 +56,11 @@ const applyTemplate = async (data: any, templateName: string) => {
   return template(data);
 };
 
-export const sendEmail = async (params: IEmailParams) => {
+export const sendEmail = async (
+  subdomain: string,
+  params: IEmailParams,
+  models?: IModels
+) => {
   const {
     toEmails = [],
     fromEmail,
@@ -73,17 +73,30 @@ export const sendEmail = async (params: IEmailParams) => {
   } = params;
 
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-  const DEFAULT_EMAIL_SERVICE = await getConfig('DEFAULT_EMAIL_SERVICE', 'SES');
-  const defaultTemplate = await getConfig('COMPANY_EMAIL_TEMPLATE');
-  const defaultTemplateType = await getConfig('COMPANY_EMAIL_TEMPLATE_TYPE');
-  const COMPANY_EMAIL_FROM = await getConfig('COMPANY_EMAIL_FROM', '');
-  const AWS_SES_CONFIG_SET = await getConfig('AWS_SES_CONFIG_SET', '');
-  const AWS_SES_ACCESS_KEY_ID = await getConfig('AWS_SES_ACCESS_KEY_ID', '');
+  const DEFAULT_EMAIL_SERVICE = await getConfig(
+    'DEFAULT_EMAIL_SERVICE',
+    'SES',
+    models
+  );
+  const defaultTemplate = await getConfig('COMPANY_EMAIL_TEMPLATE', '', models);
+  const defaultTemplateType = await getConfig(
+    'COMPANY_EMAIL_TEMPLATE_TYPE',
+    '',
+    models
+  );
+  const COMPANY_EMAIL_FROM = await getConfig('COMPANY_EMAIL_FROM', '', models);
+  const AWS_SES_CONFIG_SET = await getConfig('AWS_SES_CONFIG_SET', '', models);
+  const AWS_SES_ACCESS_KEY_ID = await getConfig(
+    'AWS_SES_ACCESS_KEY_ID',
+    '',
+    models
+  );
   const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
     'AWS_SES_SECRET_ACCESS_KEY',
-    ''
+    '',
+    models
   );
-  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
 
   // do not send email it is running in test mode
   if (NODE_ENV === 'test') {
@@ -94,9 +107,10 @@ export const sendEmail = async (params: IEmailParams) => {
   let transporter;
 
   try {
-    transporter = await createTransporter({
-      ses: DEFAULT_EMAIL_SERVICE === 'SES'
-    });
+    transporter = await createTransporter(
+      { ses: DEFAULT_EMAIL_SERVICE === 'SES' },
+      models
+    );
   } catch (e) {
     return debugError(e.message);
   }
@@ -104,7 +118,7 @@ export const sendEmail = async (params: IEmailParams) => {
   const { data = {}, name } = template;
 
   // for unsubscribe url
-  data.domain = MAIN_APP_DOMAIN;
+  data.domain = DOMAIN;
 
   for (const toEmail of toEmails) {
     if (modifier) {
@@ -148,13 +162,18 @@ export const sendEmail = async (params: IEmailParams) => {
       AWS_SES_ACCESS_KEY_ID.length > 0 &&
       AWS_SES_SECRET_ACCESS_KEY.length > 0
     ) {
-      const emailDelivery = await EmailDeliveries.create({
-        kind: 'transaction',
-        to: toEmail,
-        from: mailOptions.from,
-        subject: title,
-        body: html,
-        status: EMAIL_DELIVERY_STATUS.PENDING
+      const emailDelivery = await sendLogsMessage({
+        subdomain,
+        action: 'emailDeliveries.create',
+        data: {
+          kind: 'transaction',
+          to: toEmail,
+          from: mailOptions.from,
+          subject: title,
+          body: html,
+          status: 'pending'
+        },
+        isRPC: true
       });
 
       headers = {
@@ -177,13 +196,19 @@ export const sendEmail = async (params: IEmailParams) => {
 /**
  * Create default or ses transporter
  */
-export const createTransporter = async ({ ses }) => {
+export const createTransporter = async ({ ses }, models?: IModels) => {
   if (ses) {
-    const AWS_SES_ACCESS_KEY_ID = await getConfig('AWS_SES_ACCESS_KEY_ID');
-    const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
-      'AWS_SES_SECRET_ACCESS_KEY'
+    const AWS_SES_ACCESS_KEY_ID = await getConfig(
+      'AWS_SES_ACCESS_KEY_ID',
+      '',
+      models
     );
-    const AWS_REGION = await getConfig('AWS_REGION');
+    const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
+      'AWS_SES_SECRET_ACCESS_KEY',
+      '',
+      models
+    );
+    const AWS_REGION = await getConfig('AWS_REGION', '', models);
 
     AWS.config.update({
       region: AWS_REGION,
@@ -196,11 +221,11 @@ export const createTransporter = async ({ ses }) => {
     });
   }
 
-  const MAIL_SERVICE = await getConfig('MAIL_SERVICE');
-  const MAIL_PORT = await getConfig('MAIL_PORT');
-  const MAIL_USER = await getConfig('MAIL_USER');
-  const MAIL_PASS = await getConfig('MAIL_PASS');
-  const MAIL_HOST = await getConfig('MAIL_HOST');
+  const MAIL_SERVICE = await getConfig('MAIL_SERVICE', '', models);
+  const MAIL_PORT = await getConfig('MAIL_PORT', '', models);
+  const MAIL_USER = await getConfig('MAIL_USER', '', models);
+  const MAIL_PASS = await getConfig('MAIL_PASS', '', models);
+  const MAIL_HOST = await getConfig('MAIL_HOST', '', models);
 
   let auth;
 
@@ -221,8 +246,8 @@ export const createTransporter = async ({ ses }) => {
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
-export const initFirebase = async (): Promise<void> => {
-  const config = await Configs.findOne({
+export const initFirebase = async (models: IModels): Promise<void> => {
+  const config = await models.Configs.findOne({
     code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
   });
 
@@ -246,7 +271,7 @@ export const initFirebase = async (): Promise<void> => {
 /*
  * Check that given file is not harmful
  */
-export const checkFile = async (file, source?: string) => {
+export const checkFile = async (models: IModels, file, source?: string) => {
   if (!file) {
     throw new Error('Invalid file');
   }
@@ -304,7 +329,9 @@ export const checkFile = async (file, source?: string) => {
   ];
 
   const UPLOAD_FILE_TYPES = await getConfig(
-    source === 'widgets' ? 'WIDGETS_UPLOAD_FILE_TYPES' : 'UPLOAD_FILE_TYPES'
+    source === 'widgets' ? 'WIDGETS_UPLOAD_FILE_TYPES' : 'UPLOAD_FILE_TYPES',
+    '',
+    models
   );
 
   if (
@@ -322,14 +349,24 @@ export const checkFile = async (file, source?: string) => {
 /**
  * Create AWS instance
  */
-export const createAWS = async () => {
-  const AWS_ACCESS_KEY_ID = await getConfig('AWS_ACCESS_KEY_ID');
-  const AWS_SECRET_ACCESS_KEY = await getConfig('AWS_SECRET_ACCESS_KEY');
-  const AWS_BUCKET = await getConfig('AWS_BUCKET');
-  const AWS_COMPATIBLE_SERVICE_ENDPOINT = await getConfig(
-    'AWS_COMPATIBLE_SERVICE_ENDPOINT'
+export const createAWS = async (models?: IModels) => {
+  const AWS_ACCESS_KEY_ID = await getConfig('AWS_ACCESS_KEY_ID', '', models);
+  const AWS_SECRET_ACCESS_KEY = await getConfig(
+    'AWS_SECRET_ACCESS_KEY',
+    '',
+    models
   );
-  const AWS_FORCE_PATH_STYLE = await getConfig('AWS_FORCE_PATH_STYLE');
+  const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
+  const AWS_COMPATIBLE_SERVICE_ENDPOINT = await getConfig(
+    'AWS_COMPATIBLE_SERVICE_ENDPOINT',
+    '',
+    models
+  );
+  const AWS_FORCE_PATH_STYLE = await getConfig(
+    'AWS_FORCE_PATH_STYLE',
+    '',
+    models
+  );
 
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
     throw new Error('AWS credentials are not configured');
@@ -360,12 +397,14 @@ export const createAWS = async () => {
 /**
  * Create Google Cloud Storage instance
  */
-const createGCS = async () => {
+const createGCS = async (models?: IModels) => {
   const GOOGLE_APPLICATION_CREDENTIALS = await getConfig(
-    'GOOGLE_APPLICATION_CREDENTIALS'
+    'GOOGLE_APPLICATION_CREDENTIALS',
+    '',
+    models
   );
-  const GOOGLE_PROJECT_ID = await getConfig('GOOGLE_PROJECT_ID');
-  const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET');
+  const GOOGLE_PROJECT_ID = await getConfig('GOOGLE_PROJECT_ID', '', models);
+  const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET', '', models);
 
   if (!GOOGLE_PROJECT_ID || !GOOGLE_APPLICATION_CREDENTIALS || !BUCKET) {
     throw new Error('Google Cloud Storage credentials are not configured');
@@ -385,16 +424,17 @@ const createGCS = async () => {
  */
 export const uploadFileAWS = async (
   file: { name: string; path: string; type: string },
-  forcePrivate: boolean = false
+  forcePrivate: boolean = false,
+  models?: IModels
 ): Promise<string> => {
   const IS_PUBLIC = forcePrivate
     ? false
-    : await getConfig('FILE_SYSTEM_PUBLIC', 'true');
-  const AWS_PREFIX = await getConfig('AWS_PREFIX', '');
-  const AWS_BUCKET = await getConfig('AWS_BUCKET');
+    : await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
+  const AWS_PREFIX = await getConfig('AWS_PREFIX', '', models);
+  const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
 
   // initialize s3
-  const s3 = await createAWS();
+  const s3 = await createAWS(models);
 
   // generate unique name
   const fileName = `${AWS_PREFIX}${Math.random()}${file.name.replace(
@@ -431,13 +471,13 @@ export const uploadFileAWS = async (
 /*
  * Delete file from amazon s3
  */
-export const deleteFileAWS = async (fileName: string) => {
-  const AWS_BUCKET = await getConfig('AWS_BUCKET');
+export const deleteFileAWS = async (fileName: string, models?: IModels) => {
+  const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
 
   const params = { Bucket: AWS_BUCKET, Key: fileName };
 
   // initialize s3
-  const s3 = await createAWS();
+  const s3 = await createAWS(models);
 
   return new Promise((resolve, reject) => {
     s3.deleteObject(params, err => {
@@ -482,16 +522,19 @@ export const uploadFileLocal = async (file: {
 /*
  * Save file to google cloud storage
  */
-export const uploadFileGCS = async (file: {
-  name: string;
-  path: string;
-  type: string;
-}): Promise<string> => {
-  const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET');
-  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC');
+export const uploadFileGCS = async (
+  file: {
+    name: string;
+    path: string;
+    type: string;
+  },
+  models: IModels
+): Promise<string> => {
+  const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET', '', models);
+  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', '', models);
 
   // initialize GCS
-  const storage = await createGCS();
+  const storage = await createGCS(models);
 
   // select bucket
   const bucket = storage.bucket(BUCKET);
@@ -537,11 +580,11 @@ const deleteFileLocal = async (fileName: string) => {
   });
 };
 
-const deleteFileGCS = async (fileName: string) => {
-  const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET');
+const deleteFileGCS = async (fileName: string, models?: IModels) => {
+  const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET', '', models);
 
   // initialize GCS
-  const storage = await createGCS();
+  const storage = await createGCS(models);
 
   // select bucket
   const bucket = storage.bucket(BUCKET);
@@ -563,12 +606,23 @@ const deleteFileGCS = async (fileName: string) => {
 /**
  * Read file from GCS, AWS
  */
-export const readFileRequest = async (key: string): Promise<any> => {
-  const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
+export const readFileRequest = async (
+  key: string,
+  models?: IModels
+): Promise<any> => {
+  const UPLOAD_SERVICE_TYPE = await getConfig(
+    'UPLOAD_SERVICE_TYPE',
+    'AWS',
+    models
+  );
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {
-    const GCS_BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET');
-    const storage = await createGCS();
+    const GCS_BUCKET = await getConfig(
+      'GOOGLE_CLOUD_STORAGE_BUCKET',
+      '',
+      models
+    );
+    const storage = await createGCS(models);
 
     const bucket = storage.bucket(GCS_BUCKET);
 
@@ -581,8 +635,8 @@ export const readFileRequest = async (key: string): Promise<any> => {
   }
 
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    const AWS_BUCKET = await getConfig('AWS_BUCKET');
-    const s3 = await createAWS();
+    const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
+    const s3 = await createAWS(models);
 
     return new Promise((resolve, reject) => {
       s3.getObject(
@@ -629,19 +683,24 @@ export const readFileRequest = async (key: string): Promise<any> => {
 export const uploadFile = async (
   apiUrl: string,
   file,
-  fromEditor = false
+  fromEditor = false,
+  models: IModels
 ): Promise<any> => {
-  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC');
-  const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
+  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', '', models);
+  const UPLOAD_SERVICE_TYPE = await getConfig(
+    'UPLOAD_SERVICE_TYPE',
+    'AWS',
+    models
+  );
 
   let nameOrLink = '';
 
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    nameOrLink = await uploadFileAWS(file);
+    nameOrLink = await uploadFileAWS(file, false, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {
-    nameOrLink = await uploadFileGCS(file);
+    nameOrLink = await uploadFileGCS(file, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'local') {
@@ -661,15 +720,22 @@ export const uploadFile = async (
   return nameOrLink;
 };
 
-export const deleteFile = async (fileName: string): Promise<any> => {
-  const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
+export const deleteFile = async (
+  models: IModels,
+  fileName: string
+): Promise<any> => {
+  const UPLOAD_SERVICE_TYPE = await getConfig(
+    'UPLOAD_SERVICE_TYPE',
+    'AWS',
+    models
+  );
 
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    return deleteFileAWS(fileName);
+    return deleteFileAWS(fileName, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {
-    return deleteFileGCS(fileName);
+    return deleteFileGCS(fileName, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'local') {
@@ -695,13 +761,15 @@ export const generateXlsx = async (workbook: any): Promise<string> => {
 };
 
 export const registerOnboardHistory = ({
+  models,
   type,
   user
 }: {
+  models: IModels;
   type: string;
   user: IUserDocument;
 }) =>
-  OnboardingHistories.getOrCreate({ type, user })
+  models.OnboardingHistories.getOrCreate({ type, user })
     .then(({ status }) => {
       if (status === 'created') {
         graphqlPubsub.publish('onboardingChanged', {
@@ -711,42 +779,22 @@ export const registerOnboardHistory = ({
     })
     .catch(e => debugBase(e));
 
-export const authCookieOptions = (secure: boolean) => {
-  const oneDay = 1 * 24 * 3600 * 1000; // 1 day
+export const authCookieOptions = (options = {}) => {
+  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+  const sevenDay = 7 * 24 * 3600 * 1000; // 7 day
 
   const cookieOptions = {
     httpOnly: true,
-    expires: new Date(Date.now() + oneDay),
-    maxAge: oneDay,
-    secure
+    expires: new Date(Date.now() + sevenDay),
+    maxAge: sevenDay,
+    secure: !['test', 'development'].includes(NODE_ENV),
+    ...options
   };
 
   return cookieOptions;
 };
 
-/*
- * Handle engage unsubscribe request
- */
-export const handleUnsubscription = async (query: {
-  cid: string;
-  uid: string;
-}) => {
-  // const { cid, uid } = query;
-  const { uid } = query;
-
-  // if (cid) {
-  //   await models.Customers.updateOne(
-  //     { _id: cid },
-  //     { $set: { isSubscribed: 'No' } }
-  //   );
-  // }
-
-  if (uid) {
-    await Users.updateOne({ _id: uid }, { $set: { isSubscribed: 'No' } });
-  }
-};
-
-export const getConfigs = async () => {
+export const getConfigs = async models => {
   const configsCache = await memoryStorage().get('configs_erxes_api');
 
   if (configsCache && configsCache !== '{}') {
@@ -754,7 +802,7 @@ export const getConfigs = async () => {
   }
 
   const configsMap = {};
-  const configs = await Configs.find({});
+  const configs = await models.Configs.find({});
 
   for (const config of configs) {
     configsMap[config.code] = config.value;
@@ -765,8 +813,12 @@ export const getConfigs = async () => {
   return configsMap;
 };
 
-export const getConfig = async (code, defaultValue?) => {
-  const configs = await getConfigs();
+export const getConfig = async (
+  code: string,
+  defaultValue?: string,
+  models?: IModels
+) => {
+  const configs = await getConfigs(models);
 
   if (!configs[code]) {
     return defaultValue;
@@ -777,49 +829,6 @@ export const getConfig = async (code, defaultValue?) => {
 
 export const resetConfigsCache = () => {
   memoryStorage().set('configs_erxes_api', '');
-};
-
-export const frontendEnv = ({
-  name,
-  req,
-  requestInfo
-}: {
-  name: string;
-  req?: any;
-  requestInfo?: any;
-}): string => {
-  const cookies = req ? req.cookies : requestInfo.cookies;
-  const keys = Object.keys(cookies);
-
-  const envs: { [key: string]: string } = {};
-
-  for (const key of keys) {
-    envs[key.replace('REACT_APP_', '')] = cookies[key];
-  }
-
-  return envs[name];
-};
-
-export const getSubServiceDomain = ({ name }: { name: string }): string => {
-  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
-
-  const defaultMappings = {
-    API_DOMAIN: `${MAIN_APP_DOMAIN}/api`,
-    WIDGETS_DOMAIN: `${MAIN_APP_DOMAIN}/widgets`,
-    INTEGRATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/integrations`,
-    LOGS_API_DOMAIN: `${MAIN_APP_DOMAIN}/logs`,
-    ENGAGES_API_DOMAIN: `${MAIN_APP_DOMAIN}/engages`,
-    VERIFIER_API_DOMAIN: `${MAIN_APP_DOMAIN}/verifier`,
-    AUTOMATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/automations`
-  };
-
-  const domain = getEnv({ name });
-
-  if (domain) {
-    return domain;
-  }
-
-  return defaultMappings[name];
 };
 
 export const getCoreDomain = () => {
@@ -854,7 +863,7 @@ export const isUsingElk = () => {
 
 export const checkPremiumService = async type => {
   try {
-    const domain = getEnv({ name: 'MAIN_APP_DOMAIN' })
+    const domain = getEnv({ name: 'DOMAIN' })
       .replace('https://', '')
       .replace('http://', '');
 
@@ -905,19 +914,22 @@ export const configReplacer = config => {
  * @param {string} - customerId
  * @param {array} - receivers
  */
-export const sendMobileNotification = async ({
-  receivers,
-  title,
-  body,
-  data
-}: {
-  receivers: string[];
-  title: string;
-  body: string;
-  data?: any;
-}): Promise<void> => {
+export const sendMobileNotification = async (
+  models: IModels,
+  {
+    receivers,
+    title,
+    body,
+    data
+  }: {
+    receivers: string[];
+    title: string;
+    body: string;
+    data?: any;
+  }
+): Promise<void> => {
   if (!admin.apps.length) {
-    await initFirebase();
+    await initFirebase(models);
   }
 
   const transporter = admin.messaging();
@@ -925,7 +937,7 @@ export const sendMobileNotification = async ({
 
   if (receivers) {
     tokens.push(
-      ...(await Users.find({ _id: { $in: receivers } }).distinct(
+      ...(await models.Users.find({ _id: { $in: receivers } }).distinct(
         'deviceTokens'
       ))
     );
@@ -955,16 +967,30 @@ export const sendMobileNotification = async ({
   }
 };
 
-export const getFileUploadConfigs = async () => {
-  const AWS_ACCESS_KEY_ID = await getConfig('AWS_ACCESS_KEY_ID');
-  const AWS_SECRET_ACCESS_KEY = await getConfig('AWS_SECRET_ACCESS_KEY');
-  const AWS_BUCKET = await getConfig('AWS_BUCKET');
-  const AWS_COMPATIBLE_SERVICE_ENDPOINT = await getConfig(
-    'AWS_COMPATIBLE_SERVICE_ENDPOINT'
+export const getFileUploadConfigs = async (models: IModels) => {
+  const AWS_ACCESS_KEY_ID = await getConfig('AWS_ACCESS_KEY_ID', '', models);
+  const AWS_SECRET_ACCESS_KEY = await getConfig(
+    'AWS_SECRET_ACCESS_KEY',
+    '',
+    models
   );
-  const AWS_FORCE_PATH_STYLE = await getConfig('AWS_FORCE_PATH_STYLE');
+  const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
+  const AWS_COMPATIBLE_SERVICE_ENDPOINT = await getConfig(
+    'AWS_COMPATIBLE_SERVICE_ENDPOINT',
+    '',
+    models
+  );
+  const AWS_FORCE_PATH_STYLE = await getConfig(
+    'AWS_FORCE_PATH_STYLE',
+    '',
+    models
+  );
 
-  const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
+  const UPLOAD_SERVICE_TYPE = await getConfig(
+    'UPLOAD_SERVICE_TYPE',
+    'AWS',
+    models
+  );
 
   return {
     AWS_FORCE_PATH_STYLE,
@@ -995,5 +1021,5 @@ export const sendRequest = utils.sendRequest;
 export default {
   sendEmail,
   readFile,
-  createTransporter,
+  createTransporter
 };

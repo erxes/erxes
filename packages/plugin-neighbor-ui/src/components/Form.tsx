@@ -203,18 +203,13 @@ class Form extends React.Component<Props, any> {
           const queryParams = queryString.parse(location.search);
           this.setState({ type: queryParams.type });
 
-          this.setState(
-            {
-              schoolData: {
-                ...this.state.schoolData,
+          this.setState({
+            schoolData: {
+              ...this.state.schoolData,
 
-                [key]: (e.target as HTMLInputElement).value,
-              },
+              [key]: (e.target as HTMLInputElement).value,
             },
-            () => {
-              console.log("schoolData: ", this.state.schoolData);
-            }
-          );
+          });
         };
 
         const latitude =
@@ -881,8 +876,6 @@ class Form extends React.Component<Props, any> {
           if (e.target.type === "number") {
             value = Number(value);
           }
-
-          console.log("e.target.type", e.target.type);
 
           this.setState({
             districtTownData: {

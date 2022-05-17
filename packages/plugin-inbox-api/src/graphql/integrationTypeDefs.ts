@@ -6,7 +6,7 @@ export const types = ({ products, tags, forms }) => `
         _id: String! @external
       }
     `
-      : ""
+      : ''
   }
 
   extend input InputRule {
@@ -27,7 +27,7 @@ export const types = ({ products, tags, forms }) => `
     formId: String
     tagIds: [String]
 
-    ${tags ? `tags: [Tag]` : ""}
+    ${tags ? `tags: [Tag]` : ''}
     
     leadData: JSON
     messengerData: JSON
@@ -37,7 +37,7 @@ export const types = ({ products, tags, forms }) => `
 
     brand: Brand
 
-    ${forms ? `form: Form` : ""}
+    ${forms ? `form: Form` : ''}
     channels: [Channel]
 
     websiteMessengerApps: [MessengerApp]
@@ -46,6 +46,9 @@ export const types = ({ products, tags, forms }) => `
     healthStatus: JSON
 
     bookingData: BookingData
+
+    visibility: String
+    departmentIds: [String]
   }
 
   type BookingData {
@@ -67,7 +70,7 @@ export const types = ({ products, tags, forms }) => `
         ? `
         mainProductCategory: ProductCategory
       `
-        : ""
+        : ''
     }
 
     navigationText: String
@@ -105,6 +108,7 @@ export const types = ({ products, tags, forms }) => `
     callout: JSON,
     rules: [InputRule]
     isRequireOnce: Boolean
+    saveAsCustomer: Boolean
     templateId: String
     attachments: [AttachmentInput]
     css: String
@@ -233,6 +237,8 @@ export const mutations = `
     name: String!,
     brandId: String!,
     channelIds: [String]
+    visibility: String,
+    departmentIds: [String],
     languageCode: String,
     formId: String!,
     leadData: IntegrationLeadData!): Integration
@@ -241,6 +247,8 @@ export const mutations = `
     _id: String!
     name: String!,
     brandId: String!,
+    visibility: String,
+    departmentIds: [String],
     channelIds: [String]
     languageCode: String,
     formId: String!,

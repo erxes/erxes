@@ -11,20 +11,27 @@ import {
   COUNTRIES
 } from '@erxes/ui/src/companies/constants';
 import React from 'react';
-import { LogicIndicator, SelectInput, ObjectList } from '../styles';
+import { LogicIndicator, SelectInput } from '../styles';
 import Select from 'react-select-plus';
 import { IOption } from '@erxes/ui/src/types';
 import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import { __ } from '@erxes/ui/src/utils/core';
-import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
 import Map from '@erxes/ui/src/components/Map';
-import { MapContainer } from 'react-leaflet';
+import { MapContainer } from '@erxes/ui/src/styles/main';
+import { Button, Icon } from '@erxes/ui/src/components';
+import ObjectList from './ObjectList';
 
 type Props = {
   field: IField;
   currentLocation: ILocationOption;
   defaultValue?: any;
   hasLogic?: boolean;
+  isEditing?: boolean;
   isPreview?: boolean;
   onValueChange?: (data: { _id: string; value: any }) => void;
   onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
@@ -305,27 +312,7 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
-  renderObject(object: any, index: number) {
-    const entries = Object.entries(object);
-
-    return (
-      <SidebarList className="no-hover" key={index}>
-        {entries.map(e => {
-          const key = e[0];
-          const value: any = e[1] || '';
-
-          return (
-            <li key={key}>
-              <FieldStyle>{key}:</FieldStyle>
-              <SidebarCounter>{value}</SidebarCounter>
-            </li>
-          );
-        })}
-      </SidebarList>
-    );
-  }
-
-  renderObjectList(attrs) {
+  renderObjectList(keys, attrs) {
     let { value = [] } = attrs;
 
     if (typeof value === 'string' && value.length > 0) {
@@ -336,10 +323,24 @@ export default class GenerateField extends React.Component<Props, State> {
       }
     }
 
+    const { field, onValueChange } = this.props;
+
+    const onChange = (value: any[]) => {
+      if (onValueChange) {
+        this.setState({ value });
+        onValueChange({ _id: field._id, value });
+      }
+    };
+
     return (
-      <ObjectList>
-        {(value || []).map((object, index) => this.renderObject(object, index))}
-      </ObjectList>
+      <>
+        <ObjectList
+          keys={keys}
+          value={value}
+          onChange={onChange}
+          isEditing={this.props.isEditing}
+        />
+      </>
     );
   }
 
@@ -368,7 +369,7 @@ export default class GenerateField extends React.Component<Props, State> {
     return (
       <MapContainer>
         <Map
-          center={currentLocation}
+          center={currentLocation || { lat: 0, lng: 0 }}
           googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
           defaultZoom={7}
           locationOptions={locationOptions}
@@ -435,7 +436,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderControl() {
     const { field } = this.props;
-    const { type } = field;
+    const { type, keys } = field;
     const options = field.options || [];
 
     const attrs = {
@@ -542,13 +543,13 @@ export default class GenerateField extends React.Component<Props, State> {
       }
 
       case 'objectList': {
-        return this.renderObjectList(attrs);
+        return this.renderObjectList(keys, attrs);
       }
 
       case 'map': {
         return this.renderMap(attrs);
       }
-      
+
       default:
         try {
           return this.renderInput(attrs);
@@ -556,6 +557,30 @@ export default class GenerateField extends React.Component<Props, State> {
           return this.renderInput(attrs, true);
         }
     }
+  }
+
+  renderAddButton() {
+    const { field } = this.props;
+    const { keys = [] } = field;
+
+    if (field.type !== 'objectList' || !field.keys) {
+      return null;
+    }
+
+    const onClick = () => {
+      const object = keys.reduce((e, key) => {
+        e[key] = '';
+        return e;
+      }, {});
+
+      this.setState({ value: [object, ...this.state.value] });
+    };
+
+    return (
+      <Button btnStyle="link" onClick={onClick}>
+        <Icon icon="plus-circle" />
+      </Button>
+    );
   }
 
   render() {
@@ -566,6 +591,8 @@ export default class GenerateField extends React.Component<Props, State> {
         <ControlLabel ignoreTrans={true} required={field.isRequired}>
           {field.text}
         </ControlLabel>
+        {this.renderAddButton()}
+
         {hasLogic && <LogicIndicator>Logic</LogicIndicator>}
         {field.description ? <p>{field.description}</p> : null}
 

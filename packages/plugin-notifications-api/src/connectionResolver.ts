@@ -1,6 +1,4 @@
-import { MongoClient } from 'mongodb';
 import * as mongoose from 'mongoose';
-import { mainDb } from './configs';
 import {
   IConfigDocument,
   INotificationDocument,
@@ -12,6 +10,7 @@ import {
   loadNotificationConfigClass,
 } from './models/Notifications';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
   Notifications: INotificationModel;
@@ -22,27 +21,11 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels;
-
-export const getSubdomain = (hostname: string): string => {
-  return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
-};
-
-export const generateModels = async (
-  hostnameOrSubdomain: string
-): Promise<IModels> => {
-  if (models) {
-    return models;
-  }
-
-  loadClasses(mainDb, hostnameOrSubdomain);
-
-  return models;
-};
+export let models: IModels | null = null;
 
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string
+  _subdomain: string
 ): IModels => {
   models = {} as IModels;
 
@@ -57,3 +40,5 @@ export const loadClasses = (
   );
   return models;
 };
+
+export const generateModels = createGenerateModels<IModels>(models, loadClasses);

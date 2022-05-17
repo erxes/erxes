@@ -1,8 +1,8 @@
-import { moduleCheckPermission } from "@erxes/api-utils/src/permissions";
-import { IContext } from "../../../connectionResolver";
-import { putUpdateLog, putCreateLog, putDeleteLog } from "../../../logUtils";
-import { sendCoreMessage } from "../../../messageBroker";
-import { ISegment } from "../../../models/definitions/segments";
+import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { IContext } from '../../../connectionResolver';
+import { putUpdateLog, putCreateLog, putDeleteLog } from '../../../logUtils';
+import { sendCoreMessage } from '../../../messageBroker';
+import { ISegment } from '../../../models/definitions/segments';
 
 interface ISegmentsEdit extends ISegment {
   _id: string;
@@ -13,7 +13,11 @@ const segmentMutations = {
   /**
    * Create new segment
    */
-  async segmentsAdd(_root, doc: ISegment, { models, user, docModifier, subdomain }: IContext) {
+  async segmentsAdd(
+    _root,
+    doc: ISegment,
+    { models, user, docModifier, subdomain }: IContext
+  ) {
     const extendedDoc = docModifier(doc);
 
     const conditionSegments = extendedDoc.conditionSegments;
@@ -35,6 +39,7 @@ const segmentMutations = {
     }
 
     await putCreateLog(
+      subdomain,
       {
         type: 'segment',
         newData: doc,
@@ -52,15 +57,19 @@ const segmentMutations = {
   async segmentsEdit(
     _root,
     { _id, ...doc }: ISegmentsEdit,
-    { models, user }: IContext
-  )
-  {
+    { models, subdomain, user }: IContext
+  ) {
     const segment = await models.Segments.getSegment(_id);
     const conditionSegments = doc.conditionSegments;
 
-    const updated = await models.Segments.updateSegment(_id, doc, conditionSegments);
+    const updated = await models.Segments.updateSegment(
+      _id,
+      doc,
+      conditionSegments
+    );
 
     await putUpdateLog(
+      subdomain,
       {
         type: 'segment',
         object: segment,
@@ -76,11 +85,15 @@ const segmentMutations = {
   /**
    * Delete segment
    */
-  async segmentsRemove(_root, { _id }: { _id: string }, { models, user }: IContext) {
+  async segmentsRemove(
+    _root,
+    { _id }: { _id: string },
+    { models, subdomain, user }: IContext
+  ) {
     const segment = await models.Segments.getSegment(_id);
     const removed = await models.Segments.removeSegment(_id);
 
-    await putDeleteLog({ type: 'segment', object: segment }, user);
+    await putDeleteLog(subdomain, { type: 'segment', object: segment }, user);
 
     return removed;
   }

@@ -29,7 +29,6 @@
     "redis": "^2.8.0",
     "requestify": "^0.2.5",
     "tsc-alias": "^1.5.0",
-    "clerq": "0.5.0",
     "xlsx-populate": "^1.20.1",
     "strip": "^3.0.0",
     "formidable": "^1.1.1",

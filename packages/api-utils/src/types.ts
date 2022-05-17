@@ -75,14 +75,6 @@ export interface IColumnLabel {
   name: string;
   label: string;
 }
-export interface IFetchElkArgs {
-  action: string;
-  index: string;
-  body: any;
-  _id?: string;
-  defaultValue?: any;
-}
-
 export interface IRule {
   kind: string;
   text: string;
@@ -140,3 +132,10 @@ export const attachmentSchema = new Schema(
   },
   { _id: false }
 );
+
+export interface IEncryptionData {
+  algorithm: string;
+  iv: string;
+  encryptedData: string;
+  key: Buffer;
+}

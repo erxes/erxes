@@ -1,12 +1,13 @@
 import gql from "graphql-tag";
 import * as React from "react";
-import { compose, graphql } from "react-apollo";
+import { graphql, compose } from "react-apollo";
 import { IBrowserInfo } from "../../types";
 import { Notifier as DumbNotifier } from "../components";
-import { connection } from '../connection';
-import graphqlTypes from '../graphql';
-import { EngageMessageQueryResponse ,IMessage} from "../types";
+import { connection } from "../connection";
+import graphqlTypes from "../graphql";
+import { EngageMessageQueryResponse, IMessage } from "../types";
 import { AppConsumer } from "./AppContext";
+
 type Props = {
   message?: IMessage;
   browserInfo?: IBrowserInfo;
@@ -14,7 +15,7 @@ type Props = {
 };
 class Notifier extends React.Component<Props> {
   render() {
-    const { engageMessageQuery} = this.props;
+    const { engageMessageQuery } = this.props;
 
     const message = engageMessageQuery.widgetsGetEngageMessage;
 
@@ -52,25 +53,23 @@ class Notifier extends React.Component<Props> {
   }
 }
 
-
-const withPollInterval = compose(graphql<Props>(
-  gql(graphqlTypes.getEngageMessage), {
-  name: 'engageMessageQuery',
-  options: ownProps => ({
-    variables: {
-      integrationId: connection.data.integrationId,
-      customerId: connection.data.customerId,
-      visitorId: connection.data.visitorId,
-      browserInfo: ownProps.browserInfo,
-    },
-    notifyOnNetworkStatusChange: true,
-    fetchPolicy: 'network-only',
-    skip: !connection.data.customerId,
-    // every minute
-    pollInterval: 60000
+const withPollInterval = compose(
+  graphql<Props>(gql(graphqlTypes.getEngageMessage), {
+    name: "engageMessageQuery",
+    options: ownProps => ({
+      variables: {
+        integrationId: connection.data.integrationId,
+        customerId: connection.data.customerId,
+        visitorId: connection.data.visitorId,
+        browserInfo: ownProps.browserInfo
+      },
+      notifyOnNetworkStatusChange: true,
+      fetchPolicy: "network-only",
+      skip: !connection.data.customerId,
+      // every minute
+      pollInterval: 60000
+    })
   })
-})
-)(Notifier)
+)(Notifier);
 
-
-export default withPollInterval
+export default withPollInterval;

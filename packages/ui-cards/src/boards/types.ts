@@ -1,7 +1,11 @@
 import { IUser } from '@erxes/ui/src/auth/types';
 import { ICompany } from '@erxes/ui/src/companies/types';
 import { ICustomer } from '@erxes/ui/src/customers/types';
-import { IAttachment, QueryResponse, MutationVariables } from '@erxes/ui/src/types';
+import {
+  IAttachment,
+  QueryResponse,
+  MutationVariables
+} from '@erxes/ui/src/types';
 import { ISavedConformity } from '../conformity/types';
 import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
 
@@ -63,6 +67,7 @@ export interface IPipeline {
   createdAt: Date;
   createdUser: IUser;
   members?: any[];
+  departmentIds?: string[];
   memberIds?: string[];
   condition?: string;
   label?: string;
@@ -130,8 +135,12 @@ export interface IStage {
   itemsTotalCount: number;
   formId: string;
   pipelineId: string;
+  visibility: string;
+  memberIds: string[];
+  departmentIds: string[];
   status: string;
   order: number;
+  code?: string;
 }
 
 export interface IConversionStage extends IStage {
@@ -341,9 +350,7 @@ export type EditPipelineLabelMutationResponse = ({
 }) => Promise<any>;
 
 export type RemovePipelineLabelMutationResponse = {
-  removeMutation: (params: {
-    variables: MutationVariables;
-  }) => Promise<void>;
+  removeMutation: (params: { variables: MutationVariables }) => Promise<void>;
 };
 
 export type PipelineLabelMutationVariables = {

@@ -1,9 +1,9 @@
-import { IUser } from "modules/auth/types";
-import { DescImg } from "@erxes/ui/src/components/HeaderDescription";
-import { __ } from "modules/common/utils";
-import Wrapper from "modules/layout/components/Wrapper";
-import React from "react";
-import { WELCOME, CARDS } from "../constants";
+import { IUser } from 'modules/auth/types';
+import { DescImg } from '@erxes/ui/src/components/HeaderDescription';
+import { __ } from 'modules/common/utils';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
+import { STEPS, BANNER, COMMUNITY } from '../constants';
 import {
   BoxedStep,
   BoxHeader,
@@ -11,40 +11,41 @@ import {
   Boxes,
   Card,
   Header,
-} from "../styles";
-import Box from "@erxes/ui/src/components/Box";
-import Icon from "@erxes/ui/src/components/Icon";
-import Button from "@erxes/ui/src/components/Button";
-import { WidgetBackgrounds } from "@erxes/ui-settings/src/styles";
+  SideNumber,
+  LinkedButton
+} from '../styles';
+import Box from '@erxes/ui/src/components/Box';
+import Button from '@erxes/ui/src/components/Button';
+import { WidgetBackgrounds } from '@erxes/ui-settings/src/styles';
 import { Step, Steps } from '@erxes/ui/src/components/step';
 import ProgressBar from '@erxes/ui/src/components/ProgressBar';
+import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   currentUser: IUser;
-}
+};
 
 function Welcome({ currentUser }: Props) {
   const renderHeader = () => {
     return (
       <Header>
         <h1>
-          {__("Welcome!")} {currentUser} {" "}
+          {__('Welcome!')} {currentUser.username}{' '}
           <span role="img" aria-label="Wave">
             👋
           </span>
         </h1>
-        <p>
+        <div>
           {__(
-            "Enjoy a frictionless development experience and expand upon the erxes platform without modifying the core platform"
+            'Enjoy a frictionless development experience and expand upon the erxes platform without modifying the core platform'
           )}
-          <br />
           <ul>
             <li>
-              {__("Free and fair code licensed experience operating system")}
+              {__('Free and fair code licensed experience operating system')}
             </li>
-            <li>{__("Monetization - earn from your creations")}</li>
+            <li>{__('Monetization - earn from your creations')}</li>
           </ul>
-        </p>
+        </div>
       </Header>
     );
   };
@@ -63,8 +64,21 @@ function Welcome({ currentUser }: Props) {
             {description}
           </div>
         </Left>
-        {title === 'Setup Process' && <ProgressBar percentage={50} type="circle" height='70px' />}
+        {title === 'Setup Process' && (
+          <ProgressBar percentage={50} type="circle" height="70px" />
+        )}
       </BoxHeader>
+    );
+  };
+
+  const renderDocContent = (title: string, url: string) => {
+    return (
+      <LinkedButton href={url} target="_blank">
+        <h3>
+          {title}
+          <Icon icon="angle-right" />
+        </h3>
+      </LinkedButton>
     );
   };
 
@@ -72,130 +86,176 @@ function Welcome({ currentUser }: Props) {
     return (
       <WidgetBackgrounds>
         <Boxes>
-          <Box title="Docs">hello</Box>
-          <Box title="How To Plugin">hello</Box>
+          {renderDocContent(
+            'Documentation',
+            'https://www.erxes.org/overview/deployment-overview'
+          )}
+          {renderDocContent(
+            "User's guide",
+            'https://www.erxes.org/user/subscription-getting-started'
+          )}
         </Boxes>
         <Boxes>
-          <Box title="API">hello</Box>
-          <Box title="Plugin Monetization">hello</Box>
+          {renderDocContent('Invest', 'https://www.erxes.org/invest')}
+          {renderDocContent('Service', 'https://www.erxes.org/service')}
         </Boxes>
       </WidgetBackgrounds>
     );
   };
 
   const renderSetup = () => {
-    return (<>
-    <Steps type="stepperColumn" allStep={5} titles={['General information', 'General system configuration', 'Campaign config / File Upload', 'Constant', 'Connecting service']} >
-      <Step type="stepperColumn" noButton={true}>hi</Step>
-      <Step type="stepperColumn" noButton={true}>hi</Step>
-      <Step type="stepperColumn" noButton={true}>hi</Step>
-      <Step type="stepperColumn" noButton={true}>hi</Step>
-      <Step type="stepperColumn" noButton={true}>hi</Step>
-    </Steps>
-    </>);
+    return (
+      <>
+        <Steps
+          type="stepperColumn"
+          allStep={5}
+          titles={[
+            'General information',
+            'General system configuration',
+            'Campaign config / File Upload',
+            'Constant',
+            'Connecting service'
+          ]}
+        >
+          <Step type="stepperColumn" noButton={true}>
+            hi
+          </Step>
+          <Step type="stepperColumn" noButton={true}>
+            hi
+          </Step>
+          <Step type="stepperColumn" noButton={true}>
+            hi
+          </Step>
+          <Step type="stepperColumn" noButton={true}>
+            hi
+          </Step>
+          <Step type="stepperColumn" noButton={true}>
+            hi
+          </Step>
+        </Steps>
+      </>
+    );
+  };
+
+  const renderVideo = (title: string, url: string) => {
+    return (
+      <Box title={title} noBackground={true}>
+        <iframe
+          title="erxes tutorial"
+          width="100%"
+          height="478"
+          src={url}
+          frameBorder="0"
+          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen={true}
+        />
+      </Box>
+    );
   };
 
   const renderGuide = () => {
     return (
       <WidgetBackgrounds>
         <Boxes>
-          <Box title="Admin">hello</Box>
-          <Box title="Marketing">hello</Box>
+          {renderVideo(
+            'Profile settings',
+            'https://www.youtube-nocookie.com/embed/sDzPEEBSp44'
+          )}
+          {renderVideo(
+            'System configuration',
+            'https://www.youtube-nocookie.com/embed/PDP9Jd7BCZs'
+          )}
         </Boxes>
         <Boxes>
-          <Box title="Sales">hello</Box>
-          <Box title="Support">hello</Box>
+          {renderVideo(
+            'Signature',
+            'https://www.youtube-nocookie.com/embed/Eg9D4r38aso'
+          )}
+          {renderVideo(
+            'Brands',
+            'https://www.youtube-nocookie.com/embed/ri17N4J478E'
+          )}
         </Boxes>
       </WidgetBackgrounds>
     );
   };
 
   const renderCommunity = () => {
-    const community = [
-      {
-        name: "github",
-        link: "https://github.com/erxes/erxes",
-        icon: "github-circled",
-      },
-      { name: "Discord", link: "", icon: "" },
-      { name: "Youtube", link: "", icon: "youtube-play" },
-      { name: "Figma", link: "", icon: "" },
-      { name: "Twitter", link: "", icon: "twitter" },
-      { name: "Facebook", link: "", icon: "facebook-official" },
-      { name: "Blog", link: "", icon: "" },
-    ];
     return (
       <BoxedStep>
         {renderBoxHeader(
-          "Join our community",
-          "",
-          "Discuss with team member, contributors and developers on different channels"
+          'Join our community',
+          '',
+          'Discuss with team member, contributors and developers on different channels'
         )}
-        <WidgetBackgrounds>
-          {community.map((com) => (
-            <Button href={com.link} btnStyle="simple" icon={com.icon}>
-              {com.name}
-            </Button>
-          ))}
-        </WidgetBackgrounds>
+        <BoxHeader>
+          <WidgetBackgrounds>
+            {COMMUNITY.map((com, index) => (
+              <Button
+                key={index}
+                href={com.link}
+                btnStyle="simple"
+                icon={com.icon}
+                img={com.image}
+                iconColor="black"
+              >
+                {com.name}
+              </Button>
+            ))}
+          </WidgetBackgrounds>
+        </BoxHeader>
       </BoxedStep>
     );
   };
 
-  const renderCard = (
-    key: string,
-    background: string,
-    title: string,
-    desc: string,
-    button: string,
-    icon: string
-  ) => {
+  const renderBanner = (banner, index) => {
+    const { key, background, title, desc, button, img } = banner;
+
     return (
-      <>
-        <Card backgroundImage={background}>
-          <Header>
-            <h1>{title}</h1>
+      <React.Fragment key={index}>
+        <Card background={background} img={img}>
+          <div>
+            <h4>{title}</h4>
             <p>{desc}</p>
-          </Header>
-          <br />
-          <Button size="large">
-            {button}
-            <Icon icon={icon} />
-          </Button>
+            <br />
+            <Button size="large" btnStyle="white">
+              {button}
+            </Button>
+          </div>
+          {key === 'market' && (
+            <SideNumber>
+              <h3>+1200</h3>
+              <p>plugin added</p>
+            </SideNumber>
+          )}
         </Card>
-        {key === "market" && renderCommunity()}
-      </>
+        {key === 'market' && renderCommunity()}
+      </React.Fragment>
     );
   };
 
   const content = (
     <>
-      {WELCOME.map((group) => (
-        <BoxedStep>
+      {STEPS.map((group, index) => (
+        <BoxedStep key={index}>
           {renderBoxHeader(group.title, group.image, group.description)}
-          {group.key === "documentation" && renderDocumentation()}
-          {group.key === "usingGuide" && renderGuide()}
+          {group.key === 'documentation' && renderDocumentation()}
+          {group.key === 'usingGuide' && renderGuide()}
           {group.key === 'setup' && renderSetup()}
-          {/* {group.key === "community" && renderCommunity()} */}
         </BoxedStep>
       ))}
-      {CARDS.map((card) =>
-        renderCard(
-          card.key,
-          card.background,
-          card.title,
-          card.desc,
-          card.button,
-          card.icon
-        )
-      )}
+      {BANNER.map((banner, index) => renderBanner(banner, index))}
     </>
   );
 
   return (
     <Wrapper
       actionBar={
-        <Wrapper.ActionBar background="transparent" noBorder={true} left={renderHeader()} />
+        <Wrapper.ActionBar
+          background="transparent"
+          noBorder={true}
+          left={renderHeader()}
+        />
       }
       content={content}
       transparent={true}

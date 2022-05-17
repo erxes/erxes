@@ -1,6 +1,4 @@
-import { MongoClient } from "mongodb";
 import * as mongoose from "mongoose";
-import { mainDb } from "./configs";
 import {
   IFieldDocument,
   IFieldGroupDocument
@@ -22,6 +20,7 @@ import {
   loadFormClass,
   loadFormSubmissionClass
 } from "./models/Forms";
+import { createGenerateModels } from "@erxes/api-utils/src/core";
 
 export interface IModels {
   Fields: IFieldModel;
@@ -35,19 +34,8 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels;
+export let models: IModels | null = null;
 
-export const generateModels = async (
-  hostnameOrSubdomain: string
-): Promise<IModels> => {
-  if (models) {
-    return models;
-  }
-
-  loadClasses(mainDb, hostnameOrSubdomain);
-
-  return models;
-};
 
 export const loadClasses = (
   db: mongoose.Connection,
@@ -74,3 +62,5 @@ export const loadClasses = (
 
   return models;
 };
+
+export const generateModels = createGenerateModels<IModels>(models, loadClasses);

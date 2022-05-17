@@ -125,6 +125,7 @@ const posProducts = `
           name
         }
         count
+        amount
       }
 
       totalCount

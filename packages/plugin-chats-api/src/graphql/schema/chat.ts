@@ -1,7 +1,7 @@
 import {
   attachmentType,
   attachmentInput,
-} from '@erxes/api-utils/src/commonTypeDefs';
+} from "@erxes/api-utils/src/commonTypeDefs";
 
 export const types = () => `
 
@@ -24,6 +24,7 @@ export const types = () => `
     isPinned: Boolean
     relatedMessage: ChatMessage
     attachments: JSON
+    mentionedUserIds: [String]
     createdUser: User
     createdAt: Date
     seenList: [SeenInfo]
@@ -92,6 +93,7 @@ export const queries = `
   chatDetail(_id: String!): Chat
   getUnreadChatCount: Int
   chatMessages(chatId: String, isPinned: Boolean, ${paginationParams}): ChatMessageResponse
+  chatMessageDetail(_id : String) : ChatMessage
   getChatIdByUserIds(userIds: [String]): String
 `;
 
@@ -100,15 +102,10 @@ export const mutations = `
   chatEdit(_id: String!, name: String, description: String, visibility: ChatVisibilityType): Chat
   chatRemove(_id: String!): JSON
   chatAddOrRemoveMember(_id: String!, userIds: [String], type: ChatMemberModifyType): String
+  chatMarkAsRead(_id : String!) : String
   
-  chatMessageAdd(chatId: String!, relatedId: String, attachments: [JSON], content: String): ChatMessage
+  chatMessageAdd(chatId: String!, relatedId: String, attachments: [JSON], content: String, mentionedUserIds: [String]): ChatMessage
   chatMessageRemove(_id: String!): JSON
   chatMakeOrRemoveAdmin(_id: String!, userId: String!): String
   chatMessageToggleIsPinned(_id: String!): Boolean
-`;
-
-export const subscriptions = `
-  chatMessageInserted(chatId: String!): ChatMessage
-  chatInserted(userId: String!): Chat
-  chatUnreadCountChanged(userId: String!): Int
 `;

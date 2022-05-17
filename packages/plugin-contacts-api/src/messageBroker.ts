@@ -10,6 +10,7 @@ import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { getNumberOfVisits } from './events';
 import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from './constants';
 import { updateContactsField } from './utils';
+import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 
 export let client;
 
@@ -316,46 +317,49 @@ export const initBroker = cl => {
     data: await getNumberOfVisits(data)
   }));
 
-  consumeQueue('contacts:customers.setUnsubscribed', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
+  consumeQueue(
+    'contacts:customers.setUnsubscribed',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
 
-    const { customerIds = [], status, _id } = data;
+      const { customerIds = [], status, _id } = data;
 
-    const update: any = { isSubscribed: 'No' };
+      const update: any = { isSubscribed: 'No' };
 
-    if (status === AWS_EMAIL_STATUSES.BOUNCE) {
-      update.emailValidationStatus = EMAIL_VALIDATION_STATUSES.INVALID;
-    }
+      if (status === AWS_EMAIL_STATUSES.BOUNCE) {
+        update.emailValidationStatus = EMAIL_VALIDATION_STATUSES.INVALID;
+      }
 
-    if (_id && status) {
-      return {
-        status: 'success',
-        data: await models.Customers.updateOne(
-          { _id },
-          { $set: update }
-        )
+      if (_id && status) {
+        return {
+          status: 'success',
+          data: await models.Customers.updateOne({ _id }, { $set: update })
+        };
+      }
+
+      if (customerIds.length > 0 && !status) {
+        return {
+          status: 'success',
+          data: await models.Customers.updateMany(
+            { _id: { $in: customerIds } },
+            { $set: update }
+          )
+        };
       }
     }
+  );
 
-    if (customerIds.length > 0 && !status) {
+  consumeRPCQueue(
+    'contacts:updateContactsField',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
       return {
         status: 'success',
-        data: await models.Customers.updateMany(
-          { _id: { $in: customerIds } },
-          { $set: update }
-        )
-      }
+        data: await updateContactsField(models, subdomain, data)
+      };
     }
-  });
-
-  consumeRPCQueue('contacts:updateContactsField', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain)
-
-    return {
-      status: 'success',
-      data: await updateContactsField(models, subdomain, data)
-    }
-  })
+  );
 };
 
 export const sendSegmentsMessage = async (
@@ -448,7 +452,7 @@ export const sendCommonMessage = async (
   return sendMessage({
     serviceDiscovery,
     client,
-    ...args,
+    ...args
   });
 };
 
@@ -458,7 +462,7 @@ export const sendIntegrationsMessage = (
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: "integrations",
+    serviceName: 'integrations',
     ...args
   });
 };
@@ -471,6 +475,10 @@ export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
     isRPC: true
   });
 
-export default function () {
+export const sendToWebhook = ({ subdomain, data }) => {
+  return sendWebhook(client, { subdomain, data });
+};
+
+export default function() {
   return client;
 }

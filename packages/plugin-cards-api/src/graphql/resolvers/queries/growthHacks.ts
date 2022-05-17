@@ -68,7 +68,7 @@ const growthHackQueries = {
   ) {
     const filter = await generateGrowthHackCommonFilters(models, subdomain, user._id, args);
 
-    return models.GrowthHacks.find(filter).countDocuments();
+    return models.GrowthHacks.find(filter).count();
   },
 
   async growthHacksPriorityMatrix(

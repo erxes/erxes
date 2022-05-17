@@ -73,7 +73,7 @@ export const getEditorAttributeUtil = async () => {
   const services = await getServices();
   const editor = await new EditorAttributeUtil(
     messageBroker(),
-    `${process.env.MAIN_API_DOMAIN}/pl:core`,
+    `${process.env.DOMAIN}/gateway/pl:core`,
     services
   );
 

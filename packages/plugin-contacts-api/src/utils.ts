@@ -4,8 +4,13 @@ import { chunkArray } from '@erxes/api-utils/src/core';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 
-import { debug, es } from './configs';
-import { customerSchema, ICustomerDocument, locationSchema, visitorContactSchema } from './models/definitions/customers';
+import { debug } from './configs';
+import {
+  customerSchema,
+  ICustomerDocument,
+  locationSchema,
+  visitorContactSchema
+} from './models/definitions/customers';
 import messageBroker, {
   sendCoreMessage,
   sendEngagesMessage,
@@ -13,11 +18,17 @@ import messageBroker, {
   sendInboxMessage,
   sendTagsMessage
 } from './messageBroker';
-import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery'
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { generateModels, IModels } from './connectionResolver';
-import { COMPANY_INFO, CUSTOMER_BASIC_INFO, DEVICE_PROPERTIES_INFO, MODULE_NAMES } from './constants';
+import {
+  COMPANY_INFO,
+  CUSTOMER_BASIC_INFO,
+  DEVICE_PROPERTIES_INFO,
+  MODULE_NAMES
+} from './constants';
 import { companySchema } from './models/definitions/companies';
-import { ICustomField, ILink } from "@erxes/api-utils/src/types";
+import { ICustomField, ILink } from '@erxes/api-utils/src/types';
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 
 export const findCustomer = async ({ Customers }: IModels, doc) => {
   let customer;
@@ -152,18 +163,53 @@ const getTags = async (type: string, subdomain: string) => {
     subdomain,
     action: 'find',
     data: {
-      type
+      type: `contacts:${['lead', 'visitor'].includes(type) ? 'customer' : type}`
     },
     isRPC: true,
     defaultValue: []
   });
+
+  const selectOptions: Array<{ label: string; value: any }> = [];
+
+  for (const tag of tags) {
+    selectOptions.push({
+      value: tag._id,
+      label: tag.name
+    });
+  }
 
   return {
     _id: Math.random(),
     name: 'tagIds',
     label: 'Tag',
     type: 'tag',
-    selectOptions: tags
+    selectOptions
+  };
+};
+
+const getIntegrations = async (subdomain: string) => {
+  const integrations = await sendInboxMessage({
+    subdomain,
+    action: 'integrations.find',
+    data: {},
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const selectOptions: Array<{ label: string; value: any }> = [];
+
+  for (const integration of integrations) {
+    selectOptions.push({
+      value: integration._id,
+      label: integration.name
+    });
+  }
+
+  return {
+    _id: Math.random(),
+    name: 'relatedIntegrationIds',
+    label: 'Related integration',
+    selectOptions
   };
 };
 
@@ -217,7 +263,8 @@ export const generateFields = async ({ subdomain, data }) => {
   }
 
   if (!usageType || usageType === 'export') {
-    const aggre = await es.fetchElk({
+    const aggre = await fetchEs({
+      subdomain,
       action: 'search',
       index: type === 'company' ? 'companies' : 'customers',
       body: {
@@ -263,22 +310,21 @@ export const generateFields = async ({ subdomain, data }) => {
   );
 
   const tags = await getTags(type, subdomain);
-  fields = [...fields, ...[tags]];
+
+  fields = [...fields, tags];
 
   if (type === 'customer') {
-    const integrations = await sendInboxMessage({
-      subdomain,
-      action: 'integrations.find',
-      data: {},
-      isRPC: true
-    });
+    const integrations = await getIntegrations(subdomain);
 
-    fields.push({
-      _id: Math.random(),
-      name: 'relatedIntegrationIds',
-      label: 'Related integration',
-      selectOptions: integrations
-    });
+    fields = [...fields, integrations];
+
+    if (usageType === 'import') {
+      fields.push({
+        _id: Math.random(),
+        name: 'companiesPrimaryNames',
+        label: 'Company Primary Names'
+      });
+    }
   }
 
   fields = [...fields, ownerOptions];
@@ -336,7 +382,7 @@ export const getEditorAttributeUtil = async () => {
   const services = await getServices();
   const editor = await new EditorAttributeUtil(
     messageBroker(),
-    `${process.env.MAIN_API_DOMAIN}/pl:core`,
+    `${process.env.DOMAIN}/gateway/pl:core`,
     services
   );
 
@@ -472,9 +518,8 @@ export const prepareEngageCustomers = async (
   });
 };
 
-
 export const generateSystemFields = ({ data: { groupId } }) => {
-  let contactsFields: any = [];
+  const contactsFields: any = [];
 
   const serviceName = 'contacts';
 
@@ -515,21 +560,27 @@ export const generateSystemFields = ({ data: { groupId } }) => {
   return contactsFields;
 };
 
-export const updateContactsField = async (models: IModels, subdomain: string, args: {
-  browserInfo: any;
-  cachedCustomerId?: string;
-  integration: any;
-  submissionsGrouped: any;
-}) => {
+export const updateContactsField = async (
+  models: IModels,
+  subdomain: string,
+  args: {
+    browserInfo: any;
+    cachedCustomerId?: string;
+    integration: any;
+    submissionsGrouped: any;
+  }
+) => {
   let { cachedCustomerId } = args;
   const { browserInfo, integration, submissionsGrouped } = args;
+
+  const { leadData } = integration;
 
   const conformityIds: {
     [key: string]: { customerId: string; companyId: string };
   } = {};
 
   let cachedCustomer;
-  
+
   const customerSchemaLabels = await getSchemaLabels('customer');
   const companySchemaLabels = await getSchemaLabels('company');
 
@@ -626,7 +677,7 @@ export const updateContactsField = async (models: IModels, subdomain: string, ar
       ) {
         const field = await sendFormsMessage({
           subdomain,
-          action: "fields.findOne",
+          action: 'fields.findOne',
           data: {
             query: {
               _id: submission.associatedFieldId
@@ -650,14 +701,14 @@ export const updateContactsField = async (models: IModels, subdomain: string, ar
           isRPC: true
         });
 
-        if (fieldGroup && fieldGroup.contentType === 'company') {
+        if (fieldGroup && fieldGroup.contentType === 'contacts:company') {
           companyCustomData.push({
             field: submission.associatedFieldId,
             value: submission.value
           });
         }
 
-        if (fieldGroup && fieldGroup.contentType === 'customer') {
+        if (fieldGroup && fieldGroup.contentType === 'contacts:customer') {
           customFieldsData.push({
             field: submission.associatedFieldId,
             value: submission.value
@@ -679,7 +730,8 @@ export const updateContactsField = async (models: IModels, subdomain: string, ar
           models,
           integration._id,
           customerDoc,
-          integration.brandId || ''
+          integration.brandId || '',
+          leadData.saveAsCustomer
         );
       }
 
@@ -692,7 +744,7 @@ export const updateContactsField = async (models: IModels, subdomain: string, ar
           links: customerLinks,
           scopeBrandIds: [integration.brandId || '']
         },
-        cachedCustomer,
+        cachedCustomer
       );
 
       cachedCustomerId = cachedCustomer._id;
@@ -725,7 +777,7 @@ export const updateContactsField = async (models: IModels, subdomain: string, ar
           links: customerLinks,
           scopeBrandIds: [integration.brandId || '']
         },
-        customer,
+        customer
       );
 
       conformityIds[groupId] = { customerId: customer._id, companyId: '' };
@@ -847,7 +899,7 @@ export const updateCustomerFromForm = async (
   models: IModels,
   browserInfo: any,
   doc: any,
-  customer: ICustomerDocument,
+  customer: ICustomerDocument
 ) => {
   const customerDoc: any = {
     ...doc,
@@ -900,7 +952,6 @@ export const updateCustomerFromForm = async (
   await models.Customers.updateCustomer(customer._id, customerDoc);
 };
 
-
 const prepareCustomFieldsData = (
   customerData: ICustomField[],
   submissionData: ICustomField[]
@@ -912,7 +963,7 @@ const prepareCustomFieldsData = (
   }
 
   for (const data of submissionData) {
-    const existingData = customerData.find((e) => e.field === data.field);
+    const existingData = customerData.find(e => e.field === data.field);
 
     if (existingData && Array.isArray(existingData.value)) {
       data.value = existingData.value.concat(data.value);
@@ -928,9 +979,10 @@ const createCustomer = async (
   models: IModels,
   integrationId: string,
   customerDoc: any,
-  brandId?: string
+  brandId?: string,
+  saveAsCustomer?: boolean
 ) => {
-  return models.Customers.createCustomer({
+  const doc: any = {
     integrationId,
     primaryEmail: customerDoc.email || '',
     emails: [customerDoc.email || ''],
@@ -939,13 +991,18 @@ const createCustomer = async (
     middleName: customerDoc.middleName || '',
     primaryPhone: customerDoc.phone || '',
     scopeBrandIds: [brandId || '']
-  });
+  };
+
+  if (saveAsCustomer) {
+    doc.state = 'customer';
+  }
+
+  return models.Customers.createCustomer(doc);
 };
 
 const getSocialLinkKey = (type: string) => {
   return type.substring(type.indexOf('_') + 1);
 };
-
 
 export const getSchemaLabels = async (type: string) => {
   let fieldNames: any[] = [];
@@ -993,12 +1050,42 @@ export const buildLabelList = (obj = {}): any[] => {
 
 const LOG_MAPPINGS = [
   {
-
     name: MODULE_NAMES.CUSTOMER,
     schemas: [customerSchema, locationSchema, visitorContactSchema]
   },
   {
     name: MODULE_NAMES.COMPANY,
     schemas: [companySchema]
-  },
-]
+  }
+];
+
+export const prepareCustomData = async (subdomain, doc) => {
+  const { data } = doc;
+  const { customFieldsData = [] } = doc;
+
+  if (!data) {
+    return customFieldsData;
+  }
+
+  const generatedData = await sendFormsMessage({
+    subdomain,
+    action: 'fields.generateCustomFieldsData',
+    data: {
+      customData: data,
+      contentType: 'contacts:customer'
+    },
+    isRPC: true,
+    defaultValue: { customFieldsData: [] }
+  });
+
+  const generatedCustomFieldsData = generatedData.customFieldsData || [];
+
+  return [
+    ...new Map(
+      [...customFieldsData, ...generatedCustomFieldsData].map(item => [
+        item.field,
+        item
+      ])
+    ).values()
+  ];
+};

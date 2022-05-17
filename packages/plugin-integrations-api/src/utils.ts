@@ -1,13 +1,10 @@
 import * as dotenv from 'dotenv';
 import * as request from 'request-promise';
 import * as sanitizeHtml from 'sanitize-html';
+import { IModels } from './connectionResolver';
 import { debugBase, debugExternalRequests } from './debuggers';
 import {get, set} from './inmemoryStorage';
 import { sendInboxMessage } from './messageBroker';
-import Configs from './models/Configs';
-import { IParticipants, IProviderSettings } from './nylas/types';
-import { sendDailyRequest } from './videoCall/controller';
-import { IRecording } from './videoCall/models';
 
 dotenv.config();
 interface IRequestParams {
@@ -26,8 +23,8 @@ interface IRequestParams {
       | {
           [key: string]: string | number | boolean | any;
         }
-      | IProviderSettings
-      | IParticipants[]
+      | any
+      | any[]
       | {
           [key: string]: {
             [key: string]: string | boolean | any;
@@ -157,13 +154,13 @@ export const compose = (...fns) => arg =>
  * Generate url depending on given file upload publicly or not
  */
 export const generateAttachmentUrl = (urlOrName: string) => {
-  const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
 
   if (urlOrName.startsWith('http')) {
     return urlOrName;
   }
 
-  return `${MAIN_API_DOMAIN}/read-file?key=${urlOrName}`;
+  return `${DOMAIN}/gateway/pl:core/read-file?key=${urlOrName}`;
 };
 
 export const downloadAttachment = urlOrName => {
@@ -187,7 +184,7 @@ export const downloadAttachment = urlOrName => {
   });
 };
 
-export const getConfigs = async () => {
+export const getConfigs = async (models: IModels) => {
   const configsCache = await get('configs_erxes_integrations');
 
   if (configsCache && configsCache !== '{}') {
@@ -195,7 +192,7 @@ export const getConfigs = async () => {
   }
 
   const configsMap = {};
-  const configs = await Configs.find({});
+  const configs = await models.Configs.find({});
 
   for (const config of configs) {
     configsMap[config.code] = config.value;
@@ -206,8 +203,8 @@ export const getConfigs = async () => {
   return configsMap;
 };
 
-export const getConfig = async (code, defaultValue?) => {
-  const configs = await getConfigs();
+export const getConfig = async (models: IModels, code, defaultValue?) => {
+  const configs = await getConfigs(models);
 
   if (!configs[code]) {
     return defaultValue;
@@ -216,9 +213,9 @@ export const getConfig = async (code, defaultValue?) => {
   return configs[code];
 };
 
-export const getCommonGoogleConfigs = async () => {
+export const getCommonGoogleConfigs = async (subdomain: string) => {
   const response = await sendInboxMessage({
-    subdomain: 'os',
+    subdomain,
     action: 'integrations.receive',
     data: {
       action: 'get-configs'
@@ -261,24 +258,4 @@ export const isAfter = (
   }
 
   return false;
-};
-
-export const getRecordings = async (recordings: IRecording[]) => {
-  const newRecordings: IRecording[] = [];
-
-  for (const record of recordings) {
-    if (!record.expires || (record.expires && !isAfter(record.expires))) {
-      const accessLinkResponse = await sendDailyRequest(
-        `/api/v1/recordings/${record.id}/access-link`,
-        'GET'
-      );
-
-      record.expires = accessLinkResponse.expires;
-      record.url = accessLinkResponse.download_link;
-    }
-
-    newRecordings.push(record);
-  }
-
-  return newRecordings;
 };

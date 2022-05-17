@@ -1,17 +1,17 @@
-name: Plugin Neighbor Api CI
+name: Plugin neighbor Api CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - "packages/api-utils/**"
-      - "packages/api-plugin-template.erxes/**"
-      - "packages/plugin-neighbor-api/**"
-      - ".github/workflows/plugin-neighbor-api.yaml"
+      - 'packages/api-utils/**'
+      - 'packages/api-plugin-template.erxes/**'
+      - 'packages/plugin-neighbor-api/**'
+      - '.github/workflows/plugin-neighbor-api.yaml'
 
 jobs:
-  plugin-neighbor-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:
@@ -41,13 +41,12 @@ jobs:
           cd packages/gateway
           yarn install
           yarn build plugin neighbor
+          cd ../../dist/plugin-neighbor-api/.erxes
+          cd dist/main/.erxes/src
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
         run: |
-          ls -la dist
-          ls -la dist/plugin-neighbor-api
-
           cd dist/plugin-neighbor-api/.erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
           docker build -t erxes/plugin-neighbor-api:${GITHUB_REF#refs/heads/} -f Dockerfile .

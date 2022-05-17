@@ -1,4 +1,5 @@
 import { Document, Model, model, Schema } from 'mongoose';
+import { IModels } from '../connectionResolver';
 import { field } from './utils';
 
 export interface IIntegration {
@@ -101,10 +102,10 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   getIntegration(selector): Promise<IIntegrationDocument>;
 }
 
-export const loadClass = () => {
+export const loadIntegrationClass = (models: IModels) => {
   class Integration {
     public static async getIntegration(selector) {
-      const integration = await Integrations.findOne(selector);
+      const integration = await models.Integrations.findOne(selector);
 
       if (!integration) {
         throw new Error('Integration not found');
@@ -119,12 +120,12 @@ export const loadClass = () => {
   return integrationSchema;
 };
 
-loadClass();
+// loadClass();
 
-// tslint:disable-next-line
-const Integrations = model<IIntegrationDocument, IIntegrationModel>(
-  'integrations',
-  integrationSchema
-);
+// // tslint:disable-next-line
+// const Integrations = model<IIntegrationDocument, IIntegrationModel>(
+//   'integrations',
+//   integrationSchema
+// );
 
-export default Integrations;
+// export default Integrations;

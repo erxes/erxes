@@ -80,20 +80,20 @@ class GenerateGroup extends React.Component<Props, State> {
     const { data } = this.state;
     const { save } = this.props;
 
-    save(data, (error) => {
+    save(data, error => {
       if (error) {
         return Alert.error(error.message);
       }
 
       this.cancelEditing();
 
-      return Alert.success("Success");
+      return Alert.success('Success');
     });
   };
 
   cancelEditing = () => {
     this.setState({
-      editing: false,
+      editing: false
     });
   };
 
@@ -129,7 +129,7 @@ class GenerateGroup extends React.Component<Props, State> {
     const { data } = this.state;
     const { fields } = fieldGroup;
 
-    const isVisibleKey = isDetail ? "isVisibleInDetail" : "isVisible";
+    const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
 
     if (fields.length === 0) {
       return null;
@@ -137,7 +137,7 @@ class GenerateGroup extends React.Component<Props, State> {
 
     if (
       fields.length !== 0 &&
-      fields.filter((e) => e[isVisibleKey]).length === 0
+      fields.filter(e => e[isVisibleKey]).length === 0
     ) {
       return (
         <EmptyState
@@ -162,6 +162,7 @@ class GenerateGroup extends React.Component<Props, State> {
               onValueChange={this.onChange}
               defaultValue={data[field._id] || ''}
               currentLocation={this.state.currentLocation}
+              isEditing={this.state.editing}
             />
           );
         })}
@@ -171,7 +172,7 @@ class GenerateGroup extends React.Component<Props, State> {
 
   render() {
     const { fieldGroup, isDetail } = this.props;
-    const isVisibleKey = isDetail ? "isVisibleInDetail" : "isVisible";
+    const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
 
     if (!fieldGroup[isVisibleKey]) {
       return null;
@@ -199,19 +200,19 @@ class GenerateGroups extends React.Component<GroupsProps> {
     const { customFieldsData, save } = this.props;
 
     const prevData = {};
-    (customFieldsData || []).forEach((cd) => (prevData[cd.field] = cd.value));
+    (customFieldsData || []).forEach(cd => (prevData[cd.field] = cd.value));
 
     const updatedData = {
       ...prevData,
-      ...(groupData || {}),
+      ...(groupData || {})
     };
 
     save(
       {
-        customFieldsData: Object.keys(updatedData).map((key) => ({
+        customFieldsData: Object.keys(updatedData).map(key => ({
           field: key,
-          value: updatedData[key],
-        })),
+          value: updatedData[key]
+        }))
       },
       callback
     );
@@ -224,7 +225,7 @@ class GenerateGroups extends React.Component<GroupsProps> {
       return null;
     }
 
-    return fieldsGroups.map((fieldGroup) => {
+    return fieldsGroups.map(fieldGroup => {
       const data = {};
 
       for (const customFieldData of customFieldsData || []) {

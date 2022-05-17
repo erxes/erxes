@@ -18,11 +18,15 @@
   "license": "GNU General Public License v3.0 with Commons Clause",
   "lint-staged": {
     "linters": {
-      "@(ui|widgets)/src/**/*.{ts,tsx,json,css}": [
+      "@(widgets)/src/**/*.{ts,tsx,json,css}": [
         "prettier --single-quote --write",
         "git add"
       ],
-      "@(api|integrations|email-verifier|engages-email-sender|logger)/src/**/*.ts": [
+      "@(email-verifier)/src/**/*.ts": [
+        "prettier --single-quote --write",
+        "git add"
+      ],
+      "packages/*/src/**/*.{ts,tsx,json,css}": [
         "prettier --single-quote --write",
         "git add"
       ]
@@ -31,13 +35,16 @@
     "subTaskConcurrency": 1
   },
   "scripts": {
+    "create-plugins-cis": "node scripts/create-plugins-cis",
     "create-plugin-ui": "node scripts/create-plugin-ui",
     "prepare-plugins": "node scripts/prepare-plugins",
     "prepare-plugins-api": "node scripts/prepare-plugins-api",
     "prepare-plugins-ui": "node scripts/prepare-plugins-ui",
-    "format": "prettier --single-quote --write '@(api|integrations|email-verifier|engages-email-sender|logger|automations)/src/**/*.ts' && prettier --single-quote --write '@(ui|widgets)/src/**/*.@(ts|tsx|json|css)'",
+    "format": "prettier --single-quote --write '@(email-verifier)/src/**/*.ts' && prettier --single-quote --write '@(widgets)/src/**/*.@(ts|tsx|json|css)'",
+    "formatp": "func () { if [ -z \"$1\" ]; then prettier --single-quote --write '@(packages)/gateway/src/**/*.@(ts|tsx|json|css)'; else echo \"prettier --single-quote --write '@(packages)/${1}/src/**/*.@(ts|tsx|json|css)'\" && \"prettier --single-quote --write '@(packages)/${1}/src/**/*.@(ts|tsx|json|css)'\"; fi ;}; func",
     "precommit": "lint-staged",
-    "lint": "func () { if [ -z \"$1\" ]; then tslint '@(api|integrations|email-verifier|engages-email-sender|logger|ui|widgets|automations)/src/**/*.ts?(x)'; else echo \"${1}/src/**/*.ts?(x)\" && tslint ${1}'/src/**/*.ts?(x)'; fi ;}; func",
+    "lint": "func () { if [ -z \"$1\" ]; then tslint '@(email-verifier|widgets)/src/**/*.ts?(x)'; else echo \"${1}/src/**/*.ts?(x)\" && tslint ${1}'/src/**/*.ts?(x)'; fi ;}; func",
+    "lintp": "func () { if [ -z \"$1\" ]; then tslint 'packages/gateway/src/**/*.ts?(x)'; else echo \"packages/${1}/src/**/*.ts?(x)\" && tslint \"packages/${1}/src/**/*.ts?(x)\"; fi ;}; func",
     "generateVersion": "node commands/generateVersion.js",
     "release": "release-it"
   },

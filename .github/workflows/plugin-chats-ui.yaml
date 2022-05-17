@@ -1,13 +1,15 @@
-name: Plugin Chats UI CI
+name: Plugin chats UI CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/plugin-chats-ui/**'
-      - '.github/workflows/plugin-chats-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
+      - "packages/ui-chats/**"
+      - "packages/plugin-chats-ui/**"
+      - ".github/workflows/plugin-chats-ui.yaml"
 
 jobs:
   ui:
@@ -24,8 +26,10 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          # cp -r packages/ui-plugin-template/.erxes packages/plugin-chats-ui/.erxes
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-chats-ui/.erxes
+          cp -r packages/plugin-chats-ui/src packages/plugin-chats-ui/.erxes/plugin-src
           cd packages/plugin-chats-ui
+          yarn install
           yarn install-deps
           yarn build
 
@@ -38,4 +42,6 @@ jobs:
 
       - name: Deploy
         run: |
+          tar -cf build.tar --directory=packages/plugin-chats-ui/.erxes/dist .
+          cp build.tar packages/plugin-chats-ui/.erxes/dist
           aws s3 sync packages/plugin-chats-ui/.erxes/dist s3://erxes-plugins/uis/plugin-chats-ui --delete

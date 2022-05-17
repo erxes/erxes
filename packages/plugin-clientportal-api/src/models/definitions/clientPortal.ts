@@ -24,6 +24,10 @@ export interface IClientPortal {
   dnsStatus?: string;
   styles?: IStyles;
   mobileResponsive?: boolean;
+  kbToggle?: boolean;
+  publicTaskToggle?: boolean;
+  ticketToggle?: boolean;
+  taskToggle?: boolean;
 }
 
 interface IStyles {
@@ -64,10 +68,10 @@ const stylesSchema = new Schema(
     primaryBtnColor: field({ type: String, optional: true }),
     secondaryBtnColor: field({ type: String, optional: true }),
     baseFont: field({ type: String, optional: true }),
-    headingFont: field({ type: String, optional: true }),
+    headingFont: field({ type: String, optional: true })
   },
   {
-    _id: false,
+    _id: false
   }
 );
 
@@ -99,4 +103,8 @@ export const clientPortalSchema = new Schema({
   twilioAuthToken: field({ type: String, optional: true }),
   twilioFromNumber: field({ type: String, optional: true }),
   googleCredentials: field({ type: Object, optional: true }),
+  kbToggle: field({ type: Boolean }),
+  publicTaskToggle: field({ type: Boolean }),
+  ticketToggle: field({ type: Boolean }),
+  taskToggle: field({ type: Boolean })
 });

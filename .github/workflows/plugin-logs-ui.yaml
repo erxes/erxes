@@ -1,13 +1,15 @@
-name: Plugin Log UI CI
+name: Plugin logs UI CI
 
 on:
   push:
     branches:
       - federation
     paths:
-      - 'packages/erxes-ui/**'
-      - 'packages/plugin-logs-ui/**'
-      - '.github/workflows/plugin-logs-ui.yaml'
+      - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
+      - "packages/ui-logs/**"
+      - "packages/plugin-logs-ui/**"
+      - ".github/workflows/plugin-logs-ui.yaml"
 
 jobs:
   ui:
@@ -24,8 +26,10 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          # cp -r packages/ui-plugin-template/.erxes packages/plugin-logs-ui/.erxes
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-logs-ui/.erxes
+          cp -r packages/plugin-logs-ui/src packages/plugin-logs-ui/.erxes/plugin-src
           cd packages/plugin-logs-ui
+          yarn install
           yarn install-deps
           yarn build
 
@@ -38,4 +42,6 @@ jobs:
 
       - name: Deploy
         run: |
+          tar -cf build.tar --directory=packages/plugin-logs-ui/.erxes/dist .
+          cp build.tar packages/plugin-logs-ui/.erxes/dist
           aws s3 sync packages/plugin-logs-ui/.erxes/dist s3://erxes-plugins/uis/plugin-logs-ui --delete

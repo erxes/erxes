@@ -40,7 +40,7 @@ const ticketQueries = {
       ...(await generateTicketCommonFilters(models, subdomain, user._id, args))
     };
 
-    return models.Tickets.find(filter).countDocuments();
+    return models.Tickets.find(filter).count();
   },
 
   /**

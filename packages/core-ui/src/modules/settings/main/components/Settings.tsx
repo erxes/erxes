@@ -80,9 +80,7 @@ class Settings extends React.PureComponent {
             {__('Plugin Settings')}
             <span>{__('Set up your additional plugin settings')}</span>
           </RowTitle>
-          <div id={'PluginSettings'}>
-            {plugins}
-          </div>
+          <div id={'PluginSettings'}>{plugins}</div>
         </Row>
       </>
     );
@@ -112,12 +110,6 @@ class Settings extends React.PureComponent {
               permissionActions
             )}
             {this.renderBox(
-              'Status',
-              '/images/icons/erxes-06.svg',
-              '/settings/status',
-              ''
-            )}
-            {this.renderBox(
               'Team Members',
               '/images/icons/erxes-23.svg',
               '/settings/team',
@@ -143,6 +135,13 @@ class Settings extends React.PureComponent {
               '/settings/importHistories',
               'importHistoriesAll',
               ['importHistories', 'removeImportHistories', 'importXlsFile']
+            )}
+            {this.renderBox(
+              'Apps',
+              '/images/icons/erxes-04.svg',
+              '/settings/apps',
+              '',
+              []
             )}
           </div>
         </Row>

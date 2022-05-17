@@ -6,8 +6,8 @@ import ImportHistory from './importExport/routes';
 import MainRoutes from './main/routes';
 import PermissionRoutes from './permissions/routes';
 import ProfileRoutes from './profile/routes';
-import StatusRoutes from './status/routes';
 import TeamRoutes from './team/routes';
+import AppRoutes from './apps/routes';
 
 const routes = () => (
   <React.Fragment>
@@ -17,8 +17,8 @@ const routes = () => (
     <General key="General" />
     <TeamRoutes key="team" />
     <ImportHistory key="ImportHistory" />
-    <StatusRoutes key="StatusRoutes" />
     <PermissionRoutes key="PermissionRoutes" />
+    <AppRoutes key="AppRoutes" />
   </React.Fragment>
 );
 

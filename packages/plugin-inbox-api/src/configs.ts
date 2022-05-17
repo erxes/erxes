@@ -4,7 +4,6 @@ import resolvers from './graphql/resolvers';
 
 import { generateAllDataLoaders } from './dataLoaders';
 import { initBroker } from './messageBroker';
-import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import {
   identifyCustomer,
@@ -12,29 +11,20 @@ import {
   trackViewPageEvent,
   updateCustomerProperty
 } from './events';
-import {
-  generateModels,
-  models,
-  getSubdomain
-} from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import logs from './logUtils';
 import tags from './tags';
 import segments from './segments';
 import forms from './forms';
-import permissions from './permissions';
+import * as permissions from './permissions';
 import search from './search';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import webhooks from './webhooks';
 
 export let mainDb;
 export let graphqlPubsub;
 export let serviceDiscovery;
-
-export let es: {
-  client;
-  fetchElk(args: IFetchElkArgs): Promise<any>;
-  getMappings(index: string): Promise<any>;
-  getIndexPrefix(): string;
-};
 
 export let debug;
 
@@ -55,10 +45,13 @@ export default {
     segments,
     tags,
     search,
-    logs: { providesActivityLog: true, consumers: logs }
+    logs: { providesActivityLog: true, consumers: logs },
+    webhooks
   },
-  apolloServerContext: context => {
-    const subdomain = 'os';
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req);
+
+    const models = await generateModels(subdomain);
 
     context.models = models;
     context.dataLoaders = generateAllDataLoaders(models);
@@ -68,9 +61,8 @@ export default {
   },
   onServerInit: async options => {
     mainDb = options.db;
-    const app = options.app;
 
-    await generateModels('os');
+    const app = options.app;
 
     // events
     app.post(
@@ -78,7 +70,7 @@ export default {
       routeErrorHandling(
         async (req, res) => {
           const { name, customerId, attributes } = req.body;
-          const subdomain = getSubdomain(req.hostname);
+          const subdomain = getSubdomain(req);
 
           const response =
             name === 'pageView'
@@ -100,7 +92,7 @@ export default {
       routeErrorHandling(
         async (req, res) => {
           const { args } = req.body;
-          const subdomain = getSubdomain(req.hostname);
+          const subdomain = getSubdomain(req);
 
           const response = await identifyCustomer(subdomain, args);
           return res.json(response);
@@ -113,12 +105,9 @@ export default {
       '/events-update-customer-property',
       routeErrorHandling(
         async (req, res) => {
-          const subdomain = getSubdomain(req.hostname);
+          const subdomain = getSubdomain(req);
 
-          const response = await updateCustomerProperty(
-            subdomain,
-            req.body
-          );
+          const response = await updateCustomerProperty(subdomain, req.body);
           return res.json(response);
         },
         res => res.json({})
@@ -131,6 +120,5 @@ export default {
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
-    es = options.elasticsearch;
   }
 };

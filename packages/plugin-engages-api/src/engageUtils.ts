@@ -1,7 +1,8 @@
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import { CAMPAIGN_KINDS, CAMPAIGN_METHODS, CONTENT_TYPES } from './constants';
 import {
   IEngageMessage,
-  IEngageMessageDocument,
+  IEngageMessageDocument
 } from './models/definitions/engages';
 import { isUsingElk } from './utils';
 import {
@@ -11,8 +12,6 @@ import {
   sendContactsMessage
 } from './messageBroker';
 import { IModels } from './connectionResolver';
-import { es } from './configs';
-
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
   customersSelector: any;
@@ -28,20 +27,23 @@ interface ICustomerSelector {
 }
 
 interface ICheckCustomerParams {
-  id?: string,
-  customerIds?: string[],
-  segmentIds?: string[],
-  tagIds?: string[],
-  brandIds?: string[]
+  id?: string;
+  customerIds?: string[];
+  segmentIds?: string[];
+  tagIds?: string[];
+  brandIds?: string[];
 }
 
-export const generateCustomerSelector = async (subdomain, {
-  engageId,
-  customerIds,
-  segmentIds = [],
-  tagIds = [],
-  brandIds = [],
-}: ICustomerSelector): Promise<any> => {
+export const generateCustomerSelector = async (
+  subdomain,
+  {
+    engageId,
+    customerIds,
+    segmentIds = [],
+    tagIds = [],
+    brandIds = []
+  }: ICustomerSelector
+): Promise<any> => {
   // find matched customers
   let customerQuery: any = {};
 
@@ -59,10 +61,10 @@ export const generateCustomerSelector = async (subdomain, {
     const integrations = await sendInboxMessage({
       ...commonParams,
       action: 'integrations.find',
-      data: { query: { brandId: { $in: brandIds } } },
+      data: { query: { brandId: { $in: brandIds } } }
     });
 
-    customerQuery = { integrationId: { $in: integrations.map((i) => i._id) } };
+    customerQuery = { integrationId: { $in: integrations.map(i => i._id) } };
   }
 
   if (segmentIds.length > 0) {
@@ -97,7 +99,7 @@ export const generateCustomerSelector = async (subdomain, {
           'closeDate',
           'createdAt',
           'modifiedAt',
-          'customFieldsData',
+          'customFieldsData'
         ];
 
         if (segment.contentType === 'deal') {
@@ -113,7 +115,7 @@ export const generateCustomerSelector = async (subdomain, {
 
   return {
     ...customerQuery,
-    $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }],
+    $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }]
   };
 };
 
@@ -129,7 +131,7 @@ export const send = async (
     brandIds,
     fromUserId,
     scheduleDate,
-    _id,
+    _id
   } = engageMessage;
 
   // Check for pre scheduled engages
@@ -163,7 +165,7 @@ export const send = async (
     customerIds,
     segmentIds,
     tagIds: customerTagIds,
-    brandIds,
+    brandIds
   });
 
   if (engageMessage.method === CAMPAIGN_METHODS.EMAIL) {
@@ -213,7 +215,7 @@ const sendEmailOrSms = async (
       engageMessage,
       customersSelector,
       action,
-      user,
+      user
     }
   });
 };
@@ -227,7 +229,7 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
     scheduleDate,
     segmentIds = [],
     customerTagIds = [],
-    customerIds = [],
+    customerIds = []
   } = doc;
 
   const noDate =
@@ -255,8 +257,9 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
   }
 };
 
-export const findElk = async (index, query) => {
-  const response = await es.fetchElk({
+export const findElk = async (subdomain: string, index: string, query) => {
+  const response = await fetchEs({
+    subdomain,
     action: 'search',
     index,
     body: {
@@ -286,7 +289,10 @@ export const findUser = async (subdomain, userId?: string) => {
 };
 
 // check customer exists from elastic or mongo
-export const checkCustomerExists = async (subdomain: string, params: ICheckCustomerParams) => {
+export const checkCustomerExists = async (
+  subdomain: string,
+  params: ICheckCustomerParams
+) => {
   const { id, customerIds, segmentIds, tagIds, brandIds } = params;
 
   if (!isUsingElk()) {
@@ -334,7 +340,7 @@ export const checkCustomerExists = async (subdomain: string, params: ICheckCusto
   }
 
   if (brandIds && brandIds.length > 0) {
-    const integraiontIds = await findElk('integrations', {
+    const integraiontIds = await findElk(subdomain, 'integrations', {
       bool: {
         must: [{ terms: { 'brandId.keyword': brandIds } }]
       }
@@ -348,7 +354,7 @@ export const checkCustomerExists = async (subdomain: string, params: ICheckCusto
   }
 
   if (segmentIds && segmentIds.length > 0) {
-    const segments = await findElk('segments', {
+    const segments = await findElk(subdomain, 'segments', {
       bool: {
         must: [{ terms: { _id: segmentIds } }]
       }
@@ -391,7 +397,7 @@ export const checkCustomerExists = async (subdomain: string, params: ICheckCusto
     }
   });
 
-  const customers = await findElk('customers', {
+  const customers = await findElk(subdomain, 'customers', {
     bool: {
       filter: {
         bool: {

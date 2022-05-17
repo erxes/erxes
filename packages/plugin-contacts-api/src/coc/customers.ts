@@ -8,18 +8,19 @@ interface ISortParams {
   [index: string]: number;
 }
 
-const findIntegrations = (subdomain, query, options?) =>
+const findIntegrations = (subdomain: string, query, options?) =>
   sendInboxMessage({
     subdomain,
-    action: "integrations.find",
+    action: 'integrations.find',
     data: { query, options },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
 export interface IConformityQueryParams {
   conformityMainType?: string;
   conformityMainTypeId?: string;
+  conformityRelType?: string;
   conformityIsRelated?: boolean;
   conformityIsSaved?: boolean;
 }
@@ -57,7 +58,7 @@ export interface IListArgs extends IConformityQueryParams {
 }
 
 export class Builder extends CommonBuilder<IListArgs> {
-  constructor(models:IModels, subdomain: string, params: IListArgs, context) {
+  constructor(models: IModels, subdomain: string, params: IListArgs, context) {
     super(models, subdomain, 'customers', params, context);
 
     this.addStateFilter();
@@ -131,12 +132,12 @@ export class Builder extends CommonBuilder<IListArgs> {
   ): Promise<void> {
     const submissions = await sendFormsMessage({
       subdomain,
-      action:"submissions.find",
+      action: 'submissions.find',
       data: {
         query: {
           formId
         }
-    },
+      },
       isRPC: true,
       defaultValue: []
     });
@@ -169,8 +170,11 @@ export class Builder extends CommonBuilder<IListArgs> {
 
   public async findAllMongo(limit: number) {
     const activeIntegrations = await findIntegrations(
+      this.subdomain,
       {},
-      { _id: 1 }
+      {
+        _id: 1
+      }
     );
 
     const selector = {

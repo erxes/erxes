@@ -3,6 +3,7 @@ import { BOARD_STATUSES } from '../../models/definitions/constants';
 import { checkPermission } from '@erxes/api-utils/src';
 import { sendCardsMessage, sendContactsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
+
 interface ICreateCard {
   type: string;
   email: string;
@@ -28,10 +29,26 @@ const configClientPortalMutations = {
       firstName: string;
       lastName: string;
       email: string;
+      phone: string;
+      avatar: string;
     },
     { models, subdomain }: IContext
   ) {
     await models.ClientPortals.getConfig(args.configId);
+
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        customerPrimaryEmail: args.email,
+        customerPrimaryPhone: args.phone
+      },
+      isRPC: true
+    });
+
+    if (customer) {
+      return customer;
+    }
 
     return sendContactsMessage({
       subdomain,
@@ -40,9 +57,11 @@ const configClientPortalMutations = {
         firstName: args.firstName,
         lastName: args.lastName,
         primaryEmail: args.email,
+        primaryPhone: args.phone,
         state: 'customer',
+        avatar: args.avatar
       },
-      isRPC: true,
+      isRPC: true
     });
   },
 
@@ -64,9 +83,9 @@ const configClientPortalMutations = {
         primaryName: args.companyName,
         primaryEmail: args.email,
         names: [args.companyName],
-        emails: [args.email],
+        emails: [args.email]
       },
-      isRPC: true,
+      isRPC: true
     });
   },
 
@@ -79,7 +98,7 @@ const configClientPortalMutations = {
       subdomain,
       action: 'customers.find',
       data: { primaryEmail: email },
-      isRPC: true,
+      isRPC: true
     });
 
     if (!customer) {
@@ -92,7 +111,7 @@ const configClientPortalMutations = {
       description,
       priority,
       stageId,
-      status: BOARD_STATUSES.ACTIVE,
+      status: BOARD_STATUSES.ACTIVE
     };
 
     return type === 'ticket'
@@ -100,15 +119,15 @@ const configClientPortalMutations = {
           subdomain,
           action: 'tickets.create',
           data: dataCol,
-          isRPC: true,
+          isRPC: true
         })
       : await sendCardsMessage({
           subdomain,
           action: 'tasks.create',
           data: dataCol,
-          isRPC: true,
+          isRPC: true
         });
-  },
+  }
 };
 
 checkPermission(

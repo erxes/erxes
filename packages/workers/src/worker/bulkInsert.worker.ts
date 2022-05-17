@@ -18,11 +18,13 @@ parentPort.once('message', message => {
 });
 
 const create = async ({
+  subdomain,
   docs,
   user,
   contentType,
   useElkSyncer
 }: {
+  subdomain: string;
   docs: any;
   user: any;
   contentType: any;
@@ -35,7 +37,7 @@ const create = async ({
   const result = await await messageBroker().sendRPCMessage(
     `${serviceName}:imports:insertImportItems`,
     {
-      subdomain: 'os',
+      subdomain,
       data: {
         docs,
         user,
@@ -62,6 +64,7 @@ connect().then(async () => {
   console.log(`Worker message recieved`);
 
   const {
+    subdomain,
     user,
     scopeBrandIds,
     result,
@@ -72,6 +75,7 @@ connect().then(async () => {
     useElkSyncer,
     rowIndex
   }: {
+    subdomain: string;
     user: any;
     scopeBrandIds: string[];
     result: any;
@@ -90,7 +94,7 @@ connect().then(async () => {
   const bulkDoc = await messageBroker().sendRPCMessage(
     `${serviceName}:imports:prepareImportDocs`,
     {
-      subdomain: 'os',
+      subdomain,
       data: {
         result,
         properties,
@@ -108,6 +112,7 @@ connect().then(async () => {
 
   try {
     const { updated, objects } = await create({
+      subdomain,
       docs: bulkDoc,
       user,
       contentType,

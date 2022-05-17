@@ -1,4 +1,4 @@
-name: Plugin segments api CI
+name: Plugin segments Api CI
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - '.github/workflows/plugin-segments-api.yaml'
 
 jobs:
-  plugin-segments-api:
+  api:
     runs-on: ubuntu-18.04
 
     steps:
@@ -41,13 +41,12 @@ jobs:
           cd packages/gateway
           yarn install
           yarn build plugin segments
+          cd ../../dist/plugin-segments-api/.erxes
+          cd dist/main/.erxes/src
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
         run: |
-          ls -la dist
-          ls -la dist/plugin-segments-api
-
           cd dist/plugin-segments-api/.erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
           docker build -t erxes/plugin-segments-api:${GITHUB_REF#refs/heads/} -f Dockerfile .

@@ -7,20 +7,28 @@ import {
   gatherNames,
   getSchemaLabels
 } from '@erxes/api-utils/src/logUtils';
-import messageBroker, { sendCoreMessage, sendFormsMessage, sendTagsMessage } from './messageBroker';
+import messageBroker, {
+  sendCoreMessage,
+  sendFormsMessage,
+  sendTagsMessage
+} from './messageBroker';
 import { LOG_MAPPINGS, MODULE_NAMES } from './constants';
 import { IModels } from './connectionResolver';
-import { collectConversations } from "./receiveMessage";
-import { IChannelDocument } from "./models/definitions/channels";
-import { IIntegrationDocument } from "./models/definitions/integrations";
+import { collectConversations } from './receiveMessage';
+import { IChannelDocument } from './models/definitions/channels';
+import { IIntegrationDocument } from './models/definitions/integrations';
 
 const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
-  DELETE: 'delete',
+  DELETE: 'delete'
 };
 
-const findFromCore = async (subdomain: string, ids: string[], collectionName: string) => {
+const findFromCore = async (
+  subdomain: string,
+  ids: string[],
+  collectionName: string
+) => {
   return sendCoreMessage({
     subdomain,
     action: `${collectionName}.find`,
@@ -141,15 +149,20 @@ export const gatherChannelFieldNames = async (
       foreignKey: 'integrationIds',
       prevList: options,
       nameFields: ['name'],
-      items: await models.Integrations.findIntegrations({ _id: { $in: doc.integrationIds } })
+      items: await models.Integrations.findIntegrations({
+        _id: { $in: doc.integrationIds }
+      })
     });
   }
 
   return options;
 };
 
-const gatherDescriptions = async (models: IModels, subdomain: string, params: any): Promise<IDescriptions> => {
-
+const gatherDescriptions = async (
+  models: IModels,
+  subdomain: string,
+  params: any
+): Promise<IDescriptions> => {
   const { action, type, object, updatedDocument } = params;
 
   let extraDesc: LogDesc[] = [];
@@ -160,16 +173,24 @@ const gatherDescriptions = async (models: IModels, subdomain: string, params: an
       extraDesc = await gatherChannelFieldNames(models, subdomain, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherChannelFieldNames(models, subdomain, updatedDocument, extraDesc);
+        extraDesc = await gatherChannelFieldNames(
+          models,
+          subdomain,
+          updatedDocument,
+          extraDesc
+        );
       }
 
       break;
     case MODULE_NAMES.INTEGRATION:
-
       extraDesc = await gatherIntegrationFieldNames(subdomain, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherIntegrationFieldNames(subdomain, updatedDocument, extraDesc);
+        extraDesc = await gatherIntegrationFieldNames(
+          subdomain,
+          updatedDocument,
+          extraDesc
+        );
       }
 
       break;
@@ -204,7 +225,12 @@ const gatherDescriptions = async (models: IModels, subdomain: string, params: an
   return { extraDesc, description };
 };
 
-export const putDeleteLog = async (models: IModels, subdomain: string, logDoc, user) => {
+export const putDeleteLog = async (
+  models: IModels,
+  subdomain: string,
+  logDoc,
+  user
+) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
@@ -215,13 +241,19 @@ export const putDeleteLog = async (models: IModels, subdomain: string, logDoc, u
   );
 
   await commonPutDeleteLog(
+    subdomain,
     messageBroker(),
     { ...logDoc, description, extraDesc, type: `inbox:${logDoc.type}` },
     user
   );
 };
 
-export const putUpdateLog = async (models: IModels, subdomain: string, logDoc, user) => {
+export const putUpdateLog = async (
+  models: IModels,
+  subdomain: string,
+  logDoc,
+  user
+) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
@@ -232,14 +264,19 @@ export const putUpdateLog = async (models: IModels, subdomain: string, logDoc, u
   );
 
   await commonPutUpdateLog(
+    subdomain,
     messageBroker(),
     { ...logDoc, description, extraDesc, type: `inbox:${logDoc.type}` },
     user
   );
 };
 
-export const putCreateLog = async (models: IModels, subdomain: string, logDoc, user) => {
-
+export const putCreateLog = async (
+  models: IModels,
+  subdomain: string,
+  logDoc,
+  user
+) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
@@ -250,6 +287,7 @@ export const putCreateLog = async (models: IModels, subdomain: string, logDoc, u
   );
 
   await commonPutCreateLog(
+    subdomain,
     messageBroker(),
     { ...logDoc, description, extraDesc, type: `inbox:${logDoc.type}` },
     user
@@ -257,8 +295,8 @@ export const putCreateLog = async (models: IModels, subdomain: string, logDoc, u
 };
 
 export default {
-  collectItems: async ({ data }) => ({
-    data: await collectConversations(data),
+  collectItems: async ({ subdomain, data }) => ({
+    data: await collectConversations(subdomain, data),
     status: 'success'
   }),
   getSchemaLabels: ({ data: { type } }) => ({

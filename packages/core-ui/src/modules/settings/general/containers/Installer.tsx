@@ -1,10 +1,10 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { Alert, withProps } from "modules/common/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import { mutations } from "@erxes/ui-settings/src/general/graphql";
-import styled from "styled-components";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { Alert, withProps } from 'modules/common/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { mutations } from '@erxes/ui-settings/src/general/graphql';
+import styled from 'styled-components';
 
 const Container = styled.div`
   h3 {
@@ -14,8 +14,7 @@ const Container = styled.div`
 `;
 
 const Block = styled.div`
-  width: 200px;
-  height: 200px;
+  width: 250px;
   float: left;
   border: 1px solid #cfc6c6;
   margin: 20px 10px;
@@ -23,9 +22,8 @@ const Block = styled.div`
   position: relative;
 
   button {
-    position: absolute;
-    right: 10px;
-    bottom: 10px;
+    float: left;
+    margin-right: 5px;
     background: rgb(103, 63, 189);
     border-radius: 5px;
     color: rgb(255, 255, 255);
@@ -65,7 +63,7 @@ class Installer extends React.Component<FinalProps, { loading: any }> {
 
     this.state = {
       loading: {}
-    }
+    };
   }
 
   render() {
@@ -79,65 +77,94 @@ class Installer extends React.Component<FinalProps, { loading: any }> {
 
       this.props
         .manageInstall({
-          variables: { type, name },
+          variables: { type, name }
         })
         .then(() => {
-          Alert.success("You successfully installed");
+          Alert.success('You successfully installed');
           window.location.reload();
         })
-        .catch((error) => {
+        .catch(error => {
           Alert.error(error.message);
         });
     };
 
     const plugins = [
-      { name: "cards", icon: 'icon-piggy-bank', description: "Utamur graecis ex mel. Cum paulo aliquando ex. Quo et nominati ullamcorper. Habeo graeco has at." },
-      { name: "automations", icon: "icon-circular", description: "Vix esse ornatus te. Graece insolens vis in, nam dicam deterruisset ea, aeque libris " },
-      { name: "calendar", icon: "icon-calendar-alt", description: "sit eius aperiri te, no tation iudicabit quo. Ei eos quando theophrastus. Cu eius disputationi quo, per viris explicari eu." },
-      { name: "clientportal", icon: "icon-megaphone", description: " Numquam dolorem corrumpit mea at, docendi dolores temporibus duo at, vel et ornatus." },
-      { name: "engages", icon: "icon-megaphone", description: "Nominavi antiopam argumentum cu qui. Vidisse diceret offendit duo ad, an eius simul ceteros nam" },
-      { name: "knowledgebase", icon: "icon-book-open", description: "At eros mnesarchum vis. Ne vix malorum invenire liberavisse, mea in nulla invenire, duo ei torquatos concludaturque" },
-      { name: "segments", icon: "icon-chart-pie-alt", description: "Sed errem omnium interpretaris id, quodsi integre pro te, rebum debitis prodesset te mei." },
-      { name: "inbox", icon: "icon-chat", description: "Sed errem omnium interpretaris id, quodsi integre pro te, rebum debitis prodesset te mei." },
-      { name: "contacts", icon: "icon-users", description: "Qui ut iudico blandit, sea at vidit recusabo, eos ne amet cibo. Ius id modus volumus recteque" },
-      { name: "forms", icon: "icon-book-open", description: "Sed ad legimus consequat, sed laudem aeterno euripidis eu. Qui copiosae recusabo ocurreret no," },
-      { name: "internalnotes", icon: "icon-megaphone", description: "In vel omnes utinam mediocritatem, vim ut aperiam contentiones." },
-      { name: "logs", icon: "icon-book-open", description: "In vel omnes utinam mediocritatem, vim ut aperiam contentiones." },
-      { name: "notifications", icon: "icon-megaphone", description: "Sed ad legimus consequat, sed laudem aeterno euripidis eu. Qui copiosae recusabo ocurreret no," },
-      { name: "tags", icon: "icon-users", description: "At eros mnesarchum vis. Ne vix malorum invenire liberavisse, mea in nulla invenire, duo ei torquatos concludaturque" },
-      { name: "integrations", icon: "icon-megaphone", description: "Sed errem omnium interpretaris id, quodsi integre pro te, rebum debitis prodesset te mei." },
-      { name: "products", icon: "icon-users", description: "In vel omnes utinam mediocritatem, vim ut aperiam contentiones." },
+      { name: 'automations', icon: 'icon-circular' },
+      { name: 'calendar', icon: 'icon-calendar-alt' },
+      { name: 'cards', icon: 'icon-piggy-bank' },
+      { name: 'cars', icon: 'icon-piggy-bank' },
+      { name: 'chats', icon: 'icon-piggy-bank' },
+      { name: 'clientportal', icon: 'icon-megaphone' },
+      { name: 'contacts', icon: 'icon-users' },
+      { name: 'dashboard', icon: 'icon-users' },
+      { name: 'ebarimt', icon: 'icon-users' },
+      { name: 'emailtemplates', icon: 'icon-users' },
+      { name: 'engages', icon: 'icon-megaphone' },
+      { name: 'exm', icon: 'icon-megaphone' },
+      { name: 'exmfeed', icon: 'icon-megaphone' },
+      { name: 'forms', icon: 'icon-book-open' },
+      { name: 'inbox', icon: 'icon-chat' },
+      { name: 'integrations', icon: 'icon-megaphone' },
+      { name: 'internalnotes', icon: 'icon-megaphone' },
+      { name: 'knowledgebase', icon: 'icon-book-open' },
+      { name: 'loan', icon: 'icon-book-open' },
+      { name: 'logs', icon: 'icon-book-open' },
+      { name: 'loyalties', icon: 'icon-book-open' },
+      { name: 'neighbor', icon: 'icon-book-open' },
+      { name: 'notifications', icon: 'icon-megaphone' },
+      { name: 'products', icon: 'icon-users' },
+      { name: 'qpay', icon: 'icon-users' },
+      { name: 'rentpay', icon: 'icon-users' },
+      { name: 'segments', icon: 'icon-chart-pie-alt' },
+      { name: 'syncerkhet', icon: 'icon-chart-pie-alt' },
+      { name: 'tags', icon: 'icon-users' },
+      { name: 'tumentech', icon: 'icon-users' },
+      { name: 'webhooks', icon: 'icon-users' }
     ];
 
     return (
       <Container>
         <h3>Plugins</h3>
 
-        {plugins.map((plugin) => {
+        {plugins.map(plugin => {
           return (
             <Block key={plugin.name}>
               <p>
                 <i className={plugin.icon} /> {plugin.name}
               </p>
 
-              <div className="description">
-                {plugin.description}
-              </div>
+              {enabledServices[plugin.name] ? (
+                <>
+                  <span>{loading[plugin.name] ? 'Loading ...' : ''}</span>
+                  <div>
+                    <button
+                      onClick={manageInstall.bind(
+                        this,
+                        'uninstall',
+                        plugin.name
+                      )}
+                      className="uninstall"
+                    >
+                      Uninstall
+                    </button>
 
-              {
-                enabledServices[plugin.name]
-                ?
-                (
-                  <button onClick={manageInstall.bind(this, 'uninstall', plugin.name)} className="uninstall">
-                    { loading[plugin.name] ? 'Loading ...' : 'Uninstall' }
-                  </button>
-                )
-                : (
-                  <button onClick={manageInstall.bind(this, 'install', plugin.name)}>
-                    { loading[plugin.name] ? 'Loading ...' : 'Install' }
-                  </button>
-                )
-              }
+                    <button
+                      onClick={manageInstall.bind(this, 'update', plugin.name)}
+                      className="update"
+                    >
+                      Update
+                    </button>
+
+                    <div style={{ clear: 'both' }} />
+                  </div>
+                </>
+              ) : (
+                <button
+                  onClick={manageInstall.bind(this, 'install', plugin.name)}
+                >
+                  {loading[plugin.name] ? 'Loading ...' : 'Install'}
+                </button>
+              )}
             </Block>
           );
         })}
@@ -153,11 +180,11 @@ export default withProps<{}>(
           enabledServices
         }`),
       {
-        name: "enabledServicesQuery",
+        name: 'enabledServicesQuery'
       }
     ),
     graphql<{}>(gql(mutations.managePluginInstall), {
-      name: "manageInstall",
+      name: 'manageInstall'
     })
   )(Installer)
 );

@@ -56,7 +56,7 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
     cursor: pointer;
     background: ${props => !props.isActive && colors.bgLight};
     ${ActionButtons} {
-      width: 35px;
+      width: 60px;
     }
   }
 `;
@@ -98,6 +98,7 @@ const ExpandWrapper = styled.div`
 const Description = styled.div`
   color: ${colors.colorCoreGray};
   font-size: 12px;
+  margin-bottom: ${dimensions.coreSpacing}px;
 `;
 
 const FlexRow = styled.div`
@@ -238,7 +239,7 @@ const LogoContainer = styled.div`
   height: 56px;
   cursor: pointer;
   box-shadow: 0 0 ${dimensions.unitSpacing}px 0 ${rgba(colors.colorBlack, 0.2)};
-  background-image: url("/images/erxes.png");
+  background-image: url('/images/erxes.png');
   background-color: ${colors.colorPrimary};
   background-position: center;
   background-size: 20px;
@@ -263,7 +264,7 @@ const LogoContainer = styled.div`
     font-size: ${dimensions.unitSpacing}px;
   }
 
-  input[type="file"] {
+  input[type='file'] {
     display: none;
   }
 
@@ -280,18 +281,20 @@ const LogoContainer = styled.div`
   }
 `;
 
-const InputBar = styledTS<{type?: string}>(styled.div)`
+const InputBar = styledTS<{ type?: string }>(styled.div)`
   background: ${colors.bgActive};
   justify-content: center;
   align-items: center;
   display: flex;
   flex: 1;
-  max-width: ${props => props.type === "active" && `${dimensions.headerSpacingWide * 2 + 20}px`};
+  max-width: ${props =>
+    props.type === 'active' && `${dimensions.headerSpacingWide * 2 + 20}px`};
   padding: 5px 5px 0 20px;
   border-radius: 8px;
-  margin-left: ${props => props.type === "active" && '10px'};
+  margin-left: ${props => props.type === 'active' && '10px'};
   height: 41px;
-  padding-left: ${props => props.type === "searchBar" && `${dimensions.unitSpacing * 2}px`};
+  padding-left: ${props =>
+    props.type === 'searchBar' && `${dimensions.unitSpacing * 2}px`};
 
   input {
     border-bottom: 0;

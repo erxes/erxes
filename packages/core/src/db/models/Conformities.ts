@@ -1,4 +1,5 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
+import { IModels } from '../../connectionResolver';
 import { isUsingElk } from '../../data/utils';
 import {
   conformityHelper,
@@ -38,23 +39,23 @@ export interface IConformityModel extends Model<IConformityDocument> {
   getConformities(doc: IGetConformityBulk): Promise<IConformityDocument[]>;
 }
 
-export const loadConformityClass = () => {
+export const loadConformityClass = (models: IModels, subdomain: string) => {
   class Conformity {
     /**
      * Create a conformity
      */
     public static async addConformity(doc: IConformityAdd) {
-      let conformity = await Conformities.findOne(doc);
+      let conformity = await models.Conformities.findOne(doc);
 
       if (!conformity) {
-        conformity = await Conformities.create(doc);
+        conformity = await models.Conformities.create(doc);
       }
 
       return conformity;
     }
 
     public static async addConformities(docs: IConformityAdd[]) {
-      const result = await Conformities.insertMany(docs, {
+      const result = await models.Conformities.insertMany(docs, {
         ordered: false,
         rawResult: false
       });
@@ -66,7 +67,7 @@ export const loadConformityClass = () => {
       const oldRelTypeIds = await conformityHelper({
         doc,
         getConformities: async () => {
-          return Conformities.aggregate([
+          return models.Conformities.aggregate([
             {
               ...getMatchConformities({
                 mainType: doc.mainType,
@@ -92,10 +93,10 @@ export const loadConformityClass = () => {
         relType: doc.relType,
         relTypeId
       }));
-      await Conformities.insertMany(insertTypes);
+      await models.Conformities.insertMany(insertTypes);
 
       // delete on removedTypeIds
-      await Conformities.deleteMany({
+      await models.Conformities.deleteMany({
         $or: [
           {
             $and: [
@@ -124,7 +125,7 @@ export const loadConformityClass = () => {
         return conformityHelper({
           doc,
           getConformities: async () => {
-            return Conformities.aggregate([
+            return models.Conformities.aggregate([
               {
                 ...getMatchConformities({
                   mainType: doc.mainType,
@@ -140,7 +141,7 @@ export const loadConformityClass = () => {
       return conformityHelper({
         doc,
         getConformities: async () => {
-          return findElk({
+          return findElk(subdomain, {
             ...getQueryConformities({
               mainType: doc.mainType,
               relTypes: doc.relTypes,
@@ -152,7 +153,7 @@ export const loadConformityClass = () => {
     }
 
     public static async changeConformity(doc: IConformityChange) {
-      await Conformities.updateMany(
+      await models.Conformities.updateMany(
         {
           $and: [
             { mainType: doc.type },
@@ -162,7 +163,7 @@ export const loadConformityClass = () => {
         { $set: { mainTypeId: doc.newTypeId } }
       );
 
-      await Conformities.updateMany(
+      await models.Conformities.updateMany(
         {
           $and: [{ relType: doc.type }, { relTypeId: { $in: doc.oldTypeIds } }]
         },
@@ -175,7 +176,7 @@ export const loadConformityClass = () => {
         return conformityHelper({
           doc,
           getConformities: async data => {
-            return findElk({
+            return findElk(subdomain, {
               ...getQueryConformities({
                 mainType: data.mainType,
                 relTypes: [data.relType],
@@ -189,7 +190,7 @@ export const loadConformityClass = () => {
       return conformityHelper({
         doc,
         getConformities: async data => {
-          return Conformities.aggregate([
+          return models.Conformities.aggregate([
             {
               ...getMatchConformities({
                 mainType: data.mainType,
@@ -204,10 +205,10 @@ export const loadConformityClass = () => {
 
     public static async getConformities(doc: IGetConformityBulk) {
       if (isUsingElk()) {
-        return findElk({ ...getQueryConformities({ ...doc }) });
+        return findElk(subdomain, { ...getQueryConformities({ ...doc }) });
       }
 
-      return Conformities.aggregate([
+      return models.Conformities.aggregate([
         {
           ...getMatchConformities({ ...doc })
         }
@@ -219,7 +220,7 @@ export const loadConformityClass = () => {
         return relatedConformityHelper({
           doc,
           getSaved: async data => {
-            return Conformities.aggregate([
+            return models.Conformities.aggregate([
               {
                 $match: getSavedAnyConformityMatch({
                   mainType: data.mainType,
@@ -229,7 +230,7 @@ export const loadConformityClass = () => {
             ]);
           },
           getRelated: async (data, savedList) => {
-            return Conformities.aggregate([
+            return models.Conformities.aggregate([
               {
                 $match: {
                   $or: [
@@ -256,7 +257,7 @@ export const loadConformityClass = () => {
       return relatedConformityHelper({
         doc,
         getSaved: async data => {
-          return findElk({
+          return findElk(subdomain, {
             ...getSavedAnyConformityQuery({
               mainType: data.mainType,
               mainTypeId: data.mainTypeId
@@ -264,7 +265,7 @@ export const loadConformityClass = () => {
           });
         },
         getRelated: async (data, savedList) => {
-          return findElk({
+          return findElk(subdomain, {
             bool: {
               should: [
                 {
@@ -315,14 +316,14 @@ export const loadConformityClass = () => {
         mainTypeId: doc.mainTypeId
       });
 
-      await Conformities.deleteMany(match);
+      await models.Conformities.deleteMany(match);
     }
 
     /**
      * Remove conformities
      */
     public static async removeConformities(doc: IConformitiesRemove) {
-      await Conformities.deleteMany({
+      await models.Conformities.deleteMany({
         $or: [
           {
             $and: [
@@ -342,15 +343,6 @@ export const loadConformityClass = () => {
   }
 
   conformitySchema.loadClass(Conformity);
+
   return conformitySchema;
 };
-
-loadConformityClass();
-
-// tslint:disable-next-line
-const Conformities = model<IConformityDocument, IConformityModel>(
-  'conformity',
-  conformitySchema
-);
-
-export default Conformities;

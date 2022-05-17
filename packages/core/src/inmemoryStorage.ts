@@ -61,12 +61,12 @@ export const inArray = async (setKey: string, setMember: any) => {
   }
 };
 
-export const set = async (key: string, value: any) => {
+export const set = async (...args) => {
   try {
-    client.set(key, value);
+    client.set(...args);
   } catch (e) {
     debugError(
-      `For set of inmemoryStorage, key: ${key}, value: ${value}. Error: ${e.message}`
+      `For set of inmemoryStorage, key: ${args[0]}, value: ${args[1]}. Error: ${e.message}`
     );
   }
 };

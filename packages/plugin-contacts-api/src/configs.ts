@@ -2,33 +2,24 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { initBroker, sendSegmentsMessage } from './messageBroker';
-import { IFetchElkArgs } from '@erxes/api-utils/src/types';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { buildFile } from './exporter';
 import segments from './segments';
 import forms from './forms';
-import {
-  generateModels,
-  getSubdomain
-} from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import logs from './logUtils';
 import imports from './imports';
-import tags from './tags'
+import tags from './tags';
 import internalNotes from './internalNotes';
 import automations from './automations';
 import search from './search';
-import permissions from './permissions';
+import * as permissions from './permissions';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import webhooks from './webhooks';
 
 export let mainDb;
 export let graphqlPubsub;
 export let serviceDiscovery;
-
-export let es: {
-  client;
-  fetchElk(args: IFetchElkArgs): Promise<any>;
-  getMappings(index: string): Promise<any>;
-  getIndexPrefix(): string;
-};
 
 export let debug;
 
@@ -53,34 +44,29 @@ export default {
     logs: { consumers: logs },
     tags,
     search,
-    internalNotes
+    internalNotes,
+    webhooks
   },
-  apolloServerContext: async context => {
-    const subdomain = 'os';
+  apolloServerContext: async (context, req) => {
+    const subdomain = getSubdomain(req);
 
     context.models = await generateModels(subdomain);
     context.subdomain = subdomain;
   },
+
   onServerInit: async options => {
     const app = options.app;
     mainDb = options.db;
-
-    await generateModels('os');
 
     app.get(
       '/file-export',
       routeErrorHandling(async (req: any, res) => {
         const { query, user } = req;
         const { segment } = query;
-        const subdomain = getSubdomain(req.hostname);
+        const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
 
-        const result = await buildFile(
-          models,
-          subdomain,
-          query,
-          user
-        );
+        const result = await buildFile(models, subdomain, query, user);
 
         res.attachment(`${result.name}.xlsx`);
 
@@ -99,11 +85,10 @@ export default {
         return res.send(result.response);
       })
     );
-    
+
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
-    es = options.elasticsearch;
   }
 };
