@@ -53,6 +53,10 @@ export const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
     options = prevList;
   }
 
+  if (!items.length) {
+    return options;
+  }
+
   for (const item of items) {
     if (item && item._id) {
       let name: string = '';
