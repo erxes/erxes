@@ -7,6 +7,8 @@ const commonFormParamsDef = `
   $formId: String!,
   $languageCode: String,
   $leadData: IntegrationLeadData!
+  $visibility: String,
+  $departmentIds: [String],
 `;
 
 const commonFormParams = `
@@ -15,7 +17,9 @@ const commonFormParams = `
   channelIds: $channelIds,
   formId: $formId,
   languageCode: $languageCode,
-  leadData: $leadData
+  leadData: $leadData,
+  visibility: $visibility,
+  departmentIds: $departmentIds,
 `;
 
 const integrationRemove = `

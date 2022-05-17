@@ -31,7 +31,9 @@ const configMutations = {
         continue;
       }
 
-      const prevConfig = (await models.Configs.findOne({ code })) || { value: [] };
+      const prevConfig = (await models.Configs.findOne({ code })) || {
+        value: []
+      };
 
       const value = configsMap[code];
       const doc = { code, value };
@@ -64,7 +66,11 @@ const configMutations = {
         (prevConfig.value || '').toString() !==
           (updatedConfig.value || '').toString()
       ) {
-        registerOnboardHistory({ models, type: 'generalSettingsUploadCreate', user });
+        registerOnboardHistory({
+          models,
+          type: 'generalSettingsUploadCreate',
+          user
+        });
       }
 
       if (
@@ -98,8 +104,9 @@ const configMutations = {
     }
   },
 
-  async configsManagePluginInstall(_root, args) {
+  async configsManagePluginInstall(_root, args, { subdomain }: IContext) {
     await sendCommonMessage({
+      subdomain,
       serviceName: '',
       action: 'managePluginInstall',
       data: args,

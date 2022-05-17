@@ -300,6 +300,27 @@ const carsExport = `
   }
 `;
 
+const participants = `
+query($dealId: String) {
+  participants (dealId: $dealId){
+    _id
+    deal {
+      _id
+    }
+  status
+  detail
+    customer {
+      _id
+      avatar
+      firstName
+      lastName
+      primaryEmail
+      primaryPhone
+    }
+  }
+}
+`;
+
 export default {
   cars,
   carsMain,
@@ -317,5 +338,6 @@ export default {
   productCategoriesCount,
   productCategoryDetail,
   carCategoryMatchProducts,
-  productCategoryMatchCarCategories
+  productCategoryMatchCarCategories,
+  participants
 };

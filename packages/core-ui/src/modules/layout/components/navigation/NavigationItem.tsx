@@ -1,19 +1,19 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
+import React from 'react';
+import { NavLink } from 'react-router-dom';
 
-import { NavItem, NavMenuItem, NavIcon } from "../../styles";
+import { NavItem, NavMenuItem, NavIcon } from '../../styles';
 
-import WithPermission from "modules/common/components/WithPermission";
-import Tip from "modules/common/components/Tip";
-import Label from "modules/common/components/Label";
-import { __ } from "modules/common/utils";
+import WithPermission from 'modules/common/components/WithPermission';
+import Tip from 'modules/common/components/Tip';
+import Label from 'modules/common/components/Label';
+import { __ } from 'modules/common/utils';
 
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
-import NavigationChildList from "./NavigationListChild";
+import NavigationItemChildren from './NavigationItemChildren';
 
-import { getLink, getChildren } from "./utils";
-import { Plugin, ChildPlugin } from "./types";
+import { getLink, getChildren } from './utils';
+import { Plugin, ChildPlugin } from './types';
 
 type Props = {
   plugin: Plugin;
@@ -31,7 +31,7 @@ export default function NavigationItem(props: Props) {
     showMenu,
     clickedMenu,
     toggleMenu,
-    unreadConversationsCount,
+    unreadConversationsCount
   } = props;
 
   const children: ChildPlugin[] = getChildren(plugin);
@@ -63,7 +63,7 @@ export default function NavigationItem(props: Props) {
       >
         {renderNavIcon()}
 
-        {plugin.url.includes("inbox") && isEnabled("inbox")
+        {plugin.url.includes('inbox') && isEnabled('inbox')
           ? unreadIndicator
           : plugin.label}
       </NavLink>
@@ -71,7 +71,7 @@ export default function NavigationItem(props: Props) {
   );
 
   const renderNavMenuItem = () => {
-    if (children.length === 0 && plugin.text !== "Settings")
+    if (children.length === 0 && plugin.text !== 'Settings')
       return (
         <Tip placement="right" key={Math.random()} text={__(plugin.text)}>
           {navMenuItemNode}
@@ -86,7 +86,7 @@ export default function NavigationItem(props: Props) {
       <NavItem isMoreItem={false}>
         {renderNavMenuItem()}
 
-        <NavigationChildList
+        <NavigationItemChildren
           plugin={plugin}
           children={children}
           navCollapse={navCollapse}
@@ -97,14 +97,14 @@ export default function NavigationItem(props: Props) {
     );
   };
 
-  if (plugin.text === "Settings") {
+  if (plugin.text === 'Settings') {
     return <React.Fragment key={plugin.url}>{renderItem()}</React.Fragment>;
   }
 
   return (
     <WithPermission
       key={plugin.url}
-      action={plugin.permission ? plugin.permission : ""}
+      action={plugin.permission ? plugin.permission : ''}
       actions={plugin.permissions ? plugin.permissions : []}
     >
       {renderItem()}

@@ -26,6 +26,7 @@ export interface IProductsDataDocument extends IProductsData {
 }
 
 export interface IJobRefer {
+  categoryId: string;
   code: string;
   name: string;
   type: string;

@@ -1,11 +1,11 @@
 import {
   checkPermission,
-  requireLogin,
-} from "@erxes/api-utils/src/permissions";
-import { fieldsCombinedByContentType } from "../../../utils";
-import { serviceDiscovery } from "../../../configs";
-import { fetchService } from "../../../messageBroker";
-import { IContext } from "../../../connectionResolver";
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
+import { fieldsCombinedByContentType } from '../../../utils';
+import { serviceDiscovery } from '../../../configs';
+import { fetchService } from '../../../messageBroker';
+import { IContext } from '../../../connectionResolver';
 interface IFieldsDefaultColmns {
   [index: number]: { name: string; label: string; order: number } | {};
 }
@@ -33,7 +33,7 @@ const fieldQueries = {
         for (const type of types) {
           fieldTypes.push({
             description: type.description,
-            contentType: `${serviceName}:${type.type}`,
+            contentType: `${serviceName}:${type.type}`
           });
         }
       }
@@ -51,7 +51,7 @@ const fieldQueries = {
       contentType,
       contentTypeId,
       isVisible,
-      searchable,
+      searchable
     }: {
       contentType: string;
       contentTypeId: string;
@@ -80,8 +80,12 @@ const fieldQueries = {
   /**
    * Generates all field choices base on given kind.
    */
-  async fieldsCombinedByContentType(_root, args, { models }: IContext) {
-    return fieldsCombinedByContentType(models, args);
+  async fieldsCombinedByContentType(
+    _root,
+    args,
+    { models, subdomain }: IContext
+  ) {
+    return fieldsCombinedByContentType(models, subdomain, args);
   },
 
   /**
@@ -91,7 +95,7 @@ const fieldQueries = {
     _root,
     { contentType }: { contentType: string }
   ): Promise<IFieldsDefaultColmns> {
-    const [serviceName, type] = contentType.split(":");
+    const [serviceName, type] = contentType.split(':');
     const service = await serviceDiscovery.getService(serviceName, true);
 
     if (!service) {
@@ -105,13 +109,13 @@ const fieldQueries = {
     }
 
     return [];
-  },
+  }
 };
 
-requireLogin(fieldQueries, "fieldsCombinedByContentType");
-requireLogin(fieldQueries, "fieldsDefaultColumnsConfig");
+requireLogin(fieldQueries, 'fieldsCombinedByContentType');
+requireLogin(fieldQueries, 'fieldsDefaultColumnsConfig');
 
-checkPermission(fieldQueries, "fields", "showForms", []);
+checkPermission(fieldQueries, 'fields', 'showForms', []);
 
 const fieldsGroupQueries = {
   /**
@@ -122,13 +126,13 @@ const fieldsGroupQueries = {
     {
       contentType,
       isDefinedByErxes,
-      config,
+      config
     }: {
       contentType: string;
       isDefinedByErxes: boolean;
       config;
     },
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models, subdomain }: IContext
   ) {
     let query: any = commonQuerySelector;
 
@@ -137,8 +141,9 @@ const fieldsGroupQueries = {
 
     if (config) {
       query = await fetchService(
+        subdomain,
         contentType,
-        "groupsFilter",
+        'groupsFilter',
         { config, contentType },
         query
       );
@@ -177,9 +182,9 @@ const fieldsGroupQueries = {
     query.isDefinedByErxes = true;
 
     return models.FieldsGroups.findOne(query);
-  },
+  }
 };
 
-checkPermission(fieldsGroupQueries, "fieldsGroups", "showForms", []);
+checkPermission(fieldsGroupQueries, 'fieldsGroups', 'showForms', []);
 
 export { fieldQueries, fieldsGroupQueries };

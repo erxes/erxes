@@ -169,6 +169,7 @@ export const putDeleteLog = async (
   user
 ) => {
   await commonPutDeleteLog(
+    subdomain,
     messageBroker(),
     {
       ...logDoc,
@@ -185,6 +186,7 @@ export const putUpdateLog = async (
   user
 ) => {
   await commonPutUpdateLog(
+    subdomain,
     messageBroker(),
     {
       ...logDoc,
@@ -201,6 +203,7 @@ export const putCreateLog = async (
   user
 ) => {
   await commonPutCreateLog(
+    subdomain,
     messageBroker(),
     {
       ...logDoc,

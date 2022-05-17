@@ -1,24 +1,33 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
-import Tag from './tags';
 
 import {
-  Tags as TagMutations,
+  JobRefers as JobRefersMutations,
+  JobCategories as JobCategoryMutations,
+  Flows as FlowsMutations,
+  FlowCategories as FlowCategoryMutations
 } from './mutations';
 
 import {
-  Tags as TagQueries,
+  JobRefers as JobReferQueries,
+  JobCategories as JobCategoryQueries,
+  Flows as FlowQueries,
+  FlowCategories as FlowCategoryQueries
 } from './queries';
 
-const resolvers: any = async (serviceDiscovery) => (
-  
-  {
+const resolvers: any = async serviceDiscovery => ({
   ...customScalars,
-  Tag,
+
   Mutation: {
-    ...TagMutations,
+    ...JobRefersMutations,
+    ...JobCategoryMutations,
+    ...FlowsMutations,
+    ...FlowCategoryMutations
   },
   Query: {
-    ...TagQueries,
+    ...JobReferQueries,
+    ...JobCategoryQueries,
+    ...FlowQueries,
+    ...FlowCategoryQueries
   }
 });
 

@@ -1,7 +1,7 @@
 import Icon from '../Icon';
 import { Tabs, TabTitle } from '../tabs';
 import { __ } from '../../utils';
-import FieldForm from '@erxes/ui-forms/src/forms/components/FieldForm';
+import FieldForm from '@erxes/ui-forms/src/forms/containers/FieldForm';
 import FieldsPreview from '@erxes/ui-forms/src/forms/components/FieldsPreview';
 import { IFormData } from '@erxes/ui-forms/src/forms/types';
 import { IConfig } from '@erxes/ui-settings/src/general/types';
@@ -195,7 +195,6 @@ class FullPreviewStep extends React.Component<Props, State> {
               mode={currentMode || 'create'}
               fields={fields}
               field={currentField}
-              configs={configs}
               numberOfPages={formData.numberOfPages || 1}
               onSubmit={this.onFieldSubmit}
               onDelete={this.onFieldDelete}

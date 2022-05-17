@@ -57,7 +57,6 @@ export const queries = `
   getInvoicePreInfo(contractId: String!, payDate: String): InvoicePreInfo
 `;
 
-
 const commonFields = `
   number: String,
   contractId: String,

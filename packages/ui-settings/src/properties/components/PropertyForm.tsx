@@ -1,25 +1,25 @@
-import Button from "@erxes/ui/src/components/Button";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import Form from "@erxes/ui/src/components/form/Form";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import ModifiableList from "@erxes/ui/src/components/ModifiableList";
-import Toggle from "@erxes/ui/src/components/Toggle";
-import { __ } from "@erxes/ui/src/utils/core";
-import { ModalFooter, MapContainer } from "@erxes/ui/src/styles/main";
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import ModifiableList from '@erxes/ui/src/components/ModifiableList';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { __ } from '@erxes/ui/src/utils/core';
+import { ModalFooter, MapContainer } from '@erxes/ui/src/styles/main';
 import {
   IButtonMutateProps,
   IFormProps,
-  ILocationOption,
-} from "@erxes/ui/src/types";
-import { Row } from "../../integrations/styles";
-import React from "react";
-import PropertyGroupForm from "../containers/PropertyGroupForm";
-import { IField } from "@erxes/ui/src/types";
-import { IFieldGroup } from "../types";
-import LocationOptions from "./LocationOptions";
-import Map from "@erxes/ui/src/components/Map";
+  ILocationOption
+} from '@erxes/ui/src/types';
+import { Row } from '../../integrations/styles';
+import React from 'react';
+import PropertyGroupForm from '../containers/PropertyGroupForm';
+import { IField } from '@erxes/ui/src/types';
+import { IFieldGroup } from '../types';
+import LocationOptions from './LocationOptions';
+import Map from '@erxes/ui/src/components/Map';
 
 type Props = {
   queryParams: any;
@@ -39,6 +39,7 @@ type State = {
   currentLocation: ILocationOption;
   searchable: boolean;
   showInCard: boolean;
+  keys: string[];
 };
 
 class PropertyForm extends React.Component<Props, State> {
@@ -47,20 +48,22 @@ class PropertyForm extends React.Component<Props, State> {
 
     let doc = {
       options: [],
-      type: "",
+      type: '',
+      keys: [],
       locationOptions: [],
       hasOptions: false,
       searchable: false,
-      showInCard: false,
+      showInCard: false
     };
 
     if (props.field) {
       const {
         type,
         options,
+        keys,
         locationOptions,
         searchable = false,
-        showInCard = false,
+        showInCard = false
       } = props.field;
 
       doc = {
@@ -68,13 +71,14 @@ class PropertyForm extends React.Component<Props, State> {
         type,
         searchable,
         showInCard,
+        keys
       };
 
       if (
-        type === "select" ||
-        type === "multiSelect" ||
-        type === "radio" ||
-        type === "check"
+        type === 'select' ||
+        type === 'multiSelect' ||
+        type === 'radio' ||
+        type === 'check'
       ) {
         doc = {
           type,
@@ -83,10 +87,11 @@ class PropertyForm extends React.Component<Props, State> {
           locationOptions: [],
           searchable: searchable || false,
           showInCard,
+          keys
         };
       }
 
-      if (type === "map") {
+      if (type === 'map') {
         doc = {
           type,
           hasOptions: false,
@@ -94,6 +99,7 @@ class PropertyForm extends React.Component<Props, State> {
           locationOptions: Object.assign([], locationOptions || []),
           searchable: searchable || false,
           showInCard: false,
+          keys
         };
       }
     }
@@ -101,7 +107,7 @@ class PropertyForm extends React.Component<Props, State> {
     this.state = {
       ...doc,
       currentLocation: { lat: 0, lng: 0 },
-      add: false,
+      add: false
     };
   }
 
@@ -119,6 +125,7 @@ class PropertyForm extends React.Component<Props, State> {
       locationOptions,
       showInCard,
       searchable,
+      keys
     } = this.state;
 
     const finalValues = values;
@@ -135,11 +142,16 @@ class PropertyForm extends React.Component<Props, State> {
       locationOptions,
       searchable,
       showInCard,
+      keys
     };
   };
 
   onChangeOption = options => {
     this.setState({ options });
+  };
+
+  onChangeKeys = keys => {
+    this.setState({ keys });
   };
 
   onChangeLocationOption = locationOptions => {
@@ -154,14 +166,14 @@ class PropertyForm extends React.Component<Props, State> {
     const value = e.target.value;
     let doc: { hasOptions: boolean; options: any[] } = {
       hasOptions: false,
-      options: [],
+      options: []
     };
 
     if (
-      value === "select" ||
-      value === "multiSelect" ||
-      value === "check" ||
-      value === "radio"
+      value === 'select' ||
+      value === 'multiSelect' ||
+      value === 'check' ||
+      value === 'radio'
     ) {
       doc = { hasOptions: true, options: this.state.options };
     }
@@ -191,8 +203,22 @@ class PropertyForm extends React.Component<Props, State> {
     );
   };
 
+  renderKeys = () => {
+    if (this.state.type !== 'objectList') {
+      return null;
+    }
+
+    return (
+      <ModifiableList
+        options={this.state.keys}
+        onChangeOption={this.onChangeKeys}
+        emptyMessage={'There is no keys'}
+      />
+    );
+  };
+
   renderLocationOptions = () => {
-    if (this.state.type !== "map") {
+    if (this.state.type !== 'map') {
       return null;
     }
 
@@ -205,7 +231,7 @@ class PropertyForm extends React.Component<Props, State> {
           <MapContainer>
             <Map
               center={currentLocation}
-              googleMapApiKey={localStorage.getItem("GOOGLE_MAP_API_KEY") || ""}
+              googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
               defaultZoom={7}
               locationOptions={locationOptions}
               mapControlOptions={{
@@ -215,7 +241,7 @@ class PropertyForm extends React.Component<Props, State> {
                 scaleControl: false,
                 streetViewControl: false,
                 rotateControl: false,
-                fullscreenControl: true,
+                fullscreenControl: true
               }}
               isPreview={true}
               onChangeLocationOptions={this.onChangeLocationOption}
@@ -235,7 +261,7 @@ class PropertyForm extends React.Component<Props, State> {
     const { type } = this.props;
     const { showInCard } = this.state;
 
-    if (!["cards:deal", "cards:ticket", "cards:task"].includes(type)) {
+    if (!['cards:deal', 'cards:ticket', 'cards:task'].includes(type)) {
       return null;
     }
 
@@ -247,7 +273,7 @@ class PropertyForm extends React.Component<Props, State> {
           onChange={this.onSwitchChange}
           icons={{
             checked: <span>Yes</span>,
-            unchecked: <span>No</span>,
+            unchecked: <span>No</span>
           }}
         />
       </FormGroup>
@@ -283,7 +309,7 @@ class PropertyForm extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="text"
-            defaultValue={object.text || ""}
+            defaultValue={object.text || ''}
             required={true}
             autoFocus={true}
           />
@@ -295,7 +321,7 @@ class PropertyForm extends React.Component<Props, State> {
             {...formProps}
             name="description"
             componentClass="textarea"
-            defaultValue={object.description || ""}
+            defaultValue={object.description || ''}
           />
         </FormGroup>
 
@@ -304,7 +330,7 @@ class PropertyForm extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="code"
-            defaultValue={object.code || ""}
+            defaultValue={object.code || ''}
           />
         </FormGroup>
 
@@ -315,7 +341,7 @@ class PropertyForm extends React.Component<Props, State> {
               {...formProps}
               name="groupId"
               componentClass="select"
-              defaultValue={object.groupId || ""}
+              defaultValue={object.groupId || ''}
               required={true}
             >
               {groups
@@ -358,6 +384,7 @@ class PropertyForm extends React.Component<Props, State> {
           </FormControl>
         </FormGroup>
         {this.renderOptions()}
+        {this.renderKeys()}
         {this.renderLocationOptions()}
         {this.renderShowInCard()}
 
@@ -368,7 +395,7 @@ class PropertyForm extends React.Component<Props, State> {
             {...formProps}
             componentClass="select"
             name="validation"
-            defaultValue={object.validation || ""}
+            defaultValue={object.validation || ''}
           >
             <option />
             <option value="email">Email</option>
@@ -384,7 +411,7 @@ class PropertyForm extends React.Component<Props, State> {
             checked={searchable}
             onChange={this.onChangeSearchable}
           >
-            {__("Searchable")}
+            {__('Searchable')}
           </FormControl>
         </FormGroup>
 
@@ -394,11 +421,11 @@ class PropertyForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: "property",
+            name: 'property',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: field,
+            object: field
           })}
         </ModalFooter>
       </>

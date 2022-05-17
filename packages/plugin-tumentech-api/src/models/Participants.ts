@@ -1,11 +1,11 @@
-import { Model } from "mongoose";
-import { IModels } from "../connectionResolver";
-import { PARTICIPATION_STATUSES } from "../constants";
+import { Model } from 'mongoose';
+import { IModels } from '../connectionResolver';
+import { PARTICIPATION_STATUSES } from '../constants';
 import {
   participantSchema,
   IParticipant,
   IParticipantDocument
-} from "./definitions/participants";
+} from './definitions/participants';
 
 export interface IParticipantModel extends Model<IParticipantDocument> {
   getParticipant(doc: any): IParticipantDocument;
@@ -24,13 +24,26 @@ export const loadParticipantClass = (models: IModels) => {
       const participant = await models.Participants.findOne(doc);
 
       if (!participant) {
-        throw new Error("Participant not found");
+        throw new Error('Participant not found');
       }
 
       return participant;
     }
 
     public static async createParticipant(doc: IParticipant) {
+      if (!doc.customerId || !doc.dealId) {
+        throw new Error('deal and customer are required!');
+      }
+
+      const participant = await models.Participants.findOne({
+        dealId: doc.dealId,
+        customerId: doc.customerId
+      }).lean();
+
+      if (participant) {
+        return participant;
+      }
+
       return models.Participants.create({
         ...doc,
         createdAt: new Date()

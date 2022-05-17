@@ -21,7 +21,13 @@ import {
   customerSchema,
   ICustomerDocument
 } from './models/definitions/customers';
-import { fetchSegment, sendCoreMessage, sendFormsMessage, sendTagsMessage } from './messageBroker';
+import {
+  fetchSegment,
+  sendCoreMessage,
+  sendFormsMessage,
+  sendInboxMessage,
+  sendTagsMessage
+} from './messageBroker';
 
 import {
   Builder as CompanyBuildQuery,
@@ -113,9 +119,11 @@ export const fillCellValue = async (
       cellValue = (item.phones || []).join(', ');
       break;
     case 'mergedIds':
-      const customers: ICustomerDocument[] | null = await models.Customers.find({
-        _id: { $in: item.mergedIds }
-      });
+      const customers: ICustomerDocument[] | null = await models.Customers.find(
+        {
+          _id: { $in: item.mergedIds }
+        }
+      );
 
       cellValue = customers
         .map(cus => cus.firstName || cus.primaryEmail)
@@ -137,9 +145,15 @@ export const fillCellValue = async (
       break;
 
     case 'tag':
-      const tags = await sendTagsMessage({ subdomain, action: 'find', data: {
-        _id: { $in: item.tagIds }
-      }, isRPC: true, defaultValue: [] });
+      const tags = await sendTagsMessage({
+        subdomain,
+        action: 'find',
+        data: {
+          _id: { $in: item.tagIds }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
 
       let tagNames = '';
 
@@ -173,7 +187,12 @@ export const fillCellValue = async (
 };
 
 // Prepares data depending on module type
-const prepareData = async (models: IModels, subdomain: string, query: any, user: IUserDocument): Promise<any[]> => {
+const prepareData = async (
+  models: IModels,
+  subdomain: string,
+  query: any,
+  user: IUserDocument
+): Promise<any[]> => {
   const { type, unlimited = false, segment } = query;
 
   let data: any[] = [];
@@ -190,7 +209,12 @@ const prepareData = async (models: IModels, subdomain: string, query: any, user:
     case MODULE_NAMES.COMPANY:
       const companyParams: ICompanyListArgs = query;
 
-      const companyQb = new CompanyBuildQuery(models, subdomain, companyParams, {});
+      const companyQb = new CompanyBuildQuery(
+        models,
+        subdomain,
+        companyParams,
+        {}
+      );
       await companyQb.buildAllQueries();
 
       const companyResponse = await companyQb.runQueries('search', unlimited);
@@ -211,7 +235,12 @@ const prepareData = async (models: IModels, subdomain: string, query: any, user:
 
     case 'visitor':
       const visitorParams: ICustomerListArgs = query;
-      const visitorQp = new CustomerBuildQuery(models, subdomain, visitorParams, {});
+      const visitorQp = new CustomerBuildQuery(
+        models,
+        subdomain,
+        visitorParams,
+        {}
+      );
       await visitorQp.buildAllQueries();
 
       const visitorResponse = await visitorQp.runQueries('search', unlimited);
@@ -222,12 +251,108 @@ const prepareData = async (models: IModels, subdomain: string, query: any, user:
     case MODULE_NAMES.CUSTOMER:
       const customerParams: ICustomerListArgs = query;
 
-      const qb = new CustomerBuildQuery(models, subdomain, customerParams, {});
-      await qb.buildAllQueries();
+      if (customerParams.form && customerParams.popupData) {
+        debugBase('Start an query for popups export');
 
-      const customerResponse = await qb.runQueries('search', unlimited);
+        const fields = await sendFormsMessage({
+          subdomain,
+          action: 'fields.find',
+          data: {
+            query: {
+              contentType: 'form',
+              contentTypeId: customerParams.form
+            }
+          },
+          isRPC: true,
+          defaultValue: []
+        });
 
-      data = customerResponse.list;
+        if (fields.length === 0) {
+          return [];
+        }
+
+        const messageQuery: any = {
+          'formWidgetData._id': { $in: fields.map(field => field._id) },
+          customerId: { $exists: true }
+        };
+
+        const messages = await sendInboxMessage({
+          subdomain,
+          action: 'conversationMessages.find',
+          data: messageQuery,
+          isRPC: true,
+          defaultValue: []
+        });
+
+        const messagesMap: { [key: string]: any[] } = {};
+
+        for (const message of messages) {
+          const customerId = message.customerId || '';
+
+          if (!messagesMap[customerId]) {
+            messagesMap[customerId] = [];
+          }
+
+          messagesMap[customerId].push({
+            datas: message.formWidgetData,
+            createdInfo: {
+              _id: 'created',
+              type: 'input',
+              validation: 'date',
+              text: 'Created',
+              value: message.createdAt
+            }
+          });
+        }
+
+        const formSubmissions = await sendFormsMessage({
+          subdomain,
+          action: 'submissions.find',
+          data: {
+            query: {
+              formId: customerParams.form
+            }
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+
+        const customerIds = formSubmissions.map(
+          submission => submission.customerId
+        );
+
+        const uniqueCustomerIds = [...new Set(customerIds)] as any;
+
+        const formDatas: any[] = [];
+
+        for (const customerId of uniqueCustomerIds) {
+          const filteredMessages = messagesMap[customerId] || [];
+
+          for (const { datas, createdInfo } of filteredMessages) {
+            const formData: any[] = datas;
+
+            formData.push(createdInfo);
+
+            formDatas.push(formData);
+          }
+        }
+
+        debugBase('End an query for popups export');
+
+        data = formDatas;
+      } else {
+        const qb = new CustomerBuildQuery(
+          models,
+          subdomain,
+          customerParams,
+          {}
+        );
+        await qb.buildAllQueries();
+
+        const customerResponse = await qb.runQueries('search', unlimited);
+
+        data = customerResponse.list;
+      }
 
       break;
 
@@ -321,7 +446,8 @@ const buildLeadFile = async (
     for (const column of headers) {
       const item = await data.find(
         obj =>
-          obj._id === column.name || obj.text.trim() === column.label.trim()
+          obj._id === column.name ||
+          (obj.text || '').trim() === (column.label || '').trim()
       );
 
       const cellValue = displayValue(item);
@@ -366,7 +492,14 @@ export const buildFile = async (
   let rowIndex: number = 1;
 
   if (type === MODULE_NAMES.CUSTOMER && query.form && query.popupData) {
-    await buildLeadFile(subdomain, data, query.form, sheet, columnNames, rowIndex);
+    await buildLeadFile(
+      subdomain,
+      data,
+      query.form,
+      sheet,
+      columnNames,
+      rowIndex
+    );
 
     type = 'Forms';
   } else {
@@ -406,7 +539,12 @@ export const buildFile = async (
             );
           }
         } else {
-          const cellValue = await fillCellValue(models, subdomain, column.name, item);
+          const cellValue = await fillCellValue(
+            models,
+            subdomain,
+            column.name,
+            item
+          );
 
           addCell(column, cellValue, sheet, columnNames, rowIndex);
         }

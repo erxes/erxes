@@ -17,8 +17,8 @@ export interface IParticipantDocument extends IParticipant, Document {
 export const participantSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    customerId: field({ type: String, label: 'Customer Id' }),
-    dealId: field({ type: String, label: 'Deal Id' }),
+    customerId: field({ type: String, label: 'Customer Id', required: true }),
+    dealId: field({ type: String, label: 'Deal Id', required: true }),
     status: field({
       type: String,
       label: 'Status',
@@ -26,8 +26,13 @@ export const participantSchema = schemaHooksWrapper(
       default: 'participating',
       required: true
     }),
-    detail: field({ type: Schema.Types.Mixed, label: 'Detail' }),
-    createdAt: field({ type: Date, label: 'Created at' }),
+    detail: field({
+      type: Schema.Types.Mixed,
+      label: 'Detail',
+      optional: true,
+      default: { price: 0 }
+    }),
+    createdAt: field({ type: Date, label: 'Created at' })
   }),
   'erxes_participants'
 );

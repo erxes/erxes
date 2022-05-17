@@ -4,7 +4,7 @@ import {
   putUpdateLog as commonPutUpdateLog,
   putDeleteLog as commonPutDeleteLog,
   getSchemaLabels,
-  gatherNames,
+  gatherNames
 } from '@erxes/api-utils/src/logUtils';
 
 import {
@@ -13,20 +13,20 @@ import {
   scheduleDateSchema,
   messengerSchema,
   IEngageMessageDocument,
-  IEngageMessage,
+  IEngageMessage
 } from './models/definitions/engages';
 import messageBroker, {
   sendSegmentsMessage,
   sendCoreMessage,
   sendTagsMessage,
-  sendEmailTemplatesMessage,
+  sendEmailTemplatesMessage
 } from './messageBroker';
 import configs from './configs';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
-  DELETE: 'delete',
+  DELETE: 'delete'
 };
 
 const gatherEngageFieldNames = async (
@@ -54,7 +54,7 @@ const gatherEngageFieldNames = async (
       foreignKey: 'segmentIds',
       prevList: options,
       nameFields: ['name'],
-      items: segments,
+      items: segments
     });
   }
 
@@ -62,7 +62,7 @@ const gatherEngageFieldNames = async (
     const brands = await sendRPCMessage(
       {
         action: 'brands.find',
-        data: { query: { _id: { $in: doc.brandIds } } },
+        data: { query: { _id: { $in: doc.brandIds } } }
       },
       sendCoreMessage
     );
@@ -71,7 +71,7 @@ const gatherEngageFieldNames = async (
       foreignKey: 'brandIds',
       prevList: options,
       nameFields: ['name'],
-      items: brands,
+      items: brands
     });
   }
 
@@ -85,7 +85,7 @@ const gatherEngageFieldNames = async (
       foreignKey: 'customerTagIds',
       prevList: options,
       nameFields: ['name'],
-      items: tags,
+      items: tags
     });
   }
 
@@ -93,7 +93,7 @@ const gatherEngageFieldNames = async (
     const user = await sendRPCMessage(
       {
         action: 'users.findOne',
-        data: { _id: doc.fromUserId },
+        data: { _id: doc.fromUserId }
       },
       sendCoreMessage
     );
@@ -103,7 +103,7 @@ const gatherEngageFieldNames = async (
         foreignKey: 'fromUserId',
         prevList: options,
         nameFields: ['email', 'username'],
-        items: [user],
+        items: [user]
       });
     }
   }
@@ -112,7 +112,7 @@ const gatherEngageFieldNames = async (
     const brand = await sendRPCMessage(
       {
         action: 'brands.findOne',
-        data: { _id: doc.messenger.brandId },
+        data: { _id: doc.messenger.brandId }
       },
       sendCoreMessage
     );
@@ -122,7 +122,7 @@ const gatherEngageFieldNames = async (
         foreignKey: 'brandId',
         prevList: options,
         nameFields: ['name'],
-        items: [brand],
+        items: [brand]
       });
     }
   }
@@ -131,7 +131,7 @@ const gatherEngageFieldNames = async (
     const user = await sendRPCMessage(
       {
         action: 'users.findOne',
-        data: { _id: doc.createdBy },
+        data: { _id: doc.createdBy }
       },
       sendCoreMessage
     );
@@ -141,7 +141,7 @@ const gatherEngageFieldNames = async (
         foreignKey: 'createdBy',
         prevList: options,
         nameFields: ['email', 'username'],
-        items: [user],
+        items: [user]
       });
     }
   }
@@ -150,7 +150,7 @@ const gatherEngageFieldNames = async (
     const template = await sendRPCMessage(
       {
         action: 'findOne',
-        data: { _id: doc.email.templateId },
+        data: { _id: doc.email.templateId }
       },
       sendEmailTemplatesMessage
     );
@@ -160,7 +160,7 @@ const gatherEngageFieldNames = async (
         foreignKey: 'email.templateId',
         prevList: options,
         nameFields: ['name'],
-        items: [template],
+        items: [template]
       });
     }
   }
@@ -188,16 +188,17 @@ export const gatherDescriptions = async (subdomain: string, params: any) => {
 export const putDeleteLog = async (subdomain: string, logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(subdomain, {
     ...logDoc,
-    action: LOG_ACTIONS.DELETE,
+    action: LOG_ACTIONS.DELETE
   });
 
   await commonPutDeleteLog(
+    subdomain,
     messageBroker(),
     {
       ...logDoc,
       description,
       extraDesc,
-      type: `${configs.name}:${logDoc.type}`,
+      type: `${configs.name}:${logDoc.type}`
     },
     user
   );
@@ -206,16 +207,17 @@ export const putDeleteLog = async (subdomain: string, logDoc, user) => {
 export const putUpdateLog = async (subdomain: string, logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(subdomain, {
     ...logDoc,
-    action: LOG_ACTIONS.UPDATE,
+    action: LOG_ACTIONS.UPDATE
   });
 
   await commonPutUpdateLog(
+    subdomain,
     messageBroker(),
     {
       ...logDoc,
       description,
       extraDesc,
-      type: `${configs.name}:${logDoc.type}`,
+      type: `${configs.name}:${logDoc.type}`
     },
     user
   );
@@ -224,16 +226,17 @@ export const putUpdateLog = async (subdomain: string, logDoc, user) => {
 export const putCreateLog = async (subdomain: string, logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(subdomain, {
     ...logDoc,
-    action: LOG_ACTIONS.CREATE,
+    action: LOG_ACTIONS.CREATE
   });
 
   await commonPutCreateLog(
+    subdomain,
     messageBroker(),
     {
       ...logDoc,
       description,
       extraDesc,
-      type: `${configs.name}:${logDoc.type}`,
+      type: `${configs.name}:${logDoc.type}`
     },
     user
   );
@@ -249,9 +252,9 @@ export default {
           engageMessageSchema,
           emailSchema,
           scheduleDateSchema,
-          messengerSchema,
-        ],
-      },
-    ]),
-  }),
+          messengerSchema
+        ]
+      }
+    ])
+  })
 };

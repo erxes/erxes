@@ -1,3 +1,4 @@
+import { IDeal } from '@erxes/ui-cards/src/deals/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import {
   IProduct as IProductC,
@@ -8,6 +9,7 @@ import {
   IActivityLog,
   IActivityLogForMonth
 } from '@erxes/ui/src/activityLogs/types';
+import { ICustomer } from '@erxes/ui/src/customers/types';
 
 export interface IRouterProps {
   history: any;
@@ -397,3 +399,27 @@ export type CountQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export interface IParticipant {
+  _id: string;
+  customer: ICustomer;
+  deal: IDeal;
+  detail?: {
+    price: number;
+  };
+  status: string;
+}
+
+export type ParticipantsQueryResponse = {
+  participants: IParticipant[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type AddParticipantsMutation = ({
+  variables: { dealId, customerIds }
+}) => Promise<any>;
+
+export type RemoveParticipantsMutation = ({
+  variables: { dealId, customerIds }
+}) => Promise<any>;

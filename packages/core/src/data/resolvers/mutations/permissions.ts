@@ -3,7 +3,7 @@ import * as _ from 'underscore';
 import {
   IPermissionParams,
   IUserGroup,
-  IUserGroupDocument,
+  IUserGroupDocument
 } from '../../../db/models/definitions/permissions';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
@@ -20,25 +20,30 @@ interface IParams {
   currentUser: IUserDocument;
 }
 
-const writeUserLog = async (models: IModels, params: IParams) => {
+const writeUserLog = async (
+  models: IModels,
+  subdomain: string,
+  params: IParams
+) => {
   const { memberIds = [], oldUsers = [], group, currentUser } = params;
 
   for (const oldUser of oldUsers) {
-    const exists = memberIds.find((id) => id === oldUser._id);
+    const exists = memberIds.find(id => id === oldUser._id);
 
     if (!exists) {
       const groupIds = oldUser.groupIds
-        ? oldUser.groupIds.filter((item) => item !== group._id)
+        ? oldUser.groupIds.filter(item => item !== group._id)
         : [];
       // user has been removed from the group
       await putUpdateLog(
         models,
+        subdomain,
         {
           type: MODULE_NAMES.USER,
           object: { _id: oldUser._id, groupIds: oldUser.groupIds },
           newData: { groupIds },
           description: `User "${oldUser.email}" has been removed from group "${group.name}"`,
-          updatedDocument: { groupIds },
+          updatedDocument: { groupIds }
         },
         currentUser
       );
@@ -46,7 +51,7 @@ const writeUserLog = async (models: IModels, params: IParams) => {
   } // end oldUser loop
 
   for (const memberId of memberIds) {
-    const exists = oldUsers.find((usr) => usr._id === memberId);
+    const exists = oldUsers.find(usr => usr._id === memberId);
 
     // user has been added to the group
     if (!exists) {
@@ -56,16 +61,17 @@ const writeUserLog = async (models: IModels, params: IParams) => {
       if (addedUser) {
         // previous data was like this
         const groupIds = (addedUser.groupIds || []).filter(
-          (groupId) => groupId !== group._id
+          groupId => groupId !== group._id
         );
         await putUpdateLog(
           models,
+          subdomain,
           {
             type: MODULE_NAMES.USER,
             object: { _id: memberId, groupIds },
             newData: { groupIds: addedUser.groupIds },
             description: `User "${addedUser.email}" has been added to group ${group.name}`,
-            updatedDocument: { groupIds: addedUser.groupIds },
+            updatedDocument: { groupIds: addedUser.groupIds }
           },
           currentUser
         );
@@ -83,16 +89,21 @@ const permissionMutations = {
    * @param {Boolean} doc.allowed
    * @return {Promise} newly created permission object
    */
-  async permissionsAdd(_root, doc: IPermissionParams, { user, models }: IContext) {
+  async permissionsAdd(
+    _root,
+    doc: IPermissionParams,
+    { user, models, subdomain }: IContext
+  ) {
     const result = await models.Permissions.createPermission(doc);
 
     for (const perm of result) {
       await putCreateLog(
         models,
+        subdomain,
         {
           type: MODULE_NAMES.PERMISSION,
           object: perm,
-          newData: perm,
+          newData: perm
         },
         user
       );
@@ -111,19 +122,24 @@ const permissionMutations = {
   async permissionsRemove(
     _root,
     { ids }: { ids: string[] },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const permissions = await models.Permissions.find({ _id: { $in: ids } });
     const result = await models.Permissions.removePermission(ids);
 
     for (const perm of permissions) {
-      await putDeleteLog(models, { type: MODULE_NAMES.PERMISSION, object: perm }, user);
+      await putDeleteLog(
+        models,
+        subdomain,
+        { type: MODULE_NAMES.PERMISSION, object: perm },
+        user
+      );
     }
 
     await resetPermissionsCache(models);
 
     return result;
-  },
+  }
 };
 
 const usersGroupMutations = {
@@ -136,39 +152,41 @@ const usersGroupMutations = {
   async usersGroupsAdd(
     _root,
     { memberIds, ...doc }: IUserGroup & { memberIds?: string[] },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     // users before updating
     const oldUsers = await getDocumentList(models, 'users', {
-      _id: { $in: memberIds || [] },
+      _id: { $in: memberIds || [] }
     });
 
     const group = await models.UsersGroups.createGroup(doc, memberIds);
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.USER_GROUP,
         object: group,
         newData: doc,
-        description: `"${group.name}" has been created`,
+        description: `"${group.name}" has been created`
       },
       user
     );
 
     for (const oldUser of oldUsers) {
       const updatedDocument = {
-        groupIds: [...(oldUser.groupIds || []), group._id],
+        groupIds: [...(oldUser.groupIds || []), group._id]
       };
 
       await putUpdateLog(
         models,
+        subdomain,
         {
           type: MODULE_NAMES.USER,
           object: oldUser,
           newData: updatedDocument,
           description: `User "${oldUser.email}" has been added to group ${group.name}`,
-          updatedDocument,
+          updatedDocument
         },
         user
       );
@@ -192,11 +210,11 @@ const usersGroupMutations = {
       memberIds,
       ...doc
     }: { _id: string; memberIds?: string[] } & IUserGroup,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const group = await models.UsersGroups.getGroup(_id);
     const oldUsers = await getDocumentList(models, 'users', {
-      groupIds: { $in: [_id] },
+      groupIds: { $in: [_id] }
     });
     const result = await models.UsersGroups.updateGroup(_id, doc, memberIds);
 
@@ -204,17 +222,18 @@ const usersGroupMutations = {
     if (group.name !== doc.name) {
       await putUpdateLog(
         models,
+        subdomain,
         {
           type: MODULE_NAMES.USER_GROUP,
           object: group,
           newData: doc,
-          description: `"${group.name}" has been edited`,
+          description: `"${group.name}" has been edited`
         },
         user
       );
     }
 
-    await writeUserLog(models, {
+    await writeUserLog(models, subdomain, {
       currentUser: user,
       memberIds,
       oldUsers,
@@ -231,7 +250,11 @@ const usersGroupMutations = {
    * @param {String} _id
    * @return {Promise}
    */
-  async usersGroupsRemove(_root, { _id }: { _id: string }, { user, models }: IContext) {
+  async usersGroupsRemove(
+    _root,
+    { _id }: { _id: string },
+    { user, models, subdomain }: IContext
+  ) {
     const group = await models.UsersGroups.getGroup(_id);
     const members = await getDocumentList(models, 'users', {
       groupIds: { $in: [group._id] }
@@ -240,6 +263,7 @@ const usersGroupMutations = {
 
     await putDeleteLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.USER_GROUP,
         object: group,
@@ -255,6 +279,7 @@ const usersGroupMutations = {
 
       await putUpdateLog(
         models,
+        subdomain,
         {
           type: MODULE_NAMES.USER,
           object: { _id: member._id, groupIds: member.groupIds },
@@ -274,7 +299,7 @@ const usersGroupMutations = {
   async usersGroupsCopy(
     _root,
     { _id, memberIds }: { _id: string; memberIds: string[] },
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const group = await models.UsersGroups.getGroup(_id);
 
@@ -282,11 +307,12 @@ const usersGroupMutations = {
 
     await putCreateLog(
       models,
+      subdomain,
       {
         type: MODULE_NAMES.USER_GROUP,
         object: clone,
         newData: { name: clone.name, description: clone.description },
-        description: `"${group.name}" has been copied`,
+        description: `"${group.name}" has been copied`
       },
       user
     );
@@ -300,7 +326,7 @@ const usersGroupMutations = {
     await resetPermissionsCache(models);
 
     return result;
-  },
+  }
 };
 
 moduleCheckPermission(permissionMutations, 'managePermissions');

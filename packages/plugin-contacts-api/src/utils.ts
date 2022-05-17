@@ -4,7 +4,7 @@ import { chunkArray } from '@erxes/api-utils/src/core';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 
-import { debug, es } from './configs';
+import { debug } from './configs';
 import {
   customerSchema,
   ICustomerDocument,
@@ -28,6 +28,7 @@ import {
 } from './constants';
 import { companySchema } from './models/definitions/companies';
 import { ICustomField, ILink } from '@erxes/api-utils/src/types';
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 
 export const findCustomer = async ({ Customers }: IModels, doc) => {
   let customer;
@@ -262,7 +263,8 @@ export const generateFields = async ({ subdomain, data }) => {
   }
 
   if (!usageType || usageType === 'export') {
-    const aggre = await es.fetchElk({
+    const aggre = await fetchEs({
+      subdomain,
       action: 'search',
       index: type === 'company' ? 'companies' : 'customers',
       body: {
@@ -1072,17 +1074,18 @@ export const prepareCustomData = async (subdomain, doc) => {
       customData: data,
       contentType: 'contacts:customer'
     },
-    isRPC: true
+    isRPC: true,
+    defaultValue: { customFieldsData: [] }
   });
 
   const generatedCustomFieldsData = generatedData.customFieldsData || [];
 
-  const jsonObject = [
-    ...customFieldsData,
-    ...generatedCustomFieldsData
-  ].map(e => JSON.stringify(e));
-
-  const uniqueSet = new Set(jsonObject);
-
-  return Array.from(uniqueSet).map(e => JSON.parse(e));
+  return [
+    ...new Map(
+      [...customFieldsData, ...generatedCustomFieldsData].map(item => [
+        item.field,
+        item
+      ])
+    ).values()
+  ];
 };

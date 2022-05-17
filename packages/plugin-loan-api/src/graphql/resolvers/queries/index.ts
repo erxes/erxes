@@ -1,21 +1,21 @@
-import adjustments from './adjustments';
-import contracts from './contracts';
-import contractTypes from './contractTypes';
-import insuranceTypes from './insuranceTypes';
-import invoices from './invoices';
-import schedules from './schedules';
-import transactions from './transactions';
-import collaterals from './collaterals';
-import erkhetResponses from './erkhetResponses';
+import adjustmentQueries from './adjustments';
+import contractQueries from './contracts';
+import contractTypeQueries from './contractTypes';
+import insuranceTypeQueries from './insuranceTypes';
+import invoiceQueries from './invoices';
+import scheduleQueries from './schedules';
+import transactionQueries from './transactions';
+import collateralQueries from './collaterals';
+import erkhetResponseQueries from './erkhetResponses';
 
 export default {
-  ...adjustments,
-  ...contractTypes,
-  ...contracts,
-  ...insuranceTypes,
-  ...invoices,
-  ...schedules,
-  ...transactions,
-  ...collaterals,
-  ...erkhetResponses,
+  ...adjustmentQueries,
+  ...contractTypeQueries,
+  ...contractQueries,
+  ...insuranceTypeQueries,
+  ...invoiceQueries,
+  ...scheduleQueries,
+  ...transactionQueries,
+  ...collateralQueries,
+  ...erkhetResponseQueries
 };

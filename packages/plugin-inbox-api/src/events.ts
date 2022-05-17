@@ -1,6 +1,6 @@
+import { client, getIndexPrefix } from '@erxes/api-utils/src/elasticsearch';
 import * as getUuid from 'uuid-by-string';
 import { debug } from './configs';
-import { es } from './configs';
 import { sendContactsMessage, sendFormsMessage } from './messageBroker';
 
 interface ISaveEventArgs {
@@ -46,10 +46,10 @@ export const saveEvent = async (subdomain: string, args: ISaveEventArgs) => {
     searchQuery.bool.must.push(additionalQuery);
   }
 
-  const index = `${es.getIndexPrefix()}events`;
+  const index = `${getIndexPrefix()}events`;
 
   try {
-    const response = await es.client.update({
+    const response = await client.update({
       index,
       // generate unique id based on searchQuery
       id: getUuid(JSON.stringify(searchQuery)),
@@ -62,7 +62,12 @@ export const saveEvent = async (subdomain: string, args: ISaveEventArgs) => {
           customerId,
           createdAt: new Date(),
           count: 1,
-          attributes: await sendFormsMessage({ subdomain, action: 'fields.generateTypedListFromMap', data: attributes || {}, isRPC: true })
+          attributes: await sendFormsMessage({
+            subdomain,
+            action: 'fields.generateTypedListFromMap',
+            data: attributes || {},
+            isRPC: true
+          })
         }
       }
     });
@@ -78,11 +83,14 @@ export const saveEvent = async (subdomain: string, args: ISaveEventArgs) => {
   return { customerId };
 };
 
-export const trackViewPageEvent = (subdomain: string, args: {
-  customerId?: string;
-  visitorId?: string;
-  attributes: any;
-}) => {
+export const trackViewPageEvent = (
+  subdomain: string,
+  args: {
+    customerId?: string;
+    visitorId?: string;
+    attributes: any;
+  }
+) => {
   const { attributes, customerId, visitorId } = args;
 
   return saveEvent(subdomain, {
@@ -121,12 +129,15 @@ export const trackViewPageEvent = (subdomain: string, args: {
   });
 };
 
-export const trackCustomEvent = (subdomain: string, args: {
-  name: string;
-  customerId?: string;
-  visitorId?: string;
-  attributes: any;
-}) => {
+export const trackCustomEvent = (
+  subdomain: string,
+  args: {
+    name: string;
+    customerId?: string;
+    visitorId?: string;
+    attributes: any;
+  }
+) => {
   return saveEvent(subdomain, {
     type: 'custom',
     name: args.name,
@@ -136,26 +147,29 @@ export const trackCustomEvent = (subdomain: string, args: {
   });
 };
 
-export const identifyCustomer = async (subdomain: string, args: ICustomerIdentifyParams = {}) => {
+export const identifyCustomer = async (
+  subdomain: string,
+  args: ICustomerIdentifyParams = {}
+) => {
   // get or create customer
   let customer = await sendContactsMessage({
     subdomain,
-    action: "customers.getWidgetCustomer",
-    data: args, 
+    action: 'customers.getWidgetCustomer',
+    data: args,
     isRPC: true
-  })
+  });
 
   if (!customer) {
     customer = await sendContactsMessage({
       subdomain,
-      action: "customers.createCustomer",
+      action: 'customers.createCustomer',
       data: {
         primaryEmail: args.email,
         code: args.code,
         primaryPhone: args.phone
       },
       isRPC: true
-    })
+    });
   }
 
   return { customerId: customer._id };
@@ -204,14 +218,19 @@ export const updateCustomerProperty = async (
       prev[name] = value;
 
       modifier = {
-        trackedData: await sendFormsMessage({ subdomain, action: 'fields.generateTypedListFromMap', data: prev, isRPC: true })
+        trackedData: await sendFormsMessage({
+          subdomain,
+          action: 'fields.generateTypedListFromMap',
+          data: prev,
+          isRPC: true
+        })
       };
     }
   }
 
   await await sendContactsMessage({
     subdomain,
-    action: "customers.updateCustomer",
+    action: 'customers.updateCustomer',
     data: {
       _id: customerId,
       doc: modifier

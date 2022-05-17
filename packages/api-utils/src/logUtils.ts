@@ -101,6 +101,7 @@ export type LogDesc = {
 } & { name: any };
 
 export const putCreateLog = async (
+  subdomain: string,
   messageBroker,
   params: ILogDataParams,
   user: IUserDocument
@@ -119,13 +120,12 @@ export const putCreateLog = async (
     });
   }
 
-
   const isWebhooksAvailable = await messageBroker.sendRPCMessage(
     'gateway:isServiceAvailable',
     'webhooks'
   );
-  
-  if(isWebhooksAvailable) {
+
+  if (isWebhooksAvailable) {
     messageBroker.sendMessage('webhooks:send', {
       data: {
         action: LOG_ACTIONS.CREATE,
@@ -135,7 +135,12 @@ export const putCreateLog = async (
     });
   }
 
-  return putLog(messageBroker, { ...params, action: LOG_ACTIONS.CREATE }, user);
+  return putLog(
+    subdomain,
+    messageBroker,
+    { ...params, action: LOG_ACTIONS.CREATE },
+    user
+  );
 };
 
 /**
@@ -144,6 +149,7 @@ export const putCreateLog = async (
  * @param user User information from mutation context
  */
 export const putUpdateLog = async (
+  subdomain: string,
   messageBroker,
   params: ILogDataParams,
   user: IUserDocument
@@ -167,7 +173,7 @@ export const putUpdateLog = async (
     'webhooks'
   );
 
-  if(isWebhooksAvailable) {
+  if (isWebhooksAvailable) {
     messageBroker.sendMessage('webhooks:send', {
       data: {
         action: LOG_ACTIONS.UPDATE,
@@ -177,7 +183,12 @@ export const putUpdateLog = async (
     });
   }
 
-  return putLog(messageBroker, { ...params, action: LOG_ACTIONS.UPDATE }, user);
+  return putLog(
+    subdomain,
+    messageBroker,
+    { ...params, action: LOG_ACTIONS.UPDATE },
+    user
+  );
 };
 
 /**
@@ -186,6 +197,7 @@ export const putUpdateLog = async (
  * @param user User information from mutation context
  */
 export const putDeleteLog = async (
+  subdomain: string,
   messageBroker,
   params: ILogDataParams,
   user: IUserDocument
@@ -195,7 +207,7 @@ export const putDeleteLog = async (
     'webhooks'
   );
 
-  if(isWebhooksAvailable) {
+  if (isWebhooksAvailable) {
     messageBroker.sendMessage('webhooks:send', {
       data: {
         action: LOG_ACTIONS.DELETE,
@@ -205,10 +217,16 @@ export const putDeleteLog = async (
     });
   }
 
-  return putLog(messageBroker, { ...params, action: LOG_ACTIONS.DELETE }, user);
+  return putLog(
+    subdomain,
+    messageBroker,
+    { ...params, action: LOG_ACTIONS.DELETE },
+    user
+  );
 };
 
 const putLog = async (
+  subdomain: string,
   messageBroker,
   params: IFinalLogParams,
   user: IUserDocument
@@ -216,10 +234,14 @@ const putLog = async (
   const value = await redis.get('afterMutations');
   const afterMutations = JSON.parse(value || '{}');
 
-  if (afterMutations[params.type] && afterMutations[params.type][params.action] && afterMutations[params.type][params.action].length) {
+  if (
+    afterMutations[params.type] &&
+    afterMutations[params.type][params.action] &&
+    afterMutations[params.type][params.action].length
+  ) {
     for (const service of afterMutations[params.type][params.action]) {
       await messageBroker.sendMessage(`${service}:afterMutation`, {
-        subdomain: 'os',
+        subdomain,
         data: {
           ...params,
           object: params.object,
@@ -227,7 +249,7 @@ const putLog = async (
           extraDesc: params.extraDesc,
           user
         }
-      })
+      });
     }
   }
 
@@ -241,7 +263,7 @@ const putLog = async (
   }
 
   return messageBroker.sendMessage('putLog', {
-    subdomain: 'os',
+    subdomain,
     data: {
       ...params,
       createdBy: user._id,
@@ -271,7 +293,7 @@ export const putActivityLog = async (
 
   try {
     if (isAutomationsAvailable && data.target) {
-      messageBroker.sendMessage('automations', {
+      messageBroker.sendMessage('automations:trigger', {
         data: {
           type: `${data.contentType}`,
           targets: [data.target]

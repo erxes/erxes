@@ -1,10 +1,14 @@
-import { moduleCheckPermission } from "@erxes/api-utils/src/permissions";
-import { IContext } from "../../../connectionResolver";
-import { putCreateLog } from "../../../logUtils";
-import { IField, IFieldDocument, IFieldGroup } from "../../../models/definitions/fields";
+import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { IContext } from '../../../connectionResolver';
+import { putCreateLog } from '../../../logUtils';
+import {
+  IField,
+  IFieldDocument,
+  IFieldGroup
+} from '../../../models/definitions/fields';
 import { IOrderInput } from '@erxes/api-utils/src/commonUtils';
-import { serviceDiscovery } from "../../../configs";
-import { sendCommonMessage } from "../../../messageBroker";
+import { serviceDiscovery } from '../../../configs';
+import { sendCommonMessage } from '../../../messageBroker';
 
 interface IFieldsEdit extends IField {
   _id: string;
@@ -34,7 +38,7 @@ const fieldsGroupsHook = async (
   const services = await serviceDiscovery.getServices();
 
   for (const serviceName of services) {
-    if (!((doc.contentType || "").includes(serviceName))) {
+    if (!(doc.contentType || '').includes(serviceName)) {
       continue;
     }
 
@@ -60,13 +64,14 @@ const fieldMutations = {
   /**
    * Adds field object
    */
-  async fieldsAdd(_root, args: IField, { user, models }: IContext) {
+  async fieldsAdd(_root, args: IField, { user, models, subdomain }: IContext) {
     const field = await models.Fields.createField({
       ...args,
       lastUpdatedUserId: user._id
     });
 
     await putCreateLog(
+      subdomain,
       {
         type: 'field',
         newData: args,
@@ -161,7 +166,10 @@ const fieldMutations = {
    * Updates field object
    */
   fieldsEdit(_root, { _id, ...doc }: IFieldsEdit, { user, models }: IContext) {
-    return models.Fields.updateField(_id, { ...doc, lastUpdatedUserId: user._id });
+    return models.Fields.updateField(_id, {
+      ...doc,
+      lastUpdatedUserId: user._id
+    });
   },
 
   /**
@@ -174,7 +182,11 @@ const fieldMutations = {
   /**
    * Update field orders
    */
-  fieldsUpdateOrder(_root, { orders }: { orders: IOrderInput[] }, { models }: IContext) {
+  fieldsUpdateOrder(
+    _root,
+    { orders }: { orders: IOrderInput[] },
+    { models }: IContext
+  ) {
     return models.Fields.updateOrder(orders);
   },
 
@@ -211,6 +223,7 @@ const fieldsGroupsMutations = {
     );
 
     await putCreateLog(
+      subdomain,
       {
         type: 'field_group',
         newData: doc,
@@ -265,7 +278,11 @@ const fieldsGroupsMutations = {
   /**
    * Update field group's visible
    */
-  fieldsGroupsUpdateOrder(_root, { orders }: { orders: IOrderInput[] }, { models }: IContext) {
+  fieldsGroupsUpdateOrder(
+    _root,
+    { orders }: { orders: IOrderInput[] },
+    { models }: IContext
+  ) {
     return models.FieldsGroups.updateOrder(orders);
   }
 };

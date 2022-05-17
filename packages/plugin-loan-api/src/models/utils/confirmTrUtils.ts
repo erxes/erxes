@@ -1,7 +1,12 @@
 import { getConfig } from 'erxes-api-utils';
-import { checkCompanyRd, getEbarimtData, getJournalsData, sentErkhet } from './confirmUtils';
+import {
+  checkCompanyRd,
+  getEbarimtData,
+  getJournalsData,
+  sentErkhet
+} from './confirmUtils';
 import { IContractDocument } from '../definitions/contracts';
-import { ITransactionDoc } from '../definitions/transactions';
+import { ITransactionDocument } from '../definitions/transactions';
 import { getPureDate } from './utils';
 
 export interface IConformity {
@@ -11,11 +16,20 @@ export interface IConformity {
   relTypeId: string;
 }
 
-const saveJournals = async (messageBroker, contract, transaction, config, journalConfig, customerCode) => {
-  const trDate = getPureDate(transaction.payDate).toISOString().slice(0, 10)
+const saveJournals = async (
+  messageBroker,
+  contract,
+  transaction,
+  config,
+  journalConfig,
+  customerCode
+) => {
+  const trDate = getPureDate(transaction.payDate)
+    .toISOString()
+    .slice(0, 10);
   const postConfig = {
     defaultCustomer: journalConfig.defaultCustomer
-  }
+  };
   const orderInfo = {
     orderId: transaction._id,
     ptrs: [
@@ -41,7 +55,7 @@ const saveJournals = async (messageBroker, contract, transaction, config, journa
         }
       ]
     ]
-  }
+  };
 
   if (transaction.futureDebt) {
     orderInfo.ptrs.push([
@@ -63,7 +77,7 @@ const saveJournals = async (messageBroker, contract, transaction, config, journa
         side: 'credit',
         amount: transaction.futureDebt
       }
-    ])
+    ]);
   }
 
   // future insurance
@@ -87,7 +101,7 @@ const saveJournals = async (messageBroker, contract, transaction, config, journa
         side: 'credit',
         amount: transaction.insurance
       }
-    ])
+    ]);
   }
 
   if (transaction.interestEve) {
@@ -110,7 +124,7 @@ const saveJournals = async (messageBroker, contract, transaction, config, journa
         side: 'credit',
         amount: transaction.interestEve
       }
-    ])
+    ]);
   }
 
   if (transaction.interestNonce) {
@@ -133,7 +147,7 @@ const saveJournals = async (messageBroker, contract, transaction, config, journa
         side: 'credit',
         amount: transaction.interestNonce
       }
-    ])
+    ]);
   }
 
   // future interestEve + interestNonce to close
@@ -157,7 +171,7 @@ const saveJournals = async (messageBroker, contract, transaction, config, journa
         side: 'credit',
         amount: transaction.interestEve + transaction.interestNonce
       }
-    ])
+    ]);
   }
 
   // fee close
@@ -181,130 +195,243 @@ const saveJournals = async (messageBroker, contract, transaction, config, journa
         side: 'credit',
         amount: transaction.interestEve + transaction.interestNonce
       }
-    ])
+    ]);
   }
 
-  const postData = getJournalsData(config, journalConfig.userEmail, postConfig, [orderInfo])
-  return sentErkhet(messageBroker, postData, true)
-}
+  const postData = getJournalsData(
+    config,
+    journalConfig.userEmail,
+    postConfig,
+    [orderInfo]
+  );
+  return sentErkhet(messageBroker, postData, true);
+};
 
-const mainPayEbarimt = async (models, messageBroker, contract, transaction, config, journalConfig, customerCode, billType) => {
+const mainPayEbarimt = async (
+  models,
+  messageBroker,
+  contract,
+  transaction,
+  config,
+  journalConfig,
+  customerCode,
+  billType
+) => {
   const userEmail = journalConfig.mainUserEmail;
 
-  const details = [];
+  const details: any[] = [];
   const collateralIds = contract.collateralsData.map(item => item.collateralId);
-  const products = await models.Products.find({ _id: { $in: collateralIds } }).lean();
-  const productsById = {}
+  const products = await models.Products.find({
+    _id: { $in: collateralIds }
+  }).lean();
+  const productsById = {};
   for (const product of products) {
     productsById[product._id] = product;
   }
 
   for (const coll of contract.collateralsData) {
-    const perCollAmount = (coll.leaseAmount + coll.marginAmount) / (contract.leaseAmount + contract.marginAmount) * transaction.payment;
+    const perCollAmount =
+      ((coll.leaseAmount + coll.marginAmount) /
+        (contract.leaseAmount + contract.marginAmount)) *
+      transaction.payment;
     details.push({
       count: perCollAmount / (contract.leaseAmount + contract.marginAmount),
       amount: perCollAmount,
       inventoryCode: productsById[coll.collateralId].code,
       discount: 0,
-      workerEmail: '',
-    })
+      workerEmail: ''
+    });
   }
 
-  const orderInfos = [{
-    date: getPureDate(transaction.payDate).toISOString().slice(0, 10),
-    orderId: transaction._id,
-    number: contract.number,
-    hasVat: journalConfig.mainHasVat,
-    hasCitytax: journalConfig.mainHasCitytax,
-    billType,
-    customerCode,
-    description: `Эргэн төлөлт: Үндсэн төлбөр`,
-    details,
-    cashAmount: transaction.payment,
-  }]
+  const orderInfos = [
+    {
+      date: getPureDate(transaction.payDate)
+        .toISOString()
+        .slice(0, 10),
+      orderId: transaction._id,
+      number: contract.number,
+      hasVat: journalConfig.mainHasVat,
+      hasCitytax: journalConfig.mainHasCitytax,
+      billType,
+      customerCode,
+      description: `Эргэн төлөлт: Үндсэн төлбөр`,
+      details,
+      cashAmount: transaction.payment
+    }
+  ];
 
-  const postData = await getEbarimtData(config, userEmail, orderInfos)
-  return sentErkhet(messageBroker, postData, false, true)
-}
+  const postData = await getEbarimtData(config, userEmail, orderInfos);
+  return sentErkhet(messageBroker, postData, false, true);
+};
 
-const undueEbarimt = async (messageBroker, contract, transaction, config, journalConfig, customerCode, billType) => {
+const undueEbarimt = async (
+  messageBroker,
+  contract,
+  transaction,
+  config,
+  journalConfig,
+  customerCode,
+  billType
+) => {
   const userEmail = journalConfig.undueUserEmail;
 
-  const details = [{
-    count: 1,
-    amount: transaction.undue,
-    inventoryCode: journalConfig.undueStock,
-    discount: 0,
-    workerEmail: '',
-  }];
+  const details = [
+    {
+      count: 1,
+      amount: transaction.undue,
+      inventoryCode: journalConfig.undueStock,
+      discount: 0,
+      workerEmail: ''
+    }
+  ];
 
-  const orderInfos = [{
-    date: getPureDate(transaction.payDate).toISOString().slice(0, 10),
-    orderId: `U_${transaction._id}`,
-    number: contract.number,
-    hasVat: journalConfig.undueHasVat,
-    hasCitytax: journalConfig.undueHasCitytax,
-    billType,
-    customerCode,
-    description: `Эргэн төлөлт: Алданги `,
-    details,
-    cashAmount: transaction.undue,
-  }]
+  const orderInfos = [
+    {
+      date: getPureDate(transaction.payDate)
+        .toISOString()
+        .slice(0, 10),
+      orderId: `U_${transaction._id}`,
+      number: contract.number,
+      hasVat: journalConfig.undueHasVat,
+      hasCitytax: journalConfig.undueHasCitytax,
+      billType,
+      customerCode,
+      description: `Эргэн төлөлт: Алданги `,
+      details,
+      cashAmount: transaction.undue
+    }
+  ];
 
-  const postData = await getEbarimtData(config, userEmail, orderInfos)
-  return sentErkhet(messageBroker, postData, false, true)
-}
+  const postData = await getEbarimtData(config, userEmail, orderInfos);
+  return sentErkhet(messageBroker, postData, false, true);
+};
 
-const interestEbarimt = async (messageBroker, contract, transaction, config, journalConfig, customerCode, billType) => {
+const interestEbarimt = async (
+  messageBroker,
+  contract,
+  transaction,
+  config,
+  journalConfig,
+  customerCode,
+  billType
+) => {
   const userEmail = journalConfig.undueUserEmail;
 
-  const details = [{
-    count: 1,
-    amount: transaction.interestEve + transaction.interestNonce,
-    inventoryCode: journalConfig.interestStock,
-    discount: 0,
-    workerEmail: '',
-  }];
+  const details = [
+    {
+      count: 1,
+      amount: transaction.interestEve + transaction.interestNonce,
+      inventoryCode: journalConfig.interestStock,
+      discount: 0,
+      workerEmail: ''
+    }
+  ];
 
-  const orderInfos = [{
-    date: getPureDate(transaction.payDate).toISOString().slice(0, 10),
-    orderId: `I_${transaction._id}`,
-    number: contract.number,
-    hasVat: false,
-    hasCitytax: false,
-    billType,
-    customerCode,
-    description: `Эргэн төлөлт: Хүү`,
-    details,
-    cashAmount: transaction.undue,
-  }]
+  const orderInfos = [
+    {
+      date: getPureDate(transaction.payDate)
+        .toISOString()
+        .slice(0, 10),
+      orderId: `I_${transaction._id}`,
+      number: contract.number,
+      hasVat: false,
+      hasCitytax: false,
+      billType,
+      customerCode,
+      description: `Эргэн төлөлт: Хүү`,
+      details,
+      cashAmount: transaction.undue
+    }
+  ];
 
-  const postData = await getEbarimtData(config, userEmail, orderInfos)
-  return sentErkhet(messageBroker, postData, false, true)
-}
+  const postData = await getEbarimtData(config, userEmail, orderInfos);
+  return sentErkhet(messageBroker, postData, false, true);
+};
 
-export const ConfirmTrBase = async (models, messageBroker, memoryStorage, contract: IContractDocument, transaction: ITransactionDoc) => {
-  const journalConfig = (await models.ContractTypes.findOne({ _id: contract.contractTypeId })).config;
+export const ConfirmTrBase = async (
+  models,
+  messageBroker,
+  memoryStorage,
+  contract: IContractDocument,
+  transaction: ITransactionDocument
+) => {
+  const journalConfig = (
+    await models.ContractTypes.findOne({ _id: contract.contractTypeId })
+  ).config;
   const config = await getConfig(models, memoryStorage, 'ERKHET', {});
-  const { customerCode, billType } = await checkCompanyRd(models, contract, config);
+  const { customerCode, billType } = await checkCompanyRd(
+    models,
+    contract,
+    config
+  );
 
   // on Cost
-  const responseJournals = await saveJournals(messageBroker, contract, transaction, config, journalConfig, customerCode);
-  await models.ErkhetResponses.createErkhetResponse(models, { contractId: contract._id, isEbarimt: false, data: JSON.parse(responseJournals) });
+  const responseJournals = await saveJournals(
+    messageBroker,
+    contract,
+    transaction,
+    config,
+    journalConfig,
+    customerCode
+  );
+  await models.ErkhetResponses.createErkhetResponse(models, {
+    contractId: contract._id,
+    isEbarimt: false,
+    data: JSON.parse(responseJournals)
+  });
 
   if (transaction.payment) {
-    const responseMainPay = await mainPayEbarimt(models, messageBroker, contract, transaction, config, journalConfig, customerCode, billType);
-    await models.ErkhetResponses.createErkhetResponse(models, { contractId: contract._id, isEbarimt: true, data: JSON.parse(responseMainPay) });
+    const responseMainPay = await mainPayEbarimt(
+      models,
+      messageBroker,
+      contract,
+      transaction,
+      config,
+      journalConfig,
+      customerCode,
+      billType
+    );
+    await models.ErkhetResponses.createErkhetResponse(models, {
+      contractId: contract._id,
+      isEbarimt: true,
+      data: JSON.parse(responseMainPay)
+    });
   }
 
   if (transaction.undue) {
-    const responseUndue = await undueEbarimt(messageBroker, contract, transaction, config, journalConfig, customerCode, billType);
-    await models.ErkhetResponses.createErkhetResponse(models, { contractId: contract._id, isEbarimt: true, data: JSON.parse(responseUndue) });
+    const responseUndue = await undueEbarimt(
+      messageBroker,
+      contract,
+      transaction,
+      config,
+      journalConfig,
+      customerCode,
+      billType
+    );
+    await models.ErkhetResponses.createErkhetResponse(models, {
+      contractId: contract._id,
+      isEbarimt: true,
+      data: JSON.parse(responseUndue)
+    });
   }
 
-  if (billType === 3 && (transaction.interestEve || transaction.interestNonce)) {
-    const responseInterest = await interestEbarimt(messageBroker, contract, transaction, config, journalConfig, customerCode, billType);
-    await models.ErkhetResponses.createErkhetResponse(models, { contractId: contract._id, isEbarimt: true, data: JSON.parse(responseInterest) });
+  if (
+    billType === 3 &&
+    (transaction.interestEve || transaction.interestNonce)
+  ) {
+    const responseInterest = await interestEbarimt(
+      messageBroker,
+      contract,
+      transaction,
+      config,
+      journalConfig,
+      customerCode,
+      billType
+    );
+    await models.ErkhetResponses.createErkhetResponse(models, {
+      contractId: contract._id,
+      isEbarimt: true,
+      data: JSON.parse(responseInterest)
+    });
   }
-
-}
+};

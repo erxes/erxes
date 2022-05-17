@@ -13,7 +13,7 @@ import {
   EditMutationResponse,
   IContractType,
   RemoveMutationResponse,
-  RemoveMutationVariables,
+  RemoveMutationVariables
 } from '../types';
 
 type Props = {
@@ -41,7 +41,7 @@ const ContractTypeDetailsContainer = (props: FinalProps) => {
         }
         Alert.success('You successfully updated contract type');
       })
-      .catch((error) => {
+      .catch(error => {
         Alert.error(error.message);
       });
   };
@@ -52,9 +52,9 @@ const ContractTypeDetailsContainer = (props: FinalProps) => {
     contractTypesRemove({ variables: { contractTypeIds: [id] } })
       .then(() => {
         Alert.success('You successfully deleted a contract');
-        history.push('/erxes-plugin-loan/contract-types');
+        history.push('/contract-types');
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
@@ -77,17 +77,17 @@ const ContractTypeDetailsContainer = (props: FinalProps) => {
     contractType: contractTypeDetail,
     currentUser,
     saveItem,
-    remove,
+    remove
   };
 
   return <ContractTypeDetails {...updatedProps} />;
 };
 
 const generateOptions = () => ({
-  refetchQueries: ['contractTypeDetail'],
+  refetchQueries: ['contractTypeDetail']
 });
 const removeOptions = () => ({
-  refetchQueries: ['contractTypesMain'],
+  refetchQueries: ['contractTypesMain']
 });
 
 export default withProps<Props>(
@@ -98,24 +98,24 @@ export default withProps<Props>(
         name: 'contractTypeDetailQuery',
         options: ({ id }) => ({
           variables: {
-            _id: id,
+            _id: id
           },
-          fetchPolicy: 'network-only',
-        }),
+          fetchPolicy: 'network-only'
+        })
       }
     ),
     graphql<{}, EditMutationResponse, IContractType>(
       gql(mutations.contractTypesEdit),
       {
         name: 'contractTypesEdit',
-        options: generateOptions,
+        options: generateOptions
       }
     ),
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.contractTypesRemove),
       {
         name: 'contractTypesRemove',
-        options: removeOptions,
+        options: removeOptions
       }
     )
   )(withRouter<FinalProps>(ContractTypeDetailsContainer))

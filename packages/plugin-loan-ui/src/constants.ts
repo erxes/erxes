@@ -1,8 +1,8 @@
 export const menuContracts = [
-  { title: 'Contracts', link: '/erxes-plugin-loan/contract-list' },
-  { title: 'Collaterals', link: '/erxes-plugin-loan/collateral-list' },
-  { title: 'Transactions', link: '/erxes-plugin-loan/transaction-list' },
-  { title: 'Adjustments', link: '/erxes-plugin-loan/adjustment-list' },
+  { title: 'Contracts', link: '/contract-list' },
+  { title: 'Collaterals', link: '/collateral-list' },
+  { title: 'Transactions', link: '/transaction-list' },
+  { title: 'Adjustments', link: '/adjustment-list' }
 ];
 
 export const FILTER_PARAMS_TR = [
@@ -23,5 +23,5 @@ export const WEEKENDS = {
   3: 'Wednesday',
   4: 'Thursday',
   5: 'Friday',
-  6: 'Saturday',
-}
+  6: 'Saturday'
+};

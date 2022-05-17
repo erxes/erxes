@@ -1,13 +1,13 @@
-import { QueryResponse } from "@erxes/ui/src/types";
+import { QueryResponse } from '@erxes/ui/src/types';
 import {
   ILeadData,
   ILeadIntegration,
   IWebhookData
-} from "@erxes/ui-leads/src/types";
-import { IBrand } from "@erxes/ui/src/brands/types";
-import { IForm } from "@erxes/ui-forms/src/forms/types";
-import { IChannel } from "../channels/types";
-import { IProductCategory } from "@erxes/ui-products/src/types";
+} from '@erxes/ui-leads/src/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IForm } from '@erxes/ui-forms/src/forms/types';
+import { IChannel } from '../channels/types';
+import { IProductCategory } from '@erxes/ui-products/src/types';
 
 export interface IMessengerApp {
   _id: string;
@@ -156,6 +156,8 @@ export interface IIntegration {
   websiteMessengerApps?: IWebsiteMessengerApp[];
   knowledgeBaseMessengerApps?: ITopicMessengerApp[];
   bookingData?: IBookingData;
+  visibility?: string;
+  departmentIds?: string[];
 }
 
 export type QueryVariables = {

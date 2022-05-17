@@ -158,9 +158,10 @@ const productQueries = {
       subdomain,
       action: 'find',
       data: {
-        type: 'product'
+        type: 'products:product'
       },
-      isRPC: true
+      isRPC: true,
+      defaultValue: []
     });
 
     for (const tag of tags) {

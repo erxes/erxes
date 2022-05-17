@@ -21,6 +21,7 @@ import logUtils from './logUtils';
 import internalNotes from './internalNotes';
 import forms from './forms';
 import { generateModels } from './connectionResolver';
+import { USER_ROLES } from '@erxes/api-utils/src/constants';
 
 let client;
 
@@ -257,7 +258,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Users.find(data, { _id: 1 })
+      data: await models.Users.findUsers(data, { _id: 1 })
     };
   });
 
@@ -322,7 +323,10 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Users.find(query)
+      data: await models.Users.find({
+        ...query,
+        role: { $ne: USER_ROLES.SYSTEM }
+      })
         .sort(sort)
         .lean()
     };
@@ -395,6 +399,7 @@ export const initBroker = async options => {
 };
 
 interface IISendMessageArgs {
+  subdomain: string;
   action: string;
   data;
   isRPC?: boolean;
@@ -406,7 +411,6 @@ export const sendCommonMessage = async (
   args: IISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
-    subdomain: 'os',
     serviceDiscovery,
     client,
     ...args

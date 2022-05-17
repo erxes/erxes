@@ -20,6 +20,7 @@ import { IProduct, IProductCategory } from '../../types';
 import ProductsMerge from './detail/ProductsMerge';
 import Row from './ProductRow';
 import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -249,13 +250,15 @@ class List extends React.Component<IProps, State> {
               content={productsMerge}
             />
           )}
-          <TaggerPopover
-            type={TAG_TYPES.PRODUCT}
-            successCallback={emptyBulk}
-            targets={bulk}
-            trigger={tagButton}
-            refetchQueries={['productCountByTags']}
-          />
+          {isEnabled('tags') && (
+            <TaggerPopover
+              type={TAG_TYPES.PRODUCT}
+              successCallback={emptyBulk}
+              targets={bulk}
+              trigger={tagButton}
+              refetchQueries={['productCountByTags']}
+            />
+          )}
           <Button
             btnStyle="danger"
             size="small"

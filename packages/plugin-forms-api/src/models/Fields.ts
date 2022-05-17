@@ -244,7 +244,10 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
      * Validate per field according to it's validation and type
      * fixes values if necessary
      */
-    public static async clean(_id: string, _value: string | Date | number) {
+    public static async clean(
+      _id: string,
+      _value: string | Date | number | any
+    ) {
       const field = await models.Fields.findOne({ _id });
 
       let value = _value;
@@ -290,6 +293,35 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           }
 
           value = new Date(value);
+        }
+
+        // objectList
+        if (type === 'objectList') {
+          const { keys = [] } = field;
+
+          if (!keys.length) {
+            throwError("Object List don't have any keys");
+          }
+
+          const objects = value as any[];
+
+          const validObjects: any[] = [];
+
+          for (const object of objects) {
+            const entries = Object.entries(object);
+
+            entries.map(e => {
+              const key = e[0];
+
+              if (!keys.includes(key)) {
+                delete object[key];
+              }
+            });
+
+            validObjects.push(object);
+          }
+
+          value = validObjects;
         }
       }
 

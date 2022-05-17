@@ -1,24 +1,24 @@
-import * as mongoose from "mongoose";
-import * as strip from "strip";
-import * as faker from "faker";
-import * as Random from "meteor-random";
-import { IUserDocument } from "./types";
-import { IPermissionDocument } from "./definitions/permissions";
+import * as mongoose from 'mongoose';
+import * as strip from 'strip';
+import * as faker from 'faker';
+import * as Random from 'meteor-random';
+import { IUserDocument } from './types';
+import { IPermissionDocument } from './definitions/permissions';
 
 export const getEnv = ({
   name,
-  defaultValue,
+  defaultValue
 }: {
   name: string;
   defaultValue?: string;
 }): string => {
   const value = process.env[name];
 
-  if (!value && typeof defaultValue !== "undefined") {
+  if (!value && typeof defaultValue !== 'undefined') {
     return defaultValue;
   }
 
-  return value || "";
+  return value || '';
 };
 
 /**
@@ -39,8 +39,8 @@ export const paginate = (
 ) => {
   const { page = 0, perPage = 0, ids, excludeIds } = params || { ids: null };
 
-  const _page = Number(page || "1");
-  const _limit = Number(perPage || "20");
+  const _page = Number(page || '1');
+  const _limit = Number(perPage || '20');
 
   if (ids && ids.length > 0) {
     return excludeIds ? collection.limit(_limit) : collection;
@@ -50,7 +50,7 @@ export const paginate = (
 };
 
 export const validSearchText = (values: string[]) => {
-  const value = values.join(" ");
+  const value = values.join(' ');
 
   if (value.length < 512) {
     return value;
@@ -60,28 +60,28 @@ export const validSearchText = (values: string[]) => {
 };
 
 const stringToRegex = (value: string) => {
-  const specialChars = "{}[]\\^$.|?*+()".split("");
-  const val = value.split("");
+  const specialChars = '{}[]\\^$.|?*+()'.split('');
+  const val = value.split('');
 
-  const result = val.map((char) =>
-    specialChars.includes(char) ? ".?\\" + char : ".?" + char
+  const result = val.map(char =>
+    specialChars.includes(char) ? '.?\\' + char : '.?' + char
   );
 
-  return ".*" + result.join("").substring(2) + ".*";
+  return '.*' + result.join('').substring(2) + '.*';
 };
 
 export const regexSearchText = (
   searchValue: string,
-  searchKey = "searchText"
+  searchKey = 'searchText'
 ) => {
   const result: any[] = [];
 
-  searchValue = searchValue.replace(/\s\s+/g, " ");
+  searchValue = searchValue.replace(/\s\s+/g, ' ');
 
-  const words = searchValue.split(" ");
+  const words = searchValue.split(' ');
 
   for (const word of words) {
-    result.push({ [searchKey]: new RegExp(`${stringToRegex(word)}`, "mui") });
+    result.push({ [searchKey]: new RegExp(`${stringToRegex(word)}`, 'mui') });
   }
 
   return { $and: result };
@@ -145,9 +145,9 @@ export const checkUserIds = (
   oldUserIds: string[] = [],
   newUserIds: string[] = []
 ) => {
-  const removedUserIds = oldUserIds.filter((e) => !newUserIds.includes(e));
+  const removedUserIds = oldUserIds.filter(e => !newUserIds.includes(e));
 
-  const addedUserIds = newUserIds.filter((e) => !oldUserIds.includes(e));
+  const addedUserIds = newUserIds.filter(e => !oldUserIds.includes(e));
 
   return { addedUserIds, removedUserIds };
 };
@@ -169,7 +169,7 @@ export const chunkArray = (myArray, chunkSize: number) => {
 };
 
 export const cleanHtml = (content?: string) =>
-  strip(content || "").substring(0, 100);
+  strip(content || '').substring(0, 100);
 
 /**
  * Splits text into chunks of strings limited by given character count
@@ -186,16 +186,16 @@ export const cleanHtml = (content?: string) =>
 export const splitStr = (str: string, size: number): string[] => {
   const cleanStr = strip(str);
 
-  return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, "g")));
+  return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, 'g')));
 };
 
 export const getUniqueValue = async (
   collection: any,
-  fieldName: string = "code",
+  fieldName: string = 'code',
   defaultValue?: string
 ) => {
   const getRandomValue = (type: string) =>
-    type === "email" ? faker.internet.email().toLowerCase() : Random.id();
+    type === 'email' ? faker.internet.email().toLowerCase() : Random.id();
 
   let uniqueValue = defaultValue || getRandomValue(fieldName);
 
@@ -211,7 +211,7 @@ export const getUniqueValue = async (
 };
 
 export const escapeRegExp = (str: string) => {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
 
 export interface ISendMessageArgs {
@@ -237,7 +237,7 @@ export const sendMessage = async (
     action,
     data,
     defaultValue,
-    isRPC,
+    isRPC
   } = args;
 
   if (serviceName) {
@@ -246,7 +246,7 @@ export const sendMessage = async (
     }
 
     if (isRPC && !(await serviceDiscovery.isAvailable(serviceName))) {
-      if (process.env.NODE_ENV === "development") {
+      if (process.env.NODE_ENV === 'development') {
         throw new Error(`${serviceName} service is not available`);
       } else {
         return defaultValue;
@@ -254,96 +254,10 @@ export const sendMessage = async (
     }
   }
 
-  return client[isRPC ? "sendRPCMessage" : "sendMessage"](
-    serviceName + (serviceName ? ":" : "") + action,
+  return client[isRPC ? 'sendRPCMessage' : 'sendMessage'](
+    serviceName + (serviceName ? ':' : '') + action,
     { subdomain, data }
   );
-};
-
-export const doSearch = async ({
-  fetchEs,
-  index,
-  value,
-  fields,
-  customQuery,
-}: {
-  fetchEs;
-  index: string;
-  value: string;
-  fields: string[];
-  customQuery?: any;
-}) => {
-  const highlightFields = {};
-
-  fields.forEach((field) => {
-    highlightFields[field] = {};
-  });
-
-  const match = {
-    multi_match: {
-      query: value,
-      fields,
-    },
-  };
-
-  let query: any = match;
-
-  if (customQuery) {
-    query = customQuery;
-  }
-
-  const fetchResults = await fetchEs({
-    action: "search",
-    index,
-    body: {
-      query,
-      size: 10,
-      highlight: {
-        fields: highlightFields,
-      },
-    },
-    defaultValue: { hits: { hits: [] } },
-  });
-
-  const results = fetchResults.hits.hits.map((result) => {
-    return {
-      source: {
-        _id: result._id,
-        ...result._source,
-      },
-      highlight: result.highlight,
-    };
-  });
-
-  return results;
-};
-
-export const getSubdomain = (req): string => {
-  const hostname = req.headers.hostname || req.hostname;
-  return hostname.replace(/(^\w+:|^)\/\//, "").split(".")[0];
-};
-
-const connectionOptions: mongoose.ConnectionOptions = {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useFindAndModify: false,
-  family: 4,
-};
-
-export const createGenerateModels = <IModels>(models, loadClasses) => {
-  return async (hostnameOrSubdomain: string): Promise<IModels> => {
-    if (models) {
-      return models;
-    }
-
-    const MONGO_URL = getEnv({ name: "MONGO_URL" });
-
-    const db = await mongoose.connect(MONGO_URL, connectionOptions);
-
-    models = loadClasses(db, hostnameOrSubdomain);
-
-    return models;
-  };
 };
 
 interface IActionMap {
@@ -384,4 +298,32 @@ export const userActionsMap = async (
   }
 
   return allowedActions;
+};
+
+export const getSubdomain = (req): string => {
+  const hostname = req.headers.hostname || req.hostname;
+  return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
+};
+
+const connectionOptions: mongoose.ConnectionOptions = {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
+  family: 4
+};
+
+export const createGenerateModels = <IModels>(models, loadClasses) => {
+  return async (hostnameOrSubdomain: string): Promise<IModels> => {
+    if (models) {
+      return models;
+    }
+
+    const MONGO_URL = getEnv({ name: 'MONGO_URL' });
+
+    const db = await mongoose.connect(MONGO_URL, connectionOptions);
+
+    models = loadClasses(db, hostnameOrSubdomain);
+
+    return models;
+  };
 };

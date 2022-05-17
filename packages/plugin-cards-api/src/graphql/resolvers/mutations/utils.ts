@@ -101,14 +101,14 @@ export const prepareCustomData = async (subdomain, type, doc) => {
 
   const generatedCustomFieldsData = generatedData.customFieldsData || [];
 
-  const jsonObject = [
-    ...customFieldsData,
-    ...generatedCustomFieldsData
-  ].map(e => JSON.stringify(e));
-
-  const uniqueSet = new Set(jsonObject);
-
-  return Array.from(uniqueSet).map(e => JSON.parse(e));
+  return [
+    ...new Map(
+      [...customFieldsData, ...generatedCustomFieldsData].map(item => [
+        item.field,
+        item
+      ])
+    ).values()
+  ];
 };
 
 export const itemsAdd = async (
@@ -295,12 +295,6 @@ export const itemsEdit = async (
     modifiedAt: new Date(),
     modifiedBy: user._id
   };
-
-  extendedDoc.customFieldsData = await prepareCustomData(
-    subdomain,
-    type,
-    extendedDoc
-  );
 
   if (extendedDoc.customFieldsData) {
     // clean custom field values

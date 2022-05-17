@@ -90,7 +90,7 @@ const configQueries = {
     return readFile(name || 'base');
   },
 
-  async search(_root, { value }: { value: string }) {
+  async search(_root, { value }: { value: string }, { subdomain }: IContext) {
     const services = await getServices();
 
     let results: Array<{ module: string; items: any[] }> = [];
@@ -101,9 +101,11 @@ const configQueries = {
 
       if (meta && meta.isSearchable) {
         const serviceResults = await sendCommonMessage({
+          subdomain,
           serviceName,
           action: 'search',
           data: {
+            subdomain,
             value
           },
           isRPC: true

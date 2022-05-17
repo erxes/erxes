@@ -1,7 +1,12 @@
 import { Document, Schema } from 'mongoose';
-import { customFieldSchema, ICustomField, ILink } from '@erxes/api-utils/src/types';
+import {
+  customFieldSchema,
+  ICustomField,
+  ILink
+} from '@erxes/api-utils/src/types';
 import { IPermissionDocument } from './permissions';
 import { field } from './utils';
+import { USER_ROLES } from '../constants';
 
 export interface IEmailSignature {
   brandId?: string;
@@ -57,6 +62,8 @@ export interface IUserDocument extends IUser, Document {
   emailSignatures?: IEmailSignatureDocument[];
   details?: IDetailDocument;
   customPermissions?: IPermissionDocument[];
+  role?: string;
+  appId?: string;
 }
 
 // Mongoose schemas ===============================
@@ -167,5 +174,17 @@ export const userSchema = new Schema({
     type: [customFieldSchema],
     optional: true,
     label: 'Custom fields data'
+  }),
+  role: field({
+    type: String,
+    label: 'User role',
+    optional: true,
+    default: USER_ROLES.USER,
+    enum: USER_ROLES.ALL
+  }),
+  appId: field({
+    type: String,
+    label: 'Linked app id',
+    optional: true
   })
 });

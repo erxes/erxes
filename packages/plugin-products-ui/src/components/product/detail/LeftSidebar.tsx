@@ -6,6 +6,7 @@ import CustomFieldsSection from '../../../containers/product/detail/CustomFields
 import { IProduct } from '../../../types';
 import React from 'react';
 import { queries } from '../../../graphql';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   product: IProduct;
@@ -25,15 +26,14 @@ class LeftSidebar extends React.Component<Props> {
     return (
       <Sidebar wide={true}>
         <BasicInfo product={product} refetchQueries={refetchQueries} />
-        <CustomFieldsSection
-          product={product}
-          refetchQueries={refetchQueries}
-        />
-        <TaggerSection
-          data={product}
-          type="product"
-          refetchQueries={refetchQueries}
-        />
+        <CustomFieldsSection product={product} />
+        {isEnabled('tags') && (
+          <TaggerSection
+            data={product}
+            type="products:product"
+            refetchQueries={refetchQueries}
+          />
+        )}
       </Sidebar>
     );
   }

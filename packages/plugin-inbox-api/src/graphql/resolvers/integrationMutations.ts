@@ -15,14 +15,16 @@ import {
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
 import { debug } from '../../configs';
-import messageBroker, { sendContactsMessage, sendIntegrationsMessage, sendCoreMessage, sendFormsMessage, sendLogsMessage } from '../../messageBroker';
+import messageBroker, {
+  sendContactsMessage,
+  sendIntegrationsMessage,
+  sendCoreMessage,
+  sendFormsMessage,
+  sendLogsMessage
+} from '../../messageBroker';
 
 import { MODULE_NAMES } from '../../constants';
-import {
-  putCreateLog,
-  putDeleteLog,
-  putUpdateLog
-} from '../../logUtils';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 
@@ -52,7 +54,7 @@ const createIntegration = async (
   doc: IIntegration,
   integration: IIntegrationDocument,
   user: any,
-  type: string,
+  type: string
 ) => {
   if (doc.channelIds) {
     await models.Channels.updateMany(
@@ -61,16 +63,16 @@ const createIntegration = async (
     );
   }
 
-    await putCreateLog(
-      models,
-      subdomain,
-      {
-        type: MODULE_NAMES.INTEGRATION,
-        newData: { ...doc, createdUserId: user._id, isActive: true },
-        object: integration
-      },
-      user
-    );
+  await putCreateLog(
+    models,
+    subdomain,
+    {
+      type: MODULE_NAMES.INTEGRATION,
+      newData: { ...doc, createdUserId: user._id, isActive: true },
+      object: integration
+    },
+    user
+  );
 
   telemetry.trackCli('integration_created', { type });
 
@@ -106,17 +108,17 @@ const editIntegration = async (
     );
   }
 
-    await putUpdateLog(
-      models,
-      subdomain,
-      {
-        type: MODULE_NAMES.INTEGRATION,
-        object: integration,
-        newData: fields,
-        updatedDocument: updated
-      },
-      user
-    );
+  await putUpdateLog(
+    models,
+    subdomain,
+    {
+      type: MODULE_NAMES.INTEGRATION,
+      object: integration,
+      newData: fields,
+      updatedDocument: updated
+    },
+    user
+  );
 
   return updated;
 };
@@ -135,7 +137,14 @@ const integrationMutations = {
       user._id
     );
 
-    return createIntegration(models, subdomain, doc, integration, user, 'messenger');
+    return createIntegration(
+      models,
+      subdomain,
+      doc,
+      integration,
+      user,
+      'messenger'
+    );
   },
 
   /**
@@ -147,9 +156,19 @@ const integrationMutations = {
     { user, models, subdomain }: IContext
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
-    const updated = await models.Integrations.updateMessengerIntegration(_id, fields);
+    const updated = await models.Integrations.updateMessengerIntegration(
+      _id,
+      fields
+    );
 
-    return editIntegration(subdomain, fields, integration, user, updated, models);
+    return editIntegration(
+      subdomain,
+      fields,
+      integration,
+      user,
+      updated,
+      models
+    );
   },
 
   /**
@@ -182,7 +201,10 @@ const integrationMutations = {
     doc: IIntegration,
     { user, models, subdomain }: IContext
   ) {
-    const integration = await models.Integrations.createLeadIntegration(doc, user._id);
+    const integration = await models.Integrations.createLeadIntegration(
+      doc,
+      user._id
+    );
 
     return createIntegration(models, subdomain, doc, integration, user, 'lead');
   },
@@ -272,7 +294,6 @@ const integrationMutations = {
           },
           isRPC: true
         });
-
       }
 
       telemetry.trackCli('integration_created', { type: doc.kind });
@@ -384,7 +405,7 @@ const integrationMutations = {
             integrationId: _id
           },
           isRPC: true
-        });      
+        });
       }
 
       await putDeleteLog(
@@ -404,17 +425,21 @@ const integrationMutations = {
   /**
    * Delete an account
    */
-  async integrationsRemoveAccount(_root, { _id }: { _id: string }, { models, subdomain }: IContext) {
+  async integrationsRemoveAccount(
+    _root,
+    { _id }: { _id: string },
+    { models, subdomain }: IContext
+  ) {
     try {
       const { erxesApiIds } = await sendIntegrationsMessage({
         subdomain,
-        action: "api_to_integrations",
+        action: 'api_to_integrations',
         data: {
-          action: "remove-account",
+          action: 'remove-account',
           _id
         },
         isRPC: true
-      })
+      });
 
       for (const id of erxesApiIds) {
         await models.Integrations.removeIntegration(id);
@@ -450,7 +475,7 @@ const integrationMutations = {
       action: 'customers.findOne',
       data: selector,
       isRPC: true
-    })
+    });
 
     if (!customer) {
       const [primaryEmail] = doc.to;
@@ -491,7 +516,6 @@ const integrationMutations = {
         },
         isRPC: true
       });
-    
     } catch (e) {
       debug.error(e);
       throw e;
@@ -499,12 +523,12 @@ const integrationMutations = {
 
     const customerIds = await sendContactsMessage({
       subdomain,
-      action: "customers.getCustomerIds",
+      action: 'customers.getCustomerIds',
       data: {
         primaryEmail: { $in: doc.to }
       },
       isRPC: true
-    })
+    });
 
     doc.userId = user._id;
 
@@ -530,7 +554,10 @@ const integrationMutations = {
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
 
-    await models.Integrations.updateOne({ _id }, { $set: { isActive: !status } });
+    await models.Integrations.updateOne(
+      { _id },
+      { $set: { isActive: !status } }
+    );
 
     const updated = await models.Integrations.findOne({ _id });
 
@@ -551,7 +578,7 @@ const integrationMutations = {
 
     return updated;
   },
-  
+
   async integrationsSendSms(
     _root,
     args: ISmsParams,
@@ -576,10 +603,10 @@ const integrationMutations = {
     try {
       const response = await sendIntegrationsMessage({
         subdomain,
-        action: "sendSms",
+        action: 'sendSms',
         data: args,
         isRPC: true
-      })
+      });
 
       if (response && response.status === 'ok') {
         await putActivityLog(subdomain, {
@@ -627,7 +654,7 @@ const integrationMutations = {
     });
 
     const formDoc = docModifier({
-      ...sourceForm.toObject(),
+      ...sourceForm,
       title: `${sourceForm.title}-copied`
     });
 
@@ -675,7 +702,11 @@ const integrationMutations = {
       associatedFieldId: e.associatedFieldId
     }));
 
-    sendFormsMessage({ subdomain, action: 'fields.insertMany', data: { fields } });
+    sendFormsMessage({
+      subdomain,
+      action: 'fields.insertMany',
+      data: { fields }
+    });
 
     await putCreateLog(
       models,
@@ -714,7 +745,14 @@ const integrationMutations = {
       user._id
     );
 
-    return createIntegration(models, subdomain, doc, integration, user, 'booking');
+    return createIntegration(
+      models,
+      subdomain,
+      doc,
+      integration,
+      user,
+      'booking'
+    );
   },
 
   /**
@@ -727,7 +765,10 @@ const integrationMutations = {
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
 
-    const updated = await models.Integrations.updateBookingIntegration(_id, doc);
+    const updated = await models.Integrations.updateBookingIntegration(
+      _id,
+      doc
+    );
 
     return editIntegration(subdomain, doc, integration, user, updated, models);
   }

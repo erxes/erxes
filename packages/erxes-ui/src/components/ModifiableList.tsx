@@ -52,6 +52,7 @@ type Props = {
   options: string[];
   addButtonLabel?: string;
   showAddButton?: boolean;
+  emptyMessage?: string;
   onChangeOption?: (options?: string[], optionValue?: string) => void;
 };
 
@@ -117,9 +118,9 @@ class ModifiableList extends React.Component<Props, State> {
 
   handleSaveOption = () => {
     const { optionsObj } = this.state;
-    const optionValue = (
-      document.getElementById('optionValue') as HTMLInputElement
-    ).value;
+    const optionValue = (document.getElementById(
+      'optionValue'
+    ) as HTMLInputElement).value;
 
     if (!optionValue) {
       return Alert.warning('Nothing inserted');
@@ -270,6 +271,7 @@ class ModifiableList extends React.Component<Props, State> {
         isModal={true}
         showDragHandler={false}
         droppableId="property option fields"
+        emptyMessage={this.props.emptyMessage}
       />
     );
 
