@@ -296,18 +296,6 @@ export const itemsEdit = async (
     modifiedBy: user._id
   };
 
-  // seperating only change stage action to prevent
-  // replacing other fields with empty values
-  if (Object.keys(doc).length === 1 && doc.stageId) {
-    return await modelUpate(_id, extendedDoc);
-  }
-
-  extendedDoc.customFieldsData = await prepareCustomData(
-    subdomain,
-    type,
-    extendedDoc
-  );
-
   if (extendedDoc.customFieldsData) {
     // clean custom field values
     extendedDoc.customFieldsData = await sendFormsMessage({
