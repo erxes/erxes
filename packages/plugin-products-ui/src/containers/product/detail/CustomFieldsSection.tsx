@@ -11,10 +11,10 @@ import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import { FieldsGroupsQueryResponse } from '@erxes/ui-settings/src/properties/types';
 import { mutations } from '../../../graphql';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   product: IProduct;
-  refetchQueries: any[];
   loading?: boolean;
 };
 
@@ -24,15 +24,9 @@ type FinalProps = {
   EditMutationResponse;
 
 const CustomFieldsSection = (props: FinalProps) => {
-  const {
-    loading,
-    product,
-    editMutation,
-    fieldsGroupsQuery,
-    refetchQueries
-  } = props;
+  const { loading, product, editMutation, fieldsGroupsQuery } = props;
 
-  if (fieldsGroupsQuery.loading) {
+  if (fieldsGroupsQuery && fieldsGroupsQuery.loading) {
     return (
       <Sidebar full={true}>
         <Spinner />
@@ -44,8 +38,7 @@ const CustomFieldsSection = (props: FinalProps) => {
 
   const save = (data, callback) => {
     editMutation({
-      variables: { _id, ...data },
-      refetchQueries
+      variables: { _id, ...data }
     })
       .then(() => {
         callback();
@@ -59,7 +52,7 @@ const CustomFieldsSection = (props: FinalProps) => {
     save,
     loading,
     customFieldsData: product.customFieldsData,
-    fieldsGroups: fieldsGroupsQuery.fieldsGroups || [],
+    fieldsGroups: (fieldsGroupsQuery && fieldsGroupsQuery.fieldsGroups) || [],
     isDetail: true
   };
 
@@ -81,7 +74,8 @@ export default withProps<Props>(
             contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
             isDefinedByErxes: false
           }
-        })
+        }),
+        skip: !isEnabled('forms') ? true : false
       }
     ),
     graphql<Props, EditMutationResponse, IProduct>(gql(mutations.productEdit), {

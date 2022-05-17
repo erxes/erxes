@@ -54,6 +54,7 @@ const mongoEnv = (configs, plugin) => {
 const healthcheck = {
   test: ['CMD', 'curl', '-i', 'http://localhost:80/health']
 };
+
 const deploy = {
   mode: 'replicated',
   replicas: 2,
@@ -68,7 +69,7 @@ const generatePluginBlock = (configs, plugin) => {
   const api_mongo_url = mongoEnv(configs, {});
   const mongo_url = plugin.mongo_url || mongoEnv(configs, plugin);
 
-  return {
+  const conf = {
     image: `erxes/plugin-${plugin.name}-api:federation`,
     environment: {
       PORT: plugin.port || 80,
@@ -86,6 +87,14 @@ const generatePluginBlock = (configs, plugin) => {
         '127.0.0.1'}`
     ]
   };
+
+  if (plugin.replicas) {
+    conf.deploy = {
+      replicas: plugin.replicas,
+    }
+  }
+
+  return conf;
 };
 
 const syncS3 = async name => {
@@ -612,7 +621,7 @@ const update = async ({ pluginNames, noimage, uis }) => {
     if (!noimage) {
       log(`Updating image ${name}......`);
 
-      if (['crons', 'dashboard-front', 'widgets', 'gateway'].includes(name)) {
+      if (['crons', 'dashboard-front', 'gateway'].includes(name)) {
         await execCommand(
           `docker service update erxes_${name} --image erxes/${name}:federation`
         );
@@ -629,6 +638,13 @@ const update = async ({ pluginNames, noimage, uis }) => {
       if (name === 'coreui') {
         await execCommand(
           `docker service update erxes_coreui --image erxes/erxes:federation`
+        );
+        continue;
+      }
+
+      if (name === 'widgets') {
+        await execCommand(
+          `docker service update erxes_widgets --image erxes/erxes-widgets:federation`
         );
         continue;
       }

@@ -1,3 +1,5 @@
+import ManageColumns from '@erxes/ui-settings/src/properties/containers/ManageColumns';
+import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
 import {
   __,
   Alert,
@@ -29,6 +31,7 @@ interface IProps extends IRouterProps {
   loading: boolean;
   searchValue: string;
   totalCount: number;
+  columnsConfig: IConfigColumn[];
   // TODO: check is below line not throwing error ?
   toggleBulk: () => void;
   toggleAll: (targets: ICar[], containerId: string) => void;
@@ -72,7 +75,7 @@ class CarsList extends React.Component<IProps, State> {
     toggleAll(cars, 'cars');
   };
 
-  search = (e) => {
+  search = e => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -87,17 +90,17 @@ class CarsList extends React.Component<IProps, State> {
     }, 500);
   };
 
-  removeCars = (cars) => {
+  removeCars = cars => {
     const carIds: string[] = [];
 
-    cars.forEach((car) => {
+    cars.forEach(car => {
       carIds.push(car._id);
     });
 
     this.props.removeCars({ carIds }, this.props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = (e) => {
+  moveCursorAtTheEnd = e => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -118,7 +121,8 @@ class CarsList extends React.Component<IProps, State> {
       products,
       onSelect,
       saveMatch,
-      renderButton
+      renderButton,
+      columnsConfig
     } = this.props;
 
     const mainContent = (
@@ -133,39 +137,18 @@ class CarsList extends React.Component<IProps, State> {
                   onChange={this.onChange}
                 />
               </th>
-              <th>
-                <SortHandler
-                  sortField={'plateNumber'}
-                  label={__('Plate Number')}
-                />
-              </th>
-              <th>
-                <SortHandler sortField={'vinNumber'} label={__('Vin Number')} />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'vintageYear'}
-                  label={__('Vintage Year')}
-                />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'importYear'}
-                  label={__('Import Year')}
-                />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'description'}
-                  label={__('Description')}
-                />
-              </th>
+              {(columnsConfig || []).map(({ name, label }) => (
+                <th key={name}>
+                  <SortHandler sortField={name} label={__(label)} />
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody id="cars">
-            {cars.map((car) => (
+            {cars.map(car => (
               <CarRow
                 car={car}
+                columnsConfig={columnsConfig}
                 isChecked={bulk.includes(car)}
                 key={car._id}
                 history={history}
@@ -184,6 +167,23 @@ class CarsList extends React.Component<IProps, State> {
       </Button>
     );
 
+    const editColumns = (
+      <Button btnStyle="primary" size="small" icon="plus-circle" href="#edit">
+        Choose Properties/View
+      </Button>
+    );
+
+    const manageColumns = props => {
+      return (
+        <ManageColumns
+          {...props}
+          contentType={'tumentech:cars'}
+          location={location}
+          history={history}
+        />
+      );
+    };
+
     const mergeButton = (
       <Button btnStyle="primary" size="small" icon="merge">
         Merge
@@ -192,7 +192,7 @@ class CarsList extends React.Component<IProps, State> {
 
     let actionBarLeft: React.ReactNode;
 
-    const carsMerge = (props) => {
+    const carsMerge = props => {
       return <CarsMerge {...props} objects={bulk} save={mergeCars} />;
     };
 
@@ -202,7 +202,7 @@ class CarsList extends React.Component<IProps, State> {
           .then(() => {
             this.removeCars(bulk);
           })
-          .catch((error) => {
+          .catch(error => {
             Alert.error(error.message);
           });
 
@@ -229,7 +229,7 @@ class CarsList extends React.Component<IProps, State> {
       );
     }
 
-    const carForm = (props) => {
+    const carForm = props => {
       return <CarForm {...props} queryParams={queryParams} />;
     };
 
@@ -242,6 +242,12 @@ class CarsList extends React.Component<IProps, State> {
           value={this.state.searchValue}
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
+        />
+
+        <ModalTrigger
+          title="Manage Columns"
+          trigger={editColumns}
+          content={manageColumns}
         />
 
         <ModalTrigger

@@ -1,9 +1,12 @@
-import { checkPermission, requireLogin } from "@erxes/api-utils/src/permissions";
+import {
+  checkPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
-import { PRODUCT_STATUSES } from "../../../models/definitions/products";
-import { escapeRegExp } from "@erxes/api-utils/src/core";
-import { IContext } from "../../../connectionResolver";
-import { sendTagsMessage } from "../../../messageBroker";
+import { PRODUCT_STATUSES } from '../../../models/definitions/products';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
+import { IContext } from '../../../connectionResolver';
+import { sendTagsMessage } from '../../../messageBroker';
 
 const productQueries = {
   /**
@@ -155,9 +158,10 @@ const productQueries = {
       subdomain,
       action: 'find',
       data: {
-        type: 'product'
+        type: 'products:product'
       },
-      isRPC: true
+      isRPC: true,
+      defaultValue: []
     });
 
     for (const tag of tags) {

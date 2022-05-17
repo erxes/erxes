@@ -296,12 +296,6 @@ export const itemsEdit = async (
     modifiedBy: user._id
   };
 
-  extendedDoc.customFieldsData = await prepareCustomData(
-    subdomain,
-    type,
-    extendedDoc
-  );
-
   if (extendedDoc.customFieldsData) {
     // clean custom field values
     extendedDoc.customFieldsData = await sendFormsMessage({

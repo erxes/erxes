@@ -5,6 +5,7 @@ import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import forms from './forms';
 
 export let debug;
 export let graphqlPubsub;
@@ -19,6 +20,9 @@ export default {
       typeDefs: await typeDefs(sd),
       resolvers: await resolvers()
     };
+  },
+  meta: {
+    forms
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
