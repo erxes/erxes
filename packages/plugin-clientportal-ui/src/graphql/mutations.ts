@@ -23,18 +23,11 @@ const createOrUpdateConfig = `
     $ticketBoardId: String
     $styles: StylesParams
     $mobileResponsive: Boolean
-    $smsConfiguration: String
-    $twilioAccountSid: String
-    $twilioAuthToken: String
-    $twilioFromNumber: String
-    $messageproApiKey: String
-    $messageproPhoneNumber: String
-    $content: String
     $kbToggle: Boolean
     $publicTaskToggle: Boolean
     $ticketToggle: Boolean
     $taskToggle: Boolean
-
+    $otpConfig: OTPConfigInput
   ) {
     clientPortalConfigUpdate(
       _id: $_id,
@@ -58,17 +51,11 @@ const createOrUpdateConfig = `
       ticketBoardId: $ticketBoardId
       styles: $styles
       mobileResponsive: $mobileResponsive
-      smsConfiguration: $smsConfiguration
-      twilioAccountSid: $twilioAccountSid
-      twilioAuthToken: $twilioAuthToken
-      twilioFromNumber: $twilioFromNumber
-      messageproApiKey: $messageproApiKey
-      messageproPhoneNumber: $messageproPhoneNumber
-      content: $content
       kbToggle: $kbToggle,
       publicTaskToggle: $publicTaskToggle,
       ticketToggle: $ticketToggle,
       taskToggle: $taskToggle,
+      otpConfig: $otpConfig
     ) {
       ${commonFields}
     }

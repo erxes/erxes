@@ -53,11 +53,7 @@ export const FONTS = [
 
 export const CONFIGURATIONS = [
   {
-    label: 'Twilio',
-    value: 'Twilio'
-  },
-  {
     label: 'MessagePro',
-    value: 'MessagePro'
+    value: 'messagePro'
   }
 ];

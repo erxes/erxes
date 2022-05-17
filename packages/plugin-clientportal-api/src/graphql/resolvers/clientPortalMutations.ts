@@ -6,9 +6,8 @@ import {
 import { BOARD_STATUSES } from '../../models/definitions/constants';
 import { checkPermission } from '@erxes/api-utils/src';
 import { sendCardsMessage, sendContactsMessage } from '../../messageBroker';
-import { IContext, models } from '../../connectionResolver';
-import * as express from 'express';
-import { authCookieOptions, sendSms } from '../../../utils';
+import { IContext } from '../../connectionResolver';
+import { authCookieOptions } from '../../utils';
 
 interface ILoginParams {
   type?: string;
@@ -43,7 +42,7 @@ const configClientPortalMutations = {
   async clientPortalCreateCustomer(
     _root,
     args: {
-      configId: string;
+      clientPortalId: string;
       firstName: string;
       lastName: string;
       email: string;
@@ -52,7 +51,7 @@ const configClientPortalMutations = {
     },
     { models, subdomain }: IContext
   ) {
-    await models.ClientPortals.getConfig(args.configId);
+    await models.ClientPortals.getConfig(args.clientPortalId);
 
     const customer = await sendContactsMessage({
       subdomain,
@@ -149,8 +148,14 @@ const configClientPortalMutations = {
 };
 
 const clientPortalUserMutations = {
-  clientPortalUserAdd: async (_root, args: IUser, { models }: IContext) => {
-    return models.ClientPortalUsers.createUser(args);
+  clientPortalUserAdd: async (
+    _root,
+    args: IUser,
+    { models, subdomain }: IContext
+  ) => {
+    const config = await models.ClientPortals.getConfig(args.clientPortalId);
+
+    return models.ClientPortalUsers.createUser(subdomain, args, config);
   },
 
   /*

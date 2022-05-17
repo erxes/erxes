@@ -9,19 +9,18 @@ import {
   clientPortalUserSchema,
   IClientPortal,
   IClientPortalDocument,
+  IOTPConfig,
   IUser,
   IUserDocument
 } from './definitions/clientPortal';
 import * as sha256 from 'sha256';
 import { sendContactsMessage } from '../messageBroker';
-import { sendSms } from '../../utils';
+import { sendSms } from '../utils';
 
 export interface IClientPortalModel extends Model<IClientPortalDocument> {
   getConfig(_id: string): Promise<IClientPortalDocument>;
   createOrUpdateConfig(args: IClientPortal): Promise<IClientPortalDocument>;
 }
-
-const configId = process.env.REACT_APP_CLIENT_PORTAL_CONFIG_ID;
 
 const SALT_WORK_FACTOR = 10;
 
@@ -43,7 +42,11 @@ export interface IUserModel extends Model<IUserDocument> {
   checkPassword(password: string): void;
   getSecret(): string;
   generateToken(): { token: string; expires: Date };
-  createUser(doc: IUser): Promise<IUserDocument>;
+  createUser(
+    subdomain: string,
+    doc: IUser,
+    config: IClientPortalDocument
+  ): Promise<IUserDocument>;
   editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
   comparePassword(password: string, userPassword: string): boolean;
@@ -163,35 +166,48 @@ export const loadClientPortalUserClass = (models: IModels) => {
     }
 
     public static async sendVerification(
-      phone,
-      email,
-      cpConfig: IClientPortalDocument
+      subdomain: string,
+      config: IOTPConfig,
+      phone?: string,
+      email?: string
     ) {
-      const phoneCode = await this.imposeVerificationCodePhone(phone);
+      if (phone) {
+        const phoneCode = await this.imposeVerificationCodePhone(phone);
 
-      const body = `Your verification code is ${phoneCode}`;
+        const body =
+          config.content.replace(/{.*}/, phoneCode) ||
+          `Your verification code is ${phoneCode}`;
 
-      // const emailCode = await this.imposeVerificationCodeEmail(email);
+        await sendSms(subdomain, config.smsTransporterType, phone, body);
+      }
 
-      // const body = `Баталгаажууулах код: ${emailCode}`;
-
-      await sendSms(phone, body, cpConfig);
+      if (email) {
+        console.log(email);
+      }
     }
 
     public static async createUser(
-      { password, email, phone, clientPortalConfigId, ...doc }: IUser,
-      subdomain: string
+      subdomain: string,
+      { password, email, phone, clientPortalId, ...doc }: IUser,
+      config: IClientPortalDocument
     ) {
-      // empty string password validation
-      if (password === '') {
-        throw new Error('Password can not be empty');
-      }
-
       if (password) this.checkPassword(password);
+
+      const document: any = doc;
 
       const tEmail = (email || '').toLowerCase().trim();
 
-      if (await models.ClientPortalUsers.findOne({ email: tEmail })) {
+      const customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findOne',
+        data: { customerPrimaryEmail: tEmail, customerPrimaryPhone: phone },
+        isRPC: true
+      });
+
+      if (
+        tEmail &&
+        (await models.ClientPortalUsers.findOne({ email: tEmail }))
+      ) {
         throw new Error('The user is already exists');
       }
 
@@ -199,72 +215,26 @@ export const loadClientPortalUserClass = (models: IModels) => {
         throw new Error('The user is already exists');
       }
 
-      clientPortalConfigId = 'AfhKWXZjjxKaxjxgi';
-      const config = await models.ClientPortals.getConfig(clientPortalConfigId);
+      if (tEmail) {
+        document.email = tEmail;
+      }
+
+      if (phone) {
+        document.phone = phone;
+      }
 
       const user = await models.ClientPortalUsers.create({
-        ...doc,
-        phone,
-        email: tEmail,
-        clientPortalConfigId: config._id,
+        ...document,
+        clientPortalId: config._id,
         // hash password
         password: await this.generatePassword(password)
       });
 
-      this.sendVerification(phone, tEmail, config);
+      if (config.otpConfig) {
+        this.sendVerification(subdomain, config.otpConfig, phone, tEmail);
+      }
 
-      const { companyName, firstName, lastName, type } = doc;
-
-      // if (type === USER_LOGIN_TYPES.COMPANY) {
-      //   const company: { _id?: string } = await sendGraphQLRequest({
-      //     query: clientPortalCreateCompany,
-      //     name: 'clientPortalCreateCompany',
-      //     variables: {
-      //       configId,
-      //       email: tEmail,
-      //       companyName
-      //     }
-      //   });
-
-      //   if (company && company._id) {
-      //     const user = await performCreate();
-
-      //     await models.ClientPortalUsers.updateOne(
-      //       { _id: user._id },
-      //       { $set: { erxesCompanyId: company._id } }
-      //     );
-
-      //     return user._id;
-      //   }
-
-      //   return;
-      // }
-
-      // const customer: { _id?: string } = await sendGraphQLRequest({
-      //   query: clientPortalCreateCustomer,
-      //   name: 'clientPortalCreateCustomer',
-      //   variables: {
-      //     configId,
-      //     email: tEmail,
-      //     firstName,
-      //     lastName
-      //   }
-      // });
-
-      // const user = await performCreate();
-
-      // if (user._id) {
-
-      const customer = await sendContactsMessage({
-        subdomain,
-        action: 'customers.findOne',
-        data: { primaryPhone: phone },
-        isRPC: true
-      });
-
-      if (customer) {
-        return customer;
-      } else {
+      if (!customer) {
         await sendContactsMessage({
           subdomain,
           action: 'customers.createCustomer',
@@ -284,9 +254,8 @@ export const loadClientPortalUserClass = (models: IModels) => {
           { _id: user._id },
           { $set: { erxesCustomerId: customer._id } }
         );
-
-        return user._id;
       }
+      return customer._id;
     }
 
     public static async editProfile(

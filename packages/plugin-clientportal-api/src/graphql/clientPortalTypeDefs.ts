@@ -31,6 +31,12 @@ export const types = (contactAvailable, cardAvailable) => `
       : ''
   }
 
+  type OTPConfig{
+    content: String
+    smsTransporterType: String
+    emailTransporterType: String
+  }
+
   type ClientPortal {
     _id: String!
     name: String!
@@ -54,17 +60,11 @@ export const types = (contactAvailable, cardAvailable) => `
     ticketBoardId: String
     styles: Styles
     mobileResponsive: Boolean
-    smsConfiguration: String
-    twilioAccountSid: String
-    twilioFromNumber: String
-    twilioAuthToken: String
-    messageproPhoneNumber: String
-    messageproApiKey: String
-    content: String
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,
     taskToggle: Boolean,
+    otpConfig: OTPConfig
   }
 
   type Styles {
@@ -114,6 +114,12 @@ export const types = (contactAvailable, cardAvailable) => `
     companyName: String
     companyRegistrationNumber: String
   }
+
+  input OTPConfigInput {
+    content: String
+    smsTransporterType: String
+    emailTransporterType: String
+  }
 `;
 
 export const queries = cardAvailable => `
@@ -140,15 +146,17 @@ export const queries = cardAvailable => `
 `;
 
 const userParams = `
-  password: String!,
+  clientPortalId: String!
+  phone: String,
   email: String,
+  password: String,
+  
   firstName: String,
   lastName: String,
-  phone: String,
+  
   type: String,
   companyName: String,
   companyRegistrationNumber: Int,
-  clientPortalConfigId: String
 `;
 
 export const mutations = (contactAvailable, cardAvailable) => `
@@ -174,17 +182,11 @@ export const mutations = (contactAvailable, cardAvailable) => `
     ticketBoardId: String
     styles: StylesParams
     mobileResponsive: Boolean
-    smsConfiguration: String
-    twilioAccountSid: String
-    twilioAuthToken: String
-    twilioFromNumber: String
-    messageproApiKey: String
-    messageproPhoneNumber: String
-    content: String
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,
     taskToggle: Boolean,
+    otpConfig: OTPConfigInput
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON
@@ -208,7 +210,7 @@ export const mutations = (contactAvailable, cardAvailable) => `
     contactAvailable
       ? `
       clientPortalCreateCustomer(
-        configId: String!
+        clientPortalId: String!
         firstName: String
         lastName: String
         email: String
@@ -217,7 +219,7 @@ export const mutations = (contactAvailable, cardAvailable) => `
       ): Customer
 
       clientPortalCreateCompany(
-        configId: String!
+        clientPortalId: String!
         companyName: String!
         email: String!
       ): Company

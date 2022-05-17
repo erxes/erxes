@@ -1,6 +1,13 @@
 import { Document, Schema } from 'mongoose';
-import { USER_LOGIN_TYPES } from '../../../utils';
+import { USER_LOGIN_TYPES } from './constants';
+
 import { field } from './utils';
+
+export interface IOTPConfig {
+  content: string;
+  smsTransporterType: 'messagePro' | 'twilio' | 'telnyx';
+  emailTransporterType: 'ses';
+}
 
 export interface IClientPortal {
   _id?: string;
@@ -29,13 +36,7 @@ export interface IClientPortal {
   publicTaskToggle?: boolean;
   ticketToggle?: boolean;
   taskToggle?: boolean;
-  smsConfiguration?: string;
-  twilioAccountSid?: string;
-  twilioAuthToken?: string;
-  twilioFromNumber?: string;
-  messageproApiKey?: string;
-  messageproPhoneNumber?: string;
-  content?: string;
+  otpConfig?: IOTPConfig;
 }
 
 interface IStyles {
@@ -75,7 +76,8 @@ export interface IUser {
   companyName?: string;
   companyRegistrationNumber?: number;
   deviceTokens?: string[];
-  clientPortalConfigId: string;
+  clientPortalId: string;
+  erxesCustomerId: string;
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -105,6 +107,19 @@ const stylesSchema = new Schema(
   }
 );
 
+const otpConfigSchema = new Schema(
+  {
+    content: field({ type: String, optional: true }),
+    smsTransporterType: field({
+      type: String,
+      enum: ['messagePro', 'twilio', 'telnyx'],
+      optional: true
+    }),
+    emailTransporterType: field({ type: String, enum: ['ses'], optional: true })
+  },
+  { _id: false }
+);
+
 export const clientPortalSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
@@ -129,17 +144,11 @@ export const clientPortalSchema = new Schema({
   styles: field({ type: stylesSchema, optional: true }),
   mobileResponsive: field({ type: Boolean, optional: true }),
   createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
-  smsConfiguration: field({ type: String, optional: true }),
-  twilioAccountSid: field({ type: String, optional: true }),
-  messageproPhoneNumber: field({ type: String, optional: true }),
-  twilioFromNumber: field({ type: String, optional: true }),
-  messageproApiKey: field({ type: String, optional: true }),
-  messageproAuthToken: field({ type: String, optional: true }),
-  content: field({ type: String, optional: true }),
   kbToggle: field({ type: Boolean }),
   publicTaskToggle: field({ type: Boolean }),
   ticketToggle: field({ type: Boolean }),
-  taskToggle: field({ type: Boolean })
+  taskToggle: field({ type: Boolean }),
+  otpConfig: field({ type: otpConfigSchema, optional: true })
 });
 
 export const clientPortalUserSchema = new Schema({
@@ -164,7 +173,7 @@ export const clientPortalUserSchema = new Schema({
   password: { type: String },
 
   firstName: { type: String, optional: true },
-  clientPortalConfigId: { type: String, required: true },
+  clientPortalId: { type: String, required: true },
   phone: { type: String, optional: true },
   lastName: { type: String, optional: true },
   resetPasswordToken: { type: String, optional: true },
