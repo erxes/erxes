@@ -10,7 +10,12 @@ import IntegrationForm from '../../containers/common/IntegrationForm';
 import LineForm from '../../containers/line/Form';
 import TelnyxForm from '../../containers/telnyx/TelnyxForm';
 import Twitter from '../../containers/twitter/Twitter';
-import { Box, IntegrationItem, Ribbon, Type } from '@erxes/ui-settings/src/integrations/components/store/styles';
+import {
+  Box,
+  IntegrationItem,
+  Ribbon,
+  Type
+} from '@erxes/ui-settings/src/integrations/components/store/styles';
 
 type TotalCount = {
   messenger: number;
@@ -35,7 +40,7 @@ type TotalCount = {
 type Props = {
   integration: any;
   getClassName: (selectedKind: string) => string;
-  toggleBox: (kind: string) => void;
+  toggleBox: (kind: string, isAvailable: boolean) => void;
   customLink?: (kind: string, addLink: string) => void;
   queryParams: any;
   totalCount: TotalCount;
@@ -58,12 +63,14 @@ function renderType(type: string) {
 
   return (
     <Type>
-      <Icon icon='comment-alt-lines' /> {__('Works with messenger')}
+      <Icon icon="comment-alt-lines" /> {__('Works with messenger')}
     </Type>
   );
 }
 
-function renderCreate(createUrl, kind) {
+function renderCreate(createUrl, kind, isAvailable) {
+  if (!isAvailable) return;
+
   if (!createUrl && !kind) {
     return null;
   }
@@ -131,7 +138,7 @@ function renderCreate(createUrl, kind) {
     const content = props => <Twitter {...props} />;
 
     return (
-      <ModalTrigger title='Add twitter' trigger={trigger} content={content} />
+      <ModalTrigger title="Add twitter" trigger={trigger} content={content} />
     );
   }
 
@@ -139,7 +146,7 @@ function renderCreate(createUrl, kind) {
     const content = props => <LineForm {...props} />;
 
     return (
-      <ModalTrigger title='Add Line' trigger={trigger} content={content} />
+      <ModalTrigger title="Add Line" trigger={trigger} content={content} />
     );
   }
 
@@ -147,7 +154,7 @@ function renderCreate(createUrl, kind) {
     const content = props => <TelnyxForm {...props} />;
 
     return (
-      <ModalTrigger title='Add telnyx' trigger={trigger} content={content} />
+      <ModalTrigger title="Add telnyx" trigger={trigger} content={content} />
     );
   }
 
@@ -169,7 +176,7 @@ function Entry({
   totalCount,
   customLink
 }: Props) {
-  const { kind } = integration;
+  const { kind, isAvailable } = integration;
   const { createUrl, createModal } = integration;
 
   const handleLink = () => {
@@ -177,6 +184,8 @@ function Entry({
   };
 
   function renderCustomLink() {
+    if (!isAvailable) return;
+
     if (
       ![
         INTEGRATION_KINDS.NYLAS_GMAIL,
@@ -192,10 +201,10 @@ function Entry({
   return (
     <IntegrationItem key={integration.name} className={getClassName(kind)}>
       <Box
-        onClick={() => toggleBox(kind)}
+        onClick={() => toggleBox(kind, isAvailable)}
         isInMessenger={integration.inMessenger}
       >
-        <img alt='logo' src={integration.logo} />
+        <img alt="logo" src={integration.logo} />
         <h5>
           {integration.name} {getCount(kind, totalCount)}
         </h5>
@@ -203,14 +212,14 @@ function Entry({
           {__(integration.description)}
           {renderType(integration.inMessenger)}
         </p>
-        {!integration.isAvailable && (
+        {!isAvailable && (
           <Ribbon>
             <span>{__('Coming soon')}</span>
           </Ribbon>
         )}
       </Box>
       {renderCustomLink()}
-      {renderCreate(createUrl, createModal)}
+      {renderCreate(createUrl, createModal, isAvailable)}
     </IntegrationItem>
   );
 }

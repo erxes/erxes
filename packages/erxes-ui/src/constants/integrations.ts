@@ -166,7 +166,7 @@ export const INTEGRATIONS = [
     createModal: 'facebook-post',
     createUrl: '/settings/integrations/createFacebook',
     category:
-      'All integrations, For support teams, Marketing automation, Social media'
+      'All add-ons, For support teams, Marketing automation, Social media'
   },
   {
     name: 'Facebook Messenger',
@@ -179,7 +179,7 @@ export const INTEGRATIONS = [
     createModal: 'facebook-messenger',
     createUrl: '/settings/integrations/createFacebook',
     category:
-      'All integrations, For support teams, Messaging, Social media, Conversation'
+      'All add-ons, For support teams, Messaging, Social media, Conversation'
   },
   {
     name: 'Messenger',
@@ -191,7 +191,7 @@ export const INTEGRATIONS = [
     createModal: 'messenger',
     createUrl: '/settings/integrations/createMessenger',
     category:
-      'All integrations, For support teams, For marketing teams, Marketing automation, Conversation'
+      'All add-ons, For support teams, For marketing teams, Marketing automation, Conversation'
   },
   {
     name: 'Gmail',
@@ -205,7 +205,7 @@ export const INTEGRATIONS = [
     createModal: 'gmail',
     createUrl: '/settings/integrations/createGmail',
     category:
-      'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
+      'All add-ons, For support teams, Email marketing, Marketing automation, Conversation'
   },
   {
     name: 'IMAP by Nylas',
@@ -218,7 +218,7 @@ export const INTEGRATIONS = [
     createModal: 'nylas-imap',
     createUrl: '/settings/integrations/nylas-imap',
     category:
-      'All integrations, For support teams, Marketing automation, Email marketing'
+      'All add-ons, For support teams, Marketing automation, Email marketing'
   },
   {
     name: 'Office 365 by Nylas',
@@ -231,7 +231,7 @@ export const INTEGRATIONS = [
     createModal: 'nylas-office365',
     createUrl: 'nylas/oauth2/callback',
     category:
-      'All integrations, For support teams, Marketing automation, Email marketing, Conversation'
+      'All add-ons, For support teams, Marketing automation, Email marketing, Conversation'
   },
   {
     name: 'Gmail by Nylas',
@@ -244,7 +244,7 @@ export const INTEGRATIONS = [
     createModal: 'nylas-gmail',
     createUrl: 'nylas/oauth2/callback',
     category:
-      'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
+      'All add-ons, For support teams, Email marketing, Marketing automation, Conversation'
   },
   {
     name: 'Microsoft Exchange by Nylas',
@@ -257,7 +257,7 @@ export const INTEGRATIONS = [
     createModal: 'nylas-exchange',
     createUrl: '/settings/integrations/nylas-exchange',
     category:
-      'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
+      'All add-ons, For support teams, Email marketing, Marketing automation, Conversation'
   },
   {
     name: 'Outlook by Nylas',
@@ -270,7 +270,7 @@ export const INTEGRATIONS = [
     createModal: 'nylas-outlook',
     createUrl: '/settings/integrations/nylas-outlook',
     category:
-      'All integrations, For support teams, Marketing automation, Email marketing'
+      'All add-ons, For support teams, Marketing automation, Email marketing'
   },
   {
     name: 'Yahoo by Nylas',
@@ -283,7 +283,7 @@ export const INTEGRATIONS = [
     createModal: 'nylas-yahoo',
     createUrl: '/settings/integrations/nylas-yahoo',
     category:
-      'All integrations, For support teams, Marketing automation, Email marketing, Conversation'
+      'All add-ons, For support teams, Marketing automation, Email marketing, Conversation'
   },
   {
     name: 'Call Pro',
@@ -294,7 +294,7 @@ export const INTEGRATIONS = [
     logo: '/images/integrations/callpro.png',
     createModal: 'callpro',
     category:
-      'All integrations, For support teams, Marketing automation, Phone and video, Conversation'
+      'All add-ons, For support teams, Marketing automation, Phone and video, Conversation'
   },
   {
     name: 'Chatfuel',
@@ -305,7 +305,7 @@ export const INTEGRATIONS = [
     logo: '/images/integrations/chatfuel.png',
     createModal: 'chatfuel',
     category:
-      'All integrations, For support teams, Marketing automation, Messaging, Conversation'
+      'All add-ons, For support teams, Marketing automation, Messaging, Conversation'
   },
   {
     name: 'WhatsApp by Smooch',
@@ -315,7 +315,7 @@ export const INTEGRATIONS = [
     kind: 'whatsapp',
     logo: '/images/integrations/whatsapp.png',
     createModal: 'whatsapp',
-    category: 'All integrations, For support teams, Messaging, Conversation'
+    category: 'All add-ons, For support teams, Messaging, Conversation'
   },
   {
     name: 'Telegram by Smooch',
@@ -326,7 +326,7 @@ export const INTEGRATIONS = [
     kind: 'smooch-telegram',
     logo: '/images/integrations/telegram.png',
     createModal: 'smooch-telegram',
-    category: 'All integrations, For support teams, Messaging, Conversation'
+    category: 'All add-ons, For support teams, Messaging, Conversation'
   },
   {
     name: 'Viber by Smooch',
@@ -337,7 +337,7 @@ export const INTEGRATIONS = [
     logo: '/images/integrations/viber.png',
     createModal: 'smooch-viber',
     category:
-      'All integrations, For support teams, Marketing automation, Messaging, Conversation'
+      'All add-ons, For support teams, Marketing automation, Messaging, Conversation'
   },
   {
     name: 'Line by Smooch',
@@ -348,7 +348,7 @@ export const INTEGRATIONS = [
     logo: '/images/integrations/line.png',
     createModal: 'smooch-line',
     category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+      'All add-ons, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
   },
   {
     name: 'SMS by Telnyx',
@@ -359,7 +359,7 @@ export const INTEGRATIONS = [
     logo: '/images/integrations/telnyx.png',
     createModal: 'telnyx',
     category:
-      'All integrations, For support teams, For marketing teams, Conversation'
+      'All add-ons, For support teams, For marketing teams, Conversation'
   },
   {
     name: 'Incoming Webhook',
@@ -370,7 +370,7 @@ export const INTEGRATIONS = [
     logo: '/images/integrations/incoming-webhook.png',
     createModal: 'webhook',
     category:
-      'All integrations, For support teams, Conversation, Marketing automation'
+      'All add-ons, For support teams, Conversation, Marketing automation'
   }
   // {
   //   name: 'Outgoing Webhook',
@@ -389,7 +389,7 @@ export const INTEGRATION_FILTERS = [
   {
     name: 'Featured',
     items: [
-      'All integrations',
+      'All add-ons',
       'For support teams',
       'For sales teams',
       'For marketing teams'
