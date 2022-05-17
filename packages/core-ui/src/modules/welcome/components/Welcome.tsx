@@ -3,7 +3,7 @@ import { DescImg } from '@erxes/ui/src/components/HeaderDescription';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
-import { WELCOME, CARDS, COMMUNITY } from '../constants';
+import { STEPS, BANNER, COMMUNITY } from '../constants';
 import {
   BoxedStep,
   BoxHeader,
@@ -71,42 +71,32 @@ function Welcome({ currentUser }: Props) {
     );
   };
 
+  const renderDocContent = (title: string, url: string) => {
+    return (
+      <LinkedButton href={url} target="_blank">
+        <h3>
+          {title}
+          <Icon icon="angle-right" />
+        </h3>
+      </LinkedButton>
+    );
+  };
   const renderDocumentation = () => {
     return (
       <WidgetBackgrounds>
         <Boxes>
-          <LinkedButton
-            href="https://www.erxes.org/overview/deployment-overview"
-            target="_blank"
-          >
-            <h3>
-              Documentation
-              <Icon icon="angle-right" />
-            </h3>
-          </LinkedButton>
-          <LinkedButton
-            href="https://www.erxes.org/user/subscription-getting-started"
-            target="_blank"
-          >
-            <h3>
-              User's guide
-              <Icon icon="angle-right" />
-            </h3>
-          </LinkedButton>
+          {renderDocContent(
+            'Documentation',
+            'https://www.erxes.org/overview/deployment-overview'
+          )}
+          {renderDocContent(
+            "User's guide",
+            'https://www.erxes.org/user/subscription-getting-started'
+          )}
         </Boxes>
         <Boxes>
-          <LinkedButton href="https://www.erxes.org/invest" target="_blank">
-            <h3>
-              Invest
-              <Icon icon="angle-right" />
-            </h3>
-          </LinkedButton>
-          <LinkedButton href="https://www.erxes.org/service" target="_blank">
-            <h3>
-              Service
-              <Icon icon="angle-right" />
-            </h3>
-          </LinkedButton>
+          {renderDocContent('Invest', 'https://www.erxes.org/invest')}
+          {renderDocContent('Service', 'https://www.erxes.org/service')}
         </Boxes>
       </WidgetBackgrounds>
     );
@@ -146,17 +136,19 @@ function Welcome({ currentUser }: Props) {
     );
   };
 
-  const renderVideo = (url: string) => {
+  const renderVideo = (title: string, url: string) => {
     return (
-      <iframe
-        title="erxes tutorial"
-        width="100%"
-        height="478"
-        src={url}
-        frameBorder="0"
-        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-        allowFullScreen={true}
-      />
+      <Box title={title} noBackground={true}>
+        <iframe
+          title="erxes tutorial"
+          width="100%"
+          height="478"
+          src={url}
+          frameBorder="0"
+          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen={true}
+        />
+      </Box>
     );
   };
 
@@ -164,20 +156,24 @@ function Welcome({ currentUser }: Props) {
     return (
       <WidgetBackgrounds>
         <Boxes>
-          <Box title="Profile settings" noBackground={true}>
-            {renderVideo('https://www.youtube-nocookie.com/embed/sDzPEEBSp44')}
-          </Box>
-          <Box title="System configuration" noBackground={true}>
-            {renderVideo('https://www.youtube-nocookie.com/embed/PDP9Jd7BCZs')}
-          </Box>
+          {renderVideo(
+            'Profile settings',
+            'https://www.youtube-nocookie.com/embed/sDzPEEBSp44'
+          )}
+          {renderVideo(
+            'System configuration',
+            'https://www.youtube-nocookie.com/embed/PDP9Jd7BCZs'
+          )}
         </Boxes>
         <Boxes>
-          <Box title="Signature" noBackground={true}>
-            {renderVideo('https://www.youtube-nocookie.com/embed/Eg9D4r38aso')}
-          </Box>
-          <Box title="Brands" noBackground={true}>
-            {renderVideo('https://www.youtube-nocookie.com/embed/ri17N4J478E')}
-          </Box>
+          {renderVideo(
+            'Signature',
+            'https://www.youtube-nocookie.com/embed/Eg9D4r38aso'
+          )}
+          {renderVideo(
+            'Brands',
+            'https://www.youtube-nocookie.com/embed/ri17N4J478E'
+          )}
         </Boxes>
       </WidgetBackgrounds>
     );
@@ -210,8 +206,9 @@ function Welcome({ currentUser }: Props) {
     );
   };
 
-  const renderCard = card => {
-    const { key, background, title, desc, button, img } = card;
+  const renderBanner = banner => {
+    const { key, background, title, desc, button, img } = banner;
+
     return (
       <>
         <Card background={background} img={img}>
@@ -237,7 +234,7 @@ function Welcome({ currentUser }: Props) {
 
   const content = (
     <>
-      {WELCOME.map(group => (
+      {STEPS.map(group => (
         <BoxedStep>
           {renderBoxHeader(group.title, group.image, group.description)}
           {group.key === 'documentation' && renderDocumentation()}
@@ -245,7 +242,7 @@ function Welcome({ currentUser }: Props) {
           {group.key === 'setup' && renderSetup()}
         </BoxedStep>
       ))}
-      {CARDS.map(card => renderCard(card))}
+      {BANNER.map(banner => renderBanner(banner))}
     </>
   );
 

@@ -1,4 +1,4 @@
-export const WELCOME = [
+export const STEPS = [
   {
     title: 'Setup Process',
     key: 'setup',
@@ -19,7 +19,7 @@ export const WELCOME = [
   }
 ];
 
-export const CARDS = [
+export const BANNER = [
   {
     title: 'MARKETPLACE',
     key: 'market',
