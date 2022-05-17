@@ -10,11 +10,10 @@ import {
 
 import { IModels } from './connectionResolver';
 import messageBroker from './messageBroker';
-import {
-  IProductDocument,
-  productSchema,
-  productCategorySchema
-} from './models/definitions/products';
+import { jobReferSchema } from './models/definitions/jobs';
+import { jobCategorySchema } from './models/definitions/jobCategories';
+import { flowCategorySchema } from './models/definitions/flowCategories';
+import { flowSchema } from './models/definitions/flows';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
@@ -27,32 +26,6 @@ export const MODULE_NAMES = {
   PRODUCT_CATEGORY: 'productCategory'
 };
 
-const gatherProductFieldNames = async (
-  models: IModels,
-  subdomain: string,
-  doc: IProductDocument,
-  prevList?: LogDesc[]
-): Promise<LogDesc[]> => {
-  let options: LogDesc[] = [];
-
-  if (prevList) {
-    options = prevList;
-  }
-
-  if (doc.categoryId) {
-    options = await gatherNames({
-      foreignKey: 'categoryId',
-      prevList: options,
-      nameFields: ['name'],
-      items: await models.ProductCategories.find({
-        _id: { $in: [doc.categoryId] }
-      }).lean()
-    });
-  }
-
-  return options;
-};
-
 const gatherDescriptions = async (
   models: IModels,
   subdomain: string,
@@ -62,46 +35,6 @@ const gatherDescriptions = async (
 
   let extraDesc: LogDesc[] = [];
   const description = `"${object.name}" has been ${action}d`;
-
-  switch (type) {
-    case MODULE_NAMES.PRODUCT:
-      extraDesc = await gatherProductFieldNames(models, subdomain, object);
-
-      if (updatedDocument) {
-        extraDesc = await gatherProductFieldNames(
-          models,
-          subdomain,
-          updatedDocument,
-          extraDesc
-        );
-      }
-
-      break;
-    case MODULE_NAMES.PRODUCT_CATEGORY:
-      const parentIds: string[] = [];
-
-      if (object.parentId) {
-        parentIds.push(object.parentId);
-      }
-
-      if (updatedDocument && updatedDocument.parentId !== object.parentId) {
-        parentIds.push(updatedDocument.parentId);
-      }
-
-      if (parentIds.length > 0) {
-        extraDesc = await gatherNames({
-          foreignKey: 'parentId',
-          nameFields: ['name'],
-          items: await models.ProductCategories.find({
-            _id: { $in: parentIds }
-          }).lean()
-        });
-      }
-
-      break;
-    default:
-      break;
-  }
 
   return { extraDesc, description };
 };
@@ -179,8 +112,10 @@ export default {
   getSchemaLabels: ({ data: { type } }) => ({
     status: 'success',
     data: getSchemaLabels(type, [
-      { name: 'product', schemas: [productSchema] },
-      { name: 'productCategory', schemas: [productCategorySchema] }
+      { name: 'jobRefer', schemas: [jobReferSchema] },
+      { name: 'jobCategory', schemas: [jobCategorySchema] },
+      { name: 'flowCategory', schemas: [flowCategorySchema] },
+      { name: 'flow', schemas: [flowSchema] }
     ])
   })
 };

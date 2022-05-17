@@ -8,15 +8,15 @@ export const types = `
   ${attachmentInput}
 
   type FlowCategory @key(fields: "_id") @cacheControl(maxAge: 3) {
-    _id: String;
-    createdAt: Date;
-    name: String;
-    code: String;
-    order: String;
-    description?: String;
-    parentId?: String;
-    attachment?: Attachment;
-    status?: String;
+    _id: String,
+    createdAt: Date,
+    name: String,
+    code: String,
+    order: String,
+    description?: String,
+    parentId?: String,
+    attachment?: Attachment,
+    status?: String,
   }
 `;
 
@@ -27,12 +27,12 @@ export const queries = `
 `;
 
 const flowCategoryParams = `
-  name: String!;
-  code: String!;
-  description: String;
-  parentId: String;
+  name: String!,
+  code: String!,
+  description: String,
+  parentId: String,
   attachment: AttachmentInput,
-  status: String;
+  status: String,
 `;
 
 export const mutations = `

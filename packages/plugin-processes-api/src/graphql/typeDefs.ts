@@ -1,12 +1,12 @@
 import { gql } from 'apollo-server-express';
 
 import {
-  types as tagTypes,
-  queries as tagQueries,
-  mutations as tagMutations
-} from './schema/tag';
+  types as jobReferTypes,
+  queries as jobReferQueries,
+  mutations as jobReferMutations
+} from './schema/jobRefer';
 
-const typeDefs = async (_serviceDiscovery) => {
+const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
     scalar Date
@@ -15,21 +15,21 @@ const typeDefs = async (_serviceDiscovery) => {
       PUBLIC
       PRIVATE
     }
-    
+
     directive @cacheControl(
       maxAge: Int
       scope: CacheControlScope
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
-    
-    ${tagTypes}
-    
+
+    ${jobReferTypes}
+
     extend type Query {
-      ${tagQueries}
+      ${jobReferQueries}
     }
-    
+
     extend type Mutation {
-      ${tagMutations}
+      ${jobReferMutations}
     }
   `;
 };

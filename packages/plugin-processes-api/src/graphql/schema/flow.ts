@@ -8,25 +8,25 @@ export const types = `
   ${attachmentInput}
 
   type Flow @key(fields: "_id") @cacheControl(maxAge: 3) {
-    _id: String;
-    createdAt: Date;
-    createdBy: String;
-    updatedAt: Date;
-    updatedBy: String;
-    name: String;
-    categoryId: String;
-    status: String;
-    jobs: IJob[];
+    _id: String,
+    createdAt: Date,
+    createdBy: String,
+    updatedAt: Date,
+    updatedBy: String,
+    name: String,
+    categoryId: String,
+    status: String,
+    jobs: IJob[],
   }
 
   input JobInput {
-    id: String;
-    nextJobIds: String[];
+    id: String,
+    nextJobIds: String[],
     jobRefer: IJobRefer,
     style: Object,
-    label: String;
-    description: String;
-    quantity: number;
+    label: String,
+    description: String,
+    quantity: number,
   }
 `;
 
@@ -43,10 +43,10 @@ export const queries = `
 `;
 
 const flowParams = `
-  name: String;
-  categoryId: String;
-  status: String;
-  jobs: JobInput;
+  name: String,
+  categoryId: String,
+  status: String,
+  jobs: JobInput,
 `;
 
 export const mutations = `

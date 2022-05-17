@@ -8,26 +8,25 @@ export const types = `
   ${attachmentInput}
 
   type JobRefer @key(fields: "_id") @cacheControl(maxAge: 3) {
-    _id: String;
-    createdAt: Date;
-    code: String;
-    name: String;
-    type: String;
-    status: String;
-    createdAt: Date;
-    duration: Float;
-    durationType: String;
-    needProducts: JSON;
-    resultProducts: JSON;
+    _id: String,
+    createdAt: Date,
+    code: String,
+    name: String,
+    type: String,
+    status: String,
+    duration: Float,
+    durationType: String,
+    needProducts: JSON,
+    resultProducts: JSON,
   }
 
   input JobProductsInput {
-    id: String;
-    productId: String;
-    quantity: Float;
-    uimId: String;
-    branchId: String;
-    departmentId: String;
+    id: String,
+    productId: String,
+    quantity: Float,
+    uimId: String,
+    branchId: String,
+    departmentId: String,
   }
 `;
 
@@ -45,15 +44,15 @@ export const queries = `
 `;
 
 const jobReferParams = `
-  code: String;
-  name: String;
-  type: String;
-  status: String;
-  createdAt: Date;
-  duration: Float;
-  durationType: String;
-  needProducts: JobProductsInput;
-  resultProducts: JobProductsInput;
+  code: String,
+  name: String,
+  type: String,
+  status: String,
+  createdAt: Date,
+  duration: Float,
+  durationType: String,
+  needProducts: JobProductsInput,
+  resultProducts: JobProductsInput,
 `;
 
 export const mutations = `
