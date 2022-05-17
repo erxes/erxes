@@ -391,23 +391,22 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       const result: ITypedListItem[] = [];
 
       for (const customFieldData of customFieldsData || []) {
-        const field = await models.Fields.findById(customFieldData.field);
+        const field = await models.Fields.findOne({
+          $or: [{ _id: customFieldData.field }, { code: customFieldData.field }]
+        }).lean();
 
         if (!field) {
           continue;
         }
 
         try {
-          await models.Fields.clean(
-            customFieldData.field,
-            customFieldData.value
-          );
+          await models.Fields.clean(field._id, customFieldData.value);
         } catch (e) {
           throw new Error(e.message);
         }
         result.push(
           models.Fields.generateTypedItem(
-            customFieldData.field,
+            field._id,
             customFieldData.value,
             field ? field.type || '' : '',
             field?.validation
