@@ -487,7 +487,25 @@ const AuthWrapper = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
+  flex: auto;
+  position: relative;
+  background-color: #f0f0f0;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    overflow: auto;
+    padding-bottom: ${dimensions.coreSpacing * 5}px;
+  }
+`;
+
+const AuthBox = styled.div`
+  position: relative;
+  margin: auto;
+  display: flex;
   flex: 1;
+  border-radius: 30px;
+  overflow: hidden;
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -506,6 +524,7 @@ const AuthItem = styledTS<{ order?: number }>(styled.div)`
 
 const AuthContent = styled.div`
   width: 100%;
+  min-height: 800px;
   height: 100%;
   position: relative;
   display: flex;
@@ -514,17 +533,17 @@ const AuthContent = styled.div`
   background: ${colors.colorWhite};
 `;
 
-const AuthDescription = styled.div`
+const AuthCustomDescription = styled.div`
   width: 100%;
   height: 100%;
   background: ${colors.colorPrimaryDark} url('/images/stars.png') repeat top
     center;
   position: relative;
-  overflow: auto;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 80px;
+  padding: 70px;
 
   &:before {
     content: '';
@@ -537,36 +556,100 @@ const AuthDescription = styled.div`
 
   @media (max-width: 768px) {
     padding: 40px;
-    overflow: auto;
+    overflow: hidden;
     padding-bottom: ${dimensions.coreSpacing * 5}px;
   }
 
   img {
     position: absolute;
     width: 100px;
-    left: 80px;
-    top: 80px;
+    top: 100px;
   }
 
   h1 {
     position: relative;
     font-weight: bold;
-    font-size: 58px;
+    font-size: 48px;
     color: ${colors.colorWhite};
     margin: 0px;
 
     @media (max-width: 768px) {
-      font-size: 42px;
+      font-size: 38px;
     }
   }
 
   h2 {
     position: relative;
-    font-size: 20px;
+    font-size: 18px;
     color: ${colors.colorWhite};
     line-height: 1.5em;
-    font-weight: 800;
+    font-weight: 900;
     margin: 1.75em 0;
+
+    @media (max-width: 768px) {
+      font-size: 16px;
+    }
+  }
+
+  p {
+    position: relative;
+    color: ${colors.colorWhite};
+    margin-bottom: 50px;
+    font-size: 18px;
+    line-height: 1.8em;
+  }
+`;
+
+const AuthDescription = styled.div`
+  width: 100%;
+  height: 100%;
+  background: ${colors.colorPrimaryDark} url('/images/stars.png') repeat top
+    center;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 70px;
+
+  &:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: transparent url('/images/twinkling.png') repeat top center;
+    animation: ${twinkling} 200s linear infinite;
+  }
+
+  @media (max-width: 768px) {
+    padding: 40px;
+    overflow: hidden;
+    padding-bottom: ${dimensions.coreSpacing * 5}px;
+  }
+
+  img {
+    position: relative;
+    width: 100px;
+    margin-bottom: 5%;
+  }
+
+  h1 {
+    position: relative;
+    font-weight: bold;
+    font-size: 48px;
+    color: ${colors.colorWhite};
+    margin: 0px;
+
+    @media (max-width: 768px) {
+      font-size: 38px;
+    }
+  }
+
+  h2 {
+    position: relative;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.5em;
+    color: ${colors.colorWhite};
 
     @media (max-width: 768px) {
       font-size: 16px;
@@ -579,18 +662,6 @@ const AuthDescription = styled.div`
     margin-bottom: 50px;
     font-size: 20px;
     line-height: 1.8em;
-  }
-
-  a {
-    position: relative;
-    color: rgba(255, 255, 255, 0.7);
-    &:hover {
-      color: ${colors.colorWhite};
-    }
-  }
-
-  .not-found {
-    margin-top: 0;
   }
 `;
 
@@ -614,7 +685,9 @@ const MobileRecommend = styled.div`
 export {
   PageHeader,
   AuthWrapper,
+  AuthBox,
   AuthItem,
+  AuthCustomDescription,
   AuthDescription,
   AuthContent,
   MobileRecommend,

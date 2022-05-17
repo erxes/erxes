@@ -1,10 +1,13 @@
 import Button from '@erxes/ui/src/components/Button';
 import { __, bustIframe } from '../../utils';
 import React from 'react';
+import Container from 'react-bootstrap/Container';
 import {
   AuthWrapper,
+  AuthBox,
   AuthItem,
   AuthContent,
+  AuthCustomDescription,
   AuthDescription,
   CenterContent,
   MobileRecommend
@@ -53,22 +56,22 @@ class AuthLayout extends React.Component<Props, {}> {
 
     if (description) {
       return (
-        <>
+        <AuthCustomDescription>
           <img src="/images/logo.png" alt="erxes" />
           {description}
-        </>
+        </AuthCustomDescription>
       );
     }
 
     return (
-      <>
+      <AuthDescription>
         <h1>{__('Grow your business better and faster')}</h1>
         <h2>
           {__('Single ')}
           <b>{__('experience operating system (XOS)')}</b>
           {__(' to align your entire business')}
         </h2>
-      </>
+      </AuthDescription>
     );
   }
 
@@ -82,13 +85,15 @@ class AuthLayout extends React.Component<Props, {}> {
 
     return (
       <AuthWrapper>
-        <AuthItem order={1}>
-          <AuthContent>{content}</AuthContent>
-        </AuthItem>
-        <AuthItem order={0}>
-          <AuthDescription>{this.renderDesciption()}</AuthDescription>
+        <Container>
+          <AuthBox>
+            <AuthItem order={1}>
+              <AuthContent>{content}</AuthContent>
+            </AuthItem>
+            <AuthItem order={0}>{this.renderDesciption()}</AuthItem>
+          </AuthBox>
           {this.renderRecommendMobileVersion()}
-        </AuthItem>
+        </Container>
       </AuthWrapper>
     );
   }

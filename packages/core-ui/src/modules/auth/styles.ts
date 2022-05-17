@@ -4,7 +4,7 @@ import styled from 'styled-components';
 const AuthBox = styled.div`
   width: 100%;
   background-color: ${colors.colorWhite};
-  padding: 70px 100px;
+  padding: 30px 40px;
   border-radius: 2px;
 
   img {
@@ -22,7 +22,6 @@ const AuthBox = styled.div`
   p {
     color: #666;
     font-size: 16px;
-    margin: 0 0 30px;
   }
 
   input {
