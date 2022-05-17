@@ -8,6 +8,7 @@ import { graphql } from 'react-apollo';
 import { TagsQueryResponse } from '@erxes/ui/src/tags/types';
 import { queries } from '../graphql';
 import { CountByTagsQueryResponse } from '../types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const TagFilterContainer = (props: {
   countByTagsQuery: CountByTagsQueryResponse;
@@ -21,7 +22,7 @@ const TagFilterContainer = (props: {
     <CountsByTag
       tags={(tagsQuery ? tagsQuery.tags : null) || []}
       counts={counts}
-      manageUrl='/tags/product'
+      manageUrl="/tags/product"
       loading={(tagsQuery ? tagsQuery.loading : null) || false}
     />
   );
@@ -37,6 +38,7 @@ export default compose(
       variables: {
         type: TAG_TYPES.PRODUCT
       }
-    })
+    }),
+    skip: !isEnabled('tags') ? true : false
   })
 )(TagFilterContainer);
