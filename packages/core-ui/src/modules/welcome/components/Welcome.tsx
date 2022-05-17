@@ -35,7 +35,7 @@ function Welcome({ currentUser }: Props) {
             👋
           </span>
         </h1>
-        <p>
+        <div>
           {__(
             'Enjoy a frictionless development experience and expand upon the erxes platform without modifying the core platform'
           )}
@@ -45,7 +45,7 @@ function Welcome({ currentUser }: Props) {
             </li>
             <li>{__('Monetization - earn from your creations')}</li>
           </ul>
-        </p>
+        </div>
       </Header>
     );
   };
@@ -81,6 +81,7 @@ function Welcome({ currentUser }: Props) {
       </LinkedButton>
     );
   };
+
   const renderDocumentation = () => {
     return (
       <WidgetBackgrounds>
@@ -189,8 +190,9 @@ function Welcome({ currentUser }: Props) {
         )}
         <BoxHeader>
           <WidgetBackgrounds>
-            {COMMUNITY.map(com => (
+            {COMMUNITY.map((com, index) => (
               <Button
+                key={index}
                 href={com.link}
                 btnStyle="simple"
                 icon={com.icon}
@@ -206,11 +208,11 @@ function Welcome({ currentUser }: Props) {
     );
   };
 
-  const renderBanner = banner => {
+  const renderBanner = (banner, index) => {
     const { key, background, title, desc, button, img } = banner;
 
     return (
-      <>
+      <React.Fragment key={index}>
         <Card background={background} img={img}>
           <div>
             <h4>{title}</h4>
@@ -228,21 +230,21 @@ function Welcome({ currentUser }: Props) {
           )}
         </Card>
         {key === 'market' && renderCommunity()}
-      </>
+      </React.Fragment>
     );
   };
 
   const content = (
     <>
-      {STEPS.map(group => (
-        <BoxedStep>
+      {STEPS.map((group, index) => (
+        <BoxedStep key={index}>
           {renderBoxHeader(group.title, group.image, group.description)}
           {group.key === 'documentation' && renderDocumentation()}
           {group.key === 'usingGuide' && renderGuide()}
           {group.key === 'setup' && renderSetup()}
         </BoxedStep>
       ))}
-      {BANNER.map(banner => renderBanner(banner))}
+      {BANNER.map((banner, index) => renderBanner(banner, index))}
     </>
   );
 

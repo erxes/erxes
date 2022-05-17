@@ -70,22 +70,21 @@ class Steps extends React.Component<Props, State> {
       <>
         {type === 'stepper' || type === 'stepperColumn' ? (
           <StepWrapper type={type}>
-            {count.map(cnt => {
-              return (
-                <SteperItem complete={activeStep >= cnt} type={type}>
-                  <StepCount complete={activeStep >= cnt} type={type}>
-                    {cnt}
-                  </StepCount>
-                  {titles && (
-                    <StepHeaderTitle type={type}>
-                      {__(titles[cnt - 1])}
-                    </StepHeaderTitle>
-                  )}
-                </SteperItem>
-              );
-            })}
+            {count.map((cnt, index) => (
+              <SteperItem key={index} complete={activeStep >= cnt} type={type}>
+                <StepCount complete={activeStep >= cnt} type={type}>
+                  {cnt}
+                </StepCount>
+                {titles && (
+                  <StepHeaderTitle type={type}>
+                    {__(titles[cnt - 1])}
+                  </StepHeaderTitle>
+                )}
+              </SteperItem>
+            ))}
           </StepWrapper>
         ) : null}
+
         <StepContainer type={type}>
           {React.Children.map(children, (child: any) => {
             if (!child) {
