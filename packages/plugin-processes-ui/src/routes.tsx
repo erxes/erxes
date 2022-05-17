@@ -4,7 +4,7 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Tags" */ './containers/List')
+  import(/* webpackChunkName: "List - Tags" */ './jobs/containers/List')
 );
 
 const tags = ({ location, history }) => {
