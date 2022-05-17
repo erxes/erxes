@@ -8,10 +8,8 @@ import { graphql } from 'react-apollo';
 import ManageColumns from '../components/ManageColumns';
 import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '../constants';
 import { FieldsCombinedByTypeQueryResponse } from '../types';
-import {
-  DefaultColumnsConfigQueryResponse,
-  IConfigColumn
-} from '../types';
+import { DefaultColumnsConfigQueryResponse, IConfigColumn } from '../types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   contentType: string;
@@ -31,8 +29,8 @@ const { REACT_APP_API_URL } = getEnv();
 
 const ManageColumnsContainer = (props: FinalProps) => {
   const {
-    fieldsDefaultColumnsConfigQuery,
-    fieldsQuery,
+    fieldsDefaultColumnsConfigQuery = {} as DefaultColumnsConfigQueryResponse,
+    fieldsQuery = {} as FieldsCombinedByTypeQueryResponse,
     contentType,
     location,
     history,
@@ -97,7 +95,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
   }
 
   const defaultColumns =
-    fieldsDefaultColumnsConfigQuery.fieldsDefaultColumnsConfig;
+    fieldsDefaultColumnsConfigQuery.fieldsDefaultColumnsConfig || [];
 
   let columns: IConfigColumn[] = [];
 
@@ -154,13 +152,14 @@ export default withProps<Props>(
         return {
           variables: {
             contentType: ['lead', 'visitor'].includes(contentType)
-              ? 'customer'
+              ? 'contacts:customer'
               : contentType,
             usageType: type,
             excludedNames: renderExcludedNames(isImport)
           }
         };
-      }
+      },
+      skip: !isEnabled('forms')
     }),
     graphql<Props, DefaultColumnsConfigQueryResponse, { contentType: string }>(
       gql(queries.fieldsDefaultColumnsConfig),
@@ -170,11 +169,12 @@ export default withProps<Props>(
           return {
             variables: {
               contentType: ['lead', 'visitor'].includes(contentType)
-                ? 'customer'
+                ? 'contacts:customer'
                 : contentType
             }
           };
-        }
+        },
+        skip: !isEnabled('forms')
       }
     )
   )(ManageColumnsContainer)

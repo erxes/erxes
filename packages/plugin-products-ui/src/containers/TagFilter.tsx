@@ -38,7 +38,6 @@ export default compose(
       variables: {
         type: TAG_TYPES.PRODUCT
       }
-    }),
-    skip: !isEnabled('tags') ? true : false
+    })
   })
 )(TagFilterContainer);
