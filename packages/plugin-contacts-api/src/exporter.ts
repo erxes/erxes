@@ -317,9 +317,11 @@ const prepareData = async (
           defaultValue: []
         });
 
-        const uniqueCustomerIds = formSubmissions.map(
+        const customerIds = formSubmissions.map(
           submission => submission.customerId
         );
+
+        const uniqueCustomerIds = [...new Set(customerIds)] as any;
 
         const formDatas: any[] = [];
 
@@ -444,7 +446,8 @@ const buildLeadFile = async (
     for (const column of headers) {
       const item = await data.find(
         obj =>
-          obj._id === column.name || obj.text.trim() === column.label.trim()
+          obj._id === column.name ||
+          (obj.text || '').trim() === (column.label || '').trim()
       );
 
       const cellValue = displayValue(item);
