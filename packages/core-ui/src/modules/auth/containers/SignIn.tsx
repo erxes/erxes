@@ -27,6 +27,7 @@ const SignInContainer = (props: IRouterProps) => {
         callback={callbackResponse}
         isSubmitted={isSubmitted}
         type="submit"
+        btnStyle="default"
         block={true}
         icon="none"
       >

@@ -4,7 +4,10 @@ import React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import { ByKindTotalCount } from '@erxes/ui-settings/src/integrations/types';
 import Entry from './Entry';
-import { CollapsibleContent, IntegrationRow } from '@erxes/ui-settings/src/integrations/components/store/styles';
+import {
+  CollapsibleContent,
+  IntegrationRow
+} from '@erxes/ui-settings/src/integrations/components/store/styles';
 
 type Props = {
   integrations: any[];
@@ -46,7 +49,9 @@ class Row extends React.Component<Props, State> {
     return '';
   };
 
-  toggleBox = selectedKind => {
+  toggleBox = (selectedKind, isAvailable) => {
+    if (!isAvailable) return false;
+
     if (!selectedKind || selectedKind === 'amazon-ses') {
       return false;
     }

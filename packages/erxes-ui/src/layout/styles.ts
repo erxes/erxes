@@ -34,7 +34,7 @@ const PageHeader = styled.div`
   padding-left: ${dimensions.coreSpacing * 1.5}px;
 `;
 
-const Contents = styledTS<{hasBorder?: boolean}>(styled.div)`
+const Contents = styledTS<{ hasBorder?: boolean }>(styled.div)`
   display: flex;
   flex: 1;
   margin-left: ${dimensions.unitSpacing}px;
@@ -72,9 +72,11 @@ const MainHead = styled.div`
   box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
 `;
 
-const MainContent = styledTS<{ transparent?: boolean; center?: boolean; leftSpacing?: boolean }>(
-  styled.section
-)`
+const MainContent = styledTS<{
+  transparent?: boolean;
+  center?: boolean;
+  leftSpacing?: boolean;
+}>(styled.section)`
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -117,7 +119,9 @@ const ContenFooter = styled.div`
   }
 `;
 
-const HeaderItems = styledTS<{ rightAligned?: boolean; hasFlex?: boolean }>(styled.div)`
+const HeaderItems = styledTS<{ rightAligned?: boolean; hasFlex?: boolean }>(
+  styled.div
+)`
   align-self: center;
   flex: ${props => props.hasFlex && 1};
   margin-left: ${props => props.rightAligned && 'auto'};
@@ -143,7 +147,8 @@ const SideContent = styledTS<{
   margin: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${
   dimensions.unitSpacing
 }px 0;
-  border-right: ${props => props.hasBorder && `1px solid ${colors.borderPrimary}`};
+  border-right: ${props =>
+    props.hasBorder && `1px solid ${colors.borderPrimary}`};
   box-shadow: ${props =>
     props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
 
@@ -371,7 +376,7 @@ const CenterContent = styled.div`
   }
 `;
 
-const SectionContainer = styledTS<{noShadow?: boolean}>(styled.div)`
+const SectionContainer = styledTS<{ noShadow?: boolean }>(styled.div)`
   position: relative;
   box-shadow: ${props => !props.noShadow && `0 0 6px 0 rgba(0, 0, 0, 0.08)`};
   margin-bottom: 10px;
@@ -478,54 +483,72 @@ const SectionBodyItem = styled.div`
   }
 `;
 
-const AuthContent = styled.div`
+const AuthWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex: auto;
+  position: relative;
+  background-color: #f0f0f0;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    overflow: auto;
+    padding-bottom: ${dimensions.coreSpacing * 5}px;
+  }
+`;
+
+const AuthBox = styled.div`
   position: relative;
   margin: auto;
-`;
+  display: flex;
+  flex: 1;
+  min-height: 600px;
+  max-height: 800px;
+  border-radius: 32px;
+  box-shadow: 0px 24px 32px rgba(0, 0, 0, 0.04),
+    0px 16px 24px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04),
+    0px 0px 1px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
 
-const AuthDescription = styled.div`
-  margin: 20px 0;
-  img {
-    width: 100px;
-    margin-bottom: 50px;
-  }
-  h1 {
-    font-weight: bold;
-    font-size: 34px;
-    margin: 10px 0 30px;
-    color: ${colors.colorWhite};
-  }
-  h2 {
-    font-size: 24px;
-    color: rgba(255, 255, 255, 0.9);
-    line-height: 1.4em;
-    font-weight: 500;
-  }
-  p {
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 50px;
-    font-size: 18px;
-    line-height: 1.8em;
-  }
-  a {
-    color: rgba(255, 255, 255, 0.7);
-    &:hover {
-      color: ${colors.colorWhite};
-    }
-  }
-  .not-found {
-    margin-top: 0;
+  @media (max-width: 768px) {
+    flex-direction: column;
   }
 `;
 
-const Authlayout = styled.div`
-  height: 100%;
-  overflow: auto;
+const AuthItem = styledTS<{ order?: number }>(styled.div)`
   position: relative;
+  width: 50%;
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    order: ${props => (props.order ? props.order : 0)};
+  }
+`;
+
+const AuthContent = styled.div`
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  background: ${colors.colorWhite};
+`;
+
+const AuthCustomDescription = styled.div`
+  width: 100%;
+  height: 100%;
   background: ${colors.colorPrimaryDark} url('/images/stars.png') repeat top
     center;
-  flex: 1;
+  position: relative;
+  overflow: hidden;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 70px;
+
   &:before {
     content: '';
     position: absolute;
@@ -534,9 +557,115 @@ const Authlayout = styled.div`
     background: transparent url('/images/twinkling.png') repeat top center;
     animation: ${twinkling} 200s linear infinite;
   }
+
   @media (max-width: 768px) {
-    overflow: auto;
+    padding: 40px;
+    overflow: hidden;
     padding-bottom: ${dimensions.coreSpacing * 5}px;
+  }
+
+  img {
+    position: absolute;
+    width: 100px;
+    top: 100px;
+  }
+
+  h1 {
+    position: relative;
+    font-weight: bold;
+    font-size: 48px;
+    color: ${colors.colorWhite};
+    margin: 0px;
+
+    @media (max-width: 768px) {
+      font-size: 38px;
+    }
+  }
+
+  h2 {
+    position: relative;
+    font-size: 18px;
+    color: ${colors.colorWhite};
+    line-height: 1.5em;
+    font-weight: 900;
+    margin: 1.75em 0;
+
+    @media (max-width: 768px) {
+      font-size: 16px;
+    }
+  }
+
+  p {
+    position: relative;
+    color: ${colors.colorWhite};
+    margin-bottom: 50px;
+    font-size: 18px;
+    line-height: 1.8em;
+  }
+`;
+
+const AuthDescription = styled.div`
+  width: 100%;
+  height: 100%;
+  background: ${colors.colorPrimaryDark} url('/images/stars.png') repeat top
+    center;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 70px;
+
+  &:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: transparent url('/images/twinkling.png') repeat top center;
+    animation: ${twinkling} 200s linear infinite;
+  }
+
+  @media (max-width: 768px) {
+    padding: 40px;
+    overflow: hidden;
+    padding-bottom: ${dimensions.coreSpacing * 5}px;
+  }
+
+  img {
+    position: relative;
+    width: 100px;
+    margin-bottom: 5%;
+  }
+
+  h1 {
+    position: relative;
+    font-weight: bold;
+    font-size: 48px;
+    color: ${colors.colorWhite};
+    margin: 0px;
+
+    @media (max-width: 768px) {
+      font-size: 38px;
+    }
+  }
+
+  h2 {
+    position: relative;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.5em;
+    color: ${colors.colorWhite};
+
+    @media (max-width: 768px) {
+      font-size: 16px;
+    }
+  }
+
+  p {
+    position: relative;
+    color: ${colors.colorWhite};
+    margin-bottom: 50px;
+    font-size: 20px;
+    line-height: 1.8em;
   }
 `;
 
@@ -559,9 +688,12 @@ const MobileRecommend = styled.div`
 
 export {
   PageHeader,
-  AuthContent,
+  AuthWrapper,
+  AuthBox,
+  AuthItem,
+  AuthCustomDescription,
   AuthDescription,
-  Authlayout,
+  AuthContent,
   MobileRecommend,
   VerticalContent,
   HeightedWrapper,

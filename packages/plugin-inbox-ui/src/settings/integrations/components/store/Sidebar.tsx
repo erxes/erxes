@@ -13,7 +13,7 @@ type Props = {
 class SideBar extends React.Component<Props> {
   renderCategory(item) {
     const className =
-      (this.props.currentType || 'All integrations') === item ? 'active' : '';
+      (this.props.currentType || 'All add-ons') === item ? 'active' : '';
 
     return (
       <li key={item}>
@@ -27,7 +27,7 @@ class SideBar extends React.Component<Props> {
   render() {
     return (
       <LeftSidebar hasBorder={true}>
-        <List id='SettingsSidebar'>
+        <List id="SettingsSidebar">
           {INTEGRATION_FILTERS.map((data, index) => (
             <SidebarList key={index}>
               <LeftSidebar.Header uppercase={true}>

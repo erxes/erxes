@@ -1058,34 +1058,3 @@ const LOG_MAPPINGS = [
     schemas: [companySchema]
   }
 ];
-
-export const prepareCustomData = async (subdomain, doc) => {
-  const { data } = doc;
-  const { customFieldsData = [] } = doc;
-
-  if (!data) {
-    return customFieldsData;
-  }
-
-  const generatedData = await sendFormsMessage({
-    subdomain,
-    action: 'fields.generateCustomFieldsData',
-    data: {
-      customData: data,
-      contentType: 'contacts:customer'
-    },
-    isRPC: true,
-    defaultValue: { customFieldsData: [] }
-  });
-
-  const generatedCustomFieldsData = generatedData.customFieldsData || [];
-
-  return [
-    ...new Map(
-      [...customFieldsData, ...generatedCustomFieldsData].map(item => [
-        item.field,
-        item
-      ])
-    ).values()
-  ];
-};

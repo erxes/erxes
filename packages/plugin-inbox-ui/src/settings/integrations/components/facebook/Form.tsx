@@ -98,7 +98,7 @@ class Facebook extends React.Component<Props, State> {
     }
 
     if (pages.length === 0) {
-      return <EmptyState icon='folder-2' text={__('There is no pages')} />;
+      return <EmptyState icon="folder-2" text={__('There is no pages')} />;
     }
 
     return (
@@ -145,12 +145,12 @@ class Facebook extends React.Component<Props, State> {
     return (
       <>
         <Steps active={1}>
-          <Step img='/images/icons/erxes-01.svg' title='Connect Account'>
+          <Step img="/images/icons/erxes-01.svg" title="Connect Account">
             <FlexItem>
               <LeftItem>
                 <Accounts
-                  kind='facebook'
-                  addLink='fblogin'
+                  kind="facebook"
+                  addLink="fblogin"
                   onSelect={onAccountSelect}
                   onRemove={onRemoveAccount}
                 />
@@ -158,13 +158,13 @@ class Facebook extends React.Component<Props, State> {
             </FlexItem>
           </Step>
 
-          <Step img='/images/icons/erxes-04.svg' title='Connect Your Pages'>
+          <Step img="/images/icons/erxes-04.svg" title="Connect Your Pages">
             {this.renderPages()}
           </Step>
 
           <Step
-            img='/images/icons/erxes-16.svg'
-            title='Integration Setup'
+            img="/images/icons/erxes-16.svg"
+            title="Integration Setup"
             noButton={true}
           >
             <FlexItem>
@@ -176,7 +176,7 @@ class Facebook extends React.Component<Props, State> {
                   </p>
                   <FormControl
                     {...formProps}
-                    name='messengerName'
+                    name="messengerName"
                     required={true}
                   />
                 </FormGroup>
@@ -204,8 +204,8 @@ class Facebook extends React.Component<Props, State> {
             <strong> {this.props.kind}</strong> {__('integration')}
           </Indicator>
           <Button.Group>
-            <Link to='/settings/integrations'>
-              <Button btnStyle='simple' icon='times-circle'>
+            <Link to="/settings/integrations">
+              <Button btnStyle="simple" icon="times-circle">
                 Cancel
               </Button>
             </Link>
@@ -240,7 +240,7 @@ class Facebook extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('App store'), link: '/settings/integrations' },
+      { title: __('Add-ons'), link: '/settings/add-ons' },
       { title }
     ];
 
@@ -258,7 +258,7 @@ class Facebook extends React.Component<Props, State> {
                     {__('Connect your')} {title}
                   </h1>
                   <p>{description}</p>
-                  <img alt={title} src='/images/previews/facebook.png' />
+                  <img alt={title} src="/images/previews/facebook.png" />
                 </TextWrapper>
               </ImageWrapper>
             </Preview>

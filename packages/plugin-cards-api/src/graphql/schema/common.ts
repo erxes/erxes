@@ -92,7 +92,6 @@ export const commonMutationParams = `
   status: String,
   sourceConversationIds: [String],
   customFieldsData: JSON
-  data: JSON
 `;
 
 export const commonDragParams = `
