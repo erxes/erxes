@@ -117,6 +117,7 @@ export const commonListTypes = `
   relations: JSON
   startDate: Date
   closeDate: Date
+  createdAt: Date
   modifiedAt: Date
   priority: String
   hasNotified: Boolean
