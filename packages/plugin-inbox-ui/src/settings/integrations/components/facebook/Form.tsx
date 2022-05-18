@@ -204,7 +204,7 @@ class Facebook extends React.Component<Props, State> {
             <strong> {this.props.kind}</strong> {__('integration')}
           </Indicator>
           <Button.Group>
-            <Link to="/settings/integrations">
+            <Link to="/settings/add-ons">
               <Button btnStyle="simple" icon="times-circle">
                 Cancel
               </Button>

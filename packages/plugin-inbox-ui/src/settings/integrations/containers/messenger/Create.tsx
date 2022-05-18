@@ -105,9 +105,7 @@ const CreateMessenger = (props: FinalProps) => {
       })
       .then(() => {
         Alert.success('You successfully added an integration');
-        history.push(
-          `/settings/integrations?refetch=true&_id=${id}&kind=messenger`
-        );
+        history.push(`/settings/add-ons?refetch=true&_id=${id}&kind=messenger`);
       })
       .catch(error => {
         if (error.message.includes('Duplicated messenger for single brand')) {

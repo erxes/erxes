@@ -5,14 +5,13 @@ import Home from './containers/Home';
 import SaleLogDetailsContainer from './containers/SaleLogDetails';
 
 const HomeDefault = () => {
-  console.log('ddddddddddddddd');
   return <Home />;
 };
 
 const selaLogDetail = ({ match, location, history }) => {
   const { _id } = match.params;
   const queryParams = queryString.parse(location.search);
-  console.log('dooooooooooone', queryParams, _id);
+
   return (
     <>
       <SaleLogDetailsContainer id={_id} />
