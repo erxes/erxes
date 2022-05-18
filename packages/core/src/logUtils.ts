@@ -1,8 +1,14 @@
 import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 
 import { MODULE_NAMES } from './data/constants';
-import { brandEmailConfigSchema, brandSchema } from './db/models/definitions/brands';
-import { permissionSchema, userGroupSchema } from './db/models/definitions/permissions';
+import {
+  brandEmailConfigSchema,
+  brandSchema
+} from './db/models/definitions/brands';
+import {
+  permissionSchema,
+  userGroupSchema
+} from './db/models/definitions/permissions';
 import { IUserDocument, userSchema } from './db/models/definitions/users';
 import { generateModels } from './connectionResolver';
 import { sendLogsMessage } from './messageBroker';
@@ -36,9 +42,11 @@ export default {
       let removedUsers: IUserDocument[] = [];
 
       if (content) {
-        addedUsers = await models.Users.find({ _id: { $in: content.addedUserIds } });
+        addedUsers = await models.Users.findUsers({
+          _id: { $in: content.addedUserIds }
+        });
 
-        removedUsers = await models.Users.find({
+        removedUsers = await models.Users.findUsers({
           _id: { $in: content.removedUserIds }
         });
       }

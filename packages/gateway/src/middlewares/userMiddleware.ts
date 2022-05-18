@@ -7,6 +7,7 @@ import { NextFunction, Request, Response } from 'express';
 import { redis } from '../redis';
 import { generateModels } from '../connectionResolver';
 import { getSubdomain, userActionsMap } from '@erxes/api-utils/src/core';
+import { USER_ROLES } from '@erxes/api-utils/src/constants';
 
 export default async function userMiddleware(
   req: Request & { user?: any },
@@ -22,11 +23,11 @@ export default async function userMiddleware(
         url: 'https://erxes.io/check-website',
         method: 'POST',
         headers: {
-          'erxes-core-token': erxesCoreToken,
+          'erxes-core-token': erxesCoreToken
         },
         body: {
-          url,
-        },
+          url
+        }
       });
 
       if (response === 'ok') {
@@ -36,19 +37,19 @@ export default async function userMiddleware(
             {
               action: 'showIntegrations',
               allowed: true,
-              requiredActions: [],
+              requiredActions: []
             },
             {
               action: 'showKnowledgeBase',
               allowed: true,
-              requiredActions: [],
+              requiredActions: []
             },
             {
               action: 'showScripts',
               allowed: true,
-              requiredActions: [],
-            },
-          ],
+              requiredActions: []
+            }
+          ]
         };
       }
     } catch (e) {
@@ -64,45 +65,62 @@ export default async function userMiddleware(
 
   if (appToken) {
     try {
-      const { app }: any = jwt.verify(appToken, process.env.JWT_TOKEN_SECRET || '');
-  
+      const { app }: any = jwt.verify(
+        appToken,
+        process.env.JWT_TOKEN_SECRET || ''
+      );
+
       if (app && app._id) {
         const appInDb = await models.Apps.findOne({ _id: app._id });
 
         if (appInDb) {
           const permissions = await models.Permissions.find({
             groupId: appInDb.userGroupId,
-            allowed: true,
+            allowed: true
           }).lean();
 
-          const user = await models.Users.findOne({ isActive: true, groupIds: { $in: [appInDb.userGroupId] } });
+          const user = await models.Users.findOne({
+            role: USER_ROLES.SYSTEM,
+            groupIds: { $in: [app.userGroupId] },
+            appId: app._id
+          });
 
           if (user) {
             const key = `user_permissions_${user._id}`;
-            const cachedUserPermissions = await redis.get(key);
-  
-            if (cachedUserPermissions && cachedUserPermissions !== '{}') {
-              const userPermissions = await models.Permissions.find({ userId: user._id });
+            const cachedPermissions = await redis.get(key);
+
+            if (
+              !cachedPermissions ||
+              (cachedPermissions && cachedPermissions === '{}')
+            ) {
+              const userPermissions = await models.Permissions.find({
+                userId: user._id
+              });
               const groupPermissions = await models.Permissions.find({
                 groupId: { $in: user.groupIds }
               });
 
-              const actionMap = await userActionsMap(userPermissions, groupPermissions, user);
+              const actionMap = await userActionsMap(
+                userPermissions,
+                groupPermissions,
+                user
+              );
+
               await redis.set(key, JSON.stringify(actionMap));
             }
-  
+
             req.user = {
               _id: user._id || 'userId',
-              customPermissions: permissions.map((p) => ({
+              customPermissions: permissions.map(p => ({
                 action: p.action,
                 allowed: p.allowed,
-                requiredActions: p.requiredActions,
-              })),
+                requiredActions: p.requiredActions
+              }))
             };
           }
         }
       }
-  
+
       return next();
     } catch (e) {
       console.error(e);
@@ -120,7 +138,6 @@ export default async function userMiddleware(
   try {
     // verify user token and retrieve stored user information
     const { user }: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
-
 
     const userDoc = await models.Users.findOne({ _id: user._id });
 

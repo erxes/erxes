@@ -1,4 +1,7 @@
-import { DEFAULT_CONSTANT_VALUES } from '@erxes/api-utils/src/constants';
+import {
+  DEFAULT_CONSTANT_VALUES,
+  USER_ROLES
+} from '@erxes/api-utils/src/constants';
 import { IContext } from '../../connectionResolver';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { getUserActionsMap } from '../permissions/utils';
@@ -80,6 +83,11 @@ export default {
   },
 
   async leaderBoardPosition(user: IUserDocument, _args, { models }: IContext) {
-    return (await models.Users.find({ score: { $gt: user.score || 0 } }).count()) + 1;
+    return (
+      (await models.Users.find({
+        score: { $gt: user.score || 0 },
+        role: { $ne: USER_ROLES.SYSTEM }
+      }).count()) + 1
+    );
   }
 };

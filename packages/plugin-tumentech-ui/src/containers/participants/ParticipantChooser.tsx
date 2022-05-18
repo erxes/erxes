@@ -75,32 +75,38 @@ class ParticipantChooser extends React.Component<
             dealId,
             customerIds: removedIds
           }
-        });
+        })
+          .then(() => {
+            if (onSelect) {
+              onSelect(customers);
+            }
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
       }
 
-      addParticipantsMutation({
-        variables: {
-          dealId: this.props.dealId,
-          customerIds: customers.map(c => c._id)
-        }
-      })
-        .then(() => {
-          if (onSelect) {
-            onSelect(customers);
+      if (customers.length) {
+        addParticipantsMutation({
+          variables: {
+            dealId: this.props.dealId,
+            customerIds: customers.map(c => c._id)
           }
         })
-        .catch(error => {
-          Alert.error(error.message);
-        });
+          .then(() => {
+            if (onSelect) {
+              onSelect(customers);
+            }
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
+      }
     };
 
     const renderName = customer => {
       return renderFullName(customer);
     };
-
-    if (participantsQuery.loading || customersQuery.loading) {
-      return <Spinner />;
-    }
 
     const customers = customersQuery.customers || [];
 

@@ -28,6 +28,7 @@ import CompaniesMerge from '@erxes/ui-contacts/src/companies/components/detail/C
 import CompanyRow from './CompanyRow';
 import Sidebar from './Sidebar';
 import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 interface IProps extends IRouterProps {
   companies: ICompany[];
@@ -215,13 +216,15 @@ class CompaniesList extends React.Component<IProps, State> {
 
       actionBarLeft = (
         <BarItems>
-          <TaggerPopover
-            type={TAG_TYPES.COMPANY}
-            successCallback={this.afterTag}
-            targets={bulk}
-            trigger={tagButton}
-            refetchQueries={[refetchQuery]}
-          />
+          {isEnabled('tags') && (
+            <TaggerPopover
+              type={TAG_TYPES.COMPANY}
+              successCallback={this.afterTag}
+              targets={bulk}
+              trigger={tagButton}
+              refetchQueries={[refetchQuery]}
+            />
+          )}
 
           {bulk.length === 2 && (
             <ModalTrigger

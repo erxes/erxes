@@ -31,6 +31,10 @@ export const loadParticipantClass = (models: IModels) => {
     }
 
     public static async createParticipant(doc: IParticipant) {
+      if (!doc.customerId || !doc.dealId) {
+        throw new Error('deal and customer are required!');
+      }
+
       const participant = await models.Participants.findOne({
         dealId: doc.dealId,
         customerId: doc.customerId

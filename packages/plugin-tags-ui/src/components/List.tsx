@@ -31,6 +31,8 @@ function List({
   renderButton,
   types
 }: Props) {
+  const contentType = (type || '').split(':')[1];
+
   const trigger = (
     <Button id={'AddTagButton'} btnStyle="success" icon="plus-circle">
       Add tag
@@ -58,7 +60,7 @@ function List({
 
   const title = (
     <Title capitalize={true}>
-      {type} {__('tags')}
+      {contentType} {__('tags')}
     </Title>
   );
   const actionBar = <Wrapper.ActionBar left={title} right={actionBarRight} />;
@@ -99,11 +101,13 @@ function List({
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
     { title: __('Tags'), link: '/tags' },
-    { title: __(type) }
+    { title: __(contentType) }
   ];
   return (
     <Wrapper
-      header={<Wrapper.Header title={__(type)} breadcrumb={breadcrumb} />}
+      header={
+        <Wrapper.Header title={__(contentType)} breadcrumb={breadcrumb} />
+      }
       actionBar={actionBar}
       content={
         <DataWithLoader

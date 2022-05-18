@@ -1,3 +1,4 @@
+import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import { IContext, IModels } from '../../../connectionResolver';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { paginate } from '../../utils';
@@ -19,6 +20,8 @@ interface IListArgs {
   branchId?: string;
   unitId?: string;
 }
+
+const NORMAL_USER_SELECTOR = { role: { $ne: USER_ROLES.SYSTEM } };
 
 const queryBuilder = async (models: IModels, params: IListArgs) => {
   const {
@@ -77,7 +80,9 @@ const queryBuilder = async (models: IModels, params: IListArgs) => {
   };
 
   if (departmentId) {
-    const department = await models.Departments.getDepartment({ _id: departmentId });
+    const department = await models.Departments.getDepartment({
+      _id: departmentId
+    });
 
     selector._id = getUserIds(department);
   }
@@ -101,8 +106,16 @@ const userQueries = {
   /**
    * Users list
    */
-  async users(_root, args: IListArgs, { userBrandIdsSelector, models }: IContext) {
-    const selector = { ...userBrandIdsSelector, ...(await queryBuilder(models, args)) };
+  async users(
+    _root,
+    args: IListArgs,
+    { userBrandIdsSelector, models }: IContext
+  ) {
+    const selector = {
+      ...userBrandIdsSelector,
+      ...(await queryBuilder(models, args)),
+      ...NORMAL_USER_SELECTOR
+    };
 
     const { sortField, sortDirection } = args;
 
@@ -128,7 +141,9 @@ const userQueries = {
       selector.isActive = true;
     }
 
-    return models.Users.find(selector).sort({ username: 1 });
+    return models.Users.find({ ...selector, ...NORMAL_USER_SELECTOR }).sort({
+      username: 1
+    });
   },
 
   /**
@@ -146,7 +161,11 @@ const userQueries = {
     args: IListArgs,
     { userBrandIdsSelector, models }: IContext
   ) {
-    const selector = { ...userBrandIdsSelector, ...(await queryBuilder(models, args)) };
+    const selector = {
+      ...userBrandIdsSelector,
+      ...(await queryBuilder(models, args)),
+      ...NORMAL_USER_SELECTOR
+    };
 
     return models.Users.find(selector).countDocuments();
   },
@@ -158,7 +177,7 @@ const userQueries = {
     return user
       ? models.Users.findOne({ _id: user._id, isActive: { $ne: false } })
       : null;
-  },
+  }
 };
 
 requireLogin(userQueries, 'usersTotalCount');

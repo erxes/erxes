@@ -16,6 +16,7 @@ import ActionBarDropDown from '../../containers/actionBar/ActionBar';
 import CategoryList from '../../containers/productCategory/CategoryList';
 import { IProductTemplate } from '../../types';
 import Row from './ProductRow';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   history: any;
@@ -192,13 +193,15 @@ class List extends React.Component<Props, State> {
 
       actionBarRight = (
         <BarItems>
-          <TaggerPopover
-            type="productTemplate"
-            successCallback={emptyBulk}
-            targets={bulk}
-            trigger={tagButton}
-            refetchQueries={['productCountByTags']}
-          />
+          {isEnabled('tags') && (
+            <TaggerPopover
+              type="productTemplate"
+              successCallback={emptyBulk}
+              targets={bulk}
+              trigger={tagButton}
+              refetchQueries={['productCountByTags']}
+            />
+          )}
           <Button
             btnStyle="danger"
             size="small"

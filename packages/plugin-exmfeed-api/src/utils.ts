@@ -60,7 +60,7 @@ export const sendMobileNotification = async (
   const tokens: string[] = [];
 
   if (receivers) {
-    const users = await models.Users.find({ _id: { $in: receivers } });
+    const users = await models.Users.findUsers({ _id: { $in: receivers } });
 
     tokens.concat(users.map(user => user.deviceTokens));
   }
@@ -73,7 +73,7 @@ export const sendMobileNotification = async (
 
   if (tokens.length > 0) {
     // send notification
-    for (let token of tokens) {
+    for (const token of tokens) {
       admin
         .messaging()
         .send({
