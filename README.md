@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
- <a href="https://erxes.org" target="_blank"><img src="https://erxes-os.s3-us-west-2.amazonaws.com/github/git-erxes.gif" alt="erxes Growth Marketing Platform "></a>
+ <a href="https://erxes.org" target="_blank"><img src="https://erxes-docs.s3.us-west-2.amazonaws.com/readme.gif" alt="erxes Growth Marketing Platform "></a>
 </p>
 
 ## Features
