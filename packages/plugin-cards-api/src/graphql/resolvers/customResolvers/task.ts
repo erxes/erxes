@@ -1,11 +1,11 @@
-import { IContext } from "../../../connectionResolver";
+import { IContext } from '../../../connectionResolver';
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendNotificationsMessage,
-} from "../../../messageBroker";
-import { ITaskDocument } from "../../../models/definitions/tasks";
-import { boardId } from "../../utils";
+  sendNotificationsMessage
+} from '../../../messageBroker';
+import { ITaskDocument } from '../../../models/definitions/tasks';
+import { boardId } from '../../utils';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -15,27 +15,27 @@ export default {
   async companies(task: ITaskDocument, _args, { subdomain }: IContext) {
     const companyIds = await sendCoreMessage({
       subdomain,
-      action: "conformities.savedConformity",
+      action: 'conformities.savedConformity',
       data: {
-        mainType: "task",
+        mainType: 'task',
         mainTypeId: task._id,
-        relTypes: ["company"],
+        relTypes: ['company']
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     const activeCompanies = await sendContactsMessage({
       subdomain,
-      action: "companies.findActiveCompanies",
+      action: 'companies.findActiveCompanies',
       data: { selector: { _id: { $in: companyIds } } },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     return (activeCompanies || []).map(({ _id }) => ({
-      __typename: "Company",
-      _id,
+      __typename: 'Company',
+      _id
     }));
   },
 
@@ -44,45 +44,47 @@ export default {
       return;
     }
 
-    return { __typename: "User", _id: task.userId };
+    return { __typename: 'User', _id: task.userId };
   },
 
   async customers(task: ITaskDocument, _args, { subdomain }: IContext) {
     const customerIds = await sendCoreMessage({
       subdomain,
-      action: "conformities.savedConformity",
+      action: 'conformities.savedConformity',
       data: {
-        mainType: "task",
+        mainType: 'task',
         mainTypeId: task._id,
-        relTypes: ["customer"],
+        relTypes: ['customer']
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     const customers = await sendContactsMessage({
       subdomain,
-      action: "customers.findActiveCustomers",
+      action: 'customers.findActiveCustomers',
       data: {
         selector: {
-          _id: { $in: customerIds },
+          _id: { $in: customerIds }
         }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     return (customers || []).map(({ _id }) => ({
-      __typename: "Customer",
-      _id,
+      __typename: 'Customer',
+      _id
     }));
   },
 
   assignedUsers(task: ITaskDocument) {
-    return (task.assignedUserIds || []).filter(e => e).map((_id) => ({
-      __typename: "User",
-      _id
-    }));
+    return (task.assignedUserIds || [])
+      .filter(e => e)
+      .map(_id => ({
+        __typename: 'User',
+        _id
+      }));
   },
 
   async pipeline(
@@ -116,17 +118,17 @@ export default {
   hasNotified(task: ITaskDocument, _args, { user, subdomain }: IContext) {
     return sendNotificationsMessage({
       subdomain,
-      action: "checkIfRead",
+      action: 'checkIfRead',
       data: {
         userId: user._id,
-        itemId: task._id,
+        itemId: task._id
       },
       isRPC: true,
-      defaultValue: true,
+      defaultValue: true
     });
   },
 
   labels(task: ITaskDocument, _args, { models: { PipelineLabels } }: IContext) {
     return PipelineLabels.find({ _id: { $in: task.labelIds || [] } });
-  },
+  }
 };

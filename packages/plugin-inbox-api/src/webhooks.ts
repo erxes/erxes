@@ -6,7 +6,11 @@ export default {
       action: 'create',
       type: 'inbox:conversation'
     },
-    { label: 'Customer messages', action: 'create', type: 'inbox:customerMessages' },
+    {
+      label: 'Customer messages',
+      action: 'create',
+      type: 'inbox:customerMessages'
+    },
     {
       label: 'Form submission received',
       action: 'create',
@@ -42,6 +46,6 @@ export default {
     return {
       url,
       content
-    }
+    };
   }
 };

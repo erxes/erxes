@@ -16,5 +16,5 @@ const totalCount = `
 
 export default {
   emailTemplates,
-  totalCount,
+  totalCount
 };

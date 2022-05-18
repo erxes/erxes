@@ -1,12 +1,12 @@
-import { Model } from "mongoose";
-import { getUniqueValue } from "@erxes/api-utils/src/core";
-import { WEBHOOK_STATUS } from "./definitions/constants";
+import { Model } from 'mongoose';
+import { getUniqueValue } from '@erxes/api-utils/src/core';
+import { WEBHOOK_STATUS } from './definitions/constants';
 import {
   IWebhook,
   IWebhookDocument,
   webhookSchema
-} from "./definitions/webhooks";
-import { IModels } from "../connectionResolver";
+} from './definitions/webhooks';
+import { IModels } from '../connectionResolver';
 
 export interface IWebhookModel extends Model<IWebhookDocument> {
   getWebHook(_id: string): Promise<IWebhookDocument>;
@@ -26,7 +26,7 @@ export const loadWebhookClass = (models: IModels) => {
       const webhook = await models.Webhooks.findOne({ _id });
 
       if (!webhook) {
-        throw new Error("Webhook not found");
+        throw new Error('Webhook not found');
       }
 
       return webhook;
@@ -40,23 +40,23 @@ export const loadWebhookClass = (models: IModels) => {
      * Create webhook
      */
     public static async createWebhook(doc: IWebhook) {
-      if (!doc.url.includes("https")) {
+      if (!doc.url.includes('https')) {
         throw new Error(
-          "Url is not valid. Enter valid url with ssl cerfiticate"
+          'Url is not valid. Enter valid url with ssl cerfiticate'
         );
       }
 
       const modifiedDoc: any = { ...doc };
-      modifiedDoc.token = await getUniqueValue(models.Webhooks, "token");
+      modifiedDoc.token = await getUniqueValue(models.Webhooks, 'token');
       modifiedDoc.status = WEBHOOK_STATUS.UNAVAILABLE;
 
       return models.Webhooks.create(modifiedDoc);
     }
 
     public static async updateWebhook(_id: string, doc: IWebhook) {
-      if (!doc.url.includes("https")) {
+      if (!doc.url.includes('https')) {
         throw new Error(
-          "Url is not valid. Enter valid url with ssl cerfiticate"
+          'Url is not valid. Enter valid url with ssl cerfiticate'
         );
       }
 

@@ -1,13 +1,13 @@
-import { AppConsumer } from "./appContext";
-import { IUser } from "@erxes/ui/src/auth/types";
-import { IItem } from "@erxes/ui-cards/src/boards/types";
-import { __ } from "@erxes/ui/src/utils";
-import { ICompany } from "@erxes/ui/src/companies/types";
-import { ICustomer } from "@erxes/ui/src/customers/types";
-import { Divider, Row, RowTitle } from "@erxes/ui-settings/src/main/styles";
-import React from "react";
-import { Route } from "react-router-dom";
-import pluginModules from "./plugins";
+import { AppConsumer } from './appContext';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IItem } from '@erxes/ui-cards/src/boards/types';
+import { __ } from '@erxes/ui/src/utils';
+import { ICompany } from '@erxes/ui/src/companies/types';
+import { ICustomer } from '@erxes/ui/src/customers/types';
+import { Divider, Row, RowTitle } from '@erxes/ui-settings/src/main/styles';
+import React from 'react';
+import { Route } from 'react-router-dom';
+import pluginModules from './plugins';
 
 interface ISubNav {
   permission: string;
@@ -54,7 +54,7 @@ export const pluginsOfRoutes = (currentUser: IUser) => {
     }
   }
 
-  localStorage.setItem("plugins_properties", JSON.stringify(properties));
+  localStorage.setItem('plugins_properties', JSON.stringify(properties));
 
   return { plugins, pluginRoutes, specialPluginRoutes };
 };
@@ -69,7 +69,7 @@ const PluginsWrapper = ({
   return (
     <AppConsumer>
       {({ plugins }) =>
-        (plugins || []).map((plugin) => {
+        (plugins || []).map(plugin => {
           const item = plugin[itemName];
 
           if (!item) {
@@ -95,7 +95,7 @@ export const pluginsOfNavigations = (
 ) => {
   return (
     <PluginsWrapper
-      itemName={"menu"}
+      itemName={'menu'}
       callBack={(plugin, menu) => {
         return renderNavItem(
           menu.permission,
@@ -120,7 +120,7 @@ const renderSettings = (
 ) => {
   let hasPluginsSettings = false;
 
-  const pluginsBoxs = plugins.map((plugin) => {
+  const pluginsBoxs = plugins.map(plugin => {
     const item = plugin.settings;
 
     if (!item) {
@@ -153,8 +153,8 @@ const renderSettings = (
     <>
       <Divider />
       <Row>
-        <RowTitle>{__("Plugins Settings")}</RowTitle>
-        <div id={"PluginsSettings"}>{pluginsBoxs}</div>
+        <RowTitle>{__('Plugins Settings')}</RowTitle>
+        <div id={'PluginsSettings'}>{pluginsBoxs}</div>
       </Row>
     </>
   );
@@ -179,14 +179,14 @@ export const pluginsOfSettings = (
 export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
   return (
     <PluginsWrapper
-      itemName={"customerRightSidebarSection"}
+      itemName={'customerRightSidebarSection'}
       callBack={(_plugin, section) => {
         const Component = section.section;
         return (
           <Component
             key={Math.random()}
             customerId={customer._id}
-            mainType={"customer"}
+            mainType={'customer'}
             mainTypeId={customer._id}
           />
         );
@@ -198,14 +198,14 @@ export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
 export const pluginsOfCompanySidebar = (company: ICompany) => {
   return (
     <PluginsWrapper
-      itemName={"companyRightSidebarSection"}
+      itemName={'companyRightSidebarSection'}
       callBack={(_plugin, section) => {
         const Component = section.section;
         return (
           <Component
             key={Math.random()}
             companyId={company._id}
-            mainType={"company"}
+            mainType={'company'}
             mainTypeId={company._id}
           />
         );
@@ -238,7 +238,7 @@ export const pluginsOfPaymentForm = (
 ) => {
   return (
     <PluginsWrapper
-      itemName={"payments"}
+      itemName={'payments'}
       callBack={(_plugin, payments) => {
         const paymentsTypes: JSX.Element[] = [];
         for (const perPayment of payments) {
