@@ -4,7 +4,7 @@ import FormGroup from 'modules/common/components/form/Group';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { AuthBox, Links } from '../styles';
+import { AuthBox } from '../styles';
 
 type Props = {
   forgotPassword: (
@@ -40,24 +40,24 @@ class ForgotPassword extends React.Component<Props, { email: string }> {
   render() {
     return (
       <AuthBox>
+        <img src="/images/logo-dark.png" alt="erxes" />
         <h2>{__('Reset your password')}</h2>
+        <p>{__('Please reset your password via email')}</p>
         <form onSubmit={this.handleSubmit}>
           <FormGroup>
             <FormControl
               type="email"
-              placeholder={__('registered@email.com')}
+              placeholder={__('Enter your email')}
               value={this.state.email}
               required={true}
               onChange={this.handleEmailChange}
             />
           </FormGroup>
-          <Button btnStyle="success" type="submit" block={true}>
+          <Button type="submit" block={true}>
             Email me the instruction
           </Button>
         </form>
-        <Links>
-          <Link to="/sign-in">{__('Sign in')}</Link>
-        </Links>
+        <Link to="/sign-in">{__('Sign in')}</Link>
       </AuthBox>
     );
   }
