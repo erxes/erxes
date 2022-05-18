@@ -1,4 +1,7 @@
-import { checkPermission, requireLogin } from '@erxes/api-utils/src/permissions';
+import {
+  checkPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
 
@@ -36,7 +39,11 @@ const emailTemplateQueries = {
   /**
    * Email templates list
    */
-  emailTemplates(_root, args: IListParams, { commonQuerySelector, models }: IContext) {
+  emailTemplates(
+    _root,
+    args: IListParams,
+    { commonQuerySelector, models }: IContext
+  ) {
     const filter = generateFilter(commonQuerySelector, args);
 
     return paginate(models.EmailTemplates.find(filter), args);

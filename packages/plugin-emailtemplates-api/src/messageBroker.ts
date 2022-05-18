@@ -2,7 +2,7 @@ import { generateModels } from './connectionResolver';
 
 let client;
 
-export const initBroker = async (cl) => {
+export const initBroker = async cl => {
   client = cl;
 
   const { consumeRPCQueue } = client;
@@ -13,7 +13,7 @@ export const initBroker = async (cl) => {
     return {
       status: 'success',
       data: await models.EmailTemplates.find(data).lean()
-    }
+    };
   });
 
   consumeRPCQueue('emailTemplates:findOne', async ({ subdomain, data }) => {
@@ -22,7 +22,7 @@ export const initBroker = async (cl) => {
     return {
       status: 'success',
       data: await models.EmailTemplates.findOne(data)
-    }
+    };
   });
 };
 

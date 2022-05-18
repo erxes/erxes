@@ -45,6 +45,10 @@ const Wrapper = styled.div`
       border-color: ${colors.colorPrimaryDark};
       background-color: ${colors.colorPrimaryDark};
   }
+
+  .react-toggle:hover:not(.react-toggle--disabled) .react-toggle-track {
+    background-color: ${colors.colorWhite};
+  }
 `;
 
 type Props = {
