@@ -1,15 +1,15 @@
-import * as cookieParser from "cookie-parser";
+import * as cookieParser from 'cookie-parser';
 
-import * as cors from "cors";
-import * as dotenv from "dotenv";
-import * as telemetry from "erxes-telemetry";
-import * as express from "express";
-import * as helmet from "helmet";
-import { createServer } from "http";
-import * as mongoose from "mongoose";
-import * as path from "path";
-import { initApolloServer } from "./apolloClient";
-import { templateExport } from "./data/modules/fileExporter/templateExport";
+import * as cors from 'cors';
+import * as dotenv from 'dotenv';
+import * as telemetry from 'erxes-telemetry';
+import * as express from 'express';
+import * as helmet from 'helmet';
+import { createServer } from 'http';
+import * as mongoose from 'mongoose';
+import * as path from 'path';
+import { initApolloServer } from './apolloClient';
+import { templateExport } from './data/modules/fileExporter/templateExport';
 
 import {
   authCookieOptions,
@@ -17,20 +17,20 @@ import {
   getEnv,
   readFileRequest,
   registerOnboardHistory,
-  routeErrorHandling,
-} from "./data/utils";
+  routeErrorHandling
+} from './data/utils';
 
-import { debugBase, debugError, debugInit } from "./debuggers";
-import { initMemoryStorage } from "./inmemoryStorage";
-import { initBroker } from "./messageBroker";
-import { uploader } from "./middlewares/fileMiddleware";
-import { join, leave, redis } from "./serviceDiscovery";
-import logs from "./logUtils";
+import { debugBase, debugError, debugInit } from './debuggers';
+import { initMemoryStorage } from './inmemoryStorage';
+import { initBroker } from './messageBroker';
+import { uploader } from './middlewares/fileMiddleware';
+import { join, leave, redis } from './serviceDiscovery';
+import logs from './logUtils';
 
-import init from "./startup";
-import forms from "./forms";
-import { generateModels } from "./connectionResolver";
-import { getSubdomain } from "@erxes/api-utils/src/core";
+import init from './startup';
+import forms from './forms';
+import { generateModels } from './connectionResolver';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 // load environment variables
 dotenv.config();
@@ -39,23 +39,23 @@ const {
   JWT_TOKEN_SECRET,
   WIDGETS_DOMAIN,
   DOMAIN,
-  CLIENT_PORTAL_DOMAINS,
+  CLIENT_PORTAL_DOMAINS
 } = process.env;
 
 if (!JWT_TOKEN_SECRET) {
-  throw new Error("Please configure JWT_TOKEN_SECRET environment variable.");
+  throw new Error('Please configure JWT_TOKEN_SECRET environment variable.');
 }
 
 export const app = express();
 
-app.disable("x-powered-by");
+app.disable('x-powered-by');
 
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ extended: true }));
 
 app.use(
   express.json({
-    limit: "15mb",
+    limit: '15mb'
   })
 );
 
@@ -64,19 +64,19 @@ app.use(cookieParser());
 const corsOptions = {
   credentials: true,
   origin: [
-    DOMAIN ? DOMAIN : "http://localhost:3000",
-    WIDGETS_DOMAIN ? WIDGETS_DOMAIN : "http://localhost:3200",
-    ...(CLIENT_PORTAL_DOMAINS || "").split(","),
-    ...(process.env.ALLOWED_ORIGINS || "").split(",").map(c => c && RegExp(c)),
-  ],
+    DOMAIN ? DOMAIN : 'http://localhost:3000',
+    WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
+    ...(CLIENT_PORTAL_DOMAINS || '').split(','),
+    ...(process.env.ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
+  ]
 };
 
 app.use(cors(corsOptions));
 
-app.use(helmet({ frameguard: { action: "sameorigin" } }));
+app.use(helmet({ frameguard: { action: 'sameorigin' } }));
 
 app.get(
-  "/initial-setup",
+  '/initial-setup',
   routeErrorHandling(async (req: any, res) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
@@ -84,17 +84,17 @@ app.get(
     const userCount = await models.Users.countDocuments();
 
     if (userCount === 0) {
-      return res.send("no owner");
+      return res.send('no owner');
     }
 
-    const envMaps = JSON.parse(req.query.envs || "{}");
+    const envMaps = JSON.parse(req.query.envs || '{}');
 
     for (const key of Object.keys(envMaps)) {
       res.cookie(key, envMaps[key], authCookieOptions({ secure: req.secure }));
     }
 
     const configs = await models.Configs.find({
-      code: new RegExp(`.*THEME_.*`, "i"),
+      code: new RegExp(`.*THEME_.*`, 'i')
     }).lean();
 
     return res.json(configs);
@@ -103,10 +103,10 @@ app.get(
 
 // app.post('/webhooks/:id', webhookMiddleware);
 
-app.use("/static", express.static(path.join(__dirname, "private")));
+app.use('/static', express.static(path.join(__dirname, 'private')));
 
 app.get(
-  "/download-template",
+  '/download-template',
   routeErrorHandling(async (req: any, res) => {
     const name = req.query.name;
 
@@ -122,12 +122,12 @@ app.get(
 );
 
 // for health check
-app.get("/health", async (_req, res) => {
-  res.end("ok");
+app.get('/health', async (_req, res) => {
+  res.end('ok');
 });
 
 app.get(
-  "/template-export",
+  '/template-export',
   routeErrorHandling(async (req: any, res) => {
     const { importType } = req.query;
 
@@ -137,7 +137,7 @@ app.get(
     registerOnboardHistory({
       models,
       type: `importDownloadTemplate`,
-      user: req.user,
+      user: req.user
     });
 
     const { name, response } = await templateExport(req.query);
@@ -148,7 +148,7 @@ app.get(
 );
 
 // read file
-app.get("/read-file", async (req: any, res, next) => {
+app.get('/read-file', async (req: any, res, next) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
@@ -157,7 +157,7 @@ app.get("/read-file", async (req: any, res, next) => {
     const name = req.query.name;
 
     if (!key) {
-      return res.send("Invalid key");
+      return res.send('Invalid key');
     }
 
     const response = await readFileRequest(key, models);
@@ -166,8 +166,8 @@ app.get("/read-file", async (req: any, res, next) => {
 
     return res.send(response);
   } catch (e) {
-    if ((e as Error).message.includes("key does not exist")) {
-      return res.status(404).send("Not found");
+    if ((e as Error).message.includes('key does not exist')) {
+      return res.status(404).send('Not found');
     }
 
     debugError(e);
@@ -178,11 +178,11 @@ app.get("/read-file", async (req: any, res, next) => {
 
 // delete file
 app.post(
-  "/delete-file",
+  '/delete-file',
   routeErrorHandling(async (req: any, res) => {
     // require login
     if (!req.user) {
-      return res.end("forbidden");
+      return res.end('forbidden');
     }
 
     const subdomain = getSubdomain(req);
@@ -190,7 +190,7 @@ app.post(
 
     const status = await deleteFile(models, req.body.fileName);
 
-    if (status === "ok") {
+    if (status === 'ok') {
       return res.send(status);
     }
 
@@ -198,9 +198,9 @@ app.post(
   })
 );
 
-app.post("/upload-file", uploader);
+app.post('/upload-file', uploader);
 
-app.post("/upload-file&responseType=json", uploader);
+app.post('/upload-file&responseType=json', uploader);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
@@ -211,14 +211,14 @@ app.use((error, _req, res, _next) => {
 // Wrap the Express server
 const httpServer = createServer(app);
 
-const PORT = getEnv({ name: "PORT" });
-const MONGO_URL = getEnv({ name: "MONGO_URL" });
-const RABBITMQ_HOST = getEnv({ name: "RABBITMQ_HOST" });
-const MESSAGE_BROKER_PREFIX = getEnv({ name: "MESSAGE_BROKER_PREFIX" });
+const PORT = getEnv({ name: 'PORT' });
+const MONGO_URL = getEnv({ name: 'MONGO_URL' });
+const RABBITMQ_HOST = getEnv({ name: 'RABBITMQ_HOST' });
+const MESSAGE_BROKER_PREFIX = getEnv({ name: 'MESSAGE_BROKER_PREFIX' });
 
 httpServer.listen(PORT, async () => {
   initApolloServer(app, httpServer).then(apolloServer => {
-    apolloServer.applyMiddleware({ app, path: "/graphql", cors: corsOptions });
+    apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });
   });
 
   initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }).catch(e => {
@@ -229,21 +229,21 @@ httpServer.listen(PORT, async () => {
 
   init()
     .then(() => {
-      telemetry.trackCli("server_started");
+      telemetry.trackCli('server_started');
       telemetry.startBackgroundUpdate();
 
-      debugBase("Startup successfully started");
+      debugBase('Startup successfully started');
     })
     .catch(e => {
       debugError(`Error occured while starting init: ${e.message}`);
     });
 
   await join({
-    name: "core",
+    name: 'core',
     port: PORT,
     dbConnectionString: MONGO_URL,
     hasSubscriptions: false,
-    meta: { logs: { providesActivityLog: true, consumers: logs }, forms },
+    meta: { logs: { providesActivityLog: true, consumers: logs }, forms }
   });
 
   debugInit(`GraphQL Server is now running on ${PORT}`);
@@ -255,7 +255,7 @@ process.stdin.resume(); // so the program will not close instantly
 async function closeMongooose() {
   try {
     await mongoose.connection.close();
-    console.log("Mongoose connection disconnected ");
+    console.log('Mongoose connection disconnected ');
   } catch (e) {
     console.error(e);
   }
@@ -263,8 +263,8 @@ async function closeMongooose() {
 
 async function leaveServiceDiscovery() {
   try {
-    await leave("core", PORT);
-    console.log("Left from service discovery");
+    await leave('core', PORT);
+    console.log('Left from service discovery');
   } catch (e) {
     console.error(e);
   }
@@ -287,7 +287,7 @@ async function closeHttpServer() {
 }
 
 // If the Node process ends, close the http-server and mongoose.connection and leave service discovery.
-(["SIGINT", "SIGTERM"] as NodeJS.Signals[]).forEach(sig => {
+(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
   process.on(sig, async () => {
     await closeHttpServer();
     await closeMongooose();

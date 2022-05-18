@@ -1,16 +1,17 @@
 import { AppConsumer } from '../../appContext';
 import { IUser } from '../../auth/types';
 import ButtonMutate from '../../components/ButtonMutate';
-import {
-  IButtonMutateProps,
-  IQueryParams,
-  IRouterProps
-} from '../../types';
+import { IButtonMutateProps, IQueryParams, IRouterProps } from '../../types';
 import { ICustomer } from '../../customers/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import CustomerForm from '../components/CustomerForm';
 import { mutations, queries } from '../graphql';
+import {
+  PropertyConsumer,
+  PropertyProvider
+} from '@erxes/ui-contacts/src/customers/propertyContext';
+import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
 
 type Props = {
   type?: string;
@@ -18,6 +19,7 @@ type Props = {
   closeModal: () => void;
   getAssociatedCustomer?: (newCustomer: ICustomer) => void;
   queryParams: IQueryParams;
+  customerVisibilityInDetail: IFieldsVisibility;
 };
 
 type State = {
@@ -99,11 +101,20 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
     return (
       <AppConsumer>
         {({ currentUser }) => (
-          <CustomerForm
-            {...updatedProps}
-            currentUser={currentUser || ({} as IUser)}
-            autoCompletionQuery={queries.customers}
-          />
+          <PropertyProvider>
+            <PropertyConsumer>
+              {({ customerVisibilityInDetail }) => {
+                return (
+                  <CustomerForm
+                    {...updatedProps}
+                    currentUser={currentUser || ({} as IUser)}
+                    autoCompletionQuery={queries.customers}
+                    fieldsVisibility={customerVisibilityInDetail}
+                  />
+                );
+              }}
+            </PropertyConsumer>
+          </PropertyProvider>
         )}
       </AppConsumer>
     );

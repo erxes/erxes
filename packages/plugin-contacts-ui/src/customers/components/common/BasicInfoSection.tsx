@@ -1,28 +1,27 @@
 import { ICustomer } from '../../types';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { IField } from '@erxes/ui/src/types';
+import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
 import React from 'react';
 
 import DetailInfo from '@erxes/ui-contacts/src/customers/components/common/DetailInfo';
 
 type Props = {
   customer: ICustomer;
-  fields: IField[];
+  fieldsVisibility: IFieldsVisibility;
 };
 
 class BasicInfo extends React.Component<Props> {
   render() {
     const { Section } = Sidebar;
 
-    const { customer, fields } = this.props;
+    const { customer, fieldsVisibility } = this.props;
 
     return (
       <Section>
         <DetailInfo
           customer={customer}
-          fields={fields}
+          fieldsVisibility={fieldsVisibility}
           hasPosition={true}
-          isDetail={true}
         />
       </Section>
     );

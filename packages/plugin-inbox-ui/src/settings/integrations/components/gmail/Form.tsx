@@ -22,7 +22,11 @@ import Accounts from '../../containers/Accounts';
 import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
 import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
 import { Content } from '@erxes/ui-settings/src/integrations/styles';
-import { ImageWrapper, MessengerPreview, TextWrapper } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import {
+  ImageWrapper,
+  MessengerPreview,
+  TextWrapper
+} from '@erxes/ui-inbox/src/settings/integrations/styles';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -69,7 +73,7 @@ class Gmail extends React.Component<Props, State> {
     return (
       <>
         <Steps active={1}>
-          <Step img='/images/icons/erxes-01.svg' title='Connect Account'>
+          <Step img="/images/icons/erxes-01.svg" title="Connect Account">
             <FlexItem>
               <LeftItem>
                 <FormGroup>
@@ -83,8 +87,8 @@ class Gmail extends React.Component<Props, State> {
                 </FormGroup>
 
                 <Accounts
-                  kind='gmail'
-                  addLink='gmail/login'
+                  kind="gmail"
+                  addLink="gmail/login"
                   onSelect={onAccountSelect}
                   onRemove={onRemoveAccount}
                   formProps={formProps}
@@ -94,8 +98,8 @@ class Gmail extends React.Component<Props, State> {
           </Step>
 
           <Step
-            img='/images/icons/erxes-16.svg'
-            title='Integration Setup'
+            img="/images/icons/erxes-16.svg"
+            title="Integration Setup"
             noButton={true}
           >
             <FlexItem>
@@ -107,7 +111,7 @@ class Gmail extends React.Component<Props, State> {
                   </p>
                   <FormControl
                     {...formProps}
-                    name='name'
+                    name="name"
                     required={true}
                     autoFocus={true}
                   />
@@ -136,8 +140,8 @@ class Gmail extends React.Component<Props, State> {
             <strong> {__('Gmail')}</strong> {__('integration')}
           </Indicator>
           <Button.Group>
-            <Link to='/settings/integrations'>
-              <Button btnStyle='simple' icon='times-circle'>
+            <Link to="/settings/integrations">
+              <Button btnStyle="simple" icon="times-circle">
                 Cancel
               </Button>
             </Link>
@@ -162,7 +166,7 @@ class Gmail extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('App store'), link: '/settings/integrations' },
+      { title: __('Add-ons'), link: '/settings/add-ons' },
       { title }
     ];
 
@@ -184,7 +188,7 @@ class Gmail extends React.Component<Props, State> {
                       'Connect your Gmail to start receiving emails in your team inbox'
                     )}
                   </p>
-                  <img alt={title} src='/images/previews/facebook.png' />
+                  <img alt={title} src="/images/previews/facebook.png" />
                 </TextWrapper>
               </ImageWrapper>
             </Preview>

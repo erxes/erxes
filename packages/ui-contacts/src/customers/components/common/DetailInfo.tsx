@@ -8,31 +8,26 @@ import {
   SidebarFlexRow,
   SidebarList
 } from '@erxes/ui/src/layout/styles';
-import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import PrimaryEmail from './PrimaryEmail';
 import PrimaryPhone from './PrimaryPhone';
+import { IFieldsVisibility } from '../../types';
 
 type Props = {
   customer: ICustomer;
   hasPosition?: boolean;
-  fields: IField[];
-  isDetail: boolean;
+  fieldsVisibility: IFieldsVisibility;
 };
 
 class DetailInfo extends React.PureComponent<Props> {
   renderRow(field, value) {
-    const { fields, isDetail } = this.props;
+    const { fieldsVisibility } = this.props;
 
-    const property = fields.find(e => e.type === field);
-
-    const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
-
-    if (property && !property[isVisibleKey]) {
+    if (!fieldsVisibility[field]) {
       return null;
     }
 
-    const label = property && property.text;
+    const label = fieldsVisibility[field];
 
     return (
       <li>
@@ -66,20 +61,15 @@ class DetailInfo extends React.PureComponent<Props> {
     );
   }
 
-  renderDescription(description?: string) {
-    const { fields, isDetail } = this.props;
+  renderDescription(field: string, description?: string) {
+    const { fieldsVisibility } = this.props;
 
-    const descriptionField = fields.find(e => e.type === 'description');
-
-    const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
-
-    if (descriptionField && !descriptionField[isVisibleKey]) {
+    if (!fieldsVisibility[field]) {
       return null;
     }
 
     return (
       <SidebarFlexRow>
-        {descriptionField && descriptionField[isVisibleKey]}
         {__(`Description`)}:<span>{description || '-'}</span>
       </SidebarFlexRow>
     );
@@ -94,9 +84,9 @@ class DetailInfo extends React.PureComponent<Props> {
   }
 
   render() {
-    const { customer, fields } = this.props;
+    const { customer, fieldsVisibility } = this.props;
 
-    if (!fields || fields.length === 0) {
+    if (!Object.keys(fieldsVisibility).length) {
       return null;
     }
 
@@ -126,7 +116,7 @@ class DetailInfo extends React.PureComponent<Props> {
         )}
         {this.renderRow('isSubscribed', customer.isSubscribed)}
         {this.renderRow('score', customer.score)}
-        {this.renderDescription(customer.description)}
+        {this.renderDescription('description', customer.description)}
       </SidebarList>
     );
   }

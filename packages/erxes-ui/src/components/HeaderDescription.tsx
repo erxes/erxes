@@ -38,7 +38,7 @@ const Description = styled.div`
   align-items: center;
 `;
 
-const DescImg = styled.img`
+export const DescImg = styled.img`
   max-width: 100px;
   max-height: 100px;
   margin-right: ${dimensions.coreSpacing}px;
