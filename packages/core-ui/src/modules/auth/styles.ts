@@ -6,9 +6,11 @@ const AuthBox = styled.div`
   background-color: ${colors.colorWhite};
   padding: 30px 40px;
   border-radius: 2px;
+  max-height: 700px;
+  overflow: auto;
 
   img {
-    width: 128px;
+    width: 100px;
     margin-bottom: 56px;
   }
 
@@ -38,6 +40,10 @@ const AuthBox = styled.div`
       box-shadow: none;
       border: 1.5px solid ${colors.borderDarker}
     }
+  }
+
+  form {
+    margin-top: ${dimensions.unitSpacing + dimensions.coreSpacing}px;
   }
 
   button {

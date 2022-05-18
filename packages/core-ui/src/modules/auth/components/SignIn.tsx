@@ -1,4 +1,3 @@
-import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
@@ -6,7 +5,7 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { AuthBox, SignUpBox, Seperator } from '../styles';
+import { AuthBox } from '../styles';
 import _ from 'lodash';
 
 type Props = {
@@ -60,16 +59,6 @@ class SignIn extends React.Component<Props> {
         <p>{__('Please sign in to your account to continue')}</p>
         <Form renderContent={this.renderContent} />
         <Link to="/forgot-password">{__('Forgot password?')}</Link>
-        {/* <Seperator>or</Seperator>
-        <SignUpBox>
-          <Button btnStyle="success" type="submit" block={true}>
-            {__("Sign up without password using magic link")}
-          </Button>
-          <p>
-            {__("Dont have an account?")}
-            <Link to='/sign-up'>{__("Sign up")}</Link>
-          </p>
-        </SignUpBox> */}
       </AuthBox>
     );
   }

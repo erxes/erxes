@@ -504,7 +504,12 @@ const AuthBox = styled.div`
   margin: auto;
   display: flex;
   flex: 1;
-  border-radius: 30px;
+  min-height: 600px;
+  max-height: 800px;
+  border-radius: 32px;
+  box-shadow: 0px 24px 32px rgba(0, 0, 0, 0.04),
+    0px 16px 24px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04),
+    0px 0px 1px rgba(0, 0, 0, 0.04);
   overflow: hidden;
 
   @media (max-width: 768px) {
@@ -524,7 +529,6 @@ const AuthItem = styledTS<{ order?: number }>(styled.div)`
 
 const AuthContent = styled.div`
   width: 100%;
-  min-height: 800px;
   height: 100%;
   position: relative;
   display: flex;

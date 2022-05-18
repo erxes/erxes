@@ -40,7 +40,9 @@ class ForgotPassword extends React.Component<Props, { email: string }> {
   render() {
     return (
       <AuthBox>
+        <img src="/images/logo-dark.png" alt="erxes" />
         <h2>{__('Reset your password')}</h2>
+        <p>{__('Please reset your password via email')}</p>
         <form onSubmit={this.handleSubmit}>
           <FormGroup>
             <FormControl
