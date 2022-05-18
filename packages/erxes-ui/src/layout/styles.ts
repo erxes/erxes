@@ -398,6 +398,12 @@ const SectionContainer = styledTS<{ noShadow?: boolean }>(styled.div)`
   }
   ${SidebarTitle} {
     height: 40px;
+    cursor: pointer;
+    transition: all ease .3s;
+
+    &:hover {
+      color: ${colors.colorSecondary};
+    }
   }
 `;
 

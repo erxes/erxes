@@ -33,8 +33,6 @@ function Welcome({ currentUser }: Props) {
     currentUser.onboardingHistory &&
     currentUser.onboardingHistory.completedSteps;
 
-  console.log(currentUser);
-
   let active = 0;
 
   if (currentUser.username && currentUser.email) active = 1;
@@ -70,11 +68,27 @@ function Welcome({ currentUser }: Props) {
     }
   });
 
+  const renderUserName = () => {
+    if (!currentUser) {
+      return null;
+    }
+
+    if (currentUser.details) {
+      return currentUser.details.fullName;
+    }
+
+    if (currentUser.username) {
+      return `@${currentUser.username}`;
+    }
+
+    return null;
+  };
+
   const renderHeader = () => {
     return (
       <Header>
         <h1>
-          {__('Welcome!')} {currentUser.username}{' '}
+          {__('Welcome!')} {renderUserName()} &nbsp;
           <span role="img" aria-label="Wave">
             👋
           </span>

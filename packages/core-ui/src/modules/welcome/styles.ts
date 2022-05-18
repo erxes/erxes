@@ -6,13 +6,14 @@ import { SectionContainer } from '@erxes/ui/src/layout/styles';
 const Header = styled.div`
   h1 {
     margin: 20px 0 5px;
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 900;
   }
 
-  p {
+  > div {
     margin: 0;
     font-size: 14px;
+    padding: ${dimensions.coreSpacing}px 0;
     color: ${colors.colorCoreGray};
 
     ul {
@@ -158,6 +159,12 @@ const LinkedButton = styled.a`
     display: flex;
     justify-content: space-between;
     padding-top: 18px;
+    cursor: pointer;
+    transition: all ease 0.3s;
+
+    &:hover {
+      color: ${colors.colorSecondary};
+    }
   }
 `;
 
