@@ -1,13 +1,12 @@
-import { attachmentSchema } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
+
+import { attachmentSchema } from '@erxes/api-utils/src/types';
+import { IBranch, IDepartment } from '@erxes/ui-team/src/types';
+import { IProduct } from '@packages/plugin-products-api/src/models/definitions/products';
+import { IUom } from '@packages/plugin-products-api/src/models/definitions/uoms';
+
 import { DURATION_TYPES } from './constants';
 import { field, schemaHooksWrapper, schemaWrapper } from './utils';
-import {
-  IBranch,
-  IDepartment
-} from '../../../../../../../temp/erxes/ui/src/modules/settings/team/types';
-import { IUom } from '../../../../plugin-products-api/src/models/definitions/uoms';
-import { IProduct } from '@packages/plugin-products-api/src/models/definitions/products';
 
 export interface IProductsData {
   id: string;
@@ -50,8 +49,8 @@ export const productsDataSchema = new Schema({
   productId: field({ type: String, label: 'Product' }),
   quantity: field({ type: Number, label: 'Quantity' }),
   uomId: field({ type: String, label: 'UOM' }),
-  branchId: field({ type: String, label: 'Branch' }),
-  departmentId: field({ type: String, label: 'Department' })
+  branchId: field({ type: String, optional: true, label: 'Branch' }),
+  departmentId: field({ type: String, optional: true, label: 'Department' })
 });
 
 export const jobReferSchema = schemaHooksWrapper(

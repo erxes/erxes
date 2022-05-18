@@ -1,11 +1,4 @@
-import {
-  attachmentInput,
-  attachmentType
-} from '@erxes/api-utils/src/commonTypeDefs';
-
 export const types = `
-  ${attachmentType}
-  ${attachmentInput}
 
   type JobCategory @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String,
@@ -13,10 +6,10 @@ export const types = `
     name: String,
     code: String,
     order: String,
-    description?: String,
-    parentId?: String,
-    attachment?: Attachment,
-    status?: String,
+    description: String,
+    parentId: String,
+    attachment: Attachment,
+    status: String,
   }
 `;
 
@@ -36,7 +29,7 @@ const jobCategoryParams = `
 `;
 
 export const mutations = `
-  productCategoriesAdd(${jobCategoryParams}): JobCategory
-  productCategoriesEdit(_id: String!, ${jobCategoryParams}): JobCategory
-  productCategoriesRemove(_id: String!): JSON
+  jobCategoriesAdd(${jobCategoryParams}): JobCategory
+  jobCategoriesEdit(_id: String!, ${jobCategoryParams}): JobCategory
+  jobCategoriesRemove(_id: String!): JSON
 `;

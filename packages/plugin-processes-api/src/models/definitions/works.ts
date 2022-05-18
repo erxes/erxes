@@ -6,17 +6,17 @@ import { IJobRefer, jobReferSchema, productsDataSchema } from './jobs';
 export interface IJob {
   id: string;
   nextJobIds: string[];
-  jobRefer: IJobRefer,
-  style: { type: Object },
-  label: { type: String, optional: true },
-  description: { type: String, optional: true },
-  quantity: { type: Number }
+  jobRefer: IJobRefer;
+  style: { type: object };
+  label: { type: string; optional: true };
+  description: { type: string; optional: true };
+  quantity: { type: number };
 }
 
 export interface IWork {
-  name: String;
-  categoryId: String;
-  status: String;
+  name: string;
+  categoryId: string;
+  status: string;
   jobs: IJob[];
 }
 
@@ -39,7 +39,7 @@ export const jobSchema = new Schema(
     quantity: { type: Number }
   },
   { _id: false }
-)
+);
 
 export const workSchema = schemaHooksWrapper(
   new Schema({
@@ -51,19 +51,15 @@ export const workSchema = schemaHooksWrapper(
 
     createdAt: { type: Date, default: new Date(), label: 'Created date' },
 
-    status: field({ type: String, label: 'Status' }),
-
+    status: field({ type: String, label: 'Status' })
 
     // dueDate: field({ type: Date, label: 'Due Date' }),
     // startAt: field({ type: Date, optional: true, label: 'Start at' }),
     // endAt: field({ type: Date, optional: true, label: 'End at' }),
     // quantity: field({ type: Number, label: 'Quantity' }),
-
   }),
   'erxes_flows'
 );
 
 // for workSchema query. increases search speed, avoids in-memory sorting
 workSchema.index({ status: 1 });
-
-

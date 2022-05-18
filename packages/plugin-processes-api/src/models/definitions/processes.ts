@@ -6,17 +6,17 @@ import { IJobRefer, jobReferSchema, productsDataSchema } from './jobs';
 export interface IJob {
   id: string;
   nextJobIds: string[];
-  jobRefer: IJobRefer,
-  style: { type: Object },
-  label: { type: String, optional: true },
-  description: { type: String, optional: true },
-  quantity: { type: Number }
+  jobRefer: IJobRefer;
+  style: { type: object };
+  label: { type: string; optional: true };
+  description: { type: string; optional: true };
+  quantity: { type: number };
 }
 
 export interface IProcess {
-  name: String;
-  categoryId: String;
-  status: String;
+  name: string;
+  categoryId: string;
+  status: string;
   jobs: IJob[];
 }
 
@@ -39,16 +39,14 @@ export const jobSchema = new Schema(
     quantity: { type: Number }
   },
   { _id: false }
-)
+);
 
 export const processSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    flowId: field({type: String}),
+    flowId: field({ type: String }),
     status: field({ type: String, label: 'Status' }),
     createdAt: { type: Date, default: new Date(), label: 'Created date' },
-
-
 
     jobs: field({ type: jobSchema, label: 'Jobs' }),
 
@@ -61,16 +59,19 @@ export const processSchema = schemaHooksWrapper(
     assignedUserIds: field({ type: [String], label: 'Assigned users' }),
     duration: field({ type: Number, label: 'Duration value' }),
     durationType: field({
-      type: String, enum: DURATION_TYPES.ALL,
-      default: DURATION_TYPES.HOUR, label: 'Duration value'
+      type: String,
+      enum: DURATION_TYPES.ALL,
+      default: DURATION_TYPES.HOUR,
+      label: 'Duration value'
     }),
     needProducts: field({ type: productsDataSchema, label: 'Need products' }),
-    resultProducts: field({ type: productsDataSchema, label: 'Result products' }),
+    resultProducts: field({
+      type: productsDataSchema,
+      label: 'Result products'
+    })
   }),
   'erxes_flows'
 );
 
 // for processSchema query. increases search speed, avoids in-memory sorting
 processSchema.index({ status: 1 });
-
-

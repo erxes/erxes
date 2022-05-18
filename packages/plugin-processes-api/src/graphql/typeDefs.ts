@@ -6,6 +6,12 @@ import {
   mutations as jobReferMutations
 } from './schema/jobRefer';
 
+import {
+  types as jobCategoryTypes,
+  queries as jobCategoryQueries,
+  mutations as jobCategoryMutations
+} from './schema/jobCategory';
+
 const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
@@ -23,13 +29,16 @@ const typeDefs = async _serviceDiscovery => {
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
     ${jobReferTypes}
+    ${jobCategoryTypes}
 
     extend type Query {
       ${jobReferQueries}
+      ${jobCategoryQueries}
     }
 
     extend type Mutation {
       ${jobReferMutations}
+      ${jobCategoryMutations}
     }
   `;
 };

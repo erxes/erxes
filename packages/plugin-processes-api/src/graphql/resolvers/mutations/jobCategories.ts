@@ -13,17 +13,17 @@ interface IJobCategoriesEdit extends IJobCategory {
   _id: string;
 }
 
-const productMutations = {
+const jobCategoryMutations = {
   /**
    * Creates a new product category
    * @param {Object} doc Product category document
    */
-  async productCategoriesAdd(
+  async jobCategoriesAdd(
     _root,
     doc: IJobCategory,
     { user, docModifier, models, subdomain }: IContext
   ) {
-    const productCategory = await models.JobCategories.createJobCategory(
+    const jobCategory = await models.JobCategories.createJobCategory(
       docModifier(doc)
     );
 
@@ -32,13 +32,13 @@ const productMutations = {
       subdomain,
       {
         type: MODULE_NAMES.PRODUCT_CATEGORY,
-        newData: { ...doc, order: productCategory.order },
-        object: productCategory
+        newData: { ...doc, order: jobCategory.order },
+        object: jobCategory
       },
       user
     );
 
-    return productCategory;
+    return jobCategory;
   },
 
   /**
@@ -46,12 +46,12 @@ const productMutations = {
    * @param {string} param2._id ProductCategory id
    * @param {Object} param2.doc ProductCategory info
    */
-  async productCategoriesEdit(
+  async jobCategoriesEdit(
     _root,
     { _id, ...doc }: IJobCategoriesEdit,
     { user, models, subdomain }: IContext
   ) {
-    const productCategory = await models.JobCategories.getJobCategory(_id);
+    const jobCategory = await models.JobCategories.getJobCategory(_id);
     const updated = await models.JobCategories.updateJobCategory(_id, doc);
 
     await putUpdateLog(
@@ -59,7 +59,7 @@ const productMutations = {
       subdomain,
       {
         type: MODULE_NAMES.PRODUCT_CATEGORY,
-        object: productCategory,
+        object: jobCategory,
         newData: doc,
         updatedDocument: updated
       },
@@ -73,18 +73,18 @@ const productMutations = {
    * Removes a product category
    * @param {string} param1._id ProductCategory id
    */
-  async productCategoriesRemove(
+  async jobCategoriesRemove(
     _root,
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
   ) {
-    const productCategory = await models.JobCategories.getJobCategory(_id);
+    const jobCategory = await models.JobCategories.getJobCategory(_id);
     const removed = await models.JobCategories.removeJobCategory(_id);
 
     await putDeleteLog(
       models,
       subdomain,
-      { type: MODULE_NAMES.PRODUCT_CATEGORY, object: productCategory },
+      { type: MODULE_NAMES.PRODUCT_CATEGORY, object: jobCategory },
       user
     );
 
@@ -92,6 +92,6 @@ const productMutations = {
   }
 };
 
-moduleCheckPermission(productMutations, 'manageJobRefers');
+// moduleCheckPermission(jobCategoryMutations, 'manageJobRefers');
 
-export default productMutations;
+export default jobCategoryMutations;

@@ -21,10 +21,10 @@ export const types = `
   }
 
   input JobProductsInput {
-    id: String,
+    _id: String,
     productId: String,
     quantity: Float,
-    uimId: String,
+    uomId: String,
     branchId: String,
     departmentId: String,
   }
@@ -56,7 +56,7 @@ const jobReferParams = `
 `;
 
 export const mutations = `
-  productReferAdd(${jobReferParams}): JobRefer
-  productReferEdit(_id: String!, ${jobReferParams}): JobRefer
-  productReferRemove(_id: String!): JSON
+  jobRefersAdd(${jobReferParams}): JobRefer
+  jobRefersEdit(_id: String!, ${jobReferParams}): JobRefer
+  jobRefersRemove(_id: String!): JSON
 `;

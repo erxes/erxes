@@ -6,7 +6,7 @@ export interface IJob {
   id: string;
   nextJobIds: string[];
   jobReferId: string;
-  style: Object;
+  style: object;
   label: string;
   description: string;
   quantity: number;
