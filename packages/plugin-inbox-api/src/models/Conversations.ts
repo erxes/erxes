@@ -150,9 +150,9 @@ export const loadClass = (models: IModels, subdomain: string) => {
       // clean custom field values
       doc.customFieldsData = await sendFormsMessage({
         subdomain,
-        action: "fields.prepareCustomFieldsData",
+        action: 'fields.prepareCustomFieldsData',
         data: doc.customFieldsData,
-        isRPC: true,
+        isRPC: true
       });
 
       return models.Conversations.updateOne({ _id }, { $set: doc });
@@ -186,13 +186,13 @@ export const loadClass = (models: IModels, subdomain: string) => {
       await this.checkExistanceConversations(conversationIds);
 
       const user = await sendCoreMessage({
-          subdomain,
-          action: 'users.findOne',
-          data: {
-            _id: assignedUserId
-          },
-          isRPC: true,
-        })
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          _id: assignedUserId
+        },
+        isRPC: true
+      });
 
       if (!user) {
         throw new Error(`User not found with id ${assignedUserId}`);
@@ -289,7 +289,9 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
       // if current user is first one
       if (!readUserIds || readUserIds.length === 0) {
-        await models.Conversations.updateConversation(_id, { readUserIds: [userId] });
+        await models.Conversations.updateConversation(_id, {
+          readUserIds: [userId]
+        });
       }
 
       // if current user is not in read users list then add it
@@ -437,7 +439,11 @@ export const loadClass = (models: IModels, subdomain: string) => {
       query: any,
       param: IResolveAllConversationParam
     ) {
-      return models.Conversations.updateMany(query, { $set: param }, { multi: true });
+      return models.Conversations.updateMany(
+        query,
+        { $set: param },
+        { multi: true }
+      );
     }
 
     public static async getUserRelevance(args: { skillId?: string }) {

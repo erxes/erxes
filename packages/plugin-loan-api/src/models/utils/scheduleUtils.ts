@@ -10,7 +10,7 @@ import {
   getEqualPay,
   getFullDate,
   getNextMonthDay,
-  IPerHoliday,
+  IPerHoliday
 } from './utils';
 
 export const scheduleHelper = async (
@@ -55,7 +55,7 @@ export const scheduleHelper = async (
         interestEve: perMonth.calcedInterestEve,
         interestNonce: perMonth.calcedInterestNonce,
         total: perMonth.totalPayment,
-        isDefault: true,
+        isDefault: true
       });
     }
   } else {
@@ -69,7 +69,7 @@ export const scheduleHelper = async (
       salvage: salvageAmount,
       weekends: contract.weekends,
       useHoliday: contract.useHoliday,
-      perHolidays,
+      perHolidays
     });
 
     for (let i = 0; i < tenor - salvageTenor; i++) {
@@ -94,7 +94,7 @@ export const scheduleHelper = async (
         interestEve: perMonth.calcedInterestEve,
         interestNonce: perMonth.calcedInterestNonce,
         total,
-        isDefault: true,
+        isDefault: true
       });
     }
   }
@@ -209,10 +209,10 @@ export const reGenerateSchedules = async (
 
   // insurance schedule
   const insuranceTypeIds = contract.collateralsData.map(
-    (coll) => coll.insuranceTypeId
+    coll => coll.insuranceTypeId
   );
   const insuranceTypes = await models.InsuranceTypes.find({
-    _id: { $in: insuranceTypeIds },
+    _id: { $in: insuranceTypeIds }
   });
   const insuranceTypeRulesById = {};
   for (const insType of insuranceTypes) {
@@ -329,7 +329,7 @@ export const generatePendingSchedules = async (
   if (updatedSchedule.didDebt < updatedSchedule.debt) {
     trReaction.push({
       scheduleId: updatedSchedule._id,
-      preData: { status: updatedSchedule.status },
+      preData: { status: updatedSchedule.status }
     });
     await models.RepaymentSchedules.updateOne(
       { _id: updatedSchedule._id },
@@ -338,7 +338,7 @@ export const generatePendingSchedules = async (
     await models.LoanTransactions.updateOne(
       { _id: tr._id },
       {
-        $set: { reactions: trReaction },
+        $set: { reactions: trReaction }
       }
     );
     return;
@@ -348,7 +348,7 @@ export const generatePendingSchedules = async (
     // allowLess is forever false
     trReaction.push({
       scheduleId: updatedSchedule._id,
-      preData: { status: updatedSchedule.status },
+      preData: { status: updatedSchedule.status }
     });
     await models.RepaymentSchedules.updateOne(
       { _id: updatedSchedule._id },
@@ -357,7 +357,7 @@ export const generatePendingSchedules = async (
     await models.LoanTransactions.updateOne(
       { _id: tr._id },
       {
-        $set: { reactions: trReaction },
+        $set: { reactions: trReaction }
       }
     );
     return;
@@ -385,7 +385,7 @@ export const generatePendingSchedules = async (
     if (!allowLess) {
       trReaction.push({
         scheduleId: updatedSchedule._id,
-        preData: { status: updatedSchedule.status },
+        preData: { status: updatedSchedule.status }
       });
       await models.RepaymentSchedules.updateOne(
         { _id: updatedSchedule._id },
@@ -394,7 +394,7 @@ export const generatePendingSchedules = async (
       await models.LoanTransactions.updateOne(
         { _id: tr._id },
         {
-          $set: { reactions: trReaction },
+          $set: { reactions: trReaction }
         }
       );
       return;
@@ -419,11 +419,11 @@ export const generatePendingSchedules = async (
         schedule.total +
         interestEve +
         interestNonce -
-        updatedSchedule.didPayment,
+        updatedSchedule.didPayment
     };
     trReaction.push({
       scheduleId: schedule._id,
-      preData: { ...getChanged(schedule, changeDoc) },
+      preData: { ...getChanged(schedule, changeDoc) }
     });
 
     await models.RepaymentSchedules.updateOne(
@@ -433,7 +433,7 @@ export const generatePendingSchedules = async (
     await models.LoanTransactions.updateOne(
       { _id: tr._id },
       {
-        $set: { reactions: trReaction },
+        $set: { reactions: trReaction }
       }
     );
     return;
@@ -443,12 +443,12 @@ export const generatePendingSchedules = async (
     const insurance = updatedSchedule.insurance - updatedSchedule.didInsurance;
     changeDoc = {
       insurance: schedule.insurance + insurance,
-      total: schedule.total + insurance,
+      total: schedule.total + insurance
     };
 
     trReaction.push({
       scheduleId: schedule._id,
-      preData: { ...getChanged(schedule, changeDoc) },
+      preData: { ...getChanged(schedule, changeDoc) }
     });
 
     await models.RepaymentSchedules.updateOne(
@@ -458,7 +458,7 @@ export const generatePendingSchedules = async (
     await models.LoanTransactions.updateOne(
       { _id: tr._id },
       {
-        $set: { reactions: trReaction },
+        $set: { reactions: trReaction }
       }
     );
     return;
@@ -471,18 +471,18 @@ export const generatePendingSchedules = async (
     changeDoc = { debt, total: schedule.total + debt };
     trReaction.push({
       scheduleId: schedule._id,
-      preData: { ...getChanged(schedule, changeDoc) },
+      preData: { ...getChanged(schedule, changeDoc) }
     });
     await models.RepaymentSchedules.updateOne(
       { _id: schedule._id },
       {
-        $set: { ...changeDoc },
+        $set: { ...changeDoc }
       }
     );
     await models.LoanTransactions.updateOne(
       { _id: tr._id },
       {
-        $set: { reactions: trReaction },
+        $set: { reactions: trReaction }
       }
     );
     return;
@@ -504,12 +504,12 @@ export const generatePendingSchedules = async (
     interestEve = calcInterest({
       balance,
       interestRate: contract.interestRate,
-      dayOfMonth: diffEve,
+      dayOfMonth: diffEve
     });
     interestNonce = calcInterest({
       balance,
       interestRate: contract.interestRate,
-      dayOfMonth: diffNonce,
+      dayOfMonth: diffNonce
     });
     diff = diff - schedule.payment;
 
@@ -519,18 +519,18 @@ export const generatePendingSchedules = async (
       interestEve,
       interestNonce,
       balance,
-      total: interestEve + interestNonce + (schedule.insurance || 0),
+      total: interestEve + interestNonce + (schedule.insurance || 0)
     };
     trReaction.push({
       scheduleId: schedule._id,
-      preData: { ...getChanged(schedule, changeDoc) },
+      preData: { ...getChanged(schedule, changeDoc) }
     });
 
     bulkOps.push({
       updateOne: {
         filter: { _id: schedule._id },
-        update: { $set: { ...changeDoc } },
-      },
+        update: { $set: { ...changeDoc } }
+      }
     });
 
     index = index + 1;
@@ -547,12 +547,12 @@ export const generatePendingSchedules = async (
     interestEve = calcInterest({
       balance,
       interestRate: contract.interestRate,
-      dayOfMonth: diffEve,
+      dayOfMonth: diffEve
     });
     interestNonce = calcInterest({
       balance,
       interestRate: contract.interestRate,
-      dayOfMonth: diffNonce,
+      dayOfMonth: diffNonce
     });
     diff = diff - schedule.payment;
 
@@ -563,18 +563,18 @@ export const generatePendingSchedules = async (
       interestNonce,
       balance: 0,
       surplus: diff,
-      total: interestEve + interestNonce + diff + (schedule.insurance || 0),
+      total: interestEve + interestNonce + diff + (schedule.insurance || 0)
     };
     trReaction.push({
       scheduleId: schedule._id,
-      preData: { ...getChanged(schedule, changeDoc) },
+      preData: { ...getChanged(schedule, changeDoc) }
     });
 
     bulkOps.push({
       updateOne: {
         filter: { _id: schedule._id },
-        update: { $set: { ...changeDoc } },
-      },
+        update: { $set: { ...changeDoc } }
+      }
     });
   } else {
     // diff < 0 condition
@@ -585,12 +585,12 @@ export const generatePendingSchedules = async (
     interestEve = calcInterest({
       balance,
       interestRate: contract.interestRate,
-      dayOfMonth: diffEve,
+      dayOfMonth: diffEve
     });
     interestNonce = calcInterest({
       balance,
       interestRate: contract.interestRate,
-      dayOfMonth: diffNonce,
+      dayOfMonth: diffNonce
     });
     balance = balance - schedule.payment + diff;
 
@@ -605,18 +605,18 @@ export const generatePendingSchedules = async (
         interestNonce +
         schedule.payment -
         diff +
-        (schedule.insurance || 0),
+        (schedule.insurance || 0)
     };
     trReaction.push({
       scheduleId: schedule._id,
-      preData: { ...getChanged(schedule, changeDoc) },
+      preData: { ...getChanged(schedule, changeDoc) }
     });
 
     bulkOps.push({
       updateOne: {
         filter: { _id: schedule._id },
-        update: { $set: { ...changeDoc } },
-      },
+        update: { $set: { ...changeDoc } }
+      }
     });
   }
 
@@ -630,32 +630,32 @@ export const generatePendingSchedules = async (
     interestEve = calcInterest({
       balance,
       interestRate: contract.interestRate,
-      dayOfMonth: diffs.diffEve,
+      dayOfMonth: diffs.diffEve
     });
     interestNonce = calcInterest({
       balance,
       interestRate: contract.interestRate,
-      dayOfMonth: diffs.diffNonce,
+      dayOfMonth: diffs.diffNonce
     });
 
     changeDoc = { interestEve, interestNonce };
     trReaction.push({
       scheduleId: schedule._id,
-      preData: { ...getChanged(schedule, changeDoc) },
+      preData: { ...getChanged(schedule, changeDoc) }
     });
 
     bulkOps.push({
       updateOne: {
         filter: { _id: schedule._id },
-        update: { $set: { ...changeDoc } },
-      },
+        update: { $set: { ...changeDoc } }
+      }
     });
   }
 
   await models.LoanTransactions.updateOne(
     { _id: tr._id },
     {
-      $set: { reactions: trReaction },
+      $set: { reactions: trReaction }
     }
   );
   await models.RepaymentSchedules.bulkWrite(bulkOps);
@@ -684,21 +684,21 @@ export const onPreScheduled = async (
   if (preSchedule._id) {
     trReaction.push({
       scheduleId: preSchedule._id,
-      preData: { ...getChanged(preSchedule, doc) },
+      preData: { ...getChanged(preSchedule, doc) }
     });
     await models.RepaymentSchedules.updateOne(
       { _id: preSchedule._id },
       { $set: { ...doc } }
     );
     updatedSchedule = await models.RepaymentSchedules.findOne({
-      _id: preSchedule._id,
+      _id: preSchedule._id
     });
   } else {
     // on contracted date to pay
     updatedSchedule = await models.RepaymentSchedules.create({
       ...preSchedule,
       ...doc,
-      isDefault: false,
+      isDefault: false
     });
     trReaction.push({ scheduleId: updatedSchedule._id, preData: undefined });
   }
@@ -729,7 +729,7 @@ export const betweenScheduled = async (
 
   const updatedSchedule = await models.RepaymentSchedules.create({
     ...doc,
-    isDefault: false,
+    isDefault: false
   });
 
   trReaction.push({ scheduleId: updatedSchedule._id, preData: undefined });
@@ -766,21 +766,21 @@ export const onNextScheduled = async (
 
   trReaction.push({
     scheduleId: nextSchedule._id,
-    preData: { ...getChanged(nextSchedule, doc) },
+    preData: { ...getChanged(nextSchedule, doc) }
   });
   await models.RepaymentSchedules.updateOne(
     { _id: nextSchedule._id },
     { $set: doc }
   );
   const updatedSchedule = await models.RepaymentSchedules.findOne({
-    _id: nextSchedule._id,
+    _id: nextSchedule._id
   }).lean();
 
   await generatePendingSchedules(
     models,
     contract,
     { ...updatedSchedule },
-    pendingSchedules.filter((s) => s._id !== nextSchedule._id),
+    pendingSchedules.filter(s => s._id !== nextSchedule._id),
     tr,
     trReaction
   );
@@ -811,7 +811,7 @@ export const afterNextScheduled = async (
     ...doc,
     _id: undefined,
     isDefault: false,
-    status: SCHEDULE_STATUS.DONE,
+    status: SCHEDULE_STATUS.DONE
   });
   trReaction.push({ scheduleId: updatedSchedule._id, preData: undefined });
 
@@ -820,8 +820,8 @@ export const afterNextScheduled = async (
       $and: [
         { payDate: { $gte: nextSchedule.payDate } },
         { payDate: { $lte: updatedSchedule.payDate } },
-        { _id: { $ne: updatedSchedule._id } },
-      ],
+        { _id: { $ne: updatedSchedule._id } }
+      ]
     },
     { _id: 1 }
   ).lean();
@@ -829,7 +829,7 @@ export const afterNextScheduled = async (
   for (const skippedSchedule of skippedSchedules) {
     trReaction.push({
       scheduleId: skippedSchedule._id || 0,
-      preData: { status: SCHEDULE_STATUS.PENDING },
+      preData: { status: SCHEDULE_STATUS.PENDING }
     });
   }
 
@@ -838,8 +838,8 @@ export const afterNextScheduled = async (
       $and: [
         { payDate: { $gte: nextSchedule.payDate } },
         { payDate: { $lte: updatedSchedule.payDate } },
-        { _id: { $ne: updatedSchedule._id } },
-      ],
+        { _id: { $ne: updatedSchedule._id } }
+      ]
     },
     { $set: { status: SCHEDULE_STATUS.SKIPPED } }
   );
@@ -848,7 +848,7 @@ export const afterNextScheduled = async (
     models,
     contract,
     { ...updatedSchedule._doc },
-    pendingSchedules.filter((s) => s.payDate > updatedSchedule.payDate),
+    pendingSchedules.filter(s => s.payDate > updatedSchedule.payDate),
     tr,
     trReaction
   );

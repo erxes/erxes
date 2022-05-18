@@ -19,18 +19,18 @@ import {
   SidebarList,
   SidebarTitle,
   WhiteBox,
-  WhiteBoxRoot,
-} from "@erxes/ui/src/layout/styles";
-import { twinkling } from "modules/common/utils/animations";
-import styled, { css } from "styled-components";
-import styledTS from "styled-components-ts";
-import { getThemeItem } from "utils";
+  WhiteBoxRoot
+} from '@erxes/ui/src/layout/styles';
+import { twinkling } from 'modules/common/utils/animations';
+import styled, { css } from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { getThemeItem } from 'utils';
 
-import { colors, dimensions } from "../common/styles";
-import { rgba } from "../common/styles/color";
+import { colors, dimensions } from '../common/styles';
+import { rgba } from '../common/styles/color';
 
-const thBackground = getThemeItem("background");
-const thColor = getThemeItem("text_color");
+const thBackground = getThemeItem('background');
+const thColor = getThemeItem('text_color');
 
 const UserHelper = styled.div`
   height: 50px;
@@ -43,14 +43,14 @@ const UserHelper = styled.div`
 `;
 
 const Layout = styledTS<{ isSqueezed?: boolean }>(styled.main)`
-  height: ${(props) => (props.isSqueezed ? "calc(100% - 36px)" : "100%")};
+  height: ${props => (props.isSqueezed ? 'calc(100% - 36px)' : '100%')};
   display: flex;
   flex: 1;
   max-width: 100%;
   position: relative;
   overflow: hidden;
 
-  ${(props) =>
+  ${props =>
     props.isSqueezed &&
     css`
       ${PageHeader} {
@@ -64,7 +64,7 @@ const MainWrapper = styledTS<{ navCollapse?: number }>(styled.div)`
   display: flex;
   flex-direction: column;
   padding-top: ${dimensions.headerSpacing}px;
-  padding-left: ${(props) =>
+  padding-left: ${props =>
     props.navCollapse === 2
       ? dimensions.headerSpacing * 2 - 1
       : props.navCollapse === 1
@@ -83,7 +83,7 @@ const Authlayout = styled.div`
       ? thBackground
       : `${colors.colorPrimaryDark} url('/images/stars.png') repeat top center;`
   }
-  color: ${thColor ? thColor : ""}
+  color: ${thColor ? thColor : ''}
   flex: 1;
   display: flex;
 
@@ -199,25 +199,25 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
   > a {  
     display: flex;
     color: ${colors.bgLight}
-    height: ${(props) =>
+    height: ${props =>
       props.isMoreItem || props.navCollapse === 2
         ? dimensions.headerSpacingWide
         : dimensions.headerSpacing}px;
-    flex-direction: ${(props) =>
+    flex-direction: ${props =>
       props.navCollapse === 3
         ? !props.isMoreItem
-          ? "row"
-          : "column"
-        : "column"};
-    padding: ${(props) =>
+          ? 'row'
+          : 'column'
+        : 'column'};
+    padding: ${props =>
       props.isMoreItem
         ? dimensions.unitSpacing
         : props.navCollapse === 3 && dimensions.coreSpacing}px;
-    justify-content: ${(props) =>
-      props.isMoreItem ? "center" : props.navCollapse !== 3 && "center"};
+    justify-content: ${props =>
+      props.isMoreItem ? 'center' : props.navCollapse !== 3 && 'center'};
     align-items: center;
     transition: all 0.3s ease;
-    width: ${(props) =>
+    width: ${props =>
       props.isMoreItem
         ? dimensions.headerSpacingWide
         : props.navCollapse === 1
@@ -225,9 +225,9 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
         : props.navCollapse === 3
         ? dimensions.headerSpacing * 3 + dimensions.unitSpacing
         : dimensions.headerSpacing * 2 - 1}px;
-    border: ${(props) => props.isMoreItem && "1px solid"};
-    border-color: ${(props) => props.isMoreItem && colors.borderPrimary};
-    border-radius: ${(props) => props.isMoreItem && "4px"};
+    border: ${props => props.isMoreItem && '1px solid'};
+    border-color: ${props => props.isMoreItem && colors.borderPrimary};
+    border-radius: ${props => props.isMoreItem && '4px'};
 
     label {
       cursor: pointer;
@@ -240,13 +240,13 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      margin-left:  ${(props) =>
+      margin-left:  ${props =>
         props.navCollapse === 3
           ? !props.isMoreItem && dimensions.unitSpacing
           : 0}px;
-      padding: ${(props) =>
+      padding: ${props =>
         props.navCollapse === 2 && `0 ${dimensions.unitSpacing}px`};
-      max-width: ${(props) =>
+      max-width: ${props =>
         props.isMoreItem
           ? dimensions.headerSpacingWide
           : props.navCollapse === 1
@@ -258,7 +258,7 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
 
     > span {
       position: absolute;
-      right: ${(props) =>
+      right: ${props =>
         props.navCollapse === 1 ? 5 : dimensions.coreSpacing + 5}px;
       top: ${dimensions.coreSpacing}px;
       padding: 0;
@@ -274,16 +274,16 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
       &:before {
         content: "";
         width: 2px;
-        background: ${(props) => !props.isMoreItem && colors.colorPrimary};
-        height: ${(props) =>
+        background: ${props => !props.isMoreItem && colors.colorPrimary};
+        height: ${props =>
           props.navCollapse === 2
             ? dimensions.headerSpacingWide
             : dimensions.headerSpacing}px;
         position: absolute;
         right: 0;
-        box-shadow: ${(props) =>
+        box-shadow: ${props =>
           !props.isMoreItem &&
-          "0px 12px 24px rgba(79, 51, 175, 0.24), 0px 2px 6px rgba(79, 51, 175, 0.16), 0px 0px 1px rgba(79, 51, 175, 0.08)"};
+          '0px 12px 24px rgba(79, 51, 175, 0.24), 0px 2px 6px rgba(79, 51, 175, 0.16), 0px 0px 1px rgba(79, 51, 175, 0.08)'};
       }
         
       > i, label {
@@ -340,7 +340,7 @@ const NavIcon = styled.i`
 `;
 
 const RoundBox = styledTS<{ pinned?: boolean }>(styled.div)`
-  background: ${(props) => (props.pinned ? colors.colorSecondary : "#f5f5f5")};
+  background: ${props => (props.pinned ? colors.colorSecondary : '#f5f5f5')};
   border-radius: 50%;
   border: 1px solid ${colors.borderPrimary};
   width: ${dimensions.coreSpacing}px;
@@ -353,7 +353,7 @@ const RoundBox = styledTS<{ pinned?: boolean }>(styled.div)`
   top: -5px;
 
   img {
-    filter: ${(props) => !props.pinned && "brightness(30%)"};
+    filter: ${props => !props.pinned && 'brightness(30%)'};
   }
 
   &:hover {
@@ -368,7 +368,7 @@ const RoundBox = styledTS<{ pinned?: boolean }>(styled.div)`
 const SubNav = styledTS<{ navCollapse: number }>(styled.ul)`
   background: ${colors.colorWhite};
   position: absolute;
-  left: ${(props) =>
+  left: ${props =>
     props.navCollapse === 2
       ? dimensions.headerSpacing * 2
       : props.navCollapse === 3
@@ -397,13 +397,13 @@ const SubNavItem = styledTS<{ additional: boolean }>(styled.li)`
       color: rgba(0, 0, 0, 0.62);
       display: flex;
       align-items: center;
-      border-radius: ${(props) =>
+      border-radius: ${props =>
         !props.additional && dimensions.unitSpacing - 5}px;
-      border-top: ${(props) =>
+      border-top: ${props =>
         props.additional && `1px solid rgba(0, 0, 0, 0.08)`};
-      border-bottom-left-radius: ${(props) =>
+      border-bottom-left-radius: ${props =>
         props.additional && dimensions.unitSpacing - 5}px;
-      border-bottom-right-radius: ${(props) =>
+      border-bottom-right-radius: ${props =>
         props.additional && dimensions.unitSpacing - 5}px;
       width: 100%;
 
@@ -534,14 +534,14 @@ const MoreMenuWrapper = styledTS<{ visible: boolean; navCollapse: number }>(
   styled.div
 )`
   position: absolute;
-  visibility: ${(props) => (props.visible ? "visible" : "hidden")};
+  visibility: ${props => (props.visible ? 'visible' : 'hidden')};
   padding:${dimensions.coreSpacing}px ${dimensions.unitSpacing}px ${
   dimensions.coreSpacing
 }px ${dimensions.coreSpacing}px;
   width: ${dimensions.headerSpacingWide * 6 + dimensions.unitSpacing}px;
   height: ${dimensions.headerSpacingWide * 4 + dimensions.coreSpacing}px;
   overflow-y: auto;
-  left: ${(props) =>
+  left: ${props =>
     props.navCollapse === 2
       ? dimensions.headerSpacing * 2 - 1
       : props.navCollapse === 1
@@ -588,7 +588,7 @@ const StoreItem = styled(NavItem)`
 const FlexBox = styledTS<{ navCollapse?: number }>(styled.div)`
   display: flex;
   padding: ${dimensions.unitSpacing}px;
-  justify-content: ${(props) => (props.navCollapse === 3 ? "end" : "center")};
+  justify-content: ${props => (props.navCollapse === 3 ? 'end' : 'center')};
 `;
 
 const CollapseBox = styled.div`
@@ -646,8 +646,8 @@ const DropSubNavItem = styled.li`
   }
 
   &:before {
-    content: "";
-    background: url("/images/line.svg") no-repeat;
+    content: '';
+    background: url('/images/line.svg') no-repeat;
     width: 12px;
     height: 25px;
     margin-top: -4px;
@@ -674,14 +674,14 @@ const GotoFormWrapper = styled.div`
     outline: none;
     padding: 1em 0;
     width: 100%;
-    background-color: ${colors.bgLight}
+    background-color: ${colors.bgLight};
   }
 
   i {
     margin: 1em;
     cursor: pointer;
   }
-`
+`;
 
 const GotoWrapper = styled.div`
   max-height: 400px;
@@ -690,7 +690,7 @@ const GotoWrapper = styled.div`
   a {
     text-decoration: none;
   }
-`
+`;
 
 const GotoCategory = styled.div`
   position: sticky;
@@ -699,7 +699,7 @@ const GotoCategory = styled.div`
   font-weight: bolder;
   color: ${colors.colorCoreBlack}
   background-color: ${colors.bgGray}
-`
+`;
 
 const GotoItem = styled.div`
   display: flex;
@@ -728,7 +728,7 @@ const GotoItem = styled.div`
   &:hover {
     background: ${rgba(colors.colorBlack, 0.06)};
   }
-`
+`;
 
 export {
   Layout,
@@ -784,5 +784,5 @@ export {
   GotoFormWrapper,
   GotoWrapper,
   GotoCategory,
-  GotoItem,
+  GotoItem
 };

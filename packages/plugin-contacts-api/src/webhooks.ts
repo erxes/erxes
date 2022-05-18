@@ -10,7 +10,9 @@ export default {
   getInfo: ({ data: { data, actionText, contentType } }) => {
     return {
       url: `/${contentType}/details/${data.object._id}`,
-      content: `${contentType === 'customer' ? 'Customer' : 'Company'} ${actionText}`
-    }
+      content: `${
+        contentType === 'customer' ? 'Customer' : 'Company'
+      } ${actionText}`
+    };
   }
 };

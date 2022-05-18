@@ -1,10 +1,6 @@
-import React from "react";
-import {
-  CollapseBox,
-  Center,
-  SmallText
-} from "../../styles";
-import Icon from "modules/common/components/Icon";
+import React from 'react';
+import { CollapseBox, Center, SmallText } from '../../styles';
+import Icon from 'modules/common/components/Icon';
 
 type Props = {
   navCollapse: number;
@@ -12,10 +8,7 @@ type Props = {
 };
 
 export default function NavigationToggler(props: Props) {
-  const {
-    navCollapse,
-    onClickHandleIcon,
-  } = props;
+  const { navCollapse, onClickHandleIcon } = props;
 
   const renderHandleIcon = (type: string): JSX.Element => {
     return (
@@ -26,24 +19,24 @@ export default function NavigationToggler(props: Props) {
       >
         <Icon icon={type} />
       </CollapseBox>
-    )
-  }
+    );
+  };
 
   switch (navCollapse) {
     case 1:
-      return renderHandleIcon("plus");
+      return renderHandleIcon('plus');
     case 3:
       return (
         <Center>
           <SmallText>Collapse</SmallText>
-          {renderHandleIcon("minus")}
+          {renderHandleIcon('minus')}
         </Center>
       );
     default:
       return (
         <>
-          {renderHandleIcon("minus")}
-          {renderHandleIcon("plus")}
+          {renderHandleIcon('minus')}
+          {renderHandleIcon('plus')}
         </>
       );
   }

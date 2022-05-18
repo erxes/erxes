@@ -1,5 +1,5 @@
-import { generateModels } from "./connectionResolver";
-import { getBoardItemLink } from "./models/utils";
+import { generateModels } from './connectionResolver';
+import { getBoardItemLink } from './models/utils';
 
 export default {
   actions: [
@@ -64,7 +64,10 @@ export default {
       type: 'cards:ticket'
     }
   ],
-  getInfo: async ({ subdomain, data: { data, contentType, actionText, action } }) => {
+  getInfo: async ({
+    subdomain,
+    data: { data, contentType, actionText, action }
+  }) => {
     const models = await generateModels(subdomain);
 
     if (action === 'createBoardItemMovementLog') {

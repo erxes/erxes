@@ -1,12 +1,12 @@
-import { ApolloServer, gql } from "apollo-server-express";
-import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
-import { buildSubgraphSchema } from "@apollo/federation";
-import * as dotenv from "dotenv";
-import resolvers from "./data/resolvers";
-import * as typeDefDetails from "./data/schema";
-import { IDataLoaders, generateAllDataLoaders } from "./data/dataLoaders";
-import { generateModels } from "./connectionResolver";
-import { getSubdomain } from "@erxes/api-utils/src/core";
+import { ApolloServer, gql } from 'apollo-server-express';
+import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
+import { buildSubgraphSchema } from '@apollo/federation';
+import * as dotenv from 'dotenv';
+import resolvers from './data/resolvers';
+import * as typeDefDetails from './data/schema';
+import { IDataLoaders, generateAllDataLoaders } from './data/dataLoaders';
+import { generateModels } from './connectionResolver';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 // load environment variables
 dotenv.config();
@@ -32,8 +32,8 @@ export const initApolloServer = async (_app, httpServer) => {
     schema: buildSubgraphSchema([
       {
         typeDefs,
-        resolvers,
-      },
+        resolvers
+      }
     ]),
     // for graceful shutdowns
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
@@ -44,8 +44,8 @@ export const initApolloServer = async (_app, httpServer) => {
       let user: any = null;
 
       if (req.headers.user) {
-        const userJson = Buffer.from(req.headers.user, "base64").toString(
-          "utf-8"
+        const userJson = Buffer.from(req.headers.user, 'base64').toString(
+          'utf-8'
         );
         user = JSON.parse(userJson);
       }
@@ -54,10 +54,10 @@ export const initApolloServer = async (_app, httpServer) => {
 
       const requestInfo = {
         secure: req.secure,
-        cookies: req.cookies,
+        cookies: req.cookies
       };
 
-      if (USE_BRAND_RESTRICTIONS !== "true") {
+      if (USE_BRAND_RESTRICTIONS !== 'true') {
         return {
           brandIdSelector: {},
           singleBrandIdSelector: {},
@@ -69,11 +69,11 @@ export const initApolloServer = async (_app, httpServer) => {
           requestInfo,
           dataLoaders,
           subdomain,
-          models,
+          models
         };
       }
 
-      let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || "[]");
+      let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
       let brandIds = [];
       let brandIdSelector = {};
       let commonQuerySelector = {};
@@ -109,9 +109,9 @@ export const initApolloServer = async (_app, httpServer) => {
         requestInfo,
         dataLoaders,
         subdomain,
-        models,
+        models
       };
-    },
+    }
   });
 
   await apolloServer.start();

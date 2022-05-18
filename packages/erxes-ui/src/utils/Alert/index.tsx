@@ -1,8 +1,8 @@
-import T from "i18n-react";
-import React from "react";
-import ReactDOM from "react-dom";
-import styled from "styled-components";
-import AlertStyled from "./Alert";
+import T from 'i18n-react';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import styled from 'styled-components';
+import AlertStyled from './Alert';
 
 const AlertsWrapper = styled.div.attrs({
   id: 'alerts-wrapper'
@@ -23,19 +23,19 @@ const AlertsWrapper = styled.div.attrs({
 const createAlert = (type: string, text: string, time?: number) => {
   if (!document.getElementById('alert-container')) {
     const alertContainer = document.createElement('div');
-    
+
     alertContainer.setAttribute('id', 'alert-container');
-    
+
     document.body.appendChild(alertContainer);
-    
+
     ReactDOM.render(<AlertsWrapper />, alertContainer);
   }
-  
+
   const alertsWrapper = document.getElementById(`alerts-wrapper`);
 
   const timeout = setTimeout(() => {
     const lastChild = alertsWrapper ? alertsWrapper.lastChild : null;
-    
+
     if (!lastChild) {
       const alertContainer = document.getElementById('alert-container');
 
@@ -44,23 +44,22 @@ const createAlert = (type: string, text: string, time?: number) => {
       }
 
       clearTimeout(timeout);
-      
+
       return;
     }
-    
+
     lastChild.remove();
   }, time || 3500);
 
-  
   const alertcount = alertsWrapper ? alertsWrapper.childElementCount : 0;
-  
+
   if (!document.getElementById(`alert-container-${alertcount}`)) {
     const alertContainer = document.createElement('div');
-    
+
     if (alertContainer && alertsWrapper) {
       alertsWrapper.appendChild(alertContainer);
     }
-    
+
     alertContainer.setAttribute('id', `alert-container-${alertcount}`);
 
     const deleteNode = (index: number) => {
@@ -69,10 +68,15 @@ const createAlert = (type: string, text: string, time?: number) => {
       if (container) {
         container.remove();
       }
-    }
-    
+    };
+
     ReactDOM.render(
-      <AlertStyled key={alertcount} index={alertcount} deleteNode={deleteNode} type={type}>
+      <AlertStyled
+        key={alertcount}
+        index={alertcount}
+        deleteNode={deleteNode}
+        type={type}
+      >
         {T.translate(text)}
       </AlertStyled>,
       alertContainer
@@ -81,24 +85,24 @@ const createAlert = (type: string, text: string, time?: number) => {
 };
 
 const success = (text: string, time?: number) =>
-  createAlert("success", text, time);
+  createAlert('success', text, time);
 
 const error = (text: string, time?: number) => {
   if (text) {
-    createAlert("error", text.replace("GraphQL error:", ""), time);
+    createAlert('error', text.replace('GraphQL error:', ''), time);
   }
-}
+};
 
 const warning = (text: string, time?: number) =>
-  createAlert("warning", text, time);
+  createAlert('warning', text, time);
 
-const info = (text: string, time?: number) => createAlert("info", text, time);
+const info = (text: string, time?: number) => createAlert('info', text, time);
 
 const Alert = {
   success,
   error,
   warning,
-  info,
+  info
 };
 
 export default Alert;

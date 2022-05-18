@@ -1,14 +1,14 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { IUser } from "modules/auth/types";
-import { queries, subscriptions } from "@erxes/ui-inbox/src/inbox/graphql";
-import { UnreadConversationsTotalCountQueryResponse } from "@erxes/ui-inbox/src/inbox/types";
-import React from "react";
-import { graphql } from "react-apollo";
-import strip from "strip";
-import { sendDesktopNotification, withProps } from "../../common/utils";
-import Navigation from "../components/navigation";
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { IUser } from 'modules/auth/types';
+import { queries, subscriptions } from '@erxes/ui-inbox/src/inbox/graphql';
+import { UnreadConversationsTotalCountQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import strip from 'strip';
+import { sendDesktopNotification, withProps } from '../../common/utils';
+import Navigation from '../components/navigation';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   currentUser: IUser;
@@ -37,10 +37,10 @@ class NavigationContainer extends React.Component<FinalProps> {
 
           // no need to send notification for bot message
           sendDesktopNotification({
-            title: "You have a new message",
-            content: strip(content || ""),
+            title: 'You have a new message',
+            content: strip(content || '')
           });
-        },
+        }
       });
   }
 
@@ -53,7 +53,7 @@ class NavigationContainer extends React.Component<FinalProps> {
 
     const props = {
       ...this.props,
-      unreadConversationsCount,
+      unreadConversationsCount
     };
 
     return <Navigation {...props} />;
@@ -65,12 +65,12 @@ export default withProps<Props>(
     graphql<{}, UnreadConversationsTotalCountQueryResponse>(
       gql(queries.unreadConversationsCount),
       {
-        name: "unreadConversationsCountQuery",
+        name: 'unreadConversationsCountQuery',
         options: () => ({
-          fetchPolicy: "network-only",
-          notifyOnNetworkStatusChange: true,
+          fetchPolicy: 'network-only',
+          notifyOnNetworkStatusChange: true
         }),
-        skip: !isEnabled("inbox") ? true : false,
+        skip: !isEnabled('inbox') ? true : false
       }
     )
   )(NavigationContainer)
