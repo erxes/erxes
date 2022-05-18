@@ -224,6 +224,13 @@ export const mutations = (contactAvailable, cardAvailable) => `
         email: String!
       ): Company
 
+      clientPortalSignup(
+        firstName: String
+        lastName: String
+        email: String
+        phone: String
+        ): String
+
      `
       : ''
   }

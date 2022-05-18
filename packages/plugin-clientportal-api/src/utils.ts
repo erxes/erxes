@@ -2,19 +2,6 @@ import { debugError } from '@erxes/api-utils/src/debuggers';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 import { sendCoreMessage } from './messageBroker';
 
-export const authCookieOptions = (secure: boolean) => {
-  const oneDay = 1 * 24 * 3600 * 1000; // 1 day
-
-  const cookieOptions = {
-    httpOnly: true,
-    expires: new Date(Date.now() + oneDay),
-    maxAge: oneDay,
-    secure
-  };
-
-  return cookieOptions;
-};
-
 export const getConfig = async (
   code: string,
   subdomain: string,

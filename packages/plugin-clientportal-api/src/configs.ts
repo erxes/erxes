@@ -30,7 +30,8 @@ export default {
 
     const requestInfo = {
       secure: req.secure,
-      cookies: req.cookies
+      cookies: req.cookies,
+      headers: req.headers
     };
 
     context.subdomain = subdomain;

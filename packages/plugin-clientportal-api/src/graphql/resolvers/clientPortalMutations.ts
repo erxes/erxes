@@ -7,7 +7,7 @@ import { BOARD_STATUSES } from '../../models/definitions/constants';
 import { checkPermission } from '@erxes/api-utils/src';
 import { sendCardsMessage, sendContactsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
-import { authCookieOptions } from '../../utils';
+import { authCookieOptions, cpMiddleware } from '../../auth/authUtils';
 
 interface ILoginParams {
   type?: string;
@@ -156,6 +156,17 @@ const clientPortalUserMutations = {
     const config = await models.ClientPortals.getConfig(args.clientPortalId);
 
     return models.ClientPortalUsers.createUser(subdomain, args, config);
+  },
+
+  clientPortalSignup: async (_root, args: IUser, context: IContext) => {
+    await cpMiddleware(context);
+    const { models, subdomain, res } = context;
+
+    return models.ClientPortalUsers.createUser(
+      subdomain,
+      args,
+      res.locals.clientPortal
+    );
   },
 
   /*

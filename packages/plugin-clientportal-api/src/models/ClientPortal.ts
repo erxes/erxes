@@ -227,7 +227,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         ...document,
         clientPortalId: config._id,
         // hash password
-        password: await this.generatePassword(password)
+        password: password && (await this.generatePassword(password))
       });
 
       if (config.otpConfig) {
@@ -255,7 +255,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
           { $set: { erxesCustomerId: customer._id } }
         );
       }
-      return customer._id;
+      return user._id;
     }
 
     public static async editProfile(
@@ -270,10 +270,12 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       // check current password ============
-      const valid = await this.comparePassword(password, user.password);
+      if (password) {
+        const valid = await this.comparePassword(password, user.password);
 
-      if (!valid) {
-        throw new Error('Incorrect current password');
+        if (!valid) {
+          throw new Error('Incorrect current password');
+        }
       }
 
       const email = doc.email;
