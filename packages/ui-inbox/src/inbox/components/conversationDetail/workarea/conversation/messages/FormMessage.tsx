@@ -22,6 +22,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils';
 import ReactToPrint, { PrintContextConsumer } from 'react-to-print';
+import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 
 type Props = {
   message: IMessage;
@@ -53,7 +54,7 @@ export default class FormMessage extends React.Component<Props, {}> {
       const description = data.value.description || '';
       return `Latitude: ${data.value.lat}, Longitude: ${data.value.lng} - ${description}`;
     }
-    
+
     if (['file', 'avatar', 'company_avatar'].includes(data.type)) {
       let fileUrl = data.value || '';
 
@@ -94,7 +95,9 @@ export default class FormMessage extends React.Component<Props, {}> {
             {field.type === 'multiSelect' ? (
               this.renderMultiSelect(field.value)
             ) : (
-              <FormMessageInput>{this.displayValue(field)}</FormMessageInput>
+              <ErrorBoundary>
+                <FormMessageInput>{this.displayValue(field)}</FormMessageInput>
+              </ErrorBoundary>
             )}
           </FormGroup>
         </FieldItem>
@@ -108,8 +111,8 @@ export default class FormMessage extends React.Component<Props, {}> {
         <ReactToPrint content={() => this.componentRef}>
           <PrintContextConsumer>
             {({ handlePrint }) => (
-              <Tip text={__('Print responses')} placement='top'>
-                <Button btnStyle='link' onClick={handlePrint} icon='print' />
+              <Tip text={__('Print responses')} placement="top">
+                <Button btnStyle="link" onClick={handlePrint} icon="print" />
               </Tip>
             )}
           </PrintContextConsumer>
@@ -126,7 +129,7 @@ export default class FormMessage extends React.Component<Props, {}> {
         <PreviewTitle style={{ backgroundColor: '#6569DF' }}>
           <div>{content}</div>
         </PreviewTitle>
-        <PreviewBody embedded='embedded'>
+        <PreviewBody embedded="embedded">
           <BodyContent>
             {formWidgetData.map(field => this.renderField(field))}
           </BodyContent>

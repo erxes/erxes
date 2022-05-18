@@ -9,6 +9,7 @@ import CarsList from '../components/list/CarsList';
 import { mutations, queries } from '../graphql';
 import {
   IProductCategory,
+  ListConfigQueryResponse,
   ListQueryVariables,
   MainQueryResponse,
   MergeMutationResponse,
@@ -28,6 +29,7 @@ type Props = {
 type FinalProps = {
   carsMainQuery: MainQueryResponse;
   productCategoriesQuery: ProductCategoriesQueryResponse;
+  carsListConfigQuery: ListConfigQueryResponse;
 } & Props &
   IRouterProps &
   RemoveMutationResponse &
@@ -52,10 +54,12 @@ class CarListContainer extends React.Component<FinalProps, State> {
       carsRemove,
       carsMerge,
       history,
-      productCategoriesQuery
+      productCategoriesQuery,
+      carsListConfigQuery
     } = this.props;
 
-    let columnsConfig = [
+    let columnsConfig = (carsListConfigQuery &&
+      carsListConfigQuery.fieldsDefaultColumnsConfig) || [
       { name: 'plateNumber', label: 'Plate number', order: 1 },
       { name: 'vinNumber', label: 'Vin number', order: 2 },
       { name: 'vintageYear', label: 'Vintage year', order: 3 },
@@ -167,11 +171,19 @@ const generateOptions = () => ({
 
 export default withProps<Props>(
   compose(
+    graphql<Props, ListConfigQueryResponse, {}>(gql(queries.carsListConfig), {
+      name: 'carsListConfigQuery'
+    }),
     graphql<{ queryParams: any }, MainQueryResponse, ListQueryVariables>(
       gql(queries.carsMain),
       {
+        // name: 'carsMainQuery',
+        // options: generateParams
+
         name: 'carsMainQuery',
-        options: generateParams
+        options: ({ queryParams }) => ({
+          variables: generateParams({ queryParams })
+        })
       }
     ),
     // mutations

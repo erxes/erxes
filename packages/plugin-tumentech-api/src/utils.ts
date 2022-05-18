@@ -106,7 +106,7 @@ export const gatherDescriptions = async params => {
   return { extraDesc, description };
 };
 
-export const generateFields = async ({ subdomain, data }) => {
+export const generateFields = async ({ subdomain }) => {
   const models = await generateModels(subdomain);
 
   const { Cars } = models;

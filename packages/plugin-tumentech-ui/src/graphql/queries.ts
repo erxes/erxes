@@ -321,6 +321,16 @@ query($dealId: String) {
 }
 `;
 
+const carsListConfig = `
+  query {
+    fieldsDefaultColumnsConfig(contentType: "tumentech:cars") {
+      name
+      label
+      order
+    }
+  }
+`;
+
 export default {
   cars,
   carsMain,
@@ -339,5 +349,6 @@ export default {
   productCategoryDetail,
   carCategoryMatchProducts,
   productCategoryMatchCarCategories,
-  participants
+  participants,
+  carsListConfig
 };
