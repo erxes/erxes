@@ -22,14 +22,13 @@ type ControlItem = {
 };
 
 function General({ otpConfig, handleFormChange }: Props) {
-  const { __typename, ...otherAttributes }: any = otpConfig;
+  const { __typename = '', ...otherAttributes }: any = otpConfig || {
+    smsTransporterType: '',
+    emailTransporterType: '',
+    content: 'Your verification code is {{code}}'
+  };
 
-  const [config, setConfig] = useState<OTPConfig>(
-    otherAttributes || {
-      smsTransporterType: '',
-      content: 'Your code is {{code}}'
-    }
-  );
+  const [config, setConfig] = useState<OTPConfig>(otherAttributes);
 
   const renderContent = () => {
     if (!config || !config.smsTransporterType) {

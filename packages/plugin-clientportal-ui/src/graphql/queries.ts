@@ -37,17 +37,15 @@ export const commonFields = `
     secondaryBtnColor
   }
   mobileResponsive
-  smsConfiguration
-  twilioAccountSid
-  twilioAuthToken
-  twilioFromNumber
-  messageproApiKey
-  messageproPhoneNumber
-  content
   kbToggle
   publicTaskToggle
   ticketToggle
   taskToggle
+  otpConfig {
+    smsTransporterType
+    emailTransporterType
+    content
+  }
 `;
 
 const getTotalCount = `
