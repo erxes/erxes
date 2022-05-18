@@ -56,8 +56,8 @@ module.exports = {
       permissions: ["showChannels", "manageChannels"],
     },
     {
-      text: "Integrations",
-      to: "/settings/integrations",
+      text: "Add-ons",
+      to: "/settings/add-ons",
       image: "/images/icons/erxes-04.svg",
       location: "settings",
       scope: "inbox",
@@ -76,8 +76,8 @@ module.exports = {
       ],
     },
     {
-      text: "Integrations config",
-      to: "/settings/integrations-config",
+      text: "Add-ons config",
+      to: "/settings/add-ons-config",
       image: "/images/icons/erxes-24.svg",
       location: "settings",
       scope: "inbox",

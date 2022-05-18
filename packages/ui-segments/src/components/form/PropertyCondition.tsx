@@ -77,7 +77,6 @@ class PropertyCondition extends React.Component<Props, State> {
 
     for (const plugin of plugins) {
       if (propertyType.includes(`${plugin.name}:`) && plugin.segmentForm) {
-        console.log(plugin.seg);
         return (
           <RenderDynamicComponent
             scope={plugin.scope}
