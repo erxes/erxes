@@ -94,6 +94,7 @@ export interface IPipeline extends ICommonFields {
   numberSize?: string;
   lastNum?: string;
   departmentIds?: string[];
+  age?: number;
 }
 
 export interface IPipelineDocument extends IPipeline, Document {
@@ -305,6 +306,7 @@ export const pipelineSchema = new Schema({
     optional: true,
     label: 'Related departments'
   }),
+  age: field({ type: Number, optional: true, label: 'Age' }),
   ...commonFieldsSchema
 });
 

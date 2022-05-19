@@ -4,7 +4,7 @@ const commonTypes = `
   type: String
 `;
 
-export const types = (contactsAvailable) => `
+export const types = contactsAvailable => `
 
   type Board @key(fields: "_id") {
     _id: String!
@@ -37,6 +37,7 @@ export const types = (contactsAvailable) => `
     excludeCheckUserIds: [String]
     numberConfig: String
     numberSize: String
+    age: Int
     ${commonTypes}
   }
 
@@ -143,7 +144,8 @@ const pipelineParams = `
   excludeCheckUserIds: [String],
   numberConfig: String,
   numberSize: String,
-  departmentIds: [String]
+  departmentIds: [String],
+  age: Int
 `;
 
 export const mutations = `

@@ -41,6 +41,7 @@ const pipelines = `
       memberIds
       departmentIds
       numberSize
+      age
       createdAt
       createdUser{
         details {
@@ -83,5 +84,5 @@ export default {
   pipelines,
   stages,
   boardGetLast,
-  boardDetail,
+  boardDetail
 };

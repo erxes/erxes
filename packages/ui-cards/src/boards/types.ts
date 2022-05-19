@@ -84,6 +84,7 @@ export interface IPipeline {
   excludeCheckUserIds?: string[];
   numberConfig?: string;
   numberSize?: string;
+  age?: number;
 }
 
 export interface IBoard {
