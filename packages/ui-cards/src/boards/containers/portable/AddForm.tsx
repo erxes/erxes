@@ -31,7 +31,7 @@ type IProps = {
   sourceConversationId?: string;
   relTypeIds?: string[];
   assignedUserIds?: string[];
-  getAssociatedItem?: (itemId: string) => void;
+  getAssociatedItem?: (itemId: IItem) => void;
   closeModal: () => void;
   refetch?: () => void;
   aboveItemId?: string;
@@ -146,7 +146,7 @@ class AddFormContainer extends React.Component<FinalProps> {
     callback(item);
 
     if (getAssociatedItem) {
-      getAssociatedItem(item._id);
+      getAssociatedItem(item);
     }
 
     if (refetch) {
