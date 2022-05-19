@@ -12,7 +12,8 @@ import WebsiteActivity from '@erxes/ui-contacts/src/customers/components/common/
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import { IField } from '@erxes/ui/src/types';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
 
 const ActionSection = asyncComponent(() =>
   import(
@@ -114,7 +115,8 @@ type IndexProps = {
   currentUser: IUser;
   conversation: IConversation;
   customer: ICustomer;
-  customerFields: IField[];
+  customerVisibilityInDetail: IFieldsVisibility;
+  deviceVisibilityInDetail: IFieldsVisibility;
   conversationFields: IField[];
   deviceFields: IField[];
   loading: boolean;
@@ -171,12 +173,14 @@ class Index extends React.Component<IndexProps, IndexState> {
     if (!(kind === 'messenger' || kind === 'form')) {
       return null;
     }
+
     return (
       <DevicePropertiesSection
         customer={customer}
         fields={fields}
         collapseCallback={toggleSection}
         isDetail={false}
+        deviceFieldsVisibility={this.props.deviceVisibilityInDetail}
       />
     );
   };
@@ -191,7 +195,7 @@ class Index extends React.Component<IndexProps, IndexState> {
       customer,
       toggleSection,
       loading,
-      customerFields,
+      customerVisibilityInDetail,
       deviceFields,
       conversationFields
     } = this.props;
@@ -203,7 +207,7 @@ class Index extends React.Component<IndexProps, IndexState> {
         <TabContent>
           <DetailInfo
             customer={customer}
-            fields={customerFields}
+            fieldsVisibility={customerVisibilityInDetail}
             isDetail={false}
           />
           <CustomFieldsSection
@@ -213,7 +217,7 @@ class Index extends React.Component<IndexProps, IndexState> {
           />
           <Box
             title={__('Conversation details')}
-            name='showConversationDetails'
+            name="showConversationDetails"
             callback={toggleSection}
           >
             <ConversationDetails
@@ -222,14 +226,14 @@ class Index extends React.Component<IndexProps, IndexState> {
             />
             <ConversationCustomFieldsSection conversation={conversation} />
           </Box>
-          {isEnabled("tags") &&
+          {isEnabled('tags') && (
             <TaggerSection
               data={customer}
-              type='contacts:customer'
+              type="contacts:customer"
               refetchQueries={taggerRefetchQueries}
               collapseCallback={toggleSection}
             />
-          }
+          )}
 
           {this.renderTrackedData({ customer, kind, toggleSection })}
           {this.renderDeviceProperties({
@@ -255,9 +259,9 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     return (
       <>
-        <PortableDeals mainType='customer' mainTypeId={customer._id} />
-        <PortableTickets mainType='customer' mainTypeId={customer._id} />
-        <PortableTasks mainType='customer' mainTypeId={customer._id} />
+        <PortableDeals mainType="customer" mainTypeId={customer._id} />
+        <PortableTickets mainType="customer" mainTypeId={customer._id} />
+        <PortableTasks mainType="customer" mainTypeId={customer._id} />
       </>
     );
   }
@@ -284,22 +288,22 @@ class Index extends React.Component<IndexProps, IndexState> {
             >
               {__('Details')}
             </TabTitle>
-            {isEnabled("logs") &&
+            {isEnabled('logs') && (
               <TabTitle
                 className={currentSubTab === 'activity' ? 'active' : ''}
                 onClick={activityOnClick}
               >
                 {__('Activity')}
               </TabTitle>
-            }
-            {isEnabled("cards") &&
+            )}
+            {isEnabled('cards') && (
               <TabTitle
                 className={currentSubTab === 'related' ? 'active' : ''}
                 onClick={relatedOnClick}
               >
                 {__('Related')}
               </TabTitle>
-            }
+            )}
           </Tabs>
           {this.renderTabSubContent()}
         </>
@@ -309,7 +313,7 @@ class Index extends React.Component<IndexProps, IndexState> {
     return (
       <>
         <CompanySection
-          mainType='customer'
+          mainType="customer"
           mainTypeId={customer._id}
           collapseCallback={toggleSection}
         />

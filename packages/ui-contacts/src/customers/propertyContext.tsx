@@ -11,6 +11,7 @@ import { IFieldsVisibility } from './types';
 
 interface IStore {
   deviceFields: IField[];
+  conversationFields: IField[];
   customerVisibilityInDetail: IFieldsVisibility;
   deviceVisibilityInDetail: IFieldsVisibility;
 }
@@ -56,6 +57,7 @@ class Provider extends React.Component<FinalProps> {
       <PropertyContext.Provider
         value={{
           deviceFields: inboxFields.device,
+          conversationFields: inboxFields.conversationFields,
           customerVisibilityInDetail,
           deviceVisibilityInDetail
         }}
