@@ -11,6 +11,7 @@ import {
   IFilterParams,
   IItem,
   IOptions,
+  IPipeline,
   IStage,
   ItemsQueryResponse,
   RemoveStageMutation,
