@@ -17,10 +17,11 @@ import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
 type Props = {
   customer: ICustomer;
   deviceFields: IField[];
+  fields: IField[];
   taggerRefetchQueries?: any[];
   wide?: boolean;
-  fieldsVisibility: IFieldsVisibility;
-  deviceFieldsVisibility: IFieldsVisibility;
+  fieldsVisibility: (key: string) => IFieldsVisibility;
+  deviceFieldsVisibility: (key: string) => IFieldsVisibility;
 };
 
 export default class LeftSidebar extends React.Component<Props> {
@@ -29,6 +30,7 @@ export default class LeftSidebar extends React.Component<Props> {
       customer,
       fieldsVisibility,
       deviceFields,
+      fields,
       wide,
       taggerRefetchQueries,
       deviceFieldsVisibility
@@ -38,12 +40,14 @@ export default class LeftSidebar extends React.Component<Props> {
         <BasicInfoSection
           customer={customer}
           fieldsVisibility={fieldsVisibility}
+          fields={fields}
         />
         <CustomFieldsSection customer={customer} isDetail={true} />
         <DevicePropertiesSection
           customer={customer}
           fields={deviceFields}
           deviceFieldsVisibility={deviceFieldsVisibility}
+          isDetail={true}
         />
         <TrackedDataSection customer={customer} />
         <WebsiteActivity urlVisits={customer.urlVisits || []} />

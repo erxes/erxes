@@ -52,15 +52,17 @@ function CustomerDetailsContainer(props: FinalProps) {
       <PropertyConsumer>
         {({
           deviceFields,
-          customerVisibilityInDetail,
-          deviceVisibilityInDetail
+          customerVisibility,
+          deviceVisibility,
+          customerFields
         }) => {
           return (
             <CustomerDetails
               {...updatedProps}
               deviceFields={deviceFields}
-              fieldsVisibility={customerVisibilityInDetail}
-              deviceFieldsVisibility={deviceVisibilityInDetail}
+              fields={customerFields}
+              fieldsVisibility={customerVisibility}
+              deviceFieldsVisibility={deviceVisibility}
             />
           );
         }}

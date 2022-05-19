@@ -12,8 +12,9 @@ import { IFieldsVisibility } from './types';
 interface IStore {
   deviceFields: IField[];
   conversationFields: IField[];
-  customerVisibilityInDetail: IFieldsVisibility;
-  deviceVisibilityInDetail: IFieldsVisibility;
+  customerFields: IField[];
+  customerVisibility: (key: string) => IFieldsVisibility;
+  deviceVisibility: (key: string) => IFieldsVisibility;
 }
 
 type FinalProps = {
@@ -24,16 +25,17 @@ const PropertyContext = React.createContext({} as IStore);
 
 export const PropertyConsumer = PropertyContext.Consumer;
 
-const visibleInDetail = (fields: IField[]) => {
-  const data = {} as IFieldsVisibility;
+const isVisible = (fields: IField[]) => {
+  return (key: string) => {
+    const data = {} as IFieldsVisibility;
 
-  for (const field of fields || []) {
-    if (field.isVisibleInDetail) {
-      data[field.type] = field.text;
+    for (const field of fields || []) {
+      if (field[key]) {
+        data[field.type] = field.text;
+      }
     }
-  }
-
-  return data;
+    return data;
+  };
 };
 
 class Provider extends React.Component<FinalProps> {
@@ -47,19 +49,18 @@ class Provider extends React.Component<FinalProps> {
     const inboxFields =
       (fieldsInboxQuery && fieldsInboxQuery.inboxFields) || ({} as any);
 
-    const customerVisibilityInDetail = visibleInDetail(
-      inboxFields.customer || []
-    );
+    const customerVisibility = isVisible(inboxFields.customer || []);
 
-    const deviceVisibilityInDetail = visibleInDetail(inboxFields.device || []);
+    const deviceVisibility = isVisible(inboxFields.device || []);
 
     return (
       <PropertyContext.Provider
         value={{
           deviceFields: inboxFields.device,
-          conversationFields: inboxFields.conversationFields,
-          customerVisibilityInDetail,
-          deviceVisibilityInDetail
+          conversationFields: inboxFields.conversation,
+          customerFields: inboxFields.customer,
+          customerVisibility,
+          deviceVisibility
         }}
       >
         {this.props.children}

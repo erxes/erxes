@@ -37,7 +37,7 @@ type Props = {
   queryParams: IQueryParams;
   changeRedirectType?: (type: string) => void;
   changeVerificationStatus?: (isEmail: boolean) => void;
-  fieldsVisibility: IFieldsVisibility;
+  fieldsVisibility: (key: string) => IFieldsVisibility;
 };
 
 type State = {
@@ -141,6 +141,8 @@ class CustomerForm extends React.Component<Props, State> {
   renderFormGroup = (label, props, type?) => {
     const { fieldsVisibility } = this.props;
 
+    const visibility = fieldsVisibility('isVisibleInDetail');
+
     let name = props.name;
 
     if (name === 'sex') {
@@ -151,7 +153,7 @@ class CustomerForm extends React.Component<Props, State> {
       name = 'owner';
     }
 
-    if (!fieldsVisibility[name]) {
+    if (!visibility[name]) {
       return null;
     }
 

@@ -109,9 +109,10 @@ class Sidebar extends React.Component<FinalProps, State> {
         <PropertyConsumer>
           {({
             deviceFields,
+            customerFields,
             conversationFields,
-            customerVisibilityInDetail,
-            deviceVisibilityInDetail
+            customerVisibility,
+            deviceVisibility
           }) => {
             const updatedProps = {
               ...this.props,
@@ -121,8 +122,9 @@ class Sidebar extends React.Component<FinalProps, State> {
               taggerRefetchQueries,
               conversationFields,
               deviceFields,
-              customerVisibilityInDetail,
-              deviceVisibilityInDetail
+              customerFields,
+              customerVisibility,
+              deviceVisibility
             };
 
             return <DumbSidebar {...updatedProps} />;

@@ -115,10 +115,11 @@ type IndexProps = {
   currentUser: IUser;
   conversation: IConversation;
   customer: ICustomer;
-  customerVisibilityInDetail: IFieldsVisibility;
-  deviceVisibilityInDetail: IFieldsVisibility;
+  customerVisibility: (key: string) => IFieldsVisibility;
+  deviceVisibility: (key: string) => IFieldsVisibility;
   conversationFields: IField[];
   deviceFields: IField[];
+  customerFields: IField[];
   loading: boolean;
   toggleSection: () => void;
   taggerRefetchQueries: any;
@@ -180,7 +181,7 @@ class Index extends React.Component<IndexProps, IndexState> {
         fields={fields}
         collapseCallback={toggleSection}
         isDetail={false}
-        deviceFieldsVisibility={this.props.deviceVisibilityInDetail}
+        deviceFieldsVisibility={this.props.deviceVisibility}
       />
     );
   };
@@ -195,9 +196,10 @@ class Index extends React.Component<IndexProps, IndexState> {
       customer,
       toggleSection,
       loading,
-      customerVisibilityInDetail,
+      customerVisibility,
       deviceFields,
-      conversationFields
+      conversationFields,
+      customerFields
     } = this.props;
 
     const { kind = '' } = customer.integration || {};
@@ -207,7 +209,8 @@ class Index extends React.Component<IndexProps, IndexState> {
         <TabContent>
           <DetailInfo
             customer={customer}
-            fieldsVisibility={customerVisibilityInDetail}
+            fieldsVisibility={customerVisibility}
+            fields={customerFields}
             isDetail={false}
           />
           <CustomFieldsSection
