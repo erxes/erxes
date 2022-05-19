@@ -18,6 +18,7 @@ export default {
     });
 
     if (user) {
+      console.log(user, 'activityLog', activityLog);
       return { type: 'user', content: user };
     }
 
