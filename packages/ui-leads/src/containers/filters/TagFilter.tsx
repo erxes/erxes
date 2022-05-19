@@ -25,7 +25,7 @@ class TagFilterContainer extends React.Component<FinalProps> {
       <CountsByTag
         tags={(tagsQuery ? tagsQuery.tags : null) || []}
         counts={counts || {}}
-        manageUrl="/tags?type=integration"
+        manageUrl="/tags?type=inbox:integration"
         loading={(tagsQuery ? tagsQuery.loading : null) || false}
       />
     );

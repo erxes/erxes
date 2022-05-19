@@ -59,12 +59,21 @@ module.exports = {
       permissions: ['showChannels', 'manageChannels']
     },
     {
+<<<<<<< HEAD
       text: 'Integrations',
       to: '/settings/integrations',
       image: '/images/icons/erxes-04.svg',
       location: 'settings',
       scope: 'inbox',
       action: 'integrationsAll',
+=======
+      text: "Add-ons",
+      to: "/settings/add-ons",
+      image: "/images/icons/erxes-04.svg",
+      location: "settings",
+      scope: "inbox",
+      action: "integrationsAll",
+>>>>>>> c64b801b877151d283d64bfe23ec9317fe53734f
       permissions: [
         'showIntegrations',
         'integrationsCreateMessengerIntegration',
@@ -79,6 +88,7 @@ module.exports = {
       ]
     },
     {
+<<<<<<< HEAD
       text: 'Integrations config',
       to: '/settings/integrations-config',
       image: '/images/icons/erxes-24.svg',
@@ -86,6 +96,15 @@ module.exports = {
       scope: 'inbox',
       action: 'generalSettingsAll',
       permissions: ['manageGeneralSettings', 'showGeneralSettings']
+=======
+      text: "Add-ons config",
+      to: "/settings/add-ons-config",
+      image: "/images/icons/erxes-24.svg",
+      location: "settings",
+      scope: "inbox",
+      action: "generalSettingsAll",
+      permissions: ["manageGeneralSettings", "showGeneralSettings"],
+>>>>>>> c64b801b877151d283d64bfe23ec9317fe53734f
     },
     {
       text: 'Responses',

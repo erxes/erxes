@@ -6,7 +6,10 @@ import { queries } from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { getEnv, withProps } from '@erxes/ui/src/utils';
-import { IntegrationsCountQueryResponse } from '@erxes/ui-settings/src/integrations/types';
+import {
+  ByKindTotalCount,
+  IntegrationsCountQueryResponse
+} from '@erxes/ui-settings/src/integrations/types';
 
 type Props = {
   queryParams: any;
@@ -29,7 +32,9 @@ const Store = (props: FinalProps) => {
     window.location.replace(url);
   };
 
-  const totalCount = totalCountQuery.integrationsTotalCount.byKind;
+  const totalCount =
+    (totalCountQuery.integrationsTotalCount || {}).byKind ||
+    ({} as ByKindTotalCount);
 
   const updatedProps = {
     ...props,

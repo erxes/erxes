@@ -6,6 +6,7 @@ import options from '../options';
 type IProps = {
   mainType?: string;
   mainTypeId?: string;
+  mainTypeName?: string;
 };
 
 export default (props: IProps) => {

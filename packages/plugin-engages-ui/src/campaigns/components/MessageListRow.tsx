@@ -8,18 +8,19 @@ import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __, Alert } from 'coreui/utils';
-import { MESSAGE_KIND_FILTERS, MESSAGE_KINDS, METHODS } from '@erxes/ui-engage/src/constants';
+import {
+  MESSAGE_KIND_FILTERS,
+  MESSAGE_KINDS,
+  METHODS
+} from '@erxes/ui-engage/src/constants';
 import React from 'react';
 import s from 'underscore.string';
-import {
-  Disabled,
-  HelperText,
-  RowTitle,
-} from '@erxes/ui-engage/src/styles'; 
+import { Disabled, HelperText, RowTitle } from '@erxes/ui-engage/src/styles';
 import { IEngageMessage, IEngageMessenger } from '@erxes/ui-engage/src/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { ISegment } from '@erxes/ui-segments/src/types';
 import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   message: any;
@@ -296,9 +297,11 @@ class Row extends React.Component<Props> {
             : '-- --- ---- --:--'}
         </td>
 
-        <td>
-          <Tags tags={message.customerTags || []} />
-        </td>
+        {isEnabled('tags') && (
+          <td>
+            <Tags tags={message.customerTags || []} />
+          </td>
+        )}
 
         <td>
           <ActionButtons>

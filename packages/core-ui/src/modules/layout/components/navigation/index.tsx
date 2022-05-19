@@ -1,16 +1,16 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
+import React from 'react';
+import { NavLink } from 'react-router-dom';
 
-import { LeftNavigation, FlexBox, BottomMenu } from "../../styles";
+import { LeftNavigation, FlexBox, BottomMenu } from '../../styles';
 
-import { __, readFile, setBadge } from "modules/common/utils";
+import { __, readFile, setBadge } from 'modules/common/utils';
 
-import NavigationToggler from "./NavigationToggler";
-import NavigationList from "./NavigationList";
-import NavigationItem from "./NavigationItem";
-import NavigationGoto from "./NavigationGoto";
+import NavigationToggler from './NavigationToggler';
+import NavigationList from './NavigationList';
+import NavigationItem from './NavigationItem';
+import NavigationGoto from './NavigationGoto';
 
-import { getThemeItem } from "utils";
+import { getThemeItem } from 'utils';
 
 type Props = {
   unreadConversationsCount?: number;
@@ -23,7 +23,7 @@ export default class Navigation extends React.Component<Props> {
     const unreadCount = nextProps.unreadConversationsCount;
 
     if (unreadCount !== this.props.unreadConversationsCount) {
-      setBadge(unreadCount, __("Team Inbox").toString());
+      setBadge(unreadCount, __('Team Inbox').toString());
     }
   }
 
@@ -31,20 +31,20 @@ export default class Navigation extends React.Component<Props> {
     const {
       unreadConversationsCount,
       navCollapse,
-      onClickHandleIcon,
+      onClickHandleIcon
     } = this.props;
 
     const generateLogoSource = (): string => {
       const logo =
-        this.props.navCollapse === 1 ? "glyph_dark.png" : "logo-dark.png";
-      const thLogo = getThemeItem("logo");
+        this.props.navCollapse === 1 ? 'glyph_dark.png' : 'logo-dark.png';
+      const thLogo = getThemeItem('logo');
 
       return thLogo ? readFile(thLogo) : `/images/${logo}`;
     };
 
     return (
       <LeftNavigation>
-        <NavLink to="/">
+        <NavLink to="/welcome">
           <img src={generateLogoSource()} alt="erxes" />
         </NavLink>
 
@@ -55,9 +55,7 @@ export default class Navigation extends React.Component<Props> {
           />
         </FlexBox>
 
-        <NavigationGoto
-          navCollapse={navCollapse}
-        />
+        <NavigationGoto navCollapse={navCollapse} />
 
         <NavigationList
           navCollapse={navCollapse}
@@ -67,9 +65,9 @@ export default class Navigation extends React.Component<Props> {
         <BottomMenu>
           <NavigationItem
             plugin={{
-              text: "Settings",
-              url: "/settings",
-              icon: "icon-settings",
+              text: 'Settings',
+              url: '/settings',
+              icon: 'icon-settings'
             }}
             navCollapse={navCollapse}
           />

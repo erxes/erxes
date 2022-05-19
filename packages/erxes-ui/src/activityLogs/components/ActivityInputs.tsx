@@ -7,6 +7,7 @@ import { WhiteBoxRoot } from '../../layout/styles';
 import { __ } from '../../utils';
 import { isEnabled } from '../../utils/core';
 import { EmptyContent } from '../styles';
+import ErrorBoundary from '../../components/ErrorBoundary';
 
 type Props = {
   contentType: string;
@@ -104,16 +105,18 @@ class ActivityInputs extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <WhiteBoxRoot>
-        <Tabs>
-          {isEnabled('internalnotes') &&
-            this.renderTabTitle('newNote', 'file-plus', 'New note')}
+      <ErrorBoundary>
+        <WhiteBoxRoot>
+          <Tabs>
+            {isEnabled('internalnotes') &&
+              this.renderTabTitle('newNote', 'file-plus', 'New note')}
 
-          {this.renderExtraTab()}
-        </Tabs>
+            {this.renderExtraTab()}
+          </Tabs>
 
-        {this.renderTabContent()}
-      </WhiteBoxRoot>
+          {this.renderTabContent()}
+        </WhiteBoxRoot>
+      </ErrorBoundary>
     );
   }
 }

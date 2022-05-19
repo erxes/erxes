@@ -17,12 +17,15 @@ import InfoSection from '@erxes/ui-contacts/src/customers/components/common/Info
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
 
 type Props = {
   customer: ICustomer;
-  fields: IField[];
+  fieldsVisibility: (key: string) => IFieldsVisibility;
   deviceFields: IField[];
+  fields: IField[];
   taggerRefetchQueries?: any[];
+  deviceFieldsVisibility: (key: string) => IFieldsVisibility;
 };
 
 class CustomerDetails extends React.Component<Props> {
@@ -86,7 +89,14 @@ class CustomerDetails extends React.Component<Props> {
   };
 
   render() {
-    const { customer, fields, deviceFields, taggerRefetchQueries } = this.props;
+    const {
+      customer,
+      deviceFields,
+      fields,
+      taggerRefetchQueries,
+      fieldsVisibility,
+      deviceFieldsVisibility
+    } = this.props;
 
     const breadcrumb = [
       { title: __('Contacts'), link: '/contacts' },
@@ -139,9 +149,11 @@ class CustomerDetails extends React.Component<Props> {
           <LeftSidebar
             wide={true}
             customer={customer}
-            fields={fields}
+            fieldsVisibility={fieldsVisibility}
             deviceFields={deviceFields}
+            fields={fields}
             taggerRefetchQueries={taggerRefetchQueries}
+            deviceFieldsVisibility={deviceFieldsVisibility}
           />
         }
         rightSidebar={<RightSidebar customer={customer} />}

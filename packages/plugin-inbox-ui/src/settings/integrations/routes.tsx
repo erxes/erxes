@@ -46,7 +46,7 @@ const createFacebook = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
 
   const callBack = () => {
-    history.push('/settings/integrations/');
+    history.push('/settings/add-ons/');
   };
 
   return <CreateFacebook callBack={callBack} kind={queryParams.kind} />;
@@ -54,7 +54,7 @@ const createFacebook = ({ location, history }) => {
 
 const createGmail = ({ history }) => {
   const callBack = () => {
-    history.push('/settings/integrations/');
+    history.push('/settings/add-ons/');
   };
 
   return <CreateGmail callBack={callBack} />;
@@ -81,30 +81,30 @@ const auth = ({ location }) => (
 const routes = () => (
   <React.Fragment>
     <Route
-      key="/settings/integrations/createMessenger"
+      key="/settings/add-ons/createMessenger"
       exact={true}
-      path="/settings/integrations/createMessenger"
+      path="/settings/add-ons/createMessenger"
       component={createMessenger}
     />
 
     <Route
-      key="/settings/integrations/editMessenger/:_id"
+      key="/settings/add-ons/editMessenger/:_id"
       exact={true}
-      path="/settings/integrations/editMessenger/:_id"
+      path="/settings/add-ons/editMessenger/:_id"
       component={editMessenger}
     />
 
     <Route
-      key="/settings/integrations/createFacebook"
+      key="/settings/add-ons/createFacebook"
       exact={true}
-      path="/settings/integrations/createFacebook"
+      path="/settings/add-ons/createFacebook"
       component={createFacebook}
     />
 
     <Route
-      key="/settings/integrations/createGmail"
+      key="/settings/add-ons/createGmail"
       exact={true}
-      path="/settings/integrations/createGmail"
+      path="/settings/add-ons/createGmail"
       component={createGmail}
     />
 
@@ -122,15 +122,15 @@ const routes = () => (
     />
 
     <Route
-      key="/settings/integrations"
+      key="/settings/add-ons"
       exact={true}
-      path="/settings/integrations"
+      path="/settings/add-ons"
       component={store}
     />
     <Route
-      key="/settings/integration-configs/"
+      key="/settings/add-ons-configs/"
       exact={true}
-      path="/settings/integration-configs/"
+      path="/settings/add-ons-configs/"
       component={IntegrationConfigs}
     />
   </React.Fragment>

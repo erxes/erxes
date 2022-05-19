@@ -38,7 +38,7 @@ const Description = styled.div`
   align-items: center;
 `;
 
-const DescImg = styled.img`
+export const DescImg = styled.img`
   max-width: 100px;
   max-height: 100px;
   margin-right: ${dimensions.coreSpacing}px;
@@ -52,7 +52,7 @@ type Props = {
 
 type State = {
   expand: boolean;
-}
+};
 
 class HeaderDescription extends React.PureComponent<Props, State> {
   constructor(props) {
@@ -60,15 +60,15 @@ class HeaderDescription extends React.PureComponent<Props, State> {
 
     const localExpand = localStorage.getItem('expand');
     this.state = {
-      expand: localExpand ? localExpand === 'true' : true,
-    }
+      expand: localExpand ? localExpand === 'true' : true
+    };
   }
 
   onClick = () => {
     this.setState({ expand: !this.state.expand }, () => {
       localStorage.setItem('expand', this.state.expand.toString());
-    })
-  }
+    });
+  };
 
   render() {
     const { icon, title, description } = this.props;
@@ -82,10 +82,13 @@ class HeaderDescription extends React.PureComponent<Props, State> {
             {this.state.expand && __(description)}
           </span>
         </Description>
-        <Button btnStyle='link' onClick={this.onClick}>
-          <Tip text={__(this.state.expand ? 'Shrink' : 'Expand')} placement="top">
-            <Icon icon={this.state.expand ? 'uparrow' : 'downarrow-2'}/>
-          </Tip>  
+        <Button btnStyle="link" onClick={this.onClick}>
+          <Tip
+            text={__(this.state.expand ? 'Shrink' : 'Expand')}
+            placement="top"
+          >
+            <Icon icon={this.state.expand ? 'uparrow' : 'downarrow-2'} />
+          </Tip>
         </Button>
       </MainDescription>
     );

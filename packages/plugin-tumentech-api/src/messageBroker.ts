@@ -3,7 +3,7 @@ import { serviceDiscovery } from './configs';
 
 let client;
 
-export const initBroker = async (cl) => {
+export const initBroker = async cl => {
   client = cl;
 };
 
@@ -75,17 +75,41 @@ export const sendNotification = (subdomain: string, data) => {
 };
 
 export const sendContactsMessage = (args: ISendMessageArgs) => {
-  return sendMessage({ client, serviceDiscovery, serviceName: "contacts", ...args })
-}
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'contacts',
+    ...args
+  });
+};
 
 export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: "cards",
-    ...args,
+    serviceName: 'cards',
+    ...args
   });
 };
+
+export const sendSegmentsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'segments',
+    ...args
+  });
+};
+
+export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
+  sendSegmentsMessage({
+    subdomain,
+    action: 'fetchSegment',
+    data: { segmentId, options },
+    isRPC: true
+  });
 
 export default function() {
   return client;

@@ -106,7 +106,6 @@ const queries = {
       buyerIds,
       waiterIds,
       stageCode,
-      stageId,
       limit,
       skip
     }
@@ -297,12 +296,21 @@ const queries = {
       dealFilter = { _id: { $in: relIds } };
     }
 
-    if (stageId) {
-      dealFilter.stageId = stageId;
-    } else if (stageCode) {
+    if (stageCode) {
       const stage = await getStage({ code: stageCode });
 
       dealFilter.stageId = stage._id;
+    } else if (process.env.PIPELINE_ID) {
+      const stages = await sendCommonMessage({
+        subdomain: 'os',
+        data: { pipelineId: process.env.PIPELINE_ID },
+        action: 'stages.find',
+        serviceName: 'cards',
+        defaultValue: [],
+        isRPC: true
+      });
+
+      dealFilter.stageId = { $in: stages.map(s => s._id) };
     }
 
     const deals = await sendCommonMessage({
@@ -358,7 +366,7 @@ const queries = {
         (deal.assignedUserIds || []).includes(user._id)
       );
 
-      if (!stageId) {
+      if (!stageCode) {
         deal.stage = await getStage({ _id: deal.stageId });
       }
 

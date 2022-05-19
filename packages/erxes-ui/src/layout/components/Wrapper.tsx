@@ -24,6 +24,7 @@ type Props = {
   mainHead?: React.ReactNode;
   hasBorder?: boolean;
   leftSpacing?: boolean;
+  initialOverflow?: boolean;
 };
 
 class Wrapper extends React.Component<Props> {
@@ -39,6 +40,7 @@ class Wrapper extends React.Component<Props> {
       transparent,
       center,
       shrink,
+      initialOverflow,
       leftSpacing
     } = this.props;
 
@@ -52,6 +54,7 @@ class Wrapper extends React.Component<Props> {
               transparent={transparent || false}
               center={center}
               leftSpacing={leftSpacing}
+              initialOverflow={initialOverflow}
             >
               {content}
             </PageContent>
@@ -73,7 +76,13 @@ class Wrapper extends React.Component<Props> {
   }
 
   render() {
-    const { header, leftSidebar, rightSidebar, mainHead, hasBorder } = this.props;
+    const {
+      header,
+      leftSidebar,
+      rightSidebar,
+      mainHead,
+      hasBorder
+    } = this.props;
 
     return (
       <VerticalContent>

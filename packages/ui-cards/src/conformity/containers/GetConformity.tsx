@@ -8,6 +8,7 @@ import { renderWithProps } from '@erxes/ui/src/utils/core';
 type IProps = {
   mainType?: string;
   mainTypeId?: string;
+  mainTypeName?: string;
   relType?: string;
   component: any;
   queryName: string;

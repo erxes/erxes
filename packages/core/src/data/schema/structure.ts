@@ -1,4 +1,7 @@
-import { attachmentType, attachmentInput } from '@erxes/api-utils/src/commonTypeDefs';
+import {
+  attachmentType,
+  attachmentInput
+} from '@erxes/api-utils/src/commonTypeDefs';
 const commonContactInfoTypes = `
 
     phoneNumber: String
@@ -39,7 +42,7 @@ export const types = `
         userIds: [String]
     }
 
-    type Unit {
+    type Unit @key(fields: "_id") @cacheControl(maxAge: 3) {
         _id: String!
         title: String
         departmentId: String
@@ -52,7 +55,7 @@ export const types = `
         userIds: [String]
     }
 
-    type Branch {
+    type Branch @key(fields: "_id") @cacheControl(maxAge: 3){
         _id: String!
         title: String
         parentId: String

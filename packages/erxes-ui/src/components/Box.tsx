@@ -1,8 +1,8 @@
-import React from "react";
-import Sidebar from "../layout/components/Sidebar";
-import { SectionContainer, SidebarCollapse } from "@erxes/ui/src/layout/styles";
-import { getConfig, setConfig } from "../utils/core";
-import Icon from "./Icon";
+import React from 'react';
+import Sidebar from '../layout/components/Sidebar';
+import { SectionContainer, SidebarCollapse } from '@erxes/ui/src/layout/styles';
+import { getConfig, setConfig } from '../utils/core';
+import Icon from './Icon';
 
 type BoxProps = {
   title: string;
@@ -13,6 +13,7 @@ type BoxProps = {
   collapsible?: boolean;
   isOpen?: boolean;
   noShadow?: boolean;
+  noBackground?: boolean;
 };
 
 type BoxState = {
@@ -28,7 +29,7 @@ export default class Box extends React.Component<BoxProps, BoxState> {
     const config = getConfig(STORAGE_KEY) || {};
 
     this.state = {
-      isOpen: name ? config[name] || isOpen : false,
+      isOpen: name ? config[name] || isOpen : false
     };
   }
 
@@ -51,7 +52,7 @@ export default class Box extends React.Component<BoxProps, BoxState> {
 
   renderDropBtn() {
     const { isOpen } = this.state;
-    const icon = isOpen ? "angle-down" : "angle-right";
+    const icon = isOpen ? 'angle-down' : 'angle-right';
     const { QuickButtons } = Sidebar.Section;
     const { extraButtons } = this.props;
 
@@ -72,11 +73,13 @@ export default class Box extends React.Component<BoxProps, BoxState> {
     const { Title } = Section;
 
     const { isOpen } = this.state;
-    const { children, title, collapsible, noShadow } = this.props;
-    
+    const { children, title, collapsible, noShadow, noBackground } = this.props;
+
     return (
       <SectionContainer noShadow={noShadow}>
-        <Title onClick={this.toggle}>{title}</Title>
+        <Title onClick={this.toggle} noBackground={noBackground}>
+          {title}
+        </Title>
         {this.renderDropBtn()}
         {isOpen ? (
           <Section collapsible={collapsible}>{children}</Section>
