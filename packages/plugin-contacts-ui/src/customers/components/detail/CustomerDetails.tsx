@@ -21,10 +21,11 @@ import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
 
 type Props = {
   customer: ICustomer;
-  fieldsVisibility: IFieldsVisibility;
+  fieldsVisibility: (key: string) => IFieldsVisibility;
   deviceFields: IField[];
+  fields: IField[];
   taggerRefetchQueries?: any[];
-  deviceFieldsVisibility: IFieldsVisibility;
+  deviceFieldsVisibility: (key: string) => IFieldsVisibility;
 };
 
 class CustomerDetails extends React.Component<Props> {
@@ -91,6 +92,7 @@ class CustomerDetails extends React.Component<Props> {
     const {
       customer,
       deviceFields,
+      fields,
       taggerRefetchQueries,
       fieldsVisibility,
       deviceFieldsVisibility
@@ -149,6 +151,7 @@ class CustomerDetails extends React.Component<Props> {
             customer={customer}
             fieldsVisibility={fieldsVisibility}
             deviceFields={deviceFields}
+            fields={fields}
             taggerRefetchQueries={taggerRefetchQueries}
             deviceFieldsVisibility={deviceFieldsVisibility}
           />

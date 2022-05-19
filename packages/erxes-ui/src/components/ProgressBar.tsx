@@ -1,8 +1,8 @@
-import { colors } from "../styles";
-import { stripe } from "../utils/animations";
-import React from "react";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors } from '../styles';
+import { stripe } from '../utils/animations';
+import React from 'react';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const ContentContainer = styled.div`
   position: relative;
@@ -16,7 +16,7 @@ const Wrapper = styledTS<{ height?: string }>(styled.div)`
   padding: 0px 30px;
   background: ${colors.bgMain};
   width: 100%;
-  height: ${(props) => (props.height ? props.height : "36px")};
+  height: ${props => (props.height ? props.height : '36px')};
   box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.05);
 
   a:hover {
@@ -35,7 +35,7 @@ const Wrapper = styledTS<{ height?: string }>(styled.div)`
 
 const Progress = styledTS<{ color?: string }>(styled.div)`
   position: absolute;
-  background: ${(props) => props.color};
+  background: ${props => props.color};
   left: 0;
   top: 0;
   bottom: 0;
@@ -102,54 +102,43 @@ function ProgressBar({
   percentage,
   children,
   close,
-  color = "#dddeff",
+  color = '#dddeff',
   height,
-  type,
+  type
 }: Props) {
-  if (type === "circle") {
+  if (type === 'circle') {
     const strokeWidth = 3;
-    const radius = (100 / 2) - (strokeWidth * 2);
+    const radius = 100 / 2 - strokeWidth * 2;
     const circumference = radius * 2 * Math.PI;
-    const offset = circumference - percentage / 100 * circumference;
+    const offset = circumference - (percentage / 100) * circumference;
     return (
       <Container>
-      <svg
-        aria-valuemax={ 100 }
-        aria-valuemin={ 0 }
-        aria-valuenow={ percentage }
-        height={ height }
-        role="progressbar"
-        width={ height }
-        viewBox="0 0 100 100"
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+        <svg
+          aria-valuemax={100}
+          aria-valuemin={0}
+          aria-valuenow={percentage}
+          height={height}
+          role="progressbar"
+          width={height}
+          viewBox="0 0 100 100"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <Circle cx="50" cy="50" r={radius} strokeWidth={strokeWidth} />
 
-        <Circle
-          cx="50"
-          cy="50"
-          r={ radius }
-          strokeWidth={ strokeWidth }
-        />
+          <FilledCircle
+            cx="50"
+            cy="50"
+            data-testid="progress-bar-bar"
+            r={radius}
+            strokeDasharray={`${circumference} ${circumference}`}
+            strokeDashoffset={offset}
+            strokeWidth={strokeWidth}
+          />
+        </svg>
 
-        <FilledCircle
-          cx="50"
-          cy="50"
-          data-testid="progress-bar-bar"
-          r={ radius }
-          strokeDasharray={ `${ circumference } ${ circumference }` }
-          strokeDashoffset={ offset }
-          strokeWidth={ strokeWidth }
-        />
-
-      </svg>
-
-      <Text data-testid="progress-bar-text">
-        { percentage }%
-      </Text>
-
-    </Container>
-
+        <Text data-testid="progress-bar-text">{percentage}%</Text>
+      </Container>
     );
   }
   return (

@@ -69,7 +69,7 @@ class CarListContainer extends React.Component<FinalProps, State> {
 
     // load config from local storage
     const localConfig = localStorage.getItem(
-      `erxes_tumentech:cars_columns_config`
+      `erxes_tumentech:car_columns_config`
     );
 
     if (localConfig) {
@@ -143,19 +143,19 @@ class CarListContainer extends React.Component<FinalProps, State> {
   }
 }
 
-const generateParams = ({ queryParams }) => ({
-  variables: {
+const generateParams = ({ queryParams }) => {
+  return {
     ...router.generatePaginationParams(queryParams || {}),
     ids: queryParams.ids,
     categoryId: queryParams.categoryId,
+    segment: queryParams.segment,
     searchValue: queryParams.searchValue,
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
       : undefined
-  },
-  fetchPolicy: 'network-only'
-});
+  };
+};
 
 const generateOptions = () => ({
   refetchQueries: [
@@ -177,12 +177,10 @@ export default withProps<Props>(
     graphql<{ queryParams: any }, MainQueryResponse, ListQueryVariables>(
       gql(queries.carsMain),
       {
-        // name: 'carsMainQuery',
-        // options: generateParams
-
         name: 'carsMainQuery',
         options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams })
+          variables: generateParams({ queryParams }),
+          fetchPolicy: 'network-only'
         })
       }
     ),
