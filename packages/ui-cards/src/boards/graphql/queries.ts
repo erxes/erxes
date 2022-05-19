@@ -212,7 +212,7 @@ const pipelineDetail = `
 const itemsCountBySegments = `
   query itemsCountBySegments($type: String!, $boardId: String, $pipelineId: String) {
     itemsCountBySegments(type: $type, boardId: $boardId, pipelineId: $pipelineId)
-  } 
+  }
 `;
 
 const stageDetail = `
@@ -246,7 +246,7 @@ const boardCounts = `
 const itemsCountByAssignedUser = `
   query itemsCountByAssignedUser($pipelineId: String!, $type: String!, $stackBy: String) {
     itemsCountByAssignedUser(pipelineId: $pipelineId, type: $type, stackBy: $stackBy)
-  } 
+  }
 `;
 
 const commonLogParamDefs = `
@@ -281,7 +281,7 @@ const activityLogsByAction = `
           _id
           username
           email
-          
+
           details {
             ${detailFields}
           }
@@ -331,12 +331,14 @@ const cardFields = `
 `;
 
 const boardItemQueryParamsDef = `
+  $_ids: [String],
   $pipelineId: String,
   $stageId: String,
   $limit: Int
 `;
 
 const boardItemQueryParams = `
+  _ids: $_ids,
   pipelineId: $pipelineId,
   stageId: $stageId,
   limit: $limit
@@ -347,7 +349,7 @@ const tasks = `
     tasks(${boardItemQueryParams}) {
       ${cardFields}
     }
-  } 
+  }
 `;
 
 const tickets = `
@@ -355,7 +357,7 @@ const tickets = `
     tickets(${boardItemQueryParams}) {
       ${cardFields}
     }
-  } 
+  }
 `;
 
 const deals = `
@@ -363,7 +365,7 @@ const deals = `
     deals(${boardItemQueryParams}) {
       ${cardFields}
     }
-  } 
+  }
 `;
 
 const boardContentTypeDetail = `

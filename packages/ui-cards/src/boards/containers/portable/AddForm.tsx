@@ -146,7 +146,18 @@ class AddFormContainer extends React.Component<FinalProps> {
     callback(item);
 
     if (getAssociatedItem) {
-      getAssociatedItem(item);
+      const { type } = this.props.options;
+      client
+        .query({
+          query: gql(queries[`${type}s`]),
+          fetchPolicy: 'network-only',
+          variables: { stageId: item.stageId, _ids: [item._id] }
+        })
+        .then(({ data }: any) => {
+          if (data && data[`${type}s`] && data[`${type}s`].length) {
+            getAssociatedItem(data[`${type}s`][0]);
+          }
+        });
     }
 
     if (refetch) {

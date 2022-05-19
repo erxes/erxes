@@ -31,6 +31,7 @@ export interface IConformityQueryParams {
 export interface IListParams extends IConformityQueryParams {
   pipelineId: string;
   stageId: string;
+  _ids?: string;
   skip?: number;
   limit?: number;
   date?: IDate;
