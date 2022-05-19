@@ -288,6 +288,24 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
+  renderObjectListOptions() {
+    const { field } = this.state;
+
+    if (field.type !== 'object_list') {
+      return null;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel htmlFor="locationOptions">Hi:</ControlLabel>
+        <LocationOptions
+          locationOptions={field.locationOptions || []}
+          onChange={this.onChangeLocation}
+        />
+      </FormGroup>
+    );
+  }
+
   renderPageSelect() {
     const { numberOfPages } = this.props;
     const { field } = this.state;
@@ -384,6 +402,8 @@ class FieldForm extends React.Component<Props, State> {
           {this.renderLocationOptions()}
 
           {this.renderMultipleSelectCheckBox()}
+
+          {this.renderObjectListOptions()}
 
           <FormGroup>
             <FlexRow>
