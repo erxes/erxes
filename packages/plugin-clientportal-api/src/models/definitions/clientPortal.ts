@@ -184,16 +184,25 @@ export const clientPortalUserSchema = new Schema({
   companyRegistrationNumber: { type: Number, optional: true },
   erxesCustomerId: { type: String, optional: true },
   erxesCompanyId: { type: String, optional: true },
-  verificationCode: { type: String, optional: true },
-  verificationCodeExpires: { type: Date, optional: true },
   verificationCodePhone: { type: String, optional: true },
   verificationCodePhoneExpires: { type: Date, optional: true },
   verificationCodeEmail: { type: String, optional: true },
   verificationCodeEmailExpires: { type: Date, optional: true },
+  isPhoneVerified: { type: Boolean, optional: true, default: false },
+  isEmailVerified: { type: Boolean, optional: true, default: false },
   deviceTokens: {
     type: [String],
     default: [],
     label: 'Device tokens'
-  },
-  verified: { type: Boolean, optional: true, default: false }
+  }
 });
+
+clientPortalUserSchema.index(
+  { createdAt: 1 },
+  {
+    expireAfterSeconds: 24 * 60 * 60,
+    partialFilterExpression: {
+      $and: [{ isPhoneVerified: false }, { isEmailVerified: false }]
+    }
+  }
+);

@@ -7,7 +7,7 @@ import { BOARD_STATUSES } from '../../models/definitions/constants';
 import { checkPermission } from '@erxes/api-utils/src';
 import { sendCardsMessage, sendContactsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
-import { authCookieOptions, cpMiddleware } from '../../auth/authUtils';
+import { authCookieOptions } from '../../auth/authUtils';
 
 interface ILoginParams {
   type?: string;
@@ -28,6 +28,13 @@ interface ICreateCard {
   description: string;
   priority: string;
   stageId: string;
+}
+
+interface IVerificationParams {
+  userId: string;
+  otp: string;
+  email?: string;
+  phone?: string;
 }
 
 const configClientPortalMutations = {
@@ -159,14 +166,20 @@ const clientPortalUserMutations = {
   },
 
   clientPortalSignup: async (_root, args: IUser, context: IContext) => {
-    await cpMiddleware(context);
-    const { models, subdomain, res } = context;
+    const { models, subdomain } = context;
+    const config = await models.ClientPortals.getConfig(args.clientPortalId);
 
-    return models.ClientPortalUsers.createUser(
-      subdomain,
-      args,
-      res.locals.clientPortal
-    );
+    return models.ClientPortalUsers.createUser(subdomain, args, config);
+  },
+
+  clientPortalVerifyOTP: async (
+    _root,
+    args: IVerificationParams,
+    context: IContext
+  ) => {
+    const { models, subdomain } = context;
+    const { email, phone, clientPortalId, otp } = args;
+    const user = await models.ClientPortalUsers.find({});
   },
 
   /*

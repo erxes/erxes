@@ -34,29 +34,6 @@ export const authCookieOptions = (secure: boolean) => {
   return cookieOptions;
 };
 
-export const cpMiddleware = async (context: IContext) => {
-  const { models, requestInfo, res } = context;
-
-  try {
-    // check for auth header from client
-    const clientPortalId = (
-      requestInfo.headers['client-portal-id'] || ''
-    ).toString();
-
-    if (!clientPortalId) {
-      throw new Error('Client portal id is missing !');
-    }
-
-    const clientPortal = await models.ClientPortals.getConfig(
-      String(clientPortalId)
-    );
-
-    res.locals.clientPortal = clientPortal;
-  } catch (err) {
-    throw new Error(err.message);
-  }
-};
-
 export const cpUserMiddleware = async (context: IContext) => {
   const { models, requestInfo, res } = context;
 

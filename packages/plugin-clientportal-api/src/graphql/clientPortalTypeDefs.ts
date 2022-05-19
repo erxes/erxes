@@ -225,6 +225,7 @@ export const mutations = (contactAvailable, cardAvailable) => `
       ): Company
 
       clientPortalSignup(
+        clientPortalId: String!
         firstName: String
         lastName: String
         email: String
@@ -235,6 +236,7 @@ export const mutations = (contactAvailable, cardAvailable) => `
       : ''
   }
 
+  clientPortalVerifyOTP(clientPortalId: String!, email: String, phone: String, otp): String
   clientPortalLogin(email: String!, password: String!, type: String, description: String, deviceToken: String): String
   clientPortalLogout: String
   clientPortalForgotPassword(email: String!): String!
