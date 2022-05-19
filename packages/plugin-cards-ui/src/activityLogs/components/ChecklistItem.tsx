@@ -16,29 +16,20 @@ class CheckListItem extends React.Component<
 > {
   render() {
     const { activity } = this.props;
-    const {
-      contentTypeDetail,
-      content,
-      action,
-      createdByDetail,
-      createdAt
-    } = activity;
-
-    console.log('------------');
+    const { content, action, createdByDetail, createdAt } = activity;
 
     let userName = 'Unknown';
 
     if (createdByDetail && createdByDetail.type === 'user') {
       const createdByDetailContent = (createdByDetail.content = {} as any);
 
-      console.log(createdByDetailContent, createdByDetail);
-
       if (createdByDetailContent && createdByDetailContent.details) {
         userName = renderUserFullName(createdByDetail.content);
       }
     }
 
-    const name = contentTypeDetail.title || content.name;
+    const name = content.title || content.name;
+
     let contentAction = '';
 
     switch (action) {
