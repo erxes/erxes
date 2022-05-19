@@ -40,6 +40,7 @@ const listQueryParams = `
     district: String
     customFields: JSON
     stageCode: String
+    stageChangedDate: Date
     limit: Int
     skip: Int
  `;
