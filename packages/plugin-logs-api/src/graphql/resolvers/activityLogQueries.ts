@@ -30,6 +30,7 @@ const activityLogQueries = {
     { models, subdomain, serverTiming }: IContext
   ) {
     const { contentId, contentType, activityType } = doc;
+
     const activities: IActivityLogDocument[] = [];
 
     if (activityType && activityType !== 'activity') {
@@ -53,6 +54,9 @@ const activityLogQueries = {
     }
 
     const services = await serviceDiscovery.getServices();
+    const activityLogs = await models.ActivityLogs.find({
+      contentId
+    }).lean();
 
     for (const serviceName of services) {
       const service = await serviceDiscovery.getService(serviceName, true);
@@ -68,7 +72,7 @@ const activityLogQueries = {
             subdomain,
             serviceName,
             'collectItems',
-            { contentId, contentType },
+            { contentId, contentType, activityLogs },
             ''
           );
 
@@ -85,11 +89,7 @@ const activityLogQueries = {
 
     serverTiming.startTime(`activities`);
 
-    activities.push(
-      ...(await models.ActivityLogs.find({
-        contentId
-      }).lean())
-    );
+    activities.push(...activityLogs);
 
     activities.sort((a, b) => {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();

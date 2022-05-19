@@ -4,7 +4,7 @@ const commonTypes = `
   type: String
 `;
 
-export const types = (contactsAvailable) => `
+export const types = contactsAvailable => `
 
   type Board @key(fields: "_id") {
     _id: String!
@@ -119,6 +119,8 @@ export const queries = `
   itemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
   itemsCountByAssignedUser(type: String!, pipelineId: String!, stackBy: String): JSON
   cardsFields: JSON
+  boardContentTypeDetail(contentType: String, contentId: String): JSON
+  boardLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
 `;
 
 const commonParams = `

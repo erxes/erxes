@@ -5,15 +5,17 @@ import {
   FlexCenterContent
 } from '@erxes/ui/src/activityLogs/styles';
 import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
-import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
 import { renderUserFullName } from '@erxes/ui/src/utils';
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-class TaggedLog extends React.Component<IActivityLogItemProps> {
+type Props = { contentDetail: any } & IActivityLogItemProps;
+
+class MovementLog extends React.Component<Props> {
   renderContent = () => {
-    const { activity } = this.props;
-    const { contentDetail, createdByDetail } = activity;
+    const { activity, contentDetail } = this.props;
+    const { contentType, createdByDetail } = activity;
 
     let userName = 'Unknown';
 
@@ -25,16 +27,30 @@ class TaggedLog extends React.Component<IActivityLogItemProps> {
       }
     }
 
-    const { tags } = contentDetail;
+    if (contentDetail.item) {
+      const { item, destinationStage, oldStage } = contentDetail;
 
-    const tagNames = (tags || []).map(tag => {
-      return <Tags key={tag._id} tags={[tag]} size="medium" />;
-    });
+      return (
+        <span>
+          <strong>{userName}</strong> moved&nbsp;
+          <Link
+            to={`/${contentType}/board?_id=${activity._id}&itemId=${item._id}`}
+            target="blank"
+          >
+            {item.name}
+          </Link>
+          &nbsp;
+          {contentType} from&nbsp;
+          <q>{oldStage}</q> to <q>{destinationStage}</q>
+        </span>
+      );
+    }
 
     return (
       <span>
-        {userName} change tag to
-        {tagNames}
+        <strong>
+          {userName} {contentDetail.text || ''}
+        </strong>
       </span>
     );
   };
@@ -55,4 +71,4 @@ class TaggedLog extends React.Component<IActivityLogItemProps> {
   }
 }
 
-export default TaggedLog;
+export default MovementLog;

@@ -1,22 +1,22 @@
-import ActivityInputs from "@erxes/ui/src/activityLogs/components/ActivityInputs";
-import ActivityLogs from "@erxes/ui/src/activityLogs/containers/ActivityLogs";
-import Icon from "@erxes/ui/src/components/Icon";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import { TabTitle } from "@erxes/ui/src/components/tabs";
-import { __, renderFullName } from "coreui/utils";
-import ActionSection from "@erxes/ui-contacts/src/customers/containers/ActionSection";
-import LeadState from "@erxes/ui-contacts/src/customers/containers/LeadState";
-import { MailBox, UserHeader } from "@erxes/ui-contacts/src/customers/styles";
-import Widget from "@erxes/ui-engage/src/containers/Widget";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import MailForm from "@erxes/ui-settings/src/integrations/containers/mail/MailForm";
-import { IField } from "@erxes/ui/src/types";
-import React from "react";
-import { ICustomer } from "../../types";
-import InfoSection from "@erxes/ui-contacts/src/customers/components/common/InfoSection";
-import LeftSidebar from "./LeftSidebar";
-import RightSidebar from "./RightSidebar";
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { TabTitle } from '@erxes/ui/src/components/tabs';
+import { __, renderFullName } from 'coreui/utils';
+import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
+import LeadState from '@erxes/ui-contacts/src/customers/containers/LeadState';
+import { MailBox, UserHeader } from '@erxes/ui-contacts/src/customers/styles';
+import Widget from '@erxes/ui-engage/src/containers/Widget';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
+import { IField } from '@erxes/ui/src/types';
+import React from 'react';
+import { ICustomer } from '../../types';
+import InfoSection from '@erxes/ui-contacts/src/customers/components/common/InfoSection';
+import LeftSidebar from './LeftSidebar';
+import RightSidebar from './RightSidebar';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   customer: ICustomer;
@@ -35,15 +35,15 @@ class CustomerDetails extends React.Component<Props> {
 
     const triggerEmail = (
       <TabTitle>
-        <Icon icon="envelope-add" /> {__("New email")}
+        <Icon icon="envelope-add" /> {__('New email')}
       </TabTitle>
     );
 
-    const content = (props) => (
+    const content = props => (
       <MailBox>
         <MailForm
           fromEmail={customer.primaryEmail}
-          refetchQueries={["activityLogsCustomer"]}
+          refetchQueries={['activityLogsCustomer']}
           closeModal={props.closeModal}
         />
       </MailBox>
@@ -65,11 +65,11 @@ class CustomerDetails extends React.Component<Props> {
   renderExtraTabs = () => {
     const triggerMessenger = (
       <TabTitle>
-        <Icon icon="comment-plus" /> {__("New message")}
+        <Icon icon="comment-plus" /> {__('New message')}
       </TabTitle>
     );
 
-    if (isEnabled("engages")) {
+    if (isEnabled('engages')) {
       return (
         <>
           <Widget
@@ -89,8 +89,8 @@ class CustomerDetails extends React.Component<Props> {
     const { customer, fields, deviceFields, taggerRefetchQueries } = this.props;
 
     const breadcrumb = [
-      { title: __("Contacts"), link: "/contacts" },
-      { title: renderFullName(customer) },
+      { title: __('Contacts'), link: '/contacts' },
+      { title: renderFullName(customer) }
     ];
 
     const content = (
@@ -102,17 +102,17 @@ class CustomerDetails extends React.Component<Props> {
           showEmail={false}
           extraTabs={this.renderExtraTabs()}
         />
-        {isEnabled("logs") && (
+        {isEnabled('logs') && (
           <ActivityLogs
             target={customer.firstName}
             contentId={customer._id}
-            contentType="customer"
+            contentType="contacts:customer"
             extraTabs={[
-              { name: "conversation", label: "Conversation" },
-              { name: "email", label: "Email" },
-              { name: "task", label: "Task" },
-              { name: "sms", label: "SMS" },
-              { name: "campaign", label: "Campaign" },
+              { name: 'inbox:conversation', label: 'Conversation' },
+              { name: 'email', label: 'Email' },
+              { name: 'cards:task', label: 'Task' },
+              { name: 'sms', label: 'SMS' },
+              { name: 'campaign', label: 'Campaign' }
             ]}
           />
         )}

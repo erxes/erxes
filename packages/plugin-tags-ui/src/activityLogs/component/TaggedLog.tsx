@@ -5,14 +5,16 @@ import {
   FlexCenterContent
 } from '@erxes/ui/src/activityLogs/styles';
 import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
+import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
 import { renderUserFullName } from '@erxes/ui/src/utils';
 import React from 'react';
+import { ITag } from '../../types';
 
-class ArchiveLog extends React.Component<IActivityLogItemProps> {
+class TaggedLog extends React.Component<any> {
   renderContent = () => {
-    const { activity } = this.props;
-    const { contentType, createdByDetail, content } = activity;
+    const { activity, tags } = this.props;
+    const { createdByDetail } = activity;
 
     let userName = 'Unknown';
 
@@ -24,9 +26,14 @@ class ArchiveLog extends React.Component<IActivityLogItemProps> {
       }
     }
 
+    const tagNames = (tags || []).map(tag => {
+      return <Tags key={tag._id} tags={[tag]} size="medium" />;
+    });
+
     return (
       <span>
-        <strong>{userName}</strong> {content} this {contentType}
+        {userName} change tag to
+        {tagNames}
       </span>
     );
   };
@@ -47,4 +54,4 @@ class ArchiveLog extends React.Component<IActivityLogItemProps> {
   }
 }
 
-export default ArchiveLog;
+export default TaggedLog;

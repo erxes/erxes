@@ -7,7 +7,8 @@ module.exports = {
     './routes': './src/routes.tsx',
     './settings': './src/Settings.tsx',
     './propertyGroupForm': './src/propertyGroupForm.tsx',
-    './segmentForm': './src/segmentForm.tsx'
+    './segmentForm': './src/segmentForm.tsx',
+    './activityLog': './src/activityLogs/activityLog.tsx'
   },
   routes: {
     url: 'http://localhost:3003/remoteEntry.js',
@@ -16,6 +17,7 @@ module.exports = {
   },
   propertyGroupForm: './propertyGroupForm',
   segmentForm: './segmentForm',
+  activityLog: './activityLog',
   menus: [
     {
       text: 'Sales Pipeline',

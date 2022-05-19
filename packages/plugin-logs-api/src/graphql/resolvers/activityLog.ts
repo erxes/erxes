@@ -1,5 +1,5 @@
 import { IActivityLogDocument } from '../../models/ActivityLogs';
-import { fetchService, sendCoreMessage } from '../../messageBroker';
+import { sendCoreMessage, sendInboxMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
 export default {
@@ -17,54 +17,34 @@ export default {
       isRPC: true
     });
 
-    return { type: 'user', content: user };
-  },
-
-  async contentTypeDetail(
-    activityLog: IActivityLogDocument,
-    _args,
-    { subdomain }: IContext
-  ) {
-    const { contentType } = activityLog;
-
-    let result = '';
-
-    try {
-      result = await fetchService(
-        subdomain,
-        contentType,
-        'getContentTypeDetail',
-        activityLog,
-        ''
-      );
-    } catch (e) {
-      return result;
+    if (user) {
+      return { type: 'user', content: user };
     }
 
-    return result;
-  },
+    const integration = await sendInboxMessage({
+      subdomain,
+      action: 'integrations.findOne',
+      data: { _id: activityLog.createdBy },
+      isRPC: true,
+      defaultValue: []
+    });
 
-  async contentDetail(
-    activityLog: IActivityLogDocument,
-    _args,
-    { subdomain }: IContext
-  ) {
-    const { contentType } = activityLog;
-
-    let result = '';
-
-    try {
-      result = await fetchService(
+    if (integration) {
+      const brand = await sendCoreMessage({
         subdomain,
-        contentType,
-        'getActivityContent',
-        activityLog,
-        ''
-      );
-    } catch (e) {
-      return result;
+        action: 'brands.findOne',
+        data: {
+          query: {
+            _id: integration.brandId
+          }
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      return { type: 'brand', content: brand };
     }
 
-    return result;
+    return;
   }
 };

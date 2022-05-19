@@ -10,23 +10,18 @@ import { __, renderUserFullName } from '@erxes/ui/src/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-class ConvertLog extends React.Component<IActivityLogItemProps> {
+type Props = { contentDetail: any } & IActivityLogItemProps;
+
+class ConvertLog extends React.Component<Props> {
   renderContent() {
-    const { activity } = this.props;
-    const {
-      contentTypeDetail,
-      contentType,
-      content,
-      createdByDetail
-    } = activity;
+    const { activity, contentDetail } = this.props;
+    const { contentType, content, createdByDetail } = activity;
 
     let userName = 'Unknown';
 
     if (createdByDetail && createdByDetail.type === 'user') {
-      const { content } = createdByDetail;
-
-      if (content && content.details) {
-        userName = renderUserFullName(content);
+      if (createdByDetail.content && createdByDetail.content.details) {
+        userName = renderUserFullName(createdByDetail.content);
       }
     }
 
@@ -40,12 +35,10 @@ class ConvertLog extends React.Component<IActivityLogItemProps> {
       <Link
         to={`${
           contentType === 'ticket' ? '/inbox' : ''
-        }/${contentType}/board?_id=${activity._id}&itemId=${
-          contentTypeDetail._id
-        }`}
+        }/${contentType}/board?_id=${activity._id}&itemId=${contentDetail._id}`}
         target="_blank"
       >
-        {contentTypeDetail.name}
+        {contentDetail.name}
       </Link>
     );
 

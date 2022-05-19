@@ -1,4 +1,4 @@
-import { AppConsumer } from '../../appContext';
+import { AppConsumer, AppProvider } from '../../appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
@@ -8,6 +8,7 @@ import { withProps } from '../../utils';
 import ActivityLogs from '../components/ActivityLogs';
 import { queries, subscriptions } from '../graphql';
 import { ActivityLogQueryResponse, IActivityLog } from '../types';
+import { withCurrentUser } from '../../auth';
 
 export type ActivityLogsProps = {
   contentId: string;
@@ -22,6 +23,7 @@ export type ActivityLogsProps = {
 
 type FinalProps = {
   activityLogQuery: ActivityLogQueryResponse;
+  currentUser: IUser;
 } & WithDataProps;
 
 class Container extends React.Component<FinalProps, {}> {
@@ -68,15 +70,10 @@ class Container extends React.Component<FinalProps, {}> {
     };
 
     return (
-      <AppConsumer>
-        {({ currentUser }) => (
-          <ActivityLogs
-            {...props}
-            currentUser={currentUser || ({} as IUser)}
-            activityRenderItem={this.props.activityRenderItem}
-          />
-        )}
-      </AppConsumer>
+      <ActivityLogs
+        {...props}
+        activityRenderItem={this.props.activityRenderItem}
+      />
     );
   }
 }
@@ -103,7 +100,7 @@ const WithData = withProps<WithDataProps>(
         }
       }
     )
-  )(Container)
+  )(withCurrentUser(Container))
 );
 
 export default class Wrapper extends React.Component<

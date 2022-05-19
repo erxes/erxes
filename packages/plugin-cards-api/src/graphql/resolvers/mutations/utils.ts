@@ -335,11 +335,11 @@ export const itemsEdit = async (
       data: {
         item: updatedItem,
         contentType: type,
-        action: activityAction,
+        action: 'archive',
         userId: user._id,
         createdBy: user._id,
         contentId: updatedItem._id,
-        content: 'archived'
+        content: activityAction
       }
     });
 
@@ -353,7 +353,7 @@ export const itemsEdit = async (
     });
   }
 
-  if (doc.assignedUserIds && doc.assignedUserIds.length > 0) {
+  if (doc.assignedUserIds) {
     const { addedUserIds, removedUserIds } = checkUserIds(
       oldItem.assignedUserIds,
       doc.assignedUserIds
