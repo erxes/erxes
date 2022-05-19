@@ -34,7 +34,7 @@ type Props = {
 
 type DraggableContainerProps = {
   stageId: string;
-  pipelineAge?: number;
+  stageAge?: number;
   item: IItem;
   index: number;
   options: IOptions;
@@ -97,15 +97,15 @@ class DraggableContainer extends React.Component<
   }
 
   render() {
-    const { stageId, item, index, options, pipelineAge } = this.props;
+    const { stageId, item, index, options, stageAge } = this.props;
     const { isDragDisabled } = this.state;
 
     const now = dayjs(new Date());
     const createdAt = dayjs(item.createdAt);
     const isOld =
-      !pipelineAge || pipelineAge <= 0
+      !stageAge || stageAge <= 0
         ? false
-        : now.diff(createdAt, 'day') > pipelineAge;
+        : now.diff(createdAt, 'day') > stageAge;
 
     return (
       <Draggable
@@ -156,7 +156,7 @@ class InnerItemList extends React.PureComponent<{
       <DraggableContainerWithRouter
         key={item._id}
         stageId={stageId}
-        pipelineAge={stageAge}
+        stageAge={stageAge}
         item={item}
         index={index}
         options={options}
