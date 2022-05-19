@@ -56,8 +56,6 @@ export const fieldsCombinedByContentType = async (
     []
   );
 
-  console.log('******************************** ', fields);
-
   const customFields = await getCustomFields(models, contentType);
 
   const generateSelectOptions = options => {
