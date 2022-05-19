@@ -1,7 +1,7 @@
-import { getEnv, sendRequest } from "@erxes/api-utils/src";
-import { IModels } from "./connectionResolver";
-import { serviceDiscovery } from './configs'
-import { sendCommonMessage } from "./messageBroker";
+import { getEnv, sendRequest } from '@erxes/api-utils/src';
+import { IModels } from './connectionResolver';
+import { serviceDiscovery } from './configs';
+import { sendCommonMessage } from './messageBroker';
 
 export const send = async (
   models: IModels,
@@ -79,29 +79,29 @@ const prepareWebhookContent = async (subdomain: string, type, action, data) => {
 
   const isEnabled = await serviceDiscovery.isEnabled(serviceName);
 
-    if (isEnabled) {
-      const service = await serviceDiscovery.getService(serviceName, true);
+  if (isEnabled) {
+    const service = await serviceDiscovery.getService(serviceName, true);
 
-      const meta = service.config?.meta || {};
+    const meta = service.config?.meta || {};
 
-      if (meta && meta.webhooks && meta.webhooks.getInfoAvailable) {
-        const response = await sendCommonMessage({
-          subdomain,
-          action: 'webhooks.getInfo',
-          serviceName,
-          data: {
-            data,
-            actionText,
-            contentType,
-            action
-          },
-          isRPC: true
-        });
+    if (meta && meta.webhooks && meta.webhooks.getInfoAvailable) {
+      const response = await sendCommonMessage({
+        subdomain,
+        action: 'webhooks.getInfo',
+        serviceName,
+        data: {
+          data,
+          actionText,
+          contentType,
+          action
+        },
+        isRPC: true
+      });
 
-        url = response.url;
-        content = response.content;
-      }
+      url = response.url;
+      content = response.content;
     }
+  }
 
   url = `${getEnv({ name: 'DOMAIN' })}${url}`;
 

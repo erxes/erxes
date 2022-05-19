@@ -32,7 +32,7 @@ const TagFilterContainer = (props: {
     <CountsByTag
       tags={tags}
       counts={counts.byTag || {}}
-      manageUrl="/tags/contacts:customer"
+      manageUrl="/tags?type=contacts:customer"
       loading={tagsLoading}
     />
   );

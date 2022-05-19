@@ -19,7 +19,8 @@ function HomeContainer() {
 
   return (
     <Home
-      listData={a.data ? a.data.getMiniPlanSalesLogs : []}
+      // listData={a.data ? a.data.getMiniPlanSalesLogs : []}
+      listData={[]}
       refetch={a.refetch}
     />
   );

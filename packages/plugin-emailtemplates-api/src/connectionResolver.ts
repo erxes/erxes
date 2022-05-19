@@ -1,7 +1,10 @@
 import * as mongoose from 'mongoose';
 
 import { IEmailTemplateDocument } from './models/definitions/emailTemplates';
-import { IEmailTemplateModel, loadEmailTemplateClass } from './models/EmailTemplates';
+import {
+  IEmailTemplateModel,
+  loadEmailTemplateClass
+} from './models/EmailTemplates';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
@@ -26,4 +29,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(models, loadClasses); 
+export const generateModels = createGenerateModels<IModels>(
+  models,
+  loadClasses
+);

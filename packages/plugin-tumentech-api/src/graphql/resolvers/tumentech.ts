@@ -1,11 +1,11 @@
-import { IContext } from "../../connectionResolver";
+import { IContext } from '../../connectionResolver';
 import {
   sendCoreMessage,
   sendContactsMessage,
   sendCardsMessage
-} from "../../messageBroker";
-import { IParticipantDocument } from "../../models/definitions/participants";
-import { ICarCategoryDocument } from "../../models/definitions/tumentech";
+} from '../../messageBroker';
+import { IParticipantDocument } from '../../models/definitions/participants';
+import { ICarCategoryDocument } from '../../models/definitions/tumentech';
 
 const Cars = {
   category(car, _args, { models }) {
@@ -21,11 +21,11 @@ const Cars = {
     async ({ models, subdomain }) => {
       const customerIds = await sendCoreMessage({
         subdomain,
-        action: "conformities.savedConformity",
+        action: 'conformities.savedConformity',
         data: {
-          mainType: "car",
+          mainType: 'car',
           mainTypeId: car._id.toString(),
-          relTypes: ["customer"]
+          relTypes: ['customer']
         },
         isRPC: true,
         defaultValue: []
@@ -53,7 +53,7 @@ const CarCategory = {
 
     return models.Cars.countDocuments({
       categoryId: { $in: product_category_ids },
-      status: { $ne: "Deleted" }
+      status: { $ne: 'Deleted' }
     });
   }
 };
@@ -62,7 +62,7 @@ const Participant = {
   customer(participant: IParticipantDocument) {
     return (
       participant.customerId && {
-        __typename: "Customer",
+        __typename: 'Customer',
         _id: participant.customerId
       }
     );
@@ -70,7 +70,7 @@ const Participant = {
 
   deal(participant: IParticipantDocument) {
     return (
-      participant.dealId && { __typename: "Deal", _id: participant.dealId }
+      participant.dealId && { __typename: 'Deal', _id: participant.dealId }
     );
   }
 };

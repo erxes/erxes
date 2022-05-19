@@ -44,7 +44,7 @@ export { paginate }; // ( collection, params: { ids ?: string[]; page ?: number;
 export { validSearchText }; // (values: string[])
 export { regexSearchText }; // ( searchValue: string, searchKey = "searchText" )
 export { sendRequest }; // ( { url, method, headers, form, body, params }: IRequestParams, errorMessage ?: string )
-export { sendToWebhook }; 
+export { sendToWebhook };
 export { fixDate };
 export { getDate };
 export { getToday };

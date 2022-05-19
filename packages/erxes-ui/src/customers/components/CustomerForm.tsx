@@ -15,11 +15,7 @@ import {
   ModalFooter,
   ScrollWrapper
 } from '../../styles/main';
-import {
-  IButtonMutateProps,
-  IFormProps,
-  IQueryParams
-} from '../../types';
+import { IButtonMutateProps, IFormProps, IQueryParams } from '../../types';
 import { Alert, getConstantFromStore, __ } from '../../utils';
 import {
   EMAIL_VALIDATION_STATUSES,
@@ -30,6 +26,7 @@ import React from 'react';
 import validator from 'validator';
 import { ICustomer, ICustomerDoc } from '../types';
 import { genderChoices, isValidPhone } from '../utils';
+import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
 
 type Props = {
   currentUser: IUser;
@@ -40,6 +37,7 @@ type Props = {
   queryParams: IQueryParams;
   changeRedirectType?: (type: string) => void;
   changeVerificationStatus?: (isEmail: boolean) => void;
+  fieldsVisibility: (key: string) => IFieldsVisibility;
 };
 
 type State = {
@@ -140,7 +138,45 @@ class CustomerForm extends React.Component<Props, State> {
     return [];
   }
 
-  renderFormGroup = (label, props) => {
+  renderFormGroup = (label, props, type?) => {
+    const { fieldsVisibility } = this.props;
+
+    const visibility = fieldsVisibility('isVisibleInDetail');
+
+    let name = props.name;
+
+    if (name === 'sex') {
+      name = 'pronoun';
+    }
+
+    if (name === 'ownerId') {
+      name = 'owner';
+    }
+
+    if (!visibility[name]) {
+      return null;
+    }
+
+    if (type === 'date') {
+      return (
+        <FormGroup>
+          <ControlLabel required={false}>{label}</ControlLabel>
+          <DateContainer>
+            <DateControl {...props} />
+          </DateContainer>
+        </FormGroup>
+      );
+    }
+
+    if (type === 'selectMember') {
+      return (
+        <FormGroup>
+          <ControlLabel>Owner</ControlLabel>
+          <SelectTeamMembers {...props} />
+        </FormGroup>
+      );
+    }
+
     return (
       <FormGroup>
         <ControlLabel required={props.required && true}>{label}</ControlLabel>
@@ -243,27 +279,31 @@ class CustomerForm extends React.Component<Props, State> {
                   defaultValue: customer.code || ''
                 })}
 
-                <FormGroup>
-                  <ControlLabel>Owner</ControlLabel>
-                  <SelectTeamMembers
-                    label="Choose an owner"
-                    name="ownerId"
-                    initialValue={ownerId}
-                    onSelect={this.onOwnerChange}
-                    multi={false}
-                  />
-                </FormGroup>
+                {this.renderFormGroup(
+                  'Owner',
+                  {
+                    label: 'Choose an owner',
+                    name: 'ownerId',
+                    initialValue: ownerId,
+                    onSelect: this.onOwnerChange,
+                    multi: false
+                  },
+                  'selectMember'
+                )}
               </FormColumn>
             </FormWrapper>
             <FormWrapper>
               <FormColumn>
-                {this.renderFormGroup('First Name', {
-                  ...formProps,
-                  defaultValue: customer.firstName || '',
-                  autoFocus: true,
-                  required: true,
-                  name: 'firstName'
-                })}
+                <FormGroup>
+                  <ControlLabel required={true}>First Name</ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    defaultValue={customer.firstName || ''}
+                    autoFocus={true}
+                    required={true}
+                    name="firstName"
+                  />
+                </FormGroup>
 
                 {this.renderFormGroup('Middle Name', {
                   ...formProps,
@@ -308,37 +348,36 @@ class CustomerForm extends React.Component<Props, State> {
                   defaultValue: customer.department || ''
                 })}
 
-                <FormGroup>
-                  <ControlLabel>Description</ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    max={140}
-                    name="description"
-                    componentClass="textarea"
-                    defaultValue={customer.description || ''}
-                  />
-                </FormGroup>
+                {this.renderFormGroup('Description', {
+                  ...formProps,
+                  name: 'description',
+                  defaultValue: customer.description || '',
+                  max: 140,
+                  componentClass: 'textarea'
+                })}
               </FormColumn>
               <FormColumn>
-                {this.renderFormGroup('Last Name', {
-                  ...formProps,
-                  name: 'lastName',
-                  defaultValue: customer.lastName || ''
-                })}
-
                 <FormGroup>
-                  <ControlLabel required={false}>Birthday</ControlLabel>
-                  <DateContainer>
-                    <DateControl
-                      {...formProps}
-                      required={false}
-                      name="birthDate"
-                      placeholder={'Birthday'}
-                      value={this.state.birthDate}
-                      onChange={this.onDateChange}
-                    />
-                  </DateContainer>
+                  <ControlLabel>Last Name</ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    name="lastName"
+                    defaultValue={customer.lastName || ''}
+                  />
                 </FormGroup>
+
+                {this.renderFormGroup(
+                  'Birthday',
+                  {
+                    ...formProps,
+                    required: false,
+                    name: 'birthDate',
+                    placeholder: 'Birthday',
+                    value: this.state.birthDate,
+                    onChange: this.onDateChange
+                  },
+                  'date'
+                )}
 
                 <FormGroup>
                   <ControlLabel>Phone</ControlLabel>

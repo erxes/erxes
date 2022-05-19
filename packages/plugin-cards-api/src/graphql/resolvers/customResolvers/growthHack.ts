@@ -1,7 +1,7 @@
-import { IGrowthHackDocument } from "../../../models/definitions/growthHacks";
-import { boardId } from "../../utils";
-import { IContext } from "../../../connectionResolver";
-import { sendFormsMessage } from "../../../messageBroker";
+import { IGrowthHackDocument } from '../../../models/definitions/growthHacks';
+import { boardId } from '../../utils';
+import { IContext } from '../../../connectionResolver';
+import { sendFormsMessage } from '../../../messageBroker';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -20,14 +20,14 @@ export default {
     if (stage.formId) {
       const submissions = await sendFormsMessage({
         subdomain,
-        action: "submissions.find",
+        action: 'submissions.find',
         data: {
           contentTypeId: growthHack._id,
-          contentType: "growthHack",
-          formId: stage.formId,
+          contentType: 'growthHack',
+          formId: stage.formId
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       for (const submission of submissions) {
@@ -47,7 +47,7 @@ export default {
   ) {
     const stage = await models.Stages.getStage(growthHack.stageId);
 
-    const query: any = { contentType: "form" };
+    const query: any = { contentType: 'form' };
 
     if (stage.formId) {
       query.contentTypeId = stage.formId;
@@ -55,24 +55,26 @@ export default {
 
     return sendFormsMessage({
       subdomain,
-      action: "fields.find",
+      action: 'fields.find',
       data: { query, order: 1 },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
   },
 
   assignedUsers(growthHack: IGrowthHackDocument) {
-    return (growthHack.assignedUserIds || []).filter(e => e).map((_id) => ({
-      __typename: "User",
-      _id,
-    }));
+    return (growthHack.assignedUserIds || [])
+      .filter(e => e)
+      .map(_id => ({
+        __typename: 'User',
+        _id
+      }));
   },
 
   votedUsers(growthHack: IGrowthHackDocument) {
-    return (growthHack.votedUserIds || []).map((votedUserId) => ({
-      __typename: "User",
-      _id: votedUserId,
+    return (growthHack.votedUserIds || []).map(votedUserId => ({
+      __typename: 'User',
+      _id: votedUserId
     }));
   },
 
@@ -125,7 +127,7 @@ export default {
 
   labels(growthHack: IGrowthHackDocument, _args, { models }: IContext) {
     return models.PipelineLabels.find({
-      _id: { $in: growthHack.labelIds || [] },
+      _id: { $in: growthHack.labelIds || [] }
     });
   },
 
@@ -134,6 +136,6 @@ export default {
       return;
     }
 
-    return { __typename: "User", _id: growthHack.userId };
-  },
+    return { __typename: 'User', _id: growthHack.userId };
+  }
 };

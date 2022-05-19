@@ -8,6 +8,7 @@ import { withProps } from '../../utils';
 import ActivityLogs from '../components/ActivityLogs';
 import { queries, subscriptions } from '../graphql';
 import { ActivityLogQueryResponse, IActivityLog } from '../types';
+import ErrorBoundary from '../../components/ErrorBoundary';
 
 export type ActivityLogsProps = {
   contentId: string;
@@ -133,15 +134,17 @@ export default class Wrapper extends React.Component<
     const { activityType } = this.state;
 
     return (
-      <WithData
-        target={target}
-        contentId={contentId}
-        contentType={contentType}
-        extraTabs={extraTabs}
-        activityType={activityType}
-        activityRenderItem={activityRenderItem}
-        onChangeActivityTab={this.onChangeActivityTab}
-      />
+      <ErrorBoundary>
+        <WithData
+          target={target}
+          contentId={contentId}
+          contentType={contentType}
+          extraTabs={extraTabs}
+          activityType={activityType}
+          activityRenderItem={activityRenderItem}
+          onChangeActivityTab={this.onChangeActivityTab}
+        />
+      </ErrorBoundary>
     );
   }
 }

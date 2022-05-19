@@ -2,34 +2,34 @@ import { INVOICE_STATUS, SCHEDULE_STATUS } from '../definitions/constants';
 import {
   ICalcDivideParams,
   ICalcTrParams,
-  ITransactionDocument,
+  ITransactionDocument
 } from '../definitions/transactions';
 import {
   afterNextScheduled,
   betweenScheduled,
   onNextScheduled,
-  onPreScheduled,
+  onPreScheduled
 } from './scheduleUtils';
 import {
   calcInterest,
   getUnduePercent,
   getDiffDay,
   getFullDate,
-  getDatesDiffMonth,
+  getDatesDiffMonth
 } from './utils';
 
 export const getAOESchedules = async (models, contract) => {
   // with skipped of done
   const preSchedule = await models.RepaymentSchedules.findOne({
     contractId: contract._id,
-    status: { $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS] },
+    status: { $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS] }
   })
     .sort({ payDate: -1 })
     .lean();
 
   const nextSchedule = await models.RepaymentSchedules.findOne({
     contractId: contract._id,
-    status: { $in: [SCHEDULE_STATUS.PENDING, SCHEDULE_STATUS.LESS] },
+    status: { $in: [SCHEDULE_STATUS.PENDING, SCHEDULE_STATUS.LESS] }
   })
     .sort({ payDate: 1 })
     .lean();
@@ -60,7 +60,7 @@ export const getCalcedAmounts = async (
     debt: 0,
     payment: 0,
     total: 0,
-    preSchedule: undefined,
+    preSchedule: undefined
   };
 
   if (!doc.contractId) {
@@ -70,7 +70,7 @@ export const getCalcedAmounts = async (
   const trDate = getFullDate(doc.payDate);
 
   const contract = await models.LoanContracts.getContract(models, {
-    _id: doc.contractId,
+    _id: doc.contractId
   });
 
   let { preSchedule, nextSchedule } = await getAOESchedules(models, contract);
@@ -90,7 +90,7 @@ export const getCalcedAmounts = async (
       balance: contract.leaseAmount,
       payDate: startDate,
       insurance: nextSchedule.insurance,
-      debt: contract.debt,
+      debt: contract.debt
     };
   }
 
@@ -112,12 +112,12 @@ export const getCalcedAmounts = async (
     result.interestEve = calcInterest({
       balance: preSchedule.balance,
       interestRate: contract.interestRate,
-      dayOfMonth: diffEve,
+      dayOfMonth: diffEve
     });
     result.interestNonce = calcInterest({
       balance: preSchedule.balance,
       interestRate: contract.interestRate,
-      dayOfMonth: diffNonce,
+      dayOfMonth: diffNonce
     });
     result.insurance = preSchedule.insurance;
     result.payment = preSchedule.balance;
@@ -184,12 +184,12 @@ export const getCalcedAmounts = async (
     result.interestEve = calcInterest({
       balance: preSchedule.balance,
       interestRate: contract.interestRate,
-      dayOfMonth: diffEve,
+      dayOfMonth: diffEve
     });
     result.interestNonce = calcInterest({
       balance: preSchedule.balance,
       interestRate: contract.interestRate,
-      dayOfMonth: diffNonce,
+      dayOfMonth: diffNonce
     });
 
     const percentOfDay =
@@ -224,12 +224,12 @@ export const getCalcedAmounts = async (
   result.interestEve = calcInterest({
     balance: preSchedule.balance,
     interestRate: contract.interestRate,
-    dayOfMonth: diffEve,
+    dayOfMonth: diffEve
   });
   result.interestNonce = calcInterest({
     balance: preSchedule.balance,
     interestRate: contract.interestRate,
-    dayOfMonth: diffNonce,
+    dayOfMonth: diffNonce
   });
 
   result.insurance = nextSchedule.insurance;
@@ -239,8 +239,8 @@ export const getCalcedAmounts = async (
     _id: { $ne: nextSchedule },
     $and: [
       { payDate: { $gte: nextSchedule.payDate } },
-      { payDate: { $lte: trDate } },
-    ],
+      { payDate: { $lte: trDate } }
+    ]
   });
 
   for (const sch of doubleSkipped) {
@@ -274,7 +274,7 @@ export const transactionRule = async (
     insurance: 0,
     debt: 0,
     surplus: 0,
-    calcedInfo: undefined,
+    calcedInfo: undefined
   };
 
   if (!doc.contractId) {
@@ -283,7 +283,7 @@ export const transactionRule = async (
 
   result.calcedInfo = await getCalcedAmounts(models, memoryStorage, {
     contractId: doc.contractId,
-    payDate: doc.payDate,
+    payDate: doc.payDate
   });
 
   const {
@@ -293,7 +293,7 @@ export const transactionRule = async (
     interestNonce = 0,
     insurance = 0,
     debt = 0,
-    preSchedule,
+    preSchedule
   } = result.calcedInfo;
   result.calcedInfo.total =
     payment + undue + interestEve + interestNonce + insurance + debt;
@@ -362,20 +362,20 @@ export const trAfterSchedule = async (models, tr: ITransactionDocument) => {
   const trDate = getFullDate(tr.payDate);
 
   const contract = await models.LoanContracts.getContract(models, {
-    _id: tr.contractId,
+    _id: tr.contractId
   });
 
   // with skipped of done
   let preSchedule = await models.RepaymentSchedules.findOne({
     contractId: contract._id,
-    status: { $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS] },
+    status: { $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS] }
   })
     .sort({ payDate: -1 })
     .lean();
 
   const pendingSchedules = await models.RepaymentSchedules.find({
     contractId: contract._id,
-    status: SCHEDULE_STATUS.PENDING,
+    status: SCHEDULE_STATUS.PENDING
   })
     .sort({ payDate: 1 })
     .lean();
@@ -399,7 +399,7 @@ export const trAfterSchedule = async (models, tr: ITransactionDocument) => {
       payDate: contract.startDate,
       contractId: contract._id,
       debt: contract.debt,
-      balance: contract.leaseAmount,
+      balance: contract.leaseAmount
     };
   }
 
@@ -458,7 +458,7 @@ export const removeTrAfterSchedule = async (
 
   const nextTrs = await models.LoanTransactions.find({
     contractId: tr.contractId,
-    payDate: { $gt: tr.payDate },
+    payDate: { $gt: tr.payDate }
   }).lean();
   if (nextTrs && nextTrs.length) {
     throw new Error(
@@ -468,7 +468,7 @@ export const removeTrAfterSchedule = async (
 
   if (tr.invoiceId) {
     await models.LoanInvoices.updateInvoice(models, tr.invoiceId, {
-      status: INVOICE_STATUS.PENDING,
+      status: INVOICE_STATUS.PENDING
     });
   }
 
@@ -485,8 +485,8 @@ export const removeTrAfterSchedule = async (
       bulkOps.unshift({
         updateOne: {
           filter: { _id: reaction.scheduleId },
-          update: { $set: { ...reaction.preData } },
-        },
+          update: { $set: { ...reaction.preData } }
+        }
       });
     }
   }

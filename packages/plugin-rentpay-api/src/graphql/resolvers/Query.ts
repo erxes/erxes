@@ -300,10 +300,7 @@ const queries = {
       const stage = await getStage({ code: stageCode });
 
       dealFilter.stageId = stage._id;
-    } else if (
-      process.env.NODE_ENV === 'production' &&
-      process.env.PIPELINE_ID
-    ) {
+    } else if (process.env.PIPELINE_ID) {
       const stages = await sendCommonMessage({
         subdomain: 'os',
         data: { pipelineId: process.env.PIPELINE_ID },

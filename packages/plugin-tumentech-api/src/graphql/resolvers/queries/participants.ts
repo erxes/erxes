@@ -2,9 +2,9 @@
 //     checkPermission,
 //     requireLogin
 //   } from '@erxes/api-utils/src/permissions';
-import { IContext } from "../../../connectionResolver";
-import { paginate } from "@erxes/api-utils/src";
-const fs = require("fs");
+import { IContext } from '../../../connectionResolver';
+import { paginate } from '@erxes/api-utils/src';
+const fs = require('fs');
 
 const generateFilterQuery = async ({ customerId, dealId, status }) => {
   const query: any = {};

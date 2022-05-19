@@ -12,7 +12,7 @@ module.exports = {
   menus: [
     {
       text: "Tags",
-      to: "/tags/inbox:conversation",
+      to: "/tags",
       image: "/images/icons/erxes-18.svg",
       location: "settings",
       scope: "tags",

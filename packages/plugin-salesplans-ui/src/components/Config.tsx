@@ -28,7 +28,6 @@ function Config({ save, data, closeModal, removedata }: Props) {
   const [configsData, setConfigsData] = useState(data ? data : []);
 
   // useEffect(() => {
-  //   console.log("sssssss", configs);
   // }, [configs]);
 
   useEffect(() => {
@@ -247,7 +246,6 @@ function Config({ save, data, closeModal, removedata }: Props) {
   };
 
   const renderTab = () => {
-    // console.log("sssssssssssssssssssssssss", data);
     const cancel = (
       <Button
         btnStyle="simple"
