@@ -67,7 +67,7 @@ class CarListContainer extends React.Component<FinalProps, State> {
 
     // load config from local storage
     const localConfig = localStorage.getItem(
-      `erxes_tumentech:cars_columns_config`
+      `erxes_tumentech:car_columns_config`
     );
 
     if (localConfig) {

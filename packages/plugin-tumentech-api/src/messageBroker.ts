@@ -103,6 +103,14 @@ export const sendSegmentsMessage = async (
   });
 };
 
+export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
+  sendSegmentsMessage({
+    subdomain,
+    action: 'fetchSegment',
+    data: { segmentId, options },
+    isRPC: true
+  });
+
 export default function() {
   return client;
 }

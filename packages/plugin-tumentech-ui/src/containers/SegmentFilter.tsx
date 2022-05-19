@@ -4,23 +4,23 @@ import Segments from '@erxes/ui-segments/src/containers/Filter';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
-// import { queries as customerQueries } from "@erxes/ui-contacts/src/customers/graphql";
 import { queries } from '../graphql';
+import { CountQueryResponse } from '../types';
 
 type Props = {
-  carCountQuery?: any;
+  carCountQuery?: CountQueryResponse;
 };
 
 const SegmentFilterContainer = (props: Props & WrapperProps) => {
   const { carCountQuery } = props;
 
-  //   const counts = (carCountQuery
-  //     ? carCountQuery.customerCounts
-  //     : null) || { bySegment: {} };
+  const counts = (carCountQuery ? carCountQuery.carCounts : null) || {
+    bySegment: {}
+  };
 
-  // console.log(carCountQuery);
-
-  return <Segments contentType={'tumentech:car'} counts={{}} />;
+  return (
+    <Segments contentType={'tumentech:car'} counts={counts.bySegment || {}} />
+  );
 };
 
 type WrapperProps = {
