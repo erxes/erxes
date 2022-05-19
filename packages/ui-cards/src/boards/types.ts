@@ -84,7 +84,6 @@ export interface IPipeline {
   excludeCheckUserIds?: string[];
   numberConfig?: string;
   numberSize?: string;
-  age?: number;
 }
 
 export interface IBoard {
@@ -142,6 +141,7 @@ export interface IStage {
   status: string;
   order: number;
   code?: string;
+  age?: number;
 }
 
 export interface IConversionStage extends IStage {

@@ -41,7 +41,6 @@ const pipelines = `
       memberIds
       departmentIds
       numberSize
-      age
       createdAt
       createdUser{
         details {
@@ -65,6 +64,7 @@ const stages = `
       formId
       status
       code
+      age
     }
   }
 `;

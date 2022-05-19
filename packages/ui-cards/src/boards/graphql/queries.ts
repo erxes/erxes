@@ -174,6 +174,7 @@ const stageCommon = `
   itemsTotalCount
   pipelineId
   code
+  age
 `;
 
 const stages = `
@@ -320,7 +321,6 @@ const conversionStages = `
     }
   }
 `;
-
 
 const cardFields = `
   _id

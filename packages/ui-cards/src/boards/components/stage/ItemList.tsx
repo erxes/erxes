@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
@@ -21,6 +22,7 @@ import Item from './Item';
 type Props = {
   listId: string;
   stageId: string;
+  stageAge?: number;
   items: IItem[];
   internalScroll?: boolean;
   style?: any;
@@ -32,6 +34,7 @@ type Props = {
 
 type DraggableContainerProps = {
   stageId: string;
+  pipelineAge?: number;
   item: IItem;
   index: number;
   options: IOptions;
@@ -94,8 +97,15 @@ class DraggableContainer extends React.Component<
   }
 
   render() {
-    const { stageId, item, index, options } = this.props;
+    const { stageId, item, index, options, pipelineAge } = this.props;
     const { isDragDisabled } = this.state;
+
+    const now = dayjs(new Date());
+    const createdAt = dayjs(item.createdAt);
+    const isOld =
+      !pipelineAge || pipelineAge <= 0
+        ? false
+        : now.diff(createdAt, 'day') > pipelineAge;
 
     return (
       <Draggable
@@ -107,6 +117,7 @@ class DraggableContainer extends React.Component<
         {(dragProvided, dragSnapshot) => (
           <ItemContainer
             isDragging={dragSnapshot.isDragging}
+            isOld={isOld}
             innerRef={dragProvided.innerRef}
             {...dragProvided.draggableProps}
             {...dragProvided.dragHandleProps}
@@ -133,17 +144,19 @@ const DraggableContainerWithRouter = withRouter<DraggableContainerProps>(
 
 class InnerItemList extends React.PureComponent<{
   stageId: string;
+  stageAge?: number;
   items: IItem[];
   options: IOptions;
   onRemoveItem: (itemId: string, stageId: string) => void;
 }> {
   render() {
-    const { stageId, items, options, onRemoveItem } = this.props;
+    const { stageId, stageAge, items, options, onRemoveItem } = this.props;
 
     return items.map((item, index: number) => (
       <DraggableContainerWithRouter
         key={item._id}
         stageId={stageId}
+        pipelineAge={stageAge}
         item={item}
         index={index}
         options={options}
@@ -156,6 +169,7 @@ class InnerItemList extends React.PureComponent<{
 type InnerListProps = {
   dropProvided;
   stageId: string;
+  stageAge?: number;
   items: IItem[];
   options: IOptions;
   onRemoveItem: (itemId: string, stageId: string) => void;
@@ -163,7 +177,14 @@ type InnerListProps = {
 
 class InnerList extends React.PureComponent<InnerListProps> {
   render() {
-    const { stageId, items, dropProvided, options, onRemoveItem } = this.props;
+    const {
+      stageId,
+      stageAge,
+      items,
+      dropProvided,
+      options,
+      onRemoveItem
+    } = this.props;
 
     if (items.length === 0) {
       return (
@@ -178,6 +199,7 @@ class InnerList extends React.PureComponent<InnerListProps> {
         <InnerItemList
           onRemoveItem={onRemoveItem}
           stageId={stageId}
+          stageAge={stageAge}
           items={items}
           options={options}
         />
@@ -198,6 +220,7 @@ export default class ItemList extends React.Component<Props> {
       listId,
       style,
       stageId,
+      stageAge,
       items,
       options,
       onRemoveItem
@@ -217,6 +240,7 @@ export default class ItemList extends React.Component<Props> {
             <InnerList
               onRemoveItem={onRemoveItem}
               stageId={stageId}
+              stageAge={stageAge}
               items={items}
               dropProvided={dropProvided}
               options={options}

@@ -52,7 +52,6 @@ type State = {
   numberConfig?: string;
   numberSize?: string;
   departmentIds?: string[];
-  age?: number;
 };
 
 class PipelineForm extends React.Component<Props, State> {
@@ -72,8 +71,7 @@ class PipelineForm extends React.Component<Props, State> {
       boardId: props.boardId || '',
       numberConfig: (pipeline && pipeline.numberConfig) || '',
       numberSize: (pipeline && pipeline.numberSize) || '',
-      departmentIds: pipeline ? pipeline.departmentIds || [] : [],
-      age: pipeline && pipeline.age
+      departmentIds: pipeline ? pipeline.departmentIds || [] : []
     };
   }
 
@@ -111,18 +109,6 @@ class PipelineForm extends React.Component<Props, State> {
     this.setState({ [key]: value } as any);
   };
 
-  onChangeAge = (e: React.FormEvent<HTMLElement>) => {
-    const value = (e.currentTarget as HTMLInputElement).value;
-
-    if (parseInt(value, 10) < 1) {
-      return Alert.warning('Age must be more than 1!');
-    }
-
-    this.setState({
-      age: parseInt(value, 10)
-    });
-  };
-
   generateDoc = (values: {
     _id?: string;
     name: string;
@@ -138,9 +124,9 @@ class PipelineForm extends React.Component<Props, State> {
       boardId,
       numberConfig,
       numberSize,
-      departmentIds,
-      age
+      departmentIds
     } = this.state;
+
     const finalValues = values;
 
     if (pipeline) {
@@ -159,8 +145,7 @@ class PipelineForm extends React.Component<Props, State> {
       excludeCheckUserIds,
       numberConfig,
       numberSize,
-      departmentIds,
-      age
+      departmentIds
     };
   };
 
@@ -322,19 +307,6 @@ class PipelineForm extends React.Component<Props, State> {
                   defaultValue={object.name}
                   autoFocus={true}
                   required={true}
-                />
-              </FormGroup>
-            </FlexItem>
-            <FlexItem count={1} hasSpace={true}>
-              <FormGroup>
-                <ControlLabel>Age</ControlLabel>
-                <FormControl
-                  name="age"
-                  type="number"
-                  value={this.state.age}
-                  min={1}
-                  placeholder="Enter number of days"
-                  onChange={this.onChangeAge}
                 />
               </FormGroup>
             </FlexItem>

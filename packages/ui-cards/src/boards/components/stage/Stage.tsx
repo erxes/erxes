@@ -324,6 +324,7 @@ export default class Stage extends React.Component<Props, State> {
       <ItemList
         listId={stage._id}
         stageId={stage._id}
+        stageAge={stage.age}
         items={items}
         options={options}
         onRemoveItem={onRemoveItem}
