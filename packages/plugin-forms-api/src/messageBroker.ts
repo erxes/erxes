@@ -220,10 +220,15 @@ export const initBroker = async cl => {
       );
 
       if (isAutomationsAvailable && customer) {
+        const submissionValues = {};
+        for (const submit of submissions) {
+          submissionValues[submit.formFieldId] = submit.value;
+        }
+
         client.sendMessage('automations:trigger', {
           data: {
-            type: `contacts:customer`,
-            targets: [customer]
+            type: `contacts:${customer.state}`,
+            targets: [{ ...customer, ...submissionValues }]
           }
         });
       }
