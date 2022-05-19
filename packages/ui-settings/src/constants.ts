@@ -170,7 +170,7 @@ export const EMPTY_CONTENT_ENGAGE = {
     {
       title: 'Email',
       description:
-        "<ul><li><strong><a href='/settings/campaign-configs'>Verify</a> your email address</strong> <br/> Make sure it is the same as one of your team members</li><li><strong>Integrate that email address with <a href='/settings/integrations#showImapModal=true'>IMAP</a></strong> <br/> Connect your existing emails address as an integration</li><li><strong>Prepare your contacts by Segment / Tag / Brand</strong> <br/> For more targeted marketing, create a <a href='/segments/new/customer'>Segment</a></li></ul>",
+        "<ul><li><strong><a href='/settings/campaign-configs'>Verify</a> your email address</strong> <br/> Make sure it is the same as one of your team members</li><li><strong>Integrate that email address with <a href='/settings/add-ons#showImapModal=true'>IMAP</a></strong> <br/> Connect your existing emails address as an integration</li><li><strong>Prepare your contacts by Segment / Tag / Brand</strong> <br/> For more targeted marketing, create a <a href='/segments/new/customer'>Segment</a></li></ul>",
       html: true,
       icon: 'envelope-edit'
     },
@@ -227,7 +227,7 @@ export const EMPTY_CONTENT_MESSENGER = {
     {
       title: __('Create a new messenger'),
       description: __('Click on “Add” and complete all the steps.'),
-      url: '/settings/integrations/createMessenger',
+      url: '/settings/add-ons/createMessenger',
       urlText: 'Add Messenger'
     },
     {
@@ -235,7 +235,7 @@ export const EMPTY_CONTENT_MESSENGER = {
       description: __(
         'Click on “Add” of the Knowledgebase integration, if any, and complete the steps.'
       ),
-      url: '/settings/integrations#showKBAddModal=true',
+      url: '/settings/add-ons#showKBAddModal=true',
       urlText: 'Add Knowledgebase'
     },
     {
@@ -243,7 +243,7 @@ export const EMPTY_CONTENT_MESSENGER = {
       description: __(
         'Click on “Add” of the Popup integration,if any, and complete the steps.'
       ),
-      url: '/settings/integrations#showPopupAddModal=true',
+      url: '/settings/add-ons#showPopupAddModal=true',
       urlText: 'Add Popup'
     },
     {
@@ -281,7 +281,7 @@ export const EMPTY_CONTENT_CONTACTS = {
       description: __(
         'Create your erxes Messenger to start capturing Visitors'
       ),
-      url: '/settings/integrations/createMessenger',
+      url: '/settings/add-ons/createMessenger',
       urlText: 'Create Messenger'
     },
     {
@@ -289,7 +289,7 @@ export const EMPTY_CONTENT_CONTACTS = {
       description: __(
         'Integrate your email address to sync previous email Leads'
       ),
-      url: '/settings/integrations',
+      url: '/settings/add-ons',
       urlText: 'Visit AppStore'
     },
     {
@@ -297,7 +297,7 @@ export const EMPTY_CONTENT_CONTACTS = {
       description: __(
         'Integrate social media website to start capturing Leads'
       ),
-      url: '/settings/integrations',
+      url: '/settings/add-ons',
       urlText: 'Visit AppStore'
     },
     {

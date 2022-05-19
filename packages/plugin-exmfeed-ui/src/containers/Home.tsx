@@ -6,6 +6,5 @@ type Props = {
 };
 
 export default function HomeContainer(props: Props) {
-  console.log('home');
   return <Home {...props} />;
 }

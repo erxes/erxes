@@ -1,20 +1,20 @@
-import { Plugin, ChildPlugin } from "./types";
+import { Plugin, ChildPlugin } from './types';
 
 export const getLink = (url: string): string => {
-  const storageValue = window.localStorage.getItem("pagination:perPage");
+  const storageValue = window.localStorage.getItem('pagination:perPage');
 
   let parsedStorageValue: any;
 
   try {
-    parsedStorageValue = JSON.parse(storageValue || "");
+    parsedStorageValue = JSON.parse(storageValue || '');
   } catch {
     parsedStorageValue = {};
   }
 
-  if (url.includes("?")) {
-    const pathname = url.split("?")[0];
+  if (url.includes('?')) {
+    const pathname = url.split('?')[0];
 
-    if (!url.includes("perPage") && parsedStorageValue[pathname]) {
+    if (!url.includes('perPage') && parsedStorageValue[pathname]) {
       return `${url}&perPage=${parsedStorageValue[pathname]}`;
     }
     return url;
@@ -34,15 +34,15 @@ export const pluginNavigations = (): any[] => {
 
   for (const plugin of plugins) {
     for (const menu of plugin.menus || []) {
-      if (menu.location === "settings") {
+      if (menu.location === 'settings') {
         childMenus.push(menu);
       }
 
-      if (menu.location === "mainNavigation") {
+      if (menu.location === 'mainNavigation') {
         navigationMenus.push({
           ...menu,
           name: plugin.name,
-          children: childMenus,
+          children: childMenus
         });
       }
     }
@@ -61,8 +61,8 @@ export const getChildren = (plugin: Plugin): ChildPlugin[] => {
     children.filter((child: ChildPlugin) => {
       if (
         (name && child.scope !== name) ||
-        (name === "inbox" && !url.includes(child.scope)) ||
-        (child.scope === "cards" &&
+        (name === 'inbox' && !url.includes(child.scope)) ||
+        (child.scope === 'cards' &&
           !child.text.toLowerCase().includes(text.toLowerCase()))
       )
         return null;
@@ -76,8 +76,8 @@ export const filterPlugins = (
   allPlugins: Plugin[],
   pinnedPlugins: Plugin[]
 ): Plugin[] => {
-  pinnedPlugins.forEach((el) => {
-    allPlugins = allPlugins.filter((i) => i.url !== el.url);
+  pinnedPlugins.forEach(el => {
+    allPlugins = allPlugins.filter(i => i.url !== el.url);
   });
 
   return allPlugins;

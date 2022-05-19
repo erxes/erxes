@@ -14,13 +14,13 @@ export let serviceDiscovery;
 export default {
   name: 'automations',
   permissions,
-  graphql: async (sd) => {
+  graphql: async sd => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
       resolvers: await resolvers(sd)
-    }
+    };
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -38,6 +38,5 @@ export default {
     graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
-  },
-
+  }
 };

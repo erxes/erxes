@@ -1,27 +1,27 @@
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import React from 'react';
-import Task from '../containers/items/boardItems/Task';
-import Conversation from '../containers/items/Conversation';
-import { ActivityIcon, ActivityRow } from '@erxes/ui/src/activityLogs/styles';
-import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
-import { formatText, getIconAndColor } from '@erxes/ui/src/activityLogs/utils';
-import ArchiveLog from './items/archive/ArchiveLog';
-import AssigneeLog from './items/boardItems/AssigneeLog';
-import MovementLog from './items/boardItems/MovementLog';
-import CampaignLog from './items/CampaignLog';
-import ConvertLog from './items/ConvertLog';
-import CreatedLog from './items/create/CreatedLog';
-import DeletedLog from './items/delete/DeletedLog';
-import MergedLog from './items/MergedLog';
-import SegmentLog from './items/SegmentLog';
-import SmsLog from './items/SmsLog';
-import TaggedLog from './items/TaggedLog';
+import Icon from "@erxes/ui/src/components/Icon";
+import Tip from "@erxes/ui/src/components/Tip";
+import React from "react";
+import Task from "../containers/items/boardItems/Task";
+import Conversation from "../containers/items/Conversation";
+import { ActivityIcon, ActivityRow } from "@erxes/ui/src/activityLogs/styles";
+import { IActivityLog } from "@erxes/ui/src/activityLogs/types";
+import { formatText, getIconAndColor } from "@erxes/ui/src/activityLogs/utils";
+import ArchiveLog from "./items/archive/ArchiveLog";
+import AssigneeLog from "./items/boardItems/AssigneeLog";
+import MovementLog from "./items/boardItems/MovementLog";
+import CampaignLog from "./items/CampaignLog";
+import ConvertLog from "./items/ConvertLog";
+import CreatedLog from "./items/create/CreatedLog";
+import DeletedLog from "./items/delete/DeletedLog";
+import MergedLog from "./items/MergedLog";
+import SegmentLog from "./items/SegmentLog";
+import SmsLog from "./items/SmsLog";
+import TaggedLog from "./items/TaggedLog";
 
 const renderDetail = (type: string, children: React.ReactNode) => {
   const iconAndColor = getIconAndColor(type) || {};
 
-  if (type === 'conversation') {
+  if (type === "conversation") {
     return children;
   }
 
@@ -40,58 +40,56 @@ const renderDetail = (type: string, children: React.ReactNode) => {
 const activityItem = (activity: IActivityLog) => {
   const { _id, contentType, action } = activity;
 
-  const type = contentType.split(':')[1];
-
-  console.log(type, 'dasdasd');
+  const type = contentType.split(":")[1];
 
   switch ((action && action) || type) {
-    case 'conversation':
+    case "conversation":
       return renderDetail(
-        'conversation',
+        "conversation",
         <Conversation conversationId={_id} activity={activity} />
       );
-    case 'taskDetail':
-      return renderDetail('task', <Task taskId={_id} />);
-    case 'comment':
+    case "taskDetail":
+      return renderDetail("task", <Task taskId={_id} />);
+    case "comment":
       return renderDetail(
-        'conversation',
+        "conversation",
         <Conversation conversationId={_id} activity={activity} />
       );
-    case 'moved':
+    case "moved":
       return renderDetail(
         activity.contentType,
         <MovementLog activity={activity} />
       );
-    case 'create':
+    case "create":
       return renderDetail(
         activity.contentType,
         <CreatedLog activity={activity} />
       );
-    case 'delete':
+    case "delete":
       return renderDetail(
         activity.contentType,
         <DeletedLog activity={activity} />
       );
-    case 'merge':
+    case "merge":
       return renderDetail(
         activity.contentType,
         <MergedLog activity={activity} />
       );
-    case 'convert':
+    case "convert":
       return renderDetail(
         activity.contentType,
         <ConvertLog activity={activity} />
       );
-    case 'segment':
+    case "segment":
       return renderDetail(activity.action, <SegmentLog activity={activity} />);
-    case 'assignee':
-      return renderDetail('assignee', <AssigneeLog activity={activity} />);
-    case 'tagged':
-      return renderDetail('tagged', <TaggedLog activity={activity} />);
-    case 'archive':
-      return renderDetail('archive', <ArchiveLog activity={activity} />);
-    case 'send':
-      if (contentType === 'campaign') {
+    case "assignee":
+      return renderDetail("assignee", <AssigneeLog activity={activity} />);
+    case "tagged":
+      return renderDetail("tagged", <TaggedLog activity={activity} />);
+    case "archive":
+      return renderDetail("archive", <ArchiveLog activity={activity} />);
+    case "send":
+      if (contentType === "campaign") {
         return renderDetail(
           activity.contentType,
           <CampaignLog activity={activity} />

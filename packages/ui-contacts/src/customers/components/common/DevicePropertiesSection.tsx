@@ -2,16 +2,21 @@ import Box from '@erxes/ui/src/components/Box';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { __ } from '@erxes/ui/src/utils';
 import { ICustomer } from '@erxes/ui/src/customers/types';
-import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import parse from 'ua-parser-js';
+import { IFieldsVisibility } from '../../types';
 
 type Props = {
   customer: ICustomer;
   collapseCallback?: () => void;
   fields: IField[];
-  isDetail: boolean;
+  deviceFieldsVisibility: IFieldsVisibility;
 };
 
 export const renderFlag = (countryCode?: string) => {
@@ -36,12 +41,9 @@ class DevicePropertiesSection extends React.Component<Props> {
     secondValue?: string,
     nowrap?: boolean
   ) => {
-    const { fields = [], isDetail } = this.props;
-    const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
+    const { deviceFieldsVisibility } = this.props;
 
-    const property = fields.find(e => e.type === field);
-
-    if (property && !property[isVisibleKey]) {
+    if (!deviceFieldsVisibility[field]) {
       return null;
     }
 

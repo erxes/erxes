@@ -20,6 +20,7 @@ import {
   RemoveMutationResponse,
   RemoveMutationVariables
 } from '../types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   queryParams?: any;
@@ -68,7 +69,8 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       companiesMerge,
       history
     } = this.props;
-    let columnsConfig = companiesListConfigQuery.fieldsDefaultColumnsConfig || [
+    let columnsConfig = (companiesListConfigQuery &&
+      companiesListConfigQuery.fieldsDefaultColumnsConfig) || [
       { name: 'primaryName', label: 'Primary Name', order: 1 },
       { name: 'size', label: 'Size', order: 2 },
       { name: 'links.website', label: 'Website', order: 3 },
@@ -80,7 +82,9 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
     ];
 
     // load config from local storage
-    const localConfig = localStorage.getItem('erxes_contacts:company_columns_config');
+    const localConfig = localStorage.getItem(
+      'erxes_contacts:company_columns_config'
+    );
 
     if (localConfig) {
       columnsConfig = JSON.parse(localConfig).filter(conf => {
@@ -235,7 +239,8 @@ export default withProps<Props>(
     graphql<Props, ListConfigQueryResponse, {}>(
       gql(queries.companiesListConfig),
       {
-        name: 'companiesListConfigQuery'
+        name: 'companiesListConfigQuery',
+        skip: !isEnabled('forms')
       }
     ),
     // mutations

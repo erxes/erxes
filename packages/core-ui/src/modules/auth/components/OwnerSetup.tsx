@@ -16,7 +16,7 @@ export const OwnerDescription = () => {
   return (
     <>
       <h1>{__('Welcome to erxes')}</h1>
-      <h2>{__('Erxes is the partner your website needs for success')}</h2>
+      <h2>{__('erxes is the partner your website needs for success')}</h2>
       <p>
         {__(
           'You will configure several settings on this page. You will be able to change these settings in the erxes settings tab. You will be creating the top level administrator account profile. Please complete all the data in Initial Configuration Steps.'

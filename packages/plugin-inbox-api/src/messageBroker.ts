@@ -159,15 +159,6 @@ export const initBroker = cl => {
     }
   );
 
-  consumeRPCQueue('inbox:integrations.find', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-
-    return {
-      status: 'success',
-      data: await models.Integrations.getIntegration(data)
-    };
-  });
-
   consumeRPCQueue(
     'inbox:updateConversationMessage',
     async ({ subdomain, data: { filter, updateDoc } }) => {

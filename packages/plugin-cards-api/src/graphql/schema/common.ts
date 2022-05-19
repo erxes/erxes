@@ -92,7 +92,6 @@ export const commonMutationParams = `
   status: String,
   sourceConversationIds: [String],
   customFieldsData: JSON
-  data: JSON
 `;
 
 export const commonDragParams = `
@@ -118,6 +117,7 @@ export const commonListTypes = `
   relations: JSON
   startDate: Date
   closeDate: Date
+  createdAt: Date
   modifiedAt: Date
   priority: String
   hasNotified: Boolean

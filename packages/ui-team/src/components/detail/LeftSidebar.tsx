@@ -5,14 +5,18 @@ import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { __ } from '@erxes/ui/src/utils';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
 import { ISkillDocument } from '@erxes/ui-settings/src/skills/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IChannel } from '@erxes/ui-settings/src/channels/types';
 import CustomFieldsSection from '../../containers/CustomFieldsSection';
 import { List, SkillList } from './styles';
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import { EmptyState } from '@erxes/ui/src/components';
 
 type Props = {
@@ -115,21 +119,25 @@ function LeftSidebar({
           />
         </Section.QuickButtons>
         <SkillList>
-          {skills.length > 0 ? skills.map(skill => {
-            const handleRemove = () => excludeUserSkill(skill._id, user._id);
+          {skills.length > 0 ? (
+            skills.map(skill => {
+              const handleRemove = () => excludeUserSkill(skill._id, user._id);
 
-            return (
-              <Button
-                key={skill._id}
-                btnStyle="simple"
-                size="small"
-                onClick={handleRemove}
-              >
-                {skill.name}&nbsp;
-                <Icon icon="times-circle" color="#EA475D" />
-              </Button>
-            );
-          }) : <EmptyState icon="ban" text="No skills" size="small" />}
+              return (
+                <Button
+                  key={skill._id}
+                  btnStyle="simple"
+                  size="small"
+                  onClick={handleRemove}
+                >
+                  {skill.name}&nbsp;
+                  <Icon icon="times-circle" color="#EA475D" />
+                </Button>
+              );
+            })
+          ) : (
+            <EmptyState icon="ban" text="No skills" size="small" />
+          )}
         </SkillList>
       </Section>
     );
@@ -138,9 +146,11 @@ function LeftSidebar({
   return (
     <Sidebar wide={true}>
       {renderUserInfo()}
-      {isEnabled("inbox") && renderChannels()}
-      {renderSkills()}
-      <CustomFieldsSection user={user} isDetail={true} />
+      {isEnabled('inbox') && renderChannels()}
+      {isEnabled('inbox') && renderSkills()}
+      {isEnabled('forms') && (
+        <CustomFieldsSection user={user} isDetail={true} />
+      )}
     </Sidebar>
   );
 }
