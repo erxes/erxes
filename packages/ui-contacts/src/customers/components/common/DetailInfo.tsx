@@ -84,7 +84,7 @@ class DetailInfo extends React.PureComponent<Props> {
   }
 
   render() {
-    const { customer, fieldsVisibility = [] } = this.props;
+    const { customer, fieldsVisibility = {} } = this.props;
 
     if (!Object.keys(fieldsVisibility).length) {
       return null;
