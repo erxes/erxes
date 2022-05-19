@@ -62,26 +62,34 @@ export interface IClientPortalDocument extends IClientPortal, Document {
 }
 
 export interface IUser {
-  createdAt?: Date;
-  password?: string;
   email?: string;
+  phone?: string;
+  username?: string;
+  password?: string;
   resetPasswordToken?: string;
   resetPasswordExpires?: number;
   registrationToken?: string;
   registrationTokenExpires?: Date;
   firstName?: string;
   lastName?: string;
-  phone?: string;
+
   type?: string;
   companyName?: string;
   companyRegistrationNumber?: number;
   deviceTokens?: string[];
   clientPortalId: string;
   erxesCustomerId: string;
+  createdAt?: Date;
 }
 
 export interface IUserDocument extends IUser, Document {
   _id: string;
+  phoneVerificationCode: string;
+  phoneVerificationCodeExpires: Date;
+  emailVerificationCode: string;
+  emailVerificationCodeExpires: Date;
+  isPhoneVerified: boolean;
+  isEmailVerified: boolean;
 }
 
 const stylesSchema = new Schema(
@@ -152,16 +160,17 @@ export const clientPortalSchema = new Schema({
 });
 
 export const clientPortalUserSchema = new Schema({
-  type: {
+  _id: field({ pkey: true }),
+  type: field({
     type: String,
     enum: USER_LOGIN_TYPES.ALL,
     default: USER_LOGIN_TYPES.CUSTOMER
-  },
-  createdAt: {
+  }),
+  createdAt: field({
     type: Date,
     default: Date.now
-  },
-  email: {
+  }),
+  email: field({
     type: String,
     unique: true,
     match: [
@@ -169,32 +178,32 @@ export const clientPortalUserSchema = new Schema({
       'Please fill a valid email address'
     ],
     label: 'Email'
-  },
-  password: { type: String },
-
-  firstName: { type: String, optional: true },
-  clientPortalId: { type: String, required: true },
-  phone: { type: String, optional: true },
-  lastName: { type: String, optional: true },
-  resetPasswordToken: { type: String, optional: true },
-  registrationToken: { type: String, optional: true },
-  registrationTokenExpires: { type: Date, optional: true },
-  resetPasswordExpires: { type: Date, optional: true },
-  companyName: { type: String, optional: true },
-  companyRegistrationNumber: { type: Number, optional: true },
-  erxesCustomerId: { type: String, optional: true },
-  erxesCompanyId: { type: String, optional: true },
-  verificationCodePhone: { type: String, optional: true },
-  verificationCodePhoneExpires: { type: Date, optional: true },
-  verificationCodeEmail: { type: String, optional: true },
-  verificationCodeEmailExpires: { type: Date, optional: true },
-  isPhoneVerified: { type: Boolean, optional: true, default: false },
-  isEmailVerified: { type: Boolean, optional: true, default: false },
-  deviceTokens: {
+  }),
+  password: field({ type: String }),
+  username: field({ type: String, optional: true }),
+  firstName: field({ type: String, optional: true }),
+  clientPortalId: field({ type: String, required: true }),
+  phone: field({ type: String, optional: true }),
+  lastName: field({ type: String, optional: true }),
+  resetPasswordToken: field({ type: String, optional: true }),
+  registrationToken: field({ type: String, optional: true }),
+  registrationTokenExpires: field({ type: Date, optional: true }),
+  resetPasswordExpires: field({ type: Date, optional: true }),
+  companyName: field({ type: String, optional: true }),
+  companyRegistrationNumber: field({ type: Number, optional: true }),
+  erxesCustomerId: field({ type: String, optional: true }),
+  ferxesCompanyId: field({ type: String, optional: true }),
+  phoneVerificationCode: field({ type: String, optional: true }),
+  phoneVerificationCodeExpires: field({ type: Date, optional: true }),
+  emailVerificationCode: field({ type: String, optional: true }),
+  emailVerificationCodeExpires: field({ type: Date, optional: true }),
+  isPhoneVerified: field({ type: Boolean, optional: true, default: false }),
+  isEmailVerified: field({ type: Boolean, optional: true, default: false }),
+  deviceTokens: field({
     type: [String],
     default: [],
     label: 'Device tokens'
-  }
+  })
 });
 
 clientPortalUserSchema.index(

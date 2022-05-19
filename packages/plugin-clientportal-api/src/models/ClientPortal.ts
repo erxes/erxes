@@ -16,6 +16,8 @@ import {
 import * as sha256 from 'sha256';
 import { sendContactsMessage } from '../messageBroker';
 import { sendSms } from '../utils';
+import { IVerificationParams } from '../graphql/resolvers/clientPortalMutations';
+import { createJwtToken } from '../auth/authUtils';
 
 export interface IClientPortalModel extends Model<IClientPortalDocument> {
   getConfig(_id: string): Promise<IClientPortalDocument>;
@@ -30,12 +32,11 @@ interface IEditProfile {
   email?: string;
 }
 
-interface ILoginParams {
-  type?: string;
-  email: string;
+export interface ILoginParams {
+  clientPortalId: string;
+  login: string;
   password: string;
   deviceToken?: string;
-  description?: string;
 }
 
 export interface IUserModel extends Model<IUserDocument> {
@@ -72,8 +73,13 @@ export interface IUserModel extends Model<IUserDocument> {
     refreshToken: string
   ): { token: string; refreshToken: string; user: IUserDocument };
   login(args: ILoginParams): { token: string; refreshToken: string };
-  imposeVerificationCodePhone(phone: string): string;
-  imposeVerificationCode(phone: string): string;
+  imposeVerificationCode({
+    phone,
+    email
+  }: {
+    phone?: string;
+    email?: string;
+  }): string;
   changePasswordWithCode({
     phone,
     code,
@@ -83,6 +89,7 @@ export interface IUserModel extends Model<IUserDocument> {
     code: string;
     password: string;
   }): string;
+  verifyUser(args: IVerificationParams): string;
 }
 
 export const loadClientPortalClass = (models: IModels) => {
@@ -172,7 +179,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
       email?: string
     ) {
       if (phone) {
-        const phoneCode = await this.imposeVerificationCodePhone(phone);
+        const phoneCode = await this.imposeVerificationCode({ phone });
 
         const body =
           config.content.replace(/{.*}/, phoneCode) ||
@@ -182,7 +189,8 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       if (email) {
-        console.log(email);
+        const emailCode = await this.imposeVerificationCode({ email });
+        console.log(emailCode);
       }
     }
 
@@ -501,8 +509,17 @@ export const loadClientPortalUserClass = (models: IModels) => {
       return randomize('0', 6);
     }
 
-    public static async imposeVerificationCode(phone: string) {
-      const user = await models.ClientPortalUsers.findOne({ phone });
+    public static async imposeVerificationCode({
+      phone,
+      email
+    }: {
+      phone?: string;
+      email?: string;
+    }) {
+      const user = await models.ClientPortalUsers.findOne({
+        $or: [{ phone }, { email }]
+      });
+
       const code = this.generateVerificationCode();
       const codeExpires = Date.now() + 60000;
 
@@ -510,29 +527,82 @@ export const loadClientPortalUserClass = (models: IModels) => {
         throw new Error('User not found');
       }
 
+      let query: any = {
+        phoneVerificationCode: code,
+        phoneVerificationCodeExpires: codeExpires
+      };
+
+      if (email) {
+        query = {
+          emailVerificationCode: code,
+          emailVerificationCodeExpires: codeExpires
+        };
+      }
+
       await models.ClientPortalUsers.updateOne(
         { _id: user._id },
         {
-          $set: { verificationCode: code, verificationCodeExpires: codeExpires }
+          $set: query
         }
       );
 
       return code;
     }
 
+    public static async verifyUser(args: IVerificationParams) {
+      const { phoneOtp, emailOtp, userId } = args;
+      const user = await models.ClientPortalUsers.findById(userId);
+
+      if (!user) {
+        throw new Error('user not found');
+      }
+
+      const now = new Date().getTime();
+
+      if (phoneOtp) {
+        if (
+          new Date(user.phoneVerificationCodeExpires).getTime() < now ||
+          user.phoneVerificationCode !== phoneOtp
+        ) {
+          throw new Error('Wrong code or code has expired');
+        }
+        user.isPhoneVerified = true;
+        user.phoneVerificationCode = '';
+      }
+
+      if (emailOtp) {
+        if (
+          new Date(user.emailVerificationCodeExpires).getTime() < now ||
+          user.emailVerificationCode !== emailOtp
+        ) {
+          throw new Error('Wrong code or code has expired');
+        }
+        user.isEmailVerified = true;
+        user.emailVerificationCode = '';
+      }
+
+      await user.save();
+
+      return 'verified';
+    }
+
     public static async login({
-      email,
+      login,
       password,
-      description,
-      deviceToken
+      deviceToken,
+      clientPortalId
     }: ILoginParams) {
-      if (!email || !password) {
+      if (!login || !password || !clientPortalId) {
         throw new Error('Invalid login');
       }
 
       const user = await models.ClientPortalUsers.findOne({
-        // phone: email.trim(),
-        email: { $regex: new RegExp(`^${email}$`, 'i') }
+        $or: [
+          { email: { $regex: new RegExp(`^${login}$`, 'i') } },
+          { username: { $regex: new RegExp(`^${login}$`, 'i') } },
+          { phone: { $regex: new RegExp(`^${login}$`, 'i') } }
+        ],
+        clientPortalId
       });
 
       if (!user || !user.password) {
@@ -551,12 +621,6 @@ export const loadClientPortalUserClass = (models: IModels) => {
         throw new Error('Account not verified');
       }
 
-      // create tokens
-      const [token, refreshToken] = await this.createTokens(
-        user,
-        this.getSecret()
-      );
-
       if (deviceToken) {
         const deviceTokens: string[] = user.deviceTokens || [];
 
@@ -567,39 +631,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         }
       }
 
-      // await Logs.createLog({
-      //   type: "user",
-      //   typeId: user._id,
-      //   text: "login",
-      //   description,
-      // });
-
-      return {
-        token,
-        refreshToken
-      };
-    }
-
-    public static async imposeVerificationCodePhone(phone: string) {
-      const user = await models.ClientPortalUsers.findOne({ phone });
-      const code = this.generateVerificationCode();
-      const codeExpires = Date.now() + 60000;
-
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      await models.ClientPortalUsers.updateOne(
-        { _id: user._id },
-        {
-          $set: {
-            verificationCodePhone: code,
-            verificationCodePhoneExpires: codeExpires
-          }
-        }
-      );
-
-      return code;
+      return createJwtToken({ userId: user._id });
     }
   }
 

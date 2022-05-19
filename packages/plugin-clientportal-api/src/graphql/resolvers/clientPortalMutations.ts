@@ -7,15 +7,8 @@ import { BOARD_STATUSES } from '../../models/definitions/constants';
 import { checkPermission } from '@erxes/api-utils/src';
 import { sendCardsMessage, sendContactsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
-import { authCookieOptions } from '../../auth/authUtils';
-
-interface ILoginParams {
-  type?: string;
-  email: string;
-  password: string;
-  deviceToken?: string;
-  description?: string;
-}
+import { authCookieOptions, cpUserMiddleware } from '../../auth/authUtils';
+import { ILoginParams } from '../../models/ClientPortal';
 
 type UserEdit = {
   _id: string;
@@ -30,11 +23,10 @@ interface ICreateCard {
   stageId: string;
 }
 
-interface IVerificationParams {
+export interface IVerificationParams {
   userId: string;
-  otp: string;
-  email?: string;
-  phone?: string;
+  emailOtp?: string;
+  phoneOtp?: string;
 }
 
 const configClientPortalMutations = {
@@ -165,7 +157,7 @@ const clientPortalUserMutations = {
     return models.ClientPortalUsers.createUser(subdomain, args, config);
   },
 
-  clientPortalSignup: async (_root, args: IUser, context: IContext) => {
+  clientPortalRegister: async (_root, args: IUser, context: IContext) => {
     const { models, subdomain } = context;
     const config = await models.ClientPortals.getConfig(args.clientPortalId);
 
@@ -177,28 +169,25 @@ const clientPortalUserMutations = {
     args: IVerificationParams,
     context: IContext
   ) => {
-    const { models, subdomain } = context;
-    const { email, phone, clientPortalId, otp } = args;
-    const user = await models.ClientPortalUsers.find({});
+    const { models } = context;
+
+    return models.ClientPortalUsers.verifyUser(args);
   },
 
   /*
    * Login
    */
-  clientPortalLogin: async (
-    _root,
-    args: ILoginParams,
-    { res, requestInfo, models }: IContext
-  ) => {
-    const response = await models.ClientPortalUsers.login(args);
+  clientPortalLogin: async (_root, args: ILoginParams, context: IContext) => {
+    await cpUserMiddleware(context);
+    const { token } = await context.models.ClientPortalUsers.login(args);
+    const cookieOptions: any = { secure: context.requestInfo.secure };
+    context.res.cookie(
+      'client-auth-token',
+      token,
+      authCookieOptions(cookieOptions)
+    );
 
-    const { token } = response;
-
-    const cookieOptions: any = { secure: requestInfo.secure };
-
-    res.cookie('client-auth-token', token, authCookieOptions(cookieOptions));
-
-    return 'loggedIn';
+    return 'loggedin';
   },
 
   /*

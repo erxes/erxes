@@ -223,22 +223,15 @@ export const mutations = (contactAvailable, cardAvailable) => `
         companyName: String!
         email: String!
       ): Company
-
-      clientPortalSignup(
-        clientPortalId: String!
-        firstName: String
-        lastName: String
-        email: String
-        phone: String
-        ): String
-
      `
       : ''
   }
 
-  clientPortalVerifyOTP(clientPortalId: String!, email: String, phone: String, otp): String
-  clientPortalLogin(email: String!, password: String!, type: String, description: String, deviceToken: String): String
+  clientPortalRegister( clientPortalId: String! firstName: String lastName: String email: String phone: String username: String password: String ): String
+  clientPortalVerifyOTP(userId: String!, phoneOtp: String, emailOtp: String): String
+  clientPortalLogin(login: String!, password: String!, clientPortalId: String!, deviceToken: String): String
   clientPortalLogout: String
+
   clientPortalForgotPassword(email: String!): String!
   clientPortalResetPasswordWithCode(phone: String!, code: String!, password: String!): String
   clientPortalResetPassword(token: String!, newPassword: String!): JSON

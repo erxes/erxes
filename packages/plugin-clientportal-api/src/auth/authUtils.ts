@@ -4,9 +4,14 @@ import * as jwt from 'jsonwebtoken';
 
 export const createJwtToken = payload => {
   const token = jwt.sign(payload, process.env.JWT_TOKEN_SECRET || '', {
-    expiresIn: '12h'
+    expiresIn: '1d'
   });
-  return token;
+
+  const refreshToken = jwt.sign(payload, process.env.JWT_TOKEN_SECRET || '', {
+    expiresIn: '7d'
+  });
+
+  return { token, refreshToken };
 };
 
 export const verifyJwtToken = token => {
@@ -36,6 +41,11 @@ export const authCookieOptions = (secure: boolean) => {
 
 export const cpUserMiddleware = async (context: IContext) => {
   const { models, requestInfo, res } = context;
+
+  console.log(
+    '########################## ',
+    JSON.stringify(requestInfo.cookies)
+  );
 
   try {
     // check for auth header from client

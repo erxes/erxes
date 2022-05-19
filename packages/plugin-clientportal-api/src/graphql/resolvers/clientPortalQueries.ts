@@ -195,7 +195,11 @@ const clientPortalUserQueries = {
     return models.ClientPortalUsers.findOne({ _id });
   },
 
-  async clientPortalCurrentUser(_root, _args, { user, models }: IContext) {
+  async clientPortalCurrentUser(_root, _args, { user, models, res }: IContext) {
+    const currentUser = res.locals.user;
+
+    console.log('******************************* ', currentUser);
+
     return user ? models.ClientPortalUsers.findOne({ _id: user._id }) : null;
   }
 };
