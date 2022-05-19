@@ -3,20 +3,30 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Tags" */ './jobs/containers/List')
+const ProductList = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Settings List - ProductService" */ './containers/product/ProductList'
+  )
 );
 
-const tags = ({ location, history }) => {
-  const queryParams = queryString.parse(location.search);
-
-  const { type } = queryParams;
-
-  return <List type={type} history={history} />;
+const productService = ({ location, history }) => {
+  return (
+    <ProductList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
 };
 
 const routes = () => {
-  return <Route path="/tags/" component={tags} />;
+  return (
+    <Route
+      path="/processes/flows/"
+      exact={true}
+      key="/processes/flows/"
+      component={productService}
+    />
+  );
 };
 
 export default routes;

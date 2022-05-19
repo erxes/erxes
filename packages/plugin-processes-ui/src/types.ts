@@ -1,64 +1,133 @@
-import { ITag as ITagC } from '@erxes/ui/src/tags/types';
-export type ITag = ITagC;
-export interface ITagSaveParams {
-  tag?: ITag;
-  doc: {
-    _id?: string;
-    name: string;
-    type: string;
-    colorCode: string;
-  };
-  callback?: () => void;
-}
+import {
+  IProduct as IProductC,
+  IProductCategory as IProductCategoryC,
+  IProductDoc as IProductDocC,
+  IUom as IUomC
+} from '@erxes/ui-products/src/types';
+import { QueryResponse } from '@erxes/ui/src/types';
 
-export type ITagTypes =
-  | 'conversation'
-  | 'customer'
-  | 'engageMessage'
-  | 'company'
-  | 'integration';
+export type IProductDoc = IProductDocC & {};
 
-// queries
+export type IProduct = IProductC & {};
 
-export type TagsQueryResponse = {
-  tags: ITag[];
-  loading: boolean;
-  refetch: () => void;
-};
+export type IProductCategory = IProductCategoryC & {};
 
-// mutations
+export type IUom = IUomC & {};
+
+// query types
+
+export type ProductsQueryResponse = {
+  products: IProduct[];
+} & QueryResponse;
+
+export type ProductsCountQueryResponse = {
+  productsTotalCount: number;
+} & QueryResponse;
+
+export type ProductCategoriesCountQueryResponse = {
+  productCategoriesTotalCount: number;
+} & QueryResponse;
+
+// UOM
+
+export type UomsQueryResponse = {
+  uoms: IUom[];
+} & QueryResponse;
+
+export type UomsCountQueryResponse = {
+  uomsTotalCount: number;
+} & QueryResponse;
 
 export type MutationVariables = {
   _id?: string;
-  name: string;
   type: string;
-  colorCode: string;
+  name?: string;
+  description?: string;
+  sku?: string;
+  createdAt?: Date;
 };
 
+export type MutationUomVariables = {
+  _id?: string;
+  name: string;
+  code: string;
+};
+
+// mutation types
+
 export type AddMutationResponse = {
-  addMutation: (params: { variables: MutationVariables }) => Promise<any>;
+  addMutation: (mutation: { variables: MutationVariables }) => Promise<any>;
 };
 
 export type EditMutationResponse = {
-  editMutation: (params: { variables: MutationVariables }) => Promise<any>;
+  editMutation: (mutation: { variables: MutationVariables }) => Promise<any>;
 };
 
-export type RemoveMutationResponse = {
-  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
-};
-
-export type MergeMutationResponse = {
-  mergeMutation: (params: {
-    variables: { sourceId: string; destId: string };
+export type ProductRemoveMutationResponse = {
+  productsRemove: (mutation: {
+    variables: { productIds: string[] };
   }) => Promise<any>;
 };
 
-export type TagMutationVariables = {
-  type: string;
-  targetIds: string[];
-  tagIds: string[];
+export type ProductCategoryRemoveMutationResponse = {
+  productCategoryRemove: (mutation: {
+    variables: { _id: string };
+  }) => Promise<any>;
 };
 
-export type TagMutationResponse = {
-  tagMutation: (params: { variables: TagMutationVariables }) => Promise<any>;
+export type DetailQueryResponse = {
+  productDetail: IProduct;
+  loading: boolean;
+};
+
+export type CategoryDetailQueryResponse = {
+  productCategoryDetail: IProductCategory;
+  loading: boolean;
+};
+
+export type CountByTagsQueryResponse = {
+  productCountByTags: { [key: string]: number };
+  loading: boolean;
+};
+
+export type MergeMutationVariables = {
+  productIds: string[];
+  productFields: IProduct;
+};
+
+export type MergeMutationResponse = {
+  productsMerge: (params: {
+    variables: MergeMutationVariables;
+  }) => Promise<any>;
+};
+
+// UOM
+
+export type UomAddMutationResponse = {
+  uomsAdd: (mutation: { variables: MutationUomVariables }) => Promise<any>;
+};
+
+export type UomEditMutationResponse = {
+  uomsEdit: (mutation: { variables: MutationUomVariables }) => Promise<any>;
+};
+
+export type UomRemoveMutationResponse = {
+  uomsRemove: (mutation: { variables: { uomIds: string[] } }) => Promise<any>;
+};
+
+// SETTINGS
+
+export type IConfigsMap = { [key: string]: any };
+
+export type IProductsConfig = {
+  _id: string;
+  code: string;
+  value: any;
+};
+
+// query types
+export type ProductsConfigsQueryResponse = {
+  productsConfigs: IProductsConfig[];
+  loading: boolean;
+  refetch: () => void;
 };
