@@ -38,6 +38,8 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
     color: ${props => props.isActive && colors.colorPrimary} !important;
     font-weight: ${props => (props.isActive ? 600 : 500)};
 
+    border-bottom: 1px solid ${colors.borderPrimary};
+
     margin: 0 20px;
     padding: 10px 0;
 
@@ -63,6 +65,7 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   &:hover {
     cursor: pointer;
     background: ${props => !props.isActive && colors.bgLight};
+    
     ${ActionButtons} {
       width: 60px;
     }

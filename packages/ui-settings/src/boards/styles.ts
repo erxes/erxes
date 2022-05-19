@@ -18,11 +18,10 @@ const BoardItem = styledTS<{ isActive: boolean }>(styled(SidebarListItem))`
   }
 
   a {
-    margin: 10px 20px 0 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid ${colors.colorBlack}
-    margin-left: 0;
-    border-left: 0;
+    // margin: 10px 20px 0 20px;
+    // padding-bottom: 10px;
+    // margin-left: 0;
+    // border-left: 0;
   }
 `;
 
