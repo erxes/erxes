@@ -1,29 +1,29 @@
-import * as dotenv from "dotenv";
+import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { ApolloServer } from "apollo-server-express";
-import { ApolloGateway } from "@apollo/gateway";
-import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
-import { createProxyMiddleware } from "http-proxy-middleware";
-import * as ws from "ws";
-import * as express from "express";
-import * as fs from "fs";
-import * as http from "http";
-import * as cookieParser from "cookie-parser";
-import { loadSubscriptions } from "./subscription";
-import { createGateway, IGatewayContext } from "./gateway";
-import userMiddleware from "./middlewares/userMiddleware";
-import pubsub from "./subscription/pubsub";
+import { ApolloServer } from 'apollo-server-express';
+import { ApolloGateway } from '@apollo/gateway';
+import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+import * as ws from 'ws';
+import * as express from 'express';
+import * as fs from 'fs';
+import * as http from 'http';
+import * as cookieParser from 'cookie-parser';
+import { loadSubscriptions } from './subscription';
+import { createGateway, IGatewayContext } from './gateway';
+import userMiddleware from './middlewares/userMiddleware';
+import pubsub from './subscription/pubsub';
 import {
   clearCache,
   getService,
   getServices,
   redis,
-  setAfterMutations,
-} from "./redis";
-import { initBroker } from "./messageBroker";
-import { routeErrorHandling } from "@erxes/api-utils/src/requests";
-import { handleUnsubscription } from "./util/handleUnsubscription";
+  setAfterMutations
+} from './redis';
+import { initBroker } from './messageBroker';
+import { routeErrorHandling } from '@erxes/api-utils/src/requests';
+import { handleUnsubscription } from './util/handleUnsubscription';
 
 const {
   DOMAIN,
@@ -31,7 +31,7 @@ const {
   CLIENT_PORTAL_DOMAINS,
   PORT,
   RABBITMQ_HOST,
-  MESSAGE_BROKER_PREFIX,
+  MESSAGE_BROKER_PREFIX
 } = process.env;
 
 (async () => {
@@ -45,16 +45,16 @@ const {
 
   // unsubscribe
   app.get(
-    "/unsubscribe",
+    '/unsubscribe',
     routeErrorHandling(async (req: any, res) => {
-      const subdomain = "os";
+      const subdomain = 'os';
 
       await handleUnsubscription(subdomain, req.query);
 
-      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
 
       const template = fs.readFileSync(
-        __dirname + "/private/emailTemplates/unsubscribe.html"
+        __dirname + '/private/emailTemplates/unsubscribe.html'
       );
 
       return res.send(template);
@@ -66,9 +66,9 @@ const {
     /\/((?!graphql).)*/,
     createProxyMiddleware({
       target:
-        process.env.NODE_ENV === "production"
-          ? "http://plugin_core_api"
-          : "http://localhost:3300",
+        process.env.NODE_ENV === 'production'
+          ? 'http://plugin_core_api'
+          : 'http://localhost:3300',
       router: async req => {
         const services = await getServices();
 
@@ -87,7 +87,7 @@ const {
         }
       },
       onProxyReq: (proxyReq, req: any) => {
-        proxyReq.setHeader("userid", req.user ? req.user._id : "");
+        proxyReq.setHeader('userid', req.user ? req.user._id : '');
       },
       pathRewrite: async path => {
         let newPath = path;
@@ -95,32 +95,32 @@ const {
         const services = await getServices();
 
         for (const service of services) {
-          newPath = newPath.replace(`/pl:${service}`, "");
+          newPath = newPath.replace(`/pl:${service}`, '');
         }
 
         return newPath;
-      },
+      }
     })
   );
 
   // for health check
-  app.get("/health", async (_req, res) => {
-    res.end("ok");
+  app.get('/health', async (_req, res) => {
+    res.end('ok');
   });
 
   const httpServer = http.createServer(app);
 
-  httpServer.on("close", () => {
+  httpServer.on('close', () => {
     try {
       pubsub.close();
     } catch (e) {
-      console.log("PubSub client disconnected");
+      console.log('PubSub client disconnected');
     }
   });
 
   const wsServer = new ws.Server({
     server: httpServer,
-    path: "/graphql",
+    path: '/graphql'
   });
 
   const gateway: ApolloGateway = await createGateway();
@@ -132,7 +132,7 @@ const {
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
     context: ({ res, req }: { res; req }): IGatewayContext => {
       return { res, req };
-    },
+    }
   });
 
   let subscriptionsLoaded = false;
@@ -161,19 +161,19 @@ const {
 
   apolloServer.applyMiddleware({
     app,
-    path: "/graphql",
+    path: '/graphql',
     cors: {
       credentials: true,
       origin: [
-        DOMAIN ? DOMAIN : "http://localhost:3000",
-        WIDGETS_DOMAIN ? WIDGETS_DOMAIN : "http://localhost:3200",
-        ...(CLIENT_PORTAL_DOMAINS || "").split(","),
-        "https://studio.apollographql.com",
-        ...(process.env.ALLOWED_ORIGINS || "")
-          .split(",")
-          .map(c => c && RegExp(c)),
-      ],
-    },
+        DOMAIN ? DOMAIN : 'http://localhost:3000',
+        WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
+        ...(CLIENT_PORTAL_DOMAINS || '').split(','),
+        'https://studio.apollographql.com',
+        ...(process.env.ALLOWED_ORIGINS || '')
+          .split(',')
+          .map(c => c && RegExp(c))
+      ]
+    }
   });
 
   const port = PORT || 4000;
