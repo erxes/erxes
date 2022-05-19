@@ -1,39 +1,29 @@
+import { IContext, IModels } from '../../../connectionResolver';
+
 const salesLogQueries = {
-  getBranches: async (_root, { user, models }, doc) => {
-    if (doc._id) return await models.Branches.find({ _id: doc._id });
-    return await models.Branches.find();
-  },
-
-  getUnits: async (_root, doc, { models }) => {
-    if (doc._id) return await models.Units.find({ _id: doc._id });
-    return await models.Units.find();
-  },
-
-  getProducts: async (_root, doc, { models }) => {
-    if (doc._id) return await models.Products.find({ _id: doc._id });
-    return await models.Products.find();
-  },
-
-  getLabels: async (_root, { type }: { type: string }, { models }) => {
+  getLabels: async (_root, { type }: { type: string }, models: IModels) => {
     return await models.Labels.find({ type });
   },
 
-  getSalesLogs: async (_root, doc, { models }) => {
-    if (doc._id) return await models.SalesLogs.find({ _id: doc._id });
-    return await models.SalesLogs.find();
+  getSalesLogs: async (_root, _args, { models }: IContext) => {
+    return await models.SalesLogs.find({}).lean();
   },
 
-  getTimeframes: async (_root, doc, { models }) => {
-    return await models.Timeframes.find({ salesLogId: doc.saleLogId });
+  getTimeframes: async (_root, _args, { models }: IContext) => {
+    return await models.Timeframes.find({});
   },
 
-  getDayPlanConfig: async (_root, doc, { models }) => {
-    return await models.DayPlanConfig.removeTimeframe(doc);
+  getDayPlanConfig: async (_root, salesLogId: string, { models }: IContext) => {
+    return await models.DayPlanConfigs.find({ salesLogId });
   },
 
-  getMonthPlanConfig: async (_root, doc, { models }) => {
+  getMonthPlanConfig: async (
+    _root,
+    salesLogId: string,
+    { models }: IContext
+  ) => {
     return await models.MonthPlanConfigs.find({
-      saleLogId: doc.saleLogId
+      salesLogId: salesLogId
     });
   }
 };

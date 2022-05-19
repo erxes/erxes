@@ -14,7 +14,7 @@ type Props = {
   refetch: () => void;
 };
 function ListContainer({ data, refetch }: Props) {
-  const [remove] = useMutation(gql(mutations.miniPlanRemove));
+  const [remove] = useMutation(gql(mutations.removeSalesLog));
   const removedata = (_id: string) => {
     remove({ variables: { _id } })
       .then(() => {
