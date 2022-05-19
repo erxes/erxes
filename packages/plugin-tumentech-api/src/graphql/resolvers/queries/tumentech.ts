@@ -1,13 +1,9 @@
 import { paginate } from 'erxes-api-utils';
 import { checkPermission } from '@erxes/api-utils/src';
 import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
+import { Builder } from './carQueryBuilder';
 
-const generateFilter = async (
-  models,
-  params,
-  commonQuerySelector,
-  subdomain
-) => {
+const generateFilter = async (params, commonQuerySelector, subdomain) => {
   const filter: any = commonQuerySelector;
 
   filter.status = { $ne: 'Deleted' };
@@ -84,7 +80,7 @@ const carQueries = {
   cars: async (_root, params, { commonQuerySelector, models, subdomain }) => {
     return paginate(
       models.Cars.find(
-        await generateFilter(models, params, commonQuerySelector, subdomain)
+        await generateFilter(params, commonQuerySelector, subdomain)
       ),
       {
         page: params.page,
@@ -101,20 +97,27 @@ const carQueries = {
     params,
     { commonQuerySelector, models, subdomain }
   ) => {
-    const filter = await generateFilter(
-      models,
-      params,
-      commonQuerySelector,
-      subdomain
-    );
+    const filter = await generateFilter(params, commonQuerySelector, subdomain);
 
-    return {
-      list: paginate(models.Cars.find(filter).sort(sortBuilder(params)), {
-        page: params.page,
-        perPage: params.perPage
-      }),
-      totalCount: models.Cars.find(filter).count()
+    const qb = new Builder(models, subdomain, params);
+
+    await qb.buildAllQueries();
+
+    const mainQuery = { ...qb.mainQuery(), ...filter };
+
+    const response = {
+      list: await paginate(
+        models.Cars.find(mainQuery).sort(sortBuilder(params)),
+        {
+          page: params.page,
+          perPage: params.perPage
+        }
+      ),
+
+      totalCount: await models.Cars.find(mainQuery).count()
     };
+
+    return response;
   },
 
   carCategoryMatchProducts: async (

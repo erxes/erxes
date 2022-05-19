@@ -21,9 +21,15 @@ function PageContent({
   initialOverflow
 }: Props) {
   return (
-    <MainContent transparent={transparent} center={center} leftSpacing={leftSpacing}>
+    <MainContent
+      transparent={transparent}
+      center={center}
+      leftSpacing={leftSpacing}
+    >
       {actionBar}
-      <ContentBox transparent={transparent} initialOverflow={initialOverflow}>{children}</ContentBox>
+      <ContentBox transparent={transparent} initialOverflow={initialOverflow}>
+        {children}
+      </ContentBox>
       {footer && <ContenFooter>{footer}</ContenFooter>}
     </MainContent>
   );

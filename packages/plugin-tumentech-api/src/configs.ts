@@ -5,6 +5,7 @@ import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import segments from './segments';
 import forms from './forms';
 
 export let debug;
@@ -21,7 +22,9 @@ export default {
       resolvers: await resolvers()
     };
   },
+
   meta: {
+    segments,
     forms
   },
   apolloServerContext: async (context, req) => {

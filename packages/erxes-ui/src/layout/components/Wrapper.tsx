@@ -76,7 +76,13 @@ class Wrapper extends React.Component<Props> {
   }
 
   render() {
-    const { header, leftSidebar, rightSidebar, mainHead, hasBorder } = this.props;
+    const {
+      header,
+      leftSidebar,
+      rightSidebar,
+      mainHead,
+      hasBorder
+    } = this.props;
 
     return (
       <VerticalContent>
