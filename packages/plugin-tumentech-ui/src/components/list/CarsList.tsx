@@ -177,7 +177,7 @@ class CarsList extends React.Component<IProps, State> {
       return (
         <ManageColumns
           {...props}
-          contentType={'tumentech:cars'}
+          contentType={'tumentech:car'}
           location={location}
           history={history}
         />

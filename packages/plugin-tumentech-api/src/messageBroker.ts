@@ -92,6 +92,25 @@ export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
+export const sendSegmentsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'segments',
+    ...args
+  });
+};
+
+export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
+  sendSegmentsMessage({
+    subdomain,
+    action: 'fetchSegment',
+    data: { segmentId, options },
+    isRPC: true
+  });
+
 export default function() {
   return client;
 }
