@@ -285,7 +285,7 @@ class CreateMessenger extends React.Component<Props, State> {
 
   renderButtons() {
     const cancelButton = (
-      <Link to="/settings/integrations">
+      <Link to="/settings/add-ons">
         <Button btnStyle="simple" icon="times-circle">
           Cancel
         </Button>

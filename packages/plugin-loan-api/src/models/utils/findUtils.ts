@@ -53,8 +53,6 @@ const findContract = async (models, doc, result) => {
 
   const customer = await findCustomerByDesc(models, words);
 
-  console.log('++++++++++++++++++++++++++++++++++++ ', customer);
-
   if (customer && customer._id) {
     const constractIds = await models.Conformities.getSaved({
       mainType: 'customer',

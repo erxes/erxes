@@ -1,9 +1,9 @@
-import { sendMessage, ISendMessageArgs } from "@erxes/api-utils/src/core";
-import { sendToWebhook as sendWebhook } from "@erxes/api-utils/src";
-import { serviceDiscovery, debug } from "./configs";
-import { generateModels } from "./connectionResolver";
-import { start, sendBulkSms } from "./sender";
-import { CAMPAIGN_KINDS } from "./constants";
+import { sendMessage, ISendMessageArgs } from '@erxes/api-utils/src/core';
+import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
+import { serviceDiscovery, debug } from './configs';
+import { generateModels } from './connectionResolver';
+import { start, sendBulkSms } from './sender';
+import { CAMPAIGN_KINDS } from './constants';
 
 export let client;
 
@@ -12,7 +12,7 @@ export const initBroker = async cl => {
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeQueue("engages:pre-notification", async ({ data, subdomain }) => {
+  consumeQueue('engages:pre-notification', async ({ data, subdomain }) => {
     const models = await generateModels(subdomain);
 
     const { engageMessage, customerInfos = [] } = data;
@@ -23,15 +23,15 @@ export const initBroker = async cl => {
     ) {
       await models.Logs.createLog(
         engageMessage._id,
-        "failure",
-        "No customers found"
+        'failure',
+        'No customers found'
       );
-      throw new Error("No customers found");
+      throw new Error('No customers found');
     }
 
     const MINUTELY =
       engageMessage.scheduleDate &&
-      engageMessage.scheduleDate.type === "minute";
+      engageMessage.scheduleDate.type === 'minute';
 
     if (
       !(
@@ -42,18 +42,18 @@ export const initBroker = async cl => {
     ) {
       await models.Logs.createLog(
         engageMessage._id,
-        "regular",
+        'regular',
         `Matched ${customerInfos.length} customers`
       );
     }
 
     if (
       engageMessage.scheduleDate &&
-      engageMessage.scheduleDate.type === "pre"
+      engageMessage.scheduleDate.type === 'pre'
     ) {
       await models.EngageMessages.updateOne(
         { _id: engageMessage._id },
-        { $set: { "scheduleDate.type": "sent" } }
+        { $set: { 'scheduleDate.type': 'sent' } }
       );
     }
 
@@ -65,7 +65,7 @@ export const initBroker = async cl => {
     }
   });
 
-  consumeQueue("engages:notification", async ({ subdomain, data }) => {
+  consumeQueue('engages:notification', async ({ subdomain, data }) => {
     debug.info(`Receiving queue data ${JSON.stringify(data)}`);
 
     const models = await generateModels(subdomain);
@@ -73,15 +73,15 @@ export const initBroker = async cl => {
     try {
       const { action, data: realData } = data;
 
-      if (action === "sendEngage") {
+      if (action === 'sendEngage') {
         await start(models, subdomain, realData);
       }
 
-      if (action === "writeLog") {
-        await models.Logs.createLog(data.engageMessageId, "regular", data.msg);
+      if (action === 'writeLog') {
+        await models.Logs.createLog(data.engageMessageId, 'regular', data.msg);
       }
 
-      if (action === "sendEngageSms") {
+      if (action === 'sendEngageSms') {
         await sendBulkSms(models, subdomain, realData);
       }
     } catch (e) {
@@ -90,7 +90,7 @@ export const initBroker = async cl => {
   });
 
   consumeQueue(
-    "engages:removeCustomersEngages",
+    'engages:removeCustomersEngages',
     async ({ data: { customerIds }, subdomain }) => {
       const models = await generateModels(subdomain);
 
@@ -99,7 +99,7 @@ export const initBroker = async cl => {
   );
 
   consumeQueue(
-    "engages:changeCustomer",
+    'engages:changeCustomer',
     async ({ data: { customerId, customerIds }, subdomain }) => {
       const models = await generateModels(subdomain);
 
@@ -108,20 +108,20 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
-    "engages:createVisitorOrCustomerMessages",
+    'engages:createVisitorOrCustomerMessages',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: "success",
-        data: await models.EngageMessages.createVisitorOrCustomerMessages(data),
+        status: 'success',
+        data: await models.EngageMessages.createVisitorOrCustomerMessages(data)
       };
     }
   );
 };
 
 export const removeEngageConversations = async (_id): Promise<any> => {
-  return client.consumeQueue("removeEngageConversations", _id);
+  return client.consumeQueue('removeEngageConversations', _id);
 };
 
 export default function() {
@@ -134,8 +134,8 @@ export const sendContactsMessage = async (
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: "contacts",
-    ...args,
+    serviceName: 'contacts',
+    ...args
   });
 };
 
@@ -143,8 +143,8 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: "core",
-    ...args,
+    serviceName: 'core',
+    ...args
   });
 };
 
@@ -154,8 +154,8 @@ export const sendInboxMessage = async (
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: "inbox",
-    ...args,
+    serviceName: 'inbox',
+    ...args
   });
 };
 
@@ -163,8 +163,8 @@ export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: "logs",
-    ...args,
+    serviceName: 'logs',
+    ...args
   });
 };
 
@@ -174,8 +174,8 @@ export const sendSegmentsMessage = async (
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: "segments",
-    ...args,
+    serviceName: 'segments',
+    ...args
   });
 };
 
@@ -183,8 +183,8 @@ export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: "tags",
-    ...args,
+    serviceName: 'tags',
+    ...args
   });
 };
 
@@ -194,8 +194,8 @@ export const sendIntegrationsMessage = async (
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: "integrations",
-    ...args,
+    serviceName: 'integrations',
+    ...args
   });
 };
 
@@ -205,8 +205,8 @@ export const sendEmailTemplatesMessage = async (
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: "emailTemplates",
-    ...args,
+    serviceName: 'emailTemplates',
+    ...args
   });
 };
 

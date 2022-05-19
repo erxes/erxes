@@ -812,13 +812,19 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         isRPC: true
       });
 
-      const modifier = {
+      const modifier: any = {
         ...doc,
-        trackedData,
-        customFieldsData,
         state: doc.isUser ? 'customer' : customer.state,
         modifiedAt: new Date()
       };
+
+      if (trackedData && trackedData.length > 0) {
+        modifier.trackedData = trackedData;
+      }
+
+      if (customFieldsData && customFieldsData.length > 0) {
+        modifier.customFieldsData = customFieldsData;
+      }
 
       await models.Customers.updateOne({ _id }, { $set: modifier });
 

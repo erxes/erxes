@@ -133,3 +133,7 @@ export type ActivityLogQueryResponse = {
   activityLogs: IActivityLog[];
   subscribeToMore: any;
 } & QueryResponse;
+
+export interface IFieldsVisibility {
+  [key: string]: string;
+}

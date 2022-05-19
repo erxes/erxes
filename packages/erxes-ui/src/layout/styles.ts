@@ -88,21 +88,27 @@ const MainContent = styledTS<{
   padding-left: ${props => props.leftSpacing && `${dimensions.coreSpacing}px`}
 `;
 
-const ContentBox = styledTS<{ transparent?: boolean }>(styled.div)`
+const ContentBox = styledTS<{
+  transparent?: boolean;
+  initialOverflow?: boolean;
+}>(styled.div)`
   flex: 1;
-  overflow: auto;
+  overflow: ${props => (props.initialOverflow ? 'initial' : 'auto')};
   position: relative;
   background-color: ${props => !props.transparent && colors.colorWhite};
 `;
 
-const ContentHeader = styledTS<{ background: string; zIndex?: number }>(
-  styled.div
-)`
+const ContentHeader = styledTS<{
+  background: string;
+  zIndex?: number;
+  noBorder?: boolean;
+}>(styled.div)`
   background: ${props =>
     props.background === 'transparent' ? 'none' : colors[props.background]};
   padding: ${props =>
     props.background === 'transparent' ? 0 : `0 ${dimensions.coreSpacing}px`};
-  border-bottom: 1px solid ${colors.borderPrimary};
+  border-bottom: ${props =>
+    !props.noBorder && `1px solid ${colors.borderPrimary}`};
   z-index: ${props => props.zIndex || 2};
 `;
 
@@ -178,13 +184,14 @@ const SidebarHeader = styledTS<{
   justify-content: space-between;
 `;
 
-const SidebarTitle = styledTS<{ children: any }>(
+const SidebarTitle = styledTS<{ children: any; noBackground?: boolean }>(
   styled(SidebarHeader.withComponent('h3'))
 )`
   padding: 0 ${dimensions.coreSpacing}px;
   margin: 0;
   text-transform: uppercase;
   position: relative;
+  background-color: ${props => props.noBackground && 'white'};
 `;
 
 const SidebarMainContent = styled.div`
@@ -391,6 +398,12 @@ const SectionContainer = styledTS<{ noShadow?: boolean }>(styled.div)`
   }
   ${SidebarTitle} {
     height: 40px;
+    cursor: pointer;
+    transition: all ease .3s;
+
+    &:hover {
+      color: ${colors.colorSecondary};
+    }
   }
 `;
 

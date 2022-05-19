@@ -19,12 +19,12 @@ export let serviceDiscovery;
 export default {
   name: 'products',
   permissions,
-  graphql: async (sd) => {
+  graphql: async sd => {
     serviceDiscovery = sd;
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers,
+      resolvers
     };
   },
   apolloServerContext: async (context, req) => {
@@ -41,7 +41,7 @@ export default {
     return context;
   },
   meta: { logs: { consumers: logs }, tags, internalNotes, forms },
-  onServerInit: async (options) => {
+  onServerInit: async options => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
@@ -49,5 +49,5 @@ export default {
     initMemoryStorage();
 
     debug = options.debug;
-  },
+  }
 };

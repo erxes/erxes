@@ -1,11 +1,11 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import Segments from "@erxes/ui-segments/src/containers/Filter";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withProps } from "@erxes/ui/src/utils";
-import { queries as customerQueries } from "@erxes/ui-contacts/src/customers/graphql";
-import { CountQueryResponse } from "@erxes/ui-contacts/src/customers/types";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import Segments from '@erxes/ui-segments/src/containers/Filter';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withProps } from '@erxes/ui/src/utils';
+import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
+import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
 
 type Props = {
   customersCountQuery?: CountQueryResponse;
@@ -36,11 +36,11 @@ export default withProps<WrapperProps>(
     graphql<WrapperProps, CountQueryResponse, { only: string }>(
       gql(customerQueries.customerCounts),
       {
-        name: "customersCountQuery",
+        name: 'customersCountQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery,
         options: ({ type }) => ({
-          variables: { type, only: "bySegment" },
-        }),
+          variables: { type, only: 'bySegment' }
+        })
       }
     )
   )(SegmentFilterContainer)

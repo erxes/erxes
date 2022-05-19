@@ -4,12 +4,12 @@ export default {
   types: [
     {
       description: 'Cars',
-      type: 'cars'
+      type: 'car'
     }
   ],
   fields: generateFields,
   defaultColumnsConfig: {
-    cars: [
+    car: [
       { name: 'plateNumber', label: 'Plate number', order: 1 },
       { name: 'vinNumber', label: 'Vin number', order: 2 },
       { name: 'vintageYear', label: 'Vintage year', order: 3 },
