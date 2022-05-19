@@ -18,15 +18,15 @@ function ConfigContainer({ closeModal }: Props) {
     refetch();
   }, []);
 
-  const dayConfigQuery = useQuery(gql(queries.getMiniPlanDayConfigs));
+  const dayConfigQuery = useQuery(gql(queries.getTimeframes));
 
   if (dayConfigQuery.error) {
     return <div>{dayConfigQuery.error.message}</div>;
   }
 
-  const [save] = useMutation(gql(mutations.miniPlanSaveDayConfig));
+  const [save] = useMutation(gql(mutations.saveTimeframes));
 
-  const [remove] = useMutation(gql(mutations.miniPlanRemoveDayConfig));
+  const [remove] = useMutation(gql(mutations.removeTimeframe));
 
   const saveData = (update, add) => {
     save({ variables: { update, add } })

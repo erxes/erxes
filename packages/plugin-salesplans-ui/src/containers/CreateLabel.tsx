@@ -12,7 +12,7 @@ type Props = {
 function CreateLabelContainer({ closeModal }: Props) {
   const [type, setType] = useState('');
 
-  const labelsQuery = useQuery(gql(queries.getMiniPlanLabels), {
+  const labelsQuery = useQuery(gql(queries.getLabels), {
     variables: { type }
   });
 
@@ -20,9 +20,9 @@ function CreateLabelContainer({ closeModal }: Props) {
     return <div>{labelsQuery.error.message}</div>;
   }
 
-  const [remove] = useMutation(gql(mutations.removeMiniPlanLabels));
+  const [remove] = useMutation(gql(mutations.removeLabel));
 
-  const [save] = useMutation(gql(mutations.saveMiniPlanLabel));
+  const [save] = useMutation(gql(mutations.saveLabels));
 
   const saveData = (update, add) => {
     save({ variables: { update, add } })
@@ -56,7 +56,7 @@ function CreateLabelContainer({ closeModal }: Props) {
 
   return (
     <CreateLabel
-      getLabels={labelsQuery.data ? labelsQuery.data.getMiniPlanLabels : []}
+      getLabels={labelsQuery.data ? labelsQuery.data.getLabels : []}
       type={type}
       remove={removedata}
       save={saveData}

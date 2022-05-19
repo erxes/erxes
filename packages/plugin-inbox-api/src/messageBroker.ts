@@ -147,17 +147,14 @@ export const initBroker = cl => {
     }
   );
 
-  consumeRPCQueue(
-    'inbox:getIntegration',
-    async ({ subdomain, data: { _id } }) => {
-      const models = await generateModels(subdomain);
+  consumeRPCQueue('inbox:integrations.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
 
-      return {
-        status: 'success',
-        data: await models.Integrations.findOne({ _id })
-      };
-    }
-  );
+    return {
+      status: 'success',
+      data: await models.Integrations.findOne(data)
+    };
+  });
 
   consumeRPCQueue(
     'inbox:updateConversationMessage',

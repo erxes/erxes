@@ -11,10 +11,12 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { renderUserFullName } from '@erxes/ui/src/utils';
 import React from 'react';
 import CheckListItem from './ChecklistItem';
+import { IChecklist } from '@erxes/ui-cards/src/checklists/types';
 
 type Props = {
   activity: IActivityLog;
   checklistItemActivity: IActivityLog[];
+  checkListDetail: IChecklist;
 };
 
 class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
@@ -43,27 +45,22 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
   };
 
   render() {
-    const { activity } = this.props;
-    const {
-      contentTypeDetail,
-      content,
-      action,
-      contentType,
-      createdByDetail,
-      createdAt
-    } = activity;
+    const { activity, checkListDetail } = this.props;
+    const { action, contentType, createdByDetail, createdAt } = activity;
 
     let userName = 'Unknown';
 
-    if (createdByDetail && createdByDetail.type === 'user') {
-      const { content } = createdByDetail;
+    console.log(activity, createdByDetail, 'sadasd');
 
-      if (content && content.details) {
+    if (createdByDetail && createdByDetail.type === 'user') {
+      const createdByDetailContent = (createdByDetail.content = {} as any);
+
+      if (createdByDetailContent && createdByDetailContent.details) {
         userName = renderUserFullName(createdByDetail.content);
       }
     }
 
-    const checklistName = contentTypeDetail.title || content.name;
+    const checklistName = checkListDetail.title;
 
     if (this.state.toggleItems) {
       return (

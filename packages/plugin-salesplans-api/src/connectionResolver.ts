@@ -34,6 +34,10 @@ export interface IModels {
   YearPlanConfigs: IYearPlanConfigModel;
 }
 
+export interface IContext extends IMainContext {
+  models: IModels;
+}
+
 export interface ICoreModels {
   Users: any;
 }
@@ -94,7 +98,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   );
 
   models.Labels = db.model<ILabelDocument, ILabelModel>(
-    'Labels',
+    'labels',
     loadLabelClass(models)
   );
 

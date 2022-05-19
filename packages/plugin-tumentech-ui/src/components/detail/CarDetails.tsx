@@ -36,7 +36,7 @@ class CarDetails extends React.Component<Props> {
         <ActivityLogs
           target={car.plateNumber || ''}
           contentId={car._id}
-          contentType="car"
+          contentType="tumentech:car"
           extraTabs={[]}
         />
       </>

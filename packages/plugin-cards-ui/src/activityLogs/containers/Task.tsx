@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Task from '../../../components/items/boardItems/Task';
+
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import { mutations, queries } from '@erxes/ui-cards/src/tasks/graphql';
 import {
@@ -10,6 +10,8 @@ import {
 } from '@erxes/ui-cards/src/tasks/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
+import Task from '../components/Task';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   taskId: string;
@@ -26,7 +28,7 @@ class FormContainer extends React.Component<FinalProps> {
     const { taskDetailsQuery, editMutation, removeMutation } = this.props;
 
     if (taskDetailsQuery.loading) {
-      return null;
+      return <Spinner />;
     }
 
     const task = taskDetailsQuery.taskDetail;

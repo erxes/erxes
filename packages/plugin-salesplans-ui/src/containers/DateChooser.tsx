@@ -14,16 +14,16 @@ function DateChooserContainer({ data, closeModal }: Props) {
   const type = data.type;
   const date = data.date;
 
-  const labelsQuery = useQuery(gql(queries.getMiniPlanLabels), {
+  const labelsQuery = useQuery(gql(queries.getLabels), {
     variables: { type }
   });
 
-  const dayplanconfs = useQuery(gql(queries.getMiniPlanDayPlanConf), {
+  const dayplanconfs = useQuery(gql(queries.getDayPlanConfig), {
     variables: { saleLogId: data._id },
     fetchPolicy: 'network-only'
   });
 
-  const monthplanconfs = useQuery(gql(queries.getMiniPlanMonthPlanConf), {
+  const monthplanconfs = useQuery(gql(queries.getMonthPlanConfig), {
     variables: { saleLogId: data._id },
     skip: type !== 'Month'
   });
@@ -32,9 +32,9 @@ function DateChooserContainer({ data, closeModal }: Props) {
     return <div>{monthplanconfs.error.message}</div>;
   }
 
-  const [saveDayPlan] = useMutation(gql(mutations.miniPlanSaveDayPlan));
+  const [saveDayPlan] = useMutation(gql(mutations.saveDayPlanConfig));
 
-  const [saveMonthPlan] = useMutation(gql(mutations.miniPlanSaveMonthPlan));
+  const [saveMonthPlan] = useMutation(gql(mutations.saveMonthPlanConfig));
 
   const saveData = (saleLogId, dayConfigs) => {
     if (type === 'Day') {
@@ -63,7 +63,7 @@ function DateChooserContainer({ data, closeModal }: Props) {
     return <div>{dayplanconfs.error.message}</div>;
   }
 
-  const dayConfigQuery = useQuery(gql(queries.getMiniPlanDayConfigs), {
+  const dayConfigQuery = useQuery(gql(queries.getDayPlanConfig), {
     skip: type !== 'Day',
     fetchPolicy: 'network-only'
   });
@@ -78,12 +78,10 @@ function DateChooserContainer({ data, closeModal }: Props) {
 
   return (
     <DateChooser
-      labelData={labelsQuery.data ? labelsQuery.data.getMiniPlanLabels : []}
-      dayConfigs={
-        dayConfigQuery.data ? dayConfigQuery.data.getMiniPlanDayConfigs : []
-      }
+      labelData={labelsQuery.data ? labelsQuery.data.getLabels : []}
+      dayConfigs={dayConfigQuery.data ? dayConfigQuery.data.getTimeframes : []}
       dayPlanConf={
-        dayplanconfs.data ? dayplanconfs.data.getMiniPlanDayPlanConf : null
+        dayplanconfs.data ? dayplanconfs.data.getDayPlanConfig : null
       }
       data={data}
       save={saveData}

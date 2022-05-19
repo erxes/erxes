@@ -11,10 +11,15 @@ import { renderUserFullName } from '@erxes/ui/src/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-class BoardItemCreate extends React.Component<IActivityLogItemProps> {
+type Props = {
+  activity: any;
+  contentDetail: any;
+};
+
+class BoardItemCreatedLog extends React.Component<Props> {
   renderContent = () => {
-    const { activity } = this.props;
-    const { contentTypeDetail, contentType, createdByDetail } = activity;
+    const { activity, contentDetail } = this.props;
+    const { contentType, createdByDetail } = activity;
 
     let userName = 'Unknown';
 
@@ -28,10 +33,10 @@ class BoardItemCreate extends React.Component<IActivityLogItemProps> {
 
     const body = (
       <Link
-        to={`/${contentType}/board?_id=${activity._id}&itemId=${contentTypeDetail._id}`}
+        to={`/${contentType}/board?_id=${activity._id}&itemId=${contentDetail._id}`}
         target="_blank"
       >
-        {contentTypeDetail.name} <Icon icon="arrow-to-right" />
+        {contentDetail.name} <Icon icon="arrow-to-right" />
       </Link>
     );
 
@@ -59,4 +64,4 @@ class BoardItemCreate extends React.Component<IActivityLogItemProps> {
   }
 }
 
-export default BoardItemCreate;
+export default BoardItemCreatedLog;

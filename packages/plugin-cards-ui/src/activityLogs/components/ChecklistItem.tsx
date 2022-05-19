@@ -24,12 +24,16 @@ class CheckListItem extends React.Component<
       createdAt
     } = activity;
 
+    console.log('------------');
+
     let userName = 'Unknown';
 
     if (createdByDetail && createdByDetail.type === 'user') {
-      const { content } = createdByDetail;
+      const createdByDetailContent = (createdByDetail.content = {} as any);
 
-      if (content && content.details) {
+      console.log(createdByDetailContent, createdByDetail);
+
+      if (createdByDetailContent && createdByDetailContent.details) {
         userName = renderUserFullName(createdByDetail.content);
       }
     }
