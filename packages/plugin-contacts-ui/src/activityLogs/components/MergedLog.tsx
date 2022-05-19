@@ -10,7 +10,9 @@ import { __, renderFullName, renderUserFullName } from '@erxes/ui/src/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-class MergedLog extends React.Component<IActivityLogItemProps> {
+type Props = { contentDetail: any } & IActivityLogItemProps;
+
+class MergedLog extends React.Component<Props> {
   renderCreatedBy = () => {
     const { createdByDetail } = this.props.activity;
 
@@ -22,14 +24,22 @@ class MergedLog extends React.Component<IActivityLogItemProps> {
 
         return <strong>{userName}</strong>;
       }
-      
     }
 
     return <strong>System</strong>;
   };
 
+  renderLink = (type, contact) => {
+    if (type === 'customers') {
+      return `/contacts/details/${contact._id}`;
+    } else {
+      return `/${type}/details/${contact._id}`;
+    }
+  };
+
   renderContent = () => {
-    const { contentType, contentDetail } = this.props.activity;
+    const { contentType } = this.props.activity;
+    const { contentDetail } = this.props;
     const type = contentType.includes('customer') ? 'customers' : 'companies';
 
     return (
@@ -41,7 +51,7 @@ class MergedLog extends React.Component<IActivityLogItemProps> {
             return (
               <Link
                 key={contact._id}
-                to={`/contacts/${type}/details/${contact._id}`}
+                to={this.renderLink(type, contact)}
                 target="_blank"
               >
                 &nbsp;

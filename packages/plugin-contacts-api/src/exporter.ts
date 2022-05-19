@@ -370,15 +370,21 @@ const addCell = (
   columnNames: string[],
   rowIndex: number
 ): void => {
+  let fixedValue = value;
+
+  if (Array.isArray(fixedValue)) {
+    fixedValue = '';
+  }
+
   // Checking if existing column
   if (columnNames.includes(col.name)) {
     // If column already exists adding cell
-    sheet.cell(rowIndex, columnNames.indexOf(col.name) + 1).value(value);
+    sheet.cell(rowIndex, columnNames.indexOf(col.name) + 1).value(fixedValue);
   } else {
     // Creating column
     sheet.cell(1, columnNames.length + 1).value(col.label || col.name);
     // Creating cell
-    sheet.cell(rowIndex, columnNames.length + 1).value(value);
+    sheet.cell(rowIndex, columnNames.length + 1).value(fixedValue);
 
     columnNames.push(col.name);
   }
@@ -433,7 +439,7 @@ const buildLeadFile = async (
       return moment(item.value).format('YYYY/MM/DD HH:mm');
     }
 
-    if (item.type === 'file' && Array.isArray(item.value)) {
+    if (item.type === 'file' && Array.isArray(item.value) && item.value[0]) {
       return item.value[0].url;
     }
 

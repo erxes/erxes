@@ -10,10 +10,12 @@ import { renderUserFullName } from '@erxes/ui/src/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-class AssigneeLog extends React.Component<IActivityLogItemProps> {
+type Props = { contentDetail: any } & IActivityLogItemProps;
+
+class AssigneeLog extends React.Component<Props> {
   renderContent = () => {
-    const { activity } = this.props;
-    const { contentDetail, createdByDetail } = activity;
+    const { activity, contentDetail } = this.props;
+    const { createdByDetail } = activity;
 
     let userName = 'Unknown';
 

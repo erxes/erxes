@@ -13,14 +13,14 @@ import { queries, mutations } from '../graphql';
 // }
 
 function HomeContainer() {
-  const a = useQuery(gql(queries.getMiniPlanSalesLogs), {
+  const a = useQuery(gql(queries.getSalesLogs), {
     fetchPolicy: 'network-only'
   });
 
   return (
     <Home
-      // listData={a.data ? a.data.getMiniPlanSalesLogs : []}
-      listData={[]}
+      listData={a.data ? a.data.getSalesLogs : []}
+      // listData={[]}
       refetch={a.refetch}
     />
   );

@@ -9,7 +9,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { renderUserFullName } from '@erxes/ui/src/utils';
 import React from 'react';
 
-class CustomerCreate extends React.Component<IActivityLogItemProps> {
+class CustomerCreateLog extends React.Component<IActivityLogItemProps> {
   renderContent = () => {
     const { activity } = this.props;
     const { createdByDetail } = activity;
@@ -65,4 +65,4 @@ class CustomerCreate extends React.Component<IActivityLogItemProps> {
   }
 }
 
-export default CustomerCreate;
+export default CustomerCreateLog;

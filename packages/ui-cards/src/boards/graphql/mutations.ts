@@ -154,6 +154,7 @@ export const commonFields = `
     type
     size
   }
+  createdAt
   modifiedAt
   modifiedBy
   reminderMinute
