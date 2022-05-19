@@ -56,4 +56,5 @@ export const queries = ({ formsEnabled, cardsEnabled }) => `
 export const mutations = `
   modifyWaiterCustomerList(dealId: String, customerId: String, type: String): [String]
   createRentpayCustomer(firstName: String, lastName: String, email: String, phone: String): JSON
+  rentPayDealsEditCustomFieldItem(_id: String!, key: String!, value: JSON!): JSON
 `;
