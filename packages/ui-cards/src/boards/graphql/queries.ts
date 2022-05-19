@@ -174,6 +174,7 @@ const stageCommon = `
   itemsTotalCount
   pipelineId
   code
+  age
 `;
 
 const stages = `

@@ -110,6 +110,7 @@ export interface IStage extends ICommonFields {
   formId?: string;
   status?: string;
   code?: string;
+  age?: number;
 }
 
 export interface IStageDocument extends IStage, Document {
@@ -334,6 +335,7 @@ export const stageSchema = new Schema({
     label: 'Code',
     optional: true
   }),
+  age: field({ type: Number, optional: true, label: 'Age' }),
   memberIds: field({ type: [String], label: 'Members' }),
   departmentIds: field({ type: [String], label: 'Departments' }),
   ...commonFieldsSchema

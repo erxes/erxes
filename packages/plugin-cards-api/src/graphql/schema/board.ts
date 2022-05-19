@@ -58,6 +58,7 @@ export const types = contactsAvailable => `
     initialDealsTotalCount: Int
     inProcessDealsTotalCount: Int
     formId: String
+    age: Int
     ${commonTypes}
   }
 
@@ -95,6 +96,7 @@ const stageParams = `
   extraParams: JSON,
   closeDateType: String,
   assignedToMe: String,
+  age: Int
 `;
 
 export const queries = `
@@ -145,7 +147,7 @@ const pipelineParams = `
   excludeCheckUserIds: [String],
   numberConfig: String,
   numberSize: String,
-  departmentIds: [String]
+  departmentIds: [String],
 `;
 
 export const mutations = `

@@ -141,6 +141,7 @@ export interface IStage {
   status: string;
   order: number;
   code?: string;
+  age?: number;
 }
 
 export interface IConversionStage extends IStage {
