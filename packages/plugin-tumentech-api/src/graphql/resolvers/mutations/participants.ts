@@ -42,7 +42,7 @@ const participantMutations = {
       return models.Participants.remove({ dealId });
     }
 
-    return models.Participants.createParticipant(docModifier(doc));
+    return [models.Participants.createParticipant(docModifier(doc))];
   },
 
   participantsEdit: async (
