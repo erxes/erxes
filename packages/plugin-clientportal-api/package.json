@@ -8,6 +8,7 @@
     "start": "cd .erxes/dist/plugin-clientportal-api/.erxes && node src"
   },
   "dependencies": {
+    "cookie-parser": "^1.4.6",
     "twilio": "^3.77.0"
   }
 }

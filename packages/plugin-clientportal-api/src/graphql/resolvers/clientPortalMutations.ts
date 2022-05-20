@@ -178,7 +178,6 @@ const clientPortalUserMutations = {
    * Login
    */
   clientPortalLogin: async (_root, args: ILoginParams, context: IContext) => {
-    await cpUserMiddleware(context);
     const { token } = await context.models.ClientPortalUsers.login(args);
     const cookieOptions: any = { secure: context.requestInfo.secure };
     context.res.cookie(
