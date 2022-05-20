@@ -3,7 +3,7 @@ import { IUnitDocument } from '../../db/models/definitions/structures';
 
 export default {
   users(unit: IUnitDocument, _args, { models }: IContext) {
-    return models.Users.find({
+    return models.Users.findUsers({
       _id: { $in: unit.userIds || [] },
       isActive: true
     });

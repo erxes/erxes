@@ -42,5 +42,5 @@ export default {
   emailTemplatesAdd,
   emailTemplatesEdit,
   emailTemplatesRemove,
-	emailTemplatesChangeStatus
+  emailTemplatesChangeStatus
 };

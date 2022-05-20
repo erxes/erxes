@@ -2,8 +2,15 @@ import { IContext } from '../../connectionResolver';
 import { IBranchDocument } from '../../db/models/definitions/structures';
 
 export default {
+  __resolveReference({ _id }, { models }: IContext) {
+    return models.Branches.findOne({ _id });
+  },
+
   users(branch: IBranchDocument, _args, { models }: IContext) {
-    return models.Users.find({ _id: { $in: branch.userIds || [] }, isActive: true });
+    return models.Users.findUsers({
+      _id: { $in: branch.userIds || [] },
+      isActive: true
+    });
   },
 
   parent(branch: IBranchDocument, _args, { models }: IContext) {

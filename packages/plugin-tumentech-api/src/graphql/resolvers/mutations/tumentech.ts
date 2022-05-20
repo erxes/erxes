@@ -1,7 +1,7 @@
-import { putCreateLog, putDeleteLog, putUpdateLog } from "erxes-api-utils";
-import { gatherDescriptions } from "../../../utils";
-import { checkPermission } from "@erxes/api-utils/src";
-import messageBroker, { sendCoreMessage } from "../../../messageBroker";
+import { putCreateLog, putDeleteLog, putUpdateLog } from 'erxes-api-utils';
+import { gatherDescriptions } from '../../../utils';
+import { checkPermission } from '@erxes/api-utils/src';
+import messageBroker, { sendCoreMessage } from '../../../messageBroker';
 
 const carMutations = {
   carsAdd: async (_root, doc, { user, docModifier, models }) => {
@@ -11,7 +11,7 @@ const carMutations = {
       messageBroker,
       gatherDescriptions,
       {
-        type: "car",
+        type: 'car',
         newData: doc,
         object: car,
         extraParams: { models }
@@ -33,7 +33,7 @@ const carMutations = {
       messageBroker,
       gatherDescriptions,
       {
-        type: "car",
+        type: 'car',
         object: car,
         newData: { ...doc },
         updatedDocument: updated,
@@ -61,7 +61,7 @@ const carMutations = {
       await putDeleteLog(
         messageBroker,
         gatherDescriptions,
-        { type: "car", object: car, extraParams: { models } },
+        { type: 'car', object: car, extraParams: { models } },
         user
       );
     }
@@ -93,7 +93,7 @@ const carMutations = {
       messageBroker,
       gatherDescriptions,
       {
-        type: "car-category",
+        type: 'car-category',
         newData: { ...doc, order: carCategory.order },
         object: carCategory,
         extraParams: { models }
@@ -123,7 +123,7 @@ const carMutations = {
       messageBroker,
       gatherDescriptions,
       {
-        type: "car-category",
+        type: 'car-category',
         object: carCategory,
         newData: doc,
         updatedDocument: updated,
@@ -152,7 +152,7 @@ const carMutations = {
     await putDeleteLog(
       messageBroker,
       gatherDescriptions,
-      { type: "car-category", object: carCategory, extraParams: { models } },
+      { type: 'car-category', object: carCategory, extraParams: { models } },
       user
     );
 
@@ -166,11 +166,11 @@ const carMutations = {
     if (doc.customerId) {
       await sendCoreMessage({
         subdomain: models.subdomain,
-        action: "conformities.addConformities",
+        action: 'conformities.addConformities',
         data: {
-          mainType: "customer",
+          mainType: 'customer',
           mainTypeId: doc.customerId,
-          relType: "car",
+          relType: 'car',
           relTypeId: car._id
         }
       });
@@ -179,11 +179,11 @@ const carMutations = {
     if (doc.companyId) {
       await sendCoreMessage({
         subdomain: models.subdomain,
-        action: "conformities.addConformities",
+        action: 'conformities.addConformities',
         data: {
-          mainType: "company",
+          mainType: 'company',
           mainTypeId: doc.companyId,
-          relType: "car",
+          relType: 'car',
           relTypeId: car._id
         }
       });
@@ -207,15 +207,15 @@ const carMutations = {
   cpCarsRemove: async (_root, { carIds }: { carIds: string[] }, { models }) => {
     await models.Cars.removeCars(carIds);
     return carIds;
-  },
+  }
 };
 
-checkPermission(carMutations, "carsAdd", "manageCars");
-checkPermission(carMutations, "carsEdit", "manageCars");
-checkPermission(carMutations, "carsRemove", "manageCars");
-checkPermission(carMutations, "carsMerge", "manageCars");
-checkPermission(carMutations, "carCategoriesAdd", "manageCars");
-checkPermission(carMutations, "carCategoriesEdit", "manageCars");
-checkPermission(carMutations, "carCategoriesRemove", "manageCars");
+checkPermission(carMutations, 'carsAdd', 'manageCars');
+checkPermission(carMutations, 'carsEdit', 'manageCars');
+checkPermission(carMutations, 'carsRemove', 'manageCars');
+checkPermission(carMutations, 'carsMerge', 'manageCars');
+checkPermission(carMutations, 'carCategoriesAdd', 'manageCars');
+checkPermission(carMutations, 'carCategoriesEdit', 'manageCars');
+checkPermission(carMutations, 'carCategoriesRemove', 'manageCars');
 
 export default carMutations;

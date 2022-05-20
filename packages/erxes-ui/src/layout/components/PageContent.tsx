@@ -8,6 +8,7 @@ type Props = {
   transparent: boolean;
   center?: boolean;
   noPadding?: boolean;
+  initialOverflow?: boolean;
 };
 
 function PageContent({
@@ -17,11 +18,18 @@ function PageContent({
   transparent,
   center,
   noPadding,
+  initialOverflow
 }: Props) {
   return (
-    <MainContent transparent={transparent} center={center} noPadding={noPadding}>
+    <MainContent
+      transparent={transparent}
+      center={center}
+      noPadding={noPadding}
+    >
       {actionBar}
-      <ContentBox transparent={transparent}>{children}</ContentBox>
+      <ContentBox transparent={transparent} initialOverflow={initialOverflow}>
+        {children}
+      </ContentBox>
       {footer && <ContenFooter>{footer}</ContenFooter>}
     </MainContent>
   );

@@ -81,36 +81,6 @@ export const itemResolver = async (type: string, item: IItemCommonFields) => {
   return additionInfo;
 };
 
-export const prepareCustomData = async (subdomain, type, doc) => {
-  const { data } = doc;
-  const { customFieldsData = [] } = doc;
-
-  if (!data) {
-    return customFieldsData;
-  }
-
-  const generatedData = await sendFormsMessage({
-    subdomain,
-    action: 'fields.generateCustomFieldsData',
-    data: {
-      customData: data,
-      contentType: `cards:${type}`
-    },
-    isRPC: true
-  });
-
-  const generatedCustomFieldsData = generatedData.customFieldsData || [];
-
-  return [
-    ...new Map(
-      [...customFieldsData, ...generatedCustomFieldsData].map(item => [
-        item.field,
-        item
-      ])
-    ).values()
-  ];
-};
-
 export const itemsAdd = async (
   models: IModels,
   subdomain: string,
@@ -140,12 +110,6 @@ export const itemsAdd = async (
       aboveItemId: doc.aboveItemId
     })
   };
-
-  extendedDoc.customFieldsData = await prepareCustomData(
-    subdomain,
-    type,
-    extendedDoc
-  );
 
   if (extendedDoc.customFieldsData) {
     // clean custom field values
@@ -296,12 +260,6 @@ export const itemsEdit = async (
     modifiedBy: user._id
   };
 
-  extendedDoc.customFieldsData = await prepareCustomData(
-    subdomain,
-    type,
-    extendedDoc
-  );
-
   if (extendedDoc.customFieldsData) {
     // clean custom field values
     extendedDoc.customFieldsData = await sendFormsMessage({
@@ -335,11 +293,11 @@ export const itemsEdit = async (
       data: {
         item: updatedItem,
         contentType: type,
-        action: activityAction,
+        action: 'archive',
         userId: user._id,
         createdBy: user._id,
         contentId: updatedItem._id,
-        content: 'archived'
+        content: activityAction
       }
     });
 
@@ -353,7 +311,7 @@ export const itemsEdit = async (
     });
   }
 
-  if (doc.assignedUserIds && doc.assignedUserIds.length > 0) {
+  if (doc.assignedUserIds) {
     const { addedUserIds, removedUserIds } = checkUserIds(
       oldItem.assignedUserIds,
       doc.assignedUserIds

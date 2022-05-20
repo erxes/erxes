@@ -1,7 +1,7 @@
-import Button from "../Button";
-import Icon from "../Icon";
-import { __ } from "../../utils/core";
-import React from "react";
+import Button from '../Button';
+import Icon from '../Icon';
+import { __ } from '../../utils/core';
+import React from 'react';
 import {
   FullStep,
   ShortStep,
@@ -12,8 +12,8 @@ import {
   StepImg,
   StepItem,
   ButtonBack
-} from "./styles";
-import { Link } from "react-router-dom";
+} from './styles';
+import { Link } from 'react-router-dom';
 import { BoxRow } from './style';
 
 type Props = {
@@ -33,33 +33,40 @@ type Props = {
 };
 
 class Step extends React.Component<Props> {
-  renderBackButton(text) {
-    const { back } =this.props
-    return (<>
-      {back && <ButtonBack onClick={back.bind(null, 0)}>
-                {text}
-              </ButtonBack>}
-    </>)
+  renderBackButton(text: string) {
+    const { back } = this.props;
+
+    if (back)
+      return (
+        <ButtonBack size={1} onClick={back.bind(null, 0)}>
+          {text}
+        </ButtonBack>
+      );
+
+    return null;
   }
 
   renderButton() {
     const { next, link, additionalButton, type } = this.props;
-    if(type === 'stepper'){
-      return (<>
-         <BoxRow>
+
+    if (type === 'stepper') {
+      return (
+        <BoxRow>
           {link ? (
-            <Link to={link}>
-              {this.renderBackButton(__('Cancel'))}
-            </Link>
-          ) : this.renderBackButton(__('Back'))}
-          {additionalButton ? additionalButton : next &&(
-            <ButtonBack onClick={next.bind(null, 0)} next={true}>
-              {__('Next')}
-            </ButtonBack>
+            <Link to={link}>{this.renderBackButton(__('Cancel'))}</Link>
+          ) : (
+            this.renderBackButton(__('Back'))
           )}
-         </BoxRow>
-      </>);
-  }
+          {additionalButton
+            ? additionalButton
+            : next && (
+                <ButtonBack size={1} onClick={next.bind(null, 0)}>
+                  {__('Skip')}
+                </ButtonBack>
+              )}
+        </BoxRow>
+      );
+    }
 
     if (next) {
       return (
@@ -86,7 +93,7 @@ class Step extends React.Component<Props> {
 
     return (
       <Button btnStyle="primary" size="small" onClick={next.bind(null, 0)}>
-        {__("Next")} <Icon icon="arrow-right" />
+        {__('Next')} <Icon icon="arrow-right" />
       </Button>
     );
   }
@@ -102,7 +109,15 @@ class Step extends React.Component<Props> {
   };
 
   render() {
-    const { stepNumber, active, img, title, children, noButton, type } = this.props;
+    const {
+      stepNumber,
+      active,
+      img,
+      title,
+      children,
+      noButton,
+      type
+    } = this.props;
 
     let show = false;
 
@@ -110,15 +125,18 @@ class Step extends React.Component<Props> {
       show = true;
     }
 
-    if(type === "stepper"){
+    if (type === 'stepper' || type === 'stepperColumn') {
+      if (type === 'stepperColumn') show = true;
+
       return (
         <StepItem show={show} type={type}>
           <FullStep show={show} type={type}>
-            <StepContent type={type}>{children}</StepContent>
-            {this.renderButton()}
+            <StepContent type={type}>
+              {children} {!noButton && this.renderButton()}
+            </StepContent>
           </FullStep>
         </StepItem>
-      )
+      );
     }
 
     return (
@@ -130,7 +148,7 @@ class Step extends React.Component<Props> {
                 <img src={img} alt="step-icon" />
               </StepImg>
 
-              <StepHeaderTitle>{__(title || "")}</StepHeaderTitle>
+              <StepHeaderTitle>{__(title || '')}</StepHeaderTitle>
             </StepHeader>
             {!noButton && this.renderButton()}
           </StepHeaderContainer>

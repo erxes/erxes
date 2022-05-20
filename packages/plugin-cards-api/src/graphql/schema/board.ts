@@ -4,7 +4,7 @@ const commonTypes = `
   type: String
 `;
 
-export const types = (contactsAvailable) => `
+export const types = contactsAvailable => `
 
   type Board @key(fields: "_id") {
     _id: String!
@@ -58,6 +58,7 @@ export const types = (contactsAvailable) => `
     initialDealsTotalCount: Int
     inProcessDealsTotalCount: Int
     formId: String
+    age: Int
     ${commonTypes}
   }
 
@@ -95,6 +96,7 @@ const stageParams = `
   extraParams: JSON,
   closeDateType: String,
   assignedToMe: String,
+  age: Int
 `;
 
 export const queries = `
@@ -119,6 +121,8 @@ export const queries = `
   itemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
   itemsCountByAssignedUser(type: String!, pipelineId: String!, stackBy: String): JSON
   cardsFields: JSON
+  boardContentTypeDetail(contentType: String, contentId: String): JSON
+  boardLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
 `;
 
 const commonParams = `
@@ -143,7 +147,7 @@ const pipelineParams = `
   excludeCheckUserIds: [String],
   numberConfig: String,
   numberSize: String,
-  departmentIds: [String]
+  departmentIds: [String],
 `;
 
 export const mutations = `

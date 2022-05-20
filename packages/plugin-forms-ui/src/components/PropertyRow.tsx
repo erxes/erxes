@@ -129,7 +129,7 @@ class PropertyRow extends React.Component<Props, State> {
 
   renderTableRow = (field: IField) => {
     const { removeProperty, queryParams } = this.props;
-    const { lastUpdatedUser } = field;
+    const { lastUpdatedUser, contentType } = field;
 
     const onChange = e => this.visibleHandler(e, field);
 
@@ -157,7 +157,7 @@ class PropertyRow extends React.Component<Props, State> {
           />
         </RowField>
         {['visitor', 'lead', 'customer', 'device'].includes(
-          field.contentType
+          (contentType || '').split(':')[1]
         ) ? (
           <RowField>
             <Toggle
@@ -208,7 +208,7 @@ class PropertyRow extends React.Component<Props, State> {
       'lead',
       'customer',
       'device'
-    ].includes(contentType);
+    ].includes((contentType || '').split(':')[1]);
 
     const renderListRow = (
       <SortableList

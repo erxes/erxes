@@ -79,7 +79,7 @@ class IntegrationList extends React.Component<Props, State> {
 
       return (
         <EmptyState
-          text="Start adding integrations now!"
+          text="Start adding add-ons now!"
           image="/images/actions/2.svg"
         />
       );

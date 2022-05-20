@@ -1,10 +1,7 @@
 import { debug } from './configs';
 import { getCollection } from './models/utils';
 import { MODULE_NAMES } from './constants';
-import {
-  generateModels,
-  IModels
-} from './connectionResolver';
+import { generateModels, IModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 
@@ -157,7 +154,7 @@ export const getContentItem = async (subdomain, data) => {
     if (content) {
       addedUsers = await sendCoreMessage({
         subdomain,
-        action: "users.find",
+        action: 'users.find',
         data: {
           query: {
             _id: { $in: content.addedUserIds }
@@ -165,11 +162,11 @@ export const getContentItem = async (subdomain, data) => {
         },
         isRPC: true,
         defaultValue: []
-      });      
+      });
 
       removedUsers = await sendCoreMessage({
         subdomain,
-        action: "users.find",
+        action: 'users.find',
         data: {
           query: {
             _id: { $in: content.removedUserIds }
@@ -234,34 +231,11 @@ export const collectItems = async (
   subdomain: string,
   { contentType, contentId }
 ) => {
-  // const type =
-  //   contentType.indexOf(':') !== -1 ? contentType.split(':')[1] : contentType;
-  // const { collection } = getCollection(models, type);
-
-  // const relatedItemIds = await sendCoreMessage({
-  //   subdomain,
-  //   action: 'conformities.savedConformity',
-  //   data: {
-  //     mainType: contentType,
-  //     mainTypeId: contentId,
-  //     relTypes:
-  //       type === 'task' ? ['deal', 'ticket', 'task'] : ['deal', 'ticket']
-  //   },
-  //   isRPC: true,
-  //   defaultValue: []
-  // });
-
-  // const items = await collection
-  //   .find({
-  //     $and: [
-  //       { _id: { $in: [...relatedItemIds, contentId] } },
-  //       { status: { $ne: 'archived' } }
-  //     ]
-  //   })
-  //   .lean()
-  //   .sort({ closeDate: 1 });
-
   let tasks: any[] = [];
+
+  if (contentType === 'activity') {
+    return;
+  }
 
   const relatedTaskIds = await sendCoreMessage({
     subdomain,
@@ -276,11 +250,37 @@ export const collectItems = async (
   });
 
   if (contentType !== 'cards:task') {
-    tasks = await models.Tasks.find({
-      $and: [{ _id: { $in: relatedTaskIds } }, { status: { $ne: 'archived' } }]
-    })
-      .sort({ closeDate: 1 })
-      .lean();
+    tasks = await models.Tasks.aggregate([
+      {
+        $match: {
+          $and: [
+            { _id: { $in: relatedTaskIds } },
+            { status: { $ne: 'archived' } }
+          ]
+        }
+      },
+      {
+        $addFields: { contentType: 'cards:taskDetail' }
+      },
+      {
+        $project: {
+          _id: 1,
+          contentType: 1,
+          createdAt: {
+            $switch: {
+              branches: [
+                {
+                  case: { $gt: ['$closeDate', null] },
+                  then: '$closeDate'
+                }
+              ],
+              default: '$createdAt'
+            }
+          }
+        }
+      },
+      { $sort: { closeDate: 1 } }
+    ]);
   }
 
   return tasks;
@@ -328,10 +328,10 @@ export const getCardItem = async (
   return item;
 };
 
-export const getBoardsAndPipelines = (doc) => {
+export const getBoardsAndPipelines = doc => {
   const { config } = doc;
-  
-  if(!config || !config.boardsPipelines) {
+
+  if (!config || !config.boardsPipelines) {
     return doc;
   }
 

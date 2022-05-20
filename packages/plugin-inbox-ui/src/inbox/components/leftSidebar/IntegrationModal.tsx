@@ -66,7 +66,7 @@ type Props = {
 
 export const IntegrationModal = ({ trigger }: Props) => {
   const defaultTrigger = (
-    <Button block={true} btnStyle='link' icon='processor'>
+    <Button block={true} btnStyle="link" icon="processor">
       {__('Connect Integration')}
     </Button>
   );
@@ -75,30 +75,30 @@ export const IntegrationModal = ({ trigger }: Props) => {
     return (
       <Wrapper>
         <h3>{__('Which integration would you like to connect?')}</h3>
-        <Link to='/settings/integrations/createFacebook?kind=facebook-post'>
+        <Link to="/settings/add-ons/createFacebook?kind=facebook-post">
           <Box>
-            <img src='/images/integrations/facebook.png' alt='Facebook Post' />
+            <img src="/images/integrations/facebook.png" alt="Facebook Post" />
             <span>{__('Facebook Post')}</span>
             <p>
               {__('Receiving Facebook post and comments in your team inbox')}
             </p>
           </Box>
         </Link>
-        <Link to='/settings/integrations/createFacebook?kind=facebook-messenger'>
+        <Link to="/settings/add-ons/createFacebook?kind=facebook-messenger">
           <Box>
             <img
-              src='/images/integrations/fb-messenger.png'
-              alt='Facebook Messenger'
+              src="/images/integrations/fb-messenger.png"
+              alt="Facebook Messenger"
             />
             <span>{__('Facebook Messenger')}</span>
             <p>{__('Receiving Facebook messages in your team inbox')}</p>
           </Box>
         </Link>
-        <Link to='/settings/integrations/createMessenger'>
+        <Link to="/settings/add-ons/createMessenger">
           <Box>
             <img
-              src='/images/integrations/messenger.png'
-              alt='Facebook Messenger'
+              src="/images/integrations/messenger.png"
+              alt="Facebook Messenger"
             />
             <span>{__('Messenger')}</span>
             <p>
@@ -106,10 +106,10 @@ export const IntegrationModal = ({ trigger }: Props) => {
             </p>
           </Box>
         </Link>
-        <Link to='#' />
-        <Link to='/settings/integrations/createGmail'>
+        <Link to="#" />
+        <Link to="/settings/add-ons/createGmail">
           <Box>
-            <img src='/images/integrations/gmail.png' alt='Gmail' />
+            <img src="/images/integrations/gmail.png" alt="Gmail" />
             <span>{__('Gmail')}</span>
             <p>
               {__(
@@ -118,7 +118,7 @@ export const IntegrationModal = ({ trigger }: Props) => {
             </p>
           </Box>
         </Link>
-        <Link to='/settings/integrations' className='other'>
+        <Link to="/settings/add-ons" className="other">
           {__('See all Integration')} &raquo;
         </Link>
       </Wrapper>
@@ -127,10 +127,10 @@ export const IntegrationModal = ({ trigger }: Props) => {
 
   return (
     <ModalTrigger
-      title='Reply'
+      title="Reply"
       trigger={trigger ? trigger : defaultTrigger}
       content={content}
-      size='lg'
+      size="lg"
       hideHeader={true}
       centered={true}
     />

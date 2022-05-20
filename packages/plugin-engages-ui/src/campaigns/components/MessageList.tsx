@@ -18,6 +18,7 @@ import { ChooseBox, FlexContainer } from '@erxes/ui-engage/src/styles';
 import { IEngageMessage } from '@erxes/ui-engage/src/types';
 import PercentItem, { ItemWrapper } from './PercentItem';
 import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   messages: IEngageMessage[];
@@ -224,7 +225,7 @@ class List extends React.Component<Props> {
       <Wrapper.ActionBar
         isSettings
         background="colorWhite"
-        left={this.renderTagger()}
+        left={isEnabled('tags') && this.renderTagger()}
         right={this.renderRightActionBar()}
       />
     );
@@ -249,7 +250,7 @@ class List extends React.Component<Props> {
             <th>{__('Created by')}</th>
             <th>{__('Created date')}</th>
             <th>{__('Scheduled date')}</th>
-            <th>{__('Tags')}</th>
+            {isEnabled('tags') && <th>{__('Tags')}</th>}
             <th>{__('Actions')}</th>
           </tr>
         </thead>

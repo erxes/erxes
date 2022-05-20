@@ -174,6 +174,7 @@ const stageCommon = `
   itemsTotalCount
   pipelineId
   code
+  age
 `;
 
 const stages = `
@@ -321,7 +322,6 @@ const conversionStages = `
   }
 `;
 
-
 const cardFields = `
   _id
   name
@@ -366,6 +366,18 @@ const deals = `
   } 
 `;
 
+const boardContentTypeDetail = `
+  query boardContentTypeDetail($contentType: String, $contentId: String){
+    boardContentTypeDetail(contentType: $contentType, contentId: $contentId)
+  }
+`;
+
+const boardLogs = `
+  query boardLogs($action: String, $content: JSON, $contentType: String, $contentId: String){
+    boardLogs(action: $action, content: $content, contentType: $contentType, contentId: $contentId)
+  }
+`;
+
 export default {
   archivedStages,
   archivedStagesCount,
@@ -392,5 +404,7 @@ export default {
   internalNotesByAction,
   deals,
   tickets,
-  tasks
+  tasks,
+  boardContentTypeDetail,
+  boardLogs
 };

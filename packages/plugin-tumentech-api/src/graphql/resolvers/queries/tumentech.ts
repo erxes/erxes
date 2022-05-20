@@ -1,23 +1,19 @@
-import { paginate } from "erxes-api-utils";
-import { checkPermission } from "@erxes/api-utils/src";
-import { sendCoreMessage, sendProductsMessage } from "../../../messageBroker";
+import { paginate } from 'erxes-api-utils';
+import { checkPermission } from '@erxes/api-utils/src';
+import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
+import { Builder } from './carQueryBuilder';
 
-const generateFilter = async (
-  models,
-  params,
-  commonQuerySelector,
-  subdomain
-) => {
+const generateFilter = async (params, commonQuerySelector, subdomain) => {
   const filter: any = commonQuerySelector;
 
-  filter.status = { $ne: "Deleted" };
+  filter.status = { $ne: 'Deleted' };
 
   if (params.categoryId) {
     filter.categoryId = params.categoryId;
   }
 
   if (params.searchValue) {
-    filter.searchText = { $in: [new RegExp(`.*${params.searchValue}.*`, "i")] };
+    filter.searchText = { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] };
   }
 
   if (params.ids) {
@@ -32,11 +28,11 @@ const generateFilter = async (
     filter._id = {
       $in: await sendCoreMessage({
         subdomain,
-        action: "conformities.savedConformity",
+        action: 'conformities.savedConformity',
         data: {
           mainType: params.conformityMainType,
           mainTypeId: params.conformityMainTypeId,
-          relTypes: ["car"]
+          relTypes: ['car']
         },
         isRPC: true,
         defaultValue: []
@@ -51,11 +47,11 @@ const generateFilter = async (
     filter._id = {
       $in: await sendCoreMessage({
         subdomain,
-        action: "conformities.relatedConformity",
+        action: 'conformities.relatedConformity',
         data: {
           mainType: params.conformityMainType,
           mainTypeId: params.conformityMainTypeId,
-          relTypes: ["car"]
+          relTypes: ['car']
         },
         isRPC: true,
         defaultValue: []
@@ -66,7 +62,7 @@ const generateFilter = async (
   return filter;
 };
 
-export const sortBuilder = (params) => {
+export const sortBuilder = params => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -84,7 +80,7 @@ const carQueries = {
   cars: async (_root, params, { commonQuerySelector, models, subdomain }) => {
     return paginate(
       models.Cars.find(
-        await generateFilter(models, params, commonQuerySelector, subdomain)
+        await generateFilter(params, commonQuerySelector, subdomain)
       ),
       {
         page: params.page,
@@ -101,20 +97,27 @@ const carQueries = {
     params,
     { commonQuerySelector, models, subdomain }
   ) => {
-    const filter = await generateFilter(
-      models,
-      params,
-      commonQuerySelector,
-      subdomain
-    );
+    const filter = await generateFilter(params, commonQuerySelector, subdomain);
 
-    return {
-      list: paginate(models.Cars.find(filter).sort(sortBuilder(params)), {
-        page: params.page,
-        perPage: params.perPage
-      }),
-      totalCount: models.Cars.find(filter).count()
+    const qb = new Builder(models, subdomain, params);
+
+    await qb.buildAllQueries();
+
+    const mainQuery = { ...qb.mainQuery(), ...filter };
+
+    const response = {
+      list: await paginate(
+        models.Cars.find(mainQuery).sort(sortBuilder(params)),
+        {
+          page: params.page,
+          perPage: params.perPage
+        }
+      ),
+
+      totalCount: await models.Cars.find(mainQuery).count()
     };
+
+    return response;
   },
 
   carCategoryMatchProducts: async (
@@ -124,11 +127,11 @@ const carQueries = {
   ) => {
     const productCategoryIds = (
       (await models.ProductCarCategories.find({ carCategoryId }).lean()) || []
-    ).map((i) => i.productCategoryId);
+    ).map(i => i.productCategoryId);
 
     const productCategories = await sendProductsMessage({
       subdomain,
-      action: "find",
+      action: 'find',
       data: {
         query: {
           _id: { $in: productCategoryIds }
@@ -153,7 +156,7 @@ const carQueries = {
     const carCategoryIds = (
       (await models.ProductCarCategories.find({ productCategoryId }).lean()) ||
       []
-    ).map((i) => i.carCategoryId);
+    ).map(i => i.carCategoryId);
 
     return {
       productCategoryId,
@@ -183,7 +186,7 @@ const carQueries = {
     }
 
     if (searchValue) {
-      filter.name = new RegExp(`.*${searchValue}.*`, "i");
+      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
 
     return models.CarCategories.find(filter).sort({ order: 1 });
@@ -218,7 +221,7 @@ const carQueries = {
     }
 
     if (searchValue) {
-      filter.name = new RegExp(`.*${searchValue}.*`, "i");
+      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
 
     return models.CarCategories.find(filter).sort({ order: 1 });
@@ -233,10 +236,10 @@ const carQueries = {
   }
 };
 
-checkPermission(carQueries, "carsMain", "showCars");
-checkPermission(carQueries, "carDetail", "showCars");
-checkPermission(carQueries, "carCategories", "showCars");
-checkPermission(carQueries, "carCategoriesTotalCount", "showCars");
-checkPermission(carQueries, "carCategoryDetail", "showCars");
+checkPermission(carQueries, 'carsMain', 'showCars');
+checkPermission(carQueries, 'carDetail', 'showCars');
+checkPermission(carQueries, 'carCategories', 'showCars');
+checkPermission(carQueries, 'carCategoriesTotalCount', 'showCars');
+checkPermission(carQueries, 'carCategoryDetail', 'showCars');
 
 export default carQueries;

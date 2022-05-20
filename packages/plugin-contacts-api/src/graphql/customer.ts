@@ -96,6 +96,7 @@ export const queries = `
   customers(${queryParams}): [Customer]
   customerCounts(${queryParams}, only: String, source: String): JSON
   customerDetail(_id: String!): Customer
+  contactsLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
 `;
 
 const fields = `
@@ -116,7 +117,6 @@ const fields = `
   isSubscribed: String
   links: JSON
   customFieldsData: JSON
-  data: JSON
   code: String
   sex: Int
   birthDate: Date
@@ -132,4 +132,5 @@ export const mutations = `
   customersChangeState(_id: String!, value: String!): Customer
   customersVerify(verificationType:String!): String
   customersChangeVerificationStatus(customerIds: [String], type: String!, status: String!): [Customer]
+
 `;

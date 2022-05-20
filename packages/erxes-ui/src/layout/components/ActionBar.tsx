@@ -9,11 +9,26 @@ type Props = {
   zIndex?: number;
   hasFlex?: boolean;
   isSettings?: boolean;
+  noBorder?: boolean;
 };
 
-function ActionBar({ left, right, background, bottom, zIndex, hasFlex, isSettings }: Props) {
+function ActionBar({
+  left,
+  right,
+  background,
+  bottom,
+  zIndex,
+  hasFlex,
+  isSettings,
+  noBorder
+}: Props) {
   return (
-    <ContentHeader background={background || 'bgLight'} zIndex={zIndex} isSettings={isSettings}>
+    <ContentHeader
+      background={background || 'bgLight'}
+      noBorder={noBorder}
+      zIndex={zIndex}
+      isSettings={isSettings}
+    >
       <HeaderContent>
         {left && <HeaderItems hasFlex={hasFlex}>{left}</HeaderItems>}
         {right && <HeaderItems rightAligned={true}>{right}</HeaderItems>}

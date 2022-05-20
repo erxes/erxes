@@ -13,6 +13,7 @@ import {
   statusFilters
 } from '@erxes/ui-engage/src/constants';
 import { ITag } from '@erxes/ui/src/tags/types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -96,14 +97,16 @@ class Sidebar extends React.Component<Props> {
         {this.renderKindFilter()}
         {this.renderStatusFilter()}
 
-        <CountsByTag
-          tags={tags}
-          manageUrl="tags/engageMessage"
-          counts={tagCounts}
-          loading={false}
-          isSettings
-          noShadow
-        />
+        {isEnabled('tags') && (
+          <CountsByTag
+            tags={tags}
+            manageUrl="/tags?type=engages:engageMessage"
+            counts={tagCounts}
+            loading={false}
+            isSettings
+            noShadow
+          />
+        )}
       </Wrapper.Sidebar>
     );
   }

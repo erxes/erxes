@@ -190,7 +190,7 @@ class Uploader extends React.Component<Props, State> {
     return (
       <UploadBtnWithIcon>
         <label>
-          {icon ?  <Icon icon={icon}/> : null}
+          {icon ? <Icon icon={icon} /> : null}
           <div>
             <span>{text ? __(text) : __('Upload an attachment')}</span>
             <Meta>

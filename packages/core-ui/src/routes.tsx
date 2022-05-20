@@ -1,35 +1,36 @@
-import withCurrentUser from "modules/auth/containers/withCurrentUser";
-import asyncComponent from "modules/common/components/AsyncComponent";
-import { pluginLayouts, pluginRouters } from "./pluginUtils";
-import queryString from "query-string";
-import React from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import AuthRoutes from "./modules/auth/routes";
-import { IUser } from "./modules/auth/types";
-import SettingsRoutes from "./modules/settings/routes";
-import TutorialRoutes from "./modules/tutorial/routes";
+import withCurrentUser from 'modules/auth/containers/withCurrentUser';
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import { pluginLayouts, pluginRouters } from './pluginUtils';
+import queryString from 'query-string';
+import React from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import AuthRoutes from './modules/auth/routes';
+import { IUser } from './modules/auth/types';
+import SettingsRoutes from './modules/settings/routes';
+import TutorialRoutes from './modules/tutorial/routes';
+import WelcomeRoutes from './modules/welcome/routes';
 
 const MainLayout = asyncComponent(() =>
   import(
-    /* webpackChunkName: "MainLayout" */ "modules/layout/containers/MainLayout"
+    /* webpackChunkName: "MainLayout" */ 'modules/layout/containers/MainLayout'
   )
 );
 
 const Unsubscribe = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Unsubscribe" */ "modules/auth/containers/Unsubscribe"
+    /* webpackChunkName: "Unsubscribe" */ 'modules/auth/containers/Unsubscribe'
   )
 );
 
 const UserConfirmation = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Settings - UserConfirmation" */ "@erxes/ui-team/src/containers/UserConfirmation"
+    /* webpackChunkName: "Settings - UserConfirmation" */ '@erxes/ui-team/src/containers/UserConfirmation'
   )
 );
 
 const Schedule = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Calendar - Schedule" */ "@erxes/ui-calendar/src/components/scheduler/Index"
+    /* webpackChunkName: "Calendar - Schedule" */ '@erxes/ui-calendar/src/components/scheduler/Index'
   )
 );
 
@@ -45,7 +46,7 @@ const schedule = ({ match }) => {
   return <Schedule slug={slug} />;
 };
 
-const renderRoutes = (currentUser) => {
+const renderRoutes = currentUser => {
   const userConfirmation = ({ location }) => {
     const queryParams = queryString.parse(location.search);
 
@@ -54,13 +55,13 @@ const renderRoutes = (currentUser) => {
     );
   };
 
-  if (!sessionStorage.getItem("sessioncode")) {
-    sessionStorage.setItem("sessioncode", Math.random().toString());
+  if (!sessionStorage.getItem('sessioncode')) {
+    sessionStorage.setItem('sessioncode', Math.random().toString());
   }
 
   const { pathname } = window.location;
 
-  if (pathname.search("/schedule/") === 0) {
+  if (pathname.search('/schedule/') === 0) {
     return null;
   }
 
@@ -70,6 +71,7 @@ const renderRoutes = (currentUser) => {
         <MainLayout currentUser={currentUser}>
           <SettingsRoutes />
           <TutorialRoutes />
+          <WelcomeRoutes />
           {pluginLayouts(currentUser)}
           {pluginRouters()}
 

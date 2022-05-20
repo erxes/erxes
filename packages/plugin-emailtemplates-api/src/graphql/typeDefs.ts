@@ -6,7 +6,7 @@ import {
   mutations as emailTemplateMutations
 } from './schema/emailTemplate';
 
-const typeDefs = async (_serviceDiscovery) => {
+const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
     scalar Date

@@ -1,4 +1,3 @@
-import { closeInfo } from './../../../plugin-loan-ui/src/contracts/graphql/queries';
 import { CONTRACT_STATUS } from './definitions/constants';
 import {
   contractSchema,
@@ -48,7 +47,7 @@ export const loadContractClass = models => {
      */
 
     public static async getContract(selector: any) {
-      const contract = await models.LoanContracts.findOne(selector);
+      const contract = await models.Contracts.findOne(selector);
 
       if (!contract) {
         throw new Error('Contract not found');
@@ -70,13 +69,11 @@ export const loadContractClass = models => {
       doc.marginAmount = margin || doc.marginAmount;
       doc.feeAmount = (leaseAmount / 100) * 0.5;
 
-      console.log('object :>> ', doc);
-
       doc.insuranceAmount = getInsurancAmount(
         doc.insuranceAmount || [],
         doc.collateralsData || []
       );
-      const contract = await models.LoanContracts.create(doc);
+      const contract = await models.Contracts.create(doc);
 
       return contract;
     }
@@ -85,7 +82,7 @@ export const loadContractClass = models => {
      * Update Contract
      */
     public static async updateContract(_id, doc: IContract) {
-      const oldContract = await models.LoanContracts.getContract(models, {
+      const oldContract = await models.Contracts.getContract(models, {
         _id
       });
 
@@ -107,9 +104,9 @@ export const loadContractClass = models => {
         doc.insuranceAmount || [],
         doc.collateralsData || []
       );
-      await models.LoanContracts.updateOne({ _id }, { $set: doc });
+      await models.Contracts.updateOne({ _id }, { $set: doc });
 
-      const contract = await models.LoanContracts.findOne({ _id });
+      const contract = await models.Contracts.findOne({ _id });
       return contract;
     }
 
@@ -121,7 +118,7 @@ export const loadContractClass = models => {
       memoryStorage,
       doc: ICloseVariable
     ) {
-      const contract = await models.LoanContracts.getContract(models, {
+      const contract = await models.Contracts.getContract(models, {
         _id: doc.contractId
       });
       const closeInfo = await getCloseInfo(
@@ -137,14 +134,14 @@ export const loadContractClass = models => {
         description: doc.description,
         total: closeInfo.total
       };
-      await models.LoanTransactions.createTransaction(
+      await models.Transactions.createTransaction(
         models,
         messageBroker,
         memoryStorage,
         trDoc
       );
 
-      await models.LoanContracts.updateOne(
+      await models.Contracts.updateOne(
         { _id: doc.contractId },
         {
           $set: {
@@ -156,7 +153,7 @@ export const loadContractClass = models => {
         }
       );
 
-      return models.LoanContracts.getContract(models, {
+      return models.Contracts.getContract(models, {
         _id: doc.contractId
       });
     }
@@ -169,7 +166,7 @@ export const loadContractClass = models => {
         contractId: { $in: _ids }
       });
 
-      return models.LoanContracts.deleteMany({ _id: { $in: _ids } });
+      return models.Contracts.deleteMany({ _id: { $in: _ids } });
     }
   }
   contractSchema.loadClass(Contract);

@@ -11,6 +11,7 @@ import {
   IFilterParams,
   IItem,
   IOptions,
+  IPipeline,
   IStage,
   ItemsQueryResponse,
   RemoveStageMutation,
@@ -104,7 +105,6 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         });
       })
       .catch(e => {
-        console.log('blah12');
         Alert.error(e.message);
       });
   };

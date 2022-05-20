@@ -1,28 +1,28 @@
-import { checkPermission } from "@erxes/api-utils/src/permissions";
-import { IContext } from "../../connectionResolver";
-import { putCreateLog, putDeleteLog, putUpdateLog } from "../../logUtils";
+import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { IContext } from '../../connectionResolver';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
-import { IEngageMessage } from "../../models/definitions/engages";
-import { CAMPAIGN_KINDS } from "../../constants";
-import { checkCampaignDoc, send } from "../../engageUtils";
+import { IEngageMessage } from '../../models/definitions/engages';
+import { CAMPAIGN_KINDS } from '../../constants';
+import { checkCampaignDoc, send } from '../../engageUtils';
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendToWebhook,
-} from "../../messageBroker";
+  sendToWebhook
+} from '../../messageBroker';
 import {
   updateConfigs,
   createTransporter,
-  getEditorAttributeUtil,
-} from "../../utils";
-import { awsRequests } from "../../trackers/engageTracker";
-import { debug } from "../../configs";
+  getEditorAttributeUtil
+} from '../../utils';
+import { awsRequests } from '../../trackers/engageTracker';
+import { debug } from '../../configs';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
 }
 
-const MODULE_ENGAGE = "engage";
+const MODULE_ENGAGE = 'engage';
 
 interface ITestEmailParams {
   from: string;
@@ -37,7 +37,7 @@ interface ITestEmailParams {
  */
 const emptyCustomers = {
   customerIds: [],
-  messengerReceivedCustomerIds: [],
+  messengerReceivedCustomerIds: []
 };
 
 const engageMutations = {
@@ -63,10 +63,10 @@ const engageMutations = {
     await sendToWebhook({
       subdomain,
       data: {
-        action: "create",
-        type: "engages:engageMessages",
-        params: engageMessage,
-      },
+        action: 'create',
+        type: 'engages:engageMessages',
+        params: engageMessage
+      }
     });
 
     await send(models, subdomain, engageMessage);
@@ -75,12 +75,12 @@ const engageMutations = {
       type: MODULE_ENGAGE,
       newData: {
         ...doc,
-        ...emptyCustomers,
+        ...emptyCustomers
       },
       object: {
         ...engageMessage.toObject(),
-        ...emptyCustomers,
-      },
+        ...emptyCustomers
+      }
     };
 
     await putCreateLog(subdomain, logDoc, user);
@@ -114,7 +114,7 @@ const engageMutations = {
       type: MODULE_ENGAGE,
       object: { ...engageMessage.toObject(), ...emptyCustomers },
       newData: { ...updated.toObject(), ...emptyCustomers },
-      updatedDocument: updated,
+      updatedDocument: updated
     };
 
     await putUpdateLog(subdomain, logDoc, user);
@@ -136,7 +136,7 @@ const engageMutations = {
 
     const logDoc = {
       type: MODULE_ENGAGE,
-      object: { ...engageMessage.toObject(), ...emptyCustomers },
+      object: { ...engageMessage.toObject(), ...emptyCustomers }
     };
 
     await putDeleteLog(subdomain, logDoc, user);
@@ -155,7 +155,7 @@ const engageMutations = {
     const campaign = await models.EngageMessages.getEngageMessage(_id);
 
     if (campaign.isLive) {
-      throw new Error("Campaign is already live");
+      throw new Error('Campaign is already live');
     }
 
     checkCampaignDoc(campaign);
@@ -189,14 +189,14 @@ const engageMutations = {
         type: MODULE_ENGAGE,
         newData: {
           isLive: true,
-          isDraft: false,
+          isDraft: false
         },
         object: {
           _id,
           isLive: draftCampaign.isLive,
-          isDraft: draftCampaign.isDraft,
+          isDraft: draftCampaign.isDraft
         },
-        description: `Campaign "${draftCampaign.title}" has been set live`,
+        description: `Campaign "${draftCampaign.title}" has been set live`
       },
       user
     );
@@ -207,7 +207,7 @@ const engageMutations = {
   async engagesUpdateConfigs(_root, { configsMap }, { models }: IContext) {
     await updateConfigs(models, configsMap);
 
-    return { status: "ok" };
+    return { status: 'ok' };
   },
 
   /**
@@ -245,7 +245,7 @@ const engageMutations = {
 
     if (!(content && from && to && title)) {
       throw new Error(
-        "Email content, title, from address or to address is missing"
+        'Email content, title, from address or to address is missing'
       );
     }
 
@@ -254,15 +254,15 @@ const engageMutations = {
     const customer = await sendContactsMessage({
       isRPC: true,
       subdomain,
-      action: "customers.findOne",
-      data: { customerPrimaryEmail: to },
+      action: 'customers.findOne',
+      data: { customerPrimaryEmail: to }
     });
 
     const targetUser = await sendCoreMessage({
       data: { email: to },
-      action: "users.findOne",
+      action: 'users.findOne',
       subdomain,
-      isRPC: true,
+      isRPC: true
     });
 
     const attributeUtil = await getEditorAttributeUtil();
@@ -270,7 +270,7 @@ const engageMutations = {
     replacedContent = await attributeUtil.replaceAttributes({
       content,
       customer,
-      user: targetUser,
+      user: targetUser
     });
 
     try {
@@ -281,7 +281,7 @@ const engageMutations = {
         to,
         subject: title,
         html: content,
-        content: replacedContent,
+        content: replacedContent
       });
 
       return JSON.stringify(response);
@@ -309,7 +309,7 @@ const engageMutations = {
       isLive: false,
       runCount: 0,
       totalCustomersCount: 0,
-      validCustomersCount: 0,
+      validCustomersCount: 0
     });
 
     delete doc._id;
@@ -327,54 +327,54 @@ const engageMutations = {
         type: MODULE_ENGAGE,
         newData: {
           ...doc,
-          ...emptyCustomers,
+          ...emptyCustomers
         },
         object: {
           ...copy.toObject(),
-          ...emptyCustomers,
+          ...emptyCustomers
         },
-        description: `Campaign "${sourceCampaign.title}" has been copied`,
+        description: `Campaign "${sourceCampaign.title}" has been copied`
       },
       user
     );
 
     return copy;
-  },
+  }
 };
 
-checkPermission(engageMutations, "engageMessageAdd", "engageMessageAdd");
-checkPermission(engageMutations, "engageMessageEdit", "engageMessageEdit");
-checkPermission(engageMutations, "engageMessageRemove", "engageMessageRemove");
+checkPermission(engageMutations, 'engageMessageAdd', 'engageMessageAdd');
+checkPermission(engageMutations, 'engageMessageEdit', 'engageMessageEdit');
+checkPermission(engageMutations, 'engageMessageRemove', 'engageMessageRemove');
 checkPermission(
   engageMutations,
-  "engageMessageSetLive",
-  "engageMessageSetLive"
+  'engageMessageSetLive',
+  'engageMessageSetLive'
 );
 checkPermission(
   engageMutations,
-  "engageMessageSetPause",
-  "engageMessageSetPause"
+  'engageMessageSetPause',
+  'engageMessageSetPause'
 );
 checkPermission(
   engageMutations,
-  "engageMessageSetLiveManual",
-  "engageMessageSetLiveManual"
+  'engageMessageSetLiveManual',
+  'engageMessageSetLiveManual'
 );
 checkPermission(
   engageMutations,
-  "engageMessageVerifyEmail",
-  "engageMessageRemove"
+  'engageMessageVerifyEmail',
+  'engageMessageRemove'
 );
 checkPermission(
   engageMutations,
-  "engageMessageRemoveVerifiedEmail",
-  "engageMessageRemove"
+  'engageMessageRemoveVerifiedEmail',
+  'engageMessageRemove'
 );
 checkPermission(
   engageMutations,
-  "engageMessageSendTestEmail",
-  "engageMessageRemove"
+  'engageMessageSendTestEmail',
+  'engageMessageRemove'
 );
-checkPermission(engageMutations, "engageMessageCopy", "engageMessageAdd");
+checkPermission(engageMutations, 'engageMessageCopy', 'engageMessageAdd');
 
 export default engageMutations;

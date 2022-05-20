@@ -15,14 +15,20 @@ import {
 function Title({
   children,
   onClick,
-  isSettings
+  isSettings,
+  noBackground
 }: {
   children: React.ReactNode;
   onClick?: () => void;
   isSettings?: boolean;
+  noBackground?: boolean;
 }) {
   return (
-    <SidebarTitle onClick={onClick} isSettings={isSettings}>
+    <SidebarTitle
+      onClick={onClick}
+      isSettings={isSettings}
+      noBackground={noBackground}
+    >
       {children}
     </SidebarTitle>
   );

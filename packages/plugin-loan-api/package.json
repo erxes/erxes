@@ -6,7 +6,8 @@
     "install-deps": "cd .erxes && yarn install",
     "dev": "cd .erxes && yarn dev",
     "build": "cd .erxes && yarn build",
-    "start": "cd .erxes/dist/plugin-loan-api/.erxes && node src"
+    "start": "cd .erxes/dist/plugin-loan-api/.erxes && node src",
+    "tsc": "cd .erxes && yarn tsc"
   },
   "dependencies": {
     "@types/body-parser": "^1.17.0",
