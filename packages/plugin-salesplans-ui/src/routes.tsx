@@ -6,6 +6,8 @@ import SaleLogDetailsContainer from './containers/SaleLogDetails';
 
 const HomeDefault = () => {
   return <Home />;
+  // console.log("wtfffff");
+  // return <a>adsafsdfsdf</a>;
 };
 
 const selaLogDetail = ({ match, location, history }) => {
@@ -15,7 +17,7 @@ const selaLogDetail = ({ match, location, history }) => {
   return (
     <>
       <SaleLogDetailsContainer id={_id} />
-      <div>heeeeey</div>
+      {/* <div>heeeeey</div> */}
     </>
   );
 };
@@ -32,7 +34,7 @@ const selaLogDetail = ({ match, location, history }) => {
 const routes = () => {
   return (
     <>
-      <Route path="/settings" component={HomeDefault} />
+      <Route path="/plugin-salesplans/" component={HomeDefault} />
       <Route path="/saleLogDetails/:_id" component={selaLogDetail} />
     </>
   );

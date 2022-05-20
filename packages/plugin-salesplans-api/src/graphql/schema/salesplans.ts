@@ -21,6 +21,7 @@ export const types = () => `
   type SalesLog @key(fields: "_id"){
     _id: String!
     branchId: String
+    date: Date
     branchDetail: Branch
     description: String
     name: String
@@ -123,7 +124,7 @@ export const mutations = `
   saveTimeframes(update:[TimeframeInput], add:[AddTimeframeInput]):[Timeframe]
   saveDayPlanConfig(salesLogId: String, data:JSON):DayPlanConfig
   saveMonthPlanConfig(salesLogId: String, date: Date, data:JSON):MonthPlanConfig
-  removeLabel(_id:String): Label
-  removeTimeframe(_id: String): Timeframe
-  removeSalesLog(_id: String): SalesLog
+  removeLabel(_id:String): JSON
+  removeTimeframe(_id: String): JSOM
+  removeSalesLog(_id: String): JSON
 `;
