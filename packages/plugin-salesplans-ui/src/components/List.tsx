@@ -74,7 +74,7 @@ function List({ data, removedata }: Props) {
             <tr>
               <td>
                 <RowTitle>
-                  <Link to={`/erxes-plugin-jurur-cake/saleLogDetails/${t._id}`}>
+                  <Link to={`/plugin-salesplans/saleLogDetails/${t._id}`}>
                     {t.name || ''}
                   </Link>
                 </RowTitle>

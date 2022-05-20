@@ -8,10 +8,10 @@ const scheduleQueries = {
       { contractId: params.contractId },
       { payDate: 1 }
     ).sort({ payDate: 1 });
-    const years = dates.map((item) => getFullDate(item.payDate).getFullYear());
+    const years = dates.map(item => getFullDate(item.payDate).getFullYear());
     const uniqueYears = [...new Set(years)];
 
-    return uniqueYears.map((item) => ({ year: item }));
+    return uniqueYears.map(item => ({ year: item }));
   },
 
   schedules: async (
@@ -25,7 +25,7 @@ const scheduleQueries = {
       const f_year = new Date(params.year + 1, 0, 1);
       filter.$and = [
         { payDate: { $gte: b_year } },
-        { payDate: { $lte: f_year } },
+        { payDate: { $lte: f_year } }
       ];
     }
 
@@ -33,7 +33,7 @@ const scheduleQueries = {
       return models.FirstSchedules.find(filter).sort({ payDate: 1 });
     }
 
-    return models.RepaymentSchedules.find(filter).sort({ payDate: 1 });
+    return models.Schedules.find(filter).sort({ payDate: 1 });
   },
 
   virtualSchedules: async (_root, doc: IDefaultScheduleParam, {}) => {
@@ -61,21 +61,21 @@ const scheduleQueries = {
     { models }
   ) => {
     if (params.status === 'done')
-      return models.RepaymentSchedules.find({
+      return models.Schedules.find({
         contractId: params.contractId,
-        status: { $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS] },
+        status: { $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS] }
       }).sort({ payDate: 1 });
 
     if (params.status === 'pending')
-      return models.RepaymentSchedules.find({
+      return models.Schedules.find({
         contractId: params.contractId,
-        status: { $in: [SCHEDULE_STATUS.PENDING, SCHEDULE_STATUS.LESS] },
+        status: { $in: [SCHEDULE_STATUS.PENDING, SCHEDULE_STATUS.LESS] }
       }).sort({ payDate: 1 });
 
-    return models.RepaymentSchedules.find({
-      contractId: params.contractId,
+    return models.Schedules.find({
+      contractId: params.contractId
     }).sort({ payDate: 1 });
-  },
+  }
 };
 
 export default scheduleQueries;

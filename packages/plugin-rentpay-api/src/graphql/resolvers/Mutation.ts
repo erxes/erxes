@@ -72,6 +72,65 @@ const mutations = {
       },
       isRPC: true
     });
+  },
+
+  async rentPayDealsEditCustomFieldItem(
+    _root,
+    { _id, key, value }: { _id: string; key: string; value: any },
+    { subdomain }
+  ) {
+    const deal = await sendCommonMessage({
+      subdomain,
+      serviceName: 'cards',
+      action: 'deals.findOne',
+      data: {
+        _id
+      },
+      isRPC: true
+    });
+
+    if (!deal) {
+      throw new Error('Deal not found');
+    }
+
+    const prevData = {};
+
+    (deal.customFieldsData || []).forEach(
+      td => (prevData[td.field] = td.value)
+    );
+
+    prevData[key] = value;
+
+    const customFieldsData = await sendCommonMessage({
+      subdomain,
+      serviceName: 'forms',
+      action: 'fields.generateTypedListFromMap',
+      data: prevData,
+      isRPC: true
+    });
+
+    const modifier = {
+      $set: {
+        customFieldsData: await sendCommonMessage({
+          serviceName: 'forms',
+          subdomain,
+          action: 'fields.prepareCustomFieldsData',
+          data: customFieldsData,
+          isRPC: true
+        })
+      }
+    };
+
+    return sendCommonMessage({
+      subdomain,
+      serviceName: 'cards',
+      action: 'deals.updateOne',
+      data: {
+        selector: { _id },
+        modifier
+      },
+      isRPC: true
+    });
   }
 };
 

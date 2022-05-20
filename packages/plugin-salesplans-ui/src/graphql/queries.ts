@@ -31,8 +31,8 @@ const units = `
   }
 `;
 const branches = `
-  query dranches{
-    dranches{
+  query branches{
+    branches{
       _id,
       title
     }

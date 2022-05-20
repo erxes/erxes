@@ -15,7 +15,7 @@ export const loadScheduleClass = models => {
      */
 
     public static async getSchedule(selector: any) {
-      const schedule = await models.RepaymentSchedules.findOne(selector);
+      const schedule = await models.Schedules.findOne(selector);
 
       if (!schedule) {
         throw new Error('Schedule not found');
@@ -28,25 +28,25 @@ export const loadScheduleClass = models => {
      * Create a schedule
      */
     public static async createSchedule(doc) {
-      return models.RepaymentSchedules.create(doc);
+      return models.Schedules.create(doc);
     }
 
     /**
      * Update Schedule
      */
     public static async updateSchedule(_id, doc) {
-      await models.RepaymentSchedules.updateOne({ _id }, { $set: doc });
+      await models.Schedules.updateOne({ _id }, { $set: doc });
 
-      return models.RepaymentSchedules.findOne({ _id });
+      return models.Schedules.findOne({ _id });
     }
 
     /**
      * Remove Schedule
      */
     public static async removeSchedule(_id) {
-      await models.RepaymentSchedules.getScheduleCatogery(models, { _id });
+      await models.Schedules.getScheduleCatogery(models, { _id });
 
-      return models.RepaymentSchedules.deleteOne({ _id });
+      return models.Schedules.deleteOne({ _id });
     }
   }
   scheduleSchema.loadClass(Schedule);

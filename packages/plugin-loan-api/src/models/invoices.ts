@@ -15,7 +15,7 @@ export const loadInvoiceClass = models => {
      */
 
     public static async getInvoice(selector: any) {
-      const invoice = await models.LoanInvoices.findOne(selector);
+      const invoice = await models.Invoices.findOne(selector);
 
       if (!invoice) {
         throw new Error('Invoice not found');
@@ -35,23 +35,23 @@ export const loadInvoiceClass = models => {
         (doc.insurance || 0) +
         (doc.undue || 0) +
         (doc.debt || 0);
-      return models.LoanInvoices.create(doc);
+      return models.Invoices.create(doc);
     }
 
     /**
      * Update Invoice
      */
     public static async updateInvoice(_id, doc) {
-      await models.LoanInvoices.updateOne({ _id }, { $set: doc });
+      await models.Invoices.updateOne({ _id }, { $set: doc });
 
-      return models.LoanInvoices.findOne({ _id });
+      return models.Invoices.findOne({ _id });
     }
 
     /**
      * Remove Invoice
      */
     public static async removeInvoices(_ids) {
-      return models.LoanInvoices.deleteMany({ _id: { $in: _ids } });
+      return models.Invoices.deleteMany({ _id: { $in: _ids } });
     }
   }
   invoiceSchema.loadClass(Invoice);

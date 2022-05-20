@@ -7,26 +7,27 @@ import {
   copyParams
 } from './common';
 
-export const types = (contactsAvailable) => `
+export const types = contactsAvailable => `
   type TaskListItem {
     ${commonListTypes}
   }
-    
+
   type Task @key(fields: "_id") {
     _id: String!
     ${
-      contactsAvailable ?
-      `
+      contactsAvailable
+        ? `
       companies: [Company]
       customers: [Customer]
       `
-      : ''
+        : ''
     }
     ${commonTypes}
   }
 `;
 
 const listQueryParams = `
+    _ids: [String]
     pipelineId: String
     stageId: String
     customerIds: [String]
@@ -51,8 +52,8 @@ const listQueryParams = `
 `;
 
 const archivedTasksParams = `
-  pipelineId: String! 
-  search: String 
+  pipelineId: String!
+  search: String
   userIds: [String]
   priorities: [String]
   assignedUserIds: [String]
@@ -60,7 +61,7 @@ const archivedTasksParams = `
   companyIds: [String]
   customerIds: [String]
   startDate: String
-  endDate: String 
+  endDate: String
 `;
 
 export const queries = `

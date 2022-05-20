@@ -30,7 +30,30 @@ mutation saveLabels($update: [LabelInput], $add: [AddLabelInput]){
 
 const createSalesLog = `
 mutation createSalesLog(${salesLogVariables}){
-  saveTimeframes(${salesLogValues})
+  createSalesLog(${salesLogValues}){
+    _id
+    branchDetail {
+      _id
+      title
+    }
+    branchId
+    createdAt
+    createdBy
+    createdUser {
+      _id
+      username
+    }
+    date
+    description
+    name
+    status
+    type
+    unitDetail {
+      _id
+      title
+    }
+    unitId
+  }
 }`;
 
 const saveTimeframes = `
