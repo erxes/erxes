@@ -1,0 +1,88 @@
+{
+  "name": "ui",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@apollo/react-hooks": "^3.1.3",
+    "@daily-co/daily-js": "^0.9.995",
+    "@types/bunyan": "^1.8.6",
+    "@types/enzyme": "^3.1.12",
+    "@types/enzyme-adapter-react-16": "^1.0.2",
+    "@types/node": "^10.9.4",
+    "@types/react": "^16.4.13",
+    "@types/react-dom": "^16.0.7",
+    "@types/react-router-dom": "^5.1.3",
+    "@types/styled-components": "^3.0.0",
+    "abortcontroller-polyfill": "^1.4.0",
+    "apollo-cache-inmemory": "^1.1.5",
+    "apollo-client": "^2.6.4",
+    "apollo-link": "^1.0.7",
+    "apollo-link-context": "^1.0.3",
+    "apollo-link-error": "^1.0.9",
+    "apollo-link-http": "^1.5.16",
+    "apollo-link-ws": "^1.0.8",
+    "apollo-utilities": "^1.0.5",
+    "classnames": "^2.2.5",
+    "color": "^3.1.2",
+    "date-fns": "1.29.0",
+    "dayjs": "^1.8.15",
+    "erxes-icon": "^1.2.1",
+    "erxes-ui": "^0.0.76",
+    "graphql": "^0.12.3",
+    "graphql-tag": "^2.6.1",
+    "i18n-react": "^0.6.4",
+    "jquery": "^3.6.0",
+    "jsbarcode": "^3.11.5",
+    "lodash": "^4.17.15",
+    "lodash.flowright": "^3.5.0",
+    "qrcode": "^1.5.0",
+    "query-string": "^5.0.0",
+    "react": "^16.11.0",
+    "react-apollo": "^3.1.3",
+    "react-beautiful-dnd": "^13.0.0",
+    "react-bootstrap": "^1.0.0-beta.14",
+    "react-color": "^2.17.3",
+    "react-copy-to-clipboard": "^5.0.1",
+    "react-dom": "^16.11.0",
+    "react-markdown": "^3.3.0",
+    "react-number-format": "^4.8.0",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "^3.0.1",
+    "react-select-plus": "^1.0.0-rc.5",
+    "react-timer-hook": "^3.0.5",
+    "react-to-print": "^2.13.0",
+    "react-toggle": "^4.1.1",
+    "react-transition-group": "^2.5.1",
+    "request-idle-callback": "^1.0.2",
+    "strip": "^3.0.0",
+    "styled-components": "^3.2.6",
+    "styled-components-ts": "^0.0.14",
+    "subscriptions-transport-ws": "^0.9.16",
+    "ua-parser-js": "^0.7.17",
+    "underscore.string": "^3.3.5",
+    "validator": "^12.1.0",
+    "xss": "^1.0.3"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "typescript": "3.4.1"
+  },
+  "engines": {
+    "node": ">=10.x.x"
+  }
+}

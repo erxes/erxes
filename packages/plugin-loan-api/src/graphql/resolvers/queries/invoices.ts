@@ -63,9 +63,7 @@ const invoiceQueries = {
     { commonQuerySelector, models, checkPermission, user }
   ) => {
     return paginate(
-      models.LoanInvoices.find(
-        await generateFilter(params, commonQuerySelector)
-      ),
+      models.Invoices.find(await generateFilter(params, commonQuerySelector)),
       {
         page: params.page,
         perPage: params.perPage
@@ -85,14 +83,11 @@ const invoiceQueries = {
     const filter = await generateFilter(params, commonQuerySelector);
 
     return {
-      list: paginate(
-        models.LoanInvoices.find(filter).sort(sortBuilder(params)),
-        {
-          page: params.page,
-          perPage: params.perPage
-        }
-      ),
-      totalCount: models.LoanInvoices.find(filter).count()
+      list: paginate(models.Invoices.find(filter).sort(sortBuilder(params)), {
+        page: params.page,
+        perPage: params.perPage
+      }),
+      totalCount: models.Invoices.find(filter).count()
     };
   },
 
@@ -101,7 +96,7 @@ const invoiceQueries = {
    */
 
   invoiceDetail: async (_root, { _id }, { models, checkPermission, user }) => {
-    return models.LoanInvoices.getInvoice(models, { _id });
+    return models.Invoices.getInvoice(models, { _id });
   },
   /**
    * Get invoice pre info

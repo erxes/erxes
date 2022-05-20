@@ -39,7 +39,6 @@ const contractTypeQueries = {
     params,
     { commonQuerySelector, models, checkPermission, user }
   ) => {
-    await checkPermission('showContracts', user);
     return paginate(
       models.ContractTypes.find(
         await generateFilter(params, commonQuerySelector)
@@ -60,7 +59,6 @@ const contractTypeQueries = {
     params,
     { commonQuerySelector, models, checkPermission, user }
   ) => {
-    await checkPermission('showContracts', user);
     const filter = await generateFilter(params, commonQuerySelector);
 
     return {
@@ -84,7 +82,6 @@ const contractTypeQueries = {
     { _id },
     { models, checkPermission, user }
   ) => {
-    await checkPermission('showContracts', user);
     return models.ContractTypes.getContractType(models, { _id });
   }
 };
