@@ -8,8 +8,8 @@ import {
 } from '../../../models/definitions/salesplans';
 
 const salesLogMutations = {
-  createSalesLog: async (_root, doc: ISalesLog, { user, models }) => {
-    return await models.SalesLogs.createSalesLog(doc, user);
+  createSalesLog: async (_root, doc: ISalesLog, { user, models }: IContext) => {
+    return await models.SalesLogs.createSalesLog(doc, user._id);
   },
 
   saveLabels: async (
