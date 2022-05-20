@@ -1,6 +1,6 @@
 import * as requestify from 'requestify';
 
-import { debugError, debugExternalApi } from '../../../debugger';
+import { debugError, debugExternalApi } from '../../debugger';
 
 export const authCookieOptions = (secure: boolean) => {
   const oneDay = 1 * 24 * 3600 * 1000; // 1 day

@@ -1,25 +1,24 @@
 import dayjs from 'dayjs';
 
-import { IOrder, IOrderDocument } from '../db/models/definitions/orders';
-import { OrderItems } from '../db/models/OrderItems';
-import { Orders } from '../db/models/Orders';
-import { Products } from '../db/models/Products';
+import { IOrder, IOrderDocument } from '../../models/definitions/orders';
+import { OrderItems } from '../../models/OrderItems';
+import { Orders } from '../../models/Orders';
+import { Products } from '../../models/Products';
 import { IPayment } from '../resolvers/mutations/orders';
 import { IOrderInput, IOrderItemInput } from '../types';
-import { IOrderItemDocument } from '../db/models/definitions/orderItems';
-import Customers from '../db/models/Customers';
+import { IOrderItemDocument } from '../../models/definitions/orderItems';
 import { sendRequest } from './commonUtils';
 import {
   DISTRICTS,
   ORDER_STATUSES,
   BILL_TYPES
-} from '../db/models/definitions/constants';
-import { QPayInvoices } from '../db/models/QPayInvoices';
+} from '../../models/definitions/constants';
+import { QPayInvoices } from '../../models/QPayInvoices';
 import {
   IConfigDocument,
   IConfig,
   IEbarimtConfig
-} from '../db/models/definitions/configs';
+} from '../../models/definitions/configs';
 
 interface IDetailItem {
   count: number;
@@ -195,14 +194,6 @@ export const prepareEbarimtData = async (
       billType = '3';
       customerCode = registerNumber;
       customerName = response.name;
-    }
-  }
-
-  if (billType === BILL_TYPES.CITIZEN) {
-    const customer = await Customers.findOne({ _id: order.customerId });
-
-    if (customer && customer.code && /^\d{8}$/.test(customer.code)) {
-      customerCode = customer.code;
     }
   }
 

@@ -1,27 +1,6 @@
-import { Products, ProductCategories } from '../db/models/Products';
-import { Configs } from '../db/models/Configs';
-import Users from '../db/models/PosUsers';
-import Customers from '../db/models/Customers';
-import { IPosUserDocument } from '../db/models/definitions/posUsers';
-import { ICustomerDocument } from '../db/models/definitions/customers';
-import { IConfig } from '../db/models/definitions/configs';
-
-export const importUsers = async (
-  users: IPosUserDocument[],
-  isAdmin: boolean = false
-) => {
-  for (const user of users) {
-    await Users.createOrUpdateUser({
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      password: user.password,
-      isOwner: user.isOwner || isAdmin,
-      isActive: user.isActive,
-      details: user.details
-    });
-  }
-};
+import { Products, ProductCategories } from '../../models/Products';
+import { Configs } from '../../models/Configs';
+import { IConfig } from '../../models/definitions/configs';
 
 export const preImportProducts = async (groups: any = []) => {
   let importProductIds: string[] = [];
@@ -106,51 +85,6 @@ export const importProducts = async (groups: any = []) => {
       }
     }
   } // end group loop
-};
-
-export const preImportCustomers = async customers => {
-  const importCustomerIds = customers.map(c => c._id);
-
-  const removeCustomers = await Customers.find({
-    _id: { $nin: importCustomerIds }
-  }).lean();
-
-  for (const customer of removeCustomers) {
-    await Customers.removeCustomer(customer._id);
-  }
-};
-
-export const importCustomers = async (customers: ICustomerDocument[]) => {
-  let bulkOps: {
-    updateOne: {
-      filter: { _id: string };
-      update: any;
-      upsert: true;
-    };
-  }[] = [];
-
-  let counter = 0;
-  for (const customer of customers) {
-    if (counter > 1000) {
-      counter = 0;
-      await Customers.bulkWrite(bulkOps);
-      bulkOps = [];
-    }
-
-    counter += 1;
-
-    bulkOps.push({
-      updateOne: {
-        filter: { _id: customer._id },
-        update: { $set: { ...customer } },
-        upsert: true
-      }
-    });
-  }
-
-  if (bulkOps.length) {
-    await Customers.bulkWrite(bulkOps);
-  }
 };
 
 // Pos config created in main erxes differs from here
@@ -281,76 +215,10 @@ export const receiveProductCategory = async data => {
   }
 };
 
-export const receiveCustomer = async data => {
-  const { action = '', object = {}, updatedDocument = {} } = data;
-
-  if (action === 'create') {
-    return Customers.createCustomer(object);
-  }
-
-  const customer = await Customers.findOne({ _id: object._id });
-
-  if (action === 'update' && customer) {
-    return Customers.updateCustomer(customer._id, updatedDocument);
-  }
-
-  if (action === 'delete') {
-    return Customers.removeCustomer(customer._id);
-  }
-};
-
 export const receiveUser = async data => {
   const { action = '', object = {}, updatedDocument = {} } = data;
   const userId =
     updatedDocument && updatedDocument._id ? updatedDocument._id : '';
 
   // user create logic will be implemented in pos config changes
-  const user = await Users.findOne({ _id: userId });
-
-  if (action === 'update' && user) {
-    return Users.updateOne(
-      { _id: userId },
-      {
-        $set: {
-          username: updatedDocument.username,
-          password: updatedDocument.password,
-          isOwner: updatedDocument.isOwner,
-          email: updatedDocument.email,
-          isActive: updatedDocument.isActive,
-          details: updatedDocument.details
-        }
-      }
-    );
-  }
-
-  if (action === 'delete' && object._id) {
-    return Users.updateOne({ _id: object._id }, { $set: { isActive: false } });
-  }
-};
-
-export const receivePosConfig = async data => {
-  const {
-    updatedDocument = {},
-    action = '',
-    adminUsers = [],
-    cashierUsers = []
-  } = data;
-
-  const config = await Configs.getConfig({ token: updatedDocument.token });
-
-  if (action === 'update' && config) {
-    const adminIds = updatedDocument.adminIds || [];
-    const cashierIds = updatedDocument.cashierIds || [];
-
-    await Configs.updateConfig(config._id, extractConfig(updatedDocument));
-
-    // set not found users inactive
-    await Users.updateMany(
-      { _id: { $nin: [...adminIds, ...cashierIds] } },
-      { $set: { isActive: false } }
-    );
-
-    await importUsers(adminUsers, true);
-    await importUsers(cashierUsers, false);
-  }
 };

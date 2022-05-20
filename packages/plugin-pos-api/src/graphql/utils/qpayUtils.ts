@@ -1,4 +1,4 @@
-import { IQPayConfig } from '../db/models/definitions/configs';
+import { IQPayConfig } from '../../models/definitions/configs';
 import { sendRequest } from './commonUtils';
 
 export const fetchQPayToken = async (qpayConfig: IQPayConfig) => {
