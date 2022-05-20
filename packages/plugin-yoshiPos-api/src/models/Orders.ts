@@ -9,7 +9,7 @@ export interface IOrderModel extends Model<IOrderDocument> {
   getPaidAmount(order: IOrderDocument): number;
 }
 
-export const loadOrderClass = () => {
+export const loadOrderClass = models => {
   class Order {
     public static async getOrder(_id: string) {
       const order = await Orders.findOne({ _id });
@@ -23,22 +23,22 @@ export const loadOrderClass = () => {
 
     public static createOrder(doc: IOrder) {
       const now = new Date();
-      return Orders.create({ ...doc, modifiedAt: now, createdAt: now });
+      return models.Orders.create({ ...doc, modifiedAt: now, createdAt: now });
     }
 
     public static async updateOrder(_id: string, doc: IOrder) {
-      await Orders.updateOne(
+      await models.Orders.updateOne(
         { _id },
         { $set: { ...doc, modifiedAt: new Date() } }
       );
 
-      return Orders.findOne({ _id });
+      return models.Orders.findOne({ _id });
     }
 
     public static async deleteOrder(_id: string) {
-      await Orders.getOrder(_id);
+      await models.Orders.getOrder(_id);
 
-      return Orders.deleteOne({ _id });
+      return models.Orders.deleteOne({ _id });
     }
 
     public static getPaidAmount(order: IOrderDocument) {

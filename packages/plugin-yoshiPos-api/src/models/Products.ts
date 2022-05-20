@@ -32,10 +32,10 @@ export interface IProductModel extends Model<IProductDocument> {
   isUsed(_id: string): Promise<boolean>;
 }
 
-export const loadProductClass = () => {
+export const loadProductClass = models => {
   class Product {
     public static async getProduct(selector: any) {
-      const product = await Products.findOne(selector);
+      const product = await models.Products.findOne(selector);
 
       if (!product) {
         throw new Error('Product not found');
@@ -45,7 +45,7 @@ export const loadProductClass = () => {
     }
 
     static async checkCodeDuplication(code: string) {
-      const product = await Products.findOne({
+      const product = await models.Products.findOne({
         code,
         status: { $ne: PRODUCT_STATUSES.DELETED }
       });
@@ -61,22 +61,22 @@ export const loadProductClass = () => {
     public static async createProduct(doc: IProduct | IProductDocument) {
       await this.checkCodeDuplication(doc.code);
 
-      return Products.create({ ...checkSKU(doc) });
+      return models.Products.create({ ...checkSKU(doc) });
     }
 
     /**
      * Update Product
      */
     public static async updateProduct(_id: string, doc: IProduct) {
-      const product = await Products.getProduct({ _id });
+      const product = await models.Products.getProduct({ _id });
 
       if (product.code !== doc.code) {
         await this.checkCodeDuplication(doc.code);
       }
 
-      await Products.updateOne({ _id }, { $set: { ...checkSKU(doc) } });
+      await models.Products.updateOne({ _id }, { $set: { ...checkSKU(doc) } });
 
-      return Products.findOne({ _id });
+      return models.Products.findOne({ _id });
     }
 
     /**
@@ -261,9 +261,6 @@ export const loadProductCategoryClass = () => {
 
   return productCategorySchema;
 };
-
-loadProductClass();
-loadProductCategoryClass();
 
 delete mongoose.connection.models['products'];
 delete mongoose.connection.models['product_categories'];

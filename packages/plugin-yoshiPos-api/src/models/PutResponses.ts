@@ -21,7 +21,7 @@ export interface IPutResponseModel extends Model<IPutResponseDocument> {
     doc: IPutResponse
   ): Promise<IPutResponseDocument>;
 }
-export const loadPutResponseClass = () => {
+export const loadPutResponseClass = models => {
   class PutResponse {
     public static async putData(doc: IPutDataArgs) {
       const putData = new PutData({ ...doc });
@@ -33,7 +33,7 @@ export const loadPutResponseClass = () => {
     // }
 
     public static async putHistories({ contentType, contentId }) {
-      const putResponse = await PutResponses.findOne({
+      const putResponse = await models.PutResponses.findOne({
         contentType,
         contentId,
         success: 'true'
@@ -50,7 +50,7 @@ export const loadPutResponseClass = () => {
     }
 
     public static async createPutResponse(doc) {
-      const response = await PutResponses.create({
+      const response = await models.PutResponses.create({
         ...doc,
         createdAt: new Date()
       });
@@ -59,7 +59,7 @@ export const loadPutResponseClass = () => {
     }
 
     public static async updatePutResponse(_id, doc) {
-      const response = await PutResponses.updateOne(
+      const response = await models.PutResponses.updateOne(
         { _id },
         {
           $set: {

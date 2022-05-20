@@ -12,10 +12,10 @@ export interface IQpayInvoiceModel extends Model<IQpayInvoiceDocument> {
   getPaidAmount(orderId: string): Promise<number>;
 }
 
-export const loadQPayInvoiceClass = () => {
+export const loadQPayInvoiceClass = models => {
   class QPayInvoice {
     public static async getInvoice(_id: string) {
-      const invoice = await QPayInvoices.findOne({ _id });
+      const invoice = await models.QPayInvoices.findOne({ _id });
 
       if (!invoice) {
         throw new Error('Invoice not found');
@@ -25,7 +25,7 @@ export const loadQPayInvoiceClass = () => {
     }
 
     public static createInvoice(doc: IQPayInvoice) {
-      return QPayInvoices.create({ ...doc });
+      return models.QPayInvoices.create({ ...doc });
     }
 
     public static async updateInvoice(_id: string, invoiceData) {
@@ -33,7 +33,7 @@ export const loadQPayInvoiceClass = () => {
       const qrText = invoiceData.qr_text;
       const urls = invoiceData.urls;
 
-      await QPayInvoices.updateOne(
+      await models.QPayInvoices.updateOne(
         { _id },
         { $set: { qpayInvoiceId, qrText, urls } }
       );

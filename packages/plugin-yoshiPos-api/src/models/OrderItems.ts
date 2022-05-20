@@ -12,10 +12,10 @@ export interface IOrderItemModel extends Model<IOrderItemDocument> {
   deleteOrderItem(_id: string): Promise<{ n: number; ok: number }>;
 }
 
-export const loadOrderItemClass = () => {
+export const loadOrderItemClass = models => {
   class OrderItem {
     public static async getOrderItem(_id: string) {
-      const item = await OrderItems.findOne({ _id });
+      const item = await models.OrderItems.findOne({ _id });
 
       if (!item) {
         throw new Error(`Order item not found with id: ${_id}`);
@@ -25,17 +25,17 @@ export const loadOrderItemClass = () => {
     }
 
     public static createOrderItem(doc: IOrderItem) {
-      return OrderItems.create(doc);
+      return models.OrderItems.create(doc);
     }
 
     public static updateOrderItem(_id: string, doc: IOrderItem) {
-      return OrderItems.updateOne({ _id }, { $set: doc });
+      return models.OrderItems.updateOne({ _id }, { $set: doc });
     }
 
     public static async deleteOrderItem(_id: string) {
-      await OrderItems.getOrderItem(_id);
+      await models.OrderItems.getOrderItem(_id);
 
-      return OrderItems.deleteOne({ _id });
+      return models.OrderItems.deleteOne({ _id });
     }
   }
   orderItemSchema.loadClass(OrderItem);

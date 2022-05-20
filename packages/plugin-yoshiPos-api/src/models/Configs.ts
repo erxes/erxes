@@ -8,10 +8,10 @@ export interface IConfigModel extends Model<IConfigDocument> {
   updateConfig(_id: string, doc: IConfig): Promise<IConfigDocument>;
 }
 
-export const loadConfigClass = () => {
+export const loadConfigClass = models => {
   class Config {
     public static async getConfig(query: any) {
-      const pos = await Configs.findOne(query).lean();
+      const pos = await models.Configs.findOne(query).lean();
 
       if (!pos) {
         throw new Error('POS config not found');
@@ -22,7 +22,7 @@ export const loadConfigClass = () => {
 
     public static async createConfig(token: string) {
       try {
-        const config = await Configs.findOne({ token });
+        const config = await models.Configs.findOne({ token });
 
         if (config) {
           throw new Error(
@@ -37,17 +37,21 @@ export const loadConfigClass = () => {
     }
 
     public static async updateConfig(_id: string, doc: IConfig) {
-      await Configs.getConfig({ _id });
+      await models.Configs.getConfig({ _id });
 
-      await Configs.updateOne({ _id }, { $set: doc }, { runValidators: true });
+      await models.Configs.updateOne(
+        { _id },
+        { $set: doc },
+        { runValidators: true }
+      );
 
-      return Configs.findOne({ _id }).lean();
+      return models.Configs.findOne({ _id }).lean();
     }
 
     public static async removeConfig(_id: string) {
-      await Configs.getConfig({ _id });
+      await models.Configs.getConfig({ _id });
 
-      return Configs.deleteOne({ _id });
+      return models.Configs.deleteOne({ _id });
     }
   }
 
