@@ -1,6 +1,7 @@
 import { Document, Schema } from 'mongoose';
 import { IQpayInvoiceModel } from '../QPayInvoices';
-import { field, getDateFieldDefinition } from './utils';
+import { getDateFieldDefinition } from './utils';
+import { field, schemaHooksWrapper } from './util';
 
 interface IQPayUrl {
   name: string;
@@ -32,25 +33,33 @@ export interface IQpayInvoiceDocument extends IQPayInvoice, Document {
   _id: string;
 }
 
-export const qpayInvoiceSchema = new Schema<
-  IQpayInvoiceDocument,
-  IQpayInvoiceModel
->({
-  _id: field({ pkey: true }),
-  senderInvoiceNo: {
-    type: String,
-    optional: true,
-    label: 'Order id'
-  },
-  amount: { type: String, optional: true, label: 'Amount' },
-  qpayInvoiceId: { type: String, optional: true, label: 'QPay invoice id' },
-  qrText: { type: String, optional: true, label: 'QR text' },
-  qpayPaymentId: { type: String, optional: true, label: 'QPay payment id' },
-  status: { type: String, default: 'open', label: 'Invoice status' },
-  paymentDate: {
-    type: Date,
-    label: 'Updated Date for Qpay payment'
-  },
-  urls: { type: qpayUrlSchema, label: 'QPay urls' },
-  createdAt: getDateFieldDefinition('Created at')
-});
+export const qpayInvoiceSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    senderInvoiceNo: {
+      type: String,
+      optional: true,
+      label: 'Order id'
+    },
+    amount: { type: String, optional: true, label: 'Amount' },
+    qpayInvoiceId: {
+      type: String,
+      optional: true,
+      label: 'QPay invoice id'
+    },
+    qrText: { type: String, optional: true, label: 'QR text' },
+    qpayPaymentId: {
+      type: String,
+      optional: true,
+      label: 'QPay payment id'
+    },
+    status: { type: String, default: 'open', label: 'Invoice status' },
+    paymentDate: {
+      type: Date,
+      label: 'Updated Date for Qpay payment'
+    },
+    urls: { type: qpayUrlSchema, label: 'QPay urls' },
+    createdAt: getDateFieldDefinition('Created at')
+  }),
+  'erxes_qpayInvoiceSchema'
+);
