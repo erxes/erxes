@@ -1,12 +1,12 @@
-import Button from 'modules/common/components/Button';
+import Button from '../../..//common/components/Button';
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { __ } from 'modules/common/utils';
-import { FlexBetween } from 'modules/common/styles/main';
-import { formatNumber } from 'modules/utils';
-import { IConfig, IOption } from 'types';
-import { ICustomer, IOrder, IOrderItemInput } from 'modules/orders/types';
+import { __ } from '../../..//common/utils';
+import { FlexBetween } from '../../..//common/styles/main';
+import { formatNumber } from '../../..//utils';
+import { IConfig, IOption } from '../../../types';
+import { ICustomer, IOrder, IOrderItemInput } from '../../..//orders/types';
 import Stage from '../Stage';
 import { FlexColumn } from './style';
 

@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import KeyPad from './KeyPad';
-import { BILL_TYPES, POS_MODES } from '../../../../constants';
+import { BILL_TYPES, POS_MODES } from '../../../constants';
 
 const KeyBoard = styled.div`
   display: inline-grid;

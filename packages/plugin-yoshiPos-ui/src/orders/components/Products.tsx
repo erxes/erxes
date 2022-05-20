@@ -3,10 +3,10 @@ import React from 'react';
 import { IOrderItemInput, IProduct } from '../types';
 import ProductItem from './ProductItem';
 import { EmptyContentWrapper, ProductsWrapper } from '../styles';
-import { IConfig, IRouterProps } from 'types';
-import EmptyState from 'modules/common/components/EmptyState';
-import { __ } from 'modules/common/utils';
-import { POS_MODES } from '../../../constants';
+import { IConfig, IRouterProps } from '../../types';
+import EmptyState from '../../common/components/EmptyState';
+import { __ } from '../../common/utils';
+import { POS_MODES } from '../../constants';
 
 type Props = {
   products: IProduct[];

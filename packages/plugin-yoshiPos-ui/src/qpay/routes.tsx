@@ -1,12 +1,12 @@
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
 
-import asyncComponent from 'modules/common/components/AsyncComponent';
+import asyncComponent from '../common/components/AsyncComponent';
 import React from 'react';
 
 const InvoiceListContainer = asyncComponent(() =>
   import(
-    /* webpackChunkName: "InvoiceListContainer" */ 'modules/qpay/containers/InvoiceListContainer'
+    /* webpackChunkName: "InvoiceListContainer" */ '../qpay/containers/InvoiceListContainer'
   )
 );
 

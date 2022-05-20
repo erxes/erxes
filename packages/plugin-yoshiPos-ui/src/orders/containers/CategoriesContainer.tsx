@@ -7,9 +7,9 @@ import {
   IConfig,
   ProductCategoriesQueryResponse,
   ProductsQueryResponse
-} from '../../../types';
-import Spinner from 'modules/common/components/Spinner';
-import withCurrentUser from 'modules/auth/containers/withCurrentUser';
+} from '../../types';
+import Spinner from '../../common/components/Spinner';
+import withCurrentUser from '../../auth/containers/withCurrentUser';
 import Categories from '../components/Categories';
 
 type Props = {

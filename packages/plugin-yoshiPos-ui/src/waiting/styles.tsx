@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { dimensions, colors } from 'modules/common/styles';
+import { dimensions, colors } from '../common/styles';
 
 export const Label = styledTS<{ isReady?: boolean; color?: string }>(
   styled.div

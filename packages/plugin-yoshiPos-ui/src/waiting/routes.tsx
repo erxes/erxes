@@ -2,13 +2,11 @@ import { Route } from 'react-router-dom';
 import queryString from 'query-string';
 import React from 'react';
 
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import { POS_MODES } from '../../constants';
+import asyncComponent from '../common/components/AsyncComponent';
+import { POS_MODES } from '../constants';
 
 const WaitingScreenContainer = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "WaitingScreen" */ 'modules/waiting/containers/Screen'
-  )
+  import(/* webpackChunkName: "WaitingScreen" */ '../waiting/containers/Screen')
 );
 
 const WaitingScreen = ({ location }) => {

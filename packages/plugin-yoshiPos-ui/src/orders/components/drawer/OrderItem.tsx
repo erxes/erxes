@@ -2,15 +2,15 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 
-import { AppContext } from 'appContext';
-import { FlexCenter, FlexBetween } from 'modules/common/styles/main';
-import colors from 'modules/common/styles/colors';
-import Tip from 'modules/common/components/Tip';
-import { OrderBox, OrderBoxItem } from 'modules/orders/styles';
-import Icon from 'modules/common/components/Icon';
-import { formatNumber } from 'modules/utils';
+import { AppContext } from '../../../../appContext';
+import { FlexCenter, FlexBetween } from '../../../common/styles/main';
+import colors from '../../../common/styles/colors';
+import Tip from '../../../common/components/Tip';
+import { OrderBox, OrderBoxItem } from '../../../orders/styles';
+import Icon from '../../../common/components/Icon';
+import { formatNumber } from '../../../utils';
 import { IOrder } from '../../types';
-import { __ } from 'modules/common/utils';
+import { __ } from '../../../common/utils';
 
 type Props = {
   order: IOrder;

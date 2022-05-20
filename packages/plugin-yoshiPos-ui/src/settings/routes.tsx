@@ -1,13 +1,11 @@
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
 
-import asyncComponent from 'modules/common/components/AsyncComponent';
+import asyncComponent from '../common/components/AsyncComponent';
 import React from 'react';
 
 const SettingsContainer = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings" */ 'modules/settings/containers/Settings'
-  )
+  import(/* webpackChunkName: "Settings" */ '../settings/containers/Settings')
 );
 
 const Settings = ({ location }) => {

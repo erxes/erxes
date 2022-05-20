@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Table from 'modules/common/components/table';
+import Table from '../../common/components/table';
 import InvoiceRow from './InvoiceRow';
 
 type Props = {

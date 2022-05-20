@@ -1,10 +1,10 @@
 import React from 'react';
 import queryString from 'query-string';
 
-import SearchInput from 'modules/orders/components/SearchInput';
-import { router } from 'modules/common/utils';
+import SearchInput from '../../orders/components/SearchInput';
+import { router } from '../../common/utils';
 import { withRouter } from 'react-router-dom';
-import { IRouterProps } from 'types';
+import { IRouterProps } from '../../types';
 import { ProductSearch } from '../styles';
 
 type Props = {

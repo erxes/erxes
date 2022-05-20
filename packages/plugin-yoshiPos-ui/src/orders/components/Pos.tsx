@@ -25,21 +25,21 @@ import {
   PosMenuContent,
   LogoSection
 } from '../styles';
-import { IConfig } from 'types';
+import { IConfig } from '../../types';
 import CustomerForm from './drawer/CustomerForm';
 import ProductSearch from '../containers/ProductSearch';
 import KioskView from './kiosk';
-import { renderFullName } from 'modules/common/utils';
-import Icon from 'modules/common/components/Icon';
+import { renderFullName } from '../../common/utils';
+import Icon from '../../common/components/Icon';
 import FooterCalculation from './kiosk/FooterCalculation';
 import SplitPaymentContainer from '../containers/SplitPaymentContainer';
 import { Cards, TypeWrapper } from './drawer/style';
 import Modal from 'react-bootstrap/Modal';
-import { __ } from 'modules/common/utils';
-import Tip from 'modules/common/components/Tip';
+import { __ } from '../../common/utils';
+import Tip from '../../common/components/Tip';
 import { IPaymentParams } from '../containers/PosContainer';
 import KioskPaymentForm from './drawer/KioskPaymentForm';
-import Button from 'modules/common/components/Button';
+import Button from '../../common/components/Button';
 import ConfirmList from './kiosk/ConfirmList';
 
 const ProductsContainer = AsyncComponent(() =>

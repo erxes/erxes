@@ -3,13 +3,13 @@ import QRCode from 'qrcode';
 import gql from 'graphql-tag';
 import styled from 'styled-components';
 
-import client from 'apolloClient';
-import Button from 'modules/common/components/Button';
-import TextInfo from 'modules/common/components/TextInfo';
-import Label from 'modules/common/components/Label';
-import { Alert, __ } from 'modules/common/utils';
+import client from '../../../../apolloClient';
+import Button from '../../../common/components/Button';
+import TextInfo from '../../../common/components/TextInfo';
+import Label from '../../../common/components/Label';
+import { Alert, __ } from '../../../common/utils';
 import { mutations } from '../../graphql/index';
-import { IOrder, IQPayInvoice } from 'modules/orders/types';
+import { IOrder, IQPayInvoice } from '../../../orders/types';
 
 const QRCodeWrapper = styled.div`
   text-align: center;

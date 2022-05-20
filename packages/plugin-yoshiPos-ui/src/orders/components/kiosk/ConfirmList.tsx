@@ -1,10 +1,10 @@
 import React from 'react';
-import { __ } from 'modules/common/utils';
-import { IOrder } from 'modules/orders/types';
-import { FormHead } from 'modules/orders/styles';
-import { FlexCenter } from 'modules/common/styles/main';
-import Button from 'modules/common/components/Button';
-import { IConfig } from 'types';
+import { __ } from '../../..//common/utils';
+import { IOrder } from '../../..//orders/types';
+import { FormHead } from '../../..//orders/styles';
+import { FlexCenter } from '../../..//common/styles/main';
+import Button from '../../..//common/components/Button';
+import { IConfig } from '../../../types';
 import { ConfirmListWrapper } from './style';
 
 type Props = {

@@ -6,15 +6,40 @@ import {
   IPosModel,
   IProductGroupModel,
   IPosOrderModel,
-  loadPosOrderClass,
+  loadPosOrderClass
 } from './models/Pos';
-import { IPosDocument, IPosOrderDocument, IProductGroupDocument } from './models/definitions/pos';
+
+import { loadOrderItemClass, IOrderItemModel } from './models/OrderItems';
+import { IOrderModel, loadOrderClass } from './models/Orders';
+import { IProductModel, loadProductClass } from './models/Products';
+import { IPutResponseModel, loadPutResponseClass } from './models/PutResponses';
+import { IQpayInvoiceModel, loadQPayInvoiceClass } from './models/QPayInvoices';
+
+import { IOrderItemDocument } from './models/definitions/orderItems';
+import { IOrderDocument } from './models/definitions/orders';
+import {
+  IProductDocument,
+  IProductCategoryDocument
+} from './models/definitions/products';
+import { IPutResponseDocument } from './models/definitions/putResponses';
+import { IQpayInvoiceDocument } from './models/definitions/qpayInvoices';
+
+import {
+  IPosDocument,
+  IPosOrderDocument,
+  IProductGroupDocument
+} from './models/definitions/pos';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 
 export interface IModels {
   Pos: IPosModel;
   ProductGroup: IProductGroupModel;
-  PosOrders: IPosOrderModel
+  PosOrders: IPosOrderModel;
+  OrderItems: IOrderItemModel;
+  Orders: IOrderModel;
+  Products: IProductModel;
+  PutResponses: IPutResponseModel;
+  QPayInvoices: IQpayInvoiceModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -35,15 +60,50 @@ export const generateModels = async (
   return models;
 };
 
-export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels => {
+export const loadClasses = (
+  db: mongoose.Connection,
+  subdomain: string
+): IModels => {
   models = {} as IModels;
 
-  models.Pos = db.model<IPosDocument, IPosModel>('pos', loadPosClass(models, subdomain));
+  models.Pos = db.model<IPosDocument, IPosModel>(
+    'pos',
+    loadPosClass(models, subdomain)
+  );
   models.ProductGroup = db.model<IProductGroupDocument, IProductGroupModel>(
     'productGroup',
     loadProductGroupClass(models, subdomain)
   );
 
-  models.PosOrders = db.model<IPosOrderDocument, IPosOrderModel>('pos_orders', loadPosOrderClass(models, subdomain))
+  models.PosOrders = db.model<IPosOrderDocument, IPosOrderModel>(
+    'pos_orders',
+    loadPosOrderClass(models, subdomain)
+  );
+
+  models.OrderItems = db.model<IOrderItemDocument, IOrderItemModel>(
+    'order_items',
+    loadOrderItemClass(models)
+  );
+
+  models.Orders = db.model<IOrderDocument, IOrderModel>(
+    'orders',
+    loadOrderClass(models)
+  );
+
+  models.Products = db.model<IProductDocument, IProductModel>(
+    'products',
+    loadProductClass(models)
+  );
+
+  models.PutResponses = db.model<IPutResponseDocument, IPutResponseModel>(
+    'put_responses',
+    loadPutResponseClass(models)
+  );
+
+  models.QPayInvoices = db.model<IQpayInvoiceDocument, IQpayInvoiceModel>(
+    'qpay_invoices',
+    loadQPayInvoiceClass(models)
+  );
+
   return models;
 };

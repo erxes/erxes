@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { FlexCenter } from 'modules/common/styles/main';
-import Icon from 'modules/common/components/Icon';
-import { dimensions } from 'modules/common/styles';
+import { FlexCenter } from '../../common/styles/main';
+import Icon from '../../common/components/Icon';
+import { dimensions } from '../../common/styles';
 
 const Wrapper = styledTS<{ isPortrait?: boolean }>(styled.div)`
   display: flex;

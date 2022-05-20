@@ -1,6 +1,6 @@
-import { IOrderItem } from 'modules/orders/types';
+import { IOrderItem } from '../../../orders/types';
 import React from 'react';
-import { __ } from 'modules/common/utils';
+import { __ } from '../../../common/utils';
 
 type Props = {
   items: IOrderItem[];

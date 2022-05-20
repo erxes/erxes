@@ -1,12 +1,12 @@
 import React from 'react';
 
-import FormControl from 'modules/common/components/form/Control';
-import Icon from 'modules/common/components/Icon';
-import { BILL_TYPES } from '../../../../constants';
-import Button from 'modules/common/components/Button';
-import { __ } from 'modules/common/utils';
-import { IOrder } from 'modules/orders/types';
-import { ButtonGroup, EntityChecker, Input } from 'modules/orders/styles';
+import FormControl from '../../../common/components/form/Control';
+import Icon from '../../../common/components/Icon';
+import { BILL_TYPES } from '../../../constants';
+import Button from '../../../common/components/Button';
+import { __ } from '../../../common/utils';
+import { IOrder } from '../../../orders/types';
+import { ButtonGroup, EntityChecker, Input } from '../../../orders/styles';
 
 type Props = {
   onStateChange: (key: string, value: any) => void;

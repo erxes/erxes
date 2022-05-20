@@ -2,15 +2,15 @@ import * as compose from 'lodash.flowright';
 import gql from 'graphql-tag';
 import React, { useEffect } from 'react';
 import Screen from '../components/Screen';
-import Spinner from 'modules/common/components/Spinner';
-import withCurrentUser from 'modules/auth/containers/withCurrentUser';
+import Spinner from '../../common/components/Spinner';
+import withCurrentUser from '../../auth/containers/withCurrentUser';
 import {
   FullOrderQueryResponse,
   OrderChangeStatusMutationResponse
 } from '../../orders/types';
 import { graphql } from 'react-apollo';
-import { IConfig, IRouterProps } from '../../../types';
-import { IUser } from 'modules/auth/types';
+import { IConfig, IRouterProps } from '../../types';
+import { IUser } from '../../auth/types';
 import { mutations, queries, subscriptions } from '../../orders/graphql';
 import { withProps } from '../../utils';
 import { withRouter } from 'react-router-dom';

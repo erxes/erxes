@@ -2,13 +2,13 @@ import React from 'react';
 import styledTS from 'styled-components-ts';
 import styled from 'styled-components';
 
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import { FlexCenter } from 'modules/common/styles/main';
-import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
-import { Input, FormHead, ButtonGroup } from 'modules/orders/styles';
-import { BILL_TYPES } from '../../../../constants';
+import Button from '../../../common/components/Button';
+import FormControl from '../../../common/components/form/Control';
+import { FlexCenter } from '../../../common/styles/main';
+import Icon from '../../../common/components/Icon';
+import { __ } from '../../../common/utils';
+import { Input, FormHead, ButtonGroup } from '../../../orders/styles';
+import { BILL_TYPES } from '../../../constants';
 
 export const FlexCenterFix = styledTS<{ isPortrait?: boolean }>(
   styled(FlexCenter)

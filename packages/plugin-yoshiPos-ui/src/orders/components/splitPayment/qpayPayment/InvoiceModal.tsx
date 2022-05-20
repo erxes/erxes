@@ -2,14 +2,14 @@ import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import dayjs from 'dayjs';
 
-import Icon from 'modules/common/components/Icon';
-import { IOrder, IQPayInvoice } from 'modules/orders/types';
+import Icon from '../../../../common/components/Icon';
+import { IOrder, IQPayInvoice } from '../../../../orders/types';
 import { InvoiceList, InvoiceListIcon } from './styles';
-import Table from 'modules/common/components/table';
-import { __ } from 'modules/common/utils';
-import Button from 'modules/common/components/Button';
-import { formatNumber } from 'modules/utils';
-import Label from 'modules/common/components/Label';
+import Table from '../../../../common/components/table';
+import { __ } from '../../../../common/utils';
+import Button from '../../../../common/components/Button';
+import { formatNumber } from '../../../../utils';
+import Label from '../../../../common/components/Label';
 
 type Props = {
   order: IOrder;

@@ -2,11 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import gql from 'graphql-tag';
 
-import apolloClient from 'apolloClient';
+import apolloClient from '../../../../apolloClient';
 import { queries } from '../../graphql/index';
-import { BILL_TYPES, POS_MODES } from '../../../../constants';
-import { FlexCenter } from 'modules/common/styles/main';
-import { __, Alert } from 'modules/common/utils';
+import { BILL_TYPES, POS_MODES } from '../../../constants';
+import { FlexCenter } from '../../../common/styles/main';
+import { __, Alert } from '../../../common/utils';
 import {
   IOrder,
   IPaymentInput,
@@ -14,7 +14,7 @@ import {
   IInvoiceCheckParams,
   IPaymentParams,
   IQPayInvoice
-} from 'modules/orders/types';
+} from '../../../orders/types';
 import CardSection from './cardPayment/CardSection';
 import QPaySection from './qpayPayment/QPaySection';
 import EntitySelector from '../drawer/EntitySelector';
@@ -22,8 +22,8 @@ import { Card, Cards, SuccessfulText, TypeWrapper } from '../drawer/style';
 import KeyPads from '../drawer/KeyPads';
 import EntityChecker from './EntityChecker';
 import CashSection from './cashPayment/CashSection';
-import { BackButton } from 'modules/orders/styles';
-import Icon from 'modules/common/components/Icon';
+import { BackButton } from '../../../orders/styles';
+import Icon from '../../../common/components/Icon';
 import InvoiceModal from './qpayPayment/InvoiceModal';
 import QPayModalContent from './qpayPayment/QPayModalContent';
 

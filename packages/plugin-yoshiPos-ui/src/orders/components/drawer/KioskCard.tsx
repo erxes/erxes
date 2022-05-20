@@ -1,8 +1,8 @@
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 import React from 'react';
 
-import { __, Alert } from 'modules/common/utils';
-import { IOrder } from 'modules/orders/types';
+import { __, Alert } from '../../../common/utils';
+import { IOrder } from '../../../orders/types';
 import { Cards, TypeWrapper } from './style';
 
 type Props = {

@@ -1,5 +1,5 @@
-import { IUser } from 'modules/auth/types';
-import { QueryResponse } from 'types';
+import { IUser } from '../auth/types';
+import { QueryResponse } from '../types';
 
 export type SyncConfigMutationResponse = ({ variables: any }) => Promise<any>;
 

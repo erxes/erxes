@@ -1,13 +1,13 @@
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
-import client from 'apolloClient';
+import client from '../../../apolloClient';
 import React from 'react';
 import * as compose from 'lodash.flowright';
 
-import Spinner from 'modules/common/components/Spinner';
-import { Alert, __, router, confirm } from 'modules/common/utils';
-import { IRouterProps, IConfig } from '../../../types';
+import Spinner from '../../common/components/Spinner';
+import { Alert, __, router, confirm } from '../../common/utils';
+import { IRouterProps, IConfig } from '../../types';
 import { trimGraphqlError, withProps } from '../../utils';
 import { mutations, queries } from '../graphql/index';
 import Pos from '../components/Pos';
@@ -16,8 +16,8 @@ import {
   OrdersEditMutationResponse,
   OrderDetailQueryResponse
 } from '../types';
-import withCurrentUser from 'modules/auth/containers/withCurrentUser';
-import { IUser } from 'modules/auth/types';
+import withCurrentUser from '../../auth/containers/withCurrentUser';
+import { IUser } from '../../auth/types';
 
 type Props = {
   ordersAddMutation: OrdersAddMutationResponse;

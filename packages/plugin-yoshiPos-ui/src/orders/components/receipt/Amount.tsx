@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { AppContext } from 'appContext';
-import { IOrder } from 'modules/orders/types';
-import { calcTaxAmount } from 'modules/utils';
+import { AppContext } from '../../../../appContext';
+import { IOrder } from '../../../orders/types';
+import { calcTaxAmount } from '../../../utils';
 import LocaleField from './LocaleField';
 import { AmountContainer } from './styles';
 

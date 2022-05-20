@@ -1,9 +1,9 @@
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 
-import { IInvoiceCheckParams, IOrder } from 'modules/orders/types';
+import { IInvoiceCheckParams, IOrder } from '../../../../orders/types';
 import QPayRow from './QPayRow';
-import { IQPayInvoice } from 'modules/qpay/types';
+import { IQPayInvoice } from '../../../../qpay/types';
 
 type Props = {
   checkQPayInvoice: (params: IInvoiceCheckParams) => void;

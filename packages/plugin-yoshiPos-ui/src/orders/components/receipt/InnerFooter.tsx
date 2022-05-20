@@ -1,9 +1,9 @@
 import React from 'react';
 import { FooterWrapper, Lottery, LotterySide } from './styles';
 import Amount from './Amount';
-import Button from 'modules/common/components/Button';
-import { IOrder } from 'modules/orders/types';
-import { __ } from 'modules/common/utils';
+import Button from '../../../common/components/Button';
+import { IOrder } from '../../../orders/types';
+import { __ } from '../../../common/utils';
 
 type Props = {
   color: string;

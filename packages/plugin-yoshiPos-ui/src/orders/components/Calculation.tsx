@@ -1,16 +1,16 @@
-import Button from 'modules/common/components/Button';
-import client from 'apolloClient';
+import Button from '../../common/components/Button';
+import client from '../../../apolloClient';
 import gql from 'graphql-tag';
 import queries from '../graphql/queries';
 import React from 'react';
 import Stage from './Stage';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { __ } from 'modules/common/utils';
-import { ColumnBetween } from 'modules/common/styles/main';
-import { formatNumber } from 'modules/utils';
-import { ControlLabel, FormControl } from 'modules/common/components/form';
-import { IConfig, IOption } from 'types';
+import { __ } from '../../common/utils';
+import { ColumnBetween } from '../../common/styles/main';
+import { formatNumber } from '../../utils';
+import { ControlLabel, FormControl } from '../../common/components/form';
+import { IConfig, IOption } from '../../types';
 import { ICustomer, IOrder, IOrderItemInput } from '../types';
 import {
   Amount,
@@ -20,8 +20,8 @@ import {
   ProductLabel,
   Types
 } from '../styles';
-import { ORDER_TYPES, ORDER_STATUSES, POS_MODES } from '../../../constants';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
+import { ORDER_TYPES, ORDER_STATUSES, POS_MODES } from '../../constants';
+import ModalTrigger from '../../common/components/ModalTrigger';
 import OrderInfo from './splitPayment/OrderInfo';
 
 const Wrapper = styledTS<{ color?: string; showPayment?: boolean }>(styled.div)`

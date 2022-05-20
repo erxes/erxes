@@ -2,18 +2,18 @@ import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { IOrderItemInput } from '../types';
-import { FlexBetween, FlexCenter } from 'modules/common/styles/main';
-import Icon from 'modules/common/components/Icon';
+import { FlexBetween, FlexCenter } from '../../common/styles/main';
+import Icon from '../../common/components/Icon';
 import Quantity from './Quantity';
 import { SelectedItem, SelectedStage } from './kiosk/style';
-import FormControl from 'modules/common/components/form/Control';
-import { ORDER_TYPES } from '../../../constants';
-import Tip from 'modules/common/components/Tip';
+import FormControl from '../../common/components/form/Control';
+import { ORDER_TYPES } from '../../constants';
+import Tip from '../../common/components/Tip';
 import { PackageProduct } from '../styles';
 import { __ } from 'erxes-ui/lib/utils/core';
-import { darken, rgba } from 'modules/common/styles/ecolor';
-import colors from 'modules/common/styles/colors';
-import { dimensions } from 'modules/common/styles';
+import { darken, rgba } from '../../common/styles/ecolor';
+import colors from '../../common/styles/colors';
+import { dimensions } from '../../common/styles';
 
 const Item = styledTS<{ isTaken?: boolean; color?: string }>(styled.div)`
   background: #fff;

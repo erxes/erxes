@@ -1,9 +1,9 @@
 import React from 'react';
-import { __ } from 'modules/common/utils';
+import { __ } from '../../common/utils';
 import { IOrderItemInput } from '../types';
 import StageItem from './StageItem';
 import { StageContent, StageItems } from '../styles';
-import EmptyState from 'modules/common/components/EmptyState';
+import EmptyState from '../../common/components/EmptyState';
 import { KioskStageContent } from './kiosk/style';
 
 type Props = {

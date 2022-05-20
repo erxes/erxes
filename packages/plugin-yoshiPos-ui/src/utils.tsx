@@ -1,5 +1,5 @@
 import React from 'react';
-import { IConfig, IEbarimtConfig } from 'types';
+import { IConfig, IEbarimtConfig } from '../../types';
 import { setTitle } from './common/utils';
 
 export function withProps<IProps>(

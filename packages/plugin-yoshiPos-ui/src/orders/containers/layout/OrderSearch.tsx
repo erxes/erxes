@@ -6,14 +6,14 @@ import { graphql } from 'react-apollo';
 import queryString from 'query-string';
 
 import { queries } from '../../graphql/index';
-import SearchInput from 'modules/orders/components/SearchInput';
-import OrderItem from 'modules/orders/components/drawer/OrderItem';
-import { BackButton, FlexCustomer, Orders } from 'modules/orders/styles';
-import { withProps, router, __ } from 'modules/common/utils';
-import { OrderQueryResponse } from 'modules/orders/types';
-import { IRouterProps } from 'types';
-import Spinner from 'modules/common/components/Spinner';
-import Icon from 'modules/common/components/Icon';
+import SearchInput from '../../../orders/components/SearchInput';
+import OrderItem from '../../../orders/components/drawer/OrderItem';
+import { BackButton, FlexCustomer, Orders } from '../../../orders/styles';
+import { withProps, router, __ } from '../../../common/utils';
+import { OrderQueryResponse } from '../../../orders/types';
+import { IRouterProps } from '../../../types';
+import Spinner from '../../../common/components/Spinner';
+import Icon from '../../../common/components/Icon';
 
 type Props = {
   orientation: string;

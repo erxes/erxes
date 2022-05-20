@@ -1,11 +1,11 @@
 import React from 'react';
 
-import Button from 'modules/common/components/Button';
-import { __ } from 'modules/common/utils';
+import Button from '../../../../common/components/Button';
+import { __ } from '../../../../common/utils';
 import CashInput from './CashInput';
-import { IOrder, IPaymentInput } from 'modules/orders/types';
-import { CardInputColumn } from 'modules/orders/styles';
-import { FlexCenter } from 'modules/common/styles/main';
+import { IOrder, IPaymentInput } from '../../../../orders/types';
+import { CardInputColumn } from '../../../../orders/styles';
+import { FlexCenter } from '../../../../common/styles/main';
 
 type Props = {
   order: IOrder;

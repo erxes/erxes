@@ -2,10 +2,10 @@ import Col from 'react-bootstrap/Col';
 import OrderDetail from './OrderDetail';
 import React from 'react';
 import Row from 'react-bootstrap/Row';
-import { __ } from 'modules/common/utils';
-import { IConfig } from 'types';
+import { __ } from '../../common/utils';
+import { IConfig } from '../../types';
 import { IOrder } from '../../orders/types';
-import { IUser } from 'modules/auth/types';
+import { IUser } from '../../auth/types';
 import { Label, Orders } from '../styles';
 import { ScreenContent } from '../../orders/styles';
 

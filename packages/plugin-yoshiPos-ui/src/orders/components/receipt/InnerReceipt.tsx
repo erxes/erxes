@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { IOrder } from '../../types';
 import { ReceiptWrapper } from './styles';
-import { AppContext } from 'appContext';
+import { AppContext } from '../../../../appContext';
 import Header from './Header';
 import Body from './Body';
 import InnerFooter from './InnerFooter';

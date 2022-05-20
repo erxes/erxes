@@ -1,6 +1,6 @@
 import React from 'react';
-import { IOrder, IPaymentInput } from 'modules/orders/types';
-import { FlexCenter } from 'modules/common/styles/main';
+import { IOrder, IPaymentInput } from '../../../../orders/types';
+import { FlexCenter } from '../../../../common/styles/main';
 import CardInput from './CardInput';
 
 type Props = {

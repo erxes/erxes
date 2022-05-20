@@ -1,5 +1,5 @@
-import { IUser } from 'modules/auth/types';
-import { QueryResponse, ICustomField } from 'types';
+import { IUser } from '../auth/types';
+import { QueryResponse, ICustomField } from '../types';
 
 export interface IOrderItem {
   _id: string;

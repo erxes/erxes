@@ -2,16 +2,16 @@ import React from 'react';
 import QRCode from 'qrcode';
 import gql from 'graphql-tag';
 
-import apolloClient from 'apolloClient';
-import { __, confirm, Alert } from 'modules/common/utils';
-import Button from 'modules/common/components/Button';
-import Label from 'modules/common/components/Label';
-import { IQPayInvoice } from 'modules/qpay/types';
-import { IInvoiceCheckParams } from 'modules/orders/types';
-import { mutations } from 'modules/orders/graphql/index';
-import { formatNumber } from 'modules/utils';
+import apolloClient from '../../../../../apolloClient';
+import { __, confirm, Alert } from '../../../../common/utils';
+import Button from '../../../../common/components/Button';
+import Label from '../../../../common/components/Label';
+import { IQPayInvoice } from '../../../../qpay/types';
+import { IInvoiceCheckParams } from '../../../../orders/types';
+import { mutations } from '../../../../orders/graphql/index';
+import { formatNumber } from '../../../../utils';
 import { QPayWrapper, TotalAmount } from './styles';
-import Icon from 'modules/common/components/Icon';
+import Icon from '../../../../common/components/Icon';
 
 type Props = {
   item: IQPayInvoice;

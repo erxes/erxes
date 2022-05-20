@@ -1,18 +1,18 @@
 import React from 'react';
 import gql from 'graphql-tag';
 
-import apolloClient from 'apolloClient';
+import apolloClient from '../../../../../apolloClient';
 import { mutations } from '../../../graphql/index';
-import { IInvoiceCheckParams, IOrder } from 'modules/orders/types';
-import { CardInputColumn, Input } from 'modules/orders/styles';
-import { Alert, __ } from 'modules/common/utils';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
+import { IInvoiceCheckParams, IOrder } from '../../../../orders/types';
+import { CardInputColumn, Input } from '../../../../orders/styles';
+import { Alert, __ } from '../../../../common/utils';
+import FormGroup from '../../../../common/components/form/Group';
+import ControlLabel from '../../../../common/components/form/Label';
 import NumberFormat from 'react-number-format';
-import Icon from 'modules/common/components/Icon';
-import Button from 'modules/common/components/Button';
-import { IQPayInvoice } from 'modules/qpay/types';
-import { FlexCenter } from 'modules/common/styles/main';
+import Icon from '../../../../common/components/Icon';
+import Button from '../../../../common/components/Button';
+import { IQPayInvoice } from '../../../../qpay/types';
+import { FlexCenter } from '../../../../common/styles/main';
 
 type Props = {
   order: IOrder;

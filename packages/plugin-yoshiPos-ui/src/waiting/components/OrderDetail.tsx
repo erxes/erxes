@@ -1,7 +1,7 @@
 import React from 'react';
-import { IConfig } from 'types';
+import { IConfig } from '../../types';
 import { IOrder } from '../../orders/types';
-import { IUser } from 'modules/auth/types';
+import { IUser } from '../../auth/types';
 import { OrderCard } from '../styles';
 import { useTime } from 'react-timer-hook';
 

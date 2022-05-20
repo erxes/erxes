@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppContext } from 'appContext';
+import { AppContext } from '../../../appContext';
 import {
   CategoryImage,
   CategoryItemWrapper,

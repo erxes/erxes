@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { IOrder } from 'modules/orders/types';
-import { __ } from 'modules/common/utils';
-import { PaymentInfo } from 'modules/orders/styles';
-import { formatNumber } from 'modules/utils';
+import { IOrder } from '../../../orders/types';
+import { __ } from '../../../common/utils';
+import { PaymentInfo } from '../../../orders/styles';
+import { formatNumber } from '../../../utils';
 
 type Props = {
   order: IOrder | null;

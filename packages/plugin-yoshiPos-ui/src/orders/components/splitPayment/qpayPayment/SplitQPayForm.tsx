@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { FlexCenter } from 'modules/common/styles/main';
-import Button from 'modules/common/components/Button';
-import { __ } from 'modules/common/utils';
+import { FlexCenter } from '../../../../common/styles/main';
+import Button from '../../../../common/components/Button';
+import { __ } from '../../../../common/utils';
 import QPayInput from './QPayInput';
-import { IInvoiceParams, IOrder } from 'modules/orders/types';
+import { IInvoiceParams, IOrder } from '../../../../orders/types';
 
 type Props = {
   closeModal?: () => void;

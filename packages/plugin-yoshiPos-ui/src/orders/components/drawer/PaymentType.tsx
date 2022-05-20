@@ -1,5 +1,5 @@
 import React from 'react';
-import { __ } from 'modules/common/utils';
+import { __ } from '../../../common/utils';
 import { Card, Cards, TypeWrapper } from './style';
 
 type Props = {

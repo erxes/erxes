@@ -2,13 +2,13 @@ import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 import React from 'react';
 import NumberFormat from 'react-number-format';
 
-import { FlexCenter } from 'modules/common/styles/main';
-import Icon from 'modules/common/components/Icon';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { __ } from 'modules/common/utils';
-import { Input } from 'modules/orders/styles';
-import { IOrder } from 'modules/orders/types';
+import { FlexCenter } from '../../../../common/styles/main';
+import Icon from '../../../../common/components/Icon';
+import FormGroup from '../../../../common/components/form/Group';
+import ControlLabel from '../../../../common/components/form/Label';
+import { __ } from '../../../../common/utils';
+import { Input } from '../../../../orders/styles';
+import { IOrder } from '../../../../orders/types';
 import KeyPads from '../../drawer/KeyPads';
 
 type Props = {

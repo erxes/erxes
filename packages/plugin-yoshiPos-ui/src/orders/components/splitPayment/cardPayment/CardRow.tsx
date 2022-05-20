@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { IPaymentInput } from 'modules/orders/types';
+import { IPaymentInput } from '../../../../orders/types';
 
 type Props = {
   item: IPaymentInput;

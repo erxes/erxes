@@ -1,7 +1,7 @@
 import KitchenReceiptBody from './KitchenReceiptBody';
 import React, { useContext } from 'react';
-import { AppContext } from 'appContext';
-import { IOrder } from 'modules/orders/types';
+import { AppContext } from '../../../../appContext';
+import { IOrder } from '../../../orders/types';
 
 export default function KitchenReceipt({ order }: { order: IOrder }) {
   const { currentConfig } = useContext(AppContext);

@@ -1,9 +1,9 @@
 import React from 'react';
 import { IProduct, IOrderItemInput } from '../types';
 import { Item, ItemWrapper } from '../styles';
-import { formatNumber } from 'modules/utils';
-import { AppContext } from 'appContext';
-import { POS_MODES } from '../../../constants';
+import { formatNumber } from '../../utils';
+import { AppContext } from '../../../appContext';
+import { POS_MODES } from '../../constants';
 
 type Props = {
   product: IProduct;

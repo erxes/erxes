@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import React from 'react';
-import { __ } from 'modules/common/utils';
-import { IOrder } from 'modules/orders/types';
+import { __ } from '../../../common/utils';
+import { IOrder } from '../../../orders/types';
 import { ReceiptWrapper } from './styles';
 
 type Props = {

@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import React, { useContext } from 'react';
-import Button from 'modules/common/components/Button';
-import { AppContext } from 'appContext';
+import Button from '../../common/components/Button';
+import { AppContext } from '../../../appContext';
 import { HeaderWrapper } from '../../orders/components/receipt/styles';
 import {
   Amounts,
@@ -11,7 +11,7 @@ import {
   GroupCategory,
   Products
 } from '../styles';
-import { __ } from 'modules/common/utils';
+import { __ } from '../../common/utils';
 
 type Props = {
   dailyReport: any;

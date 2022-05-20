@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { slideDown } from 'modules/common/styles/animations';
-import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/ecolor';
-import { FlexCenter } from 'modules/common/styles/main';
+import { slideDown } from '../../../common/styles/animations';
+import { colors, dimensions } from '../../../common/styles';
+import { rgba } from '../../../common/styles/ecolor';
+import { FlexCenter } from '../../../common/styles/main';
 
 export const LogoWrapper = styledTS<{ odd?: boolean }>(styled.div)`
   display: flex;

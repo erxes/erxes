@@ -2,11 +2,11 @@ import * as compose from 'lodash.flowright';
 import gql from 'graphql-tag';
 import React from 'react';
 import Settings from '../components/Settings';
-import withCurrentUser from 'modules/auth/containers/withCurrentUser';
-import { Alert } from 'modules/common/utils';
+import withCurrentUser from '../../auth/containers/withCurrentUser';
+import { Alert } from '../../common/utils';
 import { graphql } from 'react-apollo';
-import { IConfig, IRouterProps } from '../../../types';
-import { IUser } from 'modules/auth/types';
+import { IConfig, IRouterProps } from '../../types';
+import { IUser } from '../../auth/types';
 import { mutations, queries } from '../graphql';
 import {
   PosUsersQueryResponse,
@@ -16,7 +16,7 @@ import {
 } from '../types';
 import { withProps } from '../../utils';
 import { withRouter } from 'react-router-dom';
-import Spinner from 'modules/common/components/Spinner';
+import Spinner from '../../common/components/Spinner';
 
 type Props = {
   syncConfigMutation: SyncConfigMutationResponse;

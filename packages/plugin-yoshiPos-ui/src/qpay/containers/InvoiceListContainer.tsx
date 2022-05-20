@@ -3,13 +3,13 @@ import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { IRouterProps } from '../../../types';
+import { IRouterProps } from '../../types';
 import { withProps } from '../../utils';
 import { queries } from '../graphql/index';
 import InvoiceList from '../components/InvoiceList';
 
-import withCurrentUser from 'modules/auth/containers/withCurrentUser';
-import Spinner from 'modules/common/components/Spinner';
+import withCurrentUser from '../../auth/containers/withCurrentUser';
+import Spinner from '../../common/components/Spinner';
 
 type Props = {
   qp: any;

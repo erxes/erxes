@@ -2,13 +2,13 @@ import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 import React from 'react';
 import NumberFormat from 'react-number-format';
 
-import Button from 'modules/common/components/Button';
-import Icon from 'modules/common/components/Icon';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { __, Alert } from 'modules/common/utils';
-import { CardInputColumn, Input } from 'modules/orders/styles';
-import { IOrder, IPaymentInput } from 'modules/orders/types';
+import Button from '../../../../common/components/Button';
+import Icon from '../../../../common/components/Icon';
+import FormGroup from '../../../../common/components/form/Group';
+import ControlLabel from '../../../../common/components/form/Label';
+import { __, Alert } from '../../../../common/utils';
+import { CardInputColumn, Input } from '../../../../orders/styles';
+import { IOrder, IPaymentInput } from '../../../../orders/types';
 
 type Props = {
   color?: string;

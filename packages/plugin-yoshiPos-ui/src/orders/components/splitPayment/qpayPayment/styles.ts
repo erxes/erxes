@@ -1,4 +1,4 @@
-import { colors, dimensions } from 'modules/common/styles';
+import { colors, dimensions } from '../../../../common/styles';
 import styled from 'styled-components';
 
 export const QPayWrapper = styled.div`

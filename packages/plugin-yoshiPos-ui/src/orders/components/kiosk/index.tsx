@@ -9,9 +9,9 @@ import {
   Type,
   AppWrapper
 } from './style';
-import Icon from 'modules/common/components/Icon';
-import { FlexBetween, FlexCenter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import Icon from '../../..//common/components/Icon';
+import { FlexBetween, FlexCenter } from '../../..//common/styles/main';
+import { __ } from '../../..//common/utils';
 
 type Props = {
   currentConfig: IConfig;

@@ -2,11 +2,11 @@ import { withRouter } from 'react-router-dom';
 import React from 'react';
 import queryString from 'query-string';
 
-import { IRouterProps, IConfig, ProductsQueryResponse } from '../../../types';
+import { IRouterProps, IConfig, ProductsQueryResponse } from '../../types';
 import { IOrderItemInput } from '../types';
 import Products from '../components/Products';
-import Spinner from 'modules/common/components/Spinner';
-import withCurrentUser from 'modules/auth/containers/withCurrentUser';
+import Spinner from '../../common/components/Spinner';
+import withCurrentUser from '../../auth/containers/withCurrentUser';
 
 type Props = {
   productsQuery: ProductsQueryResponse;

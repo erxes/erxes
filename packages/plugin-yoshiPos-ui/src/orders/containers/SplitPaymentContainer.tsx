@@ -4,10 +4,10 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 
-import withCurrentUser from 'modules/auth/containers/withCurrentUser';
-import { IRouterProps } from '../../../types';
+import withCurrentUser from '../../auth/containers/withCurrentUser';
+import { IRouterProps } from '../../types';
 import { withProps, trimGraphqlError } from '../../utils';
-import { Alert, __ } from 'modules/common/utils';
+import { Alert, __ } from '../../common/utils';
 import { queries, mutations } from '../graphql/index';
 import SplitPayment from '../components/splitPayment/SplitPayment';
 import {

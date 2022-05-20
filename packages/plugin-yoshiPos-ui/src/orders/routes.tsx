@@ -1,16 +1,16 @@
 import { Route } from 'react-router-dom';
 import queryString from 'query-string';
 
-import asyncComponent from 'modules/common/components/AsyncComponent';
+import asyncComponent from '../common/components/AsyncComponent';
 import React from 'react';
 
 const PosContainer = asyncComponent(() =>
-  import(/* webpackChunkName: "Pos" */ 'modules/orders/containers/PosContainer')
+  import(/* webpackChunkName: "Pos" */ '../orders/containers/PosContainer')
 );
 
 const ReceiptContainer = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Receipt" */ 'modules/orders/containers/ReceiptContainer'
+    /* webpackChunkName: "Receipt" */ '../orders/containers/ReceiptContainer'
   )
 );
 
