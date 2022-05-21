@@ -39,7 +39,7 @@ jobs:
       - name: Build
         run: |
           cd packages/gateway
-          yarn install
+          yarn install --ignore-engines
           yarn build plugin pos
           cd ../../dist/plugin-pos-api/.erxes
           cd dist/main/.erxes/src
