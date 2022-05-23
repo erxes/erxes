@@ -1,8 +1,11 @@
-import { replacePlaceHolders, setProperty } from "@erxes/api-utils/src/automations";
-import { generateModels, IModels } from "./connectionResolver";
-import { itemsAdd } from "./graphql/resolvers/mutations/utils";
-import { sendCommonMessage, sendCoreMessage } from "./messageBroker";
-import { getCollection } from "./models/utils";
+import {
+  replacePlaceHolders,
+  setProperty
+} from '@erxes/api-utils/src/automations';
+import { generateModels, IModels } from './connectionResolver';
+import { itemsAdd } from './graphql/resolvers/mutations/utils';
+import { sendCommonMessage, sendCoreMessage } from './messageBroker';
+import { getCollection } from './models/utils';
 
 const getRelatedValue = async (
   models: IModels,
@@ -12,27 +15,27 @@ const getRelatedValue = async (
 ) => {
   if (
     [
-      "userId",
-      "assignedUserId",
-      "closedUserId",
-      "ownerId",
-      "createdBy",
+      'userId',
+      'assignedUserId',
+      'closedUserId',
+      'ownerId',
+      'createdBy'
     ].includes(targetKey)
   ) {
     const user = await sendCoreMessage({
       subdomain,
-      action: "users.findOne",
+      action: 'users.findOne',
       data: { _id: target[targetKey] },
-      isRPC: true,
+      isRPC: true
     });
 
     return (
-      (user && ((user.detail && user.detail.fullName) || user.email)) || ""
+      (user && ((user.detail && user.detail.fullName) || user.email)) || ''
     );
   }
 
   if (
-    ["participatedUserIds", "assignedUserIds", "watchedUserIds"].includes(
+    ['participatedUserIds', 'assignedUserIds', 'watchedUserIds'].includes(
       targetKey
     )
   ) {
@@ -48,48 +51,47 @@ const getRelatedValue = async (
     });
 
     return (
-      users.map(
-        (user) => (user.detail && user.detail.fullName) || user.email
-      ) || []
-    ).join(", ");
+      users.map(user => (user.detail && user.detail.fullName) || user.email) ||
+      []
+    ).join(', ');
   }
 
-  if (targetKey === "tagIds") {
+  if (targetKey === 'tagIds') {
     const tags = await sendCommonMessage({
       subdomain,
-      serviceName: "tags",
-      action: "find",
-      data: { _id: { $in: target[targetKey] } },
+      serviceName: 'tags',
+      action: 'find',
+      data: { _id: { $in: target[targetKey] } }
     });
 
-    return (tags.map((tag) => tag.name) || []).join(", ");
+    return (tags.map(tag => tag.name) || []).join(', ');
   }
 
-  if (targetKey === "labelIds") {
+  if (targetKey === 'labelIds') {
     const labels = await models.PipelineLabels.find({
-      _id: { $in: target[targetKey] },
+      _id: { $in: target[targetKey] }
     });
 
-    return (labels.map((label) => label.name) || []).join(", ");
+    return (labels.map(label => label.name) || []).join(', ');
   }
 
-  if (["initialStageId", "stageId"].includes(targetKey)) {
+  if (['initialStageId', 'stageId'].includes(targetKey)) {
     const stage = await models.Stages.findOne({
-      _id: target[targetKey],
+      _id: target[targetKey]
     });
 
-    return (stage && stage.name) || "";
+    return (stage && stage.name) || '';
   }
 
-  if (["sourceConversationIds"].includes(targetKey)) {
+  if (['sourceConversationIds'].includes(targetKey)) {
     const conversations = await sendCommonMessage({
       subdomain,
-      serviceName: "inbox",
-      action: "conversations.find",
-      data: { _id: { $in: target[targetKey] } },
+      serviceName: 'inbox',
+      action: 'conversations.find',
+      data: { _id: { $in: target[targetKey] } }
     });
 
-    return (conversations.map((c) => c.content) || []).join(", ");
+    return (conversations.map(c => c.content) || []).join(', ');
   }
 
   return false;
@@ -98,12 +100,18 @@ const getRelatedValue = async (
 export default {
   receiveActions: async ({
     subdomain,
-    data: { action, execution, collectionType, triggerType, actionType },
+    data: { action, execution, collectionType, triggerType, actionType }
   }) => {
     const models = await generateModels(subdomain);
 
-    if (actionType === "create") {
-      return actionCreate({ models, subdomain, action, execution, collectionType });
+    if (actionType === 'create') {
+      return actionCreate({
+        models,
+        subdomain,
+        action,
+        execution,
+        collectionType
+      });
     }
 
     return setProperty({
@@ -114,11 +122,17 @@ export default {
       execution,
       triggerType,
       sendCommonMessage
-    })
-  },
+    });
+  }
 };
 
-const actionCreate = async ({ models, subdomain, action, execution, collectionType }) => {
+const actionCreate = async ({
+  models,
+  subdomain,
+  action,
+  execution,
+  collectionType
+}) => {
   const { config = {} } = action;
 
   let newData = action.config.assignedTo
@@ -128,7 +142,7 @@ const actionCreate = async ({ models, subdomain, action, execution, collectionTy
         getRelatedValue,
         actionData: { assignedTo: action.config.assignedTo },
         target: execution.target,
-        isRelated: false,
+        isRelated: false
       })
     : {};
 
@@ -141,23 +155,34 @@ const actionCreate = async ({ models, subdomain, action, execution, collectionTy
       subdomain,
       getRelatedValue,
       actionData: action.config,
-      target: execution.target,
-    })),
+      target: execution.target
+    }))
   };
 
-  if (newData.hasOwnProperty("assignedTo")) {
-    newData.assignedUserIds = newData.assignedTo.trim().split(", ");
+  if (execution.triggerType === 'conversation') {
+    newData.sourceConversationIds = [execution.targetId];
   }
 
-  if (newData.hasOwnProperty("labelIds")) {
-    newData.labelIds = newData.labelIds.trim().split(", ");
+  if (
+    ['contacts:customer', 'contacts:lead'].includes(execution.triggerType) &&
+    execution.target.isFormSubmission
+  ) {
+    newData.sourceConversationIds = [execution.target.conversationId];
   }
 
-  if (newData.hasOwnProperty("cardName")) {
+  if (newData.hasOwnProperty('assignedTo')) {
+    newData.assignedUserIds = newData.assignedTo.trim().split(', ');
+  }
+
+  if (newData.hasOwnProperty('labelIds')) {
+    newData.labelIds = newData.labelIds.trim().split(', ');
+  }
+
+  if (newData.hasOwnProperty('cardName')) {
     newData.name = newData.cardName;
   }
 
-  if (config.hasOwnProperty("stageId")) {
+  if (config.hasOwnProperty('stageId')) {
     newData.stageId = config.stageId;
   }
 
@@ -174,13 +199,13 @@ const actionCreate = async ({ models, subdomain, action, execution, collectionTy
 
     await sendCoreMessage({
       subdomain,
-      action: "conformities.addConformity",
+      action: 'conformities.addConformity',
       data: {
         mainType: execution.triggerType,
         mainTypeId: execution.targetId,
         relType: `cards:${collectionType}`,
-        relTypeId: item._id,
-      },
+        relTypeId: item._id
+      }
     });
 
     return item;
