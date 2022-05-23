@@ -39,7 +39,7 @@ export const app = express();
 
 if (configs.middlewares) {
   for (const middleware of configs.middlewares) {
-    app.use(middleware());
+    app.use(middleware);
   }
 }
 
