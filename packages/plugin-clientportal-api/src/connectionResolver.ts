@@ -19,6 +19,7 @@ export interface IModels {
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
+  cpUser?: IUserDocument;
 }
 
 export let models: IModels | null = null;

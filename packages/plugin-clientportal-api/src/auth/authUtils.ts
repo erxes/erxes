@@ -42,40 +42,33 @@ export const authCookieOptions = (secure: boolean) => {
 export const cpUserMiddleware = async (context: IContext) => {
   const { models, requestInfo, res } = context;
 
-  console.log(
-    '########################## ',
-    JSON.stringify(requestInfo.cookies)
-  );
+  const cp_token = requestInfo.cookies['client-auth-token'];
+
+  if (!cp_token) {
+    throw new Error(AUTH_MESSAGES.AUTH_TOKEN_MISSING_ERR);
+  }
 
   try {
-    // check for auth header from client
-    const { authorization } = requestInfo.headers;
+    const { userId }: any = jwt.verify(
+      cp_token,
+      process.env.JWT_TOKEN_SECRET || ''
+    );
 
-    if (!authorization) {
-      throw new Error(AUTH_MESSAGES.AUTH_HEADER_MISSING_ERR);
-    }
+    const a = jwt.verify(cp_token, process.env.JWT_TOKEN_SECRET || '');
 
-    // verify  auth token
-    const token = authorization.split('Bearer ')[1];
+    console.log('*********************** ', userId);
 
-    if (!token) {
-      throw new Error(AUTH_MESSAGES.AUTH_TOKEN_MISSING_ERR);
-    }
+    const userDoc = await models.ClientPortalUsers.findOne({ _id: userId });
 
-    const userId = verifyJwtToken(token);
-
-    if (!userId) {
-      throw new Error(AUTH_MESSAGES.JWT_DECODE_ERR);
-    }
-
-    const user = await models.ClientPortalUsers.findById(userId);
-
-    if (!user) {
+    if (!userDoc) {
       throw new Error(AUTH_MESSAGES.USER_NOT_FOUND_ERR);
     }
 
-    res.locals.user = user;
-  } catch (err) {
-    throw new Error(err.message);
+    // save user in request
+    requestInfo.cpUser = userDoc;
+    requestInfo.cpUser.loginToken = cp_token;
+    requestInfo.cpUser.sessionCode = requestInfo.headers.sessioncode || '';
+  } catch (e) {
+    throw new Error(`Something went wrong: ${e.message}`);
   }
 };
