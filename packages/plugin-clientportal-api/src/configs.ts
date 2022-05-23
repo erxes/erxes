@@ -41,6 +41,10 @@ export default {
     context.requestInfo = requestInfo;
     context.res = res;
 
+    if (req.cpUser) {
+      context.cpUser = req.cpUser;
+    }
+
     return context;
   },
   middlewares: [cookieParser(), cpUserMiddleware],

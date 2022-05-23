@@ -7,18 +7,6 @@ export const commonFields = `
   icon
   domain
   dnsStatus
-  knowledgeBaseLabel
-  knowledgeBaseTopicId
-  ticketLabel
-  taskPublicPipelineId
-  taskPublicBoardId
-  taskLabel
-  taskStageId
-  taskPipelineId
-  taskBoardId
-  ticketStageId
-  ticketPipelineId
-  ticketBoardId
   styles {
     bodyColor
     headerColor
@@ -37,10 +25,7 @@ export const commonFields = `
     secondaryBtnColor
   }
   mobileResponsive
-  kbToggle
-  publicTaskToggle
-  ticketToggle
-  taskToggle
+  brandId
   otpConfig {
     smsTransporterType
     emailTransporterType

@@ -2,15 +2,15 @@ import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   IClientPortalModel,
-  IUserModel,
-  loadClientPortalClass,
-  loadClientPortalUserClass
+  loadClientPortalClass
 } from './models/ClientPortal';
-import {
-  IClientPortalDocument,
-  IUserDocument
-} from './models/definitions/clientPortal';
+import { IClientPortalDocument } from './models/definitions/clientPortal';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
+import {
+  IUserModel,
+  loadClientPortalUserClass
+} from './models/ClientPortalUser';
+import { IUserDocument } from './models/definitions/clientPortalUser';
 export interface IModels {
   ClientPortals: IClientPortalModel;
   ClientPortalUsers: IUserModel;

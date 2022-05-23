@@ -30,8 +30,18 @@ class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const formValues = props.defaultConfigValues || ({} as ClientPortalConfig);
+
+    const { __typename = '', ...otp }: any = formValues.otpConfig || {
+      smsTransporterType: '',
+      emailTransporterType: '',
+      content: 'Your verification code is {{code}}'
+    };
+
+    formValues.otpConfig = otp;
+
     this.state = {
-      formValues: props.defaultConfigValues || ({} as ClientPortalConfig)
+      formValues
     };
   }
 
@@ -58,18 +68,6 @@ class Form extends React.Component<Props, State> {
 
     if (formValues.domain && !isUrl(formValues.domain)) {
       return Alert.error('Please enter a valid domain');
-    }
-
-    if (!formValues.knowledgeBaseTopicId) {
-      return Alert.error('Please choose a Knowledge base topic');
-    }
-
-    if (!formValues.taskPublicBoardId) {
-      return Alert.error('Please select a public task board first');
-    }
-
-    if (!formValues.taskPublicPipelineId) {
-      return Alert.error('Please select a public task pipeline');
     }
 
     delete (formValues.styles || ({} as any)).__typename;

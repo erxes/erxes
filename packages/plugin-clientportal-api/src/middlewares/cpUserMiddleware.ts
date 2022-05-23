@@ -11,7 +11,7 @@ export default async function cpUserMiddleware(
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
   const token = req.cookies['client-auth-token'];
-  console.log('*********************************: ', req.path, token);
+
   if (!token) {
     return next();
   }
@@ -29,7 +29,7 @@ export default async function cpUserMiddleware(
       return next();
     }
 
-    // // save user in request
+    // save user in request
     req.cpUser = userDoc;
     req.cpUser.loginToken = token;
     req.cpUser.sessionCode = req.headers.sessioncode || '';

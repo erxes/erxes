@@ -13,24 +13,9 @@ export type ClientPortalConfig = {
   icon?: string;
   domain?: string;
   dnsStatus?: string;
-  knowledgeBaseLabel?: string;
-  knowledgeBaseTopicId?: string;
-  ticketLabel?: string;
-  taskPublicBoardId?: string;
-  taskPublicPipelineId?: string;
-  taskLabel?: string;
-  taskStageId?: string;
-  taskBoardId?: string;
-  taskPipelineId?: string;
-  ticketStageId?: string;
-  ticketBoardId?: string;
-  ticketPipelineId?: string;
   styles?: Styles;
   mobileResponsive?: boolean;
-  kbToggle?: boolean;
-  publicTaskToggle?: boolean;
-  ticketToggle?: boolean;
-  taskToggle?: boolean;
+  brandId?: string;
   otpConfig?: OTPConfig;
 };
 
