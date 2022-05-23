@@ -1,26 +1,30 @@
 import { Model, model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
-import {
-  IRemainder,
-  IRemainderDocument,
-  remainderSchema
-} from './definitions/remainders';
+import { IRemainder, IRemainderDocument } from './definitions/remainders';
+import { safeRemainderSchema } from './definitions/safeRemainders';
 
-export interface IRemainderModel extends Model<IRemainderDocument> {
-  getRemainder(_id: string): Promise<IRemainderDocument>;
+export interface IRemainderParams {
+  productId: string;
+  departmentId?: string;
+  branchId?: string;
+}
+
+export interface ISafeRemainderModel extends Model<IRemainderDocument> {
+  getRemainderObject(_id: string): Promise<IRemainderDocument>;
+  getRemainder(params: IRemainderParams): Promise<Number>;
   createRemainder(doc: IRemainder): Promise<IRemainderDocument>;
   updateRemainder(_id: string, doc: IRemainder): Promise<IRemainderDocument>;
   removeRemainder(_id: string): void;
 }
 
-export const loadRemainderClass = (models: IModels) => {
+export const loadSafeRemainderClass = (models: IModels) => {
   class Remainder {
     /*
      * Get a remainder
      */
     public static async getRemainderObject(_id: string) {
-      const remainder = await models.Remainders.findOne({ _id });
+      const remainder = await models.SafeRemainders.findOne({ _id });
 
       if (!remainder) {
         throw new Error('Remainder not found');
@@ -29,11 +33,7 @@ export const loadRemainderClass = (models: IModels) => {
       return remainder;
     }
 
-    public static async getRemainder(params: {
-      productId: string;
-      departmentId?: string;
-      branchId?: string;
-    }) {
+    public static async getRemainder(params: IRemainderParams) {
       const { productId, departmentId, branchId } = params;
       const filter: any = { productId };
 
@@ -59,7 +59,7 @@ export const loadRemainderClass = (models: IModels) => {
      * Create a remainder
      */
     public static async createRemainder(doc: IRemainder) {
-      const remainder = await models.Remainders.create({
+      const remainder = await models.SafeRemainders.create({
         ...doc,
         createdAt: new Date()
       });
@@ -71,11 +71,11 @@ export const loadRemainderClass = (models: IModels) => {
      * Update Remainder
      */
     public static async updateRemainder(_id: string, doc: IRemainder) {
-      const remainder = await models.Remainders.getRemainder(_id);
+      const remainder = await models.SafeRemainders.getRemainderObject(_id);
 
-      await models.Remainders.updateOne({ _id }, { $set: { ...doc } });
+      await models.SafeRemainders.updateOne({ _id }, { $set: { ...doc } });
 
-      const updated = await models.Remainders.getRemainder(_id);
+      const updated = await models.SafeRemainders.getRemainderObject(_id);
 
       return updated;
     }
@@ -84,12 +84,12 @@ export const loadRemainderClass = (models: IModels) => {
      * Remove Remainder
      */
     public static async removeRemainder(_id: string) {
-      await models.Remainders.getRemainder(_id);
-      return models.Remainders.deleteOne({ _id });
+      await models.SafeRemainders.getRemainderObject(_id);
+      return models.SafeRemainders.deleteOne({ _id });
     }
   }
 
-  remainderSchema.loadClass(Remainder);
+  safeRemainderSchema.loadClass(Remainder);
 
-  return remainderSchema;
+  return safeRemainderSchema;
 };
