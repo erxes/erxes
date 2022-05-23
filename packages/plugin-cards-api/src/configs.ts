@@ -1,6 +1,5 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import * as serverTiming from 'server-timing';
 
 import { initBroker, sendSegmentsMessage } from './messageBroker';
 import * as permissions from './permissions';
@@ -61,7 +60,6 @@ export default {
 
     return context;
   },
-  middlewares: [serverTiming],
   onServerInit: async options => {
     mainDb = options.db;
 
