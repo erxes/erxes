@@ -228,7 +228,9 @@ export const initBroker = async cl => {
         client.sendMessage('automations:trigger', {
           data: {
             type: `contacts:${customer.state}`,
-            targets: [{ ...customer, ...submissionValues }]
+            targets: [
+              { ...customer, isFormSubmission: true, ...submissionValues }
+            ]
           }
         });
       }
