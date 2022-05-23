@@ -7,7 +7,7 @@ import { BOARD_STATUSES } from '../../models/definitions/constants';
 import { checkPermission } from '@erxes/api-utils/src';
 import { sendCardsMessage, sendContactsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
-import { authCookieOptions, cpUserMiddleware } from '../../auth/authUtils';
+import { authCookieOptions } from '../../auth/authUtils';
 import { ILoginParams } from '../../models/ClientPortal';
 
 type UserEdit = {

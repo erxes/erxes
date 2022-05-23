@@ -4,6 +4,8 @@ import * as permissions from './permissions';
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import cpUserMiddleware from './middlewares/cpUserMiddleware';
+import * as cookieParser from 'cookie-parser';
 
 export let graphqlPubsub;
 export let mainDb;
@@ -41,7 +43,9 @@ export default {
 
     return context;
   },
+  middlewares: [cookieParser(), cpUserMiddleware],
   onServerInit: async options => {
+    const app = options.app;
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);

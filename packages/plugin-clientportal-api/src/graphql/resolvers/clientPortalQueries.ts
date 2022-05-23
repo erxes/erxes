@@ -1,7 +1,6 @@
 // TODO: check if related stages are selected in client portal config
 
 import { paginate } from '@erxes/api-utils/src';
-import { cpUserMiddleware } from '../../auth/authUtils';
 import { IContext } from '../../connectionResolver';
 import {
   sendCardsMessage,
@@ -197,9 +196,10 @@ const clientPortalUserQueries = {
   },
 
   async clientPortalCurrentUser(_root, _args, context: IContext) {
-    cpUserMiddleware(context);
     const { cpUser } = context;
 
+    // console.log(":::::::::::::::::::::::::::::: ",context.requestInfo)
+    console.log('****************************** ', cpUser);
     return cpUser
       ? context.models.ClientPortalUsers.findOne({ _id: cpUser._id })
       : null;
