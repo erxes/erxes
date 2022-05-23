@@ -197,13 +197,14 @@ const actionCreate = async ({
       create
     );
 
+    const mainType = execution.triggerType.split(':')[1];
     await sendCoreMessage({
       subdomain,
       action: 'conformities.addConformity',
       data: {
-        mainType: execution.triggerType,
+        mainType: mainType.replace('lead', 'customer'),
         mainTypeId: execution.targetId,
-        relType: `cards:${collectionType}`,
+        relType: `${collectionType}`,
         relTypeId: item._id
       }
     });
