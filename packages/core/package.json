@@ -30,8 +30,7 @@
     "migrateContentType": "node_modules/.bin/ts-node src/commands/migrateContentType.ts",
     "migrateLogs": "node_modules/.bin/ts-node src/commands/migrateLogs.ts",
     "migrateFieldsGroups": "node_modules/.bin/ts-node src/commands/migrateFieldsGroups.ts",
-    "migrateApps": "node_modules/.bin/ts-node src/commands/migrateApps.ts",
-    "migrateN": "node_modules/.bin/ts-node src/commands/migrateNeighbor.js"
+    "migrateApps": "node_modules/.bin/ts-node src/commands/migrateApps.ts"
   },
   "dependencies": {
     "apollo-datasource-rest": "^0.5.1",
