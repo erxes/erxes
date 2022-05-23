@@ -12,6 +12,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import CompanyDetails from '../../components/detail/CompanyDetails';
 import { queries } from '../../graphql';
 import { DetailQueryResponse, ICompany } from '../../types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   id: string;
@@ -24,7 +25,12 @@ type FinalProps = {
 } & Props;
 
 const CompanyDetailsContainer = (props: FinalProps) => {
-  const { id, companyDetailQuery, currentUser, fieldsGroupsQuery } = props;
+  const {
+    id,
+    companyDetailQuery,
+    currentUser,
+    fieldsGroupsQuery = {} as SystemFieldsGroupsQueryResponse
+  } = props;
 
   if (companyDetailQuery.loading) {
     return <Spinner objective={true} />;
@@ -42,7 +48,7 @@ const CompanyDetailsContainer = (props: FinalProps) => {
 
   const fields = (fieldsGroupsQuery.getSystemFieldsGroup || {}).fields || [];
 
-  const companyDetail = companyDetailQuery.companyDetail || {} as ICompany;
+  const companyDetail = companyDetailQuery.companyDetail || ({} as ICompany);
 
   const taggerRefetchQueries = [
     {
@@ -84,7 +90,8 @@ export default withProps<Props>(
           variables: {
             contentType: FIELDS_GROUPS_CONTENT_TYPES.COMPANY
           }
-        })
+        }),
+        skip: !isEnabled('forms')
       }
     )
   )(CompanyDetailsContainer)

@@ -6,7 +6,7 @@ import { ICar } from '../types';
 
 // get car options for react-select-plus
 export function generateCarOptions(array: ICar[] = []): IOption[] {
-  return array.map((item) => {
+  return array.map(item => {
     const car = item || ({} as ICar);
 
     return {
@@ -39,13 +39,7 @@ export default ({
       label={label}
       queryName="cars"
       name={name}
-      values={
-        typeof defaultValue === 'string'
-          ? multi
-            ? [defaultValue]
-            : defaultValue
-          : defaultValue
-      }
+      initialValue={defaultValue}
       generateOptions={generateCarOptions}
       onSelect={onSelect}
       customQuery={queries.cars}

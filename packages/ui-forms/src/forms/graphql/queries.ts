@@ -87,15 +87,13 @@ const formSubmissions = `
 query formSubmissions(
   $tagId: String
   $formId: String
-  $contentTypeIds: [String]
   $filters: [SubmissionFilter]
-  $page: Int
+  $page: Int,
   $perPage: Int
 ) {
   formSubmissions(
     tagId: $tagId
     formId: $formId
-    contentTypeIds: $contentTypeIds
     filters: $filters
     page: $page
     perPage: $perPage
@@ -120,8 +118,8 @@ query formSubmissions(
 `;
 
 const formSubmissionTotalCount = `
-  query formSubmissionsTotalCount($integrationId: String!) {
-    formSubmissionsTotalCount(integrationId: $integrationId)
+  query formSubmissionsTotalCount($formId: String) {
+    formSubmissionsTotalCount(formId: $formId)
   }
 `;
 

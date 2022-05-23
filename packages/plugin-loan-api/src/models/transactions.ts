@@ -26,7 +26,7 @@ export const loadTransactionClass = models => {
      */
 
     public static async getTransaction(selector: any) {
-      const transaction = await models.LoanTransactions.findOne(selector);
+      const transaction = await models.Transactions.findOne(selector);
 
       if (!transaction) {
         throw new Error('Transaction not found');
@@ -41,21 +41,21 @@ export const loadTransactionClass = models => {
     public static async createTransaction(messageBroker, memoryStorage, doc) {
       doc = { ...doc, ...(await findContractOfTr(models, doc)) };
 
-      const contract = await models.LoanContracts.findOne({
+      const contract = await models.Contracts.findOne({
         _id: doc.contractId
       }).lean();
       if (!contract || !contract._id) {
-        return models.LoanTransactions.create({ ...doc });
+        return models.Transactions.create({ ...doc });
       }
 
       if (doc.invoiceId) {
-        await models.LoanInvoices.updateInvoice(models, doc.invoiceId, {
+        await models.Invoices.updateInvoice(models, doc.invoiceId, {
           status: INVOICE_STATUS.DONE
         });
       }
 
       const trInfo = await transactionRule(models, memoryStorage, { ...doc });
-      const tr = await models.LoanTransactions.create({ ...doc, ...trInfo });
+      const tr = await models.Transactions.create({ ...doc, ...trInfo });
 
       await trAfterSchedule(models, tr);
 
@@ -75,33 +75,33 @@ export const loadTransactionClass = models => {
     ) {
       doc = { ...doc, ...(await findContractOfTr(models, doc)) };
 
-      const oldTr = await models.LoanTransactions.getTransaction(models, {
+      const oldTr = await models.Transactions.getTransaction(models, {
         _id
       });
 
-      const contract = await models.LoanContracts.findOne({
+      const contract = await models.Contracts.findOne({
         _id: doc.contractId
       }).lean();
       if (!contract || !contract._id) {
-        await models.LoanTransactions.updateOne({ _id }, { $set: { ...doc } });
-        return models.LoanTransactions.getTransaction(models, { _id });
+        await models.Transactions.updateOne({ _id }, { $set: { ...doc } });
+        return models.Transactions.getTransaction(models, { _id });
       }
 
       await removeTrAfterSchedule(models, oldTr);
 
       if (doc.invoiceId) {
-        await models.LoanInvoices.updateInvoice(models, doc.invoiceId, {
+        await models.Invoices.updateInvoice(models, doc.invoiceId, {
           status: INVOICE_STATUS.DONE
         });
       }
 
       const trInfo = await transactionRule(models, memoryStorage, { ...doc });
 
-      await models.LoanTransactions.updateOne(
+      await models.Transactions.updateOne(
         { _id },
         { $set: { ...doc, ...trInfo } }
       );
-      const newTr = await models.LoanTransactions.getTransaction(models, {
+      const newTr = await models.Transactions.getTransaction(models, {
         _id
       });
 
@@ -120,16 +120,16 @@ export const loadTransactionClass = models => {
       _id,
       doc
     ) {
-      const oldTr = await models.LoanTransactions.getTransaction(models, {
+      const oldTr = await models.Transactions.getTransaction(models, {
         _id
       });
 
-      const contract = await models.LoanContracts.findOne({
+      const contract = await models.Contracts.findOne({
         _id: oldTr.contractId
       }).lean();
       if (!contract || !contract._id) {
-        await models.LoanTransactions.updateOne({ _id }, { $set: { ...doc } });
-        return models.LoanTransactions.getTransaction(models, { _id });
+        await models.Transactions.updateOne({ _id }, { $set: { ...doc } });
+        return models.Transactions.getTransaction(models, { _id });
       }
 
       const oldSchedule = await models.RepaymentSchedules.findOne({
@@ -160,11 +160,11 @@ export const loadTransactionClass = models => {
         (doc.insurance || 0) +
         (doc.debt || 0);
 
-      await models.LoanTransactions.updateOne(
+      await models.Transactions.updateOne(
         { _id },
         { $set: { ...doc, total: newTotal } }
       );
-      let newTr = await models.LoanTransactions.getTransaction(models, { _id });
+      let newTr = await models.Transactions.getTransaction(models, { _id });
 
       const newBalance =
         oldSchedule.balance + oldSchedule.didPayment - doc.payment;
@@ -227,7 +227,7 @@ export const loadTransactionClass = models => {
           };
         }> = [];
 
-        newTr = await models.LoanTransactions.findOne({
+        newTr = await models.Transactions.findOne({
           _id: newTr._id
         }).lean();
         trReaction = newTr.reactions;
@@ -262,7 +262,7 @@ export const loadTransactionClass = models => {
         }
 
         await models.RepaymentSchedules.bulkWrite(bulkOps);
-        await models.LoanTransactions.updateOne(
+        await models.Transactions.updateOne(
           { _id: newTr._id },
           {
             $set: { reactions: trReaction }
@@ -279,14 +279,14 @@ export const loadTransactionClass = models => {
      */
     public static async removeTransactions(_ids) {
       for (const _id of _ids) {
-        const oldTr = await models.LoanTransactions.findOne({ _id });
+        const oldTr = await models.Transactions.findOne({ _id });
 
         if (oldTr) {
           await removeTrAfterSchedule(models, oldTr);
         }
       }
 
-      return models.LoanTransactions.deleteMany({ _id: { $in: _ids } });
+      return models.Transactions.deleteMany({ _id: { $in: _ids } });
     }
   }
   transactionSchema.loadClass(Transaction);

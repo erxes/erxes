@@ -1,18 +1,20 @@
-import { BOARD_STATUSES } from "../../../models/definitions/constants";
-import { paginate, regexSearchText } from "@erxes/api-utils/src";
-import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
-import { getCollection } from "../../../models/utils";
-import { IStageDocument } from "../../../models/definitions/boards";
-import { CLOSE_DATE_TYPES, PRIORITIES } from "../../../constants";
-import { IPipelineLabelDocument } from "../../../models/definitions/pipelineLabels";
-import { getCloseDateByType } from "./utils";
+import { BOARD_STATUSES } from '../../../models/definitions/constants';
+import { paginate, regexSearchText } from '@erxes/api-utils/src';
+import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import { getCollection } from '../../../models/utils';
+import { IStageDocument } from '../../../models/definitions/boards';
+import { CLOSE_DATE_TYPES, PRIORITIES } from '../../../constants';
+import { IPipelineLabelDocument } from '../../../models/definitions/pipelineLabels';
+import { getCloseDateByType } from './utils';
 import {
   fetchSegment,
   sendCoreMessage,
   sendFormsMessage,
-  sendSegmentsMessage,
-} from "../../../messageBroker";
-import { IContext } from "../../../connectionResolver";
+  sendSegmentsMessage
+} from '../../../messageBroker';
+import { IContext } from '../../../connectionResolver';
+import { getContentTypeDetail } from '../../../utils';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
 export interface IDate {
   month: number;
@@ -29,6 +31,7 @@ export interface IConformityQueryParams {
 export interface IListParams extends IConformityQueryParams {
   pipelineId: string;
   stageId: string;
+  _ids?: string;
   skip?: number;
   limit?: number;
   date?: IDate;
@@ -56,43 +59,43 @@ const boardQueries = {
       ? {}
       : {
           $or: [
-            { $eq: ["$visibility", "public"] },
+            { $eq: ['$visibility', 'public'] },
             {
               $and: [
-                { $eq: ["$visibility", "private"] },
+                { $eq: ['$visibility', 'private'] },
                 {
                   $or: [
-                    { $in: [user._id, "$memberIds"] },
-                    { $eq: ["$userId", user._id] },
-                  ],
-                },
-              ],
-            },
-          ],
+                    { $in: [user._id, '$memberIds'] },
+                    { $eq: ['$userId', user._id] }
+                  ]
+                }
+              ]
+            }
+          ]
         };
 
     return Boards.aggregate([
       { $match: { ...commonQuerySelector, type } },
       {
         $lookup: {
-          from: "pipelines",
-          let: { boardId: "$_id" },
+          from: 'pipelines',
+          let: { boardId: '$_id' },
           pipeline: [
             {
               $match: {
                 $expr: {
                   $and: [
-                    { $eq: ["$boardId", "$$boardId"] },
-                    { ...pipelineFilter },
-                  ],
-                },
-              },
+                    { $eq: ['$boardId', '$$boardId'] },
+                    { ...pipelineFilter }
+                  ]
+                }
+              }
             },
-            { $project: { name: 1 } },
+            { $project: { name: 1 } }
           ],
-          as: "pipelines",
-        },
-      },
+          as: 'pipelines'
+        }
+      }
     ]);
   },
 
@@ -106,7 +109,7 @@ const boardQueries = {
   ) {
     const boards = await Boards.find({ ...commonQuerySelector, type })
       .sort({
-        name: 1,
+        name: 1
       })
       .lean();
 
@@ -116,19 +119,19 @@ const boardQueries = {
 
     for (const board of boards) {
       const count = await Pipelines.find({
-        boardId: board._id,
+        boardId: board._id
       }).count();
 
       counts.push({
         _id: board._id,
-        name: board.name || "",
-        count,
+        name: board.name || '',
+        count
       });
 
       allCount += count;
     }
 
-    counts.unshift({ _id: "", name: "All", count: allCount });
+    counts.unshift({ _id: '', name: 'All', count: allCount });
 
     return counts;
   },
@@ -154,7 +157,7 @@ const boardQueries = {
   ) {
     return Boards.findOne({ ...commonQuerySelector, type })
       .sort({
-        createdAt: -1,
+        createdAt: -1
       })
       .lean();
   },
@@ -182,32 +185,32 @@ const boardQueries = {
       user.isOwner || isAll
         ? {}
         : {
-            status: { $ne: "archived" },
+            status: { $ne: 'archived' },
             $or: [
-              { visibility: "public" },
+              { visibility: 'public' },
               {
                 $and: [
-                  { visibility: "private" },
+                  { visibility: 'private' },
                   {
                     $or: [
                       { memberIds: { $in: [user._id] } },
-                      { userId: user._id },
-                    ],
-                  },
-                ],
-              },
-            ],
+                      { userId: user._id }
+                    ]
+                  }
+                ]
+              }
+            ]
           };
 
     if (!user.isOwner && !isAll) {
       const departments = await sendCoreMessage({
         subdomain,
-        action: "departments.find",
+        action: 'departments.find',
         data: {
-          userIds: { $in: [user._id] },
+          userIds: { $in: [user._id] }
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       const departmentIds = departments.map(d => d._id);
@@ -215,9 +218,9 @@ const boardQueries = {
       if (query !== {} && departmentIds.length > 0) {
         query.$or.push({
           $and: [
-            { visibility: "private" },
-            { departmentIds: { $in: departmentIds } },
-          ],
+            { visibility: 'private' },
+            { departmentIds: { $in: departmentIds } }
+          ]
         });
       }
     }
@@ -264,26 +267,26 @@ const boardQueries = {
 
     const notStartedQuery = {
       ...query,
-      startDate: { $gt: now },
+      startDate: { $gt: now }
     };
 
     const notStartedCount = await Pipelines.find(notStartedQuery).count();
 
-    counts["Not started"] = notStartedCount;
+    counts['Not started'] = notStartedCount;
 
     const inProgressQuery = {
       ...query,
       startDate: { $lt: now },
-      endDate: { $gt: now },
+      endDate: { $gt: now }
     };
 
     const inProgressCount = await Pipelines.find(inProgressQuery).count();
 
-    counts["In progress"] = inProgressCount;
+    counts['In progress'] = inProgressCount;
 
     const completedQuery = {
       ...query,
-      endDate: { $lt: now },
+      endDate: { $lt: now }
     };
 
     const completedCounted = await Pipelines.find(completedQuery).count();
@@ -316,18 +319,18 @@ const boardQueries = {
   ) {
     const pipeline = await models.Pipelines.getPipeline(_id);
     const stageIds = await models.Stages.find({
-      pipelineId: pipeline._id,
-    }).distinct("_id");
+      pipelineId: pipeline._id
+    }).distinct('_id');
 
     const { collection } = getCollection(models, pipeline.type);
 
     const assignedUserIds = await collection
       .find({ stageId: { $in: stageIds } })
-      .distinct("assignedUserIds");
+      .distinct('assignedUserIds');
 
     return assignedUserIds.map(userId => ({
-      __typename: "User",
-      _id: userId || "",
+      __typename: 'User',
+      _id: userId || ''
     }));
   },
 
@@ -339,7 +342,7 @@ const boardQueries = {
     {
       pipelineId,
       isNotLost,
-      isAll,
+      isAll
     }: { pipelineId: string; isNotLost: boolean; isAll: boolean },
     { user, models: { Stages }, subdomain }: IContext
   ) {
@@ -348,27 +351,27 @@ const boardQueries = {
     filter.pipelineId = pipelineId;
 
     if (isNotLost) {
-      filter.probability = { $ne: "Lost" };
+      filter.probability = { $ne: 'Lost' };
     }
 
     if (!isAll) {
       filter.status = { $ne: BOARD_STATUSES.ARCHIVED };
 
       filter.$or = [
-        { visibility: { $in: ["public", null] } },
+        { visibility: { $in: ['public', null] } },
         {
-          $and: [{ visibility: "private" }, { memberIds: { $in: [user._id] } }],
-        },
+          $and: [{ visibility: 'private' }, { memberIds: { $in: [user._id] } }]
+        }
       ];
 
       const departments = await sendCoreMessage({
         subdomain,
-        action: "departments.find",
+        action: 'departments.find',
         data: {
-          userIds: { $in: [user._id] },
+          userIds: { $in: [user._id] }
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       const departmentIds = departments.map(d => d._id);
@@ -376,9 +379,9 @@ const boardQueries = {
       if (departmentIds.length > 0) {
         filter.$or.push({
           $and: [
-            { visibility: "private" },
-            { departmentIds: { $in: departmentIds } },
-          ],
+            { visibility: 'private' },
+            { departmentIds: { $in: departmentIds } }
+          ]
         });
       }
     }
@@ -393,7 +396,7 @@ const boardQueries = {
     {
       pipelineId,
       type,
-      stackBy,
+      stackBy
     }: { pipelineId: string; type: string; stackBy: string },
     { models, subdomain }: IContext
   ) {
@@ -412,47 +415,47 @@ const boardQueries = {
 
     const filter: any = {
       stageId: { $in: stageIds },
-      status: BOARD_STATUSES.ACTIVE,
+      status: BOARD_STATUSES.ACTIVE
     };
 
     switch (stackBy) {
-      case "priority": {
+      case 'priority': {
         groups = PRIORITIES.ALL;
 
         filter.priority = { $in: PRIORITIES.ALL.map(p => p.name) };
 
         detailFilter = ({ name }: { name: string }) => ({
           priority: name,
-          stageId: { $in: stageIds },
+          stageId: { $in: stageIds }
         });
 
         break;
       }
 
-      case "label": {
+      case 'label': {
         const labels = await PipelineLabels.find({ pipelineId });
         groups = labels.map(label => ({
           _id: label._id,
           name: label.name,
-          color: label.colorCode,
+          color: label.colorCode
         }));
 
         filter.labelIds = { $in: labels.map(g => g._id) };
 
         detailFilter = (label: IPipelineLabelDocument) => ({
           labelIds: { $in: [label._id] },
-          stageId: { $in: stageIds },
+          stageId: { $in: stageIds }
         });
 
         break;
       }
 
-      case "dueDate": {
+      case 'dueDate': {
         groups = CLOSE_DATE_TYPES.ALL;
 
         detailFilter = ({ value }: { value: string }) => ({
           closeDate: getCloseDateByType(value),
-          stageId: { $in: stageIds },
+          stageId: { $in: stageIds }
         });
 
         break;
@@ -462,7 +465,7 @@ const boardQueries = {
       default: {
         groups = stages.map(stage => ({
           _id: stage._id,
-          name: stage.name,
+          name: stage.name
         }));
 
         detailFilter = (stage: IStageDocument) => ({ stageId: stage._id });
@@ -473,7 +476,7 @@ const boardQueries = {
 
     const assignedUserIds = await collection
       .find(filter)
-      .distinct("assignedUserIds");
+      .distinct('assignedUserIds');
 
     if (assignedUserIds.length === 0) {
       return {};
@@ -481,14 +484,14 @@ const boardQueries = {
 
     const users = await sendCoreMessage({
       subdomain,
-      action: "users.find",
+      action: 'users.find',
       data: {
         query: {
-          _id: { $in: assignedUserIds },
-        },
+          _id: { $in: assignedUserIds }
+        }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     const usersWithInfo: Array<{ name: string }> = [];
@@ -496,20 +499,20 @@ const boardQueries = {
 
     for (const groupItem of groups) {
       const countsByGroupItem = await collection.find({
-        "assignedUserIds.0": { $exists: true },
+        'assignedUserIds.0': { $exists: true },
         status: BOARD_STATUSES.ACTIVE,
-        ...detailFilter(groupItem),
+        ...detailFilter(groupItem)
       });
 
-      countsByGroup[groupItem.name || ""] = countsByGroupItem;
+      countsByGroup[groupItem.name || ''] = countsByGroupItem;
     }
 
     for (const user of users) {
       const groupWithCount = {};
 
       for (const groupItem of groups) {
-        groupWithCount[groupItem.name || ""] = countsByGroup[
-          groupItem.name || ""
+        groupWithCount[groupItem.name || ''] = countsByGroup[
+          groupItem.name || ''
         ].filter(item =>
           (item.assignedUserIds || []).includes(user._id)
         ).length;
@@ -517,15 +520,15 @@ const boardQueries = {
 
       usersWithInfo.push({
         name: user.details
-          ? user.details.fullName || user.email || "No name"
-          : "No name",
-        ...groupWithCount,
+          ? user.details.fullName || user.email || 'No name'
+          : 'No name',
+        ...groupWithCount
       });
     }
 
     return {
       usersWithInfo,
-      groups,
+      groups
     };
   },
 
@@ -556,7 +559,7 @@ const boardQueries = {
     const filter: any = { pipelineId, status: BOARD_STATUSES.ARCHIVED };
 
     if (search) {
-      Object.assign(filter, regexSearchText(search, "name"));
+      Object.assign(filter, regexSearchText(search, 'name'));
     }
 
     return paginate(Stages.find(filter).sort({ createdAt: -1 }), listArgs);
@@ -570,7 +573,7 @@ const boardQueries = {
     const filter: any = { pipelineId, status: BOARD_STATUSES.ARCHIVED };
 
     if (search) {
-      Object.assign(filter, regexSearchText(search, "name"));
+      Object.assign(filter, regexSearchText(search, 'name'));
     }
 
     return Stages.count(filter);
@@ -585,9 +588,9 @@ const boardQueries = {
     { models: { Deals, Stages, Pipelines, Boards, Tasks, Tickets } }: IContext
   ) {
     const filter = { sourceConversationIds: { $in: [conversationId] } };
-    let dealUrl = "";
-    let ticketUrl = "";
-    let taskUrl = "";
+    let dealUrl = '';
+    let ticketUrl = '';
+    let taskUrl = '';
 
     const deal = await Deals.findOne(filter).lean();
 
@@ -622,7 +625,7 @@ const boardQueries = {
     return {
       dealUrl,
       ticketUrl,
-      taskUrl,
+      taskUrl
     };
   },
 
@@ -631,22 +634,22 @@ const boardQueries = {
     {
       type,
       boardId,
-      pipelineId,
+      pipelineId
     }: { type: string; boardId: string; pipelineId: string },
     { subdomain }: IContext
   ) {
     const segments = await sendSegmentsMessage({
       subdomain,
-      action: "find",
+      action: 'find',
       data: {
         contentType: type,
         config: {
           boardId,
-          pipelineId,
-        },
+          pipelineId
+        }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     const counts = {};
@@ -654,28 +657,113 @@ const boardQueries = {
     for (const segment of segments) {
       counts[segment._id] = await fetchSegment(subdomain, segment._id, {
         pipelineId,
-        returnCount: true,
+        returnCount: true
       });
     }
 
     return counts;
   },
 
+  async boardContentTypeDetail(_root, args, { subdomain }: IContext) {
+    return getContentTypeDetail(subdomain, args);
+  },
+
+  async boardLogs(_root, args, { subdomain, models }: IContext) {
+    const { Deals, Tasks, GrowthHacks, Tickets, Stages } = models;
+    const { action, content, contentType, contentId } = args;
+
+    const type = contentType.split(':')[0];
+
+    if (action === 'moved') {
+      let item = {};
+
+      switch (type) {
+        case 'deal':
+          item = await Deals.getDeal(contentId);
+          break;
+        case 'task':
+          item = await Tasks.getTask(contentId);
+          break;
+        case 'growthHack':
+          item = await GrowthHacks.getGrowthHack(contentId);
+          break;
+        case 'ticket':
+          item = await Tickets.getTicket(contentId);
+          break;
+        default:
+          break;
+      }
+
+      const { oldStageId, destinationStageId } = content;
+
+      const destinationStage = await Stages.findOne({
+        _id: destinationStageId
+      }).lean();
+
+      const oldStage = await Stages.findOne({ _id: oldStageId }).lean();
+
+      if (destinationStage && oldStage) {
+        return {
+          destinationStage: destinationStage.name,
+          oldStage: oldStage.name,
+          item
+        };
+      }
+
+      return {
+        text: content.text
+      };
+    }
+
+    if (action === 'assignee') {
+      let addedUsers: IUserDocument[] = [];
+      let removedUsers: IUserDocument[] = [];
+
+      if (content) {
+        addedUsers = await sendCoreMessage({
+          subdomain,
+          action: 'users.find',
+          data: {
+            query: {
+              _id: { $in: content.addedUserIds }
+            }
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+
+        removedUsers = await sendCoreMessage({
+          subdomain,
+          action: 'users.find',
+          data: {
+            query: {
+              _id: { $in: content.removedUserIds }
+            }
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+      }
+
+      return { addedUsers, removedUsers };
+    }
+  },
+
   async cardsFields(_root, _args, { models, subdomain }: IContext) {
     const result = {};
 
-    for (const ct of ["deal", "ticket", "task"]) {
+    for (const ct of ['deal', 'ticket', 'task']) {
       result[ct] = [];
 
       const groups = await sendFormsMessage({
         subdomain,
-        action: "fieldsGroups.find",
+        action: 'fieldsGroups.find',
         data: {
           query: {
-            contentType: ct,
-          },
+            contentType: ct
+          }
         },
-        isRPC: true,
+        isRPC: true
       });
 
       for (const group of groups) {
@@ -683,17 +771,17 @@ const boardQueries = {
 
         const fields = await sendFormsMessage({
           subdomain,
-          action: "fields.find",
+          action: 'fields.find',
           data: {
             query: {
-              groupId: group._id,
-            },
+              groupId: group._id
+            }
           },
-          isRPC: true,
+          isRPC: true
         });
 
         const pipelines = await models.Pipelines.find({
-          _id: { $in: config.pipelineIds || [] },
+          _id: { $in: config.pipelineIds || [] }
         });
 
         for (const pipeline of pipelines) {
@@ -704,7 +792,7 @@ const boardQueries = {
               boardName: board.name,
               pipelineName: pipeline.name,
               fieldId: field._id,
-              fieldName: field.text,
+              fieldName: field.text
             });
           }
         }
@@ -712,7 +800,7 @@ const boardQueries = {
     }
 
     return result;
-  },
+  }
 };
 
 moduleRequireLogin(boardQueries);

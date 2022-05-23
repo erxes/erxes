@@ -32,7 +32,7 @@ const sendNotification = async (
     notifType,
     action,
     contentType,
-    contentTypeId,
+    contentTypeId
   } = doc;
 
   const link = doc.link;
@@ -95,7 +95,7 @@ const sendNotification = async (
           receiver: receiverId,
           action,
           contentType,
-          contentTypeId,
+          contentTypeId
         },
         createdUser._id
       );
@@ -105,8 +105,8 @@ const sendNotification = async (
           _id: notification._id,
           userId: receiverId,
           title: notification.title,
-          content: notification.content,
-        },
+          content: notification.content
+        }
       });
     } catch (e) {
       // Any other error is serious
@@ -118,7 +118,7 @@ const sendNotification = async (
 
   // for controlling email template data filling
   const modifier = (data: any, email: string) => {
-    const user = recipients.find((item) => item.email === email);
+    const user = recipients.find(item => item.email === email);
 
     if (user) {
       data.uid = user._id;
@@ -137,16 +137,16 @@ const sendNotification = async (
           data: {
             notification: { ...doc, link },
             action,
-            userName: getUserDetail(createdUser),
-          },
-        },
+            userName: getUserDetail(createdUser)
+          }
+        }
       },
-      modifier,
-    },
+      modifier
+    }
   });
 };
 
-export const initBroker = async (cl) => {
+export const initBroker = async cl => {
   client = cl;
 
   const { consumeRPCQueue, consumeQueue } = cl;
@@ -170,25 +170,28 @@ export const initBroker = async (cl) => {
       const models = await generateModels(subdomain);
       return {
         status: 'success',
-        data: await models.Notifications.checkIfRead(userId, itemId),
+        data: await models.Notifications.checkIfRead(userId, itemId)
       };
     }
   );
 
-  consumeRPCQueue('notifications:find', async ({ subdomain, data: { selector, fields } }) => {
-    const models = await generateModels(subdomain);
-    return {
-      status: 'success',
-      data: await models.Notifications.find(selector, fields),
-    };
-  });
+  consumeRPCQueue(
+    'notifications:find',
+    async ({ subdomain, data: { selector, fields } }) => {
+      const models = await generateModels(subdomain);
+      return {
+        status: 'success',
+        data: await models.Notifications.find(selector, fields)
+      };
+    }
+  );
 };
 
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: "core",
+    serviceName: 'core',
     ...args
   });
 };

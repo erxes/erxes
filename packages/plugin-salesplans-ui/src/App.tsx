@@ -5,7 +5,7 @@ import { AppProvider } from '@erxes/ui/src/appContext';
 import { dummyUser } from '@erxes/ui/src/constants/dummy-data';
 
 const App = () => {
-  console.log('wtffff');
+  console.log('sfsfsgdfghsdghfdgh');
   return (
     <AppProvider currentUser={dummyUser}>
       <PluginLayout>

@@ -88,10 +88,8 @@ const contractQueries = {
     params,
     { commonQuerySelector, models, checkPermission, user }
   ) => {
-    await checkPermission('showContracts', user);
-
     return paginate(
-      models.LoanContracts.find(
+      models.Contracts.find(
         await generateFilter(models, params, commonQuerySelector)
       ),
       {
@@ -110,18 +108,14 @@ const contractQueries = {
     params,
     { commonQuerySelector, models, checkPermission, user }
   ) => {
-    await checkPermission('showContracts', user);
     const filter = await generateFilter(models, params, commonQuerySelector);
 
     return {
-      list: paginate(
-        models.LoanContracts.find(filter).sort(sortBuilder(params)),
-        {
-          page: params.page,
-          perPage: params.perPage
-        }
-      ),
-      totalCount: models.LoanContracts.find(filter).count()
+      list: paginate(models.Contracts.find(filter).sort(sortBuilder(params)), {
+        page: params.page,
+        perPage: params.perPage
+      }),
+      totalCount: models.Contracts.find(filter).count()
     };
   },
 
@@ -130,8 +124,7 @@ const contractQueries = {
    */
 
   contractDetail: async (_root, { _id }, { models, checkPermission, user }) => {
-    await checkPermission('showContracts', user);
-    return models.LoanContracts.getContract(models, { _id });
+    return models.Contracts.getContract(models, { _id });
   },
   cpContracts: async (_root, params, { models }) => {
     const mainType = params.cpUserType || 'customer';
@@ -147,7 +140,7 @@ const contractQueries = {
         relTypes: ['contract']
       });
 
-      return models.LoanContracts.find({ _id: { $in: contractIds } }).sort({
+      return models.Contracts.find({ _id: { $in: contractIds } }).sort({
         createdAt: -1
       });
     }
@@ -178,17 +171,17 @@ const contractQueries = {
       relTypes: ['contract']
     });
 
-    return models.LoanContracts.find({ _id: { $in: contractIds } }).sort({
+    return models.Contracts.find({ _id: { $in: contractIds } }).sort({
       createdAt: -1
     });
   },
 
   cpContractDetail: async (_root, { _id }, { models }) => {
-    return models.LoanContracts.getContract(models, { _id });
+    return models.Contracts.getContract(models, { _id });
   },
 
   closeInfo: async (_root, { contractId, date }, { models, memoryStorage }) => {
-    const contract = await models.LoanContracts.getContract(models, {
+    const contract = await models.Contracts.getContract(models, {
       _id: contractId
     });
     return getCloseInfo(models, memoryStorage, contract, date);
@@ -197,5 +190,6 @@ const contractQueries = {
 
 checkPermission(contractQueries, 'contractsMain', 'showContracts');
 checkPermission(contractQueries, 'contractDetail', 'showContracts');
+checkPermission(contractQueries, 'contracts', 'showContracts');
 
 export default contractQueries;

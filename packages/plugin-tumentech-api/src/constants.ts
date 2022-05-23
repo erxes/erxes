@@ -174,14 +174,9 @@ export const CAR_SELECT_OPTIONS = {
   ]
 };
 
-             
 export const PARTICIPATION_STATUSES = {
   PARTICIPATING: 'participating',
   LOSE: 'lose',
   WON: 'won',
-  ALL: [
-    'participating',
-    'lose',
-    'won',
-  ]
+  ALL: ['participating', 'lose', 'won']
 };

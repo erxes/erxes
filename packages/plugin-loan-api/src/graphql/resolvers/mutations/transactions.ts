@@ -8,7 +8,7 @@ const transactionMutations = {
     doc,
     { user, docModifier, models, checkPermission, memoryStorage, messageBroker }
   ) => {
-    const transaction = models.LoanTransactions.createTransaction(
+    const transaction = models.Transactions.createTransaction(
       models,
       messageBroker,
       memoryStorage,
@@ -40,11 +40,11 @@ const transactionMutations = {
     { _id, ...doc },
     { models, checkPermission, memoryStorage, user, messageBroker }
   ) => {
-    const transaction = await models.LoanTransactions.getTransaction(models, {
+    const transaction = await models.Transactions.getTransaction(models, {
       _id
     });
 
-    const updated = await models.LoanTransactions.updateTransaction(
+    const updated = await models.Transactions.updateTransaction(
       models,
       messageBroker,
       memoryStorage,
@@ -77,11 +77,11 @@ const transactionMutations = {
     { _id, ...doc },
     { models, checkPermission, memoryStorage, user, messageBroker }
   ) => {
-    const transaction = await models.LoanTransactions.getTransaction(models, {
+    const transaction = await models.Transactions.getTransaction(models, {
       _id
     });
 
-    const updated = await models.LoanTransactions.changeTransaction(
+    const updated = await models.Transactions.changeTransaction(
       models,
       messageBroker,
       memoryStorage,
@@ -115,11 +115,11 @@ const transactionMutations = {
     { models, checkPermission, user, messageBroker }
   ) => {
     // TODO: contracts check
-    const transactions = await models.LoanTransactions.find({
+    const transactions = await models.Transactions.find({
       _id: { $in: transactionIds }
     }).lean();
 
-    await models.LoanTransactions.removeTransactions(models, transactionIds);
+    await models.Transactions.removeTransactions(models, transactionIds);
 
     for (const transaction of transactions) {
       await putDeleteLog(

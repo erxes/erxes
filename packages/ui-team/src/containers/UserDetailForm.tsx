@@ -51,10 +51,10 @@ type FinalProps = {
 const UserDetailFormContainer = (props: Props & FinalProps) => {
   const {
     userDetailQuery,
-    channelsQuery,
+    channelsQuery = {} as ChannelsQueryResponse,
     userConversationsQuery,
-    skillsQuery,
-    skillTypesQuery,
+    skillsQuery = {} as SkillsQueryResponse,
+    skillTypesQuery = {} as SkillTypesQueryResponse,
     userExcludeSkill,
     renderEditForm
   } = props;
@@ -87,7 +87,7 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
   }
 
   const { list = [], totalCount = 0 } =
-    userConversationsQuery && userConversationsQuery.userConversations || {};
+    (userConversationsQuery && userConversationsQuery.userConversations) || {};
 
   const renderButton = ({
     name,
@@ -191,20 +191,23 @@ export default withProps<Props>(
           perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
         }
       }),
-      skip: !isEnabled("inbox") ? true : false,
+      skip: !isEnabled('inbox')
     }),
     graphql(gql(channelQueries.channels), {
       name: 'channelsQuery',
-      options: commonOptions
+      options: commonOptions,
+      skip: !isEnabled('inbox')
     }),
     graphql<Props, SkillsQueryResponse>(gql(queries.userSkills), {
       name: 'skillsQuery',
       options: ({ _id }: { _id: string }) => ({
         variables: { memberIds: [_id] }
-      })
+      }),
+      skip: !isEnabled('inbox')
     }),
     graphql<Props, SkillTypesQueryResponse>(gql(skillQueries.skillTypes), {
-      name: 'skillTypesQuery'
+      name: 'skillTypesQuery',
+      skip: !isEnabled('inbox')
     }),
     graphql<Props, SkillsExcludeUserMutationResponse>(
       gql(mutations.userExcludeSkill),

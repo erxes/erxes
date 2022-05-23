@@ -33,7 +33,7 @@ class StageItem extends React.Component<Props> {
           label="Choose members"
           name="memberIds"
           initialValue={memberIds}
-          onSelect={(ids) => onChange(_id, 'memberIds', ids)}
+          onSelect={ids => onChange(_id, 'memberIds', ids)}
         />
         <Select
           value={departmentIds}
@@ -45,11 +45,11 @@ class StageItem extends React.Component<Props> {
               label: `${'---'.repeat(level)} ${node.title}`
             })
           )}
-          onChange={(options) =>
+          onChange={options =>
             onChange(
               _id,
               'departmentIds',
-              (options || []).map((o) => o.value)
+              (options || []).map(o => o.value)
             )
           }
           placeholder={__('Choose department ...')}
@@ -123,7 +123,15 @@ class StageItem extends React.Component<Props> {
         <FormControl
           defaultValue={stage.code}
           name="code"
-          placeholder={__('Stage code')}
+          placeholder={__('Code')}
+          autoFocus={true}
+          onChange={onChangeFormControl.bind(this, stage._id)}
+        />
+
+        <FormControl
+          defaultValue={stage.age}
+          name="age"
+          placeholder={__('Age')}
           autoFocus={true}
           onChange={onChangeFormControl.bind(this, stage._id)}
         />

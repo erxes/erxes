@@ -3,16 +3,16 @@ import { gql } from 'apollo-server-express';
 import {
   types as tumentechTypes,
   queries as tumentechQueries,
-  mutations as tumentechMutations,
+  mutations as tumentechMutations
 } from './schema/tumentech';
 
-const typeDefs = async (serviceDiscovery) => {
+const typeDefs = async serviceDiscovery => {
   const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
   const cardsAvailable = await serviceDiscovery.isEnabled('cards');
 
   const isEnabled = {
     contacts: isContactsEnabled,
-    cards: cardsAvailable,
+    cards: cardsAvailable
   };
 
   return gql`

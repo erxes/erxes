@@ -16,11 +16,11 @@ type Props = {
 };
 
 function CreateSalesPlanContainer({ closeModal, refetch }: Props) {
-  const units = useQuery(gql(queries.getUnits));
+  const units = useQuery(gql(queries.units));
 
-  const branches = useQuery(gql(queries.getBranches));
+  const branches = useQuery(gql(queries.branches));
 
-  const [save] = useMutation(gql(mutations.saveSalesLog));
+  const [save] = useMutation(gql(mutations.createSalesLog));
 
   const saveData = doc => {
     save({ variables: { ...doc } })
@@ -37,8 +37,8 @@ function CreateSalesPlanContainer({ closeModal, refetch }: Props) {
   return (
     <CreateSalesPlan
       save={saveData}
-      units={units.data ? units.data.getUnits : []}
-      branches={branches.data ? branches.data.getBranches : []}
+      units={units.data ? units.data.units : []}
+      branches={branches.data ? branches.data.branches : []}
       closeModal={closeModal}
     />
   );

@@ -13,13 +13,12 @@ const Events: any = {
     return this.sendRequest("events-identify-customer", { args });
   },
 
-  updateCustomerProperty({ name, value }: { name: string; value: any }) {
+  updateCustomerProperties(data: Array<{ name: string; value: any }>) {
     const customerId = getLocalStorageItem("customerId");
 
-    return this.sendRequest("events-update-customer-property", {
+    return this.sendRequest("events-update-customer-properties", {
       customerId,
-      name,
-      value
+      data
     });
   },
 

@@ -106,6 +106,7 @@ const queries = {
       buyerIds,
       waiterIds,
       stageCode,
+      stageChangedDate,
       limit,
       skip
     }
@@ -183,6 +184,10 @@ const queries = {
       dealFilter['productsData.productId'] = { $in: [...new Set(productIds)] };
     } else {
       dealFilter['productsData.0'] = { $exists: true };
+    }
+
+    if (stageChangedDate) {
+      dealFilter.stageChangedDate = { $gt: new Date(stageChangedDate) };
     }
 
     if (customFields) {

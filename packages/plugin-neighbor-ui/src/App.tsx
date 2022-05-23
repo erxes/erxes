@@ -1,11 +1,10 @@
-import React from "react";
-import { PluginLayout } from "@erxes/ui/src/styles/main";
-import GeneralRoutes from "./generalRoutes";
-import { AppProvider } from "@erxes/ui/src/appContext";
-import { dummyUser } from "@erxes/ui/src/constants/dummy-data";
+import React from 'react';
+import { PluginLayout } from '@erxes/ui/src/styles/main';
+import GeneralRoutes from './generalRoutes';
+import { AppProvider } from '@erxes/ui/src/appContext';
+import { dummyUser } from '@erxes/ui/src/constants/dummy-data';
 
 const App = () => {
-  console.log("wtffff");
   return (
     <AppProvider currentUser={dummyUser}>
       <PluginLayout>

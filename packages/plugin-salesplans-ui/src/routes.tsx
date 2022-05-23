@@ -5,18 +5,19 @@ import Home from './containers/Home';
 import SaleLogDetailsContainer from './containers/SaleLogDetails';
 
 const HomeDefault = () => {
-  console.log('ddddddddddddddd');
   return <Home />;
+  // console.log("wtfffff");
+  // return <a>adsafsdfsdf</a>;
 };
 
 const selaLogDetail = ({ match, location, history }) => {
   const { _id } = match.params;
   const queryParams = queryString.parse(location.search);
-  console.log('dooooooooooone', queryParams, _id);
+
   return (
     <>
       <SaleLogDetailsContainer id={_id} />
-      <div>heeeeey</div>
+      {/* <div>heeeeey</div> */}
     </>
   );
 };
@@ -33,7 +34,7 @@ const selaLogDetail = ({ match, location, history }) => {
 const routes = () => {
   return (
     <>
-      <Route path="/settings" component={HomeDefault} />
+      <Route path="/plugin-salesplans/" component={HomeDefault} />
       <Route path="/saleLogDetails/:_id" component={selaLogDetail} />
     </>
   );

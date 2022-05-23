@@ -19,6 +19,7 @@ let Fields: Collection<any>;
 let FieldGroups: Collection<any>;
 let Tags: Collection<any>;
 let InternalNotes: Collection<any>;
+let Webhooks: Collection<any>;
 
 const switchContentType = contentType => {
   let changedContentType = contentType;
@@ -73,6 +74,27 @@ const switchContentType = contentType => {
     case 'form_submission:form_submission':
       changedContentType = `forms:form_submission`;
       break;
+
+    // below cases depend on webhooks
+    case 'userMessages':
+      changedContentType = `inbox:${contentType}`;
+      break;
+
+    case 'customerMessages':
+      changedContentType = `inbox:${contentType}`;
+      break;
+
+    case 'popupSubmitted':
+      changedContentType = `inbox:${contentType}`;
+      break;
+
+    case 'engageMessages':
+      changedContentType = `engages:${contentType}`;
+      break;
+
+    case 'knowledgeBaseArticle':
+      changedContentType = `knowledgebase:${contentType}`;
+      break;
   }
 
   return changedContentType;
@@ -87,6 +109,7 @@ const command = async () => {
   FieldGroups = db.collection('fields_groups');
   Tags = db.collection('tags');
   InternalNotes = db.collection('internal_notes');
+  Webhooks = db.collection('webhooks');
 
   await Segments.find({}).forEach(doc => {
     const contentType = switchContentType(doc.contentType);
@@ -131,6 +154,29 @@ const command = async () => {
     const contentType = switchContentType(doc.contentType);
 
     InternalNotes.updateOne({ _id: doc._id }, { $set: { contentType } });
+  });
+
+  await Webhooks.find({}).forEach(webhook => {
+    const actions = webhook.actions || [];
+    let fixedActions = [] as any;
+
+    for (const action of actions) {
+      const type = switchContentType(action.type);
+
+      fixedActions.push({
+        ...action,
+        type
+      });
+    }
+
+    Webhooks.updateOne(
+      { _id: webhook._id },
+      {
+        $set: {
+          actions: fixedActions
+        }
+      }
+    );
   });
 
   console.log(`Process finished at: ${new Date()}`);

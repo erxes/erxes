@@ -14,12 +14,12 @@ export default {
       label: 'Knowledge Base deleted',
       action: 'delete',
       type: 'knowledgebase:knowledgeBaseArticle'
-    },
+    }
   ],
-  getInfo: ({ data: { data, actionText }}) => {
+  getInfo: ({ data: { data, actionText } }) => {
     return {
       url: `/knowledgeBase?id=${data.newData.categoryIds[0]}`,
       content: `Knowledge base article ${actionText}`
-    }
+    };
   }
-}
+};

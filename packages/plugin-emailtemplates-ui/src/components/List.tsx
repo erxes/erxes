@@ -123,8 +123,8 @@ class EmailTemplateList extends React.Component<Props> {
         title={__('Email templates')}
         leftActionBar={
           <HeaderDescription
-            icon='/images/actions/22.svg'
-            title='Email templates'
+            icon="/images/actions/22.svg"
+            title="Email templates"
             description={`${__(
               `It's all about thinking ahead for your customers`
             )}.${__(

@@ -340,10 +340,10 @@ export type ListQueryVariables = {
   page?: number;
   perPage?: number;
   segment?: string;
-  tag?: string;
-  brand?: string;
-  ids?: string[];
   searchValue?: string;
+
+  categoryId?: string;
+  ids?: string[];
   sortField?: string;
   sortDirection?: number;
 };

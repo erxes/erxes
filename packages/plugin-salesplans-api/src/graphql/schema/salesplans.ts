@@ -6,90 +6,98 @@ import {
 export const types = () => `
   ${attachmentType}
   ${attachmentInput}
-
-  extend type User @key(fields: "_id"){
-    _id: String @external
+  extend type Branch @key(fields: "_id") {
+    _id: String! @external
   }
 
-  type SalesLog  @key(fields: "_id"){
-    _id: String,
-    branchDetail: Branch,
-    branchId: String,
-    description String,
-    name: String,
-    type: String,
-    unitId:String,
-    unitDetail: Unit,
-    createdBy:String,
-    createdAt: Date,
-    createdUser: User,
+  extend type Unit @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  type SalesLog @key(fields: "_id"){
+    _id: String!
+    branchId: String
+    date: Date
+    branchDetail: Branch
+    description: String
+    name: String
+    type: String
+    unitId:String
+    unitDetail: Unit
+    createdBy:String
+    createdUser: User
+    createdAt: Date
     status: String
   },
 
   type Label {
-    _id: String,
-    title: String,
-    color: String,
-    type: String,
+    _id: String
+    title: String
+    color: String
+    type: String
     status: String
   },
 
   type Timeframe {
-    _id: String,
-    name: String,
-    description: String,
-    startTime: Int,
+    _id: String
+    name: String
+    description: String
+    startTime: Int
     endTime: Int
   },
 
   type DayPlanConfig {
-    _id: String,
-    salesLogId: String,
-    labelIds: [String],
+    _id: String
+    salesLogId: String
+    labelIds: [String]
     timeframeId: String
   },
 
   type MonthPlanConfig {
-    _id: String,
-    salesLogId: String,
-    labelIds: [String],
+    _id: String
+    salesLogId: String
+    labelIds: [String]
     day: Date
   },
 
   type YearPlanConfig {
-    _id: String,
-    salesLogId: String,
-    labelIds: [String],
+    _id: String
+    salesLogId: String
+    labelIds: [String]
     month: Int
   },
 
   input TimeframeInput {
-    _id: String,
-    name: String,
-    description: String,
-    startTime: Int,
+    _id: String
+    name: String
+    description: String
+    startTime: Int
     endTime: Int
   },
 
   input AddTimeframeInput {
-    name: String,
-    description: String,
-    startTime: Int,
+    name: String
+    description: String
+    startTime: Int
     endTime: Int
   },
 
   input LabelInput {
-    _id: String,
-    title: String,
-    color: String,
-    type: String,
+    _id: String
+    title: String
+    color: String
+    type: String
     status:String
   },
 
   input AddLabelInput {
-    title: String,
-    color: String,
-    type: String,
+    title: String
+    color: String
+    type: String
     status:String 
   },
 `;
@@ -100,27 +108,23 @@ const salesLogPrams = `
   description:String,
   name:String,
   type:String,
-  unitId:String
+  unitId:String,
 `;
 export const queries = `
   getDayPlanConfig(salesLogId: String): [DayPlanConfig]
   getMonthPlanConfig(salesLogId: String): [MonthPlanConfig]
-  getBranches: [Branch]
-  getProducts: [Products]
-  getUnits: [Unit]
   getLabels(type: String): [Label]
-  getSalesLogs:[SalesLog]
+  getSalesLogs: [SalesLog ]  
   getTimeframes:[Timeframe]
 `;
 
 export const mutations = `
-  saveSalesLog(${salesLogPrams}): JSON
-  saveLabels(update: [LabelInput], add: [AddLabelInput]): JSON
-  saveTimeframe(update:[TimeframeInput], add :[AddTimeframeInput]):JSON
-  saveDayPlanConfig(salesLogId: String, data:JSON):JSON
-  saveMonthPlanConfig(salesLogId: String, date: Date, data:JSON):JSON
-  removeLabel(_id:String):JSON
-  removeDayTimeframe(_id: String): JSON
-  removeSalesLog(_id: String):JSON
-
+  createSalesLog(${salesLogPrams}): SalesLog
+  saveLabels(update: [LabelInput], add: [AddLabelInput]): [Label]
+  saveTimeframes(update:[TimeframeInput], add:[AddTimeframeInput]):[Timeframe]
+  saveDayPlanConfig(salesLogId: String, data:JSON):DayPlanConfig
+  saveMonthPlanConfig(salesLogId: String, date: Date, data:JSON):MonthPlanConfig
+  removeLabel(_id:String): JSON
+  removeTimeframe(_id: String): JSOM
+  removeSalesLog(_id: String): JSON
 `;
