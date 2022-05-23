@@ -8,12 +8,13 @@ import {
   FormSubmissionsTotalCountQueryResponse
 } from '@erxes/ui-forms/src/forms/types';
 import { IntegrationDetailQueryResponse } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { LeadIntegrationDetailQueryResponse } from '@erxes/ui-settings/src/integrations/types'
+import { LeadIntegrationDetailQueryResponse } from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ResponseList from '../components/ResponseList';
 import { FieldsQueryResponse } from '@erxes/ui-settings/src/properties/types';
 import { queries as integrationQueries } from '@erxes/ui-settings/src/integrations/graphql';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   queryParams: any;
@@ -28,7 +29,6 @@ type FinalProps = {
   Props;
 
 class ListContainer extends React.Component<FinalProps> {
-
   render() {
     const {
       integrationDetailQuery,
@@ -37,7 +37,8 @@ class ListContainer extends React.Component<FinalProps> {
       formSubmissionTotalCountQuery
     } = this.props;
 
-    const integrationDetail = integrationDetailQuery.integrationDetail || {};
+    const integrationDetail: any =
+      integrationDetailQuery.integrationDetail || {};
 
     const formSubmissions = formSubmissionsQuery.formSubmissions || [];
 
@@ -48,7 +49,7 @@ class ListContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      integrationDetail: integrationDetail as any,
+      integrationDetail,
       formSubmissions,
       loading: integrationDetailQuery.loading,
       totalCount,
@@ -86,8 +87,10 @@ export default withProps<Props>(
       name: 'formSubmissionsQuery',
       options: ({ queryParams }) => ({
         variables: {
-          formId: queryParams.formid
-        }
+          ...generatePaginationParams(queryParams),
+          formId: queryParams.formId
+        },
+        fetchPolicy: 'network-only'
       })
     }),
     graphql<Props, FormSubmissionsTotalCountQueryResponse>(
@@ -96,7 +99,7 @@ export default withProps<Props>(
         name: 'formSubmissionTotalCountQuery',
         options: ({ queryParams }) => ({
           variables: {
-            integrationId: queryParams.integrationId
+            formId: queryParams.formId
           }
         })
       }

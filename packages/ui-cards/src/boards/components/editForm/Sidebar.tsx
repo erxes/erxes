@@ -1,12 +1,12 @@
-import CustomFieldsSection from "../../containers/editForm/CustomFieldsSection";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import React from "react";
-import { RightContent } from "../../styles/item";
-import { IItem, IOptions } from "../../types";
-import SidebarConformity from "./SidebarConformity";
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import CustomFieldsSection from '../../containers/editForm/CustomFieldsSection';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import React from 'react';
+import { RightContent } from '../../styles/item';
+import { IItem, IOptions } from '../../types';
+import SidebarConformity from './SidebarConformity';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   item: IItem;
@@ -20,7 +20,7 @@ type Props = {
     {
       _id,
       status,
-      timeSpent,
+      timeSpent
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
     callback?: () => void
   ) => void;
@@ -30,8 +30,8 @@ class Sidebar extends React.Component<Props> {
   render() {
     const { item, saveItem, sidebar, options } = this.props;
 
-    const userOnChange = (usrs) => saveItem({ assignedUserIds: usrs });
-    const assignedUserIds = (item.assignedUsers || []).map((user) => user._id);
+    const userOnChange = usrs => saveItem({ assignedUserIds: usrs });
+    const assignedUserIds = (item.assignedUsers || []).map(user => user._id);
 
     return (
       <RightContent>
@@ -45,10 +45,10 @@ class Sidebar extends React.Component<Props> {
           />
         </FormGroup>
 
-        {isEnabled("products") && sidebar && sidebar(saveItem)}
+        {isEnabled('products') && sidebar && sidebar(saveItem)}
 
-        <CustomFieldsSection item={item} options={options} />
         <SidebarConformity {...this.props} />
+        <CustomFieldsSection item={item} options={options} />
       </RightContent>
     );
   }

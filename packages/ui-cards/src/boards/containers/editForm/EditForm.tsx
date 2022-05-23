@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import * as userQueries from '@erxes/ui/src/team/graphql'; // will check
+import * as userQueries from '@erxes/ui/src/team/graphql';
 import { AllUsersQueryResponse } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import { graphql } from 'react-apollo';

@@ -1,7 +1,3 @@
-/*
- * Extra fields for form, customer, company
- */
-
 import { Model } from 'mongoose';
 import * as validator from 'validator';
 import { IModels } from '../connectionResolver';
