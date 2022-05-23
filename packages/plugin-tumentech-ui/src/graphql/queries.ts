@@ -323,7 +323,7 @@ query($dealId: String) {
 
 const carsListConfig = `
   query {
-    fieldsDefaultColumnsConfig(contentType: "tumentech:cars") {
+    fieldsDefaultColumnsConfig(contentType: "tumentech:car") {
       name
       label
       order

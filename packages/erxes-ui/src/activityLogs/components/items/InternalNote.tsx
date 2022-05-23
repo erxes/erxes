@@ -58,6 +58,7 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
     const { internalNote, isLoading, edit, currentUser } = this.props;
     const { content } = internalNote;
     const createdUser = internalNote.createdUser || { _id: '' };
+
     const isCurrentUserNote = currentUser._id === createdUser._id;
 
     if (this.state.editing) {

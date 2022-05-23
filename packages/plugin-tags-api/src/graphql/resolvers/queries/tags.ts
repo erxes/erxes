@@ -35,14 +35,28 @@ const tagQueries = {
 
   tags(
     _root,
-    { type, searchValue }: { type: string; searchValue?: string },
+    {
+      type,
+      searchValue,
+      tagIds
+    }: { type: string; searchValue?: string; tagIds?: string[] },
     { models, commonQuerySelector }: IContext
   ) {
-    const selector: any = { ...commonQuerySelector, type };
+    const selector: any = { ...commonQuerySelector };
+
+    if (type) {
+      selector.type = type;
+    }
 
     if (searchValue) {
       selector.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
+
+    if (tagIds) {
+      selector._id = { $in: tagIds };
+    }
+
+    console.log(selector);
 
     return models.Tags.find(selector).sort({
       order: 1,

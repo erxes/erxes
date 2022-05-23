@@ -164,7 +164,7 @@ export const INTEGRATIONS = [
     kind: 'facebook-post',
     logo: '/images/integrations/facebook.png',
     createModal: 'facebook-post',
-    createUrl: '/settings/integrations/createFacebook',
+    createUrl: '/settings/add-ons/createFacebook',
     category:
       'All add-ons, For support teams, Marketing automation, Social media'
   },
@@ -177,7 +177,7 @@ export const INTEGRATIONS = [
     kind: 'facebook-messenger',
     logo: '/images/integrations/fb-messenger.png',
     createModal: 'facebook-messenger',
-    createUrl: '/settings/integrations/createFacebook',
+    createUrl: '/settings/add-ons/createFacebook',
     category:
       'All add-ons, For support teams, Messaging, Social media, Conversation'
   },
@@ -189,7 +189,7 @@ export const INTEGRATIONS = [
     kind: 'messenger',
     logo: '/images/integrations/messenger.png',
     createModal: 'messenger',
-    createUrl: '/settings/integrations/createMessenger',
+    createUrl: '/settings/add-ons/createMessenger',
     category:
       'All add-ons, For support teams, For marketing teams, Marketing automation, Conversation'
   },
@@ -214,7 +214,7 @@ export const INTEGRATIONS = [
     kind: 'gmail',
     logo: '/images/integrations/gmail.png',
     createModal: 'gmail',
-    createUrl: '/settings/integrations/createGmail',
+    createUrl: '/settings/add-ons/createGmail',
     category:
       'All add-ons, For support teams, Email marketing, Marketing automation, Conversation'
   },
@@ -227,7 +227,7 @@ export const INTEGRATIONS = [
     kind: 'nylas-imap',
     logo: '/images/integrations/email.png',
     createModal: 'nylas-imap',
-    createUrl: '/settings/integrations/nylas-imap',
+    createUrl: '/settings/add-ons/nylas-imap',
     category:
       'All add-ons, For support teams, Marketing automation, Email marketing'
   },
@@ -266,7 +266,7 @@ export const INTEGRATIONS = [
     kind: 'nylas-exchange',
     logo: '/images/integrations/exchange.png',
     createModal: 'nylas-exchange',
-    createUrl: '/settings/integrations/nylas-exchange',
+    createUrl: '/settings/add-ons/nylas-exchange',
     category:
       'All add-ons, For support teams, Email marketing, Marketing automation, Conversation'
   },
@@ -279,7 +279,7 @@ export const INTEGRATIONS = [
     kind: 'nylas-outlook',
     logo: '/images/integrations/outlook.png',
     createModal: 'nylas-outlook',
-    createUrl: '/settings/integrations/nylas-outlook',
+    createUrl: '/settings/add-ons/nylas-outlook',
     category:
       'All add-ons, For support teams, Marketing automation, Email marketing'
   },
@@ -292,7 +292,7 @@ export const INTEGRATIONS = [
     kind: 'nylas-yahoo',
     logo: '/images/integrations/yahoo.png',
     createModal: 'nylas-yahoo',
-    createUrl: '/settings/integrations/nylas-yahoo',
+    createUrl: '/settings/add-ons/nylas-yahoo',
     category:
       'All add-ons, For support teams, Marketing automation, Email marketing, Conversation'
   },

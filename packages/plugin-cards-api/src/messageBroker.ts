@@ -240,6 +240,18 @@ export const initBroker = async cl => {
     }
   );
 
+  consumeRPCQueue(
+    'cards:deals.updateOne',
+    async ({ subdomain, data: { selector, modifier } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.Deals.updateOne(selector, modifier),
+        status: 'success'
+      };
+    }
+  );
+
   consumeRPCQueue('cards:notifiedUserIds', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Wrapper } from '@erxes/ui';
+import { Wrapper } from '@erxes/ui/src';
 import { __ } from '@erxes/ui/src/utils';
 import { Button } from '@erxes/ui/src';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
@@ -164,10 +164,10 @@ function Home({ listData, refetch }: Props) {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Mini Plan')}
+          title={__('Salesplans Plan')}
           breadcrumb={[
-            { title: __('Settings'), link: '/settings' },
-            { title: __('Mini Plan') }
+            { title: __('Settings'), link: '/plugin-salesplans/settings' },
+            { title: __('Salesplans Plan') }
           ]}
         />
       }

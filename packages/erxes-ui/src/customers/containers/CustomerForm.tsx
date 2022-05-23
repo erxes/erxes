@@ -103,13 +103,13 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
         {({ currentUser }) => (
           <PropertyProvider>
             <PropertyConsumer>
-              {({ customerVisibilityInDetail }) => {
+              {({ customerVisibility }) => {
                 return (
                   <CustomerForm
                     {...updatedProps}
                     currentUser={currentUser || ({} as IUser)}
                     autoCompletionQuery={queries.customers}
-                    fieldsVisibility={customerVisibilityInDetail}
+                    fieldsVisibility={customerVisibility}
                   />
                 );
               }}

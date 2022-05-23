@@ -45,7 +45,7 @@ const collateralQueries = {
     const _page = Number(params.page || '1');
     const _limit = Number(params.perPage || '20');
 
-    const list = await models.LoanContracts.aggregate([
+    const list = await models.Contracts.aggregate([
       {
         $match: {}
       },

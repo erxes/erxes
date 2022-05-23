@@ -133,6 +133,7 @@ export const generateCommonFilters = async (
   args: any
 ) => {
   const {
+    _ids,
     pipelineId,
     stageId,
     search,
@@ -207,6 +208,10 @@ export const generateCommonFilters = async (
 
   if (customerIds || companyIds) {
     filter._id = contains(filterIds || []);
+  }
+
+  if (_ids && _ids.length) {
+    filter._id = contains(_ids);
   }
 
   if (conformityMainType && conformityMainTypeId) {

@@ -46,7 +46,7 @@ class ActivityList extends React.Component<IActivityListProps> {
       const createdDate = dayjs(activity.createdAt).format('MMMM YYYY');
 
       if (
-        contentType === 'taskDetail' &&
+        contentType === 'cards:taskDetail' &&
         dayjs(activity.createdAt) >= dayjs()
       ) {
         item.Upcoming = item.Upcoming || [];

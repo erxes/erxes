@@ -174,7 +174,7 @@ export const formSubmissionsQuery = async (
 
   const integration = await sendInboxMessage({
     subdomain,
-    action: 'findIntegration',
+    action: 'integrations.find',
     data: integrationsSelector,
     isRPC: true,
     defaultValue: []

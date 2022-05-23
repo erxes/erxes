@@ -1,4 +1,4 @@
-import client from '@erxes/ui/src/apolloClient'; // will check
+import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { queries } from '../graphql';
@@ -11,6 +11,7 @@ import {
   IFilterParams,
   IItem,
   IOptions,
+  IPipeline,
   IStage,
   ItemsQueryResponse,
   RemoveStageMutation,
@@ -104,7 +105,6 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         });
       })
       .catch(e => {
-        console.log('blah12');
         Alert.error(e.message);
       });
   };

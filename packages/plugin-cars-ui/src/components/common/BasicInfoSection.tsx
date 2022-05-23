@@ -1,6 +1,13 @@
 import {
-  __, Alert, Button, confirm, DropdownToggle, Icon, MainStyleInfoWrapper as InfoWrapper,
-  ModalTrigger, Sidebar
+  __,
+  Alert,
+  Button,
+  confirm,
+  DropdownToggle,
+  Icon,
+  MainStyleInfoWrapper as InfoWrapper,
+  ModalTrigger,
+  Sidebar
 } from '@erxes/ui/src';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -53,7 +60,7 @@ class BasicInfoSection extends React.Component<Props> {
     if (!item) {
       return null;
     }
-    console.log('qqqqqqqqqqqqqq')
+
     return <Attachment attachment={item} />;
   };
 

@@ -15,6 +15,7 @@ import * as nodemailer from 'nodemailer';
 import { sendLogsMessage } from '../messageBroker';
 import { IModels } from '../connectionResolver';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
+import { redis } from '../serviceDiscovery';
 
 export interface IEmailParams {
   toEmails?: string[];
@@ -1002,6 +1003,10 @@ export const getFileUploadConfigs = async (models: IModels) => {
     AWS_ACCESS_KEY_ID,
     UPLOAD_SERVICE_TYPE
   };
+};
+
+export const saveValidatedToken = (token: string, user: IUserDocument) => {
+  return redis.set(`user_token_${user._id}_${token}`, 1, 'EX', 24 * 60 * 60);
 };
 
 export const getEnv = utils.getEnv;

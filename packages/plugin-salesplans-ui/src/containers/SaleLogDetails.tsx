@@ -10,9 +10,9 @@ type Props = {
 };
 
 function SaleLogDetailsContainer({ id }: Props) {
-  const a = useQuery(gql(queries.getProducts));
-  console.log('teeeeest', id, a.data ? a.data.getProducts : 'sad');
+  const a = useQuery(gql(queries.products));
+  console.log('teeeeest', id, a.data ? a.data.products : 'sad');
   const data = a.data ? a.data.getProducts : 'sad';
-  return <SaleLogDetails data={a.data ? a.data.getProducts : []} />;
+  return <SaleLogDetails data={a.data ? a.data.products : []} />;
 }
 export default SaleLogDetailsContainer;

@@ -23,9 +23,9 @@ import {
 } from './definitions/salesplans';
 
 export interface ISalesLogModel extends Model<ISalesLogDocument> {
-  createSalesLog(doc: ISalesLog): JSON;
-  updateSalesLog(doc: ISalesLogDocument): JSON;
-  removeSalesLog(_id: string): JSON;
+  createSalesLog(doc: ISalesLog, id: string): Promise<ISalesLogDocument>;
+  updateSalesLog(doc: ISalesLogDocument): Promise<ISalesLogDocument>;
+  removeSalesLog(_id: string): Promise<ISalesLogDocument>;
 }
 
 export const loadSalesLogClass = (models: IModels) => {
@@ -33,10 +33,7 @@ export const loadSalesLogClass = (models: IModels) => {
     /*
      create SalesLog 
     */
-    public static async createSalesLog(doc: ISalesLog, user) {
-      let id;
-      if (user) id = user._id;
-
+    public static async createSalesLog(doc: ISalesLog, id) {
       return await models.SalesLogs.create({
         ...doc,
         createdBy: id,
@@ -72,9 +69,9 @@ export const loadSalesLogClass = (models: IModels) => {
 };
 
 export interface ILabelModel extends Model<ILabelDocument> {
-  saveLabel(doc: any): JSON;
-  removeLabel(_id: string): JSON;
-  updateLabel(_id: string): JSON;
+  saveLabels(doc: any): Promise<ILabelDocument[]>;
+  removeLabel(_id: string): Promise<ILabelDocument>;
+  updateLabel(_id: string): Promise<ILabelDocument>;
 }
 
 export const loadLabelClass = (models: IModels) => {
@@ -122,8 +119,11 @@ export const loadLabelClass = (models: IModels) => {
 };
 
 export interface ITimeframeModel extends Model<ITimeframeDocument> {
-  saveDayTimeframes(doc: any): JSON;
-  removeTimeframe(_id: string): JSON;
+  saveTimeframes(doc: {
+    update: ITimeframeDocument[];
+    add: ITimeframe[];
+  }): Promise<ITimeframeDocument[]>;
+  removeTimeframe(_id: string): Promise<ITimeframeDocument>;
 }
 
 export const loadTimeframeClass = (models: IModels) => {
@@ -145,8 +145,8 @@ export const loadTimeframeClass = (models: IModels) => {
       return await label;
     }
 
-    public static async removeTimeframe(doc) {
-      return await models.Timeframes.remove({ _id: doc._id });
+    public static async removeTimeframe(_id) {
+      return await models.Timeframes.remove({ _id: _id });
     }
   }
   timeframeSchema.loadClass(Timeframe);
@@ -155,7 +155,7 @@ export const loadTimeframeClass = (models: IModels) => {
 };
 
 export interface IDayPlanConfigModel extends Model<IDayPlanConfigDocument> {
-  saveDayPlanConfig(doc: any): IDayPlanConfigDocument;
+  saveDayPlanConfig(doc: any): Promise<IDayPlanConfigDocument>;
 }
 
 export const loadDayPlanConfigClass = (models: IModels) => {
@@ -190,7 +190,7 @@ export const loadDayPlanConfigClass = (models: IModels) => {
 };
 
 export interface IMonthPlanConfigModel extends Model<IMonthPlanConfigDocument> {
-  saveMonthPlanConfig(doc: any): IMonthPlanConfigDocument;
+  saveMonthPlanConfig(doc: any): Promise<IMonthPlanConfigDocument>;
 }
 
 export const loadMonthPlanConfigClass = (models: IModels) => {
@@ -225,7 +225,7 @@ export const loadMonthPlanConfigClass = (models: IModels) => {
 };
 
 export interface IYearPlanConfigModel extends Model<IYearPlanConfigDocument> {
-  saveYearPlanConfig(doc: any): IYearPlanConfigDocument;
+  saveYearPlanConfig(doc: any): Promise<IYearPlanConfigDocument>;
 }
 
 export const loadYearPlanConfigClass = (models: IModels) => {

@@ -16,7 +16,8 @@ type Props = {
   customer: ICustomer;
   collapseCallback?: () => void;
   fields: IField[];
-  deviceFieldsVisibility: IFieldsVisibility;
+  deviceFieldsVisibility: (key: string) => IFieldsVisibility;
+  isDetail: boolean;
 };
 
 export const renderFlag = (countryCode?: string) => {
@@ -41,9 +42,13 @@ class DevicePropertiesSection extends React.Component<Props> {
     secondValue?: string,
     nowrap?: boolean
   ) => {
-    const { deviceFieldsVisibility } = this.props;
+    const { deviceFieldsVisibility, isDetail } = this.props;
 
-    if (!deviceFieldsVisibility[field]) {
+    const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
+
+    const visibility = deviceFieldsVisibility(isVisibleKey);
+
+    if (!visibility[field]) {
       return null;
     }
 

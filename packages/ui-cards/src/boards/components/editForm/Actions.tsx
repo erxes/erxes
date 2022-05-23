@@ -5,7 +5,7 @@ import LabelChooser from '../../containers/label/LabelChooser';
 import { ColorButton } from '../../styles/common';
 import { ActionContainer } from '../../styles/item';
 import { IItem, IOptions } from '../../types';
-import ChecklistAdd from '../../../checklists/components/AddButton'; // will check
+import ChecklistAdd from '../../../checklists/components/AddButton';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';

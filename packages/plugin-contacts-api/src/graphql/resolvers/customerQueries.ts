@@ -31,19 +31,23 @@ const countByIntegrationType = async (qb): Promise<ICountBy> => {
   return counts;
 };
 
-const countByForm = async (subdomain: string, qb: any, params: any): Promise<ICountBy> => {
+const countByForm = async (
+  subdomain: string,
+  qb: any,
+  params: any
+): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
   // Count customers by submitted form
   const forms = await sendFormsMessage({
     subdomain,
-    action: "find",
+    action: 'find',
     data: {
       query: {}
     },
     isRPC: true,
     defaultValue: []
-  })
+  });
 
   for (const form of forms) {
     await qb.buildAllQueries();
@@ -122,7 +126,12 @@ const customerQueries = {
 
     switch (only) {
       case 'bySegment':
-        counts.bySegment = await countBySegment(subdomain, `contacts:${type || 'customer'}`, qb, source);
+        counts.bySegment = await countBySegment(
+          subdomain,
+          `contacts:${type || 'customer'}`,
+          qb,
+          source
+        );
         break;
 
       case 'byBrand':
@@ -152,8 +161,39 @@ const customerQueries = {
   /**
    * Get one customer
    */
-  customerDetail(_root, { _id }: { _id: string }, { models : { Customers }}: IContext) {
+  customerDetail(
+    _root,
+    { _id }: { _id: string },
+    { models: { Customers } }: IContext
+  ) {
     return Customers.findOne({ _id });
+  },
+
+  async contactsLogs(_root, args, { models }: IContext) {
+    const { Companies, Customers } = models;
+    const { action, contentType, content } = args;
+    let result = {};
+
+    const type = contentType.split(':')[1];
+
+    if (action === 'merge') {
+      switch (type) {
+        case 'company':
+          result = await Companies.find({
+            _id: { $in: content }
+          }).lean();
+          break;
+        case 'customer':
+          result = await Customers.find({
+            _id: { $in: content }
+          }).lean();
+          break;
+      }
+
+      return result;
+    }
+
+    return result;
   }
 };
 

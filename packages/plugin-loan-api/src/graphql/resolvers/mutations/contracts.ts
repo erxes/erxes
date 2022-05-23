@@ -13,7 +13,7 @@ const contractMutations = {
     doc,
     { user, docModifier, models, messageBroker }
   ) => {
-    const contract = models.LoanContracts.createContract(
+    const contract = models.Contracts.createContract(
       models,
       docModifier(doc),
       user
@@ -43,8 +43,8 @@ const contractMutations = {
     { _id, ...doc },
     { models, user, messageBroker }
   ) => {
-    const contract = await models.LoanContracts.getContract(models, { _id });
-    const updated = await models.LoanContracts.updateContract(models, _id, doc);
+    const contract = await models.Contracts.getContract(models, { _id });
+    const updated = await models.Contracts.updateContract(models, _id, doc);
 
     await putUpdateLog(
       messageBroker,
@@ -71,10 +71,10 @@ const contractMutations = {
     { ...doc },
     { models, user, messageBroker, memoryStorage }
   ) => {
-    const contract = await models.LoanContracts.getContract(models, {
+    const contract = await models.Contracts.getContract(models, {
       _id: doc.contractId
     });
-    const updated = await models.LoanContracts.closeContract(
+    const updated = await models.Contracts.closeContract(
       models,
       messageBroker,
       memoryStorage,
@@ -106,11 +106,11 @@ const contractMutations = {
     { contractIds }: { contractIds: string[] },
     { models, user, messageBroker }
   ) => {
-    const contracts = await models.LoanContracts.find({
+    const contracts = await models.Contracts.find({
       _id: { $in: contractIds }
     }).lean();
 
-    await models.LoanContracts.removeContracts(models, contractIds);
+    await models.Contracts.removeContracts(models, contractIds);
 
     for (const contract of contracts) {
       await putDeleteLog(
@@ -133,7 +133,7 @@ const contractMutations = {
     { contractId }: { contractId: string },
     { models, user }
   ) => {
-    const contract = await models.LoanContracts.getContract(models, {
+    const contract = await models.Contracts.getContract(models, {
       _id: contractId
     });
 
@@ -200,7 +200,7 @@ const contractMutations = {
     { contractId }: { contractId: string },
     { models, checkPermission, user, messageBroker, memoryStorage }
   ) => {
-    const contract: IContractDocument = await models.LoanContracts.getContract(
+    const contract: IContractDocument = await models.Contracts.getContract(
       models,
       { _id: contractId }
     );
@@ -209,7 +209,7 @@ const contractMutations = {
       throw new Error('Number is required');
     }
 
-    const schedules = await models.RepaymentSchedules.find({
+    const schedules = await models.Schedules.find({
       contractId
     }).lean();
     if (!schedules || !schedules.length) {

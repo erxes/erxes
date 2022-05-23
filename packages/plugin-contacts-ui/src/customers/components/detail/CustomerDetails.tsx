@@ -21,10 +21,11 @@ import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
 
 type Props = {
   customer: ICustomer;
-  fieldsVisibility: IFieldsVisibility;
+  fieldsVisibility: (key: string) => IFieldsVisibility;
   deviceFields: IField[];
+  fields: IField[];
   taggerRefetchQueries?: any[];
-  deviceFieldsVisibility: IFieldsVisibility;
+  deviceFieldsVisibility: (key: string) => IFieldsVisibility;
 };
 
 class CustomerDetails extends React.Component<Props> {
@@ -91,6 +92,7 @@ class CustomerDetails extends React.Component<Props> {
     const {
       customer,
       deviceFields,
+      fields,
       taggerRefetchQueries,
       fieldsVisibility,
       deviceFieldsVisibility
@@ -114,11 +116,11 @@ class CustomerDetails extends React.Component<Props> {
           <ActivityLogs
             target={customer.firstName}
             contentId={customer._id}
-            contentType="customer"
+            contentType="contacts:customer"
             extraTabs={[
-              { name: 'conversation', label: 'Conversation' },
+              { name: 'inbox:conversation', label: 'Conversation' },
               { name: 'email', label: 'Email' },
-              { name: 'task', label: 'Task' },
+              { name: 'cards:task', label: 'Task' },
               { name: 'sms', label: 'SMS' },
               { name: 'campaign', label: 'Campaign' }
             ]}
@@ -149,6 +151,7 @@ class CustomerDetails extends React.Component<Props> {
             customer={customer}
             fieldsVisibility={fieldsVisibility}
             deviceFields={deviceFields}
+            fields={fields}
             taggerRefetchQueries={taggerRefetchQueries}
             deviceFieldsVisibility={deviceFieldsVisibility}
           />
