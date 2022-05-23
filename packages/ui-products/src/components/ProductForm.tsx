@@ -282,220 +282,229 @@ class Form extends React.Component<Props, State> {
 
     return (
       <>
-        <FormGroup>
-          <ControlLabel required={true}>Name</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="name"
-            defaultValue={object.name}
-            autoFocus={true}
-            required={true}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel required={true}>Type</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="type"
-            componentClass="select"
-            defaultValue={object.type}
-            required={true}
-          >
-            {Object.keys(TYPES).map((typeName, index) => (
-              <option key={index} value={typeName}>
-                {typeName}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel required={true}>Code</ControlLabel>
-          <p>
-            Depending on your business type, you may type in a barcode or any
-            other UPC (Universal Product Code). If you don't use UPC, type in
-            any numeric value to differentiate your products.
-          </p>
-          <FormControl
-            {...formProps}
-            name="code"
-            defaultValue={object.code}
-            required={true}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel required={true}>Category</ControlLabel>
-          <Row>
-            <FormControl
-              {...formProps}
-              name="categoryId"
-              componentClass="select"
-              defaultValue={object.categoryId}
-              required={true}
-            >
-              {generateCategoryOptions(productCategories)}
-            </FormControl>
-
-            {this.renderFormTrigger(trigger)}
-          </Row>
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Description</ControlLabel>
-          <EditorCK
-            content={description}
-            onChange={this.onChangeDescription}
-            height={150}
-            isSubmitted={formProps.isSaved}
-            name={`product_description_${description}`}
-            toolbar={[
-              {
-                name: 'basicstyles',
-                items: [
-                  'Bold',
-                  'Italic',
-                  'NumberedList',
-                  'BulletedList',
-                  'Link',
-                  'Unlink',
-                  '-',
-                  'Image',
-                  'EmojiPanel'
-                ]
-              }
-            ]}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Product supply</ControlLabel>
-
-          <FormControl
-            {...formProps}
-            name="supply"
-            componentClass="select"
-            onChange={this.onSupplyChange}
-            defaultValue={object.supply}
-            options={PRODUCT_SUPPLY}
-          />
-        </FormGroup>
-
         <FormWrapper>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Product count</ControlLabel>
-
+              <ControlLabel required={true}>Name</ControlLabel>
               <FormControl
                 {...formProps}
-                name="productCount"
-                value={productCount}
-                disabled={disabled}
-                onChange={this.onComboEvent.bind(this, 'productCount')}
+                name="name"
+                defaultValue={object.name}
+                autoFocus={true}
+                required={true}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel required={true}>Type</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="type"
+                componentClass="select"
+                defaultValue={object.type}
+                required={true}
+              >
+                {Object.keys(TYPES).map((typeName, index) => (
+                  <option key={index} value={typeName}>
+                    {typeName}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel required={true}>Code</ControlLabel>
+              <p>
+                Depending on your business type, you may type in a barcode or
+                any other UPC (Universal Product Code). If you don't use UPC,
+                type in any numeric value to differentiate your products.
+              </p>
+              <FormControl
+                {...formProps}
+                name="code"
+                defaultValue={object.code}
+                required={true}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel required={true}>Category</ControlLabel>
+              <Row>
+                <FormControl
+                  {...formProps}
+                  name="categoryId"
+                  componentClass="select"
+                  defaultValue={object.categoryId}
+                  required={true}
+                >
+                  {generateCategoryOptions(productCategories)}
+                </FormControl>
+
+                {this.renderFormTrigger(trigger)}
+              </Row>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Description</ControlLabel>
+              <EditorCK
+                content={description}
+                onChange={this.onChangeDescription}
+                height={150}
+                isSubmitted={formProps.isSaved}
+                name={`product_description_${description}`}
+                toolbar={[
+                  {
+                    name: 'basicstyles',
+                    items: [
+                      'Bold',
+                      'Italic',
+                      'NumberedList',
+                      'BulletedList',
+                      'Link',
+                      'Unlink',
+                      '-',
+                      'Image',
+                      'EmojiPanel'
+                    ]
+                  }
+                ]}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel required={true}>Unit price</ControlLabel>
+              <p>
+                Please ensure you have set the default currency in the{' '}
+                <a href="/settings/general"> {'General Settings'}</a> of the
+                System Configuration.
+              </p>
+              <FormControl
+                {...formProps}
                 type="number"
+                name="unitPrice"
+                defaultValue={object.unitPrice}
+                required={true}
+                min={0}
               />
             </FormGroup>
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Minimium count</ControlLabel>
+              <ControlLabel>Product supply</ControlLabel>
 
               <FormControl
                 {...formProps}
-                name="minimiumCount"
-                value={minimiumCount}
-                disabled={disabled}
-                onChange={this.onComboEvent.bind(this, 'minimiumCount')}
-                type="number"
+                name="supply"
+                componentClass="select"
+                onChange={this.onSupplyChange}
+                defaultValue={object.supply}
+                options={PRODUCT_SUPPLY}
               />
             </FormGroup>
-          </FormColumn>
-        </FormWrapper>
 
-        <FormGroup>
-          <ControlLabel>Featured image</ControlLabel>
+            <FormWrapper>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>Product count</ControlLabel>
 
-          <Uploader
-            defaultFileList={attachments}
-            onChange={this.onChangeAttachment}
-            multiple={false}
-            single={true}
-          />
-        </FormGroup>
+                  <FormControl
+                    {...formProps}
+                    name="productCount"
+                    value={productCount}
+                    disabled={disabled}
+                    onChange={this.onComboEvent.bind(this, 'productCount')}
+                    type="number"
+                  />
+                </FormGroup>
+              </FormColumn>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>Minimium count</ControlLabel>
 
-        <FormGroup>
-          <ControlLabel>Secondary Images</ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    name="minimiumCount"
+                    value={minimiumCount}
+                    disabled={disabled}
+                    onChange={this.onComboEvent.bind(this, 'minimiumCount')}
+                    type="number"
+                  />
+                </FormGroup>
+              </FormColumn>
+            </FormWrapper>
 
-          <Uploader
-            defaultFileList={attachmentsMore}
-            onChange={this.onChangeAttachmentMore}
-            multiple={true}
-            single={false}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Vendor</ControlLabel>
-          <SelectCompanies
-            label="Choose an vendor"
-            name="vendorId"
-            customOption={{ value: '', label: 'No vendor chosen' }}
-            initialValue={vendorId}
-            onSelect={this.onComboEvent.bind(this, 'vendorId')}
-            multi={false}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel required={true}>Unit price</ControlLabel>
-          <p>
-            Please ensure you have set the default currency in the{' '}
-            <a href="/settings/general"> {'General Settings'}</a> of the System
-            Configuration.
-          </p>
-          <FormControl
-            {...formProps}
-            type="number"
-            name="unitPrice"
-            defaultValue={object.unitPrice}
-            required={true}
-            min={0}
-          />
-        </FormGroup>
-
-        {!isUom && (
-          <FormGroup>
-            <ControlLabel>SKU</ControlLabel>
-            <FormControl {...formProps} name="sku" defaultValue={object.sku} />
-          </FormGroup>
-        )}
-
-        {isUom && (
-          <>
             <FormGroup>
-              <ControlLabel>UOM</ControlLabel>
-              <Row>
-                <Select
-                  value={this.state.uomId}
-                  onChange={this.onComboEvent.bind(this, 'uomId')}
-                  options={uoms.map(e => ({ value: e._id, label: e.name }))}
-                />
-                <Button
-                  btnStyle="primary"
-                  uppercase={false}
-                  icon="plus-circle"
-                  onClick={this.onClickAddSub}
-                >
-                  {' '}
-                  Add sub
-                </Button>
-              </Row>
+              <ControlLabel>Featured image</ControlLabel>
+
+              <Uploader
+                defaultFileList={attachments}
+                onChange={this.onChangeAttachment}
+                multiple={false}
+                single={true}
+              />
             </FormGroup>
 
-            {this.renderSubUoms(uoms)}
-          </>
-        )}
+            <FormGroup>
+              <ControlLabel>Secondary Images</ControlLabel>
+
+              <Uploader
+                defaultFileList={attachmentsMore}
+                onChange={this.onChangeAttachmentMore}
+                multiple={true}
+                single={false}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Vendor</ControlLabel>
+              <SelectCompanies
+                label="Choose an vendor"
+                name="vendorId"
+                customOption={{ value: '', label: 'No vendor chosen' }}
+                initialValue={vendorId}
+                onSelect={this.onComboEvent.bind(this, 'vendorId')}
+                multi={false}
+              />
+            </FormGroup>
+
+            {!isUom && (
+              <FormGroup>
+                <ControlLabel>SKU</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="sku"
+                  defaultValue={object.sku}
+                />
+              </FormGroup>
+            )}
+
+            {isUom && (
+              <>
+                <FormGroup>
+                  <ControlLabel>UOM</ControlLabel>
+                  <Row>
+                    <Select
+                      value={this.state.uomId}
+                      onChange={this.onComboEvent.bind(this, 'uomId')}
+                      options={uoms.map(e => ({ value: e._id, label: e.name }))}
+                    />
+                    <Button
+                      btnStyle="primary"
+                      uppercase={false}
+                      icon="plus-circle"
+                      onClick={this.onClickAddSub}
+                    >
+                      {' '}
+                      Add sub
+                    </Button>
+                  </Row>
+                </FormGroup>
+
+                {this.renderSubUoms(uoms)}
+              </>
+            )}
+          </FormColumn>
+        </FormWrapper>
 
         <ModalFooter>
           <Button
