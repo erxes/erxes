@@ -1,20 +1,20 @@
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import { __ } from '@erxes/ui/src/utils';
-import { IForm, IFormResponse } from '@erxes/ui-forms/src/forms/types';
+import { IFormResponse } from '@erxes/ui-forms/src/forms/types';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { EMPTY_CONTENT_POPUPS } from '@erxes/ui-settings/src/constants';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 
 import ResponseRow from './ResponseRow';
 import { getEnv } from 'coreui/utils';
+import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
+import { SortHandler } from '@erxes/ui/src';
 
 type Props = {
-  integrationDetail: IForm;
+  integrationDetail: IIntegration;
   totalCount: number;
   fields: IField[];
   formSubmissions: IFormResponse[];
@@ -26,7 +26,6 @@ class List extends React.Component<Props, {}> {
   renderRow() {
     const { formSubmissions } = this.props;
     const fieldIds = this.props.fields.map(f => f._id);
-
     return formSubmissions.map(e => (
       <ResponseRow
         key={e.contentTypeId}
@@ -42,15 +41,16 @@ class List extends React.Component<Props, {}> {
       queryParams,
       loading,
       fields,
-      formSubmissions
+      formSubmissions,
+      integrationDetail
     } = this.props;
-    const { REACT_APP_API_URL } = getEnv();
 
     queryParams.loadingMainQuery = loading;
+    const { REACT_APP_API_URL } = getEnv();
 
     const onClick = () => {
       window.open(
-        `${REACT_APP_API_URL}/pl:contacts/file-export?type=customer&popupData=true&form=${queryParams.formId}`,
+        `${REACT_APP_API_URL}/file-export?type=customer&popupData=true&form=${integrationDetail.formId}`,
         '_blank'
       );
     };
@@ -75,11 +75,11 @@ class List extends React.Component<Props, {}> {
             {fields.map(e => {
               return (
                 <th key={e._id} id={e._id}>
-                  {e.text}
+                  <SortHandler sortField={e.text} label={e.text} />
                 </th>
               );
             })}
-            <th>created at</th>
+            <th>{__('Submitted at')}</th>
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>
@@ -102,12 +102,7 @@ class List extends React.Component<Props, {}> {
             data={content}
             loading={loading}
             count={formSubmissions.length}
-            emptyContent={
-              <EmptyContent
-                content={EMPTY_CONTENT_POPUPS}
-                maxItemWidth="360px"
-              />
-            }
+            emptyContent={'no responses'}
           />
         }
       />
