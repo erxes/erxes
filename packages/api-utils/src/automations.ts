@@ -215,9 +215,7 @@ const getRelatedTargets = async (
   }
 
   if (
-    (triggerType === 'inbox:conversation' ||
-      (['contacts:customer, contacts:lead'].includes(triggerType) &&
-        target.isFormSubmission)) &&
+    triggerType === 'inbox:conversation' &&
     ['cards:task', 'cards:ticket', 'cards:deal'].includes(module)
   ) {
     return sendCommonMessage({
@@ -225,6 +223,21 @@ const getRelatedTargets = async (
       action: `${module.replace('cards:', '')}s.find`,
       data: {
         sourceConversationIds: { $in: [target._id] }
+      },
+      isRPC: true
+    });
+  }
+
+  if (
+    ['contacts:customer, contacts:lead'].includes(triggerType) &&
+    target.isFormSubmission &&
+    ['cards:task', 'cards:ticket', 'cards:deal'].includes(module)
+  ) {
+    return sendCommonMessage({
+      serviceName: 'cards',
+      action: `${module.replace('cards:', '')}s.find`,
+      data: {
+        sourceConversationIds: { $in: [target.conversationId] }
       },
       isRPC: true
     });
