@@ -50,7 +50,7 @@ class List extends React.Component<Props, {}> {
 
     const onClick = () => {
       window.open(
-        `${REACT_APP_API_URL}/file-export?type=customer&popupData=true&form=${integrationDetail.formId}`,
+        `${REACT_APP_API_URL}/pl:contacts/file-export?type=customer&popupData=true&form=${integrationDetail.formId}`,
         '_blank'
       );
     };
