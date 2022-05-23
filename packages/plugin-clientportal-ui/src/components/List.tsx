@@ -99,7 +99,7 @@ function ClientPortalList({
       header={renderSidebarHeader()}
       hasBorder={true}
     >
-      <SidebarList isSettings={true} id={'ClientPortalSidebar'}>
+      <SidebarList noTextColor noBackground id={'ClientPortalSidebar'}>
         {renderRow()}
         <LoadMore all={totalCount} loading={loading} />
       </SidebarList>

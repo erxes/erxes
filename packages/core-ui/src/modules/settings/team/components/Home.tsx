@@ -1,28 +1,28 @@
-import React, { useState } from "react";
-import Select from "react-select-plus";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { __ } from "modules/common/utils";
-import UserList from "../containers/UserList";
-import Sidebar from "./Sidebar";
-import { menuContacts } from "@erxes/ui/src/utils/menus";
-import { FlexItem, FlexRow } from "@erxes/ui-settings/src/styles";
-import { FilterContainer, InputBar } from "@erxes/ui-settings/src/styles";
-import { ControlLabel, FormControl } from "@erxes/ui/src/components/form";
-import { router } from "@erxes/ui/src/utils";
-import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
-import UserInvitationForm from "../containers/UserInvitationForm";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Button from "@erxes/ui/src/components/Button";
-import { IButtonMutateProps } from "@erxes/ui/src/types";
-import { IUserGroup } from "@erxes/ui-settings/src/permissions/types";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import { colors } from "@erxes/ui/src/styles";
-import Icon from "@erxes/ui/src/components/Icon";
-import Pagination from "modules/common/components/pagination/Pagination";
+import React, { useState } from 'react';
+import Select from 'react-select-plus';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'modules/common/utils';
+import UserList from '../containers/UserList';
+import Sidebar from './Sidebar';
+import { menuContacts } from '@erxes/ui/src/utils/menus';
+import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
+import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
+import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
+import { router } from '@erxes/ui/src/utils';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import UserInvitationForm from '../containers/UserInvitationForm';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Button from '@erxes/ui/src/components/Button';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { colors } from '@erxes/ui/src/styles';
+import Icon from '@erxes/ui/src/components/Icon';
+import Pagination from 'modules/common/components/pagination/Pagination';
 
 const ActiveColor = styledTS<{ active: boolean }>(styled.div)`
-  background: ${(props) =>
+  background: ${props =>
     props.active === true ? colors.colorCoreGreen : colors.colorCoreYellow};
   border-radius: 50%;
   height: 10px;
@@ -35,17 +35,23 @@ type Props = {
   configsEnvQuery: any;
   loading: boolean;
   usersGroups: IUserGroup[];
-  totalCount : number;
+  totalCount: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 export default function Home(props: Props) {
   let timer;
-  const { queryParams, history, loading, configsEnvQuery = {}, totalCount } = props;
-  const [searchValue, setSearchValue] = useState("");
+  const {
+    queryParams,
+    history,
+    loading,
+    configsEnvQuery = {},
+    totalCount
+  } = props;
+  const [searchValue, setSearchValue] = useState('');
   const [active, setActive] = useState(true);
 
-  const search = (e) => {
+  const search = e => {
     if (timer) {
       clearTimeout(timer);
     }
@@ -59,9 +65,9 @@ export default function Home(props: Props) {
     }, 500);
   };
 
-  const moveCursorAtTheEnd = (e) => {
+  const moveCursorAtTheEnd = e => {
     const tmpValue = e.target.value;
-    e.target.value = "";
+    e.target.value = '';
     e.target.value = tmpValue;
   };
 
@@ -73,19 +79,19 @@ export default function Home(props: Props) {
   const renderBrandChooser = () => {
     const env = configsEnvQuery.configsGetEnv || {};
 
-    if (env.USE_BRAND_RESTRICTIONS !== "true") {
+    if (env.USE_BRAND_RESTRICTIONS !== 'true') {
       return null;
     }
 
-    const onSelect = (brandIds) => {
+    const onSelect = brandIds => {
       router.setParams(history, { brandIds });
     };
 
     return (
       <FlexItem>
-        <ControlLabel>{__("Brand")}</ControlLabel>
+        <ControlLabel>{__('Brand')}</ControlLabel>
         <SelectBrands
-          label={__("Choose brands")}
+          label={__('Choose brands')}
           onSelect={onSelect}
           initialValue={queryParams.brandIds}
           name="selectedBrands"
@@ -102,7 +108,7 @@ export default function Home(props: Props) {
           <Icon icon="search-1" size={20} />
           <FlexItem>
             <FormControl
-              placeholder={__("Search")}
+              placeholder={__('Search')}
               name="searchValue"
               onChange={search}
               value={searchValue}
@@ -115,19 +121,19 @@ export default function Home(props: Props) {
           <ActiveColor active={active} />
           <FlexItem>
             <Select
-              placeholder={__("Choose status")}
+              placeholder={__('Choose status')}
               value={queryParams.isActive || true}
               onChange={onStatusChange}
               clearable={false}
               options={[
                 {
                   value: true,
-                  label: __("Active"),
+                  label: __('Active')
                 },
                 {
                   value: false,
-                  label: __("Deactivated"),
-                },
+                  label: __('Deactivated')
+                }
               ]}
             />
           </FlexItem>
@@ -136,7 +142,7 @@ export default function Home(props: Props) {
     </FilterContainer>
   );
 
-  const renderInvitationForm = (formProps) => {
+  const renderInvitationForm = formProps => {
     const { usersGroups, renderButton } = props;
 
     return (
@@ -168,7 +174,8 @@ export default function Home(props: Props) {
       hasFlex={true}
       right={righActionBar}
       left={renderFilter}
-      isSettings={true}
+      wide
+      withMargin
       background="colorWhite"
     />
   );
@@ -178,7 +185,7 @@ export default function Home(props: Props) {
       header={
         <Wrapper.Header
           queryParams={queryParams}
-          title={"Team members"}
+          title={'Team members'}
           submenu={menuContacts}
         />
       }

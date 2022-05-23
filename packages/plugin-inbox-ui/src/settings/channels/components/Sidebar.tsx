@@ -9,7 +9,7 @@ import React from 'react';
 import ChannelForm from '@erxes/ui-settings/src/channels/containers/ChannelForm';
 import { IChannel } from '@erxes/ui-settings/src/channels/types';
 import ChannelRow from './ChannelRow';
-import { Header } from "@erxes/ui-settings/src/styles";
+import { Header } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   channels: IChannel[];
@@ -40,7 +40,7 @@ class Sidebar extends React.Component<Props, {}> {
     const { renderButton } = this.props;
 
     const addChannel = (
-      <Button btnStyle='success' block={true} icon='plus-circle'>
+      <Button btnStyle="success" block={true} icon="plus-circle">
         Add New Channel
       </Button>
     );
@@ -52,8 +52,8 @@ class Sidebar extends React.Component<Props, {}> {
     return (
       <Header>
         <ModalTrigger
-          title='New Channel'
-          autoOpenKey='showChannelAddModal'
+          title="New Channel"
+          autoOpenKey="showChannelAddModal"
           trigger={addChannel}
           content={content}
         />
@@ -65,13 +65,19 @@ class Sidebar extends React.Component<Props, {}> {
     const { loading, channelsTotalCount } = this.props;
 
     return (
-      <LeftSidebar wide={false} header={this.renderSidebarHeader()} hasBorder={true}>
-        <SidebarList isSettings={true}>{this.renderItems()}</SidebarList>
+      <LeftSidebar
+        wide={false}
+        header={this.renderSidebarHeader()}
+        hasBorder={true}
+      >
+        <SidebarList noTextColor noBackground>
+          {this.renderItems()}
+        </SidebarList>
         {loading && <Spinner />}
         {!loading && channelsTotalCount === 0 && (
           <EmptyState
-            image='/images/actions/18.svg'
-            text='There is no channel'
+            image="/images/actions/18.svg"
+            text="There is no channel"
           />
         )}
       </LeftSidebar>

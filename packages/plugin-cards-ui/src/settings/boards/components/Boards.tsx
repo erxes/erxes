@@ -78,7 +78,11 @@ class Boards extends React.Component<Props, {}> {
     return (
       <Sidebar noMargin wide header={this.renderSidebarHeader()} hasBorder>
         <DataWithLoader
-          data={<List isSettings>{this.renderItems()}</List>}
+          data={
+            <List noTextColor noBackground>
+              {this.renderItems()}
+            </List>
+          }
           loading={loading}
           count={boards.length}
           emptyText={`${__(`There is no `)}${' '}${boardName}`}

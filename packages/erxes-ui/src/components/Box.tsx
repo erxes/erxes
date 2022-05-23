@@ -14,8 +14,9 @@ type BoxProps = {
   isOpen?: boolean;
   noShadow?: boolean;
   noMarginBottom?: boolean;
-  isSettings?: boolean;
-  noBackground?: boolean;
+  noTitleMargin?: boolean;
+  noTitlePadding?: boolean;
+  noTitleBackground?: boolean;
 };
 
 type BoxState = {
@@ -81,16 +82,18 @@ export default class Box extends React.Component<BoxProps, BoxState> {
       collapsible,
       noShadow,
       noMarginBottom,
-      isSettings,
-      noBackground
+      noTitleMargin,
+      noTitlePadding,
+      noTitleBackground
     } = this.props;
 
     return (
       <SectionContainer noShadow={noShadow} noMarginBottom={noMarginBottom}>
         <Title
           onClick={this.toggle}
-          isSettings={isSettings}
-          noBackground={noBackground}
+          noPadding={noTitlePadding}
+          noMargin={noTitleMargin}
+          noBackground={noTitleBackground}
         >
           {title}
         </Title>

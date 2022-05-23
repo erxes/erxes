@@ -24,7 +24,12 @@ function EngageConfigs() {
         />
       }
       actionBar={
-        <Wrapper.ActionBar isSettings background="colorWhite" left={<Title>{__('Campaign config')}</Title>} />
+        <Wrapper.ActionBar
+          withMargin
+          wide
+          background="colorWhite"
+          left={<Title>{__('Campaign config')}</Title>}
+        />
       }
       leftSidebar={
         <Sidebar

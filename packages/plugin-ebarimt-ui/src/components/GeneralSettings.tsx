@@ -1,4 +1,10 @@
-import { Button, CollapseContent, ControlLabel, FormControl, FormGroup } from '@erxes/ui/src/components';
+import {
+  Button,
+  CollapseContent,
+  ControlLabel,
+  FormControl,
+  FormGroup
+} from '@erxes/ui/src/components';
 import { __ } from '@erxes/ui/src/utils';
 import { Wrapper } from '@erxes/ui/src/layout';
 import React from 'react';
@@ -23,7 +29,7 @@ class GeneralSettings extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentMap: props.configsMap.EBARIMT || {},
+      currentMap: props.configsMap.EBARIMT || {}
     };
   }
 
@@ -88,7 +94,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('checkCompanyUrl')}
         </CollapseContent>
       </ContentBox>
-    )
+    );
 
     return (
       <Wrapper
@@ -101,7 +107,8 @@ class GeneralSettings extends React.Component<Props, State> {
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
-            isSettings
+            withMargin
+            wide
             background="colorWhite"
             left={<Title>{__('Ebarimt configs')}</Title>}
             right={actionButtons}

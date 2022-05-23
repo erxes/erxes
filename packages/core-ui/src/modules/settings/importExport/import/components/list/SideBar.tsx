@@ -17,7 +17,7 @@ class Sidebar extends React.Component<Props> {
     return (
       <>
         <SidebarHeader />
-        <Header isSettings uppercase={true}>
+        <Header noBackground noPadding noMargin uppercase={true}>
           {__('Filter by content type')}
         </Header>
       </>

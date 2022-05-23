@@ -39,7 +39,7 @@ class ProductTypeFilter extends React.Component<IProps> {
         name="showFilterByStatus"
         noShadow={true}
       >
-        <SidebarList isSettings={true}>
+        <SidebarList noTextColor noBackground>
           {templateStatusChoises(__).map(
             ({ value, label }: { value: string; label: string }) => {
               return (

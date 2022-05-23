@@ -222,7 +222,8 @@ class PermissionList extends React.Component<Props> {
         left={title}
         right={actionBarRight}
         background="colorWhite"
-        isSettings={true}
+        withMargin
+        wide
       />
     );
   }

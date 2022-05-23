@@ -15,18 +15,21 @@ import {
 function Title({
   children,
   onClick,
-  isSettings,
+  noMargin,
+  noPadding,
   noBackground
 }: {
   children: React.ReactNode;
   onClick?: () => void;
-  isSettings?: boolean;
+  noMargin?: boolean;
+  noPadding?: boolean;
   noBackground?: boolean;
 }) {
   return (
     <SidebarTitle
       onClick={onClick}
-      isSettings={isSettings}
+      noPadding={noPadding}
+      noMargin={noMargin}
       noBackground={noBackground}
     >
       {children}
@@ -129,7 +132,9 @@ type HeaderProps = {
   uppercase?: boolean;
   bold?: boolean;
   spaceBottom?: boolean;
-  isSettings?: boolean;
+  noBackground?: boolean;
+  noMargin?: boolean;
+  noPadding?: boolean;
 };
 
 function Header({
@@ -137,11 +142,15 @@ function Header({
   spaceBottom,
   uppercase,
   bold,
-  isSettings
+  noBackground,
+  noMargin,
+  noPadding
 }: HeaderProps) {
   return (
     <SidebarHeader
-      isSettings={isSettings}
+      noBackground={noBackground}
+      noMargin={noMargin}
+      noPadding={noPadding}
       spaceBottom={spaceBottom}
       uppercase={uppercase}
       bold={bold}
