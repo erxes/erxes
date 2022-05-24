@@ -6,6 +6,33 @@ const productCategories = productQueries.productCategories;
 
 const products = productQueries.products;
 
+const jobRefersParamsDef = `$page: Int, $perPage: Int, $categoryId: String, $searchValue: String`;
+const jobRefersParams = `page: $page, perPage: $perPage, categoryId: $categoryId, searchValue: $searchValue`;
+
+const jobRefersFields = `
+_id
+createdAt
+code
+name
+type
+status
+duration
+durationType
+needProducts
+resultProducts
+      `;
+
+const jobCategoryFields = `
+      _id
+      createdAt
+      name
+      code
+      order
+      description
+      parentId
+      status
+      `;
+
 const productsCount = `
   query productsTotalCount($type: String) {
     productsTotalCount(type: $type)
@@ -43,6 +70,44 @@ const productCategoryDetail = `
   }
 `;
 
+// JOB
+
+const jobRefers = `
+query jobRefers(${jobRefersParamsDef}) {
+  jobRefers(${jobRefersParams}) {
+    ${jobRefersFields}
+  }
+}
+`;
+
+const jobReferTotalCount = `
+query jobReferTotalCount($categoryId: String, $searchValue: String) {
+  jobReferTotalCount(categoryId: $categoryId, searchValue: $searchValue)
+}
+`;
+
+const jobReferDetail = `
+  query jobReferDetail($id: String!) {
+  jobReferDetail(_id: $id) {
+    ${jobRefersFields}
+  }
+}
+`;
+
+const jobCategories = `
+query jobCategories($status: String) {
+  jobCategories(status: $status) {
+      ${jobCategoryFields}
+    }
+  }
+`;
+
+const jobCategoriesTotalCount = `
+  query jobCategoriesTotalCount {
+    jobCategoriesTotalCount
+  }
+`;
+
 // UOM
 
 const uoms = productQueries.uoms;
@@ -69,5 +134,11 @@ export default {
   uoms,
   uomsTotalCount,
 
-  productsConfigs
+  productsConfigs,
+
+  jobRefers,
+  jobReferDetail,
+  jobReferTotalCount,
+  jobCategories,
+  jobCategoriesTotalCount
 };

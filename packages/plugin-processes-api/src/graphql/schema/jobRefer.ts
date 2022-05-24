@@ -12,6 +12,7 @@ export const types = `
     createdAt: Date,
     code: String,
     name: String,
+    categoryId: String,
     type: String,
     status: String,
     duration: Float,
@@ -23,6 +24,7 @@ export const types = `
   input JobProductsInput {
     _id: String,
     productId: String,
+    product: JSON,
     quantity: Float,
     uomId: String,
     branchId: String,
@@ -46,17 +48,18 @@ export const queries = `
 const jobReferParams = `
   code: String,
   name: String,
+  categoryId: String,
   type: String,
   status: String,
   createdAt: Date,
   duration: Float,
   durationType: String,
-  needProducts: JobProductsInput,
-  resultProducts: JobProductsInput,
+  needProducts: [JobProductsInput],
+  resultProducts: [JobProductsInput],
 `;
 
 export const mutations = `
   jobRefersAdd(${jobReferParams}): JobRefer
   jobRefersEdit(_id: String!, ${jobReferParams}): JobRefer
-  jobRefersRemove(_id: String!): JSON
+  jobRefersRemove(jobRefersIds: [String!]): JSON
 `;

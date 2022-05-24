@@ -21,7 +21,7 @@ export let serviceDiscovery;
 // };
 
 export default {
-  name: 'tags',
+  name: 'processes',
   permissions,
   graphql: async sd => {
     serviceDiscovery = sd;

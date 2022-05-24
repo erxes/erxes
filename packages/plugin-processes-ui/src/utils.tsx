@@ -1,6 +1,6 @@
 import { generateCategoryOptions } from '@erxes/ui/src/utils';
 import {
-  PRODUCT_TYPE_CHOISES,
+  JOB_TYPE_CHOISES,
   PRODUCT_CATEGORIES_STATUS_FILTER
 } from './constants';
 
@@ -9,10 +9,10 @@ export { generateCategoryOptions };
 export const productTypeChoises = __ => {
   const options: Array<{ value: string; label: string }> = [];
 
-  for (const key of Object.keys(PRODUCT_TYPE_CHOISES)) {
+  for (const key of Object.keys(JOB_TYPE_CHOISES)) {
     options.push({
       value: key,
-      label: __(PRODUCT_TYPE_CHOISES[key])
+      label: __(JOB_TYPE_CHOISES[key])
     });
   }
 

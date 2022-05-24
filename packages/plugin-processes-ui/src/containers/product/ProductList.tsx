@@ -11,9 +11,9 @@ import {
   CategoryDetailQueryResponse,
   MergeMutationResponse,
   MergeMutationVariables,
-  ProductRemoveMutationResponse,
-  ProductsCountQueryResponse,
-  ProductsQueryResponse
+  jobRefersRemoveMutationResponse,
+  jobReferTotalCountQueryResponse,
+  JobRefersQueryResponse
 } from '../../types';
 
 type Props = {
@@ -23,12 +23,11 @@ type Props = {
 };
 
 type FinalProps = {
-  productsQuery: ProductsQueryResponse;
-  productsCountQuery: ProductsCountQueryResponse;
+  jobRefersQuery: JobRefersQueryResponse;
+  jobRefersCountQuery: jobReferTotalCountQueryResponse;
   productCategoryDetailQuery: CategoryDetailQueryResponse;
 } & Props &
-  ProductRemoveMutationResponse &
-  MergeMutationResponse;
+  jobRefersRemoveMutationResponse;
 
 class ProductListContainer extends React.Component<FinalProps> {
   constructor(props) {
@@ -41,25 +40,24 @@ class ProductListContainer extends React.Component<FinalProps> {
 
   render() {
     const {
-      productsQuery,
-      productsCountQuery,
-      productsRemove,
-      productsMerge,
+      jobRefersQuery,
+      jobRefersCountQuery,
+      jobRefersRemove,
       queryParams,
       productCategoryDetailQuery,
       history
     } = this.props;
 
-    if (productsQuery.loading) {
+    if (jobRefersQuery.loading) {
       return false;
     }
 
-    const products = productsQuery.products || [];
+    const jobRefers = jobRefersQuery.jobRefers || [];
 
     // remove action
-    const remove = ({ productIds }, emptyBulk) => {
-      productsRemove({
-        variables: { productIds }
+    const remove = ({ jobRefersIds }, emptyBulk) => {
+      jobRefersRemove({
+        variables: { jobRefersIds }
       })
         .then(removeStatus => {
           emptyBulk();
@@ -67,34 +65,11 @@ class ProductListContainer extends React.Component<FinalProps> {
           const status = removeStatus.data.productsRemove;
 
           status === 'deleted'
-            ? Alert.success('You successfully deleted a product')
-            : Alert.warning('Product status deleted');
+            ? Alert.success('You successfully deleted a job')
+            : Alert.warning('Job status deleted');
         })
         .catch(e => {
           Alert.error(e.message);
-        });
-    };
-
-    const mergeProducts = ({ ids, data, callback }) => {
-      this.setState({ mergeProductLoading: true });
-
-      productsMerge({
-        variables: {
-          productIds: ids,
-          productFields: data
-        }
-      })
-        .then((result: any) => {
-          callback();
-          this.setState({ mergeProductLoading: false });
-          Alert.success('You successfully merged a product');
-          history.push(
-            `/settings/product-service/details/${result.data.productsMerge._id}`
-          );
-        })
-        .catch(e => {
-          Alert.error(e.message);
-          this.setState({ mergeProductLoading: false });
         });
     };
 
@@ -103,33 +78,32 @@ class ProductListContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       queryParams,
-      products,
+      jobRefers,
       remove,
-      loading: productsQuery.loading,
+      loading: jobRefersQuery.loading,
       searchValue,
-      productsCount: productsCountQuery.productsTotalCount || 0,
-      currentCategory: productCategoryDetailQuery.productCategoryDetail || {},
-      mergeProducts
+      jobRefersCount: jobRefersCountQuery.jobReferTotalCount || 0,
+      currentCategory: productCategoryDetailQuery.productCategoryDetail || {}
     };
 
-    const productList = props => {
+    const jobReferList = props => {
       return <List {...updatedProps} {...props} />;
     };
 
     const refetch = () => {
-      this.props.productsQuery.refetch();
+      this.props.jobRefersQuery.refetch();
     };
 
-    return <Bulk content={productList} refetch={refetch} />;
+    return <Bulk content={jobReferList} refetch={refetch} />;
   }
 }
 
 const getRefetchQueries = () => {
   return [
-    'products',
-    'productCategories',
-    'productCategoriesCount',
-    'productsTotalCount',
+    'jobRefers',
+    'jobCategories',
+    'jobCategoriesTotalCount',
+    'jobReferTotalCount',
     'productCountByTags'
   ];
 };
@@ -140,32 +114,33 @@ const options = () => ({
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ProductsQueryResponse, { page: number; perPage: number }>(
-      gql(queries.products),
+    graphql<Props, JobRefersQueryResponse, { page: number; perPage: number }>(
+      gql(queries.jobRefers),
       {
-        name: 'productsQuery',
+        name: 'jobRefersQuery',
         options: ({ queryParams }) => ({
           variables: {
             categoryId: queryParams.categoryId,
-            tag: queryParams.tag,
             searchValue: queryParams.searchValue,
-            type: queryParams.type,
             ...generatePaginationParams(queryParams)
           },
           fetchPolicy: 'network-only'
         })
       }
     ),
-    graphql<Props, ProductsCountQueryResponse>(gql(queries.productsCount), {
-      name: 'productsCountQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql<Props, ProductRemoveMutationResponse, { productIds: string[] }>(
-      gql(mutations.productsRemove),
+    graphql<Props, jobReferTotalCountQueryResponse>(
+      gql(queries.jobReferTotalCount),
       {
-        name: 'productsRemove',
+        name: 'jobRefersCountQuery',
+        options: () => ({
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, jobRefersRemoveMutationResponse, { jobRefersIds: string[] }>(
+      gql(mutations.jobRefersRemove),
+      {
+        name: 'jobRefersRemove',
         options
       }
     ),
@@ -178,12 +153,6 @@ export default withProps<Props>(
             _id: queryParams.categoryId
           }
         })
-      }
-    ),
-    graphql<Props, MergeMutationResponse, MergeMutationVariables>(
-      gql(mutations.productsMerge),
-      {
-        name: 'productsMerge'
       }
     )
   )(ProductListContainer)

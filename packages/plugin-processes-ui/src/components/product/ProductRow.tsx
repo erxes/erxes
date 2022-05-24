@@ -1,25 +1,26 @@
 import { FormControl } from '@erxes/ui/src/components/form';
-import Tags from '@erxes/ui/src/components/Tags';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import React from 'react';
-import { IProduct } from '../../types';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+import { IJobRefer } from '../../types';
 
 type Props = {
-  product: IProduct;
+  jobRefer: IJobRefer;
   history: any;
   isChecked: boolean;
-  toggleBulk: (product: IProduct, isChecked?: boolean) => void;
+  toggleBulk: (jobRefer: IJobRefer, isChecked?: boolean) => void;
 };
 
 class Row extends React.Component<Props> {
   render() {
-    const { product, history, toggleBulk, isChecked } = this.props;
+    const { jobRefer, history, toggleBulk, isChecked } = this.props;
 
-    const tags = product.getTags || [];
+    console.log('product row: ', jobRefer.needProducts);
 
     const onChange = e => {
       if (toggleBulk) {
-        toggleBulk(product, e.target.checked);
+        toggleBulk(jobRefer, e.target.checked);
       }
     };
 
@@ -27,21 +28,27 @@ class Row extends React.Component<Props> {
       e.stopPropagation();
     };
 
-    const onTrClick = () => {
-      history.push(`/settings/product-service/details/${product._id}`);
+    const renderProducts = products => {
+      if (products.length) {
+        return products.map(e => (
+          <>
+            <FormGroup>
+              <TextInfo>
+                {e.product.name + ' - ' + e.quantity + ' /Qty/'}
+              </TextInfo>
+            </FormGroup>
+          </>
+        ));
+      } else {
+        return '';
+      }
     };
 
-    const {
-      code,
-      name,
-      type,
-      category,
-      supply,
-      productCount,
-      minimiumCount,
-      unitPrice,
-      sku
-    } = product;
+    const onTrClick = () => {
+      history.push(`/processes/flows/details/${jobRefer._id}`);
+    };
+
+    const { code, name, type, needProducts, resultProducts } = jobRefer;
 
     return (
       <tr onClick={onTrClick}>
@@ -52,20 +59,13 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           />
         </td>
-        <td>{code}</td>
         <td>{name}</td>
+        <td>{code}</td>
         <td>
           <TextInfo>{type}</TextInfo>
         </td>
-        <td>{category ? category.name : ''}</td>
-        <td>{supply || ''}</td>
-        <td>{productCount ? productCount : 0}</td>
-        <td>{minimiumCount ? minimiumCount : 0}</td>
-        <td>{(unitPrice || 0).toLocaleString()}</td>
-        <td>{sku}</td>
-        <td>
-          <Tags tags={tags} limit={2} />
-        </td>
+        <td>{renderProducts(needProducts)}</td>
+        <td>{renderProducts(resultProducts)}</td>
       </tr>
     );
   }

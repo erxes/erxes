@@ -4,6 +4,9 @@ import {
   IProductDoc as IProductDocC,
   IUom as IUomC
 } from '@erxes/ui-products/src/types';
+
+import { IBranch, IDepartment } from '@erxes/ui-team/src/types';
+
 import { QueryResponse } from '@erxes/ui/src/types';
 
 export type IProductDoc = IProductDocC & {};
@@ -14,18 +17,72 @@ export type IProductCategory = IProductCategoryC & {};
 
 export type IUom = IUomC & {};
 
+export interface IJobCategory {
+  _id: string;
+  name: string;
+  code: string;
+  description?: string;
+  parentId?: string;
+  attachment?: any;
+  status?: string;
+  order: string;
+  createdAt: Date;
+  isRoot: boolean;
+  productCount: number;
+}
+
+export interface IJobRefer {
+  _id: string;
+  createdAt: Date;
+  code: string;
+  name: string;
+  type: string;
+  status?: string;
+  categoryId?: string;
+  duration: number;
+  durationType: string;
+  needProducts?: any[];
+  resultProducts?: any[];
+}
+
+export interface IProductsData {
+  _id: string;
+  productId: string;
+  product: any;
+  quantity: number;
+  uomId: string;
+  branchId?: string;
+  departmentId?: string;
+}
+
+export interface IProductsDataDocument extends IProductsData {
+  branch?: IBranch;
+  department?: IDepartment;
+  uom?: IUom;
+}
+
 // query types
 
 export type ProductsQueryResponse = {
   products: IProduct[];
 } & QueryResponse;
 
-export type ProductsCountQueryResponse = {
-  productsTotalCount: number;
+// JOB
+
+export type JobRefersQueryResponse = {
+  jobRefers: IJobRefer[];
 } & QueryResponse;
 
-export type ProductCategoriesCountQueryResponse = {
-  productCategoriesTotalCount: number;
+export type jobReferTotalCountQueryResponse = {
+  jobReferTotalCount: number;
+} & QueryResponse;
+
+export type JobCategoriesQueryResponse = {
+  jobCategories: IJobCategory[];
+} & QueryResponse;
+
+export type JobCategoriesCountQueryResponse = {
+  jobCategoriesTotalCount: number;
 } & QueryResponse;
 
 // UOM
@@ -53,6 +110,8 @@ export type MutationUomVariables = {
   code: string;
 };
 
+export type MutationJobReferVariables = {};
+
 // mutation types
 
 export type AddMutationResponse = {
@@ -63,20 +122,20 @@ export type EditMutationResponse = {
   editMutation: (mutation: { variables: MutationVariables }) => Promise<any>;
 };
 
-export type ProductRemoveMutationResponse = {
-  productsRemove: (mutation: {
-    variables: { productIds: string[] };
+export type jobRefersRemoveMutationResponse = {
+  jobRefersRemove: (mutation: {
+    variables: { jobRefersIds: string[] };
   }) => Promise<any>;
 };
 
-export type ProductCategoryRemoveMutationResponse = {
-  productCategoryRemove: (mutation: {
+export type JobCategoriesRemoveMutationResponse = {
+  jobCategoriesRemove: (mutation: {
     variables: { _id: string };
   }) => Promise<any>;
 };
 
 export type DetailQueryResponse = {
-  productDetail: IProduct;
+  jobReferDetail: IJobRefer;
   loading: boolean;
 };
 

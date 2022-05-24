@@ -6,41 +6,38 @@ import { graphql } from 'react-apollo';
 import List from '../../components/productCategory/CategoryList';
 import { mutations, queries } from '../../graphql';
 import {
-  ProductCategoriesCountQueryResponse,
-  ProductCategoryRemoveMutationResponse,
+  JobCategoriesCountQueryResponse,
+  JobCategoriesQueryResponse,
+  JobCategoriesRemoveMutationResponse,
   ProductsQueryResponse
 } from '../../types';
-import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
 type Props = { history: any; queryParams: any };
 
 type FinalProps = {
-  productCategoriesQuery: ProductCategoriesQueryResponse;
-  productCategoriesCountQuery: ProductCategoriesCountQueryResponse;
+  jobCategoriesCountQuery: JobCategoriesCountQueryResponse;
   productsQuery: ProductsQueryResponse;
+  jobCategoriesQuery: JobCategoriesQueryResponse;
 } & Props &
-  ProductCategoryRemoveMutationResponse;
+  JobCategoriesRemoveMutationResponse;
 class ProductListContainer extends React.Component<FinalProps> {
   render() {
     const {
-      productCategoriesQuery,
-      productCategoriesCountQuery,
+      jobCategoriesCountQuery,
       productsQuery,
-      productCategoryRemove
+      jobCategoriesQuery,
+      jobCategoriesRemove
     } = this.props;
 
-    const remove = productId => {
+    const remove = jobId => {
       confirm().then(() => {
-        productCategoryRemove({
-          variables: { _id: productId }
+        jobCategoriesRemove({
+          variables: { _id: jobId }
         })
           .then(() => {
-            productCategoriesQuery.refetch();
-            productCategoriesCountQuery.refetch();
+            jobCategoriesQuery.refetch();
+            jobCategoriesCountQuery.refetch();
             productsQuery.refetch();
-
-            Alert.success(
-              `You successfully deleted a product & service category`
-            );
+            Alert.success(`You successfully deleted a job & service category`);
           })
           .catch(error => {
             Alert.error(error.message);
@@ -48,15 +45,14 @@ class ProductListContainer extends React.Component<FinalProps> {
       });
     };
 
-    const productCategories = productCategoriesQuery.productCategories || [];
+    const jobCategories = jobCategoriesQuery.jobCategories || [];
 
     const updatedProps = {
       ...this.props,
       remove,
-      productCategories,
-      loading: productCategoriesQuery.loading,
-      productCategoriesCount:
-        productCategoriesCountQuery.productCategoriesTotalCount || 0
+      jobCategories,
+      loading: jobCategoriesQuery.loading,
+      jobCategoriesCount: jobCategoriesCountQuery.jobCategoriesTotalCount || 0
     };
 
     return <List {...updatedProps} />;
@@ -64,7 +60,7 @@ class ProductListContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['productCategories', 'productCategoriesTotalCount', 'products'];
+  return ['jobCategories', 'jobCategoriesTotalCount', 'products'];
 };
 
 const options = () => ({
@@ -73,30 +69,28 @@ const options = () => ({
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ProductCategoriesQueryResponse, { parentId: string }>(
-      gql(queries.productCategories),
+    graphql<Props, JobCategoriesQueryResponse>(gql(queries.jobCategories), {
+      name: 'jobCategoriesQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          status: queryParams.status,
+          parentId: queryParams.parentId,
+          searchValue: queryParams.searchValue
+        },
+        refetchQueries: getRefetchQueries(),
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props, JobCategoriesCountQueryResponse>(
+      gql(queries.jobCategoriesTotalCount),
       {
-        name: 'productCategoriesQuery',
-        options: ({ queryParams }) => ({
-          variables: {
-            status: queryParams.status,
-            parentId: queryParams.parentId
-          },
-          refetchQueries: getRefetchQueries(),
-          fetchPolicy: 'network-only'
-        })
+        name: 'jobCategoriesCountQuery'
       }
     ),
-    graphql<Props, ProductCategoriesCountQueryResponse>(
-      gql(queries.productCategoriesCount),
+    graphql<Props, JobCategoriesRemoveMutationResponse, { _id: string }>(
+      gql(mutations.jobCategoriesRemove),
       {
-        name: 'productCategoriesCountQuery'
-      }
-    ),
-    graphql<Props, ProductCategoryRemoveMutationResponse, { _id: string }>(
-      gql(mutations.productCategoryRemove),
-      {
-        name: 'productCategoryRemove',
+        name: 'jobCategoriesRemove',
         options
       }
     ),

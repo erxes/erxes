@@ -11,12 +11,12 @@ import { SidebarList } from '@erxes/ui/src/layout/styles';
 import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import CategoryForm from '@erxes/ui-products/src/containers/CategoryForm';
-import TagFilter from '../../containers/TagFilter';
-import { IProductCategory } from '../../types';
-import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
-import CategoryStatusFilter from '../product/filters/CategoryStatusFilter';
-import { pluginsOfProductCategoryActions } from 'coreui/pluginUtils';
+import CategoryForm from '../../containers/productCategory/CategoryForm';
+import { IJobCategory } from '../../types';
+// import TagFilter from '../../containers/TagFilter';
+// import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
+// import CategoryStatusFilter from '../product/filters/CategoryStatusFilter';
+import { pluginsOfJobCategoryActions } from 'coreui/pluginUtils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const { Section } = Wrapper.Sidebar;
@@ -24,19 +24,19 @@ const { Section } = Wrapper.Sidebar;
 interface IProps {
   history: any;
   queryParams: any;
-  remove: (productCategoryId: string) => void;
-  productCategories: IProductCategory[];
-  productCategoriesCount: number;
+  remove: (jobCategoryId: string) => void;
+  jobCategories: IJobCategory[];
   loading: boolean;
+  jobCategoriesCount: number;
 }
 
 class List extends React.Component<IProps> {
-  renderFormTrigger(trigger: React.ReactNode, category?: IProductCategory) {
+  renderFormTrigger(trigger: React.ReactNode, category?: IJobCategory) {
     const content = props => (
       <CategoryForm
         {...props}
         category={category}
-        categories={this.props.productCategories}
+        categories={this.props.jobCategories}
       />
     );
 
@@ -56,7 +56,7 @@ class List extends React.Component<IProps> {
     return currentGroup === id;
   };
 
-  renderEditAction(category: IProductCategory) {
+  renderEditAction(category: IJobCategory) {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')} placement="bottom">
@@ -68,7 +68,7 @@ class List extends React.Component<IProps> {
     return this.renderFormTrigger(trigger, category);
   }
 
-  renderRemoveAction(category: IProductCategory) {
+  renderRemoveAction(category: IJobCategory) {
     const { remove } = this.props;
 
     return (
@@ -81,12 +81,12 @@ class List extends React.Component<IProps> {
   }
 
   renderContent() {
-    const { productCategories } = this.props;
+    const { jobCategories } = this.props;
 
     const result: React.ReactNode[] = [];
 
-    for (const category of productCategories) {
-      const order = category.order;
+    for (const category of jobCategories) {
+      const order = category.order || '';
 
       const m = order.match(/[/]/gi);
 
@@ -97,10 +97,10 @@ class List extends React.Component<IProps> {
       }
 
       const name = category.isRoot ? (
-        `${category.name} (${category.productCount})`
+        `${category.name} (${category.productCount || 0})`
       ) : (
         <span>
-          {category.name} ({category.productCount})
+          {category.name} ({category.productCount || 0})
         </span>
       );
 
@@ -115,7 +115,7 @@ class List extends React.Component<IProps> {
           </Link>
           <ActionButtons>
             {this.renderEditAction(category)}
-            {pluginsOfProductCategoryActions(category._id)}
+            {pluginsOfJobCategoryActions(category._id)}
             {this.renderRemoveAction(category)}
           </ActionButtons>
         </SidebarListItem>
@@ -153,15 +153,15 @@ class List extends React.Component<IProps> {
   }
 
   renderCategoryList() {
-    const { productCategoriesCount, loading } = this.props;
+    const { jobCategoriesCount, loading } = this.props;
 
     return (
       <SidebarList>
         <DataWithLoader
           data={this.renderContent()}
           loading={loading}
-          count={productCategoriesCount}
-          emptyText="There is no product & service category"
+          count={jobCategoriesCount}
+          emptyText="There is no job & service category"
           emptyIcon="folder-2"
           size="small"
         />
@@ -174,14 +174,14 @@ class List extends React.Component<IProps> {
       <Sidebar wide={true} hasBorder={true}>
         <Section
           maxHeight={488}
-          collapsible={this.props.productCategoriesCount > 9}
+          collapsible={this.props.jobCategoriesCount > 9}
         >
           {this.renderCategoryHeader()}
           {this.renderCategoryList()}
         </Section>
-        <CategoryStatusFilter />
-        <ProductTypeFilter />
-        {isEnabled('tags') && <TagFilter />}
+        {/* <CategoryStatusFilter /> */}
+        {/* <ProductTypeFilter />
+        {isEnabled('tags') && <TagFilter />} */}
       </Sidebar>
     );
   }

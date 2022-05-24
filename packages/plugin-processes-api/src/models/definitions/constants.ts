@@ -25,6 +25,12 @@ export const DURATION_TYPES = {
   ALL: ['minut', 'hour', 'day', 'month']
 };
 
+export const JOB_TYPES = {
+  PRODUCT: 'product',
+  SERVICE: 'service',
+  ALL: ['product', 'service']
+};
+
 export const JOB_STATUSES = {
   ACTIVE: 'active',
   DRAFT: 'draft',

@@ -10,6 +10,7 @@ export const types = `
     parentId: String,
     attachment: Attachment,
     status: String,
+    productCount: Int
   }
 `;
 

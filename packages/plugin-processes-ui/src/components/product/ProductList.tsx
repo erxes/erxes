@@ -13,11 +13,9 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
 import React from 'react';
-import { Link } from 'react-router-dom';
-import Form from '@erxes/ui-products/src/containers/ProductForm';
+import Form from '../../containers/product/ProductForm';
 import CategoryList from '../../containers/productCategory/CategoryList';
-import { IProduct, IProductCategory } from '../../types';
-import ProductsMerge from './detail/ProductsMerge';
+import { IJobRefer, IProductCategory } from '../../types';
 import Row from './ProductRow';
 import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
 import { isEnabled } from '@erxes/ui/src/utils/core';
@@ -25,19 +23,17 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 interface IProps extends IRouterProps {
   history: any;
   queryParams: any;
-  products: IProduct[];
-  productsCount: number;
+  jobRefers: IJobRefer[];
+  jobRefersCount: number;
   isAllSelected: boolean;
   bulk: any[];
   emptyBulk: () => void;
-  remove: (doc: { productIds: string[] }, emptyBulk: () => void) => void;
+  remove: (doc: { jobRefersIds: string[] }, emptyBulk: () => void) => void;
   toggleBulk: () => void;
-  toggleAll: (targets: IProduct[], containerId: string) => void;
+  toggleAll: (targets: IJobRefer[], containerId: string) => void;
   loading: boolean;
   searchValue: string;
   currentCategory: IProductCategory;
-  mergeProducts: () => void;
-  mergeProductLoading;
 }
 
 type State = {
@@ -56,38 +52,38 @@ class List extends React.Component<IProps, State> {
   }
 
   renderRow = () => {
-    const { products, history, toggleBulk, bulk } = this.props;
+    const { jobRefers, history, toggleBulk, bulk } = this.props;
 
-    return products.map(product => (
+    return jobRefers.map(jobRefer => (
       <Row
         history={history}
-        key={product._id}
-        product={product}
+        key={jobRefer._id}
+        jobRefer={jobRefer}
         toggleBulk={toggleBulk}
-        isChecked={bulk.includes(product)}
+        isChecked={bulk.includes(jobRefer)}
       />
     ));
   };
 
   onChange = () => {
-    const { toggleAll, products } = this.props;
-    toggleAll(products, 'products');
+    const { toggleAll, jobRefers } = this.props;
+    toggleAll(jobRefers, 'jobRefers');
   };
 
-  removeProducts = products => {
-    const productIds: string[] = [];
+  removeProducts = jobRefers => {
+    const jobRefersIds: string[] = [];
 
-    products.forEach(product => {
-      productIds.push(product._id);
+    jobRefers.forEach(jobRefer => {
+      jobRefersIds.push(jobRefer._id);
     });
 
-    this.props.remove({ productIds }, this.props.emptyBulk);
+    this.props.remove({ jobRefersIds }, this.props.emptyBulk);
   };
 
   renderCount = productCount => {
     return (
       <Count>
-        {productCount} product{productCount > 1 && 's'}
+        {productCount} job{productCount > 1 && 's'}
       </Count>
     );
   };
@@ -117,16 +113,14 @@ class List extends React.Component<IProps, State> {
 
   render() {
     const {
-      productsCount,
+      jobRefersCount,
       loading,
       queryParams,
       isAllSelected,
       history,
       bulk,
       emptyBulk,
-      currentCategory,
-      mergeProducts,
-      mergeProductLoading
+      currentCategory
     } = this.props;
 
     const breadcrumb = [
@@ -136,7 +130,7 @@ class List extends React.Component<IProps, State> {
 
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
-        Add items
+        Add job
       </Button>
     );
 
@@ -152,13 +146,8 @@ class List extends React.Component<IProps, State> {
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
-        <Link to="/settings/importHistories?type=product">
-          <Button btnStyle="simple" icon="arrow-from-right">
-            {__('Import items')}
-          </Button>
-        </Link>
         <ModalTrigger
-          title="Add Product/Services"
+          title="Add Job"
           trigger={trigger}
           autoOpenKey="showProductModal"
           content={modalContent}
@@ -168,7 +157,7 @@ class List extends React.Component<IProps, State> {
 
     let content = (
       <>
-        {this.renderCount(currentCategory.productCount || productsCount)}
+        {this.renderCount(currentCategory.productCount || jobRefersCount)}
         <Table hover={true}>
           <thead>
             <tr>
@@ -179,16 +168,11 @@ class List extends React.Component<IProps, State> {
                   onChange={this.onChange}
                 />
               </th>
-              <th>{__('Code')}</th>
               <th>{__('Name')}</th>
+              <th>{__('Code')}</th>
               <th>{__('Type')}</th>
-              <th>{__('Category')}</th>
-              <th>{__('Supply')}</th>
-              <th>{__('Product count')}</th>
-              <th>{__('Minimium count')}</th>
-              <th>{__('Unit Price')}</th>
-              <th>{__('SKU')}</th>
-              <th>{__('Tags')}</th>
+              <th>{__('Need Products')}</th>
+              <th>{__('Result Products')}</th>
             </tr>
           </thead>
           <tbody>{this.renderRow()}</tbody>
@@ -206,24 +190,7 @@ class List extends React.Component<IProps, State> {
       );
     }
 
-    const productsMerge = props => {
-      return (
-        <ProductsMerge
-          {...props}
-          objects={bulk}
-          save={mergeProducts}
-          mergeProductLoading={mergeProductLoading}
-        />
-      );
-    };
-
     if (bulk.length > 0) {
-      const tagButton = (
-        <Button btnStyle="simple" size="small" icon="tag-alt">
-          Tag
-        </Button>
-      );
-
       const onClick = () =>
         confirm()
           .then(() => {
@@ -233,32 +200,8 @@ class List extends React.Component<IProps, State> {
             Alert.error(error.message);
           });
 
-      const mergeButton = (
-        <Button btnStyle="primary" size="small" icon="merge">
-          Merge
-        </Button>
-      );
-
       actionBarRight = (
         <BarItems>
-          {bulk.length === 2 && (
-            <ModalTrigger
-              title="Merge Product"
-              size="lg"
-              dialogClassName="modal-1000w"
-              trigger={mergeButton}
-              content={productsMerge}
-            />
-          )}
-          {isEnabled('tags') && (
-            <TaggerPopover
-              type={TAG_TYPES.PRODUCT}
-              successCallback={emptyBulk}
-              targets={bulk}
-              trigger={tagButton}
-              refetchQueries={['productCountByTags']}
-            />
-          )}
           <Button
             btnStyle="danger"
             size="small"
@@ -271,27 +214,16 @@ class List extends React.Component<IProps, State> {
       );
     }
 
-    const actionBarLeft = (
-      <Title>{currentCategory.name || 'All products'}</Title>
-    );
+    const actionBarLeft = <Title>{currentCategory.name || 'All jobs'}</Title>;
 
     return (
       <Wrapper
-        header={
-          <Wrapper.Header
-            title={__('Product & Service')}
-            breadcrumb={breadcrumb}
-          />
-        }
+        header={<Wrapper.Header title={__('Job')} breadcrumb={breadcrumb} />}
         mainHead={
           <HeaderDescription
             icon="/images/actions/30.svg"
-            title={'Product & Service'}
-            description={`${__(
-              'All information and know-how related to your business products and services are found here'
-            )}.${__(
-              'Create and add in unlimited products and servicess so that you and your team members can edit and share'
-            )}`}
+            title={'Job'}
+            description={``}
           />
         }
         actionBar={
@@ -300,12 +232,12 @@ class List extends React.Component<IProps, State> {
         leftSidebar={
           <CategoryList queryParams={queryParams} history={history} />
         }
-        footer={<Pagination count={productsCount} />}
+        footer={<Pagination count={jobRefersCount} />}
         content={
           <DataWithLoader
             data={content}
             loading={loading}
-            count={productsCount}
+            count={jobRefersCount}
             emptyText="There is no data"
             emptyImage="/images/actions/5.svg"
           />

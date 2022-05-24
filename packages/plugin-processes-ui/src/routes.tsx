@@ -21,9 +21,9 @@ const productService = ({ location, history }) => {
 const routes = () => {
   return (
     <Route
-      path="/processes/flows/"
+      path="/processes/flows"
       exact={true}
-      key="/processes/flows/"
+      key="/processes/flows"
       component={productService}
     />
   );

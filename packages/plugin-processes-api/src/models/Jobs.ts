@@ -1,13 +1,18 @@
 import { Model, model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
-import { IJobRefer, IJobReferDocument, jobReferSchema } from './definitions/jobs';
+import {
+  IJobRefer,
+  IJobReferDocument,
+  jobReferSchema
+} from './definitions/jobs';
 
 export interface IJobReferModel extends Model<IJobReferDocument> {
   getJobRefer(_id: string): Promise<IJobReferDocument>;
   createJobRefer(doc: IJobRefer): Promise<IJobReferDocument>;
   updateJobRefer(_id: string, doc: IJobRefer): Promise<IJobReferDocument>;
   removeJobRefer(_id: string): void;
+  removeJobRefers(jobRefersIds: string[]): void;
 }
 
 export const loadJobReferClass = (models: IModels) => {
@@ -31,7 +36,7 @@ export const loadJobReferClass = (models: IModels) => {
     public static async createJobRefer(doc: IJobRefer) {
       const job = await models.JobRefers.create({
         ...doc,
-        createdAt: new Date(),
+        createdAt: new Date()
       });
 
       return job;
@@ -41,11 +46,11 @@ export const loadJobReferClass = (models: IModels) => {
      * Update JobRefer
      */
     public static async updateJobRefer(_id: string, doc: IJobRefer) {
-      const job = await models.JobRefers.getJobRefer(_id,);
+      const job = await models.JobRefers.getJobRefer(_id);
 
       await models.JobRefers.updateOne({ _id }, { $set: { ...doc } });
 
-      const updated = await models.JobRefers.getJobRefer( _id );
+      const updated = await models.JobRefers.getJobRefer(_id);
 
       return updated;
     }
@@ -56,6 +61,15 @@ export const loadJobReferClass = (models: IModels) => {
     public static async removeJobRefer(_id: string) {
       await models.JobRefers.getJobRefer(_id);
       return models.JobRefers.deleteOne({ _id });
+    }
+
+    /**
+     * Remove JobRefers
+     */
+    public static async removeJobRefers(jobRefersIds: string[]) {
+      await models.JobRefers.deleteMany({ _id: { $in: jobRefersIds } });
+
+      return 'deleted';
     }
   }
 
