@@ -1,4 +1,4 @@
-import mongoose, { Model, model } from 'mongoose';
+import { Model, model } from 'mongoose';
 import { IOrder, IOrderDocument, orderSchema } from './definitions/orders';
 
 export interface IOrderModel extends Model<IOrderDocument> {

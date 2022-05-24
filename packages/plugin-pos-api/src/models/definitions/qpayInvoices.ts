@@ -1,7 +1,7 @@
-import { schemaHooksWrapper } from './../../../../plugin-inbox-api/src/models/definitions/utils';
+import { field, schemaHooksWrapper } from './util';
 import { Document, Schema } from 'mongoose';
 import { IQpayInvoiceModel } from '../QPayInvoices';
-import { field, getDateFieldDefinition } from './utils';
+import { getDateFieldDefinition } from './utils';
 
 interface IQPayUrl {
   name: string;
