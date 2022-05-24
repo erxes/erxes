@@ -1,6 +1,6 @@
 const getLabels = `
-  query getLabels($type:String) {
-    getLabels(type:$type) {
+  query getMiniPlanLabels($type:String){
+    getMiniPlanLabels(type:$type){
       _id,
       type,
       color,
@@ -11,8 +11,8 @@ const getLabels = `
 `;
 
 const getTimeframes = `
-  query getTimeframes {
-    getTimeframes {
+  query getTimeframes{
+    getTimeframes{
       _id,
       name,
       description,
@@ -23,16 +23,16 @@ const getTimeframes = `
 `;
 
 const units = `
-  query units {
-    units {
+  query units{
+    units{
       _id,
       title
     }
   }
 `;
 const branches = `
-  query branches {
-    branches {
+  query branches{
+    branches{
       _id,
       title
     }
@@ -40,23 +40,23 @@ const branches = `
 `;
 
 const getSalesLogs = `
-  query getSalesLogs {
-    getSalesLogs {
+  query getSalesLogs{
+    getSalesLogs{
           _id ,
       description,
       date,
       name,
       type,
-      unitDetail {
+      unitDetail{
         _id,
         title
       },
-      createdUser {
+      createdUser{
         _id,
         username
       },
       createdAt,
-      branchDetail {
+      branchDetail{
         _id,
         title
       }
@@ -65,28 +65,28 @@ const getSalesLogs = `
 `;
 
 const getDayPlanConfig = `
-  query getDayPlanConfig($salesLogId: String) {
-    getDayPlanConfig(salesLogId: $salesLogId) {
+  query getDayPlanConfig($saleLogId: String){
+    getDayPlanConfig(saleLogId: $saleLogId){
       _id,
       labelIds,
-      timeframeId
+      dayConfigId
     }
   }
 `;
 
 const getMonthPlanConfig = `
-  query getMonthPlanConfig($salesLogId: String) {
-    getMonthPlanConfig(salesLogId: $salesLogId) {
+  query getMonthPlanConfig($saleLogId: String){
+    getMonthPlanConfig(saleLogId: $saleLogId){
       _id,
       labelIds,
-      day
+      date
     }
   }
 `;
 
 const products = `
-  query products {
-    products {
+  query products{
+    products{
       _id,
       name
     }

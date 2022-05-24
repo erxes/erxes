@@ -17,8 +17,7 @@ const salesLogMutations = {
     doc: { update: ILabelDocument[]; add: ILabel[] },
     { models }: IContext
   ) => {
-    console.log('adsfsdfsdf', doc.add);
-    return await models.Labels.saveLabels(doc);
+    return await models.Labels.saveLabels({ doc });
   },
 
   saveTimeframes: async (
@@ -42,7 +41,6 @@ const salesLogMutations = {
     doc: { salesLogId: string; date: Date; data: JSON },
     { models }: IContext
   ) => {
-    console.log('wuuuuuut', doc);
     return await models.MonthPlanConfigs.saveMonthPlanConfig({ doc });
   },
 

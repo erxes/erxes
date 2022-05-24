@@ -114,7 +114,7 @@ export const queries = `
   getDayPlanConfig(salesLogId: String): [DayPlanConfig]
   getMonthPlanConfig(salesLogId: String): [MonthPlanConfig]
   getLabels(type: String): [Label]
-  getSalesLogs: [SalesLog]
+  getSalesLogs: [SalesLog ]  
   getTimeframes:[Timeframe]
 `;
 
@@ -123,8 +123,8 @@ export const mutations = `
   saveLabels(update: [LabelInput], add: [AddLabelInput]): [Label]
   saveTimeframes(update:[TimeframeInput], add:[AddTimeframeInput]):[Timeframe]
   saveDayPlanConfig(salesLogId: String, data:JSON):DayPlanConfig
-  saveMonthPlanConfig(salesLogId: String, day: Date, data:JSON):MonthPlanConfig
+  saveMonthPlanConfig(salesLogId: String, date: Date, data:JSON):MonthPlanConfig
   removeLabel(_id:String): JSON
-  removeTimeframe(_id: String): JSON
+  removeTimeframe(_id: String): JSOM
   removeSalesLog(_id: String): JSON
 `;

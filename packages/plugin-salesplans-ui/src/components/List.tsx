@@ -45,7 +45,6 @@ function List({ data, removedata }: Props) {
     const content = formProps => {
       return <DateCooserContainer data={data} {...formProps} />;
     };
-
     return (
       <ModalTrigger
         title={`Setting`}

@@ -366,6 +366,8 @@ export const getSchemaLabels = (type: string, schemaMappings: ISchemaMap[]) => {
 export const logConsumers = (params: {
   name;
   consumeRPCQueue?;
+  getActivityContent?;
+  getContentTypeDetail?;
   collectItems?;
   getContentIds?;
   getSchemalabels?;
@@ -373,10 +375,26 @@ export const logConsumers = (params: {
   const {
     name,
     consumeRPCQueue,
+    getActivityContent,
+    getContentTypeDetail,
     collectItems,
     getContentIds,
     getSchemalabels
   } = params;
+
+  if (getActivityContent) {
+    consumeRPCQueue(`${name}:logs.getActivityContent`, async args => ({
+      status: 'success',
+      data: await getActivityContent(args)
+    }));
+  }
+
+  if (getContentTypeDetail) {
+    consumeRPCQueue(`${name}:logs.getContentTypeDetail`, async args => ({
+      status: 'success',
+      data: await getContentTypeDetail(args)
+    }));
+  }
 
   if (collectItems) {
     consumeRPCQueue(`${name}:logs.collectItems`, async args => ({
