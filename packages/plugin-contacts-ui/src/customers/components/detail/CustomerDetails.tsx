@@ -1,5 +1,5 @@
-import ActivityInputs from '@erxes/ui-logs/src/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui-logs/src/activityLogs/containers/ActivityLogs';
+import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { TabTitle } from '@erxes/ui/src/components/tabs';

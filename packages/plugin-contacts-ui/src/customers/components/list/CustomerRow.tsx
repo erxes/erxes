@@ -5,7 +5,7 @@ import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import Tags from '@erxes/ui/src/components/Tags';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import { formatValue } from '@erxes/ui/src/utils';
-import { FlexContent } from '@erxes/ui-logs/src/activityLogs/styles';
+import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 import {
   GENDER_TYPES,
   LEAD_STATUS_TYPES

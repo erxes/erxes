@@ -3,7 +3,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import Sidebar from './Sidebar';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import { IActivityLog } from '@erxes/ui-logs/src/activityLogs/types';
+import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
 import ActivityLogsByActionRow from './ActivityLogsByActionRow';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';

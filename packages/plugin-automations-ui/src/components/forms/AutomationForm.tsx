@@ -51,7 +51,7 @@ import TemplateForm from '../../containers/forms/TemplateForm';
 import Histories from '../../components/histories/Wrapper';
 import Confirmation from '../../containers/forms/Confirmation';
 import { TRIGGER_TYPES } from '../../constants';
-import { FlexContent } from '@erxes/ui-logs/src/activityLogs/styles';
+import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 
 const plumb: any = jsPlumb;
 let instance;

@@ -1,4 +1,4 @@
-import { IActivityLogItemProps } from '@erxes/ui-logs/src/activityLogs/types';
+import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
 import ChecklistLog from '../containers/CheckListLog';
 import React from 'react';
 

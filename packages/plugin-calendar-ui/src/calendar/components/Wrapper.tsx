@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { capitalize } from '@erxes/ui-logs/src/activityLogs/utils';
+import { capitalize } from '@erxes/ui/src/activityLogs/utils';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { ButtonGroup } from '@erxes/ui-cards/src/boards/styles/header';
 import Button from '@erxes/ui/src/components/Button';

@@ -6,7 +6,7 @@ import { rgba } from '@erxes/ui/src/styles/ecolor';
 import { DateWrapper } from '@erxes/ui-forms/src/forms/styles';
 import { HeaderContent } from '@erxes/ui-cards/src/boards/styles/item';
 import { dimensions, colors } from '@erxes/ui/src/styles';
-import { FlexContent } from '@erxes/ui-logs/src/activityLogs/styles';
+import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 
 export const Container = styled.div`
   padding: ${dimensions.coreSpacing}px;

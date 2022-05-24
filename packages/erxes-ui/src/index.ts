@@ -11,5 +11,6 @@ export * from './styles/eindex';
 export * from './layout';
 export * from './utils';
 export * from './internalNotes';
+export * from './activityLogs';
 
 export { apolloClient, AppConsumer, AppProvider, EditorCK };

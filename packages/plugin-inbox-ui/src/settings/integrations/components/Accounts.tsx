@@ -1,4 +1,4 @@
-import { CenterText } from '@erxes/ui-logs/src/activityLogs/styles';
+import { CenterText } from '@erxes/ui/src/activityLogs/styles';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';

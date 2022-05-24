@@ -3,7 +3,7 @@ import {
   ActivityInputs,
   ActivityLogsContainer as ActivityLogs,
   Wrapper
-} from '@erxes/ui-logs/src';
+} from '@erxes/ui/src';
 import React from 'react';
 import { ICar } from '../../types';
 import LeftSidebar from './LeftSidebar';

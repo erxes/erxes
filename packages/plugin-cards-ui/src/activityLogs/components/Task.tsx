@@ -14,7 +14,7 @@ import {
   LogWrapper,
   Row,
   Title
-} from '@erxes/ui-logs/src/activityLogs/styles';
+} from '@erxes/ui/src/activityLogs/styles';
 import { REMINDER_MINUTES } from '@erxes/ui-cards/src/boards/constants';
 import { IItem } from '@erxes/ui-cards/src/boards/types';
 import { selectOptions } from '@erxes/ui-cards/src/boards/utils';

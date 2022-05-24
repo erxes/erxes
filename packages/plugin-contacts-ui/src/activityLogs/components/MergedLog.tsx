@@ -3,8 +3,8 @@ import {
   ActivityDate,
   FlexCenterContent,
   MergedContacts
-} from '@erxes/ui-logs/src/activityLogs/styles';
-import { IActivityLogItemProps } from '@erxes/ui-logs/src/activityLogs/types';
+} from '@erxes/ui/src/activityLogs/styles';
+import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __, renderFullName, renderUserFullName } from '@erxes/ui/src/utils';
 import React from 'react';

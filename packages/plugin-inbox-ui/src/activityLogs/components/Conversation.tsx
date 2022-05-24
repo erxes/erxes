@@ -11,11 +11,8 @@ import {
   FlexBody,
   FlexCenterContent,
   Header
-} from '@erxes/ui-logs/src/activityLogs/styles';
-import {
-  formatText,
-  getIconAndColor
-} from '@erxes/ui-logs/src/activityLogs/utils';
+} from '@erxes/ui/src/activityLogs/styles';
+import { formatText, getIconAndColor } from '@erxes/ui/src/activityLogs/utils';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __, renderFullName } from '@erxes/ui/src/utils';

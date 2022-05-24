@@ -12,4 +12,4 @@ export {
   activityLogsUtils,
   ActivityLogsQueiries,
   ActivityLogsStyles
-}
+};

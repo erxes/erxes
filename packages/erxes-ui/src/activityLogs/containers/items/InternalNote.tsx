@@ -1,6 +1,9 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import InternalNote from '../../components/items/InternalNote';
+import { IUser } from '../../../auth/types';
+import Spinner from '../../../components/Spinner';
+import { Alert, confirm, withProps } from '../../../utils';
 import { mutations, queries } from '../../../internalNotes/graphql';
 import {
   InternalNoteDetailQueryResponse,
@@ -9,9 +12,6 @@ import {
 } from '../../../internalNotes/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert, withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   activity: any;

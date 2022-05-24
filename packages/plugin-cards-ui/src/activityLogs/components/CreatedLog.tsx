@@ -1,4 +1,4 @@
-import { IActivityLogItemProps } from '@erxes/ui-logs/src/activityLogs/types';
+import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
 import React from 'react';
 import BoardItemCreatedLog from '../containers/BoardItemCreatedLog';
 import CheckListLog from '../containers/CheckListLog';
