@@ -59,12 +59,6 @@ export default async function userMiddleware(
     return next();
   }
 
-  const clientPortalId = (req.headers['client-portal-id'] || '').toString();
-
-  if (clientPortalId) {
-    console.log('clientPortalId: ', clientPortalId);
-  }
-
   const appToken = (req.headers['erxes-app-token'] || '').toString();
 
   const subdomain = getSubdomain(req);
