@@ -25,7 +25,7 @@ import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
 import { uploader } from './middlewares/fileMiddleware';
 import { join, leave, redis } from './serviceDiscovery';
-import logs, { test } from './logUtils';
+import logs from './logUtils';
 
 import init from './startup';
 import forms from './forms';
