@@ -164,7 +164,7 @@ const StepHeaderTitle = styled.h5`
 const StepContent = styledTS<{ direction?: string }>(styled.div)`
   width: ${props =>
     props.direction === 'vertical' ? 'calc(100% - 35px)' : '100%'};
-  height: calc(100% - 55px);
+  height: 100%;
   margin-left: ${props => props.direction && 'auto'};
 `;
 

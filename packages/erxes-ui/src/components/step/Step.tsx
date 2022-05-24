@@ -47,11 +47,11 @@ class Step extends React.Component<Props> {
   };
 
   renderBackButton(text: string) {
-    const { back } = this.props;
+    const { back, stepNumber = 1 } = this.props;
 
     if (back)
       return (
-        <ButtonBack size={1} onClick={back.bind(null, 0)}>
+        <ButtonBack size={1} onClick={() => back(stepNumber)}>
           {text}
         </ButtonBack>
       );
@@ -73,7 +73,7 @@ class Step extends React.Component<Props> {
           {additionalButton
             ? additionalButton
             : next && (
-                <ButtonBack size={1} onClick={next.bind(null, 0)}>
+                <ButtonBack size={1} onClick={() => next && next(0)}>
                   {__('Skip')}
                 </ButtonBack>
               )}
