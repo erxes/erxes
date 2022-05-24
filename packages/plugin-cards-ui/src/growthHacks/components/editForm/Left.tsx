@@ -1,5 +1,5 @@
-import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
+import ActivityInputs from '@erxes/ui-logs/src/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui-logs/src/activityLogs/containers/ActivityLogs';
 import Labels from '@erxes/ui-cards/src/boards/components/label/Labels';
 import { TitleRow } from '@erxes/ui-cards/src/boards/styles/item';
 import { IOptions } from '@erxes/ui-cards/src/boards/types';

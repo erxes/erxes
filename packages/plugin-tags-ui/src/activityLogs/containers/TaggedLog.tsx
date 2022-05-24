@@ -4,7 +4,7 @@ import { withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
+import { IActivityLogItemProps } from '@erxes/ui-logs/src/activityLogs/types';
 import TaggedLog from '../component/TaggedLog';
 import { TagsQueryResponse } from '../../types';
 import { queries } from '../../graphql';

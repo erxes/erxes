@@ -8,7 +8,7 @@ import {
 import {
   IActivityLog,
   IActivityLogForMonth
-} from '@erxes/ui/src/activityLogs/types';
+} from '@erxes/ui-logs/src/activityLogs/types';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 
 export interface IRouterProps {

@@ -1,14 +1,14 @@
 import * as express from 'express';
-import { IConfigDocument } from './db/models/definitions/configs';
-import { IPosUserDocument } from './db/models/definitions/posUsers';
-import { IUserDocument } from './db/models/definitions';
+// import { IConfigDocument } from './../models/definitions/configs';
+// import { IPosUserDocument } from './db/models/definitions/posUsers';
+// import { IUserDocument } from './db/models/definitions';
 
 export interface IContext {
   res: express.Response;
   requestInfo: any;
-  user: IUserDocument;
-  posUser: IPosUserDocument;
-  config: IConfigDocument;
+  // user: IUserDocument;
+  // posUser: IPosUserDocument;
+  // config: IConfigDocument;
 }
 
 export interface ILoginParams {

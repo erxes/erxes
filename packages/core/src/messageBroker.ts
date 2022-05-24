@@ -378,7 +378,6 @@ export const initBroker = async options => {
   logConsumers({
     name: 'core',
     consumeRPCQueue,
-    getActivityContent: logUtils.getActivityContent,
     collectItems: logUtils.collectItems,
     getSchemalabels: logUtils.getSchemaLabels
   });

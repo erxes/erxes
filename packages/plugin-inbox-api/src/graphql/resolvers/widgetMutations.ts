@@ -296,7 +296,8 @@ const createFormConversation = async (
     action: 'submissions.createFormSubmission',
     data: {
       submissions: docs,
-      customer: cachedCustomer
+      customer: cachedCustomer,
+      conversationId: conversation._id
     },
     isRPC: false
   });

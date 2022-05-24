@@ -1,4 +1,4 @@
-import { sendGraphQLRequest } from '../../utils';
+import { sendGraphQLRequest } from './utils';
 import { Orders } from '../../../models/Orders';
 import { IContext } from '../../types';
 import { escapeRegExp, paginate, sendRequest } from '../../utils/commonUtils';
@@ -17,7 +17,7 @@ interface IFullOrderParams extends ISearchParams {
 }
 
 const orderQueries = {
-  orders(_root, models, { searchValue, page, perPage }: ISearchParams) {
+  orders(_root, { searchValue, page, perPage }: ISearchParams) {
     const filter: any = {};
 
     if (searchValue) {
@@ -25,7 +25,7 @@ const orderQueries = {
     }
 
     return paginate(
-      models.Orders.find(filter)
+      Orders.find(filter)
         .sort({ createdAt: -1 })
         .lean(),
       {
@@ -37,7 +37,6 @@ const orderQueries = {
 
   fullOrders(
     _root,
-    models,
     {
       searchValue,
       statuses,
@@ -65,7 +64,7 @@ const orderQueries = {
     }
 
     return paginate(
-      models.Orders.find({
+      Orders.find({
         ...filter,
         status: { $in: statuses }
       })
@@ -75,21 +74,17 @@ const orderQueries = {
     );
   },
 
-  orderDetail(_root, models, { _id }) {
-    return models.Orders.findOne({ _id });
+  orderDetail(_root, { _id }) {
+    return Orders.findOne({ _id });
   },
 
-  async ordersCheckCompany(_root, { registerNumber }, { config }: IContext) {
+  async ordersCheckCompany(_root, { registerNumber }, {}: IContext) {
     if (!registerNumber) {
       throw new Error('Company register number required for checking');
     }
 
-    const url =
-      config && config.ebarimtConfig && config.ebarimtConfig.checkCompanyUrl;
-
-    if (url) {
+    if ('') {
       const response = await sendRequest({
-        url,
         method: 'GET',
         params: { regno: registerNumber }
       });

@@ -9,21 +9,6 @@ import {
   loadPosOrderClass
 } from './models/Pos';
 
-import { loadOrderItemClass, IOrderItemModel } from './models/OrderItems';
-import { IOrderModel, loadOrderClass } from './models/Orders';
-import { IProductModel, loadProductClass } from './models/Products';
-import { IPutResponseModel, loadPutResponseClass } from './models/PutResponses';
-import { IQpayInvoiceModel, loadQPayInvoiceClass } from './models/QPayInvoices';
-
-import { IOrderItemDocument } from './models/definitions/orderItems';
-import { IOrderDocument } from './models/definitions/orders';
-import {
-  IProductDocument,
-  IProductCategoryDocument
-} from './models/definitions/products';
-import { IPutResponseDocument } from './models/definitions/putResponses';
-import { IQpayInvoiceDocument } from './models/definitions/qpayInvoices';
-
 import {
   IPosDocument,
   IPosOrderDocument,
@@ -35,11 +20,6 @@ export interface IModels {
   Pos: IPosModel;
   ProductGroup: IProductGroupModel;
   PosOrders: IPosOrderModel;
-  OrderItems: IOrderItemModel;
-  Orders: IOrderModel;
-  Products: IProductModel;
-  PutResponses: IPutResponseModel;
-  QPayInvoices: IQpayInvoiceModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -78,31 +58,6 @@ export const loadClasses = (
   models.PosOrders = db.model<IPosOrderDocument, IPosOrderModel>(
     'pos_orders',
     loadPosOrderClass(models, subdomain)
-  );
-
-  models.OrderItems = db.model<IOrderItemDocument, IOrderItemModel>(
-    'order_items',
-    loadOrderItemClass(models)
-  );
-
-  models.Orders = db.model<IOrderDocument, IOrderModel>(
-    'orders',
-    loadOrderClass(models)
-  );
-
-  models.Products = db.model<IProductDocument, IProductModel>(
-    'products',
-    loadProductClass(models)
-  );
-
-  models.PutResponses = db.model<IPutResponseDocument, IPutResponseModel>(
-    'put_responses',
-    loadPutResponseClass(models)
-  );
-
-  models.QPayInvoices = db.model<IQpayInvoiceDocument, IQpayInvoiceModel>(
-    'qpay_invoices',
-    loadQPayInvoiceClass(models)
   );
 
   return models;

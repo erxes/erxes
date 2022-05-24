@@ -24,7 +24,7 @@ import { ORDER_STATUSES } from '../../../models/definitions/constants';
 import { graphqlPubsub } from '../../pubsub';
 import { debugError } from '../../../debugger';
 import { IOrderDocument } from '../../../models/definitions/orders';
-import { QPayInvoices } from '../../../models/QPayInvoices';
+// import { QPayInvoices } from '../../../models/QPayInvoices';
 
 interface IPaymentBase {
   billType: string;
@@ -51,36 +51,29 @@ interface IOrderEditParams extends IOrderInput {
 }
 
 const orderMutations = {
-  async ordersAdd(
-    _root,
-    models,
-    doc: IOrderInput,
-    { posUser, config }: IContext
-  ) {
+  async ordersAdd(_root, doc: IOrderInput, {}: IContext) {
     const { totalAmount, type, customerId, branchId } = doc;
 
     await validateOrder(doc);
 
     const orderDoc = {
-      number: await generateOrderNumber(config),
       totalAmount,
       type,
       branchId,
-      customerId,
-      userId: posUser ? posUser._id : ''
+      customerId
     };
 
     try {
-      const preparedDoc = await prepareOrderDoc(doc, config);
+      const preparedDoc = await prepareOrderDoc(doc);
 
-      const order = await models.Orders.createOrder({
+      const order = await Orders.createOrder({
         ...doc,
         ...orderDoc,
         totalAmount: preparedDoc.totalAmount
       });
 
       for (const item of preparedDoc.items) {
-        await models.OrderItems.createOrderItem({
+        await OrderItems.createOrderItem({
           count: item.count,
           productId: item.productId,
           unitPrice: item.unitPrice,
@@ -99,7 +92,7 @@ const orderMutations = {
       return e;
     }
   },
-  async ordersEdit(_root, models, doc: IOrderEditParams, { config }: IContext) {
+  async ordersEdit(_root, doc: IOrderEditParams, {}: IContext) {
     const order = await Orders.getOrder(doc._id);
 
     checkOrderStatus(order);
@@ -108,11 +101,11 @@ const orderMutations = {
 
     await cleanOrderItems(doc._id, doc.items);
 
-    const preparedDoc = await prepareOrderDoc({ ...doc }, config);
+    const preparedDoc = await prepareOrderDoc({ ...doc });
 
     await updateOrderItems(doc._id, preparedDoc.items);
 
-    const updatedOrder = await models.Orders.updateOrder(doc._id, {
+    const updatedOrder = await Orders.updateOrder(doc._id, {
       deliveryInfo: doc.deliveryInfo,
       branchId: doc.branchId,
       customerId: doc.customerId,
@@ -125,13 +118,12 @@ const orderMutations = {
 
   async orderChangeStatus(
     _root,
-    models,
     { _id, status }: { _id: string; status: string },
-    { config }: IContext
+    {}: IContext
   ) {
-    await models.Orders.getOrder(_id);
+    await Orders.getOrder(_id);
 
-    const order = await models.Orders.updateOrder(_id, { status });
+    const order = await Orders.updateOrder(_id, { status });
 
     await graphqlPubsub.publish('ordersOrdered', {
       ordersOrdered: {
@@ -144,8 +136,7 @@ const orderMutations = {
       try {
         messageBroker().sendMessage('vrpc_queue:erxes-pos-to-api', {
           action: 'statusToDone',
-          posToken: config.token,
-          syncId: config.syncInfo.id,
+
           order
         });
       } catch (e) {}
@@ -155,13 +146,8 @@ const orderMutations = {
   /**
    * Веб болон мобайл дээр хэрэглээгүй бол устгана.
    */
-  async ordersMakePayment(
-    _root,
-    models,
-    { _id, doc }: IPaymentParams,
-    { config }: IContext
-  ) {
-    let order = await models.Orders.getOrder(_id);
+  async ordersMakePayment(_root, { _id, doc }: IPaymentParams, {}: IContext) {
+    let order = await Orders.getOrder(_id);
 
     checkOrderStatus(order);
 
@@ -175,19 +161,17 @@ const orderMutations = {
 
     const data = await prepareEbarimtData(
       order,
-      config.ebarimtConfig,
+
       items,
-      doc.billType,
-      doc.registerNumber
+      doc.billType
     );
 
     const ebarimtConfig = {
-      ...config.ebarimtConfig,
-      districtName: getDistrictName(config.ebarimtConfig.districtCode)
+      districtName: getDistrictName('')
     };
 
     try {
-      const response = await models.PutResponses.putData({
+      const response = await PutResponses.putData({
         ...data,
         config: ebarimtConfig
       });
@@ -195,7 +179,7 @@ const orderMutations = {
       if (response && response.success === 'true') {
         const now = new Date();
 
-        await models.Orders.updateOne(
+        await Orders.updateOne(
           { _id },
           {
             $set: {
@@ -208,7 +192,7 @@ const orderMutations = {
         );
       }
 
-      order = await models.Orders.getOrder(_id);
+      order = await Orders.getOrder(_id);
       graphqlPubsub.publish('ordersOrdered', {
         ordersOrdered: {
           _id,
@@ -219,8 +203,6 @@ const orderMutations = {
       try {
         messageBroker().sendMessage('vrpc_queue:erxes-pos-to-api', {
           action: 'makePayment',
-          posToken: config.token,
-          syncId: config.syncInfo.id,
           response,
           order,
           items
@@ -239,10 +221,9 @@ const orderMutations = {
 
   async ordersAddPayment(
     _root,
-    models,
     { _id, cashAmount = 0, cardAmount = 0, cardInfo }
   ) {
-    const order = await models.Orders.getOrder(_id);
+    const order = await Orders.getOrder(_id);
 
     const amount = Number((cashAmount + cardAmount).toFixed(2));
 
@@ -266,24 +247,24 @@ const orderMutations = {
       };
     }
 
-    await models.Orders.updateOne({ _id: order._id }, modifier);
+    await Orders.updateOne({ _id: order._id }, modifier);
 
-    return models.Orders.findOne({ _id: order._id });
+    return Orders.findOne({ _id: order._id });
   },
-  async ordersCancel(_root, models, { _id }) {
-    const order = await models.Orders.getOrder(_id);
+  async ordersCancel(_root, { _id }) {
+    const order = await Orders.getOrder(_id);
 
     checkOrderStatus(order);
     await checkUnpaidInvoices(_id);
 
-    const paidInvoices = await models.QPayInvoices.countDocuments({
-      senderInvoiceNo: _id,
-      status: 'PAID'
-    });
+    // const paidInvoices = await QPayInvoices.countDocuments({
+    //   senderInvoiceNo: _id,
+    //   status: 'PAID',
+    // });
 
-    if (paidInvoices > 0) {
-      throw new Error('There are paid QPay invoices for this order');
-    }
+    // if (paidInvoices > 0) {
+    //   throw new Error('There are paid QPay invoices for this order');
+    // }
 
     if ((order.cardPayments || []).length > 0) {
       throw new Error('Card payment exists for this order');
@@ -293,9 +274,9 @@ const orderMutations = {
       throw new Error('Order is already synced to erxes');
     }
 
-    await models.OrderItems.deleteMany({ orderId: _id });
+    await OrderItems.deleteMany({ orderId: _id });
 
-    return models.Orders.deleteOne({ _id });
+    return Orders.deleteOne({ _id });
   },
 
   /**
@@ -305,11 +286,10 @@ const orderMutations = {
    */
   async ordersSettlePayment(
     _root,
-    models,
     { _id, billType, registerNumber }: ISettlePaymentParams,
-    { config }: IContext
+    {}: IContext
   ) {
-    let order = await models.Orders.getOrder(_id);
+    let order = await Orders.getOrder(_id);
 
     checkOrderStatus(order);
 
@@ -323,19 +303,17 @@ const orderMutations = {
 
     const data = await prepareEbarimtData(
       order,
-      config.ebarimtConfig,
+
       items,
-      billType,
-      registerNumber
+      billType
     );
 
     const ebarimtConfig = {
-      ...config.ebarimtConfig,
-      districtName: getDistrictName(config.ebarimtConfig.districtCode)
+      districtName: getDistrictName('')
     };
 
     try {
-      const response = await models.PutResponses.putData({
+      const response = await PutResponses.putData({
         ...data,
         config: ebarimtConfig
       });
@@ -343,7 +321,7 @@ const orderMutations = {
       if (response && response.success === 'true') {
         const now = new Date();
 
-        await models.Orders.updateOne(
+        await Orders.updateOne(
           { _id },
           {
             $set: {
@@ -357,7 +335,7 @@ const orderMutations = {
         );
       }
 
-      order = await models.Orders.getOrder(_id);
+      order = await Orders.getOrder(_id);
 
       graphqlPubsub.publish('ordersOrdered', {
         ordersOrdered: {
@@ -369,8 +347,7 @@ const orderMutations = {
       try {
         messageBroker().sendMessage('vrpc_queue:erxes-pos-to-api', {
           action: 'makePayment',
-          posToken: config.token,
-          syncId: config.syncInfo.id,
+
           response,
           order,
           items

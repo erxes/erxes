@@ -1,4 +1,4 @@
-import ActivityList from '@erxes/ui/src/activityLogs/components/ActivityList';
+import ActivityList from '@erxes/ui-logs/src/activityLogs/components/ActivityList';
 import { IUser } from '@erxes/ui/src/auth/types';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { __ } from 'coreui/utils';
@@ -32,7 +32,10 @@ class SidebarActivity extends React.Component<Props> {
       <>
         <NoteFormContainer>
           <span>{__('Add a note') as string}:</span>
-          <NoteForm contentType='contacts:customer' contentTypeId={customer._id} />
+          <NoteForm
+            contentType="contacts:customer"
+            contentTypeId={customer._id}
+          />
         </NoteFormContainer>
 
         <ActivityLogContent isEmpty={!hasActivity}>
@@ -47,8 +50,8 @@ class SidebarActivity extends React.Component<Props> {
                 type={currentSubTab} // show logs filtered by type
               />
             }
-            emptyText='No Activities'
-            emptyImage='/images/actions/19.svg'
+            emptyText="No Activities"
+            emptyImage="/images/actions/19.svg"
           />
         </ActivityLogContent>
       </>
