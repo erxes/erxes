@@ -48,7 +48,12 @@ const editLead = ({ match, location }) => {
 
 const responseList = ({ match, location }) => {
   const { integrationId, formId } = match.params;
-  return <ResponseList queryParams={{ integrationId, formId }} />;
+
+  const queryParams = queryString.parse(location.search);
+  queryParams.integrationId = integrationId;
+  queryParams.formId = formId;
+
+  return <ResponseList queryParams={queryParams} />;
 };
 
 const routes = () => {
