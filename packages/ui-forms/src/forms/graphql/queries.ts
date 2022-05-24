@@ -14,6 +14,7 @@ const fields = `
       content
       description
       options
+      keys
       isRequired
       order
       column

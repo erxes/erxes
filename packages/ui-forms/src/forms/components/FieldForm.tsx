@@ -291,16 +291,25 @@ class FieldForm extends React.Component<Props, State> {
   renderObjectListOptions() {
     const { field } = this.state;
 
-    if (field.type !== 'object_list') {
+    if (field.type !== 'objectList') {
       return null;
     }
 
+    const onChange = e =>
+      this.onFieldChange(
+        'keys',
+        (e.currentTarget as HTMLInputElement).value.split('\n')
+      );
+
     return (
       <FormGroup>
-        <ControlLabel htmlFor="locationOptions">Hi:</ControlLabel>
-        <LocationOptions
-          locationOptions={field.locationOptions || []}
-          onChange={this.onChangeLocation}
+        <ControlLabel htmlFor="type">Keys:</ControlLabel>
+
+        <FormControl
+          id="keys"
+          componentClass="textarea"
+          value={(field.keys || []).join('\n')}
+          onChange={onChange}
         />
       </FormGroup>
     );

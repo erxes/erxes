@@ -16,6 +16,7 @@ export const formDetailQuery = `
         content
         description
         options
+        keys
         locationOptions{
           lat
           lng

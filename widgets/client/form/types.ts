@@ -36,6 +36,7 @@ export interface IField {
   lastUpdatedUserId: string;
   associatedFieldId?: string;
   column?: number;
+  keys?: string[];
 
   logicAction?: string;
   logics?: ILogic[];
@@ -77,7 +78,8 @@ export type FieldValue =
   | Date
   | string[]
   | IAttachment[]
-  | ILocationOption;
+  | ILocationOption
+  | {[key: string]: any}[];
 
 export interface IFieldError {
   fieldId?: string;

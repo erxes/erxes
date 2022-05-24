@@ -114,12 +114,6 @@ function FieldChoices(props: Props) {
         icon="map-marker"
       />
       <FieldChoice {...props} type="html" text={__('HTML')} icon="code" />
-      <FieldChoice
-        {...props}
-        type="object_list"
-        text={__('Object List')}
-        icon="sort-amount-down"
-      />
       {isEnabled('products') && props.type === 'lead' && (
         <FieldChoice
           {...props}
@@ -128,6 +122,12 @@ function FieldChoices(props: Props) {
           icon="shoppingcart"
         />
       )}
+      <FieldChoice
+        {...props}
+        type="objectList"
+        text={__('Object List')}
+        icon="sort-amount-down"
+      />
     </Options>
   );
 }
