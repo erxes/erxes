@@ -20,10 +20,28 @@ export const types = () => `
     icon: String
     domain: String
     dnsStatus: String
+    knowledgeBaseLabel: String
+    knowledgeBaseTopicId: String
+    ticketLabel: String
+    taskPublicBoardId: String
+    taskPublicPipelineId: String
+    taskLabel: String
+    taskStageId: String
+    taskPipelineId: String
+    taskBoardId: String
+    ticketStageId: String
+    ticketPipelineId: String
+    ticketBoardId: String
+    googleCredentials: JSON
     styles: Styles
     mobileResponsive: Boolean
   
     otpConfig: OTPConfig
+
+    kbToggle: Boolean,
+    publicTaskToggle: Boolean,
+    ticketToggle: Boolean,
+    taskToggle: Boolean,
   }
 
   type Styles {
@@ -70,7 +88,7 @@ export const queries = () => `
   clientPortalConfigsTotalCount: Int
 `;
 
-export const mutations = () => `
+export const mutations = cardAvailable => `
   clientPortalConfigUpdate (
     _id: String
     name: String
@@ -79,11 +97,43 @@ export const mutations = () => `
     icon: String
     url: String
     domain: String
+    knowledgeBaseLabel: String
+    knowledgeBaseTopicId: String
+    ticketLabel: String
+    taskLabel: String
+    taskPublicBoardId: String
+    taskPublicPipelineId: String
+    taskStageId: String
+    taskPipelineId: String
+    taskBoardId: String
+    ticketStageId: String
+    ticketPipelineId: String
+    ticketBoardId: String
+    googleCredentials: JSON
     styles: StylesParams
     mobileResponsive: Boolean
+    kbToggle: Boolean,
+    publicTaskToggle: Boolean,
+    ticketToggle: Boolean,
+    taskToggle: Boolean,
 
     otpConfig: OTPConfigInput
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON
+
+  ${
+    cardAvailable
+      ? `
+      clientPortalCreateCard(
+        type: String!
+        stageId: String!
+        subject: String!
+        description: String
+        email: String!
+        priority: String
+      ): Ticket
+     `
+      : ''
+  }
 `;
