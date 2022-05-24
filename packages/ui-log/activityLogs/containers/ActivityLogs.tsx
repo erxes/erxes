@@ -1,14 +1,13 @@
-import { AppConsumer, AppProvider } from '../../appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { IUser } from '../../auth/types';
-import { withProps } from '../../utils';
 import ActivityLogs from '../components/ActivityLogs';
 import { queries, subscriptions } from '../graphql';
 import { ActivityLogQueryResponse, IActivityLog } from '../types';
-import { withCurrentUser } from '../../auth';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { withProps } from '@erxes/ui/src/utils';
 
 export type ActivityLogsProps = {
   contentId: string;

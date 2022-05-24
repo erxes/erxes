@@ -1,5 +1,5 @@
 import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
+import ActivityLogs from '@erxes/ui-logs/src/activityLogs/containers/ActivityLogs';
 import { IUser } from '@erxes/ui/src/auth/types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -13,7 +13,7 @@ import InfoSection from './InfoSection';
 import LeadState from '@erxes/ui-contacts/src/customers/containers/LeadState';
 import ActionSection from '../../containers/ActionSection';
 import RightSidebar from './RightSidebar';
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   user: IUser;
@@ -69,12 +69,14 @@ function UserDetails({
         showEmail={false}
       />
 
-      {isEnabled("logs") && <ActivityLogs
-        target={user.details && user.details.fullName}
-        contentId={user._id}
-        contentType="core:user"
-        extraTabs={[{ name: 'conversation', label: 'Conversations' }]}
-      />}
+      {isEnabled('logs') && (
+        <ActivityLogs
+          target={user.details && user.details.fullName}
+          contentId={user._id}
+          contentType="core:user"
+          extraTabs={[{ name: 'conversation', label: 'Conversations' }]}
+        />
+      )}
     </>
   );
 

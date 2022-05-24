@@ -3,7 +3,7 @@ import {
   ActivityInputs,
   ActivityLogsContainer as ActivityLogs,
   Wrapper
-} from '@erxes/ui/src';
+} from '@erxes/ui-logs/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IProduct } from '@erxes/ui-products/src/types';
 import React from 'react';
