@@ -5,7 +5,7 @@ import {
   loadClientPortalClass
 } from './models/ClientPortal';
 import { IClientPortalDocument } from './models/definitions/clientPortal';
-import { createGenerateModels } from '@erxes/api-utils/src/core';
+import { createGenerateModels, getEnv } from '@erxes/api-utils/src/core';
 import {
   IUserModel,
   loadClientPortalUserClass
@@ -13,12 +13,12 @@ import {
 import { IUserDocument } from './models/definitions/clientPortalUser';
 export interface IModels {
   ClientPortals: IClientPortalModel;
-  ClientPortalUsers: IUserModel;
 }
 
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
+  cpModels: ICPModels;
   cpUser?: IUserDocument;
 }
 
@@ -32,15 +32,61 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadClientPortalClass(models)
   );
 
-  models.ClientPortalUsers = db.model<IUserDocument, IUserModel>(
-    'client_portal_users',
-    loadClientPortalUserClass(models)
-  );
-
   return models;
 };
 
 export const generateModels = createGenerateModels<IModels>(
   models,
   loadClasses
+);
+
+/////////////////////////// cp ////////////////////////////
+export interface ICPModels {
+  ClientPortalUsers: IUserModel;
+}
+
+export let cpModels: ICPModels | null = null;
+
+export const loadCPClasses = (db: mongoose.Connection): ICPModels => {
+  cpModels = {} as ICPModels;
+
+  cpModels.ClientPortalUsers = db.model<IUserDocument, IUserModel>(
+    'client_portal_users',
+    loadClientPortalUserClass(cpModels)
+  );
+
+  return cpModels;
+};
+
+export const createGenerateCPModels = <ICPModels>(cpModels, loadClasses) => {
+  return async (clientPortalId: string): Promise<ICPModels> => {
+    if (cpModels) {
+      return cpModels;
+    }
+
+    const connectionOptions: mongoose.ConnectionOptions = {
+      useNewUrlParser: true,
+      useCreateIndex: true,
+      useFindAndModify: false,
+      family: 4
+    };
+
+    const MONGO_URL = getEnv({ name: 'MONGO_URL' });
+
+    const db = await mongoose.createConnection(
+      MONGO_URL.replace('erxes', `erxes_clientportal_${clientPortalId}`),
+      connectionOptions
+    );
+
+    console.log('&&&&&&&&&&&&&&&&&&&&&&&&&&&&& ', db);
+
+    cpModels = loadClasses(db, clientPortalId);
+
+    return cpModels;
+  };
+};
+
+export const generateCPModels = createGenerateCPModels<ICPModels>(
+  cpModels,
+  loadCPClasses
 );

@@ -1,11 +1,13 @@
-import { Model } from 'mongoose';
+import { Model, createConnection } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import {
   clientPortalSchema,
   IClientPortal,
   IClientPortalDocument
 } from './definitions/clientPortal';
+import * as dotenv from 'dotenv';
 
+dotenv.config();
 export interface IClientPortalModel extends Model<IClientPortalDocument> {
   getConfig(_id: string): Promise<IClientPortalDocument>;
   createOrUpdateConfig(args: IClientPortal): Promise<IClientPortalDocument>;
@@ -28,6 +30,11 @@ export const loadClientPortalClass = (models: IModels) => {
 
       if (!config) {
         config = await models.ClientPortals.create(doc);
+
+        console.log('MONGOURL = ', process.env.MONGO_URL);
+        // const mongoClient = await createConnection(
+        //   "mongodb://localhost:27017/test"
+        // );
 
         return config.toJSON();
       }

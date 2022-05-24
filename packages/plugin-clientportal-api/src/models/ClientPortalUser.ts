@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
 import * as randomize from 'randomatic';
 import { Model } from 'mongoose';
-import { IContext, IModels } from '../connectionResolver';
+import { ICPModels, IModels } from '../connectionResolver';
 import {
   clientPortalUserSchema,
   IUser,
@@ -80,7 +80,7 @@ export interface IUserModel extends Model<IUserDocument> {
   verifyUser(args: IVerificationParams): string;
 }
 
-export const loadClientPortalUserClass = (models: IModels) => {
+export const loadClientPortalUserClass = (models: ICPModels) => {
   class ClientPortalUser {
     public static async createUser(
       subdomain: string,
