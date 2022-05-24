@@ -324,6 +324,12 @@ export const generateFields = async ({ subdomain, data }) => {
         name: 'companiesPrimaryNames',
         label: 'Company Primary Names'
       });
+
+      fields.push({
+        _id: Math.random(),
+        name: 'companiesPrimaryEmails',
+        label: 'Company Primary Emails'
+      });
     }
   }
 
