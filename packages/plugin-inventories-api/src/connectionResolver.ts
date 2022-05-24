@@ -15,14 +15,21 @@ import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import {
   ISafeRemainderModel,
-  loadSafeRemainderClass
+  ISafeRemItemModel,
+  loadSafeRemainderClass,
+  loadSafeRemItemClass
 } from './models/SafeRemainders';
+import {
+  ISafeRemainderDocument,
+  ISafeRemItemDocument
+} from './models/definitions/safeRemainders';
 
 export interface IModels {
   TrItems: ITrItemModel;
   Transactions: ITransactionModel;
   Remainders: IRemainderModel;
   SafeRemainders: ISafeRemainderModel;
+  SafeRemItems: ISafeRemItemModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -46,9 +53,13 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'remainders',
     loadRemainderClass(models)
   );
-  models.SafeRemainders = db.model<IRemainderDocument, ISafeRemainderModel>(
+  models.SafeRemainders = db.model<ISafeRemainderDocument, ISafeRemainderModel>(
     'safe_remainders',
     loadSafeRemainderClass(models)
+  );
+  models.SafeRemItems = db.model<ISafeRemItemDocument, ISafeRemItemModel>(
+    'safe_remainders',
+    loadSafeRemItemClass(models)
   );
 
   return models;
