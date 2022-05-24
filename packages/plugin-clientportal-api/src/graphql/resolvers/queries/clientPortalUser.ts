@@ -14,8 +14,6 @@ const clientPortalUserQueries = {
   async clientPortalCurrentUser(_root, _args, context: IContext) {
     const { cpUser } = context;
 
-    console.log('CPUSER = ', cpUser);
-
     return cpUser
       ? context.models.ClientPortalUsers.getUser({ _id: cpUser._id })
       : null;

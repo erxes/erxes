@@ -17,8 +17,9 @@ export default {
   name: 'clientportal',
   permissions,
   graphql: async sd => {
+    serviceDiscovery = sd;
     return {
-      typeDefs: await typeDefs(),
+      typeDefs: await typeDefs(sd),
       resolvers
     };
   },

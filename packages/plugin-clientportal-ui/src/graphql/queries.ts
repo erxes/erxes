@@ -38,9 +38,7 @@ export const commonFields = `
   }
   mobileResponsive
   googleCredentials
-  twilioAccountSid
-  twilioAuthToken
-  twilioFromNumber
+
   kbToggle
   publicTaskToggle
   ticketToggle

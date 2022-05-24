@@ -1,4 +1,23 @@
-export const types = () => `
+export const types = cardAvailable => `
+${
+  cardAvailable
+    ? `
+   extend type Stage @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type Task @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type Ticket @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type Deal @key(fields: "_id") {
+    _id: String! @external
+  }
+   `
+    : ''
+}
+
   type OTPConfig{
     content: String
     smsTransporterType: String

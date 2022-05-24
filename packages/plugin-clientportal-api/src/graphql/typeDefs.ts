@@ -10,12 +10,14 @@ import {
   mutations as clientPortalUserMutations
 } from './schema/clientPortalUser';
 
-const typeDefs = async () => {
+const typeDefs = async serviceDiscovery => {
+  const cardAvailable = await serviceDiscovery.isEnabled('cards');
+
   return gql`
     scalar JSON
     scalar Date
 
-    ${clientPortalTypes()}
+    ${clientPortalTypes(cardAvailable)}
     ${clientPortalUserTypes()}
 
     extend type Query {
@@ -24,7 +26,7 @@ const typeDefs = async () => {
     }
 
     extend type Mutation {
-      ${clientPortalMutations()} 
+      ${clientPortalMutations(cardAvailable)} 
       ${clientPortalUserMutations()}
     }
   `;

@@ -28,9 +28,7 @@ export type ClientPortalConfig = {
   styles?: Styles;
   mobileResponsive?: boolean;
   googleCredentials?: object;
-  twilioAccountSid?: string;
-  twilioAuthToken?: string;
-  twilioFromNumber?: string;
+
   kbToggle?: boolean;
   publicTaskToggle?: boolean;
   ticketToggle?: boolean;
