@@ -44,6 +44,7 @@ const commonPipelineParamsDef = `
   $hackScoringType: String,
   $templateId: String,
   $isCheckUser: Boolean
+  $isCheckDepartment: Boolean
   $excludeCheckUserIds: [String],
   $numberConfig: String
   $numberSize: String
@@ -64,6 +65,7 @@ const commonPipelineParams = `
   metric: $metric,
   templateId: $templateId,
   isCheckUser: $isCheckUser,
+  isCheckDepartment: $isCheckDepartment
   excludeCheckUserIds: $excludeCheckUserIds,
   numberConfig: $numberConfig
   numberSize: $numberSize

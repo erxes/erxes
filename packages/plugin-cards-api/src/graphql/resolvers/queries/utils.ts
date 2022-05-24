@@ -299,14 +299,34 @@ export const generateCommonFilters = async (
 
   if (pipelineId) {
     const pipeline = await models.Pipelines.getPipeline(pipelineId);
+
     if (
-      pipeline.isCheckUser &&
+      (pipeline.isCheckUser || pipeline.isCheckDepartment) &&
       !(pipeline.excludeCheckUserIds || []).includes(currentUserId)
     ) {
+      let includeCheckUserIds: string[] = [];
+
+      if (pipeline.isCheckDepartment) {
+        const department = await sendCoreMessage({
+          subdomain,
+          action: 'departments.findOne',
+          data: {
+            userIds: { $in: [currentUserId] }
+          },
+          isRPC: true
+        });
+
+        if (department) {
+          includeCheckUserIds = department.userIds || [];
+        }
+      }
+
+      includeCheckUserIds = [...includeCheckUserIds, currentUserId];
+
       Object.assign(filter, {
         $or: [
-          { assignedUserIds: { $in: [currentUserId] } },
-          { userId: currentUserId }
+          { assignedUserIds: { $in: includeCheckUserIds } },
+          { userId: { $in: includeCheckUserIds } }
         ]
       });
     }
