@@ -21,10 +21,41 @@ type ControlItem = {
   formProps?: any;
 };
 
-function General({ otpConfig, handleFormChange }: Props) {
+function General({ googleCredentials, otpConfig, handleFormChange }: Props) {
   const [config, setConfig] = useState<OTPConfig>(otpConfig);
 
-  console.log(config);
+  function renderControl({
+    required,
+    label,
+    subtitle,
+    formValueName,
+    formValue,
+    placeholder,
+    formProps
+  }: ControlItem) {
+    const handleChange = (e: React.FormEvent) => {
+      handleFormChange(
+        formValueName,
+        (e.currentTarget as HTMLInputElement).value
+      );
+    };
+
+    return (
+      <FormGroup>
+        <ControlLabel required={required}>{label}</ControlLabel>
+        {subtitle && <p>{subtitle}</p>}
+        <FlexContent>
+          <FormControl
+            {...formProps}
+            name={formValueName}
+            value={formValue}
+            placeholder={placeholder}
+            onChange={handleChange}
+          />
+        </FlexContent>
+      </FormGroup>
+    );
+  }
 
   const renderContent = () => {
     if (!config || !config.smsTransporterType) {
@@ -77,6 +108,12 @@ function General({ otpConfig, handleFormChange }: Props) {
         />
       </FormGroup>
       {renderContent()}
+
+      {renderControl({
+        label: 'Google Application Credentials',
+        formValueName: 'googleCredentials',
+        formValue: googleCredentials
+      })}
     </>
   );
 }

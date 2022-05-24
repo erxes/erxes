@@ -9,10 +9,29 @@ const createOrUpdateConfig = `
     $icon: String
     $url: String
     $domain: String
+    $knowledgeBaseLabel: String
+    $knowledgeBaseTopicId: String
+    $ticketLabel: String
+    $taskPublicBoardId: String
+    $taskPublicPipelineId: String
+    $taskLabel: String
+    $taskStageId: String
+    $taskPipelineId: String
+    $taskBoardId: String
+    $ticketStageId: String
+    $ticketPipelineId: String
+    $ticketBoardId: String
     $styles: StylesParams
     $mobileResponsive: Boolean
+    $googleCredentials: JSON
+    $twilioAccountSid: String
+    $twilioAuthToken: String
+    $twilioFromNumber: String
+    $kbToggle: Boolean
+    $publicTaskToggle: Boolean
+    $ticketToggle: Boolean
+    $taskToggle: Boolean
     $otpConfig: OTPConfigInput
-    $brandId: String
   ) {
     clientPortalConfigUpdate(
       _id: $_id,
@@ -22,10 +41,29 @@ const createOrUpdateConfig = `
       logo: $logo,
       icon: $icon,
       domain: $domain,
+      knowledgeBaseLabel: $knowledgeBaseLabel,
+      knowledgeBaseTopicId: $knowledgeBaseTopicId,
+      taskPublicBoardId: $taskPublicBoardId,
+      taskPublicPipelineId: $taskPublicPipelineId,
+      ticketLabel: $ticketLabel,
+      taskLabel: $taskLabel,
+      taskStageId: $taskStageId,
+      taskPipelineId: $taskPipelineId,
+      taskBoardId: $taskBoardId,
+      ticketStageId: $ticketStageId,
+      ticketPipelineId: $ticketPipelineId,
+      ticketBoardId: $ticketBoardId
       styles: $styles
       mobileResponsive: $mobileResponsive
+      googleCredentials: $googleCredentials
+      twilioAccountSid: $twilioAccountSid
+      twilioAuthToken: $twilioAuthToken
+      twilioFromNumber: $twilioFromNumber
+      kbToggle: $kbToggle,
+      publicTaskToggle: $publicTaskToggle,
+      ticketToggle: $ticketToggle,
+      taskToggle: $taskToggle,
       otpConfig: $otpConfig
-      brandId: $brandId
     ) {
       ${commonFields}
     }

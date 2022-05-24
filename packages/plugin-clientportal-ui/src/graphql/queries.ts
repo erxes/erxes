@@ -7,6 +7,18 @@ export const commonFields = `
   icon
   domain
   dnsStatus
+  knowledgeBaseLabel
+  knowledgeBaseTopicId
+  ticketLabel
+  taskPublicPipelineId
+  taskPublicBoardId
+  taskLabel
+  taskStageId
+  taskPipelineId
+  taskBoardId
+  ticketStageId
+  ticketPipelineId
+  ticketBoardId
   styles {
     bodyColor
     headerColor
@@ -25,7 +37,14 @@ export const commonFields = `
     secondaryBtnColor
   }
   mobileResponsive
-  brandId
+  googleCredentials
+  twilioAccountSid
+  twilioAuthToken
+  twilioFromNumber
+  kbToggle
+  publicTaskToggle
+  ticketToggle
+  taskToggle
   otpConfig {
     smsTransporterType
     emailTransporterType

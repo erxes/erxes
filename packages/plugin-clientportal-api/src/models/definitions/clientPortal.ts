@@ -20,6 +20,25 @@ export interface IClientPortal {
   mobileResponsive?: boolean;
   brandId?: string;
   otpConfig?: IOTPConfig;
+  googleCredentials?: string;
+
+  knowledgeBaseLabel?: string;
+  knowledgeBaseTopicId?: string;
+  ticketLabel?: string;
+  taskLabel?: string;
+  taskStageId?: string;
+  taskPipelineId?: string;
+  taskPublicBoardId?: string;
+  taskPublicPipelineId?: string;
+  taskBoardId?: string;
+  ticketStageId?: string;
+  ticketPipelineId?: string;
+  ticketBoardId?: string;
+
+  kbToggle?: boolean;
+  publicTaskToggle?: boolean;
+  ticketToggle?: boolean;
+  taskToggle?: boolean;
 }
 
 interface IStyles {
@@ -97,5 +116,25 @@ export const clientPortalSchema = new Schema({
   mobileResponsive: field({ type: Boolean, optional: true }),
   otpConfig: field({ type: otpConfigSchema, optional: true }),
   brandId: field({ type: String, optional: true }),
+  googleCredentials: field({ type: Object, optional: true }),
+
+  knowledgeBaseLabel: field({ type: String, optional: true }),
+  knowledgeBaseTopicId: field({ type: String }),
+  ticketLabel: field({ type: String, optional: true }),
+  taskPublicBoardId: field({ type: String, optional: true }),
+  taskPublicPipelineId: field({ type: String, optional: true }),
+  taskLabel: field({ type: String, optional: true }),
+  taskStageId: field({ type: String }),
+  taskPipelineId: field({ type: String }),
+  taskBoardId: field({ type: String }),
+  ticketStageId: field({ type: String }),
+  ticketPipelineId: field({ type: String }),
+  ticketBoardId: field({ type: String }),
+
+  kbToggle: field({ type: Boolean }),
+  publicTaskToggle: field({ type: Boolean }),
+  ticketToggle: field({ type: Boolean }),
+  taskToggle: field({ type: Boolean }),
+
   createdAt: field({ type: Date, default: new Date(), label: 'Created at' })
 });
