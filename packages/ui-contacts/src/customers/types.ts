@@ -8,7 +8,7 @@ import {
   IVisitorContact as IVisitorContactC
 } from '@erxes/ui/src/customers/types';
 import { QueryResponse, Counts } from '@erxes/ui/src/types';
-import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
+import { IActivityLog } from '@erxes/ui-logs/src/activityLogs/types';
 import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 
 export type IVisitorContact = IVisitorContactC;

@@ -6,13 +6,13 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 
-import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
+import { IActivityLog } from '@erxes/ui-logs/src/activityLogs/types';
 import PerInvoice from '../components/PerInvoice';
 import { mutations } from '../graphql';
 import {
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables,
+  RemoveMutationVariables
 } from '../types';
 
 type Props = {
@@ -37,12 +37,12 @@ class InvoiceListContainer extends React.Component<FinalProps> {
 
     const removeInvoices = ({ invoiceIds }) => {
       invoicesRemove({
-        variables: { invoiceIds },
+        variables: { invoiceIds }
       })
         .then(() => {
           Alert.success('You successfully deleted a invoice');
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
         });
     };
@@ -50,7 +50,7 @@ class InvoiceListContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       removeInvoices,
-      contractId: activity.content.contractId,
+      contractId: activity.content.contractId
     };
 
     return <PerInvoice {...updatedProps} />;
@@ -58,7 +58,7 @@ class InvoiceListContainer extends React.Component<FinalProps> {
 }
 
 const generateOptions = () => ({
-  refetchQueries: ['invoicesMain', 'activityLogs'],
+  refetchQueries: ['invoicesMain', 'activityLogs']
 });
 
 export default withProps<Props>(
@@ -68,7 +68,7 @@ export default withProps<Props>(
       gql(mutations.invoicesRemove),
       {
         name: 'invoicesRemove',
-        options: generateOptions,
+        options: generateOptions
       }
     )
   )(withRouter<IRouterProps>(InvoiceListContainer))

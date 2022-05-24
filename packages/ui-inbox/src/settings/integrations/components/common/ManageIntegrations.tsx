@@ -1,4 +1,4 @@
-import { formatText } from '@erxes/ui/src/activityLogs/utils';
+import { formatText } from '@erxes/ui-logs/src/activityLogs/utils';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -175,10 +175,10 @@ class ManageIntegrations extends React.Component<Props, State> {
               {this.state.hasMore && (
                 <CenterContent>
                   <Button
-                    size='small'
-                    btnStyle='primary'
+                    size="small"
+                    btnStyle="primary"
                     onClick={this.loadMore}
-                    icon='angle-double-down'
+                    icon="angle-double-down"
                   >
                     Load More
                   </Button>
@@ -201,10 +201,10 @@ class ManageIntegrations extends React.Component<Props, State> {
         </Columns>
 
         <ModalFooter>
-          <Button btnStyle='simple' icon='times-circle' onClick={closeModal}>
+          <Button btnStyle="simple" icon="times-circle" onClick={closeModal}>
             Cancel
           </Button>
-          <Button btnStyle='success' icon='check-circle' onClick={this.save}>
+          <Button btnStyle="success" icon="check-circle" onClick={this.save}>
             Save
           </Button>
         </ModalFooter>

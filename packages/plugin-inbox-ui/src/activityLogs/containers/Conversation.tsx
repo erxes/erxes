@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
+import { IActivityLog } from '@erxes/ui-logs/src/activityLogs/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { withProps } from '@erxes/ui/src/utils';
 import { queries } from '@erxes/ui-inbox/src/inbox/graphql';

@@ -1,5 +1,11 @@
-import { ActivityIcon, ActivityRow } from '@erxes/ui/src/activityLogs/styles';
-import { formatText, getIconAndColor } from '@erxes/ui/src/activityLogs/utils';
+import {
+  ActivityIcon,
+  ActivityRow
+} from '@erxes/ui-logs/src/activityLogs/styles';
+import {
+  formatText,
+  getIconAndColor
+} from '@erxes/ui-logs/src/activityLogs/utils';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import React from 'react';

@@ -18,7 +18,7 @@ import {
   Row,
   Timeline,
   Title
-} from '@erxes/ui/src/activityLogs/styles';
+} from '@erxes/ui-logs/src/activityLogs/styles';
 import { Flex } from '@erxes/ui/src/styles/main';
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 import { ActivityContent, DateContainer } from '@erxes/ui/src/styles/main';

@@ -5,8 +5,8 @@ import {
   ActivityDate,
   FlexBody,
   FlexCenterContent
-} from '@erxes/ui/src/activityLogs/styles';
-import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
+} from '@erxes/ui-logs/src/activityLogs/styles';
+import { IActivityLogItemProps } from '@erxes/ui-logs/src/activityLogs/types';
 import Tip from '@erxes/ui/src/components/Tip';
 
 export default function CampaignLog({ activity }: IActivityLogItemProps) {
