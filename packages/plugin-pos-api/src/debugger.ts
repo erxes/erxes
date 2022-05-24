@@ -1,4 +1,4 @@
-import * as debug from 'debug';
+import debug from 'debug';
 
 export const debugDb = debug('erxes-client-portal-api:db');
 

@@ -18,11 +18,7 @@ function HomeContainer() {
   });
 
   return (
-    <Home
-      listData={a.data ? a.data.getSalesLogs : []}
-      // listData={[]}
-      refetch={a.refetch}
-    />
+    <Home listData={a.data ? a.data.getSalesLogs : []} refetch={a.refetch} />
   );
 }
 export default HomeContainer;

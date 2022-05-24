@@ -1,7 +1,7 @@
 import * as request from 'request';
 import Cors from 'cors';
-import { getEnv } from './utils/commonUtils';
-import { debugError } from '../../debugger';
+import { getEnv } from '../../utils/commonUtils';
+import { debugError } from '../../../debugger';
 
 type Params = {
   name: string;

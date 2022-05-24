@@ -180,7 +180,7 @@ export const sendEmail = async (
 
       headers = {
         'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET || 'erxes',
-        EmailDeliveryId: emailDelivery._id
+        EmailDeliveryId: emailDelivery && emailDelivery._id
       };
     } else {
       headers['X-SES-CONFIGURATION-SET'] = 'erxes';

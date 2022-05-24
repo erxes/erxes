@@ -6,5 +6,10 @@
     "dev": "cd .erxes && yarn dev",
     "build": "cd .erxes && yarn build",
     "start": "cd .erxes/dist/plugin-clientportal-api/.erxes && node src"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "bcryptjs": "^2.4.3",
+    "randomatic": "^3.0.0"
   }
 }

@@ -88,13 +88,7 @@ export default {
     return models.Deals.findOne({ _id });
   },
 
-  async companies(
-    deal: IDealDocument,
-    _args,
-    { subdomain, serverTiming }: IContext
-  ) {
-    serverTiming.startTime('resolver:companies');
-
+  async companies(deal: IDealDocument, _args, { subdomain }: IContext) {
     const companyIds = await sendCoreMessage({
       subdomain,
       action: 'conformities.savedConformity',
@@ -120,18 +114,10 @@ export default {
       _id: c._id
     }));
 
-    serverTiming.endTime('resolver:companies');
-
     return response;
   },
 
-  async customers(
-    deal: IDealDocument,
-    _args,
-    { subdomain, serverTiming }: IContext
-  ) {
-    serverTiming.startTime('resolver:customers');
-
+  async customers(deal: IDealDocument, _args, { subdomain }: IContext) {
     const customerIds = await sendCoreMessage({
       subdomain,
       action: 'conformities.savedConformity',
@@ -157,21 +143,11 @@ export default {
       _id: c._id
     }));
 
-    serverTiming.endTime('resolver:customers');
-
     return response;
   },
 
-  async products(
-    deal: IDealDocument,
-    _args,
-    { subdomain, serverTiming }: IContext
-  ) {
-    serverTiming.startTime('resolver:products');
-
+  async products(deal: IDealDocument, _args, { subdomain }: IContext) {
     const response = await generateProducts(subdomain, deal.productsData);
-
-    serverTiming.endTime('resolver:products');
 
     return response;
   },
@@ -213,13 +189,7 @@ export default {
     return false;
   },
 
-  async hasNotified(
-    deal: IDealDocument,
-    _args,
-    { user, subdomain, serverTiming }: IContext
-  ) {
-    serverTiming.startTime('resolver:hasNotifiied');
-
+  async hasNotified(deal: IDealDocument, _args, { user, subdomain }: IContext) {
     const response = await sendNotificationsMessage({
       subdomain,
       action: 'checkIfRead',
@@ -228,8 +198,6 @@ export default {
         itemId: deal._id
       }
     });
-
-    serverTiming.endTime('resolver:hasNotifiied');
 
     return response;
   },
