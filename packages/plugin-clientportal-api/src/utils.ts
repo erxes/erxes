@@ -63,7 +63,6 @@ export const sendSms = async (
         debugError(e.message);
         throw new Error(e.message);
       }
-      break;
 
     default:
       break;
