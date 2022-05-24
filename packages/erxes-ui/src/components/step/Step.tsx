@@ -37,7 +37,6 @@ type Props = {
 class Step extends React.Component<Props> {
   handleOnClick = (stepNumber?: number) => {
     const { next, onClick } = this.props;
-    console.log(stepNumber);
 
     if (next && stepNumber) {
       onClick && onClick(stepNumber);
@@ -99,14 +98,15 @@ class Step extends React.Component<Props> {
   renderImage = () => {
     const { img } = this.props;
 
-    if (img)
-      return (
-        <StepImg>
-          <img src={img} alt="step-icon" />
-        </StepImg>
-      );
+    if (!img) {
+      return null;
+    }
 
-    return null;
+    return (
+      <StepImg>
+        <img src={img} alt="step-icon" />
+      </StepImg>
+    );
   };
 
   render() {

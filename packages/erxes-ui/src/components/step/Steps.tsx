@@ -4,7 +4,6 @@ import {
   ShortStep,
   StepCount,
   StepContent,
-  StepHeaderContainer,
   StepHeaderHorizontalContainer,
   StepHeaderTitle,
   StepItem
@@ -45,6 +44,7 @@ class Steps extends React.Component<Props, State> {
 
   back = (stepNumber: number) => {
     const { activeStep } = this.state;
+
     if (stepNumber === 1) {
       <Link to="settings/importHistories">
         <Button btnStyle="simple" icon="times-circle">
@@ -100,16 +100,16 @@ class Steps extends React.Component<Props, State> {
       );
     }
 
-    return React.Children.map(children, (child: any, index: number) => {
-      return React.cloneElement(child, {
+    return React.Children.map(children, (child: any, index: number) =>
+      React.cloneElement(child, {
         stepNumber: index + 1,
         active: activeStep,
         next: this.next,
         back: this.back,
         direction,
         maxStep
-      });
-    });
+      })
+    );
   };
 
   render() {
