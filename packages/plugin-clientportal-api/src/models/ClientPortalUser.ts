@@ -139,8 +139,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
             lastName: doc.lastName,
             primaryEmail: email,
             primaryPhone: phone,
-            state: 'customer',
-            scopeBrandIds: [doc.brandId]
+            state: 'customer'
           },
           isRPC: true
         });

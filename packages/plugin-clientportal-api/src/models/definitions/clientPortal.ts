@@ -18,7 +18,7 @@ export interface IClientPortal {
   dnsStatus?: string;
   styles?: IStyles;
   mobileResponsive?: boolean;
-  brandId?: string;
+
   otpConfig?: IOTPConfig;
   googleCredentials?: string;
 
@@ -115,7 +115,6 @@ export const clientPortalSchema = new Schema({
   styles: field({ type: stylesSchema, optional: true }),
   mobileResponsive: field({ type: Boolean, optional: true }),
   otpConfig: field({ type: otpConfigSchema, optional: true }),
-  brandId: field({ type: String, optional: true }),
   googleCredentials: field({ type: Object, optional: true }),
 
   knowledgeBaseLabel: field({ type: String, optional: true }),

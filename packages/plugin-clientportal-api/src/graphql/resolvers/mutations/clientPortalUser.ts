@@ -19,8 +19,7 @@ const clientPortalUserMutations = {
     );
 
     const user = await models.ClientPortalUsers.createUser(subdomain, {
-      ...args,
-      brandId: clientPortal.brandId
+      ...args
     });
 
     await models.ClientPortalUsers.sendVerification(

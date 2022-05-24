@@ -22,7 +22,7 @@ export const types = () => `
     dnsStatus: String
     styles: Styles
     mobileResponsive: Boolean
-    brandId: String
+  
     otpConfig: OTPConfig
   }
 
@@ -81,7 +81,7 @@ export const mutations = () => `
     domain: String
     styles: StylesParams
     mobileResponsive: Boolean
-    brandId: String
+
     otpConfig: OTPConfigInput
   ): ClientPortal
 
