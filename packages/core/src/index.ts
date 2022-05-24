@@ -93,19 +93,21 @@ app.get(
       return res.send('no owner');
     }
 
-    const services = await getServices();
+    if (req.query) {
+      const services = await getServices();
 
-    for (const serviceName of services) {
-      const service = await getService(serviceName, true);
-      const meta = service.config?.meta || {};
+      for (const serviceName of services) {
+        const service = await getService(serviceName, true);
+        const meta = service.config?.meta || {};
 
-      if (meta && meta.initialSetup && meta.initialSetup.generateAvailable) {
-        await sendCommonMessage({
-          subdomain,
-          action: 'initialSetup',
-          serviceName,
-          data: {}
-        });
+        if (meta && meta.initialSetup && meta.initialSetup.generateAvailable) {
+          await sendCommonMessage({
+            subdomain,
+            action: 'initialSetup',
+            serviceName,
+            data: {}
+          });
+        }
       }
     }
 
