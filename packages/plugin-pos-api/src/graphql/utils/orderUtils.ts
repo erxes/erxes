@@ -13,12 +13,7 @@ import {
   ORDER_STATUSES,
   BILL_TYPES
 } from '../../models/definitions/constants';
-import { QPayInvoices } from '../../models/QPayInvoices';
-import {
-  IConfigDocument,
-  IConfig,
-  IEbarimtConfig
-} from '../../models/definitions/configs';
+// import { QPayInvoices } from '../../models/QPayInvoices';
 
 interface IDetailItem {
   count: number;
@@ -33,9 +28,7 @@ export const getPureDate = (date?: Date) => {
   return new Date(ndate.getTime() - diffTimeZone);
 };
 
-export const generateOrderNumber = async (
-  config?: IConfig
-): Promise<string> => {
+export const generateOrderNumber = async (config): Promise<string> => {
   const todayStr = dayjs()
     .format('YYYYMMDD')
     .toString();
@@ -170,7 +163,6 @@ export const getDistrictName = (districtCode: string): string => {
 
 export const prepareEbarimtData = async (
   order: IOrderDocument,
-  config: IEbarimtConfig,
   items: IOrderItemDocument[] = [],
   orderBillType: string,
   registerNumber?: string
@@ -185,7 +177,6 @@ export const prepareEbarimtData = async (
 
   if (registerNumber) {
     const response = await sendRequest({
-      url: config.checkCompanyUrl,
       method: 'GET',
       params: { regno: registerNumber }
     });
@@ -228,8 +219,7 @@ export const prepareEbarimtData = async (
   const orderInfo = {
     date: new Date().toISOString().slice(0, 10),
     orderId: order._id,
-    hasVat: config.hasVat || false,
-    hasCitytax: config.hasCitytax || false,
+
     billType,
     customerCode,
     customerName,
@@ -248,22 +238,13 @@ export const prepareEbarimtData = async (
   };
 };
 
-export const prepareOrderDoc = async (
-  doc: IOrderInput,
-  config: IConfigDocument
-) => {
-  const { catProdMappings = [] } = config;
-
+export const prepareOrderDoc = async (doc: IOrderInput) => {
   const items = doc.items.filter(i => !i.isPackage) || [];
 
   const hasTakeItems = items.filter(i => i.isTake);
 
-  if (hasTakeItems.length > 0 && catProdMappings.length > 0) {
+  if (hasTakeItems.length > 0) {
     const packOfCategoryId = {};
-
-    for (const rel of catProdMappings) {
-      packOfCategoryId[rel.categoryId] = rel.productId;
-    }
 
     const products = await Products.find({
       _id: { $in: items.map(i => i.productId) }
@@ -337,14 +318,10 @@ export const checkOrderAmount = (order: IOrderDocument, amount: number) => {
 };
 
 export const checkUnpaidInvoices = async (orderId: string) => {
-  const invoices = await QPayInvoices.countDocuments({
-    senderInvoiceNo: orderId,
-    status: { $ne: 'PAID' }
-  });
-
-  if (invoices > 0) {
-    throw new Error('There are unpaid QPay invoices for this order');
-  }
+  // const invoices = await QPayInvoices.countDocuments({ senderInvoiceNo: orderId, status: { $ne: 'PAID' } });
+  // if (invoices > 0) {
+  //   throw new Error('There are unpaid QPay invoices for this order');
+  // }
 };
 
 // qpay нэхэмжлэх үүсгэхийн өмнө дуудна
@@ -355,15 +332,13 @@ export const checkInvoiceAmount = async ({
   order: IOrderDocument;
   amount: number;
 }) => {
-  const invoices = await QPayInvoices.find({
-    senderInvoiceNo: order._id
-  }).lean();
+  // const invoices = await QPayInvoices.find({ senderInvoiceNo: order._id }).lean();
 
   let total = 0;
 
-  for (const inv of invoices) {
-    total += Number(inv.amount || 0);
-  }
+  // for (const inv of invoices) {
+  //   total += Number(inv.amount || 0);
+  // }
 
   if (total + amount > order.totalAmount) {
     throw new Error('Invoice amount exceeds order amount');

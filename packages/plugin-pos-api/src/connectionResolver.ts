@@ -1,3 +1,11 @@
+import { IOrderItemDocument } from './models/definitions/orderItems';
+import { IOrderDocument } from './models/definitions/orders';
+import {
+  IProductDocument,
+  IProductCategoryDocument
+} from './models/definitions/products';
+import { IPutResponseDocument } from './models/definitions/putResponses';
+import { IQpayInvoiceDocument } from './models/definitions/qpayInvoices';
 import * as mongoose from 'mongoose';
 import { mainDb } from './configs';
 import {
@@ -8,21 +16,16 @@ import {
   IPosOrderModel,
   loadPosOrderClass
 } from './models/Pos';
-
 import { loadOrderItemClass, IOrderItemModel } from './models/OrderItems';
-import { IOrderModel, loadOrderClass } from './models/Orders';
-import { IProductModel, loadProductClass } from './models/Products';
+import { loadOrderClass, IOrderModel } from './models/Orders';
+import {
+  loadProductClass,
+  IProductModel,
+  IProductCategoryModel,
+  loadProductCategoryClass
+} from './models/Products';
 import { IPutResponseModel, loadPutResponseClass } from './models/PutResponses';
 import { IQpayInvoiceModel, loadQPayInvoiceClass } from './models/QPayInvoices';
-
-import { IOrderItemDocument } from './models/definitions/orderItems';
-import { IOrderDocument } from './models/definitions/orders';
-import {
-  IProductDocument,
-  IProductCategoryDocument
-} from './models/definitions/products';
-import { IPutResponseDocument } from './models/definitions/putResponses';
-import { IQpayInvoiceDocument } from './models/definitions/qpayInvoices';
 
 import {
   IPosDocument,
@@ -38,6 +41,7 @@ export interface IModels {
   OrderItems: IOrderItemModel;
   Orders: IOrderModel;
   Products: IProductModel;
+  ProductCategories: IProductCategoryModel;
   PutResponses: IPutResponseModel;
   QPayInvoices: IQpayInvoiceModel;
 }
@@ -95,13 +99,18 @@ export const loadClasses = (
     loadProductClass(models)
   );
 
+  models.ProductCategories = db.model<
+    IProductCategoryDocument,
+    IProductCategoryModel
+  >('productCategories', loadProductCategoryClass(models));
+
   models.PutResponses = db.model<IPutResponseDocument, IPutResponseModel>(
-    'put_responses',
+    'putResponses',
     loadPutResponseClass(models)
   );
 
   models.QPayInvoices = db.model<IQpayInvoiceDocument, IQpayInvoiceModel>(
-    'qpay_invoices',
+    'qpayInvoices',
     loadQPayInvoiceClass(models)
   );
 

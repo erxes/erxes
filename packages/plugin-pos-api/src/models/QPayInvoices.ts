@@ -1,4 +1,4 @@
-import mongoose, { Model, model } from 'mongoose';
+import { Model, model } from 'mongoose';
 import {
   IQPayInvoice,
   IQpayInvoiceDocument,
@@ -42,7 +42,7 @@ export const loadQPayInvoiceClass = models => {
     public static async getPaidAmount(orderId: string) {
       let amount = 0;
 
-      const invoices = await QPayInvoices.find({
+      const invoices = await models.QPayInvoices.find({
         senderInvoiceNo: orderId,
         status: 'PAID',
         qpayPaymentId: { $exists: true, $ne: null },
@@ -60,8 +60,6 @@ export const loadQPayInvoiceClass = models => {
   qpayInvoiceSchema.loadClass(QPayInvoice);
   return qpayInvoiceSchema;
 };
-
-delete mongoose.connection.models.qpay_invoices;
 
 export const QPayInvoices = model<IQpayInvoiceDocument, IQpayInvoiceModel>(
   'qpay_invoices',

@@ -6,13 +6,12 @@ import {
   receiveUser,
   receivePosConfig
 } from './utils/syncUtils';
-import { Configs } from '../models/Configs';
-import { Orders } from './db/models/Orders';
-import { debugError } from '../../debugger';
-import { PutResponses } from './db/models/PutResponses';
+import { Orders } from '../models/Orders';
+import { debugError } from '../debugger';
+import { PutResponses } from '../models/PutResponses';
 import { graphqlPubsub } from './pubsub';
 import * as rmqClient from './messageBrokers';
-import { OrderItems } from './db/models/OrderItems';
+import { OrderItems } from '../models/OrderItems';
 
 dotenv.config();
 
@@ -23,16 +22,12 @@ export const initBroker = async () => {
 
   const { consumeQueue, consumeRPCQueue } = rmqClient;
 
-  const config = await Configs.findOne().lean();
   // if (!config) {
   //   throw new Error('not yet message broker');
   // }
 
-  const syncId =
-    config && config.syncInfo && config.syncInfo.id ? config.syncInfo.id : '';
-
   try {
-    consumeQueue(`pos:crudData_${syncId}`, async data => {
+    consumeQueue(`pos:crudData_${''}`, async data => {
       if (data) {
         switch (data.type) {
           case 'product':
@@ -56,9 +51,9 @@ export const initBroker = async () => {
       }
     });
 
-    consumeQueue(`vrpc_queue:erxes-pos-from-api_${syncId}`, async data => {
+    consumeQueue(`vrpc_queue:erxes-pos-from-api_${''}`, async data => {
       const { responseId, orderId } = data;
-      await Configs.updateOne({}, { $set: { 'syncInfo.date': new Date() } });
+
       await Orders.updateOne({ _id: orderId }, { $set: { synced: true } });
       await PutResponses.updateOne(
         { _id: responseId },
@@ -66,7 +61,7 @@ export const initBroker = async () => {
       );
     });
 
-    consumeQueue(`vrpc_queue:erxes-pos-to-pos_${syncId}`, async data => {
+    consumeQueue(`vrpc_queue:erxes-pos-to-pos_${''}`, async data => {
       const { order } = data;
 
       await Orders.updateOne(
@@ -103,7 +98,7 @@ export const initBroker = async () => {
       });
     });
 
-    consumeRPCQueue(`rpc_queue:health_check_${syncId}`, async data => {
+    consumeRPCQueue(`rpc_queue:health_check_${''}`, async data => {
       return {
         status: 'success',
         data: { healthy: 'ok' }

@@ -3,7 +3,7 @@ import { IModels } from '../connectionResolver';
 import {
   clientPortalSchema,
   IClientPortal,
-  IClientPortalDocument,
+  IClientPortalDocument
 } from './definitions/clientPortal';
 
 export interface IClientPortalModel extends Model<IClientPortalDocument> {

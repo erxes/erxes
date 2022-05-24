@@ -1,5 +1,4 @@
 import { Document, Schema } from 'mongoose';
-import { IPutResponseModel } from '../PutResponses';
 import { getDateFieldDefinition } from './utils';
 import { field, schemaHooksWrapper } from './util';
 
@@ -45,7 +44,7 @@ export const putResponseSchema = schemaHooksWrapper(
     createdAt: getDateFieldDefinition('Created at'),
     modifiedAt: field({ type: Date, label: 'Modified at' }),
 
-    contentType: field({ type: String, label: 'Content Type', default: 'pos' }),
+    contentType: field({ type: String, label: 'Content Type' }),
     contentId: field({ type: String, label: 'Pos order id' }),
 
     // Баримтыг бүртгэх процесс амжилттай болсон тухай илтгэнэ
@@ -93,10 +92,10 @@ export const putResponseSchema = schemaHooksWrapper(
     // Сугалааны дугаар түр санах
     lottery: field({ type: String }),
 
-    // Э-баримт руу илгээсэн мэдээлэл
+    // Э-баримт руу илгээсэн мэдээлэfield(л)
     sendInfo: field({ type: Object, label: 'Ebarimt data' }),
 
-    stocks: field({ type: Object, label: 'Ebarimt stocks' }),
+    stocks: { type: Object, label: 'Ebarimt stocks' },
     // Мөнгөн дүнгүүд э-баримтаас string байдлаар ирдэг учраас тэр чигээр нь хадгалъя
     amount: field({ type: String, label: 'Amount' }),
     cityTax: field({ type: String, label: 'City tax amount' }),
@@ -109,5 +108,5 @@ export const putResponseSchema = schemaHooksWrapper(
     customerName: field({ type: String }),
     synced: field({ type: Boolean, default: false, label: 'synced on erxes' })
   }),
-  'erxes_putResponseSchema'
+  'erxes_putResponse'
 );

@@ -98,20 +98,17 @@ const productQueries = {
     _root,
     models,
     { parentId, searchValue, excludeEmpty }: ICategoryParams,
-    { config }: IContext
+    {}: IContext
   ) {
     const filter = generateFilterCat({ parentId, searchValue });
-    const categories = await models.ProductCategories.find(filter).sort({
-      order: 1
-    });
+    const categories = await ProductCategories.find(filter).sort({ order: 1 });
     const list: IProductCategoryDocument[] = [];
 
     if (excludeEmpty) {
       for (const cat of categories) {
         const product = await models.Products.findOne({
           categoryId: cat._id,
-          status: { $ne: PRODUCT_STATUSES.DELETED },
-          _id: { $nin: config.kioskExcludeProductIds }
+          status: { $ne: PRODUCT_STATUSES.DELETED }
         });
 
         if (product) {
