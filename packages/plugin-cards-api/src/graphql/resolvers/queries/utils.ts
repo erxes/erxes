@@ -307,26 +307,30 @@ export const generateCommonFilters = async (
       let includeCheckUserIds: string[] = [];
 
       if (pipeline.isCheckDepartment) {
-        const department = await sendCoreMessage({
+        const departments = await sendCoreMessage({
           subdomain,
-          action: 'departments.findOne',
+          action: 'departments.find',
           data: {
             userIds: { $in: [currentUserId] }
           },
           isRPC: true
         });
 
-        if (department) {
-          includeCheckUserIds = department.userIds || [];
+        for (const department of departments) {
+          includeCheckUserIds = includeCheckUserIds.concat(
+            department.userIds || []
+          );
         }
       }
 
-      includeCheckUserIds = [...includeCheckUserIds, currentUserId];
+      const uqinueCheckUserIds = [
+        ...new Set(includeCheckUserIds.concat(currentUserId))
+      ];
 
       Object.assign(filter, {
         $or: [
           { assignedUserIds: { $in: includeCheckUserIds } },
-          { userId: { $in: includeCheckUserIds } }
+          { userId: { $in: uqinueCheckUserIds } }
         ]
       });
     }
