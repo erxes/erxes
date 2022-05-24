@@ -55,7 +55,9 @@ function ConfigContainer({ closeModal }: Props) {
   return (
     <Config
       save={saveData}
-      data={dayConfigQuery.data ? dayConfigQuery.data.getTimeframes : []}
+      data={
+        dayConfigQuery.data ? dayConfigQuery.data.getMiniPlanDayConfigs : []
+      }
       closeModal={closeModal}
       // refetch={refetch}
       removedata={removedata}

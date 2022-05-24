@@ -33,7 +33,66 @@ const LOG_MAPPINGS = [
 ];
 
 export default {
+  getActivityContent: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { action, content } = data;
+
+    if (action === 'assignee') {
+      let addedUsers: IUserDocument[] = [];
+      let removedUsers: IUserDocument[] = [];
+
+      if (content) {
+        addedUsers = await models.Users.findUsers({
+          _id: { $in: content.addedUserIds }
+        });
+
+        removedUsers = await models.Users.findUsers({
+          _id: { $in: content.removedUserIds }
+        });
+      }
+
+      return {
+        data: { addedUsers, removedUsers },
+        status: 'success'
+      };
+    }
+
+    return {
+      status: 'error',
+      data: 'wrong activity action'
+    };
+  },
   collectItems: async ({}) => {
+    // if (contentId === 'aaa') {
+    //   const deliveries = await sendLogsMessage({
+    //     subdomain,
+    //     action: 'emailDeliveries.find',
+    //     data: {
+    //       query: {
+    //         customerId: contentId
+    //       }
+    //     },
+    //     isRPC: true,
+    //     defaultValue: []
+    //   });
+
+    //   const results: any[] = [];
+
+    //   for (const d of deliveries) {
+    //     results.push({
+    //       _id: d._id,
+    //       contentType: 'email',
+    //       contentId,
+    //       createdAt: d.createdAt
+    //     });
+    //   }
+
+    //   return {
+    //     status: 'success',
+    //     data: results
+    //   };
+    // }
+
     return {
       status: 'success',
       data: {}

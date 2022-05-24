@@ -59,21 +59,11 @@ function Config({
     setLabels(updatedLabels);
   };
 
-  const onchangeLabelStatus = (e, index, key) => {
-    const updatedLabels = [...labels];
-    updatedLabels[index][key] = e.value;
-    setLabels(updatedLabels);
-  };
-
   const onchangeDataLabel = (e, index, key) => {
     const updatedLabels = [...labelsData];
-    updatedLabels[index][key] = (e.target as HTMLInputElement).value;
-    setLabelsData(updatedLabels);
-  };
 
-  const onchangeDataLabelStatus = (e, index, key) => {
-    const updatedLabels = [...labelsData];
-    updatedLabels[index][key] = e.value;
+    updatedLabels[index][key] = (e.target as HTMLInputElement).value;
+
     setLabelsData(updatedLabels);
   };
 
@@ -91,7 +81,7 @@ function Config({
       ...labels,
       {
         type: type,
-        status: 'active'
+        status: 'Active'
       }
     ]);
   };
@@ -127,11 +117,6 @@ function Config({
   };
 
   const renderLabels = () => {
-    const statusOptions = [
-      { value: 'archived', label: 'archived' },
-      { value: 'active', label: 'active' }
-    ];
-
     const render = labels.map((t, index) => (
       <FlexRow id={`${index}`}>
         <FlexItem>
@@ -162,13 +147,15 @@ function Config({
           </ColorPickerWrapper>
         </FlexItem>
         <FlexItem>
-          <Select
-            options={statusOptions}
-            value={t.status}
-            onChange={e => onchangeLabelStatus(e, index, 'status')}
-            clearable={false}
-            searchable={false}
-          />
+          <FormControl
+            type="text"
+            onChange={e => onchangeLabel(e, index, 'status')}
+            componentClass="select"
+            defaultValue={'aasdd'}
+          >
+            <option value="Active">Active</option>
+            <option value="Archived">Archived</option>
+          </FormControl>
         </FlexItem>
         <FlexItem>
           <Button
@@ -194,11 +181,6 @@ function Config({
   };
 
   const renderLabelsData = () => {
-    const statusOptions = [
-      { value: 'archived', label: 'archived' },
-      { value: 'active', label: 'active' }
-    ];
-
     const render = labelsData.map((t, index) => (
       <FlexRow id={`${index}`}>
         <FlexItem>
@@ -229,13 +211,15 @@ function Config({
           </ColorPickerWrapper>
         </FlexItem>
         <FlexItem>
-          <Select
-            options={statusOptions}
-            value={t.status}
-            onChange={e => onchangeDataLabelStatus(e, index, 'status')}
-            clearable={false}
-            searchable={false}
-          />
+          <FormControl
+            type="text"
+            onChange={e => onchangeDataLabel(e, index, 'status')}
+            componentClass="select"
+            defaultValue={'aasdd'}
+          >
+            <option value="Active">Active</option>
+            <option value="Archived">Archived</option>
+          </FormControl>
         </FlexItem>
         <FlexItem>
           <Button

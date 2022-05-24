@@ -15,7 +15,7 @@ type Props = {
   dayConfigs: any;
   closeModal: () => void;
   dayPlanConf: any;
-  save: (salesLogId: string, dayConfigs: any) => void;
+  save: (saleLogId: string, dayConfigs: any) => void;
 };
 
 function DateChooser({
@@ -72,6 +72,7 @@ function DateChooser({
             upDatedLabel[month] = { _id: t._id, data: t.labelIds };
           });
         }
+        console.log('myyyyyyyyyyyyyyyy', dayPlanConf, upDatedLabel);
         break;
       case 'Day':
         type = dayConfigs;

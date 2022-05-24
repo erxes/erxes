@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Wrapper } from '@erxes/ui/src';
-import { __, withProps } from '@erxes/ui/src/utils';
-import * as compose from 'lodash.flowright';
+import { __ } from '@erxes/ui/src/utils';
 import { Button } from '@erxes/ui/src';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import CreateSalesPlanContainer from '../containers/CreateSalesPlan';

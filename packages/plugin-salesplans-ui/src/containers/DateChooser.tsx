@@ -12,29 +12,33 @@ type Props = {
 
 function DateChooserContainer({ data, closeModal }: Props) {
   const type = data.type;
-  const day = data.date;
+  const date = data.date;
 
   const labelsQuery = useQuery(gql(queries.getLabels), {
     variables: { type }
   });
 
   const dayplanconfs = useQuery(gql(queries.getDayPlanConfig), {
-    variables: { salesLogId: data._id },
+    variables: { saleLogId: data._id },
     fetchPolicy: 'network-only'
   });
 
   const monthplanconfs = useQuery(gql(queries.getMonthPlanConfig), {
-    variables: { salesLogId: data._id },
+    variables: { saleLogId: data._id },
     skip: type !== 'Month'
   });
+
+  if (monthplanconfs.error) {
+    return <div>{monthplanconfs.error.message}</div>;
+  }
 
   const [saveDayPlan] = useMutation(gql(mutations.saveDayPlanConfig));
 
   const [saveMonthPlan] = useMutation(gql(mutations.saveMonthPlanConfig));
 
-  const saveData = (salesLogId, data) => {
+  const saveData = (saleLogId, dayConfigs) => {
     if (type === 'Day') {
-      saveDayPlan({ variables: { salesLogId, data } })
+      saveDayPlan({ variables: { saleLogId, dayConfigs } })
         .then(() => {
           Alert.success('Successfully saved!');
         })
@@ -43,7 +47,8 @@ function DateChooserContainer({ data, closeModal }: Props) {
         });
     }
     if (type === 'Month') {
-      saveMonthPlan({ variables: { salesLogId, day, data } })
+      console.log('client', dayConfigs);
+      saveMonthPlan({ variables: { saleLogId, date, dayConfigs } })
         .then(() => {
           Alert.success('Months Successfully saved!');
         })
@@ -54,10 +59,22 @@ function DateChooserContainer({ data, closeModal }: Props) {
     closeModal();
   };
 
+  if (labelsQuery.error) {
+    return <div>{dayplanconfs.error.message}</div>;
+  }
+
   const dayConfigQuery = useQuery(gql(queries.getDayPlanConfig), {
     skip: type !== 'Day',
     fetchPolicy: 'network-only'
   });
+
+  if (labelsQuery.error) {
+    return <div>{labelsQuery.error.message}</div>;
+  }
+
+  if (dayConfigQuery.error) {
+    return <div>{dayConfigQuery.error.message}</div>;
+  }
 
   return (
     <DateChooser
