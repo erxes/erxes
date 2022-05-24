@@ -98,7 +98,8 @@ export const sendEmail = async (
     '',
     models
   );
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
+
+  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
   // do not send email it is running in test mode
   if (NODE_ENV === 'test') {
