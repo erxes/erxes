@@ -39,7 +39,7 @@ export const app = express();
 
 if (configs.middlewares) {
   for (const middleware of configs.middlewares) {
-    app.use(middleware());
+    app.use(middleware);
   }
 }
 
@@ -269,8 +269,6 @@ async function startServer() {
         logConsumers({
           name: configs.name,
           consumeRPCQueue,
-          getActivityContent: logs.getActivityContent,
-          getContentTypeDetail: logs.getContentTypeDetail,
           collectItems: logs.collectItems,
           getContentIds: logs.getContentIds,
           getSchemalabels: logs.getSchemaLabels

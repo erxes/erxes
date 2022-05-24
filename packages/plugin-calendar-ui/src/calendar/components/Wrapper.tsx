@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
-import { capitalize } from '@erxes/ui/src/activityLogs/utils';
+import { capitalize } from '@erxes/ui-logs/src/activityLogs/utils';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { ButtonGroup } from '@erxes/ui-cards/src/boards/styles/header';;
+import { ButtonGroup } from '@erxes/ui-cards/src/boards/styles/header';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from 'coreui/utils';
@@ -117,10 +117,10 @@ class CalendarWrapper extends React.Component<Props, State> {
 
     return (
       <CalendarController>
-        <Icon icon='angle-left' onClick={this.onChange.bind(this, false)} />
-        <Icon icon='angle-right' onClick={this.onChange.bind(this, true)} />
+        <Icon icon="angle-left" onClick={this.onChange.bind(this, false)} />
+        <Icon icon="angle-right" onClick={this.onChange.bind(this, true)} />
         <h2>{dayjs(currentDate).format(format)}</h2>
-        <Button btnStyle='simple' onClick={onClick}>
+        <Button btnStyle="simple" onClick={onClick}>
           Today
         </Button>
       </CalendarController>
@@ -175,7 +175,7 @@ class CalendarWrapper extends React.Component<Props, State> {
 
     const mainContent = (
       <Wrapper
-        header={<Wrapper.Header title='Calendar' breadcrumb={breadcrumb} />}
+        header={<Wrapper.Header title="Calendar" breadcrumb={breadcrumb} />}
         leftSidebar={
           <Sidebar
             dateOnChange={this.dateOnChange}

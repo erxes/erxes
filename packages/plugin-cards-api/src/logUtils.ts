@@ -25,12 +25,7 @@ import messageBroker, {
   sendToWebhook
 } from './messageBroker';
 import { IModels, generateModels } from './connectionResolver';
-import {
-  collectItems,
-  getCardContentIds,
-  getContentItem,
-  getContentTypeDetail
-} from './utils';
+import { collectItems, getCardContentIds } from './utils';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
@@ -712,14 +707,6 @@ const sendSuccess = data => ({
 });
 
 export default {
-  getActivityContent: async ({ subdomain, data }) => {
-    return getContentItem(subdomain, data);
-  },
-
-  getContentTypeDetail: async ({ subdomain, data }) => {
-    return getContentTypeDetail(subdomain, data);
-  },
-
   collectItems: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

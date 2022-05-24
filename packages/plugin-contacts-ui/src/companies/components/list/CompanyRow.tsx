@@ -6,7 +6,7 @@ import TextInfo from '@erxes/ui/src/components/TextInfo';
 import { formatValue } from '@erxes/ui/src/utils';
 import { ClickableRow } from '@erxes/ui-contacts/src/customers/styles';
 import React from 'react';
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
+import { FlexContent } from '@erxes/ui-logs/src/activityLogs/styles';
 import { ICompany } from '../../types';
 
 type Props = {
