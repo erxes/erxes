@@ -6,7 +6,7 @@ import {
   ItemLabel,
   ItemValue,
   ScheduleItem,
-  ItemDesc,
+  ItemDesc
 } from '../../contracts/styles';
 import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
 import InvoiceForm from '../containers/InvoiceForm';
@@ -28,8 +28,8 @@ const renderCol = (label, value, desc?) => {
   );
 };
 
-const renderAddInvoice = (content) => {
-  const invoiceForm = (props) => {
+const renderAddInvoice = content => {
+  const invoiceForm = props => {
     return <InvoiceForm {...props} invoice={content} />;
   };
 
@@ -51,8 +51,8 @@ const renderAddInvoice = (content) => {
   );
 };
 
-const renderAddTransaction = (invoice) => {
-  const transactionForm = (props) => {
+const renderAddTransaction = invoice => {
+  const transactionForm = props => {
     return <TransactionForm {...props} invoice={invoice} />;
   };
 
@@ -74,7 +74,7 @@ const renderAddTransaction = (invoice) => {
   );
 };
 
-const renderStatus = (status) => {
+const renderStatus = status => {
   if (status === 'done') {
     return (
       <ActivityIcon color={'blue'}>
@@ -95,7 +95,7 @@ const renderButtons = (content, removeInvoices) => {
       .then(() => {
         removeInvoices({ invoiceIds: [content._id] });
       })
-      .catch((error) => {
+      .catch(error => {
         Alert.error(error.message);
       });
 

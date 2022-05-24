@@ -1,86 +1,95 @@
 const salesLogVariables = `
-    $branchId: String,
-    $description:String,
-    $date:Date,
-    $name:String,
-    $type:String,
-    $unitId:String
+  $branchId: String,
+  $description:String,
+  $date:Date,
+  $name:String,
+  $type:String,
+  $unitId:String
 `;
 
 const salesLogValues = `
-    branchId: $branchId,
-    date: $date,
-    description:$description,
-    name:$name,
-    type:$type,
-    unitId:$unitId
+  branchId: $branchId,
+  date: $date,
+  description: $description,
+  name: $name,
+  type: $type,
+  unitId: $unitId
 `;
 
 const removeLabel = `
-  mutation removeLabel($_id:String){
+  mutation removeLabel($_id: String) {
     removeLabel(_id: $_id)
   }
 `;
 
 const saveLabels = `
-mutation saveLabels($update: [LabelInput], $add: [AddLabelInput]){
-  saveLabels(update: $update, add: $add)
-}
+  mutation saveLabels($update: [LabelInput], $add: [AddLabelInput]) {
+    saveLabels(update: $update, add: $add){
+      _id
+    }
+  }
 `;
 
 const createSalesLog = `
-mutation createSalesLog(${salesLogVariables}){
-  createSalesLog(${salesLogValues}){
-    _id
-    branchDetail {
+  mutation createSalesLog(${salesLogVariables}) {
+    createSalesLog(${salesLogValues}) {
       _id
-      title
+      branchDetail {
+        _id
+        title
+      }
+      branchId
+      createdAt
+      createdBy
+      createdUser {
+        _id
+        username
+      }
+      date
+      description
+      name
+      status
+      type
+      unitDetail {
+        _id
+        title
+      }
+      unitId
     }
-    branchId
-    createdAt
-    createdBy
-    createdUser {
-      _id
-      username
-    }
-    date
-    description
-    name
-    status
-    type
-    unitDetail {
-      _id
-      title
-    }
-    unitId
   }
-}`;
+`;
 
 const saveTimeframes = `
- mutation saveTimeframes($update: [DayConfigInput], $add: [AddDayConfigInput]){
-  saveTimeframes(update: $update, add: $add)
- }
+  mutation saveTimeframes($update: [DayConfigInput], $add: [AddDayConfigInput]) {
+    saveTimeframes(update: $update, add: $add){
+      _id
+    }
+  }
 `;
+
 const removeTimeframe = `
-mutation removeTimeframe($_id: String){
-  removeTimeframe(_id: $_id)
-}`;
+  mutation removeTimeframe($_id: String) {
+    removeTimeframe(_id: $_id)
+  }
+`;
 
 const saveDayPlanConfig = `
-mutation saveDayPlanConfig($saleLogId: String, $dayConfigs: JSON){
-  saveDayPlanConfig(saleLogId: $saleLogId, dayConfigs: $dayConfigs)
-}
+  mutation saveDayPlanConfig($salesLogId: String, $data: JSON) {
+    saveDayPlanConfig(salesLogId: $salesLogId, data: $data)
+  }
 `;
 
 const removeSalesLog = `
-  mutation removeSalesLog($_id:String){
+  mutation removeSalesLog($_id: String) {
     removeSalesLog(_id: $_id)
   }
 `;
 
 const saveMonthPlanConfig = `
-  mutation saveMonthPlanConfig ($saleLogId: String, $date: Date $dayConfigs: JSON){
-    saveMonthPlanConfig(saleLogId: $saleLogId, date: $date, dayConfigs: $dayConfigs)
+  mutation saveMonthPlanConfig ($salesLogId: String, $day: Date, $data: JSON){
+    saveMonthPlanConfig(salesLogId: $salesLogId, day: $day, data: $data){
+      _id
+    }
   }
 `;
 

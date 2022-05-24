@@ -229,7 +229,7 @@ const getRelatedTargets = async (
   }
 
   if (
-    ['contacts:customer, contacts:lead'].includes(triggerType) &&
+    ['contacts:customer', 'contacts:lead'].includes(triggerType) &&
     target.isFormSubmission &&
     ['cards:task', 'cards:ticket', 'cards:deal'].includes(module)
   ) {

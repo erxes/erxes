@@ -1,19 +1,19 @@
 import {
   checkPermission,
-  moduleRequireLogin,
-} from "@erxes/api-utils/src/permissions";
-import dealResolvers from "../customResolvers/deal";
-import { IListParams } from "./boards";
+  moduleRequireLogin
+} from '@erxes/api-utils/src/permissions';
+import dealResolvers from '../customResolvers/deal';
+import { IListParams } from './boards';
 import {
   archivedItems,
   archivedItemsCount,
   checkItemPermByUser,
   generateDealCommonFilters,
   getItemList,
-  IArchiveArgs,
-} from "./utils";
-import { IContext } from "../../../connectionResolver";
-import { sendProductsMessage } from "../../../messageBroker";
+  IArchiveArgs
+} from './utils';
+import { IContext } from '../../../connectionResolver';
+import { sendProductsMessage } from '../../../messageBroker';
 
 interface IDealListParams extends IListParams {
   productIds?: [string];
@@ -26,20 +26,16 @@ const dealQueries = {
   async deals(
     _root,
     args: IDealListParams,
-    { user, commonQuerySelector, models, subdomain, serverTiming }: IContext
+    { user, commonQuerySelector, models, subdomain }: IContext
   ) {
     const filter = {
       ...commonQuerySelector,
-      ...(await generateDealCommonFilters(models, subdomain, user._id, args)),
+      ...(await generateDealCommonFilters(models, subdomain, user._id, args))
     };
 
-    serverTiming.startTime('deals')
-
     const getExtraFields = async (item: any) => ({
-      amount: await dealResolvers.amount(item),
+      amount: await dealResolvers.amount(item)
     });
-
-    serverTiming.startTime('getItemsList');
 
     const deals = await getItemList(
       models,
@@ -47,24 +43,19 @@ const dealQueries = {
       filter,
       args,
       user,
-      "deal",
+      'deal',
       { productsData: 1 },
-      getExtraFields,
-      serverTiming
+      getExtraFields
     );
 
-    serverTiming.endTime('getItemsList');
-
     // @ts-ignore
-    const dealProductIds = deals.flatMap((deal) => {
+    const dealProductIds = deals.flatMap(deal => {
       if (deal.productsData && deal.productsData.length > 0) {
-        return deal.productsData.flatMap((pData) => pData.productId || []);
+        return deal.productsData.flatMap(pData => pData.productId || []);
       }
 
       return [];
     });
-
-    serverTiming.startTime('sendProductsMessage');
 
     const products = await sendProductsMessage({
       subdomain,
@@ -77,8 +68,6 @@ const dealQueries = {
       isRPC: true,
       defaultValue: []
     });
-
-    serverTiming.endTime('sendProductsMessage');
 
     for (const deal of deals) {
       if (
@@ -96,13 +85,11 @@ const dealQueries = {
         }
 
         deal.products.push({
-          ...(typeof pData.toJSON === "function" ? pData.toJSON() : pData),
-          product: products.find((p) => p._id === pData.productId) || {},
+          ...(typeof pData.toJSON === 'function' ? pData.toJSON() : pData),
+          product: products.find(p => p._id === pData.productId) || {}
         });
       }
     }
-
-    serverTiming.endTime('deals')
 
     return deals;
   },
@@ -112,7 +99,12 @@ const dealQueries = {
     args: IDealListParams,
     { user, models, subdomain }: IContext
   ) {
-    const filter = await generateDealCommonFilters(models, subdomain, user._id, args);
+    const filter = await generateDealCommonFilters(
+      models,
+      subdomain,
+      user._id,
+      args
+    );
 
     return models.Deals.find(filter).count();
   },
@@ -136,23 +128,28 @@ const dealQueries = {
     args: IDealListParams,
     { user, models, subdomain }: IContext
   ) {
-    const filter = await generateDealCommonFilters(models, subdomain, user._id, args);
+    const filter = await generateDealCommonFilters(
+      models,
+      subdomain,
+      user._id,
+      args
+    );
 
     const amountList = await models.Deals.aggregate([
       {
-        $match: filter,
+        $match: filter
       },
       {
         $lookup: {
-          from: "stages",
-          let: { letStageId: "$stageId" },
+          from: 'stages',
+          let: { letStageId: '$stageId' },
           pipeline: [
             {
               $match: {
                 $expr: {
-                  $eq: ["$_id", "$$letStageId"],
-                },
-              },
+                  $eq: ['$_id', '$$letStageId']
+                }
+              }
             },
             {
               $project: {
@@ -160,62 +157,62 @@ const dealQueries = {
                   $cond: {
                     if: {
                       $or: [
-                        { $eq: ["$probability", "Won"] },
-                        { $eq: ["$probability", "Lost"] },
-                      ],
+                        { $eq: ['$probability', 'Won'] },
+                        { $eq: ['$probability', 'Lost'] }
+                      ]
                     },
-                    then: "$probability",
-                    else: "In progress",
-                  },
-                },
-              },
-            },
+                    then: '$probability',
+                    else: 'In progress'
+                  }
+                }
+              }
+            }
           ],
-          as: "stageProbability",
-        },
+          as: 'stageProbability'
+        }
       },
       {
-        $unwind: "$productsData",
+        $unwind: '$productsData'
       },
       {
-        $unwind: "$stageProbability",
+        $unwind: '$stageProbability'
       },
       {
         $project: {
-          amount: "$productsData.amount",
-          currency: "$productsData.currency",
-          type: "$stageProbability.probability",
-          tickUsed: "$productsData.tickUsed",
-        },
+          amount: '$productsData.amount',
+          currency: '$productsData.currency',
+          type: '$stageProbability.probability',
+          tickUsed: '$productsData.tickUsed'
+        }
       },
       {
-        $match: { tickUsed: true },
+        $match: { tickUsed: true }
       },
       {
         $group: {
-          _id: { currency: "$currency", type: "$type" },
+          _id: { currency: '$currency', type: '$type' },
 
-          amount: { $sum: "$amount" },
-        },
+          amount: { $sum: '$amount' }
+        }
       },
       {
         $group: {
-          _id: "$_id.type",
+          _id: '$_id.type',
           currencies: {
-            $push: { amount: "$amount", name: "$_id.currency" },
-          },
-        },
+            $push: { amount: '$amount', name: '$_id.currency' }
+          }
+        }
       },
       {
-        $sort: { _id: -1 },
-      },
+        $sort: { _id: -1 }
+      }
     ]);
 
-    return amountList.map((type) => {
+    return amountList.map(type => {
       return {
         _id: Math.random(),
         name: type._id,
-        currencies: type.currencies,
+        currencies: type.currencies
       };
     });
   },
@@ -231,11 +228,11 @@ const dealQueries = {
     const deal = await models.Deals.getDeal(_id);
 
     return checkItemPermByUser(models, user._id, deal);
-  },
+  }
 };
 
 moduleRequireLogin(dealQueries);
 
-checkPermission(dealQueries, "deals", "showDeals", []);
+checkPermission(dealQueries, 'deals', 'showDeals', []);
 
 export default dealQueries;
