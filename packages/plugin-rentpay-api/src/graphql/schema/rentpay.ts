@@ -40,6 +40,7 @@ const listQueryParams = `
     district: String
     customFields: JSON
     stageCode: String
+    stageChangedDate: Date
     limit: Int
     skip: Int
  `;
@@ -54,5 +55,6 @@ export const queries = ({ formsEnabled, cardsEnabled }) => `
 
 export const mutations = `
   modifyWaiterCustomerList(dealId: String, customerId: String, type: String): [String]
-  updateRentpayCustomer(customerId: String, customFields: JSON): JSON
+  createRentpayCustomer(firstName: String, lastName: String, email: String, phone: String): JSON
+  rentPayDealsEditCustomFieldItem(_id: String!, key: String!, value: JSON!): JSON
 `;

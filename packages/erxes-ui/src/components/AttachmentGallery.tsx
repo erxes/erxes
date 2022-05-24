@@ -1,10 +1,10 @@
-import { __, confirm } from "../utils";
-import React, { useState } from "react";
-import styled from "styled-components";
-import { rgba } from "../styles/ecolor";
-import colors from "../styles/colors";
-import { IAttachment } from "../types";
-import Attachment from "./Attachment";
+import { __, confirm } from '../utils';
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import { rgba } from '../styles/ecolor';
+import colors from '../styles/colors';
+import { IAttachment } from '../types';
+import Attachment from './Attachment';
 
 const List = styled.div`
   margin: 10px 0;
@@ -24,7 +24,7 @@ const Delete = styled.span`
   }
 `;
 
-const ToggleButton = styled(Delete.withComponent("div"))`
+const ToggleButton = styled(Delete.withComponent('div'))`
   padding: 7px 15px;
   border-radius: 4px;
   margin-bottom: 15px;
@@ -52,11 +52,15 @@ function AttachmentsGallery(props: Props) {
   };
 
   const renderItem = (item: IAttachment, index: number) => {
+    if (!item) {
+      return null;
+    }
+
     const onRemove = () => {
       confirm().then(() => removeAttachment(index));
     };
 
-    const remove = <Delete onClick={onRemove}>{__("Delete")}</Delete>;
+    const remove = <Delete onClick={onRemove}>{__('Delete')}</Delete>;
 
     return (
       <Item key={item.url}>
@@ -73,8 +77,8 @@ function AttachmentsGallery(props: Props) {
   const renderToggleButton = (hiddenCount: number) => {
     if (hiddenCount > 0) {
       const buttonText = hideOthers
-        ? `${__("View all attachments")} (${hiddenCount} ${__("hidden")})`
-        : `${__("Show fewer attachments")}`;
+        ? `${__('View all attachments')} (${hiddenCount} ${__('hidden')})`
+        : `${__('Show fewer attachments')}`;
 
       return (
         <ToggleButton onClick={toggleAttachments}>{buttonText}</ToggleButton>

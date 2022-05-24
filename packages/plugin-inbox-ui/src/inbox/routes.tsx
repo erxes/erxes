@@ -24,12 +24,11 @@ const inbox = (props: IRouterProps) => {
 const routes = () => {
   return (
     <React.Fragment>
-      <Route exact={true} path='/' key='root' render={index} />
-      <Route exact={true} path='/inbox' key='inbox' render={index} />
+      <Route exact={true} path="/inbox" key="inbox" render={index} />
       <Route
         exact={true}
-        path='/inbox/index'
-        key='inbox/index'
+        path="/inbox/index"
+        key="inbox/index"
         render={inbox}
       />
     </React.Fragment>

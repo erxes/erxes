@@ -16,7 +16,7 @@ const scheduleMutations = {
       status: { $in: [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS] }
     }).lean();
     if (doneSchedules && doneSchedules.length) {
-      const trs = await models.LoanTransactions.find({ contractId }).lean();
+      const trs = await models.Transactions.find({ contractId }).lean();
       if (trs && trs.length) {
         throw new Error('Schedule has related transaction');
       }
@@ -33,7 +33,7 @@ const scheduleMutations = {
       day: Number(holidayConfig[key].day)
     }));
 
-    const contract = await models.LoanContracts.getContract(models, {
+    const contract = await models.Contracts.getContract(models, {
       _id: contractId
     });
     await reGenerateSchedules(models, contract._doc, perHolidays);

@@ -6,6 +6,7 @@ import NavigationMore from './NavigationMore';
 
 import { Plugin } from './types';
 import { pluginNavigations } from './utils';
+import { Redirect, Route } from 'react-router-dom';
 
 type Props = {
   navCollapse: number;
@@ -58,32 +59,42 @@ export default class NavigationList extends React.Component<Props, State> {
         ? pluginNavigations().slice(0, countOfPinnedPlugins)
         : pinnedPlugins;
 
-    return (
-      <Nav id="navigation">
-        {plugins.map((plugin: any, index: number) => (
-          <NavigationItem
-            key={index}
-            plugin={plugin}
-            navCollapse={navCollapse}
-            showMenu={showMenu}
-            clickedMenu={clickedMenu}
-            toggleMenu={this.toggleMenu}
-            unreadConversationsCount={unreadConversationsCount}
-          />
-        ))}
+    const index = () => {
+      if (plugins.length !== 0) {
+        return <Redirect to={`${plugins[0].url}`} />;
+      }
 
-        {pluginNavigations().length > countOfPinnedPlugins && (
-          <NavigationMore
-            navCollapse={navCollapse}
-            showMenu={showMenu}
-            clickedMenu={clickedMenu}
-            pinnedPlugins={pinnedPlugins}
-            countOfPinnedPlugins={countOfPinnedPlugins}
-            toggleMenu={this.toggleMenu}
-            updatePinnedPlugins={this.updatePinnedPlugins}
-          />
-        )}
-      </Nav>
+      return <Redirect to={`/welcome`} />;
+    };
+    return (
+      <>
+        <Route exact={true} path="/" key="root" render={index} />
+        <Nav id="navigation">
+          {plugins.map((plugin: any, index: number) => (
+            <NavigationItem
+              key={index}
+              plugin={plugin}
+              navCollapse={navCollapse}
+              showMenu={showMenu}
+              clickedMenu={clickedMenu}
+              toggleMenu={this.toggleMenu}
+              unreadConversationsCount={unreadConversationsCount}
+            />
+          ))}
+
+          {pluginNavigations().length > countOfPinnedPlugins && (
+            <NavigationMore
+              navCollapse={navCollapse}
+              showMenu={showMenu}
+              clickedMenu={clickedMenu}
+              pinnedPlugins={pinnedPlugins}
+              countOfPinnedPlugins={countOfPinnedPlugins}
+              toggleMenu={this.toggleMenu}
+              updatePinnedPlugins={this.updatePinnedPlugins}
+            />
+          )}
+        </Nav>
+      </>
     );
   }
 }

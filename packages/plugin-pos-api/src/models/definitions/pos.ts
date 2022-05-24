@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { field, schemaHooksWrapper } from './utils';
+import { field, schemaHooksWrapper } from './util';
 
 export interface IPosOrderItem {
   createdAt: Date;
@@ -89,7 +89,7 @@ const posOrderItemSchema = schemaHooksWrapper(
     count: field({ type: Number }),
     unitPrice: field({ type: Number }),
     discountAmount: field({ type: Number }),
-    discountPercent: field({ type: Number }),
+    discountPercent: field({ type: Number })
   }),
   'erxes_posOrderItem'
 );
@@ -109,25 +109,25 @@ export const posOrderSchema = schemaHooksWrapper(
     finalAmount: field({ type: Number }),
     shouldPrintEbarimt: field({
       type: Boolean,
-      label: 'Should print ebarimt for this order',
+      label: 'Should print ebarimt for this order'
     }),
     printedEbarimt: field({
       type: Boolean,
       label: 'Printed ebarimt',
-      default: false,
+      default: false
     }),
     billType: field({
       type: String,
-      label: 'Ebarimt receiver entity type',
+      label: 'Ebarimt receiver entity type'
     }),
     billId: field({ type: String, label: 'Bill id' }),
     registerNumber: field({
       type: String,
-      label: 'Register number of the entity',
+      label: 'Register number of the entity'
     }),
     oldBillId: field({
       type: String,
-      label: 'Previous bill id if it is changed',
+      label: 'Previous bill id if it is changed'
     }),
     type: field({ type: String }),
     userId: field({ type: String, label: 'Created user id' }),
@@ -141,8 +141,8 @@ export const posOrderSchema = schemaHooksWrapper(
     deliveryInfo: field({
       type: Object,
       optional: true,
-      label: 'Delivery Info, address, map, etc',
-    }),
+      label: 'Delivery Info, address, map, etc'
+    })
   }),
   'erxes_posOrders'
 );
@@ -162,13 +162,13 @@ export const posSchema = schemaHooksWrapper(
     allowBranchIds: field({
       type: [String],
       optional: true,
-      label: 'Allow branches',
+      label: 'Allow branches'
     }),
     beginNumber: field({ type: String, optional: true, label: 'Begin number' }),
     maxSkipNumber: field({
       type: Number,
       optional: true,
-      label: 'Skip number',
+      label: 'Skip number'
     }),
     waitingScreen: field({ type: Object, label: 'Waiting screen config' }),
     kioskMachine: field({ type: Object, label: 'Kiosk config' }),
@@ -181,17 +181,17 @@ export const posSchema = schemaHooksWrapper(
     catProdMappings: field({
       type: [Object],
       label: 'Category product mappings',
-      optional: true,
+      optional: true
     }),
     initialCategoryIds: field({
       type: [String],
-      label: 'Pos initial categories',
+      label: 'Pos initial categories'
     }),
     kioskExcludeProductIds: field({
       type: [String],
-      label: 'Kiosk exclude products',
+      label: 'Kiosk exclude products'
     }),
-    deliveryConfig: field({ type: Object, label: 'Delivery Config' }),
+    deliveryConfig: field({ type: Object, label: 'Delivery Config' })
   }),
   'erxes_pos'
 );
@@ -205,20 +205,20 @@ export const productGroupSchema = schemaHooksWrapper(
     categoryIds: field({
       type: [String],
       optional: true,
-      label: 'Category ids',
+      label: 'Category ids'
     }),
 
     excludedCategoryIds: field({
       type: [String],
       optional: true,
-      label: 'Exclude Category ids',
+      label: 'Exclude Category ids'
     }),
 
     excludedProductIds: field({
       type: [String],
       optional: true,
-      label: 'Exclude Product ids',
-    }),
+      label: 'Exclude Product ids'
+    })
   }),
   'erxes_productGroup'
 );

@@ -35,7 +35,7 @@ export interface ICarCategoryModel extends Model<ICarCategoryDocument> {
 export interface IProductCarCategoryModel
   extends Model<IProductCarCategoryDocument> {}
 
-export const loadCarsClass = (models) => {
+export const loadCarsClass = models => {
   class Cars {
     /**
      * Checking if car has duplicated unique properties
@@ -206,9 +206,6 @@ export const loadCarsClass = (models) => {
         defaultValue: []
       });
 
-      // Removing modules associated with current cars
-      // await models.InternalNotes.changeCar(car._id, carIds);
-
       return car;
     }
   }
@@ -217,7 +214,7 @@ export const loadCarsClass = (models) => {
   return carSchema;
 };
 
-export const loadCarCategoryClass = (models) => {
+export const loadCarCategoryClass = models => {
   class CarCategory {
     /**
      *
@@ -281,7 +278,7 @@ export const loadCarCategoryClass = (models) => {
       await models.CarCategories.updateOne({ _id }, { $set: doc });
 
       // updating child categories order
-      childCategories.forEach(async (category) => {
+      childCategories.forEach(async category => {
         let order = category.order;
 
         order = order.replace(carCategory.order, doc.order);

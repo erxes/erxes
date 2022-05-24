@@ -4,7 +4,10 @@ import { IModels } from '../connectionResolver';
 import {
   ITransaction,
   ITransactionDocument,
-  transactionSchema
+  ITrItem,
+  ITrItemDocument,
+  transactionSchema,
+  trItemSchema
 } from './definitions/transactions';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
@@ -69,4 +72,66 @@ export const loadTransactionClass = (models: IModels) => {
   transactionSchema.loadClass(Transaction);
 
   return transactionSchema;
+};
+
+// ============== items
+export interface ITrItemModel extends Model<ITrItemDocument> {
+  getTrItem(_id: string): Promise<ITrItemDocument>;
+  createTrItem(doc: ITrItem): Promise<ITrItemDocument>;
+  updateTrItem(_id: string, doc: ITrItem): Promise<ITrItemDocument>;
+  removeTrItem(_id: string): void;
+}
+
+export const loadTrItemClass = (models: IModels) => {
+  class TrItem {
+    /*
+     * Get a trItem
+     */
+    public static async getTrItem(_id: string) {
+      const trItem = await models.TrItems.findOne({ _id });
+
+      if (!trItem) {
+        throw new Error('TrItem not found');
+      }
+
+      return trItem;
+    }
+
+    /**
+     * Create a trItem
+     */
+    public static async createTrItem(doc: ITrItem) {
+      const trItem = await models.TrItems.create({
+        ...doc,
+        createdAt: new Date()
+      });
+
+      return trItem;
+    }
+
+    /**
+     * Update TrItem
+     */
+    public static async updateTrItem(_id: string, doc: ITrItem) {
+      const trItem = await models.TrItems.getTrItem(_id);
+
+      await models.TrItems.updateOne({ _id }, { $set: { ...doc } });
+
+      const updated = await models.TrItems.getTrItem(_id);
+
+      return updated;
+    }
+
+    /**
+     * Remove TrItem
+     */
+    public static async removeTrItem(_id: string) {
+      await models.TrItems.getTrItem(_id);
+      return models.TrItems.deleteOne({ _id });
+    }
+  }
+
+  trItemSchema.loadClass(TrItem);
+
+  return trItemSchema;
 };

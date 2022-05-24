@@ -5,7 +5,7 @@ const generateFilter = async (models, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
   if (params.searchValue) {
-    const contracts = await models.LoanContracts.find(
+    const contracts = await models.Contracts.find(
       { number: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
       { _id: 1 }
     );
@@ -80,9 +80,8 @@ const transactionQueries = {
     params,
     { commonQuerySelector, models, checkPermission, user }
   ) => {
-    await checkPermission('showTransactions', user);
     return paginate(
-      models.LoanTransactions.find(
+      models.Transactions.find(
         await generateFilter(models, params, commonQuerySelector)
       ),
       {
@@ -101,18 +100,17 @@ const transactionQueries = {
     params,
     { commonQuerySelector, models, checkPermission, user }
   ) => {
-    await checkPermission('showTransactions', user);
     const filter = await generateFilter(models, params, commonQuerySelector);
 
     return {
       list: await paginate(
-        models.LoanTransactions.find(filter).sort(sortBuilder(params)),
+        models.Transactions.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
           perPage: params.perPage
         }
       ),
-      totalCount: await models.LoanTransactions.find(filter).count()
+      totalCount: await models.Transactions.find(filter).count()
     };
   },
 
@@ -125,8 +123,7 @@ const transactionQueries = {
     { _id },
     { models, checkPermission, user }
   ) => {
-    await checkPermission('showTransactions', user);
-    return models.LoanTransactions.getTransaction(models, { _id });
+    return models.Transactions.getTransaction(models, { _id });
   }
 };
 

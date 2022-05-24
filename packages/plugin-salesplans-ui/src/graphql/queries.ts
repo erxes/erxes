@@ -1,4 +1,4 @@
-const getMiniPlanLabels = `
+const getLabels = `
   query getMiniPlanLabels($type:String){
     getMiniPlanLabels(type:$type){
       _id,
@@ -10,9 +10,9 @@ const getMiniPlanLabels = `
   }
 `;
 
-const getMiniPlanDayConfigs = `
-  query getMiniPlanDayConfigs{
-    getMiniPlanDayConfigs{
+const getTimeframes = `
+  query getTimeframes{
+    getTimeframes{
       _id,
       name,
       description,
@@ -22,26 +22,26 @@ const getMiniPlanDayConfigs = `
   }
 `;
 
-const getUnits = `
-  query getUnits{
-    getUnits{
+const units = `
+  query units{
+    units{
       _id,
       title
     }
   }
 `;
-const getBranches = `
-  query getBranches{
-    getBranches{
+const branches = `
+  query branches{
+    branches{
       _id,
       title
     }
   }
 `;
 
-const getMiniPlanSalesLogs = `
-  query getMiniPlanSalesLogs{
-    getMiniPlanSalesLogs{
+const getSalesLogs = `
+  query getSalesLogs{
+    getSalesLogs{
           _id ,
       description,
       date,
@@ -64,9 +64,9 @@ const getMiniPlanSalesLogs = `
   }
 `;
 
-const getMiniPlanDayPlanConf = `
-  query getMiniPlanDayPlanConf($saleLogId: String){
-    getMiniPlanDayPlanConf(saleLogId: $saleLogId){
+const getDayPlanConfig = `
+  query getDayPlanConfig($saleLogId: String){
+    getDayPlanConfig(saleLogId: $saleLogId){
       _id,
       labelIds,
       dayConfigId
@@ -74,9 +74,9 @@ const getMiniPlanDayPlanConf = `
   }
 `;
 
-const getMiniPlanMonthPlanConf = `
-  query getMiniPlanMonthPlanConf($saleLogId: String){
-    getMiniPlanMonthPlanConf(saleLogId: $saleLogId){
+const getMonthPlanConfig = `
+  query getMonthPlanConfig($saleLogId: String){
+    getMonthPlanConfig(saleLogId: $saleLogId){
       _id,
       labelIds,
       date
@@ -84,9 +84,9 @@ const getMiniPlanMonthPlanConf = `
   }
 `;
 
-const getProducts = `
-  query getProducts{
-    getProducts{
+const products = `
+  query products{
+    products{
       _id,
       name
     }
@@ -94,12 +94,12 @@ const getProducts = `
 `;
 
 export default {
-  getMiniPlanLabels,
-  getUnits,
-  getBranches,
-  getMiniPlanSalesLogs,
-  getMiniPlanDayConfigs,
-  getMiniPlanMonthPlanConf,
-  getMiniPlanDayPlanConf,
-  getProducts
+  getLabels,
+  getTimeframes,
+  branches,
+  getSalesLogs,
+  getMonthPlanConfig,
+  getDayPlanConfig,
+  products,
+  units
 };

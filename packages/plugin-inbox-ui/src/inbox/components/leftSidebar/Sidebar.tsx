@@ -28,7 +28,7 @@ import {
   ToggleButton,
   ScrollContent
 } from './styles';
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const DateFilter = asyncComponent(
   () =>
@@ -85,7 +85,7 @@ class LeftSidebar extends React.Component<Props, State> {
   renderTrigger(text: string) {
     return (
       <PopoverButton>
-        {__(text)} <Icon icon='angle-down' />
+        {__(text)} <Icon icon="angle-down" />
       </PopoverButton>
     );
   }
@@ -121,16 +121,16 @@ class LeftSidebar extends React.Component<Props, State> {
       <Sidebar.Header>
         <FlexCenter>
           <ToggleButton
-            id='btn-inbox-channel-visible'
+            id="btn-inbox-channel-visible"
             isActive={this.state.isOpen}
             onClick={this.onToggleSidebar}
           >
-            <Icon icon='subject' />
+            <Icon icon="subject" />
           </ToggleButton>
           {queryParams.status !== CONVERSATION_STATUSES.CLOSED && (
             <Button
-              size='small'
-              btnStyle='simple'
+              size="small"
+              btnStyle="simple"
               onClick={this.props.resolveAll}
             >
               Resolve all
@@ -142,7 +142,7 @@ class LeftSidebar extends React.Component<Props, State> {
             queryParams={queryParams}
             history={history}
             countQuery={queries.totalConversationsCount}
-            countQueryParam='conversationsTotalCount'
+            countQueryParam="conversationsTotalCount"
           />
           <StatusFilterPopover queryParams={queryParams} history={history} />
         </DropdownWrapper>
@@ -166,15 +166,15 @@ class LeftSidebar extends React.Component<Props, State> {
         in={this.state.isOpen}
         appear={true}
         timeout={300}
-        classNames='fade-in'
+        classNames="fade-in"
         unmountOnExit={true}
       >
         <SidebarContent>
           <ScrollContent>
             <FilterToggler
-              groupText='Channels'
-              toggleName='showChannels'
-              manageUrl='/settings/channels'
+              groupText="Channels"
+              toggleName="showChannels"
+              manageUrl="/settings/channels"
             >
               <FilterList
                 query={{
@@ -182,18 +182,18 @@ class LeftSidebar extends React.Component<Props, State> {
                   variables: { memberIds: [currentUser._id] },
                   dataName: 'channelsByMembers'
                 }}
-                counts='byChannels'
-                paramKey='channelId'
+                counts="byChannels"
+                paramKey="channelId"
                 queryParams={queryParams}
                 refetchRequired={refetchRequired}
               />
             </FilterToggler>
 
-            {isEnabled("segments") &&
+            {isEnabled('segments') && (
               <FilterToggler
-                groupText='Segments'
-                toggleName='showSegments'
-                manageUrl='/segments/conversation'
+                groupText="Segments"
+                toggleName="showSegments"
+                manageUrl="/segments/conversation"
               >
                 <FilterList
                   query={{
@@ -204,33 +204,33 @@ class LeftSidebar extends React.Component<Props, State> {
                     }
                   }}
                   queryParams={queryParams}
-                  counts='bySegment'
-                  paramKey='segment'
-                  icon='tag-alt'
+                  counts="bySegment"
+                  paramKey="segment"
+                  icon="tag-alt"
                   refetchRequired={refetchRequired}
                   treeView={true}
                 />
               </FilterToggler>
-            }
+            )}
 
             <FilterToggler
-              groupText='Brands'
-              toggleName='showBrands'
-              manageUrl='/settings/brands'
+              groupText="Brands"
+              toggleName="showBrands"
+              manageUrl="/settings/brands"
             >
               <FilterList
                 query={{ queryName: 'allBrands', dataName: 'allBrands' }}
-                counts='byBrands'
+                counts="byBrands"
                 queryParams={queryParams}
-                paramKey='brandId'
+                paramKey="brandId"
                 refetchRequired={refetchRequired}
               />
             </FilterToggler>
 
             <FilterToggler
-              groupText='Integrations'
-              toggleName='showIntegrations'
-              manageUrl='/settings/integrations'
+              groupText="Integrations"
+              toggleName="showIntegrations"
+              manageUrl="/settings/add-ons"
             >
               <FilterList
                 query={{
@@ -238,17 +238,17 @@ class LeftSidebar extends React.Component<Props, State> {
                   dataName: 'integrationsGetUsedTypes'
                 }}
                 queryParams={queryParams}
-                counts='byIntegrationTypes'
-                paramKey='integrationType'
+                counts="byIntegrationTypes"
+                paramKey="integrationType"
                 refetchRequired={refetchRequired}
               />
             </FilterToggler>
 
-            {isEnabled("tags") &&
+            {isEnabled('tags') && (
               <FilterToggler
-                groupText='Tags'
-                toggleName='showTags'
-                manageUrl='/tags/inbox:conversation'
+                groupText="Tags"
+                toggleName="showTags"
+                manageUrl="/tags/inbox:conversation"
               >
                 <FilterList
                   query={{
@@ -259,15 +259,15 @@ class LeftSidebar extends React.Component<Props, State> {
                     }
                   }}
                   queryParams={queryParams}
-                  counts='byTags'
-                  paramKey='tag'
-                  icon='tag-alt'
+                  counts="byTags"
+                  paramKey="tag"
+                  icon="tag-alt"
                   refetchRequired={refetchRequired}
                   multiple={true}
                   treeView={true}
                 />
               </FilterToggler>
-            }
+            )}
           </ScrollContent>
           <IntegrationModal />
         </SidebarContent>

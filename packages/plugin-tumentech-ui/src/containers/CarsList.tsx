@@ -9,6 +9,7 @@ import CarsList from '../components/list/CarsList';
 import { mutations, queries } from '../graphql';
 import {
   IProductCategory,
+  ListConfigQueryResponse,
   ListQueryVariables,
   MainQueryResponse,
   MergeMutationResponse,
@@ -28,6 +29,7 @@ type Props = {
 type FinalProps = {
   carsMainQuery: MainQueryResponse;
   productCategoriesQuery: ProductCategoriesQueryResponse;
+  carsListConfigQuery: ListConfigQueryResponse;
 } & Props &
   IRouterProps &
   RemoveMutationResponse &
@@ -52,10 +54,12 @@ class CarListContainer extends React.Component<FinalProps, State> {
       carsRemove,
       carsMerge,
       history,
-      productCategoriesQuery
+      productCategoriesQuery,
+      carsListConfigQuery
     } = this.props;
 
-    let columnsConfig = [
+    let columnsConfig = (carsListConfigQuery &&
+      carsListConfigQuery.fieldsDefaultColumnsConfig) || [
       { name: 'plateNumber', label: 'Plate number', order: 1 },
       { name: 'vinNumber', label: 'Vin number', order: 2 },
       { name: 'vintageYear', label: 'Vintage year', order: 3 },
@@ -65,7 +69,7 @@ class CarListContainer extends React.Component<FinalProps, State> {
 
     // load config from local storage
     const localConfig = localStorage.getItem(
-      `erxes_tumentech:cars_columns_config`
+      `erxes_tumentech:car_columns_config`
     );
 
     if (localConfig) {
@@ -139,19 +143,19 @@ class CarListContainer extends React.Component<FinalProps, State> {
   }
 }
 
-const generateParams = ({ queryParams }) => ({
-  variables: {
+const generateParams = ({ queryParams }) => {
+  return {
     ...router.generatePaginationParams(queryParams || {}),
     ids: queryParams.ids,
     categoryId: queryParams.categoryId,
+    segment: queryParams.segment,
     searchValue: queryParams.searchValue,
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
       : undefined
-  },
-  fetchPolicy: 'network-only'
-});
+  };
+};
 
 const generateOptions = () => ({
   refetchQueries: [
@@ -167,11 +171,17 @@ const generateOptions = () => ({
 
 export default withProps<Props>(
   compose(
+    graphql<Props, ListConfigQueryResponse, {}>(gql(queries.carsListConfig), {
+      name: 'carsListConfigQuery'
+    }),
     graphql<{ queryParams: any }, MainQueryResponse, ListQueryVariables>(
       gql(queries.carsMain),
       {
         name: 'carsMainQuery',
-        options: generateParams
+        options: ({ queryParams }) => ({
+          variables: generateParams({ queryParams }),
+          fetchPolicy: 'network-only'
+        })
       }
     ),
     // mutations

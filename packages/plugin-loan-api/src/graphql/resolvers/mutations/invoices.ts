@@ -14,7 +14,7 @@ const invoiceMutations = {
       throw new Error('must choose customer or company');
     }
 
-    const invoice = models.LoanInvoices.createInvoice(
+    const invoice = models.Invoices.createInvoice(
       models,
       docModifier(doc),
       user
@@ -48,8 +48,8 @@ const invoiceMutations = {
       throw new Error('must choose customer or company');
     }
 
-    const invoice = await models.LoanInvoices.getInvoice(models, { _id });
-    const updated = await models.LoanInvoices.updateInvoice(models, _id, doc);
+    const invoice = await models.Invoices.getInvoice(models, { _id });
+    const updated = await models.Invoices.updateInvoice(models, _id, doc);
 
     await putUpdateLog(
       messageBroker,
@@ -78,11 +78,11 @@ const invoiceMutations = {
   ) => {
     await checkPermission('manageInvoices', user);
     // TODO: contracts check
-    const invoices = await models.LoanInvoices.find({
+    const invoices = await models.Invoices.find({
       _id: { $in: invoiceIds }
     }).lean();
 
-    await models.LoanInvoices.removeInvoices(models, invoiceIds);
+    await models.Invoices.removeInvoices(models, invoiceIds);
 
     for (const invoice of invoices) {
       await putDeleteLog(

@@ -325,7 +325,8 @@ export default withProps<Props>(
     graphql<Props, ListConfigQueryResponse, {}>(
       gql(queries.customersListConfig),
       {
-        name: 'customersListConfigQuery'
+        name: 'customersListConfigQuery',
+        skip: !isEnabled('forms')
       }
     ),
     // mutations

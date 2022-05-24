@@ -175,58 +175,84 @@ export const identifyCustomer = async (
   return { customerId: customer._id };
 };
 
-export const updateCustomerProperty = async (
+export const updateCustomerProperties = async (
   subdomain: string,
   {
     customerId,
-    name,
-    value
+    data
   }: {
     customerId: string;
-    name: string;
-    value: any;
+    data: Array<{ name: string; value: any }>;
   }
 ) => {
   if (!customerId) {
     throw new Error('Customer id is required');
   }
+  const customer = await sendContactsMessage({
+    subdomain,
+    action: 'customers.findOne',
+    data: {
+      _id: customerId
+    },
+    isRPC: true
+  });
 
-  let modifier: any = { [name]: value };
+  const prevTrackedData = {};
+  const prevCustomFieldsData = {};
 
-  if (
-    ![
-      'firstName',
-      'lastName',
-      'middleName',
-      'primaryPhone',
-      'primaryEmail',
-      'code'
-    ].includes(name)
-  ) {
-    const customer = await sendContactsMessage({
-      subdomain,
-      action: 'customers.findOne',
-      data: {
-        _id: customerId
-      },
-      isRPC: true
-    });
+  if (customer) {
+    if (customer.trackedData) {
+      customer.trackedData.forEach(
+        td => (prevTrackedData[td.field] = td.value)
+      );
+    }
 
-    if (customer) {
-      const prev = {};
-      (customer.trackedData || []).forEach(td => (prev[td.field] = td.value));
-      prev[name] = value;
-
-      modifier = {
-        trackedData: await sendFormsMessage({
-          subdomain,
-          action: 'fields.generateTypedListFromMap',
-          data: prev,
-          isRPC: true
-        })
-      };
+    if (customer.customFieldsData) {
+      customer.customFieldsData.forEach(
+        td => (prevCustomFieldsData[td.field] = td.value)
+      );
     }
   }
+
+  const modifier: any = {};
+
+  for (const { name, value } of data || []) {
+    if (
+      [
+        'firstName',
+        'lastName',
+        'middleName',
+        'primaryPhone',
+        'primaryEmail',
+        'code'
+      ].includes(name)
+    ) {
+      modifier[name] = value;
+      continue;
+    }
+
+    if (name.includes('custom_field__')) {
+      const key = name.replace('custom_field__', '');
+      prevCustomFieldsData[key] = value;
+      continue;
+    }
+
+    prevTrackedData[name] = value;
+  }
+
+  modifier.trackedData = await sendFormsMessage({
+    subdomain,
+    action: 'fields.generateTypedListFromMap',
+    data: prevTrackedData,
+    isRPC: true
+  });
+
+  modifier.customFieldsData = await sendFormsMessage({
+    subdomain,
+    action: 'fields.generateTypedListFromMap',
+    data: prevCustomFieldsData,
+    isRPC: true
+  });
 
   await await sendContactsMessage({
     subdomain,

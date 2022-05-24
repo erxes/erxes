@@ -208,10 +208,6 @@ func main() {
 		module.exports = function(doc, ns) {
 			var index = ns.replace(".", "__");
 
-			if (ns.indexOf("_") > -1) {
-				index = ns.split("_")[0] + "__" + ns.split(".")[1];
-			}
-
 			%s
 
 			doc._meta_monstache = {

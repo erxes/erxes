@@ -4,7 +4,7 @@ export const types = `
   extend type Field @key(fields: "_id") {
     _id: String! @external
   }
-  
+
   type GrowthHack @key(fields: "_id") {
     _id: String!
     hackStages: [String]
@@ -24,6 +24,7 @@ export const types = `
 `;
 
 const commonQueryFields = `
+  _ids: [String]
   pipelineId: String
   initialStageId: String
   stageId: String
@@ -40,8 +41,8 @@ const commonQueryFields = `
 `;
 
 const archivedGrowthHacksParams = `
-  pipelineId: String! 
-  search: String 
+  pipelineId: String!
+  search: String
   userIds: [String]
   priorities: [String]
   assignedUserIds: [String]
@@ -74,7 +75,7 @@ export const queries = `
   ): JSON
 
   archivedGrowthHacks(
-    page: Int 
+    page: Int
     perPage: Int
     ${archivedGrowthHacksParams}
   ): [GrowthHack]

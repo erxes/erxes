@@ -9,7 +9,7 @@ import {
   identifyCustomer,
   trackCustomEvent,
   trackViewPageEvent,
-  updateCustomerProperty
+  updateCustomerProperties
 } from './events';
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
@@ -102,12 +102,12 @@ export default {
     );
 
     app.post(
-      '/events-update-customer-property',
+      '/events-update-customer-properties',
       routeErrorHandling(
         async (req, res) => {
           const subdomain = getSubdomain(req);
 
-          const response = await updateCustomerProperty(subdomain, req.body);
+          const response = await updateCustomerProperties(subdomain, req.body);
           return res.json(response);
         },
         res => res.json({})

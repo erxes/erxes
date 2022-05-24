@@ -22,8 +22,6 @@ class Form extends React.Component<any, any, any> {
   onChangeForm = (_key, e) => {
     const formId = e ? e.value : '';
 
-    console.log(e);
-
     const result = { formId };
 
     this.props.onChangeConfig(result);
@@ -36,7 +34,7 @@ class Form extends React.Component<any, any, any> {
       return <Spinner />;
     }
 
-    const { formId } = config;
+    const { formId } = config || {};
     const forms = formsQuery.integrations || [];
 
     if (forms[0] && !formId) {

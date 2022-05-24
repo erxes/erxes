@@ -16,58 +16,81 @@ const salesLogValues = `
     unitId:$unitId
 `;
 
-const removeMiniPlanLabels = `
-  mutation miniPlanRemoveLabel($_id:String){
-    miniPlanRemoveLabel(_id: $_id)
+const removeLabel = `
+  mutation removeLabel($_id:String){
+    removeLabel(_id: $_id)
   }
 `;
 
-const saveMiniPlanLabel = `
-mutation miniPlanSaveLabel($update: [LabelInput], $add: [AddLabelInput]){
-  miniPlanSaveLabel(update: $update, add: $add)
+const saveLabels = `
+mutation saveLabels($update: [LabelInput], $add: [AddLabelInput]){
+  saveLabels(update: $update, add: $add)
 }
 `;
 
-const saveSalesLog = `
-mutation miniPlanSave(${salesLogVariables}){
-  miniPlanSave(${salesLogValues})
+const createSalesLog = `
+mutation createSalesLog(${salesLogVariables}){
+  createSalesLog(${salesLogValues}){
+    _id
+    branchDetail {
+      _id
+      title
+    }
+    branchId
+    createdAt
+    createdBy
+    createdUser {
+      _id
+      username
+    }
+    date
+    description
+    name
+    status
+    type
+    unitDetail {
+      _id
+      title
+    }
+    unitId
+  }
 }`;
 
-const miniPlanSaveDayConfig = `
- mutation miniPlanSaveDayConfig($update: [DayConfigInput], $add: [AddDayConfigInput]){
-  miniPlanSaveDayConfig(update: $update, add: $add)
+const saveTimeframes = `
+ mutation saveTimeframes($update: [DayConfigInput], $add: [AddDayConfigInput]){
+  saveTimeframes(update: $update, add: $add)
  }
 `;
-const miniPlanRemoveDayConfig = `
-mutation miniPlanRemoveDayConfig($_id: String){
-  miniPlanRemoveDayConfig(_id: $_id)
+const removeTimeframe = `
+mutation removeTimeframe($_id: String){
+  removeTimeframe(_id: $_id)
 }`;
 
-const miniPlanSaveDayPlan = `
-mutation miniPlanSaveDayPlan($saleLogId: String, $dayConfigs: JSON){
-  miniPlanSaveDayPlan(saleLogId: $saleLogId, dayConfigs: $dayConfigs)
+const saveDayPlanConfig = `
+mutation saveDayPlanConfig($saleLogId: String, $dayConfigs: JSON){
+  saveDayPlanConfig(saleLogId: $saleLogId, dayConfigs: $dayConfigs)
 }
 `;
 
-const miniPlanRemove = `
-  mutation miniPlanRemove($_id:String){
-    miniPlanRemove(_id: $_id)
+const removeSalesLog = `
+  mutation removeSalesLog($_id:String){
+    removeSalesLog(_id: $_id)
   }
 `;
 
-const miniPlanSaveMonthPlan = `
-  mutation miniPlanSaveMonthPlan ($saleLogId: String, $date: Date $dayConfigs: JSON){
-    miniPlanSaveMonthPlan(saleLogId: $saleLogId, date: $date, dayConfigs: $dayConfigs)
+const saveMonthPlanConfig = `
+  mutation saveMonthPlanConfig ($saleLogId: String, $date: Date $dayConfigs: JSON){
+    saveMonthPlanConfig(saleLogId: $saleLogId, date: $date, dayConfigs: $dayConfigs)
   }
 `;
 
 export default {
-  removeMiniPlanLabels,
-  saveMiniPlanLabel,
-  saveSalesLog,
-  miniPlanSaveDayConfig,
-  miniPlanRemoveDayConfig,
-  miniPlanSaveDayPlan,
-  miniPlanSaveMonthPlan,
-  miniPlanRemove
+  removeLabel,
+  saveLabels,
+  createSalesLog,
+  saveTimeframes,
+  removeTimeframe,
+  saveDayPlanConfig,
+  removeSalesLog,
+  saveMonthPlanConfig
 };

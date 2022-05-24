@@ -199,19 +199,22 @@ export const publishMessage = async (
   }
 };
 
-const sendNotifications = async (subdomain: string, {
-  user,
-  conversations,
-  type,
-  mobile,
-  messageContent
-}: {
-  user: IUserDocument;
-  conversations: IConversationDocument[];
-  type: string;
-  mobile?: boolean;
-  messageContent?: string;
-}) => {
+const sendNotifications = async (
+  subdomain: string,
+  {
+    user,
+    conversations,
+    type,
+    mobile,
+    messageContent
+  }: {
+    user: IUserDocument;
+    conversations: IConversationDocument[];
+    type: string;
+    mobile?: boolean;
+    messageContent?: string;
+  }
+) => {
   for (const conversation of conversations) {
     const doc = {
       createdUser: user,
@@ -248,9 +251,9 @@ const sendNotifications = async (subdomain: string, {
 
     await sendNotificationsMessage({
       subdomain,
-      action: "send",
-      data: doc,
-    })
+      action: 'send',
+      data: doc
+    });
 
     if (mobile) {
       // send mobile notification ======
@@ -312,7 +315,10 @@ const conversationMutations = {
 
     // do not send internal message to third service integrations
     if (doc.internal) {
-      const messageObj = await models.ConversationMessages.addMessage(doc, user._id);
+      const messageObj = await models.ConversationMessages.addMessage(
+        doc,
+        user._id
+      );
 
       // publish new message to conversation detail
       publishMessage(models, messageObj);
@@ -660,7 +666,11 @@ const conversationMutations = {
   /**
    * Resolve all conversations
    */
-  async conversationResolveAll(_root, params: IListArgs, { user, models, subdomain }: IContext) {
+  async conversationResolveAll(
+    _root,
+    params: IListArgs,
+    { user, models, subdomain }: IContext
+  ) {
     // initiate query builder
     const qb = new QueryBuilder(models, subdomain, params, { _id: user._id });
 
@@ -674,7 +684,10 @@ const conversationMutations = {
       closedAt: new Date()
     };
 
-    const updated = await models.Conversations.resolveAllConversation(query, param);
+    const updated = await models.Conversations.resolveAllConversation(
+      query,
+      param
+    );
 
     const updatedConversations = await models.Conversations.find({
       _id: { $in: Object.keys(oldConversationById) }
@@ -769,7 +782,10 @@ const conversationMutations = {
       conversationMessageInserted: message
     });
 
-    return models.Conversations.updateOne({ _id }, { $set: { operatorStatus } });
+    return models.Conversations.updateOne(
+      { _id },
+      { $set: { operatorStatus } }
+    );
   },
 
   async conversationConvertToCard(
@@ -790,10 +806,10 @@ const conversationMutations = {
 
     return sendCardsMessage({
       subdomain,
-      action: "conversationConvert",
+      action: 'conversationConvert',
       data: args,
       isRPC: true
-    })
+    });
   },
 
   async conversationEditCustomFields(

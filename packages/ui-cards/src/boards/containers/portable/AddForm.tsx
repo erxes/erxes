@@ -31,7 +31,7 @@ type IProps = {
   sourceConversationId?: string;
   relTypeIds?: string[];
   assignedUserIds?: string[];
-  getAssociatedItem?: (itemId: string) => void;
+  getAssociatedItem?: (itemId: IItem) => void;
   closeModal: () => void;
   refetch?: () => void;
   aboveItemId?: string;
@@ -146,7 +146,18 @@ class AddFormContainer extends React.Component<FinalProps> {
     callback(item);
 
     if (getAssociatedItem) {
-      getAssociatedItem(item._id);
+      const { type } = this.props.options;
+      client
+        .query({
+          query: gql(queries[`${type}s`]),
+          fetchPolicy: 'network-only',
+          variables: { stageId: item.stageId, _ids: [item._id] }
+        })
+        .then(({ data }: any) => {
+          if (data && data[`${type}s`] && data[`${type}s`].length) {
+            getAssociatedItem(data[`${type}s`][0]);
+          }
+        });
     }
 
     if (refetch) {

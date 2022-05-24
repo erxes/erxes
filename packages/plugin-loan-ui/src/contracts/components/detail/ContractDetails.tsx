@@ -2,7 +2,7 @@ import {
   __,
   ActivityInputs,
   ActivityLogsContainer as ActivityLogs,
-  Wrapper,
+  Wrapper
 } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IProduct } from '@erxes/ui-products/src/types';
@@ -37,12 +37,12 @@ class ContractDetails extends React.Component<Props, State> {
     this.state = {
       amount: contract.amount || {},
       collateralsData: contract.collaterals
-        ? contract.collaterals.map((p) => ({ ...p }))
+        ? contract.collaterals.map(p => ({ ...p }))
         : [],
       // collecting data for ItemCounter component
       collaterals: contract.collaterals
-        ? contract.collaterals.map((p) => p.collateral)
-        : [],
+        ? contract.collaterals.map(p => p.collateral)
+        : []
     };
   }
 
@@ -53,7 +53,7 @@ class ContractDetails extends React.Component<Props, State> {
     const amount: any = {};
     const filteredCollateralsData: any = [];
 
-    collateralsData.forEach((data) => {
+    collateralsData.forEach(data => {
       // collaterals
       if (data.collateral) {
         if (data.currency) {
@@ -90,11 +90,11 @@ class ContractDetails extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __('Contracts'), link: '/erxes-plugin-loan/contract-list' },
-      { title },
+      { title }
     ];
 
-    const pDataChange = (pData) => this.onChangeField('collateralsData', pData);
-    const prsChange = (prs) => this.onChangeField('collaterals', prs);
+    const pDataChange = pData => this.onChangeField('collateralsData', pData);
+    const prsChange = prs => this.onChangeField('collaterals', prs);
 
     const content = (
       <>
@@ -129,7 +129,7 @@ class ContractDetails extends React.Component<Props, State> {
           contentId={contract._id}
           contentType="contract"
           extraTabs={[
-            { name: 'plugin_invoices', label: 'Invoices / Transaction' },
+            { name: 'plugin_invoices', label: 'Invoices / Transaction' }
           ]}
           activityRenderItem={ActivityItem}
         />

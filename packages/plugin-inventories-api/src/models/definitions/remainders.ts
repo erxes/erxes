@@ -1,6 +1,5 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
-import { IProductsData } from './jobs';
 
 export interface IRemainder {
   productId: string;
@@ -20,13 +19,14 @@ export const remainderSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     status: field({ type: String, label: 'Status' }),
-    modifiedAt: { type: Date, default: new Date(), label: 'Modified date' },
+    modifiedAt: field({
+      type: Date,
+      default: new Date(),
+      label: 'Modified date'
+    }),
 
-    productId: { type: String, index: true },
-    quantity: field({ type: Number, label: 'Quantity' }),
-    uomId: field({ type: String, label: 'UOM' }),
-
-    count: field({ type: Number, label: 'Main count' }),
+    productId: field({ type: String, index: true }),
+    count: field({ type: Number, label: 'Remainder count' }),
 
     branchId: field({ type: String, label: 'Branch' }),
     departmentId: field({ type: String, label: 'Department' })

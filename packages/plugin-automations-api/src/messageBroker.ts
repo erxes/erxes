@@ -26,9 +26,8 @@ export const initBroker = async cl => {
 
     setTimeout(async () => {
       await receiveTrigger({ models, subdomain, type, targets });
-    }, 5000)
+    }, 10000);
   });
-
 };
 
 export const sendCommonMessage = async (
@@ -37,7 +36,7 @@ export const sendCommonMessage = async (
   return sendMessage({
     serviceDiscovery,
     client,
-    ...args,
+    ...args
   });
 };
 
@@ -50,10 +49,17 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
-export const sendSegmentsMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'segments', ...args });
+export const sendSegmentsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'segments',
+    ...args
+  });
 };
 
-export default function () {
+export default function() {
   return client;
 }

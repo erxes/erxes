@@ -13,7 +13,7 @@ export const types = ({ contacts }) => `
           _id: String! @external
         }
         `
-      : ""
+      : ''
   }
 
 
@@ -62,7 +62,7 @@ export const types = ({ contacts }) => `
         ? `
         customer: Customer
       `
-        : ""
+        : ''
     }
     createdAt: Date
     customFieldsData:JSON
@@ -93,11 +93,9 @@ const commonFormSubmissionFields = `
 `;
 
 const formSubmissionQueryParams = `
-  tagId: String,
-  formId: String,
-  filters: [SubmissionFilter]
-  contentTypeIds: [String]
-  integrationId: String
+tagId: String, 
+formId: String, 
+filters: [SubmissionFilter]
 `;
 
 export const queries = `

@@ -76,7 +76,7 @@ export const ACTIONS = [
     label: __('External communications'),
     description: __('Send email, SMS or in-app messenger messages to Contacts'),
     isAvailable: false
-  },
+  }
 ];
 
 export const TRIGGERS = [
@@ -84,9 +84,18 @@ export const TRIGGERS = [
     type: 'contacts:customer',
     img: 'automation2.svg',
     icon: 'users-alt',
-    label: __('Contact'),
+    label: __('Customer'),
     description: __(
-      'Start with a blank workflow that enralls and is triggered off Contact (Customer, Lead, Visitor)'
+      'Start with a blank workflow that enralls and is triggered off Customers'
+    )
+  },
+  {
+    type: 'contacts:lead',
+    img: 'automation2.svg',
+    icon: 'users-alt',
+    label: __('Lead'),
+    description: __(
+      'Start with a blank workflow that enralls and is triggered off Leads'
     )
   },
   {

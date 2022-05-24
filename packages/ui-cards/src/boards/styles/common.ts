@@ -145,10 +145,12 @@ export const DragDisabler = styled.div`
 
 export const ItemContainer = styledTS<{
   isDragging?: boolean;
+  isOld?: boolean;
 }>(styled.div)`
   position: relative;
   margin-bottom: 8px;
-  background-color: rgb(255, 255, 255);
+  background-color: ${props =>
+    props.isOld ? 'rgb(222, 210, 255)' : 'rgb(255, 255, 255)'};
   box-shadow: ${props =>
     props.isDragging
       ? 'rgba(0, 0, 0, 0.4) 0px 5px 15px 0px'

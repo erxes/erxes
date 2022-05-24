@@ -19,11 +19,37 @@ export const loadRemainderClass = (models: IModels) => {
     /*
      * Get a remainder
      */
-    public static async getRemainder(_id: string) {
+    public static async getRemainderObject(_id: string) {
       const remainder = await models.Remainders.findOne({ _id });
 
       if (!remainder) {
         throw new Error('Remainder not found');
+      }
+
+      return remainder;
+    }
+
+    public static async getRemainder(params: {
+      productId: string;
+      departmentId?: string;
+      branchId?: string;
+    }) {
+      const { productId, departmentId, branchId } = params;
+      const filter: any = { productId };
+
+      if (departmentId) {
+        filter.departmentId = departmentId;
+      }
+
+      if (branchId) {
+        filter.branchId = branchId;
+      }
+
+      const remainders = await models.Remainders.find(filter);
+
+      let remainder = 0;
+      for (const rem of remainders) {
+        remainder = remainder + rem.count;
       }
 
       return remainder;
