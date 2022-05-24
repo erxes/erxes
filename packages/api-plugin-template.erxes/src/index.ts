@@ -269,8 +269,6 @@ async function startServer() {
         logConsumers({
           name: configs.name,
           consumeRPCQueue,
-          getActivityContent: logs.getActivityContent,
-          getContentTypeDetail: logs.getContentTypeDetail,
           collectItems: logs.collectItems,
           getContentIds: logs.getContentIds,
           getSchemalabels: logs.getSchemaLabels

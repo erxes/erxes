@@ -6,16 +6,18 @@ const clientPortalUserQueries = {
   async clientPortalUserDetail(
     _root,
     { _id }: { _id: string },
-    { cpModels }: IContext
+    { models }: IContext
   ) {
-    return cpModels.ClientPortalUsers.getUser({ _id });
+    return models.ClientPortalUsers.getUser({ _id });
   },
 
   async clientPortalCurrentUser(_root, _args, context: IContext) {
     const { cpUser } = context;
 
+    console.log('CPUSER = ', cpUser);
+
     return cpUser
-      ? context.cpModels.ClientPortalUsers.getUser({ _id: cpUser._id })
+      ? context.models.ClientPortalUsers.getUser({ _id: cpUser._id })
       : null;
   }
 };

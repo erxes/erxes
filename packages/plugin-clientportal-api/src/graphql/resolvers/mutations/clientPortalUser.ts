@@ -13,10 +13,24 @@ export interface IVerificationParams {
 
 const clientPortalUserMutations = {
   clientPortalRegister: async (_root, args: IUser, context: IContext) => {
-    const { cpModels, models, subdomain } = context;
-    const config = await models.ClientPortals.getConfig(args.clientPortalId);
+    const { models, subdomain } = context;
+    const clientPortal = await models.ClientPortals.getConfig(
+      args.clientPortalId
+    );
 
-    return cpModels.ClientPortalUsers.createUser(subdomain, args, config);
+    const user = await models.ClientPortalUsers.createUser(subdomain, {
+      ...args,
+      brandId: clientPortal.brandId
+    });
+
+    await models.ClientPortalUsers.sendVerification(
+      subdomain,
+      clientPortal.otpConfig,
+      args.phone,
+      args.email
+    );
+
+    return user._id;
   },
 
   clientPortalVerifyOTP: async (
@@ -24,16 +38,16 @@ const clientPortalUserMutations = {
     args: IVerificationParams,
     context: IContext
   ) => {
-    const { cpModels } = context;
+    const { models } = context;
 
-    return cpModels.ClientPortalUsers.verifyUser(args);
+    return models.ClientPortalUsers.verifyUser(args);
   },
 
   /*
    * Login
    */
   clientPortalLogin: async (_root, args: ILoginParams, context: IContext) => {
-    const { token } = await context.cpModels.ClientPortalUsers.login(args);
+    const { token } = await context.models.ClientPortalUsers.login(args);
     const cookieOptions: any = { secure: context.requestInfo.secure };
     context.res.cookie(
       'client-auth-token',
@@ -59,9 +73,9 @@ const clientPortalUserMutations = {
   clientPortalUserChangePassword(
     _root,
     args: { currentPassword: string; newPassword: string },
-    { user, cpModels }: IContext
+    { user, models }: IContext
   ) {
-    return cpModels.ClientPortalUsers.changePassword({
+    return models.ClientPortalUsers.changePassword({
       _id: user._id,
       ...args
     });
@@ -73,15 +87,23 @@ const clientPortalUserMutations = {
   clientPortalResetPasswordWithCode(
     _root,
     args: { phone: string; password: string; code: string },
-    { cpModels }: IContext
+    { models }: IContext
   ) {
-    return cpModels.ClientPortalUsers.changePasswordWithCode(args);
+    return models.ClientPortalUsers.changePasswordWithCode(args);
+  },
+
+  clientPortalResetPassword(
+    _root,
+    args: { token: string; newPassword: string },
+    { models }: IContext
+  ) {
+    return models.ClientPortalUsers.clientPortalResetPassword(args);
   },
 
   async clientPortalForgotPassword(
     _root,
     args: { clientPortalId: string; phone: string; email: string },
-    { cpModels, models, subdomain }: IContext
+    { models, subdomain }: IContext
   ) {
     const { clientPortalId, phone, email } = args;
     const query: any = { clientPortalId };
@@ -94,10 +116,7 @@ const clientPortalUserMutations = {
       query.phone = phone;
     }
 
-    const {
-      token,
-      phoneCode
-    } = await cpModels.ClientPortalUsers.forgotPassword(
+    const { token, phoneCode } = await models.ClientPortalUsers.forgotPassword(
       clientPortalId,
       phone,
       email

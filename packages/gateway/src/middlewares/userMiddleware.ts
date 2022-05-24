@@ -10,7 +10,7 @@ import { getSubdomain, userActionsMap } from '@erxes/api-utils/src/core';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 
 export default async function userMiddleware(
-  req: Request & { user?: any; clientPortalId?: string },
+  req: Request & { user?: any },
   _res: Response,
   next: NextFunction
 ) {
@@ -63,7 +63,6 @@ export default async function userMiddleware(
 
   if (clientPortalId) {
     console.log('clientPortalId: ', clientPortalId);
-    req.clientPortalId = clientPortalId;
   }
 
   const appToken = (req.headers['erxes-app-token'] || '').toString();

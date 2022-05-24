@@ -3,17 +3,17 @@ import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
 import * as randomize from 'randomatic';
 import { Model } from 'mongoose';
-import { ICPModels, IModels } from '../connectionResolver';
+import { IModels } from '../connectionResolver';
 import {
   clientPortalUserSchema,
   IUser,
   IUserDocument
 } from './definitions/clientPortalUser';
 import * as sha256 from 'sha256';
-import { sendContactsMessage } from '../messageBroker';
+import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
 import { sendSms } from '../utils';
 import { createJwtToken } from '../auth/authUtils';
-import { IClientPortalDocument, IOTPConfig } from './definitions/clientPortal';
+import { IOTPConfig } from './definitions/clientPortal';
 import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';
 
 const SALT_WORK_FACTOR = 10;
@@ -27,11 +27,7 @@ export interface ILoginParams {
 
 export interface IUserModel extends Model<IUserDocument> {
   getUser(doc: any): Promise<IUserDocument>;
-  createUser(
-    subdomain: string,
-    doc: IUser,
-    config: IClientPortalDocument
-  ): Promise<IUserDocument>;
+  createUser(subdomain: string, doc: IUser): Promise<IUserDocument>;
   checkPassword(password: string): void;
   getSecret(): string;
   generateToken(): { token: string; expires: Date };
@@ -78,20 +74,37 @@ export interface IUserModel extends Model<IUserDocument> {
     password: string;
   }): string;
   verifyUser(args: IVerificationParams): string;
+  sendVerification(
+    subdomain: string,
+    config?: IOTPConfig,
+    phone?: string,
+    email?: string
+  ): string;
 }
 
-export const loadClientPortalUserClass = (models: ICPModels) => {
+export const loadClientPortalUserClass = (models: IModels) => {
   class ClientPortalUser {
     public static async createUser(
       subdomain: string,
-      { password, email, phone, clientPortalId, ...doc }: IUser,
-      config: IClientPortalDocument
+      { password, email, phone, clientPortalId, ...doc }: IUser
     ) {
       if (password) this.checkPassword(password);
 
       const document: any = doc;
 
       const tEmail = (email || '').toLowerCase().trim();
+
+      let qry: any;
+
+      if (tEmail) {
+        document.email = tEmail;
+        qry = { email: tEmail };
+      }
+
+      if (phone) {
+        document.phone = phone;
+        qry = { phone };
+      }
 
       const customer = await sendContactsMessage({
         subdomain,
@@ -100,41 +113,22 @@ export const loadClientPortalUserClass = (models: ICPModels) => {
         isRPC: true
       });
 
-      if (
-        tEmail &&
-        (await models.ClientPortalUsers.findOne({
-          clientPortalId,
-          email: tEmail
-        }))
-      ) {
-        throw new Error('The user is already exists');
+      let user = await models.ClientPortalUsers.findOne(qry);
+
+      if (user && (user.isEmailVerified || user.isPhoneVerified)) {
+        throw new Error('user is already exists');
       }
 
-      if (
-        phone &&
-        (await models.ClientPortalUsers.findOne({ clientPortalId, phone }))
-      ) {
-        throw new Error('The user is already exists');
+      if (user) {
+        return user;
       }
 
-      if (tEmail) {
-        document.email = tEmail;
-      }
-
-      if (phone) {
-        document.phone = phone;
-      }
-
-      const user = await models.ClientPortalUsers.create({
+      user = await models.ClientPortalUsers.create({
         ...document,
-        clientPortalId: config._id,
+        clientPortalId,
         // hash password
         password: password && (await this.generatePassword(password))
       });
-
-      if (config.otpConfig) {
-        this.sendVerification(subdomain, config.otpConfig, phone, tEmail);
-      }
 
       if (!customer) {
         await sendContactsMessage({
@@ -145,7 +139,8 @@ export const loadClientPortalUserClass = (models: ICPModels) => {
             lastName: doc.lastName,
             primaryEmail: email,
             primaryPhone: phone,
-            state: 'customer'
+            state: 'customer',
+            scopeBrandIds: [doc.brandId]
           },
           isRPC: true
         });
@@ -157,7 +152,8 @@ export const loadClientPortalUserClass = (models: ICPModels) => {
           { $set: { erxesCustomerId: customer._id } }
         );
       }
-      return user._id;
+
+      return user;
     }
 
     public static async getUser(doc: any) {
@@ -221,9 +217,31 @@ export const loadClientPortalUserClass = (models: ICPModels) => {
       }
 
       if (email) {
-        const emailCode = await this.imposeVerificationCode({ email });
-        console.log(emailCode);
+        const emailCode = await this.imposeVerificationCode({
+          email: (email || '').toLowerCase().trim()
+        });
+
+        const content =
+          config.content.replace(/{.*}/, emailCode) ||
+          `Your verification code is ${emailCode}`;
+
+        await sendCoreMessage({
+          subdomain,
+          action: 'sendEmail',
+          data: {
+            toEmails: [email],
+            title: 'One Time Password',
+            template: {
+              name: 'base',
+              data: {
+                content
+              }
+            }
+          }
+        });
       }
+
+      return 'sent';
     }
 
     public static async clientPortalResetPassword({

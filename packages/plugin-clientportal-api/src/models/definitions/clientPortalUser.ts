@@ -14,7 +14,7 @@ export interface IUser {
   clientPortalId: string;
   erxesCustomerId: string;
   createdAt?: Date;
-
+  brandId?: string;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
 }

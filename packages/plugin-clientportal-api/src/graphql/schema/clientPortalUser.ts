@@ -1,14 +1,4 @@
-export const types = contactsAvailable => `
-  ${
-    contactsAvailable
-      ? `
-      extend type Customer @key(fields: "_id") {
-        _id: String! @external
-      }
-    `
-      : ''
-  }
-
+export const types = () => `
   type ClientPortalUser {
     _id: String!
     firstName: String
@@ -18,13 +8,6 @@ export const types = contactsAvailable => `
     username: String
     type: String
     erxesCustomerId: String
-    ${
-      contactsAvailable
-        ? `
-          customerDetail: Customer
-        `
-        : ''
-    }
   }
 `;
 
