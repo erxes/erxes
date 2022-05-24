@@ -7,7 +7,7 @@ import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import styled from 'styled-components';
 import { IConfigColumn } from '../types';
-import { Footer } from '@erxes/ui-cards/src/boards/styles/item'
+import { Footer } from '@erxes/ui-cards/src/boards/styles/item';
 
 const Header = styled.div`
   display: flex;
@@ -48,14 +48,26 @@ class ManageColumns extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { columns: props.columns, importType: 'csv' };
+    this.state = {
+      columns: [
+        {
+          _id: '#',
+          name: '#',
+          label: '#',
+          order: 0,
+          checked: false
+        },
+        ...props.columns
+      ],
+      importType: 'csv'
+    };
   }
 
   onSubmit = e => {
     e.preventDefault();
     const columnsConfig: IConfigColumn[] = [];
     const { importType } = this.state;
-
+    console.log('submit');
     this.state.columns.forEach((col, index) => {
       const element = document.getElementById(col._id) as HTMLInputElement;
 
@@ -98,10 +110,12 @@ class ManageColumns extends React.Component<Props, State> {
       });
     };
 
+    console.log(this.state.columns);
+
     return (
       <form onSubmit={this.onSubmit}>
         <Header>
-          <span>{__('Column name')}</span>
+          <span>{__('Column nameeee')}</span>
           <span>{__('Visible')}</span>
         </Header>
         <ScrollWrapper calcHeight="320">

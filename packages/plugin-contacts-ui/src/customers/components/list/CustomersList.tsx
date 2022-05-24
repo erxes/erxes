@@ -73,6 +73,8 @@ interface IProps extends IRouterProps {
   refetch?: () => void;
   renderExpandButton?: any;
   isExpand?: boolean;
+  page: number;
+  perPage: number;
 }
 
 type State = {
@@ -187,8 +189,9 @@ class CustomersList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="customers" className={isExpand ? 'expand' : ''}>
-            {(customers || []).map(customer => (
+            {(customers || []).map((customer, index) => (
               <CustomerRow
+                index={index}
                 customer={customer}
                 columnsConfig={columnsConfig}
                 key={customer._id}
