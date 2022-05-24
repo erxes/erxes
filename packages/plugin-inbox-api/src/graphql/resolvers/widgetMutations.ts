@@ -181,6 +181,7 @@ const createFormConversation = async (
     submissions: any[];
     browserInfo: any;
     cachedCustomerId?: string;
+    userId?: string;
   },
   generateContent: (form) => string,
   generateConvData: () => {
@@ -287,7 +288,8 @@ const createFormConversation = async (
       formFieldId: submission._id,
       formId,
       value,
-      customerId: cachedCustomer._id
+      customerId: cachedCustomer._id,
+      userId: args.userId
     });
   }
 
@@ -297,7 +299,8 @@ const createFormConversation = async (
     data: {
       submissions: docs,
       customer: cachedCustomer,
-      conversationId: conversation._id
+      conversationId: conversation._id,
+      userId: args.userId
     },
     isRPC: false
   });
