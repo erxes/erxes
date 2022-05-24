@@ -8,6 +8,7 @@
     "start": "cd .erxes/dist/plugin-clientportal-api/.erxes && node src"
   },
   "dependencies": {
-    "cookie-parser": "^1.4.6"
+    "cookie-parser": "^1.4.6",
+    "bcryptjs": "^2.4.3"
   }
 }
