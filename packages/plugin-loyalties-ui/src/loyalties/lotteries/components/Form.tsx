@@ -19,6 +19,7 @@ import { queries as voucherCampaignQueries } from '../../../configs/voucherCampa
 import SelectCompanies from '@erxes/ui/src/companies/containers/SelectCompanies';
 import SelectCustomers from '@erxes/ui/src/customers/containers/SelectCustomers';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { isEnabled } from '../../../../../api-utils/src/serviceDiscovery';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -82,6 +83,11 @@ class LotteryForm extends React.Component<Props, State> {
         <FormControl {...props} onChange={this.onChangeInput} />
       </FormGroup>
     );
+  };
+
+  onChangeCampaign = value => {
+    const { lottery } = this.state;
+    this.setState({ lottery: { ...lottery, campaignId: value } });
   };
 
   onChangeSelect = e => {
@@ -150,7 +156,7 @@ class LotteryForm extends React.Component<Props, State> {
               customQuery={queries.lotteryCampaigns}
               label="Choose lottery campaign"
               name="campaignId"
-              onSelect={this.onChangeSelect}
+              onSelect={this.onChangeCampaign}
               initialValue={lottery.campaignId}
             />
           </FormGroup>
@@ -161,7 +167,7 @@ class LotteryForm extends React.Component<Props, State> {
               {...formProps}
               name="number"
               defaultValue={lottery.number}
-              required={true}
+              disabled={true}
               onChange={this.onChangeSelect}
             />
           </FormGroup>
