@@ -8,7 +8,6 @@ import {
   productCategorySchema,
   productSchema
 } from './definitions/products';
-import { IPosUserDocument } from './definitions/posUsers';
 import { OrderItems } from './OrderItems';
 
 const checkSKU = (doc: IProduct) => {
@@ -20,11 +19,7 @@ const checkSKU = (doc: IProduct) => {
 };
 
 export interface IProductModel extends Model<IProductDocument> {
-  updateProductCategory(
-    productIds: any,
-    productFields: any,
-    user: IPosUserDocument
-  );
+  updateProductCategory(productIds: any, productFields: any);
   getProduct(selector: any): Promise<IProductDocument>;
   createProduct(doc: IProduct): Promise<IProductDocument>;
   updateProduct(_id: string, doc: IProduct): Promise<IProductDocument>;
@@ -32,10 +27,10 @@ export interface IProductModel extends Model<IProductDocument> {
   isUsed(_id: string): Promise<boolean>;
 }
 
-export const loadProductClass = models => {
+export const loadProductClass = () => {
   class Product {
     public static async getProduct(selector: any) {
-      const product = await models.Products.findOne(selector);
+      const product = await Products.findOne(selector);
 
       if (!product) {
         throw new Error('Product not found');
@@ -45,7 +40,7 @@ export const loadProductClass = models => {
     }
 
     static async checkCodeDuplication(code: string) {
-      const product = await models.Products.findOne({
+      const product = await Products.findOne({
         code,
         status: { $ne: PRODUCT_STATUSES.DELETED }
       });
@@ -61,22 +56,22 @@ export const loadProductClass = models => {
     public static async createProduct(doc: IProduct | IProductDocument) {
       await this.checkCodeDuplication(doc.code);
 
-      return models.Products.create({ ...checkSKU(doc) });
+      return Products.create({ ...checkSKU(doc) });
     }
 
     /**
      * Update Product
      */
     public static async updateProduct(_id: string, doc: IProduct) {
-      const product = await models.Products.getProduct({ _id });
+      const product = await Products.getProduct({ _id });
 
       if (product.code !== doc.code) {
         await this.checkCodeDuplication(doc.code);
       }
 
-      await models.Products.updateOne({ _id }, { $set: { ...checkSKU(doc) } });
+      await Products.updateOne({ _id }, { $set: { ...checkSKU(doc) } });
 
-      return models.Products.findOne({ _id });
+      return Products.findOne({ _id });
     }
 
     /**
@@ -261,6 +256,9 @@ export const loadProductCategoryClass = () => {
 
   return productCategorySchema;
 };
+
+loadProductClass();
+loadProductCategoryClass();
 
 delete mongoose.connection.models['products'];
 delete mongoose.connection.models['product_categories'];

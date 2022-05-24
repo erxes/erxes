@@ -1,6 +1,9 @@
 import { Document, Schema } from 'mongoose';
-import { getDateFieldDefinition, getNumberFieldDefinition } from './utils';
-import { field, schemaHooksWrapper } from './util';
+import {
+  field,
+  getDateFieldDefinition,
+  getNumberFieldDefinition
+} from './utils';
 import { IOrderItemModel } from '../OrderItems';
 
 export interface IOrderItem {
@@ -20,36 +23,22 @@ export interface IOrderItemDocument extends Document, IOrderItem {
   productName?: string;
 }
 
-export const orderItemSchema = schemaHooksWrapper(
-  new Schema({
-    _id: field({ pkey: true }),
-    createdAt: getDateFieldDefinition('Created at'),
-    productId: field({ type: String, label: 'Product' }),
-    count: getNumberFieldDefinition({ label: 'Count', positive: true }),
-    unitPrice: getNumberFieldDefinition({
-      label: 'Unit price',
-      positive: true
-    }),
-    discountAmount: getNumberFieldDefinition({
-      label: 'Discount price amount',
-      discount: true
-    }),
-    discountPercent: getNumberFieldDefinition({
-      label: 'Discount percent',
-      discount: true,
-      default: 0
-    }),
-    orderId: field({ type: String, label: 'Order id' }),
-    isPackage: field({
-      type: Boolean,
-      default: false,
-      label: 'Is Package'
-    }),
-    isTake: field({
-      type: Boolean,
-      label: 'order eat but some take',
-      default: false
-    })
+export const orderItemSchema = new Schema({
+  _id: field({ pkey: true }),
+  createdAt: getDateFieldDefinition('Created at'),
+  productId: { type: String, label: 'Product' },
+  count: getNumberFieldDefinition({ label: 'Count', positive: true }),
+  unitPrice: getNumberFieldDefinition({ label: 'Unit price', positive: true }),
+  discountAmount: getNumberFieldDefinition({
+    label: 'Discount price amount',
+    discount: true
   }),
-  'erxes_orderItemSchema'
-);
+  discountPercent: getNumberFieldDefinition({
+    label: 'Discount percent',
+    discount: true,
+    default: 0
+  }),
+  orderId: { type: String, label: 'Order id' },
+  isPackage: { type: Boolean, default: false, label: 'Is Package' },
+  isTake: { type: Boolean, label: 'order eat but some take', default: false }
+});

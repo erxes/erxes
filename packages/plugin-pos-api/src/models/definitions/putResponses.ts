@@ -1,7 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { IPutResponseModel } from '../PutResponses';
-import { getDateFieldDefinition } from './utils';
-import { field, schemaHooksWrapper } from './util';
+import { field, getDateFieldDefinition } from './utils';
 
 export interface IPutResponse {
   contentType: string;
@@ -39,75 +37,69 @@ export interface IPutResponseDocument extends Document, IPutResponse {
   modifiedAt: Date;
 }
 
-export const putResponseSchema = schemaHooksWrapper(
-  new Schema({
-    _id: field({ pkey: true }),
-    createdAt: getDateFieldDefinition('Created at'),
-    modifiedAt: field({ type: Date, label: 'Modified at' }),
+export const putResponseSchema = new Schema({
+  _id: field({ pkey: true }),
+  createdAt: getDateFieldDefinition('Created at'),
+  modifiedAt: { type: Date, label: 'Modified at' },
 
-    contentType: field({ type: String, label: 'Content Type', default: 'pos' }),
-    contentId: field({ type: String, label: 'Pos order id' }),
+  contentType: { type: String, label: 'Content Type' },
+  contentId: { type: String, label: 'Pos order id' },
 
-    // Баримтыг бүртгэх процесс амжилттай болсон тухай илтгэнэ
-    success: field({ type: String, label: 'Success status' }),
+  // Баримтыг бүртгэх процесс амжилттай болсон тухай илтгэнэ
+  success: { type: String, label: 'Success status' },
 
-    // Баримтын ДДТД
-    // 33 оронтой тоон утга / НӨАТ - ийн тухай хуулинд зааснаар/
-    billId: field({ type: String, label: 'Bill ID', index: true }),
+  // Баримтын ДДТД
+  // 33 оронтой тоон утга / НӨАТ - ийн тухай хуулинд зааснаар/
+  billId: { type: String, label: 'Bill ID', index: true },
 
-    // Баримт хэвлэсэн огноо
-    // Формат: yyyy - MM - dd hh: mm: ss
-    date: field({ type: String, label: 'Date' }),
+  // Баримт хэвлэсэн огноо
+  // Формат: yyyy - MM - dd hh: mm: ss
+  date: { type: String, label: 'Date' },
 
-    // Баримтыг хэвлэсэн бүртгэлийн машиний MacAddress
-    macAddress: field({ type: String, label: 'macAddress' }),
+  // Баримтыг хэвлэсэн бүртгэлийн машиний MacAddress
+  macAddress: { type: String, label: 'macAddress' },
 
-    // Баримтын дотоод код
-    internalCode: field({ type: String, label: 'internal Code' }),
+  // Баримтын дотоод код
+  internalCode: { type: String, label: 'internal Code' },
 
-    // Баримтын төрөл
-    billType: field({ type: String, label: 'Bill Type' }),
+  // Баримтын төрөл
+  billType: { type: String, label: 'Bill Type' },
 
-    // Сугалаа дуусаж буй эсвэл сугалаа хэвлэх боломжгүй болсон
-    // талаар мэдээлэл өгөх утга
-    lotteryWarningMsg: field({
-      type: String,
-      label: 'Lottery warning message'
-    }),
+  // Сугалаа дуусаж буй эсвэл сугалаа хэвлэх боломжгүй болсон
+  // талаар мэдээлэл өгөх утга
+  lotteryWarningMsg: { type: String, label: 'Lottery warning message' },
 
-    // Хэрэв алдаа илэрсэн бол уг алдааны код
-    errorCode: field({ type: String, label: 'Error code' }),
+  // Хэрэв алдаа илэрсэн бол уг алдааны код
+  errorCode: { type: String, label: 'Error code' },
 
-    // Алдааны мэдээллийн текстэн утга
-    message: field({ type: String, label: 'Error message' }),
+  // Алдааны мэдээллийн текстэн утга
+  message: { type: String, label: 'Error message' },
 
-    // billType == 1 and lottery is null or '' then save
-    getInformation: field({ type: String, label: 'Other information' }),
+  // billType == 1 and lottery is null or '' then save
+  getInformation: { type: String, label: 'Other information' },
 
-    // Татварын төрөл
-    taxType: field({ type: String }),
+  // Татварын төрөл
+  taxType: { type: String },
 
-    // Баримтын баталгаажуулах Qr кодонд орох нууцлагдсан тоон утга түр санах
-    qrData: field({ type: String }),
+  // Баримтын баталгаажуулах Qr кодонд орох нууцлагдсан тоон утга түр санах
+  qrData: { type: String },
 
-    // Сугалааны дугаар түр санах
-    lottery: field({ type: String }),
+  // Сугалааны дугаар түр санах
+  lottery: { type: String },
 
-    // Э-баримт руу илгээсэн мэдээлэл
-    sendInfo: field({ type: Object, label: 'Ebarimt data' }),
+  // Э-баримт руу илгээсэн мэдээлэл
+  sendInfo: { type: Object, label: 'Ebarimt data' },
 
-    stocks: field({ type: Object, label: 'Ebarimt stocks' }),
-    // Мөнгөн дүнгүүд э-баримтаас string байдлаар ирдэг учраас тэр чигээр нь хадгалъя
-    amount: field({ type: String, label: 'Amount' }),
-    cityTax: field({ type: String, label: 'City tax amount' }),
-    vat: field({ type: String, label: 'Vat amount' }),
-    returnBillId: field({ type: String }),
-    cashAmount: field({ type: String, label: 'Cash amount' }),
-    nonCashAmount: field({ type: String, label: 'Non cash amount' }),
-    registerNo: field({ type: String, label: 'Company register number' }),
-    customerNo: field({ type: String }),
-    customerName: field({ type: String }),
-    synced: field({ type: Boolean, default: false, label: 'synced on erxes' })
-  }),
-  'erxes_putResponseSchema'
-);
+  stocks: { type: Object, label: 'Ebarimt stocks' },
+  // Мөнгөн дүнгүүд э-баримтаас string байдлаар ирдэг учраас тэр чигээр нь хадгалъя
+  amount: { type: String, label: 'Amount' },
+  cityTax: { type: String, label: 'City tax amount' },
+  vat: { type: String, label: 'Vat amount' },
+  returnBillId: { type: String },
+  cashAmount: { type: String, label: 'Cash amount' },
+  nonCashAmount: { type: String, label: 'Non cash amount' },
+  registerNo: { type: String, label: 'Company register number' },
+  customerNo: { type: String },
+  customerName: { type: String },
+  synced: { type: Boolean, default: false, label: 'synced on erxes' }
+});

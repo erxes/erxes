@@ -15,10 +15,11 @@ import ReactStars from 'react-rating-stars-component';
 
 type Props = {
   neighbor: any;
+  productCategoryName: string;
   save: (data: any, rate: any) => void;
 };
 
-const NeighborForm = ({ neighbor, save }: Props) => {
+const NeighborForm = ({ productCategoryName, neighbor, save }: Props) => {
   const [data, setdata] = useState(neighbor ? neighbor.data || {} : {});
   const [rate, setRate] = useState(neighbor ? neighbor.rate || {} : {});
   const onChange = (type, values) => {
@@ -165,7 +166,11 @@ const NeighborForm = ({ neighbor, save }: Props) => {
 
   return (
     <ActionButtons>
-      <ModalTrigger title={'neighbor'} trigger={trigger} content={content} />
+      <ModalTrigger
+        title={productCategoryName}
+        trigger={trigger}
+        content={content}
+      />
     </ActionButtons>
   );
 };
