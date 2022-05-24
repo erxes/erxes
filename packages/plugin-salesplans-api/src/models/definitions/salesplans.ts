@@ -124,7 +124,7 @@ export const monthPlanConfigSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     salesLogId: field({ type: String, label: 'SalesLog' }),
-    day: field({ type: Date, label: 'Day' }),
+    day: field({ type: Number, label: 'Day' }),
     labelIds: field({ type: String, label: 'Labels' })
   })
 );

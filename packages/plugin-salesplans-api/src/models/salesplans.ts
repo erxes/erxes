@@ -25,7 +25,7 @@ import {
 export interface ISalesLogModel extends Model<ISalesLogDocument> {
   createSalesLog(doc: ISalesLog, id: string): Promise<ISalesLogDocument>;
   updateSalesLog(doc: ISalesLogDocument): Promise<ISalesLogDocument>;
-  removeSalesLog(_id: string): Promise<ISalesLogDocument>;
+  removeSalesLog(_id: string): Promise<JSON>;
 }
 
 export const loadSalesLogClass = (models: IModels) => {
@@ -57,7 +57,7 @@ export const loadSalesLogClass = (models: IModels) => {
       remove SalesLog and DayPlanConfigs with SaleslogId
     */
     public static async removeSalesLog(_id: string) {
-      await models.DayPlanConfigs.deleteMany({ saleLogId: _id });
+      await models.DayPlanConfigs.deleteMany({ salesLogId: _id });
 
       return await models.SalesLogs.remove({ _id });
     }
@@ -70,7 +70,7 @@ export const loadSalesLogClass = (models: IModels) => {
 
 export interface ILabelModel extends Model<ILabelDocument> {
   saveLabels(doc: any): Promise<ILabelDocument[]>;
-  removeLabel(_id: string): Promise<ILabelDocument>;
+  removeLabel(_id: string): Promise<JSON>;
   updateLabel(_id: string): Promise<ILabelDocument>;
 }
 
@@ -79,10 +79,13 @@ export const loadLabelClass = (models: IModels) => {
     /*
       Create and update Labels 
     */
-    public static async saveLabels(doc) {
+    public static async saveLabels(doc: {
+      update: ILabelDocument[];
+      add: ILabel[];
+    }) {
       const add = doc.add;
       // await models.DayConfigs.deleteMany();
-
+      console.log('saved', doc.add);
       const update = doc.update;
 
       for (const item of update) {
@@ -123,7 +126,7 @@ export interface ITimeframeModel extends Model<ITimeframeDocument> {
     update: ITimeframeDocument[];
     add: ITimeframe[];
   }): Promise<ITimeframeDocument[]>;
-  removeTimeframe(_id: string): Promise<ITimeframeDocument>;
+  removeTimeframe(_id: string): Promise<JSON>;
 }
 
 export const loadTimeframeClass = (models: IModels) => {
@@ -166,7 +169,7 @@ export const loadDayPlanConfigClass = (models: IModels) => {
       for (const key of Object.keys(configs)) {
         if (!configs[key]._id) {
           await models.DayPlanConfigs.create({
-            saleLogId: doc.saleLogId,
+            salesLogId: doc.salesLogId,
             timeframeId: key,
             labelIds: configs[key].data
           });
@@ -179,7 +182,7 @@ export const loadDayPlanConfigClass = (models: IModels) => {
       }
 
       return await models.DayPlanConfigs.find({
-        saleLogId: doc.saleLogId
+        salesLogId: doc.salesLogId
       });
     }
   }
@@ -201,7 +204,7 @@ export const loadMonthPlanConfigClass = (models: IModels) => {
       for (const key of Object.keys(configs)) {
         if (!configs[key]._id) {
           await models.MonthPlanConfigs.create({
-            saleLogId: doc.saleLogId,
+            salesLogId: doc.salesLogId,
             day: key,
             labelIds: configs[key].data
           });
@@ -214,7 +217,7 @@ export const loadMonthPlanConfigClass = (models: IModels) => {
       }
 
       return await models.MonthPlanConfigs.find({
-        saleLogId: doc.saleLogId
+        salesLogId: doc.salesLogId
       });
     }
   }
@@ -236,7 +239,7 @@ export const loadYearPlanConfigClass = (models: IModels) => {
       for (const key of Object.keys(configs)) {
         if (!configs[key]._id) {
           await models.YearPlanConfigs.create({
-            saleLogId: doc.saleLogId,
+            salesLogId: doc.salesLogId,
             month: key,
             labelIds: configs[key].data
           });
@@ -249,7 +252,7 @@ export const loadYearPlanConfigClass = (models: IModels) => {
       }
 
       return await models.YearPlanConfigs.find({
-        saleLogId: doc.saleLogId
+        salesLogId: doc.salesLogId
       });
     }
   }
