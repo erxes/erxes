@@ -29,6 +29,45 @@ type State = {
   searchValue: string;
 };
 
+const GENERAL_SETTINGS = [
+  {
+    name: 'General Settings',
+    text: 'System Configuration',
+    icon: 'icon-settings',
+    url: '/settings/general'
+  },
+  {
+    name: 'General Settings',
+    text: 'Permissions',
+    icon: 'icon-settings',
+    url: '/settings/permissions'
+  },
+  {
+    name: 'General Settings',
+    text: 'Team Members',
+    icon: 'icon-settings',
+    url: '/settings/team'
+  },
+  {
+    name: 'General Settings',
+    text: 'Brands',
+    icon: 'icon-settings',
+    url: '/settings/brands'
+  },
+  {
+    name: 'General Settings',
+    text: 'Import & Export',
+    icon: 'icon-settings',
+    url: '/settings/importHistories'
+  },
+  {
+    name: 'General Settings',
+    text: 'Apps',
+    icon: 'icon-settings',
+    url: '/settings/apps'
+  }
+];
+
 export default class NavigationGoto extends React.Component<Props, State> {
   private searchFormInput: any;
   constructor(props: Props) {
@@ -60,17 +99,18 @@ export default class NavigationGoto extends React.Component<Props, State> {
     let plugins: any[] = pluginNavigations() || [];
     let totalPlugins: any[] = [];
 
-    for (const plugin of plugins) {
-      let children: any[] = getChildren(plugin);
-
-      totalPlugins.push(plugin);
-
-      for (const child of children) {
-        child.icon = plugin.icon;
-        child.name = plugin.name;
+    if (plugins.length !== 0)
+      plugins[0].children.map((child: any, index: number) => {
+        child.icon = 'icon-settings';
+        child.name = child.scope;
 
         totalPlugins.push(child);
-      }
+      });
+
+    for (const plugin of plugins) {
+      delete plugin.children;
+
+      totalPlugins.push(plugin);
     }
 
     this.setState({ plugins: totalPlugins });
@@ -112,10 +152,14 @@ export default class NavigationGoto extends React.Component<Props, State> {
     let filteredPlugins: any[] = [];
     const { plugins, searchValue } = this.state;
 
-    filteredPlugins = plugins.filter((plugin: any) => {
+    const allPlugins = [...plugins, ...GENERAL_SETTINGS];
+
+    filteredPlugins = allPlugins.filter((plugin: any) => {
       if (plugin.text.toLowerCase().includes(searchValue.toLowerCase()))
         return plugin;
     });
+
+    filteredPlugins = _.sortBy(filteredPlugins, ['name', 'text']);
 
     if (filteredPlugins.length === 0)
       return (
