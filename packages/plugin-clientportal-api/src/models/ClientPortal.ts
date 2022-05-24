@@ -5,9 +5,7 @@ import {
   IClientPortal,
   IClientPortalDocument
 } from './definitions/clientPortal';
-import * as dotenv from 'dotenv';
 
-dotenv.config();
 export interface IClientPortalModel extends Model<IClientPortalDocument> {
   getConfig(_id: string): Promise<IClientPortalDocument>;
   createOrUpdateConfig(args: IClientPortal): Promise<IClientPortalDocument>;
