@@ -1,4 +1,4 @@
-import { Model, createConnection } from 'mongoose';
+import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import {
   clientPortalSchema,
@@ -30,11 +30,6 @@ export const loadClientPortalClass = (models: IModels) => {
 
       if (!config) {
         config = await models.ClientPortals.create(doc);
-
-        console.log('MONGOURL = ', process.env.MONGO_URL);
-        // const mongoClient = await createConnection(
-        //   "mongodb://localhost:27017/test"
-        // );
 
         return config.toJSON();
       }
