@@ -2,6 +2,7 @@ import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
 import * as randomize from 'randomatic';
+import * as sha256 from 'sha256';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import {
@@ -9,7 +10,6 @@ import {
   IUser,
   IUserDocument
 } from './definitions/clientPortalUser';
-import * as sha256 from 'sha256';
 import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
 import { sendSms } from '../utils';
 import { createJwtToken } from '../auth/authUtils';
