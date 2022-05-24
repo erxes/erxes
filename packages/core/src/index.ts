@@ -22,9 +22,15 @@ import {
 
 import { debugBase, debugError, debugInit } from './debuggers';
 import { initMemoryStorage } from './inmemoryStorage';
-import { initBroker } from './messageBroker';
+import { initBroker, sendCommonMessage } from './messageBroker';
 import { uploader } from './middlewares/fileMiddleware';
-import { join, leave, redis } from './serviceDiscovery';
+import {
+  getService,
+  getServices,
+  join,
+  leave,
+  redis
+} from './serviceDiscovery';
 import logs from './logUtils';
 
 import init from './startup';
@@ -85,6 +91,22 @@ app.get(
 
     if (userCount === 0) {
       return res.send('no owner');
+    }
+
+    const services = await getServices();
+
+    for (const serviceName of services) {
+      const service = await getService(serviceName, true);
+      const meta = service.config?.meta || {};
+
+      if (meta && meta.initialSetup && meta.initialSetup.generateAvailable) {
+        await sendCommonMessage({
+          subdomain,
+          action: 'initialSetup',
+          serviceName,
+          data: {}
+        });
+      }
     }
 
     const envMaps = JSON.parse(req.query.envs || '{}');
