@@ -32,7 +32,7 @@ export interface IEmailParams {
  * Read contents of a file
  */
 export const readFile = (filename: string) => {
-  let folder = 'dist';
+  let folder = 'dist/core/src';
 
   if (process.env.NODE_ENV !== 'production') {
     folder = 'src';
