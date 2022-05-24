@@ -81,6 +81,7 @@ export interface IPipeline {
   state?: string;
   itemsTotalCount?: number;
   isCheckUser?: boolean;
+  isCheckDepartment?: boolean;
   excludeCheckUserIds?: string[];
   numberConfig?: string;
   numberSize?: string;
