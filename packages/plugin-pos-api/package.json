@@ -8,6 +8,6 @@
     "start": "cd .erxes/dist/plugin-pos-api/.erxes && node src"
   },
   "dependencies": {
-    "dayjs": "^1.11.2"
+    "dayjs": "1.8.15"
   }
 }
