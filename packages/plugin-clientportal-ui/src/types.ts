@@ -1,3 +1,9 @@
+export type OTPConfig = {
+  content: string;
+  smsTransporterType?: '' | 'messagePro';
+  emailTransporterType?: '' | 'ses';
+};
+
 export type ClientPortalConfig = {
   _id?: string;
   name?: string;
@@ -22,13 +28,12 @@ export type ClientPortalConfig = {
   styles?: Styles;
   mobileResponsive?: boolean;
   googleCredentials?: object;
-  twilioAccountSid?: string;
-  twilioAuthToken?: string;
-  twilioFromNumber?: string;
+
   kbToggle?: boolean;
   publicTaskToggle?: boolean;
   ticketToggle?: boolean;
   taskToggle?: boolean;
+  otpConfig?: OTPConfig;
 };
 
 export type Styles = {

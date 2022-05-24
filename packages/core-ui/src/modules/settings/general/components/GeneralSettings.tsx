@@ -447,6 +447,11 @@ class GeneralSettings extends React.Component<Props, State> {
         <CollapseContent title={__('Connectivity Services')}>
           <ActivateInstallation />
         </CollapseContent>
+
+        <CollapseContent title="MessagePro">
+          {this.renderItem('MESSAGE_PRO_API_KEY')}
+          {this.renderItem('MESSAGE_PRO_PHONE_NUMBER')}
+        </CollapseContent>
       </ContentBox>
     );
 
