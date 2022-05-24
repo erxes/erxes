@@ -402,14 +402,17 @@ const widgetMutations = {
       cachedCustomerId?: string;
       userId?: string;
     },
-    { models, subdomain }: IContext
+    { models, subdomain, user }: IContext
   ) {
     const { submissions } = args;
 
     return createFormConversation(
       models,
       subdomain,
-      args,
+      {
+        ...args,
+        userId: args.userId || user ? user._id : ''
+      },
       form => {
         return form.title;
       },
