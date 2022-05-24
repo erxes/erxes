@@ -1,6 +1,12 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
+export interface IOTPConfig {
+  content: string;
+  smsTransporterType: '' | 'messagePro' | 'telnyx';
+  emailTransporterType: '' | 'ses';
+}
+
 export interface IClientPortal {
   _id?: string;
   name?: string;
@@ -8,6 +14,14 @@ export interface IClientPortal {
   logo?: string;
   icon?: string;
   url?: string;
+  domain?: string;
+  dnsStatus?: string;
+  styles?: IStyles;
+  mobileResponsive?: boolean;
+
+  otpConfig?: IOTPConfig;
+  googleCredentials?: string;
+
   knowledgeBaseLabel?: string;
   knowledgeBaseTopicId?: string;
   ticketLabel?: string;
@@ -20,10 +34,7 @@ export interface IClientPortal {
   ticketStageId?: string;
   ticketPipelineId?: string;
   ticketBoardId?: string;
-  domain?: string;
-  dnsStatus?: string;
-  styles?: IStyles;
-  mobileResponsive?: boolean;
+
   kbToggle?: boolean;
   publicTaskToggle?: boolean;
   ticketToggle?: boolean;
@@ -75,6 +86,23 @@ const stylesSchema = new Schema(
   }
 );
 
+const otpConfigSchema = new Schema(
+  {
+    content: field({ type: String, optional: true }),
+    smsTransporterType: field({
+      type: String,
+      enum: ['', 'messagePro', 'telnyx'],
+      optional: true
+    }),
+    emailTransporterType: field({
+      type: String,
+      enum: ['', 'ses'],
+      optional: true
+    })
+  },
+  { _id: false }
+);
+
 export const clientPortalSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
@@ -82,6 +110,13 @@ export const clientPortalSchema = new Schema({
   url: field({ type: String }),
   logo: field({ type: String, optional: true }),
   icon: field({ type: String, optional: true }),
+  domain: field({ type: String, optional: true }),
+  dnsStatus: field({ type: String, optional: true }),
+  styles: field({ type: stylesSchema, optional: true }),
+  mobileResponsive: field({ type: Boolean, optional: true }),
+  otpConfig: field({ type: otpConfigSchema, optional: true }),
+  googleCredentials: field({ type: Object, optional: true }),
+
   knowledgeBaseLabel: field({ type: String, optional: true }),
   knowledgeBaseTopicId: field({ type: String }),
   ticketLabel: field({ type: String, optional: true }),
@@ -94,17 +129,11 @@ export const clientPortalSchema = new Schema({
   ticketStageId: field({ type: String }),
   ticketPipelineId: field({ type: String }),
   ticketBoardId: field({ type: String }),
-  domain: field({ type: String, optional: true }),
-  dnsStatus: field({ type: String, optional: true }),
-  styles: field({ type: stylesSchema, optional: true }),
-  mobileResponsive: field({ type: Boolean, optional: true }),
-  createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
-  twilioAccountSid: field({ type: String, optional: true }),
-  twilioAuthToken: field({ type: String, optional: true }),
-  twilioFromNumber: field({ type: String, optional: true }),
-  googleCredentials: field({ type: Object, optional: true }),
+
   kbToggle: field({ type: Boolean }),
   publicTaskToggle: field({ type: Boolean }),
   ticketToggle: field({ type: Boolean }),
-  taskToggle: field({ type: Boolean })
+  taskToggle: field({ type: Boolean }),
+
+  createdAt: field({ type: Date, default: new Date(), label: 'Created at' })
 });
