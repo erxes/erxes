@@ -125,7 +125,7 @@ export const monthPlanConfigSchema = schemaWrapper(
     _id: field({ pkey: true }),
     salesLogId: field({ type: String, label: 'SalesLog' }),
     day: field({ type: Number, label: 'Day' }),
-    labelIds: field({ type: String, label: 'Labels' })
+    labelIds: field({ type: [String], label: 'Labels' })
   })
 );
 
@@ -144,6 +144,6 @@ export const yearPlanConfigSchema = schemaWrapper(
     _id: field({ pkey: true }),
     salesLogId: field({ type: String, label: 'SalesLog' }),
     month: field({ type: Number, label: 'Month' }),
-    labelIds: field({ type: String, label: 'Labels' })
+    labelIds: field({ type: [String], label: 'Labels' })
   })
 );

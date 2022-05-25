@@ -1,4 +1,4 @@
-import { formatText } from '@erxes/ui-logs/src/activityLogs/utils';
+import { formatText } from '@erxes/ui/src/activityLogs/utils';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';

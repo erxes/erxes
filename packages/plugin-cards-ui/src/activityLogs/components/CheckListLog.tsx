@@ -5,8 +5,8 @@ import {
   FlexCenterContent,
   Header,
   ShowMore
-} from '@erxes/ui-logs/src/activityLogs/styles';
-import { IActivityLog } from '@erxes/ui-logs/src/activityLogs/types';
+} from '@erxes/ui/src/activityLogs/styles';
+import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
 import Tip from '@erxes/ui/src/components/Tip';
 import { renderUserFullName } from '@erxes/ui/src/utils';
 import React from 'react';

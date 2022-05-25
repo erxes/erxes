@@ -221,9 +221,10 @@ async function startServer() {
         internalNotes,
         automations,
         search,
-        webhooks
+        webhooks,
+        initialSetup
       } = configs.meta;
-      const { consumeRPCQueue } = messageBrokerClient;
+      const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
 
       const logs = configs.meta.logs && configs.meta.logs.consumers;
 
@@ -269,6 +270,8 @@ async function startServer() {
         logConsumers({
           name: configs.name,
           consumeRPCQueue,
+          getActivityContent: logs.getActivityContent,
+          getContentTypeDetail: logs.getContentTypeDetail,
           collectItems: logs.collectItems,
           getContentIds: logs.getContentIds,
           getSchemalabels: logs.getSchemaLabels
@@ -385,6 +388,17 @@ async function startServer() {
               data: await automations.receiveActions(args)
             })
           );
+        }
+      }
+
+      if (initialSetup) {
+        if (initialSetup.generate) {
+          initialSetup.generateAvailable = true;
+
+          consumeQueue(`${configs.name}:initialSetup`, async args => ({
+            status: 'success',
+            data: await initialSetup.generate(args)
+          }));
         }
       }
 

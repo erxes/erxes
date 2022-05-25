@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import queryString from 'query-string';
 import { queries } from './graphql';
 import { IConversation } from './types';
-import * as activityLogsUtils from '@erxes/ui-logs/src/activityLogs/utils';
+import * as activityLogsUtils from '@erxes/ui/src/activityLogs/utils';
 
 export const generateParams = queryParams => ({
   limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 10,

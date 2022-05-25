@@ -19,7 +19,7 @@ import {
   VerifyCancel,
   VerifyCheck
 } from '@erxes/ui-engage/src/styles';
-import { FlexContent } from '@erxes/ui-logs/src/activityLogs/styles';
+import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 import React from 'react';
 import {
   IEmailFormProps,

@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { queries } from '@erxes/ui-logs/src/activityLogs/graphql';
+import { queries } from '@erxes/ui/src/activityLogs/graphql';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import { ActivityLogQueryResponse } from '@erxes/ui-contacts/src/customers/types';

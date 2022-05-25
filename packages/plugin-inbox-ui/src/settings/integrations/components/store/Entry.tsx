@@ -1,4 +1,4 @@
-import { formatText } from '@erxes/ui-logs/src/activityLogs/utils';
+import { formatText } from '@erxes/ui/src/activityLogs/utils';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { __ } from 'coreui/utils';

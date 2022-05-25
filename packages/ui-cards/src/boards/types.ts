@@ -7,7 +7,7 @@ import {
   MutationVariables
 } from '@erxes/ui/src/types';
 import { ISavedConformity } from '../conformity/types';
-import { IActivityLog } from '@erxes/ui-logs/src/activityLogs/types';
+import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
 
 export interface IOptions {
   EditForm: any;
@@ -81,6 +81,7 @@ export interface IPipeline {
   state?: string;
   itemsTotalCount?: number;
   isCheckUser?: boolean;
+  isCheckDepartment?: boolean;
   excludeCheckUserIds?: string[];
   numberConfig?: string;
   numberSize?: string;

@@ -6,7 +6,7 @@ import {
   ICompanyLinks as ICompanyLinksC
 } from '@erxes/ui/src/companies/types';
 import { QueryResponse, Counts } from '@erxes/ui/src/types';
-import { IActivityLog } from '@erxes/ui-logs/src/activityLogs/types';
+import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
 
 export type ICompanyLinks = ICompanyLinksC;
 

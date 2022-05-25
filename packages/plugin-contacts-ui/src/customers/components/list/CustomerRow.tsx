@@ -5,7 +5,7 @@ import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import Tags from '@erxes/ui/src/components/Tags';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import { formatValue } from '@erxes/ui/src/utils';
-import { FlexContent } from '@erxes/ui-logs/src/activityLogs/styles';
+import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 import {
   GENDER_TYPES,
   LEAD_STATUS_TYPES
@@ -23,6 +23,7 @@ import PrimaryEmail from '@erxes/ui-contacts/src/customers/components/common/Pri
 import PrimaryPhone from '@erxes/ui-contacts/src/customers/components/common/PrimaryPhone';
 
 type Props = {
+  index: number;
   customer: ICustomer;
   columnsConfig: IConfigColumn[];
   history: any;
@@ -45,7 +46,7 @@ function displayObjectListItem(customer, customerFieldName, subFieldName) {
   return formatValue(subField.value);
 }
 
-function displayValue(customer, name) {
+function displayValue(customer, name, index) {
   const value = _.get(customer, name);
 
   if (name === 'firstName') {
@@ -133,6 +134,10 @@ function displayValue(customer, name) {
     return <TextInfo>{value}</TextInfo>;
   }
 
+  if (name === '#') {
+    return <TextInfo>{index.toString()}</TextInfo>;
+  }
+
   if (typeof value === 'boolean') {
     return (
       <BooleanStatus isTrue={value}>
@@ -149,7 +154,8 @@ function CustomerRow({
   columnsConfig,
   toggleBulk,
   isChecked,
-  history
+  history,
+  index
 }: Props) {
   const tags = customer.getTags;
 
@@ -176,10 +182,10 @@ function CustomerRow({
           onChange={onChange}
         />
       </td>
-      {(columnsConfig || []).map(({ name }, index) => (
-        <td key={index}>
+      {(columnsConfig || []).map(({ name }, i) => (
+        <td key={i}>
           <ClickableRow onClick={onTrClick}>
-            {displayValue(customer, name)}
+            {displayValue(customer, name, index)}
           </ClickableRow>
         </td>
       ))}

@@ -163,8 +163,8 @@ export interface IDayPlanConfigModel extends Model<IDayPlanConfigDocument> {
 
 export const loadDayPlanConfigClass = (models: IModels) => {
   class DayPlanConfig {
-    public static async saveDayPlanConfig(doc) {
-      const configs = doc.configs;
+    public static async saveDayPlanConfig({ doc }) {
+      const configs = doc.data;
 
       for (const key of Object.keys(configs)) {
         if (!configs[key]._id) {
@@ -198,10 +198,11 @@ export interface IMonthPlanConfigModel extends Model<IMonthPlanConfigDocument> {
 
 export const loadMonthPlanConfigClass = (models: IModels) => {
   class MonthPlanConfig {
-    public static async saveMonthPlanConfig(doc) {
-      const configs = doc.configs;
-
+    public static async saveMonthPlanConfig({ doc }) {
+      const configs = doc.data;
+      console.log('yeaaaaaaaaaaaaaaaaaaaa', doc);
       for (const key of Object.keys(configs)) {
+        console.log('1', key, configs[key].data);
         if (!configs[key]._id) {
           await models.MonthPlanConfigs.create({
             salesLogId: doc.salesLogId,

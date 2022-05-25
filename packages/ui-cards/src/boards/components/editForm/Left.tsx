@@ -1,5 +1,5 @@
-import ActivityInputs from '@erxes/ui-logs/src/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui-logs/src/activityLogs/containers/ActivityLogs';
+import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
 import { IItem, IItemParams, IOptions } from '../../types';
 import Checklists from '../../../checklists/containers/Checklists';
 import Button from '@erxes/ui/src/components/Button';

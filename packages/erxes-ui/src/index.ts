@@ -10,6 +10,7 @@ export * from './components';
 export * from './styles/eindex';
 export * from './layout';
 export * from './utils';
+export * from './activityLogs';
 export * from './internalNotes';
 
 export { apolloClient, AppConsumer, AppProvider, EditorCK };

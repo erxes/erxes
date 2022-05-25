@@ -1,5 +1,5 @@
-import ActivityInputs from '@erxes/ui-logs/src/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui-logs/src/activityLogs/containers/ActivityLogs';
+import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';

@@ -2,7 +2,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 import { RemoveRow, TypeBox } from '../../styles';
-import { FlexContent } from '@erxes/ui-logs/src/activityLogs/styles';
+import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 import { IProductData } from '../../types';
 import React from 'react';
 

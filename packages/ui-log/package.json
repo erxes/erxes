@@ -1,5 +1,5 @@
 {
-  "name": "@erxes/ui-logs",
+  "name": "@erxes/ui-log",
   "version": "1.0.0",
   "dependencies": {
     "graphql-tag": "2.6.1",

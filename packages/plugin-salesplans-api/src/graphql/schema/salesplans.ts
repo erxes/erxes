@@ -123,7 +123,7 @@ export const mutations = `
   saveLabels(update: [LabelInput], add: [AddLabelInput]): [Label]
   saveTimeframes(update:[TimeframeInput], add:[AddTimeframeInput]):[Timeframe]
   saveDayPlanConfig(salesLogId: String, data:JSON):DayPlanConfig
-  saveMonthPlanConfig(salesLogId: String, day: Date, data:JSON):MonthPlanConfig
+  saveMonthPlanConfig(salesLogId: String, day: Date, data:JSON):[MonthPlanConfig]
   removeLabel(_id:String): JSON
   removeTimeframe(_id: String): JSON
   removeSalesLog(_id: String): JSON

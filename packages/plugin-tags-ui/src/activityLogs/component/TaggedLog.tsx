@@ -3,8 +3,8 @@ import {
   ActivityDate,
   FlexBody,
   FlexCenterContent
-} from '@erxes/ui-logs/src/activityLogs/styles';
-import { IActivityLogItemProps } from '@erxes/ui-logs/src/activityLogs/types';
+} from '@erxes/ui/src/activityLogs/styles';
+import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
 import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
 import { renderUserFullName } from '@erxes/ui/src/utils';

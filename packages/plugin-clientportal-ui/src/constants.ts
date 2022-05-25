@@ -50,3 +50,10 @@ export const FONTS = [
     value: `'Open Sans', sans-serif`
   }
 ];
+
+export const CONFIGURATIONS = [
+  {
+    label: 'MessagePro',
+    value: 'messagePro'
+  }
+];

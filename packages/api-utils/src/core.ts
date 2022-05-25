@@ -10,6 +10,7 @@ export const getEnv = ({
   defaultValue
 }: {
   name: string;
+  subdomain?: string;
   defaultValue?: string;
 }): string => {
   const value = process.env[name];

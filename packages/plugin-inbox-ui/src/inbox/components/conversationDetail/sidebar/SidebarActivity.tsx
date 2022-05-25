@@ -1,4 +1,4 @@
-import ActivityList from '@erxes/ui-logs/src/activityLogs/components/ActivityList';
+import ActivityList from '@erxes/ui/src/activityLogs/components/ActivityList';
 import { IUser } from '@erxes/ui/src/auth/types';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { __ } from 'coreui/utils';

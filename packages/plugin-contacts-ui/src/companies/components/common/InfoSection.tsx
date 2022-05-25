@@ -1,4 +1,4 @@
-import { AvatarWrapper } from '@erxes/ui-logs/src/activityLogs/styles';
+import { AvatarWrapper } from '@erxes/ui/src/activityLogs/styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';

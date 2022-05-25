@@ -1,5 +1,5 @@
-import ActivityLogs from '@erxes/ui-logs/src/activityLogs/containers/ActivityLogs';
-import ActivityInputs from '@erxes/ui-logs/src/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
+import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from 'coreui/utils';
 import BasicInfo from '../../containers/detail/BasicInfo';

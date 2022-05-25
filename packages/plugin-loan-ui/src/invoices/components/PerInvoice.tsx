@@ -1,9 +1,6 @@
 import dayjs from 'dayjs';
 import { Icon, __, Alert, Button, confirm, ModalTrigger } from '@erxes/ui/src';
-import {
-  ActivityIcon,
-  ActivityRow
-} from '@erxes/ui-logs/src/activityLogs/styles';
+import { ActivityIcon, ActivityRow } from '@erxes/ui/src/activityLogs/styles';
 import React from 'react';
 import {
   ItemLabel,
@@ -11,7 +8,7 @@ import {
   ScheduleItem,
   ItemDesc
 } from '../../contracts/styles';
-import { IActivityLog } from '@erxes/ui-logs/src/activityLogs/types';
+import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
 import InvoiceForm from '../containers/InvoiceForm';
 import TransactionForm from '../../transactions/containers/TransactionForm';
 

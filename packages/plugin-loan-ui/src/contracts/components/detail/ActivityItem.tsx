@@ -1,5 +1,5 @@
 import React from 'react';
-import { IActivityLog } from '@erxes/ui-logs/src/activityLogs/types';
+import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
 import PerInvoice from '../../../invoices/containers/PerInvoice';
 
 const renderInvoices = (activity: IActivityLog) => {
