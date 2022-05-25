@@ -116,7 +116,9 @@ const configClientPortalQueries = {
       subdomain,
       action: 'topics.findOne',
       data: {
-        _id
+        query: {
+          _id
+        }
       },
       isRPC: true
     });
