@@ -331,6 +331,21 @@ const carsListConfig = `
   }
 `;
 
+const directions = `
+query staticRoutes($searchValue: String) {
+  staticRoutes(searchValue: $searchValue) {
+    _id
+    asphaltRoadLength
+    description
+    dirtRoadLength
+    duration
+    locationA
+    locationB
+    totalDistance
+  }
+}
+`;
+
 export default {
   cars,
   carsMain,
@@ -350,5 +365,6 @@ export default {
   carCategoryMatchProducts,
   productCategoryMatchCarCategories,
   participants,
-  carsListConfig
+  carsListConfig,
+  directions
 };

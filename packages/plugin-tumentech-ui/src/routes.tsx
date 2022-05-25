@@ -4,24 +4,30 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const CarList = asyncComponent(() =>
-  import(/* webpackChunkName: "SegmentsList" */ './containers/CarsList')
+  import(/* webpackChunkName: "CarList" */ './containers/CarsList')
 );
 
 const CarDetails = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "SegmentsForm" */ './containers/detail/CarDetails'
-  )
+  import(/* webpackChunkName: "CarDetails" */ './containers/detail/CarDetails')
 );
 
 const ProductList = asyncComponent(() =>
-  import(/* webpackChunkName: "SegmentsForm" */ './containers/ProductList')
+  import(/* webpackChunkName: "ProductList" */ './containers/ProductList')
 );
 
 const ProductDetails = asyncComponent(() =>
   import(
-    /* webpackChunkName: "SegmentsForm" */ './containers/detail/ProductDetails'
+    /* webpackChunkName: "ProductDetails" */ './containers/detail/ProductDetails'
   )
 );
+
+const DirectionList = asyncComponent(() =>
+  import(/* webpackChunkName: "DirectionList" */ './containers/Direction/List')
+);
+
+const directionList = () => {
+  return <DirectionList />;
+};
 
 const details = ({ match }) => {
   const id = match.params.id;
@@ -77,6 +83,13 @@ const routes = () => {
         exact={true}
         path="/product/details/:id"
         component={productdetails}
+      />
+
+      <Route
+        key={'/direction'}
+        exact={true}
+        path="/tumentech/direction/list"
+        component={directionList}
       />
     </React.Fragment>
   );
