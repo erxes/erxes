@@ -266,7 +266,7 @@ export const MoveContainer = styled(Flex)`
 `;
 
 export const MoveContainerWidth = styled(Flex)`
-  max-width: 100%;
+  width: 100%;
 `;
 
 export const ActionContainer = styled(MoveContainer)`
