@@ -45,7 +45,7 @@ jobs:
         run: |
           cd client-portal
           rm -rf node_modules
-          yarn install --frozen-lockfile --production
+          yarn install --frozen-lockfile
           yarn build
 
       - name: Build docker image
