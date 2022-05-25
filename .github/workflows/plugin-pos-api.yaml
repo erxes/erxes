@@ -17,10 +17,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Use Node.js 12.20.x
+      - name: Use Node.js 12.22.x
         uses: actions/setup-node@v1
         with:
-          node-version: 12.20.x
+          node-version: 12.22.x
 
       # https://github.com/actions/cache/blob/master/examples.md#node---yarn
       - name: Get yarn cache directory path
@@ -39,7 +39,7 @@ jobs:
       - name: Build
         run: |
           cd packages/gateway
-          yarn install
+          yarn install 
           yarn build plugin pos
           cd ../../dist/plugin-pos-api/.erxes
           cd dist/main/.erxes/src

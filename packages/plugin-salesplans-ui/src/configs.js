@@ -1,16 +1,18 @@
 module.exports = {
   name: "salesplans",
   port: 3025,
-  exposes: {},
+  exposes: {
+    "./routes": "./src/routes.tsx",
+  },
   routes: {
-    url: "http://localhost:3021/remoteEntry.js",
+    url: "http://localhost:3025/remoteEntry.js",
     scope: "salesplans",
     module: "./routes",
   },
   menus: [
     {
       text: "Salesplans",
-      to: "/erxes-plugin-jurur-cake/settings/",
+      to: "/plugin-salesplans/",
       image: "/images/icons/erxes-05.svg",
       location: "settings",
       scope: "salesplans",

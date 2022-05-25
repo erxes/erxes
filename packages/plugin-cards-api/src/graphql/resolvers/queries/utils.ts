@@ -133,6 +133,7 @@ export const generateCommonFilters = async (
   args: any
 ) => {
   const {
+    _ids,
     pipelineId,
     stageId,
     search,
@@ -207,6 +208,10 @@ export const generateCommonFilters = async (
 
   if (customerIds || companyIds) {
     filter._id = contains(filterIds || []);
+  }
+
+  if (_ids && _ids.length) {
+    filter._id = contains(_ids);
   }
 
   if (conformityMainType && conformityMainTypeId) {
@@ -294,14 +299,38 @@ export const generateCommonFilters = async (
 
   if (pipelineId) {
     const pipeline = await models.Pipelines.getPipeline(pipelineId);
+
     if (
-      pipeline.isCheckUser &&
+      (pipeline.isCheckUser || pipeline.isCheckDepartment) &&
       !(pipeline.excludeCheckUserIds || []).includes(currentUserId)
     ) {
+      let includeCheckUserIds: string[] = [];
+
+      if (pipeline.isCheckDepartment) {
+        const departments = await sendCoreMessage({
+          subdomain,
+          action: 'departments.find',
+          data: {
+            userIds: { $in: [currentUserId] }
+          },
+          isRPC: true
+        });
+
+        for (const department of departments) {
+          includeCheckUserIds = includeCheckUserIds.concat(
+            department.userIds || []
+          );
+        }
+      }
+
+      const uqinueCheckUserIds = [
+        ...new Set(includeCheckUserIds.concat(currentUserId))
+      ];
+
       Object.assign(filter, {
         $or: [
-          { assignedUserIds: { $in: [currentUserId] } },
-          { userId: currentUserId }
+          { assignedUserIds: { $in: includeCheckUserIds } },
+          { userId: { $in: uqinueCheckUserIds } }
         ]
       });
     }

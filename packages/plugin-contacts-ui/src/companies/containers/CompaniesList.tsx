@@ -130,6 +130,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
     };
 
     const searchValue = this.props.queryParams.searchValue || '';
+
     const { list = [], totalCount = 0 } =
       companiesMainQuery.companiesMain || {};
 

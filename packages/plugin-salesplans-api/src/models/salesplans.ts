@@ -23,9 +23,9 @@ import {
 } from './definitions/salesplans';
 
 export interface ISalesLogModel extends Model<ISalesLogDocument> {
-  createSalesLog(doc: ISalesLog): JSON;
-  updateSalesLog(doc: ISalesLogDocument): JSON;
-  removeSalesLog(_id: string): JSON;
+  createSalesLog(doc: ISalesLog, id: string): Promise<ISalesLogDocument>;
+  updateSalesLog(doc: ISalesLogDocument): Promise<ISalesLogDocument>;
+  removeSalesLog(_id: string): Promise<JSON>;
 }
 
 export const loadSalesLogClass = (models: IModels) => {
@@ -33,10 +33,7 @@ export const loadSalesLogClass = (models: IModels) => {
     /*
      create SalesLog 
     */
-    public static async createSalesLog(doc: ISalesLog, user) {
-      let id;
-      if (user) id = user._id;
-
+    public static async createSalesLog(doc: ISalesLog, id) {
       return await models.SalesLogs.create({
         ...doc,
         createdBy: id,
@@ -60,7 +57,7 @@ export const loadSalesLogClass = (models: IModels) => {
       remove SalesLog and DayPlanConfigs with SaleslogId
     */
     public static async removeSalesLog(_id: string) {
-      await models.DayPlanConfigs.deleteMany({ saleLogId: _id });
+      await models.DayPlanConfigs.deleteMany({ salesLogId: _id });
 
       return await models.SalesLogs.remove({ _id });
     }
@@ -72,9 +69,9 @@ export const loadSalesLogClass = (models: IModels) => {
 };
 
 export interface ILabelModel extends Model<ILabelDocument> {
-  saveLabel(doc: any): JSON;
-  removeLabel(_id: string): JSON;
-  updateLabel(_id: string): JSON;
+  saveLabels(doc: any): Promise<ILabelDocument[]>;
+  removeLabel(_id: string): Promise<JSON>;
+  updateLabel(_id: string): Promise<ILabelDocument>;
 }
 
 export const loadLabelClass = (models: IModels) => {
@@ -82,10 +79,13 @@ export const loadLabelClass = (models: IModels) => {
     /*
       Create and update Labels 
     */
-    public static async saveLabels(doc) {
+    public static async saveLabels(doc: {
+      update: ILabelDocument[];
+      add: ILabel[];
+    }) {
       const add = doc.add;
       // await models.DayConfigs.deleteMany();
-
+      console.log('saved', doc.add);
       const update = doc.update;
 
       for (const item of update) {
@@ -122,8 +122,11 @@ export const loadLabelClass = (models: IModels) => {
 };
 
 export interface ITimeframeModel extends Model<ITimeframeDocument> {
-  saveDayTimeframes(doc: any): JSON;
-  removeTimeframe(_id: string): JSON;
+  saveTimeframes(doc: {
+    update: ITimeframeDocument[];
+    add: ITimeframe[];
+  }): Promise<ITimeframeDocument[]>;
+  removeTimeframe(_id: string): Promise<JSON>;
 }
 
 export const loadTimeframeClass = (models: IModels) => {
@@ -145,8 +148,8 @@ export const loadTimeframeClass = (models: IModels) => {
       return await label;
     }
 
-    public static async removeTimeframe(doc) {
-      return await models.Timeframes.remove({ _id: doc._id });
+    public static async removeTimeframe(_id) {
+      return await models.Timeframes.remove({ _id: _id });
     }
   }
   timeframeSchema.loadClass(Timeframe);
@@ -155,18 +158,18 @@ export const loadTimeframeClass = (models: IModels) => {
 };
 
 export interface IDayPlanConfigModel extends Model<IDayPlanConfigDocument> {
-  saveDayPlanConfig(doc: any): IDayPlanConfigDocument;
+  saveDayPlanConfig(doc: any): Promise<IDayPlanConfigDocument>;
 }
 
 export const loadDayPlanConfigClass = (models: IModels) => {
   class DayPlanConfig {
-    public static async saveDayPlanConfig(doc) {
-      const configs = doc.configs;
+    public static async saveDayPlanConfig({ doc }) {
+      const configs = doc.data;
 
       for (const key of Object.keys(configs)) {
         if (!configs[key]._id) {
           await models.DayPlanConfigs.create({
-            saleLogId: doc.saleLogId,
+            salesLogId: doc.salesLogId,
             timeframeId: key,
             labelIds: configs[key].data
           });
@@ -179,7 +182,7 @@ export const loadDayPlanConfigClass = (models: IModels) => {
       }
 
       return await models.DayPlanConfigs.find({
-        saleLogId: doc.saleLogId
+        salesLogId: doc.salesLogId
       });
     }
   }
@@ -190,18 +193,19 @@ export const loadDayPlanConfigClass = (models: IModels) => {
 };
 
 export interface IMonthPlanConfigModel extends Model<IMonthPlanConfigDocument> {
-  saveMonthPlanConfig(doc: any): IMonthPlanConfigDocument;
+  saveMonthPlanConfig(doc: any): Promise<IMonthPlanConfigDocument>;
 }
 
 export const loadMonthPlanConfigClass = (models: IModels) => {
   class MonthPlanConfig {
-    public static async saveMonthPlanConfig(doc) {
-      const configs = doc.configs;
-
+    public static async saveMonthPlanConfig({ doc }) {
+      const configs = doc.data;
+      console.log('yeaaaaaaaaaaaaaaaaaaaa', doc);
       for (const key of Object.keys(configs)) {
+        console.log('1', key, configs[key].data);
         if (!configs[key]._id) {
           await models.MonthPlanConfigs.create({
-            saleLogId: doc.saleLogId,
+            salesLogId: doc.salesLogId,
             day: key,
             labelIds: configs[key].data
           });
@@ -214,7 +218,7 @@ export const loadMonthPlanConfigClass = (models: IModels) => {
       }
 
       return await models.MonthPlanConfigs.find({
-        saleLogId: doc.saleLogId
+        salesLogId: doc.salesLogId
       });
     }
   }
@@ -225,7 +229,7 @@ export const loadMonthPlanConfigClass = (models: IModels) => {
 };
 
 export interface IYearPlanConfigModel extends Model<IYearPlanConfigDocument> {
-  saveYearPlanConfig(doc: any): IYearPlanConfigDocument;
+  saveYearPlanConfig(doc: any): Promise<IYearPlanConfigDocument>;
 }
 
 export const loadYearPlanConfigClass = (models: IModels) => {
@@ -236,7 +240,7 @@ export const loadYearPlanConfigClass = (models: IModels) => {
       for (const key of Object.keys(configs)) {
         if (!configs[key]._id) {
           await models.YearPlanConfigs.create({
-            saleLogId: doc.saleLogId,
+            salesLogId: doc.salesLogId,
             month: key,
             labelIds: configs[key].data
           });
@@ -249,7 +253,7 @@ export const loadYearPlanConfigClass = (models: IModels) => {
       }
 
       return await models.YearPlanConfigs.find({
-        saleLogId: doc.saleLogId
+        salesLogId: doc.salesLogId
       });
     }
   }

@@ -6,5 +6,8 @@
     "dev": "cd .erxes && yarn dev",
     "build": "cd .erxes && yarn build",
     "start": "cd .erxes/dist/plugin-pos-api/.erxes && node src"
+  },
+  "dependencies": {
+    "dayjs": "1.8.15"
   }
 }

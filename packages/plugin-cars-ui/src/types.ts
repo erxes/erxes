@@ -1,4 +1,7 @@
-import { IActivityLog, IActivityLogForMonth } from '@erxes/ui/src/activityLogs/types';
+import {
+  IActivityLog,
+  IActivityLogForMonth
+} from '@erxes/ui/src/activityLogs/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IAttachment } from '@erxes/ui/src/types';
 
@@ -31,7 +34,7 @@ export interface ICarDoc {
   vintageYear?: number;
   importYear?: number;
 
-  attachment?: IAttachment
+  attachment?: IAttachment;
 }
 
 export interface ICarCategory {

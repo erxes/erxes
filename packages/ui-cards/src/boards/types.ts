@@ -81,6 +81,7 @@ export interface IPipeline {
   state?: string;
   itemsTotalCount?: number;
   isCheckUser?: boolean;
+  isCheckDepartment?: boolean;
   excludeCheckUserIds?: string[];
   numberConfig?: string;
   numberSize?: string;
@@ -141,6 +142,7 @@ export interface IStage {
   status: string;
   order: number;
   code?: string;
+  age?: number;
 }
 
 export interface IConversionStage extends IStage {

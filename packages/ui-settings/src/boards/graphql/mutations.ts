@@ -44,10 +44,11 @@ const commonPipelineParamsDef = `
   $hackScoringType: String,
   $templateId: String,
   $isCheckUser: Boolean
+  $isCheckDepartment: Boolean
   $excludeCheckUserIds: [String],
   $numberConfig: String
   $numberSize: String
-  $departmentIds: [String]
+  $departmentIds: [String],
 `;
 
 const commonPipelineParams = `
@@ -64,6 +65,7 @@ const commonPipelineParams = `
   metric: $metric,
   templateId: $templateId,
   isCheckUser: $isCheckUser,
+  isCheckDepartment: $isCheckDepartment
   excludeCheckUserIds: $excludeCheckUserIds,
   numberConfig: $numberConfig
   numberSize: $numberSize
@@ -119,5 +121,5 @@ export default {
   pipelinesArchive,
   pipelinesCopied,
   pipelineRemove,
-  pipelinesUpdateOrder,
+  pipelinesUpdateOrder
 };

@@ -36,6 +36,7 @@ const pipelines = `
       endDate
       metric
       isCheckUser
+      isCheckDepartment
       excludeCheckUserIds
       numberConfig
       memberIds
@@ -64,6 +65,7 @@ const stages = `
       formId
       status
       code
+      age
     }
   }
 `;
@@ -83,5 +85,5 @@ export default {
   pipelines,
   stages,
   boardGetLast,
-  boardDetail,
+  boardDetail
 };

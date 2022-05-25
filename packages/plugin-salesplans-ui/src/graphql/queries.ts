@@ -1,6 +1,6 @@
-const getMiniPlanLabels = `
-  query getMiniPlanLabels($type:String){
-    getMiniPlanLabels(type:$type){
+const getLabels = `
+  query getLabels($type:String) {
+    getLabels(type:$type) {
       _id,
       type,
       color,
@@ -10,9 +10,9 @@ const getMiniPlanLabels = `
   }
 `;
 
-const getMiniPlanDayConfigs = `
-  query getMiniPlanDayConfigs{
-    getMiniPlanDayConfigs{
+const getTimeframes = `
+  query getTimeframes {
+    getTimeframes {
       _id,
       name,
       description,
@@ -22,41 +22,41 @@ const getMiniPlanDayConfigs = `
   }
 `;
 
-const getUnits = `
-  query getUnits{
-    getUnits{
+const units = `
+  query units {
+    units {
       _id,
       title
     }
   }
 `;
-const getBranches = `
-  query getBranches{
-    getBranches{
+const branches = `
+  query branches {
+    branches {
       _id,
       title
     }
   }
 `;
 
-const getMiniPlanSalesLogs = `
-  query getMiniPlanSalesLogs{
-    getMiniPlanSalesLogs{
+const getSalesLogs = `
+  query getSalesLogs {
+    getSalesLogs {
           _id ,
       description,
       date,
       name,
       type,
-      unitDetail{
+      unitDetail {
         _id,
         title
       },
-      createdUser{
+      createdUser {
         _id,
         username
       },
       createdAt,
-      branchDetail{
+      branchDetail {
         _id,
         title
       }
@@ -64,29 +64,29 @@ const getMiniPlanSalesLogs = `
   }
 `;
 
-const getMiniPlanDayPlanConf = `
-  query getMiniPlanDayPlanConf($saleLogId: String){
-    getMiniPlanDayPlanConf(saleLogId: $saleLogId){
+const getDayPlanConfig = `
+  query getDayPlanConfig($salesLogId: String) {
+    getDayPlanConfig(salesLogId: $salesLogId) {
       _id,
       labelIds,
-      dayConfigId
+      timeframeId
     }
   }
 `;
 
-const getMiniPlanMonthPlanConf = `
-  query getMiniPlanMonthPlanConf($saleLogId: String){
-    getMiniPlanMonthPlanConf(saleLogId: $saleLogId){
+const getMonthPlanConfig = `
+  query getMonthPlanConfig($salesLogId: String) {
+    getMonthPlanConfig(salesLogId: $salesLogId) {
       _id,
       labelIds,
-      date
+      day
     }
   }
 `;
 
-const getProducts = `
-  query getProducts{
-    getProducts{
+const products = `
+  query products {
+    products {
       _id,
       name
     }
@@ -94,12 +94,12 @@ const getProducts = `
 `;
 
 export default {
-  getMiniPlanLabels,
-  getUnits,
-  getBranches,
-  getMiniPlanSalesLogs,
-  getMiniPlanDayConfigs,
-  getMiniPlanMonthPlanConf,
-  getMiniPlanDayPlanConf,
-  getProducts
+  getLabels,
+  getTimeframes,
+  branches,
+  getSalesLogs,
+  getMonthPlanConfig,
+  getDayPlanConfig,
+  products,
+  units
 };

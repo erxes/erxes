@@ -89,6 +89,7 @@ export interface IPipeline extends ICommonFields {
   hackScoringType?: string;
   templateId?: string;
   isCheckUser?: boolean;
+  isCheckDepartment?: boolean;
   excludeCheckUserIds?: string[];
   numberConfig?: string;
   numberSize?: string;
@@ -110,6 +111,7 @@ export interface IStage extends ICommonFields {
   formId?: string;
   status?: string;
   code?: string;
+  age?: number;
 }
 
 export interface IStageDocument extends IStage, Document {
@@ -288,6 +290,11 @@ export const pipelineSchema = new Schema({
     optional: true,
     label: 'Show only the users created or assigned cards'
   }),
+  isCheckDepartment: field({
+    type: Boolean,
+    optional: true,
+    label: 'Show only the departments created or assigned cards'
+  }),
   excludeCheckUserIds: field({
     type: [String],
     optional: true,
@@ -334,6 +341,7 @@ export const stageSchema = new Schema({
     label: 'Code',
     optional: true
   }),
+  age: field({ type: Number, optional: true, label: 'Age' }),
   memberIds: field({ type: [String], label: 'Members' }),
   departmentIds: field({ type: [String], label: 'Departments' }),
   ...commonFieldsSchema

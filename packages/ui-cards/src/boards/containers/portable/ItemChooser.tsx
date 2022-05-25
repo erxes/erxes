@@ -34,7 +34,7 @@ type FinalProps = {
 
 class ItemChooserContainer extends React.Component<
   WrapperProps & FinalProps,
-  { newItem?: string }
+  { newItem?: IItem }
 > {
   constructor(props) {
     super(props);
@@ -55,7 +55,7 @@ class ItemChooserContainer extends React.Component<
       return item.name || 'Unknown';
     };
 
-    const getAssociatedItem = (newItem: string) => {
+    const getAssociatedItem = (newItem: IItem) => {
       this.setState({ newItem });
     };
 

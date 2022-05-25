@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Wrapper } from '@erxes/ui';
-import { __ } from '@erxes/ui/src/utils';
+import { Wrapper } from '@erxes/ui/src';
+import { __, withProps } from '@erxes/ui/src/utils';
+import * as compose from 'lodash.flowright';
 import { Button } from '@erxes/ui/src';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import CreateSalesPlanContainer from '../containers/CreateSalesPlan';
@@ -164,10 +165,10 @@ function Home({ listData, refetch }: Props) {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Mini Plan')}
+          title={__('Salesplans Plan')}
           breadcrumb={[
-            { title: __('Settings'), link: '/settings' },
-            { title: __('Mini Plan') }
+            { title: __('Settings'), link: '/plugin-salesplans/settings' },
+            { title: __('Salesplans Plan') }
           ]}
         />
       }

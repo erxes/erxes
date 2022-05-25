@@ -12,33 +12,29 @@ type Props = {
 
 function DateChooserContainer({ data, closeModal }: Props) {
   const type = data.type;
-  const date = data.date;
+  const day = data.date;
 
-  const labelsQuery = useQuery(gql(queries.getMiniPlanLabels), {
+  const labelsQuery = useQuery(gql(queries.getLabels), {
     variables: { type }
   });
 
-  const dayplanconfs = useQuery(gql(queries.getMiniPlanDayPlanConf), {
-    variables: { saleLogId: data._id },
+  const dayplanconfs = useQuery(gql(queries.getDayPlanConfig), {
+    variables: { salesLogId: data._id },
     fetchPolicy: 'network-only'
   });
 
-  const monthplanconfs = useQuery(gql(queries.getMiniPlanMonthPlanConf), {
-    variables: { saleLogId: data._id },
+  const monthplanconfs = useQuery(gql(queries.getMonthPlanConfig), {
+    variables: { salesLogId: data._id },
     skip: type !== 'Month'
   });
 
-  if (monthplanconfs.error) {
-    return <div>{monthplanconfs.error.message}</div>;
-  }
+  const [saveDayPlan] = useMutation(gql(mutations.saveDayPlanConfig));
 
-  const [saveDayPlan] = useMutation(gql(mutations.miniPlanSaveDayPlan));
+  const [saveMonthPlan] = useMutation(gql(mutations.saveMonthPlanConfig));
 
-  const [saveMonthPlan] = useMutation(gql(mutations.miniPlanSaveMonthPlan));
-
-  const saveData = (saleLogId, dayConfigs) => {
+  const saveData = (salesLogId, data) => {
     if (type === 'Day') {
-      saveDayPlan({ variables: { saleLogId, dayConfigs } })
+      saveDayPlan({ variables: { salesLogId, data } })
         .then(() => {
           Alert.success('Successfully saved!');
         })
@@ -47,8 +43,7 @@ function DateChooserContainer({ data, closeModal }: Props) {
         });
     }
     if (type === 'Month') {
-      console.log('client', dayConfigs);
-      saveMonthPlan({ variables: { saleLogId, date, dayConfigs } })
+      saveMonthPlan({ variables: { salesLogId, day, data } })
         .then(() => {
           Alert.success('Months Successfully saved!');
         })
@@ -59,31 +54,17 @@ function DateChooserContainer({ data, closeModal }: Props) {
     closeModal();
   };
 
-  if (labelsQuery.error) {
-    return <div>{dayplanconfs.error.message}</div>;
-  }
-
-  const dayConfigQuery = useQuery(gql(queries.getMiniPlanDayConfigs), {
+  const dayConfigQuery = useQuery(gql(queries.getDayPlanConfig), {
     skip: type !== 'Day',
     fetchPolicy: 'network-only'
   });
 
-  if (labelsQuery.error) {
-    return <div>{labelsQuery.error.message}</div>;
-  }
-
-  if (dayConfigQuery.error) {
-    return <div>{dayConfigQuery.error.message}</div>;
-  }
-
   return (
     <DateChooser
-      labelData={labelsQuery.data ? labelsQuery.data.getMiniPlanLabels : []}
-      dayConfigs={
-        dayConfigQuery.data ? dayConfigQuery.data.getMiniPlanDayConfigs : []
-      }
+      labelData={labelsQuery.data ? labelsQuery.data.getLabels : []}
+      dayConfigs={dayConfigQuery.data ? dayConfigQuery.data.getTimeframes : []}
       dayPlanConf={
-        dayplanconfs.data ? dayplanconfs.data.getMiniPlanDayPlanConf : null
+        dayplanconfs.data ? dayplanconfs.data.getDayPlanConfig : null
       }
       data={data}
       save={saveData}

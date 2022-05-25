@@ -4,8 +4,8 @@ import {
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
-  copyParams,
-} from "./common";
+  copyParams
+} from './common';
 
 export const types = contactsAvailable => `
   type DealListItem @key(fields: "_id") {
@@ -14,7 +14,7 @@ export const types = contactsAvailable => `
     customFieldsData: JSON
     ${commonListTypes}
   }
-    
+
   type Deal @key(fields: "_id") {
     _id: String!
     amount: JSON
@@ -25,7 +25,7 @@ export const types = contactsAvailable => `
       companies: [Company]
       customers: [Customer]
       `
-        : ""
+        : ''
     }
 
     products: JSON
@@ -52,6 +52,7 @@ const dealMutationParams = `
 `;
 
 const commonQueryParams = `
+  _ids: [String]
   date: ItemDate
   pipelineId: String
   customerIds: [String]
@@ -82,8 +83,8 @@ const listQueryParams = `
  `;
 
 const archivedDealsParams = `
-  pipelineId: String! 
-  search: String 
+  pipelineId: String!
+  search: String
   userIds: [String]
   priorities: [String]
   assignedUserIds: [String]
@@ -100,8 +101,8 @@ export const queries = `
   deals(${listQueryParams}): [DealListItem]
   dealsTotalCount(${listQueryParams}): Int
   archivedDeals(
-    page: Int 
-    perPage: Int 
+    page: Int
+    perPage: Int
     ${archivedDealsParams}
   ): [Deal]
   archivedDealsCount(

@@ -13,6 +13,7 @@ export interface ISalesLog {
   name: string;
   description: string;
   status: string;
+  date: Date;
   branchId: string;
   unitId: string;
   createdBy: string;
@@ -35,6 +36,7 @@ export const salesLogSchema = schemaWrapper(
       default: 'active',
       label: 'Status'
     }),
+    date: field({ type: String, label: 'Date' }),
     branchId: field({ type: String, label: 'Branch' }),
     unitId: field({ type: String, label: 'Unit' }),
     createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
@@ -122,8 +124,8 @@ export const monthPlanConfigSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     salesLogId: field({ type: String, label: 'SalesLog' }),
-    day: field({ type: Date, label: 'Day' }),
-    labelIds: field({ type: String, label: 'Labels' })
+    day: field({ type: Number, label: 'Day' }),
+    labelIds: field({ type: [String], label: 'Labels' })
   })
 );
 
@@ -142,6 +144,6 @@ export const yearPlanConfigSchema = schemaWrapper(
     _id: field({ pkey: true }),
     salesLogId: field({ type: String, label: 'SalesLog' }),
     month: field({ type: Number, label: 'Month' }),
-    labelIds: field({ type: String, label: 'Labels' })
+    labelIds: field({ type: [String], label: 'Labels' })
   })
 );

@@ -1,4 +1,4 @@
-import client from '@erxes/ui/src/apolloClient'; // will check
+import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps, router as routerUtils } from '@erxes/ui/src/utils';
@@ -282,12 +282,12 @@ class PipelineProviderInner extends React.Component<Props, State> {
     }
   }
 
-  onDragStart = (_start) => {
+  onDragStart = _start => {
     const { isDragEnabled } = this.state;
     if (!isDragEnabled) {
-      throw new Error('Not ready to move...')
+      throw new Error('Not ready to move...');
     }
-  }
+  };
 
   onDragEnd = (result, saveToDb = true) => {
     // dropped nowhere
@@ -648,12 +648,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
   };
 
   render() {
-    const {
-      itemMap,
-      stageLoadMap,
-      stageIds,
-      isShowLabel,
-    } = this.state;
+    const { itemMap, stageLoadMap, stageIds, isShowLabel } = this.state;
 
     return (
       <>

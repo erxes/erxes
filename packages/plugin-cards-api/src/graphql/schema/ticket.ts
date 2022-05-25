@@ -4,30 +4,31 @@ import {
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
-  copyParams,
+  copyParams
 } from './common';
 
-export const types = (contactsAvailable) => `
+export const types = contactsAvailable => `
   type TicketListItem {
     ${commonListTypes}
   }
-    
+
   type Ticket @key(fields: "_id") {
     _id: String!
     source: String
     ${
-      contactsAvailable ?
-      `
+      contactsAvailable
+        ? `
       companies: [Company]
       customers: [Customer]
       `
-      : ''
+        : ''
     }
     ${commonTypes}
   }
 `;
 
 const listQueryParams = `
+  _ids: [String]
   pipelineId: String
   stageId: String
   customerIds: [String]
@@ -53,8 +54,8 @@ const listQueryParams = `
 `;
 
 const archivedTicketsParams = `
-  pipelineId: String! 
-  search: String 
+  pipelineId: String!
+  search: String
   userIds: [String]
   priorities: [String]
   assignedUserIds: [String]

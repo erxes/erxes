@@ -1,6 +1,6 @@
-import { moduleCheckPermission } from "@erxes/api-utils/src/permissions";
-import { IContext } from "../../../connectionResolver";
-import { IForm } from "../../../models/definitions/forms";
+import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { IContext } from '../../../connectionResolver';
+import { IForm } from '../../../models/definitions/forms';
 
 interface IFormsEdit extends IForm {
   _id: string;
@@ -11,6 +11,7 @@ interface IFormSubmission {
   contentTypeId: string;
   formSubmissions: { [key: string]: JSON };
   formId: string;
+  userId?: string;
 }
 
 const formMutations = {
@@ -33,7 +34,13 @@ const formMutations = {
    */
   async formSubmissionsSave(
     _root,
-    { formId, contentTypeId, contentType, formSubmissions }: IFormSubmission,
+    {
+      formId,
+      contentTypeId,
+      contentType,
+      formSubmissions,
+      userId
+    }: IFormSubmission,
     { models }: IContext
   ) {
     const cleanedFormSubmissions = await models.Fields.cleanMulti(
@@ -57,6 +64,7 @@ const formMutations = {
           contentType,
           formFieldId,
           formId,
+          userId,
           value: formSubmissions[formFieldId]
         };
 

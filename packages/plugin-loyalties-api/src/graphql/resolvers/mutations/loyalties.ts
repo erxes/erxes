@@ -141,8 +141,7 @@ const loyaltiesMutations = {
   }
 };
 
-checkPermission(loyaltiesMutations, 'lotteriesAdd', 'manageLoyalties');
-checkPermission(loyaltiesMutations, 'lotteriesEdit', 'manageLoyalties');
-checkPermission(loyaltiesMutations, 'lotteriesRemove', 'manageLoyalties');
+checkPermission(loyaltiesMutations, 'shareScore', 'manageLoyalties');
+checkPermission(loyaltiesMutations, 'confirmLoyalties', 'manageLoyalties');
 
 export default loyaltiesMutations;
