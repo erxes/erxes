@@ -12,9 +12,7 @@ const getByHost = async (models, requestInfo) => {
   const hostname = requestInfo.headers.hostname;
   const pattern = `.*${hostname}.*`;
 
-  const config = await models.ClientPortals.findOne({
-    url: { $regex: pattern }
-  });
+  const config = await models.ClientPortals.findOne({});
 
   if (!config) {
     console.log(pattern, requestInfo);
