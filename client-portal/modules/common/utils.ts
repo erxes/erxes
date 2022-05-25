@@ -1,4 +1,4 @@
-import { Config } from "../clientPortal/types";
+import { Config } from "../types";
 import { urlParser } from "../utils";
 import { getEnv } from "../../utils/configs";
 

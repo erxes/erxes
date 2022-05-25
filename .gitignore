@@ -3,6 +3,7 @@ node_modules
 /node_modules
 dist
 .next
+out
 .env
 *.un~
 *.swp

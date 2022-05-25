@@ -1,5 +1,5 @@
 import React from "react";
-import { IUser, IUserDetails } from "../clientPortal/types";
+import { IUser, IUserDetails } from "../types";
 import dayjs from "dayjs";
 import { Avatars } from "../knowledgeBase/components/styles";
 
