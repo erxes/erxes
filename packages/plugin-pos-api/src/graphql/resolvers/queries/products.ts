@@ -68,12 +68,13 @@ const generateFilterCat = ({ parentId, searchValue }) => {
 const productQueries = {
   async products(
     _root,
+    models,
     { type, categoryId, searchValue, ...paginationArgs }: IProductParams
   ) {
     const filter = await generateFilter({ type, categoryId, searchValue });
 
     return paginate(
-      Products.find(filter)
+      models.Products.find(filter)
         .sort('code')
         .lean(),
       paginationArgs
@@ -85,15 +86,17 @@ const productQueries = {
    */
   async productsTotalCount(
     _root,
+    models,
     { type, categoryId, searchValue }: IProductParams
   ) {
     const filter = await generateFilter({ type, categoryId, searchValue });
 
-    return Products.find(filter).countDocuments();
+    return models.Products.find(filter).countDocuments();
   },
 
   async productCategories(
     _root,
+    models,
     { parentId, searchValue, excludeEmpty }: ICategoryParams,
     {}: IContext
   ) {
@@ -103,7 +106,7 @@ const productQueries = {
 
     if (excludeEmpty) {
       for (const cat of categories) {
-        const product = await Products.findOne({
+        const product = await models.Products.findOne({
           categoryId: cat._id,
           status: { $ne: PRODUCT_STATUSES.DELETED }
         });
@@ -121,18 +124,19 @@ const productQueries = {
 
   async productCategoriesTotalCount(
     _root,
+    models,
     { parentId, searchValue }: { parentId: string; searchValue: string }
   ) {
     const filter = await generateFilterCat({ parentId, searchValue });
-    return ProductCategories.find(filter).countDocuments();
+    return models.ProductCategories.find(filter).countDocuments();
   },
 
-  productDetail(_root, { _id }: { _id: string }) {
-    return Products.findOne({ _id }).lean();
+  productDetail(_root, models, { _id }: { _id: string }) {
+    return models.Products.findOne({ _id }).lean();
   },
 
-  productCategoryDetail(_root, { _id }: { _id: string }) {
-    return ProductCategories.findOne({ _id }).lean();
+  productCategoryDetail(_root, models, { _id }: { _id: string }) {
+    return models.ProductCategories.findOne({ _id }).lean();
   }
 };
 

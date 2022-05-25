@@ -8,7 +8,9 @@ const generateFilter = async (models, params) => {
   const filter: any = {};
 
   if (params.equalTypeCampaignId) {
-    const campaign = await models.VoucherCampaigns.findOne({ _id: params.equalTypeCampaignId }).lean();
+    const campaign = await models.VoucherCampaigns.findOne({
+      _id: params.equalTypeCampaignId
+    }).lean();
     if (campaign) {
       filter.voucherType = campaign.voucherType;
     }
@@ -27,46 +29,53 @@ const generateFilter = async (models, params) => {
   }
 
   return filter;
-}
+};
 
 const voucherCampaignQueries = {
-  async voucherCampaigns(_root, params: ICommonCampaignParams & { equalTypeCampaignId: string, voucherType: string }, { models }: IContext) {
-    const filter = await generateFilter(models, params)
+  async voucherCampaigns(
+    _root,
+    params: ICommonCampaignParams & {
+      equalTypeCampaignId: string;
+      voucherType: string;
+    },
+    { models }: IContext
+  ) {
+    const filter = await generateFilter(models, params);
 
     return paginate(
-      models.VoucherCampaigns.find(
-        filter
-      ).sort({ modifiedAt: -1 }),
+      models.VoucherCampaigns.find(filter).sort({ modifiedAt: -1 }),
       {
         page: params.page,
         perPage: params.perPage
       }
-    )
+    );
   },
 
-  cpVoucherCampaigns(_root, { }, { models }: IContext) {
+  cpVoucherCampaigns(_root, {}, { models }: IContext) {
     const now = new Date();
 
     return models.VoucherCampaigns.find({
       status: CAMPAIGN_STATUS.ACTIVE,
       startDate: { $lte: now },
       endDate: { $gte: now }
-    }).sort({ modifiedAt: -1 })
+    }).sort({ modifiedAt: -1 });
   },
 
-  async voucherCampaignsCount(_root, params: ICommonCampaignParams, { models }: IContext) {
+  async voucherCampaignsCount(
+    _root,
+    params: ICommonCampaignParams,
+    { models }: IContext
+  ) {
     const filter = await generateFilter(models, params);
 
-    return models.VoucherCampaigns.find(
-      filter
-    ).countDocuments();
+    return models.VoucherCampaigns.find(filter).countDocuments();
   },
 
   voucherCampaignDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.VoucherCampaigns.getVoucherCampaign(_id)
+    return models.VoucherCampaigns.getVoucherCampaign(_id);
   }
 };
 
-checkPermission(voucherCampaignQueries, 'voucherCampaigns', 'showLoyalties', []);
+checkPermission(voucherCampaignQueries, 'voucherCampaigns', 'showLoyalties');
 
 export default voucherCampaignQueries;

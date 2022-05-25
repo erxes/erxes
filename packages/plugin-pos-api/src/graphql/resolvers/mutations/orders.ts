@@ -51,7 +51,7 @@ interface IOrderEditParams extends IOrderInput {
 }
 
 const orderMutations = {
-  async ordersAdd(_root, doc: IOrderInput, {}: IContext) {
+  async ordersAdd(_root, models, doc: IOrderInput, {}: IContext) {
     const { totalAmount, type, customerId, branchId } = doc;
 
     await validateOrder(doc);
@@ -66,14 +66,14 @@ const orderMutations = {
     try {
       const preparedDoc = await prepareOrderDoc(doc);
 
-      const order = await Orders.createOrder({
+      const order = await models.Orders.createOrder({
         ...doc,
         ...orderDoc,
         totalAmount: preparedDoc.totalAmount
       });
 
       for (const item of preparedDoc.items) {
-        await OrderItems.createOrderItem({
+        await models.OrderItems.createOrderItem({
           count: item.count,
           productId: item.productId,
           unitPrice: item.unitPrice,
@@ -92,8 +92,8 @@ const orderMutations = {
       return e;
     }
   },
-  async ordersEdit(_root, doc: IOrderEditParams, {}: IContext) {
-    const order = await Orders.getOrder(doc._id);
+  async ordersEdit(_root, models, doc: IOrderEditParams, {}: IContext) {
+    const order = await models.Orders.getOrder(doc._id);
 
     checkOrderStatus(order);
 
@@ -105,7 +105,7 @@ const orderMutations = {
 
     await updateOrderItems(doc._id, preparedDoc.items);
 
-    const updatedOrder = await Orders.updateOrder(doc._id, {
+    const updatedOrder = await models.Orders.updateOrder(doc._id, {
       deliveryInfo: doc.deliveryInfo,
       branchId: doc.branchId,
       customerId: doc.customerId,
@@ -118,12 +118,13 @@ const orderMutations = {
 
   async orderChangeStatus(
     _root,
+    models,
     { _id, status }: { _id: string; status: string },
     {}: IContext
   ) {
-    await Orders.getOrder(_id);
+    await models.Orders.getOrder(_id);
 
-    const order = await Orders.updateOrder(_id, { status });
+    const order = await models.Orders.updateOrder(_id, { status });
 
     await graphqlPubsub.publish('ordersOrdered', {
       ordersOrdered: {
@@ -146,8 +147,13 @@ const orderMutations = {
   /**
    * Веб болон мобайл дээр хэрэглээгүй бол устгана.
    */
-  async ordersMakePayment(_root, { _id, doc }: IPaymentParams, {}: IContext) {
-    let order = await Orders.getOrder(_id);
+  async ordersMakePayment(
+    _root,
+    models,
+    { _id, doc }: IPaymentParams,
+    {}: IContext
+  ) {
+    let order = await models.Orders.getOrder(_id);
 
     checkOrderStatus(order);
 
@@ -171,7 +177,7 @@ const orderMutations = {
     };
 
     try {
-      const response = await PutResponses.putData({
+      const response = await models.PutResponses.putData({
         ...data,
         config: ebarimtConfig
       });
@@ -179,7 +185,7 @@ const orderMutations = {
       if (response && response.success === 'true') {
         const now = new Date();
 
-        await Orders.updateOne(
+        await models.Orders.updateOne(
           { _id },
           {
             $set: {
@@ -192,7 +198,7 @@ const orderMutations = {
         );
       }
 
-      order = await Orders.getOrder(_id);
+      order = await models.Orders.getOrder(_id);
       graphqlPubsub.publish('ordersOrdered', {
         ordersOrdered: {
           _id,
@@ -221,9 +227,10 @@ const orderMutations = {
 
   async ordersAddPayment(
     _root,
+    models,
     { _id, cashAmount = 0, cardAmount = 0, cardInfo }
   ) {
-    const order = await Orders.getOrder(_id);
+    const order = await models.Orders.getOrder(_id);
 
     const amount = Number((cashAmount + cardAmount).toFixed(2));
 
@@ -247,12 +254,12 @@ const orderMutations = {
       };
     }
 
-    await Orders.updateOne({ _id: order._id }, modifier);
+    await models.Orders.updateOne({ _id: order._id }, modifier);
 
-    return Orders.findOne({ _id: order._id });
+    return models.Orders.findOne({ _id: order._id });
   },
-  async ordersCancel(_root, { _id }) {
-    const order = await Orders.getOrder(_id);
+  async ordersCancel(_root, models, { _id }) {
+    const order = await models.Orders.getOrder(_id);
 
     checkOrderStatus(order);
     await checkUnpaidInvoices(_id);
@@ -274,7 +281,7 @@ const orderMutations = {
       throw new Error('Order is already synced to erxes');
     }
 
-    await OrderItems.deleteMany({ orderId: _id });
+    await models.OrderItems.deleteMany({ orderId: _id });
 
     return Orders.deleteOne({ _id });
   },
@@ -286,10 +293,11 @@ const orderMutations = {
    */
   async ordersSettlePayment(
     _root,
+    models,
     { _id, billType, registerNumber }: ISettlePaymentParams,
     {}: IContext
   ) {
-    let order = await Orders.getOrder(_id);
+    let order = await models.Orders.getOrder(_id);
 
     checkOrderStatus(order);
 
@@ -313,7 +321,7 @@ const orderMutations = {
     };
 
     try {
-      const response = await PutResponses.putData({
+      const response = await models.PutResponses.putData({
         ...data,
         config: ebarimtConfig
       });
@@ -321,7 +329,7 @@ const orderMutations = {
       if (response && response.success === 'true') {
         const now = new Date();
 
-        await Orders.updateOne(
+        await models.Orders.updateOne(
           { _id },
           {
             $set: {
@@ -335,7 +343,7 @@ const orderMutations = {
         );
       }
 
-      order = await Orders.getOrder(_id);
+      order = await models.Orders.getOrder(_id);
 
       graphqlPubsub.publish('ordersOrdered', {
         ordersOrdered: {

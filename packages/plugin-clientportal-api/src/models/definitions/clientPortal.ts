@@ -3,6 +3,7 @@ import { field } from './utils';
 
 export interface IOTPConfig {
   content: string;
+  codeLength: number;
   smsTransporterType: '' | 'messagePro' | 'telnyx';
   emailTransporterType: '' | 'ses';
 }
@@ -89,6 +90,7 @@ const stylesSchema = new Schema(
 const otpConfigSchema = new Schema(
   {
     content: field({ type: String, optional: true }),
+    codeLength: field({ type: Number, default: 4, min: 4 }),
     smsTransporterType: field({
       type: String,
       enum: ['', 'messagePro', 'telnyx'],
