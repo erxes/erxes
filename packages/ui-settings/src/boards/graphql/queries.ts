@@ -36,6 +36,7 @@ const pipelines = `
       endDate
       metric
       isCheckUser
+      isCheckDepartment
       excludeCheckUserIds
       numberConfig
       memberIds

@@ -1,6 +1,7 @@
 import { Products, ProductCategories } from '../../models/Products';
-import { Configs } from '../../models/Configs';
-import { IConfig } from '../../models/definitions/configs';
+import { ICustomerDocument } from '../../models/definitions/customers';
+
+export const importUsers = async (isAdmin: boolean = false) => {};
 
 export const preImportProducts = async (groups: any = []) => {
   let importProductIds: string[] = [];
@@ -87,6 +88,41 @@ export const importProducts = async (groups: any = []) => {
   } // end group loop
 };
 
+export const preImportCustomers = async customers => {
+  const importCustomerIds = customers.map(c => c._id);
+};
+
+export const importCustomers = async (customers: ICustomerDocument[]) => {
+  let bulkOps: {
+    updateOne: {
+      filter: { _id: string };
+      update: any;
+      upsert: true;
+    };
+  }[] = [];
+
+  let counter = 0;
+  for (const customer of customers) {
+    if (counter > 1000) {
+      counter = 0;
+      bulkOps = [];
+    }
+
+    counter += 1;
+
+    bulkOps.push({
+      updateOne: {
+        filter: { _id: customer._id },
+        update: { $set: { ...customer } },
+        upsert: true
+      }
+    });
+  }
+
+  if (bulkOps.length) {
+  }
+};
+
 // Pos config created in main erxes differs from here
 export const extractConfig = doc => {
   const { REACT_APP_MAIN_API_DOMAIN } = process.env;
@@ -162,17 +198,7 @@ export const extractConfig = doc => {
   };
 };
 
-export const validateConfig = (config: IConfig) => {
-  const { adminIds = [], cashierIds = [], name } = config;
-
-  if (!name) {
-    throw new Error('POS name missing');
-  }
-
-  if (adminIds.length + cashierIds.length === 0) {
-    throw new Error('Admin & cashier user list empty');
-  }
-};
+export const validateConfig = () => {};
 
 // receive product data through message broker
 export const receiveProduct = async data => {
@@ -215,10 +241,23 @@ export const receiveProductCategory = async data => {
   }
 };
 
+export const receiveCustomer = async data => {
+  const { action = '', object = {}, updatedDocument = {} } = data;
+};
+
 export const receiveUser = async data => {
   const { action = '', object = {}, updatedDocument = {} } = data;
   const userId =
     updatedDocument && updatedDocument._id ? updatedDocument._id : '';
 
   // user create logic will be implemented in pos config changes
+};
+
+export const receivePosConfig = async data => {
+  const {
+    updatedDocument = {},
+    action = '',
+    adminUsers = [],
+    cashierUsers = []
+  } = data;
 };

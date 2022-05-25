@@ -2,11 +2,13 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
-import React from 'react';
-import { ClientPortalConfig } from '../../types';
+import React, { useState } from 'react';
+import { ClientPortalConfig, OTPConfig } from '../../types';
+import Select from 'react-select-plus';
+import { CONFIGURATIONS } from '../../constants';
 
 type Props = {
-  handleFormChange: (name: string, value: string) => void;
+  handleFormChange: (name: string, value: any) => void;
 } & ClientPortalConfig;
 
 type ControlItem = {
@@ -19,13 +21,9 @@ type ControlItem = {
   formProps?: any;
 };
 
-function General({
-  googleCredentials,
-  twilioAccountSid,
-  twilioAuthToken,
-  twilioFromNumber,
-  handleFormChange
-}: Props) {
+function General({ googleCredentials, otpConfig, handleFormChange }: Props) {
+  const [config, setConfig] = useState<OTPConfig>(otpConfig);
+
   function renderControl({
     required,
     label,
@@ -59,25 +57,87 @@ function General({
     );
   }
 
+  const renderContent = () => {
+    if (!config || !config.smsTransporterType) {
+      return;
+    }
+
+    const handleChange = (e: React.FormEvent) => {
+      let obj = config;
+
+      const key = e.currentTarget.id;
+      const value = (e.currentTarget as HTMLInputElement).value;
+
+      obj[key] = value;
+
+      if (key === 'content') {
+        let content = value;
+
+        if (!content || !content.length) {
+          content = '{{code}}';
+        }
+        obj.content = content;
+      }
+
+      if (key === 'codeLength') {
+        obj[key] = parseInt(value);
+      }
+
+      setConfig({ ...obj });
+
+      handleFormChange('otpConfig', config);
+    };
+
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel required={true}>Content</ControlLabel>
+          <p>OTP message body</p>
+          <FlexContent>
+            <FormControl
+              id="content"
+              name="content"
+              value={config.content}
+              onChange={handleChange}
+            />
+          </FlexContent>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>OTP code length</ControlLabel>
+          <p>OTP code length</p>
+          <FlexContent>
+            <FormControl
+              id="codeLength"
+              name="codeLength"
+              value={config.codeLength}
+              onChange={handleChange}
+              type={'number'}
+              min={4}
+            />
+          </FlexContent>
+        </FormGroup>
+      </>
+    );
+  };
+
+  const onChangeConfiguration = option => {
+    setConfig({ ...config, smsTransporterType: option.value });
+  };
+
   return (
     <>
-      {renderControl({
-        label: 'TWILIO ACCOUNT SID',
-        formValueName: 'twilioAccountSid',
-        formValue: twilioAccountSid
-      })}
-
-      {renderControl({
-        label: 'TWILIO AUTH TOKEN',
-        formValueName: 'twilioAuthToken',
-        formValue: twilioAuthToken
-      })}
-
-      {renderControl({
-        label: 'TWILIO FROM NUMBER',
-        formValueName: 'twilioFromNumber',
-        formValue: twilioFromNumber
-      })}
+      <FormGroup>
+        <ControlLabel>Sms Configuration</ControlLabel>
+        <Select
+          placeholder="Choose a configuration"
+          value={config.smsTransporterType}
+          options={CONFIGURATIONS}
+          name="SMS Configuration"
+          onChange={onChangeConfiguration}
+        />
+      </FormGroup>
+      {renderContent()}
 
       {renderControl({
         label: 'Google Application Credentials',

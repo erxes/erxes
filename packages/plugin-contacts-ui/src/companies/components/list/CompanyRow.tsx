@@ -10,6 +10,7 @@ import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 import { ICompany } from '../../types';
 
 type Props = {
+  index: number;
   company: ICompany;
   columnsConfig: any[];
   history: any;
@@ -32,7 +33,7 @@ function displayObjectListItem(company, customFieldName, subFieldName) {
   return formatValue(subField.value);
 }
 
-function displayValue(company, name) {
+function displayValue(company, name, index) {
   const value = _.get(company, name);
 
   if (name === 'primaryName') {
@@ -52,6 +53,10 @@ function displayValue(company, name) {
     return displayObjectListItem(company, 'customFieldsData', name);
   }
 
+  if (name === '#') {
+    return <TextInfo>{index.toString()}</TextInfo>;
+  }
+
   return formatValue(value);
 }
 
@@ -60,7 +65,8 @@ function CompanyRow({
   columnsConfig,
   history,
   isChecked,
-  toggleBulk
+  toggleBulk,
+  index
 }: Props) {
   const tags = company.getTags || [];
 
@@ -89,7 +95,7 @@ function CompanyRow({
       </td>
       {columnsConfig.map(({ name }) => (
         <td key={name}>
-          <ClickableRow>{displayValue(company, name)}</ClickableRow>
+          <ClickableRow>{displayValue(company, name, index)}</ClickableRow>
         </td>
       ))}
       <td>

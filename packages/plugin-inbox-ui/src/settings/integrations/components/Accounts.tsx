@@ -12,7 +12,10 @@ import {
   FacebookButton,
   GoogleButton
 } from '@erxes/ui-inbox/src/settings/integrations/styles';
-import { IAccount, IntegrationTypes } from '@erxes/ui-inbox/src/settings/integrations/types';
+import {
+  IAccount,
+  IntegrationTypes
+} from '@erxes/ui-inbox/src/settings/integrations/types';
 
 type Props = {
   onSelect: (accountId?: string) => void;
@@ -58,20 +61,20 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     const { onAdd, kind } = this.props;
 
     if (kind === 'gmail' || kind === 'nylas-gmail') {
-      return <GoogleButton href='#add' onClick={onAdd} />;
+      return <GoogleButton href="#add" onClick={onAdd} />;
     }
 
     if (kind === 'facebook') {
       return (
         <FacebookButton onClick={onAdd}>
-          <Icon icon='facebook-official' />
+          <Icon icon="facebook-official" />
           {__('Continue with Facebook')}
         </FacebookButton>
       );
     }
 
     return (
-      <Button btnStyle='primary' icon='plus-circle' onClick={onAdd}>
+      <Button btnStyle="primary" icon="plus-circle" onClick={onAdd}>
         Add Account
       </Button>
     );
@@ -93,7 +96,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
     if (accounts.length === 0) {
       return (
-        <EmptyState icon='user-6' text={__('There is no linked accounts')} />
+        <EmptyState icon="user-6" text={__('There is no linked accounts')} />
       );
     }
 
@@ -115,7 +118,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
           <Button
             onClick={this.onRemove.bind(this, account._id)}
-            btnStyle='danger'
+            btnStyle="danger"
           >
             {__('Remove')}
           </Button>

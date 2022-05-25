@@ -1,4 +1,4 @@
-import { sendGraphQLRequest } from '../../utils';
+import { sendGraphQLRequest } from './utils';
 import { Orders } from '../../../models/Orders';
 import { IContext } from '../../types';
 import { escapeRegExp, paginate, sendRequest } from '../../utils/commonUtils';
@@ -79,17 +79,13 @@ const orderQueries = {
     return models.Orders.findOne({ _id });
   },
 
-  async ordersCheckCompany(_root, { registerNumber }, { config }: IContext) {
+  async ordersCheckCompany(_root, { registerNumber }, {}: IContext) {
     if (!registerNumber) {
       throw new Error('Company register number required for checking');
     }
 
-    const url =
-      config && config.ebarimtConfig && config.ebarimtConfig.checkCompanyUrl;
-
-    if (url) {
+    if ('') {
       const response = await sendRequest({
-        url,
         method: 'GET',
         params: { regno: registerNumber }
       });

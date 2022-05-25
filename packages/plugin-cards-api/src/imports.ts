@@ -52,6 +52,15 @@ export default {
         const value = (fieldValue[colIndex] || '').toString();
 
         switch (property.type) {
+          case 'customProperty':
+            {
+              doc.customFieldsData.push({
+                field: property.id,
+                value: fieldValue[colIndex]
+              });
+            }
+            break;
+
           case 'boardName':
             boardName = value;
             break;

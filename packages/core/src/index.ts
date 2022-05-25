@@ -22,15 +22,22 @@ import {
 
 import { debugBase, debugError, debugInit } from './debuggers';
 import { initMemoryStorage } from './inmemoryStorage';
-import { initBroker } from './messageBroker';
+import { initBroker, sendCommonMessage } from './messageBroker';
 import { uploader } from './middlewares/fileMiddleware';
-import { join, leave, redis } from './serviceDiscovery';
+import {
+  getService,
+  getServices,
+  join,
+  leave,
+  redis
+} from './serviceDiscovery';
 import logs from './logUtils';
 
 import init from './startup';
 import forms from './forms';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import segments from './segments';
 
 // load environment variables
 dotenv.config();
@@ -85,6 +92,24 @@ app.get(
 
     if (userCount === 0) {
       return res.send('no owner');
+    }
+
+    if (req.query && req.query.update) {
+      const services = await getServices();
+
+      for (const serviceName of services) {
+        const service = await getService(serviceName, true);
+        const meta = service.config?.meta || {};
+
+        if (meta && meta.initialSetup && meta.initialSetup.generateAvailable) {
+          await sendCommonMessage({
+            subdomain,
+            action: 'initialSetup',
+            serviceName,
+            data: {}
+          });
+        }
+      }
     }
 
     const envMaps = JSON.parse(req.query.envs || '{}');
@@ -243,7 +268,11 @@ httpServer.listen(PORT, async () => {
     port: PORT,
     dbConnectionString: MONGO_URL,
     hasSubscriptions: false,
-    meta: { logs: { providesActivityLog: true, consumers: logs }, forms }
+    meta: {
+      logs: { providesActivityLog: true, consumers: logs },
+      forms,
+      segments
+    }
   });
 
   debugInit(`GraphQL Server is now running on ${PORT}`);

@@ -1,4 +1,4 @@
-import moment = require('moment');
+import * as moment from 'moment';
 import * as xlsxPopulate from 'xlsx-populate';
 import { IColumnLabel } from '.';
 
