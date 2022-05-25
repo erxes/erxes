@@ -24,7 +24,6 @@ import { IOption } from '../types';
 import BoardNumberConfigs from './numberConfig/BoardNumberConfigs';
 import Stages from './Stages';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
-import { Alert } from '@erxes/ui/src/utils';
 
 type Props = {
   type: string;
@@ -47,6 +46,7 @@ type State = {
   selectedMemberIds: string[];
   backgroundColor: string;
   isCheckUser: boolean;
+  isCheckDepartment: boolean;
   excludeCheckUserIds: string[];
   boardId: string;
   numberConfig?: string;
@@ -67,6 +67,7 @@ class PipelineForm extends React.Component<Props, State> {
       backgroundColor:
         (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
       isCheckUser: pipeline ? pipeline.isCheckUser || false : false,
+      isCheckDepartment: pipeline ? pipeline.isCheckDepartment || false : false,
       excludeCheckUserIds: pipeline ? pipeline.excludeCheckUserIds || [] : [],
       boardId: props.boardId || '',
       numberConfig: (pipeline && pipeline.numberConfig) || '',
@@ -120,6 +121,7 @@ class PipelineForm extends React.Component<Props, State> {
       stages,
       backgroundColor,
       isCheckUser,
+      isCheckDepartment,
       excludeCheckUserIds,
       boardId,
       numberConfig,
@@ -142,6 +144,7 @@ class PipelineForm extends React.Component<Props, State> {
       memberIds: selectedMemberIds,
       bgColor: backgroundColor,
       isCheckUser,
+      isCheckDepartment,
       excludeCheckUserIds,
       numberConfig,
       numberSize,
@@ -212,10 +215,15 @@ class PipelineForm extends React.Component<Props, State> {
     this.setState({ isCheckUser: isChecked });
   };
 
-  renderDominantUsers() {
-    const { isCheckUser, excludeCheckUserIds } = this.state;
+  onChangeIsCheckDepartment = e => {
+    const isChecked = (e.currentTarget as HTMLInputElement).checked;
+    this.setState({ isCheckDepartment: isChecked });
+  };
 
-    if (!isCheckUser) {
+  renderDominantUsers() {
+    const { isCheckUser, isCheckDepartment, excludeCheckUserIds } = this.state;
+
+    if (!isCheckUser && !isCheckDepartment) {
       return;
     }
 
@@ -356,14 +364,34 @@ class PipelineForm extends React.Component<Props, State> {
           {this.renderNumberInput()}
 
           <FormGroup>
-            <ControlLabel>
-              {__(`Show only the user's assigned(created)`)} {this.props.type}
-            </ControlLabel>
-            <FormControl
-              componentClass="checkbox"
-              checked={this.state.isCheckUser}
-              onChange={this.onChangeIsCheckUser}
-            />
+            <FlexContent>
+              <FlexItem>
+                <ControlLabel>
+                  {__(`Show only the user's assigned(created)`)}{' '}
+                  {this.props.type}
+                </ControlLabel>
+                <span style={{ marginLeft: '10px' }}>
+                  <FormControl
+                    componentClass="checkbox"
+                    checked={this.state.isCheckUser}
+                    onChange={this.onChangeIsCheckUser}
+                  />
+                </span>
+              </FlexItem>
+              <FlexItem>
+                <ControlLabel>
+                  {__(`Show only user’s assigned (created)`)} {this.props.type}{' '}
+                  {__(`by department`)}
+                </ControlLabel>
+                <span style={{ marginLeft: '10px' }}>
+                  <FormControl
+                    componentClass="checkbox"
+                    checked={this.state.isCheckDepartment}
+                    onChange={this.onChangeIsCheckDepartment}
+                  />
+                </span>
+              </FlexItem>
+            </FlexContent>
           </FormGroup>
 
           {this.renderDominantUsers()}

@@ -156,7 +156,8 @@ const actionCreate = async ({
       getRelatedValue,
       actionData: action.config,
       target: execution.target
-    }))
+    })),
+    userId: execution.target.userId
   };
 
   if (execution.triggerType === 'conversation') {

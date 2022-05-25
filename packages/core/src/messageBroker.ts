@@ -22,6 +22,7 @@ import internalNotes from './internalNotes';
 import forms from './forms';
 import { generateModels } from './connectionResolver';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
+import segments from './segments';
 
 let client;
 
@@ -271,6 +272,15 @@ export const initBroker = async options => {
     };
   });
 
+  consumeRPCQueue('core:departments.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Departments.findOne(data).lean()
+    };
+  });
+
   consumeRPCQueue(
     'core:users.updateOne',
     async ({ subdomain, data: { selector, modifier } }) => {
@@ -394,6 +404,15 @@ export const initBroker = async options => {
     consumeRPCQueue,
     systemFields: forms.systemFields
   });
+
+  consumeRPCQueue('core:fields.getList', async ({ subdomain }) => {
+    return {
+      status: 'success',
+      data: await forms.fields({ subdomain })
+    };
+  });
+
+  consumeRPCQueue(`core:segments.associationTypes`, segments.associationTypes);
 
   return client;
 };

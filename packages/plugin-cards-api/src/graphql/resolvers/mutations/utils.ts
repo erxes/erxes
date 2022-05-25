@@ -103,7 +103,7 @@ export const itemsAdd = async (
   const extendedDoc = {
     ...modifiedDoc,
     modifiedBy: user && user._id,
-    userId: user && user._id,
+    userId: user ? user._id : doc.userId,
     order: await getNewOrder({
       collection,
       stageId: doc.stageId,

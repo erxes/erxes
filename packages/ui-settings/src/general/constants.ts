@@ -186,7 +186,9 @@ export const KEY_LABELS = {
   THEME_LOGIN_PAGE_DESCRIPTION: 'Login page description',
   THEME_FAVICON: 'Favicon',
   THEME_TEXT_COLOR: 'Text color',
-  THEME_BACKGROUND: 'Background'
+  THEME_BACKGROUND: 'Background',
+  MESSAGE_PRO_API_KEY: 'MessagePro api key',
+  MESSAGE_PRO_PHONE_NUMBER: 'MessagePro phone number'
 };
 
 export const FILE_MIME_TYPES = [
