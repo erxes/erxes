@@ -116,13 +116,13 @@ const clientPortalUserMutations = {
       query.phone = phone;
     }
 
+    const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
+
     const { token, phoneCode } = await models.ClientPortalUsers.forgotPassword(
-      clientPortalId,
+      clientPortal,
       phone,
       email
     );
-
-    const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
 
     if (token) {
       const link = `${clientPortal.url}/reset-password?token=${token}`;
@@ -146,7 +146,8 @@ const clientPortalUserMutations = {
     if (phoneCode) {
       const config = clientPortal.otpConfig || {
         content: '',
-        smsTransporterType: ''
+        smsTransporterType: '',
+        codeLength: 4
       };
       const body =
         config.content.replace(/{.*}/, phoneCode) ||

@@ -2,6 +2,7 @@ export type OTPConfig = {
   content: string;
   smsTransporterType?: '' | 'messagePro';
   emailTransporterType?: '' | 'ses';
+  codeLength: number;
 };
 
 export type ClientPortalConfig = {
