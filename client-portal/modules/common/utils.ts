@@ -56,7 +56,7 @@ export const readFile = (value: string): string => {
     return value;
   }
 
-  const { REACT_APP_MAIN_API_DOMAIN } = getEnv();
+  const { REACT_APP_DOMAIN } = getEnv();
 
-  return `${REACT_APP_MAIN_API_DOMAIN}/read-file?key=${value}`;
+  return `${REACT_APP_DOMAIN}/read-file?key=${value}`;
 };
