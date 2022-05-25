@@ -13,7 +13,7 @@ import {
 import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
 import { sendSms } from '../utils';
 import { createJwtToken } from '../auth/authUtils';
-import { IOTPConfig } from './definitions/clientPortal';
+import { IOTPConfig, IClientPortalDocument } from './definitions/clientPortal';
 import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';
 
 const SALT_WORK_FACTOR = 10;
@@ -49,17 +49,23 @@ export interface IUserModel extends Model<IUserDocument> {
     currentPassword: string;
     newPassword: string;
   }): Promise<IUserDocument>;
-  forgotPassword(clientPortalId: string, phone: string, email: string): any;
+  forgotPassword(
+    clientPortal: IClientPortalDocument,
+    phone: string,
+    email: string
+  ): any;
   createTokens(_user: IUserDocument, secret: string): string[];
   refreshTokens(
     refreshToken: string
   ): { token: string; refreshToken: string; user: IUserDocument };
   login(args: ILoginParams): { token: string; refreshToken: string };
   imposeVerificationCode({
+    codeLength,
     phone,
     email,
     isRessetting
   }: {
+    codeLength: number;
     phone?: string;
     email?: string;
     isRessetting?: boolean;
@@ -206,7 +212,10 @@ export const loadClientPortalUserClass = (models: IModels) => {
       email?: string
     ) {
       if (phone) {
-        const phoneCode = await this.imposeVerificationCode({ phone });
+        const phoneCode = await this.imposeVerificationCode({
+          codeLength: config.codeLength,
+          phone
+        });
 
         const body =
           config.content.replace(/{.*}/, phoneCode) ||
@@ -217,6 +226,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       if (email) {
         const emailCode = await this.imposeVerificationCode({
+          codeLength: config.codeLength,
           email: (email || '').toLowerCase().trim()
         });
 
@@ -321,11 +331,11 @@ export const loadClientPortalUserClass = (models: IModels) => {
     }
 
     public static async forgotPassword(
-      clientPortalId: string,
+      clientPortal: IClientPortalDocument,
       phone: string,
       email: string
     ) {
-      const query: any = { clientPortalId };
+      const query: any = { clientPortalId: clientPortal._id };
 
       let isEmail = false;
 
@@ -358,6 +368,9 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       const phoneCode = await this.imposeVerificationCode({
+        codeLength: clientPortal.otpConfig
+          ? clientPortal.otpConfig.codeLength
+          : 4,
         phone,
         isRessetting: true
       });
@@ -394,6 +407,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
       await models.ClientPortalUsers.findByIdAndUpdate(
         { _id: user._id },
         {
+          isPhoneVerified: true,
           password: await this.generatePassword(password)
         }
       );
@@ -450,15 +464,17 @@ export const loadClientPortalUserClass = (models: IModels) => {
       };
     }
 
-    static generateVerificationCode() {
-      return randomize('0', 6);
+    static generateVerificationCode(codeLenth: number) {
+      return randomize('0', codeLenth);
     }
 
     public static async imposeVerificationCode({
+      codeLength,
       phone,
       email,
       isRessetting
     }: {
+      codeLength: number;
       phone?: string;
       email?: string;
       isRessetting?: boolean;
@@ -467,7 +483,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         $or: [{ phone }, { email }]
       });
 
-      const code = this.generateVerificationCode();
+      const code = this.generateVerificationCode(codeLength);
       const codeExpires = Date.now() + 60000;
 
       if (!user) {
@@ -511,7 +527,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
     }
 
     public static async verifyUser(args: IVerificationParams) {
-      const { phoneOtp, emailOtp, userId } = args;
+      const { phoneOtp, emailOtp, userId, password } = args;
       const user = await models.ClientPortalUsers.findById(userId);
 
       if (!user) {
@@ -540,6 +556,11 @@ export const loadClientPortalUserClass = (models: IModels) => {
         }
         user.isEmailVerified = true;
         user.emailVerificationCode = '';
+      }
+
+      if (password) {
+        this.checkPassword(password);
+        user.password = await this.generatePassword(password);
       }
 
       await user.save();

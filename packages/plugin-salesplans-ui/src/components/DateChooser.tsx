@@ -12,17 +12,17 @@ import { MONTH, DAYS } from '../constant';
 type Props = {
   labelData: any;
   data: any;
-  dayConfigs: any;
+  timeframes: any;
   closeModal: () => void;
-  dayPlanConf: any;
-  save: (salesLogId: string, dayConfigs: any) => void;
+  configs: any;
+  save: (salesLogId: string, timeframes: any) => void;
 };
 
 function DateChooser({
   labelData,
   data,
-  dayConfigs,
-  dayPlanConf,
+  timeframes,
+  configs,
   closeModal,
   save
 }: Props) {
@@ -30,6 +30,8 @@ function DateChooser({
   const [labelsData, setLabelsData] = useState({});
   const [dateTimes, setDateTimes] = useState([]);
   const [days, setDays] = useState([]);
+
+  console.log('confiiiiiiiiiiiig', configs);
 
   useEffect(() => {
     console.log('test', labels);
@@ -65,8 +67,8 @@ function DateChooser({
         type.forEach(element => {
           upDatedLabel[element[key]] = { _id: '', data: [] };
         });
-        if (dayPlanConf) {
-          dayPlanConf.map(t => {
+        if (configs) {
+          configs.map(t => {
             const date = new Date(t.date);
             const month = date.getMonth() + 1;
             upDatedLabel[month] = { _id: t._id, data: t.labelIds };
@@ -74,13 +76,13 @@ function DateChooser({
         }
         break;
       case 'Day':
-        type = dayConfigs;
+        type = timeframes;
         key = '_id';
         type.forEach(element => {
           upDatedLabel[element[key]] = { _id: '', data: [] };
         });
-        if (dayPlanConf) {
-          dayPlanConf.map(t => {
+        if (configs) {
+          configs.map(t => {
             upDatedLabel[t.dayConfigId] = { _id: t._id, data: t.labelIds };
           });
         }
@@ -88,7 +90,7 @@ function DateChooser({
         break;
     }
     setLabels({ ...labels, ...upDatedLabel });
-  }, [dayConfigs, dayPlanConf]);
+  }, [timeframes, configs]);
 
   const onChangeLabels = (option, key) => {
     const upDatedLabel = { ...labels };
@@ -162,7 +164,7 @@ function DateChooser({
         ));
 
       case 'Day':
-        return dayConfigs.map(t => (
+        return timeframes.map(t => (
           <FlexRow>
             <FlexItem>
               <ControlLabel uppercase={false}>

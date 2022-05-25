@@ -16,9 +16,13 @@ type Props = {
 };
 
 function CreateSalesPlanContainer({ closeModal, refetch }: Props) {
-  const units = useQuery(gql(queries.units));
+  const units = useQuery(gql(queries.units), {
+    fetchPolicy: 'network-only'
+  });
 
-  const branches = useQuery(gql(queries.branches));
+  const branches = useQuery(gql(queries.branches), {
+    fetchPolicy: 'network-only'
+  });
 
   const [save] = useMutation(gql(mutations.createSalesLog));
 
@@ -34,6 +38,7 @@ function CreateSalesPlanContainer({ closeModal, refetch }: Props) {
     refetch();
   };
 
+  console.log('container unit', units.data ? units.data.units : []);
   return (
     <CreateSalesPlan
       save={saveData}

@@ -94,7 +94,7 @@ app.get(
       return res.send('no owner');
     }
 
-    if (req.query) {
+    if (req.query && req.query.update) {
       const services = await getServices();
 
       for (const serviceName of services) {
