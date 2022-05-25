@@ -1,7 +1,7 @@
-import * as Random from "meteor-random";
-import { Model, model } from "mongoose";
-import * as validator from "validator";
-import { IModels } from "../connectionResolver";
+import * as Random from 'meteor-random';
+import { Model, model } from 'mongoose';
+import * as validator from 'validator';
+import { IModels } from '../connectionResolver';
 import {
   formSchema,
   formSubmissionSchema,
@@ -9,7 +9,7 @@ import {
   IFormDocument,
   IFormSubmission,
   IFormSubmissionDocument
-} from "./definitions/forms";
+} from './definitions/forms';
 
 interface ISubmission {
   _id: string;
@@ -46,7 +46,7 @@ export const loadFormClass = (models: IModels) => {
       const form = await models.Forms.findOne({ _id });
 
       if (!form) {
-        throw new Error("Form not found");
+        throw new Error('Form not found');
       }
 
       return form;
@@ -98,7 +98,7 @@ export const loadFormClass = (models: IModels) => {
     public static async removeForm(_id: string) {
       // remove fields
       await models.Fields.deleteMany({
-        contentType: "form",
+        contentType: 'form',
         contentTypeId: _id
       });
 
@@ -126,7 +126,7 @@ export const loadFormClass = (models: IModels) => {
 
       for (const field of fields) {
         await models.Fields.createField({
-          contentType: "form",
+          contentType: 'form',
           contentTypeId: newForm._id,
           type: field.type,
           validation: field.validation,
@@ -153,7 +153,7 @@ export const loadFormClass = (models: IModels) => {
           continue;
         }
 
-        const value = submission.value || "";
+        const value = submission.value || '';
 
         const type = field.type;
         const validation = field.validation;
@@ -162,54 +162,54 @@ export const loadFormClass = (models: IModels) => {
         if (field.isRequired && !value) {
           errors.push({
             fieldId: field._id,
-            code: "required",
-            text: "Required"
+            code: 'required',
+            text: 'Required'
           });
         }
 
         if (value) {
           // email
           if (
-            (type === "email" || validation === "email") &&
+            (type === 'email' || validation === 'email') &&
             !validator.isEmail(value)
           ) {
             errors.push({
               fieldId: field._id,
-              code: "invalidEmail",
-              text: "Invalid email"
+              code: 'invalidEmail',
+              text: 'Invalid email'
             });
           }
 
           // phone
           if (
-            (type === "phone" || validation === "phone") &&
-            !/^\d{8,}$/.test(value.replace(/[\s()+\-\.]|ext/gi, ""))
+            (type === 'phone' || validation === 'phone') &&
+            !/^\d{8,}$/.test(value.replace(/[\s()+\-\.]|ext/gi, ''))
           ) {
             errors.push({
               fieldId: field._id,
-              code: "invalidPhone",
-              text: "Invalid phone"
+              code: 'invalidPhone',
+              text: 'Invalid phone'
             });
           }
 
           // number
           if (
-            validation === "number" &&
+            validation === 'number' &&
             !validator.isNumeric(value.toString())
           ) {
             errors.push({
               fieldId: field._id,
-              code: "invalidNumber",
-              text: "Invalid number"
+              code: 'invalidNumber',
+              text: 'Invalid number'
             });
           }
 
           // date
-          if (validation === "date" && !validator.isISO8601(value)) {
+          if (validation === 'date' && !validator.isISO8601(value)) {
             errors.push({
               fieldId: field._id,
-              code: "invalidDate",
-              text: "Invalid Date"
+              code: 'invalidDate',
+              text: 'Invalid Date'
             });
           }
         }

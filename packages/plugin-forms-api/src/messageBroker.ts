@@ -211,7 +211,10 @@ export const initBroker = async cl => {
 
   consumeQueue(
     'forms:submissions.createFormSubmission',
-    async ({ subdomain, data: { submissions, customer, conversationId } }) => {
+    async ({
+      subdomain,
+      data: { submissions, customer, conversationId, userId }
+    }) => {
       const models = await generateModels(subdomain);
 
       const isAutomationsAvailable = await client.sendRPCMessage(
@@ -233,7 +236,8 @@ export const initBroker = async cl => {
                 ...customer,
                 ...submissionValues,
                 isFormSubmission: true,
-                conversationId
+                conversationId,
+                userId
               }
             ]
           }

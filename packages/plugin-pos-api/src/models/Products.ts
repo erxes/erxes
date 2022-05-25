@@ -1,4 +1,4 @@
-import mongoose, { Model, model } from 'mongoose';
+import { Model, model } from 'mongoose';
 import { PRODUCT_STATUSES } from './definitions/constants';
 import {
   IProduct,
@@ -27,10 +27,10 @@ export interface IProductModel extends Model<IProductDocument> {
   isUsed(_id: string): Promise<boolean>;
 }
 
-export const loadProductClass = () => {
+export const loadProductClass = models => {
   class Product {
     public static async getProduct(selector: any) {
-      const product = await Products.findOne(selector);
+      const product = await models.Products.findOne(selector);
 
       if (!product) {
         throw new Error('Product not found');
@@ -40,7 +40,7 @@ export const loadProductClass = () => {
     }
 
     static async checkCodeDuplication(code: string) {
-      const product = await Products.findOne({
+      const product = await models.Products.findOne({
         code,
         status: { $ne: PRODUCT_STATUSES.DELETED }
       });
@@ -56,22 +56,22 @@ export const loadProductClass = () => {
     public static async createProduct(doc: IProduct | IProductDocument) {
       await this.checkCodeDuplication(doc.code);
 
-      return Products.create({ ...checkSKU(doc) });
+      return models.Products.create({ ...checkSKU(doc) });
     }
 
     /**
      * Update Product
      */
     public static async updateProduct(_id: string, doc: IProduct) {
-      const product = await Products.getProduct({ _id });
+      const product = await models.Products.getProduct({ _id });
 
       if (product.code !== doc.code) {
         await this.checkCodeDuplication(doc.code);
       }
 
-      await Products.updateOne({ _id }, { $set: { ...checkSKU(doc) } });
+      await models.Products.updateOne({ _id }, { $set: { ...checkSKU(doc) } });
 
-      return Products.findOne({ _id });
+      return models.Products.findOne({ _id });
     }
 
     /**
@@ -91,7 +91,7 @@ export const loadProductClass = () => {
       }
 
       if (usedIds.length > 0) {
-        await Products.updateMany(
+        await models.Products.updateMany(
           { _id: { $in: usedIds } },
           {
             $set: { status: PRODUCT_STATUSES.DELETED }
@@ -100,13 +100,13 @@ export const loadProductClass = () => {
         response = 'updated';
       }
 
-      await Products.deleteMany({ _id: { $in: unUsedIds } });
+      await models.Products.deleteMany({ _id: { $in: unUsedIds } });
 
       return response;
     }
 
     public static async isUsed(_id: string) {
-      const count = await OrderItems.countDocuments({ productId: _id });
+      const count = await models.OrderItems.countDocuments({ productId: _id });
 
       return count > 0;
     }
@@ -129,10 +129,10 @@ export interface IProductCategoryModel extends Model<IProductCategoryDocument> {
   removeProductCategory(_id: string): void;
 }
 
-export const loadProductCategoryClass = () => {
+export const loadProductCategoryClass = models => {
   class ProductCategory {
     public static async getProductCategory(selector: any) {
-      const productCategory = await ProductCategories.findOne(selector);
+      const productCategory = await models.ProductCategories.findOne(selector);
 
       if (!productCategory) {
         throw new Error('Product & service category not found');
@@ -142,7 +142,7 @@ export const loadProductCategoryClass = () => {
     }
 
     static async checkCodeDuplication(code: string) {
-      const category = await ProductCategories.findOne({
+      const category = await models.ProductCategories.findOne({
         code
       });
 
@@ -156,14 +156,14 @@ export const loadProductCategoryClass = () => {
     ) {
       await this.checkCodeDuplication(doc.code);
 
-      const parentCategory = await ProductCategories.findOne({
+      const parentCategory = await models.ProductCategories.findOne({
         _id: doc.parentId
       }).lean();
 
       // Generating order
       doc.order = await this.generateOrder(parentCategory, doc);
 
-      return ProductCategories.create(doc);
+      return models.ProductCategories.create(doc);
     }
 
     /**
@@ -173,13 +173,15 @@ export const loadProductCategoryClass = () => {
       _id: string,
       doc: IProductCategory
     ) {
-      const category = await ProductCategories.getProductCategory({ _id });
+      const category = await models.ProductCategories.getProductCategory({
+        _id
+      });
 
       if (category.code !== doc.code) {
         await this.checkCodeDuplication(doc.code);
       }
 
-      const parentCategory = await ProductCategories.findOne({
+      const parentCategory = await models.ProductCategories.findOne({
         _id: doc.parentId
       }).lean();
 
@@ -190,18 +192,20 @@ export const loadProductCategoryClass = () => {
       // Generatingg  order
       doc.order = await this.generateOrder(parentCategory, doc);
 
-      const productCategory = await ProductCategories.getProductCategory({
-        _id
-      });
+      const productCategory = await models.ProductCategories.getProductCategory(
+        {
+          _id
+        }
+      );
 
-      const childCategories = await ProductCategories.find({
+      const childCategories = await models.ProductCategories.find({
         $and: [
           { order: { $regex: new RegExp(productCategory.order, 'i') } },
           { _id: { $ne: _id } }
         ]
       });
 
-      await ProductCategories.updateOne({ _id }, { $set: doc });
+      await models.ProductCategories.updateOne({ _id }, { $set: doc });
 
       // updating child categories order
       childCategories.forEach(async childCategory => {
@@ -209,32 +213,32 @@ export const loadProductCategoryClass = () => {
 
         order = order.replace(productCategory.order, doc.order);
 
-        await ProductCategories.updateOne(
+        await models.ProductCategories.updateOne(
           { _id: childCategory._id },
           { $set: { order } }
         );
       });
 
-      return ProductCategories.findOne({ _id });
+      return models.ProductCategories.findOne({ _id });
     }
 
     /**
      * Remove Product category
      */
     public static async removeProductCategory(_id: string) {
-      await ProductCategories.getProductCategory({ _id });
+      await models.ProductCategories.getProductCategory({ _id });
 
-      let count = await Products.countDocuments({
+      let count = await models.Products.countDocuments({
         categoryId: _id,
         status: { $ne: PRODUCT_STATUSES.DELETED }
       });
-      count += await ProductCategories.countDocuments({ parentId: _id });
+      count += await models.ProductCategories.countDocuments({ parentId: _id });
 
       if (count > 0) {
         throw new Error("Can't remove a product category");
       }
 
-      return ProductCategories.deleteOne({ _id });
+      return models.ProductCategories.deleteOne({ _id });
     }
 
     /**
@@ -256,12 +260,6 @@ export const loadProductCategoryClass = () => {
 
   return productCategorySchema;
 };
-
-loadProductClass();
-loadProductCategoryClass();
-
-delete mongoose.connection.models['products'];
-delete mongoose.connection.models['product_categories'];
 
 // tslint:disable-next-line
 export const Products = model<IProductDocument, IProductModel>(

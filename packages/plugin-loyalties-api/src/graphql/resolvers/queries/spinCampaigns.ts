@@ -4,7 +4,7 @@ import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src/core';
 import { CAMPAIGN_STATUS } from '../../../models/definitions/constants';
 
-const generateFilter = async (params) => {
+const generateFilter = async params => {
   const filter: any = {};
 
   if (params.searchValue) {
@@ -16,24 +16,26 @@ const generateFilter = async (params) => {
   }
 
   return filter;
-}
+};
 
 const spinCampaignQueries = {
-  async spinCampaigns(_root, params: ICommonCampaignParams, { models }: IContext) {
-    const filter = await generateFilter(params)
+  async spinCampaigns(
+    _root,
+    params: ICommonCampaignParams,
+    { models }: IContext
+  ) {
+    const filter = await generateFilter(params);
 
     return paginate(
-      models.SpinCampaigns.find(
-        filter
-      ).sort({ modifiedAt: -1 }),
+      models.SpinCampaigns.find(filter).sort({ modifiedAt: -1 }),
       {
         page: params.page,
         perPage: params.perPage
       }
-    )
+    );
   },
 
-  cpSpinCampaigns(_root, { }, { models }: IContext) {
+  cpSpinCampaigns(_root, {}, { models }: IContext) {
     const now = new Date();
 
     return models.SpinCampaigns.find({
@@ -43,19 +45,21 @@ const spinCampaignQueries = {
     }).sort({ modifiedAt: -1 });
   },
 
-  async spinCampaignsCount(_root, params: ICommonCampaignParams, { models }: IContext) {
+  async spinCampaignsCount(
+    _root,
+    params: ICommonCampaignParams,
+    { models }: IContext
+  ) {
     const filter = await generateFilter(params);
 
-    return models.SpinCampaigns.find(
-      filter
-    ).countDocuments();
+    return models.SpinCampaigns.find(filter).countDocuments();
   },
 
   spinCampaignDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.SpinCampaigns.getSpinCampaign(_id)
+    return models.SpinCampaigns.getSpinCampaign(_id);
   }
 };
 
-checkPermission(spinCampaignQueries, 'spinCampaigns', 'showLoyalties', []);
+checkPermission(spinCampaignQueries, 'spinCampaigns', 'showLoyalties');
 
 export default spinCampaignQueries;

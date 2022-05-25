@@ -30,8 +30,18 @@ class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const formValues = props.defaultConfigValues || ({} as ClientPortalConfig);
+
+    const { __typename = '', ...otp }: any = formValues.otpConfig || {
+      smsTransporterType: '',
+      emailTransporterType: '',
+      content: 'Your verification code is {{code}}'
+    };
+
+    formValues.otpConfig = otp;
+
     this.state = {
-      formValues: props.defaultConfigValues || ({} as ClientPortalConfig)
+      formValues
     };
   }
 

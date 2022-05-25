@@ -1,4 +1,9 @@
-import { commonCampaignInputs, commonCampaignTypes, commonFilterTypes, paginateTypes } from './common';
+import {
+  commonCampaignInputs,
+  commonCampaignTypes,
+  commonFilterTypes,
+  paginateTypes
+} from './common';
 
 export const types = `
   type LotteryCampaign @key(fields: "_id") @cacheControl(maxAge: 3) {
@@ -22,9 +27,10 @@ export const queries = `
 
 const LotteryCampaignDoc = `
   ${commonCampaignInputs}
+  numberFormat: String,
   buyScore: Float,
   awards: JSON
-`
+`;
 
 export const mutations = `
   lotteryCampaignsAdd(${LotteryCampaignDoc}): LotteryCampaign

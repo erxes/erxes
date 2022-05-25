@@ -34,6 +34,7 @@ export const types = contactsAvailable => `
     templateId: String
     state: String
     isCheckUser: Boolean
+    isCheckDepartment: Boolean
     excludeCheckUserIds: [String]
     numberConfig: String
     numberSize: String
@@ -144,6 +145,7 @@ const pipelineParams = `
   hackScoringType: String,
   templateId: String,
   isCheckUser: Boolean
+  isCheckDepartment: Boolean
   excludeCheckUserIds: [String],
   numberConfig: String,
   numberSize: String,

@@ -181,7 +181,7 @@ class Form extends React.Component<Props, State> {
       }
 
       return (
-        <Step title="Accociate" type="stepper">
+        <Step title="Accociate">
           <AccociateForm
             attachmentNames={attachmentNames}
             contentTypes={contentTypes}
@@ -205,7 +205,7 @@ class Form extends React.Component<Props, State> {
         const attachment = attachments[contentType.contentType];
 
         result.push(
-          <Step title={`Mapping  `} key={Math.random()} type="stepper">
+          <Step title={`Mapping  `} key={Math.random()}>
             <MapColumn
               contentType={contentType.contentType}
               attachments={attachment}
@@ -234,20 +234,15 @@ class Form extends React.Component<Props, State> {
     const content = (
       <Content>
         <LeftContent>
-          <Steps
-            active={1}
-            type="stepper"
-            allStep={this.renderMapColumn().length === 0 ? 3 : 4}
-            titles={['Type', 'Upload', 'Detail']}
-          >
-            <Step title="Type" link="importHistories" type="stepper">
+          <Steps active={1} direction="horizontal">
+            <Step title="Type" link="importHistories">
               <TypeForm
                 type={type}
                 onChangeContentType={this.onChangeContentType}
                 contentTypes={contentTypes}
               />
             </Step>
-            <Step title="Upload" type="stepper">
+            <Step title="Upload">
               <FileUpload
                 onChangeAttachment={this.onChangeAttachment}
                 contentTypes={contentTypes}
@@ -258,11 +253,7 @@ class Form extends React.Component<Props, State> {
             {/* {this.renderAssociateForm()} */}
             {this.renderMapColumn()}
 
-            <Step
-              title="Detail"
-              type="stepper"
-              additionalButton={this.renderImportButton()}
-            >
+            <Step title="Detail" additionalButton={this.renderImportButton()}>
               <Details
                 type="stepper"
                 disclaimer={disclaimer}

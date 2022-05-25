@@ -1,15 +1,11 @@
-import clientPortalMutations from './clientPortalMutations';
-import clientPortalQueries from './clientPortalQueries';
+import Mutation from './mutations';
+import Query from './queries';
 import customScalars from '@erxes/api-utils/src/customScalars';
 
 const resolvers: any = {
   ...customScalars,
-  Mutation: {
-    ...clientPortalMutations,
-  },
-  Query: {
-    ...clientPortalQueries,
-  },
+  Mutation,
+  Query
 };
 
 export default resolvers;
