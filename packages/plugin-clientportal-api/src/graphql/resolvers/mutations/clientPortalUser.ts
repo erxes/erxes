@@ -9,6 +9,7 @@ export interface IVerificationParams {
   userId: string;
   emailOtp?: string;
   phoneOtp?: string;
+  password?: string;
 }
 
 const clientPortalUserMutations = {

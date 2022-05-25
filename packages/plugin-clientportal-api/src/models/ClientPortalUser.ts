@@ -512,7 +512,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
     }
 
     public static async verifyUser(args: IVerificationParams) {
-      const { phoneOtp, emailOtp, userId } = args;
+      const { phoneOtp, emailOtp, userId, password } = args;
       const user = await models.ClientPortalUsers.findById(userId);
 
       if (!user) {
@@ -541,6 +541,11 @@ export const loadClientPortalUserClass = (models: IModels) => {
         }
         user.isEmailVerified = true;
         user.emailVerificationCode = '';
+      }
+
+      if (password) {
+        this.checkPassword(password);
+        user.password = await this.generatePassword(password);
       }
 
       await user.save();
