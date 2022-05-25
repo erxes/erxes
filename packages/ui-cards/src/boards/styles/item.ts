@@ -265,6 +265,10 @@ export const MoveContainer = styled(Flex)`
   will-change: contents;
 `;
 
+export const MoveContainerWidth = styled(Flex)`
+  max-width: 100%;
+`;
+
 export const ActionContainer = styled(MoveContainer)`
   flex-wrap: wrap;
   > div {
