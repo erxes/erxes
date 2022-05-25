@@ -124,6 +124,8 @@ export const queries = (cardAvailable, kbAvailable) => `
       ? `
     clientPortalGetTaskStages: [Stage]
     clientPortalGetTasks(stageId: String!): [Task]
+    clientPortalTickets(email: String!): [Ticket]
+    clientPortalTicket(_id: String!): Ticket
    `
       : ''
   }

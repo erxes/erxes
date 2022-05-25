@@ -2,7 +2,11 @@
 
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import { sendCardsMessage, sendKbMessage } from '../../../messageBroker';
+import {
+  sendCardsMessage,
+  sendContactsMessage,
+  sendKbMessage
+} from '../../../messageBroker';
 
 const getByHost = async (models, requestInfo) => {
   const hostname = requestInfo.headers.hostname;
@@ -112,6 +116,49 @@ const configClientPortalQueries = {
     return sendKbMessage({
       subdomain,
       action: 'topics.findOne',
+      data: {
+        _id
+      },
+      isRPC: true
+    });
+  },
+
+  async clientPortalTickets(
+    _root,
+    { email }: { email: string },
+    { subdomain }: IContext
+  ) {
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        primaryEmail: email
+      },
+      isRPC: true
+    });
+
+    if (!customer) {
+      return [];
+    }
+
+    return sendCardsMessage({
+      subdomain,
+      action: 'tickets.find',
+      data: {
+        userId: customer._id
+      },
+      isRPC: true
+    });
+  },
+
+  async clientPortalTicket(
+    _root,
+    { _id }: { _id: string },
+    { subdomain }: IContext
+  ) {
+    return sendCardsMessage({
+      subdomain,
+      action: 'tickets.find',
       data: {
         _id
       },
