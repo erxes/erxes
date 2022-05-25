@@ -49,10 +49,10 @@ class ManageColumns extends React.Component<Props, State> {
     super(props);
 
     if (props.columns.findIndex(c => c._id === '#') === -1) {
-      props.columns.push({
+      props.columns.unshift({
         _id: '#',
         name: '#',
-        label: '#',
+        label: 'Numerical index',
         order: 0,
         checked: false
       });
@@ -68,7 +68,7 @@ class ManageColumns extends React.Component<Props, State> {
     e.preventDefault();
     const columnsConfig: IConfigColumn[] = [];
     const { importType } = this.state;
-    console.log('submit');
+
     this.state.columns.forEach((col, index) => {
       const element = document.getElementById(col._id) as HTMLInputElement;
 

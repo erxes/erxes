@@ -135,7 +135,7 @@ function displayValue(customer, name, index) {
   }
 
   if (name === '#') {
-    return <TextInfo>{(index + 1).toString()}</TextInfo>;
+    return <TextInfo>{index.toString()}</TextInfo>;
   }
 
   if (typeof value === 'boolean') {

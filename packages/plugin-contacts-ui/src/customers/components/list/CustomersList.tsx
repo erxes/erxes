@@ -182,9 +182,13 @@ class CustomersList extends React.Component<IProps, State> {
                   onChange={this.onChange}
                 />
               </th>
-              {(columnsConfig || []).map(({ name, label }) => (
+              {(columnsConfig || []).map(({ _id, name, label }) => (
                 <th key={name}>
-                  <SortHandler sortField={name} label={__(label)} />
+                  {_id !== '#' ? (
+                    <SortHandler sortField={name} label={__(label)} />
+                  ) : (
+                    <>#</>
+                  )}
                 </th>
               ))}
               <th>{__('Tags')}</th>
@@ -193,7 +197,7 @@ class CustomersList extends React.Component<IProps, State> {
           <tbody id="customers" className={isExpand ? 'expand' : ''}>
             {(customers || []).map((customer, i) => (
               <CustomerRow
-                index={(page - 1) * perPage + i}
+                index={(page - 1) * perPage + i + 1}
                 customer={customer}
                 columnsConfig={columnsConfig}
                 key={customer._id}
