@@ -26,6 +26,9 @@ class Brands extends React.Component<Props, {}> {
   renderContent() {
     const { currentBrand, queryParams, renderButton } = this.props;
 
+    if (!currentBrand._id)
+      return <EmptyState image="/images/actions/20.svg" text="No brand." />;
+
     return (
       <>
         <Table>
