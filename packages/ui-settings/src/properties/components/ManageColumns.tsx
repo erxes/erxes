@@ -111,8 +111,6 @@ class ManageColumns extends React.Component<Props, State> {
       });
     };
 
-    console.log(this.state.columns);
-
     return (
       <form onSubmit={this.onSubmit}>
         <Header>
