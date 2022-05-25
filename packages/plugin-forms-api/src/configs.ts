@@ -6,6 +6,7 @@ import { generateModels } from './connectionResolver';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import forms from './forms';
+import initialSetup from './initialSetup';
 
 export let mainDb;
 export let debug;
@@ -15,7 +16,8 @@ export default {
   name: 'forms',
   permissions,
   meta: {
-    forms
+    forms,
+    initialSetup
   },
   graphql: async sd => {
     serviceDiscovery = sd;

@@ -1,19 +1,21 @@
 import Button from '../Button';
-import Icon from '../Icon';
 import { __ } from '../../utils/core';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import {
   FullStep,
   ShortStep,
+  StepCount,
   StepContent,
   StepHeader,
   StepHeaderContainer,
   StepHeaderTitle,
   StepImg,
   StepItem,
-  ButtonBack
+  ButtonBack,
+  ButtonContainer
 } from './styles';
-import { Link } from 'react-router-dom';
+
 import { BoxRow } from './style';
 
 type Props = {
@@ -22,23 +24,33 @@ type Props = {
   img?: string;
   title?: string;
   children?: React.ReactNode;
-  next?: (stepNumber: number) => void;
   back?: (stepNumber: number) => void;
+  next?: (stepNumber: number) => void;
   noButton?: boolean;
   message?: any;
   onClick?: (stepNumber: number) => void;
   link?: string;
   additionalButton?: React.ReactNode;
-  type?: string;
+  direction?: 'horizontal' | 'vertical';
 };
 
 class Step extends React.Component<Props> {
+  handleOnClick = (stepNumber?: number) => {
+    const { next, onClick } = this.props;
+
+    if (next && stepNumber) {
+      onClick && onClick(stepNumber);
+
+      next && next(stepNumber);
+    }
+  };
+
   renderBackButton(text: string) {
-    const { back } = this.props;
+    const { back, stepNumber = 1 } = this.props;
 
     if (back)
       return (
-        <ButtonBack size={1} onClick={back.bind(null, 0)}>
+        <ButtonBack size={1} onClick={() => back(stepNumber)}>
           {text}
         </ButtonBack>
       );
@@ -46,10 +58,10 @@ class Step extends React.Component<Props> {
     return null;
   }
 
-  renderButton() {
-    const { next, link, additionalButton, type } = this.props;
+  renderButton = () => {
+    const { next, link, additionalButton, direction } = this.props;
 
-    if (type === 'stepper') {
+    if (direction === 'horizontal') {
       return (
         <BoxRow>
           {link ? (
@@ -60,7 +72,7 @@ class Step extends React.Component<Props> {
           {additionalButton
             ? additionalButton
             : next && (
-                <ButtonBack size={1} onClick={next.bind(null, 0)}>
+                <ButtonBack size={1} onClick={() => next && next(0)}>
                   {__('Skip')}
                 </ButtonBack>
               )}
@@ -68,104 +80,125 @@ class Step extends React.Component<Props> {
       );
     }
 
-    if (next) {
+    if (next)
       return (
         <Button
           btnStyle="primary"
           size="small"
           icon="arrow-right"
-          onClick={next.bind(null, 0)}
+          onClick={() => next(0)}
         >
           Next
         </Button>
       );
-    }
 
     return null;
-  }
+  };
 
-  renderNextButton() {
-    const { next } = this.props;
+  renderImage = () => {
+    const { img } = this.props;
 
-    if (!next) {
+    if (!img) {
       return null;
     }
 
     return (
-      <Button btnStyle="primary" size="small" onClick={next.bind(null, 0)}>
-        {__('Next')} <Icon icon="arrow-right" />
-      </Button>
+      <StepImg>
+        <img src={img} alt="step-icon" />
+      </StepImg>
     );
-  }
-
-  onClickNext = (stepNumber?: number) => {
-    const { next, onClick } = this.props;
-
-    if (next && stepNumber) {
-      onClick && onClick(stepNumber);
-
-      return next(stepNumber);
-    }
   };
 
   render() {
     const {
       stepNumber,
       active,
-      img,
       title,
       children,
       noButton,
-      type
+      direction
     } = this.props;
 
     let show = false;
 
-    if (stepNumber === active) {
-      show = true;
+    if (stepNumber === active) show = true;
+
+    switch (direction) {
+      case 'vertical':
+        if (active && stepNumber)
+          return (
+            <StepItem
+              show={show}
+              direction={direction}
+              active={active >= stepNumber}
+            >
+              <ShortStep
+                show={true}
+                active={active >= stepNumber}
+                direction={direction}
+                onClick={() => this.handleOnClick(stepNumber)}
+              >
+                <StepCount direction={direction} active={active >= stepNumber}>
+                  {stepNumber}
+                </StepCount>
+                <StepHeaderTitle>{__(title || '')}</StepHeaderTitle>
+              </ShortStep>
+
+              <FullStep show={show} direction={direction}>
+                <StepContent direction={direction}>
+                  {children}
+                  {!noButton && this.renderButton()}
+                </StepContent>
+              </FullStep>
+            </StepItem>
+          );
+        return null;
+
+      case 'horizontal':
+        if (active && stepNumber)
+          return (
+            <StepItem
+              show={show}
+              direction={direction}
+              active={active >= stepNumber}
+            >
+              <FullStep show={show} direction={direction}>
+                <StepContent direction={direction}>
+                  {children}
+                  <ButtonContainer>
+                    {!noButton && this.renderButton()}
+                  </ButtonContainer>
+                </StepContent>
+              </FullStep>
+            </StepItem>
+          );
+        return null;
+
+      default:
+        return (
+          <StepItem show={show}>
+            <FullStep show={show}>
+              <StepHeaderContainer>
+                <StepHeader>
+                  {this.renderImage()}
+
+                  <StepHeaderTitle>{__(title || '')}</StepHeaderTitle>
+                </StepHeader>
+                {!noButton && this.renderButton()}
+              </StepHeaderContainer>
+
+              <StepContent>{children}</StepContent>
+            </FullStep>
+
+            <ShortStep
+              show={!show}
+              onClick={() => this.handleOnClick(stepNumber)}
+            >
+              {this.renderImage()}
+            </ShortStep>
+          </StepItem>
+        );
     }
-
-    if (type === 'stepper' || type === 'stepperColumn') {
-      if (type === 'stepperColumn') show = true;
-
-      return (
-        <StepItem show={show} type={type}>
-          <FullStep show={show} type={type}>
-            <StepContent type={type}>
-              {children} {!noButton && this.renderButton()}
-            </StepContent>
-          </FullStep>
-        </StepItem>
-      );
-    }
-
-    return (
-      <StepItem show={show}>
-        <FullStep show={show}>
-          <StepHeaderContainer>
-            <StepHeader>
-              <StepImg>
-                <img src={img} alt="step-icon" />
-              </StepImg>
-
-              <StepHeaderTitle>{__(title || '')}</StepHeaderTitle>
-            </StepHeader>
-            {!noButton && this.renderButton()}
-          </StepHeaderContainer>
-
-          <StepContent>{children}</StepContent>
-        </FullStep>
-
-        <ShortStep
-          show={!show}
-          onClick={this.onClickNext.bind(null, stepNumber)}
-        >
-          <StepImg>
-            <img src={img} alt="step-icon" />
-          </StepImg>
-        </ShortStep>
-      </StepItem>
-    );
   }
 }
 

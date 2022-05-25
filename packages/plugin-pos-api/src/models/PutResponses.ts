@@ -1,4 +1,4 @@
-import mongoose, { Model, model } from 'mongoose';
+import { Model, model } from 'mongoose';
 import {
   putResponseSchema,
   IPutResponseDocument,
@@ -73,11 +73,8 @@ export const loadPutResponseClass = models => {
     }
   }
   putResponseSchema.loadClass(PutResponse);
-
   return putResponseSchema;
 };
-
-delete mongoose.connection.models['put_responses'];
 
 export const PutResponses = model<IPutResponseDocument, IPutResponseModel>(
   'put_responses',

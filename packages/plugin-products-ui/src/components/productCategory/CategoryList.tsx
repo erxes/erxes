@@ -116,7 +116,7 @@ class List extends React.Component<IProps> {
           </Link>
           <ActionButtons>
             {this.renderEditAction(category)}
-            {pluginsOfProductCategoryActions(category._id)}
+            {pluginsOfProductCategoryActions(category)}
             {this.renderRemoveAction(category)}
           </ActionButtons>
         </SidebarListItem>

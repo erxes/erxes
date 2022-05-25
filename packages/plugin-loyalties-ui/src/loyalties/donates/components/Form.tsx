@@ -83,6 +83,11 @@ class DonateForm extends React.Component<Props, State> {
     );
   };
 
+  onChangeCampaign = value => {
+    const { donate } = this.state;
+    this.setState({ donate: { ...donate, campaignId: value } });
+  };
+
   onChangeSelect = e => {
     const { donate } = this.state;
     const target = e.currentTarget as HTMLInputElement;
@@ -149,7 +154,7 @@ class DonateForm extends React.Component<Props, State> {
               customQuery={queries.donateCampaigns}
               label="Choose donate campaign"
               name="campaignId"
-              onSelect={this.onChangeSelect}
+              onSelect={this.onChangeCampaign}
               initialValue={donate.campaignId}
               filterParams={
                 donate._id ? { equalTypeCampaignId: donate.campaignId } : {}

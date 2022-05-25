@@ -46,12 +46,14 @@ const editLead = ({ match, location }) => {
   );
 };
 
-const responseList = history => {
-  const { location } = history;
+const responseList = ({ match, location }) => {
+  const { integrationId, formId } = match.params;
 
   const queryParams = queryString.parse(location.search);
+  queryParams.integrationId = integrationId;
+  queryParams.formId = formId;
 
-  return <ResponseList queryParams={queryParams} history={history} />;
+  return <ResponseList queryParams={queryParams} />;
 };
 
 const routes = () => {

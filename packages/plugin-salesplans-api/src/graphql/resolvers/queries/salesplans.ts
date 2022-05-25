@@ -1,7 +1,11 @@
 import { IContext, IModels } from '../../../connectionResolver';
 
 const salesLogQueries = {
-  getLabels: async (_root, { type }: { type: string }, models: IModels) => {
+  getLabels: async (
+    _root,
+    { type }: { type: string },
+    { models }: IContext
+  ) => {
     return await models.Labels.find({ type });
   },
 

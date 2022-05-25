@@ -1,9 +1,7 @@
-import { schema } from './../../../../plugin-logs-api/src/models/Visitors';
 import { attachmentSchema, customFieldSchema, ICustomField } from './common';
 import { Document, Schema } from 'mongoose';
 import { getDateFieldDefinition } from './utils';
 import { field, schemaHooksWrapper } from './util';
-import { IProductCategoryModel, IProductModel } from '../Products';
 import { PRODUCT_STATUSES, PRODUCT_TYPES } from './constants';
 
 interface IAttachment {

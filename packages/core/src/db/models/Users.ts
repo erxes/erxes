@@ -18,6 +18,7 @@ import {
   userSchema
 } from './definitions/users';
 import { IAppDocument } from './definitions/apps';
+import { saveValidatedToken } from '../../data/utils';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -679,7 +680,7 @@ export const loadUserClass = (models: IModels) => {
 
       // storing tokens in user collection.
       if (token) {
-        redis.set(`user_token_${user._id}_${token}`, 1, 'EX', 24 * 60 * 60);
+        await saveValidatedToken(token, user);
       }
 
       if (deviceToken) {

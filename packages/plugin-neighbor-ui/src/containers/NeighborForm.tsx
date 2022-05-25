@@ -6,9 +6,9 @@ import { Alert } from '@erxes/ui/src/utils';
 import queries from '../graphql/queries';
 import mutations from '../graphql/mutations';
 
-function NeighborFormContainer({ productCategoryId }) {
+function NeighborFormContainer({ productCategory }) {
   const detailQuery = useQuery(gql(queries.getNeighbor), {
-    variables: { productCategoryId }
+    variables: { productCategoryId: productCategory._id }
   });
   const [saveMutation] = useMutation(gql(mutations.neighborSave));
 
@@ -21,7 +21,9 @@ function NeighborFormContainer({ productCategoryId }) {
   }
 
   const save = (data: any, rate: object) => {
-    saveMutation({ variables: { productCategoryId, data, rate } })
+    saveMutation({
+      variables: { productCategoryId: productCategory._id, data, rate }
+    })
       .then(() => {
         Alert.success('Successfully saved');
       })
@@ -30,7 +32,13 @@ function NeighborFormContainer({ productCategoryId }) {
       });
   };
 
-  return <NeighborForm save={save} neighbor={detailQuery.data.getNeighbor} />;
+  return (
+    <NeighborForm
+      productCategoryName={productCategory.name}
+      save={save}
+      neighbor={detailQuery.data.getNeighbor}
+    />
+  );
 }
 
 export default NeighborFormContainer;

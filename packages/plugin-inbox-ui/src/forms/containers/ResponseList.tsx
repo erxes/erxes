@@ -8,10 +8,7 @@ import {
   FormSubmissionsTotalCountQueryResponse
 } from '@erxes/ui-forms/src/forms/types';
 import { IntegrationDetailQueryResponse } from '@erxes/ui-inbox/src/settings/integrations/types';
-import {
-  IIntegration,
-  LeadIntegrationDetailQueryResponse
-} from '@erxes/ui-settings/src/integrations/types';
+import { LeadIntegrationDetailQueryResponse } from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ResponseList from '../components/ResponseList';

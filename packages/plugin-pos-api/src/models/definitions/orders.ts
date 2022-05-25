@@ -1,11 +1,11 @@
 import { Document, Schema } from 'mongoose';
 
 import { getDateFieldDefinition, getNumberFieldDefinition } from './utils';
-import { field, schemaHooksWrapper } from './util';
 import { ORDER_TYPES, ORDER_STATUSES } from './constants';
 import { IOrderItemDocument } from './orderItems';
 import { IOrderModel } from '../Orders';
-import { IQpayInvoiceDocument } from './qpayInvoices';
+import { field, schemaHooksWrapper } from './util';
+// import { IQpayInvoiceDocument } from './qpayInvoices';
 
 interface ICardPayment {
   _id: string;
@@ -56,14 +56,15 @@ const cardPaymentSchema = schemaHooksWrapper(
     // @ts-ignore
     cardInfo: { type: Object, label: 'Card info' }
   }),
-  'erxes_cardPaymentSchema'
+  'erxes_cardPayment'
 );
 
 export interface IOrderDocument extends Document, IOrder {
   _id: string;
   items: IOrderItemDocument[];
+
   userId?: string;
-  qpayInvoices?: IQpayInvoiceDocument[];
+  // qpayInvoices?: IQpayInvoiceDocument[];
 }
 
 export const orderSchema = schemaHooksWrapper(
@@ -71,15 +72,15 @@ export const orderSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     createdAt: getDateFieldDefinition('Created at'),
     modifiedAt: getDateFieldDefinition('Modified at'),
-    status: {
+    status: field({
       type: String,
       label: 'Status of the order',
       enum: ORDER_STATUSES.ALL,
       default: ORDER_STATUSES.NEW
-    },
-    paidDate: { type: Date, label: 'Paid date' },
-    number: { type: String, label: 'Order number', unique: true },
-    customerId: { type: String, label: 'Customer' },
+    }),
+    paidDate: field({ type: Date, label: 'Paid date' }),
+    number: field({ type: String, label: 'Order number', unique: true }),
+    customerId: field({ type: String, label: 'Customer' }),
     cardAmount: getNumberFieldDefinition({
       ...commonAttributes,
       label: 'Card amount'
@@ -100,10 +101,10 @@ export const orderSchema = schemaHooksWrapper(
       ...commonAttributes,
       label: 'Final amount after tax'
     }),
-    shouldPrintEbarimt: {
+    shouldPrintEbarimt: field({
       type: Boolean,
       label: 'Should print ebarimt for this order'
-    },
+    }),
     printedEbarimt: field({
       type: Boolean,
       label: 'Printed ebarimt',
@@ -182,5 +183,5 @@ export const orderSchema = schemaHooksWrapper(
       optional: true
     })
   }),
-  'erxes_orderSchema'
+  'erxes_orders'
 );
