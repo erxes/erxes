@@ -51,7 +51,8 @@
     "sass": "^1.32.5",
     "simple-react-modal": "^0.5.1",
     "styled-components": "^5.2.1",
-    "styled-components-ts": "^0.0.15"
+    "styled-components-ts": "^0.0.15",
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "@svgr/webpack": "^5.5.0",
