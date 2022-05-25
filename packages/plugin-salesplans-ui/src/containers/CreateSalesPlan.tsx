@@ -1,9 +1,12 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { useQuery, useMutation } from 'react-apollo';
+import * as compose from 'lodash.flowright';
+import { useQuery, useMutation, graphql } from 'react-apollo';
 import CreateSalesPlan from '../components/CreateSalesPlan';
 import { queries, mutations } from '../graphql';
 import { Alert } from '@erxes/ui/src/utils';
+import { withProps } from '@erxes/ui/src/utils/core';
+import { Spinner } from '@erxes/ui/src/components';
 
 // class CreateSalesPlanContainer extends React.Component {
 //   render() {
@@ -15,14 +18,24 @@ type Props = {
   refetch: () => void;
 };
 
-function CreateSalesPlanContainer({ closeModal, refetch }: Props) {
-  const units = useQuery(gql(queries.units), {
-    fetchPolicy: 'network-only'
-  });
+type FinalProps = {
+  units: any;
+  branches: any;
+} & Props;
 
-  const branches = useQuery(gql(queries.branches), {
-    fetchPolicy: 'network-only'
-  });
+function CreateSalesPlanContainer({
+  closeModal,
+  refetch,
+  units,
+  branches
+}: FinalProps) {
+  // const units = useQuery(gql(queries.units), {
+  //   fetchPolicy: "network-only",
+  // });
+
+  // const branches = useQuery(gql(queries.branches), {
+  //   fetchPolicy: "network-only",
+  // });
 
   const [save] = useMutation(gql(mutations.createSalesLog));
 
@@ -38,15 +51,35 @@ function CreateSalesPlanContainer({ closeModal, refetch }: Props) {
     refetch();
   };
 
-  console.log('container unit', units.data ? units.data.units : []);
+  console.log('container unit', units ? units.units : []);
+
+  if (units.loading) return <Spinner objective={true} />;
+
+  if (branches.loading) return <Spinner objective={true} />;
+
   return (
     <CreateSalesPlan
       save={saveData}
-      units={units.data ? units.data.units : []}
-      branches={branches.data ? branches.data.branches : []}
+      units={units ? units.units : []}
+      branches={branches ? branches.branches : []}
       closeModal={closeModal}
     />
   );
 }
 
-export default CreateSalesPlanContainer;
+export default withProps<Props>(
+  compose(
+    graphql<Props>(gql(queries.units), {
+      name: 'units',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props>(gql(queries.branches), {
+      name: 'branches',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    })
+  )(CreateSalesPlanContainer)
+);
