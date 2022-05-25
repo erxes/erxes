@@ -12,7 +12,7 @@ const Header = styledTS<{
   color: ${colors.colorWhite};
   font-size: ${typography.fontSizeBody}px;
   background-color: ${(props) =>
-    props.color ? props.color : colors.colorPrimary};
+    props.color ? props.color : '#f5f8fb'};
   background-image: ${(props) =>
     props.backgroundImage && `url(${props.backgroundImage})`};
 
