@@ -73,6 +73,8 @@ interface IProps extends IRouterProps {
   refetch?: () => void;
   renderExpandButton?: any;
   isExpand?: boolean;
+  page: number;
+  perPage: number;
 }
 
 type State = {
@@ -157,7 +159,9 @@ class CustomersList extends React.Component<IProps, State> {
       toggleBulk,
       history,
       isAllSelected,
-      isExpand
+      isExpand,
+      perPage,
+      page
     } = this.props;
 
     return (
@@ -178,17 +182,22 @@ class CustomersList extends React.Component<IProps, State> {
                   onChange={this.onChange}
                 />
               </th>
-              {(columnsConfig || []).map(({ name, label }) => (
+              {(columnsConfig || []).map(({ _id, name, label }) => (
                 <th key={name}>
-                  <SortHandler sortField={name} label={__(label)} />
+                  {_id !== '#' ? (
+                    <SortHandler sortField={name} label={__(label)} />
+                  ) : (
+                    <>#</>
+                  )}
                 </th>
               ))}
               <th>{__('Tags')}</th>
             </tr>
           </thead>
           <tbody id="customers" className={isExpand ? 'expand' : ''}>
-            {(customers || []).map(customer => (
+            {(customers || []).map((customer, i) => (
               <CustomerRow
+                index={(page - 1) * perPage + i + 1}
                 customer={customer}
                 columnsConfig={columnsConfig}
                 key={customer._id}

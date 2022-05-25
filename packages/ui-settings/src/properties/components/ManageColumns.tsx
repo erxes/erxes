@@ -7,7 +7,7 @@ import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import styled from 'styled-components';
 import { IConfigColumn } from '../types';
-import { Footer } from '@erxes/ui-cards/src/boards/styles/item'
+import { Footer } from '@erxes/ui-cards/src/boards/styles/item';
 
 const Header = styled.div`
   display: flex;
@@ -48,7 +48,20 @@ class ManageColumns extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { columns: props.columns, importType: 'csv' };
+    if (props.columns.findIndex(c => c._id === '#') === -1) {
+      props.columns.unshift({
+        _id: '#',
+        name: '#',
+        label: 'Numerical index',
+        order: 0,
+        checked: false
+      });
+    }
+
+    this.state = {
+      columns: props.columns,
+      importType: 'csv'
+    };
   }
 
   onSubmit = e => {

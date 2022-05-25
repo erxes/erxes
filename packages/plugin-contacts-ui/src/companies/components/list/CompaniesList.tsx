@@ -52,6 +52,8 @@ interface IProps extends IRouterProps {
   refetch?: () => void;
   renderExpandButton?: any;
   isExpand?: boolean;
+  page: number;
+  perPage: number;
 }
 
 type State = {
@@ -128,7 +130,9 @@ class CompaniesList extends React.Component<IProps, State> {
       queryParams,
       exportCompanies,
       isExpand,
-      renderExpandButton
+      renderExpandButton,
+      perPage,
+      page
     } = this.props;
 
     const mainContent = (
@@ -149,17 +153,22 @@ class CompaniesList extends React.Component<IProps, State> {
                   onChange={this.onChange}
                 />
               </th>
-              {columnsConfig.map(({ name, label }) => (
+              {columnsConfig.map(({ name, label, _id }) => (
                 <th key={name}>
-                  <SortHandler sortField={name} label={__(label)} />
+                  {_id !== '#' ? (
+                    <SortHandler sortField={name} label={__(label)} />
+                  ) : (
+                    <>#</>
+                  )}
                 </th>
               ))}
               <th>{__('Tags')}</th>
             </tr>
           </thead>
           <tbody id="companies" className={isExpand ? 'expand' : ''}>
-            {companies.map(company => (
+            {companies.map((company, i) => (
               <CompanyRow
+                index={(page - 1) * perPage + i + 1}
                 company={company}
                 columnsConfig={columnsConfig}
                 isChecked={bulk.includes(company)}

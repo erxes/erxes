@@ -132,7 +132,13 @@ class CarListContainer extends React.Component<FinalProps, State> {
     };
 
     const carsList = props => {
-      return <CarsList {...updatedProps} {...props} />;
+      return (
+        <CarsList
+          {...updatedProps}
+          {...props}
+          {...router.generatePaginationParams(this.props.queryParams)}
+        />
+      );
     };
 
     const refetch = () => {
