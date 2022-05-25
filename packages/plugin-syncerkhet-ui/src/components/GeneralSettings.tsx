@@ -1,4 +1,10 @@
-import { Button, CollapseContent, ControlLabel, FormControl, FormGroup } from '@erxes/ui/src/components';
+import {
+  Button,
+  CollapseContent,
+  ControlLabel,
+  FormControl,
+  FormGroup
+} from '@erxes/ui/src/components';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { __ } from '@erxes/ui/src/utils';
 import { Wrapper } from '@erxes/ui/src/layout';
@@ -23,7 +29,7 @@ class GeneralSettings extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentMap: props.configsMap.ERKHET || {},
+      currentMap: props.configsMap.ERKHET || {}
     };
   }
 
@@ -86,22 +92,40 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('apiKey')}
           {this.renderItem('apiSecret')}
           {this.renderItem('apiToken')}
-          {this.renderItem('getRemainderApiUrl', 'Get remainder from erkhet api url')}
+          {this.renderItem(
+            'getRemainderApiUrl',
+            'Get remainder from erkhet api url'
+          )}
         </CollapseContent>
         <CollapseContent title="Product to erkhet">
           {this.renderItem('costAccount', 'Cost Account fullCode on erkhet')}
           {this.renderItem('saleAccount', 'Sale Account fullCode on erkhet')}
-          {this.renderItem('productCategoryCode', 'Default Category Code on erkhet inventory')}
-          {this.renderItem('consumeDescription', 'Set description when incoming erkhet inventory')}
+          {this.renderItem(
+            'productCategoryCode',
+            'Default Category Code on erkhet inventory'
+          )}
+          {this.renderItem(
+            'consumeDescription',
+            'Set description when incoming erkhet inventory'
+          )}
         </CollapseContent>
         <CollapseContent title="Customer to erkhet">
           {this.renderItem('checkCompanyUrl')}
-          {this.renderItem('customerDefaultName', 'Customer default name on erkhet')}
-          {this.renderItem('customerCategoryCode', 'Customer default category code on erkhet')}
-          {this.renderItem('companyCategoryCode', 'Company default category code on erkhet')}
+          {this.renderItem(
+            'customerDefaultName',
+            'Customer default name on erkhet'
+          )}
+          {this.renderItem(
+            'customerCategoryCode',
+            'Customer default category code on erkhet'
+          )}
+          {this.renderItem(
+            'companyCategoryCode',
+            'Company default category code on erkhet'
+          )}
         </CollapseContent>
       </ContentBox>
-    )
+    );
 
     return (
       <Wrapper
@@ -116,12 +140,16 @@ class GeneralSettings extends React.Component<Props, State> {
           <Wrapper.ActionBar
             left={<Title>{__('Ebarimt configs')}</Title>}
             right={actionButtons}
+            withMargin
+            wide
+            background="colorWhite"
           />
         }
         leftSidebar={<Sidebar />}
         content={content}
         transparent={true}
         hasBorder={true}
+        noPadding
       />
     );
   }

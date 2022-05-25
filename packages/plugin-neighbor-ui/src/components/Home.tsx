@@ -1,12 +1,12 @@
-import React from "react";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { __ } from "@erxes/ui/src/utils";
-import List from "../components/List";
-import SidebarCategories from "./SideBarCategory";
-import queryString from "query-string";
-import Form from "../containers/Form";
-import Button from "@erxes/ui/src/components/Button";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from 'react';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from '@erxes/ui/src/utils';
+import List from '../components/List';
+import SidebarCategories from './SideBarCategory';
+import queryString from 'query-string';
+import Form from '../containers/Form';
+import Button from '@erxes/ui/src/components/Button';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
 type Props = {
   type: string;
@@ -27,35 +27,35 @@ class Home extends React.Component<Props, State> {
     const { type, data, refetch } = this.props;
     let typeTitle;
     switch (type) {
-      case "kindergarden":
-        typeTitle = "Цэцэрлэг";
+      case 'kindergarden':
+        typeTitle = 'Цэцэрлэг';
         break;
-      case "school":
-        typeTitle = "Сургууль";
+      case 'school':
+        typeTitle = 'Сургууль';
         break;
-      case "university":
-        typeTitle = "Их дээд сургууль";
+      case 'university':
+        typeTitle = 'Их дээд сургууль';
         break;
-      case "soh":
-        typeTitle = "СӨХ";
+      case 'soh':
+        typeTitle = 'СӨХ';
         break;
-      case "khoroo":
-        typeTitle = "Хороо";
+      case 'khoroo':
+        typeTitle = 'Хороо';
         break;
-      case "hospital":
-        typeTitle = "Өрхийн эмнэлэг";
+      case 'hospital':
+        typeTitle = 'Өрхийн эмнэлэг';
         break;
-      case "busStop":
-        typeTitle = "Автобусны буудал";
+      case 'busStop':
+        typeTitle = 'Автобусны буудал';
         break;
-      case "parking":
-        typeTitle = "Зогсоол";
+      case 'parking':
+        typeTitle = 'Зогсоол';
         break;
-      case "pharmacy":
-        typeTitle = "Эмийн сан";
+      case 'pharmacy':
+        typeTitle = 'Эмийн сан';
         break;
-      case "districtTown":
-        typeTitle = "Дүүргийн байрны мэдээлэл";
+      case 'districtTown':
+        typeTitle = 'Дүүргийн байрны мэдээлэл';
         break;
     }
     const trigger = (
@@ -68,7 +68,7 @@ class Home extends React.Component<Props, State> {
         Add
       </Button>
     );
-    const content = (formProps) => {
+    const content = formProps => {
       return (
         <React.Fragment>
           <Form type={type} refetch={refetch} {...formProps} />
@@ -93,16 +93,25 @@ class Home extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__("Neighbor")}
+            title={__('Neighbor')}
             breadcrumb={[
-              { title: __("Settings"), link: "/settings" },
-              { title: __("Neighbor") },
+              { title: __('Settings'), link: '/settings' },
+              { title: __('Neighbor') }
             ]}
           />
         }
         content={<List type={type} data={data} refetch={refetch} />}
         leftSidebar={this.renderGategory()}
-        actionBar={<Wrapper.ActionBar right={this.renderAdd()} />}
+        actionBar={
+          <Wrapper.ActionBar
+            right={this.renderAdd()}
+            withMargin
+            wide
+            background="colorWhite"
+          />
+        }
+        hasBorder
+        noPadding
       ></Wrapper>
     );
   }

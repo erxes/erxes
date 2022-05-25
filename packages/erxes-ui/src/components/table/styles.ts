@@ -31,6 +31,11 @@ const StyledTable = styledTS<{
       & ${FormLabel}, & ${Input} {
         margin: 0px;
       }
+
+      &:first-child {
+        padding-left: 0;
+      }
+
     }
 
     thead {
@@ -42,7 +47,7 @@ const StyledTable = styledTS<{
 
       th {
         background-color: ${colors.colorWhite};
-          margin-left: 20px;
+        margin-left: 20px;
         position: sticky;
         z-index: 1;
         top: 0;
@@ -95,7 +100,7 @@ const StyledTable = styledTS<{
       td {
         padding: ${props =>
           props.wideHeader
-            ? `${dimensions.unitSpacing + 2}px 0`
+            ? `${dimensions.unitSpacing + 2}px`
             : `${dimensions.unitSpacing - 2}`} ${dimensions.coreSpacing - 2}px;
 
         &:last-child {

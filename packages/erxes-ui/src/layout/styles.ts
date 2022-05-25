@@ -193,7 +193,7 @@ const SidebarHeader = styledTS<{
   font-size: ${typography.fontSizeHeading8}px;
   flex-direction: row;
   justify-content: space-between;
-  margin: ${props => props.noMargin && 0};
+  margin: ${props => props.noMargin && `0px ${dimensions.coreSpacing}px`};
 `;
 
 const SidebarTitle = styledTS<{

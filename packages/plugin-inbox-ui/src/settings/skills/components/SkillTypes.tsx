@@ -105,7 +105,9 @@ function SkillTypes({
     return (
       <>
         <Header>{renderFormTrigger(trigger)}</Header>
-        <Section.Title>{__('Skill types')}</Section.Title>
+        <Section.Title noBackground noPadding noMargin>
+          {__('Skill types')}
+        </Section.Title>
       </>
     );
   }
@@ -129,7 +131,7 @@ function SkillTypes({
   }
 
   return (
-    <Sidebar wide={true} header={renderHeader()} hasBorder={true}>
+    <Sidebar wide={true} header={renderHeader()} hasBorder={true} noMargin>
       <DataWithLoader
         data={renderContent()}
         loading={loading}

@@ -15,6 +15,7 @@ import {
 } from '@erxes/ui-settings/src/skills/types';
 import SkillForm from './SkillForm';
 import SkillRow from './SkillRow';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 const breadcrumb = [
   { title: 'Settings', link: '/settings' },
@@ -79,6 +80,8 @@ function Skills(props: Props) {
         left={title}
         right={actionBarRight}
         background="colorWhite"
+        withMargin
+        wide
       />
     );
   }
@@ -148,6 +151,7 @@ function Skills(props: Props) {
       footer={<Pagination count={totalCount} />}
       hasBorder={true}
       transparent={true}
+      noPadding
     />
   );
 }
