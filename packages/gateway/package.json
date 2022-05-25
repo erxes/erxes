@@ -9,6 +9,7 @@
     "download:plugins": "yarn ts-node src/subscription/plugins/runDownloadPlugins.ts"
   },
   "dependencies": {
+    "moment": "^2.18.1",
     "faker": "^4.1.0",
     "meteor-random": "^0.0.3",
     "strip": "^3.0.0",

@@ -32,7 +32,7 @@ export interface IEmailParams {
  * Read contents of a file
  */
 export const readFile = (filename: string) => {
-  let folder = 'dist';
+  let folder = 'dist/core/src';
 
   if (process.env.NODE_ENV !== 'production') {
     folder = 'src';
@@ -98,7 +98,8 @@ export const sendEmail = async (
     '',
     models
   );
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
+
+  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
   // do not send email it is running in test mode
   if (NODE_ENV === 'test') {

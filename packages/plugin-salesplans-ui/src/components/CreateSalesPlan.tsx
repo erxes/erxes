@@ -23,6 +23,8 @@ type Props = {
 };
 
 function CreateSalesPlan1({ closeModal, save, units, branches }: Props) {
+  console.log('units', units);
+
   const [salesPlan, setSalesPlan] = useState({
     type: '',
     branchId: '',

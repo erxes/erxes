@@ -33,9 +33,9 @@ function Welcome({ currentUser }: Props) {
     currentUser.onboardingHistory &&
     currentUser.onboardingHistory.completedSteps;
 
-  let active = 0;
+  let active = 1;
 
-  if (currentUser.username && currentUser.email) active = 1;
+  if (currentUser.username && currentUser.email) active = 2;
 
   if (
     (completedSteps && completedSteps.indexOf('generalSettingsCreate') > -1) ||
@@ -43,30 +43,30 @@ function Welcome({ currentUser }: Props) {
       currentUser.configs.dealCurrency.length !== 0) ||
     (currentUser.configs.dealUOM && currentUser.configs.dealUOM.length !== 0)
   )
-    active = 2;
+    active = 3;
 
-  if (currentUser.brands!.length !== 0) active = 3;
+  if (currentUser.brands!.length !== 0) active = 4;
 
   if (completedSteps && completedSteps.indexOf('userGroupCreate') > -1)
-    active = 4;
+    active = 5;
 
-  if (completedSteps && completedSteps.indexOf('userCreate') > -1) active = 5;
+  if (completedSteps && completedSteps.indexOf('userCreate') > -1) active = 6;
 
-  Object.keys(currentUser.configs).map((value: string) => {
-    if (
-      value.includes('AWS') ||
-      value.includes('GOOGLE') ||
-      value.includes('COMPANY') ||
-      value.includes('FILE') ||
-      value.includes('MAIL') ||
-      value.includes('EMAIL') ||
-      value.includes('WIDGETS') ||
-      value.includes('UPLOAD')
-    ) {
-      active = 6;
-      return;
-    }
-  });
+  // Object.keys(currentUser.configs).map((value: string) => {
+  //   if (
+  //     value.includes('AWS') ||
+  //     value.includes('GOOGLE') ||
+  //     value.includes('COMPANY') ||
+  //     value.includes('FILE') ||
+  //     value.includes('MAIL') ||
+  //     value.includes('EMAIL') ||
+  //     value.includes('WIDGETS') ||
+  //     value.includes('UPLOAD')
+  //   ) {
+  //     active = 7;
+  //     return;
+  //   }
+  // });
 
   const renderUserName = () => {
     if (!currentUser) {
@@ -167,23 +167,23 @@ function Welcome({ currentUser }: Props) {
 
   const renderSetup = () => {
     return (
-      <Steps type="stepperColumn" active={active}>
-        <Step type="stepper" title="General Information">
-          <Button size="large" onClick={() => history.push('/profile')}>
+      <Steps direction="vertical" active={active}>
+        <Step title="General Information">
+          <Button size="small" onClick={() => history.push('/profile')}>
             Go to your profile
           </Button>
         </Step>
-        <Step type="stepper" title="General system configuration">
+        <Step title="General system configuration">
           <Button
-            size="large"
+            size="small"
             onClick={() => history.push('/settings/general')}
           >
             Go to the general setting
           </Button>
         </Step>
-        <Step type="stepper" title="Create a brand">
+        <Step title="Create a brand">
           <Button
-            size="large"
+            size="small"
             onClick={() =>
               history.push('/settings/brands#showBrandAddModal=true')
             }
@@ -191,22 +191,22 @@ function Welcome({ currentUser }: Props) {
             Go to the brand settings
           </Button>
         </Step>
-        <Step type="stepper" title="Create a user group">
+        <Step title="Create a user group">
           <Button
-            size="large"
+            size="small"
             onClick={() => history.push('/settings/permissions')}
           >
             Go to permissions
           </Button>
         </Step>
-        <Step type="stepper" title="Invite team members">
-          <Button size="large" onClick={() => history.push('/settings/team')}>
+        <Step title="Invite team members">
+          <Button size="small" onClick={() => history.push('/settings/team')}>
             Go to team members
           </Button>
         </Step>
-        <Step type="stepper" title="Connecting service">
+        <Step title="Connecting service">
           <Button
-            size="large"
+            size="small"
             onClick={() => history.push('/settings/general')}
           >
             Go to the general settings

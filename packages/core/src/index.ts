@@ -37,6 +37,7 @@ import init from './startup';
 import forms from './forms';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import segments from './segments';
 
 // load environment variables
 dotenv.config();
@@ -93,7 +94,7 @@ app.get(
       return res.send('no owner');
     }
 
-    if (req.query) {
+    if (req.query && req.query.update) {
       const services = await getServices();
 
       for (const serviceName of services) {
@@ -267,7 +268,11 @@ httpServer.listen(PORT, async () => {
     port: PORT,
     dbConnectionString: MONGO_URL,
     hasSubscriptions: false,
-    meta: { logs: { providesActivityLog: true, consumers: logs }, forms }
+    meta: {
+      logs: { providesActivityLog: true, consumers: logs },
+      forms,
+      segments
+    }
   });
 
   debugInit(`GraphQL Server is now running on ${PORT}`);

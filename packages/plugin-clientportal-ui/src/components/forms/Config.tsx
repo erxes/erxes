@@ -63,13 +63,27 @@ function General({ googleCredentials, otpConfig, handleFormChange }: Props) {
     }
 
     const handleChange = (e: React.FormEvent) => {
-      let content = (e.currentTarget as HTMLInputElement).value;
+      let obj = config;
 
-      if (!content || !content.length) {
-        content = '{{code}}';
+      const key = e.currentTarget.id;
+      const value = (e.currentTarget as HTMLInputElement).value;
+
+      obj[key] = value;
+
+      if (key === 'content') {
+        let content = value;
+
+        if (!content || !content.length) {
+          content = '{{code}}';
+        }
+        obj.content = content;
       }
 
-      setConfig({ ...config, content });
+      if (key === 'codeLength') {
+        obj[key] = parseInt(value);
+      }
+
+      setConfig({ ...obj });
 
       handleFormChange('otpConfig', config);
     };
@@ -81,9 +95,25 @@ function General({ googleCredentials, otpConfig, handleFormChange }: Props) {
           <p>OTP message body</p>
           <FlexContent>
             <FormControl
+              id="content"
               name="content"
               value={config.content}
               onChange={handleChange}
+            />
+          </FlexContent>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>OTP code length</ControlLabel>
+          <p>OTP code length</p>
+          <FlexContent>
+            <FormControl
+              id="codeLength"
+              name="codeLength"
+              value={config.codeLength}
+              onChange={handleChange}
+              type={'number'}
+              min={4}
             />
           </FlexContent>
         </FormGroup>

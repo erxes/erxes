@@ -47,6 +47,7 @@ export const commonFields = `
     smsTransporterType
     emailTransporterType
     content
+    codeLength
   }
 `;
 

@@ -35,6 +35,7 @@ class Form extends React.Component<Props, State> {
     const { __typename = '', ...otp }: any = formValues.otpConfig || {
       smsTransporterType: '',
       emailTransporterType: '',
+      codeLength: 4,
       content: 'Your verification code is {{code}}'
     };
 

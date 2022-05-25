@@ -89,6 +89,7 @@ export interface IPipeline extends ICommonFields {
   hackScoringType?: string;
   templateId?: string;
   isCheckUser?: boolean;
+  isCheckDepartment?: boolean;
   excludeCheckUserIds?: string[];
   numberConfig?: string;
   numberSize?: string;
@@ -288,6 +289,11 @@ export const pipelineSchema = new Schema({
     type: Boolean,
     optional: true,
     label: 'Show only the users created or assigned cards'
+  }),
+  isCheckDepartment: field({
+    type: Boolean,
+    optional: true,
+    label: 'Show only the departments created or assigned cards'
   }),
   excludeCheckUserIds: field({
     type: [String],
