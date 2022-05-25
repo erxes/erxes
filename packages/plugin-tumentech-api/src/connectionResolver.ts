@@ -1,3 +1,6 @@
+import { IStaticRouteDocument } from './models/definitions/staticRoutes';
+import { IRouteOptionModel } from './models/RouteOptions';
+import { IStaticRouteModel, loadStaticRouteClass } from './models/StaticRoutes';
 import * as mongoose from 'mongoose';
 import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
@@ -23,6 +26,8 @@ export interface IModels {
   CarCategories: ICarCategoryModel;
   ProductCarCategories: IProductCarCategoryModel;
   Participants: IParticipantModel;
+  StaticRoutes: IStaticRouteModel;
+  RouteOptions: IRouteOptionModel;
 }
 
 export interface IContext extends IMainContext {
@@ -65,6 +70,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Participants = db.model<IParticipantDocument, IParticipantModel>(
     'participants',
     loadParticipantClass(models)
+  );
+
+  models.StaticRoutes = db.model<IStaticRouteDocument, IStaticRouteModel>(
+    'static_routes',
+    loadStaticRouteClass(models)
   );
 
   return models;
