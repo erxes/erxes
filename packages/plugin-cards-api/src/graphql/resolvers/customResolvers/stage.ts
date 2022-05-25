@@ -1,23 +1,27 @@
-import { IContext } from "../../../connectionResolver";
-import { IStageDocument } from "../../../models/definitions/boards";
+import { IContext } from '../../../connectionResolver';
+import { IStageDocument } from '../../../models/definitions/boards';
 import {
   BOARD_STATUSES,
   BOARD_TYPES,
-  VISIBLITIES,
-} from "../../../models/definitions/constants";
+  VISIBLITIES
+} from '../../../models/definitions/constants';
 import {
   generateDealCommonFilters,
   generateGrowthHackCommonFilters,
   generateTaskCommonFilters,
-  generateTicketCommonFilters,
-} from "../queries/utils";
+  generateTicketCommonFilters
+} from '../queries/utils';
 
 export default {
+  __resolveReference({ _id }, { models }: IContext) {
+    return models.Stages.findOne({ _id });
+  },
+
   members(stage: IStageDocument, {}) {
     if (stage.visibility === VISIBLITIES.PRIVATE && stage.memberIds) {
       return stage.memberIds.map(memberId => ({
-        __typename: "User",
-        _id: memberId,
+        __typename: 'User',
+        _id: memberId
       }));
     }
 
@@ -43,27 +47,27 @@ export default {
 
       const amountList = await models.Deals.aggregate([
         {
-          $match: filter,
+          $match: filter
         },
         {
-          $unwind: "$productsData",
+          $unwind: '$productsData'
         },
         {
           $project: {
-            amount: "$productsData.amount",
-            currency: "$productsData.currency",
-            tickUsed: "$productsData.tickUsed",
-          },
+            amount: '$productsData.amount',
+            currency: '$productsData.currency',
+            tickUsed: '$productsData.tickUsed'
+          }
         },
         {
-          $match: { tickUsed: true },
+          $match: { tickUsed: true }
         },
         {
           $group: {
-            _id: "$currency",
-            amount: { $sum: "$amount" },
-          },
-        },
+            _id: '$currency',
+            amount: { $sum: '$amount' }
+          }
+        }
       ]);
 
       amountList.forEach(item => {
@@ -115,7 +119,7 @@ export default {
           {
             ...args,
             stageId: stage._id,
-            pipelineId: stage.pipelineId,
+            pipelineId: stage.pipelineId
           },
           args.extraParams
         );
@@ -168,47 +172,47 @@ export default {
   ) {
     const filter = {
       pipelineId: stage.pipelineId,
-      probability: { $ne: "Lost" },
-      _id: { $ne: stage._id },
+      probability: { $ne: 'Lost' },
+      _id: { $ne: stage._id }
     };
 
     const deals = await Stages.aggregate([
       {
-        $match: filter,
+        $match: filter
       },
       {
         $lookup: {
-          from: "deals",
-          let: { stageId: "$_id" },
+          from: 'deals',
+          let: { stageId: '$_id' },
           pipeline: [
             {
               $match: {
                 $expr: {
                   $and: [
-                    { $eq: ["$stageId", "$$stageId"] },
-                    { $ne: ["$status", BOARD_STATUSES.ARCHIVED] },
-                  ],
-                },
-              },
-            },
+                    { $eq: ['$stageId', '$$stageId'] },
+                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
+                  ]
+                }
+              }
+            }
           ],
-          as: "deals",
-        },
+          as: 'deals'
+        }
       },
       {
         $project: {
           name: 1,
-          deals: 1,
-        },
+          deals: 1
+        }
       },
       {
-        $unwind: "$deals",
+        $unwind: '$deals'
       },
       {
         $match: {
-          "deals.initialStageId": stage._id,
-        },
-      },
+          'deals.initialStageId': stage._id
+        }
+      }
     ]);
 
     return deals.length;
@@ -228,7 +232,7 @@ export default {
         ...args,
         initialStageId: stage._id,
         stageId: stage._id,
-        pipelineId: stage.pipelineId,
+        pipelineId: stage.pipelineId
       },
       args.extraParams
     );
@@ -251,60 +255,60 @@ export default {
 
     const filter = {
       order: { $in: [order, order + 1] },
-      probability: { $ne: "Lost" },
-      pipelineId: stage.pipelineId,
+      probability: { $ne: 'Lost' },
+      pipelineId: stage.pipelineId
     };
 
     const stages = await Stages.aggregate([
       {
-        $match: filter,
+        $match: filter
       },
       {
         $lookup: {
-          from: "deals",
-          let: { stageId: "$_id" },
+          from: 'deals',
+          let: { stageId: '$_id' },
           pipeline: [
             {
               $match: {
                 $expr: {
                   $and: [
-                    { $eq: ["$stageId", "$$stageId"] },
-                    { $ne: ["$status", BOARD_STATUSES.ARCHIVED] },
-                  ],
-                },
-              },
-            },
+                    { $eq: ['$stageId', '$$stageId'] },
+                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
+                  ]
+                }
+              }
+            }
           ],
-          as: "currentDeals",
-        },
+          as: 'currentDeals'
+        }
       },
       {
         $lookup: {
-          from: "deals",
-          let: { stageId: "$_id" },
+          from: 'deals',
+          let: { stageId: '$_id' },
           pipeline: [
             {
               $match: {
                 $expr: {
                   $and: [
-                    { $eq: ["$initialStageId", "$$stageId"] },
-                    { $ne: ["$status", BOARD_STATUSES.ARCHIVED] },
-                  ],
-                },
-              },
-            },
+                    { $eq: ['$initialStageId', '$$stageId'] },
+                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
+                  ]
+                }
+              }
+            }
           ],
-          as: "initialDeals",
-        },
+          as: 'initialDeals'
+        }
       },
       {
         $project: {
           order: 1,
-          currentDealCount: { $size: "$currentDeals" },
-          initialDealCount: { $size: "$initialDeals" },
-        },
+          currentDealCount: { $size: '$currentDeals' },
+          initialDealCount: { $size: '$initialDeals' }
+        }
       },
-      { $sort: { order: 1 } },
+      { $sort: { order: 1 } }
     ]);
 
     if (stages.length === 2) {
@@ -314,5 +318,5 @@ export default {
     }
 
     return result;
-  },
+  }
 };
