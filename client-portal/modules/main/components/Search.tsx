@@ -1,10 +1,9 @@
 import React from 'react';
 import { SearchContainer } from '../../styles/main';
 import Icon from '../../common/Icon';
-import { setParams } from '../../common/routerUtils';
 
 type Props = {
-  history: any;
+  setQueryParam: any;
 };
 
 type State = {
@@ -41,29 +40,26 @@ export default class Search extends React.Component<Props, State> {
   };
 
   onSearch = () => {
-    const { history } = this.props;
+    const { setQueryParam } = this.props;
     const { searchValue } = this.state;
 
-    setParams(history, { searchValue });
+    setQueryParam('searchValue', searchValue);
   };
 
   onKeyDown = (e) => {
-    const { history } = this.props;
     const { searchValue } = this.state;
 
     if (e.key === "Enter") {
-      setParams(history, { searchValue });
+      this.onSearch();
     }
   };
 
   clearSearch = () => {
-    const { history } = this.props;
-
     this.setState({
       searchValue: "",
     });
 
-    setParams(history, { searchValue: "" });
+    this.onSearch();
   };
 
   onFocus = () => {
