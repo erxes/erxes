@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { __, FormControl, formatValue } from '@erxes/ui/src';
+import { __, FormControl, formatValue, TextInfo } from '@erxes/ui/src';
 import React from 'react';
 import { FlexItem } from '../../styles';
 import { ICar, IProductCategory } from '../../types';
@@ -14,13 +14,18 @@ type Props = {
   productCategories: IProductCategory[];
   product?: IProductCategory;
   columnsConfig: IConfigColumn[];
+  index: number;
 };
 
-function displayValue(car, name) {
+function displayValue(car, name, index) {
   const value = _.get(car, name);
 
   if (name === 'primaryName') {
     return <FlexItem>{formatValue(car.primaryName)}</FlexItem>;
+  }
+
+  if (name === '#') {
+    return <TextInfo>{index.toString()}</TextInfo>;
   }
 
   return formatValue(value);
@@ -32,7 +37,7 @@ function CarRow({
   isChecked,
   toggleBulk,
   columnsConfig,
-  productCategories
+  index
 }: Props) {
   const onChange = e => {
     if (toggleBulk) {
@@ -57,10 +62,10 @@ function CarRow({
           onChange={onChange}
         />
       </td>
-      {(columnsConfig || []).map(({ name }, index) => (
-        <td key={index}>
+      {(columnsConfig || []).map(({ name }, i) => (
+        <td key={i}>
           <ClickableRow onClick={onTdClick}>
-            {displayValue(car, name)}
+            {displayValue(car, name, index)}
           </ClickableRow>
         </td>
       ))}
