@@ -17,6 +17,7 @@ const getByHost = async (models, requestInfo) => {
   });
 
   if (!config) {
+    console.log(pattern, requestInfo);
     throw new Error('Not found');
   }
 
