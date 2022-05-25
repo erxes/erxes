@@ -11,6 +11,7 @@ import {
 import { graphql } from 'react-apollo';
 import { queries } from '@erxes/ui-forms/src/forms/graphql';
 import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const generateItemCustomFields = items =>
   (items || []).map(item => ({
@@ -97,12 +98,14 @@ export default withProps<Props>(
       name: 'combinedFieldsQuery',
       options: () => ({
         variables: {
-          contentType: 'customer'
+          contentType: 'contacts:customer'
         }
-      })
+      }),
+      skip: !isEnabled('forms')
     }),
     graphql<Props>(gql(fieldQueries.cardsFields), {
-      name: 'cardsFieldsQuery'
+      name: 'cardsFieldsQuery',
+      skip: !isEnabled('cards')
     })
   )(EditorContainer)
 );
