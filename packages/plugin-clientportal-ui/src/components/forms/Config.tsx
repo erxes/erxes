@@ -22,8 +22,6 @@ type ControlItem = {
 };
 
 function General({ googleCredentials, otpConfig, handleFormChange }: Props) {
-  const [config, setConfig] = useState<OTPConfig>(otpConfig);
-
   function renderControl({
     required,
     label,
@@ -58,12 +56,12 @@ function General({ googleCredentials, otpConfig, handleFormChange }: Props) {
   }
 
   const renderContent = () => {
-    if (!config || !config.smsTransporterType) {
+    if (!otpConfig || !otpConfig.smsTransporterType) {
       return;
     }
 
     const handleChange = (e: React.FormEvent) => {
-      let obj = config;
+      let obj = otpConfig;
 
       const key = e.currentTarget.id;
       const value = (e.currentTarget as HTMLInputElement).value;
@@ -83,9 +81,7 @@ function General({ googleCredentials, otpConfig, handleFormChange }: Props) {
         obj[key] = parseInt(value);
       }
 
-      setConfig({ ...obj });
-
-      handleFormChange('otpConfig', config);
+      handleFormChange('otpConfig', otpConfig);
     };
 
     return (
@@ -97,7 +93,7 @@ function General({ googleCredentials, otpConfig, handleFormChange }: Props) {
             <FormControl
               id="content"
               name="content"
-              value={config.content}
+              value={otpConfig.content}
               onChange={handleChange}
             />
           </FlexContent>
@@ -110,7 +106,7 @@ function General({ googleCredentials, otpConfig, handleFormChange }: Props) {
             <FormControl
               id="codeLength"
               name="codeLength"
-              value={config.codeLength}
+              value={otpConfig.codeLength}
               onChange={handleChange}
               type={'number'}
               min={4}
@@ -122,7 +118,9 @@ function General({ googleCredentials, otpConfig, handleFormChange }: Props) {
   };
 
   const onChangeConfiguration = option => {
-    setConfig({ ...config, smsTransporterType: option.value });
+    // setConfig({ ...config, smsTransporterType: option.value });
+    otpConfig.smsTransporterType = option.value;
+    handleFormChange('otpConfig', otpConfig);
   };
 
   return (
@@ -131,7 +129,7 @@ function General({ googleCredentials, otpConfig, handleFormChange }: Props) {
         <ControlLabel>Sms Configuration</ControlLabel>
         <Select
           placeholder="Choose a configuration"
-          value={config.smsTransporterType}
+          value={otpConfig.smsTransporterType}
           options={CONFIGURATIONS}
           name="SMS Configuration"
           onChange={onChangeConfiguration}
