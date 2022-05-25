@@ -9,10 +9,7 @@ import { ChildProps, graphql } from 'react-apollo';
 import SelectProperty from '../components/SelectProperty';
 import { mutations, queries } from '../graphql';
 import { IField } from '@erxes/ui/src/types';
-import {
-  FieldsGroupsQueryResponse,
-  FieldsQueryResponse,
-} from '../types';
+import { FieldsGroupsQueryResponse, FieldsQueryResponse } from '../types';
 
 type Props = {
   queryParams: any;
@@ -32,7 +29,7 @@ const SelectPropertyContainer = (props: ChildProps<FinalProps>) => {
 
   let properties = propertiesQuery.fields || [];
 
-  if (queryParams.type === 'customer') {
+  if (queryParams.type === 'contacts:customer') {
     properties = properties.filter(e => {
       if (
         [
@@ -61,7 +58,7 @@ const SelectPropertyContainer = (props: ChildProps<FinalProps>) => {
     properties = properties.concat(links);
   }
 
-  if (queryParams.type === 'company') {
+  if (queryParams.type === 'contacts:company') {
     properties = properties.filter(e => {
       if (
         [
@@ -116,7 +113,7 @@ const SelectPropertyContainer = (props: ChildProps<FinalProps>) => {
         variables={values}
         callback={callBackResponse}
         isSubmitted={isSubmitted}
-        type='submit'
+        type="submit"
         successMessage={`You successfully added a ${name}`}
       />
     );

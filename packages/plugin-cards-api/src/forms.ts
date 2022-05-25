@@ -1,20 +1,20 @@
-import { generateFields } from "./fieldUtils";
-import { getBoardsAndPipelines } from "./utils";
+import { generateFields } from './fieldUtils';
+import { getBoardsAndPipelines } from './utils';
 
 export default {
   types: [
     {
-      description: "Tickets",
-      type: "ticket",
+      description: 'Tickets',
+      type: 'ticket'
     },
     {
-      description: "Tasks",
-      type: "task",
+      description: 'Tasks',
+      type: 'task'
     },
     {
-      description: "Sales pipelines",
-      type: "deal",
-    },
+      description: 'Sales pipelines',
+      type: 'deal'
+    }
   ],
   fields: generateFields,
   groupsFilter: async ({ data: { config, contentType } }) => {
@@ -31,29 +31,29 @@ export default {
         {
           $or: [
             {
-              "config.boardId": boardId,
+              'config.boardIds': boardId
             },
             {
-              "config.boardId": {
-                $size: 0,
-              },
-            },
-          ],
+              'config.boardIds': {
+                $size: 0
+              }
+            }
+          ]
         },
         {
           $or: [
             {
-              "config.pipelineIds": pipelineId,
+              'config.pipelineIds': pipelineId
             },
             {
-              "config.pipelineIds": {
-                $size: 0,
-              },
-            },
-          ],
-        },
-      ],
+              'config.pipelineIds': {
+                $size: 0
+              }
+            }
+          ]
+        }
+      ]
     };
   },
-  fieldsGroupsHook: ({ data }) => getBoardsAndPipelines(data) 
+  fieldsGroupsHook: ({ data }) => getBoardsAndPipelines(data)
 };

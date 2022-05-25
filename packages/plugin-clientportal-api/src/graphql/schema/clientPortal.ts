@@ -30,12 +30,14 @@ ${
 
   type OTPConfig{
     content: String
+    codeLength: Int
     smsTransporterType: String
     emailTransporterType: String
   }
 
   input OTPConfigInput {
     content: String
+    codeLength: Int
     smsTransporterType: String
     emailTransporterType: String
   }

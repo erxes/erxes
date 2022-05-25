@@ -84,6 +84,16 @@ const getMonthPlanConfig = `
   }
 `;
 
+const getYearPlanConfig = `
+  query getYearPlanConfig($salesLogId: String) {
+    getYearPlanConfig(salesLogId: $salesLogId) {
+      _id,
+      labelIds,
+      day
+    }
+  }
+`;
+
 const products = `
   query products {
     products {
@@ -100,6 +110,7 @@ export default {
   getSalesLogs,
   getMonthPlanConfig,
   getDayPlanConfig,
+  getYearPlanConfig,
   products,
   units
 };

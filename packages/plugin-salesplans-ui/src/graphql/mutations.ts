@@ -60,7 +60,7 @@ const createSalesLog = `
 `;
 
 const saveTimeframes = `
-  mutation saveTimeframes($update: [DayConfigInput], $add: [AddDayConfigInput]) {
+  mutation saveTimeframes($update: [TimeframeInput], $add: [AddTimeframeInput]) {
     saveTimeframes(update: $update, add: $add){
       _id
     }
@@ -76,6 +76,9 @@ const removeTimeframe = `
 const saveDayPlanConfig = `
   mutation saveDayPlanConfig($salesLogId: String, $data: JSON) {
     saveDayPlanConfig(salesLogId: $salesLogId, data: $data)
+    {
+      _id
+    }
   }
 `;
 
@@ -93,6 +96,14 @@ const saveMonthPlanConfig = `
   }
 `;
 
+const saveYearPlanConfig = `
+  mutation saveYearPlanConfig ($salesLogId: String, $data: JSON){
+    saveYearPlanConfig(salesLogId: $salesLogId, data: $data){
+      _id
+    }
+  }
+`;
+
 export default {
   removeLabel,
   saveLabels,
@@ -101,5 +112,6 @@ export default {
   removeTimeframe,
   saveDayPlanConfig,
   removeSalesLog,
-  saveMonthPlanConfig
+  saveMonthPlanConfig,
+  saveYearPlanConfig
 };
