@@ -452,7 +452,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
     }
 
     static generateVerificationCode() {
-      return randomize('0', 6);
+      return randomize('0', 4);
     }
 
     public static async imposeVerificationCode({
