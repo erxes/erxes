@@ -119,7 +119,7 @@ function Header({
         <HeaderTop>
           <HeaderLogo>
             <Link href="/">
-              <img src={config.logo ? readFile(config.logo) : "/static/logos/erxes-logo-white.svg"} />
+              <img src={readFile(config.logo)} />
             </Link>
             <HeaderTitle>{config.name}</HeaderTitle>
           </HeaderLogo>
