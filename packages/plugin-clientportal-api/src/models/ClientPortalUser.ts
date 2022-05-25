@@ -394,6 +394,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
       await models.ClientPortalUsers.findByIdAndUpdate(
         { _id: user._id },
         {
+          isPhoneVerified: true,
           password: await this.generatePassword(password)
         }
       );
