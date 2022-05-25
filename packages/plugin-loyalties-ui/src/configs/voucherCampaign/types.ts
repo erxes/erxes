@@ -1,30 +1,31 @@
-import { ICommonTypes } from "../../types";
+import { ICommonTypes } from '../../types';
 
 export interface IVoucherCampaign extends ICommonTypes {
-  buyScore?: number,
+  _id?: string;
+  buyScore?: number;
 
-  score?: number,
-  scoreAction?: string,
+  score?: number;
+  scoreAction?: string;
 
-  voucherType?: string,
+  voucherType: string;
 
-  productCategoryIds?: string[],
-  productIds?: string[],
-  discountPercent?: number,
+  productCategoryIds?: string[];
+  productIds?: string[];
+  discountPercent?: number;
 
-  bonusProductId?: string,
-  bonusCount?: number,
+  bonusProductId?: string;
+  bonusCount?: number;
 
-  coupon?: string,
+  coupon?: string;
 
-  spinCampaignId?: string,
-  spinCount?: number,
+  spinCampaignId?: string;
+  spinCount?: number;
 
-  lotteryCampaignId?: string,
-  lotteryCount?: number,
+  lotteryCampaignId?: string;
+  lotteryCount?: number;
 
-  vouchersCount?: number,
-};
+  vouchersCount?: number;
+}
 
 // query types
 export type VoucherCampaignQueryResponse = {
@@ -49,4 +50,4 @@ export type VoucherCampaignRemoveMutationResponse = {
   voucherCampaignsRemove: (mutation: {
     variables: { _ids: string[] };
   }) => Promise<any>;
-}
+};

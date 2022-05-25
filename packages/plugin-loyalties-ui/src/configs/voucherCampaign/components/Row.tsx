@@ -1,4 +1,9 @@
-import { FormControl, TextInfo, ModalTrigger, Icon } from '@erxes/ui/src/components';
+import {
+  FormControl,
+  TextInfo,
+  ModalTrigger,
+  Icon
+} from '@erxes/ui/src/components';
 import React from 'react';
 import { VOUCHER_TYPES } from '../../../constants';
 import Form from '../containers/Form';
@@ -19,11 +24,9 @@ class Row extends React.Component<Props> {
     const updatedProps = {
       ...props,
       voucherCampaign
-    }
+    };
 
-    return (
-      <Form {...updatedProps} />
-    )
+    return <Form {...updatedProps} />;
   };
 
   render() {
@@ -46,7 +49,7 @@ class Row extends React.Component<Props> {
       startDate,
       endDate,
       finishDateOfUse,
-      status,
+      status
     } = voucherCampaign;
 
     const trigger = (
@@ -62,17 +65,17 @@ class Row extends React.Component<Props> {
         <td>{new Date(startDate).toLocaleDateString()}</td>
         <td>{new Date(endDate).toLocaleDateString()}</td>
         <td>{new Date(finishDateOfUse).toLocaleDateString()}</td>
-        <td>{VOUCHER_TYPES[voucherType].label}</td>
+        <td>{(VOUCHER_TYPES[voucherType] || {}).label}</td>
         <td>
           <TextInfo>{status}</TextInfo>
         </td>
         <td onClick={onClick}>
           <Link to={`/vouchers?campaignId=${_id}`}>
-            <Icon icon='list-2' />
+            <Icon icon="list-2" />
           </Link>
         </td>
       </tr>
-    )
+    );
 
     return (
       <ModalTrigger
@@ -82,7 +85,6 @@ class Row extends React.Component<Props> {
         autoOpenKey="showProductModal"
         content={this.modalContent}
       />
-
     );
   }
 }

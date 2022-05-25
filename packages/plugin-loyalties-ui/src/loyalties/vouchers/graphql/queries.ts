@@ -1,4 +1,8 @@
-import { commonFields, commonParamsDef, commonParamsValue } from '../../common/graphq';
+import {
+  commonFields,
+  commonParamsDef,
+  commonParamsValue
+} from '../../common/graphq';
 
 export const voucherFields = `
   ${commonFields}
@@ -33,11 +37,11 @@ export const vouchersMain = `
   }
 `;
 
-
 const voucherDetail = `
   query voucherDetail($_id: String!) {
     voucherDetail(_id: $_id) {
       ${voucherFields}
+      campaign
     }
   }
 `;
@@ -45,5 +49,5 @@ const voucherDetail = `
 export default {
   vouchers,
   vouchersMain,
-  voucherDetail,
+  voucherDetail
 };

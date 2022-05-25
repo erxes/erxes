@@ -84,6 +84,11 @@ class SpinForm extends React.Component<Props, State> {
     );
   };
 
+  onChangeCampaign = value => {
+    const { spin } = this.state;
+    this.setState({ spin: { ...spin, campaignId: value } });
+  };
+
   onChangeSelect = e => {
     const { spin } = this.state;
     const target = e.currentTarget as HTMLInputElement;
@@ -150,7 +155,7 @@ class SpinForm extends React.Component<Props, State> {
               customQuery={queries.spinCampaigns}
               label="Choose spin campaign"
               name="campaignId"
-              onSelect={this.onChangeSelect}
+              onSelect={this.onChangeCampaign}
               initialValue={spin.campaignId}
             />
           </FormGroup>

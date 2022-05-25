@@ -83,6 +83,11 @@ class VoucherForm extends React.Component<Props, State> {
     );
   };
 
+  onChangeCampaign = value => {
+    const { voucher } = this.state;
+    this.setState({ voucher: { ...voucher, campaignId: value } });
+  };
+
   onChangeSelect = e => {
     const { voucher } = this.state;
     const target = e.currentTarget as HTMLInputElement;
@@ -149,7 +154,7 @@ class VoucherForm extends React.Component<Props, State> {
               customQuery={campaignQueries.voucherCampaigns}
               label="Choose voucher campaign"
               name="campaignId"
-              onSelect={this.onChangeSelect}
+              onSelect={this.onChangeCampaign}
               initialValue={voucher.campaignId}
               filterParams={
                 voucher._id ? { equalTypeCampaignId: voucher.campaignId } : {}
