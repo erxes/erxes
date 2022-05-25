@@ -114,7 +114,7 @@ class ManageColumns extends React.Component<Props, State> {
     return (
       <form onSubmit={this.onSubmit}>
         <Header>
-          <span>{__('Column nameeee')}</span>
+          <span>{__('Column name')}</span>
           <span>{__('Visible')}</span>
         </Header>
         <ScrollWrapper calcHeight="320">
