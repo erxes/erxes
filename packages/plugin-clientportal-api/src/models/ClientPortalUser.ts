@@ -479,27 +479,32 @@ export const loadClientPortalUserClass = (models: IModels) => {
       email?: string;
       isRessetting?: boolean;
     }) {
-      const user = await models.ClientPortalUsers.findOne({
-        $or: [{ phone }, { email }]
-      });
-
       const code = this.generateVerificationCode(codeLength);
       const codeExpires = Date.now() + 60000 * 5;
 
-      if (!user) {
-        throw new Error('User not found');
-      }
+      let query: any = {};
+      let userFindQuery: any = {};
 
-      let query: any = {
-        phoneVerificationCode: code,
-        phoneVerificationCodeExpires: codeExpires
-      };
+      if (phone) {
+        query = {
+          phoneVerificationCode: code,
+          phoneVerificationCodeExpires: codeExpires
+        };
+        userFindQuery = { phone };
+      }
 
       if (email) {
         query = {
           emailVerificationCode: code,
           emailVerificationCodeExpires: codeExpires
         };
+        userFindQuery = { email };
+      }
+
+      const user = await models.ClientPortalUsers.findOne(userFindQuery);
+
+      if (!user) {
+        throw new Error('User not found');
       }
 
       if (isRessetting) {
