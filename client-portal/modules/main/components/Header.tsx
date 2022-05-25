@@ -3,7 +3,7 @@ import { withRouter } from "next/router";
 import React, { useState } from "react";
 import Icon from "../../common/Icon";
 import Modal from "../../common/Modal";
-import { getConfigColor } from "../../common/utils";
+import { getConfigColor, readFile } from "../../common/utils";
 import {
   Container,
   Header as Head,
@@ -119,7 +119,7 @@ function Header({
         <HeaderTop>
           <HeaderLogo>
             <Link href="/">
-              <img src={config.logo || "/static/logos/erxes-logo-white.svg"} />
+              <img src={config.logo ? readFile(config.logo) : "/static/logos/erxes-logo-white.svg"} />
             </Link>
             <HeaderTitle>{config.name}</HeaderTitle>
           </HeaderLogo>
