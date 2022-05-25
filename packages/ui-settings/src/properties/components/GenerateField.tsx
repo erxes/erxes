@@ -312,34 +312,19 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
-  renderObjectList(keys, attrs) {
-    let { value = [] } = attrs;
-
-    if (typeof value === 'string' && value.length > 0) {
-      try {
-        value = JSON.parse(value);
-      } catch {
-        value = [];
-      }
+  renderObjectList(keys) {
+    if (!keys) {
+      return null;
     }
-
-    const { field, onValueChange } = this.props;
-
-    const onChange = (value: any[]) => {
-      if (onValueChange) {
-        this.setState({ value });
-        onValueChange({ _id: field._id, value });
-      }
-    };
 
     return (
       <>
-        <ObjectList
-          keys={keys}
-          value={value}
-          onChange={onChange}
-          isEditing={this.props.isEditing}
-        />
+        {keys.map(key => (
+          <>
+            <p>{key}</p>
+            <FormControl type="text" placeholder={key} />
+          </>
+        ))}
       </>
     );
   }
@@ -543,7 +528,8 @@ export default class GenerateField extends React.Component<Props, State> {
       }
 
       case 'objectList': {
-        return this.renderObjectList(keys, attrs);
+        attrs.name = Math.random().toString();
+        return this.renderObjectList(keys);
       }
 
       case 'map': {
@@ -572,7 +558,6 @@ export default class GenerateField extends React.Component<Props, State> {
         e[key] = '';
         return e;
       }, {});
-
       this.setState({ value: [object, ...this.state.value] });
     };
 

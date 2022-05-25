@@ -18,7 +18,6 @@ export default function ObjectListItem(props: Props) {
   };
 
   const onChange = (e: any) => {
-    console.log(e.target.id, index, 'sadasd');
     props.onChange(index, e.target.id, e.target.value);
   };
 

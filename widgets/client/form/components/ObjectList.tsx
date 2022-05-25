@@ -77,8 +77,6 @@ export default function ObjectList(props: Props) {
     );
   };
 
-  console.log(keys, 'sadasd');
-
   return (
     <>
       {(objects || []).map((object, index) => (

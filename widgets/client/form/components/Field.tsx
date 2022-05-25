@@ -12,6 +12,7 @@ import { __ } from '../../utils';
 import Map from './Map';
 import Marker from './Marker';
 import ObjectList from './ObjectList';
+import Icon from './common/Icon';
 
 type Props = {
   field: IField;
@@ -462,8 +463,6 @@ export default class Field extends React.Component<Props, State> {
       }
     }
 
-    const { field } = this.props;
-
     const onChange = (value: any[]) => {
       this.setState({ value });
       this.onChange(value);
@@ -681,7 +680,11 @@ export default class Field extends React.Component<Props, State> {
       });
     };
 
-    return <button onClick={onClick}>plus</button>;
+    return (
+      <button onClick={onClick}>
+        <Icon icon="plus-circle" />
+      </button>
+    );
   }
 
   render() {
