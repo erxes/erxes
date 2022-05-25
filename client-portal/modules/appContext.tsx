@@ -27,7 +27,6 @@ function AppProvider({ children }: Props) {
     skip: !config.knowledgeBaseTopicId
   });
 
-  
   const topic = (topicResponse.data ? topicResponse.data.clientPortalKnowledgeBaseTopicDetail : {}) || {};
 
   return (

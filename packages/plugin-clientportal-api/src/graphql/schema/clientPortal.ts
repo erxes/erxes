@@ -51,6 +51,7 @@ ${
     icon: String
     domain: String
     dnsStatus: String
+    messengerBrandCode: String
     knowledgeBaseLabel: String
     knowledgeBaseTopicId: String
     ticketLabel: String
@@ -148,6 +149,7 @@ export const mutations = cardAvailable => `
     icon: String
     url: String
     domain: String
+    messengerBrandCode: String
     knowledgeBaseLabel: String
     knowledgeBaseTopicId: String
     ticketLabel: String

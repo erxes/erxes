@@ -7,6 +7,7 @@ export const clientPortalGetConfig = `
       logo
       icon
       url
+      messengerBrandCode
       knowledgeBaseLabel
       knowledgeBaseTopicId
       taskLabel

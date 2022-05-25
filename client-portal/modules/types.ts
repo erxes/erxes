@@ -28,6 +28,8 @@ export type Config = {
   logo?: string;
   icon?: string;
   url?: string;
+
+  messengerBrandCode?: string;
   knowledgeBaseLabel?: string;
   knowledgeBaseTopicId?: string;
   taskPublicPipelineId?: string;

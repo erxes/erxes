@@ -4,10 +4,10 @@ import initApollo from "./initApollo";
 import Head from "next/head";
 import { getEnv } from "../../utils/configs";
 
-const { REACT_APP_API_DOMAIN } = getEnv();
+const { REACT_APP_DOMAIN='' } = getEnv();
 
 const SERVER_LINK_OPTIONS = {
-  uri: `${REACT_APP_API_DOMAIN}/graphql`,
+  uri: `${REACT_APP_DOMAIN}/${REACT_APP_DOMAIN.includes('https') ? '/gateway/' : ''}graphql`,
   credentials: 'include'
 };
 
