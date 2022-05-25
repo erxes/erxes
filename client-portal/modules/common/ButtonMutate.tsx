@@ -6,7 +6,7 @@ import { rotate } from "../utils/animations";
 import React from "react";
 import styled from "styled-components";
 import Button from "./Button";
-import withApolloClient from "../../pages/lib/withApolloClient";
+import withApolloClient from "../../pages/api/lib/withApolloClient";
 
 export const SmallLoader = styled.i`
   width: 13px;

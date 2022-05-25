@@ -2,7 +2,7 @@ import React from "react";
 import "react-select-plus/dist/react-select-plus.css";
 import "../styles/globals.css";
 import { ApolloProvider } from "@apollo/client";
-import withApolloClient from './lib/withApolloClient';
+import withApolloClient from './api/lib/withApolloClient';
 
 type Props = {
   pageProps: any;
