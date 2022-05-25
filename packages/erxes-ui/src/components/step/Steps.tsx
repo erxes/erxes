@@ -65,6 +65,8 @@ class Steps extends React.Component<Props, State> {
       let childrenElements = React.Children.map(
         children,
         (child: any, index: number) => {
+          if (!child) return null;
+
           headerElements.push(
             <ShortStep
               show={true}
@@ -100,16 +102,18 @@ class Steps extends React.Component<Props, State> {
       );
     }
 
-    return React.Children.map(children, (child: any, index: number) =>
-      React.cloneElement(child, {
+    return React.Children.map(children, (child: any, index: number) => {
+      if (!child) return null;
+
+      return React.cloneElement(child, {
         stepNumber: index + 1,
         active: activeStep,
         next: this.next,
         back: this.back,
         direction,
         maxStep
-      })
-    );
+      });
+    });
   };
 
   render() {

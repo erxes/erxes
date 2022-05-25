@@ -1,14 +1,14 @@
-import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
-import Button from "@erxes/ui/src/components/Button";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import Form from "@erxes/ui/src/components/form/Form";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import Toggle from "@erxes/ui/src/components/Toggle";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import React from "react";
-import { IFieldGroup } from "../types";
+import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { IFieldGroup } from '../types';
 
 type Props = {
   group?: IFieldGroup;
@@ -39,7 +39,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
     this.state = {
       config,
       isVisible,
-      isVisibleInDetail,
+      isVisibleInDetail
     };
   }
 
@@ -61,12 +61,12 @@ class PropertyGroupForm extends React.Component<Props, State> {
       contentType: type,
       isVisible: this.state.isVisible,
       isVisibleInDetail: this.state.isVisibleInDetail,
-      config,
+      config
     };
   };
 
   visibleHandler = e => {
-    if (e.target.id === "visible") {
+    if (e.target.id === 'visible') {
       const isVisible = e.target.checked;
 
       return this.setState({ isVisible });
@@ -115,7 +115,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
             onChange={this.visibleHandler}
             icons={{
               checked: <span>Yes</span>,
-              unchecked: <span>No</span>,
+              unchecked: <span>No</span>
             }}
           />
         </div>
@@ -123,8 +123,8 @@ class PropertyGroupForm extends React.Component<Props, State> {
     );
   }
 
-  onChangeConfig = config => {
-    this.setState({ config });
+  onChangeItems = boardsPipelines => {
+    this.setState({ config: { boardsPipelines } });
   };
 
   renderExtraContent() {
@@ -142,7 +142,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
             injectedProps={{
               config,
               type,
-              onChangeConfig: this.onChangeConfig,
+              onChangeItems: this.onChangeItems
             }}
           />
         );
@@ -189,7 +189,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
         {this.renderFieldVisible()}
         {this.renderExtraContent()}
 
-        {["visitor", "lead", "customer"].includes(object.contentType) ? (
+        {['visitor', 'lead', 'customer'].includes(object.contentType) ? (
           this.renderFieldVisibleInDetail()
         ) : (
           <></>
@@ -201,11 +201,11 @@ class PropertyGroupForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: "property group",
+            name: 'property group',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: group,
+            object: group
           })}
         </ModalFooter>
       </>
