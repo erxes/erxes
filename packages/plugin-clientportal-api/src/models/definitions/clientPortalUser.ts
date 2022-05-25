@@ -42,10 +42,11 @@ export const clientPortalUserSchema = new Schema({
       /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,10})+$/,
       'Please fill a valid email address'
     ],
-    label: 'Email'
+    label: 'Email',
+    optional: true
   }),
-  phone: field({ type: String, optional: true }),
-  username: field({ type: String, optional: true }),
+  phone: field({ type: String, unique: true, optional: true }),
+  username: field({ type: String, optional: true, unique: true }),
   password: field({ type: String }),
   firstName: field({ type: String, optional: true }),
   lastName: field({ type: String, optional: true }),
