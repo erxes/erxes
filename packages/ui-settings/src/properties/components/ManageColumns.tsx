@@ -48,17 +48,18 @@ class ManageColumns extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    if (props.columns.findIndex(c => c._id === '#') === -1) {
+      props.columns.push({
+        _id: '#',
+        name: '#',
+        label: '#',
+        order: 0,
+        checked: false
+      });
+    }
+
     this.state = {
-      columns: [
-        {
-          _id: '#',
-          name: '#',
-          label: '#',
-          order: 0,
-          checked: false
-        },
-        ...props.columns
-      ],
+      columns: props.columns,
       importType: 'csv'
     };
   }

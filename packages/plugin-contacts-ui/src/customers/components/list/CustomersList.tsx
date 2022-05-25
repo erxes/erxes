@@ -159,7 +159,9 @@ class CustomersList extends React.Component<IProps, State> {
       toggleBulk,
       history,
       isAllSelected,
-      isExpand
+      isExpand,
+      perPage,
+      page
     } = this.props;
 
     return (
@@ -189,9 +191,9 @@ class CustomersList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="customers" className={isExpand ? 'expand' : ''}>
-            {(customers || []).map((customer, index) => (
+            {(customers || []).map((customer, i) => (
               <CustomerRow
-                index={index}
+                index={(page - 1) * perPage + i}
                 customer={customer}
                 columnsConfig={columnsConfig}
                 key={customer._id}
