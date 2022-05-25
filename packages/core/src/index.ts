@@ -12,7 +12,6 @@ import { initApolloServer } from './apolloClient';
 import { templateExport } from './data/modules/fileExporter/templateExport';
 
 import {
-  authCookieOptions,
   deleteFile,
   getEnv,
   readFileRequest,
@@ -36,7 +35,7 @@ import logs from './logUtils';
 import init from './startup';
 import forms from './forms';
 import { generateModels } from './connectionResolver';
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
 import segments from './segments';
 
 // load environment variables
