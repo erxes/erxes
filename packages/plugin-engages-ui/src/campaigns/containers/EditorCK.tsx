@@ -79,12 +79,17 @@ type FinalProps = {
 const EditorContainer = (props: FinalProps) => {
   const { combinedFieldsQuery, cardsFieldsQuery } = props;
 
-  if (combinedFieldsQuery.loading || cardsFieldsQuery.loading) {
+  if (
+    (combinedFieldsQuery && combinedFieldsQuery.loading) ||
+    (cardsFieldsQuery && cardsFieldsQuery.loading)
+  ) {
     return null;
   }
 
-  const combinedFields = combinedFieldsQuery.fieldsCombinedByContentType || [];
-  const cardsFields = cardsFieldsQuery.cardsFields || {};
+  const combinedFields =
+    (combinedFieldsQuery && combinedFieldsQuery.fieldsCombinedByContentType) ||
+    [];
+  const cardsFields = (cardsFieldsQuery && cardsFieldsQuery.cardsFields) || {};
 
   const insertItems =
     props.insertItems || generateAttributes(cardsFields, combinedFields);
