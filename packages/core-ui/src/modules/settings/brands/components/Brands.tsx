@@ -1,18 +1,18 @@
-import Button from "modules/common/components/Button";
-import DataWithLoader from "modules/common/components/DataWithLoader";
-import EmptyState from "modules/common/components/EmptyState";
-import HeaderDescription from "modules/common/components/HeaderDescription";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import Pagination from "modules/common/components/pagination/Pagination";
-import Table from "modules/common/components/table";
-import { Title } from "modules/common/styles/main";
-import { IButtonMutateProps } from "@erxes/ui/src/types";
-import BrandForm from "@erxes/ui/src/brands/components/BrandForm";
-import React from "react";
-import { __ } from "../../../common/utils";
-import Wrapper from "../../../layout/components/Wrapper";
-import Sidebar from "../containers/Sidebar";
-import { IBrand } from "../types";
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import EmptyState from 'modules/common/components/EmptyState';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import Table from 'modules/common/components/table';
+import { Title } from 'modules/common/styles/main';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import BrandForm from '@erxes/ui/src/brands/components/BrandForm';
+import React from 'react';
+import { __ } from '../../../common/utils';
+import Wrapper from '../../../layout/components/Wrapper';
+import Sidebar from '../containers/Sidebar';
+import { IBrand } from '../types';
 
 type Props = {
   brandsTotalCount: number;
@@ -31,8 +31,8 @@ class Brands extends React.Component<Props, {}> {
         <Table>
           <thead>
             <tr>
-              <th>{__("Brand name")}</th>
-              <th>{__("Actions")}</th>
+              <th>{__('Brand name')}</th>
+              <th>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -52,24 +52,14 @@ class Brands extends React.Component<Props, {}> {
     const { brandsTotalCount, currentBrand, loading } = this.props;
 
     const breadcrumb = [
-      { title: __("Settings"), link: "/settings" },
-      { title: __("Brands"), link: "/settings/brands" },
-      { title: `${currentBrand.name || ""}` },
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Brands'), link: '/settings/brands' },
+      { title: `${currentBrand.name || ''}` }
     ];
-
-    if (!currentBrand._id) {
-      return (
-        <EmptyState
-          image="/images/actions/8.svg"
-          text="No Brands"
-          size="small"
-        />
-      );
-    }
 
     const addBrand = (
       <Button
-        id={"NewBrandButton"}
+        id={'NewBrandButton'}
         btnStyle="success"
         block={true}
         icon="plus-circle"
@@ -78,7 +68,7 @@ class Brands extends React.Component<Props, {}> {
       </Button>
     );
 
-    const content = (props) => (
+    const content = props => (
       <BrandForm
         {...props}
         extended={true}
@@ -102,16 +92,16 @@ class Brands extends React.Component<Props, {}> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={`${currentBrand.name || ""}`}
+            title={`${currentBrand.name || ''}`}
             breadcrumb={breadcrumb}
           />
         }
         mainHead={
           <HeaderDescription
             icon="/images/actions/32.svg"
-            title={"Brands"}
+            title={'Brands'}
             description={__(
-              "Add unlimited Brands with unlimited support to further your growth and accelerate your business"
+              'Add unlimited Brands with unlimited support to further your growth and accelerate your business'
             )}
           />
         }
@@ -123,8 +113,8 @@ class Brands extends React.Component<Props, {}> {
             data={this.renderContent()}
             loading={loading}
             count={brandsTotalCount}
-            emptyText="Add an integration in this Brand"
-            emptyImage="/images/actions/2.svg"
+            emptyText="There is no brand."
+            emptyImage="/images/actions/20.svg"
           />
         }
         footer={currentBrand._id && <Pagination count={brandsTotalCount} />}

@@ -1,22 +1,21 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { router as routerUtils, withProps } from "modules/common/utils";
-import queryString from "query-string";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import { IButtonMutateProps, IRouterProps } from "@erxes/ui/src/types";
-import DumbBrands from "../components/Brands";
-import Empty from "../components/Empty";
-import { mutations, queries } from "../graphql";
-import { queries as queriesInbox } from "@erxes/ui-inbox/src/inbox/graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { router as routerUtils, withProps } from 'modules/common/utils';
+import queryString from 'query-string';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import DumbBrands from '../components/Brands';
+import { mutations, queries } from '../graphql';
+import { queries as queriesInbox } from '@erxes/ui-inbox/src/inbox/graphql';
 import {
   BrandDetailQueryResponse,
   BrandsCountQueryResponse,
-  BrandsGetLastQueryResponse,
-} from "@erxes/ui/src/brands/types";
-import Spinner from "modules/common/components/Spinner";
-import ButtonMutate from "modules/common/components/ButtonMutate";
+  BrandsGetLastQueryResponse
+} from '@erxes/ui/src/brands/types';
+import Spinner from 'modules/common/components/Spinner';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 
 type Props = {
   currentBrandId: string;
@@ -34,7 +33,7 @@ class Brands extends React.Component<FinalProps> {
       brandDetailQuery,
       brandsCountQuery,
       location,
-      currentBrandId,
+      currentBrandId
     } = this.props;
 
     if (brandDetailQuery.loading || brandsCountQuery.loading) {
@@ -48,7 +47,7 @@ class Brands extends React.Component<FinalProps> {
       values,
       isSubmitted,
       callback,
-      object,
+      object
     }: IButtonMutateProps) => {
       return (
         <ButtonMutate
@@ -59,7 +58,7 @@ class Brands extends React.Component<FinalProps> {
           isSubmitted={isSubmitted}
           type="submit"
           successMessage={`You successfully ${
-            object ? "updated" : "added"
+            object ? 'updated' : 'added'
           } a ${name}`}
         />
       );
@@ -71,7 +70,7 @@ class Brands extends React.Component<FinalProps> {
       queryParams: queryString.parse(location.search),
       currentBrand: brandDetailQuery.brandDetail || {},
       brandsTotalCount: brandsCountQuery.brandsTotalCount || 0,
-      loading: brandDetailQuery.loading,
+      loading: brandDetailQuery.loading
     };
 
     return <DumbBrands {...extendedProps} />;
@@ -83,21 +82,21 @@ const getRefetchQueries = (queryParams, currentBrandId?: string) => {
     {
       query: gql(queries.brands),
       variables: {
-        perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20,
-      },
+        perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
+      }
     },
     {
-      query: gql(queries.brands),
+      query: gql(queries.brands)
     },
     {
-      query: gql(queries.integrationsCount),
+      query: gql(queries.integrationsCount)
     },
     {
       query: gql(queries.brandDetail),
-      variables: { _id: currentBrandId || "" },
+      variables: { _id: currentBrandId || '' }
     },
     { query: gql(queries.brandsCount) },
-    { query: gql(queriesInbox.brandList) },
+    { query: gql(queriesInbox.brandList) }
   ];
 };
 
@@ -106,15 +105,15 @@ const BrandsContainer = withProps<Props>(
     graphql<Props, BrandDetailQueryResponse, { _id: string }>(
       gql(queries.brandDetail),
       {
-        name: "brandDetailQuery",
+        name: 'brandDetailQuery',
         options: ({ currentBrandId }: { currentBrandId: string }) => ({
           variables: { _id: currentBrandId },
-          fetchPolicy: "network-only",
-        }),
+          fetchPolicy: 'network-only'
+        })
       }
     ),
     graphql<Props, BrandsCountQueryResponse, {}>(gql(queries.brandsCount), {
-      name: "brandsCountQuery",
+      name: 'brandsCountQuery'
     })
   )(Brands)
 );
@@ -134,7 +133,7 @@ class WithCurrentId extends React.Component<WithCurrentIdFinalProps> {
     const {
       lastBrandQuery,
       history,
-      queryParams: { _id },
+      queryParams: { _id }
     } = nextProps;
 
     if (
@@ -154,16 +153,12 @@ class WithCurrentId extends React.Component<WithCurrentIdFinalProps> {
 
   render() {
     const {
-      queryParams: { _id },
+      queryParams: { _id }
     } = this.props;
-
-    if (!_id) {
-      return <Empty {...this.props} />;
-    }
 
     const updatedProps = {
       ...this.props,
-      currentBrandId: _id,
+      currentBrandId: _id
     };
 
     return <BrandsContainer {...updatedProps} />;
@@ -175,12 +170,12 @@ const WithLastBrand = withProps<WithCurrentIdProps>(
     graphql<WithCurrentIdProps, BrandsGetLastQueryResponse, { _id: string }>(
       gql(queries.brandsGetLast),
       {
-        name: "lastBrandQuery",
+        name: 'lastBrandQuery',
         skip: ({ queryParams }: { queryParams: any }) => queryParams._id,
         options: ({ queryParams }: { queryParams: any }) => ({
           variables: { _id: queryParams._id },
-          fetchPolicy: "network-only",
-        }),
+          fetchPolicy: 'network-only'
+        })
       }
     )
   )(WithCurrentId)
