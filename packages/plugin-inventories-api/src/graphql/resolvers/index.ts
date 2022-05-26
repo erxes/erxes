@@ -1,18 +1,18 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
-import Tag from './tags';
+import Remainder from './customResolvers/remainder';
 
-import { Tags as TagMutations } from './mutations';
+// import { Tags as TagMutations } from './mutations';
 
-import { Tags as TagQueries } from './queries';
+import { Remainders as RemainderQueries } from './queries';
 
 const resolvers: any = async serviceDiscovery => ({
   ...customScalars,
-  Tag,
-  Mutation: {
-    ...TagMutations
-  },
+  Remainder,
+  // Mutation: {
+  //   // ...TagMutations
+  // },
   Query: {
-    ...TagQueries
+    ...RemainderQueries
   }
 });
 
