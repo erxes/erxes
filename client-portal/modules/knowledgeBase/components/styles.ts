@@ -1,5 +1,5 @@
 import { colors, typography } from "../../styles";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import styledTS from "styled-components-ts";
 
 const silverGrey = "#6c718b";
@@ -297,9 +297,36 @@ const ArticleWrapper = styled.div`
   }
 `;
 
-const CategoryListWrapper = styled.div`
+const CategoryListWrapper = styledTS<{
+  baseColor?: string;
+  linkColor?: string;
+  linkHoverColor?: string;
+}>(styled.div)`
   max-width: 900px;
   margin: 0 auto;
+
+  ${(props) =>
+    props.baseColor &&
+    css`
+      .base-color {
+        color: ${props.baseColor} !important;
+      }
+    `};
+
+  ${(props) =>
+    (props.linkColor || props.linkHoverColor) &&
+    css`
+      .link-color {
+        color: ${props.linkColor} !important;
+        transition: all ease 0.3s;
+
+        &:hover {
+          color: ${props.linkHoverColor
+            ? props.linkHoverColor
+            : colors.colorSecondary} !important;
+        }
+      }
+    `};
 
   .categories-wrapper {
     .list-category-title {
@@ -377,7 +404,8 @@ const CategoryListWrapper = styled.div`
       &:hover > * {
         .icon-wrapper,
         .tab-content > h5 {
-          color: #6569df !important;
+          color: ${(props) =>
+            props.linkHoverColor ? props.linkHoverColor : "#6569df"} !important;
         }
       }
     }
@@ -520,7 +548,7 @@ const CategoryListWrapper = styled.div`
   }
 `;
 
-const SidebarList = styled.div`
+const SidebarList = styledTS<{ baseColor?: string }>(styled.div)`
   height: 100%;
   min-height: 60vh;
   padding-right: 10px;
@@ -556,7 +584,7 @@ const SidebarList = styled.div`
     }
 
     &.active {
-      color: #6569df;
+      color: ${(props) => (props.baseColor ? props.baseColor : `#6569df`)};
 
       h6,
       i {

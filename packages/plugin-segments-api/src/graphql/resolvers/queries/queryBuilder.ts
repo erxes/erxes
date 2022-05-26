@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import { fetchEs, fetchEsWithScroll } from '@erxes/api-utils/src/elasticsearch';
 import {
   SEGMENT_DATE_OPERATORS,
   SEGMENT_NUMBER_OPERATORS
@@ -20,6 +20,7 @@ type IOptions = {
   perPage?: number;
   sortField?: string;
   sortDirection?: number;
+  scroll?: boolean;
 };
 
 export const isInSegment = async (
@@ -162,7 +163,7 @@ export const fetchSegment = async (
     };
   }
 
-  const response = await fetchEs({
+  const fetchOptions: any = {
     subdomain,
     action: 'search',
     index,
@@ -172,7 +173,48 @@ export const fetchSegment = async (
       ...pagination
     },
     defaultValue: { hits: { hits: [] } }
-  });
+  };
+
+  if (options.scroll && options.perPage) {
+    // keep the search results "scrollable" for 1 minute
+    fetchOptions.scroll = '1m';
+    fetchOptions.size = perPage;
+
+    const results: any[] = [];
+    const resp: any[] = [];
+
+    const initialResponse = await fetchEs(fetchOptions);
+
+    resp.push(initialResponse);
+
+    while (resp.length) {
+      const { hits = {} } = resp.shift();
+
+      if (hits.hits) {
+        hits.hits.forEach(hit => {
+          results.push(hit._id);
+        });
+      }
+
+      /* istanbul ignore next */
+
+      if (hits.total && hits.total.value === results.length) {
+        // check to see if we have collected all the documents
+        break;
+      }
+
+      /* istanbul ignore next */
+
+      if (initialResponse._scroll_id) {
+        // get the next response if there are more to fetch
+        resp.push(await fetchEsWithScroll(initialResponse._scroll_id));
+      }
+    }
+
+    return results;
+  }
+
+  const response = await fetchEs(fetchOptions);
 
   if (options.returnFullDoc || options.returnFields) {
     return response.hits.hits.map(hit => ({ _id: hit._id, ...hit._source }));

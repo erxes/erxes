@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { TEXT_TYPE } from './constants';
 import { field, schemaWrapper } from './utils';
 
 export interface ISubmission {
@@ -37,8 +38,13 @@ export const logicSchema = new Schema(
 
 const ObjectListSchema = new Schema({
   key: field({ type: String, optional: true, label: 'Key' }),
-  type: field({ type: String, optional: true, label: 'Type' }),
-  label: field({ type: String, optional: true, label: 'Label' })
+  label: field({ type: String, optional: true, label: 'Label' }),
+  type: field({
+    type: String,
+    enum: TEXT_TYPE.map(option => option.value),
+    optional: true,
+    label: 'Type'
+  })
 });
 
 interface IVisibility {

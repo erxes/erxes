@@ -62,8 +62,6 @@ function ConfigContainer({
     return <div>{dayConfigQuery.error.message}</div>;
   }
 
-  console.log('wwwwwwwwwwwwwwwwwww', dayConfigQuery);
-
   return (
     <Config
       save={saveData}
