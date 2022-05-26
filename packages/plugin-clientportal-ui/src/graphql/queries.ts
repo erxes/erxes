@@ -7,6 +7,7 @@ export const commonFields = `
   icon
   domain
   dnsStatus
+  messengerBrandCode
   knowledgeBaseLabel
   knowledgeBaseTopicId
   ticketLabel
