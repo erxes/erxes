@@ -30,15 +30,9 @@ class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const formValues = props.defaultConfigValues || ({} as ClientPortalConfig);
-
-    const { __typename = '', ...otp }: any = formValues.otpConfig || {
-      smsTransporterType: '',
-      emailTransporterType: '',
-      content: 'Your verification code is {{code}}'
-    };
-
-    formValues.otpConfig = otp;
+    const formValues = this.cleanValues(
+      props.defaultConfigValues || ({} as ClientPortalConfig)
+    );
 
     this.state = {
       formValues
@@ -50,9 +44,25 @@ class Form extends React.Component<Props, State> {
       this.props.defaultConfigValues &&
       nextProps.defaultConfigValues !== this.props.defaultConfigValues
     ) {
-      this.setState({ formValues: nextProps.defaultConfigValues });
+      const formValues = this.cleanValues(
+        nextProps.defaultConfigValues || ({} as ClientPortalConfig)
+      );
+      this.setState({ formValues });
     }
   }
+
+  cleanValues = (values: ClientPortalConfig) => {
+    const { __typename = '', ...otp }: any = values.otpConfig || {
+      smsTransporterType: '',
+      emailTransporterType: '',
+      codeLength: 4,
+      content: 'Your verification code is {{code}}'
+    };
+
+    values.otpConfig = otp;
+
+    return values;
+  };
 
   handleSubmit = e => {
     e.preventDefault();

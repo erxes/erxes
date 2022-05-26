@@ -31,7 +31,7 @@ const userParams = `
 
 export const mutations = () => `
   clientPortalRegister(${userParams}): String
-  clientPortalVerifyOTP(userId: String!, phoneOtp: String, emailOtp: String): String
+  clientPortalVerifyOTP(userId: String!, phoneOtp: String, emailOtp: String, password: String): String
   clientPortalLogin(login: String!, password: String!, clientPortalId: String!, deviceToken: String): String
   clientPortalLogout: String
 

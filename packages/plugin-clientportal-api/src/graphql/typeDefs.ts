@@ -11,17 +11,18 @@ import {
 } from './schema/clientPortalUser';
 
 const typeDefs = async serviceDiscovery => {
+  const kbAvailable = await serviceDiscovery.isEnabled('knowledgebase');
   const cardAvailable = await serviceDiscovery.isEnabled('cards');
 
   return gql`
     scalar JSON
     scalar Date
 
-    ${clientPortalTypes(cardAvailable)}
+    ${clientPortalTypes(cardAvailable, kbAvailable)}
     ${clientPortalUserTypes()}
 
     extend type Query {
-     ${clientPortalQueries()}
+     ${clientPortalQueries(cardAvailable, kbAvailable)}
      ${clientPortalUserQueries()}
     }
 

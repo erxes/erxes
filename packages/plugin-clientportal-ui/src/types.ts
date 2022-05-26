@@ -2,6 +2,7 @@ export type OTPConfig = {
   content: string;
   smsTransporterType?: '' | 'messagePro';
   emailTransporterType?: '' | 'ses';
+  codeLength: number;
 };
 
 export type ClientPortalConfig = {
@@ -13,6 +14,7 @@ export type ClientPortalConfig = {
   icon?: string;
   domain?: string;
   dnsStatus?: string;
+  messengerBrandCode?: string;
   knowledgeBaseLabel?: string;
   knowledgeBaseTopicId?: string;
   ticketLabel?: string;

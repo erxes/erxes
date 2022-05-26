@@ -7,25 +7,24 @@ import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
-import { IBoardSelectItem } from '../types';
 import { LinkButton } from '@erxes/ui/src/styles/main';
 import { FlexRow } from '../styles';
 
 type Props = {
   boards: IBoard[];
-  onChangeItems: (items: IBoardSelectItem[]) => any;
-  selectedItems: IBoardSelectItem[];
+  onChangeItems: (items: any[]) => any;
+  selectedItems: any[];
 };
 
 type State = {
-  selectItems: IBoardSelectItem[];
+  selectItems: any[];
 };
 
 class SelectBoards extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    let selectItems: IBoardSelectItem[] = [
+    let selectItems: any[] = [
       { _id: Math.random().toString(), boardId: '', pipelineIds: [] }
     ];
 
@@ -135,7 +134,7 @@ class SelectBoards extends React.Component<Props, State> {
     this.props.onChangeItems(selectItems);
   };
 
-  renderSelect(selectItem: IBoardSelectItem) {
+  renderSelect(selectItem) {
     const { _id, boardId, pipelineIds } = selectItem;
 
     const pipelineOptions = this.getPipeLines(boardId);
