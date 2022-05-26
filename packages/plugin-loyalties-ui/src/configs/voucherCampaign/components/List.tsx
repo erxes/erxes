@@ -1,6 +1,9 @@
 import {
-  Button, FormControl,
-  DataWithLoader, Table, ModalTrigger
+  Button,
+  FormControl,
+  DataWithLoader,
+  Table,
+  ModalTrigger
 } from '@erxes/ui/src/components';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { Wrapper, BarItems } from '@erxes/ui/src/layout';
@@ -8,7 +11,7 @@ import React from 'react';
 import Sidebar from '../../general/components/Sidebar';
 import { IVoucherCampaign } from '../types';
 import Row from './Row';
-import Form from '../containers/Form'
+import Form from '../containers/Form';
 import { __, Alert, router, confirm } from '@erxes/ui/src/utils';
 
 type Props = {
@@ -21,7 +24,10 @@ type Props = {
   bulk: any[];
   emptyBulk: () => void;
   toggleBulk: () => void;
-  remove: (doc: { voucherCampaignIds: string[] }, emptyBulk: () => void) => void;
+  remove: (
+    doc: { voucherCampaignIds: string[] },
+    emptyBulk: () => void
+  ) => void;
   searchValue: string;
   filterStatus: string;
   // configsMap: IConfigsMap;
@@ -29,8 +35,8 @@ type Props = {
 
 type State = {
   // configsMap: IConfigsMap;
-  searchValue: string,
-  filterStatus: string
+  searchValue: string;
+  filterStatus: string;
 };
 
 class VoucherCampaigns extends React.Component<Props, State> {
@@ -75,6 +81,7 @@ class VoucherCampaigns extends React.Component<Props, State> {
 
   renderRow = () => {
     const { voucherCampaigns, history, toggleBulk, bulk } = this.props;
+    console.log(voucherCampaigns);
 
     return voucherCampaigns.map(voucherCampaign => (
       <Row
@@ -88,9 +95,7 @@ class VoucherCampaigns extends React.Component<Props, State> {
   };
 
   modalContent = props => {
-    return (
-      <Form {...props} />
-    )
+    return <Form {...props} />;
   };
 
   removeVoucherCampaigns = voucherCampaigns => {
@@ -125,7 +130,7 @@ class VoucherCampaigns extends React.Component<Props, State> {
         >
           Remove
         </Button>
-      )
+      );
     }
 
     const trigger = (
@@ -152,7 +157,7 @@ class VoucherCampaigns extends React.Component<Props, State> {
           content={this.modalContent}
         />
       </BarItems>
-    )
+    );
   }
 
   render() {
