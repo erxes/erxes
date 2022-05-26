@@ -1,12 +1,13 @@
 import { gql, useQuery } from "@apollo/client";
 import React from "react";
-import { Topic } from "../../types";
+import { Config, Topic } from "../../types";
 import CategoryDetail from "../components/CategoryDetail";
 import { categoryDetailQuery } from "../graphql/queries";
 
 type Props = {
   queryParams: any;
   topic: Topic;
+  config: Config;
 };
 
 function CategoryDetailContainer({ queryParams: { id }, ...props }: Props) {

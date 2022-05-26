@@ -11,8 +11,7 @@ const Header = styledTS<{
   padding: ${(props) => (props.headingSpacing ? "30px 30px 180px" : "30px 0")};
   color: ${colors.colorWhite};
   font-size: ${typography.fontSizeBody}px;
-  background-color: ${(props) =>
-    props.color ? props.color : '#f5f8fb'};
+  background-color: ${(props) => (props.color ? props.color : "#f5f8fb")};
   background-image: ${(props) =>
     props.backgroundImage && `url(${props.backgroundImage})`};
 
@@ -136,8 +135,11 @@ const LinkItem = styledTS<{ active?: boolean }>(styled.span)`
   }
 `;
 
-const MainContent = styledTS<{ baseColor?: string }>(styled.div)`
-  background-color: #f5f8fb;
+const MainContent = styledTS<{ baseColor?: string; bodyColor?: string }>(
+  styled.div
+)`
+  background-color: ${(props) =>
+    props.bodyColor ? props.bodyColor : "#f5f8fb"};
   min-height: 60vh;
   padding: 32px 0;
 

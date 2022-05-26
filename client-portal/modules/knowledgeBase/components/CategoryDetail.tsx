@@ -1,18 +1,20 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import { Topic } from "../../types";
+import { Config, Topic } from "../../types";
 import { SidebarList } from "./styles";
 import Articles from "./ArticleList";
 import SideBar from "./SideBar";
 import SectionHeader from "../../common/SectionHeader";
+import { getConfigColor } from "../../common/utils";
 
 type Props = {
   category: any;
   loading: boolean;
   topic: Topic;
+  config: Config;
 };
 
-function CategoryDetail({ topic, category }: Props) {
+function CategoryDetail({ topic, category, config }: Props) {
   return (
     <Container className="knowledge-base">
       <SectionHeader
@@ -22,7 +24,7 @@ function CategoryDetail({ topic, category }: Props) {
 
       <Row className="category-detail">
         <Col md={3}>
-          <SidebarList>
+          <SidebarList baseColor={getConfigColor(config, "baseColor")}>
             <SideBar
               parentCategories={topic.parentCategories}
               category={category}

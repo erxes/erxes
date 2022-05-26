@@ -10,18 +10,20 @@ import {
   PageAnchor,
   Modal,
 } from "./styles";
-import { Topic, IKbCategory, IKbArticle } from "../../types";
+import { Config, Topic, IKbCategory, IKbArticle } from "../../types";
 import SectionHeader from "../../common/SectionHeader";
 import SideBar from "./SideBar";
+import { getConfigColor } from "../../common/utils";
 
 type Props = {
   article: IKbArticle;
   category: IKbCategory;
   topic: Topic;
+  config: Config;
   loading: boolean;
 };
 
-function ArticleDetail({ loading, article, category, topic }: Props) {
+function ArticleDetail({ loading, article, category, topic, config }: Props) {
   const [reaction, setReaction] = useState("");
 
   const createDom = () => {
@@ -164,7 +166,7 @@ function ArticleDetail({ loading, article, category, topic }: Props) {
 
       <Row className="category-detail">
         <Col md={3}>
-          <SidebarList>
+          <SidebarList baseColor={getConfigColor(config, "baseColor")}>
             <SideBar
               parentCategories={topic.parentCategories}
               category={category}
