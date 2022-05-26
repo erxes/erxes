@@ -51,8 +51,6 @@ function CreateSalesPlanContainer({
     refetch();
   };
 
-  console.log('container unit', units ? units.units : []);
-
   if (units.loading) return <Spinner objective={true} />;
 
   if (branches.loading) return <Spinner objective={true} />;

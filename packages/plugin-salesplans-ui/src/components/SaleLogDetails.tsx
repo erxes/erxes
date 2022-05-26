@@ -5,7 +5,6 @@ type Props = {
 };
 
 function SaleLogDetails({ data }: Props) {
-  console.log('its daaataaaa', data);
   return <></>;
 }
 export default SaleLogDetails;
