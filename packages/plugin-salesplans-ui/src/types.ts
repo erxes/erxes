@@ -1,4 +1,4 @@
-export type labelsQuery = {
+type labelsQuery = {
   _id: string;
   type: string;
   color: string;
@@ -6,7 +6,13 @@ export type labelsQuery = {
   status: string;
 };
 
-export type timeframeQuery = {
+export type labelsQueryResponse = {
+  getLabels: labelsQuery[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+type timeframe = {
   _id: string;
   name: string;
   description: string;
@@ -14,32 +20,62 @@ export type timeframeQuery = {
   endTime: number;
 };
 
-export type dayplanconfs = {
+export type timeframeQueryResponse = {
+  getTimeframes: timeframe[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+type dayplanconfs = {
   _id: string;
   labelsId: string[];
   timeframeId: string;
 };
 
-export type monthplanconfs = {
+export type dayplanconfsResponse = {
+  getDayPlanConfigs: dayplanconfs[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+type monthplanconfs = {
   _id: string;
   labelsId: string[];
   timeframeId: string;
 };
 
-export type yearplanconfs = {
+export type monthplanconfsResponse = {
+  getMonthPlanConfigs: monthplanconfs[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+type yearplanconfs = {
   _id: string;
   labelsId: string[];
   timeframeId: string;
 };
 
-export interface saveDayPlan {
+export type yearplanconfsResponse = {
+  getYearPlanConfigs: yearplanconfs[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+interface saveDayPlan {
   _id: string;
 }
 
-export type saveMonthPlan = {
+export type saveDayPlanResponse = {
+  saveDayPlanConfig: saveDayPlan[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+type saveMonthPlan = {
   _id: string;
 };
 
-export type saveYearPlan = {
+type saveYearPlan = {
   _id: string;
 };
