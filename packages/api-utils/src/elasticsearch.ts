@@ -1,5 +1,6 @@
 import * as elasticsearch from 'elasticsearch';
 import { debugError } from './debuggers';
+
 export interface IFetchEsArgs {
   subdomain: string;
   action: string;
@@ -7,6 +8,8 @@ export interface IFetchEsArgs {
   body: any;
   _id?: string;
   defaultValue?: any;
+  scroll?: string;
+  size?: number;
 }
 
 export const doSearch = async ({
@@ -77,7 +80,9 @@ export const fetchEs = async ({
   index,
   body,
   _id,
-  defaultValue
+  defaultValue,
+  scroll,
+  size
 }: IFetchEsArgs) => {
   try {
     const params: any = {
@@ -91,6 +96,12 @@ export const fetchEs = async ({
 
     if (_id) {
       params.id = _id;
+    }
+
+    // for returning results more than 10000
+    if (scroll && size) {
+      params.scroll = scroll;
+      params.size = size;
     }
 
     const response = await client[action](params);
@@ -119,4 +130,15 @@ export const getMappings = async (index: string) => {
 
 export const getIndexPrefix = () => {
   return 'erxes__';
+};
+
+// Fetch from es with scroll option than can find results more than the default 10000
+export const fetchEsWithScroll = async (scrollId: string) => {
+  try {
+    const response = await client.scroll({ scrollId, scroll: '1m' });
+
+    return response;
+  } catch (e) {
+    throw new Error(e);
+  }
 };
