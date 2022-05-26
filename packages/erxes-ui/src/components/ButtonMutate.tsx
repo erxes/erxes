@@ -9,6 +9,12 @@ import React from 'react';
 import styled from 'styled-components';
 import Button from '../components/Button';
 
+export const SmallLoaderWrapper = styled.div`
+  position: relative;
+  display: inline-block;
+  margin-right: 13px;
+`;
+
 export const SmallLoader = styled.i`
   width: 13px;
   height: 13px;
@@ -17,10 +23,9 @@ export const SmallLoader = styled.i`
   border-top-color: ${colors.colorSecondary};
   border-right-color: ${colors.colorSecondary};
   border-radius: 100%;
-  float: left;
-  position: relative;
-  top: 2px;
-  margin-right: 5px;
+  position: absolute;
+  top: -13px;
+  left: -13px;
 `;
 
 type Props = {
@@ -168,7 +173,11 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
         icon={isLoading ? undefined : icon}
         block={block}
       >
-        {isLoading && <SmallLoader />}
+        {isLoading && (
+          <SmallLoaderWrapper>
+            <SmallLoader />
+          </SmallLoaderWrapper>
+        )}
         {children}
       </Button>
     );
