@@ -11,7 +11,7 @@ const ProductList = asyncComponent(() =>
 
 const Details = asyncComponent(() =>
   import(
-    /* webpackChunkName: "AutomationDetails" */ './containers/product/EditAutomation'
+    /* webpackChunkName: "AutomationDetails" */ '../automation/containers/forms/EditAutomation'
   )
 );
 
@@ -33,12 +33,20 @@ const details = ({ match, location }) => {
 
 const routes = () => {
   return (
-    <Route
-      path="/processes/flows"
-      exact={true}
-      key="/processes/flows"
-      component={productService}
-    />
+    <>
+      <Route
+        path="/processes/flows"
+        exact={true}
+        key="/processes/flows"
+        component={productService}
+      />
+      <Route
+        key="/processes/flows/details/:id"
+        exact={true}
+        path="/processes/flows/details/:id"
+        component={details}
+      />
+    </>
   );
 };
 
