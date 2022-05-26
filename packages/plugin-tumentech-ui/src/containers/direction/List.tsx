@@ -1,12 +1,13 @@
 import React from 'react';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
-import List from '../../components/direction/Props';
-import Spinner from '@erxes/ui/src/components/Spinner';
+import List from '../../components/direction/List';
+// import Spinner from '@erxes/ui/src/components/Spinner';
 import { queries } from '../../graphql';
 
 type Props = {
   refetch: () => void;
+  queryParams: any;
 };
 
 export default function ItemContainer(props: Props) {
@@ -14,9 +15,23 @@ export default function ItemContainer(props: Props) {
     fetchPolicy: 'network-only'
   });
 
-  if (loading) {
-    return <Spinner />;
-  }
+  // if (loading) {
+  //   return <Spinner />;
+  // }
 
-  return <List {...props} directions={data.directions} />;
+  const remove = () => {
+    console.log('remove');
+  };
+
+  const directions = (data && data.directions) || [];
+
+  const extendedProps = {
+    ...props,
+    loading,
+    directions,
+    totalCount: directions.length,
+    remove
+  };
+
+  return <List {...extendedProps} />;
 }

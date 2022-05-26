@@ -25,8 +25,11 @@ const DirectionList = asyncComponent(() =>
   import(/* webpackChunkName: "DirectionList" */ './containers/Direction/List')
 );
 
-const directionList = () => {
-  return <DirectionList />;
+const directionList = history => {
+  const { location } = history;
+  const queryParams = queryString.parse(location.search);
+
+  return <DirectionList queryParams={queryParams} history={history} />;
 };
 
 const details = ({ match }) => {

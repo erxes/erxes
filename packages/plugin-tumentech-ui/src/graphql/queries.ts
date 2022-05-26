@@ -332,8 +332,8 @@ const carsListConfig = `
 `;
 
 const directions = `
-query staticRoutes($searchValue: String) {
-  staticRoutes(searchValue: $searchValue) {
+query directions($searchValue: String) {
+  directions(searchValue: $searchValue) {
     _id
     asphaltRoadLength
     description
