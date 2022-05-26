@@ -5,10 +5,10 @@ import {
   mutations as tumentechMutations
 } from './schema/tumentech';
 import {
-  types as staticRouteTypes,
-  queries as staticRouteQueries,
-  mutations as staticRouteMutations
-} from './schema/staticRoutes';
+  types as directionTypes,
+  queries as directionQueries,
+  mutations as directionMutations
+} from './schema/directions';
 import {
   types as routeOptionTypes,
   queries as routeOptionQueries,
@@ -41,17 +41,17 @@ const typeDefs = async serviceDiscovery => {
     
     ${tumentechTypes(isEnabled)}
     ${routeOptionTypes}
-    ${staticRouteTypes}
+    ${directionTypes}
     
     extend type Query {
       ${tumentechQueries}
-      ${staticRouteQueries}
+      ${directionQueries}
       ${routeOptionQueries}
     }
     
     extend type Mutation {
       ${tumentechMutations}
-      ${staticRouteMutations}
+      ${directionMutations}
       ${routeOptionMutations}
     }
   `;

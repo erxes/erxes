@@ -13,7 +13,7 @@ export const types = `
     _id: String!
     name: String
     routes: [Route]
-    staticRoutes: [StaticRoute]
+    directions: [Direction]
     totalDistance: Int
     totalDirtRoadLength: Int
     totalAsphaltRoadLength: Int

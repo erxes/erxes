@@ -1,8 +1,8 @@
 import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
 
-const staticRoutesQuery = {
-  staticRoutes: async (
+const directionsQuery = {
+  directions: async (
     _root,
     {
       searchValue,
@@ -31,11 +31,11 @@ const staticRoutesQuery = {
 
     console.log('********************* ', filter);
 
-    return paginate(models.StaticRoutes.find(filter).lean(), {
+    return paginate(models.Directions.find(filter).lean(), {
       page: page || 1,
       perPage: perPage || 20
     });
   }
 };
 
-export default staticRoutesQuery;
+export default directionsQuery;

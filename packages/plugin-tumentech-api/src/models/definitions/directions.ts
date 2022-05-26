@@ -1,7 +1,7 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
-export interface IStaticRoute {
+export interface IDirection {
   locationA: string;
   locationB: string;
   totalDistance: number;
@@ -11,11 +11,11 @@ export interface IStaticRoute {
   duration: number;
 }
 
-export interface IStaticRouteDocument extends IStaticRoute, Document {
+export interface IDirectionDocument extends IDirection, Document {
   _id: string;
 }
 
-export const staticRouteSchema = schemaHooksWrapper(
+export const directionSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     locationA: field({ type: String, label: 'from', required: true }),

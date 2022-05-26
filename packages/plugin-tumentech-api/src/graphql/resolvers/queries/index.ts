@@ -1,9 +1,9 @@
 import tumentechQuery from './tumentech';
 import participantsQuery from './participants';
-import staticRoutoesQuery from './staticRoutes';
+import directionsQuery from './directions';
 
 export default {
   ...tumentechQuery,
   ...participantsQuery,
-  ...staticRoutoesQuery
+  ...directionsQuery
 };
