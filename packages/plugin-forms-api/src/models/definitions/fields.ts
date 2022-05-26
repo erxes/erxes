@@ -35,9 +35,21 @@ export const logicSchema = new Schema(
   { _id: false }
 );
 
+const ObjectListSchema = new Schema({
+  key: field({ type: String, optional: true, label: 'Key' }),
+  type: field({ type: String, optional: true, label: 'Type' }),
+  label: field({ type: String, optional: true, label: 'Label' })
+});
+
 interface IVisibility {
   isVisible?: boolean;
   isVisibleInDetail?: boolean;
+}
+
+interface IObjectListConfig {
+  key: string;
+  label: string;
+  type: string;
 }
 
 export interface IField extends IVisibility {
@@ -50,6 +62,7 @@ export interface IField extends IVisibility {
   description?: string;
   options?: string[];
   keys?: string[];
+  objectListConfig?: IObjectListConfig[];
   isRequired?: boolean;
   isDefinedByErxes?: boolean;
   order?: number;
@@ -126,6 +139,11 @@ export const fieldSchema = schemaWrapper(
       type: [String],
       optional: true,
       label: 'Keys'
+    }),
+    objectListConfig: field({
+      type: [ObjectListSchema],
+      optional: true,
+      label: 'object list config'
     }),
     isRequired: field({ type: Boolean, label: 'Is required' }),
     isDefinedByErxes: field({ type: Boolean, label: 'Is defined by erxes' }),

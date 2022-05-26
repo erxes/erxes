@@ -31,7 +31,7 @@ type Props = {
   currentLocation: ILocationOption;
   defaultValue?: any;
   hasLogic?: boolean;
-  isEditing?: boolean;
+  isEditing: boolean;
   isPreview?: boolean;
   onValueChange?: (data: { _id: string; value: any }) => void;
   onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;

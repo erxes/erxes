@@ -90,11 +90,18 @@ export const fieldsTypes = ({ products }) => `
     logicValue: JSON
   }
 
+  input objectListConfigInput {
+    key: String,
+    type: String,
+    label: String
+  }
+
   input FieldItem {
     _id: String
     tempFieldId: String
     logics: [LogicInput]
     locationOptions: [LocationOptionInput]
+    objectListConfig: [objectListConfigInput]
     ${fieldCommonFields}
   }
 
@@ -130,6 +137,7 @@ const fieldsCommonFields = `
   searchable: Boolean
   showInCard: Boolean
   keys: [String]
+  objectListConfig: [objectListConfigInput]
 `;
 
 export const fieldsMutations = `
