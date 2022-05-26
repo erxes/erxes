@@ -1,7 +1,7 @@
-import React from 'react';
-import Link from 'next/link';
-import Icon from './Icon';
-import styled from 'styled-components';
+import React from "react";
+import Link from "next/link";
+import Icon from "./Icon";
+import styled from "styled-components";
 
 type Props = {
   title: string;
@@ -41,7 +41,7 @@ const Breadcrumb = (props: Props) => {
       {category && (
         <>
           <Icon icon="angle-right" />
-          <Link href={`/knowledge-base/category?id ${category._id}`}>
+          <Link href={`/knowledge-base/category?id=${category._id}`}>
             <span className="link">{category.title}</span>
           </Link>
         </>

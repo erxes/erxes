@@ -1,11 +1,13 @@
 import React from "react";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import Link from "next/link";
-import { VideoTutorial, Avatars, CategoryListWrapper } from "./styles";
-import { Topic } from "../../types";
+import { Avatars, CategoryListWrapper } from "./styles";
+import { Config, Topic } from "../../types";
+import { getConfigColor } from "../../common/utils";
 
 type Props = {
   topic: Topic;
+  config: Config;
 };
 class CategoryList extends React.Component<Props> {
   renderNames = (authors) => {
@@ -69,12 +71,12 @@ class CategoryList extends React.Component<Props> {
     const detail = (cat) => {
       return (
         <Link href={`${categoryUrl}?id=${cat._id}`} passHref={true}>
-          <a className="d-flex flex-column align-items-center w-100">
+          <a className="d-flex flex-column align-items-center w-100 link-color">
             <div className="icon-wrapper">
               <i className={`icon-${cat.icon}`} />
             </div>
             <div className="tab-content">
-              <h5>{cat.title}</h5>
+              <h5 className="link-hover-color">{cat.title}</h5>
               <div className="description">
                 <p>{cat.description}</p>
               </div>
@@ -100,7 +102,7 @@ class CategoryList extends React.Component<Props> {
                     <Card key={`child-${i}`}>
                       {detail(cat)}
                       <Link href={`${categoryUrl}?id=${cat._id}`}>
-                        <a className="more">Read more</a>
+                        <a className="more link-color">Read more</a>
                       </Link>
                     </Card>
                   ))}
@@ -133,8 +135,14 @@ class CategoryList extends React.Component<Props> {
   };
 
   render() {
+    const { config } = this.props;
+
     return (
-      <CategoryListWrapper>
+      <CategoryListWrapper
+        baseColor={getConfigColor(config, "baseColor")}
+        linkColor={getConfigColor(config, "linkColor")}
+        linkHoverColor={getConfigColor(config, "linkHoverColor")}
+      >
         <div className="categories-wrapper">{this.renderCategories()}</div>
       </CategoryListWrapper>
     );

@@ -20,16 +20,20 @@ class Script extends React.Component<{ brandCode: string }> {
   componentDidMount() {
     (window as any).erxesSettings = {
       messenger: {
-        brand_id: this.props.brandCode
-      }
+        brand_id: this.props.brandCode,
+      },
     };
 
     (() => {
-      const script = document.createElement('script');
-      script.src = `${REACT_APP_DOMAIN.includes('https') ? `${REACT_APP_DOMAIN}/widgets` : 'http://localhost:3200'}/build/messengerWidget.bundle.js`;
+      const script = document.createElement("script");
+      script.src = `${
+        REACT_APP_DOMAIN.includes("https")
+          ? `${REACT_APP_DOMAIN}/widgets`
+          : "http://localhost:3200"
+      }/build/messengerWidget.bundle.js`;
       script.async = true;
 
-      const entry = document.getElementsByTagName('script')[0];
+      const entry = document.getElementsByTagName("script")[0];
       entry.parentNode.insertBefore(script, entry);
     })();
   }
@@ -55,11 +59,16 @@ function Layout({
         headingSpacing={headingSpacing}
         headerBottomComponent={headerBottomComponent}
       />
-      <MainContent baseColor={getConfigColor(config, "baseColor")}>
+      <MainContent
+        baseColor={getConfigColor(config, "baseColor")}
+        bodyColor={getConfigColor(config, "bodyColor")}
+      >
         <Container>{children({ config, topic })}</Container>
       </MainContent>
 
-      { config.messengerBrandCode ? <Script brandCode={config.messengerBrandCode} /> : null}
+      {config.messengerBrandCode ? (
+        <Script brandCode={config.messengerBrandCode} />
+      ) : null}
     </>
   );
 }
