@@ -54,6 +54,21 @@ export default class FormMessage extends React.Component<Props, {}> {
       );
     }
 
+    if (data.type === 'objectList') {
+      return data.value.map(obj => {
+        return (
+          <>
+            {Object.keys(obj).map(key => (
+              <div>
+                {key}: {obj[key]}
+              </div>
+            ))}
+            <span>------------------------</span>
+          </>
+        );
+      });
+    }
+
     if (data.type === 'map') {
       const description = data.value.description || '';
       return `Latitude: ${data.value.lat}, Longitude: ${data.value.lng} - ${description}`;
@@ -78,7 +93,6 @@ export default class FormMessage extends React.Component<Props, {}> {
 
   renderMultiSelect(value: string) {
     const selectValues = value.split(',');
-
     return (
       <Select
         value={value}
@@ -127,7 +141,6 @@ export default class FormMessage extends React.Component<Props, {}> {
 
   render() {
     const { formWidgetData, content } = this.props.message;
-
     return (
       <FormTable ref={el => (this.componentRef = el)}>
         <PreviewTitle style={{ backgroundColor: '#6569DF' }}>

@@ -681,8 +681,8 @@ export default class Field extends React.Component<Props, State> {
     };
 
     return (
-      <button onClick={onClick}>
-        <Icon icon="plus-circle" />
+      <button onClick={onClick} className="erxes-objectlist-plus-button">
+        plus
       </button>
     );
   }

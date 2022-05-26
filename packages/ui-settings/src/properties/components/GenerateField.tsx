@@ -73,7 +73,9 @@ export default class GenerateField extends React.Component<Props, State> {
     }
 
     if (nextProps.currentLocation !== this.props.currentLocation) {
-      this.setState({ currentLocation: nextProps.currentLocation });
+      this.setState({
+        currentLocation: nextProps.currentLocation
+      });
     }
   }
 
@@ -312,19 +314,53 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
-  renderObjectList(keys) {
-    if (!keys) {
-      return null;
+  renderObjectList(keys, attrs) {
+    let { value = [] } = attrs;
+
+    if (typeof value === 'string' && value.length > 0) {
+      try {
+        value = JSON.parse(value);
+      } catch {
+        value = [];
+      }
     }
+
+    const { field, onValueChange } = this.props;
+
+    if (field.contentType === 'form') {
+      if (!keys) {
+        return null;
+      }
+
+      return (
+        <>
+          {keys.map(key => (
+            <>
+              <p>
+                <b>{key}</b>
+              </p>
+              <FormControl type="text" placeholder={key} />
+            </>
+          ))}
+        </>
+      );
+    }
+
+    const onChange = (value: any[]) => {
+      if (onValueChange) {
+        this.setState({ value });
+        onValueChange({ _id: field._id, value });
+      }
+    };
 
     return (
       <>
-        {keys.map(key => (
-          <>
-            <p>{key}</p>
-            <FormControl type="text" placeholder={key} />
-          </>
-        ))}
+        <ObjectList
+          keys={keys}
+          value={value}
+          onChange={onChange}
+          isEditing={this.props.isEditing}
+        />
       </>
     );
   }
@@ -528,8 +564,7 @@ export default class GenerateField extends React.Component<Props, State> {
       }
 
       case 'objectList': {
-        attrs.name = Math.random().toString();
-        return this.renderObjectList(keys);
+        return this.renderObjectList(keys, attrs);
       }
 
       case 'map': {

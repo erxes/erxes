@@ -41,6 +41,7 @@ export default function ObjectListItem(props: Props) {
               placeholder={key}
               onChange={onChange}
               onFocus={onFocus}
+              className="form-control"
             />
           </>
         );
