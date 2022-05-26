@@ -1,36 +1,36 @@
-export const types = (contactAvailable, cardAvailable) => `
-  ${
-    contactAvailable
-      ? `
-      extend type Customer @key(fields: "_id") {
-        _id: String! @external
-      }
-      extend type Company @key(fields: "_id") {
-        _id: String! @external
-      }
-    `
-      : ''
+export const types = cardAvailable => `
+${
+  cardAvailable
+    ? `
+   extend type Stage @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type Task @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type Ticket @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type Deal @key(fields: "_id") {
+    _id: String! @external
+  }
+   `
+    : ''
+}
+
+  type OTPConfig{
+    content: String
+    codeLength: Int
+    smsTransporterType: String
+    emailTransporterType: String
   }
 
-  ${
-    cardAvailable
-      ? `
-     extend type Stage @key(fields: "_id") {
-      _id: String! @external
-    }
-    extend type Task @key(fields: "_id") {
-      _id: String! @external
-    }
-    extend type Ticket @key(fields: "_id") {
-      _id: String! @external
-    }
-    extend type Deal @key(fields: "_id") {
-      _id: String! @external
-    }
-     `
-      : ''
+  input OTPConfigInput {
+    content: String
+    codeLength: Int
+    smsTransporterType: String
+    emailTransporterType: String
   }
-
 
   type ClientPortal {
     _id: String!
@@ -53,12 +53,12 @@ export const types = (contactAvailable, cardAvailable) => `
     ticketStageId: String
     ticketPipelineId: String
     ticketBoardId: String
+    googleCredentials: JSON
     styles: Styles
     mobileResponsive: Boolean
-    googleCredentials: JSON
-    twilioAccountSid: String
-    twilioAuthToken: String
-    twilioFromNumber: String
+  
+    otpConfig: OTPConfig
+
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,
@@ -102,28 +102,14 @@ export const types = (contactAvailable, cardAvailable) => `
   }
 `;
 
-export const queries = cardAvailable => `
+export const queries = () => `
   clientPortalGetConfigs(page: Int, perPage: Int): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
   clientPortalGetLast: ClientPortal
   clientPortalConfigsTotalCount: Int
-
-  ${
-    cardAvailable
-      ? `
-      clientPortalGetTaskStages(taskPublicPipelineId: String!): [Stage]
-      clientPortalGetTasks(stageId: String!): [Task]
-      clientPortalTickets(email: String!): [Ticket]
-      clientPortalTask(_id: String!): Task
-      clientPortalTicket(_id: String!): Ticket
-      clientPortalDeal(_id: String!): Deal
-      clientPortalDeals(stageId: String, conformityMainType: String, conformityMainTypeId: String, probability: String): [Deal]
-     `
-      : ''
-  }
 `;
 
-export const mutations = (contactAvailable, cardAvailable) => `
+export const mutations = cardAvailable => `
   clientPortalConfigUpdate (
     _id: String
     name: String
@@ -144,19 +130,19 @@ export const mutations = (contactAvailable, cardAvailable) => `
     ticketStageId: String
     ticketPipelineId: String
     ticketBoardId: String
+    googleCredentials: JSON
     styles: StylesParams
     mobileResponsive: Boolean
-    googleCredentials: JSON
-    twilioAccountSid: String
-    twilioAuthToken: String
-    twilioFromNumber: String
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,
     taskToggle: Boolean,
+
+    otpConfig: OTPConfigInput
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON
+
   ${
     cardAvailable
       ? `
@@ -168,32 +154,7 @@ export const mutations = (contactAvailable, cardAvailable) => `
         email: String!
         priority: String
       ): Ticket
-
      `
       : ''
   }
-
-  ${
-    contactAvailable
-      ? `
-      clientPortalCreateCustomer(
-        configId: String!
-        firstName: String
-        lastName: String
-        email: String
-        phone: String
-        avatar: String
-      ): Customer
-
-      clientPortalCreateCompany(
-        configId: String!
-        companyName: String!
-        email: String!
-      ): Company
-
-     `
-      : ''
-  }
-
-
 `;

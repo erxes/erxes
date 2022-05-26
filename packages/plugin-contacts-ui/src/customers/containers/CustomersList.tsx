@@ -248,7 +248,13 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
     };
 
     const content = props => {
-      return <CustomersList {...updatedProps} {...props} />;
+      return (
+        <CustomersList
+          {...updatedProps}
+          {...props}
+          {...generatePaginationParams(this.props.queryParams)}
+        />
+      );
     };
 
     return (

@@ -181,6 +181,7 @@ const createFormConversation = async (
     submissions: any[];
     browserInfo: any;
     cachedCustomerId?: string;
+    userId?: string;
   },
   generateContent: (form) => string,
   generateConvData: () => {
@@ -287,7 +288,8 @@ const createFormConversation = async (
       formFieldId: submission._id,
       formId,
       value,
-      customerId: cachedCustomer._id
+      customerId: cachedCustomer._id,
+      userId: args.userId
     });
   }
 
@@ -296,7 +298,9 @@ const createFormConversation = async (
     action: 'submissions.createFormSubmission',
     data: {
       submissions: docs,
-      customer: cachedCustomer
+      customer: cachedCustomer,
+      conversationId: conversation._id,
+      userId: args.userId
     },
     isRPC: false
   });
@@ -398,14 +402,17 @@ const widgetMutations = {
       cachedCustomerId?: string;
       userId?: string;
     },
-    { models, subdomain }: IContext
+    { models, subdomain, user }: IContext
   ) {
     const { submissions } = args;
 
     return createFormConversation(
       models,
       subdomain,
-      args,
+      {
+        ...args,
+        userId: args.userId || user ? user._id : ''
+      },
       form => {
         return form.title;
       },

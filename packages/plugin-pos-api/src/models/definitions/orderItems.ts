@@ -1,7 +1,7 @@
 import { Document, Schema } from 'mongoose';
 import { getDateFieldDefinition, getNumberFieldDefinition } from './utils';
-import { field, schemaHooksWrapper } from './util';
 import { IOrderItemModel } from '../OrderItems';
+import { field, schemaHooksWrapper } from './util';
 
 export interface IOrderItem {
   createdAt?: Date;
@@ -39,7 +39,7 @@ export const orderItemSchema = schemaHooksWrapper(
       discount: true,
       default: 0
     }),
-    orderId: field({ type: String, label: 'Order id' }),
+    orderId: { type: String, label: 'Order id' },
     isPackage: field({
       type: Boolean,
       default: false,
@@ -51,5 +51,5 @@ export const orderItemSchema = schemaHooksWrapper(
       default: false
     })
   }),
-  'erxes_orderItemSchema'
+  'erxes_orderItem'
 );

@@ -1,4 +1,4 @@
-import mongoose, { Model, model } from 'mongoose';
+import { Model, model } from 'mongoose';
 import { IOrder, IOrderDocument, orderSchema } from './definitions/orders';
 
 export interface IOrderModel extends Model<IOrderDocument> {
@@ -12,7 +12,7 @@ export interface IOrderModel extends Model<IOrderDocument> {
 export const loadOrderClass = models => {
   class Order {
     public static async getOrder(_id: string) {
-      const order = await Orders.findOne({ _id });
+      const order = await models.Orders.findOne({ _id });
 
       if (!order) {
         throw new Error(`Order not found with id: ${_id}`);
@@ -53,7 +53,5 @@ export const loadOrderClass = models => {
   orderSchema.loadClass(Order);
   return orderSchema;
 };
-
-delete mongoose.connection.models.orders;
 
 export const Orders = model<IOrderDocument, IOrderModel>('orders', orderSchema);

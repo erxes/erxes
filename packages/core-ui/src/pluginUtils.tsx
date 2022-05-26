@@ -395,7 +395,7 @@ export const pluginsOfPaymentForm = (
   );
 };
 
-export const pluginsOfProductCategoryActions = (productCategoryId: string) => {
+export const pluginsOfProductCategoryActions = (category: any) => {
   const plugins: any[] = (window as any).plugins || [];
 
   return (
@@ -408,12 +408,7 @@ export const pluginsOfProductCategoryActions = (productCategoryId: string) => {
             loadComponent(action.scope, action.component)
           );
 
-          return (
-            <Component
-              key={Math.random()}
-              productCategoryId={productCategoryId}
-            />
-          );
+          return <Component key={Math.random()} productCategory={category} />;
         });
       }}
     />

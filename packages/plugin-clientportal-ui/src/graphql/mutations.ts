@@ -24,14 +24,12 @@ const createOrUpdateConfig = `
     $styles: StylesParams
     $mobileResponsive: Boolean
     $googleCredentials: JSON
-    $twilioAccountSid: String
-    $twilioAuthToken: String
-    $twilioFromNumber: String
+
     $kbToggle: Boolean
     $publicTaskToggle: Boolean
     $ticketToggle: Boolean
     $taskToggle: Boolean
-
+    $otpConfig: OTPConfigInput
   ) {
     clientPortalConfigUpdate(
       _id: $_id,
@@ -56,13 +54,12 @@ const createOrUpdateConfig = `
       styles: $styles
       mobileResponsive: $mobileResponsive
       googleCredentials: $googleCredentials
-      twilioAccountSid: $twilioAccountSid
-      twilioAuthToken: $twilioAuthToken
-      twilioFromNumber: $twilioFromNumber
+
       kbToggle: $kbToggle,
       publicTaskToggle: $publicTaskToggle,
       ticketToggle: $ticketToggle,
       taskToggle: $taskToggle,
+      otpConfig: $otpConfig
     ) {
       ${commonFields}
     }

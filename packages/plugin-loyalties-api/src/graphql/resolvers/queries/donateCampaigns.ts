@@ -16,24 +16,26 @@ const generateFilter = async (params: ICommonCampaignParams) => {
   }
 
   return filter;
-}
+};
 
 const donateCampaignQueries = {
-  async donateCampaigns(_root, params: ICommonCampaignParams, { models }: IContext) {
-    const filter = await generateFilter(params)
+  async donateCampaigns(
+    _root,
+    params: ICommonCampaignParams,
+    { models }: IContext
+  ) {
+    const filter = await generateFilter(params);
 
     return paginate(
-      models.DonateCampaigns.find(
-        filter
-      ).sort({ modifiedAt: -1 }),
+      models.DonateCampaigns.find(filter).sort({ modifiedAt: -1 }),
       {
         page: params.page,
         perPage: params.perPage
       }
-    )
+    );
   },
 
-  cpDonateCampaigns(_root, { }, { models }: IContext) {
+  cpDonateCampaigns(_root, {}, { models }: IContext) {
     const now = new Date();
     return models.DonateCampaigns.find({
       status: CAMPAIGN_STATUS.ACTIVE,
@@ -42,12 +44,14 @@ const donateCampaignQueries = {
     }).sort({ modifiedAt: -1 });
   },
 
-  async donateCampaignsCount(_root, params: ICommonCampaignParams, { models }: IContext) {
+  async donateCampaignsCount(
+    _root,
+    params: ICommonCampaignParams,
+    { models }: IContext
+  ) {
     const filter = await generateFilter(params);
 
-    return models.DonateCampaigns.find(
-      filter
-    ).countDocuments();
+    return models.DonateCampaigns.find(filter).countDocuments();
   },
 
   donateCampaignDetail(_root, { _id }: { _id: string }, { models }: IContext) {
@@ -55,6 +59,6 @@ const donateCampaignQueries = {
   }
 };
 
-checkPermission(donateCampaignQueries, 'donateCampaigns', 'showLoyalties', []);
+checkPermission(donateCampaignQueries, 'donateCampaigns', 'showLoyalties');
 
 export default donateCampaignQueries;

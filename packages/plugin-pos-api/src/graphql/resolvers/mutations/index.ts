@@ -1,5 +1,5 @@
 import Pos from './pos';
-import Order from './orders';
-import Payment from './payments';
+// import Order from './orders';
+// import Payment from './payments';
 
-export default { ...Pos, ...Order, ...Payment };
+export default { ...Pos };

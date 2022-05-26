@@ -1,4 +1,4 @@
-import mongoose, { Model, model } from 'mongoose';
+import { Model, model } from 'mongoose';
 import {
   orderItemSchema,
   IOrderItemDocument,
@@ -41,8 +41,6 @@ export const loadOrderItemClass = models => {
   orderItemSchema.loadClass(OrderItem);
   return orderItemSchema;
 };
-
-delete mongoose.connection.models['order_items'];
 
 export const OrderItems = model<IOrderItemDocument, IOrderItemModel>(
   'order_items',
