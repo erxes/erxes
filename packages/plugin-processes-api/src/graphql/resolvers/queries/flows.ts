@@ -70,8 +70,8 @@ const flowQueries = {
   }
 };
 
-checkPermission(flowQueries, 'flowDetail', 'showJobRefers');
-checkPermission(flowQueries, 'flows', 'showJobRefers');
-checkPermission(flowQueries, 'flowDetail', 'showJobRefers');
+// checkPermission(flowQueries, 'flowDetail', 'showJobRefers');
+// checkPermission(flowQueries, 'flows', 'showJobRefers');
+// checkPermission(flowQueries, 'flowDetail', 'showJobRefers');
 
 export default flowQueries;

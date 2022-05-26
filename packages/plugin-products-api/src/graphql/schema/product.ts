@@ -27,7 +27,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
       : ''
   }
 
-  type ProductCategory @key(fields: "_id") {
+  type ProductCategory @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     name: String
     description: String
@@ -40,7 +40,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
     productCount: Int
   }
 
-  type Product @key(fields: "_id") {
+  type Product @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     name: String
     code: String

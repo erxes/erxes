@@ -618,7 +618,7 @@ class AutomationForm extends React.Component<Props, State> {
           icon="plus-circle"
           onClick={this.toggleDrawer.bind(this, 'triggers')}
         >
-          Add a Trigger
+          Add a Trigger1
         </Button>
         <Button
           btnStyle="primary"
@@ -626,7 +626,7 @@ class AutomationForm extends React.Component<Props, State> {
           icon="plus-circle"
           onClick={this.toggleDrawer.bind(this, 'actions')}
         >
-          Add an Action
+          Add an Action1
         </Button>
       </>
     );

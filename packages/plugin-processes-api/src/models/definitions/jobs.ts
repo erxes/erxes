@@ -1,28 +1,30 @@
-import { attachmentSchema } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
-import { DURATION_TYPES } from './constants';
-import { field, schemaHooksWrapper, schemaWrapper } from './utils';
+
+import { attachmentSchema } from '@erxes/api-utils/src/types';
+import { IBranch, IDepartment } from '@erxes/ui-team/src/types';
 import {
-  IBranch,
-  IDepartment
-} from '../../../../../../../temp/erxes/ui/src/modules/settings/team/types';
-import { IUom } from '../../../../plugin-products-api/src/models/definitions/uoms';
-import { IProduct } from '@packages/plugin-products-api/src/models/definitions/products';
+  IProduct,
+  productSchema
+} from '@packages/plugin-products-api/src/models/definitions/products';
+import { IUom } from '@packages/plugin-products-api/src/models/definitions/uoms';
+
+import { DURATION_TYPES, JOB_TYPES } from './constants';
+import { field, schemaHooksWrapper, schemaWrapper } from './utils';
 
 export interface IProductsData {
-  id: string;
+  _id: string;
   productId: string;
   quantity: number;
-  uimId: string;
+  uomId: string;
   branchId: string;
   departmentId: string;
 }
 
 export interface IProductsDataDocument extends IProductsData {
   product: IProduct;
-  branch: IBranch;
-  department: IDepartment;
-  uom: IUom;
+  branch?: IBranch;
+  department?: IDepartment;
+  uom?: IUom;
 }
 
 export interface IJobRefer {
@@ -34,24 +36,23 @@ export interface IJobRefer {
   createdAt: Date;
   duration: number;
   durationType: string;
-  needProducts: IProductsData;
-  resultProducts: IProductsData;
 }
 
 export interface IJobReferDocument extends IJobRefer, Document {
   _id: string;
   createdAt: Date;
-  needProducts: IProductsDataDocument;
-  resultProducts: IProductsDataDocument;
+  needProducts: any[];
+  resultProducts: any[];
 }
 
 export const productsDataSchema = new Schema({
   _id: field({ pkey: true }),
   productId: field({ type: String, label: 'Product' }),
+  product: field({ type: Object }),
   quantity: field({ type: Number, label: 'Quantity' }),
   uomId: field({ type: String, label: 'UOM' }),
-  branchId: field({ type: String, label: 'Branch' }),
-  departmentId: field({ type: String, label: 'Department' })
+  branchId: field({ type: String, optional: true, label: 'Branch' }),
+  departmentId: field({ type: String, optional: true, label: 'Department' })
 });
 
 export const jobReferSchema = schemaHooksWrapper(
@@ -61,7 +62,11 @@ export const jobReferSchema = schemaHooksWrapper(
     code: field({ type: String, label: 'Code', index: true }),
     name: field({ type: String, label: 'Name' }),
     attachment: field({ type: attachmentSchema }),
-    type: field({ type: String, label: 'Type' }),
+    type: field({
+      type: String,
+      enum: JOB_TYPES.ALL,
+      label: 'Type'
+    }),
     status: field({ type: String, label: 'Status' }),
     createdAt: field({ type: Date, label: 'Created at' }),
     duration: field({ type: Number, label: 'Duration value' }),
@@ -71,9 +76,14 @@ export const jobReferSchema = schemaHooksWrapper(
       default: DURATION_TYPES.HOUR,
       label: 'Duration value'
     }),
-    needProducts: field({ type: productsDataSchema, label: 'Need products' }),
+    needProducts: field({
+      type: [productsDataSchema],
+      optional: true,
+      label: 'Need products'
+    }),
     resultProducts: field({
-      type: productsDataSchema,
+      type: [productsDataSchema],
+      optional: true,
       label: 'Result products'
     })
   }),

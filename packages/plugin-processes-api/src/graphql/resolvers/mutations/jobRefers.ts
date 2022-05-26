@@ -24,6 +24,8 @@ const jobReferMutations = {
     doc: IJobRefer,
     { user, docModifier, models, subdomain }: IContext
   ) {
+    console.log('jobRefers doc: ', doc);
+
     const jobRefer = await models.JobRefers.createJobRefer(docModifier(doc));
 
     await putCreateLog(
@@ -33,7 +35,8 @@ const jobReferMutations = {
         type: MODULE_NAMES.PRODUCT,
         newData: {
           ...doc,
-          categoryId: jobRefer.categoryId
+          categoryId: jobRefer.categoryId,
+          status: 'active'
         },
         object: jobRefer
       },
@@ -77,19 +80,23 @@ const jobReferMutations = {
    */
   async jobRefersRemove(
     _root,
-    { _id }: { _id: string },
+    { jobRefersIds }: { jobRefersIds: [string] },
     { user, models, subdomain }: IContext
   ) {
-    const jobRefer = await models.JobRefers.getJobRefer(_id);
+    const jobRefers = await models.JobRefers.find({
+      _id: { $in: jobRefersIds }
+    }).lean();
 
-    const response = await models.JobRefers.removeJobRefer(_id);
+    const response = await models.JobRefers.removeJobRefers(jobRefersIds);
 
-    await putDeleteLog(
-      models,
-      subdomain,
-      { type: MODULE_NAMES.PRODUCT, object: jobRefer },
-      user
-    );
+    for (const jobRefer of jobRefers) {
+      await putDeleteLog(
+        models,
+        subdomain,
+        { type: MODULE_NAMES.PRODUCT, object: jobRefer },
+        user
+      );
+    }
 
     return response;
   }

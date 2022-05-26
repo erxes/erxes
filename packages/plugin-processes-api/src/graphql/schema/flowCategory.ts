@@ -1,11 +1,4 @@
-import {
-  attachmentInput,
-  attachmentType
-} from '@erxes/api-utils/src/commonTypeDefs';
-
 export const types = `
-  ${attachmentType}
-  ${attachmentInput}
 
   type FlowCategory @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String,
@@ -13,10 +6,10 @@ export const types = `
     name: String,
     code: String,
     order: String,
-    description?: String,
-    parentId?: String,
-    attachment?: Attachment,
-    status?: String,
+    description: String,
+    parentId: String,
+    attachment: Attachment,
+    status: String,
   }
 `;
 
@@ -36,7 +29,7 @@ const flowCategoryParams = `
 `;
 
 export const mutations = `
-  productCategoriesAdd(${flowCategoryParams}): FlowCategory
-  productCategoriesEdit(_id: String!, ${flowCategoryParams}): FlowCategory
-  productCategoriesRemove(_id: String!): JSON
+  flowCategoriesAdd(${flowCategoryParams}): FlowCategory
+  flowCategoriesEdit(_id: String!, ${flowCategoryParams}): FlowCategory
+  flowCategoriesRemove(_id: String!): JSON
 `;

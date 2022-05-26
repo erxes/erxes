@@ -1,22 +1,14 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
 import React from 'react';
-import { Route } from 'react-router-dom';
-
-const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Tags" */ './jobs/containers/List')
-);
-
-const tags = ({ location, history }) => {
-  const queryParams = queryString.parse(location.search);
-
-  const { type } = queryParams;
-
-  return <List type={type} history={history} />;
-};
+import JobRoutes from './job/routes';
+import FlowRoutes from './flow/routes';
 
 const routes = () => {
-  return <Route path="/tags/" component={tags} />;
+  return (
+    <React.Fragment>
+      <JobRoutes />
+      <FlowRoutes />
+    </React.Fragment>
+  );
 };
 
 export default routes;

@@ -18,7 +18,7 @@ const productMutations = {
    * Creates a new product category
    * @param {Object} doc Product category document
    */
-  async productCategoriesAdd(
+  async flowCategoriesAdd(
     _root,
     doc: IFlowCategory,
     { user, docModifier, models, subdomain }: IContext
@@ -46,7 +46,7 @@ const productMutations = {
    * @param {string} param2._id ProductCategory id
    * @param {Object} param2.doc ProductCategory info
    */
-  async productCategoriesEdit(
+  async flowCategoriesEdit(
     _root,
     { _id, ...doc }: IFlowCategoriesEdit,
     { user, models, subdomain }: IContext
@@ -73,7 +73,7 @@ const productMutations = {
    * Removes a product category
    * @param {string} param1._id ProductCategory id
    */
-  async productCategoriesRemove(
+  async flowCategoriesRemove(
     _root,
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
@@ -92,6 +92,6 @@ const productMutations = {
   }
 };
 
-moduleCheckPermission(productMutations, 'manageJobRefers');
+// moduleCheckPermission(productMutations, 'manageJobRefers');
 
 export default productMutations;
