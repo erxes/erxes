@@ -14,8 +14,9 @@ const getByHost = async (models, requestInfo) => {
 
   const config = await models.ClientPortals.findOne({});
 
+  console.log(pattern, requestInfo);
+
   if (!config) {
-    console.log(pattern, requestInfo);
     throw new Error('Not found');
   }
 

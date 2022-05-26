@@ -15,6 +15,8 @@ const Layout = (props: Props) => {
     <AppProvider>
       <AppConsumer>
         {({ config, topic, currentUser, ...otherProps }: Store) => {
+          const { baseFont } = (config || ({} as any)).styles || {};
+
           return (
             <>
               <Head>
@@ -23,6 +25,17 @@ const Layout = (props: Props) => {
                   href={config.icon || ""}
                   type="image/x-icon"
                 />
+                {baseFont && (
+                  <style
+                    dangerouslySetInnerHTML={{
+                      __html: `
+                      body {
+                        font-family: ${baseFont} !important;
+                      }
+                  `,
+                    }}
+                  />
+                )}
               </Head>
               <DumbLayout
                 {...props}
