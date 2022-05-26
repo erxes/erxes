@@ -31,12 +31,6 @@ function DateChooser({
   const [dateTimes, setDateTimes] = useState([]);
   const [days, setDays] = useState([]);
 
-  console.log('confiiiiiiiiiiiig', configs);
-
-  useEffect(() => {
-    console.log('test', labels);
-  }, [labels]);
-
   useEffect(() => {
     let upDatedLabel = {};
 
@@ -45,10 +39,19 @@ function DateChooser({
 
     switch (data.type) {
       case 'Year':
-        type = MONTH;
-        type.forEach(element => {
-          upDatedLabel[element[key]] = { _id: '', data: [] };
-        });
+        if (configs) {
+          configs.forEach(element => {
+            upDatedLabel[element.month] = {
+              _id: element._id,
+              data: element.labelIds
+            };
+          });
+        } else {
+          type = MONTH;
+          type.forEach(element => {
+            upDatedLabel[element[key]] = { _id: '', data: [] };
+          });
+        }
         break;
       case 'Month':
         const dateObj = new Date(data.date);
@@ -64,31 +67,35 @@ function DateChooser({
         }
 
         setDays(type);
-        type.forEach(element => {
-          upDatedLabel[element[key]] = { _id: '', data: [] };
-        });
         if (configs) {
-          configs.map(t => {
-            const date = new Date(t.date);
-            const month = date.getMonth() + 1;
-            upDatedLabel[month] = { _id: t._id, data: t.labelIds };
+          configs.map(element => {
+            upDatedLabel[element.day] = {
+              _id: element._id,
+              data: element.labelIds
+            };
+          });
+        } else {
+          type.forEach(element => {
+            upDatedLabel[element[key]] = { _id: '', data: [] };
           });
         }
         break;
       case 'Day':
         type = timeframes;
         key = '_id';
-        type.forEach(element => {
-          upDatedLabel[element[key]] = { _id: '', data: [] };
-        });
         if (configs) {
           configs.map(t => {
-            upDatedLabel[t.dayConfigId] = { _id: t._id, data: t.labelIds };
+            upDatedLabel[t.timeframeId] = { _id: t._id, data: t.labelIds };
+          });
+        } else {
+          type.forEach(element => {
+            upDatedLabel[element._id] = { _id: '', data: [] };
           });
         }
 
         break;
     }
+
     setLabels({ ...labels, ...upDatedLabel });
   }, [timeframes, configs]);
 
@@ -109,7 +116,6 @@ function DateChooser({
   };
 
   const onSave = () => {
-    console.log('heeey', data._id, labels);
     save(data._id, labels);
   };
 
