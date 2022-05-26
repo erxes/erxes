@@ -12,7 +12,6 @@ import { __ } from '../../utils';
 import Map from './Map';
 import Marker from './Marker';
 import ObjectList from './ObjectList';
-import Icon from './common/Icon';
 
 type Props = {
   field: IField;
