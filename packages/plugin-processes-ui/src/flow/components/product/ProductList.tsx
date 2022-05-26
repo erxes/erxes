@@ -17,6 +17,7 @@ import Form from '../../containers/product/ProductForm';
 import CategoryList from '../../containers/productCategory/CategoryList';
 import { IJobRefer, IProductCategory } from '../../types';
 import Row from './ProductRow';
+import { menuContacts } from '../../../constants';
 import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
@@ -214,18 +215,18 @@ class List extends React.Component<IProps, State> {
       );
     }
 
-    const actionBarLeft = <Title>{currentCategory.name || 'All jobs'}</Title>;
+    const actionBarLeft = <Title>{currentCategory.name || 'All flows'}</Title>;
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('Job')} breadcrumb={breadcrumb} />}
-        mainHead={
-          <HeaderDescription
-            icon="/images/actions/30.svg"
-            title={'Job'}
-            description={``}
-          />
-        }
+        header={<Wrapper.Header title={__('Flow')} submenu={menuContacts} />}
+        // mainHead={
+        //   <HeaderDescription
+        //     icon="/images/actions/30.svg"
+        //     title={'Flow'}
+        //     description={``}
+        //   />
+        // }
         actionBar={
           <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
         }

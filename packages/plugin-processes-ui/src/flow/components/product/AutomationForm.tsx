@@ -19,13 +19,13 @@ import {
   ZoomActions,
   ZoomIcon,
   ActionBarButtonsWrapper
-} from '../../styles';
+} from '@erxes/plugin-automations-ui/src/styles';
 import { FormControl } from '@erxes/ui/src/components/form';
 import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
-import TriggerForm from '../../containers/forms/triggers/TriggerForm';
-import ActionsForm from '../../containers/forms/actions/ActionsForm';
-import TriggerDetailForm from './triggers/TriggerDetailForm';
+import TriggerForm from '@erxes/plugin-automations-ui/src/containers/forms/triggers/TriggerForm';
+import ActionsForm from '@erxes/plugin-automations-ui/src/containers/forms/actions/ActionsForm';
+import TriggerDetailForm from '@erxes/plugin-automations-ui/src/components/forms/triggers/TriggerForm';
 import {
   createInitialConnections,
   connection,
@@ -38,19 +38,19 @@ import {
   yesEndPoint,
   noEndPoint,
   getTriggerType
-} from '../../utils';
-import ActionDetailForm from './actions/ActionDetailForm';
+} from '@erxes/plugin-automations-ui/src/utils';
+import ActionDetailForm from '@erxes/plugin-automations-ui/src/components/forms/actions/ActionDetailForm';
 import Icon from '@erxes/ui/src/components/Icon';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import { Link } from 'react-router-dom';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import Modal from 'react-bootstrap/Modal';
-import NoteFormContainer from '../../containers/forms/NoteForm';
-import TemplateForm from '../../containers/forms/TemplateForm';
-import Histories from '../../components/histories/Wrapper';
-import Confirmation from '../../containers/forms/Confirmation';
-import { TRIGGER_TYPES } from '../../constants';
+import NoteFormContainer from '@erxes/plugin-automations-ui/src/containers/forms/NoteForm';
+import TemplateForm from '@erxes/plugin-automations-ui/src/containers/forms/TemplateForm';
+import Histories from '@erxes/plugin-automations-ui/src/components/histories/Wrapper';
+import Confirmation from '@erxes/plugin-automations-ui/src/containers/forms/Confirmation';
+import { TRIGGER_TYPES } from '@erxes/plugin-automations-ui/src/constants';
 import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 
 const plumb: any = jsPlumb;

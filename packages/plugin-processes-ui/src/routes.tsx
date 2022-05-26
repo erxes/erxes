@@ -1,31 +1,13 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
 import React from 'react';
-import { Route } from 'react-router-dom';
-
-const ProductList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings List - ProductService" */ './containers/product/ProductList'
-  )
-);
-
-const productService = ({ location, history }) => {
-  return (
-    <ProductList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
-};
+import JobRoutes from './job/routes';
+import FlowRoutes from './flow/routes';
 
 const routes = () => {
   return (
-    <Route
-      path="/processes/flows"
-      exact={true}
-      key="/processes/flows"
-      component={productService}
-    />
+    <React.Fragment>
+      <JobRoutes />
+      <FlowRoutes />
+    </React.Fragment>
   );
 };
 

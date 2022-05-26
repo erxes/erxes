@@ -12,7 +12,7 @@ module.exports = {
   menus: [
     {
       text: 'Processes',
-      to: '/processes/flows',
+      to: '/processes/jobs',
       image: '/images/icons/erxes-31.png',
       location: 'settings',
       scope: 'processes',

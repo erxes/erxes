@@ -26,3 +26,8 @@ export const PRODUCT_CATEGORY_STATUSES = [
   { label: 'Disabled', value: 'disabled' },
   { label: 'Archived', value: 'archived' }
 ];
+
+export const menuContacts = [
+  { title: 'Jobs', link: '/processes/Jobs' },
+  { title: 'Flows', link: '/processes/Flows' }
+];
