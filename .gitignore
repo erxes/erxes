@@ -2,13 +2,14 @@
 node_modules
 /node_modules
 dist
+.next
+out
 .env
 *.un~
 *.swp
 *.swo
 *.log
 build
-static
 .env.local
 .env.development.local
 .env.development
