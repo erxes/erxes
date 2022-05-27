@@ -4,10 +4,11 @@ import {
   IPosDocument,
   IProductGroupDocument,
   IPosOrderDocument,
-  posOrderSchema,
+  posOrderSchema
 } from './definitions/pos';
 import { IPOS } from '../types';
 import { Model } from 'mongoose';
+import { IModels } from '../connectionResolver';
 
 export interface IPosModel extends Model<IPosDocument> {
   getPosList(query: any): IPosDocument;
@@ -17,7 +18,7 @@ export interface IPosModel extends Model<IPosDocument> {
   posRemove(_id: string): IPosDocument;
 }
 
-export const loadPosClass = (models, _subdomain) => {
+export const loadPosClass = (models: IModels, _subdomain) => {
   class Pos {
     public static async getPosList(query: any) {
       return models.Pos.find(query).sort({ createdAt: 1 });
@@ -49,12 +50,11 @@ export const loadPosClass = (models, _subdomain) => {
 
     public static async posAdd(user, doc: IPOS) {
       try {
-
         return models.Pos.create({
           ...doc,
           userId: user._id,
           createdAt: new Date(),
-          token: this.generateToken(),
+          token: this.generateToken()
         });
       } catch (e) {
         throw new Error(
@@ -68,7 +68,7 @@ export const loadPosClass = (models, _subdomain) => {
 
       await models.Pos.updateOne(
         { _id },
-        { $set: doc },
+        { $set: { ...doc } },
         { runValidators: true }
       );
 
@@ -107,7 +107,7 @@ export const loadProductGroupClass = (models, _subdomain) => {
         userId: user._id,
         name,
         description,
-        createdAt: new Date(),
+        createdAt: new Date()
       });
     }
 
@@ -121,7 +121,7 @@ export const loadProductGroupClass = (models, _subdomain) => {
       await models.ProductGroups.updateOne(
         { _id },
         {
-          $set: doc,
+          $set: { ...doc }
         }
       );
 
@@ -140,9 +140,9 @@ export const loadProductGroupClass = (models, _subdomain) => {
 
 export interface IPosOrderModel extends Model<IPosOrderDocument> {}
 export const loadPosOrderClass = (_models, _subdomain) => {
-  class PosOrder { }
+  class PosOrder {}
 
   posOrderSchema.loadClass(PosOrder);
 
   return posOrderSchema;
-}
+};

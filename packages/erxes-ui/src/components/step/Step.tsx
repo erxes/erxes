@@ -86,7 +86,7 @@ class Step extends React.Component<Props> {
           btnStyle="primary"
           size="small"
           icon="arrow-right"
-          onClick={() => next(0)}
+          onClick={() => next && next(0)}
         >
           Next
         </Button>
@@ -122,6 +122,8 @@ class Step extends React.Component<Props> {
     let show = false;
 
     if (stepNumber === active) show = true;
+
+    console.log(stepNumber, active);
 
     switch (direction) {
       case 'vertical':
