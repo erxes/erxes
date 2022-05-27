@@ -52,21 +52,21 @@ function Welcome({ currentUser }: Props) {
 
   if (completedSteps && completedSteps.indexOf('userCreate') > -1) active = 6;
 
-  // Object.keys(currentUser.configs).map((value: string) => {
-  //   if (
-  //     value.includes('AWS') ||
-  //     value.includes('GOOGLE') ||
-  //     value.includes('COMPANY') ||
-  //     value.includes('FILE') ||
-  //     value.includes('MAIL') ||
-  //     value.includes('EMAIL') ||
-  //     value.includes('WIDGETS') ||
-  //     value.includes('UPLOAD')
-  //   ) {
-  //     active = 7;
-  //     return;
-  //   }
-  // });
+  Object.keys(currentUser.configs).map((value: string) => {
+    if (
+      value.includes('AWS') ||
+      value.includes('GOOGLE') ||
+      value.includes('COMPANY') ||
+      value.includes('FILE') ||
+      value.includes('MAIL') ||
+      value.includes('EMAIL') ||
+      value.includes('WIDGETS') ||
+      value.includes('UPLOAD')
+    ) {
+      active = 7;
+      return;
+    }
+  });
 
   const renderUserName = () => {
     if (!currentUser) {
@@ -124,7 +124,8 @@ function Welcome({ currentUser }: Props) {
         </Left>
         {title === 'Setup Process' && (
           <ProgressBar
-            percentage={Math.floor((active / 6) * 100)}
+            percentage={Math.floor((active / 7) * 100)}
+            color="success"
             type="circle"
             height="70px"
           />
@@ -169,7 +170,11 @@ function Welcome({ currentUser }: Props) {
     return (
       <Steps direction="vertical" active={active}>
         <Step title="General Information">
-          <Button size="small" onClick={() => history.push('/profile')}>
+          <Button
+            size="small"
+            onClick={() => history.push('/profile')}
+            icon="arrow-right"
+          >
             Go to your profile
           </Button>
         </Step>
@@ -177,6 +182,7 @@ function Welcome({ currentUser }: Props) {
           <Button
             size="small"
             onClick={() => history.push('/settings/general')}
+            icon="arrow-right"
           >
             Go to the general setting
           </Button>
@@ -187,6 +193,7 @@ function Welcome({ currentUser }: Props) {
             onClick={() =>
               history.push('/settings/brands#showBrandAddModal=true')
             }
+            icon="arrow-right"
           >
             Go to the brand settings
           </Button>
@@ -195,12 +202,17 @@ function Welcome({ currentUser }: Props) {
           <Button
             size="small"
             onClick={() => history.push('/settings/permissions')}
+            icon="arrow-right"
           >
             Go to permissions
           </Button>
         </Step>
         <Step title="Invite team members">
-          <Button size="small" onClick={() => history.push('/settings/team')}>
+          <Button
+            size="small"
+            onClick={() => history.push('/settings/team')}
+            icon="arrow-right"
+          >
             Go to team members
           </Button>
         </Step>
@@ -208,6 +220,7 @@ function Welcome({ currentUser }: Props) {
           <Button
             size="small"
             onClick={() => history.push('/settings/general')}
+            icon="arrow-right"
           >
             Go to the general settings
           </Button>
@@ -277,6 +290,8 @@ function Welcome({ currentUser }: Props) {
                 icon={com.icon}
                 img={com.image}
                 iconColor="black"
+                target="_blank"
+                rel="noopener"
               >
                 {com.name}
               </Button>
@@ -288,7 +303,7 @@ function Welcome({ currentUser }: Props) {
   };
 
   const renderBanner = (banner, index) => {
-    const { key, background, title, desc, button, img } = banner;
+    const { key, background, title, desc, button, img, href } = banner;
 
     return (
       <React.Fragment key={index}>
@@ -297,7 +312,13 @@ function Welcome({ currentUser }: Props) {
             <h4>{title}</h4>
             <p>{desc}</p>
             <br />
-            <Button size="large" btnStyle="white">
+            <Button
+              size="large"
+              btnStyle="white"
+              href={href}
+              target="_blank"
+              rel="noopener"
+            >
               {button}
             </Button>
           </div>
