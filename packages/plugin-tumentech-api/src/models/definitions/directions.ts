@@ -1,12 +1,18 @@
+import { ILocationOption } from '@erxes/ui/src/types';
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
+export interface IPlace {
+  name: string;
+  code: string;
+  center: ILocationOption;
+}
+
 export interface IDirection {
-  locationA: string;
-  locationB: string;
+  placeA: IPlace;
+  placeB: IPlace;
   totalDistance: number;
-  dirtRoadLength: number;
-  asphaltRoadLength: number;
+  roadCondition: string;
   description: string;
   duration: number;
 }
@@ -15,27 +21,30 @@ export interface IDirectionDocument extends IDirection, Document {
   _id: string;
 }
 
+export const placeSchema = new Schema(
+  {
+    _id: { type: String },
+    name: { type: String, label: 'name' },
+    code: { type: String, label: 'code' },
+    center: { type: Schema.Types.Mixed, label: 'center' }
+  },
+  { _id: false }
+);
+
 export const directionSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    locationA: field({ type: String, label: 'from', required: true }),
-    locationB: field({ type: String, label: 'to', required: true }),
+    locationA: field({ type: placeSchema, label: 'A', required: true }),
+    locationB: field({ type: placeSchema, label: 'B', required: true }),
     totalDistance: field({
       type: Number,
       label: 'Total distance',
       required: true
     }),
-    dirtRoadLength: field({
-      type: Number,
-      label: 'Dirt road total length',
-      optional: true,
-      default: 0
-    }),
-    asphaltRoadLength: field({
-      type: Number,
-      label: 'Asphalt road total length',
-      optional: true,
-      default: 0
+    roadCondition: field({
+      type: String,
+      label: 'Road Condition',
+      optional: true
     }),
     description: field({ type: String, label: 'description' }),
     duration: field({ type: Number, label: 'total duration (minuts)' })

@@ -22,7 +22,7 @@ const ProductDetails = asyncComponent(() =>
 );
 
 const DirectionList = asyncComponent(() =>
-  import(/* webpackChunkName: "DirectionList" */ './containers/Direction/List')
+  import(/* webpackChunkName: "DirectionList" */ './containers/direction/List')
 );
 
 const directionList = history => {

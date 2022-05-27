@@ -282,6 +282,49 @@ mutation selectWinner($customerId: String!, $dealId: String!){
 }
 `;
 
+const addDirection = `
+mutation directionsAdd($locationA: PlaceInput!, $locationB: PlaceInput!, $totalDistance: Int, $roadCondition: String, $description: String, $duration: Int) {
+  directionsAdd(locationA: $locationA, locationB: $locationB, totalDistance: $totalDistance, roadCondition: $roadCondition, description: $description, duration: $duration) {
+    _id
+    placeA {
+      name
+      code
+      center
+    }
+    placeB {
+      name
+      code
+      center
+    }
+    totalDistance
+    roadCondition
+    description
+    duration
+  }
+}
+`;
+
+const editDirection = `
+mutation directionsAdd($locationA: PlaceInput!, $locationB: PlaceInput!, $totalDistance: Int, $roadCondition: String, $description: String, $duration: Int) {
+  directionsAdd(locationA: $locationA, locationB: $locationB, totalDistance: $totalDistance, roadCondition: $roadCondition, description: $description, duration: $duration) {
+    _id
+    placeA {
+      name
+      code
+      center
+    }
+    placeB {
+      name
+      code
+      center
+    }
+    totalDistance
+    roadCondition
+    description
+    duration
+  }
+}`;
+
 export default {
   carsAdd,
   carsEdit,
@@ -298,5 +341,7 @@ export default {
   addParticipants,
   removeParticipants,
   removeParticipantsFromDeal,
-  selectWinner
+  selectWinner,
+  addDirection,
+  editDirection
 };

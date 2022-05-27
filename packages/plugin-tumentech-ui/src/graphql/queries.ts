@@ -332,16 +332,45 @@ const carsListConfig = `
 `;
 
 const directions = `
-query directions($searchValue: String) {
+query Directions($searchValue: String) {
   directions(searchValue: $searchValue) {
     _id
-    asphaltRoadLength
-    description
-    dirtRoadLength
-    duration
-    locationA
-    locationB
+    placeA {
+      name
+      code
+      center
+    }
+    placeB {
+      name
+      code
+      center
+    }
     totalDistance
+    roadCondition
+    description
+    duration
+  }
+}
+`;
+
+const directionDetail = `
+query directionDetail($id: String!) {
+  directionDetail(_id: $id) {
+    _id
+    placeA {
+      name
+      code
+      center
+    }
+    placeB {
+      name
+      code
+      center
+    }
+    totalDistance
+    roadCondition
+    description
+    duration
   }
 }
 `;
@@ -366,5 +395,6 @@ export default {
   productCategoryMatchCarCategories,
   participants,
   carsListConfig,
-  directions
+  directions,
+  directionDetail
 };

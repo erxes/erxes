@@ -10,6 +10,7 @@ import {
   IActivityLogForMonth
 } from '@erxes/ui/src/activityLogs/types';
 import { ICustomer } from '@erxes/ui/src/customers/types';
+import { ILocationOption } from '@erxes/ui/src/types';
 
 export interface IRouterProps {
   history: any;
@@ -423,3 +424,19 @@ export type AddParticipantsMutation = ({
 export type RemoveParticipantsMutation = ({
   variables: { dealId, customerIds }
 }) => Promise<any>;
+
+export type IPlace = {
+  name: string;
+  code: string;
+  center: ILocationOption;
+};
+
+export type IDirection = {
+  _id: string;
+  placeA: IPlace;
+  placeB: IPlace;
+  totalDistance: number;
+  roadCondition: string;
+  description: string;
+  duration: number;
+};

@@ -9,6 +9,8 @@ import { EMPTY_CONTENT_POPUPS } from '@erxes/ui-settings/src/constants';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Row from './Row';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import DirectionForm from '../../containers/direction/Form';
 
 type Props = {
   directions: any[];
@@ -32,15 +34,34 @@ const List = (props: Props) => {
   queryParams.loadingMainQuery = loading;
   let actionBarLeft: React.ReactNode;
 
-  const actionBarRight = (
-    <Link to="/forms/create">
-      <Button btnStyle="success" size="small" icon="plus-circle">
-        Add direction
-      </Button>
-    </Link>
+  // const actionBarRight = (
+  //   <Link to="/forms/create">
+  //     <Button btnStyle="success" size="small" icon="plus-circle">
+  //       Add direction
+  //     </Button>
+  //   </Link>
+  // );
+
+  const trigger = (
+    <Button btnStyle="success" size="small" icon="plus-circle">
+      Add direction
+    </Button>
   );
+
+  const formContent = props => <DirectionForm {...props} />;
+
+  const righActionBar = (
+    <ModalTrigger
+      size="lg"
+      title="Direction"
+      autoOpenKey="showAppAddModal"
+      trigger={trigger}
+      content={formContent}
+    />
+  );
+
   const actionBar = (
-    <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
+    <Wrapper.ActionBar right={righActionBar} left={actionBarLeft} />
   );
 
   const content = (
