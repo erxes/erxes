@@ -140,6 +140,7 @@ class CategoryList extends React.Component<Props> {
     return (
       <CategoryListWrapper
         baseColor={getConfigColor(config, "baseColor")}
+        headingColor={getConfigColor(config, "headingColor")}
         linkColor={getConfigColor(config, "linkColor")}
         linkHoverColor={getConfigColor(config, "linkHoverColor")}
       >
