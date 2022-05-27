@@ -1,6 +1,6 @@
 import {
   attachmentType,
-  attachmentInput,
+  attachmentInput
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 const groupCommonFields = `
@@ -41,7 +41,7 @@ const catProd = `
   productId: String
 `;
 
-const posOrderFields = (contactsEnabled) => `
+const posOrderFields = contactsEnabled => `
   _id: String,
   createdAt: Date,
   status: String,
@@ -66,11 +66,12 @@ const posOrderFields = (contactsEnabled) => `
   syncId: String,
   posName: String,
   user: User,
-  ${contactsEnabled
-    ? `
+  ${
+    contactsEnabled
+      ? `
       customer: Customer
     `
-    : ""
+      : ''
   }
   syncedErkhet: Boolean
 `;
@@ -84,21 +85,24 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     _id: String! @external
   }
 
-  ${contactsEnabled
-    ? `
+  ${
+    contactsEnabled
+      ? `
         extend type Customer @key(fields: "_id") {
           _id: String! @external
         }
-        `
-    : ""
+      `
+      : ''
   }
 
   ${
-    productsEnabled ? `
+    productsEnabled
+      ? `
       extend type ProductCategory @key(fields: "_id") {
         _id: String! @external
       }
-    ` : ""
+    `
+      : ''
   }
 
   type CatProd {
@@ -157,12 +161,13 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     createdAt: Date,
     count: Float,
     amount: Float,
-    ${productsEnabled
-    ? `
+    ${
+      productsEnabled
+        ? `
         category: ProductCategory
       `
-    : ""
-  }
+        : ''
+    }
   }
   type PosProducts {
     products: [PosProduct],

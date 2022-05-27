@@ -1,7 +1,7 @@
 import { attachmentSchema, customFieldSchema, ICustomField } from './common';
 import { Document, Schema } from 'mongoose';
 import { getDateFieldDefinition } from './utils';
-import { field, schemaHooksWrapper } from './util';
+import { field, schemaHooksWrapper, schemaWrapper } from './util';
 import { PRODUCT_STATUSES, PRODUCT_TYPES } from './constants';
 
 interface IAttachment {
@@ -47,21 +47,15 @@ export interface IProductCategoryDocument extends IProductCategory, Document {
   createdAt: Date;
 }
 
-const productCommonSchema = schemaHooksWrapper(
+export const productSchema = schemaWrapper(
   new Schema({
+    _id: field({ pkey: true }),
+    categoryId: field({ type: String, label: 'Category' }),
     name: field({ type: String, label: 'Name' }),
     code: field({ type: String, label: 'Code' }),
     description: field({ type: String, optional: true, label: 'Description' }),
     attachment: field({ type: attachmentSchema }),
-    createdAt: getDateFieldDefinition('Created at')
-  }),
-  'erxes_productCommonSchema'
-);
-
-export const productSchema = schemaHooksWrapper(
-  new Schema({
-    _id: field({ pkey: true }),
-    categoryId: field({ type: String, label: 'Category' }),
+    createdAt: getDateFieldDefinition('Created at'),
     type: field({
       type: String,
       enum: PRODUCT_TYPES.ALL,
@@ -101,10 +95,8 @@ export const productSchema = schemaHooksWrapper(
     }),
     vendorId: field({ type: String, optional: true, label: 'Vendor' }),
     mergedIds: field({ type: [String], optional: true }),
-    attachmentMore: field({ type: [attachmentSchema] }),
-    ...productCommonSchema
-  }),
-  'erxes_productSchema'
+    attachmentMore: field({ type: [attachmentSchema] })
+  })
 );
 
 export const productCategorySchema = schemaHooksWrapper(
@@ -112,7 +104,11 @@ export const productCategorySchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     order: field({ type: String, label: 'Order' }),
     parentId: field({ type: String, optional: true, label: 'Parent' }),
-    ...productCommonSchema
+    name: field({ type: String, label: 'Name' }),
+    code: field({ type: String, label: 'Code' }),
+    description: field({ type: String, optional: true, label: 'Description' }),
+    attachment: field({ type: attachmentSchema }),
+    createdAt: getDateFieldDefinition('Created at')
   }),
   'erxes_productCategorySchema'
 );
