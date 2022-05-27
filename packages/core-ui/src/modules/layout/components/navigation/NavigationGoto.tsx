@@ -16,7 +16,8 @@ import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import { pluginNavigations, getChildren } from './utils';
+import { GENERAL_SETTINGS } from '../../constants';
+import { pluginNavigations } from './utils';
 
 type Props = {
   navCollapse: number;
@@ -28,45 +29,6 @@ type State = {
   plugins: any[];
   searchValue: string;
 };
-
-const GENERAL_SETTINGS = [
-  {
-    name: 'General Settings',
-    text: 'System Configuration',
-    icon: 'icon-settings',
-    url: '/settings/general'
-  },
-  {
-    name: 'General Settings',
-    text: 'Permissions',
-    icon: 'icon-settings',
-    url: '/settings/permissions'
-  },
-  {
-    name: 'General Settings',
-    text: 'Team Members',
-    icon: 'icon-settings',
-    url: '/settings/team'
-  },
-  {
-    name: 'General Settings',
-    text: 'Brands',
-    icon: 'icon-settings',
-    url: '/settings/brands'
-  },
-  {
-    name: 'General Settings',
-    text: 'Import & Export',
-    icon: 'icon-settings',
-    url: '/settings/importHistories'
-  },
-  {
-    name: 'General Settings',
-    text: 'Apps',
-    icon: 'icon-settings',
-    url: '/settings/apps'
-  }
-];
 
 export default class NavigationGoto extends React.Component<Props, State> {
   private searchFormInput: any;
@@ -194,7 +156,6 @@ export default class NavigationGoto extends React.Component<Props, State> {
 
   render() {
     const { keysPressed, searchValue, show } = this.state;
-
     const { navCollapse } = this.props;
 
     if (keysPressed.Control === true && keysPressed.m === true)
@@ -219,7 +180,7 @@ export default class NavigationGoto extends React.Component<Props, State> {
           </Tip>
         </NavItem>
 
-        <Modal show={show} onHide={this.handleShow}>
+        <Modal show={show} onHide={this.handleShow} size="lg">
           <GotoFormWrapper>
             <Icon icon="search-1" size={16} />
             <input
