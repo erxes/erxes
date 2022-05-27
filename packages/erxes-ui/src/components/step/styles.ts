@@ -121,7 +121,7 @@ const FullStep = styledTS<{ show: boolean; direction?: string }>(styled.div)`
 
 const StepHeaderContainer = styled.div`
   width: 100%;
-  height: 55px;
+  min-height: 55px;
   padding: 0 ${dimensions.coreSpacing}px;
   display: flex;
   justify-content: space-between;
@@ -166,6 +166,7 @@ const StepContent = styledTS<{ direction?: string }>(styled.div)`
     props.direction === 'vertical' ? 'calc(100% - 35px)' : '100%'};
   height: 100%;
   margin-left: ${props => props.direction && 'auto'};
+  overflow: hidden;
 `;
 
 const ShortStep = styledTS<{

@@ -25,8 +25,7 @@ module.exports = {
       image: "/images/icons/erxes-11.svg",
       location: "settings",
       scope: "notifications",
-      action: "notificationsAll",
-      permissions: [],
+      action: "notificationsAll"
     },
   ],
 };

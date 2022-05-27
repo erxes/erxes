@@ -329,7 +329,7 @@ export const generateCommonFilters = async (
 
       Object.assign(filter, {
         $or: [
-          { assignedUserIds: { $in: includeCheckUserIds } },
+          { assignedUserIds: { $in: uqinueCheckUserIds } },
           { userId: { $in: uqinueCheckUserIds } }
         ]
       });

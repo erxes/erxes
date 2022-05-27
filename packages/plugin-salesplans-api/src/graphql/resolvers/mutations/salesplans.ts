@@ -17,7 +17,6 @@ const salesLogMutations = {
     doc: { update: ILabelDocument[]; add: ILabel[] },
     { models }: IContext
   ) => {
-    console.log('adsfsdfsdf', doc.add);
     return await models.Labels.saveLabels(doc);
   },
 
@@ -34,7 +33,7 @@ const salesLogMutations = {
     doc: { salesLogId: string; data: JSON },
     { models }: IContext
   ) => {
-    return await models.DayPlanConfigs.saveDayPlanConfig(doc);
+    return await models.DayPlanConfigs.saveDayPlanConfig({ doc });
   },
 
   saveMonthPlanConfig: async (
@@ -42,8 +41,15 @@ const salesLogMutations = {
     doc: { salesLogId: string; date: Date; data: JSON },
     { models }: IContext
   ) => {
-    console.log('wuuuuuut', doc);
     return await models.MonthPlanConfigs.saveMonthPlanConfig({ doc });
+  },
+
+  saveYearPlanConfig: async (
+    _root,
+    doc: { salesLogId: string; data: JSON },
+    { models }: IContext
+  ) => {
+    return await models.YearPlanConfigs.saveYearPlanConfig({ doc });
   },
 
   removeLabel: async (

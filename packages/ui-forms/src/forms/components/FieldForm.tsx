@@ -108,7 +108,7 @@ class FieldForm extends React.Component<Props, State> {
     field.text = selectedField.text;
     field.description = selectedField.description;
 
-    if (group === 'company') {
+    if (group === 'contacts:company') {
       switch (field.type) {
         case 'avatar':
           field.type = 'company_avatar';
@@ -505,8 +505,8 @@ class FieldForm extends React.Component<Props, State> {
             onChange={this.onPropertyGroupChange}
           >
             <option value={''} />
-            <option value={'customer'}>Customer</option>
-            <option value={'company'}>Company</option>
+            <option value={'contacts:customer'}>Customer</option>
+            <option value={'contacts:company'}>Company</option>
           </FormControl>
         </FormGroup>
       </>
@@ -636,7 +636,7 @@ class FieldForm extends React.Component<Props, State> {
       <>
         <FormGroup>
           <SelectProperty
-            queryParams={{ type: `contacts:${group}` }}
+            queryParams={{ type: group }}
             defaultValue={defaultValue}
             description="Any data collected through this field will copy to:"
             onChange={this.onPropertyChange}
