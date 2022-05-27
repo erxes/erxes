@@ -21,7 +21,7 @@ export const types = `
 
 export const queries = `
   getRemainder(productId: String, departmentId: String, branchId: String, uomId: String): GetRemainder
-  remainders(departmentId: String, branchId: String, productCategoryId: String): [Remainder]
+  remainders(departmentId: String, branchId: String, productCategoryId: String, productIds: [String]): [Remainder]
   remainderDetail(_id: String): Remainder
 `;
 

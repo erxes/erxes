@@ -7,12 +7,20 @@ import {
   IRemainder,
   IRemainderDocument,
   IRemainderParams,
+  IRemaindersParams,
   remainderSchema
 } from './definitions/remainders';
 
 export interface IRemainderModel extends Model<IRemainderDocument> {
   getRemainderObject(_id: string): Promise<IRemainderDocument>;
-  getRemainder(_id: IRemainderParams): Promise<IGetRemainder>;
+  getRemainder(
+    subdomain: string,
+    params: IRemainderParams
+  ): Promise<IGetRemainder>;
+  getRemainders(
+    subdomain: string,
+    params: IRemaindersParams
+  ): Promise<IRemainderDocument[]>;
   createRemainder(doc: IRemainder): Promise<IRemainderDocument>;
   updateRemainder(_id: string, doc: IRemainder): Promise<IRemainderDocument>;
   removeRemainder(_id: string): void;
@@ -34,8 +42,8 @@ export const loadRemainderClass = (models: IModels) => {
     }
 
     public static async getRemainder(
-      params: IRemainderParams,
-      subdomain: string
+      subdomain: string,
+      params: IRemainderParams
     ) {
       const { productId, departmentId, branchId, uomId } = params;
       const filter: any = { productId };
@@ -74,6 +82,46 @@ export const loadRemainderClass = (models: IModels) => {
       remainder;
 
       return { remainder, uomId: uom };
+    }
+
+    public static async getRemainders(
+      subdomain,
+      {
+        departmentId,
+        branchId,
+        productCategoryId,
+        productIds
+      }: IRemaindersParams
+    ) {
+      const selector: any = {};
+
+      if (departmentId) {
+        selector.departmentId = departmentId;
+      }
+
+      if (branchId) {
+        selector.branchId = branchId;
+      }
+
+      if (productCategoryId) {
+        const products = await sendProductsMessage({
+          subdomain,
+          action: 'find',
+          data: {
+            query: {},
+            categoryId: productCategoryId
+          },
+          isRPC: true
+        });
+
+        selector.productId = { $in: products.map(p => p._id) };
+      }
+
+      if (productIds) {
+        selector.productId = { $in: productIds };
+      }
+
+      return models.Remainders.find(selector).lean();
     }
 
     /**

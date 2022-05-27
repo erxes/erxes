@@ -28,9 +28,7 @@ const typeDefs = async _serviceDiscovery => {
       ${RemainderQueries}
     }
 
-    extend type Mutation {
-      ${RemainderMutations}
-    }
+
   `;
 };
 

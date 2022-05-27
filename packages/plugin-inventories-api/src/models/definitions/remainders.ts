@@ -8,6 +8,13 @@ export interface IRemainderParams {
   uomId?: string;
 }
 
+export interface IRemaindersParams {
+  departmentId?: string;
+  branchId?: string;
+  productCategoryId?: string;
+  productIds?: string[];
+}
+
 export interface IRemainder {
   productId: string;
   quantity: number;
