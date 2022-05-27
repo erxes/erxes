@@ -36,7 +36,7 @@ import { IContext as IMainContext } from '@erxes/api-utils/src';
 
 export interface IModels {
   Pos: IPosModel;
-  ProductGroup: IProductGroupModel;
+  ProductGroups: IProductGroupModel;
   PosOrders: IPosOrderModel;
   OrderItems: IOrderItemModel;
   Orders: IOrderModel;
@@ -74,8 +74,8 @@ export const loadClasses = (
     'pos',
     loadPosClass(models, subdomain)
   );
-  models.ProductGroup = db.model<IProductGroupDocument, IProductGroupModel>(
-    'productGroup',
+  models.ProductGroups = db.model<IProductGroupDocument, IProductGroupModel>(
+    'product_groups',
     loadProductGroupClass(models, subdomain)
   );
 

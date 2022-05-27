@@ -37,6 +37,8 @@ class Steps extends React.Component<Props, State> {
   next = (stepNumber: number) => {
     const { activeStep, maxStep } = this.state;
 
+    console.log(stepNumber);
+
     if (stepNumber === 0) {
       if (activeStep <= maxStep) this.setState({ activeStep: activeStep + 1 });
     } else this.setState({ activeStep: stepNumber });
@@ -65,6 +67,7 @@ class Steps extends React.Component<Props, State> {
 
       let childrenElements = React.Children.map(children, (child: any) => {
         if (!child) return null;
+        let _index = index;
 
         index++;
 
@@ -73,7 +76,7 @@ class Steps extends React.Component<Props, State> {
             show={true}
             active={activeStep >= index}
             direction={direction}
-            onClick={() => this.next(index)}
+            onClick={() => this.next(_index + 1)}
           >
             <StepCount direction={direction} active={activeStep >= index}>
               {index}
