@@ -9,13 +9,14 @@ import {
 } from '../../../messageBroker';
 
 const getByHost = async (models, requestInfo) => {
-  const hostname = requestInfo.headers.hostname;
-  const pattern = `.*${hostname}.*`;
+  const origin = requestInfo.headers.origin;
+  const pattern = `.*${origin}.*`;
 
-  const config = await models.ClientPortals.findOne({});
+  const config = await models.ClientPortals.findOne({
+    url: { $regex: pattern }
+  });
 
   if (!config) {
-    console.log(pattern, requestInfo);
     throw new Error('Not found');
   }
 

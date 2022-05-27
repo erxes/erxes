@@ -83,21 +83,22 @@ function DateChooserContainer({
 
   let configs;
 
-  if (type === 'Day')
-    configs = dayplanconfs.data ? dayplanconfs.data.getDayPlanConfig : null;
-  else if (type === 'Month')
-    configs = monthplanconfs.data
-      ? monthplanconfs.data.getMonthPlanConfig
-      : null;
-  else
-    configs = yearplanconfs.data ? yearplanconfs.data.getYearPlanConfig : null;
-
+  if (type === 'Day') {
+    if (dayplanconfs.loading) return <Spinner objective={true} />;
+    configs = dayplanconfs ? dayplanconfs.getDayPlanConfig : [];
+  } else {
+    if (type === 'Month')
+      configs = monthplanconfs ? monthplanconfs.getMonthPlanConfig : [];
+    else configs = yearplanconfs ? yearplanconfs.getYearPlanConfig : [];
+  }
   if (labelsQuery.loading) return <Spinner objective={true} />;
+
+  if (timeframeQuery.loading) return <Spinner objective={true} />;
 
   return (
     <DateChooser
       labelData={labelsQuery ? labelsQuery.getLabels : []}
-      timeframes={timeframeQuery.data ? timeframeQuery.data.getTimeframes : []}
+      timeframes={timeframeQuery ? timeframeQuery.getTimeframes : []}
       configs={configs}
       data={data}
       save={saveData}

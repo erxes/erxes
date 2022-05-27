@@ -41,8 +41,10 @@ function ArticleDetailContainer({
 
   return (
     <AppConsumer>
-      {({ topic }: Store) => {
-        return <ArticleDetail {...updatedProps} topic={topic} />;
+      {({ topic, config }: Store) => {
+        return (
+          <ArticleDetail {...updatedProps} topic={topic} config={config} />
+        );
       }}
     </AppConsumer>
   );
