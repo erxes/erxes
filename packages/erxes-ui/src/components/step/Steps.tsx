@@ -30,7 +30,7 @@ class Steps extends React.Component<Props, State> {
 
     this.state = {
       activeStep: props.active ? props.active : 1,
-      maxStep: 6
+      maxStep: props.maxStep ? props.maxStep : 6
     };
   }
 
@@ -56,41 +56,40 @@ class Steps extends React.Component<Props, State> {
 
   renderContent = () => {
     const { direction, children, maxStep } = this.props;
-
     const { activeStep } = this.state;
+
+    let index: number = 0;
 
     if (direction === 'horizontal') {
       let headerElements: any = [];
 
-      let childrenElements = React.Children.map(
-        children,
-        (child: any, index: number) => {
-          if (!child) return null;
+      let childrenElements = React.Children.map(children, (child: any) => {
+        if (!child) return null;
 
-          headerElements.push(
-            <ShortStep
-              show={true}
-              active={activeStep >= index + 1}
-              direction={direction}
-              onClick={() => this.next(index + 1)}
-            >
-              <StepCount direction={direction} active={activeStep >= index + 1}>
-                {index + 1}
-              </StepCount>
-              <StepHeaderTitle>{__(child.props.title || '')}</StepHeaderTitle>
-            </ShortStep>
-          );
+        index++;
 
-          return React.cloneElement(child, {
-            stepNumber: index + 1,
-            active: activeStep,
-            next: this.next,
-            // back: this.back,
-            direction,
-            maxStep
-          });
-        }
-      );
+        headerElements.push(
+          <ShortStep
+            show={true}
+            active={activeStep >= index}
+            direction={direction}
+            onClick={() => this.next(index)}
+          >
+            <StepCount direction={direction} active={activeStep >= index}>
+              {index}
+            </StepCount>
+            <StepHeaderTitle>{__(child.props.title || '')}</StepHeaderTitle>
+          </ShortStep>
+        );
+
+        return React.cloneElement(child, {
+          stepNumber: index,
+          active: activeStep,
+          next: this.next,
+          direction,
+          maxStep
+        });
+      });
 
       return (
         <StepItem show={true}>
@@ -102,11 +101,13 @@ class Steps extends React.Component<Props, State> {
       );
     }
 
-    return React.Children.map(children, (child: any, index: number) => {
+    return React.Children.map(children, (child: any) => {
       if (!child) return null;
 
+      index++;
+
       return React.cloneElement(child, {
-        stepNumber: index + 1,
+        stepNumber: index,
         active: activeStep,
         next: this.next,
         back: this.back,
