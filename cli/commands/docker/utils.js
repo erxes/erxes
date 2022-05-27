@@ -621,7 +621,7 @@ const update = async ({ pluginNames, noimage, uis }) => {
     if (!noimage) {
       log(`Updating image ${name}......`);
 
-      if (['crons', 'dashboard-front', 'gateway'].includes(name)) {
+      if (['crons', 'dashboard-front', 'gateway', 'client-portal'].includes(name)) {
         await execCommand(
           `docker service update erxes_${name} --image erxes/${name}:federation`
         );

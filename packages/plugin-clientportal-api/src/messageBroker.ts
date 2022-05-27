@@ -3,7 +3,7 @@ import { serviceDiscovery } from './configs';
 
 let client;
 
-export const initBroker = (cl) => {
+export const initBroker = cl => {
   client = cl;
 };
 
@@ -11,10 +11,10 @@ export const sendCoreMessage = async (args: ISendMessageArgs) => {
   return sendMessage({
     serviceDiscovery,
     client,
-    serviceName: "core",
+    serviceName: 'core',
     ...args
   });
-}
+};
 
 export const sendContactsMessage = async (
   args: ISendMessageArgs
@@ -23,7 +23,7 @@ export const sendContactsMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'contacts',
-    ...args,
+    ...args
   });
 };
 
@@ -34,10 +34,19 @@ export const sendCardsMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'cards',
-    ...args,
+    ...args
   });
 };
 
-export default function () {
+export const sendKbMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'knowledgebase',
+    ...args
+  });
+};
+
+export default function() {
   return client;
 }

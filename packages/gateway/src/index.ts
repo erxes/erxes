@@ -87,6 +87,7 @@ const {
         }
       },
       onProxyReq: (proxyReq, req: any) => {
+        proxyReq.setHeader('hostname', req.hostname);
         proxyReq.setHeader('userid', req.user ? req.user._id : '');
       },
       pathRewrite: async path => {

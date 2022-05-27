@@ -14,6 +14,7 @@ export type ClientPortalConfig = {
   icon?: string;
   domain?: string;
   dnsStatus?: string;
+  messengerBrandCode?: string;
   knowledgeBaseLabel?: string;
   knowledgeBaseTopicId?: string;
   ticketLabel?: string;

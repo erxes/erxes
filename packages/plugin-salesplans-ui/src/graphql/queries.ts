@@ -89,7 +89,7 @@ const getYearPlanConfig = `
     getYearPlanConfig(salesLogId: $salesLogId) {
       _id,
       labelIds,
-      day
+      month
     }
   }
 `;
