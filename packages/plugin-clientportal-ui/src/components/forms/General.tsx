@@ -51,6 +51,7 @@ function General({
   name,
   description,
   url,
+  messengerBrandCode,
   knowledgeBaseLabel,
   knowledgeBaseTopicId,
   taskPublicBoardId,
@@ -365,6 +366,12 @@ function General({
           'taskToggle',
           taskToggle
         )}
+        {renderControl({
+          label: 'Messenger brand code',
+          subtitle: 'Brand code in messenger install script',
+          formValueName: 'messengerBrandCode',
+          formValue: messengerBrandCode
+        })}
       </Block>
     );
   };

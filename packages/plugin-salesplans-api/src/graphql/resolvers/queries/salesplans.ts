@@ -17,17 +17,29 @@ const salesLogQueries = {
     return await models.Timeframes.find({});
   },
 
-  getDayPlanConfig: async (_root, salesLogId: string, { models }: IContext) => {
+  getDayPlanConfig: async (
+    _root,
+    { salesLogId }: { salesLogId: string },
+    { models }: IContext
+  ) => {
     return await models.DayPlanConfigs.find({ salesLogId });
   },
 
   getMonthPlanConfig: async (
     _root,
-    salesLogId: string,
+    { salesLogId }: { salesLogId: string },
     { models }: IContext
   ) => {
-    return await models.MonthPlanConfigs.find({
-      salesLogId: salesLogId
+    return await models.MonthPlanConfigs.find({ salesLogId });
+  },
+
+  getYearPlanConfig: async (
+    _root,
+    { salesLogId }: { salesLogId: string },
+    { models }: IContext
+  ) => {
+    return await models.YearPlanConfigs.find({
+      salesLogId
     });
   }
 };
