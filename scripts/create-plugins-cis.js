@@ -73,6 +73,10 @@ var main = async () => {
         uiConfigs.routes.url = url;
       }
 
+      if (uiConfigs.layout) {
+        uiConfigs.layout.url = url;
+      }
+
       pluginsMap[plugin.name] = {
         ui: uiConfigs
       }
@@ -96,7 +100,7 @@ var main = async () => {
       } catch (e) {
         console.log(`no essyncer file found for ${plugin.name}`);
       }
-      
+
       if (permissions || essyncer) {
         pluginsMap[plugin.name].api = {};
       }
