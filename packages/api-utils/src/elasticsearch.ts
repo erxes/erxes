@@ -142,3 +142,37 @@ export const fetchEsWithScroll = async (scrollId: string) => {
     throw new Error(e);
   }
 };
+
+export const fetchByQuery = async ({
+  subdomain,
+  index,
+  positiveQuery,
+  negativeQuery,
+  _source = '_id'
+}: {
+  subdomain: string;
+  index: string;
+  _source?: string;
+  positiveQuery: any;
+  negativeQuery: any;
+}) => {
+  const response = await fetchEs({
+    subdomain,
+    action: 'search',
+    index,
+    body: {
+      _source,
+      query: {
+        bool: {
+          must: positiveQuery,
+          must_not: negativeQuery
+        }
+      }
+    },
+    defaultValue: { hits: { hits: [] } }
+  });
+
+  return response.hits.hits
+    .map(hit => (_source === '_id' ? hit._id : hit._source[_source]))
+    .filter(r => r);
+};
