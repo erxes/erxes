@@ -10,6 +10,7 @@ export interface IFetchEsArgs {
   defaultValue?: any;
   scroll?: string;
   size?: number;
+  ignoreError?: boolean;
 }
 
 export const doSearch = async ({
