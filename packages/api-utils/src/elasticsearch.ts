@@ -83,7 +83,8 @@ export const fetchEs = async ({
   _id,
   defaultValue,
   scroll,
-  size
+  size,
+  ignoreError = false
 }: IFetchEsArgs) => {
   try {
     const params: any = {
@@ -109,7 +110,11 @@ export const fetchEs = async ({
 
     return response;
   } catch (e) {
-    debugError(`Error during es query ${e.message}`);
+    if (!ignoreError) {
+      debugError(
+        `Error during es query: ${JSON.stringify(body)}: ${e.message}`
+      );
+    }
 
     if (typeof defaultValue !== 'undefined') {
       return defaultValue;
