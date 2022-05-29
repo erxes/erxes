@@ -6,14 +6,14 @@ import { router, withProps, Alert } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import { graphql } from 'react-apollo';
 import { IUser } from '@erxes/ui/src/auth/types';
-import AutomationForm from '../../components/product/AutomationForm';
-import { queries, mutations } from '@erxes/plugin-automations-ui/src/graphql';
+import AutomationForm from '../../components/forms/AutomationForm';
+import { queries, mutations } from '../../graphql';
 import {
   DetailQueryResponse,
   EditMutationResponse,
   IAutomation,
   AutomationsNoteQueryResponse
-} from '@erxes/plugin-automations-ui/src/types';
+} from '../../types';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 
