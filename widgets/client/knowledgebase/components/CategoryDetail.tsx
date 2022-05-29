@@ -23,7 +23,7 @@ function CategoryDetail({ category, goToCategories }: Props) {
       <div className="category-container">
         <div className="flex-item spaced">
           <div className="topic-icon">
-            <i className={`icon-${category.icon}`} />
+            <i className={`erxes-icon-${category.icon}`} />
           </div>
           <div className="topic-content">
             <h1>{category.title}</h1>

@@ -51,7 +51,7 @@ export const fieldsCombinedByContentType = async (
     {
       segmentId,
       usageType,
-      config
+      config: config || {}
     },
     []
   );

@@ -39,7 +39,6 @@ export default class MyDocument extends Document {
             content="Erxes client portal erxes.io erxes.org mongolia"
           />
 
-          <link href="/static/favicon.png" rel="shortcut icon" />
           <link
             rel="stylesheet"
             href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"

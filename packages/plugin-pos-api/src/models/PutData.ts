@@ -89,7 +89,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
 
     const taxPercent = this.vatPercent + this.cityTaxPercent;
 
-    for (const detail of this.params.details) {
+    for (const detail of this.params.details || []) {
       sumAmount += detail.amount;
 
       const vat = (detail.amount / (100 + taxPercent)) * this.vatPercent;
@@ -215,8 +215,8 @@ export const returnBill = async (doc, config) => {
 
   const rd = prePutResponse.registerNo || '';
   const data = {
-    returnBillId: prePutResponse.billId,
-    date: prePutResponse.date
+    returnBillId: prePutResponse.billId || '',
+    date: (prePutResponse.date || '').toString()
   };
 
   const resObj = await PutResponses.createPutResponse({

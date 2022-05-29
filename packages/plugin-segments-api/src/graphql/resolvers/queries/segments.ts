@@ -33,11 +33,7 @@ const segmentQueries = {
     return types;
   },
 
-  async segmentsGetAssociationTypes(
-    _root,
-    { contentType },
-    { subdomain }: IContext
-  ) {
+  async segmentsGetAssociationTypes(_root, { contentType }) {
     const [serviceName, type] = contentType.split(':');
     const service = await serviceDiscovery.getService(serviceName, true);
     const meta = service.config.meta || {};
@@ -48,15 +44,7 @@ const segmentQueries = {
 
     const descriptionMap = meta.segments.descriptionMap;
 
-    const types = await sendMessage({
-      subdomain,
-      serviceName,
-      action: `segments.associationTypes`,
-      isRPC: true,
-      data: { mainType: type }
-    });
-
-    return types.map(atype => ({
+    return (meta.segments.associationTypes || []).map(atype => ({
       value: atype,
       description: descriptionMap[atype.split(':')[1]]
     }));
