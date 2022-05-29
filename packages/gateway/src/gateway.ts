@@ -93,6 +93,7 @@ class CookieHeaderPassingDataSource extends RemoteGraphQLDataSource<
     }
 
     request.http?.headers.set('hostname', context.req.hostname);
+    request.http?.headers.set('origin', context.req.get('origin') || '');
 
     if (context.req.user) {
       const userJson = JSON.stringify(context.req.user);

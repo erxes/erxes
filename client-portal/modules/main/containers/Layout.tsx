@@ -3,6 +3,7 @@ import Head from "next/head";
 import DumbLayout from "../components/Layout";
 import AppProvider, { AppConsumer } from "../../appContext";
 import { Store } from "../../types";
+import { readFile } from "../../common/utils";
 
 type Props = {
   children: (values: any) => JSX.Element;
@@ -20,11 +21,13 @@ const Layout = (props: Props) => {
           return (
             <>
               <Head>
-                <link
-                  rel="shortcut icon"
-                  href={config.icon || ""}
-                  type="image/x-icon"
-                />
+                {config.icon && (
+                  <link
+                    rel="shortcut icon"
+                    href={readFile(config.icon || "/static/favicon.png")}
+                    type="image/x-icon"
+                  />
+                )}
                 {baseFont && (
                   <style
                     dangerouslySetInnerHTML={{

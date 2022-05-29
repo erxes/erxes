@@ -182,7 +182,6 @@ export const extractConfig = doc => {
   return {
     name: doc.name,
     description: doc.description,
-    brandId: doc.brandId,
     productDetails: doc.productDetails,
     adminIds: doc.adminIds,
     cashierIds: doc.cashierIds,

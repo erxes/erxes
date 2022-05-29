@@ -1,17 +1,6 @@
-const commonFormParamsDef = `
-  $name: String!
-  $brandId: String!
-`;
-
-const commonFormParams = `
-  name: $name
-  brandId: $brandId
-`;
-
 const commonFields = `
   $name: String
   $description: String
-  $brandId: String
   $productDetails: [String]
   $adminIds: [String]
   $cashierIds: [String]
@@ -35,7 +24,6 @@ const commonFields = `
 const commonVariables = `
   name: $name,
   description: $description,
-  brandId: $brandId
   productDetails: $productDetails
   adminIds: $adminIds
   cashierIds: $cashierIds
@@ -114,5 +102,5 @@ export default {
   posRemove,
   updateConfigs,
   brandAdd,
-  saveProductGroups,
+  saveProductGroups
 };
