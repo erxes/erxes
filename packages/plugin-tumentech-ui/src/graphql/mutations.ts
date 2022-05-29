@@ -283,8 +283,8 @@ mutation selectWinner($customerId: String!, $dealId: String!){
 `;
 
 const addDirection = `
-mutation directionsAdd($locationA: PlaceInput!, $locationB: PlaceInput!, $totalDistance: Int, $roadCondition: String, $description: String, $duration: Int) {
-  directionsAdd(locationA: $locationA, locationB: $locationB, totalDistance: $totalDistance, roadCondition: $roadCondition, description: $description, duration: $duration) {
+mutation directionsAdd($locationA: PlaceInput!, $locationB: PlaceInput!, $totalDistance: Int, $roadConditions: [String], $description: String, $duration: Int) {
+  directionsAdd(locationA: $locationA, locationB: $locationB, totalDistance: $totalDistance, roadConditions: $roadConditions, description: $description, duration: $duration) {
     _id
     placeA {
       name
@@ -297,7 +297,7 @@ mutation directionsAdd($locationA: PlaceInput!, $locationB: PlaceInput!, $totalD
       center
     }
     totalDistance
-    roadCondition
+    roadConditions
     description
     duration
   }
@@ -305,8 +305,8 @@ mutation directionsAdd($locationA: PlaceInput!, $locationB: PlaceInput!, $totalD
 `;
 
 const editDirection = `
-mutation directionsAdd($locationA: PlaceInput!, $locationB: PlaceInput!, $totalDistance: Int, $roadCondition: String, $description: String, $duration: Int) {
-  directionsAdd(locationA: $locationA, locationB: $locationB, totalDistance: $totalDistance, roadCondition: $roadCondition, description: $description, duration: $duration) {
+mutation directionsAdd($locationA: PlaceInput!, $locationB: PlaceInput!, $totalDistance: Int, $roadConditions: [String], $description: String, $duration: Int) {
+  directionsAdd(locationA: $locationA, locationB: $locationB, totalDistance: $totalDistance, roadConditions: $roadConditions, description: $description, duration: $duration) {
     _id
     placeA {
       name
@@ -319,7 +319,7 @@ mutation directionsAdd($locationA: PlaceInput!, $locationB: PlaceInput!, $totalD
       center
     }
     totalDistance
-    roadCondition
+    roadConditions
     description
     duration
   }

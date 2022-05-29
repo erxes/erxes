@@ -8,7 +8,7 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import { IDirection, IPlace } from '../../types';
-import { CITIES } from '../../constants';
+import { CITIES, ROAD_CONDITIONS } from '../../constants';
 import Select from 'react-select-plus';
 import Map from '@erxes/ui/src/components/Map';
 
@@ -27,14 +27,29 @@ const PropertyGroupForm = (props: Props) => {
   const [placeB, setPlaceB] = useState<IPlace>(
     (direction && direction.placeB) || ({} as IPlace)
   );
+  const [roadConditions, setRoadCondition] = useState<string[]>(
+    (direction && direction.roadConditions) || ['asphalt']
+  );
+  const [duration, setDuration] = useState<number>(
+    (direction && direction.duration) || 0
+  );
+  const [distance, setDistance] = useState<number>(
+    (direction && direction.totalDistance) || 0
+  );
 
-  const generateDoc = values => {
+  const generateDoc = () => {
     const { direction } = props;
-    const finalValues = values;
+    const finalValues: any = {};
 
     if (direction) {
       finalValues._id = direction._id;
     }
+
+    finalValues.placeA = placeA;
+    finalValues.placeB = placeB;
+    finalValues.roadConditions = roadConditions;
+    finalValues.duration = duration;
+    finalValues.totalDistance = distance;
 
     return {
       ...finalValues
@@ -51,7 +66,6 @@ const PropertyGroupForm = (props: Props) => {
   const renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = props;
     const { values, isSubmitted } = formProps;
-    const object = direction || ({} as IDirection);
 
     const onChangeLocation = locationOptions => {
       console.log(locationOptions);
@@ -69,8 +83,6 @@ const PropertyGroupForm = (props: Props) => {
           description: city.city_mn
         }
       };
-
-      console.log(place);
       setPlaceA(place);
     };
 
@@ -88,6 +100,21 @@ const PropertyGroupForm = (props: Props) => {
       };
 
       setPlaceB(place);
+    };
+
+    const onChangeRoadCondition = values => {
+      setRoadCondition(values);
+    };
+
+    const onChangeInput = e => {
+      const { id, value } = e.target;
+      switch (id) {
+        case 'duration':
+          setDuration(parseInt(value, 10));
+          break;
+        case 'distance':
+          setDistance(parseInt(value, 10));
+      }
     };
 
     return (
@@ -145,29 +172,42 @@ const PropertyGroupForm = (props: Props) => {
         )}
 
         <FormGroup>
-          <ControlLabel>Distance</ControlLabel>
+          <ControlLabel>Distance (km)</ControlLabel>
+          <p>distance between A - B, in kilometers</p>
           <FormControl
             {...formProps}
+            id="distance"
             name="totalDistance"
-            defaultValue={object.totalDistance}
+            type="number"
+            min={1}
+            defaultValue={distance}
+            onChange={onChangeInput}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Duration (minutes)</ControlLabel>
+          <p>average travel time, in minutes</p>
+          <FormControl
+            {...formProps}
+            id="duration"
+            name="duration"
+            type="number"
+            min={1}
+            defaultValue={duration}
+            onChange={onChangeInput}
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Road Conditions</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="roadCondition"
-            defaultValue={object.roadCondition}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Duration</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="duration"
-            defaultValue={object.duration}
+          <Select
+            placeholder={__('Select a road type')}
+            value={roadConditions}
+            onChange={onChangeRoadCondition}
+            options={ROAD_CONDITIONS.ALL}
+            multi={true}
+            clearable={true}
           />
         </FormGroup>
 
@@ -178,7 +218,7 @@ const PropertyGroupForm = (props: Props) => {
 
           {renderButton({
             name: 'property group',
-            values: generateDoc(values),
+            values: generateDoc(),
             isSubmitted,
             callback: closeModal,
             object: direction

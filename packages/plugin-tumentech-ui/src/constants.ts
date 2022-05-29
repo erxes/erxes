@@ -1,3 +1,14 @@
+export const ROAD_CONDITIONS = {
+  asphalt: 'засмал ',
+  unpaved: 'сайжруулсан шороон',
+  dirt: 'шороон',
+  ALL: [
+    { value: 'asphalt', label: 'засмал ' },
+    { value: 'unpaved', label: 'сайжруулсан шороон' },
+    { value: 'dirt', label: 'шороон' }
+  ]
+};
+
 export const CAR_INFO = {
   description: 'Description',
 

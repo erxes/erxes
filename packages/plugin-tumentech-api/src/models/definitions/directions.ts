@@ -12,7 +12,7 @@ export interface IDirection {
   placeA: IPlace;
   placeB: IPlace;
   totalDistance: number;
-  roadCondition: string;
+  roadConditions: string[];
   description: string;
   duration: number;
 }
@@ -41,8 +41,8 @@ export const directionSchema = schemaHooksWrapper(
       label: 'Total distance',
       required: true
     }),
-    roadCondition: field({
-      type: String,
+    roadConditions: field({
+      type: [String],
       label: 'Road Condition',
       optional: true
     }),

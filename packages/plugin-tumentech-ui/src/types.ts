@@ -436,7 +436,7 @@ export type IDirection = {
   placeA: IPlace;
   placeB: IPlace;
   totalDistance: number;
-  roadCondition: string;
+  roadConditions: string[];
   description: string;
   duration: number;
 };

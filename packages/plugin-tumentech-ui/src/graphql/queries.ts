@@ -346,7 +346,7 @@ query Directions($searchValue: String) {
       center
     }
     totalDistance
-    roadCondition
+    roadConditions
     description
     duration
   }
@@ -368,7 +368,7 @@ query directionDetail($id: String!) {
       center
     }
     totalDistance
-    roadCondition
+    roadConditions
     description
     duration
   }

@@ -17,7 +17,7 @@ export const types = `
     placeA: Place
     placeB: Place
     totalDistance: Int
-    roadCondition: String
+    roadConditions: [String]
     description: String
     duration: Int
   }
@@ -32,7 +32,7 @@ const params = `
   locationA: PlaceInput!,
   locationB: PlaceInput!,
   totalDistance: Int
-  roadCondition: String
+  roadConditions: [String]
   description: String
   duration: Int
 `;
