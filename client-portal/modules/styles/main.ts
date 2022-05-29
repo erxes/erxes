@@ -5,13 +5,15 @@ import styledTS from "styled-components-ts";
 
 const Header = styledTS<{
   color?: string;
+  background?: string;
   backgroundImage?: string;
   headingSpacing?: boolean;
 }>(styled.div)`
   padding: ${(props) => (props.headingSpacing ? "30px 30px 180px" : "30px 0")};
-  color: ${colors.colorWhite};
+  color: ${(props) => (props.color ? props.color : colors.colorWhite)};
   font-size: ${typography.fontSizeBody}px;
-  background-color: ${(props) => (props.color ? props.color : "#f5f8fb")};
+  background-color: ${(props) =>
+    props.background ? props.background : "#f5f8fb"};
   background-image: ${(props) =>
     props.backgroundImage && `url(${props.backgroundImage})`};
 
@@ -45,10 +47,11 @@ const HeaderLogo = styled.div`
   }
 `;
 
-const HeaderTitle = styled.span`
+const HeaderTitle = styledTS<{ color?: boolean }>(styled.span)`
   margin-left: 10px;
   padding-left: 10px;
-  border-left: 1px solid ${colors.colorWhite};
+  border-left: 1px solid ${(props) =>
+    props.color ? props.color : colors.colorWhite};
   font-size: 16px;
   letter-spacing: 1px;
   text-transform: capitalize;
@@ -69,7 +72,7 @@ const HeaderLeft = styled.div`
   align-items: baseline;
 `;
 
-const SupportMenus = styled.div`
+const SupportMenus = styledTS<{ color?: boolean }>(styled.div)`
   display: flex;
   align-items: baseline;
   justify-content: flex-end;
@@ -82,7 +85,8 @@ const SupportMenus = styled.div`
   }
 
   > button {
-    color: ${colors.colorWhite} !important;
+    color: ${(props) =>
+      props.color ? props.color : colors.colorWhite} !important;
   }
 `;
 
@@ -97,13 +101,14 @@ const HeaderLinks = styled.div`
   text-align: right;
 `;
 
-const LinkItem = styledTS<{ active?: boolean }>(styled.span)`
+const LinkItem = styledTS<{ active?: boolean; color?: boolean }>(styled.span)`
   display: inline-block;
   padding-right: ${dimensions.unitSpacing}px;
   margin-right: ${dimensions.unitSpacing}px;
   font-size: 14px;
   opacity: 0.9;
-  border-right: 1px solid #fff;
+  border-right: 1px solid ${(props) =>
+    props.color ? props.color : colors.colorWhite};
   text-transform: capitalize;
   position: relative;
   transition: all ease 0.3s;

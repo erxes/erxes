@@ -1,12 +1,22 @@
+import { fetchByQuery } from '@erxes/api-utils/src/elasticsearch';
 import { generateModels } from './connectionResolver';
+import { sendCoreMessage } from './messageBroker';
 import { generateConditionStageIds } from './utils';
 
+const indexesTypeContentType = {
+  'contacts:lead': 'customers',
+  'contacts:customer': 'customers',
+  'contacts:company': 'companies',
+  'cards:deal': 'deals',
+  'cards:ticket': 'tickets',
+  'cards:task': 'tasks',
+  'inbox:conversation': 'conversations'
+};
+
+const getName = type => type.replace('contacts:', '').replace('cards:', '');
+
 export default {
-  indexesTypeContentType: {
-    'cards:deal': 'deals',
-    'cards:ticket': 'tickets',
-    'cards:task': 'tasks'
-  },
+  indexesTypeContentType,
 
   contentTypes: ['deal', 'ticket', 'task'],
 
@@ -40,17 +50,71 @@ export default {
     return { data: { positive }, status: 'success' };
   },
 
-  associationTypes: async ({}) => {
-    const types: string[] = [
-      'cards:deal',
-      'contacts:customer',
-      'contacts:company',
-      'cards:ticket',
-      'cards:task',
-      'inbox:conversation'
-    ];
+  associationTypes: [
+    'cards:deal',
+    'contacts:customer',
+    'contacts:company',
+    'cards:ticket',
+    'cards:task',
+    'inbox:conversation'
+  ],
 
-    return { data: types, status: 'success' };
+  associationFilter: async ({
+    subdomain,
+    data: { mainType, propertyType, positiveQuery, negativeQuery }
+  }) => {
+    let associatedTypes: string[] = [];
+
+    if (mainType === 'cards:deal') {
+      associatedTypes = [
+        'contacts:customer',
+        'contacts:company',
+        'cards:ticket',
+        'cards:task'
+      ];
+    }
+
+    if (mainType === 'cards:task') {
+      associatedTypes = [
+        'contacts:customer',
+        'contacts:company',
+        'cards:ticket',
+        'cards:deal'
+      ];
+    }
+
+    if (mainType === 'cards:ticket') {
+      associatedTypes = [
+        'contacts:customer',
+        'contacts:company',
+        'cards:deal',
+        'cards:task'
+      ];
+    }
+
+    let ids: string[] = [];
+
+    if (associatedTypes.includes(propertyType)) {
+      const mainTypeIds = await fetchByQuery({
+        subdomain,
+        index: indexesTypeContentType[propertyType],
+        positiveQuery,
+        negativeQuery
+      });
+
+      ids = await sendCoreMessage({
+        subdomain,
+        action: 'conformities.filterConformity',
+        data: {
+          mainType: getName(propertyType),
+          mainTypeIds,
+          relType: getName(mainType)
+        },
+        isRPC: true
+      });
+    }
+
+    return { data: ids, status: 'success' };
   },
 
   esTypesMap: async () => {
@@ -61,7 +125,7 @@ export default {
     const models = await generateModels(subdomain);
 
     let positive;
-    
+
     const config = segment.config || {};
 
     const stageIds = await generateConditionStageIds(models, {

@@ -300,6 +300,7 @@ const ArticleWrapper = styled.div`
 const CategoryListWrapper = styledTS<{
   baseColor?: string;
   linkColor?: string;
+  headingColor?: string;
   linkHoverColor?: string;
 }>(styled.div)`
   max-width: 900px;
@@ -485,7 +486,9 @@ const CategoryListWrapper = styledTS<{
       @media only screen and (min-width: 1080px) {
         .category-knowledge-list {
           .list-category-title {
-            color: #fff;
+            color: ${(props) =>
+              props.headingColor ? props.headingColor : colors.colorWhite};
+            
             a {
               color: inherit;
             }
