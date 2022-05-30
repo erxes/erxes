@@ -1,11 +1,17 @@
-import {
-  checkPermission,
-} from "@erxes/api-utils/src/permissions";
-import { orderDeleteToErkhet, orderToErkhet } from "../../../utils";
-import { IPOS } from "../../../types";
-import messageBroker, { sendCoreMessage, sendPosMessage, sendEbarimtMessage } from '../../../messageBroker';
-import { getConfig } from "../../../utils";
-import { IContext } from "../../../connectionResolver";
+import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { orderDeleteToErkhet, orderToErkhet } from '../../../utils';
+import { IPOS } from '../../../types';
+import messageBroker, {
+  sendCoreMessage,
+  sendPosMessage,
+  sendEbarimtMessage
+} from '../../../messageBroker';
+import { getConfig } from '../../../utils';
+import { IContext } from '../../../connectionResolver';
+
+interface IPOSEdit extends IPOS {
+  _id: string;
+}
 
 const mutations = {
   posAdd: async (_root, params: IPOS, { models, user }: IContext) => {
@@ -14,23 +20,23 @@ const mutations = {
 
   posEdit: async (
     _root,
-    { _id, params },
+    { _id, ...doc }: IPOSEdit,
     { models, subdomain }: IContext
   ) => {
     const object = await models.Pos.getPos({ _id });
-    const updatedDocument = await models.Pos.posEdit(_id, params);
+    const updatedDocument = await models.Pos.posEdit(_id, { ...doc });
 
     const adminUsers = await sendCoreMessage({
       subdomain,
       action: 'users.find',
       data: {
         query: {
-          _id: { $in: updatedDocument.adminIds },
+          _id: { $in: updatedDocument.adminIds }
         }
       },
       isRPC: true,
       defaultValue: []
-    })
+    });
 
     const cashierUsers = await sendCoreMessage({
       subdomain,
@@ -42,20 +48,19 @@ const mutations = {
       },
       isRPC: true,
       defaultValue: []
-    })
-
+    });
 
     await sendPosMessage(
       models,
       messageBroker,
-      "pos:crudData",
+      'pos:crudData',
       {
-        type: "pos",
-        action: "update",
+        type: 'pos',
+        action: 'update',
         object,
         updatedDocument,
         adminUsers,
-        cashierUsers,
+        cashierUsers
       },
       object
     );
@@ -63,7 +68,7 @@ const mutations = {
     return updatedDocument;
   },
 
-  posRemove: async ( _root, { _id }: { _id: string }, { models } ) => {
+  posRemove: async (_root, { _id }: { _id: string }, { models }) => {
     return await models.Pos.posRemove(_id);
   },
 
@@ -76,7 +81,7 @@ const mutations = {
     const groupsToAdd = [] as any;
     const groupsToUpdate = [] as any;
     for (const group of groups) {
-      if (group._id.includes("temporaryId")) {
+      if (group._id.includes('temporaryId')) {
         delete group._id;
         groupsToAdd.push({ ...group, posId });
       } else {
@@ -84,8 +89,8 @@ const mutations = {
         await models.ProductGroups.groupsEdit(group._id, group);
       }
     }
-    const groupsToRemove = dbGroups.filter((el) => {
-      const index = groupsToUpdate.findIndex((g) => g._id === el._id);
+    const groupsToRemove = dbGroups.filter(el => {
+      const index = groupsToUpdate.findIndex(g => g._id === el._id);
       if (index === -1) {
         return el._id;
       }
@@ -104,7 +109,7 @@ const mutations = {
   ) => {
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
-      throw new Error("not found order");
+      throw new Error('not found order');
     }
     const pos = await models.Pos.findOne({ token: order.posToken }).lean();
 
@@ -112,17 +117,17 @@ const mutations = {
       subdomain,
       action: 'putresponses.putHistories',
       data: {
-        contentType: "pos",
-        contentId: _id,
+        contentType: 'pos',
+        contentId: _id
       },
       isRPC: true
-    })
+    });
 
     if (!pos) {
-      throw new Error("not found pos");
+      throw new Error('not found pos');
     }
     if (!putRes) {
-      throw new Error("not found put response");
+      throw new Error('not found put response');
     }
     await orderToErkhet(models, messageBroker, subdomain, pos, _id, putRes);
     return await models.PosOrders.findOne({ _id }).lean();
@@ -131,34 +136,39 @@ const mutations = {
   posOrderReturnBill: async (
     _root,
     { _id }: { _id: string },
-    { models,  subdomain }: IContext
+    { models, subdomain }: IContext
   ) => {
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
-      throw new Error("not found order");
+      throw new Error('not found order');
     }
     const pos = await models.Pos.findOne({ token: order.posToken }).lean();
     if (!pos) {
-      throw new Error("not found pos");
+      throw new Error('not found pos');
     }
-    const ebarimtMainConfig = await getConfig(subdomain, "EBARIMT", {});
+    const ebarimtMainConfig = await getConfig(subdomain, 'EBARIMT', {});
 
     await sendEbarimtMessage({
       subdomain,
       action: 'putresponses.returnBill',
       data: {
-        contentType: "pos", contentId: _id,
+        contentType: 'pos',
+        contentId: _id,
         config: { ...pos.ebarimtConfig, ...ebarimtMainConfig }
       },
       isRPC: true
-    })
+    });
 
     if (order.syncedErkhet) {
       await orderDeleteToErkhet(models, messageBroker, subdomain, pos, _id);
     }
     return await models.PosOrders.deleteOne({ _id });
   },
-  posOrderChangePayments: async (_root, { _id, cashAmount, cardAmount, mobileAmount }, { models }) => {
+  posOrderChangePayments: async (
+    _root,
+    { _id, cashAmount, cardAmount, mobileAmount },
+    { models }
+  ) => {
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
       throw new Error('not found order');
@@ -168,13 +178,16 @@ const mutations = {
       throw new Error('not balanced');
     }
 
-    await models.PosOrders.updateOne({ _id }, { $set: { cashAmount, cardAmount, mobileAmount } });
+    await models.PosOrders.updateOne(
+      { _id },
+      { $set: { cashAmount, cardAmount, mobileAmount } }
+    );
     return models.PosOrders.findOne({ _id }).lean();
   }
 };
 
-checkPermission(mutations, "posAdd", "managePos");
-checkPermission(mutations, "posEdit", "managePos");
-checkPermission(mutations, "posRemove", "managePos");
+checkPermission(mutations, 'posAdd', 'managePos');
+checkPermission(mutations, 'posEdit', 'managePos');
+checkPermission(mutations, 'posRemove', 'managePos');
 
 export default mutations;

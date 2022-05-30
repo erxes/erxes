@@ -21,7 +21,7 @@ type Props = {
 
 class Form extends React.Component<any, any, any> {
   generatePipelineOptions = boards => {
-    const { config } = this.props;
+    const config = this.props.config || {};
     const { boardId } = config;
 
     const board = (boards || []).find(b => b._id === boardId);
@@ -37,7 +37,7 @@ class Form extends React.Component<any, any, any> {
   };
 
   onChangePipeLine = (_key, e) => {
-    const { config } = this.props;
+    const config = this.props.config || {};
     const boardId = config.boardId;
     const pipelineId = e ? e.value : '';
 
@@ -47,7 +47,7 @@ class Form extends React.Component<any, any, any> {
   };
 
   onChangeBoard = (_key, e) => {
-    const { config } = this.props;
+    const config = this.props.config || {};
     const boardId = e ? e.value : '';
 
     const pipelineId = config.pipelineId;
@@ -60,12 +60,13 @@ class Form extends React.Component<any, any, any> {
   render() {
     const {
       boardsQuery,
-      config,
       hideDetailForm,
       propertyType,
       type,
       component
     } = this.props;
+
+    const config = this.props.config || {};
 
     if (boardsQuery.loading) {
       return <Spinner />;
