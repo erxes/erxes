@@ -1,7 +1,6 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { serviceDiscovery } from './configs';
-import { ProductCategories } from '../../../../../temp/client-portal-enterprise/pages/api/db/models/Products';
 
 let client;
 
@@ -39,7 +38,7 @@ export const initBroker = async cl => {
     'products:categories.withChilds',
     async ({ subdomain, data: { _id } }) => {
       const models = await generateModels(subdomain);
-      const category = await ProductCategories.findOne({ _id }).lean();
+      const category = await models.ProductCategories.findOne({ _id }).lean();
 
       return {
         data: await models.ProductCategories.find({
@@ -105,7 +104,7 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
 
       if (categoryId) {
-        const category = await ProductCategories.findOne({
+        const category = await models.ProductCategories.findOne({
           _id: categoryId
         }).lean();
         const categories = await models.ProductCategories.find({
