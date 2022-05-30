@@ -7,7 +7,6 @@ import { getConfigColor, readFile } from "../../common/utils";
 import {
   Container,
   Header as Head,
-  HeaderLeft,
   HeaderLinks,
   HeaderLogo,
   HeaderRight,
@@ -15,7 +14,6 @@ import {
   HeaderTop,
   LinkItem,
   SupportMenus,
-  WebLink,
 } from "../../styles/main";
 import { Config, IUser } from "../../types";
 import Button from "../../common/Button";
@@ -107,15 +105,6 @@ function Header({
     >
       <Container transparent={true}>
         <HeaderTop>
-          <HeaderLeft>
-            <WebLink
-              href={config.url}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Icon icon="external-link-alt" /> {config.name} &nbsp;
-            </WebLink>
-          </HeaderLeft>
           <HeaderRight>
             <SupportMenus color={getConfigColor(config, "headingColor")}>
               {currentUser ? (

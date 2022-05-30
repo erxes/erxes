@@ -173,7 +173,7 @@ const relationSchema = new Schema(
 
 export const commonItemFieldsSchema = {
   _id: field({ pkey: true }),
-  userId: field({ type: String, esType: 'keyword' }),
+  userId: field({ type: String, optional: true, esType: 'keyword' }),
   createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
   order: field({ type: Number }),
   name: field({ type: String, label: 'Name' }),
