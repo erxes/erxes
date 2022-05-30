@@ -10,6 +10,7 @@ import client from "../apollo-client";
 import { connection } from "./connection";
 import { KnowledgeBase } from "./containers";
 import "./sass/style.scss";
+import "../sass/components/_faq-icons.scss";
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);

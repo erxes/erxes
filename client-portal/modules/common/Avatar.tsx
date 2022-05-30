@@ -2,6 +2,7 @@ import React from "react";
 import { IUser, IUserDetails } from "../types";
 import dayjs from "dayjs";
 import { Avatars } from "../knowledgeBase/components/styles";
+import { readFile } from "./utils";
 
 type Props = {
   user: IUser;
@@ -17,7 +18,7 @@ export default function Avatar({ user = {} as IUser, date }: Props) {
       <img
         className="round-img"
         alt={fullName}
-        src={avatar}
+        src={readFile(avatar)}
         width="42px"
         height="42px"
       />

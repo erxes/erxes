@@ -7,7 +7,6 @@ import { getConfigColor, readFile } from "../../common/utils";
 import {
   Container,
   Header as Head,
-  HeaderLeft,
   HeaderLinks,
   HeaderLogo,
   HeaderRight,
@@ -15,7 +14,6 @@ import {
   HeaderTop,
   LinkItem,
   SupportMenus,
-  WebLink,
 } from "../../styles/main";
 import { Config, IUser } from "../../types";
 import Button from "../../common/Button";
@@ -55,7 +53,11 @@ function Header({
 
   const renderMenu = (url: string, label: string) => {
     return (
-      <LinkItem active={router && router.pathname === url} onClick={() => onClick(url)}>
+      <LinkItem
+        active={router && router.pathname === url}
+        onClick={() => onClick(url)}
+        color={getConfigColor(config, "headingColor")}
+      >
         <Link href={!currentUser && url.includes("tickets") ? "" : url}>
           {label}
         </Link>
@@ -63,55 +65,57 @@ function Header({
     );
   };
 
-  return (
-    <Head
-      color={getConfigColor(config, "headerColor")}
-      headingSpacing={headingSpacing}
-    >
-      <Container transparent={true}>
-        <HeaderTop>
-          <HeaderLeft>
-            <WebLink
-              href={config.url}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Icon icon="external-link-alt" /> {config.name} &nbsp;
-            </WebLink>
-          </HeaderLeft>
-          <HeaderRight>
-            <SupportMenus>
-              {currentUser ? (
-                <span title="Log out" onClick={() => logout()}>
-                  <Icon icon="user" /> &nbsp;
-                  {currentUser.type === 'company'
-                    ? currentUser.companyName
-                    : currentUser.firstName}
-                </span>
-              ) : (
-                <>
-                  <Button
-                    btnStyle="link"
-                    uppercase={false}
-                    onClick={() => setRegister(true)}
-                  >
-                    Sign up
-                  </Button>
-                  {/* <Button
+  const renderAuth = () => {
+    if (!config.ticketToggle) {
+      return null;
+    }
+
+    return (
+      <>
+        <Button
+          btnStyle="link"
+          uppercase={false}
+          onClick={() => setRegister(true)}
+        >
+          Sign up
+        </Button>
+        {/* <Button
                     btnStyle="primary"
                     uppercase={false}
                     onClick={() => setResetPassword(true)}
                   >
                     Reset password
                   </Button> */}
-                  <Button
-                    btnStyle="warning"
-                    uppercase={false}
-                    onClick={() => setLogin(true)}
-                  >
-                    Login
-                  </Button>
-                </>
+        <Button
+          btnStyle="warning"
+          uppercase={false}
+          onClick={() => setLogin(true)}
+        >
+          Login
+        </Button>
+      </>
+    );
+  };
+
+  return (
+    <Head
+      background={getConfigColor(config, "headerColor")}
+      color={getConfigColor(config, "headingColor")}
+      headingSpacing={headingSpacing}
+    >
+      <Container transparent={true}>
+        <HeaderTop>
+          <HeaderRight>
+            <SupportMenus color={getConfigColor(config, "headingColor")}>
+              {currentUser ? (
+                <span title="Log out" onClick={() => logout()}>
+                  <Icon icon="user" /> &nbsp;
+                  {currentUser.type === "company"
+                    ? currentUser.companyName
+                    : currentUser.firstName}
+                </span>
+              ) : (
+                renderAuth()
               )}
             </SupportMenus>
           </HeaderRight>
@@ -121,12 +125,17 @@ function Header({
             <Link href="/">
               <img src={readFile(config.logo)} />
             </Link>
-            <HeaderTitle>{config.name}</HeaderTitle>
+            <HeaderTitle color={getConfigColor(config, "headingColor")}>
+              {config.name}
+            </HeaderTitle>
           </HeaderLogo>
           <HeaderLinks>
-            {renderMenu("/", config.knowledgeBaseLabel || "Knowledge Base")}
-            {config.publicTaskToggle ? renderMenu("/tasks", config.taskLabel || "Task") : null}
-            {config.ticketToggle ? renderMenu("/tickets", config.ticketLabel || "Ticket"): null}
+            {config.publicTaskToggle
+              ? renderMenu("/tasks", config.taskLabel || "Task")
+              : null}
+            {config.ticketToggle
+              ? renderMenu("/tickets", config.ticketLabel || "Ticket")
+              : null}
           </HeaderLinks>
         </HeaderTop>
         <h3>{config.description}</h3>

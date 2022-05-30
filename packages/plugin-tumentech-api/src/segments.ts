@@ -10,11 +10,7 @@ export default {
     customer: 'Customer'
   },
 
-  associationTypes: async () => {
-    const types: string[] = ['tumentech:car', 'contacts:customer'];
-
-    return { data: types, status: 'success' };
-  },
+  associationTypes: ['tumentech:car', 'contacts:customer'],
 
   esTypesMap: async () => {
     return { data: { typesMap: {} }, status: 'success' };

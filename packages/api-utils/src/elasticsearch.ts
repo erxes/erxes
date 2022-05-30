@@ -10,6 +10,7 @@ export interface IFetchEsArgs {
   defaultValue?: any;
   scroll?: string;
   size?: number;
+  ignoreError?: boolean;
 }
 
 export const doSearch = async ({
@@ -82,7 +83,8 @@ export const fetchEs = async ({
   _id,
   defaultValue,
   scroll,
-  size
+  size,
+  ignoreError = false
 }: IFetchEsArgs) => {
   try {
     const params: any = {
@@ -108,7 +110,11 @@ export const fetchEs = async ({
 
     return response;
   } catch (e) {
-    debugError(`Error during es query ${e.message}`);
+    if (!ignoreError) {
+      debugError(
+        `Error during es query: ${JSON.stringify(body)}: ${e.message}`
+      );
+    }
 
     if (typeof defaultValue !== 'undefined') {
       return defaultValue;
@@ -141,4 +147,38 @@ export const fetchEsWithScroll = async (scrollId: string) => {
   } catch (e) {
     throw new Error(e);
   }
+};
+
+export const fetchByQuery = async ({
+  subdomain,
+  index,
+  positiveQuery,
+  negativeQuery,
+  _source = '_id'
+}: {
+  subdomain: string;
+  index: string;
+  _source?: string;
+  positiveQuery: any;
+  negativeQuery: any;
+}) => {
+  const response = await fetchEs({
+    subdomain,
+    action: 'search',
+    index,
+    body: {
+      _source,
+      query: {
+        bool: {
+          must: positiveQuery,
+          must_not: negativeQuery
+        }
+      }
+    },
+    defaultValue: { hits: { hits: [] } }
+  });
+
+  return response.hits.hits
+    .map(hit => (_source === '_id' ? hit._id : hit._source[_source]))
+    .filter(r => r);
 };

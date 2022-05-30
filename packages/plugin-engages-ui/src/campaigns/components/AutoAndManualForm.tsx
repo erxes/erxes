@@ -1,22 +1,22 @@
-import Button from "@erxes/ui/src/components/Button";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import ConditionsRule from "@erxes/ui/src/components/rule/ConditionsRule";
-import Step from "@erxes/ui/src/components/step/Step";
-import Steps from "@erxes/ui/src/components/step/Steps";
+import Button from '@erxes/ui/src/components/Button';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import ConditionsRule from '@erxes/ui/src/components/rule/ConditionsRule';
+import Step from '@erxes/ui/src/components/step/Step';
+import Steps from '@erxes/ui/src/components/step/Steps';
 import {
   StepWrapper,
-  TitleContainer,
-} from "@erxes/ui/src/components/step/styles";
-import { Alert, __ } from "coreui/utils";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { IBrand } from "@erxes/ui/src/brands/types";
-import { IUser } from "@erxes/ui/src/auth/types";
-import { IBreadCrumbItem, IConditionsRule } from "@erxes/ui/src/types";
-import { IConfig } from "@erxes/ui-settings/src/general/types";
+  TitleContainer
+} from '@erxes/ui/src/components/step/styles';
+import { Alert, __ } from 'coreui/utils';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IBreadCrumbItem, IConditionsRule } from '@erxes/ui/src/types';
+import { IConfig } from '@erxes/ui-settings/src/general/types';
 
-import React from "react";
-import { Link } from "react-router-dom";
-import { METHODS } from "@erxes/ui-engage/src/constants";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { METHODS } from '@erxes/ui-engage/src/constants';
 import {
   IEngageEmail,
   IEngageMessage,
@@ -25,13 +25,13 @@ import {
   IEngageScheduleDate,
   IEngageSms,
   IEmailTemplate,
-  IIntegrationWithPhone,
-} from "@erxes/ui-engage/src/types";
-import SmsForm from "./SmsForm";
-import ChannelStep from "./step/ChannelStep";
-import FullPreviewStep from "./step/FullPreviewStep";
-import MessageStep from "./step/MessageStep";
-import MessageTypeStep from "./step/MessageTypeStep";
+  IIntegrationWithPhone
+} from '@erxes/ui-engage/src/types';
+import SmsForm from './SmsForm';
+import ChannelStep from './step/ChannelStep';
+import FullPreviewStep from './step/FullPreviewStep';
+import MessageStep from './step/MessageStep';
+import MessageTypeStep from './step/MessageTypeStep';
 
 type Props = {
   message?: IEngageMessage;
@@ -77,19 +77,19 @@ class AutoAndManualForm extends React.Component<Props, State> {
     const messenger = message.messenger || ({} as IEngageMessenger);
     const email = message.email || {};
 
-    let content = email.content || "";
+    let content = email.content || '';
 
     const rules = messenger.rules
-      ? messenger.rules.map((rule) => ({ ...rule }))
+      ? messenger.rules.map(rule => ({ ...rule }))
       : [];
 
-    if (messenger.content && messenger.content !== "") {
+    if (messenger.content && messenger.content !== '') {
       content = messenger.content;
     }
 
     this.state = {
       method: message.method || METHODS.EMAIL,
-      title: message.title || "",
+      title: message.title || '',
       segmentIds: message.segmentIds || [],
       brandIds: message.brandIds || [],
       tagIds: message.customerTagIds || [],
@@ -100,7 +100,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
       scheduleDate: message.scheduleDate,
       shortMessage: message.shortMessage,
       rules,
-      isSaved: false,
+      isSaved: false
     };
   }
 
@@ -113,7 +113,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
       segmentIds: [],
       brandIds: [],
       tagIds: [],
-      rules: [],
+      rules: []
     });
   };
 
@@ -126,19 +126,19 @@ class AutoAndManualForm extends React.Component<Props, State> {
       fromUserId: this.state.fromUserId,
       method: this.state.method,
       scheduleDate: this.state.scheduleDate,
-      shortMessage: this.state.shortMessage,
+      shortMessage: this.state.shortMessage
     } as IEngageMessageDoc;
 
     if (this.state.method === METHODS.EMAIL) {
       const email = this.state.email || ({} as IEngageEmail);
 
       doc.email = {
-        subject: email.subject || "",
-        sender: email.sender || "",
-        replyTo: (email.replyTo || "").split(" ").toString(),
+        subject: email.subject || '',
+        sender: email.sender || '',
+        replyTo: (email.replyTo || '').split(' ').toString(),
         content: this.state.content,
         attachments: email.attachments,
-        templateId: email.templateId || "",
+        templateId: email.templateId || ''
       };
 
       if (doc.messenger) {
@@ -152,11 +152,11 @@ class AutoAndManualForm extends React.Component<Props, State> {
       const messenger = this.state.messenger || ({} as IEngageMessenger);
 
       doc.messenger = {
-        brandId: messenger.brandId || "",
-        kind: messenger.kind || "",
-        sentAs: messenger.sentAs || "",
+        brandId: messenger.brandId || '',
+        kind: messenger.kind || '',
+        sentAs: messenger.sentAs || '',
         content: this.state.content,
-        rules: this.state.rules,
+        rules: this.state.rules
       };
 
       if (doc.email) {
@@ -168,15 +168,15 @@ class AutoAndManualForm extends React.Component<Props, State> {
     }
     if (this.state.method === METHODS.SMS) {
       const shortMessage = this.state.shortMessage || {
-        from: "",
-        content: "",
-        fromIntegrationId: "",
+        from: '',
+        content: '',
+        fromIntegrationId: ''
       };
 
       doc.shortMessage = {
         from: shortMessage.from,
         content: shortMessage.content,
-        fromIntegrationId: shortMessage.fromIntegrationId,
+        fromIntegrationId: shortMessage.fromIntegrationId
       };
 
       if (doc.email) {
@@ -191,11 +191,11 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
     if (this.state.method === METHODS.SMS && !this.props.smsConfig) {
       return Alert.warning(
-        "SMS integration is not configured. Go to Settings > System config > Integrations config and set Telnyx SMS API key."
+        'SMS integration is not configured. Go to Settings > System config > Integrations config and set Telnyx SMS API key.'
       );
     }
 
-    if (response.status === "ok" && response.doc) {
+    if (response.status === 'ok' && response.doc) {
       this.setState({ isSaved: true });
 
       return this.props.save(response.doc);
@@ -225,16 +225,16 @@ class AutoAndManualForm extends React.Component<Props, State> {
           <Button
             disabled={isActionLoading}
             btnStyle="warning"
-            icon={isActionLoading ? undefined : "file-alt"}
-            onClick={this.handleSubmit.bind(this, "draft")}
+            icon={isActionLoading ? undefined : 'file-alt'}
+            onClick={this.handleSubmit.bind(this, 'draft')}
           >
             Save & Draft
           </Button>
           <Button
             disabled={isActionLoading}
             btnStyle="success"
-            icon={isActionLoading ? undefined : "check-circle"}
-            onClick={this.handleSubmit.bind(this, "live")}
+            icon={isActionLoading ? undefined : 'check-circle'}
+            onClick={this.handleSubmit.bind(this, 'live')}
           >
             Send & Live
           </Button>
@@ -251,7 +251,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
       kind,
       templates,
       smsConfig,
-      integrations,
+      integrations
     } = this.props;
 
     const {
@@ -262,10 +262,10 @@ class AutoAndManualForm extends React.Component<Props, State> {
       scheduleDate,
       method,
       shortMessage,
-      isSaved,
+      isSaved
     } = this.state;
 
-    const imagePath = "/images/icons/erxes-08.svg";
+    const imagePath = '/images/icons/erxes-08.svg';
 
     if (method === METHODS.SMS) {
       return (
@@ -316,7 +316,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     }
 
     return (
-      <Step img="/images/icons/erxes-04.svg" title="Rule" stepNumber={3}>
+      <Step img="/images/icons/erxes-04.svg" title="Rule">
         <ConditionsRule
           rules={this.state.rules || []}
           onChange={this.changeState}
@@ -351,14 +351,14 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
     const { segmentIds, brandIds, title, tagIds } = this.state;
 
-    const onChange = (e) =>
-      this.changeState("title", (e.target as HTMLInputElement).value);
+    const onChange = e =>
+      this.changeState('title', (e.target as HTMLInputElement).value);
 
     return (
       <StepWrapper>
         <Wrapper.Header title={renderTitle()} breadcrumb={breadcrumbs} />
         <TitleContainer>
-          <div>{__("Title")}</div>
+          <div>{__('Title')}</div>
           <FormControl
             required={true}
             onChange={onChange}
