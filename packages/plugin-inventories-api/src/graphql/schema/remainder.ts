@@ -26,4 +26,5 @@ export const queries = `
 `;
 
 export const mutations = `
+  updateRemainders(productId: String, productCategoryId: String, productIds: [String], departmentId: String, branchId: String): [Remainder]
 `;

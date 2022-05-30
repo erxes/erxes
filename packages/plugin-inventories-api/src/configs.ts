@@ -4,7 +4,7 @@ import { generateModels } from './connectionResolver';
 
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
-import logs from './logUtils';
+// import logs from './logUtils';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
@@ -18,6 +18,7 @@ export default {
   permissions,
   graphql: async sd => {
     serviceDiscovery = sd;
+
     return {
       typeDefs: await typeDefs(sd),
       resolvers: await resolvers(sd)
@@ -43,5 +44,5 @@ export default {
     graphqlPubsub = options.pubsubClient;
   },
 
-  meta: { logs: { consumers: logs } }
+  meta: {}
 };

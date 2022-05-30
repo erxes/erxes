@@ -1,5 +1,4 @@
 import { gql } from 'apollo-server-express';
-
 import {
   types as RemainderTypes,
   queries as RemainderQueries,

@@ -30,6 +30,7 @@ export interface ISafeRemItem {
 export interface ISafeRemItemDocument extends ISafeRemItem, Document {
   _id: string;
   modifiedAt: Date;
+  lastTrDate: Date;
 }
 
 export const safeRemItemSchema = schemaHooksWrapper(
@@ -42,6 +43,7 @@ export const safeRemItemSchema = schemaHooksWrapper(
       default: new Date(),
       label: 'Modified date'
     }),
+    lastTrDate: field({ type: Date, label: 'Last TR' }),
 
     productId: field({ type: String, index: true }),
     count: field({ type: Number, label: 'Remainder count' }),
