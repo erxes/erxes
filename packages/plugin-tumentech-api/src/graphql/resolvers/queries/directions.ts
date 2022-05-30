@@ -21,10 +21,10 @@ const directionsQuery = {
 
       filter.$or = [
         {
-          locationA: regexOption
+          placeA: regexOption
         },
         {
-          locationB: regexOption
+          placeB: regexOption
         }
       ];
     }

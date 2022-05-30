@@ -34,8 +34,8 @@ export const placeSchema = new Schema(
 export const directionSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    locationA: field({ type: placeSchema, label: 'A', required: true }),
-    locationB: field({ type: placeSchema, label: 'B', required: true }),
+    placeA: field({ type: placeSchema, label: 'A', required: true }),
+    placeB: field({ type: placeSchema, label: 'B', required: true }),
     totalDistance: field({
       type: Number,
       label: 'Total distance',

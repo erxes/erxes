@@ -68,8 +68,11 @@ const List = (props: Props) => {
     <Table whiteSpace="nowrap" hover={true}>
       <thead>
         <tr>
-          <th>{__('Created by')}</th>
-          <th>{__('Actions')}</th>
+          <th>{__('Place A')}</th>
+          <th>{__('Place B')}</th>
+          <th>{__('Road conditions')}</th>
+          <th>{__('duration (minutes)')}</th>
+          <th>{__('distance (km)')}</th>
         </tr>
       </thead>
       <tbody>{renderRow()}</tbody>

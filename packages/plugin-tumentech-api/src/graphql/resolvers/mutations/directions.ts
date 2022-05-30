@@ -9,7 +9,8 @@ interface IDirectionEdit extends IDirection {
 }
 
 const directionMutations = {
-  directionAdd: async (_root, doc: IDirection, { models }: IContext) => {
+  directionsAdd: async (_root, doc: IDirection, { models }: IContext) => {
+    console.log(doc);
     return models.Directions.create(doc);
   }
 };

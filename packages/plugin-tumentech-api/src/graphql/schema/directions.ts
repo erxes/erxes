@@ -29,8 +29,8 @@ export const queries = `
 `;
 
 const params = `
-  locationA: PlaceInput!,
-  locationB: PlaceInput!,
+  placeA: PlaceInput!,
+  placeB: PlaceInput!,
   totalDistance: Int
   roadConditions: [String]
   description: String
