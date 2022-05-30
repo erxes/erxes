@@ -23,9 +23,10 @@ export const SmallLoader = styled.i`
   border-top-color: ${colors.colorSecondary};
   border-right-color: ${colors.colorSecondary};
   border-radius: 100%;
-  position: absolute;
-  top: -13px;
-  left: -13px;
+  float: left;
+  position: relative;
+  top: 2px;
+  margin-right: 5px;
 `;
 
 type Props = {
