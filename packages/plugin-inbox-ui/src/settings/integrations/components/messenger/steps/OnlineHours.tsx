@@ -7,6 +7,12 @@ import { FlexRow } from '@erxes/ui-settings/src/integrations/styles';
 import React from 'react';
 import Select from 'react-select-plus';
 import { IOnlineHour } from '@erxes/ui-settings/src/integrations/types';
+import styled from 'styled-components';
+
+const FillContent = styled.div`
+  flex: 1;
+  margin-right: 5px;
+`;
 
 type Props = {
   prevOptions: any[];
@@ -87,34 +93,40 @@ class OnlineHours extends React.Component<Props, State> {
     const { _id, day, from, to } = onlineHour;
     return (
       <FlexRow key={_id}>
-        <Select
-          className='flex-item'
-          value={day}
-          options={days}
-          onChange={onDayChange}
-          clearable={false}
-        />
+        <FillContent>
+          <Select
+            className="flex-item"
+            value={day}
+            options={days}
+            onChange={onDayChange}
+            clearable={false}
+          />
+        </FillContent>
 
         <span>from</span>
-        <Select
-          className='flex-item'
-          onChange={onFromChange}
-          value={from}
-          options={hours}
-          clearable={false}
-        />
+        <FillContent>
+          <Select
+            className="flex-item"
+            onChange={onFromChange}
+            value={from}
+            options={hours}
+            clearable={false}
+          />
+        </FillContent>
 
         <span>to</span>
-        <Select
-          className='flex-item'
-          onChange={onToChange}
-          value={to}
-          options={hours}
-          clearable={false}
-        />
+        <FillContent>
+          <Select
+            className="flex-item"
+            onChange={onToChange}
+            value={to}
+            options={hours}
+            clearable={false}
+          />
+        </FillContent>
 
-        <Button size='small' btnStyle='danger' onClick={remove}>
-          <Icon icon='cancel-1' />
+        <Button size="small" btnStyle="danger" onClick={remove}>
+          <Icon icon="cancel-1" />
         </Button>
       </FlexRow>
     );
@@ -131,10 +143,10 @@ class OnlineHours extends React.Component<Props, State> {
 
         <br />
         <Button
-          btnStyle='success'
-          size='small'
+          btnStyle="success"
+          size="small"
           onClick={this.addTime}
-          icon='add'
+          icon="add"
         >
           Add another time
         </Button>
