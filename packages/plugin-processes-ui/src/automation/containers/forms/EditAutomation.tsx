@@ -8,6 +8,7 @@ import { graphql } from 'react-apollo';
 import { IUser } from '@erxes/ui/src/auth/types';
 import AutomationForm from '../../components/forms/AutomationForm';
 import { queries, mutations } from '../../graphql';
+import { queries as flowQueries } from '../../../flow/graphql';
 import {
   DetailQueryResponse,
   EditMutationResponse,
@@ -16,6 +17,7 @@ import {
 } from '../../types';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
+import { FlowDetailQueryResponse, IFlowDocument } from '../../../flow/types';
 
 type Props = {
   id: string;
@@ -23,6 +25,7 @@ type Props = {
 };
 
 type FinalProps = {
+  flowDetailQuery: FlowDetailQueryResponse;
   automationDetailQuery: DetailQueryResponse;
   automationNotesQuery: AutomationsNoteQueryResponse;
   currentUser: IUser;
@@ -33,6 +36,7 @@ type FinalProps = {
 
 const AutomationDetailsContainer = (props: FinalProps) => {
   const {
+    flowDetailQuery,
     automationDetailQuery,
     automationNotesQuery,
     currentUser,
@@ -65,23 +69,28 @@ const AutomationDetailsContainer = (props: FinalProps) => {
       });
   };
 
-  if (automationDetailQuery.loading || automationNotesQuery.loading) {
+  if (
+    flowDetailQuery.loading ||
+    automationDetailQuery.loading ||
+    automationNotesQuery.loading
+  ) {
     return <Spinner objective={true} />;
   }
 
-  if (!automationDetailQuery.automationDetail) {
-    return (
-      <EmptyState text="Automation not found" image="/images/actions/24.svg" />
-    );
+  if (!flowDetailQuery.flowDetail) {
+    return <EmptyState text="Flow not found" image="/images/actions/24.svg" />;
   }
 
-  const automationDetail = automationDetailQuery.automationDetail;
+  const flowDetail = flowDetailQuery.flowDetail || ({} as IFlowDocument);
+
+  console.log('flowDetail', flowDetail);
+
   const automationNotes = automationNotesQuery.automationNotes || [];
 
   const updatedProps = {
     ...props,
-    loading: automationDetailQuery.loading,
-    automation: automationDetail,
+    loading: flowDetailQuery.loading,
+    automation: flowDetail,
     automationNotes,
     currentUser,
     save,
@@ -97,6 +106,17 @@ export default withProps<Props>(
       gql(queries.automationDetail),
       {
         name: 'automationDetailQuery',
+        options: ({ id }) => ({
+          variables: {
+            _id: id
+          }
+        })
+      }
+    ),
+    graphql<Props, FlowDetailQueryResponse, { _id: string }>(
+      gql(flowQueries.flowDetail),
+      {
+        name: 'flowDetailQuery',
         options: ({ id }) => ({
           variables: {
             _id: id

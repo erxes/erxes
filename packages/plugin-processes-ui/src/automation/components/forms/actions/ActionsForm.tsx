@@ -8,9 +8,10 @@ import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 import Tip from '@erxes/ui/src/components/Tip';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { ActionBox } from './styles';
+import { IJob } from '../../../../flow/types';
 
 type Props = {
-  onClickAction: (action: IAction) => void;
+  onClickAction: (action: IJob) => void;
 };
 
 type State = {
@@ -121,7 +122,7 @@ class ActionsForm extends React.Component<Props, State> {
 
     return (
       <>
-        <TriggerTabs>
+        {/* <TriggerTabs>
           <Tabs full={true}>
             <TabTitle
               className={currentTab === 'actions' ? 'active' : ''}
@@ -136,7 +137,7 @@ class ActionsForm extends React.Component<Props, State> {
               {__('Favourite')}
             </TabTitle>
           </Tabs>
-        </TriggerTabs>
+        </TriggerTabs> */}
         <ScrolledContent>{this.renderContent()}</ScrolledContent>
       </>
     );

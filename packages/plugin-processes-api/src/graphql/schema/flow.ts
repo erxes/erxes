@@ -15,7 +15,7 @@ export const types = `
   input JobInput {
     id: String,
     nextJobIds: [String],
-    jobRefer: JSON,
+    jobReferId: String,
     style: JSON,
     label: String,
     description: String,
@@ -39,7 +39,7 @@ const flowParams = `
   name: String,
   categoryId: String,
   status: String,
-  jobs: JobInput,
+  jobs: [JobInput],
 `;
 
 export const mutations = `

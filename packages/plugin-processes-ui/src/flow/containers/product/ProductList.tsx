@@ -9,11 +9,9 @@ import List from '../../components/product/ProductList';
 import { mutations, queries } from '../../graphql';
 import {
   CategoryDetailQueryResponse,
-  MergeMutationResponse,
-  MergeMutationVariables,
   jobRefersRemoveMutationResponse,
   jobReferTotalCountQueryResponse,
-  JobRefersQueryResponse
+  FlowsQueryResponse
 } from '../../types';
 
 type Props = {
@@ -23,7 +21,7 @@ type Props = {
 };
 
 type FinalProps = {
-  jobRefersQuery: JobRefersQueryResponse;
+  flowsQuery: FlowsQueryResponse;
   jobRefersCountQuery: jobReferTotalCountQueryResponse;
   productCategoryDetailQuery: CategoryDetailQueryResponse;
 } & Props &
@@ -40,7 +38,7 @@ class ProductListContainer extends React.Component<FinalProps> {
 
   render() {
     const {
-      jobRefersQuery,
+      flowsQuery,
       jobRefersCountQuery,
       jobRefersRemove,
       queryParams,
@@ -48,11 +46,11 @@ class ProductListContainer extends React.Component<FinalProps> {
       history
     } = this.props;
 
-    if (jobRefersQuery.loading) {
+    if (flowsQuery.loading) {
       return false;
     }
 
-    const jobRefers = jobRefersQuery.jobRefers || [];
+    const flows = flowsQuery.flows || [];
 
     // remove action
     const remove = ({ jobRefersIds }, emptyBulk) => {
@@ -78,9 +76,9 @@ class ProductListContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       queryParams,
-      jobRefers,
+      flows,
       remove,
-      loading: jobRefersQuery.loading,
+      loading: flowsQuery.loading,
       searchValue,
       jobRefersCount: jobRefersCountQuery.jobReferTotalCount || 0,
       currentCategory: productCategoryDetailQuery.productCategoryDetail || {}
@@ -91,7 +89,7 @@ class ProductListContainer extends React.Component<FinalProps> {
     };
 
     const refetch = () => {
-      this.props.jobRefersQuery.refetch();
+      this.props.flowsQuery.refetch();
     };
 
     return <Bulk content={jobReferList} refetch={refetch} />;
@@ -100,7 +98,7 @@ class ProductListContainer extends React.Component<FinalProps> {
 
 const getRefetchQueries = () => {
   return [
-    'jobRefers',
+    'flows',
     'jobCategories',
     'jobCategoriesTotalCount',
     'jobReferTotalCount',
@@ -114,10 +112,10 @@ const options = () => ({
 
 export default withProps<Props>(
   compose(
-    graphql<Props, JobRefersQueryResponse, { page: number; perPage: number }>(
-      gql(queries.jobRefers),
+    graphql<Props, FlowsQueryResponse, { page: number; perPage: number }>(
+      gql(queries.flows),
       {
-        name: 'jobRefersQuery',
+        name: 'flowsQuery',
         options: ({ queryParams }) => ({
           variables: {
             categoryId: queryParams.categoryId,
