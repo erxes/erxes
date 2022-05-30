@@ -12,8 +12,8 @@ module.exports = {
   menus: [
     {
       text: "Remainders",
-      to: "/inventories/remainders",
-      image: "/images/icons/erxes-18.svg",
+      url: "/inventories/remainders",
+      icon: 'icon-film',
       location: "mainNavigation",
       scope: "inventories",
       action: "inventoriesAll",
