@@ -1,26 +1,26 @@
-import e = require('express');
-import * as React from 'react';
-import { AppConsumer } from '../../messenger/containers/AppContext';
-import { IEmailParams, IIntegration } from '../../types';
+import e = require("express");
+import * as React from "react";
+import { AppConsumer } from "../../messenger/containers/AppContext";
+import { IEmailParams, IIntegration } from "../../types";
 import {
   __,
   checkLogicFulfilled,
   fixErrorMessage,
   LogicParams,
   readFile,
-  loadMapApi
-} from '../../utils';
-import { connection } from '../connection';
+  loadMapApi,
+} from "../../utils";
+import { connection } from "../connection";
 import {
   FieldValue,
   ICurrentStatus,
   IFieldError,
   IForm,
   IFormDoc,
-  ILocationOption
-} from '../types';
-import { TopBar } from './';
-import Field from './Field';
+  ILocationOption,
+} from "../types";
+import { TopBar } from "./";
+import Field from "./Field";
 
 type Props = {
   form: IForm;
@@ -54,10 +54,10 @@ class Form extends React.Component<Props, State> {
 
     let currentLocation: ILocationOption | undefined;
 
-    if (props.form.fields.findIndex(e => e.type === 'map') !== -1) {
+    if (props.form.fields.findIndex((e) => e.type === "map") !== -1) {
       currentLocation = {
         lat: connection.browserInfo.latitude,
-        lng: connection.browserInfo.longitude
+        lng: connection.browserInfo.longitude,
       };
     }
 
@@ -72,22 +72,22 @@ class Form extends React.Component<Props, State> {
     }
 
     if (integration.leadData.css) {
-      const head = document.getElementsByTagName('head')[0];
-      const style = document.createElement('style');
-      style.setAttribute('type', 'text/css');
+      const head = document.getElementsByTagName("head")[0];
+      const style = document.createElement("style");
+      style.setAttribute("type", "text/css");
 
       style.appendChild(document.createTextNode(integration.leadData.css));
 
       head.appendChild(style);
     }
 
-    if (form.fields.findIndex(e => e.type === 'map') !== -1) {
+    if (form.fields.findIndex((e) => e.type === "map") !== -1) {
       const googleMapScript = loadMapApi(
-        form.googleMapApiKey || 'test',
-        integration.languageCode || 'en'
+        form.googleMapApiKey || "test",
+        integration.languageCode || "en"
       );
 
-      googleMapScript.addEventListener('load', () => {
+      googleMapScript.addEventListener("load", () => {
         this.setState({ mapScriptLoaded: true });
       });
     }
@@ -104,7 +104,7 @@ class Form extends React.Component<Props, State> {
     const nextStatus = nextProps.currentStatus.status;
 
     // after successfull save and create new button, reset doc state
-    if (currentStatus !== nextStatus && nextStatus === 'INITIAL') {
+    if (currentStatus !== nextStatus && nextStatus === "INITIAL") {
       this.setState({ doc: this.resetDocState() });
     }
 
@@ -118,7 +118,7 @@ class Form extends React.Component<Props, State> {
     fieldId,
     value,
     associatedFieldId,
-    groupId
+    groupId,
   }: {
     fieldId: string;
     value: FieldValue;
@@ -127,7 +127,7 @@ class Form extends React.Component<Props, State> {
   }) => {
     const doc = this.state.doc;
 
-    if (doc[fieldId].validation === 'multiSelect') {
+    if (doc[fieldId].validation === "multiSelect") {
       value = value.toString();
     }
 
@@ -153,23 +153,23 @@ class Form extends React.Component<Props, State> {
 
       doc[key] = field;
 
-      if (field.type === 'multiSelect' || field.type === 'check') {
+      if (field.type === "multiSelect" || field.type === "check") {
         doc[key] = {
           ...field,
-          value: String(field.value).replace(new RegExp(',,', 'g'), ', ')
+          value: String(field.value).replace(new RegExp(",,", "g"), ", "),
         };
       }
 
-      if (field.type === 'productCategory') {
-        const formField = fields.find(f => f._id === key);
+      if (field.type === "productCategory") {
+        const formField = fields.find((f) => f._id === key);
         const products = (formField && formField.products) || [];
-        const selectedProduct = products.find(p => p._id === field.value);
+        const selectedProduct = products.find((p) => p._id === field.value);
         doc[key] = selectedProduct && {
           ...field,
           value: `${
             selectedProduct.name
           } - ${selectedProduct.unitPrice.toLocaleString()}`,
-          productId: selectedProduct._id
+          productId: selectedProduct._id,
         };
       }
     }
@@ -178,7 +178,7 @@ class Form extends React.Component<Props, State> {
   };
 
   canChangePage = () => {
-    const requiredFields = this.getCurrentFields().filter(f => f.isRequired);
+    const requiredFields = this.getCurrentFields().filter((f) => f.isRequired);
 
     for (const field of requiredFields) {
       const value = this.state.doc[field._id].value;
@@ -199,7 +199,7 @@ class Form extends React.Component<Props, State> {
     if (this.canChangePage()) {
       this.setState({ currentPage: this.state.currentPage + 1 });
     } else {
-      alert(__('Please fill out required fields'));
+      alert(__("Please fill out required fields"));
     }
   };
 
@@ -211,21 +211,21 @@ class Form extends React.Component<Props, State> {
     const { form } = this.props;
     const doc: any = {};
 
-    form.fields.forEach(field => {
+    form.fields.forEach((field) => {
       let isHidden = false;
       if (
         field.logicAction &&
-        field.logicAction === 'show' &&
+        field.logicAction === "show" &&
         field.logics &&
         field.logics.length > 0
       ) {
         isHidden = true;
       }
 
-      let value = '';
+      let value = "";
 
-      if (field.type === 'html') {
-        value = field.content || '';
+      if (field.type === "html") {
+        value = field.content || "";
       }
 
       doc[field._id] = {
@@ -234,7 +234,7 @@ class Form extends React.Component<Props, State> {
         validation: field.validation,
         value,
         isHidden,
-        column: field.column
+        column: field.column,
       };
     });
 
@@ -242,7 +242,7 @@ class Form extends React.Component<Props, State> {
   }
 
   getCurrentFields() {
-    return this.props.form.fields.filter(f => {
+    return this.props.form.fields.filter((f) => {
       const pageNumber = f.pageNumber || 1;
       if (pageNumber === this.state.currentPage) {
         return f;
@@ -255,8 +255,8 @@ class Form extends React.Component<Props, State> {
   hideField(id: string) {
     const { doc } = this.state;
 
-    if (doc[id].value !== '' || !doc[id].isHidden) {
-      doc[id].value = '';
+    if (doc[id].value !== "" || !doc[id].isHidden) {
+      doc[id].value = "";
       doc[id].isHidden = true;
       this.setState({ doc });
     }
@@ -266,14 +266,14 @@ class Form extends React.Component<Props, State> {
     const { doc } = this.state;
 
     if (doc[id].isHidden) {
-      doc[id].value = '';
+      doc[id].value = "";
       doc[id].isHidden = false;
       this.setState({ doc });
     }
   }
 
   renderHead(title: string) {
-    const { hasTopBar, color = '' } = this.props;
+    const { hasTopBar, color = "" } = this.props;
 
     if (hasTopBar) {
       return <TopBar title={title} color={color} />;
@@ -297,15 +297,15 @@ class Form extends React.Component<Props, State> {
         style={{
           background: this.props.color,
           opacity: 0.7,
-          height: '13px',
-          width: `${percentage}%`
+          height: "13px",
+          width: `${percentage}%`,
         }}
       >
         <div
           style={{
-            textAlign: 'center',
-            color: 'white',
-            fontSize: 10
+            textAlign: "center",
+            color: "white",
+            fontSize: 10,
           }}
         >{`${percentage}%`}</div>
       </div>
@@ -318,15 +318,15 @@ class Form extends React.Component<Props, State> {
     const fields = this.getCurrentFields();
 
     const errors = currentStatus.errors || [];
-    const nonFieldError = errors.find(error => !error.fieldId);
+    const nonFieldError = errors.find((error) => !error.fieldId);
 
-    const renderedFields = fields.map(field => {
+    const renderedFields = fields.map((field) => {
       const fieldError = errors.find(
         (error: IFieldError) => error.fieldId === field._id
       );
 
       if (field.logics && field.logics.length > 0) {
-        const logics: LogicParams[] = field.logics.map(logic => {
+        const logics: LogicParams[] = field.logics.map((logic) => {
           const { validation, value, type } = this.state.doc[logic.fieldId];
 
           return {
@@ -335,20 +335,20 @@ class Form extends React.Component<Props, State> {
             logicValue: logic.logicValue,
             fieldValue: value,
             validation,
-            type
+            type,
           };
         });
 
         const isLogicsFulfilled = checkLogicFulfilled(logics);
 
-        if (field.logicAction && field.logicAction === 'show') {
+        if (field.logicAction && field.logicAction === "show") {
           if (!isLogicsFulfilled) {
             this.hideField(field._id);
             return null;
           }
         }
 
-        if (field.logicAction && field.logicAction === 'hide') {
+        if (field.logicAction && field.logicAction === "hide") {
           if (isLogicsFulfilled) {
             this.hideField(field._id);
             return null;
@@ -364,7 +364,7 @@ class Form extends React.Component<Props, State> {
           field={field}
           error={fieldError}
           onChange={this.onFieldValueChange}
-          value={this.state.doc[field._id].value || ''}
+          value={this.state.doc[field._id].value || ""}
           currentLocation={this.state.currentLocation}
           color={this.props.color}
           mapScriptLoaded={this.state.mapScriptLoaded}
@@ -375,7 +375,7 @@ class Form extends React.Component<Props, State> {
     return (
       <>
         {nonFieldError ? (
-          <p style={{ color: 'red' }}>{fixErrorMessage(nonFieldError.text)}</p>
+          <p style={{ color: "red" }}>{fixErrorMessage(nonFieldError.text)}</p>
         ) : null}
         {renderedFields}
       </>
@@ -390,14 +390,17 @@ class Form extends React.Component<Props, State> {
     const button = (
       title: any,
       action: React.MouseEventHandler<HTMLButtonElement>,
-      disabled?: boolean
+      disabled?: boolean,
+      className?: string
     ) => {
       return (
         <button
-          style={{ background: color, margin: '5px' }}
+          style={{ background: color }}
           type="button"
           onClick={action}
-          className={`erxes-button btn-block ${isSubmitting ? 'disabled' : ''}`}
+          className={`erxes-button btn-block ${
+            isSubmitting ? "disabled" : ""
+          } ${className}`}
           disabled={disabled}
         >
           {title}
@@ -407,7 +410,7 @@ class Form extends React.Component<Props, State> {
 
     if (numberOfPages === 1) {
       return button(
-        isSubmitting ? __('Loading ...') : form.buttonText || __('Send'),
+        isSubmitting ? __("Loading ...") : form.buttonText || __("Send"),
         this.onSubmit,
         isSubmitting
       );
@@ -415,11 +418,11 @@ class Form extends React.Component<Props, State> {
 
     if (currentPage === numberOfPages) {
       return (
-        <div style={{ width: '100%' }}>
-          <div style={{ display: 'flex' }}>
-            {button(__('Back'), this.onbackClick, isSubmitting)}
+        <div style={{ width: "100%" }}>
+          <div style={{ display: "flex" }}>
+            {button(__("Back"), this.onbackClick, isSubmitting, "hasMargin")}
             {button(
-              isSubmitting ? __('Loading ...') : form.buttonText || __('Send'),
+              isSubmitting ? __("Loading ...") : form.buttonText || __("Send"),
               this.onSubmit,
               isSubmitting
             )}
@@ -429,14 +432,14 @@ class Form extends React.Component<Props, State> {
     }
 
     if (currentPage === 1 && numberOfPages > 1) {
-      return button(__('Next'), this.onNextClick, isSubmitting);
+      return button(__("Next"), this.onNextClick, isSubmitting);
     }
 
     return (
-      <div style={{ width: '100%' }}>
-        <div style={{ display: 'flex' }}>
-          {button(__('Back'), this.onbackClick, isSubmitting)}
-          {button(__('Next'), this.onNextClick, isSubmitting)}
+      <div style={{ width: "100%" }}>
+        <div style={{ display: "flex" }}>
+          {button(__("Back"), this.onbackClick, isSubmitting, "hasMargin")}
+          {button(__("Next"), this.onNextClick, isSubmitting)}
         </div>
       </div>
     );
@@ -486,9 +489,9 @@ class Form extends React.Component<Props, State> {
         {this.renderHead(thankTitle || form.title)}
         <div className="erxes-form-content">
           <div className="erxes-callout-body">
-            {this.renderSuccessImage(successImage || '', form.title)}
+            {this.renderSuccessImage(successImage || "", form.title)}
             {thankContent ||
-              __('Thanks for your message. We will respond as soon as we can.')}
+              __("Thanks for your message. We will respond as soon as we can.")}
           </div>
         </div>
       </div>
@@ -496,11 +499,11 @@ class Form extends React.Component<Props, State> {
   }
 
   renderinvoiceResponse(response: string) {
-    if (this.props.invoiceType === 'golomtEcommerce') {
+    if (this.props.invoiceType === "golomtEcommerce") {
       const GolomtFrame = ({
         src,
         width,
-        height
+        height,
       }: {
         src: string;
         width: string;
@@ -520,36 +523,36 @@ class Form extends React.Component<Props, State> {
     const onClick = () => {
       this.props.onCancelOrder(
         connection.customerId,
-        this.props.lastMessageId || ''
+        this.props.lastMessageId || ""
       );
     };
 
     const button = () => {
       return (
         <button
-          style={{ background: this.props.color, margin: '5px' }}
+          style={{ background: this.props.color, margin: "5px" }}
           type="button"
           onClick={onClick}
-          className={'erxes-button btn-block'}
+          className={"erxes-button btn-block"}
         >
           Cancel
         </button>
       );
     };
 
-    if (response.includes('data:image')) {
+    if (response.includes("data:image")) {
       return (
         <div className="erxes-form">
-          {this.renderHead('Open social pay and scan qr code')}
+          {this.renderHead("Open social pay and scan qr code")}
           <div className="erxes-form-content">
             <div
               style={{
-                verticalAlign: 'middle',
-                textAlign: 'center',
-                display: 'table-cell'
+                verticalAlign: "middle",
+                textAlign: "center",
+                display: "table-cell",
               }}
             >
-              <img src={response} width="200px" height={'200px'} />
+              <img src={response} width="200px" height={"200px"} />
             </div>
             {button()}
           </div>
@@ -559,10 +562,10 @@ class Form extends React.Component<Props, State> {
 
     return (
       <div className="erxes-form">
-        {this.renderHead('finish order')}
+        {this.renderHead("finish order")}
         <div className="erxes-form-content">
           <div className="erxes-callout-body">
-            {'open social pay and finalize payment'}
+            {"open social pay and finalize payment"}
           </div>
           {button()}
         </div>
@@ -573,9 +576,9 @@ class Form extends React.Component<Props, State> {
   renderCancelledForm() {
     return (
       <div className="erxes-form">
-        {this.renderHead('Order has cancelled')}
+        {this.renderHead("Order has cancelled")}
         <div className="erxes-form-content">
-          <div className="erxes-callout-body">{__('Order has cancelled.')}</div>
+          <div className="erxes-callout-body">{__("Order has cancelled.")}</div>
         </div>
       </div>
     );
@@ -587,11 +590,11 @@ class Form extends React.Component<Props, State> {
       currentStatus,
       sendEmail,
       integration,
-      invoiceResponse
+      invoiceResponse,
     } = this.props;
     const doc = this.state.doc;
 
-    if (currentStatus.status === 'SUCCESS') {
+    if (currentStatus.status === "SUCCESS") {
       const {
         successAction,
         redirectUrl,
@@ -604,18 +607,18 @@ class Form extends React.Component<Props, State> {
         thankTitle,
         thankContent,
         attachments,
-        successImage
+        successImage,
       } = integration.leadData;
 
       // redirect to some url
-      if (successAction === 'redirect') {
+      if (successAction === "redirect") {
         window.open(redirectUrl);
       }
 
       // send email to user and admins
-      if (successAction === 'email') {
+      if (successAction === "email") {
         const emailField = form.fields.find(
-          f => f.validation === 'email' || f.type === 'email'
+          (f) => f.validation === "email" || f.type === "email"
         );
 
         if (emailField) {
@@ -629,7 +632,7 @@ class Form extends React.Component<Props, State> {
               title: userEmailTitle,
               content: userEmailContent,
               formId: connection.data.form._id,
-              attachments
+              attachments,
             });
           }
         }
@@ -642,7 +645,7 @@ class Form extends React.Component<Props, State> {
             title: adminEmailTitle,
             content: adminEmailContent,
             formId: connection.data.form._id,
-            attachments
+            attachments,
           });
         }
       } // end successAction = "email"
@@ -650,11 +653,11 @@ class Form extends React.Component<Props, State> {
       return this.renderSuccessForm(thankTitle, thankContent, successImage);
     }
 
-    if (currentStatus.status === 'PENDING' && invoiceResponse) {
+    if (currentStatus.status === "PENDING" && invoiceResponse) {
       return this.renderinvoiceResponse(invoiceResponse);
     }
 
-    if (currentStatus.status === 'CANCELLED') {
+    if (currentStatus.status === "CANCELLED") {
       return this.renderCancelledForm();
     }
 
@@ -671,7 +674,7 @@ export default (props: Props) => (
           // if lead is in a messenger, return messenger theme color (getColor())
           // else return lead theme color
           color={
-            getColor ? getColor() : props.integration.leadData.themeColor || ''
+            getColor ? getColor() : props.integration.leadData.themeColor || ""
           }
         />
       );
