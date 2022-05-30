@@ -16,50 +16,27 @@ class SignIn extends React.Component<Props> {
   renderContent = formProps => {
     const { values, isSubmitted } = formProps;
     const url = window.location.href;
+    const demoUrl = url.includes('xosdemo.erxes.io');
 
     return (
       <>
         <FormGroup>
-          {url === 'https://xosdemo.erxes.io/' ? (
-            <FormControl
-              {...formProps}
-              name="email"
-              defaultValue={'demo@erxes.io'}
-              required={true}
-            />
-          ) : (
-            <FormControl
-              {...formProps}
-              name="email"
-              placeholder={__('Enter your email')}
-              required={true}
-            />
-          )}
+          <FormControl
+            {...formProps}
+            name="email"
+            placeholder={demoUrl ? 'demo@erxes.io' : __('Enter your email')}
+            required={true}
+          />
         </FormGroup>
 
         <FormGroup>
-          {url === 'https://xosdemo.erxes.io/' ? (
-            <FormControl
-              {...formProps}
-              name="email"
-              defaultValue={'Demo@123'}
-              required={true}
-            />
-          ) : (
-            <FormControl
-              {...formProps}
-              name="password"
-              type="password"
-              placeholder={__('Enter your password')}
-              required={true}
-            />
-          )}
-        </FormGroup>
-
-        <FormGroup>
-          <FormControl className="toggle-message" componentClass="checkbox">
-            {__('Remember me')}.
-          </FormControl>
+          <FormControl
+            {...formProps}
+            name="password"
+            type="password"
+            placeholder={demoUrl ? 'Demo@123' : __('Enter your password')}
+            required={true}
+          />
         </FormGroup>
 
         {this.props.renderButton({
