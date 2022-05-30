@@ -49,12 +49,15 @@ const AuthBox = styled.div`
   button {
     text-transform: capitalize;
     font-weight: 600;
-    font-size: 18px;
-    padding: 16px 0px;
+    font-size: 16px;
+    padding: 15px ${dimensions.coreSpacing}px;
     margin: 25px 0px;
     border-radius: 8px;
     box-shadow: 0px 12px 24px rgba(0, 0, 0, 0.24);
     border: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   a {
