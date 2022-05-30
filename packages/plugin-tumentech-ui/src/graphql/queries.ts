@@ -375,6 +375,38 @@ query directionDetail($id: String!) {
 }
 `;
 
+const routesQuery = `
+query routes($searchValue: String) {
+  routes(searchValue: $searchValue) {
+    _id
+    name
+    directionItems {
+      directionId
+      order
+    }
+    directions {
+      _id
+      placeA {
+        name
+        code
+        center
+      }
+      placeB {
+        name
+        code
+        center
+      }
+      totalDistance
+      roadConditions
+      description
+      duration
+    }
+    totalDistance
+    totalDuration
+  }
+}
+`;
+
 export default {
   cars,
   carsMain,
@@ -396,5 +428,7 @@ export default {
   participants,
   carsListConfig,
   directions,
-  directionDetail
+  directionDetail,
+
+  routesQuery
 };

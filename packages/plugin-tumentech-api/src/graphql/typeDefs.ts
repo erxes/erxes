@@ -10,10 +10,10 @@ import {
   mutations as directionMutations
 } from './schema/directions';
 import {
-  types as routeOptionTypes,
-  queries as routeOptionQueries,
-  mutations as routeOptionMutations
-} from './schema/routeOptions';
+  types as routeTypes,
+  queries as routeQueries,
+  mutations as routeMutations
+} from './schema/routes';
 
 const typeDefs = async serviceDiscovery => {
   const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
@@ -40,19 +40,19 @@ const typeDefs = async serviceDiscovery => {
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
     
     ${tumentechTypes(isEnabled)}
-    ${routeOptionTypes}
+    ${routeTypes}
     ${directionTypes}
     
     extend type Query {
       ${tumentechQueries}
       ${directionQueries}
-      ${routeOptionQueries}
+      ${routeQueries}
     }
     
     extend type Mutation {
       ${tumentechMutations}
       ${directionMutations}
-      ${routeOptionMutations}
+      ${routeMutations}
     }
   `;
 };

@@ -25,11 +25,22 @@ const DirectionList = asyncComponent(() =>
   import(/* webpackChunkName: "DirectionList" */ './containers/direction/List')
 );
 
+const RouteList = asyncComponent(() =>
+  import(/* webpackChunkName: "RouteList" */ './containers/route/List')
+);
+
 const directionList = history => {
   const { location } = history;
   const queryParams = queryString.parse(location.search);
 
   return <DirectionList queryParams={queryParams} history={history} />;
+};
+
+const routeList = history => {
+  const { location } = history;
+  const queryParams = queryString.parse(location.search);
+
+  return <RouteList queryParams={queryParams} history={history} />;
 };
 
 const details = ({ match }) => {
@@ -93,6 +104,13 @@ const routes = () => {
         exact={true}
         path="/tumentech/direction/list"
         component={directionList}
+      />
+
+      <Route
+        key={'/route'}
+        exact={true}
+        path="/tumentech/route/list"
+        component={routeList}
       />
     </React.Fragment>
   );

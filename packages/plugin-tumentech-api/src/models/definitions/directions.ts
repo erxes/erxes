@@ -47,7 +47,8 @@ export const directionSchema = schemaHooksWrapper(
       optional: true
     }),
     description: field({ type: String, label: 'description' }),
-    duration: field({ type: Number, label: 'total duration (minuts)' })
+    duration: field({ type: Number, label: 'total duration (minuts)' }),
+    searchText: field({ type: String, optional: true, index: true })
   }),
-  'static_routes'
+  'directions'
 );

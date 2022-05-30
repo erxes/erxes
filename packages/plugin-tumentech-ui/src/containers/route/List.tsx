@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery, useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
-import List from '../../components/direction/List';
+import List from '../../components/route/List';
 // import Spinner from '@erxes/ui/src/components/Spinner';
 import { mutations, queries } from '../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
@@ -11,8 +11,8 @@ type Props = {
   queryParams: any;
 };
 
-export default function ItemContainer(props: Props) {
-  const { data, loading, refetch } = useQuery(gql(queries.directions), {
+export default function RoutesContainer(props: Props) {
+  const { data, loading, refetch } = useQuery(gql(queries.routesQuery), {
     fetchPolicy: 'network-only'
   });
 
@@ -36,13 +36,13 @@ export default function ItemContainer(props: Props) {
     });
   };
 
-  const directions = (data && data.directions) || [];
+  const routes = (data && data.routes) || [];
 
   const extendedProps = {
     ...props,
     loading,
-    directions,
-    totalCount: directions.length,
+    routes,
+    totalCount: routes.length,
     refetch,
     remove
   };

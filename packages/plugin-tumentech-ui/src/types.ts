@@ -440,3 +440,49 @@ export type IDirection = {
   description: string;
   duration: number;
 };
+
+// query Routes($searchValue: String) {
+//   routes(searchValue: $searchValue) {
+//     _id
+//     name
+//     directionItems {
+//       directionId
+//       order
+//     }
+//     directions {
+//       _id
+//       placeA {
+//         name
+//         code
+//         center
+//       }
+//       placeB {
+//         name
+//         code
+//         center
+//       }
+//       totalDistance
+//       roadConditions
+//       description
+//       duration
+//     }
+//     totalDistance
+//     totalDuration
+//   }
+// }
+
+export type IDirectionItem = {
+  directionId: string;
+  order: number;
+};
+
+export type IRoute = {
+  _id: string;
+  name: string;
+  code: string;
+
+  directionItems: IDirectionItem[];
+  directions: IDirection[];
+  totalDistance: number;
+  totalDuration: number;
+};

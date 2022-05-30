@@ -56,11 +56,11 @@ type State = {
   searchValue?: string;
 };
 
-export const menuPos = [
+export const tumentechMenu = [
   { title: 'Car', link: '/erxes-plugin-tumentech/list' },
   { title: 'Products', link: '/product' },
   { title: 'Directions', link: '/tumentech/direction/list' },
-  { title: 'Routes', link: '/route' }
+  { title: 'Routes', link: '/tumentech/route/list' }
 ];
 
 class CarsList extends React.Component<IProps, State> {
@@ -282,7 +282,7 @@ class CarsList extends React.Component<IProps, State> {
           <Wrapper.Header
             title={__(`Cars`) + ` (${totalCount})`}
             queryParams={queryParams}
-            submenu={menuPos}
+            submenu={tumentechMenu}
           />
         }
         actionBar={actionBar}

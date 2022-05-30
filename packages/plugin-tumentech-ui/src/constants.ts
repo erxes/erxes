@@ -225,6 +225,15 @@ export const COLLAPSE_CONTENT_SELECTOR = [
 
 export const CITIES = [
   {
+    city: 'ulaanbaatar',
+    lat: '47.921230',
+    lng: '106.918556',
+    province: 'Улаанбаатар',
+    label: 'Улаанбаатар',
+    city_mn: 'Улаанбаатар',
+    _id: 'ulaanbaatar_ulaanbaatar'
+  },
+  {
     city: 'Tavanbulag',
     lat: '47.3833',
     lng: '101.8833',
@@ -257,7 +266,7 @@ export const CITIES = [
     lng: '102.5458',
     province: 'arkhangai',
     label: 'Архангай',
-    city_mn: 'хөшөөт',
+    city_mn: 'Хөшөөт',
     _id: 'arkhangai_Hushuut'
   },
   {
@@ -284,7 +293,7 @@ export const CITIES = [
     lng: '101.3667',
     province: 'arkhangai',
     label: 'Архангай',
-    city_mn: 'Өлзийт',
+    city_mn: 'Өлзиит',
     _id: 'arkhangai_uldziit'
   },
   {
@@ -320,7 +329,7 @@ export const CITIES = [
     lng: '100.5092',
     province: 'arkhangai',
     label: 'Архангай',
-    city_mn: 'Тээл',
+    city_mn: 'Теел',
     _id: 'arkhangai_Teel'
   },
   {
@@ -338,7 +347,7 @@ export const CITIES = [
     lng: '101.9667',
     province: 'arkhangai',
     label: 'Архангай',
-    city_mn: 'Йаргалант',
+    city_mn: 'Жаргалант',
     _id: 'arkhangai_Jargalant'
   },
   {
@@ -347,7 +356,7 @@ export const CITIES = [
     lng: '100.8667',
     province: 'arkhangai',
     label: 'Архангай',
-    city_mn: 'Дзаанхосхуу',
+    city_mn: 'Заанхошуу',
     _id: 'arkhangai_Dzaanhoshuu'
   },
   {
@@ -356,7 +365,7 @@ export const CITIES = [
     lng: '100.2167',
     province: 'arkhangai',
     label: 'Архангай',
-    city_mn: 'Йаргалант',
+    city_mn: 'Жаргалант',
     _id: 'arkhangai_Jargalant'
   },
   {
@@ -365,7 +374,7 @@ export const CITIES = [
     lng: '101.1000',
     province: 'arkhangai',
     label: 'Архангай',
-    city_mn: 'Булагиин Денй',
+    city_mn: 'Булагиин Денж',
     _id: 'arkhangai_Bulagiin Denj'
   },
   {
@@ -383,7 +392,7 @@ export const CITIES = [
     lng: '98.8517',
     province: 'arkhangai',
     label: 'Архангай',
-    city_mn: 'Тсахир',
+    city_mn: 'Цахир',
     _id: 'arkhangai_Tsahir'
   },
   {
@@ -401,7 +410,7 @@ export const CITIES = [
     lng: '89.7431',
     province: 'bayan-ulgii',
     label: 'Баян-Өлгий',
-    city_mn: 'Тсагааннуур',
+    city_mn: 'Цагааннуур',
     _id: 'bayan-ulgii_Tsagaannuur'
   },
   {
@@ -410,7 +419,7 @@ export const CITIES = [
     lng: '89.5000',
     province: 'bayan-ulgii',
     label: 'Баян-Өлгий',
-    city_mn: 'Цхихертеы',
+    city_mn: 'Чихэртэй',
     _id: 'bayan-ulgii_Chihertey'
   },
   {
@@ -428,7 +437,7 @@ export const CITIES = [
     lng: '89.1333',
     province: 'bayan-ulgii',
     label: 'Баян-Өлгий',
-    city_mn: 'Хусхуут',
+    city_mn: 'Хөшөөт',
     _id: 'bayan-ulgii_Hushuut'
   },
   {
@@ -437,7 +446,7 @@ export const CITIES = [
     lng: '90.4500',
     province: 'bayan-ulgii',
     label: 'Баян-Өлгий',
-    city_mn: 'Тсагаантунги',
+    city_mn: 'Цагаантүнгэ',
     _id: 'bayan-ulgii_Tsagaantungi'
   },
   {
@@ -446,7 +455,7 @@ export const CITIES = [
     lng: '89.3833',
     province: 'bayan-ulgii',
     label: 'Баян-Өлгий',
-    city_mn: 'Билуу',
+    city_mn: 'Билүү',
     _id: 'bayan-ulgii_Biluu'
   },
   {
@@ -464,7 +473,7 @@ export const CITIES = [
     lng: '89.6167',
     province: 'bayan-ulgii',
     label: 'Баян-Өлгий',
-    city_mn: 'Ууйим',
+    city_mn: 'Уужим',
     _id: 'bayan-ulgii_Uujim'
   },
   {
@@ -473,7 +482,7 @@ export const CITIES = [
     lng: '90.8333',
     province: 'bayan-ulgii',
     label: 'Баян-Өлгий',
-    city_mn: 'Расхаант',
+    city_mn: 'Рашаант',
     _id: 'bayan-ulgii_Rashaant'
   },
   {
@@ -482,7 +491,7 @@ export const CITIES = [
     lng: '89.5333',
     province: 'bayan-ulgii',
     label: 'Баян-Өлгий',
-    city_mn: 'Буыант',
+    city_mn: 'Буянт',
     _id: 'bayan-ulgii_Buyant'
   },
   {
@@ -491,7 +500,7 @@ export const CITIES = [
     lng: '91.0833',
     province: 'bayan-ulgii',
     label: 'Баян-Өлгий',
-    city_mn: 'Йаргалант',
+    city_mn: 'Жаргалант',
     _id: 'bayan-ulgii_Jargalant'
   },
   {
@@ -500,7 +509,7 @@ export const CITIES = [
     lng: '99.5667',
     province: 'bayankhongor',
     label: 'Баянхонгор',
-    city_mn: 'Дзадгаы',
+    city_mn: 'Задгай',
     _id: 'bayankhongor_Dzadgay'
   },
   {
@@ -509,7 +518,7 @@ export const CITIES = [
     lng: '100.8000',
     province: 'bayankhongor',
     label: 'Баянхонгор',
-    city_mn: 'Ерденетсогт',
+    city_mn: 'Эрдэнэцогт',
     _id: 'bayankhongor_Erdenetsogt'
   },
   {
@@ -527,7 +536,7 @@ export const CITIES = [
     lng: '99.1667',
     province: 'bayankhongor',
     label: 'Баянхонгор',
-    city_mn: 'Дзаг',
+    city_mn: 'Заг',
     _id: 'bayankhongor_Dzag'
   },
   {
@@ -536,7 +545,7 @@ export const CITIES = [
     lng: '100.1333',
     province: 'bayankhongor',
     label: 'Баянхонгор',
-    city_mn: 'Баянхусхуу',
+    city_mn: 'Баянхошуу',
     _id: 'bayankhongor_Bayanhushuu'
   },
   {
@@ -554,7 +563,7 @@ export const CITIES = [
     lng: '99.6333',
     province: 'bayankhongor',
     label: 'Баянхонгор',
-    city_mn: 'Йаргалант',
+    city_mn: 'Жаргалант',
     _id: 'bayankhongor_Jargalant'
   },
   {
@@ -563,7 +572,7 @@ export const CITIES = [
     lng: '100.4667',
     province: 'bayankhongor',
     label: 'Баянхонгор',
-    city_mn: 'Хухбурд',
+    city_mn: 'Хөхбүрд',
     _id: 'bayankhongor_Huhburd'
   },
   {
@@ -572,7 +581,7 @@ export const CITIES = [
     lng: '100.3667',
     province: 'bayankhongor',
     label: 'Баянхонгор',
-    city_mn: 'ургун',
+    city_mn: 'Өргөн',
     _id: 'bayankhongor_urgun'
   },
   {
@@ -599,7 +608,7 @@ export const CITIES = [
     lng: '98.6667',
     province: 'bayankhongor',
     label: 'Баянхонгор',
-    city_mn: 'Буыант',
+    city_mn: 'Буянт',
     _id: 'bayankhongor_Buyant'
   },
   {
@@ -608,7 +617,7 @@ export const CITIES = [
     lng: '98.5333',
     province: 'bayankhongor',
     label: 'Баянхонгор',
-    city_mn: 'Ховиин Ам',
+    city_mn: 'Ховийн Ам',
     _id: 'bayankhongor_Hoviin Am'
   },
   {
@@ -617,16 +626,16 @@ export const CITIES = [
     lng: '100.5667',
     province: 'bayankhongor',
     label: 'Баянхонгор',
-    city_mn: 'Боди',
+    city_mn: 'Бодь',
     _id: 'bayankhongor_Bodi'
   },
   {
     city: 'Bayansayr',
     lat: '45.5500',
-    lng: '99.4167',
+    lng: '45.5500',
     province: 'bayankhongor',
     label: 'Баянхонгор',
-    city_mn: 'Баянсаыр',
+    city_mn: 'Баянсайр',
     _id: 'bayankhongor_Bayansayr'
   },
   {
@@ -635,7 +644,7 @@ export const CITIES = [
     lng: '98.3500',
     province: 'bayankhongor',
     label: 'Баянхонгор',
-    city_mn: 'Делгермурун',
+    city_mn: 'Дэлгэрмөрөн',
     _id: 'bayankhongor_Delgermurun'
   },
   {
@@ -653,7 +662,7 @@ export const CITIES = [
     lng: '99.2667',
     province: 'bayankhongor',
     label: 'Баянхонгор',
-    city_mn: 'Дзалаа',
+    city_mn: 'Залаа',
     _id: 'bayankhongor_Dzalaa'
   },
   {
@@ -671,7 +680,7 @@ export const CITIES = [
     lng: '104.5000',
     province: 'bulgan',
     label: 'Булган',
-    city_mn: 'Тсул-Улаан',
+    city_mn: 'Цул-Улаан',
     _id: 'bulgan_Tsul-Ulaan'
   },
   {
@@ -680,7 +689,7 @@ export const CITIES = [
     lng: '102.6228',
     province: 'bulgan',
     label: 'Булган',
-    city_mn: 'Хуремт',
+    city_mn: 'Хүрэмт',
     _id: 'bulgan_Huremt'
   },
   {
@@ -689,7 +698,7 @@ export const CITIES = [
     lng: '103.4256',
     province: 'bulgan',
     label: 'Булган',
-    city_mn: 'Маанит',
+    city_mn: 'Мааньт',
     _id: 'bulgan_Maanit'
   },
   {
@@ -698,7 +707,7 @@ export const CITIES = [
     lng: '103.5167',
     province: 'bulgan',
     label: 'Булган',
-    city_mn: 'Авдзага',
+    city_mn: 'Авзага',
     _id: 'bulgan_Avdzaga'
   },
   {
@@ -707,7 +716,7 @@ export const CITIES = [
     lng: '104.0500',
     province: 'bulgan',
     label: 'Булган',
-    city_mn: 'Сууй',
+    city_mn: 'Сүүж',
     _id: 'bulgan_Suuj'
   },
   {
@@ -716,7 +725,7 @@ export const CITIES = [
     lng: '102.9747',
     province: 'bulgan',
     label: 'Булган',
-    city_mn: 'Ерхет',
+    city_mn: 'Эрхэт',
     _id: 'bulgan_Erhet'
   },
   {
@@ -725,7 +734,7 @@ export const CITIES = [
     lng: '102.0806',
     province: 'bulgan',
     label: 'Булган',
-    city_mn: 'Схарга',
+    city_mn: 'Шарга',
     _id: 'bulgan_Sharga'
   },
   {
@@ -770,7 +779,7 @@ export const CITIES = [
     lng: '103.9742',
     province: 'bulgan',
     label: 'Булган',
-    city_mn: 'Ингеттолгои',
+    city_mn: 'Ингэттолгой',
     _id: 'bulgan_Ingettolgoi'
   },
   {
@@ -779,9 +788,19 @@ export const CITIES = [
     lng: '102.6133',
     province: 'bulgan',
     label: 'Булган',
-    city_mn: 'Тесхиг',
+    city_mn: 'Тэшиг',
     _id: 'bulgan_Teshig'
   },
+  {
+    city: 'darkhan',
+    lat: '49.4716602',
+    lng: '105.890263',
+    province: 'darkhan-uul',
+    label: 'Дархан-Уул',
+    city_mn: 'Дархан хот',
+    _id: 'darkhan-uul_darkhan'
+  },
+
   {
     city: 'Hongor',
     lat: '49.2301',
@@ -797,7 +816,7 @@ export const CITIES = [
     lng: '106.4313',
     province: 'darkhan-uul',
     label: 'Дархан-Уул',
-    city_mn: 'Схарïнгол',
+    city_mn: 'Шарын гол',
     _id: 'darkhan-uul_Sharïngol'
   },
   {
@@ -806,7 +825,7 @@ export const CITIES = [
     lng: '106.1340',
     province: 'darkhan-uul',
     label: 'Дархан-Уул',
-    city_mn: 'оркхон',
+    city_mn: 'орхон',
     _id: 'darkhan-uul_orkhon'
   },
   {
@@ -815,7 +834,7 @@ export const CITIES = [
     lng: '112.7333',
     province: 'dornod',
     label: 'Дорнод',
-    city_mn: 'Йавартхусхуу',
+    city_mn: 'Жаварт хөшөө',
     _id: 'dornod_Javarthushuu'
   },
   {
@@ -824,7 +843,7 @@ export const CITIES = [
     lng: '113.4333',
     province: 'dornod',
     label: 'Дорнод',
-    city_mn: 'Хуувур',
+    city_mn: 'Хөөвөр',
     _id: 'dornod_Huuvur'
   },
   {
@@ -842,7 +861,7 @@ export const CITIES = [
     lng: '114.0833',
     province: 'dornod',
     label: 'Дорнод',
-    city_mn: 'Сергелен',
+    city_mn: 'Сэргэлэн',
     _id: 'dornod_Sergelen'
   },
   {
@@ -860,7 +879,7 @@ export const CITIES = [
     lng: '114.4000',
     province: 'dornod',
     label: 'Дорнод',
-    city_mn: 'Дасхбалбар',
+    city_mn: 'Дашбалбар',
     _id: 'dornod_Dashbalbar'
   },
   {
@@ -869,7 +888,7 @@ export const CITIES = [
     lng: '114.8667',
     province: 'dornod',
     label: 'Дорнод',
-    city_mn: 'Хулстаы',
+    city_mn: 'Хулстай',
     _id: 'dornod_Hulstay'
   },
   {
@@ -878,7 +897,7 @@ export const CITIES = [
     lng: '114.8833',
     province: 'dornod',
     label: 'Дорнод',
-    city_mn: 'Сумиин Булаг',
+    city_mn: 'Сумын Булаг',
     _id: 'dornod_Sumiin Bulag'
   },
   {
@@ -887,7 +906,7 @@ export const CITIES = [
     lng: '115.7167',
     province: 'dornod',
     label: 'Дорнод',
-    city_mn: 'Ереентсав',
+    city_mn: 'Эрээнцав',
     _id: 'dornod_Ereentsav'
   },
   {
@@ -896,7 +915,7 @@ export const CITIES = [
     lng: '113.9333',
     province: 'dornod',
     label: 'Дорнод',
-    city_mn: 'ундурхусхуу',
+    city_mn: 'өндөрхөшөө',
     _id: 'dornod_undurhushuu'
   },
   {
@@ -905,7 +924,7 @@ export const CITIES = [
     lng: '115.5333',
     province: 'dornod',
     label: 'Дорнод',
-    city_mn: 'Дзуунбулаг',
+    city_mn: 'зуунбулаг',
     _id: 'dornod_Dzuunbulag'
   },
   {
@@ -914,7 +933,7 @@ export const CITIES = [
     lng: '118.5101',
     province: 'dornod',
     label: 'Дорнод',
-    city_mn: 'Сумбер',
+    city_mn: 'Сүмбэр',
     _id: 'dornod_Sumber'
   },
   {
@@ -923,7 +942,7 @@ export const CITIES = [
     lng: '109.0667',
     province: 'dornogovi',
     label: 'Дорноговь',
-    city_mn: 'Тсомог',
+    city_mn: 'цомог',
     _id: 'dornogovi_Tsomog'
   },
   {
@@ -932,7 +951,7 @@ export const CITIES = [
     lng: '109.3333',
     province: 'dornogovi',
     label: 'Дорноговь',
-    city_mn: 'Тсагаандурвулй',
+    city_mn: 'Цагаан дөрвөлж',
     _id: 'dornogovi_Tsagaandurvulj'
   },
   {
@@ -959,7 +978,7 @@ export const CITIES = [
     lng: '109.1333',
     province: 'dornogovi',
     label: 'Дорноговь',
-    city_mn: 'Ергел',
+    city_mn: 'Эргэл',
     _id: 'dornogovi_Ergel'
   },
   {
@@ -968,7 +987,7 @@ export const CITIES = [
     lng: '110.7667',
     province: 'dornogovi',
     label: 'Дорноговь',
-    city_mn: 'Сенй',
+    city_mn: 'Сэнж',
     _id: 'dornogovi_Senj'
   },
   {
@@ -977,7 +996,7 @@ export const CITIES = [
     lng: '109.6381',
     province: 'dornogovi',
     label: 'Дорноговь',
-    city_mn: 'кхувсгул',
+    city_mn: 'хөвсгөл',
     _id: 'dornogovi_khuvsgul'
   },
   {
@@ -986,7 +1005,7 @@ export const CITIES = [
     lng: '110.4667',
     province: 'dornogovi',
     label: 'Дорноговь',
-    city_mn: 'Цхандмани',
+    city_mn: 'Чандмань',
     _id: 'dornogovi_Chandmani'
   },
   {
@@ -995,7 +1014,7 @@ export const CITIES = [
     lng: '108.2500',
     province: 'dornogovi',
     label: 'Дорноговь',
-    city_mn: 'Тухум',
+    city_mn: 'Төхөм',
     _id: 'dornogovi_Tuhum'
   },
   {
@@ -1004,7 +1023,7 @@ export const CITIES = [
     lng: '109.0167',
     province: 'dornogovi',
     label: 'Дорноговь',
-    city_mn: 'улдзиит',
+    city_mn: 'өлзийт',
     _id: 'dornogovi_uldziit'
   },
   {
@@ -1013,7 +1032,7 @@ export const CITIES = [
     lng: '110.4667',
     province: 'dornogovi',
     label: 'Дорноговь',
-    city_mn: 'Нуден',
+    city_mn: 'Нүдэн',
     _id: 'dornogovi_Nuden'
   },
   {
@@ -1031,7 +1050,7 @@ export const CITIES = [
     lng: '104.9500',
     province: 'dundgovi',
     label: 'Дундговь',
-    city_mn: 'Сангиин Далаы',
+    city_mn: 'Сангийн Далай',
     _id: 'dundgovi_Sangiin Dalay'
   },
   {
@@ -1040,7 +1059,7 @@ export const CITIES = [
     lng: '106.3833',
     province: 'dundgovi',
     label: 'Дундговь',
-    city_mn: 'Амардалаы',
+    city_mn: 'Амардалай',
     _id: 'dundgovi_Amardalay'
   },
   {
@@ -1058,7 +1077,7 @@ export const CITIES = [
     lng: '106.7167',
     province: 'dundgovi',
     label: 'Дундговь',
-    city_mn: 'Тсант',
+    city_mn: 'Цант',
     _id: 'dundgovi_Tsant'
   },
   {
@@ -1067,7 +1086,7 @@ export const CITIES = [
     lng: '107.5000',
     province: 'dundgovi',
     label: 'Дундговь',
-    city_mn: 'Хайуу-Ус',
+    city_mn: 'Хажуу-Ус',
     _id: 'dundgovi_Hajuu-Us'
   },
   {
@@ -1076,7 +1095,7 @@ export const CITIES = [
     lng: '105.7500',
     province: 'dundgovi',
     label: 'Дундговь',
-    city_mn: 'Тсагаан-Овоо',
+    city_mn: 'Цагаан-Овоо',
     _id: 'dundgovi_Tsagaan-Ovoo'
   },
   {
@@ -1085,7 +1104,7 @@ export const CITIES = [
     lng: '104.8333',
     province: 'dundgovi',
     label: 'Дундговь',
-    city_mn: 'Хасхаат',
+    city_mn: 'Хашаат',
     _id: 'dundgovi_Hashaat'
   },
   {
@@ -1094,7 +1113,7 @@ export const CITIES = [
     lng: '108.2833',
     province: 'dundgovi',
     label: 'Дундговь',
-    city_mn: 'Бухут',
+    city_mn: 'Бөхөт',
     _id: 'dundgovi_Buhut'
   },
   {
@@ -1103,7 +1122,7 @@ export const CITIES = [
     lng: '107.9833',
     province: 'dundgovi',
     label: 'Дундговь',
-    city_mn: 'Аргатаы',
+    city_mn: 'Аргатай',
     _id: 'dundgovi_Argatay'
   },
   {
@@ -1130,7 +1149,7 @@ export const CITIES = [
     lng: '105.5667',
     province: 'dundgovi',
     label: 'Дундговь',
-    city_mn: 'Улаанйирем',
+    city_mn: 'Улаанжирэм',
     _id: 'dundgovi_Ulaanjirem'
   },
   {
@@ -1139,7 +1158,7 @@ export const CITIES = [
     lng: '106.2000',
     province: 'dundgovi',
     label: 'Дундговь',
-    city_mn: 'Расхаант',
+    city_mn: 'Рашаант',
     _id: 'dundgovi_Rashaant'
   },
   {
@@ -1148,7 +1167,7 @@ export const CITIES = [
     lng: '97.1667',
     province: 'govi-altai',
     label: 'Говь-Алтай',
-    city_mn: 'Йаргалант',
+    city_mn: 'Жаргалант',
     _id: 'govi-altai_Jargalant'
   },
   {
@@ -1166,7 +1185,7 @@ export const CITIES = [
     lng: '95.9500',
     province: 'govi-altai',
     label: 'Говь-Алтай',
-    city_mn: 'Буыанбат',
+    city_mn: 'Буянбат',
     _id: 'govi-altai_Buyanbat'
   },
   {
@@ -1193,7 +1212,7 @@ export const CITIES = [
     lng: '95.8667',
     province: 'govi-altai',
     label: 'Говь-Алтай',
-    city_mn: 'Тсеел',
+    city_mn: 'Цээл',
     _id: 'govi-altai_Tseel'
   },
   {
@@ -1202,7 +1221,7 @@ export const CITIES = [
     lng: '97.2833',
     province: 'govi-altai',
     label: 'Говь-Алтай',
-    city_mn: 'Таыган',
+    city_mn: 'Тайган',
     _id: 'govi-altai_Taygan'
   },
   {
@@ -1211,7 +1230,7 @@ export const CITIES = [
     lng: '97.9833',
     province: 'govi-altai',
     label: 'Говь-Алтай',
-    city_mn: 'Талсханд',
+    city_mn: 'Талшанд',
     _id: 'govi-altai_Talshand'
   },
   {
@@ -1220,7 +1239,7 @@ export const CITIES = [
     lng: '96.5000',
     province: 'govi-altai',
     label: 'Говь-Алтай',
-    city_mn: 'Тсагаан-Олом',
+    city_mn: 'Цагаан-Олом',
     _id: 'govi-altai_Tsagaan-Olom'
   },
   {
@@ -1229,7 +1248,7 @@ export const CITIES = [
     lng: '94.9333',
     province: 'govi-altai',
     label: 'Говь-Алтай',
-    city_mn: 'Тугруг',
+    city_mn: 'Төгрөг',
     _id: 'govi-altai_Tugrug'
   },
   {
@@ -1238,7 +1257,7 @@ export const CITIES = [
     lng: '95.2667',
     province: 'govi-altai',
     label: 'Говь-Алтай',
-    city_mn: 'Схарга',
+    city_mn: 'Шарга',
     _id: 'govi-altai_Sharga'
   },
   {
@@ -1247,7 +1266,7 @@ export const CITIES = [
     lng: '93.9167',
     province: 'govi-altai',
     label: 'Говь-Алтай',
-    city_mn: 'Дзуыл',
+    city_mn: 'Зүйл',
     _id: 'govi-altai_Dzuyl'
   },
   {
@@ -1256,7 +1275,7 @@ export const CITIES = [
     lng: '94.5500',
     province: 'govi-altai',
     label: 'Говь-Алтай',
-    city_mn: 'Саын-Уст',
+    city_mn: 'Сайн-Уст',
     _id: 'govi-altai_Sayn-Ust'
   },
   {
@@ -1292,7 +1311,7 @@ export const CITIES = [
     lng: '97.7500',
     province: 'govi-altai',
     label: 'Говь-Алтай',
-    city_mn: 'Сангиин Далаы',
+    city_mn: 'Сангиин Далай',
     _id: 'govi-altai_Sangiin Dalay'
   },
   {
@@ -1309,7 +1328,7 @@ export const CITIES = [
     lat: '47.1000',
     lng: '92.8500',
     province: 'hovd',
-    city_mn: 'Алтантеел',
+    city_mn: 'Алтантээл',
     _id: 'hovd_Altanteel'
   },
   {
@@ -1317,7 +1336,7 @@ export const CITIES = [
     lat: '46.0833',
     lng: '91.5667',
     province: 'hovd',
-    city_mn: 'Буренхаырхан',
+    city_mn: 'Бүрэнхайрхан',
     _id: 'hovd_Burenhayrhan'
   },
   {
@@ -1325,7 +1344,7 @@ export const CITIES = [
     lat: '48.2333',
     lng: '91.9167',
     province: 'hovd',
-    city_mn: 'Баянхусхуу',
+    city_mn: 'Баянхошуу',
     _id: 'hovd_Bayanhushuu'
   },
   {
@@ -1333,7 +1352,7 @@ export const CITIES = [
     lat: '48.0667',
     lng: '91.8167',
     province: 'hovd',
-    city_mn: 'Буыант',
+    city_mn: 'Буянт',
     _id: 'hovd_Buyant'
   },
   {
@@ -1341,7 +1360,7 @@ export const CITIES = [
     lat: '46.9167',
     lng: '92.1167',
     province: 'hovd',
-    city_mn: 'Тсенхер',
+    city_mn: 'Цэнхэр',
     _id: 'hovd_Tsenher'
   },
   {
@@ -1357,7 +1376,7 @@ export const CITIES = [
     lat: '46.6000',
     lng: '93.2667',
     province: 'hovd',
-    city_mn: 'Тсетсегнуур',
+    city_mn: 'Цэцэгнуур',
     _id: 'hovd_Tsetsegnuur'
   },
   {
@@ -1365,7 +1384,7 @@ export const CITIES = [
     lat: '46.6833',
     lng: '92.7833',
     province: 'hovd',
-    city_mn: 'Улаантолгои',
+    city_mn: 'Улаантолгой',
     _id: 'hovd_Ulaantolgoi'
   },
   {
@@ -1373,7 +1392,7 @@ export const CITIES = [
     lat: '47.4167',
     lng: '92.2167',
     province: 'hovd',
-    city_mn: 'Тугруг',
+    city_mn: 'Төгрөг',
     _id: 'hovd_Tugrug'
   },
   {
@@ -1397,7 +1416,7 @@ export const CITIES = [
     lat: '48.3167',
     lng: '92.6333',
     province: 'hovd',
-    city_mn: 'Сеер',
+    city_mn: 'Сээр',
     _id: 'hovd_Seer'
   },
   {
@@ -1405,7 +1424,7 @@ export const CITIES = [
     lat: '46.0500',
     lng: '92.0167',
     province: 'hovd',
-    city_mn: 'уыунцх',
+    city_mn: 'Үенч',
     _id: 'hovd_uyunch'
   },
   {
@@ -1421,7 +1440,7 @@ export const CITIES = [
     lat: '45.8000',
     lng: '92.2833',
     province: 'hovd',
-    city_mn: 'Бор-удзуур',
+    city_mn: 'Бор-үзүүр',
     _id: 'hovd_Bor-udzuur'
   },
   {
@@ -1439,7 +1458,7 @@ export const CITIES = [
     lng: '109.4250',
     province: 'khentii',
     label: 'Хэнтий',
-    city_mn: 'Бор-ундур',
+    city_mn: 'Бор-өндөр',
     _id: 'khentii_Bor-undur'
   },
   {
@@ -1448,7 +1467,7 @@ export const CITIES = [
     lng: '111.5000',
     province: 'khentii',
     label: 'Хэнтий',
-    city_mn: 'Дундбурд',
+    city_mn: 'Дундбүрд',
     _id: 'khentii_Dundburd'
   },
   {
@@ -1484,7 +1503,7 @@ export const CITIES = [
     lng: '112.1167',
     province: 'khentii',
     label: 'Хэнтий',
-    city_mn: 'Йибхалант',
+    city_mn: 'Жавхлант',
     _id: 'khentii_Jibhalant'
   },
   {
@@ -1493,7 +1512,7 @@ export const CITIES = [
     lng: '109.7500',
     province: 'khentii',
     label: 'Хэнтий',
-    city_mn: 'Улаан-Ерег',
+    city_mn: 'Улаан-Эрэг',
     _id: 'khentii_Ulaan-Ereg'
   },
   {
@@ -1529,7 +1548,7 @@ export const CITIES = [
     lng: '111.9833',
     province: 'khentii',
     label: 'Хэнтий',
-    city_mn: 'Улдз',
+    city_mn: 'Улз',
     _id: 'khentii_Uldz'
   },
   {
@@ -1538,7 +1557,7 @@ export const CITIES = [
     lng: '110.8333',
     province: 'khentii',
     label: 'Хэнтий',
-    city_mn: 'Буыант',
+    city_mn: 'Буянт',
     _id: 'khentii_Buyant'
   },
   {
@@ -1556,7 +1575,7 @@ export const CITIES = [
     lng: '110.5667',
     province: 'khentii',
     label: 'Хэнтий',
-    city_mn: 'Херлен',
+    city_mn: 'Хэрлэн',
     _id: 'khentii_Herlen'
   },
   {
@@ -1565,8 +1584,18 @@ export const CITIES = [
     lng: '110.1833',
     province: 'khentii',
     label: 'Хэнтий',
-    city_mn: 'Ег',
+    city_mn: 'Эг',
     _id: 'khentii_Eg'
+  },
+
+  {
+    city: 'murun',
+    lat: '49.636320',
+    lng: '100.163750',
+    province: 'khuvsgul',
+    label: 'Хөвсгөл',
+    city_mn: 'Мөрөн',
+    _id: 'khuvsgul_murun'
   },
   {
     city: 'selenge',
@@ -1574,7 +1603,7 @@ export const CITIES = [
     lng: '101.4667',
     province: 'khuvsgul',
     label: 'Хөвсгөл',
-    city_mn: 'селенге',
+    city_mn: 'сэлэнгэ',
     _id: 'khuvsgul_selenge'
   },
   {
@@ -1583,7 +1612,7 @@ export const CITIES = [
     lng: '101.4281',
     province: 'khuvsgul',
     label: 'Хөвсгөл',
-    city_mn: 'Расхаант',
+    city_mn: 'Рашаант',
     _id: 'khuvsgul_Rashaant'
   },
   {
@@ -1601,7 +1630,7 @@ export const CITIES = [
     lng: '100.8894',
     province: 'khuvsgul',
     label: 'Хөвсгөл',
-    city_mn: 'Тсенгел',
+    city_mn: 'Цэнгэл',
     _id: 'khuvsgul_Tsengel'
   },
   {
@@ -1619,7 +1648,7 @@ export const CITIES = [
     lng: '100.2500',
     province: 'khuvsgul',
     label: 'Хөвсгөл',
-    city_mn: 'Йаргалант',
+    city_mn: 'Жаргалант',
     _id: 'khuvsgul_Jargalant'
   },
   {
@@ -1628,7 +1657,7 @@ export const CITIES = [
     lng: '99.8739',
     province: 'khuvsgul',
     label: 'Хөвсгөл',
-    city_mn: 'Идер',
+    city_mn: 'Идэр',
     _id: 'khuvsgul_Ider'
   },
   {
@@ -1637,7 +1666,7 @@ export const CITIES = [
     lng: '99.5333',
     province: 'khuvsgul',
     label: 'Хөвсгөл',
-    city_mn: 'Ерденет',
+    city_mn: 'Эрдэнэт',
     _id: 'khuvsgul_Erdenet'
   },
   {
@@ -1682,7 +1711,7 @@ export const CITIES = [
     lng: '98.8000',
     province: 'khuvsgul',
     label: 'Хөвсгөл',
-    city_mn: 'Схарга',
+    city_mn: 'Шарга',
     _id: 'khuvsgul_Sharga'
   },
   {
@@ -1709,7 +1738,7 @@ export const CITIES = [
     lng: '100.9278',
     province: 'khuvsgul',
     label: 'Хөвсгөл',
-    city_mn: 'Хухуу',
+    city_mn: 'Хөхөө',
     _id: 'khuvsgul_Huhuu'
   },
   {
@@ -1718,7 +1747,7 @@ export const CITIES = [
     lng: '101.5753',
     province: 'khuvsgul',
     label: 'Хөвсгөл',
-    city_mn: 'Ег-Уур',
+    city_mn: 'Эг-Үүр',
     _id: 'khuvsgul_Eg-Uur'
   },
   {
@@ -1727,7 +1756,7 @@ export const CITIES = [
     lng: '99.3444',
     province: 'khuvsgul',
     label: 'Хөвсгөл',
-    city_mn: 'Тсагааннуур',
+    city_mn: 'Цагааннуур',
     _id: 'khuvsgul_Tsagaannuur'
   },
   {
@@ -1736,7 +1765,7 @@ export const CITIES = [
     lng: '99.6694',
     province: 'khuvsgul',
     label: 'Хөвсгөл',
-    city_mn: 'Дзуулун',
+    city_mn: 'Зөөлөн',
     _id: 'khuvsgul_Dzuulun'
   },
   {
@@ -1754,7 +1783,7 @@ export const CITIES = [
     lng: '99.2333',
     province: 'khuvsgul',
     label: 'Хөвсгөл',
-    city_mn: 'Тугул',
+    city_mn: 'Төгөл',
     _id: 'khuvsgul_Tugul'
   },
   {
@@ -1772,7 +1801,7 @@ export const CITIES = [
     lng: '105.8806',
     province: 'selenge',
     label: 'Сэлэнгэ',
-    city_mn: 'Йаргалант',
+    city_mn: 'Жаргалант',
     _id: 'selenge_Jargalant'
   },
   {
@@ -1790,7 +1819,7 @@ export const CITIES = [
     lng: '106.3333',
     province: 'selenge',
     label: 'Сэлэнгэ',
-    city_mn: 'Йаргалант',
+    city_mn: 'Жаргалант',
     _id: 'selenge_Jargalant'
   },
   {
@@ -1799,8 +1828,18 @@ export const CITIES = [
     lng: '105.3736',
     province: 'selenge',
     label: 'Сэлэнгэ',
-    city_mn: 'Енхтал',
+    city_mn: 'Энхтал',
     _id: 'selenge_Enhtal'
+  },
+
+  {
+    city: 'erdenet',
+    lat: '49.0563792',
+    lng: '104.0160388',
+    province: 'orkhon',
+    label: 'Орхон',
+    city_mn: 'Эрдэнэт',
+    _id: 'orkhon_erdenet'
   },
   {
     city: 'orkhontuul',
@@ -1808,7 +1847,7 @@ export const CITIES = [
     lng: '104.9758',
     province: 'selenge',
     label: 'Сэлэнгэ',
-    city_mn: 'оркхонтуул',
+    city_mn: 'орхонтуул',
     _id: 'selenge_orkhontuul'
   },
   {
@@ -1817,7 +1856,7 @@ export const CITIES = [
     lng: '105.4200',
     province: 'selenge',
     label: 'Сэлэнгэ',
-    city_mn: 'Хуурцх',
+    city_mn: 'Хуурч',
     _id: 'selenge_Huurch'
   },
   {
@@ -1826,7 +1865,7 @@ export const CITIES = [
     lng: '104.7353',
     province: 'selenge',
     label: 'Сэлэнгэ',
-    city_mn: 'Бургалтаы',
+    city_mn: 'Бургалтай',
     _id: 'selenge_Burgaltay'
   },
   {
@@ -1835,7 +1874,7 @@ export const CITIES = [
     lng: '105.6167',
     province: 'selenge',
     label: 'Сэлэнгэ',
-    city_mn: 'Хусхаат',
+    city_mn: 'Хушаат',
     _id: 'selenge_Hushaat'
   },
   {
@@ -1853,7 +1892,7 @@ export const CITIES = [
     lng: '107.5500',
     province: 'selenge',
     label: 'Сэлэнгэ',
-    city_mn: 'Булагтаы',
+    city_mn: 'Булагтай',
     _id: 'selenge_Bulagtay'
   },
   {
@@ -1862,7 +1901,7 @@ export const CITIES = [
     lng: '105.0458',
     province: 'selenge',
     label: 'Сэлэнгэ',
-    city_mn: 'Дзелтер',
+    city_mn: 'Зэлтэр',
     _id: 'selenge_Dzelter'
   },
   {
@@ -1871,7 +1910,7 @@ export const CITIES = [
     lng: '112.1333',
     province: 'sukhbaatar',
     label: 'Сүхбаатар',
-    city_mn: 'Ханхухии',
+    city_mn: 'Ханхөхий',
     _id: 'sukhbaatar_Hanhuhii'
   },
   {
@@ -1889,7 +1928,7 @@ export const CITIES = [
     lng: '111.8167',
     province: 'sukhbaatar',
     label: 'Сүхбаатар',
-    city_mn: 'Сергелен',
+    city_mn: 'Сэргэлэн',
     _id: 'sukhbaatar_Sergelen'
   },
   {
@@ -1907,7 +1946,7 @@ export const CITIES = [
     lng: '112.3500',
     province: 'sukhbaatar',
     label: 'Сүхбаатар',
-    city_mn: 'Схиреет',
+    city_mn: 'Ширеет',
     _id: 'sukhbaatar_Shireet'
   },
   {
@@ -1916,7 +1955,7 @@ export const CITIES = [
     lng: '112.1833',
     province: 'sukhbaatar',
     label: 'Сүхбаатар',
-    city_mn: 'Дзуунбулаг',
+    city_mn: 'Зуунбулаг',
     _id: 'sukhbaatar_Dzuunbulag'
   },
   {
@@ -1925,7 +1964,7 @@ export const CITIES = [
     lng: '115.3667',
     province: 'sukhbaatar',
     label: 'Сүхбаатар',
-    city_mn: 'Цхоногол',
+    city_mn: 'Чоногол',
     _id: 'sukhbaatar_Chonogol'
   },
   {
@@ -1952,7 +1991,7 @@ export const CITIES = [
     lng: '112.9500',
     province: 'sukhbaatar',
     label: 'Сүхбаатар',
-    city_mn: 'Хатавцх',
+    city_mn: 'Хатавч',
     _id: 'sukhbaatar_Hatavch'
   },
   {
@@ -1961,7 +2000,7 @@ export const CITIES = [
     lng: '113.6000',
     province: 'sukhbaatar',
     label: 'Сүхбаатар',
-    city_mn: 'Улаандел',
+    city_mn: 'Улаандэл',
     _id: 'sukhbaatar_Ulaandel'
   },
   {
@@ -1970,7 +2009,7 @@ export const CITIES = [
     lng: '113.8825',
     province: 'sukhbaatar',
     label: 'Сүхбаатар',
-    city_mn: 'Хаылаастаы',
+    city_mn: 'Хайлаастай',
     _id: 'sukhbaatar_Haylaastay'
   },
   {
@@ -1979,7 +2018,7 @@ export const CITIES = [
     lng: '104.7597',
     province: 'tuv',
     label: 'Төв',
-    city_mn: 'Бат-улдзиит',
+    city_mn: 'Бат-өлзийт',
     _id: 'tuv_Bat-uldziit'
   },
   {
@@ -2051,7 +2090,7 @@ export const CITIES = [
     lng: '105.2500',
     province: 'tuv',
     label: 'Төв',
-    city_mn: 'Лун',
+    city_mn: 'Лүн',
     _id: 'tuv_Lun'
   },
   {
@@ -2060,7 +2099,7 @@ export const CITIES = [
     lng: '108.1167',
     province: 'tuv',
     label: 'Төв',
-    city_mn: 'Баянделгер',
+    city_mn: 'Баяндэлгэр',
     _id: 'tuv_Bayandelger'
   },
   {
@@ -2069,7 +2108,7 @@ export const CITIES = [
     lng: '106.9633',
     province: 'tuv',
     label: 'Төв',
-    city_mn: 'Хусхигиин-Ар',
+    city_mn: 'Хөшигийн-Ар',
     _id: 'tuv_Hushigiin-Ar'
   },
   {
@@ -2078,7 +2117,7 @@ export const CITIES = [
     lng: '105.0500',
     province: 'tuv',
     label: 'Төв',
-    city_mn: 'Баянтухум',
+    city_mn: 'Баянтөхөм',
     _id: 'tuv_Bayantuhum'
   },
   {
@@ -2087,7 +2126,7 @@ export const CITIES = [
     lng: '107.5333',
     province: 'tuv',
     label: 'Төв',
-    city_mn: 'Маанит',
+    city_mn: 'Мааньт',
     _id: 'tuv_Maanit'
   },
   {
@@ -2096,7 +2135,7 @@ export const CITIES = [
     lng: '104.5833',
     province: 'tuv',
     label: 'Төв',
-    city_mn: 'Хуйирт',
+    city_mn: 'Хужирт',
     _id: 'tuv_Hujirt'
   },
   {
@@ -2105,7 +2144,7 @@ export const CITIES = [
     lng: '104.8167',
     province: 'tuv',
     label: 'Төв',
-    city_mn: 'Баысхинт',
+    city_mn: 'Байшинт',
     _id: 'tuv_Bayshint'
   },
   {
@@ -2159,7 +2198,7 @@ export const CITIES = [
     lng: '107.1500',
     province: 'tuv',
     label: 'Төв',
-    city_mn: 'Дзогсоол',
+    city_mn: 'Зогсоол',
     _id: 'tuv_Dzogsool'
   },
   {
@@ -2195,7 +2234,7 @@ export const CITIES = [
     lng: '102.5333',
     province: 'umnugovi',
     label: 'Өмнөговь',
-    city_mn: 'Саынсханд',
+    city_mn: 'Сайншанд',
     _id: 'umnugovi_Saynshand'
   },
   {
@@ -2204,7 +2243,7 @@ export const CITIES = [
     lng: '104.0500',
     province: 'umnugovi',
     label: 'Өмнөговь',
-    city_mn: 'Схархулсан',
+    city_mn: 'Шархулсан',
     _id: 'umnugovi_Sharhulsan'
   },
   {
@@ -2222,7 +2261,7 @@ export const CITIES = [
     lng: '104.4961',
     province: 'umnugovi',
     label: 'Өмнөговь',
-    city_mn: 'угуумур',
+    city_mn: 'Өгөөмөр',
     _id: 'umnugovi_uguumur'
   },
   {
@@ -2240,7 +2279,7 @@ export const CITIES = [
     lng: '103.5244',
     province: 'umnugovi',
     label: 'Өмнөговь',
-    city_mn: 'Далаы',
+    city_mn: 'Далай',
     _id: 'umnugovi_Dalay'
   },
   {
@@ -2258,7 +2297,7 @@ export const CITIES = [
     lng: '105.1333',
     province: 'umnugovi',
     label: 'Өмнөговь',
-    city_mn: 'Сангиин Далаы',
+    city_mn: 'Сангиин Далай',
     _id: 'umnugovi_Sangiin Dalay'
   },
   {
@@ -2267,7 +2306,7 @@ export const CITIES = [
     lng: '106.1269',
     province: 'umnugovi',
     label: 'Өмнөговь',
-    city_mn: 'Ерденетсогт',
+    city_mn: 'Эрдэнэцогт',
     _id: 'umnugovi_Erdenetsogt'
   },
   {
@@ -2276,7 +2315,7 @@ export const CITIES = [
     lng: '104.0844',
     province: 'umnugovi',
     label: 'Өмнөговь',
-    city_mn: 'Тсоохор',
+    city_mn: 'Цоохор',
     _id: 'umnugovi_Tsoohor'
   },
   {
@@ -2294,7 +2333,7 @@ export const CITIES = [
     lng: '90.9000',
     province: 'uvs',
     label: 'Увс',
-    city_mn: 'Хухтолгои',
+    city_mn: 'Хөхтолгой',
     _id: 'uvs_Huhtolgoi'
   },
   {
@@ -2321,7 +2360,7 @@ export const CITIES = [
     lng: '90.2833',
     province: 'uvs',
     label: 'Увс',
-    city_mn: 'Баысхинт',
+    city_mn: 'Байшинт',
     _id: 'uvs_Bayshint'
   },
   {
@@ -2339,7 +2378,7 @@ export const CITIES = [
     lng: '95.4333',
     province: 'uvs',
     label: 'Увс',
-    city_mn: 'Йаргалант',
+    city_mn: 'Жаргалант',
     _id: 'uvs_Jargalant'
   },
   {
@@ -2348,7 +2387,7 @@ export const CITIES = [
     lng: '91.6667',
     province: 'uvs',
     label: 'Увс',
-    city_mn: 'Хавтсал',
+    city_mn: 'Хавтцал',
     _id: 'uvs_Havtsal'
   },
   {
@@ -2375,7 +2414,7 @@ export const CITIES = [
     lng: '92.4022',
     province: 'uvs',
     label: 'Увс',
-    city_mn: 'Зуунхувуу',
+    city_mn: 'Зүүнхөвөө',
     _id: 'uvs_Zuunhuvuu'
   },
   {
@@ -2384,7 +2423,7 @@ export const CITIES = [
     lng: '93.7833',
     province: 'uvs',
     label: 'Увс',
-    city_mn: 'Дзел',
+    city_mn: 'Зэл',
     _id: 'uvs_Dzel'
   },
   {
@@ -2393,7 +2432,7 @@ export const CITIES = [
     lng: '94.8500',
     province: 'uvs',
     label: 'Увс',
-    city_mn: 'Тсетсерлег',
+    city_mn: 'Цэцэрлэг',
     _id: 'uvs_Tsetserleg'
   },
   {
@@ -2420,7 +2459,7 @@ export const CITIES = [
     lng: '93.2667',
     province: 'uvs',
     label: 'Увс',
-    city_mn: 'Тсалгар',
+    city_mn: 'Цалгар',
     _id: 'uvs_Tsalgar'
   },
   {
@@ -2438,7 +2477,7 @@ export const CITIES = [
     lng: '94.2333',
     province: 'uvs',
     label: 'Увс',
-    city_mn: 'Мундуухуу',
+    city_mn: 'Мөндөөхөө',
     _id: 'uvs_Munduuhuu'
   },
   {
@@ -2447,7 +2486,7 @@ export const CITIES = [
     lng: '93.1000',
     province: 'uvs',
     label: 'Увс',
-    city_mn: 'Схарбулаг',
+    city_mn: 'шарбулаг',
     _id: 'uvs_Sharbulag'
   },
   {
@@ -2456,7 +2495,7 @@ export const CITIES = [
     lng: '102.2500',
     province: 'uvurkhangai',
     label: 'Өвөрхангай',
-    city_mn: 'увт',
+    city_mn: 'өвт',
     _id: 'uvurkhangai_uvt'
   },
   {
@@ -2465,7 +2504,7 @@ export const CITIES = [
     lng: '103.8333',
     province: 'uvurkhangai',
     label: 'Өвөрхангай',
-    city_mn: 'Маыхан',
+    city_mn: 'Майхан',
     _id: 'uvurkhangai_Mayhan'
   },
   {
@@ -2474,7 +2513,7 @@ export const CITIES = [
     lng: '103.5167',
     province: 'uvurkhangai',
     label: 'Өвөрхангай',
-    city_mn: 'Мунхбулаг',
+    city_mn: 'Мөнхбулаг',
     _id: 'uvurkhangai_Munhbulag'
   },
   {
@@ -2483,7 +2522,7 @@ export const CITIES = [
     lng: '101.4833',
     province: 'uvurkhangai',
     label: 'Өвөрхангай',
-    city_mn: 'Тсагаан Овоо',
+    city_mn: 'Цагаан Овоо',
     _id: 'uvurkhangai_Tsagaan Ovoo'
   },
   {
@@ -2519,7 +2558,7 @@ export const CITIES = [
     lng: '103.4000',
     province: 'uvurkhangai',
     label: 'Өвөрхангай',
-    city_mn: 'Схирее',
+    city_mn: 'Ширээ',
     _id: 'uvurkhangai_Shiree'
   },
   {
@@ -2528,7 +2567,7 @@ export const CITIES = [
     lng: '103.3167',
     province: 'uvurkhangai',
     label: 'Өвөрхангай',
-    city_mn: 'Сангиин Далаы',
+    city_mn: 'Сангийн Далай',
     _id: 'uvurkhangai_Sangiin Dalay'
   },
   {
@@ -2537,7 +2576,7 @@ export const CITIES = [
     lng: '102.4667',
     province: 'uvurkhangai',
     label: 'Өвөрхангай',
-    city_mn: 'Хуремт',
+    city_mn: 'Хүрэмт',
     _id: 'uvurkhangai_Huremt'
   },
   {
@@ -2546,7 +2585,7 @@ export const CITIES = [
     lng: '101.4000',
     province: 'uvurkhangai',
     label: 'Өвөрхангай',
-    city_mn: 'Хуувур',
+    city_mn: 'Хөөвөр',
     _id: 'uvurkhangai_Huuvur'
   },
   {
@@ -2555,7 +2594,7 @@ export const CITIES = [
     lng: '102.0500',
     province: 'uvurkhangai',
     label: 'Өвөрхангай',
-    city_mn: 'Мардзад',
+    city_mn: 'Марзад',
     _id: 'uvurkhangai_Mardzad'
   },
   {
@@ -2600,7 +2639,7 @@ export const CITIES = [
     lng: '98.2839',
     province: 'zavkhan',
     label: 'Завхан',
-    city_mn: 'Тосонтсенгел',
+    city_mn: 'Тосонцэнгэл',
     _id: 'zavkhan_Tosontsengel'
   },
   {
@@ -2618,7 +2657,7 @@ export const CITIES = [
     lng: '97.6186',
     province: 'zavkhan',
     label: 'Завхан',
-    city_mn: 'увугдии',
+    city_mn: 'өвөгдий',
     _id: 'zavkhan_uvugdii'
   },
   {
@@ -2636,7 +2675,7 @@ export const CITIES = [
     lng: '96.0000',
     province: 'zavkhan',
     label: 'Завхан',
-    city_mn: 'Тегсх',
+    city_mn: 'Тэгш',
     _id: 'zavkhan_Tegsh'
   },
   {
@@ -2645,7 +2684,7 @@ export const CITIES = [
     lng: '97.1500',
     province: 'zavkhan',
     label: 'Завхан',
-    city_mn: 'Балгатаы',
+    city_mn: 'Балгатай',
     _id: 'zavkhan_Balgatay'
   },
   {
@@ -2663,7 +2702,7 @@ export const CITIES = [
     lng: '97.3786',
     province: 'zavkhan',
     label: 'Завхан',
-    city_mn: 'Дзуунмод',
+    city_mn: 'Зуунмод',
     _id: 'zavkhan_Dzuunmod'
   },
   {
@@ -2672,7 +2711,7 @@ export const CITIES = [
     lng: '96.5500',
     province: 'zavkhan',
     label: 'Завхан',
-    city_mn: 'оигон',
+    city_mn: 'ойгон',
     _id: 'zavkhan_oigon'
   },
   {
@@ -2681,7 +2720,7 @@ export const CITIES = [
     lng: '96.6500',
     province: 'zavkhan',
     label: 'Завхан',
-    city_mn: 'Тсагаанцхулуут',
+    city_mn: 'Цагаанчулуут',
     _id: 'zavkhan_Tsagaanchuluut'
   },
   {
@@ -2699,7 +2738,7 @@ export const CITIES = [
     lng: '96.3333',
     province: 'zavkhan',
     label: 'Завхан',
-    city_mn: 'Алтаы',
+    city_mn: 'Алтай',
     _id: 'zavkhan_Altay'
   },
   {
@@ -2717,7 +2756,7 @@ export const CITIES = [
     lng: '96.8500',
     province: 'zavkhan',
     label: 'Завхан',
-    city_mn: 'Схирее',
+    city_mn: 'Ширээ',
     _id: 'zavkhan_Shiree'
   },
   {
@@ -2726,7 +2765,7 @@ export const CITIES = [
     lng: '96.2500',
     province: 'zavkhan',
     label: 'Завхан',
-    city_mn: 'Цхандмани',
+    city_mn: 'Чандмань',
     _id: 'zavkhan_Chandmani'
   },
   {
@@ -2735,7 +2774,7 @@ export const CITIES = [
     lng: '97.5500',
     province: 'zavkhan',
     label: 'Завхан',
-    city_mn: 'Буыант',
+    city_mn: 'Буянт',
     _id: 'zavkhan_Buyant'
   },
   {
@@ -2762,7 +2801,7 @@ export const CITIES = [
     lng: '94.2833',
     province: 'zavkhan',
     label: 'Завхан',
-    city_mn: 'Хунгии',
+    city_mn: 'Хунгий',
     _id: 'zavkhan_Hungii'
   },
   {

@@ -11,22 +11,10 @@ const directionsQuery = {
     }: { searchValue?: string; page?: number; perPage?: number },
     { models }: IContext
   ) => {
-    const filter: { $or?: any[] } = {};
+    const filter: any = {};
 
     if (searchValue) {
-      const regexOption = {
-        $regex: `.*${searchValue.trim()}.*`,
-        $options: 'i'
-      };
-
-      filter.$or = [
-        {
-          placeA: regexOption
-        },
-        {
-          placeB: regexOption
-        }
-      ];
+      filter.searchText = { $in: [new RegExp(`.*${searchValue}.*`, 'i')] };
     }
 
     // const cities = CITIES;

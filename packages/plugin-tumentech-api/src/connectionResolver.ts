@@ -1,5 +1,6 @@
+import { IRouteDocument } from './models/definitions/routes';
 import { IDirectionDocument } from './models/definitions/directions';
-import { IRouteOptionModel } from './models/RouteOptions';
+import { IRouteModel, loadRouteClass } from './models/Routes';
 import { loadDirectionClass, IDirectionModel } from './models/Directions';
 import * as mongoose from 'mongoose';
 import { mainDb } from './configs';
@@ -27,7 +28,7 @@ export interface IModels {
   ProductCarCategories: IProductCarCategoryModel;
   Participants: IParticipantModel;
   Directions: IDirectionModel;
-  RouteOptions: IRouteOptionModel;
+  Routes: IRouteModel;
 }
 
 export interface IContext extends IMainContext {
@@ -75,6 +76,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Directions = db.model<IDirectionDocument, IDirectionModel>(
     'directions',
     loadDirectionClass(models)
+  );
+
+  models.Routes = db.model<IRouteDocument, IRouteModel>(
+    'routes',
+    loadRouteClass(models)
   );
 
   return models;

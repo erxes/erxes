@@ -11,6 +11,7 @@ import { IDirection, IPlace } from '../../types';
 import { CITIES, ROAD_CONDITIONS } from '../../constants';
 import Select from 'react-select-plus';
 import Map from '@erxes/ui/src/components/Map';
+import { removeTypename } from '@erxes/ui/src/utils';
 
 type Props = {
   direction?: IDirection;
@@ -18,7 +19,7 @@ type Props = {
   closeModal: () => void;
 };
 
-const PropertyGroupForm = (props: Props) => {
+const DirectionForm = (props: Props) => {
   const { direction } = props;
 
   const [placeA, setPlaceA] = useState<IPlace>(
@@ -45,8 +46,8 @@ const PropertyGroupForm = (props: Props) => {
       finalValues._id = direction._id;
     }
 
-    finalValues.placeA = placeA;
-    finalValues.placeB = placeB;
+    finalValues.placeA = removeTypename(placeA);
+    finalValues.placeB = removeTypename(placeB);
     finalValues.roadConditions = roadConditions;
     finalValues.duration = duration;
     finalValues.totalDistance = distance;
@@ -230,4 +231,4 @@ const PropertyGroupForm = (props: Props) => {
   return <Form renderContent={renderContent} />;
 };
 
-export default PropertyGroupForm;
+export default DirectionForm;

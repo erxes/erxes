@@ -305,25 +305,56 @@ mutation directionsAdd($placeA: PlaceInput!, $placeB: PlaceInput!, $totalDistanc
 `;
 
 const editDirection = `
-mutation directionsAdd($placeA: PlaceInput!, $placeB: PlaceInput!, $totalDistance: Int, $roadConditions: [String], $description: String, $duration: Int) {
-  directionsAdd(placeA: $placeA, placeB: $placeB, totalDistance: $totalDistance, roadConditions: $roadConditions, description: $description, duration: $duration) {
+mutation directionsEdit($_id: String!, $placeA: PlaceInput!, $placeB: PlaceInput!, $totalDistance: Int, $roadConditions: [String], $description: String, $duration: Int) {
+  directionsEdit(_id: $_id, placeA: $placeA, placeB: $placeB, totalDistance: $totalDistance, roadConditions: $roadConditions, description: $description, duration: $duration) {
     _id
-    placeA {
-      name
-      code
-      center
-    }
-    placeB {
-      name
-      code
-      center
-    }
-    totalDistance
-    roadConditions
-    description
-    duration
   }
 }`;
+
+const removeDirection = `
+mutation directionsRemove($_id: String!) {
+  directionsRemove(_id: $_id)
+}
+`;
+
+const addRoute = `
+mutation routesAdd($name: String!, $code: String!, $directionItems: [DirectionItemInput]) {
+  routesAdd(name: $name, code: $code, directionItems: $directionItems) {
+    _id
+    name
+    directionItems {
+      directionId
+      order
+    }
+  }
+}
+`;
+
+const editRoute = `
+mutation routesAdd($name: String!, $code: String!, $directionItems: [DirectionItemInput]) {
+  routesAdd(name: $name, code: $code, directionItems: $directionItems) {
+    _id
+    name
+    directionItems {
+      directionId
+      order
+    }
+  }
+}
+`;
+
+const removeRoute = `
+mutation routesAdd($name: String!, $code: String!, $directionItems: [DirectionItemInput]) {
+  routesAdd(name: $name, code: $code, directionItems: $directionItems) {
+    _id
+    name
+    directionItems {
+      directionId
+      order
+    }
+  }
+}
+`;
 
 export default {
   carsAdd,
@@ -338,10 +369,17 @@ export default {
 
   carCategoryMatch,
   productMatch,
+
   addParticipants,
   removeParticipants,
   removeParticipantsFromDeal,
   selectWinner,
+
   addDirection,
-  editDirection
+  editDirection,
+  removeDirection,
+
+  addRoute,
+  editRoute,
+  removeRoute
 };
