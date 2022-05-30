@@ -15,26 +15,45 @@ type Props = {
 class SignIn extends React.Component<Props> {
   renderContent = formProps => {
     const { values, isSubmitted } = formProps;
+    const url = window.location.href;
 
     return (
       <>
         <FormGroup>
-          <FormControl
-            {...formProps}
-            name="email"
-            placeholder={__('Enter your email')}
-            required={true}
-          />
+          {url === 'https://xosdemo.erxes.io/' ? (
+            <FormControl
+              {...formProps}
+              name="email"
+              defaultValue={'demo@erxes.io'}
+              required={true}
+            />
+          ) : (
+            <FormControl
+              {...formProps}
+              name="email"
+              placeholder={__('Enter your email')}
+              required={true}
+            />
+          )}
         </FormGroup>
 
         <FormGroup>
-          <FormControl
-            {...formProps}
-            name="password"
-            type="password"
-            placeholder={__('Enter your password')}
-            required={true}
-          />
+          {url === 'https://xosdemo.erxes.io/' ? (
+            <FormControl
+              {...formProps}
+              name="email"
+              defaultValue={'Demo@123'}
+              required={true}
+            />
+          ) : (
+            <FormControl
+              {...formProps}
+              name="password"
+              type="password"
+              placeholder={__('Enter your password')}
+              required={true}
+            />
+          )}
         </FormGroup>
 
         <FormGroup>
