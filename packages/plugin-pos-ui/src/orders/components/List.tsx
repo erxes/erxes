@@ -1,6 +1,11 @@
 import {
-  __, DataWithLoader, Pagination,
-  SortHandler, Table, Wrapper, BarItems
+  __,
+  DataWithLoader,
+  Pagination,
+  SortHandler,
+  Table,
+  Wrapper,
+  BarItems
 } from '@erxes/ui/src';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
@@ -71,7 +76,7 @@ class Orders extends React.Component<IProps, {}> {
       onSearch,
       isFiltered,
       clearFilter,
-      queryParams,
+      queryParams
     };
 
     const actionBarRight = (
@@ -101,13 +106,22 @@ class Orders extends React.Component<IProps, {}> {
                 <SortHandler sortField={'date'} label={__('Date')} />
               </th>
               <th>
-                <SortHandler sortField={'cashAmount'} label={__('Cash Amount')} />
+                <SortHandler
+                  sortField={'cashAmount'}
+                  label={__('Cash Amount')}
+                />
               </th>
               <th>
-                <SortHandler sortField={'cardAmount'} label={__('Card Amount')} />
+                <SortHandler
+                  sortField={'cardAmount'}
+                  label={__('Card Amount')}
+                />
               </th>
               <th>
-                <SortHandler sortField={'mobileAmount'} label={__('Mobile Amount')} />
+                <SortHandler
+                  sortField={'mobileAmount'}
+                  label={__('Mobile Amount')}
+                />
               </th>
               <th>
                 <SortHandler sortField={'totalAmount'} label={__('Amount')} />
@@ -121,9 +135,7 @@ class Orders extends React.Component<IProps, {}> {
               <th>
                 <SortHandler sortField={'User'} label={__('User')} />
               </th>
-              <th>
-                Үйлдлүүд
-              </th>
+              <th>Үйлдлүүд</th>
             </tr>
           </thead>
           <tbody id="orders">
@@ -151,7 +163,7 @@ class Orders extends React.Component<IProps, {}> {
           />
         }
         mainHead={header}
-        footer={<Pagination count={summary.count} />}
+        footer={<Pagination count={(summary || {}).count} />}
         content={
           <DataWithLoader
             data={mainContent}

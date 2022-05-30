@@ -46,7 +46,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadTransactionClass(models)
   );
   models.TrItems = db.model<ITrItemDocument, ITrItemModel>(
-    'transactions',
+    'tr_items',
     loadTrItemClass(models)
   );
   models.Remainders = db.model<IRemainderDocument, IRemainderModel>(
@@ -58,7 +58,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadSafeRemainderClass(models)
   );
   models.SafeRemItems = db.model<ISafeRemItemDocument, ISafeRemItemModel>(
-    'safe_remainders',
+    'safe_rem_items',
     loadSafeRemItemClass(models)
   );
 

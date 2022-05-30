@@ -47,10 +47,7 @@ class ListContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const {
-      posListQuery,
-      removeMutation
-    } = this.props;
+    const { posListQuery, removeMutation } = this.props;
 
     const posList = posListQuery.posList || [];
 
@@ -107,8 +104,6 @@ export default withProps<Props>(
         return {
           variables: {
             ...router.generatePaginationParams(queryParams || {}),
-            tag: queryParams.tag,
-            brandId: queryParams.brand,
             status: queryParams.status,
             sortField: queryParams.sortField,
             sortDirection: queryParams.sortDirection
@@ -124,6 +119,6 @@ export default withProps<Props>(
       {
         name: 'removeMutation'
       }
-    ),
+    )
   )(ListContainer)
 );

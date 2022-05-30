@@ -59,6 +59,10 @@ export const loadSalesLogClass = (models: IModels) => {
     public static async removeSalesLog(_id: string) {
       await models.DayPlanConfigs.deleteMany({ salesLogId: _id });
 
+      await models.MonthPlanConfigs.deleteMany({ salesLogId: _id });
+
+      await models.YearPlanConfigs.deleteMany({ salesLogId: _id });
+
       return await models.SalesLogs.remove({ _id });
     }
   }
@@ -85,7 +89,6 @@ export const loadLabelClass = (models: IModels) => {
     }) {
       const add = doc.add;
       // await models.DayConfigs.deleteMany();
-      console.log('saved', doc.add);
       const update = doc.update;
 
       for (const item of update) {
@@ -200,9 +203,7 @@ export const loadMonthPlanConfigClass = (models: IModels) => {
   class MonthPlanConfig {
     public static async saveMonthPlanConfig({ doc }) {
       const configs = doc.data;
-      console.log('yeaaaaaaaaaaaaaaaaaaaa', doc);
       for (const key of Object.keys(configs)) {
-        console.log('1', key, configs[key].data);
         if (!configs[key]._id) {
           await models.MonthPlanConfigs.create({
             salesLogId: doc.salesLogId,
@@ -234,8 +235,8 @@ export interface IYearPlanConfigModel extends Model<IYearPlanConfigDocument> {
 
 export const loadYearPlanConfigClass = (models: IModels) => {
   class YearPlanConfig {
-    public static async saveYearPlanConfig(doc) {
-      const configs = doc.configs;
+    public static async saveYearPlanConfig({ doc }) {
+      const configs = doc.data;
 
       for (const key of Object.keys(configs)) {
         if (!configs[key]._id) {

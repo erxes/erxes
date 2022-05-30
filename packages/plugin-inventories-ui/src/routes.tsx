@@ -4,19 +4,16 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Tags" */ './containers/List')
+  import(/* webpackChunkName: "List - Tags" */ './remainders/containers/List')
 );
 
-const tags = ({ location, history }) => {
+const remainders = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
-
-  const { type } = queryParams;
-
-  return <List type={type} history={history} />;
+  return <List queryParams={queryParams} history={history} />;
 };
 
 const routes = () => {
-  return <Route path="/tags/" component={tags} />;
+  return <Route path="/inventories/remainders/" component={remainders} />;
 };
 
 export default routes;

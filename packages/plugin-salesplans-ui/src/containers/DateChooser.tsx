@@ -6,50 +6,49 @@ import { queries, mutations } from '../graphql';
 import DateChooser from '../components/DateChooser';
 import { Alert } from '@erxes/ui/src/utils';
 import { withProps } from '@erxes/ui/src/utils/core';
+import { Spinner } from '@erxes/ui/src/components';
+// import {
+//   dayplanconfs,
+//   labelsQuery,
+//   monthplanconfs,
+//   saveDayPlan,
+//   saveMonthPlan,
+//   saveYearPlan,
+//   timeframeQuery,
+//   yearplanconfs,
+// } from "../types";
 
 type Props = {
   data: any;
   closeModal: () => void;
 };
 
-type FinalProps = {} & Props & {
-    labelsQuery: any;
-  };
+type FinalProps = {
+  labelsQuery: any;
+  timeframeQuery: any;
+  dayplanconfs: any;
+  monthplanconfs: any;
+  yearplanconfs: any;
+  saveDayPlan: any;
+  saveMonthPlan: any;
+  saveYearPlan: any;
+} & Props;
 
-function DateChooserContainer({ data, closeModal, labelsQuery }: FinalProps) {
+function DateChooserContainer({
+  data,
+  closeModal,
+  labelsQuery,
+  timeframeQuery,
+  dayplanconfs,
+  monthplanconfs,
+  yearplanconfs,
+  saveDayPlan,
+  saveMonthPlan,
+  saveYearPlan
+}: FinalProps) {
   const type = data.type;
+
   const day = data.date;
-
-  const labelsQuerys = useQuery(gql(queries.getLabels), {
-    variables: { type }
-  });
-
-  const dayConfigQuery = useQuery(gql(queries.getTimeframes), {
-    skip: type !== 'Day',
-    fetchPolicy: 'network-only'
-  });
-
-  const dayplanconfs = useQuery(gql(queries.getDayPlanConfig), {
-    variables: { salesLogId: data._id },
-    fetchPolicy: 'network-only',
-    skip: type !== 'Day'
-  });
-
-  const monthplanconfs = useQuery(gql(queries.getMonthPlanConfig), {
-    variables: { salesLogId: data._id },
-    skip: type !== 'Month'
-  });
-
-  const yearplanconfs = useQuery(gql(queries.getYearPlanConfig), {
-    variables: { salesLogId: data._id },
-    skip: type !== 'Year'
-  });
-
-  const [saveDayPlan] = useMutation(gql(mutations.saveDayPlanConfig));
-
-  const [saveMonthPlan] = useMutation(gql(mutations.saveMonthPlanConfig));
-
-  const [saveYearPlan] = useMutation(gql(mutations.saveYearPlanConfig));
 
   const saveData = (salesLogId, data) => {
     if (type === 'Day') {
@@ -84,29 +83,22 @@ function DateChooserContainer({ data, closeModal, labelsQuery }: FinalProps) {
 
   let configs;
 
-  if (type === 'Day')
-    configs = dayplanconfs.data ? dayplanconfs.data.getDayPlanConfig : null;
-  else if (type === 'Month')
-    configs = monthplanconfs.data
-      ? monthplanconfs.data.getMonthPlanConfig
-      : null;
-  else
-    configs = yearplanconfs.data ? yearplanconfs.data.getYearPlanConfig : null;
+  if (type === 'Day') {
+    if (dayplanconfs.loading) return <Spinner objective={true} />;
+    configs = dayplanconfs ? dayplanconfs.getDayPlanConfig : [];
+  } else {
+    if (type === 'Month')
+      configs = monthplanconfs ? monthplanconfs.getMonthPlanConfig : [];
+    else configs = yearplanconfs ? yearplanconfs.getYearPlanConfig : [];
+  }
+  if (labelsQuery.loading) return <Spinner objective={true} />;
 
-  // console.log(
-  //   "container configs",
-  //   data._id,
-  //   yearplanconfs.data ? yearplanconfs.data.getYearPlanConfig : null
-  // );
-  console.log(
-    'laaaabel',
-    labelsQuery.data ? labelsQuery.data.getLabels : [],
-    labelsQuerys.data ? labelsQuerys.data.getLabels : []
-  );
+  if (timeframeQuery.loading) return <Spinner objective={true} />;
+
   return (
     <DateChooser
-      labelData={labelsQuery.data ? labelsQuery.data.getLabels : []}
-      timeframes={dayConfigQuery.data ? dayConfigQuery.data.getTimeframes : []}
+      labelData={labelsQuery ? labelsQuery.getLabels : []}
+      timeframes={timeframeQuery ? timeframeQuery.getTimeframes : []}
       configs={configs}
       data={data}
       save={saveData}
@@ -119,8 +111,49 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.getLabels), {
       name: 'labelsQuery',
       options: ({ data }: Props) => ({
-        variables: { type: 'Year' }
+        variables: { type: data.type },
+        fetchPolicy: 'network-only'
       })
+    }),
+    graphql<Props>(gql(queries.getTimeframes), {
+      name: 'timeframeQuery',
+      options: ({ data }: Props) => ({
+        skip: data.type !== 'Day',
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props>(gql(queries.getDayPlanConfig), {
+      name: 'dayplanconfs',
+      options: ({ data }: Props) => ({
+        variables: { salesLogId: data._id },
+        fetchPolicy: 'network-only',
+        skip: data.type !== 'Day'
+      })
+    }),
+    graphql<Props>(gql(queries.getMonthPlanConfig), {
+      name: 'monthplanconfs',
+      options: ({ data }: Props) => ({
+        variables: { salesLogId: data._id },
+        fetchPolicy: 'network-only',
+        skip: data.type !== 'Month'
+      })
+    }),
+    graphql<Props>(gql(queries.getYearPlanConfig), {
+      name: 'yearplanconfs',
+      options: ({ data }: Props) => ({
+        variables: { salesLogId: data._id },
+        fetchPolicy: 'network-only',
+        skip: data.type !== 'Year'
+      })
+    }),
+    graphql<{}>(gql(mutations.saveDayPlanConfig), {
+      name: 'saveDayPlan'
+    }),
+    graphql<{}>(gql(mutations.saveMonthPlanConfig), {
+      name: 'saveMonthPlan'
+    }),
+    graphql<{}>(gql(mutations.saveYearPlanConfig), {
+      name: 'saveYearPlan'
     })
   )(DateChooserContainer)
 );

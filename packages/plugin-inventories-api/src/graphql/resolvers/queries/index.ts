@@ -1,3 +1,3 @@
-import Tags from './tags';
+import Remainders from './remainders';
 
-export { Tags };
+export { Remainders };

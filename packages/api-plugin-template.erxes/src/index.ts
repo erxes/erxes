@@ -238,12 +238,12 @@ async function startServer() {
           );
         }
 
-        if (segments.associationTypes) {
-          segments.associationTypesAvailable = true;
+        if (segments.associationFilter) {
+          segments.associationFilterAvailable = true;
 
           consumeRPCQueue(
-            `${configs.name}:segments.associationTypes`,
-            segments.associationTypes
+            `${configs.name}:segments.associationFilter`,
+            segments.associationFilter
           );
         }
 

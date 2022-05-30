@@ -1,6 +1,20 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
+export interface IRemainderParams {
+  productId: string;
+  departmentId?: string;
+  branchId?: string;
+  uomId?: string;
+}
+
+export interface IRemaindersParams {
+  departmentId?: string;
+  branchId?: string;
+  productCategoryId?: string;
+  productIds?: string[];
+}
+
 export interface IRemainder {
   productId: string;
   quantity: number;
@@ -13,6 +27,12 @@ export interface IRemainder {
 export interface IRemainderDocument extends IRemainder, Document {
   _id: string;
   modifiedAt: Date;
+}
+
+export interface IGetRemainder {
+  _id: string;
+  remainder: number;
+  uomId: string;
 }
 
 export const remainderSchema = schemaHooksWrapper(

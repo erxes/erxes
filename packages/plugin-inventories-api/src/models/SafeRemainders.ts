@@ -1,6 +1,7 @@
 import { Model, model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
+import { IRemainderParams } from './definitions/remainders';
 import {
   ISafeRemainder,
   ISafeRemainderDocument,
@@ -9,12 +10,6 @@ import {
   safeRemainderSchema,
   safeRemItemSchema
 } from './definitions/safeRemainders';
-
-export interface IRemainderParams {
-  productId: string;
-  departmentId?: string;
-  branchId?: string;
-}
 
 export interface ISafeRemainderModel extends Model<ISafeRemainderDocument> {
   getRemainderObject(_id: string): Promise<ISafeRemainderDocument>;
@@ -74,7 +69,7 @@ export const loadSafeRemainderClass = (models: IModels) => {
     /**
      * Create a remainder
      */
-    public static async createRemainder(doc: IRemainder) {
+    public static async createRemainder(doc: ISafeRemainder) {
       const remainder = await models.SafeRemainders.create({
         ...doc,
         createdAt: new Date()
@@ -86,7 +81,7 @@ export const loadSafeRemainderClass = (models: IModels) => {
     /**
      * Update Remainder
      */
-    public static async updateRemainder(_id: string, doc: IRemainder) {
+    public static async updateRemainder(_id: string, doc: ISafeRemainder) {
       const remainder = await models.SafeRemainders.getRemainderObject(_id);
 
       await models.SafeRemainders.updateOne({ _id }, { $set: { ...doc } });

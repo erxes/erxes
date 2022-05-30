@@ -328,3 +328,18 @@ export const createGenerateModels = <IModels>(models, loadClasses) => {
     return models;
   };
 };
+
+export const authCookieOptions = (options = {}) => {
+  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+  const sevenDay = 7 * 24 * 3600 * 1000; // 7 day
+
+  const cookieOptions = {
+    httpOnly: true,
+    expires: new Date(Date.now() + sevenDay),
+    maxAge: sevenDay,
+    secure: !['test', 'development'].includes(NODE_ENV),
+    ...options
+  };
+
+  return cookieOptions;
+};

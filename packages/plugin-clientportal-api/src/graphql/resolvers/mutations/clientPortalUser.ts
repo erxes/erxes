@@ -46,13 +46,17 @@ const clientPortalUserMutations = {
   /*
    * Login
    */
-  clientPortalLogin: async (_root, args: ILoginParams, context: IContext) => {
-    const { token } = await context.models.ClientPortalUsers.login(args);
-    const cookieOptions: any = { secure: context.requestInfo.secure };
-    context.res.cookie(
+  clientPortalLogin: async (
+    _root,
+    args: ILoginParams,
+    { models, requestInfo, res }: IContext
+  ) => {
+    const { token } = await models.ClientPortalUsers.login(args);
+
+    res.cookie(
       'client-auth-token',
       token,
-      authCookieOptions(cookieOptions)
+      authCookieOptions(requestInfo.secure)
     );
 
     return 'loggedin';

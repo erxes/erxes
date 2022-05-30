@@ -1,14 +1,26 @@
 import { Model, model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
+import { sendProductsMessage } from '../messageBroker';
 import {
+  IGetRemainder,
   IRemainder,
   IRemainderDocument,
+  IRemainderParams,
+  IRemaindersParams,
   remainderSchema
 } from './definitions/remainders';
 
 export interface IRemainderModel extends Model<IRemainderDocument> {
-  getRemainder(_id: string): Promise<IRemainderDocument>;
+  getRemainderObject(_id: string): Promise<IRemainderDocument>;
+  getRemainder(
+    subdomain: string,
+    params: IRemainderParams
+  ): Promise<IGetRemainder>;
+  getRemainders(
+    subdomain: string,
+    params: IRemaindersParams
+  ): Promise<IRemainderDocument[]>;
   createRemainder(doc: IRemainder): Promise<IRemainderDocument>;
   updateRemainder(_id: string, doc: IRemainder): Promise<IRemainderDocument>;
   removeRemainder(_id: string): void;
@@ -29,12 +41,11 @@ export const loadRemainderClass = (models: IModels) => {
       return remainder;
     }
 
-    public static async getRemainder(params: {
-      productId: string;
-      departmentId?: string;
-      branchId?: string;
-    }) {
-      const { productId, departmentId, branchId } = params;
+    public static async getRemainder(
+      subdomain: string,
+      params: IRemainderParams
+    ) {
+      const { productId, departmentId, branchId, uomId } = params;
       const filter: any = { productId };
 
       if (departmentId) {
@@ -52,7 +63,65 @@ export const loadRemainderClass = (models: IModels) => {
         remainder = remainder + rem.count;
       }
 
-      return remainder;
+      const product = await sendProductsMessage({
+        subdomain,
+        action: 'findOne',
+        data: {
+          query: { _id: productId }
+        },
+        isRPC: true
+      });
+
+      let uom = product.uomId;
+
+      const subUom = product.subUoms.filter(su => su.uomId === uomId) || [];
+      if (subUom.length) {
+        remainder = remainder / subUom.ratio || 1;
+        uom = subUom.uomId;
+      }
+      remainder;
+
+      return { remainder, uomId: uom };
+    }
+
+    public static async getRemainders(
+      subdomain,
+      {
+        departmentId,
+        branchId,
+        productCategoryId,
+        productIds
+      }: IRemaindersParams
+    ) {
+      const selector: any = {};
+
+      if (departmentId) {
+        selector.departmentId = departmentId;
+      }
+
+      if (branchId) {
+        selector.branchId = branchId;
+      }
+
+      if (productCategoryId) {
+        const products = await sendProductsMessage({
+          subdomain,
+          action: 'find',
+          data: {
+            query: {},
+            categoryId: productCategoryId
+          },
+          isRPC: true
+        });
+
+        selector.productId = { $in: products.map(p => p._id) };
+      }
+
+      if (productIds) {
+        selector.productId = { $in: productIds };
+      }
+
+      return models.Remainders.find(selector).lean();
     }
 
     /**
@@ -71,11 +140,11 @@ export const loadRemainderClass = (models: IModels) => {
      * Update Remainder
      */
     public static async updateRemainder(_id: string, doc: IRemainder) {
-      const remainder = await models.Remainders.getRemainder(_id);
+      const remainder = await models.Remainders.getRemainderObject(_id);
 
       await models.Remainders.updateOne({ _id }, { $set: { ...doc } });
 
-      const updated = await models.Remainders.getRemainder(_id);
+      const updated = await models.Remainders.getRemainderObject(_id);
 
       return updated;
     }
@@ -84,7 +153,7 @@ export const loadRemainderClass = (models: IModels) => {
      * Remove Remainder
      */
     public static async removeRemainder(_id: string) {
-      await models.Remainders.getRemainder(_id);
+      await models.Remainders.getRemainderObject(_id);
       return models.Remainders.deleteOne({ _id });
     }
   }

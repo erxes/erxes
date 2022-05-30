@@ -6,6 +6,26 @@ let client;
 
 export const initBroker = async cl => {
   client = cl;
+
+  const { consumeRPCQueue } = client;
+
+  consumeRPCQueue('inventories:remainders', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.Remainders.getRemainders(subdomain, data),
+      status: 'success'
+    };
+  });
+
+  consumeRPCQueue('inventories:remainder', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.Remainders.getRemainder(subdomain, data),
+      status: 'success'
+    };
+  });
 };
 
 export const sendCommonMessage = async (
@@ -14,6 +34,17 @@ export const sendCommonMessage = async (
   return sendMessage({
     serviceDiscovery,
     client,
+    ...args
+  });
+};
+
+export const sendProductsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'products',
     ...args
   });
 };

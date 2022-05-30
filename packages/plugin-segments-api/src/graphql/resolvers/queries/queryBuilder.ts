@@ -1,5 +1,9 @@
 import * as _ from 'underscore';
-import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import {
+  fetchByQuery,
+  fetchEs,
+  fetchEsWithScroll
+} from '@erxes/api-utils/src/elasticsearch';
 import {
   SEGMENT_DATE_OPERATORS,
   SEGMENT_NUMBER_OPERATORS
@@ -20,6 +24,7 @@ type IOptions = {
   perPage?: number;
   sortField?: string;
   sortDirection?: number;
+  scroll?: boolean;
 };
 
 export const isInSegment = async (
@@ -162,7 +167,7 @@ export const fetchSegment = async (
     };
   }
 
-  const response = await fetchEs({
+  const fetchOptions: any = {
     subdomain,
     action: 'search',
     index,
@@ -172,7 +177,48 @@ export const fetchSegment = async (
       ...pagination
     },
     defaultValue: { hits: { hits: [] } }
-  });
+  };
+
+  if (options.scroll && options.perPage) {
+    // keep the search results "scrollable" for 1 minute
+    fetchOptions.scroll = '1m';
+    fetchOptions.size = perPage;
+
+    const results: any[] = [];
+    const resp: any[] = [];
+
+    const initialResponse = await fetchEs(fetchOptions);
+
+    resp.push(initialResponse);
+
+    while (resp.length) {
+      const { hits = {} } = resp.shift();
+
+      if (hits.hits) {
+        hits.hits.forEach(hit => {
+          results.push(hit._id);
+        });
+      }
+
+      /* istanbul ignore next */
+
+      if (hits.total && hits.total.value === results.length) {
+        // check to see if we have collected all the documents
+        break;
+      }
+
+      /* istanbul ignore next */
+
+      if (initialResponse._scroll_id) {
+        // get the next response if there are more to fetch
+        resp.push(await fetchEsWithScroll(initialResponse._scroll_id));
+      }
+    }
+
+    return results;
+  }
+
+  const response = await fetchEs(fetchOptions);
 
   if (options.returnFullDoc || options.returnFields) {
     return response.hits.hits.map(hit => ({ _id: hit._id, ...hit._source }));
@@ -299,7 +345,7 @@ export const generateQueryBySegment = async (
 
   for (const condition of conditions) {
     if (condition.type === 'property') {
-      if (condition.propertyType !== 'form_submission') {
+      if (condition.propertyType !== 'forms:form_submission') {
         propertyConditions.push(condition);
       } else {
         const formFieldCondition = { ...condition };
@@ -402,7 +448,6 @@ export const generateQueryBySegment = async (
         }
       } else {
         const ids = await associationPropertyFilter(subdomain, {
-          serviceConfigs,
           serviceName,
           mainType: contentType,
           propertyType: condition.propertyType,
@@ -413,7 +458,7 @@ export const generateQueryBySegment = async (
         if (ids && ids.length > 0) {
           propertiesPositive.push({
             terms: {
-              _id: ids
+              _id: ids.map(id => id)
             }
           });
         }
@@ -753,51 +798,15 @@ const getIndexByContentType = async (
   return index;
 };
 
-const fetchByQuery = async ({
-  subdomain,
-  index,
-  positiveQuery,
-  negativeQuery,
-  _source = '_id'
-}: {
-  subdomain: string;
-  index: string;
-  _source?: string;
-  positiveQuery: any;
-  negativeQuery: any;
-}) => {
-  const response = await fetchEs({
-    subdomain,
-    action: 'search',
-    index,
-    body: {
-      _source,
-      query: {
-        bool: {
-          must: positiveQuery,
-          must_not: negativeQuery
-        }
-      }
-    },
-    defaultValue: { hits: { hits: [] } }
-  });
-
-  return response.hits.hits.map(hit =>
-    _source === '_id' ? hit._id : hit._source[_source]
-  );
-};
-
 const associationPropertyFilter = async (
   subdomain: string,
   {
-    serviceConfigs,
     serviceName,
     mainType,
     propertyType,
     positiveQuery,
     negativeQuery
   }: {
-    serviceConfigs: any;
     serviceName: string;
     mainType: string;
     propertyType: string;
@@ -805,55 +814,25 @@ const associationPropertyFilter = async (
     negativeQuery: any;
   }
 ) => {
-  let associatedTypes: string[] = [];
+  const service = await serviceDiscovery.getService(serviceName, true);
+  const segmentMeta = (service.config.meta || {}).segments;
 
-  for (const serviceConfig of serviceConfigs) {
-    const { associationTypesAvailable } = serviceConfig;
-
-    if (associationTypesAvailable) {
-      const types = await sendMessage({
-        subdomain,
-        serviceName,
-        isRPC: true,
-        action: 'segments.associationTypes',
-        data: {
-          mainType
-        }
-      });
-
-      if (types) {
-        associatedTypes = types;
-      }
-    }
-  }
-
-  if (associatedTypes.includes(propertyType)) {
-    const mainTypeIds = await fetchByQuery({
+  if (segmentMeta && segmentMeta.associationFilterAvailable) {
+    const response = await sendMessage({
       subdomain,
-      index: await getIndexByContentType(serviceConfigs, propertyType),
-      positiveQuery,
-      negativeQuery
-    });
-
-    return sendCoreMessage({
-      subdomain,
-      action: 'conformities.filterConformity',
+      serviceName,
       isRPC: true,
+      action: 'segments.associationFilter',
       data: {
-        mainType: propertyType,
-        mainTypeIds,
-        relType: mainType === 'lead' ? 'customer' : mainType
+        mainType,
+        propertyType,
+        positiveQuery,
+        negativeQuery
       }
     });
+
+    return response;
   }
 
-  if (propertyType === 'form_submission') {
-    return fetchByQuery({
-      subdomain,
-      index: 'form_submissions',
-      _source: 'customerId',
-      positiveQuery,
-      negativeQuery
-    });
-  }
+  return [];
 };

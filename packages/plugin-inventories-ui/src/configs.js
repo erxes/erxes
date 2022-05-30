@@ -11,13 +11,13 @@ module.exports = {
   },
   menus: [
     {
-      text: "Inventories",
-      to: "/inventories/inbox:conversation",
-      image: "/images/icons/erxes-18.svg",
-      location: "settings",
+      text: "Remainders",
+      url: "/inventories/remainders",
+      icon: 'icon-film',
+      location: "mainNavigation",
       scope: "inventories",
       action: "inventoriesAll",
-      permissions: ["showInventories", "manageInventories"],
+      permissions: ["showProducts", "manageProducts"],
     },
   ],
 };
