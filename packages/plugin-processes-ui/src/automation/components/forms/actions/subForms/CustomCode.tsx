@@ -9,44 +9,41 @@ import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IJob } from '../../../../../flow/types';
 
 type Props = {
   closeModal: () => void;
-  activeAction: IAction;
+  onSave: () => void;
+  activeAction: IJob;
   triggerType: string;
-  addAction: (action: IAction, actionId?: string, config?: any) => void;
+  addAction: (action: IJob, actionId?: string, jobReferId?: string) => void;
 };
 
 type State = {
-  config: any;
+  jobReferId: string;
 };
 
 class Delay extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { config } = this.props.activeAction;
-
-    this.state = { config: config || {} };
+    this.state = { jobReferId: '' };
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.activeAction !== this.props.activeAction) {
-      this.setState({ config: nextProps.activeAction.config });
+      this.setState({ jobReferId: nextProps.activeAction.jobReferId });
     }
   }
 
-  onChangeField = (name: string, value: string) => {
-    const { config } = this.state;
-    config[name] = value;
-
-    this.setState({ config });
+  onChangeField = (value: string) => {
+    this.setState({ jobReferId: value });
   };
 
   renderContent() {
-    const { config } = this.state;
+    const { jobReferId } = this.state;
 
-    const onChangeValue = code => this.onChangeField('code', code);
+    const onChangeValue = code => this.onChangeField(code);
 
     return (
       <DrawerDetail>
@@ -56,7 +53,7 @@ class Delay extends React.Component<Props, State> {
               <ControlLabel required={true}>{__('Value')}</ControlLabel>
             </div>
             <Editor
-              value={config.code || ''}
+              value={jobReferId || ''}
               onValueChange={onChangeValue}
               highlight={code => highlight(code, languages.javascript)}
               padding={10}
@@ -73,7 +70,7 @@ class Delay extends React.Component<Props, State> {
 
   render() {
     return (
-      <Common config={this.state.config} {...this.props}>
+      <Common jobReferId={this.state.jobReferId} {...this.props}>
         {this.renderContent()}
       </Common>
     );

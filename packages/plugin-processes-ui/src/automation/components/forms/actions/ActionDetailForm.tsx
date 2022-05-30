@@ -6,7 +6,7 @@ import { IJob } from '../../../../flow/types';
 type Props = {
   activeAction: IJob;
   triggerType: string;
-  addAction: (action: IJob, actionId?: string, config?: any) => void;
+  addAction: (action: IJob, actionId?: string, jobReferId?: string) => void;
   closeModal: () => void;
 };
 
@@ -20,11 +20,7 @@ class ActionDetailForm extends React.Component<Props> {
   };
 
   render() {
-    const { activeAction } = this.props;
-
-    const type = 'job';
-
-    const Content = ActionForms[type] || ActionForms.default;
+    const Content = ActionForms.job;
 
     return <Content onSave={this.onSave} {...this.props} />;
   }

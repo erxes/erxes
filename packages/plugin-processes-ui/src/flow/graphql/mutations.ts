@@ -27,6 +27,19 @@ const productsMerge = `
   }
 `;
 
+// FLOW
+
+const flowParamsDef = `$name: String, $categoryId: String, $status: String, $jobs: [JobInput]`;
+const flowParams = `name: $name, categoryId: $categoryId, status: $status, jobs: $jobs`;
+
+const flowsEdit = `
+mutation flowsEdit($id: String!, ${flowParamsDef} ) {
+  flowsEdit(_id: $id, ${flowParams} ) {
+    _id
+  }
+}
+`;
+
 // JOB
 
 const jobRefersParamsDef = `$code: String, $name: String, $categoryId: String, $type: String, $status: String, $duration: Float, $durationType: String, $needProducts: [JobProductsInput], $resultProducts: [JobProductsInput]`;
@@ -136,6 +149,8 @@ export default {
   jobCategoriesAdd,
   jobCategoriesEdit,
   jobCategoriesRemove,
+
+  flowsEdit,
 
   productsConfigsUpdate
 };

@@ -199,10 +199,6 @@ class AutomationForm extends React.Component<Props, State> {
         this.renderControl('action', action, this.onClickAction);
       }
 
-      // for (const trigger of triggers) {
-      //   this.renderControl('trigger', trigger, this.onClickTrigger);
-      // }
-
       // create connections ===================
       createInitialConnections(triggers, actions, instance);
 
@@ -263,23 +259,10 @@ class AutomationForm extends React.Component<Props, State> {
         _id: automation._id || '',
         name,
         status: isActive ? 'active' : 'draft',
-        // triggers: triggers.map(t => ({
-        //   id: t.id,
-        //   type: t.type,
-        //   config: t.config,
-        //   icon: t.icon,
-        //   label: t.label,
-        //   description: t.description,
-        //   actionId: t.actionId,
-        //   style: jquery(`#trigger-${t.id}`).attr('style')
-        // })),
         jobs: actions.map(a => ({
           id: a.id,
-          // type: a.type,
           nextJobIds: a.nextJobIds,
           jobReferId: a.jobReferId,
-          // config: a.config,
-          // icon: a.icon,
           label: a.label,
           description: a.description,
           style: jquery(`#action-${a.id}`).attr('style')
@@ -319,13 +302,6 @@ class AutomationForm extends React.Component<Props, State> {
     }
   };
 
-  // onAddActionConfig = config => {
-  //   const { activeAction } = this.state;
-
-  //   activeAction.config = config;
-  //   this.setState({ activeAction });
-  // };
-
   doZoom = (step: number, inRange: boolean) => {
     const { isZoomable, zoom } = this.state;
 
@@ -362,20 +338,6 @@ class AutomationForm extends React.Component<Props, State> {
     });
   };
 
-  // onClickTrigger = (trigger: ITrigger) => {
-  //   const config = trigger && trigger.config;
-  //   const selectedContentId = config && config.contentId;
-
-  //   this.setState({
-  //     showTrigger: true,
-  //     showDrawer: true,
-  //     showAction: false,
-  //     currentTab: 'triggers',
-  //     selectedContentId,
-  //     activeTrigger: trigger ? trigger : ({} as ITrigger)
-  //   });
-  // };
-
   onClickAction = (action: IJob) => {
     this.setState({
       showAction: true,
@@ -384,6 +346,8 @@ class AutomationForm extends React.Component<Props, State> {
       currentTab: 'actions',
       activeAction: action ? action : ({} as IJob)
     });
+
+    console.log('automationForm onClickAction:', action);
   };
 
   onConnection = info => {
@@ -448,15 +412,9 @@ class AutomationForm extends React.Component<Props, State> {
     } else {
       triggers.push(trigger);
     }
-
-    // this.setState({ triggers, activeTrigger: trigger }, () => {
-    //   if (!triggerId) {
-    //     this.renderControl('trigger', trigger, this.onClickTrigger);
-    //   }
-    // });
   };
 
-  addAction = (data: IJob, actionId?: string, config?: any) => {
+  addAction = (data: IJob, actionId?: string, jobReferId?: string) => {
     const { actions } = this.state;
 
     console.log('addAction start: ');
@@ -464,6 +422,8 @@ class AutomationForm extends React.Component<Props, State> {
     let action: any = { ...data, id: this.getNewId(actions.map(a => a.id)) };
 
     let actionIndex = -1;
+
+    console.log('addAction step1');
 
     if (actionId) {
       actionIndex = actions.findIndex(a => a.id === actionId);
@@ -473,7 +433,9 @@ class AutomationForm extends React.Component<Props, State> {
       }
     }
 
-    action.config = { ...action.config, ...config };
+    console.log('addAction step2');
+
+    action.jobReferId = jobReferId;
 
     if (actionIndex !== -1) {
       actions[actionIndex] = action;
@@ -481,11 +443,15 @@ class AutomationForm extends React.Component<Props, State> {
       actions.push(action);
     }
 
+    console.log('addAction step3');
+
     this.setState({ actions, activeAction: action }, () => {
       if (!actionId) {
         this.renderControl('action', action, this.onClickAction);
       }
     });
+
+    console.log('addAction step4');
   };
 
   onNameChange = (e: React.FormEvent<HTMLElement>) => {
@@ -542,6 +508,9 @@ class AutomationForm extends React.Component<Props, State> {
 
   renderControl = (key: string, item: IJob, onClick: any) => {
     const idElm = `${key}-${item.jobReferId}`;
+
+    console.log('renderControl: ', idElm);
+
     jquery('#canvas').append(`
       <div class="${key} control" id="${idElm}" style="${item.style}">
         <div class="trigger-header">
@@ -564,6 +533,8 @@ class AutomationForm extends React.Component<Props, State> {
       </div>
     `);
 
+    console.log('renderControl step1');
+
     // ${item.icon}
 
     jquery('#canvas').on('dblclick', `#${idElm}`, event => {
@@ -572,44 +543,37 @@ class AutomationForm extends React.Component<Props, State> {
       onClick(item);
     });
 
+    console.log('renderControl step2');
+
     jquery('#canvas').on('click', `.note-badge-${idElm}`, event => {
       event.preventDefault();
 
       this.onClickNote(event.currentTarget.id);
     });
 
-    // if (key === 'trigger') {
-    //   instance.addEndpoint(idElm, sourceEndpoint, {
-    //     anchor: [1, 0.5]
-    //   });
-
-    //   if (instance.getSelector(`#${idElm}`).length > 0) {
-    //     instance.draggable(instance.getSelector(`#${idElm}`));
-    //   }
-    // }
+    console.log('renderControl step3');
 
     if (key === 'action') {
-      // if (item.type === 'if') {
-
-      //   instance.addEndpoint(idElm, targetEndpoint, {
-      //     anchor: ['Left']
-      //   });
-
-      //   instance.addEndpoint(idElm, yesEndPoint);
-      //   instance.addEndpoint(idElm, noEndPoint);
-      // } else {
+      console.log('renderControl step3.1');
 
       instance.addEndpoint(idElm, targetEndpoint, {
         anchor: ['Left']
       });
 
+      console.log('renderControl step3.2');
+
       instance.addEndpoint(idElm, sourceEndpoint, {
         anchor: ['Right']
       });
-      // }
+
+      console.log('renderControl step3.3');
 
       instance.draggable(instance.getSelector(`#${idElm}`));
+
+      console.log('renderControl step3.4');
     }
+
+    console.log('renderControl step4');
   };
 
   renderButtons() {
@@ -619,14 +583,6 @@ class AutomationForm extends React.Component<Props, State> {
 
     return (
       <>
-        {/* <Button
-          btnStyle="primary"
-          size="small"
-          icon="plus-circle"
-          onClick={this.toggleDrawer.bind(this, 'triggers')}
-        >
-          Add a Trigger1
-        </Button> */}
         <Button
           btnStyle="primary"
           size="small"
@@ -724,30 +680,7 @@ class AutomationForm extends React.Component<Props, State> {
       selectedContentId
     } = this.state;
 
-    // const onBack = () => this.setState({ showTrigger: false });
     const onBackAction = () => this.setState({ showAction: false });
-
-    // if (currentTab === 'triggers') {
-    //   if (showTrigger && activeTrigger) {
-    //     return (
-    //       <>
-    //         <BackIcon onClick={onBack}>
-    //           <Icon icon="angle-left" size={20} /> {__('Back to triggers')}
-    //         </BackIcon>
-    //         <ScrolledContent>
-    //           <TriggerDetailForm
-    //             activeTrigger={activeTrigger}
-    //             addConfig={this.addTrigger}
-    //             closeModal={onBack}
-    //             contentId={selectedContentId}
-    //           />
-    //         </ScrolledContent>
-    //       </>
-    //     );
-    //   }
-
-    //   return <TriggerForm onClickTrigger={this.onClickTrigger} />;
-    // }
 
     if (currentTab === 'actions') {
       const { actions, triggers } = this.state;
@@ -758,7 +691,7 @@ class AutomationForm extends React.Component<Props, State> {
         return (
           <>
             <BackIcon onClick={onBackAction}>
-              <Icon icon="angle-left" size={20} /> {__('Back to actions 1')}
+              <Icon icon="angle-left" size={20} /> {__('Back to actions')}
             </BackIcon>
             <ActionDetailForm
               activeAction={activeAction}

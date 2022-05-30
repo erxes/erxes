@@ -1,3 +1,4 @@
+import { mutations } from '@erxes/ui-settings/src/properties/graphql';
 import {
   IProduct as IProductC,
   IProductCategory as IProductCategoryC,
@@ -105,12 +106,16 @@ export type ProductsQueryResponse = {
 // FLOW
 
 export type FlowsQueryResponse = {
-  flows: IFlow[];
+  flows: IFlowDocument[];
 } & QueryResponse;
 
 export type FlowDetailQueryResponse = {
-  flowDetail: IFlow;
+  flowDetail: IFlowDocument;
 } & QueryResponse;
+
+export type FlowsEditMutationResponse = {
+  flowsEdit: (mutation: { variables: IFlowDocument }) => Promise<any>;
+};
 
 // JOB
 

@@ -8,7 +8,10 @@ import { graphql } from 'react-apollo';
 import { IUser } from '@erxes/ui/src/auth/types';
 import AutomationForm from '../../components/forms/AutomationForm';
 import { queries, mutations } from '../../graphql';
-import { queries as flowQueries } from '../../../flow/graphql';
+import {
+  queries as flowQueries,
+  mutations as flowMutations
+} from '../../../flow/graphql';
 import {
   DetailQueryResponse,
   EditMutationResponse,
@@ -17,7 +20,11 @@ import {
 } from '../../types';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { FlowDetailQueryResponse, IFlowDocument } from '../../../flow/types';
+import {
+  FlowDetailQueryResponse,
+  FlowsEditMutationResponse,
+  IFlowDocument
+} from '../../../flow/types';
 
 type Props = {
   id: string;
@@ -31,7 +38,7 @@ type FinalProps = {
   currentUser: IUser;
   saveAsTemplateMutation: any;
 } & Props &
-  EditMutationResponse &
+  FlowsEditMutationResponse &
   IRouterProps;
 
 const AutomationDetailsContainer = (props: FinalProps) => {
@@ -41,15 +48,15 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     automationNotesQuery,
     currentUser,
     history,
-    editAutomationMutation
+    flowsEditMutation
   } = props;
 
   const [saveLoading, setLoading] = useState(false);
 
-  const save = (doc: IAutomation) => {
+  const save = (doc: IFlowDocument) => {
     setLoading(true);
 
-    editAutomationMutation({
+    flowsEditMutation({
       variables: {
         ...doc
       }
@@ -135,12 +142,12 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<{}, EditMutationResponse, IAutomation>(
-      gql(mutations.automationsEdit),
+    graphql<{}, FlowsEditMutationResponse, IFlowDocument>(
+      gql(flowMutations.flowsEdit),
       {
-        name: 'editAutomationMutation',
+        name: 'flowsEditMutation',
         options: () => ({
-          refetchQueries: ['automations', 'automationsMain', 'automationDetail']
+          refetchQueries: ['flows', 'automationsMain', 'flowDetail']
         })
       }
     )

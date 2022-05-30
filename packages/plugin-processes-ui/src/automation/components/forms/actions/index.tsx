@@ -12,12 +12,13 @@ import CustomCode from './subForms/CustomCode';
 import Delay from './subForms/Delay';
 import LoyaltyForm from '../../../containers/forms/actions/subForms/LoyaltyForm';
 import ChangeScore from './subForms/ChangeScore';
+import { IJob } from '../../../../flow/types';
 
 type Props = {
   onSave: () => void;
   closeModal: () => void;
-  activeAction: IAction;
-  addAction: (action: IAction, actionId?: string, config?: any) => void;
+  activeAction: IJob;
+  addAction: (action: IJob, actionId?: string, jobReferId?: string) => void;
 };
 
 class DefaultForm extends React.Component<Props> {
@@ -25,7 +26,7 @@ class DefaultForm extends React.Component<Props> {
     const { activeAction, onSave, closeModal } = this.props;
 
     const currentAction = ACTIONS.find(
-      action => action.type === activeAction.type && action.component
+      action => action.type === 'job' && action.component
     );
 
     if (currentAction) {
@@ -36,7 +37,7 @@ class DefaultForm extends React.Component<Props> {
     return (
       <>
         <div>
-          {__('contents')} {activeAction.type}
+          {__('contents')} {'job'}
         </div>
         <ModalFooter>
           <Button
@@ -59,12 +60,12 @@ class DefaultForm extends React.Component<Props> {
 
 export const ActionForms = {
   default: DefaultForm,
-  delay: Delay,
-  setProperty: SetProperty,
-  if: IfForm,
-  boardItem: BoardItemForm,
-  customCode: CustomCode,
-  voucher: LoyaltyForm,
-  changeScore: ChangeScore,
+  // delay: Delay,
+  // setProperty: SetProperty,
+  // if: IfForm,
+  // boardItem: BoardItemForm,
+  // customCode: CustomCode,
+  // voucher: LoyaltyForm,
+  // changeScore: ChangeScore,
   job: CustomCode
 };

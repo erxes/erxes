@@ -76,12 +76,15 @@ export const ACTIONS = [
   //   label: __('External communications'),
   //   description: __('Send email, SMS or in-app messenger messages to Contacts'),
   //   isAvailable: false
-  // },
+  // }
   {
     type: 'job',
-    icon: 'fast-mail',
-    label: __('Job'),
-    description: __('Jobs'),
+    label: 'Job',
+    description: 'test Job',
+    jobReferId: '',
+    nextJobIds: [],
+    quantity: 1,
+    assignUserIds: [],
     isAvailable: true
   }
 ];

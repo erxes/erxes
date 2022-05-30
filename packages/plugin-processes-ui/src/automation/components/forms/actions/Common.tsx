@@ -5,20 +5,21 @@ import { IAction } from '../../../types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
 import { ActionFooter } from './styles';
+import { IJob } from '../../../../flow/types';
 
 type Props = {
   closeModal: () => void;
-  activeAction: IAction;
-  addAction: (action: IAction, actionId?: string, config?: any) => void;
-  config: any;
+  activeAction: IJob;
+  addAction: (action: IJob, actionId?: string, jobReferId?: string) => void;
+  jobReferId: string;
   children: React.ReactNode;
 };
 
 function Common(props: Props) {
-  const { addAction, activeAction, closeModal, config, children } = props;
+  const { addAction, activeAction, closeModal, jobReferId, children } = props;
 
   const onSave = () => {
-    addAction(activeAction, activeAction.id, config);
+    addAction(activeAction, activeAction.id, jobReferId);
 
     closeModal();
   };
@@ -39,7 +40,7 @@ function Common(props: Props) {
           </Button>
 
           <Button btnStyle="success" icon="checked-1" onClick={onSave}>
-            Save
+            Save 1
           </Button>
         </ModalFooter>
       </ActionFooter>
