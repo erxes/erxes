@@ -1,81 +1,88 @@
 import { __ } from 'coreui/utils';
 
 export const ACTIONS = [
+  // {
+  //   type: 'if',
+  //   icon: 'sitemap-1',
+  //   label: __('Branches'),
+  //   description: __('Create simple or if/then branches'),
+  //   isAvailable: true
+  // },
+  // {
+  //   type: 'setProperty',
+  //   icon: 'flask',
+  //   label: __('Manage properties'),
+  //   description: __(
+  //     'Update existing default or custom properties for Contacts, Companies, Cards, Conversations'
+  //   ),
+  //   isAvailable: true
+  // },
+  // {
+  //   type: 'cards:task.create',
+  //   icon: 'file-plus-alt',
+  //   label: __('Create task'),
+  //   description: __('Create task'),
+  //   isAvailable: true
+  // },
+  // {
+  //   type: 'cards:deal.create',
+  //   icon: 'piggy-bank',
+  //   label: __('Create deal'),
+  //   description: __('Create deal'),
+  //   isAvailable: true
+  // },
+  // {
+  //   type: 'cards:ticket.create',
+  //   icon: 'file-plus',
+  //   label: __('Create ticket'),
+  //   description: __('Create ticket'),
+  //   isAvailable: true
+  // },
+  // {
+  //   type: 'loyalties:voucher.create',
+  //   icon: 'file-plus',
+  //   label: __('Create voucher'),
+  //   description: __('Create voucher'),
+  //   isAvailable: true
+  // },
+  // {
+  //   type: 'loyalties:scoreLog.create',
+  //   icon: 'file-plus',
+  //   label: __('Change Score'),
+  //   description: __('Change Score'),
+  //   isAvailable: true
+  // },
+  // {
+  //   type: 'delay',
+  //   icon: 'hourglass',
+  //   label: __('Delay'),
+  //   description: __(
+  //     'Delay the next action with a timeframe, a specific event or activity'
+  //   ),
+  //   isAvailable: true
+  // },
+  // {
+  //   type: 'workflow',
+  //   icon: 'glass-martini-alt',
+  //   label: __('Workflow'),
+  //   description: __(
+  //     'Enroll in another workflow,  trigger outgoing webhook or write custom code'
+  //   ),
+  //   isAvailable: false
+  // },
+  // {
+  //   type: 'externalCommunications',
+  //   icon: 'fast-mail',
+  //   label: __('External communications'),
+  //   description: __('Send email, SMS or in-app messenger messages to Contacts'),
+  //   isAvailable: false
+  // },
   {
-    type: 'if',
-    icon: 'sitemap-1',
-    label: __('Branches'),
-    description: __('Create simple or if/then branches'),
-    isAvailable: true
-  },
-  {
-    type: 'setProperty',
-    icon: 'flask',
-    label: __('Manage properties'),
-    description: __(
-      'Update existing default or custom properties for Contacts, Companies, Cards, Conversations'
-    ),
-    isAvailable: true
-  },
-  {
-    type: 'cards:task.create',
-    icon: 'file-plus-alt',
-    label: __('Create task'),
-    description: __('Create task'),
-    isAvailable: true
-  },
-  {
-    type: 'cards:deal.create',
-    icon: 'piggy-bank',
-    label: __('Create deal'),
-    description: __('Create deal'),
-    isAvailable: true
-  },
-  {
-    type: 'cards:ticket.create',
-    icon: 'file-plus',
-    label: __('Create ticket'),
-    description: __('Create ticket'),
-    isAvailable: true
-  },
-  {
-    type: 'loyalties:voucher.create',
-    icon: 'file-plus',
-    label: __('Create voucher'),
-    description: __('Create voucher'),
-    isAvailable: true
-  },
-  {
-    type: 'loyalties:scoreLog.create',
-    icon: 'file-plus',
-    label: __('Change Score'),
-    description: __('Change Score'),
-    isAvailable: true
-  },
-  {
-    type: 'delay',
-    icon: 'hourglass',
-    label: __('Delay'),
-    description: __(
-      'Delay the next action with a timeframe, a specific event or activity'
-    ),
-    isAvailable: true
-  },
-  {
-    type: 'workflow',
-    icon: 'glass-martini-alt',
-    label: __('Workflow'),
-    description: __(
-      'Enroll in another workflow,  trigger outgoing webhook or write custom code'
-    ),
-    isAvailable: false
-  },
-  {
-    type: 'externalCommunications',
+    type: 'job',
     icon: 'fast-mail',
-    label: __('External communications'),
-    description: __('Send email, SMS or in-app messenger messages to Contacts'),
-    isAvailable: false
+    label: __('Job'),
+    description: __('Jobs'),
+    isAvailable: true
   }
 ];
 

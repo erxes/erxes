@@ -1,11 +1,12 @@
 import { IAction } from '../../../types';
 import React from 'react';
 import { ActionForms } from './';
+import { IJob } from '../../../../flow/types';
 
 type Props = {
-  activeAction: IAction;
+  activeAction: IJob;
   triggerType: string;
-  addAction: (action: IAction, actionId?: string, config?: any) => void;
+  addAction: (action: IJob, actionId?: string, config?: any) => void;
   closeModal: () => void;
 };
 
@@ -21,25 +22,7 @@ class ActionDetailForm extends React.Component<Props> {
   render() {
     const { activeAction } = this.props;
 
-    let { type } = activeAction;
-
-    if (
-      [
-        'cards:deal.create',
-        'cards:task.create',
-        'cards:ticket.create'
-      ].includes(type)
-    ) {
-      type = 'boardItem';
-    }
-
-    if ('loyalties:voucher.create' === type) {
-      type = 'voucher';
-    }
-
-    if ('loyalties:scoreLog.create' === type) {
-      type = 'changeScore';
-    }
+    const type = 'job';
 
     const Content = ActionForms[type] || ActionForms.default;
 

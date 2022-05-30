@@ -23,12 +23,34 @@ export type IProduct = IProductC & {};
 export type IProductCategory = IProductCategoryC & {};
 
 export type IUom = IUomC & {};
+export interface IJob {
+  id: string;
+  nextJobIds: string[];
+  jobReferId: string;
+  style: object;
+  label: string;
+  description: string;
+  quantity: number;
+}
 
-export type IAction = IActionA & {};
+export interface IJobDocument extends IJob {
+  jobRefer: IJobRefer;
+}
 
-export type IAutomation = IAutomationA & {};
-export type ITrigger = ITriggerA & {};
-export type IAutomationNote = IAutomationNoteA & {};
+export interface IFlow {
+  name: string;
+  categoryId: string;
+  status: string;
+  jobs: IJob[];
+}
+
+export interface IFlowDocument extends IFlow, Document {
+  _id: string;
+  createdAt: Date;
+  createdBy: string;
+  updatedAt: Date;
+  updatedBy: string;
+}
 
 export interface IJobCategory {
   _id: string;
@@ -78,6 +100,16 @@ export interface IProductsDataDocument extends IProductsData {
 
 export type ProductsQueryResponse = {
   products: IProduct[];
+} & QueryResponse;
+
+// FLOW
+
+export type FlowsQueryResponse = {
+  flows: IFlow[];
+} & QueryResponse;
+
+export type FlowDetailQueryResponse = {
+  flowDetail: IFlow;
 } & QueryResponse;
 
 // JOB

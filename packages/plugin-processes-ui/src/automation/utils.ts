@@ -2,6 +2,7 @@ import { ITrigger, IAction } from './types';
 import { confirm, Alert } from '@erxes/ui/src/utils';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import { colors } from '@erxes/ui/src/styles';
+import { IJob } from '../flow/types';
 
 export const connectorPaintStyle = {
   strokeWidth: 2,
@@ -111,7 +112,7 @@ export const targetEndpoint = {
 
 export const createInitialConnections = (
   triggers: ITrigger[],
-  actions: IAction[],
+  actions: IJob[],
   instance: any
 ) => {
   for (const trigger of triggers) {
@@ -125,39 +126,40 @@ export const createInitialConnections = (
   }
 
   for (const action of actions) {
-    if (action.type === 'if') {
-      if (action.config) {
-        if (action.config.yes) {
-          instance.connect({
-            source: `action-${action.id}`,
-            target: `action-${action.config.yes}`,
-            anchors: [[1, 0.3], 'Left']
-          });
-        }
+    // if (action.type === 'if') {
+    //   if (action.config) {
+    //     if (action.config.yes) {
+    //       instance.connect({
+    //         source: `action-${action.id}`,
+    //         target: `action-${action.config.yes}`,
+    //         anchors: [[1, 0.3], 'Left']
+    //       });
+    //     }
 
-        if (action.config.no) {
-          instance.connect({
-            source: `action-${action.id}`,
-            target: `action-${action.config.no}`,
-            anchors: [[1, 0.7], 'Left']
-          });
-        }
-      }
-    } else {
-      if (action.nextActionId) {
-        instance.connect({
-          source: `action-${action.id}`,
-          target: `action-${action.nextActionId}`,
-          anchors: ['Right', 'Left']
-        });
-      }
+    //     if (action.config.no) {
+    //       instance.connect({
+    //         source: `action-${action.id}`,
+    //         target: `action-${action.config.no}`,
+    //         anchors: [[1, 0.7], 'Left']
+    //       });
+    //     }
+    //   }
+    // } else {
+
+    if (action.nextJobIds.length && action.nextJobIds[0]) {
+      instance.connect({
+        source: `action-${action.jobReferId}`,
+        target: `action-${action.nextJobIds[0]}`,
+        anchors: ['Right', 'Left']
+      });
     }
   }
+  // }
 };
 
 export const connection = (
   triggers: ITrigger[],
-  actions: IAction[],
+  actions: IJob[],
   info: any,
   actionId: any
 ) => {
@@ -173,21 +175,21 @@ export const connection = (
     }
   } else {
     const sourceAction = actions.find(
-      a => a.id.toString() === sourceId.replace('action-', '')
+      a => a.jobReferId.toString() === sourceId.replace('action-', '')
     );
 
     if (sourceAction) {
-      if (sourceAction.type === 'if') {
-        if (!sourceAction.config) {
-          sourceAction.config = {};
-        }
+      // if (sourceAction.type === 'if') {
+      //   if (!sourceAction.config) {
+      //     sourceAction.config = {};
+      //   }
 
-        sourceAction.config[
-          info.sourceEndpoint.anchor.y === 0.3 ? 'yes' : 'no'
-        ] = actionId;
-      } else {
-        sourceAction.nextActionId = actionId;
-      }
+      //   sourceAction.config[
+      //     info.sourceEndpoint.anchor.y === 0.3 ? 'yes' : 'no'
+      //   ] = actionId;
+      // } else {
+      sourceAction.nextJobIds[0] = actionId;
+      // }
     }
   }
 };
@@ -215,7 +217,7 @@ export const getTriggerType = (
     return activeTrigger.type;
   }
 
-  const activeAction = actions.find(t => t.nextActionId === activeActionId);
+  const activeAction = actions.find(t => t.nextJobIds[0] === activeActionId);
 
   if (activeAction) {
     return getTriggerType(actions, triggers, activeAction.id);

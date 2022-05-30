@@ -15,7 +15,7 @@ import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
 import React from 'react';
 import Form from '../../containers/product/ProductForm';
 import CategoryList from '../../containers/productCategory/CategoryList';
-import { IJobRefer, IProductCategory } from '../../types';
+import { IJobRefer, IProductCategory, IFlowDocument } from '../../types';
 import Row from './ProductRow';
 import { menuContacts } from '../../../constants';
 import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
@@ -24,14 +24,14 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 interface IProps extends IRouterProps {
   history: any;
   queryParams: any;
-  jobRefers: IJobRefer[];
+  flows: IFlowDocument[];
   jobRefersCount: number;
   isAllSelected: boolean;
   bulk: any[];
   emptyBulk: () => void;
   remove: (doc: { jobRefersIds: string[] }, emptyBulk: () => void) => void;
   toggleBulk: () => void;
-  toggleAll: (targets: IJobRefer[], containerId: string) => void;
+  toggleAll: (targets: IFlowDocument[], containerId: string) => void;
   loading: boolean;
   searchValue: string;
   currentCategory: IProductCategory;
@@ -53,22 +53,22 @@ class List extends React.Component<IProps, State> {
   }
 
   renderRow = () => {
-    const { jobRefers, history, toggleBulk, bulk } = this.props;
+    const { flows, history, toggleBulk, bulk } = this.props;
 
-    return jobRefers.map(jobRefer => (
+    return flows.map(flow => (
       <Row
         history={history}
-        key={jobRefer._id}
-        jobRefer={jobRefer}
+        key={flow._id}
+        flow={flow}
         toggleBulk={toggleBulk}
-        isChecked={bulk.includes(jobRefer)}
+        isChecked={bulk.includes(flow)}
       />
     ));
   };
 
   onChange = () => {
-    const { toggleAll, jobRefers } = this.props;
-    toggleAll(jobRefers, 'jobRefers');
+    const { toggleAll, flows } = this.props;
+    toggleAll(flows, 'flows');
   };
 
   removeProducts = jobRefers => {
@@ -170,10 +170,7 @@ class List extends React.Component<IProps, State> {
                 />
               </th>
               <th>{__('Name')}</th>
-              <th>{__('Code')}</th>
-              <th>{__('Type')}</th>
-              <th>{__('Need Products')}</th>
-              <th>{__('Result Products')}</th>
+              <th>{__('Status')}</th>
             </tr>
           </thead>
           <tbody>{this.renderRow()}</tbody>

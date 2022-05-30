@@ -4,14 +4,14 @@ import Button from '@erxes/ui/src/components/Button';
 import React from 'react';
 import { TRIGGERS } from '../../constants';
 import Histories from '../../containers/Histories';
-import { IAutomation } from '../../types';
+import { IFlowDocument } from '../../../flow/types';
 import { HistoriesWrapper, FilterWrapper, FilterDateItem } from './styles';
 import { __ } from 'coreui/utils';
 import Icon from '@erxes/ui/src/components/Icon';
 import Select from 'react-select-plus';
 
 type Props = {
-  automation: IAutomation;
+  automation: IFlowDocument;
 };
 
 type State = {
@@ -128,12 +128,7 @@ class HistoriesHeader extends React.Component<Props, State> {
               <Select
                 placeholder={__('Filter by Trigger')}
                 value={triggerId}
-                options={[
-                  ...automation.triggers.map(t => ({
-                    value: t.id,
-                    label: t.label
-                  }))
-                ]}
+                options={[]}
                 onChange={this.onSelect.bind(this, 'triggerId')}
               />
             </div>
@@ -160,7 +155,7 @@ class HistoriesHeader extends React.Component<Props, State> {
             {'Filter'}
           </Button>
         </FilterWrapper>
-        <Histories {...this.props} filterParams={filterParams} />
+        {/* <Histories {...this.props} filterParams={filterParams} /> */}
       </HistoriesWrapper>
     );
   }

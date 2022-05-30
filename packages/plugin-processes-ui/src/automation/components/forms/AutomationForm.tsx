@@ -52,12 +52,13 @@ import Histories from '../../components/histories/Wrapper';
 import Confirmation from '../../containers/forms/Confirmation';
 import { TRIGGER_TYPES } from '../../constants';
 import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
+import { IFlowDocument, IJob } from '../../../flow/types';
 
 const plumb: any = jsPlumb;
 let instance;
 
 type Props = {
-  automation: IAutomation;
+  automation: IFlowDocument;
   automationNotes?: IAutomationNote[];
   save: (params: any) => void;
   saveLoading: boolean;
@@ -78,10 +79,10 @@ type State = {
   showNoteForm: boolean;
   editNoteForm?: boolean;
   showTemplateForm: boolean;
-  actions: IAction[];
+  actions: IJob[];
   triggers: ITrigger[];
   activeTrigger: ITrigger;
-  activeAction: IAction;
+  activeAction: IJob;
   selectedContentId?: string;
   isZoomable: boolean;
   zoomStep: number;
@@ -101,11 +102,11 @@ class AutomationForm extends React.Component<Props, State> {
 
     this.state = {
       name: automation.name,
-      actions: JSON.parse(JSON.stringify(automation.actions || [])),
-      triggers: JSON.parse(JSON.stringify(automation.triggers || [])),
+      actions: JSON.parse(JSON.stringify(automation ? automation.jobs : [])),
+      triggers: JSON.parse(JSON.stringify([])),
       activeTrigger: {} as ITrigger,
       activeId: '',
-      currentTab: 'triggers',
+      currentTab: 'actions',
       isActionTab: true,
       isActive: automation.status === 'active',
       showNoteForm: false,
@@ -117,7 +118,7 @@ class AutomationForm extends React.Component<Props, State> {
       zoomStep: 0.025,
       zoom: 1,
       percentage: 100,
-      activeAction: {} as IAction,
+      activeAction: {} as IJob,
       automationNotes
     };
   }
@@ -198,9 +199,9 @@ class AutomationForm extends React.Component<Props, State> {
         this.renderControl('action', action, this.onClickAction);
       }
 
-      for (const trigger of triggers) {
-        this.renderControl('trigger', trigger, this.onClickTrigger);
-      }
+      // for (const trigger of triggers) {
+      //   this.renderControl('trigger', trigger, this.onClickTrigger);
+      // }
 
       // create connections ===================
       createInitialConnections(triggers, actions, instance);
@@ -253,31 +254,32 @@ class AutomationForm extends React.Component<Props, State> {
     const { name, isActive, triggers, actions } = this.state;
     const { automation, save } = this.props;
 
-    if (!name || name === 'Your automation title') {
-      return Alert.error('Enter an Automation title');
+    if (!name || name === 'Your flow title') {
+      return Alert.error('Enter an Flow title');
     }
 
     const generateValues = () => {
       const finalValues = {
-        _id: automation._id,
+        _id: automation._id || '',
         name,
         status: isActive ? 'active' : 'draft',
-        triggers: triggers.map(t => ({
-          id: t.id,
-          type: t.type,
-          config: t.config,
-          icon: t.icon,
-          label: t.label,
-          description: t.description,
-          actionId: t.actionId,
-          style: jquery(`#trigger-${t.id}`).attr('style')
-        })),
-        actions: actions.map(a => ({
+        // triggers: triggers.map(t => ({
+        //   id: t.id,
+        //   type: t.type,
+        //   config: t.config,
+        //   icon: t.icon,
+        //   label: t.label,
+        //   description: t.description,
+        //   actionId: t.actionId,
+        //   style: jquery(`#trigger-${t.id}`).attr('style')
+        // })),
+        jobs: actions.map(a => ({
           id: a.id,
-          type: a.type,
-          nextActionId: a.nextActionId,
-          config: a.config,
-          icon: a.icon,
+          // type: a.type,
+          nextJobIds: a.nextJobIds,
+          jobReferId: a.jobReferId,
+          // config: a.config,
+          // icon: a.icon,
           label: a.label,
           description: a.description,
           style: jquery(`#action-${a.id}`).attr('style')
@@ -317,12 +319,12 @@ class AutomationForm extends React.Component<Props, State> {
     }
   };
 
-  onAddActionConfig = config => {
-    const { activeAction } = this.state;
+  // onAddActionConfig = config => {
+  //   const { activeAction } = this.state;
 
-    activeAction.config = config;
-    this.setState({ activeAction });
-  };
+  //   activeAction.config = config;
+  //   this.setState({ activeAction });
+  // };
 
   doZoom = (step: number, inRange: boolean) => {
     const { isZoomable, zoom } = this.state;
@@ -360,27 +362,27 @@ class AutomationForm extends React.Component<Props, State> {
     });
   };
 
-  onClickTrigger = (trigger: ITrigger) => {
-    const config = trigger && trigger.config;
-    const selectedContentId = config && config.contentId;
+  // onClickTrigger = (trigger: ITrigger) => {
+  //   const config = trigger && trigger.config;
+  //   const selectedContentId = config && config.contentId;
 
-    this.setState({
-      showTrigger: true,
-      showDrawer: true,
-      showAction: false,
-      currentTab: 'triggers',
-      selectedContentId,
-      activeTrigger: trigger ? trigger : ({} as ITrigger)
-    });
-  };
+  //   this.setState({
+  //     showTrigger: true,
+  //     showDrawer: true,
+  //     showAction: false,
+  //     currentTab: 'triggers',
+  //     selectedContentId,
+  //     activeTrigger: trigger ? trigger : ({} as ITrigger)
+  //   });
+  // };
 
-  onClickAction = (action: IAction) => {
+  onClickAction = (action: IJob) => {
     this.setState({
       showAction: true,
       showDrawer: true,
       showTrigger: false,
       currentTab: 'actions',
-      activeAction: action ? action : ({} as IAction)
+      activeAction: action ? action : ({} as IJob)
     });
   };
 
@@ -447,15 +449,17 @@ class AutomationForm extends React.Component<Props, State> {
       triggers.push(trigger);
     }
 
-    this.setState({ triggers, activeTrigger: trigger }, () => {
-      if (!triggerId) {
-        this.renderControl('trigger', trigger, this.onClickTrigger);
-      }
-    });
+    // this.setState({ triggers, activeTrigger: trigger }, () => {
+    //   if (!triggerId) {
+    //     this.renderControl('trigger', trigger, this.onClickTrigger);
+    //   }
+    // });
   };
 
-  addAction = (data: IAction, actionId?: string, config?: any) => {
+  addAction = (data: IJob, actionId?: string, config?: any) => {
     const { actions } = this.state;
+
+    console.log('addAction start: ');
 
     let action: any = { ...data, id: this.getNewId(actions.map(a => a.id)) };
 
@@ -528,17 +532,16 @@ class AutomationForm extends React.Component<Props, State> {
     `;
   }
 
-  renderCount(item: ITrigger | IAction) {
-    if (item.count && TRIGGER_TYPES.includes(item.type)) {
-      return `(${item.count})`;
-    }
+  renderCount(item: ITrigger | IJob) {
+    // if (item.count) {
+    //   return `(${item.count})`;
+    // }
 
-    return '';
+    return '10';
   }
 
-  renderControl = (key: string, item: ITrigger | IAction, onClick: any) => {
-    const idElm = `${key}-${item.id}`;
-
+  renderControl = (key: string, item: IJob, onClick: any) => {
+    const idElm = `${key}-${item.jobReferId}`;
     jquery('#canvas').append(`
       <div class="${key} control" id="${idElm}" style="${item.style}">
         <div class="trigger-header">
@@ -546,12 +549,12 @@ class AutomationForm extends React.Component<Props, State> {
             <div>
               <i class="icon-notes add-note" title=${__('Write Note')}></i>
               <i class="icon-trash-alt delete-control" id="${idElm}" title=${__(
-      'Delete control'
+      'Delete control one'
     )}></i>
             </div>
           </div>
           <div>
-            <i class="icon-${item.icon}"></i>
+            <i class="icon-2"></i>
             ${item.label} ${this.renderCount(item)}
           </div>
         </div>
@@ -560,6 +563,8 @@ class AutomationForm extends React.Component<Props, State> {
 
       </div>
     `);
+
+    // ${item.icon}
 
     jquery('#canvas').on('dblclick', `#${idElm}`, event => {
       event.preventDefault();
@@ -573,33 +578,35 @@ class AutomationForm extends React.Component<Props, State> {
       this.onClickNote(event.currentTarget.id);
     });
 
-    if (key === 'trigger') {
-      instance.addEndpoint(idElm, sourceEndpoint, {
-        anchor: [1, 0.5]
-      });
+    // if (key === 'trigger') {
+    //   instance.addEndpoint(idElm, sourceEndpoint, {
+    //     anchor: [1, 0.5]
+    //   });
 
-      if (instance.getSelector(`#${idElm}`).length > 0) {
-        instance.draggable(instance.getSelector(`#${idElm}`));
-      }
-    }
+    //   if (instance.getSelector(`#${idElm}`).length > 0) {
+    //     instance.draggable(instance.getSelector(`#${idElm}`));
+    //   }
+    // }
 
     if (key === 'action') {
-      if (item.type === 'if') {
-        instance.addEndpoint(idElm, targetEndpoint, {
-          anchor: ['Left']
-        });
+      // if (item.type === 'if') {
 
-        instance.addEndpoint(idElm, yesEndPoint);
-        instance.addEndpoint(idElm, noEndPoint);
-      } else {
-        instance.addEndpoint(idElm, targetEndpoint, {
-          anchor: ['Left']
-        });
+      //   instance.addEndpoint(idElm, targetEndpoint, {
+      //     anchor: ['Left']
+      //   });
 
-        instance.addEndpoint(idElm, sourceEndpoint, {
-          anchor: ['Right']
-        });
-      }
+      //   instance.addEndpoint(idElm, yesEndPoint);
+      //   instance.addEndpoint(idElm, noEndPoint);
+      // } else {
+
+      instance.addEndpoint(idElm, targetEndpoint, {
+        anchor: ['Left']
+      });
+
+      instance.addEndpoint(idElm, sourceEndpoint, {
+        anchor: ['Right']
+      });
+      // }
 
       instance.draggable(instance.getSelector(`#${idElm}`));
     }
@@ -612,21 +619,21 @@ class AutomationForm extends React.Component<Props, State> {
 
     return (
       <>
-        <Button
+        {/* <Button
           btnStyle="primary"
           size="small"
           icon="plus-circle"
           onClick={this.toggleDrawer.bind(this, 'triggers')}
         >
           Add a Trigger1
-        </Button>
+        </Button> */}
         <Button
           btnStyle="primary"
           size="small"
           icon="plus-circle"
           onClick={this.toggleDrawer.bind(this, 'actions')}
         >
-          Add an Action1
+          Add an Action
         </Button>
       </>
     );
@@ -672,7 +679,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     return (
       <FlexContent>
-        <Link to={`/automations`}>
+        <Link to={`/processes/Flows`}>
           <BackButton>
             <Icon icon="angle-left" size={20} />
           </BackButton>
@@ -717,39 +724,41 @@ class AutomationForm extends React.Component<Props, State> {
       selectedContentId
     } = this.state;
 
-    const onBack = () => this.setState({ showTrigger: false });
+    // const onBack = () => this.setState({ showTrigger: false });
     const onBackAction = () => this.setState({ showAction: false });
 
-    if (currentTab === 'triggers') {
-      if (showTrigger && activeTrigger) {
-        return (
-          <>
-            <BackIcon onClick={onBack}>
-              <Icon icon="angle-left" size={20} /> {__('Back to triggers')}
-            </BackIcon>
-            <ScrolledContent>
-              <TriggerDetailForm
-                activeTrigger={activeTrigger}
-                addConfig={this.addTrigger}
-                closeModal={onBack}
-                contentId={selectedContentId}
-              />
-            </ScrolledContent>
-          </>
-        );
-      }
+    // if (currentTab === 'triggers') {
+    //   if (showTrigger && activeTrigger) {
+    //     return (
+    //       <>
+    //         <BackIcon onClick={onBack}>
+    //           <Icon icon="angle-left" size={20} /> {__('Back to triggers')}
+    //         </BackIcon>
+    //         <ScrolledContent>
+    //           <TriggerDetailForm
+    //             activeTrigger={activeTrigger}
+    //             addConfig={this.addTrigger}
+    //             closeModal={onBack}
+    //             contentId={selectedContentId}
+    //           />
+    //         </ScrolledContent>
+    //       </>
+    //     );
+    //   }
 
-      return <TriggerForm onClickTrigger={this.onClickTrigger} />;
-    }
+    //   return <TriggerForm onClickTrigger={this.onClickTrigger} />;
+    // }
 
     if (currentTab === 'actions') {
       const { actions, triggers } = this.state;
+
+      console.log('actions: ', actions);
 
       if (showAction && activeAction) {
         return (
           <>
             <BackIcon onClick={onBackAction}>
-              <Icon icon="angle-left" size={20} /> {__('Back to actions')}
+              <Icon icon="angle-left" size={20} /> {__('Back to actions 1')}
             </BackIcon>
             <ActionDetailForm
               activeAction={activeAction}
@@ -836,9 +845,8 @@ class AutomationForm extends React.Component<Props, State> {
 
     const when = queryParams.isCreate
       ? !!id
-      : JSON.stringify(triggers) !==
-          JSON.stringify(automation.triggers || []) ||
-        JSON.stringify(actions) !== JSON.stringify(automation.actions || []) ||
+      : JSON.stringify(triggers) !== JSON.stringify(automation.jobs || []) ||
+        JSON.stringify(actions) !== JSON.stringify([]) ||
         automation.name !== this.state.name;
 
     return (
@@ -929,7 +937,7 @@ class AutomationForm extends React.Component<Props, State> {
             <Wrapper.Header
               title={`${(automation && automation.name) || 'Automation'}`}
               breadcrumb={[
-                { title: __('Automations'), link: '/automations' },
+                { title: __('Flows'), link: '/processes/Flows' },
                 { title: `${(automation && automation.name) || ''}` }
               ]}
             />

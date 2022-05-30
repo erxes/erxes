@@ -33,6 +33,42 @@ const jobCategoryFields = `
       status
       `;
 
+const flowFields = `
+_id
+createdAt
+createdBy
+updatedAt
+updatedBy
+name
+categoryId
+status
+jobs
+`;
+
+const flows = `
+query flows {
+  flows {
+    ${flowFields}
+  }
+}
+`;
+
+const flowDetail = `
+query flowDetail($_id: String!) {
+  flowDetail(_id: $_id) {
+    _id
+    createdAt
+    createdBy
+    updatedAt
+    updatedBy
+    name
+    categoryId
+    status
+    jobs
+  }
+}
+`;
+
 const productsCount = `
   query productsTotalCount($type: String) {
     productsTotalCount(type: $type)
@@ -140,5 +176,8 @@ export default {
   jobReferDetail,
   jobReferTotalCount,
   jobCategories,
-  jobCategoriesTotalCount
+  jobCategoriesTotalCount,
+
+  flows,
+  flowDetail
 };

@@ -60,7 +60,7 @@ export const flowSchema = schemaHooksWrapper(
     createdBy: { type: String },
     updatedAt: { type: Date, default: new Date(), label: 'Updated date' },
     updatedBy: { type: String },
-    jobs: field({ type: jobSchema, label: 'Jobs' })
+    jobs: field({ type: [jobSchema], label: 'Jobs' })
   }),
   'erxes_flows'
 );

@@ -65,5 +65,6 @@ export const ActionForms = {
   boardItem: BoardItemForm,
   customCode: CustomCode,
   voucher: LoyaltyForm,
-  changeScore: ChangeScore
+  changeScore: ChangeScore,
+  job: CustomCode
 };
