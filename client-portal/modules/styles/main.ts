@@ -41,8 +41,6 @@ const HeaderLogo = styled.div`
 
   img {
     max-height: 40px;
-    -webkit-filter: brightness(0) invert(1);
-    filter: brightness(0) invert(1);
     cursor: pointer;
   }
 `;
