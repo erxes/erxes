@@ -897,7 +897,7 @@ export const updateContactsField = async (
     }
   }
 
-  return cachedCustomer;
+  return models.Customers.findOne({ _id: cachedCustomerId });
 };
 
 export const updateCustomerFromForm = async (
@@ -961,7 +961,7 @@ const prepareCustomFieldsData = (
   customerData: ICustomField[],
   submissionData: ICustomField[]
 ) => {
-  const customFieldsData: ICustomField[] = [];
+  const customFieldsData: ICustomField[] = customerData;
 
   if (customerData.length === 0) {
     return submissionData;
