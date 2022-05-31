@@ -150,11 +150,9 @@ const getCustomersData = async (subdomain: string) => {
   // consider 'customer' state as valid customers
   return await sendContactsMessage({
     subdomain,
-    action: 'customers.findActiveCustomers',
+    action: 'customers.find',
     data: {
-      selector: {
-        status: { $ne: 'deleted' }
-      }
+      status: { $ne: 'deleted' }
     },
     isRPC: true,
     defaultValue: []
@@ -162,7 +160,6 @@ const getCustomersData = async (subdomain: string) => {
 };
 
 export const posInit = async (req, res) => {
-  console.log('qqqqqqqqqqq');
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
   const token = req.headers['pos-token'];
