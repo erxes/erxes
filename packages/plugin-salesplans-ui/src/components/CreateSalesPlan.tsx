@@ -42,16 +42,8 @@ function CreateSalesPlan1({ closeModal, save, units, branches }: Props) {
 
   useEffect(() => {
     var dateObj = new Date(salesPlan.date);
-    console.log(
-      'helooooooo',
-      salesPlan.date,
-      dateObj.getDate(),
-      dateObj.getFullYear(),
-      dateObj.getMonth()
-    );
-    dateObj.setMonth(1);
 
-    console.log('byeeeeeee', dateObj, dateObj.getMonth());
+    dateObj.setMonth(1);
   }, [salesPlan.date]);
 
   const changeState = (value, key) => {

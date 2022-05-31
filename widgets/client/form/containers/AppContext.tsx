@@ -8,7 +8,7 @@ import {
   increaseViewCount,
   postMessage,
   saveLead,
-  sendEmail
+  sendEmail,
 } from "./utils";
 import QRCode = require("qrcode");
 interface IState {
@@ -59,7 +59,7 @@ export class AppProvider extends React.Component<{}, IState> {
       extraContent: "",
       callSubmit: false,
       invoiceResponse: "",
-      invoiceType: ""
+      invoiceType: "",
     };
   }
 
@@ -83,7 +83,7 @@ export class AppProvider extends React.Component<{}, IState> {
       return this.setState({
         isPopupVisible: false,
         isFormVisible: false,
-        isCalloutVisible: false
+        isCalloutVisible: false,
       });
     }
 
@@ -113,7 +113,7 @@ export class AppProvider extends React.Component<{}, IState> {
   showForm = () => {
     this.setState({
       isCalloutVisible: false,
-      isFormVisible: true
+      isFormVisible: true,
     });
   };
 
@@ -128,7 +128,7 @@ export class AppProvider extends React.Component<{}, IState> {
 
     this.setState({
       isCalloutVisible: false,
-      isFormVisible: !isVisible
+      isFormVisible: !isVisible,
     });
   };
 
@@ -162,7 +162,7 @@ export class AppProvider extends React.Component<{}, IState> {
       isPopupVisible: false,
       isCalloutVisible: false,
       isFormVisible: false,
-      currentStatus: { status: "INITIAL" }
+      currentStatus: { status: "INITIAL" },
     });
 
     // Increasing view count
@@ -180,6 +180,7 @@ export class AppProvider extends React.Component<{}, IState> {
       browserInfo: connection.browserInfo,
       integrationId: this.getIntegration()._id,
       formId: this.getForm()._id,
+      userId: connection.setting.user_id,
       saveCallback: async (response: ISaveFormResponse) => {
         const { errors } = response;
         let { invoiceResponse, invoiceType } = response;
@@ -200,7 +201,7 @@ export class AppProvider extends React.Component<{}, IState> {
 
         postMessage({
           message: "submitResponse",
-          status
+          status,
         });
 
         if (invoiceType === "socialPay") {
@@ -220,10 +221,10 @@ export class AppProvider extends React.Component<{}, IState> {
           lastMessageId: response.messageId,
           currentStatus: {
             status,
-            errors
-          }
+            errors,
+          },
         });
-      }
+      },
     });
   };
 
@@ -253,7 +254,7 @@ export class AppProvider extends React.Component<{}, IState> {
 
     postMessage({
       message: "changeContainerStyle",
-      style: `height: ${elementsHeight}px;`
+      style: `height: ${elementsHeight}px;`,
     });
   };
 
@@ -275,7 +276,7 @@ export class AppProvider extends React.Component<{}, IState> {
       messageId,
       cancelCallback: (response: string) => {
         this.setState({ currentStatus: { status: response } });
-      }
+      },
     });
   };
 
@@ -303,7 +304,7 @@ export class AppProvider extends React.Component<{}, IState> {
           getForm: this.getForm,
           getIntegrationConfigs: this.getIntegrationConfigs,
           cancelOrder: this.cancelOrder,
-          onChangeCurrentStatus: this.onChangeCurrentStatus
+          onChangeCurrentStatus: this.onChangeCurrentStatus,
         }}
       >
         {this.props.children}

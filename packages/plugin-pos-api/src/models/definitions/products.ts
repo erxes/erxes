@@ -1,7 +1,7 @@
 import { attachmentSchema, customFieldSchema, ICustomField } from './common';
 import { Document, Schema } from 'mongoose';
-import { field, getDateFieldDefinition } from './utils';
-import { IProductCategoryModel, IProductModel } from '../Products';
+import { getDateFieldDefinition } from './utils';
+import { field, schemaHooksWrapper, schemaWrapper } from './util';
 import { PRODUCT_STATUSES, PRODUCT_TYPES } from './constants';
 
 interface IAttachment {
@@ -47,59 +47,68 @@ export interface IProductCategoryDocument extends IProductCategory, Document {
   createdAt: Date;
 }
 
-const productCommonSchema = {
-  name: field({ type: String, label: 'Name' }),
-  code: field({ type: String, label: 'Code' }),
-  description: field({ type: String, optional: true, label: 'Description' }),
-  attachment: field({ type: attachmentSchema }),
-  createdAt: getDateFieldDefinition('Created at')
-};
+export const productSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    categoryId: field({ type: String, label: 'Category' }),
+    name: field({ type: String, label: 'Name' }),
+    code: field({ type: String, label: 'Code' }),
+    description: field({ type: String, optional: true, label: 'Description' }),
+    attachment: field({ type: attachmentSchema }),
+    createdAt: getDateFieldDefinition('Created at'),
+    type: field({
+      type: String,
+      enum: PRODUCT_TYPES.ALL,
+      default: PRODUCT_TYPES.PRODUCT,
+      label: 'Type'
+    }),
+    tagIds: field({
+      type: [String],
+      optional: true,
+      label: 'Tags',
+      index: true
+    }),
+    sku: field({
+      type: String,
+      optional: true,
+      label: 'Stock keeping unit',
+      default: 'ш'
+    }),
+    unitPrice: field({
+      type: Number,
+      optional: true,
+      label: 'Unit price'
+    }),
+    customFieldsData: field({
+      type: [customFieldSchema],
+      optional: true,
+      label: 'Custom fields data'
+    }),
+    status: field({
+      type: String,
+      enum: PRODUCT_STATUSES.ALL,
+      optional: true,
+      label: 'Status',
+      default: 'active',
+      esType: 'keyword',
+      index: true
+    }),
+    vendorId: field({ type: String, optional: true, label: 'Vendor' }),
+    mergedIds: field({ type: [String], optional: true }),
+    attachmentMore: field({ type: [attachmentSchema] })
+  })
+);
 
-export const productSchema = new Schema({
-  _id: field({ pkey: true }),
-  categoryId: field({ type: String, label: 'Category' }),
-  type: field({
-    type: String,
-    enum: PRODUCT_TYPES.ALL,
-    default: PRODUCT_TYPES.PRODUCT,
-    label: 'Type'
+export const productCategorySchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    order: field({ type: String, label: 'Order' }),
+    parentId: field({ type: String, optional: true, label: 'Parent' }),
+    name: field({ type: String, label: 'Name' }),
+    code: field({ type: String, label: 'Code' }),
+    description: field({ type: String, optional: true, label: 'Description' }),
+    attachment: field({ type: attachmentSchema }),
+    createdAt: getDateFieldDefinition('Created at')
   }),
-  tagIds: field({
-    type: [String],
-    optional: true,
-    label: 'Tags',
-    index: true
-  }),
-  sku: field({
-    type: String,
-    optional: true,
-    label: 'Stock keeping unit',
-    default: 'ш'
-  }),
-  unitPrice: field({ type: Number, optional: true, label: 'Unit price' }),
-  customFieldsData: field({
-    type: [customFieldSchema],
-    optional: true,
-    label: 'Custom fields data'
-  }),
-  status: field({
-    type: String,
-    enum: PRODUCT_STATUSES.ALL,
-    optional: true,
-    label: 'Status',
-    default: 'active',
-    esType: 'keyword',
-    index: true
-  }),
-  vendorId: field({ type: String, optional: true, label: 'Vendor' }),
-  mergedIds: field({ type: [String], optional: true }),
-  attachmentMore: field({ type: [attachmentSchema] }),
-  ...productCommonSchema
-});
-
-export const productCategorySchema = new Schema({
-  _id: field({ pkey: true }),
-  order: field({ type: String, label: 'Order' }),
-  parentId: field({ type: String, optional: true, label: 'Parent' }),
-  ...productCommonSchema
-});
+  'erxes_productCategorySchema'
+);

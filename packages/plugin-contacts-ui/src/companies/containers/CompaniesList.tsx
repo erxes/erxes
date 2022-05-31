@@ -178,7 +178,13 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
     };
 
     const companiesList = props => {
-      return <CompaniesList {...updatedProps} {...props} />;
+      return (
+        <CompaniesList
+          {...updatedProps}
+          {...props}
+          {...generatePaginationParams(this.props.queryParams)}
+        />
+      );
     };
 
     return (

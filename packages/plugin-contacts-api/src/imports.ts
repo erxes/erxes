@@ -108,10 +108,6 @@ export default {
           });
 
           customFieldsData = _.uniq(customFieldsData, 'field');
-
-          // doc.customFieldsData = await prepareCustomFieldsData(
-          //   customFieldsData
-          // );
         }
 
         updateDocs.push({
@@ -231,12 +227,6 @@ export default {
             doc.phones = [doc.primaryPhone];
           }
 
-          // clean custom field values
-
-          // doc.customFieldsData = await prepareCustomFieldsData(
-          //   doc.customFieldsData
-          // );
-
           if (doc.integrationId) {
             doc.relatedIntegrationIds = [doc.integrationId];
           }
@@ -293,6 +283,14 @@ export default {
             index: docIndex,
             field: 'primaryName',
             values: doc.companiesPrimaryNames || [],
+            conformityTypeModel: Companies,
+            relType: 'company'
+          });
+
+          await createConformityMapping({
+            index: docIndex,
+            field: 'primaryEmail',
+            values: doc.companiesPrimaryEmails || [],
             conformityTypeModel: Companies,
             relType: 'company'
           });
@@ -470,6 +468,12 @@ export default {
           case 'companiesPrimaryNames':
             {
               doc.companiesPrimaryNames = value.split(',');
+            }
+            break;
+
+          case 'companiesPrimaryEmails':
+            {
+              doc.companiesPrimaryEmails = value.split(',');
             }
             break;
 

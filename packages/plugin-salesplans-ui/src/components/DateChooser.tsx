@@ -12,17 +12,17 @@ import { MONTH, DAYS } from '../constant';
 type Props = {
   labelData: any;
   data: any;
-  dayConfigs: any;
+  timeframes: any;
   closeModal: () => void;
-  dayPlanConf: any;
-  save: (salesLogId: string, dayConfigs: any) => void;
+  configs: any;
+  save: (salesLogId: string, timeframes: any) => void;
 };
 
 function DateChooser({
   labelData,
   data,
-  dayConfigs,
-  dayPlanConf,
+  timeframes,
+  configs,
   closeModal,
   save
 }: Props) {
@@ -32,10 +32,6 @@ function DateChooser({
   const [days, setDays] = useState([]);
 
   useEffect(() => {
-    console.log('test', labels);
-  }, [labels]);
-
-  useEffect(() => {
     let upDatedLabel = {};
 
     let type,
@@ -43,10 +39,19 @@ function DateChooser({
 
     switch (data.type) {
       case 'Year':
-        type = MONTH;
-        type.forEach(element => {
-          upDatedLabel[element[key]] = { _id: '', data: [] };
-        });
+        if (configs) {
+          configs.forEach(element => {
+            upDatedLabel[element.month] = {
+              _id: element._id,
+              data: element.labelIds
+            };
+          });
+        } else {
+          type = MONTH;
+          type.forEach(element => {
+            upDatedLabel[element[key]] = { _id: '', data: [] };
+          });
+        }
         break;
       case 'Month':
         const dateObj = new Date(data.date);
@@ -62,33 +67,37 @@ function DateChooser({
         }
 
         setDays(type);
-        type.forEach(element => {
-          upDatedLabel[element[key]] = { _id: '', data: [] };
-        });
-        if (dayPlanConf) {
-          dayPlanConf.map(t => {
-            const date = new Date(t.date);
-            const month = date.getMonth() + 1;
-            upDatedLabel[month] = { _id: t._id, data: t.labelIds };
+        if (configs) {
+          configs.map(element => {
+            upDatedLabel[element.day] = {
+              _id: element._id,
+              data: element.labelIds
+            };
+          });
+        } else {
+          type.forEach(element => {
+            upDatedLabel[element[key]] = { _id: '', data: [] };
           });
         }
         break;
       case 'Day':
-        type = dayConfigs;
+        type = timeframes;
         key = '_id';
-        type.forEach(element => {
-          upDatedLabel[element[key]] = { _id: '', data: [] };
-        });
-        if (dayPlanConf) {
-          dayPlanConf.map(t => {
-            upDatedLabel[t.dayConfigId] = { _id: t._id, data: t.labelIds };
+        if (configs) {
+          configs.map(t => {
+            upDatedLabel[t.timeframeId] = { _id: t._id, data: t.labelIds };
+          });
+        } else {
+          type.forEach(element => {
+            upDatedLabel[element._id] = { _id: '', data: [] };
           });
         }
 
         break;
     }
+
     setLabels({ ...labels, ...upDatedLabel });
-  }, [dayConfigs, dayPlanConf]);
+  }, [timeframes, configs]);
 
   const onChangeLabels = (option, key) => {
     const upDatedLabel = { ...labels };
@@ -107,7 +116,6 @@ function DateChooser({
   };
 
   const onSave = () => {
-    console.log('heeey', data._id, labels);
     save(data._id, labels);
   };
 
@@ -162,7 +170,7 @@ function DateChooser({
         ));
 
       case 'Day':
-        return dayConfigs.map(t => (
+        return timeframes.map(t => (
           <FlexRow>
             <FlexItem>
               <ControlLabel uppercase={false}>

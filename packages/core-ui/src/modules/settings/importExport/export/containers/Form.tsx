@@ -100,11 +100,9 @@ export default withProps<Props>(
       options: ({ contentType }) => {
         return {
           variables: {
-            contentType: ['lead', 'visitor'].includes(contentType)
-              ? 'customer'
-              : contentType,
+            contentType,
             usageType: 'export',
-            excludedNames: COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES.IMPORT
+            excludedNames: COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES.EXPORT
           }
         };
       }

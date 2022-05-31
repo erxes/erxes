@@ -89,6 +89,7 @@ export interface IPipeline extends ICommonFields {
   hackScoringType?: string;
   templateId?: string;
   isCheckUser?: boolean;
+  isCheckDepartment?: boolean;
   excludeCheckUserIds?: string[];
   numberConfig?: string;
   numberSize?: string;
@@ -172,7 +173,7 @@ const relationSchema = new Schema(
 
 export const commonItemFieldsSchema = {
   _id: field({ pkey: true }),
-  userId: field({ type: String, esType: 'keyword' }),
+  userId: field({ type: String, optional: true, esType: 'keyword' }),
   createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
   order: field({ type: Number }),
   name: field({ type: String, label: 'Name' }),
@@ -288,6 +289,11 @@ export const pipelineSchema = new Schema({
     type: Boolean,
     optional: true,
     label: 'Show only the users created or assigned cards'
+  }),
+  isCheckDepartment: field({
+    type: Boolean,
+    optional: true,
+    label: 'Show only the departments created or assigned cards'
   }),
   excludeCheckUserIds: field({
     type: [String],

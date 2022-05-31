@@ -129,16 +129,14 @@ const sendNotification = async (
     subdomain,
     action: 'sendEmail',
     data: {
-      doc: {
-        toEmails,
-        title: 'Notification',
-        template: {
-          name: 'notification',
-          data: {
-            notification: { ...doc, link },
-            action,
-            userName: getUserDetail(createdUser)
-          }
+      toEmails,
+      title: 'Notification',
+      template: {
+        name: 'notification',
+        data: {
+          notification: { ...doc, link },
+          action,
+          userName: getUserDetail(createdUser)
         }
       },
       modifier

@@ -48,6 +48,8 @@ interface IProps extends IRouterProps {
   onSelect: (prs: IProduct[]) => void;
   saveMatch: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  page: number;
+  perPage: number;
 }
 
 type State = {
@@ -122,7 +124,9 @@ class CarsList extends React.Component<IProps, State> {
       onSelect,
       saveMatch,
       renderButton,
-      columnsConfig
+      columnsConfig,
+      page,
+      perPage
     } = this.props;
 
     const mainContent = (
@@ -137,16 +141,21 @@ class CarsList extends React.Component<IProps, State> {
                   onChange={this.onChange}
                 />
               </th>
-              {(columnsConfig || []).map(({ name, label }) => (
+              {(columnsConfig || []).map(({ _id, name, label }) => (
                 <th key={name}>
-                  <SortHandler sortField={name} label={__(label)} />
+                  {_id !== '#' ? (
+                    <SortHandler sortField={name} label={__(label)} />
+                  ) : (
+                    <>#</>
+                  )}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody id="cars">
-            {cars.map(car => (
+            {cars.map((car, i) => (
               <CarRow
+                index={(page - 1) * perPage + i + 1}
                 car={car}
                 columnsConfig={columnsConfig}
                 isChecked={bulk.includes(car)}

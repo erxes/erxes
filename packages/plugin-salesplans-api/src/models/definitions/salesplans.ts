@@ -106,7 +106,7 @@ export const dayPlanConfigSchema = schemaWrapper(
     _id: field({ pkey: true }),
     salesLogId: field({ type: String, label: 'SalesLog' }),
     timeframeId: field({ type: String, label: 'Timeframe' }),
-    labelIds: field({ type: String, label: 'Labels' })
+    labelIds: field({ type: [String], label: 'Labels' })
   })
 );
 

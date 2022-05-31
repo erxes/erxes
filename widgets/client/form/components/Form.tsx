@@ -8,7 +8,7 @@ import {
   fixErrorMessage,
   LogicParams,
   readFile,
-  loadMapApi
+  loadMapApi,
 } from "../../utils";
 import { connection } from "../connection";
 import {
@@ -17,7 +17,7 @@ import {
   IFieldError,
   IForm,
   IFormDoc,
-  ILocationOption
+  ILocationOption,
 } from "../types";
 import { TopBar } from "./";
 import Field from "./Field";
@@ -54,10 +54,10 @@ class Form extends React.Component<Props, State> {
 
     let currentLocation: ILocationOption | undefined;
 
-    if (props.form.fields.findIndex(e => e.type === "map") !== -1) {
+    if (props.form.fields.findIndex((e) => e.type === "map") !== -1) {
       currentLocation = {
         lat: connection.browserInfo.latitude,
-        lng: connection.browserInfo.longitude
+        lng: connection.browserInfo.longitude,
       };
     }
 
@@ -81,7 +81,7 @@ class Form extends React.Component<Props, State> {
       head.appendChild(style);
     }
 
-    if (form.fields.findIndex(e => e.type === "map") !== -1) {
+    if (form.fields.findIndex((e) => e.type === "map") !== -1) {
       const googleMapScript = loadMapApi(
         form.googleMapApiKey || "test",
         integration.languageCode || "en"
@@ -118,7 +118,7 @@ class Form extends React.Component<Props, State> {
     fieldId,
     value,
     associatedFieldId,
-    groupId
+    groupId,
   }: {
     fieldId: string;
     value: FieldValue;
@@ -156,20 +156,20 @@ class Form extends React.Component<Props, State> {
       if (field.type === "multiSelect" || field.type === "check") {
         doc[key] = {
           ...field,
-          value: String(field.value).replace(new RegExp(",,", "g"), ", ")
+          value: String(field.value).replace(new RegExp(",,", "g"), ", "),
         };
       }
 
       if (field.type === "productCategory") {
-        const formField = fields.find(f => f._id === key);
+        const formField = fields.find((f) => f._id === key);
         const products = (formField && formField.products) || [];
-        const selectedProduct = products.find(p => p._id === field.value);
+        const selectedProduct = products.find((p) => p._id === field.value);
         doc[key] = selectedProduct && {
           ...field,
           value: `${
             selectedProduct.name
           } - ${selectedProduct.unitPrice.toLocaleString()}`,
-          productId: selectedProduct._id
+          productId: selectedProduct._id,
         };
       }
     }
@@ -178,7 +178,7 @@ class Form extends React.Component<Props, State> {
   };
 
   canChangePage = () => {
-    const requiredFields = this.getCurrentFields().filter(f => f.isRequired);
+    const requiredFields = this.getCurrentFields().filter((f) => f.isRequired);
 
     for (const field of requiredFields) {
       const value = this.state.doc[field._id].value;
@@ -211,7 +211,7 @@ class Form extends React.Component<Props, State> {
     const { form } = this.props;
     const doc: any = {};
 
-    form.fields.forEach(field => {
+    form.fields.forEach((field) => {
       let isHidden = false;
       if (
         field.logicAction &&
@@ -234,7 +234,7 @@ class Form extends React.Component<Props, State> {
         validation: field.validation,
         value,
         isHidden,
-        column: field.column
+        column: field.column,
       };
     });
 
@@ -242,7 +242,7 @@ class Form extends React.Component<Props, State> {
   }
 
   getCurrentFields() {
-    return this.props.form.fields.filter(f => {
+    return this.props.form.fields.filter((f) => {
       const pageNumber = f.pageNumber || 1;
       if (pageNumber === this.state.currentPage) {
         return f;
@@ -298,14 +298,14 @@ class Form extends React.Component<Props, State> {
           background: this.props.color,
           opacity: 0.7,
           height: "13px",
-          width: `${percentage}%`
+          width: `${percentage}%`,
         }}
       >
         <div
           style={{
             textAlign: "center",
             color: "white",
-            fontSize: 10
+            fontSize: 10,
           }}
         >{`${percentage}%`}</div>
       </div>
@@ -318,15 +318,15 @@ class Form extends React.Component<Props, State> {
     const fields = this.getCurrentFields();
 
     const errors = currentStatus.errors || [];
-    const nonFieldError = errors.find(error => !error.fieldId);
+    const nonFieldError = errors.find((error) => !error.fieldId);
 
-    const renderedFields = fields.map(field => {
+    const renderedFields = fields.map((field) => {
       const fieldError = errors.find(
         (error: IFieldError) => error.fieldId === field._id
       );
 
       if (field.logics && field.logics.length > 0) {
-        const logics: LogicParams[] = field.logics.map(logic => {
+        const logics: LogicParams[] = field.logics.map((logic) => {
           const { validation, value, type } = this.state.doc[logic.fieldId];
 
           return {
@@ -335,7 +335,7 @@ class Form extends React.Component<Props, State> {
             logicValue: logic.logicValue,
             fieldValue: value,
             validation,
-            type
+            type,
           };
         });
 
@@ -390,14 +390,17 @@ class Form extends React.Component<Props, State> {
     const button = (
       title: any,
       action: React.MouseEventHandler<HTMLButtonElement>,
-      disabled?: boolean
+      disabled?: boolean,
+      className?: string
     ) => {
       return (
         <button
-          style={{ background: color, margin: "5px" }}
+          style={{ background: color }}
           type="button"
           onClick={action}
-          className={`erxes-button btn-block ${isSubmitting ? "disabled" : ""}`}
+          className={`erxes-button btn-block ${
+            isSubmitting ? "disabled" : ""
+          } ${className}`}
           disabled={disabled}
         >
           {title}
@@ -417,7 +420,7 @@ class Form extends React.Component<Props, State> {
       return (
         <div style={{ width: "100%" }}>
           <div style={{ display: "flex" }}>
-            {button(__("Back"), this.onbackClick, isSubmitting)}
+            {button(__("Back"), this.onbackClick, isSubmitting, "hasMargin")}
             {button(
               isSubmitting ? __("Loading ...") : form.buttonText || __("Send"),
               this.onSubmit,
@@ -435,7 +438,7 @@ class Form extends React.Component<Props, State> {
     return (
       <div style={{ width: "100%" }}>
         <div style={{ display: "flex" }}>
-          {button(__("Back"), this.onbackClick, isSubmitting)}
+          {button(__("Back"), this.onbackClick, isSubmitting, "hasMargin")}
           {button(__("Next"), this.onNextClick, isSubmitting)}
         </div>
       </div>
@@ -443,7 +446,7 @@ class Form extends React.Component<Props, State> {
   }
 
   renderForm() {
-    const { form, integration, color, isSubmitting, extraContent } = this.props;
+    const { form, integration, extraContent } = this.props;
 
     return (
       <div className="erxes-form">
@@ -480,7 +483,7 @@ class Form extends React.Component<Props, State> {
     successImage?: string
   ) {
     const { integration, form } = this.props;
-  
+
     return (
       <div className="erxes-form">
         {this.renderHead(thankTitle || form.title)}
@@ -500,7 +503,7 @@ class Form extends React.Component<Props, State> {
       const GolomtFrame = ({
         src,
         width,
-        height
+        height,
       }: {
         src: string;
         width: string;
@@ -546,7 +549,7 @@ class Form extends React.Component<Props, State> {
               style={{
                 verticalAlign: "middle",
                 textAlign: "center",
-                display: "table-cell"
+                display: "table-cell",
               }}
             >
               <img src={response} width="200px" height={"200px"} />
@@ -587,7 +590,7 @@ class Form extends React.Component<Props, State> {
       currentStatus,
       sendEmail,
       integration,
-      invoiceResponse
+      invoiceResponse,
     } = this.props;
     const doc = this.state.doc;
 
@@ -604,7 +607,7 @@ class Form extends React.Component<Props, State> {
         thankTitle,
         thankContent,
         attachments,
-        successImage
+        successImage,
       } = integration.leadData;
 
       // redirect to some url
@@ -615,7 +618,7 @@ class Form extends React.Component<Props, State> {
       // send email to user and admins
       if (successAction === "email") {
         const emailField = form.fields.find(
-          f => f.validation === "email" || f.type === "email"
+          (f) => f.validation === "email" || f.type === "email"
         );
 
         if (emailField) {
@@ -629,7 +632,7 @@ class Form extends React.Component<Props, State> {
               title: userEmailTitle,
               content: userEmailContent,
               formId: connection.data.form._id,
-              attachments
+              attachments,
             });
           }
         }
@@ -642,7 +645,7 @@ class Form extends React.Component<Props, State> {
             title: adminEmailTitle,
             content: adminEmailContent,
             formId: connection.data.form._id,
-            attachments
+            attachments,
           });
         }
       } // end successAction = "email"

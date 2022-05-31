@@ -20,11 +20,6 @@ function CreateLabelContainer({ closeModal }: Props) {
   //   return <div>{labelsQuery.error.message}</div>;
   // }
 
-  console.log(
-    'ssdsddssddsdsds',
-    labelsQuery.data ? labelsQuery.data.getLabels : ['sdfsdf']
-  );
-
   const [remove] = useMutation(gql(mutations.removeLabel));
 
   const [save] = useMutation(gql(mutations.saveLabels));

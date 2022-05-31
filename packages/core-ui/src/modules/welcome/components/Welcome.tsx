@@ -33,9 +33,9 @@ function Welcome({ currentUser }: Props) {
     currentUser.onboardingHistory &&
     currentUser.onboardingHistory.completedSteps;
 
-  let active = 0;
+  let active = 1;
 
-  if (currentUser.username && currentUser.email) active = 1;
+  if (currentUser.username && currentUser.email) active = 2;
 
   if (
     (completedSteps && completedSteps.indexOf('generalSettingsCreate') > -1) ||
@@ -43,14 +43,14 @@ function Welcome({ currentUser }: Props) {
       currentUser.configs.dealCurrency.length !== 0) ||
     (currentUser.configs.dealUOM && currentUser.configs.dealUOM.length !== 0)
   )
-    active = 2;
+    active = 3;
 
-  if (currentUser.brands!.length !== 0) active = 3;
+  if (currentUser.brands!.length !== 0) active = 4;
 
   if (completedSteps && completedSteps.indexOf('userGroupCreate') > -1)
-    active = 4;
+    active = 5;
 
-  if (completedSteps && completedSteps.indexOf('userCreate') > -1) active = 5;
+  if (completedSteps && completedSteps.indexOf('userCreate') > -1) active = 6;
 
   Object.keys(currentUser.configs).map((value: string) => {
     if (
@@ -63,7 +63,7 @@ function Welcome({ currentUser }: Props) {
       value.includes('WIDGETS') ||
       value.includes('UPLOAD')
     ) {
-      active = 6;
+      active = 7;
       return;
     }
   });
@@ -124,7 +124,8 @@ function Welcome({ currentUser }: Props) {
         </Left>
         {title === 'Setup Process' && (
           <ProgressBar
-            percentage={Math.floor((active / 6) * 100)}
+            percentage={Math.floor((active / 7) * 100)}
+            color="success"
             type="circle"
             height="70px"
           />
@@ -167,47 +168,59 @@ function Welcome({ currentUser }: Props) {
 
   const renderSetup = () => {
     return (
-      <Steps type="stepperColumn" active={active}>
-        <Step type="stepper" title="General Information">
-          <Button size="large" onClick={() => history.push('/profile')}>
+      <Steps direction="vertical" active={active}>
+        <Step title="General Information">
+          <Button
+            size="small"
+            onClick={() => history.push('/profile')}
+            icon="arrow-right"
+          >
             Go to your profile
           </Button>
         </Step>
-        <Step type="stepper" title="General system configuration">
+        <Step title="General system configuration">
           <Button
-            size="large"
+            size="small"
             onClick={() => history.push('/settings/general')}
+            icon="arrow-right"
           >
             Go to the general setting
           </Button>
         </Step>
-        <Step type="stepper" title="Create a brand">
+        <Step title="Create a brand">
           <Button
-            size="large"
+            size="small"
             onClick={() =>
               history.push('/settings/brands#showBrandAddModal=true')
             }
+            icon="arrow-right"
           >
             Go to the brand settings
           </Button>
         </Step>
-        <Step type="stepper" title="Create a user group">
+        <Step title="Create a user group">
           <Button
-            size="large"
+            size="small"
             onClick={() => history.push('/settings/permissions')}
+            icon="arrow-right"
           >
             Go to permissions
           </Button>
         </Step>
-        <Step type="stepper" title="Invite team members">
-          <Button size="large" onClick={() => history.push('/settings/team')}>
+        <Step title="Invite team members">
+          <Button
+            size="small"
+            onClick={() => history.push('/settings/team')}
+            icon="arrow-right"
+          >
             Go to team members
           </Button>
         </Step>
-        <Step type="stepper" title="Connecting service">
+        <Step title="Connecting service">
           <Button
-            size="large"
+            size="small"
             onClick={() => history.push('/settings/general')}
+            icon="arrow-right"
           >
             Go to the general settings
           </Button>
@@ -277,6 +290,8 @@ function Welcome({ currentUser }: Props) {
                 icon={com.icon}
                 img={com.image}
                 iconColor="black"
+                target="_blank"
+                rel="noopener"
               >
                 {com.name}
               </Button>
@@ -288,7 +303,7 @@ function Welcome({ currentUser }: Props) {
   };
 
   const renderBanner = (banner, index) => {
-    const { key, background, title, desc, button, img } = banner;
+    const { key, background, title, desc, button, img, href } = banner;
 
     return (
       <React.Fragment key={index}>
@@ -297,7 +312,13 @@ function Welcome({ currentUser }: Props) {
             <h4>{title}</h4>
             <p>{desc}</p>
             <br />
-            <Button size="large" btnStyle="white">
+            <Button
+              size="large"
+              btnStyle="white"
+              href={href}
+              target="_blank"
+              rel="noopener"
+            >
               {button}
             </Button>
           </div>

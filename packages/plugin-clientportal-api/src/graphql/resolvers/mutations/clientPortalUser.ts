@@ -9,6 +9,7 @@ export interface IVerificationParams {
   userId: string;
   emailOtp?: string;
   phoneOtp?: string;
+  password?: string;
 }
 
 const clientPortalUserMutations = {
@@ -45,13 +46,17 @@ const clientPortalUserMutations = {
   /*
    * Login
    */
-  clientPortalLogin: async (_root, args: ILoginParams, context: IContext) => {
-    const { token } = await context.models.ClientPortalUsers.login(args);
-    const cookieOptions: any = { secure: context.requestInfo.secure };
-    context.res.cookie(
+  clientPortalLogin: async (
+    _root,
+    args: ILoginParams,
+    { models, requestInfo, res }: IContext
+  ) => {
+    const { token } = await models.ClientPortalUsers.login(args);
+
+    res.cookie(
       'client-auth-token',
       token,
-      authCookieOptions(cookieOptions)
+      authCookieOptions(requestInfo.secure)
     );
 
     return 'loggedin';
@@ -115,13 +120,13 @@ const clientPortalUserMutations = {
       query.phone = phone;
     }
 
+    const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
+
     const { token, phoneCode } = await models.ClientPortalUsers.forgotPassword(
-      clientPortalId,
+      clientPortal,
       phone,
       email
     );
-
-    const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
 
     if (token) {
       const link = `${clientPortal.url}/reset-password?token=${token}`;
@@ -145,7 +150,8 @@ const clientPortalUserMutations = {
     if (phoneCode) {
       const config = clientPortal.otpConfig || {
         content: '',
-        smsTransporterType: ''
+        smsTransporterType: '',
+        codeLength: 4
       };
       const body =
         config.content.replace(/{.*}/, phoneCode) ||

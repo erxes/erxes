@@ -1,13 +1,15 @@
 import { IUser } from '@erxes/ui/src/auth/types';
+import { IVoucherCampaign } from '../../configs/voucherCampaign/types';
 import { ICommonDoc } from '../common/types';
 
 export interface IVoucherDoc extends ICommonDoc {
-  status: string,
+  status: string;
 }
 
 export interface IVoucher extends IVoucherDoc {
   _id: string;
   owner: IUser;
+  campaign: IVoucherCampaign;
 }
 
 // mutation types
@@ -24,7 +26,9 @@ export type RemoveMutationVariables = {
 };
 
 export type RemoveMutationResponse = {
-  vouchersRemove: (params: { variables: RemoveMutationVariables }) => Promise<any>;
+  vouchersRemove: (params: {
+    variables: RemoveMutationVariables;
+  }) => Promise<any>;
 };
 
 // query types
