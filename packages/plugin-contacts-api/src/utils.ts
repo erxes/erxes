@@ -970,11 +970,15 @@ const prepareCustomFieldsData = (
   for (const data of submissionData) {
     const existingData = customerData.find(e => e.field === data.field);
 
-    if (existingData && Array.isArray(existingData.value)) {
-      data.value = existingData.value.concat(data.value);
+    if (existingData) {
+      if (Array.isArray(existingData.value)) {
+        existingData.value = existingData.value.concat(data.value);
+      } else {
+        existingData.value = data.value;
+      }
+    } else {
+      customFieldsData.push(data);
     }
-
-    customFieldsData.push(data);
   }
 
   return customFieldsData;
