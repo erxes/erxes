@@ -191,7 +191,7 @@ const getIntegrations = async (subdomain: string) => {
   const integrations = await sendInboxMessage({
     subdomain,
     action: 'integrations.find',
-    data: {},
+    data: { query: {} },
     isRPC: true,
     defaultValue: []
   });
@@ -313,11 +313,10 @@ export const generateFields = async ({ subdomain, data }) => {
 
   fields = [...fields, tags];
 
-  if (type === 'customer') {
+  if (type === 'customer' || type === 'lead') {
     const integrations = await getIntegrations(subdomain);
 
     fields = [...fields, integrations];
-
     if (usageType === 'import') {
       fields.push({
         _id: Math.random(),

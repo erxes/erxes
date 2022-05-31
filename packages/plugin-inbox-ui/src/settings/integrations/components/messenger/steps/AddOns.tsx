@@ -166,9 +166,9 @@ class AddOns extends React.Component<Props, State> {
 
   renderRemoveInput = (i: number) => {
     return (
-      <Tip text={__('Remove')} placement='top'>
+      <Tip text={__('Remove')} placement="top">
         <RemoveButton onClick={this.handleRemoveWebsite.bind(null, i)}>
-          <Icon icon='times' />
+          <Icon icon="times" />
         </RemoveButton>
       </Tip>
     );
@@ -230,7 +230,7 @@ class AddOns extends React.Component<Props, State> {
                 <FormGroup>
                   <ControlLabel required={true}>Website Title</ControlLabel>
                   <FormControl
-                    name='description'
+                    name="description"
                     onChange={this.onChangeInput.bind(
                       null,
                       index,
@@ -245,7 +245,7 @@ class AddOns extends React.Component<Props, State> {
                   <FormControl
                     value={website.url}
                     onChange={this.onChangeInput.bind(null, index, 'url')}
-                    name='url'
+                    name="url"
                     required={true}
                   />
                 </FormGroup>
@@ -258,7 +258,7 @@ class AddOns extends React.Component<Props, State> {
                       'buttonText'
                     )}
                     value={website.buttonText}
-                    name='buttonText'
+                    name="buttonText"
                     required={true}
                   />
                 </FormGroup>
@@ -268,8 +268,8 @@ class AddOns extends React.Component<Props, State> {
           ))}
           <Button
             onClick={this.onAddMoreInput}
-            icon='plus-circle'
-            btnStyle='primary'
+            icon="plus-circle"
+            btnStyle="primary"
           >
             Add a Website
           </Button>

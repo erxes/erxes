@@ -111,6 +111,11 @@ export const HeaderContent = styled.div`
   }
 `;
 
+export const AddFormWidth = styled.div`
+  max-width: 700px;
+  overflow: hidden;
+`;
+
 export const TitleRow = styled.div`
   display: flex;
   align-items: center;
@@ -258,6 +263,10 @@ export const MoveContainer = styled(Flex)`
   align-items: center;
   position: relative;
   will-change: contents;
+`;
+
+export const MoveContainerWidth = styled(Flex)`
+  width: 100%;
 `;
 
 export const ActionContainer = styled(MoveContainer)`
