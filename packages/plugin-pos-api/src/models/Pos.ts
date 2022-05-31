@@ -90,7 +90,7 @@ export const loadPosClass = (models: IModels, _subdomain) => {
 };
 
 export interface IProductGroupModel extends Model<IProductGroupDocument> {
-  groups(posId: string): IProductGroupDocument;
+  groups(posId: string): IProductGroupDocument[];
   groupsAdd(user, name, description): IProductGroupDocument;
   groupsEdit(_id, doc): IProductGroupDocument;
   groupsRemove(_id: string): IProductGroupDocument;
