@@ -961,7 +961,7 @@ const prepareCustomFieldsData = (
   customerData: ICustomField[],
   submissionData: ICustomField[]
 ) => {
-  const customFieldsData: ICustomField[] = [];
+  const customFieldsData: ICustomField[] = customerData;
 
   if (customerData.length === 0) {
     return submissionData;
