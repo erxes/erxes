@@ -512,7 +512,9 @@ export const buildFile = async (
     let headers: IColumnLabel[] = fillHeaders(type);
 
     if (configs) {
-      headers = JSON.parse(configs);
+      headers = JSON.parse(configs).map(config => {
+        return { name: config, label: config };
+      });
     }
 
     for (const item of data) {

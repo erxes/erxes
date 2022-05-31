@@ -1,21 +1,41 @@
-import { IColumnLabel } from "@erxes/api-utils/src";
+import { IColumnLabel } from '@erxes/api-utils/src';
 import {
   createXlsFile,
   findSchemaLabels,
   generateXlsx,
-  getCustomFieldsData,
-} from "@erxes/api-utils/src/exporter";
-import { IUserDocument } from "@erxes/api-utils/src/types";
-import * as moment from "moment";
-import { IModels } from "./connectionResolver";
-import { BOARD_BASIC_INFOS, MODULE_NAMES } from "./constants";
-import { fetchSegment, sendCoreMessage, sendFormsMessage } from "./messageBroker";
+  getCustomFieldsData
+} from '@erxes/api-utils/src/exporter';
+import { IUserDocument } from '@erxes/api-utils/src/types';
+import * as moment from 'moment';
+import { IModels } from './connectionResolver';
+import { BOARD_BASIC_INFOS, MODULE_NAMES } from './constants';
+import {
+  fetchSegment,
+  sendCoreMessage,
+  sendFormsMessage,
+  sendProductsMessage
+} from './messageBroker';
 import {
   commonItemFieldsSchema,
-  IStageDocument,
-} from "./models/definitions/boards";
-import { IPipelineLabelDocument } from "./models/definitions/pipelineLabels";
-import { ticketSchema } from "./models/definitions/tickets";
+  IStageDocument
+} from './models/definitions/boards';
+import { IPipelineLabelDocument } from './models/definitions/pipelineLabels';
+import { ticketSchema } from './models/definitions/tickets';
+
+const filterHeaders = headers => {
+  const first = [] as any;
+  const others = [] as any;
+
+  for (const column of headers) {
+    if (column.name.startsWith('productsData')) {
+      first.push(column);
+    } else {
+      others.push(column);
+    }
+  }
+
+  return others.concat(first);
+};
 
 export const fillHeaders = (itemType: string): IColumnLabel[] => {
   let columnNames: IColumnLabel[] = [];
@@ -28,7 +48,7 @@ export const fillHeaders = (itemType: string): IColumnLabel[] => {
     case MODULE_NAMES.TICKET:
       columnNames = findSchemaLabels(ticketSchema, [
         ...BOARD_BASIC_INFOS,
-        "source",
+        'source'
       ]);
       break;
 
@@ -40,14 +60,14 @@ export const fillHeaders = (itemType: string): IColumnLabel[] => {
 };
 
 const getCellValue = (item, colName) => {
-  const names = colName.split(".");
+  const names = colName.split('.');
 
   if (names.length === 1) {
     return item[colName];
   } else {
     const value = item[names[0]];
 
-    return value ? value[names[1]] : "";
+    return value ? value[names[1]] : '';
   }
 };
 
@@ -57,7 +77,7 @@ const fillCellValue = async (
   colName: string,
   item: any
 ): Promise<string> => {
-  const emptyMsg = "-";
+  const emptyMsg = '-';
 
   if (!item) {
     return emptyMsg;
@@ -65,32 +85,32 @@ const fillCellValue = async (
 
   let cellValue: any = getCellValue(item, colName);
 
-  if (typeof item[colName] === "boolean") {
-    cellValue = item[colName] ? "Yes" : "No";
+  if (typeof item[colName] === 'boolean') {
+    cellValue = item[colName] ? 'Yes' : 'No';
   }
 
   switch (colName) {
-    case "createdAt":
-    case "closeDate":
-    case "modifiedAt":
-      cellValue = moment(cellValue).format("YYYY-MM-DD HH:mm");
+    case 'createdAt':
+    case 'closeDate':
+    case 'modifiedAt':
+      cellValue = moment(cellValue).format('YYYY-MM-DD HH:mm');
 
       break;
-    case "userId":
+    case 'userId':
       const createdUser: IUserDocument | null = await sendCoreMessage({
         subdomain,
         action: 'users.findOne',
         data: {
           _id: item.userId
         },
-        isRPC: true,
+        isRPC: true
       });
 
-      cellValue = createdUser ? createdUser.username : "user not found";
+      cellValue = createdUser ? createdUser.username : 'user not found';
 
       break;
     // deal, task, ticket fields
-    case "assignedUserIds":
+    case 'assignedUserIds':
       const assignedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
         action: 'users.find',
@@ -100,16 +120,16 @@ const fillCellValue = async (
           }
         },
         isRPC: true,
-        defaultValue: [] 
+        defaultValue: []
       });
 
       cellValue = assignedUsers
-        .map((user) => user.username || user.email)
-        .join(", ");
+        .map(user => user.username || user.email)
+        .join(', ');
 
       break;
 
-    case "watchedUserIds":
+    case 'watchedUserIds':
       const watchedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
         action: 'users.find',
@@ -123,48 +143,48 @@ const fillCellValue = async (
       });
 
       cellValue = watchedUsers
-        .map((user) => user.username || user.email)
-        .join(", ");
+        .map(user => user.username || user.email)
+        .join(', ');
 
       break;
 
-    case "labelIds":
+    case 'labelIds':
       const labels: IPipelineLabelDocument[] = await models.PipelineLabels.find(
         {
-          _id: { $in: item.labelIds },
+          _id: { $in: item.labelIds }
         }
       );
 
-      cellValue = labels.map((label) => label.name).join(", ");
+      cellValue = labels.map(label => label.name).join(', ');
 
       break;
-    case "stageId":
+    case 'stageId':
       const stage: IStageDocument | null = await models.Stages.findOne({
-        _id: item.stageId,
+        _id: item.stageId
       });
 
       cellValue = stage ? stage.name : emptyMsg;
 
       break;
 
-    case "initialStageId":
+    case 'initialStageId':
       const initialStage: IStageDocument | null = await models.Stages.findOne({
-        _id: item.initialStageId,
+        _id: item.initialStageId
       });
 
       cellValue = initialStage ? initialStage.name : emptyMsg;
 
       break;
 
-    case "modifiedBy":
+    case 'modifiedBy':
       const modifiedBy: IUserDocument | null = await sendCoreMessage({
         subdomain,
-        action: "users.findOne",
+        action: 'users.findOne',
         data: {
-          _id: item.modifiedBy,
+          _id: item.modifiedBy
         },
-        isRPC: true,
-      })
+        isRPC: true
+      });
 
       cellValue = modifiedBy ? modifiedBy.username : emptyMsg;
 
@@ -195,7 +215,9 @@ const prepareData = async (
     boardItemsFilter._id = { $in: itemIds };
   }
 
-  switch (type) {
+  const contentType = type.split(':')[1];
+
+  switch (contentType) {
     case MODULE_NAMES.DEAL:
       data = await models.Deals.find(boardItemsFilter);
 
@@ -213,7 +235,7 @@ const prepareData = async (
 };
 
 const addCell = (
-  col: any,
+  col: IColumnLabel,
   value: string,
   sheet: any,
   columnNames: string[],
@@ -233,6 +255,100 @@ const addCell = (
   }
 };
 
+const fillDealProductValue = async (
+  subdomain,
+  column,
+  item,
+  sheet,
+  columnNames,
+  rowIndex,
+  dealIds,
+  dealRowIndex
+) => {
+  const productsData = item.productsData;
+
+  if (productsData.length === 0) {
+    rowIndex++;
+    dealRowIndex++;
+
+    addCell(column, '-', sheet, columnNames, dealRowIndex);
+
+    return { rowIndex, dealRowIndex };
+  }
+
+  if (dealIds.length === 0) {
+    dealIds.push(item._id);
+  } else if (!dealIds.includes(item._id)) {
+    dealIds.push(item._id);
+    rowIndex = dealRowIndex;
+  }
+
+  dealRowIndex = rowIndex;
+
+  for (const productData of productsData) {
+    let cellValue = '';
+    let product;
+
+    switch (column.name) {
+      case 'productsData.amount':
+        cellValue = productData.amount;
+        break;
+
+      case 'productsData.name':
+        product =
+          (await sendProductsMessage({
+            subdomain,
+            action: 'findOne',
+            data: { _id: productData.productId },
+            isRPC: true
+          })) || {};
+
+        cellValue = product.name;
+        break;
+
+      case 'productsData.code':
+        product =
+          (await sendProductsMessage({
+            subdomain,
+            action: 'findOne',
+            data: { _id: productData.productId },
+            isRPC: true
+          })) || {};
+
+        cellValue = product.code;
+        break;
+
+      case 'productsData.discount':
+        cellValue = productData.discount;
+        break;
+
+      case 'productsData.discountPercent':
+        cellValue = productData.discountPercent;
+        break;
+
+      case 'productsData.currency':
+        cellValue = productData.amount;
+        break;
+
+      case 'productsData.tax':
+        cellValue = productData.tax;
+        break;
+
+      case 'productsData.taxPercent':
+        cellValue = productData.taxPercent;
+        break;
+    }
+
+    if (cellValue) {
+      addCell(column, cellValue, sheet, columnNames, dealRowIndex);
+
+      dealRowIndex++;
+    }
+  }
+
+  return { rowIndex, dealRowIndex };
+};
+
 export const buildFile = async (
   models: IModels,
   subdomain: string,
@@ -242,6 +358,8 @@ export const buildFile = async (
   const { configs } = query;
   const type = query.type;
 
+  const contentType = type.split(':')[1];
+
   const data = await prepareData(models, subdomain, query, user);
 
   // Reads default template
@@ -249,31 +367,40 @@ export const buildFile = async (
 
   const columnNames: string[] = [];
   let rowIndex: number = 1;
+  const dealIds: string[] = [];
+  let dealRowIndex: number = 0;
 
-  let headers: IColumnLabel[] = fillHeaders(type);
+  let headers: IColumnLabel[] = fillHeaders(contentType);
 
   if (configs) {
-    headers = JSON.parse(configs);
+    headers = JSON.parse(configs).map(config => {
+      return { name: config, label: config };
+    });
+  }
+
+  if (type === MODULE_NAMES.DEAL) {
+    headers = filterHeaders(headers);
   }
 
   for (const item of data) {
     rowIndex++;
     // Iterating through basic info columns
     for (const column of headers) {
-      if (column.name.startsWith("customFieldsData")) {
+      if (column.name.startsWith('customFieldsData')) {
+        const fieldId = column.name.split('.')[1];
         const { field, value } = await getCustomFieldsData(
-          (selector) =>
+          () =>
             sendFormsMessage({
               subdomain,
-              action: "fields.findOne",
+              action: 'fields.findOne',
               data: {
-                query: selector
+                query: { _id: fieldId }
               },
-              isRPC: true,
+              isRPC: true
             }),
           item,
           column,
-          type
+          contentType
         );
 
         if (field && value) {
@@ -285,7 +412,26 @@ export const buildFile = async (
             rowIndex
           );
         }
+      } else if (column.name.startsWith('productsData')) {
+        const indexes = await fillDealProductValue(
+          subdomain,
+          column,
+          item,
+          sheet,
+          columnNames,
+          rowIndex,
+          dealIds,
+          dealRowIndex
+        );
+
+        rowIndex = indexes?.rowIndex;
+        dealRowIndex = indexes?.dealRowIndex;
       } else {
+        let index = rowIndex;
+        if (type === MODULE_NAMES.DEAL) {
+          index = dealRowIndex === 0 ? rowIndex : dealRowIndex;
+        }
+
         const cellValue = await fillCellValue(
           models,
           subdomain,
@@ -293,7 +439,7 @@ export const buildFile = async (
           item
         );
 
-        addCell(column, cellValue, sheet, columnNames, rowIndex);
+        addCell(column, cellValue, sheet, columnNames, index);
       }
     }
 
@@ -301,7 +447,7 @@ export const buildFile = async (
   } // end items for loop
 
   return {
-    name: `${type} - ${moment().format("YYYY-MM-DD HH:mm")}`,
-    response: await generateXlsx(workbook),
+    name: `${contentType} - ${moment().format('YYYY-MM-DD HH:mm')}`,
+    response: await generateXlsx(workbook)
   };
 };

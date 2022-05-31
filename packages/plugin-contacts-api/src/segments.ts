@@ -104,25 +104,13 @@ export default {
     return { data: { typesMap: {} }, status: 'success' };
   },
 
-  initialSelector: async ({ data: { segment } }) => {
+  initialSelector: async () => {
     const negative = {
       term: {
         status: 'deleted'
       }
     };
 
-    const { contentType } = segment;
-
-    let positive;
-
-    if (contentType.includes('customer') || contentType.includes('lead')) {
-      positive = {
-        term: {
-          state: segment.contentType.replace('contacts:', '')
-        }
-      };
-    }
-
-    return { data: { negative, positive }, status: 'success' };
+    return { data: { negative }, status: 'success' };
   }
 };
