@@ -15,6 +15,8 @@ type Props = {
 class SignIn extends React.Component<Props> {
   renderContent = formProps => {
     const { values, isSubmitted } = formProps;
+    const url = window.location.href;
+    const demoUrl = url.includes('xosdemo.erxes.io');
 
     return (
       <>
@@ -22,7 +24,7 @@ class SignIn extends React.Component<Props> {
           <FormControl
             {...formProps}
             name="email"
-            placeholder={__('Enter your email')}
+            placeholder={demoUrl ? 'demo@erxes.io' : __('Enter your email')}
             required={true}
           />
         </FormGroup>
@@ -32,15 +34,9 @@ class SignIn extends React.Component<Props> {
             {...formProps}
             name="password"
             type="password"
-            placeholder={__('Enter your password')}
+            placeholder={demoUrl ? 'Demo@123' : __('Enter your password')}
             required={true}
           />
-        </FormGroup>
-
-        <FormGroup>
-          <FormControl className="toggle-message" componentClass="checkbox">
-            {__('Remember me')}.
-          </FormControl>
         </FormGroup>
 
         {this.props.renderButton({

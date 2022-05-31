@@ -37,6 +37,9 @@ const { MONGO_URL, RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, PORT } = process.env;
 
 export const app = express();
 
+app.use(bodyParser.json({ limit: '15mb' }));
+app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
+
 if (configs.middlewares) {
   for (const middleware of configs.middlewares) {
     app.use(middleware);
@@ -47,6 +50,14 @@ if (configs.postHandlers) {
   for (const handler of configs.postHandlers) {
     if (handler.path && handler.method) {
       app.post(handler.path, handler.method);
+    }
+  }
+}
+
+if (configs.getHandlers) {
+  for (const handler of configs.getHandlers) {
+    if (handler.path && handler.method) {
+      app.get(handler.path, handler.method);
     }
   }
 }
@@ -79,9 +90,6 @@ app.use((req: any, _res, next) => {
 
   next();
 });
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {

@@ -39,7 +39,12 @@ class GroupList extends React.Component<IProps> {
     const content = props => this.renderForm({ ...props, object });
 
     return (
-      <ModalTrigger title="New Group" trigger={trigger} content={content} />
+      <ModalTrigger
+        title="New Group"
+        autoOpenKey="showUserGroupAddModal"
+        trigger={trigger}
+        content={content}
+      />
     );
   }
 

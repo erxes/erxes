@@ -1,28 +1,29 @@
-import React, { useState } from "react";
-import Select from "react-select-plus";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { __ } from "modules/common/utils";
-import UserList from "../containers/UserList";
-import Sidebar from "./Sidebar";
-import { menuContacts } from "@erxes/ui/src/utils/menus";
-import { FlexItem, FlexRow } from "@erxes/ui-settings/src/styles";
-import { FilterContainer, InputBar } from "@erxes/ui-settings/src/styles";
-import { ControlLabel, FormControl } from "@erxes/ui/src/components/form";
-import { router } from "@erxes/ui/src/utils";
-import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
-import UserInvitationForm from "../containers/UserInvitationForm";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Button from "@erxes/ui/src/components/Button";
-import { IButtonMutateProps } from "@erxes/ui/src/types";
-import { IUserGroup } from "@erxes/ui-settings/src/permissions/types";
-import styled from "styled-components";
+import React, { useState } from 'react';
+import Select from 'react-select-plus';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'modules/common/utils';
+import UserList from '../containers/UserList';
+import Sidebar from './Sidebar';
+import { menuContacts } from '@erxes/ui/src/utils/menus';
+import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
+import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
+import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
+import { router } from '@erxes/ui/src/utils';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import UserInvitationForm from '../containers/UserInvitationForm';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Button from '@erxes/ui/src/components/Button';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
+import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors, dimensions } from "@erxes/ui/src/styles";
-import Icon from "@erxes/ui/src/components/Icon";
-import { ButtonContainer } from "../styles";
+import { colors, dimensions } from '@erxes/ui/src/styles';
+import Icon from '@erxes/ui/src/components/Icon';
+import { ButtonContainer } from '../styles';
 
-const ActiveColor = styledTS <{active: boolean}>(styled.div)`
-  background: ${props => (props.active === true ? colors.colorCoreGreen : colors.colorCoreYellow)};
+const ActiveColor = styledTS<{ active: boolean }>(styled.div)`
+  background: ${props =>
+    props.active === true ? colors.colorCoreGreen : colors.colorCoreYellow};
   border-radius: 50%;
   height: 10px;
   width: 10px;
@@ -40,10 +41,10 @@ type Props = {
 export default function Home(props: Props) {
   let timer;
   const { queryParams, history, loading, configsEnvQuery = {} } = props;
-  const [searchValue, setSearchValue] = useState("");
-  const [active, setActive]= useState(true);
+  const [searchValue, setSearchValue] = useState('');
+  const [active, setActive] = useState(true);
 
-  const search = (e) => {
+  const search = e => {
     if (timer) {
       clearTimeout(timer);
     }
@@ -57,9 +58,9 @@ export default function Home(props: Props) {
     }, 500);
   };
 
-  const moveCursorAtTheEnd = (e) => {
+  const moveCursorAtTheEnd = e => {
     const tmpValue = e.target.value;
-    e.target.value = "";
+    e.target.value = '';
     e.target.value = tmpValue;
   };
 
@@ -71,19 +72,19 @@ export default function Home(props: Props) {
   const renderBrandChooser = () => {
     const env = configsEnvQuery.configsGetEnv || {};
 
-    if (env.USE_BRAND_RESTRICTIONS !== "true") {
+    if (env.USE_BRAND_RESTRICTIONS !== 'true') {
       return null;
     }
 
-    const onSelect = (brandIds) => {
+    const onSelect = brandIds => {
       router.setParams(history, { brandIds });
     };
 
     return (
       <FlexItem>
-        <ControlLabel>{__("Brand")}</ControlLabel>
+        <ControlLabel>{__('Brand')}</ControlLabel>
         <SelectBrands
-          label={__("Choose brands")}
+          label={__('Choose brands')}
           onSelect={onSelect}
           initialValue={queryParams.brandIds}
           name="selectedBrands"
@@ -97,44 +98,44 @@ export default function Home(props: Props) {
       <FlexRow>
         {renderBrandChooser()}
         <InputBar type="searchBar">
-        <Icon icon="search-1" size={20}/>
-        <FlexItem>
-          <FormControl
-            placeholder={__("Search")}
-            name="searchValue"
-            onChange={search}
-            value={searchValue}
-            autoFocus={true}
-            onFocus={moveCursorAtTheEnd}
-          />
-        </FlexItem>
+          <Icon icon="search-1" size={20} />
+          <FlexItem>
+            <FormControl
+              placeholder={__('Search')}
+              name="searchValue"
+              onChange={search}
+              value={searchValue}
+              autoFocus={true}
+              onFocus={moveCursorAtTheEnd}
+            />
+          </FlexItem>
         </InputBar>
         <InputBar type="active">
-        <ActiveColor active={active}/>
-        <FlexItem>
-          <Select
-            placeholder={__("Choose status")}
-            value={queryParams.isActive || true}
-            onChange={onStatusChange}
-            clearable={false}
-            options={[
-              {
-                value: true,
-                label: __("Active"),
-              },
-              {
-                value: false,
-                label: __("Deactivated"),
-              },
-            ]}
-          />
-        </FlexItem>
+          <ActiveColor active={active} />
+          <FlexItem>
+            <Select
+              placeholder={__('Choose status')}
+              value={queryParams.isActive || true}
+              onChange={onStatusChange}
+              clearable={false}
+              options={[
+                {
+                  value: true,
+                  label: __('Active')
+                },
+                {
+                  value: false,
+                  label: __('Deactivated')
+                }
+              ]}
+            />
+          </FlexItem>
         </InputBar>
       </FlexRow>
     </FilterContainer>
   );
 
-  const renderInvitationForm = (formProps) => {
+  const renderInvitationForm = formProps => {
     const { usersGroups, renderButton } = props;
 
     return (
@@ -146,19 +147,30 @@ export default function Home(props: Props) {
     );
   };
 
-  const trigger = <ButtonContainer><Button btnStyle="success" icon="plus">Invite team members</Button></ButtonContainer>;
+  const trigger = (
+    <ButtonContainer>
+      <Button btnStyle="success" icon="plus">
+        Invite team members
+      </Button>
+    </ButtonContainer>
+  );
 
   const righActionBar = (
     <ModalTrigger
       content={renderInvitationForm}
       size="xl"
       title="Invite team members"
+      autoOpenKey="showMemberInviteModal"
       trigger={trigger}
     />
   );
 
   const actionBar = (
-    <Wrapper.ActionBar hasFlex={true} right={righActionBar} left={renderFilter} />
+    <Wrapper.ActionBar
+      hasFlex={true}
+      right={righActionBar}
+      left={renderFilter}
+    />
   );
 
   return (
@@ -166,7 +178,7 @@ export default function Home(props: Props) {
       header={
         <Wrapper.Header
           queryParams={queryParams}
-          title={"Team members"}
+          title={'Team members'}
           submenu={menuContacts}
         />
       }
