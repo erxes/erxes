@@ -145,8 +145,16 @@ export const sendRPCMessage = async (
             const res = JSON.parse(msg.content.toString());
 
             if (res.status === 'success') {
+              debugInfo(
+                `RPC success response for queue ${queueName} ${JSON.stringify(
+                  res
+                )}`
+              );
               resolve(res.data);
             } else {
+              debugInfo(
+                `RPC error response for queue ${queueName} ${res.errorMessage})}`
+              );
               reject(new Error(res.errorMessage));
             }
 
