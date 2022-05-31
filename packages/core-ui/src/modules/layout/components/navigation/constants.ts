@@ -36,3 +36,24 @@ export const GENERAL_SETTINGS = [
     url: '/settings/apps'
   }
 ];
+
+export const ACTIONS = [
+  {
+    name: 'Actions',
+    text: 'Add brand',
+    icon: 'icon-plus',
+    url: '/settings/brands#showBrandAddModal=true'
+  },
+  {
+    name: 'Actions',
+    text: 'Add permission',
+    icon: 'icon-plus',
+    url: '/settings/permissions#showUserGroupAddModal=true'
+  },
+  {
+    name: 'Actions',
+    text: 'Add team member',
+    icon: 'icon-plus',
+    url: '/settings/team#showMemberInviteModal=true'
+  }
+];

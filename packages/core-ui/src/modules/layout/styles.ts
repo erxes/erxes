@@ -683,7 +683,7 @@ const GotoFormWrapper = styled.div`
   }
 `;
 
-const GotoWrapper = styled.div`
+const GotoContentWrapper = styled.div`
   max-height: 400px;
   overflow-y: scroll;
 
@@ -782,7 +782,7 @@ export {
   RoundBox,
   BottomMenu,
   GotoFormWrapper,
-  GotoWrapper,
+  GotoContentWrapper,
   GotoCategory,
   GotoItem
 };
