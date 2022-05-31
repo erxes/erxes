@@ -150,9 +150,24 @@ const getCustomersData = async (subdomain: string) => {
   // consider 'customer' state as valid customers
   return await sendContactsMessage({
     subdomain,
-    action: 'customers.find',
+    action: 'customers.findActiveCustomers',
     data: {
-      status: { $ne: 'deleted' }
+      selector: {},
+      fields: {
+        state: 1,
+        firstName: 1,
+        lastName: 1,
+        middleName: 1,
+        birthDate: 1,
+        sex: 1,
+        primaryEmail: 1,
+        emails: 1,
+        primaryPhone: 1,
+        phones: 1,
+        profileScore: 1,
+        score: 1,
+        code: 1
+      }
     },
     isRPC: true,
     defaultValue: []
@@ -179,7 +194,7 @@ export const posInit = async (req, res) => {
     syncInfo: { id: syncId, date: syncInfo[syncId] }
   });
   data.productGroups = await getProductsData(models, pos);
-  data.customers = await getCustomersData(subdomain);
+  // data.customers = await getCustomersData(subdomain);
 
   return res.send(data);
 };
