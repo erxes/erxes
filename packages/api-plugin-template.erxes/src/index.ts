@@ -54,6 +54,14 @@ if (configs.postHandlers) {
   }
 }
 
+if (configs.getHandlers) {
+  for (const handler of configs.getHandlers) {
+    if (handler.path && handler.method) {
+      app.get(handler.path, handler.method);
+    }
+  }
+}
+
 app.disable('x-powered-by');
 
 app.use(cors());

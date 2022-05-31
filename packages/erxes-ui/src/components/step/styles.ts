@@ -103,6 +103,7 @@ const Indicator = styled.div`
   color: ${colors.colorCoreGray};
   font-size: 15px;
   font-style: italic;
+  max-width: 70%;
   strong {
     color: ${colors.textPrimary};
   }
