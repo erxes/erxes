@@ -23,9 +23,11 @@ export default {
   permissions,
   getHandlers: [
     { path: `/pos-init`, method: posInit },
-    { path: `/pos-sync-config`, method: posSyncConfig },
-    { path: `/pos-sync-orders`, method: posSyncOrders },
-    { path: `/api/unfetch-order-info`, method: unfetchOrderInfo }
+    { path: `/pos-sync-config`, method: posSyncConfig }
+  ],
+  postHandlers: [
+    { path: `/api/unfetch-order-info`, method: unfetchOrderInfo },
+    { path: `/pos-sync-orders`, method: posSyncOrders }
   ],
   graphql: async sd => {
     serviceDiscovery = sd;
