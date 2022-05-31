@@ -17,9 +17,10 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors } from '@erxes/ui/src/styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import Pagination from 'modules/common/components/pagination/Pagination';
+import { colors } from '@erxes/ui/src/styles';
+import { ButtonContainer } from '../styles';
 
 const ActiveColor = styledTS<{ active: boolean }>(styled.div)`
   background: ${props =>
@@ -155,9 +156,11 @@ export default function Home(props: Props) {
   };
 
   const trigger = (
-    <Button btnStyle="success" icon="plus">
-      Invite team members
-    </Button>
+    <ButtonContainer>
+      <Button btnStyle="success" icon="plus">
+        Invite team members
+      </Button>
+    </ButtonContainer>
   );
 
   const righActionBar = (
@@ -165,6 +168,7 @@ export default function Home(props: Props) {
       content={renderInvitationForm}
       size="xl"
       title="Invite team members"
+      autoOpenKey="showMemberInviteModal"
       trigger={trigger}
     />
   );

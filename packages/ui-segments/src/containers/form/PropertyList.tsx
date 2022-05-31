@@ -1,14 +1,14 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import Spinner from "@erxes/ui/src/components/Spinner";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
-import { withProps } from "@erxes/ui/src/utils";
-import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
-import PropertyList from "../../components/form/PropertyList";
-import { IField } from "../../types";
-import { FieldsCombinedByTypeQueryResponse } from "@erxes/ui-settings/src/properties/types";
-import React from "react";
-import { graphql } from "react-apollo";
+import { withProps } from '@erxes/ui/src/utils';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import PropertyList from '../../components/form/PropertyList';
+import { IField } from '../../types';
+import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-settings/src/properties/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
 
 type Props = {
   contentType: string;
@@ -31,20 +31,20 @@ class PropertyListContationer extends React.Component<FinalProps, {}> {
 
     const fields = fieldsQuery.fieldsCombinedByContentType as any[];
 
-    const condition = new RegExp(searchValue, "i");
+    const condition = new RegExp(searchValue, 'i');
 
-    const results = fields.filter((field) => {
+    const results = (fields || []).filter(field => {
       return condition.test(field.label);
     });
 
-    const cleanFields = results.map((item) => ({
+    const cleanFields = results.map(item => ({
       value: item.name || item._id,
       label: item.label || item.title,
-      type: (item.type || "").toLowerCase(),
-      group: item.group || "",
+      type: (item.type || '').toLowerCase(),
+      group: item.group || '',
       selectOptions: item.selectOptions || [],
       // radio button options
-      choiceOptions: item.options || [],
+      choiceOptions: item.options || []
     }));
 
     return (
@@ -60,13 +60,13 @@ class PropertyListContationer extends React.Component<FinalProps, {}> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
-      name: "fieldsQuery",
+      name: 'fieldsQuery',
       options: ({ contentType, config }) => ({
         variables: {
           contentType,
-          config,
-        },
-      }),
+          config
+        }
+      })
     })
   )(PropertyListContationer)
 );

@@ -6,6 +6,12 @@ import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
+import {
+  posInit,
+  posSyncConfig,
+  posSyncOrders,
+  unfetchOrderInfo
+} from './routes';
 
 export let debug;
 export let graphqlPubsub;
@@ -15,6 +21,14 @@ export let serviceDiscovery;
 export default {
   name: 'pos',
   permissions,
+  getHandlers: [
+    { path: `/pos-init`, method: posInit },
+    { path: `/pos-sync-config`, method: posSyncConfig }
+  ],
+  postHandlers: [
+    { path: `/api/unfetch-order-info`, method: unfetchOrderInfo },
+    { path: `/pos-sync-orders`, method: posSyncOrders }
+  ],
   graphql: async sd => {
     serviceDiscovery = sd;
     return {

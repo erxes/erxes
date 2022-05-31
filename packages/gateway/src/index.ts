@@ -39,6 +39,14 @@ const {
 
   const app = express();
 
+  app.use(
+    express.json({
+      limit: '15mb'
+    })
+  );
+
+  app.use(express.urlencoded({ limit: '15mb', extended: true }));
+
   app.use(cookieParser());
 
   app.use(userMiddleware);
@@ -87,6 +95,7 @@ const {
         }
       },
       onProxyReq: (proxyReq, req: any) => {
+        proxyReq.setHeader('hostname', req.hostname);
         proxyReq.setHeader('userid', req.user ? req.user._id : '');
       },
       pathRewrite: async path => {

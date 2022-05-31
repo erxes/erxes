@@ -14,18 +14,14 @@ export default {
     conversation: 'Conversation'
   },
 
-  associationTypes: async ({}) => {
-    const types: string[] = [
-      'inbox:conversation',
-      'cards:deal',
-      'contacts:customer',
-      'contacts:company',
-      'cards:ticket',
-      'cards:task'
-    ];
-
-    return { data: types, status: 'success' };
-  },
+  associationTypes: [
+    'inbox:conversation',
+    'cards:deal',
+    'contacts:customer',
+    'contacts:company',
+    'cards:ticket',
+    'cards:task'
+  ],
 
   esTypesMap: async () => {
     return { data: { typesMap: {} }, status: 'success' };

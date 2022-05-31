@@ -15,21 +15,6 @@
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
 }
 
-[data-erxes-embed]:before {
-  content: " ";
-  position: absolute;
-  right: 50%;
-  top: 85px;
-  margin-left: -10px;
-  border: 3px solid #ddd;
-  animation: spin 1s linear infinite;
-  border-top: 3px solid #aaa;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  z-index: -1;
-}
-
 .hidden {
   display: none !important;
 }
