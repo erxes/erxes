@@ -30,6 +30,8 @@ const jobCategoryQueries = {
       filter.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
 
+    console.log('jobCategories:', filter);
+
     return models.JobCategories.find(filter)
       .sort({ order: 1 })
       .lean();

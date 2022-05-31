@@ -33,7 +33,7 @@ const gatherDescriptions = async (
 ): Promise<IDescriptions> => {
   const { action, type, object, updatedDocument } = params;
 
-  let extraDesc: LogDesc[] = [];
+  const extraDesc: LogDesc[] = [];
   const description = `"${object.name}" has been ${action}d`;
 
   return { extraDesc, description };

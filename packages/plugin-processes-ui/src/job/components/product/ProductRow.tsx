@@ -16,8 +16,6 @@ class Row extends React.Component<Props> {
   render() {
     const { jobRefer, history, toggleBulk, isChecked } = this.props;
 
-    console.log('product row: ', jobRefer.needProducts);
-
     const onChange = e => {
       if (toggleBulk) {
         toggleBulk(jobRefer, e.target.checked);
@@ -26,22 +24,6 @@ class Row extends React.Component<Props> {
 
     const onClick = e => {
       e.stopPropagation();
-    };
-
-    const renderProducts = products => {
-      if (products.length) {
-        return products.map(e => (
-          <>
-            <FormGroup>
-              <TextInfo>
-                {e.product.name + ' - ' + e.quantity + ' /Qty/'}
-              </TextInfo>
-            </FormGroup>
-          </>
-        ));
-      } else {
-        return '';
-      }
     };
 
     const onTrClick = () => {
@@ -64,8 +46,8 @@ class Row extends React.Component<Props> {
         <td>
           <TextInfo>{type}</TextInfo>
         </td>
-        <td>{renderProducts(needProducts)}</td>
-        <td>{renderProducts(resultProducts)}</td>
+        <td>{needProducts.length}</td>
+        <td>{resultProducts.length}</td>
       </tr>
     );
   }
