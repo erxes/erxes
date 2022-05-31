@@ -1,15 +1,10 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
-export interface IDirectionItem {
-  directionId: string;
-  order: number;
-}
-
 export interface IRoute {
   name: string;
   code: string;
-  directions: IDirectionItem[];
+  directionIds: string[];
 }
 
 export interface IRouteDocument extends IRoute, Document {
@@ -19,13 +14,13 @@ export interface IRouteDocument extends IRoute, Document {
 export const routeSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    name: field({ type: String, label: 'Route name', required: true }),
-    directions: field({
-      type: [Schema.Types.Mixed],
-      label: 'directions',
+    directionIds: field({
+      type: [String],
+      label: 'direction ids',
       required: true
     }),
-    code: field({ type: String, label: 'Code' })
+    code: field({ type: String, label: 'Code' }),
+    name: field({ type: String, label: 'Name' })
   }),
   'routes'
 );

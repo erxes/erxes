@@ -1,8 +1,8 @@
 import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
 
-const routesQuery = {
-  routes: async (
+const placesQuery = {
+  places: async (
     _root,
     {
       searchValue,
@@ -11,13 +11,17 @@ const routesQuery = {
     }: { searchValue?: string; page?: number; perPage?: number },
     { models }: IContext
   ) => {
-    const filter: { $or?: any[] } = {};
+    const filter: any = {};
 
-    return paginate(models.Routes.find(filter).lean(), {
+    if (searchValue) {
+      filter.searchText = { $in: [new RegExp(`.*${searchValue}.*`, 'i')] };
+    }
+
+    return paginate(models.Places.find(filter).lean(), {
       page: page || 1,
       perPage: perPage || 20
     });
   }
 };
 
-export default routesQuery;
+export default placesQuery;

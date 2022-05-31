@@ -332,23 +332,22 @@ const carsListConfig = `
 `;
 
 const directions = `
-query Directions($searchValue: String) {
+query directions($searchValue: String) {
   directions(searchValue: $searchValue) {
     _id
-    placeA {
-      name
-      code
-      center
-    }
-    placeB {
-      name
-      code
-      center
-    }
-    totalDistance
-    roadConditions
-    description
     duration
+    placeIds
+    places {
+      _id
+      center
+      code
+      name
+      province
+    }
+    roadCode
+    roadConditions
+    routeCode
+    totalDistance
   }
 }
 `;
@@ -357,20 +356,19 @@ const directionDetail = `
 query directionDetail($id: String!) {
   directionDetail(_id: $id) {
     _id
-    placeA {
-      name
-      code
-      center
-    }
-    placeB {
-      name
-      code
-      center
-    }
-    totalDistance
-    roadConditions
-    description
     duration
+    placeIds
+    places {
+      _id
+      center
+      code
+      name
+      province
+    }
+    roadCode
+    roadConditions
+    routeCode
+    totalDistance
   }
 }
 `;
@@ -379,30 +377,43 @@ const routesQuery = `
 query routes($searchValue: String) {
   routes(searchValue: $searchValue) {
     _id
-    name
-    directionItems {
-      directionId
-      order
-    }
+    code
+    directionIds
     directions {
       _id
-      placeA {
-        name
-        code
-        center
-      }
-      placeB {
-        name
-        code
-        center
-      }
-      totalDistance
-      roadConditions
-      description
       duration
+      placeIds
+      places {
+        _id
+        center
+        code
+        name
+        province
+      }
+      roadCode
+      roadConditions
+      routeCode
+      totalDistance
     }
-    totalDistance
-    totalDuration
+    name
+    summary {
+      places
+      roadCodes
+      totalDistance
+      totalDuration
+    }
+  }
+}
+`;
+
+const placesQuery = `
+query places($searchValue: String) {
+  places(searchValue: $searchValue) {
+    _id
+    province
+    name
+    code
+    center
   }
 }
 `;
@@ -427,6 +438,8 @@ export default {
   productCategoryMatchCarCategories,
   participants,
   carsListConfig,
+
+  placesQuery,
   directions,
   directionDetail,
 

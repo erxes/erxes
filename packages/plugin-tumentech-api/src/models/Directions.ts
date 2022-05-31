@@ -51,7 +51,7 @@ export const loadDirectionClass = (models: IModels) => {
     }
 
     public static fillSearchText(doc: IDirection) {
-      return validSearchText([doc.placeA.name || '', doc.placeB.name || '']);
+      return validSearchText([doc.routeCode || '', doc.roadCode || '']);
     }
   }
 

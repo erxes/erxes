@@ -47,25 +47,34 @@ const Row = (props: Props) => {
     <DirectionForm {...props} direction={direction} />
   );
 
+  const placeA = (direction.places[0] && direction.places[0].name) || '-';
+  const placeB = (direction.places[1] && direction.places[1].name) || '-';
+
   return (
     <tr>
-      <td key={direction.placeA.code}>
-        <RowTitle>{direction.placeA.name || '-'}</RowTitle>
+      <td key={`${direction._id}_${direction.routeCode}`}>
+        <RowTitle>{direction.routeCode || '-'}</RowTitle>
+      </td>
+      <td key={`${direction._id}_${direction.roadCode}`}>
+        <RowTitle>{direction.roadCode || '-'}</RowTitle>
+      </td>
+      <td key={`${direction._id}_placeA`}>
+        <RowTitle>{placeA}</RowTitle>
       </td>
 
-      <td key={direction.placeB.code}>
-        <RowTitle>{direction.placeB.name || '-'}</RowTitle>
+      <td key={`${direction._id}_placeB`}>
+        <RowTitle>{placeB}</RowTitle>
       </td>
 
-      <td key={Math.random().toString()}>
+      <td key={direction._id}>
         <RowTitle>{conditionString}</RowTitle>
       </td>
 
-      <td key={direction.duration}>
+      <td key={`${direction._id}_${direction.duration}`}>
         <RowTitle>{direction.duration || '0'}</RowTitle>
       </td>
 
-      <td key={direction.totalDistance}>
+      <td key={`${direction._id}_${direction.totalDistance}`}>
         <RowTitle>{direction.totalDistance || '0'}</RowTitle>
       </td>
 

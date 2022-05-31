@@ -16,7 +16,7 @@ interface IMapControlOptions {
 
 type Props = {
   googleMapApiKey: string;
-  center: { lat: number; lng: number };
+  center: { lat: number; lng: number; description?: string };
   locationOptions: ILocationOption[];
   defaultZoom: number;
   mapControlOptions: IMapControlOptions;
@@ -29,7 +29,7 @@ type Props = {
 type State = {
   isMapDraggable: boolean;
   locationOptions: ILocationOption[];
-  center: { lat: number; lng: number };
+  center: { lat: number; lng: number; description?: string };
   mapSize: { width: number; height: number };
   mapStyle?: any;
   geodesicPolyline?: any;
@@ -245,7 +245,7 @@ export default class GenerateField extends React.Component<Props, State> {
               onChange={onChangeMarker}
               lat={center.lat}
               lng={center.lng}
-              description={'Your location'}
+              description={center.description || 'Your location'}
               color={colors.colorSecondary}
             />
           )}

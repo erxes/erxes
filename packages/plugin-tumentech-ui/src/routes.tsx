@@ -21,6 +21,10 @@ const ProductDetails = asyncComponent(() =>
   )
 );
 
+const PlaceList = asyncComponent(() =>
+  import(/* webpackChunkName: "PlaceList" */ './containers/place/List')
+);
+
 const DirectionList = asyncComponent(() =>
   import(/* webpackChunkName: "DirectionList" */ './containers/direction/List')
 );
@@ -28,6 +32,13 @@ const DirectionList = asyncComponent(() =>
 const RouteList = asyncComponent(() =>
   import(/* webpackChunkName: "RouteList" */ './containers/route/List')
 );
+
+const placeList = history => {
+  const { location } = history;
+  const queryParams = queryString.parse(location.search);
+
+  return <PlaceList queryParams={queryParams} history={history} />;
+};
 
 const directionList = history => {
   const { location } = history;
@@ -97,6 +108,13 @@ const routes = () => {
         exact={true}
         path="/product/details/:id"
         component={productdetails}
+      />
+
+      <Route
+        key={'/place'}
+        exact={true}
+        path="/tumentech/place/list"
+        component={placeList}
       />
 
       <Route

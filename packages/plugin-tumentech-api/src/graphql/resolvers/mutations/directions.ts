@@ -1,7 +1,4 @@
-import {
-  IDirection,
-  IDirectionDocument
-} from '../../../models/definitions/directions';
+import { IDirection } from '../../../models/definitions/directions';
 import { IContext } from '../../../connectionResolver';
 
 export interface IDirectionEdit extends IDirection {
@@ -10,12 +7,10 @@ export interface IDirectionEdit extends IDirection {
 
 const directionMutations = {
   directionsAdd: async (_root, doc: IDirection, { models }: IContext) => {
-    console.log(doc);
-    return models.Directions.create(doc);
+    return models.Directions.createDirection(doc);
   },
 
   directionsEdit: async (_root, doc: IDirectionEdit, { models }: IContext) => {
-    console.log(doc);
     return models.Directions.updateDirection(doc);
   },
 

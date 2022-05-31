@@ -1,25 +1,13 @@
 export const types = `
-
-  type Place {
-    name: String
-    code: String
-    center: JSON
-  }
-
-  input PlaceInput {
-    name: String
-    code: String
-    center: JSON
-  }
-
   type Direction @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
-    placeA: Place
-    placeB: Place
+    placeIds: [String]
+    places: [Place]
     totalDistance: Int
     roadConditions: [String]
-    description: String
     duration: Int
+    routeCode: String
+    roadCode: String
   }
 `;
 
@@ -29,12 +17,12 @@ export const queries = `
 `;
 
 const params = `
-  placeA: PlaceInput!,
-  placeB: PlaceInput!,
-  totalDistance: Int
-  roadConditions: [String]
-  description: String
-  duration: Int
+  placeIds: [String]!,
+  totalDistance: Int,
+  roadConditions: [String],
+  duration: Int,
+  routeCode: String,
+  roadCode: String,
 `;
 
 export const mutations = `

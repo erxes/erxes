@@ -283,30 +283,16 @@ mutation selectWinner($customerId: String!, $dealId: String!){
 `;
 
 const addDirection = `
-mutation directionsAdd($placeA: PlaceInput!, $placeB: PlaceInput!, $totalDistance: Int, $roadConditions: [String], $description: String, $duration: Int) {
-  directionsAdd(placeA: $placeA, placeB: $placeB, totalDistance: $totalDistance, roadConditions: $roadConditions, description: $description, duration: $duration) {
+mutation directionsAdd($placeIds: [String]!, $totalDistance: Int, $roadConditions: [String], $duration: Int, $routeCode: String, $roadCode: String) {
+  directionsAdd(placeIds: $placeIds, totalDistance: $totalDistance, roadConditions: $roadConditions, duration: $duration, routeCode: $routeCode, roadCode: $roadCode) {
     _id
-    placeA {
-      name
-      code
-      center
-    }
-    placeB {
-      name
-      code
-      center
-    }
-    totalDistance
-    roadConditions
-    description
-    duration
   }
 }
 `;
 
 const editDirection = `
-mutation directionsEdit($_id: String!, $placeA: PlaceInput!, $placeB: PlaceInput!, $totalDistance: Int, $roadConditions: [String], $description: String, $duration: Int) {
-  directionsEdit(_id: $_id, placeA: $placeA, placeB: $placeB, totalDistance: $totalDistance, roadConditions: $roadConditions, description: $description, duration: $duration) {
+mutation directionsEdit($_id: String!, $placeIds: [String]!, $totalDistance: Int, $roadConditions: [String], $duration: Int, $routeCode: String, $roadCode: String) {
+  directionsEdit(_id: $_id, placeIds: $placeIds, totalDistance: $totalDistance, roadConditions: $roadConditions, duration: $duration, routeCode: $routeCode, roadCode: $roadCode) {
     _id
   }
 }`;
@@ -318,27 +304,17 @@ mutation directionsRemove($_id: String!) {
 `;
 
 const addRoute = `
-mutation routesAdd($name: String!, $code: String!, $directionItems: [DirectionItemInput]) {
-  routesAdd(name: $name, code: $code, directionItems: $directionItems) {
+mutation routesAdd($code: String!, $name: String!, $directionIds: [String]) {
+  routesAdd(code: $code, name: $name, directionIds: $directionIds) {
     _id
-    name
-    directionItems {
-      directionId
-      order
-    }
   }
 }
 `;
 
 const editRoute = `
-mutation routesAdd($name: String!, $code: String!, $directionItems: [DirectionItemInput]) {
-  routesAdd(name: $name, code: $code, directionItems: $directionItems) {
+mutation routesEdit($_id: String!, $code: String!, $name: String!, $directionIds: [String]) {
+  routesEdit(_id: $_id, code: $code, name: $name, directionIds: $directionIds) {
     _id
-    name
-    directionItems {
-      directionId
-      order
-    }
   }
 }
 `;
@@ -353,6 +329,34 @@ mutation routesAdd($name: String!, $code: String!, $directionItems: [DirectionIt
       order
     }
   }
+}
+`;
+
+const addPlace = `
+mutation placesAdd($province: String!, $name: String!, $code: String!, $center: JSON!) {
+  placesAdd(province: $province, name: $name, code: $code, center: $center) {
+    province
+    code
+    name
+    center
+  }
+}
+`;
+
+const editPlace = `
+mutation placesEdit($_id: String!, $province: String!, $name: String!, $code: String!, $center: JSON!) {
+  placesEdit(_id: $_id, province: $province, name: $name, code: $code, center: $center) {
+    province
+    name
+    code
+    center
+  }
+}
+`;
+
+const removePlace = `
+mutation placesRemove($_id: String!) {
+  placesRemove(_id: $_id)
 }
 `;
 
@@ -374,6 +378,10 @@ export default {
   removeParticipants,
   removeParticipantsFromDeal,
   selectWinner,
+
+  addPlace,
+  editPlace,
+  removePlace,
 
   addDirection,
   editDirection,

@@ -426,6 +426,8 @@ export type RemoveParticipantsMutation = ({
 }) => Promise<any>;
 
 export type IPlace = {
+  _id: string;
+  province: string;
   name: string;
   code: string;
   center: ILocationOption;
@@ -433,56 +435,32 @@ export type IPlace = {
 
 export type IDirection = {
   _id: string;
-  placeA: IPlace;
-  placeB: IPlace;
+  placeIds: [string, string];
+  places: [IPlace, IPlace];
   totalDistance: number;
   roadConditions: string[];
-  description: string;
+  roadCode: string;
+  routeCode: string;
   duration: number;
 };
-
-// query Routes($searchValue: String) {
-//   routes(searchValue: $searchValue) {
-//     _id
-//     name
-//     directionItems {
-//       directionId
-//       order
-//     }
-//     directions {
-//       _id
-//       placeA {
-//         name
-//         code
-//         center
-//       }
-//       placeB {
-//         name
-//         code
-//         center
-//       }
-//       totalDistance
-//       roadConditions
-//       description
-//       duration
-//     }
-//     totalDistance
-//     totalDuration
-//   }
-// }
 
 export type IDirectionItem = {
   directionId: string;
   order: number;
 };
 
+export type IRouteSummary = {
+  places: string;
+  roadCodes: string;
+  totalDistance: number;
+  totalDuration: number;
+};
+
 export type IRoute = {
   _id: string;
   name: string;
   code: string;
-
-  directionItems: IDirectionItem[];
+  directionIds: string[];
   directions: IDirection[];
-  totalDistance: number;
-  totalDuration: number;
+  summary: IRouteSummary;
 };

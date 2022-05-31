@@ -8,26 +8,28 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import { IDirection, IPlace } from '../../types';
-import { CITIES, ROAD_CONDITIONS } from '../../constants';
+import { ROAD_CONDITIONS } from '../../constants';
 import Select from 'react-select-plus';
 import Map from '@erxes/ui/src/components/Map';
 import { removeTypename } from '@erxes/ui/src/utils';
 
 type Props = {
   direction?: IDirection;
+  places: IPlace[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 const DirectionForm = (props: Props) => {
-  const { direction } = props;
+  const { direction, places } = props;
 
-  const [placeA, setPlaceA] = useState<IPlace>(
-    (direction && direction.placeA) || ({} as IPlace)
+  const [placeIds, setPlaceIds] = useState<[string, string]>(
+    (direction && direction.placeIds) || ['', '']
   );
-  const [placeB, setPlaceB] = useState<IPlace>(
-    (direction && direction.placeB) || ({} as IPlace)
-  );
+
+  const [placeA, setPlaceA] = useState<IPlace | undefined>(undefined);
+  const [placeB, setPlaceB] = useState<IPlace | undefined>(undefined);
+
   const [roadConditions, setRoadCondition] = useState<string[]>(
     (direction && direction.roadConditions) || ['asphalt']
   );
@@ -38,6 +40,28 @@ const DirectionForm = (props: Props) => {
     (direction && direction.totalDistance) || 0
   );
 
+  const [routeCode, setRouteCode] = useState<string>(
+    (direction && direction.routeCode) || ''
+  );
+
+  const [roadCode, setRoadCode] = useState<string>(
+    (direction && direction.roadCode) || ''
+  );
+
+  const onChangePlaceA = option => {
+    placeIds[0] = option.value;
+
+    setPlaceA(places.find(e => e._id === option.value));
+    setPlaceIds([...placeIds]);
+  };
+
+  const onChangePlaceB = option => {
+    placeIds[1] = option.value;
+
+    setPlaceB(places.find(e => e._id === option.value));
+    setPlaceIds([...placeIds]);
+  };
+
   const generateDoc = () => {
     const { direction } = props;
     const finalValues: any = {};
@@ -46,20 +70,21 @@ const DirectionForm = (props: Props) => {
       finalValues._id = direction._id;
     }
 
-    finalValues.placeA = removeTypename(placeA);
-    finalValues.placeB = removeTypename(placeB);
+    finalValues.placeIds = placeIds;
     finalValues.roadConditions = roadConditions;
     finalValues.duration = duration;
     finalValues.totalDistance = distance;
+    finalValues.roadCode = roadCode;
+    finalValues.routeCode = routeCode;
 
     return {
       ...finalValues
     };
   };
 
-  const generateUserOptions = (cities: any[] = []) => {
-    return cities.map(e => ({
-      label: `${e.label} - ${e.city_mn}`,
+  const generateUserOptions = () => {
+    return props.places.map(e => ({
+      label: `${e.province}: ${e.name}`,
       value: `${e._id}`
     }));
   };
@@ -67,41 +92,6 @@ const DirectionForm = (props: Props) => {
   const renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = props;
     const { values, isSubmitted } = formProps;
-
-    const onChangeLocation = locationOptions => {
-      console.log(locationOptions);
-    };
-
-    const onChangePlaceA = value => {
-      const city = CITIES.find(e => e._id === value.value);
-
-      const place: IPlace = {
-        code: city._id,
-        name: `${city.label} - ${city.city_mn}`,
-        center: {
-          lat: parseFloat(city.lat),
-          lng: parseFloat(city.lng),
-          description: city.city_mn
-        }
-      };
-      setPlaceA(place);
-    };
-
-    const onChangePlaceB = value => {
-      const city = CITIES.find(e => e._id === value.value);
-
-      const place: IPlace = {
-        code: city._id,
-        name: `${city.label} - ${city.city_mn}`,
-        center: {
-          lat: parseFloat(city.lat),
-          lng: parseFloat(city.lng),
-          description: city.city_mn
-        }
-      };
-
-      setPlaceB(place);
-    };
 
     const onChangeRoadCondition = values => {
       setRoadCondition(values);
@@ -115,6 +105,13 @@ const DirectionForm = (props: Props) => {
           break;
         case 'distance':
           setDistance(parseInt(value, 10));
+          break;
+        case 'routeCode':
+          setRouteCode(value);
+          break;
+        case 'roadCode':
+          setRoadCode(value);
+          break;
       }
     };
 
@@ -124,9 +121,9 @@ const DirectionForm = (props: Props) => {
           <ControlLabel required={true}>Place A</ControlLabel>
           <Select
             placeholder={__('Select a place')}
-            value={placeA.code || ''}
+            value={placeIds[0]}
             onChange={onChangePlaceA}
-            options={generateUserOptions(CITIES)}
+            options={generateUserOptions()}
             multi={false}
             clearable={true}
           />
@@ -136,17 +133,16 @@ const DirectionForm = (props: Props) => {
           <ControlLabel required={true}>Place B</ControlLabel>
           <Select
             placeholder={__('Select a place')}
-            value={placeB.code || ''}
+            value={placeIds[1]}
             onChange={onChangePlaceB}
-            options={generateUserOptions(CITIES)}
+            options={generateUserOptions()}
             multi={false}
             clearable={true}
           />
         </FormGroup>
 
-        {placeA.code && placeB.code && (
+        {placeA && placeA._id && placeB && placeB._id && (
           <FormGroup>
-            <ControlLabel htmlFor="locationOptions">Location:</ControlLabel>
             <MapContainer>
               <Map
                 center={placeA.center}
@@ -166,11 +162,34 @@ const DirectionForm = (props: Props) => {
                 }}
                 isPreview={false}
                 drawPolyLines={true}
-                onChangeLocationOptions={onChangeLocation}
               />
             </MapContainer>
           </FormGroup>
         )}
+
+        <FormGroup>
+          <ControlLabel>Route code</ControlLabel>
+          {/* <p>average travel time, in minutes</p> */}
+          <FormControl
+            {...formProps}
+            id="routeCode"
+            name="routeCode"
+            defaultValue={routeCode}
+            onChange={onChangeInput}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Road code</ControlLabel>
+          {/* <p>average travel time, in minutes</p> */}
+          <FormControl
+            {...formProps}
+            id="roadCode"
+            name="roadCode"
+            defaultValue={roadCode}
+            onChange={onChangeInput}
+          />
+        </FormGroup>
 
         <FormGroup>
           <ControlLabel>Distance (km)</ControlLabel>

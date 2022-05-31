@@ -11,7 +11,7 @@ import DirectionForm from '../../containers/direction/Form';
 
 type Props = {
   route: IRoute;
-  remove: (directionId: string) => void;
+  remove: (routeid: string) => void;
 };
 
 const Row = (props: Props) => {
@@ -38,20 +38,20 @@ const Row = (props: Props) => {
 
   return (
     <tr>
-      <td key={route.name}>
+      <td key={`${route._id}_ ${route.name}`}>
         <RowTitle>{route.name || '-'}</RowTitle>
       </td>
 
-      <td key={route.code}>
+      <td key={`${route._id}_ ${route.code}`}>
         <RowTitle>{route.code || '-'}</RowTitle>
       </td>
 
-      <td key={route.totalDuration}>
-        <RowTitle>{route.totalDuration || '0'}</RowTitle>
+      <td key={`${route._id}_ ${route.summary.totalDuration}`}>
+        <RowTitle>{route.summary.totalDuration || '0'}</RowTitle>
       </td>
 
-      <td key={route.totalDistance}>
-        <RowTitle>{route.totalDistance || '0'}</RowTitle>
+      <td key={`${route._id}_ ${route.summary.totalDistance}`}>
+        <RowTitle>{route.summary.totalDistance || '0'}</RowTitle>
       </td>
 
       <td>

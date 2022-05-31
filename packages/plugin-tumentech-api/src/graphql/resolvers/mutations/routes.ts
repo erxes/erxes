@@ -8,17 +8,16 @@ export interface IRouteEdit extends IRoute {
 const routeMutations = {
   routesAdd: async (_root, doc: IRoute, { models }: IContext) => {
     console.log(doc);
-    return models.Routes.create(doc);
+    return models.Routes.createRoute(doc);
+  },
+
+  routesEdit: async (_root, doc: IRouteEdit, { models }: IContext) => {
+    return models.Routes.updateRoute(doc);
+  },
+
+  routesRemove: (_root, { _id }, { models }: IContext) => {
+    return models.Routes.remove({ _id });
   }
-
-  // directionsEdit: async (_root, doc: IRouteEdit, { models }: IContext) => {
-  //   console.log(doc)
-  //   return models.Directions.updateDirection(doc);
-  // },
-
-  // directionsRemove: (_root, { _id }, { models }: IContext) => {
-  //   return models.Directions.remove({ _id });
-  // }
 };
 
 export default routeMutations;

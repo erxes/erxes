@@ -21,12 +21,15 @@ import {
 
 import { IParticipantDocument } from './models/definitions/participants';
 import { IParticipantModel, loadParticipantClass } from './models/Participants';
+import { IPlaceModel, loadPlaceClass } from './models/Places';
+import { IPlaceDocument } from './models/definitions/places';
 
 export interface IModels {
   Cars: ICarModel;
   CarCategories: ICarCategoryModel;
   ProductCarCategories: IProductCarCategoryModel;
   Participants: IParticipantModel;
+  Places: IPlaceModel;
   Directions: IDirectionModel;
   Routes: IRouteModel;
 }
@@ -71,6 +74,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Participants = db.model<IParticipantDocument, IParticipantModel>(
     'participants',
     loadParticipantClass(models)
+  );
+
+  models.Places = db.model<IPlaceDocument, IPlaceModel>(
+    'places',
+    loadPlaceClass(models)
   );
 
   models.Directions = db.model<IDirectionDocument, IDirectionModel>(

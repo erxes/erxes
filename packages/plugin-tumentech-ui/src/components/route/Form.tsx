@@ -11,11 +11,9 @@ import {
 } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
-import { IDirection, IPlace, IRoute } from '../../types';
-import { CITIES, ROAD_CONDITIONS } from '../../constants';
+import { IDirection, IRoute } from '../../types';
 import Select from 'react-select-plus';
 import Map from '@erxes/ui/src/components/Map';
-import { removeTypename } from '@erxes/ui/src/utils';
 
 type Props = {
   route?: IRoute;
@@ -27,17 +25,29 @@ type Props = {
 const RouteForm = (props: Props) => {
   const { route } = props;
 
-  const [directionItems, setDirections] = useState(
-    (route && route.directionItems) || []
+  const [directionIds, setDirectionIds] = useState<string[]>(
+    (route && route.directionIds) || []
   );
-  //   directionId: string;
-  //   order: number;
+
+  const [directions, setDirections] = useState<IDirection[]>(
+    (route && route.directions) || []
+  );
+
+  const [name, setName] = useState<string>((route && route.name) || '');
+
+  const [code, setCode] = useState<string>((route && route.code) || '');
+
   const onChangeDirection = values => {
-    setDirections(
-      values.map((option, index) => {
-        return { directionId: option.value, order: index };
-      })
+    const ids = values.map(option => option.value);
+
+    const selectedDirections = props.directions.filter(
+      direction => ids.indexOf(direction._id) !== -1
     );
+    selectedDirections.sort((a, b) => a.roadCode.localeCompare(b.roadCode));
+
+    setDirections(selectedDirections);
+
+    setDirectionIds(ids);
   };
 
   const generateDoc = () => {
@@ -48,6 +58,10 @@ const RouteForm = (props: Props) => {
       finalValues._id = route._id;
     }
 
+    finalValues.code = code;
+    finalValues.directionIds = directionIds;
+    finalValues.name = name;
+
     return {
       ...finalValues
     };
@@ -55,7 +69,7 @@ const RouteForm = (props: Props) => {
 
   const generateUserOptions = () => {
     return props.directions.map(e => ({
-      label: `${e.placeA.name} - ${e.placeB.name}`,
+      label: `${e.places[0].name} - ${e.places[1].name} : ${e.roadCode}`,
       value: `${e._id}`
     }));
   };
@@ -64,30 +78,41 @@ const RouteForm = (props: Props) => {
     const { closeModal, renderButton } = props;
     const { values, isSubmitted } = formProps;
 
-    const onChangeLocation = locationOptions => {
-      console.log(locationOptions);
-    };
-
-    // var arr = props.directions.filter(direction => directionItems.indexOf(item.id) === -1);
-    const selectedIds = directionItems.map(e => e.directionId);
-    const selectedDirections = props.directions.filter(
-      direction => selectedIds.indexOf(direction._id) !== -1
-    );
-
     const locationOptions: ILocationOption[] = [];
-
-    for (const dir of selectedDirections) {
-      locationOptions.push(dir.placeA.center);
-      locationOptions.push(dir.placeB.center);
+    for (const dir of directions) {
+      locationOptions.push(dir.places[0].center);
+      locationOptions.push(dir.places[1].center);
     }
 
     return (
       <>
         <FormGroup>
+          <ControlLabel>Name</ControlLabel>
+          <FormControl
+            {...formProps}
+            id="name"
+            name="name"
+            defaultValue={name}
+            onChange={e => setName((e.currentTarget as HTMLInputElement).value)}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Code</ControlLabel>
+          <FormControl
+            {...formProps}
+            id="code"
+            name="code"
+            defaultValue={code}
+            onChange={e => setCode((e.currentTarget as HTMLInputElement).value)}
+          />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel required={true}>Directions</ControlLabel>
           <Select
             placeholder={__('Select directions')}
-            value={directionItems.map(e => e.directionId)}
+            value={directionIds}
             onChange={onChangeDirection}
             options={generateUserOptions()}
             multi={true}
@@ -95,11 +120,11 @@ const RouteForm = (props: Props) => {
           />
         </FormGroup>
 
-        {selectedDirections && selectedDirections.length > 0 && (
+        {directions && directions.length > 0 && (
           <FormGroup>
             <MapContainer>
               <Map
-                center={selectedDirections[0].placeA.center}
+                center={directions[0].places[0].center}
                 googleMapApiKey={
                   localStorage.getItem('GOOGLE_MAP_API_KEY') || ''
                 }
@@ -116,51 +141,10 @@ const RouteForm = (props: Props) => {
                 }}
                 isPreview={false}
                 drawPolyLines={true}
-                onChangeLocationOptions={onChangeLocation}
               />
             </MapContainer>
           </FormGroup>
         )}
-
-        {/* <FormGroup>
-          <ControlLabel>Distance (km)</ControlLabel>
-          <p>distance between A - B, in kilometers</p>
-          <FormControl
-            {...formProps}
-            id="distance"
-            name="totalDistance"
-            type="number"
-            min={1}
-            defaultValue={distance}
-            onChange={onChangeInput}
-          />
-        </FormGroup> */}
-
-        {/* <FormGroup>
-          <ControlLabel>Duration (minutes)</ControlLabel>
-          <p>average travel time, in minutes</p>
-          <FormControl
-            {...formProps}
-            id="duration"
-            name="duration"
-            type="number"
-            min={1}
-            defaultValue={duration}
-            onChange={onChangeInput}
-          />
-        </FormGroup> */}
-
-        {/* <FormGroup>
-          <ControlLabel>Road Conditions</ControlLabel>
-          <Select
-            placeholder={__("Select a road type")}
-            value={roadConditions}
-            onChange={onChangeRoadCondition}
-            options={ROAD_CONDITIONS.ALL}
-            multi={true}
-            clearable={true}
-          />
-        </FormGroup> */}
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">

@@ -1,21 +1,19 @@
 export const types = `
-  type DirectionItem {
-    directionId: String
-    order: Int
-  }
 
-  input DirectionItemInput {
-    directionId: String
-    order: Int
+  type Summary {
+    totalDistance: Int
+    totalDuration: Int
+    roadCodes: String
+    places: String
   }
 
   type Route @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     name: String
-    directionItems: [DirectionItem]
+    code: String
+    directionIds: [String]
     directions: [Direction]
-    totalDistance: Int
-    totalDuration: Int
+    summary : Summary
   }
 `;
 
@@ -27,7 +25,7 @@ export const queries = `
 const params = `
     name: String!,
     code: String!,
-    directionItems: [DirectionItemInput]
+    directionIds: [String]
 `;
 
 export const mutations = `
