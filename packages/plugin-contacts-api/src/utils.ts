@@ -898,7 +898,7 @@ export const updateContactsField = async (
     }
   }
 
-  return cachedCustomer;
+  return models.Customers.findOne({ _id: cachedCustomerId });
 };
 
 export const updateCustomerFromForm = async (
