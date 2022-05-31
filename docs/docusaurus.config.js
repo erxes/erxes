@@ -42,12 +42,7 @@ module.exports = {
           position: "left",
         },
         {
-          to: "/service",
-          label: "Service",
-          position: "left",
-        },
-        {
-          to: "/components/AnimatedLoader/animatedLoader",
+          to: "/components/GettingStarted/Introduction",
           label: "Components",
           position: "left",
         },

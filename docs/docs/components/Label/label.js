@@ -26,9 +26,11 @@ export function LabelComponent(props) {
         <div className={styles.styled}>
           {style.map((stl, index) => {
             return (
-              <Label key={index} {...propDatas(propName, stl)}>
-                {stl}
-              </Label>
+              <>
+                <Label key={index} {...propDatas(propName, stl)}>
+                  {stl}
+                </Label>{" "}
+              </>
             );
           })}
         </div>

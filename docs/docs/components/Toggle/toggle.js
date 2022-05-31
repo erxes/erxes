@@ -9,7 +9,7 @@ export function ToggleComponent(props) {
   const { type, table = [] } = props;
 
   let icon = {
-    checked: "Y",
+    checked: "",
     unchecked: "N"
   };
 

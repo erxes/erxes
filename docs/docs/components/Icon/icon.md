@@ -5,6 +5,8 @@ title: Icon
 
 import { IconComponent } from "./icon.js"
 
+## Example
+
 <p>To display desired icon write it's name to <code>icon</code> prop.</p> 
 <IconComponent type="icon" iconName="envelope-alt" />
 

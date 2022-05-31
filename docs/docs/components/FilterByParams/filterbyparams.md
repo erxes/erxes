@@ -5,9 +5,10 @@ title: Filter by Params
 
 import {FilterByParamsComponent} from "./filterbyparams.js"
 
+<p>Simple list that can become searchable by parameters.</p>
+
 ## Example
 
-<p>Simple list that can become searchable by parameters.</p>
 <FilterByParamsComponent />
 
 ## Empty
@@ -57,13 +58,4 @@ import {FilterByParamsComponent} from "./filterbyparams.js"
 
 ## API
 
-<FilterByParamsComponent type="APIfilterbyparams" table={[
-['fields', 'any[]', '', 'Define list items'],
-['loading', 'boolean', '', 'Activates loading spinner'],
-['className', 'string', '', 'Define className'],
-['treeView', 'boolean', '', 'Activates tree view of list'],
-['isIndented', 'boolean', '', 'Take space between arrow and title'],
-['onClick', 'function', '', 'Define click handler function when list item is clicked'],
-['onSearch', 'function', '', 'Define search function'],
-['onExit', 'function', '','']
-]} />
+<FilterByParamsComponent type="APIfilterbyparams" />

@@ -6,7 +6,7 @@ import Table from "erxes-ui/lib/components/table/index";
 import { renderApiTable } from "../common.js";
 
 export function FilterByParamsComponent(props) {
-  const { type, color, related, table = [] } = props;
+  const { type, color, related } = props;
   const names = ["First test", "Second test", "Third test"];
   const colors = ["red", "blue", "green"];
   const arr = [];
@@ -135,7 +135,9 @@ export function FilterByParamsComponent(props) {
     return (
       <>
         {renderApiTable("FilterByParams")}
-        <p><required>* required prop</required></p>
+        <p>
+          required prop - <span className={styles.required}>*</span>
+        </p>
         <Table>
           <thead>
             <tr>
@@ -145,8 +147,11 @@ export function FilterByParamsComponent(props) {
               <th>Description</th>
             </tr>
           </thead>
+          <tbody>
             <tr>
-              <td rowSpan="5">fields<required>*</required></td>
+              <td rowSpan="5">
+                fields<span className={styles.required}>*</span>
+              </td>
               <td>_id</td>
               <td>string</td>
               <td />
@@ -176,15 +181,18 @@ export function FilterByParamsComponent(props) {
               <td />
               <td>Define related items' ids</td>
             </tr>
-          <tbody>
             <tr>
-              <td colSpan="2">counts<required>*</required></td>
+              <td colSpan="2">
+                counts<span className={styles.required}>*</span>
+              </td>
               <td>any</td>
               <td />
               <td>Define count numbers of list items</td>
             </tr>
             <tr>
-              <td colSpan="2">paramKey<required>*</required></td>
+              <td colSpan="2">
+                paramKey<span className={styles.required}>*</span>
+              </td>
               <td>string</td>
               <td />
               <td>Key, used when onClick function runs.</td>
@@ -196,7 +204,9 @@ export function FilterByParamsComponent(props) {
               <td>Add icon to list items</td>
             </tr>
             <tr>
-              <td colSpan="2">loading<required>*</required></td>
+              <td colSpan="2">
+                loading<span className={styles.required}>*</span>
+              </td>
               <td>boolean</td>
               <td />
               <td>Activates loading spinner</td>

@@ -1,9 +1,9 @@
 ---
-id: spinners
-title: Spinners
+id: spinner
+title: Spinner
 ---
 
-import { SpinnerComponent } from "./spinners.js"
+import { SpinnerComponent } from "./spinner.js"
 
 <p>Spinners can be used to show the loading state in your projects.</p>
 
