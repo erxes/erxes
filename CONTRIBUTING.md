@@ -1,19 +1,18 @@
-# Contribute
+# Contributing to erxes
 
-## Introduction
 
-First, thank you for considering contributing to erxes! It's people like you that make the open source community such a great community! 😊
+First and foremost, thank you for considering supporting erxes! It's people like you that make the open source community awesome! 😊
 
-We welcome any type of contribution, not only code. You can help with 
-- **QA**: file bug reports, the more details you can give the better (e.g. screenshots with the console open)
-- **Marketing**: writing blog posts, howto's, printing stickers, ...
-- **Community**: presenting the project at meetups, organizing a dedicated meetup for the local community, ...
-- **Code**: take a look at the [open issues](https://github.com/erxes/erxes/issues). Even if you can't write code, commenting on them, showing that you care about a given issue matters. It helps us triage them.
-- **Money**: we welcome financial contributions in full transparency on our [open collective](https://opencollective.com/erxes).
+We welcome any type of contribution, not only code. You can help us with:
+- **Bugs and Issues**: We appreciate getting bug and issue reports. But if they're in the correct format, we appreciate them even more. For any issues you encounter, we need you to follow the [Submission Guidelines](https://www.erxes.org/developer/contributing/#submission-guidelines). The more details you can provide, the better. (E.g. screenshots with the console open)
+- **Marketing**: You may support us by creating blogs, how-tos, and printing stickers, among other things.
+- **Community**: Presenting the project at meetups, hosting a dedicated meetup for the local community, and so on can all help us grow into a larger community.
+- **Code**: Check out the [open issues](https://github.com/erxes/erxes/issues). Even if you can't write code, commenting on them and expressing your concern for a given issue matters. It helps us triage them.
+- **Money**: We welcome financial contributions in full transparency on our [open collective](https://opencollective.com/erxes).
 
 ## Your First Contribution
 
-Working on your first Pull Request? You can learn how from this *free* series, [How to Contribute to an Open Source Project on GitHub](https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github).
+Working on your first Pull Request? You can learn how to successfully make  your first Pull Request from this *free* series- [How to Contribute to an Open Source Project on GitHub](https://www.freecodecamp.org/news/how-to-make-your-first-pull-request-on-github-3/).
 
 ## Submitting code
 
@@ -31,8 +30,8 @@ Anyone can file an expense. If the expense makes sense for the development of th
 
 ## Questions
 
-If you have any questions, create an [issue](https://github.com/erxes/erxes/issues/new/choose) (protip: do a quick search first to see if someone else didn't ask the same question before!).
-You can also reach us at hello@erxes.opencollective.com.
+If you have any questions, create an [issue](https://github.com/erxes/erxes/issues/new/choose) (Protip: Perform a quick search first to make sure no one else has asked the same question! before!).
+You can also reach us with your questions at hello@erxes.opencollective.com 
 
 ## Credits
 
