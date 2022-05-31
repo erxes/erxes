@@ -92,7 +92,7 @@ export interface IField {
   description?: string;
   options?: string[];
   locationOptions?: ILocationOption[];
-  objectListConfig?: IObjectListConfig[];
+  objectListConfigs?: IObjectListConfig[];
   isRequired?: boolean;
   order?: React.ReactNode;
   canHide?: boolean;

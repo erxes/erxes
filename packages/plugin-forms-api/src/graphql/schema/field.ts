@@ -53,14 +53,14 @@ export const fieldsTypes = ({ products }) => `
   }
 
   type ObjectListConfig {
-    key: String,
-    label: String,
+    key: String
+    label: String
     type: String
   }
 
   input objectListConfigInput {
-    key: String,
-    label: String,
+    key: String
+    label: String
     type: String
   }
 

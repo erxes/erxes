@@ -21,6 +21,11 @@ const commonFields = `
     lng
     description
   }
+  objectListConfigs{
+    key
+    label
+    type
+  }
   groupId
   searchable
   showInCard

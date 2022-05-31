@@ -52,7 +52,7 @@ interface IVisibility {
   isVisibleInDetail?: boolean;
 }
 
-interface IObjectListConfig {
+interface IObjectListConfigs {
   key: string;
   label: string;
   type: string;
@@ -68,7 +68,7 @@ export interface IField extends IVisibility {
   description?: string;
   options?: string[];
   keys?: string[];
-  objectListConfig?: IObjectListConfig[];
+  objectListConfigs?: IObjectListConfigs[];
   isRequired?: boolean;
   isDefinedByErxes?: boolean;
   order?: number;
@@ -146,7 +146,7 @@ export const fieldSchema = schemaWrapper(
       optional: true,
       label: 'Keys'
     }),
-    objectListConfig: field({
+    objectListConfigs: field({
       type: [ObjectListSchema],
       optional: true,
       label: 'object list config'

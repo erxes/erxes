@@ -77,6 +77,7 @@ const commonVariables = `
   $searchable: Boolean,
   $showInCard: Boolean,
   $keys: [String]
+  $objectListConfigs: [objectListConfigInput]
 `;
 
 const commonParams = `
@@ -94,6 +95,7 @@ const commonParams = `
   searchable: $searchable,
   showInCard: $showInCard
   keys: $keys
+  objectListConfigs: $objectListConfigs
 `;
 
 const fieldsAdd = `

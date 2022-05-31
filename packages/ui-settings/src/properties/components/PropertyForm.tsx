@@ -20,6 +20,7 @@ import { IField } from '@erxes/ui/src/types';
 import { IFieldGroup } from '../types';
 import LocationOptions from './LocationOptions';
 import Map from '@erxes/ui/src/components/Map';
+import ObjectListConfigs from './ObjectListConfigs';
 
 type Props = {
   queryParams: any;
@@ -33,6 +34,7 @@ type Props = {
 type State = {
   options: any[];
   locationOptions: any[];
+  objectListConfigs: any[];
   type: string;
   hasOptions: boolean;
   add: boolean;
@@ -51,6 +53,7 @@ class PropertyForm extends React.Component<Props, State> {
       type: '',
       keys: [],
       locationOptions: [],
+      objectListConfigs: [],
       hasOptions: false,
       searchable: false,
       showInCard: false
@@ -62,6 +65,7 @@ class PropertyForm extends React.Component<Props, State> {
         options,
         keys,
         locationOptions,
+        objectListConfigs,
         searchable = false,
         showInCard = false
       } = props.field;
@@ -85,6 +89,7 @@ class PropertyForm extends React.Component<Props, State> {
           hasOptions: true,
           options: Object.assign([], options || []),
           locationOptions: [],
+          objectListConfigs: [],
           searchable: searchable || false,
           showInCard,
           keys
@@ -97,6 +102,7 @@ class PropertyForm extends React.Component<Props, State> {
           hasOptions: false,
           options: [],
           locationOptions: Object.assign([], locationOptions || []),
+          objectListConfigs: Object.assign([], objectListConfigs || []),
           searchable: searchable || false,
           showInCard: false,
           keys
@@ -123,6 +129,7 @@ class PropertyForm extends React.Component<Props, State> {
       type,
       options,
       locationOptions,
+      objectListConfigs,
       showInCard,
       searchable,
       keys
@@ -140,6 +147,7 @@ class PropertyForm extends React.Component<Props, State> {
       type,
       options,
       locationOptions,
+      objectListConfigs,
       searchable,
       showInCard,
       keys
@@ -156,6 +164,10 @@ class PropertyForm extends React.Component<Props, State> {
 
   onChangeLocationOption = locationOptions => {
     this.setState({ locationOptions });
+  };
+
+  onChangeObjectListConfig = objectListConfigs => {
+    this.setState({ objectListConfigs });
   };
 
   onRemoveOption = options => {
@@ -203,17 +215,22 @@ class PropertyForm extends React.Component<Props, State> {
     );
   };
 
-  renderKeys = () => {
+  renderObjectListConfigs = () => {
     if (this.state.type !== 'objectList') {
       return null;
     }
 
+    const { objectListConfigs = [] } = this.state;
+
     return (
-      <ModifiableList
-        options={this.state.keys}
-        onChangeOption={this.onChangeKeys}
-        emptyMessage={'There is no keys'}
-      />
+      <FormGroup>
+        <ControlLabel>Object List Configs:</ControlLabel>
+
+        <ObjectListConfigs
+          objectListConfigs={objectListConfigs}
+          onChange={this.onChangeObjectListConfig}
+        />
+      </FormGroup>
     );
   };
 
@@ -384,7 +401,7 @@ class PropertyForm extends React.Component<Props, State> {
           </FormControl>
         </FormGroup>
         {this.renderOptions()}
-        {this.renderKeys()}
+        {this.renderObjectListConfigs()}
         {this.renderLocationOptions()}
         {this.renderShowInCard()}
 
