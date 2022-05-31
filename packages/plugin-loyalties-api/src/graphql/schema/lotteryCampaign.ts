@@ -36,4 +36,5 @@ export const mutations = `
   lotteryCampaignsAdd(${LotteryCampaignDoc}): LotteryCampaign
   lotteryCampaignsEdit(_id: String!, ${LotteryCampaignDoc}): LotteryCampaign
   lotteryCampaignsRemove(_ids: [String]): JSON
+  doLottery(campaignId: String, awardId: String ): Lottery
 `;
