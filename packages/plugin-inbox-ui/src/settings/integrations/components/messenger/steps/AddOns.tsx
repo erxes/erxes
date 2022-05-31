@@ -49,10 +49,6 @@ const RemoveButton = styled.div`
   }
 `;
 
-const MarginBottom = styled.div`
-  margin-bottom: 30px;
-`;
-
 type Props = {
   type?: string;
   topics: ITopic[];
@@ -270,15 +266,13 @@ class AddOns extends React.Component<Props, State> {
               {this.renderRemoveInput(index)}
             </FormGroup>
           ))}
-          <MarginBottom>
-            <Button
-              onClick={this.onAddMoreInput}
-              icon="plus-circle"
-              btnStyle="primary"
-            >
-              Add a Website
-            </Button>
-          </MarginBottom>
+          <Button
+            onClick={this.onAddMoreInput}
+            icon="plus-circle"
+            btnStyle="primary"
+          >
+            Add a Website
+          </Button>
         </LeftItem>
       </FlexItem>
     );
