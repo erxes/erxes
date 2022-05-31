@@ -111,14 +111,6 @@ const QuickNavigation = ({
       <NavItem>
         <Search />
       </NavItem>
-
-      <NavItem>
-        <Tip text={__('Tutorial')} placement="bottom">
-          <Link to="/tutorial#defaultStage">
-            <Icon icon="question-circle" size={21} />
-          </Link>
-        </Tip>
-      </NavItem>
       {pluginsOfTopNavigations()}
       <NavItem>
         <Dropdown alignRight={true}>
