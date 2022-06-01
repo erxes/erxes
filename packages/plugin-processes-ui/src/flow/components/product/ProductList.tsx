@@ -171,6 +171,7 @@ class List extends React.Component<IProps, State> {
               </th>
               <th>{__('Name')}</th>
               <th>{__('Status')}</th>
+              <th>{__('Jobs count')}</th>
             </tr>
           </thead>
           <tbody>{this.renderRow()}</tbody>
