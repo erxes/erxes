@@ -26,6 +26,7 @@ import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
 import { __ } from '@erxes/ui/src/utils';
 import Icon from '@erxes/ui/src/components/Icon';
+import { ActionButtons } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   jobRefer?: IJobRefer;
@@ -76,6 +77,14 @@ class Form extends React.Component<Props, State> {
       needProducts,
       resultProducts
     };
+  };
+
+  onClickMinusSub = (id, type) => {
+    const products = this.state[type];
+    const filteredUoms = products.filter(product => product._id !== id);
+    console.log('remove product', id, type, products, filteredUoms);
+
+    this.setState({ [type]: filteredUoms });
   };
 
   renderFormTrigger(trigger: React.ReactNode) {
@@ -163,42 +172,79 @@ class Form extends React.Component<Props, State> {
 
   renderProducts = type => {
     const products =
-      type === 'need' ? this.state.needProducts : this.state.resultProducts;
+      type === 'needProducts'
+        ? this.state.needProducts
+        : this.state.resultProducts;
 
-    const { uoms } = this.props;
-    console.log(type, products);
+    const { uoms, configsMap } = this.props;
 
     return products.map(product => {
-      const uom = uoms.find(u => (u._id = product.uomId));
+      const subUoms = product.product.subUoms ? product.product.subUoms : [];
+      const defaultUomId = product.product.uomId
+        ? product.product.uomId
+        : configsMap.default_uom;
 
+      const productUoms = subUoms.map(e => e.uomId);
+      const mergedUoms = [...productUoms, defaultUomId];
+
+      // const filtered = uoms.filter(u => (mergedUoms.includes(u._id)));
+
+      const filtered = mergedUoms.map(e => {
+        const uomOne = uoms.find(u => u._id === e);
+        return uomOne;
+      });
+
+      console.log('filtered uoms: ', filtered);
+      console.log('product: ', product);
       return (
         <>
           <FormWrapper>
             <FormColumn>
               <FormGroup>
                 <FormControl
-                  defaultValue={product ? product.product.name : ''}
+                  value={product ? product.product.name : ''}
                   disabled={true}
                 />
               </FormGroup>
             </FormColumn>
             <FormColumn>
-              <FormGroup>
-                <FormControl
-                  defaultValue={(product ? product.quantity : '0') + ' /Qty/'}
-                />
-              </FormGroup>
+              <Row>
+                <FormGroup>
+                  <FormControl
+                    value={product ? product.quantity : 0}
+                    type="number"
+                  />
+                </FormGroup>
+                {' /Qty/'}
+              </Row>
             </FormColumn>
             <FormColumn>
-              <FormGroup>
+              {/* <FormGroup>
                 <Row>
                   <FormControl
                     defaultValue={(uom ? uom.name : '') + ' /Uom/'}
                     disabled={true}
                   />
-                  <Button btnStyle="simple" uppercase={false} icon="cancel-1" />
                 </Row>
-              </FormGroup>
+              </FormGroup> */}
+
+              <FormControl componentClass="select" value={product.uomId}>
+                <option value="" />
+                {filtered.map(u => (
+                  <option key={u._id} value={u._id}>
+                    {u.name}
+                  </option>
+                ))}
+              </FormControl>
+            </FormColumn>
+
+            <FormColumn>
+              <Button
+                btnStyle="simple"
+                uppercase={false}
+                icon="cancel-1"
+                onClick={this.onClickMinusSub.bind(this, product._id, type)}
+              />
             </FormColumn>
           </FormWrapper>
         </>
@@ -318,14 +364,14 @@ class Form extends React.Component<Props, State> {
           {this.renderProductModal(null, 'needProducts')}
         </FormGroup>
 
-        {this.renderProducts('need')}
+        {this.renderProducts('needProducts')}
 
         <FormGroup>
           <ControlLabel required={true}>Result products</ControlLabel>
           {this.renderProductModal(null, 'resultProducts')}
         </FormGroup>
 
-        {this.renderProducts('result')}
+        {this.renderProducts('resultProducts')}
 
         <ModalFooter>
           <Button
