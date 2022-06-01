@@ -113,6 +113,10 @@ export type FlowDetailQueryResponse = {
   flowDetail: IFlowDocument;
 } & QueryResponse;
 
+export type FlowsAddMutationResponse = {
+  flowsAdd: (mutation: { variables: IFlowDocument }) => Promise<any>;
+};
+
 export type FlowsEditMutationResponse = {
   flowsEdit: (mutation: { variables: IFlowDocument }) => Promise<any>;
 };

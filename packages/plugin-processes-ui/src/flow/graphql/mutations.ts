@@ -32,6 +32,14 @@ const productsMerge = `
 const flowParamsDef = `$name: String, $categoryId: String, $status: String, $jobs: [JobInput]`;
 const flowParams = `name: $name, categoryId: $categoryId, status: $status, jobs: $jobs`;
 
+const flowsAdd = `
+mutation flowsAdd(${flowParamsDef}) {
+  flowsAdd(${flowParams}) {
+    _id
+  }
+}
+`;
+
 const flowsEdit = `
 mutation flowsEdit($id: String!, ${flowParamsDef} ) {
   flowsEdit(_id: $id, ${flowParams} ) {
@@ -151,6 +159,7 @@ export default {
   jobCategoriesRemove,
 
   flowsEdit,
+  flowsAdd,
 
   productsConfigsUpdate
 };

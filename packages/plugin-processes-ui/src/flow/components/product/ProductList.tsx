@@ -131,11 +131,13 @@ class List extends React.Component<IProps, State> {
 
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
-        Add job
+        Add flow
       </Button>
     );
 
-    const modalContent = props => <Form {...props} />;
+    const onTrClick = () => {
+      history.push(`/processes/flows/details/add`);
+    };
 
     let actionBarRight = (
       <BarItems>
@@ -147,12 +149,9 @@ class List extends React.Component<IProps, State> {
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
-        <ModalTrigger
-          title="Add Job"
-          trigger={trigger}
-          autoOpenKey="showProductModal"
-          content={modalContent}
-        />
+        <Button btnStyle="primary" icon="plus-circle" onClick={onTrClick}>
+          Add flow
+        </Button>
       </BarItems>
     );
 

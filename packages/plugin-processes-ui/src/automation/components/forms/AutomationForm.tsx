@@ -99,16 +99,19 @@ class AutomationForm extends React.Component<Props, State> {
     super(props);
 
     const { automation, automationNotes = [] } = this.props;
+    const lenAutomation = Object.keys(automation);
 
     this.state = {
-      name: automation.name,
-      actions: JSON.parse(JSON.stringify(automation ? automation.jobs : [])),
+      name: lenAutomation.length ? automation.name : 'Your flow title',
+      actions: JSON.parse(
+        JSON.stringify(lenAutomation.length ? automation.jobs : [])
+      ),
       triggers: JSON.parse(JSON.stringify([])),
       activeTrigger: {} as ITrigger,
       activeId: '',
       currentTab: 'actions',
       isActionTab: true,
-      isActive: automation.status === 'active',
+      isActive: lenAutomation.length ? automation.status === 'active' : false,
       showNoteForm: false,
       showTemplateForm: false,
       showTrigger: false,

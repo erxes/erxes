@@ -23,6 +23,7 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import {
   FlowDetailQueryResponse,
   FlowsEditMutationResponse,
+  FlowsAddMutationResponse,
   IFlowDocument
 } from '../../../flow/types';
 
@@ -39,6 +40,7 @@ type FinalProps = {
   saveAsTemplateMutation: any;
 } & Props &
   FlowsEditMutationResponse &
+  FlowsAddMutationResponse &
   IRouterProps;
 
 const AutomationDetailsContainer = (props: FinalProps) => {
@@ -48,7 +50,8 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     automationNotesQuery,
     currentUser,
     history,
-    flowsEditMutation
+    flowsEditMutation,
+    flowsAddMutation
   } = props;
 
   const [saveLoading, setLoading] = useState(false);
@@ -76,6 +79,29 @@ const AutomationDetailsContainer = (props: FinalProps) => {
       });
   };
 
+  const add = (doc: IFlowDocument) => {
+    setLoading(true);
+
+    flowsAddMutation({
+      variables: {
+        ...doc
+      }
+    })
+      .then(() => {
+        router.removeParams(history, 'isCreate');
+
+        setTimeout(() => {
+          setLoading(false);
+        }, 300);
+
+        Alert.success(`You successfully added a ${doc.name || 'status'}`);
+      })
+
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
   if (
     flowDetailQuery.loading ||
     automationDetailQuery.loading ||
@@ -84,11 +110,13 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     return <Spinner objective={true} />;
   }
 
-  if (!flowDetailQuery.flowDetail) {
-    return <EmptyState text="Flow not found" image="/images/actions/24.svg" />;
-  }
+  // if (!flowDetailQuery.flowDetail) {
+  //   return <EmptyState text="Flow not found" image="/images/actions/24.svg" />;
+  // }
 
   const flowDetail = flowDetailQuery.flowDetail || ({} as IFlowDocument);
+
+  const mutationAddEdit = Object.keys(flowDetail).length ? save : add;
 
   console.log('flowDetail', flowDetail);
 
@@ -100,7 +128,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     automation: flowDetail,
     automationNotes,
     currentUser,
-    save,
+    save: mutationAddEdit,
     saveLoading
   };
 
@@ -146,6 +174,15 @@ export default withProps<Props>(
       gql(flowMutations.flowsEdit),
       {
         name: 'flowsEditMutation',
+        options: () => ({
+          refetchQueries: ['flows', 'automationsMain', 'flowDetail']
+        })
+      }
+    ),
+    graphql<{}, FlowsAddMutationResponse, IFlowDocument>(
+      gql(flowMutations.flowsAdd),
+      {
+        name: 'flowsAddMutation',
         options: () => ({
           refetchQueries: ['flows', 'automationsMain', 'flowDetail']
         })
