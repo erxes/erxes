@@ -79,12 +79,22 @@ class Form extends React.Component<Props, State> {
     };
   };
 
-  onClickMinusSub = (id, type) => {
+  onClickRemoveButton = (id, type) => {
     const products = this.state[type];
     const filteredUoms = products.filter(product => product._id !== id);
     console.log('remove product', id, type, products, filteredUoms);
 
     this.setState({ [type]: filteredUoms });
+  };
+
+  onChange = (id, type, e) => {
+    const products = this.state[type];
+    const edited = products.find(product => product._id === id);
+    const others = products.filter(product => product._id !== id);
+    edited.uomId = e.target.value;
+    others.push(edited);
+
+    this.setState({ [type]: others });
   };
 
   renderFormTrigger(trigger: React.ReactNode) {
@@ -228,7 +238,11 @@ class Form extends React.Component<Props, State> {
                 </Row>
               </FormGroup> */}
 
-              <FormControl componentClass="select" value={product.uomId}>
+              <FormControl
+                componentClass="select"
+                value={product.uomId}
+                onChange={this.onChange.bind(this, product._id, type)}
+              >
                 <option value="" />
                 {filtered.map(u => (
                   <option key={u._id} value={u._id}>
@@ -243,7 +257,7 @@ class Form extends React.Component<Props, State> {
                 btnStyle="simple"
                 uppercase={false}
                 icon="cancel-1"
-                onClick={this.onClickMinusSub.bind(this, product._id, type)}
+                onClick={this.onClickRemoveButton.bind(this, product._id, type)}
               />
             </FormColumn>
           </FormWrapper>
