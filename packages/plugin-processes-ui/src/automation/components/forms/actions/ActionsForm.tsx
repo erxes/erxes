@@ -1,10 +1,8 @@
 import { __ } from 'coreui/utils';
 import React from 'react';
-import { TriggerTabs, ScrolledContent } from '../../../styles';
+import { ScrolledContent } from '../../../styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import { ACTIONS } from '../../../constants';
-import { IAction } from '../../../types';
-import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 import Tip from '@erxes/ui/src/components/Tip';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { ActionBox } from './styles';
@@ -122,22 +120,6 @@ class ActionsForm extends React.Component<Props, State> {
 
     return (
       <>
-        {/* <TriggerTabs>
-          <Tabs full={true}>
-            <TabTitle
-              className={currentTab === 'actions' ? 'active' : ''}
-              onClick={this.tabOnClick.bind(this, 'actions')}
-            >
-              {__('Available actions')}
-            </TabTitle>
-            <TabTitle
-              className={currentTab === 'favourite' ? 'active' : ''}
-              onClick={this.tabOnClick.bind(this, 'favourite')}
-            >
-              {__('Favourite')}
-            </TabTitle>
-          </Tabs>
-        </TriggerTabs> */}
         <ScrolledContent>{this.renderContent()}</ScrolledContent>
       </>
     );

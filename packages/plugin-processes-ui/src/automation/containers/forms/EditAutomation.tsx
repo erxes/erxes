@@ -12,12 +12,8 @@ import {
   queries as flowQueries,
   mutations as flowMutations
 } from '../../../flow/graphql';
-import {
-  DetailQueryResponse,
-  EditMutationResponse,
-  IAutomation,
-  AutomationsNoteQueryResponse
-} from '../../types';
+import { queries as jobQueries } from '../../../job/graphql';
+import { DetailQueryResponse, AutomationsNoteQueryResponse } from '../../types';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import {
@@ -26,6 +22,7 @@ import {
   FlowsAddMutationResponse,
   IFlowDocument
 } from '../../../flow/types';
+import { JobRefersAllQueryResponse } from '../../../job/types';
 
 type Props = {
   id: string;
@@ -36,6 +33,7 @@ type FinalProps = {
   flowDetailQuery: FlowDetailQueryResponse;
   automationDetailQuery: DetailQueryResponse;
   automationNotesQuery: AutomationsNoteQueryResponse;
+  jobRefersAllQuery: JobRefersAllQueryResponse;
   currentUser: IUser;
   saveAsTemplateMutation: any;
 } & Props &
@@ -51,7 +49,8 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     currentUser,
     history,
     flowsEditMutation,
-    flowsAddMutation
+    flowsAddMutation,
+    jobRefersAllQuery
   } = props;
 
   const [saveLoading, setLoading] = useState(false);
@@ -105,7 +104,8 @@ const AutomationDetailsContainer = (props: FinalProps) => {
   if (
     flowDetailQuery.loading ||
     automationDetailQuery.loading ||
-    automationNotesQuery.loading
+    automationNotesQuery.loading ||
+    jobRefersAllQuery.loading
   ) {
     return <Spinner objective={true} />;
   }
@@ -118,9 +118,11 @@ const AutomationDetailsContainer = (props: FinalProps) => {
 
   const mutationAddEdit = Object.keys(flowDetail).length ? save : add;
 
-  console.log('flowDetail', flowDetail);
+  const jobRefers = jobRefersAllQuery.jobRefersAll || [];
 
   const automationNotes = automationNotesQuery.automationNotes || [];
+
+  console.log('jobRefers on editAutomation:', jobRefers);
 
   const updatedProps = {
     ...props,
@@ -129,7 +131,8 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     automationNotes,
     currentUser,
     save: mutationAddEdit,
-    saveLoading
+    saveLoading,
+    jobRefers
   };
 
   return <AutomationForm {...updatedProps} />;
@@ -137,6 +140,9 @@ const AutomationDetailsContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
+    graphql<Props, JobRefersAllQueryResponse>(gql(jobQueries.jobRefersAll), {
+      name: 'jobRefersAllQuery'
+    }),
     graphql<Props, DetailQueryResponse, { _id: string }>(
       gql(queries.automationDetail),
       {
@@ -175,7 +181,12 @@ export default withProps<Props>(
       {
         name: 'flowsEditMutation',
         options: () => ({
-          refetchQueries: ['flows', 'automationsMain', 'flowDetail']
+          refetchQueries: [
+            'flows',
+            'automationsMain',
+            'flowDetail',
+            'jobRefersAll'
+          ]
         })
       }
     ),
@@ -184,7 +195,12 @@ export default withProps<Props>(
       {
         name: 'flowsAddMutation',
         options: () => ({
-          refetchQueries: ['flows', 'automationsMain', 'flowDetail']
+          refetchQueries: [
+            'flows',
+            'automationsMain',
+            'flowDetail',
+            'jobRefersAll'
+          ]
         })
       }
     )

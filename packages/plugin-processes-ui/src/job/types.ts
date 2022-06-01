@@ -69,6 +69,10 @@ export type ProductsQueryResponse = {
 
 // JOB
 
+export type JobRefersAllQueryResponse = {
+  jobRefersAll: IJobRefer[];
+} & QueryResponse;
+
 export type JobRefersQueryResponse = {
   jobRefers: IJobRefer[];
 } & QueryResponse;

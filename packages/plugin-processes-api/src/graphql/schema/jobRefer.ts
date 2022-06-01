@@ -43,6 +43,8 @@ export const queries = `
   jobRefers(page: Int, perPage: Int ids: [String], ${qryParams}): [JobRefer]
   jobReferTotalCount(${qryParams}): Int
   jobReferDetail(_id: String!): JobRefer
+
+  jobRefersAll: [JobRefer]
 `;
 
 const jobReferParams = `

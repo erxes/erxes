@@ -9,21 +9,23 @@ import { __ } from 'coreui/utils';
 import React from 'react';
 import Common from './Common';
 import CustomCode from './subForms/CustomCode';
-import Delay from './subForms/Delay';
-import LoyaltyForm from '../../../containers/forms/actions/subForms/LoyaltyForm';
-import ChangeScore from './subForms/ChangeScore';
 import { IJob } from '../../../../flow/types';
+import { IJobRefer } from '../../../../job/types';
 
 type Props = {
   onSave: () => void;
   closeModal: () => void;
   activeAction: IJob;
+  jobRefers: IJobRefer[];
   addAction: (action: IJob, actionId?: string, jobReferId?: string) => void;
 };
 
 class DefaultForm extends React.Component<Props> {
   render() {
-    const { activeAction, onSave, closeModal } = this.props;
+    const { onSave, closeModal } = this.props;
+
+    const { jobRefers } = this.props;
+    console.log('jobRefers on index subform:', jobRefers);
 
     const currentAction = ACTIONS.find(
       action => action.type === 'job' && action.component

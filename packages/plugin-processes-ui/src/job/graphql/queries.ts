@@ -73,6 +73,15 @@ const productCategoryDetail = `
 
 // JOB
 
+const jobRefersAll = `
+query jobRefersAll {
+  jobRefersAll {
+    _id
+    name
+  }
+}
+`;
+
 const jobRefers = `
 query jobRefers(${jobRefersParamsDef}) {
   jobRefers(${jobRefersParams}) {
@@ -137,6 +146,7 @@ export default {
 
   productsConfigs,
 
+  jobRefersAll,
   jobRefers,
   jobReferDetail,
   jobReferTotalCount,

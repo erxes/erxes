@@ -52,6 +52,10 @@ const jobReferQueries = {
     );
   },
 
+  jobRefersAll(_root, _params: IParam, { models }: IContext) {
+    return models.JobRefers.find({});
+  },
+
   jobReferTotalCount(
     _root,
     params: IParam,

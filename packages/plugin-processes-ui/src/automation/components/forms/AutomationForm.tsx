@@ -53,6 +53,7 @@ import Confirmation from '../../containers/forms/Confirmation';
 import { TRIGGER_TYPES } from '../../constants';
 import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 import { IFlowDocument, IJob } from '../../../flow/types';
+import { IJobRefer } from '../../../job/types';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -60,6 +61,7 @@ let instance;
 type Props = {
   automation: IFlowDocument;
   automationNotes?: IAutomationNote[];
+  jobRefers: IJobRefer[];
   save: (params: any) => void;
   saveLoading: boolean;
   id: string;
@@ -419,6 +421,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   addAction = (data: IJob, actionId?: string, jobReferId?: string) => {
     const { actions } = this.state;
+    const { jobRefers } = this.props;
 
     console.log('addAction start: ');
 
@@ -439,6 +442,11 @@ class AutomationForm extends React.Component<Props, State> {
     console.log('addAction step2');
 
     action.jobReferId = jobReferId;
+
+    const jobRefer = jobRefers.find(j => j._id === jobReferId);
+
+    action.label = jobRefer.name;
+    action.description = jobRefer.name;
 
     if (actionIndex !== -1) {
       actions[actionIndex] = action;
@@ -510,7 +518,7 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderControl = (key: string, item: IJob, onClick: any) => {
-    const idElm = `${key}-${item.jobReferId}`;
+    const idElm = `${key}-${item.id}`;
 
     console.log('renderControl: ', idElm);
 
@@ -592,7 +600,7 @@ class AutomationForm extends React.Component<Props, State> {
           icon="plus-circle"
           onClick={this.toggleDrawer.bind(this, 'actions')}
         >
-          Add an Action
+          Add a Job
         </Button>
       </>
     );
@@ -610,16 +618,6 @@ class AutomationForm extends React.Component<Props, State> {
         </ToggleWrapper>
         <ActionBarButtonsWrapper>
           {this.renderButtons()}
-          {/* {
-            <Button
-              btnStyle="primary"
-              size="small"
-              icon={'check-circle'}
-              onClick={this.handleTemplateModal}
-            >
-              Save as a template
-            </Button>
-          } */}
           <Button
             btnStyle="success"
             size="small"
@@ -688,6 +686,7 @@ class AutomationForm extends React.Component<Props, State> {
               addAction={this.addAction}
               closeModal={onBackAction}
               triggerType={getTriggerType(actions, triggers, activeAction.id)}
+              jobRefers={this.props.jobRefers}
             />
           </>
         );
@@ -739,8 +738,6 @@ class AutomationForm extends React.Component<Props, State> {
         </Container>
       );
     }
-
-    const { automation } = this.props;
 
     return (
       <Container>
@@ -843,6 +840,9 @@ class AutomationForm extends React.Component<Props, State> {
 
   render() {
     const { automation } = this.props;
+
+    const { jobRefers } = this.props;
+    console.log('jobRefers on automationForm:', jobRefers);
 
     return (
       <>
