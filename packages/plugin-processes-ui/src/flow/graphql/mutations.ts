@@ -72,9 +72,9 @@ mutation jobRefersEdit($_id: String!, ${jobRefersParamsDef}) {
 }
 `;
 
-const jobRefersRemove = `
-mutation jobRefersRemove($jobRefersIds: [String!]) {
-  jobRefersRemove(jobRefersIds: $jobRefersIds)
+const flowsRemove = `
+mutation flowsRemove($flowIds: [String!]) {
+  flowsRemove(flowIds: $flowIds)
 }
 `;
 
@@ -153,13 +153,13 @@ export default {
 
   jobRefersAdd,
   jobRefersEdit,
-  jobRefersRemove,
   jobCategoriesAdd,
   jobCategoriesEdit,
   jobCategoriesRemove,
 
   flowsEdit,
   flowsAdd,
+  flowsRemove,
 
   productsConfigsUpdate
 };

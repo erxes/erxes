@@ -77,19 +77,23 @@ const flowMutations = {
    */
   async flowsRemove(
     _root,
-    { _id }: { _id: string },
+    { flowIds }: { flowIds: [string] },
     { user, models, subdomain }: IContext
   ) {
-    const flow = await models.Flows.getFlow(_id);
+    const flows = await models.Flows.find({
+      _id: { $in: flowIds }
+    }).lean();
 
-    const response = await models.Flows.removeFlow(_id);
+    const response = await models.Flows.removeFlows(flowIds);
 
-    await putDeleteLog(
-      models,
-      subdomain,
-      { type: MODULE_NAMES.PRODUCT, object: flow },
-      user
-    );
+    for (const flow of flows) {
+      await putDeleteLog(
+        models,
+        subdomain,
+        { type: MODULE_NAMES.PRODUCT, object: flow },
+        user
+      );
+    }
 
     return response;
   }

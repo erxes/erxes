@@ -8,6 +8,7 @@ export interface IFlowModel extends Model<IFlowDocument> {
   createFlow(doc: IFlow): Promise<IFlowDocument>;
   updateFlow(_id: string, doc: IFlow): Promise<IFlowDocument>;
   removeFlow(_id: string): void;
+  removeFlows(flowIds: string[]): void;
 }
 
 export const loadFlowClass = (models: IModels) => {
@@ -31,7 +32,7 @@ export const loadFlowClass = (models: IModels) => {
     public static async createFlow(doc: IFlow) {
       const flow = await models.Flows.create({
         ...doc,
-        createdAt: new Date(),
+        createdAt: new Date()
       });
 
       return flow;
@@ -41,11 +42,11 @@ export const loadFlowClass = (models: IModels) => {
      * Update Flow
      */
     public static async updateFlow(_id: string, doc: IFlow) {
-      const flow = await models.Flows.getFlow(_id,);
+      const flow = await models.Flows.getFlow(_id);
 
       await models.Flows.updateOne({ _id }, { $set: { ...doc } });
 
-      const updated = await models.Flows.getFlow( _id );
+      const updated = await models.Flows.getFlow(_id);
 
       return updated;
     }
@@ -56,6 +57,15 @@ export const loadFlowClass = (models: IModels) => {
     public static async removeFlow(_id: string) {
       await models.Flows.getFlow(_id);
       return models.Flows.deleteOne({ _id });
+    }
+
+    /**
+     * Remove Flows
+     */
+    public static async removeFlows(flowIds: string[]) {
+      await models.Flows.deleteMany({ _id: { $in: flowIds } });
+
+      return 'deleted';
     }
   }
 

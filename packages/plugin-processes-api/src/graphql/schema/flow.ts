@@ -45,5 +45,5 @@ const flowParams = `
 export const mutations = `
   flowsAdd(${flowParams}): Flow
   flowsEdit(_id: String!, ${flowParams}): Flow
-  flowsRemove(_id: String!): JSON
+  flowsRemove(flowIds: [String!]): JSON
 `;

@@ -9,7 +9,7 @@ import List from '../../components/product/ProductList';
 import { mutations, queries } from '../../graphql';
 import {
   CategoryDetailQueryResponse,
-  jobRefersRemoveMutationResponse,
+  flowsRemoveMutationResponse,
   jobReferTotalCountQueryResponse,
   FlowsQueryResponse
 } from '../../types';
@@ -25,7 +25,7 @@ type FinalProps = {
   jobRefersCountQuery: jobReferTotalCountQueryResponse;
   productCategoryDetailQuery: CategoryDetailQueryResponse;
 } & Props &
-  jobRefersRemoveMutationResponse;
+  flowsRemoveMutationResponse;
 
 class ProductListContainer extends React.Component<FinalProps> {
   constructor(props) {
@@ -40,7 +40,7 @@ class ProductListContainer extends React.Component<FinalProps> {
     const {
       flowsQuery,
       jobRefersCountQuery,
-      jobRefersRemove,
+      flowsRemove,
       queryParams,
       productCategoryDetailQuery,
       history
@@ -53,18 +53,18 @@ class ProductListContainer extends React.Component<FinalProps> {
     const flows = flowsQuery.flows || [];
 
     // remove action
-    const remove = ({ jobRefersIds }, emptyBulk) => {
-      jobRefersRemove({
-        variables: { jobRefersIds }
+    const remove = ({ flowIds }, emptyBulk) => {
+      flowsRemove({
+        variables: { flowIds }
       })
         .then(removeStatus => {
           emptyBulk();
 
-          const status = removeStatus.data.productsRemove;
+          const status = removeStatus.data.flowsRemove;
 
           status === 'deleted'
-            ? Alert.success('You successfully deleted a job')
-            : Alert.warning('Job status deleted');
+            ? Alert.success('You successfully deleted a flow')
+            : Alert.warning('Flow status deleted');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -84,7 +84,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       currentCategory: productCategoryDetailQuery.productCategoryDetail || {}
     };
 
-    const jobReferList = props => {
+    const flowList = props => {
       return <List {...updatedProps} {...props} />;
     };
 
@@ -92,7 +92,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       this.props.flowsQuery.refetch();
     };
 
-    return <Bulk content={jobReferList} refetch={refetch} />;
+    return <Bulk content={flowList} refetch={refetch} />;
   }
 }
 
@@ -135,10 +135,10 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, jobRefersRemoveMutationResponse, { jobRefersIds: string[] }>(
-      gql(mutations.jobRefersRemove),
+    graphql<Props, flowsRemoveMutationResponse, { flowsIds: string[] }>(
+      gql(mutations.flowsRemove),
       {
-        name: 'jobRefersRemove',
+        name: 'flowsRemove',
         options
       }
     ),

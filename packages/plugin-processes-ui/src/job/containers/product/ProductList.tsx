@@ -62,7 +62,7 @@ class ProductListContainer extends React.Component<FinalProps> {
         .then(removeStatus => {
           emptyBulk();
 
-          const status = removeStatus.data.productsRemove;
+          const status = removeStatus.data.jobRefersRemove;
 
           status === 'deleted'
             ? Alert.success('You successfully deleted a job')

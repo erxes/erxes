@@ -15,7 +15,7 @@ import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
 import React from 'react';
 import Form from '../../containers/product/ProductForm';
 import CategoryList from '../../containers/productCategory/CategoryList';
-import { IJobRefer, IProductCategory, IFlowDocument } from '../../types';
+import { IProductCategory, IFlowDocument } from '../../types';
 import Row from './ProductRow';
 import { menuContacts } from '../../../constants';
 import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
@@ -29,7 +29,7 @@ interface IProps extends IRouterProps {
   isAllSelected: boolean;
   bulk: any[];
   emptyBulk: () => void;
-  remove: (doc: { jobRefersIds: string[] }, emptyBulk: () => void) => void;
+  remove: (doc: { flowIds: string[] }, emptyBulk: () => void) => void;
   toggleBulk: () => void;
   toggleAll: (targets: IFlowDocument[], containerId: string) => void;
   loading: boolean;
@@ -71,14 +71,14 @@ class List extends React.Component<IProps, State> {
     toggleAll(flows, 'flows');
   };
 
-  removeProducts = jobRefers => {
-    const jobRefersIds: string[] = [];
+  removeProducts = flows => {
+    const flowIds: string[] = [];
 
-    jobRefers.forEach(jobRefer => {
-      jobRefersIds.push(jobRefer._id);
+    flows.forEach(jobRefer => {
+      flowIds.push(jobRefer._id);
     });
 
-    this.props.remove({ jobRefersIds }, this.props.emptyBulk);
+    this.props.remove({ flowIds }, this.props.emptyBulk);
   };
 
   renderCount = productCount => {

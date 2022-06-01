@@ -176,10 +176,8 @@ export type EditMutationResponse = {
   editMutation: (mutation: { variables: MutationVariables }) => Promise<any>;
 };
 
-export type jobRefersRemoveMutationResponse = {
-  jobRefersRemove: (mutation: {
-    variables: { jobRefersIds: string[] };
-  }) => Promise<any>;
+export type flowsRemoveMutationResponse = {
+  flowsRemove: (mutation: { variables: { flowIds: string[] } }) => Promise<any>;
 };
 
 export type JobCategoriesRemoveMutationResponse = {
