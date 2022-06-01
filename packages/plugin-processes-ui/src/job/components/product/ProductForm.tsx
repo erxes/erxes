@@ -87,14 +87,24 @@ class Form extends React.Component<Props, State> {
     this.setState({ [type]: filteredUoms });
   };
 
-  onChange = (id, type, e) => {
+  onChange = (id, type, formType, e) => {
+    const value = e.target.value;
     const products = this.state[type];
-    const edited = products.find(product => product._id === id);
-    const others = products.filter(product => product._id !== id);
-    edited.uomId = e.target.value;
-    others.push(edited);
 
-    this.setState({ [type]: others });
+    const productEdited = [];
+    for (const product of products) {
+      if (product._id === id) {
+        if (formType !== 'uom') {
+          product.quantity = Number(value);
+        } else {
+          product.uomId = value;
+        }
+      }
+
+      productEdited.push(product);
+    }
+
+    this.setState({ [type]: productEdited });
   };
 
   renderFormTrigger(trigger: React.ReactNode) {
@@ -188,6 +198,8 @@ class Form extends React.Component<Props, State> {
 
     const { uoms, configsMap } = this.props;
 
+    products.sort();
+
     return products.map(product => {
       const subUoms = product.product.subUoms ? product.product.subUoms : [];
       const defaultUomId = product.product.uomId
@@ -223,6 +235,12 @@ class Form extends React.Component<Props, State> {
                   <FormControl
                     value={product ? product.quantity : 0}
                     type="number"
+                    onChange={this.onChange.bind(
+                      this,
+                      product._id,
+                      type,
+                      'quantity'
+                    )}
                   />
                 </FormGroup>
                 {' /Qty/'}
@@ -241,7 +259,7 @@ class Form extends React.Component<Props, State> {
               <FormControl
                 componentClass="select"
                 value={product.uomId}
-                onChange={this.onChange.bind(this, product._id, type)}
+                onChange={this.onChange.bind(this, product._id, type, 'uom')}
               >
                 <option value="" />
                 {filtered.map(u => (
