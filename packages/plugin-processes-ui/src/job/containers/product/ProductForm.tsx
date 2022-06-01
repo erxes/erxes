@@ -9,10 +9,10 @@ import { withProps } from '@erxes/ui/src/utils';
 import From from '../../components/product/ProductForm';
 import { mutations, queries } from '../../graphql';
 import {
-  IProduct,
   IConfigsMap,
   JobCategoriesQueryResponse,
-  IProductsData
+  IProductsData,
+  IJobRefer
 } from '../../types';
 import {
   ProductsConfigsQueryResponse,
@@ -20,7 +20,7 @@ import {
 } from '@erxes/ui-products/src/types';
 
 type Props = {
-  product?: IProduct;
+  jobRefer?: IJobRefer;
   closeModal: () => void;
 };
 

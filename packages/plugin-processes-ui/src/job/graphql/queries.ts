@@ -18,6 +18,7 @@ type
 status
 duration
 durationType
+categoryId
 needProducts
 resultProducts
       `;

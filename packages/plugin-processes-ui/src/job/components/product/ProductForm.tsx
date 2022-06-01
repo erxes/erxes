@@ -45,13 +45,17 @@ class Form extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const productRefer = props.productRefer || ({} as IJobRefer);
+    console.log('contsructor: ', props.jobRefer);
+
+    const productRefer = props.jobRefer || ({} as IJobRefer);
     const { needProducts, resultProducts } = productRefer;
 
     this.state = {
       needProducts: needProducts ? needProducts : [],
       resultProducts: resultProducts ? resultProducts : []
     };
+
+    console.log('constructor end');
   }
 
   generateDoc = (values: {
@@ -160,46 +164,50 @@ class Form extends React.Component<Props, State> {
   renderProducts = type => {
     const products =
       type === 'need' ? this.state.needProducts : this.state.resultProducts;
-    return products.map(product => (
-      <>
-        <FormWrapper>
-          <FormColumn>
-            <FormGroup>
-              <FormControl
-                defaultValue={product.product.name}
-                disabled={true}
-              />
-            </FormGroup>
-          </FormColumn>
-          <FormColumn>
-            <FormGroup>
-              <FormControl
-                defaultValue={product.uom.name + ' /Uom/'}
-                disabled={true}
-              />
-            </FormGroup>
-          </FormColumn>
-          <FormColumn>
-            <FormGroup>
-              <Row>
-                <FormControl defaultValue={product.quantity + ' /Qty/'} />
-                <Button btnStyle="simple" uppercase={false} icon="cancel-1" />
-              </Row>
-            </FormGroup>
-          </FormColumn>
-        </FormWrapper>
-      </>
-    ));
+
+    const { uoms } = this.props;
+    console.log(type, products);
+
+    return products.map(product => {
+      const uom = uoms.find(u => (u._id = product.uomId));
+
+      return (
+        <>
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <FormControl
+                  defaultValue={product ? product.product.name : ''}
+                  disabled={true}
+                />
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              <FormGroup>
+                <FormControl
+                  defaultValue={(product ? product.quantity : '0') + ' /Qty/'}
+                />
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              <FormGroup>
+                <Row>
+                  <FormControl
+                    defaultValue={(uom ? uom.name : '') + ' /Uom/'}
+                    disabled={true}
+                  />
+                  <Button btnStyle="simple" uppercase={false} icon="cancel-1" />
+                </Row>
+              </FormGroup>
+            </FormColumn>
+          </FormWrapper>
+        </>
+      );
+    });
   };
 
   renderContent = (formProps: IFormProps) => {
-    const {
-      renderButton,
-      closeModal,
-      jobRefer,
-      jobCategories,
-      configsMap
-    } = this.props;
+    const { renderButton, closeModal, jobRefer, jobCategories } = this.props;
     const { values, isSubmitted } = formProps;
     const object = jobRefer || ({} as IJobRefer);
 
@@ -209,6 +217,12 @@ class Form extends React.Component<Props, State> {
       </Button>
     );
 
+    console.log('start renderContent');
+
+    const { name, code, type, duration, durationType, categoryId } = object;
+
+    console.log(name, code, type, duration, durationType, categoryId);
+
     return (
       <>
         <FormGroup>
@@ -216,7 +230,7 @@ class Form extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="name"
-            defaultValue={object.name}
+            defaultValue={name}
             autoFocus={true}
             required={true}
           />
@@ -227,7 +241,7 @@ class Form extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="code"
-            defaultValue={object.code}
+            defaultValue={code}
             required={true}
           />
         </FormGroup>
@@ -238,7 +252,7 @@ class Form extends React.Component<Props, State> {
             {...formProps}
             name="type"
             componentClass="select"
-            defaultValue={object.type}
+            defaultValue={type}
             required={true}
           >
             {Object.keys(JOB_TYPE_CHOISES).map((typeName, index) => (
@@ -256,7 +270,7 @@ class Form extends React.Component<Props, State> {
               {...formProps}
               name="categoryId"
               componentClass="select"
-              defaultValue={object.categoryId}
+              defaultValue={categoryId}
               required={true}
             >
               <option value="" />
@@ -277,7 +291,7 @@ class Form extends React.Component<Props, State> {
             {...formProps}
             name="durationType"
             componentClass="select"
-            defaultValue={object.type}
+            defaultValue={durationType}
             required={true}
           >
             {Object.keys(DURATION_TYPES).map((typeName, index) => (
@@ -293,7 +307,7 @@ class Form extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="duration"
-            defaultValue={object.code}
+            defaultValue={duration}
             required={true}
             type="number"
           />

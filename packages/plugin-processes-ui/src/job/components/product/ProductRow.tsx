@@ -1,8 +1,14 @@
-import { FormControl } from '@erxes/ui/src/components/form';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
 import React from 'react';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+
+import Button from '@erxes/ui/src/components/Button';
+import { FormControl } from '@erxes/ui/src/components/form';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import TextInfo from '@erxes/ui/src/components/TextInfo';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
+
+import ProductForm from '../../containers/product/ProductForm';
 import { IJobRefer } from '../../types';
 
 type Props = {
@@ -26,14 +32,34 @@ class Row extends React.Component<Props> {
       e.stopPropagation();
     };
 
-    const onTrClick = () => {
-      history.push(`/processes/flows/details/${jobRefer._id}`);
+    const renderFormTrigger = (trigger: React.ReactNode, job?: IJobRefer) => {
+      const content = props => <ProductForm {...props} jobRefer={job} />;
+
+      return (
+        <ModalTrigger
+          title="Add category"
+          trigger={trigger}
+          content={content}
+        />
+      );
+    };
+
+    const renderEditAction = (job: IJobRefer) => {
+      const trigger = (
+        <Button btnStyle="link">
+          <Tip text={__('Edit')} placement="bottom">
+            <Icon icon="edit" />
+          </Tip>
+        </Button>
+      );
+
+      return renderFormTrigger(trigger, job);
     };
 
     const { code, name, type, needProducts, resultProducts } = jobRefer;
 
     return (
-      <tr onClick={onTrClick}>
+      <tr>
         <td onClick={onClick}>
           <FormControl
             checked={isChecked}
@@ -48,6 +74,7 @@ class Row extends React.Component<Props> {
         </td>
         <td>{needProducts.length}</td>
         <td>{resultProducts.length}</td>
+        <td>{renderEditAction(jobRefer)}</td>
       </tr>
     );
   }
