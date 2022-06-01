@@ -250,7 +250,7 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   handleSubmit = () => {
-    const { name, isActive, triggers, actions } = this.state;
+    const { name, isActive, actions } = this.state;
     const { automation, save } = this.props;
 
     if (!name || name === 'Your flow title') {
@@ -300,7 +300,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     const { save, automation } = this.props;
 
-    if (automation) {
+    if (Object.keys(automation).length) {
       save({ _id: automation._id, status: isActive ? 'active' : 'draft' });
     }
   };
@@ -610,7 +610,7 @@ class AutomationForm extends React.Component<Props, State> {
         </ToggleWrapper>
         <ActionBarButtonsWrapper>
           {this.renderButtons()}
-          {
+          {/* {
             <Button
               btnStyle="primary"
               size="small"
@@ -619,7 +619,7 @@ class AutomationForm extends React.Component<Props, State> {
             >
               Save as a template
             </Button>
-          }
+          } */}
           <Button
             btnStyle="success"
             size="small"
@@ -661,12 +661,6 @@ class AutomationForm extends React.Component<Props, State> {
             >
               {__('Actions')}
             </TabTitle>
-            <TabTitle
-              className={isActionTab ? '' : 'active'}
-              onClick={this.switchActionbarTab.bind(this, 'history')}
-            >
-              {__('Histories')}
-            </TabTitle>
           </Tabs>
         </CenterBar>
       </FlexContent>
@@ -674,14 +668,7 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderTabContent() {
-    const {
-      currentTab,
-      showTrigger,
-      showAction,
-      activeTrigger,
-      activeAction,
-      selectedContentId
-    } = this.state;
+    const { currentTab, showAction, activeAction } = this.state;
 
     const onBackAction = () => this.setState({ showAction: false });
 
@@ -754,14 +741,6 @@ class AutomationForm extends React.Component<Props, State> {
     }
 
     const { automation } = this.props;
-
-    if (!this.state.isActionTab) {
-      if (!automation) {
-        return <div />;
-      }
-
-      return <Histories automation={automation} />;
-    }
 
     return (
       <Container>
@@ -867,14 +846,14 @@ class AutomationForm extends React.Component<Props, State> {
 
     return (
       <>
-        {this.renderConfirmation()}
+        {/* {this.renderConfirmation()} */}
         <HeightedWrapper>
           <AutomationFormContainer>
             <Wrapper.Header
               title={`${(automation && automation.name) || 'Automation'}`}
               breadcrumb={[
                 { title: __('Flows'), link: '/processes/Flows' },
-                { title: `${(automation && automation.name) || ''}` }
+                { title: `${(automation && automation.name) || 'New Form'}` }
               ]}
             />
             <PageContent
