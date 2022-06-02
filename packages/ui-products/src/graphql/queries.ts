@@ -28,15 +28,15 @@ const productFields = `
     code
     name
   }
-  attachment {    
+  attachment {
     url
-    name    
+    name
     size
     type
   }
   attachmentMore {
     url
-    name    
+    name
     size
     type
   }
@@ -44,6 +44,11 @@ const productFields = `
   productCount
   minimiumCount
   uomId
+  uom {
+    _id
+    code
+    name
+  }
   subUoms
 `;
 

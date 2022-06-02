@@ -1,19 +1,13 @@
-const remainderFields = `
-  _id
-  modifiedAt
-  productId
-  quantity
-  uomId
-  count
-  branchId
-  departmentId
-`;
+import { queries as productQueries } from '@erxes/ui-products/src/graphql';
 
 const listParamsDef = `
   $page: Int
   $perPage: Int
   $sortField: String
   $sortDirection: Int
+  $search: String
+  $departmentId: String
+  $branchId: String
 `;
 
 const listParamsValue = `
@@ -21,39 +15,51 @@ const listParamsValue = `
   perPage: $perPage
   sortField: $sortField
   sortDirection: $sortDirection
+  search: $search
+  departmentId: $departmentId
+  branchId: $branchId
 `;
 
-const remainders = `
-  query remainders(${listParamsDef}) {
-    remainders(${listParamsValue}) {
-      ${remainderFields}
+const remainderProducts = `
+  query remainderProducts(
+    $categoryId: String,
+    $searchValue: String,
+    ${listParamsDef}
+  ) {
+    remainderProducts(
+      categoryId: $categoryId,
+      searchValue: $searchValue,
+      ${listParamsValue}
+    ) {
+      products {
+        _id
+        name
+        type
+        code
+        categoryId
+        unitPrice
+        category {
+          _id
+          code
+          name
+        }
+        remainder
+        uomId
+        uom {
+          _id
+          code
+          name
+        }
+      }
+
+      totalCount
     }
   }
 `;
 
-const remainderDetail = `
-  query remainderDetail($_id: String) {
-    remainderDetail(_id: $_id) {
-      ${remainderFields}
-    }
-  }
-`;
-
-const getRemainder = `
-  query getRemainder($productId: String, $departmentId: String, $branchId: String, $uomId: String) {
-    getRemainder(productId: $productId, departmentId: $departmentId, branchId: $branchId, uomId: $uomId){
-      _id
-      remainder
-      uomId
-
-      uom
-
-    }
-  }
-`;
+const productCategories = productQueries.productCategories;
 
 export default {
-  remainders,
-  remainderDetail,
-  getRemainder
+  remainderProducts,
+  productCategories
 };

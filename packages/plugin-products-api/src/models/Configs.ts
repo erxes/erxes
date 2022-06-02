@@ -7,7 +7,7 @@ import {
 } from './definitions/configs';
 
 export interface IProductsConfigModel extends Model<IProductsConfigDocument> {
-  getConfig(code: string): Promise<IProductsConfigDocument>;
+  getConfig(code: string, defaultValue?: string): Promise<any>;
   createOrUpdateConfig({
     code,
     value
@@ -20,14 +20,14 @@ export const loadProductsConfigClass = models => {
     /*
      * Get a Config
      */
-    public static async getConfig(code: string) {
+    public static async getConfig(code: string, defaultValue?: any) {
       const config = await models.ProductsConfigs.findOne({ code });
 
       if (!config) {
-        throw new Error('Config not found');
+        return defaultValue || '';
       }
 
-      return config;
+      return config.value;
     }
 
     /**

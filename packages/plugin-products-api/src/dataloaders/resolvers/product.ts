@@ -23,5 +23,22 @@ export default {
     return (
       (product.vendorId && dataLoaders.company.load(product.vendorId)) || null
     );
+  },
+
+  async uom(product: IProductDocument, _, { dataLoaders, models }: IContext) {
+    if (!(await models.ProductsConfigs.getConfig('isReqiureUOM', ''))) {
+      return {};
+    }
+
+    let uomId = product.uomId;
+    if (!uomId) {
+      uomId = await models.ProductsConfigs.getConfig('default_uom', '');
+    }
+
+    if (!uomId) {
+      return {};
+    }
+
+    return models.Uoms.getUom({ _id: uomId });
   }
 };

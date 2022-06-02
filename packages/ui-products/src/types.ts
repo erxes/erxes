@@ -41,6 +41,7 @@ export interface IProduct {
   vendor?: ICompany;
 
   uomId?: string;
+  uom?: any;
   subUoms?: any[];
 }
 
