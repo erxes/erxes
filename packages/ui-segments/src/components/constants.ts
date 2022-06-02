@@ -30,8 +30,8 @@ export const OPERATORS = {
     { name: 'day(s) later', value: 'woad' },
     { name: 'date relative less than', value: 'drlt' },
     { name: 'date relative greater than', value: 'drgt' },
-    { name: 'is set', value: 'is', noInput: true },
-    { name: 'is not set', value: 'ins', noInput: true }
+    { name: 'date is set', value: 'dateis', noInput: true },
+    { name: 'date is not set', value: 'dateins', noInput: true }
   ]
 };
 
