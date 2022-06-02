@@ -23,7 +23,7 @@
 
 ## Demo
 
-Live demo is deployed at <a href="https://demo.erxes.io/" target="_blank">https://demo.erxes.io/</a>
+Live demo is deployed at <a href="https://xosdemo.erxes.io/" target="_blank">https://xosdemo.erxes.io/</a>
 
 ## Features
 
