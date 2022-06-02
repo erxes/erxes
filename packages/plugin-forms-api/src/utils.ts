@@ -13,25 +13,21 @@ const getFieldGroup = async (models: IModels, _id: string) => {
   return models.FieldsGroups.findOne({ _id });
 };
 
+interface ICombinedParams {
+  contentType: string;
+  usageType?: string;
+  excludedNames?: string[];
+  segmentId?: string;
+  config?: any;
+}
+
 /**
  * Generates all field choices base on given kind.
  */
 export const fieldsCombinedByContentType = async (
   models: IModels,
   subdomain: string,
-  {
-    contentType,
-    usageType,
-    excludedNames,
-    segmentId,
-    config
-  }: {
-    contentType: string;
-    usageType?: string;
-    excludedNames?: string[];
-    segmentId?: string;
-    config?: any;
-  }
+  { contentType, usageType, excludedNames, segmentId, config }: ICombinedParams
 ) => {
   let fields: Array<{
     _id: number;
@@ -175,7 +171,11 @@ export const formSubmissionsQuery = async (
   const integration = await sendInboxMessage({
     subdomain,
     action: 'integrations.find',
-    data: integrationsSelector,
+    data: {
+      query: {
+        integrationsSelector
+      }
+    },
     isRPC: true,
     defaultValue: []
   });
