@@ -7,7 +7,6 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
 import SettingsRoutes from './modules/settings/routes';
-import TutorialRoutes from './modules/tutorial/routes';
 import WelcomeRoutes from './modules/welcome/routes';
 
 const MainLayout = asyncComponent(() =>
@@ -70,7 +69,6 @@ const renderRoutes = currentUser => {
       <>
         <MainLayout currentUser={currentUser}>
           <SettingsRoutes />
-          <TutorialRoutes />
           <WelcomeRoutes />
           {pluginLayouts(currentUser)}
           {pluginRouters()}

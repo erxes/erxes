@@ -63,7 +63,8 @@ export default withProps<Props>(
       options: ({}) => {
         return {
           variables: {
-            kind: INTEGRATION_KINDS.FORMS
+            kind: INTEGRATION_KINDS.FORMS,
+            perPage: 1000
           }
         };
       }

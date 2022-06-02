@@ -36,15 +36,16 @@ class Widget extends React.Component<Props, State> {
   }
 
   onHideNumber = () => {
-    client.mutate({
-      mutation: gql(mutations.showNotification)
-    });
+    console.log('onHideNumber');
+    // client.mutate({
+    //   mutation: gql(mutations.showNotification),
+    // });
   };
 
   renderUnreadCount() {
     const { unreadCount, currentUser } = this.props;
     const user = currentUser || { isShowNotification: false };
-
+    console.log(user.isShowNotification);
     if (!user.isShowNotification && unreadCount && unreadCount !== 0) {
       return (
         <Label shake={true} lblStyle="danger" ignoreTrans={true}>
@@ -69,7 +70,10 @@ class Widget extends React.Component<Props, State> {
     } = this.props;
 
     const { currentTab } = this.state;
-
+    console.log(
+      'render:',
+      this.props.currentUser && this.props.currentUser.isShowNotification
+    );
     const popoverProps = {
       notifications,
       isLoading,

@@ -296,7 +296,7 @@ class TopNavigation extends React.Component<any, any> {
 export const pluginsOfTopNavigations = () => {
   const plugins: any[] = (window as any).plugins || [];
   const topNavigationMenus: any[] = [];
-
+  console.log('in top nav');
   for (const plugin of plugins) {
     for (const menu of plugin.menus || []) {
       if (menu.location === 'topNavigation') {
