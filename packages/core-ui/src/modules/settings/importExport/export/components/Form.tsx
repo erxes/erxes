@@ -35,7 +35,6 @@ type Props = {
   columns: IConfigColumn[];
   count: number;
   loading: boolean;
-  serviceType: string;
   previewCount: (segmentId?: string) => void;
 };
 
@@ -80,7 +79,13 @@ class ExportForm extends React.Component<Props, State> {
     const { contentType } = this.props;
     const { columns, segmentId } = this.state;
 
-    const columnsConfig = columns.filter(conf => conf.checked);
+    const serviceType = contentType.split(':')[0];
+
+    let columnsConfig = columns.filter(conf => conf.checked) as any;
+
+    columnsConfig = columnsConfig.map(conf => {
+      return conf.name;
+    });
 
     const stringified = queryString.stringify({
       configs: JSON.stringify(columnsConfig),
@@ -88,8 +93,6 @@ class ExportForm extends React.Component<Props, State> {
       segment: segmentId,
       unlimited: true
     });
-
-    const serviceType = contentType.split(':')[0];
 
     window.open(
       `${REACT_APP_API_URL}/pl:${serviceType}/file-export?${stringified}`,

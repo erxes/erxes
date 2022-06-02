@@ -1,7 +1,7 @@
 import {
   attachmentType,
-  attachmentInput,
-} from "@erxes/api-utils/src/commonTypeDefs";
+  attachmentInput
+} from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = () => `
 
@@ -34,6 +34,7 @@ export const types = () => `
     avatar: String
     description: String
     fullName: String
+    operatorPhone: String
   }
 
   type ChatUser {

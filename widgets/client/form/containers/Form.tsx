@@ -22,14 +22,14 @@ const Form = (props: ChildProps<IProps, QueryResponse>) => {
 
   const extendedProps = {
     ...props,
-    form: data.formDetail
+    form: data.formDetail,
   };
 
   React.useEffect(() => {
     client
       .subscribe({
         query: gql(formInvoiceUpdated),
-        variables: { messageId: props.lastMessageId || "" }
+        variables: { messageId: props.lastMessageId || "" },
       })
       .subscribe({
         next({ data }) {
@@ -39,7 +39,7 @@ const Form = (props: ChildProps<IProps, QueryResponse>) => {
         },
         error(err: any) {
           console.error("err", err);
-        }
+        },
       });
   });
 
@@ -75,9 +75,9 @@ const FormWithData = graphql<IProps, QueryResponse>(
     options: ({ form }) => ({
       fetchPolicy: "network-only",
       variables: {
-        _id: form._id
-      }
-    })
+        _id: form._id,
+      },
+    }),
   }
 )(Form);
 
@@ -98,7 +98,7 @@ const WithContext = () => (
       invoiceType,
       lastMessageId,
       cancelOrder,
-      onChangeCurrentStatus
+      onChangeCurrentStatus,
     }) => {
       const integration = getIntegration();
       const form = getForm();

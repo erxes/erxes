@@ -32,6 +32,7 @@ type Props = {
   link?: string;
   additionalButton?: React.ReactNode;
   direction?: 'horizontal' | 'vertical';
+  progress?: number;
 };
 
 class Step extends React.Component<Props> {
@@ -116,14 +117,13 @@ class Step extends React.Component<Props> {
       title,
       children,
       noButton,
-      direction
+      direction,
+      progress = 0
     } = this.props;
 
     let show = false;
 
     if (stepNumber === active) show = true;
-
-    console.log(stepNumber, active);
 
     switch (direction) {
       case 'vertical':
@@ -132,7 +132,7 @@ class Step extends React.Component<Props> {
             <StepItem
               show={show}
               direction={direction}
-              active={active >= stepNumber}
+              active={progress >= stepNumber}
             >
               <ShortStep
                 show={true}
@@ -140,7 +140,10 @@ class Step extends React.Component<Props> {
                 direction={direction}
                 onClick={() => this.handleOnClick(stepNumber)}
               >
-                <StepCount direction={direction} active={active >= stepNumber}>
+                <StepCount
+                  direction={direction}
+                  active={progress >= stepNumber}
+                >
                   {stepNumber}
                 </StepCount>
                 <StepHeaderTitle>{__(title || '')}</StepHeaderTitle>

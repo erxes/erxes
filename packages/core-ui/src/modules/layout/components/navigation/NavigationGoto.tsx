@@ -2,12 +2,13 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import _ from 'lodash';
 import { Modal } from 'react-bootstrap';
+import styled from 'styled-components';
 import {
   NavItem,
   NavMenuItem,
   NavIcon,
   GotoFormWrapper,
-  GotoWrapper,
+  GotoContentWrapper,
   GotoItem,
   GotoCategory
 } from '../../styles';
@@ -16,7 +17,15 @@ import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import { pluginNavigations, getChildren } from './utils';
+import { ACTIONS, GENERAL_SETTINGS } from './constants';
+import { pluginNavigations } from './utils';
+
+const GotoModal = styled(Modal)`
+  & > div {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+`;
 
 type Props = {
   navCollapse: number;
@@ -38,6 +47,7 @@ export default class NavigationGoto extends React.Component<Props, State> {
       show: false,
       keysPressed: {},
       plugins: [],
+      filteredPlugins: [],
       searchValue: ''
     };
 
@@ -45,11 +55,7 @@ export default class NavigationGoto extends React.Component<Props, State> {
   }
 
   componentDidUpdate() {
-    if (
-      this.state.show === true &&
-      this.searchFormInput &&
-      this.searchFormInput.current
-    )
+    if (this.state.show && this.searchFormInput && this.searchFormInput.current)
       this.searchFormInput.current.focus();
   }
 
@@ -60,20 +66,21 @@ export default class NavigationGoto extends React.Component<Props, State> {
     let plugins: any[] = pluginNavigations() || [];
     let totalPlugins: any[] = [];
 
-    for (const plugin of plugins) {
-      let children: any[] = getChildren(plugin);
-
-      totalPlugins.push(plugin);
-
-      for (const child of children) {
-        child.icon = plugin.icon;
-        child.name = plugin.name;
+    if (plugins.length !== 0)
+      plugins[0].children.map((child: any, index: number) => {
+        child.icon = 'icon-settings';
+        child.name = child.scope;
 
         totalPlugins.push(child);
-      }
+      });
+
+    for (const plugin of plugins) {
+      delete plugin.children;
+
+      totalPlugins.push(plugin);
     }
 
-    this.setState({ plugins: totalPlugins });
+    this.setState({ plugins: [...totalPlugins, ...GENERAL_SETTINGS] });
   }
 
   componentWillUnmount() {
@@ -101,51 +108,129 @@ export default class NavigationGoto extends React.Component<Props, State> {
   };
 
   handleSearch = (event: any) => {
-    this.setState({ searchValue: event.target.value });
+    let filteredPlugins: any[] = [];
+    const searchValue: string = event.target.value;
+    const allPlugins: any[] = [...this.state.plugins, ...ACTIONS];
+
+    this.setState({ searchValue: searchValue });
+
+    filteredPlugins = allPlugins.filter((plugin: any) => {
+      if (searchValue.length === 0) return;
+
+      if (plugin.text.toLowerCase().includes(searchValue.toLowerCase()))
+        return plugin;
+    });
+
+    filteredPlugins = _.sortBy(filteredPlugins, ['name', 'text']);
+
+    this.setState({ filteredPlugins: filteredPlugins });
   };
 
   handleClear = () => {
     this.setState({ searchValue: '' });
   };
 
+  renderActions = () => {
+    if (this.state.searchValue.length === 0)
+      return (
+        <>
+          <GotoCategory>Actions</GotoCategory>
+          {ACTIONS.map((item: any, index: number) => {
+            return (
+              <NavLink onClick={this.handleShow} to={item.url} key={index}>
+                <GotoItem>
+                  <i className={item.icon} />
+                  <p>{item.text}</p>
+                  <span>{item.name}</span>
+                </GotoItem>
+              </NavLink>
+            );
+          })}
+        </>
+      );
+
+    return null;
+  };
+
+  renderPlugins = () => {
+    if (this.state.searchValue.length === 0)
+      return (
+        <>
+          <GotoCategory>Navigations</GotoCategory>
+          {this.state.plugins.map((plugin: any, index: number) => {
+            return (
+              <WithPermission
+                key={index}
+                action={plugin.permission ? plugin.permission : ''}
+                actions={plugin.permissions ? plugin.permissions : []}
+              >
+                <NavLink
+                  onClick={this.handleShow}
+                  to={plugin.url ? plugin.url : plugin.to}
+                >
+                  <GotoItem>
+                    <i className={plugin.icon} />
+                    <p>{plugin.text}</p>
+                    <span>{plugin.name}</span>
+                  </GotoItem>
+                </NavLink>
+              </WithPermission>
+            );
+          })}
+        </>
+      );
+
+    return null;
+  };
+
   renderFilteredPlugins = () => {
-    let filteredPlugins: any[] = [];
-    const { plugins, searchValue } = this.state;
+    const { filteredPlugins, searchValue } = this.state;
 
-    filteredPlugins = plugins.filter((plugin: any) => {
-      if (plugin.text.toLowerCase().includes(searchValue.toLowerCase()))
-        return plugin;
-    });
-
-    if (filteredPlugins.length === 0)
+    if (filteredPlugins.length === 0 && searchValue.length !== 0)
       return (
-        <GotoItem>
-          <i>No matching results</i>
-        </GotoItem>
+        <>
+          <GotoCategory>Search results</GotoCategory>
+          <GotoItem>
+            <i>No result</i>
+          </GotoItem>
+        </>
       );
 
-    return filteredPlugins.map((plugin: any, index: number) => {
-      if (!plugin.url) plugin.url = plugin.to;
-
+    if (filteredPlugins.length !== 0 && searchValue.length !== 0)
       return (
-        <WithPermission
-          key={index}
-          action={plugin.permission ? plugin.permission : ''}
-          actions={plugin.permissions ? plugin.permissions : []}
-        >
-          <NavLink
-            onClick={this.handleShow}
-            to={plugin.url ? plugin.url : plugin.to}
-          >
-            <GotoItem>
-              <i className={plugin.icon} />
-              <p>{plugin.text}</p>
-              <span>{plugin.name}</span>
-            </GotoItem>
-          </NavLink>
-        </WithPermission>
+        <>
+          <GotoCategory>Search results</GotoCategory>
+          {filteredPlugins.map((plugin: any, index: number) => {
+            const {
+              permission,
+              permissions,
+              icon,
+              text,
+              name,
+              to,
+              url
+            } = plugin;
+
+            return (
+              <WithPermission
+                key={index}
+                action={permission ? permission : ''}
+                actions={permissions ? permissions : []}
+              >
+                <NavLink onClick={this.handleShow} to={url ? url : to}>
+                  <GotoItem>
+                    <i className={icon} />
+                    <p>{text}</p>
+                    <span>{name}</span>
+                  </GotoItem>
+                </NavLink>
+              </WithPermission>
+            );
+          })}
+        </>
       );
-    });
+
+    return null;
   };
 
   render() {
@@ -156,26 +241,28 @@ export default class NavigationGoto extends React.Component<Props, State> {
     if (keysPressed.Control === true && keysPressed.m === true)
       this.handleShow();
 
+    const renderIcon = () => {
+      if (navCollapse === 1) return <NavIcon className="icon-search" />;
+
+      return (
+        <>
+          <NavIcon className="icon-search" />
+          <label>{__('Go to...')}</label>
+        </>
+      );
+    };
+
     return (
       <React.Fragment>
         <NavItem isMoreItem={false}>
           <Tip placement="right" text={__('Go to... (Ctrl + M)')}>
             <NavMenuItem isMoreItem={false} navCollapse={navCollapse}>
-              <a onClick={this.handleShow}>
-                {navCollapse === 1 ? (
-                  <NavIcon className="icon-search" />
-                ) : (
-                  <>
-                    <NavIcon className="icon-search" />
-                    <label>{__('Go to...')}</label>
-                  </>
-                )}
-              </a>
+              <a onClick={this.handleShow}>{renderIcon()}</a>
             </NavMenuItem>
           </Tip>
         </NavItem>
 
-        <Modal show={show} onHide={this.handleShow}>
+        <GotoModal show={show} onHide={this.handleShow} size="lg">
           <GotoFormWrapper>
             <Icon icon="search-1" size={16} />
             <input
@@ -186,11 +273,12 @@ export default class NavigationGoto extends React.Component<Props, State> {
             />
             <Icon icon="times" size={16} onClick={this.handleClear} />
           </GotoFormWrapper>
-          <GotoWrapper>
-            <GotoCategory>Navigation</GotoCategory>
+          <GotoContentWrapper>
+            {this.renderActions()}
+            {this.renderPlugins()}
             {this.renderFilteredPlugins()}
-          </GotoWrapper>
-        </Modal>
+          </GotoContentWrapper>
+        </GotoModal>
       </React.Fragment>
     );
   }

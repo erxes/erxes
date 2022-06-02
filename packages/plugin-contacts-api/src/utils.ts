@@ -191,7 +191,7 @@ const getIntegrations = async (subdomain: string) => {
   const integrations = await sendInboxMessage({
     subdomain,
     action: 'integrations.find',
-    data: {},
+    data: { query: {} },
     isRPC: true,
     defaultValue: []
   });
@@ -313,11 +313,10 @@ export const generateFields = async ({ subdomain, data }) => {
 
   fields = [...fields, tags];
 
-  if (type === 'customer') {
+  if (type === 'customer' || type === 'lead') {
     const integrations = await getIntegrations(subdomain);
 
     fields = [...fields, integrations];
-
     if (usageType === 'import') {
       fields.push({
         _id: Math.random(),
@@ -898,7 +897,7 @@ export const updateContactsField = async (
     }
   }
 
-  return cachedCustomer;
+  return models.Customers.findOne({ _id: cachedCustomerId });
 };
 
 export const updateCustomerFromForm = async (
@@ -962,7 +961,7 @@ const prepareCustomFieldsData = (
   customerData: ICustomField[],
   submissionData: ICustomField[]
 ) => {
-  const customFieldsData: ICustomField[] = [];
+  const customFieldsData: ICustomField[] = customerData;
 
   if (customerData.length === 0) {
     return submissionData;
@@ -971,11 +970,15 @@ const prepareCustomFieldsData = (
   for (const data of submissionData) {
     const existingData = customerData.find(e => e.field === data.field);
 
-    if (existingData && Array.isArray(existingData.value)) {
-      data.value = existingData.value.concat(data.value);
+    if (existingData) {
+      if (Array.isArray(existingData.value)) {
+        existingData.value = existingData.value.concat(data.value);
+      } else {
+        existingData.value = data.value;
+      }
+    } else {
+      customFieldsData.push(data);
     }
-
-    customFieldsData.push(data);
   }
 
   return customFieldsData;
