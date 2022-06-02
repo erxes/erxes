@@ -16,7 +16,7 @@ class ArchiveLog extends React.Component<IActivityLogItemProps> {
 
     const type = contentType ? contentType.split(':')[1] : '';
 
-    let userName = 'Unknown';
+    let userName = 'system';
 
     if (createdByDetail && createdByDetail.type === 'user') {
       const createdByDetailContent = createdByDetail.content;

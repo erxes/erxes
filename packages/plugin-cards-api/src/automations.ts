@@ -4,6 +4,7 @@ import {
 } from '@erxes/api-utils/src/automations';
 import { generateModels, IModels } from './connectionResolver';
 import { itemsAdd } from './graphql/resolvers/mutations/utils';
+import { putActivityLog } from './logUtils';
 import { sendCommonMessage, sendCoreMessage } from './messageBroker';
 import { getCollection } from './models/utils';
 
@@ -207,6 +208,29 @@ const actionCreate = async ({
         mainTypeId: execution.targetId,
         relType: `${collectionType}`,
         relTypeId: item._id
+      }
+    });
+
+    let activityAction = 'create';
+    let activityContent = '';
+
+    if (
+      newData.sourceConversationIds &&
+      newData.sourceConversationIds.length > 0
+    ) {
+      activityAction = 'convert';
+      activityContent = item.sourceConversationIds.slice(-1)[0];
+    }
+
+    // create log
+    await putActivityLog(subdomain, {
+      action: 'createBoardItem',
+      data: {
+        item,
+        contentType: collectionType,
+        action: activityAction,
+        content: activityContent,
+        contentId: item._id
       }
     });
 
