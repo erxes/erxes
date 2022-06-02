@@ -90,11 +90,13 @@ export default class Builder {
       action: 'fetchSegment',
       data: {
         segmentId,
-        returnFields: ['_id'],
-        page: 1,
-        perPage: this.params.limit ? this.params.limit + 1 : 11,
-        sortField: 'updatedAt',
-        sortDirection: -1
+        options: {
+          returnFields: ['_id'],
+          page: 1,
+          perPage: this.params.limit ? this.params.limit + 1 : 11,
+          sortField: 'updatedAt',
+          sortDirection: -1
+        }
       },
       isRPC: true
     });

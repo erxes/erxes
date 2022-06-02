@@ -214,7 +214,9 @@ export class CommonBuilder<IArgs extends IListArgs> {
       action: 'fetchSegment',
       data: {
         segmentId,
-        returnSelector: true
+        options: {
+          returnSelector: true
+        }
       },
       isRPC: true
     });
@@ -514,6 +516,12 @@ export class CommonBuilder<IArgs extends IListArgs> {
       body: queryOptions,
       defaultValue: 0
     });
+
+    console.log(
+      JSON.stringify(queryOptions),
+      '--------------------------',
+      response.count
+    );
 
     return response.count;
   }
