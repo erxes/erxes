@@ -18,6 +18,7 @@ import { debugInfo, debugError } from './debuggers';
 import { init as initBroker } from '@erxes/api-utils/src/messageBroker';
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
+import { cronConsumers } from '@erxes/api-utils/src/cronjobs';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
@@ -230,7 +231,8 @@ async function startServer() {
         automations,
         search,
         webhooks,
-        initialSetup
+        initialSetup,
+        cronjobs
       } = configs.meta;
       const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
 
@@ -418,7 +420,17 @@ async function startServer() {
           data: await search(args)
         }));
       }
-    }
+
+      if (cronjobs) {
+        cronConsumers({
+          name: configs.name,
+          consumeQueue,
+          handleMinutelyJob: cronjobs.handleMinutelyJob,
+          handleHourlyJob: cronjobs.handleHourlyJob,
+          handleDailyJob: cronjobs.handleDailyJob
+        });
+      }
+    } // end configs.meta if
 
     await join({
       name: configs.name,

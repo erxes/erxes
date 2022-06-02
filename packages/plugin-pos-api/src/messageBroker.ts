@@ -205,7 +205,7 @@ export const initBroker = async cl => {
         const customer = await sendContactsMessage({
           subdomain: 'subdomain',
           action: 'customers.createCustomer',
-          data: data.data,
+          data,
           isRPC: true
         });
 
