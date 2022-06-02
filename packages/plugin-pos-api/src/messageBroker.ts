@@ -1,15 +1,15 @@
-import { generateModels, IModels } from "./connectionResolver";
-import { ISendMessageArgs, sendMessage } from "@erxes/api-utils/src/core";
-import { serviceDiscovery } from "./configs";
+import { generateModels, IModels } from './connectionResolver';
+import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { serviceDiscovery } from './configs';
 import { IPosDocument } from './models/definitions/pos';
-import { orderToErkhet } from "./utils";
+import { orderToErkhet } from './utils';
 
 let client;
 
-export const initBroker = async (cl) => {
+export const initBroker = async cl => {
   client = cl;
 
-  const { consumeQueue } = client;
+  const { consumeQueue, consumeRPCQueue } = client;
 
   consumeQueue('vrpc_queue:erxes-pos-to-api', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -23,7 +23,9 @@ export const initBroker = async (cl) => {
     // ====== if (action === 'statusToDone')
     if (action === 'statusToDone') {
       // must have
-      const doneOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
+      const doneOrder = await models.PosOrders.findOne({
+        _id: order._id
+      }).lean();
 
       const { deliveryConfig = {} } = pos;
       const deliveryInfo = doneOrder.deliveryInfo || {};
@@ -53,17 +55,18 @@ export const initBroker = async (cl) => {
           // }
           customFieldsData: [
             {
-              field: (deliveryConfig.mapCustomField).replace('customFieldsData.', ''),
+              field: deliveryConfig.mapCustomField.replace(
+                'customFieldsData.',
+                ''
+              ),
               locationValue: {
-                type: "Point",
-                coordinates: [
-                  marker.longitude, marker.latitude
-                ]
+                type: 'Point',
+                coordinates: [marker.longitude, marker.latitude]
               },
               value: {
                 lat: marker.latitude,
                 lng: marker.longitude,
-                description: "location"
+                description: 'location'
               },
               stringValue: `${marker.longitude},${marker.latitude}`
             }
@@ -95,8 +98,8 @@ export const initBroker = async (cl) => {
             relType: 'customer',
             relTypeId: doneOrder.customerId
           },
-          isRPC: true,
-        })
+          isRPC: true
+        });
       }
 
       await sendCardsMessage({
@@ -110,18 +113,19 @@ export const initBroker = async (cl) => {
             destinationStageId: deliveryConfig.stageId
           }
         }
-      })
+      });
 
       await models.PosOrders.updateOne(
         { _id: doneOrder },
         {
           $set: {
             deliveryInfo: {
-              ...deliveryInfo, dealId: deal._id
+              ...deliveryInfo,
+              dealId: deal._id
             }
           }
         }
-      )
+      );
 
       return {
         status: 'success'
@@ -134,13 +138,16 @@ export const initBroker = async (cl) => {
       action: 'putresponses.createOrUpdate',
       data: { _id: response._id, doc: { ...response, posToken, syncId } },
       isRPC: true
-    })
+    });
 
     await models.PosOrders.updateOne(
       { _id: order._id },
       {
         $set: {
-          ...order, posToken, syncId, items,
+          ...order,
+          posToken,
+          syncId,
+          items,
           branchId: order.branchId || pos.branchId
         }
       },
@@ -150,7 +157,14 @@ export const initBroker = async (cl) => {
     const newOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
 
     // return info saved
-    sendCommonMessage(`vrpc_queue:erxes-pos-from-api_${syncId}`, { status: 'ok', posToken, syncId, responseId: response._id, orderId: order._id, thirdService: true })
+    sendCommonMessage(`vrpc_queue:erxes-pos-from-api_${syncId}`, {
+      status: 'ok',
+      posToken,
+      syncId,
+      responseId: response._id,
+      orderId: order._id,
+      thirdService: true
+    });
 
     if (newOrder.type === 'delivery' && newOrder.branchId) {
       const toPos = await models.Pos.findOne({ branchId: newOrder.branchId });
@@ -158,37 +172,111 @@ export const initBroker = async (cl) => {
       // paid order info to offline pos
       // TODO: this message RPC, offline pos has seen by this message check
       if (toPos) {
-        await sendPosMessage(models, client, 'vrpc_queue:erxes-pos-to-pos', { order: { ...newOrder, posToken } }, toPos);
+        await sendPosMessage(
+          models,
+          client,
+          'vrpc_queue:erxes-pos-to-pos',
+          { order: { ...newOrder, posToken } },
+          toPos
+        );
       }
     }
 
-    await orderToErkhet(subdomain, models, client, pos, order._id, response._id);
+    await orderToErkhet(
+      subdomain,
+      models,
+      client,
+      pos,
+      order._id,
+      response._id
+    );
 
     return {
       status: 'success'
+    };
+  });
+
+  consumeRPCQueue('erxes-pos-to-api', async msg => {
+    const { action, data, posToken } = msg;
+    const models = await generateModels('subdomain');
+
+    try {
+      if (action === 'newCustomer') {
+        const customer = await sendContactsMessage({
+          subdomain: 'subdomain',
+          action: 'customers.createCustomer',
+          data: data.data,
+          isRPC: true
+        });
+
+        await sendPosMessage(
+          models,
+          client,
+          'pos:crudData',
+          { action: 'create', type: 'customer', object: customer || {} },
+          undefined,
+          [posToken]
+        );
+
+        return { status: 'success', data: customer };
+      }
+    } catch (e) {
+      return { status: 'error', errorMessage: e.message };
     }
-  })
-
+  });
 };
 
-export const sendProductsMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'products', ...args });
+export const sendProductsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'products',
+    ...args
+  });
 };
 
-export const sendCardsMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: "cards", ...args });
+export const sendCardsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'cards',
+    ...args
+  });
 };
 
-export const sendContactsMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'contacts', ...args });
+export const sendContactsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'contacts',
+    ...args
+  });
 };
 
-export const sendEbarimtMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'ebarimt', ...args });
-}
+export const sendEbarimtMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'ebarimt',
+    ...args
+  });
+};
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'core', ...args });
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'core',
+    ...args
+  });
 };
 
 export const sendCommonMessage = async (channel, message): Promise<any> => {
@@ -209,7 +297,11 @@ export const getChannels = async (
   const allPos = pos ? [pos] : await models.Pos.find().lean();
 
   for (const p of allPos) {
-    if (excludeTokens && excludeTokens.length && excludeTokens.includes(p.token)) {
+    if (
+      excludeTokens &&
+      excludeTokens.length &&
+      excludeTokens.includes(p.token)
+    ) {
       continue;
     }
 
@@ -229,10 +321,11 @@ export const getChannels = async (
       channels.push(`${channel}_${syncId}`);
     }
   }
-  return channels
+  return channels;
 };
 
-export const sendPosMessage = async (models: IModels,
+export const sendPosMessage = async (
+  models: IModels,
   messageBroker: any,
   channel: string,
   params: any,
@@ -243,9 +336,10 @@ export const sendPosMessage = async (models: IModels,
   for (const ch of channels) {
     messageBroker().sendMessage(ch, params);
   }
-}
+};
 
-export const sendRPCPosMessage = async (models: IModels,
+export const sendRPCPosMessage = async (
+  models: IModels,
   messageBroker: any,
   channel: string,
   params: any,
@@ -253,14 +347,14 @@ export const sendRPCPosMessage = async (models: IModels,
   excludeTokens?: string[]
 ) => {
   const channels = await getChannels(models, channel, pos, excludeTokens);
-  let ch = (channels && channels.length) && channels[0] || '';
+  let ch = (channels && channels.length && channels[0]) || '';
   if (!ch) {
-    return {}
+    return {};
   }
 
   return await messageBroker().sendRPCMessage(ch, params);
-}
+};
 
-export default function () {
+export default function() {
   return client;
 }
