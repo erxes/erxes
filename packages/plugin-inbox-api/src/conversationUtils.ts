@@ -120,7 +120,7 @@ export const countBySegment = async (
     subdomain,
     action: 'find',
     data: {
-      contentType: 'conversation'
+      contentType: 'inbox:conversation'
     },
     isRPC: true
   });
@@ -209,20 +209,11 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
   // filter by segment
   public async segmentFilter(segmentId: string) {
-    const segment = await sendSegmentsMessage({
-      subdomain: this.subdomain,
-      action: 'findOne',
-      data: {
-        _id: segmentId
-      },
-      isRPC: true
-    });
-
     const selector = await sendSegmentsMessage({
       subdomain: this.subdomain,
       action: 'fetchSegment',
       data: {
-        segment,
+        segmentId,
         returnSelector: true
       },
       isRPC: true
