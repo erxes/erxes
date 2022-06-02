@@ -54,21 +54,26 @@ export default class FormMessage extends React.Component<Props, {}> {
       );
     }
 
-    // if (data.type === 'objectList') {
-    //   return <div>h</div>;
-    //   // data.value.map((obj) => {
-    //   //   // return (
-    //   //   <>
-    //   //     {Object.keys(obj).map((key) => (
-    //   //       <div>
-    //   //         {key}: {obj[key]}
-    //   //       </div>
-    //   //     ))}
-    //   //     <span>------------------------</span>
-    //   //   </>;
-    //   //   // );
-    //   // });
-    // }
+    if (data.type === 'objectList') {
+      return data.value.map(obj => {
+        return (
+          <>
+            {Object.entries(obj).map(e => {
+              const key = e[0];
+              const value: any = e[1] || '';
+
+              return (
+                <>
+                  {key}: {value} <br />
+                </>
+              );
+            })}
+            <span>------------------------</span>
+            <br />
+          </>
+        );
+      });
+    }
 
     if (data.type === 'map') {
       const description = data.value.description || '';
