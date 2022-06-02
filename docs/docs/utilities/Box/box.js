@@ -100,6 +100,9 @@ export function BoxComponent(props) {
     );
   };
 
+  if (typeof window === 'undefined')
+    return null;
+
   if (type === "example") {
     return renderBlock();
   }

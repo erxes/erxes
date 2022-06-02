@@ -6,10 +6,13 @@ import { renderApiTable } from "../../components/common.js";
 export function HeaderDescriptionComponent(props) {
   const {type, table=[] } = props;
 
+  if (typeof window === 'undefined')
+    return null;
+
   if (type === "APIheaderdescription"){
     return renderApiTable("HeaderDescription", table)
   }
-  
+
   return (
     <>
       <HeaderDescription

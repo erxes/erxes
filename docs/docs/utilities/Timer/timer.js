@@ -43,6 +43,9 @@ export function TimerComponent(props) {
     );
   };
 
+  if (typeof window === 'undefined')
+    return null;
+
   if (type === "APItimer") {
     return (
       <>

@@ -95,6 +95,9 @@ export function CountsByTagComponent(props) {
     );
   };
 
+  if (typeof window === 'undefined')
+    return null;
+
   if (type === "APIcountsbytag") {
     return (
       <>

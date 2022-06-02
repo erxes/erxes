@@ -49,6 +49,9 @@ export function SubMenuComponent(props) {
     );
   };
 
+  if (typeof window === 'undefined')
+    return null;
+
   if (type === "api") {
     return (
       <>
