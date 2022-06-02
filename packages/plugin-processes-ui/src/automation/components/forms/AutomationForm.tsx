@@ -535,7 +535,7 @@ class AutomationForm extends React.Component<Props, State> {
           </div>
           <div>
             <i class="icon-2"></i>
-            ${item.label} ${this.renderCount(item)}
+            ${item.label}
           </div>
         </div>
         <p>${item.description}</p>
@@ -730,10 +730,10 @@ class AutomationForm extends React.Component<Props, State> {
         <Container>
           <div
             className="trigger scratch"
-            onClick={this.toggleDrawer.bind(this, 'triggers')}
+            onClick={this.toggleDrawer.bind(this, 'actions')}
           >
             <Icon icon="file-plus" size={25} />
-            <p>{__('How do you want to trigger this automation')}?</p>
+            <p>{__('Please add first job')}?</p>
           </div>
         </Container>
       );

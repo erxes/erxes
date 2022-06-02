@@ -165,17 +165,11 @@ export const connection = (
 ) => {
   const sourceId = info.sourceId;
 
-  if (sourceId.includes('trigger')) {
-    const trigger = triggers.find(
-      t => t.id.toString() === sourceId.replace('trigger-', '')
-    );
+  console.log('info:', sourceId, actionId);
 
-    if (trigger) {
-      trigger.actionId = actionId;
-    }
-  } else {
+  if (sourceId.includes('action')) {
     const sourceAction = actions.find(
-      a => a.jobReferId.toString() === sourceId.replace('action-', '')
+      a => a.id.toString() === sourceId.replace('action-', '')
     );
 
     if (sourceAction) {
