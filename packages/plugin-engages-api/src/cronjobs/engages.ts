@@ -1,9 +1,8 @@
-import * as schedule from 'node-schedule';
-import { IModels } from '../connectionResolver';
+import { generateModels, IModels } from '../connectionResolver';
 import { CAMPAIGN_KINDS } from '../constants';
 import { send } from '../engageUtils';
 import { IEngageMessageDocument } from '../models/definitions/engages';
-// import { debugCrons, debugError } from '../debuggers';
+import { debugEngages, debugError } from '../debuggers';
 
 const findMessages = (models: IModels, selector = {}) => {
   return models.EngageMessages.find({
@@ -13,7 +12,11 @@ const findMessages = (models: IModels, selector = {}) => {
   });
 };
 
-const runJobs = async (models: IModels, subdomain: string, messages: IEngageMessageDocument[]) => {
+const runJobs = async (
+  models: IModels,
+  subdomain: string,
+  messages: IEngageMessageDocument[]
+) => {
   for (const message of messages) {
     try {
       await send(models, subdomain, message);
@@ -23,42 +26,51 @@ const runJobs = async (models: IModels, subdomain: string, messages: IEngageMess
         { $set: { lastRunAt: new Date() } }
       );
     } catch (e) {
-      // debugError(
-      //   `Error occurred when sending campaign "${message.title}" with id ${message._id}`
-      // );
+      debugError(
+        `Error occurred when sending campaign "${message.title}" with id ${message._id}`
+      );
     }
   }
 };
 
-export const checkEveryMinuteJobs = async (models: IModels, subdomain: string) => {
-  const messages = await findMessages(models, { 'scheduleDate.type': 'minute' });
+const checkEveryMinuteJobs = async (subdomain: string) => {
+  const models = await generateModels(subdomain);
+  const messages = await findMessages(models, {
+    'scheduleDate.type': 'minute'
+  });
 
   await runJobs(models, subdomain, messages);
 };
 
-const checkPreScheduledJobs = async (models: IModels, subdomain: string) => {
+const checkPreScheduledJobs = async (subdomain: string) => {
+  const models = await generateModels(subdomain);
   const messages = await findMessages(models, { 'scheduleDate.type': 'pre' });
+
   await runJobs(models, subdomain, messages);
 };
 
-const checkHourMinuteJobs = async (models: IModels, subdomain: string) => {
-  // debugCrons('Checking every hour jobs ....');
+const checkHourMinuteJobs = async (subdomain: string) => {
+  debugEngages('Checking every hour jobs ....');
 
+  const models = await generateModels(subdomain);
   const messages = await findMessages(models, { 'scheduleDate.type': 'hour' });
 
-  // debugCrons(`Found every hour  messages ${messages.length}`);
+  debugEngages(`Found every hour  messages ${messages.length}`);
 
   await runJobs(models, subdomain, messages);
 };
 
-const checkDayJobs = async (models: IModels, subdomain: string) => {
-  // debugCrons('Checking every day jobs ....');
+const checkDayJobs = async (subdomain: string) => {
+  debugEngages('Checking every day jobs ....');
 
+  const models = await generateModels(subdomain);
   // every day messages ===========
-  const everyDayMessages = await findMessages(models, { 'scheduleDate.type': 'day' });
+  const everyDayMessages = await findMessages(models, {
+    'scheduleDate.type': 'day'
+  });
   await runJobs(models, subdomain, everyDayMessages);
 
-  // debugCrons(`Found every day messages ${everyDayMessages.length}`);
+  debugEngages(`Found every day messages ${everyDayMessages.length}`);
 
   const now = new Date();
   const day = now.getDate();
@@ -71,10 +83,12 @@ const checkDayJobs = async (models: IModels, subdomain: string) => {
   });
   await runJobs(models, subdomain, everyNthDayMessages);
 
-  // debugCrons(`Found every nth day messages ${everyNthDayMessages.length}`);
+  debugEngages(`Found every nth day messages ${everyNthDayMessages.length}`);
 
   // every month messages ========
-  let everyMonthMessages = await findMessages(models, { 'scheduleDate.type': 'month' });
+  let everyMonthMessages = await findMessages(models, {
+    'scheduleDate.type': 'month'
+  });
 
   everyMonthMessages = everyMonthMessages.filter(message => {
     const { lastRunAt, scheduleDate } = message;
@@ -91,12 +105,14 @@ const checkDayJobs = async (models: IModels, subdomain: string) => {
     return scheduleDate && scheduleDate.day === day.toString();
   });
 
-  // debugCrons(`Found every month messages ${everyMonthMessages.length}`);
+  debugEngages(`Found every month messages ${everyMonthMessages.length}`);
 
   await runJobs(models, subdomain, everyMonthMessages);
 
   // every year messages ========
-  let everyYearMessages = await findMessages(models, { 'scheduleDate.type': 'year' });
+  let everyYearMessages = await findMessages(models, {
+    'scheduleDate.type': 'year'
+  });
 
   everyYearMessages = everyYearMessages.filter(message => {
     const { lastRunAt, scheduleDate } = message;
@@ -117,23 +133,20 @@ const checkDayJobs = async (models: IModels, subdomain: string) => {
     return scheduleDate && scheduleDate.day === day.toString();
   });
 
-  // debugCrons(`Found every year messages ${everyYearMessages.length}`);
+  debugEngages(`Found every year messages ${everyYearMessages.length}`);
 
   await runJobs(models, subdomain, everyYearMessages);
 };
 
-// // every minute at 1sec
-// schedule.scheduleJob('1 * * * * *', async () => {
-//   await checkEveryMinuteJobs();
-//   await checkPreScheduledJobs();
-// });
-
-// // every hour at 10min:10sec
-// schedule.scheduleJob('10 10 * * * *', async () => {
-//   await checkHourMinuteJobs();
-// });
-
-// // every day at 11hour:20min:20sec
-// schedule.scheduleJob('20 20 11 * * *', async () => {
-//   checkDayJobs(models, subdomain);
-// });
+export default {
+  handleMinutelyJob: async (subdomain: string) => {
+    await checkEveryMinuteJobs(subdomain);
+    await checkPreScheduledJobs(subdomain);
+  },
+  handleHourlyJob: async (subdomain: string) => {
+    await checkHourMinuteJobs(subdomain);
+  },
+  handleDailyJob: async (subdomain: string) => {
+    await checkDayJobs(subdomain);
+  }
+};

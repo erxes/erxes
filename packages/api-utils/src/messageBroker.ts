@@ -31,6 +31,18 @@ const checkQueueName = async (queueName, isSend = false) => {
   }
 };
 
+export const doesQueueExist = async (
+  serviceName: string,
+  action: string
+): Promise<boolean> => {
+  const isMember = await redisClient.sismember(
+    `service:queuenames:${serviceName}`,
+    action
+  );
+
+  return isMember !== 0;
+};
+
 export const consumeQueue = async (queueName, callback) => {
   queueName = queueName.concat(queuePrefix);
 
