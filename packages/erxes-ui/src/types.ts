@@ -74,9 +74,9 @@ export interface ILocationOption {
 }
 
 export interface IObjectListConfig {
-  key: String;
-  label: String;
-  type: String;
+  key: string;
+  label: string;
+  type: string;
 }
 
 export interface IField {

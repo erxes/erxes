@@ -6,7 +6,13 @@ import {
   DEFAULT_COMPANY_INDUSTRY_TYPES,
   COUNTRIES
 } from '../constants';
-import { FieldValue, IField, IFieldError, ILocationOption } from '../types';
+import {
+  FieldValue,
+  IField,
+  IFieldError,
+  ILocationOption,
+  IObjectListConfig
+} from '../types';
 import MSFmultiSelect from '../multipleSelectScript';
 import { __ } from '../../utils';
 import Map from './Map';
@@ -36,7 +42,7 @@ type State = {
   isMapDraggable: boolean;
   currentLocation: ILocationOption;
   value?: any;
-  objectListValue?: { [key: string]: any }[];
+  objectListConfigs: IObjectListConfig[];
   editing: boolean;
 };
 
@@ -151,7 +157,7 @@ export default class Field extends React.Component<Props, State> {
         lat: 0.0,
         lng: 0.0
       },
-      objectListValue: []
+      objectListConfigs: []
     };
   }
 
@@ -451,7 +457,7 @@ export default class Field extends React.Component<Props, State> {
     );
   }
 
-  renderObjectList(keys: any, attrs: any) {
+  renderObjectList(objectListConfigs: any, attrs: any) {
     let { value = [] } = attrs;
 
     if (typeof value === 'string' && value.length > 0) {
@@ -462,15 +468,15 @@ export default class Field extends React.Component<Props, State> {
       }
     }
 
-    const onChange = (value: any[]) => {
+    const onChange = (values: any[]) => {
       this.setState({ value });
-      this.onChange(value);
+      this.onChange(values);
     };
 
     return (
       <>
         <ObjectList
-          keys={keys}
+          objectListConfigs={objectListConfigs}
           value={value}
           onChange={onChange}
           isEditing={this.state.editing}
@@ -486,7 +492,7 @@ export default class Field extends React.Component<Props, State> {
 
     const attrs = {
       id: field._id,
-      value: this.state.objectListValue,
+      value: this.state.objectListConfigs,
       onChange: this.onChange,
       name: ''
     };
@@ -647,7 +653,7 @@ export default class Field extends React.Component<Props, State> {
         return this.renderProduct(field);
 
       case 'objectList':
-        return this.renderObjectList(field.keys, attrs);
+        return this.renderObjectList(field.objectListConfigs, attrs);
 
       default:
         return Field.renderInput({
@@ -661,21 +667,25 @@ export default class Field extends React.Component<Props, State> {
 
   renderAddButton() {
     const { field } = this.props;
-    const { keys = [] } = field;
+    const { objectListConfigs = [] } = field;
 
-    if (field.type !== 'objectList' || !field.keys) {
+    if (field.type !== 'objectList' || !field.objectListConfigs) {
       return null;
     }
 
     const onClick = () => {
-      const object = keys.reduce((e: any, key: any) => {
-        e[key] = '';
-        return e;
-      }, {});
+      const object = objectListConfigs.reduce(
+        (previousValue: any, currentValue: any) => {
+          previousValue[`${currentValue.key}`] = '';
 
-      const objectListValue = this.state.objectListValue || [];
+          return previousValue;
+        },
+        {}
+      );
+
+      const objectListValue = this.state.objectListConfigs || [];
       this.setState({
-        objectListValue: [object, ...objectListValue]
+        objectListConfigs: [object, ...objectListValue]
       });
     };
 

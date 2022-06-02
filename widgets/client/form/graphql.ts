@@ -22,6 +22,11 @@ export const formDetailQuery = `
           lng
           description
         }
+        objectListConfigs{
+          key
+          label
+          type
+        }
         isRequired
         order
         validation

@@ -2,16 +2,17 @@ import { useState, useEffect } from 'react';
 import * as React from 'react';
 import { ObjectListItemContainer } from '../styles';
 import ObjectListItem from './ObjectListItem';
+import { IObjectListConfig } from '../types';
 
 type Props = {
-  keys: string[];
+  objectListConfigs: IObjectListConfig[];
   value: any[];
   isEditing: boolean;
   onChange: (value: any[]) => void;
 };
 
 export default function ObjectList(props: Props) {
-  const { value, keys, onChange } = props;
+  const { value, objectListConfigs, onChange } = props;
 
   const [isEditing, setEditing] = useState(props.isEditing);
   const [objects, setObjects] = useState(value);
@@ -22,9 +23,9 @@ export default function ObjectList(props: Props) {
     setEditing(props.isEditing);
   }, [value, props.isEditing, currentIndex, setCurrentIndex]);
 
-  const onChangeValue = (index: number, key: string, value: any) => {
+  const onChangeValue = (index: number, key: string, values: any) => {
     const newObjects = [...objects];
-    newObjects[index][key] = value;
+    newObjects[index][key] = values;
 
     setObjects(newObjects);
     onChange(objects);
@@ -80,10 +81,10 @@ export default function ObjectList(props: Props) {
   return (
     <>
       {(objects || []).map((object, index) => (
-        <ObjectListItemContainer>
+        <ObjectListItemContainer key={Math.random()}>
           <ObjectListItem
             index={index}
-            keys={keys}
+            objectListConfigs={objectListConfigs}
             object={object}
             onEdit={onEdit}
             onChange={onChangeValue}

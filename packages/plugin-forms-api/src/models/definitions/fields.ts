@@ -52,7 +52,7 @@ interface IVisibility {
   isVisibleInDetail?: boolean;
 }
 
-interface IObjectListConfigs {
+interface IObjectListConfig {
   key: string;
   label: string;
   type: string;
@@ -68,7 +68,7 @@ export interface IField extends IVisibility {
   description?: string;
   options?: string[];
   keys?: string[];
-  objectListConfigs?: IObjectListConfigs[];
+  objectListConfigs?: IObjectListConfig[];
   isRequired?: boolean;
   isDefinedByErxes?: boolean;
   order?: number;

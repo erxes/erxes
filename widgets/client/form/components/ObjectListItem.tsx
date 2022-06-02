@@ -1,7 +1,8 @@
 import * as React from 'react';
+import { IObjectListConfig } from '../types';
 
 type Props = {
-  keys: string[];
+  objectListConfigs: IObjectListConfig[];
   object: any;
   index: number;
   onEdit: (index: number) => void;
@@ -9,7 +10,7 @@ type Props = {
 };
 
 export default function ObjectListItem(props: Props) {
-  const { object, keys, index, onEdit } = props;
+  const { object, objectListConfigs, index, onEdit } = props;
 
   const entries = Object.entries(object);
 
@@ -27,18 +28,24 @@ export default function ObjectListItem(props: Props) {
         const key = e[0];
         const value: any = e[1] || '';
 
-        if (!keys || !keys.includes(key)) {
+        if (!objectListConfigs) {
+          return null;
+        }
+
+        const config = objectListConfigs.find((c) => c.key === key);
+
+        if (!config) {
           return null;
         }
 
         return (
           <>
-            <p>{key}</p>
+            <p>{config.label}</p>
             <input
               id={key}
               type="text"
               value={value}
-              placeholder={key}
+              placeholder={`${config.label}`}
               onChange={onChange}
               onFocus={onFocus}
               className="form-control"

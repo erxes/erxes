@@ -15,6 +15,11 @@ const fields = `
       description
       options
       keys
+      objectListConfigs {
+        key
+        label
+        type
+      }
       isRequired
       order
       column

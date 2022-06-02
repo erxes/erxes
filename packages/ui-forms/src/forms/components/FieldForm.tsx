@@ -25,6 +25,7 @@ import Select from 'react-select-plus';
 import { IConfig } from '@erxes/ui-settings/src/general/types';
 import LocationOptions from './LocationOptions';
 import { IProductCategory } from '@erxes/ui-products/src/types';
+import ObjectListConfigs from './ObjectListConfigs';
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -96,6 +97,10 @@ class FieldForm extends React.Component<Props, State> {
 
   onChangeLocation = options => {
     this.setFieldAttrChanges('locationOptions', options);
+  };
+
+  onChangeObjectListConfig = objectListConfigs => {
+    this.setFieldAttrChanges('objectListConfigs', objectListConfigs);
   };
 
   onPropertyChange = (selectedField: IField) => {
@@ -295,21 +300,14 @@ class FieldForm extends React.Component<Props, State> {
       return null;
     }
 
-    const onChange = e =>
-      this.onFieldChange(
-        'keys',
-        (e.currentTarget as HTMLInputElement).value.split('\n')
-      );
-
     return (
       <FormGroup>
-        <ControlLabel htmlFor="type">Keys:</ControlLabel>
-
-        <FormControl
-          id="keys"
-          componentClass="textarea"
-          value={(field.keys || []).join('\n')}
-          onChange={onChange}
+        <ControlLabel htmlFor="objectListConfigs">
+          Object List Configs:
+        </ControlLabel>
+        <ObjectListConfigs
+          objectListConfigs={field.objectListConfigs || []}
+          onChange={this.onChangeObjectListConfig}
         />
       </FormGroup>
     );

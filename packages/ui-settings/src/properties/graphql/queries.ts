@@ -102,6 +102,11 @@ const fields = `
         logicValue
       }
       groupName
+      objectListConfigs{
+        key
+        label
+        type
+      }
     }
   }
 `;
