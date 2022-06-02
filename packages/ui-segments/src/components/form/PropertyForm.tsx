@@ -3,7 +3,7 @@ import { IField, ISegmentCondition } from '../../types';
 import React from 'react';
 import Select from 'react-select-plus';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { OPERATORS } from '../constants';
+import { DEFAULT_OPERATORS, OPERATORS } from '../constants';
 import { OperatorList } from '../styles';
 import { Formgroup } from '@erxes/ui/src/components/form/styles';
 import { CenterContent } from '@erxes/ui/src/styles/main';
@@ -145,9 +145,9 @@ class PropertyForm extends React.Component<Props, State> {
   renderOperators = () => {
     const { field } = this.props;
 
-    const { type } = field;
+    const { type, validation } = field;
 
-    const operators = OPERATORS[type || ''] || OPERATORS.string;
+    const operators = OPERATORS[validation || type] || DEFAULT_OPERATORS;
 
     return operators.map((operator, index) => {
       return (
