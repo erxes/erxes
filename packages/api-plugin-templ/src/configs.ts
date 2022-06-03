@@ -18,6 +18,11 @@ export default {
       resolvers: await resolvers(sd)
     };
   },
+  apolloServerContext: async (context, req) => {
+    context.subdomain = req.hostname;
+
+    return context;
+  },
   onServerInit: async options => {
     mainDb = options.db;
 
