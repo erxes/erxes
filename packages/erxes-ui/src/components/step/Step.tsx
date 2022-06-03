@@ -73,7 +73,11 @@ class Step extends React.Component<Props> {
           {additionalButton
             ? additionalButton
             : next && (
-                <ButtonBack size={1} onClick={() => next && next(0)}>
+                <ButtonBack
+                  size={1}
+                  next={true}
+                  onClick={() => next && next(0)}
+                >
                   {__('Skip')}
                 </ButtonBack>
               )}

@@ -38,7 +38,6 @@ const StepItem = styledTS<{
   transition: all .3s ease;
   width: ${props => (props.show ? '100%' : '60px')};
   width: ${props => props.direction === 'vertical' && '100%'};
-  margin-bottom: ${dimensions.unitSpacing}px;
   box-shadow: ${props =>
     !props.direction && `0 0 4px ${colors.colorShadowGray}`};
   position: relative;
@@ -138,7 +137,6 @@ const StepHeaderHorizontalContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
 const StepHeader = styled.div`
@@ -274,6 +272,7 @@ const StepCount = styledTS<{ active?: boolean; direction?: string }>(
             : colors.colorCoreGreen
         }`
       : colors.bgActive};
+  margin-bottom: 10px;
 `;
 
 const InlineForm = styled.div`

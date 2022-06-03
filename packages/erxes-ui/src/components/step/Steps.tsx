@@ -93,7 +93,7 @@ class Steps extends React.Component<Props, State> {
       });
 
       return (
-        <StepItem show={true}>
+        <StepItem direction={direction} show={true}>
           <StepHeaderHorizontalContainer>
             {headerElements}
           </StepHeaderHorizontalContainer>
