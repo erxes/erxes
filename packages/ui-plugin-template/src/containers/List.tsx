@@ -30,7 +30,7 @@ export default commonListComposer<Props>({
   stringAddMutation: mutations.add,
 
   gqlListQuery: graphql(gql(queries.list), {
-    name: 'listQuery',
+    name: 'listQuery'
   }),
 
   gqlTotalCountQuery: graphql(gql(queries.totalCount), {

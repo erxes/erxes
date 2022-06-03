@@ -10,5 +10,5 @@ const add = `
 `;
 
 export default {
-  add,
+  add
 };

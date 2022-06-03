@@ -21,7 +21,7 @@ class Form extends React.Component<Props & ICommonFormProps, {}> {
 
     return {
       _id: finalValues._id,
-      name: finalValues.name,
+      name: finalValues.name
     };
   };
 

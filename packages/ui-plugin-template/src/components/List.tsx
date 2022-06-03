@@ -30,9 +30,7 @@ class ListComp extends React.Component<Props> {
         <tr>
           <td>Name</td>
         </tr>
-        <tbody>
-          {this.renderRow(props)}
-        </tbody>
+        <tbody>{this.renderRow(props)}</tbody>
       </table>
     );
   };
