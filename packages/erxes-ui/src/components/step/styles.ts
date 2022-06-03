@@ -383,7 +383,7 @@ const ButtonContainer = styled.div`
   padding: 0 ${dimensions.coreSpacing}px;
 `;
 
-const ButtonBack = styledTS<{ next?: boolean }>(styled.button)`
+const StepButton = styledTS<{ next?: boolean }>(styled.button)`
   border: none;
   border-radius: 8px;
   height: 36px;
@@ -413,6 +413,7 @@ export {
   ShortStep,
   StepCount,
   StepWrapper,
+  StepButton,
   TitleContainer,
   Indicator,
   ControlWrapper,
@@ -422,6 +423,5 @@ export {
   LeftItem,
   Preview,
   StyledButton,
-  ButtonContainer,
-  ButtonBack
+  ButtonContainer
 };
