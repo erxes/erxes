@@ -243,18 +243,17 @@ const SearchContainer = styledTS<{ focused: boolean }>(styled.div)`
     `};
 
   input {
-    border: 0;
-    background: none;
+    border: 1px solid #e2e2e2;
     width: 100%;
-    background: rgba(255, 255, 255, 0.2);
+    background: #fff;
     font-size: 18px;
     border-radius: 5px;
-    padding: 20px 32px 20px 60px;
-    color: ${rgba(colors.colorWhite, 0.8)};
+    padding: 10px 32px 11px 59px;
+    color: #222;
     transition: all 0.3s linear;
 
     &::placeholder {
-      color: rgba(255, 255, 255, 0.6);
+      color: rgba(0, 0, 0, 0.6);
       font-weight: 400;
     }
 
@@ -285,7 +284,6 @@ const SearchContainer = styledTS<{ focused: boolean }>(styled.div)`
     right: 20px;
   }
 
-  
 `;
 
 const Footer = styledTS<{ color?: string; backgroundImage?: string }>(

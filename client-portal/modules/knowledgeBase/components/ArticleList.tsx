@@ -11,14 +11,37 @@ type Props = {
 };
 
 class Lists extends React.Component<Props> {
+  renderSearchResult = () => {
+    const { searchValue, articles } = this.props;
+
+    if (!searchValue) {
+      return null;
+    }
+
+    if (articles.length === 0) {
+      return (
+        <span className="search-result">
+          We couldn't find any articles for: <b>{searchValue}</b>
+        </span>
+      );
+    }
+
+    return (
+      <span className="search-result">
+        Search result for: <b>{searchValue}</b>
+      </span>
+    );
+  };
+  
   render() {
     const { articles } = this.props;
 
     if (!articles || articles.length === 0) {
-      return <EmptyContent text="Thare are no articles in this category!" />;
+      return <EmptyContent text="There are no articles in this category!" />;
     }
 
-    return articles.map((article) => (
+    return articles.map((article) => (<>
+      {this.renderSearchResult()}
       <Link
         href={`/knowledge-base/article?id=${article._id}&catId=${article.categoryId}`}
         key={article._id}
@@ -32,7 +55,7 @@ class Lists extends React.Component<Props> {
           </CategoryContent>
         </CategoryItem>
       </Link>
-    ));
+    </>));
   }
 }
 
