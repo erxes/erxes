@@ -11,7 +11,9 @@ import {
   CategoryDetailQueryResponse,
   flowsRemoveMutationResponse,
   jobReferTotalCountQueryResponse,
-  FlowsQueryResponse
+  FlowsQueryResponse,
+  FlowsAddMutationResponse,
+  IFlowDocument
 } from '../../types';
 
 type Props = {
@@ -25,7 +27,8 @@ type FinalProps = {
   jobRefersCountQuery: jobReferTotalCountQueryResponse;
   productCategoryDetailQuery: CategoryDetailQueryResponse;
 } & Props &
-  flowsRemoveMutationResponse;
+  flowsRemoveMutationResponse &
+  FlowsAddMutationResponse;
 
 class ProductListContainer extends React.Component<FinalProps> {
   constructor(props) {
@@ -43,8 +46,30 @@ class ProductListContainer extends React.Component<FinalProps> {
       flowsRemove,
       queryParams,
       productCategoryDetailQuery,
+      flowsAddMutation,
       history
     } = this.props;
+
+    const addFlow = () => {
+      flowsAddMutation({
+        variables: {
+          name: 'Your automation title',
+          status: 'draft',
+          triggers: [],
+          actions: []
+        }
+      })
+        .then(data => {
+          history.push({
+            pathname: `/processes/flows/details/${data.data.flowsAdd._id}`,
+            search: '?isCreate=true'
+          });
+        })
+
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    };
 
     if (flowsQuery.loading) {
       return false;
@@ -78,6 +103,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       queryParams,
       flows,
       remove,
+      addFlow,
       loading: flowsQuery.loading,
       searchValue,
       jobRefersCount: jobRefersCountQuery.jobReferTotalCount || 0,
@@ -150,6 +176,20 @@ export default withProps<Props>(
           variables: {
             _id: queryParams.categoryId
           }
+        })
+      }
+    ),
+    graphql<{}, FlowsAddMutationResponse, IFlowDocument>(
+      gql(mutations.flowsAdd),
+      {
+        name: 'flowsAddMutation',
+        options: () => ({
+          refetchQueries: [
+            'flows',
+            'automationsMain',
+            'flowDetail',
+            'jobRefersAll'
+          ]
         })
       }
     )

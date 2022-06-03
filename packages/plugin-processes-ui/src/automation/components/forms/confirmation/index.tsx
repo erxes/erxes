@@ -9,8 +9,8 @@ type Props = {
   id: string;
   name: string;
   save: () => void;
-  removeAutomations: (
-    doc: { automationIds: string[] },
+  removeFlows: (
+    doc: { flowIds: string[] },
     navigateToNextLocation: () => void
   ) => void;
 };
@@ -48,13 +48,10 @@ class Confirmation extends React.Component<Props, State> {
   }
 
   onCancel = () => {
-    const { removeAutomations, queryParams, id } = this.props;
+    const { removeFlows, queryParams, id } = this.props;
 
     if (queryParams.isCreate) {
-      return removeAutomations(
-        { automationIds: [id] },
-        this.navigateToNextLocation
-      );
+      return removeFlows({ flowIds: [id] }, this.navigateToNextLocation);
     }
 
     return this.navigateToNextLocation();

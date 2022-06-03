@@ -49,7 +49,6 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     currentUser,
     history,
     flowsEditMutation,
-    flowsAddMutation,
     jobRefersAllQuery
   } = props;
 
@@ -78,29 +77,6 @@ const AutomationDetailsContainer = (props: FinalProps) => {
       });
   };
 
-  const add = (doc: IFlowDocument) => {
-    setLoading(true);
-
-    flowsAddMutation({
-      variables: {
-        ...doc
-      }
-    })
-      .then(() => {
-        router.removeParams(history, 'isCreate');
-
-        setTimeout(() => {
-          setLoading(false);
-        }, 300);
-
-        Alert.success(`You successfully added a ${doc.name || 'status'}`);
-      })
-
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  };
-
   if (
     flowDetailQuery.loading ||
     automationDetailQuery.loading ||
@@ -116,8 +92,6 @@ const AutomationDetailsContainer = (props: FinalProps) => {
 
   const flowDetail = flowDetailQuery.flowDetail || ({} as IFlowDocument);
 
-  const mutationAddEdit = Object.keys(flowDetail).length ? save : add;
-
   const jobRefers = jobRefersAllQuery.jobRefersAll || [];
 
   const automationNotes = automationNotesQuery.automationNotes || [];
@@ -130,7 +104,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     automation: flowDetail,
     automationNotes,
     currentUser,
-    save: mutationAddEdit,
+    save,
     saveLoading,
     jobRefers
   };
