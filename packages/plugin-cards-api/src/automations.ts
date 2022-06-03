@@ -4,6 +4,7 @@ import {
 } from '@erxes/api-utils/src/automations';
 import { generateModels, IModels } from './connectionResolver';
 import { itemsAdd } from './graphql/resolvers/mutations/utils';
+import { putActivityLog } from './logUtils';
 import { sendCommonMessage, sendCoreMessage } from './messageBroker';
 import { getCollection } from './models/utils';
 
@@ -156,9 +157,12 @@ const actionCreate = async ({
       getRelatedValue,
       actionData: action.config,
       target: execution.target
-    })),
-    userId: execution.target.userId
+    }))
   };
+
+  if (execution.target.userId) {
+    newData.userId = execution.target.userId;
+  }
 
   if (execution.triggerType === 'conversation') {
     newData.sourceConversationIds = [execution.targetId];

@@ -86,14 +86,13 @@ const getConfigData = async (subdomain, pos: IPosDocument) => {
 const getProductsData = async (models: IModels, pos: IPosDocument) => {
   const groups = await models.ProductGroups.groups(pos._id);
 
-  const productGroups = [];
+  const productGroups: any = [];
 
   const commonFilter = [
     { status: { $ne: 'disabled' } },
     { status: { $ne: 'archived' } }
   ];
 
-  const resultGroups: any[] = [];
   for (const group of groups) {
     const chosenCategories = await models.ProductCategories.find({
       $and: [{ _id: { $in: group.categoryIds || [] } }, ...commonFilter]
@@ -140,10 +139,10 @@ const getProductsData = async (models: IModels, pos: IPosDocument) => {
       });
     }
 
-    resultGroups.push({ ...group, categories });
+    productGroups.push({ ...group, categories });
   } // end product group for loop
 
-  return resultGroups;
+  return productGroups;
 };
 
 const getCustomersData = async (subdomain: string) => {
@@ -194,6 +193,7 @@ export const posInit = async (req, res) => {
     syncInfo: { id: syncId, date: syncInfo[syncId] }
   });
   data.productGroups = await getProductsData(models, pos);
+  console.log(data.productGroups);
   // data.customers = await getCustomersData(subdomain);
 
   return res.send(data);
