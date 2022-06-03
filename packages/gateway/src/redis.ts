@@ -39,6 +39,7 @@ const setAfterMutations = async () => {
 };
 
 export const clearCache = async () => {
+  console.log('Clearing enabled services cache ........');
   await redis.del('enabled_services');
 };
 
