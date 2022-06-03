@@ -289,10 +289,12 @@ const FlexItem = styledTS<{
   v?: string;
   h?: string;
   direction?: string;
+  slimmer?: boolean;
 }>(styled.div)`
   display: flex;
   height: 100%;
-  border-right: 1px solid ${colors.borderPrimary};
+  border-right: ${props =>
+    !props.slimmer && `1px solid ${colors.borderPrimary}`};
   flex: ${props => (props.count ? props.count : 1)};
   ${props => {
     if (props.overflow) {
@@ -322,6 +324,15 @@ const FlexItem = styledTS<{
     if (props.direction) {
       return `
         flex-direction: ${props.direction};
+      `;
+    }
+    return null;
+  }};
+  ${props => {
+    if (props.slimmer) {
+      return `
+        width: 50%;
+        margin: 0 auto;
       `;
     }
     return null;
@@ -379,17 +390,17 @@ const ButtonContainer = styled.div`
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   padding: 0 ${dimensions.coreSpacing}px;
 `;
 
 const StepButton = styledTS<{ next?: boolean }>(styled.button)`
-  border: none;
   border-radius: 8px;
   height: 36px;
   width: 110px;
   font-weight: 500;
-  margin-left: 10px;
+  margin-right: 10px;
+  border: 1px solid ${colors.colorPrimary};
   color: ${props =>
     props.next === true ? colors.colorWhite : colors.colorPrimary};
   background: ${props =>
