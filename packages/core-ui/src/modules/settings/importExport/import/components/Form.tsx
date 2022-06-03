@@ -235,7 +235,7 @@ class Form extends React.Component<Props, State> {
       <Content>
         <LeftContent>
           <Steps active={1} direction="horizontal">
-            <Step title="Type" link="importHistories" direction="horizontal">
+            <Step title="Type" link="importHistories">
               <TypeForm
                 type={type}
                 onChangeContentType={this.onChangeContentType}
