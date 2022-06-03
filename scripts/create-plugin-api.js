@@ -17,6 +17,10 @@ var main = async () => {
   const packageJSONBuffer = fs.readFileSync(filePath(`./packages/plugin-${name}-api/package.json`));
   const packageContent = packageJSONBuffer.toString().replace(/_name_/gi, name);
   fs.writeFileSync(filePath(`./packages/plugin-${name}-api/package.json`), packageContent);
+
+  const configsBuffer = fs.readFileSync(filePath(`./packages/plugin-${name}-api/src/configs.ts`));
+  const configsContent = configsBuffer.toString().replace(/{name}/gi, name);
+  fs.writeFileSync(filePath(`./packages/plugin-${name}-api/src/configs.ts`), configsContent);
 }
 
 main();
