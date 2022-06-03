@@ -9,18 +9,31 @@ const filePath = (pathName) => {
   return resolve(__dirname, '..');
 }
 
+const capitalizeFirstLetter = (value) =>
+  value.charAt(0).toUpperCase() + value.slice(1);
+
+const replacer = (ft, name) => {
+  const JSONBuffer = fs.readFileSync(filePath(`./packages/plugin-${name}-api/${ft}`));
+
+  const content = JSONBuffer.toString()
+    .replace(/_name_/gi, name)
+    .replace(/{name}/g, name)
+    .replace(/{Name}/g, capitalizeFirstLetter(name));
+
+  fs.writeFileSync(filePath(`./packages/plugin-${name}-api/${ft}`), content);
+}
+
 var main = async () => {
   const name = process.argv[2];
 
   fs.copySync(filePath('./packages/api-plugin-templ'), filePath(`./packages/plugin-${name}-api`));
 
-  const packageJSONBuffer = fs.readFileSync(filePath(`./packages/plugin-${name}-api/package.json`));
-  const packageContent = packageJSONBuffer.toString().replace(/_name_/gi, name);
-  fs.writeFileSync(filePath(`./packages/plugin-${name}-api/package.json`), packageContent);
-
-  const configsBuffer = fs.readFileSync(filePath(`./packages/plugin-${name}-api/src/configs.ts`));
-  const configsContent = configsBuffer.toString().replace(/{name}/gi, name);
-  fs.writeFileSync(filePath(`./packages/plugin-${name}-api/src/configs.ts`), configsContent);
+  replacer('package.json', name);
+  replacer('src/configs.ts', name);
+  replacer('src/models.ts', name);
+  replacer('src/graphql/schema.ts', name);
+  replacer('src/graphql/resolvers/mutations.ts', name);
+  replacer('src/graphql/resolvers/queries.ts', name);
 }
 
 main();
