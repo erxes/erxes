@@ -7,6 +7,7 @@ export const types = `
 
 export const queries = `
   {name}s: [{Name}]
+  {name}sTotalCount: Int
 `;
 
 const params = `

@@ -10,8 +10,12 @@ const {name}Queries = {
   ) {
     return {Name}s.find();
   },
+  {name}sTotalCount(_root, _args) {
+    return {Name}s.find({}).countDocuments();
+  }
 };
 
 requireLogin({name}Queries, '{name}s');
+requireLogin({name}Queries, '{name}sTotalCount');
 
 export default {name}Queries;
