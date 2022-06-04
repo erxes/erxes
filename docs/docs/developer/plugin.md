@@ -8,6 +8,8 @@ sidebar_label: Plugins
 - Маш олон плагин ууд байх тул өөрсдийн плагиндаа тохирсон давхцахгүй нэр сонгох
 шаардлагатай. Уг нэр нь api ийн graphql query, mutation ээс эхлээд маш олон газар ашиглагдана
 
+- Бүх graphql query, mutation заавал plugin нийхаа нэрээр эхэлсэн байх ёстой
+
 ### Installing erxes
 Erxes ийг ажилуулахын тулд доорх software уудыг суулгасан байх шаардлагатай
 
@@ -102,6 +104,7 @@ docker-compose up -d
 
 api хэсэг нь дээр хөгжүүлэлт хийхийн тулд доорх технологуудийг эзэмшсэн байх шаардлагатай.
 
+- [Typescript](https://www.typescriptlang.org/)
 - [GraphQL](https://graphql.org/graphql-js/)
 - [Express.js](https://expressjs.com)
 - [MongoDB](https://www.mongodb.com)
@@ -119,6 +122,8 @@ yarn create-plugin-api demo
 
 ui хэсэг нь дээр хөгжүүлэлт хийхийн тулд доорх технологуудийг эзэмшсэн байх шаардлагатай.
 
+- [Typescript](https://www.typescriptlang.org/)
+- [Webpack](https://webpack.js.org/)
 - [ReactJS](https://reactjs.org)
 
 ui хавтас үүсгэх
