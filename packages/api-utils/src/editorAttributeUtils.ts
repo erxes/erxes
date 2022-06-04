@@ -72,15 +72,18 @@ export default class EditorAttributeUtil {
   private API_DOMAIN: string;
   private msgBrokerClient: any;
   private availableServices: Set<string>;
+  private subdomain: string;
 
   constructor(
     msgBrokerClient: any,
     API_DOMAIN: string,
-    availableServices: string[]
+    availableServices: string[],
+    subdomain: string
   ) {
     this.msgBrokerClient = msgBrokerClient;
     this.API_DOMAIN = API_DOMAIN;
     this.availableServices = new Set(availableServices);
+    this.subdomain = subdomain || 'os';
   }
 
   async fileToFileLink(url?: string, name?: string): Promise<string> {
@@ -119,7 +122,10 @@ export default class EditorAttributeUtil {
     if (!this._possibleCustomerFields) {
       this._possibleCustomerFields = await this.msgBrokerClient.sendRPCMessage(
         'forms:fieldsCombinedByContentType',
-        { data: { contentType: 'contacts:customer' } }
+        {
+          data: { contentType: 'contacts:customer' },
+          subdomain: this.subdomain
+        }
       );
     }
 
@@ -237,7 +243,8 @@ export default class EditorAttributeUtil {
               type: 'file',
               contentType: 'contacts:customer'
             }
-          }
+          },
+          subdomain: this.subdomain
         }
       );
 
@@ -347,7 +354,8 @@ export default class EditorAttributeUtil {
               contentType: item.contentType,
               isDefinedByErxes: false
             }
-          }
+          },
+          subdomain: this.subdomain
         }
       );
 
