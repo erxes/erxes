@@ -4,6 +4,10 @@ title: Plugin development
 sidebar_label: Plugins
 ---
 
+### Important notes
+- Маш олон плагин ууд байх тул өөрсдийн плагиндаа тохирсон давхцахгүй нэр сонгох
+шаардлагатай. Уг нэр нь api ийн graphql query, mutation ээс эхлээд маш олон газар ашиглагдана
+
 ### Installing erxes
 Erxes ийг ажилуулахын тулд доорх software уудыг суулгасан байх шаардлагатай
 
@@ -98,6 +102,7 @@ docker-compose up -d
 
 api хэсэг нь дээр хөгжүүлэлт хийхийн тулд доорх технологуудийг эзэмшсэн байх шаардлагатай.
 
+- [GraphQL](https://graphql.org/graphql-js/)
 - [Express.js](https://expressjs.com)
 - [MongoDB](https://www.mongodb.com)
 - [Redis](https://redis.io)
