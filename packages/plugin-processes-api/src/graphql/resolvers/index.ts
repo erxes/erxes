@@ -1,6 +1,6 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 
-import jobCategory from './jobCategory';
+import JobCategory from './jobCategory';
 
 import {
   JobRefers as JobRefersMutations,
@@ -18,7 +18,7 @@ import {
 
 const resolvers: any = async serviceDiscovery => ({
   ...customScalars,
-  jobCategory,
+  JobCategory,
   Mutation: {
     ...JobRefersMutations,
     ...JobCategoryMutations,
