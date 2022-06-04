@@ -45,6 +45,7 @@ title: Getting  Started
 ### Developer's guide
 
 - [Developer](/developer/developer)
+- [Plugin](/developer/plugin)
 - [Contributing](/developer/contributing)
 - [GraphQL API](/developer/graphql-api)
 - [Push Notifications](/developer/push-notifications)
