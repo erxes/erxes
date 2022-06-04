@@ -8,7 +8,8 @@ sidebar_label: Plugins
 - Маш олон плагин ууд байх тул өөрсдийн плагиндаа тохирсон давхцахгүй нэр сонгох
 шаардлагатай. Уг нэр нь api ийн graphql query, mutation ээс эхлээд маш олон газар ашиглагдана
 
-- Бүх graphql query, mutation заавал plugin нийхаа нэрээр эхэлсэн байх ёстой
+- Бүх graphql type, query, mutation заавал plugin нийхаа нэрээр эхэлсэн байх ёстой
+- Бүх database collection ийн нэрүүд заавал plugin нийхаа нэрээр эхэлсэн байх ёстой
 
 ### Installing erxes
 Erxes ийг ажилуулахын тулд доорх software уудыг суулгасан байх шаардлагатай
