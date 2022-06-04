@@ -296,3 +296,30 @@ export default New;
 ```
 ./bin/erxes.js dev --ignoreRun
 ```
+
+### Installing dependencies using home brew
+
+1. redis
+
+```
+brew update
+brew install redis
+brew services start redis
+```
+
+2. rabbitmq
+
+```
+brew update
+brew install rabbitmq
+brew services start rabbitmq
+```
+
+3. mongodb
+
+```
+brew tap mongodb/brew
+brew update
+brew install mongodb-community@5.0
+brew services start mongodb-community@5.0
+```
