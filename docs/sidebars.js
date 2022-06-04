@@ -46,6 +46,7 @@ module.exports = {
       label: "Developer's Guide",
       items: [
         "developer/developer",
+        "developer/plugin",
         "developer/documentation_guide",
         {
           "Administrator's Guide": [
