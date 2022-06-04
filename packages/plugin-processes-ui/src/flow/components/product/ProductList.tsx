@@ -2,8 +2,6 @@ import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import { Count, Title } from '@erxes/ui/src/styles/main';
@@ -11,15 +9,11 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
-import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
 import React from 'react';
-import Form from '../../containers/product/ProductForm';
 import CategoryList from '../../containers/productCategory/CategoryList';
 import { IProductCategory, IFlowDocument } from '../../types';
 import Row from './ProductRow';
 import { menuContacts } from '../../../constants';
-import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -30,6 +24,7 @@ interface IProps extends IRouterProps {
   bulk: any[];
   emptyBulk: () => void;
   remove: (doc: { flowIds: string[] }, emptyBulk: () => void) => void;
+  addFlow: () => void;
   toggleBulk: () => void;
   toggleAll: (targets: IFlowDocument[], containerId: string) => void;
   loading: boolean;
@@ -121,23 +116,14 @@ class List extends React.Component<IProps, State> {
       history,
       bulk,
       emptyBulk,
-      currentCategory
+      currentCategory,
+      addFlow
     } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Product & Service') }
     ];
-
-    const trigger = (
-      <Button btnStyle="success" icon="plus-circle">
-        Add flow
-      </Button>
-    );
-
-    const onTrClick = () => {
-      history.push(`/processes/flows/details/add`);
-    };
 
     let actionBarRight = (
       <BarItems>
@@ -149,8 +135,13 @@ class List extends React.Component<IProps, State> {
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
-        <Button btnStyle="primary" icon="plus-circle" onClick={onTrClick}>
-          Add flow
+        <Button
+          btnStyle="success"
+          size="small"
+          icon="plus-circle"
+          onClick={addFlow}
+        >
+          {__('Create a flow')}
         </Button>
       </BarItems>
     );

@@ -4,10 +4,11 @@ import { Alert, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { mutations } from '../../graphql';
+import { mutations as flowMutations } from '../../../flow/graphql';
 import { RemoveMutationResponse, RemoveMutationVariables } from '../../types';
-import { getRefetchQueries } from '../List';
 import Confirmation from '../../components/forms/confirmation';
 import ConfirmationPopup from '../../components/forms/confirmation/popup';
+import { flowsRemoveMutationResponse } from '../../../flow/types';
 
 type Props = {
   when: boolean;
@@ -18,15 +19,15 @@ type Props = {
   save: () => void;
 };
 
-type FinalProps = {} & Props & RemoveMutationResponse;
+type FinalProps = {} & Props & flowsRemoveMutationResponse;
 
 class ConfirmationContainer extends React.Component<FinalProps> {
   render() {
-    const { automationsRemove, queryParams, when } = this.props;
+    const { flowsRemoveMutation, queryParams, when } = this.props;
 
-    const removeAutomations = ({ automationIds }, navigateToNextLocation) => {
-      automationsRemove({
-        variables: { automationIds }
+    const removeFlows = ({ flowIds }, navigateToNextLocation) => {
+      flowsRemoveMutation({
+        variables: { flowIds }
       })
         .then(() => {
           navigateToNextLocation();
@@ -38,7 +39,7 @@ class ConfirmationContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      removeAutomations
+      removeFlows
     };
 
     return (
@@ -56,15 +57,27 @@ class ConfirmationContainer extends React.Component<FinalProps> {
   }
 }
 
+const getRefetchQueries = () => {
+  return [
+    'flows',
+    'jobCategories',
+    'jobCategoriesTotalCount',
+    'jobReferTotalCount',
+    'productCountByTags'
+  ];
+};
+
+const options = () => ({
+  refetchQueries: getRefetchQueries()
+});
+
 export default withProps<Props>(
   compose(
-    graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
-      gql(mutations.automationsRemove),
+    graphql<Props, flowsRemoveMutationResponse, { flowsIds: string[] }>(
+      gql(flowMutations.flowsRemove),
       {
-        name: 'automationsRemove',
-        options: ({ queryParams }) => ({
-          refetchQueries: getRefetchQueries(queryParams)
-        })
+        name: 'flowsRemoveMutation',
+        options
       }
     )
   )(ConfirmationContainer)

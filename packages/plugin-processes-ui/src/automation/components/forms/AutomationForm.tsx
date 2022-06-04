@@ -846,7 +846,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     return (
       <>
-        {/* {this.renderConfirmation()} */}
+        {this.renderConfirmation()}
         <HeightedWrapper>
           <AutomationFormContainer>
             <Wrapper.Header
