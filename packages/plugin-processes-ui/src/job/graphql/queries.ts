@@ -32,6 +32,7 @@ const jobCategoryFields = `
       description
       parentId
       status
+      productCount
       `;
 
 const productsCount = `
