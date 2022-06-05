@@ -1,5 +1,5 @@
 export const types = `
-  type Uom {
+  type Uom @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     name: String
     code: String

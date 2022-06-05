@@ -8,6 +8,7 @@ import PosOrderDetail from './posOrderDetail';
 import PosProduct from './posProduct';
 import customScalars from '@erxes/api-utils/src/customScalars';
 
+console.log(Pos, '[[[ppppppppppppppppppppppppppppp');
 const resolvers: any = async () => ({
   ...customScalars,
 
@@ -16,7 +17,7 @@ const resolvers: any = async () => ({
   PosProduct,
   PosOrderDetail,
   Mutation,
-  Query,
+  Query
 });
 
 export default resolvers;
