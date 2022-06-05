@@ -8,6 +8,10 @@ export default {
     _args,
     { subdomain }: IContext
   ) {
+    if (!activityLog.createdBy) {
+      return;
+    }
+
     const user = await sendCoreMessage({
       subdomain,
       action: 'users.findOne',
@@ -18,7 +22,6 @@ export default {
     });
 
     if (user) {
-      console.log(user, 'activityLog', activityLog);
       return { type: 'user', content: user };
     }
 

@@ -453,7 +453,7 @@ async function startServer() {
       }
     });
 
-    debugInfo(`${configs.name} server is running on port ${PORT}`);
+    debugInfo(`${configs.name} server is running on port: ${PORT}`);
   } catch (e) {
     debugError(`Error during startup ${e.message}`);
   }
