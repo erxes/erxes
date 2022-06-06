@@ -12,7 +12,7 @@ import {
   StepHeaderTitle,
   StepImg,
   StepItem,
-  ButtonBack,
+  StepButton,
   ButtonContainer
 } from './styles';
 
@@ -46,54 +46,59 @@ class Step extends React.Component<Props> {
     }
   };
 
-  renderBackButton(text: string) {
-    const { back, stepNumber = 1 } = this.props;
+  renderBackButton = () => {
+    const { back, link, stepNumber = 1 } = this.props;
 
-    if (back)
+    if (link)
       return (
-        <ButtonBack size={1} onClick={() => back(stepNumber)}>
-          {text}
-        </ButtonBack>
+        <Link to={link}>
+          <StepButton>{__('Cancel')}</StepButton>
+        </Link>
       );
 
-    return null;
-  }
+    return (
+      <StepButton onClick={() => back && back(stepNumber)}>
+        {__('Back')}
+      </StepButton>
+    );
+  };
+
+  renderNextButton = () => {
+    const { next, additionalButton, direction } = this.props;
+
+    if (additionalButton) return additionalButton;
+
+    if (direction === 'horizontal')
+      return (
+        <StepButton next={true} onClick={() => next && next(0)}>
+          {__('Next')}
+        </StepButton>
+      );
+
+    return (
+      <Button
+        btnStyle="primary"
+        size="small"
+        icon="arrow-right"
+        onClick={() => next && next(0)}
+      >
+        Next
+      </Button>
+    );
+  };
 
   renderButton = () => {
-    const { next, link, additionalButton, direction } = this.props;
+    const { direction } = this.props;
 
-    if (direction === 'horizontal') {
+    if (direction === 'horizontal')
       return (
         <BoxRow>
-          {link ? (
-            <Link to={link}>{this.renderBackButton(__('Cancel'))}</Link>
-          ) : (
-            this.renderBackButton(__('Back'))
-          )}
-          {additionalButton
-            ? additionalButton
-            : next && (
-                <ButtonBack size={1} onClick={() => next && next(0)}>
-                  {__('Skip')}
-                </ButtonBack>
-              )}
+          {this.renderBackButton()}
+          {this.renderNextButton()}
         </BoxRow>
       );
-    }
 
-    if (next)
-      return (
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="arrow-right"
-          onClick={() => next && next(0)}
-        >
-          Next
-        </Button>
-      );
-
-    return null;
+    return this.renderNextButton();
   };
 
   renderImage = () => {

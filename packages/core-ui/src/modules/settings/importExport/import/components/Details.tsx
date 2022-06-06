@@ -35,7 +35,7 @@ class Details extends React.Component<Props, {}> {
   render() {
     const { disclaimer, importName, type } = this.props;
     return (
-      <FlexItem>
+      <FlexItem slimmer={true}>
         <FlexPad
           type={type}
           direction="column"
