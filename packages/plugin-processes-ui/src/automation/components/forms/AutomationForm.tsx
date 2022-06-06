@@ -5,14 +5,13 @@ import RTG from 'react-transition-group';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import Form from '@erxes/ui/src/components/form/Form';
-import { IAction, IAutomation, ITrigger, IAutomationNote } from '../../types';
+import { ITrigger, IAutomationNote } from '../../types';
 import {
   Container,
   BackButton,
   Title,
   RightDrawerContainer,
   AutomationFormContainer,
-  ScrolledContent,
   BackIcon,
   CenterBar,
   ToggleWrapper,
@@ -23,9 +22,7 @@ import {
 import { FormControl } from '@erxes/ui/src/components/form';
 import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
-import TriggerForm from '../../containers/forms/triggers/TriggerForm';
 import ActionsForm from '../../containers/forms/actions/ActionsForm';
-import TriggerDetailForm from './triggers/TriggerDetailForm';
 import {
   createInitialConnections,
   connection,
@@ -35,8 +32,6 @@ import {
   connectorPaintStyle,
   connectorHoverStyle,
   hoverPaintStyle,
-  yesEndPoint,
-  noEndPoint,
   getTriggerType
 } from '../../utils';
 import ActionDetailForm from './actions/ActionDetailForm';
@@ -48,9 +43,7 @@ import Toggle from '@erxes/ui/src/components/Toggle';
 import Modal from 'react-bootstrap/Modal';
 import NoteFormContainer from '../../containers/forms/NoteForm';
 import TemplateForm from '../../containers/forms/TemplateForm';
-import Histories from '../../components/histories/Wrapper';
 import Confirmation from '../../containers/forms/Confirmation';
-import { TRIGGER_TYPES } from '../../constants';
 import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 import { IFlowDocument, IJob } from '../../../flow/types';
 import { IJobRefer } from '../../../job/types';
@@ -419,7 +412,12 @@ class AutomationForm extends React.Component<Props, State> {
     }
   };
 
-  addAction = (data: IJob, actionId?: string, jobReferId?: string) => {
+  addAction = (
+    data: IJob,
+    actionId?: string,
+    jobReferId?: string,
+    description?: string
+  ) => {
     const { actions } = this.state;
     const { jobRefers } = this.props;
 
@@ -446,7 +444,7 @@ class AutomationForm extends React.Component<Props, State> {
     const jobRefer = jobRefers.find(j => j._id === jobReferId);
 
     action.label = jobRefer.name;
-    action.description = jobRefer.name;
+    action.description = description || jobRefer.name;
 
     if (actionIndex !== -1) {
       actions[actionIndex] = action;

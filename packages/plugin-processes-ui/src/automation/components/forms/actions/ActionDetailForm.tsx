@@ -7,7 +7,12 @@ import { IJobRefer } from '../../../../job/types';
 type Props = {
   activeAction: IJob;
   triggerType: string;
-  addAction: (action: IJob, actionId?: string, jobReferId?: string) => void;
+  addAction: (
+    action: IJob,
+    actionId?: string,
+    jobReferId?: string,
+    description?: string
+  ) => void;
   jobRefers: IJobRefer[];
   closeModal: () => void;
 };

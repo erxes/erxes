@@ -17,7 +17,12 @@ type Props = {
   closeModal: () => void;
   activeAction: IJob;
   jobRefers: IJobRefer[];
-  addAction: (action: IJob, actionId?: string, jobReferId?: string) => void;
+  addAction: (
+    action: IJob,
+    actionId?: string,
+    jobReferId?: string,
+    description?: string
+  ) => void;
 };
 
 class DefaultForm extends React.Component<Props> {

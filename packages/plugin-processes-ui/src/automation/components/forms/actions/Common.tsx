@@ -10,16 +10,29 @@ import { IJob } from '../../../../flow/types';
 type Props = {
   closeModal: () => void;
   activeAction: IJob;
-  addAction: (action: IJob, actionId?: string, jobReferId?: string) => void;
+  addAction: (
+    action: IJob,
+    actionId?: string,
+    jobReferId?: string,
+    description?: string
+  ) => void;
   jobReferId: string;
+  description: string;
   children: React.ReactNode;
 };
 
 function Common(props: Props) {
-  const { addAction, activeAction, closeModal, jobReferId, children } = props;
+  const {
+    addAction,
+    activeAction,
+    closeModal,
+    jobReferId,
+    children,
+    description
+  } = props;
 
   const onSave = () => {
-    addAction(activeAction, activeAction.id, jobReferId);
+    addAction(activeAction, activeAction.id, jobReferId, description);
 
     closeModal();
   };

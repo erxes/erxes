@@ -20,13 +20,17 @@ type Props = {
 
 type State = {
   jobReferId: string;
+  description: string;
 };
 
 class Delay extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { jobReferId: '' };
+    console.log('this.props.activeAction', this.props.activeAction);
+    const { id, description } = this.props.activeAction;
+
+    this.state = { jobReferId: id || '', description: description || '' };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -43,17 +47,20 @@ class Delay extends React.Component<Props, State> {
     const { jobRefers } = this.props;
     console.log('jobRefers on customCode:', jobRefers);
 
-    const onChangeValue = e => this.onChangeField(e.target.value);
+    const onChangeValue = (type, e) => {
+      this.setState({ [type]: e.target.value });
+    };
 
     return (
       <DrawerDetail>
         <FormGroup>
-          <ControlLabel>Jobs</ControlLabel>
+          <ControlLabel>Job</ControlLabel>
           <FormControl
             name="type"
             componentClass="select"
-            onChange={onChangeValue}
+            onChange={onChangeValue.bind(this, 'jobReferId')}
             required={true}
+            value={this.state.jobReferId}
           >
             <option value="" />
             {jobRefers.map(jobRefer => (
@@ -63,13 +70,23 @@ class Delay extends React.Component<Props, State> {
             ))}
           </FormControl>
         </FormGroup>
+        <FormGroup>
+          <ControlLabel>Description</ControlLabel>
+          <FormControl
+            name="description"
+            value={this.state.description}
+            onChange={onChangeValue.bind(this, 'description')}
+          />
+        </FormGroup>
       </DrawerDetail>
     );
   }
 
   render() {
+    const { jobReferId, description } = this.state;
+
     return (
-      <Common jobReferId={this.state.jobReferId} {...this.props}>
+      <Common jobReferId={jobReferId} description={description} {...this.props}>
         {this.renderContent()}
       </Common>
     );
