@@ -26,8 +26,12 @@ const DirectionForm = (props: Props) => {
     (direction && direction.placeIds) || ['', '']
   );
 
-  const [placeA, setPlaceA] = useState<IPlace | undefined>(undefined);
-  const [placeB, setPlaceB] = useState<IPlace | undefined>(undefined);
+  const [placeA, setPlaceA] = useState<IPlace | undefined>(
+    direction && direction.places[0]
+  );
+  const [placeB, setPlaceB] = useState<IPlace | undefined>(
+    direction && direction.places[1]
+  );
 
   const [roadConditions, setRoadCondition] = useState<string[]>(
     (direction && direction.roadConditions) || ['asphalt']

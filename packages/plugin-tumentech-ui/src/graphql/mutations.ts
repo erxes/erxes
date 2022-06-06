@@ -320,15 +320,8 @@ mutation routesEdit($_id: String!, $code: String!, $name: String!, $directionIds
 `;
 
 const removeRoute = `
-mutation routesAdd($name: String!, $code: String!, $directionItems: [DirectionItemInput]) {
-  routesAdd(name: $name, code: $code, directionItems: $directionItems) {
-    _id
-    name
-    directionItems {
-      directionId
-      order
-    }
-  }
+mutation routesRemove($_id: String!) {
+  routesRemove(_id: $_id)
 }
 `;
 

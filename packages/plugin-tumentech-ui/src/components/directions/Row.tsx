@@ -52,17 +52,17 @@ const Row = (props: Props) => {
 
   return (
     <tr>
-      <td key={`${direction._id}_${direction.routeCode}`}>
+      <td key={Math.random()}>
         <RowTitle>{direction.routeCode || '-'}</RowTitle>
       </td>
-      <td key={`${direction._id}_${direction.roadCode}`}>
+      <td key={Math.random()}>
         <RowTitle>{direction.roadCode || '-'}</RowTitle>
       </td>
-      <td key={`${direction._id}_placeA`}>
+      <td key={Math.random()}>
         <RowTitle>{placeA}</RowTitle>
       </td>
 
-      <td key={`${direction._id}_placeB`}>
+      <td key={Math.random()}>
         <RowTitle>{placeB}</RowTitle>
       </td>
 
@@ -70,11 +70,11 @@ const Row = (props: Props) => {
         <RowTitle>{conditionString}</RowTitle>
       </td>
 
-      <td key={`${direction._id}_${direction.duration}`}>
+      <td key={Math.random()}>
         <RowTitle>{direction.duration || '0'}</RowTitle>
       </td>
 
-      <td key={`${direction._id}_${direction.totalDistance}`}>
+      <td key={Math.random()}>
         <RowTitle>{direction.totalDistance || '0'}</RowTitle>
       </td>
 

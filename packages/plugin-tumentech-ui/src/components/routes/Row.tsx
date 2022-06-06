@@ -7,7 +7,7 @@ import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils/core';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import DirectionForm from '../../containers/directions/Form';
+import RouteForm from '../../containers/routes/Form';
 
 type Props = {
   route: IRoute;
@@ -34,38 +34,38 @@ const Row = (props: Props) => {
     );
   };
 
-  //   const formContent = props => <DirectionForm {...props} direction={direction} />;
+  const formContent = props => <RouteForm {...props} route={route} />;
 
   return (
     <tr>
-      <td key={`${route._id}_ ${route.name}`}>
+      <td key={Math.random()}>
         <RowTitle>{route.name || '-'}</RowTitle>
       </td>
 
-      <td key={`${route._id}_ ${route.code}`}>
+      <td key={Math.random()}>
         <RowTitle>{route.code || '-'}</RowTitle>
       </td>
 
-      <td key={`${route._id}_ ${route.summary.placeNames}`}>
+      <td key={Math.random()}>
         <RowTitle>{route.summary.placeNames || '-'}</RowTitle>
       </td>
 
-      <td key={`${route._id}_ ${route.summary.totalDuration}`}>
+      <td key={Math.random()}>
         <RowTitle>{route.summary.totalDuration || '0'}</RowTitle>
       </td>
 
-      <td key={`${route._id}_ ${route.summary.totalDistance}`}>
+      <td key={Math.random()}>
         <RowTitle>{route.summary.totalDistance || '0'}</RowTitle>
       </td>
 
       <td>
         <ActionButtons>
-          {/* <ModalTrigger
-          title={'Edit direction'}
-          trigger={<Button btnStyle="link" icon="edit-3" />}
-          content={formContent}
-          size={'lg'}
-        /> */}
+          <ModalTrigger
+            title={'Edit route'}
+            trigger={<Button btnStyle="link" icon="edit-3" />}
+            content={formContent}
+            size={'lg'}
+          />
           {renderRemoveAction()}
         </ActionButtons>
       </td>

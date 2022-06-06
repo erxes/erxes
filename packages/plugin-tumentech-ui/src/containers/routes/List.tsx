@@ -19,7 +19,7 @@ export default function RoutesContainer(props: Props) {
   const [removeMutation] = useMutation(gql(mutations.removeRoute));
 
   const remove = (routeid: string) => {
-    const message = 'Are you sure?';
+    const message = 'Are you sure want to remove this route ?';
 
     confirm(message).then(() => {
       removeMutation({
@@ -28,7 +28,7 @@ export default function RoutesContainer(props: Props) {
         .then(() => {
           refetch();
 
-          Alert.success('You successfully deleted a direction.');
+          Alert.success('You successfully deleted a route.');
         })
         .catch(e => {
           Alert.error(e.message);

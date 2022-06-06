@@ -14,16 +14,18 @@ import React, { useState } from 'react';
 import { IDirection, IRoute } from '../../types';
 import Select from 'react-select-plus';
 import Map from '@erxes/ui/src/components/Map';
+import SortableList from '@erxes/ui/src/components/SortableList';
 
 type Props = {
   route?: IRoute;
+  routes: IRoute[];
   directions: IDirection[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 const RouteForm = (props: Props) => {
-  const { route } = props;
+  const { route, routes } = props;
 
   const [directionIds, setDirectionIds] = useState<string[]>(
     (route && route.directionIds) || []
@@ -32,6 +34,8 @@ const RouteForm = (props: Props) => {
   const [directions, setDirections] = useState<IDirection[]>(
     (route && route.directions) || []
   );
+
+  const [routeId, setRouteId] = useState<string>('');
 
   const [name, setName] = useState<string>((route && route.name) || '');
 
@@ -43,7 +47,6 @@ const RouteForm = (props: Props) => {
     const selectedDirections = props.directions.filter(
       direction => ids.indexOf(direction._id) !== -1
     );
-    selectedDirections.sort((a, b) => a.roadCode.localeCompare(b.roadCode));
 
     setDirections(selectedDirections);
 
@@ -84,6 +87,13 @@ const RouteForm = (props: Props) => {
       locationOptions.push(dir.places[1].center);
     }
 
+    const renderOption = (option: IDirection) => {
+      const text = `${option.places[0].name}-${option.places[1].name}`;
+      return <li key={option._id}>{text}</li>;
+    };
+
+    const child = option => renderOption(option);
+
     return (
       <>
         <FormGroup>
@@ -109,6 +119,35 @@ const RouteForm = (props: Props) => {
         </FormGroup>
 
         <FormGroup>
+          <ControlLabel>Existing routes</ControlLabel>
+          <Select
+            placeholder={__('Select route')}
+            value={routeId}
+            onChange={option => {
+              const selectedRoute = routes.find(r => r._id === option.value);
+              if (!selectedRoute) {
+                return;
+              }
+              setRouteId(selectedRoute._id);
+              setDirectionIds(selectedRoute.directionIds);
+
+              const selectedDirections = props.directions.filter(
+                direction =>
+                  selectedRoute.directionIds.indexOf(direction._id) !== -1
+              );
+
+              setDirections(selectedDirections);
+            }}
+            options={routes.map(r => ({
+              label: r.name,
+              value: r._id
+            }))}
+            multi={false}
+            clearable={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel required={true}>Directions</ControlLabel>
           <Select
             placeholder={__('Select directions')}
@@ -117,6 +156,18 @@ const RouteForm = (props: Props) => {
             options={generateUserOptions()}
             multi={true}
             clearable={true}
+          />
+
+          <SortableList
+            fields={directions}
+            child={child}
+            onChangeFields={fields => {
+              setDirections(fields);
+              setDirectionIds(fields.map(f => f._id));
+            }}
+            isModal={false}
+            showDragHandler={false}
+            droppableId="direction options"
           />
         </FormGroup>
 

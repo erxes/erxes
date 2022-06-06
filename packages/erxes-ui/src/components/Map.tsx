@@ -54,6 +54,10 @@ export default class GenerateField extends React.Component<Props, State> {
     console.log('componentWillReceiveProps');
     if (nextProps.locationOptions !== this.props.locationOptions) {
       let { geodesicPolyline } = this.state;
+      if (!geodesicPolyline) {
+        return;
+      }
+
       geodesicPolyline.setMap(null);
 
       geodesicPolyline = new this.state.maps.Polyline({

@@ -16,7 +16,11 @@ const RouteFormContainer = (props: Props) => {
     fetchPolicy: 'network-only'
   });
 
-  if (loading) {
+  const routesQueryResponse = useQuery(gql(queries.routesQuery), {
+    fetchPolicy: 'network-only'
+  });
+
+  if (loading || routesQueryResponse.loading) {
     return <Spinner />;
   }
 
@@ -45,6 +49,7 @@ const RouteFormContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     directions: data.directions,
+    routes: routesQueryResponse.data.routes || [],
     renderButton
   };
 

@@ -224,26 +224,136 @@ export const COLLAPSE_CONTENT_SELECTOR = [
 ];
 
 export const PROVINCES = [
-  { label: 'Улаанбаатар', capital: 'Улаанбаатар', value: 'ulaanbaatar' },
-  { label: 'Архангай', capital: 'Цэцэрлэг хот', value: 'arkhangai' },
-  { label: 'Баян-Өлгий', capital: 'Өлгий', value: 'bayanulgii' },
-  { label: 'Баянхонгор', capital: 'Баянхонгор', value: 'bayankhongor' },
-  { label: 'Булган', capital: 'Булган', value: 'bulgan' },
-  { label: 'Говь-Алтай', capital: 'Алтай', value: 'govialtai' },
-  { label: 'Говьсүмбэр', capital: 'Чойр', value: 'govisumber' },
-  { label: 'Дархан-Уул', capital: 'Дархан', value: 'darkhan' },
-  { label: 'Дорноговь', capital: 'Сайншанд', value: 'dornogovi' },
-  { label: 'Дорнод', capital: 'Чойбалсан', value: 'dornod' },
-  { label: 'Дундговь', capital: 'Мандалговь', value: 'dundgovi' },
-  { label: 'Завхан', capital: 'Улиастай', value: 'zavkhan' },
-  { label: 'Орхон', capital: 'Эрдэнэт', value: 'erdenet' },
-  { label: 'Өвөрхангай	', capital: 'Арвайхээр', value: 'uvurkhangai' },
-  { label: 'Өмнөговь', capital: 'Даланзадгад', value: 'umnugovi' },
-  { label: 'Сүхбаатар', capital: 'Баруун-Урт', value: 'sukhbaatar' },
-  { label: 'Сэлэнгэ', capital: 'Сүхбаатар', value: 'selenge' },
-  { label: 'Төв', capital: 'Зуунмод', value: 'tuv' },
-  { label: 'Увс', capital: 'Улаангом', value: 'uvs' },
-  { label: 'Ховд', capital: 'Ховд', value: 'khovd' },
-  { label: 'Хөвсгөл', capital: 'Мөрөн', value: 'khuvsgul' },
-  { label: 'Хэнтий', capital: 'Чингис', value: 'khentii' }
+  {
+    label: 'Улаанбаатар',
+    capital: 'Улаанбаатар',
+    value: 'ulaanbaatar',
+    center: { lat: 47.9163381, lng: 106.9096271 }
+  },
+  {
+    label: 'Архангай',
+    capital: 'Цэцэрлэг хот',
+    value: 'arkhangai',
+    center: { lat: 47.4703008, lng: 101.4502928 }
+  },
+  {
+    label: 'Баян-Өлгий',
+    capital: 'Өлгий',
+    value: 'bayanulgii',
+    center: { lat: 48.9701464, lng: 89.9419784 }
+  },
+  {
+    label: 'Баянхонгор',
+    capital: 'Баянхонгор',
+    value: 'bayankhongor',
+    center: { lat: 46.1798143, lng: 100.6766078 }
+  },
+  {
+    label: 'Булган',
+    capital: 'Булган',
+    value: 'bulgan',
+    center: { lat: 48.8205434, lng: 103.4852883 }
+  },
+  {
+    label: 'Говь-Алтай',
+    capital: 'Алтай',
+    value: 'govialtai',
+    center: { lat: 46.3646076, lng: 96.1796345 }
+  },
+  {
+    label: 'Говьсүмбэр',
+    capital: 'Чойр',
+    value: 'govisumber',
+    center: { lat: 6.3481, lng: 108.356609 }
+  },
+  {
+    label: 'Дархан-Уул',
+    capital: 'Дархан',
+    value: 'darkhan',
+    center: { lat: 49.4715925, lng: 105.8167806 }
+  },
+  {
+    label: 'Дорноговь',
+    capital: 'Сайншанд',
+    value: 'dornogovi',
+    center: { lat: 44.8996168, lng: 110.0782868 }
+  },
+  {
+    label: 'Дорнод',
+    capital: 'Чойбалсан',
+    value: 'dornod',
+    center: { lat: 48.084138, lng: 114.4979665 }
+  },
+  {
+    label: 'Дундговь',
+    capital: 'Мандалговь',
+    value: 'dundgovi',
+    center: { lat: 45.7578659, lng: 106.2299606 }
+  },
+  {
+    label: 'Завхан',
+    capital: 'Улиастай',
+    value: 'zavkhan',
+    center: { lat: 47.7317148, lng: 96.8210502 }
+  },
+  {
+    label: 'Орхон',
+    capital: 'Эрдэнэт',
+    value: 'erdenet',
+    center: { lat: 49.0563792, lng: 104.0160388 }
+  },
+  {
+    label: 'Өвөрхангай	',
+    capital: 'Арвайхээр',
+    value: 'uvurkhangai',
+    center: { lat: 46.2603437, lng: 102.7440544 }
+  },
+  {
+    label: 'Өмнөговь',
+    capital: 'Даланзадгад',
+    value: 'umnugovi',
+    center: { lat: 43.5724601, lng: 104.3914627 }
+  },
+  {
+    label: 'Сүхбаатар',
+    capital: 'Баруун-Урт',
+    value: 'sukhbaatar',
+    center: { lat: 46.6686563, lng: 113.2506748 }
+  },
+  {
+    label: 'Сэлэнгэ',
+    capital: 'Сүхбаатар',
+    value: 'selenge',
+    center: { lat: 50.2230791, lng: 106.1749646 }
+  },
+  {
+    label: 'Төв',
+    capital: 'Зуунмод',
+    value: 'tuv',
+    center: { lat: 47.7012083, lng: 106.9477415 }
+  },
+  {
+    label: 'Увс',
+    capital: 'Улаангом',
+    value: 'uvs',
+    center: { lat: 49.9902781, lng: 92.023449 }
+  },
+  {
+    label: 'Ховд',
+    capital: 'Ховд',
+    value: 'khovd',
+    center: { lat: 47.9787265, lng: 91.6055485 }
+  },
+  {
+    label: 'Хөвсгөл',
+    capital: 'Мөрөн',
+    value: 'khuvsgul',
+    center: { lat: 49.6375484, lng: 100.1184078 }
+  },
+  {
+    label: 'Хэнтий',
+    capital: 'Чингис',
+    value: 'khentii',
+    center: { lat: 47.3222599, lng: 110.6073042 }
+  }
 ];

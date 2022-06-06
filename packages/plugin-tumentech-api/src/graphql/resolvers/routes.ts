@@ -7,9 +7,15 @@ const Route = {
     _params,
     { models: { Directions } }: IContext
   ) {
-    return Directions.find({
-      _id: { $in: (route.directionIds || []).filter(id => id) }
-    }).limit(10);
+    return Directions.aggregate([
+      { $match: { _id: { $in: route.directionIds || [] } } },
+      {
+        $addFields: {
+          __order: { $indexOfArray: [route.directionIds || [], '$_id'] }
+        }
+      },
+      { $sort: { __order: 1 } }
+    ]);
   },
 
   async summary(
@@ -19,7 +25,6 @@ const Route = {
   ) {
     const result: any = await Directions.aggregate([
       { $match: { _id: { $in: route.directionIds } } },
-
       {
         $group: {
           _id: null,

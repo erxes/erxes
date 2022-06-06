@@ -36,6 +36,8 @@ const PlaceForm = (props: Props) => {
     (place && place.center) || { lat: 0, lng: 0, description: 'description' }
   );
 
+  const [zoom, setZoom] = useState<number>((place && 10) || 7);
+
   const generateDoc = () => {
     const finalValues: any = {};
 
@@ -54,15 +56,17 @@ const PlaceForm = (props: Props) => {
   };
 
   const onChangeProvince = option => {
+    const selected = PROVINCES.find(p => p.value === option.value);
+    setZoom(10);
+    setCenter(selected.center);
     setProvince(option.value);
   };
 
   const renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = props;
-    const { values, isSubmitted } = formProps;
+    const { isSubmitted } = formProps;
 
     const onChangeLocation = option => {
-      console.log(option);
       setCenter(option);
     };
 
@@ -124,7 +128,7 @@ const PlaceForm = (props: Props) => {
             <Map
               center={center}
               googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
-              defaultZoom={7}
+              defaultZoom={zoom}
               locationOptions={[]}
               mapControlOptions={{
                 controlSize: 30,

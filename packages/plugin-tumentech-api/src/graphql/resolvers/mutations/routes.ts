@@ -7,7 +7,6 @@ export interface IRouteEdit extends IRoute {
 
 const routeMutations = {
   routesAdd: async (_root, doc: IRoute, { models }: IContext) => {
-    console.log(doc);
     return models.Routes.createRoute(doc);
   },
 
