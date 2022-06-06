@@ -53,16 +53,20 @@ export interface IBoardNotificationParams {
 /**
  * Send notification to all members of this content except the sender
  */
-export const sendNotifications = async (models: IModels, subdomain: string, {
-  item,
-  user,
-  type,
-  action,
-  content,
-  contentType,
-  invitedUsers,
-  removedUsers
-}: IBoardNotificationParams) => {
+export const sendNotifications = async (
+  models: IModels,
+  subdomain: string,
+  {
+    item,
+    user,
+    type,
+    action,
+    content,
+    contentType,
+    invitedUsers,
+    removedUsers
+  }: IBoardNotificationParams
+) => {
   const stage = await models.Stages.getStage(item.stageId);
   const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
@@ -103,6 +107,18 @@ export const sendNotifications = async (models: IModels, subdomain: string, {
       content: `'${item.name}'`,
       receivers: removedUsers.filter(id => id !== user._id)
     });
+
+    sendCoreMessage({
+      subdomain: 'os',
+      action: 'sendMobileNotification',
+      data: {
+        title: `${item.name}`,
+        body: `${notificationDoc.createdUser?.details?.fullName ||
+          notificationDoc.createdUser?.details
+            ?.shortName} removed you from ${contentType}`,
+        receivers: removedUsers.filter(id => id !== user._id)
+      }
+    });
   }
 
   if (invitedUsers && invitedUsers.length > 0) {
@@ -112,6 +128,32 @@ export const sendNotifications = async (models: IModels, subdomain: string, {
       action: `invited you to the ${contentType}: `,
       content: `'${item.name}'`,
       receivers: invitedUsers.filter(id => id !== user._id)
+    });
+
+    sendCoreMessage({
+      subdomain: 'os',
+      action: 'sendMobileNotification',
+      data: {
+        title: `${item.name}`,
+        body: `${notificationDoc.createdUser?.details?.fullName ||
+          notificationDoc.createdUser?.details
+            ?.shortName} invited you to the ${contentType}`,
+        receivers: invitedUsers.filter(id => id !== user._id)
+      }
+    });
+  }
+
+  if (!invitedUsers && !removedUsers) {
+    sendCoreMessage({
+      subdomain: 'os',
+      action: 'sendMobileNotification',
+      data: {
+        title: `Updated Task`,
+        body: `${notificationDoc.createdUser?.details?.fullName ||
+          notificationDoc.createdUser?.details
+            ?.shortName} has updated ${contentType}`,
+        receivers: notificationDoc?.receivers
+      }
     });
   }
 
@@ -217,17 +259,20 @@ export const checkPermission = async (
   return;
 };
 
-export const createConformity = async (subdomain: string, {
-  companyIds,
-  customerIds,
-  mainType,
-  mainTypeId
-}: {
-  companyIds?: string[];
-  customerIds?: string[];
-  mainType: string;
-  mainTypeId: string;
-}) => {
+export const createConformity = async (
+  subdomain: string,
+  {
+    companyIds,
+    customerIds,
+    mainType,
+    mainTypeId
+  }: {
+    companyIds?: string[];
+    customerIds?: string[];
+    mainType: string;
+    mainTypeId: string;
+  }
+) => {
   const companyConformities: IConformityAdd[] = (companyIds || []).map(
     companyId => ({
       mainType,
@@ -248,7 +293,11 @@ export const createConformity = async (subdomain: string, {
 
   const allConformities = companyConformities.concat(customerConformities);
 
-  sendCoreMessage({ subdomain, action: 'conformities.addConformities', data: allConformities });
+  sendCoreMessage({
+    subdomain,
+    action: 'conformities.addConformities',
+    data: allConformities
+  });
 };
 
 interface ILabelParams {
@@ -260,7 +309,10 @@ interface ILabelParams {
 /**
  * Copies pipeline labels alongside deal/task/tickets when they are moved between different pipelines.
  */
-export const copyPipelineLabels = async (models: IModels, params: ILabelParams) => {
+export const copyPipelineLabels = async (
+  models: IModels,
+  params: ILabelParams
+) => {
   const { item, doc, user } = params;
 
   const oldStage = await models.Stages.findOne({ _id: item.stageId }).lean();
@@ -339,7 +391,10 @@ interface IChecklistParams {
 /**
  * Copies checklists of board item
  */
-export const copyChecklists = async (models: IModels, params: IChecklistParams) => {
+export const copyChecklists = async (
+  models: IModels,
+  params: IChecklistParams
+) => {
   const { contentType, contentTypeId, targetContentId, user } = params;
 
   const originalChecklists = await models.Checklists.find({
