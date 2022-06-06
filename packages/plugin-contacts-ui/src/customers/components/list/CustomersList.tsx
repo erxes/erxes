@@ -375,7 +375,7 @@ class CustomersList extends React.Component<IProps, State> {
               />
             </li>
             <li>
-              <Link to="/settings/properties?type=contatcs:customer">
+              <Link to="/settings/properties?type=contacts:customer">
                 {__('Manage properties')}
               </Link>
             </li>

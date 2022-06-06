@@ -136,7 +136,7 @@ export const executeActions = async (
           actionType: 'set-property',
           action,
           execution,
-          collectionType,
+          collectionType
         }
       });
     }
@@ -184,6 +184,18 @@ export const executeActions = async (
 };
 
 const isDiffValue = (latest, target, field) => {
+  if (field.includes('customFieldsData') || field.includes('trackedData')) {
+    const [ct, fieldId] = field.split('.');
+    const latestFoundItem = latest[ct].find(i => i.field === fieldId);
+    const targetFoundItem = target[ct].find(i => i.field === fieldId);
+
+    if (latestFoundItem && targetFoundItem) {
+      return latestFoundItem.value !== targetFoundItem.value;
+    }
+
+    return false;
+  }
+
   const getValue = (obj, attr) => {
     try {
       return obj[attr];
@@ -193,6 +205,7 @@ const isDiffValue = (latest, target, field) => {
   };
 
   const extractFields = field.split('.');
+
   let latestValue = latest;
   let targetValue = target;
 

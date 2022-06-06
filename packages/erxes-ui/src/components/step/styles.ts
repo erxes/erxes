@@ -114,7 +114,7 @@ const FullStep = styledTS<{ show: boolean; direction?: string }>(styled.div)`
   background: ${colors.colorWhite};
   height: 100%;
   width: ${props => !props.direction && '100%'};
-  transition: ${props => !props.direction && 'all 0.3s ease'};
+  transition: all 0.3s ease;
   display: ${props => (props.show ? 'flex' : 'none')};
   flex-direction: column;
   flex: ${props => props.direction && '1'};

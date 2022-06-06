@@ -193,7 +193,7 @@ class LeftSidebar extends React.Component<Props, State> {
               <FilterToggler
                 groupText="Segments"
                 toggleName="showSegments"
-                manageUrl="/segments/conversation"
+                manageUrl="/segments?contentType=inbox:conversation"
               >
                 <FilterList
                   query={{

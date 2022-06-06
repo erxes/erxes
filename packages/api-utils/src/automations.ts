@@ -72,12 +72,10 @@ export const replacePlaceHolders = async ({
               cfd => cfd.field === fieldId
             );
 
-            if (complexFieldData) {
-              actionData[actionDataKey] = actionData[actionDataKey].replace(
-                `{{ ${complexFieldKey}.${fieldId} }}`,
-                complexFieldData.value
-              );
-            }
+            actionData[actionDataKey] = actionData[actionDataKey].replace(
+              `{{ ${complexFieldKey}.${fieldId} }}`,
+              complexFieldData ? complexFieldData.value : ''
+            );
           }
         }
       }

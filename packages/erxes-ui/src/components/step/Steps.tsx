@@ -37,8 +37,6 @@ class Steps extends React.Component<Props, State> {
   next = (stepNumber: number) => {
     const { activeStep, maxStep } = this.state;
 
-    console.log(stepNumber);
-
     if (stepNumber === 0) {
       if (activeStep <= maxStep) this.setState({ activeStep: activeStep + 1 });
     } else this.setState({ activeStep: stepNumber });
@@ -112,6 +110,7 @@ class Steps extends React.Component<Props, State> {
       return React.cloneElement(child, {
         stepNumber: index,
         active: activeStep,
+        progress: this.props.active,
         next: this.next,
         back: this.back,
         direction,
