@@ -1,5 +1,7 @@
+import React from 'react';
+import { IEmailDelivery } from '@erxes/ui-engage/src/types';
 import { QueryResponse } from '../types';
-import { IEmailDelivery } from 'modules/engage/types';
+
 export interface IActivityLogYearMonthDoc {
   year: React.ReactNode;
   month: React.ReactNode;
