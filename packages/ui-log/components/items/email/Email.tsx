@@ -10,7 +10,7 @@ import {
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
-import { IEmailDelivery } from 'modules/engage/types';
+import { IEmailDelivery } from '@erxes/ui-engage/src/types';
 import React from 'react';
 import xss from 'xss';
 
