@@ -1,4 +1,4 @@
-import { IRoute, IRouteDocument } from '../../../models/definitions/routes';
+import { IRoute } from '../../../models/definitions/routes';
 import { IContext } from '../../../connectionResolver';
 
 export interface IRouteEdit extends IRoute {
