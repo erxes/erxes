@@ -148,7 +148,7 @@ export const createInitialConnections = (
 
     if (action.nextJobIds.length && action.nextJobIds[0]) {
       instance.connect({
-        source: `action-${action.jobReferId}`,
+        source: `action-${action.id}`,
         target: `action-${action.nextJobIds[0]}`,
         anchors: ['Right', 'Left']
       });
