@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { IEmailDelivery } from '@erxes/ui-engage/src/types';
 import { QueryResponse } from '../types';
 
