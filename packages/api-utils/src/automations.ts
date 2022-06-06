@@ -1,3 +1,5 @@
+import * as moment from 'moment';
+
 export const replacePlaceHolders = async ({
   models,
   subdomain,
@@ -31,12 +33,25 @@ export const replacePlaceHolders = async ({
           );
         }
 
+        // some text {{now+3d }} some text
+        const nowRegex = new RegExp(/{{ now\+(\d+)d }}/g);
+        const regexResult = nowRegex.exec(actionData[actionDataKey]);
+
+        if (regexResult && regexResult.length === 2) {
+          const dayValue = regexResult[1];
+          actionData[actionDataKey] = moment()
+            .add(dayValue, 'day')
+            .toDate()
+            .toString();
+        }
+
         if (actionData[actionDataKey].includes(`{{ now }}`)) {
           actionData[actionDataKey] = actionData[actionDataKey].replace(
             `{{ now }}`,
             new Date()
           );
         }
+
         if (actionData[actionDataKey].includes(`{{ tomorrow }}`)) {
           const today = new Date();
           const tomorrow = today.setDate(today.getDate() + 1);
@@ -318,43 +333,40 @@ export const setProperty = async ({
     sendCommonMessage
   );
 
-  try {
-    for (const conformity of conformities) {
-      const setDoc = {};
+  for (const conformity of conformities) {
+    const setDoc = {};
 
-      for (const rule of rules) {
-        setDoc[rule.field] = await getPerValue({
-          models,
-          subdomain,
-          conformity,
-          rule,
-          target,
-          getRelatedValue
-        });
-      }
-
-      const response = await sendCommonMessage({
-        serviceName,
-        action: `${collectionType}s.updateMany`,
-        data: { selector: { _id: conformity._id }, modifier: setDoc },
-        isRPC: true
-      });
-
-      if (response.error) {
-        result.push(response);
-        continue;
-      }
-
-      result.push({
-        _id: conformity._id,
-        rules: (Object as any)
-          .values(setDoc)
-          .map(v => String(v))
-          .join(', ')
+    for (const rule of rules) {
+      setDoc[rule.field] = await getPerValue({
+        models,
+        subdomain,
+        conformity,
+        rule,
+        target,
+        getRelatedValue
       });
     }
-    return { module, fields: rules.map(r => r.field).join(', '), result };
-  } catch (e) {
-    return { error: e.message };
+
+    const response = await sendCommonMessage({
+      serviceName,
+      action: `${collectionType}s.updateMany`,
+      data: { selector: { _id: conformity._id }, modifier: setDoc },
+      isRPC: true
+    });
+
+    if (response.error) {
+      result.push(response);
+      continue;
+    }
+
+    result.push({
+      _id: conformity._id,
+      rules: (Object as any)
+        .values(setDoc)
+        .map(v => String(v))
+        .join(', ')
+    });
   }
+
+  return { module, fields: rules.map(r => r.field).join(', '), result };
 };
