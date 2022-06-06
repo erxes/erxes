@@ -1,10 +1,3 @@
-const commonFieldDefs = `
-  _id: String!
-  name: String
-  description: String
-  code: String
-`;
-
 export const types = `
   type Remainder @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
@@ -29,8 +22,10 @@ export const types = `
     _id: String! @external
   }
 
-  extend type Uom @key(fields: "_id") {
-    _id: String! @external
+  type Uom_ {
+    _id: String!
+    code: String
+    name: String
   }
 
   type RemainderProduct @key(fields: "_id") {
@@ -44,7 +39,7 @@ export const types = `
     createdAt: Date
     remainder: Float
     category: ProductCategory
-    uom: Uom
+    uom: Uom_
   }
 
   type RemainderProducts {

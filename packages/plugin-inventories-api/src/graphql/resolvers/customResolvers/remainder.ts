@@ -4,7 +4,6 @@ import { sendProductsMessage } from '../../../messageBroker';
 
 export default {
   async uom(product: any, _, {}: IContext) {
-    console.log('ddddddddddddddd');
     return { _id: '465', code: '1', name: 'aa' };
     // if (!(await models.ProductsConfigs.getConfig('isReqiureUOM', ''))) {
     //   return {};

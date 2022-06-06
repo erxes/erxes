@@ -54,21 +54,21 @@ const remainderQueries = {
     }
 
     if (params.searchValue) {
-      const fields = [
+      const regexOption = {
+        $regex: `.*${params.searchValue}.*`,
+        $options: 'i'
+      };
+
+      query.$or = [
         {
-          name: {
-            $in: [new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, 'i')]
-          }
+          name: regexOption
         },
         {
-          code: {
-            $in: [new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, 'i')]
-          }
+          code: regexOption
         }
       ];
-
-      query.$or = fields;
     }
+    console.log(JSON.stringify(query));
     const limit = params.perPage || 20;
     const skip = params.page ? (params.page - 1) * limit : 0;
 
