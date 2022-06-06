@@ -2,7 +2,6 @@ import React from 'react';
 import { useQuery, useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import List from '../../components/places/List';
-// import Spinner from '@erxes/ui/src/components/Spinner';
 import { mutations, queries } from '../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 
