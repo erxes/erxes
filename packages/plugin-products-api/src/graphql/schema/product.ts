@@ -59,10 +59,10 @@ export const types = (tagsAvailable, contactsAvailable) => `
     supply: String
     productCount: Int
     minimiumCount: Int
-
     uomId: String
     subUoms: JSON
 
+    uom: Uom
     category: ProductCategory
     ${contactsAvailable ? 'vendor: Company' : ''}
   }
