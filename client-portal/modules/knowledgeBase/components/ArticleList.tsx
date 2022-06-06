@@ -7,7 +7,7 @@ import { IKbArticle } from "../../types";
 
 type Props = {
   articles: IKbArticle[];
-  searchValue?: string;
+  searchValue?: any;
 };
 
 class Lists extends React.Component<Props> {
@@ -32,7 +32,7 @@ class Lists extends React.Component<Props> {
       </span>
     );
   };
-  
+
   render() {
     const { articles } = this.props;
 
@@ -40,22 +40,24 @@ class Lists extends React.Component<Props> {
       return <EmptyContent text="There are no articles in this category!" />;
     }
 
-    return articles.map((article) => (<>
-      {this.renderSearchResult()}
-      <Link
-        href={`/knowledge-base/article?id=${article._id}&catId=${article.categoryId}`}
-        key={article._id}
-      >
-        <CategoryItem>
-          <CategoryContent>
-            <h5 className="base-color">{article.title}</h5>
-            <p>{article.summary}</p>
+    return articles.map((article) => (
+      <>
+        {this.renderSearchResult()}
+        <Link
+          href={`/knowledge-base/article?id=${article._id}&catId=${article.categoryId}`}
+          key={article._id}
+        >
+          <CategoryItem>
+            <CategoryContent>
+              <h5 className="base-color">{article.title}</h5>
+              <p>{article.summary}</p>
 
-            <Avatar date={article.modifiedDate} user={article.createdUser} />
-          </CategoryContent>
-        </CategoryItem>
-      </Link>
-    </>));
+              <Avatar date={article.modifiedDate} user={article.createdUser} />
+            </CategoryContent>
+          </CategoryItem>
+        </Link>
+      </>
+    ));
   }
 }
 

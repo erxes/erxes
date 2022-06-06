@@ -1,11 +1,10 @@
-import React from 'react';
-import { SearchContainer } from '../../styles/main';
-import Icon from '../../common/Icon';
-import { setParams } from '../../common/routerUtils';
+import React from "react";
+import Router, { useRouter } from "next/router";
+import { SearchContainer } from "../../styles/main";
+import Icon from "../../common/Icon";
+// import { setParams } from "../../common/routerUtils";
 
-type Props = {
-  history: any;
-};
+type Props = {};
 
 type State = {
   searchValue: string;
@@ -20,7 +19,7 @@ export default class Search extends React.Component<Props, State> {
 
     this.state = {
       searchValue: searchValue || "",
-      focused: false
+      focused: false,
     };
   }
 
@@ -41,29 +40,36 @@ export default class Search extends React.Component<Props, State> {
   };
 
   onSearch = () => {
-    const { history } = this.props;
+    // const { history } = this.props;
     const { searchValue } = this.state;
+    console.log(searchValue);
+    Router.push({
+      query: { searchValue },
+    });
 
-    setParams(history, { searchValue });
+    // setParams(history, { searchValue });
   };
 
   onKeyDown = (e) => {
-    const { history } = this.props;
+    // const { history } = this.props;
     const { searchValue } = this.state;
 
     if (e.key === "Enter") {
-      setParams(history, { searchValue });
+      console.log(searchValue);
+      Router.push({
+        query: { searchValue },
+      });
     }
   };
 
   clearSearch = () => {
-    const { history } = this.props;
+    // const { history } = this.props;
 
     this.setState({
       searchValue: "",
     });
 
-    setParams(history, { searchValue: "" });
+    // setParams(history, { searchValue: "" });
   };
 
   onFocus = () => {
@@ -87,9 +93,9 @@ export default class Search extends React.Component<Props, State> {
           onKeyDown={this.onKeyDown}
           onBlur={this.onBlur}
           onFocus={this.onFocus}
-          />
+        />
         {searchValue && <Icon icon="times-circle" onClick={this.clearSearch} />}
       </SearchContainer>
     );
   }
-} 
+}

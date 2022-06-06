@@ -3,9 +3,8 @@ import CategoryList from "../components/CategoryList";
 import { Store } from "../../types";
 import Layout from "../../main/containers/Layout";
 import Search from "../../main/components/Search";
-import { useRouter } from 'next/router';
-import queryString from 'query-string';
-import Articles from '../components/ArticleList';
+import { useRouter } from "next/router";
+import Articles from "../components/ArticleList";
 
 type Props = {
   category: any;
@@ -13,24 +12,23 @@ type Props = {
 
 function CategoriesContainer({ category }: Props) {
   const router = useRouter();
-  const queryParams = queryString.parse(location.search);
-  const { searchValue } = queryParams;
+  const { searchValue } = router.query;
 
-  if (searchValue) {
-    return (
-      <Articles
-        articles={category.articles}
-        searchValue={searchValue}
-      />
-    );
-  }
+  const renderContent = (props) => {
+    if (searchValue) {
+      console.log(category);
+      return <div>{searchValue}</div>;
+      return (
+        <Articles articles={category.articles} searchValue={searchValue} />
+      );
+    }
+
+    return <CategoryList {...props} />;
+  };
 
   return (
-    <Layout headerBottomComponent={<Search history={router.query}/>} headingSpacing={true}>
-    {/* <Layout headingSpacing={true}> */}
-      {(props: Store) => {
-        return <CategoryList {...props} />;
-      }}
+    <Layout headerBottomComponent={<Search />} headingSpacing={true}>
+      {(props: Store) => renderContent(props)}
     </Layout>
   );
 }
