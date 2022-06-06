@@ -113,9 +113,8 @@ const getPerValue = async (args: {
   const op1Type = typeof conformity[field];
 
   let op1 = conformity[field];
-  let updatedValue;
 
-  const replaced = (
+  let updatedValue = (
     await replacePlaceHolders({
       models,
       subdomain,
@@ -130,7 +129,7 @@ const getPerValue = async (args: {
     //
     const set = [
       new Set(
-        (replaced || '')
+        (updatedValue || '')
           .trim()
           .replace(/, /g, ',')
           .split(',') || []
@@ -170,10 +169,6 @@ const getPerValue = async (args: {
     }
   }
 
-  if (operator === 'set') {
-    updatedValue = value;
-  }
-
   if (operator === 'concat') {
     updatedValue = (op1 || '').concat(updatedValue);
   }
@@ -195,6 +190,10 @@ const getPerValue = async (args: {
   }
 
   return updatedValue;
+};
+
+const replaceServiceTypes = value => {
+  return value.replace('cards:', '').replace('contacts:', '');
 };
 
 const getRelatedTargets = async (
@@ -271,13 +270,13 @@ const getRelatedTargets = async (
       'contacts:company'
     ].includes(module)
   ) {
-    const relType = module.replace('cards:', '').replace('contacts:', '');
+    const relType = replaceServiceTypes(module);
 
     const relTypeIds = await sendCommonMessage({
       serviceName: 'core',
       action: 'conformities.savedConformity',
       data: {
-        mainType: triggerType.replace('cards:', ''),
+        mainType: replaceServiceTypes(triggerType),
         mainTypeId: target._id,
         relTypes: [relType]
       },
@@ -337,7 +336,8 @@ export const setProperty = async ({
       const response = await sendCommonMessage({
         serviceName,
         action: `${collectionType}s.updateMany`,
-        data: { selector: { _id: conformity._id }, modifier: setDoc }
+        data: { selector: { _id: conformity._id }, modifier: setDoc },
+        isRPC: true
       });
 
       if (response.error) {
