@@ -159,11 +159,34 @@ const fillCellValue = async (
 
       break;
     case 'stageId':
-      const stage: IStageDocument | null = await models.Stages.findOne({
+      let stage: IStageDocument | null = await models.Stages.findOne({
         _id: item.stageId
       });
 
       cellValue = stage ? stage.name : emptyMsg;
+
+      break;
+
+    case 'boardId':
+      stage = await models.Stages.findOne({
+        _id: item.stageId
+      });
+
+      let pipeline = await models.Pipelines.findOne({ _id: stage?._id });
+      const board = await models.Boards.findOne({ _id: pipeline?._id });
+
+      cellValue = board ? board.name : emptyMsg;
+
+      break;
+
+    case 'pipelineId':
+      stage = await models.Stages.findOne({
+        _id: item.stageId
+      });
+
+      pipeline = await models.Pipelines.findOne({ _id: stage?._id });
+
+      cellValue = pipeline ? pipeline.name : emptyMsg;
 
       break;
 

@@ -18,7 +18,6 @@ import { debugInfo, debugError } from './debuggers';
 import { init as initBroker } from '@erxes/api-utils/src/messageBroker';
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
-import { cronConsumers } from '@erxes/api-utils/src/cronjobs';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
@@ -422,13 +421,30 @@ async function startServer() {
       }
 
       if (cronjobs) {
-        cronConsumers({
-          name: configs.name,
-          consumeQueue,
-          handleMinutelyJob: cronjobs.handleMinutelyJob,
-          handleHourlyJob: cronjobs.handleHourlyJob,
-          handleDailyJob: cronjobs.handleDailyJob
-        });
+        if (cronjobs.handleMinutelyJob) {
+          cronjobs.handleMinutelyJobAvailable = true;
+
+          consumeQueue(`${configs.name}:handleMinutelyJob`, async args => ({
+            status: 'success',
+            data: await cronjobs.handleMinutelyJob(args)
+          }));
+        }
+        if (cronjobs.handleHourlyJob) {
+          cronjobs.handleHourlyJobAvailable = true;
+
+          consumeQueue(`${configs.name}:handleHourlyJob`, async args => ({
+            status: 'success',
+            data: await cronjobs.handleHourlyJob(args)
+          }));
+        }
+        if (cronjobs.handleDailyJob) {
+          cronjobs.handleDailyJobAvailable = true;
+
+          consumeQueue(`${configs.name}:handleDailyJob`, async args => ({
+            status: 'success',
+            data: await cronjobs.handleDailyJob(args)
+          }));
+        }
       }
     } // end configs.meta if
 

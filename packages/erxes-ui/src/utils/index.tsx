@@ -1,17 +1,17 @@
-import Alert from "./Alert";
-import * as animations from "./animations";
-import * as calendar from "./calendar";
-import * as categories from "./categories";
-import confirm from "./confirmation/confirm";
-import * as core from "./core";
-import parseMD from "./parseMd";
-import * as router from "./router";
-import toggleCheckBoxes from "./toggleCheckBoxes";
+import Alert from './Alert';
+import * as animations from './animations';
+import * as calendar from './calendar';
+import * as categories from './categories';
+import confirm from './confirmation/confirm';
+import * as core from './core';
+import parseMD from './parseMd';
+import * as router from './router';
+import toggleCheckBoxes from './toggleCheckBoxes';
 import uploadHandler, {
-  deleteHandler as uploadDeleteHandler,
-} from "./uploadHandler";
-import urlParser from "./urlParser";
-import commonListComposer from "./commonListComposer";
+  deleteHandler as uploadDeleteHandler
+} from './uploadHandler';
+import urlParser from './urlParser';
+import commonListComposer from './commonListComposer';
 
 export const renderFullName = core.renderFullName;
 export const renderUserFullName = core.renderUserFullName;
@@ -50,6 +50,7 @@ export const getConfig = core.getConfig;
 export const setConfig = core.setConfig;
 export const generateCategoryOptions = categories.generateCategoryOptions;
 export const generateTree = core.generateTree;
+export const removeTypename = core.removeTypename;
 
 export {
   animations,
@@ -63,5 +64,5 @@ export {
   toggleCheckBoxes,
   urlParser,
   categories,
-  commonListComposer,
+  commonListComposer
 };
