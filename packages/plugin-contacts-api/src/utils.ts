@@ -383,12 +383,13 @@ export const getContentItem = async (
   return null;
 };
 
-export const getEditorAttributeUtil = async () => {
+export const getEditorAttributeUtil = async (subdomain: string) => {
   const services = await getServices();
   const editor = await new EditorAttributeUtil(
     messageBroker(),
     `${process.env.DOMAIN}/gateway/pl:core`,
-    services
+    services,
+    subdomain
   );
 
   return editor;
@@ -411,7 +412,7 @@ export const prepareEngageCustomers = async (
   const emailConf = engageMessage.email ? engageMessage.email : { content: '' };
   const emailContent = emailConf.content || '';
 
-  const editorAttributeUtil = await getEditorAttributeUtil();
+  const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
   const customerFields = await editorAttributeUtil.getCustomerFields(
     emailContent
   );

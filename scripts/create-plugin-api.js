@@ -13,28 +13,27 @@ const capitalizeFirstLetter = (value) =>
   value.charAt(0).toUpperCase() + value.slice(1);
 
 const replacer = (ft, name) => {
-  const JSONBuffer = fs.readFileSync(filePath(`./packages/plugin-${name}-ui/${ft}`));
+  const JSONBuffer = fs.readFileSync(filePath(`./packages/plugin-${name}-api/${ft}`));
 
   const content = JSONBuffer.toString()
     .replace(/_name_/gi, name)
     .replace(/{name}/g, name)
     .replace(/{Name}/g, capitalizeFirstLetter(name));
 
-  fs.writeFileSync(filePath(`./packages/plugin-${name}-ui/${ft}`), content);
+  fs.writeFileSync(filePath(`./packages/plugin-${name}-api/${ft}`), content);
 }
 
 var main = async () => {
   const name = process.argv[2];
 
-  fs.copySync(filePath('./packages/ui-plugin-template'), filePath(`./packages/plugin-${name}-ui`));
+  fs.copySync(filePath('./packages/api-plugin-templ'), filePath(`./packages/plugin-${name}-api`));
 
   replacer('package.json', name);
-  replacer('src/configs.js', name);
-  replacer('src/routes.tsx', name);
-  replacer('src/graphql/queries.ts', name);
-  replacer('src/graphql/mutations.ts', name);
-  replacer('src/containers/List.tsx', name);
-  replacer('src/components/List.tsx', name);
+  replacer('src/configs.ts', name);
+  replacer('src/models.ts', name);
+  replacer('src/graphql/schema.ts', name);
+  replacer('src/graphql/resolvers/mutations.ts', name);
+  replacer('src/graphql/resolvers/queries.ts', name);
 }
 
 main();

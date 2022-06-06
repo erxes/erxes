@@ -1082,7 +1082,8 @@ const widgetMutations = {
       const replacedContent = await new EditorAttributeUtil(
         msgBrokerClient,
         `${process.env.DOMAIN}/gateway/pl:core`,
-        await getServices()
+        await getServices(),
+        subdomain
       ).replaceAttributes({
         content,
         customer,
