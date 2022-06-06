@@ -397,8 +397,7 @@ query routes($searchValue: String) {
     }
     name
     summary {
-      places
-      roadCodes
+      placeNames
       totalDistance
       totalDuration
     }

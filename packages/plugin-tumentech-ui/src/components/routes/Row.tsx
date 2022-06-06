@@ -7,7 +7,7 @@ import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils/core';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import DirectionForm from '../../containers/direction/Form';
+import DirectionForm from '../../containers/directions/Form';
 
 type Props = {
   route: IRoute;
@@ -44,6 +44,10 @@ const Row = (props: Props) => {
 
       <td key={`${route._id}_ ${route.code}`}>
         <RowTitle>{route.code || '-'}</RowTitle>
+      </td>
+
+      <td key={`${route._id}_ ${route.summary.placeNames}`}>
+        <RowTitle>{route.summary.placeNames || '-'}</RowTitle>
       </td>
 
       <td key={`${route._id}_ ${route.summary.totalDuration}`}>

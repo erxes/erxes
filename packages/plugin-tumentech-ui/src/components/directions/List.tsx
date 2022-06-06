@@ -7,26 +7,26 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import Row from './Row';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import PlaceForm from '../../containers/place/Form';
+import DirectionForm from '../../containers/directions/Form';
 import { tumentechMenu } from '../list/CarsList';
-import { IPlace } from '../../types';
+import { IDirection } from '../../types';
 
 type Props = {
-  places: IPlace[];
+  directions: IDirection[];
   totalCount: number;
   queryParams: any;
   loading: boolean;
-  remove: (placeId: string) => void;
+  remove: (directionId: string) => void;
   refetch?: () => void;
 };
 
 const List = (props: Props) => {
-  const { totalCount, queryParams, loading, places, remove } = props;
+  const { totalCount, queryParams, loading, directions, remove } = props;
 
   const renderRow = () => {
-    const { places } = props;
-    return places.map(place => (
-      <Row key={place._id} place={place} remove={remove} />
+    const { directions } = props;
+    return directions.map(direction => (
+      <Row key={direction._id} direction={direction} remove={remove} />
     ));
   };
 
@@ -43,16 +43,16 @@ const List = (props: Props) => {
 
   const trigger = (
     <Button btnStyle="success" size="small" icon="plus-circle">
-      Add place
+      Add direction
     </Button>
   );
 
-  const formContent = props => <PlaceForm {...props} />;
+  const formContent = props => <DirectionForm {...props} />;
 
   const righActionBar = (
     <ModalTrigger
       size="lg"
-      title="place"
+      title="Direction"
       autoOpenKey="showAppAddModal"
       trigger={trigger}
       content={formContent}
@@ -67,12 +67,13 @@ const List = (props: Props) => {
     <Table whiteSpace="nowrap" hover={true}>
       <thead>
         <tr>
-          <th>{__('Province')}</th>
-          <th>{__('Code')}</th>
-          <th>{__('Name')}</th>
-          <th>{__('Latitude')}</th>
-          <th>{__('Longitude')}</th>
-          <th>{__('Description')}</th>
+          <th>{__('Route code')}</th>
+          <th>{__('Road code')}</th>
+          <th>{__('Place A')}</th>
+          <th>{__('Place B')}</th>
+          <th>{__('Road conditions')}</th>
+          <th>{__('duration (minutes)')}</th>
+          <th>{__('distance (km)')}</th>
           <th>{__('Actions')}</th>
         </tr>
       </thead>
@@ -83,7 +84,7 @@ const List = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Places')}
+          title={__('Directions')}
           queryParams={queryParams}
           submenu={tumentechMenu}
         />
@@ -94,7 +95,7 @@ const List = (props: Props) => {
         <DataWithLoader
           data={content}
           loading={loading}
-          count={places.length}
+          count={directions.length}
           emptyContent={
             <h3
               style={{

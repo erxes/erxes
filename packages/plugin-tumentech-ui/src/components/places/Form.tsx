@@ -11,11 +11,10 @@ import {
 } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
-import { IDirection, IPlace } from '../../types';
-import { PROVINCES, ROAD_CONDITIONS } from '../../constants';
+import { IPlace } from '../../types';
+import { PROVINCES } from '../../constants';
 import Select from 'react-select-plus';
 import Map from '@erxes/ui/src/components/Map';
-import { removeTypename } from '@erxes/ui/src/utils';
 import LocationOption from '@erxes/ui-settings/src/properties/components/LocationOption';
 
 type Props = {

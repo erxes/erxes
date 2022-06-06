@@ -6,7 +6,7 @@ import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils/core';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import PlaceForm from '../../containers/place/Form';
+import PlaceForm from '../../containers/places/Form';
 
 type Props = {
   place: IPlace;

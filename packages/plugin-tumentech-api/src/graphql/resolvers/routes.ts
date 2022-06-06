@@ -15,10 +15,11 @@ const Route = {
   async summary(
     route: IRouteDocument,
     _params,
-    { models: { Directions } }: IContext
+    { models: { Directions, Places } }: IContext
   ) {
     const result: any = await Directions.aggregate([
       { $match: { _id: { $in: route.directionIds } } },
+
       {
         $group: {
           _id: null,
@@ -27,22 +28,40 @@ const Route = {
           },
           duration: {
             $sum: '$duration'
+          },
+          placeIds: { $push: '$placeIds' }
+        }
+      },
+      {
+        $project: {
+          distance: '$distance',
+          duration: '$duration',
+
+          placeIds: {
+            $reduce: {
+              input: '$placeIds',
+              initialValue: [],
+              in: { $setUnion: ['$$value', '$$this'] }
+            }
           }
         }
       }
     ]);
 
-    if (!result) {
+    if (!result || !result.length) {
       return null;
     }
 
     const obj: any = result[0];
 
+    const placeNames = await Places.find({
+      _id: { $in: obj.placeIds }
+    }).distinct('name');
+
     return {
       totalDistance: obj.distance,
       totalDuration: obj.duration,
-      roadCodes: '[String]',
-      places: ''
+      placeNames: placeNames.toString()
     };
   }
 };

@@ -205,3 +205,8 @@ export const PROVINCES = [
   { name: 'Хөвсгөл', capital: 'Мөрөн', value: 'khuvsgul' },
   { name: 'Хэнтий', capital: 'Чингис', value: 'khentii' }
 ];
+
+export const TRIP_STATUSES = {
+  START: 'start',
+  READY: 'ready'
+};

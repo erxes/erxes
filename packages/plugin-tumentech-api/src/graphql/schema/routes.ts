@@ -3,8 +3,7 @@ export const types = `
   type Summary {
     totalDistance: Int
     totalDuration: Int
-    roadCodes: String
-    places: String
+    placeNames: String
   }
 
   type Route @key(fields: "_id") @cacheControl(maxAge: 3) {

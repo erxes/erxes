@@ -7,7 +7,7 @@ import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils/core';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import DirectionForm from '../../containers/direction/Form';
+import DirectionForm from '../../containers/directions/Form';
 
 type Props = {
   direction: IDirection;

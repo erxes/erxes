@@ -2,14 +2,19 @@ import gql from 'graphql-tag';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
-import PlaceForm from '../../components/place/Form';
+import DirectionForm from '../../components/directions/Form';
 import { mutations, queries } from '../../graphql';
+import { useQuery } from 'react-apollo';
 
 type Props = {
   closeModal: () => void;
 };
 
-const PlaceFormContainer = (props: Props) => {
+const DirectionFormContainer = (props: Props) => {
+  const { data, loading } = useQuery(gql(queries.placesQuery), {
+    fetchPolicy: 'network-only'
+  });
+
   const renderButton = ({
     values,
     isSubmitted,
@@ -18,7 +23,7 @@ const PlaceFormContainer = (props: Props) => {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={object ? mutations.editPlace : mutations.addPlace}
+        mutation={object ? mutations.editDirection : mutations.addDirection}
         variables={values}
         callback={callback}
         refetchQueries={getRefetchQueries()}
@@ -27,25 +32,26 @@ const PlaceFormContainer = (props: Props) => {
         icon="check-circle"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
-        } a place`}
+        } a direction`}
       />
     );
   };
 
   const updatedProps = {
     ...props,
+    places: (data && data.places) || [],
     renderButton
   };
 
-  return <PlaceForm {...updatedProps} />;
+  return <DirectionForm {...updatedProps} />;
 };
 
 const getRefetchQueries = () => {
   return [
     {
-      query: gql(queries.placesQuery)
+      query: gql(queries.directions)
     }
   ];
 };
 
-export default PlaceFormContainer;
+export default DirectionFormContainer;

@@ -11,7 +11,6 @@ import { IDirection, IPlace } from '../../types';
 import { ROAD_CONDITIONS } from '../../constants';
 import Select from 'react-select-plus';
 import Map from '@erxes/ui/src/components/Map';
-import { removeTypename } from '@erxes/ui/src/utils';
 
 type Props = {
   direction?: IDirection;

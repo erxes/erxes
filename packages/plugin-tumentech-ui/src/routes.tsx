@@ -22,15 +22,15 @@ const ProductDetails = asyncComponent(() =>
 );
 
 const PlaceList = asyncComponent(() =>
-  import(/* webpackChunkName: "PlaceList" */ './containers/place/List')
+  import(/* webpackChunkName: "PlaceList" */ './containers/places/List')
 );
 
 const DirectionList = asyncComponent(() =>
-  import(/* webpackChunkName: "DirectionList" */ './containers/direction/List')
+  import(/* webpackChunkName: "DirectionList" */ './containers/directions/List')
 );
 
 const RouteList = asyncComponent(() =>
-  import(/* webpackChunkName: "RouteList" */ './containers/route/List')
+  import(/* webpackChunkName: "RouteList" */ './containers/routes/List')
 );
 
 const placeList = history => {

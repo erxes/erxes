@@ -450,8 +450,7 @@ export type IDirectionItem = {
 };
 
 export type IRouteSummary = {
-  places: string;
-  roadCodes: string;
+  placeNames: string;
   totalDistance: number;
   totalDuration: number;
 };

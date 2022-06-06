@@ -1,35 +1,32 @@
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { EMPTY_CONTENT_POPUPS } from '@erxes/ui-settings/src/constants';
 import React from 'react';
-import { Link } from 'react-router-dom';
 import Row from './Row';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import RouteForm from '../../containers/route/Form';
+import PlaceForm from '../../containers/places/Form';
 import { tumentechMenu } from '../list/CarsList';
-import { IRoute } from '../../types';
+import { IPlace } from '../../types';
 
 type Props = {
-  routes: IRoute[];
+  places: IPlace[];
   totalCount: number;
   queryParams: any;
   loading: boolean;
-  remove: (routeId: string) => void;
+  remove: (placeId: string) => void;
   refetch?: () => void;
 };
 
 const List = (props: Props) => {
-  const { totalCount, queryParams, loading, routes, remove } = props;
+  const { totalCount, queryParams, loading, places, remove } = props;
 
   const renderRow = () => {
-    const { routes } = props;
-    return routes.map(route => (
-      <Row key={route._id} route={route} remove={remove} />
+    const { places } = props;
+    return places.map(place => (
+      <Row key={place._id} place={place} remove={remove} />
     ));
   };
 
@@ -46,16 +43,16 @@ const List = (props: Props) => {
 
   const trigger = (
     <Button btnStyle="success" size="small" icon="plus-circle">
-      Add route
+      Add place
     </Button>
   );
 
-  const formContent = props => <RouteForm {...props} />;
+  const formContent = props => <PlaceForm {...props} />;
 
   const righActionBar = (
     <ModalTrigger
       size="lg"
-      title="Route"
+      title="place"
       autoOpenKey="showAppAddModal"
       trigger={trigger}
       content={formContent}
@@ -70,10 +67,12 @@ const List = (props: Props) => {
     <Table whiteSpace="nowrap" hover={true}>
       <thead>
         <tr>
-          <th>{__('name')}</th>
-          <th>{__('code')}</th>
-          <th>{__('duration (minutes)')}</th>
-          <th>{__('distance (km)')}</th>
+          <th>{__('Province')}</th>
+          <th>{__('Code')}</th>
+          <th>{__('Name')}</th>
+          <th>{__('Latitude')}</th>
+          <th>{__('Longitude')}</th>
+          <th>{__('Description')}</th>
           <th>{__('Actions')}</th>
         </tr>
       </thead>
@@ -84,7 +83,7 @@ const List = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Routes')}
+          title={__('Places')}
           queryParams={queryParams}
           submenu={tumentechMenu}
         />
@@ -95,7 +94,7 @@ const List = (props: Props) => {
         <DataWithLoader
           data={content}
           loading={loading}
-          count={routes.length}
+          count={places.length}
           emptyContent={
             <h3
               style={{
