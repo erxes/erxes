@@ -43,15 +43,11 @@ class Steps extends React.Component<Props, State> {
   };
 
   back = (stepNumber: number) => {
-    const { activeStep } = this.state;
+    const { activeStep, maxStep } = this.state;
 
-    if (stepNumber === 1) {
-      <Link to="settings/importHistories">
-        <Button btnStyle="simple" icon="times-circle">
-          Cancel
-        </Button>
-      </Link>;
-    } else this.setState({ activeStep: activeStep - 1 });
+    if (stepNumber !== 0) {
+      if (activeStep <= maxStep) this.setState({ activeStep: activeStep - 1 });
+    } else this.setState({ activeStep: stepNumber });
   };
 
   renderContent = () => {
@@ -87,13 +83,14 @@ class Steps extends React.Component<Props, State> {
           stepNumber: index,
           active: activeStep,
           next: this.next,
+          back: this.back,
           direction,
           maxStep
         });
       });
 
       return (
-        <StepItem show={true}>
+        <StepItem direction={direction} show={true}>
           <StepHeaderHorizontalContainer>
             {headerElements}
           </StepHeaderHorizontalContainer>

@@ -695,7 +695,7 @@ export function elkConvertConditionToQuery(args: {
   }
 
   // is set
-  if (operator === 'is') {
+  if (['is', 'dateis'].includes(operator)) {
     positiveQuery = {
       exists: {
         field
@@ -704,7 +704,7 @@ export function elkConvertConditionToQuery(args: {
   }
 
   // is not set
-  if (operator === 'ins') {
+  if (['ins', 'dateins'].includes(operator)) {
     negativeQuery = {
       exists: {
         field

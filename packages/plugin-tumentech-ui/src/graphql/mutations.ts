@@ -282,6 +282,77 @@ mutation selectWinner($customerId: String!, $dealId: String!){
 }
 `;
 
+const addDirection = `
+mutation directionsAdd($placeIds: [String]!, $totalDistance: Int, $roadConditions: [String], $duration: Int, $routeCode: String, $roadCode: String) {
+  directionsAdd(placeIds: $placeIds, totalDistance: $totalDistance, roadConditions: $roadConditions, duration: $duration, routeCode: $routeCode, roadCode: $roadCode) {
+    _id
+  }
+}
+`;
+
+const editDirection = `
+mutation directionsEdit($_id: String!, $placeIds: [String]!, $totalDistance: Int, $roadConditions: [String], $duration: Int, $routeCode: String, $roadCode: String) {
+  directionsEdit(_id: $_id, placeIds: $placeIds, totalDistance: $totalDistance, roadConditions: $roadConditions, duration: $duration, routeCode: $routeCode, roadCode: $roadCode) {
+    _id
+  }
+}`;
+
+const removeDirection = `
+mutation directionsRemove($_id: String!) {
+  directionsRemove(_id: $_id)
+}
+`;
+
+const addRoute = `
+mutation routesAdd($code: String!, $name: String!, $directionIds: [String]) {
+  routesAdd(code: $code, name: $name, directionIds: $directionIds) {
+    _id
+  }
+}
+`;
+
+const editRoute = `
+mutation routesEdit($_id: String!, $code: String!, $name: String!, $directionIds: [String]) {
+  routesEdit(_id: $_id, code: $code, name: $name, directionIds: $directionIds) {
+    _id
+  }
+}
+`;
+
+const removeRoute = `
+mutation routesRemove($_id: String!) {
+  routesRemove(_id: $_id)
+}
+`;
+
+const addPlace = `
+mutation placesAdd($province: String!, $name: String!, $code: String!, $center: JSON!) {
+  placesAdd(province: $province, name: $name, code: $code, center: $center) {
+    province
+    code
+    name
+    center
+  }
+}
+`;
+
+const editPlace = `
+mutation placesEdit($_id: String!, $province: String!, $name: String!, $code: String!, $center: JSON!) {
+  placesEdit(_id: $_id, province: $province, name: $name, code: $code, center: $center) {
+    province
+    name
+    code
+    center
+  }
+}
+`;
+
+const removePlace = `
+mutation placesRemove($_id: String!) {
+  placesRemove(_id: $_id)
+}
+`;
+
 export default {
   carsAdd,
   carsEdit,
@@ -295,8 +366,21 @@ export default {
 
   carCategoryMatch,
   productMatch,
+
   addParticipants,
   removeParticipants,
   removeParticipantsFromDeal,
-  selectWinner
+  selectWinner,
+
+  addPlace,
+  editPlace,
+  removePlace,
+
+  addDirection,
+  editDirection,
+  removeDirection,
+
+  addRoute,
+  editRoute,
+  removeRoute
 };

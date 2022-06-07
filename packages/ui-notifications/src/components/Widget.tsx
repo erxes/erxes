@@ -1,5 +1,3 @@
-import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
 import Icon from '@erxes/ui/src/components/Icon';
 import Label from '@erxes/ui/src/components/Label';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
@@ -10,7 +8,6 @@ import Popover from 'react-bootstrap/Popover';
 import { INotification } from '../types';
 import NotificationsLatest from './NotificationsLatest';
 import { NotifButton } from './styles';
-import { mutations } from '../graphql';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
@@ -35,17 +32,10 @@ class Widget extends React.Component<Props, State> {
     };
   }
 
-  onHideNumber = () => {
-    console.log('onHideNumber');
-    // client.mutate({
-    //   mutation: gql(mutations.showNotification),
-    // });
-  };
-
   renderUnreadCount() {
     const { unreadCount, currentUser } = this.props;
     const user = currentUser || { isShowNotification: false };
-    console.log(user.isShowNotification);
+
     if (!user.isShowNotification && unreadCount && unreadCount !== 0) {
       return (
         <Label shake={true} lblStyle="danger" ignoreTrans={true}>
@@ -70,10 +60,7 @@ class Widget extends React.Component<Props, State> {
     } = this.props;
 
     const { currentTab } = this.state;
-    console.log(
-      'render:',
-      this.props.currentUser && this.props.currentUser.isShowNotification
-    );
+
     const popoverProps = {
       notifications,
       isLoading,
@@ -118,7 +105,7 @@ class Widget extends React.Component<Props, State> {
         overlay={popoverNotification}
       >
         <NotifButton>
-          <Icon icon="bell" size={20} onClick={this.onHideNumber} />
+          <Icon icon="bell" size={20} />
           {this.renderUnreadCount()}
         </NotifButton>
       </OverlayTrigger>

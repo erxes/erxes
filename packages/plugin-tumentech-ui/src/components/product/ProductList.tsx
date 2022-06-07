@@ -14,7 +14,7 @@ import {
   BarItems,
   router
 } from '@erxes/ui/src';
-import { menuPos } from '../list/CarsList';
+import { tumentechMenu } from '../list/CarsList';
 import CategoryList from '../../containers/productCategory/CategoryList';
 import { Count, Title } from '@erxes/ui/src/styles/main';
 
@@ -55,7 +55,7 @@ class List extends React.Component<IProps, State> {
   renderRow = () => {
     const { products, history, toggleBulk, bulk, carCategories } = this.props;
 
-    return products.map((product) => (
+    return products.map(product => (
       <Row
         history={history}
         key={product._id}
@@ -72,17 +72,17 @@ class List extends React.Component<IProps, State> {
     toggleAll(products, 'products');
   };
 
-  removeProducts = (products) => {
+  removeProducts = products => {
     const productIds: string[] = [];
 
-    products.forEach((product) => {
+    products.forEach(product => {
       productIds.push(product._id);
     });
 
     this.props.remove({ productIds }, this.props.emptyBulk);
   };
 
-  renderCount = (productCount) => {
+  renderCount = productCount => {
     return (
       <Count>
         {productCount} product{productCount > 1 && 's'}
@@ -90,7 +90,7 @@ class List extends React.Component<IProps, State> {
     );
   };
 
-  search = (e) => {
+  search = e => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -185,7 +185,9 @@ class List extends React.Component<IProps, State> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('Product')} submenu={menuPos} />}
+        header={
+          <Wrapper.Header title={__('Product')} submenu={tumentechMenu} />
+        }
         actionBar={
           <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
         }

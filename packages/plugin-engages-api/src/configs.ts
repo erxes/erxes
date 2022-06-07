@@ -6,6 +6,7 @@ import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import tags from './tags';
 import logs from './logUtils';
+import cronjobs from './cronjobs/engages';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
@@ -28,7 +29,7 @@ export default {
   },
   segment: { schemas: [] },
   hasSubscriptions: false,
-  meta: { tags, logs: { consumers: logs }, webhooks },
+  meta: { tags, logs: { consumers: logs }, webhooks, cronjobs },
   postHandlers: [{ path: `/service/engage/tracker`, method: engageTracker }],
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);

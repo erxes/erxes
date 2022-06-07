@@ -141,7 +141,14 @@ export const initBroker = async cl => {
   consumeRPCQueue('cards:deals.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { skip, limit, query, sort = {} } = data;
+    if (!data.query) {
+      return {
+        status: 'success',
+        data: await models.Deals.find(data)
+      };
+    }
+
+    const { query, skip, limit, sort = {} } = data;
 
     return {
       status: 'success',

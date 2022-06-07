@@ -1,15 +1,15 @@
-import { CHAT_TYPE, IChatMessage } from "../../../models/definitions/chat";
-import { graphqlPubsub } from "../../../configs";
-import { checkPermission } from "@erxes/api-utils/src/permissions";
-import { sendCoreMessage } from "../../../messageBroker";
+import { CHAT_TYPE, IChatMessage } from '../../../models/definitions/chat';
+import { graphqlPubsub } from '../../../configs';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { sendCoreMessage } from '../../../messageBroker';
 
 const checkChatAdmin = async (Chats, userId) => {
   const found = await Chats.exists({
-    adminIds: { $in: [userId] },
+    adminIds: { $in: [userId] }
   });
 
   if (!found) {
-    throw new Error("Only admin can this action");
+    throw new Error('Only admin can this action');
   }
 };
 
@@ -17,17 +17,17 @@ const hasAdminLeft = (chat, userId) => {
   const found = (chat.adminIds || []).indexOf(userId) !== -1;
 
   if (found && (chat.adminIds || []).length === 1) {
-    throw new Error("You cannot remove you. There is no admin except you.");
+    throw new Error('You cannot remove you. There is no admin except you.');
   }
 };
 
 const strip_html = (string: any) => {
-  if (typeof string === "undefined" || string === null) {
+  if (typeof string === 'undefined' || string === null) {
     return;
   } else {
     const regex = /(&nbsp;|<([^>]+)>)/gi;
-    var result = string.replace(regex, "");
-    result = result.replace(/&#[0-9][0-9][0-9][0-9];/gi, " ");
+    var result = string.replace(regex, '');
+    result = result.replace(/&#[0-9][0-9][0-9][0-9];/gi, ' ');
     const cut = result.slice(0, 70);
     return cut;
   }
@@ -44,27 +44,27 @@ const chatMutations = {
       {
         ...doc,
         participantIds: allParticipantIds,
-        adminIds: [user._id],
+        adminIds: [user._id]
       },
       user._id
     );
 
     sendCoreMessage({
-      subdomain: "os",
-      action: "sendMobileNotification",
+      subdomain: 'os',
+      action: 'sendMobileNotification',
       data: {
         title: doc.title,
         body: doc.description,
-        receivers: allParticipantIds,
-      },
+        receivers: allParticipantIds
+      }
     });
 
-    graphqlPubsub.publish("chatInserted", {
-      userId: user._id,
+    graphqlPubsub.publish('chatInserted', {
+      userId: user._id
     });
 
-    graphqlPubsub.publish("chatUnreadCountChanged", {
-      userId: user._id,
+    graphqlPubsub.publish('chatUnreadCountChanged', {
+      userId: user._id
     });
 
     return chat;
@@ -78,7 +78,7 @@ const chatMutations = {
     const chat = await models.Chats.findOne({ _id });
 
     if (!chat) {
-      throw new Error("Chat not found");
+      throw new Error('Chat not found');
     }
 
     if (chat.type === CHAT_TYPE.GROUP) {
@@ -91,7 +91,7 @@ const chatMutations = {
   chatMarkAsRead: async (_root, { _id }, { models, user }) => {
     const lastMessage = await models.ChatMessages.findOne({ chatId: _id }).sort(
       {
-        createdAt: -1,
+        createdAt: -1
       }
     );
 
@@ -102,7 +102,7 @@ const chatMutations = {
 
       const seenInfos = chat.seenInfos || [];
 
-      let seenInfo = seenInfos.find((info) => info.userId === user._id);
+      let seenInfo = seenInfos.find(info => info.userId === user._id);
 
       let updated = false;
 
@@ -110,7 +110,7 @@ const chatMutations = {
         seenInfo = {
           userId: user._id,
           lastSeenMessageId: lastMessage._id,
-          seenDate: new Date(),
+          seenDate: new Date()
         };
 
         seenInfos.push(seenInfo);
@@ -137,8 +137,8 @@ const chatMutations = {
       }
 
       if (updated) {
-        graphqlPubsub.publish("chatUnreadCountChanged", {
-          userId: user._id,
+        graphqlPubsub.publish('chatUnreadCountChanged', {
+          userId: user._id
         });
 
         await models.Chats.updateOne(
@@ -153,7 +153,7 @@ const chatMutations = {
 
   chatMessageAdd: async (_root, args, { models, user }) => {
     if (!args.content) {
-      throw new Error("Content is required");
+      throw new Error('Content is required');
     }
 
     const message = await models.ChatMessages.createChatMessage(args, user._id);
@@ -163,45 +163,45 @@ const chatMutations = {
       { $set: { updatedAt: new Date() } }
     );
 
-    graphqlPubsub.publish("chatMessageInserted", {
-      chatMessageInserted: message,
+    graphqlPubsub.publish('chatMessageInserted', {
+      chatMessageInserted: message
     });
 
     const chat = await models.Chats.getChat(message.chatId);
 
-    const recievers = chat.participantIds.filter((i) => i !== user._id);
+    const recievers = chat.participantIds.filter(i => i !== user._id);
 
     if (args.mentionedUserIds) {
-      if (args.mentionedUserIds.includes("everyone")) {
+      if (args.mentionedUserIds.includes('everyone')) {
         sendCoreMessage({
-          subdomain: "os",
-          action: "sendMobileNotification",
+          subdomain: 'os',
+          action: 'sendMobileNotification',
           data: {
             title: `${user?.details?.fullName || user?.fullName} sent you chat`,
             body: strip_html(args.content),
-            receivers: recievers,
-          },
+            receivers: recievers
+          }
         });
       } else {
         sendCoreMessage({
-          subdomain: "os",
-          action: "sendMobileNotification",
+          subdomain: 'os',
+          action: 'sendMobileNotification',
           data: {
             title: `${user?.details?.fullName || user?.fullName} sent you chat`,
             body: strip_html(args.content),
-            receivers: args.mentionedUserIds,
-          },
+            receivers: args.mentionedUserIds
+          }
         });
       }
     }
 
     for (const reciever of recievers) {
-      graphqlPubsub.publish("chatUnreadCountChanged", {
-        userId: reciever,
+      graphqlPubsub.publish('chatUnreadCountChanged', {
+        userId: reciever
       });
 
-      graphqlPubsub.publish("chatInserted", {
-        userId: reciever,
+      graphqlPubsub.publish('chatInserted', {
+        userId: reciever
       });
     }
 
@@ -217,8 +217,8 @@ const chatMutations = {
   chatMessageToggleIsPinned: async (_root, { _id }, { models }) => {
     const message = await models.ChatMessages.findOne({ _id });
 
-    graphqlPubsub.publish("chatMessageInserted", {
-      chatId: message.chatId,
+    graphqlPubsub.publish('chatMessageInserted', {
+      chatId: message.chatId
     });
 
     await models.ChatMessages.updateOne(
@@ -241,27 +241,27 @@ const chatMutations = {
     if ((chat.participantIds || []).length === 1) {
       await models.Chats.removeChat(_id);
 
-      return "Chat removed";
+      return 'Chat removed';
     }
 
     // while user is removing himself or herself
-    if (type === "remove" && (userIds || []).indexOf(user._id) !== -1) {
+    if (type === 'remove' && (userIds || []).indexOf(user._id) !== -1) {
       hasAdminLeft(chat, user._id);
     }
 
     await models.Chats.updateOne(
       { _id },
-      type === "add"
+      type === 'add'
         ? { $addToSet: { participantIds: userIds } }
         : {
             $pull: {
               participantIds: { $in: userIds },
-              adminIds: { $in: userIds },
-            },
+              adminIds: { $in: userIds }
+            }
           }
     );
 
-    return "Success";
+    return 'Success';
   },
 
   chatMakeOrRemoveAdmin: async (_root, { _id, userId }, { models, user }) => {
@@ -269,11 +269,11 @@ const chatMutations = {
 
     const chat = await models.Chats.findOne({
       _id,
-      participantIds: { $in: [userId] },
+      participantIds: { $in: [userId] }
     });
 
     if (!chat) {
-      throw new Error("Chat not found");
+      throw new Error('Chat not found');
     }
 
     const found = (chat.adminIds || []).indexOf(userId) !== -1;
@@ -292,18 +292,26 @@ const chatMutations = {
         : { $addToSet: { adminIds: [userId] } }
     );
 
-    return "Success";
+    return 'Success';
   },
+
+  chatTypingInfo(_root, args: { chatId: string; userId?: string }) {
+    graphqlPubsub.publish('chatTypingStatusChanged', {
+      chatTypingStatusChanged: args
+    });
+
+    return 'ok';
+  }
 };
 
-checkPermission(chatMutations, "chatAdd", "manageChats");
-checkPermission(chatMutations, "chatEdit", "manageChats");
-checkPermission(chatMutations, "chatRemove", "manageChats");
-checkPermission(chatMutations, "chatMarkAsRead", "manageChats");
-checkPermission(chatMutations, "chatMessageAdd", "manageChats");
-checkPermission(chatMutations, "chatMessageRemove", "manageChats");
-checkPermission(chatMutations, "chatMessageToggleIsPinned", "manageChats");
-checkPermission(chatMutations, "chatAddOrRemoveMember", "manageChats");
-checkPermission(chatMutations, "chatMakeOrRemoveAdmin", "manageChats");
+checkPermission(chatMutations, 'chatAdd', 'manageChats');
+checkPermission(chatMutations, 'chatEdit', 'manageChats');
+checkPermission(chatMutations, 'chatRemove', 'manageChats');
+checkPermission(chatMutations, 'chatMarkAsRead', 'manageChats');
+checkPermission(chatMutations, 'chatMessageAdd', 'manageChats');
+checkPermission(chatMutations, 'chatMessageRemove', 'manageChats');
+checkPermission(chatMutations, 'chatMessageToggleIsPinned', 'manageChats');
+checkPermission(chatMutations, 'chatAddOrRemoveMember', 'manageChats');
+checkPermission(chatMutations, 'chatMakeOrRemoveAdmin', 'manageChats');
 
 export default chatMutations;
