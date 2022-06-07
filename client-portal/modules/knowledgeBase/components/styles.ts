@@ -355,7 +355,11 @@ const CategoryListWrapper = styledTS<{
 
         i {
           font-size: 30px;
-          color: #6569df;
+          transition: all ease .3s;
+          color: ${(props) =>
+            props.baseColor
+              ? props.baseColor
+              : colors.colorSecondary} !important;
         }
       }
     }
@@ -365,6 +369,7 @@ const CategoryListWrapper = styledTS<{
 
       h5 {
         font-size: 16px;
+        color: #000;
       }
 
       p {
@@ -403,7 +408,7 @@ const CategoryListWrapper = styledTS<{
       }
 
       &:hover > * {
-        .icon-wrapper,
+        .icon-wrapper, .icon-wrapper i,
         .tab-content > h5 {
           color: ${(props) =>
             props.linkHoverColor ? props.linkHoverColor : "#6569df"} !important;
@@ -442,6 +447,11 @@ const CategoryListWrapper = styledTS<{
             position: absolute;
             left: 25px;
             top: 25px;
+
+            i {
+              color: #000;
+              transition: all ease .3s;
+            }
           }
 
           .tab-content {
