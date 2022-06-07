@@ -33,9 +33,11 @@ export default class NavigationList extends React.Component<Props, State> {
   }
 
   toggleMenu = (text: string): void => {
-    if (this.state.clickedMenu === text)
+    if (this.state.clickedMenu === text) {
       this.setState({ showMenu: !this.state.showMenu });
-    else this.setState({ showMenu: true, clickedMenu: text });
+    } else {
+      this.setState({ showMenu: true, clickedMenu: text });
+    }
   };
 
   updatePinnedPlugins = (plugins: Plugin[]): void => {

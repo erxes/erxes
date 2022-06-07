@@ -1,14 +1,13 @@
-import { ISendMessageArgs, sendMessage } from "@erxes/api-utils/src/core";
-import { serviceDiscovery } from "./configs";
-import { generateModels } from "./connectionResolver";
+import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { serviceDiscovery } from './configs';
+import { generateModels } from './connectionResolver';
 
 let client;
 
-export const initBroker = async (cl) => {
+export const initBroker = async cl => {
   client = cl;
 
   const { consumeRPCQueue } = client;
-
 
   consumeRPCQueue(
     'knowledgebase:topics.findOne',
@@ -24,22 +23,22 @@ export const initBroker = async (cl) => {
 
   consumeRPCQueue(
     'knowledgebase:articles.find',
-    async ({ subdomain, data: { query } }) => {
+    async ({ subdomain, data: { query, sort } }) => {
       const models = await generateModels(subdomain);
 
       return {
         status: 'success',
-        data: await models.KnowledgeBaseArticles.find(query)
+        data: await models.KnowledgeBaseArticles.find(query).sort(sort)
       };
     }
   );
-}
+};
 
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: "core",
+    serviceName: 'core',
     ...args
   });
 };
