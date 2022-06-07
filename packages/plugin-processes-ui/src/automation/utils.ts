@@ -1,4 +1,3 @@
-import { ITrigger, IAction } from './types';
 import { confirm, Alert } from '@erxes/ui/src/utils';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import { colors } from '@erxes/ui/src/styles';
@@ -110,21 +109,7 @@ export const targetEndpoint = {
   isTarget: true
 };
 
-export const createInitialConnections = (
-  triggers: ITrigger[],
-  actions: IJob[],
-  instance: any
-) => {
-  for (const trigger of triggers) {
-    if (trigger.actionId) {
-      instance.connect({
-        source: `trigger-${trigger.id}`,
-        target: `action-${trigger.actionId}`,
-        anchors: ['Right', 'Left']
-      });
-    }
-  }
-
+export const createInitialConnections = (actions: IJob[], instance: any) => {
   for (const action of actions) {
     // if (action.type === 'if') {
     //   if (action.config) {
@@ -157,12 +142,7 @@ export const createInitialConnections = (
   // }
 };
 
-export const connection = (
-  triggers: ITrigger[],
-  actions: IJob[],
-  info: any,
-  actionId: any
-) => {
+export const connection = (actions: IJob[], info: any, actionId: any) => {
   const sourceId = info.sourceId;
 
   console.log('info:', sourceId, actionId);
@@ -173,17 +153,7 @@ export const connection = (
     );
 
     if (sourceAction) {
-      // if (sourceAction.type === 'if') {
-      //   if (!sourceAction.config) {
-      //     sourceAction.config = {};
-      //   }
-
-      //   sourceAction.config[
-      //     info.sourceEndpoint.anchor.y === 0.3 ? 'yes' : 'no'
-      //   ] = actionId;
-      // } else {
       sourceAction.nextJobIds[0] = actionId;
-      // }
     }
   }
 };

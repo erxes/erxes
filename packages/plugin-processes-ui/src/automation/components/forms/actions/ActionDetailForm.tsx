@@ -1,4 +1,3 @@
-import { IAction } from '../../../types';
 import React from 'react';
 import { ActionForms } from './';
 import { IJob } from '../../../../flow/types';
@@ -6,7 +5,6 @@ import { IJobRefer } from '../../../../job/types';
 
 type Props = {
   activeAction: IJob;
-  triggerType: string;
   addAction: (
     action: IJob,
     actionId?: string,

@@ -1,8 +1,4 @@
 import { ACTIONS } from '../../../constants';
-import BoardItemForm from '../../../containers/forms/actions/subForms/BoardItemForm';
-import IfForm from '../../../containers/forms/actions/subForms/IfForm';
-import SetProperty from '../../../containers/forms/actions/subForms/SetProperty';
-import { IAction } from '../../../types';
 import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from 'coreui/utils';
@@ -67,12 +63,5 @@ class DefaultForm extends React.Component<Props> {
 
 export const ActionForms = {
   default: DefaultForm,
-  // delay: Delay,
-  // setProperty: SetProperty,
-  // if: IfForm,
-  // boardItem: BoardItemForm,
-  // customCode: CustomCode,
-  // voucher: LoyaltyForm,
-  // changeScore: ChangeScore,
   job: CustomCode
 };

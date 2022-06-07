@@ -4,8 +4,6 @@ import jquery from 'jquery';
 import RTG from 'react-transition-group';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
-import Form from '@erxes/ui/src/components/form/Form';
-import { ITrigger, IAutomationNote } from '../../types';
 import {
   Container,
   BackButton,
@@ -25,14 +23,13 @@ import Button from '@erxes/ui/src/components/Button';
 import ActionsForm from '../../containers/forms/actions/ActionsForm';
 import {
   createInitialConnections,
-  connection,
   deleteConnection,
   sourceEndpoint,
   targetEndpoint,
   connectorPaintStyle,
   connectorHoverStyle,
   hoverPaintStyle,
-  getTriggerType
+  connection
 } from '../../utils';
 import ActionDetailForm from './actions/ActionDetailForm';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -40,9 +37,6 @@ import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import { Link } from 'react-router-dom';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import Toggle from '@erxes/ui/src/components/Toggle';
-import Modal from 'react-bootstrap/Modal';
-import NoteFormContainer from '../../containers/forms/NoteForm';
-import TemplateForm from '../../containers/forms/TemplateForm';
 import Confirmation from '../../containers/forms/Confirmation';
 import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 import { IFlowDocument, IJob } from '../../../flow/types';
@@ -53,7 +47,6 @@ let instance;
 
 type Props = {
   automation: IFlowDocument;
-  automationNotes?: IAutomationNote[];
   jobRefers: IJobRefer[];
   save: (params: any) => void;
   saveLoading: boolean;
@@ -75,15 +68,12 @@ type State = {
   editNoteForm?: boolean;
   showTemplateForm: boolean;
   actions: IJob[];
-  triggers: ITrigger[];
-  activeTrigger: ITrigger;
   activeAction: IJob;
   selectedContentId?: string;
   isZoomable: boolean;
   zoomStep: number;
   zoom: number;
   percentage: number;
-  automationNotes: IAutomationNote[];
 };
 
 class AutomationForm extends React.Component<Props, State> {
@@ -93,7 +83,7 @@ class AutomationForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { automation, automationNotes = [] } = this.props;
+    const { automation } = this.props;
     const lenAutomation = Object.keys(automation);
 
     this.state = {
@@ -101,8 +91,6 @@ class AutomationForm extends React.Component<Props, State> {
       actions: JSON.parse(
         JSON.stringify(lenAutomation.length ? automation.jobs : [])
       ),
-      triggers: JSON.parse(JSON.stringify([])),
-      activeTrigger: {} as ITrigger,
       activeId: '',
       currentTab: 'actions',
       isActionTab: true,
@@ -116,8 +104,7 @@ class AutomationForm extends React.Component<Props, State> {
       zoomStep: 0.025,
       zoom: 1,
       percentage: 100,
-      activeAction: {} as IJob,
-      automationNotes
+      activeAction: {} as IJob
     };
   }
 
@@ -159,13 +146,6 @@ class AutomationForm extends React.Component<Props, State> {
 
       instanceZoom.setZoom(zoom);
     };
-
-    if (
-      (prevProps.automationNotes || []).length !==
-      (this.props.automationNotes || []).length
-    ) {
-      this.setState({ automationNotes: this.props.automationNotes || [] });
-    }
   }
 
   componentWillUnmount() {
@@ -182,7 +162,7 @@ class AutomationForm extends React.Component<Props, State> {
       Container: 'canvas'
     });
 
-    const { triggers, actions } = this.state;
+    const { actions } = this.state;
 
     instance.bind('ready', () => {
       instance.bind('connection', info => {
@@ -192,13 +172,12 @@ class AutomationForm extends React.Component<Props, State> {
       instance.bind('connectionDetached', info => {
         this.onDettachConnection(info);
       });
-
       for (const action of actions) {
         this.renderControl('action', action, this.onClickAction);
       }
 
       // create connections ===================
-      createInitialConnections(triggers, actions, instance);
+      createInitialConnections(actions, instance);
 
       // delete connections ===================
       deleteConnection(instance);
@@ -226,12 +205,6 @@ class AutomationForm extends React.Component<Props, State> {
       if (type === 'action') {
         return this.setState({
           actions: actions.filter(action => action.id !== splitItem[1])
-        });
-      }
-
-      if (type === 'trigger') {
-        return this.setState({
-          triggers: triggers.filter(trigger => trigger.id !== splitItem[1])
         });
       }
     });
@@ -349,19 +322,19 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   onConnection = info => {
-    const { triggers, actions } = this.state;
+    const { actions } = this.state;
 
-    connection(triggers, actions, info, info.targetId.replace('action-', ''));
+    connection(actions, info, info.targetId.replace('action-', ''));
 
-    this.setState({ triggers, actions });
+    this.setState({ actions });
   };
 
   onDettachConnection = info => {
-    const { triggers, actions } = this.state;
+    const { actions } = this.state;
 
-    connection(triggers, actions, info, undefined);
+    connection(actions, info, undefined);
 
-    this.setState({ triggers, actions });
+    this.setState({ actions });
   };
 
   handleClickOutside = event => {
@@ -388,28 +361,6 @@ class AutomationForm extends React.Component<Props, State> {
     }
 
     return newId;
-  };
-
-  addTrigger = (data: ITrigger, triggerId?: string, config?: any) => {
-    const { triggers, activeTrigger } = this.state;
-
-    let trigger: any = {
-      ...data,
-      id: this.getNewId(triggers.map(t => t.id))
-    };
-    const triggerIndex = triggers.findIndex(t => t.id === triggerId);
-
-    if (triggerId && activeTrigger.id === triggerId) {
-      trigger = activeTrigger;
-    }
-
-    trigger.config = { ...trigger.config, ...config };
-
-    if (triggerIndex !== -1) {
-      triggers[triggerIndex] = trigger;
-    } else {
-      triggers.push(trigger);
-    }
   };
 
   addAction = (
@@ -468,53 +419,6 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ name: value });
   };
 
-  onClickNote = activeId => {
-    this.setState({ activeId }, () => {
-      this.handleNoteModal(activeId);
-    });
-  };
-
-  checkNote = (activeId: string) => {
-    const item = activeId.split('-');
-    const type = item[0];
-
-    return (this.state.automationNotes || []).filter(note => {
-      if (type === 'trigger' && note.triggerId !== item[1]) {
-        return null;
-      }
-
-      if (type === 'action' && note.actionId !== item[1]) {
-        return null;
-      }
-
-      return note;
-    });
-  };
-
-  renderNotes(key: string) {
-    const noteCount = (this.checkNote(key) || []).length;
-
-    if (noteCount === 0) {
-      return ``;
-    }
-
-    return `
-      <div class="note-badge note-badge-${key}" title=${__(
-      'Notes'
-    )} id="${key}">
-        <i class="icon-notes"></i>
-      </div>
-    `;
-  }
-
-  renderCount(item: ITrigger | IJob) {
-    // if (item.count) {
-    //   return `(${item.count})`;
-    // }
-
-    return '10';
-  }
-
   renderControl = (key: string, item: IJob, onClick: any) => {
     const idElm = `${key}-${item.id}`;
 
@@ -525,7 +429,6 @@ class AutomationForm extends React.Component<Props, State> {
         <div class="trigger-header">
           <div class='custom-menu'>
             <div>
-              <i class="icon-notes add-note" title=${__('Write Note')}></i>
               <i class="icon-trash-alt delete-control" id="${idElm}" title=${__(
       'Delete control one'
     )}></i>
@@ -537,14 +440,11 @@ class AutomationForm extends React.Component<Props, State> {
           </div>
         </div>
         <p>${item.description}</p>
-        ${this.renderNotes(idElm)}
 
       </div>
     `);
 
     console.log('renderControl step1');
-
-    // ${item.icon}
 
     jquery('#canvas').on('dblclick', `#${idElm}`, event => {
       event.preventDefault();
@@ -553,14 +453,6 @@ class AutomationForm extends React.Component<Props, State> {
     });
 
     console.log('renderControl step2');
-
-    jquery('#canvas').on('click', `.note-badge-${idElm}`, event => {
-      event.preventDefault();
-
-      this.onClickNote(event.currentTarget.id);
-    });
-
-    console.log('renderControl step3');
 
     if (key === 'action') {
       console.log('renderControl step3.1');
@@ -669,7 +561,7 @@ class AutomationForm extends React.Component<Props, State> {
     const onBackAction = () => this.setState({ showAction: false });
 
     if (currentTab === 'actions') {
-      const { actions, triggers } = this.state;
+      const { actions } = this.state;
 
       console.log('actions: ', actions);
 
@@ -683,7 +575,6 @@ class AutomationForm extends React.Component<Props, State> {
               activeAction={activeAction}
               addAction={this.addAction}
               closeModal={onBackAction}
-              triggerType={getTriggerType(actions, triggers, activeAction.id)}
               jobRefers={this.props.jobRefers}
             />
           </>
@@ -721,9 +612,9 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { triggers, actions } = this.state;
+    const { actions } = this.state;
 
-    if (triggers.length === 0 && actions.length === 0) {
+    if (actions.length === 0) {
       return (
         <Container>
           <div
@@ -747,7 +638,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   renderConfirmation() {
     const { id, queryParams, history, saveLoading, automation } = this.props;
-    const { triggers, actions, name } = this.state;
+    const { actions, name } = this.state;
 
     if (saveLoading) {
       return null;
@@ -755,8 +646,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     const when = queryParams.isCreate
       ? !!id
-      : JSON.stringify(triggers) !== JSON.stringify(automation.jobs || []) ||
-        JSON.stringify(actions) !== JSON.stringify([]) ||
+      : JSON.stringify(actions) !== JSON.stringify([]) ||
         automation.name !== this.state.name;
 
     return (
@@ -768,71 +658,6 @@ class AutomationForm extends React.Component<Props, State> {
         history={history}
         queryParams={queryParams}
       />
-    );
-  }
-
-  renderNoteModal() {
-    const { showNoteForm, editNoteForm, activeId } = this.state;
-
-    if (!showNoteForm) {
-      return null;
-    }
-
-    const { automation } = this.props;
-
-    return (
-      <Modal
-        enforceFocus={false}
-        show={showNoteForm}
-        onHide={this.handleNoteModal}
-        animation={false}
-      >
-        <Modal.Body>
-          <Form
-            renderContent={formProps => (
-              <NoteFormContainer
-                formProps={formProps}
-                automationId={automation ? automation._id : ''}
-                isEdit={editNoteForm}
-                itemId={activeId}
-                notes={this.checkNote(activeId) || []}
-                closeModal={this.handleNoteModal}
-              />
-            )}
-          />
-        </Modal.Body>
-      </Modal>
-    );
-  }
-
-  renderTemplateModal() {
-    const { showTemplateForm } = this.state;
-    const { automation } = this.props;
-
-    if (!showTemplateForm || !automation) {
-      return null;
-    }
-
-    return (
-      <Modal
-        enforceFocus={false}
-        show={showTemplateForm}
-        onHide={this.handleTemplateModal}
-        animation={false}
-      >
-        <Modal.Body>
-          <Form
-            renderContent={formProps => (
-              <TemplateForm
-                formProps={formProps}
-                closeModal={this.handleTemplateModal}
-                id={automation._id}
-                name={automation.name}
-              />
-            )}
-          />
-        </Modal.Body>
-      </Modal>
     );
   }
 
@@ -879,9 +704,6 @@ class AutomationForm extends React.Component<Props, State> {
               </RightDrawerContainer>
             </RTG.CSSTransition>
           </div>
-
-          {this.renderNoteModal()}
-          {this.renderTemplateModal()}
         </HeightedWrapper>
       </>
     );
