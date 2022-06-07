@@ -583,19 +583,15 @@ const widgetMutations = {
       if (!company) {
         companyData.primaryName = companyData.name;
 
-        try {
-          company = await sendContactsMessage({
-            subdomain,
-            action: 'companies.createCompany',
-            data: {
-              ...companyData,
-              scopeBrandIds: [brand._id]
-            },
-            isRPC: true
-          });
-        } catch (e) {
-          debug.error(e.message);
-        }
+        company = await sendContactsMessage({
+          subdomain,
+          action: 'companies.createCompany',
+          data: {
+            ...companyData,
+            scopeBrandIds: [brand._id]
+          },
+          isRPC: true
+        });
       } else {
         company = await sendContactsMessage({
           subdomain,
@@ -604,7 +600,8 @@ const widgetMutations = {
             _id: company._id,
             doc: companyData,
             scopeBrandIds: [brand._id]
-          }
+          },
+          isRPC: true
         });
       }
 
