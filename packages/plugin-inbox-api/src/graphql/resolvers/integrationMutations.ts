@@ -700,7 +700,8 @@ const integrationMutations = {
       lastUpdatedUserId: user._id,
       isRequired: e.isRequired,
       isDefinedByErxes: false,
-      associatedFieldId: e.associatedFieldId
+      associatedFieldId: e.associatedFieldId,
+      pageNumber: e.pageNumber
     }));
 
     sendFormsMessage({
