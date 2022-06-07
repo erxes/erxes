@@ -1,6 +1,6 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 
-import JobCategory from './jobCategory';
+import JobCategory from './customResolver/jobCategory';
 
 import {
   JobRefers as JobRefersMutations,

@@ -79,6 +79,8 @@ query jobRefersAll {
   jobRefersAll {
     _id
     name
+    needProducts
+    resultProducts
   }
 }
 `;

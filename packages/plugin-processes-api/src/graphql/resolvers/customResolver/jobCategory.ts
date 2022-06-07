@@ -1,6 +1,6 @@
-import { IContext } from '../../connectionResolver';
-import { JOB_CATEGORY_STATUSES } from '../../models/definitions/constants';
-import { IJobCategoryDocument } from '../../models/definitions/jobCategories';
+import { IContext } from '../../../connectionResolver';
+import { JOB_CATEGORY_STATUSES } from '../../../models/definitions/constants';
+import { IJobCategoryDocument } from '../../../models/definitions/jobCategories';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {

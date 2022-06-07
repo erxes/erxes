@@ -1,11 +1,11 @@
 import { __ } from 'coreui/utils';
 import React from 'react';
 
-import { EmptyContent } from '@erxes/ui/src/activityLogs/styles';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import Info from '@erxes/ui/src/components/Info';
+import Label from '@erxes/ui/src/components/Label';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 
 import { IJob } from '../../../../../flow/types';
@@ -45,12 +45,49 @@ class Delay extends React.Component<Props, State> {
     }
   }
 
+  renderProducts = (products, type) => {
+    const style = type === 'need' ? 'simple' : 'default';
+    const space = '\u00a0\u00a0\u00a0\u00a0';
+
+    return products.map(product => {
+      return (
+        <>
+          <FormGroup>
+            <ControlLabel key={product.id}>
+              {space}
+              {product.product.name} <Label lblStyle={style}>{type}</Label>
+            </ControlLabel>
+          </FormGroup>
+        </>
+      );
+    });
+  };
+
+  renderActions = (chosenActions: IJob[], jobRefers, type) => {
+    return chosenActions.map(action => {
+      const jobRefer = jobRefers.find(job => job._id === action.jobReferId);
+      const needProducts = jobRefer.needProducts || [];
+      const resultProducts = jobRefer.resultProducts || [];
+
+      console.log('jobRefer: ', jobRefer, needProducts, resultProducts);
+
+      return (
+        <>
+          <FormGroup>
+            <ControlLabel key={action.id}>{action.label}</ControlLabel>
+          </FormGroup>
+
+          {type === 'next' && this.renderProducts(needProducts, 'need')}
+          {type === 'prev' && this.renderProducts(resultProducts, 'result')}
+          {type === 'cur' && this.renderProducts(resultProducts, 'need')}
+          {type === 'cur' && this.renderProducts(resultProducts, 'result')}
+        </>
+      );
+    });
+  };
+
   renderContent() {
     const { jobRefers, actions, activeAction } = this.props;
-    // console.log('actions on customCode:', actions);
-    // console.log('jobRefers on customCode:', jobRefers);
-    // console.log('this.props.activeAction', activeAction);
-
     const beforeActions = actions.filter(e =>
       e.nextJobIds.includes(activeAction.id)
     );
@@ -61,18 +98,6 @@ class Delay extends React.Component<Props, State> {
 
     const onChangeValue = (type, e) => {
       this.setState({ [type]: e.target.value });
-    };
-
-    const renderActions = chosenActions => {
-      return chosenActions.map(e => {
-        return (
-          <>
-            <FormGroup>
-              <ControlLabel key={e.id}>{e.label}</ControlLabel>
-            </FormGroup>
-          </>
-        );
-      });
     };
 
     return (
@@ -105,13 +130,20 @@ class Delay extends React.Component<Props, State> {
 
         <FormWrapper>
           <FormColumn>
-            <Info type="info" title="Before jobs">
-              {renderActions(beforeActions)}
+            <Info type="info" title="Previous">
+              {this.renderActions(beforeActions, jobRefers, 'prev')}
             </Info>
           </FormColumn>
+
           <FormColumn>
-            <Info type="info" title="Next jobs">
-              {renderActions(afterActions)}
+            <Info type="success" title="Current">
+              {this.renderActions([activeAction], jobRefers, 'cur')}
+            </Info>
+          </FormColumn>
+
+          <FormColumn>
+            <Info type="info" title="Next">
+              {this.renderActions(afterActions, jobRefers, 'next')}
             </Info>
           </FormColumn>
         </FormWrapper>
