@@ -455,13 +455,11 @@ export const generateQueryBySegment = async (
           negativeQuery
         });
 
-        if (ids && ids.length > 0) {
-          propertiesPositive.push({
-            terms: {
-              _id: ids.map(id => id)
-            }
-          });
-        }
+        propertiesPositive.push({
+          terms: {
+            _id: ids.map(id => id)
+          }
+        });
       }
     }
   }
