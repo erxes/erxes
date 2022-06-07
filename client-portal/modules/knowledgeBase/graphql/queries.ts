@@ -100,3 +100,26 @@ export const articleDetailQuery = `
     }
   }
 `;
+
+export const articlesQuery = `
+  query knowledgeBaseArticles($categoryIds: [String], $searchValue: String) {
+    knowledgeBaseArticles(categoryIds: $categoryIds, searchValue: $searchValue) {
+      _id
+      title
+      summary
+      content
+      reactionChoices
+      createdBy
+      createdDate
+      modifiedBy
+      modifiedDate
+      categoryId
+      createdUser {
+        details {
+          fullName
+          avatar
+        }
+      }
+    }
+  }
+`;
