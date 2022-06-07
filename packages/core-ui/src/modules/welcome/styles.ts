@@ -77,7 +77,7 @@ const Card = styledTS<{ background: string; img: string }>(styled.div)`
   border: 1px solid ${colors.borderPrimary};
   margin: ${dimensions.coreSpacing}px 0;
   background: ${props => props.background};
-  padding: ${dimensions.coreSpacing * 2}px ${dimensions.coreSpacing * 2}px;
+  padding: ${dimensions.coreSpacing * 2}px;
   color: white;
   position: relative;
   overflow: hidden;
@@ -91,7 +91,7 @@ const Card = styledTS<{ background: string; img: string }>(styled.div)`
     max-width: 400px;
   }
 
-  &:before {
+  &:after {
     content: "";
     background: url("${props => props.img}") no-repeat;
     bottom: 0;
@@ -104,7 +104,7 @@ const Card = styledTS<{ background: string; img: string }>(styled.div)`
 `;
 
 const SideNumber = styled.div`
-  margin: auto;
+  margin: ${dimensions.unitSpacing}px 0 25px 170px;
   display: flex;
   flex-direction: column;
   text-align: center;
