@@ -12,9 +12,9 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 type Props = {
   closeModal: () => void;
   onSave: () => void;
-  activeAction: IJob;
-  triggerType: string;
+  activeAction?: IJob;
   jobRefers: IJobRefer[];
+  actions: IJob[];
   addAction: (action: IJob, actionId?: string, jobReferId?: string) => void;
 };
 
@@ -28,9 +28,12 @@ class Delay extends React.Component<Props, State> {
     super(props);
 
     console.log('this.props.activeAction', this.props.activeAction);
-    const { id, description } = this.props.activeAction;
+    const { jobReferId, description } = this.props.activeAction;
 
-    this.state = { jobReferId: id || '', description: description || '' };
+    this.state = {
+      jobReferId: jobReferId ? jobReferId : '',
+      description: description ? description : ''
+    };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -39,13 +42,9 @@ class Delay extends React.Component<Props, State> {
     }
   }
 
-  onChangeField = (value: string) => {
-    this.setState({ jobReferId: value });
-  };
-
   renderContent() {
-    const { jobRefers } = this.props;
-    console.log('jobRefers on customCode:', jobRefers);
+    const { jobRefers, actions } = this.props;
+    console.log('actions on customCode:', actions);
 
     const onChangeValue = (type, e) => {
       this.setState({ [type]: e.target.value });

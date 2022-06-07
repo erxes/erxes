@@ -1,6 +1,5 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { router, withProps, Alert } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';

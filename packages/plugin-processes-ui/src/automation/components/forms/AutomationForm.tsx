@@ -31,7 +31,7 @@ import {
   hoverPaintStyle,
   connection
 } from '../../utils';
-import ActionDetailForm from './actions/ActionDetailForm';
+import JobForm from './actions/subForms/CustomCode';
 import Icon from '@erxes/ui/src/components/Icon';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import { Link } from 'react-router-dom';
@@ -208,13 +208,6 @@ class AutomationForm extends React.Component<Props, State> {
         });
       }
     });
-
-    // add note ===================
-    jquery('#canvas').on('click', '.add-note', event => {
-      event.preventDefault();
-
-      this.handleNoteModal();
-    });
   };
 
   handleSubmit = () => {
@@ -348,7 +341,11 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   toggleDrawer = (type: string) => {
-    this.setState({ showDrawer: !this.state.showDrawer, currentTab: type });
+    this.setState({
+      showDrawer: !this.state.showDrawer,
+      currentTab: type,
+      activeAction: {} as IJob
+    });
   };
 
   getNewId = (checkIds: string[]) => {
@@ -364,7 +361,7 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   addAction = (
-    data: IJob,
+    data?: IJob,
     actionId?: string,
     jobReferId?: string,
     description?: string
@@ -555,10 +552,18 @@ class AutomationForm extends React.Component<Props, State> {
     );
   }
 
+  onBackAction = () => this.setState({ showAction: false });
+
+  onSave = () => {
+    const { activeAction } = this.state;
+
+    this.addAction(activeAction);
+
+    this.onBackAction();
+  };
+
   renderTabContent() {
     const { currentTab, showAction, activeAction } = this.state;
-
-    const onBackAction = () => this.setState({ showAction: false });
 
     if (currentTab === 'actions') {
       const { actions } = this.state;
@@ -568,14 +573,13 @@ class AutomationForm extends React.Component<Props, State> {
       if (showAction && activeAction) {
         return (
           <>
-            <BackIcon onClick={onBackAction}>
-              <Icon icon="angle-left" size={20} /> {__('Back to actions')}
-            </BackIcon>
-            <ActionDetailForm
+            <JobForm
               activeAction={activeAction}
               addAction={this.addAction}
-              closeModal={onBackAction}
+              closeModal={this.onBackAction}
               jobRefers={this.props.jobRefers}
+              actions={actions}
+              onSave={this.onSave}
             />
           </>
         );

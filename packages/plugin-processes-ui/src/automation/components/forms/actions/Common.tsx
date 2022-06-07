@@ -1,7 +1,6 @@
 import React from 'react';
 import { ScrolledContent } from '../../../styles';
 import { __ } from 'coreui/utils';
-import { IAction } from '../../../types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
 import { ActionFooter } from './styles';
@@ -9,7 +8,7 @@ import { IJob } from '../../../../flow/types';
 
 type Props = {
   closeModal: () => void;
-  activeAction: IJob;
+  activeAction?: IJob;
   addAction: (
     action: IJob,
     actionId?: string,
