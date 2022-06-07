@@ -224,7 +224,7 @@ class Properties extends React.Component<
     return (
       <Wrapper
         actionBar={
-           <Wrapper.ActionBar
+          <Wrapper.ActionBar
             background="bgActive"
             left={title}
             right={this.renderActionBar()}
@@ -240,7 +240,6 @@ class Properties extends React.Component<
         content={this.renderProperties()}
         hasBorder={true}
         transparent={true}
-        leftSpacing={true}
       />
     );
   }

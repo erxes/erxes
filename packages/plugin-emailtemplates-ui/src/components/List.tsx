@@ -135,14 +135,10 @@ class EmailTemplateList extends React.Component<Props> {
           />
         }
         renderForm={this.renderForm}
-        // rightActionBar={true}
         renderContent={this.renderContent}
         {...this.props}
         queryParams={this.props.queryParams}
         history={this.props.history}
-        // hasBorder={true}
-        // transparent={true}
-        leftSpacing={true}
       />
     );
   }

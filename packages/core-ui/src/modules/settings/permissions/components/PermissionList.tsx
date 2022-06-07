@@ -12,7 +12,11 @@ import React from 'react';
 import Select from 'react-select-plus';
 import { isObject } from 'util';
 import GroupList from '../containers/GroupList';
-import { NotWrappable, FilterItem, FilterWrapper } from '@erxes/ui-settings/src/permissions/styles';
+import {
+  NotWrappable,
+  FilterItem,
+  FilterWrapper
+} from '@erxes/ui-settings/src/permissions/styles';
 import { IActions, IModule, IPermissionDocument } from '../types';
 import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
 import PermissionFixer from './PermissionFixer';
@@ -256,6 +260,8 @@ class PermissionList extends React.Component<Props> {
         leftSidebar={<GroupList queryParams={queryParams} />}
         footer={<Pagination count={totalCount} />}
         content={this.renderContent()}
+        hasBorder={true}
+        transparent={true}
       />
     );
   }

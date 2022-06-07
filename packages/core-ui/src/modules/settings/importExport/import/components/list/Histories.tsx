@@ -158,7 +158,6 @@ class Histories extends React.Component<Props & IRouterProps> {
         }
         hasBorder={true}
         transparent={true}
-        leftSpacing={true}
       />
     );
   }

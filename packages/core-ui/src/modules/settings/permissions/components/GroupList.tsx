@@ -168,7 +168,12 @@ class GroupList extends React.Component<IProps> {
     const { totalCount, loading } = this.props;
 
     return (
-      <Sidebar full={true} wide={true} header={this.renderSidebarHeader()}>
+      <Sidebar
+        full={false}
+        wide={true}
+        hasBorder={true}
+        header={this.renderSidebarHeader()}
+      >
         <DataWithLoader
           data={this.renderContent()}
           loading={loading}

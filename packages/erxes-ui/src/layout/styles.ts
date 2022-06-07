@@ -75,7 +75,6 @@ const MainHead = styled.div`
 const MainContent = styledTS<{
   transparent?: boolean;
   center?: boolean;
-  leftSpacing?: boolean;
 }>(styled.section)`
   flex: 1;
   display: flex;
@@ -85,7 +84,6 @@ const MainContent = styledTS<{
     !props.transparent && `0 0 6px 1px ${colors.shadowPrimary}`};
   height: ${props => props.center && '100%'};
   margin: ${props => !props.center && '10px 10px 10px 0'};
-  padding-left: ${props => props.leftSpacing && `${dimensions.coreSpacing}px`}
 `;
 
 const ContentBox = styledTS<{
