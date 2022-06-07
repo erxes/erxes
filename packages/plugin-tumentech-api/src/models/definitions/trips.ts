@@ -6,12 +6,13 @@ export interface ITrip {
   carId: string;
   dealIds: string[];
   routeId: string;
+  routeReversed: boolean;
   createdAt: Date;
   startedDate: Date;
   estimatedCloseDate: Date;
   closedDate: Date;
   status: string;
-  statusDates: [{ [key: string]: Date }];
+  statusInfo: [{ [key: string]: Date }];
   trackingHistory: [[number, number, number]];
 }
 
@@ -26,6 +27,7 @@ export const tripSchema = schemaHooksWrapper(
     carId: field({ type: String, label: 'Car id' }),
     dealIds: field({ type: [String], label: 'Deal ids' }),
     routeId: field({ type: String, label: 'Route id' }),
+    routeReversed: field({ type: Boolean, label: 'Route reversed' }),
     createdAt: field({ type: Date, label: 'Created at', default: new Date() }),
     startedDate: field({ type: Date, label: 'Started at', optional: true }),
     estimatedCloseDate: field({
@@ -35,7 +37,7 @@ export const tripSchema = schemaHooksWrapper(
     }),
     closedDate: field({ type: Date, label: 'Closed at', optional: true }),
     status: field({ type: String, label: 'Status' }),
-    statusDates: field({ type: [Schema.Types.Mixed], label: 'status dates' }),
+    statusInfo: field({ type: [Schema.Types.Mixed], label: 'status info' }),
     trackingHistory: field({ type: [[Number]], label: 'tracking history' })
   }),
   'trips'
