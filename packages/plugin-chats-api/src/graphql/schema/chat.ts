@@ -45,6 +45,11 @@ export const types = () => `
     isAdmin: Boolean
   }
 
+  type ChatTypingStatusChangedResponse {
+    chatId: String!
+    userId: String
+  }
+
   type Chat {
     _id: String!
     name: String
@@ -109,4 +114,6 @@ export const mutations = `
   chatMessageRemove(_id: String!): JSON
   chatMakeOrRemoveAdmin(_id: String!, userId: String!): String
   chatMessageToggleIsPinned(_id: String!): Boolean
+
+  chatTypingInfo(chatId: String!, userId : String!): String
 `;

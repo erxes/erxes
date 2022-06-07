@@ -25,8 +25,6 @@ const checkFieldNames = async (fields: string[], columnConfig?: object) => {
       continue;
     }
 
-    fieldName = fieldName.trim();
-
     const property: { [key: string]: any } = {};
 
     if (columnConfig) {

@@ -1,3 +1,7 @@
+import { IRouteDocument } from './models/definitions/routes';
+import { IDirectionDocument } from './models/definitions/directions';
+import { IRouteModel, loadRouteClass } from './models/Routes';
+import { loadDirectionClass, IDirectionModel } from './models/Directions';
 import * as mongoose from 'mongoose';
 import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
@@ -17,12 +21,17 @@ import {
 
 import { IParticipantDocument } from './models/definitions/participants';
 import { IParticipantModel, loadParticipantClass } from './models/Participants';
+import { IPlaceModel, loadPlaceClass } from './models/Places';
+import { IPlaceDocument } from './models/definitions/places';
 
 export interface IModels {
   Cars: ICarModel;
   CarCategories: ICarCategoryModel;
   ProductCarCategories: IProductCarCategoryModel;
   Participants: IParticipantModel;
+  Places: IPlaceModel;
+  Directions: IDirectionModel;
+  Routes: IRouteModel;
 }
 
 export interface IContext extends IMainContext {
@@ -65,6 +74,21 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Participants = db.model<IParticipantDocument, IParticipantModel>(
     'participants',
     loadParticipantClass(models)
+  );
+
+  models.Places = db.model<IPlaceDocument, IPlaceModel>(
+    'places',
+    loadPlaceClass(models)
+  );
+
+  models.Directions = db.model<IDirectionDocument, IDirectionModel>(
+    'directions',
+    loadDirectionClass(models)
+  );
+
+  models.Routes = db.model<IRouteDocument, IRouteModel>(
+    'routes',
+    loadRouteClass(models)
   );
 
   return models;

@@ -7,6 +7,7 @@ module.exports = {
     chatMessageInserted(chatId: String!): ChatMessage
     chatInserted(userId: String!): Chat
     chatUnreadCountChanged(userId: String!): Int
+    chatTypingStatusChanged(chatId: String!) : ChatTypingStatusChangedResponse
   `,
   generateResolvers: (graphqlPubsub) => {
     return {
@@ -47,6 +48,21 @@ module.exports = {
           () => graphqlPubsub.asyncIterator("chatUnreadCountChanged"),
           (payload, variables) => {
             return payload.userId === variables.userId;
+          }
+        ),
+      },
+
+      /*
+       * Subscription to show typing notification
+       */
+      chatTypingStatusChanged: {
+        subscribe: withFilter(
+          () => graphqlPubsub.asyncIterator("chatTypingStatusChanged"),
+          async (payload, variables) => {
+            console.log(
+              payload.chatTypingStatusChanged.chatId === variables.chatId
+            );
+            return payload.chatTypingStatusChanged.chatId === variables.chatId;
           }
         ),
       },

@@ -494,7 +494,8 @@ const integrationMutations = {
     const replacedContent = await new EditorAttributeUtil(
       msgBrokerClient,
       `${process.env.DOMAIN}/gateway/pl:core`,
-      await getServices()
+      await getServices(),
+      subdomain
     ).replaceAttributes({
       content: body,
       user,
@@ -699,7 +700,8 @@ const integrationMutations = {
       lastUpdatedUserId: user._id,
       isRequired: e.isRequired,
       isDefinedByErxes: false,
-      associatedFieldId: e.associatedFieldId
+      associatedFieldId: e.associatedFieldId,
+      pageNumber: e.pageNumber
     }));
 
     sendFormsMessage({
