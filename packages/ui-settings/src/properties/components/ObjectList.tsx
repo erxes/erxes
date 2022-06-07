@@ -82,7 +82,7 @@ export default function ObjectList(props: Props) {
   return (
     <>
       {(objects || []).map((object, index) => (
-        <ObjectListItemContainer key={Math.random()}>
+        <ObjectListItemContainer key={index}>
           <ObjectListItem
             index={index}
             objectListConfigs={objectListConfigs}
