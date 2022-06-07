@@ -108,10 +108,12 @@ export const articlesQuery = `
       title
       summary
       content
+      reactionChoices
       createdBy
       createdDate
       modifiedBy
       modifiedDate
+      categoryId
       createdUser {
         details {
           fullName

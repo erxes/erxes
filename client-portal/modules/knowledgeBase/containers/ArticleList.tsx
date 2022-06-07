@@ -1,5 +1,6 @@
 import { gql, useQuery } from "@apollo/client";
 import React from "react";
+import Spinner from "../../common/Spinner";
 import ArticleList from "../components/ArticleList";
 import { articlesQuery } from "../graphql/queries";
 
@@ -15,6 +16,10 @@ function ArticleListContainer(props: Props) {
       categoryIds: props.categoryId && [props.categoryId],
     },
   });
+
+  if (loading) {
+    return <Spinner objective={true} />;
+  }
 
   const articles = data.knowledgeBaseArticles || [];
 
