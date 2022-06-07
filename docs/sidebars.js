@@ -47,6 +47,7 @@ module.exports = {
       items: [
         "developer/developer",
         "developer/plugin",
+        "developer/events",
         "developer/documentation_guide",
         {
           "Administrator's Guide": [
