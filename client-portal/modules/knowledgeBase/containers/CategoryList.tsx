@@ -4,23 +4,15 @@ import { Store } from "../../types";
 import Layout from "../../main/containers/Layout";
 import Search from "../../main/components/Search";
 import { useRouter } from "next/router";
-import Articles from "../components/ArticleList";
+import ArticleListContainer from "./ArticleList";
 
-type Props = {
-  category: any;
-};
-
-function CategoriesContainer({ category }: Props) {
+function CategoriesContainer() {
   const router = useRouter();
   const { searchValue } = router.query;
 
   const renderContent = (props) => {
     if (searchValue) {
-      console.log(category);
-      return <div>{searchValue}</div>;
-      return (
-        <Articles articles={category.articles} searchValue={searchValue} />
-      );
+      return <ArticleListContainer searchValue={searchValue} />;
     }
 
     return <CategoryList {...props} />;

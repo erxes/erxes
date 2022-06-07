@@ -2,7 +2,6 @@ import React from "react";
 import Router, { useRouter } from "next/router";
 import { SearchContainer } from "../../styles/main";
 import Icon from "../../common/Icon";
-// import { setParams } from "../../common/routerUtils";
 
 type Props = {};
 
