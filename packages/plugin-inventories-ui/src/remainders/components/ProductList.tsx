@@ -2,13 +2,12 @@ import CategoryList from '../containers/CategoryList';
 import React from 'react';
 import Row from './ProductRow';
 import {
-  __,
   BarItems,
+  Button,
   DataWithLoader,
   EmptyState,
   FormControl,
   Pagination,
-  router,
   Table,
   Wrapper
 } from '@erxes/ui/src';
@@ -16,6 +15,7 @@ import { IRemainderProduct } from '../types';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import { menuPos } from '../../constants';
+import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -25,6 +25,17 @@ interface IProps extends IRouterProps {
   loading: boolean;
   searchValue: string;
   currentCategory: IProductCategory;
+  departmentId: string;
+  branchId: string;
+  isAllSelected: boolean;
+  bulk: any[];
+  emptyBulk: () => void;
+  recalc: (
+    doc: { productIds: string[]; departmentId: string; branchId: string },
+    emptyBulk: () => void
+  ) => void;
+  toggleBulk: () => void;
+  toggleAll: (targets: IRemainderProduct[], containerId: string) => void;
 }
 
 type State = {
@@ -43,10 +54,16 @@ class List extends React.Component<IProps, State> {
   }
 
   renderRow = () => {
-    const { products, history } = this.props;
+    const { products, history, bulk, toggleBulk } = this.props;
 
     return products.map(product => (
-      <Row history={history} key={product._id} product={product} />
+      <Row
+        history={history}
+        key={product._id}
+        product={product}
+        toggleBulk={toggleBulk}
+        isChecked={bulk.includes(product)}
+      />
     ));
   };
 
@@ -73,8 +90,35 @@ class List extends React.Component<IProps, State> {
     e.target.value = tmpValue;
   }
 
+  onChange = () => {
+    const { toggleAll, products } = this.props;
+    toggleAll(products, 'products');
+  };
+
+  recalcRemainders = (products, departmentId, branchId) => {
+    const productIds: string[] = [];
+
+    products.forEach(product => {
+      productIds.push(product._id);
+    });
+
+    this.props.recalc(
+      { productIds, departmentId, branchId },
+      this.props.emptyBulk
+    );
+  };
+
   render() {
-    const { loading, queryParams, history, totalCount } = this.props;
+    const {
+      loading,
+      queryParams,
+      history,
+      totalCount,
+      isAllSelected,
+      bulk,
+      departmentId,
+      branchId
+    } = this.props;
 
     let actionBarRight = (
       <BarItems>
@@ -94,6 +138,13 @@ class List extends React.Component<IProps, State> {
         <Table hover={true}>
           <thead>
             <tr>
+              <th style={{ width: 60 }}>
+                <FormControl
+                  checked={isAllSelected}
+                  componentClass="checkbox"
+                  onChange={this.onChange}
+                />
+              </th>
               <th>{__('Code')}</th>
               <th>{__('Name')}</th>
               <th>{__('Category')}</th>
@@ -114,6 +165,30 @@ class List extends React.Component<IProps, State> {
           text="No Brands"
           size="small"
         />
+      );
+    }
+
+    if (bulk.length > 0) {
+      const onClick = () =>
+        confirm()
+          .then(() => {
+            this.recalcRemainders(bulk, departmentId, branchId);
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
+
+      actionBarRight = (
+        <BarItems>
+          <Button
+            btnStyle="simple"
+            size="small"
+            icon="tag-alt"
+            onClick={onClick}
+          >
+            ReCalc remainder
+          </Button>
+        </BarItems>
       );
     }
 

@@ -5,14 +5,11 @@ import { ISafeRemItemDocument } from '../../../models/definitions/safeRemainders
 import { IRemainderDocument } from '../../../models/definitions/remainders';
 
 interface IUpdateRemaindersParams {
-  productId: string;
-  productCategoryId: string;
-  productIds: string[];
+  productCategoryId?: string;
+  productIds?: string[];
   departmentId: string;
   branchId: string;
 }
-
-const TAG = 'tag';
 
 const remainderMutations = {
   async updateRemainders(
@@ -20,13 +17,7 @@ const remainderMutations = {
     params: IUpdateRemaindersParams,
     { models, subdomain, user }: IContext
   ) {
-    const {
-      productId,
-      productCategoryId,
-      productIds,
-      departmentId,
-      branchId
-    } = params;
+    const { productCategoryId, productIds, departmentId, branchId } = params;
     const selector: any = {};
     let allProductIds: string[] = [];
 
@@ -57,11 +48,6 @@ const remainderMutations = {
     if (productIds) {
       selector.productId = { $in: productIds };
       allProductIds = allProductIds.concat(productIds);
-    }
-
-    if (productId) {
-      selector.productId = productId;
-      allProductIds = allProductIds.concat([productId]);
     }
 
     const safeRems = await models.SafeRemItems.find(selector).lean();

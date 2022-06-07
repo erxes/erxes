@@ -5,10 +5,15 @@ import React from 'react';
 import { Bulk, withProps, router, Spinner } from '@erxes/ui/src';
 import { graphql } from 'react-apollo';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import { RemainderProductsQueryResponse } from '../types';
-import { queries } from '../graphql';
+import {
+  RemainderProductsQueryResponse,
+  UpdateRemaindersMutationResponse,
+  UpdateRemaindersMutationVariables
+} from '../types';
+import { mutations, queries } from '../graphql';
 import { FILTER_PARAMS } from '../../constants';
 import queryString from 'query-string';
+import { Alert } from '@erxes/ui/src/utils';
 
 type Props = {
   queryParams: any;
@@ -19,7 +24,8 @@ type Props = {
 type FinalProps = {
   remainderProductsQuery: RemainderProductsQueryResponse;
 } & Props &
-  IRouterProps;
+  IRouterProps &
+  UpdateRemaindersMutationResponse;
 
 const generateQueryParams = ({ location }) => {
   return queryString.parse(location.search);
@@ -82,11 +88,31 @@ class ProductListContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { remainderProductsQuery, queryParams } = this.props;
+    const {
+      remainderProductsQuery,
+      queryParams,
+      updateRemainders
+    } = this.props;
 
     if (remainderProductsQuery.loading) {
       return <Spinner />;
     }
+
+    // recalc action
+    const recalc = ({ productIds, departmentId, branchId }, emptyBulk) => {
+      updateRemainders({
+        variables: { productIds, departmentId, branchId }
+      })
+        .then(data => {
+          emptyBulk();
+
+          refetch();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
     const products =
       (remainderProductsQuery.remainderProducts &&
         remainderProductsQuery.remainderProducts.products) ||
@@ -97,6 +123,8 @@ class ProductListContainer extends React.Component<FinalProps> {
       0;
 
     const searchValue = this.props.queryParams.searchValue || '';
+    const departmentId = this.props.queryParams.departmentId || '';
+    const branchId = this.props.queryParams.branchId || '';
 
     const updatedProps = {
       ...this.props,
@@ -105,7 +133,9 @@ class ProductListContainer extends React.Component<FinalProps> {
       totalCount,
       loading: remainderProductsQuery.loading,
       searchValue,
-
+      departmentId,
+      branchId,
+      recalc,
       onFilter: this.onFilter,
       onSelect: this.onSelect,
       onSearch: this.onSearch,
@@ -124,6 +154,10 @@ class ProductListContainer extends React.Component<FinalProps> {
     return <Bulk content={productList} refetch={refetch} />;
   }
 }
+
+const generateOptions = () => ({
+  refetchQueries: ['remainderProductsQuery']
+});
 
 export default withProps<Props>(
   compose(
@@ -144,6 +178,14 @@ export default withProps<Props>(
         },
         fetchPolicy: 'network-only'
       })
+    }),
+    graphql<
+      {},
+      UpdateRemaindersMutationResponse,
+      UpdateRemaindersMutationVariables
+    >(gql(mutations.updateRemainders), {
+      name: 'updateRemainders',
+      options: generateOptions
     })
   )(ProductListContainer)
 );

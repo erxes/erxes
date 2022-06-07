@@ -20,6 +20,27 @@ const listParamsValue = `
   branchId: $branchId
 `;
 
+export const remainderProductFields = `
+  _id
+  name
+  type
+  code
+  categoryId
+  unitPrice
+  category {
+    _id
+    code
+    name
+  }
+  remainder
+  uomId
+  uom {
+    _id
+    code
+    name
+  }
+`;
+
 const remainderProducts = `
   query remainderProducts(
     $categoryId: String,
@@ -32,24 +53,7 @@ const remainderProducts = `
       ${listParamsValue}
     ) {
       products {
-        _id
-        name
-        type
-        code
-        categoryId
-        unitPrice
-        category {
-          _id
-          code
-          name
-        }
-        remainder
-        uomId
-        uom {
-          _id
-          code
-          name
-        }
+        ${remainderProductFields}
       }
 
       totalCount

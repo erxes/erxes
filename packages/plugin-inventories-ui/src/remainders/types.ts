@@ -16,6 +16,19 @@ export type RemainderProductsQueryResponse = {
   remainderProducts: { products: IRemainderProduct[]; totalCount: number };
 } & QueryResponse;
 
+export type UpdateRemaindersMutationVariables = {
+  productCategoryId?: string;
+  productIds?: string[];
+  departmentId: string;
+  branchId: string;
+};
+
+export type UpdateRemaindersMutationResponse = {
+  updateRemainders: (params: {
+    variables: UpdateRemaindersMutationVariables;
+  }) => Promise<any>;
+};
+
 export type ProductCategoriesQueryResponse = {
   productCategories: IProductCategory[];
 } & QueryResponse;
