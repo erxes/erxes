@@ -10,6 +10,7 @@ class Row extends React.Component<Props> {
   render() {
     const { product } = this.props;
     const { code, name, category, unitPrice, remainder, uom } = product;
+    console.log(product && product.uom);
 
     return (
       <tr>

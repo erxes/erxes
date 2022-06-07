@@ -180,3 +180,33 @@ export const PARTICIPATION_STATUSES = {
   WON: 'won',
   ALL: ['participating', 'lose', 'won']
 };
+
+export const PROVINCES = [
+  { name: 'Улаанбаатар', capital: 'Улаанбаатар', value: 'ulaanbaatar' },
+  { name: 'Архангай', capital: 'Цэцэрлэг хот', value: 'arkhangai' },
+  { name: 'Баян-Өлгий', capital: 'Өлгий', value: 'bayanulgii' },
+  { name: 'Баянхонгор', capital: 'Баянхонгор', value: 'bayankhongor' },
+  { name: 'Булган', capital: 'Булган', value: 'bulgan' },
+  { name: 'Говь-Алтай', capital: 'Алтай', value: 'govialtai' },
+  { name: 'Говьсүмбэр', capital: 'Чойр', value: 'govisumber' },
+  { name: 'Дархан-Уул', capital: 'Дархан', value: 'darkhan' },
+  { name: 'Дорноговь', capital: 'Сайншанд', value: 'dornogovi' },
+  { name: 'Дорнод', capital: 'Чойбалсан', value: 'dornod' },
+  { name: 'Дундговь', capital: 'Мандалговь', value: 'dundgovi' },
+  { name: 'Завхан', capital: 'Улиастай', value: 'zavkhan' },
+  { name: 'Орхон', capital: 'Эрдэнэт', value: 'erdenet' },
+  { name: 'Өвөрхангай	', capital: 'Арвайхээр', value: 'uvurkhangai' },
+  { name: 'Өмнөговь', capital: 'Даланзадгад', value: 'umnugovi' },
+  { name: 'Сүхбаатар', capital: 'Баруун-Урт', value: 'sukhbaatar' },
+  { name: 'Сэлэнгэ', capital: 'Сүхбаатар', value: 'selenge' },
+  { name: 'Төв', capital: 'Зуунмод', value: 'tuv' },
+  { name: 'Увс', capital: 'Улаангом', value: 'uvs' },
+  { name: 'Ховд', capital: 'Ховд', value: 'khovd' },
+  { name: 'Хөвсгөл', capital: 'Мөрөн', value: 'khuvsgul' },
+  { name: 'Хэнтий', capital: 'Чингис', value: 'khentii' }
+];
+
+export const TRIP_STATUSES = {
+  START: 'start',
+  READY: 'ready'
+};

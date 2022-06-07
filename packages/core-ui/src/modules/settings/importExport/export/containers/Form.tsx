@@ -7,8 +7,8 @@ import { withProps } from 'modules/common/utils';
 import { queries as formQueries } from '@erxes/ui-forms/src//forms/graphql';
 import Form from '../components/Form';
 import React from 'react';
-import { graphql } from 'react-apollo';
 import { queries } from '../../graphql';
+import { graphql } from 'react-apollo';
 import {
   FieldsCombinedByTypeQueryResponse,
   IConfigColumn

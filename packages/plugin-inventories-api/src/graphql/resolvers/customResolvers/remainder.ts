@@ -3,17 +3,21 @@ import { IGetRemainder } from '../../../models/definitions/remainders';
 import { sendProductsMessage } from '../../../messageBroker';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
-    return models.Remainders.findOne({ _id });
-  },
+  async uom(product: any, _, {}: IContext) {
+    return { _id: '465', code: '1', name: 'aa' };
+    // if (!(await models.ProductsConfigs.getConfig('isReqiureUOM', ''))) {
+    //   return {};
+    // }
 
-  uom(remainder: IGetRemainder, {}, { subdomain }: IContext) {
-    return sendProductsMessage({
-      subdomain,
-      action: 'uoms.findOne',
-      data: {
-        query: { _id: remainder.uomId }
-      }
-    });
+    // let uomId = product.uomId;
+    // if (!uomId) {
+    //   uomId = await models.ProductsConfigs.getConfig('default_uom', '');
+    // }
+
+    // if (!uomId) {
+    //   return {};
+    // }
+
+    // return models.Uoms.getUom({ _id: uomId });
   }
 };

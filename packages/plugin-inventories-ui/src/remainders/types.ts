@@ -1,4 +1,4 @@
-import { IProduct, IProductCategory } from '@erxes/ui-products/src/types';
+import { IProduct, IProductCategory, IUom } from '@erxes/ui-products/src/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
 export type ListQueryVariables = {
@@ -9,7 +9,7 @@ export type ListQueryVariables = {
 
 export type IRemainderProduct = {
   remainder: number;
-  uom: string;
+  uom: IUom;
 } & IProduct;
 
 export type RemainderProductsQueryResponse = {

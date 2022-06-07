@@ -5,7 +5,14 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
   CONVERSATION: 'conversation',
   DEVICE: 'device',
   USER: 'core:user',
-  ALL: ['contacts:customer', 'contacts:company', 'product', 'conversation', 'device', 'core:user']
+  ALL: [
+    'contacts:customer',
+    'contacts:company',
+    'product',
+    'conversation',
+    'device',
+    'core:user'
+  ]
 };
 
 export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
@@ -35,15 +42,11 @@ export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
     'phoneValidationStatus',
     'location.countryCode',
     'tagIds',
-    'createdAt',
-    'modifiedAt',
     'isOnline',
-    'lastSeenAt',
     'sessionCount',
     'leadStatus',
     'relatedIntegrationIds',
     'hasAuthority',
-    'isSubscribed',
     'stageChangedDate',
     'stageId',
     'userId',
@@ -59,18 +62,10 @@ export const COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES = {
     'integrationId',
     'categoryId',
     'vendorId',
-    'emailValidationStatus',
-    'phoneValidationStatus',
     'location.countryCode',
     'tagIds',
-    'createdAt',
-    'modifiedAt',
     'isOnline',
-    'lastSeenAt',
-    'sessionCount',
     'leadStatus',
-    'relatedIntegrationIds',
-    'hasAuthority',
-    'isSubscribed'
+    'relatedIntegrationIds'
   ]
 };

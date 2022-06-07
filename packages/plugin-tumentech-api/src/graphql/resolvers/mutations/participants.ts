@@ -2,10 +2,6 @@ import {
   IParticipant,
   IParticipantDocument
 } from './../../../models/definitions/participants';
-// import {
-//     checkPermission,
-//     requireLogin
-//   } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 
 interface IParticipantEdit extends IParticipant {

@@ -139,13 +139,8 @@ export default withProps<Props>(
           categoryId: queryParams.categoryId,
           searchValue: queryParams.searchValue,
           search: queryParams.search,
-          paidStartDate: queryParams.paidStartDate,
-          paidEndDate: queryParams.paidEndDate,
-          createdStartDate: queryParams.createdStartDate,
-          createdEndDate: queryParams.createdEndDate,
-          paidDate: queryParams.paidDate,
-          userId: queryParams.userId,
-          customerId: queryParams.customerId
+          departmentId: queryParams.departmentId,
+          branchId: queryParams.branchId
         },
         fetchPolicy: 'network-only'
       })

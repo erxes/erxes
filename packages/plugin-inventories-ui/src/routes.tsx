@@ -4,7 +4,9 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Tags" */ './remainders/containers/List')
+  import(
+    /* webpackChunkName: "List - Tags" */ './remainders/containers/ProductList'
+  )
 );
 
 const remainders = ({ location, history }) => {

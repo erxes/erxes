@@ -58,13 +58,11 @@ class TypeForm extends React.Component<Props> {
 
   render() {
     return (
-      <FlexItem>
-        <FlexPad type="stepper" direction="column">
-          <ImportHeader>{__(this.renderText())}</ImportHeader>
+      <FlexPad type="stepper" direction="column">
+        <ImportHeader>{__(this.renderText())}</ImportHeader>
 
-          <TypeContent center={true}>{this.renderOptions()}</TypeContent>
-        </FlexPad>
-      </FlexItem>
+        <TypeContent center={true}>{this.renderOptions()}</TypeContent>
+      </FlexPad>
     );
   }
 }
