@@ -24,6 +24,10 @@ ${
    extend type KnowledgeBaseTopic @key(fields: "_id") {
     _id: String! @external
   }
+
+   extend type KnowledgeBaseArticle @key(fields: "_id") {
+    _id: String! @external
+  }
    `
     : ''
 }
@@ -135,6 +139,7 @@ export const queries = (cardAvailable, kbAvailable) => `
     kbAvailable
       ? `
     clientPortalKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
+    clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String]): [KnowledgeBaseArticle]
    `
       : ''
   }

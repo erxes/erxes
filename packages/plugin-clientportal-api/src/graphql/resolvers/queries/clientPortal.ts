@@ -166,6 +166,48 @@ const configClientPortalQueries = {
       },
       isRPC: true
     });
+  },
+
+  /**
+   * knowledgebase article list
+   */
+  async clientPortalKnowledgeBaseArticles(
+    _root,
+    {
+      categoryIds,
+      searchValue
+    }: {
+      searchValue?: string;
+      categoryIds: string[];
+    },
+    { subdomain }: IContext
+  ) {
+    const selector: any = {};
+
+    if (searchValue && searchValue.trim()) {
+      selector.$or = [
+        { title: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
+        { content: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
+        { summary: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } }
+      ];
+    }
+
+    if (categoryIds && categoryIds.length > 0) {
+      selector.categoryId = { $in: categoryIds };
+    }
+
+    return sendKbMessage({
+      subdomain,
+      action: 'articles.find',
+      data: {
+        query: selector,
+        sort: {
+          createdDate: -1
+        }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
   }
 };
 
