@@ -7,6 +7,8 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IJob } from '../../../../../flow/types';
 import { IJobRefer } from '../../../../../job/types';
 
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+
 import FormControl from '@erxes/ui/src/components/form/Control';
 
 type Props = {
@@ -27,7 +29,6 @@ class Delay extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    console.log('this.props.activeAction', this.props.activeAction);
     const { jobReferId, description } = this.props.activeAction;
 
     this.state = {
@@ -43,11 +44,33 @@ class Delay extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { jobRefers, actions } = this.props;
-    console.log('actions on customCode:', actions);
+    const { jobRefers, actions, activeAction } = this.props;
+    // console.log('actions on customCode:', actions);
+    // console.log('jobRefers on customCode:', jobRefers);
+    // console.log('this.props.activeAction', activeAction);
+
+    const beforeActions = actions.filter(e =>
+      e.nextJobIds.includes(activeAction.id)
+    );
+
+    const afterActions = actions.filter(
+      e => e.id === activeAction.nextJobIds[0]
+    );
 
     const onChangeValue = (type, e) => {
       this.setState({ [type]: e.target.value });
+    };
+
+    const renderActions = chosenActions => {
+      return chosenActions.map(e => {
+        return (
+          <>
+            <FormGroup>
+              <ControlLabel key={e.id}>{e.label}</ControlLabel>
+            </FormGroup>
+          </>
+        );
+      });
     };
 
     return (
@@ -77,6 +100,17 @@ class Delay extends React.Component<Props, State> {
             onChange={onChangeValue.bind(this, 'description')}
           />
         </FormGroup>
+
+        <FormWrapper>
+          <FormColumn>
+            <ControlLabel>Before jobs</ControlLabel>
+            {renderActions(beforeActions)}
+          </FormColumn>
+          <FormColumn>
+            <ControlLabel>Next jobs</ControlLabel>
+            {renderActions(afterActions)}
+          </FormColumn>
+        </FormWrapper>
       </DrawerDetail>
     );
   }
