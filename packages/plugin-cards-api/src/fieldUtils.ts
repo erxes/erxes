@@ -211,6 +211,26 @@ export const generateFields = async ({ subdomain, data }) => {
     fields = [...fields, ...[productOptions, assignedUserOptions]];
   }
 
+  if (type === 'deal' && usageType === 'export') {
+    const extendFieldsDealExport = [
+      { _id: Math.random(), name: 'productsData.name', label: 'Product Name' },
+      { _id: Math.random(), name: 'productsData.code', label: 'Product Code' },
+      { _id: Math.random(), name: 'boardId', label: 'Board' },
+      { _id: Math.random(), name: 'pipelineId', label: 'Pipeline' }
+    ];
+
+    fields = [...fields, ...extendFieldsDealExport];
+  }
+
+  if (usageType === 'export') {
+    const extendExport = [
+      { _id: Math.random(), name: 'boardId', label: 'Board' },
+      { _id: Math.random(), name: 'pipelineId', label: 'Pipeline' }
+    ];
+
+    fields = [...fields, ...extendExport];
+  }
+
   if (segmentId || pipelineId) {
     const segment = segmentId
       ? await sendSegmentsMessage({

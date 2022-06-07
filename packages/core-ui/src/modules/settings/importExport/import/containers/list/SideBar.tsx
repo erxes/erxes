@@ -34,7 +34,7 @@ class SideBarContainer extends React.Component<FinalProps, State> {
       importHistoryGetExportableServices.importHistoryGetExportableServices ||
       [];
 
-    if (!router.getParam(history, 'type')) {
+    if (!router.getParam(history, 'type') && services.length !== 0) {
       router.setParams(history, { type: services[0].contentType }, true);
     }
 

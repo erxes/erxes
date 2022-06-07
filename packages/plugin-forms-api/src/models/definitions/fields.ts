@@ -1,3 +1,4 @@
+import { ILocationOption } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 import { TEXT_TYPE } from './constants';
 import { field, schemaWrapper } from './utils';
@@ -67,6 +68,7 @@ export interface IField extends IVisibility {
   content?: string;
   description?: string;
   options?: string[];
+  locationOptions?: ILocationOption[];
   keys?: string[];
   objectListConfigs?: IObjectListConfig[];
   isRequired?: boolean;
@@ -140,6 +142,11 @@ export const fieldSchema = schemaWrapper(
       type: [String],
       optional: true,
       label: 'Options'
+    }),
+    locationOptions: field({
+      type: Array,
+      optional: true,
+      label: 'Location Options'
     }),
     keys: field({
       type: [String],

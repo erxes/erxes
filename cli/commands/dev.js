@@ -234,6 +234,12 @@ module.exports.devCmd = async program => {
 
   if (!program.ignoreRun) {
     log("starting core ....");
+
+    if (program.deps) {
+      log(`Installing dependencies in core-ui .........`);
+      await execCommand(`cd ${filePath(`../packages/core-ui`)} && yarn install`);
+    }
+
     await execCommand("pm2 start ecosystem.config.js --only core");
     await sleep(30000);
 

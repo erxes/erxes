@@ -7,14 +7,18 @@ import {
 import { ILocationOption } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import { LogicItem, LogicRow, RowSmall } from '@erxes/ui-forms/src/forms/styles';
+import {
+  LogicItem,
+  LogicRow,
+  RowSmall
+} from '@erxes/ui-forms/src/forms/styles';
 import { Column } from '@erxes/ui/src/styles/main';
 
 type Props = {
   onChangeOption: (option: ILocationOption, index: number) => void;
   option: ILocationOption;
   index: number;
-  removeOption: (index: number) => void;
+  removeOption?: (index: number) => void;
 };
 
 function LocationOption(props: Props) {
@@ -37,7 +41,7 @@ function LocationOption(props: Props) {
   };
 
   const remove = () => {
-    removeOption(index);
+    removeOption && removeOption(index);
   };
 
   return (
@@ -77,7 +81,9 @@ function LocationOption(props: Props) {
             />
           </FormGroup>
         </Column>
-        <Button onClick={remove} btnStyle="danger" icon="times" />
+        {removeOption && (
+          <Button onClick={remove} btnStyle="danger" icon="times" />
+        )}
       </LogicRow>
     </LogicItem>
   );

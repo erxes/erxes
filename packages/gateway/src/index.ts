@@ -26,6 +26,7 @@ import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { handleUnsubscription } from './util/handleUnsubscription';
 
 const {
+  NODE_ENV,
   DOMAIN,
   WIDGETS_DOMAIN,
   CLIENT_PORTAL_DOMAINS,
@@ -197,3 +198,13 @@ const {
     `Erxes gateway ready at http://localhost:${port}${apolloServer.graphqlPath}`
   );
 })();
+
+(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
+  process.on(sig, async () => {
+    if (NODE_ENV === 'development') {
+      clearCache();
+    }
+
+    process.exit(0);
+  });
+});
