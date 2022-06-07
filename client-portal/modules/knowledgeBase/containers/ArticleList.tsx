@@ -21,7 +21,7 @@ function ArticleListContainer(props: Props) {
     return <Spinner objective={true} />;
   }
 
-  const articles = data.knowledgeBaseArticles || [];
+  const articles = data.clientPortalKnowledgeBaseArticles || [];
 
   const updatedProps = {
     ...props,
