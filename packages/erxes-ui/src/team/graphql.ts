@@ -66,4 +66,106 @@ const users = `
   }
 `;
 
-export { users, allUsers, detailFields };
+const departmentField = `
+  _id
+  title
+  description
+  parentId
+  code
+  supervisorId
+  userIds
+  users {
+    _id
+    details {
+      ${detailFields}
+    }
+  }
+`;
+
+const contactInfoFields = `
+  phoneNumber
+  email
+  links
+  coordinate {
+    longitude
+    latitude
+  }
+  image {
+    url
+    name
+    type
+    size
+  }
+`;
+
+const departments = `
+  query departments {
+    departments {
+      ${departmentField}
+    }
+  }
+`;
+
+const unitField = `
+  _id
+  title
+  description
+  departmentId
+  supervisorId
+  code
+  userIds
+  users {
+    _id
+    details {
+      avatar
+      fullName
+    }
+  }
+`;
+
+const units = `
+  query units {
+    units {
+      ${unitField}
+    }
+  }
+`;
+
+const branchField = `
+  _id
+  title
+  address
+  parentId
+  supervisorId
+  code
+  userIds
+  users {
+    _id
+    details {
+      avatar
+      fullName
+    }
+  }
+  ${contactInfoFields}
+`;
+
+const branches = `
+  query branches {
+    branches {
+      ${branchField}
+    }
+  }
+`;
+
+export {
+  users,
+  allUsers,
+  detailFields,
+  branches,
+  departments,
+  units,
+  departmentField,
+  contactInfoFields,
+  unitField,
+  branchField
+};
