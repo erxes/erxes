@@ -38,20 +38,37 @@ export default function ObjectListItem(props: Props) {
           return null;
         }
 
-        return (
-          <>
-            <p>{config.label}</p>
-            <input
-              id={key}
-              type="text"
-              value={value}
-              placeholder={`${config.label}`}
-              onChange={onChange}
-              onFocus={onFocus}
-              className="form-control"
-            />
-          </>
-        );
+        if (config.type === 'text') {
+          return (
+            <>
+              <p>{config.label}</p>
+              <input
+                id={key}
+                type="text"
+                value={value}
+                placeholder={`${config.label}`}
+                onChange={onChange}
+                onFocus={onFocus}
+                className="form-control"
+              />
+            </>
+          );
+        }
+        if (config.type === 'textarea') {
+          return (
+            <>
+              <p>{config.label}</p>
+              <textarea
+                id={key}
+                value={value}
+                placeholder={`${config.label}`}
+                onChange={onChange}
+                onFocus={onFocus}
+                className="form-control"
+              />
+            </>
+          );
+        }
       })}
     </>
   );
