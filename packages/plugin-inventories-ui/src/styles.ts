@@ -456,3 +456,7 @@ export const MenuFooter = styled.footer`
   padding: 10px 20px;
   max-width: 95%;
 `;
+
+export const PaddingTop = styled.div`
+  padding-top: ${dimensions.unitSpacing}px;
+`;

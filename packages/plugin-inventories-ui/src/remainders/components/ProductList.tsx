@@ -1,4 +1,3 @@
-import CategoryList from '../containers/CategoryList';
 import React from 'react';
 import Row from './ProductRow';
 import {
@@ -14,8 +13,9 @@ import {
 import { IRemainderProduct } from '../types';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import { menuPos } from '../../constants';
+import { menuRemainder } from '../../constants';
 import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
+import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -195,12 +195,13 @@ class List extends React.Component<IProps, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('POS of Products')} submenu={menuPos} />
+          <Wrapper.Header
+            title={__('Remainder of Products')}
+            submenu={menuRemainder}
+          />
         }
         actionBar={<Wrapper.ActionBar right={actionBarRight} />}
-        leftSidebar={
-          <CategoryList queryParams={queryParams} history={history} />
-        }
+        leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
         footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader
