@@ -1,15 +1,17 @@
-import React from 'react';
-import Common from '../Common';
-import { DrawerDetail } from '../../../../styles';
 import { __ } from 'coreui/utils';
-import { ControlLabel } from '@erxes/ui/src/components/form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IJob } from '../../../../../flow/types';
-import { IJobRefer } from '../../../../../job/types';
+import React from 'react';
 
+import { EmptyContent } from '@erxes/ui/src/activityLogs/styles';
+import { ControlLabel } from '@erxes/ui/src/components/form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import Info from '@erxes/ui/src/components/Info';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 
-import FormControl from '@erxes/ui/src/components/form/Control';
+import { IJob } from '../../../../../flow/types';
+import { IJobRefer } from '../../../../../job/types';
+import { DrawerDetail } from '../../../../styles';
+import Common from '../Common';
 
 type Props = {
   closeModal: () => void;
@@ -103,12 +105,14 @@ class Delay extends React.Component<Props, State> {
 
         <FormWrapper>
           <FormColumn>
-            <ControlLabel>Before jobs</ControlLabel>
-            {renderActions(beforeActions)}
+            <Info type="info" title="Before jobs">
+              {renderActions(beforeActions)}
+            </Info>
           </FormColumn>
           <FormColumn>
-            <ControlLabel>Next jobs</ControlLabel>
-            {renderActions(afterActions)}
+            <Info type="info" title="Next jobs">
+              {renderActions(afterActions)}
+            </Info>
           </FormColumn>
         </FormWrapper>
       </DrawerDetail>
