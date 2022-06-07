@@ -273,14 +273,14 @@ const SearchContainer = styledTS<{ focused: boolean }>(styled.div)`
     font-size: 22px;
     cursor: pointer;
     position: absolute;
-    top: 14px;
+    top: 10px;
   }
 
   i:nth-child(1) {
     left: 20px;
   }
 
-  i:nth-child(2) {
+  .icon-times-circle {
     right: 20px;
   }
 

@@ -1,9 +1,11 @@
 import React from "react";
-import Router, { useRouter } from "next/router";
+import Router from "next/router";
 import { SearchContainer } from "../../styles/main";
 import Icon from "../../common/Icon";
 
-type Props = {};
+type Props = {
+  searchValue?: any;
+};
 
 type State = {
   searchValue: string;
@@ -39,22 +41,17 @@ export default class Search extends React.Component<Props, State> {
   };
 
   onSearch = () => {
-    // const { history } = this.props;
     const { searchValue } = this.state;
-    console.log(searchValue);
+
     Router.push({
       query: { searchValue },
     });
-
-    // setParams(history, { searchValue });
   };
 
   onKeyDown = (e) => {
-    // const { history } = this.props;
     const { searchValue } = this.state;
 
     if (e.key === "Enter") {
-      console.log(searchValue);
       Router.push({
         query: { searchValue },
       });
@@ -62,13 +59,13 @@ export default class Search extends React.Component<Props, State> {
   };
 
   clearSearch = () => {
-    // const { history } = this.props;
-
     this.setState({
       searchValue: "",
     });
 
-    // setParams(history, { searchValue: "" });
+    Router.push({
+      query: { searchValue: "" },
+    });
   };
 
   onFocus = () => {
@@ -93,7 +90,13 @@ export default class Search extends React.Component<Props, State> {
           onBlur={this.onBlur}
           onFocus={this.onFocus}
         />
-        {searchValue && <Icon icon="times-circle" onClick={this.clearSearch} />}
+        {searchValue && (
+          <Icon
+            icon="times-circle"
+            className="clear-icon"
+            onClick={this.clearSearch}
+          />
+        )}
       </SearchContainer>
     );
   }

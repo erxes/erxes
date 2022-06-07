@@ -24,7 +24,34 @@ function ArticleListContainer(props: Props) {
     articles,
   };
 
-  return <ArticleList {...updatedProps} />;
+  const renderSearchResult = () => {
+    const { searchValue } = props;
+
+    if (!searchValue) {
+      return null;
+    }
+
+    if (articles.length === 0) {
+      return (
+        <span className="search-result">
+          We couldn't find any articles for: <b>{searchValue}</b>
+        </span>
+      );
+    }
+
+    return (
+      <span className="search-result">
+        Search result for: <b>{searchValue}</b>
+      </span>
+    );
+  };
+
+  return (
+    <>
+      {renderSearchResult()}
+      <ArticleList {...updatedProps} />
+    </>
+  );
 }
 
 export default ArticleListContainer;

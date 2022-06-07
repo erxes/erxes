@@ -19,7 +19,10 @@ function CategoriesContainer() {
   };
 
   return (
-    <Layout headerBottomComponent={<Search />} headingSpacing={true}>
+    <Layout
+      headerBottomComponent={<Search searchValue={searchValue} />}
+      headingSpacing={true}
+    >
       {(props: Store) => renderContent(props)}
     </Layout>
   );

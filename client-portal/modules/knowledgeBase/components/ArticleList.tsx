@@ -7,32 +7,9 @@ import { IKbArticle } from "../../types";
 
 type Props = {
   articles: IKbArticle[];
-  searchValue?: any;
 };
 
 class Lists extends React.Component<Props> {
-  renderSearchResult = () => {
-    const { searchValue, articles } = this.props;
-
-    if (!searchValue) {
-      return null;
-    }
-
-    if (articles.length === 0) {
-      return (
-        <span className="search-result">
-          We couldn't find any articles for: <b>{searchValue}</b>
-        </span>
-      );
-    }
-
-    return (
-      <span className="search-result">
-        Search result for: <b>{searchValue}</b>
-      </span>
-    );
-  };
-
   render() {
     const { articles } = this.props;
 
@@ -42,7 +19,6 @@ class Lists extends React.Component<Props> {
 
     return (
       <>
-        {this.renderSearchResult()}
         {(articles || []).map((article) => (
           <React.Fragment key={article._id}>
             <Link
