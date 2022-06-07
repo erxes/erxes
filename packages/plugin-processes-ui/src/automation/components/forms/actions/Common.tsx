@@ -1,7 +1,6 @@
 import React from 'react';
 import { ScrolledContent } from '../../../styles';
 import { __ } from 'coreui/utils';
-import { IAction } from '../../../types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
 import { ActionFooter } from './styles';
@@ -9,17 +8,30 @@ import { IJob } from '../../../../flow/types';
 
 type Props = {
   closeModal: () => void;
-  activeAction: IJob;
-  addAction: (action: IJob, actionId?: string, jobReferId?: string) => void;
+  activeAction?: IJob;
+  addAction: (
+    action: IJob,
+    actionId?: string,
+    jobReferId?: string,
+    description?: string
+  ) => void;
   jobReferId: string;
+  description: string;
   children: React.ReactNode;
 };
 
 function Common(props: Props) {
-  const { addAction, activeAction, closeModal, jobReferId, children } = props;
+  const {
+    addAction,
+    activeAction,
+    closeModal,
+    jobReferId,
+    children,
+    description
+  } = props;
 
   const onSave = () => {
-    addAction(activeAction, activeAction.id, jobReferId);
+    addAction(activeAction, activeAction.id, jobReferId, description);
 
     closeModal();
   };
