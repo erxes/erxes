@@ -1,6 +1,12 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
+export interface ITrackingItem {
+  lat: number;
+  lng: number;
+  trackedDate: Date;
+}
+
 export interface ITrip {
   driverId: string;
   carId: string;
@@ -13,7 +19,7 @@ export interface ITrip {
   closedDate: Date;
   status: string;
   statusInfo: [{ [key: string]: Date }];
-  trackingHistory: [[number, number, number]];
+  trackingData: ITrackingItem[];
 }
 
 export interface ITripDocument extends ITrip, Document {
@@ -38,7 +44,7 @@ export const tripSchema = schemaHooksWrapper(
     closedDate: field({ type: Date, label: 'Closed at', optional: true }),
     status: field({ type: String, label: 'Status' }),
     statusInfo: field({ type: [Schema.Types.Mixed], label: 'status info' }),
-    trackingHistory: field({ type: [[Number]], label: 'tracking history' })
+    trackingData: field({ type: [[Number]], label: 'tracking history' })
   }),
   'trips'
 );

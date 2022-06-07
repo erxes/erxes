@@ -132,5 +132,4 @@ export const mutations = `
   customersChangeState(_id: String!, value: String!): Customer
   customersVerify(verificationType:String!): String
   customersChangeVerificationStatus(customerIds: [String], type: String!, status: String!): [Customer]
-
 `;

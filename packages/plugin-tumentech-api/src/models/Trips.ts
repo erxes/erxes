@@ -1,12 +1,18 @@
-import { ITripEdit } from './../graphql/resolvers/mutations/Trips';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { tripSchema, ITrip, ITripDocument } from './definitions/trips';
+import { ITripEdit } from '../graphql/resolvers/mutations/trips';
+import {
+  tripSchema,
+  ITrip,
+  ITripDocument,
+  ITrackingItem
+} from './definitions/trips';
 
 export interface ITripModel extends Model<ITripDocument> {
   getTrip(doc: any): ITripDocument;
   createTrip(doc: ITrip): ITripDocument;
   updateTrip(doc: ITripEdit): ITripDocument;
+  updateTracking(_id: string, trackingData: ITrackingItem[]): ITripDocument;
   removeTrip(_id: string): ITripDocument;
 }
 
@@ -40,6 +46,30 @@ export const loadTripClass = (models: IModels) => {
 
     public static async removeTrip(doc: ITrip) {
       return models.Trips.remove(doc);
+    }
+
+    public static async updateTracking(
+      _id: string,
+      trackingData: ITrackingItem[]
+    ) {
+      await models.Trips.getTrip({ _id });
+
+      await models.Trips.updateOne(
+        { _id: _id },
+        {
+          $push: {
+            trackingData: {
+              $each: trackingData.map(e => [
+                e.lng,
+                e.lat,
+                e.trackedDate.getTime() / 1000
+              ])
+            }
+          }
+        }
+      );
+
+      return models.Trips.findOne({ _id });
     }
   }
 
