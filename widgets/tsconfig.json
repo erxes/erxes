@@ -4,13 +4,12 @@
     "sourceMap": true,
     "module": "commonjs",
       "lib": [
-      "es2017",
       "es5",
       "es6",
       "dom",
       "esnext.asynciterable"
     ],
-    "target": "es2017",
+    "target": "es5",
     "jsx": "react",
     "allowJs": true,
     "skipLibCheck": true,

@@ -43,7 +43,6 @@ export interface IField {
   lastUpdatedUserId: string;
   associatedFieldId?: string;
   column?: number;
-  keys?: string[];
 
   logicAction?: string;
   logics?: ILogic[];

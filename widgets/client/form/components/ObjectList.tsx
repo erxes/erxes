@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import * as React from 'react';
-import { ObjectListItemContainer } from '../styles';
 import ObjectListItem from './ObjectListItem';
 import { IObjectListConfig } from '../types';
 
@@ -81,7 +80,7 @@ export default function ObjectList(props: Props) {
   return (
     <>
       {(objects || []).map((object, index) => (
-        <ObjectListItemContainer key={index}>
+        <div className="object-list-item" key={index}>
           <ObjectListItem
             index={index}
             objectListConfigs={objectListConfigs}
@@ -90,7 +89,7 @@ export default function ObjectList(props: Props) {
             onChange={onChangeValue}
           />
           {renderButtons(index)}
-        </ObjectListItemContainer>
+        </div>
       ))}
     </>
   );

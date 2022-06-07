@@ -29,7 +29,6 @@ const commonFields = `
   groupId
   searchable
   showInCard
-  keys
 
   ${genericFields}
 

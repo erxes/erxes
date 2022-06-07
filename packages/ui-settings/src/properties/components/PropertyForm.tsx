@@ -41,7 +41,6 @@ type State = {
   currentLocation: ILocationOption;
   searchable: boolean;
   showInCard: boolean;
-  keys: string[];
 };
 
 class PropertyForm extends React.Component<Props, State> {
@@ -51,7 +50,6 @@ class PropertyForm extends React.Component<Props, State> {
     let doc = {
       options: [],
       type: '',
-      keys: [],
       locationOptions: [],
       objectListConfigs: [],
       hasOptions: false,
@@ -63,7 +61,6 @@ class PropertyForm extends React.Component<Props, State> {
       const {
         type,
         options,
-        keys,
         locationOptions,
         objectListConfigs,
         searchable = false,
@@ -74,8 +71,7 @@ class PropertyForm extends React.Component<Props, State> {
         ...doc,
         type,
         searchable,
-        showInCard,
-        keys
+        showInCard
       };
 
       if (
@@ -91,8 +87,7 @@ class PropertyForm extends React.Component<Props, State> {
           locationOptions: [],
           objectListConfigs: [],
           searchable: searchable || false,
-          showInCard,
-          keys
+          showInCard
         };
       }
 
@@ -104,8 +99,7 @@ class PropertyForm extends React.Component<Props, State> {
           locationOptions: Object.assign([], locationOptions || []),
           objectListConfigs: Object.assign([], objectListConfigs || []),
           searchable: searchable || false,
-          showInCard: false,
-          keys
+          showInCard: false
         };
       }
     }
@@ -131,8 +125,7 @@ class PropertyForm extends React.Component<Props, State> {
       locationOptions,
       objectListConfigs,
       showInCard,
-      searchable,
-      keys
+      searchable
     } = this.state;
 
     const finalValues = values;
@@ -149,17 +142,12 @@ class PropertyForm extends React.Component<Props, State> {
       locationOptions,
       objectListConfigs,
       searchable,
-      showInCard,
-      keys
+      showInCard
     };
   };
 
   onChangeOption = options => {
     this.setState({ options });
-  };
-
-  onChangeKeys = keys => {
-    this.setState({ keys });
   };
 
   onChangeLocationOption = locationOptions => {

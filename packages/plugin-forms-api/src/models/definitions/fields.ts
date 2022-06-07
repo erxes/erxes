@@ -1,6 +1,6 @@
 import { ILocationOption } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
-import { TEXT_TYPE } from './constants';
+import { INPUT_TYPE } from './constants';
 import { field, schemaWrapper } from './utils';
 
 export interface ISubmission {
@@ -42,7 +42,7 @@ const ObjectListSchema = new Schema({
   label: field({ type: String, optional: true, label: 'Label' }),
   type: field({
     type: String,
-    enum: TEXT_TYPE.map(option => option.value),
+    enum: INPUT_TYPE.map(option => option.value),
     optional: true,
     label: 'Type'
   })
@@ -69,7 +69,6 @@ export interface IField extends IVisibility {
   description?: string;
   options?: string[];
   locationOptions?: ILocationOption[];
-  keys?: string[];
   objectListConfigs?: IObjectListConfig[];
   isRequired?: boolean;
   isDefinedByErxes?: boolean;
@@ -147,11 +146,6 @@ export const fieldSchema = schemaWrapper(
       type: Array,
       optional: true,
       label: 'Location Options'
-    }),
-    keys: field({
-      type: [String],
-      optional: true,
-      label: 'Keys'
     }),
     objectListConfigs: field({
       type: [ObjectListSchema],

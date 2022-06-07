@@ -15,7 +15,6 @@ const fieldCommonFields = `
   code: String
   searchable: Boolean
   showInCard: Boolean
-  keys: [String]
   productCategoryId: String
 `;
 
@@ -143,7 +142,6 @@ const fieldsCommonFields = `
   logic: LogicInput
   searchable: Boolean
   showInCard: Boolean
-  keys: [String]
   objectListConfigs: [objectListConfigInput]
 `;
 

@@ -12,7 +12,7 @@ type Props = {
 export default function ObjectListItem(props: Props) {
   const { object, objectListConfigs, index, onEdit } = props;
 
-  const entries = Object.entries(object);
+  const entries = Object.keys(object);
 
   const onFocus = (_event: any) => {
     onEdit(index);

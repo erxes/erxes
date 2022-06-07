@@ -14,7 +14,6 @@ const fields = `
       content
       description
       options
-      keys
       objectListConfigs {
         key
         label
