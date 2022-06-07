@@ -615,8 +615,7 @@ const widgetMutations = {
             mainTypeId: customer._id,
             relType: 'company',
             relTypeId: company._id
-          },
-          isRPC: true
+          }
         });
       }
     }
