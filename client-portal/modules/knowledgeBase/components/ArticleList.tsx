@@ -7,7 +7,6 @@ import { IKbArticle } from "../../types";
 
 type Props = {
   articles: IKbArticle[];
-  searchValue?: string;
 };
 
 class Lists extends React.Component<Props> {
@@ -15,24 +14,32 @@ class Lists extends React.Component<Props> {
     const { articles } = this.props;
 
     if (!articles || articles.length === 0) {
-      return <EmptyContent text="Thare are no articles in this category!" />;
+      return <EmptyContent text="There are no articles!" />;
     }
 
-    return articles.map((article) => (
-      <Link
-        href={`/knowledge-base/article?id=${article._id}&catId=${article.categoryId}`}
-        key={article._id}
-      >
-        <CategoryItem>
-          <CategoryContent>
-            <h5 className="base-color">{article.title}</h5>
-            <p>{article.summary}</p>
+    return (
+      <>
+        {(articles || []).map((article) => (
+          <React.Fragment key={article._id}>
+            <Link
+              href={`/knowledge-base/article?id=${article._id}&catId=${article.categoryId}`}
+            >
+              <CategoryItem>
+                <CategoryContent>
+                  <h5 className="base-color">{article.title}</h5>
+                  <p>{article.summary}</p>
 
-            <Avatar date={article.modifiedDate} user={article.createdUser} />
-          </CategoryContent>
-        </CategoryItem>
-      </Link>
-    ));
+                  <Avatar
+                    date={article.modifiedDate}
+                    user={article.createdUser}
+                  />
+                </CategoryContent>
+              </CategoryItem>
+            </Link>
+          </React.Fragment>
+        ))}
+      </>
+    );
   }
 }
 

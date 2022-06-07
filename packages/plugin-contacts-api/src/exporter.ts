@@ -165,6 +165,19 @@ export const fillCellValue = async (
 
       break;
 
+    case 'relatedIntegrationIds':
+      const integration = await sendInboxMessage({
+        subdomain,
+        action: 'integrations.findOne',
+        data: { _id: item.integrationId },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      cellValue = integration ? integration.name : '';
+
+      break;
+
     case 'ownerEmail':
       const owner: IUserDocument | null = await sendCoreMessage({
         subdomain,

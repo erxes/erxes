@@ -1,8 +1,12 @@
 import * as schedule from 'node-schedule';
 
-import { doesQueueExist } from '@erxes/api-utils/src/messageBroker';
 import { initBroker, sendCommonMessage } from './messageBroker';
-import { redis, getServices, isAvailable } from './serviceDiscovery';
+import {
+  redis,
+  getServices,
+  isAvailable,
+  getService
+} from './serviceDiscovery';
 
 const { RABBITMQ_HOST } = process.env;
 
@@ -12,10 +16,12 @@ const sendMessage = async (
   services: string[]
 ) => {
   for (const serviceName of services) {
-    if (await isAvailable(serviceName)) {
-      const exists = await doesQueueExist(serviceName, action);
+    const service = await getService(serviceName, true);
 
-      if (exists) {
+    if ((await isAvailable(serviceName)) && service) {
+      const meta = service.config ? service.config.meta : {};
+
+      if (meta.cronjobs && meta.cronjobs[`${action}Available`]) {
         sendCommonMessage({
           subdomain,
           serviceName,

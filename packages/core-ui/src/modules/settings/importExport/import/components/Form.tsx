@@ -1,4 +1,4 @@
-import Button from 'modules/common/components/Button';
+import { StepButton } from '@erxes/ui/src/components/step/styles';
 import { Step, Steps } from '@erxes/ui/src/components/step';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -158,9 +158,9 @@ class Form extends React.Component<Props, State> {
     const { disclaimer, importName } = this.state;
     if (disclaimer && importName) {
       return (
-        <Button btnStyle="success" size="large" onClick={this.onSubmit}>
+        <StepButton next={true} onClick={this.onSubmit}>
           Import
-        </Button>
+        </StepButton>
       );
     }
 
