@@ -139,14 +139,14 @@ const checkDayJobs = async (subdomain: string) => {
 };
 
 export default {
-  handleMinutelyJob: async (subdomain: string) => {
+  handleMinutelyJob: async ({ subdomain }) => {
     await checkEveryMinuteJobs(subdomain);
     await checkPreScheduledJobs(subdomain);
   },
-  handleHourlyJob: async (subdomain: string) => {
+  handleHourlyJob: async ({ subdomain }) => {
     await checkHourMinuteJobs(subdomain);
   },
-  handleDailyJob: async (subdomain: string) => {
+  handleDailyJob: async ({ subdomain }) => {
     await checkDayJobs(subdomain);
   }
 };
