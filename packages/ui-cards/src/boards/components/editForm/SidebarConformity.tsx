@@ -42,7 +42,6 @@ class SidebarConformity extends React.Component<Props> {
       <RightContent>
         {isEnabled('contacts') && (
           <>
-            {' '}
             <CompanySection mainType={options.type} mainTypeId={item._id} />
             <CustomerSection mainType={options.type} mainTypeId={item._id} />
           </>
