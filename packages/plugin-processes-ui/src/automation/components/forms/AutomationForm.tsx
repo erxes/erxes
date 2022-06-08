@@ -310,8 +310,6 @@ class AutomationForm extends React.Component<Props, State> {
       currentTab: 'actions',
       activeAction: action ? action : ({} as IJob)
     });
-
-    console.log('automationForm onClickAction:', action);
   };
 
   onConnection = info => {

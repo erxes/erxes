@@ -37,6 +37,11 @@ class Delay extends React.Component<Props, State> {
       jobReferId: jobReferId ? jobReferId : '',
       description: description ? description : ''
     };
+
+    console.log(
+      'this.props.activeAction on constructor:',
+      this.props.activeAction
+    );
   }
 
   componentWillReceiveProps(nextProps) {
@@ -45,17 +50,28 @@ class Delay extends React.Component<Props, State> {
     }
   }
 
-  renderProducts = (products, type) => {
+  renderLabelInfo = (style, text) => {
+    return <Label lblStyle={style}>{text}</Label>;
+  };
+
+  renderProducts = (products, type, matchProducts = undefined) => {
     const style = type === 'need' ? 'simple' : 'default';
-    const space = '\u00a0\u00a0\u00a0\u00a0';
+    const space = '\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0';
 
     return products.map(product => {
+      const name = product.product.name;
+      const matchResult = matchProducts
+        ? matchProducts.includes(name)
+        : matchProducts;
+
       return (
         <>
           <FormGroup>
             <ControlLabel key={product.id}>
-              {space}
-              {product.product.name} <Label lblStyle={style}>{type}</Label>
+              {space} -{matchResult === undefined && name}
+              {matchResult === true && name}
+              {matchResult === false && this.renderLabelInfo('danger', name)}
+              {/* {this.renderLabelInfo(style, type)} */}
             </ControlLabel>
           </FormGroup>
         </>
@@ -63,24 +79,46 @@ class Delay extends React.Component<Props, State> {
     });
   };
 
-  renderActions = (chosenActions: IJob[], jobRefers, type) => {
+  renderActions = (
+    chosenActions: IJob[],
+    jobRefers,
+    type,
+    beforeActions: IJob[]
+  ) => {
+    let beforeResultProducts = [];
+    if (beforeActions.length) {
+      for (const before of beforeActions) {
+        const jobRefer = jobRefers.find(job => job._id === before.jobReferId);
+        const resultProducts = jobRefer.resultProducts || [];
+        const productNames = resultProducts.map(e => e.product.name);
+
+        beforeResultProducts = beforeResultProducts.concat(productNames);
+      }
+    }
+
+    console.log('beforeResultProducts', beforeResultProducts);
+
     return chosenActions.map(action => {
+      if (!action.jobReferId) {
+        return [];
+      }
+
       const jobRefer = jobRefers.find(job => job._id === action.jobReferId);
       const needProducts = jobRefer.needProducts || [];
       const resultProducts = jobRefer.resultProducts || [];
 
-      console.log('jobRefer: ', jobRefer, needProducts, resultProducts);
-
       return (
         <>
-          <FormGroup>
-            <ControlLabel key={action.id}>{action.label}</ControlLabel>
-          </FormGroup>
-
-          {type === 'next' && this.renderProducts(needProducts, 'need')}
-          {type === 'prev' && this.renderProducts(resultProducts, 'result')}
-          {type === 'cur' && this.renderProducts(resultProducts, 'need')}
-          {type === 'cur' && this.renderProducts(resultProducts, 'result')}
+          <Info type="primary" title="">
+            <FormGroup>
+              <ControlLabel key={action.id}>{action.label}</ControlLabel>
+            </FormGroup>
+            {type === 'next' && this.renderProducts(needProducts, 'need')}
+            {type === 'prev' && this.renderProducts(resultProducts, 'result')}
+            {type === 'cur' &&
+              this.renderProducts(needProducts, 'need', beforeResultProducts)}
+            {/* {type === 'cur' && this.renderProducts(resultProducts, 'result')} */}
+          </Info>
         </>
       );
     });
@@ -88,13 +126,14 @@ class Delay extends React.Component<Props, State> {
 
   renderContent() {
     const { jobRefers, actions, activeAction } = this.props;
+
     const beforeActions = actions.filter(e =>
       e.nextJobIds.includes(activeAction.id)
     );
 
-    const afterActions = actions.filter(
-      e => e.id === activeAction.nextJobIds[0]
-    );
+    // const afterActions = actions.filter(
+    //   e => e.id === activeAction.nextJobIds[0]
+    // );
 
     const onChangeValue = (type, e) => {
       this.setState({ [type]: e.target.value });
@@ -130,22 +169,33 @@ class Delay extends React.Component<Props, State> {
 
         <FormWrapper>
           <FormColumn>
-            <Info type="info" title="Previous">
-              {this.renderActions(beforeActions, jobRefers, 'prev')}
+            <Info type="primary" title="Result products">
+              {this.renderActions(beforeActions, jobRefers, 'prev', [])}
             </Info>
           </FormColumn>
 
           <FormColumn>
-            <Info type="success" title="Current">
-              {this.renderActions([activeAction], jobRefers, 'cur')}
+            <Info type="success" title="Need products">
+              {this.renderActions(
+                [activeAction],
+                jobRefers,
+                'cur',
+                beforeActions
+              )}
             </Info>
           </FormColumn>
 
-          <FormColumn>
+          {/*
+          If you want to show next Job report on jobForm 
+          when double click job instance , 
+          please uncomment below.
+          */}
+
+          {/* <FormColumn>
             <Info type="info" title="Next">
               {this.renderActions(afterActions, jobRefers, 'next')}
             </Info>
-          </FormColumn>
+          </FormColumn> */}
         </FormWrapper>
       </DrawerDetail>
     );
