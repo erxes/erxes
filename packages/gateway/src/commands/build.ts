@@ -127,6 +127,4 @@ const main = async () => {
 
 main()
   .then(() => process.exit())
-  .catch(e => {
-    throw e;
-  });
+  .catch(() => process.exit(1));
