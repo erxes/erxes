@@ -53,8 +53,8 @@ export const queries = `
 `;
 
 const params = `
-    driverId: String!,
-    carId: String!,
+    driverId: String,
+    carId: String,
     dealIds: [String],
     routeId: String,
     routeReversed: Boolean,

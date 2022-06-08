@@ -42,7 +42,7 @@ export const tripSchema = schemaHooksWrapper(
       optional: true
     }),
     closedDate: field({ type: Date, label: 'Closed at', optional: true }),
-    status: field({ type: String, label: 'Status' }),
+    status: field({ type: String, label: 'Status', default: 'open' }),
     statusInfo: field({ type: [Schema.Types.Mixed], label: 'status info' }),
     trackingData: field({ type: [[Number]], label: 'tracking history' })
   }),
