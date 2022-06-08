@@ -1,4 +1,3 @@
-import CustomFieldsSection from '../../containers/editForm/CustomFieldsSection';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
@@ -48,7 +47,6 @@ class Sidebar extends React.Component<Props> {
         {isEnabled('products') && sidebar && sidebar(saveItem)}
 
         <SidebarConformity {...this.props} />
-        <CustomFieldsSection item={item} options={options} />
       </RightContent>
     );
   }

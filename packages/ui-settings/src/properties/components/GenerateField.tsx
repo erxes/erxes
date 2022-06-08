@@ -16,11 +16,6 @@ import Select from 'react-select-plus';
 import { IOption } from '@erxes/ui/src/types';
 import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import { __ } from '@erxes/ui/src/utils/core';
-import {
-  FieldStyle,
-  SidebarCounter,
-  SidebarList
-} from '@erxes/ui/src/layout/styles';
 import Map from '@erxes/ui/src/components/Map';
 import { MapContainer } from '@erxes/ui/src/styles/main';
 import { Button, Icon } from '@erxes/ui/src/components';
@@ -31,7 +26,7 @@ type Props = {
   currentLocation: ILocationOption;
   defaultValue?: any;
   hasLogic?: boolean;
-  isEditing?: boolean;
+  isEditing: boolean;
   isPreview?: boolean;
   onValueChange?: (data: { _id: string; value: any }) => void;
   onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
@@ -73,7 +68,9 @@ export default class GenerateField extends React.Component<Props, State> {
     }
 
     if (nextProps.currentLocation !== this.props.currentLocation) {
-      this.setState({ currentLocation: nextProps.currentLocation });
+      this.setState({
+        currentLocation: nextProps.currentLocation
+      });
     }
   }
 
@@ -312,7 +309,7 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
-  renderObjectList(keys, attrs) {
+  renderObjectList(objectListConfigs, attrs) {
     let { value = [] } = attrs;
 
     if (typeof value === 'string' && value.length > 0) {
@@ -325,7 +322,30 @@ export default class GenerateField extends React.Component<Props, State> {
 
     const { field, onValueChange } = this.props;
 
-    const onChange = (value: any[]) => {
+    if (field.contentType === 'form') {
+      if (!objectListConfigs) {
+        return null;
+      }
+
+      return (
+        <>
+          {objectListConfigs.map(o => (
+            <>
+              <p>
+                <b>{o.label}</b>
+              </p>
+              <FormControl
+                type="text"
+                componentClass={`${o.type}`}
+                placeholder={`${o.label}`}
+              />
+            </>
+          ))}
+        </>
+      );
+    }
+
+    const onChange = () => {
       if (onValueChange) {
         this.setState({ value });
         onValueChange({ _id: field._id, value });
@@ -335,7 +355,7 @@ export default class GenerateField extends React.Component<Props, State> {
     return (
       <>
         <ObjectList
-          keys={keys}
+          objectListConfigs={objectListConfigs}
           value={value}
           onChange={onChange}
           isEditing={this.props.isEditing}
@@ -436,7 +456,7 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderControl() {
     const { field } = this.props;
-    const { type, keys } = field;
+    const { type, objectListConfigs } = field;
     const options = field.options || [];
 
     const attrs = {
@@ -543,7 +563,7 @@ export default class GenerateField extends React.Component<Props, State> {
       }
 
       case 'objectList': {
-        return this.renderObjectList(keys, attrs);
+        return this.renderObjectList(objectListConfigs, attrs);
       }
 
       case 'map': {
@@ -561,16 +581,17 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderAddButton() {
     const { field } = this.props;
-    const { keys = [] } = field;
+    const { objectListConfigs = [] } = field;
 
-    if (field.type !== 'objectList' || !field.keys) {
+    if (field.type !== 'objectList' || !field.objectListConfigs) {
       return null;
     }
 
     const onClick = () => {
-      const object = keys.reduce((e, key) => {
-        e[key] = '';
-        return e;
+      const object = objectListConfigs.reduce((previousValue, currentValue) => {
+        previousValue[`${currentValue.key}`] = '';
+
+        return previousValue;
       }, {});
 
       this.setState({ value: [object, ...this.state.value] });

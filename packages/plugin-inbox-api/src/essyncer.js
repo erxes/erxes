@@ -19,10 +19,5 @@ module.exports = [
     name: "channels",
     schema: "{}",
     script: "",
-  },
-  {
-    name: "channels",
-    schema: "{}",
-    script: "",
-  },
+  }
 ];

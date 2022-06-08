@@ -1,5 +1,6 @@
 import { ILocationOption } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
+import { INPUT_TYPE } from './constants';
 import { field, schemaWrapper } from './utils';
 
 export interface ISubmission {
@@ -36,9 +37,26 @@ export const logicSchema = new Schema(
   { _id: false }
 );
 
+const ObjectListSchema = new Schema({
+  key: field({ type: String, optional: true, label: 'Key' }),
+  label: field({ type: String, optional: true, label: 'Label' }),
+  type: field({
+    type: String,
+    enum: INPUT_TYPE.map(option => option.value),
+    optional: true,
+    label: 'Type'
+  })
+});
+
 interface IVisibility {
   isVisible?: boolean;
   isVisibleInDetail?: boolean;
+}
+
+interface IObjectListConfig {
+  key: string;
+  label: string;
+  type: string;
 }
 
 export interface IField extends IVisibility {
@@ -51,7 +69,7 @@ export interface IField extends IVisibility {
   description?: string;
   options?: string[];
   locationOptions?: ILocationOption[];
-  keys?: string[];
+  objectListConfigs?: IObjectListConfig[];
   isRequired?: boolean;
   isDefinedByErxes?: boolean;
   order?: number;
@@ -129,10 +147,10 @@ export const fieldSchema = schemaWrapper(
       optional: true,
       label: 'Location Options'
     }),
-    keys: field({
-      type: [String],
+    objectListConfigs: field({
+      type: [ObjectListSchema],
       optional: true,
-      label: 'Keys'
+      label: 'object list config'
     }),
     isRequired: field({ type: Boolean, label: 'Is required' }),
     isDefinedByErxes: field({ type: Boolean, label: 'Is defined by erxes' }),

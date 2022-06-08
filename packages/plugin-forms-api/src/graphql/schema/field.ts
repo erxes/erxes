@@ -15,7 +15,6 @@ const fieldCommonFields = `
   code: String
   searchable: Boolean
   showInCard: Boolean
-  keys: [String]
   productCategoryId: String
 `;
 
@@ -52,6 +51,18 @@ export const fieldsTypes = ({ products }) => `
     description: String
   }
 
+  type ObjectListConfig {
+    key: String
+    label: String
+    type: String
+  }
+
+  input objectListConfigInput {
+    key: String
+    label: String
+    type: String
+  }
+
   type Field @key(fields: "_id") {
     _id: String!
     contentType: String!
@@ -67,6 +78,7 @@ export const fieldsTypes = ({ products }) => `
     associatedField: Field
     logics: [Logic]
     locationOptions: [LocationOption]
+    objectListConfigs: [ObjectListConfig]
     ${
       products
         ? `
@@ -95,6 +107,7 @@ export const fieldsTypes = ({ products }) => `
     tempFieldId: String
     logics: [LogicInput]
     locationOptions: [LocationOptionInput]
+    objectListConfigs: [objectListConfigInput]
     ${fieldCommonFields}
   }
 
@@ -129,7 +142,7 @@ const fieldsCommonFields = `
   logic: LogicInput
   searchable: Boolean
   showInCard: Boolean
-  keys: [String]
+  objectListConfigs: [objectListConfigInput]
 `;
 
 export const fieldsMutations = `
