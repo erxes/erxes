@@ -29,7 +29,6 @@ type Props = {
   onChange: (params: {
     fieldId: string;
     value: FieldValue;
-    associatedFieldId?: string;
     groupId?: string;
   }) => void;
 };
@@ -225,7 +224,6 @@ export default class Field extends React.Component<Props, State> {
     onChange({
       fieldId: field._id,
       value,
-      associatedFieldId: field.associatedFieldId,
       groupId: field.groupId
     });
   };
