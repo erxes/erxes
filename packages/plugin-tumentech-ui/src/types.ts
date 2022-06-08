@@ -151,7 +151,10 @@ export interface ICarDoc {
   liftWagonCapacityValue?: string;
 
   attachments?: any;
-  fourAttachments?: any;
+  frontAttachments?: any;
+  leftAttachments?: any;
+  rightAttachments?: any;
+  backAttachments?: any;
   floorAttachments?: any;
   transformationAttachments?: any;
   meterWarranty?: Date;
