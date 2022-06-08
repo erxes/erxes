@@ -1,8 +1,7 @@
-import { ImportHistory } from './../../../db/models';
 import { fetchSegment } from '../../../messageBroker';
-import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery'
-
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { paginate, getImportCsvInfo, getCsvHeadersInfo } from '../../utils';
+import { IContext } from 'src/connectionResolvers';
 
 const importHistoryQueries = {
   async importHistoryGetTypes() {
@@ -35,7 +34,8 @@ const importHistoryQueries = {
    */
   async importHistories(
     _root,
-    { type, ...args }: { page: number; perPage: number; type: string }
+    { type, ...args }: { page: number; perPage: number; type: string },
+    { models }: IContext
   ) {
     const filter: { [key: string]: any } = {};
 
@@ -43,17 +43,21 @@ const importHistoryQueries = {
       filter['contentTypes.contentType'] = type;
     }
 
-    const list = await paginate(ImportHistory.find(filter), args).sort({
+    const list = await paginate(models.ImportHistory.find(filter), args).sort({
       date: -1
     });
 
-    const count = ImportHistory.find(filter).countDocuments();
+    const count = models.ImportHistory.find(filter).countDocuments();
 
     return { list, count };
   },
 
-  async importHistoryDetail(_root, { _id }: { _id: string }) {
-    const importHistory = await ImportHistory.getImportHistory(_id);
+  async importHistoryDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    const importHistory = await models.ImportHistory.getImportHistory(_id);
 
     importHistory.errorMsgs = (importHistory.errorMsgs || []).slice(0, 100);
 
@@ -102,11 +106,17 @@ const importHistoryQueries = {
 
   async importHistoryPreviewExportCount(
     _root,
-    { segmentId }: { segmentId: string; contentType: string }
+    { segmentId }: { segmentId: string; contentType: string },
+    { subdomain }
   ) {
     if (segmentId) {
-      return fetchSegment(segmentId, { returnCount: true });
+      return fetchSegment(subdomain, segmentId, {
+        returnCount: true,
+        subdomain
+      });
     }
+
+    return 'All';
   },
 
   async importHistoryGetExportableServices() {

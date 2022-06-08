@@ -15,6 +15,7 @@ import {
 import { renderText } from 'modules/settings/importExport/utils';
 import Icon from 'modules/common/components/Icon';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
+import Tip from 'modules/common/components/Tip';
 
 type Props = {
   history?: any;
@@ -153,6 +154,14 @@ class HistoryRow extends React.Component<Props> {
           return <span key={Math.random()}>{value.contentType} &nbsp;</span>;
         }
       });
+    }
+
+    if (history.error) {
+      return (
+        <Tip placement="top" text={history.error}>
+          <TextInfo textStyle="danger"> failed </TextInfo>
+        </Tip>
+      );
     }
 
     return (
