@@ -301,6 +301,10 @@ const InputBar = styledTS<{ type?: string }>(styled.div)`
   }
 `;
 
+const MarginRight = styled.div`
+  margin-right: ${dimensions.unitSpacing}px;
+`;
+
 export {
   MarkdownWrapper,
   FlexItem,
@@ -317,5 +321,6 @@ export {
   SidebarList,
   ContentBox,
   LogoContainer,
-  InputBar
+  InputBar,
+  MarginRight
 };
