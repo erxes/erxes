@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { IObjectListConfig } from '../types';
+import { useState } from 'react';
 
 type Props = {
   objectListConfigs: IObjectListConfig[];
@@ -11,22 +12,20 @@ type Props = {
 
 export default function ObjectListItem(props: Props) {
   const { object, objectListConfigs, index, onEdit } = props;
-
-  const entries = Object.keys(object);
-
-  const onFocus = (_event: any) => {
-    onEdit(index);
-  };
+  const keys = Object.keys(object);
 
   const onChange = (e: any) => {
     props.onChange(index, e.target.id, e.target.value);
   };
 
+  const onFocus = (_event: any) => {
+    onEdit(index);
+  };
+
   return (
     <>
-      {entries.map((e: any) => {
-        const key = e[0];
-        const value: any = e[1] || '';
+      {keys.map((key: string) => {
+        const value: any = object[key] || '';
 
         if (!objectListConfigs) {
           return null;
@@ -40,33 +39,38 @@ export default function ObjectListItem(props: Props) {
 
         if (config.type === 'text') {
           return (
-            <>
+            <form>
               <p>{config.label}</p>
-              <input
-                id={key}
-                type="text"
-                value={value}
-                placeholder={`${config.label}`}
-                onChange={onChange}
-                onFocus={onFocus}
-                className="form-control"
-              />
-            </>
+              <label>
+                <input
+                  id={key}
+                  type="text"
+                  value={value}
+                  // state[key] ||
+                  placeholder={`${config.label}`}
+                  onChange={onChange}
+                  onFocus={onFocus}
+                  className="form-control"
+                />
+              </label>
+            </form>
           );
         }
         if (config.type === 'textarea') {
           return (
-            <>
+            <form>
               <p>{config.label}</p>
-              <textarea
-                id={key}
-                value={value}
-                placeholder={`${config.label}`}
-                onChange={onChange}
-                onFocus={onFocus}
-                className="form-control"
-              />
-            </>
+              <label>
+                <textarea
+                  id={key}
+                  value={value}
+                  placeholder={`${config.label}`}
+                  onChange={onChange}
+                  onFocus={onFocus}
+                  className="form-control"
+                />
+              </label>
+            </form>
           );
         }
       })}
