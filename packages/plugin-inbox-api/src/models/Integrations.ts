@@ -183,7 +183,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async findLeadIntegrations(query: any, args: any) {
       const {
-        sortField = 'name',
+        sortField = 'createdDate',
         sortDirection = -1,
         page = 1,
         perPage = 20
@@ -191,6 +191,15 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
       return models.Integrations.aggregate([
         { $match: query },
+        {
+          $lookup: {
+            from: 'forms',
+            localField: 'formId',
+            foreignField: '_id',
+            as: 'form'
+          }
+        },
+        { $unwind: '$form' },
         {
           $project: {
             isActive: 1,
@@ -200,7 +209,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
             formId: 1,
             kind: 1,
             leadData: 1,
-            createdUserId: 1
+            createdUserId: 1,
+            createdDate: '$form.createdDate'
           }
         },
         {
