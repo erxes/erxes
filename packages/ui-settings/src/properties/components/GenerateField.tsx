@@ -17,8 +17,8 @@ import { IOption } from '@erxes/ui/src/types';
 import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import { __ } from '@erxes/ui/src/utils/core';
 import Map from '@erxes/ui/src/components/Map';
-import { MapContainer } from '@erxes/ui/src/styles/main';
 import { Button, Icon } from '@erxes/ui/src/components';
+import { MapContainer } from '@erxes/ui/src/styles/main';
 import ObjectList from './ObjectList';
 
 type Props = {
