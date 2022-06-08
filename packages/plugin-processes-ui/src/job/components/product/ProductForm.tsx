@@ -40,6 +40,7 @@ type Props = {
 type State = {
   needProducts: IProductsDataDocument[];
   resultProducts: IProductsDataDocument[];
+  categoryId: string;
 };
 
 class Form extends React.Component<Props, State> {
@@ -53,7 +54,8 @@ class Form extends React.Component<Props, State> {
 
     this.state = {
       needProducts: needProducts ? needProducts : [],
-      resultProducts: resultProducts ? resultProducts : []
+      resultProducts: resultProducts ? resultProducts : [],
+      categoryId: ''
     };
 
     console.log('constructor end');
@@ -85,6 +87,10 @@ class Form extends React.Component<Props, State> {
     console.log('remove product', id, type, products, filteredUoms);
 
     this.setState({ [type]: filteredUoms });
+  };
+
+  onChangeCategory = (categoryId: string) => {
+    this.setState({ categoryId });
   };
 
   onChange = (id, type, formType, e) => {
@@ -170,8 +176,8 @@ class Form extends React.Component<Props, State> {
       <ProductChooser
         {...props}
         onSelect={productOnChange}
-        // onChangeCategory={this.onChangeCategory}
-        categoryId=""
+        onChangeCategory={this.onChangeCategory}
+        categoryId={this.state.categoryId}
         data={{
           name: 'Product',
           products: currentProduct ? [currentProduct] : []
