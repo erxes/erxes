@@ -14,9 +14,10 @@ import {
   Templates
 } from '../styles';
 import Form from './Form';
-import CategoryList from '@erxes/ui-settings/src/templates/containers/productCategory/CategoryList';
 import { EMAIL_TEMPLATE_STATUSES, EMAIL_TEMPLATE_TIPTEXT } from '../constants';
 import Tip from '@erxes/ui/src/components/Tip';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { router } from 'coreui/utils';
 
 type Props = {
   queryParams: any;
@@ -25,7 +26,27 @@ type Props = {
   changeStatus: (_id: string, status: string) => void;
 } & ICommonListProps;
 
-class EmailTemplateList extends React.Component<Props> {
+type State = {
+  items: any;
+  searchValue: string;
+};
+
+class EmailTemplateList extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      items: props.objects,
+      searchValue: ''
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.objects !== this.props.objects) {
+      this.setState({ items: nextProps.objects });
+    }
+  }
+
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
@@ -87,8 +108,8 @@ class EmailTemplateList extends React.Component<Props> {
     );
   };
 
-  renderRow({ objects }) {
-    return objects.map((object, index) => (
+  renderRow = () => {
+    return this.state.items.map((object, index) => (
       <Template key={index}>
         <TemplateBox>
           <Actions>
@@ -105,10 +126,27 @@ class EmailTemplateList extends React.Component<Props> {
         <h5>{object.name}</h5>
       </Template>
     ));
-  }
+  };
 
-  renderContent = props => {
-    return <Templates>{this.renderRow(props)}</Templates>;
+  searchHandler = event => {
+    const searchValue = event.target.value.toLowerCase();
+    const { history, objects } = this.props;
+
+    router.setParams(history, { searchValue: event.target.value });
+
+    let updatedObjects = objects;
+
+    if (searchValue) {
+      updatedObjects = objects.filter(p =>
+        p.name.toLowerCase().includes(searchValue)
+      );
+    }
+
+    this.setState({ items: updatedObjects });
+  };
+
+  renderContent = () => {
+    return <Templates>{this.renderRow()}</Templates>;
   };
 
   render() {
@@ -135,14 +173,19 @@ class EmailTemplateList extends React.Component<Props> {
           />
         }
         renderForm={this.renderForm}
-        // rightActionBar={true}
         renderContent={this.renderContent}
         {...this.props}
         queryParams={this.props.queryParams}
         history={this.props.history}
-        // hasBorder={true}
-        // transparent={true}
-        leftSpacing={true}
+        additionalButton={
+          <FormControl
+            type="text"
+            placeholder={__('Type to search')}
+            onChange={this.searchHandler}
+            value={router.getParam(this.props.history, 'searchValue')}
+            autoFocus={true}
+          />
+        }
       />
     );
   }
