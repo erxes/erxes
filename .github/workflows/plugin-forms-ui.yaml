@@ -8,6 +8,7 @@ on:
       - "packages/erxes-ui/**"
       - "packages/ui-plugin-template/**"
       - "packages/ui-forms/**"
+      - "packages/ui-settings/**"
       - "packages/plugin-forms-ui/**"
       - ".github/workflows/plugin-forms-ui.yaml"
 
