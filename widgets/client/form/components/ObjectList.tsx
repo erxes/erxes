@@ -61,7 +61,6 @@ export default function ObjectList(props: Props) {
           type="button"
           className="erxes-objectlist-cancel-button"
           onClick={onClickCancel}
-          // style={style}
         >
           Discard
         </button>
@@ -69,7 +68,6 @@ export default function ObjectList(props: Props) {
           type="button"
           className="erxes-objectlist-button"
           onClick={onClickRemove}
-          // style={style}
         >
           Remove
         </button>
