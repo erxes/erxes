@@ -1,9 +1,7 @@
-import { Button } from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils/core';
-import React, { useState, useEffect } from 'react';
-import { ObjectListItemContainer } from '../styles';
+import { useState, useEffect } from 'react';
+import * as React from 'react';
 import ObjectListItem from './ObjectListItem';
-import { IObjectListConfig } from '@erxes/ui/src/types';
+import { IObjectListConfig } from '../types';
 
 type Props = {
   objectListConfigs: IObjectListConfig[];
@@ -59,22 +57,20 @@ export default function ObjectList(props: Props) {
 
     return (
       <>
-        <Button
-          btnStyle="simple"
+        <button
           type="button"
+          className="erxes-objectlist-cancel-button"
           onClick={onClickCancel}
-          icon="times-circle"
         >
           Discard
-        </Button>
-        <Button
-          btnStyle="danger"
+        </button>
+        <button
           type="button"
+          className="erxes-objectlist-button"
           onClick={onClickRemove}
-          icon="minus-circle"
         >
           Remove
-        </Button>
+        </button>
       </>
     );
   };
@@ -82,7 +78,7 @@ export default function ObjectList(props: Props) {
   return (
     <>
       {(objects || []).map((object, index) => (
-        <ObjectListItemContainer key={index}>
+        <div className="object-list-item" key={index}>
           <ObjectListItem
             index={index}
             objectListConfigs={objectListConfigs}
@@ -91,7 +87,7 @@ export default function ObjectList(props: Props) {
             onChange={onChangeValue}
           />
           {renderButtons(index)}
-        </ObjectListItemContainer>
+        </div>
       ))}
     </>
   );

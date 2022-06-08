@@ -950,7 +950,7 @@ export const sendMobileNotification = async (
           data: data || {}
         });
       } catch (e) {
-        throw new Error(e);
+        debugError(`Error occurred during firebase send: ${e.message}`);
       }
     }
   }

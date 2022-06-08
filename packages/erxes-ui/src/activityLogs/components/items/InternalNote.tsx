@@ -14,6 +14,7 @@ import Form from '@erxes/ui/src/internalNotes/components/Form';
 import { IInternalNote } from '@erxes/ui/src/internalNotes/types';
 import React from 'react';
 import xss from 'xss';
+import { urlify } from '@erxes/ui-inbox/src/inbox/utils';
 
 type Props = {
   activity: any;
@@ -77,7 +78,7 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
     return (
       <ActivityContent
         isInternalNote={true}
-        dangerouslySetInnerHTML={{ __html: xss(content) }}
+        dangerouslySetInnerHTML={{ __html: xss(urlify(content)) }}
         onClick={isCurrentUserNote ? this.onEditing : undefined}
       />
     );

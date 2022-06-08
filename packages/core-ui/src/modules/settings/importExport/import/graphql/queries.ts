@@ -39,6 +39,7 @@ const importHistories = `
         attachments
         removed
         user 
+        error
         }
       count 
     }
