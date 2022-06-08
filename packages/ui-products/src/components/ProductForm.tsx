@@ -172,7 +172,7 @@ class Form extends React.Component<Props, State> {
     ));
   }
 
-  onComboEvent = (variable: string, id = 0, e) => {
+  onComboEvent = (variable: string, e) => {
     let value = '';
 
     switch (variable) {
@@ -180,7 +180,7 @@ class Form extends React.Component<Props, State> {
         value = e;
         break;
       case 'uomId':
-        value = e.value;
+        value = e ? e.value : '';
         break;
       default:
         value = e.target.value;
