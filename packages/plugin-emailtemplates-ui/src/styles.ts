@@ -8,6 +8,28 @@ const Templates = styled.div`
   padding: ${dimensions.coreSpacing}px;
   overflow: auto;
   flex-wrap: wrap;
+
+  > div {
+    flex-basis: 50%;
+    display: flex;
+    flex-shrink: 0;
+
+    @media (min-width: 480px) {
+      flex-basis: 97%;
+    }
+
+    @media (min-width: 768px) {
+      flex-basis: 34%;
+    }
+
+    @media (min-width: 1170px) {
+      flex-basis: 31%;
+    }
+
+    @media (min-width: 1400px) {
+      flex-basis: 23.4%;
+    }
+  }
 `;
 
 const IframePreview = styled.div`
