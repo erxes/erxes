@@ -27,9 +27,6 @@ function Config({ save, data, closeModal, removedata }: Props) {
   const [configs, setConfigs] = useState([]);
   const [configsData, setConfigsData] = useState(data ? data : []);
 
-  // useEffect(() => {
-  // }, [configs]);
-
   useEffect(() => {
     data.map(value => {
       delete value.__typename;
@@ -283,13 +280,12 @@ function Config({ save, data, closeModal, removedata }: Props) {
             <ControlLabel>Start time (Hour)</ControlLabel>
           </FlexItem>
           <FlexItem>
-            <ControlLabel>end time (Hour)</ControlLabel>
+            <ControlLabel>End time (Hour)</ControlLabel>
           </FlexItem>
           <FlexItem>
-            <ControlLabel>action</ControlLabel>
+            <ControlLabel>Action</ControlLabel>
           </FlexItem>
         </FlexRow>
-        <br />
         {renderConfigData()}
         {renderConfig()}
         <Button

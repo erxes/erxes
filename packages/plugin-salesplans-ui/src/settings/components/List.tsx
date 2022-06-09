@@ -15,7 +15,7 @@ import { Capitalize, RowTitle } from '../styles';
 import ModalTrigger from '@erxes/ui/src/components//ModalTrigger';
 import DateCooserContainer from '../containers/DateChooser';
 import { Link } from 'react-router-dom';
-// import Item from "../containers/Item";
+
 type Props = {
   // type: any;
   data: any;

@@ -2,16 +2,12 @@ import React, { useEffect } from 'react';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { withProps } from '@erxes/ui/src/utils/core';
-import { useQuery, useMutation, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import Config from '../components/Config';
 import { queries, mutations } from '../graphql';
 import { Alert } from '@erxes/ui/src/utils';
 import { Spinner } from '@erxes/ui/src/components';
-// class ConfigContainer extends React.Component {
-//   render() {
-//     return <Config></Config>;
-//   }
-// }
+
 type Props = {
   closeModal: () => void;
 };

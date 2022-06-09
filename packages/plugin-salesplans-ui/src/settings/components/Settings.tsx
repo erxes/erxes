@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Wrapper } from '@erxes/ui/src';
 import { __, withProps } from '@erxes/ui/src/utils';
-import * as compose from 'lodash.flowright';
 import { Button } from '@erxes/ui/src';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import CreateSalesPlanContainer from '../containers/CreateSalesPlan';
@@ -18,7 +17,7 @@ type Props = {
   refetch: () => void;
 };
 
-function Home({ listData, refetch }: Props) {
+function Settings({ listData, refetch }: Props) {
   const [data, setData] = useState(listData);
 
   useEffect(() => {
@@ -94,15 +93,10 @@ function Home({ listData, refetch }: Props) {
   };
 
   const renderList = () => {
-    return <ListContainer data={data} refetch={refetch}></ListContainer>;
+    return <ListContainer data={data} refetch={refetch} />;
   };
 
   const renderAdd = () => {
-    const trigger = (
-      <Button type="button" icon="plus-circle" uppercase={false}>
-        Create sales plan
-      </Button>
-    );
     const salesPlan = formProps => {
       return (
         <CreateSalesPlanContainer
@@ -121,26 +115,31 @@ function Home({ listData, refetch }: Props) {
     };
 
     const createLabel = (
-      <Button type="button" icon="processor" uppercase={false}>
+      <Button type="button" icon="processor" size="small" uppercase={false}>
         Manage Labels
       </Button>
     );
 
     const manageConfig = (
-      <Button type="button" icon="processor" uppercase={false}>
-        Manage Day Configs s
+      <Button type="button" icon="processor" size="small" uppercase={false}>
+        Manage Day Configs
+      </Button>
+    );
+
+    const createPlan = (
+      <Button
+        type="button"
+        btnStyle="success"
+        icon="plus-circle"
+        size="small"
+        uppercase={false}
+      >
+        Create sales plan
       </Button>
     );
 
     return (
       <>
-        <ModalTrigger
-          title={'Create sales plan'}
-          autoOpenKey="showKBAddModal"
-          trigger={trigger}
-          content={salesPlan}
-          enforceFocus={false}
-        />
         <ModalTrigger
           size="lg"
           title={'Manage Labels'}
@@ -157,6 +156,13 @@ function Home({ listData, refetch }: Props) {
           content={dayConfig}
           enforceFocus={false}
         />
+        <ModalTrigger
+          title={'Create sales plan'}
+          autoOpenKey="showKBAddModal"
+          trigger={createPlan}
+          content={salesPlan}
+          enforceFocus={false}
+        />
       </>
     );
   };
@@ -167,16 +173,15 @@ function Home({ listData, refetch }: Props) {
         <Wrapper.Header
           title={__('Salesplans Plan')}
           breadcrumb={[
-            { title: __('Settings'), link: '/plugin-salesplans/settings' },
+            { title: __('Settings'), link: '/settings' },
             { title: __('Salesplans Plan') }
           ]}
         />
       }
       content={renderList()}
-      actionBar={
-        <Wrapper.ActionBar right={renderAdd()} left={renderFilter()} />
-      }
+      actionBar={<Wrapper.ActionBar right={renderAdd()} left={<></>} />}
     ></Wrapper>
   );
 }
-export default Home;
+
+export default Settings;

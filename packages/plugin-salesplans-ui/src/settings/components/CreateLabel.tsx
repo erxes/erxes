@@ -308,7 +308,6 @@ function Config({
             placeholder={__('Choose a type')}
             options={labelsType}
             value={type}
-            style={{ width: 300 }}
             onChange={e => changeType(e.value)}
             clearable={false}
             searchable={false}
