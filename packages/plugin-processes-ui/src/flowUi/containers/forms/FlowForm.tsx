@@ -5,7 +5,7 @@ import { router, withProps, Alert } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import { graphql } from 'react-apollo';
 import { IUser } from '@erxes/ui/src/auth/types';
-import AutomationForm from '../../components/forms/AutomationForm';
+import FlowForm from '../../components/forms/FlowForm';
 import {
   queries as flowQueries,
   mutations as flowMutations
@@ -88,7 +88,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     jobRefers
   };
 
-  return <AutomationForm {...updatedProps} />;
+  return <FlowForm {...updatedProps} />;
 };
 
 export default withProps<Props>(

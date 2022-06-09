@@ -11,7 +11,7 @@ const ProductList = asyncComponent(() =>
 
 const Details = asyncComponent(() =>
   import(
-    /* webpackChunkName: "AutomationDetails" */ '../automation/containers/forms/EditAutomation'
+    /* webpackChunkName: "FlowForm" */ '../flowUi/containers/forms/FlowForm'
   )
 );
 

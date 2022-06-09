@@ -100,22 +100,6 @@ export const createInitialConnections = (actions: IJob[], instance: any) => {
         anchors: ['Right', 'Left']
       })
     );
-
-    // if (jobIds.length && jobIds[1]) {
-    //   instance.connect({
-    //     source: `action-${action.id}`,
-    //     target: `action-${jobIds[1]}`,
-    //     anchors: ['Right', 'Left']
-    //   });
-    // }
-
-    // if (jobIds.length && jobIds[0]) {
-    //   instance.connect({
-    //     source: `action-${action.id}`,
-    //     target: `action-${jobIds[0]}`,
-    //     anchors: ['Right', 'Left']
-    //   });
-    // }
   }
 };
 

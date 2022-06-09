@@ -10,7 +10,6 @@ import {
   Title,
   RightDrawerContainer,
   AutomationFormContainer,
-  BackIcon,
   CenterBar,
   ToggleWrapper,
   ZoomActions,
@@ -32,7 +31,7 @@ import {
   connection,
   morePoint
 } from '../../utils';
-import JobForm from './actions/subForms/CustomCode';
+import NewJobForm from './actions/subForms/NewJobForm';
 import Icon from '@erxes/ui/src/components/Icon';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import { Link } from 'react-router-dom';
@@ -555,7 +554,7 @@ class AutomationForm extends React.Component<Props, State> {
       if (showAction && activeAction) {
         return (
           <>
-            <JobForm
+            <NewJobForm
               activeAction={activeAction}
               addAction={this.addAction}
               closeModal={this.onBackAction}
