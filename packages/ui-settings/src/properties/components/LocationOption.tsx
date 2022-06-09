@@ -30,14 +30,11 @@ function LocationOption(props: Props) {
   };
 
   const onChangeLat = e => {
-    option.lat = Number(e.target.value);
-
-    onChangeOption(option, index);
+    onChangeOption({ ...option, lat: Number(e.target.value) }, index);
   };
 
   const onChangeLng = e => {
-    option.lng = Number(e.target.value);
-    onChangeOption(option, index);
+    onChangeOption({ ...option, lng: Number(e.target.value) }, index);
   };
 
   const remove = () => {
@@ -52,7 +49,6 @@ function LocationOption(props: Props) {
             <RowSmall>
               <ControlLabel htmlFor="lat">{__('Latitude')}:</ControlLabel>
               <FormControl
-                defaultValue={option.lat}
                 value={option.lat}
                 name="lat"
                 onChange={onChangeLat}
@@ -62,7 +58,6 @@ function LocationOption(props: Props) {
             <Column>
               <ControlLabel htmlFor="lng">{__('Longitude')}:</ControlLabel>
               <FormControl
-                defaultValue={option.lng}
                 value={option.lng}
                 name="lng"
                 onChange={onChangeLng}

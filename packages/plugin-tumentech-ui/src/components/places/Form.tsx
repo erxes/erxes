@@ -10,7 +10,7 @@ import {
   ILocationOption
 } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { IPlace } from '../../types';
 import { PROVINCES } from '../../constants';
 import Select from 'react-select-plus';
@@ -62,11 +62,11 @@ const PlaceForm = (props: Props) => {
     setProvince(option.value);
   };
 
-  const onChangeLocation = option => {
+  const onChangeMarker = option => {
     setCenter(option);
   };
 
-  const onChangeLocationOption = (option, index) => {
+  const onChangeLocationOption = option => {
     setCenter(option);
   };
 
@@ -80,10 +80,6 @@ const PlaceForm = (props: Props) => {
         setCode(value);
     }
   };
-
-  useEffect(() => {
-    setCenter(center);
-  }, [center]);
 
   const renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = props;
@@ -149,7 +145,7 @@ const PlaceForm = (props: Props) => {
               }}
               isPreview={false}
               drawPolyLines={false}
-              onChangeMarker={onChangeLocation}
+              onChangeMarker={onChangeMarker}
             />
           </MapContainer>
 
