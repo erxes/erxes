@@ -27,10 +27,11 @@ interface IListArgs {
 
 export const countBySegment = async (
   subdomain: string,
-  qb: any,
-  counts: ICountBy
+  contentType: string,
+  qb: any
 ): Promise<ICountBy> => {
   // Count cocs by segments
+  const counts: ICountBy = {};
   let segments: any[] = [];
 
   segments = await sendSegmentsMessage({
@@ -71,7 +72,7 @@ export const countByCars = async (
 
   switch (only) {
     case 'bySegment':
-      await countBySegment(subdomain, qb, counts);
+      await countBySegment(subdomain, 'tumentech:car', qb);
       break;
   }
 

@@ -1,7 +1,13 @@
 import { paginate } from 'erxes-api-utils';
 import { checkPermission } from '@erxes/api-utils/src';
 import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
-import { Builder } from './carQueryBuilder';
+import { Builder, IListArgs } from './carQueryBuilder';
+import { IContext } from '../../../connectionResolver';
+import { countBySegment } from '../../../carUtils';
+
+interface ICountArgs extends IListArgs {
+  only?: string;
+}
 
 const generateFilter = async (params, commonQuerySelector, subdomain) => {
   const filter: any = commonQuerySelector;
@@ -99,7 +105,7 @@ const carQueries = {
   ) => {
     const filter = await generateFilter(params, commonQuerySelector, subdomain);
 
-    const qb = new Builder(models, subdomain, params);
+    const qb = new Builder(models, subdomain, params, '');
 
     await qb.buildAllQueries();
 
@@ -118,6 +124,38 @@ const carQueries = {
     };
 
     return response;
+  },
+
+  /**
+   * Group car counts by segments
+   */
+  async carCounts(
+    _root,
+    args: ICountArgs,
+    { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext
+  ) {
+    const counts = {
+      bySegment: {},
+      byTag: {},
+      byBrand: {},
+      byLeadStatus: {}
+    };
+
+    const { only } = args;
+
+    const qb = new Builder(models, subdomain, args, {
+      commonQuerySelector,
+      commonQuerySelectorElk
+    });
+
+    switch (only) {
+      case 'bySegment':
+        counts.bySegment = await countBySegment(subdomain, 'tumentech:car', qb);
+
+        break;
+    }
+
+    return counts;
   },
 
   carCategoryMatchProducts: async (

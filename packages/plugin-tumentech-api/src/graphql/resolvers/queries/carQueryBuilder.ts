@@ -40,8 +40,14 @@ export class Builder {
   public subdomain: string;
   public params: IListArgs;
   public queries = {} as any;
+  public context: any;
 
-  constructor(models: IModels, subdomain: string, params: IListArgs) {
+  constructor(
+    models: IModels,
+    subdomain: string,
+    params: IListArgs,
+    context: any
+  ) {
     this.models = models;
     this.subdomain = subdomain;
     this.params = params;
